@@ -1,0 +1,64 @@
+
+.fc-activity {
+  background: @color-white;
+  border: 1px solid @color-decor9;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.30);
+  border-radius: 3px;
+  padding: 20px;
+
+  @initials-width: 40px;
+  @initials-indent: 12px;
+
+  &__head-content {
+    display: flex;
+  }
+
+  &__controls {
+    align-self: flex-end;
+  }
+
+  &__body {
+    flex-grow: 1;
+
+    .initials {
+      vertical-align: top;
+      margin-right: @initials-indent;
+      width: @initials-width;
+      height: @initials-width;
+      line-height: @initials-width;
+    }
+  }
+
+  &__timestamp {
+    font-size: 13px;
+    color: @color-decor53;
+    line-height: 16px;
+    margin-bottom: 12px;
+  }
+
+  &__description {
+    display: inline-block;
+  }
+
+  &__view-more {
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  &__details {
+    font-size: 13px;
+    color: @color-decor1;
+    line-height: 18px;
+    border-top: 1px solid @color-decor9;
+    margin-top: 20px;
+    padding-left: @initials-indent + @initials-width;
+  }
+
+  &__details-head {
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 22px;
+    margin-bottom: 10px;
+    margin-top: 20px;
+  }
+}

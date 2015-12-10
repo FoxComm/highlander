@@ -5,7 +5,7 @@ import { EditButton, DeleteButton } from '../common/buttons';
 const NoteControls = props => {
   return (
     <div className="fc-notes-item-controls">
-      <UserInitials model={props.model.author}/>
+      <UserInitials {...props.model.author}/>
       <DeleteButton onClick={() => props.onDeleteClick(props.model)} />
       <EditButton onClick={() => props.onEditClick(props.model)} />
     </div>

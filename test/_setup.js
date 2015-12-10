@@ -6,6 +6,8 @@ const unexpected = require('unexpected');
 global.unexpected = unexpected
   .use(require('./_unexpected_actions'));
 
+global.TimeShift = require('./_timeshift');
+
 global.expect = (function(expect) {
   return function(target) {
     if (arguments.length > 1) {

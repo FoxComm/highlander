@@ -9,7 +9,6 @@ import TableRow from '../table/row';
 import TableCell from '../table/cell';
 import NoteControls from './controls';
 import NoteForm from './form';
-import UserInitials from '../users/initials';
 import { DateTime } from '../common/datetime';
 import ConfirmModal from '../modal/confirm';
 import { connect } from 'react-redux';

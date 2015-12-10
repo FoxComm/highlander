@@ -1,5 +1,16 @@
 import _ from 'lodash';
 
+export const statusTitles = {
+  cart: 'Cart',
+  remorseHold: 'Remorse Hold',
+  manualHold: 'Manual Hold',
+  fraudHold: 'Fraud Hold',
+  fulfillmentStarted: 'Fulfillment Started',
+  canceled: 'Canceled',
+  partiallyShipped: 'Partially Shipped',
+  shipped: 'Shipped',
+};
+
 export default class Order {
   constructor(order) {
     Object.assign(this, order);
@@ -31,5 +42,9 @@ export default class Order {
 
   get title() {
     return this.isCart ? 'Cart' : 'Order';
+  }
+
+  get statusTitle() {
+    return statusTitles[this.orderStatus];
   }
 };

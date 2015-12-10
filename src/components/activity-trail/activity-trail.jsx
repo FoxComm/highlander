@@ -1,53 +1,80 @@
+
+// libs
+import _ from 'lodash';
+import moment from 'moment';
 import React, { PropTypes } from 'react';
-import TableView from '../table/tableview';
-import UserInitials from '../users/initials';
-import ActivityTrailStore from '../../stores/activity-trail';
-import { pluralize } from 'fleck';
 
-export default class ActivityTrail extends React.Component {
+// components
+import Activity, { getActivityRepresentative } from './activities';
 
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      activities: []
-    };
-  }
-
-  componentDidMount() {
-    ActivityTrailStore.uriRoot = `${pluralize(this.props.entity.entityType)}/${this.props.entity.entityId}`;
-    ActivityTrailStore.listenToEvent('change', this);
-    ActivityTrailStore.fetch();
-  }
-
-  componentWillUnmount() {
-    ActivityTrailStore.stopListeningToEvent('change', this);
-  }
-
-  onChangeActivityTrailStore(activities) {
-    this.setState({activities: activities});
-  }
-
-  render() {
-    return (
-      <div id="activity-trail">
-        <h2>Activity Trail</h2>
-        <TableView columns={this.props.tableColumns} data={{rows: this.state.activities}}/>
-      </div>
-    );
+function createTimeMark(time, daysDiff) {
+  switch (daysDiff) {
+    case 0:
+      return {
+        type: 'mark',
+        title: 'Today',
+      };
+    case 1:
+      return {
+        type: 'mark',
+        title: 'Yesterday',
+      };
+    default:
+      return {
+        type: 'mark',
+        title: time.format('MMM DD'),
+      };
   }
 }
 
-ActivityTrail.propTypes = {
-  tableColumns: PropTypes.array,
-  entity: PropTypes.object
+export function injectTimeMarks(activities) {
+  const now = moment().endOf('day');
+
+  let latestMarkDiff = null;
+
+  const flatMap = _.flow(_.map, _.flatten);
+
+  return flatMap(activities, activity => {
+    const activityTime = moment(activity.createdAt);
+    const daysDiff = now.diff(activityTime, 'days');
+
+    if (daysDiff != latestMarkDiff) {
+      latestMarkDiff = daysDiff;
+
+      return [createTimeMark(activityTime, daysDiff), activity];
+    }
+
+    return activity;
+  });
+}
+
+const renderActivityItem = (activity, idx) => {
+  if (activity.type === 'mark') {
+    return (
+      <li className="fc-activity-trail__mark" key={`mark_${idx}`}>
+        {activity.title}
+      </li>
+    );
+  } else {
+    return <Activity activity={activity} key={`activity_${idx}`} />;
+  }
 };
 
-ActivityTrail.defaultProps = {
-  tableColumns: [
-    {field: 'createdAt', text: 'Date/Time', type: 'date'},
-    {field: 'user', text: 'Person', component: 'UserInitials'},
-    {field: 'eventName', text: 'Event'},
-    {field: 'previousState', text: 'Previous State'},
-    {field: 'newState', text: 'New State'}
-  ]
+const ActivityTrail = props => {
+  // filter only known activities
+  const activities = _.filter(props.activities, activity => !!getActivityRepresentative(activity));
+
+  const withTimeMarks = injectTimeMarks(activities);
+
+  return (
+    <ul className="fc-activity-trail">
+      {withTimeMarks.map((activity, idx) => renderActivityItem(activity, idx))}
+    </ul>
+  );
 };
+
+ActivityTrail.propTypes = {
+  activities: PropTypes.array.isRequired,
+};
+
+export default ActivityTrail;
