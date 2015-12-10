@@ -87,4 +87,28 @@ describe('Watchers', function() {
     expect(ShallowTestUtils.findWithClass(watchers, 'fc-watchers__rest-block')).not.to.be.empty;
   });
 
+  it('should render rest controll when there are more than 7 watchers', function *() {
+    const assignees = [
+      {name: 'Donkey Admin'},
+      {name: 'Admin Donkey'},
+      {name: 'Donkey Admin'},
+      {name: 'Admin Donkey'},
+      {name: 'Donkey Admin'},
+      {name: 'Admin Donkey'},
+      {name: 'Donkey Admin'},
+      {name: 'Admin Donkey'},
+      {name: 'Donkey Admin'},
+      {name: 'Admin Donkey'}
+    ];
+
+    watchers = shallowRender(
+      <Watchers watchers={[]} assignees={assignees} />
+    );
+    const cells = ShallowTestUtils.findAllWithClass(watchers, "fc-watchers__cell");
+    expect(cells).not.to.be.empty;
+    expect(cells.length).to.be.equal(assignees.length);
+    expect(ShallowTestUtils.findWithClass(watchers, 'fc-watchers__rest-cell')).not.to.be.empty;
+    expect(ShallowTestUtils.findWithClass(watchers, 'fc-watchers__rest-block')).not.to.be.empty;
+  });
+
 });

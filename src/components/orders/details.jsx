@@ -26,7 +26,7 @@ const OrderDetails = props => {
           <div className="fc-order-details-aside">
             <TotalsSummary entity={order} title={order.title} />
             <CustomerInfo order={order} />
-            <Watchers />
+            <Watchers entity={{entityType: 'Order', entityId: props.order.currentOrder.refNum}}/>
           </div>
         </div>
       </div>

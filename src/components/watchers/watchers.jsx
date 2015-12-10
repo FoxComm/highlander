@@ -1,16 +1,30 @@
+
+// libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
+import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
 
+// components
 import Panel from '../panel/panel';
 import { AddButton } from '../common/buttons';
 import UserInitials from '../users/initials';
+import { Button } from '../common/buttons';
 
+// redux
+import * as WatchersActions from '../../modules/watchers';
+
+@connect(state => state.watchers, WatchersActions)
 export default class Watchers extends React.Component {
 
   static propTypes = {
     assignees: PropTypes.array,
-    watchers: PropTypes.array
+    watchers: PropTypes.array,
+    entity: PropTypes.shape({
+      entityType: PropTypes.string,
+      entityId: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    }).isRequired
   };
 
   static defaultProps = {
@@ -28,6 +42,10 @@ export default class Watchers extends React.Component {
       {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
       {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'}
     ]
+  }
+
+  get entity() {
+    return this.props.entity;
   }
 
   get maxDisplayed() {
@@ -66,10 +84,12 @@ export default class Watchers extends React.Component {
     );
   }
 
+  @autobind
   buildHiddenRow(hiddenCells) {
+    console.log(this.props);
     return (
       <div className="fc-watchers__rest-cell">
-        <i className="fc-icon icon-list"></i>
+        <Button icon="list" onClick={this.props.toggleWatchers} />
         <div className="fc-watchers__rest-block">
           <div className="fc-watchers__users-row">
             {hiddenCells}
@@ -79,6 +99,7 @@ export default class Watchers extends React.Component {
     );
   }
 
+  @autobind
   buildRow(users, className) {
     const rowClass = classNames("fc-watchers__users-row", className);
     if (users.length <= this.maxDisplayed) {
