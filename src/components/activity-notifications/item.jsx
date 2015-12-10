@@ -78,7 +78,7 @@ const NotificationItem = (props) => {
           </div>
           <div className="fc-activity-notification-item__body">
             <div className="fc-activity-notification-item__author">
-              { !_.isEmpty(origin) && (<UserInitials model={ props.item.body.origin } />) }
+              { !_.isEmpty(origin) && (<UserInitials { ...props.item.body.origin } />) }
             </div>
             <div className="fc-activity-notification-item__text">
               { buildText(props.item) }
