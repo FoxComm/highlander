@@ -87,5 +87,18 @@
       }
     },
     "createdAt": "2015-11-07T21:14:35.996Z"
+  },
+  {
+    "id": 95,
+    "type": "added_note",
+    "data": {
+      "author": "Yax Darrel",
+      "target": "order",
+      "order": {
+        "referenceNumber": "123456789",
+        "orderStatus": "cart"
+      }
+    },
+    "createdAt": "2014-12-07T11:18:35.996Z"
   }
 ]

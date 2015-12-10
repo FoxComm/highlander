@@ -37,16 +37,37 @@
     text-align: center;
   }
 
-  .fc-activity + &__mark {
-    margin-top: 20px;
+  &__year-mark {
+    color: @color-white;
+    font-weight: 700;
+    font-size: 16px;
+    background: #3A434F;
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,0.30);
+    border-radius: 3px;
+    height: 80px;
+    line-height: 80px;
+    text-align: center;
+  }
+
+  .top-line(@height: 20px) {
+    margin-top: @height;
     &:before {
       content: "";
       position: absolute;
-      top: -21px;
+      top: -@height - 1px;
       left: 42px;
-      height: 21px;
+      height: @height + 1px;
       width: 2px;
       background: #d9d9d9;
     }
+  }
+
+  .fc-activity + &__mark,
+  &__year-mark + &__mark {
+    .top-line();
+  }
+
+  .fc-activity + &__year-mark {
+    .top-line(60px);
   }
 }

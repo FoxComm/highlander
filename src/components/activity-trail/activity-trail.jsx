@@ -31,6 +31,7 @@ export function injectTimeMarks(activities) {
   const now = moment(Date.now()).endOf('day');
 
   let latestMarkDiff = null;
+  let latestYear = now.year();
 
   const flatMap = _.flow(_.map, _.flatten);
 
@@ -38,25 +39,43 @@ export function injectTimeMarks(activities) {
     const activityTime = moment(activity.createdAt);
     const daysDiff = now.diff(activityTime, 'days');
 
+    let result = [activity];
+
     if (daysDiff != latestMarkDiff) {
       latestMarkDiff = daysDiff;
 
-      return [createTimeMark(activityTime, daysDiff), activity];
+      result = [createTimeMark(activityTime, daysDiff), ...result];
     }
 
-    return activity;
+    if (latestYear != activityTime.year()) {
+      latestYear = activityTime.year();
+
+      result = [{
+        type: 'year_mark',
+        title: `${activityTime.year()}`,
+      }, ...result];
+    }
+
+    return result;
   });
 }
 
 const renderActivityItem = (activity, idx) => {
-  if (activity.type === 'mark') {
-    return (
-      <li className="fc-activity-trail__mark" key={`mark_${idx}`}>
-        {activity.title}
-      </li>
-    );
-  } else {
-    return <Activity activity={activity} key={`activity_${idx}`} />;
+  switch (activity.type) {
+    case 'mark':
+      return (
+        <li className="fc-activity-trail__mark" key={`mark_${idx}`}>
+          {activity.title}
+        </li>
+      );
+    case 'year_mark':
+      return (
+        <li className="fc-activity-trail__year-mark" key={`mark_${idx}`}>
+          {activity.title}
+        </li>
+      );
+    default:
+      return <Activity activity={activity} key={`activity_${idx}`} />;
   }
 };
 
