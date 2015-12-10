@@ -101,14 +101,10 @@ export default class NewStoreCredit extends React.Component {
   }
 
   get scTypes() {
-    let types = {};
-    if (this.props.types) {
-      types = _.reduce(this.props.types, (acc, type) => {
-        acc[type.originType] = codeToName(type.originType);
-        return acc;
-      }, {});
-    }
-    return types;
+    return _.reduce(this.props.types, (acc, type) => {
+      acc[type.originType] = codeToName(type.originType);
+      return acc;
+    }, {});
   }
 
   get scSubtypes() {
