@@ -162,7 +162,7 @@ describe('Order Shipping Methods', function() {
       <div><ShippingMethods {...emptyProps} /></div>
     );
 
-    const emptyText = container.querySelector('.fc-content-box-empty-text');
+    const emptyText = container.querySelector('.fc-content-box__empty-text');
     expect(emptyText).to.not.equal(null);
     expect(emptyText.innerHTML).to.equal('No shipping method applied.');
     container.unmount();
@@ -186,7 +186,7 @@ describe('Order Shipping Methods', function() {
       <div><ShippingMethods {...emptyProps} /></div>
     );
 
-    const emptyText = container.querySelector('.fc-content-box-empty-text');
+    const emptyText = container.querySelector('.fc-content-box__empty-text');
     expect(emptyText).to.not.equal(null);
     expect(emptyText.innerHTML).to.equal('No shipping method applied.');
     container.unmount();
