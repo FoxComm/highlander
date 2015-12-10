@@ -17,6 +17,8 @@ Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/vivid64"
   # PostgreSQL
   config.vm.network :forwarded_port, guest: 5432, host: 5432, auto_correct: true
+
+  # Phoenix
   config.vm.network :forwarded_port, guest: 9090, host: 9090, auto_correct: true
 
   config.vm.network "private_network", ip: $vb_host
