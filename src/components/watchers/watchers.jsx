@@ -4,9 +4,14 @@ import { AddButton } from '../common/buttons';
 
 export default class Watchers extends React.Component {
 
+  static propTypes = {
+    assignees: PropTypes.array,
+    watchers: PropTypes.array
+  };
+
   get assignees() {
     return (
-      <div className="fc-watchers__empty-list">
+      <div className="fc-watchers__empty-list fc-watchers__assignees-empty">
         Unassigned
       </div>
     );
@@ -14,7 +19,7 @@ export default class Watchers extends React.Component {
 
   get watchers() {
     return (
-      <div className="fc-watchers__empty-list">
+      <div className="fc-watchers__empty-list fc-watchers__watchers-empty">
         Unwatched
       </div>
     );
@@ -32,7 +37,7 @@ export default class Watchers extends React.Component {
               <a className="fc-watchers__link" href="#">take it</a>
             </div>
           </div>
-          <div className="fc-watchers__users-row">
+          <div className="fc-watchers__users-row fc-watchers__assignees">
             <AddButton className="fc-watchers__add-button"/>
             {this.assignees}
           </div>
@@ -44,7 +49,7 @@ export default class Watchers extends React.Component {
               <a className="fc-watchers__link" href="#">watch</a>
             </div>
           </div>
-          <div className="fc-watchers__users-row">
+          <div className="fc-watchers__users-row fc-watchers__watchers">
             <AddButton className="fc-watchers__add-button"/>
             {this.watchers}
           </div>
