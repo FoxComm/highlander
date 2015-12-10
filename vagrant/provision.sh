@@ -210,9 +210,21 @@ runService bottledwater
 echo \    consumer
 runService consumer
 
+echo
+echo "Allowing unprivileged user to view/filter journalctl logs"
+usermod -a -G systemd-journal vagrant
+
+echo
 echo All started and probably running! Run:
 echo "vagrant ssh -c 'sudo journalctl --pager-end --catalog --follow --lines=100'"
 echo "to watch current execution log (probably just SBT being slow)."
+echo "Use 'journalctl -u foo -u bar' to only view messages for 'foo' and 'bar' services"
+# http://wiki.bash-hackers.org/syntax/pe#substring_removal
+for FULL_NAME in /vagrant/vagrant/services/*; do
+  SERVICE_NAME=${FULL_NAME##*/} # Remove path (everything up to and including last slash)
+  SERVICES="$SERVICES ${SERVICE_NAME%.*} " # Remove extension and append space
+done
+echo "Service list: $SERVICES"
 echo "To test, run:"
 echo "curl -s -XGET 'http://localhost:9200/phoenix/customers_search_view/_search' | jq '.'"
 echo
