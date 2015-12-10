@@ -4,7 +4,8 @@ import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 
 export const toggleWatchers = createAction('WATCHERS_TOGGLE', (entity, group) => [entity, group]);
-export const showAddingModal = createAction('ADDING_MODAL_SHOW', (entity, group) => [entity, group]);
+export const showAddingModal = createAction('WATCHERS_ADDING_MODAL_SHOW', (entity, group) => [entity, group]);
+export const closeAddingModal = createAction('WATCHERS_ADDING_MODAL_CLOSE', (entity, group) => [entity, group]);
 
 const initialState = {};
 
@@ -15,7 +16,10 @@ const reducer = createReducer({
   },
   [showAddingModal]: (state, [{entityType, entityId}, group]) => {
     return assoc(state, [entityType, entityId, 'modalDisplayed'], true);
-  }
+  },
+  [closeAddingModal]: (state, [{entityType, entityId}, group]) => {
+    return assoc(state, [entityType, entityId, 'modalDisplayed'], false);
+  },
 }, initialState);
 
 export default reducer;

@@ -11,7 +11,7 @@ import Panel from '../panel/panel';
 import { AddButton } from '../common/buttons';
 import UserInitials from '../users/initials';
 import { Button } from '../common/buttons';
-import { ModalContainer } from '../modal/base';
+import AddWatcherModal from './new-modal';
 
 // redux
 import * as WatchersActions from '../../modules/watchers';
@@ -191,9 +191,9 @@ export default class Watchers extends React.Component {
             {this.watchers}
           </div>
         </div>
-        <ModalContainer isVisible={this.props.data.modalDisplayed}>
-          Add new watcher!
-        </ModalContainer>
+        <AddWatcherModal isVisible={this.props.data.modalDisplayed}
+                         entity={this.entity}
+                         cancelAction={() => this.props.closeAddingModal(this.entity)}/>
       </Panel>
     );
   }
