@@ -61,13 +61,10 @@ final case class PhoenixConnectionInfo(
  * using a sequence of activity connectors
  */
 class ActivityProcessor(phoenix : PhoenixConnectionInfo, connectors: Seq[ActivityConnector])
-(implicit ec: ExecutionContext)
+(implicit ec: ExecutionContext, ac: ActorSystem, mat: Materializer, cp: ConnectionPoolSettings)
   extends JsonProcessor {
 
     implicit val formats: DefaultFormats.type = DefaultFormats
-    implicit val system = ActorSystem("system")
-    implicit val materializer = ActorMaterializer()
-
 
     val activityJsonFields = Map(
       "id" → "id", 
@@ -106,13 +103,6 @@ class ActivityProcessor(phoenix : PhoenixConnectionInfo, connectors: Seq[Activit
       //TODO, check request and report
     }
 
-    
-    lazy final val connectionPoolSettings = 
-      ConnectionPoolSettings.create(implicitly[ActorSystem]).copy(
-      maxConnections  = 32,
-      maxOpenRequests = 32,
-      maxRetries      = 0)
-
     private def post(uri: String, body: String) : HttpResponse = { 
       val request = HttpRequest(
         method = HttpMethods.POST,
@@ -122,7 +112,7 @@ class ActivityProcessor(phoenix : PhoenixConnectionInfo, connectors: Seq[Activit
           ByteString(body)
         )).addHeader(Authorization(BasicHttpCredentials(phoenix.user, phoenix.pass)))
 
-      val post = Http().singleRequest(request, connectionPoolSettings)
+      val post = Http().singleRequest(request, cp)
       Await.result(post, 10 seconds)
     }
 }
