@@ -14,7 +14,7 @@ class MultiTopicConsumer(
   groupId: String, 
   broker: String, 
   processor: MessageProcessor,
-  timeout: Long = 1000) {
+  timeout: Long = 100) {
 
   val props = new Properties()
   props.put("bootstrap.servers", broker)

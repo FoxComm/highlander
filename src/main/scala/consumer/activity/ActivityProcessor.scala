@@ -4,13 +4,6 @@ import java.time.Instant
 
 import scala.concurrent.ExecutionContext
 
-import com.sksamuel.elastic4s.{EdgeNGramTokenFilter, LowercaseTokenFilter, StandardTokenizer,
-CustomAnalyzerDefinition, ElasticClient, ElasticsearchClientUri}
-import com.sksamuel.elastic4s.ElasticDsl._
-
-import org.elasticsearch.common.settings.ImmutableSettings
-import org.elasticsearch.indices.IndexMissingException
-
 import org.json4s.JsonAST.{JValue, JInt, JObject, JField, JString}
 import org.json4s.jackson.JsonMethods._
 import org.json4s.DefaultFormats
@@ -32,7 +25,7 @@ final case class Activity(
 
 final case class Connection(
   dimension: String,
-  objectId: String,
+  objectId: BigInt,
   data: JValue,
   activityId: Int)
 
@@ -59,10 +52,10 @@ class ActivityProcessor(phoenixUri: String, connectors: Seq[ActivityConnector])
     def beforeAction()(implicit ec: ExecutionContext) {}
 
     def process(offset: Long, topic: String, inputJson: String)(implicit ec: ExecutionContext): Unit = {
-      Console.err.println(s"${topic} ${offset}: ${inputJson}")
       val activityJson = AvroJsonHelper.transformJson(inputJson, activityJsonFields)
-      val activity =  parse(activityJson).extract[Activity]
 
+      val activity =  parse(activityJson).extract[Activity]
+      Console.err.println(s"Got Activity: ${activity.id}")
       val connections = connectors.flatMap(_.process(offset, activity))
 
       process(connections)
@@ -74,6 +67,7 @@ class ActivityProcessor(phoenixUri: String, connectors: Seq[ActivityConnector])
 
     def connectUsingPhoenix(c: Connection) { 
       //This is where we call the connect endpoint in phoenix
+      Console.err.println(s"Connecting activity ${c.activityId} to (${c.dimension}, ${c.objectId})")
     }
 
 }

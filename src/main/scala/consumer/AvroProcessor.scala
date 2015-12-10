@@ -55,12 +55,21 @@ object AvroJsonHelper {
   def transformJson(json: String, fields: Map[String, String]): String = {
     // Reduce Avro type annotations
     val unwrapTypes = parse(json).transformField {
-      case JField(name, (JObject(JField(typeName, value) :: Nil))) ⇒ (name, value)
+      case JField(name, (JObject(JField(typeName, value) :: Nil))) ⇒  { 
+        (name, value)
+      }
     }
 
     // Convert escaped json fields to AST
     val unescapeJson = unwrapTypes.transformField {
-      case JField(name, JString(text)) if fields.contains(name) ⇒ (fields(name), parse(text))
+      case JField(name, JString(text)) if fields.contains(name) ⇒  {
+        //try to parse the text as json, otherwise treat it as text
+        try {
+          (fields(name), parse(text))
+        } catch { 
+          case _ : Throwable ⇒ (fields(name), JString(text))
+        }
+      }
     }
 
     compact(render(unescapeJson))

@@ -5,6 +5,7 @@ import scala.collection.JavaConversions._
 import com.typesafe.config._
 
 import consumer.activity.ActivityProcessor
+import consumer.activity.CustomerConnector
 
 /**
  * Program which consumes the activity table changes that bottledwater logs in kakfa
@@ -25,10 +26,10 @@ object ActivityMain {
     val kafkaBroker           = conf.getString(s"$env.kafka.broker")
     val kafkaGroupId          = conf.getString(s"$env.kafka.groupId")
     val activityTopic         = conf.getString(s"$env.activity.kafka.topic")
-    val phoenixUri            = conf.getString(s"$env.activity.kafka.phoenix.uri")
+    val phoenixUri            = conf.getString(s"$env.activity.kafka.phoenix.url")
 
-    val activityLinkers = Seq.empty
-    val activityProcessor = new ActivityProcessor(phoenixUri, activityLinkers)
+    val activityConnectors = Seq(new CustomerConnector)
+    val activityProcessor = new ActivityProcessor(phoenixUri, activityConnectors)
 
     val avroProcessor = new AvroProcessor(
       schemaRegistryUrl = avroSchemaRegistryUrl, 
