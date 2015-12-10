@@ -1,19 +1,24 @@
 
 import path from 'path';
 import React, { PropTypes } from 'react';
+import types from './base/types';
 
 import AddedNote from './added-note';
+import toggleLineItems from './toggled-line-items';
 import ChangedOrderState from './changed-order-state';
 import EditedShippingAddress from './edited-shipping-address';
 
 export function getActivityRepresentative(activity) {
   switch (activity.type) {
-    case 'added_note':
+    case types.ADDED_NOTE:
       return AddedNote;
-    case 'changed_order_state':
+    case types.CHANGED_ORDER_STATE:
       return ChangedOrderState;
-    case 'edited_shipping_address':
+    case types.EDITED_SHIPPING_ADDRESS:
       return EditedShippingAddress;
+    case types.ADDED_LINE_ITEMS:
+    case types.REMOVED_LINE_ITEMS:
+      return toggleLineItems(activity.type);
     default:
       return null;
   }
