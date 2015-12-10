@@ -11,8 +11,10 @@ export function fetchScTypes() {
     dispatch(scTypeRequested());
 
     return Api.get('/store-credits/types')
-      .then(json => dispatch(scTypeReceived(json)))
-      .catch(err => dispatch(scTypeFailed(err)));
+      .then(
+        json => dispatch(scTypeReceived(json)),
+        err => dispatch(scTypeFailed(err))
+      );
   };
 }
 
