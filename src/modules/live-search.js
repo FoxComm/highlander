@@ -36,11 +36,11 @@ function deleteSearchFilter(state, idx) {
   const curValue = state.savedSearches[state.selectedSearch].searchValue;
 
   if (!_.isEmpty(curSearches) && _.isEmpty(curValue)) {
-    const updatedState = {
-      ...state.savedSearches[state.selectedSearch],
-      searches: _.without(curSearches, curSearches[idx])
-    };
-    return assoc(state, ['savedSearches', state.selectedSearch], updatedState);
+    const newSearches = _.without(curSearches, curSearches[idx]);
+    return assoc(state,
+      ['savedSearches', state.selectedSearch, 'isDirty'], true,
+      ['savedSearches', state.selectedSearch, 'searches'], newSearches
+    );
   }
 
   return state;
