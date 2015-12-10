@@ -44,7 +44,7 @@ export default class NotificationPanel extends React.Component {
           <div className="fc-activity-notifications__overlay"
                onClick={this.props.toggleNotifications}>
           </div>
-          <ContentBox title='Notifications'
+          <ContentBox title="Notifications"
                       className="fc-activity-notifications__box"
                       footer={this.footer}>
             {this.items }
