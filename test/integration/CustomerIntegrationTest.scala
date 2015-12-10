@@ -3,6 +3,7 @@ import cats.implicits._
 import com.stripe.exception.CardException
 import com.stripe.model.{Card, Customer => StripeCustomer}
 import models.OrderPayments.scope._
+import models.activity.ActivityContext
 import models.{Addresses, CreditCard, CreditCards, Customer, Customers, CustomersRanks, Order, OrderPayments, Orders,
 PaymentMethod, Regions, Rma, Rmas, StoreAdmins}
 import org.mockito.Mockito.{reset, when}
@@ -35,6 +36,8 @@ class CustomerIntegrationTest extends IntegrationTestBase
   with AutomaticAuth
   with SortingAndPaging[CustomerResponse.Root]
   with MockitoSugar {
+
+  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
 
   // paging and sorting API
   val uriPrefix = "v1/customers"
@@ -465,7 +468,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
           thenReturn(Result.good(mock[Card]))
 
         val order = Orders.create(Factories.cart.copy(customerId = customer.id)).run().futureValue.rightVal
-        OrderPaymentUpdater.addCreditCard(order.refNum, creditCard.id).futureValue
+        OrderPaymentUpdater.addCreditCard(admin, order.refNum, creditCard.id).futureValue
 
         val payload = payloads.EditCreditCard(holderName = Some("Bob"))
         val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
@@ -525,7 +528,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
     }
 
     "fails if the card is not inWallet" in new CreditCardFixture {
-      CreditCardManager.deleteCreditCard(customer.id, creditCard.id).futureValue
+      CreditCardManager.deleteCreditCard(admin, customer.id, creditCard.id).futureValue
       val payload = payloads.EditCreditCard
       val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
 

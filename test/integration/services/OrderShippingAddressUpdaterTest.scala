@@ -1,6 +1,7 @@
 package services
 
-import models.{Order, OrderShippingAddresses, Orders, Customers, Addresses}
+import models.activity.ActivityContext
+import models.{Order, OrderShippingAddresses, Orders, Customers, Addresses, StoreAdmins}
 import services.orders.OrderShippingAddressUpdater._
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -11,10 +12,12 @@ import Seeds.Factories
 class OrderShippingAddressUpdaterTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
+  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
+
   "OrderUpdater" - {
 
     "Adds a shipping address by referencing an order that already exists" in new Fixture {
-      val fullOrder = createShippingAddressFromAddressId(address.id, order.refNum).futureValue.get
+      val fullOrder = createShippingAddressFromAddressId(admin, address.id, order.refNum).futureValue.get
       fullOrder.result.shippingAddress must not be 'empty
       val orderAddress = fullOrder.result.shippingAddress.value
 
@@ -29,7 +32,7 @@ class OrderShippingAddressUpdaterTest extends IntegrationTestBase {
       val newAddress = payloads.CreateAddressPayload(name = "Home Office", regionId = 1, address1 = "3000 Coolio Dr",
         city = "Seattle", zip = "55555")
 
-      val fullOrder = createShippingAddressFromPayload(newAddress, order.refNum).futureValue.get
+      val fullOrder = createShippingAddressFromPayload(admin, newAddress, order.refNum).futureValue.get
       fullOrder.result.shippingAddress must not be 'empty
       val orderAddress = fullOrder.result.shippingAddress.value
 
@@ -41,7 +44,7 @@ class OrderShippingAddressUpdaterTest extends IntegrationTestBase {
     }
 
     "Updates a shipping address by referencing an order that already exists" in new UpdateAddressFixture {
-      val fullOrder = createShippingAddressFromAddressId(newAddress.id, order.refNum).futureValue.get
+      val fullOrder = createShippingAddressFromAddressId(admin, newAddress.id, order.refNum).futureValue.get
       fullOrder.result.shippingAddress must not be 'empty
       val orderAddress = fullOrder.result.shippingAddress.value
 
@@ -54,7 +57,7 @@ class OrderShippingAddressUpdaterTest extends IntegrationTestBase {
 
     "Updates a shipping address by sending fields in the payload" in new UpdateAddressFixture {
       val payload = payloads.UpdateAddressPayload(name = Some("Don Keyhote"))
-      val fullOrder = updateShippingAddressFromPayload(payload, order.refNum).futureValue.get
+      val fullOrder = updateShippingAddressFromPayload(admin, payload, order.refNum).futureValue.get
       fullOrder.result.shippingAddress must not be 'empty
       val orderAddress = fullOrder.result.shippingAddress.value
 
@@ -63,11 +66,12 @@ class OrderShippingAddressUpdaterTest extends IntegrationTestBase {
   }
 
   trait Fixture {
-    val (customer, address, order) = (for {
+    val (admin, customer, address, order) = (for {
+      admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
       customer ← * <~ Customers.create(Factories.customer)
       address  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
       order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, status = Order.Cart))
-    } yield (customer, address, order)).runT().futureValue.rightVal
+    } yield (admin, customer, address, order)).runT().futureValue.rightVal
   }
 
   trait UpdateAddressFixture extends Fixture {

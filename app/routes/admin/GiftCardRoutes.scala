@@ -31,8 +31,10 @@ object GiftCardRoutes {
           }
         } ~
         (patch & pathEnd & entity(as[payloads.GiftCardBulkUpdateStatusByCsr])) { payload ⇒
-          goodOrFailures {
-            GiftCardService.bulkUpdateStatusByCsr(payload, admin)
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              GiftCardService.bulkUpdateStatusByCsr(payload, admin)
+            }
           }
         } ~
         (get & path(Segment) & pathEnd) { code ⇒
@@ -48,24 +50,32 @@ object GiftCardRoutes {
           }
         } ~
         (post & pathEnd & entity(as[payloads.GiftCardBulkCreateByCsr])) { payload ⇒
-          goodOrFailures {
-            GiftCardService.createBulkByAdmin(admin, payload)
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              GiftCardService.createBulkByAdmin(admin, payload)
+            }
           }
         } ~
         (post & pathEnd & entity(as[payloads.GiftCardCreateByCsr])) { payload ⇒
-          goodOrFailures {
-            GiftCardService.createByAdmin(admin, payload)
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              GiftCardService.createByAdmin(admin, payload)
+            }
           }
         } ~
         (patch & path(Segment) & pathEnd & entity(as[payloads.GiftCardUpdateStatusByCsr])) { (code, payload) ⇒
-          goodOrFailures {
-            GiftCardService.updateStatusByCsr(code, payload, admin)
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              GiftCardService.updateStatusByCsr(code, payload, admin)
+            }
           }
         } ~
         path(Segment / "convert" / IntNumber) { (code, customerId) ⇒
           (post & pathEnd) {
-            goodOrFailures {
-              CustomerCreditConverter.toStoreCredit(code, customerId, admin)
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                CustomerCreditConverter.toStoreCredit(code, customerId, admin)
+              }
             }
           }
         }

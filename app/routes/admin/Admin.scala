@@ -28,8 +28,10 @@ object Admin {
           }
         } ~
         (patch & pathEnd & entity(as[payloads.StoreCreditBulkUpdateStatusByCsr])) { payload ⇒
-          goodOrFailures {
-            StoreCreditService.bulkUpdateStatusByCsr(payload, admin)
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              StoreCreditService.bulkUpdateStatusByCsr(payload, admin)
+            }
           }
         }
       } ~
@@ -40,8 +42,10 @@ object Admin {
           }
         } ~
         (patch & pathEnd & entity(as[payloads.StoreCreditUpdateStatusByCsr])) { payload ⇒
-          goodOrFailures {
-            StoreCreditService.updateStatusByCsr(storeCreditId, payload, admin)
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              StoreCreditService.updateStatusByCsr(storeCreditId, payload, admin)
+            }
           }
         } ~
         (get & path("transactions") & pathEnd & sortAndPage) { implicit sortAndPage ⇒

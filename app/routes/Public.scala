@@ -17,8 +17,10 @@ object Public {
 
     pathPrefix("registrations") {
       (post & path("new") & pathEnd & entity(as[payloads.CreateCustomerPayload])) { regRequest ⇒
-         goodOrFailures {
-          CustomerManager.create(regRequest)
+        activityContext() { implicit ac ⇒
+          goodOrFailures {
+            CustomerManager.create(regRequest)
+          }
         }
       }
     } ~

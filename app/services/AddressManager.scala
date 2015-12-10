@@ -6,15 +6,18 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.implicits._
 import models.Order._
-import models.{Address, Addresses, Customer, Order, OrderShippingAddress, OrderShippingAddresses, Orders, Region, Regions}
+import models.{StoreAdmin, Address, Addresses, Customer, Customers, Order, OrderShippingAddress,
+OrderShippingAddresses, Orders, Region, Regions}
 import payloads.CreateAddressPayload
-import responses.Addresses.Root
+import responses.Addresses._
 import responses.{Addresses ⇒ Response}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
+
+import models.activity.ActivityContext
 
 object AddressManager {
 
@@ -27,34 +30,43 @@ object AddressManager {
     Addresses.sortedAndPagedWithRegions(query).result.map(Response.build)
   }
 
-  def create(payload: CreateAddressPayload, customerId: Int)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
+  def create(payload: CreateAddressPayload, customerId: Int, admin: Option[StoreAdmin] = None)
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
 
-    address ← * <~ Addresses.create(Address.fromPayload(payload).copy(customerId = customerId))
-    region  ← * <~ Regions.mustFindById(address.regionId)
+    customer  ← * <~ Customers.mustFindById(customerId)
+    address   ← * <~ Addresses.create(Address.fromPayload(payload).copy(customerId = customerId))
+    region    ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
+    _         ← * <~ LogActivity.addressCreated(admin, customer, address, region)
   } yield Response.build(address, region)).runT()
 
-  def edit(addressId: Int, customerId: Int, payload: CreateAddressPayload)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
+  def edit(addressId: Int, customerId: Int, payload: CreateAddressPayload, admin: StoreAdmin)
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
 
-    address ← * <~ Address.fromPayload(payload).copy(customerId = customerId, id = addressId).validate
-    _       ← * <~ Addresses.insertOrUpdate(address).toXor
-    region  ← * <~ Regions.mustFindById(address.regionId)
+    customer    ← * <~ Customers.mustFindById(customerId)
+    oldAddress  ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
+    oldRegion   ← * <~ Regions.findOneById(oldAddress.regionId).safeGet.toXor
+    address     ← * <~ Address.fromPayload(payload).copy(customerId = customerId, id = addressId).validate
+    _           ← * <~ Addresses.insertOrUpdate(address).toXor
+    region      ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
+    _           ← * <~ LogActivity.addressUpdated(admin, customer, address, region, oldAddress, oldRegion)
   } yield Response.build(address, region)).runT()
 
   def get(customerId: Int, addressId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
 
     address ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
-    region  ← * <~ Regions.mustFindById(address.regionId)
-  }  yield Response.build(address, region, address.isDefaultShipping.some)).runT()
+    region  ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
+  } yield Response.build(address, region, address.isDefaultShipping.some)).runT()
 
-  def remove(customerId: Int, addressId: Int)
-    (implicit ec: ExecutionContext, db: Database): Result[Unit] = (for {
+  def remove(customerId: Int, addressId: Int, admin: StoreAdmin)
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Unit] = (for {
 
+    customer    ← * <~ Customers.mustFindById(customerId)
     address     ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
+    region      ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
     softDelete  ← * <~ address.updateTo(address.copy(deletedAt = Instant.now.some, isDefaultShipping = false))
     updated     ← * <~ Addresses.update(address, softDelete)
+    _           ← * <~ LogActivity.addressDeleted(admin, customer, address, region)
   } yield {}).runT()
 
   def setDefaultShippingAddress(customerId: Int, addressId: Int)
@@ -68,8 +80,8 @@ object AddressManager {
 
   def removeDefaultShippingAddress(customerId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Int] =
-    (Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false)).run().flatMap(Result
-      .good)
+    Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false).run()
+      .flatMap(Result.good)
 
   def getDisplayAddress(customer: Customer)
     (implicit ec: ExecutionContext, db: Database): Future[Option[Root]] = {

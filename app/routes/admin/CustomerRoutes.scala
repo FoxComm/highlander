@@ -1,10 +1,11 @@
 package routes.admin
 
+import scala.concurrent.{ExecutionContext, Future}
+
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.{Customers, StoreAdmin}
-import models.activity.ActivityContext
 import payloads.{ActivateCustomerPayload, CreateAddressPayload, UpdateCustomerPayload}
 import services.{AddressManager, CreditCardManager, CustomerCreditConverter, CustomerManager, StoreCreditAdjustmentsService, StoreCreditService}
 import slick.driver.PostgresDriver.api._
@@ -12,8 +13,6 @@ import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._
 import utils.Slick.implicits._
-
-import scala.concurrent.{ExecutionContext, Future}
 
 object CustomerRoutes {
 
@@ -30,15 +29,17 @@ object CustomerRoutes {
         } ~
         (get & pathPrefix("searchForNewOrder") & pathEnd &
           parameters('term).as(payloads.CustomerSearchForNewOrder)) { p ⇒
-          (sortAndPage) { implicit sortAndPage ⇒
+          sortAndPage { implicit sortAndPage ⇒
             goodOrFailures {
               CustomerManager.searchForNewOrder(p)
             }
            }
         } ~
         (post & pathEnd & entity(as[payloads.CreateCustomerPayload])) { payload ⇒
-          goodOrFailures {
-            CustomerManager.create(payload)
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              CustomerManager.create(payload, Some(admin))
+            }
           }
         }
       } ~
@@ -51,23 +52,29 @@ object CustomerRoutes {
         (patch & pathEnd & entity(as[UpdateCustomerPayload])) { payload ⇒
           activityContext(admin) { implicit ac ⇒
             goodOrFailures {
-              CustomerManager.update(customerId, payload)
+              CustomerManager.update(customerId, payload, admin)
             }
           }
         } ~
         (post & path("activate") & pathEnd & entity(as[ActivateCustomerPayload])) { payload ⇒
-          goodOrFailures {
-            CustomerManager.activate(customerId, payload)
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              CustomerManager.activate(customerId, payload, admin)
+            }
           }
         } ~
         (post & path("disable") & pathEnd & entity(as[payloads.ToggleCustomerDisabled])) { payload ⇒
-          goodOrFailures {
-            CustomerManager.toggleDisabled(customerId, payload.disabled, admin)
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              CustomerManager.toggleDisabled(customerId, payload.disabled, admin)
+            }
           }
         } ~
         (post & path("blacklist") & pathEnd & entity(as[payloads.ToggleCustomerBlacklisted])) { payload ⇒
-          goodOrFailures {
-            CustomerManager.toggleBlacklisted(customerId, payload.blacklisted, admin)
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              CustomerManager.toggleBlacklisted(customerId, payload.blacklisted, admin)
+            }
           }
         } ~
         pathPrefix("addresses") {
@@ -77,26 +84,28 @@ object CustomerRoutes {
             }
           } ~
           (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
-            goodOrFailures {
-              AddressManager.create(payload, customerId)
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                AddressManager.create(payload, customerId, Some(admin))
+              }
             }
           } ~
           (post & path(IntNumber / "default") & pathEnd) { id ⇒
-              nothingOrFailures {
-                AddressManager.setDefaultShippingAddress(customerId, id)
-              }
+            nothingOrFailures {
+              AddressManager.setDefaultShippingAddress(customerId, id)
+            }
           } ~
-          (get & path(IntNumber) & pathEnd)  {
-            id ⇒
-              goodOrFailures {
-                AddressManager.get(customerId, id)
-              }
+          (get & path(IntNumber) & pathEnd) { id ⇒
+            goodOrFailures {
+              AddressManager.get(customerId, id)
+            }
           } ~
-          (delete & path(IntNumber) & pathEnd)  {
-            id ⇒
+          (delete & path(IntNumber) & pathEnd)  { id ⇒
+            activityContext(admin) { implicit ac ⇒
               nothingOrFailures {
-                AddressManager.remove(customerId, id)
+                AddressManager.remove(customerId, id, admin)
               }
+            }
           } ~
           (delete & path("default") & pathEnd) {
             nothingOrFailures {
@@ -104,8 +113,10 @@ object CustomerRoutes {
             }
           } ~
           (patch & path(IntNumber) & pathEnd & entity(as[CreateAddressPayload])) { (addressId, payload) ⇒
-            goodOrFailures {
-              AddressManager.edit(addressId, customerId, payload)
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                AddressManager.edit(addressId, customerId, payload, admin)
+              }
             }
           } ~
           (get & path("display") & pathEnd) {
@@ -130,20 +141,26 @@ object CustomerRoutes {
               }
           } ~
           (post & pathEnd & entity(as[payloads.CreateCreditCard])) { payload ⇒
-            complete {
-              whenFound(Customers.findOneById(customerId).run()) { customer ⇒
-                CreditCardManager.createCardThroughGateway(customer, payload)
+            activityContext(admin) { implicit ac ⇒
+              complete {
+                whenFound(Customers.findOneById(customerId).run()) { customer ⇒
+                  CreditCardManager.createCardThroughGateway(admin, customer, payload)
+                }
               }
             }
           } ~
           (patch & path(IntNumber) & pathEnd & entity(as[payloads.EditCreditCard])) { (cardId, payload) ⇒
-            nothingOrFailures {
-              CreditCardManager.editCreditCard(customerId, cardId, payload)
+            activityContext(admin) { implicit ac ⇒
+              nothingOrFailures {
+                CreditCardManager.editCreditCard(admin, customerId, cardId, payload)
+              }
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { cardId ⇒
-            nothingOrFailures {
-              CreditCardManager.deleteCreditCard(customerId = customerId, id = cardId)
+            activityContext(admin) { implicit ac ⇒
+              nothingOrFailures {
+                CreditCardManager.deleteCreditCard(admin = admin, customerId = customerId, id = cardId)
+              }
             }
           }
         } ~
@@ -166,13 +183,17 @@ object CustomerRoutes {
             }
           } ~
           (post & pathEnd & entity(as[payloads.CreateManualStoreCredit])) { payload ⇒
-            goodOrFailures {
-              StoreCreditService.createManual(admin, customerId, payload)
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                StoreCreditService.createManual(admin, customerId, payload)
+              }
             }
           } ~
           (post & path(IntNumber / "convert") & pathEnd) { storeCreditId ⇒
-            goodOrFailures {
-              CustomerCreditConverter.toGiftCard(storeCreditId, customerId, admin)
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                CustomerCreditConverter.toGiftCard(storeCreditId, customerId, admin)
+              }
             }
           }
         }

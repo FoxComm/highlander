@@ -1,14 +1,14 @@
 package services
 
+import scala.concurrent.ExecutionContext
+
 import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
 import cats.implicits._
 import models.Customers.scope._
 import models.{Customer, Customers, Orders, StoreAdmin, javaTimeSlickMapper}
-import models.activity.Activities
-import models.activity.ActivityContext
 import payloads.{ActivateCustomerPayload, CreateCustomerPayload, CustomerSearchForNewOrder, UpdateCustomerPayload}
-import responses.CustomerResponse._
+import responses.CustomerResponse.{build, Root}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
@@ -17,26 +17,26 @@ import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._
 import utils.jdbc._
 
-import services.activity.CustomerInfoChanged
-import scala.concurrent.ExecutionContext
+import models.activity.ActivityContext
 
 object CustomerManager {
 
   private def customerNotFound(id: Int): NotFoundFailure404 = NotFoundFailure404(Customer, id)
 
   def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
-      customer ← * <~ Customers.mustFindById(customerId, customerNotFound)
-      updated ← * <~ Customers.update(customer, customer.copy(isDisabled = disabled, disabledBy = Some(admin.id)))
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
+      customer  ← * <~ Customers.mustFindById(customerId, customerNotFound)
+      updated   ← * <~ Customers.update(customer, customer.copy(isDisabled = disabled, disabledBy = Some(admin.id)))
+      _         ← * <~ LogActivity.customerDisabled(disabled, customer, admin)
     } yield build(updated)).runT()
-
 
   // TODO: add blacklistedReason later
   def toggleBlacklisted(customerId: Int, blacklisted: Boolean, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
-      customer ← * <~ Customers.mustFindById(customerId, customerNotFound)
-      updated ← * <~ Customers.update(customer, customer.copy(isBlacklisted = blacklisted, blacklistedBy = Some(admin
-        .id)))
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
+      customer  ← * <~ Customers.mustFindById(customerId, customerNotFound)
+      updated   ← * <~ Customers.update(customer, customer.copy(isBlacklisted = blacklisted,
+        blacklistedBy = Some(admin.id)))
+      _         ← * <~ LogActivity.customerBlacklisted(blacklisted, customer, admin)
     } yield build(updated)).runT()
 
   def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
@@ -60,7 +60,6 @@ object CustomerManager {
         case other               ⇒ invalidSortColumn(other)
       }
     }
-
 
     queryWithMetadata.result.map {
       _.map {
@@ -109,8 +108,8 @@ object CustomerManager {
     }
   }
 
-  def create(payload: CreateCustomerPayload)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+  def create(payload: CreateCustomerPayload, admin: Option[StoreAdmin] = None)
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = {
     val customer = Customer.buildFromPayload(payload)
 
     def result = {
@@ -125,39 +124,29 @@ object CustomerManager {
     (for {
       _    ← ResultT.fromXor(customer.validate.toXor)
       root ← ResultT(result)
+      _    ← ResultT(LogActivity.customerCreated(root, admin).run())
     } yield root).value
   }
 
-  private def logUpdate(customer: Customer, payload: UpdateCustomerPayload)
-  (implicit ec: ExecutionContext, db: Database, ac: ActivityContext) = {
-    Activities.log(
-      CustomerInfoChanged(
-        customerId = customer.id,
-        oldInfo = UpdateCustomerPayload(customer.name, Some(customer.email), customer.phoneNumber),
-        newInfo = payload))
-  }
-
-  def update(customerId: Int, payload: UpdateCustomerPayload)
+  def update(customerId: Int, payload: UpdateCustomerPayload, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = {
 
     swapDatabaseFailure {
       (for {
-        _ ← * <~ payload.validate.toXor
-        customer ← * <~ Customers.mustFindById(customerId, customerNotFound)
-        updated ← * <~ Customers.update(customer, customer.copy(
+        _         ← * <~ payload.validate.toXor
+        customer  ← * <~ Customers.mustFindById(customerId, customerNotFound)
+        updated   ← * <~ Customers.update(customer, customer.copy(
           name = payload.name.fold(customer.name)(Some(_)),
           email = payload.email.getOrElse(customer.email),
           phoneNumber = payload.phoneNumber.fold(customer.phoneNumber)(Some(_))
         ))
-        _ ← * <~ logUpdate(customer, payload)
+        _         ← * <~ LogActivity.customerUpdated(customer, updated, admin)
       } yield build(updated)).runT()
     } { (NotUnique, CustomerEmailNotUnique) }
-
   }
 
-
-  def activate(customerId: Int, payload: ActivateCustomerPayload)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+  def activate(customerId: Int, payload: ActivateCustomerPayload, admin: StoreAdmin)
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = {
 
     def result = {
       val finder = Customers.filter(_.id === customerId)
@@ -175,6 +164,7 @@ object CustomerManager {
     (for {
       _    ← ResultT.fromXor(payload.validate.toXor)
       root ← ResultT(result)
+      _    ← ResultT(LogActivity.customerActivated(root, admin).run())
     } yield root).value
   }
 }

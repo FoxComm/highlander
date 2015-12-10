@@ -1,21 +1,23 @@
 package services.orders
 
+import scala.concurrent.ExecutionContext
+
 import cats.implicits._
-import models.{OrderShippingMethod, OrderShippingMethods, Orders, Shipments, ShippingMethod, ShippingMethods}
+import models.{OrderShippingMethod, OrderShippingMethods, Orders, Shipments, ShippingMethod, ShippingMethods, StoreAdmin}
 import payloads.UpdateShippingMethod
 import responses.{FullOrder, TheResponse}
-import services.{CartValidator, NotFoundFailure400, Result, ShippingManager}
+import services.{LogActivity, CartValidator, NotFoundFailure400, Result, ShippingManager}
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 
-import scala.concurrent.ExecutionContext
+import models.activity.ActivityContext
 
 object OrderShippingMethodUpdater {
 
-  def updateShippingMethod(payload: UpdateShippingMethod, refNum: String)
-    (implicit db: Database, ec: ExecutionContext): Result[TheResponse[FullOrder.Root]] = (for {
+  def updateShippingMethod(admin: StoreAdmin, payload: UpdateShippingMethod, refNum: String)
+    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
     order           ← * <~ Orders.mustFindByRefNum(refNum)
     _               ← * <~ order.mustBeCart
     shippingMethod  ← * <~ ShippingMethods.mustFindById(payload.shippingMethodId, i ⇒ NotFoundFailure400(ShippingMethod, i))
@@ -29,10 +31,11 @@ object OrderShippingMethodUpdater {
     order           ← * <~ OrderTotaler.saveTotals(order)
     validated       ← * <~ CartValidator(order).validate
     response        ← * <~ FullOrder.refreshAndFullOrder(order).toXor
+    _               ← * <~ LogActivity.orderShippingMethodUpdated(admin, response, orderShipMethod)
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runT()
 
-  def deleteShippingMethod(refNum: String)
-    (implicit db: Database, ec: ExecutionContext): Result[TheResponse[FullOrder.Root]] = (for {
+  def deleteShippingMethod(admin: StoreAdmin, refNum: String)
+    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
     order ← * <~ Orders.mustFindByRefNum(refNum)
     _     ← * <~ order.mustBeCart
     _     ← * <~ OrderShippingMethods.findByOrderId(order.id).delete
@@ -40,5 +43,6 @@ object OrderShippingMethodUpdater {
     order ← * <~ OrderTotaler.saveTotals(order)
     valid ← * <~ CartValidator(order).validate
     resp  ← * <~ FullOrder.refreshAndFullOrder(order).toXor
+    _     ← * <~ LogActivity.orderShippingMethodDeleted(admin, resp)
   } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runT()
 }
