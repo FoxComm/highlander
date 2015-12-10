@@ -4,6 +4,7 @@ import java.time.Instant
 import scala.concurrent.ExecutionContext
 
 import models.activity.ActivityContext
+import models.activity.Activity
 import models.activity.Aliases.ActivityType
 import models.activity.Aliases.Json
 import models.activity.Connection
@@ -42,6 +43,46 @@ object ActivityConnectionResponse {
         connectedBy = c.connectedBy,
         createdAt = c.createdAt)
     }
+}
 
+object FullActivityConnectionResponse {
 
+  final case class ActivityResp(
+    id: Int, 
+    kind: ActivityType,
+    data: Json,
+    context: ActivityContext,
+    createdAt: Instant) 
+
+  final case class Root(
+    id: Int, 
+    dimension: String,
+    objectId: Int,
+    trailId: Int,
+    activity: ActivityResp,
+    previousId: Option[Int],
+    nextId: Option[Int],
+    data: Option[Json],
+    connectedBy: ActivityContext,
+    createdAt: Instant) extends ResponseItem
+
+    def build(objectId: Int, d: Dimension , c: Connection, a: Activity) : Root =  {
+      Root(
+        id = c.id,
+        dimension = d.name,
+        objectId = objectId,
+        trailId = c.trailId,
+        activity = ActivityResp(
+          id  = a.id,
+          kind = a.activityType,
+          data = a.data,
+          context = a.context,
+          createdAt = a.createdAt
+          ),
+        previousId = c.previousId,
+        nextId = c.nextId,
+        data = c.data,
+        connectedBy = c.connectedBy,
+        createdAt = c.createdAt)
+    }
 }

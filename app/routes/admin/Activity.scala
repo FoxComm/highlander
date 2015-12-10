@@ -1,23 +1,17 @@
 package routes.admin
 
+import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
+
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import slick.driver.PostgresDriver.api._
-import scala.concurrent.{ExecutionContext, Future}
-
 import models.StoreAdmin
-import models.activity.ActivityContext
-
-import services.activity.ActivityManager
-import services.activity.TrailManager
-
+import payloads.AppendActivity
+import services.activity.{ActivityManager, TrailManager}
+import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._
-import utils.Slick.implicits._
-
-import payloads.AppendActivity
 
 object Activity {
 
@@ -26,15 +20,24 @@ object Activity {
 
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
 
-      pathPrefix("activities" / IntNumber) { activityId ⇒ 
-        (get & pathEnd) { 
-          goodOrFailures {
-            ActivityManager.findById(activityId)
+      pathPrefix("activities") {
+        pathPrefix(IntNumber) { activityId ⇒
+          (get & pathEnd) {
+            goodOrFailures {
+              ActivityManager.findById(activityId)
+            }
           }
-        } 
+        }
       } ~
-      pathPrefix("trails" / Segment/ IntNumber) { (dimension, objectId) ⇒ 
-        (post & pathEnd & activityContext(admin)) { implicit ac ⇒ 
+      pathPrefix("connections" / IntNumber) { connectionId ⇒
+        (get & pathEnd) {
+          goodOrFailures {
+            TrailManager.findConnection(connectionId)
+          }
+        }
+      } ~
+      pathPrefix("trails" / Segment / IntNumber) { (dimension, objectId) ⇒
+        (post & pathEnd & activityContext(admin)) { implicit ac ⇒
           entity(as[AppendActivity]) { payload ⇒
             goodOrFailures {
               TrailManager.appendActivityByObjectId(dimension, objectId, payload)
