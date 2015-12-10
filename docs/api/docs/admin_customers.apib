@@ -82,3 +82,13 @@
 	+ Attributes(CustomerActivatePayload)
 + Response 200 (application/json)
     + Attributes (CustomerResponse)
+
+### Total Store Credit [GET /v1/customers/{id}/payment-methods/store-credit/totals]
+
++ Parameters
+    + id: 1 (required, number) - Unique Customer ID.
+
++ Response 200 (application/json)
+    + Attributes (StoreCreditTotals)
++ Response 404 (application/json)
+    + Attributes (Errors)

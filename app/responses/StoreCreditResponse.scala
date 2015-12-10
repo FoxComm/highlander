@@ -20,6 +20,8 @@ object StoreCreditResponse {
     status: models.StoreCredit.Status,
     createdAt: Instant) extends ResponseItem
 
+  final case class Totals(availableBalance: Int = 0, currentBalance: Int = 0)
+
   def build(records: Seq[models.StoreCredit]): Seq[Root] = records.map(build)
 
   def build(storeCredit: models.StoreCredit): Root = {

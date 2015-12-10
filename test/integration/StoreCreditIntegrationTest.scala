@@ -176,6 +176,25 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       }
     }
 
+    "GET /v1/customers/:id/payment-methods/store-credit/total" - {
+      "returns total available and current store credit for customer" in new Fixture {
+        val response = GET(s"v1/customers/${customer.id}/payment-methods/store-credit/totals")
+        response.status must ===(StatusCodes.OK)
+
+        val totals = response.as[StoreCreditResponse.Totals]
+
+        totals.availableBalance must === (5000)
+        totals.currentBalance must === (5000)
+      }
+
+      "returns 404 when customer doesn't exist" in new Fixture {
+        val response = GET(s"v1/customers/99/payment-methods/store-credit/totals")
+
+        response.status must ===(StatusCodes.NotFound)
+        response.errors must === (NotFoundFailure404(Customer, 99).description)
+      }
+    }
+
     "GET /v1/store-credits/:id/transactions" - {
       "returns the list of adjustments" in new Fixture {
         val response = GET(s"v1/store-credits/${storeCredit.id}/transactions")

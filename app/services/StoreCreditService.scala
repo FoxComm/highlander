@@ -15,6 +15,8 @@ import utils.CustomDirectives.SortAndPage
 import utils.Slick.UpdateReturning._
 import utils.Slick._
 import utils.Slick.implicits._
+import utils.DbResultT.implicits._
+import utils.DbResultT._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -31,6 +33,21 @@ object StoreCreditService {
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
     val query = StoreCredits.queryByCustomer(customerId)
     query.result.map(_.map(StoreCreditResponse.build))
+  }
+
+  def totalsForCustomer(customerId: Int)
+    (implicit db: Database, ec: ExecutionContext): Result[StoreCreditResponse.Totals] = {
+    val build = StoreCreditResponse.Totals(_: Int, _: Int)
+
+    (for {
+      _         ← * <~ Customers.mustFindById(customerId)
+      response  ← * <~ StoreCredits.findAllActiveByCustomerId(customerId)
+        .groupBy(sc ⇒ (sc.currentBalance, sc.availableBalance))
+        .map { case (_, q) ⇒ (q.map(_.availableBalance).sum.getOrElse(0), q.map(_.currentBalance).sum.getOrElse(0)) }
+        .one
+        .map(_.fold(build(0, 0))(build.tupled))
+        .toXor
+    } yield response).value.run()
   }
 
   def createManual(admin: StoreAdmin, customerId: Int, payload: payloads.CreateManualStoreCredit)

@@ -4,7 +4,7 @@ import util.IntegrationTestBase
 import utils.seeds.Seeds
 import Seeds.Factories
 import utils.Slick.implicits._
-import utils.DbResultT
+import utils.DbResultT, DbResultT.implicits._
 import utils.DbResultT._
 import slick.driver.PostgresDriver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
