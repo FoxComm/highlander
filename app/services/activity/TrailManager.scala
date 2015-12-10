@@ -13,6 +13,7 @@ import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import utils.Slick._
 
+import models.activity.Activities
 import models.activity.ActivityContext
 import models.activity.Connection
 import models.activity.Connections
@@ -25,6 +26,7 @@ import payloads.CreateTrail
 import payloads.AppendActivity
 
 import responses.ActivityConnectionResponse
+import responses.FullActivityConnectionResponse
 
 object TrailManager {
 
@@ -92,6 +94,16 @@ object TrailManager {
           } yield Unit
         case None ⇒  pure(Unit)
       }
+    }
+
+    def findConnection(connectionId: Int) 
+    (implicit ec: ExecutionContext, db: Database) : Result[FullActivityConnectionResponse.Root] = {
+      (for {
+        connection ← * <~ Connections.mustFindById(connectionId)
+        trail ← * <~ Trails.mustFindById(connection.trailId)
+        dimension ← * <~ Dimensions.mustFindById(trail.dimensionId)
+        activity ← * <~ Activities.mustFindById(connection.activityId)
+      } yield (FullActivityConnectionResponse.build(trail.objectId, dimension, connection, activity))).runT()
     }
 
 }
