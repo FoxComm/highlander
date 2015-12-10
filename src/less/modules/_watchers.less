@@ -81,11 +81,22 @@
     .fc-watchers__users-row {
       margin: 10px;
     }
+
+    &._shown {
+      display: block;
+      left: 100%;
+      transform: translate(-100%, -90px);
+    }
   }
 
-  &__rest-cell:hover .fc-watchers__rest-block {
-    display: block;
-    left: 100%;
-    transform: translateX(-100%);
+  &__toggle-watchers-btn {
+    width: 28px;
+    height: 32px;
+    line-height: 32px;
+    .colors(@color-decor7, @color-white);
+
+    &:hover, &._active {
+      .colors(@color-decor1, @color-white);
+    }
   }
 }

@@ -15,7 +15,14 @@ import { Button } from '../common/buttons';
 // redux
 import * as WatchersActions from '../../modules/watchers';
 
-@connect(state => state.watchers, WatchersActions)
+const Groups = {
+  ASSIGNEES: 'assignees',
+  WATCHERS: 'watchers'
+};
+
+@connect((state, props) => ({
+  data: _.get(state.watchers, [props.entity.entityType, props.entity.entityId], {})
+}), WatchersActions)
 export default class Watchers extends React.Component {
 
   static propTypes = {
@@ -28,7 +35,19 @@ export default class Watchers extends React.Component {
   };
 
   static defaultProps = {
-    assignees: [],
+    assignees: [
+      {name: 'Jeff Mataya', email: 'jeff@foxcommerce.com'},
+      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
+      {name: 'Donkey Sypachev', email: 'eugene@foxcommerce.com'},
+      {name: 'Donkey Donkey', email: 'eugene@foxcommerce.com'},
+      {name: 'Eugene Donkey', email: 'eugene@foxcommerce.com'},
+      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
+      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
+      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
+      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
+      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
+      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'}
+    ],
     watchers: [
       {name: 'Jeff Mataya', email: 'jeff@foxcommerce.com'},
       {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
@@ -60,7 +79,7 @@ export default class Watchers extends React.Component {
         </div>
       );
     } else {
-      return this.buildRow(this.props.assignees, 'fc-watchers__assignees-row');
+      return this.buildRow(this.props.assignees, 'fc-watchers__assignees-row', Groups.ASSIGNEES);
     }
   }
 
@@ -72,7 +91,7 @@ export default class Watchers extends React.Component {
         </div>
       );
     } else {
-      return this.buildRow(this.props.watchers, 'fc-watchers__watchers-row');
+      return this.buildRow(this.props.watchers, 'fc-watchers__watchers-row', Groups.WATCHERS);
     }
   }
 
@@ -85,12 +104,20 @@ export default class Watchers extends React.Component {
   }
 
   @autobind
-  buildHiddenRow(hiddenCells) {
-    console.log(this.props);
+  buildHiddenRow(hiddenCells, group) {
+    const active = _.get(this.props, ['data', group, 'displayed'], false);
+    const hiddenBlockClass = classNames('fc-watchers__rest-block', {
+      '_shown': active
+    });
+    const buttonClass = classNames('fc-watchers__toggle-watchers-btn', {
+      '_active': active
+    })
     return (
       <div className="fc-watchers__rest-cell">
-        <Button icon="list" onClick={this.props.toggleWatchers} />
-        <div className="fc-watchers__rest-block">
+        <Button icon="list"
+                className={buttonClass}
+                onClick={() => this.props.toggleWatchers(this.entity, group)} />
+        <div className={hiddenBlockClass}>
           <div className="fc-watchers__users-row">
             {hiddenCells}
           </div>
@@ -100,7 +127,7 @@ export default class Watchers extends React.Component {
   }
 
   @autobind
-  buildRow(users, className) {
+  buildRow(users, className, group) {
     const rowClass = classNames("fc-watchers__users-row", className);
     if (users.length <= this.maxDisplayed) {
       const cells = users.map(watcher => this.renderCell(watcher));
@@ -119,13 +146,14 @@ export default class Watchers extends React.Component {
         <div className={rowClass}>
           <AddButton className="fc-watchers__add-button"/>
           {displayedCells}
-          {this.buildHiddenRow(hiddenCells)}
+          {this.buildHiddenRow(hiddenCells, group)}
         </div>
       );
     }
   }
 
   render() {
+    console.log(this.props);
     return (
       <Panel className="fc-watchers">
         <div className="fc-watchers__container">
@@ -138,7 +166,6 @@ export default class Watchers extends React.Component {
             </div>
           </div>
           <div className="fc-watchers__users-row fc-watchers__assignees">
-            <AddButton className="fc-watchers__add-button"/>
             {this.assignees}
           </div>
           <div className="fc-watchers__title-row">

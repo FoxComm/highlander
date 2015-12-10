@@ -3,19 +3,14 @@ import Api from '../lib/api';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 
-export const toggleAssignees = createAction('ASSIGNEES_TOGGLE');
-export const toggleWatchers = createAction('WATCHERS_TOGGLE');
+export const toggleWatchers = createAction('WATCHERS_TOGGLE', (entity, group) => [entity, group]);
 
 const initialState = {};
 
 const reducer = createReducer({
-  [toggleAssignees]: (state, {entityType, entityId}) => {
-    const oldValue = _.get(state, [entityType, entityId, 'assigneesDisplayed'], false);
-    return assoc(state, [entityType, entityId, 'assigneesDisplayed'], !oldValue);
-  },
-  [toggleWatchers]: (state, {entityType, entityId}) => {
-    const oldValue = _.get(state, [entityType, entityId, 'watchersDisplayed'], false);
-    return assoc(state, [entityType, entityId, 'watchersDisplayed'], !oldValue);
+  [toggleWatchers]: (state, [{entityType, entityId}, group]) => {
+    const oldValue = _.get(state, [entityType, entityId, group, 'displayed'], false);
+    return assoc(state, [entityType, entityId, group, 'displayed'], !oldValue);
   },
 }, initialState);
 
