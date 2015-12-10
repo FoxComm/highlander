@@ -92,7 +92,7 @@ class ActivityProcessor(phoenix : PhoenixConnectionInfo, connectors: Seq[Activit
     }
 
     private def connectUsingPhoenix(c: Connection) { 
-      val uri = s"${phoenix.uri}/trails/${c.dimension}/${c.objectId}"
+      val uri = s"${phoenix.uri}/activities/trails/${c.dimension}/${c.objectId}"
       Console.err.println(s"${uri}")
 
       //create append payload
