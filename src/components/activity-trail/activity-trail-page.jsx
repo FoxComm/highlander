@@ -29,7 +29,7 @@ export default class ActivityTrailPage extends React.Component {
     const activities = get(props, [props.entity.entityId, 'activities'], []);
 
     return (
-      <div className="fc-activity-trail">
+      <div className="fc-activity-trail-page">
         <h2>Activity Trail</h2>
         <ActivityTrail activities={activities} />
       </div>

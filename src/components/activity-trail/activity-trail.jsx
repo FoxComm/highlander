@@ -60,7 +60,7 @@ const renderActivityItem = (activity, idx) => {
   }
 };
 
-const ActivityTrailList = props => {
+const ActivityTrail = props => {
   // filter only known activities
   const activities = _.filter(props.activities, activity => !!getActivityRepresentative(activity));
 
@@ -73,8 +73,8 @@ const ActivityTrailList = props => {
   );
 };
 
-ActivityTrailList.propTypes = {
+ActivityTrail.propTypes = {
   activities: PropTypes.array.isRequired,
 };
 
-export default ActivityTrailList;
+export default ActivityTrail;
