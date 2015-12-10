@@ -2,7 +2,7 @@ package consumer
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.JavaConversions._
-import com.typesafe.config._
+import com.typesafe.config.ConfigFactory
 
 /**
  * Program which consumes several bottledwater topics and indexes them in Elastic Search

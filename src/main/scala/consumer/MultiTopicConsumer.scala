@@ -4,7 +4,7 @@ import java.util.Properties
 import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext
 
-import org.apache.kafka.clients.consumer._
+import org.apache.kafka.clients.consumer.KafkaConsumer
 
 /**
  * Consumer using Kafka's new 0.9.0.0 consumer API

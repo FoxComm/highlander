@@ -4,7 +4,7 @@ import java.time.Instant
 
 import scala.concurrent.ExecutionContext
 
-import org.json4s.JsonAST.{JValue, JInt, JObject, JField, JString, JNothing}
+import org.json4s.JsonAST.{JInt, JNothing}
 import org.json4s.jackson.JsonMethods._
 
 final case class CustomerConnector() extends ActivityConnector {

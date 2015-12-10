@@ -6,8 +6,8 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-import org.json4s.JsonAST.{JValue, JInt, JObject, JField, JString}
-import org.json4s.jackson.JsonMethods._
+import org.json4s.JsonAST.JValue
+import org.json4s.jackson.JsonMethods.parse
 import org.json4s.DefaultFormats
 import org.json4s.jackson.Serialization.{write ⇒ render}
 
@@ -18,7 +18,7 @@ import akka.http.ConnectionPoolSettings
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.headers.Authorization
 import akka.http.scaladsl.model.headers.BasicHttpCredentials
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest, HttpResponse, Uri}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest, HttpResponse}
 import akka.util.ByteString
 import akka.stream.{ActorMaterializer, Materializer}
 

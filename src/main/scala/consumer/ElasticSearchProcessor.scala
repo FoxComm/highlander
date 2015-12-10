@@ -8,8 +8,8 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import org.elasticsearch.common.settings.ImmutableSettings
 import org.elasticsearch.indices.IndexMissingException
 
-import org.json4s.JsonAST.{JInt, JObject, JField, JString}
-import org.json4s.jackson.JsonMethods._
+import org.json4s.JsonAST.JInt
+import org.json4s.jackson.JsonMethods.parse
 
 /**
  * This is a JsonProcessor which processes json and indexs it into elastic search.

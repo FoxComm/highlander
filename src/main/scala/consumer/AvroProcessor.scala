@@ -10,7 +10,7 @@ import org.apache.avro.generic.GenericDatumWriter
 import org.apache.avro.io.EncoderFactory
 
 import org.json4s.JsonAST.{JInt, JObject, JField, JString}
-import org.json4s.jackson.JsonMethods._
+import org.json4s.jackson.JsonMethods.{render, compact, parse}
 
 /**
  * Reads kafka processor that reads expects messages in kafka to be from bottledwater-pg

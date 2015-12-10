@@ -1,8 +1,7 @@
 package consumer
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.collection.JavaConversions._
-import com.typesafe.config._
+import com.typesafe.config.ConfigFactory
 
 import consumer.activity.PhoenixConnectionInfo
 import consumer.activity.ActivityProcessor
