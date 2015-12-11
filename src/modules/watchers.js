@@ -16,7 +16,7 @@ const assignWatchers = createAction('WATCHERS_ASSIGN');
 
 export function fetchWatchers(entity) {
   return dispatch => {
-    return Api.get("/fakeurl").then(
+    return Api.get('/fakeurl').then(
       () => dispatch(setWatchers(entity, fakeWatchers)),
       () => dispatch(setWatchers(entity, fakeWatchers))
     );
@@ -25,7 +25,7 @@ export function fetchWatchers(entity) {
 
 export function fetchAssignees(entity) {
   return dispatch => {
-    return Api.get("/fakeurl").then(
+    return Api.get('/fakeurl').then(
       () => dispatch(setAssignees(entity, fakeAssignees)),
       () => dispatch(setAssignees(entity, fakeAssignees))
     );

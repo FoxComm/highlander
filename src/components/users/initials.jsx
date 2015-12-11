@@ -6,7 +6,7 @@ const UserInitials = props => {
     if (name) {
       [firstName, lastName] = name.split(/\s+/);
     } else {
-      throw new Error("UserInitials: at least firstName,lastName or name are required");
+      throw new Error('UserInitials: at least firstName,lastName or name are required');
     }
   }
 

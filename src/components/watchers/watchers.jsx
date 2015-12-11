@@ -113,7 +113,7 @@ export default class Watchers extends React.Component {
 
   @autobind
   buildRow(users, className, group) {
-    const rowClass = classNames("fc-watchers__users-row", className);
+    const rowClass = classNames('fc-watchers__users-row', className);
     if (users.length <= this.maxDisplayed) {
       const cells = users.map((watcher, idx) => this.renderCell(watcher, `cell-${group}-${idx}`));
       return (

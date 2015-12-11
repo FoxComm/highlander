@@ -20,58 +20,90 @@ export default class AddWatcherModal extends React.Component {
     };
   }
 
-  render() {
-    const props = this.props;
-    const title = `Assign ${props.entity.entityType}`;
-    const text = `${title} to:`;
+  static propTypes = {
+    isVisible: PropTypes.bool,
+    entity: PropTypes.shape({
+      entityType: PropTypes.string,
+      entityId: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    }).isRequired,
+    cancelAction: PropTypes.func.isRequired,
+    suggestCustomers: PropTypes.func.isRequired,
+    suggestedItems: PropTypes.array.isRequired,
+    selectedWatchers: PropTypes.array,
+    onItemSelected: PropTypes.func,
+    onAddClick: PropTypes.func
+  };
 
-    const actionBlock = (
-      <a className='fc-modal-close' onClick={props.cancelAction}>
+  static defaultProps = {
+    isVisible: false,
+    selectedWatchers: [],
+    query: ''
+  };
+
+  get title() {
+    return `Assign ${this.props.entity.entityType}`;
+  }
+
+  get text() {
+    return `${this.title} to:`;
+  }
+
+  get actionBlock() {
+    return (
+      <a className='fc-modal-close' onClick={this.props.cancelAction}>
         <i className='icon-close'></i>
       </a>
     );
+  };
 
-    const footer = (
+  get footer() {
+    return (
       <div className="fc-modal-footer fc-add-watcher-modal__footer">
         <a className="fc-btn-link"
-           onClick={props.cancelAction}>Cancel</a>
-        <PrimaryButton onClick={props.onAddClick}>
+           onClick={this.props.cancelAction}>Cancel</a>
+        <PrimaryButton onClick={this.props.onAddClick}>
           Assign
         </PrimaryButton>
       </div>
     );
+  }
 
-    const pilledInput = (
+  get pilledInput() {
+    return (
       <PilledInput
         value={this.state.query}
         onChange={(e) => this.setState({query: e.target.value})}
-        pills={props.selectedWatchers.map(user => user.name)}
+        pills={this.props.selectedWatchers.map(user => user.name)}
         icon={null}
-        onPillClose={(name, idx) => props.onDeleteClick(name, idx)} />
+        onPillClose={(name, idx) => this.props.onDeleteClick(name, idx)} />
     );
+  }
 
-    const typeaheadItem = props => {
-      const item = props.item;
-      return (
-        <div className="fc-add-watcher-modal__typeahead-item">
-          <div className="fc-add-watcher-modal__typeahead-item-icon">
-            <UserInitials name={item.name} email={item.email} />
-          </div>
-          <div className="fc-add-watcher-modal__typeahead-item-name">
-            {item.name}
-          </div>
-          <div className="fc-add-watcher-modal__typeahead-item-email">
-            {item.email}
-          </div>
+  typeaheadItem(props) {
+    const item = props.item;
+    return (
+      <div className="fc-add-watcher-modal__typeahead-item">
+        <div className="fc-add-watcher-modal__typeahead-item-icon">
+          <UserInitials name={item.name} email={item.email} />
         </div>
-      );
-    };
+        <div className="fc-add-watcher-modal__typeahead-item-name">
+          {item.name}
+        </div>
+        <div className="fc-add-watcher-modal__typeahead-item-email">
+          {item.email}
+        </div>
+      </div>
+    );
+  };
+
+  render() {
+    const props = this.props;
 
     return (
       <ModalContainer isVisible={props.isVisible}>
-        <ContentBox title={title}
-                    actionBlock={actionBlock}
-                    footer={footer}
+        <ContentBox title={this.title}
+                    actionBlock={this.actionBlock}
+                    footer={this.footer}
                     className="fc-add-watcher-modal">
           <div className="fc-modal-body fc-add-watcher-modal__content">
             <Typeahead
@@ -79,12 +111,12 @@ export default class AddWatcherModal extends React.Component {
               labelClass="fc-add-watcher-modal__label"
               fetchItems={props.suggestCustomers}
               minQueryLength={2}
-              component={typeaheadItem}
+              component={this.typeaheadItem}
               items={props.suggestedItems}
-              label={text}
+              label={this.text}
               name="customerQuery"
               placeholder="Name or email..."
-              inputElement={pilledInput}
+              inputElement={this.pilledInput}
               onItemSelected={props.onItemSelected} />
           </div>
         </ContentBox>
@@ -92,24 +124,3 @@ export default class AddWatcherModal extends React.Component {
     );
   }
 };
-
-AddWatcherModal.propTypes = {
-  isVisible: PropTypes.bool,
-  entity: PropTypes.shape({
-    entityType: PropTypes.string,
-    entityId: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-  }).isRequired,
-  cancelAction: PropTypes.func.isRequired,
-  suggestCustomers: PropTypes.func.isRequired,
-  suggestedItems: PropTypes.array.isRequired,
-  selectedWatchers: PropTypes.array,
-  onItemSelected: PropTypes.func,
-  onAddClick: PropTypes.func
-};
-
-AddWatcherModal.defaultProps = {
-  isVisible: false,
-  selectedWatchers: [],
-  query: ''
-};
-
