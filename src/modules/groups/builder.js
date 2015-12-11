@@ -88,8 +88,8 @@ export function submitQuery() {
     dispatch(searchStarted());
     const criteria = getState().groups.builder.criterions;
     searchCustomers(criteria).then(
-        results => dispatch(searchCompleted(results)) && results,
-        errors => dispatch(searchFailed(errors)) && errors);
+      results => dispatch(searchCompleted(results)) && results,
+      errors => dispatch(searchFailed(errors)) && errors);
   };
 }
 
@@ -142,19 +142,22 @@ const reducer = createReducer({
   },
   [searchStarted]: (state) => {
     return assoc(state,
-        'esStart', true,
-        'searchErrors', null);
+      'esStart', true,
+      'searchErrors', null
+    );
   },
   [searchCompleted]: (state, results) => {
     return assoc(state,
-        'esStart', false,
-        'searchResultsLength', get(results, ['hits', 'total']),
-        'searchResults', results);
+      'esStart', false,
+      'searchResultsLength', get(results, ['hits', 'total']),
+      'searchResults', results
+    );
   },
   [searchFailed]: (state, errors) => {
     return assoc(state,
-          'esStart', false,
-          'searchErrors', errors);
+      'esStart', false,
+      'searchErrors', errors
+    );
   },
   [addCriterionAction]: state => {
     if (_.contains(currentTerms(state), null)) {

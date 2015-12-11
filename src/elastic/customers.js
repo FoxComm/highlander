@@ -6,33 +6,27 @@ import _ from 'lodash';
 const CUSTOMERS_TYPE = 'customers_search_view';
 
 const customersStartOpts = {
-    index: DEFAULT_INDEX,
-    type: CUSTOMERS_TYPE,
+  index: DEFAULT_INDEX,
+  type: CUSTOMERS_TYPE,
 };
 
 export function searchCustomers(criterions) {
-    const req = ejs.Request().query(ejs.MatchAllQuery());
-    const filters = _.map(criterions, (crit, _) => {
-        switch(crit.value.type) {
-            case 'bool':
-                return ejs.TermsFilter(crit.selectedTerm, crit.value.value == 't'); // FIXME: use native bool?
-            case 'date':
-            case 'number':
-            case 'currency':
-                return rangeToFilter(crit.selectedTerm, crit.selectedOperator, crit.value.value);
+  const req = ejs.Request().query(ejs.MatchAllQuery());
+  const filters = _.map(criterions, (crit, _) => {
+    switch(crit.value.type) {
+      case 'bool':
+        return ejs.TermsFilter(crit.selectedTerm, crit.value.value == 't'); // FIXME: use native bool?
+      case 'date':
+      case 'number':
+      case 'currency':
+        return rangeToFilter(crit.selectedTerm, crit.selectedOperator, crit.value.value);
 
-        }
-    });
-    req.filter(ejs.AndFilter(filters));
+    }
+  });
+  req.filter(ejs.AndFilter(filters));
 
-    return newClient().search(_.merge(customersStartOpts, {
-            body: req
-        }
-    ));
+  return newClient().search(_.merge(customersStartOpts, {
+      body: req
+    }
+  ));
 }
-
-//var m1 = ejs.MatchQuery('name').query('Adil');
-//var m2 = ejs.TermQuery('is_blacklisted', false);
-//
-//var filtered = ejs.FilteredQuery(m1, m2);
-//var r = searchCustomers(newClient(), filtered);

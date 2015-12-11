@@ -37,10 +37,10 @@ export default class NewDynamicGroup extends React.Component {
   get searchResults() {
     if (this.props.searchResults) {
       return (
-          <div>
-            <div className='fc-group-new-title fc-group-new-count-title'>Customer Count:</div>
-            <div className='fc-group-new-count'>{ this.props.searchResultsLength }</div>
-          </div>
+        <div>
+          <div className='fc-group-new-title fc-group-new-count-title'>Customer Count:</div>
+          <div className='fc-group-new-count'>{ this.props.searchResultsLength }</div>
+        </div>
       );
     }
   }
@@ -53,8 +53,8 @@ export default class NewDynamicGroup extends React.Component {
 
     return (
       <NewGroupBase title='New Dynamic Customer Group'
-                  alternativeId='groups-new-manual'
-                  alternativeTitle='manual group'>
+                    alternativeId='groups-new-manual'
+                    alternativeTitle='manual group'>
         <Form onSubmit={this.onSubmit}>
           <FormField label='Group Name'
                      labelClassName='fc-group-new-title fc-group-new-name'>
@@ -75,7 +75,7 @@ export default class NewDynamicGroup extends React.Component {
                 items={mainMatchStatuses}
                 value={this.state.matchCriteria}
                 onChange={ (value) => this.setState({matchCriteria: value}) }
-                  />
+              />
             </span>
             <span className='fc-group-new-match-span'>of the following criteria:</span>
           </div>
