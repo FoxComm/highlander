@@ -61,7 +61,7 @@ export function injectTimeMarks(activities) {
   });
 }
 
-const renderActivityItem = (activity, idx) => {
+const renderActivityItem = (activity, idx, list, hasMore) => {
   switch (activity.type) {
     case 'mark':
       return (
@@ -76,7 +76,8 @@ const renderActivityItem = (activity, idx) => {
         </li>
       );
     default:
-      return <Activity activity={activity} key={`activity_${idx}`} />;
+      const isFirst = !hasMore && idx == list.length - 1;
+      return <Activity activity={activity} isFirst={isFirst} key={`activity_${idx}`} />;
   }
 };
 
@@ -97,7 +98,7 @@ const ActivityTrail = props => {
 
   return (
     <ul className="fc-activity-trail">
-      {withTimeMarks.map((activity, idx) => renderActivityItem(activity, idx))}
+      {withTimeMarks.map((activity, idx) => renderActivityItem(activity, idx, withTimeMarks, props.hasMore))}
       {olderButton}
     </ul>
   );

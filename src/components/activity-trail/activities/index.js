@@ -1,27 +1,50 @@
 
-import path from 'path';
 import React, { PropTypes } from 'react';
 import types from './base/types';
 
-import AddedNote from './added-note';
-import toggleLineItems from './toggled-line-items';
-import ChangedOrderState from './changed-order-state';
-import EditedShippingAddress from './edited-shipping-address';
+import OrderTarget from './base/order-target';
+import Activity from './base/activity';
+
+import * as toggleLineItemsDesc from './toggled-line-items';
+import * as editShippingAddressDesc from './edited-shipping-address';
+
+const representatives = {
+  [types.ADDED_NOTE]: {
+    title: data => {
+      return (
+        <div>
+          {data.author} <strong>added a note</strong> on <OrderTarget order={data.order} />.
+        </div>
+      );
+    }
+  },
+  [types.CHANGED_ORDER_STATE]: {
+    title: data => {
+      return (
+        <div>
+          {data.author} <strong>changed the order state</strong> to {data.order.statusTitle}
+          &nbsp;on <OrderTarget order={data.order} />.
+        </div>
+      );
+    }
+  },
+  [types.EDITED_SHIPPING_ADDRESS]: editShippingAddressDesc,
+  [types.ADDED_LINE_ITEMS]: toggleLineItemsDesc,
+  [types.REMOVED_LINE_ITEMS]: toggleLineItemsDesc,
+};
+
 
 export function getActivityRepresentative(activity) {
-  switch (activity.type) {
-    case types.ADDED_NOTE:
-      return AddedNote;
-    case types.CHANGED_ORDER_STATE:
-      return ChangedOrderState;
-    case types.EDITED_SHIPPING_ADDRESS:
-      return EditedShippingAddress;
-    case types.ADDED_LINE_ITEMS:
-    case types.REMOVED_LINE_ITEMS:
-      return toggleLineItems(activity.type);
-    default:
-      return null;
-  }
+  const desc = representatives[activity.type];
+
+  const args = [activity.data, activity];
+
+  const params = {
+    title: desc.title(...args),
+    details: desc.details ? desc.details(...args) : null,
+  };
+
+  return props => <Activity {...params} {...props} />;
 }
 
 export default function(props) {

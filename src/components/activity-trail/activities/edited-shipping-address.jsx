@@ -1,34 +1,26 @@
 
-import React, { PropTypes } from 'react';
+import React from 'react';
 import OrderTarget from './base/order-target';
-import Activity from './base/activity';
 import AddressDetails from '../../addresses/address-details';
 
-export default function({activity}) {
-  const { order } = activity.data;
+const removeName = address => {
+  return {
+    ...address,
+    name: null
+  };
+};
 
-  const actionDescription = (
+export const title = data => {
+  return (
     <div>
-      {activity.data.author} <strong>edited the shipping address</strong> on <OrderTarget order={order} />.
+      {data.author} <strong>edited the shipping address</strong> on <OrderTarget order={data.order} />.
     </div>
   );
+};
 
-  const removeName = address => {
-    return {
-      ...address,
-      name: null
-    };
+export const details = data => {
+  return {
+    newOne:  <AddressDetails address={removeName(data.newAddress)} />,
+    previous: <AddressDetails address={removeName(data.previousAddress)} />,
   };
-
-  const params = {
-    activity,
-    actionDescription,
-    details: {
-      newOne: <AddressDetails address={removeName(activity.data.newAddress)} />,
-      previous: <AddressDetails address={removeName(activity.data.previousAddress)} />,
-    },
-    undoAction: () => 1,
-  };
-
-  return <Activity {...params} />;
-}
+};
