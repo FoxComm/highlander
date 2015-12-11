@@ -11,11 +11,6 @@ die() {
   echo "$@" 1>&2
   exit 1
 }
-# Run service $1 and check if it has started
-runService() {
-  systemctl restart $1
-  echo `systemctl status $1` | grep -q 'Active: active' || die Service $1 should be running, but it seems dead
-}
 # When killall does not help
 fuzzyKill() {
   kill -9 `ps aux | grep $1 | awk '{print $2}'` 2>/dev/null || true
@@ -28,17 +23,17 @@ apacheFastestMirror()  {
 BUILD=/home/vagrant/build
 PROVISIONED=/home/vagrant/.provisioned
 PSQL="psql -h localhost -U phoenix -d phoenix_development"
+# http://wiki.bash-hackers.org/syntax/pe#substring_removal
+for FULL_NAME in /vagrant/vagrant/services/*; do
+  SERVICE_NAME=${FULL_NAME##*/} # Remove path (everything up to and including last slash)
+  SERVICES="$SERVICES ${SERVICE_NAME%.*} " # Remove extension and append space
+done
 
 mkdir ${BUILD} &> /dev/null || true
 
 # Kill everything before provisioning
-echo Stopping services:
-STOP_US=( consumer bottledwater kafka elasticsearch zookeeper postgresql )
-for STOP_ME in "${STOP_US[@]}"
-do
-	echo \    ${STOP_ME}
-  systemctl stop ${STOP_ME} &> /dev/null || true
-done
+echo Stopping services: ${SERVICES}...
+systemctl stop ${SERVICES} 2&>1 || true
 echo Cleaning the zoo
 rm -rf /tmp/* || true
 rm -rf /var/lib/zookeeper/* || true
@@ -176,7 +171,7 @@ systemctl enable postgresql &> /dev/null
 
 # Fun part where everything will try to fail
 
-runService postgresql
+systemctl restart postgresql
 
 echo Configuring DB
 sudo -u postgres createuser -s root || true
@@ -184,14 +179,9 @@ sudo -u postgres createuser -s vagrant || true
 
 su - postgres -c 'cd /phoenix && make configure'
 
-echo Staring services:
-# Systemd should handle order and dependencies
-START_US=( zookeeper kafka elasticsearch schema-registry bottledwater consumer )
-for START_ME in "${START_US[@]}"
-do
-	echo \    ${START_ME}
-  runService ${START_ME}
-done
+echo Starting services: ${SERVICES}...
+# Systemd should start everything! By magic!
+systemctl restart consumer
 
 echo
 echo "Allowing unprivileged user to view/filter journalctl logs"
@@ -202,11 +192,6 @@ echo All started and probably running! Run:
 echo "vagrant ssh -c 'sudo journalctl --pager-end --catalog --follow --lines=100'"
 echo "to watch current execution log (probably just SBT being slow)."
 echo "Use 'journalctl -u foo -u bar' to only view messages for 'foo' and 'bar' services"
-# http://wiki.bash-hackers.org/syntax/pe#substring_removal
-for FULL_NAME in /vagrant/vagrant/services/*; do
-  SERVICE_NAME=${FULL_NAME##*/} # Remove path (everything up to and including last slash)
-  SERVICES="$SERVICES ${SERVICE_NAME%.*} " # Remove extension and append space
-done
 echo "Service list: $SERVICES"
 echo "To test, run:"
 echo "curl -s -XGET 'http://localhost:9200/phoenix/customers_search_view/_search' | jq '.'"

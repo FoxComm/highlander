@@ -1,12 +1,12 @@
 [Service]
 WorkingDirectory=/vagrant
 ExecStart=/bin/bash vagrant/run_bottledwater.sh
-Restart=always
+Restart=on-failure
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=bottledwater
-TimeoutStartSec=5s
-RestartSec=10s
+TimeoutStartSec=5m
+RestartSec=5m
 
 [Install]
 WantedBy=multi-user.target
