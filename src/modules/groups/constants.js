@@ -3,6 +3,7 @@ const criteriaOptions = {
     title: 'Blacklisted status',
     type: 'bool'
   },
+  // FIXME: right now not applicable for ES search
   //region: {
   //  title: 'Region',
   //  type: 'enum',

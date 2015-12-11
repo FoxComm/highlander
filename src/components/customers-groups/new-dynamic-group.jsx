@@ -18,6 +18,7 @@ export default class NewDynamicGroup extends React.Component {
 
   static propTypes = {
     submitQuery: PropTypes.func.isRequired,
+    searchResultsLength: PropTypes.number
   };
 
   constructor(props, context) {
@@ -36,7 +37,10 @@ export default class NewDynamicGroup extends React.Component {
   get searchResults() {
     if (this.props.searchResults) {
       return (
-        <textarea readOnly={true} value={JSON.stringify(this.props.searchResults)}></textarea>
+          <div>
+            <div className='fc-group-new-title fc-group-new-count-title'>Customer Count:</div>
+            <div className='fc-group-new-count'>{ this.props.searchResultsLength }</div>
+          </div>
       );
     }
   }

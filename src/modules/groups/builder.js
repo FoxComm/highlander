@@ -148,6 +148,7 @@ const reducer = createReducer({
   [searchCompleted]: (state, results) => {
     return assoc(state,
         'esStart', false,
+        'searchResultsLength', get(results, ['hits', 'total']),
         'searchResults', results);
   },
   [searchFailed]: (state, errors) => {
