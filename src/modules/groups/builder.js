@@ -3,7 +3,7 @@ import { createAction, createReducer } from 'redux-act';
 import { assoc, get, dissoc, merge, update } from 'sprout-data';
 import { criteriaOptions, criteriaOperators } from './constants';
 import { fetchRegions } from '../regions';
-import { searchCustomers } from '../../lib/elastic/customers';
+import { searchCustomers } from '../../elastic/customers';
 
 //<editor-fold desc="funcs">
 const _createAction = (description, ...args) => {
