@@ -1,9 +1,13 @@
 FLYWAY=flyway -configFile=sql/flyway.conf -locations=filesystem:sql/
 
+define dbExists =
+test "`psql -lqt | cut -d \| -f 1 | grep -w $1 | wc -l`" = "1"
+endef
+
 configure: resetdb
 
 clean:
-	${FLYWAY} clean
+	@$(call dbExists,phoenix_development) && ${FLYWAY} clean || true
 
 migrate:
 	${FLYWAY} migrate
