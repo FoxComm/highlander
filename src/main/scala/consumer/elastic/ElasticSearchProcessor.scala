@@ -8,6 +8,7 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings.MappingDefinition
 import org.elasticsearch.common.settings.ImmutableSettings
 import org.elasticsearch.indices.IndexMissingException
+import org.elasticsearch.transport.RemoteTransportException
 
 import org.json4s.JsonAST.JInt
 import org.json4s.jackson.JsonMethods.parse
@@ -68,7 +69,6 @@ class ElasticSearchProcessor(
       client.execute(deleteIndex(indexName)).await
     } catch {
       case e: IndexMissingException ⇒ Console.err.println(s"Index already exists")
-      case e: Throwable             ⇒ Console.err.println(s"Error when dropping index: ${e.getMessage}")
     }
   }
 
@@ -95,11 +95,15 @@ class ElasticSearchProcessor(
     // See if it has an id and use that as _id in elasticsearch.
     parse(document) \ "id" match {
       case JInt(jid) ⇒
-        println(s"Indexing document with ID $jid from topic $topic...\r\n$document")
+        try {
+          println(s"Indexing document with ID $jid from topic $topic...\r\n$document")
 
-        client.execute {
-          index into indexName / topic id jid doc PassthroughSource(document)
-        }.await()
+          client.execute {
+            index into indexName / topic id jid doc PassthroughSource(document)
+          }.await()
+        } catch {
+          case e: RemoteTransportException ⇒ Console.err.println(s"Error while indexing: $e")
+        }
 
       case _ ⇒
         println(s"Skipping unidentified document from topic $topic...\r\n$document")

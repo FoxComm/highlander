@@ -1,7 +1,5 @@
 package consumer
 
-import scala.concurrent.ExecutionContext
-
 import com.sksamuel.elastic4s.source.DocumentSource
 
 /**

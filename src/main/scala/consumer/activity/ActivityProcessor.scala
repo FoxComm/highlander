@@ -66,12 +66,7 @@ class ActivityProcessor(phoenix : PhoenixConnectionInfo, connectors: Seq[Activit
 
     implicit val formats: DefaultFormats.type = DefaultFormats
 
-    val activityJsonFields = Map(
-      "id" → "id", 
-      "activity_type" → "activityType", 
-      "data" → "data", 
-      "context" → "context",
-      "created_at" → "createdAt")
+    val activityJsonFields = List("id", "activityType", "data", "context", "createdAt")
 
     def beforeAction(){}
 
