@@ -67,7 +67,7 @@ If you have troubles with building `avro-c` dependency for bottledwater extensio
 3. Run consumer with specified environment:
 
 	```
-	$ sbt -Denv=localhost consume
+	$ sbt -Denv=localhost esConsume
 	```
 
 ## Testing
