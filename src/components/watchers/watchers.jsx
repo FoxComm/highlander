@@ -27,41 +27,15 @@ const Groups = {
 export default class Watchers extends React.Component {
 
   static propTypes = {
-    assignees: PropTypes.array,
-    watchers: PropTypes.array,
     entity: PropTypes.shape({
       entityType: PropTypes.string,
       entityId: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
     }).isRequired
   };
 
-  static defaultProps = {
-    assignees: [
-      {name: 'Jeff Mataya', email: 'jeff@foxcommerce.com'},
-      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
-      {name: 'Donkey Sypachev', email: 'eugene@foxcommerce.com'},
-      {name: 'Donkey Donkey', email: 'eugene@foxcommerce.com'},
-      {name: 'Eugene Donkey', email: 'eugene@foxcommerce.com'},
-      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
-      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
-      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
-      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
-      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
-      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'}
-    ],
-    watchers: [
-      {name: 'Jeff Mataya', email: 'jeff@foxcommerce.com'},
-      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
-      {name: 'Donkey Sypachev', email: 'eugene@foxcommerce.com'},
-      {name: 'Donkey Donkey', email: 'eugene@foxcommerce.com'},
-      {name: 'Eugene Donkey', email: 'eugene@foxcommerce.com'},
-      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
-      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
-      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
-      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
-      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
-      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'}
-    ]
+  componentDidMount() {
+    this.props.fetchWatchers(this.entity);
+    this.props.fetchAssignees(this.entity);
   }
 
   get entity() {
@@ -73,9 +47,10 @@ export default class Watchers extends React.Component {
   }
 
   get assignees() {
-    if (_.isEmpty(this.props.assignees)) {
+    const assignees = _.get(this.props, ['data', 'assignees', 'entries'], []);
+    if (_.isEmpty(assignees)) {
       return (
-        <div className="fc-watchers__assignees-row">
+        <div className="fc-watchers__users-row fc-watchers__assignees-row">
           <AddButton className="fc-watchers__add-button"
                        onClick={() => this.props.showAddingModal(this.entity)}/>
           <div className="fc-watchers__empty-list fc-watchers__assignees-empty">
@@ -84,14 +59,15 @@ export default class Watchers extends React.Component {
         </div>
       );
     } else {
-      return this.buildRow(this.props.assignees, 'fc-watchers__assignees-row', Groups.ASSIGNEES);
+      return this.buildRow(assignees, 'fc-watchers__assignees-row', Groups.ASSIGNEES);
     }
   }
 
   get watchers() {
-    if (_.isEmpty(this.props.watchers)) {
+    const watchers = _.get(this.props, ['data', 'watchers', 'entries'], []);
+    if (_.isEmpty(watchers)) {
       return (
-        <div className="fc-watchers__watchers-row">
+        <div className="fc-watchers__users-row fc-watchers__watchers-row">
           <AddButton className="fc-watchers__add-button"
                        onClick={() => this.props.showAddingModal(this.entity)}/>
           <div className="fc-watchers__empty-list fc-watchers__watchers-empty">
@@ -100,7 +76,7 @@ export default class Watchers extends React.Component {
         </div>
       );
     } else {
-      return this.buildRow(this.props.watchers, 'fc-watchers__watchers-row', Groups.WATCHERS);
+      return this.buildRow(watchers, 'fc-watchers__watchers-row', Groups.WATCHERS);
     }
   }
 
@@ -137,6 +113,7 @@ export default class Watchers extends React.Component {
 
   @autobind
   buildRow(users, className, group) {
+    console.log(users);
     const rowClass = classNames("fc-watchers__users-row", className);
     if (users.length <= this.maxDisplayed) {
       const cells = users.map((watcher, idx) => this.renderCell(watcher, `cell-${group}-${idx}`));
@@ -164,6 +141,7 @@ export default class Watchers extends React.Component {
   }
 
   render() {
+    console.log(this.props);
     const suggestedItems = _.get(this.props, ['data', 'suggestedWatchers'], []);
     return (
       <Panel className="fc-watchers">
