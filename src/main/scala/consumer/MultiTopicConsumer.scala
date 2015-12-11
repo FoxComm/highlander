@@ -4,13 +4,17 @@ import java.util.Properties
 import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext
 
-import org.apache.kafka.clients.consumer._
+import org.apache.kafka.clients.consumer.KafkaConsumer
 
 /**
  * Consumer using Kafka's new 0.9.0.0 consumer API
  */
-class MultiTopicConsumer(topics: Seq[String], groupId: String, broker: String, processor: MessageProcessor,
-  timeout: Long = 1000) {
+class MultiTopicConsumer(
+  topics: Seq[String], 
+  groupId: String, 
+  broker: String, 
+  processor: MessageProcessor,
+  timeout: Long = 100)(implicit ec: ExecutionContext) {
 
   val props = new Properties()
   props.put("bootstrap.servers", broker)
@@ -24,7 +28,7 @@ class MultiTopicConsumer(topics: Seq[String], groupId: String, broker: String, p
   consumer.subscribe(topics.toList)
   println(s"Subscribed to topics: ${consumer.subscription}")
 
-  def readForever()(implicit ec: ExecutionContext): Unit = {
+  def readForever(): Unit = {
     while (true) {
       val records = consumer.poll(timeout)
 

@@ -2,12 +2,16 @@ package consumer
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.JavaConversions._
-import com.typesafe.config._
+import com.typesafe.config.ConfigFactory
+
+import consumer.elastic.ElasticSearchProcessor
+import consumer.elastic.AvroTransformers
 
 /**
- * Simple test that will run against staging and index customers in the stage ES.
+ * Program which consumes several bottledwater topics and indexes them in Elastic Search
  */
-object Main {
+
+object EsMain {
   val environmentProperty = "env"
   val defaultEnvironment  = "default"
 
@@ -26,13 +30,26 @@ object Main {
     val kafkaGroupId          = conf.getString(s"$env.kafka.groupId")
     val kafkaTopics           = conf.getStringList(s"kafka.topics").toIndexedSeq.toSeq
 
+    val transformers = Map(
+      "customers_search_view" →  AvroTransformers.CustomerSearchView(),
+      "orders_search_view" →  AvroTransformers.OrderSearchView())
+
     // Init processors & consumer
-    val esProcessor = new ElasticSearchProcessor(uri = elasticSearchUrl, cluster = elasticSearchCluster,
-      indexName = elasticSearchIndex, topics = kafkaTopics)
+    val esProcessor = new ElasticSearchProcessor(
+      uri = elasticSearchUrl, 
+      cluster = elasticSearchCluster,
+      indexName = elasticSearchIndex, 
+      topics = kafkaTopics,
+      jsonTransformers = transformers)
 
-    val avroProcessor = new AvroProcessor(schemaRegistryUrl = avroSchemaRegistryUrl, processor = esProcessor)
+    val avroProcessor = new AvroProcessor(
+      schemaRegistryUrl = avroSchemaRegistryUrl, 
+      processor = esProcessor)
 
-    val consumer = new MultiTopicConsumer(topics = kafkaTopics, broker = kafkaBroker, groupId = kafkaGroupId,
+    val consumer = new MultiTopicConsumer(
+      topics = kafkaTopics, 
+      broker = kafkaBroker, 
+      groupId = kafkaGroupId,
       processor = avroProcessor)
 
     // Execture beforeAction

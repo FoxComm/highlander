@@ -28,6 +28,10 @@ lazy val phoenixScala = (project in file(".")).
       "confluent" at "http://packages.confluent.io/maven"
     ),
     libraryDependencies ++= {
+      val akkaV      = "2.3.11"
+      val akkaHttpV  = "1.0"
+      val scalaTestV = "2.2.5"
+      val monocleV   = "1.1.1"
       val json4sVersion = "3.3.0.RC3"
 
       Seq(
@@ -40,11 +44,25 @@ lazy val phoenixScala = (project in file(".")).
         // Search
         "org.apache.kafka"          % "kafka_2.11"            % "0.9.0.0",
         "io.confluent"              % "kafka-avro-serializer" % "1.0",
-        "com.sksamuel.elastic4s"    %% "elastic4s-core"       % "1.7.4"
+        "com.sksamuel.elastic4s"    %% "elastic4s-core"       % "1.7.4",
+        // Akka
+        "com.typesafe.akka"    %% "akka-slf4j"               % akkaV,
+        "com.typesafe.akka"    %% "akka-actor"               % akkaV,
+        "com.typesafe.akka"    %% "akka-agent"               % akkaV,
+        "com.typesafe.akka"    %% "akka-stream-experimental" % akkaHttpV,
+        "com.typesafe.akka"    %% "akka-http-experimental"   % akkaHttpV,
+        "de.heikoseeberger"    %% "akka-http-json4s"         % "1.0.0",
+
+        //cats
+        "org.spire-math"       %% "cats"                      % "0.3.0"
       )
     },
     (mainClass in Compile) := Some("consumer.Main")
 )
 
-lazy val consume = inputKey[Unit]("Runs the Kafka consumer")
-consume := { (runMain in Compile).partialInput(" consumer.Main").evaluated }
+lazy val esConsume = inputKey[Unit]("Runs the Kafka Elastic Search consumers")
+esConsume := { (runMain in Compile).partialInput(" consumer.EsMain").evaluated }
+
+lazy val activityConsume = inputKey[Unit]("Runs the Kafka Activity consumers")
+activityConsume := { (runMain in Compile).partialInput(" consumer.ActivityMain").evaluated }
+

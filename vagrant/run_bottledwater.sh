@@ -1,3 +1,3 @@
 #!/bin/bash
 
-/usr/local/bin/bottledwater --postgres=postgres://phoenix@localhost/phoenix_development --allow-unkeyed
+/usr/local/bin/bottledwater -u --postgres=postgres://phoenix@localhost/phoenix_development --allow-unkeyed
