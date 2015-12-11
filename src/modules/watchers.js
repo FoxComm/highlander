@@ -5,12 +5,14 @@ import { createAction, createReducer } from 'redux-act';
 
 export const toggleWatchers = createAction('WATCHERS_TOGGLE', (entity, group) => [entity, group]);
 export const showAddingModal = createAction('WATCHERS_ADDING_MODAL_SHOW', (entity, group) => [entity, group]);
-export const closeAddingModal = createAction('WATCHERS_ADDING_MODAL_CLOSE', (entity, group) => [entity, group]);
+export const closeAddingModal = createAction('WATCHERS_ADDING_MODAL_CLOSE');
 export const itemSelected = createAction('WATCHERS_SELECT_NEW', (entity, item) => [entity, item]);
+export const itemDeleted = createAction('WATCHERS_DELETE_NEW', (entity, name, idx) => [entity, name, idx]);
 
 const setSuggestedWathcers = createAction('WATCHERS_SET_SUGGERSTED_WATCHERS', (entity, payload) => [entity, payload]);
 const setWatchers = createAction('WATCHERS_SET_WATCHERS', (entity, payload) => [entity, payload]);
 const setAssignees = createAction('WATCHERS_SET_ASSIGNEES', (entity, payload) => [entity, payload]);
+const assignWatchers = createAction('WATCHERS_ASSIGN');
 
 export function fetchWatchers(entity) {
   return dispatch => {
@@ -40,6 +42,14 @@ export function suggestWatchers(entity, term) {
   };
 }
 
+export function addWatchers(entity) {
+  return dispatch => {
+    // Api calls will be here
+    dispatch(assignWatchers(entity));
+    dispatch(closeAddingModal(entity));
+  };
+}
+
 const initialState = {};
 
 const reducer = createReducer({
@@ -48,9 +58,12 @@ const reducer = createReducer({
     return assoc(state, [entityType, entityId, group, 'displayed'], !oldValue);
   },
   [showAddingModal]: (state, [{entityType, entityId}, group]) => {
-    return assoc(state, [entityType, entityId, 'modalDisplayed'], true);
+    return assoc(state,
+      [entityType, entityId, 'modalDisplayed'], true,
+      [entityType, entityId, 'modalGroup'], group
+    );
   },
-  [closeAddingModal]: (state, [{entityType, entityId}, group]) => {
+  [closeAddingModal]: (state, {entityType, entityId}) => {
     return assoc(state, [entityType, entityId, 'modalDisplayed'], false);
   },
   [setWatchers]: (state, [{entityType, entityId}, payload]) => {
@@ -66,6 +79,26 @@ const reducer = createReducer({
     const items = _.get(state, [entityType, entityId, 'selectedItems'], []);
     const newItems = items.concat(item);
     return assoc(state, [entityType, entityId, 'selectedItems'], newItems);
+  },
+  [itemDeleted]: (state, [{entityType, entityId}, name, idx]) => {
+    const group = _.get(state, [entityType, entityId, 'modalGroup']);
+    const items = _.get(state, [entityType, entityId, 'selectedItems'], []);
+    const newItems = [];
+    _.each(items, item => {if (item.name !== name) newItems.push(item);});
+    return assoc(state,
+      [entityType, entityId, 'selectedItems'], newItems
+    );
+  },
+  [assignWatchers]: (state, {entityType, entityId}) => {
+    const items = _.get(state, [entityType, entityId, 'selectedItems'], []);
+    const group = _.get(state, [entityType, entityId, 'modalGroup']);
+    const groupEntries = _.get(state, [entityType, entityId, group, 'entries'], []);
+    const newEntries = groupEntries.concat(items);
+    return assoc(state,
+      [entityType, entityId, 'modalGroup'], null,
+      [entityType, entityId, 'selectedItems'], [],
+      [entityType, entityId, group, 'entries'], newEntries
+    );
   }
 }, initialState);
 

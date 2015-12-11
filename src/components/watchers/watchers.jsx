@@ -120,7 +120,7 @@ export default class Watchers extends React.Component {
       return (
         <div className={rowClass}>
           <AddButton className="fc-watchers__add-button"
-                     onClick={() => this.props.showAddingModal(this.entity)}/>
+                     onClick={() => this.props.showAddingModal(this.entity, group)}/>
           {cells}
         </div>
       );
@@ -132,7 +132,7 @@ export default class Watchers extends React.Component {
       return (
         <div className={rowClass}>
           <AddButton className="fc-watchers__add-button"
-                     onClick={() => this.props.showAddingModal(this.entity)}/>
+                     onClick={() => this.props.showAddingModal(this.entity, group)}/>
           {displayedCells}
           {this.buildHiddenRow(hiddenCells, group)}
         </div>
@@ -175,7 +175,9 @@ export default class Watchers extends React.Component {
                          suggestCustomers={() => this.props.suggestWatchers(this.entity)}
                          suggestedItems={suggestedItems}
                          selectedWatchers={this.props.data.selectedItems}
-                         onItemSelected={(item) => this.props.itemSelected(this.entity, item)}/>
+                         onItemSelected={(item) => this.props.itemSelected(this.entity, item)}
+                         onAddClick={() => this.props.addWatchers(this.entity)}
+                         onDeleteClick={(name, idx) => this.props.itemDeleted(this.entity, name, idx)}/>
       </Panel>
     );
   }

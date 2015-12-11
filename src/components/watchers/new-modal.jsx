@@ -35,7 +35,7 @@ export default class AddWatcherModal extends React.Component {
       <div className="fc-modal-footer fc-add-watcher-modal__footer">
         <a className="fc-btn-link"
            onClick={props.cancelAction}>Cancel</a>
-        <PrimaryButton onClick={props.cancelAction}>
+        <PrimaryButton onClick={props.onAddClick}>
           Assign
         </PrimaryButton>
       </div>
@@ -47,7 +47,7 @@ export default class AddWatcherModal extends React.Component {
         onChange={(e) => this.setState({query: e.target.value})}
         pills={props.selectedWatchers.map(user => user.name)}
         icon={null}
-        onPillClose={_.noop} />
+        onPillClose={(name, idx) => props.onDeleteClick(name, idx)} />
     );
 
     const typeaheadItem = props => {
@@ -103,7 +103,8 @@ AddWatcherModal.propTypes = {
   suggestCustomers: PropTypes.func.isRequired,
   suggestedItems: PropTypes.array.isRequired,
   selectedWatchers: PropTypes.array,
-  onItemSelected: PropTypes.func
+  onItemSelected: PropTypes.func,
+  onAddClick: PropTypes.func
 };
 
 AddWatcherModal.defaultProps = {
