@@ -123,7 +123,7 @@ export default class Watchers extends React.Component {
     });
     return (
       <div className="fc-watchers__rest-cell">
-        <Button icon="list"
+        <Button icon="ellipsis"
                 className={buttonClass}
                 onClick={() => this.props.toggleWatchers(this.entity, group)} />
         <div className={hiddenBlockClass}>
@@ -164,7 +164,7 @@ export default class Watchers extends React.Component {
   }
 
   render() {
-    console.log(this.props);
+    const suggestedItems = _.get(this.props, ['data', 'suggestedWatchers'], []);
     return (
       <Panel className="fc-watchers">
         <div className="fc-watchers__container">
@@ -193,7 +193,9 @@ export default class Watchers extends React.Component {
         </div>
         <AddWatcherModal isVisible={this.props.data.modalDisplayed}
                          entity={this.entity}
-                         cancelAction={() => this.props.closeAddingModal(this.entity)}/>
+                         cancelAction={() => this.props.closeAddingModal(this.entity)}
+                         suggestCustomers={() => this.props.suggestWatchers(this.entity)}
+                         suggestedItems={suggestedItems}/>
       </Panel>
     );
   }

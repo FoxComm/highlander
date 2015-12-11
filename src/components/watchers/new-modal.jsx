@@ -7,6 +7,8 @@ import React, { PropTypes } from 'react';
 import { ModalContainer } from '../modal/base';
 import ContentBox from '../content-box/content-box';
 import { PrimaryButton } from '../common/buttons';
+import Typeahead from '../typeahead/typeahead';
+import UserInitials from '../users/initials';
 
 const AddWatcherModal = props => {
   const title = `Assign ${props.entity.entityType}`;
@@ -28,6 +30,23 @@ const AddWatcherModal = props => {
     </div>
   );
 
+  const typeaheadItem = props => {
+    const item = props.item;
+    return (
+      <div className="fc-add-watcher-modal__typeahead-item">
+        <div className="fc-add-watcher-modal__typeahead-item-icon">
+          <UserInitials name={item.name} email={item.email} />
+        </div>
+        <div className="fc-add-watcher-modal__typeahead-item-name">
+          {item.name}
+        </div>
+        <div className="fc-add-watcher-modal__typeahead-item-email">
+          {item.email}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <ModalContainer isVisible={props.isVisible}>
       <ContentBox title={title}
@@ -35,7 +54,17 @@ const AddWatcherModal = props => {
                   footer={footer}
                   className="fc-add-watcher-modal">
         <div className="fc-modal-body fc-add-watcher-modal__content">
-          {text}
+          <Typeahead
+            className="_no-search-icon"
+            labelClass="fc-add-watcher-modal__label"
+            fetchItems={props.suggestCustomers}
+            minQueryLength={2}
+            component={typeaheadItem}
+            items={props.suggestedItems}
+            label={text}
+            name="customerQuery"
+            placeholder="Name or email..."
+            />
         </div>
       </ContentBox>
     </ModalContainer>
@@ -48,7 +77,9 @@ AddWatcherModal.propTypes = {
     entityType: PropTypes.string,
     entityId: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
   }).isRequired,
-  cancelAction: PropTypes.func.isRequired
+  cancelAction: PropTypes.func.isRequired,
+  suggestCustomers: PropTypes.func.isRequired,
+  suggestedItems: PropTypes.array.isRequired
 };
 
 AddWatcherModal.defaultProps = {
