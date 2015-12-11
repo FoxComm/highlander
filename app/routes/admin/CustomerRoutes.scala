@@ -17,7 +17,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object CustomerRoutes {
 
-  def routes(implicit ec: ExecutionContext, db: Database, 
+  def routes(implicit ec: ExecutionContext, db: Database,
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
@@ -153,6 +153,11 @@ object CustomerRoutes {
               goodOrFailures {
                 StoreCreditAdjustmentsService.forCustomer(customerId)
               }
+            }
+          } ~
+          (get & path("totals")) {
+            goodOrFailures {
+              StoreCreditService.totalsForCustomer(customerId)
             }
           } ~
           (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒

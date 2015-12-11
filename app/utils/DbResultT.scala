@@ -33,6 +33,11 @@ object DbResultT {
 
       override def flatMap[A, B](fa: DBIO[A])(f: A => DBIO[B]): DBIO[B] = fa.flatMap(f)
     }
+
+    implicit class EnrichedDbResultT[A](dbResultT: DbResultT[A]) {
+      def runT(txn: Boolean = true)(implicit ec: ExecutionContext, db: Database): Result[A] =
+        if (txn) dbResultT.value.transactionally.run() else dbResultT.value.run()
+    }
   }
 
   import implicits._
@@ -83,10 +88,4 @@ object DbResultT {
     def <~[A](v: DbResultT[A])(implicit ec: ExecutionContext): DbResultT[A] =
       v
   }
-
-  implicit class EnrichedDbResultT[A](dbResultT: DbResultT[A]) {
-    def runT(txn: Boolean = true)(implicit ec: ExecutionContext, db: Database): Result[A] =
-      if (txn) dbResultT.value.transactionally.run() else dbResultT.value.run()
-  }
-
 }
