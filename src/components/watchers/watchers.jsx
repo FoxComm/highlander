@@ -113,7 +113,6 @@ export default class Watchers extends React.Component {
 
   @autobind
   buildRow(users, className, group) {
-    console.log(users);
     const rowClass = classNames("fc-watchers__users-row", className);
     if (users.length <= this.maxDisplayed) {
       const cells = users.map((watcher, idx) => this.renderCell(watcher, `cell-${group}-${idx}`));
@@ -141,7 +140,6 @@ export default class Watchers extends React.Component {
   }
 
   render() {
-    console.log(this.props);
     const suggestedItems = _.get(this.props, ['data', 'suggestedWatchers'], []);
     return (
       <Panel className="fc-watchers">
