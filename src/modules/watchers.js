@@ -6,6 +6,7 @@ import { createAction, createReducer } from 'redux-act';
 export const toggleWatchers = createAction('WATCHERS_TOGGLE', (entity, group) => [entity, group]);
 export const showAddingModal = createAction('WATCHERS_ADDING_MODAL_SHOW', (entity, group) => [entity, group]);
 export const closeAddingModal = createAction('WATCHERS_ADDING_MODAL_CLOSE', (entity, group) => [entity, group]);
+export const itemSelected = createAction('WATCHERS_SELECT_NEW', (entity, item) => [entity, item]);
 
 const setSuggestedWathcers = createAction('WATCHERS_SET_SUGGERSTED_WATCHERS', (entity, payload) => [entity, payload]);
 const setWatchers = createAction('WATCHERS_SET_WATCHERS', (entity, payload) => [entity, payload]);
@@ -17,7 +18,7 @@ export function fetchWatchers(entity) {
       () => dispatch(setWatchers(entity, fakeWatchers)),
       () => dispatch(setWatchers(entity, fakeWatchers))
     );
-  }
+  };
 }
 
 export function fetchAssignees(entity) {
@@ -26,7 +27,7 @@ export function fetchAssignees(entity) {
       () => dispatch(setAssignees(entity, fakeAssignees)),
       () => dispatch(setAssignees(entity, fakeAssignees))
     );
-  }
+  };
 }
 
 export function suggestWatchers(entity, term) {
@@ -59,9 +60,12 @@ const reducer = createReducer({
     return assoc(state, [entityType, entityId, 'assignees', 'entries'], payload);
   },
   [setSuggestedWathcers]: (state, [{entityType, entityId}, payload]) => {
-    const nextState = assoc(state, [entityType, entityId, 'suggestedWatchers'], payload);
-    console.log(nextState);
-    return nextState;
+    return assoc(state, [entityType, entityId, 'suggestedWatchers'], payload);
+  },
+  [itemSelected]: (state, [{entityType, entityId}, item]) => {
+    const items = _.get(state, [entityType, entityId, 'selectedItems'], []);
+    const newItems = items.concat(item);
+    return assoc(state, [entityType, entityId, 'selectedItems'], newItems);
   }
 }, initialState);
 

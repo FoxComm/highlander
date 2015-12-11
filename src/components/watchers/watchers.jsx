@@ -173,7 +173,9 @@ export default class Watchers extends React.Component {
                          entity={this.entity}
                          cancelAction={() => this.props.closeAddingModal(this.entity)}
                          suggestCustomers={() => this.props.suggestWatchers(this.entity)}
-                         suggestedItems={suggestedItems}/>
+                         suggestedItems={suggestedItems}
+                         selectedWatchers={this.props.data.selectedItems}
+                         onItemSelected={(item) => this.props.itemSelected(this.entity, item)}/>
       </Panel>
     );
   }
