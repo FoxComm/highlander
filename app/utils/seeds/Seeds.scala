@@ -41,10 +41,6 @@ object Seeds {
       case _ ⇒ None
     }
 
-    Console.err.println(s"Refreshing materialized views...")
-    Await.result(refreshViews.run(), 5.second)
-    Console.err.println(s"Done.")
-
     db.close()
   }
 
@@ -95,29 +91,6 @@ object Seeds {
       Reason(body = "Cancelled because duplication", reasonType = Cancellation, parentId = None, storeAdminId = 0),
       Reason(body = "Other cancellation reason", reasonType = Cancellation, parentId = None, storeAdminId = 0)
     )
-  }
-
-  private def refreshViews(implicit db: Database) = {
-    sql"""refresh materialized view concurrently customers_ranking;
-       | refresh materialized view concurrently customer_orders_view;
-       | refresh materialized view concurrently customer_purchased_items_view;
-       | refresh materialized view concurrently customer_shipping_addresses_view;
-       | refresh materialized view concurrently customer_billing_addresses_view;
-       | refresh materialized view concurrently customer_store_credit_view;
-       | refresh materialized view concurrently customer_save_for_later_view;
-       | refresh materialized view concurrently customers_search_view;
-       | refresh materialized view concurrently order_line_items_view;
-       | refresh materialized view concurrently order_payments_view;
-       | refresh materialized view concurrently order_credit_card_payments_view;
-       | refresh materialized view concurrently order_gift_card_payments_view;
-       | refresh materialized view concurrently order_store_credit_payments_view;
-       | refresh materialized view concurrently order_shipments_view;
-       | refresh materialized view concurrently order_shipping_addresses_view;
-       | refresh materialized view concurrently order_billing_addresses_view;
-       | refresh materialized view concurrently order_assignments_view;
-       | refresh materialized view concurrently order_rmas_view;
-       | refresh materialized view concurrently orders_search_view;
-    """.stripMargin.asUpdate
   }
 
   private def flyWayMigrate(config: com.typesafe.config.Config): Unit = {
