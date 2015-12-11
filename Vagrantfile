@@ -9,9 +9,7 @@ $vb_memory = 4048
 $vb_cpu = 2
 $vb_host = "192.168.10.111"
 
-if File.readable?(CONFIG)
-  require CONFIG
-end
+require CONFIG if File.readable?(CONFIG)
 
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/vivid64"
@@ -28,6 +26,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.synced_folder "../bottledwater-pg/", "/bottledwater"
   config.vm.synced_folder "../phoenix-scala/", "/phoenix"
+  config.vm.synced_folder File.join(ENV['HOME'], '.ivy2'), "/home/vagrant/.ivy2", create: true
 
   config.vm.provision "fix-no-tty", type: "shell" do |s|
       s.privileged = false
