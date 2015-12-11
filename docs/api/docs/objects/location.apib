@@ -2,13 +2,13 @@
 
 ### BaseCountry
 + id: 1 (required, number) - Unique identifier.
-+ name: `Andorra` (required, string) - Country name.
-+ alpha2: `AD` (required, string) - Two-letter ISO code for country.
-+ alpha3: `AND` (required, string) - Three-letter ISO code for country.
++ name: `United States` (required, string) - Country name.
++ alpha2: `US` (required, string) - Two-letter ISO code for country.
++ alpha3: `USA` (required, string) - Three-letter ISO code for country.
 + code: 376 (required, string) - Country phone code.
-+ continent: `Europe` (required, string) - Country continent.
-+ currency: `EUR` (required, string) - Official currency in country.
-+ languages (required, array[string]) - Languages in country.
++ continent: `North America` (required, string) - Country continent.
++ currency: `USD` (required, string) - Official currency in country.
++ languages: `en` (required, array[string]) - Languages in country.
 + usesPostalCode: true (required, boolean) - Whether postal code is using.
 + isShippable: false (required, boolean) - Whether country is shippable.
 + isBillable: false (required, boolean) - Whether country is billable.
@@ -16,7 +16,7 @@
 ### Address
 + id: 1 (required, number) - Unique identifier.
 + region (required, Region) - Region/state if the country.
-+ name: `John Doe` (required, string) - Recipient name.
++ name: `John Smith` (required, string) - Recipient name.
 + address1: `555 E Lake Union St.` (required, string) - Address line 1.
 + address2: `Suite 200` (optional, string) - Address line 2.
 + city: `Seattle` (required, string) - City.
@@ -31,13 +31,40 @@
 + Include BaseCountry
 + regions (required, array[Region]) - Country regions list.
 
+### Sku
++ id: 1 (required, number) - Unique identifier.
++ name: `Flonkey` (required, string) - Product name.
++ availableForSale: false (required, boolean) - Defines where SKU is available for sale.
+
 ### Region
 + id: 1 (required, number) - Unique identifier.
 + countryId: 2794 (required, number) - Country unique identifier.
 + name: `Washington` (required, string) - Region name.
+
+### CreateAddressPayload
++ name: `John Smith` (required, string) - Recipient name.
++ regionId (required, number) - Region unique ID.
++ address1: `555 E Lake Union St.` (required, string) - Address line 1.
++ address2: `Suite 200` (optional, string) - Address line 2.
++ city: `Seattle` (required, string) - City.
++ zip: 98124 (required, string) - zip/postal code.
++ isDefault: false (optional, boolean) - Default or not in address book.
++ phoneNumber: `555-555-555` (optional, string) - Contact phone number.
+
+### UpdateAddressPayload
++ name: `John Smith` (optional, string) - Recipient name.
++ regionId (optional, number) - Region unique ID.
++ address1: `555 E Lake Union St.` (optional, string) - Address line 1.
++ address2: `Suite 200` (optional, string) - Address line 2.
++ city: `Seattle` (optional, string) - City.
++ zip: 98124 (optional, string) - zip/postal code.
++ isDefault: false (optional, boolean) - Default or not in address book.
++ phoneNumber: `555-555-555` (optional, string) - Contact phone number.
 
 ### Addresses
 + result (required, array[Address]) - The resulting list of Addresses.
 + Include ResultMetadata
 
 ### Countries (array[Country])
+
+### Regions (array[Region])

@@ -119,6 +119,18 @@ object GiftCard {
     )
   }
 
+  def buildScTransfer(balance: Int, originId: Int, currency: Currency): GiftCard = {
+    GiftCard(
+      originId = originId,
+      originType = GiftCard.FromStoreCredit,
+      status = GiftCard.Active,
+      currency = currency,
+      originalBalance = balance,
+      availableBalance = balance,
+      currentBalance = balance
+    )
+  }
+
   def buildLineItem(balance: Int, originId: Int, currency: Currency): GiftCard = {
     GiftCard(
       originId = originId,

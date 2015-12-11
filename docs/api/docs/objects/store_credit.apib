@@ -51,6 +51,12 @@
 + errors (optional, array[string]) - List of possible errors.
 + storeCredit (optional, StoreCredit) - Updated StoreCredit.
 
+### StoreCreditCreateSinglePayload
++ amount: 10 (required, number) - Store credit amount.
++ reasonId: 1 (required, number) - Reason of creation.
++ subReasonId: 1 (optional, number) - Subreason.
++ currency: USD (optional, string) - Store credit currency.
+
 ### StoreCreditCreatePayload
 + amount: 10 (required, number) - Store credit amount.
 + quantity: 1 (required, number) - Quantity.

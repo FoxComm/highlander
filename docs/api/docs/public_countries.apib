@@ -1,17 +1,16 @@
-## Country [/v1/countries/{countryId}]
+## List Regions [GET /v1/regions]
 
-+ Parameters
-    + countryId: 1 (required, number) - Country unique identifier.
++ Response 200 (application/json)
+    + Attributes (Regions)
 
-### List [GET /v1/countries]
+### List Countries [GET /v1/countries]
 
 + Response 200 (application/json)
     + Attributes (Countries)
 
-### View [GET]
+### View Country [GET /v1/countries/{countryId}]
 
++ Parameters
+	+ countryId: 1 (required, number) - Country ID
 + Response 200 (application/json)
     + Attributes (FullCountry)
-
-+ Response 404 (application/json)
-    + Attributes (Errors)

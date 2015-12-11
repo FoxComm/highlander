@@ -56,7 +56,13 @@
 
 ### GiftCardCreatePayload
 + balance: 10 (required, number) - Gift card balance.
-+ quantity: 1 (required, number) - Quantity.
++ quantity: 1 (optional, number) - Quantity.
++ reasonId: 1 (required, number) - Reason ID for generation.
++ currency: USD (optional, string) - Gift card currency.
++ subTypeId: 1 (optional, number) - Possible subtype ID.
+
+### GiftCardSingleCreatePayload
++ balance: 10 (required, number) - Gift card balance.
 + reasonId: 1 (required, number) - Reason ID for generation.
 + currency: USD (optional, string) - Gift card currency.
 + subTypeId: 1 (optional, number) - Possible subtype ID.

@@ -146,14 +146,14 @@ object OrderRoutes {
               OrderShippingAddressUpdater.createShippingAddressFromPayload(payload, refNum)
             }
           } ~
-          (patch & pathEnd & entity(as[payloads.UpdateAddressPayload])) { payload ⇒
-            goodOrFailures {
-              OrderShippingAddressUpdater.updateShippingAddressFromPayload(payload, refNum)
-            }
-          } ~
           (patch & path(IntNumber) & pathEnd) { addressId ⇒
             goodOrFailures {
               OrderShippingAddressUpdater.createShippingAddressFromAddressId(addressId, refNum)
+            }
+          } ~
+          (patch & pathEnd & entity(as[payloads.UpdateAddressPayload])) { payload ⇒
+            goodOrFailures {
+              OrderShippingAddressUpdater.updateShippingAddressFromPayload(payload, refNum)
             }
           } ~
           (delete & pathEnd) {
