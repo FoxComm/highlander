@@ -13,6 +13,22 @@ Build:
 	$ nvm install
 	$ make install
 	$ make build
+	
+## Watch
+
+Watch command will launch built-in web server with livereload on [http://localhost:3000](http://localhost:3000)
+	
+Watch Admin Endpoints:
+
+	$ make watch
+	
+Watch Customer Endpoints:
+
+	$ make watch_customer
+	
+Watch Public Endpoints:
+
+	$ make watch_public
 
 ## Links
 
