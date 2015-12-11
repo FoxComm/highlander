@@ -1,5 +1,5 @@
 const criteriaOptions = {
-  is_blacklisted: {
+  isBlacklisted: {
     title: 'Blacklisted status',
     type: 'bool'
   },
@@ -12,7 +12,7 @@ const criteriaOptions = {
     title: 'Total Sales',
     type: 'currency'
   },
-  joined_at: {
+  joinedAt: {
     title: 'Date Joined',
     type: 'date'
   }
