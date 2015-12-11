@@ -31,6 +31,8 @@ object EsMain {
     val kafkaTopics           = conf.getStringList(s"kafka.topics").toIndexedSeq.toSeq
 
     val transformers = Map(
+      "regions" → AvroTransformers.Region(),
+      "countries"  → AvroTransformers.Country(),
       "customers_search_view" →  AvroTransformers.CustomerSearchView(),
       "orders_search_view" →  AvroTransformers.OrderSearchView())
 

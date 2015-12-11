@@ -8,8 +8,10 @@ import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.serializers.AbstractKafkaAvroDeserializer
 import org.apache.avro.generic.GenericDatumWriter
 import org.apache.avro.io.EncoderFactory
+import org.apache.kafka.common.errors.SerializationException
 
 import org.json4s.JsonAST.{JInt, JObject, JField, JString}
+import org.json4s.ParserUtil.ParseException
 import org.json4s.jackson.JsonMethods.{render, compact, parse}
 
 /**
@@ -42,7 +44,7 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
       processor.process(offset, topic, json)
 
     } catch {
-      case e: Throwable ⇒ Console.err.println(s"Error consuming avro message $e")
+      case e: SerializationException ⇒ Console.err.println(s"Error serializing avro message $e")
     }
   }
 }
@@ -51,9 +53,10 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
  * Helper functions to transform json comming from bottledwater into something
  * more reasonable.
  */
-object AvroJsonHelper { 
-  type FieldMap = Map[String, String]
-  def transformJson(json: String, fields: FieldMap): String = {
+object AvroJsonHelper {
+  def underscoreToCamel(s: String): String = "_([a-z])".r.replaceAllIn(s, _.group(1).toUpperCase)
+
+  def transformJson(json: String, fields: List[String]): String = {
     // Reduce Avro type annotations
     val unwrapTypes = parse(json).transformField {
       case JField(name, (JObject(JField(typeName, value) :: Nil))) ⇒  { 
@@ -61,14 +64,19 @@ object AvroJsonHelper {
       }
     }
 
+    // Convert all snake_case to camelCase
+    val camelCased = unwrapTypes.transformField {
+      case JField(name, anything) ⇒ (underscoreToCamel(name), anything)
+    }
+
     // Convert escaped json fields to AST
-    val unescapeJson = unwrapTypes.transformField {
+    val unescapeJson = camelCased.transformField {
       case JField(name, JString(text)) if fields.contains(name) ⇒  {
-        //try to parse the text as json, otherwise treat it as text
+        // Try to parse the text as json, otherwise treat it as text
         try {
-          (fields(name), parse(text))
+          (name, parse(text))
         } catch { 
-          case _ : Throwable ⇒ (fields(name), JString(text))
+          case _ : ParseException ⇒ (name, JString(text))
         }
       }
     }
