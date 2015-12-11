@@ -1,0 +1,272 @@
+{
+	"properties": {
+		"adjustments_total": {
+			"type": "integer"
+		},
+		"assignees": {
+			"type": "nested",
+			"properties": {
+				"assigned_at": {
+					"type": "date",
+					"format": "dateOptionalTime"
+				},
+				"first_name": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				},
+				"last_name": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				}
+			}
+		},
+		"assignment_count": {
+			"type": "integer"
+		},
+		"billing_addresses": {
+			"type": "nested",
+			"properties": {
+				"address1": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				},
+				"address2": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				},
+				"city": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				},
+				"continent": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				},
+				"country": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				},
+				"currency": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				},
+				"region": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				},
+				"zip": {
+					"type": "string",
+					"index": "not_analyzed"
+				}
+			}
+		},
+		"billing_addresses_count": {
+			"type": "integer"
+		},
+		"created_at": {
+			"type": "date",
+			"format": "dateOptionalTime"
+		},
+		"credit_card_count": {
+			"type": "integer"
+		},
+		"credit_card_total": {
+			"type": "integer"
+		},
+		"currency": {
+			"type": "string",
+			"index": "not_analyzed"
+		},
+		"customer": {
+			"type": "nested",
+			"properties": {
+				"email": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				},
+				"is_blacklisted": {
+					"type": "boolean"
+				},
+				"joined_at": {
+					"type": "date",
+					"format": "dateOptionalTime"
+				},
+				"name": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				},
+				"rank": {
+					"type": "integer"
+				},
+				"revenue": {
+					"type": "integer"
+				}
+			}
+		},
+		"gift_card_count": {
+			"type": "integer"
+		},
+		"gift_card_total": {
+			"type": "integer"
+		},
+		"grand_total": {
+			"type": "integer"
+		},
+		"id": {
+			"type": "integer"
+		},
+		"line_item_cont": {
+			"type": "integer"
+		},
+		"line_items": {
+			"type": "nested",
+			"properties": {
+				"name": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				},
+				"price": {
+					"type": "integer"
+				},
+				"sku": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				},
+				"status": {
+					"type": "string",
+					"index": "not_analyzed"
+				}
+			}
+		},
+		"payments": {
+			"type": "nested",
+			"properties": {
+				"amount": {
+					"type": "integer"
+				},
+				"currency": {
+					"type": "string",
+					"index": "not_analyzed"
+				},
+				"payment_method_type": {
+					"type": "string",
+					"index": "not_analyzed"
+				}
+			}
+		},
+		"placed_at": {
+			"type": "date",
+			"format": "dateOptionalTime"
+		},
+		"reference_number": {
+			"type": "string",
+			"analyzer": "autocomplete"
+		},
+		"rma_count": {
+			"type": "integer"
+		},
+		"rmas": {
+			"type": "nested",
+			"properties": {
+				"placed_at": {
+					"type": "date",
+					"format": "dateOptionalTime"
+				},
+				"reference_number": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				},
+				"rma_type": {
+					"type": "string",
+					"index": "not_analyzed"
+				},
+				"status": {
+					"type": "string",
+					"index": "not_analyzed"
+				}
+			}
+		},
+		"shipment_count": {
+			"type": "integer"
+		},
+		"shipments": {
+			"type": "nested",
+			"properties": {
+				"admin_display_name": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				},
+				"shipping_price": {
+					"type": "integer"
+				},
+				"status": {
+					"type": "string",
+					"index": "not_analyzed"
+				},
+				"storefront_display_name": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				}
+			}
+		},
+		"shipping_addresses": {
+			"type": "nested",
+			"properties": {
+				"address1": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				},
+				"address2": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				},
+				"city": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				},
+				"continent": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				},
+				"country": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				},
+				"currency": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				},
+				"region": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				},
+				"zip": {
+					"type": "string",
+					"index": "not_analyzed"
+				}
+			}
+		},
+		"shipping_addresses_count": {
+			"type": "integer"
+		},
+		"shipping_total": {
+			"type": "integer"
+		},
+		"status": {
+			"type": "string",
+			"index": "not_analyzed"
+		},
+		"store_credit_count": {
+			"type": "integer"
+		},
+		"store_credit_total": {
+			"type": "integer"
+		},
+		"sub_total": {
+			"type": "integer"
+		},
+		"taxes_total": {
+			"type": "integer"
+		}
+	}
+}
