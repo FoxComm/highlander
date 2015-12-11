@@ -96,8 +96,19 @@ const ActivityTrail = props => {
     );
   }
 
+  let noActivities = null;
+
+  if (!withTimeMarks.length) {
+    noActivities = (
+      <li className="fc-activity-trail__no-activities">
+        No activity yet.
+      </li>
+    );
+  }
+
   return (
     <ul className="fc-activity-trail">
+      {noActivities}
       {withTimeMarks.map((activity, idx) => renderActivityItem(activity, idx, withTimeMarks, props.hasMore))}
       {olderButton}
     </ul>
