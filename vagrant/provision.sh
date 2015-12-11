@@ -179,36 +179,19 @@ systemctl enable postgresql &> /dev/null
 runService postgresql
 
 echo Configuring DB
-sudo -u postgres createuser -s root || {
-    echo "postgres: root user already created, ignoring"
-}
-sudo -u postgres createuser -s vagrant || {
-    echo "postgres: vagrant user already created, ignorng"
-}
+sudo -u postgres createuser -s root || true
+sudo -u postgres createuser -s vagrant || true
 
 su - postgres -c 'cd /phoenix && make configure'
 
 echo Staring services:
-
-START_US=( zookeeper kafka elasticsearch schema-registry )
+# Systemd should handle order and dependencies
+START_US=( zookeeper kafka elasticsearch schema-registry bottledwater consumer )
 for START_ME in "${START_US[@]}"
 do
 	echo \    ${START_ME}
   runService ${START_ME}
 done
-
-# echo Creating bottledwater extension
-# ${PSQL} -c 'create extension bottledwater;' || die Failed to create bottledwater!
-
-echo Hang on, need to wait to start bottledwater
-sleep 10
-echo
-
-echo Starting more services:
-echo \    bottledwater
-runService bottledwater
-echo \    consumer
-runService consumer
 
 echo
 echo "Allowing unprivileged user to view/filter journalctl logs"
