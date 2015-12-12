@@ -9,8 +9,17 @@ import NewGroupBase from './new-group-base.jsx';
 import QueryBuilder from './query-builder';
 import { connect } from 'react-redux';
 import { assoc } from 'sprout-data';
+import { autobind } from 'core-decorators';
+import * as GroupBuilderActions from '../../modules/groups/builder';
 
+
+@connect(state => state.groups.builder, GroupBuilderActions)
 export default class NewDynamicGroup extends React.Component {
+
+  static propTypes = {
+    submitQuery: PropTypes.func.isRequired,
+    searchResultsLength: PropTypes.number
+  };
 
   constructor(props, context) {
     super(props, context);
@@ -18,6 +27,22 @@ export default class NewDynamicGroup extends React.Component {
       name: '',
       matchCriteria: 'all'
     };
+  }
+
+  @autobind
+  onSubmit() {
+    this.props.submitQuery();
+  }
+
+  get searchResults() {
+    if (this.props.searchResults) {
+      return (
+        <div>
+          <div className='fc-group-new-title fc-group-new-count-title'>Customer Count:</div>
+          <div className='fc-group-new-count'>{ this.props.searchResultsLength }</div>
+        </div>
+      );
+    }
   }
 
   render() {
@@ -28,9 +53,9 @@ export default class NewDynamicGroup extends React.Component {
 
     return (
       <NewGroupBase title='New Dynamic Customer Group'
-                  alternativeId='groups-new-manual'
-                  alternativeTitle='manual group'>
-        <Form>
+                    alternativeId='groups-new-manual'
+                    alternativeTitle='manual group'>
+        <Form onSubmit={this.onSubmit}>
           <FormField label='Group Name'
                      labelClassName='fc-group-new-title fc-group-new-name'>
             <input id='nameField'
@@ -50,11 +75,12 @@ export default class NewDynamicGroup extends React.Component {
                 items={mainMatchStatuses}
                 value={this.state.matchCriteria}
                 onChange={ (value) => this.setState({matchCriteria: value}) }
-                  />
+              />
             </span>
             <span className='fc-group-new-match-span'>of the following criteria:</span>
           </div>
-          <QueryBuilder/>
+          <QueryBuilder {...this.props}/>
+          {this.searchResults}
           <div className='fc-group-new-form-submits'>
             <Link to='customers'>Cancel</Link>
             <Button>Make Manual Group</Button>

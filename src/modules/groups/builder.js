@@ -3,6 +3,7 @@ import { createAction, createReducer } from 'redux-act';
 import { assoc, get, dissoc, merge, update } from 'sprout-data';
 import { criteriaOptions, criteriaOperators } from './constants';
 import { fetchRegions } from '../regions';
+import { searchCustomers } from '../../elastic/customers';
 
 //<editor-fold desc="funcs">
 const _createAction = (description, ...args) => {
@@ -77,6 +78,20 @@ const updateCriteria = _createAction('UPDATE_CRITERIA', (id, newCrit) => [id, ne
 const prepareData = _createAction('PREPARE_DATA');
 export const changeOperator = _createAction('CHANGE_OPERATOR', (id, newOpVal) => [id, newOpVal]);
 export const changeValue = _createAction('CHANGE_VALUE', (id, newVal) => [id, newVal]);
+// ES actions
+const searchStarted = _createAction('ES_STARTED');
+const searchCompleted = _createAction('ES_COMPLETED');
+const searchFailed = _createAction('ES_FAILED');
+
+export function submitQuery() {
+  return (dispatch, getState) => {
+    dispatch(searchStarted());
+    const criteria = getState().groups.builder.criterions;
+    searchCustomers(criteria).then(
+      results => dispatch(searchCompleted(results)) && results,
+      errors => dispatch(searchFailed(errors)) && errors);
+  };
+}
 
 // TODO: use ES7 await here when we update babel to 6.x
 export function initBuilder() {
@@ -88,10 +103,12 @@ export function initBuilder() {
   };
 
   return (dispatch, getState) => {
-    if (_.isEmpty(getState().regions)) {
-      dispatch(fetchRegions()).then(() => updateState(dispatch, getState));
-    } else {
-      updateState(dispatch, getState);
+    if (_.contains(criteriaOptions, 'region')) {
+      if (_.isEmpty(getState().regions)) {
+        dispatch(fetchRegions()).then(() => updateState(dispatch, getState));
+      } else {
+        updateState(dispatch, getState);
+      }
     }
   };
 }
@@ -122,6 +139,25 @@ export function addCriterion() {
 const reducer = createReducer({
   [prepareData]: (state, data) => {
     return assoc(state, 'staticData', data);
+  },
+  [searchStarted]: (state) => {
+    return assoc(state,
+      'esStart', true,
+      'searchErrors', null
+    );
+  },
+  [searchCompleted]: (state, results) => {
+    return assoc(state,
+      'esStart', false,
+      'searchResultsLength', get(results, ['hits', 'total']),
+      'searchResults', results
+    );
+  },
+  [searchFailed]: (state, errors) => {
+    return assoc(state,
+      'esStart', false,
+      'searchErrors', errors
+    );
   },
   [addCriterionAction]: state => {
     if (_.contains(currentTerms(state), null)) {

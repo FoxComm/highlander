@@ -8,10 +8,7 @@ import Currency from '../common/currency';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { assoc, dissoc, get } from 'sprout-data';
-import * as GroupBuilderActions from '../../modules/groups/builder';
 
-
-@connect(state => state.groups.builder, GroupBuilderActions)
 export default class QueryBuilder extends React.Component {
 
   static propTypes = {
