@@ -34,7 +34,7 @@
     display: inline-block;
     cursor: pointer;
   }
-  
+
   &-remove-crit {
     .font-spec(18px);
     cursor: pointer;
@@ -65,7 +65,7 @@
       // lines
       &:after {
         content: "";
-        height: @sep-line-height;
+        .height(@sep-line-height);
         border-top: 2px solid @color-decor7;
         border-right: 2px solid @color-decor7;
         width: @line-width;
@@ -74,7 +74,7 @@
         top: 50%;
       }
       &:last-of-type:after { // last-child not worked here :(
-        height: @line-height;
+        .height(@line-height);
       }
     }
 
@@ -82,7 +82,7 @@
       display: flex;
       align-items: flex-start;
       &:not(:first-child) {
-        margin-top: @sep-line-height - @dropdown-height - 2;
+        .margin-top(@sep-line-height - @dropdown-height - 2);
       }
       &:last-child {
         margin-bottom: @b-size + (@line-height - @dropdown-height/2) + @critertion-margin;
@@ -95,15 +95,17 @@
       // circle
       border-radius: 50%;
       width: @b-size;
+      font-size: 14px;
       height: @b-size;
+      line-height: @b-size;
       left: @line-width - @b-size/2 - 1;
-      top: @dropdown-height + (@line-height - @dropdown-height/2) - 1;
+      .top(@dropdown-height + (@line-height - @dropdown-height/2) - 1);
       text-align: center;
       background: @color-decor7;
     }
 
     &-or {
-      .font-spec(14px, @bold, @b-size);
+      .font-spec(14px, @bold);
     }
 
     &-add {
