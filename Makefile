@@ -1,5 +1,5 @@
 FLYWAY=flyway -configFile=sql/flyway.conf -locations=filesystem:sql/
-DB_EXISTS=test "`psql -lqt | cut -d \| -f 1 | grep -w phoenix_development | wc -l`" = "1"
+DB_EXISTS=test "`psql -lqt --host ${PG_HOST} --user ${PG_USER} | grep phoenix_development`"
 
 configure: resetdb
 
@@ -13,13 +13,12 @@ migrate-info:
 	${FLYWAY} info
 
 resetdb: clean
-	dropdb --if-exists phoenix_development
-	dropdb --if-exists phoenix_test
-	dropuser --if-exists phoenix
-	createuser -s phoenix
-	createdb phoenix_development
-	createdb phoenix_test
+	dropdb --host ${PG_HOST} --user ${PG_USER} --if-exists phoenix_development
+	dropdb --host ${PG_HOST} --user ${PG_USER} --if-exists phoenix_test
+	dropuser --host ${PG_HOST} --user ${PG_USER} --if-exists phoenix
+	createuser --host ${PG_HOST} --user ${PG_USER} -s phoenix
+	createdb --host ${PG_HOST} --user ${PG_USER} phoenix_development
+	createdb --host ${PG_HOST} --user ${PG_USER} phoenix_test
 	@make migrate
 
 .PHONY: configure clean migrate setup
-
