@@ -3,7 +3,7 @@ import { createAction, createReducer } from 'redux-act';
 import { assoc, get, dissoc, merge, update } from 'sprout-data';
 import { criteriaOptions, criteriaOperators } from './constants';
 import { fetchRegions } from '../regions';
-import { searchCustomers } from '../../elastic/customers';
+import { groupCount } from '../../elastic/customers';
 
 //<editor-fold desc="funcs">
 const _createAction = (description, ...args) => {
@@ -92,7 +92,7 @@ export function submitQuery() {
   return (dispatch, getState) => {
     dispatch(searchStarted());
     const criteria = getState().groups.builder.criterions;
-    searchCustomers(criteria).then(
+    groupCount(criteria).then(
       results => dispatch(searchCompleted(results)) && results,
       errors => dispatch(searchFailed(errors)) && errors);
   };
@@ -154,7 +154,7 @@ const reducer = createReducer({
   [searchCompleted]: (state, results) => {
     return assoc(state,
       'esStart', false,
-      'searchResultsLength', get(results, ['hits', 'total']),
+      'searchResultsLength', get(results, ['count']),
       'searchResults', results
     );
   },

@@ -10,10 +10,10 @@ const customersStartOpts = {
   type: CUSTOMERS_TYPE,
 };
 
-export function searchCustomers(criterions) {
-  const req = ejs.Request().query(ejs.MatchAllQuery());
-  const filters = _.map(criterions, (crit, _) => {
-    switch(crit.value.type) {
+
+export function groupCriteriaToRequest(criteria) {
+  const filters = _.map(criteria, (crit, _) => {
+    switch (crit.value.type) {
       case 'bool':
         return ejs.TermsFilter(crit.selectedTerm, crit.value.value);
       case 'date':
@@ -23,8 +23,19 @@ export function searchCustomers(criterions) {
 
     }
   });
-  req.filter(ejs.AndFilter(filters));
+  return ejs.Request().query(ejs.FilteredQuery(ejs.MatchAllQuery(),ejs.AndFilter(filters)));
+}
 
+export function groupCount(criteria) {
+  const req = groupCriteriaToRequest(criteria);
+  return newClient().count(_.merge(customersStartOpts, {
+      body: req
+    }
+  ));
+}
+
+export function groupSearch(criteria) {
+  const req = groupCriteriaToRequest(criteria);
   return newClient().search(_.merge(customersStartOpts, {
       body: req
     }

@@ -38,8 +38,8 @@ export default class NewDynamicGroup extends React.Component {
   get searchResults() {
     if (this.props.searchResults) {
       return (
-        <div>
-          <div className='fc-group-new-title fc-group-new-count-title'>Customer Count:</div>
+        <div className="fc-group-new __cont">
+          <div className='fc-group-new-title fc-group-new-count-title'>Customers matched to criteria:</div>
           <div className='fc-group-new-count'>{ this.props.searchResultsLength }</div>
         </div>
       );
