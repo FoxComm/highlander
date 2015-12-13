@@ -20,7 +20,7 @@ upstream search {
 
 #Change IP address here to point to phoenix
 upstream phoenix {
-    server 10.240.0.3:9090;
+    server 192.168.10.111:9090;
 }
 
 upstream ashes {

@@ -31,7 +31,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provider :google do |google, override|
     override.vm.box = "gce"
-    google.google_project_id = "foxcomm-stage"
+    google.google_project_id = "foxcomm-staging"
     google.google_client_email = ENV['GOOGLE_CLIENT_EMAIL']
     google.google_json_key_location = ENV['GOOGLE_JSON_KEY_LOCATION']
 
