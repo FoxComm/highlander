@@ -10,7 +10,7 @@ export default class SelectVertical extends React.Component {
 
   static propTypes = {
     options: PropTypes.object.isRequired, // {value -> title}
-    onChange: PropTypes.func.isRequired
+    onChange: PropTypes.func.isRequired,
   };
 
   constructor(...args) {
@@ -24,6 +24,11 @@ export default class SelectVertical extends React.Component {
   @autobind
   onAddClick(e) {
     e.preventDefault();
+
+    if (_.size(this.state.items) == _.size(this.props.options)) {
+      // nothing to add
+      return;
+    }
     this.setState({
       counter: this.state.counter + 1,
       items: assoc(this.state.items, this.state.counter, null)
@@ -59,8 +64,6 @@ export default class SelectVertical extends React.Component {
   }
 
   render() {
-    const availableValues = _.difference(_.keys(this.props.options), _.values(this.state.items));
-    const items = availableValues.reduce((r, value) => assoc(r, value, this.props.options[value]), {});
 
     const AddOrOr = ((isLast) => {
       if (isLast) {
@@ -69,6 +72,9 @@ export default class SelectVertical extends React.Component {
         return <div className='fc-vmultiselect-or'>or</div>;
       }
     }).bind(this);
+
+    const availableValues = _.difference(_.keys(this.props.options), _.values(this.state.items));
+    const items = availableValues.reduce((r, value) => assoc(r, value, this.props.options[value]), {});
 
     function renderSelect(key, index, arr) {
       const isLast = index == arr.length - 1;

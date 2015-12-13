@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 import { assoc, get } from 'sprout-data';
 import Dropdown from '../dropdown/dropdown';
+import { SliderCheckbox } from '../checkbox/checkbox';
 import CurrencyInput from '../forms/currency-input';
 import DatePicker from '../datepicker/datepicker';
 import SelectVertical from './select-vertical';
@@ -61,10 +62,11 @@ export default class Criterion extends React.Component {
       case 'currency':
         return <CurrencyInput onChange={this.props.changeValue} value={this.props.value.value}/>;
       case 'bool':
-        return (<Dropdown onChange={this.props.changeValue}
-                         value={this.props.value.value} items={{t: 'Yes', f: 'No'}}/>);
+        return <SliderCheckbox onChange={({target}) => this.props.changeValue(target.checked)} checked={this.props.value.value}/>;
       case 'enum':
-        return <SelectVertical options={this.props.value.options} onChange={this.props.changeValue}/>;
+        return <SelectVertical options={this.props.value.options}
+          {...this.props.value.props}
+          onChange={this.props.changeValue}/>;
     }
   }
 

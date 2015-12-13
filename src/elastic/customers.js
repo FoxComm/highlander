@@ -15,7 +15,7 @@ export function searchCustomers(criterions) {
   const filters = _.map(criterions, (crit, _) => {
     switch(crit.value.type) {
       case 'bool':
-        return ejs.TermsFilter(crit.selectedTerm, crit.value.value == 't'); // FIXME: use native bool?
+        return ejs.TermsFilter(crit.selectedTerm, crit.value.value);
       case 'date':
       case 'number':
       case 'currency':

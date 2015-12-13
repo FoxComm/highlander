@@ -1,14 +1,20 @@
 const criteriaOptions = {
   isBlacklisted: {
-    title: 'Blacklisted status',
+    title: 'Account is blacklisted?',
     type: 'bool'
   },
-  // FIXME: right now not applicable for ES search
-  //region: {
-  //  title: 'Region',
-  //  type: 'enum',
-  //  suggestions: []
-  //},
+  isGuest: {
+    title: 'Account is guest?',
+    type: 'bool'
+  },
+  isActive: {
+    title: 'Account is active?',
+    type: 'bool'
+  },
+  ranking: {
+    title: 'Rank',
+    type: 'number'
+  },
   revenue: {
     title: 'Total Sales',
     type: 'currency'

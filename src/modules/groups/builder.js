@@ -24,7 +24,12 @@ function newVal(state, id, term, type) {
   }
   switch(type) {
     case 'bool':
-      val['value'] = 't';
+      val['value'] = true;
+      break;
+    case 'enum':
+      if (_.isEmpty(val['options'])) {
+        val['options'] = get(criteriaOptions, [term, 'options']);
+      }
       break;
   }
   return val;
