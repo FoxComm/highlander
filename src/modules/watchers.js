@@ -64,7 +64,10 @@ const reducer = createReducer({
     );
   },
   [closeAddingModal]: (state, {entityType, entityId}) => {
-    return assoc(state, [entityType, entityId, 'modalDisplayed'], false);
+    return assoc(state,
+      [entityType, entityId, 'modalDisplayed'], false,
+      [entityType, entityId, 'modalGroup'], null
+    );
   },
   [setWatchers]: (state, [{entityType, entityId}, payload]) => {
     return assoc(state, [entityType, entityId, 'watchers', 'entries'], payload);
