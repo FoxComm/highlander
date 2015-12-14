@@ -31,7 +31,8 @@ export default class AddWatcherModal extends React.Component {
     suggestedItems: PropTypes.array.isRequired,
     selectedWatchers: PropTypes.array,
     onItemSelected: PropTypes.func,
-    onAddClick: PropTypes.func
+    onAddClick: PropTypes.func,
+    onDeleteClick: PropTypes.func
   };
 
   static defaultProps = {

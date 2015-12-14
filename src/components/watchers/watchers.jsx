@@ -141,6 +141,8 @@ export default class Watchers extends React.Component {
 
   render() {
     const suggestedItems = _.get(this.props, ['data', 'suggestedWatchers'], []);
+    const isVisible = _.get(this.props, ['data', 'modalDisplayed'], false);
+    const selectedItems = _.get(this.props, ['data', 'selectedItems'], []);
     return (
       <Panel className="fc-watchers">
         <div className="fc-watchers__container">
@@ -167,12 +169,12 @@ export default class Watchers extends React.Component {
             {this.watchers}
           </div>
         </div>
-        <AddWatcherModal isVisible={this.props.data.modalDisplayed}
+        <AddWatcherModal isVisible={isVisible}
                          entity={this.entity}
                          cancelAction={() => this.props.closeAddingModal(this.entity)}
                          suggestCustomers={() => this.props.suggestWatchers(this.entity)}
                          suggestedItems={suggestedItems}
-                         selectedWatchers={this.props.data.selectedItems}
+                         selectedWatchers={selectedItems}
                          onItemSelected={(item) => this.props.itemSelected(this.entity, item)}
                          onAddClick={() => this.props.addWatchers(this.entity)}
                          onDeleteClick={(name, idx) => this.props.itemDeleted(this.entity, name, idx)}/>
