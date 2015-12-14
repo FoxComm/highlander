@@ -20,7 +20,7 @@ export function monthList() {
 export function expirationYears() {
   const current = new Date().getFullYear();
 
-  return _.range(20).reduce( (years, n) => _.set(years, current + n,  (current + n).toString()), {});
+  return _.range(20).reduce((years, n) => _.set(years, current + n, (current + n).toString()), {});
 }
 
 export function formatExpiration(card) {

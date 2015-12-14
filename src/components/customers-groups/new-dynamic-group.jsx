@@ -18,7 +18,8 @@ export default class NewDynamicGroup extends React.Component {
 
   static propTypes = {
     submitQuery: PropTypes.func.isRequired,
-    searchResultsLength: PropTypes.number
+    searchResultsLength: PropTypes.number,
+    searchResults: PropTypes.array
   };
 
   constructor(props, context) {

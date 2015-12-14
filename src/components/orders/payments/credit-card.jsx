@@ -17,7 +17,7 @@ const CreditCard = props => {
 
   const editAction = (
     <div>
-      <EditButton onClick={() => console.log("not implemented")} />
+      <EditButton onClick={() => console.log('not implemented')} />
       <Button icon="trash" className="fc-btn-remove" onClick={deletePayment} />
     </div>
   );

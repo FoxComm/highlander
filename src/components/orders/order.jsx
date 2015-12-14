@@ -118,11 +118,21 @@ export default class Order extends React.Component {
       <div className="fc-grid fc-grid-gutter">
         <div className="fc-col-md-1-1">
           <PanelList>
-            <PanelListItem title="Order State">{orderStatus}</PanelListItem>
-            <PanelListItem title="Shipment State"><Status value={order.shippingStatus} model={"shipment"} /></PanelListItem>
-            <PanelListItem title="Payment State"><Status value={order.paymentStatus} model={"payment"} /></PanelListItem>
-            <PanelListItem title="Fraud Score">{order.fraudScore}</PanelListItem>
-            <PanelListItem title="Date/Time Placed"><DateTime value={order.placedAt} /></PanelListItem>
+            <PanelListItem title="Order State">
+              {orderStatus}
+            </PanelListItem>
+            <PanelListItem title="Shipment State">
+              <Status value={order.shippingStatus} model={"shipment"} />
+            </PanelListItem>
+            <PanelListItem title="Payment State">
+              <Status value={order.paymentStatus} model={"payment"} />
+            </PanelListItem>
+            <PanelListItem title="Fraud Score">
+              {order.fraudScore}
+            </PanelListItem>
+            <PanelListItem title="Date/Time Placed">
+              <DateTime value={order.placedAt} />
+            </PanelListItem>
           </PanelList>
         </div>
       </div>

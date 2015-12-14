@@ -19,7 +19,9 @@ export default class CustomerAccountStatus extends React.Component {
     stopDisablingCustomer: PropTypes.func.isRequired,
     toggleBlacklisted: PropTypes.func.isRequired,
     startBlacklistCustomer: PropTypes.func.isRequired,
-    stopBlacklistCustomer: PropTypes.func.isRequired
+    stopBlacklistCustomer: PropTypes.func.isRequired,
+    isDisablingStarted: PropTypes.bool.isRequired,
+    isBlacklistedStarted: PropTypes.bool.isRequired
   };
 
   get customerInfo() {

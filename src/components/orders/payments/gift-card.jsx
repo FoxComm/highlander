@@ -18,7 +18,7 @@ const GiftCard = props => {
 
   const editAction = (
     <div>
-      <EditButton onClick={() => console.log("not implemented")} />
+      <EditButton onClick={() => console.log('not implemented')} />
       <Button icon="trash" className="fc-btn-remove" onClick={deletePayment} />
     </div>
   );
@@ -57,7 +57,7 @@ const GiftCard = props => {
   return <Row {...params} />;
 };
 
-GiftCardCode.propTypes = {
+GiftCard.propTypes = {
   paymentMethod: PropTypes.shape({
     paymentMethod: PropTypes.shape({
       amount: PropTypes.number.isRequired,

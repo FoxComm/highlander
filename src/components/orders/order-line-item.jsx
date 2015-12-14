@@ -40,7 +40,8 @@ OrderLineItem.propTypes = {
   orderLineItemsStartDelete: PropTypes.func,
   order: PropTypes.shape({
     currentOrder: PropTypes.object
-  })
+  }),
+  item: PropTypes.object
 };
 
 export default OrderLineItem;

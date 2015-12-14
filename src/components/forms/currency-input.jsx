@@ -14,7 +14,8 @@ export default class CurrencyInput extends React.Component {
     onChange: PropTypes.func,
     currency: PropTypes.string,
     fractionBase: PropTypes.number,
-    defaultValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+    defaultValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    className: PropTypes.string
   };
 
   static defaultProps = {

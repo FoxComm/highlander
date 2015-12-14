@@ -19,8 +19,22 @@ Moment.defaultProps = {
 };
 
 const DateTime = props => <Moment value={props.value} format={'L LT'}/>;
+
+DateTime.propTypes = {
+  value: PropTypes.string
+};
+
 const Date = props => <Moment value={props.value} format={'L'}/>;
+
+Date.propTypes = {
+  value: PropTypes.string
+};
+
 const Time = props => <Moment value={props.value} format={'LT'}/>;
+
+Time.propTypes = {
+  value: PropTypes.string
+};
 
 export {
   Moment,

@@ -10,7 +10,8 @@ export const PanelList = props => {
 };
 
 PanelList.propTypes = {
-  children: PropTypes.node
+  children: PropTypes.node,
+  className: PropTypes.string
 };
 
 export const PanelListItem = props => {

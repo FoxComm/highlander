@@ -47,6 +47,14 @@ const viewContent = props => {
   }
 };
 
+viewContent.propTypes = {
+  order: PropTypes.shape({
+    currentOrder: PropTypes.shape({
+      paymentMethods: PropTypes.array
+    })
+  }).isRequired
+};
+
 const editContent = props => {
   const paymentMethods = props.order.currentOrder.paymentMethods;
 
@@ -63,6 +71,14 @@ const editContent = props => {
       renderRow={renderRow(true, props)}
     />
   );
+};
+
+editContent.propTypes = {
+  order: PropTypes.shape({
+    currentOrder: PropTypes.shape({
+      paymentMethods: PropTypes.array
+    })
+  }).isRequired
 };
 
 const Payments = props => {
