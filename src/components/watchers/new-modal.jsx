@@ -80,6 +80,10 @@ export default class AddWatcherModal extends React.Component {
     );
   }
 
+  onItemSelected(name, idx) {
+    this.setState({query: ''}, () => this.props.onItemSelected(name, idx));
+  }
+
   typeaheadItem(props) {
     const item = props.item;
     return (
@@ -118,7 +122,7 @@ export default class AddWatcherModal extends React.Component {
               name="customerQuery"
               placeholder="Name or email..."
               inputElement={this.pilledInput}
-              onItemSelected={props.onItemSelected} />
+              onItemSelected={(name, idx) => this.onItemSelected(name, idx)} />
           </div>
         </ContentBox>
       </ModalContainer>
