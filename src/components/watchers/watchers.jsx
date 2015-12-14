@@ -94,6 +94,9 @@ export default class Watchers extends React.Component {
     const hiddenBlockClass = classNames('fc-watchers__rest-block', {
       '_shown': active
     });
+    const hiddenBlockOverlayClass = classNames('fc-watchers__rest-block-overlay', {
+      '_shown': active
+    });
     const buttonClass = classNames('fc-watchers__toggle-watchers-btn', {
       '_active': active
     });
@@ -102,6 +105,8 @@ export default class Watchers extends React.Component {
         <Button icon="ellipsis"
                 className={buttonClass}
                 onClick={() => this.props.toggleWatchers(this.entity, group)} />
+        <div className={hiddenBlockOverlayClass}
+             onClick={() => this.props.toggleWatchers(this.entity, group)}></div>
         <div className={hiddenBlockClass}>
           <div className="fc-watchers__users-row">
             {hiddenCells}
