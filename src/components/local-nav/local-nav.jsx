@@ -17,7 +17,8 @@ const NavDropdown = props => {
 
 NavDropdown.propTypes = {
   title: PropTypes.string.isRequired,
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
+  className: PropTypes.string
 };
 
 @connect(state => ({router: state.router}))

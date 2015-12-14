@@ -43,7 +43,9 @@ const ShippingMethodRow = props => {
   return (
     <TableRow {...rest} >
       <TableCell>
-        <RadioButton className='fc-shipping-method-row-name-control' checked={shippingMethod.isSelected} onChange={updateAction}>
+        <RadioButton className='fc-shipping-method-row-name-control'
+                     checked={shippingMethod.isSelected}
+                     onChange={updateAction}>
           <span className='fc-shipping-method-row-name-field'>{shippingMethod.name}</span>
         </RadioButton>
       </TableCell>

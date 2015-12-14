@@ -57,6 +57,8 @@ export default class NewGiftCard extends React.Component {
     suggestCustomers: PropTypes.func,
     suggestedCustomers: PropTypes.array,
     types: PropTypes.array,
+    changeQuantity: PropTypes.func,
+    quantity: PropTypes.number
   };
 
   static contextTypes = {

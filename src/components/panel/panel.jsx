@@ -19,7 +19,8 @@ Panel.propTypes = {
   children: PropTypes.any,
   title: PropTypes.string,
   content: PropTypes.any,
-  featured: PropTypes.bool
+  featured: PropTypes.bool,
+  className: PropTypes.string
 };
 
 Panel.defaultProps = {

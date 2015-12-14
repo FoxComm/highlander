@@ -110,12 +110,14 @@ const reducer = createReducer({
   [receivedDisableStatus]: (state, [id, customer]) => {
     return assoc(state,
       [id, 'isFetchingStatus'], false,
-      [id, 'details', 'disabled'],  customer.disabled);
+      [id, 'details', 'disabled'], customer.disabled
+    );
   },
   [receivedBlacklisted]: (state, [id, customer]) => {
     return assoc(state,
       [id, 'isFetchingStatus'], false,
-      [id, 'details', 'blacklisted'],  customer.blacklisted);
+      [id, 'details', 'blacklisted'], customer.blacklisted
+    );
   },
   [failChangeStatus]: (state, [id, err]) => {
     console.error(err);

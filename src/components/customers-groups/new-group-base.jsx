@@ -24,7 +24,8 @@ const NewGroupBase = (props) => {
 NewGroupBase.propTypes = {
   title: PropTypes.string.isRequired,
   alternativeId: PropTypes.string.isRequired,
-  alternativeTitle: PropTypes.string.isRequired
+  alternativeTitle: PropTypes.string.isRequired,
+  children: PropTypes.node
 };
 
 export default NewGroupBase;

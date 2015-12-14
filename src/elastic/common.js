@@ -6,7 +6,7 @@ import ejs from 'elastic.js';
 function _newClient(opts = {}) {
   opts = _.merge({
     host: 'localhost:9200',
-    apiVersion: "1.7",
+    apiVersion: '1.7',
   }, opts);
   return new elasticsearch.Client(opts);
 }
@@ -35,7 +35,7 @@ export function rangeToFilter(field, operator, value) {
         filter[op2](value[1]);
         break;
       }
-      console.error('operator', operator, "isn't suitable for value", value);
+      console.error('operator', operator, 'isn\'t suitable for value', value);
       break;
 
   }

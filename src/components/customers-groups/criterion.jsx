@@ -61,11 +61,10 @@ export default class Criterion extends React.Component {
       case 'currency':
         return <CurrencyInput onChange={this.props.changeValue} value={this.props.value.value}/>;
       case 'bool':
-        return <Dropdown onChange={this.props.changeValue}
-                         value={this.props.value.value} items={{t: 'Yes', f: 'No'}}/>;
+        return (<Dropdown onChange={this.props.changeValue}
+                         value={this.props.value.value} items={{t: 'Yes', f: 'No'}}/>);
       case 'enum':
-        return <SelectVertical options={this.props.value.options}
-          onChange={this.props.changeValue}/>;
+        return <SelectVertical options={this.props.value.options} onChange={this.props.changeValue}/>;
     }
   }
 

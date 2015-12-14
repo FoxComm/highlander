@@ -56,9 +56,13 @@ const routes = (
       <Route name='customer-returns' path='returns' component={RmaChildList}/>
       <Route name='customer-notes' path='notes' component={Notes} />
       <Route name='customer-storecredits' path='storecredit' component={StoreCredits} />
-      <Route name='customer-storecredit-transactions' path='storecredits/transactions' component={StoreCreditsTransactions} />
+      <Route name='customer-storecredit-transactions'
+             path='storecredits/transactions'
+             component={StoreCreditsTransactions} />
     </Route>
-    <Route name='customer-storecredits-new' path='customers/:customerId/storecredits/new' component={NewStoreCredit} />
+    <Route name='customer-storecredits-new'
+           path='customers/:customerId/storecredits/new'
+           component={NewStoreCredit} />
     <Route name='groups-new-dynamic' path='customers/groups/new-dynamic' component={NewDynamicGroup} />
     <Route name='groups-new-manual' path='customers/groups/new-manual' component={NewManualGroup} />
     <Route name='gift-cards' path='gift-cards' component={GiftCards} />

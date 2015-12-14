@@ -36,6 +36,10 @@ const viewContent = props => {
   }
 };
 
+viewContent.propTypes = {
+  shippingMethods: PropTypes.array.isRequired
+};
+
 const ShippingMethod = props => {
   const availableShippingMethods = props.availableShippingMethods.map(shippingMethod => {
     let isSelected = false;
@@ -88,7 +92,9 @@ ShippingMethod.propTypes = {
   isEditingPrice: PropTypes.bool,
   editPriceAction: PropTypes.func,
   cancelPriceAction: PropTypes.func,
-  shippingMethods: PropTypes.array.isRequired
+  shippingMethods: PropTypes.array.isRequired,
+  currentOrder: PropTypes.object,
+  updateAction: PropTypes.func
 };
 
 export default ShippingMethod;

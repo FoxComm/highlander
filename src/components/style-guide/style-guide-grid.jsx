@@ -47,7 +47,9 @@ const StyleGuideGridGenerator = props => {
 };
 
 StyleGuideGridGenerator.propTypes = {
-  size: PropTypes.number
+  size: PropTypes.number,
+  name: PropTypes.string,
+  description: PropTypes.string
 };
 
 const StyleGuideGrid = props => {

@@ -49,6 +49,7 @@ const ConfirmationDialog = props => {
 
 ConfirmationDialog.propTypes = {
   body: PropTypes.node.isRequired,
+  header: PropTypes.node.isRequired,
   cancel: PropTypes.string.isRequired,
   confirm: PropTypes.string.isRequired,
   icon: PropTypes.string,
