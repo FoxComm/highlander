@@ -35,7 +35,7 @@
     "id": 98,
     "type": "edited_shipping_address",
     "context": {
-      "userType": "admin"
+      "userType": "customer"
     },
     "data": {
       "author": "Albert Einstein",

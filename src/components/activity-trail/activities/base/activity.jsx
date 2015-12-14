@@ -94,7 +94,11 @@ export default class Activity extends React.Component {
       case 'admin':
         return <UserInitials name={activity.data.author} />;
       default:
-        return <div className="fc-activity__customer-icon"></div>;
+        return (
+          <div className="fc-activity__customer-icon">
+            <i className="icon-customer"></i>
+          </div>
+        );
     }
   }
 
