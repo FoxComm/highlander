@@ -24,7 +24,6 @@ export default class Dropdown extends React.Component {
     this.state = {
       open: !!this.props.open,
       selectedValue: '',
-      selectedTitle: ''
     };
   }
 
@@ -48,8 +47,7 @@ export default class Dropdown extends React.Component {
     event.preventDefault();
     this.setState({
       open: false,
-      selectedValue: value,
-      selectedTitle: title
+      selectedValue: value
     }, () => {
       if (this.props.onChange) {
         this.props.onChange(value, title);
@@ -71,12 +69,9 @@ export default class Dropdown extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    if (newProps.value != this.state.selectedValue) {
-      this.setState({
-        selectedValue: newProps.value,
-        selectedTitle: this.findTitleByValue(newProps.value, newProps)
-      });
-    }
+    this.setState({
+      selectedValue: newProps.value,
+    });
   }
 
   render() {
@@ -87,7 +82,7 @@ export default class Dropdown extends React.Component {
       'is_dropdown_open': this.state.open
     });
     const value = this.state.selectedValue || this.props.value;
-    const title = this.state.selectedTitle || this.findTitleByValue(value, this.props);
+    const title = this.findTitleByValue(value, this.props);
 
     return (
       <div className={classnames} onBlur={this.onBlur} tabIndex="0">
