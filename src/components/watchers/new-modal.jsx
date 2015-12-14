@@ -14,7 +14,7 @@ import PilledInput from '../pilled-search/pilled-input';
 export default class AddWatcherModal extends React.Component {
 
   constructor(...args) {
-    super(args);
+    super(...args);
     this.state = {
       query: ''
     };
