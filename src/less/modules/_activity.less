@@ -11,8 +11,8 @@
     border: 1px solid @color-decor39;
   }
 
-  @initials-width: 40px;
-  @initials-indent: 12px;
+  @author-width: 40px;
+  @author-indent: 12px;
 
   &__head-content {
     display: flex;
@@ -27,11 +27,20 @@
 
     .initials {
       vertical-align: top;
-      margin-right: @initials-indent;
-      width: @initials-width;
-      height: @initials-width;
-      line-height: @initials-width;
+      margin-right: @author-indent;
+      width: @author-width;
+      height: @author-width;
+      line-height: @author-width;
     }
+  }
+
+  &__system-icon {
+    .inline-block();
+    width: 40px;
+    height: 40px;
+    background-image: url("/images/logo-fox.svg");
+    background-size: 40px 40px;
+    margin-right: @author-indent;
   }
 
   &__timestamp {
@@ -56,7 +65,7 @@
     line-height: 18px;
     border-top: 1px solid @color-decor9;
     margin-top: 20px;
-    padding-left: @initials-indent + @initials-width;
+    padding-left: @author-indent + @author-width;
   }
 
   &__details-head {

@@ -12,19 +12,19 @@ const representatives = {
   [types.ADDED_NOTE]: {
     title: data => {
       return (
-        <div>
-          {data.author} <strong>added a note</strong> on <OrderTarget order={data.order} />.
-        </div>
+        <span>
+          <strong>added a note</strong> on <OrderTarget order={data.order} />.
+        </span>
       );
     }
   },
   [types.CHANGED_ORDER_STATE]: {
     title: data => {
       return (
-        <div>
-          {data.author} <strong>changed the order state</strong> to {data.order.statusTitle}
+        <span>
+          <strong>changed the order state</strong> to {data.order.statusTitle}
           &nbsp;on <OrderTarget order={data.order} />.
-        </div>
+        </span>
       );
     }
   },

@@ -12,9 +12,9 @@ const removeName = address => {
 
 export const title = data => {
   return (
-    <div>
-      {data.author} <strong>edited the shipping address</strong> on <OrderTarget order={data.order} />.
-    </div>
+    <span>
+      <strong>edited the shipping address</strong> on <OrderTarget order={data.order} />.
+    </span>
   );
 };
 

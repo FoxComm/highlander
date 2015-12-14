@@ -1,5 +1,6 @@
 
 // libs
+import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
@@ -82,10 +83,39 @@ export default class Activity extends React.Component {
     }
   }
 
+  get authorIcon() {
+    const { activity } = this.props;
+
+    const userType = _.get(activity, ['context', 'userType'], 'system');
+
+    switch (userType) {
+      case 'system':
+        return <div className="fc-activity__system-icon"></div>;
+      case 'admin':
+        return <UserInitials name={activity.data.author} />;
+      default:
+        return <div className="fc-activity__customer-icon"></div>;
+    }
+  }
+
+  get authorTitle() {
+    const { activity } = this.props;
+
+    const userType = _.get(activity, ['context', 'userType'], 'system');
+
+    switch (userType) {
+      case 'system':
+        return 'FoxCommerce';
+      case 'admin':
+        return activity.data.author;
+      default:
+        return 'The customer';
+    }
+  }
+
   render() {
     const props = this.props;
     const { activity } = props;
-    const data = activity.data;
 
     const className = classNames('fc-activity', {
       '_first': props.isFirst
@@ -99,9 +129,9 @@ export default class Activity extends React.Component {
               <Time value={activity.createdAt} />
             </div>
             <div className="fc-activity__info">
-              <UserInitials name={data.author} />
+              {this.authorIcon}
               <div className="fc-activity__description">
-                {this.title}
+                {this.authorTitle}&nbsp;{this.title}
                 {this.viewMoreLink}
               </div>
             </div>

@@ -2,6 +2,9 @@
   {
     "id": 100,
     "type": "added_note",
+    "context": {
+      "userType": "system"
+    },
     "data": {
       "author": "Bree Swineford",
       "target": "order",
@@ -15,6 +18,9 @@
   {
     "id": 99,
     "type": "changed_order_state",
+    "context": {
+      "userType": "admin"
+    },
     "data": {
       "author": "Bree Swineford",
       "newState": "Fullfillment",
@@ -28,6 +34,9 @@
   {
     "id": 98,
     "type": "edited_shipping_address",
+    "context": {
+      "userType": "admin"
+    },
     "data": {
       "author": "Albert Einstein",
       "order": {
@@ -65,6 +74,9 @@
   {
     "id": 97,
     "type": "added_line_items",
+    "context": {
+      "userType": "admin"
+    },
     "data": {
       "author": "Jane Doe",
       "quantity": 2,
@@ -78,6 +90,9 @@
   {
     "id": 96,
     "type": "removed_line_items",
+    "context": {
+      "userType": "admin"
+    },
     "data": {
       "author": "Jane Doe",
       "quantity": 1,
@@ -91,6 +106,9 @@
   {
     "id": 95,
     "type": "added_note",
+    "context": {
+      "userType": "admin"
+    },
     "data": {
       "author": "Yax Darrel",
       "target": "order",

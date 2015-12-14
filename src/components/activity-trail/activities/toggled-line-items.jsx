@@ -13,8 +13,8 @@ export const title = (data, activity) => {
   const title = titles[activity.type];
 
   return (
-    <div>
-      {data.author} <strong>{title} {data.quantity} of {data.name}</strong> on <OrderTarget order={data.order} />.
-    </div>
+    <span>
+      <strong>{title} {data.quantity} of {data.name}</strong> on <OrderTarget order={data.order} />.
+    </span>
   );
 };
