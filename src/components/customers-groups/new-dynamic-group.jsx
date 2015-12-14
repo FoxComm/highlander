@@ -1,12 +1,13 @@
 import React, { PropTypes } from 'react';
 import SectionTitle from '../section-title/section-title';
-import FormField from '../forms/formfield.jsx';
+import FormField from '../forms/formfield';
 import Form from '../forms/form.jsx';
 import Dropdown from '../dropdown/dropdown';
 import { PrimaryButton, Button } from '../common/buttons';
 import { Link } from '../link';
-import NewGroupBase from './new-group-base.jsx';
+import NewGroupBase from './new-group-base';
 import QueryBuilder from './query-builder';
+import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
@@ -30,20 +31,26 @@ export default class NewDynamicGroup extends React.Component {
     };
   }
 
+  get searchCount() {
+    let count = this.props.searchResultsLength;
+    if (count == null) {
+      count = '-';
+    }
+    const valueClass = classNames({
+      'fc-group-new__count-value': true,
+      '_is_modified': false,
+    });
+    return (
+      <div className="fc-group-new__count">
+        <div className='fc-group-new-title fc-group-new__count-title'>Customers matched to criteria:</div>
+        <div className={valueClass}>{count}</div>
+      </div>
+    );
+  }
+
   @autobind
   onSubmit() {
     this.props.submitQuery();
-  }
-
-  get searchResults() {
-    if (this.props.searchResults) {
-      return (
-        <div className="fc-group-new __cont">
-          <div className='fc-group-new-title fc-group-new-count-title'>Customers matched to criteria:</div>
-          <div className='fc-group-new-count'>{ this.props.searchResultsLength }</div>
-        </div>
-      );
-    }
   }
 
   render() {
@@ -81,7 +88,7 @@ export default class NewDynamicGroup extends React.Component {
             <span className='fc-group-new-match-span'>of the following criteria:</span>
           </div>
           <QueryBuilder {...this.props}/>
-          {this.searchResults}
+          {this.searchCount}
           <div className='fc-group-new-form-submits'>
             <Link to='customers'>Cancel</Link>
             <Button>Make Manual Group</Button>

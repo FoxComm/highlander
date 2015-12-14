@@ -77,24 +77,46 @@ const initialState = {
 //</editor-fold>
 
 //<editor-fold desc="actions">
-const addCriterionAction = _createAction('ADD_CRITERIA');
-export const removeCriterion = _createAction('REMOVE_CRITERIA');
-const updateCriteria = _createAction('UPDATE_CRITERIA', (id, newCrit) => [id, newCrit]);
 const prepareData = _createAction('PREPARE_DATA');
-export const changeOperator = _createAction('CHANGE_OPERATOR', (id, newOpVal) => [id, newOpVal]);
-export const changeValue = _createAction('CHANGE_VALUE', (id, newVal) => [id, newVal]);
+// -
 // ES actions
 const searchStarted = _createAction('ES_STARTED');
 const searchCompleted = _createAction('ES_COMPLETED');
 const searchFailed = _createAction('ES_FAILED');
 
+// -- fn that create actions will triger ES query for count customers
+const _createStateChangeAction = (description, ...args) => {
+  const f = _createAction(description, ...args);
+
+  function action(...actionArgs) {
+    return (dispatch, getState) => {
+      dispatch(f(...actionArgs));
+
+      dispatch(searchStarted());
+      const criteria = getState().groups.builder.criterions;
+      if (!_.isEmpty(criteria)) {
+        groupCount(criteria).then(
+          results => dispatch(searchCompleted(results)) && results,
+          errors => dispatch(searchFailed(errors)) && errors);
+      }
+    };
+  }
+
+  action.toString = () => 'GROUP_BUILDER_' + description;
+
+  return action;
+};
+// -
+const addCriterionAction = _createStateChangeAction('ADD_CRITERIA');
+export const removeCriterion = _createStateChangeAction('REMOVE_CRITERIA');
+const updateCriteria = _createStateChangeAction('UPDATE_CRITERIA', (id, newCrit) => [id, newCrit]);
+export const changeOperator = _createStateChangeAction('CHANGE_OPERATOR', (id, newOpVal) => [id, newOpVal]);
+export const changeValue = _createStateChangeAction('CHANGE_VALUE', (id, newVal) => [id, newVal]);
+
+
 export function submitQuery() {
   return (dispatch, getState) => {
-    dispatch(searchStarted());
-    const criteria = getState().groups.builder.criterions;
-    groupCount(criteria).then(
-      results => dispatch(searchCompleted(results)) && results,
-      errors => dispatch(searchFailed(errors)) && errors);
+
   };
 }
 
