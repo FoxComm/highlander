@@ -1,16 +1,16 @@
 [Service]
 WorkingDirectory=/vagrant
 ExecStart=/bin/bash vagrant/run_kafka.sh /home/vagrant/build/kafka
-Restart=always
+Restart=on-failure
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=kafka
-TimeoutStartSec=5s
-RestartSec=10s
+TimeoutStartSec=5m
+RestartSec=1m
 
 [Install]
 WantedBy=multi-user.target
 
 [Unit]
-Requires=bottledwater.service
-After=bottledwater.service
+Requires=zookeeper.service
+After=zookeeper.service

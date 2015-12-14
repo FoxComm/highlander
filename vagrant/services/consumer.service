@@ -1,16 +1,16 @@
 [Service]
 WorkingDirectory=/vagrant
 ExecStart=/bin/bash vagrant/run_consumer.sh
-Restart=always
+Restart=on-failure
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=consumer
-TimeoutStartSec=5s
-RestartSec=10s
+TimeoutStartSec=5m
+RestartSec=1m
 
 [Install]
 WantedBy=multi-user.target
 
 [Unit]
-Requires=kafka.service
-After=kafka.service
+Requires=bottledwater.service
+After=bottledwater.service
