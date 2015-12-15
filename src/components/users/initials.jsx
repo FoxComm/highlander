@@ -16,8 +16,11 @@ const UserInitials = props => {
     <div className="initials fc-with-tooltip">
       { `${firstName.charAt(0)}${lastName.charAt(0)}` }
       <div className="fc-tooltip fc-tooltip-left">
-        <div className="fc-strong">{ fullName }</div>
-        {email && (<div>{ email }</div>)}
+        <div className="fc-tooltip-body">
+          <div className="fc-strong">{ fullName }</div>
+          {email && (<div>{ email }</div>)}
+        </div>
+        {props.actionBlock && (<div className="fc-tooltip-actions">{props.actionBlock}</div>)}
       </div>
     </div>
   );
@@ -28,6 +31,7 @@ UserInitials.propTypes = {
   lastName: PropTypes.string,
   name: PropTypes.string,
   email: PropTypes.string,
+  actionBlock: PropTypes.node
 };
 
 export default UserInitials;
