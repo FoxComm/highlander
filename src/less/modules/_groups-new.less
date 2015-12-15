@@ -1,6 +1,15 @@
 @keyframes fc-count-highlight {
   from {
-    background-color: @color-decor44;
+    background-color: @color-decor17;
+  }
+
+  to {
+  }
+}
+
+@keyframes fc-count-highlight2 {
+  from {
+    background-color: @color-decor17;
   }
 
   to {
@@ -67,7 +76,10 @@
     .margin-bottom(50px);
 
     &-value._is_modified {
-      animation: fc-count-highlight 2.1s ease-out;
+      animation: fc-count-highlight 0.75s ease-in;
+    }
+    &-value._is_modified2 {
+      animation: fc-count-highlight2 0.75s ease-in;
     }
   }
 

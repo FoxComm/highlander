@@ -114,7 +114,7 @@ export const changeOperator = _createStateChangeAction('CHANGE_OPERATOR', (id, n
 export const changeValue = _createStateChangeAction('CHANGE_VALUE', (id, newVal) => [id, newVal]);
 
 
-export function submitQuery() {
+export function saveQuery() {
   return (dispatch, getState) => {
 
   };

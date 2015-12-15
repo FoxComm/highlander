@@ -18,7 +18,7 @@ import * as GroupBuilderActions from '../../modules/groups/builder';
 export default class NewDynamicGroup extends React.Component {
 
   static propTypes = {
-    submitQuery: PropTypes.func.isRequired,
+    saveQuery: PropTypes.func.isRequired,
     searchResultsLength: PropTypes.number,
     searchResults: PropTypes.array
   };
@@ -27,7 +27,8 @@ export default class NewDynamicGroup extends React.Component {
     super(props, context);
     this.state = {
       name: '',
-      matchCriteria: 'all'
+      matchCriteria: 'all',
+      countCSSCycle: false,
     };
   }
 
@@ -38,7 +39,8 @@ export default class NewDynamicGroup extends React.Component {
     }
     const valueClass = classNames({
       'fc-group-new__count-value': true,
-      '_is_modified': false,
+      '_is_modified': this.state.countCSSCycle,
+      '_is_modified2': !this.state.countCSSCycle,
     });
     return (
       <div className="fc-group-new__count">
@@ -48,9 +50,13 @@ export default class NewDynamicGroup extends React.Component {
     );
   }
 
+  componentWillReceiveProps(newProps) {
+    this.setState({countCSSCycle: !this.state.countCSSCycle});
+  }
+
   @autobind
   onSubmit() {
-    this.props.submitQuery();
+    this.props.saveQuery();
   }
 
   render() {
