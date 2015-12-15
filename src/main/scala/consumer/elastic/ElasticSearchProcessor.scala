@@ -68,7 +68,7 @@ class ElasticSearchProcessor(
       println(s"Deleting index $indexName...")
       client.execute(deleteIndex(indexName)).await
     } catch {
-      case e: IndexMissingException ⇒ Console.err.println(s"Index already exists")
+      case e: Throwable ⇒ Console.err.println(s"Index already exists")
     }
   }
 
