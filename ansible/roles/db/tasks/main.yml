@@ -125,4 +125,10 @@
   service: name=bottledwater state=started enabled=yes
   sudo: true
 
+- name: Setup Update Materialzied Views Sql
+  copy: src=update_materialized_views.sql dest={{update_materalized_views_sql}}
+  sudo: true
+
+- name: Setup Materialized Views Cron
+  cron: name="update materialized views" minute="*" hour="*" day="*" job="psql {{db_connection_string}} -f {{update_materalized_views_sql}}"
 
