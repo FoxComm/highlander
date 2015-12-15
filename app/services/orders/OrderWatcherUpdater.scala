@@ -1,9 +1,9 @@
 package services.orders
 
-import models.{Order, OrderWatcher, OrderWatchers, Orders, StoreAdmin, StoreAdmins}
+import models.{NotificationSubscription, Order, OrderWatcher, OrderWatchers, Orders, StoreAdmin, StoreAdmins}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import responses.{FullOrder, ResponseWithFailuresAndMetadata, TheResponse}
-import services.{LogActivity, Failure, Failures, NotFoundFailure404, OrderWatcherNotFound, Result}
+import services.{NotificationManager, LogActivity, Failure, Failures, NotFoundFailure404, OrderWatcherNotFound, Result}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
@@ -11,7 +11,7 @@ import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 
 import scala.concurrent.ExecutionContext
-import models.activity.ActivityContext
+import models.activity.{Dimension, ActivityContext}
 
 object OrderWatcherUpdater {
 
@@ -29,6 +29,8 @@ object OrderWatcherUpdater {
     warnings        = Failures(requestedWatcherIds.diff(adminIds).map(NotFoundFailure404(StoreAdmin, _)): _*)
     assignedAdmins  = fullOrder.watchers.filter(w ⇒ newWatchers.map(_.watcherId).contains(w.watcher.id)).map(_.watcher)
     _               ← * <~ LogActivity.addedWatchersToOrder(admin, fullOrder, assignedAdmins)
+    _               ← * <~ NotificationManager.subscribe(adminIds = assignedAdmins.map(_.id), dimension = Dimension.order,
+      reason = NotificationSubscription.Assigned, objectIds = Seq(order.id))
   } yield TheResponse.build(fullOrder, warnings = warnings)).runTxn()
 
   def unassign(admin: StoreAdmin, refNum: String, assigneeId: Int)
@@ -40,6 +42,8 @@ object OrderWatcherUpdater {
     _               ← * <~ OrderWatchers.byWatcher(watcher).delete
     fullOrder       ← * <~ FullOrder.fromOrder(order).toXor
     _               ← * <~ LogActivity.removedWatcherFromOrder(admin, fullOrder, watcher)
+    _               ← * <~ NotificationManager.unsubscribe(adminIds = Seq(watcher.id), dimension = Dimension.order,
+      reason = NotificationSubscription.Assigned, objectIds = Seq(order.id))
   } yield fullOrder).runTxn()
 
   def watchBulk(admin: StoreAdmin, payload: payloads.BulkWatchers)
@@ -56,6 +60,8 @@ object OrderWatcherUpdater {
       ordersNotFound  = ordersNotFoundFailures(payload.referenceNumbers, orders.map(_.referenceNumber))
       orderRefNums    = orders.filter(o ⇒ newWatchers.map(_.orderId).contains(o.id)).map(_.referenceNumber)
       _               ← LogActivity.bulkAddedWatcherToOrders(admin, watcher.headOption, payload.watcherId, orderRefNums)
+      _               ← NotificationManager.subscribe(adminIds = watcher.map(_.id), dimension = Dimension.order,
+        reason = NotificationSubscription.Watching, objectIds = orders.map(_.id)).value
     } yield ResponseWithFailuresAndMetadata.fromXor(
       result = allOrders,
       addFailures = adminNotFound ++ ordersNotFound)
@@ -77,6 +83,8 @@ object OrderWatcherUpdater {
       ordersNotFound  = ordersNotFoundFailures(payload.referenceNumbers, orders.map(_.referenceNumber))
       orderRefNums    = orders.filter(o ⇒ payload.referenceNumbers.contains(o.refNum)).map(_.referenceNumber)
       _               ← LogActivity.bulkRemovedWatcherFromOrders(admin, watcher.headOption, payload.watcherId, orderRefNums)
+      _               ← NotificationManager.unsubscribe(adminIds = watcher.map(_.id), dimension = Dimension.order,
+        reason = NotificationSubscription.Watching, objectIds = orders.map(_.id)).value
     } yield ResponseWithFailuresAndMetadata.fromXor(
       result = allOrders,
       addFailures = adminNotFound ++ ordersNotFound)

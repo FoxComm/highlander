@@ -5,7 +5,7 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.Order.orderRefNumRegex
 import models.Reason.reasonTypeRegex
-import models.{GiftCard, Notification, SharedSearch, Orders, Rma, StoreAdmin}
+import models.{GiftCard, SharedSearch, Orders, Rma, StoreAdmin}
 import services.{SharedSearchService, NoteManager, ReasonService, SaveForLaterManager, ShippingManager,
 StoreCreditAdjustmentsService, StoreCreditService}
 import slick.driver.PostgresDriver.api._
@@ -184,21 +184,6 @@ object Admin {
                 NoteManager.deleteNote(noteId, admin)
               }
             }
-          }
-        }
-      } ~
-      pathPrefix("notifications") {
-        (get & pathEnd) {
-          good {
-            Seq(
-              Notification("Delivered", "Shipment Confirmation", "2015-02-15T08:31:45", "jim@bob.com"),
-              Notification("Failed", "Order Confirmation", "2015-02-16T09:23:29", "+ (567) 203-8430")
-            )
-          }
-        } ~
-        (get & path(IntNumber) & pathEnd) { notificationId ⇒
-          good {
-            Notification("Failed", "Order Confirmation", "2015-02-16T09:23:29", "+ (567) 203-8430")
           }
         }
       } ~

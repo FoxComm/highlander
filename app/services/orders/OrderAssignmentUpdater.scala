@@ -1,9 +1,9 @@
 package services.orders
 
-import models.{Order, OrderAssignment, OrderAssignments, Orders, StoreAdmin, StoreAdmins}
+import models.{NotificationSubscription, Order, OrderAssignment, OrderAssignments, Orders, StoreAdmin, StoreAdmins}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import responses.{FullOrder, ResponseWithFailuresAndMetadata, TheResponse}
-import services.{LogActivity, Failure, Failures, NotFoundFailure404, OrderAssigneeNotFound, Result}
+import services.{NotificationManager, LogActivity, Failure, Failures, NotFoundFailure404, OrderAssigneeNotFound, Result}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
@@ -11,7 +11,7 @@ import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 
 import scala.concurrent.ExecutionContext
-import models.activity.ActivityContext
+import models.activity.{Dimension, ActivityContext}
 
 object OrderAssignmentUpdater {
 
@@ -29,6 +29,8 @@ object OrderAssignmentUpdater {
     warnings        = Failures(requestedAssigneeIds.diff(adminIds).map(NotFoundFailure404(StoreAdmin, _)): _*)
     assignedAdmins  = fullOrder.assignees.filter(a ⇒ newAssignments.map(_.assigneeId).contains(a.assignee.id)).map(_.assignee)
     _               ← * <~ LogActivity.assignedToOrder(admin, fullOrder, assignedAdmins)
+    _               ← * <~ NotificationManager.subscribe(adminIds = assignedAdmins.map(_.id), dimension = Dimension.order,
+      reason = NotificationSubscription.Assigned, objectIds = Seq(order.id))
   } yield TheResponse.build(fullOrder, warnings = warnings)).runTxn()
 
   def unassign(admin: StoreAdmin, refNum: String, assigneeId: Int)
@@ -40,6 +42,8 @@ object OrderAssignmentUpdater {
     _               ← * <~ OrderAssignments.byAssignee(assignee).delete
     fullOrder       ← * <~ FullOrder.fromOrder(order).toXor
     _               ← * <~ LogActivity.unassignedFromOrder(admin, fullOrder, assignee)
+    _               ← * <~ NotificationManager.unsubscribe(adminIds = Seq(assigneeId), dimension = Dimension.order,
+      reason = NotificationSubscription.Assigned, objectIds = Seq(order.id))
   } yield fullOrder).runTxn()
 
   def assignBulk(admin: StoreAdmin, payload: payloads.BulkAssignment)
@@ -56,6 +60,8 @@ object OrderAssignmentUpdater {
       ordersNotFound  = ordersNotFoundFailures(payload.referenceNumbers, orders.map(_.referenceNumber))
       orderRefNums    = orders.filter(o ⇒ newAssignments.map(_.orderId).contains(o.id)).map(_.referenceNumber)
       _               ← LogActivity.bulkAssignedToOrders(admin, assignee.headOption, payload.assigneeId, orderRefNums)
+      _               ← NotificationManager.subscribe(adminIds = assignee.map(_.id), dimension = Dimension.order,
+        reason = NotificationSubscription.Watching, objectIds = orders.map(_.id)).value
     } yield ResponseWithFailuresAndMetadata.fromXor(
         result = allOrders,
         addFailures = adminNotFound ++ ordersNotFound)
@@ -77,6 +83,8 @@ object OrderAssignmentUpdater {
       ordersNotFound  = ordersNotFoundFailures(payload.referenceNumbers, orders.map(_.referenceNumber))
       orderRefNums    = orders.filter(o ⇒ payload.referenceNumbers.contains(o.refNum)).map(_.referenceNumber)
       _               ← LogActivity.bulkUnassignedFromOrders(admin, assignee.headOption, payload.assigneeId, orderRefNums)
+      _               ← NotificationManager.unsubscribe(adminIds = assignee.map(_.id), dimension = Dimension.order,
+        reason = NotificationSubscription.Watching, objectIds = orders.map(_.id)).value
     } yield ResponseWithFailuresAndMetadata.fromXor(
         result = allOrders,
         addFailures = adminNotFound ++ ordersNotFound)

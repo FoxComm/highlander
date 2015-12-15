@@ -3,6 +3,7 @@ package services
 import scala.collection.immutable
 
 import com.stripe.exception.StripeException
+import models.activity.Dimension
 import models.{CreditCard, GiftCard, Order, Rma, StoreCredit}
 import services.Util.searchTerm
 import utils.friendlyClassName
@@ -84,6 +85,10 @@ object StatusTransitionNotAllowed {
   def apply(from: Order.Status, to: Order.Status, refNum: String): StatusTransitionNotAllowed = {
     apply(Order, from.toString, to.toString, refNum)
   }
+}
+
+final case class NotificationTrailNotFound400(adminId: Int) extends Failure {
+  override def description = List(s"Notification trail for adminId=$adminId not found")
 }
 
 case object CustomerEmailNotUnique extends Failure {
@@ -281,6 +286,7 @@ object Util {
   def searchTerm[A](a: A): String = a match {
     case Order | _: Order | Rma | _: Rma ⇒ "referenceNumber"
     case GiftCard | _: GiftCard ⇒ "code"
+    case Dimension | _: Dimension ⇒ "name"
     case _ ⇒ "id"
   }
 }

@@ -1,5 +1,13 @@
 import java.net.ServerSocket
 
+import akka.http.scaladsl.client.RequestBuilding.Get
+import akka.http.scaladsl.unmarshalling.Unmarshal
+import akka.stream.scaladsl.{Flow, Sink, Source}
+import akka.stream.testkit.TestSubscriber.Probe
+import akka.stream.testkit.scaladsl.TestSink
+import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
+import de.heikoseeberger.akkasse.ServerSentEvent
+
 import scala.collection.immutable
 import scala.concurrent.Await.result
 import scala.concurrent.{Await, ExecutionContext}
@@ -198,6 +206,29 @@ trait HttpSupport
     maxConnections  = 32,
     maxOpenRequests = 32,
     maxRetries      = 0)
+
+  object SSE {
+
+    def sseProbe(path: String, skipHeartbeat: Boolean = true): Probe[String] =
+      probe(if (skipHeartbeat) skipHeartbeats(sseSource(path)) else sseSource(path))
+
+    def sseSource(path: String): Source[String, Any] = {
+      val localAddress = serverBinding.localAddress
+
+      Source.single(Get(pathToAbsoluteUrl(path)))
+        .via(Http().outgoingConnection(localAddress.getHostString, localAddress.getPort))
+        .mapAsync(1)(Unmarshal(_).to[Source[ServerSentEvent, Any]])
+        .runWith(Sink.head).futureValue
+        .map(_.data)
+    }
+
+    def skipHeartbeats(sse: Source[String, Any]): Source[String, Any] =
+      sse.via(Flow[String].filter(_ != ServerSentEvent.heartbeat.data))
+
+    def probe(source: Source[String, Any]) =
+      source.runWith(TestSink.probe[String])
+  }
+
 }
 
 object Extensions {
