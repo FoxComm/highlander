@@ -1,0 +1,115 @@
+.fc-watchers {
+  .fc-panel-header, .fc-panel-content {
+    margin: 0;
+    padding: 0;
+  }
+
+  .initials {
+    width: pxtorem(28px);
+    height: pxtorem(28px);
+    color: @color-white;
+    line-height: pxtorem(28px);
+  }
+
+  &__container {
+    .margin(10px);
+  }
+
+  &__title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    .margin-bottom(10px);
+  }
+
+  &__title {
+    display: inline-block;
+    color: @color-decor1;
+    .font-spec(14px, @semibold, 19px);
+  }
+
+  &__controls {
+    display: inline-block;
+  }
+
+  &__link {
+    .font-spec(12px, @semibold, 17px);
+    text-decoration: underline;
+    color: @color-decor15;
+  }
+
+  &__add-button {
+    width: pxtorem(28px);
+    height: pxtorem(28px);
+    .padding(0 10px);
+    .colors(@color-decor7, @color-white);
+    border: 2px dashed @color-decor7;
+    border-radius: 3px;
+    line-height: 24px;
+  }
+
+  &__add-button:hover {
+    border-color: @color-decor6; // change of color does not invoke full border redraw
+  }
+
+  &__users-row {
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    align-items: baseline;
+  }
+
+  &__empty-list {
+    .font-spec(14px, @semibold, 19px);
+    color: @color-decor7;
+    .margin-left(5px);
+  }
+
+  &__cell {
+    margin-left: 5px;
+  }
+
+  &__rest-block {
+    display: none;
+    position: absolute;
+    background: @color-white;
+    border: 1px solid @color-decor9;
+    border-radius: 3px;
+    box-shadow: 0px 3px 4px 0px @color-decor51;
+
+    .fc-watchers__users-row {
+      margin: 10px;
+    }
+
+    &._shown {
+      display: block;
+      left: 100%;
+      transform: translate(-100%, -90px);
+    }
+  }
+
+  &__rest-block-overlay {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: none;
+    position: fixed;
+
+    &._shown {
+      display: block;
+    }
+  }
+
+  &__toggle-watchers-btn {
+    width: 28px;
+    height: 32px;
+    line-height: 32px;
+    .colors(@color-decor7, @color-white);
+
+    &:hover, &._active {
+      .colors(@color-decor1, @color-white);
+    }
+  }
+}

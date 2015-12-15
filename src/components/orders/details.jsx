@@ -6,6 +6,8 @@ import OrderLineItems from './order-line-items';
 import OrderShippingAddress from './shipping-address';
 import OrderShippingMethod from './order-shipping-method';
 import Payments from './payments';
+import Watchers from '../watchers/watchers';
+import { haveType } from '../../modules/state-helpers';
 
 const OrderDetails = props => {
   if (_.isEmpty(props.order.currentOrder)) {
@@ -25,6 +27,7 @@ const OrderDetails = props => {
           <div className="fc-order-details-aside">
             <TotalsSummary entity={order} title={order.title} />
             <CustomerInfo order={order} />
+            <Watchers entity={haveType(order, 'order')}/>
           </div>
         </div>
       </div>

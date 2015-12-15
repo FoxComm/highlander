@@ -1,0 +1,58 @@
+.fc-add-watcher-modal {
+
+  .fc-title {
+    .font-spec(18px, @semibold, 24px);
+    text-align: left;
+    color: @color-decor1;
+  }
+
+  .fc-form-field-label {
+    margin-bottom: 15px;
+  }
+
+  .fc-typeahead__items > li {
+    padding: 0;
+  }
+
+  .fc-typeahead__menu {
+    box-shadow: 0 2px 4px 0 @color-decor51;
+  }
+
+  &__content {
+    .font-spec(15px, @normal, 18px);
+    color: @color-decor1;
+    text-align: left;
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: baseline;
+    .margin(50px 20px 20px);
+    .font-spec(15px, @normal, 18px);
+  }
+
+  &__label {
+    margin-bottom: 15px;
+  }
+
+  &__typeahead-item {
+    display: flex;
+    align-items: baseline;
+    height: 60px;
+
+    &-icon {
+      margin-left: 10px;
+    }
+
+    &-name {
+      flex-grow: 1;
+      margin-left: 20px;
+      .font-spec(15px, @semibold, 18px);
+    }
+
+    &-email {
+      margin-right: 20px;
+    }
+  }
+}
