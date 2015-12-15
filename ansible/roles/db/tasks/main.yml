@@ -111,7 +111,7 @@
 - name: Seed Db
   shell: sbt seed
   args:
-      chdir: {{phoenix_dir}}
+    chdir: "{{phoenix_dir}}"
 
 - name: Copy Bottledwater Run File
   copy: src=run_bottledwater.sh dest="/usr/local/bin/run_bottledwater.sh" mode="u+x,g+x,o+x"
