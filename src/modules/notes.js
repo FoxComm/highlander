@@ -2,19 +2,12 @@ import _ from 'lodash';
 import Api from '../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { assoc, dissoc, update, get } from 'sprout-data';
-import { updateItems } from './state-helpers';
-import { paginateReducer, actionTypes, paginate, pickFetchParams, createFetchActions } from './pagination';
+import { updateItems } from './state-helpers';;
 
-const NOTES = 'NOTES';
+import { createActions, paginateReducer, makeUpdateBehaviour } from './pagination/structuredStore';
 
-const {
-  actionFetch,
-  actionReceived,
-  actionFetchFailed,
-  actionSetFetchParams,
-  actionAddEntity,
-  actionRemoveEntity
-  } = createFetchActions(NOTES, (entity, payload) => [entity, payload]);
+const dataNamespace = 'notes';
+const dataPath = ({entityType, entityId}) => [entityType, entityId];
 
 const updateNotes = createAction('NOTES_UPDATE', (entity, notes) => [entity, notes]);
 const notesFailed = createAction('NOTES_FAILED', (entity, err) => [entity, err]);
@@ -32,22 +25,12 @@ export const notesUri = (entity, noteId) => {
   return uri;
 };
 
-export function fetchNotes(entity, newFetchParams) {
-  const {entityType, entityId} = entity;
-
-  return (dispatch, getState) => {
-    const state = get(getState(), ['notes', entityType, entityId]);
-    const fetchParams = pickFetchParams(state, newFetchParams);
-
-    dispatch(actionFetch(entity));
-    dispatch(actionSetFetchParams(entity, newFetchParams));
-    Api.get(notesUri(entity), fetchParams)
-      .then(
-        json => dispatch(actionReceived(entity, json)),
-        err => dispatch(actionFetchFailed(entity, err))
-      );
-  };
-}
+const {
+    fetch,
+    actionAddEntity,
+    actionRemoveEntity,
+    actionReceived,
+  } = createActions(dataNamespace, dataPath)(notesUri);
 
 export function createNote(entity, data) {
   return dispatch => {
@@ -82,10 +65,9 @@ export function deleteNote(entity, id) {
   };
 }
 
-
 const initialState = {};
 
-const reducer = createReducer({
+const notesReducer = createReducer({
   [actionReceived]: (state, [{entityType, entityId}, notes]) => {
     return assoc(state, [entityType, entityId, 'wasReceived'], true);
   },
@@ -117,17 +99,9 @@ const reducer = createReducer({
   }
 }, initialState);
 
-function paginateBehaviour(state, action, actionType) {
-  // behaviour for initial state
-  if (actionType === void 0) return state;
+const reducer = paginateReducer(dataNamespace, notesReducer, makeUpdateBehaviour(dataPath));
 
-  const [{entityType, entityId}, payload] = action.payload;
-
-  return update(state, [entityType, entityId], paginate, {
-    ...action,
-    payload,
-    type: actionType
-  });
-}
-
-export default paginateReducer(NOTES, reducer, paginateBehaviour);
+export {
+  reducer as default,
+  fetch as fetchNotes
+};

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import Api from '../lib/api';
+import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { merge, get, update } from 'sprout-data';
 
@@ -57,9 +57,10 @@ export function createFetchActions(namespace, payloadReducer, metaReducer) {
  * Creates async and simple actions for given namespace and url
  * @param {String|Function} url can be string or method like this: (fetchData) => string
  * @param {*} namespace
+ * @param {Function} [payloadReducer]
  */
-export function createActions(url, namespace) {
-  const fetchActions = createFetchActions(namespace);
+export function createActions(url, namespace, payloadReducer) {
+  const fetchActions = createFetchActions(namespace, payloadReducer);
   const {
     actionFetch,
     actionReceived,
@@ -74,7 +75,7 @@ export function createActions(url, namespace) {
     return Api.get(finalUrl, pickFetchParams(fetchData))
       .then(
         result => dispatch(actionReceived(result)),
-        err => dispatch(actionFetchFailed(err, fetch))
+        err => dispatch(actionFetchFailed(err))
       );
   };
 

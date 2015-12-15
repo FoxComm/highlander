@@ -30,12 +30,13 @@ export default class GiftCardTransactions extends React.Component {
     ]
   };
 
-  componentDidMount() {
-    const { giftCard } = this.props.params;
+  get giftCard() {
+    return this.props.params.giftCard;
+  }
 
+  componentDidMount() {
     this.props.actionReset(); // clean state from previous values
-    this.props.setGiftCard(giftCard); // set gift card id for further requests
-    this.props.fetch({giftCard});
+    this.props.fetch(this.giftCard);
   }
 
   render() {
@@ -44,7 +45,7 @@ export default class GiftCardTransactions extends React.Component {
         <TableView
           columns={this.props.tableColumns}
           data={this.props.transactions}
-          setState={this.props.setFetchParams}
+          setState={(state, fetchParams) => this.props.fetch(this.giftCard, fetchParams)}
           paginator={true}
           />
       </div>
