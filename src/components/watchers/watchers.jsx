@@ -79,9 +79,12 @@ export default class Watchers extends React.Component {
   }
 
   renderCell(user, key) {
+    const actionBlock = (
+      <Button icon="close" onClick={() => console.log('not implemented')} />
+    );
     return (
       <div className="fc-watchers__cell" key={key}>
-        <UserInitials name={user.name} email={user.email}/>
+        <UserInitials name={user.name} email={user.email} actionBlock={actionBlock}/>
       </div>
     );
   }

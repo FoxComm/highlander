@@ -5,4 +5,26 @@
   text-align: center;
   background-color: @color-decor24;
   cursor: default;
+
+  &.fc-with-tooltip:hover .fc-tooltip {
+    display: flex;
+  }
+
+  .fc-tooltip {
+    &__body {
+      flex-grow: 1;
+    }
+
+    &__actions {
+      width: 20px;
+      margin-left: 20px;
+
+      .fc-btn {
+        background: @color-transparent;
+        color: @color-white;
+        width: 20px;
+        padding: 0;
+      }
+    }
+  }
 }
