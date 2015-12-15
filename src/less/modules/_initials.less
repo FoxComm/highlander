@@ -10,6 +10,10 @@
     display: flex;
   }
 
+  .fc-tooltip._shown {
+    display: flex;
+  }
+
   .fc-tooltip {
     &__body {
       flex-grow: 1;
@@ -25,6 +29,19 @@
         width: 20px;
         padding: 0;
       }
+    }
+
+    &__overlay {
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      position: fixed;
+      display: none;
+    }
+
+    &__overlay._shown {
+      display: block;
     }
   }
 }

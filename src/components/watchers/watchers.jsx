@@ -84,7 +84,7 @@ export default class Watchers extends React.Component {
     );
     return (
       <div className="fc-watchers__cell" key={key}>
-        <UserInitials name={user.name} email={user.email} actionBlock={actionBlock}/>
+        <UserInitials name={user.name} email={user.email} actionBlock={actionBlock} showTooltipOnClick={true}/>
       </div>
     );
   }
