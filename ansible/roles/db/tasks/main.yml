@@ -103,10 +103,15 @@
   shell: systemctl stop bottledwater || true
   sudo: true
 
-- name: Populate Db
+- name: Setup Db Schema
   shell: sudo -u postgres FLYWAY_HOME={{flyway_dir}} PATH=$PATH:{{flyway_dir}} make configure
   args:
     chdir: "{{phoenix_dir}}"
+
+- name: Seed Db
+  shell: sbt seed
+  args:
+      chdir: {{phoenix_dir}}
 
 - name: Copy Bottledwater Run File
   copy: src=run_bottledwater.sh dest="/usr/local/bin/run_bottledwater.sh" mode="u+x,g+x,o+x"

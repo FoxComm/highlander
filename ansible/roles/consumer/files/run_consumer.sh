@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sbt -Denv=localhost clean esConsume
+sbt -Denv=localhost clean consume
