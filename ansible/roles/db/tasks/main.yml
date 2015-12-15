@@ -130,5 +130,5 @@
   sudo: true
 
 - name: Setup Materialized Views Cron
-  cron: name="update materialized views" minute="*" hour="*" day="*" job="psql {{db_connection_string}} -f {{update_materalized_views_sql}}"
+  cron: name="update materialized views" minute="*" hour="*" day="*" job="psql {{db_connection_string}} -f {{update_materialized_views_sql}}"
 

@@ -10,5 +10,5 @@ flyway_vers: 3.2.1
 flyway_dir: "/usr/local/share/flyway-{{flyway_vers}}"
 flyway_url: "https://bintray.com/artifact/download/business/maven/flyway-commandline-{{flyway_vers}}-linux-x64.tar.gz"
 db_connection_string: "postgresql://localhost/phoenix_development?user={{user}}"
-update_materalized_views_sql: "/usr/local/share/update_materalized_views.sql"
+update_materialized_views_sql: "/usr/local/share/update_materialized_views.sql"
 phoenix_dir: /phoenix
