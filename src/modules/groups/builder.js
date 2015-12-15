@@ -71,6 +71,7 @@ const terms = _.keys(criteriaOptions);
 const initialState = {
   counter: 2,
   termOptions: _.reduce(criteriaOptions, (r, v, k) => assoc(r, k, v.title), {}),
+  matchCriteria: 'all',
   criterions: {1: newCrit()},
   staticData: {}
 };
@@ -112,6 +113,7 @@ export const removeCriterion = _createStateChangeAction('REMOVE_CRITERIA');
 const updateCriteria = _createStateChangeAction('UPDATE_CRITERIA', (id, newCrit) => [id, newCrit]);
 export const changeOperator = _createStateChangeAction('CHANGE_OPERATOR', (id, newOpVal) => [id, newOpVal]);
 export const changeValue = _createStateChangeAction('CHANGE_VALUE', (id, newVal) => [id, newVal]);
+export const changeMatchCriteria = _createStateChangeAction('CHANGE_MATCHING');
 
 
 export function saveQuery() {
@@ -166,6 +168,9 @@ export function addCriterion() {
 const reducer = createReducer({
   [prepareData]: (state, data) => {
     return assoc(state, 'staticData', data);
+  },
+  [changeMatchCriteria]: (state, value) => {
+    return assoc(state, 'matchCriteria', value);
   },
   [searchStarted]: (state) => {
     return assoc(state,

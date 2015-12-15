@@ -19,6 +19,8 @@ export default class NewDynamicGroup extends React.Component {
 
   static propTypes = {
     saveQuery: PropTypes.func.isRequired,
+    matchCriteria: PropTypes.string.isRequired,
+    changeMatchCriteria: PropTypes.func.isRequired,
     searchResultsLength: PropTypes.number,
     searchResults: PropTypes.array
   };
@@ -62,7 +64,7 @@ export default class NewDynamicGroup extends React.Component {
   render() {
     const mainMatchStatuses = {
       all: 'all',
-      none: 'none'
+      one: 'one',
     };
 
     return (
@@ -87,8 +89,8 @@ export default class NewDynamicGroup extends React.Component {
               <Dropdown
                 name='matchCriteria'
                 items={mainMatchStatuses}
-                value={this.state.matchCriteria}
-                onChange={ (value) => this.setState({matchCriteria: value}) }
+                value={this.props.matchCriteria}
+                onChange={this.props.changeMatchCriteria}
               />
             </span>
             <span className='fc-group-new-match-span'>of the following criteria:</span>
