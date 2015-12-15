@@ -1,10 +1,10 @@
 [Service]
 WorkingDirectory=/vagrant
-ExecStart=/bin/bash vagrant/run_consumer.sh
+ExecStart=/usr/bin/schema-registry-start /etc/schema-registry/schema-registry.properties
 Restart=on-failure
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=consumer
+SyslogIdentifier=schema-registry
 TimeoutStartSec=5m
 RestartSec=1m
 
@@ -12,5 +12,5 @@ RestartSec=1m
 WantedBy=multi-user.target
 
 [Unit]
-Requires=bottledwater.service
-After=bottledwater.service
+Requires=kafka.service
+After=kafka.service

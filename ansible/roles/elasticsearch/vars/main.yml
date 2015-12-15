@@ -1,0 +1,4 @@
+es_version: elasticsearch-1.7.3
+es_zip: "{{es_version}}.zip"
+es_home: /usr/local
+es_path: "{{es_home}}/{{es_version}}"

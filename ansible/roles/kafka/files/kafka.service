@@ -1,10 +1,10 @@
 [Service]
 WorkingDirectory=/vagrant
-ExecStart=/bin/bash vagrant/run_schema-registry.sh
+ExecStart=/usr/bin/kafka-server-start /etc/kafka/server.properties
 Restart=on-failure
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=schema-registry
+SyslogIdentifier=kafka
 TimeoutStartSec=5m
 RestartSec=1m
 
@@ -12,5 +12,5 @@ RestartSec=1m
 WantedBy=multi-user.target
 
 [Unit]
-Requires=kafka.service
-After=kafka.service
+Requires=zookeeper.service
+After=zookeeper.service

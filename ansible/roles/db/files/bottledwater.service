@@ -1,6 +1,6 @@
 [Service]
-WorkingDirectory=/vagrant
-ExecStart=/bin/bash vagrant/run_bottledwater.sh
+WorkingDirectory=/usr/local
+ExecStart=/bin/bash /usr/local/bin/run_bottledwater.sh
 Restart=on-failure
 StandardOutput=syslog
 StandardError=syslog

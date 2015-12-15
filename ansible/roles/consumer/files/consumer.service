@@ -1,10 +1,10 @@
 [Service]
 WorkingDirectory=/vagrant
-ExecStart=/bin/bash vagrant/run_zookeeper.sh /home/vagrant/build/kafka
+ExecStart=/bin/bash /usr/local/bin/run_consumer.sh
 Restart=on-failure
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=zookeeper
+SyslogIdentifier=consumer
 TimeoutStartSec=5m
 RestartSec=1m
 
@@ -12,5 +12,5 @@ RestartSec=1m
 WantedBy=multi-user.target
 
 [Unit]
-Requires=elasticsearch.service
-After=elasticsearch.service
+Requires=bottledwater.service
+After=bottledwater.service

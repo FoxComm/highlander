@@ -1,0 +1,15 @@
+[Service]
+WorkingDirectory={{es_home}}
+ExecStart=/bin/bash {{es_home}}/run_elasticsearch.sh {{es_path}}
+Restart=on-failure
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=elasticsearch
+TimeoutStartSec=5m
+RestartSec=1m
+
+[Install]
+WantedBy=multi-user.target
+
+[Unit]
+RequiresMountsFor=/vagrant
