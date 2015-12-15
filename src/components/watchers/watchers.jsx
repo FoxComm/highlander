@@ -78,9 +78,9 @@ export default class Watchers extends React.Component {
     }
   }
 
-  renderCell(user, key) {
+  renderCell(user, key, removeFromGroup) {
     const actionBlock = (
-      <Button icon="close" onClick={() => console.log('not implemented')} />
+      <Button icon="close" onClick={() => removeFromGroup(user.name)} />
     );
     return (
       <div className="fc-watchers__cell" key={key}>
@@ -120,8 +120,15 @@ export default class Watchers extends React.Component {
   @autobind
   buildRow(users, className, group) {
     const rowClass = classNames('fc-watchers__users-row', className);
+<<<<<<< a29eee08d5e163f48f3f09366329a600182d0d08
     if (users.length <= maxDisplayed) {
       const cells = users.map((watcher, idx) => this.renderCell(watcher, `cell-${group}-${idx}`));
+=======
+    const removeFromGroup = (name) => this.props.removeFromGroup(this.entity, group, name);
+    if (users.length <= this.maxDisplayed) {
+      const cells = users.map(
+        (watcher, idx) => this.renderCell(watcher, `cell-${group}-${idx}`, removeFromGroup));
+>>>>>>> delete reducer
       return (
         <div className={rowClass}>
           <AddButton className="fc-watchers__add-button"
@@ -130,10 +137,19 @@ export default class Watchers extends React.Component {
         </div>
       );
     } else {
+<<<<<<< a29eee08d5e163f48f3f09366329a600182d0d08
       const displayedWatchers = users.slice(0, maxDisplayed - 1);
       const hiddenWatchers = users.slice(maxDisplayed - 1);
       const displayedCells = displayedWatchers.map((watcher, idx) => this.renderCell(watcher, `cell-${group}-${idx}`));
       const hiddenCells = hiddenWatchers.map((watcher, idx) => this.renderCell(watcher, `cell-hidden-${group}-${idx}`));
+=======
+      const displayedWatchers = users.slice(0, this.maxDisplayed - 1);
+      const hiddenWatchers = users.slice(this.maxDisplayed - 1);
+      const displayedCells = displayedWatchers.map(
+        (watcher, idx) => this.renderCell(watcher, `cell-${group}-${idx}`, removeFromGroup));
+      const hiddenCells = hiddenWatchers.map(
+        (watcher, idx) => this.renderCell(watcher, `cell-hidden-${group}-${idx}`, removeFromGroup));
+>>>>>>> delete reducer
       return (
         <div className={rowClass}>
           <AddButton className="fc-watchers__add-button"

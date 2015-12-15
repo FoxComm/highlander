@@ -82,7 +82,7 @@ describe('Watchers', function() {
     const watchersData = {watchers: {entries: watcherList}};
 
     watchers = shallowRender(
-      <Watchers entity={entity} data={watchersData} />
+      <Watchers entity={entity} data={watchersData} removeFromGroup={_.noop}/>
     );
     const cells = ShallowTestUtils.findAllWithClass(watchers, "fc-watchers__cell");
     expect(cells).not.to.be.empty;
@@ -108,7 +108,7 @@ describe('Watchers', function() {
     const assigneesData = {assignees: {entries: assignees}};
 
     watchers = shallowRender(
-      <Watchers entity={entity} data={assigneesData} />
+      <Watchers entity={entity} data={assigneesData} removeFromGroup={_.noop} />
     );
     const cells = ShallowTestUtils.findAllWithClass(watchers, "fc-watchers__cell");
     expect(cells).not.to.be.empty;

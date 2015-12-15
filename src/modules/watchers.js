@@ -13,6 +13,7 @@ const setSuggestedWathcers = createAction('WATCHERS_SET_SUGGERSTED_WATCHERS', (e
 const setWatchers = createAction('WATCHERS_SET_WATCHERS', (entity, payload) => [entity, payload]);
 const setAssignees = createAction('WATCHERS_SET_ASSIGNEES', (entity, payload) => [entity, payload]);
 const assignWatchers = createAction('WATCHERS_ASSIGN');
+const deleteFromGroup = createAction('WATCHERS_DELETE_FROM_GROUP', (entity, group, name) => [entity, group, name]);
 
 export function fetchWatchers(entity) {
   return dispatch => {
@@ -47,6 +48,12 @@ export function addWatchers(entity) {
     // Api calls will be here
     dispatch(assignWatchers(entity));
     dispatch(closeAddingModal(entity));
+  };
+}
+
+export function removeFromGroup(entity, group, name) {
+  return dispatch => {
+    dispatch(deleteFromGroup(entity, group, name));
   };
 }
 
@@ -101,6 +108,14 @@ const reducer = createReducer({
       [entityType, entityId, 'modalGroup'], null,
       [entityType, entityId, 'selectedItems'], [],
       [entityType, entityId, group, 'entries'], newEntries
+    );
+  },
+  [deleteFromGroup]: (state, [{entityType, entityId}, group, name]) => {
+    const groupEntries = _.get(state, [entityType, entityId, group, 'entries'], []);
+    const newItems = [];
+    _.each(groupEntries, item => {if (item.name !== name) newItems.push(item);});
+    return assoc(state,
+      [entityType, entityId, group, 'entries'], newItems
     );
   }
 }, initialState);
