@@ -76,7 +76,7 @@ object AvroJsonHelper {
         try {
           (name, parse(text))
         } catch { 
-          case _ : ParseException ⇒ (name, JString(text))
+          case _ : Throwable ⇒ (name, JString(text))
         }
       }
     }

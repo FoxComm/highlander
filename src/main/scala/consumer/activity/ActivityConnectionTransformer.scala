@@ -41,7 +41,7 @@ final case class ActivityConnectionTransformer(phoenix: PhoenixConnectionInfo)
   }
 
   def queryPhoenixForConnection(id: BigInt) : String = {
-    val url = s"${phoenix.uri}/activities/connections/${id}"
+    val url = s"${phoenix.uri}/connections/${id}"
     Console.err.println(url)
 
     get(url)

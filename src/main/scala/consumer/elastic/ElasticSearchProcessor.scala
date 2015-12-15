@@ -103,6 +103,7 @@ class ElasticSearchProcessor(
           }.await()
         } catch {
           case e: RemoteTransportException ⇒ Console.err.println(s"Error while indexing: $e")
+          case e: Throwable ⇒ Console.err.println(s"Error while indexing: $e")
         }
 
       case _ ⇒

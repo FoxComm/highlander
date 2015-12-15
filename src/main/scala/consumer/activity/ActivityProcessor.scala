@@ -71,9 +71,10 @@ class ActivityProcessor(phoenix : PhoenixConnectionInfo, connectors: Seq[Activit
     def beforeAction(){}
 
     def process(offset: Long, topic: String, inputJson: String): Unit = {
-      val activityJson = AvroJsonHelper.transformJson(inputJson, activityJsonFields)
 
+      val activityJson = AvroJsonHelper.transformJson(inputJson, activityJsonFields)
       val activity =  parse(activityJson).extract[Activity]
+
       Console.err.println(s"Got Activity: ${activity.id}")
       val connections = connectors.flatMap(_.process(offset, activity))
 
@@ -85,7 +86,7 @@ class ActivityProcessor(phoenix : PhoenixConnectionInfo, connectors: Seq[Activit
     }
 
     private def connectUsingPhoenix(c: Connection) { 
-      val uri = s"${phoenix.uri}/activities/trails/${c.dimension}/${c.objectId}"
+      val uri = s"${phoenix.uri}/trails/${c.dimension}/${c.objectId}"
       Console.err.println(s"${uri}")
 
       //create append payload

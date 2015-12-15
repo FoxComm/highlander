@@ -105,15 +105,9 @@ object ActivityMain {
         groupId = kafkaGroupId,
         processor = avroProcessor)
 
-      // Execture beforeAction
-      println("Executing pre-consuming actions...")
-      esProcessor.beforeAction()
-
       // Start consuming & processing
       println(s"Reading from broker $kafkaBroker")
       consumer.readForever()
-
-
     }
 
     Await.ready(activityWork, Duration.Inf)
