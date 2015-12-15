@@ -43,7 +43,7 @@ export default class GiftCards extends React.Component {
     const renderRow = (row, index) => (
       <TableRow key={`${index}`}>
         <TableCell>
-          <Link to="giftcard" params={{giftcard: row.code}}>
+          <Link to="giftcard" params={{giftCard: row.code}}>
             <GiftCardCode value={row.code} />
           </Link>
         </TableCell>

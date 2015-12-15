@@ -13,6 +13,7 @@ export const actionTypes = {
   ADD_ENTITY: 'ADD_ENTITY',
   REMOVE_ENTITY: 'REMOVE_ENTITY',
   ADD_ENTITIES: 'ADD_ENTITIES',
+  RESET: 'RESET',
 };
 
 export function fetchMeta(namespace, actionType) {
@@ -52,6 +53,11 @@ export function createFetchActions(namespace, payloadReducer, metaReducer) {
   });
 }
 
+/**
+ * Creates async and simple actions for given namespace and url
+ * @param {String|Function} url can be string or method like this: (fetchData) => string
+ * @param {*} namespace
+ */
 export function createActions(url, namespace) {
   const fetchActions = createFetchActions(namespace);
   const {
@@ -63,7 +69,9 @@ export function createActions(url, namespace) {
 
   const fetch = fetchData => dispatch => {
     dispatch(actionFetch());
-    return Api.get(url, pickFetchParams(fetchData))
+    const finalUrl = _.isString(url) ? url : url(fetchData);
+
+    return Api.get(finalUrl, pickFetchParams(fetchData))
       .then(
         result => dispatch(actionReceived(result)),
         err => dispatch(actionFetchFailed(err, fetch))
@@ -139,6 +147,8 @@ export function paginate(state = initialState, action) {
         ...state,
         ...payload
       };
+    case actionTypes.RESET:
+      return initialState;
   }
 
   return state;
