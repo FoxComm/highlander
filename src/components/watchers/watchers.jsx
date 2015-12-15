@@ -21,6 +21,8 @@ const Groups = {
   WATCHERS: 'watchers'
 };
 
+const maxDisplayed = 7;
+
 @connect((state, props) => ({
   data: _.get(state.watchers, [props.entity.entityType, props.entity.entityId], {})
 }), WatchersActions)
@@ -40,10 +42,6 @@ export default class Watchers extends React.Component {
 
   get entity() {
     return this.props.entity;
-  }
-
-  get maxDisplayed() {
-    return 7;
   }
 
   get assignees() {
@@ -119,7 +117,7 @@ export default class Watchers extends React.Component {
   @autobind
   buildRow(users, className, group) {
     const rowClass = classNames('fc-watchers__users-row', className);
-    if (users.length <= this.maxDisplayed) {
+    if (users.length <= maxDisplayed) {
       const cells = users.map((watcher, idx) => this.renderCell(watcher, `cell-${group}-${idx}`));
       return (
         <div className={rowClass}>
@@ -129,8 +127,8 @@ export default class Watchers extends React.Component {
         </div>
       );
     } else {
-      const displayedWatchers = users.slice(0, this.maxDisplayed - 1);
-      const hiddenWatchers = users.slice(this.maxDisplayed - 1);
+      const displayedWatchers = users.slice(0, maxDisplayed - 1);
+      const hiddenWatchers = users.slice(maxDisplayed - 1);
       const displayedCells = displayedWatchers.map((watcher, idx) => this.renderCell(watcher, `cell-${group}-${idx}`));
       const hiddenCells = hiddenWatchers.map((watcher, idx) => this.renderCell(watcher, `cell-hidden-${group}-${idx}`));
       return (
