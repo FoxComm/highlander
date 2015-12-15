@@ -11,6 +11,7 @@ import Order from './components/orders/order';
 import OrderDetails from './components/orders/details';
 import Customers from './components/customers/customers';
 import NewCustomer from './components/customers/new-customer';
+import Groups from './components/customers-groups/groups';
 import NewDynamicGroup from './components/customers-groups/new-dynamic-group';
 import NewManualGroup from './components/customers-groups/new-manual-group';
 import Customer from './components/customers/customer';
@@ -68,8 +69,11 @@ const routes = (
                path='storecredits/transactions'
                component={StoreCreditsTransactions} />
       </Route>
-      <Route name='groups-new-dynamic' path='groups/new-dynamic' component={NewDynamicGroup} />
-      <Route name='groups-new-manual' path='groups/new-manual' component={NewManualGroup} />
+      <Route name='groups-base' path='groups'>
+        <IndexRoute name='groups' component={Groups}/>
+        <Route name='groups-new-dynamic' path='new-dynamic' component={NewDynamicGroup} />
+        <Route name='groups-new-manual' path='new-manual' component={NewManualGroup} />
+      </Route>
     </Route>
     <Route name='gift-cards-base' path='gift-cards'>
       <IndexRoute name='gift-cards' component={GiftCards}/>

@@ -1,9 +1,10 @@
 import _ from 'lodash';
+import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { assoc, get, dissoc, merge, update } from 'sprout-data';
 import { criteriaOptions, criteriaOperators } from './constants';
 import { fetchRegions } from '../regions';
-import { groupCount } from '../../elastic/customers';
+import { groupCount, groupCriteriaToRequest } from '../../elastic/customers';
 
 //<editor-fold desc="funcs">
 const _createAction = (description, ...args) => {
@@ -94,9 +95,10 @@ const _createStateChangeAction = (description, ...args) => {
       dispatch(f(...actionArgs));
 
       dispatch(searchStarted());
-      const criteria = getState().groups.builder.criterions;
+      const state = getState().groups.builder;
+      const criteria = state.criterions;
       if (!_.isEmpty(criteria)) {
-        groupCount(criteria).then(
+        groupCount(criteria, state.matchCriteria).then(
           results => dispatch(searchCompleted(results)) && results,
           errors => dispatch(searchFailed(errors)) && errors);
       }
@@ -107,18 +109,40 @@ const _createStateChangeAction = (description, ...args) => {
 
   return action;
 };
-// -
+// - criteria change actions
 const addCriterionAction = _createStateChangeAction('ADD_CRITERIA');
 export const removeCriterion = _createStateChangeAction('REMOVE_CRITERIA');
 const updateCriteria = _createStateChangeAction('UPDATE_CRITERIA', (id, newCrit) => [id, newCrit]);
 export const changeOperator = _createStateChangeAction('CHANGE_OPERATOR', (id, newOpVal) => [id, newOpVal]);
 export const changeValue = _createStateChangeAction('CHANGE_VALUE', (id, newVal) => [id, newVal]);
 export const changeMatchCriteria = _createStateChangeAction('CHANGE_MATCHING');
+// - api actions
+const groupSaved = _createAction('SAVED');
+const groupSaveFailed = _createAction('SAVE_FAILED');
+
+function dumpState(state) {
+  return {
+    criteria: state.criterions,
+    matchCriteria: state.matchCriteria,
+  }
+}
 
 
-export function saveQuery() {
+export function saveQuery(name) {
   return (dispatch, getState) => {
+    const state = getState().groups.builder;
 
+    const data = {
+      name: name,
+      clientState: dumpState(state),
+      customersCount: state.searchResultsLength,
+      elasticRequest: groupCriteriaToRequest(state.criterions, state.matchCriteria),
+    };
+    Api.post(`/groups`, data)
+      .then(
+        group => dispatch(groupSaved(group)),
+        err => dispatch(groupSaveFailed(err))
+      );
   };
 }
 
@@ -154,7 +178,7 @@ export function addCriterion() {
     const state = getState().groups.builder;
     dispatch(addCriterionAction());
 
-    const newSize = _.size(getState().groups.builder.criterions);
+    const newSize = _.size(state.criterions);
     // pre set term if we have only last one
     const lastAdded = newSize == terms.length && newSize - _.size(state.criterions) == 1;
     if (lastAdded) {

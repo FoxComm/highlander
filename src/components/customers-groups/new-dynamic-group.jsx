@@ -58,7 +58,7 @@ export default class NewDynamicGroup extends React.Component {
 
   @autobind
   onSubmit() {
-    this.props.saveQuery();
+    this.props.saveQuery(this.state.name);
   }
 
   render() {
