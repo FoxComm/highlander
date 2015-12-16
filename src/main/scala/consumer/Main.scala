@@ -16,9 +16,9 @@ import consumer.activity.ActivityConnectionTransformer
 import consumer.activity.ActivityProcessor
 import consumer.activity.AdminConnector
 import consumer.activity.CustomerConnector
-import consumer.activity.PhoenixConnectionInfo
 import consumer.elastic.AvroTransformers
 import consumer.elastic.ElasticSearchProcessor
+import consumer.utils.PhoenixConnectionInfo
 
 /**
  * Program which consumes several bottledwater topics and indexes them in Elastic Search
@@ -98,6 +98,11 @@ object Main {
     val phoenixUri            = conf.getString(s"$env.activity.phoenix.url")
     val phoenixUser           = conf.getString(s"$env.activity.phoenix.user")
 
+    Console.err.println(s"ES: ${elasticSearchUrl}")
+    Console.err.println(s"Kafka: ${kafkaBroker}")
+    Console.err.println(s"Schema Registry: ${avroSchemaRegistryUrl}")
+    Console.err.println(s"Phoenix: ${phoenixUri}")
+
     val phoenix = PhoenixConnectionInfo(
       uri = phoenixUri, 
       user = phoenixUser,
@@ -159,6 +164,13 @@ object Main {
       consumer.readForever()
     }
 
+    activityWork onFailure { 
+      case t ⇒ Console.err.println(s"Error occurred consuming activities: ${t.getMessage}")
+    }
+
+    trailWork onFailure { 
+      case t ⇒ Console.err.println(s"Error occurred indexing to ES: ${t}")
+    }
     //These threads will actually never be ready. 
     //This is a hedonist bot.
     Await.ready(activityWork, Duration.Inf)

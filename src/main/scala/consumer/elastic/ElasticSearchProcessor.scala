@@ -8,6 +8,7 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings.MappingDefinition
 import org.elasticsearch.common.settings.ImmutableSettings
 import org.elasticsearch.indices.IndexMissingException
+import org.elasticsearch.client.transport.NoNodeAvailableException
 import org.elasticsearch.transport.RemoteTransportException
 
 import org.json4s.JsonAST.JInt
@@ -15,6 +16,8 @@ import org.json4s.jackson.JsonMethods.parse
 
 import consumer.JsonProcessor
 import consumer.PassthroughSource
+
+import scala.util.control.NonFatal
 
 /**
  * Json transformer has two parts, the ES mapping definition and 
@@ -68,12 +71,13 @@ class ElasticSearchProcessor(
       println(s"Deleting index $indexName...")
       client.execute(deleteIndex(indexName)).await
     } catch {
-      case e: RemoteTransportException ⇒ Console.err.println(s"Error removing index: ${e}")
+      case NonFatal(e) ⇒ Console.err.println(s"Error deleting index, carry on...")
     }
   }
 
   private def createIndex() {
     println("Creating index and type mappings...")
+    try {
     //define mappings an analyzer
     val jsonMappings = jsonTransformers.mapValues(_.mapping()).values.toSeq
     val customAnalyzer =
@@ -88,6 +92,12 @@ class ElasticSearchProcessor(
     client.execute {
       create index indexName mappings (jsonMappings: _*) analysis customAnalyzer
     }.await()
+    } catch {
+      case e: RemoteTransportException ⇒  {
+        Console.err.println(s"Error connecting to ES: ${e}")
+        throw e
+      }
+    }
   }
 
   private def save(document: String, topic: String): Unit = {
@@ -102,8 +112,7 @@ class ElasticSearchProcessor(
             index into indexName / topic id jid doc PassthroughSource(document)
           }.await()
         } catch {
-          case e: RemoteTransportException ⇒ Console.err.println(s"Error while indexing: $e")
-          case e: Throwable ⇒ Console.err.println(s"Error while indexing: $e")
+          case NonFatal(e) ⇒ Console.err.println(s"Error while indexing: $e")
         }
 
       case _ ⇒

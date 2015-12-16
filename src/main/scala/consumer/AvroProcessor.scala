@@ -14,6 +14,8 @@ import org.json4s.JsonAST.{JInt, JObject, JField, JString}
 import org.json4s.ParserUtil.ParseException
 import org.json4s.jackson.JsonMethods.{render, compact, parse}
 
+import scala.util.control.NonFatal
+
 /**
  * Reads kafka processor that reads expects messages in kafka to be from bottledwater-pg
  * which are serialized using Avro.
@@ -45,6 +47,7 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
 
     } catch {
       case e: SerializationException ⇒ Console.err.println(s"Error serializing avro message $e")
+      case NonFatal(e) ⇒ Console.err.println(s"Error processing avro message $e")
     }
   }
 }
@@ -76,7 +79,7 @@ object AvroJsonHelper {
         try {
           (name, parse(text))
         } catch { 
-          case _ : Exception ⇒ (name, JString(text))
+          case NonFatal(_) ⇒ (name, JString(text))
         }
       }
     }

@@ -22,13 +22,22 @@ import akka.stream.{ActorMaterializer, Materializer}
 
 import org.json4s.JsonAST.JInt
 import org.json4s.jackson.JsonMethods.parse
+import org.json4s.DefaultFormats
 
 import consumer.elastic.JsonTransformer
 
-final case class ActivityConnectionTransformer(phoenix: PhoenixConnectionInfo)
+import consumer.utils.PhoenixConnectionInfo
+import consumer.utils.Phoenix
+import consumer.utils.HttpResponseExtensions._
+import akka.http.scaladsl.model.StatusCodes
+
+final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
 (implicit ec:ExecutionContext, mat: Materializer, ac: ActorSystem, cp: ConnectionPoolSettings) extends JsonTransformer { 
 
+  implicit val formats: DefaultFormats.type = DefaultFormats
+
   def mapping = "activity_connections" as ()
+  val phoenix = Phoenix(conn)
 
   def transform(json: String) : String = {
 
@@ -41,19 +50,10 @@ final case class ActivityConnectionTransformer(phoenix: PhoenixConnectionInfo)
   }
 
   def queryPhoenixForConnection(id: BigInt) : String = {
-    val url = s"${phoenix.uri}/connections/${id}"
-    Console.err.println(url)
+    val uri = s"connections/${id}"
+    Console.err.println(uri)
 
-    get(url)
+    phoenix.get(uri).bodyText
   }
 
-  private def get(uri: String) : String = { 
-    val request = HttpRequest(HttpMethods.GET,uri).addHeader(
-      Authorization(BasicHttpCredentials(phoenix.user, phoenix.pass)))
-
-    val f = Http().singleRequest(request, cp).flatMap{ 
-      r ⇒ r.entity.toStrict(1.second).map(_.data.utf8String)
-    }
-    Await.result(f, 10 seconds)
-  }
 }
