@@ -55,12 +55,6 @@ export function createFetchActions(namespace, payloadReducer, metaReducer) {
   });
 }
 
-/**
- * Creates async and simple actions for given namespace and url
- * @param {String|Function} url can be string or method like this: (fetchData) => string
- * @param {*} namespace
- * @param {Function} [payloadReducer]
- */
 export function createActions(url, namespace, payloadReducer) {
   const fetchActions = createFetchActions(namespace, payloadReducer);
   const {
@@ -72,9 +66,8 @@ export function createActions(url, namespace, payloadReducer) {
 
   const fetch = fetchData => dispatch => {
     dispatch(actionFetch());
-    const finalUrl = _.isString(url) ? url : url(fetchData);
 
-    return Api.get(finalUrl, pickFetchParams(fetchData))
+    return Api.get(url, pickFetchParams(fetchData))
       .then(
         result => dispatch(actionReceived(result)),
         err => dispatch(actionFetchFailed(err))
