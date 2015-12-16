@@ -20,6 +20,6 @@ describe('Child Rmas', function() {
     };
     const rmaList = shallowRender(<Wrapped {...props} />);
 
-    expect(rmaList, 'to have rendered', <TableView/>);
+    expect(rmaList, 'to have rendered', <TableView data={props.rmas}/>);
   });
 });

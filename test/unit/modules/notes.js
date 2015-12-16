@@ -3,10 +3,8 @@ import _ from 'lodash';
 import nock from 'nock';
 
 const {default: reducer, ...actions} = importSource('modules/notes.js', [
-  'actionFetch',
   'actionReceived',
-  'actionSetFetchParams',
-  'updateNotes',
+  'actionUpdateItems',
   'actionAddEntity',
   'actionRemoveEntity'
 ]);
@@ -46,16 +44,6 @@ describe('Notes module', function() {
       nock.cleanAll();
     });
 
-    it('fetchNotes', function *() {
-      const expectedActions = [
-        actions.actionFetch,
-        actions.actionSetFetchParams,
-        { type: actions.actionReceived, payload: [entity, notesPayload]}
-      ];
-
-      yield expect(actions.fetchNotes(entity), 'to dispatch actions', expectedActions);
-    });
-
     it('createNote', function *() {
       const expectedActions = [
         actions.stopAddingOrEditingNote,
@@ -68,7 +56,7 @@ describe('Notes module', function() {
     it('editNote', function *() {
       const expectedActions = [
         actions.stopAddingOrEditingNote,
-        {type: actions.updateNotes, payload: [entity, [notePayload]]}
+        {type: actions.actionUpdateItems, payload: [entity, [notePayload]]}
       ];
 
       nock(phoenixUrl)
@@ -102,7 +90,7 @@ describe('Notes module', function() {
     };
 
     it('should update exists notes', function() {
-      const newState = reducer(state, actions.updateNotes(entity, [notePayload]));
+      const newState = reducer(state, actions.actionUpdateItems(entity, [notePayload]));
 
       expect(_.get(newState, [entity.entityType, entity.entityId, 'rows', 1]), 'to satisfy', notePayload);
     });
