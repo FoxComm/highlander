@@ -126,7 +126,7 @@
   sudo: true
 
 - name: Setup Update Materialzied Views Sql
-  copy: src=update_materialized_views.sql dest={{update_materalized_views_sql}}
+  copy: src=update_materialized_views.sql dest={{update_materialized_views_sql}}
   sudo: true
 
 - name: Setup Materialized Views Cron
