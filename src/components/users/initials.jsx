@@ -50,7 +50,6 @@ export default class UserInitials extends React.Component {
 
   @autobind
   toggleState() {
-    console.log('toggle');
     this.setState({tooltipShown: !this.state.tooltipShown});
   }
 

@@ -84,7 +84,10 @@ export default class Watchers extends React.Component {
     );
     return (
       <div className="fc-watchers__cell" key={key}>
-        <UserInitials name={user.name} email={user.email} actionBlock={actionBlock} showTooltipOnClick={true}/>
+        <UserInitials name={user.name}
+                      email={user.email}
+                      actionBlock={actionBlock}
+                      showTooltipOnClick={true}/>
       </div>
     );
   }
@@ -123,7 +126,7 @@ export default class Watchers extends React.Component {
     const removeFromGroup = (name) => this.props.removeFromGroup(this.entity, group, name);
     if (users.length <= maxDisplayed) {
       const cells = users.map(
-        (watcher, idx) => this.renderCell(watcher, `cell-${group}-${idx}`, removeFromGroup));
+        (watcher, idx) => this.renderCell(watcher, `cell-${group}-${watcher.name}`, removeFromGroup));
       return (
         <div className={rowClass}>
           <AddButton className="fc-watchers__add-button"
@@ -135,9 +138,9 @@ export default class Watchers extends React.Component {
       const displayedWatchers = users.slice(0, maxDisplayed - 1);
       const hiddenWatchers = users.slice(maxDisplayed - 1);
       const displayedCells = displayedWatchers.map(
-        (watcher, idx) => this.renderCell(watcher, `cell-${group}-${idx}`, removeFromGroup));
+        (watcher, idx) => this.renderCell(watcher, `cell-${group}-${watcher.name}`, removeFromGroup));
       const hiddenCells = hiddenWatchers.map(
-        (watcher, idx) => this.renderCell(watcher, `cell-hidden-${group}-${idx}`, removeFromGroup));
+        (watcher, idx) => this.renderCell(watcher, `cell-hidden-${group}-${watcher.name}`, removeFromGroup));
       return (
         <div className={rowClass}>
           <AddButton className="fc-watchers__add-button"
