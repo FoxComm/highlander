@@ -7,4 +7,6 @@
 #use correct version of node
 cd /vagrant
 nvm use  # uses .nvmrc
-npm start
+npm build
+npm install
+gulp server
