@@ -30,7 +30,7 @@ declare
 begin
     done := false;
     while not done loop
-        new_code := upper(substr(md5(random()::text), 0, len));
+        new_code := upper(substr(md5(random()::text), 0, len + 1));
         done := not exists(select 1 from gift_cards WHERE code = new_code);
     end loop;
     return new_code;

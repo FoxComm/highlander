@@ -11,6 +11,10 @@ class GiftCardIntegrationTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
   "GiftCardTest" - {
+    "generates a unique alpha-numeric code of size 16 upon insert" in new Fixture {
+      giftCard.code must have size (16)
+    }
+
     "sets availableBalance and currentBalance equal to originalBalance upon insert" in new Fixture {
       giftCard.originalBalance must === (50)
       giftCard.currentBalance must === (50)
