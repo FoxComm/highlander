@@ -4,12 +4,11 @@ import { createAction, createReducer } from 'redux-act';
 import { assoc, dissoc, update, get } from 'sprout-data';
 import { updateItems } from './state-helpers';
 
-import makePagination from './pagination/structuredStore';
+import makePagination from './pagination/structured-store';
 
-const dataNamespace = 'notes';
 const dataPath = ({entityType, entityId}) => [entityType, entityId];
 
-const { makeActions, makeReducer } = makePagination(dataNamespace, dataPath);
+const { makeActions, makeReducer } = makePagination('NOTES', dataPath);
 
 const notesFailed = createAction('NOTES_FAILED', (entity, err) => [entity, err]);
 export const startDeletingNote = createAction('NOTES_START_DELETING', (entity, id) => [entity, id]);

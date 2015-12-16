@@ -1,10 +1,8 @@
 import makePagination from '../pagination';
 
-const {reducer, actions: {fetch, setFetchParams}} = makePagination('/customers', 'CUSTOMERS');
-
-export default reducer;
+const {reducer, fetch} = makePagination('/customers', 'CUSTOMERS');
 
 export {
-  fetch,
-  setFetchParams
+  reducer as default,
+  fetch
 };

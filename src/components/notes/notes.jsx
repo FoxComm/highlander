@@ -151,7 +151,7 @@ export default class Notes extends React.Component {
           detectNewRows={this.props.wasReceived}
           columns={this.props.tableColumns}
           data={this.props.data}
-          setState={(data, params) => this.props.fetchNotes(params)}
+          setState={this.props.fetchNotes}
         />
         <ConfirmationDialog
           {...Notes.deleteOptions}

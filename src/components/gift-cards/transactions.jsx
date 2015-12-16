@@ -10,7 +10,6 @@ import { connect } from 'react-redux';
 export default class GiftCardTransactions extends React.Component {
   static propTypes = {
     fetch: PropTypes.func,
-    setFetchParams: PropTypes.func,
     actionReset: PropTypes.func,
     setGiftCard: PropTypes.func,
     tableColumns: PropTypes.array,
@@ -45,7 +44,7 @@ export default class GiftCardTransactions extends React.Component {
         <TableView
           columns={this.props.tableColumns}
           data={this.props.transactions}
-          setState={(state, fetchParams) => this.props.fetch(this.giftCard, fetchParams)}
+          setState={fetchParams => this.props.fetch(this.giftCard, fetchParams)}
           paginator={true}
           />
       </div>

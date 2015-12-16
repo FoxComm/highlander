@@ -30,11 +30,16 @@ export default class TableBody extends React.Component {
 
   @autobind
   defaultRenderRow(row, index, isNew) {
+    const rowKey = this.props.predicate && this.props.predicate(row) || index;
     return (
-      <TableRow key={`row-${index}`} isNew={isNew}>
-        {this.props.columns.map((column, cellIdx) => <TableCell column={column} key={`cell-${cellIdx}`}>
-          {row[column.field]}
-        </TableCell>)}
+      <TableRow key={`row-${rowKey}`} isNew={isNew}>
+        {this.props.columns.map((column, cellIdx) => {
+          return (
+            <TableCell column={column} key={`cell-${cellIdx}`}>
+              {row[column.field]}
+            </TableCell>
+          );
+        })}
       </TableRow>
     );
   }

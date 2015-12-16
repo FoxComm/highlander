@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import Dropdown from '../dropdown/dropdown';
-import { DEFAULT_PAGE_SIZE } from '../../modules/pagination';
+import { DEFAULT_PAGE_SIZE } from '../../modules/pagination/base';
 
 class TablePaginator extends React.Component {
   static propTypes = {

@@ -11,16 +11,12 @@ const {
   updateSearch
 } = liveSearch.actions;
 
-const {
-  reducer,
-  actions: {fetch, setFetchParams}
-} = makePagination('/orders', 'ORDERS', liveSearch.reducer);
+const {reducer, fetch} = makePagination('/orders', 'ORDERS', liveSearch.reducer);
 
 export default reducer;
 
 export {
   fetch,
-  setFetchParams,
   deleteSearchFilter,
   goBack,
   submitFilter,

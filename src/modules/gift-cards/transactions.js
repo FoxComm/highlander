@@ -1,12 +1,13 @@
 
 import _ from 'lodash';
-import makePagination from '../pagination/flatStore';
+import makePagination from '../pagination';
 
-const dataNamespace = ['giftCards', 'transactions'];
-const { makeReducer, makeActions } = makePagination(dataNamespace);
+const namespace = 'GIFTCARD_TRANSACTIONS';
 
-const reducer = makeReducer();
-const { fetch, actionReset } = makeActions(giftCard => `/gift-cards/${giftCard}/transactions`);
+const { reducer, fetch, actionReset } = makePagination(
+  giftCard => `/gift-cards/${giftCard}/transactions`,
+  namespace
+);
 
 export {
   reducer as default,

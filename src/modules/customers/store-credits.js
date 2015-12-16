@@ -3,7 +3,7 @@ import { assoc, update, merge, dissoc, get } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import Api from '../../lib/api';
 
-import makePagination from '../pagination/structuredStore';
+import makePagination from '../pagination/structured-store';
 
 const dataNamespace = ['customers', 'storeCredits'];
 const dataPath = customerId => [customerId, 'storeCredits'];

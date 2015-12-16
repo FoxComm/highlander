@@ -20,7 +20,6 @@ export default class GiftCards extends React.Component {
     giftCards: PropTypes.object,
     tableColumns: PropTypes.array,
     fetch: PropTypes.func,
-    setFetchParams: PropTypes.func
   };
 
   static defaultProps = {
@@ -81,7 +80,7 @@ export default class GiftCards extends React.Component {
               columns={this.props.tableColumns}
               data={this.props.giftCards}
               renderRow={renderRow}
-              setState={this.props.setFetchParams}
+              setState={this.props.fetch}
               />
           </div>
         </div>

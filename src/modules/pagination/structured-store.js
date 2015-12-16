@@ -1,8 +1,8 @@
 
 import _ from 'lodash';
-import { paginate } from './index';
 import { update } from 'sprout-data';
-import {createActions, paginateReducer} from './v2';
+import createActions from './actions-creator';
+import {paginateReducer, paginate} from './base';
 
 export const makeUpdateBehaviour = dataPath => (state, action, actionType) => {
   // behaviour for initial state
@@ -17,9 +17,9 @@ export const makeUpdateBehaviour = dataPath => (state, action, actionType) => {
   });
 };
 
-const makePagination = (dataNamespace, dataPath) => {
-  const makeReducer = moduleReducer => paginateReducer(dataNamespace, moduleReducer, makeUpdateBehaviour(dataPath));
-  const makeActions = makeUrl => createActions(dataNamespace, dataPath)(makeUrl);
+const makePagination = (namespace, dataPath) => {
+  const makeReducer = moduleReducer => paginateReducer(namespace, moduleReducer, makeUpdateBehaviour(dataPath));
+  const makeActions = makeUrl => createActions(namespace, dataPath)(makeUrl);
 
   return {
     makeReducer,

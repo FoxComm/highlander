@@ -6,11 +6,8 @@ import makePagination from '../pagination';
 
 const {
   reducer,
-  actions: {
-    fetch,
-    setFetchParams,
-    actionAddEntities
-    }
+  fetch,
+  actionAddEntities
   } = makePagination('/gift-cards', 'GIFT_CARDS');
 
 export function createGiftCard() {
@@ -39,6 +36,5 @@ export function createGiftCard() {
 
 export {
   reducer as default,
-  fetch,
-  setFetchParams
+  fetch
 };

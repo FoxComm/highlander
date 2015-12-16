@@ -78,7 +78,7 @@ export default class StoreCreditTransactions extends React.Component {
               columns={ props.tableColumns }
               data={ props.storeCreditTransactions }
               renderRow={ this.renderRow }
-              setState={ (_, params) => this.props.fetchStoreCreditTransactions(this.customerId, params) } />
+              setState={ params => this.props.fetchStoreCreditTransactions(this.customerId, params) } />
           </div>
         </div>
       </div>

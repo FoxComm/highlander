@@ -57,7 +57,6 @@ export default class Customers extends React.Component {
 
   static propTypes = {
     fetch: PropTypes.func,
-    setFetchParams: PropTypes.func,
     customers: PropTypes.object,
     tableColumns: PropTypes.array
   };
@@ -118,7 +117,7 @@ export default class Customers extends React.Component {
               columns={this.props.tableColumns}
               data={this.props.customers}
               renderRow={renderRow}
-              setState={this.props.setFetchParams}
+              setState={this.props.fetch}
               />
           </div>
         </div>
