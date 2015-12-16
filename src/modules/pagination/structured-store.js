@@ -1,5 +1,4 @@
 
-import _ from 'lodash';
 import { update } from 'sprout-data';
 import createActions from './actions-creator';
 import {paginateReducer, paginate} from './base';
@@ -8,9 +7,9 @@ export const makeUpdateBehaviour = dataPath => (state, action, actionType) => {
   // behaviour for initial state
   if (actionType === void 0) return state;
 
-  const [identity, payload] = action.payload;
+  const [entity, payload] = action.payload;
 
-  return update(state, dataPath(identity), paginate, {
+  return update(state, dataPath(entity), paginate, {
     ...action,
     payload,
     type: actionType

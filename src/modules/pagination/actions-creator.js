@@ -2,7 +2,7 @@
 import Api from '../../lib/api';
 import {createFetchActions, pickFetchParams} from './base';
 
-const createActions = (namespace, dataPath, payloadReducer = (identity, payload) => [identity, payload]) => {
+const createActions = (namespace, dataPath, payloadReducer = (entity, payload) => [entity, payload]) => {
   return makeUrl => {
     const fetchActions = createFetchActions(namespace, payloadReducer);
     const {
@@ -12,17 +12,17 @@ const createActions = (namespace, dataPath, payloadReducer = (identity, payload)
       actionSetFetchParams
       } = fetchActions;
 
-    const fetch = (identity, newFetchParams) => dispatch => {
+    const fetch = (entity, newFetchParams) => dispatch => {
       const fetchParams = pickFetchParams(newFetchParams);
 
-      dispatch(actionFetch(identity));
-      dispatch(actionSetFetchParams(identity, newFetchParams));
-      const url = makeUrl(identity);
+      dispatch(actionFetch(entity));
+      dispatch(actionSetFetchParams(entity, newFetchParams));
+      const url = makeUrl(entity);
 
       return Api.get(url, fetchParams)
         .then(
-          result => dispatch(actionReceived(identity, result)),
-          err => dispatch(actionFetchFailed(identity, err))
+          result => dispatch(actionReceived(entity, result)),
+          err => dispatch(actionFetchFailed(entity, err))
         );
     };
 
