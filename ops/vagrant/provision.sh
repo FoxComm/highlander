@@ -4,8 +4,8 @@ alias stop='systemctl stop'
 alias start='systemct start'
 
 #install node and npm
-apt-get udpate 
-apt-get install -y nodejs-legacy npm build-essential lua-cjson
+apt-get update 
+apt-get install -y nodejs-legacy npm build-essential lua-cjson lua-cjson-dev
 
 #setup vagrant user
 sudo -u vagrant /vagrant/ops/vagrant/setup_vagrant_user.sh
