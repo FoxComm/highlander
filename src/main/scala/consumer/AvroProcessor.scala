@@ -11,8 +11,7 @@ import org.apache.avro.generic.GenericDatumWriter
 import org.apache.avro.io.EncoderFactory
 import org.apache.kafka.common.errors.SerializationException
 
-import org.json4s.JsonAST.{JInt, JObject, JField, JString}
-import org.json4s.ParserUtil.ParseException
+import org.json4s.JsonAST.{JValue, JObject, JField, JString}
 import org.json4s.jackson.JsonMethods.{render, compact, parse}
 
 import scala.util.control.NonFatal
@@ -61,24 +60,30 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
  * more reasonable.
  */
 object AvroJsonHelper {
-  def underscoreToCamel(s: String): String = "_([a-z])".r.replaceAllIn(s, _.group(1).toUpperCase)
+  def transformJson(json: String, fields: List[String] = List.empty): String = {
+    val filteredJson = camelCase(stringToJson(deannotateAvroTypes(parse(json)), fields))
+    compact(render(filteredJson))
+  }
 
-  def transformJson(json: String, fields: List[String]): String = {
-    // Reduce Avro type annotations
-    val unwrapTypes = parse(json).transformField {
-      case JField(name, (JObject(JField(typeName, value) :: Nil))) ⇒  { 
+  private def underscoreToCamel(s: String): String = "_([a-z])".r.replaceAllIn(s, _.group(1).toUpperCase)
+
+  private def camelCase(input: JValue): JValue = {
+    input.transformField {
+      case JField(name, anything) ⇒ (underscoreToCamel(name), anything)
+    }
+  }
+
+  private def deannotateAvroTypes(input: JValue): JValue = {
+    input.transformField {
+      case JField(name, (JObject(JField(typeName, value) :: Nil))) ⇒ {
         (name, value)
       }
     }
+  }
 
-    // Convert all snake_case to camelCase
-    val camelCased = unwrapTypes.transformField {
-      case JField(name, anything) ⇒ (underscoreToCamel(name), anything)
-    }
-
-    // Convert escaped json fields to AST
-    val unescapeJson = camelCased.transformField {
-      case JField(name, JString(text)) if fields.contains(name) ⇒  {
+  private def stringToJson(input: JValue, fields: List[String]): JValue = {
+    input.transformField {
+      case JField(name, JString(text)) if fields.contains(name) ⇒ {
         // Try to parse the text as json, otherwise treat it as text
         try {
           (name, parse(text))
@@ -87,7 +92,5 @@ object AvroJsonHelper {
         }
       }
     }
-
-    compact(render(unescapeJson))
   }
 }
