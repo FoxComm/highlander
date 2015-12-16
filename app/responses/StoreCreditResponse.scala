@@ -22,6 +22,8 @@ object StoreCreditResponse {
 
   final case class Totals(availableBalance: Int = 0, currentBalance: Int = 0)
 
+  final case class WithTotals(storeCredits: Seq[Root], totals: Option[Totals])
+
   def build(records: Seq[models.StoreCredit]): Seq[Root] = records.map(build)
 
   def build(storeCredit: models.StoreCredit): Root = {

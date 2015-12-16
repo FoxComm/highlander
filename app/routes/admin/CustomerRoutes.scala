@@ -161,8 +161,8 @@ object CustomerRoutes {
             }
           } ~
           (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            goodOrFailures {
-              StoreCreditService.findAllByCustomer(customerId)
+            complete {
+              StoreCreditService.findAllByCustomer(customerId).map(renderMetadataResult)
             }
           } ~
           (post & pathEnd & entity(as[payloads.CreateManualStoreCredit])) { payload ⇒
