@@ -30,7 +30,7 @@ class GiftCardTransactions extends React.Component {
     tableColumns: [
       {field: 'createdAt', text: 'Date/Time', type: 'date'},
       {field: 'orderRef', text: 'Transaction', type: 'link', model: 'order', id: 'orderRef'},
-      {field: 'amount', text: 'Amount', type: 'currency'},
+      {field: 'amount', text: 'Amount', type: 'transaction'},
       {field: 'state', text: 'Payment State'},
       {field: 'availableBalance', text: 'Available Balance', type: 'currency'}
     ]

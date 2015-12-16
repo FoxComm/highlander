@@ -15,6 +15,8 @@ const TableCell = props => {
         return <Status value={cell} model={column.model}/>;
       case 'currency':
         return <Currency value={cell}/>;
+      case 'transaction':
+        return <Currency value={cell} isTransaction={true} />;
       case 'moment':
         return <Moment value={cell}/>;
       case 'date':

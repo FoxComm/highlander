@@ -1,0 +1,25 @@
+
+.fc-currency {
+  display: inline-block;
+  &._transaction {
+    color: @color-decor15;
+
+    &._negative {
+      color: @color-decor22;
+
+      &::first-letter {
+        padding-right: 0.35em;
+      }
+
+      &:before {
+        display: none;
+      }
+    }
+
+    &:before {
+      content: "+";
+      color: @color-decor15;
+      padding-right: 0.35em;
+    }
+  }
+}
