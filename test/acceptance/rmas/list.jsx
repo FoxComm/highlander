@@ -20,6 +20,6 @@ describe('Rmas', function() {
     const rmaList = shallowRender(<Wrapped {...props} />);
 
     expect(rmaList.props.className).to.equal('fc-list-page');
-    expect(rmaList, 'to contain', <TableView/>);
+    expect(rmaList, 'to contain', <TableView data={props.rmas} />);
   });
 });

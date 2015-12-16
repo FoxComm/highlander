@@ -95,12 +95,8 @@ export default class StoreCredits extends React.Component {
   }
 
   componentDidMount() {
-    this.props.fetchStoreCredits(this.entityType);
+    this.props.fetchStoreCredits(this.customerId);
     this.props.fetchReasons(this.reasonType);
-  }
-
-  get entityType() {
-    return {entityType: 'storeCredits', entityId: this.customerId};
   }
 
   onAddStoreCreditClick() {
@@ -184,7 +180,7 @@ export default class StoreCredits extends React.Component {
           cancel="Cancel"
           confirm="Yes, Change State"
           cancelAction={ () => this.props.cancelChange(this.customerId) }
-          confirmAction={ () => this.props.saveStatusChange(this.entityType) } />
+          confirmAction={ () => this.props.saveStatusChange(this.customerId) } />
     );
   }
 
@@ -197,7 +193,6 @@ export default class StoreCredits extends React.Component {
         return acc;
       }, {});
     }
-    console.log(reasons);
     const value = this.props.storeCreditToChange &&
       this.props.storeCreditToChange.reasonId;
     const body = (
@@ -230,7 +225,7 @@ export default class StoreCredits extends React.Component {
           cancel="Cancel"
           confirm="Yes, Cancel"
           cancelAction={ () => this.props.cancelChange(this.customerId) }
-          confirmAction={ () => this.props.saveStatusChange(this.entityType) } />
+          confirmAction={ () => this.props.saveStatusChange(this.customerId) } />
     );
   }
 
@@ -246,7 +241,7 @@ export default class StoreCredits extends React.Component {
               columns={props.tableColumns}
               data={props.storeCredits}
               renderRow={this.renderRow}
-              setState={props.setFetchParams}
+              setState={params => props.fetchStoreCredits(this.customerId, params)}
               />
           </div>
         </div>

@@ -14,7 +14,7 @@ import DropdownItem from '../dropdown/dropdownItem';
 import LocalNav from '../local-nav/local-nav';
 
 @connect((state, props) => ({
-  ...state.giftCards.details[props.params.giftcard]
+  ...state.giftCards.details[props.params.giftCard]
 }), GiftCardActions)
 export default class GiftCard extends React.Component {
 
@@ -27,14 +27,14 @@ export default class GiftCard extends React.Component {
     editGiftCard: PropTypes.func,
     fetchGiftCardIfNeeded: PropTypes.func.isRequired,
     params: PropTypes.shape({
-      giftcard: PropTypes.string.isRequired
+      giftCard: PropTypes.string.isRequired
     }).isRequired
   };
 
   componentDidMount() {
-    let { giftcard } = this.props.params;
+    let { giftCard } = this.props.params;
 
-    this.props.fetchGiftCardIfNeeded(giftcard);
+    this.props.fetchGiftCardIfNeeded(giftCard);
   }
 
   @autobind
@@ -47,7 +47,7 @@ export default class GiftCard extends React.Component {
   }
 
   get subNav() {
-    const params = {giftcard: this.props.card.code};
+    const params = {giftCard: this.props.card.code};
 
     if (!this.props.card.code) {
       return null;

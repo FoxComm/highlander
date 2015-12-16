@@ -67,7 +67,7 @@ const routes = (
     <Route name='groups-new-manual' path='customers/groups/new-manual' component={NewManualGroup} />
     <Route name='gift-cards' path='gift-cards' component={GiftCards} />
     <Route name='gift-cards-new' path='gift-cards/new' component={NewGiftCard} />
-    <Route name='giftcard' path='gift-cards/:giftcard' component={GiftCard}>
+    <Route name='giftcard' path='gift-cards/:giftCard' component={GiftCard}>
       <IndexRoute name='gift-card-transactions' component={GiftCardTransactions} />
       <Route name='gift-card-notes' path='notes' component={Notes} />
       <Route name='gift-card-activity-trail' path='activity-trail' component={ActivityTrailPage} />

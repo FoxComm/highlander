@@ -6,22 +6,15 @@ import * as GiftCardsTransactionActions from '../../modules/gift-cards/transacti
 
 import { connect } from 'react-redux';
 
-const mapStateToProps = createSelector(
-    state => state.router.params.giftcard,
-    state => state.giftCards.transactions,
-  (identity, transactions) => ({
-    transactions: _.get(transactions, [identity, 'items'])
-  })
-);
-
-@connect(mapStateToProps, GiftCardsTransactionActions)
-export default
-class GiftCardTransactions extends React.Component {
+@connect(state => state.giftCards, GiftCardsTransactionActions)
+export default class GiftCardTransactions extends React.Component {
   static propTypes = {
-    fetchTransactionsIfNeeded: PropTypes.func,
+    fetch: PropTypes.func,
+    actionReset: PropTypes.func,
+    setGiftCard: PropTypes.func,
     tableColumns: PropTypes.array,
     params: PropTypes.shape({
-      giftcard: PropTypes.string.isRequired
+      giftCard: PropTypes.string.isRequired
     }).isRequired,
     transactions: PropTypes.any
   };
@@ -36,10 +29,13 @@ class GiftCardTransactions extends React.Component {
     ]
   };
 
-  componentDidMount() {
-    const { giftcard } = this.props.params;
+  get giftCard() {
+    return this.props.params.giftCard;
+  }
 
-    this.props.fetchTransactionsIfNeeded(this.props.params.giftcard);
+  componentDidMount() {
+    this.props.actionReset(); // clean state from previous values
+    this.props.fetch(this.giftCard);
   }
 
   render() {
@@ -47,12 +43,9 @@ class GiftCardTransactions extends React.Component {
       <div>
         <TableView
           columns={this.props.tableColumns}
-          data={{
-            rows: _.get(this.props.transactions, 'result', []),
-            total: _.get(this.props.transactions, ['pagination', 'total'], 0)
-          }}
-          setState={()=>{}}
-          paginator={false}
+          data={this.props.transactions}
+          setState={fetchParams => this.props.fetch(this.giftCard, fetchParams)}
+          paginator={true}
           />
       </div>
     );

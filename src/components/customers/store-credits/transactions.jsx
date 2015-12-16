@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 import * as StoreCreditTransactionsActions from '../../../modules/customers/store-credit-transactions';
 
 @connect((state, props) => ({
-  ...state.customers.storeCreditTransactions[props.params.customerId]
+  storeCreditTransactions: state.customers.storeCreditTransactions[props.params.customerId],
 }), StoreCreditTransactionsActions)
 export default class StoreCreditTransactions extends React.Component {
 
@@ -46,9 +46,12 @@ export default class StoreCreditTransactions extends React.Component {
     ]
   };
 
+  get customerId() {
+    return this.props.params.customerId;
+  }
+
   componentDidMount() {
-    const customerId = this.props.params.customerId;
-    this.props.fetchStoreCreditTransactions({entityType: 'storeCreditTransactions', entityId: customerId});
+    this.props.fetchStoreCreditTransactions(this.customerId);
   }
 
   renderRow(row) {
@@ -75,7 +78,7 @@ export default class StoreCreditTransactions extends React.Component {
               columns={ props.tableColumns }
               data={ props.storeCreditTransactions }
               renderRow={ this.renderRow }
-              setState={ props.setFetchParams } />
+              setState={ params => this.props.fetchStoreCreditTransactions(this.customerId, params) } />
           </div>
         </div>
       </div>

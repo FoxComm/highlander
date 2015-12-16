@@ -1,25 +1,28 @@
+
+// libs
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
+
+// components
+import { Link } from '../link';
 import SectionTitle from '../section-title/section-title';
 import LocalNav from '../local-nav/local-nav';
 import { TabListView, TabView } from '../tabs';
-import { Link } from '../link';
-import { connect } from 'react-redux';
-import * as rmaActions from '../../modules/rmas/list';
 import TableView from '../table/tableview';
 import { renderRow } from './helpers';
-import { assoc } from 'sprout-data';
 
-function mapStateToProps(state) {
-  const rmaData = state.rmas.list;
+// redux
+import * as rmaActions from '../../modules/rmas/list';
 
+const mapStateToProps = state => {
   return {
-    'rmas': {
-      ...rmaData,
-      'rows': rmaData.rows || []
-    }
+    rmas: {
+      total: 0,
+      ...state.rmas.list,
+    },
   };
-}
+};
 
 @connect(mapStateToProps, rmaActions)
 export default class Rmas extends React.Component {
@@ -65,7 +68,7 @@ export default class Rmas extends React.Component {
             <TableView
                 data={this.props.rmas}
                 columns={this.props.tableColumns}
-                setState={(data, params) => this.props.fetchRmas(params)}
+                setState={this.props.fetchRmas}
                 renderRow={renderRow}
             />
           </div>

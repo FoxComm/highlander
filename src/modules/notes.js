@@ -3,20 +3,13 @@ import Api from '../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { assoc, dissoc, update, get } from 'sprout-data';
 import { updateItems } from './state-helpers';
-import { paginateReducer, actionTypes, paginate, pickFetchParams, createFetchActions } from './pagination';
 
-const NOTES = 'NOTES';
+import makePagination from './pagination/structured-store';
 
-const {
-  actionFetch,
-  actionReceived,
-  actionFetchFailed,
-  actionSetFetchParams,
-  actionAddEntity,
-  actionRemoveEntity
-  } = createFetchActions(NOTES, (entity, payload) => [entity, payload]);
+const dataPath = ({entityType, entityId}) => [entityType, entityId];
 
-const updateNotes = createAction('NOTES_UPDATE', (entity, notes) => [entity, notes]);
+const { makeActions, makeReducer } = makePagination('NOTES', dataPath);
+
 const notesFailed = createAction('NOTES_FAILED', (entity, err) => [entity, err]);
 export const startDeletingNote = createAction('NOTES_START_DELETING', (entity, id) => [entity, id]);
 export const stopDeletingNote = createAction('NOTES_STOP_DELETING', (entity, id) => [entity, id]);
@@ -32,22 +25,13 @@ export const notesUri = (entity, noteId) => {
   return uri;
 };
 
-export function fetchNotes(entity, newFetchParams) {
-  const {entityType, entityId} = entity;
-
-  return (dispatch, getState) => {
-    const state = get(getState(), ['notes', entityType, entityId]);
-    const fetchParams = pickFetchParams(state, newFetchParams);
-
-    dispatch(actionFetch(entity));
-    dispatch(actionSetFetchParams(entity, newFetchParams));
-    Api.get(notesUri(entity), fetchParams)
-      .then(
-        json => dispatch(actionReceived(entity, json)),
-        err => dispatch(actionFetchFailed(entity, err))
-      );
-  };
-}
+const {
+    fetch,
+    actionAddEntity,
+    actionRemoveEntity,
+    actionReceived,
+    actionUpdateItems,
+  } = makeActions(notesUri);
 
 export function createNote(entity, data) {
   return dispatch => {
@@ -65,7 +49,7 @@ export function editNote(entity, id, data) {
     dispatch(stopAddingOrEditingNote(entity));
     Api.patch(notesUri(entity, id), data)
       .then(
-        json => dispatch(updateNotes(entity, [json])),
+        json => dispatch(actionUpdateItems(entity, [json])),
         err => dispatch(notesFailed(entity, err))
       );
   };
@@ -82,15 +66,11 @@ export function deleteNote(entity, id) {
   };
 }
 
-
 const initialState = {};
 
-const reducer = createReducer({
+const notesReducer = createReducer({
   [actionReceived]: (state, [{entityType, entityId}, notes]) => {
     return assoc(state, [entityType, entityId, 'wasReceived'], true);
-  },
-  [updateNotes]: (state, [{entityType, entityId}, notes]) => {
-    return update(state, [entityType, entityId, 'rows'], updateItems, notes);
   },
   [notesFailed]: (state, [{entityType, entityId}, error]) => {
     console.error(error);
@@ -117,17 +97,9 @@ const reducer = createReducer({
   }
 }, initialState);
 
-function paginateBehaviour(state, action, actionType) {
-  // behaviour for initial state
-  if (actionType === void 0) return state;
+const reducer = makeReducer(notesReducer);
 
-  const [{entityType, entityId}, payload] = action.payload;
-
-  return update(state, [entityType, entityId], paginate, {
-    ...action,
-    payload,
-    type: actionType
-  });
-}
-
-export default paginateReducer(NOTES, reducer, paginateBehaviour);
+export {
+  reducer as default,
+  fetch as fetchNotes
+};

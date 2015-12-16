@@ -18,7 +18,6 @@ import LiveSearch from '../live-search/live-search';
 export default class Orders extends React.Component {
   static propTypes = {
     fetch: PropTypes.func.isRequired,
-    setFetchParams: PropTypes.func.isRequired,
     tableColumns: PropTypes.array,
     subNav: PropTypes.array,
     orders: PropTypes.shape({
@@ -90,7 +89,7 @@ export default class Orders extends React.Component {
           </TabListView>
         </div>
         <div className="fc-grid fc-list-page-content">
-          <LiveSearch 
+          <LiveSearch
             submitFilter={this.props.submitFilter}
             state={this.props.orders}
             goBack={this.props.goBack}
@@ -101,7 +100,7 @@ export default class Orders extends React.Component {
               columns={this.props.tableColumns}
               data={this.props.orders}
               renderRow={renderRow}
-              setState={this.props.setFetchParams}
+              setState={this.props.fetch}
             />
           </div>
         </div>

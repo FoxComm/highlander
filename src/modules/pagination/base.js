@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import Api from '../lib/api';
-import { createAction, createReducer } from 'redux-act';
+import { createAction } from 'redux-act';
 import { merge, get, update } from 'sprout-data';
+import { updateItems } from '../state-helpers';
 
 export const DEFAULT_PAGE_SIZE = 50;
 
@@ -13,6 +13,8 @@ export const actionTypes = {
   ADD_ENTITY: 'ADD_ENTITY',
   REMOVE_ENTITY: 'REMOVE_ENTITY',
   ADD_ENTITIES: 'ADD_ENTITIES',
+  RESET: 'RESET',
+  UPDATE_ITEMS: 'UPDATE_ITEMS',
 };
 
 export function fetchMeta(namespace, actionType) {
@@ -50,39 +52,6 @@ export function createFetchActions(namespace, payloadReducer, metaReducer) {
     const name = _.camelCase(`action_${type}`);
     result[name] = createFetchAction(type);
   });
-}
-
-export function createActions(url, namespace) {
-  const fetchActions = createFetchActions(namespace);
-  const {
-    actionFetch,
-    actionReceived,
-    actionFetchFailed,
-    actionSetFetchParams
-  } = fetchActions;
-
-  const fetch = fetchData => dispatch => {
-    dispatch(actionFetch());
-    return Api.get(url, pickFetchParams(fetchData))
-      .then(
-        result => dispatch(actionReceived(result)),
-        err => dispatch(actionFetchFailed(err, fetch))
-      );
-  };
-
-  const setFetchParams = (state, fetchParams) => dispatch => {
-    dispatch(actionSetFetchParams(fetchParams));
-    dispatch(fetch({
-      ...state,
-      ...fetchParams
-    }));
-  };
-
-  return {
-    fetch,
-    setFetchParams,
-    ...fetchActions
-  };
 }
 
 const initialState = {
@@ -139,6 +108,13 @@ export function paginate(state = initialState, action) {
         ...state,
         ...payload
       };
+    case actionTypes.UPDATE_ITEMS:
+      return {
+        ...state,
+        rows: updateItems(state.rows, payload)
+      };
+    case actionTypes.RESET:
+      return initialState;
   }
 
   return state;
@@ -171,10 +147,4 @@ export function paginateReducer(namespace, reducer = state => state, updateBehav
   };
 }
 
-// default behaviour for simple cases
-export default function(url, namespace, moduleReducer) {
-  return {
-    reducer: paginateReducer(namespace, moduleReducer),
-    actions: createActions(url, namespace)
-  };
-}
+export default paginateReducer;
