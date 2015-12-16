@@ -17,18 +17,14 @@ export const makeUpdateBehaviour = dataPath => (state, action, actionType) => {
   });
 };
 
-
 const makePagination = (dataNamespace, dataPath) => {
-  return (makeUrl, moduleReducer) => {
-    return {
-      reducer: paginateReducer(dataNamespace, moduleReducer, makeUpdateBehaviour(dataPath)),
-      actions: createActions(dataNamespace, dataPath)(makeUrl),
-    };
+  const makeReducer = moduleReducer => paginateReducer(dataNamespace, moduleReducer, makeUpdateBehaviour(dataPath));
+  const makeActions = makeUrl => createActions(dataNamespace, dataPath)(makeUrl);
+
+  return {
+    makeReducer,
+    makeActions,
   };
 };
 
-export {
-  makePagination as default,
-  createActions,
-  paginateReducer
-};
+export default makePagination;

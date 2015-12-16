@@ -2,14 +2,15 @@ import _ from 'lodash';
 import Api from '../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { assoc, dissoc, update, get } from 'sprout-data';
-import { updateItems } from './state-helpers';;
+import { updateItems } from './state-helpers';
 
-import { createActions, paginateReducer, makeUpdateBehaviour } from './pagination/structuredStore';
+import makePagination from './pagination/structuredStore';
 
 const dataNamespace = 'notes';
 const dataPath = ({entityType, entityId}) => [entityType, entityId];
 
-const updateNotes = createAction('NOTES_UPDATE', (entity, notes) => [entity, notes]);
+const { makeActions, makeReducer } = makePagination(dataNamespace, dataPath);
+
 const notesFailed = createAction('NOTES_FAILED', (entity, err) => [entity, err]);
 export const startDeletingNote = createAction('NOTES_START_DELETING', (entity, id) => [entity, id]);
 export const stopDeletingNote = createAction('NOTES_STOP_DELETING', (entity, id) => [entity, id]);
@@ -30,7 +31,8 @@ const {
     actionAddEntity,
     actionRemoveEntity,
     actionReceived,
-  } = createActions(dataNamespace, dataPath)(notesUri);
+    actionUpdateItems,
+  } = makeActions(notesUri);
 
 export function createNote(entity, data) {
   return dispatch => {
@@ -48,7 +50,7 @@ export function editNote(entity, id, data) {
     dispatch(stopAddingOrEditingNote(entity));
     Api.patch(notesUri(entity, id), data)
       .then(
-        json => dispatch(updateNotes(entity, [json])),
+        json => dispatch(actionUpdateItems(entity, [json])),
         err => dispatch(notesFailed(entity, err))
       );
   };
@@ -70,9 +72,6 @@ const initialState = {};
 const notesReducer = createReducer({
   [actionReceived]: (state, [{entityType, entityId}, notes]) => {
     return assoc(state, [entityType, entityId, 'wasReceived'], true);
-  },
-  [updateNotes]: (state, [{entityType, entityId}, notes]) => {
-    return update(state, [entityType, entityId, 'rows'], updateItems, notes);
   },
   [notesFailed]: (state, [{entityType, entityId}, error]) => {
     console.error(error);
@@ -99,7 +98,7 @@ const notesReducer = createReducer({
   }
 }, initialState);
 
-const reducer = paginateReducer(dataNamespace, notesReducer, makeUpdateBehaviour(dataPath));
+const reducer = makeReducer(notesReducer);
 
 export {
   reducer as default,

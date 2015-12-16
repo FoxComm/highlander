@@ -2,6 +2,7 @@ import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { merge, get, update } from 'sprout-data';
+import { updateItems } from '../state-helpers';
 
 export const DEFAULT_PAGE_SIZE = 50;
 
@@ -14,6 +15,7 @@ export const actionTypes = {
   REMOVE_ENTITY: 'REMOVE_ENTITY',
   ADD_ENTITIES: 'ADD_ENTITIES',
   RESET: 'RESET',
+  UPDATE_ITEMS: 'UPDATE_ITEMS',
 };
 
 export function fetchMeta(namespace, actionType) {
@@ -147,6 +149,11 @@ export function paginate(state = initialState, action) {
       return {
         ...state,
         ...payload
+      };
+    case actionTypes.UPDATE_ITEMS:
+      return {
+        ...state,
+        rows: updateItems(state.rows, payload)
       };
     case actionTypes.RESET:
       return initialState;
