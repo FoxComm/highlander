@@ -48,7 +48,7 @@ TableView.propTypes = {
     total: PropTypes.number,
     from: PropTypes.number,
     size: PropTypes.number
-  }).isRequired,
+  }),
   setState: PropTypes.func,
   renderRow: PropTypes.func,
   processRows: PropTypes.func,
@@ -57,7 +57,11 @@ TableView.propTypes = {
 };
 
 TableView.defaultProps = {
-  paginator: true
+  paginator: true,
+  data: {
+    rows: [],
+    total: 0,
+  }
 };
 
 export default TableView;
