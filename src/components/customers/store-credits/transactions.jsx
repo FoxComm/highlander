@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import Summary from './summary';
 import TableView from '../../table/tableview';
@@ -8,6 +9,7 @@ import Currency from '../../common/currency';
 import SearchBar from '../../search-bar/search-bar';
 import { connect } from 'react-redux';
 import * as StoreCreditTransactionsActions from '../../../modules/customers/store-credit-transactions';
+import Status from '../../common/status';
 
 @connect((state, props) => ({
   storeCreditTransactions: state.customers.storeCreditTransactions[props.params.customerId],
@@ -32,17 +34,20 @@ export default class StoreCreditTransactions extends React.Component {
         text: 'Transaction'
       },
       {
-        field: 'amount',
+        field: 'debit',
         text: 'Amount',
         type: 'transaction'
       },
       {
-        field: 'paymentState',
-        text: 'Payment State'
+        field: 'status',
+        text: 'Payment State',
+        type: 'status',
+        model: 'storeCreditTransaction'
       },
       {
-        field: 'totalAvailableBalance',
-        text: 'Total Available Balance'
+        field: 'availableBalance',
+        text: 'Total Available Balance',
+        type: 'currency'
       }
     ]
   };
@@ -60,15 +65,16 @@ export default class StoreCreditTransactions extends React.Component {
       <TableRow key={`storeCreditTransaction-row-${row.id}`}>
         <TableCell><DateTime value={row.createdAt}/></TableCell>
         <TableCell>{row.transaction}</TableCell>
-        <TableCell><Currency value={row.amount} isTransaction={true}/></TableCell>
-        <TableCell>{row.paymentState}</TableCell>
-        <TableCell><Currency value={row.totalAvailableBalance} /></TableCell>
+        <TableCell><Currency value={-row.debit} isTransaction={true}/></TableCell>
+        <TableCell><Status value={row.status} model={"storeCreditTransaction"}/></TableCell>
+        <TableCell><Currency value={row.availableBalance} /></TableCell>
       </TableRow>
     );
   }
 
   render() {
     const props = this.props;
+
     return (
       <div className="fc-store-credits fc-list-page">
         <Summary {...props} />

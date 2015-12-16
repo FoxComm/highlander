@@ -231,6 +231,13 @@ export default class StoreCredits extends React.Component {
 
   render() {
     const props = this.props;
+    let storeCredits = {rows: []};
+
+    if (props.storeCredits) {
+      storeCredits = props.storeCredits;
+      storeCredits.rows = props.storeCredits.rows.storeCredits;
+    }
+
     return (
       <div className="fc-store-credits fc-list-page">
         <Summary {...props} onAddClick={this.onAddCustomerClick} />
@@ -239,7 +246,7 @@ export default class StoreCredits extends React.Component {
           <div className="fc-col-md-1-1 fc-store-credit-table-container">
             <TableView
               columns={props.tableColumns}
-              data={props.storeCredits}
+              data={storeCredits}
               renderRow={this.renderRow}
               setState={params => props.fetchStoreCredits(this.customerId, params)}
               />
