@@ -1,15 +1,23 @@
 import React, { PropTypes } from 'react';
+import classNames from 'classnames';
 import formatCurrency from '../../lib/format-currency';
 
 const Currency = (props) => {
-  return <span className="fc-currency">{formatCurrency(props.value, {...props})}</span>;
+  const {isTransaction, ...rest} = props;
+  const className = classNames('fc-currency', {
+    '_transaction': isTransaction,
+    '_negative': parseInt(props.value, 10) < 0
+  });
+
+  return <span className={className}>{formatCurrency(props.value, {...rest})}</span>;
 };
 
 Currency.propTypes = {
   value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
   fractionBase: PropTypes.number,
   currency: PropTypes.string,
-  bigNumber: PropTypes.bool
+  bigNumber: PropTypes.bool,
+  isTransaction: PropTypes.bool,
 };
 
 Currency.defaultProps = {

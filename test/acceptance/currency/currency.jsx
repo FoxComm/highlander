@@ -29,7 +29,7 @@ describe('Currency', function() {
     expect(
       Currency({value: -123, currency: 'USD'}),
       'to equal',
-      <span className="fc-currency">-$1.23</span>
+      <span className="fc-currency _negative">-$1.23</span>
     );
   });
 
