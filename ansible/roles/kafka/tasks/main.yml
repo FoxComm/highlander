@@ -23,8 +23,12 @@
     - kafka.service
     - schema-registry.service
 
+- name: Purge Kafka Queue
+  shell: rm -rf /var/lib/kakfa/* || true
+  sudo: true
+
 - name: Setup Services
-  service: name={{ item }} state=started enabled=yes
+  service: name={{ item }} state=restarted enabled=yes
   sudo: true
   with_items:
     - zookeeper
