@@ -6,6 +6,7 @@ import com.sksamuel.elastic4s.{EdgeNGramTokenFilter, LowercaseTokenFilter, Stand
 CustomAnalyzerDefinition, ElasticClient, ElasticsearchClientUri}
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings.MappingDefinition
+import org.elasticsearch.client.transport.NoNodeAvailableException
 import org.elasticsearch.common.settings.ImmutableSettings
 import org.elasticsearch.indices.IndexMissingException
 import org.elasticsearch.transport.RemoteTransportException
@@ -68,7 +69,8 @@ class ElasticSearchProcessor(
       println(s"Deleting index $indexName...")
       client.execute(deleteIndex(indexName)).await
     } catch {
-      case e: IndexMissingException ⇒ Console.err.println(s"Index already exists")
+      case e: RemoteTransportException ⇒ Console.err.println(s"Index already deleted")
+      case e: NoNodeAvailableException ⇒ Console.err.println(s"Error communicating with Elasticsearch")
     }
   }
 
