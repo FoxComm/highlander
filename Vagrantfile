@@ -27,7 +27,7 @@ Vagrant.configure("2") do |config|
     s.privileged = false
     s.inline = "sudo sed -i '/tty/!s/mesg n/tty -s \\&\\& mesg n/' /root/.profile"
   end
-  config.vm.provision :shell, path: File.join("ops", "vagrant", "provision.sh")
+  # config.vm.provision :shell, path: File.join("ops", "vagrant", "provision.sh")
 
   config.vm.provider :google do |google, override|
     override.vm.box = "gce"
@@ -41,5 +41,9 @@ Vagrant.configure("2") do |config|
 
     override.ssh.username = ENV['GOOGLE_SSH_USERNAME']
     override.ssh.private_key_path = ENV['GOOGLE_SSH_KEY']
+  end
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "ansible/vagrant.yml"
   end
 end

@@ -1,0 +1,7 @@
+---
+- name: Install nginx Packages
+  apt: name={{ item }} state=latest force=yes
+  sudo: true
+  with_items:
+    - lua-cjson
+    - nginx-extras

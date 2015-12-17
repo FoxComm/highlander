@@ -1,0 +1,11 @@
+---
+- name: Update System Package Cache
+  apt: update_cache=yes
+  sudo: true
+
+- name: Install Packages
+  apt: name={{ item }} state=latest force=yes
+  sudo: true
+  with_items:
+    - build-essential
+    - curl
