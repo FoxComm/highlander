@@ -10,9 +10,6 @@ import PilledInput from '../pilled-search/pilled-input';
 import SearchOption from './search-option';
 import TabListView from '../tabs/tabs';
 import EditableTabView from '../tabs/editable-tab';
-import TableView from '../table/tableview';
-import TableRow from '../table/row';
-import TableCell from '../table/cell';
 
 function currentSearch(props) {
   return _.get(props, ['searches', 'savedSearches', props.searches.selectedSearch], []);
@@ -45,6 +42,7 @@ export default class LiveSearch extends React.Component {
   }
 
   static propTypes = {
+    children: PropTypes.node,
     cloneSearch: PropTypes.func.isRequired,
     deleteSearchFilter: PropTypes.func.isRequired,
     editSearchNameCancel: PropTypes.func,
@@ -54,10 +52,6 @@ export default class LiveSearch extends React.Component {
     selectSavedSearch: PropTypes.func.isRequired,
     submitFilter: PropTypes.func.isRequired,
     search: PropTypes.object.isRequired,
-    columns: PropTypes.array.isRequired,
-    data: PropTypes.node.isRequired,
-    renderRow: PropTypes.func,
-    setState: PropTypes.func
   };
 
   get currentSearch() {
@@ -313,12 +307,7 @@ export default class LiveSearch extends React.Component {
             </div>
           </div>
           <div className="fc-col-md-1-1">
-            <TableView
-              columns={this.props.columns}
-              data={this.props.data}
-              renderRow={this.props.renderRow}
-              setState={this.props.setState}
-            />
+            {this.props.children}
           </div>
         </div>
       </div>
