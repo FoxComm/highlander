@@ -14,6 +14,11 @@ import TableView from '../table/tableview';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
 
+function currentSearch(props) {
+  return _.get(props, ['searches', 'savedSearches', props.searches.selectedSearch], []);
+}
+
+
 /**
  * LiveSearch is a search bar dynamic faceted search that exists on most of the
  * list pages. State for filters being created exist on the component, whereas
@@ -23,14 +28,18 @@ export default class LiveSearch extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    const search = props.searches.savedSearches[props.searches.selectedSearch];
+    const search = currentSearch(props);
+    const searchValue = _.get(search, ['searchValue'], '');
+    const searchOptions = _.get(search, ['currentOptions'], []);
+    const pills = _.get(search, ['searches'], []);
+
     this.state = {
       isFocused: false,
       optionsVisible: false,
-      pills: search.searches,
-      searchDisplay: search.searchValue,
-      searchOptions: search.currentOptions,
-      searchValue: search.searchValue,
+      pills: pills,
+      searchDisplay: searchValue,
+      searchOptions: searchOptions,
+      searchValue: searchValue,
       selectionIndex: -1
     };
   }
@@ -52,7 +61,7 @@ export default class LiveSearch extends React.Component {
   };
 
   get currentSearch() {
-    return this.props.searches.savedSearches[this.props.searches.selectedSearch];
+    return _.get(this.props, ['searches', 'savedSearches', this.props.searches.selectedSearch], []);
   };
 
   get isDirty() {
@@ -166,7 +175,7 @@ export default class LiveSearch extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const search = nextProps.searches.savedSearches[nextProps.searches.selectedSearch];
+    const search = currentSearch(nextProps);
     const isVisible = this.state.isFocused && search.currentOptions.length > 0 &&
       (search.searches.length != this.state.pills.length || search.searchValue !== '');
 
