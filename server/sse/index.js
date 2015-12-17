@@ -1,5 +1,6 @@
 const
   Router  = require('koa-router'),
+  sse     = require('koa-sse'),
   Api     = require('../lib/api'),
   koaBody = require('koa-body'),
   url     = require('url'),
@@ -26,7 +27,7 @@ module.exports = function(app) {
     let writestream = new stream.Stream();
     writestream.writable = true;
     writestream.write = function (data) {
-      console.log(data);
+      console.log(data.toString());
       return true; // true means 'yes i am ready for more data now'
       // OR return false and emit('drain') when ready later
     };
@@ -41,9 +42,9 @@ module.exports = function(app) {
       });
     });
 
-    this.status = 200;
-    this.type = 'text/event-stream';
-    this.body = writestream;
+    // this.status = 200;
+    // this.type = 'text/event-stream';
+    this.sse(writestream);
   });
 
   app

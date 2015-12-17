@@ -5,6 +5,7 @@ const co = require('co');
 const favicon = require('koa-favicon');
 const serve = require('koa-static');
 const Config  = require(path.resolve('config'));
+const sse = require('koa-sse');
 
 const app = koa();
 
@@ -18,6 +19,7 @@ app.init = co.wrap(function *(env) {
   }
 
   require('./elastic')(app);
+  app.use(sse());
   require(`${__dirname}/middleware`)(app);
   require(`${__dirname}/api`)(app);
   require(`${__dirname}/sse`)(app);
