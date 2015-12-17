@@ -30,6 +30,7 @@ export default class Api {
 
     const isFormData = !isServer && data instanceof FormData;
     const token = localStorage.getItem('token');
+
     const headers = {};
 
     if (token) {

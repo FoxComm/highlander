@@ -13,6 +13,19 @@ export function fetchNotifications() {
   };
 }
 
+export function startFetchingNotifications() {
+  console.log('starting fetching');
+  return (dispatch) => {
+    // const token = localStorage.getItem('token');
+    // const authToken = `Bearer ${token}`;
+    const eventSource = new EventSource('http://localhost:9090/v1/notifications/1', {withCredentials: true});
+    console.log(eventSource);
+    eventSource.onmessage = (e) => {
+      console.log(e);
+    };
+  };
+}
+
 const initialState = {
   displayed: false
 };

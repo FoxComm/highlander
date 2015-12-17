@@ -1,5 +1,6 @@
 
 // libs
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
@@ -15,7 +16,7 @@ import * as NotificationActions from '../../modules/activity-notifications';
 export default class NotificationIndicator extends React.Component {
 
   static propTypes = {
-    count: PropTypes.number.isRequired,
+    count: PropTypes.number,
     displayed: PropTypes.bool,
     toggleNotifications: PropTypes.func,
     fetchNotifications: PropTypes.func
@@ -27,10 +28,11 @@ export default class NotificationIndicator extends React.Component {
 
   componentDidMount() {
     this.props.fetchNotifications();
+    this.props.startFetchingNotifications();
   }
 
   get indicator() {
-    if (this.props.count > 0) {
+    if (_.isNumber(this.props.count) && this.props.count > 0) {
       return (
         <div className="fc-activity-notifications__indicator">
           <span>{ this.props.count }</span>
