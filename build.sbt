@@ -60,9 +60,5 @@ lazy val phoenixScala = (project in file(".")).
     (mainClass in Compile) := Some("consumer.Main")
 )
 
-lazy val esConsume = inputKey[Unit]("Runs the Kafka Elastic Search consumers")
-esConsume := { (runMain in Compile).partialInput(" consumer.EsMain").evaluated }
-
-lazy val activityConsume = inputKey[Unit]("Runs the Kafka Activity consumers")
-activityConsume := { (runMain in Compile).partialInput(" consumer.ActivityMain").evaluated }
-
+lazy val consume = inputKey[Unit]("Runs the Kafka Consumers")
+consume := { (runMain in Compile).partialInput(" consumer.Main").evaluated }

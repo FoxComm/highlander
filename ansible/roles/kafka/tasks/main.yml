@@ -1,0 +1,36 @@
+---
+- name: Add Confluent Key
+  apt_key: url=http://packages.confluent.io/deb/2.0/archive.key
+  sudo: true
+
+- name: Add Confluent Repository
+  apt_repository: repo='deb http://packages.confluent.io/deb/2.0 stable main' state=present
+  sudo: true
+
+- name: Update System Package Cache
+  apt: update_cache=yes
+  sudo: true
+
+- name: Install Packages
+  apt: name=confluent-platform-2.11.7 state=latest force=yes
+  sudo: true
+
+- name: Copy Kafka Service Files
+  copy: src={{ item }} dest={{dest_services}}/
+  sudo: true
+  with_items:
+    - zookeeper.service
+    - kafka.service
+    - schema-registry.service
+
+- name: Purge Kafka Queue
+  shell: rm -rf /var/lib/kakfa/* || true
+  sudo: true
+
+- name: Setup Services
+  service: name={{ item }} state=restarted enabled=yes
+  sudo: true
+  with_items:
+    - zookeeper
+    - kafka
+    - schema-registry

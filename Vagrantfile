@@ -28,11 +28,6 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "../phoenix-scala/", "/phoenix"
   config.vm.synced_folder File.join(ENV['HOME'], '.ivy2'), "/home/vagrant/.ivy2", create: true
 
-  config.vm.provision "fix-no-tty", type: "shell" do |s|
-      s.privileged = false
-      s.inline = "sudo sed -i '/tty/!s/mesg n/tty -s \\&\\& mesg n/' /root/.profile"
-  end
-
   config.vm.provider :virtualbox do |vb|
     vb.cpus = $vb_cpu
     vb.memory = $vb_memory
@@ -60,5 +55,7 @@ Vagrant.configure("2") do |config|
     g.tags = ['no-ip', 'vagrant']
   end
 
-  config.vm.provision :shell, :path => File.join( "vagrant", "provision.sh" )
+  config.vm.provision "ansible" do |ansible|
+      ansible.playbook = "ansible/vagrant.yml"
+  end
 end

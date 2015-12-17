@@ -1,0 +1,14 @@
+apache_mirror: http://mirror.cogentco.com/pub/apache
+avro_vers: 1.7.7
+avro_name: "avro-{{avro_vers}}"
+avro_c_name: "avro-c-{{avro_vers}}"
+avro_url: "{{apache_mirror}}/avro/{{avro_name}}/c/{{avro_c_name}}.tar.gz"
+avro_dir: "{{home}}/{{avro_c_name}}"
+bottledwater_src: /bottledwater
+bottledwater_dir: "{{home}}/bottledwater"
+flyway_vers: 3.2.1
+flyway_dir: "/usr/local/share/flyway-{{flyway_vers}}"
+flyway_url: "https://bintray.com/artifact/download/business/maven/flyway-commandline-{{flyway_vers}}-linux-x64.tar.gz"
+db_connection_string: "postgresql://localhost/phoenix_development?user={{user}}"
+update_materialized_views_sql: "/usr/local/share/update_materialized_views.sql"
+phoenix_dir: /phoenix

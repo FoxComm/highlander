@@ -1,15 +1,18 @@
 package consumer.elastic
 
+import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings.FieldType._
 
 import consumer.AvroJsonHelper
 
-abstract class AvroTransformer extends JsonTransformer {
+abstract class AvroTransformer(implicit ec: ExecutionContext) extends JsonTransformer {
 
   def fields(): List[String]
 
-  def transform(json: String): String = {
+  def transform(json: String): Future[String] = Future {
     AvroJsonHelper.transformJson(json, fields)
   }
 }

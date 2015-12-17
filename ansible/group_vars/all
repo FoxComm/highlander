@@ -1,0 +1,3 @@
+home: /home/{{ user }}
+dest_services: /etc/systemd/system
+usr_local: /usr/local/
