@@ -1,11 +1,15 @@
 package consumer
 
+import java.util.concurrent.Executors
+
 import com.typesafe.config.ConfigFactory
 
 import scala.collection.JavaConversions._
+
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.concurrent.blocking
 import scala.concurrent.duration.Duration
 
 import akka.actor.ActorSystem
@@ -97,6 +101,10 @@ object Main {
     val phoenixPass           = conf.getString(s"$env.activity.phoenix.pass")
     val phoenixUri            = conf.getString(s"$env.activity.phoenix.url")
     val phoenixUser           = conf.getString(s"$env.activity.phoenix.user")
+    val threadPoolCount       = conf.getInt(s"$env.thread.pool")
+
+    val threadPool = java.util.concurrent.Executors.newFixedThreadPool(threadPoolCount)
+    implicit val ec = ExecutionContext.fromExecutor(threadPool)
 
     Console.err.println(s"ES: ${elasticSearchUrl}")
     Console.err.println(s"Kafka: ${kafkaBroker}")
@@ -109,7 +117,6 @@ object Main {
       pass = phoenixPass)
 
     val activityWork = Future {
-
       val activityConnectors = Seq(CustomerConnector(), AdminConnector())
       val activityProcessor = new ActivityProcessor(phoenix, activityConnectors)
 
@@ -120,7 +127,7 @@ object Main {
       val consumer = new MultiTopicConsumer(
         topics = Seq(activityTopic), 
         broker = kafkaBroker, 
-        groupId = kafkaGroupId,
+        groupId = s"${kafkaGroupId}_activity",
         processor = avroProcessor)
 
       // Start consuming & processing
@@ -152,7 +159,7 @@ object Main {
       val consumer = new MultiTopicConsumer(
         topics = kafkaTopics, 
         broker = kafkaBroker, 
-        groupId = kafkaGroupId,
+        groupId = s"${kafkaGroupId}_trail",
         processor = avroProcessor)
 
       // Execture beforeAction

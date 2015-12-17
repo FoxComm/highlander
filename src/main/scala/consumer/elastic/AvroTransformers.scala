@@ -1,7 +1,6 @@
 package consumer.elastic
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings.FieldType._
@@ -31,7 +30,7 @@ object AvroTransformers {
       "currency" typed StringType analyzer "autocomplete"
       )
 
-  final case class Country() extends AvroTransformer {
+  final case class Country()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping =
       "countries" as(
         "id" typed IntegerType,
@@ -44,7 +43,7 @@ object AvroTransformers {
 
   }
 
-  final case class Region() extends AvroTransformer {
+  final case class Region()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping =
       "regions" as(
         "id" typed IntegerType,
@@ -56,7 +55,7 @@ object AvroTransformers {
     def fields = List.empty
   }
 
-  final case class CustomerSearchView() extends AvroTransformer {
+  final case class CustomerSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping =
       "customers_search_view" as(
         // Customer
@@ -109,7 +108,7 @@ object AvroTransformers {
     def fields = List("orders", "purchasedItems", "shippingAddresses", "billingAddresses", "saveForLater")
   }
 
-  final case class OrderSearchView() extends AvroTransformer {
+  final case class OrderSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping = {
       "orders_search_view" as(
         // Order

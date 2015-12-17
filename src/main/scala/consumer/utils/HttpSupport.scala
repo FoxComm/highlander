@@ -2,7 +2,6 @@ package consumer.utils
 
 import scala.concurrent.Await.result
 import scala.concurrent.ExecutionContext
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
@@ -66,7 +65,11 @@ object HttpResponseExtensions {
     def bodyText(implicit ec: ExecutionContext, mat: Materializer): String =
       result(res.entity.toStrict(10 seconds).map(_.data.utf8String), 1 minute)
 
-    def as[A <: AnyRef](implicit fm: Formats, mf: scala.reflect.Manifest[A], mat: Materializer): A =
+    def as[A <: AnyRef]
+    (implicit ec:ExecutionContext, 
+      fm: Formats, 
+      mf: scala.reflect.Manifest[A], 
+      mat: Materializer): A =
       parse(bodyText).extract[A]
   }
 }
