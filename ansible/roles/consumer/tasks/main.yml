@@ -7,7 +7,3 @@
 - name: Copy Consumer Service
   copy: src=consumer.service dest="{{dest_services}}/consumer.service" 
   sudo: true
-
-- name: Start Consumer Service
-  service: name=consumer state=started enabled=true
-  sudo: true
