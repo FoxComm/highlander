@@ -1,0 +1,13 @@
+---
+
+  - name: Provision Vagrant
+    hosts: all
+    vars:
+        user: vagrant
+
+    roles:
+        - common
+        - kafka
+        - db
+        - elasticsearch
+        - consumer

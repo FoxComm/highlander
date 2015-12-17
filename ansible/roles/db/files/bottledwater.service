@@ -1,0 +1,16 @@
+[Service]
+WorkingDirectory=/usr/local
+ExecStart=/bin/bash /usr/local/bin/run_bottledwater.sh
+Restart=on-failure
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=bottledwater
+TimeoutStartSec=5m
+RestartSec=5m
+
+[Install]
+WantedBy=multi-user.target
+
+[Unit]
+Requires=schema-registry.service
+After=schema-registry.service

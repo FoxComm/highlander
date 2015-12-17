@@ -1,0 +1,16 @@
+[Service]
+WorkingDirectory=/vagrant
+ExecStart=/bin/bash /usr/local/bin/run_consumer.sh
+Restart=on-failure
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=consumer
+TimeoutStartSec=5m
+RestartSec=1m
+
+[Install]
+WantedBy=multi-user.target
+
+[Unit]
+Requires=bottledwater.service
+After=bottledwater.service

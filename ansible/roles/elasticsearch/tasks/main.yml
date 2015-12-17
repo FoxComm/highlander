@@ -1,0 +1,21 @@
+---
+
+- name: Get ElasticSearch
+  get_url: url=https://download.elastic.co/elasticsearch/elasticsearch/{{es_zip}} dest={{home}}/{{es_zip}}
+
+- name: Unzip ElasticSearch
+  unarchive: src={{home}}/{{es_zip}} dest={{usr_local}} copy=no
+  sudo: true
+
+- name: Copy Run Script
+  copy: src=run_elasticsearch.sh dest={{usr_local}}
+  sudo: true
+
+- name: Copy ElasticSearch service
+  template: src=elasticsearch.service dest={{dest_services}}/
+  sudo: true
+
+- name: Setup Service
+  service: name=elasticsearch state=started enabled=yes
+  sudo: true
+

@@ -1,0 +1,16 @@
+[Service]
+WorkingDirectory=/vagrant
+ExecStart=/usr/bin/schema-registry-start /etc/schema-registry/schema-registry.properties
+Restart=on-failure
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=schema-registry
+TimeoutStartSec=5m
+RestartSec=1m
+
+[Install]
+WantedBy=multi-user.target
+
+[Unit]
+Requires=kafka.service
+After=kafka.service

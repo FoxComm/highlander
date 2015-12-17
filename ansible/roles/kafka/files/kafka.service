@@ -1,0 +1,16 @@
+[Service]
+WorkingDirectory=/vagrant
+ExecStart=/usr/bin/kafka-server-start /etc/kafka/server.properties
+Restart=on-failure
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=kafka
+TimeoutStartSec=5m
+RestartSec=1m
+
+[Install]
+WantedBy=multi-user.target
+
+[Unit]
+Requires=zookeeper.service
+After=zookeeper.service
