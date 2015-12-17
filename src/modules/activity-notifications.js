@@ -20,9 +20,19 @@ export function startFetchingNotifications() {
     // const authToken = `Bearer ${token}`;
     const eventSource = new EventSource('/sse/v1/notifications/1', {withCredentials: true});
     console.log(eventSource);
-    eventSource.onmessage = (e) => {
-      console.log(e);
-    };
+    eventSource.addEventListener('message', function(e) {
+      console.log(e.data);
+    }, false);
+
+    eventSource.addEventListener('open', function(e) {
+      console.log('Connection was opened.');
+    }, false);
+
+    eventSource.addEventListener('error', function(e) {
+      if (e.readyState == EventSource.CLOSED) {
+        console.log('Connection was closed.');
+      }
+    }, false);
   };
 }
 
