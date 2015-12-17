@@ -277,7 +277,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
         response.status must ===(StatusCodes.OK)
         adjustments.size mustBe 2
-        adjustments.head.state must ===(StoreCreditAdjustment.CancellationCapture)
+        adjustments.head.status must ===(StoreCreditAdjustment.CancellationCapture)
       }
 
       "fails to cancel store credit if invalid reason provided" in new Fixture {

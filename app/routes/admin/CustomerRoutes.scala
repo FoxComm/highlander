@@ -150,13 +150,13 @@ object CustomerRoutes {
         pathPrefix("payment-methods" / "store-credit") {
           pathPrefix("transactions") {
             (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              goodOrFailures {
-                StoreCreditAdjustmentsService.forCustomer(customerId)
+              complete {
+                StoreCreditAdjustmentsService.forCustomer(customerId).map(renderMetadataResult)
               }
             }
           } ~
           (get & path("totals")) {
-            goodOrFailures {
+            good {
               StoreCreditService.totalsForCustomer(customerId)
             }
           } ~
