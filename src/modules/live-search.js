@@ -32,8 +32,8 @@ function cloneSearch(state) {
 }
 
 function deleteSearchFilter(state, idx) {
-  const curSearches = state.savedSearches[state.selectedSearch].searches;
-  const curValue = state.savedSearches[state.selectedSearch].searchValue;
+  const curSearches = _.get(state, ['savedSearches', state.selectedSearch, 'searches'], []);
+  const curValue = _.get(state, ['savedSearches', state.selectedSearch, 'searchValue'], '');
 
   if (!_.isEmpty(curSearches) && _.isEmpty(curValue)) {
     const newSearches = _.without(curSearches, curSearches[idx]);
