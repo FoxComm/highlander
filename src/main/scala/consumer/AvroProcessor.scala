@@ -3,6 +3,7 @@ package consumer
 import java.io.ByteArrayOutputStream
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.serializers.AbstractKafkaAvroDeserializer
@@ -32,7 +33,7 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
   this.schemaRegistry = new CachedSchemaRegistryClient(schemaRegistryUrl, DEFAULT_MAX_SCHEMAS_PER_SUBJECT)
   val encoderFactory = EncoderFactory.get()
 
-  def process(offset: Long, topic: String, message: Array[Byte]){
+  def process(offset: Long, topic: String, message: Array[Byte]) : Future[Unit] = {
     try {
       val stream = new ByteArrayOutputStream
       val obj = deserialize(message)
@@ -43,11 +44,14 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
       encoder.flush()
 
       val json = new String(stream.toByteArray, "UTF-8")
-      processor.process(offset, topic, json)
-
+      val f = processor.process(offset, topic, json)
+      f onFailure { 
+        case NonFatal(e) ⇒ Future{Console.err.println(s"Error processing avro message $e")}
+      }
+      return f
     } catch {
-      case e: SerializationException ⇒ Console.err.println(s"Error serializing avro message $e")
-      case NonFatal(e) ⇒ Console.err.println(s"Error processing avro message $e")
+      case e: SerializationException ⇒ Future{Console.err.println(s"Error serializing avro message $e")}
+      case NonFatal(e) ⇒ Future{Console.err.println(s"Error processing avro message $e")}
     }
   }
 }

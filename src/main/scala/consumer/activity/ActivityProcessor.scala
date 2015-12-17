@@ -3,6 +3,7 @@ package consumer.activity
 import java.time.Instant
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 import org.json4s.DefaultFormats
 import org.json4s.JsonAST.JValue
@@ -22,6 +23,7 @@ import consumer.utils.PhoenixConnectionInfo
 import consumer.utils.Phoenix
 import consumer.utils.HttpResponseExtensions._
 import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.model.HttpResponse
 
 final case class ActivityContext(
   userId: Int,
@@ -44,7 +46,7 @@ final case class Connection(
 final case class AppendActivity(activityId: Int, data: JValue)
 
 trait ActivityConnector {
-  def process(offset: Long, activity: Activity): Seq[Connection]
+  def process(offset: Long, activity: Activity): Future[Seq[Connection]]
 }
 
 final case class FailedToConnectActivity (
@@ -69,22 +71,30 @@ class ActivityProcessor(conn : PhoenixConnectionInfo, connectors: Seq[ActivityCo
 
     def beforeAction(){}
 
-    def process(offset: Long, topic: String, inputJson: String): Unit = {
+    def process(offset: Long, topic: String, inputJson: String): Future[Unit] = {
 
       val activityJson = AvroJsonHelper.transformJson(inputJson, activityJsonFields)
       val activity =  parse(activityJson).extract[Activity]
 
       Console.err.println(s"Got Activity: ${activity.id}")
-      val connections = connectors.flatMap(_.process(offset, activity))
 
-      process(connections)
+      val responses = Future.sequence(connectors.map { 
+        connector ⇒ 
+          for {
+            connections ← connector.process(offset, activity)
+            responses ← process(connections)
+          } yield responses
+      })
+
+      //TODO check errors
+      responses map { r ⇒  ()}
     }
 
-    private def process(cs: Seq[Connection]) { 
-      cs.foreach(connectUsingPhoenix)
+    private def process(cs: Seq[Connection]) : Future[Seq[HttpResponse]] = { 
+      Future.sequence(cs.map(connectUsingPhoenix))
     }
 
-    private def connectUsingPhoenix(c: Connection) { 
+    private def connectUsingPhoenix(c: Connection) : Future[HttpResponse] = { 
       val uri = s"trails/${c.dimension}/${c.objectId}"
       Console.err.println(s"${uri}")
 
@@ -93,9 +103,12 @@ class ActivityProcessor(conn : PhoenixConnectionInfo, connectors: Seq[ActivityCo
       val body = render(append)
 
       //make request
-      val resp = phoenix.post(uri, body)
-      if(resp.status != StatusCodes.OK) {
-        throw FailedToConnectActivity(c.activityId, c.dimension, c.objectId, resp.as[String])
+      phoenix.post(uri, body).map{
+        resp ⇒ 
+          if(resp.status != StatusCodes.OK) {
+            throw FailedToConnectActivity(c.activityId, c.dimension, c.objectId, resp.as[String])
+          }
+          resp
       }
     }
 }

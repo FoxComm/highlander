@@ -1,8 +1,9 @@
 package consumer.utils
 
+import scala.concurrent.Await.result
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Await.result
+import scala.concurrent.Future
 import scala.concurrent.duration._
 
 import cats.std.future._
@@ -31,16 +32,15 @@ final case class PhoenixConnectionInfo(
 case class Phoenix(conn: PhoenixConnectionInfo)
   (implicit ec: ExecutionContext, ac: ActorSystem, mat: Materializer, cp: ConnectionPoolSettings) {
 
-    def get(suffix: String) : HttpResponse = { 
+    def get(suffix: String) : Future[HttpResponse] = { 
       val uri  = fullUri(suffix)
       val request = HttpRequest(HttpMethods.GET,uri).addHeader(
         Authorization(BasicHttpCredentials(conn.user, conn.pass)))
 
-      val f = Http().singleRequest(request, cp)
-      result(f, 10 seconds)
+      Http().singleRequest(request, cp)
     }
 
-    def post(suffix: String, body: String) : HttpResponse = { 
+    def post(suffix: String, body: String) : Future[HttpResponse]= { 
       val uri  = fullUri(suffix)
       val request = HttpRequest(
         method = HttpMethods.POST,
@@ -50,8 +50,7 @@ case class Phoenix(conn: PhoenixConnectionInfo)
           ByteString(body)
         )).addHeader(Authorization(BasicHttpCredentials(conn.user, conn.pass)))
 
-      val post = Http().singleRequest(request, cp)
-      result(post, 10 seconds)
+      Http().singleRequest(request, cp)
     }
 
     private def fullUri(suffix: String) = s"${conn.uri}/${suffix}"
@@ -65,7 +64,7 @@ object HttpResponseExtensions {
     import org.json4s.jackson.JsonMethods._
 
     def bodyText(implicit ec: ExecutionContext, mat: Materializer): String =
-      result(res.entity.toStrict(10.second).map(_.data.utf8String), 1.second)
+      result(res.entity.toStrict(10 seconds).map(_.data.utf8String), 1 minute)
 
     def as[A <: AnyRef](implicit fm: Formats, mf: scala.reflect.Manifest[A], mat: Materializer): A =
       parse(bodyText).extract[A]

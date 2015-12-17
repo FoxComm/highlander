@@ -7,8 +7,7 @@ import consumer.AvroJsonHelper
 import consumer.elastic.AvroTransformer
 
 import scala.concurrent.ExecutionContext
-import scala.concurrent.Await
-import scala.concurrent.duration._
+import scala.concurrent.Future
 import scala.language.postfixOps
 
 import akka.actor.ActorSystem
@@ -39,7 +38,7 @@ final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
   def mapping = "activity_connections" as ()
   val phoenix = Phoenix(conn)
 
-  def transform(json: String) : String = {
+  def transform(json: String) : Future[String] = {
 
     Console.out.println(json)
 
@@ -49,11 +48,11 @@ final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
     }
   }
 
-  def queryPhoenixForConnection(id: BigInt) : String = {
+  private def queryPhoenixForConnection(id: BigInt) : Future[String] = {
     val uri = s"connections/${id}"
     Console.err.println(uri)
 
-    phoenix.get(uri).bodyText
+    phoenix.get(uri).map { _.bodyText}
   }
 
 }
