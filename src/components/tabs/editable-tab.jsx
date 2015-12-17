@@ -35,7 +35,7 @@ export default class EditableTabView extends React.Component {
   }
 
   get dirtyState() {
-     if (this.props.dirty) {
+     if (this.props.dirty && !this.props.editing) {
       return <div className="fc-editable-tab__dirty-icon">&nbsp;</div>;
      }
   }
