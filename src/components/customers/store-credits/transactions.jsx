@@ -33,7 +33,8 @@ export default class StoreCreditTransactions extends React.Component {
       },
       {
         field: 'amount',
-        text: 'Amount'
+        text: 'Amount',
+        type: 'transaction'
       },
       {
         field: 'paymentState',
@@ -57,11 +58,11 @@ export default class StoreCreditTransactions extends React.Component {
   renderRow(row) {
     return (
       <TableRow key={`storeCreditTransaction-row-${row.id}`}>
-        <TableCell><DateTime value={ row.createdAt }/></TableCell>
-        <TableCell>{ row.transaction }</TableCell>
-        <TableCell><Currency value={ row.amount } /></TableCell>
-        <TableCell>{ row.paymentState }</TableCell>
-        <TableCell><Currency value={ row.totalAvailableBalance } /></TableCell>
+        <TableCell><DateTime value={row.createdAt}/></TableCell>
+        <TableCell>{row.transaction}</TableCell>
+        <TableCell><Currency value={row.amount} isTransaction={true}/></TableCell>
+        <TableCell>{row.paymentState}</TableCell>
+        <TableCell><Currency value={row.totalAvailableBalance} /></TableCell>
       </TableRow>
     );
   }
@@ -75,10 +76,10 @@ export default class StoreCreditTransactions extends React.Component {
           <SearchBar />
           <div className="fc-col-md-1-1">
             <TableView
-              columns={ props.tableColumns }
-              data={ props.storeCreditTransactions }
-              renderRow={ this.renderRow }
-              setState={ params => this.props.fetchStoreCreditTransactions(this.customerId, params) } />
+              columns={props.tableColumns}
+              data={props.storeCreditTransactions}
+              renderRow={this.renderRow}
+              setState={params => this.props.fetchStoreCreditTransactions(this.customerId, params)} />
           </div>
         </div>
       </div>
