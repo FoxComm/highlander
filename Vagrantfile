@@ -34,7 +34,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provider :vmware_fusion do |v, override|
-    override.vm.box_url = "https://s3.eu-central-1.amazonaws.com/ffuenf-vagrantboxes/ubuntu/ubuntu-15.04-server-amd64_vmware.box"
+    override.vm.box= "boxcutter/ubuntu1504"
     v.vmx["memsize"] = $vb_memory
     v.vmx["numvcpus"] = $vb_cpu
   end
