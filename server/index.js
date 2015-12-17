@@ -20,6 +20,7 @@ app.init = co.wrap(function *(env) {
   require('./elastic')(app);
   require(`${__dirname}/middleware`)(app);
   require(`${__dirname}/api`)(app);
+  require(`${__dirname}/sse`)(app);
   require(`${__dirname}/cms`)(app);
   app.server = app.listen(app.config.server.port);
 });

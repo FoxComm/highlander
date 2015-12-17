@@ -18,7 +18,7 @@ export function startFetchingNotifications() {
   return (dispatch) => {
     // const token = localStorage.getItem('token');
     // const authToken = `Bearer ${token}`;
-    const eventSource = new EventSource('http://localhost:9090/v1/notifications/1', {withCredentials: true});
+    const eventSource = new EventSource('/sse/v1/notifications/1', {withCredentials: true});
     console.log(eventSource);
     eventSource.onmessage = (e) => {
       console.log(e);
