@@ -19,6 +19,7 @@ lazy val commonSettings = Seq(
   )
 )
 
+
 lazy val phoenixScala = (project in file(".")).
   settings(commonSettings).
   settings(
@@ -58,8 +59,17 @@ lazy val phoenixScala = (project in file(".")).
         "org.scalatest"        %% "scalatest"                 % scalaTestV % "test"    
       )
     },
-    (mainClass in Compile) := Some("consumer.Main")
+    (mainClass in Compile) := Some("consumer.Main"),
+    assemblyMergeStrategy in assembly := {
+        case PathList("org", "joda", xs @ _*) ⇒  MergeStrategy.last
+        case x ⇒ { 
+            val old = (assemblyMergeStrategy in assembly).value
+            old(x)
+        }
+    }
+    //test in assembly := {}
 )
+
 
 lazy val consume = inputKey[Unit]("Runs the Kafka Consumers")
 consume := { (runMain in Compile).partialInput(" consumer.Main").evaluated }
