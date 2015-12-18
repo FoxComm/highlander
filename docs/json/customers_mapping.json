@@ -1,6 +1,6 @@
 {
 	"properties": {
-		"billing_addresses": {
+		"billingAddresses": {
 			"type": "nested",
 			"properties": {
 				"address1": {
@@ -37,7 +37,7 @@
 				}
 			}
 		},
-		"billing_addresses_count": {
+		"billingAddressesCount": {
 			"type": "integer"
 		},
 		"email": {
@@ -47,16 +47,16 @@
 		"id": {
 			"type": "integer"
 		},
-		"is_blacklisted": {
+		"isBlacklisted": {
 			"type": "boolean"
 		},
-		"is_disabled": {
+		"isDisabled": {
 			"type": "boolean"
 		},
-		"is_guest": {
+		"isGuest": {
 			"type": "boolean"
 		},
-		"joined_at": {
+		"joinedAt": {
 			"type": "date",
 			"format": "dateOptionalTime"
 		},
@@ -64,49 +64,49 @@
 			"type": "string",
 			"analyzer": "autocomplete"
 		},
-		"order_count": {
+		"orderCount": {
 			"type": "integer"
 		},
 		"orders": {
 			"type": "nested",
 			"properties": {
-				"adjustments_total": {
+				"adjustmentsTotal": {
 					"type": "integer"
 				},
-				"created_at": {
+				"createdAt": {
 					"type": "date",
 					"format": "dateOptionalTime"
 				},
-				"grand_total": {
+				"grandTotal": {
 					"type": "integer"
 				},
-				"placed_at": {
+				"placedAt": {
 					"type": "date",
 					"format": "dateOptionalTime"
 				},
-				"reference_number": {
+				"referenceNumber": {
 					"type": "string",
 					"analyzer": "autocomplete"
 				},
-				"shipping_total": {
+				"shippingTotal": {
 					"type": "integer"
 				},
 				"status": {
 					"type": "string",
 					"index": "not_analyzed"
 				},
-				"sub_total": {
+				"subTotal": {
 					"type": "integer"
 				},
-				"taxes_total": {
+				"taxesTotal": {
 					"type": "integer"
 				}
 			}
 		},
-		"purchased_item_count": {
+		"purchasedItemCount": {
 			"type": "integer"
 		},
-		"purchased_items": {
+		"purchasedItems": {
 			"type": "nested",
 			"properties": {
 				"name": {
@@ -128,10 +128,7 @@
 		"revenue": {
 			"type": "integer"
 		},
-		"save_for_later_count": {
-			"type": "long"
-		},
-		"saved_for_later": {
+		"savedForLater": {
 			"type": "nested",
 			"properties": {
 				"name": {
@@ -147,10 +144,10 @@
 				}
 			}
 		},
-		"saved_for_later_count": {
+		"savedForLaterCount": {
 			"type": "integer"
 		},
-		"shipping_addresses": {
+		"shippingAddresses": {
 			"type": "nested",
 			"properties": {
 				"address1": {
@@ -187,13 +184,13 @@
 				}
 			}
 		},
-		"shipping_addresses_count": {
+		"shippingAddressesCount": {
 			"type": "integer"
 		},
-		"store_credit_count": {
+		"storeCreditCount": {
 			"type": "integer"
 		},
-		"store_credit_total": {
+		"storeCreditTotal": {
 			"type": "integer"
 		}
 	}

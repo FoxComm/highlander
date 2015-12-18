@@ -48,9 +48,9 @@ GET phoenix/customers_search_view/_search
             "filter": {
                 "and": [
                     {"bool": {"must": {"query": {"match": {"name": "Adil"}}}}},
-                    {"term": {"is_blacklisted": false}},
-                    {"range": {"joined_at": {"gt": "2015-12-03"}}},
-                    {"range": {"order_count": {"gte": 1}}},
+                    {"term": {"isBlacklisted": false}},
+                    {"range": {"joinedAt": {"gt": "2015-12-03"}}},
+                    {"range": {"orderCount": {"gte": 1}}},
                     {
                         "nested": {
                             "path": "orders",
@@ -58,7 +58,7 @@ GET phoenix/customers_search_view/_search
                                 "bool": {
                                     "must" : [
                                          {"term": {"status": "shipped"}},
-                                         {"range": {"placed_at": {"gt": "2015-12-03"}}}
+                                         {"range": {"placedAt": {"gt": "2015-12-03"}}}
                                     ]
                                 }
                             }
@@ -97,28 +97,28 @@ GET phoenix/customers_search_view/_search
                "id": 2,
                "name": "Adil Wali",
                "email": "adil@adil.com",
-               "is_disabled": true,
-               "is_guest": false,
-               "is_blacklisted": false,
-               "joined_at": "2015-12-08",
+               "isDisabled": true,
+               "isGuest": false,
+               "isBlacklisted": false,
+               "joinedAt": "2015-12-08",
                "rank": null,
                "revenue": 0,
                "order_count": 1,
                "orders": [
                   {
-                     "reference_number": "BR10005",
+                     "referenceNumber": "BR10005",
                      "status": "shipped",
-                     "created_at": "2015-12-08",
-                     "placed_at": "2015-12-07",
-                     "sub_total": 4800,
-                     "shipping_total": 0,
-                     "adjustments_total": 0,
-                     "taxes_total": 240,
-                     "grand_total": 5040
+                     "createdAt": "2015-12-08",
+                     "placedAt": "2015-12-07",
+                     "subTotal": 4800,
+                     "shippingTotal": 0,
+                     "adjustmentsTotal": 0,
+                     "taxesTotal": 240,
+                     "grandTotal": 5040
                   }
                ],
-               "purchased_item_count": 2,
-               "purchased_items": [
+               "purchasedItemCount": 2,
+               "purchasedItems": [
                   {
                      "sku": "SKU-SHH",
                      "name": "Sharkling",
@@ -130,8 +130,8 @@ GET phoenix/customers_search_view/_search
                      "price": 3300
                   }
                ],
-               "shipping_addresses_count": 2,
-               "shipping_addresses": [
+               "shippingAddressesCount": 2,
+               "shippingAddresses": [
                   {
                      "address1": "3104 Canterbury Court",
                      "address2": "★ ★ ★",
@@ -153,8 +153,8 @@ GET phoenix/customers_search_view/_search
                      "currency": "USD"
                   }
                ],
-               "billing_addresses_count": 1,
-               "billing_addresses": [
+               "billingAddressesCount": 1,
+               "billingAddresses": [
                   {
                      "address1": "3564 Haymond Rocks Road",
                      "address2": null,
@@ -166,10 +166,10 @@ GET phoenix/customers_search_view/_search
                      "currency": "USD"
                   }
                ],
-               "store_credit_count": 0,
-               "store_credit_total": 0,
-               "save_for_later_count": 0,
-               "save_for_later": []
+               "storeCreditCount": 0,
+               "storeCreditTotal": 0,
+               "saveForLaterCount": 0,
+               "saveForLater": []
             }
          }
       ]
@@ -190,8 +190,8 @@ GET phoenix/customers_search_view/_search
         "match_all": {}
     },
     "sort": {
-        "billing_addresses.address1": "asc",
-        "date_joined": "asc",
+        "billingAddresses.address1": "asc",
+        "joinedAt": "asc",
         "name": "asc",
         "_score": "desc"
     }

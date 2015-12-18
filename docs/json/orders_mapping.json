@@ -1,29 +1,29 @@
 {
 	"properties": {
-		"adjustments_total": {
+		"adjustmentsTotal": {
 			"type": "integer"
 		},
 		"assignees": {
 			"type": "nested",
 			"properties": {
-				"assigned_at": {
+				"assignedAt": {
 					"type": "date",
 					"format": "dateOptionalTime"
 				},
-				"first_name": {
+				"firstName": {
 					"type": "string",
 					"analyzer": "autocomplete"
 				},
-				"last_name": {
+				"lastName": {
 					"type": "string",
 					"analyzer": "autocomplete"
 				}
 			}
 		},
-		"assignment_count": {
+		"assignmentCount": {
 			"type": "integer"
 		},
-		"billing_addresses": {
+		"billingAddresses": {
 			"type": "nested",
 			"properties": {
 				"address1": {
@@ -60,17 +60,17 @@
 				}
 			}
 		},
-		"billing_addresses_count": {
+		"billingAddressesCount": {
 			"type": "integer"
 		},
-		"created_at": {
+		"createdAt": {
 			"type": "date",
 			"format": "dateOptionalTime"
 		},
-		"credit_card_count": {
+		"creditCardCount": {
 			"type": "integer"
 		},
-		"credit_card_total": {
+		"creditCardTotal": {
 			"type": "integer"
 		},
 		"currency": {
@@ -84,10 +84,10 @@
 					"type": "string",
 					"analyzer": "autocomplete"
 				},
-				"is_blacklisted": {
+				"isBlacklisted": {
 					"type": "boolean"
 				},
-				"joined_at": {
+				"joinedAt": {
 					"type": "date",
 					"format": "dateOptionalTime"
 				},
@@ -103,22 +103,22 @@
 				}
 			}
 		},
-		"gift_card_count": {
+		"giftCardCount": {
 			"type": "integer"
 		},
-		"gift_card_total": {
+		"giftCardTotal": {
 			"type": "integer"
 		},
-		"grand_total": {
+		"grandTotal": {
 			"type": "integer"
 		},
 		"id": {
 			"type": "integer"
 		},
-		"line_item_cont": {
+		"lineItemCount": {
 			"type": "integer"
 		},
-		"line_items": {
+		"lineItems": {
 			"type": "nested",
 			"properties": {
 				"name": {
@@ -148,35 +148,35 @@
 					"type": "string",
 					"index": "not_analyzed"
 				},
-				"payment_method_type": {
+				"paymentMethodType": {
 					"type": "string",
 					"index": "not_analyzed"
 				}
 			}
 		},
-		"placed_at": {
+		"placedAt": {
 			"type": "date",
 			"format": "dateOptionalTime"
 		},
-		"reference_number": {
+		"referenceNumber": {
 			"type": "string",
 			"analyzer": "autocomplete"
 		},
-		"rma_count": {
+		"rmaCount": {
 			"type": "integer"
 		},
 		"rmas": {
 			"type": "nested",
 			"properties": {
-				"placed_at": {
+				"placedAt": {
 					"type": "date",
 					"format": "dateOptionalTime"
 				},
-				"reference_number": {
+				"referenceNumber": {
 					"type": "string",
 					"analyzer": "autocomplete"
 				},
-				"rma_type": {
+				"rmaType": {
 					"type": "string",
 					"index": "not_analyzed"
 				},
@@ -186,30 +186,30 @@
 				}
 			}
 		},
-		"shipment_count": {
+		"shipmentCount": {
 			"type": "integer"
 		},
 		"shipments": {
 			"type": "nested",
 			"properties": {
-				"admin_display_name": {
+				"adminDisplayName": {
 					"type": "string",
 					"analyzer": "autocomplete"
 				},
-				"shipping_price": {
+				"shippingPrice": {
 					"type": "integer"
 				},
 				"status": {
 					"type": "string",
 					"index": "not_analyzed"
 				},
-				"storefront_display_name": {
+				"storefrontDisplayName": {
 					"type": "string",
 					"analyzer": "autocomplete"
 				}
 			}
 		},
-		"shipping_addresses": {
+		"shippingAddresses": {
 			"type": "nested",
 			"properties": {
 				"address1": {
@@ -246,26 +246,26 @@
 				}
 			}
 		},
-		"shipping_addresses_count": {
+		"shippingAddressesCount": {
 			"type": "integer"
 		},
-		"shipping_total": {
+		"shippingTotal": {
 			"type": "integer"
 		},
 		"status": {
 			"type": "string",
 			"index": "not_analyzed"
 		},
-		"store_credit_count": {
+		"storeCreditCount": {
 			"type": "integer"
 		},
-		"store_credit_total": {
+		"storeCreditTotal": {
 			"type": "integer"
 		},
-		"sub_total": {
+		"subTotal": {
 			"type": "integer"
 		},
-		"taxes_total": {
+		"taxesTotal": {
 			"type": "integer"
 		}
 	}
