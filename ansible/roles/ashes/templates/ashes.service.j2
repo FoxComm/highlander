@@ -1,6 +1,6 @@
 [Service]
-WorkingDirectory=/vagrant
-ExecStart=/bin/bash ops/vagrant/run_ashes.sh
+WorkingDirectory={{ ashes_install_dir }}
+ExecStart=/bin/bash ./run_ashes.sh
 Restart=always
 StandardOutput=syslog
 StandardError=syslog

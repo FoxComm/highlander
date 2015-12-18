@@ -5,3 +5,30 @@
   with_items:
     - lua-cjson
     - nginx-extras
+
+- name: Add UUID4
+  sudo: true
+  template:
+    src: uuid4.lua
+    dest: "{{nginx_directory}}/uuid4.lua"
+    mode: 0640
+
+- name: Set default configuration
+  sudo: true
+  template:
+    src: default.j2
+    dest: "{{nginx_available_sites_directory}}/default"
+    mode: 0640
+
+- name: Set nginx configuration
+  sudo: true
+  template:
+    src: nginx.conf
+    dest: "{{nginx_directory}}/nginx.conf"
+    mode: 0640
+
+- name: Restart nginx
+  sudo: true
+  service:
+    name: nginx
+    state: restarted

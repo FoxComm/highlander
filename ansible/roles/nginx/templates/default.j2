@@ -15,16 +15,16 @@
 #In the future, we probably want a template system to fill this in from some
 #service discovery mechanism.
 upstream search {
-    server 10.240.0.7:9200;
+    server {{ search_server }};
 }
 
 #Change IP address here to point to phoenix
 upstream phoenix {
-    server 192.168.10.111:9090;
+    server {{ phoenix_server }};
 }
 
 upstream ashes {
-    server 127.0.0.1:4000;
+    server {{ ashes_server }};
 }
 
 server {
@@ -59,7 +59,11 @@ server {
 
             -- convert to internal query
             local uri = ngx.re.sub(ngx.var.uri, "api/search", "internal-search")
-            local req = uri .. "?" .. ngx.var.args
+            local req = uri
+            if not ngx.var.args == nil then
+                req = uri .. "?" .. ngx.var.args
+            end
+
 
             --get json result from elastic search
             local res = ngx.location.capture(req)

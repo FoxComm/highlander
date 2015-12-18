@@ -1,0 +1,27 @@
+---
+- name: Build node dependencies
+  shell: npm install
+  args:
+    chdir: /vagrant
+      
+- name: Create the Ashes install directory
+  sudo: true
+  file: path={{ ashes_install_dir }} state=directory
+
+- name: Install Ashes run script
+  sudo: true
+  template:
+    src: run_ashes.sh.j2
+    dest: "{{ ashes_install_dir }}/run_ashes.sh"
+
+- name: Install Ashes service entry
+  sudo: true
+  template:
+    src: ashes.service.j2
+    dest: /etc/systemd/system/ashes.service
+
+- name: Restart Ashes
+  sudo: true
+  service:
+    name: ashes
+    state: restarted
