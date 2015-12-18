@@ -59,9 +59,30 @@ If you prefer skip test run on each file change you can define env variable ASHE
 ### Vagrant setup
 
 #### Local
-```
-vagrant up --provider=virtualbox
-```
+
+1. Start the [Green River](https://github.com/FoxComm/green-river) Vagrant configuration.
+  This will expose Green River on http://192.168.10.111:9200.
+
+1. Run Phoenix from inside the Green River VM. That will expose Phoenix on http://192.168.10.111:9090.
+
+
+1. Spin up the Ashes VM
+
+  Ashes can be run through either a VirtualBox or VMWare Fusion provider.
+
+  **VirtualBox**
+
+  ```
+  vagrant up --provider virtualbox
+  ```
+
+  **VMWare Fusion**
+
+  ```
+  vagrant up --provider vmware_fusion
+  ```
+
+1. The side will be available at http://192.168.10.120.
 
 ### GCE Spinup
 You need to set the following environment variables:

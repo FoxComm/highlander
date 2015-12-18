@@ -9,7 +9,6 @@ Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/vivid64"
 
   config.vm.network :private_network, ip: $host
-  config.vm.network :forwarded_port, guest: 80, host: 8181
 
   config.vm.provider :virtualbox do |vb, override|
     vb.cpus = $cpus
@@ -21,12 +20,6 @@ Vagrant.configure("2") do |config|
     v.vmx["numvcpus"] = $cpus
     v.vmx["memsize"] = $memory
   end
-
-  config.vm.provision "fix-no-tty", type: "shell" do |s|
-    s.privileged = false
-    s.inline = "sudo sed -i '/tty/!s/mesg n/tty -s \\&\\& mesg n/' /root/.profile"
-  end
-  # config.vm.provision :shell, path: File.join("ops", "vagrant", "provision.sh")
 
   config.vm.provider :google do |google, override|
     override.vm.box = "gce"
