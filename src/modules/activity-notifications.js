@@ -16,12 +16,16 @@ export function fetchNotifications() {
 export function startFetchingNotifications() {
   console.log('starting fetching');
   return (dispatch) => {
-    // const token = localStorage.getItem('token');
-    // const authToken = `Bearer ${token}`;
     const eventSource = new EventSource('/sse/v1/notifications/1', {withCredentials: true});
-    console.log(eventSource);
+
     eventSource.onmessage = function(e) {
-      console.log(e.data);
+      console.log(e);
+      if (_.isEmpty(e.data)) {
+        console.log('heartbeat');
+      } else {
+        console.log('Received data');
+        console.log(e.data);
+      }
     };
 
     eventSource.onopen = function(e) {
