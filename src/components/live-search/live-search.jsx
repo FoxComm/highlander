@@ -25,10 +25,8 @@ export default class LiveSearch extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    const search = currentSearch(props);
-    const searchValue = _.get(search, ['searchValue'], '');
-    const searchOptions = _.get(search, ['currentOptions'], []);
-    const pills = _.get(search, ['searches'], []);
+    const search = _.defaults(currentSearch(props), {searchValue: "", currentOptions: [], searches: []});
+    const {searchValue, currentOptions, searches: pills} = search;
 
     this.state = {
       isFocused: false,
@@ -51,7 +49,7 @@ export default class LiveSearch extends React.Component {
     saveSearch: PropTypes.func,
     selectSavedSearch: PropTypes.func.isRequired,
     submitFilter: PropTypes.func.isRequired,
-    search: PropTypes.object.isRequired,
+    search: PropTypes.object.isRequired
   };
 
   get currentSearch() {
@@ -105,9 +103,9 @@ export default class LiveSearch extends React.Component {
   get savedSearches() {
     const tabs = _.map(this.props.searches.savedSearches, (search, idx) => {
       const selected = idx === this.props.searches.selectedSearch;
-      const editing = selected && this.isEditingName;
+      const isEditing = selected && this.isEditingName;
       const draggable = !editing && search.name !== 'All';
-      const dirty = this.props.searches.savedSearches[idx].isDirty;
+      const isDirty = this.props.searches.savedSearches[idx].isDirty;
 
       const startEdit = (event) => {
         event.preventDefault();
@@ -119,8 +117,8 @@ export default class LiveSearch extends React.Component {
         <EditableTabView
           defaultValue={search.name}
           draggable={draggable}
-          dirty={dirty}
-          editing={editing}
+          isDirty={isDirty}
+          isEditing={isEditing}
           selected={selected}
           cancelEdit={this.props.editSearchNameCancel}
           completeEdit={this.props.editSearchNameComplete}
