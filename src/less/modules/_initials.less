@@ -10,9 +10,16 @@
     display: flex;
   }
 
-  .fc-tooltip._shown {
-    display: flex;
+  &.fc-with-tooltip._clickable {
+    &:hover .fc-tooltip {
+      display: none;
+    }
+
+    & .fc-tooltip._shown {
+      display: flex;
+    }
   }
+
 
   .fc-tooltip {
     &__body {

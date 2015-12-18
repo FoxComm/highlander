@@ -54,6 +54,9 @@ export default class UserInitials extends React.Component {
   }
 
   render() {
+    const rootClass = classNames('initials', 'fc-with-tooltip', {
+      '_clickable': this.props.showTooltipOnClick
+    });
     const tooltipClass = classNames('fc-tooltip', 'fc-tooltip-left', {
       '_shown': this.props.showTooltipOnClick && this.state.tooltipShown
     });
@@ -61,7 +64,7 @@ export default class UserInitials extends React.Component {
       '_shown': this.state.tooltipShown
     });
     return (
-      <div className="initials fc-with-tooltip">
+      <div className={rootClass}>
         {this.initials}
         <div className={tooltipClass}>
           <div className="fc-tooltip__body">
