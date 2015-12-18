@@ -17,6 +17,7 @@ create table store_credit_adjustments (
 create function update_store_credit_current_balance() returns trigger as $$
 declare
     adjustment integer default 0;
+    new_available_balance integer default 100;
 begin
     adjustment = new.debit;
 
@@ -26,12 +27,15 @@ begin
             update store_credits
                 set current_balance = current_balance + adjustment,
                     available_balance = available_balance + adjustment
-                    where id = new.store_credit_id;
-            return new;
+                    where id = new.store_credit_id returning available_balance into new_available_balance;
         else
-            update store_credits set available_balance = available_balance + adjustment where id = new.store_credit_id;
-            return new;
+            update store_credits
+                set available_balance = available_balance + adjustment
+                where id = new.store_credit_id returning available_balance into new_available_balance;
         end if;
+
+        new.available_balance = new_available_balance;
+        return new;
     end if;
 
     -- handle credit or debit for auth or capture
@@ -39,9 +43,15 @@ begin
         update store_credits
             set current_balance = current_balance - adjustment,
                 available_balance = available_balance - adjustment
-            where id = new.store_credit_id;
+            where id = new.store_credit_id returning available_balance into new_available_balance;
+
+        new.available_balance = new_available_balance;
     else
-        update store_credits set available_balance = available_balance - adjustment where id = new.store_credit_id;
+        update store_credits
+            set available_balance = available_balance - adjustment
+            where id = new.store_credit_id returning available_balance into new_available_balance;
+
+        new.available_balance = new_available_balance;
     end if;
 
     return new;
@@ -49,13 +59,13 @@ end;
 $$ language plpgsql;
 
 create trigger set_store_credit_current_balance_trg
-    after insert
+    before insert
     on store_credit_adjustments
     for each row
     execute procedure update_store_credit_current_balance();
 
 create trigger update_store_credit_current_balance_trg
-    after update
+    before update
     on store_credit_adjustments
     for each row
     execute procedure update_store_credit_current_balance();

@@ -34,7 +34,7 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
       }
     }
 
-    "updates the StoreCredit's currentBalance and availableBalance after insert" in new Fixture {
+    "updates the StoreCredit's currentBalance and availableBalance before insert" in new Fixture {
       val sc = (for {
         origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = admin.id, reasonId = reason.id))
         sc     ← * <~ StoreCredits.create(Factories.storeCredit.copy(originalBalance = 500, originId = origin.id))
@@ -53,6 +53,23 @@ class StoreCreditAdjustmentIntegrationTest extends IntegrationTestBase {
 
       sc.availableBalance must === (0)
       sc.currentBalance must === (200)
+    }
+
+    "a Postgres trigger updates the adjustment's availableBalance before insert" in new Fixture {
+      val (adj, sc) = (for {
+        origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = admin.id, reasonId = reason.id))
+        sc     ← * <~ StoreCredits.create(Factories.storeCredit.copy(originalBalance = 500, originId = origin.id))
+        pay    ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id,
+          paymentMethodId = sc.id, amount = Some(500)))
+        adj    ← * <~ StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 50)
+        adj    ← * <~ StoreCreditAdjustments.refresh(adj).toXor
+        sc     ← * <~ StoreCredits.refresh(sc).toXor
+      } yield (adj, sc)).value.run().futureValue.rightVal
+
+
+      sc.availableBalance must === (450)
+      sc.currentBalance must === (450)
+      adj.availableBalance must === (sc.availableBalance)
     }
 
     "cancels an adjustment and removes its effect on current/available balances" in new Fixture {
