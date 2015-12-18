@@ -1,8 +1,10 @@
 import makePagination from '../pagination';
 
-const {reducer, fetch} = makePagination('/groups', 'GROUPS');
 
-export default reducer;
+const {reducer, fetch, actionAddEntity} = makePagination('/groups', 'GROUPS');
+
 export {
-  fetch
+  reducer as default,
+  fetch,
+  actionAddEntity as addGroup
 };

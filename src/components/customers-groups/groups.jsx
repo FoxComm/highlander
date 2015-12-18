@@ -14,6 +14,8 @@ import CustomersBase from '../customers/base';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { transitionTo } from '../../route-helpers';
+import PilledInput from '../pilled-search/pilled-input';
+import { PrimaryButton } from '../common/buttons';
 import * as groupsActions from '../../modules/groups/list';
 
 
@@ -53,17 +55,6 @@ export default class Groups extends React.Component {
     transitionTo(this.context.history, 'groups-new-dynamic');
   }
 
-  oldHeader() {
-    return (
-    <div className="fc-list-page-header">
-      <SectionTitle title="Groups" subtitle={this.props.groups.total}
-                    onAddClick={ this.onAddGroup }
-                    addTitle="Group"
-      />
-    </div>
-    );
-  }
-
   render() {
     const renderRow = (row, index) => (
       <TableRow key={`${index}`}>
@@ -81,12 +72,23 @@ export default class Groups extends React.Component {
 
     return (
       <CustomersBase>
-        <TableView
-            columns={this.props.tableColumns}
-            data={this.props.groups}
-            renderRow={renderRow}
-            setState={this.props.setFetchParams}
-          />
+        <div className="fc-grid fc-groups-components">
+          <div className="fc-col-md-1-1 _group-header _group-component">
+            <h2 className="_group-title">Customers Groups</h2>
+            <PrimaryButton icon="add" onClick={this.onAddGroup}></PrimaryButton>
+          </div>
+          <div className="fc-col-md-1-1 _group-component">
+            <PilledInput placeholder="Add filter or keyword search"/>
+          </div>
+          <div className="fc-col-md-1-1 _group-component">
+            <TableView
+                columns={this.props.tableColumns}
+                data={this.props.groups}
+                renderRow={renderRow}
+                setState={this.props.fetch}
+              />
+          </div>
+        </div>
       </CustomersBase>
     );
   }

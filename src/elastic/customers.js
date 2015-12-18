@@ -1,6 +1,7 @@
 import ejs from 'elastic.js';
 import { DEFAULT_INDEX, newClient, rangeToFilter } from './common';
 import _ from 'lodash';
+import { assoc } from 'sprout-data';
 
 
 const CUSTOMERS_TYPE = 'customers_search_view';
@@ -10,9 +11,19 @@ const customersStartOpts = {
   type: CUSTOMERS_TYPE,
 };
 
+function mapCriteria(crit) {
+  switch(crit.selectedTerm) {
+    case 'isActive':
+      return assoc(crit,
+        'selectedTerm', 'isDisabled',
+        ['value', 'value'], !crit.value.value);
+  }
+  return crit;
+}
 
 export function groupCriteriaToRequest(criteria, match) {
   const filters = _.chain(criteria)
+    .map(mapCriteria)
     .map((crit, _) => {
     switch (crit.value.type) {
       case 'bool':

@@ -19,6 +19,12 @@ import * as GroupBuilderActions from '../../modules/groups/builder';
 export default class DynamicGroup extends React.Component {
 
   static propTypes = {
+    params: PropTypes.shape({
+      groupId: PropTypes.string
+    }).isRequired,
+    name: PropTypes.string,
+    changeName: PropTypes.func.isRequired,
+    loadGroup: PropTypes.func.isRequired,
     saveQuery: PropTypes.func.isRequired,
     matchCriteria: PropTypes.string.isRequired,
     changeMatchCriteria: PropTypes.func.isRequired,
@@ -29,8 +35,6 @@ export default class DynamicGroup extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      name: '',
-      matchCriteria: 'all',
       countCSSCycle: false,
     };
   }
@@ -57,9 +61,20 @@ export default class DynamicGroup extends React.Component {
     this.setState({countCSSCycle: !this.state.countCSSCycle});
   }
 
+  get groupId() {
+    const { groupId } = this.props.params;
+    return parseInt(groupId);
+  }
+
+  componentDidMount() {
+    if (this.groupId) {
+      this.props.loadGroup(this.groupId);
+    }
+  }
+
   @autobind
   onSubmit() {
-    this.props.saveQuery(this.state.name);
+    this.props.saveQuery(this.groupId);
   }
 
   render() {
@@ -81,8 +96,8 @@ export default class DynamicGroup extends React.Component {
                    maxLength='255'
                    type='text'
                    required
-                   onChange={ ({target}) => this.setState({name: target.value}) }
-                   value={ this.state.name } />
+                   onChange={ ({target}) => this.props.changeName(target.value) }
+                   value={ this.props.name } />
           </FormField>
           <div className='fc-group-new-match-div'>
             <span className='fc-group-new-match-span'>Customers match</span>

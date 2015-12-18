@@ -5,6 +5,7 @@ import { assoc, get, dissoc, merge, update } from 'sprout-data';
 import { criteriaOptions, criteriaOperators } from './constants';
 import { fetchRegions } from '../regions';
 import { groupCount, groupCriteriaToRequest } from '../../elastic/customers';
+import { addGroup } from './list';
 
 //<editor-fold desc="funcs">
 const _createAction = (description, ...args) => {
@@ -71,6 +72,7 @@ const terms = _.keys(criteriaOptions);
 
 const initialState = {
   counter: 2,
+  name: '',
   termOptions: _.reduce(criteriaOptions, (r, v, k) => assoc(r, k, v.title), {}),
   matchCriteria: 'all',
   criterions: {1: newCrit()},
@@ -86,6 +88,18 @@ const searchStarted = _createAction('ES_STARTED');
 const searchCompleted = _createAction('ES_COMPLETED');
 const searchFailed = _createAction('ES_FAILED');
 
+
+function calculateCount(dispatch, getState) {
+  dispatch(searchStarted());
+  const state = getState().groups.builder;
+  const criteria = state.criterions;
+  if (!_.isEmpty(criteria)) {
+    groupCount(criteria, state.matchCriteria).then(
+      results => dispatch(searchCompleted(results)) && results,
+      errors => dispatch(searchFailed(errors)) && errors);
+  }
+}
+
 // -- fn that create actions will triger ES query for count customers
 const _createStateChangeAction = (description, ...args) => {
   const f = _createAction(description, ...args);
@@ -93,22 +107,14 @@ const _createStateChangeAction = (description, ...args) => {
   function action(...actionArgs) {
     return (dispatch, getState) => {
       dispatch(f(...actionArgs));
-
-      dispatch(searchStarted());
-      const state = getState().groups.builder;
-      const criteria = state.criterions;
-      if (!_.isEmpty(criteria)) {
-        groupCount(criteria, state.matchCriteria).then(
-          results => dispatch(searchCompleted(results)) && results,
-          errors => dispatch(searchFailed(errors)) && errors);
-      }
+      calculateCount(dispatch, getState);
     };
   }
 
   action.toString = () => 'GROUP_BUILDER_' + description;
-
   return action;
 };
+
 // - criteria change actions
 const addCriterionAction = _createStateChangeAction('ADD_CRITERIA');
 export const removeCriterion = _createStateChangeAction('REMOVE_CRITERIA');
@@ -116,9 +122,50 @@ const updateCriteria = _createStateChangeAction('UPDATE_CRITERIA', (id, newCrit)
 export const changeOperator = _createStateChangeAction('CHANGE_OPERATOR', (id, newOpVal) => [id, newOpVal]);
 export const changeValue = _createStateChangeAction('CHANGE_VALUE', (id, newVal) => [id, newVal]);
 export const changeMatchCriteria = _createStateChangeAction('CHANGE_MATCHING');
+export const changeName = _createAction('CHANGE_NAME');
 // - api actions
 const groupSaved = _createAction('SAVED');
 const groupSaveFailed = _createAction('SAVE_FAILED');
+// - state actions
+const importGroup = _createAction('IMPORT_GROUP');
+const fetchFailed = _createAction('FETCH_GROUP_FAILED');
+
+
+export function loadGroup(groupId) {
+
+  const dispatchImport = (dispatch, group, save) => {
+    dispatch(importGroup({
+      ...group.clientState,
+      name: group.name,
+      customersCount: group.customersCount,
+    }));
+    if (save) {
+      dispatch(addGroup(group));
+    }
+  };
+
+  return (dispatch, getState) => {
+    const group = _.chain(getState().groups)
+      .get(['list', 'rows'])
+      .filter((obj) => obj.id === groupId)
+      .first()
+      .value();
+
+    if (!group) {
+      Api.get(`groups/${groupId}`).then(
+        group => {
+          dispatchImport(dispatch, group, true);
+          calculateCount(dispatch, getState);
+        },
+        err => dispatch(fetchFailed(err))
+
+      );
+    } else {
+      dispatchImport(dispatch, group, false);
+      calculateCount(dispatch, getState);
+    }
+  };
+}
 
 function dumpState(state) {
   return {
@@ -127,18 +174,24 @@ function dumpState(state) {
   };
 }
 
-export function saveQuery(name) {
+export function saveQuery(groupId) {
   return (dispatch, getState) => {
     const state = getState().groups.builder;
 
     const data = {
-      name: name,
+      name: state.name,
       clientState: dumpState(state),
       customersCount: state.searchResultsLength,
       elasticRequest: groupCriteriaToRequest(state.criterions, state.matchCriteria),
     };
-    Api.post(`/groups`, data)
-      .then(
+    let response;
+    if (groupId) {
+      response = Api.patch(`/groups/${groupId}`, data);
+    } else {
+      response = Api.post(`/groups`, data);
+    }
+
+    response.then(
         group => dispatch(groupSaved(group)),
         err => dispatch(groupSaveFailed(err))
       );
@@ -192,8 +245,18 @@ const reducer = createReducer({
   [prepareData]: (state, data) => {
     return assoc(state, 'staticData', data);
   },
+  [importGroup]: (state, groupState) => {
+    return assoc(state,
+      'name', groupState.name,
+      'criterions', groupState.criteria,
+      'matchCriteria', groupState.matchCriteria,
+      'searchResultsLength', groupState.customersCount);
+  },
   [changeMatchCriteria]: (state, value) => {
     return assoc(state, 'matchCriteria', value);
+  },
+  [changeName]: (state, newName) => {
+    return assoc(state, 'name', newName);
   },
   [searchStarted]: (state) => {
     return assoc(state,

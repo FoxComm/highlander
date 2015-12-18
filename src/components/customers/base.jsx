@@ -4,6 +4,7 @@ import { Link } from '../link';
 import SectionTitle from '../section-title/section-title';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
+import { transitionTo } from '../../route-helpers';
 import * as customersActions from '../../modules/customers/list';
 
 @connect(state => ({customers: state.customers.customers}), customersActions)
