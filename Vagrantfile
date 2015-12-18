@@ -7,7 +7,6 @@ $host = "192.168.10.120"
 
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/vivid64"
-  # config.vm.hostname = "ashes"
 
   config.vm.network :private_network, ip: $host
   config.vm.network :forwarded_port, guest: 80, host: 8181
@@ -18,7 +17,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provider :vmware_fusion do |v, override|
-    override.vm.box_url = "https://s3.eu-central-1.amazonaws.com/ffuenf-vagrantboxes/ubuntu/ubuntu-15.04-server-amd64_vmware.box"
+    override.vm.box = "boxcutter/ubuntu1504"
     v.vmx["numvcpus"] = $cpus
     v.vmx["memsize"] = $memory
   end
