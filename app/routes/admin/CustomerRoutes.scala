@@ -156,7 +156,7 @@ object CustomerRoutes {
             }
           } ~
           (get & path("totals")) {
-            good {
+            goodOrFailures {
               StoreCreditService.totalsForCustomer(customerId)
             }
           } ~

@@ -50,18 +50,17 @@ object StoreCreditService {
 
   def totalsForCustomer(customerId: Int)
     (implicit db: Database, ec: ExecutionContext): Result[StoreCreditResponse.Totals] = (for {
-
-    _ ← * <~ Customers.mustFindById(customerId)
-    totals ← * <~ fetchTotalsForCustomer(customerId).toXor
-  } yield totals).map { x ⇒ x.getOrElse(Totals(0, 0)) }.value.run()
+    _       ← * <~ Customers.mustFindById(customerId)
+    totals  ← * <~ fetchTotalsForCustomer(customerId).toXor
+  } yield totals).map(_.getOrElse(Totals(0, 0))).value.run()
 
   def fetchTotalsForCustomer(customerId: Int)
     (implicit db: Database, ec: ExecutionContext): DBIO[Option[Totals]] = {
     StoreCredits.findAllActiveByCustomerId(customerId)
       .groupBy(_.customerId)
-      .map { case (_, q) ⇒ (q.map(_.availableBalance).sum.getOrElse(0), q.map(_.currentBalance).sum.getOrElse(0)) }
+      .map { case (_, q) ⇒ (q.map(_.availableBalance).sum, q.map(_.currentBalance).sum) }
       .one
-      .map(_.map { case (avail, curr) ⇒ StoreCreditResponse.Totals(avail, curr) })
+      .map(_.map { case (avail, curr) ⇒ StoreCreditResponse.Totals(avail.getOrElse(0), curr.getOrElse(0)) })
   }
 
   def createManual(admin: StoreAdmin, customerId: Int, payload: payloads.CreateManualStoreCredit)
