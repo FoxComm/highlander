@@ -124,9 +124,8 @@ function dumpState(state) {
   return {
     criteria: state.criterions,
     matchCriteria: state.matchCriteria,
-  }
+  };
 }
-
 
 export function saveQuery(name) {
   return (dispatch, getState) => {

@@ -11,11 +11,12 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
+
 import * as GroupBuilderActions from '../../modules/groups/builder';
 
 
 @connect(state => state.groups.builder, GroupBuilderActions)
-export default class NewDynamicGroup extends React.Component {
+export default class DynamicGroup extends React.Component {
 
   static propTypes = {
     saveQuery: PropTypes.func.isRequired,
