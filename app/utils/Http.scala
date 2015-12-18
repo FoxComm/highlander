@@ -25,7 +25,7 @@ object Http {
   val badRequestResponse: HttpResponse  = HttpResponse(BadRequest)
 
 
-  
+
   def renderGoodOrFailures[G <: AnyRef](or: Failures Xor G)
                                        (implicit ec: ExecutionContext): HttpResponse =
     or.fold(renderFailure(_), render(_))
@@ -33,6 +33,10 @@ object Http {
   def renderGoodOrFailuresWithMetadata[G <: AnyRef](rwm: ResponseWithMetadata[G])
                                        (implicit ec: ExecutionContext): HttpResponse =
     rwm.result.fold(renderFailure(_), renderWithMetadata(_, rwm.metadata))
+
+  def renderMetadataResult[G <: AnyRef](xor: Failures Xor ResponseWithMetadata[G])
+    (implicit ec: ExecutionContext): HttpResponse =
+    xor.fold(renderFailure(_), rwm ⇒ rwm.result.fold(renderFailure(_), g ⇒ renderWithMetadata(g, rwm.metadata)))
 
   def renderNothingOrFailures(or: Failures Xor _)(implicit ec: ExecutionContext): HttpResponse =
     or.fold(renderFailure(_), _ ⇒ noContentResponse)

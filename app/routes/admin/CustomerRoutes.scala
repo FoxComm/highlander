@@ -150,8 +150,8 @@ object CustomerRoutes {
         pathPrefix("payment-methods" / "store-credit") {
           pathPrefix("transactions") {
             (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              goodOrFailures {
-                StoreCreditAdjustmentsService.forCustomer(customerId)
+              complete {
+                StoreCreditAdjustmentsService.forCustomer(customerId).map(renderMetadataResult)
               }
             }
           } ~
@@ -161,8 +161,8 @@ object CustomerRoutes {
             }
           } ~
           (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            goodOrFailures {
-              StoreCreditService.findAllByCustomer(customerId)
+            complete {
+              StoreCreditService.findAllByCustomer(customerId).map(renderMetadataResult)
             }
           } ~
           (post & pathEnd & entity(as[payloads.CreateManualStoreCredit])) { payload ⇒

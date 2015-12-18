@@ -38,12 +38,14 @@
 ### StoreCreditAdjustment
 + id: 1 (required, number) - Unique identifier.
 + debit: 50 (required, number) - Debit of adjustment.
++ availableBalance: 10 (required, number) - Current availableBalance for this SC
 + state: Auth (required, enum[string]) - Gift Card status.
     + Members
         + `auth`
         + `capture`
         + `canceled`
 + orderRef: `ABC-123` (string) - Order reference number.
++ createdAt: `2015-09-10T14:55:50Z` (required, string) - Creation date.
 
 ### StoreCreditBulkResponse
 + success: true (required, boolean) - Operation result.
@@ -74,7 +76,13 @@
 + reasonId: 1 (optional, number) - ID of cancellation reason.
 
 ### StoreCredits
-+ result     (required, array[StoreCredit]) - The resulting list of Rma-s.
++ result     (required, array[StoreCredit])
++ Include ResultMetadata
+
+### StoreCreditsWithTotals
++ result
+  + storeCredits (required, array[StoreCredit])
+  + totals (required, StoreCreditTotals)
 + Include ResultMetadata
 
 ### StoreCreditAdjustments

@@ -10,6 +10,8 @@ StoreCreditManuals, StoreCreditSubtype, StoreCreditSubtypes, StoreCredits}
 import responses.StoreCreditBulkResponse._
 import responses.StoreCreditResponse._
 import responses.{StoreCreditResponse, StoreCreditSubTypesResponse}
+import slick.dbio
+import slick.dbio.Effect.All
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.Slick.UpdateReturning._
@@ -30,24 +32,35 @@ object StoreCreditService {
   }
 
   def findAllByCustomer(customerId: Int)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
-    val query = StoreCredits.queryByCustomer(customerId)
-    query.result.map(_.map(StoreCreditResponse.build))
+    (implicit db: Database, ec: ExecutionContext, sp: SortAndPage): Result[ResponseWithMetadata[WithTotals]] = (for {
+
+    _           ← * <~ Customers.mustFindById(customerId)
+    query       = StoreCredits.findAllByCustomerId(customerId)
+    paginated   = StoreCredits.sortedAndPaged(query)
+
+    sc          ← * <~ query.result.map(StoreCreditResponse.build).toXor
+    totals      ← * <~ fetchTotalsForCustomer(customerId).toXor
+    withTotals  = WithTotals(storeCredits = sc, totals = totals)
+    response    ← * <~ ResultWithMetadata(result = DbResult.good(withTotals), metadata = paginated.metadata)
+
+  } yield response).value.run().flatMap {
+    case Xor.Left(f)    ⇒ Result.failures(f)
+    case Xor.Right(res) ⇒ res.asResponseFuture.flatMap(Result.good)
   }
 
   def totalsForCustomer(customerId: Int)
-    (implicit db: Database, ec: ExecutionContext): Result[StoreCreditResponse.Totals] = {
-    val build = StoreCreditResponse.Totals(_: Int, _: Int)
+    (implicit db: Database, ec: ExecutionContext): Result[StoreCreditResponse.Totals] = (for {
+    _       ← * <~ Customers.mustFindById(customerId)
+    totals  ← * <~ fetchTotalsForCustomer(customerId).toXor
+  } yield totals).map(_.getOrElse(Totals(0, 0))).value.run()
 
-    (for {
-      _         ← * <~ Customers.mustFindById(customerId)
-      response  ← * <~ StoreCredits.findAllActiveByCustomerId(customerId)
-        .groupBy(sc ⇒ (sc.currentBalance, sc.availableBalance))
-        .map { case (_, q) ⇒ (q.map(_.availableBalance).sum.getOrElse(0), q.map(_.currentBalance).sum.getOrElse(0)) }
-        .one
-        .map(_.fold(build(0, 0))(build.tupled))
-        .toXor
-    } yield response).value.run()
+  def fetchTotalsForCustomer(customerId: Int)
+    (implicit db: Database, ec: ExecutionContext): DBIO[Option[Totals]] = {
+    StoreCredits.findAllActiveByCustomerId(customerId)
+      .groupBy(_.customerId)
+      .map { case (_, q) ⇒ (q.map(_.availableBalance).sum, q.map(_.currentBalance).sum) }
+      .one
+      .map(_.map { case (avail, curr) ⇒ StoreCreditResponse.Totals(avail.getOrElse(0), curr.getOrElse(0)) })
   }
 
   def createManual(admin: StoreAdmin, customerId: Int, payload: payloads.CreateManualStoreCredit)
