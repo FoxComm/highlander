@@ -24,7 +24,8 @@ const updateStoreCredits = _createAction('UPDATE',
                                          (customerId, scId, data) => [customerId, scId, data]);
 
 const {
-  fetch
+  fetch,
+  actionReceived
 } = makeActions(storeCreditsUrl);
 
 const initialState = {};
@@ -53,6 +54,11 @@ export function saveStatusChange(customerId) {
 }
 
 const moduleReducer = createReducer({
+  [actionReceived]: (state, [customerId, payload]) => {
+    return assoc(state,
+      [...dataPath(customerId), 'rows'], payload.result.storeCredits
+    );
+  },
   [updateStoreCredits]: (state, [customerId, scId, data]) => {
     return update(state,
       [...dataPath(customerId), 'rows'], storeCredits => {
