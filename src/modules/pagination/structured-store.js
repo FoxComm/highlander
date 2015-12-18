@@ -17,8 +17,10 @@ export const makeUpdateBehaviour = dataPath => (state, action, actionType) => {
 };
 
 const makePagination = (namespace, dataPath) => {
-  const makeReducer = moduleReducer => paginateReducer(namespace, moduleReducer, makeUpdateBehaviour(dataPath));
-  const makeActions = makeUrl => createActions(namespace, dataPath)(makeUrl);
+  const makeReducer = (moduleReducer, updateBehaviour = makeUpdateBehaviour(dataPath)) => {
+    return paginateReducer(namespace, moduleReducer, updateBehaviour);
+  };
+  const makeActions = makeUrl => createActions(makeUrl, namespace);
 
   return {
     makeReducer,
