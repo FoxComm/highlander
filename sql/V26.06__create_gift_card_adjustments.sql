@@ -20,6 +20,7 @@ create table gift_card_adjustments (
 create function update_gift_card_current_balance() returns trigger as $$
 declare
     adjustment integer default 0;
+    new_available_balance integer default 0;
 begin
     if new.debit > 0 then
         adjustment := -new.debit;
@@ -33,12 +34,17 @@ begin
             update gift_cards
                 set current_balance = current_balance - adjustment,
                     available_balance = available_balance - adjustment
-                    where id = new.gift_card_id;
-            return new;
+                where id = new.gift_card_id
+                returning available_balance into new_available_balance;
         else
-            update gift_cards set available_balance = available_balance - adjustment where id = new.gift_card_id;
-            return new;
+            update gift_cards
+                set available_balance = available_balance - adjustment
+                where id = new.gift_card_id
+                returning available_balance into new_available_balance;
         end if;
+
+        new.available_balance = new_available_balance;
+        return new;
     end if;
 
     -- handle credit or debit for auth or capture
@@ -46,23 +52,28 @@ begin
         update gift_cards
             set current_balance = current_balance + adjustment,
                 available_balance = available_balance + adjustment
-                where id = new.gift_card_id;
+            where id = new.gift_card_id
+            returning available_balance into new_available_balance;
     else
-        update gift_cards set available_balance = available_balance + adjustment where id = new.gift_card_id;
+        update gift_cards
+            set available_balance = available_balance + adjustment
+            where id = new.gift_card_id
+            returning available_balance into new_available_balance;
     end if;
 
+    new.available_balance = new_available_balance;
     return new;
 end;
 $$ language plpgsql;
 
 create trigger set_gift_card_current_balance_trg
-    after insert
+    before insert
     on gift_card_adjustments
     for each row
     execute procedure update_gift_card_current_balance();
 
 create trigger update_gift_card_current_balance_trg
-    after update
+    before update
     on gift_card_adjustments
     for each row
     execute procedure update_gift_card_current_balance();

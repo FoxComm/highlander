@@ -50,7 +50,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
       adjustment.id must === (1)
     }
 
-    "updates the GiftCard's currentBalance and availableBalance after insert" in new Fixture {
+    "updates the GiftCard's currentBalance and availableBalance before insert" in new Fixture {
       val gc = (for {
         origin  ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = reason.id))
         gc      ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, originalBalance = 500))
@@ -69,6 +69,22 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
 
       gc.availableBalance must === (0)
       gc.currentBalance must === (200)
+    }
+
+    "a Postgres trigger updates the adjustment's availableBalance before insert" in new Fixture {
+      val (adj, gc) = (for {
+        origin  ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = reason.id))
+        gc      ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, originalBalance = 500))
+        payment ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id,
+          paymentMethodId = gc.id, amount = Some(gc.availableBalance)))
+        adj     ← * <~ GiftCards.capture(giftCard = gc, orderPaymentId = Some(payment.id), debit = 50, credit = 0)
+        adj     ← * <~ GiftCardAdjustments.refresh(adj).toXor
+        gc      ← * <~ GiftCards.refresh(gc).toXor
+      } yield (adj, gc)).value.run().futureValue.rightVal
+
+      gc.availableBalance must === (450)
+      gc.currentBalance must === (450)
+      adj.availableBalance must === (gc.availableBalance)
     }
 
     "cancels an adjustment and removes its effect on current/available balances" in new Fixture {
