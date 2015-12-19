@@ -35,7 +35,7 @@ Main reducer that accepts action from `actionTypes` enum and update state for us
 Ok, we have action types and reducer. But our reducer can't handle all lists in app.
 So, it's time for namespaces and actions creators.
 
-##### createFetchActions(namespace, payloadReducer, metaReducer)
+##### createPaginateActions(namespace, payloadReducer, metaReducer)
 
 Creates action in terms of `redux-act` for each action type enumerated in `actionTypes`.
 namespace is necessary to distinguish different actions between different reducers.
@@ -48,7 +48,7 @@ It's high order reducer that adds ability to handle pagination actions to your r
 
 There is `createActions` function in `actions-creator.js` file.
 
-Except actions from `createFetchActions` it creates `fetch` async action.
+Except actions from `createPaginateActions` it creates `fetch` async action.
 We will not consider in detail it here, if you want you can see the source code.
 
 ## Use cases

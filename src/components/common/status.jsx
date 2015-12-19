@@ -20,6 +20,11 @@ export const statuses = {
   },
   rma: {
     pending: 'Pending'
+  },
+  storeCreditTransaction: {
+    capture: 'Captured',
+    onHold: 'On Hold',
+    active: 'Active'
   }
 };
 

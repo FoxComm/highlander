@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import SectionTitle from '../../section-title/section-title';
 import TabListView from '../../tabs/tabs';
@@ -12,6 +13,8 @@ const Summary = props => {
     ...props,
     customerId: props.params.customerId
   };
+  const availableBalance = _.get(props.storeCredits, 'totals.availableBalance', null);
+
   return (
     <div className="fc-list-page-header">
       <SectionTitle title="Store Credit"
@@ -24,7 +27,7 @@ const Summary = props => {
           <PanelList>
             <PanelListItem title="Total Available Balance">
               <div className="fc-store-credits-summary-balance">
-                <Currency value={ 10600 } /> {/* ToDo: Replace with real total */}
+                <Currency value={availableBalance} />
               </div>
             </PanelListItem>
           </PanelList>

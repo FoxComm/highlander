@@ -35,7 +35,7 @@ export function pickFetchParams(state, extraState = {}) {
   };
 }
 
-export function makeCreateFetchAction(namespace, payloadReducer = null, metaReducer = _.noop) {
+export function makePaginateActionCreator(namespace, payloadReducer = null, metaReducer = _.noop) {
   return actionType => {
     return createAction(
       `${namespace}_${actionType}`,
@@ -45,12 +45,12 @@ export function makeCreateFetchAction(namespace, payloadReducer = null, metaRedu
   };
 }
 
-export function createFetchActions(namespace, payloadReducer, metaReducer) {
-  const createFetchAction = makeCreateFetchAction(namespace, payloadReducer, metaReducer);
+export function createPaginateActions(namespace, payloadReducer, metaReducer) {
+  const createPaginateAction = makePaginateActionCreator(namespace, payloadReducer, metaReducer);
 
   return _.transform(actionTypes, (result, type) => {
     const name = _.camelCase(`action_${type}`);
-    result[name] = createFetchAction(type);
+    result[name] = createPaginateAction(type);
   });
 }
 

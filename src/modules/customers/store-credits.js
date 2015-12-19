@@ -22,9 +22,11 @@ export const reasonChange = _createAction('REASON_CHANGE',
                                           (customerId, reasonId) => [customerId, reasonId]);
 const updateStoreCredits = _createAction('UPDATE',
                                          (customerId, scId, data) => [customerId, scId, data]);
+const setError = _createAction('FAIL', (customerId, err) => [customerId, err]);
 
 const {
-  fetch
+  fetch,
+  actionReceived
 } = makeActions(storeCreditsUrl);
 
 const initialState = {};
@@ -47,12 +49,18 @@ export function saveStatusChange(customerId) {
           dispatch(cancelChange(customerId));
           dispatch(updateStoreCredits(customerId, creditToChange.id, json));
         },
-        err => dispatch(actionFetchFailed(customerId, err))
+        err => dispatch(setError(customerId, err))
       );
   };
 }
 
 const moduleReducer = createReducer({
+  [actionReceived]: (state, [customerId, payload]) => {
+    return assoc(state,
+      [...dataPath(customerId), 'rows'], payload.result.storeCredits,
+      [...dataPath(customerId), 'totals'], payload.result.totals
+    );
+  },
   [updateStoreCredits]: (state, [customerId, scId, data]) => {
     return update(state,
       [...dataPath(customerId), 'rows'], storeCredits => {
@@ -82,6 +90,11 @@ const moduleReducer = createReducer({
     };
     return assoc(state, [customerId, 'storeCreditToChange'], updated);
   },
+  [setError]: (state, [customerId, err]) => {
+    console.log(err);
+
+    return state;
+  }
 }, initialState);
 
 const reducer = makeReducer(moduleReducer);

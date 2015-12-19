@@ -231,6 +231,7 @@ export default class StoreCredits extends React.Component {
 
   render() {
     const props = this.props;
+
     return (
       <div className="fc-store-credits fc-list-page">
         <Summary {...props} onAddClick={this.onAddCustomerClick} />
