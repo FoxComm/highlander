@@ -1,5 +1,5 @@
 [Service]
-WorkingDirectory=/vagrant
+WorkingDirectory=/usr/local/share
 ExecStart=/usr/bin/kafka-server-start /etc/kafka/server.properties
 Restart=on-failure
 StandardOutput=syslog

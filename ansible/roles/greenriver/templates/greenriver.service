@@ -1,0 +1,16 @@
+[Service]
+WorkingDirectory=/usr/share
+ExecStart=/usr/bin/java -Denv={{greenriver_env}} -jar {{greenriver_jar}}
+Restart=on-failure
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=greenriver
+TimeoutStartSec=5m
+RestartSec=1m
+
+[Install]
+WantedBy=multi-user.target
+
+[Unit]
+Requires=kafka.service elasticsearch.service phoenix.service
+After=kafka.service elasticsearch.service phoenix.service

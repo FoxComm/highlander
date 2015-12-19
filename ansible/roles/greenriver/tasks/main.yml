@@ -1,0 +1,14 @@
+---
+
+
+- name: Copy Jar
+  copy: src={{greenriver_jar_src}} dest={{greenriver_jar}} mode="u+x,g+x,o+x"
+  sudo: true
+
+- name: Copy Service
+  template: src=greenriver.service dest="{{dest_services}}/greenriver.service" 
+  sudo: true
+
+- name: Setup Service
+  service: name=greenriver state=started enabled=yes
+  sudo: true

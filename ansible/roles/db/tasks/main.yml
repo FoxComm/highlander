@@ -49,8 +49,8 @@
   copy: src=libsnappy.pc dest=/usr/local/lib/pkgconfig/libsnappy.pc 
   sudo: true
  
-- name: Clone Bottledwater
-  git: repo={{bottledwater_src}} dest={{bottledwater_dir}}
+- name: Synchronize Bottledwater
+  synchronize: src={{bottledwater_src}} dest={{bottledwater_dir}}
 
 - name: Make and Install BottledWater
   shell: make && make install
@@ -95,6 +95,10 @@
       - vagrant
       - phoenix
 
+- name: Create Db
+  shell: sudo -u postgres createdb {{phoenix_db_name}} || true
+  sudo: true
+
 - name: Reload Postgresql
   service: name=postgresql state=restarted sleep=5
   sudo: true
@@ -103,13 +107,30 @@
   shell: systemctl stop bottledwater || true
   sudo: true
 
-- name: Setup Db Schema
-  shell: sudo -u postgres FLYWAY_HOME={{flyway_dir}} PATH=$PATH:{{flyway_dir}} make configure
+- name: Create {{phoenix_dir}}
+  file: path={{phoenix_dir}} state=directory owner="{{user}}"
+  sudo: true
+
+- name: Syncrhonize Phoenix Sql
+  synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}"
+  sudo: true
+
+- name: Copy Phoenix
+  copy: src="{{phoenix_jar_src}}" dest="{{phoenix_jar}}" owner="{{user}}"
+  sudo: true
+
+- name: Clean Db 
+  shell: sudo -u postgres FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
+  args:
+    chdir: "{{phoenix_dir}}"
+
+- name: Migrate Db
+  shell: sudo -u postgres FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
   args:
     chdir: "{{phoenix_dir}}"
 
 - name: Seed Db
-  shell: sbt seed
+  shell: java -cp {{phoenix_jar}} utils.seeds.Seeds
   args:
     chdir: "{{phoenix_dir}}"
 

@@ -1,0 +1,16 @@
+[Service]
+WorkingDirectory=/usr/share
+ExecStart=/usr/bin/java -jar {{phoenix_jar}}
+Restart=on-failure
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=greenriver
+TimeoutStartSec=5m
+RestartSec=1m
+
+[Install]
+WantedBy=multi-user.target
+
+[Unit]
+Requires=postgresql.service 
+After=postgresql.service 

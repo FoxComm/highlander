@@ -9,5 +9,6 @@
         - common
         - kafka
         - db
+        - phoenix
         - elasticsearch
-        - consumer
+        - greenriver

@@ -24,11 +24,6 @@ Vagrant.configure("2") do |config|
 
   config.vm.network "private_network", ip: $vb_host
 
-  config.vm.synced_folder "../bottledwater-pg/", "/bottledwater"
-  config.vm.synced_folder "../phoenix-scala/", "/phoenix"
-  config.vm.synced_folder "../green-river/", "/green-river"
-  config.vm.synced_folder File.join(ENV['HOME'], '.ivy2'), "/home/vagrant/.ivy2", create: true
-
   config.vm.provider :virtualbox do |vb|
     vb.cpus = $vb_cpu
     vb.memory = $vb_memory

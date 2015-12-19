@@ -1,3 +1,19 @@
 home: /home/{{ user }}
 dest_services: /etc/systemd/system
 usr_local: /usr/local/
+db_connection_string: "postgresql://localhost/phoenix_development?user={{user}}"
+
+greenriver_version: 1.0
+greenriver_env: localhost
+greenriver_jar_src: ../../green-river/target/{{scala_version}}/green-river-assembly-{{greenriver_version}}.jar
+greenriver_jar: /usr/local/bin/green-river.jar
+
+phoenix_version: 1.0
+phoenix_env: development
+phoenix_src: ../../phoenix-scala/
+phoenix_jar_src: "{{phoenix_src}}/target/{{scala_version}}/phoenix-scala-assembly-{{phoenix_version}}.jar"
+
+phoenix_dir: /phoenix
+phoenix_jar: "{{phoenix_dir}}/phoenix.jar"
+phoenix_db_name: phoenix_development
+

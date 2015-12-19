@@ -1,5 +1,5 @@
 [Service]
-WorkingDirectory=/vagrant
+WorkingDirectory=/usr/local/share
 ExecStart=/usr/bin/schema-registry-start /etc/schema-registry/schema-registry.properties
 Restart=on-failure
 StandardOutput=syslog
