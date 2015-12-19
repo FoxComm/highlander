@@ -64,9 +64,19 @@ server {
                 req = uri .. "?" .. ngx.var.args
             end
 
+            -- map is needed because ngx.var.request_method returns a string
+            local map = {
+                GET = ngx.HTTP_GET,
+                POST = ngx.HTTP_POST,
+                PUT = ngx.HTTP_PUT,
+                DELETE = ngx.HTTP_DELETE
+            }
+
+            local body = ngx.req.read_body()
+            local method = map[ngx.var.request_method]
 
             --get json result from elastic search
-            local res = ngx.location.capture(req)
+            local res = ngx.location.capture(req, { method = method,  body = body })
 
             --parse
             local j = cjson.new()
