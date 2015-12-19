@@ -9,9 +9,9 @@ import models.rules.QueryStatement
 import models.{Address, Addresses, CreditCardCharge, CreditCardCharges, CreditCards, Customers, Order, OrderAssignments,
 OrderLineItem, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, OrderLockEvent, OrderLockEvents, OrderPayments,
 OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, Regions, Shipment, Shipments,
-ShippingMethods, Skus, StoreAdmin, StoreAdmins}
+ShippingMethods, Skus, StoreAdmin, StoreAdmins, OrderWatchers, OrderWatcher}
 import org.json4s.jackson.JsonMethods._
-import payloads.{Assignment, UpdateLineItemsPayload, UpdateOrderPayload}
+import payloads.{Assignment, Watchers, UpdateLineItemsPayload, UpdateOrderPayload}
 import responses.{FullOrder, StoreAdminResponse}
 import services.CartFailures._
 import services.orders.OrderTotaler
@@ -311,6 +311,8 @@ class OrderIntegrationTest extends IntegrationTestBase
       val fullOrderWithWarnings = response.withResultTypeOf[FullOrder.Root]
       fullOrderWithWarnings.result.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(storeAdmin)))
       fullOrderWithWarnings.warnings mustBe empty
+
+      OrderAssignments.byOrder(order).result.run().futureValue.size mustBe 1
     }
 
     "can be assigned to locked order" in {
@@ -321,11 +323,14 @@ class OrderIntegrationTest extends IntegrationTestBase
       } yield (order, storeAdmin)).runT().futureValue.rightVal
       val response = POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
       response.status must === (StatusCodes.OK)
+
+      OrderAssignments.byOrder(order).result.run().futureValue.size mustBe 1
     }
 
     "404 if order is not found" in new Fixture {
       val response = POST(s"v1/orders/NOPE/assignees", Assignment(Seq(storeAdmin.id)))
       response.status must === (StatusCodes.NotFound)
+      response.errors must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
     "warning if assignee is not found" in new Fixture {
@@ -349,6 +354,8 @@ class OrderIntegrationTest extends IntegrationTestBase
       val responseOrder2 = response2.withResultTypeOf[FullOrder.Root].result
       responseOrder2.assignees must not be empty
       responseOrder2.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(storeAdmin))
+
+      OrderAssignments.byOrder(order).result.run().futureValue.size mustBe 1
     }
 
     "do not create duplicate records" in new Fixture {
@@ -356,6 +363,70 @@ class OrderIntegrationTest extends IntegrationTestBase
       POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
 
       OrderAssignments.byOrder(order).result.run().futureValue.size mustBe 1
+    }
+  }
+
+  "POST /v1/orders/:refNum/watchers" - {
+
+    "can be added to order" in new Fixture {
+      val response = POST(s"v1/orders/${order.referenceNumber}/watchers", Watchers(Seq(storeAdmin.id)))
+      response.status must === (StatusCodes.OK)
+
+      val fullOrderWithWarnings = response.withResultTypeOf[FullOrder.Root]
+      fullOrderWithWarnings.result.watchers.map(_.watcher) must === (Seq(StoreAdminResponse.build(storeAdmin)))
+      fullOrderWithWarnings.warnings mustBe empty
+
+      OrderWatchers.byOrder(order).result.run().futureValue.size mustBe 1
+    }
+
+    "can be added to locked order" in {
+      val (order, storeAdmin) = (for {
+        customer   ← * <~ Customers.create(Factories.customer)
+        order      ← * <~ Orders.create(Factories.order.copy(isLocked = true, customerId = customer.id))
+        storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
+      } yield (order, storeAdmin)).runT().futureValue.rightVal
+      val response = POST(s"v1/orders/${order.referenceNumber}/watchers", Watchers(Seq(storeAdmin.id)))
+      response.status must === (StatusCodes.OK)
+
+      OrderWatchers.byOrder(order).result.run().futureValue.size mustBe 1
+    }
+
+    "404 if order is not found" in new Fixture {
+      val response = POST(s"v1/orders/NOPE/watchers", Watchers(Seq(storeAdmin.id)))
+      response.status must === (StatusCodes.NotFound)
+      response.errors must === (NotFoundFailure404(Order, "NOPE").description)
+    }
+
+    "warning if watcher is not found" in new Fixture {
+      val response = POST(s"v1/orders/${order.referenceNumber}/watchers", Watchers(Seq(1, 999)))
+      response.status must === (StatusCodes.OK)
+
+      val fullOrderWithWarnings = response.withResultTypeOf[FullOrder.Root]
+      fullOrderWithWarnings.result.watchers.map(_.watcher) must === (Seq(StoreAdminResponse.build(storeAdmin)))
+      fullOrderWithWarnings.warnings.value must === (NotFoundFailure404(StoreAdmin, 999).description)
+    }
+
+    "can be viewed with order" in new Fixture {
+      val response1 = GET(s"v1/orders/${order.referenceNumber}")
+      response1.status must === (StatusCodes.OK)
+      val responseOrder1 = response1.withResultTypeOf[FullOrder.Root].result
+      responseOrder1.watchers mustBe empty
+
+      POST(s"v1/orders/${order.referenceNumber}/watchers", Watchers(Seq(storeAdmin.id)))
+      val response2 = GET(s"v1/orders/${order.referenceNumber}")
+      response2.status must === (StatusCodes.OK)
+      val responseOrder2 = response2.withResultTypeOf[FullOrder.Root].result
+      responseOrder2.watchers must not be empty
+      responseOrder2.watchers.map(_.watcher) mustBe Seq(StoreAdminResponse.build(storeAdmin))
+
+      OrderWatchers.byOrder(order).result.run().futureValue.size mustBe 1
+    }
+
+    "do not create duplicate records" in new Fixture {
+      POST(s"v1/orders/${order.referenceNumber}/watchers", Watchers(Seq(storeAdmin.id)))
+      POST(s"v1/orders/${order.referenceNumber}/watchers", Watchers(Seq(storeAdmin.id)))
+
+      OrderWatchers.byOrder(order).result.run().futureValue.size mustBe 1
     }
   }
 

@@ -5,14 +5,13 @@ import akka.http.scaladsl.model.StatusCodes
 import cats.data.Xor
 import models.Order._
 import models.{Customers, Order, Orders, StoreAdmin, StoreAdmins}
-import payloads.{BulkAssignment, BulkUpdateOrdersPayload}
+import payloads.{BulkAssignment, BulkUpdateOrdersPayload, BulkWatchers}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import responses.{AllOrders, FullOrder, StoreAdminResponse}
 import services.orders.OrderQueries
 import services.{LockedFailure, NotFoundFailure404, StatusTransitionNotAllowed}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
@@ -241,6 +240,113 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
 
     "warns when admin to unassign not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/orders/assignees/delete", BulkAssignment(Seq(orderRef1), 777))
+      response.status must === (StatusCodes.OK)
+      val responseObj = response.as[BulkOrderUpdateResponse]
+      responseObj.result must === (getAllOrders)
+      responseObj.errors.value must === (NotFoundFailure404(StoreAdmin, 777).description)
+    }
+  }
+
+  "POST /v1/orders/watchers" - {
+    "adds successfully ignoring duplicates" in new BulkAssignmentFixture {
+      val watcherResponse1 = POST(s"v1/orders/watchers", BulkWatchers(Seq(orderRef1), adminId))
+      watcherResponse1.status must === (StatusCodes.OK)
+      val responseObj1 = watcherResponse1.as[BulkOrderUpdateResponse]
+      responseObj1.result.map(_.referenceNumber) contains allOf("foo", "bar")
+      responseObj1.errors mustBe empty
+
+      val updOrderResponse1 = GET(s"v1/orders/$orderRef1")
+      val updOrder1 = updOrderResponse1.withResultTypeOf[FullOrder.Root].result
+      updOrder1.watchers.map(_.watcher) must === (Seq(StoreAdminResponse.build(admin)))
+
+      // Don't complain about duplicates
+      val watcherResponse2 = POST(s"v1/orders/watchers", BulkWatchers(Seq(orderRef1, orderRef2), adminId))
+      watcherResponse2.status must === (StatusCodes.OK)
+      val responseObj2 = watcherResponse2.as[BulkOrderUpdateResponse]
+      responseObj2.result.map(_.referenceNumber) contains allOf("foo", "bar")
+      responseObj2.errors mustBe empty
+
+      val updOrderResponse2 = GET(s"v1/orders/$orderRef1")
+      val updOrder2 = updOrderResponse2.withResultTypeOf[FullOrder.Root].result
+      updOrder2.watchers.map(_.watcher) must === (Seq(StoreAdminResponse.build(admin)))
+
+      val updOrderResponse3 = GET(s"v1/orders/$orderRef2")
+      val updOrder3 = updOrderResponse3.withResultTypeOf[FullOrder.Root].result
+      updOrder3.watchers.map(_.watcher) must === (Seq(StoreAdminResponse.build(admin)))
+    }
+
+    "happens successfully ignoring duplicates with sorting and paging" in new BulkAssignmentFixture {
+      val watcherResponse1 = POST(s"v1/orders/watchers?size=1&from=1&sortBy=referenceNumber",
+        BulkWatchers(Seq(orderRef1), adminId))
+      watcherResponse1.status must === (StatusCodes.OK)
+      val responseObj1 = watcherResponse1.as[BulkOrderUpdateResponse]
+      responseObj1.result.map(_.referenceNumber) must contain theSameElementsInOrderAs Seq("foo")
+      responseObj1.errors mustBe empty
+    }
+
+    "warns when order to assign not found" in new BulkAssignmentFixture {
+      val response = POST(s"v1/orders/watchers", BulkWatchers(Seq(orderRef1, "NOPE"), adminId))
+      response.status must === (StatusCodes.OK)
+      val responseObj = response.as[BulkOrderUpdateResponse]
+      responseObj.result must === (getAllOrders)
+      responseObj.errors.value must === (NotFoundFailure404(Order, "NOPE").description)
+    }
+
+    "warns when admin to assign not found" in new BulkAssignmentFixture {
+      val response = POST(s"v1/orders/watchers", BulkWatchers(Seq(orderRef1), 777))
+      response.status must === (StatusCodes.OK)
+      val responseObj = response.as[BulkOrderUpdateResponse]
+      responseObj.result must === (getAllOrders)
+      responseObj.errors.value must === (NotFoundFailure404(StoreAdmin, 777).description)
+    }
+  }
+
+  "POST /v1/orders/watchers/delete" - {
+    "unwatches successfully ignoring wrong attempts" in new BulkAssignmentFixture {
+      // Should pass
+      val unwatch1 = POST(s"v1/orders/watchers/delete", BulkWatchers(Seq(orderRef1), adminId))
+      unwatch1.status must === (StatusCodes.OK)
+
+      POST(s"v1/orders/watchers", BulkWatchers(Seq(orderRef1, orderRef2), adminId))
+
+      val unwatch2 = POST(s"v1/orders/watchers/delete", BulkWatchers(Seq(orderRef1), adminId))
+      unwatch2.status must === (StatusCodes.OK)
+
+      val updOrder1 = GET(s"v1/orders/$orderRef1")
+      updOrder1.status must === (StatusCodes.OK)
+
+      val updOrder1Root = updOrder1.withResultTypeOf[FullOrder.Root].result
+      updOrder1Root.assignees mustBe empty
+
+      val updOrder2 = GET(s"v1/orders/$orderRef2")
+      updOrder2.status must === (StatusCodes.OK)
+
+      val updOrder2Root = updOrder2.withResultTypeOf[FullOrder.Root].result
+      updOrder2Root.watchers.map(_.watcher) must === (Seq(StoreAdminResponse.build(admin)))
+    }
+
+    "unwatches successfully ignoring wrong attempts with sorting and paging" in new BulkAssignmentFixture {
+      POST(s"v1/orders/watchers", BulkWatchers(Seq(orderRef1, orderRef2), adminId))
+
+      val unwatch = POST(s"v1/orders/watchers/delete?size=1&from=1&sortBy=referenceNumber",
+        BulkWatchers(Seq(orderRef1), adminId))
+      unwatch.status must === (StatusCodes.OK)
+
+      val responseObj = unwatch.as[BulkOrderUpdateResponse]
+      responseObj.result.map(_.referenceNumber) must contain theSameElementsInOrderAs Seq("foo")
+      responseObj.errors mustBe empty
+    }
+
+    "warns when order to unwatch not found" in new BulkAssignmentFixture {
+      val response = POST(s"v1/orders/watchers/delete", BulkWatchers(Seq(orderRef1, "NOPE"), adminId))
+      response.status must === (StatusCodes.OK)
+      val responseObj = response.as[BulkOrderUpdateResponse]
+      responseObj.result must === (getAllOrders)
+      responseObj.errors.value must === (NotFoundFailure404(Order, "NOPE").description)
+    }
+
+    "warns when admin to unwatch not found" in new BulkAssignmentFixture {
+      val response = POST(s"v1/orders/watchers/delete", BulkWatchers(Seq(orderRef1), 777))
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkOrderUpdateResponse]
       responseObj.result must === (getAllOrders)

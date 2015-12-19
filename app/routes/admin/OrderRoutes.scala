@@ -5,15 +5,16 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.GiftCard.giftCardCodeRegex
 import models.Order.orderRefNumRegex
-import models.{GiftCard, Orders, StoreAdmin}
-import payloads.{AddGiftCardLineItem, Assignment, BulkAssignment, BulkUpdateOrdersPayload, CreateOrder, UpdateLineItemsPayload, UpdateOrderPayload}
+import models.{GiftCard, StoreAdmin}
+import payloads.{AddGiftCardLineItem, Assignment, BulkAssignment, BulkUpdateOrdersPayload, CreateOrder,
+UpdateLineItemsPayload, UpdateOrderPayload, Watchers, BulkWatchers}
 import services.orders._
 import services.{LineItemUpdater, Result}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives._
 import utils.Http._
 import utils.Slick.DbResult
-import utils.{Apis, Slick}
+import utils.Apis
 
 import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext
@@ -45,7 +46,7 @@ object OrderRoutes {
           (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
             entity(as[BulkAssignment]) { payload ⇒
               goodOrFailures {
-                OrderAssignmentUpdater.assign(payload)
+                OrderAssignmentUpdater.assignBulk(payload)
               }
             }
           } ~
@@ -53,6 +54,22 @@ object OrderRoutes {
             entity(as[BulkAssignment]) { payload ⇒
               goodOrFailures {
                 OrderAssignmentUpdater.unassign(payload)
+              }
+            }
+          }
+        } ~
+        pathPrefix("watchers") {
+          (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+            entity(as[BulkWatchers]) { payload ⇒
+              goodOrFailures {
+                OrderWatcherUpdater.watchBulk(payload)
+              }
+            }
+          } ~
+          (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+            entity(as[BulkWatchers]) { payload ⇒
+              goodOrFailures {
+                OrderWatcherUpdater.unwatch(payload)
               }
             }
           }
@@ -137,6 +154,13 @@ object OrderRoutes {
           (post & pathEnd & entity(as[Assignment])) { payload ⇒
             goodOrFailures {
               OrderAssignmentUpdater.assign(refNum, payload.assignees)
+            }
+          }
+        } ~
+        pathPrefix("watchers") {
+          (post & pathEnd & entity(as[Watchers])) { payload ⇒
+            goodOrFailures {
+              OrderWatcherUpdater.watch(refNum, payload.watchers)
             }
           }
         } ~

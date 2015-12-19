@@ -6,7 +6,6 @@ import responses.ResponseWithFailuresAndMetadata._
 import responses.RmaResponse._
 import services.{Failure, NotFoundFailure404, Result}
 import slick.driver.PostgresDriver.api._
-import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
 import utils.Slick._
 import utils.Slick.implicits._
@@ -15,8 +14,8 @@ import scala.concurrent.ExecutionContext
 
 object RmaAssignmentUpdater {
 
-  def assign(refNum: String, requestedAssigneeIds: Seq[Int])(implicit db: Database, ec: ExecutionContext,
-    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[FullRmaWithWarnings] = {
+  def assign(refNum: String, requestedAssigneeIds: Seq[Int])
+    (implicit db: Database, ec: ExecutionContext): Result[FullRmaWithWarnings] = {
     val finder = Rmas.findByRefNum(refNum)
 
     finder.selectOne({ rma ⇒
@@ -38,7 +37,7 @@ object RmaAssignmentUpdater {
     }, checks = Set.empty)
   }
 
-  def assign(payload: payloads.RmaBulkAssigneesPayload)
+  def assignBulk(payload: payloads.RmaBulkAssigneesPayload)
     (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage): Result[BulkRmaUpdateResponse] = {
 
     // TODO: transfer sorting-paging metadata
@@ -63,11 +62,8 @@ object RmaAssignmentUpdater {
     val query = for {
       rmas ← Rmas.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
       adminId ← StoreAdmins.findById(payload.assigneeId).extract.map(_.id).result
-      delete = RmaAssignments
-        .filter(_.assigneeId === payload.assigneeId)
-        .filter(_.rmaId.inSetBind(rmas.map(_.id)))
-        .delete
-      allRmas ← delete >> RmaQueries.findAll(Rmas).result
+      _ ← RmaAssignments.filter(_.assigneeId === payload.assigneeId).filter(_.rmaId.inSetBind(rmas.map(_.id))).delete
+      allRmas ← RmaQueries.findAll(Rmas).result
       adminNotFound = adminNotFoundFailure(adminId.headOption, payload.assigneeId)
       rmasNotFound = rmasNotFoundFailures(payload.referenceNumbers, rmas.map(_.referenceNumber))
     } yield ResponseWithFailuresAndMetadata.fromXor(

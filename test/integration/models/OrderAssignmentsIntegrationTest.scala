@@ -1,5 +1,6 @@
 package models
 
+import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -46,9 +47,9 @@ class OrderAssignmentsIntegrationTest extends IntegrationTestBase {
     }
   }
 
-  def assigneesFor(order: Order): Seq[StoreAdmin] = OrderAssignments.assigneesFor(order).run().futureValue
+  def assigneesFor(order: Order): Seq[StoreAdmin] = OrderAssignments.assigneesFor(order).result.run().futureValue
 
-  def assignedTo(admin: StoreAdmin): Seq[Order] = OrderAssignments.assignedTo(admin).run.futureValue
+  def assignedTo(admin: StoreAdmin): Seq[Order] = OrderAssignments.assignedTo(admin).result.run.futureValue
 
   def assign(admin: StoreAdmin, order: Order) =
     OrderAssignments.create(OrderAssignment(orderId = order.id, assigneeId = admin.id)).run().futureValue.rightVal

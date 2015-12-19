@@ -8,7 +8,7 @@ import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class RmaAssignment(id: Int = 0, rmaId: Int = 0, assigneeId: Int = 0, assignedAt: Instant = Instant.now)
+final case class RmaAssignment(id: Int = 0, rmaId: Int = 0, assigneeId: Int = 0, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[RmaAssignment]
 
 object RmaAssignment {
@@ -19,9 +19,9 @@ class RmaAssignments(tag: Tag) extends GenericTable.TableWithId[RmaAssignment](t
   def id = column[Int]("id", O.AutoInc)
   def rmaId = column[Int]("rma_id")
   def assigneeId = column[Int]("assignee_id")
-  def assignedAt = column[Instant]("assigned_at")
+  def createdAt = column[Instant]("created_at")
 
-  def * = (id, rmaId, assigneeId, assignedAt) <>((RmaAssignment.apply _).tupled, RmaAssignment.unapply)
+  def * = (id, rmaId, assigneeId, createdAt) <>((RmaAssignment.apply _).tupled, RmaAssignment.unapply)
   def rma = foreignKey(Rmas.tableName, rmaId, Rmas)(_.id)
   def assignee = foreignKey(StoreAdmins.tableName, assigneeId, StoreAdmins)(_.id)
 }

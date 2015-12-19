@@ -70,6 +70,7 @@
 + shippingMethod (optional, ShippingMethod) - Shipping method.
 + shippingAddress (optional, OrderShippingAddress) - Shipping address.
 + assignees (required, array[OrderAssignee]) - Order assignees.
++ watchers (required, array[OrderWatcher]) - Order watchers.
 + remorsePeriodEnd: `2015-09-10T14:55:50Z` (optional, string) - Remorse period end.
 + paymentMethods (optional, array[DisplayPayment]) - Order payment.
 + lockedBy (optional, StoreAdminResponse) - Currently locked by.
@@ -77,7 +78,11 @@
 
 ### OrderAssignee
 + assignee (required, StoreAdminResponse) - Assigned store admin.
-+ assignedAt `2015-09-10T14:55:50Z` (optional, string) - Assignment date.
++ createdAt: `2015-09-10T14:55:50Z` (optional, string) - Assignment date.
+
+### OrderWatcher
++ watcher (required, StoreAdminResponse) - Watching store admin.
++ createdAt: `2015-09-10T14:55:50Z` (optional, string) - Watch date.
 
 ### OrderShippingAddress
 + id: 1 (required, number) - Unique ID.
@@ -161,6 +166,13 @@
 ### OrderBulkAssignPayload
 + referenceNumbers: `ABC-123` (required, array[string]) - Order reference numbers.
 + assigneeId: 1 (required, number) - StoreAdmin ID.
+
+### OrderWatchPayload
++ watchers (required, array[number]) - StoreAdmin IDs.
+
+### OrderBulkWatchPayload
++ referenceNumbers: `ABC-123` (required, array[string]) - Order reference numbers.
++ watcherId: 1 (required, number) - StoreAdmin ID.
 
 ### OrderList
 + result (required, array[ListOrder]) - The resulting list of ListOrder-s.

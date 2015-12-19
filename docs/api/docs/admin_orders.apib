@@ -255,7 +255,7 @@ Removes the shipping method from the cart.
 ### Assign [POST]
 
 + Request (application/json)
-    + Attributes (RmaAssignPayload)
+    + Attributes (OrderAssignPayload)
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
@@ -272,3 +272,29 @@ Removes the shipping method from the cart.
     + Attributes (OrderBulkAssignPayload)
 + Response 200 (application/json)
     + Attributes (OrderList)
+
+## Watchers [/v1/orders/{refNum}/watchers]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Order reference number
+
+### Assign [POST]
+
++ Request (application/json)
+    + Attributes (OrderWatchPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Bulk Watch [POST /v1/orders/watchers]
+
++ Request (application/json)
+    + Attributes (OrderBulkAssignPayload)
++ Response 200 (application/json)
+    + Attributes (OrderList)
+
+### Bulk Unwatch [POST /v1/orders/watchers/delete]
+
++ Request (application/json)
+    + Attributes (OrderBulkWatchPayload)
++ Response 200 (application/json)
+    + Attributes (OrderList)    
