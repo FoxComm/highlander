@@ -31,34 +31,34 @@ import consumer.utils.PhoenixConnectionInfo
 
 /**
  * I apologize for nothing!
-                                                                                                    
-                                                                     ...--------:..`                
-                                                                 `..-...........:...-.`             
-                                                               `.-...--.........:......-`           
-                                                              ...-..-..:-.---..-.........-          
-                                                             ....`  -..-`   `.-...........:         
-                                                             -..    -`.-      `-........----        
-                                                            `-`.  ``-...       .--------...-`       
-                                        `````                :`.`..-...         :...........-       
-              :``..`/```      -     `..-.......`             ````--..           -...........-       
-          .---:..----...--.`  -  ```.`..........-``          ` `````           -............-       
-        .-:--.......-.......--: ``````...............`       ``````           .:---........`-       
-        :-...........:.......:..````.......---..-....:-       ````           .-.-..--......-`       
-       /------.-.....-.......-...`...-.``` ``-`-     .-.      ````         `-.........--...-        
-      /-......----..-:-..----...:`.....`   ``....`  ``:`       `         .--............-.-`        
-      /...........:::`````..---.:`.......`........`....-`            ``.------..........--`         
-     -:...........:..---.---.---:`......................-.`````````.---......--.........-`          
-     -:.........--/:.          .-.................`  -...-...--:-.--...........-........`           
-     ./--.--..---..s:           .-.........```   .   `---.......--..-...........-....-`             
-     .+-....--.....:s           .-........   ``   .   `-..........:.-...........:....`              
-      ./...........-o.          .:....`- `    .   `.   `-..........:.-.........:.-.``.```           
-      .-/-........-.+.          ..-...`-  .    `   ..`.`---.........--....-.---:.`..`.````.``       
-         :--......--/.           .-....-.````..-...........--..-..--:::-.`..--...``.````````-       
-         .--/--.----/.            -......----.....---......-------....```````.``.```.`.``..---`     
-             /::---::.            .-..........----..........-....````` ````.```` ````.```````..-.`  
-                   `.:.           .-........-...............--...-.```````.``````. .. ```` ` .....  
-                    `o.            .-....-..................--:--.-.```````.`.```````.`.```....-.`  
-                    `::            ..-.......................------..`````---..--..``.---....-:..`  
+
+                                                                     ...--------:..`
+                                                                 `..-...........:...-.`
+                                                               `.-...--.........:......-`
+                                                              ...-..-..:-.---..-.........-
+                                                             ....`  -..-`   `.-...........:
+                                                             -..    -`.-      `-........----
+                                                            `-`.  ``-...       .--------...-`
+                                        `````                :`.`..-...         :...........-
+              :``..`/```      -     `..-.......`             ````--..           -...........-
+          .---:..----...--.`  -  ```.`..........-``          ` `````           -............-
+        .-:--.......-.......--: ``````...............`       ``````           .:---........`-
+        :-...........:.......:..````.......---..-....:-       ````           .-.-..--......-`
+       /------.-.....-.......-...`...-.``` ``-`-     .-.      ````         `-.........--...-
+      /-......----..-:-..----...:`.....`   ``....`  ``:`       `         .--............-.-`
+      /...........:::`````..---.:`.......`........`....-`            ``.------..........--`
+     -:...........:..---.---.---:`......................-.`````````.---......--.........-`
+     -:.........--/:.          .-.................`  -...-...--:-.--...........-........`
+     ./--.--..---..s:           .-.........```   .   `---.......--..-...........-....-`
+     .+-....--.....:s           .-........   ``   .   `-..........:.-...........:....`
+      ./...........-o.          .:....`- `    .   `.   `-..........:.-.........:.-.``.```
+      .-/-........-.+.          ..-...`-  .    `   ..`.`---.........--....-.---:.`..`.````.``
+         :--......--/.           .-....-.````..-...........--..-..--:::-.`..--...``.````````-
+         .--/--.----/.            -......----.....---......-------....```````.``.```.`.``..---`
+             /::---::.            .-..........----..........-....````` ````.```` ````.```````..-.`
+                   `.:.           .-........-...............--...-.```````.``````. .. ```` ` .....
+                    `o.            .-....-..................--:--.-.```````.`.```````.`.```....-.`
+                    `::            ..-.......................------..`````---..--..``.---....-:..`
                     `:-.            .--........................-:....````...---.....----.---.-...-..
                     `- :            .:..........................--....```......-----..-...-------..`
                      - :            -............................:..``......................-.......
@@ -74,8 +74,8 @@ object Main {
 
   implicit val system = ActorSystem("system")
   implicit val materializer = ActorMaterializer()
-  
-  implicit lazy final val connectionPoolSettings = 
+
+  implicit lazy final val connectionPoolSettings =
     ConnectionPoolSettings.create(implicitly[ActorSystem]).copy(
       maxConnections  = 32,
       maxOpenRequests = 32,
@@ -112,7 +112,7 @@ object Main {
     Console.err.println(s"Phoenix: ${phoenixUri}")
 
     val phoenix = PhoenixConnectionInfo(
-      uri = phoenixUri, 
+      uri = phoenixUri,
       user = phoenixUser,
       pass = phoenixPass)
 
@@ -121,12 +121,12 @@ object Main {
       val activityProcessor = new ActivityProcessor(phoenix, activityConnectors)
 
       val avroProcessor = new AvroProcessor(
-        schemaRegistryUrl = avroSchemaRegistryUrl, 
+        schemaRegistryUrl = avroSchemaRegistryUrl,
         processor = activityProcessor)
 
       val consumer = new MultiTopicConsumer(
-        topics = Seq(activityTopic), 
-        broker = kafkaBroker, 
+        topics = Seq(activityTopic),
+        broker = kafkaBroker,
         groupId = s"${kafkaGroupId}_activity",
         processor = avroProcessor)
 
@@ -139,26 +139,27 @@ object Main {
     val trailWork = Future {
       val transformers = Map(
         "regions" → AvroTransformers.Region(),
-        "countries"  → AvroTransformers.Country(),
-        "customers_search_view" →  AvroTransformers.CustomerSearchView(),
-        "orders_search_view" →  AvroTransformers.OrderSearchView(),
+        "countries" → AvroTransformers.Country(),
+        "customers_search_view" → AvroTransformers.CustomersSearchView(),
+        "orders_search_view" → AvroTransformers.OrdersSearchView(),
+        "store_admins_search_view" → AvroTransformers.StoreAdminsSearchView(),
         connectionTopic → ActivityConnectionTransformer(phoenix))
 
       // Init processors & consumer
       val esProcessor = new ElasticSearchProcessor(
-        uri = elasticSearchUrl, 
+        uri = elasticSearchUrl,
         cluster = elasticSearchCluster,
-        indexName = elasticSearchIndex, 
+        indexName = elasticSearchIndex,
         topics = kafkaTopics,
         jsonTransformers = transformers)
 
       val avroProcessor = new AvroProcessor(
-        schemaRegistryUrl = avroSchemaRegistryUrl, 
+        schemaRegistryUrl = avroSchemaRegistryUrl,
         processor = esProcessor)
 
       val consumer = new MultiTopicConsumer(
-        topics = kafkaTopics, 
-        broker = kafkaBroker, 
+        topics = kafkaTopics,
+        broker = kafkaBroker,
         groupId = s"${kafkaGroupId}_trail",
         processor = avroProcessor)
 
@@ -171,14 +172,14 @@ object Main {
       consumer.readForever()
     }
 
-    activityWork onFailure { 
+    activityWork onFailure {
       case t ⇒ Console.err.println(s"Error occurred consuming activities: ${t.getMessage}")
     }
 
-    trailWork onFailure { 
+    trailWork onFailure {
       case t ⇒ Console.err.println(s"Error occurred indexing to ES: ${t}")
     }
-    //These threads will actually never be ready. 
+    //These threads will actually never be ready.
     //This is a hedonist bot.
     Await.ready(activityWork, Duration.Inf)
     Await.ready(trailWork, Duration.Inf)
