@@ -12,5 +12,5 @@ RestartSec=1m
 WantedBy=multi-user.target
 
 [Unit]
-Requires=postgresql.service 
-After=postgresql.service 
+Requires={{phoenix_service_requires}}
+After={{phoenix_service_after}}

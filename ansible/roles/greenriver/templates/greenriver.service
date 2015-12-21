@@ -12,5 +12,5 @@ RestartSec=1m
 WantedBy=multi-user.target
 
 [Unit]
-Requires=kafka.service elasticsearch.service phoenix.service
-After=kafka.service elasticsearch.service phoenix.service
+Requires={{greenriver_service_requires}}
+After={{greenriver_service_after}}
