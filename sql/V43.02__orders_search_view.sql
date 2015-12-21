@@ -4,8 +4,8 @@ select distinct on (o.id)
     o.id as id,
     o.reference_number as reference_number,
     o.status as status,
-    to_char(o.created_at, 'YYYY-MM-dd') as created_at,
-    to_char(o.placed_at, 'YYYY-MM-dd') as placed_at,
+    to_char(o.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
+    to_char(o.placed_at, 'YYYY-MM-DD HH24:MI:SS') as placed_at,
     o.currency as currency,
     -- Totals
     o.sub_total as sub_total,
@@ -18,7 +18,7 @@ select distinct on (o.id)
         'name', c.name,
         'email', c.email,
         'is_blacklisted', c.is_blacklisted,
-        'joined_at', to_char(c.created_at, 'YYYY-MM-dd'),
+        'joined_at', to_char(c.created_at, 'YYYY-MM-DD HH24:MI:SS'),
         'rank', rank.rank,
         'revenue', coalesce(rank.revenue, 0)
     ) as customer,

@@ -6,7 +6,7 @@ select
     then
         '[]'
     else
-        json_agg((o.reference_number, to_char(oa.created_at, 'YYYY-MM-dd'))::export_assignments)
+        json_agg((o.reference_number, to_char(oa.created_at, 'YYYY-MM-DD HH24:MI:SS'))::export_assignments)
     end as assignments
 from store_admins as s
 left join order_assignments as oa on (s.id = oa.assignee_id)
