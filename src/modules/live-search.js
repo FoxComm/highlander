@@ -11,7 +11,10 @@ const emptyState = {
   isFetching: false,
   isNew: false,
   options: [],
-  results: [],
+  results: {
+    total: 0,
+    rows: []
+  },
   searches: [],
   searchValue: '',
   selectedIndex: -1
@@ -207,7 +210,8 @@ function _searchSuccess(state, res) {
 
   return assoc(state,
     ['savedSearches', state.selectedSearch, 'isFetching'], false,
-    ['savedSearches', state.selectedSearch, 'results'], results
+    ['savedSearches', state.selectedSearch, 'results', 'rows'], results,
+    ['savedSearches', state.selectedSearch, 'results', 'total'], res.total
   );
 }
 

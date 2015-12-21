@@ -17,7 +17,6 @@ import util from 'util';
 import _ from 'lodash';
 
 @connect(state => ({
-  orders: state.orders.list,
   search: state.orders.search
 }), searchActions.actions)
 export default class Orders extends React.Component {
@@ -52,6 +51,14 @@ export default class Orders extends React.Component {
     ]
   };
 
+  get selectedSearch() {
+    return this.props.search.selectedSearch;
+  }
+
+  get orders() {
+    return this.props.search.savedSearches[this.selectedSearch].results;
+  }
+
   componentDidMount() {
     this.props.fetch('orders_search_view/_search');
   }
@@ -81,7 +88,7 @@ export default class Orders extends React.Component {
     return (
       <div className="fc-list-page">
         <div className="fc-list-page-header">
-          <SectionTitle title="Orders" subtitle={this.props.orders.total}
+          <SectionTitle title="Orders" subtitle={this.orders.total}
                         onAddClick={this.handleAddOrderClick }
                         addTitle="Order"
           />
@@ -105,7 +112,7 @@ export default class Orders extends React.Component {
         >
           <TableView
             columns={this.props.tableColumns}
-            data={this.props.orders}
+            data={this.orders}
             renderRow={renderRow}
             setState={this.props.fetch}
           />
