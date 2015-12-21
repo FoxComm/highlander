@@ -38,7 +38,7 @@ class MultiTopicConsumer(
       val records = consumer.poll(timeout)
 
       records.map { r ⇒ 
-        Console.err.print(s"Processing ${r.topic} offset ${r.offset}")
+        Console.err.println(s"Processing ${r.topic} offset ${r.offset}")
         val f = processor.process(r.offset, r.topic, r.value)
         f onSuccess { 
           //commit offset here

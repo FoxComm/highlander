@@ -19,7 +19,7 @@ abstract class AvroTransformer(implicit ec: ExecutionContext) extends JsonTransf
 object AvroTransformers {
 
   def address(name: String) =
-    name nested(
+    name nested (
       "address1" typed StringType analyzer "autocomplete",
       "address2" typed StringType analyzer "autocomplete",
       "city" typed StringType analyzer "autocomplete",
@@ -28,16 +28,16 @@ object AvroTransformers {
       "country" typed StringType analyzer "autocomplete",
       "continent" typed StringType analyzer "autocomplete",
       "currency" typed StringType analyzer "autocomplete"
-      )
+    )
 
   final case class Country()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping =
-      "countries" as(
+      "countries" as (
         "id" typed IntegerType,
         "name" typed StringType analyzer "autocomplete",
         "continent" typed StringType index "not_analyzed",
         "currency" typed StringType index "not_analyzed"
-        )
+      )
 
     def fields = List.empty
 
@@ -45,19 +45,19 @@ object AvroTransformers {
 
   final case class Region()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping =
-      "regions" as(
+      "regions" as (
         "id" typed IntegerType,
         "name" typed StringType analyzer "autocomplete",
         "continent" typed StringType index "not_analyzed",
         "currency" typed StringType index "not_analyzed"
-        )
+      )
 
     def fields = List.empty
   }
 
   final case class CustomerSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping =
-      "customers_search_view" as(
+      "customers_search_view" as (
         // Customer
         "id" typed IntegerType,
         "name" typed StringType analyzer "autocomplete",
@@ -80,14 +80,14 @@ object AvroTransformers {
           "adjustmentsTotal" typed IntegerType,
           "taxesTotal" typed IntegerType,
           "grandTotal" typed IntegerType
-          ),
+        ),
         // Purchased items
         "purchasedItemCount" typed IntegerType,
         "purchasedItems" nested(
           "sku" typed StringType analyzer "autocomplete",
           "name" typed StringType analyzer "autocomplete",
           "price" typed IntegerType
-          ),
+        ),
         // Addresses
         "shippingAddressesCount" typed IntegerType,
         address("shippingAddresses"),
@@ -102,15 +102,15 @@ object AvroTransformers {
           "sku" typed StringType analyzer "autocomplete",
           "name" typed StringType analyzer "autocomplete",
           "price" typed IntegerType
-          )
         )
+      )
 
-    def fields = List("orders", "purchasedItems", "shippingAddresses", "billingAddresses", "saveForLater")
+    def fields = List("orders", "purchased_items", "shipping_addresses", "billing_addresses", "save_for_later")
   }
 
   final case class OrderSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping = {
-      "orders_search_view" as(
+      "orders_search_view" as (
         // Order
         "id" typed IntegerType,
         "referenceNumber" typed StringType analyzer "autocomplete",
@@ -125,28 +125,28 @@ object AvroTransformers {
         "taxesTotal" typed IntegerType,
         "grandTotal" typed IntegerType,
         // Customer
-        "customer" nested(
+        "customer" nested (
           "name" typed StringType analyzer "autocomplete",
           "email" typed StringType analyzer "autocomplete",
           "isBlacklisted" typed BooleanType,
           "joinedAt" typed DateType,
           "revenue" typed IntegerType,
           "rank" typed IntegerType
-          ),
+        ),
         // Line items
         "lineItemCount" typed IntegerType,
-        "lineItems" nested(
+        "lineItems" nested (
           "status" typed StringType index "not_analyzed",
           "sku" typed StringType analyzer "autocomplete",
           "name" typed StringType analyzer "autocomplete",
           "price" typed IntegerType
-          ),
+        ),
         // Payments
-        "payments" nested(
+        "payments" nested (
           "paymentMethodType" typed StringType index "not_analyzed",
           "amount" typed IntegerType,
           "currency" typed StringType index "not_analyzed"
-          ),
+        ),
         "creditCardCount" typed IntegerType,
         "creditCardTotal" typed IntegerType,
         "giftCardCount" typed IntegerType,
@@ -155,12 +155,12 @@ object AvroTransformers {
         "storeCreditTotal" typed IntegerType,
         // Shipments
         "shipmentCount" typed IntegerType,
-        "shipments" nested(
+        "shipments" nested (
           "status" typed StringType index "not_analyzed",
           "shippingPrice" typed IntegerType,
           "adminDisplayName" typed StringType analyzer "autocomplete",
           "storefrontDisplayName" typed StringType analyzer "autocomplete"
-          ),
+        ),
         // Addresses
         "shippingAddressesCount" typed IntegerType,
         address("shippingAddresses"),
@@ -172,20 +172,20 @@ object AvroTransformers {
           "firstName" typed StringType analyzer "autocomplete",
           "lastName" typed StringType analyzer "autocomplete",
           "assignedAt" typed DateType
-          ),
+        ),
         // RMAs
         "rmaCount" typed IntegerType,
-        "rmas" nested(
+        "rmas" nested (
           "referenceNumber" typed StringType analyzer "autocomplete",
           "status" typed StringType index "not_analyzed",
           "rmaType" typed StringType index "not_analyzed",
           "placedAt" typed DateType
-          )
         )
+      )
     }
 
-    def fields = List("customer", "orders", "lineItems", "payments", "shipments", "shippingAddresses",
-      "billingAddresses", "assignees", "rmas"
+    def fields = List("customer", "orders", "line_items", "payments", "shipments", "shipping_addresses",
+      "billing_addresses", "assignees", "rmas"
     )
   }
 

@@ -88,7 +88,9 @@ object AvroJsonHelper {
         try {
           (name, parse(text))
         } catch { 
-          case NonFatal(_) ⇒ (name, JString(text))
+          case NonFatal(e) ⇒ 
+            Console.println(s"Error during parsing field $name: ${e.getMessage}")
+            (name, JString(text))
         }
       }
     }
