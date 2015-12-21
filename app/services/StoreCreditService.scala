@@ -1,5 +1,7 @@
 package services
 
+import scala.concurrent.{ExecutionContext, Future}
+
 import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
 import cats.implicits._
@@ -20,7 +22,7 @@ import utils.Slick.implicits._
 import utils.DbResultT.implicits._
 import utils.DbResultT._
 
-import scala.concurrent.{ExecutionContext, Future}
+import models.activity.ActivityContext
 
 object StoreCreditService {
   type QuerySeq = StoreCredits.QuerySeq
@@ -64,7 +66,7 @@ object StoreCreditService {
   }
 
   def createManual(admin: StoreAdmin, customerId: Int, payload: payloads.CreateManualStoreCredit)
-    (implicit db: Database, ec: ExecutionContext): Result[Root] = {
+    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[Root] = {
 
     def prepareForCreate(customerId: Int, payload: payloads.CreateManualStoreCredit):
       ResultT[(Customer, Reason, Option[StoreCreditSubtype])] = {
@@ -94,10 +96,11 @@ object StoreCreditService {
       ResultT[DBIO[Root]] = {
 
       val actions = for {
-        origin ← StoreCreditManuals.saveNew(StoreCreditManual(adminId = admin.id, reasonId = payload.reasonId,
+        origin  ← StoreCreditManuals.saveNew(StoreCreditManual(adminId = admin.id, reasonId = payload.reasonId,
           subReasonId = payload.subReasonId))
-        sc ← StoreCredits.saveNew(StoreCredit.buildAppeasement(customerId = customer.id, originId = origin.id,
+        sc      ← StoreCredits.saveNew(StoreCredit.buildAppeasement(customerId = customer.id, originId = origin.id,
           payload = payload))
+        _       ← LogActivity.scCreated(admin, customer, sc)
       } yield sc
 
       ResultT.rightAsync(actions.flatMap(sc ⇒ lift(build(sc))))
@@ -124,7 +127,7 @@ object StoreCreditService {
   }
 
   def bulkUpdateStatusByCsr(payload: payloads.StoreCreditBulkUpdateStatusByCsr, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database): Result[Seq[ItemResult]] = {
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Seq[ItemResult]] = {
 
     payload.validate match {
       case Valid(_) ⇒
@@ -144,7 +147,7 @@ object StoreCreditService {
   }
 
   def updateStatusByCsr(id: Int, payload: payloads.StoreCreditUpdateStatusByCsr, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = {
 
     def cancelOrUpdate(finder: QuerySeq, sc: StoreCredit): DbResult[Root] = (payload.status, payload.reasonId) match {
       case (Canceled, Some(reason)) ⇒
@@ -153,9 +156,11 @@ object StoreCreditService {
         DbResult.failure(EmptyCancellationReasonFailure)
       case (_, _) ⇒
         val ifNotFound = NotFoundFailure404(StoreCredit, sc.id)
-        finder.map(_.status)
-          .updateReturningHeadOption(StoreCredits.map(identity), payload.status, ifNotFound)
-          .map(_.map(StoreCreditResponse.build))
+
+        LogActivity.scUpdated(admin, sc, payload) >>
+          finder.map(_.status)
+            .updateReturningHeadOption(StoreCredits.map(identity), payload.status, ifNotFound)
+            .map(_.map(StoreCreditResponse.build))
     }
 
     payload.validate match {
@@ -174,7 +179,7 @@ object StoreCreditService {
   }
 
   private def cancelByCsr(finder: QuerySeq, sc: StoreCredit, payload: payloads.StoreCreditUpdateStatusByCsr,
-    admin: StoreAdmin)(implicit ec: ExecutionContext, db: Database): DbResult[Root] = {
+    admin: StoreAdmin)(implicit ec: ExecutionContext, db: Database, ac: ActivityContext): DbResult[Root] = {
 
     StoreCreditAdjustments.lastAuthByStoreCreditId(sc.id).one.flatMap {
       case Some(adjustment) ⇒
@@ -192,7 +197,11 @@ object StoreCreditService {
 
             val cancelAdjustment = StoreCredits.cancelByCsr(sc, admin)
 
-            cancellation.flatMap { xor ⇒ xorMapDbio(xor)(sc ⇒ cancelAdjustment >> lift(sc)) }
+            cancellation.flatMap { xor ⇒
+              xorMapDbio(xor){ root ⇒
+                LogActivity.scUpdated(admin, sc, payload) >> cancelAdjustment >> lift(root)
+              }
+            }
         }
     }
   }

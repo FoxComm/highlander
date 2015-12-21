@@ -33,8 +33,10 @@ object Customer {
             }
           } ~
           (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
-            complete {
-              AddressManager.create(payload, customer.id).map(renderGoodOrFailures)
+            activityContext(customer) { implicit ac ⇒
+              goodOrFailures {
+                AddressManager.create(payload, customer.id)
+              }
             }
           }
         } ~
@@ -59,8 +61,10 @@ object Customer {
             }
           } ~
           (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
-            goodOrFailures {
-              LineItemUpdater.updateQuantitiesOnCustomersOrder(customer, reqItems)
+            activityContext(customer) { implicit ac ⇒
+              goodOrFailures {
+                LineItemUpdater.updateQuantitiesOnCustomersOrder(customer, reqItems)
+              }
             }
           } ~
           (get & pathEnd) {

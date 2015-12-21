@@ -12,20 +12,14 @@ import models.activity.OpaqueActivity
 import org.scalatest.mock.MockitoSugar
 import payloads.AppendActivity
 import responses.ActivityConnectionResponse
-import services.{GeneralFailure, NotFoundFailure404}
-import services.activity.CustomerInfoChanged
+import services.NotFoundFailure404
+import services.activity.CustomerUpdated
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Money.Currency
 import utils.Slick.implicits._
-import utils.jdbc._
-import utils.seeds.Seeds
 import utils.seeds.Seeds.Factories
-import utils.seeds.SeedsGenerator.generateCustomer
-import utils.{Apis, CustomDirectives}
 import slick.driver.PostgresDriver.api._
-import util.SlickSupport.implicits._
 
 import org.json4s.DefaultFormats
 import org.json4s.Extraction
@@ -64,35 +58,29 @@ class ActivityTrailIntegrationTest extends IntegrationTestBase
   def connectionNotFound(id: Int): NotFoundFailure404 = NotFoundFailure404(Connection, id)
   val uriPrefix = "v1/trails"
   val customerActivity = "customer_activity"
+  val typeName = "customer_updated"
+
   "Activity Tests" - {
     "successfully creates activity after updating customer attributes" in new Fixture {
 
-      //Update email, name, and phone number
+      // Update email, name, and phone number
       val payload = payloads.UpdateCustomerPayload(name = "Crazy Larry".some, email = "crazy.lary@crazy.com".some,
         phoneNumber = "666 666 6666".some)
 
       val response = PATCH(s"v1/customers/${customer.id}", payload)
       response.status must === (StatusCodes.OK)
 
-      //Check the activity log to see if it was created
-      val activity = Activities.filterByData(
-        CustomerInfoChanged.typeName, 
-        "customerId", customer.id.toString).result.one.futureValue.value
+      // Check the activity log to see if it was created
+      val activity = Activities.filterByType(typeName).result.one.futureValue.value
 
-      //make sure the activity has all the correct information
-      activity.activityType must === (CustomerInfoChanged.typeName)
+      // Make sure the activity has all the correct information
+      activity.activityType must === (typeName)
 
-      val customerInfoChanged = activity.data.extract[CustomerInfoChanged]
-
-      customerInfoChanged.customerId must === (customer.id)
-
-      customerInfoChanged.oldInfo must === (
-        payloads.UpdateCustomerPayload(
-          name = customer.name,
-          email = Some(customer.email),
-          phoneNumber = customer.phoneNumber))
-
-      customerInfoChanged.newInfo must === (payload)
+      val customerInfoChanged = activity.data.extract[CustomerUpdated]
+      customerInfoChanged.newInfo.id must                 === (customer.id)
+      customerInfoChanged.newInfo.name.value must         === (payload.name.head)
+      customerInfoChanged.newInfo.email.value must        === (payload.email.head)
+      customerInfoChanged.newInfo.phoneNumber.value must  === (payload.phoneNumber.head)
     }
   }
 
@@ -100,8 +88,7 @@ class ActivityTrailIntegrationTest extends IntegrationTestBase
 
     "successfully append one activity to new trail" in new Fixture {
 
-      //Update email, name, and phone number. This should generate a CustomerInfoChanged 
-      //activity
+      // Update email, name, and phone number. This should generate a CustomerUpdated activity
       val payload = payloads.UpdateCustomerPayload(
         name = "Updated Name".some, 
         email = "updated.name@name.com".some,
@@ -110,31 +97,29 @@ class ActivityTrailIntegrationTest extends IntegrationTestBase
       val response = PATCH(s"v1/customers/${customer.id}", payload)
       response.status must === (StatusCodes.OK)
 
-      //Check the activity log to see if it was created
-      val activity = Activities.filterByData(
-        CustomerInfoChanged.typeName, 
-        "customerId", customer.id.toString).result.one.futureValue.value
+      // Check the activity log to see if it was created
+      val activity = Activities.filterByType(typeName).result.one.futureValue.value
 
-      //make sure the activity has all the correct information
-      activity.activityType must === (CustomerInfoChanged.typeName)
-      val customerInfoChanged = activity.data.extract[CustomerInfoChanged]
+      // Make sure the activity has all the correct information
+      activity.activityType must === (typeName)
+      val customerInfoChanged = activity.data.extract[CustomerUpdated]
 
-      //append the activity to the trail
+      // Append the activity to the trail
       val appendedConnection = appendActivity(customerActivity, customer.id, activity.id)
 
       appendedConnection.activityId must === (activity.id)
       appendedConnection.previousId must === (None)
       appendedConnection.nextId must === (None)
 
-      //make sure the dimension was created
+      // Make sure the dimension was created
       val dimension = Dimensions.findByName(customerActivity).result.one.futureValue.value
 
       dimension.name must === (customerActivity)
 
-      //make sure the trail was created
+      // Make sure the trail was created
       val trail = Trails.findById(appendedConnection.trailId).result.one.futureValue.value
 
-      //make sure things are linked up correctly
+      // Make sure things are linked up correctly
       trail.id must === (appendedConnection.trailId)
       trail.dimensionId must === (dimension.id)
       trail.tailConnectionId must === (Some(appendedConnection.id))
@@ -191,7 +176,7 @@ class ActivityTrailIntegrationTest extends IntegrationTestBase
 
   def appendActivity(dimension: String, objectId: Int, activityId: Int) = {
     val appendPayload = AppendActivity(activityId)
-    val appendResponse = POST(s"v1/trails/${dimension}/${objectId}", appendPayload)
+    val appendResponse = POST(s"v1/trails/$dimension/$objectId", appendPayload)
 
     appendResponse.status must === (StatusCodes.OK)
     appendResponse.as[ActivityConnectionResponse.Root]
@@ -211,7 +196,7 @@ class ActivityTrailIntegrationTest extends IntegrationTestBase
   }
 
   def connectionsLinked(a: Connection, b: Connection) : Boolean = {
-    a.nextId == Some(b.id) && b.previousId == (Some(a.id))
+    a.nextId.contains(b.id) && b.previousId == Some(a.id)
   }
 
   /**

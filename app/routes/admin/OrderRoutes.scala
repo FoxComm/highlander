@@ -107,47 +107,79 @@ object OrderRoutes {
           }
         } ~
         (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
-          goodOrFailures {
-            LineItemUpdater.updateQuantitiesOnOrder(refNum, reqItems)
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              LineItemUpdater.updateQuantitiesOnOrder(admin, refNum, reqItems)
+            }
           }
         } ~
         (post & path("gift-cards") & pathEnd & entity(as[AddGiftCardLineItem])) { payload ⇒
-          goodOrFailures {
-            LineItemUpdater.addGiftCard(refNum, payload)
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              LineItemUpdater.addGiftCard(admin, refNum, payload)
+            }
           }
         } ~
         (patch & path("gift-cards" / giftCardCodeRegex) & pathEnd & entity(as[AddGiftCardLineItem])) { (code, payload) ⇒
-          goodOrFailures {
-            LineItemUpdater.editGiftCard(refNum, code, payload)
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              LineItemUpdater.editGiftCard(admin, refNum, code, payload)
+            }
           }
         } ~
         (delete & path("gift-cards" / giftCardCodeRegex) & pathEnd) { code ⇒
-          goodOrFailures {
-            LineItemUpdater.deleteGiftCard(refNum, code)
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              LineItemUpdater.deleteGiftCard(admin, refNum, code)
+            }
           }
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
           ((post | patch) & pathEnd & entity(as[payloads.CreditCardPayment])) { payload ⇒
-            goodOrFailures { OrderPaymentUpdater.addCreditCard(refNum, payload.creditCardId) }
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                OrderPaymentUpdater.addCreditCard(admin, refNum, payload.creditCardId)
+              }
+            }
           } ~
           (delete & pathEnd) {
-            goodOrFailures { OrderPaymentUpdater.deleteCreditCard(refNum) }
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                OrderPaymentUpdater.deleteCreditCard(admin, refNum)
+              }
+            }
           }
         } ~
         pathPrefix("payment-methods" / "gift-cards") {
           (post & pathEnd & entity(as[payloads.GiftCardPayment])) { payload ⇒
-            goodOrFailures { OrderPaymentUpdater.addGiftCard(refNum, payload) }
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                OrderPaymentUpdater.addGiftCard(admin, refNum, payload)
+              }
+            }
           } ~
           (delete & path(GiftCard.giftCardCodeRegex) & pathEnd) { code ⇒
-            goodOrFailures { OrderPaymentUpdater.deleteGiftCard(refNum, code) }
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                OrderPaymentUpdater.deleteGiftCard(admin, refNum, code)
+              }
+            }
           }
         } ~
         pathPrefix("payment-methods" / "store-credit") {
           ((post|patch) & pathEnd & entity(as[payloads.StoreCreditPayment])) { payload ⇒
-            goodOrFailures { OrderPaymentUpdater.addStoreCredit(refNum, payload) }
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                OrderPaymentUpdater.addStoreCredit(admin, refNum, payload)
+              }
+            }
           } ~
           (delete & pathEnd) {
-            goodOrFailures { OrderPaymentUpdater.deleteStoreCredit(refNum) }
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                OrderPaymentUpdater.deleteStoreCredit(admin, refNum)
+              }
+            }
           }
         } ~
         pathPrefix("assignees") {
@@ -166,35 +198,47 @@ object OrderRoutes {
         } ~
         pathPrefix("shipping-address") {
           (post & pathEnd & entity(as[payloads.CreateAddressPayload])) { payload ⇒
-            goodOrFailures {
-              OrderShippingAddressUpdater.createShippingAddressFromPayload(payload, refNum)
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                OrderShippingAddressUpdater.createShippingAddressFromPayload(admin, payload, refNum)
+              }
             }
           } ~
           (patch & path(IntNumber) & pathEnd) { addressId ⇒
-            goodOrFailures {
-              OrderShippingAddressUpdater.createShippingAddressFromAddressId(addressId, refNum)
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                OrderShippingAddressUpdater.createShippingAddressFromAddressId(admin, addressId, refNum)
+              }
             }
           } ~
           (patch & pathEnd & entity(as[payloads.UpdateAddressPayload])) { payload ⇒
-            goodOrFailures {
-              OrderShippingAddressUpdater.updateShippingAddressFromPayload(payload, refNum)
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                OrderShippingAddressUpdater.updateShippingAddressFromPayload(admin, payload, refNum)
+              }
             }
           } ~
           (delete & pathEnd) {
-            goodOrFailures {
-              OrderShippingAddressUpdater.removeShippingAddress(refNum)
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                OrderShippingAddressUpdater.removeShippingAddress(admin, refNum)
+              }
             }
           }
         } ~
         pathPrefix("shipping-method") {
           (patch & pathEnd & entity(as[payloads.UpdateShippingMethod])) { payload ⇒
-            goodOrFailures {
-              OrderShippingMethodUpdater.updateShippingMethod(payload, refNum)
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                OrderShippingMethodUpdater.updateShippingMethod(admin, payload, refNum)
+              }
             }
           } ~
           (delete & pathEnd) {
-            goodOrFailures {
-              OrderShippingMethodUpdater.deleteShippingMethod(refNum)
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                OrderShippingMethodUpdater.deleteShippingMethod(admin, refNum)
+              }
             }
           }
         }

@@ -10,7 +10,8 @@ import cats.implicits._
 import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer}
 import models.OrderPayments.scope._
 import models.Orders.scope._
-import models.{Region, Regions, Address, Addresses, CreditCard, CreditCards, Customer, OrderPayments, Orders}
+import models.{Region, Regions, Address, Addresses, CreditCard, CreditCards, Customer, OrderPayments, Orders,
+StoreAdmin, Customers}
 import payloads.{CreateAddressPayload, CreateCreditCard, EditCreditCard}
 
 import slick.driver.PostgresDriver.api._
@@ -24,6 +25,8 @@ import utils.DbResultT.implicits._
 
 import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
+import models.activity.ActivityContext
+
 object CreditCardManager {
   private def gateway(implicit ec: ExecutionContext, apis: Apis): Stripe = Stripe()
 
@@ -35,8 +38,8 @@ object CreditCardManager {
   def buildResponses(records: Seq[(CreditCard, Region)]): Seq[Root] =
     records.map((buildResponse _).tupled)
 
-  def createCardThroughGateway(customer: Customer, payload: CreateCreditCard)
-    (implicit ec: ExecutionContext, db: Database, apis: Apis): Result[Root] = {
+  def createCardThroughGateway(admin: StoreAdmin, customer: Customer, payload: CreateCreditCard)
+    (implicit ec: ExecutionContext, db: Database, apis: Apis, ac: ActivityContext): Result[Root] = {
 
     def saveCardAndAddress(stripeCustomer: StripeCustomer, stripeCard: StripeCard, address: Address):
     ResultT[DBIO[CreditCard]] = {
@@ -93,21 +96,20 @@ object CreditCardManager {
     region  ← * <~ Regions.findOneById(cc.regionId).safeGet.toXor
   } yield buildResponse(default, region)).runT()
 
-  def deleteCreditCard(customerId: Int, id: Int)
-    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
+  def deleteCreditCard(admin: StoreAdmin, customerId: Int, id: Int)
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Unit] = {
 
-    val updateCc = CreditCards.findById(id).extract
-      .filter(_.customerId === customerId)
-      .map { cc ⇒ (cc.inWallet, cc.deletedAt) }
-      .update((false, Some(Instant.now())))
-
-    db.run(updateCc.map { rows ⇒
-      if (rows == 1) Xor.right(Unit) else Xor.left(creditCardNotFound(id))
-    })
+    (for {
+      customer  ← * <~ Customers.mustFindById(customerId)
+      cc        ← * <~ CreditCards.mustFindByIdAndCustomer(id, customerId)
+      region    ← * <~ Regions.findOneById(cc.regionId).safeGet.toXor
+      update    ← * <~ CreditCards.update(cc, cc.copy(inWallet = false, deletedAt = Some(Instant.now())))
+      _         ← * <~ LogActivity.ccDeleted(admin, customer, cc, region)
+    } yield ()).runT()
   }
 
-  def editCreditCard(customerId: Int, id: Int, payload: EditCreditCard)
-    (implicit ec: ExecutionContext, db: Database, apis: Apis): Result[Root] = {
+  def editCreditCard(admin: StoreAdmin, customerId: Int, id: Int, payload: EditCreditCard)
+    (implicit ec: ExecutionContext, db: Database, apis: Apis, ac: ActivityContext): Result[Root] = {
 
     def update(cc: CreditCard): ResultT[DBIO[CreditCard]] = {
       if (!cc.inWallet)
@@ -165,11 +167,11 @@ object CreditCardManager {
     }
 
     val transformer: ResultT[DBIO[CreditCard]] = for {
-      _       ← ResultT.fromXor(payload.validate.toXor)
-      cc      ← getCardAndAddressChange
-      updated ← update(cc)
-      withAddress ← createNewAddressIfProvided(updated)
-      payment ← cascadeChangesToCarts(withAddress)
+      _             ← ResultT.fromXor(payload.validate.toXor)
+      cc            ← getCardAndAddressChange
+      updated       ← update(cc)
+      withAddress   ← createNewAddressIfProvided(updated)
+      payment       ← cascadeChangesToCarts(withAddress)
     } yield payment
 
     transformer.value.flatMap { res ⇒

@@ -4,6 +4,7 @@ import akka.http.scaladsl.model.StatusCodes
 
 
 import models.Order._
+import models.activity.ActivityContext
 import models.{StoreCreditManual, GiftCardManual, CreditCards, CreditCard, Addresses, Order, Orders, StoreCredits,
 StoreCredit, StoreCreditManuals, OrderPayments, OrderPayment, Customers, GiftCards, GiftCard, GiftCardManuals,
 StoreAdmins, Reasons, PaymentMethod}
@@ -276,7 +277,8 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
       "fails if the creditCard is inActive" in new CreditCardFixture {
         val payload = payloads.CreditCardPayment(creditCard.id)
-        CreditCardManager.deleteCreditCard(customerId = customer.id, id = creditCard.id).futureValue
+        implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
+        CreditCardManager.deleteCreditCard(admin = admin, customerId = customer.id, id = creditCard.id).futureValue
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
 
         response.status must ===(StatusCodes.BadRequest)

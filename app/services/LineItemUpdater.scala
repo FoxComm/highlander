@@ -1,8 +1,11 @@
 package services
 
+import scala.concurrent.ExecutionContext
+
 import models.OrderLineItems.scope._
 import models.{Customer, GiftCard, GiftCardOrder, GiftCardOrders, GiftCards, Order, OrderLineItem,
-OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, Orders, Sku, Skus}
+OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, Orders, Sku, Skus,
+StoreAdmin}
 import payloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
 import responses.FullOrder.refreshAndFullOrder
 import responses.{FullOrder, TheResponse}
@@ -13,11 +16,11 @@ import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
 
-import scala.concurrent.ExecutionContext
+import models.activity.ActivityContext
 
 object LineItemUpdater {
-  def addGiftCard(refNum: String, payload: AddGiftCardLineItem)
-    (implicit ec: ExecutionContext, db: Database): Result[TheResponse[FullOrder.Root]] = (for {
+  def addGiftCard(admin: StoreAdmin, refNum: String, payload: AddGiftCardLineItem)
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
     p      ← * <~ payload.validate
     order  ← * <~ Orders.mustFindByRefNum(refNum)
     _      ← * <~ order.mustBeCart
@@ -29,10 +32,11 @@ object LineItemUpdater {
     order  ← * <~ OrderTotaler.saveTotals(order)
     valid  ← * <~ CartValidator(order).validate
     result ← * <~ refreshAndFullOrder(order).toXor
+    _      ← * <~ LogActivity.orderLineItemsAddedGc(admin, result, gc)
   } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runT()
 
-  def editGiftCard(refNum: String, code: String, payload: AddGiftCardLineItem)
-    (implicit ec: ExecutionContext, db: Database): Result[TheResponse[FullOrder.Root]] = (for {
+  def editGiftCard(admin: StoreAdmin, refNum: String, code: String, payload: AddGiftCardLineItem)
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
     _        ← * <~ payload.validate
     giftCard ← * <~ GiftCards.mustFindByCode(code)
     _        ← * <~ giftCard.mustBeCart
@@ -40,13 +44,14 @@ object LineItemUpdater {
     _        ← * <~ order.mustBeCart
     _        ← * <~ GiftCards.filter(_.id === giftCard.id).update(GiftCard.update(giftCard, payload))
     // update changed totals
-    order  ← * <~ OrderTotaler.saveTotals(order)
+    order    ← * <~ OrderTotaler.saveTotals(order)
     valid    ← * <~ CartValidator(order).validate
     result   ← * <~ refreshAndFullOrder(order).toXor
+    _        ← * <~ LogActivity.orderLineItemsUpdatedGc(admin, result, giftCard)
   } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runT()
 
-  def deleteGiftCard(refNum: String, code: String)
-    (implicit ec: ExecutionContext, db: Database): Result[TheResponse[FullOrder.Root]] = (for {
+  def deleteGiftCard(admin: StoreAdmin, refNum: String, code: String)
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
     gc    ← * <~ GiftCards.mustFindByCode(code)
     _     ← * <~ gc.mustBeCart
     order ← * <~ Orders.mustFindByRefNum(refNum)
@@ -59,10 +64,11 @@ object LineItemUpdater {
     order ← * <~ OrderTotaler.saveTotals(order)
     valid ← * <~ CartValidator(order).validate
     res   ← * <~ refreshAndFullOrder(order).toXor
+    _     ← * <~ LogActivity.orderLineItemsDeletedGc(admin, res, gc)
   } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runT()
 
-  def updateQuantitiesOnOrder(refNum: String, payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: ExecutionContext, db: Database): Result[TheResponse[FullOrder.Root]] = (for {
+  def updateQuantitiesOnOrder(admin: StoreAdmin, refNum: String, payload: Seq[UpdateLineItemsPayload])
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
     order ← * <~ Orders.mustFindByRefNum(refNum)
     _     ← * <~ order.mustBeCart
     _     ← * <~ updateQuantities(order, payload)
@@ -70,10 +76,11 @@ object LineItemUpdater {
     order ← * <~ OrderTotaler.saveTotals(order)
     valid ← * <~ CartValidator(order).validate
     res   ← * <~ refreshAndFullOrder(order).toXor
+    _     ← * <~ LogActivity.orderLineItemsUpdated(admin, res, payload)
   } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runT()
 
   def updateQuantitiesOnCustomersOrder(customer: Customer, payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: ExecutionContext, db: Database): Result[TheResponse[FullOrder.Root]] = {
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = {
     def failure = NotFoundFailure404(s"Order with customerId=${customer.id} not found")
     (for {
       order ← * <~ Orders.findActiveOrderByCustomer(customer).one.mustFindOr(failure)
@@ -83,6 +90,7 @@ object LineItemUpdater {
       order ← * <~ OrderTotaler.saveTotals(order)
       valid ← * <~ CartValidator(order).validate
       res   ← * <~ refreshAndFullOrder(order).toXor
+      _     ← * <~ LogActivity.orderLineItemsUpdatedByCustomer(customer, res, payload)
     } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runT()
   }
 

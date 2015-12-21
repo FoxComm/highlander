@@ -13,6 +13,7 @@ import org.json4s.JsonDSL._
 
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
+import utils.Slick.DbResult
 import utils.Slick.implicits._
 
 import utils.ExPostgresDriver.api._
@@ -38,7 +39,7 @@ final case class ActivityContext(
 
 object ActivityContext {
 
-  //Convert context to json and back again
+  // Convert context to json and back again
   implicit val ActivityContextColumn: JdbcType[ActivityContext] with BaseTypedType[ActivityContext] = {
     implicit val formats = JsonFormatters.phoenixFormats
     MappedColumnType.base[ActivityContext, JValue](
@@ -71,33 +72,28 @@ class Activities(tag: Tag) extends GenericTable.TableWithId[Activity](tag, "acti
   def context = column[ActivityContext]("context")
   def createdAt = column[Instant]("created_at")
 
-  def * = (
-    id, 
-    activityType, 
-    data, 
-    context, 
-    createdAt) <> ((Activity.apply _).tupled, Activity.unapply)
+  def * = (id, activityType, data, context, createdAt) <> ((Activity.apply _).tupled, Activity.unapply)
 
 }
 
-//Any specific activity can have an implicit converion function to the opaque activity
-//Opaque here means the scala type system cannot see the activity
+// Any specific activity can have an implicit converion function to the opaque activity
+// Opaque here means the scala type system cannot see the activity
 final case class OpaqueActivity(activityType: ActivityType, data: Json)
 
 object Activities extends TableQueryWithId[Activity, Activities](
   idLens = GenLens[Activity](_.id))(new Activities(_)) {
 
-  implicit val formats: DefaultFormats.type = DefaultFormats
+  implicit val formats = JsonFormatters.phoenixFormats
 
-    def log(a: OpaqueActivity)(implicit context: ActivityContext, ec: ExecutionContext) = {
-      create(Activity(
-        activityType = a.activityType,
-        data = a.data,
-        context = context))
-    }
-
-    def filterByType(activityType: ActivityType) : QuerySeq = filter(_.activityType === activityType)
-    def filterByData(key: String, value: String ) : QuerySeq = filter(_.data+>>(key) === value)
-    def filterByData(activityType: ActivityType, key: String, value: String ) : QuerySeq = 
-      filter(_.activityType === activityType).filter(_.data+>>(key) === value)
+  def log(a: OpaqueActivity)(implicit context: ActivityContext, ec: ExecutionContext): DbResult[Activity] = {
+    create(Activity(
+      activityType = a.activityType,
+      data = a.data,
+      context = context))
   }
+
+  def filterByType(activityType: ActivityType): QuerySeq = filter(_.activityType === activityType)
+  def filterByData(key: String, value: String): QuerySeq = filter(_.data+>>(key) === value)
+  def filterByData(activityType: ActivityType, key: String, value: String) : QuerySeq =
+    filter(_.activityType === activityType).filter(_.data+>>(key) === value)
+}

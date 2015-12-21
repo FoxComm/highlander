@@ -11,7 +11,7 @@ import slick.driver.PostgresDriver.api._
 import utils.Http._
 import utils.Slick.implicits.ResultWithMetadata
 
-import models.StoreAdmin
+import models.{Customer, StoreAdmin}
 import models.activity.ActivityContext
 
 object CustomDirectives {
@@ -36,13 +36,30 @@ object CustomDirectives {
 
   val EmptySortAndPage: SortAndPage = SortAndPage(None, None, None)
 
-  def activityContext(admin : StoreAdmin) : Directive1[ActivityContext] = {
+  def activityContext(admin: StoreAdmin) : Directive1[ActivityContext] = {
     optionalHeaderValueByName("x-request-id").map {
       case (Some(uuid)) ⇒  
-        ActivityContext(userId = admin.id, userType="admin", transactionId=uuid)
-      case (None) ⇒  
-        //TODO Generate uuid here
-        ActivityContext(userId = admin.id, userType="admin", transactionId="") 
+        ActivityContext(userId = admin.id, userType = "admin", transactionId = uuid)
+      case (None) ⇒
+        ActivityContext(userId = admin.id, userType = "admin", transactionId = generateUuid)
+    }
+  }
+
+  def activityContext(customer: Customer) : Directive1[ActivityContext] = {
+    optionalHeaderValueByName("x-request-id").map {
+      case (Some(uuid)) ⇒
+        ActivityContext(userId = customer.id, userType = "customer", transactionId = uuid)
+      case (None) ⇒
+        ActivityContext(userId = customer.id, userType = "customer", transactionId = generateUuid)
+    }
+  }
+
+  def activityContext() : Directive1[ActivityContext] = {
+    optionalHeaderValueByName("x-request-id").map {
+      case (Some(uuid)) ⇒
+        ActivityContext(userId = 0, userType = "guest", transactionId = uuid)
+      case (None) ⇒
+        ActivityContext(userId = 0, userType = "guest", transactionId = generateUuid)
     }
   }
 
