@@ -3,10 +3,10 @@ package responses
 import java.time.Instant
 
 import cats.implicits._
-import models.{OrderLockEvents, Adjustment, CreditCard, CreditCardCharge, CreditCards, Customer, Customers, GiftCard,
-Order, OrderAssignment, OrderAssignments, OrderLineItem, OrderLineItemGiftCard, OrderLineItemGiftCards,
-OrderLineItemSkus, OrderPayment, OrderPayments, Orders, PaymentMethod, Region, ShippingMethod, Sku, StoreAdmin,
-StoreAdmins, StoreCredit}
+import models.{OrderWatcher, OrderWatchers, OrderLockEvents, Adjustment, CreditCard, CreditCardCharge, CreditCards,
+Customer, Customers, GiftCard, Order, OrderAssignment, OrderAssignments, OrderLineItem, OrderLineItemGiftCard,
+OrderLineItemGiftCards, OrderLineItemSkus, OrderPayment, OrderPayments, Orders, PaymentMethod, Region,
+ShippingMethod, Sku, StoreAdmin, StoreAdmins, StoreCredit}
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
@@ -42,6 +42,7 @@ object FullOrder {
     shippingMethod: Option[ShippingMethods.Root] = None,
     shippingAddress: Option[Addresses.Root] = None,
     assignees: Seq[AssignmentResponse.Root] = Seq.empty,
+    watchers: Seq[WatcherResponse.Root] = Seq.empty,
     remorsePeriodEnd: Option[Instant] = None,
     paymentMethods: Seq[Payments] = Seq.empty,
     lockedBy: Option[StoreAdmin]) extends ResponseItem
@@ -75,15 +76,16 @@ object FullOrder {
 
   def fromOrder(order: Order)(implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
     fetchOrderDetails(order).map {
-      case (customer, skus, shipMethod, shipAddress, ccPmt, gcPmts, scPmts, assignees, giftCards, totals, lockedBy) ⇒
+      case (customer, skus, shipMethod, shipAddress, ccPmt, gcPmts, scPmts, assignees, gcs, totals, lockedBy, watchers) ⇒
       build(
         order = order,
         customer = customer,
         skus = skus,
-        giftCards = giftCards,
+        giftCards = gcs,
         shippingAddress = shipAddress.toOption,
         shippingMethod = shipMethod,
         assignments = assignees,
+        watchers = watchers,
         ccPmt = ccPmt,
         gcPmts = gcPmts,
         scPmts = scPmts,
@@ -101,7 +103,8 @@ object FullOrder {
     assignments: Seq[(OrderAssignment, StoreAdmin)] = Seq.empty,
     giftCards: Seq[(GiftCard, OrderLineItemGiftCard)] = Seq.empty,
     totals: Option[Totals] = None,
-    lockedBy: Option[StoreAdmin] = None): Root = {
+    lockedBy: Option[StoreAdmin] = None,
+    watchers: Seq[(OrderWatcher, StoreAdmin)] = Seq.empty): Root = {
 
     val creditCardPmt = ccPmt.map { case (pmt, cc, region) ⇒
       val payment = Payments.CreditCardPayment(id = cc.id, customerId = cc.customerId, holderName = cc.holderName,
@@ -142,6 +145,7 @@ object FullOrder {
       totals = totals.getOrElse(Totals.empty),
       shippingMethod = shippingMethod.map(ShippingMethods.build(_)),
       assignees = assignments.map((AssignmentResponse.build _).tupled),
+      watchers = watchers.map((WatcherResponse.build _).tupled),
       remorsePeriodEnd = order.getRemorsePeriodEnd,
       paymentMethods = paymentMethods,
       lockedBy = none
@@ -177,18 +181,20 @@ object FullOrder {
     } yield (payment, creditCard, region)//, creditCardCharge)
 
     for {
-      customer ← Customers.findById(order.customerId).extract.one
-      lineItems ← OrderLineItemSkus.findLineItemsByOrder(order).sortBy(_._1.sku).result
-      giftCards ← OrderLineItemGiftCards.findLineItemsByOrder(order).result
-      shipMethod ← shippingMethodQ.one
+      customer    ← Customers.findById(order.customerId).extract.one
+      lineItems   ← OrderLineItemSkus.findLineItemsByOrder(order).sortBy(_._1.sku).result
+      giftCards   ← OrderLineItemGiftCards.findLineItemsByOrder(order).result
+      shipMethod  ← shippingMethodQ.one
       shipAddress ← Addresses.forOrderId(order.id)
-      payments ← ccPaymentQ.one
-      gcPayments ← OrderPayments.findAllGiftCardsByOrderId(order.id).result
-      scPayments ← OrderPayments.findAllStoreCreditsByOrderId(order.id).result
+      payments    ← ccPaymentQ.one
+      gcPayments  ← OrderPayments.findAllGiftCardsByOrderId(order.id).result
+      scPayments  ← OrderPayments.findAllStoreCreditsByOrderId(order.id).result
       assignments ← OrderAssignments.filter(_.orderId === order.id).result
-      admins ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result
-      lockedBy ← currentLock(order)
+      admins      ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result
+      watchlist   ← OrderWatchers.filter(_.orderId === order.id).result
+      watchers    ← StoreAdmins.filter(_.id.inSetBind(watchlist.map(_.watcherId))).result
+      lockedBy    ← currentLock(order)
     } yield (customer, lineItems, shipMethod, shipAddress, payments, gcPayments, scPayments, assignments.zip(admins),
-      giftCards, Some(totals(order)), lockedBy)
+      giftCards, Some(totals(order)), lockedBy, watchlist.zip(watchers))
   }
 }

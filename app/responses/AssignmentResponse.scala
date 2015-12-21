@@ -8,14 +8,12 @@ object AssignmentResponse {
 
   final case class Root(
     assignee: StoreAdminResponse.Root,
-    assignedAt: Instant
-    ) extends ResponseItem
+    createdAt: Instant
+  ) extends ResponseItem
 
-  def build(assignment: OrderAssignment, admin: StoreAdmin): Root = {
-    Root(StoreAdminResponse.build(admin), assignment.assignedAt)
-  }
+  def build(assignment: OrderAssignment, admin: StoreAdmin): Root =
+    Root(StoreAdminResponse.build(admin), assignment.createdAt)
 
-  def buildForRma(assignment: RmaAssignment, admin: StoreAdmin): Root = {
-    Root(StoreAdminResponse.build(admin), assignment.assignedAt)
-  }
+  def buildForRma(assignment: RmaAssignment, admin: StoreAdmin): Root =
+    Root(StoreAdminResponse.build(admin), assignment.createdAt)
 }

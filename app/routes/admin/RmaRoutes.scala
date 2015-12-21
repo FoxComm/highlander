@@ -49,7 +49,7 @@ object RmaRoutes {
           (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
             entity(as[RmaBulkAssigneesPayload]) { payload ⇒
               goodOrFailures {
-                RmaAssignmentUpdater.assign(payload)
+                RmaAssignmentUpdater.assignBulk(payload)
               }
             }
           } ~

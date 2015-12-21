@@ -2,13 +2,11 @@ package services.orders
 
 import scala.concurrent.ExecutionContext
 
-import cats.data.Xor
 import models.Order.{Canceled, _}
 import models.{Order, OrderLineItem, OrderLineItems, Orders}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import responses.{FullOrder, ResponseWithFailuresAndMetadata}
 import services.{Result, StatusTransitionNotAllowed, NotFoundFailure400, LockedFailure, Failures}
-import services.orders.Helpers._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
@@ -22,9 +20,9 @@ object OrderStatusUpdater {
   def updateStatus(refNum: String, newStatus: Order.Status)
     (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = (for {
 
-    order     ← * <~ mustFindOrderByRefNum(refNum)
+    order     ← * <~ Orders.mustFindByRefNum(refNum)
     _         ← * <~ updateStatusesDbio(Seq(refNum), newStatus)
-    updated   ← * <~ mustFindOrderByRefNum(refNum)
+    updated   ← * <~ Orders.mustFindByRefNum(refNum)
     response  ← * <~ FullOrder.fromOrder(updated).toXor
   } yield response).runT()
 

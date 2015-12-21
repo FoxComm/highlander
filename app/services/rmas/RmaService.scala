@@ -29,7 +29,7 @@ object RmaService {
   def updateStatusByCsr(refNum: String, payload: RmaUpdateStatusPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
     _         ← * <~ payload.validate.toXor
-    rma       ← * <~ mustFindRmaByRefNum(refNum)
+    rma       ← * <~ Rmas.mustFindByRefNum(refNum)
     reason    ← * <~ payload.reasonId.map(Reasons.findOneById).getOrElse(lift(None)).toXor
     _         ← * <~ cancelOrUpdate(rma, reason, payload)
     response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor

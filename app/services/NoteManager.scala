@@ -7,7 +7,6 @@ import models.Notes.scope._
 import models.{Customers, GiftCards, Note, Notes, Orders, Rmas, StoreAdmin, javaTimeSlickMapper}
 import responses.AdminNotes
 import responses.AdminNotes.Root
-import services.orders.Helpers._
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -22,7 +21,7 @@ object NoteManager {
   def createOrderNote(refNum: String, author: StoreAdmin, payload: payloads.CreateNote)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
 
-    order ← * <~ mustFindOrderByRefNum(refNum)
+    order ← * <~ Orders.mustFindByRefNum(refNum)
     note  ← * <~ Notes.create(Note.forOrder(order.id, author.id, payload))
   } yield AdminNotes.build(note, author)).runT()
 

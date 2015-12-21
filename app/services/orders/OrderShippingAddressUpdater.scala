@@ -1,11 +1,10 @@
 package services.orders
 
 import models.Addresses.scope._
-import models.{Address, Addresses, Order, OrderShippingAddress, OrderShippingAddresses, Region}
+import models.{Address, Addresses, Order, Orders, OrderShippingAddress, OrderShippingAddresses, Region}
 import payloads.{CreateAddressPayload, UpdateAddressPayload}
 import responses.{FullOrder, TheResponse}
 import services.CartFailures.NoShipAddress
-import services.orders.Helpers._
 import services.{CartValidator, NotFoundFailure404, Result}
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
@@ -29,7 +28,7 @@ object OrderShippingAddressUpdater {
   def createShippingAddressFromAddressId(addressId: Int, refNum: String)
     (implicit db: Database, ec: ExecutionContext): Result[TheResponse[FullOrder.Root]] = (for {
 
-    order         ← * <~ mustFindOrderByRefNum(refNum)
+    order         ← * <~ Orders.mustFindByRefNum(refNum)
     _             ← * <~ order.mustBeCart
     addAndReg     ← * <~ mustFindAddressWithRegion(addressId)
     _             ← * <~ OrderShippingAddresses.findByOrderId(order.id).delete
@@ -42,7 +41,7 @@ object OrderShippingAddressUpdater {
   def createShippingAddressFromPayload(payload: CreateAddressPayload, refNum: String)
     (implicit db: Database, ec: ExecutionContext): Result[TheResponse[FullOrder.Root]] = (for {
 
-    order       ← * <~ mustFindOrderByRefNum(refNum)
+    order       ← * <~ Orders.mustFindByRefNum(refNum)
     _           ← * <~ order.mustBeCart
     newAddress  ← * <~ Addresses.create(Address.fromPayload(payload).copy(customerId = order.customerId))
     _           ← * <~ OrderShippingAddresses.findByOrderId(order.id).delete
@@ -54,7 +53,7 @@ object OrderShippingAddressUpdater {
   def updateShippingAddressFromPayload(payload: UpdateAddressPayload, refNum: String)
     (implicit db: Database, ec: ExecutionContext): Result[TheResponse[FullOrder.Root]] = (for {
 
-    order       ← * <~ mustFindOrderByRefNum(refNum)
+    order       ← * <~ Orders.mustFindByRefNum(refNum)
     _           ← * <~ order.mustBeCart
     shipAddress ← * <~ mustFindShipAddressForOrder(order)
     patch       =      OrderShippingAddress.fromPatchPayload(shipAddress, payload)
@@ -66,7 +65,7 @@ object OrderShippingAddressUpdater {
   def removeShippingAddress(refNum: String)
     (implicit db: Database, ec: ExecutionContext): Result[TheResponse[FullOrder.Root]] = (for {
 
-    order     ← * <~ mustFindOrderByRefNum(refNum)
+    order     ← * <~ Orders.mustFindByRefNum(refNum)
     _         ← * <~ order.mustBeCart
     response  ← * <~ OrderShippingAddresses.findByOrderId(order.id).deleteAll(
                         onSuccess = FullOrder.refreshAndFullOrder(order).toXor,

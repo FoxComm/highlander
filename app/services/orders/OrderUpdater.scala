@@ -3,7 +3,6 @@ package services.orders
 import models.Orders
 import responses.FullOrder
 import services.Result
-import services.orders.Helpers._
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -17,7 +16,7 @@ object OrderUpdater {
   def increaseRemorsePeriod(refNum: String)
     (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = (for {
 
-    order     ← * <~ mustFindOrderByRefNum(refNum)
+    order     ← * <~ Orders.mustFindByRefNum(refNum)
     isRemorse ← * <~ order.mustBeRemorseHold
     updated   ← * <~ Orders.update(order, order.copy(remorsePeriodEnd = order.remorsePeriodEnd.map(_.plusMinutes(15))))
     response  ← * <~ FullOrder.fromOrder(updated).toXor
