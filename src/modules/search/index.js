@@ -10,20 +10,20 @@
 
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
-import { assoc } from 'sprout-data';
-import { post } from '../lib/search';
+import { assoc, get } from 'sprout-data';
+import { post } from '../../lib/search';
 
 export const searchRequest = createAction('SEARCH_REQUEST');
 export const searchSuccess = createAction('SEARCH_SUCCESS');
 export const searchFailure = createAction('SEARCH_FAILURE');
 
-export function fetch(url) {
+export function fetchSearch(url) {
   return dispatch => {
     dispatch(searchRequest());
     return post(url)
       .then(
         res => dispatch(searchSuccess(res)),
-        err => dispatch(searchFailure(err, fetch))
+        err => dispatch(searchFailure(err, fetchSearch))
       );
   };
 }
@@ -38,9 +38,14 @@ const reducer = createReducer({
     return assoc(state, 'isFetching', true);
   },
   [searchSuccess]: (state, res) => {
+    const hits = get(res, 'hits', []);
+    const results = _.map(hits, hit => {
+      return get(hit, '_source', {});
+    });
+
     return assoc(state,
       'isFetching', false,
-      'results', res
+      'results', results
     );
   },
   [searchFailure]: (state, [err, source]) => {

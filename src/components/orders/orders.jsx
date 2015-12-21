@@ -59,7 +59,8 @@ export default class Orders extends React.Component {
   };
 
   componentDidMount() {
-    this.props.fetch(this.props.orders);
+    // this.props.fetch(this.props.orders);
+    this.props.fetchSearch('orders_search_view/_search');
   }
 
   handleAddOrderClick() {

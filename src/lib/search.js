@@ -21,7 +21,7 @@ function request(method, uri, data) {
   uri = searchURI(uri);
 
   const headers = {};
-  const token = localstorage.getItem('token');
+  const token = localStorage.getItem('token');
 
   headers['Content-Type'] = 'application/json;charset=UTF-8';
   if (token) {
@@ -52,7 +52,7 @@ function request(method, uri, data) {
 
       return response;
     })
-    .then(response => response.Text())
+    .then(response => response.text())
     .then(responseText => {
       const json = responseText ? JSON.parse(responseText) : null;
 
