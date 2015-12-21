@@ -6,7 +6,7 @@ select distinct on (s.id)
     s.first_name as first_name,
     s.last_name as last_name,
     s.department as department,
-    to_char(s.created_at, 'YYYY-MM-dd') as created_at,
+    to_char(s.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
     -- Assignments
     a.count as assignments_count,
     a.assignments as assignments
