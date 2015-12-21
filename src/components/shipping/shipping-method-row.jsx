@@ -6,11 +6,6 @@ import RadioButton from '../forms/radio-button';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
 
-const columns = [
-  { field: 'name', text: 'Method' },
-  { field: 'price', text: 'Price', type: 'currency' }
-];
-
 const editBlock = (shippingMethod, isEditingPrice, editPriceAction, cancelPriceAction, submitPriceAction) => {
   if (shippingMethod.isSelected && isEditingPrice) {
     return (

@@ -1,18 +1,13 @@
 import React, { PropTypes } from 'react';
-import Link from '../link/link';
-import { DateTime } from '../common/datetime';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import TableView from '../table/tableview';
-import TableRow from '../table/row';
-import TableCell from '../table/cell';
 import SectionTitle from '../section-title/section-title';
 import { connect } from 'react-redux';
 import * as searchActions from '../../modules/orders/search';
 import LocalNav from '../local-nav/local-nav';
-import Currency from '../common/currency';
-import Status from '../common/status';
 import LiveSearch from '../live-search/live-search';
+import OrderRow from './order-row';
 import util from 'util';
 import _ from 'lodash';
 
@@ -42,12 +37,11 @@ export default class Orders extends React.Component {
     tableColumns: [
       {field: 'referenceNumber', text: 'Order ID', type: 'id', model: 'order'},
       {field: 'placedAt', text: 'Date/Time Placed', type: 'date'},
-      {field: 'name', text: 'Name'},
-      {field: 'email', text: 'Email'},
-      {field: 'orderStatus', text: 'Order State', type: 'status', model: 'order'},
-      {field: 'paymentStatus', text: 'Payment State', type: 'status', model: 'payment'},
-      {field: 'shippingStatus', text: 'Shipment State', type: 'status', model: 'shipment'},
-      {field: 'total', text: 'Total', type: 'currency'}
+      {field: 'customer.name', text: 'Name'},
+      {field: 'customer.email', text: 'Email'},
+      {field: 'status', text: 'Order State', type: 'status', model: 'order'},
+      {field: 'shipping.status', text: 'Shipment State', type: 'status', model: 'shipment'},
+      {field: 'grandTotal', text: 'Total', type: 'currency'}
     ]
   };
 
@@ -68,22 +62,7 @@ export default class Orders extends React.Component {
   }
 
   render() {
-    const renderRow = (row, index) => (
-      <TableRow key={`${index}`}>
-        <TableCell>
-          <Link to={'order'} params={{order: row.referenceNumber}}>
-            {row.referenceNumber}
-          </Link>
-        </TableCell>
-        <TableCell><DateTime value={row.placedAt}/></TableCell>
-        <TableCell>{row.name}</TableCell>
-        <TableCell>{row.email}</TableCell>
-        <TableCell><Status value={row.orderStatus} model={"order"}/></TableCell>
-        <TableCell><Status value={row.paymentStatus} model={"payment"}/></TableCell>
-        <TableCell><Status value={row.shippingStatus} model={"shipment"}/></TableCell>
-        <TableCell><Currency value={row.total}/></TableCell>
-      </TableRow>
-    );
+    const renderRow = (row, index) => <OrderRow order={row} columns={this.props.tableColumns} />;
 
     return (
       <div className="fc-list-page">
