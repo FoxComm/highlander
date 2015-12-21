@@ -1,47 +1,60 @@
 .fc-tab-list {
+  display: flex;
+
+  &__current-tabs {
+    display: flex;
+  }
+
+  &__buffer {
+    border-bottom: 1px solid @color-decor9;
+    flex-grow: 1;
+  }
+
   .fc-tab {
-    display: inline-block;
+    .font-spec(14px);
+    align-items: center;
     background-color: @color-decor11;
-    .padding(0px 20px);
+    border-radius: pxtorem(6px) pxtorem(6px) 0 0;
+    border-bottom: 1px solid @color-decor9;
     border-right: 1px solid @color-decor9;
     border-top: 1px solid @color-decor9;
-    .line-height(56px);
-    border-radius: pxtorem(6px) pxtorem(6px) 0 0;
-    border-bottom-width: 0;
-    position: relative;
-    .font-spec(14px);
     box-shadow: inset pxtorem(3px) 0 pxtorem(3px) 0px @color-white;
+    display: flex;
+    height: 58px;
+    line-height: 14px;
+    padding-left: 20px;
 
-    &-draggable {
-      .padding(0px 20px 0px 10px);
+    &__icon {
+      .font-spec(18px);
+      color: @color-decor8;
+      margin-left: -5px;
+      margin-right: 3px;
     }
 
-    &-icon {
-      .font-spec(18px);
-      .margin(0px 3px 0px -7px);
-      color: @color-decor8;
+    &._draggable {
+      padding-left: 10px;
+    }
+
+    &._editing {
+      padding: 10px;
+    }
+
+    &._selected {
+      background: @color-white;
+      border-bottom: none;
+      color: @color-decor1;
+      font-weight: 600;
+
       &:hover {
-        cursor: grab;
+        background: @color-white;
+        cursor: default;
       }
     }
 
-    &-selected {
-      background-color: @color-white;
-      color: @color-decor1;
-      font-weight: 600;
-      margin-bottom: pxtorem(-1px);
-      padding-bottom: pxtorem(1px);
-      border-bottom: 1px solid @color-white;
-    }
 
     &:hover {
       background-color: @color-decor35;
       cursor: pointer;
     }
   }
-}
-
-.fc-tab-view-content {
-  .padding(20px);
-  background: @color-white;
 }

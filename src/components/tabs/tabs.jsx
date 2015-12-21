@@ -8,13 +8,16 @@ export default class TabListView extends React.Component {
 
   render() {
     return (
-      <ul className="fc-tab-list">
-        {React.Children.map(this.props.children, (child, idx) => {
-          return React.cloneElement(child, {
-              key: `tab-${idx}`
-          });
-        })}
-      </ul>
+      <div className="fc-tab-list">
+        <ul className="fc-tab-list__current-tabs">
+          {React.Children.map(this.props.children, (child, idx) => {
+            return React.cloneElement(child, {
+                key: `tab-${idx}`
+            });
+          })}
+        </ul>
+        <div className="fc-tab-list__buffer"></div>
+      </div>
     );
   }
 }

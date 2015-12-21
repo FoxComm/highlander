@@ -8,6 +8,13 @@ import Menu from '../menu/menu';
 import MenuItem from '../menu/menu-item';
 import PilledInput from '../pilled-search/pilled-input';
 import SearchOption from './search-option';
+import TabListView from '../tabs/tabs';
+import EditableTabView from '../tabs/editable-tab';
+
+function currentSearch(props) {
+  return _.get(props, ['searches', 'savedSearches', props.searches.selectedSearch], []);
+}
+
 
 /**
  * LiveSearch is a search bar dynamic faceted search that exists on most of the
@@ -18,22 +25,44 @@ export default class LiveSearch extends React.Component {
   constructor(props, context) {
     super(props, context);
 
+    const search = _.defaults(currentSearch(props), {searchValue: "", currentOptions: [], searches: []});
+    const {searchValue, currentOptions, searches: pills} = search;
+
     this.state = {
+      isFocused: false,
       optionsVisible: false,
-      pills: props.state.searches,
-      searchDisplay: props.state.searchValue,
-      searchOptions: props.state.currentOptions,
-      searchValue: props.state.searchValue,
+      pills: pills,
+      searchDisplay: searchValue,
+      searchOptions: searchOptions,
+      searchValue: searchValue,
       selectionIndex: -1
     };
   }
 
   static propTypes = {
+    children: PropTypes.node,
+    cloneSearch: PropTypes.func.isRequired,
     deleteSearchFilter: PropTypes.func.isRequired,
+    editSearchNameCancel: PropTypes.func,
+    editSearchNameComplete: PropTypes.func,
     goBack: PropTypes.func.isRequired,
+    saveSearch: PropTypes.func,
+    selectSavedSearch: PropTypes.func.isRequired,
     submitFilter: PropTypes.func.isRequired,
-    state: PropTypes.object.isRequired
+    search: PropTypes.object.isRequired
   };
+
+  get currentSearch() {
+    return _.get(this.props, ['searches', 'savedSearches', this.props.searches.selectedSearch], []);
+  };
+
+  get isDirty() {
+    return this.currentSearch.isDirty;
+  }
+
+  get isEditingName() {
+    return this.currentSearch.isEditingName;
+  }
 
   get searchOptions() {
     const selectedIdx = this.state.selectionIndex;
@@ -71,6 +100,56 @@ export default class LiveSearch extends React.Component {
     );
   }
 
+  get savedSearches() {
+    const tabs = _.map(this.props.searches.savedSearches, (search, idx) => {
+      const selected = idx === this.props.searches.selectedSearch;
+      const isEditing = selected && this.isEditingName;
+      const draggable = !editing && search.name !== 'All';
+      const isDirty = this.props.searches.savedSearches[idx].isDirty;
+
+      const startEdit = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        this.props.editSearchNameStart(idx);
+      };
+
+      return (
+        <EditableTabView
+          defaultValue={search.name}
+          draggable={draggable}
+          isDirty={isDirty}
+          isEditing={isEditing}
+          selected={selected}
+          cancelEdit={this.props.editSearchNameCancel}
+          completeEdit={this.props.editSearchNameComplete}
+          startEdit={startEdit}
+          onClick={() => this.props.selectSavedSearch(idx)}
+        />
+      );
+    });
+
+    return <TabListView>{tabs}</TabListView>;
+  }
+
+  get searchButton() {
+    const shouldSaveNew = this.currentSearch.name === 'All';
+    const buttonContents = `${shouldSaveNew ? 'Save' : 'Update'} Search`;
+    const clickAction = (event) => {
+      event.preventDefault();
+      if (shouldSaveNew) {
+        this.props.cloneSearch();
+      } else {
+        this.props.saveSearch();
+      }
+    };
+
+    return (
+      <button className="fc-btn" onClick={clickAction}>
+        {buttonContents}
+      </button>
+    );
+  }
+
   formatPill(pill, idx, props) {
     return (
       <div
@@ -88,17 +167,17 @@ export default class LiveSearch extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const isVisible = nextProps.state.currentOptions.length > 0 &&
-      (nextProps.state.searches.length != this.state.pills.length ||
-       nextProps.state.searchValue !== '');
+    const search = currentSearch(nextProps);
+    const isVisible = this.state.isFocused && search.currentOptions.length > 0 &&
+      (search.searches.length != this.state.pills.length || search.searchValue !== '');
 
     this.setState({
       ...this.state,
       optionsVisible: isVisible,
-      pills: nextProps.state.searches,
-      searchDisplay: nextProps.state.searchValue,
-      searchOptions: nextProps.state.currentOptions,
-      searchValue: nextProps.state.searchValue,
+      pills: search.searches,
+      searchDisplay: search.searchValue,
+      searchOptions: search.currentOptions,
+      searchValue: search.searchValue,
       selectionIndex: -1
     });
   }
@@ -117,6 +196,7 @@ export default class LiveSearch extends React.Component {
     if (!_.isEmpty(this.state.searchOptions)) {
       this.setState({
         ...this.state,
+        isFocused: true,
         optionsVisible: true
       });
     }
@@ -126,6 +206,7 @@ export default class LiveSearch extends React.Component {
   blur() {
     this.setState({
       ...this.state,
+      isFocused: false,
       optionsVisible: false
     });
   }
@@ -199,23 +280,33 @@ export default class LiveSearch extends React.Component {
 
   render() {
     return (
-      <div className='fc-live-search fc-col-md-1-1'>
-        <form>
-          <PilledInput
-            button={<button className="fc-btn">Save Search</button>}
-            onPillClose={(pill, idx) => this.props.deleteSearchFilter(idx)}
-            onPillClick={(pill, idx) => this.props.deleteSearchFilter(idx)}
-            formatPill={this.formatPill}
-            placeholder="Add another filter or keyword search"
-            onChange={this.change}
-            onFocus={this.inputFocus}
-            onBlur={this.blur}
-            onKeyDown={this.keyDown}
-            pills={this.state.pills}
-            value={this.state.searchDisplay} />
-        </form>
-        <div>
-          {this.state.optionsVisible && this.searchOptions}
+      <div className='fc-live-search'>
+        <div className="fc-live-search__header">
+          {this.savedSearches}
+        </div>
+        <div className="fc-grid fc-list-page-content">
+          <div className='fc-col-md-1-1 fc-live-search__search-control'>
+            <form>
+              <PilledInput
+                button={this.searchButton}
+                onPillClose={(pill, idx) => this.props.deleteSearchFilter(idx)}
+                onPillClick={(pill, idx) => this.props.deleteSearchFilter(idx)}
+                formatPill={this.formatPill}
+                placeholder="Add another filter or keyword search"
+                onChange={this.change}
+                onFocus={this.inputFocus}
+                onBlur={this.blur}
+                onKeyDown={this.keyDown}
+                pills={this.state.pills}
+                value={this.state.searchDisplay} />
+            </form>
+            <div>
+              {this.state.optionsVisible && this.searchOptions}
+            </div>
+          </div>
+          <div className="fc-col-md-1-1">
+            {this.props.children}
+          </div>
         </div>
       </div>
     );
