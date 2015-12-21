@@ -33,12 +33,12 @@ export default class NewCustomer extends React.Component {
 
   @autobind
   onChangeValue({target}) {
-    this.props.changeFormData(target.name, target.value || target.checked);
+    this.props.changeFormData(target.name, target.value);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
     if (nextProps.id !== undefined && nextProps.id !== null) {
-      transitionTo(this.context.history, 'customer', {customer: nextProps.id});
+      transitionTo(this.context.history, 'customer', {customerId: nextProps.id});
       return false;
     }
     return true;
@@ -56,8 +56,6 @@ export default class NewCustomer extends React.Component {
           <article className="fc-col-md-1-1">
             <div className="fc-grid fc-grid-no-gutter">
               <Form className="fc-customer-form fc-form-vertical fc-col-md-2-5"
-                    action="/customers"
-                    method="POST"
                     onSubmit={this.submitForm}
                     onChange={this.onChangeValue}>
                 <ul className="fc-customer-form-fields">
