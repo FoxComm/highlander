@@ -1,0 +1,18 @@
+---
+
+- name: Install dependencies
+  apt: name={{ item }} force=yes state=latest
+  with_items:
+    - lua-cjson
+    - lua-cjson-dev
+    - nginx
+    - nginx-extras
+
+- name: Instal lua request uuid handler
+  copy: src=uuid4.lua dest=/etc/nginx/uuid4.lua
+
+- name: Install base config
+  template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf
+
+- name: Install default hosts
+  template: src=default.j2 dest=/etc/nginx/sites-available/default

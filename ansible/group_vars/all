@@ -17,3 +17,6 @@ phoenix_dir: /phoenix
 phoenix_jar: "{{phoenix_dir}}/phoenix.jar"
 phoenix_db_name: phoenix_development
 
+# Lies & BS
+phoenix_server: 127.0.0.1
+search_server: 127.0.0.1

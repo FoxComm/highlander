@@ -4,11 +4,7 @@
   sudo: true
 
 - name: Add Confluent Repository
-  apt_repository: repo='deb [arch=amd64] http://packages.confluent.io/deb/2.0 stable main' state=present
-  sudo: true
-
-- name: Update System Package Cache
-  apt: update_cache=yes
+  apt_repository: repo='deb [arch=amd64] http://packages.confluent.io/deb/2.0 stable main' state=present update_cache=yes
   sudo: true
 
 - name: Install Packages

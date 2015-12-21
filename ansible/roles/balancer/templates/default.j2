@@ -1,0 +1,76 @@
+upstream search {
+  server {{ search_server }};
+}
+
+upstream phoenix {
+  server {{ phoenix_server }};
+}
+
+server {
+  listen 80 default_server;
+  listen [::]:80 default_server;
+
+  index index.html index.htm index.nginx-debian.html;
+
+  server_name _;
+
+  # Create unique UUID to track each request
+  set_by_lua $uuid '
+      if ngx.var.http_x_request_id == nil then
+          return uuid4.getUUID()
+      else
+          return ngx.var.http_x_request_id
+      end
+  ';
+
+  # Proxy to ElasticSearch phoenix index for internal use by /api/search
+  location /internal-search/ {
+      internal;
+      proxy_pass http://search/phoenix/;
+  }
+
+  # Proxy the internal search location and sanitizes output from ES for external use
+  location /api/search/ {
+      default_type 'application/json';
+      content_by_lua '
+
+          -- convert to internal query
+          local uri = ngx.re.sub(ngx.var.uri, "api/search", "internal-search")
+          local req = uri
+          if not ngx.var.args == nil then
+              req = uri .. "?" .. ngx.var.args
+          end
+
+          -- map is needed because ngx.var.request_method returns a string
+          local map = {
+              GET = ngx.HTTP_GET,
+              POST = ngx.HTTP_POST,
+              PUT = ngx.HTTP_PUT,
+              DELETE = ngx.HTTP_DELETE
+          }
+
+          local body = ngx.req.read_body()
+          local method = map[ngx.var.request_method]
+
+          --get json result from elastic search
+          local res = ngx.location.capture(req, { method = method,  body = body })
+
+          --parse
+          local j = cjson.new()
+          local json = j.decode(res.body)
+
+          --only show hits
+          --TODO handle error better if hits is undefined.
+          ngx.say(j.encode(json.hits))
+      ';
+      break;
+  }
+
+
+  # Proxy to phoenix and use basic auth.
+  location /api/ {
+      proxy_pass http://phoenix/;
+      proxy_set_header Authorization "Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk";
+      break;
+  }
+}
