@@ -33,7 +33,7 @@ export default class LiveSearch extends React.Component {
       optionsVisible: false,
       pills: pills,
       searchDisplay: searchValue,
-      searchOptions: searchOptions,
+      searchOptions: currentOptions,
       searchValue: searchValue,
       selectionIndex: -1
     };
@@ -104,7 +104,7 @@ export default class LiveSearch extends React.Component {
     const tabs = _.map(this.props.searches.savedSearches, (search, idx) => {
       const selected = idx === this.props.searches.selectedSearch;
       const isEditing = selected && this.isEditingName;
-      const draggable = !editing && search.name !== 'All';
+      const draggable = !isEditing && search.name !== 'All';
       const isDirty = this.props.searches.savedSearches[idx].isDirty;
 
       const startEdit = (event) => {
