@@ -11,8 +11,8 @@ const applyQuery = (activities, query) => {
   }, []);
 };
 
-const applyFrom = (activities, id) => {
-  return activities.filter(activity => activity.id < id);
+const applyFrom = (activities, date) => {
+  return activities.filter(activity => new Date(activity.createdAt) < date);
 };
 
 const applyDays = (activities, days) => {
