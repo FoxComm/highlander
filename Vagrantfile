@@ -19,7 +19,7 @@ Vagrant.configure("2") do |config|
   # Phoenix
   config.vm.network :forwarded_port, guest: 9090, host: 9090, auto_correct: true
 
-  # ES 
+  # ES
   config.vm.network :forwarded_port, guest: 9200, host: 9200, auto_correct: true
 
   config.vm.network "private_network", ip: $vb_host
@@ -52,6 +52,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provision "ansible" do |ansible|
-      ansible.playbook = "ansible/vagrant.yml"
+    ansible.verbose = "vv"
+    ansible.playbook = "ansible/vagrant.yml"
   end
 end
