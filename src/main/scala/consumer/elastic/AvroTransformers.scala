@@ -198,6 +198,7 @@ object AvroTransformers {
         "firstName" typed StringType analyzer "autocomplete",
         "lastName" typed StringType analyzer "autocomplete",
         "department" typed StringType analyzer "autocomplete",
+        "createdAt" typed DateType,
         // Assignments
         "assignmentsCount" typed IntegerType,
         "assignments" nested(
