@@ -8,8 +8,10 @@ import util from 'util';
 const emptyState = {
   isDirty: false,
   isEditingName: false,
+  isFetching: false,
   isNew: false,
   options: [],
+  results: [],
   searches: [],
   searchValue: '',
   selectedIndex: -1
@@ -28,8 +30,22 @@ export default function makeLiveSearch(namespace, searchTerms) {
   const editSearchNameComplete = _createAction(namespace, 'EDIT_SEARCH_NAME_COMPLETE');
   const goBack = _createAction(namespace, 'GO_BACK');
   const saveSearch = _createAction(namespace, 'SAVE_SEARCH');
+  const searchStart = _createAction(namespace, 'SEARCH_START');
+  const searchSuccess = _createAction(namespace, 'SEARCH_SUCCESS');
+  const searchFailure = _createAction(namespace, 'SEARCH_FAILURE');
   const selectSavedSearch = _createAction(namespace, 'SELECT_SAVED_SEARCH');
   const submitFilter = _createAction(namespace, 'SUBMIT_FILTER');
+
+  const fetch = url => {
+    return dispatch => {
+      dispatch(searchStart());
+      return post(url)
+        .then(
+          res => dispatch(searchSuccess(res)),
+          err => dispatch(searchFailure(err, fetch))
+        );
+    };
+  };
 
   const terms = searchTerms.map(st => new SearchTerm(st));
   const initialState = {
@@ -67,6 +83,9 @@ export default function makeLiveSearch(namespace, searchTerms) {
     [editSearchNameComplete]: (state, newName) => _editSearchNameComplete(state, newName),
     [goBack]: (state) => _goBack(state),
     [saveSearch]: (state) => _saveSearch(state),
+    [searchStart]: (state) => _searchStart(state),
+    [searchSuccess]: (state, res) => _searchSuccess(state, res),
+    [searchFailure]: (state, [err, source]) => _searchFailure(state, [err, source]),
     [selectSavedSearch]: (state, idx) => _selectSavedSearch(state, idx),
     [submitFilter]: (state, searchTerm) => _submitFilter(state, searchTerm)
   }, initialState);
@@ -79,8 +98,12 @@ export default function makeLiveSearch(namespace, searchTerms) {
       editSearchNameStart,
       editSearchNameCancel,
       editSearchNameComplete,
+      fetch,
       goBack,
       saveSearch,
+      searchStart,
+      searchSuccess,
+      searchFailure,
       selectSavedSearch,
       submitFilter
     }
@@ -118,7 +141,7 @@ function _deleteSearchFilter(state, idx) {
 }
 
 function _editSearchNameStart(state, idx) {
-  const newState = selectSavedSearch(state, idx);
+  const newState = _selectSavedSearch(state, idx);
   return assoc(newState, ['savedSearches', newState.selectedSearch, 'isEditingName'], true);
 }
 
@@ -162,13 +185,36 @@ function _saveSearch(state) {
 }
 
 function _selectSavedSearch(state, idx) {
-  console.log("HERE I AM, IT IS I");
-  console.log("IDX = " + idx);
   if (idx > -1 && idx < state.savedSearches.length) {
     return assoc(state,
       ['selectedSearch'], idx,
       ['savedSearches', state.selectedSearch, 'isEditingName'], false
     );
+  }
+
+  return state;
+}
+
+function _searchStart(state) {
+  return assoc(state, ['savedSearches', state.selectedSearch, 'isFetching'], true);
+}
+
+function _searchSuccess(state, res) {
+  const hits = get(res, 'hits', []);
+  const results = _.map(hits, hit => {
+    return get(hit, '_source', {});
+  });
+
+  return assoc(state,
+    ['savedSearches', state.selectedSearch, 'isFetching'], false,
+    ['savedSearches', state.selectedSearch, 'results'], results
+  );
+}
+
+function _searchFailure(state, [err, source]) {
+  if (source === fetch) {
+    console.error(err);
+    return assoc(state, ['savedSearches', state.selectedSearch, 'isFetching'], false);
   }
 
   return state;

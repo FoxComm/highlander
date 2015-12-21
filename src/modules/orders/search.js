@@ -1,31 +1,9 @@
 import makeLiveSearch from '../live-search';
 import searchTerms from './search-terms';
 
-const {
-  reducer,
-  actions: {
-    cloneSearch,
-    deleteSearchFilter,
-    editSearchNameStart,
-    editSearchNameCancel,
-    editSearchNameComplete,
-    goBack,
-    saveSearch,
-    selectSavedSearch,
-    submitFilter
-  }
-} = makeLiveSearch('ORDERS', searchTerms);
-
-export default reducer;
+const { reducer, actions } = makeLiveSearch('ORDERS', searchTerms);
 
 export {
-  cloneSearch,
-  deleteSearchFilter,
-  editSearchNameStart,
-  editSearchNameCancel,
-  editSearchNameComplete,
-  goBack,
-  saveSearch,
-  selectSavedSearch,
-  submitFilter
+  reducer as default,
+  actions
 };

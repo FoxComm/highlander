@@ -8,7 +8,6 @@ import TableRow from '../table/row';
 import TableCell from '../table/cell';
 import SectionTitle from '../section-title/section-title';
 import { connect } from 'react-redux';
-import * as ordersActions from '../../modules/orders/list';
 import * as searchActions from '../../modules/orders/search';
 import LocalNav from '../local-nav/local-nav';
 import Currency from '../common/currency';
@@ -17,15 +16,10 @@ import LiveSearch from '../live-search/live-search';
 import util from 'util';
 import _ from 'lodash';
 
-const actions = {
-  ...ordersActions,
-  ...searchActions
-};
-
 @connect(state => ({
   orders: state.orders.list,
   search: state.orders.search
-}), actions)
+}), searchActions.actions)
 export default class Orders extends React.Component {
   static propTypes = {
     fetch: PropTypes.func.isRequired,
@@ -59,8 +53,7 @@ export default class Orders extends React.Component {
   };
 
   componentDidMount() {
-    // this.props.fetch(this.props.orders);
-    this.props.fetchSearch('orders_search_view/_search');
+    this.props.fetch('orders_search_view/_search');
   }
 
   handleAddOrderClick() {
