@@ -70,3 +70,8 @@ create table export_skus (
     name    text,
     price   integer
 );
+
+create table export_assignments (
+  reference_number    text,
+  assigned_at         text
+);
