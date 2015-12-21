@@ -55,7 +55,7 @@ object AvroTransformers {
     def fields = List.empty
   }
 
-  final case class CustomerSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
+  final case class CustomersSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping =
       "customers_search_view" as (
         // Customer
@@ -108,7 +108,7 @@ object AvroTransformers {
     def fields = List("orders", "purchased_items", "shipping_addresses", "billing_addresses", "save_for_later")
   }
 
-  final case class OrderSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
+  final case class OrdersSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping = {
       "orders_search_view" as (
         // Order
@@ -187,6 +187,27 @@ object AvroTransformers {
     def fields = List("customer", "orders", "line_items", "payments", "shipments", "shipping_addresses",
       "billing_addresses", "assignees", "rmas"
     )
+  }
+
+  final case class StoreAdminsSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
+    def mapping =
+      "store_admins_search_view" as (
+        // Customer
+        "id" typed IntegerType,
+        "email" typed StringType analyzer "autocomplete",
+        "firstName" typed StringType analyzer "autocomplete",
+        "lastName" typed StringType analyzer "autocomplete",
+        "department" typed StringType analyzer "autocomplete",
+        "createdAt" typed DateType,
+        // Assignments
+        "assignmentsCount" typed IntegerType,
+        "assignments" nested(
+          "referenceNumber" typed StringType analyzer "autocomplete",
+          "assignedAt" typed DateType
+        )
+      )
+
+    def fields = List("assignments")
   }
 
 }
