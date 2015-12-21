@@ -1,11 +1,19 @@
 ---
 
-- name: Install dependencies
+- name: Add nginx apt key
+  apt_key: url=http://nginx.org/packages/keys/nginx_signing.key
+
+- name: Add nginx apt repository
+  apt_repository: repo='{{ item }}' state=present update_cache=yes
+  with_items:
+    - deb http://nginx.org/packages/mainline/ubuntu/ vivid nginx
+    - deb-src http://nginx.org/packages/mainline/ubuntu/ vivid nginx
+
+- name: Install nginx dependencies
   apt: name={{ item }} force=yes state=latest
   with_items:
     - lua-cjson
     - lua-cjson-dev
-    - nginx
     - nginx-extras
 
 - name: Instal lua request uuid handler
