@@ -195,8 +195,7 @@ object AvroTransformers {
         // Store Admin
         "id"                typed IntegerType,
         "email"             typed StringType analyzer "autocomplete",
-        "firstName"         typed StringType analyzer "autocomplete",
-        "lastName"          typed StringType analyzer "autocomplete",
+        "name"              typed StringType analyzer "autocomplete",
         "department"        typed StringType analyzer "autocomplete",
         "createdAt"         typed DateType format "yyyy-MM-dd HH:mm:ss",
         // Assignments

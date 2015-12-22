@@ -28,16 +28,12 @@
 			"type": "string",
 			"analyzer": "autocomplete"
 		},
-		"firstName": {
+		"name": {
 			"type": "string",
 			"analyzer": "autocomplete"
 		},
 		"id": {
 			"type": "integer"
-		},
-		"lastName": {
-			"type": "string",
-			"analyzer": "autocomplete"
 		}
 	}
 }
