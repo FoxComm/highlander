@@ -44,7 +44,15 @@ export function suggestWatchers(entity, term) {
 }
 
 export function addWatchers(entity) {
-  return dispatch => {
+  return (dispatch, getState) => {
+    const state = getState();
+    const {entityType, entityId} = entity;
+    console.log(state);
+    const items = _.get(state, ['watchers', entityType, entityId, 'selectedItems'], []);
+    console.log(items);
+    const group = _.get(state, ['watchers', entityType, entityId, 'modalGroup']);
+    console.log(group);
+
     // Api calls will be here
     dispatch(assignWatchers(entity));
     dispatch(closeAddingModal(entity));
