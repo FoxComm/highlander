@@ -6,8 +6,8 @@ all: build
 build:
 	$(GO) build -o bin/inventory inventory.go
 
-deploy:
-	ansible-playbook -i ./staging
+deploy-stage:
+	ansible-playbook -i ./staging ansible/stage.yml
 
 test:
 	$(GO) test -v ./
