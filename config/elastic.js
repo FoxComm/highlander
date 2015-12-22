@@ -2,6 +2,6 @@
 
 module.exports = function(env) {
   return {
-    uri: process.env.ELASTIC_URL || 'http://10.240.0.7:9200'
+    uri: process.env.ELASTIC_URL || 'http://localhost:9200'
   };
 };
