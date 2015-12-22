@@ -85,7 +85,6 @@ export default class Orders extends React.Component {
         </div>
         <LiveSearch
           cloneSearch={this.props.cloneSearch}
-          goBack={this.props.goBack}
           deleteSearchFilter={this.props.deleteSearchFilter}
           editSearchNameStart={this.props.editSearchNameStart}
           editSearchNameCancel={this.props.editSearchNameCancel}

@@ -33,7 +33,6 @@ export default function makeLiveSearch(namespace, searchTerms) {
   const editSearchNameStart = _createAction(namespace, 'EDIT_SEARCH_NAME_START');
   const editSearchNameCancel = _createAction(namespace, 'EDIT_SEARCH_NAME_CANCEL');
   const editSearchNameComplete = _createAction(namespace, 'EDIT_SEARCH_NAME_COMPLETE');
-  const goBack = _createAction(namespace, 'GO_BACK');
   const saveSearch = _createAction(namespace, 'SAVE_SEARCH');
   const searchStart = _createAction(namespace, 'SEARCH_START');
   const searchSuccess = _createAction(namespace, 'SEARCH_SUCCESS');
@@ -86,7 +85,6 @@ export default function makeLiveSearch(namespace, searchTerms) {
     [editSearchNameStart]: (state, idx) => _editSearchNameStart(state, idx),
     [editSearchNameCancel]: (state) => _editSearchNameCancel(state),
     [editSearchNameComplete]: (state, newName) => _editSearchNameComplete(state, newName),
-    [goBack]: (state) => _goBack(state),
     [saveSearch]: (state) => _saveSearch(state),
     [searchStart]: (state) => _searchStart(state),
     [searchSuccess]: (state, res) => _searchSuccess(state, res),
@@ -104,7 +102,6 @@ export default function makeLiveSearch(namespace, searchTerms) {
       editSearchNameCancel,
       editSearchNameComplete,
       fetch,
-      goBack,
       saveSearch,
       searchStart,
       searchSuccess,
@@ -178,13 +175,6 @@ function _editSearchNameComplete(state, newName) {
   return state;
 }
 
-function _goBack(state) {
-  const curState = state.savedSearches[state.selectedSearch].searchValue;
-  const lastColonIdx = _.trim(curState, ' :').lastIndexOf(':');
-  const newSearchTerm = lastColonIdx > 0 ? `${curState.slice(0, lastColonIdx - 1)} : ` : '';
-  return _submitFilter(state, newSearchTerm);
-}
-
 function _saveSearch(state) {
   return assoc(state, ['savedSearches', state.selectedSearch, 'isDirty'], false);
 }
@@ -227,28 +217,7 @@ function _searchFailure(state, [err, source]) {
 }
 
 function _submitFilter(state, searchTerm) {
-  // First update the available terms.
-  let searches = state.savedSearches[state.selectedSearch].searches;
-  let newSearchTerm = searchTerm;
-  let options = SearchTerm.potentialTerms(state.potentialOptions, searchTerm);
-  let isDirty = state.savedSearches[state.selectedSearch].isDirty;
-
-  // Second, if there is only one term, see if we can turn it into a saved search.
-  if (options.length == 1 && options[0].selectTerm(searchTerm)) {
-    newSearchTerm = '';
-    options = SearchTerm.potentialTerms(state.potentialOptions, newSearchTerm);
-    searches = [...state.savedSearches[state.selectedSearch].searches, searchTerm];
-    isDirty = true;
-  }
-
-  // Third, update the state.
-  const updatedState = {
-    ...state.savedSearches[state.selectedSearch],
-    currentOptions: options,
-    isDirty: isDirty,
-    searches: searches,
-    searchValue: newSearchTerm
-  };
-
-  return assoc(state, ['savedSearches', state.selectedSearch], updatedState);
+  const currentSearches = get(state, ['savedSearches', state.selectedSearch, 'searches'], []);
+  const newSearches = [...currentSearches, searchTerm];
+  return assoc(state, ['savedSearches', state.selectedSearch, 'searches'], newSearches);
 }

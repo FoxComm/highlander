@@ -11,6 +11,8 @@ import SearchOption from './search-option';
 import TabListView from '../tabs/tabs';
 import EditableTabView from '../tabs/editable-tab';
 
+import SearchTerm from '../../paragons/search-term';
+
 function currentSearch(props) {
   return _.get(props, ['searches', 'savedSearches', props.searches.selectedSearch], []);
 }
@@ -29,6 +31,7 @@ export default class LiveSearch extends React.Component {
     const {searchValue, currentOptions, searches: pills} = search;
 
     this.state = {
+      availableOptions: props.state.potentialOptions,
       isFocused: false,
       optionsVisible: false,
       pills: pills,
@@ -45,7 +48,6 @@ export default class LiveSearch extends React.Component {
     deleteSearchFilter: PropTypes.func.isRequired,
     editSearchNameCancel: PropTypes.func,
     editSearchNameComplete: PropTypes.func,
-    goBack: PropTypes.func.isRequired,
     saveSearch: PropTypes.func,
     selectSavedSearch: PropTypes.func.isRequired,
     submitFilter: PropTypes.func.isRequired,
@@ -79,7 +81,7 @@ export default class LiveSearch extends React.Component {
           className={classNames({ '_active': selectedIdx == idx, '_first': idx == 0 })}
           key={`search-option-${idx}`}
           option={option}
-          clickAction={this.props.submitFilter} />
+          clickAction={this.submitFilter} />
       ];
     }, []);
 
@@ -88,7 +90,7 @@ export default class LiveSearch extends React.Component {
     });
 
     const goBack = (
-      <MenuItem className={menuClass} onClick={this.props.goBack}>
+      <MenuItem className={menuClass} clickAction={this.goBack}>
         <i className="icon-back" />
         Back
       </MenuItem>
@@ -266,9 +268,9 @@ export default class LiveSearch extends React.Component {
         // Enter
         event.preventDefault();
         if (this.state.selectionIndex < this.state.searchOptions.length) {
-          this.props.submitFilter(this.state.searchDisplay);
+          this.submitFilter(this.state.searchDisplay);
         } else if (this.state.selectionIndex != -1) {
-          this.props.goBack();
+          this.goBack();
         }
         break;
       case 8:
@@ -278,6 +280,37 @@ export default class LiveSearch extends React.Component {
         }
         break;
     }
+  }
+
+  @autobind
+  goBack() {
+    const searchValue = this.state.searchValue;
+    const lastColonIdx = _.trim(searchValue, ':').lastIndexOf(':');
+    const newSearchTerm = lastColonIdx > 0 ? `${searchValue.slice(0, lastColonIdx - 1)} : ` : '';
+    return this.submitFilter(newSearchTerm);
+  }
+
+  @autobind
+  submitFilter(searchTerm) {
+    // First, update the available terms.
+    let newSearchTerm = searchTerm;
+    let options = SearchTerm.potentialTerms(this.state.availableOptions, searchTerm);
+
+    // Second, if there is only one term, see if we can turn it into a saved search.
+    if (options.length == 1 && options[0].selectTerm(searchTerm)) {
+      const option = options[0];
+      newSearchTerm = '';
+      options = SearchTerm.potentialTerms(this.state.availableOptions, '');
+      this.props.submitFilter(option);
+    }
+
+    // Third, update the state.
+    this.setState({
+      ...this.state,
+      searchOptions: options,
+      searchDisplay: newSearchTerm,
+      searchValue: newSearchTerm
+    });
   }
 
   render() {
