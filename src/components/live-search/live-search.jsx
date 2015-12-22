@@ -161,7 +161,7 @@ export default class LiveSearch extends React.Component {
         key={`pill-${idx}`}
         onClick={() => props.onPillClick(pill, idx)}>
         <i className='icon-filter' />
-        {pill}
+        {pill.display}
         <a onClick={() => props.onPillClose(pill, idx)}
           className="fc-pilled-input__pill-close">
           &times;
@@ -297,11 +297,16 @@ export default class LiveSearch extends React.Component {
     let options = SearchTerm.potentialTerms(this.state.availableOptions, searchTerm);
 
     // Second, if there is only one term, see if we can turn it into a saved search.
-    if (options.length == 1 && options[0].selectTerm(searchTerm)) {
+    if (options.length == 1) {
       const option = options[0];
-      newSearchTerm = '';
-      options = SearchTerm.potentialTerms(this.state.availableOptions, '');
-      this.props.submitFilter(option.displayTerm);
+
+      if (option.selectTerm(searchTerm)) {
+        newSearchTerm = '';
+        options = SearchTerm.potentialTerms(this.state.availableOptions, '');
+        this.props.submitFilter(option.toFilter(searchTerm));
+      } else if (option.children.length > 1) {
+        options = option.children;
+      }
     }
 
     // Third, update the state.
@@ -309,7 +314,8 @@ export default class LiveSearch extends React.Component {
       ...this.state,
       searchOptions: options,
       searchDisplay: newSearchTerm,
-      searchValue: newSearchTerm
+      searchValue: newSearchTerm,
+      selectionIndex: -1
     });
   }
 

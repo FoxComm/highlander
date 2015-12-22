@@ -7,23 +7,28 @@ describe('paragons.searchTerm', function() {
   const jsonTerms = [
     {
       title: 'String Term',
-      type: 'string'
+      type: 'string',
+      term: 'string'
     }, {
       title: 'Number Term',
-      type: 'number'
+      type: 'number',
+      term: 'number',
     }, {
       title: 'Date Term',
-      type: 'date'
+      type: 'date',
+      term: 'date'
     }, {
       title: 'Nested Term',
       type: 'object',
       options: [{
         title: 'Child Term',
-        type: 'string'
+        type: 'string',
+        term: 'child'
       }]
     }, {
       title: 'Enum Term',
       type: 'enum',
+      term: 'enum',
       suggestions: ['One', 'Two', 'Three']
     }
   ];
@@ -47,11 +52,11 @@ describe('paragons.searchTerm', function() {
 
   describe('.displayAction', function() {
     it('should display the actions as search', function() {
-      _.forEach(terms, term => expect(term.displayAction).to.be.equal('Search'));
+      _.forEach(terms, term => expect(term.displayAction).to.be.equal(' : Search'));
     });
 
     it('should be empty with a value term', function() {
-      const valueTerm = new SearchTerm({ title: 'Value Term', type: 'value' });
+      const valueTerm = new SearchTerm({ term: 'Value Term', type: 'value' });
       expect(valueTerm.displayAction).to.be.equal('');
     });
   });
@@ -64,7 +69,7 @@ describe('paragons.searchTerm', function() {
     });
 
     it('should display the exact displayValue for value terms', function() {
-      const valueTerm = new SearchTerm({ title: 'Value Term', type: 'value' });
+      const valueTerm = new SearchTerm({ term: 'Value Term', type: 'value' });
       expect(valueTerm.selectionValue).to.be.equal(valueTerm.displayTerm);
     });
   });
@@ -168,17 +173,9 @@ describe('paragons.searchTerm', function() {
       expect(visible[0].displayTerm).to.be.equal('An enumeration');
     });
 
-    it('should show enumeration values on a full match', function() {
+    it('should only show the enumeration on a full match', function() {
       const visible = enumTerm.applicableTerms(enumTerm.selectionValue);
-      expect(visible).to.have.length(3);
-      expect(visible[0].displayTerm).to.be.equal('An enumeration : One');
-      expect(visible[1].displayTerm).to.be.equal('An enumeration : Two');
-      expect(visible[2].displayTerm).to.be.equal('An enumeration : Three');
-    });
-
-    it('should not match an enumeration with an invalid value', function() {
-      const visible = enumTerm.applicableTerms('An enumeration : Four');
-      expect(visible).to.be.empty;
+      expect(visible).to.have.length(1);
     });
   });
 
