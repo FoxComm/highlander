@@ -3,8 +3,7 @@ select distinct on (s.id)
     -- Store Admin
     s.id as id,
     s.email as email,
-    s.first_name as first_name,
-    s.last_name as last_name,
+    s.name as name,
     s.department as department,
     to_char(s.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
     -- Assignments
