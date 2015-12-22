@@ -192,7 +192,7 @@ object AvroTransformers {
   final case class StoreAdminsSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping =
       "store_admins_search_view" as (
-        // Customer
+        // Store Admin
         "id"                typed IntegerType,
         "email"             typed StringType analyzer "autocomplete",
         "firstName"         typed StringType analyzer "autocomplete",
