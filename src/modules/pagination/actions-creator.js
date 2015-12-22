@@ -10,22 +10,24 @@ export const createFetchAction = (makeUrl, paginateActions) => {
     actionSetFetchParams
     } = paginateActions;
 
-  return (entity, newFetchParams) => dispatch => {
+  return (...args) => dispatch => {
+    const newFetchParams = args.pop();
+
     const fetchParams = pickFetchParams(newFetchParams);
 
-    dispatch(actionFetch(entity));
-    dispatch(actionSetFetchParams(entity, newFetchParams));
-    const url = makeUrl(entity);
+    dispatch(actionFetch(...args));
+    dispatch(actionSetFetchParams(...args, newFetchParams));
+    const url = makeUrl(...args);
 
     return Api.get(url, fetchParams)
       .then(
-        result => dispatch(actionReceived(entity, result)),
-        err => dispatch(actionFetchFailed(entity, err))
+        result => dispatch(actionReceived(...args, result)),
+        err => dispatch(actionFetchFailed(...args, err))
       );
   };
 };
 
-const createActions = (makeUrl, namespace, payloadReducer = (entity, payload) => [entity, payload]) => {
+const createActions = (makeUrl, namespace, payloadReducer) => {
   const paginateActions = createPaginateActions(namespace, payloadReducer);
   const fetch = createFetchAction(makeUrl, paginateActions);
 

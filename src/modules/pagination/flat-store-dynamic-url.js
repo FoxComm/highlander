@@ -4,7 +4,7 @@ import paginateReducer from './base';
 
 const makePagination = namespace => {
   const makeReducer = (reducer, updateBehaviour) => paginateReducer(namespace, reducer, updateBehaviour);
-  const makeActions = makeUrl => createActions(makeUrl, namespace, (entity, payload) => payload);
+  const makeActions = makeUrl => createActions(makeUrl, namespace);
 
   return {
     makeReducer,

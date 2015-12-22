@@ -20,7 +20,7 @@ const makePagination = (namespace, dataPath) => {
   const makeReducer = (moduleReducer, updateBehaviour = makeUpdateBehaviour(dataPath)) => {
     return paginateReducer(namespace, moduleReducer, updateBehaviour);
   };
-  const makeActions = makeUrl => createActions(makeUrl, namespace);
+  const makeActions = makeUrl => createActions(makeUrl, namespace, (entity, payload) => [entity, payload]);
 
   return {
     makeReducer,
