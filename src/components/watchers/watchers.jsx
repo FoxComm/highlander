@@ -85,6 +85,8 @@ export default class Watchers extends React.Component {
     return (
       <div className="fc-watchers__cell" key={key}>
         <UserInitials name={user.name}
+                      firstName={user.firstName}
+                      lastName={user.lastName}
                       email={user.email}
                       actionBlock={actionBlock}
                       showTooltipOnClick={true}/>

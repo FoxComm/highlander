@@ -55,15 +55,21 @@ export function addWatchers(entity) {
   return (dispatch, getState) => {
     const state = getState();
     const {entityType, entityId} = entity;
-    console.log(state);
     const items = _.get(state, ['watchers', entityType, entityId, 'selectedItems'], []);
-    console.log(items);
     const group = _.get(state, ['watchers', entityType, entityId, 'modalGroup']);
-    console.log(group);
+
+    const data = {
+      assignees: items.map((item) => item.id)
+    };
 
     // Api calls will be here
-    dispatch(assignWatchers(entity));
-    dispatch(closeAddingModal(entity));
+    Api.post(`/orders/${entityId}/assignees`, data).then(
+      () => {
+        dispatch(assignWatchers(entity));
+        dispatch(closeAddingModal(entity));
+      },
+      () => console.log('something bad happened')
+    );
   };
 }
 
