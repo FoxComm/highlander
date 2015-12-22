@@ -4,7 +4,7 @@ import TabView from '../tabs/tab';
 import TableView from '../table/tableview';
 import SectionTitle from '../section-title/section-title';
 import { connect } from 'react-redux';
-import * as searchActions from '../../modules/orders/search';
+import * as ordersActions from '../../modules/orders/list';
 import LocalNav from '../local-nav/local-nav';
 import LiveSearch from '../live-search/live-search';
 import OrderRow from './order-row';
@@ -12,8 +12,8 @@ import util from 'util';
 import _ from 'lodash';
 
 @connect(state => ({
-  search: state.orders.search
-}), searchActions.actions)
+  list: state.orders.list
+}), ordersActions.actions)
 export default class Orders extends React.Component {
   static propTypes = {
     fetch: PropTypes.func.isRequired,
@@ -46,11 +46,11 @@ export default class Orders extends React.Component {
   };
 
   get selectedSearch() {
-    return this.props.search.selectedSearch;
+    return this.props.list.selectedSearch;
   }
 
   get orders() {
-    return this.props.search.savedSearches[this.selectedSearch].results;
+    return this.props.list.savedSearches[this.selectedSearch].results;
   }
 
   componentDidMount() {
@@ -87,7 +87,7 @@ export default class Orders extends React.Component {
           saveSearch={this.props.saveSearch}
           selectSavedSearch={this.props.selectSavedSearch}
           submitFilter={this.props.submitFilter}
-          searches={this.props.search}
+          searches={this.props.list}
         >
           <TableView
             columns={this.props.tableColumns}
