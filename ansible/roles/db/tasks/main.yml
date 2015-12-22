@@ -87,27 +87,35 @@
   with_items:
       - postgresql.conf
       - pg_hba.conf
-  
-- name: Configure Db Users
-  shell: sudo -u postgres createuser -s {{item}} || true
-  with_items:
-      - root
-      - vagrant
-      - phoenix
-
-- name: Create Db
-  shell: sudo -u postgres createdb {{phoenix_db_name}} || true
-  sudo: true
 
 - name: Reload Postgresql
   service: name=postgresql state=restarted sleep=5
   sudo: true
 
+- name: Install Prerequisites for posgresql ansible module
+  sudo: true
+  apt: name={{item}} state=latest
+  with_items:
+    - libpq-dev
+    - python-psycopg2
+  
+- name: Create Db
+  postgresql_db: name={{phoenix_db_name}}
+  sudo: true
+
+- name: Configure Db Users
+  postgresql_user: name={{item}} state=present role_attr_flags=SUPERUSER
+  sudo: true
+  with_items:
+      - root
+      - "{{user}}"
+      - phoenix
+
 - name: Kill Bottledwater if it is Running
   shell: systemctl stop bottledwater || true
   sudo: true
 
-- name: Create {{phoenix_dir}}
+- name: Create Phoenix Directory
   file: path={{phoenix_dir}} state=directory owner="{{user}}"
   sudo: true
 
@@ -120,17 +128,18 @@
   sudo: true
 
 - name: Clean Db 
-  shell: sudo -u postgres FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
+  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
   args:
     chdir: "{{phoenix_dir}}"
 
 - name: Migrate Db
-  shell: sudo -u postgres FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
+  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
   args:
     chdir: "{{phoenix_dir}}"
 
 - name: Seed Db
   shell: java -cp {{phoenix_jar}} utils.seeds.Seeds
+  sudo: true
   args:
     chdir: "{{phoenix_dir}}"
 

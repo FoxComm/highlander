@@ -1,0 +1,14 @@
+---
+
+  - name: Provision Stage
+    hosts: stage
+    vars:
+        user: '{{ansible_ssh_user}}'
+
+    roles:
+        - common
+        - kafka
+        - db
+        - phoenix
+        - elasticsearch
+        - greenriver
