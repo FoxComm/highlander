@@ -20,7 +20,11 @@
     - schema-registry.service
 
 - name: Purge Kafka Queue
-  shell: rm -rf /var/lib/kakfa/* || true
+  file: path=/var/lib/kafka state=absent recurse=yes
+  sudo: true
+
+- name: Create Kafka dir
+  file: path=/var/lib/kafka state=directory recurse=yes
   sudo: true
 
 - name: Setup Services

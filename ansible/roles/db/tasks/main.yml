@@ -8,26 +8,26 @@
   apt: name={{ item }} state=latest force=yes
   sudo: true
   with_items:
-    - make 
-    - jq 
-    - debconf-utils 
-    - cmake 
+    - make
+    - jq
+    - debconf-utils
+    - cmake
     - openjdk-8-jdk
-    - build-essential 
-    - libpq-dev 
-    - libcurl4-openssl-dev 
-    - libjansson-dev 
-    - pkg-config 
-    - librdkafka-dev 
-    - libsnappy-dev 
-    - postgresql-server-dev-9.4 
-    - postgresql-9.4 
-    - postgresql-client-9.4 
+    - build-essential
+    - libpq-dev
+    - libcurl4-openssl-dev
+    - libjansson-dev
+    - pkg-config
+    - librdkafka-dev
+    - libsnappy-dev
+    - postgresql-server-dev-9.4
+    - postgresql-9.4
+    - postgresql-client-9.4
     - postgresql-contrib-9.4
- 
+
 - name: Get Avro
   get_url: url={{avro_url}} dest="{{home}}/{{avro_name}}.tar.gz"
- 
+
 - name: Unzip Avro
   unarchive: src="{{home}}/{{avro_name}}.tar.gz" dest="{{home}}" copy=no
 
@@ -46,9 +46,9 @@
     chdir: "{{avro_dir}}/build"
 
 - name: Setup Libsnappy
-  copy: src=libsnappy.pc dest=/usr/local/lib/pkgconfig/libsnappy.pc 
+  copy: src=libsnappy.pc dest=/usr/local/lib/pkgconfig/libsnappy.pc
   sudo: true
- 
+
 - name: Synchronize Bottledwater
   synchronize: src={{bottledwater_src}} dest={{bottledwater_dir}}
 
@@ -64,8 +64,8 @@
 
 - name: Get Flyway
   get_url: url={{flyway_url}} dest={{home}}/flyway.tar.gz
- 
-- name: Unzip Flyway 
+
+- name: Unzip Flyway
   unarchive: src={{home}}/flyway.tar.gz dest=/usr/local/share copy=no
   sudo: true
 
@@ -98,7 +98,7 @@
   with_items:
     - libpq-dev
     - python-psycopg2
-  
+
 - name: Create Db
   postgresql_db: name={{phoenix_db_name}}
   sudo: true
@@ -127,7 +127,7 @@
   copy: src="{{phoenix_jar_src}}" dest="{{phoenix_jar}}" owner="{{user}}"
   sudo: true
 
-- name: Clean Db 
+- name: Clean Db
   shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
   args:
     chdir: "{{phoenix_dir}}"

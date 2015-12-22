@@ -6,7 +6,7 @@
   sudo: true
 
 - name: Copy Service
-  template: src=greenriver.service dest="{{dest_services}}/greenriver.service" 
+  template: src=greenriver.service dest="{{dest_services}}/greenriver.service"
   sudo: true
 
 - name: Setup Service
