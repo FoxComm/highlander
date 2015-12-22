@@ -16,7 +16,8 @@ app.init = co.wrap(function *(env) {
   if (app.env.environment !== 'production') {
     app.use(require('koa-logger')());
   }
-  
+
+  require('./elastic')(app);
   require(`${__dirname}/middleware`)(app);
   require(`${__dirname}/api`)(app);
   require(`${__dirname}/cms`)(app);

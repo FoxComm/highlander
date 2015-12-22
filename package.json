@@ -112,6 +112,7 @@
     "koa-body": "^1.2.1",
     "koa-favicon": "^1.2.0",
     "koa-json": "^1.1.1",
+    "koa-proxy": "^0.4.1",
     "koa-router": "^5.1.2",
     "koa-static": "^1.4.9",
     "less-plugin-autoprefix": "^1.4.2",
