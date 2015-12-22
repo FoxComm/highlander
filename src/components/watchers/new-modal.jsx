@@ -27,7 +27,7 @@ export default class AddWatcherModal extends React.Component {
       entityId: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
     }).isRequired,
     cancelAction: PropTypes.func.isRequired,
-    suggestCustomers: PropTypes.func.isRequired,
+    suggestWatchers: PropTypes.func.isRequired,
     suggestedItems: PropTypes.array.isRequired,
     selectedWatchers: PropTypes.array,
     onItemSelected: PropTypes.func,
@@ -74,7 +74,7 @@ export default class AddWatcherModal extends React.Component {
       <PilledInput
         value={this.state.query}
         onChange={(e) => this.setState({query: e.target.value})}
-        pills={this.props.selectedWatchers.map(user => user.name)}
+        pills={this.props.selectedWatchers.map(user => `${user.firstName} ${user.lastName}`)}
         icon={null}
         onPillClose={(name, idx) => this.props.onDeleteClick(name, idx)} />
     );
@@ -86,13 +86,14 @@ export default class AddWatcherModal extends React.Component {
 
   typeaheadItem(props) {
     const item = props.item;
+    const name = `${item.firstName} ${item.lastName}`;
     return (
       <div className="fc-add-watcher-modal__typeahead-item">
         <div className="fc-add-watcher-modal__typeahead-item-icon">
-          <UserInitials name={item.name} email={item.email} />
+          <UserInitials name={name} email={item.email} />
         </div>
         <div className="fc-add-watcher-modal__typeahead-item-name">
-          {item.name}
+          {name}
         </div>
         <div className="fc-add-watcher-modal__typeahead-item-email">
           {item.email}
@@ -114,7 +115,7 @@ export default class AddWatcherModal extends React.Component {
             <Typeahead
               className="_no-search-icon"
               labelClass="fc-add-watcher-modal__label"
-              fetchItems={props.suggestCustomers}
+              fetchItems={props.suggestWatchers}
               minQueryLength={2}
               component={this.typeaheadItem}
               items={props.suggestedItems}

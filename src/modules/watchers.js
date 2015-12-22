@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import Api from '../lib/api';
+import { searchAdmins } from '../elastic/store-admins';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 
@@ -35,10 +36,17 @@ export function fetchAssignees(entity) {
 
 export function suggestWatchers(entity, term) {
   return dispatch => {
-    // API call will be here
-    return Api.get('/fakeurl').then(
-      () => dispatch(setSuggestedWathcers(entity, fakeData)),
-      () => dispatch(setSuggestedWathcers(entity, fakeData))
+    return searchAdmins(term).then(
+      (data) => {
+        const hits = _.get(data, ['hits', 'hits'], []);
+        const admins = hits.reduce(function (acc, item) {
+          const admin = _.get(item, '_source');
+          acc.push(admin);
+          return acc;
+        }, []);
+        return dispatch(setSuggestedWathcers(entity, admins));
+      },
+      () => dispatch(setSuggestedWathcers(entity, []))
     );
   };
 }

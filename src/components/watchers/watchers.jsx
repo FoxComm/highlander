@@ -185,7 +185,7 @@ export default class Watchers extends React.Component {
         <AddWatcherModal isVisible={isVisible}
                          entity={this.entity}
                          cancelAction={() => this.props.closeAddingModal(this.entity)}
-                         suggestCustomers={() => this.props.suggestWatchers(this.entity)}
+                         suggestWatchers={(term) => this.props.suggestWatchers(this.entity, term)}
                          suggestedItems={suggestedItems}
                          selectedWatchers={selectedItems}
                          onItemSelected={(item) => this.props.itemSelected(this.entity, item)}
