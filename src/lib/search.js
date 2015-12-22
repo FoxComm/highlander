@@ -1,4 +1,5 @@
 import fetch from 'isomorphic-fetch';
+import _ from 'lodash';
 
 function searchURI(uri) {
   return `/api/search/${uri}`;
@@ -7,11 +8,9 @@ function searchURI(uri) {
 function serialize(data) {
   const params = [];
   for (let param in data) {
-    if (data.hasOwnProperty(param)) {
-      const value = data[param];
-      if (value != null) {
-        params.push(encodeURIComponent(param) + '=' + encodeURIComponent(value));
-      }
+    const value = _.get(data, 'param');
+    if (!_.isNull(value)) {
+      params.push(encodeURIComponent(param) + '=' + encodeURIComponent(value));
     }
   }
   return params.join('&');
@@ -20,13 +19,9 @@ function serialize(data) {
 function request(method, uri, data) {
   uri = searchURI(uri);
 
-  const headers = {};
-  const token = localStorage.getItem('token');
-
-  headers['Content-Type'] = 'application/json;charset=UTF-8';
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
+  const headers = {
+    'Content-Type': 'application/json:charset=UTF-8'
+  };
 
   const options = { method, headers };
 
