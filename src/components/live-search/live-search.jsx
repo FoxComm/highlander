@@ -197,7 +197,8 @@ export default class LiveSearch extends React.Component {
 
   @autobind
   inputFocus() {
-    if (!_.isEmpty(this.state.searchOptions)) {
+    const { isFocus, optionsVisible, searchOptions } = this.state;
+    if (!isFocus && !optionsVisible && !_.isEmpty(searchOptions)) {
       this.setState({
         ...this.state,
         isFocused: true,

@@ -128,8 +128,8 @@ export default class SearchTerm {
 
     if (this.matchesSearchTerm(search)) {
       terms.push(this);
-    } else if (_.startsWith(nSearch, nTerm) && !_.isEmpty(this._options)) {
-      terms = flatMap(this._options, option => option.applicableTerms(search));
+    } else if (_.startsWith(nSearch, nTerm) && !_.isEmpty(this.children)) {
+      terms = flatMap(this.children, child => child.applicableTerms(search));
     }
 
     return terms;
