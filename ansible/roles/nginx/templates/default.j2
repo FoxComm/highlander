@@ -44,7 +44,7 @@ server {
         end
     ';
 
-    #This proxies to ElasticSearch phoenix index 
+    #This proxies to ElasticSearch phoenix index
     #The location is kept internal for use by /api/search
     location /internal-search/ {
         internal;
@@ -55,7 +55,15 @@ server {
     #Metadata leaving only the results.
     location /api/search/ {
         default_type 'application/json';
-        content_by_lua ' 
+        content_by_lua '
+
+            function map(array, func)
+              local new_array = {}
+              for i,v in ipairs(array) do
+                new_array[i] = func(v)
+              end
+              return new_array
+            end
 
             -- convert to internal query
             local uri = ngx.re.sub(ngx.var.uri, "api/search", "internal-search")
@@ -65,7 +73,7 @@ server {
             end
 
             -- map is needed because ngx.var.request_method returns a string
-            local map = {
+            local methodsMap = {
                 GET = ngx.HTTP_GET,
                 POST = ngx.HTTP_POST,
                 PUT = ngx.HTTP_PUT,
@@ -73,7 +81,7 @@ server {
             }
 
             local body = ngx.req.read_body()
-            local method = map[ngx.var.request_method]
+            local method = methodsMap[ngx.var.request_method]
 
             --get json result from elastic search
             local res = ngx.location.capture(req, { method = method,  body = body })
@@ -81,6 +89,13 @@ server {
             --parse
             local j = cjson.new()
             local json = j.decode(res.body)
+
+            -- we need only _source filed from the hits
+            json.hits.result = map(json.hits.hits, function(hit)
+                return hit._source
+            end)
+            json.hits.pagination = {total = json.hits.total}
+            json.hits.hits = nil
 
             --only show hits
             --TODO handle error better if hits is undefined.
