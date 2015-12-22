@@ -12,8 +12,7 @@ create table export_addresses (
 );
 
 create table export_assignees (
-    first_name  text,
-    last_name   text,
+    name        text,
     assigned_at text
 );
 

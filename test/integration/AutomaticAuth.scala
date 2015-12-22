@@ -11,7 +11,7 @@ trait AutomaticAuth extends SuiteMixin
   with HttpSupport { this: Suite with PatienceConfiguration with DbTestSupport ⇒
 
   val authedStoreAdmin = StoreAdmin(id = 1, email = "donkey@donkey.com", password = "donkeyPass",
-          firstName = "Mister", lastName = "Donkey")
+          name = "Mister Donkey")
 
   val authedCustomer = Customer(id = 1, email = "donkey@donkey.com", password = Some("donkeyPass"),
           name = Some("Mister Donkey"))

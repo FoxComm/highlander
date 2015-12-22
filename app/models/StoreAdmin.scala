@@ -13,17 +13,14 @@ import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class StoreAdmin(id: Int = 0, email: String, password: String,
-                      firstName: String, lastName: String,
-                      department: Option[String] = None)
+final case class StoreAdmin(id: Int = 0, email: String, password: String, name: String, department: Option[String] = None)
   extends ModelWithIdParameter[StoreAdmin]
   with Validation[StoreAdmin] {
 
   import Validation._
 
   override def validate: ValidatedNel[Failure, StoreAdmin] = {
-    ( notEmpty(firstName, "firstName")
-      |@| notEmpty(lastName, "lastName")
+    ( notEmpty(name, "name")
       |@| notEmpty(email, "email")
       ).map { case _ ⇒ this }
   }
@@ -33,11 +30,10 @@ class StoreAdmins(tag: Tag) extends GenericTable.TableWithId[StoreAdmin](tag, "s
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def email = column[String]("email")
   def password = column[String]("hashed_password")
-  def firstName = column[String]("first_name")
-  def lastName = column[String]("last_name")
+  def name = column[String]("name")
   def department = column[Option[String]]("department")
 
-  def * = (id, email, password, firstName, lastName, department) <> ((StoreAdmin.apply _).tupled, StoreAdmin.unapply)
+  def * = (id, email, password, name, department) <> ((StoreAdmin.apply _).tupled, StoreAdmin.unapply)
 
   def assignedOrders = OrderAssignments.filter(_.assigneeId === id).flatMap(_.order)
 }
