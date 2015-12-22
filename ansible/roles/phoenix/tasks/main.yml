@@ -5,7 +5,7 @@
   sudo: true
 
 - name: Copy Service
-  template: src=phoenix.service dest="{{dest_services}}/phoenix.service" 
+  template: src=phoenix.service dest="{{dest_services}}/phoenix.service"
   sudo: true
 
 - name: Setup Service

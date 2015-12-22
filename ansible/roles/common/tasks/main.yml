@@ -15,18 +15,18 @@
   apt: name={{ item }} state=latest force=yes
   sudo: true
   with_items:
-    - curl 
-    - debconf-utils 
-    - jq 
-    - make 
+    - curl
+    - debconf-utils
+    - jq
+    - make
     - openjdk-8-jdk
-    - python-software-properties 
-    - sbt 
-    - software-properties-common 
-    - tmux 
-    - htop 
-    - unzip 
+    - python-software-properties
+    - sbt
+    - software-properties-common
+    - tmux
+    - htop
+    - unzip
 
-- name: Setup Unprivileged 
+- name: Setup Unprivileged
   command: /usr/sbin/usermod -a -G systemd-journal {{ user }}
   sudo: true

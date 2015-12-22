@@ -9,7 +9,10 @@ build:
 deploy-stage:
 	ansible-playbook -i ./staging ansible/stage.yml
 
-test:
+lint:
+	ansible-lint ansible/*.yml
+
+test: lint
 	$(GO) test -v ./
 
-.PHONY: all build test
+.PHONY: all build lint test
