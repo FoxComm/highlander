@@ -1,13 +1,13 @@
 const searchTerms = [
   {
-    term: 'Order',
+    title: 'Order',
     type: 'object',
     options: [
       {
-        term: 'ID',
+        title: 'ID',
         type: 'string'
       }, {
-        term: 'State',
+        title: 'State',
         type: 'enum',
         suggestions: [
           'Cart',
@@ -20,26 +20,26 @@ const searchTerms = [
           'Canceled'
         ]
       }, {
-        term: 'Date Placed',
+        title: 'Date Placed',
         type: 'date'
       }
     ]
   }, {
-    term: 'Shipment',
+    title: 'Shipment',
     type: 'object',
     options: [
       {
-        term: 'State',
+        title: 'State',
         type: 'enum',
         suggestions: ['Shipped', 'Partially Shipped', 'Delivered']
       }, {
-        term: 'Method',
+        title: 'Method',
         type: 'string'
       }, {
-        term: 'Cost',
+        title: 'Cost',
         type: 'number'
       }, {
-        term: 'Total Number',
+        title: 'Total Number',
         type: 'number'
       }
     ]

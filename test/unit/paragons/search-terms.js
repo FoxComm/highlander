@@ -6,23 +6,23 @@ const SearchTerm = importSource('paragons/search-term.js');
 describe('paragons.searchTerm', function() {
   const jsonTerms = [
     {
-      term: 'String Term',
+      title: 'String Term',
       type: 'string'
     }, {
-      term: 'Number Term',
+      title: 'Number Term',
       type: 'number'
     }, {
-      term: 'Date Term',
+      title: 'Date Term',
       type: 'date'
     }, {
-      term: 'Nested Term',
+      title: 'Nested Term',
       type: 'object',
       options: [{
-        term: 'Child Term',
+        title: 'Child Term',
         type: 'string'
       }]
     }, {
-      term: 'Enum Term',
+      title: 'Enum Term',
       type: 'enum',
       suggestions: ['One', 'Two', 'Three']
     }
@@ -40,7 +40,7 @@ describe('paragons.searchTerm', function() {
   describe('.displayTerm', function() {
     it('should use the term as the display term', function() {
       _.forEach(terms, (term, idx) => {
-        expect(term.displayTerm).to.be.equal(jsonTerms[idx].term);
+        expect(term.displayTerm).to.be.equal(jsonTerms[idx].title);
       });
     });
   });
@@ -51,7 +51,7 @@ describe('paragons.searchTerm', function() {
     });
 
     it('should be empty with a value term', function() {
-      const valueTerm = new SearchTerm({ term: 'Value Term', type: 'value' });
+      const valueTerm = new SearchTerm({ title: 'Value Term', type: 'value' });
       expect(valueTerm.displayAction).to.be.equal('');
     });
   });
@@ -64,28 +64,28 @@ describe('paragons.searchTerm', function() {
     });
 
     it('should display the exact displayValue for value terms', function() {
-      const valueTerm = new SearchTerm({ term: 'Value Term', type: 'value' });
+      const valueTerm = new SearchTerm({ title: 'Value Term', type: 'value' });
       expect(valueTerm.selectionValue).to.be.equal(valueTerm.displayTerm);
     });
   });
 
   describe('.applicableTerms', function() {
     const nestedTerm = new SearchTerm({
-      term: 'Parent',
+      title: 'Parent',
       type: 'object',
       options: [
         {
-          term: 'Child String',
+          title: 'Child String',
           type: 'string'
         }, {
-          term: 'Child Number',
+          title: 'Child Number',
           type: 'number'
         }
       ]
     });
 
     const enumTerm = new SearchTerm({
-      term: 'An enumeration',
+      title: 'An enumeration',
       type: 'enum',
       suggestions: ['One', 'Two', 'Three']
     });
@@ -184,21 +184,21 @@ describe('paragons.searchTerm', function() {
 
   describe('.selectTerm', function() {
     const nestedTerm = new SearchTerm({
-      term: 'Parent',
+      title: 'Parent',
       type: 'object',
       options: [
         {
-          term: 'Child String',
+          title: 'Child String',
           type: 'string'
         }, {
-          term: 'Child Number',
+          title: 'Child Number',
           type: 'number'
         }
       ]
     });
 
     const enumTerm = new SearchTerm({
-      term: 'An enumeration',
+      title: 'An enumeration',
       type: 'enum',
       suggestions: ['One', 'Two', 'Three']
     });

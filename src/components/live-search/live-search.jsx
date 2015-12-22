@@ -31,7 +31,7 @@ export default class LiveSearch extends React.Component {
     const {searchValue, currentOptions, searches: pills} = search;
 
     this.state = {
-      availableOptions: props.state.potentialOptions,
+      availableOptions: currentOptions,
       isFocused: false,
       optionsVisible: false,
       pills: pills,
@@ -301,7 +301,7 @@ export default class LiveSearch extends React.Component {
       const option = options[0];
       newSearchTerm = '';
       options = SearchTerm.potentialTerms(this.state.availableOptions, '');
-      this.props.submitFilter(option);
+      this.props.submitFilter(option.displayTerm);
     }
 
     // Third, update the state.

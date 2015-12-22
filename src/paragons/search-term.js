@@ -14,25 +14,25 @@ export default class SearchTerm {
 
   constructor(searchTermJson, parentTitle = '') {
     if (_.isEmpty(parentTitle)) {
-      this._term = searchTermJson.term;
+      this._title = searchTermJson.title;
     } else {
-      this._term = `${parentTitle} : ${searchTermJson.term}`;
+      this._title = `${parentTitle} : ${searchTermJson.title}`;
     }
 
     this._type = searchTermJson.type;
 
     if (!_.isEmpty(searchTermJson.options)) {
-      this._options = searchTermJson.options.map(o => new SearchTerm(o, this._term));
+      this._options = searchTermJson.options.map(o => new SearchTerm(o, this._title));
     } else if (!_.isEmpty(searchTermJson.suggestions)) {
       this._options = searchTermJson.suggestions.map(s => {
-        const suggestion = { options: [], suggestions: [], term: s, type: 'value' };
-        return new SearchTerm(suggestion, this._term);
+        const suggestion = { options: [], suggestions: [], title: s, type: 'value' };
+        return new SearchTerm(suggestion, this._title);
       });
     }
   }
 
   get displayTerm() {
-    return this._term;
+    return this._title;
   }
 
   get displayAction() {
