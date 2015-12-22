@@ -15,14 +15,16 @@ import utils.Slick.DbResult
 import utils.Slick.implicits._
 
 import scala.concurrent.ExecutionContext
+import models.activity.ActivityContext
 
 object NoteManager {
 
   def createOrderNote(refNum: String, author: StoreAdmin, payload: payloads.CreateNote)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
 
     order ← * <~ Orders.mustFindByRefNum(refNum)
     note  ← * <~ Notes.create(Note.forOrder(order.id, author.id, payload))
+    _     ← * <~ LogActivity.orderNoteCreated(author, refNum, payload.body)
   } yield AdminNotes.build(note, author)).runT()
 
   def createGiftCardNote(code: String, author: StoreAdmin, payload: payloads.CreateNote)
@@ -57,9 +59,22 @@ object NoteManager {
   }
 
   def updateOrderNote(refNum: String, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    Orders.findByRefNum(refNum).selectOne { _ ⇒ updateNote(noteId, author, payload) }
-  }
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
+
+    order   ← * <~ Orders.mustFindByRefNum(refNum)
+    oldNote ← * <~ Notes.findOneByIdAndAdminId(noteId, author.id).mustFindOr(NotFoundFailure404(Note, noteId))
+    note    ← * <~ Notes.update(oldNote, oldNote.copy(body = payload.body))
+    _       ← * <~ LogActivity.orderNoteUpdated(author, refNum, oldNote.body, payload.body)
+  } yield AdminNotes.build(note, author)).runT()
+
+  def deleteOrderNote(refNum: String, noteId: Int, author: StoreAdmin)
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Unit] = (for {
+
+    order   ← * <~ Orders.mustFindByRefNum(refNum)
+    oldNote ← * <~ Notes.findOneByIdAndAdminId(noteId, author.id).mustFindOr(NotFoundFailure404(Note, noteId))
+    note    ← * <~ Notes.update(oldNote, oldNote.copy(deletedAt = Some(Instant.now), deletedBy = Some(author.id)))
+    _       ← * <~ LogActivity.orderNoteDeleted(author, refNum, note.body)
+  } yield ()).runT()
 
   def updateGiftCardNote(code: String, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
@@ -96,8 +111,7 @@ object NoteManager {
 
   private def notFound(noteId: Int): NotFoundFailure404 = NotFoundFailure404(Note, noteId)
 
-  def deleteNote(noteId: Int, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database): Result[Unit] = {
+  def deleteNote(noteId: Int, admin: StoreAdmin)(implicit ec: ExecutionContext, db: Database): Result[Unit] = {
     val finder = Notes.findById(noteId).extract
 
     finder.selectOneForUpdate { note ⇒

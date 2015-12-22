@@ -2,6 +2,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import models.activity.ActivityContext
 import models.{Notes, _}
 import responses.AdminNotes
 import services.{NotFoundFailure404, NoteManager}
@@ -14,6 +15,8 @@ import utils.Slick.implicits._
 import utils.time._
 
 class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+
+  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
 
   "POST /v1/notes/order/:refNum" - {
     "can be created by an admin for an order" in new Fixture {

@@ -92,18 +92,24 @@ object Admin {
             }
           } ~
           (post & pathEnd & entity(as[payloads.CreateNote])) { payload ⇒
-            goodOrFailures {
-              NoteManager.createOrderNote(refNum, admin, payload)
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                NoteManager.createOrderNote(refNum, admin, payload)
+              }
             }
           } ~
           (patch & path(IntNumber) & pathEnd & entity(as[payloads.UpdateNote])) { (noteId, payload) ⇒
-            goodOrFailures {
-              NoteManager.updateOrderNote(refNum, noteId, admin, payload)
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                NoteManager.updateOrderNote(refNum, noteId, admin, payload)
+              }
             }
           } ~
           (delete & path(IntNumber)) { noteId ⇒
-            complete {
-              NoteManager.deleteNote(noteId, admin).map(renderNothingOrFailures)
+            activityContext(admin) { implicit ac ⇒
+              complete {
+                NoteManager.deleteOrderNote(refNum, noteId, admin).map(renderNothingOrFailures)
+              }
             }
           }
         } ~

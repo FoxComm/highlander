@@ -12,7 +12,7 @@ import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
-
+import utils.Slick.implicits._
 
 final case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String,
   createdAt: Instant = Instant.now, deletedAt: Option[Instant] = None, deletedBy: Option[Int] = None)
@@ -82,6 +82,9 @@ object Notes extends TableQueryWithId[Note, Notes](
 
   def filterByIdAndAdminId(id: Int, adminId: Int): QuerySeq =
     filter(_.id === id).filter(_.storeAdminId === adminId)
+
+  def findOneByIdAndAdminId(id: Int, adminId: Int): DBIO[Option[Note]] =
+    filter(_.id === id).filter(_.storeAdminId === adminId).one
 
   private [this] def filterByType(referenceType: Note.ReferenceType) = filter(_.referenceType === referenceType)
 

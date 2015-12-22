@@ -11,7 +11,7 @@ import monocle.Lens
 import monocle.macros.GenLens
 import payloads.AddGiftCardLineItem
 import services.{Failure, Failures, GeneralFailure, GiftCardIsInactive, GiftCardMustBeCart, GiftCardMustNotBeCart,
-GiftCardNotEnoughBalance}
+GiftCardNotEnoughBalance, LogActivity}
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType

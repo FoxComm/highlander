@@ -38,23 +38,24 @@ object CreditCardManager {
   def buildResponses(records: Seq[(CreditCard, Region)]): Seq[Root] =
     records.map((buildResponse _).tupled)
 
-  def createCardThroughGateway(admin: StoreAdmin, customer: Customer, payload: CreateCreditCard)
+  def createCardThroughGateway(admin: StoreAdmin, customerId: Int, payload: CreateCreditCard)
     (implicit ec: ExecutionContext, db: Database, apis: Apis, ac: ActivityContext): Result[Root] = {
 
-    def saveCardAndAddress(stripeCustomer: StripeCustomer, stripeCard: StripeCard, address: Address):
+    def saveCardAndAddress(customer: Customer, stripeCustomer: StripeCustomer, stripeCard: StripeCard, address: Address):
     ResultT[DBIO[CreditCard]] = {
-      val cc = CreditCard.build(customer.id, stripeCustomer, stripeCard, payload, address)
+      val cc = CreditCard.build(customerId, stripeCustomer, stripeCard, payload, address)
       val saveAddress = if (address.isNew)
-        Addresses.saveNew(address.copy(customerId = customer.id))
+        Addresses.saveNew(address.copy(customerId = customerId))
       else
         DBIO.successful(address)
 
-      ResultT.rightAsync(saveAddress >> CreditCards.saveNew(cc))
+      val logActivity = LogActivity.ccCreated(admin, customer, cc)
+      ResultT.rightAsync(logActivity >> saveAddress >> CreditCards.saveNew(cc))
     }
 
     def getExistingStripeIdAndAddress: ResultT[(Option[String], Address)] = {
       val queries = for {
-        stripeId  ← CreditCards.filter(_.customerId === customer.id).map(_.gatewayCustomerId).one
+        stripeId  ← CreditCards.filter(_.customerId === customerId).map(_.gatewayCustomerId).one
         address   ← getAddressFromPayload(payload.addressId, payload.address)
       } yield (stripeId, address)
 
@@ -64,24 +65,31 @@ object CreditCardManager {
       })
     }
 
-    val transformer = for {
-      _       ← ResultT.fromXor(payload.validate.toXor)
-      res     ← getExistingStripeIdAndAddress
-      res2    ← res match { case (sId, address) ⇒
-        ResultT(gateway.createCard(customer.email, payload, sId, address))
-      }
-      newCard ← res2 match { case (sCustomer, sCard) ⇒
-        saveCardAndAddress(sCustomer, sCard, res._2)
-      }
-    } yield newCard
+    def processCreditCardCreation(customer: Customer) = {
+      val transformer = for {
+        _               ← ResultT.fromXor(payload.validate.toXor)
+        res             ← getExistingStripeIdAndAddress
+        res2            ← res match { case (sId, address) ⇒
+          ResultT(gateway.createCard(customer.email, payload, sId, address))
+        }
+        newCard         ← res2 match { case (sCustomer, sCard) ⇒
+          saveCardAndAddress(customer, sCustomer, sCard, res._2)
+        }
+      } yield newCard
 
-    transformer.value.flatMap { res ⇒
-      res.fold(
-        Result.left,
-        _.flatMap { newCard ⇒
-          DBIO.successful(newCard).zip(Regions.findOneById(newCard.regionId).safeGet)
-        }.transactionally.run().flatMap { case (cc, r) ⇒ Result.good(buildResponse(cc, r)) }
-      )
+      transformer.value.flatMap { res ⇒
+        res.fold(
+          Result.left,
+          _.flatMap { newCard ⇒
+            DBIO.successful(newCard).zip(Regions.findOneById(newCard.regionId).safeGet)
+          }.transactionally.run().flatMap { case (cc, r) ⇒ Result.good(buildResponse(cc, r)) }
+        )
+      }
+    }
+
+    Customers.findById(customerId).result.headOption.run().flatMap {
+      case Some(customer) ⇒ processCreditCardCreation(customer)
+      case _              ⇒ Result.failure(NotFoundFailure404(Customer, customerId))
     }
   }
 
@@ -104,14 +112,14 @@ object CreditCardManager {
       cc        ← * <~ CreditCards.mustFindByIdAndCustomer(id, customerId)
       region    ← * <~ Regions.findOneById(cc.regionId).safeGet.toXor
       update    ← * <~ CreditCards.update(cc, cc.copy(inWallet = false, deletedAt = Some(Instant.now())))
-      _         ← * <~ LogActivity.ccDeleted(admin, customer, cc, region)
+      _         ← * <~ LogActivity.ccDeleted(admin, customer, cc)
     } yield ()).runT()
   }
 
   def editCreditCard(admin: StoreAdmin, customerId: Int, id: Int, payload: EditCreditCard)
     (implicit ec: ExecutionContext, db: Database, apis: Apis, ac: ActivityContext): Result[Root] = {
 
-    def update(cc: CreditCard): ResultT[DBIO[CreditCard]] = {
+    def update(customer: Customer, cc: CreditCard): ResultT[DBIO[CreditCard]] = {
       if (!cc.inWallet)
         ResultT.leftAsync(CannotUseInactiveCreditCard(cc).single)
       else {
@@ -122,13 +130,12 @@ object CreditCardManager {
           expMonth = payload.expMonth.getOrElse(cc.expMonth)
         )
 
-        val newVersion = CreditCards.saveNew(updated)
-        val deactivate = CreditCards.findById(cc.id).extract.map(_.inWallet).update(false)
+        val newVersion  = CreditCards.saveNew(updated)
+        val deactivate  = CreditCards.findById(cc.id).extract.map(_.inWallet).update(false)
+        val logActivity = LogActivity.ccUpdated(admin, customer, updated, cc)
+        val operations  = logActivity >> deactivate >> newVersion
 
-        ResultT(gateway.editCard(updated).map {
-          case Xor.Left(f)  ⇒ Xor.left(f)
-          case Xor.Right(_) ⇒ Xor.right(deactivate >> newVersion)
-        })
+        ResultT(gateway.editCard(updated).map(xor ⇒ xor.map(_ ⇒ operations)))
       }
     }
 
@@ -154,33 +161,40 @@ object CreditCardManager {
       ResultT.rightAsync(action)
     }
 
-    val getCardAndAddressChange: ResultT[CreditCard] = {
-      val queries = for {
-        creditCard  ← getCard(customerId, id)
-        address     ← getAddressFromPayload(payload.addressId, payload.address)
-      } yield (creditCard, address)
+    def processCreditCardUpdate(customer: Customer) = {
+      val getCardAndAddressChange: ResultT[CreditCard] = {
+        val queries = for {
+          creditCard  ← getCard(customerId, id)
+          address     ← getAddressFromPayload(payload.addressId, payload.address)
+        } yield (creditCard, address)
 
-      ResultT(queries.run().map {
-        case (Some(cc), address)  ⇒ Xor.right(address.fold(cc)(cc.copyFromAddress))
-        case (None, _)            ⇒ Xor.left(creditCardNotFound(id))
-      })
+        ResultT(queries.run().map {
+          case (Some(cc), address)  ⇒ Xor.right(address.fold(cc)(cc.copyFromAddress))
+          case (None, _)            ⇒ Xor.left(creditCardNotFound(id))
+        })
+      }
+
+      val transformer: ResultT[DBIO[CreditCard]] = for {
+        _             ← ResultT.fromXor(payload.validate.toXor)
+        cc            ← getCardAndAddressChange
+        updated       ← update(customer, cc)
+        withAddress   ← createNewAddressIfProvided(updated)
+        payment       ← cascadeChangesToCarts(withAddress)
+      } yield payment
+
+      transformer.value.flatMap { res ⇒
+        res.fold(
+          Result.left,
+          _.flatMap { newCard ⇒
+              DBIO.successful(newCard).zip(Regions.findOneById(newCard.regionId).safeGet)
+          }.transactionally.run().flatMap { case (cc, r) ⇒ Result.good(buildResponse(cc, r)) }
+        )
+      }
     }
 
-    val transformer: ResultT[DBIO[CreditCard]] = for {
-      _             ← ResultT.fromXor(payload.validate.toXor)
-      cc            ← getCardAndAddressChange
-      updated       ← update(cc)
-      withAddress   ← createNewAddressIfProvided(updated)
-      payment       ← cascadeChangesToCarts(withAddress)
-    } yield payment
-
-    transformer.value.flatMap { res ⇒
-      res.fold(
-        Result.left,
-        _.flatMap { newCard ⇒
-          DBIO.successful(newCard).zip(Regions.findOneById(newCard.regionId).safeGet)
-        }.transactionally.run().flatMap { case (cc, r) ⇒ Result.good(buildResponse(cc, r)) }
-      )
+    Customers.findById(customerId).result.headOption.run().flatMap {
+      case Some(customer) ⇒ processCreditCardUpdate(customer)
+      case _              ⇒ Result.failure(NotFoundFailure404(Customer, customerId))
     }
   }
 

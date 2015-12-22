@@ -33,27 +33,37 @@ object OrderRoutes {
           }
         } ~
         (post & pathEnd & entity(as[CreateOrder])) { payload ⇒
-          goodOrFailures { OrderCreator.createCart(payload) }
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              OrderCreator.createCart(admin, payload)
+            }
+          }
         } ~
         (patch & pathEnd & sortAndPage) { implicit sortAndPage ⇒
           entity(as[BulkUpdateOrdersPayload]) { payload ⇒
-            goodOrFailures {
-              OrderStatusUpdater.updateStatuses(payload.referenceNumbers, payload.status)
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                OrderStatusUpdater.updateStatuses(admin, payload.referenceNumbers, payload.status)
+              }
             }
           }
         } ~
         pathPrefix("assignees") {
           (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
             entity(as[BulkAssignment]) { payload ⇒
-              goodOrFailures {
-                OrderAssignmentUpdater.assignBulk(payload)
+              activityContext(admin) { implicit ac ⇒
+                goodOrFailures {
+                  OrderAssignmentUpdater.assignBulk(admin, payload)
+                }
               }
             }
           } ~
           (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
             entity(as[BulkAssignment]) { payload ⇒
-              goodOrFailures {
-                OrderAssignmentUpdater.unassign(payload)
+              activityContext(admin) { implicit ac ⇒
+                goodOrFailures {
+                  OrderAssignmentUpdater.unassign(admin, payload)
+                }
               }
             }
           }
@@ -61,15 +71,19 @@ object OrderRoutes {
         pathPrefix("watchers") {
           (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
             entity(as[BulkWatchers]) { payload ⇒
-              goodOrFailures {
-                OrderWatcherUpdater.watchBulk(payload)
+              activityContext(admin) { implicit ac ⇒
+                goodOrFailures {
+                  OrderWatcherUpdater.watchBulk(admin, payload)
+                }
               }
             }
           } ~
           (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
             entity(as[BulkWatchers]) { payload ⇒
-              goodOrFailures {
-                OrderWatcherUpdater.unwatch(payload)
+              activityContext(admin) { implicit ac ⇒
+                goodOrFailures {
+                  OrderWatcherUpdater.unwatch(admin, payload)
+                }
               }
             }
           }
@@ -82,8 +96,10 @@ object OrderRoutes {
           }
         } ~
         (patch & pathEnd & entity(as[UpdateOrderPayload])) { payload ⇒
-          goodOrFailures {
-            OrderStatusUpdater.updateStatus(refNum, payload.status)
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              OrderStatusUpdater.updateStatus(admin, refNum, payload.status)
+            }
           }
         } ~
         (post & path("increase-remorse-period") & pathEnd) {
@@ -184,15 +200,19 @@ object OrderRoutes {
         } ~
         pathPrefix("assignees") {
           (post & pathEnd & entity(as[Assignment])) { payload ⇒
-            goodOrFailures {
-              OrderAssignmentUpdater.assign(refNum, payload.assignees)
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                OrderAssignmentUpdater.assign(admin, refNum, payload.assignees)
+              }
             }
           }
         } ~
         pathPrefix("watchers") {
           (post & pathEnd & entity(as[Watchers])) { payload ⇒
-            goodOrFailures {
-              OrderWatcherUpdater.watch(refNum, payload.watchers)
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                OrderWatcherUpdater.watch(admin, refNum, payload.watchers)
+              }
             }
           }
         } ~
