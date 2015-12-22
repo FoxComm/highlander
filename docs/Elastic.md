@@ -30,6 +30,7 @@ How to install "Green River" project locally (light version).
 	```
 	$ curl -XPUT 'http://localhost:9200/phoenix/customers_search_view/_mapping' -d @json/customers_mapping.json --header "Content-Type: application/json"
 	$ curl -XPUT 'http://localhost:9200/phoenix/orders_search_view/_mapping' -d @json/orders_mapping.json --header "Content-Type: application/json"
+	$ curl -XPUT 'http://localhost:9200/phoenix/store_admins_search_view/_mapping' -d @json/store_admins_mapping.json --header "Content-Type: application/json"
 	```
 
 6. Install [elasticdump](https://github.com/taskrabbit/elasticsearch-dump) tool to index test dataset (4 customers and 5 orders):

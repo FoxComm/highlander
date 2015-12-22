@@ -65,7 +65,7 @@ object AvroTransformers {
         "isDisabled" typed BooleanType,
         "isGuest" typed BooleanType,
         "isBlacklisted" typed BooleanType,
-        "joinedAt" typed DateType,
+        "joinedAt" typed DateType format "yyyy-MM-dd HH:mm:ss",
         "revenue" typed IntegerType,
         "rank" typed IntegerType,
         // Orders
@@ -73,8 +73,8 @@ object AvroTransformers {
         "orders" nested(
           "referenceNumber" typed StringType analyzer "autocomplete",
           "status" typed StringType index "not_analyzed",
-          "createdAt" typed DateType,
-          "placedAt" typed DateType,
+          "createdAt" typed DateType format "yyyy-MM-dd HH:mm:ss",
+          "placedAt" typed DateType format "yyyy-MM-dd HH:mm:ss",
           "subTotal" typed IntegerType,
           "shippingTotal" typed IntegerType,
           "adjustmentsTotal" typed IntegerType,
@@ -83,7 +83,7 @@ object AvroTransformers {
         ),
         // Purchased items
         "purchasedItemCount" typed IntegerType,
-        "purchasedItems" nested(
+        "purchasedItems" nested (
           "sku" typed StringType analyzer "autocomplete",
           "name" typed StringType analyzer "autocomplete",
           "price" typed IntegerType
@@ -115,8 +115,8 @@ object AvroTransformers {
         "id" typed IntegerType,
         "referenceNumber" typed StringType analyzer "autocomplete",
         "status" typed StringType index "not_analyzed",
-        "createdAt" typed DateType,
-        "placedAt" typed DateType,
+        "createdAt" typed DateType format "yyyy-MM-dd HH:mm:ss",
+        "placedAt" typed DateType format "yyyy-MM-dd HH:mm:ss",
         "currency" typed StringType index "not_analyzed",
         // Totals
         "subTotal" typed IntegerType,
@@ -129,7 +129,7 @@ object AvroTransformers {
           "name" typed StringType analyzer "autocomplete",
           "email" typed StringType analyzer "autocomplete",
           "isBlacklisted" typed BooleanType,
-          "joinedAt" typed DateType,
+          "joinedAt" typed DateType format "yyyy-MM-dd HH:mm:ss",
           "revenue" typed IntegerType,
           "rank" typed IntegerType
         ),
@@ -171,7 +171,7 @@ object AvroTransformers {
         "assignees" nested(
           "firstName" typed StringType analyzer "autocomplete",
           "lastName" typed StringType analyzer "autocomplete",
-          "assignedAt" typed DateType
+          "assignedAt" typed DateType format "yyyy-MM-dd HH:mm:ss"
         ),
         // RMAs
         "rmaCount" typed IntegerType,
@@ -179,7 +179,7 @@ object AvroTransformers {
           "referenceNumber" typed StringType analyzer "autocomplete",
           "status" typed StringType index "not_analyzed",
           "rmaType" typed StringType index "not_analyzed",
-          "placedAt" typed DateType
+          "placedAt" typed DateType format "yyyy-MM-dd HH:mm:ss"
         )
       )
     }
@@ -198,12 +198,12 @@ object AvroTransformers {
         "firstName" typed StringType analyzer "autocomplete",
         "lastName" typed StringType analyzer "autocomplete",
         "department" typed StringType analyzer "autocomplete",
-        "createdAt" typed DateType,
+        "createdAt" typed DateType format "yyyy-MM-dd HH:mm:ss",
         // Assignments
         "assignmentsCount" typed IntegerType,
         "assignments" nested(
           "referenceNumber" typed StringType analyzer "autocomplete",
-          "assignedAt" typed DateType
+          "assignedAt" typed DateType format "yyyy-MM-dd HH:mm:ss"
         )
       )
 

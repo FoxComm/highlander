@@ -7,9 +7,7 @@ import com.sksamuel.elastic4s.{EdgeNGramTokenFilter, LowercaseTokenFilter, Stand
 CustomAnalyzerDefinition, ElasticClient, ElasticsearchClientUri}
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings.MappingDefinition
-import org.elasticsearch.client.transport.NoNodeAvailableException
 import org.elasticsearch.common.settings.ImmutableSettings
-import org.elasticsearch.indices.IndexMissingException
 import org.elasticsearch.client.transport.NoNodeAvailableException
 import org.elasticsearch.transport.RemoteTransportException
 
@@ -117,7 +115,7 @@ class ElasticSearchProcessor(
           index into indexName / topic id jid doc PassthroughSource(document)
         }
 
-        req onFailure { 
+        req onFailure {
           case NonFatal(e) ⇒ Console.err.println(s"Error while indexing: $e")
         }
         req.map{ r ⇒ ()}

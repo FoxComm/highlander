@@ -58,7 +58,7 @@
 		},
 		"joinedAt": {
 			"type": "date",
-			"format": "dateOptionalTime"
+			"format": "yyyy-MM-dd HH:mm:ss"
 		},
 		"name": {
 			"type": "string",
@@ -75,14 +75,14 @@
 				},
 				"createdAt": {
 					"type": "date",
-					"format": "dateOptionalTime"
+					"format": "yyyy-MM-dd HH:mm:ss"
 				},
 				"grandTotal": {
 					"type": "integer"
 				},
 				"placedAt": {
 					"type": "date",
-					"format": "dateOptionalTime"
+					"format": "yyyy-MM-dd HH:mm:ss"
 				},
 				"referenceNumber": {
 					"type": "string",
@@ -127,6 +127,9 @@
 		},
 		"revenue": {
 			"type": "integer"
+		},
+		"saveForLaterCount": {
+			"type": "long"
 		},
 		"savedForLater": {
 			"type": "nested",

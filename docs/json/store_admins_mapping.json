@@ -1,0 +1,43 @@
+{
+	"properties": {
+		"assignments": {
+			"type": "nested",
+			"properties": {
+				"assignedAt": {
+					"type": "date",
+					"format": "yyyy-MM-dd HH:mm:ss"
+				},
+				"referenceNumber": {
+					"type": "string",
+					"analyzer": "autocomplete"
+				}
+			}
+		},
+		"assignmentsCount": {
+			"type": "integer"
+		},
+		"createdAt": {
+			"type": "date",
+			"format": "yyyy-MM-dd HH:mm:ss"
+		},
+		"department": {
+			"type": "string",
+			"analyzer": "autocomplete"
+		},
+		"email": {
+			"type": "string",
+			"analyzer": "autocomplete"
+		},
+		"firstName": {
+			"type": "string",
+			"analyzer": "autocomplete"
+		},
+		"id": {
+			"type": "integer"
+		},
+		"lastName": {
+			"type": "string",
+			"analyzer": "autocomplete"
+		}
+	}
+}

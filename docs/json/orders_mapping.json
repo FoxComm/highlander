@@ -8,7 +8,7 @@
 			"properties": {
 				"assignedAt": {
 					"type": "date",
-					"format": "dateOptionalTime"
+					"format": "yyyy-MM-dd HH:mm:ss"
 				},
 				"firstName": {
 					"type": "string",
@@ -65,7 +65,7 @@
 		},
 		"createdAt": {
 			"type": "date",
-			"format": "dateOptionalTime"
+			"format": "yyyy-MM-dd HH:mm:ss"
 		},
 		"creditCardCount": {
 			"type": "integer"
@@ -89,7 +89,7 @@
 				},
 				"joinedAt": {
 					"type": "date",
-					"format": "dateOptionalTime"
+					"format": "yyyy-MM-dd HH:mm:ss"
 				},
 				"name": {
 					"type": "string",
@@ -156,7 +156,7 @@
 		},
 		"placedAt": {
 			"type": "date",
-			"format": "dateOptionalTime"
+			"format": "yyyy-MM-dd HH:mm:ss"
 		},
 		"referenceNumber": {
 			"type": "string",
@@ -170,7 +170,7 @@
 			"properties": {
 				"placedAt": {
 					"type": "date",
-					"format": "dateOptionalTime"
+					"format": "yyyy-MM-dd HH:mm:ss"
 				},
 				"referenceNumber": {
 					"type": "string",
