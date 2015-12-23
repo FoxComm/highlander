@@ -84,7 +84,20 @@ export function addWatchers(entity) {
 
 export function removeFromGroup(entity, group, name) {
   return dispatch => {
-    dispatch(deleteFromGroup(entity, group, name));
+    const {entityType, entityId} = entity;
+
+    const groupMemberId = group.substring(0, group.length-1) + 'Id';
+
+    const data = {
+      referenceNumbers: [entityId],
+      [groupMemberId]: name          // Id must be here, not name!
+    };
+
+    // dispatch(deleteFromGroup(entity, group, name));
+    Api.post(`/orders/${group}/delete`, data).then(
+      () => dispatch(deleteFromGroup(entity, group, name)),
+      () => console.log('something bad happened')
+    );
   };
 }
 
