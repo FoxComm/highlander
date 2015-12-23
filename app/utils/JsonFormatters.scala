@@ -1,8 +1,8 @@
 package utils
 
 import models.rules.{Condition, QueryStatement}
-import models.{CreditCardCharge, GiftCard, GiftCardAdjustment, Order, OrderLineItem, PaymentMethod, Rma, RmaLineItem,
-RmaReason, Shipment, StoreCredit, StoreCreditAdjustment, Reason}
+import models.{SharedSearch, CreditCardCharge, GiftCard, GiftCardAdjustment, Order, OrderLineItem, PaymentMethod,
+Rma, RmaLineItem, RmaReason, Shipment, StoreCredit, StoreCreditAdjustment, Reason}
 import org.json4s.jackson
 import responses.CountryWithRegions
 
@@ -30,6 +30,7 @@ object JsonFormatters {
     CountryWithRegions.jsonFormat +
     QueryStatement.Comparison.jsonFormat +
     Condition.Operator.jsonFormat +
-    PaymentMethod.Type.jsonFormat
+    PaymentMethod.Type.jsonFormat +
+    SharedSearch.Scope.jsonFormat
 }
 
