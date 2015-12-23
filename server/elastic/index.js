@@ -13,14 +13,16 @@ module.exports = function(app) {
   });
 
   function* formatHandler() {
-    const body = JSON.parse(this.body);
+    if (this.request.url.match(/^\/api\/search\//)) {
+      const body = JSON.parse(this.body);
 
-    body.hits.result = body.hits.hits.map(hit => hit._source);
-    body.hits.hits = void 0;
-    body.hits.pagination = {total: body.hits.total};
-    body.hits.total = void 0;
+      body.hits.result = body.hits.hits.map(hit => hit._source);
+      body.hits.hits = void 0;
+      body.hits.pagination = {total: body.hits.total};
+      body.hits.total = void 0;
 
-    this.body = JSON.stringify(body.hits);
+      this.body = JSON.stringify(body.hits);
+    }
   }
 
   function* proxyAndFormat(next) {
