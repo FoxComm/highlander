@@ -4,6 +4,7 @@ import java.time.Instant
 
 import cats.implicits._
 import models.Orders.scope._
+import models.activity.ActivityContext
 import models.{StoreCreditManual, GiftCardManual, Customers, GiftCard, GiftCardAdjustment, GiftCardAdjustments,
 GiftCardManuals, GiftCardOrder, GiftCardOrders, GiftCards, Order, OrderLineItem, OrderLineItemGiftCard,
 OrderLineItemGiftCards, OrderLineItems, OrderPayments, Orders, Reasons, StoreAdmins, StoreCreditAdjustment,
@@ -28,6 +29,7 @@ class CheckoutTest
   import concurrent.ExecutionContext.Implicits.global
 
   implicit val apis: Apis = Apis(mock[StripeApi])
+  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
 
   def cartValidator(resp: CartValidatorResponse = CartValidatorResponse()): CartValidation = {
     val m = mock[CartValidation]

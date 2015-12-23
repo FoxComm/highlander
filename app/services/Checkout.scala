@@ -16,6 +16,7 @@ import utils.Slick.DbResult
 import utils.Slick.implicits._
 
 import scala.concurrent.ExecutionContext
+import models.activity.ActivityContext
 
 /*
   1) Run cart through validator
@@ -26,7 +27,7 @@ import scala.concurrent.ExecutionContext
   6) Create new cart for customer
  */
 final case class Checkout(cart: Order, cartValidator: CartValidation)
-  (implicit db: Database, ec: ExecutionContext, apis: Apis) {
+  (implicit db: Database, ec: ExecutionContext, apis: Apis, ac: ActivityContext) {
 
   def checkout: Result[Order] = (for {
       _     ← * <~ cart.mustBeCart
@@ -49,6 +50,8 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)
       storeCredits  ← authStoreCredits
       gcAdjs        = giftCards.getOrElse(List.empty).foldLeft(0)(_ + _.getAmount.abs)
       scAdjs        = storeCredits.getOrElse(List.empty).foldLeft(0)(_ + _.getAmount.abs)
+      _             ← if (gcAdjs > 0) LogActivity.gcFundsAuthorized(cart.referenceNumber, gcAdjs) else DbResult.unit
+      _             ← if (scAdjs > 0) LogActivity.scFundsAuthorized(cart.referenceNumber, scAdjs) else DbResult.unit
 
       ccs           ← authCreditCard(orderTotal = cart.grandTotal, internalPaymentTotal = gcAdjs + scAdjs)
     } yield (giftCards, storeCredits)).map { case (gc, sc) ⇒

@@ -7,17 +7,31 @@ StoreCreditResponse, ShippingMethods, StoreAdminResponse}
 
 /* Assignments */
 
-final case class AssignedToOrder(storeAdminId: Int, orderRefNum: String)
+final case class AssignedToOrder(admin: StoreAdminResponse.Root, order: FullOrder.Root,
+  assignees: Seq[StoreAdminResponse.Root])
   extends ActivityBase[AssignedToOrder]
 
-final case class UnassignedFromOrder(storeAdminId: Int, orderRefNum: String)
-  extends ActivityBase[UnassignedFromOrder]
+final case class BulkAssignedToOrders(admin: StoreAdminResponse.Root, assignee: StoreAdminResponse.Root,
+  orders: Seq[String])
+  extends ActivityBase[BulkAssignedToOrders]
 
-final case class AssignedToRma(storeAdminId: Int, rmaRefNum: String)
-  extends ActivityBase[AssignedToRma]
+final case class BulkUnassignedFromOrders(admin: StoreAdminResponse.Root, assignee: StoreAdminResponse.Root,
+  orders: Seq[String])
+  extends ActivityBase[BulkUnassignedFromOrders]
 
-final case class UnassignedFromRma(storeAdminId: Int, rmaRefNum: String)
-  extends ActivityBase[UnassignedFromRma]
+/* Watchers */
+
+final case class AddedWatchersToOrder(admin: StoreAdminResponse.Root, order: FullOrder.Root,
+  watchers: Seq[StoreAdminResponse.Root])
+  extends ActivityBase[AddedWatchersToOrder]
+
+final case class BulkAddedWatcherToOrders(admin: StoreAdminResponse.Root, watcher: StoreAdminResponse.Root,
+  orders: Seq[String])
+  extends ActivityBase[BulkAddedWatcherToOrders]
+
+final case class BulkRemovedWatcherFromOrders(admin: StoreAdminResponse.Root, watcher: StoreAdminResponse.Root,
+  orders: Seq[String])
+  extends ActivityBase[BulkRemovedWatcherFromOrders]
 
 /* Customers */
 
@@ -66,23 +80,27 @@ final case class CustomerAddressDeleted(admin: StoreAdminResponse.Root, customer
 /* Customer Credit Cards */
 
 final case class CreditCardAdded(admin: StoreAdminResponse.Root, customer: CustomerResponse.Root,
-  creditCard: CreditCardsResponse.Root)
+  creditCard: CreditCardsResponse.RootSimple)
   extends ActivityBase[CreditCardAdded]
 
 final case class CreditCardUpdated(admin: StoreAdminResponse.Root, customer: CustomerResponse.Root,
-  oldInfo: CreditCardsResponse.Root, newInfo: CreditCardsResponse.Root) extends ActivityBase[CreditCardUpdated]
+  oldInfo: CreditCardsResponse.RootSimple, newInfo: CreditCardsResponse.RootSimple)
+  extends ActivityBase[CreditCardUpdated]
 
 final case class CreditCardRemoved(admin: StoreAdminResponse.Root, customer: CustomerResponse.Root,
-  creditCard: CreditCardsResponse.Root)
+  creditCard: CreditCardsResponse.RootSimple)
   extends ActivityBase[CreditCardRemoved]
 
 /* Orders */
 
-final case class OrderCreated(admin: StoreAdminResponse.Root, order: FullOrder.Root)
-  extends ActivityBase[OrderCreated]
+final case class CartCreated(admin: StoreAdminResponse.Root, order: FullOrder.Root)
+  extends ActivityBase[CartCreated]
 
-final case class OrderStateChanged(admin: StoreAdminResponse.Root, order: FullOrder.Root)
+final case class OrderStateChanged(admin: StoreAdminResponse.Root, order: FullOrder.Root, oldState: Order.Status)
   extends ActivityBase[OrderStateChanged]
+
+final case class OrderBulkStateChanged(admin: StoreAdminResponse.Root, newState: Order.Status, orders: Seq[String])
+  extends ActivityBase[OrderBulkStateChanged]
 
 /* Order Line Items */
 
@@ -152,14 +170,14 @@ final case class OrderPaymentMethodDeletedGiftCard(admin: StoreAdminResponse.Roo
 
 /* Order Notes */
 
-final case class OrderNoteAdded(orderRefNum: String, newInfo: AdminNotes.Root)
-  extends ActivityBase[OrderNoteAdded]
+final case class OrderNoteCreated(admin: StoreAdminResponse.Root, orderRefNum: String, text: String)
+  extends ActivityBase[OrderNoteCreated]
 
-final case class OrderNoteUpdated(orderRefNum: String, oldInfo: AdminNotes.Root, newInfo: AdminNotes.Root)
+final case class OrderNoteUpdated(admin: StoreAdminResponse.Root, orderRefNum: String, oldText: String, newText: String)
   extends ActivityBase[OrderNoteUpdated]
 
-final case class OrderNoteRemoved(orderRefNum: String, oldInfo: AdminNotes.Root)
-  extends ActivityBase[OrderNoteRemoved]
+final case class OrderNoteDeleted(admin: StoreAdminResponse.Root, orderRefNum: String, text: String)
+  extends ActivityBase[OrderNoteDeleted]
 
 /* Gift Cards */
 
@@ -174,10 +192,10 @@ final case class GiftCardConvertedToStoreCredit(admin: StoreAdminResponse.Root, 
   storeCredit: StoreCreditResponse.Root)
   extends ActivityBase[GiftCardConvertedToStoreCredit]
 
-final case class GiftCardAuthorizedFunds(giftCard: GiftCardResponse.Root, orderRefNum: String, amount: Int)
+final case class GiftCardAuthorizedFunds(orderRefNum: String, amount: Int)
   extends ActivityBase[GiftCardAuthorizedFunds]
 
-final case class GiftCardCapturedFunds(giftCard: GiftCardResponse.Root, orderRefNum: String, amount: Int)
+final case class GiftCardCapturedFunds(orderRefNum: String, amount: Int)
   extends ActivityBase[GiftCardCapturedFunds]
 
 /* Store Credits */
@@ -194,8 +212,8 @@ final case class StoreCreditConvertedToGiftCard(admin: StoreAdminResponse.Root, 
   storeCredit: StoreCreditResponse.Root)
   extends ActivityBase[StoreCreditConvertedToGiftCard]
 
-final case class StoreCreditAuthorizedFunds(storeCredit: StoreCreditResponse.Root, orderRefNum: String, amount: Int)
+final case class StoreCreditAuthorizedFunds(orderRefNum: String, amount: Int)
   extends ActivityBase[StoreCreditAuthorizedFunds]
 
-final case class StoreCreditCapturedFunds(storeCredit: StoreCreditResponse.Root, orderRefNum: String, amount: Int)
+final case class StoreCreditCapturedFunds(orderRefNum: String, amount: Int)
   extends ActivityBase[StoreCreditCapturedFunds]

@@ -1,12 +1,13 @@
 package services.orders
 
 import scala.concurrent.ExecutionContext
+import models.activity.ActivityContext
 
 import models.Order.{Canceled, _}
-import models.{Order, OrderLineItem, OrderLineItems, Orders}
+import models.{StoreAdmin, Order, OrderLineItem, OrderLineItems, Orders}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import responses.{FullOrder, ResponseWithFailuresAndMetadata}
-import services.{Result, StatusTransitionNotAllowed, NotFoundFailure400, LockedFailure, Failures}
+import services.{LogActivity, Result, StatusTransitionNotAllowed, NotFoundFailure400, LockedFailure, Failures}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
@@ -17,25 +18,27 @@ import utils.DbResultT.implicits._
 
 object OrderStatusUpdater {
 
-  def updateStatus(refNum: String, newStatus: Order.Status)
-    (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = (for {
+  def updateStatus(admin: StoreAdmin, refNum: String, newStatus: Order.Status)
+    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[FullOrder.Root] = (for {
 
     order     ← * <~ Orders.mustFindByRefNum(refNum)
-    _         ← * <~ updateStatusesDbio(Seq(refNum), newStatus)
+    _         ← * <~ updateStatusesDbio(admin, Seq(refNum), newStatus, skipActivity = true)
     updated   ← * <~ Orders.mustFindByRefNum(refNum)
     response  ← * <~ FullOrder.fromOrder(updated).toXor
+    _         ← * <~ LogActivity.orderStateChanged(admin, response, order.status)
   } yield response).runT()
 
   // TODO: transfer sorting-paging metadata
-  def updateStatuses(refNumbers: Seq[String], newStatus: Order.Status)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[BulkOrderUpdateResponse] = {
-    updateStatusesDbio(refNumbers, newStatus).zip(OrderQueries.findAll.result).map { case (failures, orders) ⇒
+  def updateStatuses(admin: StoreAdmin, refNumbers: Seq[String], newStatus: Order.Status, skipActivity: Boolean = false)
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = {
+    updateStatusesDbio(admin, refNumbers, newStatus, skipActivity).zip(OrderQueries.findAll.result).map { case (failures, orders) ⇒
       ResponseWithFailuresAndMetadata.fromXor(orders, failures.swap.toOption.map(_.toList).getOrElse(Seq.empty))
     }.transactionally.run()
   }
 
-  private def updateStatusesDbio(refNumbers: Seq[String], newStatus: Order.Status)(implicit db: Database,
-    ec: ExecutionContext, sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResult[Unit] = {
+  private def updateStatusesDbio(admin: StoreAdmin, refNumbers: Seq[String], newStatus: Order.Status, skipActivity: Boolean = false)
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage,
+      ac: ActivityContext): DbResult[Unit] = {
 
     val query = Orders.filter(_.referenceNumber.inSet(refNumbers)).result
     appendForUpdate(query).flatMap { orders ⇒
@@ -45,8 +48,10 @@ object OrderStatusUpdater {
         .partition(_.transitionAllowed(newStatus))
 
       val (lockedOrders, absolutelyPossibleUpdates) = validTransitions.partition(_.isLocked)
+      val orderIds      = absolutelyPossibleUpdates.map(_.id)
+      val orderRefNums  = absolutelyPossibleUpdates.map(_.referenceNumber)
 
-      updateQueries(absolutelyPossibleUpdates.map(_.id), newStatus).flatMap { _ ⇒
+      updateQueriesWrapper(admin, orderIds, orderRefNums, newStatus, skipActivity).flatMap { _ ⇒
         // Failure handling
         val invalid = invalidTransitions.map { order ⇒
           StatusTransitionNotAllowed(order.status, newStatus, order.refNum)
@@ -62,9 +67,22 @@ object OrderStatusUpdater {
     }
   }
 
-  private def updateQueries(orderIds: Seq[Int], newStatus: Status) = newStatus match {
-    case Canceled ⇒ cancelOrders(orderIds)
-    case _ ⇒ Orders.filter(_.id.inSet(orderIds)).map(_.status).update(newStatus)
+  private def updateQueriesWrapper(admin: StoreAdmin, orderIds: Seq[Int], orderRefNums: Seq[String], newStatus: Status,
+    skipActivity: Boolean = false)(implicit db: Database, ec: ExecutionContext, ac: ActivityContext) = {
+
+    if (skipActivity)
+        updateQueries(admin, orderIds, orderRefNums, newStatus)
+    else
+      LogActivity.orderBulkStateChanged(admin, newStatus, orderRefNums) >>
+        updateQueries(admin, orderIds, orderRefNums, newStatus)
+  }
+
+  private def updateQueries(admin: StoreAdmin, orderIds: Seq[Int], orderRefNums: Seq[String], newStatus: Status)
+    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext) = newStatus match {
+      case Canceled ⇒
+        cancelOrders(orderIds)
+      case _ ⇒
+        Orders.filter(_.id.inSet(orderIds)).map(_.status).update(newStatus)
   }
 
   private def cancelOrders(orderIds: Seq[Int]) = {

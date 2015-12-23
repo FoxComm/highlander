@@ -142,10 +142,8 @@ object CustomerRoutes {
           } ~
           (post & pathEnd & entity(as[payloads.CreateCreditCard])) { payload ⇒
             activityContext(admin) { implicit ac ⇒
-              complete {
-                whenFound(Customers.findOneById(customerId).run()) { customer ⇒
-                  CreditCardManager.createCardThroughGateway(admin, customer, payload)
-                }
+              goodOrFailures {
+                CreditCardManager.createCardThroughGateway(admin, customerId, payload)
               }
             }
           } ~

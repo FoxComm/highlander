@@ -1,11 +1,14 @@
 import akka.http.scaladsl.model.StatusCodes
-import models.{Order, Customer, Customers}
+import models.activity.ActivityContext
+import models.{StoreAdmins, Order, Customer, Customers}
 import payloads.CreateOrder
 import responses.FullOrder.Root
 import services.orders.OrderCreator
 import services.CartFailures.CustomerHasCart
 import services.NotFoundFailure404
 import util.IntegrationTestBase
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.seeds.Seeds
 import Seeds.Factories
 import utils.Slick.implicits._
@@ -17,6 +20,8 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
 
   import concurrent.ExecutionContext.Implicits.global
   import Extensions._
+
+  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
 
   "POST /v1/orders" - {
     "for an existing customer" - {
@@ -40,7 +45,7 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
 
       "fails when the customer already has a cart" in new Fixture {
         val payload = CreateOrder(customerId = customer.id.some)
-        OrderCreator.createCart(payload).futureValue
+        OrderCreator.createCart(storeAdmin, payload).futureValue
         val response = POST(s"v1/orders", payload)
 
         response.status must ===(StatusCodes.BadRequest)
@@ -72,7 +77,10 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
   }
 
   trait Fixture {
-    val customer = Customers.create(Factories.customer).run().futureValue.rightVal
+    val (storeAdmin, customer) = (for {
+      customer   ← * <~ Customers.create(Factories.customer)
+      storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
+    } yield (storeAdmin, customer)).runT().futureValue.rightVal
   }
 }
 
