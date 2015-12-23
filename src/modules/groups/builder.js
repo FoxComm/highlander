@@ -71,6 +71,7 @@ const currentTerms = state => {
 const terms = _.keys(criteriaOptions);
 
 const initialState = {
+  id: null,
   counter: 2,
   name: '',
   termOptions: _.reduce(criteriaOptions, (r, v, k) => assoc(r, k, v.title), {}),
@@ -137,6 +138,7 @@ export function loadGroup(groupId) {
     dispatch(importGroup({
       ...group.clientState,
       name: group.name,
+      id: group.id,
       customersCount: group.customersCount,
     }));
     if (save) {
@@ -248,9 +250,13 @@ const reducer = createReducer({
   [importGroup]: (state, groupState) => {
     return assoc(state,
       'name', groupState.name,
+      'id', groupState.id,
       'criterions', groupState.criteria,
       'matchCriteria', groupState.matchCriteria,
       'searchResultsLength', groupState.customersCount);
+  },
+  [groupSaved]: (state, payload) => {
+    return assoc(state, 'id', payload.id);
   },
   [changeMatchCriteria]: (state, value) => {
     return assoc(state, 'matchCriteria', value);

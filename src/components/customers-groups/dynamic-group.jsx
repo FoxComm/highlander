@@ -11,6 +11,7 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
+import { transitionTo } from '../../route-helpers';
 
 import * as GroupBuilderActions from '../../modules/groups/builder';
 
@@ -29,7 +30,10 @@ export default class DynamicGroup extends React.Component {
     matchCriteria: PropTypes.string.isRequired,
     changeMatchCriteria: PropTypes.func.isRequired,
     searchResultsLength: PropTypes.number,
-    searchResults: PropTypes.array
+  };
+
+  static contextTypes = {
+    history: PropTypes.object.isRequired
   };
 
   constructor(props, context) {
@@ -63,13 +67,21 @@ export default class DynamicGroup extends React.Component {
 
   get groupId() {
     const { groupId } = this.props.params;
-    return parseInt(groupId);
+    return parseInt(groupId) || this.props.id;
   }
 
   componentDidMount() {
     if (this.groupId) {
       this.props.loadGroup(this.groupId);
     }
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (!this.groupId && nextProps.id != null) {
+      transitionTo(this.context.history, 'group', {groupId: nextProps.id});
+      return false;
+    }
+    return true;
   }
 
   @autobind
