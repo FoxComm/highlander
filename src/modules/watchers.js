@@ -17,20 +17,30 @@ const assignWatchers = createAction('WATCHERS_ASSIGN', (entity, group, payload) 
 const deleteFromGroup = createAction('WATCHERS_DELETE_FROM_GROUP', (entity, group, name) => [entity, group, name]);
 
 export function fetchWatchers(entity) {
-  return dispatch => {
-    return Api.get('/fakeurl').then(
-      () => dispatch(setWatchers(entity, fakeWatchers)),
-      () => dispatch(setWatchers(entity, fakeWatchers))
-    );
+  return (dispatch, getState) => {
+    const state = getState();
+    const watchers = _.get(state, ['orders', 'details', 'currentOrder', 'watchers'], []);
+    console.log(watchers);
+    const data = watchers.reduce((acc, item) => {
+      acc.push(item.watcher);
+      return acc;
+    }, []);
+    console.log(data);
+    dispatch(setWatchers(entity, data));
   };
 }
 
 export function fetchAssignees(entity) {
-  return dispatch => {
-    return Api.get('/fakeurl').then(
-      () => dispatch(setAssignees(entity, fakeAssignees)),
-      () => dispatch(setAssignees(entity, fakeAssignees))
-    );
+  return (dispatch, getState) => {
+    const state = getState();
+    const assignees = _.get(state, ['orders', 'details', 'currentOrder', 'assignees'], []);
+    const data = assignees.reduce((acc, item) => {
+      acc.push(item.assignee);
+      return acc;
+    }, []);
+    console.log(assignees);
+    console.log(data);
+    dispatch(setAssignees(entity, data));
   };
 }
 
@@ -62,8 +72,7 @@ export function addWatchers(entity) {
       [group]: items.map((item) => item.id)
     };
 
-    // Api calls will be here
-    Api.post(`/orders/${entityId}/${group}`, data).then(
+    return Api.post(`/orders/${entityId}/${group}`, data).then(
       (payload) => {
         dispatch(assignWatchers(entity, group, payload));
         dispatch(closeAddingModal(entity));
