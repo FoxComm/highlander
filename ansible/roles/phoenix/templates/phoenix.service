@@ -1,4 +1,5 @@
 [Service]
+Environment="PHOENIX_ENV={{phoenix_env}}"
 WorkingDirectory=/usr/share
 ExecStart=/usr/bin/java -jar {{phoenix_jar}}
 Restart=on-failure
