@@ -13,7 +13,7 @@ export const itemDeleted = createAction('WATCHERS_DELETE_NEW', (entity, name, id
 const setSuggestedWathcers = createAction('WATCHERS_SET_SUGGERSTED_WATCHERS', (entity, payload) => [entity, payload]);
 const setWatchers = createAction('WATCHERS_SET_WATCHERS', (entity, payload) => [entity, payload]);
 const setAssignees = createAction('WATCHERS_SET_ASSIGNEES', (entity, payload) => [entity, payload]);
-const assignWatchers = createAction('WATCHERS_ASSIGN');
+const assignWatchers = createAction('WATCHERS_ASSIGN', (entity, group, payload) => [entity, group, payload]);
 const deleteFromGroup = createAction('WATCHERS_DELETE_FROM_GROUP', (entity, group, name) => [entity, group, name]);
 
 export function fetchWatchers(entity) {
@@ -59,13 +59,13 @@ export function addWatchers(entity) {
     const group = _.get(state, ['watchers', entityType, entityId, 'modalGroup']);
 
     const data = {
-      assignees: items.map((item) => item.id)
+      [group]: items.map((item) => item.id)
     };
 
     // Api calls will be here
-    Api.post(`/orders/${entityId}/assignees`, data).then(
-      () => {
-        dispatch(assignWatchers(entity));
+    Api.post(`/orders/${entityId}/${group}`, data).then(
+      (payload) => {
+        dispatch(assignWatchers(entity, group, payload));
         dispatch(closeAddingModal(entity));
       },
       () => console.log('something bad happened')
@@ -121,11 +121,12 @@ const reducer = createReducer({
       [entityType, entityId, 'selectedItems'], newItems
     );
   },
-  [assignWatchers]: (state, {entityType, entityId}) => {
-    const items = _.get(state, [entityType, entityId, 'selectedItems'], []);
-    const group = _.get(state, [entityType, entityId, 'modalGroup']);
-    const groupEntries = _.get(state, [entityType, entityId, group, 'entries'], []);
-    const newEntries = groupEntries.concat(items);
+  [assignWatchers]: (state, [{entityType, entityId}, group, payload]) => {
+    const items = _.get(payload, ['result', group], []);
+    console.log(items);
+    const groupMember = group.substring(0, group.length-1);
+    const newEntries = items.map((item) => item[groupMember]);
+    console.log(newEntries);
     return assoc(state,
       [entityType, entityId, 'modalGroup'], null,
       [entityType, entityId, 'selectedItems'], [],

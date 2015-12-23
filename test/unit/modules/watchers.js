@@ -76,7 +76,7 @@ describe('watchers module', function() {
     });
 
     it('assignWatchers should reset state of modal', function() {
-      const newState = reducer(initialState, actions.assignWatchers(entity));
+      const newState = reducer(initialState, actions.assignWatchers(entity, 'watchers', []));
       const modalGroup = _.get(newState, [entity.entityType, entity.entityId, 'modalGroup']);
       const selectedItems = _.get(newState, [entity.entityType, entity.entityId, 'selectedItems']);
       expect(modalGroup).to.be.equal(null);
