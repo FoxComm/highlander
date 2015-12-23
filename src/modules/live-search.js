@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import { assoc, get } from 'sprout-data';
 import { post } from '../lib/search';
+import { toQuery } from '../elastic/common';
 import SearchTerm from '../paragons/search-term';
 import util from 'util';
 
@@ -40,10 +41,24 @@ export default function makeLiveSearch(namespace, searchTerms) {
   const selectSavedSearch = _createAction(namespace, 'SELECT_SAVED_SEARCH');
   const submitFilter = _createAction(namespace, 'SUBMIT_FILTER');
 
-  const fetch = url => {
+  const addSearchFilter = (url, searchTerm) => {
+    return dispatch => {
+      dispatch(submitFilter(searchTerm));
+
+      const filters = [searchTerm];
+      console.log(filters);
+
+      const esQuery = toQuery(filters);
+      console.log(esQuery);
+
+      dispatch(fetch(url, esQuery.toJSON()));
+    };
+  };
+
+  const fetch = (url, ...args) => {
     return dispatch => {
       dispatch(searchStart());
-      return post(url)
+      return post(url, ...args)
         .then(
           res => dispatch(searchSuccess(res)),
           err => dispatch(searchFailure(err, fetch))
@@ -96,6 +111,7 @@ export default function makeLiveSearch(namespace, searchTerms) {
   return {
     reducer: reducer,
     actions: {
+      addSearchFilter,
       cloneSearch,
       deleteSearchFilter,
       editSearchNameStart,

@@ -69,6 +69,7 @@ export default class Orders extends React.Component {
 
   render() {
     const renderRow = (row, index) => <OrderRow order={row} columns={this.props.tableColumns} />;
+    const filter = (searchTerm) => this.props.addSearchFilter('orders_search_view/_search', searchTerm);
 
     return (
       <div className="fc-list-page">
@@ -91,7 +92,7 @@ export default class Orders extends React.Component {
           editSearchNameComplete={this.props.editSearchNameComplete}
           saveSearch={this.props.saveSearch}
           selectSavedSearch={this.props.selectSavedSearch}
-          submitFilter={this.props.submitFilter}
+          submitFilter={filter}
           searches={this.props.list}
         >
           <TableView

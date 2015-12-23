@@ -17,7 +17,6 @@ function currentSearch(props) {
   return _.get(props, ['searches', 'savedSearches', props.searches.selectedSearch], []);
 }
 
-
 /**
  * LiveSearch is a search bar dynamic faceted search that exists on most of the
  * list pages. State for filters being created exist on the component, whereas

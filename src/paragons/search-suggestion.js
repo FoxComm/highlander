@@ -1,11 +1,12 @@
 import _ from 'lodash';
+import { assoc } from 'sprout-data';
 import SearchTerm from './search-term';
 
 export default class SearchSuggestion {
   constructor(suggestion, searchTerm) {
     this._suggestion = suggestion;
     this._searchTerm = searchTerm;
-    this._title = `${searchTerm.selectionValue}${suggestion}`;
+    this._title = `${searchTerm.selectionValue}${suggestion.display}`;
   }
 
   get children() {
@@ -50,6 +51,7 @@ export default class SearchSuggestion {
   }
 
   toFilter(search) {
-    return this._searchTerm.toFilter(search);
+    const filter = this._searchTerm.toFilter(search);
+    return assoc(filter, ['value', 'value'], this._suggestion.value);
   }
 }

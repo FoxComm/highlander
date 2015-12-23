@@ -5,23 +5,26 @@ const searchTerms = [
     options: [
       {
         title: 'ID',
-        type: 'string'
+        type: 'string',
+        term: 'id'
       }, {
         title: 'State',
         type: 'enum',
+        term: 'status',
         suggestions: [
-          'Cart',
-          'Remorse Hold',
-          'Manual Hold',
-          'Fraud Hold',
-          'Fulfillment Started',
-          'Shipped',
-          'Partially Shipped',
-          'Canceled'
+          { display: 'Cart', value: 'cart' },
+          { display: 'Remorse Hold', value: 'remorseHold' },
+          { display: 'Manual Hold', value: 'manualHold' },
+          { display: 'Fraud Hold', value: 'fraudHold' },
+          { display: 'Fulfillment Started', value: 'fulfillmentStarted' },
+          { display: 'Shipped', value: 'shipped' },
+          { display: 'Partially Shipped', value: 'partiallyShipped' },
+          { display: 'Canceled', value: 'canceled' }
         ]
       }, {
         title: 'Date Placed',
-        type: 'date'
+        type: 'date',
+        term: 'placedAt'
       }
     ]
   }, {
@@ -31,7 +34,11 @@ const searchTerms = [
       {
         title: 'State',
         type: 'enum',
-        suggestions: ['Shipped', 'Partially Shipped', 'Delivered']
+        suggestions: [
+          { display: 'Shipped', value: '' },
+          { display: 'Partially Shipped', value: '' },
+          { display: 'Delivered', value: '' }
+        ]
       }, {
         title: 'Method',
         type: 'string'

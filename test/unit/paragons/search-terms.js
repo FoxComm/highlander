@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import nock from 'nock';
+import util from 'util';
 
 const SearchTerm = importSource('paragons/search-term.js');
 
@@ -81,10 +82,12 @@ describe('paragons.searchTerm', function() {
       options: [
         {
           title: 'Child String',
-          type: 'string'
+          type: 'string',
+          term: 'childString'
         }, {
           title: 'Child Number',
-          type: 'number'
+          type: 'number',
+          term: 'childNumber'
         }
       ]
     });
@@ -174,8 +177,13 @@ describe('paragons.searchTerm', function() {
     });
 
     it('should only show the enumeration on a full match', function() {
-      const visible = enumTerm.applicableTerms(enumTerm.selectionValue);
+      const visible = enumTerm.applicableTerms(enumTerm.displayTerm);
       expect(visible).to.have.length(1);
+    });
+
+    it('should show the children on a full match', function() {
+      const visible = enumTerm.applicableTerms(enumTerm.selectionValue);
+      expect(visible).to.have.length(3);
     });
   });
 
@@ -197,7 +205,11 @@ describe('paragons.searchTerm', function() {
     const enumTerm = new SearchTerm({
       title: 'An enumeration',
       type: 'enum',
-      suggestions: ['One', 'Two', 'Three']
+      suggestions: [
+        { display: 'One', value: 1 },
+        { display: 'Two', value: 2 },
+        { display: 'Three', value: 3 }
+      ]
     });
 
     it('should not select a parent', function() {

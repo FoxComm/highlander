@@ -147,7 +147,7 @@ export default class SearchTerm {
 
     if (_.startsWith(nTerm, nSearch)) {
       return true;
-    } else if (_.isEmpty(this._options) && this._type != 'value') {
+    } else if (_.isEmpty(this._options) && _.isEmpty(this._suggestions)) {
       return nSearch.length && removeValue(nSearch) == nTerm;
     }
   }
@@ -183,9 +183,12 @@ export default class SearchTerm {
   toFilter(search) {
     return {
       display: search,
-      term: this._term,
-      operator: _.get(operators, [this._type, 0], null),
-      value: getValue(search)
+      selectedTerm: this._term,
+      selectedOperator: _.get(operators, [this._type, 0, 'operator'], ''),
+      value: {
+        type: this._type,
+        value: getValue(search)
+      }
     };
   }
 }

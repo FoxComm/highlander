@@ -1,8 +1,7 @@
 import ejs from 'elastic.js';
-import { DEFAULT_INDEX, newClient, rangeToFilter } from './common';
+import { DEFAULT_INDEX, newClient, toQuery } from './common';
 import _ from 'lodash';
 import { assoc } from 'sprout-data';
-
 
 const CUSTOMERS_TYPE = 'customers_search_view';
 
