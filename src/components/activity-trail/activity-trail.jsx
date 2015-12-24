@@ -12,17 +12,17 @@ function createTimeMark(time, daysDiff) {
   switch (daysDiff) {
     case 0:
       return {
-        type: 'mark',
+        kind: 'mark',
         title: 'Today',
       };
     case 1:
       return {
-        type: 'mark',
+        kind: 'mark',
         title: 'Yesterday',
       };
     default:
       return {
-        type: 'mark',
+        kind: 'mark',
         title: time.format('MMM DD'),
       };
   }
@@ -52,7 +52,7 @@ export function injectTimeMarks(activities) {
       latestYear = activityTime.year();
 
       result = [{
-        type: 'year_mark',
+        kind: 'year_mark',
         title: `${activityTime.year()}`,
       }, ...result];
     }
@@ -62,7 +62,7 @@ export function injectTimeMarks(activities) {
 }
 
 const renderActivityItem = (activity, idx, list, hasMore) => {
-  switch (activity.type) {
+  switch (activity.kind) {
     case 'mark':
       return (
         <li className="fc-activity-trail__mark" key={`mark_${idx}`}>

@@ -1,16 +1,22 @@
-import fetch from 'isomorphic-fetch';
+
 import _ from 'lodash';
+import fetch from 'isomorphic-fetch';
 
 function searchURI(uri) {
   return `/api/search/${uri}`;
 }
 
 function serialize(data) {
+  if (data.toJSON) data = data.toJSON();
+
   const params = [];
   for (let param in data) {
-    const value = _.get(data, param);
-    if (!_.isNull(value)) {
-      params.push(encodeURIComponent(param) + '=' + encodeURIComponent(value));
+    if (data.hasOwnProperty(param)) {
+      const value = data[param];
+      if (value != null) {
+        const asString = _.isObject(value) ? JSON.stringify(value) : value;
+        params.push(encodeURIComponent(param) + '=' + encodeURIComponent(asString));
+      }
     }
   }
   return params.join('&');

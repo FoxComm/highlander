@@ -5,25 +5,25 @@ import {createAction, createReducer} from 'redux-act';
 import { update, assoc } from 'sprout-data';
 import { updateItems } from './state-helpers';
 import OrderParagon from '../paragons/order';
-import { fetch } from '../es/activities';
+import searchActivities from '../elastic/activities';
 
 const receivedActivities = createAction('ACTIVITY_TRAIL_RECEIVED', (trailId, data) => [trailId, data]);
 const setError = createAction('ACTIVITY_TRAIL_FAILED');
 
 export function fetchActivityTrail(entity, from) {
   return dispatch => {
-    fetch(from).then(
-      result => {
+    searchActivities(from).then(
+      response => {
         dispatch(receivedActivities(
           entity.entityId,
           {
-            activities: result.activities.map(activity => {
+            activities: response.result.map(({activity}) => {
               if (activity.data.order) {
                 activity.data.order = new OrderParagon(activity.data.order);
               }
               return activity;
             }),
-            hasMore: result.hasMore
+            hasMore: response.hasMore
           }
         ));
       },

@@ -35,9 +35,9 @@ export default class ActivityTrailPage extends React.Component {
     const activities = this.activities;
     if (!activities.length) return;
 
-    const from = new Date(activities[activities.length - 1].createdAt);
+    const fromActivity = activities[activities.length - 1];
 
-    this.props.fetchActivityTrail(this.props.entity, from);
+    this.props.fetchActivityTrail(this.props.entity, fromActivity);
   }
 
   render() {

@@ -14,7 +14,7 @@ export default class Activity extends React.Component {
 
   static propTypes = {
     activity: PropTypes.shape({
-      type: PropTypes.string.isRequired,
+      kind: PropTypes.string.isRequired,
     }).isRequired,
     undoAction: PropTypes.func,
     title: PropTypes.node,

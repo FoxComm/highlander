@@ -1,6 +1,7 @@
 
 import mockedActivities from './fixtures/activity-trail.json';
 import moment from 'moment';
+import searchActivities from '../elastic/activities';
 
 const applyQuery = (activities, query) => {
   return activities.reduce((acc, activity) => {
@@ -11,7 +12,9 @@ const applyQuery = (activities, query) => {
   }, []);
 };
 
-const applyFrom = (activities, date) => {
+const applyFrom = (activities, tailActivity) => {
+  const date = new Date(tailActivity.createdAt);
+
   return activities.filter(activity => new Date(activity.createdAt) < date);
 };
 
@@ -26,11 +29,13 @@ const applyDays = (activities, days) => {
 
 /**
  * Fetch activities from elastic search
- * @param {Number} from - id of Activity to fetch from
+ * @param {Number} fromActivity - Activity to fetch from
  * @param {Number} days - how many days for fetch
  * @param {String} query - filter query
  */
-export function fetch(from = null, days = 2, query = null) {
+export function fetch(fromActivity = null, days = 2, query = null) {
+  searchActivities(fromActivity, days, query);
+
   return new Promise(resolve => {
     let activities = [...mockedActivities];
 
@@ -38,8 +43,8 @@ export function fetch(from = null, days = 2, query = null) {
       activities = applyQuery(activities, query);
     }
 
-    if (from !== null) {
-      activities = applyFrom(activities, from);
+    if (fromActivity !== null) {
+      activities = applyFrom(activities, fromActivity);
     }
 
     const countBeforeLimit = activities.length;
@@ -51,7 +56,7 @@ export function fetch(from = null, days = 2, query = null) {
     const hasMore = activities.length < countBeforeLimit;
 
     resolve({
-      activities,
+      result: activities,
       hasMore,
     });
   });

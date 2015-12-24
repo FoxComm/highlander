@@ -35,7 +35,9 @@ const representatives = {
 
 
 export function getActivityRepresentative(activity) {
-  const desc = representatives[activity.type];
+  const desc = representatives[activity.kind];
+
+  if (!desc) return null;
 
   const args = [activity.data, activity];
 

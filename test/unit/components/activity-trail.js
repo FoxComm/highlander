@@ -23,10 +23,10 @@ describe('Activity Trail', function() {
 
       const withTimeMarks = injectTimeMarks(events);
 
-      expect(withTimeMarks[0].type).to.equal('mark');
+      expect(withTimeMarks[0].kind).to.equal('mark');
       expect(withTimeMarks[0].title).to.equal('Today');
 
-      expect(withTimeMarks[3].type).to.equal('mark');
+      expect(withTimeMarks[3].kind).to.equal('mark');
       expect(withTimeMarks[3].title).to.equal('Yesterday');
 
 
@@ -42,7 +42,7 @@ describe('Activity Trail', function() {
 
       const withTimeMarks = injectTimeMarks(events);
 
-      expect(withTimeMarks[0].type).to.equal('mark');
+      expect(withTimeMarks[0].kind).to.equal('mark');
       expect(withTimeMarks[0].title).to.equal('Yesterday');
     });
 
@@ -58,10 +58,10 @@ describe('Activity Trail', function() {
 
       const withTimeMarks = injectTimeMarks(events);
 
-      expect(withTimeMarks[0].type).to.equal('mark');
+      expect(withTimeMarks[0].kind).to.equal('mark');
       expect(withTimeMarks[0].title).to.equal('Today');
 
-      expect(withTimeMarks[4].type).to.equal('mark');
+      expect(withTimeMarks[4].kind).to.equal('mark');
       expect(withTimeMarks[4].title).to.equal('Yesterday');
 
       expect(withTimeMarks.length).to.equal(6);
@@ -79,13 +79,13 @@ describe('Activity Trail', function() {
 
       const withTimeMarks = injectTimeMarks(events);
 
-      expect(withTimeMarks[0].type).to.equal('mark');
+      expect(withTimeMarks[0].kind).to.equal('mark');
       expect(withTimeMarks[0].title).to.equal('Jan 01');
 
-      expect(withTimeMarks[3].type).to.equal('year_mark');
+      expect(withTimeMarks[3].kind).to.equal('year_mark');
       expect(withTimeMarks[3].title).to.equal('2014');
 
-      expect(withTimeMarks[4].type).to.equal('mark');
+      expect(withTimeMarks[4].kind).to.equal('mark');
       expect(withTimeMarks[4].title).to.equal('Dec 31');
     });
 
@@ -102,13 +102,13 @@ describe('Activity Trail', function() {
 
       const withTimeMarks = injectTimeMarks(events);
 
-      expect(withTimeMarks[0].type).to.equal('mark');
+      expect(withTimeMarks[0].kind).to.equal('mark');
       expect(withTimeMarks[0].title).to.equal('Jan 01');
 
-      expect(withTimeMarks[4].type).to.equal('year_mark');
+      expect(withTimeMarks[4].kind).to.equal('year_mark');
       expect(withTimeMarks[4].title).to.equal('2014');
 
-      expect(withTimeMarks[5].type).to.equal('mark');
+      expect(withTimeMarks[5].kind).to.equal('mark');
       expect(withTimeMarks[5].title).to.equal('Dec 31');
 
       expect(withTimeMarks.length).to.equal(8);
@@ -124,10 +124,10 @@ describe('Activity Trail', function() {
 
       const withTimeMarks = injectTimeMarks(events);
 
-      expect(withTimeMarks[0].type).to.equal('year_mark');
+      expect(withTimeMarks[0].kind).to.equal('year_mark');
       expect(withTimeMarks[0].title).to.equal('2014');
 
-      expect(withTimeMarks[1].type).to.equal('mark');
+      expect(withTimeMarks[1].kind).to.equal('mark');
       expect(withTimeMarks[1].title).to.equal('Dec 31');
 
       expect(withTimeMarks.length).to.equal(4);
