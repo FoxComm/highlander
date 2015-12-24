@@ -8,7 +8,7 @@ function searchURI(uri) {
 function serialize(data) {
   const params = [];
   for (let param in data) {
-    const value = _.get(data, 'param');
+    const value = _.get(data, param);
     if (!_.isNull(value)) {
       params.push(encodeURIComponent(param) + '=' + encodeURIComponent(value));
     }
