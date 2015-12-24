@@ -29,7 +29,6 @@ function _createAction(namespace, description, ...args) {
 
 export default function makeLiveSearch(namespace, searchTerms) {
   const cloneSearch = _createAction(namespace, 'CLONE_SEARCH');
-  const deleteSearchFilter = _createAction(namespace, 'DELETE_SEARCH_FILTER');
   const editSearchNameStart = _createAction(namespace, 'EDIT_SEARCH_NAME_START');
   const editSearchNameCancel = _createAction(namespace, 'EDIT_SEARCH_NAME_CANCEL');
   const editSearchNameComplete = _createAction(namespace, 'EDIT_SEARCH_NAME_COMPLETE');
@@ -92,7 +91,6 @@ export default function makeLiveSearch(namespace, searchTerms) {
 
   const reducer = createReducer({
     [cloneSearch]: (state) => _cloneSearch(state),
-    [deleteSearchFilter]: (state, idx) => _deleteSearchFilter(state, idx),
     [editSearchNameStart]: (state, idx) => _editSearchNameStart(state, idx),
     [editSearchNameCancel]: (state) => _editSearchNameCancel(state),
     [editSearchNameComplete]: (state, newName) => _editSearchNameComplete(state, newName),
@@ -109,7 +107,6 @@ export default function makeLiveSearch(namespace, searchTerms) {
     actions: {
       addSearchFilter,
       cloneSearch,
-      deleteSearchFilter,
       editSearchNameStart,
       editSearchNameCancel,
       editSearchNameComplete,
@@ -137,21 +134,6 @@ function _cloneSearch(state) {
     selectedSearch: state.savedSearches.length,
     savedSearches: [...state.savedSearches, toClone]
   };
-}
-
-function _deleteSearchFilter(state, idx) {
-  const curSearches = _.get(state, ['savedSearches', state.selectedSearch, 'searches'], []);
-  const curValue = _.get(state, ['savedSearches', state.selectedSearch, 'searchValue'], '');
-
-  if (!_.isEmpty(curSearches) && _.isEmpty(curValue)) {
-    const newSearches = _.without(curSearches, curSearches[idx]);
-    return assoc(state,
-      ['savedSearches', state.selectedSearch, 'isDirty'], true,
-      ['savedSearches', state.selectedSearch, 'searches'], newSearches
-    );
-  }
-
-  return state;
 }
 
 function _editSearchNameStart(state, idx) {

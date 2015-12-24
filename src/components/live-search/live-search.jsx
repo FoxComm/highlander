@@ -44,7 +44,6 @@ export default class LiveSearch extends React.Component {
   static propTypes = {
     children: PropTypes.node,
     cloneSearch: PropTypes.func.isRequired,
-    deleteSearchFilter: PropTypes.func.isRequired,
     editSearchNameStart: PropTypes.func,
     editSearchNameCancel: PropTypes.func,
     editSearchNameComplete: PropTypes.func,
@@ -276,10 +275,19 @@ export default class LiveSearch extends React.Component {
       case 8:
         // Backspace
         if (_.isEmpty(this.state.searchValue) && !_.isEmpty(this.state.pills)) {
-          this.props.deleteSearchFilter(this.state.pills.length - 1);
+          this.deleteFilter(this.state.pills.length - 1);
         }
         break;
     }
+  }
+
+  @autobind
+  deleteFilter(idx) {
+    const filters = [
+      ...this.state.pills.slice(0, idx),
+      ...this.state.pills.slice(idx + 1)
+    ];
+    this.props.submitFilters(filters);
   }
 
   @autobind
@@ -334,8 +342,8 @@ export default class LiveSearch extends React.Component {
             <form>
               <PilledInput
                 button={this.searchButton}
-                onPillClose={(pill, idx) => this.props.deleteSearchFilter(idx)}
-                onPillClick={(pill, idx) => this.props.deleteSearchFilter(idx)}
+                onPillClose={(pill, idx) => this.deleteFilter(idx)}
+                onPillClick={(pill, idx) => this.deleteFilter(idx)}
                 formatPill={this.formatPill}
                 placeholder="Add another filter or keyword search"
                 onChange={this.change}

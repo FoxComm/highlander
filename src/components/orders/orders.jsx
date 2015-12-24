@@ -9,7 +9,6 @@ import LocalNav from '../local-nav/local-nav';
 import { IndexLink } from '../link';
 import LiveSearch from '../live-search/live-search';
 import OrderRow from './order-row';
-import util from 'util';
 import _ from 'lodash';
 
 @connect(state => ({
@@ -26,7 +25,6 @@ export default class Orders extends React.Component {
     }),
     addSearchFilter: PropTypes.func,
     cloneSearch: PropTypes.func,
-    deleteSearchFilter: PropTypes.func,
     editSearchNameStart: PropTypes.func,
     editSearchNameCancel: PropTypes.func,
     editSearchNameComplete: PropTypes.func,
@@ -87,7 +85,6 @@ export default class Orders extends React.Component {
         </div>
         <LiveSearch
           cloneSearch={this.props.cloneSearch}
-          deleteSearchFilter={this.props.deleteSearchFilter}
           editSearchNameStart={this.props.editSearchNameStart}
           editSearchNameCancel={this.props.editSearchNameCancel}
           editSearchNameComplete={this.props.editSearchNameComplete}
