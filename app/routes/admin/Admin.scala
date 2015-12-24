@@ -5,8 +5,9 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.Order.orderRefNumRegex
 import models.Reason.reasonTypeRegex
-import models.{GiftCard, Notification, Orders, Rma, StoreAdmin}
-import services.{NoteManager, ReasonService, SaveForLaterManager, ShippingManager, StoreCreditAdjustmentsService, StoreCreditService}
+import models.{GiftCard, Notification, SharedSearch, Orders, Rma, StoreAdmin}
+import services.{SharedSearchService, NoteManager, ReasonService, SaveForLaterManager, ShippingManager,
+StoreCreditAdjustmentsService, StoreCreditService}
 import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.CustomDirectives._
@@ -215,6 +216,30 @@ object Admin {
         (delete & path(IntNumber) & pathEnd) { id ⇒
           nothingOrFailures {
             SaveForLaterManager.deleteSaveForLater(id)
+          }
+        }
+      } ~
+      pathPrefix("shared-search") {
+        (post & pathEnd & entity(as[payloads.SharedSearchPayload])) { payload ⇒
+          goodOrFailures {
+            SharedSearchService.create(admin, payload)
+          }
+        }
+      } ~
+      pathPrefix("shared-search" / SharedSearch.sharedSearchRegex) { code ⇒
+        (get & pathEnd) {
+          goodOrFailures {
+            SharedSearchService.get(code)
+          }
+        } ~
+        (patch & pathEnd & entity(as[payloads.SharedSearchPayload])) { payload ⇒
+          goodOrFailures {
+            SharedSearchService.update(admin, code, payload)
+          }
+        } ~
+        (delete & pathEnd) {
+          nothingOrFailures {
+            SharedSearchService.delete(admin, code)
           }
         }
       }
