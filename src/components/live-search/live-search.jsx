@@ -170,8 +170,7 @@ export default class LiveSearch extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     const search = currentSearch(nextProps);
-    const isVisible = this.state.isFocused && search.currentOptions.length > 0 &&
-      (search.searches.length != this.state.pills.length || search.searchValue !== '');
+    const isVisible = this.state.isFocused && search.currentOptions.length > 0;
 
     this.setState({
       ...this.state,
