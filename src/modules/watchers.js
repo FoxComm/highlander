@@ -15,6 +15,7 @@ const setWatchers = createAction('WATCHERS_SET_WATCHERS', (entity, payload) => [
 const setAssignees = createAction('WATCHERS_SET_ASSIGNEES', (entity, payload) => [entity, payload]);
 const assignWatchers = createAction('WATCHERS_ASSIGN', (entity, group, payload) => [entity, group, payload]);
 const deleteFromGroup = createAction('WATCHERS_DELETE_FROM_GROUP', (entity, group, name) => [entity, group, name]);
+const failWatchersAction = createAction('WATCHERS_FAIL');
 
 export function fetchWatchers(entity) {
   return (dispatch, getState) => {
@@ -77,7 +78,7 @@ export function addWatchers(entity) {
         dispatch(assignWatchers(entity, group, payload));
         dispatch(closeAddingModal(entity));
       },
-      () => console.log('something bad happened')
+      (err) => dispatch(failWatchersAction(err))
     );
   };
 }
@@ -99,7 +100,7 @@ export function removeFromGroup(entity, group, name) {
     // dispatch(deleteFromGroup(entity, group, name));
     Api.post(`/orders/${group}/delete`, data).then(
       () => dispatch(deleteFromGroup(entity, group, name)),
-      () => console.log('something bad happened')
+      (err) => dispatch(failWatchersAction(err))
     );
   };
 }
@@ -165,6 +166,10 @@ const reducer = createReducer({
     return assoc(state,
       [entityType, entityId, group, 'entries'], newItems
     );
+  },
+  [failWatchersAction]: (state, error) => {
+    console.error(error);
+    return state;
   }
 }, initialState);
 
