@@ -70,11 +70,12 @@ export default class AddWatcherModal extends React.Component {
   }
 
   get pilledInput() {
+    const name = (user) => user.name ? user.name : `${user.firstName} ${user.lastName}`;
     return (
       <PilledInput
         value={this.state.query}
         onChange={(e) => this.setState({query: e.target.value})}
-        pills={this.props.selectedWatchers.map(user => `${user.firstName} ${user.lastName}`)}
+        pills={this.props.selectedWatchers.map(name)}
         icon={null}
         onPillClose={(name, idx) => this.props.onDeleteClick(name, idx)} />
     );

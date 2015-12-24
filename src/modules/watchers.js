@@ -21,12 +21,10 @@ export function fetchWatchers(entity) {
   return (dispatch, getState) => {
     const state = getState();
     const watchers = _.get(state, ['orders', 'details', 'currentOrder', 'watchers'], []);
-    console.log(watchers);
     const data = watchers.reduce((acc, item) => {
       acc.push(item.watcher);
       return acc;
     }, []);
-    console.log(data);
     dispatch(setWatchers(entity, data));
   };
 }
@@ -39,8 +37,6 @@ export function fetchAssignees(entity) {
       acc.push(item.assignee);
       return acc;
     }, []);
-    console.log(assignees);
-    console.log(data);
     dispatch(setAssignees(entity, data));
   };
 }
@@ -90,14 +86,12 @@ export function removeFromGroup(entity, group, name) {
     const groupMemberId = group.substring(0, group.length-1) + 'Id';
     const groupEntries = _.get(state, ['watchers', entityType, entityId, group, 'entries'], []);
     const groupMemberToDelete = _.find(groupEntries, {name: name});
-    console.log(groupMemberToDelete);
 
     const data = {
       referenceNumbers: [entityId],
       [groupMemberId]: groupMemberToDelete.id
     };
 
-    // dispatch(deleteFromGroup(entity, group, name));
     Api.post(`/orders/${group}/delete`, data).then(
       () => dispatch(deleteFromGroup(entity, group, name)),
       (err) => dispatch(failWatchersAction(err))
@@ -149,10 +143,8 @@ const reducer = createReducer({
   },
   [assignWatchers]: (state, [{entityType, entityId}, group, payload]) => {
     const items = _.get(payload, ['result', group], []);
-    console.log(items);
     const groupMember = group.substring(0, group.length-1);
     const newEntries = items.map((item) => item[groupMember]);
-    console.log(newEntries);
     return assoc(state,
       [entityType, entityId, 'modalGroup'], null,
       [entityType, entityId, 'selectedItems'], [],
