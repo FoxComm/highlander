@@ -83,14 +83,17 @@ export function addWatchers(entity) {
 }
 
 export function removeFromGroup(entity, group, name) {
-  return dispatch => {
+  return (dispatch, getState) => {
+    const state = getState();
     const {entityType, entityId} = entity;
-
     const groupMemberId = group.substring(0, group.length-1) + 'Id';
+    const groupEntries = _.get(state, ['watchers', entityType, entityId, group, 'entries'], []);
+    const groupMemberToDelete = _.find(groupEntries, {name: name});
+    console.log(groupMemberToDelete);
 
     const data = {
       referenceNumbers: [entityId],
-      [groupMemberId]: name          // Id must be here, not name!
+      [groupMemberId]: groupMemberToDelete.id
     };
 
     // dispatch(deleteFromGroup(entity, group, name));

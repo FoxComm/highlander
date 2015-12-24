@@ -50,7 +50,7 @@ export default class Watchers extends React.Component {
       return (
         <div className="fc-watchers__users-row fc-watchers__assignees-row">
           <AddButton className="fc-watchers__add-button"
-                       onClick={() => this.props.showAddingModal(this.entity)}/>
+                       onClick={() => this.props.showAddingModal(this.entity, Groups.ASSIGNEES)}/>
           <div className="fc-watchers__empty-list fc-watchers__assignees-empty">
             Unassigned
           </div>
@@ -67,7 +67,7 @@ export default class Watchers extends React.Component {
       return (
         <div className="fc-watchers__users-row fc-watchers__watchers-row">
           <AddButton className="fc-watchers__add-button"
-                       onClick={() => this.props.showAddingModal(this.entity)}/>
+                       onClick={() => this.props.showAddingModal(this.entity, Groups.WATCHERS)}/>
           <div className="fc-watchers__empty-list fc-watchers__watchers-empty">
             Unwatched
           </div>
