@@ -1,9 +1,9 @@
-import makePagination from '../pagination';
+import makeLiveSearch from '../live-search';
+import searchTerms from './search-terms';
 
-const {reducer, fetch} = makePagination('/orders', 'ORDERS');
-
-export default reducer;
+const { reducer, actions } = makeLiveSearch('ORDERS', searchTerms);
 
 export {
-  fetch,
+  reducer as default,
+  actions
 };

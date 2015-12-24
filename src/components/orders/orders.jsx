@@ -1,31 +1,19 @@
 import React, { PropTypes } from 'react';
-import Link from '../link/link';
-import { DateTime } from '../common/datetime';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import TableView from '../table/tableview';
-import TableRow from '../table/row';
-import TableCell from '../table/cell';
 import SectionTitle from '../section-title/section-title';
 import { connect } from 'react-redux';
 import * as ordersActions from '../../modules/orders/list';
-import * as searchActions from '../../modules/orders/search';
 import LocalNav from '../local-nav/local-nav';
-import Currency from '../common/currency';
-import Status from '../common/status';
 import LiveSearch from '../live-search/live-search';
+import OrderRow from './order-row';
 import util from 'util';
 import _ from 'lodash';
 
-const actions = {
-  ...ordersActions,
-  ...searchActions
-};
-
 @connect(state => ({
-  orders: state.orders.list,
-  search: state.orders.search
-}), actions)
+  list: state.orders.list
+}), ordersActions.actions)
 export default class Orders extends React.Component {
   static propTypes = {
     fetch: PropTypes.func.isRequired,
@@ -49,17 +37,24 @@ export default class Orders extends React.Component {
     tableColumns: [
       {field: 'referenceNumber', text: 'Order ID', type: 'id', model: 'order'},
       {field: 'placedAt', text: 'Date/Time Placed', type: 'date'},
-      {field: 'name', text: 'Name'},
-      {field: 'email', text: 'Email'},
-      {field: 'orderStatus', text: 'Order State', type: 'status', model: 'order'},
-      {field: 'paymentStatus', text: 'Payment State', type: 'status', model: 'payment'},
-      {field: 'shippingStatus', text: 'Shipment State', type: 'status', model: 'shipment'},
-      {field: 'total', text: 'Total', type: 'currency'}
+      {field: 'customer.name', text: 'Name'},
+      {field: 'customer.email', text: 'Email'},
+      {field: 'status', text: 'Order State', type: 'status', model: 'order'},
+      {field: 'shipping.status', text: 'Shipment State', type: 'status', model: 'shipment'},
+      {field: 'grandTotal', text: 'Total', type: 'currency'}
     ]
   };
 
+  get selectedSearch() {
+    return this.props.list.selectedSearch;
+  }
+
+  get orders() {
+    return this.props.list.savedSearches[this.selectedSearch].results;
+  }
+
   componentDidMount() {
-    this.props.fetch(this.props.orders);
+    this.props.fetch('orders_search_view/_search');
   }
 
   handleAddOrderClick() {
@@ -67,27 +62,12 @@ export default class Orders extends React.Component {
   }
 
   render() {
-    const renderRow = (row, index) => (
-      <TableRow key={`${index}`}>
-        <TableCell>
-          <Link to={'order'} params={{order: row.referenceNumber}}>
-            {row.referenceNumber}
-          </Link>
-        </TableCell>
-        <TableCell><DateTime value={row.placedAt}/></TableCell>
-        <TableCell>{row.name}</TableCell>
-        <TableCell>{row.email}</TableCell>
-        <TableCell><Status value={row.orderStatus} model={"order"}/></TableCell>
-        <TableCell><Status value={row.paymentStatus} model={"payment"}/></TableCell>
-        <TableCell><Status value={row.shippingStatus} model={"shipment"}/></TableCell>
-        <TableCell><Currency value={row.total}/></TableCell>
-      </TableRow>
-    );
+    const renderRow = (row, index) => <OrderRow order={row} columns={this.props.tableColumns} />;
 
     return (
       <div className="fc-list-page">
         <div className="fc-list-page-header">
-          <SectionTitle title="Orders" subtitle={this.props.orders.total}
+          <SectionTitle title="Orders" subtitle={this.orders.total}
                         onAddClick={this.handleAddOrderClick }
                         addTitle="Order"
           />
@@ -107,11 +87,11 @@ export default class Orders extends React.Component {
           saveSearch={this.props.saveSearch}
           selectSavedSearch={this.props.selectSavedSearch}
           submitFilter={this.props.submitFilter}
-          searches={this.props.search}
+          searches={this.props.list}
         >
           <TableView
             columns={this.props.tableColumns}
-            data={this.props.orders}
+            data={this.orders}
             renderRow={renderRow}
             setState={this.props.fetch}
           />
