@@ -5,20 +5,31 @@ import util from 'util';
 const ordersSearchTerms = require('../../../fixtures/orders-search-terms.js');
 const makeLiveSearch = importSource('modules/live-search.js');
 const { reducer: reducer, actions: actions } = makeLiveSearch('TEST', ordersSearchTerms);
-const { cloneSearch, deleteSearchFilter, selectSavedSearch, submitFilter } = actions;
+const { cloneSearch, deleteSearchFilter, selectSavedSearch, submitFilters } = actions;
 
 const selectedSearch = (state) => state.savedSearches[state.selectedSearch];
 
 describe('modules.orders.list', function() {
+  const sampleFilter = {
+    display: 'Order : ID : 7',
+    selectedTerm: 'id',
+    selectedOperator: 'eq',
+    value: {
+      type: 'number',
+      value: 7
+    }
+  };
+
   describe('cloneSearch()', function() {
     let newState = null;
 
     beforeEach(function() {
-      newState = reducer(reducer(undefined, submitFilter('Order : ID : 5')), cloneSearch());
+      newState = reducer(reducer(undefined, submitFilters([sampleFilter])), cloneSearch());
     });
 
     it('should create a new search that matched the previously selected search', function() {
       expect(selectedSearch(newState).name).to.be.equal('');
+      console.log(util.inspect(selectedSearch(newState).searches));
       expect(selectedSearch(newState).searches).to.have.length(1);
     });
 
@@ -28,7 +39,7 @@ describe('modules.orders.list', function() {
     });
   });
 
-  describe('submitFilter()', function() {
+  describe('submitFilters()', function() {
     let newState = null;
     let searchState = null;
 
@@ -38,13 +49,13 @@ describe('modules.orders.list', function() {
 
     context('when submitting a valid filter', function() {
       beforeEach(function() {
-        newState = reducer(undefined, submitFilter('Order : ID : 7'));
+        newState = reducer(undefined, submitFilters([sampleFilter]));
         searchState = selectedSearch(newState);
       });
 
       it('should create a new saved filter', function() {
         expect(searchState.searches).to.have.length(1);
-        expect(searchState.searches[0]).to.be.equal('Order : ID : 7');
+        expect(searchState.searches[0].display).to.be.equal('Order : ID : 7');
       });
 
       it('should clear the search box', function() {
@@ -57,7 +68,7 @@ describe('modules.orders.list', function() {
     let newState = null;
 
     it('should have All selected by default', function() {
-      newState = reducer(undefined, submitFilter(''));
+      newState = reducer(undefined, submitFilters([]));
       expect(newState.selectedSearch).to.be.equal(0);
     });
 

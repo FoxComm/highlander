@@ -45,14 +45,14 @@ export default class LiveSearch extends React.Component {
     children: PropTypes.node,
     cloneSearch: PropTypes.func.isRequired,
     deleteSearchFilter: PropTypes.func.isRequired,
+    editSearchNameStart: PropTypes.func,
     editSearchNameCancel: PropTypes.func,
     editSearchNameComplete: PropTypes.func,
     saveSearch: PropTypes.func,
     selectSavedSearch: PropTypes.func.isRequired,
-    submitFilter: PropTypes.func.isRequired,
     search: PropTypes.object.isRequired,
     searches: PropTypes.object,
-    editSearchNameStart: PropTypes.func
+    submitFilters: PropTypes.func.isRequired,
   };
 
   get currentSearch() {
@@ -303,7 +303,11 @@ export default class LiveSearch extends React.Component {
       if (option.selectTerm(searchTerm)) {
         newSearchTerm = '';
         options = SearchTerm.potentialTerms(this.state.availableOptions, '');
-        this.props.submitFilter(option.toFilter(searchTerm));
+
+        this.props.submitFilters([
+          ...this.state.pills,
+          option.toFilter(searchTerm)
+        ]);
       } else if (option.children.length > 1) {
         options = option.children;
       }

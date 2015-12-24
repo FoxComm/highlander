@@ -4,7 +4,6 @@ import { assoc, get } from 'sprout-data';
 import { post } from '../lib/search';
 import { toQuery } from '../elastic/common';
 import SearchTerm from '../paragons/search-term';
-import util from 'util';
 
 const emptyState = {
   isDirty: false,
@@ -39,14 +38,11 @@ export default function makeLiveSearch(namespace, searchTerms) {
   const searchSuccess = _createAction(namespace, 'SEARCH_SUCCESS');
   const searchFailure = _createAction(namespace, 'SEARCH_FAILURE');
   const selectSavedSearch = _createAction(namespace, 'SELECT_SAVED_SEARCH');
-  const submitFilter = _createAction(namespace, 'SUBMIT_FILTER');
+  const submitFilters = _createAction(namespace, 'SUBMIT_FILTER');
 
-  const addSearchFilter = (url, searchTerm) => {
+  const addSearchFilter = (url, filters) => {
     return dispatch => {
-      dispatch(submitFilter(searchTerm));
-
-      const filters = [searchTerm];
-      console.log(filters);
+      dispatch(submitFilters(filters));
 
       const esQuery = toQuery(filters);
       console.log(esQuery);
@@ -105,7 +101,7 @@ export default function makeLiveSearch(namespace, searchTerms) {
     [searchSuccess]: (state, res) => _searchSuccess(state, res),
     [searchFailure]: (state, [err, source]) => _searchFailure(state, [err, source]),
     [selectSavedSearch]: (state, idx) => _selectSavedSearch(state, idx),
-    [submitFilter]: (state, searchTerm) => _submitFilter(state, searchTerm)
+    [submitFilters]: (state, filters) => _submitFilters(state, filters)
   }, initialState);
 
   return {
@@ -123,7 +119,7 @@ export default function makeLiveSearch(namespace, searchTerms) {
       searchSuccess,
       searchFailure,
       selectSavedSearch,
-      submitFilter
+      submitFilters
     }
   };
 }
@@ -232,8 +228,6 @@ function _searchFailure(state, [err, source]) {
   return state;
 }
 
-function _submitFilter(state, searchTerm) {
-  const currentSearches = get(state, ['savedSearches', state.selectedSearch, 'searches'], []);
-  const newSearches = [...currentSearches, searchTerm];
-  return assoc(state, ['savedSearches', state.selectedSearch, 'searches'], newSearches);
+function _submitFilters(state, filters) {
+  return assoc(state, ['savedSearches', state.selectedSearch, 'searches'], filters);
 }

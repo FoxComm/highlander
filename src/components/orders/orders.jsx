@@ -24,6 +24,7 @@ export default class Orders extends React.Component {
       rows: PropTypes.array.isRequired,
       total: PropTypes.number
     }),
+    addSearchFilter: PropTypes.func,
     cloneSearch: PropTypes.func,
     deleteSearchFilter: PropTypes.func,
     editSearchNameStart: PropTypes.func,
@@ -31,7 +32,7 @@ export default class Orders extends React.Component {
     editSearchNameComplete: PropTypes.func,
     goBack: PropTypes.func,
     saveSearch: PropTypes.func,
-    submitFilter: PropTypes.func,
+    submitFilters: PropTypes.func,
     list: PropTypes.shape({
       selectedSearch: PropTypes.object,
       savedSearches: PropTypes.array
@@ -92,7 +93,7 @@ export default class Orders extends React.Component {
           editSearchNameComplete={this.props.editSearchNameComplete}
           saveSearch={this.props.saveSearch}
           selectSavedSearch={this.props.selectSavedSearch}
-          submitFilter={filter}
+          submitFilters={filter}
           searches={this.props.list}
         >
           <TableView
