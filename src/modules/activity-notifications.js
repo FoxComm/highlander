@@ -2,7 +2,7 @@
 import Api from '../lib/api';
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
-import { deepMerge } from 'sprout-data';
+import { assoc, deepMerge } from 'sprout-data';
 
 const notificationReceived = createAction('NOTIFICATION_RECEIVED');
 export const toggleNotifications = createAction('NOTIFICATIONS_TOGGLE');
@@ -48,7 +48,8 @@ const initialState = {
 const reducer = createReducer({
   [notificationReceived]: (state, data) => {
     const notificationList = _.get(state, 'notifications', []);
-    const updatedNotifications = notificationList.concat([data]);
+    const notReadData = assoc(data, 'isRead', false);
+    const updatedNotifications = notificationList.concat([notReadData]);
 
     return {
       ...state,

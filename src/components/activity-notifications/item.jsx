@@ -127,7 +127,7 @@ const buildText = (item) => {
 };
 
 const NotificationItem = (props) => {
-  const origin = _.get(props, ['item', 'body', 'origin']);
+  const origin = _.get(props, ['item', 'data', 'admin']);
   const isRead = _.get(props, ['item', 'isRead']);
   const classes = classNames('fc-activity-notification-item', {
     '_not-read': !isRead
@@ -144,7 +144,7 @@ const NotificationItem = (props) => {
           </div>
           <div className="fc-activity-notification-item__body">
             <div className="fc-activity-notification-item__author">
-              { !_.isEmpty(origin) && (<UserInitials { ...props.item.body.origin } />) }
+              { !_.isEmpty(origin) && (<UserInitials { ...origin } />) }
             </div>
             <div className="fc-activity-notification-item__text">
               { buildText(props.item) }
