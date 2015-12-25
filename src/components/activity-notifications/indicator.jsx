@@ -27,7 +27,6 @@ export default class NotificationIndicator extends React.Component {
   };
 
   componentDidMount() {
-    this.props.fetchNotifications();
     this.props.startFetchingNotifications();
   }
 

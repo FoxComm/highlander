@@ -4,16 +4,8 @@ import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import { deepMerge } from 'sprout-data';
 
-const notificationsReceived = createAction('NOTIFICATIONS_RECEIVED');
-const addItem = createAction('NOTIFICATION_NEW_RECEIVED');
+const notificationsReceived = createAction('NOTIFICATION_RECEIVED');
 export const toggleNotifications = createAction('NOTIFICATIONS_TOGGLE');
-
-
-export function fetchNotifications() {
-  return (dispatch) => {
-    dispatch(notificationsReceived(data));
-  };
-}
 
 export function startFetchingNotifications() {
   console.log('starting fetching');
@@ -22,12 +14,12 @@ export function startFetchingNotifications() {
 
     eventSource.onmessage = function(e) {
       console.log(e);
-      const data = JSON.parse(e.data);
-      if (_.isEmpty(data)) {
+      if (_.isEmpty(e.data)) {
         console.log('heartbeat');
       } else {
         console.log('Received data');
-        console.log(data);
+        console.log(e.data);
+        const data = JSON.parse(e.data);
         dispatch(addItem(data));
       }
     };
@@ -46,129 +38,15 @@ const initialState = {
   displayed: false
 };
 
-const data = [
-  {
-    'id': 1,
-    'body': {
-      'action': 'assigned',
-      'origin': {
-        'id': 1,
-        'name': 'Frankly Admin',
-        'email': 'admin@admin.com'
-      },
-      'reference': {
-        'ref': 'BR10001',
-        'url': 'orders/BR10001',
-        'typed': 'Order'
-      }
-    },
-    'createdAt': '2015-12-03T20:22:23.172Z',
-    'isRead': false
-  },
-  {
-    'id': 2,
-    'body': {
-      'action': 'unassigned',
-      'origin': {
-        'id': 2,
-        'name': 'Such Root',
-        'email': 'hackerman@yahoo.com'
-      },
-      'reference': {
-        'ref': 'BR10002',
-        'url': 'orders/BR10002',
-        'typed': 'Order'
-      }
-    },
-    'createdAt': '2015-12-03T20:22:23.173Z',
-    'isRead': false
-  },
-  {
-    'id': 3,
-    'body': {
-      'action': 'marked as Complete',
-      'origin': {
-        'id': 3,
-        'name': 'Admin Hero',
-        'email': 'admin_hero@xakep.ru'
-      },
-      'reference': {
-        'ref': 'BR10001',
-        'url': 'orders/BR10001',
-        'typed': 'Order'
-      }
-    },
-    'createdAt': '2015-12-03T20:22:23.173Z',
-    'isRead': false
-  },
-  {
-    'id': 4,
-    'body': {
-      'action': 'edited shipping address',
-      'origin': {
-        'id': 2,
-        'name': 'Such Root',
-        'email': 'hackerman@yahoo.com'
-      },
-      'reference': {
-        'ref': 'BR10003',
-        'url': 'orders/BR10003',
-        'typed': 'Order'
-      }
-    },
-    'createdAt': '2015-12-03T20:22:23.173Z',
-    'isRead': false
-  },
-  {
-    'id': 5,
-    'body': {
-      'action': 'added a note',
-      'origin': {
-        'id': 3,
-        'name': 'Admin Hero',
-        'email': 'admin_hero@xakep.ru'
-      },
-      'reference': {
-        'ref': 'BR10001',
-        'url': 'orders/BR10001',
-        'typed': 'Order'
-      }
-    },
-    'createdAt': '2015-12-03T19:52:23.176Z',
-    'isRead': true
-  },
-  {
-    'id': 6,
-    'body': {
-      'action': 'changed state to FulfillmentStarted',
-      'origin': {},
-      'reference': {
-        'ref': 'BR10003',
-        'url': 'orders/BR10003',
-        'typed': 'Order'
-      }
-    },
-    'createdAt': '2015-12-03T19:37:23.178Z',
-    'isRead': true
-  }
-];
-
 const reducer = createReducer({
-  [addItem]: (state, data) => {
+  [notificationReceived]: (state, data) => {
     const notificationList = _.get(state, 'notifications', []);
-    const updatedNotifications = [data].concat(notificationList);
+    const updatedNotifications = notificationList.concat([data]);
 
     return {
       ...state,
       notifications: updatedNotifications,
       count: updatedNotifications.length
-    };
-  },
-  [notificationsReceived]: (state, data) => {
-    return {
-      ...state,
-      notifications: data,
-      count: data.length
     };
   },
   [toggleNotifications]: state => {
