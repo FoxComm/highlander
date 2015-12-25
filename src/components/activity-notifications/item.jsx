@@ -108,7 +108,7 @@ const action = (target) => {
   } else {
     return 'made unkown action';
   }
-}
+};
 
 const buildText = (item) => {
   const target = _.get(item, 'activityType');

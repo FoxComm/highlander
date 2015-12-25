@@ -5,8 +5,8 @@ import { createAction, createReducer } from 'redux-act';
 import { assoc, deepMerge } from 'sprout-data';
 
 const notificationReceived = createAction('NOTIFICATION_RECEIVED');
+const markNotificationsAsRead = createAction('NOTIFICATIONS_MARK_AS_READ');
 export const toggleNotifications = createAction('NOTIFICATIONS_TOGGLE');
-export const markAsRead = createAction('NOTIFICATIONS_MARK_AS_READ');
 
 export function startFetchingNotifications() {
   console.log('starting fetching');
@@ -36,15 +36,45 @@ export function startFetchingNotifications() {
 }
 
 export function markAsReadAndClose() {
-  console.log('mark all as read');
-  return dispatch => {
-    dispatch(markAsRead());
-    dispatch(toggleNotifications());
-  }
+  return (dispatch, getState) => {
+    const adminId = 1;
+    const activities = _.get(getState(), ['activityNotifications', 'notifications'], []);
+
+    if (!_.isEmpty(activities)) {
+      const activityId = _.get(_.last(activities), 'id');
+
+      Api.post(`/notifications/${adminId}/last-seen/${activityId}`, {}).then(
+        () => dispatch(markNotificationsAsRead()),
+        () => dispatch(toggleNotifications())
+      );
+    } else {
+      dispatch(toggleNotifications());
+    }
+  };
+}
+
+export function markAsRead() {
+  return (dispatch, getState) => {
+    const adminId = 1;
+    const activities = _.get(getState(), ['activityNotifications', 'notifications'], []);
+
+    if (!_.isEmpty(activities)) {
+      const activityId = _.get(_.last(activities), 'id');
+
+      Api.post(`/notifications/${adminId}/last-seen/${activityId}`, {}).then(
+        () => dispatch(markNotificationsAsRead()),
+        () => dispatch(toggleNotifications())
+      );
+    } else {
+      dispatch(toggleNotifications());
+    }
+  };
 }
 
 const initialState = {
-  displayed: false
+  displayed: false,
+  notifications: [],
+  count: 0
 };
 
 const reducer = createReducer({
@@ -65,7 +95,7 @@ const reducer = createReducer({
       count: newCount
     };
   },
-  [markAsRead]: state => {
+  [markNotificationsAsRead]: state => {
     const notificationList = _.get(state, 'notifications', []);
     const readNotifications = notificationList.map((item) => {
       const copy = item;
