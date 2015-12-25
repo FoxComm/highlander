@@ -12,7 +12,8 @@ export default class NotificationPanel extends React.Component {
   static propTypes = {
     notifications: PropTypes.array,
     displayed: PropTypes.bool,
-    toggleNotifications: PropTypes.func
+    toggleNotifications: PropTypes.func,
+    markAsRead: PropTypes.func
   };
 
   static defaultProps = {
@@ -29,7 +30,7 @@ export default class NotificationPanel extends React.Component {
   get footer() {
     return (
       <div className="fc-activity-notifications__footer">
-        <PrimaryButton onClick={() => console.log('Not implemented yet')}
+        <PrimaryButton onClick={this.props.markAsRead}
                        className="fc-activity-notifications__footer-button">
           View All
         </PrimaryButton>
@@ -42,7 +43,7 @@ export default class NotificationPanel extends React.Component {
       return (
         <div>
           <div className="fc-activity-notifications__overlay"
-               onClick={this.props.toggleNotifications}>
+               onClick={this.props.markAsReadAndClose}>
           </div>
           <ContentBox title="Notifications"
                       className="fc-activity-notifications__box"

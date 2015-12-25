@@ -40,6 +40,15 @@ export default class NotificationIndicator extends React.Component {
     }
   }
 
+  @autobind
+  toggleNotifications() {
+    if (this.props.displayed) {
+      this.props.markAsReadAndClose();
+    } else {
+      this.props.toggleNotifications();
+    }
+  }
+
   render() {
     const classes = classNames('fc-activity-notifications__toggle', {
       '_active': this.props.displayed
@@ -48,7 +57,7 @@ export default class NotificationIndicator extends React.Component {
       <div className="fc-activity-notifications">
         <Button icon="bell"
                 className={ classes }
-                onClick={ this.props.toggleNotifications }>
+                onClick={ this.toggleNotifications }>
           { this.indicator }
         </Button>
       </div>

@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import { deepMerge } from 'sprout-data';
 
-const notificationsReceived = createAction('NOTIFICATION_RECEIVED');
+const notificationReceived = createAction('NOTIFICATION_RECEIVED');
 export const toggleNotifications = createAction('NOTIFICATIONS_TOGGLE');
 
 export function startFetchingNotifications() {
@@ -20,7 +20,7 @@ export function startFetchingNotifications() {
         console.log('Received data');
         console.log(e.data);
         const data = JSON.parse(e.data);
-        dispatch(addItem(data));
+        dispatch(notificationReceived(data));
       }
     };
 
@@ -32,6 +32,13 @@ export function startFetchingNotifications() {
       console.log('Connection was closed.');
     };
   };
+}
+
+export function markAsReadAndClose() {
+  console.log('mark all as read');
+  return dispatch => {
+    dispatch(toggleNotifications());
+  }
 }
 
 const initialState = {
