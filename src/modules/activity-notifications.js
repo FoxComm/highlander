@@ -5,7 +5,9 @@ import { createAction, createReducer } from 'redux-act';
 import { deepMerge } from 'sprout-data';
 
 const notificationsReceived = createAction('NOTIFICATIONS_RECEIVED');
+const addItem = createAction('NOTIFICATION_NEW_RECEIVED');
 export const toggleNotifications = createAction('NOTIFICATIONS_TOGGLE');
+
 
 export function fetchNotifications() {
   return (dispatch) => {
@@ -20,11 +22,13 @@ export function startFetchingNotifications() {
 
     eventSource.onmessage = function(e) {
       console.log(e);
-      if (_.isEmpty(e.data)) {
+      const data = JSON.parse(e.data);
+      if (_.isEmpty(data)) {
         console.log('heartbeat');
       } else {
         console.log('Received data');
-        console.log(e.data);
+        console.log(data);
+        dispatch(addItem(data));
       }
     };
 
@@ -35,8 +39,6 @@ export function startFetchingNotifications() {
     eventSource.onerror = function(e) {
       console.log('Connection was closed.');
     };
-
-    window.eventSource = eventSource;
   };
 }
 
@@ -152,6 +154,16 @@ const data = [
 ];
 
 const reducer = createReducer({
+  [addItem]: (state, data) => {
+    const notificationList = _.get(state, 'notifications', []);
+    const updatedNotifications = [data].concat(notificationList);
+
+    return {
+      ...state,
+      notifications: updatedNotifications,
+      count: updatedNotifications.length
+    };
+  },
   [notificationsReceived]: (state, data) => {
     return {
       ...state,
