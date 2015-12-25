@@ -6,6 +6,7 @@ import { assoc, deepMerge } from 'sprout-data';
 
 const notificationReceived = createAction('NOTIFICATION_RECEIVED');
 export const toggleNotifications = createAction('NOTIFICATIONS_TOGGLE');
+export const markAsRead = createAction('NOTIFICATIONS_MARK_AS_READ');
 
 export function startFetchingNotifications() {
   console.log('starting fetching');
@@ -37,6 +38,7 @@ export function startFetchingNotifications() {
 export function markAsReadAndClose() {
   console.log('mark all as read');
   return dispatch => {
+    dispatch(markAsRead());
     dispatch(toggleNotifications());
   }
 }
@@ -50,11 +52,31 @@ const reducer = createReducer({
     const notificationList = _.get(state, 'notifications', []);
     const notReadData = assoc(data, 'isRead', false);
     const updatedNotifications = notificationList.concat([notReadData]);
+    const newCount = updatedNotifications.reduce((acc, item) => {
+      if (!item.isRead) {
+        acc++;
+      }
+      return acc;
+    }, 0);
 
     return {
       ...state,
       notifications: updatedNotifications,
-      count: updatedNotifications.length
+      count: newCount
+    };
+  },
+  [markAsRead]: state => {
+    const notificationList = _.get(state, 'notifications', []);
+    const readNotifications = notificationList.map((item) => {
+      const copy = item;
+      copy.isRead = true;
+      return copy;
+    });
+
+    return {
+      ...state,
+      notifications: readNotifications,
+      count: 0
     };
   },
   [toggleNotifications]: state => {
