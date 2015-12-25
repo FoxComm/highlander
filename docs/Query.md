@@ -49,7 +49,7 @@ GET phoenix/customers_search_view/_search
                 "and": [
                     {"bool": {"must": {"query": {"match": {"name": "Adil"}}}}},
                     {"term": {"isBlacklisted": false}},
-                    {"range": {"joinedAt": {"gt": "2015-12-03"}}},
+                    {"range": {"joinedAt": {"gt": "2015-12-03 00:00:00"}}},
                     {"range": {"orderCount": {"gte": 1}}},
                     {
                         "nested": {
@@ -58,7 +58,7 @@ GET phoenix/customers_search_view/_search
                                 "bool": {
                                     "must" : [
                                          {"term": {"status": "shipped"}},
-                                         {"range": {"placedAt": {"gt": "2015-12-03"}}}
+                                         {"range": {"placedAt": {"gt": "2015-12-03 00:00:00"}}}
                                     ]
                                 }
                             }
@@ -108,8 +108,8 @@ GET phoenix/customers_search_view/_search
                   {
                      "referenceNumber": "BR10005",
                      "status": "shipped",
-                     "createdAt": "2015-12-08",
-                     "placedAt": "2015-12-07",
+                     "createdAt": "2015-12-08 00:00:00",
+                     "placedAt": "2015-12-07 00:00:00",
                      "subTotal": 4800,
                      "shippingTotal": 0,
                      "adjustmentsTotal": 0,
