@@ -6,7 +6,7 @@ import SectionTitle from '../section-title/section-title';
 import { connect } from 'react-redux';
 import * as ordersActions from '../../modules/orders/list';
 import LocalNav from '../local-nav/local-nav';
-import { Link } from '../link';
+import { IndexLink } from '../link';
 import LiveSearch from '../live-search/live-search';
 import OrderRow from './order-row';
 import util from 'util';
@@ -73,7 +73,7 @@ export default class Orders extends React.Component {
                         addTitle="Order"
           />
           <LocalNav>
-            <Link to="orders">Lists</Link>
+            <IndexLink to="orders">Lists</IndexLink>
             <a href="">Insights</a>
             <a href="">Activity Trail</a>
           </LocalNav>

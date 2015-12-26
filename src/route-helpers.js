@@ -28,12 +28,12 @@ export function createRouteLookupByName(route, prefix = route.props.path) {
   let lookup = {};
 
   React.Children.forEach(route.props.children, (child) => {
-    const path = child.type.displayName === 'IndexRoute' ? '' : child.props.path;
+    const path = child.type.name === 'IndexRoute' ? '' : child.props.path;
 
     lookup = {...lookup, ...createRouteLookupByName(child, prefix + (prefix.slice(-1) === '/' ? '' : '/') + path)};
   });
 
-  if ((route.type.displayName === 'Route' || route.type.displayName === 'IndexRoute') && route.props.name) {
+  if ((route.type.name === 'Route' || route.type.name === 'IndexRoute') && route.props.name) {
     lookup[route.props.name] = prefix;
   }
 
