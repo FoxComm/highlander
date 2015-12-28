@@ -9,32 +9,24 @@ import { autobind } from 'core-decorators';
 // components
 import { Button } from '../common/buttons';
 
-// redux
-import * as NotificationActions from '../../modules/activity-notifications';
-
-@connect(state => state.activityNotifications, NotificationActions)
 export default class NotificationIndicator extends React.Component {
 
   static propTypes = {
     count: PropTypes.number,
     displayed: PropTypes.bool,
-    toggleNotifications: PropTypes.func,
-    fetchNotifications: PropTypes.func
+    toggleNotifications: PropTypes.func.isRequired,
+    markAsReadAndClose: PropTypes.func.isRequired
   };
 
   static defaultProps = {
     displayed: false
   };
 
-  componentDidMount() {
-    this.props.startFetchingNotifications();
-  }
-
   get indicator() {
     if (_.isNumber(this.props.count) && this.props.count > 0) {
       return (
         <div className="fc-activity-notifications__indicator">
-          <span>{ this.props.count }</span>
+          <span>{this.props.count}</span>
         </div>
       );
     }

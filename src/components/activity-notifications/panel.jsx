@@ -1,19 +1,22 @@
+
+// libs
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
+
+// components
 import ContentBox from '../content-box/content-box';
 import NotificationItem from '../activity-notifications/item';
 import { PrimaryButton } from '../common/buttons';
-import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
-import * as NotificationActions from '../../modules/activity-notifications';
 
-@connect(state => state.activityNotifications, NotificationActions)
 export default class NotificationPanel extends React.Component {
 
   static propTypes = {
-    notifications: PropTypes.array,
+    notifications: PropTypes.array.isRequired,
     displayed: PropTypes.bool,
-    toggleNotifications: PropTypes.func,
-    markAsRead: PropTypes.func
+    toggleNotifications: PropTypes.func.isRequired,
+    markAsRead: PropTypes.func.isRequired,
+    markAsReadAndClose: PropTypes.func.isRequired
   };
 
   static defaultProps = {
