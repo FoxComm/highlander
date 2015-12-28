@@ -34,43 +34,51 @@ import StyleGuideContainers from './components/style-guide/style-guide-container
 const routes = (
   <Route path="/" component={Site}>
     <IndexRoute name="home" component={Home}/>
-    <Route name='orders' path="orders" component={Orders}/>
-    <Route name='rmas' path='returns' component={Rmas}/>
-    <Route name='rma' path='returns/:rma' component={Rma}>
-      <IndexRoute name='rma-details' component={RmaDetails}/>
-      <Route name='rma-notes' path='notes' component={Notes}/>
-      <Route name='rma-notifications' path='notifications' component={Notifications}/>
-      <Route name='rma-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
+    <Route name='rmas-base' path='returns'>
+      <IndexRoute name='rmas' component={Rmas}/>
+      <Route name='rma' path=':rma' component={Rma}>
+        <IndexRoute name='rma-details' component={RmaDetails}/>
+        <Route name='rma-notes' path='notes' component={Notes}/>
+        <Route name='rma-notifications' path='notifications' component={Notifications}/>
+        <Route name='rma-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
+      </Route>
     </Route>
-    <Route name='order' path='orders/:order' component={Order}>
-      <IndexRoute name='order-details' component={OrderDetails}/>
-      <Route name='order-notes' path='notes' component={Notes}/>
-      <Route name='order-returns' path='returns' component={RmaChildList}/>
-      <Route name='order-notifications' path='notifications' component={Notifications}/>
-      <Route name='order-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
+    <Route name='orders-base' path="orders">
+      <IndexRoute name='orders' component={Orders}/>
+      <Route name='order' path=':order' component={Order}>
+        <IndexRoute name='order-details' component={OrderDetails}/>
+        <Route name='order-notes' path='notes' component={Notes}/>
+        <Route name='order-returns' path='returns' component={RmaChildList}/>
+        <Route name='order-notifications' path='notifications' component={Notifications}/>
+        <Route name='order-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
+      </Route>
     </Route>
-    <Route name='customers' path='customers' component={Customers}/>
-    <Route name='customers-new' path='customers/new' component={NewCustomer} />
-    <Route name='customer' path='customers/:customerId' component={Customer}>
-      <IndexRoute name='customer-details' component={CustomerDetails}/>
-      <Route name='customer-returns' path='returns' component={RmaChildList}/>
-      <Route name='customer-notes' path='notes' component={Notes} />
-      <Route name='customer-storecredits' path='storecredit' component={StoreCredits} />
-      <Route name='customer-storecredit-transactions'
-             path='storecredits/transactions'
-             component={StoreCreditsTransactions} />
+    <Route name='customers-base' path='customers'>
+      <IndexRoute name='customers' component={Customers}/>
+      <Route name='customers-new' path='new' component={NewCustomer} />
+      <Route name='customer' path=':customerId' component={Customer}>
+        <IndexRoute name='customer-details' component={CustomerDetails}/>
+        <Route name='customer-returns' path='returns' component={RmaChildList}/>
+        <Route name='customer-notes' path='notes' component={Notes} />
+        <Route name='customer-storecredits' path='storecredit' component={StoreCredits}/>
+        <Route name='customer-storecredits-new'
+               path='storecredits/new'
+               component={NewStoreCredit} />
+        <Route name='customer-storecredit-transactions'
+               path='storecredits/transactions'
+               component={StoreCreditsTransactions} />
+      </Route>
+      <Route name='groups-new-dynamic' path='groups/new-dynamic' component={NewDynamicGroup} />
+      <Route name='groups-new-manual' path='groups/new-manual' component={NewManualGroup} />
     </Route>
-    <Route name='customer-storecredits-new'
-           path='customers/:customerId/storecredits/new'
-           component={NewStoreCredit} />
-    <Route name='groups-new-dynamic' path='customers/groups/new-dynamic' component={NewDynamicGroup} />
-    <Route name='groups-new-manual' path='customers/groups/new-manual' component={NewManualGroup} />
-    <Route name='gift-cards' path='gift-cards' component={GiftCards} />
-    <Route name='gift-cards-new' path='gift-cards/new' component={NewGiftCard} />
-    <Route name='giftcard' path='gift-cards/:giftCard' component={GiftCard}>
-      <IndexRoute name='gift-card-transactions' component={GiftCardTransactions} />
-      <Route name='gift-card-notes' path='notes' component={Notes} />
-      <Route name='gift-card-activity-trail' path='activity-trail' component={ActivityTrailPage} />
+    <Route name='gift-cards-base' path='gift-cards'>
+      <IndexRoute name='gift-cards' component={GiftCards}/>
+      <Route name='gift-cards-new' path='new' component={NewGiftCard} />
+      <Route name='giftcard' path=':giftCard' component={GiftCard}>
+        <IndexRoute name='gift-card-transactions' component={GiftCardTransactions} />
+        <Route name='gift-card-notes' path='notes' component={Notes} />
+        <Route name='gift-card-activity-trail' path='activity-trail' component={ActivityTrailPage} />
+      </Route>
     </Route>
     <Route name='style-guide' path='style-guide' component={StyleGuide}>
       <IndexRoute name='style-guide-grid' component={StyleGuideGrid} />
