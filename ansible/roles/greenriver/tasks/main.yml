@@ -10,5 +10,5 @@
   sudo: true
 
 - name: Setup Service
-  service: name=greenriver state=started enabled=yes
+  service: name=greenriver state=restarted enabled=yes
   sudo: true
