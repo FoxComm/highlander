@@ -7,6 +7,11 @@
 - name: Synchronize Ashes code
   synchronize: src={{ashes_source_dir}} dest={{home}} delete=true recursive=true
 
+- name: Install local gulp
+  shell: npm install gulp
+  args:
+    chdir: "{{ashes_install_dir}}"
+
 - name: Build node dependencies
   shell: npm build
   args:
