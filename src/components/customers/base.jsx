@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import LocalNav from '../local-nav/local-nav';
-import { Link } from '../link';
+import { IndexLink, Link } from '../link';
 import SectionTitle from '../section-title/section-title';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -40,8 +40,8 @@ export default class CustomersBase extends React.Component {
                       onAddClick={ this.onAddCustomerClick }
                       addTitle="Customer" />
           <LocalNav>
-            <Link to="customers">Lists</Link>
-            <Link to="groups">Customer Groups</Link>
+            <IndexLink to="customers">Lists</IndexLink>
+            <IndexLink to="groups">Customer Groups</IndexLink>
             <a href="">Insights</a>
             <a href="">Activity Trial</a>
           </LocalNav>

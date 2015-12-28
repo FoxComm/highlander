@@ -57,6 +57,12 @@ const routes = (
     <Route name='customers-base' path='customers'>
       <IndexRoute name='customers' component={Customers}/>
       <Route name='customers-new' path='new' component={NewCustomer} />
+      <Route name='groups-base' path='groups'>
+        <IndexRoute name='groups' component={Groups}/>
+        <Route name='groups-new-dynamic' path='new-dynamic' component={DynamicGroup} />
+        <Route name='groups-new-manual' path='new-manual' component={ManualGroup} />
+        <Route name='group' path=':groupId' component={DynamicGroup} />
+      </Route>
       <Route name='customer' path=':customerId' component={Customer}>
         <IndexRoute name='customer-details' component={CustomerDetails}/>
         <Route name='customer-returns' path='returns' component={RmaChildList}/>
@@ -68,12 +74,6 @@ const routes = (
         <Route name='customer-storecredit-transactions'
                path='storecredits/transactions'
                component={StoreCreditsTransactions} />
-      </Route>
-      <Route name='groups-base' path='groups'>
-        <IndexRoute name='groups' component={Groups}/>
-        <Route name='groups-new-dynamic' path='new-dynamic' component={DynamicGroup} />
-        <Route name='groups-new-manual' path='new-manual' component={ManualGroup} />
-        <Route name='group' path=':groupId' component={DynamicGroup} />
       </Route>
     </Route>
     <Route name='gift-cards-base' path='gift-cards'>
