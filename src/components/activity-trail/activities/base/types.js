@@ -5,6 +5,7 @@ const types = {
   ADDED_NOTE: 'added_note',
   CHANGED_ORDER_STATE: 'changed_order_state',
   EDITED_SHIPPING_ADDRESS: 'edited_shipping_address',
+  CUSTOMER_INFO_CHANGED: 'customer_info_changed',
 };
 
 export default types;
