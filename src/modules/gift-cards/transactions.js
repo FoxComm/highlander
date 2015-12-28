@@ -4,7 +4,7 @@ import makePagination from '../pagination';
 
 const namespace = 'GIFTCARD_TRANSACTIONS';
 
-const { reducer, fetch, actionReset } = makePagination(
+const { reducer, fetch, initialFetch, actionReset } = makePagination(
   giftCard => `/gift-cards/${giftCard}/transactions`,
   namespace
 );
@@ -12,5 +12,6 @@ const { reducer, fetch, actionReset } = makePagination(
 export {
   reducer as default,
   fetch,
+  initialFetch,
   actionReset
 };

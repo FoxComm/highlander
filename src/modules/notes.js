@@ -99,7 +99,9 @@ const notesReducer = createReducer({
 
 const reducer = makeReducer(notesReducer);
 
+const fetchNotes = (entity, params = {}) => fetch(entity, params);
+
 export {
   reducer as default,
-  fetch as fetchNotes
+  fetchNotes
 };
