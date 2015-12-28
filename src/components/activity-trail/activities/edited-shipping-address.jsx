@@ -20,7 +20,7 @@ export const title = data => {
 
 export const details = data => {
   return {
-    newOne:  <AddressDetails address={removeName(data.newAddress)} />,
+    newOne: <AddressDetails address={removeName(data.newAddress)} />,
     previous: <AddressDetails address={removeName(data.previousAddress)} />,
   };
 };

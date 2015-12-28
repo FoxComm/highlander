@@ -83,7 +83,6 @@ export default function searchActivities(fromActivity = null, days = 2, query = 
     })
     .then(() => {
       response.hasMore = hasMore;
-      console.log('got', response);
       return response;
     });
 }

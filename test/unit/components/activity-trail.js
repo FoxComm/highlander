@@ -116,7 +116,7 @@ describe('Activity Trail', function() {
       TimeShift.setTimezoneOffset(0);
     });
 
-    it(`should insert yeark mark if we don't have activities for current year`, function* () {
+    it(`should insert year mark if we don't have activities for current year`, function* () {
       const events = [
         { createdAt: '2014-12-31T12:44:55.319Z' },
         { createdAt: '2014-12-31T12:42:55.319Z' },
