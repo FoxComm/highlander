@@ -6,12 +6,18 @@ upstream phoenix {
   server {{ phoenix_server }};
 }
 
+upstream ashes {
+    server {{ ashes_server }};
+}
+
 server {
   # TODO(jpfuentes2): enable me when we have nginx + lua + HTTP2
   # listen 443 ssl http2 default_server;
-  listen 443 ssl http2 default_server;
-  ssl_certificate    server.crt;
-  ssl_certificate_key server.key;
+  #ssl_certificate    server.crt;
+  #ssl_certificate_key server.key;
+
+  listen 80 default_server;
+  listen [::]:80 default_server;
 
   index index.html index.htm index.nginx-debian.html;
 
@@ -75,5 +81,10 @@ server {
       proxy_pass http://phoenix/;
       proxy_set_header Authorization "Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk";
       break;
+  }
+
+  #Finally proxy to ashes
+  location / {
+      proxy_pass http://ashes/;
   }
 }

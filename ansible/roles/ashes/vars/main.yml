@@ -1,0 +1,2 @@
+ashes_source_dir: ../../Ashes
+ashes_install_dir: "{{home}}/Ashes"

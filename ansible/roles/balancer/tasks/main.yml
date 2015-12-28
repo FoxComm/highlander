@@ -24,3 +24,7 @@
 
 - name: Install default hosts
   template: src=default.j2 dest=/etc/nginx/sites-available/default
+
+- name: Restart Nginx
+  service: name=nginx state=reloaded
+  sudo: yes

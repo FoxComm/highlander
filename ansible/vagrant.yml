@@ -6,9 +6,12 @@
     user: vagrant
   roles:
     - common
-    - { role: balancer, sudo: yes }
     - kafka
     - db
     - phoenix
     - elasticsearch
     - greenriver
+    - node
+    - ashes
+    - { role: balancer, sudo: yes }
+

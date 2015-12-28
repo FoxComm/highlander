@@ -22,6 +22,9 @@ Vagrant.configure("2") do |config|
   # ES
   config.vm.network :forwarded_port, guest: 9200, host: 9200, auto_correct: true
 
+  # Ashes
+  config.vm.network :forwarded_port, guest: 80, host: 8282, auto_correct: true
+
   config.vm.network "private_network", ip: $vb_host
 
   config.vm.provider :virtualbox do |vb|

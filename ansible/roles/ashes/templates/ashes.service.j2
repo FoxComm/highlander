@@ -1,0 +1,11 @@
+[Service]
+WorkingDirectory={{ ashes_install_dir }}
+ExecStart=/bin/bash ./run_ashes.sh
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=ashes
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
