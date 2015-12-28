@@ -23,7 +23,7 @@
     chdir: "{{ashes_install_dir}}"
 
 - name: Build Ashes
-  shell: gulp build
+  shell: NODE_ENV={{ashes_env}} gulp build
   args:
     chdir: "{{ashes_install_dir}}"
 

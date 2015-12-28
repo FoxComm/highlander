@@ -1,6 +1,7 @@
 #!/bin/bash
 
 export PHOENIX_URL=http://{{ phoenix_server }}
+export NODE_ENV={{ashes_env}} 
 
 cd {{ ashes_install_dir }}
 gulp server
