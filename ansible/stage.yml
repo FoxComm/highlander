@@ -1,14 +1,25 @@
 ---
 
-  - name: Provision Stage
-    hosts: stage
-    vars:
-        user: '{{ansible_ssh_user}}'
+- name: Provision Green River Stage
+  hosts: greenriver-stage
+  vars:
+    user: '{{ansible_ssh_user}}'
 
-    roles:
-        - common
-        - kafka
-        - db
-        - phoenix
-        - elasticsearch
-        - greenriver
+  roles:
+    - common
+    - kafka
+    - db
+    - phoenix
+    - elasticsearch
+    - greenriver
+
+- name: Provision Ashes Stage
+  hosts: ashes-stage
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+    - common
+    - node
+    - ashes
+    - { role: balancer, sudo: yes }

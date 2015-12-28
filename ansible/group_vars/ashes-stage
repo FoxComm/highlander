@@ -1,0 +1,4 @@
+phoenix_env: staging
+phoenix_server: "{{hostvars[groups['greenriver-stage'][0]]['ansible_eth0']['ipv4']['address'] }}"
+search_server:  "{{hostvars[groups['greenriver-stage'][0]]['ansible_eth0']['ipv4']['address'] }}"
+ashes_server: 127.0.0.1:4000
