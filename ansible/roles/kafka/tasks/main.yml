@@ -28,7 +28,7 @@
   sudo: true
 
 - name: Setup Services
-  service: name={{ item }} state=reloaded enabled=yes
+  service: name={{ item }} state=restarted enabled=yes
   sudo: true
   with_items:
     - zookeeper
