@@ -1,4 +1,7 @@
 import React, { PropTypes } from 'react';
+import { transitionTo } from '../../route-helpers';
+import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
 import TableView from '../table/tableview';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
@@ -11,9 +14,6 @@ import LocalNav from '../local-nav/local-nav';
 import Currency from '../common/currency';
 import Status from '../common/status';
 import CustomersBase from '../customers/base';
-import { autobind } from 'core-decorators';
-import { connect } from 'react-redux';
-import { transitionTo } from '../../route-helpers';
 import PilledInput from '../pilled-search/pilled-input';
 import { PrimaryButton } from '../common/buttons';
 import * as groupsActions from '../../modules/groups/list';
@@ -24,7 +24,6 @@ export default class Groups extends React.Component {
 
   static propTypes = {
     fetch: PropTypes.func.isRequired,
-    setFetchParams: PropTypes.func.isRequired,
     tableColumns: PropTypes.array,
     groups: PropTypes.shape({
       rows: PropTypes.array.isRequired,

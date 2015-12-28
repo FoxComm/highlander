@@ -64,9 +64,9 @@ export default class Criterion extends React.Component {
       case 'bool':
         return <SliderCheckbox onChange={({target}) => this.props.changeValue(target.checked)} checked={this.props.value.value}/>;
       case 'enum':
-        return <SelectVertical options={this.props.value.options}
+        return (<SelectVertical options={this.props.value.options}
           {...this.props.value.props}
-          onChange={this.props.changeValue}/>;
+          onChange={this.props.changeValue}/>);
     }
   }
 
