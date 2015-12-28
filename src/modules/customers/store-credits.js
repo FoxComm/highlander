@@ -99,7 +99,9 @@ const moduleReducer = createReducer({
 
 const reducer = makeReducer(moduleReducer);
 
+const fetchStoreCredits = (customerId, params = {}) => fetch(customerId, params);
+
 export {
   reducer as default,
-  fetch as fetchStoreCredits
+  fetchStoreCredits
 };

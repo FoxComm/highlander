@@ -13,7 +13,9 @@ function storeCreditTransactionsUrl(customerId) {
 const { fetch } = makeActions(storeCreditTransactionsUrl);
 const reducer = makeReducer();
 
+const fetchStoreCreditTransactions = (customerId, params = {}) => fetch(customerId, params);
+
 export {
   reducer as default,
-  fetch as fetchStoreCreditTransactions
+  fetchStoreCreditTransactions
 };

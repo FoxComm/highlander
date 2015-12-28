@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 export default class GiftCardTransactions extends React.Component {
   static propTypes = {
     fetch: PropTypes.func,
+    initialFetch: PropTypes.func,
     actionReset: PropTypes.func,
     setGiftCard: PropTypes.func,
     tableColumns: PropTypes.array,
@@ -35,7 +36,7 @@ export default class GiftCardTransactions extends React.Component {
 
   componentDidMount() {
     this.props.actionReset(); // clean state from previous values
-    this.props.fetch(this.giftCard);
+    this.props.initialFetch(this.giftCard);
   }
 
   render() {
