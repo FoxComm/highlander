@@ -173,11 +173,17 @@ object Main {
     }
 
     activityWork onFailure {
-      case t ⇒ Console.err.println(s"Error occurred consuming activities: ${t.getMessage}")
+      case t ⇒ { 
+        Console.err.println(s"Error occurred consuming activities: ${t.getMessage}")
+        System.exit(1);
+      }
     }
 
     trailWork onFailure {
-      case t ⇒ Console.err.println(s"Error occurred indexing to ES: ${t}")
+      case t ⇒  { 
+        Console.err.println(s"Error occurred indexing to ES: ${t}")
+        System.exit(1);
+      }
     }
     //These threads will actually never be ready.
     //This is a hedonist bot.
