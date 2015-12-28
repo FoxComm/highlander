@@ -203,14 +203,14 @@ export function saveQuery(groupId) {
 // TODO: use ES7 await here when we update babel to 6.x
 export function initBuilder() {
   const updateState = (dispatch, getState) => {
-    const regions = getState().regions;
+    const regions = _.filter(getState().regions, (region) => region.countryId == 234);
     dispatch(prepareData({
       regions: _.reduce(regions, (r, v, k) => assoc(r, k, v.name), {})
     }));
   };
 
   return (dispatch, getState) => {
-    if (_.contains(criteriaOptions, 'region')) {
+    if ('region' in criteriaOptions) {
       if (_.isEmpty(getState().regions)) {
         dispatch(fetchRegions()).then(() => updateState(dispatch, getState));
       } else {
