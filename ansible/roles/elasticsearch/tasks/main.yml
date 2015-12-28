@@ -16,6 +16,6 @@
   sudo: true
 
 - name: Setup Service
-  service: name=elasticsearch state=restarted enabled=yes
+  service: name=elasticsearch state=restarted enabled=yes sleep=5
   sudo: true
 
