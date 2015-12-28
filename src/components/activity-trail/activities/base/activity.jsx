@@ -86,13 +86,15 @@ export default class Activity extends React.Component {
   get authorIcon() {
     const { activity } = this.props;
 
-    const userType = _.get(activity, ['context', 'userType'], 'system');
+    const userType = 'system'; // _.get(activity, ['context', 'userType'], 'system');
+    // REMOVE THIS LINE BEFORE REVIEW:
+    // @TODO: create issue for userName field
 
     switch (userType) {
       case 'system':
         return <div className="fc-activity__system-icon"></div>;
       case 'admin':
-        return <UserInitials name={activity.data.author} />;
+        return <UserInitials name={activity.context.userName} />;
       default:
         return (
           <div className="fc-activity__customer-icon">
@@ -105,13 +107,14 @@ export default class Activity extends React.Component {
   get authorTitle() {
     const { activity } = this.props;
 
-    const userType = _.get(activity, ['context', 'userType'], 'system');
+    const userType = 'system'; // _.get(activity, ['context', 'userType'], 'system');
+    // @TODO: create issue for that
 
     switch (userType) {
       case 'system':
         return 'FoxCommerce';
       case 'admin':
-        return activity.data.author;
+        return activity.context.userName;
       default:
         return 'The customer';
     }
