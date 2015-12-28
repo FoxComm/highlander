@@ -7,11 +7,13 @@ import { updateItems } from './state-helpers';
 import OrderParagon from '../paragons/order';
 import searchActivities from '../elastic/activities';
 
+const startFetching = createAction('ACTIVITY_TRAIL_START_FETCHING');
 const receivedActivities = createAction('ACTIVITY_TRAIL_RECEIVED', (trailId, data) => [trailId, data]);
 const setError = createAction('ACTIVITY_TRAIL_FAILED');
 
 export function fetchActivityTrail(entity, from) {
   return dispatch => {
+    dispatch(startFetching(entity.entityId));
     searchActivities(from).then(
       response => {
         dispatch(receivedActivities(
@@ -43,15 +45,22 @@ function mergeActivities(activities = [], newActivities) {
 const initialState = {};
 
 const reducer = createReducer({
+  [startFetching]: (state, trailId) => {
+    return assoc(state, [trailId, 'isFetching'], true);
+  },
   [receivedActivities]: (state, [trailId, data]) => {
     const updater = _.flow(
       _.partialRight(update, [trailId, 'activities'], mergeActivities, data.activities),
-      _.partialRight(assoc, [trailId, 'hasMore'], data.hasMore)
+      _.partialRight(assoc,
+        [trailId, 'hasMore'], data.hasMore,
+        [trailId, 'isFetching'], false
+      )
     );
 
     return updater(state);
   },
   [setError]: (state, err) => {
+    console.error(err);
     return {
       ...state,
       err

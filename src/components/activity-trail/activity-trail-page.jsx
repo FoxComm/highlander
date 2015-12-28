@@ -30,6 +30,28 @@ export default class ActivityTrailPage extends React.Component {
     return get(this.props, [this.props.entity.entityId, 'activities'], []);
   }
 
+  get isFetching() {
+    return get(this.props, [this.props.entity.entityId, 'isFetching'], null);
+  }
+
+  get content() {
+    const props = this.props;
+    const activities = this.activities;
+    const hasMore = get(props, [props.entity.entityId, 'hasMore'], false);
+
+    const params = {
+      activities,
+      hasMore,
+      fetchMore: this.fetchMore,
+    };
+
+    if (this.isFetching === false) {
+      return <ActivityTrail {...params} />;
+    } else if (this.isFetching === true) {
+      return <div className="fc-wait-block"></div>;
+    }
+  }
+
   @autobind
   fetchMore() {
     const activities = this.activities;
@@ -41,20 +63,12 @@ export default class ActivityTrailPage extends React.Component {
   }
 
   render() {
-    const props = this.props;
-    const activities = this.activities;
-    const hasMore = get(props, [props.entity.entityId, 'hasMore'], false);
 
-    const params = {
-      activities,
-      hasMore,
-      fetchMore: this.fetchMore,
-    };
 
     return (
       <div className="fc-activity-trail-page">
         <h2>Activity Trail</h2>
-        <ActivityTrail {...params} />
+        {this.content}
       </div>
     );
   }
