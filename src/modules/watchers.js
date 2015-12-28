@@ -21,10 +21,7 @@ export function fetchWatchers(entity) {
   return (dispatch, getState) => {
     const state = getState();
     const watchers = _.get(state, ['orders', 'details', 'currentOrder', 'watchers'], []);
-    const data = watchers.reduce((acc, item) => {
-      acc.push(item.watcher);
-      return acc;
-    }, []);
+    const data = _.pluck(watchers, 'watcher');
     dispatch(setWatchers(entity, data));
   };
 }
@@ -33,10 +30,7 @@ export function fetchAssignees(entity) {
   return (dispatch, getState) => {
     const state = getState();
     const assignees = _.get(state, ['orders', 'details', 'currentOrder', 'assignees'], []);
-    const data = assignees.reduce((acc, item) => {
-      acc.push(item.assignee);
-      return acc;
-    }, []);
+    const data = _.pluck(assignees, 'assignee');
     dispatch(setAssignees(entity, data));
   };
 }
@@ -46,11 +40,7 @@ export function suggestWatchers(entity, term) {
     return searchAdmins(term).then(
       (data) => {
         const hits = _.get(data, ['hits', 'hits'], []);
-        const admins = hits.reduce(function (acc, item) {
-          const admin = _.get(item, '_source');
-          acc.push(admin);
-          return acc;
-        }, []);
+        const admins = _.pluck(hits, '_source');
         return dispatch(setSuggestedWathcers(entity, admins));
       },
       () => dispatch(setSuggestedWathcers(entity, []))
@@ -166,22 +156,3 @@ const reducer = createReducer({
 }, initialState);
 
 export default reducer;
-
-const fakeData = [
-  {name: 'Jeff Mataya', email: 'jeff@foxcommerce.com'},
-  {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
-  {name: 'Donkey Sypachev', email: 'eugene@foxcommerce.com'},
-  {name: 'Donkey Donkey', email: 'eugene@foxcommerce.com'},
-  {name: 'Eugene Donkey', email: 'eugene@foxcommerce.com'}
-];
-
-const fakeAssignees = [
-  {name: 'Jeff Mataya', email: 'jeff@foxcommerce.com'},
-  {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'}
-];
-
-const fakeWatchers = [
-  {name: 'Jeff Mataya', email: 'jeff@foxcommerce.com'},
-  {name: 'Donkey Donkey', email: 'eugene@foxcommerce.com'},
-  {name: 'Eugene Donkey', email: 'eugene@foxcommerce.com'}
-];

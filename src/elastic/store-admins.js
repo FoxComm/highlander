@@ -10,7 +10,6 @@ const adminStartOpts = {
 };
 
 export function searchAdmins(token) {
-  console.log(token);
   const matchRule = ejs.Request().query(ejs.MatchAllQuery());
   const firstNameFilter = ejs.TermsFilter('firstName', [token]);
   const lastNameFilter = ejs.TermsFilter('lastName', [token]);
