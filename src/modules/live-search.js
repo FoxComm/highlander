@@ -189,7 +189,8 @@ function _searchStart(state) {
 }
 
 function _searchSuccess(state, res) {
-  const results = get(res, 'result', []);
+  // Needed because nginx returns an array when result is found and an object otherwise.
+  const results = _.isEmpty(res.result) ? [] : res.result;
   const total = get(res, ['pagination', 'total'], 0);
 
   return assoc(state,

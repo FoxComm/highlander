@@ -98,6 +98,8 @@ export default class Orders extends React.Component {
             data={this.orders}
             renderRow={renderRow}
             setState={this.props.fetch}
+            showEmptyMessage={true}
+            emptyMessage="No orders found."
           />
         </LiveSearch>
       </div>
