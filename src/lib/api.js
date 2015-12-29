@@ -35,7 +35,6 @@ export default class Api {
 
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
-      console.log(headers['Authorization']);
     }
     if (!isFormData) {
       headers['Content-Type'] = 'application/json;charset=UTF-8';
