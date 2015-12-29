@@ -5,7 +5,7 @@ import LocalNav from '../local-nav/local-nav';
 import TableView from '../table/tableview';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
-import Link from '../link/link';
+import { Link, IndexLink } from '../link';
 import { Date } from '../common/datetime';
 import { TabListView, TabView } from '../tabs';
 import { connect } from 'react-redux';
@@ -66,8 +66,9 @@ export default class GiftCards extends React.Component {
             </Link>
           </SectionTitle>
           <LocalNav>
-            <a href="">Lists</a>
-            <a href="">Returns</a>
+            <IndexLink to="gift-cards">Lists</IndexLink>
+            <a href="">Insights</a>
+            <a href="">Activity Trail</a>
           </LocalNav>
           <TabListView>
             <TabView>All</TabView>
