@@ -9,17 +9,12 @@ const markNotificationsAsRead = createAction('NOTIFICATIONS_MARK_AS_READ');
 export const toggleNotifications = createAction('NOTIFICATIONS_TOGGLE');
 
 export function startFetchingNotifications() {
-  console.log('starting fetching');
   return (dispatch) => {
     const eventSource = new EventSource('/sse/v1/notifications/1', {withCredentials: true});
 
     eventSource.onmessage = function(e) {
       console.log(e);
-      if (_.isEmpty(e.data)) {
-        console.log('heartbeat');
-      } else {
-        console.log('Received data');
-        console.log(e.data);
+      if (!_.isEmpty(e.data)) {
         const data = JSON.parse(e.data);
         dispatch(notificationReceived(data));
       }
