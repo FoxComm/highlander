@@ -2,15 +2,13 @@ package utils.seeds
 
 import scala.util.Random
 
+import utils.seeds.generators.CustomerGenerator
 import models.{Address, CreditCard, CreditCards, Customer, Customers, Order, OrderPayment, OrderPayments, Orders, PaymentMethod}
 import slick.driver.PostgresDriver.api._
 import utils.ModelWithIdParameter
 import Seeds.Factories
 
-object SeedsGenerator {
-
-  def generateCustomer: Customer = Customer(email = s"${randomString(10)}@email.com",
-    password = Some(randomString(10)), name = Some(randomString(10)))
+object SeedsGenerator extends CustomerGenerator {
 
   def generateOrder(status: Order.Status, customerId: Int): Order = {
     Order(customerId = customerId, referenceNumber = randomString(8) + "-17", status = status)
@@ -26,7 +24,7 @@ object SeedsGenerator {
     address1 = randomString(30), address2 = None, city = "Seattle", zip = "12345", isDefaultShipping = false,
     phoneNumber = None)
 
-  def insertRankingSeeds(customersCount: Int)(implicit db: Database) = {
+  def insertRandomizedSeeds(customersCount: Int)(implicit db: Database) = {
     import scala.concurrent.ExecutionContext.Implicits.global
 
     val location = "Arkham"
@@ -39,10 +37,7 @@ object SeedsGenerator {
       generateOrderPayment(o.id, pm, Random.nextInt(20000) + 100)
     }
 
-    val insertCustomers = Customers.createAll((1 to customersCount).map { i ⇒
-      val s = randomString(15)
-      Customer(name = Some(s), email = s"$s-$i@email.com", password = Some(s), location = Some(location))
-    })
+    val insertCustomers = Customers.createAll(generateCustomers(customersCount, location))
 
     val insertOrders = Customers.filter(_.location === location).result.flatMap { customers ⇒
       val newCustomers = customers.map { c ⇒

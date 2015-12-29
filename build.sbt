@@ -84,7 +84,8 @@ lazy val phoenixScala = (project in file(".")).
     ivyScala            := ivyScala.value.map(_.copy(overrideScalaVersion = true)),
     resolvers ++= Seq(
       "hseeberger bintray" at "http://dl.bintray.com/hseeberger/maven",
-      "pellucid bintray"   at "http://dl.bintray.com/pellucid/maven"
+      "pellucid bintray"   at "http://dl.bintray.com/pellucid/maven",
+      "justwrote" at "http://repo.justwrote.it/releases/"
     ),
     libraryDependencies ++= {
       val akkaV      = "2.3.11"
@@ -127,11 +128,13 @@ lazy val phoenixScala = (project in file(".")).
         "com.github.julien-truffaut" %% "monocle-core"        % monocleV,
         "com.github.julien-truffaut" %% "monocle-generic"     % monocleV,
         "com.github.julien-truffaut" %% "monocle-macro"       % monocleV,
+        "it.justwrote" %% "scala-faker" % "0.3",
         // Testing
         "com.typesafe.akka"    %% "akka-testkit"              % akkaV      % "test",
         "org.scalatest"        %% "scalatest"                 % scalaTestV % "test",
         "org.scalacheck"       %% "scalacheck"                % "1.12.5"   % "test", 
         "org.mockito"          %  "mockito-core"              % "1.10.19"  % "test")
+
     },
     scalaSource in Compile <<= (baseDirectory in Compile)(_ / "app"),
     scalaSource in Test <<= (baseDirectory in Test)(_ / "test" / "unit"),

@@ -35,9 +35,9 @@ object Seeds {
     _ ⇒ Console.err.println("Success!"))
 
     args.headOption.map {
-      case "ranking" ⇒
-        Console.err.println(s"Inserting ranking seeds")
-        Await.result(db.run(SeedsGenerator.insertRankingSeeds(1700).transactionally), 7.second)
+      case "random" ⇒
+        Console.err.println(s"Inserting random seeds")
+        Await.result(db.run(SeedsGenerator.insertRandomizedSeeds(1000).transactionally), 7.second)
       case _ ⇒ None
     }
 
