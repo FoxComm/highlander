@@ -15,7 +15,9 @@ const Button = (props = {}) => {
 };
 
 Button.propTypes = {
-  className: PropTypes.string
+  className: PropTypes.string,
+  icon: PropTypes.string,
+  children: PropTypes.node
 };
 
 const LeftButton = props => {

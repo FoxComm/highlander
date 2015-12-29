@@ -12,7 +12,8 @@ const DefaultCheckbox = props => {
 };
 
 DefaultCheckbox.propTypes = {
-  id: PropTypes.string
+  id: PropTypes.string,
+  className: PropTypes.string
 };
 
 const SliderCheckbox = props => {
