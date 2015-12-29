@@ -1,12 +1,13 @@
 import _ from 'lodash';
 import React from 'react';
+import { Route, IndexRoute } from 'react-router';
 
 export function interpolateRoute(history, name, params = {}) {
   let path = history.routeLookupByName[name];
 
   if (!path) {
     console.warn('Route name not found:', name);
-    return;
+    return '/';
   }
 
   return _.reduce(params, (path, paramV, paramK) => {
@@ -28,12 +29,12 @@ export function createRouteLookupByName(route, prefix = route.props.path) {
   let lookup = {};
 
   React.Children.forEach(route.props.children, (child) => {
-    const path = child.type.name === 'IndexRoute' ? '' : child.props.path;
+    const path = child.type == IndexRoute ? '' : child.props.path;
 
     lookup = {...lookup, ...createRouteLookupByName(child, prefix + (prefix.slice(-1) === '/' ? '' : '/') + path)};
   });
 
-  if ((route.type.name === 'Route' || route.type.name === 'IndexRoute') && route.props.name) {
+  if ((route.type == Route || route.type == IndexRoute) && route.props.name) {
     lookup[route.props.name] = prefix;
   }
 
