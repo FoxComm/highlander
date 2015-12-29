@@ -205,17 +205,15 @@ function _searchStart(state) {
 }
 
 function _searchSuccess(state, res) {
-  const hits = get(res, 'hits', []);
-  const results = _.map(hits, hit => {
-    return get(hit, '_source', {});
-  });
+  const results = get(res, 'result', []);
+  const total = get(res, ['pagination', 'total'], 0);
 
   return assoc(state,
     ['savedSearches', state.selectedSearch, 'isFetching'], false,
     ['savedSearches', state.selectedSearch, 'results', 'rows'], results,
     ['savedSearches', state.selectedSearch, 'results', 'from'], 0,
-    ['savedSearches', state.selectedSearch, 'results', 'size'], res.total,
-    ['savedSearches', state.selectedSearch, 'results', 'total'], res.total
+    ['savedSearches', state.selectedSearch, 'results', 'size'], total,
+    ['savedSearches', state.selectedSearch, 'results', 'total'], total
   );
 }
 
