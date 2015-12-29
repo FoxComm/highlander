@@ -3,6 +3,8 @@ import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import TableRow from './row';
 
+import _ from 'lodash';
+
 class TableHead extends React.Component {
   static propTypes = {
     columns: PropTypes.array.isRequired,
@@ -19,15 +21,25 @@ class TableHead extends React.Component {
 
   @autobind
   renderColumn(column, index) {
-    const classnames = classNames({
+    const classnames = classNames(column.className, {
       'fc-table-th': true,
       'sorting': this.props.setState,
       'sorting-desc': `${column.field}` === this.props.sortBy,
       'sorting-asc': `-${column.field}` === this.props.sortBy
     });
+
+    let contents = null;
+    if (!_.isEmpty(column.text)) {
+      contents = column.text;
+    } else if (!_.isEmpty(column.icon)) {
+      contents = <i className={column.icon} />;
+    } else if (!_.isEmpty(column.control)) {
+      contents = column.control;
+    }
+
     return (
       <th className={classnames} key={`${column.field}`} onClick={this.onHeaderClick.bind(this, column.field)}>
-        {column.text}
+        {contents}
       </th>
     );
   }

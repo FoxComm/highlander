@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
-import TableView from '../table/tableview';
+import MultiSelectTable from '../table/multi-select-table';
 import SectionTitle from '../section-title/section-title';
 import { connect } from 'react-redux';
 import * as ordersActions from '../../modules/orders/list';
@@ -67,7 +67,7 @@ export default class Orders extends React.Component {
   }
 
   render() {
-    const renderRow = (row, index) => <OrderRow order={row} columns={this.props.tableColumns} />;
+    const renderRow = (row, index, columns) => <OrderRow order={row} columns={columns} />;
     const filter = (searchTerm) => this.props.addSearchFilter('orders_search_view/_search', searchTerm);
 
     return (
@@ -93,7 +93,7 @@ export default class Orders extends React.Component {
           submitFilters={filter}
           searches={this.props.list}
         >
-          <TableView
+          <MultiSelectTable
             columns={this.props.tableColumns}
             data={this.orders}
             renderRow={renderRow}

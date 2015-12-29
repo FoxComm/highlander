@@ -61,7 +61,8 @@ TableView.propTypes = {
   detectNewRows: PropTypes.bool,
   paginator: PropTypes.bool,
   showEmptyMessage: PropTypes.bool,
-  emptyMessage: PropTypes.string
+  emptyMessage: PropTypes.string,
+  className: PropTypes.string
 };
 
 TableView.defaultProps = {

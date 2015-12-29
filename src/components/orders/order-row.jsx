@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
 import { DateTime } from '../common/datetime';
+import { Checkbox } from '../checkbox/checkbox';
 import Currency from '../common/currency';
 import Link from '../link/link';
 import Status from '../common/status';
@@ -69,6 +70,16 @@ const OrderRow = props => {
         visibleCells.push(
           <TableCell>
             <Currency value={order.grandTotal}/>
+          </TableCell>
+        );
+        break;
+      case 'toggleColumns':
+        visibleCells.push(<TableCell />);
+        break;
+      case 'selectColumn':
+        visibleCells.push(
+          <TableCell>
+            <Checkbox />
           </TableCell>
         );
         break;
