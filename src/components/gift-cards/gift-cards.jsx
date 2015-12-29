@@ -62,7 +62,7 @@ export default class GiftCards extends React.Component {
         <div className="fc-list-page-header">
           <SectionTitle title="Gift Cards" subtitle={this.props.giftCards.total}>
             <Link to="gift-cards-new" className="fc-btn fc-btn-primary">
-              <i className="icon-add"></i> New Gift Card
+              <i className="icon-add"></i> Gift Card
             </Link>
           </SectionTitle>
           <LocalNav>
