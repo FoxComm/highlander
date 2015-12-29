@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import classnames from 'classnames';
-import  { Button } from '../common/buttons';
+import { Button } from '../common/buttons';
 import TabView from './tab';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';

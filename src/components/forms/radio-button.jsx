@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 const RadioButton = props => {
   const { isSelected, children, ...rest } = props;
@@ -9,6 +9,11 @@ const RadioButton = props => {
       {children}
     </div>
   );
+};
+
+RadioButton.propTypes = {
+  isSelected: PropTypes.bool,
+  children: PropTypes.node
 };
 
 export default RadioButton;

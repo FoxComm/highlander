@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
 import { DateTime } from '../common/datetime';
@@ -82,6 +82,11 @@ const OrderRow = props => {
       {cells}
     </TableRow>
   );
+};
+
+OrderRow.propTypes = {
+  order: PropTypes.object,
+  columns: PropTypes.array
 };
 
 export default OrderRow;

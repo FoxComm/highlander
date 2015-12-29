@@ -25,7 +25,7 @@ export default class LiveSearch extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    const search = _.defaults(currentSearch(props), {searchValue: "", currentOptions: [], searches: []});
+    const search = _.defaults(currentSearch(props), {searchValue: '', currentOptions: [], searches: []});
     const {searchValue, currentOptions, searches: pills} = search;
 
     this.state = {
@@ -49,7 +49,9 @@ export default class LiveSearch extends React.Component {
     saveSearch: PropTypes.func,
     selectSavedSearch: PropTypes.func.isRequired,
     submitFilter: PropTypes.func.isRequired,
-    search: PropTypes.object.isRequired
+    search: PropTypes.object.isRequired,
+    searches: PropTypes.object,
+    editSearchNameStart: PropTypes.func
   };
 
   get currentSearch() {
@@ -87,7 +89,7 @@ export default class LiveSearch extends React.Component {
 
     const goBack = (
       <MenuItem className={menuClass} onClick={this.props.goBack}>
-        <i className='icon-back' />
+        <i className="icon-back" />
         Back
       </MenuItem>
     );
@@ -280,12 +282,12 @@ export default class LiveSearch extends React.Component {
 
   render() {
     return (
-      <div className='fc-live-search'>
+      <div className="fc-live-search">
         <div className="fc-live-search__header">
           {this.savedSearches}
         </div>
         <div className="fc-grid fc-list-page-content">
-          <div className='fc-col-md-1-1 fc-live-search__search-control'>
+          <div className="fc-col-md-1-1 fc-live-search__search-control">
             <form>
               <PilledInput
                 button={this.searchButton}

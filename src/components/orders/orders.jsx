@@ -31,7 +31,12 @@ export default class Orders extends React.Component {
     editSearchNameComplete: PropTypes.func,
     goBack: PropTypes.func,
     saveSearch: PropTypes.func,
-    submitFilter: PropTypes.func
+    submitFilter: PropTypes.func,
+    list: PropTypes.shape({
+      selectedSearch: PropTypes.object,
+      savedSearches: PropTypes.array
+    }),
+    selectSavedSearch: PropTypes.func
   };
 
   static defaultProps = {

@@ -46,6 +46,7 @@ const Summary = props => {
 };
 
 Summary.propTypes = {
+  storeCredits: PropTypes.object,
   params: PropTypes.object,
   onAddClick: PropTypes.func
 };

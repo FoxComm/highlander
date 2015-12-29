@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import Currency from '../common/currency';
 import { EditButton, PrimaryButton } from '../common/buttons';
 import CurrencyInput from '../forms/currency-input';
@@ -49,6 +49,14 @@ const ShippingMethodRow = props => {
       </TableCell>
     </TableRow>
   );
+};
+
+ShippingMethodRow.propTypes = {
+  shippingMethod: PropTypes.object,
+  updateAction: PropTypes.func,
+  isEditingPrice: PropTypes.bool,
+  editPriceAction: PropTypes.func,
+  cancelPriceAction: PropTypes.func
 };
 
 export default ShippingMethodRow;
