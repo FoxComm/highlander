@@ -5,8 +5,8 @@ Restart=on-failure
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=bottledwater
-TimeoutStartSec=5m
-RestartSec=5m
+TimeoutStartSec=30
+RestartSec=30
 
 [Install]
 WantedBy=multi-user.target
