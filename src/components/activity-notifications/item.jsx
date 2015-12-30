@@ -12,17 +12,17 @@ import { IndexLink, Link } from '../link';
 const icon = (item) => {
   const type = _.get(item, 'activityType');
   if (type.indexOf('order') >= 0) {
-    return (<i className="icon icon-orders"></i>);
+    return <i className="icon icon-orders"></i>;
   } else if (type.indexOf('cart') >= 0) {
-    return (<i className="icon icon-orders"></i>);
+    return <i className="icon icon-orders"></i>;
   } else if (type.indexOf('customer') >= 0) {
-    return (<i className="icon icon-customers"></i>);
+    return <i className="icon icon-customers"></i>;
   } else if (type.indexOf('gift_card') >= 0) {
-    return (<i className="icon icon-gift-cards"></i>);
+    return <i className="icon icon-gift-cards"></i>;
   } else if (type.indexOf('store_credit') >= 0) {
-    return (<i className="icon icon-store-credits"></i>);
+    return <i className="icon icon-store-credits"></i>;
   } else {
-    return (<i className="icon icon-bell"></i>);
+    return <i className="icon icon-bell"></i>;
   }
 };
 

@@ -14,7 +14,6 @@ export default class NotificationPanel extends React.Component {
   static propTypes = {
     notifications: PropTypes.array.isRequired,
     displayed: PropTypes.bool,
-    toggleNotifications: PropTypes.func.isRequired,
     markAsRead: PropTypes.func.isRequired,
     markAsReadAndClose: PropTypes.func.isRequired
   };
