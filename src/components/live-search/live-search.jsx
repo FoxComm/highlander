@@ -49,7 +49,6 @@ export default class LiveSearch extends React.Component {
     editSearchNameComplete: PropTypes.func,
     saveSearch: PropTypes.func,
     selectSavedSearch: PropTypes.func.isRequired,
-    search: PropTypes.object.isRequired,
     searches: PropTypes.object,
     submitFilters: PropTypes.func.isRequired,
   };
@@ -117,6 +116,7 @@ export default class LiveSearch extends React.Component {
 
       return (
         <EditableTabView
+          key={`saved-search-${search.name}`}
           defaultValue={search.name}
           draggable={draggable}
           isDirty={isDirty}

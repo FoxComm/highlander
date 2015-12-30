@@ -9,87 +9,116 @@ import Status from '../common/status';
 import TableCell from '../table/cell';
 import TableRow from '../table/row';
 
+const compileShippingStatus = order => {
+  if (order.status == 'canceled') {
+    return 'Canceled';
+  }
+
+  let canceledItemCount = 0;
+  let pendingItemCount = 0; // Status equals cart, ordered, (fraud|remorse|manual)Hold
+  let fulfillmentStartedItemCount = 0;
+  let partiallyShippedItemCount = 0;
+  let shippedItemCount = 0;
+  let deliveredItemCount = 0;
+
+  _.forEach(order.shipments, shipment => {
+    switch(shipment.status) {
+      case 'canceled':
+        canceledItemCount += 1;
+        break;
+      case 'cart':
+      case 'ordered':
+      case 'fraudHold':
+      case 'remorseHold':
+      case 'manualHold':
+        pendingItemCount += 1;
+        break;
+      case 'fulfillmentStarted':
+        fulfillmentStartedItemCount += 1;
+        break;
+      case 'partiallyShipped':
+        partiallyShippedItemCount += 1;
+        break;
+      case 'shipped':
+        shippedItemCount += 1;
+        break;
+      case 'delivered':
+        deliveredItemCount += 1;
+        break;
+    }
+  });
+
+  if (order.status == 'fulfillmentStarted' && shippedItemCount > 0 &&
+      deliveredItemCount == 0 && (pendingItemCount > 0 || partiallyShippedItemCount > 0)) {
+    return 'Partially Shipped';
+  } else if (order.status == 'fulfillmentStarted' && deliveredItemCount > 0 &&
+             (shippedItemCount > 0 || pendingItemCount > 0)) {
+    return 'Partially Delivered';
+  } else if (canceledItemCount == order.shipments.length) {
+    return 'Canceled';
+  } else if (shippedItemCount + canceledItemCount == order.shipments.length) {
+    return 'Shipped';
+  } else if (deliveredItemCount + canceledItemCount == order.shipments.length) {
+    return 'Delivered';
+  } else {
+    return null;
+  }
+};
+
 const OrderRow = props => {
   const { order, columns, ...rest } = props;
   const key = `order-${order.referenceNumber}`;
 
   const cells = _.reduce(columns, (visibleCells, col) => {
+    const cellKey = `${key}-${col.field}`;
+    let cellContents = null;
+
     switch (col.field) {
       case 'referenceNumber':
-        visibleCells.push(
-          <TableCell>
-            <Link to={'order'} params={{order: order.referenceNumber}}>
-              {order.referenceNumber}
-            </Link>
-          </TableCell>
-        );
+        cellContents = order.referenceNumber;
         break;
       case 'placedAt':
-        visibleCells.push(
-          <TableCell>
-            {order.placedAt && <DateTime value={order.placedAt} />}
-          </TableCell>
-        );
+        cellContents = order.placedAt ? <DateTime value={order.placedAt} /> : '';
         break;
       case 'customer.name':
-        visibleCells.push(
-          <TableCell>
-            {order.customer.name}
-          </TableCell>
-        );
+        cellContents = order.customer.name;
         break;
       case 'customer.email':
-        visibleCells.push(
-          <TableCell>
-            {order.customer.email}
-          </TableCell>
-        );
+        cellContents = order.customer.email;
         break;
       case 'status':
-        visibleCells.push(
-          <TableCell>
-            <Status value={order.status} model={"order"}/>
-          </TableCell>
-        );
-        break;
-      case 'payment.status':
-        visibleCells.push(
-          <TableCell>
-            <Status value={order.paymentStatus} model={"payment"}/>
-          </TableCell>
-        );
+        cellContents = <Status value={order.status} model="order" />;
         break;
       case 'shipping.status':
-        visibleCells.push(
-          <TableCell>
-            <Status value={order.shippingStatus} model={"shipment"}/>
-          </TableCell>
-        );
+        const shippingStatus = compileShippingStatus(order);
+        cellContents = shippingStatus
+          ? <Status value={shippingStatus} model="shipment" />
+          : '';
         break;
       case 'grandTotal':
-        visibleCells.push(
-          <TableCell>
-            <Currency value={order.grandTotal}/>
-          </TableCell>
-        );
+        cellContents = order.grandTotal;
         break;
       case 'toggleColumns':
-        visibleCells.push(<TableCell />);
+        cellContents = '';
         break;
       case 'selectColumn':
-        visibleCells.push(
-          <TableCell>
-            <Checkbox />
-          </TableCell>
-        );
+        cellContents = <Checkbox />;
         break;
+      default:
+        return visibleCells;
     }
+
+    visibleCells.push(
+      <TableCell key={cellKey}>
+        {cellContents}
+      </TableCell>
+    );
 
     return visibleCells;
   }, []);
 
   return (
-    <TableRow key={key} {...rest}>
+    <TableRow {...rest}>
       {cells}
     </TableRow>
   );
