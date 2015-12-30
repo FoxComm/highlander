@@ -6,10 +6,8 @@ import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import { DateTime } from '../common/datetime';
 import SearchBar from '../search-bar/search-bar';
-import SectionTitle from '../section-title/section-title';
-import LocalNav from '../local-nav/local-nav';
+import CustomersBase from './base';
 import { Link } from '../link';
-import { transitionTo } from '../../route-helpers';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import * as customersActions from '../../modules/customers/list';
@@ -51,10 +49,6 @@ export default class Customers extends React.Component {
     ]
   };
 
-  static contextTypes = {
-    history: PropTypes.object.isRequired
-  };
-
   static propTypes = {
     fetch: PropTypes.func,
     customers: PropTypes.object,
@@ -65,9 +59,13 @@ export default class Customers extends React.Component {
     this.props.fetch(this.props.customers);
   }
 
-  @autobind
-  onAddCustomerClick() {
-    transitionTo(this.context.history, 'customers-new');
+  get header() {
+    return (
+      <TabListView>
+        <TabView draggable={false}>All</TabView>
+        <TabView>What</TabView>
+      </TabListView>
+    );
   }
 
   render() {
@@ -88,27 +86,11 @@ export default class Customers extends React.Component {
     };
 
     return (
-      <div className="fc-list-page">
-        <div className="fc-list-page-header">
-          <SectionTitle title="Customers"
-                        subtitle={ this.props.customers.total }
-                        onAddClick={ this.onAddCustomerClick }
-                        addTitle="Customer" />
-          <LocalNav>
-            <Link to="customers">Lists</Link>
-            <Link to="groups-new-dynamic">Customer Groups</Link>
-            <a href="">Insights</a>
-            <a href="">Activity Trial</a>
-          </LocalNav>
-          <TabListView>
-            <TabView draggable={false}>All</TabView>
-            <TabView>What</TabView>
-          </TabListView>
-        </div>
+      <CustomersBase header={this.header}>
         <div className="fc-grid fc-list-page-content">
           <div className="fc-col-md-1-1 fc-action-bar fc-align-right">
             <button className="fc-btn">
-              <i className="icon-external-link"></i>
+              <i className="icon-external-link"/>
             </button>
           </div>
           <SearchBar />
@@ -121,7 +103,7 @@ export default class Customers extends React.Component {
               />
           </div>
         </div>
-      </div>
+      </CustomersBase>
     );
   }
 }
