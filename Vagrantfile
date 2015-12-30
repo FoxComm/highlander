@@ -7,10 +7,8 @@ CONFIG = File.join(File.dirname(__FILE__), "vagrant.local.rb")
 
 vb_memory = 4048
 vb_cpu = 2
-backend_host = ENV['BACKEND_HOST'] || "192.168.10.111"
-ashes_host = "192.168.10.112"
-phoenix_server = ENV['PHOENIX_HOST'] || "#{backend_host}:9090"
-search_server = ENV['ES_HOST'] || "#{backend_host}:9200"
+backend_ip = "192.168.10.111"
+ashes_ip = "192.168.10.112"
 
 require CONFIG if File.readable?(CONFIG)
 
@@ -69,7 +67,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.define :appliance, primary: true do |app|
-    app.vm.network :private_network, ip: backend_host
+    app.vm.network :private_network, ip: backend_ip
     expose_backend_ports(app)
     expose_ashes(app)
 
@@ -80,7 +78,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.define :backend, autostart: false do |app|
-    app.vm.network :private_network, ip: backend_host
+    app.vm.network :private_network, ip: backend_ip
     expose_backend_ports(app)
       app.vm.provision "ansible" do |ansible|
           ansible.verbose = "vv"
@@ -88,15 +86,20 @@ Vagrant.configure("2") do |config|
       end
   end
   config.vm.define :ashes, autostart: false do |app|
-    app.vm.network :private_network, ip: ashes_host
-    expose_ashes(app)
-    app.vm.provision "ansible" do |ansible|
-        ansible.verbose = "vv"
-        ansible.playbook = "ansible/vagrant_ashes.yml"
-        ansible.extra_vars = {
-            phoenix_server: phoenix_server,
-            search_server: search_server
-        }
-    end
+      backend_host = ENV['BACKEND_HOST'] || backend_ip
+      phoenix_server = ENV['PHOENIX_HOST'] || "#{backend_host}:9090"
+      search_server = ENV['ES_HOST'] || "#{backend_host}:9200"
+
+      app.vm.network :private_network, ip: ashes_ip
+      expose_ashes(app)
+
+      app.vm.provision "ansible" do |ansible|
+          ansible.verbose = "vv"
+          ansible.playbook = "ansible/vagrant_ashes.yml"
+          ansible.extra_vars = {
+              phoenix_server: phoenix_server,
+              search_server: search_server
+          }
+      end
   end
 end
