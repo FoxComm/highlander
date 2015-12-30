@@ -88,8 +88,8 @@
       - postgresql.conf
       - pg_hba.conf
 
-- name: Reload Postgresql
-  service: name=postgresql state=reloaded sleep=5
+- name: Restarg Postgresql
+  service: name=postgresql state=restart sleep=5
   sudo: true
 
 - name: Install Prerequisites for posgresql ansible module
