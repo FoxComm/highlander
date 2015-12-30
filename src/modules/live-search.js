@@ -42,10 +42,7 @@ export default function makeLiveSearch(namespace, searchTerms) {
   const addSearchFilter = (url, filters) => {
     return dispatch => {
       dispatch(submitFilters(filters));
-
       const esQuery = toQuery(filters);
-      console.log(esQuery);
-
       dispatch(fetch(url, esQuery.toJSON()));
     };
   };

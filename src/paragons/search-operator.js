@@ -10,11 +10,7 @@ export default class SearchOperator {
   }
 
   get children() {
-    if (_.get(this, ['_searchTerm', 'suggestions', 'length'], 0)) {
-      return this._searchTerm.suggestions;
-    } else {
-      return [];
-    }
+    return _.get(this, ['_searchTerm', 'suggestions'], []);
   }
 
   get displayTerm() {
