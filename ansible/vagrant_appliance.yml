@@ -1,11 +1,12 @@
 ---
 
-- name: Provision Vagrant
+- name: Provision All The Things
   hosts: all
   vars:
     user: vagrant
   roles:
     - common
+    - scala
     - kafka
     - db
     - phoenix

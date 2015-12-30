@@ -5,37 +5,51 @@ require 'fileutils'
 
 CONFIG = File.join(File.dirname(__FILE__), "vagrant.local.rb")
 
-$vb_memory = 4048
-$vb_cpu = 2
-$vb_host = "192.168.10.111"
+vb_memory = 4048
+vb_cpu = 2
+backend_host = ENV['BACKEND_HOST'] || "192.168.10.111"
+ashes_host = "192.168.10.112"
+phoenix_server = ENV['PHOENIX_HOST'] || "#{backend_host}:9090"
+search_server = ENV['ES_HOST'] || "#{backend_host}:9200"
 
 require CONFIG if File.readable?(CONFIG)
 
+def expose_backend_ports(config)
+    # Kafka
+    config.vm.network :forwarded_port, guest: 9092, host: 9092, auto_correct: true
+
+    # Zookeeper
+    config.vm.network :forwarded_port, guest: 2181, host: 2181, auto_correct: true
+
+    # Schema Registry
+    config.vm.network :forwarded_port, guest: 8081, host: 8081, auto_correct: true
+
+    # PostgreSQL
+    config.vm.network :forwarded_port, guest: 5432, host: 5432, auto_correct: true
+
+    # Phoenix
+    config.vm.network :forwarded_port, guest: 9090, host: 9090, auto_correct: true
+
+    # ES
+    config.vm.network :forwarded_port, guest: 9200, host: 9200, auto_correct: true
+end
+
+def expose_ashes(config)
+    config.vm.network :forwarded_port, guest: 80, host: 8282, auto_correct: true
+end
+
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/vivid64"
-  # PostgreSQL
-  config.vm.network :forwarded_port, guest: 5432, host: 5432, auto_correct: true
-
-  # Phoenix
-  config.vm.network :forwarded_port, guest: 9090, host: 9090, auto_correct: true
-
-  # ES
-  config.vm.network :forwarded_port, guest: 9200, host: 9200, auto_correct: true
-
-  # Ashes
-  config.vm.network :forwarded_port, guest: 80, host: 8282, auto_correct: true
-
-  config.vm.network "private_network", ip: $vb_host
 
   config.vm.provider :virtualbox do |vb|
-    vb.cpus = $vb_cpu
-    vb.memory = $vb_memory
+    vb.cpus = vb_cpu
+    vb.memory = vb_memory
   end
 
   config.vm.provider :vmware_fusion do |v, override|
     override.vm.box= "boxcutter/ubuntu1504"
-    v.vmx["memsize"] = $vb_memory
-    v.vmx["numvcpus"] = $vb_cpu
+    v.vmx["memsize"] = vb_memory
+    v.vmx["numvcpus"] = vb_cpu
   end
 
   config.vm.provider :google do |g, override|
@@ -54,8 +68,35 @@ Vagrant.configure("2") do |config|
     g.tags = ['no-ip', 'vagrant']
   end
 
-  config.vm.provision "ansible" do |ansible|
-    ansible.verbose = "vv"
-    ansible.playbook = "ansible/vagrant.yml"
+  config.vm.define :appliance, primary: true do |app|
+    app.vm.network :private_network, ip: backend_host
+    expose_backend_ports(app)
+    expose_ashes(app)
+
+    app.vm.provision "ansible" do |ansible|
+        ansible.verbose = "vv"
+        ansible.playbook = "ansible/vagrant_appliance.yml"
+    end
+  end
+
+  config.vm.define :backend, autostart: false do |app|
+    app.vm.network :private_network, ip: backend_host
+    expose_backend_ports(app)
+      app.vm.provision "ansible" do |ansible|
+          ansible.verbose = "vv"
+          ansible.playbook = "ansible/vagrant_backend.yml"
+      end
+  end
+  config.vm.define :ashes, autostart: false do |app|
+    app.vm.network :private_network, ip: ashes_host
+    expose_ashes(app)
+    app.vm.provision "ansible" do |ansible|
+        ansible.verbose = "vv"
+        ansible.playbook = "ansible/vagrant_ashes.yml"
+        ansible.extra_vars = {
+            phoenix_server: phoenix_server,
+            search_server: search_server
+        }
+    end
   end
 end

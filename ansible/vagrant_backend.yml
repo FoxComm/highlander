@@ -1,0 +1,14 @@
+---
+
+- name: Provision Backend
+  hosts: all
+  vars:
+    user: vagrant
+  roles:
+    - common
+    - scala
+    - kafka
+    - db
+    - phoenix
+    - elasticsearch
+    - greenriver
