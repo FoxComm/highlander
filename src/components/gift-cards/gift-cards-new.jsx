@@ -102,7 +102,7 @@ export default class NewGiftCard extends React.Component {
     if (props.subTypes && props.subTypes.length > 0) {
       return (
         <div className="fc-new-gift-card__subtypes fc-col-md-1-2">
-          <label htmlFor="subTypeId">Subtype</label>
+          <label className="fc-new-gift-card__label" htmlFor="subTypeId">Subtype</label>
           <Dropdown value={`${props.subTypeId}`} onChange={ value => props.changeFormData('subTypeId', Number(value)) }>
             {props.subTypes.map((subType, idx) => {
               return <DropdownItem key={`subType-${idx}`} value={`${props.subTypeId}`}>{subType.title}</DropdownItem>;
@@ -158,7 +158,8 @@ export default class NewGiftCard extends React.Component {
           />
           <FormField className="fc-new-gift-card__message-to-customers"
                      label="Write a message for customers" optional
-                     labelAtRight={ labelAtRight }>
+                     labelAtRight={ labelAtRight }
+                     labelClassName="fc-new-gift-card__label">
             <textarea className="fc-input" name="customerMessage"
                       maxLength="1000" onChange={this.changeCustomerMessage.bind(this)}></textarea>
           </FormField>
@@ -177,7 +178,7 @@ export default class NewGiftCard extends React.Component {
 
       return (
         <fieldset>
-          <label htmlFor="quantity">Quantity</label>
+          <label className="fc-new-gift-card__label" htmlFor="quantity">Quantity</label>
           <Counter
             id="quantity"
             value={this.props.quantity}
@@ -205,7 +206,7 @@ export default class NewGiftCard extends React.Component {
               onChange={this.onChangeValue}>
           <div className="fc-grid fc-grid-no-gutter">
             <div className="fc-new-gift-card__types fc-col-md-1-2">
-              <label htmlFor="originType">Gift Card Type</label>
+              <label className="fc-new-gift-card__label" htmlFor="originType">Gift Card Type</label>
               <Dropdown value={props.originType} onChange={value => props.changeFormData('originType', value) }>
                 {props.types.map((entry, idx) => {
                   const type = entry.originType;
@@ -218,7 +219,7 @@ export default class NewGiftCard extends React.Component {
             {this.subTypes}
           </div>
           <fieldset>
-            <label htmlFor="value">Value</label>
+            <label className="fc-new-gift-card__label" htmlFor="value">Value</label>
             <div className="fc-input-group">
               <div className="fc-input-prepend"><i className="icon-usd"></i></div>
               <input type="hidden" name="balance" value={this.props.balance} />
@@ -245,7 +246,7 @@ export default class NewGiftCard extends React.Component {
             </div>
           </fieldset>
           <fieldset>
-            <label>
+            <label className="fc-new-gift-card__label">
               <Checkbox id="sendToCustomer" name="sendToCustomer" checked={this.props.sendToCustomer} />
               Send gift card(s) to customer(s)
             </label>
