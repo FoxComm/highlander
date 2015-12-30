@@ -115,6 +115,16 @@ server {
         break;
 	}
 
+  location /sse/ {
+        proxy_pass http://phoenix/;
+
+        proxy_set_header Connection '';
+        proxy_http_version 1.1;
+        chunked_transfer_encoding off;
+        proxy_buffering off;
+        proxy_cache off;
+  }
+
     #Finally proxy to ashes
 	location / {
         proxy_pass http://ashes/;

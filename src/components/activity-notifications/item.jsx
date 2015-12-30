@@ -10,58 +10,124 @@ import UserInitials from '../users/initials';
 import { IndexLink, Link } from '../link';
 
 const icon = (item) => {
-  const type = _.get(item, ['body', 'reference', 'typed']);
-  switch(type) {
-    case 'Order':
-      return (<i className='icon icon-orders'></i>);
-    default:
-      return (<i className='icon icon-bell'></i>);
+  const type = _.get(item, 'activityType');
+  if (type.indexOf('order') >= 0) {
+    return <i className="icon icon-orders"></i>;
+  } else if (type.indexOf('cart') >= 0) {
+    return <i className="icon icon-orders"></i>;
+  } else if (type.indexOf('customer') >= 0) {
+    return <i className="icon icon-customers"></i>;
+  } else if (type.indexOf('gift_card') >= 0) {
+    return <i className="icon icon-gift-cards"></i>;
+  } else if (type.indexOf('store_credit') >= 0) {
+    return <i className="icon icon-store-credits"></i>;
+  } else {
+    return <i className="icon icon-bell"></i>;
   }
 };
 
-const buildDelimeter = (action) => {
-  switch(action) {
-    case 'assigned':
-      return ' you to ';
-    case 'unassigned':
-      return ' you from ';
-    default:
-      return ' on ';
+const entity = (type) => {
+  if (type.indexOf('order') >= 0) {
+    return 'order';
+  } else if (type.indexOf('cart') >= 0) {
+    return 'cart for order';
+  } else if (type.indexOf('customer') >= 0) {
+    return 'customer';
+  } else if (type.indexOf('gift_card') >= 0) {
+    return 'gift-card';
+  } else if (type.indexOf('store_credit') >= 0) {
+    return 'store-credits';
+  } else {
+    return null;
+  }
+};
+
+const buildDelimeter = (target) => {
+  if (target.indexOf('assigned') >= 0) {
+    return 'you to';
+  } else if (target.indexOf('unassigned') >= 0) {
+    return 'you from';
+  } else {
+    return null;
   }
 };
 
 const buildLink = (target, id) => {
-  switch(target) {
-    case 'Order':
-      return (
-        <IndexLink to="order"
-                   params={{order: id}}
-                   className="fc-activity-notification-item__link">
-          {id}
-        </IndexLink>
-      );
-    default:
-      return (<span>{ id }</span>);
+  if (target.indexOf('order') >= 0) {
+    return (
+      <IndexLink to="order"
+                 params={{order: id}}
+                 className="fc-activity-notification-item__link">
+        {id}
+      </IndexLink>
+    );
+  } else if (target.indexOf('cart') >= 0) {
+    return (
+      <IndexLink to="order"
+                 params={{order: id}}
+                 className="fc-activity-notification-item__link">
+        {id}
+      </IndexLink>
+    );
+  } else if (target.indexOf('customer') >= 0) {
+    return (
+      <IndexLink to="customer"
+                 params={{customerId: id}}
+                 className="fc-activity-notification-item__link">
+        {id}
+      </IndexLink>
+    );
+  } else if (target.indexOf('gift_card') >= 0) {
+    return (
+      <IndexLink to="giftcard"
+                 params={{giftCard: id}}
+                 className="fc-activity-notification-item__link">
+        {id}
+      </IndexLink>
+    );
+  } else {
+    return (<span>{ id }</span>);
+  }
+};
+
+const action = (target) => {
+  if (target.indexOf('created') >= 0) {
+    return 'created';
+  } else if (target.indexOf('updated') >= 0) {
+    return 'updated';
+  } else if (target.indexOf('deleted') >= 0) {
+    return 'deleted';
+  } else if (target.indexOf('assigned') >= 0) {
+    return 'assigned';
+  } else if (target.indexOf('unassigned') >= 0) {
+    return 'unassigned';
+  } else if (target.indexOf('removed') >= 0) {
+    return 'removed';
+  } else if (target.indexOf('changed') >= 0) {
+    return 'changed';
+  } else {
+    return 'made unknown action';
   }
 };
 
 const buildText = (item) => {
-  const target = _.get(item, ['body', 'reference', 'typed']);
-  const name = _.get(item, ['body', 'origin', 'name'], 'System');
-  const action = _.get(item, ['body', 'action']);
-  const delimeter = buildDelimeter(action);
-  const id = _.get(item, ['body', 'reference', 'ref']);
+  const target = _.get(item, 'activityType');
+  const name = _.get(item, ['data', 'admin', 'name'], 'System');
+  const actionText = action(target);
+  const delimeter = buildDelimeter(target);
+  const id = _.get(item, ['data', 'newInfo', 'id']);
   const link = buildLink(target, id);
+  const entityText = entity(target);
 
   return (
     <span>
-      { name } <strong>{ action }</strong>{ delimeter } { target } { link }
+      {name} <strong>{actionText}</strong>{delimeter} {entityText} {link}
     </span>
   );
 };
 
 const NotificationItem = (props) => {
-  const origin = _.get(props, ['item', 'body', 'origin']);
+  const origin = _.get(props, ['item', 'data', 'admin']);
   const isRead = _.get(props, ['item', 'isRead']);
   const classes = classNames('fc-activity-notification-item', {
     '_not-read': !isRead
@@ -78,7 +144,7 @@ const NotificationItem = (props) => {
           </div>
           <div className="fc-activity-notification-item__body">
             <div className="fc-activity-notification-item__author">
-              { !_.isEmpty(origin) && (<UserInitials { ...props.item.body.origin } />) }
+              { !_.isEmpty(origin) && (<UserInitials { ...origin } />) }
             </div>
             <div className="fc-activity-notification-item__text">
               { buildText(props.item) }

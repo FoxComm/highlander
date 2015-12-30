@@ -2,134 +2,106 @@
 import Api from '../lib/api';
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
-import { deepMerge } from 'sprout-data';
+import { assoc, deepMerge } from 'sprout-data';
 
-const notificationsReceived = createAction('NOTIFICATIONS_RECEIVED');
+const notificationReceived = createAction('NOTIFICATION_RECEIVED');
+const markNotificationsAsRead = createAction('NOTIFICATIONS_MARK_AS_READ');
 export const toggleNotifications = createAction('NOTIFICATIONS_TOGGLE');
 
-export function fetchNotifications() {
+export function startFetchingNotifications() {
   return (dispatch) => {
-    dispatch(notificationsReceived(data));
+    const eventSource = new EventSource('/sse/v1/notifications/1', {withCredentials: true});
+
+    eventSource.onmessage = function(e) {
+      console.log(e);
+      if (!_.isEmpty(e.data)) {
+        const data = JSON.parse(e.data);
+        dispatch(notificationReceived(data));
+      }
+    };
+
+    eventSource.onopen = function(e) {
+      console.log('Connection was opened.');
+    };
+
+    eventSource.onerror = function(e) {
+      console.log('Connection was closed.');
+    };
+  };
+}
+
+export function markAsReadAndClose() {
+  return (dispatch, getState) => {
+    const adminId = 1;
+    const activities = _.get(getState(), ['activityNotifications', 'notifications'], []);
+
+    if (!_.isEmpty(activities)) {
+      const activityId = _.get(_.last(activities), 'id');
+
+      Api.post(`/notifications/${adminId}/last-seen/${activityId}`, {}).then(
+        () => dispatch(markNotificationsAsRead()),
+        () => dispatch(toggleNotifications())
+      );
+    } else {
+      dispatch(toggleNotifications());
+    }
+  };
+}
+
+export function markAsRead() {
+  return (dispatch, getState) => {
+    const adminId = 1;
+    const activities = _.get(getState(), ['activityNotifications', 'notifications'], []);
+
+    if (!_.isEmpty(activities)) {
+      const activityId = _.get(_.last(activities), 'id');
+
+      Api.post(`/notifications/${adminId}/last-seen/${activityId}`, {}).then(
+        () => dispatch(markNotificationsAsRead()),
+        () => dispatch(toggleNotifications())
+      );
+    } else {
+      dispatch(toggleNotifications());
+    }
   };
 }
 
 const initialState = {
-  displayed: false
+  displayed: false,
+  notifications: [],
+  count: 0
 };
 
-const data = [
-  {
-    'id': 1,
-    'body': {
-      'action': 'assigned',
-      'origin': {
-        'id': 1,
-        'name': 'Frankly Admin',
-        'email': 'admin@admin.com'
-      },
-      'reference': {
-        'ref': 'BR10001',
-        'url': 'orders/BR10001',
-        'typed': 'Order'
-      }
-    },
-    'createdAt': '2015-12-03T20:22:23.172Z',
-    'isRead': false
-  },
-  {
-    'id': 2,
-    'body': {
-      'action': 'unassigned',
-      'origin': {
-        'id': 2,
-        'name': 'Such Root',
-        'email': 'hackerman@yahoo.com'
-      },
-      'reference': {
-        'ref': 'BR10002',
-        'url': 'orders/BR10002',
-        'typed': 'Order'
-      }
-    },
-    'createdAt': '2015-12-03T20:22:23.173Z',
-    'isRead': false
-  },
-  {
-    'id': 3,
-    'body': {
-      'action': 'marked as Complete',
-      'origin': {
-        'id': 3,
-        'name': 'Admin Hero',
-        'email': 'admin_hero@xakep.ru'
-      },
-      'reference': {
-        'ref': 'BR10001',
-        'url': 'orders/BR10001',
-        'typed': 'Order'
-      }
-    },
-    'createdAt': '2015-12-03T20:22:23.173Z',
-    'isRead': false
-  },
-  {
-    'id': 4,
-    'body': {
-      'action': 'edited shipping address',
-      'origin': {
-        'id': 2,
-        'name': 'Such Root',
-        'email': 'hackerman@yahoo.com'
-      },
-      'reference': {
-        'ref': 'BR10003',
-        'url': 'orders/BR10003',
-        'typed': 'Order'
-      }
-    },
-    'createdAt': '2015-12-03T20:22:23.173Z',
-    'isRead': false
-  },
-  {
-    'id': 5,
-    'body': {
-      'action': 'added a note',
-      'origin': {
-        'id': 3,
-        'name': 'Admin Hero',
-        'email': 'admin_hero@xakep.ru'
-      },
-      'reference': {
-        'ref': 'BR10001',
-        'url': 'orders/BR10001',
-        'typed': 'Order'
-      }
-    },
-    'createdAt': '2015-12-03T19:52:23.176Z',
-    'isRead': true
-  },
-  {
-    'id': 6,
-    'body': {
-      'action': 'changed state to FulfillmentStarted',
-      'origin': {},
-      'reference': {
-        'ref': 'BR10003',
-        'url': 'orders/BR10003',
-        'typed': 'Order'
-      }
-    },
-    'createdAt': '2015-12-03T19:37:23.178Z',
-    'isRead': true
-  }
-];
-
 const reducer = createReducer({
-  [notificationsReceived]: (state, data) => {
+  [notificationReceived]: (state, data) => {
+    const notificationList = _.get(state, 'notifications', []);
+    const notReadData = assoc(data, 'isRead', false);
+    const updatedNotifications = notificationList.concat([notReadData]);
+    const newCount = updatedNotifications.reduce((acc, item) => {
+      if (!item.isRead) {
+        acc++;
+      }
+      return acc;
+    }, 0);
+
     return {
       ...state,
-      notifications: data,
-      count: data.length
+      notifications: updatedNotifications,
+      count: newCount
+    };
+  },
+  [markNotificationsAsRead]: state => {
+    const notificationList = _.get(state, 'notifications', []);
+    const readNotifications = notificationList.map((item) => {
+      const copy = item;
+      copy.isRead = true;
+      return copy;
+    });
+
+    return {
+      ...state,
+      notifications: readNotifications,
+      count: 0
     };
   },
   [toggleNotifications]: state => {

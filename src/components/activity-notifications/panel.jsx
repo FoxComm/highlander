@@ -1,18 +1,21 @@
+
+// libs
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
+
+// components
 import ContentBox from '../content-box/content-box';
 import NotificationItem from '../activity-notifications/item';
 import { PrimaryButton } from '../common/buttons';
-import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
-import * as NotificationActions from '../../modules/activity-notifications';
 
-@connect(state => state.activityNotifications, NotificationActions)
 export default class NotificationPanel extends React.Component {
 
   static propTypes = {
-    notifications: PropTypes.array,
+    notifications: PropTypes.array.isRequired,
     displayed: PropTypes.bool,
-    toggleNotifications: PropTypes.func
+    markAsRead: PropTypes.func.isRequired,
+    markAsReadAndClose: PropTypes.func.isRequired
   };
 
   static defaultProps = {
@@ -29,7 +32,7 @@ export default class NotificationPanel extends React.Component {
   get footer() {
     return (
       <div className="fc-activity-notifications__footer">
-        <PrimaryButton onClick={() => console.log('Not implemented yet')}
+        <PrimaryButton onClick={this.props.markAsRead}
                        className="fc-activity-notifications__footer-button">
           View All
         </PrimaryButton>
@@ -42,7 +45,7 @@ export default class NotificationPanel extends React.Component {
       return (
         <div>
           <div className="fc-activity-notifications__overlay"
-               onClick={this.props.toggleNotifications}>
+               onClick={this.props.markAsReadAndClose}>
           </div>
           <ContentBox title="Notifications"
                       className="fc-activity-notifications__box"
