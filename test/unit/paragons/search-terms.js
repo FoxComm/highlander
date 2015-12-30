@@ -1,29 +1,35 @@
 import _ from 'lodash';
 import nock from 'nock';
+import util from 'util';
 
 const SearchTerm = importSource('paragons/search-term.js');
 
 describe('paragons.searchTerm', function() {
   const jsonTerms = [
     {
-      term: 'String Term',
-      type: 'string'
+      title: 'String Term',
+      type: 'string',
+      term: 'string'
     }, {
-      term: 'Number Term',
-      type: 'number'
+      title: 'Number Term',
+      type: 'number',
+      term: 'number',
     }, {
-      term: 'Date Term',
-      type: 'date'
+      title: 'Date Term',
+      type: 'date',
+      term: 'date'
     }, {
-      term: 'Nested Term',
+      title: 'Nested Term',
       type: 'object',
       options: [{
-        term: 'Child Term',
-        type: 'string'
+        title: 'Child Term',
+        type: 'string',
+        term: 'child'
       }]
     }, {
-      term: 'Enum Term',
+      title: 'Enum Term',
       type: 'enum',
+      term: 'enum',
       suggestions: ['One', 'Two', 'Three']
     }
   ];
@@ -40,14 +46,14 @@ describe('paragons.searchTerm', function() {
   describe('.displayTerm', function() {
     it('should use the term as the display term', function() {
       _.forEach(terms, (term, idx) => {
-        expect(term.displayTerm).to.be.equal(jsonTerms[idx].term);
+        expect(term.displayTerm).to.be.equal(jsonTerms[idx].title);
       });
     });
   });
 
   describe('.displayAction', function() {
     it('should display the actions as search', function() {
-      _.forEach(terms, term => expect(term.displayAction).to.be.equal('Search'));
+      _.forEach(terms, term => expect(term.displayAction).to.be.equal(' : Search'));
     });
 
     it('should be empty with a value term', function() {
@@ -71,21 +77,23 @@ describe('paragons.searchTerm', function() {
 
   describe('.applicableTerms', function() {
     const nestedTerm = new SearchTerm({
-      term: 'Parent',
+      title: 'Parent',
       type: 'object',
       options: [
         {
-          term: 'Child String',
-          type: 'string'
+          title: 'Child String',
+          type: 'string',
+          term: 'childString'
         }, {
-          term: 'Child Number',
-          type: 'number'
+          title: 'Child Number',
+          type: 'number',
+          term: 'childNumber'
         }
       ]
     });
 
     const enumTerm = new SearchTerm({
-      term: 'An enumeration',
+      title: 'An enumeration',
       type: 'enum',
       suggestions: ['One', 'Two', 'Three']
     });
@@ -168,39 +176,40 @@ describe('paragons.searchTerm', function() {
       expect(visible[0].displayTerm).to.be.equal('An enumeration');
     });
 
-    it('should show enumeration values on a full match', function() {
-      const visible = enumTerm.applicableTerms(enumTerm.selectionValue);
-      expect(visible).to.have.length(3);
-      expect(visible[0].displayTerm).to.be.equal('An enumeration : One');
-      expect(visible[1].displayTerm).to.be.equal('An enumeration : Two');
-      expect(visible[2].displayTerm).to.be.equal('An enumeration : Three');
+    it('should only show the enumeration on a full match', function() {
+      const visible = enumTerm.applicableTerms(enumTerm.displayTerm);
+      expect(visible).to.have.length(1);
     });
 
-    it('should not match an enumeration with an invalid value', function() {
-      const visible = enumTerm.applicableTerms('An enumeration : Four');
-      expect(visible).to.be.empty;
+    it('should show the children on a full match', function() {
+      const visible = enumTerm.applicableTerms(enumTerm.selectionValue);
+      expect(visible).to.have.length(3);
     });
   });
 
   describe('.selectTerm', function() {
     const nestedTerm = new SearchTerm({
-      term: 'Parent',
+      title: 'Parent',
       type: 'object',
       options: [
         {
-          term: 'Child String',
+          title: 'Child String',
           type: 'string'
         }, {
-          term: 'Child Number',
+          title: 'Child Number',
           type: 'number'
         }
       ]
     });
 
     const enumTerm = new SearchTerm({
-      term: 'An enumeration',
+      title: 'An enumeration',
       type: 'enum',
-      suggestions: ['One', 'Two', 'Three']
+      suggestions: [
+        { display: 'One', value: 1 },
+        { display: 'Two', value: 2 },
+        { display: 'Three', value: 3 }
+      ]
     });
 
     it('should not select a parent', function() {

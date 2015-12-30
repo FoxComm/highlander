@@ -1,45 +1,52 @@
 const searchTerms = [
   {
-    term: 'Order',
+    title: 'Order',
     type: 'object',
     options: [
       {
-        term: 'ID',
-        type: 'string'
+        title: 'ID',
+        type: 'string',
+        term: 'id'
       }, {
-        term: 'State',
+        title: 'State',
         type: 'enum',
+        term: 'status',
         suggestions: [
-          'Cart',
-          'Remorse Hold',
-          'Manual Hold',
-          'Fraud Hold',
-          'Fulfillment Started',
-          'Shipped',
-          'Partially Shipped',
-          'Canceled'
+          { display: 'Cart', value: 'cart' },
+          { display: 'Remorse Hold', value: 'remorseHold' },
+          { display: 'Manual Hold', value: 'manualHold' },
+          { display: 'Fraud Hold', value: 'fraudHold' },
+          { display: 'Fulfillment Started', value: 'fulfillmentStarted' },
+          { display: 'Shipped', value: 'shipped' },
+          { display: 'Partially Shipped', value: 'partiallyShipped' },
+          { display: 'Canceled', value: 'canceled' }
         ]
       }, {
-        term: 'Date Placed',
-        type: 'date'
+        title: 'Date Placed',
+        type: 'date',
+        term: 'placedAt'
       }
     ]
   }, {
-    term: 'Shipment',
+    title: 'Shipment',
     type: 'object',
     options: [
       {
-        term: 'State',
+        title: 'State',
         type: 'enum',
-        suggestions: ['Shipped', 'Partially Shipped', 'Delivered']
+        suggestions: [
+          { display: 'Shipped', value: '' },
+          { display: 'Partially Shipped', value: '' },
+          { display: 'Delivered', value: '' }
+        ]
       }, {
-        term: 'Method',
+        title: 'Method',
         type: 'string'
       }, {
-        term: 'Cost',
+        title: 'Cost',
         type: 'number'
       }, {
-        term: 'Total Number',
+        title: 'Total Number',
         type: 'number'
       }
     ]

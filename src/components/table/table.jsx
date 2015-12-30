@@ -19,7 +19,9 @@ Table.propTypes = {
   setState: PropTypes.func,
   predicate: PropTypes.func,
   processRows: PropTypes.func,
-  detectNewRows: PropTypes.bool
+  detectNewRows: PropTypes.bool,
+  showEmptyMessage: PropTypes.bool,
+  emptyMessage: PropTypes.string
 };
 
 Table.defaultProps = {

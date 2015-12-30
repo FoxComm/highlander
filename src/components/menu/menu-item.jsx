@@ -2,11 +2,28 @@ import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 
 const MenuItem = props => {
-  const { className, ...rest } = props;
+  const { className, clickAction, ...rest } = props;
   const klass = classNames('fc-menu-item', className);
 
+  const click = event => {
+    event.preventDefault();
+    event.stopPropagation();
+    clickAction(event);
+  };
+
+  const preventClickSelection = event => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
   return (
-    <li className={klass} {...rest}>
+    <li
+      className={klass}
+      onClick={click}
+      onMouseDown={preventClickSelection}
+      onMouseUp={preventClickSelection}
+      {...rest}
+    >
       {props.children}
     </li>
   );

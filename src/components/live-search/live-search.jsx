@@ -11,10 +11,11 @@ import SearchOption from './search-option';
 import TabListView from '../tabs/tabs';
 import EditableTabView from '../tabs/editable-tab';
 
+import SearchTerm from '../../paragons/search-term';
+
 function currentSearch(props) {
   return _.get(props, ['searches', 'savedSearches', props.searches.selectedSearch], []);
 }
-
 
 /**
  * LiveSearch is a search bar dynamic faceted search that exists on most of the
@@ -29,6 +30,7 @@ export default class LiveSearch extends React.Component {
     const {searchValue, currentOptions, searches: pills} = search;
 
     this.state = {
+      availableOptions: currentOptions,
       isFocused: false,
       optionsVisible: false,
       pills: pills,
@@ -42,16 +44,14 @@ export default class LiveSearch extends React.Component {
   static propTypes = {
     children: PropTypes.node,
     cloneSearch: PropTypes.func.isRequired,
-    deleteSearchFilter: PropTypes.func.isRequired,
+    editSearchNameStart: PropTypes.func,
     editSearchNameCancel: PropTypes.func,
     editSearchNameComplete: PropTypes.func,
-    goBack: PropTypes.func.isRequired,
     saveSearch: PropTypes.func,
     selectSavedSearch: PropTypes.func.isRequired,
-    submitFilter: PropTypes.func.isRequired,
     search: PropTypes.object.isRequired,
     searches: PropTypes.object,
-    editSearchNameStart: PropTypes.func
+    submitFilters: PropTypes.func.isRequired,
   };
 
   get currentSearch() {
@@ -79,7 +79,7 @@ export default class LiveSearch extends React.Component {
           className={classNames({ '_active': selectedIdx == idx, '_first': idx == 0 })}
           key={`search-option-${idx}`}
           option={option}
-          clickAction={this.props.submitFilter} />
+          clickAction={this.submitFilter} />
       ];
     }, []);
 
@@ -88,7 +88,7 @@ export default class LiveSearch extends React.Component {
     });
 
     const goBack = (
-      <MenuItem className={menuClass} onClick={this.props.goBack}>
+      <MenuItem className={menuClass} clickAction={this.goBack}>
         <i className="icon-back" />
         Back
       </MenuItem>
@@ -159,7 +159,7 @@ export default class LiveSearch extends React.Component {
         key={`pill-${idx}`}
         onClick={() => props.onPillClick(pill, idx)}>
         <i className='icon-filter' />
-        {pill}
+        {pill.display}
         <a onClick={() => props.onPillClose(pill, idx)}
           className="fc-pilled-input__pill-close">
           &times;
@@ -170,8 +170,7 @@ export default class LiveSearch extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     const search = currentSearch(nextProps);
-    const isVisible = this.state.isFocused && search.currentOptions.length > 0 &&
-      (search.searches.length != this.state.pills.length || search.searchValue !== '');
+    const isVisible = this.state.isFocused && search.currentOptions.length > 0;
 
     this.setState({
       ...this.state,
@@ -195,7 +194,8 @@ export default class LiveSearch extends React.Component {
 
   @autobind
   inputFocus() {
-    if (!_.isEmpty(this.state.searchOptions)) {
+    const { isFocus, optionsVisible, searchOptions } = this.state;
+    if (!isFocus && !optionsVisible && !_.isEmpty(searchOptions)) {
       this.setState({
         ...this.state,
         isFocused: true,
@@ -266,18 +266,68 @@ export default class LiveSearch extends React.Component {
         // Enter
         event.preventDefault();
         if (this.state.selectionIndex < this.state.searchOptions.length) {
-          this.props.submitFilter(this.state.searchDisplay);
+          this.submitFilter(this.state.searchDisplay);
         } else if (this.state.selectionIndex != -1) {
-          this.props.goBack();
+          this.goBack();
         }
         break;
       case 8:
         // Backspace
         if (_.isEmpty(this.state.searchValue) && !_.isEmpty(this.state.pills)) {
-          this.props.deleteSearchFilter(this.state.pills.length - 1);
+          this.deleteFilter(this.state.pills.length - 1);
         }
         break;
     }
+  }
+
+  @autobind
+  deleteFilter(idx) {
+    const filters = [
+      ...this.state.pills.slice(0, idx),
+      ...this.state.pills.slice(idx + 1)
+    ];
+    this.props.submitFilters(filters);
+  }
+
+  @autobind
+  goBack() {
+    const searchValue = this.state.searchValue;
+    const lastColonIdx = _.trim(searchValue, ':').lastIndexOf(':');
+    const newSearchTerm = lastColonIdx > 0 ? `${searchValue.slice(0, lastColonIdx - 1)} : ` : '';
+    return this.submitFilter(newSearchTerm);
+  }
+
+  @autobind
+  submitFilter(searchTerm) {
+    // First, update the available terms.
+    let newSearchTerm = searchTerm;
+    let options = SearchTerm.potentialTerms(this.state.availableOptions, searchTerm);
+
+    // Second, if there is only one term, see if we can turn it into a saved search.
+    if (options.length == 1) {
+      const option = options[0];
+
+      if (option.selectTerm(searchTerm)) {
+        newSearchTerm = '';
+        options = SearchTerm.potentialTerms(this.state.availableOptions, '');
+
+        this.props.submitFilters([
+          ...this.state.pills,
+          option.toFilter(searchTerm)
+        ]);
+      } else if (option.children.length > 1) {
+        options = option.children;
+      }
+    }
+
+    // Third, update the state.
+    this.setState({
+      ...this.state,
+      searchOptions: options,
+      searchDisplay: newSearchTerm,
+      searchValue: newSearchTerm,
+      selectionIndex: -1
+    });
   }
 
   render() {
@@ -291,8 +341,8 @@ export default class LiveSearch extends React.Component {
             <form>
               <PilledInput
                 button={this.searchButton}
-                onPillClose={(pill, idx) => this.props.deleteSearchFilter(idx)}
-                onPillClick={(pill, idx) => this.props.deleteSearchFilter(idx)}
+                onPillClose={(pill, idx) => this.deleteFilter(idx)}
+                onPillClick={(pill, idx) => this.deleteFilter(idx)}
                 formatPill={this.formatPill}
                 placeholder="Add another filter or keyword search"
                 onChange={this.change}

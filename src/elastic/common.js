@@ -2,6 +2,47 @@ import _ from 'lodash';
 import elasticsearch from 'elasticsearch';
 import ejs from 'elastic.js';
 
+/**
+ * Converts search terms into a query to ElasticSearch.
+ * @param {array} filters An array of the Ashes version of a search terms.
+ *                A filter is in the following format:
+ *  {
+ *    selectedTerm: 'someTerm',
+ *    selectedOperator: 'eq',
+ *    value: {
+ *      type: 'bool',
+ *      value: true
+ *    }
+ *  }
+ * @returns The ElasticSearch query.
+ */
+export function toQuery(filters) {
+  const esFilters = _.map(filters, filter => {
+    switch(filter.value.type) {
+      case 'bool':
+        return ejs.TermsFilter(
+          filter.selectedTerm,
+          filter.selectedOperator,
+          filter.value.value
+        );
+      case 'currency':
+      case 'date':
+      case 'enum':
+      case 'number':
+      case 'string':
+        return rangeToFilter(
+          filter.selectedTerm,
+          filter.selectedOperator,
+          filter.value.value
+        );
+    }
+  });
+
+  return ejs
+    .Request()
+    .query(ejs.MatchAllQuery())
+    .filter(ejs.AndFilter(esFilters));
+}
 
 function _newClient(opts = {}) {
   opts = _.merge({

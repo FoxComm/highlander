@@ -9,7 +9,6 @@ import LocalNav from '../local-nav/local-nav';
 import { IndexLink } from '../link';
 import LiveSearch from '../live-search/live-search';
 import OrderRow from './order-row';
-import util from 'util';
 import _ from 'lodash';
 
 @connect(state => ({
@@ -24,14 +23,14 @@ export default class Orders extends React.Component {
       rows: PropTypes.array.isRequired,
       total: PropTypes.number
     }),
+    addSearchFilter: PropTypes.func,
     cloneSearch: PropTypes.func,
-    deleteSearchFilter: PropTypes.func,
     editSearchNameStart: PropTypes.func,
     editSearchNameCancel: PropTypes.func,
     editSearchNameComplete: PropTypes.func,
     goBack: PropTypes.func,
     saveSearch: PropTypes.func,
-    submitFilter: PropTypes.func,
+    submitFilters: PropTypes.func,
     list: PropTypes.shape({
       selectedSearch: PropTypes.object,
       savedSearches: PropTypes.array
@@ -69,6 +68,7 @@ export default class Orders extends React.Component {
 
   render() {
     const renderRow = (row, index) => <OrderRow order={row} columns={this.props.tableColumns} />;
+    const filter = (searchTerm) => this.props.addSearchFilter('orders_search_view/_search', searchTerm);
 
     return (
       <div className="fc-list-page">
@@ -85,14 +85,12 @@ export default class Orders extends React.Component {
         </div>
         <LiveSearch
           cloneSearch={this.props.cloneSearch}
-          goBack={this.props.goBack}
-          deleteSearchFilter={this.props.deleteSearchFilter}
           editSearchNameStart={this.props.editSearchNameStart}
           editSearchNameCancel={this.props.editSearchNameCancel}
           editSearchNameComplete={this.props.editSearchNameComplete}
           saveSearch={this.props.saveSearch}
           selectSavedSearch={this.props.selectSavedSearch}
-          submitFilter={this.props.submitFilter}
+          submitFilters={filter}
           searches={this.props.list}
         >
           <TableView
@@ -100,6 +98,8 @@ export default class Orders extends React.Component {
             data={this.orders}
             renderRow={renderRow}
             setState={this.props.fetch}
+            showEmptyMessage={true}
+            emptyMessage="No orders found."
           />
         </LiveSearch>
       </div>

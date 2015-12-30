@@ -1,7 +1,41 @@
 import _ from 'lodash';
-import util from 'util';
+import SearchOperator from './search-operator';
+import SearchSuggestion from './search-suggestion';
 
 const flatMap = _.compose(_.flatten, _.map);
+
+const operators = {
+  currency: [
+    { operator: 'eq', display: '=' },
+    { operator: 'neq', display: '<>' },
+    { operator: 'gt', display: '>' },
+    { operator: 'gte', display: '>=' },
+    { operator: 'lt', display: '<' },
+    { operator: 'lte', display: '<=' }
+  ],
+  date: [
+    { operator: 'eq', display: '=' },
+    { operator: 'neq', display: '<>' },
+    { operator: 'gt', display: '>' },
+    { operator: 'gte', display: '>=' },
+    { operator: 'lt', display: '<' },
+    { operator: 'lte', display: '<=' }
+  ],
+  enum: [
+    { operator: 'eq', display: ':' }
+  ],
+  number: [
+    { operator: 'eq', display: '=' },
+    { operator: 'neq', display: '<>' },
+    { operator: 'gt', display: '>' },
+    { operator: 'gte', display: '>=' },
+    { operator: 'lt', display: '<' },
+    { operator: 'lte', display: '<=' }
+  ],
+  string: [
+    { operator: 'eq', display: ':' }
+  ],
+};
 
 /**
  * SearchTerm represents a single term in the context of either the Live Search
@@ -12,35 +46,56 @@ export default class SearchTerm {
     return flatMap(searchTerms, term => term.applicableTerms(str));
   }
 
+  static normalizeSearchTerm(searchTerm) {
+    return _.reduce(searchTerm.split(':'), (result, term) => {
+      const sep = result !== '' ? ' : ' : '';
+      return `${result}${sep}${term.trim().toLowerCase()}`;
+    }, '');
+  }
+
   constructor(searchTermJson, parentTitle = '') {
     if (_.isEmpty(parentTitle)) {
-      this._term = searchTermJson.term;
+      this._title = searchTermJson.title;
     } else {
-      this._term = `${parentTitle} : ${searchTermJson.term}`;
+      this._title = `${parentTitle} : ${searchTermJson.title}`;
     }
 
     this._type = searchTermJson.type;
+    this._term = searchTermJson.term;
 
     if (!_.isEmpty(searchTermJson.options)) {
-      this._options = searchTermJson.options.map(o => new SearchTerm(o, this._term));
+      this._options = searchTermJson.options.map(o => new SearchTerm(o, this._title));
     } else if (!_.isEmpty(searchTermJson.suggestions)) {
-      this._options = searchTermJson.suggestions.map(s => {
-        const suggestion = { options: [], suggestions: [], term: s, type: 'value' };
-        return new SearchTerm(suggestion, this._term);
-      });
+      this._suggestions = searchTermJson.suggestions;
+    }
+  }
+
+  get children() {
+    if (!_.isEmpty(this._options)) {
+      return this._options;
+    } else if (!_.isEmpty(this.operators) && this.operators.length > 1) {
+      return this.operators.map(o => new SearchOperator(o, this));
+    } else if (!_.isEmpty(this.suggestions) && this.suggestions.length > 1) {
+      return this.suggestions.map(s => new SearchSuggestion(s, this));
+    } else {
+      return [];
     }
   }
 
   get displayTerm() {
-    return this._term;
+    return this._title;
   }
 
   get displayAction() {
     if (this._type != 'value') {
-      return 'Search';
+      return ' : Search';
     } else {
       return '';
     }
+  }
+
+  get operators() {
+    return operators[this._type];
   }
 
   get selectionValue() {
@@ -51,6 +106,14 @@ export default class SearchTerm {
     }
   }
 
+  get suggestions() {
+    return this._suggestions;
+  }
+
+  get type() {
+    return this._type;
+  }
+
   /**
    * Finds the search terms that are applicable based on a given search value.
    * It may either be the current term, or one if its child options/suggestions.
@@ -59,14 +122,14 @@ export default class SearchTerm {
    *                 list if none are found.
    */
   applicableTerms(search) {
-    const nSearch = normalizeSearchTerm(search);
+    const nSearch = SearchTerm.normalizeSearchTerm(search);
     const nTerm = this.displayTerm.toLowerCase();
     let terms = [];
 
     if (this.matchesSearchTerm(search)) {
       terms.push(this);
-    } else if (_.startsWith(nSearch, nTerm) && !_.isEmpty(this._options)) {
-      terms = flatMap(this._options, option => option.applicableTerms(search));
+    } else if (_.startsWith(nSearch, nTerm) && !_.isEmpty(this.children)) {
+      terms = flatMap(this.children, child => child.applicableTerms(search));
     }
 
     return terms;
@@ -79,21 +142,25 @@ export default class SearchTerm {
    * @returns {bool} True if the term matches, false otherwise.
    */
   matchesSearchTerm(search) {
-    const nSearch = normalizeSearchTerm(search).toLowerCase();
+    const nSearch = SearchTerm.normalizeSearchTerm(search).toLowerCase();
     const nTerm = this.displayTerm.toLowerCase();
 
     if (_.startsWith(nTerm, nSearch)) {
       return true;
-    } else if (_.isEmpty(this._options) && this._type != 'value') {
+    } else if (_.isEmpty(this._options) && _.isEmpty(this._suggestions)) {
       return nSearch.length && removeValue(nSearch) == nTerm;
     }
   }
 
-
+  /**
+   * Checks to see if the search term can currently be selected.
+   * @param {string} search The search term that's being searched.
+   * @return {bool} True if it can be selected, false otherwise.
+   */
   selectTerm(search) {
     // Eliminate a hanging colon, we don't want to think an empty string
     // is the search term.
-    const nSearch = _.trim(normalizeSearchTerm(search), ': ');
+    const nSearch = _.trim(SearchTerm.normalizeSearchTerm(search), ': ');
     const nTerm = this.displayTerm.toLowerCase();
 
     if (this._type == 'value') {
@@ -104,17 +171,34 @@ export default class SearchTerm {
 
     return false;
   }
+
+  /**
+  * Converts the SearchTerm into the metadata needed to make a query against
+  * ElasticSearch. Meaning: the actual term that gets searched, the operator
+  * to search with, the value being searched, and a string needed to display
+  * the search in the UI.
+  * @param {string} search The final search term.
+  * @return {object} Representation of the search.
+  */
+  toFilter(search) {
+    return {
+      display: search,
+      selectedTerm: this._term,
+      selectedOperator: _.get(operators, [this._type, 0, 'operator'], ''),
+      value: {
+        type: this._type,
+        value: getValue(search)
+      }
+    };
+  }
 }
 
-function normalizeSearchTerm(searchTerm) {
-  return _.reduce(searchTerm.split(':'), (result, term) => {
-    const sep = result !== '' ? ' : ' : '';
-    return `${result}${sep}${term.trim().toLowerCase()}`;
-  }, '');
+function getValue(searchTerm) {
+  const lastIdx = searchTerm.lastIndexOf(':');
+  return lastIdx > -1 ? searchTerm.slice(lastIdx + 1).trim() : '';
 }
 
 function removeValue(searchTerm) {
-  // Find the last colon and extract everything after that.
   const lastIdx = searchTerm.lastIndexOf(':');
   return lastIdx > -1 ? searchTerm.slice(0, lastIdx).trim() : searchTerm;
 }
