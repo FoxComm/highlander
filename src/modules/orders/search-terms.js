@@ -50,6 +50,21 @@ const searchTerms = [
         type: 'number'
       }
     ]
+  }, {
+    title: 'Customer',
+    type: 'object',
+    options: [
+      {
+        title: 'Name',
+        type: 'string',
+        term: 'customer.name'
+      },
+      {
+        title: 'Email',
+        type: 'string',
+        term: 'customer.email'
+      }
+    ]
   }
 ];
 
