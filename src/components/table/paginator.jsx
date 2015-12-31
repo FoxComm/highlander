@@ -1,5 +1,6 @@
 
 // libs
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import classnames from 'classnames';
@@ -32,8 +33,11 @@ class TablePaginator extends React.Component {
 
   @autobind
   currentPageSelector(currentPage, pageCount) {
+    console.log(pageCount);
+    const pageSelectorClass = classnames({'_disabled': pageCount <= 1});
+    const pages = _.range(1, pageCount).reduce((acc, item) => acc[item.toString()] = item, {});
     return (
-      <Dropdown />
+      <Dropdown className={pageSelectorClass} items={pages} editable={pageCount > 1} value={currentPage.toString()}/>
     );
   }
 
