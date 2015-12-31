@@ -262,7 +262,7 @@ export default class LiveSearch extends React.Component {
         // Enter
         event.preventDefault();
         if (this.state.selectionIndex < this.state.searchOptions.length) {
-          this.submitFilter(this.state.searchDisplay);
+          this.submitFilter(this.state.searchDisplay, true);
         } else if (this.state.selectionIndex != -1) {
           this.goBack();
         }
@@ -294,7 +294,7 @@ export default class LiveSearch extends React.Component {
   }
 
   @autobind
-  submitFilter(searchTerm) {
+  submitFilter(searchTerm, tryFinal = false) {
     // First, update the available terms.
     let newSearchTerm = searchTerm;
     let options = SearchTerm.potentialTerms(this.state.availableOptions, searchTerm);
@@ -303,7 +303,7 @@ export default class LiveSearch extends React.Component {
     if (options.length == 1) {
       const option = options[0];
 
-      if (option.selectTerm(searchTerm)) {
+      if (tryFinal && option.selectTerm(searchTerm)) {
         newSearchTerm = '';
         options = SearchTerm.potentialTerms(this.state.availableOptions, '');
 

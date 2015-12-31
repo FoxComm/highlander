@@ -25,6 +25,10 @@ const searchTerms = [
         title: 'Date Placed',
         type: 'date',
         term: 'placedAt'
+      }, {
+        title: 'Total',
+        type: 'currency',
+        term: 'grandTotal'
       }
     ]
   }, {
@@ -50,7 +54,38 @@ const searchTerms = [
         term: 'shipments.shipping_price'
       }, {
         title: 'Total Number',
-        type: 'number'
+        type: 'number',
+        term: 'shippingAddressesCount'
+      }
+    ]
+  }, {
+    title: 'Payment',
+    type: 'object',
+    options: [
+      {
+        title: 'Credit Card Total',
+        type: 'currency',
+        term: 'creditCardTotal'
+      }, {
+        title: 'Credit Card Total Number',
+        type: 'number',
+        term: 'creditCardCount'
+      }, {
+        title: 'Gift Card Total',
+        type: 'currency',
+        term: 'giftCardTotal'
+      }, {
+        title: 'Gift Card Total Number',
+        type: 'number',
+        term: 'giftCardCount'
+      }, {
+        title: 'Store Credit Total',
+        type: 'currency',
+        term: 'storeCreditTotal'
+      }, {
+        title: 'Store Credit Total Number',
+        type: 'number',
+        term: 'storeCreditCount'
       }
     ]
   }, {
@@ -61,23 +96,19 @@ const searchTerms = [
         title: 'Name',
         type: 'string',
         term: 'customer.name'
-      },
-      {
+      }, {
         title: 'Email',
         type: 'string',
         term: 'customer.email'
-      },
-      {
+      }, {
         title: 'Total Sales',
         type: 'number',
         term: 'customer.revenue'
-      },
-      {
+      }, {
         title: 'Blacklist Status',
         type: 'bool',
         term: 'customer.is_blacklisted'
-      },
-      {
+      }, {
         title: 'Date Joined',
         type: 'date',
         term: 'customer.joined_at'
@@ -91,13 +122,11 @@ const searchTerms = [
         title: 'City',
         type: 'string',
         term: 'shippingAddresses.city'
-      },
-      {
+      }, {
         title: 'State',
         type: 'string',
         term: 'shippingAddresses.region'
-      },
-      {
+      }, {
         title: 'Zip',
         type: 'string',
         term: 'shippingAddresses.zip'
@@ -111,13 +140,11 @@ const searchTerms = [
         title: 'City',
         type: 'string',
         term: 'billingAddresses.city'
-      },
-      {
+      }, {
         title: 'State',
         type: 'string',
         term: 'billingAddresses.region'
-      },
-      {
+      }, {
         title: 'Zip',
         type: 'string',
         term: 'billingAddresses.zip'
@@ -129,14 +156,13 @@ const searchTerms = [
     options: [
       {
         title: 'Total Number',
-        type: 'number'
-      },
-      {
+        type: 'number',
+        term: 'lineItemCount'
+      }, {
         title: 'Product Name',
         type: 'string',
         term: 'lineItems.name'
-      },
-      {
+      }, {
         title: 'Product SKU',
         type: 'string',
         term: 'lineItems.sku'
@@ -145,10 +171,10 @@ const searchTerms = [
   }, {
     title: 'Assignee',
     type: 'enum',
-    term: 'assignees',
+    term: 'assignmentCount',
     suggestions: [
-      { display: 'Has Assignee', value: 'true' },
-      { display: 'Has No Assignee', value: 'false' }
+      { display: 'Has Assignee', operator: 'gt', value: 0 },
+      { display: 'Has No Assignee', operator: 'eq', value: 0 }
     ]
   }
 ];
