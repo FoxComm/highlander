@@ -51,7 +51,7 @@ export function groupCriteriaToRequest(criteria, match) {
   if (!_.isEmpty(filters)) {
     return ejs.Request().query(ejs.FilteredQuery(ejs.MatchAllQuery(), matchFilter(filters)));
   }
-  return  ejs.Request().query(ejs.MatchAllQuery());
+  return ejs.Request().query(ejs.MatchAllQuery());
 }
 
 export function groupCount(criteria, match) {
