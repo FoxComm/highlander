@@ -37,7 +37,15 @@ object Seeds {
     args.headOption.map {
       case "random" ⇒
         Console.err.println(s"Inserting random seeds")
-        Await.result(db.run(SeedsGenerator.insertRandomizedSeeds(1000).transactionally), 7.second)
+        val customers = 1000
+        val batchSize = 20
+        val batchs = customers / batchSize
+        //Have to generate data in batches because of DBIO.seq stack overflow bug.
+        //https://github.com/slick/slick/issues/1186
+        (1 to batchs) map { b ⇒ 
+          Console.err.println(s"Generating random batch $b of $batchSize customers")
+          Await.result(SeedsGenerator.insertRandomizedSeeds(batchSize).runT(txn = false), 30.second)
+        }
       case _ ⇒ None
     }
 
