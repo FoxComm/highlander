@@ -102,6 +102,7 @@ server {
   location /sse/ {
       proxy_pass http://phoenix/;
 
+      proxy_set_header Authorization "Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk";
       proxy_set_header Connection '';
       proxy_http_version 1.1;
       chunked_transfer_encoding off;
