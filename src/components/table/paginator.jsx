@@ -6,6 +6,7 @@ import classnames from 'classnames';
 
 // components
 import { LeftButton, RightButton } from '../common/buttons';
+import { Dropdown } from '../dropdown';
 
 class TablePaginator extends React.Component {
   static propTypes = {
@@ -29,6 +30,13 @@ class TablePaginator extends React.Component {
     });
   }
 
+  @autobind
+  currentPageSelector(currentPage, pageCount) {
+    return (
+      <Dropdown />
+    );
+  }
+
   render() {
     const currentPage = Math.ceil((this.props.total - this.props.from) / this.props.size);
     const pageCount = Math.ceil(this.props.total / this.props.size);
@@ -38,7 +46,7 @@ class TablePaginator extends React.Component {
       <div className="fc-table-paginator">
         <LeftButton className={leftButtonClass} onClick={this.onPrevPageClick}/>
         <div className="fc-table-paginator__current-page">
-          {currentPage}
+          {this.currentPageSelector(currentPage, pageCount)}
         </div>
         <div className="fc-table-paginator__separator">of</div>
         <div className="fc-table-paginator__total-pages">
