@@ -1,5 +1,10 @@
+
+// libs
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
+import classnames from 'classnames';
+
+// components
 import { LeftButton, RightButton } from '../common/buttons';
 
 class TablePaginator extends React.Component {
@@ -25,18 +30,21 @@ class TablePaginator extends React.Component {
   }
 
   render() {
-    const total = this.props.total;
-    const from = this.props.from + 1;
-    const end = Math.min(total, this.props.from + this.props.size);
+    const currentPage = Math.ceil((this.props.total - this.props.from) / this.props.size);
+    const pageCount = Math.ceil(this.props.total / this.props.size);
+    const leftButtonClass = classnames({'_hidden': currentPage <= 1});
+    const rightButtonClass = classnames({'_hidden': currentPage >= pageCount});
     return (
       <div className="fc-table-paginator">
-        <span>
-          {from}&thinsp;-&thinsp;{end} of {total}
-        </span>
-        &nbsp;
-        <LeftButton onClick={this.onPrevPageClick}/>
-        &nbsp;
-        <RightButton onClick={this.onNextPageClick}/>
+        <LeftButton className={leftButtonClass} onClick={this.onPrevPageClick}/>
+        <div className="fc-table-paginator__current-page">
+          {currentPage}
+        </div>
+        <div className="fc-table-paginator__separator">of</div>
+        <div className="fc-table-paginator__total-pages">
+          {pageCount}
+        </div>
+        <RightButton className={rightButtonClass} onClick={this.onNextPageClick}/>
       </div>
     );
   }
