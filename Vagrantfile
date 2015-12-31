@@ -60,7 +60,7 @@ Vagrant.configure("2") do |config|
     g.google_json_key_location = ENV['GOOGLE_JSON_KEY_LOCATION']
 
     g.machine_type = "n1-standard-2"
-    g.image = "ubuntu-1510-wily-v20151114"
+    g.image = "ubuntu-1504-vivid-v20151120"
     g.disk_size = 20
     g.zone = "us-central1-a"
     g.tags = ['no-ip', 'vagrant']
