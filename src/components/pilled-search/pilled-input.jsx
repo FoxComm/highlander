@@ -40,10 +40,10 @@ const iconWrapper = icon => {
 
 const PilledInput = props => {
 
-  const { pills = [], ...rest } = props;
+  const { pills = [], className, ...rest } = props;
 
   return (
-    <div className={classNames('fc-pilled-input', props.className)}>
+    <div className={classNames('fc-pilled-input', className)}>
       <div className="fc-pilled-input__input-container">
         <div className="fc-pilled-input__pills-wrapper">
           {pills.map((pill, idx) => {

@@ -1,0 +1,15 @@
+.fc-pilled-input {
+  &__input-container {
+      &:hover {
+      .border(1px solid @color-decor3);
+      box-shadow: inset 1px 1px 3px 0px rgba(0,0,0,0.24);
+    }
+  }
+
+	&._active {
+    .fc-pilled-input__input-container {
+      .border(1px solid @color-decor15);
+      box-shadow: inset 1px 1px 3px 0px rgba(0,0,0,0.24);
+    }
+	}
+}

@@ -337,6 +337,7 @@ export default class LiveSearch extends React.Component {
             <form>
               <PilledInput
                 button={this.searchButton}
+                className={classNames({'_active': this.state.isFocused})}
                 onPillClose={(pill, idx) => this.deleteFilter(idx)}
                 onPillClick={(pill, idx) => this.deleteFilter(idx)}
                 formatPill={this.formatPill}
