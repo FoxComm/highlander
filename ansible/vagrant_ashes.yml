@@ -1,0 +1,13 @@
+---
+
+- name: Provision Ashes
+  hosts: all
+  vars:
+    user: vagrant
+
+  roles:
+    - common
+    - node
+    - ashes
+    - { role: balancer, sudo: yes }
+
