@@ -1,9 +1,0 @@
----
-
-- name: Copy Consumer Runner
-  copy: src=run_consumer.sh dest=/usr/local/bin/run_consumer.sh mode="u+x,g+x,o+x"
-  sudo: true
-
-- name: Copy Consumer Service
-  copy: src=consumer.service dest="{{dest_services}}/consumer.service" 
-  sudo: true
