@@ -49,7 +49,7 @@ export default class MultiSelectTable extends React.Component {
   render() {
     return (
       <TableView
-        className="_adaptable"
+        className="fc-multi-select-table"
         columns={this.columns}
         data={this.props.data}
         renderRow={this.renderRow}

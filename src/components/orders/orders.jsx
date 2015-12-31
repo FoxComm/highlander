@@ -40,8 +40,8 @@ export default class Orders extends React.Component {
 
   static defaultProps = {
     tableColumns: [
-      {field: 'referenceNumber', text: 'Order ID', type: 'id', model: 'order'},
-      {field: 'placedAt', text: 'Date/Time Placed', type: 'date'},
+      {field: 'referenceNumber', text: 'Order ID', type: 'text', model: 'order'},
+      {field: 'placedAt', text: 'Date/Time Placed', type: 'datetime'},
       {field: 'customer.name', text: 'Name'},
       {field: 'customer.email', text: 'Email'},
       {field: 'status', text: 'Order State', type: 'status', model: 'order'},

@@ -1,5 +1,8 @@
 import React, { PropTypes } from 'react';
+
 import _ from 'lodash';
+import { transitionTo } from '../../route-helpers';
+
 
 import { DateTime } from '../common/datetime';
 import { Checkbox } from '../checkbox/checkbox';
@@ -65,20 +68,24 @@ const compileShippingStatus = order => {
   }
 };
 
-const OrderRow = props => {
+const OrderRow = (props, context) => {
   const { order, columns, ...rest } = props;
   const key = `order-${order.referenceNumber}`;
+  const clickAction = () => {
+    transitionTo(context.history, 'order', { order: order.referenceNumber });
+  };
 
   const cells = _.reduce(columns, (visibleCells, col) => {
     const cellKey = `${key}-${col.field}`;
     let cellContents = null;
+    let cellClickAction = clickAction;
 
     switch (col.field) {
       case 'referenceNumber':
         cellContents = order.referenceNumber;
         break;
       case 'placedAt':
-        cellContents = order.placedAt ? <DateTime value={order.placedAt} /> : '';
+        cellContents = order.placedAt;
         break;
       case 'customer.name':
         cellContents = order.customer.name;
@@ -87,13 +94,10 @@ const OrderRow = props => {
         cellContents = order.customer.email;
         break;
       case 'status':
-        cellContents = <Status value={order.status} model="order" />;
+        cellContents = order.status;
         break;
       case 'shipping.status':
-        const shippingStatus = compileShippingStatus(order);
-        cellContents = shippingStatus
-          ? <Status value={shippingStatus} model="shipment" />
-          : '';
+        cellContents = compileShippingStatus(order);
         break;
       case 'grandTotal':
         cellContents = order.grandTotal;
@@ -102,6 +106,7 @@ const OrderRow = props => {
         cellContents = '';
         break;
       case 'selectColumn':
+        cellClickAction = _.noop;
         cellContents = <Checkbox />;
         break;
       default:
@@ -109,7 +114,7 @@ const OrderRow = props => {
     }
 
     visibleCells.push(
-      <TableCell key={cellKey}>
+      <TableCell onClick={cellClickAction} key={cellKey} column={col}>
         {cellContents}
       </TableCell>
     );
@@ -127,6 +132,10 @@ const OrderRow = props => {
 OrderRow.propTypes = {
   order: PropTypes.object,
   columns: PropTypes.array
+};
+
+OrderRow.contextTypes = {
+  history: PropTypes.object.isRequired
 };
 
 export default OrderRow;
