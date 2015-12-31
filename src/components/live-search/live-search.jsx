@@ -185,11 +185,7 @@ export default class LiveSearch extends React.Component {
 
   @autobind
   change({target}) {
-    this.setState({
-      ...this.state,
-      searchDisplay: target.value,
-      searchValue: target.value
-    });
+    this.submitFilter(target.value);
   }
 
   @autobind
@@ -292,7 +288,7 @@ export default class LiveSearch extends React.Component {
   @autobind
   goBack() {
     const searchValue = this.state.searchValue;
-    const lastColonIdx = _.trim(searchValue, ':').lastIndexOf(':');
+    const lastColonIdx = _.trim(searchValue, ': ').lastIndexOf(':');
     const newSearchTerm = lastColonIdx > 0 ? `${searchValue.slice(0, lastColonIdx - 1)} : ` : '';
     return this.submitFilter(newSearchTerm);
   }
