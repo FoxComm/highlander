@@ -55,6 +55,11 @@ class TablePaginator extends React.Component {
   }
 
   @autobind
+  closeOptionsWithoutChange() {
+    this.setState({optionsDisplayed: false});
+  }
+
+  @autobind
   onValueSelect(value) {
     console.log("onValueSelect " + value);
     const from = Math.max(0, Math.min(this.props.total - 1, this.props.size * (value - 1)));
@@ -83,6 +88,10 @@ class TablePaginator extends React.Component {
       '_shown': this.state.optionsDisplayed,
       '_hidden': !this.state.optionsDisplayed
     });
+    const overlayClass = classnames('fc-table-paginator__current-page-selector-overlay', {
+      '_shown': this.state.optionsDisplayed,
+      '_hidden': !this.state.optionsDisplayed
+    });
     return (
       <div className="fc-form-field">
         <input className="fc-table-paginator__current-page-field _no-counters"
@@ -90,7 +99,6 @@ class TablePaginator extends React.Component {
                type="number"
                value={this.state.pageToDisplay}
                onFocus={this.openOptions}
-               onBlur={({target}) => this.closeOptions(target.value)}
                onChange={({target}) => this.onPageChange(target.value)}
                {...disabledOption} />
         <div className={optionsClass} >
@@ -98,6 +106,7 @@ class TablePaginator extends React.Component {
             {pages}
           </ul>
         </div>
+        <div className={overlayClass} onClick={this.closeOptionsWithoutChange}></div>
       </div>
     );
   }
