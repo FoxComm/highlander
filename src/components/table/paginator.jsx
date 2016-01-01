@@ -17,11 +17,16 @@ class TablePaginator extends React.Component {
     setState: PropTypes.func.isRequired
   };
 
-  constructor(...args) {
-    super(...args);
+  constructor(props, ...args) {
+    super(props, ...args);
     this.state = {
-      optionsDisplayed: false
+      optionsDisplayed: false,
+      pageToDisplay: Math.ceil(this.props.from / this.props.size + 1)
     };
+  }
+
+  componentWillReceiveProps(newProps) {
+    this.setState({pageToDisplay: Math.ceil(this.props.from / this.props.size + 1)});
   }
 
   @autobind
@@ -45,19 +50,24 @@ class TablePaginator extends React.Component {
 
   @autobind
   closeOptions(value) {
-    const from = Math.max(0, Math.min(this.props.total - 1, this.props.size * (value - 1) - 1));
+    const from = Math.max(0, Math.min(this.props.total - 1, this.props.size * (value - 1)));
     this.setState({optionsDisplayed: false}, () => this.props.setState({from: from}));
   }
 
   @autobind
   onValueSelect(value) {
     console.log("onValueSelect " + value);
-    const from = Math.max(0, Math.min(this.props.total - 1, this.props.size * (value - 1) - 1));
+    const from = Math.max(0, Math.min(this.props.total - 1, this.props.size * (value - 1)));
     this.setState({optionsDisplayed: false}, () => this.props.setState({from: from}));
   }
 
   @autobind
-  currentPageSelector(currentPage, pageCount) {
+  onPageChange(value) {
+    this.setState({pageToDisplay: value});
+  }
+
+  @autobind
+  currentPageSelector(pageCount) {
     const pageSelectorClass = classnames('currentPage', {'_disabled': pageCount <= 1});
     const disabledOption = pageCount <= 1 ? {disabled: true}: {};
     const pages = _.range(1, pageCount + 1).map((item) => {
@@ -78,9 +88,10 @@ class TablePaginator extends React.Component {
         <input className="fc-table-paginator__current-page-field _no-counters"
                name="currentPage"
                type="number"
-               defaultValue={currentPage}
+               value={this.state.pageToDisplay}
                onFocus={this.openOptions}
                onBlur={({target}) => this.closeOptions(target.value)}
+               onChange={({target}) => this.onPageChange(target.value)}
                {...disabledOption} />
         <div className={optionsClass} >
           <ul>
@@ -92,7 +103,7 @@ class TablePaginator extends React.Component {
   }
 
   render() {
-    const currentPage = Math.ceil((this.props.from + 1) / this.props.size);
+    const currentPage = Math.ceil(this.props.from / this.props.size + 1);
     const pageCount = Math.ceil(this.props.total / this.props.size);
     const leftButtonClass = classnames({'_hidden': currentPage <= 1});
     const rightButtonClass = classnames({'_hidden': currentPage >= pageCount});
@@ -100,7 +111,7 @@ class TablePaginator extends React.Component {
       <div className="fc-table-paginator">
         <LeftButton className={leftButtonClass} onClick={this.onPrevPageClick}/>
         <div className="fc-table-paginator__current-page">
-          {this.currentPageSelector(currentPage, pageCount)}
+          {this.currentPageSelector(pageCount)}
         </div>
         <div className="fc-table-paginator__separator">of</div>
         <div className="fc-table-paginator__total-pages">
