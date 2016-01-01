@@ -44,15 +44,31 @@ class TablePaginator extends React.Component {
   }
 
   @autobind
-  closeOptions() {
-    this.setState({optionsDisplayed: false});
+  closeOptions(value) {
+    const from = Math.max(0, Math.min(this.props.total - 1, this.props.size * (value - 1) - 1));
+    this.setState({optionsDisplayed: false}, () => this.props.setState({from: from}));
+  }
+
+  @autobind
+  onValueSelect(value) {
+    console.log("onValueSelect " + value);
+    const from = Math.max(0, Math.min(this.props.total - 1, this.props.size * (value - 1) - 1));
+    this.setState({optionsDisplayed: false}, () => this.props.setState({from: from}));
   }
 
   @autobind
   currentPageSelector(currentPage, pageCount) {
     const pageSelectorClass = classnames('currentPage', {'_disabled': pageCount <= 1});
     const disabledOption = pageCount <= 1 ? {disabled: true}: {};
-    const pages = _.range(1, pageCount + 1).map((item) => <div value={item}>{item}</div>);
+    const pages = _.range(1, pageCount + 1).map((item) => {
+      return (
+        <li className="fc-table-paginator__selector-option"
+            value={item}
+            onClick={() => this.onValueSelect(item)} >
+          {item}
+        </li>
+      );
+    });
     const optionsClass = classnames('fc-table-paginator__current-page-selector', {
       '_shown': this.state.optionsDisplayed,
       '_hidden': !this.state.optionsDisplayed
@@ -62,14 +78,14 @@ class TablePaginator extends React.Component {
         <input className="fc-table-paginator__current-page-field _no-counters"
                name="currentPage"
                type="number"
-               value={currentPage}
-               min="0"
-               max={pageCount}
+               defaultValue={currentPage}
                onFocus={this.openOptions}
-               onBlur={this.closeOptions}
+               onBlur={({target}) => this.closeOptions(target.value)}
                {...disabledOption} />
         <div className={optionsClass} >
-          {pages}
+          <ul>
+            {pages}
+          </ul>
         </div>
       </div>
     );
