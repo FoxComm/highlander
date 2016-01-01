@@ -17,6 +17,13 @@ class TablePaginator extends React.Component {
     setState: PropTypes.func.isRequired
   };
 
+  constructor(...args) {
+    super(...args);
+    this.state = {
+      optionsDisplayed: false
+    };
+  }
+
   @autobind
   onPrevPageClick() {
     this.props.setState({
@@ -32,26 +39,43 @@ class TablePaginator extends React.Component {
   }
 
   @autobind
+  openOptions() {
+    this.setState({optionsDisplayed: true});
+  }
+
+  @autobind
+  closeOptions() {
+    this.setState({optionsDisplayed: false});
+  }
+
+  @autobind
   currentPageSelector(currentPage, pageCount) {
-    console.log(pageCount);
     const pageSelectorClass = classnames('currentPage', {'_disabled': pageCount <= 1});
     const disabledOption = pageCount <= 1 ? {disabled: true}: {};
-    const pages = _.range(1, pageCount + 1).map((item) => <option value={item}>{item}</option>);
+    const pages = _.range(1, pageCount + 1).map((item) => <div value={item}>{item}</div>);
+    const optionsClass = classnames('fc-table-paginator__current-page-selector', {
+      '_shown': this.state.optionsDisplayed,
+      '_hidden': !this.state.optionsDisplayed
+    });
     return (
       <div className="fc-form-field">
         <input className="fc-table-paginator__current-page-field _no-counters"
                name="currentPage"
                type="number"
-               value={currentPage} {...disabledOption} />
-        <select {...disabledOption} value={currentPage}>
+               value={currentPage}
+               min="0"
+               max={pageCount}
+               onFocus={this.openOptions}
+               onBlur={this.closeOptions}
+               {...disabledOption} />
+        <div className={optionsClass} >
           {pages}
-        </select>
+        </div>
       </div>
     );
   }
 
   render() {
-    console.log(this.props);
     const currentPage = Math.ceil((this.props.from + 1) / this.props.size);
     const pageCount = Math.ceil(this.props.total / this.props.size);
     const leftButtonClass = classnames({'_hidden': currentPage <= 1});

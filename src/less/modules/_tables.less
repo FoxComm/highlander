@@ -128,4 +128,27 @@
   &__current-page-field {
     .width(50px);
   }
+
+  &__current-page-selector {
+    background-color: @color-white;
+    position: absolute;
+    width: 50px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    border: 1px solid @color-border;
+    border-radius: .3rem;
+    font-weight: 400;
+    line-height: 6rem;
+    font-size: 12px;
+    font-size: 1.2rem;
+    z-index: 100;
+
+    &._shown {
+      display: block;
+    }
+
+    &._hidden {
+      display: none;
+    }
+  }
 }
