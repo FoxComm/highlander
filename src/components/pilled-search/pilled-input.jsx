@@ -2,6 +2,12 @@
 import _ from 'lodash';
 import classNames from 'classnames';
 import React, { PropTypes } from 'react';
+import InputMask from 'react-input-mask';
+
+// These aren't actually multiple exported components, but ESLint mistakenly
+// thinks that they are.
+
+/* eslint-disable react/no-multi-comp */
 
 const formatPill = (pill, idx, props) => {
   return (
@@ -40,7 +46,15 @@ const iconWrapper = icon => {
 
 const PilledInput = props => {
 
-  const { pills = [], className, ...rest } = props;
+  const { button, className, icon, inputMask, pills = [], ...rest } = props;
+
+  const input = (
+    <InputMask
+      className="fc-pilled-input__input-field _no-fc-behavior"
+      type="text"
+      mask={_.isEmpty(inputMask) ? '' : inputMask}
+      {...rest} />
+  );
 
   return (
     <div className={classNames('fc-pilled-input', className)}>
@@ -50,15 +64,12 @@ const PilledInput = props => {
             return props.formatPill(pill, idx, props);
           })}
         </div>
-        {iconWrapper(props.icon)}
+        {iconWrapper(icon)}
         <div className="fc-pilled-input__input-wrapper">
-          <input
-            className="fc-pilled-input__input-field _no-fc-behaviour"
-            type="text"
-            {...rest} />
+          {input}
         </div>
       </div>
-      {buttonsContainer(props.button)}
+      {buttonsContainer(button)}
     </div>
   );
 };
@@ -71,6 +82,7 @@ PilledInput.propTypes = {
   icon: PropTypes.string,
   button: PropTypes.node,
   className: PropTypes.string,
+  inputMask: PropTypes.string,
 };
 
 PilledInput.defaultProps = {
@@ -78,6 +90,7 @@ PilledInput.defaultProps = {
   onPillClick: _.noop,
   formatPill,
   icon: 'search',
+  inputMask: 'Order : Tot\\al : = : $99.99',
 };
 
 export default PilledInput;

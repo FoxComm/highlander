@@ -12,7 +12,7 @@ import TabListView from '../tabs/tabs';
 import EditableTabView from '../tabs/editable-tab';
 import DatePicker from '../datepicker/datepicker';
 
-import SearchTerm from '../../paragons/search-term';
+import SearchTerm, { getInputMask } from '../../paragons/search-term';
 
 function currentSearch(props) {
   return _.get(props, ['searches', 'savedSearches', props.searches.selectedSearch], []);
@@ -32,6 +32,7 @@ export default class LiveSearch extends React.Component {
 
     this.state = {
       availableOptions: currentOptions,
+      inputMask: null,
       isFocused: false,
       optionsVisible: false,
       pills: pills,
@@ -179,6 +180,7 @@ export default class LiveSearch extends React.Component {
 
     this.setState({
       ...this.state,
+      inputMask: null,
       optionsVisible: isVisible,
       pills: search.searches,
       searchDisplay: search.searchValue,
@@ -303,6 +305,7 @@ export default class LiveSearch extends React.Component {
     // First, update the available terms.
     let newSearchTerm = searchTerm;
     let options = SearchTerm.potentialTerms(this.state.availableOptions, searchTerm);
+    let inputMask = this.state.inputMask;
 
     // Second, if there is only one term, see if we can turn it into a saved search.
     if (options.length == 1) {
@@ -318,12 +321,15 @@ export default class LiveSearch extends React.Component {
         ]);
       } else if (option.children.length > 1) {
         options = option.children;
+      } else {
+        inputMask = getInputMask(option) || inputMask;
       }
     }
 
     // Third, update the state.
     this.setState({
       ...this.state,
+      inputMask: inputMask,
       searchOptions: options,
       searchDisplay: newSearchTerm,
       searchValue: newSearchTerm,
@@ -343,6 +349,7 @@ export default class LiveSearch extends React.Component {
               <PilledInput
                 button={this.searchButton}
                 className={classNames({'_active': this.state.isFocused})}
+                inputMask={this.state.inputMask}
                 onPillClose={(pill, idx) => this.deleteFilter(idx)}
                 onPillClick={(pill, idx) => this.deleteFilter(idx)}
                 formatPill={this.formatPill}

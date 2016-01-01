@@ -37,6 +37,19 @@ const operators = {
   ],
 };
 
+export function getInputMask(searchTerm) {
+  const type = _.get(searchTerm, 'type', '');
+  const selectionValue = _.get(searchTerm, 'selectionValue', '');
+  const maskValue = selectionValue.replace(/a/g, '\\a');
+
+  switch(type) {
+    case 'currency':
+      return `${maskValue} $99.99`;
+    case 'date':
+      return `${maskValue} 99/99/9999`;
+  }
+}
+
 /**
  * SearchTerm represents a single term in the context of either the Live Search
  * or the Dynamic Customer Group.

@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import nock from 'nock';
-import util from 'util';
 
-const SearchTerm = importSource('paragons/search-term.js');
+const searchTermFunctions = importSource('paragons/search-term.js');
+const SearchTerm = searchTermFunctions.default;
 
 describe('paragons.searchTerm', function() {
   const jsonTerms = [
