@@ -84,6 +84,9 @@ class TablePaginator extends React.Component {
         </li>
       );
     });
+    const inputClass = classnames('fc-table-paginator__current-page-field', '_no-counters', {
+      '_disabled': pageCount <= 1
+    });
     const optionsClass = classnames('fc-table-paginator__current-page-selector', {
       '_shown': this.state.optionsDisplayed,
       '_hidden': !this.state.optionsDisplayed
@@ -94,7 +97,7 @@ class TablePaginator extends React.Component {
     });
     return (
       <div className="fc-form-field">
-        <input className="fc-table-paginator__current-page-field _no-counters"
+        <input className={inputClass}
                name="currentPage"
                type="number"
                value={this.state.pageToDisplay}
