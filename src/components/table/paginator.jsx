@@ -34,15 +34,25 @@ class TablePaginator extends React.Component {
   @autobind
   currentPageSelector(currentPage, pageCount) {
     console.log(pageCount);
-    const pageSelectorClass = classnames({'_disabled': pageCount <= 1});
-    const pages = _.range(1, pageCount).reduce((acc, item) => acc[item.toString()] = item, {});
+    const pageSelectorClass = classnames('currentPage', {'_disabled': pageCount <= 1});
+    const disabledOption = pageCount <= 1 ? {disabled: true}: {};
+    const pages = _.range(1, pageCount + 1).map((item) => <option value={item}>{item}</option>);
     return (
-      <Dropdown className={pageSelectorClass} items={pages} editable={pageCount > 1} value={currentPage.toString()}/>
+      <div className="fc-form-field">
+        <input className="fc-table-paginator__current-page-field _no-counters"
+               name="currentPage"
+               type="number"
+               value={currentPage} {...disabledOption} />
+        <select {...disabledOption} value={currentPage}>
+          {pages}
+        </select>
+      </div>
     );
   }
 
   render() {
-    const currentPage = Math.ceil((this.props.total - this.props.from) / this.props.size);
+    console.log(this.props);
+    const currentPage = Math.ceil((this.props.from + 1) / this.props.size);
     const pageCount = Math.ceil(this.props.total / this.props.size);
     const leftButtonClass = classnames({'_hidden': currentPage <= 1});
     const rightButtonClass = classnames({'_hidden': currentPage >= pageCount});
