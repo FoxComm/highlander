@@ -1,5 +1,6 @@
 
 // libs
+import _ from 'lodash';
 import React, {PropTypes} from 'react';
 import { inflect } from 'fleck';
 
@@ -31,9 +32,13 @@ export default class Breadcrumb extends React.Component {
 
     const acc = {routes: [], lastRoute: null};
     const pathNames = pathParts.reduce((acc, part) => {
-      const newRoute = `${acc.lastRoute}-${part}`;
-      acc.routes.push(newRoute);
-      acc.lastRoute = newRoute;
+      if (isNaN(part)) {
+        const newRoute = _.isEmpty(acc.lastRoute) ? part : `${acc.lastRoute}-${part}`;
+        acc.routes.push(newRoute);
+        acc.lastRoute = newRoute;
+      } else {
+        console.log(part + ' is number!');
+      }
       return acc;
     }, acc);
     console.log(pathNames);
