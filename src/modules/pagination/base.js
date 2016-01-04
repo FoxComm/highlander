@@ -5,6 +5,13 @@ import { updateItems } from '../state-helpers';
 
 export const DEFAULT_PAGE_SIZE = 50;
 
+export const DEFAULT_PAGE_SIZES = {
+  '25': 'View 25',
+  '50': 'View 50',
+  '100': 'View 100',
+  'Infinity': 'View all'
+};
+
 export const actionTypes = {
   FETCH: 'FETCH',
   RECEIVED: 'RECEIVED',

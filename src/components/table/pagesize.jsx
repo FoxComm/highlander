@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import Dropdown from '../dropdown/dropdown';
-import { DEFAULT_PAGE_SIZE } from '../../modules/pagination/base';
+import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZES } from '../../modules/pagination/base';
 
 class TablePaginator extends React.Component {
   static propTypes = {
@@ -24,12 +24,7 @@ class TablePaginator extends React.Component {
     return (
       <Dropdown
         onChange={this.onPageSizeChange}
-        items={{
-          '25': 'Show 25',
-          '50': 'Show 50',
-          '100': 'Show 100',
-          'Infinity': 'Show all'
-          }}
+        items={DEFAULT_PAGE_SIZES}
         value={this.props.value}
         />
     );
