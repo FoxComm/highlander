@@ -8,8 +8,8 @@ export const DEFAULT_PAGE_SIZE = 50;
 export const DEFAULT_PAGE_SIZES = {
   '25': 'View 25',
   '50': 'View 50',
-  '100': 'View 100',
-  'Infinity': 'View all'
+  '75': 'View 75',
+  '100': 'View 100'
 };
 
 export const actionTypes = {
