@@ -61,7 +61,6 @@ class TablePaginator extends React.Component {
 
   @autobind
   onValueSelect(value) {
-    console.log("onValueSelect " + value);
     const from = Math.max(0, Math.min(this.props.total - 1, this.props.size * (value - 1)));
     this.setState({optionsDisplayed: false}, () => this.props.setState({from: from}));
   }
