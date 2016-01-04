@@ -27,6 +27,7 @@ export default class Breadcrumb extends React.Component {
     // - create details route for each `number` section
     // - collect route parts into clickable breadcrumbs
     // - check routes (the spec is needed, not all routes can be generated simply right now)
+    // - there should be a way to determine if it is IndexLink or Link
 
     const acc = {routes: [], lastRoute: null};
     const pathNames = pathParts.reduce((acc, part) => {
