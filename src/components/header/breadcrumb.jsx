@@ -25,7 +25,8 @@ export default class Breadcrumb extends React.Component {
 
     //ToDo:
     // - create routes for each part
-    // - create details route for each `number` section
+    // - create details route for each `number` section (won't work with refNum and so on)
+    // - detect ids properly
     // - collect route parts into clickable breadcrumbs
     // - check routes (the spec is needed, not all routes can be generated simply right now)
     // - there should be a way to determine if it is IndexLink or Link
