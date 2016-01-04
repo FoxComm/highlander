@@ -33,7 +33,7 @@ export default class Breadcrumb extends React.Component {
 
     const acc = {routes: [], lastRoute: null};
     const pathNames = pathParts.reduce((acc, part) => {
-      if (isNaN(part)) {
+      if (part != undefined && isNaN(part)) {
         const newRoute = _.isEmpty(acc.lastRoute) ? part : `${acc.lastRoute}-${part}`;
         acc.routes.push(newRoute);
         acc.lastRoute = newRoute;
