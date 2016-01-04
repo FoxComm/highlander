@@ -10,6 +10,7 @@ import PilledInput from '../pilled-search/pilled-input';
 import SearchOption from './search-option';
 import TabListView from '../tabs/tabs';
 import EditableTabView from '../tabs/editable-tab';
+import DatePicker from '../datepicker/datepicker';
 
 import SearchTerm from '../../paragons/search-term';
 
@@ -358,6 +359,7 @@ export default class LiveSearch extends React.Component {
             </div>
           </div>
           <div className="fc-col-md-1-1">
+            <DatePicker />
             {this.props.children}
           </div>
         </div>
