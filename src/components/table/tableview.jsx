@@ -22,22 +22,33 @@ const TableView = props => {
   const tablePageSize = (
     <TablePageSize setState={setState}/>
   );
+
+  const showPagination = props.paginator && props.setState;
+
+  const topPaginator = (
+    <div className="fc-table-header fc-grid fc-grid-no-gutter">
+      <div className="fc-col-md-2-12 fc-push-md-10-12 fc-align-right">
+        {tablePaginator}
+      </div>
+    </div>
+  );
+
+  const bottomPaginator = (
+    <div className="fc-table-footer fc-grid fc-grid-no-gutter">
+      <div className="fc-col-md-2-12 fc-align-left">
+        {tablePageSize}
+      </div>
+      <div className="fc-col-md-2-12 fc-push-md-8-12 fc-align-right">
+        {tablePaginator}
+      </div>
+    </div>
+  );
+
   return (
     <div className="fc-tableview">
-      <div className="fc-table-header fc-grid fc-grid-no-gutter">
-        <div className="fc-col-md-2-12 fc-push-md-10-12 fc-align-right">
-          {tablePaginator}
-        </div>
-      </div>
+      {showPagination && topPaginator}
       <Table {...props} setState={setState}/>
-      <div className="fc-table-footer fc-grid fc-grid-no-gutter">
-        <div className="fc-col-md-2-12 fc-align-left">
-          {tablePageSize}
-        </div>
-        <div className="fc-col-md-2-12 fc-push-md-8-12 fc-align-right">
-          {tablePaginator}
-        </div>
-      </div>
+      {showPagination && bottomPaginator}
     </div>
   );
 };
