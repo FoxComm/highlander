@@ -32,10 +32,10 @@ trait AddressGenerator {
     val address2 = if(hasAddress2) Some(apartment) else None
 
     val citySuffix = Name.fetch[String]("address.street_suffix")
-    val city = s"${Name.first_name}$citySuffix"
+    val city = s"${Name.first_name} $citySuffix"
     val zip = Name.numerify(base.fetch[String]("address.postcode"))
     val hasPhone = Random.nextBoolean()
-    val phoneNumber = if(hasPhone) Some(Name.numerify("1###-###-####")) else None
+    val phoneNumber = if(hasPhone) Some(Name.numerify("##########")) else None
 
     Address(customerId = customerId, regionId = 4177, name = Name.name, 
       address1 = streetName, address2 = address2, city = city, zip = zip, 
