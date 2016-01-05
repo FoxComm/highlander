@@ -60,20 +60,22 @@ If you prefer skip test run on each file change you can define env variable ASHE
 
 #### Local
 
-1. Start the [Green River](https://github.com/FoxComm/green-river) Vagrant configuration.
+1. Make sure your ashes directory is lowercase 'ashes' and not 'Ashes'
 
-  - ElasticSearch will be exposed on http://192.168.10.111:9200
-  - Run Phoenix from inside the Green River VM, which will expose it on http://192.168.10.111:9090
+2. Make sure you have [phoenix-scala](https://github.com/FoxComm/phoenix-scala) and [green-river](https://github.com/FoxComm/green-river) checked out
 
-2. Spin up the Ashes VM
+3. Checkout the [Provisioning Repository](https://github.com/FoxComm/prov-shit) at the same 
+   directory level as ashes.
+
 
   _Ashes can be run through either a VirtualBox or VMWare Fusion provider._
 
   ```
+  cd prov-shit
   vagrant up
   ```
 
-3. Access Ashes at http://192.168.10.120.
+4. Access Ashes at http://192.168.10.111.
 
 ### GCE Spinup
 You need to set the following environment variables:
