@@ -52,7 +52,7 @@ export default class SearchSuggestion {
 
   toFilter(search) {
     const filter = this._searchTerm.toFilter(search);
-    const operator = _.get(this, ['_suggestion', 'operator'], filter.operator);
+    const operator = _.get(this, ['_suggestion', 'operator'], filter.selectedOperator);
     return assoc(filter,
       ['selectedOperator'], operator,
       ['value', 'value'], this._suggestion.value);

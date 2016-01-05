@@ -78,7 +78,7 @@ export default class LiveSearch extends React.Component {
           className={classNames({ '_active': selectedIdx == idx, '_first': idx == 0 })}
           key={`search-option-${idx}`}
           option={option}
-          clickAction={this.submitFilter} />
+          clickAction={(filter) => this.submitFilter(filter, true)} />
       ];
     }, []);
 
