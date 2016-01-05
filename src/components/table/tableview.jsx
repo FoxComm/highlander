@@ -21,7 +21,7 @@ const TableView = props => {
         />
     );
   const tablePageSize = tableNeedsPagination && (
-      <TablePageSize setState={setState}/>
+      <TablePageSize setState={setState} value={props.data.size}/>
     );
   return (
     <div className="fc-tableview">
