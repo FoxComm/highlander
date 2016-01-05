@@ -3,6 +3,10 @@
 import _ from 'lodash';
 import React, {PropTypes} from 'react';
 import { inflect } from 'fleck';
+import { assoc } from 'sprout-data';
+
+// components
+import { Link } from '../link/index';
 
 export default class Breadcrumb extends React.Component {
 
@@ -31,19 +35,27 @@ export default class Breadcrumb extends React.Component {
     // - check routes (the spec is needed, not all routes can be generated simply right now)
     // - there should be a way to determine if it is IndexLink or Link
 
-    const acc = {routes: [], lastRoute: null};
+    const acc = {routes: [], lastRoute: null, lastParams: {}};
     const pathNames = pathParts.reduce((acc, part) => {
       if (part != undefined && isNaN(part)) {
         const newRoute = _.isEmpty(acc.lastRoute) ? part : `${acc.lastRoute}-${part}`;
-        acc.routes.push(newRoute);
+        const itemName = inflect(part, 'capitalize');
+        const params = acc.lastParams;
+        acc.routes.push(<Link to={newRoute} key={`header-item-${itemName}`} params={params}>{itemName}</Link>);
         acc.lastRoute = newRoute;
       } else {
         console.log(part + ' is number!');
+        const newRoute = acc.lastRoute.substring(0, acc.lastRoute.length - 1);
+        const itemName = part;
+        let params = assoc(acc.lastParams, 'customerId', part);
+        acc.routes.push(<Link to={newRoute} key={`header-item-${itemName}`} params={params}>{itemName}</Link>);
+        acc.lastRoute = newRoute;
+        acc.lastParams = params;
       }
       return acc;
     }, acc);
     console.log(pathNames);
 
-    return <div className="breadcrumb">{items}</div>;
+    return <div className="breadcrumb">{pathNames.routes}</div>;
   }
 }

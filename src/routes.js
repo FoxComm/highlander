@@ -67,11 +67,11 @@ const routes = (
         <IndexRoute name='customer-details' component={CustomerDetails}/>
         <Route name='customer-returns' path='returns' component={RmaChildList}/>
         <Route name='customer-notes' path='notes' component={Notes} />
-        <Route name='customer-storecredits' path='storecredit' component={StoreCredits}/>
+        <Route name='customer-storecredits' path='storecredits' component={StoreCredits}/>
         <Route name='customer-storecredits-new'
                path='storecredits/new'
                component={NewStoreCredit} />
-        <Route name='customer-storecredit-transactions'
+        <Route name='customer-storecredits-transactions'
                path='storecredits/transactions'
                component={StoreCreditsTransactions} />
       </Route>

@@ -38,7 +38,7 @@ const Summary = props => {
           <Link to="customer-storecredits" params={props.params}>Store Credits</Link>
         </TabView>
         <TabView draggable={false}>
-          <Link to="customer-storecredit-transactions" params={props.params}>Transaction</Link>
+          <Link to="customer-storecredits-transactions" params={props.params}>Transaction</Link>
         </TabView>
       </TabListView>
     </div>
