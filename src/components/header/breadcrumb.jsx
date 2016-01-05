@@ -20,12 +20,12 @@ export default class Breadcrumb extends React.Component {
     console.log(pathname);
 
     const pathParts = pathname.split('/');
-    const items = pathParts.map((item, index) => {
-      let classname = index > 0 ? 'icon-chevron-right' : null;
-      let itemName = inflect(item, 'capitalize');
-      console.log(item);
-      return <span className={classname} key={`header-item-${index}`}>{` ${itemName} `}</span>;
-    });
+    // const items = pathParts.map((item, index) => {
+    //   let classname = index > 0 ? 'icon-chevron-right' : null;
+    //   let itemName = inflect(item, 'capitalize');
+    //   console.log(item);
+    //   return <span className={classname} key={`header-item-${index}`}>{` ${itemName} `}</span>;
+    // });
 
     //ToDo:
     // - create routes for each part
@@ -44,7 +44,6 @@ export default class Breadcrumb extends React.Component {
         acc.routes.push(<Link to={newRoute} key={`header-item-${itemName}`} params={params}>{itemName}</Link>);
         acc.lastRoute = newRoute;
       } else {
-        console.log(part + ' is number!');
         const newRoute = acc.lastRoute.substring(0, acc.lastRoute.length - 1);
         const itemName = part;
         let params = assoc(acc.lastParams, 'customerId', part);
@@ -54,7 +53,6 @@ export default class Breadcrumb extends React.Component {
       }
       return acc;
     }, acc);
-    console.log(pathNames);
 
     return <div className="breadcrumb">{pathNames.routes}</div>;
   }
