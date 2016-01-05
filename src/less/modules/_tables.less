@@ -111,7 +111,63 @@
 }
 
 .fc-table-paginator {
-  .inline-block;
+  display: flex;
   float: right;
-  line-height: pxtorem(45px);
+  line-height: pxtorem(40px);
+  align-items: baseline;
+
+
+  &__current-page, &__total-pages {
+    .margin(0 10px);
+
+    .fc-form-field {
+      .width(50px);
+    }
+  }
+
+  &__current-page-field {
+    .width(50px);
+  }
+
+  .fc-form-field input.fc-table-paginator__current-page-field._disabled {
+    background-color: @color-decor12;
+    border: 1px solid @color-decor7;
+  }
+
+  &__current-page-selector {
+    background-color: @color-white;
+    position: absolute;
+    width: 50px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    border: 1px solid @color-border;
+    border-radius: .3rem;
+    font-weight: 400;
+    line-height: 6rem;
+    font-size: 12px;
+    font-size: 1.2rem;
+    z-index: 100;
+    display: none;
+
+    &._shown {
+      display: block;
+    }
+  }
+
+  &__current-page-selector-overlay {
+    position: fixed;
+    display: none;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
+  &__selector-option {
+    text-align: center;
+  }
+
+  &__selector-option:hover {
+    background-color: @color-decor12;
+  }
 }
