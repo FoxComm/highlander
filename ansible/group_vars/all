@@ -22,7 +22,8 @@ ashes_env: production
 
 # Lies & BS
 phoenix_server: 127.0.0.1:9090
-search_server: 127.0.0.1:9200
+search_server_http: 127.0.0.1:9200
+search_server: 127.0.0.1:9300
 ashes_server: 127.0.0.1:4000
 kafka_server: 127.0.0.1:9092
 schema_server: 127.0.0.1:8081

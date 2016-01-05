@@ -107,7 +107,7 @@ Vagrant.configure("2") do |config|
   config.vm.define :ashes, autostart: false do |app|
       backend_host = ENV['BACKEND_HOST'] || backend_ip
       phoenix_server = ENV['PHOENIX_HOST'] || "#{backend_host}:9090"
-      search_server = ENV['ES_HOST'] || "#{backend_host}:9200"
+      search_server_http = ENV['ES_HOST'] || "#{backend_host}:9200"
 
       app.vm.network :private_network, ip: ashes_ip
       expose_ashes(app)
@@ -117,7 +117,7 @@ Vagrant.configure("2") do |config|
           ansible.playbook = "ansible/vagrant_ashes.yml"
           ansible.extra_vars = {
               phoenix_server: phoenix_server,
-              search_server: search_server
+              search_server_http: search_server_http
           }
       end
   end
