@@ -6,7 +6,9 @@
     user: vagrant
   roles:
     - common
+    - { role: rsyslog, sudo: yes }
     - scala
     - kafka
     - elasticsearch
+    - { role: kibana, sudo: yes }
     - greenriver

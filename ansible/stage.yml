@@ -13,6 +13,7 @@
     - db
     - phoenix
     - elasticsearch
+    - { role: kibana, sudo: yes }
     - greenriver
 
 - name: Provision Ashes Stage
