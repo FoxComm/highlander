@@ -85,6 +85,25 @@ Vagrant.configure("2") do |config|
           ansible.playbook = "ansible/vagrant_backend.yml"
       end
   end
+
+  config.vm.define :greenriver, autostart: false do |app|
+      backend_host = ENV['BACKEND_HOST'] || backend_ip
+      phoenix_server = ENV['PHOENIX_HOST'] || "#{backend_host}:9090"
+
+      app.vm.network :private_network, ip: ashes_ip
+      expose_ashes(app)
+
+      app.vm.provision "ansible" do |ansible|
+          ansible.verbose = "vv"
+          ansible.playbook = "ansible/vagrant_greenriver.yml"
+          ansible.extra_vars = {
+              phoenix_server: phoenix_server,
+              greenriver_service_requires: "kafka.service elasticsearch.service",
+              greenriver_service_after: "kafka.service elasticsearch.service"
+          }
+      end
+  end
+
   config.vm.define :ashes, autostart: false do |app|
       backend_host = ENV['BACKEND_HOST'] || backend_ip
       phoenix_server = ENV['PHOENIX_HOST'] || "#{backend_host}:9090"
