@@ -1,0 +1,21 @@
+---
+
+- name: Download Kibana
+  get_url: >
+    url=https://download.elasticsearch.org/kibana/kibana/{{kibana_name}}.zip
+    dest=/usr/local/src/{{kibana_name}}.zip
+
+- name: Extract and install Kibana
+  unarchive: >
+    src=/usr/local/src/{{kibana_name}}.zip
+    dest={{kibana_dir}}
+    copy=no
+    creates={{kibana_dir}}/{{kibana_name}}
+
+- name: Copy Kibana service
+  template: src=kibana.service.j2 dest={{dest_services}}/kibana.service
+  notify:
+    - restart kibana
+
+- name: Setup Kibana service
+  service: name=kibana state=started enabled=yes
