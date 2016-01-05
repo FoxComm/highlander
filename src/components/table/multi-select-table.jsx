@@ -17,10 +17,6 @@ export default class MultiSelectTable extends React.Component {
     emptyMessage: PropTypes.string.isRequired
   }
 
-  constructor(...args) {
-    super(...args);
-  }
-
   get columns() {
     const selectColumn = {
       field: 'selectColumn',
