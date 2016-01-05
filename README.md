@@ -56,25 +56,6 @@ If you want to setup some Git hooks, run the following:
 Now, installed hook runs tests and prevents push if they haven't passed.
 If you prefer skip test run on each file change you can define env variable ASHES_NO_WATCH_FOR_TEST.
 
-### Procfile setup
-
-To run Ashes using Procfile runner ([foreman](https://github.com/ddollar/foreman),
-[goreman](https://github.com/mattn/goreman), [node-foreman](https://github.com/strongloop/node-foreman))
-you need nginx with lua support or [openresty](http://openresty.org/) (default) installed.
-
-To run Ashes, run the following:
-
-```shell
-foreman start
-# or
-goreman start
-# or
-nf start
-```
-
-Ashes will be exposed on http://localhost:9999/ and all requests will be proxied thru nginx.
-Configuration using environment variables can be done in `.env` file. All variables will be automatically loaded on runner start up.
-
 ### Vagrant setup
 
 #### Local
