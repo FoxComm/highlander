@@ -159,6 +159,7 @@ export default function makeLiveSearch(namespace, searchTerms) {
       searchSuccess,
       searchFailure,
       selectSearch,
+      selectSavedSearch,
       submitFilters
     }
   };
