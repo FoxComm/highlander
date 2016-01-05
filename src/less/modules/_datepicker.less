@@ -1,16 +1,20 @@
 .fc-datepicker {
   &__dropdown-container {
+    color: #3A4350;
     display: flex;
     background: #CED2D5;
-    border-radius: 6px;
-    padding: 5px;
-    width: 550px;
+    border-radius: 3px;
+    box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.50);
+    .padding(5px);
+    .width(548px);
+    z-index: 1000;
   }
 
   &__month {
+    .margin(5px);
     display: flex;
     flex-direction: column;
-    padding: 5px;
+    width: 259px;
   }
 
   &__month-name {
@@ -26,23 +30,30 @@
     background: #F7F7F7;
   }
 
-  &__week-row {
-    display: flex;
-  }
-
   &__week {
-    .font-spec(16px, 700, 30px);
+    .font-spec(15px, 700, 32px);
     .height(32px);
     .width(37px);
     text-align: center;
   }
+  
+  &__days {
+    display: flex;
+    flex-wrap: wrap;
+    
+  }
 
   &__day {
-    .font-spec(14px, 600, 30px);
+    .border-top(1px, solid, #D9D9D9);
+    .font-spec(14px, 600, 37px);
     .height(37px);
     .width(37px);
     background: #FFFFFF;
     text-align: center;
-    border-bottom: red;
+    border-left: 1px solid #D9D9D9;
+
+    &:nth-child(7n + 1) {
+      border-left: none;
+    }
   }
 }

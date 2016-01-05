@@ -1,0 +1,16 @@
+.fc-datepicker__day {
+  &:hover, *._selected {
+    background: #4FC2C9;
+    color: #FFF;
+    cursor: pointer;
+  }
+
+  &._last-month, &._next-month {
+    background: #EBEBEB;
+    color: #484848;
+
+    &:nth-child(7n + 1) {
+      border-left: none;
+    }
+  }
+}
