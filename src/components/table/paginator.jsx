@@ -87,12 +87,10 @@ class TablePaginator extends React.Component {
       '_disabled': pageCount <= 1
     });
     const optionsClass = classnames('fc-table-paginator__current-page-selector', {
-      '_shown': this.state.optionsDisplayed,
-      '_hidden': !this.state.optionsDisplayed
+      '_shown': this.state.optionsDisplayed
     });
     const overlayClass = classnames('fc-table-paginator__current-page-selector-overlay', {
-      '_shown': this.state.optionsDisplayed,
-      '_hidden': !this.state.optionsDisplayed
+      '_shown': this.state.optionsDisplayed
     });
     return (
       <div className="fc-form-field">

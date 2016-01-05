@@ -129,7 +129,7 @@
     .width(50px);
   }
 
-  .fc-form-field input[type=number].fc-table-paginator__current-page-field._disabled {
+  .fc-form-field input.fc-table-paginator__current-page-field._disabled {
     background-color: @color-decor12;
     border: 1px solid @color-decor7;
   }
@@ -147,18 +147,16 @@
     font-size: 12px;
     font-size: 1.2rem;
     z-index: 100;
+    display: none;
 
     &._shown {
       display: block;
-    }
-
-    &._hidden {
-      display: none;
     }
   }
 
   &__current-page-selector-overlay {
     position: fixed;
+    display: none;
     top: 0;
     bottom: 0;
     left: 0;
