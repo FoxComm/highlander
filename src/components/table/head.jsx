@@ -1,9 +1,10 @@
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
-import classNames from 'classnames';
-import TableRow from './row';
 
+import classNames from 'classnames';
 import _ from 'lodash';
+
+import TableRow from './row';
 
 class TableHead extends React.Component {
   static propTypes = {
