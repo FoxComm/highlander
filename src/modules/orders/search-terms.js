@@ -8,6 +8,10 @@ const searchTerms = [
         type: 'string',
         term: 'id'
       }, {
+        title: 'Reference Number',
+        type: 'string',
+        term: 'referenceNumber'
+      }, {
         title: 'State',
         type: 'enum',
         term: 'status',

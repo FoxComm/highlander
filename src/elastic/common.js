@@ -38,8 +38,9 @@ function createFilter(filter, boolFn, rangeFn) {
     case 'date':
     case 'enum':
     case 'number':
-    case 'string':
       return rangeFn(selectedTerm, selectedOperator, value);
+    case 'string':
+      return rangeFn(selectedTerm, selectedOperator, value.toLowerCase());
   }
 }
 
