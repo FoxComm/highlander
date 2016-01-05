@@ -58,6 +58,22 @@ export default function makeLiveSearch(namespace, searchTerms) {
     };
   };
 
+  const selectSearch = (url, idx) => {
+    return (dispatch, getState) => {
+      dispatch(selectSavedSearch(idx));
+
+      const selectedSearch = _.get(getState(), ['orders', 'list', 'selectedSearch']);
+      const searchTerms = _.get(
+        getState(), 
+        ['orders', 'list', 'savedSearches', selectedSearch, 'searches'],
+        []
+      );
+
+      const esQuery = toQuery(searchTerms);
+      dispatch(fetch(url, esQuery.toJSON()));
+    };
+  };
+
   const terms = searchTerms.map(st => new SearchTerm(st));
   const initialState = {
     potentialOptions: terms,
@@ -71,17 +87,47 @@ export default function makeLiveSearch(namespace, searchTerms) {
         ...emptyState,
         name: 'Remorse Hold',
         currentOptions: terms,
-        searches: ['Order : State : Remorse Hold']
+        searches: [
+          {
+            display: 'Order : State : Remorse Hold',
+            selectedTerm: 'status',
+            selectedOperator: 'eq',
+            value: {
+              type: 'enum',
+              value: 'remorseHold'
+            }
+          }
+        ]
       }, {
         ...emptyState,
         name: 'Manual Hold',
         currentOptions: terms,
-        searches: ['Order : State : Manual Hold']
+        searches: [
+          {
+            display: 'Order : State : Manual Hold',
+            selectedTerm: 'status',
+            selectedOperator: 'eq',
+            value: {
+              type: 'enum',
+              value: 'manualHold'
+            }
+          }
+        ]
       }, {
         ...emptyState,
         name: 'Fraud Hold',
         currentOptions: terms,
-        searches: ['Order : State : Fraud Hold']
+        searches: [
+          {
+            display: 'Order : State : Fraud Hold',
+            selectedTerm: 'status',
+            selectedOperator: 'eq',
+            value: {
+              type: 'enum',
+              value: 'fraudHold'
+            }
+          }
+        ]
       }
     ]
   };
@@ -112,7 +158,7 @@ export default function makeLiveSearch(namespace, searchTerms) {
       searchStart,
       searchSuccess,
       searchFailure,
-      selectSavedSearch,
+      selectSearch,
       submitFilters
     }
   };

@@ -168,6 +168,10 @@ export default class LiveSearch extends React.Component {
     );
   }
 
+  componentDidMount() {
+    this.props.submitFilters(this.currentSearch.searches);
+  }
+
   componentWillReceiveProps(nextProps) {
     const search = currentSearch(nextProps);
     const isVisible = this.state.isFocused && search.currentOptions.length > 0;

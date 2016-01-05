@@ -58,10 +58,6 @@ export default class Orders extends React.Component {
     return this.props.list.savedSearches[this.selectedSearch].results;
   }
 
-  componentDidMount() {
-    this.props.fetch('orders_search_view/_search');
-  }
-
   handleAddOrderClick() {
     console.log('Add order clicked');
   }
@@ -71,7 +67,9 @@ export default class Orders extends React.Component {
       const key = `order-${row.referenceNumber}`;
       return <OrderRow order={row} columns={columns} key={key} />;
     };
+    
     const filter = (searchTerm) => this.props.addSearchFilter('orders_search_view/_search', searchTerm);
+    const selectSearch = (idx) => this.props.selectSearch('orders_search_view/_search', idx);
 
     return (
       <div className="fc-list-page">
@@ -92,7 +90,7 @@ export default class Orders extends React.Component {
           editSearchNameCancel={this.props.editSearchNameCancel}
           editSearchNameComplete={this.props.editSearchNameComplete}
           saveSearch={this.props.saveSearch}
-          selectSavedSearch={this.props.selectSavedSearch}
+          selectSavedSearch={selectSearch}
           submitFilters={filter}
           searches={this.props.list}
         >
