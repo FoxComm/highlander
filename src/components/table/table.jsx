@@ -2,11 +2,13 @@ import React, { PropTypes } from 'react';
 import TableHead from './head';
 import TableBody from './body';
 
+import classNames from 'classnames';
+
 const Table = props => {
-  const {data, setState, renderRow, ...rest} = props;
+  const {data, setState, renderRow, className, ...rest} = props;
 
   return (
-    <table className='fc-table'>
+    <table className={classNames('fc-table', className)}>
       <TableHead {...rest} sortBy={data.sortBy} setState={setState}/>
       <TableBody {...rest} rows={data.rows} renderRow={renderRow}/>
     </table>
@@ -21,7 +23,8 @@ Table.propTypes = {
   processRows: PropTypes.func,
   detectNewRows: PropTypes.bool,
   showEmptyMessage: PropTypes.bool,
-  emptyMessage: PropTypes.string
+  emptyMessage: PropTypes.string,
+  className: PropTypes.string
 };
 
 Table.defaultProps = {

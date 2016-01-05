@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
-import TableView from '../table/tableview';
+import MultiSelectTable from '../table/multi-select-table';
 import SectionTitle from '../section-title/section-title';
 import { connect } from 'react-redux';
 import * as ordersActions from '../../modules/orders/list';
@@ -32,7 +32,7 @@ export default class Orders extends React.Component {
     saveSearch: PropTypes.func,
     submitFilters: PropTypes.func,
     list: PropTypes.shape({
-      selectedSearch: PropTypes.object,
+      selectedSearch: PropTypes.number,
       savedSearches: PropTypes.array
     }),
     selectSavedSearch: PropTypes.func
@@ -40,8 +40,8 @@ export default class Orders extends React.Component {
 
   static defaultProps = {
     tableColumns: [
-      {field: 'referenceNumber', text: 'Order ID', type: 'id', model: 'order'},
-      {field: 'placedAt', text: 'Date/Time Placed', type: 'date'},
+      {field: 'referenceNumber', text: 'Order', type: 'text', model: 'order'},
+      {field: 'placedAt', text: 'Date/Time Placed', type: 'datetime'},
       {field: 'customer.name', text: 'Name'},
       {field: 'customer.email', text: 'Email'},
       {field: 'status', text: 'Order State', type: 'status', model: 'order'},
@@ -58,17 +58,18 @@ export default class Orders extends React.Component {
     return this.props.list.savedSearches[this.selectedSearch].results;
   }
 
-  componentDidMount() {
-    this.props.fetch('orders_search_view/_search');
-  }
-
   handleAddOrderClick() {
     console.log('Add order clicked');
   }
 
   render() {
-    const renderRow = (row, index) => <OrderRow order={row} columns={this.props.tableColumns} />;
+    const renderRow = (row, index, columns) => {
+      const key = `order-${row.referenceNumber}`;
+      return <OrderRow order={row} columns={columns} key={key} />;
+    };
+    
     const filter = (searchTerm) => this.props.addSearchFilter('orders_search_view/_search', searchTerm);
+    const selectSearch = (idx) => this.props.selectSearch('orders_search_view/_search', idx);
 
     return (
       <div className="fc-list-page">
@@ -89,11 +90,11 @@ export default class Orders extends React.Component {
           editSearchNameCancel={this.props.editSearchNameCancel}
           editSearchNameComplete={this.props.editSearchNameComplete}
           saveSearch={this.props.saveSearch}
-          selectSavedSearch={this.props.selectSavedSearch}
+          selectSavedSearch={selectSearch}
           submitFilters={filter}
           searches={this.props.list}
         >
-          <TableView
+          <MultiSelectTable
             columns={this.props.tableColumns}
             data={this.orders}
             renderRow={renderRow}

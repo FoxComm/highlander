@@ -19,6 +19,7 @@ export default class NotificationIndicator extends React.Component {
   };
 
   static defaultProps = {
+    count: 0,
     displayed: false
   };
 

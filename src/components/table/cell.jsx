@@ -4,36 +4,50 @@ import Currency from '../common/currency';
 import Status from '../common/status';
 import Link from '../link/link';
 
+import _ from 'lodash';
+
 const TableCell = props => {
-  const render = (cell, column = {}) => {
-    switch (column.type) {
+  const { children, colspan, column, ...rest } = props;
+
+  let cell = null;
+
+  if (!_.isNull(children)) {
+    const type = _.get(column, 'type', '');
+    switch (type) {
       case 'id':
-        return <Link to={column.model} params={{[column.model]: cell}}>{cell}</Link>;
+        cell = <Link to={column.model} params={{[column.model]: children}}>{children}</Link>;
+        break;
       case 'image':
-        return <img src={cell}/>;
+        cell = <img src={children}/>;
+        break;
       case 'status':
-        return <Status value={cell} model={column.model}/>;
+        cell = <Status value={children} model={column.model}/>;
+        break;
       case 'currency':
-        return <Currency value={cell}/>;
+        cell = <Currency value={children}/>;
+        break;
       case 'transaction':
-        return <Currency value={cell} isTransaction={true} />;
+        cell = <Currency value={children} isTransaction={true} />;
+        break;
       case 'moment':
-        return <Moment value={cell}/>;
+        cell = <Moment value={children}/>;
+        break;
       case 'date':
-        return <Date value={cell}/>;
+        cell = <Date value={children}/>;
+        break;
       case 'datetime':
-        return <DateTime value={cell}/>;
+        cell = <DateTime value={children}/>;
+        break;
       case 'time':
-        return <Time value={cell}/>;
+        cell = <Time value={children}/>;
+        break;
       default:
-        return cell;
+        cell = children;
+        break;
     }
-  };
-  return (
-    <td className="fc-table-td" colSpan={props.colspan}>
-      {render(props.children, props.column)}
-    </td>
-  );
+  }
+
+  return <td className="fc-table-td" colSpan={colspan} {...rest}>{cell}</td>;
 };
 
 TableCell.propTypes = {

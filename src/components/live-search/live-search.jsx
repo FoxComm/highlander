@@ -49,7 +49,6 @@ export default class LiveSearch extends React.Component {
     editSearchNameComplete: PropTypes.func,
     saveSearch: PropTypes.func,
     selectSavedSearch: PropTypes.func.isRequired,
-    search: PropTypes.object.isRequired,
     searches: PropTypes.object,
     submitFilters: PropTypes.func.isRequired,
   };
@@ -79,7 +78,7 @@ export default class LiveSearch extends React.Component {
           className={classNames({ '_active': selectedIdx == idx, '_first': idx == 0 })}
           key={`search-option-${idx}`}
           option={option}
-          clickAction={this.submitFilter} />
+          clickAction={(filter) => this.submitFilter(filter, true)} />
       ];
     }, []);
 
@@ -117,6 +116,7 @@ export default class LiveSearch extends React.Component {
 
       return (
         <EditableTabView
+          key={`saved-search-${search.name}`}
           defaultValue={search.name}
           draggable={draggable}
           isDirty={isDirty}
@@ -168,6 +168,10 @@ export default class LiveSearch extends React.Component {
     );
   }
 
+  componentDidMount() {
+    this.props.submitFilters(this.currentSearch.searches);
+  }
+
   componentWillReceiveProps(nextProps) {
     const search = currentSearch(nextProps);
     const isVisible = this.state.isFocused && search.currentOptions.length > 0;
@@ -185,11 +189,7 @@ export default class LiveSearch extends React.Component {
 
   @autobind
   change({target}) {
-    this.setState({
-      ...this.state,
-      searchDisplay: target.value,
-      searchValue: target.value
-    });
+    this.submitFilter(target.value);
   }
 
   @autobind
@@ -266,7 +266,7 @@ export default class LiveSearch extends React.Component {
         // Enter
         event.preventDefault();
         if (this.state.selectionIndex < this.state.searchOptions.length) {
-          this.submitFilter(this.state.searchDisplay);
+          this.submitFilter(this.state.searchDisplay, true);
         } else if (this.state.selectionIndex != -1) {
           this.goBack();
         }
@@ -292,13 +292,13 @@ export default class LiveSearch extends React.Component {
   @autobind
   goBack() {
     const searchValue = this.state.searchValue;
-    const lastColonIdx = _.trim(searchValue, ':').lastIndexOf(':');
+    const lastColonIdx = _.trim(searchValue, ': ').lastIndexOf(':');
     const newSearchTerm = lastColonIdx > 0 ? `${searchValue.slice(0, lastColonIdx - 1)} : ` : '';
     return this.submitFilter(newSearchTerm);
   }
 
   @autobind
-  submitFilter(searchTerm) {
+  submitFilter(searchTerm, tryFinal = false) {
     // First, update the available terms.
     let newSearchTerm = searchTerm;
     let options = SearchTerm.potentialTerms(this.state.availableOptions, searchTerm);
@@ -307,7 +307,7 @@ export default class LiveSearch extends React.Component {
     if (options.length == 1) {
       const option = options[0];
 
-      if (option.selectTerm(searchTerm)) {
+      if (tryFinal && option.selectTerm(searchTerm)) {
         newSearchTerm = '';
         options = SearchTerm.potentialTerms(this.state.availableOptions, '');
 
@@ -341,6 +341,7 @@ export default class LiveSearch extends React.Component {
             <form>
               <PilledInput
                 button={this.searchButton}
+                className={classNames({'_active': this.state.isFocused})}
                 onPillClose={(pill, idx) => this.deleteFilter(idx)}
                 onPillClick={(pill, idx) => this.deleteFilter(idx)}
                 formatPill={this.formatPill}

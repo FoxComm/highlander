@@ -18,30 +18,44 @@ import ejs from 'elastic.js';
  */
 export function toQuery(filters) {
   const esFilters = _.map(filters, filter => {
-    switch(filter.value.type) {
-      case 'bool':
-        return ejs.TermsFilter(
-          filter.selectedTerm,
-          filter.selectedOperator,
-          filter.value.value
-        );
-      case 'currency':
-      case 'date':
-      case 'enum':
-      case 'number':
-      case 'string':
-        return rangeToFilter(
-          filter.selectedTerm,
-          filter.selectedOperator,
-          filter.value.value
-        );
-    }
+    return filter.selectedTerm.lastIndexOf('.') != -1
+      ? createNestedFilter(filter)
+      : createFilter(filter, ejs.TermsFilter, rangeToFilter);
   });
 
   return ejs
     .Request()
     .query(ejs.MatchAllQuery())
     .filter(ejs.AndFilter(esFilters));
+}
+
+function createFilter(filter, boolFn, rangeFn) {
+  const { selectedTerm, selectedOperator, value: { type, value } } = filter;
+  switch(type) {
+    case 'bool':
+      return boolFn(selectedTerm, selectedOperator, value);
+    case 'currency':
+    case 'date':
+    case 'enum':
+    case 'number':
+      return rangeFn(selectedTerm, selectedOperator, value);
+    case 'string':
+      return rangeFn(selectedTerm, selectedOperator, value.toLowerCase());
+  }
+}
+
+function createNestedFilter(filter) {
+  const term = filter.selectedTerm;
+  const path = term.slice(0, term.lastIndexOf('.'));
+  const query = createFilter(
+    filter,
+    (term, operator, value) => ejs.MatchQuery(term, value),
+    rangeToQuery
+  );
+
+  return ejs
+    .NestedFilter(path)
+    .query(ejs.BoolQuery().must(query));
 }
 
 function _newClient(opts = {}) {
@@ -56,11 +70,11 @@ export const newClient = _.memoize(_newClient);
 
 export const DEFAULT_INDEX = 'phoenix';
 
-export function rangeToFilter(field, operator, value) {
-  const filter = ejs.RangeFilter(field);
+function _rangeTo(field, operator, value, eqFn, rangeFn) {
+  const filter = rangeFn(field);
   switch(operator) {
     case 'eq':
-      return ejs.TermsFilter(field, value);
+      return eqFn(field, value);
     case 'gt':
     case 'gte':
     case 'lte':
@@ -81,4 +95,12 @@ export function rangeToFilter(field, operator, value) {
 
   }
   return filter;
+}
+
+export function rangeToFilter(field, operator, value) {
+  return _rangeTo(field, operator, value, ejs.TermsFilter, ejs.RangeFilter);
+}
+
+export function rangeToQuery(field, operator, value) {
+  return _rangeTo(field, operator, value, ejs.MatchQuery, ejs.RangeQuery);
 }

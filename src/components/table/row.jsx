@@ -2,9 +2,11 @@ import classNames from 'classnames';
 import React, { PropTypes } from 'react';
 
 const TableRow = props => {
+  const { children, isNew, ...rest } = props;
+
   return (
-    <tr className={ classNames('fc-table-tr', {'is-new': props.isNew }) } >
-      {props.children}
+    <tr className={classNames('fc-table-tr', {'is-new': isNew })} {...rest}>
+      {children}
     </tr>
   );
 };
