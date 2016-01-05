@@ -31,9 +31,9 @@ export default class MultiSelectTable extends React.Component {
     };
 
     return [
-    selectColumn,
-    ...this.props.columns,
-    toggleColumn
+      selectColumn,
+      ...this.props.columns,
+      toggleColumn
     ];
   }
 
