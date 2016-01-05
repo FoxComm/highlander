@@ -1,5 +1,5 @@
 # -*- mode: ruby -*-
-# vi: set ft=ruby :
+# vi: set ft=ruby ts=2 sw=2 expandtab:
 #
 require 'fileutils'
 
@@ -30,6 +30,9 @@ def expose_backend_ports(config)
 
     # ES
     config.vm.network :forwarded_port, guest: 9200, host: 9200, auto_correct: true
+
+    # Kibana
+    config.vm.network :forwarded_port, guest: 5601, host: 5601, auto_correct: true
 end
 
 def expose_ashes(config)

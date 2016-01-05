@@ -6,6 +6,7 @@
     user: vagrant
   roles:
     - common
+    - { role: rsyslog, sudo: yes }
     - scala
     - kafka
     - db
