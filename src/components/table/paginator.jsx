@@ -19,14 +19,16 @@ class TablePaginator extends React.Component {
 
   constructor(props, ...args) {
     super(props, ...args);
+    const page = this.props.size !== 0 ? Math.ceil(this.props.from / this.props.size + 1) : 1;
     this.state = {
       optionsDisplayed: false,
-      pageToDisplay: Math.ceil(this.props.from / this.props.size + 1)
+      pageToDisplay: page
     };
   }
 
   componentWillReceiveProps(newProps) {
-    this.setState({pageToDisplay: Math.ceil(this.props.from / this.props.size + 1)});
+    const page = this.props.size !== 0 ? Math.ceil(this.props.from / this.props.size + 1) : 1;
+    this.setState({pageToDisplay: page});
   }
 
   @autobind
@@ -112,8 +114,9 @@ class TablePaginator extends React.Component {
   }
 
   render() {
-    const currentPage = Math.ceil(this.props.from / this.props.size + 1);
-    const pageCount = Math.ceil(this.props.total / this.props.size);
+    console.log(this.props);
+    const currentPage = this.props.size !== 0 ? Math.ceil(this.props.from / this.props.size + 1) : 1;
+    const pageCount = this.props.size !== 0 ? Math.ceil(this.props.total / this.props.size) : 1;
     const leftButtonClass = classnames({'_hidden': currentPage <= 1});
     const rightButtonClass = classnames({'_hidden': currentPage >= pageCount});
     return (
