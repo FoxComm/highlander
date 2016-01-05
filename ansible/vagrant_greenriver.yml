@@ -1,6 +1,6 @@
 ---
 
-- name: Provision All The Things
+- name: Provision Backend
   hosts: all
   vars:
     user: vagrant
@@ -8,12 +8,7 @@
     - common
     - scala
     - kafka
-    - db
-    - phoenix
     - elasticsearch
     - { role: rsyslog, sudo: yes }
     - { role: kibana, sudo: yes }
     - greenriver
-    - node
-    - ashes
-    - { role: balancer, sudo: yes }
