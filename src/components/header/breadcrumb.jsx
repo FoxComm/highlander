@@ -2,6 +2,7 @@
 // libs
 import _ from 'lodash';
 import React, {PropTypes} from 'react';
+import { Router } from 'react-router';
 import { inflect } from 'fleck';
 import { assoc } from 'sprout-data';
 
@@ -11,12 +12,34 @@ import { Link } from '../link/index';
 export default class Breadcrumb extends React.Component {
 
   static contextTypes = {
-    location: PropTypes.object
+    location: PropTypes.object.isRequired,
+    history: PropTypes.object.isRequired
   };
+
+  constructor(props, context) {
+    super(props, context);
+    console.log('constructor');
+    console.log(context);
+  }
+
+  // static contextTypes = {
+  //   location: PropTypes.object.isRequired,
+  //   routes: PropTypes.array.isRequired,
+  //   params: PropTypes.array.isRequired,
+  //   router: PropTypes.func.isRequired
+  // };
 
   render() {
     const pathname = this.context.location.pathname.replace(/^\/|\/$/gm, '');
 
+    console.log(this.context.location);
+    console.log(this.context.routes);
+    console.log(this.context.params);
+    console.log(this.context.router);
+    if (this.context.router) {
+      console.log(this.context.router.getCurrentPath());
+      console.log(this.context.router.getCurrentParams());
+    }
     console.log(pathname);
 
     const pathParts = pathname.split('/');
@@ -44,7 +67,7 @@ export default class Breadcrumb extends React.Component {
         acc.routes.push(<Link to={newRoute} key={`header-item-${itemName}`} params={params}>{itemName}</Link>);
         acc.lastRoute = newRoute;
       } else {
-        const newRoute = acc.lastRoute.substring(0, acc.lastRoute.length - 1);
+        const newRoute = acc.lastRoute != undefined ? acc.lastRoute.substring(0, acc.lastRoute.length - 1) : '';
         const itemName = part;
         let params = assoc(acc.lastParams, 'customerId', part);
         acc.routes.push(<Link to={newRoute} key={`header-item-${itemName}`} params={params}>{itemName}</Link>);
