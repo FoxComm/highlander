@@ -4,15 +4,22 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import classNames from 'classnames';
 
+import { Button } from '../common/buttons';
+import AppendInput from '../forms/append-input';
+
 const weeks = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
 export default class DatePicker extends React.Component {
   static propTypes = {
+    showInput: PropTypes.bool,
+    showPicker: PropTypes.bool,
     month: PropTypes.number,
     year: PropTypes.number
   };
 
   static defaultProps = {
+    showInput: true,
+    showPicker: false,
     month: new Date().getMonth() + 1,
     year: new Date().getFullYear()
   };
@@ -25,9 +32,37 @@ export default class DatePicker extends React.Component {
     // into a 0-based index as that's how JS expects it.
     this.state = {
       selectedDate: null,
+      showPicker: props.showPicker,
       month: props.month - 1,
       year: props.year
     };
+  }
+
+  get inputBox() {
+    if (this.props.showInput) {
+      return (
+        <AppendInput
+          icon="calendar"
+          inputName="someDate"
+          inputValue={this.state.selectedDate} />
+      );
+    }
+  }
+
+  get picker() {
+    const { showPicker, month, year } = this.state;
+
+    if (showPicker) {
+      const firstMonth = new Date(year, month, 1);
+      const secondMonth = new Date(year, month + 1, 1);
+
+      return (
+        <div className="fc-datepicker__dropdown-container">
+          {this.renderMonth(firstMonth, true)}
+          {this.renderMonth(secondMonth)}
+        </div>
+      );
+    }
   }
 
   @autobind
@@ -109,17 +144,10 @@ export default class DatePicker extends React.Component {
   }
 
   render() {
-    const { month, year } = this.state;
-    const firstMonth = new Date(year, month, 1);
-    const secondMonth = new Date(year, month + 1, 1);
-
     return (
       <div className="fc-datepicker">
-        <input type="text" />
-        <div className="fc-datepicker__dropdown-container">
-          {this.renderMonth(firstMonth, true)}
-          {this.renderMonth(secondMonth)}
-        </div>
+        {this.inputBox}
+        {this.picker}
       </div>
     );
   }
