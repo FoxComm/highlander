@@ -46,13 +46,16 @@ export default class DatePicker extends React.Component {
   get inputBox() {
     if (this.props.showInput) {
       return (
-        <AppendInput
-          icon="calendar"
-          inputName="someDate"
-          inputValue={this.state.selectedDate} 
-          onBlur={this.blurred}
-          onFocus={this.focused}
-          placeholder="mm/dd/yyyy" />
+        <div className="fc-datepicker__control">
+          <AppendInput
+            icon="calendar"
+            inputName="someDate"
+            inputValue={this.state.selectedDate} 
+            onBlur={this.blurred}
+            onFocus={this.focused}
+            placeholder="mm/dd/yyyy" />
+          {this.state.showPicker && <div className="fc-datepicker__arrow-up"></div>}
+        </div>
       );
     }
   }

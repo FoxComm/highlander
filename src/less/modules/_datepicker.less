@@ -1,5 +1,21 @@
 .fc-datepicker {
-  .margin-bottom(10px);
+  .margin-bottom(20px);
+  
+  &__control {
+    display: inline-block;
+  }
+
+  &__arrow-up {
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid @color-decor7;
+    float: right;
+    margin-bottom: -10px;
+    margin-right: 8px;
+    position: relative;
+    width: 10px;
+    z-index: 1001;
+  }
 
   &__dropdown-container {
     .border-radius(3px);
