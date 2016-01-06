@@ -2,13 +2,15 @@
   .margin-bottom(10px);
 
   &__dropdown-container {
-    color: #3A4350;
-    display: flex;
-    background: #CED2D5;
-    border-radius: 3px;
-    box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.50);
+    .border-radius(3px);
+    .margin-top(10px);
     .padding(5px);
     .width(548px);
+    background: @color-decor7;
+    box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.50);
+    color: @color-decor3;
+    display: flex;
+    position: absolute;
     z-index: 1000;
   }
 
@@ -20,10 +22,10 @@
   }
 
   &__month-header {
+    .border-radius(6px 6px 0px 0px);
     .font-spec(16px, 600, 46px);
-    background: #3A4350;
-    border-radius: 6px 6px 0px 0px;
-    color: #FFFFFF;
+    background: @color-decor3;
+    color: @color-white;
     display: flex;
     text-align: center;
   }
@@ -40,7 +42,7 @@
 
   &__weeks-header {
     display: flex;
-    background: #F7F7F7;
+    background: @color-decor12;
   }
 
   &__week {
@@ -57,13 +59,13 @@
   }
 
   &__day {
-    .border-top(1px, solid, #D9D9D9);
+    .border-top(1px, solid, @color-decor9);
     .font-spec(14px, 600, 37px);
     .height(37px);
     .width(37px);
-    background: #FFFFFF;
+    background: @color-white;
     text-align: center;
-    border-left: 1px solid #D9D9D9;
+    border-left: 1px solid @color-decor9;
 
     &:nth-child(7n + 1) {
       border-left: none;

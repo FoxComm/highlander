@@ -9,6 +9,11 @@ import AppendInput from '../forms/append-input';
 
 const weeks = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
+const suppressClick = event => {
+  event.preventDefault();
+  event.stopPropagation();
+};
+
 export default class DatePicker extends React.Component {
   static propTypes = {
     showInput: PropTypes.bool,
@@ -44,7 +49,10 @@ export default class DatePicker extends React.Component {
         <AppendInput
           icon="calendar"
           inputName="someDate"
-          inputValue={this.state.selectedDate} />
+          inputValue={this.state.selectedDate} 
+          onBlur={this.blurred}
+          onFocus={this.focused}
+          placeholder="mm/dd/yyyy" />
       );
     }
   }
@@ -66,7 +74,30 @@ export default class DatePicker extends React.Component {
   }
 
   @autobind
-  goBackMonth() {
+  blurred(event) {
+    event.preventDefault();
+
+    this.setState({
+      ...this.state,
+      showPicker: false
+    });
+  }
+
+  @autobind
+  focused(event) {
+    event.preventDefault();
+
+    this.setState({
+      ...this.state,
+      showPicker: true
+    });
+  }
+
+  @autobind
+  goBackMonth(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
     const newDate = new Date(this.state.year, this.state.month - 1, 1);
     this.setState({
       ...this.state,
@@ -76,7 +107,10 @@ export default class DatePicker extends React.Component {
   }
 
   @autobind
-  goForwardMonth() {
+  goForwardMonth(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
     const newDate = new Date(this.state.year, this.state.month + 1, 1);
     this.setState({
       ...this.state,
@@ -100,13 +134,21 @@ export default class DatePicker extends React.Component {
     return (
       <div className="fc-datepicker__month">
         <div className="fc-datepicker__month-header">
-          <a className="fc-datepicker__month-action-back" onClick={this.goBackMonth}>
+          <a
+            className="fc-datepicker__month-action-back"
+            onClick={this.goBackMonth}
+            onMouseDown={suppressClick}
+            onMouseUp={suppressClick}>
             {isFirst && <i className="icon-chevron-left" />} 
           </a>
           <div className="fc-datepicker__month-name">
             {monthName}
           </div>
-          <a className="fc-datepicker__month-action-forward" onClick={this.goForwardMonth}>
+          <a 
+            className="fc-datepicker__month-action-forward"
+            onClick={this.goForwardMonth}
+            onMouseDown={suppressClick}
+            onMouseUp={suppressClick}>
             {!isFirst && <i className="icon-chevron-right" />} 
           </a>
         </div>
@@ -136,7 +178,11 @@ export default class DatePicker extends React.Component {
       });
 
       return (
-        <div className={klass} onClick={() => this.selectDate(dt)}>
+        <div 
+          className={klass}
+          onClick={() => this.selectDate(dt)}
+          onMouseDown={suppressClick}
+          onMouseUp={suppressClick}>
           {dt.getDate()}
         </div>
       );
