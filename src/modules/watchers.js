@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import Api from '../lib/api';
+import { searchAdmins } from '../elastic/store-admins';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 
@@ -12,48 +13,79 @@ export const itemDeleted = createAction('WATCHERS_DELETE_NEW', (entity, name, id
 const setSuggestedWathcers = createAction('WATCHERS_SET_SUGGERSTED_WATCHERS', (entity, payload) => [entity, payload]);
 const setWatchers = createAction('WATCHERS_SET_WATCHERS', (entity, payload) => [entity, payload]);
 const setAssignees = createAction('WATCHERS_SET_ASSIGNEES', (entity, payload) => [entity, payload]);
-const assignWatchers = createAction('WATCHERS_ASSIGN');
+const assignWatchers = createAction('WATCHERS_ASSIGN', (entity, group, payload) => [entity, group, payload]);
 const deleteFromGroup = createAction('WATCHERS_DELETE_FROM_GROUP', (entity, group, name) => [entity, group, name]);
+const failWatchersAction = createAction('WATCHERS_FAIL');
 
 export function fetchWatchers(entity) {
-  return dispatch => {
-    return Api.get('/fakeurl').then(
-      () => dispatch(setWatchers(entity, fakeWatchers)),
-      () => dispatch(setWatchers(entity, fakeWatchers))
-    );
+  return (dispatch, getState) => {
+    const state = getState();
+    const watchers = _.get(state, ['orders', 'details', 'currentOrder', 'watchers'], []);
+    const data = _.pluck(watchers, 'watcher');
+    dispatch(setWatchers(entity, data));
   };
 }
 
 export function fetchAssignees(entity) {
-  return dispatch => {
-    return Api.get('/fakeurl').then(
-      () => dispatch(setAssignees(entity, fakeAssignees)),
-      () => dispatch(setAssignees(entity, fakeAssignees))
-    );
+  return (dispatch, getState) => {
+    const state = getState();
+    const assignees = _.get(state, ['orders', 'details', 'currentOrder', 'assignees'], []);
+    const data = _.pluck(assignees, 'assignee');
+    dispatch(setAssignees(entity, data));
   };
 }
 
 export function suggestWatchers(entity, term) {
   return dispatch => {
-    // API call will be here
-    return Api.get('/fakeurl').then(
-      () => dispatch(setSuggestedWathcers(entity, fakeData)),
-      () => dispatch(setSuggestedWathcers(entity, fakeData))
+    return searchAdmins(term).then(
+      (data) => {
+        const hits = _.get(data, ['hits', 'hits'], []);
+        const admins = _.pluck(hits, '_source');
+        return dispatch(setSuggestedWathcers(entity, admins));
+      },
+      () => dispatch(setSuggestedWathcers(entity, []))
     );
   };
 }
 
 export function addWatchers(entity) {
-  return dispatch => {
-    // Api calls will be here
-    dispatch(assignWatchers(entity));
-    dispatch(closeAddingModal(entity));
+  return (dispatch, getState) => {
+    const state = getState();
+    const {entityType, entityId} = entity;
+    const items = _.get(state, ['watchers', entityType, entityId, 'selectedItems'], []);
+    const group = _.get(state, ['watchers', entityType, entityId, 'modalGroup']);
+
+    const data = {
+      [group]: items.map((item) => item.id)
+    };
+
+    return Api.post(`/orders/${entityId}/${group}`, data).then(
+      (payload) => {
+        dispatch(assignWatchers(entity, group, payload));
+        dispatch(closeAddingModal(entity));
+      },
+      (err) => dispatch(failWatchersAction(err))
+    );
   };
 }
 
 export function removeFromGroup(entity, group, name) {
-  return dispatch => {
-    dispatch(deleteFromGroup(entity, group, name));
+  return (dispatch, getState) => {
+    const state = getState();
+    const {entityType, entityId} = entity;
+    const groupMemberId = group.substring(0, group.length-1) + 'Id';
+    const groupEntries = _.get(state, ['watchers', entityType, entityId, group, 'entries'], []);
+    const groupMemberToDelete = _.find(groupEntries, {name: name});
+
+    const data = {
+      referenceNumbers: [entityId],
+      [groupMemberId]: groupMemberToDelete.id
+    };
+
+    Api.post(`/orders/${group}/delete`, data).then(
+      () => dispatch(deleteFromGroup(entity, group, name)),
+      (err) => dispatch(failWatchersAction(err))
+    );
   };
 }
 
@@ -99,11 +131,10 @@ const reducer = createReducer({
       [entityType, entityId, 'selectedItems'], newItems
     );
   },
-  [assignWatchers]: (state, {entityType, entityId}) => {
-    const items = _.get(state, [entityType, entityId, 'selectedItems'], []);
-    const group = _.get(state, [entityType, entityId, 'modalGroup']);
-    const groupEntries = _.get(state, [entityType, entityId, group, 'entries'], []);
-    const newEntries = groupEntries.concat(items);
+  [assignWatchers]: (state, [{entityType, entityId}, group, payload]) => {
+    const items = _.get(payload, ['result', group], []);
+    const groupMember = group.substring(0, group.length-1);
+    const newEntries = items.map((item) => item[groupMember]);
     return assoc(state,
       [entityType, entityId, 'modalGroup'], null,
       [entityType, entityId, 'selectedItems'], [],
@@ -117,26 +148,11 @@ const reducer = createReducer({
     return assoc(state,
       [entityType, entityId, group, 'entries'], newItems
     );
+  },
+  [failWatchersAction]: (state, error) => {
+    console.error(error);
+    return state;
   }
 }, initialState);
 
 export default reducer;
-
-const fakeData = [
-  {name: 'Jeff Mataya', email: 'jeff@foxcommerce.com'},
-  {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'},
-  {name: 'Donkey Sypachev', email: 'eugene@foxcommerce.com'},
-  {name: 'Donkey Donkey', email: 'eugene@foxcommerce.com'},
-  {name: 'Eugene Donkey', email: 'eugene@foxcommerce.com'}
-];
-
-const fakeAssignees = [
-  {name: 'Jeff Mataya', email: 'jeff@foxcommerce.com'},
-  {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'}
-];
-
-const fakeWatchers = [
-  {name: 'Jeff Mataya', email: 'jeff@foxcommerce.com'},
-  {name: 'Donkey Donkey', email: 'eugene@foxcommerce.com'},
-  {name: 'Eugene Donkey', email: 'eugene@foxcommerce.com'}
-];

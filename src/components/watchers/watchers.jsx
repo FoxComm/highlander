@@ -50,7 +50,7 @@ export default class Watchers extends React.Component {
       return (
         <div className="fc-watchers__users-row fc-watchers__assignees-row">
           <AddButton className="fc-watchers__add-button"
-                       onClick={() => this.props.showAddingModal(this.entity)}/>
+                       onClick={() => this.props.showAddingModal(this.entity, Groups.ASSIGNEES)}/>
           <div className="fc-watchers__empty-list fc-watchers__assignees-empty">
             Unassigned
           </div>
@@ -67,7 +67,7 @@ export default class Watchers extends React.Component {
       return (
         <div className="fc-watchers__users-row fc-watchers__watchers-row">
           <AddButton className="fc-watchers__add-button"
-                       onClick={() => this.props.showAddingModal(this.entity)}/>
+                       onClick={() => this.props.showAddingModal(this.entity, Groups.WATCHERS)}/>
           <div className="fc-watchers__empty-list fc-watchers__watchers-empty">
             Unwatched
           </div>
@@ -85,6 +85,8 @@ export default class Watchers extends React.Component {
     return (
       <div className="fc-watchers__cell" key={key}>
         <UserInitials name={user.name}
+                      firstName={user.firstName}
+                      lastName={user.lastName}
                       email={user.email}
                       actionBlock={actionBlock}
                       showTooltipOnClick={true}/>
@@ -185,7 +187,7 @@ export default class Watchers extends React.Component {
         <AddWatcherModal isVisible={isVisible}
                          entity={this.entity}
                          cancelAction={() => this.props.closeAddingModal(this.entity)}
-                         suggestCustomers={() => this.props.suggestWatchers(this.entity)}
+                         suggestWatchers={(term) => this.props.suggestWatchers(this.entity, term)}
                          suggestedItems={suggestedItems}
                          selectedWatchers={selectedItems}
                          onItemSelected={(item) => this.props.itemSelected(this.entity, item)}
