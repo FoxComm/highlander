@@ -17,12 +17,23 @@
     width: 259px;
   }
 
-  &__month-name {
+  &__month-header {
     .font-spec(16px, 600, 46px);
     background: #3A4350;
     border-radius: 6px 6px 0px 0px;
     color: #FFFFFF;
+    display: flex;
     text-align: center;
+  }
+
+  &__month-name {
+    flex-grow: 1;
+  }
+
+  &__month-action-back, &__month-action-forward {
+    .font-spec(12px, 400, 46px);
+    .padding(0 10px);
+    .width(40px);
   }
 
   &__weeks-header {
