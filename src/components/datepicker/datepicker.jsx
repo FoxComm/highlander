@@ -45,12 +45,21 @@ export default class DatePicker extends React.Component {
 
   get inputBox() {
     if (this.props.showInput) {
+      const date = this.state.selectedDate || '';
+      const prettyDate = this.state.selectedDate
+        ? this.state.selectedDate.toLocaleString('en-us', { 
+          month: '2-digit', 
+          day: '2-digit',
+          year: 'numeric',
+        }) : '';
+
       return (
         <div className="fc-datepicker__control">
           <AppendInput
             icon="calendar"
             inputName="someDate"
-            inputValue={this.state.selectedDate} 
+            inputValue={date} 
+            inputValuePretty={prettyDate}
             onBlur={this.blurred}
             onFocus={this.focused}
             placeholder="mm/dd/yyyy" />
