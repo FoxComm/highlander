@@ -359,7 +359,6 @@ export default class LiveSearch extends React.Component {
             </div>
           </div>
           <div className="fc-col-md-1-1">
-            <DatePicker />
             {this.props.children}
           </div>
         </div>
