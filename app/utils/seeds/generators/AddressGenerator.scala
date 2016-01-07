@@ -33,7 +33,7 @@ trait AddressGenerator {
 
     val citySuffix = Name.fetch[String]("address.street_suffix")
     val city = s"${Name.first_name} $citySuffix"
-    val zip = Name.numerify(base.fetch[String]("address.postcode"))
+    val zip = Name.numerify("#####")
     val hasPhone = Random.nextBoolean()
     val phoneNumber = if(hasPhone) Some(Name.numerify("##########")) else None
 

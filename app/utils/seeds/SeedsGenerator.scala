@@ -2,29 +2,22 @@ package utils.seeds
 
 import scala.util.Random
 
-import utils.seeds.generators.CustomerGenerator
-import utils.seeds.generators.AddressGenerator
-import utils.seeds.generators.CreditCardGenerator
-import models.{Address, Addresses, CreditCard, CreditCards, Customer, Customers, Order, OrderPayment, OrderPayments, Orders, PaymentMethod}
+import utils.seeds.generators.{CustomerGenerator, AddressGenerator, CreditCardGenerator, 
+OrderGenerator, InventoryGenerator}
+import models.{Address, Addresses, CreditCard, CreditCards, Customer, Customers, 
+Order, OrderPayment, OrderPayments, Orders, PaymentMethod, Skus, Sku}
 import slick.driver.PostgresDriver.api._
 import utils.ModelWithIdParameter
+import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import Seeds.Factories
 import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContext.Implicits.global
 import faker.Faker;
 
-object SeedsGenerator extends CustomerGenerator with AddressGenerator with CreditCardGenerator {
-
-  def generateOrder(status: Order.Status, customerId: Int): Order = {
-    Order(customerId = customerId, referenceNumber = randomString(8) + "-17", status = status)
-  }
-
-  def generateOrderPayment[A <: PaymentMethod with ModelWithIdParameter[A]](orderId: Int,
-    paymentMethod: A, amount: Int = 100): OrderPayment = {
-    Factories.orderPayment.copy(orderId = orderId, amount = Some(amount),
-      paymentMethodId = paymentMethod.id)
-  }
+object SeedsGenerator extends CustomerGenerator with AddressGenerator 
+  with CreditCardGenerator with OrderGenerator with InventoryGenerator{
 
   def generateAddresses(customerIds: Seq[Int]): Seq[Address] = { 
     customerIds.flatMap { id ⇒ 
@@ -35,28 +28,29 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator with Credi
     }
   }
 
-  def makePayment(o: Order, pm: CreditCard) = {
-    generateOrderPayment(o.id, pm, Random.nextInt(20000) + 100)
+  def makeSkus = (1 to 1 + Random.nextInt(100)).map { i ⇒  generateSku }
+
+  def randomSubset[T](vals: Seq[T]) : Seq[T] = {
+    require(vals.length > 0)
+    val size = Math.max(Random.nextInt(Math.min(vals.length, 5)), 1)
+    (1 to size) map { 
+      i ⇒  vals(i * Random.nextInt(vals.length) % vals.length) 
+    }
   }
 
-  def getOrdersWithCC(customerIds: Seq[Int]) = 
-      Orders.join(CreditCards.filter(_.customerId.inSet(customerIds))).on(_.customerId === _.customerId).result
-
-  def makeOrders(customerId: Int) = {
-    (1 to 5 + Random.nextInt(20)).map { i ⇒ generateOrder(Order.Shipped, customerId) }
-  }
-  
   def insertRandomizedSeeds(customersCount: Int)(implicit db: Database, ec: ExecutionContext) = {
     Faker.locale("en")
     val location = "Random"
 
     for {
+      shipMethods ← * <~ createShipmentRules
       customerIds ← * <~ Customers.createAllReturningIds(generateCustomers(customersCount, location))
+      customers  ← * <~ Customers.filter(_.id.inSet(customerIds)).result
+      skuIds ← * <~  generateInventory(makeSkus)
+      skus  ← * <~ Skus.filter(_.id.inSet(skuIds)).result
       _ ← * <~ Addresses.createAll(generateAddresses(customerIds))
       _ ← * <~ CreditCards.createAll(generateCreditCards(customerIds))
-      _ ← * <~ Orders.createAll(customerIds.flatMap(makeOrders))
-      ordersWithCc ← * <~ getOrdersWithCC(customerIds)
-      _ ← * <~ OrderPayments.createAll(ordersWithCc.map { case (order, cc) ⇒ makePayment(order, cc) })
+      orders ← * <~ DbResultT.sequence(customers.map{ c ⇒ generateOrder(c.id, randomSubset(skus))})
     } yield {}
   }
 
