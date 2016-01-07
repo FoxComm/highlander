@@ -68,6 +68,29 @@ export default class LiveSearch extends React.Component {
   }
 
   get searchOptions() {
+    // Check to see if the date picker should be shown.
+    if (this.state.searchOptions.length == 1 && this.state.searchOptions[0].type == 'date') {
+      console.log("SHOW THE DATE PICKER");
+
+      const clickAction = date => {
+        const dateVal = date.toLocaleString('en-us', {
+          month: '2-digit',
+          day: '2-digit',
+          year: 'numeric'
+        });
+
+        this.submitFilter(`${this.state.searchValue}${dateVal}`, true);
+      };
+
+      
+      return (
+        <DatePicker 
+          onClick={clickAction}
+          showInput={false}
+          showPicker={true}
+        />
+      );
+    }
     const selectedIdx = this.state.selectionIndex;
     const options = _.reduce(this.state.searchOptions, (result, option, idx) => {
       if (!option.matchesSearchTerm(this.state.searchValue)) {
@@ -323,6 +346,7 @@ export default class LiveSearch extends React.Component {
         options = option.children;
       } else {
         inputMask = getInputMask(option) || inputMask;
+        console.log(option.type);
       }
     }
 

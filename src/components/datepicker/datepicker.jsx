@@ -16,6 +16,7 @@ const suppressClick = event => {
 
 export default class DatePicker extends React.Component {
   static propTypes = {
+    onClick: PropTypes.func,
     showInput: PropTypes.bool,
     showPicker: PropTypes.bool,
     month: PropTypes.number,
@@ -23,6 +24,7 @@ export default class DatePicker extends React.Component {
   };
 
   static defaultProps = {
+    onClick: _.noop,
     showInput: true,
     showPicker: false,
     month: new Date().getMonth() + 1,
@@ -133,6 +135,8 @@ export default class DatePicker extends React.Component {
 
   @autobind
   selectDate(date) {
+    this.props.onClick(date);
+
     this.setState({ 
       ...this.state,
       selectedDate: date 
