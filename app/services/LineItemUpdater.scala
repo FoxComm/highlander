@@ -16,7 +16,7 @@ import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
 
-import models.activity.ActivityContext
+import models.activity.{Activity, ActivityContext}
 
 object LineItemUpdater {
   def addGiftCard(admin: StoreAdmin, refNum: String, payload: AddGiftCardLineItem)
@@ -68,31 +68,40 @@ object LineItemUpdater {
   } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runT()
 
   def updateQuantitiesOnOrder(admin: StoreAdmin, refNum: String, payload: Seq[UpdateLineItemsPayload])
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = {
+
+    val finder = Orders.mustFindByRefNum(refNum)
+    val logActivity = (o: FullOrder.Root) ⇒ LogActivity.orderLineItemsUpdated(admin, o, payload)
+
+    runUpdates(finder, logActivity, payload)
+  }
+
+  def updateQuantitiesOnCustomersOrder(customer: Customer, payload: Seq[UpdateLineItemsPayload])
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = {
+
+    val finder = Orders.findActiveOrderByCustomer(customer)
+      .one
+      .mustFindOr(NotFoundFailure404(s"Order with customerId=${customer.id} not found"))
+
+    val logActivity = (o: FullOrder.Root) ⇒ LogActivity.orderLineItemsUpdatedByCustomer(customer, o, payload)
+
+    runUpdates(finder, logActivity, payload)
+  }
+
+  private def runUpdates(finder: DbResult[Order],
+    logAct: FullOrder.Root ⇒ DbResult[Activity],
+    payload: Seq[UpdateLineItemsPayload])
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
-    order ← * <~ Orders.mustFindByRefNum(refNum)
+
+    order ← * <~ finder
     _     ← * <~ order.mustBeCart
     _     ← * <~ updateQuantities(order, payload)
     // update changed totals
     order ← * <~ OrderTotaler.saveTotals(order)
     valid ← * <~ CartValidator(order).validate
     res   ← * <~ refreshAndFullOrder(order).toXor
-    _     ← * <~ LogActivity.orderLineItemsUpdated(admin, res, payload)
+    _     ← * <~ logAct(res)
   } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runT()
-
-  def updateQuantitiesOnCustomersOrder(customer: Customer, payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = {
-    def failure = NotFoundFailure404(s"Order with customerId=${customer.id} not found")
-    (for {
-      order ← * <~ Orders.findActiveOrderByCustomer(customer).one.mustFindOr(failure)
-      _     ← * <~ order.mustBeCart
-      _     ← * <~ updateQuantities(order, payload)
-      // update changed totals
-      order ← * <~ OrderTotaler.saveTotals(order)
-      valid ← * <~ CartValidator(order).validate
-      res   ← * <~ refreshAndFullOrder(order).toXor
-      _     ← * <~ LogActivity.orderLineItemsUpdatedByCustomer(customer, res, payload)
-    } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runT()
-  }
 
   private def qtyAvailableForSkus(skus: Seq[String])
     (implicit ec: ExecutionContext, db: Database): DBIO[Map[Sku, Int]] = {
