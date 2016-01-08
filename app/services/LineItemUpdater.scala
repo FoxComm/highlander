@@ -151,8 +151,7 @@ object LineItemUpdater {
             val delta = newQuantity - current
 
             val queries = for {
-              // we can safeGet here since we generate these records upon creation of the `skus` record via trigger
-              origin      ← OrderLineItemSkus.filter(_.skuId === sku.id).one.safeGet
+              origin      ← OrderLineItemSkus.safeFindBySkuId(sku.id)
               bulkInsert  ← OrderLineItems ++= (1 to delta).map { _ ⇒ OrderLineItem(0, order.id, origin.id) }.toSeq
             } yield ()
 

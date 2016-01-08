@@ -132,7 +132,7 @@ class ShippingManagerTest extends IntegrationTestBase {
       customer    ← * <~ Customers.create(Factories.customer)
       order       ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       sku         ← * <~ Skus.create(Factories.skus.head.copy(name = Some("Donkey"), price = 27))
-      lineItemSku ← * <~ OrderLineItemSkus.create(OrderLineItemSku(skuId = sku.id, orderId = order.id))
+      lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(sku.id).toXor
       lineItem    ← * <~ OrderLineItems.create(OrderLineItem(orderId = order.id, originId = lineItemSku.id,
         originType = OrderLineItem.SkuItem))
 
@@ -242,15 +242,14 @@ val conditions = parse(
       shippingMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
       cheapOrder ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, referenceNumber = "CS1234-AA"))
       cheapSku ← * <~ Skus.create(Factories.skus.head.copy(name = Some("Cheap Donkey"), price = 10))
-      cheapLineItemSku ← * <~ OrderLineItemSkus.create(OrderLineItemSku(skuId = cheapSku.id, orderId = cheapOrder.id))
+      cheapLineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(cheapSku.id).toXor
       cheapLineItem ← * <~ OrderLineItems.create(OrderLineItem(orderId = cheapOrder.id, originId = cheapLineItemSku.id,
         originType = OrderLineItem.SkuItem))
       cheapAddress ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
       _ ← * <~ OrderShippingAddresses.copyFromAddress(address = cheapAddress, orderId = cheapOrder.id)
       expensiveOrder ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, referenceNumber = "CS1234-AB"))
       expensiveSku ← * <~ Skus.create(Factories.skus.head.copy(name = Some("Expensive Donkey"), price = 100))
-      expensiveLineItemSku ← * <~ OrderLineItemSkus.create(OrderLineItemSku(skuId = expensiveSku.id,
-        orderId = expensiveOrder.id))
+      expensiveLineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(expensiveSku.id).toXor
       expensiveLineItem ← * <~ OrderLineItems.create(OrderLineItem(orderId = expensiveOrder.id,
         originId = expensiveLineItemSku.id, originType = OrderLineItem.SkuItem))
       expensiveAddress ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))

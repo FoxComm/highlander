@@ -104,9 +104,7 @@ class CartValidatorTest extends IntegrationTestBase {
   trait LineItemsFixture extends Fixture {
     val (sku, items) = (for {
       sku   ← * <~ Skus.create(Factories.skus.head)
-      _     ← * <~ OrderLineItemSkus.create(OrderLineItemSku(skuId = sku.id, orderId = cart.id))
       items ← * <~ OrderLineItems.create(OrderLineItem.buildSku(cart, sku))
-
       _     ← * <~ OrderTotaler.saveTotals(cart)
     } yield (sku, items)).runT().futureValue.rightVal
   }

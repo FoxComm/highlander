@@ -774,7 +774,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = (for {
       sku         ← * <~ Skus.create(Factories.skus.head.copy(price = 100))
-      lineItemSku ← * <~ OrderLineItemSkus.create(OrderLineItemSku(skuId = sku.id, orderId = order.id))
+      lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(sku.id).toXor
       lineItem    ← * <~ OrderLineItems.create(OrderLineItem(orderId = order.id, originId = lineItemSku.id,
         originType = OrderLineItem.SkuItem))
 

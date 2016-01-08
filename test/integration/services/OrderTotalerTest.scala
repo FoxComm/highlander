@@ -71,7 +71,6 @@ class OrderTotalerTest extends IntegrationTestBase {
   trait SkuLineItemsFixture extends Fixture {
     val sku = (for {
       sku ← * <~ Skus.create(Factories.skus.head)
-      _   ← * <~ OrderLineItemSkus.create(OrderLineItemSku(skuId = sku.id, orderId = order.id))
       _   ← * <~ OrderLineItems.create(OrderLineItem.buildSku(order, sku))
     } yield sku).runT().futureValue.rightVal
   }
