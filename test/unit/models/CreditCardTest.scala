@@ -17,7 +17,7 @@ class CreditCardTest extends TestBase {
   "CreditCard" - {
     "validateNew" - {
       "disallows cards with expired dates" in {
-        val expiredCard = card.copy(expMonth = today.minusMonths(1).getMonthValue, expYear = today.getYear)
+        val expiredCard = card.copy(expMonth = today.getMonthValue, expYear = today.minusYears(1).getYear)
 
         val cards = Table(
           ("card", "errors"),
