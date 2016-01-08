@@ -71,7 +71,7 @@ object AvroTransformers {
 
   final case class GiftCard()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping =
-      "skus" as (
+      "gift_cards" as (
         "id"                   typed IntegerType,
         "originId"             typed IntegerType,
         "originType"           typed StringType index "not_analyzed",
