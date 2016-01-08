@@ -11,6 +11,10 @@ final case class AssignedToOrder(admin: StoreAdminResponse.Root, order: FullOrde
   assignees: Seq[StoreAdminResponse.Root])
   extends ActivityBase[AssignedToOrder]
 
+final case class UnassignedFromOrder(admin: StoreAdminResponse.Root, order: FullOrder.Root,
+  assignee: StoreAdminResponse.Root)
+  extends ActivityBase[UnassignedFromOrder]
+
 final case class BulkAssignedToOrders(admin: StoreAdminResponse.Root, assignee: StoreAdminResponse.Root,
   orders: Seq[String])
   extends ActivityBase[BulkAssignedToOrders]
@@ -24,6 +28,10 @@ final case class BulkUnassignedFromOrders(admin: StoreAdminResponse.Root, assign
 final case class AddedWatchersToOrder(admin: StoreAdminResponse.Root, order: FullOrder.Root,
   watchers: Seq[StoreAdminResponse.Root])
   extends ActivityBase[AddedWatchersToOrder]
+
+final case class RemovedWatcherFromOrder(admin: StoreAdminResponse.Root, order: FullOrder.Root,
+  watcher: StoreAdminResponse.Root)
+  extends ActivityBase[RemovedWatcherFromOrder]
 
 final case class BulkAddedWatcherToOrders(admin: StoreAdminResponse.Root, watcher: StoreAdminResponse.Root,
   orders: Seq[String])

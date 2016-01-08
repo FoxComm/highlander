@@ -23,6 +23,11 @@ object LogActivity {
     Activities.log(AssignedToOrder(buildAdmin(admin), order, assignees))
   }
 
+  def unassignedFromOrder(admin: StoreAdmin, order: FullOrder.Root, assignee: StoreAdmin)
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(UnassignedFromOrder(buildAdmin(admin), order, buildAdmin(assignee)))
+  }
+
   def bulkAssignedToOrders(admin: StoreAdmin, assignee: Option[StoreAdmin], assigneeId: Int, orders: Seq[String])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = assignee match {
     case Some(a) ⇒
@@ -43,6 +48,11 @@ object LogActivity {
   def addedWatchersToOrder(admin: StoreAdmin, order: FullOrder.Root, watchers: Seq[StoreAdminResponse.Root])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
     Activities.log(AddedWatchersToOrder(buildAdmin(admin), order, watchers))
+  }
+
+  def removedWatcherFromOrder(admin: StoreAdmin, order: FullOrder.Root, watcher: StoreAdmin)
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(RemovedWatcherFromOrder(buildAdmin(admin), order, buildAdmin(watcher)))
   }
 
   def bulkAddedWatcherToOrders(admin: StoreAdmin, assignee: Option[StoreAdmin], watcherId: Int, orders: Seq[String])

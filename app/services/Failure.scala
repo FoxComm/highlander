@@ -150,6 +150,18 @@ final case class StoreCreditConvertFailure(sc: StoreCredit) extends Failure {
   override def description = List(s"cannot convert a store credit with status '${sc.status}'")
 }
 
+final case class OrderAssigneeNotFound(refNum: String, assigneeId: Int) extends Failure {
+  override def description = List(s"storeAdmin with id=$assigneeId is not assigned to order with refNum=$refNum")
+}
+
+final case class OrderWatcherNotFound(refNum: String, assigneeId: Int) extends Failure {
+  override def description = List(s"storeAdmin with id=$assigneeId is not watching order with refNum=$refNum")
+}
+
+final case class RmaAssigneeNotFound(refNum: String, assigneeId: Int) extends Failure {
+  override def description = List(s"storeAdmin with id=$assigneeId is not assigned to RMA with refNum=$refNum")
+}
+
 object OrderPaymentNotFoundFailure {
   def apply[M](m: M): NotFoundFailure400 = NotFoundFailure400(s"${friendlyClassName(m)} payment not found")
 }

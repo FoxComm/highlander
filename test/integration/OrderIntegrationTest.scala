@@ -6,16 +6,17 @@ import akka.pattern.ask
 import akka.testkit.TestActorRef
 import models.Order._
 import models.rules.QueryStatement
-import models.{Address, Addresses, CreditCardCharge, CreditCardCharges, CreditCards, Customers, Order, OrderAssignments,
-OrderLineItem, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, OrderLockEvent, OrderLockEvents, OrderPayments,
-OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, Regions, Shipment, Shipments,
-ShippingMethods, Skus, StoreAdmin, StoreAdmins, OrderWatchers, OrderWatcher}
+import models.{OrderAssignment, Address, Addresses, CreditCardCharge, CreditCardCharges, CreditCards, Customers,
+Order, OrderAssignments, OrderLineItem, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, OrderLockEvent,
+OrderLockEvents, OrderPayments, OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, Regions,
+Shipment, Shipments, ShippingMethods, Skus, StoreAdmin, StoreAdmins, OrderWatcher, OrderWatchers}
 import org.json4s.jackson.JsonMethods._
 import payloads.{Assignment, Watchers, UpdateLineItemsPayload, UpdateOrderPayload}
 import responses.{FullOrder, StoreAdminResponse}
 import services.CartFailures._
 import services.orders.OrderTotaler
-import services.{LockedFailure, NotFoundFailure404, NotLockedFailure, StatusTransitionNotAllowed}
+import services.{LockedFailure, NotFoundFailure404, NotLockedFailure, StatusTransitionNotAllowed,
+OrderAssigneeNotFound, OrderWatcherNotFound}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -366,6 +367,37 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
   }
 
+  "DELETE /v1/orders/:refNum/assignees/:assigneeId/delete" - {
+
+    "can be unassigned from order" in new AssignmentFixture {
+      val response = DELETE(s"v1/orders/${order.referenceNumber}/assignees/${storeAdmin.id}")
+      response.status must === (StatusCodes.OK)
+
+      val root = response.as[FullOrder.Root]
+      root.assignees.filter(_.assignee.id == storeAdmin.id) mustBe empty
+
+      OrderAssignments.byOrder(order).result.run().futureValue mustBe empty
+    }
+
+    "400 if assignee is not found" in new AssignmentFixture {
+      val response = DELETE(s"v1/orders/${order.referenceNumber}/assignees/${secondAdmin.id}")
+      response.status must === (StatusCodes.BadRequest)
+      response.errors must === (OrderAssigneeNotFound(order.referenceNumber, secondAdmin.id).description)
+    }
+
+    "404 if order is not found" in new AssignmentFixture {
+      val response = DELETE(s"v1/orders/NOPE/assignees/${storeAdmin.id}")
+      response.status must === (StatusCodes.NotFound)
+      response.errors must === (NotFoundFailure404(Order, "NOPE").description)
+    }
+
+    "404 if storeAdmin is not found" in new AssignmentFixture {
+      val response = DELETE(s"v1/orders/${order.referenceNumber}/assignees/555")
+      response.status must === (StatusCodes.NotFound)
+      response.errors must === (NotFoundFailure404(StoreAdmin, 555).description)
+    }
+  }
+
   "POST /v1/orders/:refNum/watchers" - {
 
     "can be added to order" in new Fixture {
@@ -427,6 +459,37 @@ class OrderIntegrationTest extends IntegrationTestBase
       POST(s"v1/orders/${order.referenceNumber}/watchers", Watchers(Seq(storeAdmin.id)))
 
       OrderWatchers.byOrder(order).result.run().futureValue.size mustBe 1
+    }
+  }
+
+  "DELETE /v1/orders/:refNum/watchers/:watcherId/delete" - {
+
+    "can be removed from order watchers" in new WatcherFixture {
+      val response = DELETE(s"v1/orders/${order.referenceNumber}/watchers/${storeAdmin.id}")
+      response.status must === (StatusCodes.OK)
+
+      val root = response.as[FullOrder.Root]
+      root.assignees.filter(_.assignee.id == storeAdmin.id) mustBe empty
+
+      OrderWatchers.byOrder(order).result.run().futureValue mustBe empty
+    }
+
+    "400 if watcher is not found" in new WatcherFixture {
+      val response = DELETE(s"v1/orders/${order.referenceNumber}/watchers/${secondAdmin.id}")
+      response.status must === (StatusCodes.BadRequest)
+      response.errors must === (OrderWatcherNotFound(order.referenceNumber, secondAdmin.id).description)
+    }
+
+    "404 if order is not found" in new WatcherFixture {
+      val response = DELETE(s"v1/orders/NOPE/watchers/${storeAdmin.id}")
+      response.status must === (StatusCodes.NotFound)
+      response.errors must === (NotFoundFailure404(Order, "NOPE").description)
+    }
+
+    "404 if storeAdmin is not found" in new WatcherFixture {
+      val response = DELETE(s"v1/orders/${order.referenceNumber}/watchers/555")
+      response.status must === (StatusCodes.NotFound)
+      response.errors must === (NotFoundFailure404(StoreAdmin, 555).description)
     }
   }
 
@@ -734,6 +797,20 @@ class OrderIntegrationTest extends IntegrationTestBase
       order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, status = Order.Cart))
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
     } yield (order, storeAdmin, customer)).runT().futureValue.rightVal
+  }
+
+  trait AssignmentFixture extends Fixture {
+    val (assignee, secondAdmin) = (for {
+      assignee    ← * <~ OrderAssignments.create(OrderAssignment(orderId = order.id, assigneeId = storeAdmin.id))
+      secondAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
+    } yield (assignee, secondAdmin)).runT().futureValue.rightVal
+  }
+
+  trait WatcherFixture extends Fixture {
+    val (watcher, secondAdmin) = (for {
+      watcher     ← * <~ OrderWatchers.create(OrderWatcher(orderId = order.id, watcherId = storeAdmin.id))
+      secondAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
+    } yield (watcher, secondAdmin)).runT().futureValue.rightVal
   }
 
   trait AddressFixture extends Fixture {
