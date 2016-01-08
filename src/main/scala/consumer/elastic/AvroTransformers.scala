@@ -17,6 +17,7 @@ abstract class AvroTransformer(implicit ec: ExecutionContext) extends JsonTransf
 }
 
 object AvroTransformers {
+  val dateFormat = "yyyy-MM-dd HH:mm:ss"
 
   def address(name: String) =
     name nested (
@@ -46,10 +47,68 @@ object AvroTransformers {
   final case class Region()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping =
       "regions" as (
-        "id"        typed IntegerType,
-        "name"      typed StringType analyzer "autocomplete",
-        "continent" typed StringType index "not_analyzed",
-        "currency"  typed StringType index "not_analyzed"
+        "id"           typed IntegerType,
+        "name"         typed StringType analyzer "autocomplete",
+        "countryId"   typed IntegerType index "not_analyzed",
+        "abbreviation" typed StringType index "not_analyzed"
+      )
+
+    def fields = List.empty
+  }
+
+  final case class Sku()(implicit ec: ExecutionContext) extends AvroTransformer {
+    def mapping =
+      "skus" as (
+        "id"            typed IntegerType,
+        "sku"           typed StringType analyzer "autocomplete",
+        "name"          typed StringType analyzer "autocomplete",
+        "is_hazardous"  typed BooleanType,
+        "price"         typed IntegerType
+      )
+
+    def fields = List.empty
+  }
+
+  final case class GiftCard()(implicit ec: ExecutionContext) extends AvroTransformer {
+    def mapping =
+      "gift_cards" as (
+        "id"                   typed IntegerType,
+        "originId"             typed IntegerType,
+        "originType"           typed StringType index "not_analyzed",
+        "subtypeId"            typed IntegerType,
+        "codeGenericString"    typed StringType analyzer "autocomplete",
+        "status"               typed StringType index "not_analyzed",
+        "currency"             typed StringType,
+        "originalBalance"      typed IntegerType,
+        "currentBalance"       typed IntegerType,
+        "availableBalance"     typed IntegerType,
+        "reloadable"           typed BooleanType,
+        "canceledAmount"       typed IntegerType,
+        "canceledReason"       typed IntegerType,
+        "createdAt"            typed DateType format dateFormat,
+        "updatedAt"            typed DateType format dateFormat
+      )
+
+    def fields = List.empty
+  }
+
+  final case class StoreCredit()(implicit ec: ExecutionContext) extends AvroTransformer {
+    def mapping =
+      "store_credits" as (
+        "id"                   typed IntegerType,
+        "customerId"           typed IntegerType,
+        "originId"             typed IntegerType,
+        "originType"           typed StringType index "not_analyzed",
+        "subtypeId"            typed IntegerType,
+        "status"               typed StringType index "not_analyzed",
+        "currency"             typed StringType index "not_analyzed",
+        "originalBalance"      typed IntegerType,
+        "currentBalance"       typed IntegerType,
+        "availableBalance"     typed IntegerType,
+        "canceledAmount"       typed IntegerType,
+        "canceledReason"       typed IntegerType,
+        "createdAt"            typed DateType format dateFormat,
+        "updatedAt"            typed DateType format dateFormat
       )
 
     def fields = List.empty
@@ -65,7 +124,7 @@ object AvroTransformers {
         "isDisabled"              typed BooleanType,
         "isGuest"                 typed BooleanType,
         "isBlacklisted"           typed BooleanType,
-        "joinedAt"                typed DateType format "yyyy-MM-dd HH:mm:ss",
+        "joinedAt"                typed DateType format dateFormat,
         "revenue"                 typed IntegerType,
         "rank"                    typed IntegerType,
         // Orders
@@ -73,8 +132,8 @@ object AvroTransformers {
         "orders" nested(
           "referenceNumber"       typed StringType analyzer "autocomplete",
           "status"                typed StringType index "not_analyzed",
-          "createdAt"             typed DateType format "yyyy-MM-dd HH:mm:ss",
-          "placedAt"              typed DateType format "yyyy-MM-dd HH:mm:ss",
+          "createdAt"             typed DateType format dateFormat,
+          "placedAt"              typed DateType format dateFormat,
           "subTotal"              typed IntegerType,
           "shippingTotal"         typed IntegerType,
           "adjustmentsTotal"      typed IntegerType,
@@ -115,8 +174,8 @@ object AvroTransformers {
         "id"                      typed IntegerType,
         "referenceNumber"         typed StringType analyzer "autocomplete",
         "status"                  typed StringType index "not_analyzed",
-        "createdAt"               typed DateType format "yyyy-MM-dd HH:mm:ss",
-        "placedAt"                typed DateType format "yyyy-MM-dd HH:mm:ss",
+        "createdAt"               typed DateType format dateFormat,
+        "placedAt"                typed DateType format dateFormat,
         "currency"                typed StringType index "not_analyzed",
         // Totals
         "subTotal"                typed IntegerType,
@@ -129,7 +188,7 @@ object AvroTransformers {
           "name"                  typed StringType analyzer "autocomplete",
           "email"                 typed StringType analyzer "autocomplete",
           "isBlacklisted"         typed BooleanType,
-          "joinedAt"              typed DateType format "yyyy-MM-dd HH:mm:ss",
+          "joinedAt"              typed DateType format dateFormat,
           "revenue"               typed IntegerType,
           "rank"                  typed IntegerType
         ),
@@ -171,7 +230,7 @@ object AvroTransformers {
         "assignees" nested (
           "firstName"             typed StringType analyzer "autocomplete",
           "lastName"              typed StringType analyzer "autocomplete",
-          "assignedAt"            typed DateType format "yyyy-MM-dd HH:mm:ss"
+          "assignedAt"            typed DateType format dateFormat
         ),
         // RMAs
         "rmaCount"                typed IntegerType,
@@ -179,7 +238,7 @@ object AvroTransformers {
           "referenceNumber"       typed StringType analyzer "autocomplete",
           "status"                typed StringType index "not_analyzed",
           "rmaType"               typed StringType index "not_analyzed",
-          "placedAt"              typed DateType format "yyyy-MM-dd HH:mm:ss"
+          "placedAt"              typed DateType format dateFormat
         )
       )
     }
@@ -197,12 +256,12 @@ object AvroTransformers {
         "email"             typed StringType analyzer "autocomplete",
         "name"              typed StringType analyzer "autocomplete",
         "department"        typed StringType analyzer "autocomplete",
-        "createdAt"         typed DateType format "yyyy-MM-dd HH:mm:ss",
+        "createdAt"         typed DateType format dateFormat,
         // Assignments
         "assignmentsCount"  typed IntegerType,
         "assignments" nested (
           "referenceNumber" typed StringType analyzer "autocomplete",
-          "assignedAt"      typed DateType format "yyyy-MM-dd HH:mm:ss"
+          "assignedAt"      typed DateType format dateFormat
         )
       )
 
