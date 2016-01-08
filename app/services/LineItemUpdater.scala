@@ -151,12 +151,9 @@ object LineItemUpdater {
             val delta = newQuantity - current
 
             val queries = for {
-              relation ← OrderLineItemSkus.filter(_.skuId === sku.id).one
-              origin ← relation match {
-                case Some(o)   ⇒ DBIO.successful(o)
-                case _         ⇒ OrderLineItemSkus.saveNew(OrderLineItemSku(skuId = sku.id, orderId = order.id))
-              }
-              bulkInsert ← OrderLineItems ++= (1 to delta).map { _ ⇒ OrderLineItem(0, order.id, origin.id) }.toSeq
+              // we can safeGet here since we generate these records upon creation of the `skus` record via trigger
+              origin      ← OrderLineItemSkus.filter(_.skuId === sku.id).one.safeGet
+              bulkInsert  ← OrderLineItems ++= (1 to delta).map { _ ⇒ OrderLineItem(0, order.id, origin.id) }.toSeq
             } yield ()
 
             DbResult.fromDbio(queries)
@@ -166,11 +163,6 @@ object LineItemUpdater {
               deleteLi ← OrderLineItems.filter(_.id in OrderLineItems.filter(_.orderId === order.id).skuItems
                 .join(OrderLineItemSkus).on(_.originId === _.id).filter(_._2.skuId === sku.id).sortBy(_._1.id.asc)
                 .take(current - newQuantity).map(_._1.id)).delete
-
-              deleteRel ← newQuantity == 0 match {
-                case true   ⇒ OrderLineItemSkus.filter(_.skuId === sku.id).filter(_.orderId === order.id).delete
-                case false  ⇒ DBIO.successful({})
-              }
             } yield ()
 
             DbResult.fromDbio(queries)

@@ -1,8 +1,8 @@
+-- child table inheriting PK from concrete supertable order_line_item_origins
+-- this provides a mapping to orders <--> skus as polymorphic line items
 create table order_line_item_skus (
     id integer primary key,
-    order_id integer not null references orders(id) on update restrict on delete restrict,
     sku_id integer not null references skus(id) on update restrict on delete restrict,
-    created_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (id) references order_line_item_origins(id) on update restrict on delete restrict
 );
 

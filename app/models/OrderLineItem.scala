@@ -84,6 +84,7 @@ class OrderLineItems(tag: Tag) extends GenericTable.TableWithId[OrderLineItem](t
   def status = column[OrderLineItem.Status]("status")
   def * = (id, orderId, originId, originType, status) <> ((OrderLineItem.apply _).tupled, OrderLineItem.unapply)
 
+  def skuLineItems = foreignKey(OrderLineItemSkus.tableName, originId, OrderLineItemSkus)(_.id)
 }
 
 object OrderLineItems extends TableQueryWithId[OrderLineItem, OrderLineItems](
