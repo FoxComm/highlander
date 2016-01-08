@@ -16,7 +16,7 @@ export default class Header extends React.Component {
     const name = currentUser.name.split(' ')[0];
     return (
       <header role='banner' className="fc-header">
-        <Breadcrumb />
+        <Breadcrumb routes={this.props.routes} params={this.props.params}/>
         <div className="sub-nav">
           <NotificationBlock />
           <div className="fc-header__initials"><Initials {...currentUser} /></div>

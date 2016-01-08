@@ -2,7 +2,6 @@
 // libs
 import _ from 'lodash';
 import React, {PropTypes} from 'react';
-import { Router } from 'react-router';
 import { inflect } from 'fleck';
 import { assoc } from 'sprout-data';
 
@@ -13,7 +12,8 @@ export default class Breadcrumb extends React.Component {
 
   static contextTypes = {
     location: PropTypes.object.isRequired,
-    history: PropTypes.object.isRequired
+    history: PropTypes.object.isRequired,
+    router: PropTypes.object.isRequired
   };
 
   constructor(props, context) {
@@ -22,25 +22,16 @@ export default class Breadcrumb extends React.Component {
     console.log(context);
   }
 
-  // static contextTypes = {
-  //   location: PropTypes.object.isRequired,
-  //   routes: PropTypes.array.isRequired,
-  //   params: PropTypes.array.isRequired,
-  //   router: PropTypes.func.isRequired
-  // };
-
   render() {
     const pathname = this.context.location.pathname.replace(/^\/|\/$/gm, '');
 
-    console.log(this.context.location);
-    console.log(this.context.routes);
-    console.log(this.context.params);
-    console.log(this.context.router);
-    if (this.context.router) {
-      console.log(this.context.router.getCurrentPath());
-      console.log(this.context.router.getCurrentParams());
-    }
     console.log(pathname);
+    console.log(this.props.routes);
+    console.log(this.props.params);
+
+    const fromRoutes = this.props.routes.map((route) => {
+      return <Link to={route.name} params={this.props.params}>{route.name}&nbsp;</Link>;
+    });
 
     const pathParts = pathname.split('/');
     // const items = pathParts.map((item, index) => {
@@ -77,6 +68,6 @@ export default class Breadcrumb extends React.Component {
       return acc;
     }, acc);
 
-    return <div className="breadcrumb">{pathNames.routes}</div>;
+    return <div className="breadcrumb">{fromRoutes}</div>;
   }
 }
