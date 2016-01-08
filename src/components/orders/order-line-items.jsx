@@ -6,6 +6,7 @@ import TableView from '../table/tableview';
 import EditableContentBox from '../content-box/editable-content-box';
 import Typeahead from '../typeahead/typeahead';
 import SkuResult from './sku-result';
+import PanelHeader from './panel-header';
 
 const viewModeColumns = [
   {field: 'imagePath', text: 'Image', type: 'image'},
@@ -27,34 +28,35 @@ const editModeColumns = [
 ];
 
 const OrderLineItems = props => {
+  const title = <PanelHeader isCart={props.isCart} status={props.status} text="Items" />;
+  const viewContent = (
+    <TableView columns={viewModeColumns} data={{rows: props.order.lineItems.items}} />
+  );
+
   return (
     <EditableContentBox
       className='fc-line-items'
-      title='Items'
+      title={title}
       isEditing={props.order.lineItems.isEditing}
       editAction={props.orderLineItemsStartEdit}
       doneAction={props.orderLineItemsCancelEdit}
       editContent={<RenderEditContent {...props} />}
       editFooter={<RenderEditFooter {...props} />}
-      viewContent={renderViewContent(props)} />
+      viewContent={viewContent} />
   );
 };
 
 OrderLineItems.propTypes = {
+  isCart: PropTypes.bool,
   order: PropTypes.object,
   orderLineItemsStartEdit: PropTypes.func,
-  orderLineItemsCancelEdit: PropTypes.func
+  orderLineItemsCancelEdit: PropTypes.func,
+  status: PropTypes.string
 };
 
-const renderViewContent = props => {
-  return <TableView columns={viewModeColumns} data={{rows: props.order.lineItems.items}}/>;
-};
-
-renderViewContent.propTypes = {
-  order: PropTypes.shape({
-    currentOrder: PropTypes.object,
-    lineItems: PropTypes.array
-  })
+OrderLineItems.defaultProps = {
+  isCart: false,
+  status: ''
 };
 
 class RenderEditContent extends React.Component {

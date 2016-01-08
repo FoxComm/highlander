@@ -104,6 +104,14 @@ const initialState = {
     skuToUpdate: null,
     skuToDelete: null,
     items: []
+  },
+  validations: {
+    errors: [],
+    warnings: [],
+    itemsStatus: 'success',
+    shippingAddressStatus: 'warning',
+    shippingMethodStatus: 'error',
+    paymentMethodStatus: 'success'
   }
 };
 

@@ -14,15 +14,25 @@ const OrderDetails = props => {
     return <div className="fc-order-details"></div>;
   } else {
     const order = props.order.currentOrder;
+    const isCart = _.isEqual(order.orderStatus, 'cart');
+
+    const {
+      errors,
+      warnings,
+      itemsStatus,
+      shippingAddressStatus,
+      shippingMethodStatus,
+      paymentMethodStatus
+    } = props.order.validations;
 
     return (
       <div className="fc-order-details">
         <div className="fc-order-details-body">
           <div className="fc-order-details-main">
-            <OrderLineItems {...props} />
-            <OrderShippingAddress order={order} />
-            <OrderShippingMethod {...props} />
-            <Payments {...props} />
+            <OrderLineItems isCart={isCart} status={itemsStatus} {...props} />
+            <OrderShippingAddress isCart={isCart} status={shippingAddressStatus} order={order} />
+            <OrderShippingMethod isCart={isCart} status={shippingMethodStatus} {...props} />
+            <Payments isCart={isCart} status={paymentMethodStatus} {...props} />
           </div>
           <div className="fc-order-details-aside">
             <TotalsSummary entity={order} title={order.title} />
@@ -37,7 +47,8 @@ const OrderDetails = props => {
 
 OrderDetails.propTypes = {
   order: PropTypes.shape({
-    currentOrder: PropTypes.object
+    currentOrder: PropTypes.object,
+    validations: PropTypes.object
   })
 };
 
