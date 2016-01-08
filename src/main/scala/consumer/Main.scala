@@ -143,6 +143,9 @@ object Main {
         "customers_search_view" → AvroTransformers.CustomersSearchView(),
         "orders_search_view" → AvroTransformers.OrdersSearchView(),
         "store_admins_search_view" → AvroTransformers.StoreAdminsSearchView(),
+        "skus" → AvroTransformers.Sku(),
+        "gift_cards" → AvroTransformers.GiftCard(),
+        "store_credits" → AvroTransformers.StoreCredit(),
         connectionTopic → ActivityConnectionTransformer(phoenix))
 
       // Init processors & consumer
