@@ -28,7 +28,7 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
     }
   }
 
-  def makeSkus = (1 to 1 + Random.nextInt(100)).map { i ⇒  generateSku }
+  def makeSkus = (1 to 10 + Random.nextInt(20)).map { i ⇒  generateSku }
 
   def randomSubset[T](vals: Seq[T]) : Seq[T] = {
     require(vals.length > 0)
