@@ -50,7 +50,7 @@ class PaymentPayloadsTest extends TestBase {
       }
 
       "fails with expired date" in {
-        val expired = valid.copy(expMonth = today.minusMonths(1).getMonthValue.some, expYear = today.getYear.some)
+        val expired = valid.copy(expMonth = today.getMonthValue.some, expYear = today.minusYears(1).getYear.some)
 
         val cards = Table(
           ("payload", "errors"),
