@@ -6,7 +6,7 @@ import { inflect } from 'fleck';
 import { assoc } from 'sprout-data';
 
 // components
-import { Link } from '../link/index';
+import { Link, IndexLink } from '../link/index';
 
 export default class Breadcrumb extends React.Component {
 
@@ -30,7 +30,19 @@ export default class Breadcrumb extends React.Component {
     console.log(this.props.params);
 
     const fromRoutes = this.props.routes.map((route) => {
-      return <Link to={route.name} params={this.props.params}>{route.name}&nbsp;</Link>;
+      if (_.isEmpty(route.path)) {
+        return null;
+      }
+
+      if (route.path === "/" && _.isEmpty(route.name)) {
+        return <Link to="home" params={this.props.params}>Home &nbsp;</Link>;
+      }
+
+      if (_.isEmpty(route.indexRoute)) {
+        return <Link to={route.name} params={this.props.params}>{route.name}&nbsp;</Link>;
+      } else {
+        return <IndexLink to={route.indexRoute.name} params={this.props.params}>{route.name}&nbsp;</IndexLink>;
+      }
     });
 
     const pathParts = pathname.split('/');
