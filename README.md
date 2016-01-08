@@ -8,7 +8,16 @@
 
 ### Setup
 
-`make build`
+- Checkout [phoenix-scala](https://github.com/FoxComm/phoenix-scala)
+- Checkout [green-river](https://github.com/FoxComm/green-river)
+- Checkout FoxComm fork of [bottledwater-pg](https://github.com/FoxComm/bottledwater-pg)
+
+    cd phoenix-scala
+    sbt assembly
+    cd ../green-river
+    sbt assembly
+    cd ../prov-shit
+    make build
 
 ### Lint ansible scripts
 
