@@ -11,6 +11,8 @@ import utils.DbResultT.implicits._
 import GeneratorUtils.randomString
 import scala.util.Random
 
+import scala.io.Source
+import org.conbere.markov.MarkovChain
 import faker._;
 
 trait InventoryGenerator {
@@ -18,8 +20,13 @@ trait InventoryGenerator {
   def warehouse: Warehouse = Warehouse.buildDefault()
   def warehouses: Seq[Warehouse] = Seq(warehouse)
 
+  val stop = "\u0002"
+  val start = "\u0003"
+  def nameGenerator = Source.fromURL(getClass.getResource("/product_titles.txt")).getLines
+    .map{_.grouped(2)} //group characters in line into sets of 2
+    .foldLeft(new MarkovChain[String](start, stop))((acc, wordChunks) => acc.insert(wordChunks.map{_.toLowerCase}.toList))
+
   def generateInventorySummary(skuId: Int) = {
-    Console.err.println(s"making inv sum ${skuId}")
     InventorySummary.buildNew(warehouse.id, skuId = skuId, onHand = Random.nextInt(100))
   }
 
@@ -29,14 +36,20 @@ trait InventoryGenerator {
   def generateSku: Sku = {
     val base = new Base{}
     //TODO: Use a markov chain created from product descriptions to generate hilarious product names.
-    Sku(
+    val sk = Sku(
       sku = base.letterify("???-???"), 
-      name = Some(Lorem.sentence(2)), 
+      name = Some(nameGenerator.generate(Random.nextInt(20)).mkString("")), 
       price = Random.nextInt(10000))
+    Console.err.println(s"sku: ${sk.name}")
+    sk
+
   }
 
-  def generateInventory(skus: Seq[Sku])  = for {
+  def generateWarehouses = for {
     _ ← * <~ Warehouses.createAll(warehouses)
+  } yield {}
+
+  def generateInventory(skus: Seq[Sku])  = for {
     skuIds ← * <~ Skus.createAllReturningIds(skus)
     _ ← * <~ InventorySummaries.createAll(generateInventorySummaries(skuIds))
   } yield skuIds

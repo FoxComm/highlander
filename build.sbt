@@ -130,6 +130,7 @@ lazy val phoenixScala = (project in file(".")).
         "com.github.julien-truffaut" %% "monocle-macro"       % monocleV,
         "it.justwrote" %% "scala-faker" % "0.3",
         // Testing
+        "org.conbere"          % "markov_2.10"              % "0.2.0",
         "com.typesafe.akka"    %% "akka-testkit"              % akkaV      % "test",
         "org.scalatest"        %% "scalatest"                 % scalaTestV % "test",
         "org.scalacheck"       %% "scalacheck"                % "1.12.5"   % "test", 
