@@ -62,7 +62,7 @@ object OrderRoutes {
             entity(as[BulkAssignment]) { payload ⇒
               activityContext(admin) { implicit ac ⇒
                 goodOrFailures {
-                  OrderAssignmentUpdater.unassign(admin, payload)
+                  OrderAssignmentUpdater.unassignBulk(admin, payload)
                 }
               }
             }
@@ -82,7 +82,7 @@ object OrderRoutes {
             entity(as[BulkWatchers]) { payload ⇒
               activityContext(admin) { implicit ac ⇒
                 goodOrFailures {
-                  OrderWatcherUpdater.unwatch(admin, payload)
+                  OrderWatcherUpdater.unwatchBulk(admin, payload)
                 }
               }
             }
@@ -205,6 +205,13 @@ object OrderRoutes {
                 OrderAssignmentUpdater.assign(admin, refNum, payload.assignees)
               }
             }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                OrderAssignmentUpdater.unassign(admin, refNum, assigneeId)
+              }
+            }
           }
         } ~
         pathPrefix("watchers") {
@@ -212,6 +219,13 @@ object OrderRoutes {
             activityContext(admin) { implicit ac ⇒
               goodOrFailures {
                 OrderWatcherUpdater.watch(admin, refNum, payload.watchers)
+              }
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                OrderWatcherUpdater.unassign(admin, refNum, assigneeId)
               }
             }
           }

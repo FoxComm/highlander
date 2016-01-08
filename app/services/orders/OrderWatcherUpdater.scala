@@ -3,7 +3,7 @@ package services.orders
 import models.{Order, OrderWatcher, OrderWatchers, Orders, StoreAdmin, StoreAdmins}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import responses.{FullOrder, ResponseWithFailuresAndMetadata, TheResponse}
-import services.{LogActivity, Failure, Failurez, NotFoundFailure404, Result}
+import services.{LogActivity, Failure, Failurez, NotFoundFailure404, OrderWatcherNotFound, Result}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
@@ -31,6 +31,17 @@ object OrderWatcherUpdater {
     _               ← * <~ LogActivity.addedWatchersToOrder(admin, fullOrder, assignedAdmins)
   } yield TheResponse.build(fullOrder, warnings = warnings)).runT()
 
+  def unassign(admin: StoreAdmin, refNum: String, assigneeId: Int)
+    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[FullOrder.Root] = (for {
+
+    order           ← * <~ Orders.mustFindByRefNum(refNum)
+    watcher         ← * <~ StoreAdmins.mustFindById(assigneeId)
+    assignment      ← * <~ OrderWatchers.byWatcher(watcher).one.mustFindOr(OrderWatcherNotFound(refNum, assigneeId))
+    _               ← * <~ OrderWatchers.byWatcher(watcher).delete
+    fullOrder       ← * <~ FullOrder.fromOrder(order).toXor
+    _               ← * <~ LogActivity.removedWatcherFromOrder(admin, fullOrder, watcher)
+  } yield fullOrder).runT()
+
   def watchBulk(admin: StoreAdmin, payload: payloads.BulkWatchers)
     (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = {
 
@@ -52,7 +63,7 @@ object OrderWatcherUpdater {
     query.transactionally.run()
   }
 
-  def unwatch(admin: StoreAdmin, payload: payloads.BulkWatchers)
+  def unwatchBulk(admin: StoreAdmin, payload: payloads.BulkWatchers)
     (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = {
 
     // TODO: transfer sorting-paging metadata
