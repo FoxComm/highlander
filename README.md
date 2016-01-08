@@ -12,35 +12,35 @@
 - Checkout [green-river](https://github.com/FoxComm/green-river)
 - Checkout FoxComm fork of [bottledwater-pg](https://github.com/FoxComm/bottledwater-pg)
 
-    cd phoenix-scala
-    sbt assembly
-    cd ../green-river
-    sbt assembly
-    cd ../prov-shit
-    make build
+    $ cd phoenix-scala
+    $ sbt assembly
+    $ cd ../green-river
+    $ sbt assembly
+    $ cd ../prov-shit
+    $ make build
 
 ### Lint ansible scripts
 
-`make lint`
+    $ make lint
 
 ### Vagrant
 
 #### If you want to run an appliance with the backend and ashes all on one machine.
 
-    `$ vagrant up`
+    $ vagrant up
 
 This will bring up a machine on ip 192.168.10.111 with everything installed.
 
 #### If you want to run just the backend
 
-    `$ vagrant up backend`
+    $ vagrant up backend
 
 This will bring up a machine on 192.168.10.111 with just the db, phoenix and green river installed.
 
 
 #### If you  want to run just ashes
 
-    `$ vagrant up ashes`
+    $ vagrant up ashes
 
 This will bring up a machine on 192.168.10.112 with ashes installed. 
 By default it looks for the backed at '192.168.10.111'. If you want to 
@@ -52,7 +52,7 @@ export BACKEND_HOST=10.240.0.8
 
 Add the following vagrant box.
 
-    `$ vagrant box add gce https://github.com/mitchellh/vagrant-google/raw/master/google.box`
+    $ vagrant box add gce https://github.com/mitchellh/vagrant-google/raw/master/google.box
 
 Set the following environment variables.
 
@@ -64,5 +64,5 @@ Set the following environment variables.
 
 Then run
 
-    `$ vagrant up --provider=google`
+    $ vagrant up --provider=google
 
