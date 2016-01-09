@@ -2,7 +2,8 @@ import React, { PropTypes } from 'react';
 
 const PanelHeader = props => {
 	const { isCart, status, text } = props;
-	const icon = isCart ? <i className={`icon-${status}`} /> : null;
+  const icon = isCart 
+    ? <div className={`fc-orders-panel-header__icon _${status}`}><i className={`icon-${status}`} /></div> : null;
 
 	return (
 		<div className="fc-orders-panel-header">
