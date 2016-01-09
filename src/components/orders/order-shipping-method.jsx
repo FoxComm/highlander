@@ -4,7 +4,7 @@ import ShippingMethod from '../shipping/shipping-method';
 
 const OrderShippingMethod = props => {
   const shippingMethod = props.order.currentOrder.shippingMethod;
-  const title = <PanelHeader isCart={props.isCart} status={props.status} text="Items" />;
+  const title = <PanelHeader isCart={props.isCart} status={props.status} text="Shipping Method" />;
 
   return (
     <ShippingMethod

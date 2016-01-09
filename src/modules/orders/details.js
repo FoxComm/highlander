@@ -94,6 +94,27 @@ function collectLineItems(skus) {
   return items;
 }
 
+function parseMessages(messages, state) {
+  return _.reduce(messages, (results, message) => {
+    if (message.indexOf('items') != -1) {
+      return { ...results, itemsStatus: state };
+    } else if (message.indexOf('empty cart') != -1) {
+      return { ...results, itemsStatus: state };
+    } else if (message.indexOf('shipping address') != -1) {
+      return { ...results, shippingAddressStatus: state };
+    } else if (message.indexOf('shipping method') != -1) {
+      return { ...results, shippingMethodStatus: state };
+    } else if (message.indexOf('payment method') != -1) {
+      return { ...results, paymentMethodStatus: state };
+    } else if (message.indexOf('insufficient funds') != -1) {
+      return { ...results, paymentMethodStatus: state };
+    }
+
+    return results;
+  }, {});
+}
+
+
 const initialState = {
   isFetching: false,
   currentOrder: {},
@@ -109,8 +130,8 @@ const initialState = {
     errors: [],
     warnings: [],
     itemsStatus: 'success',
-    shippingAddressStatus: 'warning',
-    shippingMethodStatus: 'error',
+    shippingAddressStatus: 'success',
+    shippingMethodStatus: 'success',
     paymentMethodStatus: 'success'
   }
 };
@@ -126,6 +147,22 @@ const reducer = createReducer({
     const order = _.get(payload, 'result', payload);
     const skus = _.get(order, 'lineItems.skus', []);
     const itemList = collectLineItems(skus);
+    const errors = _.get(payload, 'errors', []);
+    const warnings = _.get(payload, 'warnings', []);
+    
+    // Initial state (assume in good standing)
+    const status = {
+      itemsStatus: 'success',
+      shippingAddressStatus: 'success',
+      shippingMethodStatus: 'success',
+      paymentMethodStatus: 'success',
+
+      // Find warnings
+      ...parseMessages(warnings, 'warning'),
+
+      // Find errors
+      ...parseMessages(errors, 'error')
+    };
 
     return {
       ...state,
@@ -134,6 +171,11 @@ const reducer = createReducer({
       lineItems: {
         ...state.lineItems,
         items: itemList
+      },
+      validations: {
+        errors: errors,
+        warnings: warnings,
+        ...status
       }
     };
   },
