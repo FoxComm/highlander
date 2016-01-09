@@ -15,7 +15,7 @@ const formatMessage = message => {
   }
 
   return message;
-}
+};
 
 const Messages = props => {
   const { errors, warnings } = props;
@@ -39,7 +39,7 @@ const Messages = props => {
 Messages.propTypes = {
   errors: PropTypes.array,
   warnings: PropTypes.array
-}
+};
 
 Messages.defaultProps = {
   errors: [],
