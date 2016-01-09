@@ -68,9 +68,51 @@ import consumer.utils.PhoenixConnectionInfo
                    ``-  :..........-``````````````````..``````````````..`````````````.``````````````
 **/
 
-object Main {
+final case class MainConfig(
+    activityTopic          : String,          
+    avroSchemaRegistryUrl  : String, 
+    connectionTopic        : String,      
+    elasticSearchCluster   : String, 
+    elasticSearchIndex     : String, 
+    elasticSearchUrl       : String, 
+    kafkaBroker            : String, 
+    kafkaGroupId           : String, 
+    kafkaTopics            : Seq[String], 
+    phoenixPass            : String, 
+    phoenixUri             : String, 
+    phoenixUser            : String, 
+    threadPoolCount        : Int,
+    startFromBeginning : Boolean)
+
+object MainConfig {
   val environmentProperty = "env"
   val defaultEnvironment  = "default"
+
+  def loadFromConfig : MainConfig = {
+
+    val conf = ConfigFactory.load()
+    val env = sys.props.getOrElse(environmentProperty, defaultEnvironment)
+    println(s"Initializing consumers in $env environment...")
+
+    MainConfig(
+      activityTopic         = conf.getString(s"$env.activity.kafka.topic"),
+      avroSchemaRegistryUrl = conf.getString(s"$env.avro.schemaRegistryUrl"),
+      connectionTopic       = conf.getString(s"$env.activity.connection.kafka.topic"),
+      elasticSearchCluster  = conf.getString(s"$env.elastic.cluster"),
+      elasticSearchIndex    = conf.getString(s"$env.elastic.index"),
+      elasticSearchUrl      = conf.getString(s"$env.elastic.host"),
+      kafkaBroker           = conf.getString(s"$env.kafka.broker"),
+      kafkaGroupId          = conf.getString(s"$env.kafka.groupId"),
+      kafkaTopics           = conf.getStringList(s"kafka.topics").toIndexedSeq.toSeq,
+      phoenixPass           = conf.getString(s"$env.activity.phoenix.pass"),
+      phoenixUri            = conf.getString(s"$env.activity.phoenix.url"),
+      phoenixUser           = conf.getString(s"$env.activity.phoenix.user"),
+      threadPoolCount       = conf.getInt(s"$env.thread.pool"),
+      startFromBeginning    = conf.getBoolean(s"$env.consume.restart"))
+  }
+}
+
+object Main {
 
   implicit val system = ActorSystem("system")
   implicit val materializer = ActorMaterializer()
@@ -84,54 +126,39 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     // Load configuration parameters & environment
-    val conf = ConfigFactory.load()
-    val env = sys.props.getOrElse(environmentProperty, defaultEnvironment)
-    println(s"Initializing consumers in $env environment...")
 
-    // Load configuration values
-    val activityTopic         = conf.getString(s"$env.activity.kafka.topic")
-    val avroSchemaRegistryUrl = conf.getString(s"$env.avro.schemaRegistryUrl")
-    val connectionTopic       = conf.getString(s"$env.activity.connection.kafka.topic")
-    val elasticSearchCluster  = conf.getString(s"$env.elastic.cluster")
-    val elasticSearchIndex    = conf.getString(s"$env.elastic.index")
-    val elasticSearchUrl      = conf.getString(s"$env.elastic.host")
-    val kafkaBroker           = conf.getString(s"$env.kafka.broker")
-    val kafkaGroupId          = conf.getString(s"$env.kafka.groupId")
-    val kafkaTopics           = conf.getStringList(s"kafka.topics").toIndexedSeq.toSeq
-    val phoenixPass           = conf.getString(s"$env.activity.phoenix.pass")
-    val phoenixUri            = conf.getString(s"$env.activity.phoenix.url")
-    val phoenixUser           = conf.getString(s"$env.activity.phoenix.user")
-    val threadPoolCount       = conf.getInt(s"$env.thread.pool")
+    val conf = MainConfig.loadFromConfig
 
-    val threadPool = java.util.concurrent.Executors.newFixedThreadPool(threadPoolCount)
+    val threadPool = java.util.concurrent.Executors.newFixedThreadPool(conf.threadPoolCount)
     implicit val ec = ExecutionContext.fromExecutor(threadPool)
 
-    Console.err.println(s"ES: ${elasticSearchUrl}")
-    Console.err.println(s"Kafka: ${kafkaBroker}")
-    Console.err.println(s"Schema Registry: ${avroSchemaRegistryUrl}")
-    Console.err.println(s"Phoenix: ${phoenixUri}")
+    Console.err.println(s"ES: ${conf.elasticSearchUrl}")
+    Console.err.println(s"Kafka: ${conf.kafkaBroker}")
+    Console.err.println(s"Schema Registry: ${conf.avroSchemaRegistryUrl}")
+    Console.err.println(s"Phoenix: ${conf.phoenixUri}")
 
     val phoenix = PhoenixConnectionInfo(
-      uri = phoenixUri,
-      user = phoenixUser,
-      pass = phoenixPass)
+      uri = conf.phoenixUri,
+      user = conf.phoenixUser,
+      pass = conf.phoenixPass)
 
     val activityWork = Future {
       val activityConnectors = Seq(CustomerConnector(), AdminConnector())
       val activityProcessor = new ActivityProcessor(phoenix, activityConnectors)
 
       val avroProcessor = new AvroProcessor(
-        schemaRegistryUrl = avroSchemaRegistryUrl,
+        schemaRegistryUrl = conf.avroSchemaRegistryUrl,
         processor = activityProcessor)
 
       val consumer = new MultiTopicConsumer(
-        topics = Seq(activityTopic),
-        broker = kafkaBroker,
-        groupId = s"${kafkaGroupId}_activity",
-        processor = avroProcessor)
+        topics = Seq(conf.activityTopic),
+        broker = conf.kafkaBroker,
+        groupId = s"${conf.kafkaGroupId}_activity",
+        processor = avroProcessor,
+        startFromBeginning = conf.startFromBeginning)
 
       // Start consuming & processing
-      println(s"Reading from broker $kafkaBroker")
+      println(s"Reading activities from broker ${conf.kafkaBroker}")
 
       consumer.readForever()
     }
@@ -146,32 +173,33 @@ object Main {
         "skus" → AvroTransformers.Sku(),
         "gift_cards" → AvroTransformers.GiftCard(),
         "store_credits" → AvroTransformers.StoreCredit(),
-        connectionTopic → ActivityConnectionTransformer(phoenix))
+        conf.connectionTopic → ActivityConnectionTransformer(phoenix))
 
       // Init processors & consumer
       val esProcessor = new ElasticSearchProcessor(
-        uri = elasticSearchUrl,
-        cluster = elasticSearchCluster,
-        indexName = elasticSearchIndex,
-        topics = kafkaTopics,
+        uri = conf.elasticSearchUrl,
+        cluster = conf.elasticSearchCluster,
+        indexName = conf.elasticSearchIndex,
+        topics = conf.kafkaTopics,
         jsonTransformers = transformers)
 
       val avroProcessor = new AvroProcessor(
-        schemaRegistryUrl = avroSchemaRegistryUrl,
+        schemaRegistryUrl = conf.avroSchemaRegistryUrl,
         processor = esProcessor)
 
       val consumer = new MultiTopicConsumer(
-        topics = kafkaTopics,
-        broker = kafkaBroker,
-        groupId = s"${kafkaGroupId}_trail",
-        processor = avroProcessor)
+        topics = conf.kafkaTopics,
+        broker = conf.kafkaBroker,
+        groupId = s"${conf.kafkaGroupId}_trail",
+        processor = avroProcessor,
+        startFromBeginning = conf.startFromBeginning)
 
       // Execture beforeAction
       println("Executing pre-consuming actions...")
       esProcessor.beforeAction()
 
       // Start consuming & processing
-      println(s"Reading from broker $kafkaBroker")
+      println(s"Reading from broker ${conf.kafkaBroker}")
       consumer.readForever()
     }
 
