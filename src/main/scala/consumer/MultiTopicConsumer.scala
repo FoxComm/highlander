@@ -19,19 +19,25 @@ class MultiTopicConsumer(
   groupId: String, 
   broker: String, 
   processor: MessageProcessor,
+  startFromBeginning: Boolean = false,
   timeout: Long = 100)(implicit ec: ExecutionContext) {
 
   val props = new Properties()
   props.put("bootstrap.servers", broker)
   props.put("group.id", groupId)
-  props.put("enable.auto.commit", "false") //don't commit offset just yet.
-  props.put("auto.offset.reset", "earliest")
   props.put("key.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer")
   props.put("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer")
+  props.put("enable.auto.commit", "false") //don't commit offset automatically
+
 
   val consumer = new KafkaConsumer[Array[Byte], Array[Byte]](props)
   consumer.subscribe(topics.toList)
   println(s"Subscribed to topics: ${consumer.subscription}")
+
+  if(startFromBeginning) {
+    println(s"Consuming from beggining")
+    consumer.assignment.foreach{ a ⇒ consumer.seekToBeginning(a)}
+  }
 
   def readForever(): Unit = {
     while (true) {
@@ -41,10 +47,10 @@ class MultiTopicConsumer(
         Console.err.println(s"Processing ${r.topic} offset ${r.offset}")
         val f = processor.process(r.offset, r.topic, r.value)
         f onSuccess { 
-          //commit offset here
           case result ⇒ Console.err.println(s"Processed ${r.topic} offset ${r.offset}")
         }
-        Await.result(f, 30 seconds)
+        Await.result(f, 60 seconds)
+        consumer.commitSync()
       }
     }
   }
