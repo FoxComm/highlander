@@ -127,7 +127,7 @@ export default class OrderShippingAddress extends React.Component {
     if (this.props.address) {
       return <AddressDetails address={this.props.address} />;
     } else {
-      return <div className="fc-content-box-notice">No shipping method applied.</div>;
+      return <div className="fc-content-box-notice">No shipping address applied.</div>;
     }
   }
 
