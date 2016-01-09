@@ -8,7 +8,8 @@ describe('OrderDetails', function() {
   it('should render', function() {
     const props = {
       order: {
-        currentOrder: order
+        currentOrder: order,
+        validations: {}
       }
     };
     const orderDetails = OrderDetails(props);
