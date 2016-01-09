@@ -18,19 +18,19 @@ object GroupManager {
   private def groupNotFound(id: Int): NotFoundFailure404 = NotFoundFailure404(CustomerDynamicGroup, id)
 
   def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
-    CustomerDynamicGroups.sortedAndPaged(CustomerDynamicGroups.query).result.map(groups ⇒ {
+    CustomerDynamicGroups.sortedAndPaged(CustomerDynamicGroups.query).result.map(groups ⇒
       groups.map(build)
-    })
+    )
   }
 
   def getById(groupId: Int)(implicit  db: Database, ec: ExecutionContext): Result[Root] = (for {
     group ← * <~ CustomerDynamicGroups.mustFindById(groupId, groupNotFound)
-  } yield build(group)).runT()
+  } yield build(group)).runT(txn = false)
 
   def create(payload: CustomerDynamicGroupPayload, admin: StoreAdmin)
     (implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
       group ← * <~ CustomerDynamicGroups.create(CustomerDynamicGroup.fromPayloadAndAdmin(payload, admin.id))
-    } yield build(group)).runT()
+    } yield build(group)).runT(txn = false)
 
   def update(groupId: Int, payload: CustomerDynamicGroupPayload)
     (implicit db: Database, ec: ExecutionContext): Result[Root] = (for {

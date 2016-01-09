@@ -20,13 +20,12 @@ final case class CustomerDynamicGroup(id: Int = 0,
   updatedAt: Instant = Instant.now,
   createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[CustomerDynamicGroup]
-  with Validation[CustomerDynamicGroup]
 
 object CustomerDynamicGroup {
 
-  def fromPayloadAndAdmin(p: CustomerDynamicGroupPayload, ownerId: Int): CustomerDynamicGroup =
+  def fromPayloadAndAdmin(p: CustomerDynamicGroupPayload, adminId: Int): CustomerDynamicGroup =
     CustomerDynamicGroup(id = 0,
-      createdBy = ownerId,
+      createdBy = adminId,
       name = p.name,
       customersCount = p.customersCount,
       clientState = p.clientState,
@@ -44,15 +43,8 @@ class CustomerDynamicGroups(tag: Tag) extends GenericTable.TableWithId[CustomerD
   def updatedAt = column[Instant]("updated_at")
   def createdAt = column[Instant]("created_at")
 
-  def * = (
-    id,
-    createdBy,
-    name,
-    customersCount,
-    clientState,
-    elasticRequest,
-    updatedAt,
-    createdAt) <> ((CustomerDynamicGroup.apply _).tupled, CustomerDynamicGroup.unapply)
+  def * = (id, createdBy, name, customersCount, clientState, elasticRequest, updatedAt, createdAt) <>
+    ((CustomerDynamicGroup.apply _).tupled, CustomerDynamicGroup.unapply)
 }
 
 object CustomerDynamicGroups extends TableQueryWithId[CustomerDynamicGroup, CustomerDynamicGroups](
