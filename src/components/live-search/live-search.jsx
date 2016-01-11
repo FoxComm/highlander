@@ -4,6 +4,7 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import classNames from 'classnames';
 
+import MaskedInput from '../masked-input/masked-input';
 import Menu from '../menu/menu';
 import MenuItem from '../menu/menu-item';
 import PilledInput from '../pilled-search/pilled-input';
@@ -86,8 +87,7 @@ export default class LiveSearch extends React.Component {
         <DatePicker
           onClick={clickAction}
           showInput={false}
-          showPicker={true}
-        />
+          showPicker={true} />
       );
     }
     const selectedIdx = this.state.selectionIndex;
@@ -149,8 +149,7 @@ export default class LiveSearch extends React.Component {
           cancelEdit={this.props.editSearchNameCancel}
           completeEdit={this.props.editSearchNameComplete}
           startEdit={startEdit}
-          onClick={() => this.props.selectSavedSearch(idx)}
-        />
+          onClick={() => this.props.selectSavedSearch(idx)} />
       );
     });
 
@@ -378,18 +377,21 @@ export default class LiveSearch extends React.Component {
               <PilledInput
                 button={this.searchButton}
                 className={classNames({'_active': this.state.isFocused})}
-                inputMask={this.state.inputMask}
                 onPillClose={(pill, idx) => this.deleteFilter(idx)}
                 onPillClick={(pill, idx) => this.deleteFilter(idx)}
                 formatPill={this.formatPill}
-                placeholder="Add another filter or keyword search"
-                prepend={this.state.searchPrepend}
-                onChange={this.change}
-                onFocus={this.inputFocus}
-                onBlur={this.blur}
-                onKeyDown={this.keyDown}
-                pills={this.state.pills}
-                value={this.state.searchDisplay} />
+                pills={this.state.pills}>
+                <MaskedInput
+                  className="fc-pilled-input__input-field _no-fc-behavior"
+                  mask={this.state.inputMask}
+                  onChange={this.change}
+                  onFocus={this.inputFocus}
+                  onBlur={this.blur}
+                  onKeyDown={this.keyDown}
+                  placeholder="Add another filter or keyword search"
+                  prepend={this.state.searchPrepend}
+                  value={this.state.searchDisplay} />
+              </PilledInput>
             </form>
             <div>
               {this.state.optionsVisible && this.searchOptions}

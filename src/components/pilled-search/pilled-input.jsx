@@ -2,8 +2,6 @@
 import _ from 'lodash';
 import classNames from 'classnames';
 import React, { PropTypes } from 'react';
-import InputMask from 'react-input-mask';
-import MaskedInput from '../masked-input/masked-input';
 
 // These aren't actually multiple exported components, but ESLint mistakenly
 // thinks that they are.
@@ -47,13 +45,12 @@ const iconWrapper = icon => {
 
 const PilledInput = props => {
 
-  const { button, className, icon, inputMask, pills = [], ...rest } = props;
+  const { button, children, className, icon, pills = [], ...rest } = props;
 
-  const input = (
-    <MaskedInput
+  const input = children || (
+    <input
       className="fc-pilled-input__input-field _no-fc-behavior"
       type="text"
-      mask={_.isEmpty(inputMask) ? '' : inputMask}
       {...rest} />
   );
 
@@ -76,14 +73,14 @@ const PilledInput = props => {
 };
 
 PilledInput.propTypes = {
+  children: PropTypes.node,
   onPillClose: PropTypes.func,
   onPillClick: PropTypes.func,
   formatPill: PropTypes.func,
   pills: PropTypes.array,
   icon: PropTypes.string,
   button: PropTypes.node,
-  className: PropTypes.string,
-  inputMask: PropTypes.string,
+  className: PropTypes.string
 };
 
 PilledInput.defaultProps = {
@@ -91,7 +88,7 @@ PilledInput.defaultProps = {
   onPillClick: _.noop,
   formatPill,
   icon: 'search',
-  inputMask: 'Order : Tot\\al : = : $99.99',
+  inputMask: '',
 };
 
 export default PilledInput;
