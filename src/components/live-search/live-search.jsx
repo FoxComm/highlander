@@ -37,6 +37,7 @@ export default class LiveSearch extends React.Component {
       optionsVisible: false,
       pills: pills,
       searchDisplay: searchValue,
+      searchPrepend: '',
       searchOptions: currentOptions,
       searchValue: searchValue,
       selectionIndex: -1
@@ -70,8 +71,6 @@ export default class LiveSearch extends React.Component {
   get searchOptions() {
     // Check to see if the date picker should be shown.
     if (this.state.searchOptions.length == 1 && this.state.searchOptions[0].type == 'date') {
-      console.log("SHOW THE DATE PICKER");
-
       const clickAction = date => {
         const dateVal = date.toLocaleString('en-us', {
           month: '2-digit',
@@ -82,9 +81,9 @@ export default class LiveSearch extends React.Component {
         this.submitFilter(`${this.state.searchValue}${dateVal}`, true);
       };
 
-      
+
       return (
-        <DatePicker 
+        <DatePicker
           onClick={clickAction}
           showInput={false}
           showPicker={true}
@@ -207,6 +206,7 @@ export default class LiveSearch extends React.Component {
       optionsVisible: isVisible,
       pills: search.searches,
       searchDisplay: search.searchValue,
+      searchPrepend: '',
       searchOptions: search.currentOptions,
       searchValue: search.searchValue,
       selectionIndex: -1
@@ -329,6 +329,7 @@ export default class LiveSearch extends React.Component {
     let newSearchTerm = searchTerm;
     let options = SearchTerm.potentialTerms(this.state.availableOptions, searchTerm);
     let inputMask = this.state.inputMask;
+    let searchPrepend = this.state.searchPrepend;
 
     // Second, if there is only one term, see if we can turn it into a saved search.
     if (options.length == 1) {
@@ -345,8 +346,11 @@ export default class LiveSearch extends React.Component {
       } else if (option.children.length > 1) {
         options = option.children;
       } else {
-        inputMask = getInputMask(option) || inputMask;
-        console.log(option.type);
+        const newInputMask = getInputMask(option);
+        if (!_.isEqual(inputMask, newInputMask)) {
+          inputMask = newInputMask;
+          searchPrepend = searchTerm;
+        }
       }
     }
 
@@ -356,6 +360,7 @@ export default class LiveSearch extends React.Component {
       inputMask: inputMask,
       searchOptions: options,
       searchDisplay: newSearchTerm,
+      searchPrepend: searchPrepend,
       searchValue: newSearchTerm,
       selectionIndex: -1
     });
@@ -378,6 +383,7 @@ export default class LiveSearch extends React.Component {
                 onPillClick={(pill, idx) => this.deleteFilter(idx)}
                 formatPill={this.formatPill}
                 placeholder="Add another filter or keyword search"
+                prepend={this.state.searchPrepend}
                 onChange={this.change}
                 onFocus={this.inputFocus}
                 onBlur={this.blur}

@@ -3,6 +3,7 @@ import _ from 'lodash';
 import classNames from 'classnames';
 import React, { PropTypes } from 'react';
 import InputMask from 'react-input-mask';
+import MaskedInput from '../masked-input/masked-input';
 
 // These aren't actually multiple exported components, but ESLint mistakenly
 // thinks that they are.
@@ -49,7 +50,7 @@ const PilledInput = props => {
   const { button, className, icon, inputMask, pills = [], ...rest } = props;
 
   const input = (
-    <InputMask
+    <MaskedInput
       className="fc-pilled-input__input-field _no-fc-behavior"
       type="text"
       mask={_.isEmpty(inputMask) ? '' : inputMask}
