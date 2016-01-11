@@ -32,6 +32,8 @@ import StyleGuideGrid from './components/style-guide/style-guide-grid';
 import StyleGuideButtons from './components/style-guide/style-guide-buttons';
 import StyleGuideContainers from './components/style-guide/style-guide-containers';
 
+import AllActivities from './components/activity-trail/all';
+
 const routes = (
   <Route path="/" component={Site}>
     <IndexRoute name="home" component={Home}/>
@@ -91,6 +93,9 @@ const routes = (
       <IndexRoute name='style-guide-grid' component={StyleGuideGrid} />
       <Route name='style-guide-buttons' path='buttons' component={StyleGuideButtons} />
       <Route name='style-guide-containers' path='containers' component={StyleGuideContainers} />
+    </Route>
+    <Route name='test' path="_">
+      <Route name='test-activities' path='activities' component={AllActivities} />
     </Route>
   </Route>
 );
