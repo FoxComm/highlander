@@ -1,12 +1,15 @@
 package services.rmas
 
+import models.activity.ActivityContext
 import models.{Rma, RmaAssignment, RmaAssignments, Rmas, StoreAdmin, StoreAdmins}
 import responses.ResponseWithFailuresAndMetadata
 import responses.ResponseWithFailuresAndMetadata._
 import responses.RmaResponse._
-import services.{Failure, NotFoundFailure404, Result}
+import services.{RmaAssigneeNotFound, Failure, NotFoundFailure404, Result}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
 
@@ -37,6 +40,16 @@ object RmaAssignmentUpdater {
     }, checks = Set.empty)
   }
 
+  def unassign(admin: StoreAdmin, refNum: String, assigneeId: Int)
+    (implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
+
+    rma             ← * <~ Rmas.mustFindByRefNum(refNum)
+    assignee        ← * <~ StoreAdmins.mustFindById(assigneeId)
+    assignment      ← * <~ RmaAssignments.byAssignee(assignee).one.mustFindOr(RmaAssigneeNotFound(refNum, assigneeId))
+    _               ← * <~ RmaAssignments.byAssignee(assignee).delete
+    fullRma         ← * <~ fromRma(rma).toXor
+  } yield fullRma).runT()
+
   def assignBulk(payload: payloads.RmaBulkAssigneesPayload)
     (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage): Result[BulkRmaUpdateResponse] = {
 
@@ -55,7 +68,7 @@ object RmaAssignmentUpdater {
     query.transactionally.run()
   }
 
-  def unassign(payload: payloads.RmaBulkAssigneesPayload)
+  def unassignBulk(payload: payloads.RmaBulkAssigneesPayload)
     (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage): Result[BulkRmaUpdateResponse] = {
 
     // TODO: transfer sorting-paging metadata

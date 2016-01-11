@@ -3,17 +3,18 @@ import java.time.Instant
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
 import models.Rma.{Canceled, Processing}
-import models.{Customer, Customers, GiftCard, GiftCardManual, GiftCardManuals, GiftCards, Order, OrderLineItem,
-OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItems, OrderShippingAddresses, OrderShippingMethod,
-OrderShippingMethods, Orders, Reasons, Rma, RmaAssignments, RmaLineItem, RmaLockEvents, RmaReason, RmaReasons, Rmas,
-Shipments, ShippingMethods, Skus, StoreAdmin, StoreAdmins}
+import models.{RmaAssignment, Customer, Customers, GiftCard, GiftCardManual, GiftCardManuals,
+GiftCards, Order, OrderLineItem, OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItems,
+OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, Reasons, Rma, RmaAssignments, RmaLineItem,
+RmaLockEvents, RmaReason, RmaReasons, Rmas, Shipments, ShippingMethods, Skus, StoreAdmin, StoreAdmins}
 import org.json4s.jackson.JsonMethods._
 import payloads.{RmaAssigneesPayload, RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCustomerPayload,
 RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload}
 import responses.RmaResponse.FullRmaWithWarnings
-import responses.{AllRmas, ResponseWithFailuresAndMetadata, RmaLockResponse, RmaResponse, StoreAdminResponse}
+import responses.{FullOrder, AllRmas, ResponseWithFailuresAndMetadata, RmaLockResponse, RmaResponse, StoreAdminResponse}
 import services.rmas.{RmaLineItemUpdater, RmaLockUpdater}
-import services.{GeneralFailure, InvalidCancellationReasonFailure, LockedFailure, NotFoundFailure400, NotFoundFailure404, NotLockedFailure}
+import services.{RmaAssigneeNotFound, GeneralFailure, InvalidCancellationReasonFailure, LockedFailure,
+NotFoundFailure400, NotFoundFailure404, NotLockedFailure}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -330,6 +331,37 @@ class RmaIntegrationTest extends IntegrationTestBase
         RmaAssignments.byRma(rma).result.run().futureValue.size mustBe 1
       }
     }
+
+    "DELETE /v1/rmas/:refNum/assignees/:assigneeId/delete" - {
+
+      "can be unassigned from RMA" in new AssignmentFixture {
+        val response = DELETE(s"v1/rmas/${rma.referenceNumber}/assignees/${storeAdmin.id}")
+        response.status must === (StatusCodes.OK)
+
+        val root = response.as[RmaResponse.Root]
+        root.assignees.filter(_.assignee.id == storeAdmin.id) mustBe empty
+
+        RmaAssignments.byRma(rma).result.run().futureValue mustBe empty
+      }
+
+      "400 if assignee is not found" in new AssignmentFixture {
+        val response = DELETE(s"v1/rmas/${rma.referenceNumber}/assignees/${secondAdmin.id}")
+        response.status must === (StatusCodes.BadRequest)
+        response.errors must === (RmaAssigneeNotFound(rma.referenceNumber, secondAdmin.id).description)
+      }
+
+      "404 if RMA is not found" in new AssignmentFixture {
+        val response = DELETE(s"v1/rmas/NOPE/assignees/${storeAdmin.id}")
+        response.status must === (StatusCodes.NotFound)
+        response.errors must === (NotFoundFailure404(Rma, "NOPE").description)
+      }
+
+      "404 if storeAdmin is not found" in new AssignmentFixture {
+        val response = DELETE(s"v1/rmas/${rma.referenceNumber}/assignees/555")
+        response.status must === (StatusCodes.NotFound)
+        response.errors must === (NotFoundFailure404(StoreAdmin, 555).description)
+      }
+    }
   }
 
   "RMA Line Items" - {
@@ -527,6 +559,13 @@ class RmaIntegrationTest extends IntegrationTestBase
         customerId = customer.id))
       reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
     } yield (storeAdmin, customer, order, rma, reason)).runT(txn = false).futureValue.rightVal
+  }
+
+  trait AssignmentFixture extends Fixture {
+    val (assignee, secondAdmin) = (for {
+      assignee    ← * <~ RmaAssignments.create(RmaAssignment(rmaId = rma.id, assigneeId = storeAdmin.id))
+      secondAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
+    } yield (assignee, secondAdmin)).runT().futureValue.rightVal
   }
 
   trait LineItemFixture extends Fixture {

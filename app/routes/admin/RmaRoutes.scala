@@ -56,7 +56,7 @@ object RmaRoutes {
           (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
             entity(as[RmaBulkAssigneesPayload]) { payload ⇒
               goodOrFailures {
-                RmaAssignmentUpdater.unassign(payload)
+                RmaAssignmentUpdater.unassignBulk(payload)
               }
             }
           }
@@ -174,6 +174,11 @@ object RmaRoutes {
           (post & entity(as[RmaAssigneesPayload])) { payload ⇒
             goodOrFailures {
               RmaAssignmentUpdater.assign(refNum, payload.assignees)
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
+            goodOrFailures {
+              RmaAssignmentUpdater.unassign(admin, refNum, assigneeId)
             }
           }
         }

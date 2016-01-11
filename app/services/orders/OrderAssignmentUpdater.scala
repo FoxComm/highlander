@@ -3,7 +3,7 @@ package services.orders
 import models.{Order, OrderAssignment, OrderAssignments, Orders, StoreAdmin, StoreAdmins}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import responses.{FullOrder, ResponseWithFailuresAndMetadata, TheResponse}
-import services.{LogActivity, Failure, Failurez, NotFoundFailure404, Result}
+import services.{LogActivity, Failure, Failurez, NotFoundFailure404, OrderAssigneeNotFound, Result}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
@@ -31,6 +31,17 @@ object OrderAssignmentUpdater {
     _               ← * <~ LogActivity.assignedToOrder(admin, fullOrder, assignedAdmins)
   } yield TheResponse.build(fullOrder, warnings = warnings)).runT()
 
+  def unassign(admin: StoreAdmin, refNum: String, assigneeId: Int)
+    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[FullOrder.Root] = (for {
+
+    order           ← * <~ Orders.mustFindByRefNum(refNum)
+    assignee        ← * <~ StoreAdmins.mustFindById(assigneeId)
+    assignment      ← * <~ OrderAssignments.byAssignee(assignee).one.mustFindOr(OrderAssigneeNotFound(refNum, assigneeId))
+    _               ← * <~ OrderAssignments.byAssignee(assignee).delete
+    fullOrder       ← * <~ FullOrder.fromOrder(order).toXor
+    _               ← * <~ LogActivity.unassignedFromOrder(admin, fullOrder, assignee)
+  } yield fullOrder).runT()
+
   def assignBulk(admin: StoreAdmin, payload: payloads.BulkAssignment)
     (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = {
 
@@ -52,7 +63,7 @@ object OrderAssignmentUpdater {
     query.transactionally.run()
   }
 
-  def unassign(admin: StoreAdmin, payload: payloads.BulkAssignment)
+  def unassignBulk(admin: StoreAdmin, payload: payloads.BulkAssignment)
     (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = {
 
     // TODO: transfer sorting-paging metadata
