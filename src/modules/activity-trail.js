@@ -9,7 +9,7 @@ import searchActivities from '../elastic/activities';
 
 const startFetching = createAction('ACTIVITY_TRAIL_START_FETCHING');
 const receivedActivities = createAction('ACTIVITY_TRAIL_RECEIVED', (trailId, data) => [trailId, data]);
-const setError = createAction('ACTIVITY_TRAIL_FAILED');
+const fetchFailed = createAction('ACTIVITY_TRAIL_FETCH_FAILED', (trailId, err) => [trailId, err]);
 
 export function fetchActivityTrail(entity, from) {
   return dispatch => {
@@ -29,7 +29,7 @@ export function fetchActivityTrail(entity, from) {
           }
         ));
       },
-      err => setError(err)
+      err => dispatch(fetchFailed(entity.entityId, err))
     );
   };
 }
@@ -46,7 +46,10 @@ const initialState = {};
 
 const reducer = createReducer({
   [startFetching]: (state, trailId) => {
-    return assoc(state, [trailId, 'isFetching'], true);
+    return assoc(state,
+      [trailId, 'isFetching'], true,
+      [trailId, 'err'], null
+    );
   },
   [receivedActivities]: (state, [trailId, data]) => {
     const updater = _.flow(
@@ -59,12 +62,13 @@ const reducer = createReducer({
 
     return updater(state);
   },
-  [setError]: (state, err) => {
-    console.error(err);
-    return {
-      ...state,
-      err
-    };
+  [fetchFailed]: (state, [trailId, result]) => {
+    console.error(result);
+
+    return assoc(state,
+      [trailId, 'isFetching'], false,
+      [trailId, 'err'], result.responseJson.error
+    );
   }
 }, initialState);
 

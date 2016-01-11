@@ -7,6 +7,7 @@ import { autobind } from 'core-decorators';
 
 // components
 import ActivityTrail from './activity-trail';
+import ErrorAlerts from '../alerts/error-alerts';
 
 // redux
 import * as ActivityTrailActions from '../../modules/activity-trail';
@@ -34,6 +35,10 @@ export default class ActivityTrailPage extends React.Component {
     return get(this.props, [this.props.entity.entityId, 'isFetching'], null);
   }
 
+  get err() {
+    return get(this.props, [this.props.entity.entityId, 'err']);
+  }
+
   get content() {
     const props = this.props;
     const activities = this.activities;
@@ -46,7 +51,11 @@ export default class ActivityTrailPage extends React.Component {
     };
 
     if (this.isFetching === false) {
-      return <ActivityTrail {...params} />;
+      if (!this.err) {
+        return <ActivityTrail {...params} />;
+      } else {
+        return <ErrorAlerts errors={[this.err]} />;
+      }
     } else if (this.isFetching === true) {
       return <div className="fc-wait-block"></div>;
     }
@@ -63,8 +72,6 @@ export default class ActivityTrailPage extends React.Component {
   }
 
   render() {
-
-
     return (
       <div className="fc-activity-trail-page">
         <h2>Activity Trail</h2>
