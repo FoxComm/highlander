@@ -11,6 +11,11 @@ import { Link, IndexLink } from '../link/index';
 
 export default class Breadcrumb extends React.Component {
 
+  static propTypes = {
+    routes: PropTypes.array,
+    params: PropTypes.array
+  };
+
   @autobind
   readableName(route) {
     const parts = route.name.split('-');
@@ -39,17 +44,13 @@ export default class Breadcrumb extends React.Component {
     return _.compact(this.props.routes.map((route) => {
       if (_.isEmpty(route.path)) {
         return null;
-      }
-
-      if (route.path === "/" && _.isEmpty(route.name)) {
+      } else if (route.path === '/' && _.isEmpty(route.name)) {
         return (
           <li className="fc-breadcrumbs__item" key="home-breadcrumbs-link">
-            <Link to="home" params={this.props.params} className="fc-breadcrumbs__link">Home &nbsp;</Link>
+            <Link to="home" params={this.props.params} className="fc-breadcrumbs__link">Home</Link>
           </li>
         );
-      }
-
-      if (_.isEmpty(route.indexRoute)) {
+      } else if (_.isEmpty(route.indexRoute)) {
         return (
           <li className="fc-breadcrumbs__item" key={`${route.name}-breadcrumbs-link`}>
             <Link to={route.name} params={this.props.params} className="fc-breadcrumbs__link">
@@ -57,16 +58,16 @@ export default class Breadcrumb extends React.Component {
             </Link>
           </li>
         );
+      } else {
+        return (
+          <li className="fc-breadcrumbs__item" key={`${route.name}-breadcrumbs-link`}>
+            <IndexLink to={route.indexRoute.name} params={this.props.params} className="fc-breadcrumbs__link">
+              {this.readableName(route)}
+            </IndexLink>
+          </li>
+        );
       }
-
-      return (
-        <li className="fc-breadcrumbs__item" key={`${route.name}-breadcrumbs-link`}>
-          <IndexLink to={route.indexRoute.name} params={this.props.params} className="fc-breadcrumbs__link">
-            {this.readableName(route)}
-          </IndexLink>
-        </li>
-      );
-    }))
+    }));
   }
 
   render() {
