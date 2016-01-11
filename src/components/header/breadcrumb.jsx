@@ -4,6 +4,7 @@ import _ from 'lodash';
 import React, {PropTypes} from 'react';
 import { inflect } from 'fleck';
 import { assoc } from 'sprout-data';
+import { autobind } from 'core-decorators';
 
 // components
 import { Link, IndexLink } from '../link/index';
@@ -12,14 +13,29 @@ export default class Breadcrumb extends React.Component {
 
   static contextTypes = {
     location: PropTypes.object.isRequired,
-    history: PropTypes.object.isRequired,
-    router: PropTypes.object.isRequired
+    history: PropTypes.object.isRequired
   };
 
   constructor(props, context) {
     super(props, context);
     console.log('constructor');
     console.log(context);
+  }
+
+  @autobind
+  readableName(route) {
+    const parts = route.name.split('-');
+    const composed = _.chain(parts)
+      .filter(item => item !== 'base')
+      .map(_.capitalize)
+      .join(' ')
+      .value();
+
+    if (route.path != null && route.path[0] === ':') {
+      return _.get(this.props, ['params', route.path.slice(1)], composed);
+    } else {
+      return composed;
+    }
   }
 
   render() {
@@ -35,51 +51,34 @@ export default class Breadcrumb extends React.Component {
       }
 
       if (route.path === "/" && _.isEmpty(route.name)) {
-        return <Link to="home" params={this.props.params}>Home &nbsp;</Link>;
+        return (
+          <li className="fc-breadcrumbs__item" key="home-breadcrumbs-link">
+            <Link to="home" params={this.props.params}>Home &nbsp;</Link>
+          </li>
+        );
       }
 
       if (_.isEmpty(route.indexRoute)) {
-        return <Link to={route.name} params={this.props.params}>{route.name}&nbsp;</Link>;
+        return (
+          <li className="fc-breadcrumbs__item" key={`${route.name}-breadcrumbs-link`}>
+            <Link to={route.name} params={this.props.params}>{this.readableName(route)}&nbsp;</Link>
+          </li>
+        );
       } else {
-        return <IndexLink to={route.indexRoute.name} params={this.props.params}>{route.name}&nbsp;</IndexLink>;
+        return (
+          <li className="fc-breadcrumbs__item" key={`${route.name}-breadcrumbs-link`}>
+            <IndexLink to={route.indexRoute.name} params={this.props.params}>{this.readableName(route)}&nbsp;</IndexLink>
+          </li>
+        );
       }
     });
 
-    const pathParts = pathname.split('/');
-    // const items = pathParts.map((item, index) => {
-    //   let classname = index > 0 ? 'icon-chevron-right' : null;
-    //   let itemName = inflect(item, 'capitalize');
-    //   console.log(item);
-    //   return <span className={classname} key={`header-item-${index}`}>{` ${itemName} `}</span>;
-    // });
-
-    //ToDo:
-    // - create routes for each part
-    // - create details route for each `number` section (won't work with refNum and so on)
-    // - detect ids properly
-    // - collect route parts into clickable breadcrumbs
-    // - check routes (the spec is needed, not all routes can be generated simply right now)
-    // - there should be a way to determine if it is IndexLink or Link
-
-    const acc = {routes: [], lastRoute: null, lastParams: {}};
-    const pathNames = pathParts.reduce((acc, part) => {
-      if (part != undefined && isNaN(part)) {
-        const newRoute = _.isEmpty(acc.lastRoute) ? part : `${acc.lastRoute}-${part}`;
-        const itemName = inflect(part, 'capitalize');
-        const params = acc.lastParams;
-        acc.routes.push(<Link to={newRoute} key={`header-item-${itemName}`} params={params}>{itemName}</Link>);
-        acc.lastRoute = newRoute;
-      } else {
-        const newRoute = acc.lastRoute != undefined ? acc.lastRoute.substring(0, acc.lastRoute.length - 1) : '';
-        const itemName = part;
-        let params = assoc(acc.lastParams, 'customerId', part);
-        acc.routes.push(<Link to={newRoute} key={`header-item-${itemName}`} params={params}>{itemName}</Link>);
-        acc.lastRoute = newRoute;
-        acc.lastParams = params;
-      }
-      return acc;
-    }, acc);
-
-    return <div className="breadcrumb">{fromRoutes}</div>;
+    return (
+      <div className="fc-breadcrumbs">
+        <ul>
+          {fromRoutes}
+        </ul>
+      </div>
+    );
   }
 }
