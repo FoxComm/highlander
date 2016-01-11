@@ -1,7 +1,7 @@
 import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import models.activity.ActivityContext
-import models.{CustomerDynamicGroups, CustomerDynamicGroup, StoreAdmins}
+import models.{Customer, CustomerDynamicGroups, CustomerDynamicGroup, StoreAdmins}
 import org.mockito.Mockito.{reset, when}
 import org.mockito.{Matchers => m}
 import org.scalatest.mock.MockitoSugar
@@ -84,6 +84,13 @@ class CustomersGroupIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
       response.as[DynamicGroupResponse.Root] must === (root)
     }
+
+    "404 if group not found" in new Fixture {
+      val response = GET(s"$uriPrefix/999")
+
+      response.status must === (StatusCodes.NotFound)
+      response.errors must === (NotFoundFailure404(CustomerDynamicGroup, 999).description)
+    }
   }
 
   "PATCH /v1/groups/:groupId" - {
@@ -92,11 +99,20 @@ class CustomersGroupIntegrationTest extends IntegrationTestBase
             clientState = JObject(), elasticRequest = JObject())
       (payload.name, payload.customersCount) must !== ((group.name, group.customersCount))
 
-      val response = PATCH(s"v1/groups/${group.id}", payload)
+      val response = PATCH(s"$uriPrefix/${group.id}", payload)
       response.status must === (StatusCodes.OK)
 
       val updated = response.as[DynamicGroupResponse.Root]
       (updated.name, updated.customersCount) must === ((payload.name, payload.customersCount))
+    }
+
+    "404 if group not found" in new Fixture {
+      val payload = CustomerDynamicGroupPayload(name = "New name for group", customersCount = Some(777),
+        clientState = JObject(), elasticRequest = JObject())
+      val response = PATCH(s"$uriPrefix/999", payload)
+
+      response.status must === (StatusCodes.NotFound)
+      response.errors must === (NotFoundFailure404(CustomerDynamicGroup, 999).description)
     }
   }
 
