@@ -175,12 +175,14 @@ object Main {
         "store_credits" → AvroTransformers.StoreCredit(),
         conf.connectionTopic → ActivityConnectionTransformer(phoenix))
 
+      val topicsPlusActivity = conf.kafkaTopics :+ conf.connectionTopic;
+
       // Init processors & consumer
       val esProcessor = new ElasticSearchProcessor(
         uri = conf.elasticSearchUrl,
         cluster = conf.elasticSearchCluster,
         indexName = conf.elasticSearchIndex,
-        topics = conf.kafkaTopics,
+        topics = topicsPlusActivity,
         jsonTransformers = transformers)
 
       val avroProcessor = new AvroProcessor(
@@ -188,7 +190,7 @@ object Main {
         processor = esProcessor)
 
       val consumer = new MultiTopicConsumer(
-        topics = conf.kafkaTopics,
+        topics = topicsPlusActivity,
         broker = conf.kafkaBroker,
         groupId = s"${conf.kafkaGroupId}_trail",
         processor = avroProcessor,

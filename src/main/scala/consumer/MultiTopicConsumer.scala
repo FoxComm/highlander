@@ -1,15 +1,35 @@
 package consumer
 
 import java.util.Properties
+import java.util.Collection
 import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
+
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.clients.consumer.ConsumerRebalanceListener
+import org.apache.kafka.clients.consumer.ConsumerRebalanceListener
+import org.apache.kafka.common.TopicPartition
 
 import scala.language.postfixOps
+
+case class StartFromBeginning[A, B](consumer: KafkaConsumer[A, B]) extends ConsumerRebalanceListener {
+
+  def onPartitionsRevoked(partitions: Collection[TopicPartition]) {
+    consumer.commitSync()
+  }
+
+  def onPartitionsAssigned(partitions: Collection[TopicPartition]) {
+    partitions.foreach { p ⇒ 
+      println(s"Consuming from beggining for topic ${p.topic} using partition ${p.partition}")
+      consumer.seekToBeginning(p)
+    }
+  }
+}
+
 
 /**
  * Consumer using Kafka's new 0.9.0.0 consumer API
@@ -22,6 +42,8 @@ class MultiTopicConsumer(
   startFromBeginning: Boolean = false,
   timeout: Long = 100)(implicit ec: ExecutionContext) {
 
+  type RawConsumer = KafkaConsumer[Array[Byte], Array[Byte]]
+
   val props = new Properties()
   props.put("bootstrap.servers", broker)
   props.put("group.id", groupId)
@@ -30,14 +52,8 @@ class MultiTopicConsumer(
   props.put("enable.auto.commit", "false") //don't commit offset automatically
 
 
-  val consumer = new KafkaConsumer[Array[Byte], Array[Byte]](props)
-  consumer.subscribe(topics.toList)
-  println(s"Subscribed to topics: ${consumer.subscription}")
-
-  if(startFromBeginning) {
-    println(s"Consuming from beggining")
-    consumer.assignment.foreach{ a ⇒ consumer.seekToBeginning(a)}
-  }
+  val consumer = new RawConsumer(props)
+  subscribe(topics, startFromBeginning)
 
   def readForever(): Unit = {
     while (true) {
@@ -52,6 +68,16 @@ class MultiTopicConsumer(
         Await.result(f, 60 seconds)
         consumer.commitSync()
       }
+    }
+  }
+
+  def subscribe(topics: Seq[String], startFromBeginning: Boolean) {
+    println(s"Subscribing to topics: ${topics}")
+    if(startFromBeginning) {
+      println(s"Consuming from beggining...")
+      consumer.subscribe(topics.toList, StartFromBeginning(consumer))
+    } else {
+      consumer.subscribe(topics.toList)
     }
   }
 }
