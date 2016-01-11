@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import TotalsSummary from '../common/totals';
 import CustomerInfo from './customer-info';
+import Messages from './messages';
 import OrderLineItems from './order-line-items';
 import OrderShippingAddress from './shipping-address';
 import OrderShippingMethod from './order-shipping-method';
@@ -14,17 +15,28 @@ const OrderDetails = props => {
     return <div className="fc-order-details"></div>;
   } else {
     const order = props.order.currentOrder;
+    const isCart = _.isEqual(order.orderStatus, 'cart');
+
+    const {
+      errors,
+      warnings,
+      itemsStatus,
+      shippingAddressStatus,
+      shippingMethodStatus,
+      paymentMethodStatus
+    } = props.order.validations;
 
     return (
       <div className="fc-order-details">
         <div className="fc-order-details-body">
           <div className="fc-order-details-main">
-            <OrderLineItems {...props} />
-            <OrderShippingAddress order={order} />
-            <OrderShippingMethod {...props} />
-            <Payments {...props} />
+            <OrderLineItems isCart={isCart} status={itemsStatus} {...props} />
+            <OrderShippingAddress isCart={isCart} status={shippingAddressStatus} order={order} />
+            <OrderShippingMethod isCart={isCart} status={shippingMethodStatus} {...props} />
+            <Payments isCart={isCart} status={paymentMethodStatus} {...props} />
           </div>
           <div className="fc-order-details-aside">
+            <Messages errors={errors} warnings={warnings} />
             <TotalsSummary entity={order} title={order.title} />
             <CustomerInfo order={order} />
             <Watchers entity={haveType(order, 'order')}/>
@@ -37,7 +49,8 @@ const OrderDetails = props => {
 
 OrderDetails.propTypes = {
   order: PropTypes.shape({
-    currentOrder: PropTypes.object
+    currentOrder: PropTypes.object,
+    validations: PropTypes.object
   })
 };
 

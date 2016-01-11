@@ -73,7 +73,7 @@ const ShippingMethod = props => {
   return (
     <EditableContentBox
       className='fc-shipping-methods'
-      title='Shipping Method'
+      title={props.title}
       isEditing={props.isEditing}
       editAction={props.editAction}
       doneAction={props.doneAction}
@@ -94,7 +94,12 @@ ShippingMethod.propTypes = {
   cancelPriceAction: PropTypes.func,
   shippingMethods: PropTypes.array.isRequired,
   currentOrder: PropTypes.object,
-  updateAction: PropTypes.func
+  updateAction: PropTypes.func,
+  title: PropTypes.node
+};
+
+ShippingMethod.defaultProps = {
+  title: 'Shipping Method'
 };
 
 export default ShippingMethod;

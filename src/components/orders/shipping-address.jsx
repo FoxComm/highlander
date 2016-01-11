@@ -14,6 +14,7 @@ import * as ShippingAddressesActions from '../../modules/orders/shipping-address
 import AddressForm from '../addresses/address-form/modal';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import ErrorAlerts from '../alerts/error-alerts';
+import PanelHeader from './panel-header';
 
 const addressTypes = ShippingAddressesActions.addressTypes;
 
@@ -40,8 +41,15 @@ function mapStateToProps(state, props) {
 export default class OrderShippingAddress extends React.Component {
 
   static propTypes = {
-    order: PropTypes.object.isRequired
+    isCart: PropTypes.bool,
+    order: PropTypes.object.isRequired,
+    status: PropTypes.string
   };
+
+  static defaultProps = {
+    isCart: false,
+    status: ''
+  }
 
   componentDidMount() {
     this.props.fetchAddresses(this.props.customerId);
@@ -119,7 +127,7 @@ export default class OrderShippingAddress extends React.Component {
     if (this.props.address) {
       return <AddressDetails address={this.props.address} />;
     } else {
-      return <div className="fc-content-box-notice">No shipping method applied.</div>;
+      return <div className="fc-content-box-notice">No shipping address applied.</div>;
     }
   }
 
@@ -154,11 +162,18 @@ export default class OrderShippingAddress extends React.Component {
       onSaved = null;
     }
 
+    const title = (
+      <PanelHeader
+        isCart={this.props.isCart}
+        status={this.props.status}
+        text="Shipping Address" />
+    );
+
     return (
       <div>
         <EditableContentBox
           className="fc-shipping-address"
-          title="Shipping Address"
+          title={title}
           indentContent={true}
           isEditing={props.isEditing}
           editAction={props.startEditing}

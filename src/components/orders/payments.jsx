@@ -8,6 +8,7 @@ import StoreCredit from './payments/store-credit';
 import CreditCard from './payments/credit-card';
 import Dropdown from '../dropdown/dropdown';
 import { AddButton } from '../common/buttons';
+import PanelHeader from './panel-header';
 
 const viewColumns = [
   {field: 'name', text: 'Method'},
@@ -82,10 +83,11 @@ editContent.propTypes = {
 };
 
 const Payments = props => {
+  const title = <PanelHeader isCart={props.isCart} status={props.status} text="Payment Method" />;
   return (
     <EditableContentBox
       className="fc-order-payment"
-      title="Payment Method"
+      title={title}
       isTable={true}
       editContent={editContent(props)}
       isEditing={props.payments.isEditing}
@@ -97,11 +99,13 @@ const Payments = props => {
 };
 
 Payments.propTypes = {
+  isCart: PropTypes.bool,
   order: PropTypes.shape({
     currentOrder: PropTypes.shape({
       paymentMethods: PropTypes.array
     })
   }).isRequired,
+  status: PropTypes.string,
   payments: PropTypes.shape({
     isEditing: PropTypes.bool.isRequired
   }),
