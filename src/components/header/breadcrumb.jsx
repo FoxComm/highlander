@@ -11,17 +11,6 @@ import { Link, IndexLink } from '../link/index';
 
 export default class Breadcrumb extends React.Component {
 
-  static contextTypes = {
-    location: PropTypes.object.isRequired,
-    history: PropTypes.object.isRequired
-  };
-
-  constructor(props, context) {
-    super(props, context);
-    console.log('constructor');
-    console.log(context);
-  }
-
   @autobind
   readableName(route) {
     const parts = route.name.split('-');
@@ -38,14 +27,16 @@ export default class Breadcrumb extends React.Component {
     }
   }
 
-  render() {
-    const pathname = this.context.location.pathname.replace(/^\/|\/$/gm, '');
+  delimeter(idx) {
+    return (
+      <li className="fc-breadcrumbs__delimeter" key={`${idx}-breadcrumbs-delimeter`}>
+        <i className="icon-chevron-right"></i>
+      </li>
+    );
+  }
 
-    console.log(pathname);
-    console.log(this.props.routes);
-    console.log(this.props.params);
-
-    const fromRoutes = this.props.routes.map((route) => {
+  get crumbs() {
+    return _.compact(this.props.routes.map((route) => {
       if (_.isEmpty(route.path)) {
         return null;
       }
@@ -53,7 +44,7 @@ export default class Breadcrumb extends React.Component {
       if (route.path === "/" && _.isEmpty(route.name)) {
         return (
           <li className="fc-breadcrumbs__item" key="home-breadcrumbs-link">
-            <Link to="home" params={this.props.params}>Home &nbsp;</Link>
+            <Link to="home" params={this.props.params} className="fc-breadcrumbs__link">Home &nbsp;</Link>
           </li>
         );
       }
@@ -61,22 +52,36 @@ export default class Breadcrumb extends React.Component {
       if (_.isEmpty(route.indexRoute)) {
         return (
           <li className="fc-breadcrumbs__item" key={`${route.name}-breadcrumbs-link`}>
-            <Link to={route.name} params={this.props.params}>{this.readableName(route)}&nbsp;</Link>
-          </li>
-        );
-      } else {
-        return (
-          <li className="fc-breadcrumbs__item" key={`${route.name}-breadcrumbs-link`}>
-            <IndexLink to={route.indexRoute.name} params={this.props.params}>{this.readableName(route)}&nbsp;</IndexLink>
+            <Link to={route.name} params={this.props.params} className="fc-breadcrumbs__link">
+              {this.readableName(route)}
+            </Link>
           </li>
         );
       }
+
+      return (
+        <li className="fc-breadcrumbs__item" key={`${route.name}-breadcrumbs-link`}>
+          <IndexLink to={route.indexRoute.name} params={this.props.params} className="fc-breadcrumbs__link">
+            {this.readableName(route)}
+          </IndexLink>
+        </li>
+      );
+    }))
+  }
+
+  render() {
+    const fromRoutes = this.crumbs;
+
+    const delimeters = _.range(1, fromRoutes.length).map((idx) => {
+      return this.delimeter(idx);
     });
+
+    const withDelimeter = _.zip(fromRoutes, delimeters);
 
     return (
       <div className="fc-breadcrumbs">
         <ul>
-          {fromRoutes}
+          {withDelimeter}
         </ul>
       </div>
     );
