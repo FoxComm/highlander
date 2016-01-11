@@ -10,7 +10,7 @@ const titles = {
 };
 
 export const title = (data, activity) => {
-  const title = titles[activity.type];
+  const title = titles[activity.kind];
 
   return (
     <span>
