@@ -30,6 +30,7 @@ export default class Orders extends React.Component {
     editSearchNameComplete: PropTypes.func,
     goBack: PropTypes.func,
     saveSearch: PropTypes.func,
+    selectSearch: PropTypes.func,
     submitFilters: PropTypes.func,
     list: PropTypes.shape({
       selectedSearch: PropTypes.number,
@@ -67,7 +68,7 @@ export default class Orders extends React.Component {
       const key = `order-${row.referenceNumber}`;
       return <OrderRow order={row} columns={columns} key={key} />;
     };
-    
+
     const filter = (searchTerm) => this.props.addSearchFilter('orders_search_view/_search', searchTerm);
     const selectSearch = (idx) => this.props.selectSearch('orders_search_view/_search', idx);
 

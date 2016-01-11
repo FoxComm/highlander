@@ -27,7 +27,7 @@ function _createAction(namespace, description, ...args) {
   return createAction(name, ...args);
 }
 
-export default function makeLiveSearch(namespace, searchTerms) {
+export default function makeLiveSearch(namespace, searchTerms, initialSearches) {
   const cloneSearch = _createAction(namespace, 'CLONE_SEARCH');
   const editSearchNameStart = _createAction(namespace, 'EDIT_SEARCH_NAME_START');
   const editSearchNameCancel = _createAction(namespace, 'EDIT_SEARCH_NAME_CANCEL');
@@ -64,7 +64,7 @@ export default function makeLiveSearch(namespace, searchTerms) {
 
       const selectedSearch = _.get(getState(), ['orders', 'list', 'selectedSearch']);
       const searchTerms = _.get(
-        getState(), 
+        getState(),
         ['orders', 'list', 'savedSearches', selectedSearch, 'searches'],
         []
       );
@@ -75,6 +75,12 @@ export default function makeLiveSearch(namespace, searchTerms) {
   };
 
   const terms = searchTerms.map(st => new SearchTerm(st));
+  const initialSavedSearches = initialSearches.map(s => {
+    return {
+      ...emptyState,
+      ...s
+    };
+  });
   const initialState = {
     potentialOptions: terms,
     selectedSearch: 0,
@@ -83,52 +89,8 @@ export default function makeLiveSearch(namespace, searchTerms) {
         ...emptyState,
         name: 'All',
         currentOptions: terms
-      }, {
-        ...emptyState,
-        name: 'Remorse Hold',
-        currentOptions: terms,
-        searches: [
-          {
-            display: 'Order : State : Remorse Hold',
-            selectedTerm: 'status',
-            selectedOperator: 'eq',
-            value: {
-              type: 'enum',
-              value: 'remorseHold'
-            }
-          }
-        ]
-      }, {
-        ...emptyState,
-        name: 'Manual Hold',
-        currentOptions: terms,
-        searches: [
-          {
-            display: 'Order : State : Manual Hold',
-            selectedTerm: 'status',
-            selectedOperator: 'eq',
-            value: {
-              type: 'enum',
-              value: 'manualHold'
-            }
-          }
-        ]
-      }, {
-        ...emptyState,
-        name: 'Fraud Hold',
-        currentOptions: terms,
-        searches: [
-          {
-            display: 'Order : State : Fraud Hold',
-            selectedTerm: 'status',
-            selectedOperator: 'eq',
-            value: {
-              type: 'enum',
-              value: 'fraudHold'
-            }
-          }
-        ]
-      }
+      },
+      ...initialSavedSearches
     ]
   };
 
