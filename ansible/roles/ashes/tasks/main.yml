@@ -5,7 +5,14 @@
   sudo: true
 
 - name: Synchronize Ashes code
-  synchronize: src={{ashes_source_dir}} dest={{home}} delete=true recursive=true
+  synchronize:
+    src: '{{ashes_source_dir}}'
+    dest: '{{home}}'
+    delete: true
+    recursive: true
+    rsync_opts:
+        - "--no-motd"
+        - "--exclude=node_modules"
 
 - name: Install local gulp
   shell: npm install gulp
