@@ -61,6 +61,8 @@ export default function searchActivities(fromActivity = null, days = 2, query = 
             return fetch({untilDate});
           }
         }
+
+        return response;
       });
   } else {
     const untilDate = moment(fromActivity.createdAt).startOf('day').subtract(days, 'days');

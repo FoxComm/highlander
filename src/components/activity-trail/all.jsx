@@ -14,7 +14,7 @@ const activities = [
         orderStatus: 'cart'
       })
     }
-  }
+  },
 ];
 
 export default class AllActivities extends React.Component {

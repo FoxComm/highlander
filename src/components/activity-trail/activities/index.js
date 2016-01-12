@@ -7,7 +7,7 @@ import Activity from './base/activity';
 
 import * as toggleLineItemsDesc from './toggled-line-items';
 import * as editShippingAddressDesc from './edited-shipping-address';
-import * as customerInfoChangedDesc from './customer-info-changed';
+import * as customerUpdatedDesc from './customer-updated';
 
 const representatives = {
   [types.ADDED_NOTE]: {
@@ -32,7 +32,7 @@ const representatives = {
   [types.EDITED_SHIPPING_ADDRESS]: editShippingAddressDesc,
   [types.ADDED_LINE_ITEMS]: toggleLineItemsDesc,
   [types.REMOVED_LINE_ITEMS]: toggleLineItemsDesc,
-  [types.CUSTOMER_INFO_CHANGED]: customerInfoChangedDesc,
+  [types.CUSTOMER_UPDATED]: customerUpdatedDesc,
 };
 
 
