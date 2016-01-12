@@ -8,6 +8,7 @@ import { autobind } from 'core-decorators';
 // components
 import ActivityTrail from './activity-trail';
 import ErrorAlerts from '../alerts/error-alerts';
+import WaitAnimation from '../common/wait-animation';
 
 // redux
 import * as ActivityTrailActions from '../../modules/activity-trail';
@@ -57,7 +58,7 @@ export default class ActivityTrailPage extends React.Component {
         return <ErrorAlerts errors={[this.err]} />;
       }
     } else if (this.isFetching === true) {
-      return <div className="fc-wait-block"></div>;
+      return <WaitAnimation />;
     }
   }
 
