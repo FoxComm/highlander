@@ -10,7 +10,7 @@ import * as editShippingAddressDesc from './edited-shipping-address';
 import * as customerUpdatedDesc from './customer-updated';
 
 const representatives = {
-  [types.ADDED_NOTE]: {
+  [types.ORDER_NOTE_CREATED]: {
     title: data => {
       return (
         <span>
@@ -19,7 +19,7 @@ const representatives = {
       );
     }
   },
-  [types.CHANGED_ORDER_STATE]: {
+  [types.ORDER_STATE_CHANGED]: {
     title: data => {
       return (
         <span>

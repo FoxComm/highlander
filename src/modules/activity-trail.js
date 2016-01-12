@@ -11,6 +11,18 @@ const startFetching = createAction('ACTIVITY_TRAIL_START_FETCHING');
 const receivedActivities = createAction('ACTIVITY_TRAIL_RECEIVED', (trailId, data) => [trailId, data]);
 const fetchFailed = createAction('ACTIVITY_TRAIL_FETCH_FAILED', (trailId, err) => [trailId, err]);
 
+export function processActivity(activity) {
+  if (activity.data.order) {
+    activity.data.order = new OrderParagon(activity.data.order);
+  }
+  if (activity.data.orderRefNum) {
+    activity.data.order = new OrderParagon({
+      referenceNumber: activity.data.orderRefNum
+    });
+  }
+  return activity;
+}
+
 export function fetchActivityTrail(entity, from) {
   return dispatch => {
     dispatch(startFetching(entity.entityId));
@@ -19,12 +31,7 @@ export function fetchActivityTrail(entity, from) {
         dispatch(receivedActivities(
           entity.entityId,
           {
-            activities: response.result.map(({activity}) => {
-              if (activity.data.order) {
-                activity.data.order = new OrderParagon(activity.data.order);
-              }
-              return activity;
-            }),
+            activities: response.result.map(({activity}) => processActivity(activity)),
             hasMore: response.hasMore
           }
         ));

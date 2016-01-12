@@ -1,4 +1,6 @@
 
+// list of all available types https://github.com/FoxComm/phoenix-scala/blob/master/app/services/activity/Tailored.scala
+
 const types = {
   /* Assignments */
 
