@@ -24,8 +24,7 @@ object RmaLineItemUpdater {
       rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
       reason    ← * <~ RmaReasons.filter(_.id === payload.reasonId)
         .one.mustFindOr(NotFoundFailure400(RmaReason, payload.reasonId))
-      oli       ← * <~ OrderLineItemSkus.join(Skus).on(_.skuId === _.id)
-        .filter { case (oli, sku) ⇒ oli.orderId === rma.orderId && sku.sku === payload.sku }
+      oli       ← * <~ OrderLineItemSkus.join(Skus)
         .one.mustFindOr(SkuNotFoundInOrder(payload.sku, rma.orderRefNum))
       // Inserts
       origin    ← * <~ RmaLineItemSkus.create(RmaLineItemSku(rmaId = rma.id, skuId = oli._2.id))

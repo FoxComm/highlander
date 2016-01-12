@@ -16,7 +16,7 @@ class InventoryAdjustmentIntegrationTest extends IntegrationTestBase {
     warehouse   ← * <~ Warehouses.create(Factories.warehouse)
     sku         ← * <~ Skus.create(Factories.skus.head.copy(price = 5))
     order       ← * <~ Orders.create(Order(id = 0, customerId = 1))
-    lineItemSku ← * <~ OrderLineItemSkus.create(OrderLineItemSku(skuId = sku.id, orderId = order.id))
+    lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(sku.id).toXor
   } yield (warehouse, sku, lineItemSku, order)).runT().futureValue.rightVal
 
   "InventoryAdjustment" - {

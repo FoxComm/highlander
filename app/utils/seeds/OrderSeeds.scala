@@ -104,11 +104,9 @@ trait OrderSeeds {
   } yield order
 
   def addSkusToOrder(skuIds: Seq[Sku#Id], orderId: Order#Id, status: OrderLineItem.Status): DbResultT[Unit] = for {
-    liSkus ← * <~ OrderLineItemSkus.createAllReturningIds(skuIds.map { skuId ⇒
-      OrderLineItemSku(orderId = orderId, skuId = skuId)
-    })
-    _ ← * <~ OrderLineItems.createAll(liSkus.seq.map { oId ⇒
-      OrderLineItem(orderId = orderId, originId = oId, originType = OrderLineItem.SkuItem, status = status)
+    liSkus ← * <~ OrderLineItemSkus.filter(_.skuId.inSet(skuIds)).result
+    _ ← * <~ OrderLineItems.createAll(liSkus.seq.map { liSku ⇒
+      OrderLineItem(orderId = orderId, originId = liSku.id, originType = OrderLineItem.SkuItem, status = status)
     })
   } yield {}
 
