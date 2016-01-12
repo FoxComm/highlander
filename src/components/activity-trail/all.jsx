@@ -18,6 +18,63 @@ function addContext(activity, i) {
 }
 
 const activities = [
+  // customers
+  {
+    kind: types.CUSTOMER_UPDATED,
+    data: {
+      customerId: 1,
+      oldInfo: {
+        name: 'William Shockley',
+        email: 'William@Shockley.com',
+        phoneNumber: '+11111111111'
+      },
+      newInfo: {
+        name: 'Shockley William',
+        email: 'William@Shockley.com',
+        phoneNumber: '+11111111111'
+      }
+    }
+  },
+
+  // order shipping address
+
+  {
+    kind: types.ORDER_SHIPPING_ADDRESS_UPDATED,
+    data: {
+      order: {
+        referenceNumber: 'BR10001',
+        orderStatus: 'cart',
+        shippingAddress: {
+          "id": 3,
+          "region": {
+            "id": 4177,
+            "countryId": 234,
+            "name": "Washington"
+          },
+          "name": "Home",
+          "address1": "555 E Lake Union St.",
+          "city": "Seattle",
+          "zip": "12345",
+          "isDefault": false
+        }
+      },
+      address: {
+        "id": 3,
+        "region": {
+          "id": 4177,
+          "countryId": 234,
+          "name": "California"
+        },
+        "name": "South",
+        "address1": "555 E Lake Union St.",
+        "city": "Los Angeles",
+        "zip": "54321",
+        "isDefault": false
+      }
+    }
+  },
+
+  // order notes
   {
     kind: types.ORDER_NOTE_CREATED,
     data: {
@@ -25,11 +82,13 @@ const activities = [
       text: 'New note for order.'
     }
   },
+
+  // orders
   {
     kind: types.ORDER_STATE_CHANGED,
     data: {
       order: {
-        referenceNumber: 'BR10001',
+        referenceNumber: 'BR10004',
         orderStatus: 'fraudHold'
       }
     }
