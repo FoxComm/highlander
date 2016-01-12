@@ -19,6 +19,10 @@
     - kafka.service
     - schema-registry.service
 
+- name: Kill Kafka if it is Running
+  shell: systemctl stop kafka || true
+  sudo: true
+
 - name: Purge Kafka Queue
   file: path=/var/lib/kafka state=absent
   sudo: true
