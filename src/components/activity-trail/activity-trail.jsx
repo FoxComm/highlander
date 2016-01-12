@@ -28,7 +28,7 @@ function createTimeMark(time, daysDiff) {
 }
 
 export function injectTimeMarks(activities) {
-  const now = moment().endOf('day');
+  const now = moment(Date.now()).endOf('day');
 
   let latestMarkDiff = null;
 
