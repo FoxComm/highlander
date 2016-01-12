@@ -1340,10 +1340,10 @@
 		{
 			"id": "529c4648-f9aa-d661-e85d-80f0470d390f",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
-			"url": "http://localhost:9090/v1/customers/1/disable",
+			"url": "http://localhost:9090/v1/customers/1",
 			"preRequestScript": "",
 			"pathVariables": {},
-			"method": "POST",
+			"method": "PATCH",
 			"data": [],
 			"dataMode": "raw",
 			"version": 2,
@@ -1356,13 +1356,12 @@
 				"id": "basic",
 				"timestamp": 1449091654128
 			},
-			"time": 1449756442815,
+			"time": 1452632231782,
 			"name": "Update",
 			"description": "",
 			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
 			"responses": [],
-			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5",
-			"rawModeData": "{\n  \"disabled\": true\n}"
+			"rawModeData": "{\n  \"name\": \"Smith John\"\n}"
 		},
 		{
 			"id": "52eef521-70fe-4494-0eae-f5a2dba5c279",
@@ -2638,12 +2637,12 @@
 		{
 			"id": "ae251f85-190f-e71e-89c8-2385c70e65c9",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
-			"url": "http://localhost:9090/v1/gift-cards/7C0103EB46E4A14/convert/1",
+			"url": "http://localhost:9090/v1/customers",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "POST",
 			"data": [],
-			"dataMode": "params",
+			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
 			"currentHelper": "basicAuth",
@@ -2654,12 +2653,12 @@
 				"id": "basic",
 				"timestamp": 1449091654128
 			},
-			"time": 1449775004567,
+			"time": 1452631925493,
 			"name": "Create",
 			"description": "",
 			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
 			"responses": [],
-			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5"
+			"rawModeData": "{\n    \"name\": \"John Smith\",\n    \"email\": \"john@smith.com\"\n}"
 		},
 		{
 			"id": "aee1cf9d-5392-0dda-a6aa-1cdb75f46ec8",
@@ -2884,18 +2883,12 @@
 			"id": "ba41ee5d-0d33-df7e-7fc5-022259c3e460",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/customers/1/payment-methods/credit-cards",
-			"pathVariables": {},
 			"preRequestScript": "",
+			"pathVariables": {},
 			"method": "POST",
-			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
 			"data": [],
 			"dataMode": "raw",
-			"name": "Create Credit Card",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1449759818382,
 			"version": 2,
-			"responses": [],
 			"tests": "",
 			"currentHelper": "basicAuth",
 			"helperAttributes": {
@@ -2905,8 +2898,12 @@
 				"id": "basic",
 				"timestamp": 1449091654128
 			},
-			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5",
-			"rawModeData": "{\n    \"holderName\": \"John Smith\",\n    \"number\": \"55555555555555\",\n    \"cvv\": \"555\",\n    \"expMonth\": 4,\n    \"expYear\": 2022,\n    \"addressId\": 1\n}"
+			"time": 1452634846907,
+			"name": "Create Credit Card",
+			"description": "",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"responses": [],
+			"rawModeData": "{\n    \"holderName\": \"John Smith\",\n    \"number\": \"4242424242424242\",\n    \"cvv\": \"555\",\n    \"expMonth\": 4,\n    \"expYear\": 2022,\n    \"addressId\": 1\n}"
 		},
 		{
 			"id": "bc57f8e1-aa7e-fa9c-85ef-2ba4bd518acf",
