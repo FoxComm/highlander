@@ -24,19 +24,32 @@ import org.json4s.jackson.JsonMethods.parse
 import org.json4s.DefaultFormats
 
 import consumer.elastic.JsonTransformer
+import consumer.elastic.AvroTransformers
 
 import consumer.utils.PhoenixConnectionInfo
 import consumer.utils.Phoenix
 import consumer.utils.HttpResponseExtensions._
 import akka.http.scaladsl.model.StatusCodes
 
+
 final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
 (implicit ec:ExecutionContext, mat: Materializer, ac: ActorSystem, cp: ConnectionPoolSettings) extends JsonTransformer { 
 
   implicit val formats: DefaultFormats.type = DefaultFormats
 
-  def mapping = "activity_connections" as ()
   val phoenix = Phoenix(conn)
+
+  def mapping = "activity_connections" as (
+        "id"                   typed IntegerType,
+        "dimensionId"          typed IntegerType,
+        "objectId"             typed IntegerType,
+        "trailId"              typed IntegerType,
+        "activity"             typed ObjectType,
+        "previousId"           typed IntegerType,
+        "nextId"               typed IntegerType,
+        "data"                 typed ObjectType,
+        "connectedBy"          typed ObjectType,
+        "createdAt"            typed DateType format AvroTransformers.dateFormat)
 
   def transform(json: String) : Future[String] = {
 
