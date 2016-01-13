@@ -49,7 +49,7 @@ final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
         "nextId"               typed IntegerType,
         "data"                 typed ObjectType,
         "connectedBy"          typed ObjectType,
-        "createdAt"            typed DateType format AvroTransformers.dateFormat)
+        "createdAt"            typed DateType format AvroTransformers.strictDateFormat)
 
   def transform(json: String) : Future[String] = {
 
