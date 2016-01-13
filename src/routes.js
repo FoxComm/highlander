@@ -73,10 +73,10 @@ const routes = (
                 path='transactions'
                 component={StoreCreditsTransactions} />
         </Route>
-        <Route name='customer-storecredits-new'
-               path='storecredits/new'
-               component={NewStoreCredit} />
       </Route>
+      <Route name='customer-storecredits-new'
+             path=':customerId/storecredits/new'
+             component={NewStoreCredit} />
     </Route>
     <Route name='gift-cards-base' path='gift-cards'>
       <IndexRoute name='gift-cards' component={GiftCards}/>
