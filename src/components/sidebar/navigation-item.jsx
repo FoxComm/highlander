@@ -1,4 +1,5 @@
 
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
@@ -8,12 +9,14 @@ import { IndexLink, Link } from '../link';
 export default class NavigationItem extends React.Component {
 
   static propTypes = {
-    isIndex: PropTypes.boolean,
-    isExpandable: PropTypes.boolean,
-    to: PropTypes.string,
-    icon: PropTypes.string,
-    title: PropTypes.string,
-    children: PropTypes.node
+    isIndex: PropTypes.bool,
+    isExpandable: PropTypes.bool,
+    collapsed: PropTypes.bool,
+    to: PropTypes.string.isRequired,
+    icon: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    children: PropTypes.node,
+    routes: PropTypes.array.isRequired
   }
 
   static defaultProps = {
@@ -72,17 +75,26 @@ export default class NavigationItem extends React.Component {
 
   get childrenClass() {
     return classNames('fc-navigation-item__children', {
-      '_open': this.props.isExpandable && this.state.open
+      '_open': !this.props.collapsed && this.props.isExpandable && this.state.open
+    });
+  }
+
+  get containerClass() {
+    const routeNames = this.props.routes.map(route => route.name);
+    const isActive = _.contains(routeNames, this.props.to) ||
+      _.contains(routeNames, `${this.props.to}-base`);
+    return classNames('fc-navigation-item-container', {
+      '_active': isActive
     });
   }
 
   render() {
     return (
-      <div className="fc-navigation-item-container">
+      <div className={this.containerClass}>
         { this.props.isIndex ? this.indexLink : this.link }
-        <ul className={this.childrenClass}>
+        <div className={this.childrenClass}>
           {this.props.children}
-        </ul>
+        </div>
       </div>
     );
   }

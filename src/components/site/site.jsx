@@ -21,7 +21,7 @@ export default class Site extends React.Component {
   render() {
     return (
       <div className="fc-admin">
-        <Sidebar/>
+        <Sidebar routes={this.props.routes} />
         <div className="fc-container">
           <Header routes={this.props.routes} params={this.props.params} />
           <main role='main' className="fc-main">
