@@ -17,6 +17,13 @@ function addContext(activity, i) {
   return activity;
 }
 
+const customer = {
+  id: 1,
+  name: 'Thomas Angelo',
+  email: 'angelo@salieri.it',
+  phoneNumber: '+11111111111',
+};
+
 const activities = [
   // customers
   {
@@ -35,6 +42,49 @@ const activities = [
       }
     }
   },
+  {
+    kind: types.CUSTOMER_CREATED,
+    data: {
+      customer
+    }
+  },
+  {
+    kind: types.CUSTOMER_REGISTERED,
+    data: {
+      customer
+    }
+  },
+  {
+    kind: types.CUSTOMER_ACTIVATED,
+    data: {
+      customer
+    }
+  },
+  {
+    kind: types.CUSTOMER_BLACKLISTED,
+    data: {
+      customer
+    }
+  },
+  {
+    kind: types.CUSTOMER_REMOVED_FROM_BLACKLIST,
+    data: {
+      customer
+    }
+  },
+  {
+    kind: types.CUSTOMER_ENABLED,
+    data: {
+      customer
+    }
+  },
+  {
+    kind: types.CUSTOMER_DISABLED,
+    data: {
+      customer
+    }
+  },
+
 
   // order shipping address
 

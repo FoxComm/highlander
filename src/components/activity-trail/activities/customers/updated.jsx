@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Link } from '../../../link';
+import CustomerInfo from './customer-info';
 
 export const title = data => {
   return (
@@ -13,18 +14,6 @@ export const title = data => {
   );
 };
 
-const CustomerInfo = props => {
-  return (
-    <dl className="fc-activity__customer-info">
-      <dt>Name</dt>
-      <dd>{props.name}</dd>
-      <dt>Email Address</dt>
-      <dd>{props.email}</dd>
-      <dt>Phome Number</dt>
-      <dd>{props.phoneNumber}</dd>
-    </dl>
-  );
-};
 
 export const details = data => {
   return {
