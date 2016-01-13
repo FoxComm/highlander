@@ -1,0 +1,39 @@
+## Customers group [/v1/groups/{id}]
+
++ Parameters
+    + id: 1 (required, number) - Group ID.
+
+### List [GET /v1/groups{?size,from,sortBy}]
+
++ Parameters
+    + size:   1           (optional, number)       - Page size.
+    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
+    + sortBy: `createdAt` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
+        + Members
+            + `id`
+			+ `name`
+			+ `createdAt`
+			+ `updatedAt`
+			+ `createdBy`
++ Response 200 (application/json)
+    + Attributes (CustomersList)
+
+### View [GET /v1/groups/{id}]
+
++ Response 200 (application/json)
+    + Attributes (GroupResponse)
+
+### Create [POST /v1/groups]
+
++ Request (application/json)
+    + Attributes (GroupPayload)
++ Response 200 (application/json)
+    + Attributes (GroupResponse)
+
+### Update [PATCH]
+
++ Request (application/json)
+	+ Attributes(GroupPayload)
++ Response 200 (application/json)
+    + Attributes (GroupResponse)
+

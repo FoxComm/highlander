@@ -1,3 +1,6 @@
+
+
+
 package server
 
 import akka.actor.{ActorSystem, Cancellable, Props}
@@ -62,6 +65,7 @@ class Service(
       logRequestResult("admin-routes")(routes.admin.Admin.routes) ~
       logRequestResult("admin-order-routes")(routes.admin.OrderRoutes.routes) ~
       logRequestResult("admin-customer-routes")(routes.admin.CustomerRoutes.routes) ~
+      logRequestResult("admin-customer-groups-routes")(routes.admin.CustomerGroupsRoutes.routes) ~
       logRequestResult("admin-giftcard-routes")(routes.admin.GiftCardRoutes.routes) ~
       logRequestResult("admin-rma-routes")(routes.admin.RmaRoutes.routes) ~
       logRequestResult("admin-activity-routes")(routes.admin.Activity.routes) ~

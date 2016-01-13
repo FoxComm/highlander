@@ -61,7 +61,8 @@ object Seeds {
   } yield {}
 
   object Factories extends CustomerSeeds with GiftCardSeeds with StoreCreditSeeds with RmaSeeds with InventorySeeds
-  with ShipmentSeeds with OrderSeeds with StoreAdminSeeds with AddressSeeds with CreditCardSeeds {
+  with ShipmentSeeds with OrderSeeds with StoreAdminSeeds with AddressSeeds with CreditCardSeeds
+  with CustomersGroupSeeds {
 
     implicit val formats = JsonFormatters.phoenixFormats
 

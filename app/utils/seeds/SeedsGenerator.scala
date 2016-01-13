@@ -2,12 +2,16 @@ package utils.seeds
 
 import scala.util.Random
 
-import models.{Address, CreditCard, CreditCards, Customer, Customers, Order, OrderPayment, OrderPayments, Orders, PaymentMethod}
+import models.{Address, CreditCard, CreditCards, Customer, Customers, Order, OrderPayment, OrderPayments,
+  Orders, PaymentMethod, CustomerDynamicGroup}
 import slick.driver.PostgresDriver.api._
 import utils.ModelWithIdParameter
 import Seeds.Factories
+import org.json4s.JObject
 
 object SeedsGenerator {
+
+  def fakeJson = JObject()
 
   def generateCustomer: Customer = Customer(email = s"${randomString(10)}@email.com",
     password = Some(randomString(10)), name = Some(randomString(10)))
@@ -25,6 +29,10 @@ object SeedsGenerator {
   def generateAddress: Address = Address(customerId = 0, regionId = 4177, name = randomString(10),
     address1 = randomString(30), address2 = None, city = "Seattle", zip = "12345", isDefaultShipping = false,
     phoneNumber = None)
+
+  def generateGroup(ownerId: Int): CustomerDynamicGroup = CustomerDynamicGroup(name = s"${randomString(10)}Group",
+    createdBy = ownerId, clientState = fakeJson, elasticRequest = fakeJson,
+    customersCount = Some(Random.nextInt))
 
   def insertRankingSeeds(customersCount: Int)(implicit db: Database) = {
     import scala.concurrent.ExecutionContext.Implicits.global
