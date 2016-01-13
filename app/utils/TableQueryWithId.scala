@@ -95,14 +95,6 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
   private def beforeSaveBatch(values: Seq[M])(implicit ec: ExecutionContext): DbResultT[Seq[M]] =
     DbResultT.sequence(values.map(beforeSave).map(DbResultT.fromXor))
 
-  /** DEPRECATION WARNING **
-  * This method will soon be deprecated in favor of `create` which provides model sanitization,
-  * validation and exception handling.
-  */
-  def saveNew[R](model: M, returning: Returning[R] = returningId, action: R ⇒ M ⇒ M = returningIdAction _)
-  (implicit ec: ExecutionContext): DBIO[M] =
-    (returning += model).map(ret ⇒ action(ret)(model))
-
   def create[R](model: M, returning: Returning[R] = returningId, action: R ⇒ M ⇒ M = returningIdAction _)
   (implicit ec: ExecutionContext): DbResult[M] =
     beforeSave(model).fold(DbResult.failures, { good ⇒

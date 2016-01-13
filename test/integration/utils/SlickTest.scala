@@ -16,7 +16,7 @@ class SlickTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
   "supports update with returning query for a single column" in {
-    val customer = Customers.saveNew(Factories.customer.copy(name = "Jane".some)).run().futureValue
+    val customer = Customers.create(Factories.customer.copy(name = "Jane".some)).run().futureValue.rightVal
     val update = Customers.filter(_.id === 1).map(_.name).
       updateReturningHead(Customers.map(_.name), "Sally".some)
 

@@ -1,131 +1,59 @@
 package services
 
-import scala.concurrent.ExecutionContext
-
-import cats.data.Xor
-import cats.implicits._
-import models.{Customer, Customers, GiftCard, GiftCardAdjustments, GiftCardFromStoreCredit, GiftCardFromStoreCredits,
-GiftCards, StoreAdmin, StoreCredit, StoreCreditAdjustments, StoreCreditFromGiftCard, StoreCreditFromGiftCards, StoreCredits}
+import models.activity.ActivityContext
+import models.{Customers, GiftCard, GiftCardAdjustments, GiftCardFromStoreCredit, GiftCardFromStoreCredits,
+GiftCards, StoreAdmin, StoreCredit, StoreCreditAdjustments, StoreCreditFromGiftCard, StoreCreditFromGiftCards,
+StoreCredits}
 import responses.{GiftCardResponse, StoreAdminResponse, StoreCreditResponse}
 import slick.driver.PostgresDriver.api._
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
 
-import models.activity.ActivityContext
+import scala.concurrent.ExecutionContext
 
 object CustomerCreditConverter {
-  def toStoreCredit(code: String, customerId: Int, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[StoreCreditResponse.Root] = {
 
-    def getDetails(code: String, customerId: Int): ResultT[(GiftCard, Customer)] = {
-      val queries = for {
-        gc ← GiftCards.findByCode(code).one
-        customer ← Customers.findById(customerId).extract.one
-        adj ← gc match {
-          case Some(giftCard) ⇒ GiftCardAdjustments.lastAuthByGiftCardId(giftCard.id).one
-          case _              ⇒ DBIO.successful(None)
-        }
-      } yield (gc, customer, adj)
+  def toStoreCredit(giftCardCode: String, customerId: Int, admin: StoreAdmin)
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[StoreCreditResponse.Root] = (for {
 
-      ResultT(queries.run().map {
-        case (Some(gc), Some(customer), None) if gc.isActive ⇒
-          Xor.right((gc, customer))
-        case (Some(gc), _, _) if !gc.isActive ⇒
-          Xor.left(GiftCardConvertFailure(gc).single)
-        case (_, _, Some(_)) ⇒
-          Xor.left(OpenTransactionsFailure.single)
-        case (None, _, _) ⇒
-          Xor.left(NotFoundFailure404(GiftCard, code).single)
-        case (_, None, _) ⇒
-          Xor.left(NotFoundFailure404(Customer, customerId).single)
-      })
-    }
+    giftCard ← * <~ GiftCards.mustFindByCode(giftCardCode)
+    _ ← * <~ (if (!giftCard.isActive) DbResult.failure(GiftCardConvertFailure(giftCard)) else DbResult.unit)
+    _ ← * <~ Customers.mustFindById(customerId)
+    _ ← * <~ complainAboutOpenTransaction(GiftCardAdjustments.lastAuthByGiftCardId(giftCard.id).one)
+    // Update status and make adjustment
+    _ ← * <~ GiftCards.findActiveByCode(giftCard.code).map(_.status).update(GiftCard.FullyRedeemed)
+    adjustment ← * <~ GiftCards.redeemToStoreCredit(giftCard, admin)
 
-    def saveStoreCredit(gc: GiftCard, admin: StoreAdmin): ResultT[DBIO[StoreCreditResponse.Root]] = {
-      val queries = for {
-        // Update status and make adjustment
-        _ ← GiftCards.findActiveByCode(gc.code).map(_.status).update(GiftCard.FullyRedeemed)
-        adjustment ← GiftCards.redeemToStoreCredit(gc, admin)
+    // Finally, convert to Store Credit
+    conversion ← * <~ StoreCreditFromGiftCards.create(StoreCreditFromGiftCard(giftCardId = giftCard.id))
+    sc = StoreCredit.buildFromGcTransfer(customerId, giftCard).copy(originId = conversion.id)
+    storeCredit ← * <~ StoreCredits.create(sc)
 
-        // Finally, convert to Store Credit
-        conversion ← StoreCreditFromGiftCards.saveNew(StoreCreditFromGiftCard(giftCardId = gc.id))
-        sc ← StoreCredits.saveNew(StoreCredit.buildFromGcTransfer(customerId, gc).copy(originId = conversion.id))
+    // Activity
+    _ ← * <~ LogActivity.gcConvertedToSc(admin, giftCard, storeCredit)
+  } yield StoreCreditResponse.build(storeCredit)).runTxn()
 
-        // Activity
-        _ ← LogActivity.gcConvertedToSc(admin, gc, sc)
-      } yield sc
+  def toGiftCard(storeCreditId: Int, customerId: Int, admin: StoreAdmin)
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[GiftCardResponse.Root] = (for {
 
-      ResultT.rightAsync(queries.flatMap(sc ⇒ lift(StoreCreditResponse.build(sc))))
-    }
+    credit ← * <~ StoreCredits.mustFindById(storeCreditId)
+    _ ← * <~ (if (!credit.isActive) DbResult.failure(StoreCreditConvertFailure(credit)) else DbResult.unit)
+    _ ← * <~ Customers.mustFindById(customerId)
+    _ ← * <~ complainAboutOpenTransaction(StoreCreditAdjustments.lastAuthByStoreCreditId(credit.id).one)
+    // Update status and make adjustment
+    scUpdated ← * <~ StoreCredits.findActiveById(credit.id).map(_.status).update(StoreCredit.FullyRedeemed)
+    adjustment ← * <~ StoreCredits.redeemToGiftCard(credit, admin)
+    // Convert to Gift Card
+    conversion ← * <~ GiftCardFromStoreCredits.create(GiftCardFromStoreCredit(storeCreditId = credit.id))
+    giftCard ← * <~ GiftCards.create(GiftCard(originId = conversion.id, originType = GiftCard.FromStoreCredit,
+      currency = credit.currency, originalBalance = credit.currentBalance, currentBalance = credit.currentBalance))
 
-    val transformer = for {
-      details ← getDetails(code, customerId)
-      sc ← details match { case (gc, customer) ⇒
-        saveStoreCredit(gc, admin)
-      }
-    } yield sc
+    // Activity
+    _ ← * <~ LogActivity.scConvertedToGc(admin, giftCard, credit)
+  } yield GiftCardResponse.build(giftCard, None, Some(StoreAdminResponse.build(admin)))).runTxn
 
-    transformer.value.flatMap(_.fold(Result.left, dbio ⇒ Result.fromFuture(dbio.transactionally.run())))
-  }
-
-  def toGiftCard(id: Int, customerId: Int, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[GiftCardResponse.Root] = {
-
-    def getDetails(id: Int, customerId: Int): ResultT[(StoreCredit, Customer)] = {
-      val queries = for {
-        sc ← StoreCredits.findActiveById(id).one
-        customer ← Customers.findById(customerId).extract.one
-        adj ← sc match {
-          case Some(storeCredit)  ⇒ StoreCreditAdjustments.lastAuthByStoreCreditId(storeCredit.id).one
-          case _                  ⇒ DBIO.successful(None)
-        }
-      } yield (sc, customer, adj)
-
-      ResultT(queries.run().map {
-        case (Some(sc), Some(customer), None) if sc.isActive ⇒
-          Xor.right((sc, customer))
-        case (Some(sc), _, _) if !sc.isActive ⇒
-          Xor.left(StoreCreditConvertFailure(sc).single)
-        case (_, _, Some(_)) ⇒
-          Xor.left(OpenTransactionsFailure.single)
-        case (None, _, _) ⇒
-          Xor.left(NotFoundFailure404(StoreCredit, id).single)
-        case (_, None, _) ⇒
-          Xor.left(NotFoundFailure404(Customer, customerId).single)
-      })
-    }
-
-    def saveGiftCard(sc: StoreCredit, admin: StoreAdmin): ResultT[DBIO[GiftCardResponse.Root]] = {
-      val adminResponse = StoreAdminResponse.build(admin)
-      val giftCard = GiftCard(originId = 0, originType = GiftCard.FromStoreCredit, currency = sc.currency,
-        originalBalance = sc.currentBalance, currentBalance = sc.currentBalance)
-
-      val queries = for {
-        // Update status and make adjustment
-        scUpdated ← StoreCredits.findActiveById(sc.id).map(_.status).update(StoreCredit.FullyRedeemed)
-        adjustment ← StoreCredits.redeemToGiftCard(sc, admin)
-
-        // Convert to Gift Card
-        conversion ← GiftCardFromStoreCredits.saveNew(GiftCardFromStoreCredit(storeCreditId = sc.id))
-        gc ← GiftCards.saveNew(giftCard.copy(originId = conversion.id))
-
-        // Fetch Gift Card with proper code generated by trigger
-        gc ← GiftCards.findOneById(gc.id).safeGet
-
-        // Activity
-        _ ← LogActivity.scConvertedToGc(admin, gc, sc)
-      } yield gc
-
-      ResultT.rightAsync(queries.flatMap(gc ⇒ lift(GiftCardResponse.build(gc, None, Some(adminResponse)))))
-    }
-
-    val transformer = for {
-      details ← getDetails(id, customerId)
-      gc ← details match { case (sc, customer) ⇒
-        saveGiftCard(sc, admin)
-      }
-    } yield gc
-
-    transformer.value.flatMap(_.fold(Result.left, dbio ⇒ Result.fromFuture(dbio.transactionally.run())))
-  }
+  private def complainAboutOpenTransaction[A](dbio: DBIO[Option[A]])(implicit ec: ExecutionContext): DbResult[Unit] =
+    dbio.flatMap(_.fold(DbResult.unit) { _ ⇒ DbResult.failure(OpenTransactionsFailure) })
 }
