@@ -1,5 +1,6 @@
 package consumer
 
+import consumer.utils.JsonTransformer
 import java.io.ByteArrayOutputStream
 
 import scala.concurrent.ExecutionContext
@@ -11,7 +12,7 @@ import org.apache.avro.generic.GenericDatumWriter
 import org.apache.avro.io.EncoderFactory
 import org.apache.kafka.common.errors.SerializationException
 
-import org.json4s.JsonAST.{JValue, JObject, JField, JString}
+import org.json4s.JsonAST.{JValue, JObject, JField, JString, JInt}
 import org.json4s.jackson.JsonMethods.{render, compact, parse}
 
 import scala.util.control.NonFatal
@@ -60,23 +61,22 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
  * more reasonable.
  */
 object AvroJsonHelper {
+
   def transformJson(json: String, fields: List[String] = List.empty): String = {
-    val filteredJson = camelCase(stringToJson(deannotateAvroTypes(parse(json)), fields))
+    val filteredJson = JsonTransformer.camelCase(stringToJson(deannotateAvroTypes(parse(json)), fields))
     compact(render(filteredJson))
   }
 
-  private def underscoreToCamel(s: String): String = "_([a-z])".r.replaceAllIn(s, _.group(1).toUpperCase)
-
-  private def camelCase(input: JValue): JValue = {
-    input.transformField {
-      case JField(name, anything) ⇒ (underscoreToCamel(name), anything)
+  private def convertType(typeName: String,  value: JValue) : JValue = 
+    typeName match {
+      case "com.martinkl.bottledwater.datatypes.DateTime" ⇒ JsonTransformer.dateTimeToDateString(value)
+      case _ ⇒ value
     }
-  }
 
   private def deannotateAvroTypes(input: JValue): JValue = {
     input.transformField {
       case JField(name, (JObject(JField(typeName, value) :: Nil))) ⇒ {
-        (name, value)
+        (name, convertType(typeName, value))
       }
     }
   }
