@@ -2,6 +2,7 @@
 // libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import { autobind } from 'core-decorators';
 
 // components
 import { ModalContainer } from '../modal/base';
@@ -69,12 +70,14 @@ export default class AddWatcherModal extends React.Component {
     );
   }
 
-  get pilledInput() {
-    const pills = this.props.selectedWatchers.map(user => {
-      return user.name
+  username(user) {
+    return user.name
         ? user.name
         : `${user.firstName} ${user.lastName}`;
-    });
+  }
+
+  get pilledInput() {
+    const pills = this.props.selectedWatchers.map(this.username);
     return (
       <PilledInput
         value={this.state.query}
@@ -89,9 +92,10 @@ export default class AddWatcherModal extends React.Component {
     this.setState({query: ''}, () => this.props.onItemSelected(name, idx));
   }
 
+  @autobind
   typeaheadItem(props) {
     const item = props.item;
-    const name = `${item.firstName} ${item.lastName}`;
+    const name = this.username(item);
     return (
       <div className="fc-add-watcher-modal__typeahead-item">
         <div className="fc-add-watcher-modal__typeahead-item-icon">
