@@ -156,6 +156,26 @@ activities = [...activities,
       userType: 'customer'
     }
   },
+  {
+    kind: types.CUSTOMER_ADDRESS_UPDATED,
+    createdAt,
+    data: {
+      customer,
+      oldInfo: address,
+      newInfo: {
+        ...address,
+        zip: '23414',
+      },
+    },
+  },
+  {
+    kind: types.CUSTOMER_ADDRESS_DELETED,
+    createdAt,
+    data: {
+      customer,
+      address,
+    },
+  },
 ];
 
 createdAt = moment().subtract(2, 'days').toString();
