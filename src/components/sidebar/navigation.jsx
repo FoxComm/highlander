@@ -24,10 +24,10 @@ export default class Navigation extends React.Component {
                             isExpandable={true}
                             routes={this.props.routes}
                             collapsed={this.props.collapsed} >
-              <IndexLink to="customers">Lists</IndexLink>
-              <IndexLink to="groups">Customer Groups</IndexLink>
-              <a href="">Insights</a>
-              <a href="">Activity Trial</a>
+              <IndexLink to="customers" className="fc-navigation-item__sublink">Lists</IndexLink>
+              <IndexLink to="groups" className="fc-navigation-item__sublink">Customer Groups</IndexLink>
+              <a href="" className="fc-navigation-item__sublink">Insights</a>
+              <a href="" className="fc-navigation-item__sublink">Activity Trial</a>
             </NavigationItem>
           </li>
           <li>
@@ -38,9 +38,9 @@ export default class Navigation extends React.Component {
                             isExpandable={true}
                             routes={this.props.routes}
                             collapsed={this.props.collapsed} >
-              <IndexLink to="orders">Lists</IndexLink>
-              <a href="">Insights</a>
-              <a href="">Activity Trail</a>
+              <IndexLink to="orders" className="fc-navigation-item__sublink">Lists</IndexLink>
+              <a href="" className="fc-navigation-item__sublink">Insights</a>
+              <a href="" className="fc-navigation-item__sublink">Activity Trail</a>
             </NavigationItem>
           </li>
           <li>
@@ -51,8 +51,8 @@ export default class Navigation extends React.Component {
                             isExpandable={true}
                             routes={this.props.routes}
                             collapsed={this.props.collapsed} >
-              <a href="">Lists</a>
-              <a href="">Returns</a>
+              <a href="" className="fc-navigation-item__sublink">Lists</a>
+              <a href="" className="fc-navigation-item__sublink">Returns</a>
             </NavigationItem>
           </li>
           <li><a href="" className="fc-navigation-link"><i className="icon-items"></i>Items</a></li>
@@ -66,8 +66,8 @@ export default class Navigation extends React.Component {
                             routes={this.props.routes}
                             collapsed={this.props.collapsed} >
               <IndexLink to="gift-cards">Lists</IndexLink>
-              <a href="">Insights</a>
-              <a href="">Activity Trail</a>
+              <a href="" className="fc-navigation-item__sublink">Insights</a>
+              <a href="" className="fc-navigation-item__sublink">Activity Trail</a>
             </NavigationItem>
           </li>
           <li><a href="" className="fc-navigation-link"><i className="icon-discounts"></i>Discounts</a></li>
