@@ -1,4 +1,9 @@
 import React from 'react';
+<<<<<<< f6d1367b0ef95ab0cd682cfb4d03307e200e32bc
+=======
+
+import NavigationItem from './navigation-item';
+>>>>>>> collapse/expand
 import { IndexLink, Link } from '../link';
 
 export default class Navigation extends React.Component {
@@ -6,13 +11,21 @@ export default class Navigation extends React.Component {
     return (
       <nav>
         <ul>
-          <li><IndexLink to='home'><i className="icon-home"></i>Home</IndexLink></li>
-          <li><Link to="customers"><i className="icon-customers"></i>Customers</Link></li>
-          <li><Link to='orders'><i className="icon-orders"></i>Orders</Link></li>
-          <li><Link to='rmas'><i className="icon-returns"></i>Returns</Link></li>
+          <li><NavigationItem to="home" icon="icon-home" title="Home" isIndex={true} /></li>
+          <li>
+            <NavigationItem to="customers" icon="icon-customers" title="Customers" isIndex={true} isExpandable={true} />
+          </li>
+          <li>
+            <NavigationItem to="orders" icon="icon-orders" title="Orders" isIndex={true} isExpandable={true} />
+          </li>
+          <li>
+            <NavigationItem to="rmas" icon="icon-returns" title="Returns" isIndex={true} isExpandable={true} />
+          </li>
           <li><a href=""><i className="icon-items"></i>Items</a></li>
           <li><a href=""><i className="icon-inventory"></i>Inventory</a></li>
-          <li><Link to="gift-cards"><i className="icon-gift-cards"></i>Gift Cards</Link></li>
+          <li>
+            <NavigationItem to="gift-cards" icon="icon-gift-cards" title="Gift Cards" isIndex={true} isExpandable={true} />
+          </li>
           <li><a href=""><i className="icon-discounts"></i>Discounts</a></li>
           <li><a href=""><i className="icon-settings"></i>Settings</a></li>
         </ul>
