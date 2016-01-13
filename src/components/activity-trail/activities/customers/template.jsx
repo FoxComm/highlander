@@ -1,16 +1,13 @@
 
 import _ from 'lodash';
 import React from 'react';
-import { Link } from '../../../link';
+
+import CustomerLink from './../base/customer-link';
 
 export default function makeCustomerDesc(message) {
   return {
     title: data => {
-      const customerLink = (
-        <Link className="fc-activity__link" to="customer" params={{customerId: data.customer.id}}>
-          {data.customer.name}
-        </Link>
-      );
+      const customerLink = <CustomerLink customer={data.customer} />;
 
       if (_.isString(message)) {
         return (

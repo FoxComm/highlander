@@ -3,12 +3,22 @@ import React from 'react';
 import ActivityTrail from './activity-trail';
 import types from './activities/base/types';
 import { processActivity } from '../../modules/activity-trail';
+import moment from 'moment';
 
 function addContext(activity, i) {
-  const userType = i % 2 ? 'system' : 'admin';
+  let userType;
 
-  activity.context = {userType};
-  if (userType == 'admin') {
+  if (activity.context) {
+    userType = activity.context.userType;
+  } else {
+    userType = i % 2 ? 'system' : 'admin';
+    if (activity.data.admin) {
+      userType = 'admin';
+    }
+    activity.context = {userType};
+  }
+
+  if (userType == 'admin' && !activity.data.admin) {
     activity.data.admin = {
       name: 'Jon Doe'
     };
@@ -24,10 +34,34 @@ const customer = {
   phoneNumber: '+11111111111',
 };
 
-const activities = [
+const admin = {
+  id: 2,
+  name: 'Ennio Salieri',
+  email: 'don@salieri.it',
+  phoneNumber: '+77777777777',
+};
+
+const address = {
+  "id": 3,
+  "region": {
+    "id": 4177,
+    "countryId": 234,
+    "name": "California"
+  },
+  "name": "South",
+  "address1": "555 E Lake Union St.",
+  "city": "Los Angeles",
+  "zip": "54321",
+  "isDefault": false
+};
+
+let createdAt = moment().toString();
+
+let activities = [
   // customers
   {
     kind: types.CUSTOMER_UPDATED,
+    createdAt,
     data: {
       customerId: 1,
       oldInfo: {
@@ -44,52 +78,95 @@ const activities = [
   },
   {
     kind: types.CUSTOMER_CREATED,
+    createdAt,
     data: {
       customer
     }
   },
   {
     kind: types.CUSTOMER_REGISTERED,
+    createdAt,
     data: {
       customer
     }
   },
   {
     kind: types.CUSTOMER_ACTIVATED,
+    createdAt,
     data: {
       customer
     }
   },
   {
     kind: types.CUSTOMER_BLACKLISTED,
+    createdAt,
     data: {
       customer
     }
   },
   {
     kind: types.CUSTOMER_REMOVED_FROM_BLACKLIST,
+    createdAt,
     data: {
       customer
     }
   },
   {
     kind: types.CUSTOMER_ENABLED,
+    createdAt,
     data: {
       customer
     }
   },
   {
     kind: types.CUSTOMER_DISABLED,
+    createdAt,
     data: {
       customer
     }
   },
+];
 
+createdAt = moment().subtract(1, 'days').toString();
+
+activities = [...activities,
+
+  // customer addresses
+
+  {
+    kind: types.CUSTOMER_ADDRESS_CREATED_BY_ADMIN,
+    createdAt,
+    data: {
+      customer,
+      admin,
+      address
+    },
+    context: {
+      userType: 'admin'
+    }
+  },
+  {
+    kind: types.CUSTOMER_ADDRESS_CREATED,
+    createdAt,
+    data: {
+      customer,
+      address
+    },
+    context: {
+      userType: 'customer'
+    }
+  },
+];
+
+createdAt = moment().subtract(2, 'days').toString();
+
+activities = [...activities,
 
   // order shipping address
 
   {
     kind: types.ORDER_SHIPPING_ADDRESS_UPDATED,
+    createdAt,
     data: {
       order: {
         referenceNumber: 'BR10001',
@@ -127,6 +204,7 @@ const activities = [
   // order notes
   {
     kind: types.ORDER_NOTE_CREATED,
+    createdAt,
     data: {
       orderRefNum: 'BR10001',
       text: 'New note for order.'
@@ -136,14 +214,18 @@ const activities = [
   // orders
   {
     kind: types.ORDER_STATE_CHANGED,
+    createdAt,
     data: {
       order: {
         referenceNumber: 'BR10004',
         orderStatus: 'fraudHold'
-      }
+      },
+      oldState: 'manualHold',
     }
   }
-].map(processActivity).map(addContext);
+];
+
+activities = activities.map(processActivity).map(addContext);
 
 export default class AllActivities extends React.Component {
 

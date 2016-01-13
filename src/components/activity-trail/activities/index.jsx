@@ -7,12 +7,14 @@ import orderShippingAddressActivities from './order-shipping-address';
 import orderNotesActivities from './order-notes';
 import ordersActivities from './orders';
 import customersActivities from './customers';
+import customerAddressesActivities from './customer-addresses';
 
 const representatives = {
   ...ordersActivities,
   ...orderNotesActivities,
   ...orderShippingAddressActivities,
   ...customersActivities,
+  ...customerAddressesActivities,
 };
 
 export function getActivityRepresentative(activity) {

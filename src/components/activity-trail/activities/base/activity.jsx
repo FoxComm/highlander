@@ -9,6 +9,7 @@ import classNames from 'classnames';
 import { Button } from '../../../common/buttons';
 import { Time } from '../../../common/datetime';
 import UserInitials from '../../../users/initials';
+import CustomerLink from './customer-link';
 
 export default class Activity extends React.Component {
 
@@ -89,16 +90,16 @@ export default class Activity extends React.Component {
     const userType = _.get(activity, ['context', 'userType'], 'system');
 
     switch (userType) {
-      case 'system':
-        return <div className="fc-activity__system-icon"></div>;
       case 'admin':
         return <UserInitials name={activity.data.admin.name} />;
-      default:
+      case 'customer':
         return (
           <div className="fc-activity__customer-icon">
             <i className="icon-customer"></i>
           </div>
         );
+      default:
+        return <div className="fc-activity__system-icon"></div>;
     }
   }
 
@@ -108,12 +109,15 @@ export default class Activity extends React.Component {
     const userType = _.get(activity, ['context', 'userType'], 'system');
 
     switch (userType) {
-      case 'system':
-        return 'FoxCommerce';
       case 'admin':
         return activity.data.admin.name;
-      default:
+      case 'customer':
+        if (activity.data.customer) {
+          return <CustomerLink customer={activity.data.customer} />;
+        }
         return 'The customer';
+      default:
+        return 'FoxCommerce';
     }
   }
 
