@@ -13,7 +13,12 @@ export default class Navigation extends React.Component {
         <ul>
           <li><NavigationItem to="home" icon="icon-home" title="Home" isIndex={true} /></li>
           <li>
-            <NavigationItem to="customers" icon="icon-customers" title="Customers" isIndex={true} isExpandable={true} />
+            <NavigationItem to="customers" icon="icon-customers" title="Customers" isIndex={true} isExpandable={true}>
+              <IndexLink to="customers">Lists</IndexLink>
+              <IndexLink to="groups">Customer Groups</IndexLink>
+              <a href="">Insights</a>
+              <a href="">Activity Trial</a>
+            </NavigationItem>
           </li>
           <li>
             <NavigationItem to="orders" icon="icon-orders" title="Orders" isIndex={true} isExpandable={true} />

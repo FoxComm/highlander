@@ -12,7 +12,8 @@ export default class NavigationItem extends React.Component {
     isExpandable: PropTypes.boolean,
     to: PropTypes.string,
     icon: PropTypes.string,
-    title: PropTypes.string
+    title: PropTypes.string,
+    children: PropTypes.node
   }
 
   static defaultProps = {
@@ -69,7 +70,20 @@ export default class NavigationItem extends React.Component {
     );
   }
 
+  get childrenClass() {
+    return classNames('fc-navigation-item__children', {
+      '_open': this.props.isExpandable && this.state.open
+    });
+  }
+
   render() {
-    return this.props.isIndex ? this.indexLink : this.link;
+    return (
+      <div className="fc-navigation-item-container">
+        { this.props.isIndex ? this.indexLink : this.link }
+        <ul className={this.childrenClass}>
+          {this.props.children}
+        </ul>
+      </div>
+    );
   }
 }
