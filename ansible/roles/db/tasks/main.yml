@@ -49,8 +49,8 @@
   copy: src=libsnappy.pc dest=/usr/local/lib/pkgconfig/libsnappy.pc
   sudo: true
 
-- name: Synchronize Bottledwater
-  synchronize: src={{bottledwater_src}} dest={{bottledwater_dir}}
+- name: Get Bottledwater
+  git: repo={{bottledwater_repo}} dest={{bottledwater_dir}} version={{bottledwater_version}}
 
 - name: Make and Install BottledWater
   shell: make && make install
@@ -137,12 +137,6 @@
   args:
     chdir: "{{phoenix_dir}}"
 
-- name: Seed Db
-  shell: java -cp {{phoenix_jar}} utils.seeds.Seeds
-  sudo: true
-  args:
-    chdir: "{{phoenix_dir}}"
-
 - name: Copy Bottledwater Run File
   copy: src=run_bottledwater.sh dest="/usr/local/bin/run_bottledwater.sh" mode="u+x,g+x,o+x"
   sudo: true
@@ -152,7 +146,7 @@
   sudo: true
 
 - name: Start Bottledwater
-  service: name=bottledwater state=started enabled=yes
+  service: name=bottledwater state=started enabled=yes sleep=5
   sudo: true
 
 - name: Setup Update Materialzied Views Sql
@@ -161,4 +155,10 @@
 
 - name: Setup Materialized Views Cron
   cron: name="update materialized views" minute="*" hour="*" day="*" job="psql {{db_connection_string}} -f {{update_materialized_views_sql}}"
+
+- name: Seed Db
+  shell: java -cp {{phoenix_jar}} utils.seeds.Seeds
+  sudo: true
+  args:
+    chdir: "{{phoenix_dir}}"
 

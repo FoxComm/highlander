@@ -6,8 +6,9 @@ avro_c_name: "avro-c-{{avro_vers}}"
 avro_url: "{{apache_mirror}}/avro/{{avro_name}}/c/{{avro_c_name}}.tar.gz"
 avro_dir: "{{home}}/{{avro_c_name}}"
 
-bottledwater_src: ../../bottledwater-pg/
+bottledwater_repo: https://github.com/confluentinc/bottledwater-pg.git
 bottledwater_dir: "{{home}}/bottledwater"
+bottledwater_version: 7b864b2ac4fb444076dec0e026945a19b708b5bb
 
 flyway_vers: 3.2.1
 flyway_dir: "/usr/local/share/flyway-{{flyway_vers}}"
