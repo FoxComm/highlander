@@ -65,7 +65,7 @@ export default class Navigation extends React.Component {
                             isExpandable={true}
                             routes={this.props.routes}
                             collapsed={this.props.collapsed} >
-              <IndexLink to="gift-cards">Lists</IndexLink>
+              <IndexLink to="gift-cards" className="fc-navigation-item__sublink">Lists</IndexLink>
               <a href="" className="fc-navigation-item__sublink">Insights</a>
               <a href="" className="fc-navigation-item__sublink">Activity Trail</a>
             </NavigationItem>

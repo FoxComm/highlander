@@ -24,17 +24,34 @@ export default class NavigationItem extends React.Component {
     isExpandable: false
   }
 
-  constructor(...args) {
-    super(...args);
+  constructor(props, ...args) {
+    super(props, ...args);
     this.state = {
-      open: false
+      open: this.isOpen(props)
     };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (!nextProps.collapsed) {
+      this.setState({open: this.isOpen(nextProps)});
+    }
   }
 
   @autobind
   expandItem() {
     const status = !this.state.open;
     this.setState({open: status});
+  }
+
+  @autobind
+  isOpen(props) {
+    let initialIsOpen = false;
+    if (!_.isEmpty(props.children)) {
+      const tos = _.compact(props.children.map(c => c.props.to));
+      const routeNames = _.compact(props.routes.map(route => route.name));
+      initialIsOpen = !_.isEmpty(_.intersection(tos, routeNames));
+    }
+    return initialIsOpen;
   }
 
   get expandButton() {
