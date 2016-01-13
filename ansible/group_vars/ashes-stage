@@ -1,4 +1,3 @@
-phoenix_env: staging
 phoenix_server: "{{hostvars[groups['greenriver-stage'][0]]['ansible_eth0']['ipv4']['address'] }}:9090"
 search_server:  "{{hostvars[groups['greenriver-stage'][0]]['ansible_eth0']['ipv4']['address'] }}:9300"
 search_server_http:  "{{hostvars[groups['greenriver-stage'][0]]['ansible_eth0']['ipv4']['address'] }}:9200"
