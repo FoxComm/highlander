@@ -71,6 +71,6 @@ create table export_skus (
 );
 
 create table export_assignments (
-  reference_number    text,
-  assigned_at         text
+    reference_number    text,
+    assigned_at         text
 );

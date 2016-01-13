@@ -14,4 +14,3 @@ create table credit_card_charges (
 );
 
 create index credit_card_charges_order_idx on credit_card_charges (credit_card_id, order_payment_id);
-
