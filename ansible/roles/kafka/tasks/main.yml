@@ -18,7 +18,7 @@
     - zookeeper.service
     - kafka.service
     - schema-registry.service
-      
+
 - name: Kill Zookeeper if it is Running
   shell: systemctl stop zookeeper || true
   sudo: true

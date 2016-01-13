@@ -157,7 +157,7 @@
   cron: name="update materialized views" minute="*" hour="*" day="*" job="psql {{db_connection_string}} -f {{update_materialized_views_sql}}"
 
 - name: Seed Db
-  shell: java -cp {{phoenix_jar}} utils.seeds.Seeds 
+  shell: java -cp {{phoenix_jar}} utils.seeds.Seeds
   sudo: true
   args:
     chdir: "{{phoenix_dir}}"
