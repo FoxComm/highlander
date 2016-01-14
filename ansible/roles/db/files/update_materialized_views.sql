@@ -20,3 +20,6 @@ refresh materialized view concurrently order_billing_addresses_view;
 refresh materialized view concurrently order_assignments_view;
 refresh materialized view concurrently order_rmas_view;
 refresh materialized view concurrently orders_search_view;
+
+-- failed authorizations
+refresh materialized view concurrently failed_authorizations_search_view;
