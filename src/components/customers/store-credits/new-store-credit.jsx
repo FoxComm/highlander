@@ -200,7 +200,7 @@ export default class NewStoreCredit extends React.Component {
                            type="hidden"
                            name="amount"
                            value={this.props.form.amount} />
-                    <input id="scAmountField"
+                    <input id="scAmountTextField"
                            className="fc-store-credit-form__amount-field _no-counters"
                            type="number"
                            name="amountText"

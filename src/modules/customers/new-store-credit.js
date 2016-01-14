@@ -76,7 +76,7 @@ const initialState = {
   form: {
     id: null,
     amount: null,
-    amountText: amountToText(100),
+    amountText: amountToText(0),
     currency: null,
     type: null,
     subTypeId: null,
