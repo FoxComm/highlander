@@ -11,12 +11,14 @@
 - Checkout [phoenix-scala](https://github.com/FoxComm/phoenix-scala)
 - Checkout [green-river](https://github.com/FoxComm/green-river)
 
+    ```
     $ cd phoenix-scala
     $ sbt assembly
     $ cd ../green-river
     $ sbt assembly
     $ cd ../prov-shit
     $ make build
+    ```
 
 ### Lint ansible scripts
 
