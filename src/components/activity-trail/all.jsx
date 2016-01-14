@@ -248,7 +248,23 @@ activities = [...activities,
       text: 'New note for order.'
     }
   },
-
+  {
+    kind: types.ORDER_NOTE_DELETED,
+    createdAt,
+    data: {
+      orderRefNum: 'BR10001',
+      text: 'Lorem ipsum dot color.'
+    }
+  },
+  {
+    kind: types.ORDER_NOTE_UPDATED,
+    createdAt,
+    data: {
+      orderRefNum: 'BR10001',
+      oldText: 'Lorem ipsum dot color.',
+      newText: 'New one'
+    }
+  },
 ];
 
 createdAt = moment().subtract(3, 'days').toString();
