@@ -49,7 +49,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
         )
       }
 
-      _ ← * <~ (Rmas ++= insertRmas)
+      _ ← * <~ Rmas.createAll(insertRmas)
     } yield ()
 
     dbio.runTxn().futureValue

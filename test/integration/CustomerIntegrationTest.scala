@@ -45,7 +45,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
   def responseItems = {
     val insertCustomers = (1 to numOfResults).map { _ ⇒ generateCustomer }
     val dbio = for {
-      customers ← (Customers ++= insertCustomers) >> Customers.result
+      customers ← Customers.createAll(insertCustomers) >> Customers.result
     } yield customers.map(CustomerResponse.build(_))
 
     dbio.transactionally.run().futureValue.toIndexedSeq
@@ -90,7 +90,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
     "returns only 2 customers" in new Fixture {
       pendingUntilFixed {
-        (Customers ++= (1 to 3).map { _ ⇒ generateCustomer }).run().futureValue
+        Customers.createAll((1 to 3).map { _ ⇒ generateCustomer }).run().futureValue.rightVal
 
         val response = GET(s"$uriPrefix?size=2")
         val customers = response.as[CustomerResponse.Root#ResponseMetadataSeq]
@@ -102,9 +102,8 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
     "count of requested customers should be limited to default page size" in new Fixture {
       pendingUntilFixed {
-        (Customers ++= (1 to (CustomDirectives.DefaultPageSize + 1)).map { _ ⇒
-          generateCustomer
-        }).run().futureValue
+        Customers.createAll((1 to (CustomDirectives.DefaultPageSize + 1)).map(_ ⇒ generateCustomer))
+          .run().futureValue.rightVal
 
         val response = GET(s"$uriPrefix")
         response.status must ===(StatusCodes.OK)

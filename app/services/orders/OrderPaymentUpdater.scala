@@ -49,7 +49,7 @@ object OrderPaymentUpdater {
         val payments = StoreCredit.processFifo(storeCredits.toList, reqAmount).map { case (sc, amount) ⇒
           OrderPayment.build(sc).copy(orderId = order.id, amount = Some(amount))
         }
-        DbResult.fromDbio(delete >> (OrderPayments ++= payments))
+        delete.flatMap(_ ⇒ OrderPayments.createAll(payments))
       })
       validation   ← * <~ CartValidator(order).validate
       response     ← * <~ refreshAndFullOrder(order).toXor

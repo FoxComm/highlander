@@ -164,6 +164,7 @@ object LineItemUpdater {
 
             val queries = for {
               origin      ← OrderLineItemSkus.safeFindBySkuId(sku.id)
+              // FIXME: should use `createAll` instead of `++=` but this method is a nightmare to refactor
               bulkInsert  ← OrderLineItems ++= (1 to delta).map { _ ⇒ OrderLineItem(0, order.id, origin.id) }.toSeq
             } yield ()
 
