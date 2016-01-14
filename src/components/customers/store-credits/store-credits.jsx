@@ -4,11 +4,13 @@ import Summary from './summary';
 import TableView from '../../table/tableview';
 import TableRow from '../../table/row';
 import TableCell from '../../table/cell';
+import MultiSelectTable from '../../table/multi-select-table';
 import { DateTime } from '../../common/datetime';
 import Currency from '../../common/currency';
 import SearchBar from '../../search-bar/search-bar';
 import Dropdown from '../../dropdown/dropdown';
 import ConfirmationDialog from '../../modal/confirmation-dialog';
+import { Checkbox } from '../../checkbox/checkbox';
 import { ReasonType } from '../../../lib/reason-utils';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -131,6 +133,7 @@ export default class StoreCredits extends React.Component {
   renderRow(row) {
     return (
       <TableRow key={`storeCredits-row-${row.id}`}>
+        <TableCell><Checkbox /></TableCell>
         <TableCell><DateTime value={ row.createdAt }/></TableCell>
         <TableCell>{ row.id }</TableCell>
         <TableCell>{ row.originType }</TableCell>
@@ -139,6 +142,7 @@ export default class StoreCredits extends React.Component {
         <TableCell><Currency value={ row.currentBalance } /></TableCell>
         <TableCell><Currency value={ row.availableBalance } /></TableCell>
         <TableCell>{ this.renderRowState(row.id, row.status) }</TableCell>
+        <TableCell>{ /* actions? */ }</TableCell>
       </TableRow>
     );
   }
@@ -238,7 +242,7 @@ export default class StoreCredits extends React.Component {
         <div className="fc-grid fc-list-page-content">
           <SearchBar />
           <div className="fc-col-md-1-1 fc-store-credit-table-container">
-            <TableView
+            <MultiSelectTable
               columns={props.tableColumns}
               data={props.storeCredits}
               renderRow={this.renderRow}
