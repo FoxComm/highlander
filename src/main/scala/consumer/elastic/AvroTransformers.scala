@@ -269,4 +269,35 @@ object AvroTransformers {
     def fields = List("assignments")
   }
 
+  final case class FailedAuthorizationsSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
+    def mapping =
+      "failed_authorizations_search_view" as (
+        // Credit Card Charge
+        "id"                    typed IntegerType,
+        "chargeId"              typed StringType analyzer "autocomplete",
+        "amount"                typed IntegerType,
+        "currency"              typed StringType index "not_analyzed",
+        "status"                typed StringType index "not_analyzed",
+        "createdAt"             typed DateType format dateFormat,
+        // Credit Card
+        "holderName"            typed StringType analyzer "autocomplete",
+        "lastFour"              typed IntegerType,
+        "expMonth"              typed IntegerType,
+        "expYear"               typed IntegerType,
+        "brand"                 typed StringType analyzer "autocomplete",
+        // Billing Address
+        "address1"              typed StringType analyzer "autocomplete",
+        "address2"              typed StringType analyzer "autocomplete",
+        "city"                  typed StringType analyzer "autocomplete",
+        "zip"                   typed StringType index "not_analyzed",
+        "region"                typed StringType analyzer "autocomplete",
+        "country"               typed StringType analyzer "autocomplete",
+        "continent"             typed StringType analyzer "autocomplete",
+        // Order and Customer
+        "orderReferenceNumber"  typed StringType analyzer "autocomplete",
+        "customerId"            typed IntegerType
+      )
+
+    def fields = List.empty
+  }
 }
