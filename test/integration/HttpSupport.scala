@@ -190,7 +190,7 @@ trait HttpSupport
 
   private def dispatchRequest(req: HttpRequest): HttpResponse = {
     val response = Http().singleRequest(req, connectionPoolSettings).futureValue
-    ValidResponseContentTypes must contain(response.entity.contentType())
+    ValidResponseContentTypes must contain(response.entity.contentType)
     response
   }
 

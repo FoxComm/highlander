@@ -88,7 +88,7 @@ lazy val phoenixScala = (project in file(".")).
     ),
     libraryDependencies ++= {
       val akkaV      = "2.3.11"
-      val akkaHttpV  = "1.0"
+      val akkaHttpV  = "2.0.1"
       val scalaTestV = "2.2.5"
       val monocleV   = "1.1.1"
       val json4sVersion = "3.3.0.RC3"
@@ -130,7 +130,7 @@ lazy val phoenixScala = (project in file(".")).
         // Testing
         "com.typesafe.akka"    %% "akka-testkit"              % akkaV      % "test",
         "org.scalatest"        %% "scalatest"                 % scalaTestV % "test",
-        "org.scalacheck"       %% "scalacheck"                % "1.12.5"   % "test", 
+        "org.scalacheck"       %% "scalacheck"                % "1.12.5"   % "test",
         "org.mockito"          %  "mockito-core"              % "1.10.19"  % "test")
     },
     scalaSource in Compile <<= (baseDirectory in Compile)(_ / "app"),
