@@ -55,6 +55,13 @@ const address = {
   "isDefault": false
 };
 
+const creditCard = {
+  brand: 'Visa',
+  lastFour: '3421',
+  expMonth: '01',
+  expYear: '2018'
+};
+
 const order = {
   referenceNumber: 'BR10001',
   orderStatus: 'cart',
@@ -305,6 +312,40 @@ activities = [...activities,
   }
 ];
 
+
+createdAt = moment().subtract(4, 'days').toString();
+
+activities = [...activities,
+  {
+    kind: types.CREDIT_CARD_ADDED,
+    createdAt,
+    data: {
+      customer,
+      creditCard
+    }
+  },
+  {
+    kind: types.CREDIT_CARD_REMOVED,
+    createdAt,
+    data: {
+      customer,
+      creditCard
+    }
+  },
+  {
+    kind: types.CREDIT_CARD_UPDATED,
+    createdAt,
+    data: {
+      customer,
+      oldInfo: creditCard,
+      newInfo: {
+        ...creditCard,
+        lastFour: '7653'
+      }
+    }
+  },
+];
+
 activities = activities.map(processActivity).map(addContext);
 
 export default class AllActivities extends React.Component {
@@ -312,7 +353,7 @@ export default class AllActivities extends React.Component {
   render() {
     return (
       <div style={{margin: '20px'}}>
-        <ActivityTrail activities={activities} hasMore={false} />;
+        <ActivityTrail activities={activities} hasMore={false} />
       </div>
     );
   }

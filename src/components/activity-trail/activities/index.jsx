@@ -8,6 +8,7 @@ import orderNotesActivities from './order-notes';
 import ordersActivities from './orders';
 import customersActivities from './customers';
 import customerAddressesActivities from './customer-addresses';
+import customerCreditCardsActivities from './customer-credit-cards';
 
 const representatives = {
   ...ordersActivities,
@@ -15,6 +16,7 @@ const representatives = {
   ...orderShippingAddressActivities,
   ...customersActivities,
   ...customerAddressesActivities,
+  ...customerCreditCardsActivities,
 };
 
 export function getActivityRepresentative(activity) {
