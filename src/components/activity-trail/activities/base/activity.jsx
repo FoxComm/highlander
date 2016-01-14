@@ -54,14 +54,22 @@ export default class Activity extends React.Component {
     const details = this.props.details;
 
     if (details && this.state.expanded) {
-      return (
-        <div className="fc-activity__details">
-          <div className="fc-activity__details-head">New</div>
-          {details.newOne}
-          <div className="fc-activity__details-head">Previous</div>
-          {details.previous}
-        </div>
-      );
+      if (details.newOne || details.previous) {
+        return (
+          <div className="fc-activity__details">
+            <div className="fc-activity__details-head">New</div>
+            {details.newOne}
+            <div className="fc-activity__details-head">Previous</div>
+            {details.previous}
+          </div>
+        );
+      } else {
+        return (
+          <div className="fc-activity__details">
+            {details}
+          </div>
+        );
+      }
     }
   }
 

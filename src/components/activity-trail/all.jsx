@@ -249,6 +249,12 @@ activities = [...activities,
     }
   },
 
+];
+
+createdAt = moment().subtract(3, 'days').toString();
+
+activities = [...activities,
+
   // orders
   {
     kind: types.ORDER_STATE_CHANGED,
@@ -259,6 +265,26 @@ activities = [...activities,
         orderStatus: 'fraudHold'
       },
       oldState: 'manualHold',
+    }
+  },
+  {
+    kind: types.ORDER_BULK_STATE_CHANGED,
+    createdAt,
+    data: {
+      newState: 'fraudHold',
+      orders: [
+        'BR10004',
+        'BR10003',
+        'BR10001',
+      ],
+      oldState: 'manualHold',
+    }
+  },
+  {
+    kind: types.CART_CREATED,
+    createdAt,
+    data: {
+      order,
     }
   }
 ];
