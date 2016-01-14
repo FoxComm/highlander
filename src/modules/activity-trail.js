@@ -6,10 +6,13 @@ import { update, assoc } from 'sprout-data';
 import { updateItems } from './state-helpers';
 import OrderParagon from '../paragons/order';
 import searchActivities from '../elastic/activities';
+//import types from '../components/activity-trail/activities/base/types';
 
 const startFetching = createAction('ACTIVITY_TRAIL_START_FETCHING');
 const receivedActivities = createAction('ACTIVITY_TRAIL_RECEIVED', (trailId, data) => [trailId, data]);
 const fetchFailed = createAction('ACTIVITY_TRAIL_FETCH_FAILED', (trailId, err) => [trailId, err]);
+
+//const flatMap = _.compose(_.flatten, _.map);
 
 export function processActivity(activity) {
   if (activity.data.order) {
@@ -23,6 +26,19 @@ export function processActivity(activity) {
   return activity;
 }
 
+export function processActivities(activities) {
+  //return flatMap(activities, activity => {
+  //  if (activity.kind == types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES ||
+  //    activity.kind == types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES_BY_CUSTOMER) {
+  //
+  //  }
+  //
+  //  return activity;
+  //});
+
+  return activities;
+}
+
 export function fetchActivityTrail(entity, from) {
   return dispatch => {
     dispatch(startFetching(entity.entityId));
@@ -31,7 +47,7 @@ export function fetchActivityTrail(entity, from) {
         dispatch(receivedActivities(
           entity.entityId,
           {
-            activities: response.result.map(({activity}) => processActivity(activity)),
+            activities: processActivities(response.result.map(({activity}) => processActivity(activity))),
             hasMore: response.hasMore
           }
         ));

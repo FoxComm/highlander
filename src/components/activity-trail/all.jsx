@@ -62,6 +62,12 @@ const creditCard = {
   expYear: '2018'
 };
 
+const shippingMethod = {
+  id: 1,
+  name: 'UPS Ground',
+  price: 0
+};
+
 const order = {
   referenceNumber: 'BR10001',
   orderStatus: 'cart',
@@ -77,10 +83,12 @@ const order = {
     "city": "Seattle",
     "zip": "12345",
     "isDefault": false
-  }
+  },
+  shippingMethod,
 };
 
 let createdAt = moment().toString();
+let shiftDays = 1;
 
 let activities = [
   // customers
@@ -152,7 +160,7 @@ let activities = [
   },
 ];
 
-createdAt = moment().subtract(1, 'days').toString();
+createdAt = moment().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
 
@@ -203,7 +211,7 @@ activities = [...activities,
   },
 ];
 
-createdAt = moment().subtract(2, 'days').toString();
+createdAt = moment().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
 
@@ -274,7 +282,7 @@ activities = [...activities,
   },
 ];
 
-createdAt = moment().subtract(3, 'days').toString();
+createdAt = moment().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
 
@@ -313,7 +321,7 @@ activities = [...activities,
 ];
 
 
-createdAt = moment().subtract(4, 'days').toString();
+createdAt = moment().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
@@ -342,6 +350,25 @@ activities = [...activities,
         ...creditCard,
         lastFour: '7653'
       }
+    }
+  },
+];
+
+createdAt = moment().subtract(shiftDays++, 'days').toString();
+
+activities = [...activities,
+  {
+    kind: types.ORDER_SHIPPING_METHOD_UPDATED,
+    createdAt,
+    data: {
+      order,
+    }
+  },
+  {
+    kind: types.ORDER_SHIPPING_METHOD_REMOVED,
+    createdAt,
+    data: {
+      order,
     }
   },
 ];

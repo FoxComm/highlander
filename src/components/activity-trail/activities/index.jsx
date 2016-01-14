@@ -2,10 +2,11 @@
 import React from 'react';
 
 import Activity from './base/activity';
-
-import orderShippingAddressActivities from './order-shipping-address';
-import orderNotesActivities from './order-notes';
+;
 import ordersActivities from './orders';
+import orderNotesActivities from './order-notes';
+import orderShippingAddressActivities from './order-shipping-address';
+import orderShippingMethodsActivities from './order-shipping-methods';
 import customersActivities from './customers';
 import customerAddressesActivities from './customer-addresses';
 import customerCreditCardsActivities from './customer-credit-cards';
@@ -14,6 +15,7 @@ const representatives = {
   ...ordersActivities,
   ...orderNotesActivities,
   ...orderShippingAddressActivities,
+  ...orderShippingMethodsActivities,
   ...customersActivities,
   ...customerAddressesActivities,
   ...customerCreditCardsActivities,
