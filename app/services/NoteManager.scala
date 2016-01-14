@@ -24,7 +24,7 @@ object NoteManager {
 
     order ← * <~ Orders.mustFindByRefNum(refNum)
     note  ← * <~ Notes.create(Note.forOrder(order.id, author.id, payload))
-    _     ← * <~ LogActivity.orderNoteCreated(author, refNum, payload.body)
+    _     ← * <~ LogActivity.orderNoteCreated(author, refNum, order.status, payload.body)
   } yield AdminNotes.build(note, author)).runTxn()
 
   def createGiftCardNote(code: String, author: StoreAdmin, payload: payloads.CreateNote)
@@ -64,7 +64,7 @@ object NoteManager {
     order   ← * <~ Orders.mustFindByRefNum(refNum)
     oldNote ← * <~ Notes.findOneByIdAndAdminId(noteId, author.id).mustFindOr(NotFoundFailure404(Note, noteId))
     note    ← * <~ Notes.update(oldNote, oldNote.copy(body = payload.body))
-    _       ← * <~ LogActivity.orderNoteUpdated(author, refNum, oldNote.body, payload.body)
+    _       ← * <~ LogActivity.orderNoteUpdated(author, refNum, order.status, oldNote.body, payload.body)
   } yield AdminNotes.build(note, author)).runTxn()
 
   def deleteOrderNote(refNum: String, noteId: Int, author: StoreAdmin)
@@ -73,7 +73,7 @@ object NoteManager {
     order   ← * <~ Orders.mustFindByRefNum(refNum)
     oldNote ← * <~ Notes.findOneByIdAndAdminId(noteId, author.id).mustFindOr(NotFoundFailure404(Note, noteId))
     note    ← * <~ Notes.update(oldNote, oldNote.copy(deletedAt = Some(Instant.now), deletedBy = Some(author.id)))
-    _       ← * <~ LogActivity.orderNoteDeleted(author, refNum, note.body)
+    _       ← * <~ LogActivity.orderNoteDeleted(author, refNum, order.status, note.body)
   } yield ()).runTxn()
 
   def updateGiftCardNote(code: String, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)

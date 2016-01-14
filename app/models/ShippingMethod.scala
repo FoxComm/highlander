@@ -41,4 +41,9 @@ object ShippingMethods extends TableQueryWithId[ShippingMethod, ShippingMethods]
   def findActive(implicit db: Database): Query[ShippingMethods, ShippingMethod, Seq] = filter(_.isActive === true)
 
   def findActiveById(id: Int)(implicit db: Database): QuerySeq = findActive.filter(_.id === id)
+
+  def forOrder(order: Order)(implicit db: Database): QuerySeq = for {
+    orderShippingMethod ← OrderShippingMethods.filter(_.orderId === order.id)
+    shipMethod          ← ShippingMethods.filter(_.id === orderShippingMethod.shippingMethodId)
+  } yield shipMethod
 }

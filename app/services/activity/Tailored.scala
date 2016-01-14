@@ -1,6 +1,6 @@
 package services.activity
 
-import models.{OrderShippingMethod, OrderShippingAddress, PaymentMethod, GiftCard, StoreCredit, Order}
+import models.{ShippingMethod, OrderShippingMethod, OrderShippingAddress, PaymentMethod, GiftCard, StoreCredit, Order}
 import payloads.UpdateLineItemsPayload
 import responses.{AdminNotes, Addresses, CustomerResponse, CreditCardsResponse, FullOrder, GiftCardResponse,
 StoreCreditResponse, ShippingMethods, StoreAdminResponse}
@@ -125,20 +125,21 @@ final case class OrderLineItemsDeletedGiftCard(admin: StoreAdminResponse.Root, o
   extends ActivityBase[OrderLineItemsDeletedGiftCard]
 
 final case class OrderLineItemsUpdatedQuantities(admin: StoreAdminResponse.Root, order: FullOrder.Root,
-  quantities: Seq[UpdateLineItemsPayload])
+  oldQuantities: Map[String, Int], newQuantities: Map[String, Int])
   extends ActivityBase[OrderLineItemsUpdatedQuantities]
 
 final case class OrderLineItemsUpdatedQuantitiesByCustomer(customer: CustomerResponse.Root, order: FullOrder.Root,
-  quantities: Seq[UpdateLineItemsPayload])
+  oldQuantities: Map[String, Int], newQuantities: Map[String, Int])
   extends ActivityBase[OrderLineItemsUpdatedQuantitiesByCustomer]
 
 /* Order Shipping Methods */
 
 final case class OrderShippingMethodUpdated(admin: StoreAdminResponse.Root, order: FullOrder.Root,
-  method: OrderShippingMethod)
+  shippingMethod: Option[ShippingMethod])
   extends ActivityBase[OrderShippingMethodUpdated]
 
-final case class OrderShippingMethodRemoved(admin: StoreAdminResponse.Root, order: FullOrder.Root)
+final case class OrderShippingMethodRemoved(admin: StoreAdminResponse.Root, order: FullOrder.Root,
+  shippingMethod: ShippingMethod)
   extends ActivityBase[OrderShippingMethodRemoved]
 
 /* Order Shipping Addresses */
@@ -178,13 +179,16 @@ final case class OrderPaymentMethodDeletedGiftCard(admin: StoreAdminResponse.Roo
 
 /* Order Notes */
 
-final case class OrderNoteCreated(admin: StoreAdminResponse.Root, orderRefNum: String, text: String)
+final case class OrderNoteCreated(admin: StoreAdminResponse.Root, orderRefNum: String, orderStatus: Order.Status,
+  text: String)
   extends ActivityBase[OrderNoteCreated]
 
-final case class OrderNoteUpdated(admin: StoreAdminResponse.Root, orderRefNum: String, oldText: String, newText: String)
+final case class OrderNoteUpdated(admin: StoreAdminResponse.Root, orderRefNum: String, orderStatus: Order.Status,
+  oldText: String, newText: String)
   extends ActivityBase[OrderNoteUpdated]
 
-final case class OrderNoteDeleted(admin: StoreAdminResponse.Root, orderRefNum: String, text: String)
+final case class OrderNoteDeleted(admin: StoreAdminResponse.Root, orderRefNum: String, orderStatus: Order.Status,
+  text: String)
   extends ActivityBase[OrderNoteDeleted]
 
 /* Gift Cards */
