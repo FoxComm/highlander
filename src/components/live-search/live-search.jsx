@@ -71,6 +71,7 @@ export default class LiveSearch extends React.Component {
 
   get searchOptions() {
     // Check to see if the date picker should be shown.
+    let options = null;
     if (this.state.searchOptions.length == 1 && this.state.searchOptions[0].type == 'date') {
       const clickAction = date => {
         const dateVal = date.toLocaleString('en-us', {
@@ -83,28 +84,31 @@ export default class LiveSearch extends React.Component {
       };
 
 
-      return (
+      options = (
         <DatePicker
+          className="_in-menu"
+          key="live-search-orders-datepicker"
           onClick={clickAction}
           showInput={false}
           showPicker={true} />
       );
-    }
-    const selectedIdx = this.state.selectionIndex;
-    const options = _.reduce(this.state.searchOptions, (result, option, idx) => {
-      if (!option.matchesSearchTerm(this.state.searchValue)) {
-        return result;
-      }
+    } else {
+      const selectedIdx = this.state.selectionIndex;
+      options = _.reduce(this.state.searchOptions, (result, option, idx) => {
+        if (!option.matchesSearchTerm(this.state.searchValue)) {
+          return result;
+        }
 
-      return [
-        ...result,
-        <SearchOption
-          className={classNames({ '_active': selectedIdx == idx, '_first': idx == 0 })}
-          key={`search-option-${idx}`}
-          option={option}
-          clickAction={(filter) => this.submitFilter(filter, true)} />
-      ];
-    }, []);
+        return [
+          ...result,
+          <SearchOption
+            className={classNames({ '_active': selectedIdx == idx, '_first': idx == 0 })}
+            key={`search-option-${option.displayTerm}`}
+            option={option}
+            clickAction={(filter) => this.submitFilter(filter, true)} />
+        ];
+      }, []);
+    }
 
     const menuClass = classNames('fc-live-search__go-back _last', {
       '_active': this.state.selectionIndex == this.state.searchOptions.length
@@ -394,7 +398,7 @@ export default class LiveSearch extends React.Component {
               </PilledInput>
             </form>
             <div>
-              {this.state.optionsVisible && this.searchOptions}
+              {this.searchOptions}
             </div>
           </div>
           <div className="fc-col-md-1-1">

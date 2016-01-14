@@ -16,6 +16,7 @@ const suppressClick = event => {
 
 export default class DatePicker extends React.Component {
   static propTypes = {
+    className: PropTypes.string,
     onClick: PropTypes.func,
     showInput: PropTypes.bool,
     showPicker: PropTypes.bool,
@@ -49,8 +50,8 @@ export default class DatePicker extends React.Component {
     if (this.props.showInput) {
       const date = this.state.selectedDate || '';
       const prettyDate = this.state.selectedDate
-        ? this.state.selectedDate.toLocaleString('en-us', { 
-          month: '2-digit', 
+        ? this.state.selectedDate.toLocaleString('en-us', {
+          month: '2-digit',
           day: '2-digit',
           year: 'numeric',
         }) : '';
@@ -60,7 +61,7 @@ export default class DatePicker extends React.Component {
           <AppendInput
             icon="calendar"
             inputName="someDate"
-            inputValue={date} 
+            inputValue={date}
             inputValuePretty={prettyDate}
             onBlur={this.blurred}
             onFocus={this.focused}
@@ -137,9 +138,9 @@ export default class DatePicker extends React.Component {
   selectDate(date) {
     this.props.onClick(date);
 
-    this.setState({ 
+    this.setState({
       ...this.state,
-      selectedDate: date 
+      selectedDate: date
     });
   }
 
@@ -155,17 +156,17 @@ export default class DatePicker extends React.Component {
             onClick={this.goBackMonth}
             onMouseDown={suppressClick}
             onMouseUp={suppressClick}>
-            {isFirst && <i className="icon-chevron-left" />} 
+            {isFirst && <i className="icon-chevron-left" />}
           </a>
           <div className="fc-datepicker__month-name">
             {monthName}
           </div>
-          <a 
+          <a
             className="fc-datepicker__month-action-forward"
             onClick={this.goForwardMonth}
             onMouseDown={suppressClick}
             onMouseUp={suppressClick}>
-            {!isFirst && <i className="icon-chevron-right" />} 
+            {!isFirst && <i className="icon-chevron-right" />}
           </a>
         </div>
         <div className="fc-datepicker__weeks-header">
@@ -183,7 +184,7 @@ export default class DatePicker extends React.Component {
     const startDay = 1 - date.getDay(); // Day is 1-based in JS Date.
     const selectedTime = !_.isNull(this.state.selectedDate)
       ? this.state.selectedDate.getTime()
-      : ''; 
+      : '';
 
     return _.range(startDay, startDay + 35).map(day => {
       const dt = new Date(date.getFullYear(), date.getMonth(), day);
@@ -194,7 +195,7 @@ export default class DatePicker extends React.Component {
       });
 
       return (
-        <div 
+        <div
           className={klass}
           onClick={() => this.selectDate(dt)}
           onMouseDown={suppressClick}
@@ -206,8 +207,9 @@ export default class DatePicker extends React.Component {
   }
 
   render() {
+    const className = classNames('fc-datepicker', this.props.className);
     return (
-      <div className="fc-datepicker">
+      <div className={className}>
         {this.inputBox}
         {this.picker}
       </div>
