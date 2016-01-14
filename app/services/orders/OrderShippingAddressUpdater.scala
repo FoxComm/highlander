@@ -39,7 +39,7 @@ object OrderShippingAddressUpdater {
     validated     ← * <~ CartValidator(order).validate
     response      ← * <~ FullOrder.refreshAndFullOrder(order).toXor
     _             ← * <~ LogActivity.orderShippingAddressAdded(admin, response, shipAddress)
-  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runT()
+  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runTxn()
 
   def createShippingAddressFromPayload(admin: StoreAdmin, payload: CreateAddressPayload, refNum: String)
     (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
@@ -52,7 +52,7 @@ object OrderShippingAddressUpdater {
     validated   ← * <~ CartValidator(order).validate
     response    ← * <~ FullOrder.refreshAndFullOrder(order).toXor
     _           ← * <~ LogActivity.orderShippingAddressAdded(admin, response, shipAddress)
-  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runT()
+  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runTxn()
 
   def updateShippingAddressFromPayload(admin: StoreAdmin, payload: UpdateAddressPayload, refNum: String)
     (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
@@ -65,7 +65,7 @@ object OrderShippingAddressUpdater {
     validated   ← * <~ CartValidator(order).validate
     response    ← * <~ FullOrder.refreshAndFullOrder(order).toXor
     _           ← * <~ LogActivity.orderShippingAddressUpdated(admin, response, shipAddress)
-  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runT()
+  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runTxn()
 
   def removeShippingAddress(admin: StoreAdmin, refNum: String)
     (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
@@ -77,5 +77,5 @@ object OrderShippingAddressUpdater {
                         onFailure = DbResult.failure(NoShipAddress(order.refNum)))
     validated ← * <~ CartValidator(order).validate
     _         ← * <~ LogActivity.orderShippingAddressDeleted(admin, response)
-  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runT()
+  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runTxn()
 }

@@ -60,5 +60,5 @@ object OrderQueries {
     order     ← * <~ Orders.mustFindByRefNum(refNum)
     validated ← * <~ CartValidator(order).validate
     response  ← * <~ FullOrder.fromOrder(order).toXor
-  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runT()
+  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runTxn()
 }

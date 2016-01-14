@@ -24,7 +24,7 @@ class ModelIntegrationTest extends IntegrationTestBase {
       val result = (for {
         customer ← * <~ Customers.create(Factories.customer)
         address  ← * <~ Addresses.create(Factories.address.copy(zip = "123-45", customerId = customer.id))
-      } yield address).runT().futureValue.rightVal
+      } yield address).runTxn().futureValue.rightVal
       result.zip must === ("12345")
     }
 
@@ -33,7 +33,7 @@ class ModelIntegrationTest extends IntegrationTestBase {
         customer ← * <~ Customers.create(Factories.customer)
         original ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
         copycat  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
-      } yield copycat).runT().futureValue
+      } yield copycat).runTxn().futureValue
       result.leftVal must === (DatabaseFailure(
         "ERROR: duplicate key value violates unique constraint \"address_shipping_default_idx\"\n" +
         "  Detail: Key (customer_id, is_default_shipping)=(1, t) already exists.").single)

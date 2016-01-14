@@ -26,7 +26,7 @@ object OrderStatusUpdater {
     updated   ← * <~ Orders.mustFindByRefNum(refNum)
     response  ← * <~ FullOrder.fromOrder(updated).toXor
     _         ← * <~ LogActivity.orderStateChanged(admin, response, order.status)
-  } yield response).runT()
+  } yield response).runTxn()
 
   // TODO: transfer sorting-paging metadata
   def updateStatuses(admin: StoreAdmin, refNumbers: Seq[String], newStatus: Order.Status, skipActivity: Boolean = false)

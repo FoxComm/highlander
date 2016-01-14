@@ -33,34 +33,34 @@ object TrailManager {
     val autoDescription = "Automatically Generated"
 
     def createTrail(payload: Trail)
-    (implicit ec: ExecutionContext, db: Database): Result[Int] = 
-      (for { 
+    (implicit ec: ExecutionContext, db: Database): Result[Int] =
+      (for {
         trail ← * <~ Trails.create(
           Trail(
-          dimensionId = payload.dimensionId, 
+          dimensionId = payload.dimensionId,
           objectId = payload.objectId,
           data = payload.data))
-      } yield trail.id).runT()
-    
+      } yield trail.id).runTxn()
+
 
     /**
      * The append function will create a dimension and trail if they don't exist.
      * The idea here is to lazily create resources to save space and query time.
      */
     def appendActivityByObjectId(
-      dimensionName: String, 
-      objectId: Int, 
-      payload: AppendActivity) 
+      dimensionName: String,
+      objectId: Int,
+      payload: AppendActivity)
     (implicit context: ActivityContext, ec: ExecutionContext, db: Database) : Result[ActivityConnectionResponse.Root] =
-      (for { 
+      (for {
 
         //find or create the dimension
-        dimension ← * <~ Dimensions.findByName(dimensionName).one.findOrCreate { 
+        dimension ← * <~ Dimensions.findByName(dimensionName).one.findOrCreate {
           Dimensions.create(Dimension(name = dimensionName, description = autoDescription))
         }
 
         //find or create
-        trail ← * <~ Trails.findByObjectId(dimension.id, objectId).one.findOrCreate { 
+        trail ← * <~ Trails.findByObjectId(dimension.id, objectId).one.findOrCreate {
           Trails.create(Trail(dimensionId = dimension.id, objectId = objectId))
         }
 
@@ -69,8 +69,8 @@ object TrailManager {
 
         //insert new tail, point previous to old tail
         newTail ← * <~ Connections.create(Connection(
-          dimensionId = dimension.id, 
-          trailId = trail.id, 
+          dimensionId = dimension.id,
+          trailId = trail.id,
           activityId = payload.activityId,
           previousId = maybeOldTailId,
           nextId = None,
@@ -82,12 +82,12 @@ object TrailManager {
 
         //update old tail if there was one
         _ ← * <~ updateTail(maybeOldTailId, newTail.id)
-      } yield (ActivityConnectionResponse.build(objectId, dimension, newTail))).runT()
+      } yield (ActivityConnectionResponse.build(objectId, dimension, newTail))).runTxn()
 
-    private def updateTail(maybeOldTailId: Option[Int], newTailId: Int) 
-    (implicit ec: ExecutionContext, db: Database) : DbResultT[Unit] = { 
+    private def updateTail(maybeOldTailId: Option[Int], newTailId: Int)
+    (implicit ec: ExecutionContext, db: Database) : DbResultT[Unit] = {
       maybeOldTailId match {
-        case Some(oldTailId) ⇒  
+        case Some(oldTailId) ⇒
           for {
             oldTail ← * <~ Connections.mustFindById(oldTailId)
               _ ← * <~ Connections.update(oldTail, oldTail.copy(nextId = Some(newTailId)))
@@ -96,14 +96,14 @@ object TrailManager {
       }
     }
 
-    def findConnection(connectionId: Int) 
+    def findConnection(connectionId: Int)
     (implicit ec: ExecutionContext, db: Database) : Result[FullActivityConnectionResponse.Root] = {
       (for {
         connection ← * <~ Connections.mustFindById(connectionId)
         trail ← * <~ Trails.mustFindById(connection.trailId)
         dimension ← * <~ Dimensions.mustFindById(trail.dimensionId)
         activity ← * <~ Activities.mustFindById(connection.activityId)
-      } yield (FullActivityConnectionResponse.build(trail.objectId, dimension, connection, activity))).runT()
+      } yield (FullActivityConnectionResponse.build(trail.objectId, dimension, connection, activity))).runTxn()
     }
 
 }

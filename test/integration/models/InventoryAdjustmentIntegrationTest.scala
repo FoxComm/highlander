@@ -17,7 +17,7 @@ class InventoryAdjustmentIntegrationTest extends IntegrationTestBase {
     sku         ← * <~ Skus.create(Factories.skus.head.copy(price = 5))
     order       ← * <~ Orders.create(Order(id = 0, customerId = 1))
     lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(sku.id).toXor
-  } yield (warehouse, sku, lineItemSku, order)).runT().futureValue.rightVal
+  } yield (warehouse, sku, lineItemSku, order)).runTxn().futureValue.rightVal
 
   "InventoryAdjustment" - {
     "createAdjustmentsForOrder creates an adjustment with the correct reservation based on line items" in {

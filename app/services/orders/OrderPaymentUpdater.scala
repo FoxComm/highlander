@@ -32,7 +32,7 @@ object OrderPaymentUpdater {
     resp  ← * <~ refreshAndFullOrder(order).toXor
     valid ← * <~ CartValidator(order).validate
     _     ← * <~ LogActivity.orderPaymentMethodAddedGc(admin, resp, gc, payload.amount)
-  } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runT()
+  } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def addStoreCredit(admin: StoreAdmin, refNum: String, payload: StoreCreditPayment)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = {
@@ -54,7 +54,7 @@ object OrderPaymentUpdater {
       validation   ← * <~ CartValidator(order).validate
       response     ← * <~ refreshAndFullOrder(order).toXor
       _            ← * <~ LogActivity.orderPaymentMethodAddedSc(admin, response, payload.amount)
-    } yield TheResponse.build(response, alerts = validation.alerts, warnings = validation.warnings)).runT()
+    } yield TheResponse.build(response, alerts = validation.alerts, warnings = validation.warnings)).runTxn()
   }
 
   def addCreditCard(admin: StoreAdmin, refNum: String, id: Int)
@@ -69,7 +69,7 @@ object OrderPaymentUpdater {
     valid   ← * <~ CartValidator(order).validate
     resp    ← * <~ refreshAndFullOrder(order).toXor
     _       ← * <~ LogActivity.orderPaymentMethodAddedCc(admin, resp, cc, region)
-  } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runT()
+  } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def deleteCreditCard(admin: StoreAdmin, refNum: String)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] =
@@ -90,7 +90,7 @@ object OrderPaymentUpdater {
                   onSuccess = refreshAndFullOrder(order).toXor,
                   onFailure = DbResult.failure(OrderPaymentNotFoundFailure(pmt)))
     _     ← * <~ LogActivity.orderPaymentMethodDeleted(admin, resp, pmt)
-  } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runT()
+  } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def deleteGiftCard(admin: StoreAdmin, refNum: String, code: String)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
@@ -105,5 +105,5 @@ object OrderPaymentUpdater {
                         onSuccess = refreshAndFullOrder(order).toXor,
                         onFailure = DbResult.failure(OrderPaymentNotFoundFailure(PaymentMethod.GiftCard)))
     _         ← * <~ LogActivity.orderPaymentMethodDeletedGc(admin, deleteRes, giftCard)
-  } yield TheResponse.build(deleteRes, alerts = validated.alerts, warnings = validated.warnings)).runT()
+  } yield TheResponse.build(deleteRes, alerts = validated.alerts, warnings = validated.warnings)).runTxn()
 }

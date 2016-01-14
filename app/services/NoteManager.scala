@@ -25,7 +25,7 @@ object NoteManager {
     order ← * <~ Orders.mustFindByRefNum(refNum)
     note  ← * <~ Notes.create(Note.forOrder(order.id, author.id, payload))
     _     ← * <~ LogActivity.orderNoteCreated(author, refNum, payload.body)
-  } yield AdminNotes.build(note, author)).runT()
+  } yield AdminNotes.build(note, author)).runTxn()
 
   def createGiftCardNote(code: String, author: StoreAdmin, payload: payloads.CreateNote)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {
@@ -65,7 +65,7 @@ object NoteManager {
     oldNote ← * <~ Notes.findOneByIdAndAdminId(noteId, author.id).mustFindOr(NotFoundFailure404(Note, noteId))
     note    ← * <~ Notes.update(oldNote, oldNote.copy(body = payload.body))
     _       ← * <~ LogActivity.orderNoteUpdated(author, refNum, oldNote.body, payload.body)
-  } yield AdminNotes.build(note, author)).runT()
+  } yield AdminNotes.build(note, author)).runTxn()
 
   def deleteOrderNote(refNum: String, noteId: Int, author: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Unit] = (for {
@@ -74,7 +74,7 @@ object NoteManager {
     oldNote ← * <~ Notes.findOneByIdAndAdminId(noteId, author.id).mustFindOr(NotFoundFailure404(Note, noteId))
     note    ← * <~ Notes.update(oldNote, oldNote.copy(deletedAt = Some(Instant.now), deletedBy = Some(author.id)))
     _       ← * <~ LogActivity.orderNoteDeleted(author, refNum, note.body)
-  } yield ()).runT()
+  } yield ()).runTxn()
 
   def updateGiftCardNote(code: String, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = {

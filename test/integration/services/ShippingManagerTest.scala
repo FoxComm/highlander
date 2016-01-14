@@ -71,7 +71,7 @@ class ShippingManagerTest extends IntegrationTestBase {
         val (address, orderShippingAddress) = (for {
           address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, regionId = washingtonId))
           orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-        } yield (address, orderShippingAddress)).runT().futureValue.rightVal
+        } yield (address, orderShippingAddress)).runTxn().futureValue.rightVal
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).run().futureValue
         rightValue(matchingMethods).head.name must === (shippingMethod.adminDisplayName)
@@ -81,7 +81,7 @@ class ShippingManagerTest extends IntegrationTestBase {
         val (address, orderShippingAddress) = (for {
           address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, regionId = michiganId))
           orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-        } yield (address, orderShippingAddress)).runT().futureValue.rightVal
+        } yield (address, orderShippingAddress)).runTxn().futureValue.rightVal
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).run().futureValue
         rightValue(matchingMethods) mustBe 'empty
@@ -95,7 +95,7 @@ class ShippingManagerTest extends IntegrationTestBase {
         val (address, orderShippingAddress) = (for {
           address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, regionId = washingtonId))
           orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-        } yield (address, orderShippingAddress)).runT().futureValue.rightVal
+        } yield (address, orderShippingAddress)).runTxn().futureValue.rightVal
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).run().futureValue.rightVal
         matchingMethods.headOption.value.name must === (shippingMethod.adminDisplayName)
@@ -106,7 +106,7 @@ class ShippingManagerTest extends IntegrationTestBase {
           address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, regionId = washingtonId,
             address1 = "P.O. Box 1234"))
           orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-        } yield (address, orderShippingAddress)).runT().futureValue.rightVal
+        } yield (address, orderShippingAddress)).runTxn().futureValue.rightVal
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).run().futureValue
         rightValue(matchingMethods) mustBe 'empty
@@ -117,7 +117,7 @@ class ShippingManagerTest extends IntegrationTestBase {
           address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, regionId = washingtonId,
             address2 = Some("P.O. Box 1234")))
           orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-        } yield (address, orderShippingAddress)).runT().futureValue.rightVal
+        } yield (address, orderShippingAddress)).runTxn().futureValue.rightVal
 
         val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).run().futureValue
         rightValue(matchingMethods) mustBe 'empty
@@ -137,7 +137,7 @@ class ShippingManagerTest extends IntegrationTestBase {
         originType = OrderLineItem.SkuItem))
 
       order       ← * <~ OrderTotaler.saveTotals(order)
-    } yield (customer, order)).runT().futureValue.rightVal
+    } yield (customer, order)).runTxn().futureValue.rightVal
 
     val californiaId = 4129
     val michiganId = 4148
@@ -150,7 +150,7 @@ class ShippingManagerTest extends IntegrationTestBase {
     val (address, orderShippingAddress) = (for {
       address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, regionId = californiaId))
       orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-    } yield (address, orderShippingAddress)).runT().futureValue.rightVal
+    } yield (address, orderShippingAddress)).runTxn().futureValue.rightVal
   }
 
   trait WestCoastConditionFixture extends Fixture {
@@ -187,21 +187,21 @@ class ShippingManagerTest extends IntegrationTestBase {
     val (address, orderShippingAddress) = (for {
       address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, regionId = californiaId))
       orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-    } yield (address, orderShippingAddress)).runT().futureValue.rightVal
+    } yield (address, orderShippingAddress)).runTxn().futureValue.rightVal
   }
 
   trait WashingtonOrderFixture extends WestCoastConditionFixture {
     val (address, orderShippingAddress) = (for {
       address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, regionId = washingtonId))
       orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-    } yield (address, orderShippingAddress)).runT().futureValue.rightVal
+    } yield (address, orderShippingAddress)).runTxn().futureValue.rightVal
   }
 
   trait MichiganOrderFixture extends WestCoastConditionFixture {
     val (address, orderShippingAddress) = (for {
       address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, regionId = michiganId))
       orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-    } yield (address, orderShippingAddress)).runT().futureValue.rightVal
+    } yield (address, orderShippingAddress)).runTxn().futureValue.rightVal
   }
 
   trait POCondition extends Fixture {
@@ -257,7 +257,7 @@ val conditions = parse(
 
       cheapOrder      ← * <~ OrderTotaler.saveTotals(cheapOrder)
       expensiveOrder  ← * <~ OrderTotaler.saveTotals(expensiveOrder)
-    } yield(shippingMethod, cheapOrder, expensiveOrder)).runT().futureValue.rightVal
+    } yield(shippingMethod, cheapOrder, expensiveOrder)).runTxn().futureValue.rightVal
   }
 
   trait StateAndPriceCondition extends Fixture {

@@ -29,7 +29,7 @@ object OrderWatcherUpdater {
     warnings        = Failurez(requestedWatcherIds.diff(adminIds).map(NotFoundFailure404(StoreAdmin, _)): _*)
     assignedAdmins  = fullOrder.watchers.filter(w ⇒ newWatchers.map(_.watcherId).contains(w.watcher.id)).map(_.watcher)
     _               ← * <~ LogActivity.addedWatchersToOrder(admin, fullOrder, assignedAdmins)
-  } yield TheResponse.build(fullOrder, warnings = warnings)).runT()
+  } yield TheResponse.build(fullOrder, warnings = warnings)).runTxn()
 
   def unassign(admin: StoreAdmin, refNum: String, assigneeId: Int)
     (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[FullOrder.Root] = (for {
@@ -40,7 +40,7 @@ object OrderWatcherUpdater {
     _               ← * <~ OrderWatchers.byWatcher(watcher).delete
     fullOrder       ← * <~ FullOrder.fromOrder(order).toXor
     _               ← * <~ LogActivity.removedWatcherFromOrder(admin, fullOrder, watcher)
-  } yield fullOrder).runT()
+  } yield fullOrder).runTxn()
 
   def watchBulk(admin: StoreAdmin, payload: payloads.BulkWatchers)
     (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = {

@@ -41,7 +41,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       _ ← * <~ (Orders ++= insertOrders)
     } yield ()
 
-    dbio.runT().futureValue
+    dbio.runTxn().futureValue
     getAllOrders.toIndexedSeq
   }
 
@@ -361,7 +361,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       bar  ← * <~ Orders.create(Factories.order.copy(customerId = cust.id, referenceNumber = "bar",
                                                                                    status = RemorseHold, isLocked = true))
       baz  ← * <~ Orders.create(Factories.order.copy(customerId = cust.id, referenceNumber = "baz", status = ManualHold))
-    } yield (cust, foo, bar)).runT().futureValue.rightVal
+    } yield (cust, foo, bar)).runTxn().futureValue.rightVal
   }
 
   trait BulkAssignmentFixture {
@@ -370,7 +370,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       order1   ← * <~ Orders.create(Factories.order.copy(id = 1, referenceNumber = "foo", customerId = customer.id))
       order2   ← * <~ Orders.create(Factories.order.copy(id = 2, referenceNumber = "bar", customerId = customer.id))
       admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
-    } yield (order1, order2, admin)).runT().futureValue.rightVal
+    } yield (order1, order2, admin)).runTxn().futureValue.rightVal
     val orderRef1 = order1.referenceNumber
     val orderRef2 = order2.referenceNumber
     val adminId = admin.id

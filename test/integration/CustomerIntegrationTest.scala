@@ -585,7 +585,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
       region ← * <~ Regions.findOneById(address.regionId).toXor
       admin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (customer, address, region, admin)).runT().futureValue.rightVal
+    } yield (customer, address, region, admin)).runTxn().futureValue.rightVal
   }
 
   trait CreditCardFixture extends Fixture {
@@ -617,6 +617,6 @@ class CustomerIntegrationTest extends IntegrationTestBase
               values(${rma.id}, ${creditCard.id}, ${PaymentMethod.Type.show(PaymentMethod.CreditCard)}, 37,
                ${Currency.USD.toString})
             """
-    } yield (order, orderPayment, customer2)).runT().futureValue.rightVal
+    } yield (order, orderPayment, customer2)).runTxn().futureValue.rightVal
   }
 }

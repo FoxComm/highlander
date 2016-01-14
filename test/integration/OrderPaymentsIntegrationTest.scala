@@ -360,7 +360,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       customer ← * <~ Customers.create(Factories.customer)
       order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, status = Order.Cart))
       admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (order, admin, customer)).runT().futureValue.rightVal
+    } yield (order, admin, customer)).runTxn().futureValue.rightVal
   }
 
   trait GiftCardFixture extends Fixture {
@@ -368,7 +368,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
       origin   ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active))
-    } yield giftCard).runT().futureValue.rightVal
+    } yield giftCard).runTxn().futureValue.rightVal
   }
 
   trait StoreCreditFixture extends Fixture {
@@ -381,7 +381,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         Factories.storeCredit.copy(status = StoreCredit.Active, customerId = customer.id, originId = i)
       })
       storeCredits ← * <~ StoreCredits.findAllByCustomerId(customer.id).result
-    } yield storeCredits).runT().futureValue.rightVal
+    } yield storeCredits).runTxn().futureValue.rightVal
   }
 
   trait CreditCardFixture extends Fixture {

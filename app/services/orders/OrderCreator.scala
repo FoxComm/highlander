@@ -32,13 +32,13 @@ object OrderCreator {
         _        ← * <~ (if (hasCart) Xor.left(CustomerHasCart(customer.id).single) else Xor.right({}))
         newCart  ← * <~ Orders.create(Order.buildCart(customerId))
         _        ← * <~ LogActivity.cartCreated(admin, root(newCart, customer))
-      } yield root(newCart, customer)).runT()
+      } yield root(newCart, customer)).runTxn()
 
     def createCartAndGuest(email: String): Result[Root] = (for {
       guest ← * <~ Customers.create(Customer.buildGuest(email = email))
       cart  ← * <~ Orders.create(Order.buildCart(guest.id))
       _     ← * <~ LogActivity.cartCreated(admin, root(cart, guest))
-    } yield root(cart, guest)).runT()
+    } yield root(cart, guest)).runTxn()
 
     (for {
       _     ← ResultT.fromXor(payload.validate.toXor)

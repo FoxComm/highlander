@@ -32,7 +32,7 @@ object OrderShippingMethodUpdater {
     validated       ← * <~ CartValidator(order).validate
     response        ← * <~ FullOrder.refreshAndFullOrder(order).toXor
     _               ← * <~ LogActivity.orderShippingMethodUpdated(admin, response, orderShipMethod)
-  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runT()
+  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runTxn()
 
   def deleteShippingMethod(admin: StoreAdmin, refNum: String)
     (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
@@ -44,5 +44,5 @@ object OrderShippingMethodUpdater {
     valid ← * <~ CartValidator(order).validate
     resp  ← * <~ FullOrder.refreshAndFullOrder(order).toXor
     _     ← * <~ LogActivity.orderShippingMethodDeleted(admin, resp)
-  } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runT()
+  } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 }

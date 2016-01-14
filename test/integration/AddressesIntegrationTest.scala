@@ -39,7 +39,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
       } yield responses.Addresses.build(address, region, Some(address.isDefaultShipping))
     }
 
-    DbResultT.sequence(items).runT().futureValue.rightVal
+    DbResultT.sequence(items).runTxn().futureValue.rightVal
   }
 
   val sortColumnName = "name"
@@ -216,7 +216,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
     (for {
       order           ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       shippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address, order.id)
-    } yield (order, shippingAddress)).runT().futureValue.rightVal
+    } yield (order, shippingAddress)).runTxn().futureValue.rightVal
   }
 
   trait NoDefaultAddressFixture extends CustomerFixture {
@@ -224,6 +224,6 @@ class AddressesIntegrationTest extends IntegrationTestBase
       address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
       order   ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       shipAdd ← * <~ OrderShippingAddresses.copyFromAddress(address, order.id)
-    } yield (address, order, shipAdd)).runT().futureValue.rightVal
+    } yield (address, order, shipAdd)).runTxn().futureValue.rightVal
   }
 }

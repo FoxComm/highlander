@@ -28,7 +28,7 @@ object CustomerManager {
       customer  ← * <~ Customers.mustFindById(customerId, customerNotFound)
       updated   ← * <~ Customers.update(customer, customer.copy(isDisabled = disabled, disabledBy = Some(admin.id)))
       _         ← * <~ LogActivity.customerDisabled(disabled, customer, admin)
-    } yield build(updated)).runT()
+    } yield build(updated)).runTxn()
 
   // TODO: add blacklistedReason later
   def toggleBlacklisted(customerId: Int, blacklisted: Boolean, admin: StoreAdmin)
@@ -37,7 +37,7 @@ object CustomerManager {
       updated   ← * <~ Customers.update(customer, customer.copy(isBlacklisted = blacklisted,
         blacklistedBy = Some(admin.id)))
       _         ← * <~ LogActivity.customerBlacklisted(blacklisted, customer, admin)
-    } yield build(updated)).runT()
+    } yield build(updated)).runTxn()
 
   def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
     val query = Customers.withRegionsAndRank
@@ -141,7 +141,7 @@ object CustomerManager {
           phoneNumber = payload.phoneNumber.fold(customer.phoneNumber)(Some(_))
         ))
         _         ← * <~ LogActivity.customerUpdated(customer, updated, admin)
-      } yield build(updated)).runT()
+      } yield build(updated)).runTxn()
     } { (NotUnique, CustomerEmailNotUnique) }
   }
 

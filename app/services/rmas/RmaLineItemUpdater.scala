@@ -31,7 +31,7 @@ object RmaLineItemUpdater {
       li        ← * <~ RmaLineItems.create(RmaLineItem.buildSku(rma, reason, origin, payload))
       // Response
       response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
-    } yield response).runT()
+    } yield response).runTxn()
 
   def deleteSkuLineItem(refNum: String, lineItemId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
@@ -45,7 +45,7 @@ object RmaLineItemUpdater {
       _         ← * <~ RmaLineItemSkus.filter(_.id === lineItem._2.id).delete
       // Response
       response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
-    } yield response).runT()
+    } yield response).runTxn()
 
   def addGiftCardLineItem(refNum: String, payload: RmaGiftCardLineItemsPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
@@ -61,7 +61,7 @@ object RmaLineItemUpdater {
       li        ← * <~ RmaLineItems.create(RmaLineItem.buildGiftCard(rma, reason, origin))
       // Response
       response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
-    } yield response).runT()
+    } yield response).runTxn()
 
   def deleteGiftCardLineItem(refNum: String, lineItemId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
@@ -75,7 +75,7 @@ object RmaLineItemUpdater {
       _         ← * <~ RmaLineItemGiftCards.filter(_.id === lineItem._2.id).delete
       // Response
       response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
-    } yield response).runT()
+    } yield response).runTxn()
 
   def addShippingCostItem(refNum: String, payload: RmaShippingCostLineItemsPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
@@ -89,7 +89,7 @@ object RmaLineItemUpdater {
       li        ← * <~ RmaLineItems.create(RmaLineItem.buildShippinCost(rma, reason, origin))
       // Response
       response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
-    } yield response).runT()
+    } yield response).runTxn()
 
   def deleteShippingCostLineItem(refNum: String, lineItemId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
@@ -103,5 +103,5 @@ object RmaLineItemUpdater {
       _         ← * <~ RmaLineItemShippingCosts.filter(_.id === lineItem._2.id).delete
       // Response
       response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
-    } yield response).runT()
+    } yield response).runTxn()
 }

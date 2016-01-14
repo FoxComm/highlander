@@ -373,7 +373,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         paymentMethodId = storeCredit.id, paymentMethodType = PaymentMethod.StoreCredit,
         amount = Some(storeCredit.availableBalance)))
       adjustment ← * <~ StoreCredits.auth(storeCredit, Some(payment.id), 10)
-    } yield (admin, customer, scReason, storeCredit, order, adjustment, scSecond, payment, scSubType)).runT()
+    } yield (admin, customer, scReason, storeCredit, order, adjustment, scSecond, payment, scSubType)).runTxn()
       .futureValue.rightVal
   }
 }

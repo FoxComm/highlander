@@ -24,7 +24,7 @@ object RmaService {
     newMessage = if (payload.message.length > 0) Some(payload.message) else None
     update    ← * <~ Rmas.update(rma, rma.copy(messageToCustomer = newMessage))
     response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
-  } yield response).runT()
+  } yield response).runTxn()
 
   def updateStatusByCsr(refNum: String, payload: RmaUpdateStatusPayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
@@ -33,7 +33,7 @@ object RmaService {
     reason    ← * <~ payload.reasonId.map(Reasons.findOneById).getOrElse(lift(None)).toXor
     _         ← * <~ cancelOrUpdate(rma, reason, payload)
     response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
-  } yield response).runT()
+  } yield response).runTxn()
 
   private def cancelOrUpdate(rma: Rma, reason: Option[Reason], payload: RmaUpdateStatusPayload)
     (implicit ec: ExecutionContext, db: Database) = {

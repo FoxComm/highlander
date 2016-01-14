@@ -25,17 +25,17 @@ object GroupManager {
 
   def getById(groupId: Int)(implicit  db: Database, ec: ExecutionContext): Result[Root] = (for {
     group ← * <~ CustomerDynamicGroups.mustFindById(groupId, groupNotFound)
-  } yield build(group)).runT(txn = false)
+  } yield build(group)).run()
 
   def create(payload: CustomerDynamicGroupPayload, admin: StoreAdmin)
     (implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
       group ← * <~ CustomerDynamicGroups.create(CustomerDynamicGroup.fromPayloadAndAdmin(payload, admin.id))
-    } yield build(group)).runT(txn = false)
+    } yield build(group)).runTxn()
 
   def update(groupId: Int, payload: CustomerDynamicGroupPayload)
     (implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
     group ← * <~ CustomerDynamicGroups.mustFindById(groupId, groupNotFound)
     groupEdited ← * <~ CustomerDynamicGroups.update(group,
       CustomerDynamicGroup.fromPayloadAndAdmin(payload, group.createdBy).copy(id = groupId))
-  } yield build(groupEdited)).runT()
+  } yield build(groupEdited)).runTxn()
 }

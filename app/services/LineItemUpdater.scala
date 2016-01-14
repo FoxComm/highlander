@@ -33,7 +33,7 @@ object LineItemUpdater {
     valid  ← * <~ CartValidator(order).validate
     result ← * <~ refreshAndFullOrder(order).toXor
     _      ← * <~ LogActivity.orderLineItemsAddedGc(admin, result, gc)
-  } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runT()
+  } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def editGiftCard(admin: StoreAdmin, refNum: String, code: String, payload: AddGiftCardLineItem)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
@@ -48,7 +48,7 @@ object LineItemUpdater {
     valid    ← * <~ CartValidator(order).validate
     result   ← * <~ refreshAndFullOrder(order).toXor
     _        ← * <~ LogActivity.orderLineItemsUpdatedGc(admin, result, giftCard)
-  } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runT()
+  } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def deleteGiftCard(admin: StoreAdmin, refNum: String, code: String)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
@@ -65,7 +65,7 @@ object LineItemUpdater {
     valid ← * <~ CartValidator(order).validate
     res   ← * <~ refreshAndFullOrder(order).toXor
     _     ← * <~ LogActivity.orderLineItemsDeletedGc(admin, res, gc)
-  } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runT()
+  } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def updateQuantitiesOnOrder(admin: StoreAdmin, refNum: String, payload: Seq[UpdateLineItemsPayload])
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = {
@@ -101,7 +101,7 @@ object LineItemUpdater {
     valid ← * <~ CartValidator(order).validate
     res   ← * <~ refreshAndFullOrder(order).toXor
     _     ← * <~ logAct(res)
-  } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runT()
+  } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   private def qtyAvailableForSkus(skus: Seq[String])
     (implicit ec: ExecutionContext, db: Database): DBIO[Map[Sku, Int]] = {

@@ -111,6 +111,6 @@ class LineItemUpdaterTest extends IntegrationTestBase {
   trait Fixture {
     val (admin) = (for {
       admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
-    } yield admin).runT().futureValue.rightVal
+    } yield admin).runTxn().futureValue.rightVal
   }
 }

@@ -38,7 +38,7 @@ class SlickTest extends IntegrationTestBase {
       customer ← * <~ Customers.create(Factories.customer.copy(name = "Jane".some))
       updatedCustomer ← * <~ Customers.filter(_.id === 1).map(_.name).
         updateReturningHead(Customers.map(identity), "Sally".some)
-    } yield (customer, updatedCustomer.value)).runT().futureValue.rightVal
+    } yield (customer, updatedCustomer.value)).runTxn().futureValue.rightVal
 
     customer must !== (updatedCustomer)
     updatedCustomer.name must === ("Sally".some)
@@ -49,7 +49,7 @@ class SlickTest extends IntegrationTestBase {
       customer ← * <~ Customers.create(Factories.customer.copy(name = "Jane".some))
       updatedCustomer ← * <~ Customers.filter(_.id === 1).map{c ⇒ (c.name, c.password) }.
         updateReturningHead(Customers.map(identity), ("Sally".some, "123qwe".some))
-    } yield (customer, updatedCustomer.value)).runT().futureValue.rightVal
+    } yield (customer, updatedCustomer.value)).runTxn().futureValue.rightVal
 
     customer must !== (updatedCustomer)
     updatedCustomer.name must === ("Sally".some)

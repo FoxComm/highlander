@@ -32,7 +32,7 @@ object GiftCardService {
 
     subTypes ← * <~ GiftCardSubtypes.result.toXor
     response ← * <~ GiftCardSubTypesResponse.build(GiftCard.OriginType.types.toSeq, subTypes)
-  } yield response).runT()
+  } yield response).runTxn()
 
   def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] =
     GiftCards.queryAll.result.map(_.map(GiftCardResponse.build(_)))
@@ -184,7 +184,7 @@ object GiftCardService {
 
     DbResultT(prepareForCreate(payload)).flatMap { subtype ⇒
       saveGiftCard(admin, payload.copy(subTypeId = subtype.map(_.id)))
-    }.runT()
+    }.runTxn()
   }
 
   private def fetchDetails(code: String)(implicit db: Database, ec: ExecutionContext) = for {
