@@ -17,7 +17,10 @@ const Summary = props => {
     ...props,
     customerId: props.params.customerId
   };
-  const availableBalance = _.get(props.storeCredits, 'totals.availableBalance', null);
+  const availableBalance = _.get(props.totals, 'availableBalance');
+
+  console.log('Props in Summary');
+  console.log(props);
 
   return (
     <div className="fc-list-page-header">
@@ -58,10 +61,14 @@ const Summary = props => {
 };
 
 Summary.propTypes = {
-  storeCredits: PropTypes.object,
-  params: PropTypes.object,
-  onAddClick: PropTypes.func,
+  totals: PropTypes.object.isRequired,
+  params: PropTypes.object.isRequired,
+  history: PropTypes.object.isRequired,
   transactionsSelected: PropTypes.bool
+};
+
+Summary.defaultProps = {
+  transactionsSelected: false
 };
 
 export default Summary;

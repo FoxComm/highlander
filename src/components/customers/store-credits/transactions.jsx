@@ -16,6 +16,10 @@ import Status from '../../common/status';
 }), StoreCreditTransactionsActions)
 export default class StoreCreditTransactions extends React.Component {
 
+  static contextTypes = {
+    history: PropTypes.object.isRequired
+  };
+
   static propTypes = {
     params: PropTypes.object,
     tableColumns: PropTypes.array,
@@ -58,6 +62,7 @@ export default class StoreCreditTransactions extends React.Component {
 
   componentDidMount() {
     this.props.fetchStoreCreditTransactions(this.customerId);
+    this.props.fetchTotals(this.customerId);
   }
 
   renderRow(row) {
@@ -74,10 +79,14 @@ export default class StoreCreditTransactions extends React.Component {
 
   render() {
     const props = this.props;
+    const totals = _.get(props, ['storeCreditTransactions', 'totals']);
 
     return (
       <div className="fc-store-credits fc-list-page">
-        <Summary {...props} transactionsSelected={true} />
+        <Summary totals={totals}
+                 params={props.params}
+                 history={this.context.history}
+                 transactionsSelected={true} />
         <div className="fc-grid fc-list-page-content">
           <SearchBar />
           <div className="fc-col-md-1-1">

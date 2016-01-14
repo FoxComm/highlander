@@ -99,10 +99,6 @@ export default class StoreCredits extends React.Component {
     this.props.fetchReasons(this.reasonType);
   }
 
-  onAddStoreCreditClick() {
-    transitionTo(this.context.history, 'customer-storecredits-new', {customerId: this.customerId});
-  }
-
   @autobind
   renderRowState(rowId, rowState) {
     const customerId = this.customerId;
@@ -231,10 +227,14 @@ export default class StoreCredits extends React.Component {
 
   render() {
     const props = this.props;
+    const totals = _.get(props, ['storeCredits', 'totals']);
 
     return (
       <div className="fc-store-credits fc-list-page">
-        <Summary {...props} onAddClick={this.onAddCustomerClick} transactionsSelected={false} />
+        <Summary totals={totals}
+                 params={props.params}
+                 history={this.context.history}
+                 transactionsSelected={false} />
         <div className="fc-grid fc-list-page-content">
           <SearchBar />
           <div className="fc-col-md-1-1 fc-store-credit-table-container">
