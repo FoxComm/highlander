@@ -4,16 +4,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.Validated.{Invalid, Valid}
 import cats.data.Xor
-import cats.implicits._
 import models.StoreCredit.Canceled
 import models.StoreCreditSubtypes.scope._
-import models.{Customer, Customers, Reason, Reasons, StoreAdmin, StoreCredit, StoreCreditAdjustments, StoreCreditManual,
+import models.{Customers, Reason, Reasons, StoreAdmin, StoreCredit, StoreCreditAdjustments, StoreCreditManual,
 StoreCreditManuals, StoreCreditSubtype, StoreCreditSubtypes, StoreCredits}
 import responses.StoreCreditBulkResponse._
 import responses.StoreCreditResponse._
 import responses.{StoreCreditResponse, StoreCreditSubTypesResponse}
-import slick.dbio
-import slick.dbio.Effect.All
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.Slick.UpdateReturning._
@@ -66,56 +63,21 @@ object StoreCreditService {
   }
 
   def createManual(admin: StoreAdmin, customerId: Int, payload: payloads.CreateManualStoreCredit)
-    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[Root] = {
-
-    def prepareForCreate(customerId: Int, payload: payloads.CreateManualStoreCredit):
-      ResultT[(Customer, Reason, Option[StoreCreditSubtype])] = {
-
-      val queries = for {
-        customer ← Customers.findOneById(customerId)
-        reason   ← Reasons.findOneById(payload.reasonId)
-        subtype  ← payload.subTypeId match {
-          case Some(id) ⇒ StoreCreditSubtypes.csrAppeasements.filter(_.id === id).one
-          case None     ⇒ lift(None)
-        }
-      } yield (customer, reason, subtype, payload.subTypeId)
-
-      ResultT(queries.run().map {
-        case (None, _, _, _) ⇒
-          Xor.left(NotFoundFailure404(Customer, customerId).single)
-        case (_, None, _, _) ⇒
-          Xor.left(NotFoundFailure400(Reason, payload.reasonId).single)
-        case (_, _, None, Some(subId)) ⇒
-          Xor.left(NotFoundFailure400(StoreCreditSubtype, subId).single)
-        case (Some(c), Some(r), s, _) ⇒
-          Xor.right((c, r, s))
-      })
+    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[Root] = (for {
+    customer ← * <~ Customers.mustFindById(customerId)
+    _ ← * <~ Reasons.findById(payload.reasonId).extract.one.mustFindOr(NotFoundFailure400(Reason, payload.reasonId))
+    // Check subtype only if id is present in payload; discard actual model
+    _ ← * <~ payload.subTypeId.fold(DbResult.unit) { subtypeId ⇒
+      StoreCreditSubtypes.csrAppeasements.filter(_.id === subtypeId).one.flatMap(_.fold {
+        DbResult.failure[Unit](NotFoundFailure400(StoreCreditSubtype, subtypeId))
+      } { _ ⇒ DbResult.unit })
     }
-
-    def saveStoreCredit(admin: StoreAdmin, customer: Customer, payload: payloads.CreateManualStoreCredit):
-      ResultT[DBIO[Root]] = {
-
-      val actions = for {
-        origin  ← StoreCreditManuals.saveNew(StoreCreditManual(adminId = admin.id, reasonId = payload.reasonId,
-          subReasonId = payload.subReasonId))
-        sc      ← StoreCredits.saveNew(StoreCredit.buildAppeasement(customerId = customer.id, originId = origin.id,
-          payload = payload))
-        _       ← LogActivity.scCreated(admin, customer, sc)
-      } yield sc
-
-      ResultT.rightAsync(actions.flatMap(sc ⇒ lift(build(sc))))
-    }
-
-    val transformer = for {
-      prepare ← prepareForCreate(customerId, payload)
-      sc ← prepare match { case (customer, reason, subtype) ⇒
-        val newPayload = payload.copy(subTypeId = subtype.map(_.id))
-        saveStoreCredit(admin, customer, newPayload)
-      }
-    } yield sc
-
-    transformer.value.flatMap(_.fold(Result.left, dbio ⇒ Result.fromFuture(dbio.transactionally.run())))
-  }
+    manual = StoreCreditManual(adminId = admin.id, reasonId = payload.reasonId, subReasonId = payload.subReasonId)
+    origin ← * <~ StoreCreditManuals.create(manual)
+    appeasement = StoreCredit.buildAppeasement(customerId = customer.id, originId = origin.id, payload = payload)
+    storeCredit ← * <~ StoreCredits.create(appeasement)
+    _ ← * <~ LogActivity.scCreated(admin, customer, storeCredit)
+  } yield build(storeCredit)).runTxn
 
   def getById(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
     fetchDetails(id).run().flatMap {

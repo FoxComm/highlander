@@ -3,10 +3,12 @@ package services
 import scala.concurrent.ExecutionContext
 
 import cats.data.Xor
-import models.{Customer, Customers, SaveForLater, SaveForLaters, Sku, Skus}
+import models.{Customer, Customers, SaveForLater, SaveForLaters, Skus}
 import responses.ResponseWithFailuresAndMetadata.SavedForLater
 import responses.{ResponseWithFailuresAndMetadata, SaveForLaterResponse}
 import slick.driver.PostgresDriver.api._
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 
@@ -21,27 +23,14 @@ object SaveForLaterManager {
   }
 
   def saveForLater(customerId: Int, skuId: Int)
-    (implicit db: Database, ec: ExecutionContext): Result[SavedForLater] = {
-
-    val customerQ = Customers.findOneById(customerId)
-    val skuQ = Skus.findOneById(skuId)
-
-    customerQ.zip(skuQ).flatMap {
-      case (Some(customer), Some(sku)) ⇒
-        SaveForLaters.filter(_.customerId === customerId).filter(_.skuId === skuId).one.flatMap {
-          case Some(_) ⇒
-            DbResult.failure(AlreadySavedForLater(customerId, skuId))
-          case None ⇒
-            val insert = SaveForLaters.saveNew(SaveForLater(customerId = customerId, skuId = skuId))
-            DbResult.fromDbio(insert >> findAllDbio(customer))
-        }
-      case (None, _) ⇒
-        DbResult.failure(NotFoundFailure404(Customer, customerId))
-      case (_, None) ⇒
-        DbResult.failure(NotFoundFailure404(Sku, skuId))
-
-    }.transactionally.run()
-  }
+    (implicit db: Database, ec: ExecutionContext): Result[SavedForLater] = (for {
+    customer ← * <~ Customers.mustFindById(customerId)
+    sku ← * <~ Skus.mustFindById(skuId)
+    _ ← * <~ SaveForLaters.find(customerId = customer.id, skuId = sku.id).one.flatMap(_.fold {
+      SaveForLaters.create(SaveForLater(customerId = customer.id, skuId = sku.id))
+    } { _ ⇒ DbResult.failure(AlreadySavedForLater(customerId = customer.id, skuId = sku.id)) })
+    response ← * <~ findAllDbio(customer).toXor
+  } yield response).runTxn
 
   def deleteSaveForLater(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Unit] =
     SaveForLaters.deleteById(id, DbResult.unit, notFound).transactionally.run()
