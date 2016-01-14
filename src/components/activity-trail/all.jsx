@@ -55,6 +55,24 @@ const address = {
   "isDefault": false
 };
 
+const order = {
+  referenceNumber: 'BR10001',
+  orderStatus: 'cart',
+  shippingAddress: {
+    "id": 3,
+    "region": {
+      "id": 4177,
+      "countryId": 234,
+      "name": "Washington"
+    },
+    "name": "Home",
+    "address1": "555 E Lake Union St.",
+    "city": "Seattle",
+    "zip": "12345",
+    "isDefault": false
+  }
+};
+
 let createdAt = moment().toString();
 
 let activities = [
@@ -188,23 +206,7 @@ activities = [...activities,
     kind: types.ORDER_SHIPPING_ADDRESS_UPDATED,
     createdAt,
     data: {
-      order: {
-        referenceNumber: 'BR10001',
-        orderStatus: 'cart',
-        shippingAddress: {
-          "id": 3,
-          "region": {
-            "id": 4177,
-            "countryId": 234,
-            "name": "Washington"
-          },
-          "name": "Home",
-          "address1": "555 E Lake Union St.",
-          "city": "Seattle",
-          "zip": "12345",
-          "isDefault": false
-        }
-      },
+      order,
       address: {
         "id": 3,
         "region": {
@@ -218,6 +220,22 @@ activities = [...activities,
         "zip": "54321",
         "isDefault": false
       }
+    }
+  },
+  {
+    kind: types.ORDER_SHIPPING_ADDRESS_ADDED,
+    createdAt,
+    data: {
+      order,
+      address
+    }
+  },
+  {
+    kind: types.ORDER_SHIPPING_ADDRESS_REMOVED,
+    createdAt,
+    data: {
+      order,
+      address
     }
   },
 

@@ -4,14 +4,12 @@ import types from '../base/types';
 import CustomerLink from '../base/customer-link';
 import AddressDetails from '../../../addresses/address-details';
 
-
 function omitAddressName(address) {
   return {
     ...address,
     name: null
   };
 }
-
 
 const representatives = {
   [types.CUSTOMER_ADDRESS_CREATED_BY_ADMIN]: {
@@ -48,7 +46,7 @@ const representatives = {
     title: data => {
       return (
         <span>
-        <strong>edited the shipping address</strong> for <CustomerLink customer={data.customer} />.
+        <strong>edited address</strong> for <CustomerLink customer={data.customer} />.
       </span>
       );
     },
