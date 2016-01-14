@@ -1,12 +1,16 @@
+
+// libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import { transitionTo } from '../../../route-helpers';
+
+// components
 import SectionTitle from '../../section-title/section-title';
 import TabListView from '../../tabs/tabs';
 import TabView from '../../tabs/tab';
 import Currency from '../../common/currency';
 import { PanelList, PanelListItem } from '../../panel/panel-list';
 import { Link } from '../../link';
-import { transitionTo } from '../../../route-helpers';
 
 const Summary = props => {
   const params = {
@@ -34,11 +38,19 @@ const Summary = props => {
         </div>
       </div>
       <TabListView>
-        <TabView draggable={false}>
-          <Link to="customer-storecredits" params={props.params}>Store Credits</Link>
+        <TabView draggable={false} selected={!props.transactionsSelected} >
+          <Link to="customer-storecredits"
+                params={props.params}
+                className="fc-store-credit-summary__tab-link">
+            Store Credits
+          </Link>
         </TabView>
-        <TabView draggable={false}>
-          <Link to="customer-storecredits-transactions" params={props.params}>Transaction</Link>
+        <TabView draggable={false} selected={props.transactionsSelected} >
+          <Link to="customer-storecredit-transactions"
+                params={props.params}
+                className="fc-store-credit-summary__tab-link">
+            Transaction
+          </Link>
         </TabView>
       </TabListView>
     </div>
@@ -48,7 +60,8 @@ const Summary = props => {
 Summary.propTypes = {
   storeCredits: PropTypes.object,
   params: PropTypes.object,
-  onAddClick: PropTypes.func
+  onAddClick: PropTypes.func,
+  transactionsSelected: PropTypes.bool
 };
 
 export default Summary;

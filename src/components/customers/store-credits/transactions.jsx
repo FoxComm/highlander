@@ -77,7 +77,7 @@ export default class StoreCreditTransactions extends React.Component {
 
     return (
       <div className="fc-store-credits fc-list-page">
-        <Summary {...props} />
+        <Summary {...props} transactionsSelected={true} />
         <div className="fc-grid fc-list-page-content">
           <SearchBar />
           <div className="fc-col-md-1-1">

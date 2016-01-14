@@ -234,7 +234,7 @@ export default class StoreCredits extends React.Component {
 
     return (
       <div className="fc-store-credits fc-list-page">
-        <Summary {...props} onAddClick={this.onAddCustomerClick} />
+        <Summary {...props} onAddClick={this.onAddCustomerClick} transactionsSelected={false} />
         <div className="fc-grid fc-list-page-content">
           <SearchBar />
           <div className="fc-col-md-1-1 fc-store-credit-table-container">
