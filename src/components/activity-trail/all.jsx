@@ -62,6 +62,21 @@ const creditCard = {
   expYear: '2018'
 };
 
+const giftCard = {
+  "id": 6,
+  "createdAt": "2016-01-14T19:46:21.272Z",
+  "code": "DDE2CEF877E7C5C5",
+  "originId": 1,
+  "originType": "csrAppeasement",
+  "status": "active",
+  "currency": "USD",
+  "originalBalance": 5000,
+  "availableBalance": 4000,
+  "currentBalance": 4000,
+  "storeAdmin": {"id": 1, "email": "admin@admin.com", "name": "Frankly Admin"},
+  "message": "Not implemented yet"
+};
+
 const shippingMethod = {
   id: 1,
   name: 'UPS Ground',
@@ -253,6 +268,11 @@ activities = [...activities,
       address
     }
   },
+];
+
+createdAt = moment().subtract(shiftDays++, 'days').toString();
+
+activities = [...activities,
 
   // order notes
   {
@@ -369,6 +389,67 @@ activities = [...activities,
     createdAt,
     data: {
       order,
+    }
+  },
+];
+
+createdAt = moment().subtract(shiftDays++, 'days').toString();
+
+activities = [...activities,
+  {
+    kind: types.ORDER_PAYMENT_METHOD_ADDED_CREDIT_CARD,
+    createdAt,
+    data: {
+      order,
+      creditCard,
+    }
+  },
+  {
+    kind: types.ORDER_PAYMENT_METHOD_ADDED_GIFT_CARD,
+    createdAt,
+    data: {
+      order,
+      giftCard,
+    }
+  },
+  {
+    kind: types.ORDER_PAYMENT_METHOD_ADDED_STORE_CREDIT,
+    createdAt,
+    data: {
+      order,
+      amount: 420,
+    }
+  },
+  {
+    kind: types.ORDER_PAYMENT_METHOD_DELETED,
+    createdAt,
+    data: {
+      order,
+      pmt: 'giftCard',
+    }
+  },
+  {
+    kind: types.ORDER_PAYMENT_METHOD_DELETED,
+    createdAt,
+    data: {
+      order,
+      pmt: 'creditCard',
+    }
+  },
+  {
+    kind: types.ORDER_PAYMENT_METHOD_DELETED,
+    createdAt,
+    data: {
+      order,
+      pmt: 'storeCredit',
+    }
+  },
+  {
+    kind: types.ORDER_PAYMENT_METHOD_DELETED_GIFT_CARD,
+    createdAt,
+    data: {
+      order,
+      giftCard,
     }
   },
 ];
