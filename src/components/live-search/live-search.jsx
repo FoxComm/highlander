@@ -348,6 +348,8 @@ export default class LiveSearch extends React.Component {
         ]);
       } else if (option.children.length > 1) {
         options = option.children;
+        inputMask = '';
+        searchPrepend = '';
       } else {
         const newInputMask = getInputMask(option);
         if (!_.isEqual(inputMask, newInputMask)) {
@@ -355,6 +357,9 @@ export default class LiveSearch extends React.Component {
           searchPrepend = searchTerm;
         }
       }
+    } else {
+      inputMask = '';
+      searchPrepend = '';
     }
 
     // Third, update the state.
@@ -398,7 +403,7 @@ export default class LiveSearch extends React.Component {
               </PilledInput>
             </form>
             <div>
-              {this.searchOptions}
+              {this.state.optionsVisible && this.searchOptions}
             </div>
           </div>
           <div className="fc-col-md-1-1">

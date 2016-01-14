@@ -19,7 +19,9 @@ export default class MaskedInput extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (!_.isEqual(this.props.mask, prevProps.mask)) {
-      const cursorPos = _.get(this.props, ['prepend', 'length'], 0);
+      const prependLength = _.get(this.props, ['prepend', 'length'], 0);
+      const valueLength = _.get(this.props, ['value', 'length'], 0);
+      const cursorPos = prependLength == 0 ? valueLength : prependLength;
       const target = ReactDOM.findDOMNode(this.refs.maskedInput);
       target.selectionStart = cursorPos;
       target.selectionEnd = cursorPos;
