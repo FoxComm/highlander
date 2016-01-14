@@ -193,13 +193,15 @@ export default class NewStoreCredit extends React.Component {
                 <FormField label="Value"
                            labelClassName="fc-store-credit-form__label">
                   <div className="fc-input-group">
-                    <div className="fc-input-prepend"><i className="icon-usd"></i></div>
+                    <div className="fc-input-prepend fc-store-credit-form__amount-field-prepend">
+                      <i className="icon-usd"></i>
+                    </div>
                     <input id="scAmountField"
                            type="hidden"
                            name="amount"
                            value={this.props.form.amount} />
                     <input id="scAmountField"
-                           className="_no-counters"
+                           className="fc-store-credit-form__amount-field _no-counters"
                            type="number"
                            name="amountText"
                            value={this.props.form.amountText}
