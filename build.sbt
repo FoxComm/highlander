@@ -87,11 +87,11 @@ lazy val phoenixScala = (project in file(".")).
       "pellucid bintray"   at "http://dl.bintray.com/pellucid/maven"
     ),
     libraryDependencies ++= {
-      val akkaV      = "2.3.11"
-      val akkaHttpV  = "1.0"
+      val akkaV      = "2.4.0"
+      val akkaHttpV  = "2.0.1"
       val scalaTestV = "2.2.5"
       val monocleV   = "1.1.1"
-      val json4sVersion = "3.3.0.RC3"
+      val json4sVersion = "3.3.0"
 
       Seq(
         // Akka
@@ -104,7 +104,7 @@ lazy val phoenixScala = (project in file(".")).
         "org.json4s"           %% "json4s-core"              % json4sVersion,
         "org.json4s"           %% "json4s-jackson"           % json4sVersion,
         "org.json4s"           %% "json4s-ext"               % json4sVersion,
-        "de.heikoseeberger"    %% "akka-http-json4s"         % "1.0.0",
+        "de.heikoseeberger"    %% "akka-http-json4s"         % "1.4.2",
         // Database
         "com.typesafe.slick"   %% "slick"                    % "3.1.0",
         "com.typesafe.slick"   %% "slick-hikaricp"           % "3.1.0",
@@ -130,7 +130,7 @@ lazy val phoenixScala = (project in file(".")).
         // Testing
         "com.typesafe.akka"    %% "akka-testkit"              % akkaV      % "test",
         "org.scalatest"        %% "scalatest"                 % scalaTestV % "test",
-        "org.scalacheck"       %% "scalacheck"                % "1.12.5"   % "test", 
+        "org.scalacheck"       %% "scalacheck"                % "1.12.5"   % "test",
         "org.mockito"          %  "mockito-core"              % "1.10.19"  % "test")
     },
     scalaSource in Compile <<= (baseDirectory in Compile)(_ / "app"),
