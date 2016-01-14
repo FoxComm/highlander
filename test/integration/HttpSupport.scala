@@ -2,7 +2,7 @@ import java.net.ServerSocket
 
 import scala.collection.immutable
 import scala.concurrent.Await.result
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration._
 import akka.actor.ActorSystem
 import akka.http.ConnectionPoolSettings
@@ -70,8 +70,8 @@ trait HttpSupport
     finally {
       (Http().shutdownAllConnectionPools() >> service.close()).futureValue
 
-      system.shutdown()
-      system.awaitTermination()
+      system.terminate()
+      Await.result(system.whenTerminated, Duration.Inf)
     }
   }
 
