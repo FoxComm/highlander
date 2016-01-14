@@ -5,7 +5,7 @@ ExecStart=/usr/bin/java -jar {{phoenix_jar}}
 Restart=on-failure
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=greenriver
+SyslogIdentifier=phoenix
 TimeoutStartSec=5m
 RestartSec=1m
 
