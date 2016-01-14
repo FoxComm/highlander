@@ -165,17 +165,18 @@ object Main {
 
     val trailWork = Future {
       val transformers = Map(
-        "regions" → AvroTransformers.Region(),
-        "countries" → AvroTransformers.Country(),
-        "customers_search_view" → AvroTransformers.CustomersSearchView(),
-        "orders_search_view" → AvroTransformers.OrdersSearchView(),
-        "store_admins_search_view" → AvroTransformers.StoreAdminsSearchView(),
-        "skus" → AvroTransformers.Sku(),
-        "gift_cards" → AvroTransformers.GiftCard(),
-        "store_credits" → AvroTransformers.StoreCredit(),
-        conf.connectionTopic → ActivityConnectionTransformer(phoenix))
+        "regions"                           → AvroTransformers.Region(),
+        "countries"                         → AvroTransformers.Country(),
+        "customers_search_view"             → AvroTransformers.CustomersSearchView(),
+        "orders_search_view"                → AvroTransformers.OrdersSearchView(),
+        "store_admins_search_view"          → AvroTransformers.StoreAdminsSearchView(),
+        "failed_authorizations_search_view" → AvroTransformers.FailedAuthorizationsSearchView(),
+        "skus"                              → AvroTransformers.Sku(),
+        "gift_cards"                        → AvroTransformers.GiftCard(),
+        "store_credits"                     → AvroTransformers.StoreCredit(),
+        conf.connectionTopic                → ActivityConnectionTransformer(phoenix))
 
-      val topicsPlusActivity = conf.kafkaTopics :+ conf.connectionTopic;
+      val topicsPlusActivity = conf.kafkaTopics :+ conf.connectionTopic
 
       // Init processors & consumer
       val esProcessor = new ElasticSearchProcessor(
