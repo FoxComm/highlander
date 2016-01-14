@@ -165,6 +165,6 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
       giftCard ← * <~ GiftCards.create(GiftCard.buildLineItem(balance = 150, originId = gcOrigin.id, currency = Currency.USD))
       lineItemGc ← * <~ OrderLineItemGiftCards.create(OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = order.id))
       lineItem ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(order, lineItemGc))
-    } yield (customer, order, giftCard)).runT().futureValue.rightVal
+    } yield (customer, order, giftCard)).runTxn().futureValue.rightVal
   }
 }

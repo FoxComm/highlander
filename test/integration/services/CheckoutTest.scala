@@ -104,7 +104,7 @@ class CheckoutTest
           _      ← * <~ (OrderPayments.returningId ++= ids.map { id ⇒
             Factories.giftCardPayment.copy(orderId = cart.id, paymentMethodId = id, amount = 25.some)
           })
-        } yield ids).runT().futureValue.rightVal
+        } yield ids).runTxn().futureValue.rightVal
 
         val result = Checkout(cart, cartValidator()).checkout.futureValue.rightVal
         val current = Orders.findById(cart.id).extract.one.run().futureValue.value
@@ -125,7 +125,7 @@ class CheckoutTest
           _      ← * <~ (OrderPayments.returningId ++= ids.map { id ⇒
             Factories.storeCreditPayment.copy(orderId = cart.id, paymentMethodId = id, amount = 25.some)
           })
-        } yield ids).runT().futureValue.rightVal
+        } yield ids).runTxn().futureValue.rightVal
 
         val result = Checkout(cart, cartValidator()).checkout.futureValue.rightVal
         val current = Orders.findById(cart.id).extract.one.run().futureValue.value
@@ -151,7 +151,7 @@ class CheckoutTest
       giftCard   ← * <~ GiftCards.create(GiftCard.buildLineItem(balance = 150, originId = origin.id, currency = Currency.USD))
       lineItemGc ← * <~ OrderLineItemGiftCards.create(OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = cart.id))
       lineItem   ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(cart, lineItemGc))
-    } yield (customer, cart, giftCard)).runT().futureValue.rightVal
+    } yield (customer, cart, giftCard)).runTxn().futureValue.rightVal
   }
 
   trait PaymentFixture {
@@ -160,6 +160,6 @@ class CheckoutTest
       customer ← * <~ Customers.create(Factories.customer)
       cart     ← * <~ Orders.create(Factories.cart.copy(customerId = customer.id))
       reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-    } yield (admin, customer, cart, reason)).runT().futureValue.rightVal
+    } yield (admin, customer, cart, reason)).runTxn().futureValue.rightVal
   }
 }

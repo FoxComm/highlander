@@ -38,7 +38,7 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)
       order ← * <~ createNewCart
       valid ← * <~ cartValidator.validate
       resp  ← * <~ valid.warnings.fold(DbResult.good(order))(DbResult.failures)
-    } yield resp).runT()
+    } yield resp).runTxn()
 
   private def checkInventory: DbResult[Unit] = DbResult.unit
 

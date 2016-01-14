@@ -35,7 +35,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       admin ← * <~ StoreAdmins.create(authedStoreAdmin)
       reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
       origin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = reason.id))
-    } yield origin).runT().futureValue.rightVal
+    } yield origin).runTxn().futureValue.rightVal
   }
 
   def uriPrefix = "v1/gift-cards"
@@ -382,6 +382,6 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         giftCard.id, paymentMethodType = PaymentMethod.GiftCard, amount = Some(25)))
       adj1      ← * <~ GiftCards.auth(giftCard, Some(payment.id), 10)
       giftCard  ← * <~ GiftCards.findOneById(giftCard.id).toXor
-    } yield (customer, admin, giftCard.value, order, payment, adj1, gcSecond, gcSubType)).runT().futureValue.rightVal
+    } yield (customer, admin, giftCard.value, order, payment, adj1, gcSecond, gcSubType)).runTxn().futureValue.rightVal
   }
 }

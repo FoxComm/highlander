@@ -102,7 +102,7 @@ object CreditCardManager {
     default = cc.copy(isDefault = true)
     _       ← * <~ CreditCards.filter(_.id === cardId).map(_.isDefault).update(true)
     region  ← * <~ Regions.findOneById(cc.regionId).safeGet.toXor
-  } yield buildResponse(default, region)).runT()
+  } yield buildResponse(default, region)).runTxn()
 
   def deleteCreditCard(admin: StoreAdmin, customerId: Int, id: Int)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Unit] = {
@@ -113,7 +113,7 @@ object CreditCardManager {
       region    ← * <~ Regions.findOneById(cc.regionId).safeGet.toXor
       update    ← * <~ CreditCards.update(cc, cc.copy(inWallet = false, deletedAt = Some(Instant.now())))
       _         ← * <~ LogActivity.ccDeleted(admin, customer, cc)
-    } yield ()).runT()
+    } yield ()).runTxn()
   }
 
   def editCreditCard(admin: StoreAdmin, customerId: Int, id: Int, payload: EditCreditCard)

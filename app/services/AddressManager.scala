@@ -37,7 +37,7 @@ object AddressManager {
     address   ← * <~ Addresses.create(Address.fromPayload(payload).copy(customerId = customerId))
     region    ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
     _         ← * <~ LogActivity.addressCreated(admin, customer, address, region)
-  } yield Response.build(address, region)).runT()
+  } yield Response.build(address, region)).runTxn()
 
   def edit(addressId: Int, customerId: Int, payload: CreateAddressPayload, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
@@ -49,14 +49,14 @@ object AddressManager {
     _           ← * <~ Addresses.insertOrUpdate(address).toXor
     region      ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
     _           ← * <~ LogActivity.addressUpdated(admin, customer, address, region, oldAddress, oldRegion)
-  } yield Response.build(address, region)).runT()
+  } yield Response.build(address, region)).runTxn()
 
   def get(customerId: Int, addressId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
 
     address ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
     region  ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
-  } yield Response.build(address, region, address.isDefaultShipping.some)).runT()
+  } yield Response.build(address, region, address.isDefaultShipping.some)).runTxn()
 
   def remove(customerId: Int, addressId: Int, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Unit] = (for {
@@ -67,7 +67,7 @@ object AddressManager {
     softDelete  ← * <~ address.updateTo(address.copy(deletedAt = Instant.now.some, isDefaultShipping = false))
     updated     ← * <~ Addresses.update(address, softDelete)
     _           ← * <~ LogActivity.addressDeleted(admin, customer, address, region)
-  } yield {}).runT()
+  } yield {}).runTxn()
 
   def setDefaultShippingAddress(customerId: Int, addressId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Unit] = (for {

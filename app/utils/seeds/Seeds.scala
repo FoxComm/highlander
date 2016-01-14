@@ -27,7 +27,7 @@ object Seeds {
     flyWayMigrate(config)
     Console.err.println(s"Inserting seeds")
     implicit val db: PostgresDriver.backend.DatabaseDef = Database.forConfig("db", config)
-    val result: Failures Xor Unit = Await.result(createAll().runT(txn = false), 5.second)
+    val result: Failures Xor Unit = Await.result(createAll().runTxn(), 5.second)
     result.fold(failures ⇒ {
       Console.err.println("Well, fuck...")
       failures.flatten.foreach(Console.err.println)

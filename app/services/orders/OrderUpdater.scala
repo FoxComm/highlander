@@ -20,5 +20,5 @@ object OrderUpdater {
     isRemorse ← * <~ order.mustBeRemorseHold
     updated   ← * <~ Orders.update(order, order.copy(remorsePeriodEnd = order.remorsePeriodEnd.map(_.plusMinutes(15))))
     response  ← * <~ FullOrder.fromOrder(updated).toXor
-  } yield response).runT()
+  } yield response).runTxn()
 }

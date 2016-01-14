@@ -106,7 +106,7 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
     val (admin, customer) = (for {
       admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
       customer ← * <~ Customers.create(Factories.customer)
-    } yield (admin, customer)).runT().futureValue.rightVal
+    } yield (admin, customer)).runTxn().futureValue.rightVal
   }
 
 }

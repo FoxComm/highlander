@@ -47,7 +47,7 @@ class RmaServiceTest extends IntegrationTestBase {
         status = Order.RemorseHold,
         customerId = customer.id,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
-    } yield (admin, order)).runT().futureValue.rightVal
+    } yield (admin, order)).runTxn().futureValue.rightVal
   }
 }
 

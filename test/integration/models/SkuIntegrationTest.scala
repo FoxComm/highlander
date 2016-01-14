@@ -18,7 +18,7 @@ class SkuIntegrationTest extends IntegrationTestBase {
       val (sku, liSku) = (for {
         sku ← * <~ Skus.create(Factories.skus.head).run().futureValue.rightVal
         liSku ← * <~ OrderLineItemSkus.safeFindBySkuId(sku.id).toXor
-      } yield (sku, liSku)).runT().futureValue.rightVal
+      } yield (sku, liSku)).runTxn().futureValue.rightVal
 
       sku.id must === (liSku.skuId)
     }

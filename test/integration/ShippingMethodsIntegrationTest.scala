@@ -115,7 +115,7 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
           hazSku      ← * <~ Skus.create(Sku(sku = "HAZ-SKU", name = Some("fox"), price = 56, isHazardous = true))
           lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(hazSku.id).toXor
           lineItem    ← * <~ OrderLineItems.create(OrderLineItem(orderId = order.id, originId = lineItemSku.id))
-        } yield lineItem).runT().futureValue.rightVal
+        } yield lineItem).runTxn().futureValue.rightVal
 
         val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
         response.status must ===(StatusCodes.OK)
@@ -135,7 +135,7 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
       customer   ← * <~ Customers.create(Factories.customer)
       order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (order, storeAdmin, customer)).runT().futureValue.rightVal
+    } yield (order, storeAdmin, customer)).runTxn().futureValue.rightVal
   }
 
   trait ShippingMethodsFixture extends Fixture {
@@ -151,7 +151,7 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
       lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(sku.id).toXor
       lineItems   ← * <~ OrderLineItems.create(OrderLineItem(orderId = order.id, originId = lineItemSku.id))
       _           ← * <~ OrderTotaler.saveTotals(order)
-    } yield (address, shipAddress)).runT().futureValue.rightVal
+    } yield (address, shipAddress)).runTxn().futureValue.rightVal
   }
 
   trait WestCoastShippingMethodsFixture extends ShippingMethodsFixture {

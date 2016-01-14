@@ -91,7 +91,7 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
     val (customer, sku) = (for {
       customer ← * <~ Customers.create(Factories.customer)
       sku      ← * <~ Skus.create(Factories.skus.head)
-    } yield (customer, sku)).runT().futureValue.rightVal
+    } yield (customer, sku)).runTxn().futureValue.rightVal
 
     def roots = Seq(rightValue(SaveForLaterResponse.forSkuId(sku.id).run().futureValue))
   }

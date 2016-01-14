@@ -80,7 +80,7 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
     val (storeAdmin, customer) = (for {
       customer   ← * <~ Customers.create(Factories.customer)
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (storeAdmin, customer)).runT().futureValue.rightVal
+    } yield (storeAdmin, customer)).runTxn().futureValue.rightVal
   }
 }
 

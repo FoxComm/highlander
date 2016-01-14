@@ -61,7 +61,7 @@ class CartValidatorTest extends IntegrationTestBase {
             originalBalance = notEnoughFunds))
           payment  ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = cart.id,
             amount = sku.price.some, paymentMethodId = giftCard.id))
-        } yield payment).runT().futureValue.rightVal
+        } yield payment).runTxn().futureValue.rightVal
 
         val result = CartValidator(refresh(cart)).validate.run().futureValue.rightVal
 
@@ -106,7 +106,7 @@ class CartValidatorTest extends IntegrationTestBase {
       sku   ← * <~ Skus.create(Factories.skus.head)
       items ← * <~ OrderLineItems.create(OrderLineItem.buildSku(cart, sku))
       _     ← * <~ OrderTotaler.saveTotals(cart)
-    } yield (sku, items)).runT().futureValue.rightVal
+    } yield (sku, items)).runTxn().futureValue.rightVal
   }
 
   trait CreditCartFixture extends Fixture {
@@ -114,6 +114,6 @@ class CartValidatorTest extends IntegrationTestBase {
       customer ← * <~ Customers.create(Factories.customer)
       cc       ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
       _        ← * <~ OrderPayments.create(Factories.orderPayment.copy(orderId = cart.id, paymentMethodId = cc.id))
-    } yield (customer, cc)).runT().futureValue.rightVal
+    } yield (customer, cc)).runTxn().futureValue.rightVal
   }
 }

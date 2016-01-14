@@ -66,6 +66,6 @@ with AutomaticAuth {
       reason ← * <~ Reasons.create(Factories.reasons.head.copy(reasonType = Reason.GiftCardCreation,
         storeAdminId = storeAdmin.id))
       rmaReason ← * <~ RmaReasons.create(Factories.rmaReasons.head)
-    } yield (reason, rmaReason)).runT(txn = false).futureValue.rightVal
+    } yield (reason, rmaReason)).runTxn().futureValue.rightVal
   }
 }

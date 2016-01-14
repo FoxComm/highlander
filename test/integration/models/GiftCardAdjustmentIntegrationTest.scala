@@ -21,7 +21,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
         adjustment ← * <~ GiftCards.auth(giftCard = gc, orderPaymentId = Some(payment.id), debit = 0, credit = -1)
       } yield (gc, adjustment)
 
-      val failure = inserts.runT().futureValue.leftVal
+      val failure = inserts.runTxn().futureValue.leftVal
       failure.getMessage must include ("""violates check constraint "valid_entry"""")
     }
 
@@ -34,7 +34,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
         adjustment ← * <~ GiftCards.auth(giftCard = gc, orderPaymentId = Some(payment.id), debit = 50, credit = 50)
       } yield (gc, adjustment)
 
-      val failure = inserts.runT().futureValue.leftVal
+      val failure = inserts.runTxn().futureValue.leftVal
       failure.getMessage must include ("""violates check constraint "valid_entry"""")
     }
 
@@ -45,7 +45,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
         payment    ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id,
           paymentMethodId = gc.id, amount = Some(50)))
         adjustment ← * <~ GiftCards.capture(giftCard = gc, orderPaymentId = Some(payment.id), debit = 50, credit = 0)
-      } yield (gc, adjustment)).runT().futureValue.rightVal
+      } yield (gc, adjustment)).runTxn().futureValue.rightVal
 
       adjustment.id must === (1)
     }
@@ -65,7 +65,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
         _       ← * <~ GiftCards.auth(giftCard = gc, orderPaymentId = Some(payment.id), debit = 50, credit = 0)
         _       ← * <~ GiftCards.capture(giftCard = gc, orderPaymentId = Some(payment.id), debit = 200, credit = 0)
         gc      ← * <~ GiftCards.findOneById(gc.id).toXor
-      } yield gc.value).runT().futureValue.rightVal
+      } yield gc.value).runTxn().futureValue.rightVal
 
       gc.availableBalance must === (0)
       gc.currentBalance must === (200)
@@ -93,7 +93,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
         gc      ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, originalBalance = 500))
         payment ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id,
           paymentMethodId = gc.id, amount = Some(gc.availableBalance)))
-      } yield (gc, payment)).runT().futureValue.rightVal
+      } yield (gc, payment)).runTxn().futureValue.rightVal
 
       val debits = List(50, 25, 15, 10)
       val adjustments = db.run(DBIO.sequence(debits.map { amount ⇒
@@ -117,7 +117,7 @@ class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
       reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
       order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-    } yield (admin, reason, order)).runT().futureValue.rightVal
+    } yield (admin, reason, order)).runTxn().futureValue.rightVal
   }
 }
 

@@ -21,7 +21,7 @@ object OrderLockUpdater {
     _     ← * <~ Orders.update(order, order.copy(isLocked = true))
     _     ← * <~ OrderLockEvents.create(OrderLockEvent(orderId = order.id, lockedBy = admin.id))
     resp  ← * <~ FullOrder.refreshAndFullOrder(order).toXor
-  } yield resp).runT()
+  } yield resp).runTxn()
 
   def unlock(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
     def increaseRemorse(order: Order)(duration: Duration) = order.remorsePeriodEnd.map(_.plus(duration))
@@ -33,6 +33,6 @@ object OrderLockUpdater {
       newEnd   ← * <~ lastLock.fold(remorsePlus(Duration.ofMinutes(15)))(lock ⇒ remorsePlus(Duration.between(lock.lockedAt, Instant.now)))
       _        ← * <~ Orders.update(order, order.copy(isLocked = false, remorsePeriodEnd = newEnd))
       response ← * <~ FullOrder.refreshAndFullOrder(order).toXor
-    } yield response).runT()
+    } yield response).runTxn()
   }
 }

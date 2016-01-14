@@ -173,6 +173,6 @@ class RmaPaymentsIntegrationTest extends IntegrationTestBase
       orderPayment ← * <~ OrderPayments.create(Factories.orderPayment.copy(orderId = order.id,
         paymentMethodId = cc.id, amount = None))
       rma ← * <~ Rmas.create(Factories.rma.copy(referenceNumber = "ABCD1234-11.1"))
-    } yield (rma, order, admin, customer)).runT(txn = false).futureValue.rightVal
+    } yield (rma, order, admin, customer)).runTxn().futureValue.rightVal
   }
 }

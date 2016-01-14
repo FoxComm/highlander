@@ -48,7 +48,7 @@ object RmaAssignmentUpdater {
     assignment      ← * <~ RmaAssignments.byAssignee(assignee).one.mustFindOr(RmaAssigneeNotFound(refNum, assigneeId))
     _               ← * <~ RmaAssignments.byAssignee(assignee).delete
     fullRma         ← * <~ fromRma(rma).toXor
-  } yield fullRma).runT()
+  } yield fullRma).runTxn()
 
   def assignBulk(payload: payloads.RmaBulkAssigneesPayload)
     (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage): Result[BulkRmaUpdateResponse] = {

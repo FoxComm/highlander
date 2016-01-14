@@ -105,6 +105,6 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
       customer   ← * <~ Customers.create(Factories.customer)
       order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, status = Order.Cart))
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (order, storeAdmin, customer)).runT().futureValue.rightVal
+    } yield (order, storeAdmin, customer)).runTxn().futureValue.rightVal
   }
 }

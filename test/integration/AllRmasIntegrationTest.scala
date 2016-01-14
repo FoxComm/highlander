@@ -52,7 +52,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       _ ← * <~ (Rmas ++= insertRmas)
     } yield ()
 
-    dbio.runT().futureValue
+    dbio.runTxn().futureValue
     getAllRmas.toIndexedSeq
   }
 
@@ -184,7 +184,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       rma1  ← * <~ Rmas.create(Factories.rma.copy(id = 1, referenceNumber = "foo", customerId = cust.id))
       rma2  ← * <~ Rmas.create(Factories.rma.copy(id = 2, referenceNumber = "bar", customerId = cust.id))
       admin ← * <~ StoreAdmins.create(Factories.storeAdmin)
-    } yield (rma1, rma2, admin)).runT().futureValue.rightVal
+    } yield (rma1, rma2, admin)).runTxn().futureValue.rightVal
 
     val rmaRef1 = rma1.referenceNumber
     val rmaRef2 = rma2.referenceNumber

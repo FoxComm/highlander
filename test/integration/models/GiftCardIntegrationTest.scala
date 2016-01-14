@@ -57,7 +57,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase {
       giftCard ← * <~ GiftCards.findOneById(gc.id).toXor
       payment  ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id,
         paymentMethodId = gc.id, paymentMethodType = PaymentMethod.GiftCard, amount = Some(gc.availableBalance)))
-    } yield (origin, giftCard.value, payment)).runT().futureValue.rightVal
+    } yield (origin, giftCard.value, payment)).runTxn().futureValue.rightVal
   }
 }
 

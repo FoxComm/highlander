@@ -321,7 +321,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         customer   ← * <~ Customers.create(Factories.customer)
         order      ← * <~ Orders.create(Factories.order.copy(isLocked = true, customerId = customer.id))
         storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-      } yield (order, storeAdmin)).runT().futureValue.rightVal
+      } yield (order, storeAdmin)).runTxn().futureValue.rightVal
       val response = POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
       response.status must === (StatusCodes.OK)
 
@@ -416,7 +416,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         customer   ← * <~ Customers.create(Factories.customer)
         order      ← * <~ Orders.create(Factories.order.copy(isLocked = true, customerId = customer.id))
         storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-      } yield (order, storeAdmin)).runT().futureValue.rightVal
+      } yield (order, storeAdmin)).runTxn().futureValue.rightVal
       val response = POST(s"v1/orders/${order.referenceNumber}/watchers", Watchers(Seq(storeAdmin.id)))
       response.status must === (StatusCodes.OK)
 
@@ -796,21 +796,21 @@ class OrderIntegrationTest extends IntegrationTestBase
       customer   ← * <~ Customers.create(Factories.customer)
       order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, status = Order.Cart))
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (order, storeAdmin, customer)).runT().futureValue.rightVal
+    } yield (order, storeAdmin, customer)).runTxn().futureValue.rightVal
   }
 
   trait AssignmentFixture extends Fixture {
     val (assignee, secondAdmin) = (for {
       assignee    ← * <~ OrderAssignments.create(OrderAssignment(orderId = order.id, assigneeId = storeAdmin.id))
       secondAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
-    } yield (assignee, secondAdmin)).runT().futureValue.rightVal
+    } yield (assignee, secondAdmin)).runTxn().futureValue.rightVal
   }
 
   trait WatcherFixture extends Fixture {
     val (watcher, secondAdmin) = (for {
       watcher     ← * <~ OrderWatchers.create(OrderWatcher(orderId = order.id, watcherId = storeAdmin.id))
       secondAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
-    } yield (watcher, secondAdmin)).runT().futureValue.rightVal
+    } yield (watcher, secondAdmin)).runTxn().futureValue.rightVal
   }
 
   trait AddressFixture extends Fixture {
@@ -822,7 +822,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
       newAddress ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, isDefaultShipping = false,
         name = "New Shipping", address1 = "29918 Kenloch Dr", city = "Farmington Hills", regionId = 4177))
-    } yield(orderShippingAddress, newAddress)).runT().futureValue.rightVal
+    } yield(orderShippingAddress, newAddress)).runTxn().futureValue.rightVal
   }
 
   trait ShippingMethodFixture extends AddressFixture {
@@ -860,7 +860,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       highShippingMethod     ← * <~ ShippingMethods.create(highSm)
 
       _                      ← * <~ OrderTotaler.saveTotals(order)
-    } yield (lowShippingMethod, inactiveShippingMethod, highShippingMethod)).runT().futureValue.rightVal
+    } yield (lowShippingMethod, inactiveShippingMethod, highShippingMethod)).runTxn().futureValue.rightVal
   }
 
   trait OrderShippingMethodFixture extends ShippingMethodFixture {
@@ -868,7 +868,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       orderShipMethod ← * <~ OrderShippingMethods.create(
         OrderShippingMethod(orderId = order.id, shippingMethodId = highShippingMethod.id))
       shipment ← * <~ Shipments.create(Shipment(orderId = order.id, orderShippingMethodId = Some(orderShipMethod.id)))
-    } yield shipment).runT(txn = false).futureValue
+    } yield shipment).runTxn().futureValue
   }
 
   trait RemorseFixture {
@@ -877,7 +877,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       order ← * <~ Orders.create(Factories.order.copy(
         status = Order.RemorseHold,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
-    } yield (admin, order)).runT().futureValue.rightVal
+    } yield (admin, order)).runTxn().futureValue.rightVal
 
     val refNum = order.referenceNumber
     val originalRemorseEnd = order.remorsePeriodEnd.value
@@ -888,6 +888,6 @@ class OrderIntegrationTest extends IntegrationTestBase
       cc  ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
       op  ← * <~ OrderPayments.create(Factories.orderPayment.copy(orderId = order.id, paymentMethodId = cc.id))
       ccc ← * <~ CreditCardCharges.create(Factories.creditCardCharge.copy(creditCardId = cc.id, orderPaymentId = op.id))
-    } yield (cc, op, ccc)).runT().futureValue.rightVal
+    } yield (cc, op, ccc)).runTxn().futureValue.rightVal
   }
 }

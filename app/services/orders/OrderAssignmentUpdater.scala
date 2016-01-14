@@ -29,7 +29,7 @@ object OrderAssignmentUpdater {
     warnings        = Failurez(requestedAssigneeIds.diff(adminIds).map(NotFoundFailure404(StoreAdmin, _)): _*)
     assignedAdmins  = fullOrder.assignees.filter(a ⇒ newAssignments.map(_.assigneeId).contains(a.assignee.id)).map(_.assignee)
     _               ← * <~ LogActivity.assignedToOrder(admin, fullOrder, assignedAdmins)
-  } yield TheResponse.build(fullOrder, warnings = warnings)).runT()
+  } yield TheResponse.build(fullOrder, warnings = warnings)).runTxn()
 
   def unassign(admin: StoreAdmin, refNum: String, assigneeId: Int)
     (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[FullOrder.Root] = (for {
@@ -40,7 +40,7 @@ object OrderAssignmentUpdater {
     _               ← * <~ OrderAssignments.byAssignee(assignee).delete
     fullOrder       ← * <~ FullOrder.fromOrder(order).toXor
     _               ← * <~ LogActivity.unassignedFromOrder(admin, fullOrder, assignee)
-  } yield fullOrder).runT()
+  } yield fullOrder).runTxn()
 
   def assignBulk(admin: StoreAdmin, payload: payloads.BulkAssignment)
     (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = {

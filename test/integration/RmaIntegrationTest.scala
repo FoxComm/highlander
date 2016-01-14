@@ -558,14 +558,14 @@ class RmaIntegrationTest extends IntegrationTestBase
         orderRefNum = order.referenceNumber,
         customerId = customer.id))
       reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
-    } yield (storeAdmin, customer, order, rma, reason)).runT(txn = false).futureValue.rightVal
+    } yield (storeAdmin, customer, order, rma, reason)).runTxn().futureValue.rightVal
   }
 
   trait AssignmentFixture extends Fixture {
     val (assignee, secondAdmin) = (for {
       assignee    ← * <~ RmaAssignments.create(RmaAssignment(rmaId = rma.id, assigneeId = storeAdmin.id))
       secondAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
-    } yield (assignee, secondAdmin)).runT().futureValue.rightVal
+    } yield (assignee, secondAdmin)).runTxn().futureValue.rightVal
   }
 
   trait LineItemFixture extends Fixture {
@@ -581,13 +581,13 @@ class RmaIntegrationTest extends IntegrationTestBase
       gcLineItem ← * <~ OrderLineItemGiftCards.create(OrderLineItemGiftCard(orderId = order.id, giftCardId = giftCard.id))
       lineItem2 ← * <~ OrderLineItems.create(OrderLineItem(originId = gcLineItem.id,
         originType = OrderLineItem.GiftCardItem, orderId = order.id))
-    
+
       shippingAddress ← * <~ OrderShippingAddresses.create(Factories.shippingAddress.copy(orderId = order.id,
         regionId = 1))
       shippingMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
       orderShippingMethod ← * <~ OrderShippingMethods.create(
         OrderShippingMethod(orderId = order.id, shippingMethodId = shippingMethod.id))
       shipment ← * <~ Shipments.create(Factories.shipment)
-    } yield (rmaReason, sku, giftCard, shipment)).runT(txn = false).futureValue.rightVal
+    } yield (rmaReason, sku, giftCard, shipment)).runTxn().futureValue.rightVal
   }
 }
