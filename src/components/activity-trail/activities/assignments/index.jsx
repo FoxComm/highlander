@@ -9,12 +9,19 @@ import OrderTarget from '../base/order-target';
 import OrderLink from '../base/order-link';
 import Person from '../base/person';
 
-[
-  types.ASSIGNED_TO_ORDER,
-  types.UNASSIGNED_FROM_ORDER,
-  types.BULK_ASSIGNED_TO_ORDERS,
-  types.BULK_UNASSIGNED_FROM_ORDERS,
-]
+const bulkProcessAssignToOrders = {
+  title: (data, {kind}) => {
+    const orders = data.orders.map(referenceNumber => <OrderLink order={{title: 'Order', referenceNumber}} />);
+    const action = kind == types.BULK_ASSIGNED_TO_ORDERS ? 'assigned' : 'unassigned';
+    const directionSense = kind == types.BULK_ASSIGNED_TO_ORDERS ? 'to' : 'from';
+
+    return (
+      <span>
+        <strong>{action}</strong> <Person {...data.assignee} /> {directionSense} orders {joinEntities(orders)}.
+      </span>
+    );
+  },
+};
 
 const representatives = {
   [types.ASSIGNED_TO_ORDER]: {
@@ -28,17 +35,8 @@ const representatives = {
       );
     },
   },
-  [types.BULK_ASSIGNED_TO_ORDERS]: {
-    title: data => {
-      const orders = data.orders.map(referenceNumber => <OrderLink order={{title: 'Order', referenceNumber}} />);
-
-      return (
-        <span>
-          <strong>assigned</strong> <Person {...data.assignee} /> to orders {joinEntities(orders)}.
-        </span>
-      );
-    },
-  },
+  [types.BULK_ASSIGNED_TO_ORDERS]: bulkProcessAssignToOrders,
+  [types.BULK_UNASSIGNED_FROM_ORDERS]: bulkProcessAssignToOrders,
   [types.UNASSIGNED_FROM_ORDER]: {
     title: data => {
       return (
