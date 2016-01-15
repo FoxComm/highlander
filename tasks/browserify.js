@@ -20,7 +20,6 @@ module.exports = function(gulp, opts, $) {
 
     let entries = path.join(opts.srcDir, 'app.js');
     bundler = browserify({
-      paths: [opts.srcDir],
       entries: [entries],
       standalone: 'App',
       transform: ['babelify'],
