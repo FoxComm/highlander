@@ -1,6 +1,13 @@
+// libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import { PrimaryButton } from '../common/buttons';
+import { autobind } from 'core-decorators';
+import classNames from 'classnames';
+
+// utils
+import * as CardUtils from '../../lib/credit-card-utils';
+
+// components
 import { Checkbox } from '../checkbox/checkbox';
 import FormField from '../forms/formfield';
 import Form from '../forms/form';
@@ -8,9 +15,7 @@ import Dropdown from '../dropdown/dropdown';
 import DropdownItem from '../dropdown/dropdownItem';
 import AddressDetails from '../addresses/address-details';
 import AddressSelect from '../addresses/address-select';
-import { autobind } from 'core-decorators';
-import * as CardUtils from '../../lib/credit-card-utils';
-import classnames from 'classnames';
+import SaveCancel from '../common/save-cancel';
 
 export default class CreditCardForm extends React.Component {
 
@@ -58,61 +63,65 @@ export default class CreditCardForm extends React.Component {
   }
 
   get cardNumberBlock() {
-    let block = null;
-    if (this.props.isNew) {
-      block = (
-         <li className="fc-credit-card-form-line">
-          <div className="fc-grid">
-            <div className="fc-col-md-3-4">
-              <FormField label="Card Number"
-                         labelClassName="fc-credit-card-form-label"
-                         validator="ascii">
-                <input id="numberCardFormField"
-                       className="fc-credit-card-form-input"
-                       name="number"
-                       maxLength="255"
-                       type="text"
-                       required
-                       value={ this.props.form.number } />
-              </FormField>
-            </div>
-            <div className="fc-col-md-1-4">
-              <FormField label="CVV"
-                         labelClassName="fc-credit-card-form-label"
-                         validator="ascii">
-                <input id="cvvCardFormField"
-                       className="fc-credit-card-form-input"
-                       name="cvv"
-                       maxLength="255"
-                       type="text"
-                       required
-                       value={ this.props.form.cvv } />
-              </FormField>
-            </div>
-          </div>
-        </li>
-      );
+    const {isNew, form} = this.props;
+
+    if (!isNew) {
+      return null;
     }
-    return block;
+
+    return (
+      <li className="fc-credit-card-form-line">
+        <div className="fc-grid">
+          <div className="fc-col-md-3-4">
+            <FormField label="Card Number"
+                       labelClassName="fc-credit-card-form-label"
+                       validator="ascii">
+              <input id="numberCardFormField"
+                     className="fc-credit-card-form-input"
+                     name="number"
+                     maxLength="255"
+                     type="text"
+                     required
+                     value={ form.number }/>
+            </FormField>
+          </div>
+          <div className="fc-col-md-1-4">
+            <FormField label="CVV"
+                       labelClassName="fc-credit-card-form-label"
+                       validator="ascii">
+              <input id="cvvCardFormField"
+                     className="fc-credit-card-form-input"
+                     name="cvv"
+                     maxLength="255"
+                     type="text"
+                     required
+                     value={ form.cvv }/>
+            </FormField>
+          </div>
+        </div>
+      </li>
+    );
   }
 
-
   get addressEditBlock() {
-    const block = this.state.editingAddress ?
-                    ( <AddressSelect name="addressId"
-                                     items={ this.props.addresses }
-                                     initialValue={ this.props.card.address.id }
-                                     customerId={ this.props.customerId }
-                                     onItemSelect={ this.onAddressChange } />) :
-                    ( <AddressDetails customerId={ this.props.customerId }
-                                      address={ this.props.card.address } />);
-    return block;
+    const {addresses, card, customerId} = this.props;
+
+    return this.state.editingAddress
+      ? ( <AddressSelect name="addressId"
+                         items={ addresses }
+                         initialValue={ card.address.id }
+                         customerId={ customerId }
+                         onItemSelect={ this.onAddressChange }/>)
+      : ( <AddressDetails customerId={ customerId }
+                          address={ card.address }/>);
   }
 
   get addressSelectBlock() {
+    const {isNew, addresses, customerId} = this.props;
     let block = null;
     let addressId = _.get(this.props, 'card.address.id');
-    if (this.props.isNew) {
+
+    if (isNew) {
       block = (
         <li className="fc-credit-card-form-line">
           <div>
@@ -120,8 +129,8 @@ export default class CreditCardForm extends React.Component {
               Billing Address
             </label>
             <AddressSelect name="addressId"
-                           customerId={ this.props.customerId }
-                           items={ this.props.addresses }
+                           customerId={ customerId }
+                           items={ addresses }
                            initialValue={ addressId }
                            onItemSelect={ this.onAddressChange } />
           </div>
@@ -139,6 +148,7 @@ export default class CreditCardForm extends React.Component {
         </li>
       );
     }
+
     return block;
   }
 
@@ -153,18 +163,19 @@ export default class CreditCardForm extends React.Component {
   }
 
   render() {
-    const form = this.props.form;
-    const containerClass = classnames(
+    const {form, isNew, onChange, onSubmit, onCancel} = this.props;
+    const containerClass = classNames(
       'fc-card-container',
       'fc-credit-cards',
-      {'fc-credit-cards-new' : this.props.isNew },
-      {'fc-credit-cards-edit' : !this.props.isNew }
+      {'fc-credit-cards-new' : isNew },
+      {'fc-credit-cards-edit' : !isNew }
     );
+
     return (
       <li className={ containerClass }>
         <Form className="fc-customer-credit-card-form fc-form-vertical"
-              onChange={ this.props.onChange }
-              onSubmit={ this.props.onSubmit }>
+              onChange={ onChange }
+              onSubmit={ onSubmit }>
           { this.header }
           <div>
             <ul className="fc-credit-card-form-fields">
@@ -210,10 +221,10 @@ export default class CreditCardForm extends React.Component {
               { this.addressSelectBlock }
             </ul>
           </div>
-          <div className="fc-credit-card-form-controls">
-            <a className="fc-btn-link fc-credit-card-form-link" onClick={ this.props.onCancel }>Cancel</a>
-            <PrimaryButton type="submit" className="fc-credit-card-form-button">Save</PrimaryButton>
-          </div>
+          <SaveCancel className="fc-credit-card-form-controls"
+                      onCancel={onCancel}
+                      cancelClassName="fc-credit-card-form-link"
+                      saveClassName="fc-credit-card-form-button"/>
         </Form>
       </li>
     );

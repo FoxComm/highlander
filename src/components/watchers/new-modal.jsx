@@ -1,4 +1,3 @@
-
 // libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
@@ -7,10 +6,10 @@ import { autobind } from 'core-decorators';
 // components
 import { ModalContainer } from '../modal/base';
 import ContentBox from '../content-box/content-box';
-import { PrimaryButton } from '../common/buttons';
 import Typeahead from '../typeahead/typeahead';
 import UserInitials from '../users/initials';
 import PilledInput from '../pilled-search/pilled-input';
+import SaveCancel from '../common/save-cancel';
 
 export default class AddWatcherModal extends React.Component {
 
@@ -56,28 +55,29 @@ export default class AddWatcherModal extends React.Component {
         <i className='icon-close'></i>
       </a>
     );
-  };
+  }
 
   get footer() {
+    const {cancelAction, onAddClick} = this.props;
+
     return (
-      <div className="fc-modal-footer fc-add-watcher-modal__footer">
-        <a className="fc-btn-link"
-           onClick={this.props.cancelAction}>Cancel</a>
-        <PrimaryButton onClick={this.props.onAddClick}>
-          Assign
-        </PrimaryButton>
-      </div>
+      <SaveCancel className="fc-modal-footer fc-add-watcher-modal__footer"
+                  onCancel={cancelAction}
+                  cancelClassName="fc-action-block-cancel"
+                  onSave={onAddClick}
+                  cancelText="Assign" />
     );
   }
 
   username(user) {
     return user.name
-        ? user.name
-        : `${user.firstName} ${user.lastName}`;
+      ? user.name
+      : `${user.firstName} ${user.lastName}`;
   }
 
   get pilledInput() {
     const pills = this.props.selectedWatchers.map(this.username);
+
     return (
       <PilledInput
         value={this.state.query}
@@ -96,6 +96,7 @@ export default class AddWatcherModal extends React.Component {
   typeaheadItem(props) {
     const item = props.item;
     const name = this.username(item);
+
     return (
       <div className="fc-add-watcher-modal__typeahead-item">
         <div className="fc-add-watcher-modal__typeahead-item-icon">
@@ -109,13 +110,13 @@ export default class AddWatcherModal extends React.Component {
         </div>
       </div>
     );
-  };
+  }
 
   render() {
-    const props = this.props;
+    const {isVisible, suggestWatchers, suggestedItems} = this.props;
 
     return (
-      <ModalContainer isVisible={props.isVisible}>
+      <ModalContainer isVisible={isVisible}>
         <ContentBox title={this.title}
                     actionBlock={this.actionBlock}
                     footer={this.footer}
@@ -124,10 +125,10 @@ export default class AddWatcherModal extends React.Component {
             <Typeahead
               className="_no-search-icon"
               labelClass="fc-add-watcher-modal__label"
-              fetchItems={props.suggestWatchers}
+              fetchItems={suggestWatchers}
               minQueryLength={2}
               component={this.typeaheadItem}
-              items={props.suggestedItems}
+              items={suggestedItems}
               label={this.text}
               name="customerQuery"
               placeholder="Name or email..."

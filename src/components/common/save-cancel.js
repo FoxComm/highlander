@@ -22,24 +22,30 @@ const SaveCancel = props => {
     onCancel,
     cancelText,
     cancelClassName,
+    cancelDisabled,
     onSave,
     saveText,
-    saveClassName
+    saveClassName,
+    saveDisabled
   } = props;
 
   const cancelControl = cancelTo
     ? <Link to={cancelTo}
             className={classNames('fc-btn-link', cancelClassName)}
-            params={cancelParams}>{cancelText}</Link>
+            params={cancelParams}
+            disabled={cancelDisabled}>{cancelText}</Link>
     : <a onClick={onCancel}
          className={classNames('fc-btn-link', cancelClassName)}
-         href="javascript:void(0)">{cancelText}</a>;
+         href="javascript:void(0)"
+         disabled={cancelDisabled}>{cancelText}</a>;
 
   const saveControl = onSave
     ? <PrimaryButton onClick={onSave}
-                     className={saveClassName}>{saveText}</PrimaryButton>
+                     className={saveClassName}
+                     disabled={saveDisabled}>{saveText}</PrimaryButton>
     : <PrimaryButton type="submit"
-                     className={saveClassName}>{saveText}</PrimaryButton>;
+                     className={saveClassName}
+                     disabled={saveDisabled}>{saveText}</PrimaryButton>;
 
   return (
     <div className={className}>
@@ -56,9 +62,11 @@ SaveCancel.propTypes = {
   onCancel: PropTypes.func,
   cancelText: PropTypes.string.isRequired,
   cancelClassName: PropTypes.string,
+  cancelDisabled: PropTypes.bool,
   onSave: PropTypes.func,
   saveText: PropTypes.string.isRequired,
-  saveClassName: PropTypes.string
+  saveClassName: PropTypes.string,
+  saveDisabled: PropTypes.bool
 };
 
 SaveCancel.defaultProps = {

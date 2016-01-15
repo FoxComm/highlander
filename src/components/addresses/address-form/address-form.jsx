@@ -1,18 +1,22 @@
-
+// libs
 import _ from 'lodash';
-import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
-import FormField from '../../forms/formfield';
 import InputMask from 'react-input-mask';
-import Form from '../../forms/form';
-import * as validators from '../../../lib/validators';
-import ErrorAlerts from '../../alerts/error-alerts';
+import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as AddressFormActions from '../../../modules/address-form';
 import { createSelector } from 'reselect';
-import {regionName, zipName, zipExample, phoneExample, phoneMask} from '../../../i18n';
+
+// components
+import FormField from '../../forms/formfield';
+import Form from '../../forms/form';
+import ErrorAlerts from '../../alerts/error-alerts';
 import SaveCancel from '../../../components/common/save-cancel';
+
+// data
+import * as validators from '../../../lib/validators';
+import * as AddressFormActions from '../../../modules/address-form';
+import {regionName, zipName, zipExample, phoneExample, phoneMask} from '../../../i18n';
 
 const formNamespace = props => props.address && props.address.id || 'new';
 
@@ -23,7 +27,6 @@ const selectCurrentCountry = createSelector(
     return addressForm && addressForm.countryId;
   },
   (countries={}, countryId) => countries[countryId]
-
 );
 
 function mapStateToProps(state, props) {
@@ -80,12 +83,10 @@ export default class AddressForm extends React.Component {
     switch (name) {
       case 'phoneNumber':
         return value.replace(/[^\d]/g, '');
-        break;
       default:
         return value;
     }
   }
-
 
   @autobind
   handleFormSubmit(event) {
@@ -240,8 +241,6 @@ export default class AddressForm extends React.Component {
               </li>
               <li className="fc-address-form-controls">
                 <SaveCancel onCancel={props.closeAction}
-                            cancelText="Cancel"
-                            cancelClassName="fc-btn-link"
                             saveText={props.saveTitle}/>
               </li>
             </ul>
@@ -251,4 +250,3 @@ export default class AddressForm extends React.Component {
     );
   }
 }
-
