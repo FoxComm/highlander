@@ -575,6 +575,26 @@ activities = [...activities,
       ]
     }
   },
+  {
+    kind: types.UNASSIGNED_FROM_ORDER,
+    createdAt,
+    data: {
+      order,
+      assignee: customer,
+    }
+  },
+  {
+    kind: types.BULK_ASSIGNED_TO_ORDERS,
+    createdAt,
+    data: {
+      assignee: customer,
+      orders: [
+        'BR10001',
+        'BR10002',
+        'BR10003',
+      ]
+    }
+  }
 ];
 
 activities = activities.map(processActivity).map(addContext);

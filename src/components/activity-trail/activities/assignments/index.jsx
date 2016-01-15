@@ -2,9 +2,11 @@
 // libs
 import React from 'react';
 import types from '../base/types';
+import { joinEntities } from '../base/utils';
 
 // components
 import OrderTarget from '../base/order-target';
+import OrderLink from '../base/order-link';
 import Person from '../base/person';
 
 [
@@ -17,39 +19,33 @@ import Person from '../base/person';
 const representatives = {
   [types.ASSIGNED_TO_ORDER]: {
     title: data => {
-      if (data.assignees.length == 1) {
-        const person = data.assignees[0];
+      const persons = data.assignees.map(person => <Person {...person} />);
 
-        return (
-          <span>
-            <strong>assigned</strong> <Person {...person} /> to <OrderTarget order={data.order} />.
-          </span>
-        );
-      } else {
-        return (
-          <span>
-            <strong>assigned</strong> a set of persons to <OrderTarget order={data.order} />.
-          </span>
-        );
-      }
+      return (
+        <span>
+          <strong>assigned</strong> {joinEntities(persons)} to <OrderTarget order={data.order} />.
+        </span>
+      );
     },
-    details: data => {
-      if (data.assignees.length > 1) {
-        return (
-          <div>
-            <div className="fc-activity__details-head">Assignees</div>
-            <ul>
-              {data.assignees.map(person => {
-                return (
-                  <li>
-                    <Person {...person} />
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        );
-      }
+  },
+  [types.BULK_ASSIGNED_TO_ORDERS]: {
+    title: data => {
+      const orders = data.orders.map(referenceNumber => <OrderLink order={{title: 'Order', referenceNumber}} />);
+
+      return (
+        <span>
+          <strong>assigned</strong> <Person {...data.assignee} /> to orders {joinEntities(orders)}.
+        </span>
+      );
+    },
+  },
+  [types.UNASSIGNED_FROM_ORDER]: {
+    title: data => {
+      return (
+        <span>
+          <strong>unassigned</strong> <Person {...data.assignee} /> from <OrderTarget order={data.order} />.
+        </span>
+      );
     }
   },
 };

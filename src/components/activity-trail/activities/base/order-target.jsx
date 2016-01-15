@@ -1,13 +1,13 @@
 
 import React, { PropTypes } from 'react';
-import { Link } from '../../../link';
+import OrderLink from './order-link';
 
 const OrderTarget = ({order}) => {
   return (
     <span>
       {order.title}
       &nbsp;
-      <Link className="fc-activity__link" to="order" params={{order: order.referenceNumber}}>{order.referenceNumber}</Link>
+      <OrderLink order={order} />
     </span>
   );
 };

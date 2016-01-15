@@ -3,9 +3,11 @@
 import React from 'react';
 import types from '../base/types';
 import { statusTitles } from '../../../../paragons/order';
+import { joinEntities } from '../base/utils';
 
 // components
 import OrderTarget from '../base/order-target';
+import OrderLink from '../base/order-link';
 
 const representatives = {
   [types.ORDER_STATE_CHANGED]: {
@@ -35,26 +37,14 @@ const representatives = {
   },
   [types.ORDER_BULK_STATE_CHANGED]: {
     title: data => {
+      const orders = data.orders.map(ref => <OrderLink order={{title: 'Order', referenceNumber: ref}} />);
+
       return (
         <span>
-          <strong>changed the order state</strong> to {statusTitles[data.newState]} on set of orders.
+          <strong>changed the order state</strong> to {statusTitles[data.newState]} on orders {joinEntities(orders)}.
         </span>
       );
     },
-    details: data => {
-      return (
-        <div>
-          <div className="fc-activity__details-head">List of affected orders</div>
-          <ul className="fc-activity__details-enum">{data.orders.map(ref => {
-            return (
-              <li>
-                <OrderTarget order={{title: 'Order', referenceNumber: ref}} />
-              </li>
-            );
-          })}</ul>
-        </div>
-      );
-    }
   },
 };
 
