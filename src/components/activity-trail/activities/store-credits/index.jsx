@@ -5,16 +5,39 @@ import types from '../base/types';
 
 // components
 import GiftCardCode from '../../../gift-cards/gift-card-code';
-import GiftCard from './gift-card';
+import GiftCard from '../gift-cards/gift-card';
 import OrderTarget from '../base/order-target';
+import CustomerLink from '../base/customer-link';
 import Currency from '../../../common/currency';
 
 const representatives = {
-  [types.GIFT_CARD_CREATED]: {
+  [types.STORE_CREDIT_CREATED]: {
     title: data => {
       return (
         <span>
-          <strong>created gift card</strong> with code <GiftCardCode value={data.giftCard.code} />.
+          <strong>created store credit</strong> with amount
+          &nbsp;<Currency value={data.storeCredit.availableBalance} currency={data.storeCredit.currency} />
+          &nbsp; for customer <CustomerLink customer={data.customer} />.
+        </span>
+      );
+    },
+  },
+  // todo: do we have previous status ?
+  [types.STORE_CREDIT_STATE_CHANGED]: {
+    title: data => {
+      return (
+        <span>
+          <strong>changed state for store credit</strong> to {data.storeCredit.status}.
+        </span>
+      );
+    }
+  },
+  [types.STORE_CREDIT_CONVERTED_TO_GIFT_CARD]: {
+    title: data => {
+      return (
+        <span>
+          <strong>converted store credit</strong> to gift card with amount
+          &nbsp;<Currency value={data.giftCard.availableBalance} currency={data.giftCard.currency} />.
         </span>
       );
     },
@@ -22,28 +45,7 @@ const representatives = {
       return <GiftCard giftCard={data.giftCard} />;
     },
   },
-  // todo: do we have previous status ?
-  [types.GIFT_CARD_STATE_CHANGED]: {
-    title: data => {
-      return (
-        <span>
-          <strong>changed state for gift card</strong> to {data.giftCard.status}.
-        </span>
-      );
-    }
-  },
-  [types.GIFT_CARD_CONVERTED_TO_STORE_CREDIT]: {
-    title: data => {
-      return (
-        <span>
-          <strong>converted gift card</strong> <GiftCardCode value={data.giftCard.code} />
-          &nbsp;to store credit with amount
-          &nbsp;<Currency value={data.storeCredit.availableBalance} currency={data.storeCredit.currency} />.
-        </span>
-      );
-    }
-  },
-  [types.GIFT_CARD_AUTHORIZED_FUNDS]: {
+  [types.STORE_CREDIT_AUTHORIZED_FUNDS]: {
     title: data => {
       return (
         <span>
@@ -53,7 +55,7 @@ const representatives = {
       );
     },
   },
-  [types.GIFT_CARD_CAPTURED_FUNDS]: {
+  [types.STORE_CREDIT_CAPTURED_FUNDS]: {
     title: data => {
       return (
         <span>

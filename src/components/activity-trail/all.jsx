@@ -82,6 +82,7 @@ const storeCredit = {
   "originalBalance": 3000,
   "availableBalance": 2500,
   "currentBalance": 2500,
+  "status": "active",
 };
 
 const shippingMethod = {
