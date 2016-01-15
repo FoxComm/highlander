@@ -27,7 +27,7 @@ object Seeds {
     flyWayMigrate(config)
     Console.err.println(s"Inserting seeds")
     implicit val db: PostgresDriver.backend.DatabaseDef = Database.forConfig("db", config)
-    val result: Failures Xor Unit = Await.result(createAll().runTxn(), 5.second)
+    val result: Failures Xor Unit = Await.result(createAll().runTxn(), 20.second)
     result.fold(failures ⇒ {
       Console.err.println("Well, fuck...")
       failures.flatten.foreach(Console.err.println)
@@ -37,7 +37,7 @@ object Seeds {
     args.headOption.map {
       case "ranking" ⇒
         Console.err.println(s"Inserting ranking seeds")
-        Await.result(db.run(SeedsGenerator.insertRankingSeeds(1700).transactionally), 7.second)
+        Await.result(db.run(SeedsGenerator.insertRankingSeeds(1700).transactionally), 30.second)
       case _ ⇒ None
     }
 
