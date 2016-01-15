@@ -5,7 +5,6 @@ import types from '../base/types';
 
 // components
 import GiftCardCode from '../../../gift-cards/gift-card-code';
-import GiftCard from './gift-card';
 import OrderTarget from '../base/order-target';
 import Currency from '../../../common/currency';
 
@@ -14,12 +13,10 @@ const representatives = {
     title: data => {
       return (
         <span>
-          <strong>created gift card</strong> with code <GiftCardCode value={data.giftCard.code} />.
+          <strong>created gift card</strong> <GiftCardCode value={data.giftCard.code} />
+          &nbsp; with amount <Currency value={data.giftCard.availableBalance} currency={data.giftCard.currency} />.
         </span>
       );
-    },
-    details: data => {
-      return <GiftCard giftCard={data.giftCard} />;
     },
   },
   // todo: do we have previous status ?
@@ -27,7 +24,8 @@ const representatives = {
     title: data => {
       return (
         <span>
-          <strong>changed state for gift card</strong> to {data.giftCard.status}.
+          <strong>changed state for gift card</strong> <GiftCardCode value={data.giftCard.code} />
+          &nbsp;to {data.giftCard.status}.
         </span>
       );
     }

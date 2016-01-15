@@ -5,7 +5,6 @@ import types from '../base/types';
 
 // components
 import GiftCardCode from '../../../gift-cards/gift-card-code';
-import GiftCard from '../gift-cards/gift-card';
 import OrderTarget from '../base/order-target';
 import CustomerLink from '../base/customer-link';
 import Currency from '../../../common/currency';
@@ -22,7 +21,7 @@ const representatives = {
       );
     },
   },
-  // todo: do we have previous status ?
+  // todo: do we have previous status and customer ?
   [types.STORE_CREDIT_STATE_CHANGED]: {
     title: data => {
       return (
@@ -36,13 +35,10 @@ const representatives = {
     title: data => {
       return (
         <span>
-          <strong>converted store credit</strong> to gift card with amount
-          &nbsp;<Currency value={data.giftCard.availableBalance} currency={data.giftCard.currency} />.
+          <strong>converted store credit</strong> to gift card <GiftCardCode value={data.giftCard.code} />
+          &nbsp;with amount <Currency value={data.giftCard.availableBalance} currency={data.giftCard.currency} />.
         </span>
       );
-    },
-    details: data => {
-      return <GiftCard giftCard={data.giftCard} />;
     },
   },
   [types.STORE_CREDIT_AUTHORIZED_FUNDS]: {

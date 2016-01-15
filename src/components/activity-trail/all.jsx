@@ -505,6 +505,52 @@ activities = [...activities,
   },
 ];
 
+createdAt = moment().subtract(shiftDays++, 'days').toString();
+
+activities = [...activities,
+  {
+    kind: types.STORE_CREDIT_CREATED,
+    createdAt,
+    data: {
+      customer,
+      storeCredit,
+    }
+  },
+  {
+    kind: types.STORE_CREDIT_STATE_CHANGED,
+    createdAt,
+    data: {
+      customer,
+      storeCredit,
+    }
+  },
+  {
+    kind: types.STORE_CREDIT_CONVERTED_TO_GIFT_CARD,
+    createdAt,
+    data: {
+      customer,
+      storeCredit,
+      giftCard,
+    }
+  },
+  {
+    kind: types.STORE_CREDIT_AUTHORIZED_FUNDS,
+    createdAt,
+    data: {
+      orderRefNum: 'BR10001',
+      amount: 21400
+    }
+  },
+  {
+    kind: types.STORE_CREDIT_CAPTURED_FUNDS,
+    createdAt,
+    data: {
+      orderRefNum: 'BR10001',
+      amount: 11400
+    }
+  },
+];
+
 activities = activities.map(processActivity).map(addContext);
 
 export default class AllActivities extends React.Component {
