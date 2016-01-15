@@ -20,6 +20,7 @@ module.exports = function(gulp, opts, $) {
 
     let entries = path.join(opts.srcDir, 'app.js');
     bundler = browserify({
+      paths: [opts.srcDir],
       entries: [entries],
       standalone: 'App',
       transform: ['babelify'],
@@ -56,7 +57,6 @@ module.exports = function(gulp, opts, $) {
       //.pipe($.sourcemaps.write('./maps'))
       .pipe(gulp.dest(opts.publicDir));
 
-    return stream;
     return stream;
   });
   affectsServer('browserify');

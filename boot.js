@@ -7,10 +7,13 @@ const
   title       = require('./package').name,
   clc         = require('cli-color'),
   moment      = require('moment'),
-  exec        = require('child_process').exec;
+  exec        = require('child_process').exec,
+  Config      = require('./config'),
+  srcDir      = new Config().gulp.srcDir;
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 process.env.PHOENIX_URL = process.env.PHOENIX_URL || 'http://localhost:9090';
+process.env.NODE_PATH = srcDir + ':' + (process.env.NODE_PATH || '');
 
 let forks = process.env.NODE_ENV === 'production' ? cpus : 1;
 
