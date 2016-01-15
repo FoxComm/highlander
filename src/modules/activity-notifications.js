@@ -37,10 +37,14 @@ export function markAsReadAndClose() {
     if (!_.isEmpty(activities)) {
       const activityId = _.get(_.last(activities), 'id');
 
-      Api.post(`/notifications/${adminId}/last-seen/${activityId}`, {}).then(
-        () => dispatch(markNotificationsAsRead()),
-        () => dispatch(toggleNotifications())
-      );
+      if (_.isNumber(activityId)) {
+        Api.post(`/notifications/${adminId}/last-seen/${activityId}`, {}).then(
+          () => dispatch(markNotificationsAsRead()),
+          () => dispatch(toggleNotifications())
+        );
+      } else {
+        dispatch(toggleNotifications());
+      }
     } else {
       dispatch(toggleNotifications());
     }
@@ -55,10 +59,12 @@ export function markAsRead() {
     if (!_.isEmpty(activities)) {
       const activityId = _.get(_.last(activities), 'id');
 
-      Api.post(`/notifications/${adminId}/last-seen/${activityId}`, {}).then(
-        () => dispatch(markNotificationsAsRead()),
-        () => dispatch(toggleNotifications())
-      );
+      if (_.isNumber(activityId)) {
+        Api.post(`/notifications/${adminId}/last-seen/${activityId}`, {}).then(
+          () => dispatch(markNotificationsAsRead()),
+          () => dispatch(toggleNotifications())
+        );
+      }
     } else {
       dispatch(toggleNotifications());
     }
