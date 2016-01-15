@@ -142,7 +142,6 @@ export default class StoreCredits extends React.Component {
         <TableCell><Currency value={ row.currentBalance } /></TableCell>
         <TableCell><Currency value={ row.availableBalance } /></TableCell>
         <TableCell>{ this.renderRowState(row.id, row.status) }</TableCell>
-        <TableCell>{ /* actions? */ }</TableCell>
       </TableRow>
     );
   }
@@ -247,6 +246,7 @@ export default class StoreCredits extends React.Component {
               data={props.storeCredits}
               renderRow={this.renderRow}
               emptyMessage="No storecredit found."
+              toggleColumnPresent={false}
               setState={params => props.fetchStoreCredits(this.customerId, params)}
               />
           </div>
