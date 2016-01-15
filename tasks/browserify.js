@@ -45,7 +45,7 @@ module.exports = function(gulp, opts, $) {
   }
 
   gulp.task('browserify', function() {
-    let stream = getBundler()
+    return getBundler()
       .bundle()
       .on('error', function(err) {
         stream.emit('error', err);
@@ -56,8 +56,6 @@ module.exports = function(gulp, opts, $) {
       .pipe($.if(production, $.uglify()))
       //.pipe($.sourcemaps.write('./maps'))
       .pipe(gulp.dest(opts.publicDir));
-
-    return stream;
   });
   affectsServer('browserify');
 

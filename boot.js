@@ -1,15 +1,14 @@
 'use strict';
 
-const
-  cluster     = require('cluster'),
-  cpus        = require('os').cpus().length,
-  description = require('./package').description,
-  title       = require('./package').name,
-  clc         = require('cli-color'),
-  moment      = require('moment'),
-  exec        = require('child_process').exec,
-  Config      = require('./config'),
-  srcDir      = new Config().gulp.srcDir;
+const cluster = require('cluster');
+const cpus = require('os').cpus().length;
+const description = require('./package').description;
+const title = require('./package').name;
+const clc = require('cli-color');
+const moment = require('moment');
+const exec = require('child_process').exec;
+const Config = require('./config');
+const srcDir = new Config().gulp.srcDir;
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 process.env.PHOENIX_URL = process.env.PHOENIX_URL || 'http://localhost:9090';
@@ -19,7 +18,7 @@ let forks = process.env.NODE_ENV === 'production' ? cpus : 1;
 
 if (cluster.isWorker) {
   return require('./server').init()
-    .catch(function(err){
+    .catch(function(err) {
       console.error(err.stack);
     });
 }
@@ -64,7 +63,7 @@ cluster.on('exit', function(worker, code) {
 
 cluster.on('listening', function(worker, address) {
   let cmd = `git log -1 --format='%h' -- ${__dirname}`;
-  exec(cmd, function(err, stdout, stderr) {
+  exec(cmd, function(err, stdout) {
     let sha = stdout.toString().trim();
     let args = [
       `%s: %s (${clc.blackBright('%s')}) ${clc.blue('%s')} ${clc.green('phoenix: %s')} ${clc.red('%d')}`,
@@ -74,7 +73,7 @@ cluster.on('listening', function(worker, address) {
       process.env.NODE_ENV,
       process.env.PHOENIX_URL,
       address.port
-    ]
+    ];
     console.log.apply(this, args);
   });
 });
