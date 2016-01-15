@@ -16,17 +16,26 @@ import ejs from 'elastic.js';
  *  }
  * @returns The ElasticSearch query.
  */
-export function toQuery(filters) {
+export function toQuery(filters, phrase = "") {
   const esFilters = _.map(filters, filter => {
     return filter.selectedTerm.lastIndexOf('.') != -1
       ? createNestedFilter(filter)
       : createFilter(filter, ejs.TermsFilter, rangeToFilter);
   });
 
+  let query = _.isEmpty(phrase) ? ejs.MatchAllQuery() : phrasePrefixQuery(phrase);
+
   return ejs
     .Request()
-    .query(ejs.MatchAllQuery())
+    .query(query)
     .filter(ejs.AndFilter(esFilters));
+}
+
+function phrasePrefixQuery(phrase, field = "_all") {
+    const MAX_EXPANSIONS = 10; //prevent long query
+    return ejs.MatchQuery(field, phrase)
+        .type("phrase_prefix")
+        .maxExpansions(MAX_EXPANSIONS);
 }
 
 function createFilter(filter, boolFn, rangeFn) {
