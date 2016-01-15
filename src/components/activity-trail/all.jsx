@@ -77,6 +77,13 @@ const giftCard = {
   "message": "Not implemented yet"
 };
 
+const storeCredit = {
+  "currency": "USD",
+  "originalBalance": 3000,
+  "availableBalance": 2500,
+  "currentBalance": 2500,
+};
+
 const shippingMethod = {
   id: 1,
   name: 'UPS Ground',
@@ -450,6 +457,49 @@ activities = [...activities,
     data: {
       order,
       giftCard,
+    }
+  },
+];
+
+createdAt = moment().subtract(shiftDays++, 'days').toString();
+
+activities = [...activities,
+  {
+    kind: types.GIFT_CARD_CREATED,
+    createdAt,
+    data: {
+      giftCard,
+    }
+  },
+  {
+    kind: types.GIFT_CARD_STATE_CHANGED,
+    createdAt,
+    data: {
+      giftCard,
+    }
+  },
+  {
+    kind: types.GIFT_CARD_CONVERTED_TO_STORE_CREDIT,
+    createdAt,
+    data: {
+      giftCard,
+      storeCredit,
+    }
+  },
+  {
+    kind: types.GIFT_CARD_AUTHORIZED_FUNDS,
+    createdAt,
+    data: {
+      orderRefNum: 'BR10001',
+      amount: 21400
+    }
+  },
+  {
+    kind: types.GIFT_CARD_CAPTURED_FUNDS,
+    createdAt,
+    data: {
+      orderRefNum: 'BR10001',
+      amount: 124
     }
   },
 ];

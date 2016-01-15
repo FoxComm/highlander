@@ -5,6 +5,7 @@ import types from '../base/types';
 import OrderTarget from '../base/order-target';
 import PaymentMethod from '../../../payment/payment-method';
 import Currency from '../../../common/currency';
+import GiftCardCode from '../../../gift-cards/gift-card-code';
 
 const paymentMethodTitles = {
   giftCard: 'gift card',
@@ -28,7 +29,7 @@ const representatives = {
     title: data => {
       return (
         <span>
-          <strong>added gift card</strong> with code <tt>{data.giftCard.code}</tt>
+          <strong>added gift card</strong> with code <GiftCardCode value={data.giftCard.code} />
           &nbsp;as payment method for <OrderTarget order={data.order} />.
         </span>
       );
@@ -38,7 +39,7 @@ const representatives = {
     title: data => {
       return (
         <span>
-          <strong>removed gift card</strong> with code <tt>{data.giftCard.code}</tt>
+          <strong>removed gift card</strong> with code <GiftCardCode value={data.giftCard.code} />
           &nbsp;from payment method for <OrderTarget order={data.order} />.
         </span>
       );

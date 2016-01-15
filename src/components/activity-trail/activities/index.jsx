@@ -11,6 +11,7 @@ import orderPaymentMethodsActivities from './order-payment-methods';
 import customersActivities from './customers';
 import customerAddressesActivities from './customer-addresses';
 import customerCreditCardsActivities from './customer-credit-cards';
+import giftCardsActivities from './gift-cards';
 
 const representatives = {
   ...ordersActivities,
@@ -21,6 +22,7 @@ const representatives = {
   ...customersActivities,
   ...customerAddressesActivities,
   ...customerCreditCardsActivities,
+  ...giftCardsActivities,
 };
 
 export function getActivityRepresentative(activity) {
