@@ -1,16 +1,12 @@
 
 import _ from 'lodash';
 
-function injectValue(array, value) {
-  let withValues = _.slice(array, 0, 1);
-  for (let i = 1, len = array.length; i < len; i++) {
-    withValues.push(value, array[i]);
+export function joinEntities(entities) {
+  let result = _.slice(entities, 0, 1);
+  for (let i = 1, len = entities.length; i < len; i++) {
+    const sep = (i == entities.length - 1) ? ' and ' : ', ';
+    result.push(sep, entities[i]);
   }
 
-  return withValues;
-}
-
-export function joinEntities(entities) {
-  const withCommas = injectValue(_.initial(entities), ', ');
-  return _.flatten(injectValue([withCommas, [_.last(entities)]], ' and '));
+  return result;
 }

@@ -609,6 +609,65 @@ activities = [...activities,
   },
 ];
 
+createdAt = moment().subtract(shiftDays++, 'days').toString();
+
+activities = [...activities,
+  {
+    kind: types.ADDED_WATCHERS_TO_ORDER,
+    createdAt,
+    data: {
+      order,
+      watchers: [
+        admin,
+      ]
+    }
+  },
+  {
+    kind: types.ADDED_WATCHERS_TO_ORDER,
+    createdAt,
+    data: {
+      order,
+      watchers: [
+        admin,
+        customer,
+      ]
+    }
+  },
+  {
+    kind: types.REMOVED_WATCHER_FROM_ORDER,
+    createdAt,
+    data: {
+      order,
+      watcher: customer,
+    }
+  },
+  {
+    kind: types.BULK_ADDED_WATCHER_TO_ORDERS,
+    createdAt,
+    data: {
+      watcher: customer,
+      orders: [
+        'BR10001',
+        'BR10002',
+        'BR10003',
+      ]
+    }
+  },
+  {
+    kind: types.BULK_REMOVED_WATCHER_FROM_ORDERS,
+    createdAt,
+    data: {
+      watcher: customer,
+      orders: [
+        'BR10001',
+        'BR10002',
+        'BR10003',
+      ]
+    }
+  },
+];
+
+
 activities = activities.map(processActivity).map(addContext);
 
 export default class AllActivities extends React.Component {

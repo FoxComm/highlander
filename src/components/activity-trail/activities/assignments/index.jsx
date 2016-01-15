@@ -9,7 +9,7 @@ import OrderTarget from '../base/order-target';
 import OrderLink from '../base/order-link';
 import Person from '../base/person';
 
-const bulkProcessAssignToOrders = {
+const bulkEventsToOrders = {
   title: (data, {kind}) => {
     const orders = data.orders.map(referenceNumber => <OrderLink order={{title: 'Order', referenceNumber}} />);
     const action = kind == types.BULK_ASSIGNED_TO_ORDERS ? 'assigned' : 'unassigned';
@@ -35,8 +35,8 @@ const representatives = {
       );
     },
   },
-  [types.BULK_ASSIGNED_TO_ORDERS]: bulkProcessAssignToOrders,
-  [types.BULK_UNASSIGNED_FROM_ORDERS]: bulkProcessAssignToOrders,
+  [types.BULK_ASSIGNED_TO_ORDERS]: bulkEventsToOrders,
+  [types.BULK_UNASSIGNED_FROM_ORDERS]: bulkEventsToOrders,
   [types.UNASSIGNED_FROM_ORDER]: {
     title: data => {
       return (
