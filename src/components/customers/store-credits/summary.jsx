@@ -10,7 +10,7 @@ import TabListView from '../../tabs/tabs';
 import TabView from '../../tabs/tab';
 import Currency from '../../common/currency';
 import { PanelList, PanelListItem } from '../../panel/panel-list';
-import { Link } from '../../link';
+import { Link, IndexLink } from '../../link';
 
 const Summary = props => {
   const params = {
@@ -42,11 +42,11 @@ const Summary = props => {
       </div>
       <TabListView>
         <TabView draggable={false} selected={!props.transactionsSelected} >
-          <Link to="customer-storecredits"
-                params={props.params}
-                className="fc-store-credit-summary__tab-link">
+          <IndexLink to="customer-storecredits"
+                     params={props.params}
+                     className="fc-store-credit-summary__tab-link">
             Store Credits
-          </Link>
+          </IndexLink>
         </TabView>
         <TabView draggable={false} selected={props.transactionsSelected} >
           <Link to="customer-storecredit-transactions"
