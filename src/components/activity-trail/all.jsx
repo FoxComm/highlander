@@ -551,6 +551,32 @@ activities = [...activities,
   },
 ];
 
+createdAt = moment().subtract(shiftDays++, 'days').toString();
+
+activities = [...activities,
+  {
+    kind: types.ASSIGNED_TO_ORDER,
+    createdAt,
+    data: {
+      order,
+      assignees: [
+        admin,
+      ]
+    }
+  },
+  {
+    kind: types.ASSIGNED_TO_ORDER,
+    createdAt,
+    data: {
+      order,
+      assignees: [
+        admin,
+        customer,
+      ]
+    }
+  },
+];
+
 activities = activities.map(processActivity).map(addContext);
 
 export default class AllActivities extends React.Component {
