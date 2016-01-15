@@ -4,9 +4,11 @@ import Summary from './summary';
 import TableView from '../../table/tableview';
 import TableRow from '../../table/row';
 import TableCell from '../../table/cell';
+import MultiSelectTable from '../../table/multi-select-table';
 import { DateTime } from '../../common/datetime';
 import Currency from '../../common/currency';
 import SearchBar from '../../search-bar/search-bar';
+import { Checkbox } from '../../checkbox/checkbox';
 import { connect } from 'react-redux';
 import * as StoreCreditTransactionsActions from '../../../modules/customers/store-credit-transactions';
 import Status from '../../common/status';
@@ -68,11 +70,13 @@ export default class StoreCreditTransactions extends React.Component {
   renderRow(row) {
     return (
       <TableRow key={`storeCreditTransaction-row-${row.id}`}>
+        <TableCell><Checkbox /></TableCell>
         <TableCell><DateTime value={row.createdAt}/></TableCell>
         <TableCell>{row.transaction}</TableCell>
         <TableCell><Currency value={-row.debit} isTransaction={true}/></TableCell>
         <TableCell><Status value={row.status} model={"storeCreditTransaction"}/></TableCell>
         <TableCell><Currency value={row.availableBalance} /></TableCell>
+        <TableCell>{ /* actions? */ }</TableCell>
       </TableRow>
     );
   }
@@ -90,10 +94,11 @@ export default class StoreCreditTransactions extends React.Component {
         <div className="fc-grid fc-list-page-content">
           <SearchBar />
           <div className="fc-col-md-1-1">
-            <TableView
+            <MultiSelectTable
               columns={props.tableColumns}
               data={props.storeCreditTransactions}
               renderRow={this.renderRow}
+              emptyMessage="No storecredit transactions found."
               setState={params => this.props.fetchStoreCreditTransactions(this.customerId, params)} />
           </div>
         </div>
