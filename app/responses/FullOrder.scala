@@ -167,12 +167,7 @@ object FullOrder {
     Totals(subTotal = order.subTotal, shipping = order.shippingTotal, adjustments = order.adjustmentsTotal,
     taxes = order.taxesTotal, total = order.grandTotal)
 
-  private def fetchOrderDetails(order: Order)(implicit ec: ExecutionContext) = {
-    val shippingMethodQ = for {
-      orderShippingMethod ← models.OrderShippingMethods.filter(_.orderId === order.id)
-      shipMethod ← models.ShippingMethods.filter(_.id === orderShippingMethod.shippingMethodId)
-    } yield shipMethod
-
+  private def fetchOrderDetails(order: Order)(implicit ec: ExecutionContext, db: Database) = {
     val ccPaymentQ = for {
       payment     ← OrderPayments.findAllByOrderId(order.id)
       creditCard  ← CreditCards.filter(_.id === payment.paymentMethodId)
@@ -184,7 +179,7 @@ object FullOrder {
       customer    ← Customers.findById(order.customerId).extract.one
       lineItems   ← OrderLineItemSkus.findLineItemsByOrder(order).sortBy(_._1.sku).result
       giftCards   ← OrderLineItemGiftCards.findLineItemsByOrder(order).result
-      shipMethod  ← shippingMethodQ.one
+      shipMethod  ← models.ShippingMethods.forOrder(order).one
       shipAddress ← Addresses.forOrderId(order.id)
       payments    ← ccPaymentQ.one
       gcPayments  ← OrderPayments.findAllGiftCardsByOrderId(order.id).result

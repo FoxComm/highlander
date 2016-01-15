@@ -2,12 +2,13 @@ package services
 
 import scala.concurrent.ExecutionContext
 
-import models.{PaymentMethod, StoreCredit, GiftCard, CreditCard, OrderShippingMethod, OrderShippingAddress,
+import models.{PaymentMethod, StoreCredit, GiftCard, CreditCard, ShippingMethod, OrderShippingAddress,
 Region, Address, Customer, StoreAdmin, Order}
 import models.activity.{Activity, Activities, ActivityContext}
 import payloads.UpdateLineItemsPayload
 import responses.{CreditCardsResponse, Addresses, GiftCardResponse, CustomerResponse, FullOrder, StoreAdminResponse,
 StoreCreditResponse}
+import services.LineItemUpdater.foldQuantityPayload
 import services.activity._
 import utils.Slick.DbResult
 
@@ -206,17 +207,17 @@ object LogActivity {
     Activities.log(OrderBulkStateChanged(buildAdmin(admin), newState, orders))
 
   /* Order Notes */
-  def orderNoteCreated(admin: StoreAdmin, orderRefNum: String, text: String)
+  def orderNoteCreated(admin: StoreAdmin, orderRefNum: String, status: Order.Status, text: String)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderNoteCreated(buildAdmin(admin), orderRefNum, text))
+    Activities.log(OrderNoteCreated(buildAdmin(admin), orderRefNum, status, text))
 
-  def orderNoteUpdated(admin: StoreAdmin, orderRefNum: String, oldText: String, newText: String)
+  def orderNoteUpdated(admin: StoreAdmin, orderRefNum: String, status: Order.Status, oldText: String, newText: String)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderNoteUpdated(buildAdmin(admin), orderRefNum, oldText, newText))
+    Activities.log(OrderNoteUpdated(buildAdmin(admin), orderRefNum, status, oldText, newText))
 
-  def orderNoteDeleted(admin: StoreAdmin, orderRefNum: String, text: String)
+  def orderNoteDeleted(admin: StoreAdmin, orderRefNum: String, status: Order.Status, text: String)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderNoteDeleted(buildAdmin(admin), orderRefNum, text))
+    Activities.log(OrderNoteDeleted(buildAdmin(admin), orderRefNum, status, text))
 
   /* Order Line Items */
   def orderLineItemsAddedGc(admin: StoreAdmin, order: FullOrder.Root, gc: GiftCard)
@@ -231,13 +232,15 @@ object LogActivity {
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(OrderLineItemsDeletedGiftCard(buildAdmin(admin), order, GiftCardResponse.build(gc)))
 
-  def orderLineItemsUpdated(admin: StoreAdmin, order: FullOrder.Root, payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderLineItemsUpdatedQuantities(buildAdmin(admin), order, payload))
+  def orderLineItemsUpdated(admin: StoreAdmin, order: FullOrder.Root, oldQtys: Map[String, Int],
+    payload: Seq[UpdateLineItemsPayload])(implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
+    Activities.log(OrderLineItemsUpdatedQuantities(buildAdmin(admin), order, oldQtys,
+      foldQuantityPayload(payload)))
 
-  def orderLineItemsUpdatedByCustomer(customer: Customer, order: FullOrder.Root, payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderLineItemsUpdatedQuantitiesByCustomer(buildCustomer(customer), order, payload))
+  def orderLineItemsUpdatedByCustomer(customer: Customer, order: FullOrder.Root, oldQtys: Map[String, Int],
+    payload: Seq[UpdateLineItemsPayload])(implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
+    Activities.log(OrderLineItemsUpdatedQuantitiesByCustomer(buildCustomer(customer), order, oldQtys,
+      foldQuantityPayload(payload)))
 
   /* Order Payment Methods */
   def orderPaymentMethodAddedCc(admin: StoreAdmin, order: FullOrder.Root, cc: CreditCard, region: Region)
@@ -274,11 +277,11 @@ object LogActivity {
     Activities.log(OrderShippingAddressRemoved(buildAdmin(admin), order))
 
   /* Order Shipping Methods */
-  def orderShippingMethodUpdated(admin: StoreAdmin, order: FullOrder.Root, method: OrderShippingMethod)
+  def orderShippingMethodUpdated(admin: StoreAdmin, order: FullOrder.Root, shippingMethod: Option[ShippingMethod])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderShippingMethodUpdated(buildAdmin(admin), order, method))
+    Activities.log(OrderShippingMethodUpdated(buildAdmin(admin), order, shippingMethod))
 
-  def orderShippingMethodDeleted(admin: StoreAdmin, order: FullOrder.Root)
+  def orderShippingMethodDeleted(admin: StoreAdmin, order: FullOrder.Root, shippingMethod: ShippingMethod)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderShippingMethodRemoved(buildAdmin(admin), order))
+    Activities.log(OrderShippingMethodRemoved(buildAdmin(admin), order, shippingMethod))
 }

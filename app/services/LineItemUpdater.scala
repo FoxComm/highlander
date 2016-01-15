@@ -71,7 +71,8 @@ object LineItemUpdater {
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = {
 
     val finder = Orders.mustFindByRefNum(refNum)
-    val logActivity = (o: FullOrder.Root) ⇒ LogActivity.orderLineItemsUpdated(admin, o, payload)
+    val logActivity = (o: FullOrder.Root, oldQtys: Map[String, Int]) ⇒
+      LogActivity.orderLineItemsUpdated(admin, o, oldQtys, payload)
 
     runUpdates(finder, logActivity, payload)
   }
@@ -83,24 +84,31 @@ object LineItemUpdater {
       .one
       .mustFindOr(NotFoundFailure404(s"Order with customerId=${customer.id} not found"))
 
-    val logActivity = (o: FullOrder.Root) ⇒ LogActivity.orderLineItemsUpdatedByCustomer(customer, o, payload)
+    val logActivity = (o: FullOrder.Root, oldQtys: Map[String, Int]) ⇒
+      LogActivity.orderLineItemsUpdatedByCustomer(customer, o, oldQtys, payload)
 
     runUpdates(finder, logActivity, payload)
   }
 
   private def runUpdates(finder: DbResult[Order],
-    logAct: FullOrder.Root ⇒ DbResult[Activity],
+    logAct: (FullOrder.Root, Map[String, Int]) ⇒ DbResult[Activity],
     payload: Seq[UpdateLineItemsPayload])
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
 
     order ← * <~ finder
     _     ← * <~ order.mustBeCart
     _     ← * <~ updateQuantities(order, payload)
+    // load old line items for activity trail
+    li    ← * <~ OrderLineItemSkus.findLineItemsByOrder(order).result
+    lineItems = li.foldLeft(Map[String, Int]()) { case (acc, (sku, _)) ⇒
+      val quantity = acc.getOrElse(sku.sku, 0)
+      acc.updated(sku.sku, quantity + 1)
+    }
     // update changed totals
     order ← * <~ OrderTotaler.saveTotals(order)
     valid ← * <~ CartValidator(order).validate
     res   ← * <~ refreshAndFullOrder(order).toXor
-    _     ← * <~ logAct(res)
+    _     ← * <~ logAct(res, lineItems)
   } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   private def qtyAvailableForSkus(skus: Seq[String])
@@ -113,13 +121,17 @@ object LineItemUpdater {
     } yield (sku, 1000000)).result.map(_.toMap)
   }
 
-  private def updateQuantities(order: Order, payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: ExecutionContext, db: Database): DbResult[Seq[OrderLineItem]] = {
-
-    val updateQuantities = payload.foldLeft(Map[String, Int]()) { (acc, item) ⇒
+  def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[String, Int] = {
+    payload.foldLeft(Map[String, Int]()) { (acc, item) ⇒
       val quantity = acc.getOrElse(item.sku, 0)
       acc.updated(item.sku, quantity + item.quantity)
     }
+  }
+
+  private def updateQuantities(order: Order, payload: Seq[UpdateLineItemsPayload])
+    (implicit ec: ExecutionContext, db: Database): DbResult[Seq[OrderLineItem]] = {
+
+    val updateQuantities = foldQuantityPayload(payload)
 
     qtyAvailableForSkus(updateQuantities.keys.toSeq).flatMap { availableQuantities ⇒
       val enoughOnHand = availableQuantities.foldLeft(Map.empty[Sku, Int]) { case (acc, (sku, numAvailable)) ⇒
