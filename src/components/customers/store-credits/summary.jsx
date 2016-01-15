@@ -19,9 +19,6 @@ const Summary = props => {
   };
   const availableBalance = _.get(props.totals, 'availableBalance');
 
-  console.log('Props in Summary');
-  console.log(props);
-
   return (
     <div className="fc-list-page-header">
       <SectionTitle title="Store Credit"
