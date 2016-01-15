@@ -12,6 +12,7 @@ import { connect } from 'react-redux';
 import * as AddressFormActions from '../../../modules/address-form';
 import { createSelector } from 'reselect';
 import {regionName, zipName, zipExample, phoneExample, phoneMask} from '../../../i18n';
+import SaveCancel from '../../../components/common/save-cancel';
 
 const formNamespace = props => props.address && props.address.id || 'new';
 
@@ -238,8 +239,10 @@ export default class AddressForm extends React.Component {
                 </FormField>
               </li>
               <li className="fc-address-form-controls">
-                <a onClick={props.closeAction} className="fc-btn-link" href="javascript:void(0)">Cancel</a>
-                <button className="fc-btn fc-btn-primary" type="submit">{props.saveTitle}</button>
+                <SaveCancel onCancel={props.closeAction}
+                            cancelText="Cancel"
+                            cancelClassName="fc-btn-link"
+                            saveText={props.saveTitle}/>
               </li>
             </ul>
             </Form>
