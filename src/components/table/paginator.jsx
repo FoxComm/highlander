@@ -80,6 +80,7 @@ class TablePaginator extends React.Component {
       return (
         <li className="fc-table-paginator__selector-option"
             value={item}
+            key={item}
             onClick={() => this.onValueSelect(item)} >
           {item}
         </li>
