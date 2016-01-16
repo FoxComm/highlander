@@ -4,7 +4,6 @@ import searchTerms from './search-terms';
 const searches = [
   {
     name: 'Remorse Hold',
-    currentOptions: terms,
     searches: [
       {
         display: 'Order : State : Remorse Hold',
@@ -18,7 +17,6 @@ const searches = [
     ]
   }, {
     name: 'Manual Hold',
-    currentOptions: terms,
     searches: [
       {
         display: 'Order : State : Manual Hold',
@@ -32,7 +30,6 @@ const searches = [
     ]
   }, {
     name: 'Fraud Hold',
-    currentOptions: terms,
     searches: [
       {
         display: 'Order : State : Fraud Hold',
@@ -47,7 +44,7 @@ const searches = [
   }
 ];
 
-const { reducer, actions } = makeLiveSearch('ORDERS', searchTerms);
+const { reducer, actions } = makeLiveSearch('ORDERS', searchTerms, searches);
 
 export {
   reducer as default,

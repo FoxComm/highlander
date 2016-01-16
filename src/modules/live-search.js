@@ -75,12 +75,13 @@ export default function makeLiveSearch(namespace, searchTerms, initialSearches) 
   };
 
   const terms = searchTerms.map(st => new SearchTerm(st));
-  const initialSavedSearches = initialSearches.map(s => {
+  const initialSavedSearches = !_.isEmpty(initialSearches) ? initialSearches.map(s => {
     return {
       ...emptyState,
-      ...s
+      ...s,
+      currentOptions: terms
     };
-  });
+  }) : [];
   const initialState = {
     potentialOptions: terms,
     selectedSearch: 0,
