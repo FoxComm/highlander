@@ -229,8 +229,7 @@ object AvroTransformers {
         // Assignments
         "assignmentCount"         typed IntegerType,
         "assignees" nested (
-          "firstName"             typed StringType analyzer "autocomplete",
-          "lastName"              typed StringType analyzer "autocomplete",
+          "name"                  typed StringType analyzer "autocomplete",
           "assignedAt"            typed DateType format dateFormat
         ),
         // RMAs
