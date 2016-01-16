@@ -114,7 +114,6 @@ class TablePaginator extends React.Component {
   }
 
   render() {
-    console.log(this.props);
     const currentPage = this.props.size !== 0 ? Math.ceil(this.props.from / this.props.size + 1) : 1;
     const pageCount = this.props.size !== 0 ? Math.ceil(this.props.total / this.props.size) : 1;
     const leftButtonClass = classnames({'_hidden': currentPage <= 1});

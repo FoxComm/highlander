@@ -149,7 +149,7 @@ const reducer = createReducer({
     const itemList = collectLineItems(skus);
     const errors = _.get(payload, 'errors', []);
     const warnings = _.get(payload, 'warnings', []);
-    
+
     // Initial state (assume in good standing)
     const status = {
       itemsStatus: 'success',
@@ -220,7 +220,7 @@ const reducer = createReducer({
     return state;
   },
   [orderLineItemsRequestFailed]: (state, [err, source]) => {
-    console.log(err);
+    console.error(err);
 
     if (source === updateLineItemCount) {
       return assoc(state,

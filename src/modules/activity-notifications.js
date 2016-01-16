@@ -13,7 +13,6 @@ export function startFetchingNotifications() {
     const eventSource = new EventSource('/sse/v1/notifications/1', {withCredentials: true});
 
     eventSource.onmessage = function(e) {
-      console.log(e);
       if (!_.isEmpty(e.data)) {
         const data = JSON.parse(e.data);
         dispatch(notificationReceived(data));
