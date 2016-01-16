@@ -2,6 +2,8 @@ import _ from 'lodash';
 import elasticsearch from 'elasticsearch';
 import ejs from 'elastic.js';
 
+const MAX_EXPANSIONS = 10; //prevent long query
+
 /**
  * Converts search terms into a query to ElasticSearch.
  * @param {array} filters An array of the Ashes version of a search terms.
@@ -32,7 +34,6 @@ export function toQuery(filters, phrase = "") {
 }
 
 function phrasePrefixQuery(phrase, field = "_all") {
-    const MAX_EXPANSIONS = 10; //prevent long query
     return ejs.MatchQuery(field, phrase)
         .type("phrase_prefix")
         .maxExpansions(MAX_EXPANSIONS);
