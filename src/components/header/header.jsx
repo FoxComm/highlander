@@ -27,7 +27,7 @@ const Header = props => {
 
 Header.propTypes = {
   routes: PropTypes.array,
-  params: PropTypes.array
+  params: PropTypes.object
 };
 
 export default Header;
