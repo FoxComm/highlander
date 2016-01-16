@@ -9,6 +9,7 @@ const _createAction = (description, ...args) => {
 
 // UI state actions
 export const toggleEditCustomer = _createAction('TOGGLE_EDIT');
+export const cleanErrors = _createAction('CLEAN_ERRORS');
 
 // API actions
 const customerUpdated = _createAction('UPDATED', (id, customer) => [id, customer]);
@@ -35,6 +36,9 @@ const reducer = createReducer({
       [id, 'err'], err,
       [id, 'isUpdating'], false
     );
+  },
+  [cleanErrors]: (state, id) => {
+    return dissoc(state, [id, 'err']);
   },
   [customerUpdated]: (state, [id, details]) => {
     state = update(state, [id, 'details'], merge, haveType(details, 'customer'));

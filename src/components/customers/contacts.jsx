@@ -1,12 +1,16 @@
+// libs
 import React, { PropTypes } from 'react';
+import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
 import _ from 'lodash';
+// components
 import ContentBox from '../content-box/content-box';
 import FormField from '../forms/formfield';
 import Form from '../forms/form';
-import { autobind } from 'core-decorators';
-import { connect } from 'react-redux';
-import * as CustomerContactActions from '../../modules/customers/contacts';
 import { PrimaryButton, EditButton } from '../common/buttons';
+import ErrorAlerts from '../alerts/error-alerts';
+// actions
+import * as CustomerContactActions from '../../modules/customers/contacts';
 
 function mapDispatchToProps(dispatch, props) {
   return _.transform(CustomerContactActions, (result, action, key) => {
@@ -24,9 +28,11 @@ export default class CustomerContacts extends React.Component {
   static propTypes = {
     customerId: PropTypes.number.isRequired,
     toggleEditCustomer: PropTypes.func.isRequired,
-    updateCustomerContacts: PropTypes.func,
+    cleanErrors: PropTypes.func.isRequired,
+    updateCustomerContacts: PropTypes.func.isRequired,
     details: PropTypes.object,
-    isContactsEditing: PropTypes.bool
+    isContactsEditing: PropTypes.bool,
+    err: PropTypes.any,
   };
 
   constructor(props, ...args) {
@@ -148,6 +154,7 @@ export default class CustomerContacts extends React.Component {
         <ContentBox title='Contact Information'
                     className='fc-customer-contacts'
                     actionBlock={ this.actionBlock }>
+          <ErrorAlerts error={this.props.err} closeAction={this.props.cleanErrors} />
           <Form className='fc-customer-contacts-form fc-form-vertical'
                 onChange={ this.onChange }
                 onSubmit={ this.onSubmit }>
