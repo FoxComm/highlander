@@ -25,7 +25,7 @@ const ListPage = props => {
       <div className="fc-list-page-header">
         <SectionTitle
           title={props.title}
-          subtitle={props.resultCount}
+          subtitle={results.total}
           onAddClick={props.handleAddAction}
           addTitle={props.addTitle} />
         {localNav}
@@ -59,7 +59,6 @@ ListPage.propTypes = {
   list: PropTypes.object,
   navLinks: PropTypes.array,
   renderRow: PropTypes.func.isRequired,
-  resultCount: PropTypes.number.isRequired,
   tableColumns: PropTypes.array.isRequired,
   searchActions: PropTypes.shape({
     addSearchFilter: PropTypes.func.isRequired,
