@@ -1,5 +1,6 @@
 .fc-header {
-  flex: none;
+  display: flex;
+  align-content: space-between;
   .colors(@color-decor5, @color-decor13);
   .height(70px);
   .clearfix;
@@ -9,10 +10,6 @@
   border-top: 1px solid @color-header-border;
   border-bottom: 1px solid @color-header-border;
   border-left: 1px solid @color-header-border;
-
-  .breadcrumb {
-    .inline-block(middle);
-  }
 
   .sub-nav {
     float: right;

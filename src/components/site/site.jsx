@@ -23,7 +23,7 @@ export default class Site extends React.Component {
       <div className="fc-admin">
         <Sidebar/>
         <div className="fc-container">
-          <Header/>
+          <Header routes={this.props.routes} params={this.props.params} />
           <main role='main' className="fc-main">
             {this.props.children}
           </main>
