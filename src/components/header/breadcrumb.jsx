@@ -13,7 +13,7 @@ export default class Breadcrumb extends React.Component {
 
   static propTypes = {
     routes: PropTypes.array,
-    params: PropTypes.array
+    params: PropTypes.object
   };
 
   @autobind
