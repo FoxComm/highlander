@@ -71,7 +71,10 @@ export function toggleBlacklisted(id, isBlacklisted) {
   };
 }
 
-const initialState = {};
+const initialState = {
+  isDisablingStarted: false,
+  isBlacklistedStarted: false,
+};
 
 const reducer = createReducer({
   [requestCustomer]: (entries, id) => {
