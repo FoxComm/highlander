@@ -114,7 +114,7 @@ const reducer = createReducer({
     };
   },
   [orderShippingMethodUpdateFailed]: (state, err) => {
-    console.log(err);
+    console.error(err);
     return {
       ...state,
       isUpdating: false
