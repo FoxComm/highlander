@@ -3,8 +3,9 @@ import nock from 'nock';
 import util from 'util';
 
 const ordersSearchTerms = require('../../../fixtures/orders-search-terms.js');
+const ordersSavedSearches = require('../../../fixtures/orders-saved-searches.js');
 const makeLiveSearch = importSource('modules/live-search.js');
-const { reducer: reducer, actions: actions } = makeLiveSearch('TEST', ordersSearchTerms);
+const { reducer: reducer, actions: actions } = makeLiveSearch('TEST', ordersSearchTerms, ordersSavedSearches);
 const { cloneSearch, deleteSearchFilter, selectSavedSearch, submitFilters } = actions;
 
 const selectedSearch = (state) => state.savedSearches[state.selectedSearch];
@@ -29,7 +30,6 @@ describe('modules.orders.list', function() {
 
     it('should create a new search that matched the previously selected search', function() {
       expect(selectedSearch(newState).name).to.be.equal('');
-      console.log(util.inspect(selectedSearch(newState).searches));
       expect(selectedSearch(newState).searches).to.have.length(1);
     });
 
