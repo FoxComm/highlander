@@ -3,14 +3,12 @@ import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import { transitionTo } from '../../route-helpers';
 
-
 import { DateTime } from '../common/datetime';
 import { Checkbox } from '../checkbox/checkbox';
 import Currency from '../common/currency';
 import Link from '../link/link';
 import Status from '../common/status';
-import TableCell from '../table/cell';
-import TableRow from '../table/row';
+import MultiSelectRow from '../table/multi-select-row';
 
 const compileShippingStatus = order => {
   if (order.status == 'canceled') {
@@ -68,6 +66,28 @@ const compileShippingStatus = order => {
   }
 };
 
+const setCellContents = (order, field) => {
+  switch(field) {
+    case 'referenceNumber':
+      return order.referenceNumber;
+    case 'placedAt':
+      return order.placedAt;
+    case 'customer.name':
+      return order.customer.name;
+    case 'customer.email':
+      return order.customer.email;
+    case 'status':
+      return order.status;
+    case 'shipping.status':
+      return compileShippingStatus(order);
+    case 'grandTotal':
+      return order.grandTotal;
+    default:
+      return null;
+  }
+};
+    
+
 const OrderRow = (props, context) => {
   const { order, columns, ...rest } = props;
   const key = `order-${order.referenceNumber}`;
@@ -75,57 +95,12 @@ const OrderRow = (props, context) => {
     transitionTo(context.history, 'order', { order: order.referenceNumber });
   };
 
-  const cells = _.reduce(columns, (visibleCells, col) => {
-    const cellKey = `${key}-${col.field}`;
-    let cellContents = null;
-    let cellClickAction = clickAction;
-
-    switch (col.field) {
-      case 'referenceNumber':
-        cellContents = order.referenceNumber;
-        break;
-      case 'placedAt':
-        cellContents = order.placedAt;
-        break;
-      case 'customer.name':
-        cellContents = order.customer.name;
-        break;
-      case 'customer.email':
-        cellContents = order.customer.email;
-        break;
-      case 'status':
-        cellContents = order.status;
-        break;
-      case 'shipping.status':
-        cellContents = compileShippingStatus(order);
-        break;
-      case 'grandTotal':
-        cellContents = order.grandTotal;
-        break;
-      case 'toggleColumns':
-        cellContents = '';
-        break;
-      case 'selectColumn':
-        cellClickAction = _.noop;
-        cellContents = <Checkbox />;
-        break;
-      default:
-        return visibleCells;
-    }
-
-    visibleCells.push(
-      <TableCell onClick={cellClickAction} key={cellKey} column={col}>
-        {cellContents}
-      </TableCell>
-    );
-
-    return visibleCells;
-  }, []);
-
   return (
-    <TableRow {...rest}>
-      {cells}
-    </TableRow>
+    <MultiSelectRow
+      cellKeyPrefix={key}
+      columns={columns}
+      onClick={clickAction}
+      setCellContents={setCellContents} />
   );
 };
 
