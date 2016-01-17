@@ -1,16 +1,17 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
+import { Checkbox } from '../checkbox/checkbox';
 import TableCell from '../table/cell';
 import TableRow from '../table/row';
 
 const MultiSelectRow = props => {
-  const { cellKeyPrefix, columns, onClick, setCellContents, ...rest } = props;
+  const { cellKeyPrefix, columns, onClick, row, setCellContents, ...rest } = props;
 
   const cells = _.reduce(columns, (visibleCells, col) => {
-    const cellKey = `${key}-${col.field}`;
+    const cellKey = `${cellKeyPrefix}-${col.field}`;
     let cellContents = null;
-    let cellClickAction = clickAction;
+    let cellClickAction = onClick;
 
     switch(col.field) {
       case 'toggleColumns':
@@ -25,13 +26,11 @@ const MultiSelectRow = props => {
         break;
     }
 
-    if (!_.isNull(cellContents)) {
-      visibleCells.push(
-        <TableCell onClick={cellClickAction} key={cellKey} column={col}>
-          {cellContents}
-        </TableCell>
-      );
-    }
+    visibleCells.push(
+      <TableCell onClick={cellClickAction} key={cellKey} column={col}>
+        {cellContents}
+      </TableCell>
+    );
 
     return visibleCells;
   }, []);
@@ -47,6 +46,7 @@ MultiSelectRow.propTypes = {
   cellKeyPrefix: PropTypes.string.isRequired,
   columns: PropTypes.array.isRequired,
   onClick: PropTypes.func,
+  row: PropTypes.object.isRequired,
   setCellContents: PropTypes.func.isRequired
 };
 

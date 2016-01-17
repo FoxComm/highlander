@@ -33,7 +33,7 @@ const Customers = props => {
     { field: 'shipRegion', text: 'Ship To Region' },
     { field: 'billRegion', text: 'Bill To Region' },
     { field: 'rank', text: 'Rank' },
-    { field: 'joinedAt', text: 'Date/Time Joined', type: 'date' }
+    { field: 'joinedAt', text: 'Date/Time Joined', type: 'datetime' }
   ];
 
   return (

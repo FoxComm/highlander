@@ -18,12 +18,14 @@ const setCellContents = (customer, field) => {
       return customer.name;
     case 'email':
       return customer.email;
-    case 'shipToRegion':
+    case 'shipRegion':
       return _.get(customer, ['shippingAddresses', 0, 'region'], '');
-    case 'billToRegion':
+    case 'billRegion':
       return _.get(customer, ['billingAddresses', 0, 'region'], '');
     case 'rank':
-      return _.get(customer, 'rank', 'N/A');
+      return _.isNull(customer.rank) ? 'N/A' : customer.rank;
+    case 'joinedAt':
+      return _.get(customer, 'joinedAt', '');
     default:
       return null;
   }
@@ -41,6 +43,7 @@ const CustomerRow = (props, context) => {
       cellKeyPrefix={key}
       columns={columns}
       onClick={clickAction}
+      row={customer}
       setCellContents={setCellContents} />
   );
 };
