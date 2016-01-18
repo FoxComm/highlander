@@ -322,7 +322,7 @@ object AvroTransformers {
         "storeAdmins" nested (
           "email"       typed StringType analyzer "autocomplete",
           "name"        typed StringType analyzer "autocomplete",
-          "departmnet"  typed StringType analyzer "autocomplete"
+          "department"  typed StringType analyzer "autocomplete"
         )
       )
 
