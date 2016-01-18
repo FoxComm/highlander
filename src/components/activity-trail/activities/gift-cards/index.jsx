@@ -2,11 +2,29 @@
 // libs
 import React from 'react';
 import types from '../base/types';
+import { joinEntities } from '../base/utils';
 
 // components
 import GiftCardCode from '../../../gift-cards/gift-card-code';
 import OrderTarget from '../base/order-target';
 import Currency from '../../../common/currency';
+
+const authorizedAndCapturedDesc = {
+  title: (data, {kind}) => {
+    const giftCards = data.giftCardCodes.map(code => <GiftCardCode value={code} />);
+    const giftCardText = giftCards.length == 1 ? 'gift card' : 'gift cards';
+
+    const actionTitle = kind == types.GIFT_CARD_AUTHORIZED_FUNDS ?
+      'authorized funds' : 'captured funds';
+
+    return (
+      <span>
+        <strong>{actionTitle}</strong> for <OrderTarget order={data.order} />
+        &nbsp;with amount <Currency value={data.amount} /> from {joinEntities(giftCards)} {giftCardText}.
+      </span>
+    );
+  },
+};
 
 const representatives = {
   [types.GIFT_CARD_CREATED]: {
@@ -41,26 +59,8 @@ const representatives = {
       );
     }
   },
-  [types.GIFT_CARD_AUTHORIZED_FUNDS]: {
-    title: data => {
-      return (
-        <span>
-          <strong>authorized funds</strong> for <OrderTarget order={data.order} />
-          &nbsp;with amount <Currency value={data.amount} />.
-        </span>
-      );
-    },
-  },
-  [types.GIFT_CARD_CAPTURED_FUNDS]: {
-    title: data => {
-      return (
-        <span>
-          <strong>captured funds</strong> for <OrderTarget order={data.order} />
-          &nbsp;with amount <Currency value={data.amount} />.
-        </span>
-      );
-    },
-  },
+  [types.GIFT_CARD_AUTHORIZED_FUNDS]: authorizedAndCapturedDesc,
+  [types.GIFT_CARD_CAPTURED_FUNDS]: authorizedAndCapturedDesc,
 };
 
 export default representatives;

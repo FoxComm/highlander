@@ -46,7 +46,7 @@ const representatives = {
       return (
         <span>
           <strong>authorized funds</strong> for <OrderTarget order={data.order} />
-          &nbsp;with amount <Currency value={data.amount} />.
+          &nbsp;with amount <Currency value={data.amount} /> from store credit.
         </span>
       );
     },
@@ -56,7 +56,7 @@ const representatives = {
       return (
         <span>
           <strong>captured funds</strong> for <OrderTarget order={data.order} />
-          &nbsp;with amount <Currency value={data.amount} />.
+          &nbsp;with amount <Currency value={data.amount} /> from store credit.
         </span>
       );
     },

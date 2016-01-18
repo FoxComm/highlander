@@ -11,7 +11,7 @@ function addContext(activity, i) {
   if (activity.context) {
     userType = activity.context.userType;
   } else {
-    userType = i % 2 ? 'system' : 'admin';
+    userType = 'admin';
     if (activity.data.admin) {
       userType = 'admin';
     }
@@ -492,7 +492,16 @@ activities = [...activities,
     createdAt,
     data: {
       orderRefNum: 'BR10001',
-      amount: 21400
+      amount: 21400,
+      customer,
+      giftCardCodes: [
+        '1111333344442222',
+        '3333333311115555',
+        '7777666600002222',
+      ]
+    },
+    context: {
+      userType: 'customer',
     }
   },
   {
@@ -500,7 +509,14 @@ activities = [...activities,
     createdAt,
     data: {
       orderRefNum: 'BR10001',
-      amount: 124
+      amount: 124,
+      customer,
+      giftCardCodes: [
+        '1111333344442222',
+      ]
+    },
+    context: {
+      userType: 'customer',
     }
   },
 ];
@@ -538,7 +554,11 @@ activities = [...activities,
     createdAt,
     data: {
       orderRefNum: 'BR10001',
-      amount: 21400
+      amount: 21400,
+      customer,
+    },
+    context: {
+      userType: 'customer',
     }
   },
   {
@@ -546,7 +566,11 @@ activities = [...activities,
     createdAt,
     data: {
       orderRefNum: 'BR10001',
-      amount: 11400
+      amount: 11400,
+      customer,
+    },
+    context: {
+      userType: 'customer',
     }
   },
 ];
