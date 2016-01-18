@@ -47,21 +47,21 @@ class CheckoutTest
       current.status must === (cart.status)
     }
 
-    "fails if the cart validator fails" in {
+    "fails if the cart validator fails" in new CustomerFixture {
       val failure = GeneralFailure("scalac").single
       val mockValidator = mock[CartValidation]
       when(mockValidator.validate).thenReturn(DbResult.failures(failure))
 
-      val result = Checkout(Factories.cart, mockValidator).checkout.futureValue.leftVal
+      val result = Checkout(Factories.cart.copy(customerId = customer.id), mockValidator).checkout.futureValue.leftVal
       result must === (failure)
     }
 
-    "fails if the cart validator has warnings" in {
+    "fails if the cart validator has warnings" in new CustomerFixture {
       val failure = GeneralFailure("scalac").single
       val mockValidator = mock[CartValidation]
       when(mockValidator.validate).thenReturn(DbResult.good(CartValidatorResponse(warnings = failure.some)))
 
-      val result = Checkout(Factories.cart, mockValidator).checkout.futureValue.leftVal
+      val result = Checkout(Factories.cart.copy(customerId = customer.id), mockValidator).checkout.futureValue.leftVal
       result must === (failure)
     }
 
@@ -140,7 +140,14 @@ class CheckoutTest
   }
 
   trait Fixture {
-    val cart = Orders.create(Factories.cart).run().futureValue.rightVal
+    val (customer, cart) = (for {
+      customer ← * <~ Customers.create(Factories.customer)
+      cart     ← * <~ Orders.create(Factories.cart.copy(customerId = customer.id))
+    } yield (customer, cart)).runTxn().futureValue.rightVal
+  }
+
+  trait CustomerFixture {
+    val customer = Customers.create(Factories.customer).run().futureValue.rightVal
   }
 
   trait GCLineItemFixture {

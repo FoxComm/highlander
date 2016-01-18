@@ -204,10 +204,12 @@ final case class GiftCardConvertedToStoreCredit(admin: StoreAdminResponse.Root, 
   storeCredit: StoreCreditResponse.Root)
   extends ActivityBase[GiftCardConvertedToStoreCredit]
 
-final case class GiftCardAuthorizedFunds(orderRefNum: String, amount: Int)
+final case class GiftCardAuthorizedFunds(customer: CustomerResponse.Root, order: Order, giftCardCodes: Seq[String],
+  amount: Int)
   extends ActivityBase[GiftCardAuthorizedFunds]
 
-final case class GiftCardCapturedFunds(orderRefNum: String, amount: Int)
+final case class GiftCardCapturedFunds(customer: CustomerResponse.Root, order: Order, giftCardCodes: Seq[String],
+  amount: Int)
   extends ActivityBase[GiftCardCapturedFunds]
 
 /* Store Credits */
@@ -224,8 +226,10 @@ final case class StoreCreditConvertedToGiftCard(admin: StoreAdminResponse.Root, 
   storeCredit: StoreCreditResponse.Root)
   extends ActivityBase[StoreCreditConvertedToGiftCard]
 
-final case class StoreCreditAuthorizedFunds(orderRefNum: String, amount: Int)
+final case class StoreCreditAuthorizedFunds(customer: CustomerResponse.Root, order: Order, storeCreditIds: Seq[Int],
+  amount: Int)
   extends ActivityBase[StoreCreditAuthorizedFunds]
 
-final case class StoreCreditCapturedFunds(orderRefNum: String, amount: Int)
+final case class StoreCreditCapturedFunds(customer: CustomerResponse.Root, order: Order, storeCreditIds: Seq[Int],
+  amount: Int)
   extends ActivityBase[StoreCreditCapturedFunds]

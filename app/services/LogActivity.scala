@@ -170,9 +170,9 @@ object LogActivity {
     Activities.log(GiftCardConvertedToStoreCredit(buildAdmin(admin), GiftCardResponse.build(gc),
       StoreCreditResponse.build(sc)))
 
-  def gcFundsAuthorized(orderRefNum: String, amount: Int)
+  def gcFundsAuthorized(customer: Customer, order: Order, gcCodes: Seq[String], amount: Int)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(GiftCardAuthorizedFunds(orderRefNum, amount))
+    Activities.log(GiftCardAuthorizedFunds(buildCustomer(customer), order, gcCodes, amount))
 
   /* Store Credits */
   def scCreated(admin: StoreAdmin, customer: Customer, sc: StoreCredit)
@@ -189,9 +189,9 @@ object LogActivity {
     Activities.log(StoreCreditConvertedToGiftCard(buildAdmin(admin), GiftCardResponse.build(gc),
       StoreCreditResponse.build(sc)))
 
-  def scFundsAuthorized(orderRefNum: String, amount: Int)
+  def scFundsAuthorized(customer: Customer, order: Order, scIds: Seq[Int], amount: Int)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(StoreCreditAuthorizedFunds(orderRefNum, amount))
+    Activities.log(StoreCreditAuthorizedFunds(buildCustomer(customer), order, scIds, amount))
 
   /* Orders */
   def cartCreated(admin: StoreAdmin, order: FullOrder.Root)
