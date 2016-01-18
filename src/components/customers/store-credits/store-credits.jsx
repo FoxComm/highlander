@@ -245,7 +245,7 @@ export default class StoreCredits extends React.Component {
               columns={props.tableColumns}
               data={props.storeCredits}
               renderRow={this.renderRow}
-              emptyMessage="No storecredit found."
+              emptyMessage="No store credits found."
               toggleColumnPresent={false}
               setState={params => props.fetchStoreCredits(this.customerId, params)}
               />
