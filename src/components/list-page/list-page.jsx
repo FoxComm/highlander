@@ -10,7 +10,7 @@ import SectionTitle from '../section-title/section-title';
 const ListPage = props => {
   const localNav = !_.isEmpty(props.navLinks) ? (
     <LocalNav>
-      {props.navLinks.map(l => <IndexLink to={l.to}>{l.title}</IndexLink>)}
+      {props.navLinks.map(l => <IndexLink key={l.to + l.title} to={l.to}>{l.title}</IndexLink>)}
     </LocalNav>
   ) : null;
 
