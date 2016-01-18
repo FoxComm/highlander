@@ -24,7 +24,7 @@ object ReasonService {
         val query = Reasons.filter(_.reasonType === toAdt)
         Reasons.sortedAndPaged(query).result
       case _ ⇒
-        ResultWithMetadata.fromFailures(Failures(InvalidReasonTypeFailure(reasonType)))
+        ResultWithMetadata.fromFailures(InvalidReasonTypeFailure(reasonType).single)
     }
   }
 

@@ -1,6 +1,5 @@
 package services.rmas
 
-import cats.implicits._
 import models.{Rma, RmaLineItems}
 import services.RmaFailures._
 import services.{Failure, Failures}
@@ -52,6 +51,6 @@ final case class RmaValidator(rma: Rma)(implicit db: Database, ec: ExecutionCont
   }
 
   private def warning(response: RmaValidatorResponse, failure: Failure): RmaValidatorResponse =
-    response.copy(warnings = response.warnings.fold(Failures(failure).some)
-      (current ⇒ Failures(current.toList :+ failure: _*).some))
+    response.copy(warnings = response.warnings.fold(Failures(failure))
+      (current ⇒ Failures(current.toList :+ failure: _*)))
 }

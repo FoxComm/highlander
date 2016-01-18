@@ -2,17 +2,16 @@ package utils
 
 import scala.concurrent.{ExecutionContext, Future}
 import akka.http.scaladsl.model.StatusCodes._
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, ResponseEntity, HttpResponse, StatusCode}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, ResponseEntity, StatusCode}
 
 import cats.data.Xor
-import models.{Customer, Order, Orders}
-import org.json4s.{Formats, jackson}
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{write ⇒ json}
+import org.json4s.{Formats, jackson}
 import responses.ResponseWithFailuresAndMetadata
-import services.{Failures, NotFoundFailure404, LockedFailure}
+import services.{Failures, NotFoundFailure404}
 import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
+import utils.Slick.implicits.{ResponseWithMetadata, _}
 
 object Http {
   import utils.JsonFormatters._

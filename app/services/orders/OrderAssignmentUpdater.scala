@@ -3,7 +3,7 @@ package services.orders
 import models.{Order, OrderAssignment, OrderAssignments, Orders, StoreAdmin, StoreAdmins}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import responses.{FullOrder, ResponseWithFailuresAndMetadata, TheResponse}
-import services.{LogActivity, Failure, Failurez, NotFoundFailure404, OrderAssigneeNotFound, Result}
+import services.{LogActivity, Failure, Failures, NotFoundFailure404, OrderAssigneeNotFound, Result}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
@@ -26,7 +26,7 @@ object OrderAssignmentUpdater {
     _               ← * <~ OrderAssignments.createAll(newAssignments)
     newOrder        ← * <~ Orders.refresh(order).toXor
     fullOrder       ← * <~ FullOrder.fromOrder(newOrder).toXor
-    warnings        = Failurez(requestedAssigneeIds.diff(adminIds).map(NotFoundFailure404(StoreAdmin, _)): _*)
+    warnings        = Failures(requestedAssigneeIds.diff(adminIds).map(NotFoundFailure404(StoreAdmin, _)): _*)
     assignedAdmins  = fullOrder.assignees.filter(a ⇒ newAssignments.map(_.assigneeId).contains(a.assignee.id)).map(_.assignee)
     _               ← * <~ LogActivity.assignedToOrder(admin, fullOrder, assignedAdmins)
   } yield TheResponse.build(fullOrder, warnings = warnings)).runTxn()
