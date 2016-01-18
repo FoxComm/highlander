@@ -3,7 +3,7 @@ package services.orders
 import models.{Order, OrderWatcher, OrderWatchers, Orders, StoreAdmin, StoreAdmins}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import responses.{FullOrder, ResponseWithFailuresAndMetadata, TheResponse}
-import services.{LogActivity, Failure, Failurez, NotFoundFailure404, OrderWatcherNotFound, Result}
+import services.{LogActivity, Failure, Failures, NotFoundFailure404, OrderWatcherNotFound, Result}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
@@ -26,7 +26,7 @@ object OrderWatcherUpdater {
     _               ← * <~ OrderWatchers.createAll(newWatchers)
     newOrder        ← * <~ Orders.refresh(order).toXor
     fullOrder       ← * <~ FullOrder.fromOrder(newOrder).toXor
-    warnings        = Failurez(requestedWatcherIds.diff(adminIds).map(NotFoundFailure404(StoreAdmin, _)): _*)
+    warnings        = Failures(requestedWatcherIds.diff(adminIds).map(NotFoundFailure404(StoreAdmin, _)): _*)
     assignedAdmins  = fullOrder.watchers.filter(w ⇒ newWatchers.map(_.watcherId).contains(w.watcher.id)).map(_.watcher)
     _               ← * <~ LogActivity.addedWatchersToOrder(admin, fullOrder, assignedAdmins)
   } yield TheResponse.build(fullOrder, warnings = warnings)).runTxn()

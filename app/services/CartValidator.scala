@@ -2,13 +2,9 @@ package services
 
 import scala.concurrent.ExecutionContext
 
-import cats.implicits._
 import models.{GiftCards, Order, OrderLineItems, OrderPayment, OrderPayments, OrderShippingAddresses, OrderShippingMethods, StoreCredits}
 import services.CartFailures._
-import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
-import utils.DbResultT._
-import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import utils.Slick.{DbResult, lift}
 
@@ -97,6 +93,6 @@ final case class CartValidator(cart: Order)(implicit db: Database, ec: Execution
   }
 
   private def warning(response: CartValidatorResponse, failure: Failure): CartValidatorResponse =
-    response.copy(warnings = response.warnings.fold(Failures(failure).some)
-      (current ⇒ Failures(current.toList :+ failure: _*).some))
+    response.copy(warnings = response.warnings.fold(Failures(failure))
+    (current ⇒ Failures(current.toList :+ failure: _*)))
 }

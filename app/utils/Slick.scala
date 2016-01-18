@@ -6,12 +6,11 @@ import scala.util.matching.Regex
 import cats.data.Xor
 import models.{Rmas, Orders}
 import responses.{RmaResponse, FullOrder}
-import services.{Failure, Failures, Result, GeneralFailure}
+import services.{Failure, Failures, Result}
 import slick.ast._
-import slick.dbio.Effect.All
 import slick.driver.PostgresDriver._
 import slick.driver.PostgresDriver.api._
-import slick.jdbc.{ResultSetInvoker, SQLActionBuilder, GetResult, JdbcResultConverterDomain, SetParameter}
+import slick.jdbc.{SQLActionBuilder, GetResult, JdbcResultConverterDomain, SetParameter}
 
 import slick.lifted.{ColumnOrdered, Ordered, Query}
 import slick.profile.{SqlAction, SqlStreamingAction}
@@ -63,7 +62,7 @@ object Slick {
 
     def fromFuture[A](future: Future[A])(implicit ec: ExecutionContext): DbResult[A] = fromDbio(liftFuture(future))
 
-    def failure[A](failure: Failure): DbResult[A] = liftFuture(Result.failures(failure))
+    def failure[A](failure: Failure): DbResult[A] = liftFuture(Result.failure(failure))
 
     def failures[A](failures: Failures): DbResult[A] = liftFuture(Result.failures(failures))
   }

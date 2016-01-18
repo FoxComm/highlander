@@ -15,7 +15,7 @@ object ResponseWithFailures {
     ResponseWithFailures.fromOption(result, Some(failures))
 
   def fromFailureList[A <: AnyRef](result: A, failures: Seq[Failure]): ResponseWithFailures[A] =
-    if (failures.isEmpty) noFailures(result) else ResponseWithFailures.fromFailures(result, Failures(failures: _*))
+    if (failures.isEmpty) noFailures(result) else ResponseWithFailures.fromOption(result, Failures(failures: _*))
 
   def noFailures[A <: AnyRef](result: A): ResponseWithFailures[A] =
     ResponseWithFailures.fromOption(result, None)

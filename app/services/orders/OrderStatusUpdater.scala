@@ -61,8 +61,7 @@ object OrderStatusUpdater {
           .map(refNum ⇒ NotFoundFailure400(Order, refNum))
         val locked = lockedOrders.map { order ⇒ LockedFailure(Order, order.refNum) }
 
-        val failures = invalid ++ notFound ++ locked
-        if (failures.isEmpty) DbResult.unit else DbResult.failures(Failures(failures: _*))
+        Failures(invalid ++ notFound ++ locked: _*).fold(DbResult.unit)(DbResult.failures)
       }
     }
   }

@@ -1,7 +1,7 @@
 package responses
 
 import cats.data.Xor
-import services.{Result, Failure, Failures}
+import services.{Failure, Failures}
 import utils.Slick.implicits.ResponseMetadata
 
 sealed trait CheckDefined { self: Product ⇒
@@ -37,7 +37,7 @@ final case class ResponseWithFailuresAndMetadata[A <: AnyRef](
     this.copy(errors = failures.map(f ⇒ errors.getOrElse(Seq.empty) ++ failuresToSeqStrings(f)).orElse(errors))
 
   def addFailures(failures: Seq[Failure]): ResponseWithFailuresAndMetadata[A] =
-    if (failures.isEmpty) this else this.addFailures(Some(Failures(failures: _*)))
+    if (failures.isEmpty) this else this.addFailures(Failures(failures: _*))
 }
 
 object ResponseWithFailuresAndMetadata {
@@ -55,7 +55,8 @@ object ResponseWithFailuresAndMetadata {
     ResponseWithFailuresAndMetadata.fromOption(result, Some(failures))
 
   def fromFailureList[A <: AnyRef](result: A, failures: Seq[Failure]): ResponseWithFailuresAndMetadata[A] =
-    if (failures.isEmpty) noFailures(result) else ResponseWithFailuresAndMetadata.fromFailures(result, Failures(failures: _*))
+    if (failures.isEmpty) noFailures(result)
+    else ResponseWithFailuresAndMetadata.fromOption(result, Failures(failures: _*))
 
   def noFailures[A <: AnyRef](result: A): ResponseWithFailuresAndMetadata[A] =
     ResponseWithFailuresAndMetadata.fromOption(result, None)
@@ -77,7 +78,7 @@ object ResponseWithFailuresAndMetadata {
 
   def fromXor[A <: AnyRef](result: Failures Xor A, addFailures: Seq[Failure] = Seq.empty,
     metadata: Option[ResponseMetadata] = None): Failures Xor ResponseWithFailuresAndMetadata[A] = result.bimap (
-    errors ⇒ if (addFailures.isEmpty) errors else Failures(errors.toList ++ addFailures: _*),
+    errors ⇒ if (addFailures.isEmpty) errors else Failures(errors.toList ++ addFailures: _*).getOrElse(errors),
     res    ⇒ ResponseWithFailuresAndMetadata.withMetadata(res, metadata).addFailures(addFailures)
   )
 
