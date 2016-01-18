@@ -90,8 +90,6 @@ export default class DatePicker extends React.Component {
 
   @autobind
   blurred(event) {
-    event.preventDefault();
-
     this.setState({
       ...this.state,
       showPicker: false
@@ -100,8 +98,6 @@ export default class DatePicker extends React.Component {
 
   @autobind
   focused(event) {
-    event.preventDefault();
-
     this.setState({
       ...this.state,
       showPicker: true
@@ -110,8 +106,7 @@ export default class DatePicker extends React.Component {
 
   @autobind
   goBackMonth(event) {
-    event.preventDefault();
-    event.stopPropagation();
+    suppressClick(event);
 
     const newDate = new Date(this.state.year, this.state.month - 1, 1);
     this.setState({
@@ -123,8 +118,7 @@ export default class DatePicker extends React.Component {
 
   @autobind
   goForwardMonth(event) {
-    event.preventDefault();
-    event.stopPropagation();
+    suppressClick(event);
 
     const newDate = new Date(this.state.year, this.state.month + 1, 1);
     this.setState({
