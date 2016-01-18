@@ -54,7 +54,7 @@ const searchTerms = [
         term: 'shipments.admin_display_name',
       }, {
         title: 'Cost',
-        type: 'number',
+        type: 'currency',
         term: 'shipments.shipping_price'
       }, {
         title: 'Total Number',

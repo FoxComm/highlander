@@ -48,25 +48,6 @@
   }
 }
 
-.highlight-border-behaviour() {
-  border: 1px solid @color-decor7;
-  transition: border .20s ease-out;
-
-  &:hover {
-    border-color: @color-decor3;
-  }
-
-  &:active,
-  &:focus {
-    border-color: @color-control-primary-bg;
-  }
-
-  &:invalid:not(:required),
-  &.is-error {
-    border-color: @color-decor22;
-  }
-}
-
 #input-styles {
   .base() {
     background-color: @color-white;

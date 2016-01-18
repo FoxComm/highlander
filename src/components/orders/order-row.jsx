@@ -51,21 +51,23 @@ const compileShippingStatus = order => {
     }
   });
 
-  if (order.status == 'fulfillmentStarted' && shippedItemCount > 0 &&
-      deliveredItemCount == 0 && (pendingItemCount > 0 || partiallyShippedItemCount > 0)) {
-    return 'Partially Shipped';
-  } else if (order.status == 'fulfillmentStarted' && deliveredItemCount > 0 &&
-             (shippedItemCount > 0 || pendingItemCount > 0)) {
-    return 'Partially Delivered';
-  } else if (canceledItemCount == order.shipments.length) {
-    return 'Canceled';
-  } else if (shippedItemCount + canceledItemCount == order.shipments.length) {
-    return 'Shipped';
-  } else if (deliveredItemCount + canceledItemCount == order.shipments.length) {
-    return 'Delivered';
-  } else {
-    return null;
+  if (order.shipments.length > 0) {
+    if (order.status == 'fulfillmentStarted' && shippedItemCount > 0 &&
+        deliveredItemCount == 0 && (pendingItemCount > 0 || partiallyShippedItemCount > 0)) {
+      return 'Partially Shipped';
+    } else if (order.status == 'fulfillmentStarted' && deliveredItemCount > 0 &&
+               (shippedItemCount > 0 || pendingItemCount > 0)) {
+      return 'Partially Delivered';
+    } else if (canceledItemCount == order.shipments.length) {
+      return 'Canceled';
+    } else if (shippedItemCount + canceledItemCount == order.shipments.length) {
+      return 'Shipped';
+    } else if (deliveredItemCount + canceledItemCount == order.shipments.length) {
+      return 'Delivered';
+    }
   }
+
+  return null;
 };
 
 const OrderRow = (props, context) => {
