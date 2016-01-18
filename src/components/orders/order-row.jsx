@@ -69,24 +69,19 @@ const compileShippingStatus = order => {
 const setCellContents = (order, field) => {
   switch(field) {
     case 'referenceNumber':
-      return order.referenceNumber;
     case 'placedAt':
-      return order.placedAt;
     case 'customer.name':
-      return order.customer.name;
     case 'customer.email':
-      return order.customer.email;
     case 'status':
-      return order.status;
+    case 'grandTotal':
+      return _.get(order, field);
     case 'shipping.status':
       return compileShippingStatus(order);
-    case 'grandTotal':
-      return order.grandTotal;
     default:
       return null;
   }
 };
-    
+
 
 const OrderRow = (props, context) => {
   const { order, columns } = props;
