@@ -192,7 +192,7 @@ export default class NewStoreCredit extends React.Component {
               <li className="fc-store-credit-form__input-group-amount">
                 <FormField label="Value"
                            labelClassName="fc-store-credit-form__label">
-                  <div className="fc-input-group">
+                  <div className="fc-input-group fc-store-credit-form__input-group-amount-field">
                     <div className="fc-input-prepend fc-store-credit-form__amount-field-prepend">
                       <i className="icon-usd"></i>
                     </div>

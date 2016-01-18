@@ -1,3 +1,5 @@
+@amount-field-height: 46px;
+
 .fc-store-credit-form {
   &__input-group {
     .margin-bottom(40px);
@@ -21,10 +23,16 @@
     .font-spec(20px, @semibold, 27px);
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
+    .height(@amount-field-height);
   }
 
-  &__amount-field-prepend {
-    .font-spec(20px, @semibold, 27px);
+  .fc-input-group &__amount-field-prepend {
+    .font-spec(20px, @semibold, 42px);
+    .height(@amount-field-height);
+  }
+
+  &__input-group-amount-field {
+    .height(@amount-field-height);
   }
 
   &__controls {
@@ -55,8 +63,7 @@
   }
 
   &__balances {
-    .margin-top(20px);
-    .margin-bottom(40px);
+    .margin(20px 0 55px 2px);
     a.btn {
       .margin-right(10px);
       .padding-left(5px);
