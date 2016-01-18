@@ -142,26 +142,36 @@ export default class DatePicker extends React.Component {
   renderMonth(date, isFirst = false) {
     const monthName = date.toLocaleString('en-us', { month: 'long', year: 'numeric' });
 
+    const backAction = (
+      <a
+        onClick={this.goBackMonth}
+        onMouseDown={suppressClick}
+        onMouseUp={suppressClick}>
+        <i className="icon-chevron-left" />
+      </a>
+    );
+
+    const forwardAction = (
+      <a
+        onClick={this.goForwardMonth}
+        onMouseDown={suppressClick}
+        onMouseUp={suppressClick}>
+        <i className="icon-chevron-right" />
+      </a>
+    );
+
     return (
       <div className="fc-datepicker__month">
         <div className="fc-datepicker__month-header">
-          <a
-            className="fc-datepicker__month-action-back"
-            onClick={this.goBackMonth}
-            onMouseDown={suppressClick}
-            onMouseUp={suppressClick}>
-            {isFirst && <i className="icon-chevron-left" />}
-          </a>
+          <div className="fc-datepicker__month-action-back">
+            {isFirst && backAction}
+          </div>
           <div className="fc-datepicker__month-name">
             {monthName}
           </div>
-          <a
-            className="fc-datepicker__month-action-forward"
-            onClick={this.goForwardMonth}
-            onMouseDown={suppressClick}
-            onMouseUp={suppressClick}>
-            {!isFirst && <i className="icon-chevron-right" />}
-          </a>
+          <div className="fc-datepicker__month-action-forward">
+            {!isFirst && forwardAction}
+          </div>
         </div>
         <div className="fc-datepicker__weeks-header">
           {weeks.map(w => <div className="fc-datepicker__week">{w}</div>)}
