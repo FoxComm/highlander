@@ -44,7 +44,17 @@ final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
         "dimensionId"          typed IntegerType,
         "objectId"             typed IntegerType,
         "trailId"              typed IntegerType,
-        "activity"             typed ObjectType,
+        "activity" nested(
+          "id"                 typed IntegerType,
+          "createdAt"          typed DateType format AvroTransformers.strictDateFormat,
+          "kind"               typed StringType index "not_analyzed",
+          "context" nested(
+            "transactionId"    typed StringType index "not_analyzed",
+            "userId"           typed IntegerType,
+            "userType"         typed StringType index "not_analyzed"
+            ),
+          "data"               typed ObjectType
+          ),
         "previousId"           typed IntegerType,
         "nextId"               typed IntegerType,
         "data"                 typed ObjectType,
