@@ -25,5 +25,9 @@ refresh materialized view concurrently orders_search_view;
 refresh materialized view concurrently store_admin_assignments_view;
 refresh materialized view concurrently store_admins_search_view;
 
+-- store_credit_transactions
+refresh materialized view concurrently store_credit_transactions_admins_view;
+refresh materialized view concurrently store_credit_transactions_view;
+
 -- failed authorizations
 refresh materialized view concurrently failed_authorizations_search_view;
