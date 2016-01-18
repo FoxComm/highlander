@@ -26,7 +26,7 @@ export function toQuery(filters, phrase = "") {
       : createFilter(filter, ejs.TermsFilter, rangeToFilter);
   });
 
-  let query = _.isEmpty(phrase) ? ejs.MatchAllQuery() : phrasePrefixQuery(phrase);
+  const query = _.isEmpty(phrase) ? ejs.MatchAllQuery() : phrasePrefixQuery(phrase);
 
   return ejs
     .Request()
