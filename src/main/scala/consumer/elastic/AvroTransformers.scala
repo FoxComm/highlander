@@ -299,4 +299,33 @@ object AvroTransformers {
 
     def fields = List.empty
   }
+
+  final case class StoreCreditTransactionsView()(implicit ec: ExecutionContext) extends AvroTransformer {
+    def mapping =
+      "store_credit_transactions_view" as (
+        // Adjustment
+        "id"                    typed IntegerType,
+        "debit"                 typed IntegerType,
+        "availableBalance"      typed IntegerType,
+        "status"                typed StringType index "not_analyzed",
+        "createdAt"             typed DateType format dateFormat,
+        // Store Credit
+        "customerId"            typed IntegerType,
+        "originType"            typed StringType index "not_analyzed",
+        "currency"              typed StringType index "not_analyzed",
+        "storeCreditCreatedAt"  typed DateType format dateFormat,
+        // Order
+        "orderReferenceNumber"  typed StringType analyzer "autocomplete",
+        "orderCreatedAt"        typed DateType format dateFormat,
+        "orderPaymentCreatedAt" typed DateType format dateFormat, 
+        // Store Admins
+        "storeAdmins" nested (
+          "email"       typed StringType analyzer "autocomplete",
+          "name"        typed StringType analyzer "autocomplete",
+          "departmnet"  typed StringType analyzer "autocomplete"
+        )
+      )
+
+    def fields = List("store_admins")
+  }  
 }

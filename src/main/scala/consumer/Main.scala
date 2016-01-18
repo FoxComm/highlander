@@ -171,6 +171,7 @@ object Main {
         "orders_search_view"                → AvroTransformers.OrdersSearchView(),
         "store_admins_search_view"          → AvroTransformers.StoreAdminsSearchView(),
         "failed_authorizations_search_view" → AvroTransformers.FailedAuthorizationsSearchView(),
+        "store_credit_transactions_view"    → AvroTransformers.StoreCreditTransactionsView(),
         "skus"                              → AvroTransformers.Sku(),
         "gift_cards"                        → AvroTransformers.GiftCard(),
         "store_credits"                     → AvroTransformers.StoreCredit(),
