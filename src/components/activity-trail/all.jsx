@@ -701,6 +701,30 @@ activities = [...activities,
       userType: 'customer',
     }
   },
+  {
+    kind: types.ORDER_LINE_ITEMS_ADDED_GIFT_CARD,
+    createdAt,
+    data: {
+      order,
+      gc: giftCard
+    }
+  },
+  {
+    kind: types.ORDER_LINE_ITEMS_DELETED_GIFT_CARD,
+    createdAt,
+    data: {
+      order,
+      gc: giftCard
+    }
+  },
+  {
+    kind: types.ORDER_LINE_ITEMS_UPDATED_GIFT_CARD,
+    createdAt,
+    data: {
+      order,
+      gc: giftCard
+    }
+  },
 ];
 
 activities = processActivities(activities.map(processActivity)).map(addContext);
