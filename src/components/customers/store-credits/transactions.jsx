@@ -98,7 +98,7 @@ export default class StoreCreditTransactions extends React.Component {
               columns={props.tableColumns}
               data={props.storeCreditTransactions}
               renderRow={this.renderRow}
-              emptyMessage="No storecredit transactions found."
+              emptyMessage="No transactions found."
               toggleColumnPresent={false}
               setState={params => this.props.fetchStoreCreditTransactions(this.customerId, params)} />
           </div>
