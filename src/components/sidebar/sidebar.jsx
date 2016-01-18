@@ -6,31 +6,29 @@ import { autobind } from 'core-decorators';
 
 import Navigation from './navigation';
 
-export default class Sidebar extends React.Component {
+import { connect } from 'react-redux';
+import * as SiteMenuActions from '../../modules/site-menu';
 
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      open: false
-    };
-  }
+@connect((state, props) => ({
+  ...state.siteMenu
+}), SiteMenuActions)
+export default class Sidebar extends React.Component {
 
   @autobind
   toggleSidebar() {
-    const status = !this.state.open;
-    this.setState({open: status});
+    this.props.toggleSiteMenu();
   }
 
   render() {
     const indicatorClass = classNames({
-      'icon-chevron-left': this.state.open,
-      'icon-chevron-right': !this.state.open
+      'icon-chevron-left': this.props.isMenuExpanded,
+      'icon-chevron-right': !this.props.isMenuExpanded
     });
     const sidebarClass = classNames('fc-sidebar', {
-      '_open': this.state.open
+      '_open': this.props.isMenuExpanded
     });
     const controlClass = classNames('fc-sidebar__control', {
-      '_open': this.state.open
+      '_open': this.props.isMenuExpanded
     });
     return (
       <aside role="complimentary" className={sidebarClass}>
@@ -40,7 +38,7 @@ export default class Sidebar extends React.Component {
         <div className={controlClass} onClick={this.toggleSidebar}>
           <i className={indicatorClass}></i>
         </div>
-        <Navigation open={this.state.open} routes={this.props.routes} collapsed={!this.state.open}/>
+        <Navigation routes={this.props.routes} collapsed={!this.props.isMenuExpanded}/>
       </aside>
     );
   }
