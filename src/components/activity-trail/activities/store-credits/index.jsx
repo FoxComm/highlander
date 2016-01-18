@@ -4,7 +4,7 @@ import React from 'react';
 import types from '../base/types';
 
 // components
-import GiftCardCode from '../../../gift-cards/gift-card-code';
+import GiftCardLink from '../base/gift-card-link';;
 import OrderTarget from '../base/order-target';
 import CustomerLink from '../base/customer-link';
 import Currency from '../../../common/currency';
@@ -35,7 +35,7 @@ const representatives = {
     title: data => {
       return (
         <span>
-          <strong>converted store credit</strong> to gift card <GiftCardCode value={data.giftCard.code} />
+          <strong>converted store credit</strong> to gift card <GiftCardLink {...data.giftCard} />
           &nbsp;with amount <Currency value={data.giftCard.availableBalance} currency={data.giftCard.currency} />.
         </span>
       );

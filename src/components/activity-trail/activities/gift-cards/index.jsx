@@ -5,13 +5,13 @@ import types from '../base/types';
 import { joinEntities } from '../base/utils';
 
 // components
-import GiftCardCode from '../../../gift-cards/gift-card-code';
+import GiftCardLink from '../base/gift-card-link';
 import OrderTarget from '../base/order-target';
 import Currency from '../../../common/currency';
 
 const authorizedAndCapturedDesc = {
   title: (data, {kind}) => {
-    const giftCards = data.giftCardCodes.map(code => <GiftCardCode value={code} />);
+    const giftCards = data.giftCardCodes.map(code => <GiftCardLink code={code} />);
     const giftCardText = giftCards.length == 1 ? 'gift card' : 'gift cards';
 
     const actionTitle = kind == types.GIFT_CARD_AUTHORIZED_FUNDS ?
@@ -31,7 +31,7 @@ const representatives = {
     title: data => {
       return (
         <span>
-          <strong>created gift card</strong> <GiftCardCode value={data.giftCard.code} />
+          <strong>created gift card</strong> <GiftCardLink {...data.giftCard} />
           &nbsp; with amount <Currency value={data.giftCard.availableBalance} currency={data.giftCard.currency} />.
         </span>
       );
@@ -42,7 +42,7 @@ const representatives = {
     title: data => {
       return (
         <span>
-          <strong>changed state for gift card</strong> <GiftCardCode value={data.giftCard.code} />
+          <strong>changed state for gift card</strong> <GiftCardLink {...data.giftCard} />
           &nbsp;to {data.giftCard.status}.
         </span>
       );
@@ -52,7 +52,7 @@ const representatives = {
     title: data => {
       return (
         <span>
-          <strong>converted gift card</strong> <GiftCardCode value={data.giftCard.code} />
+          <strong>converted gift card</strong> <GiftCardLink {...data.giftCard} />
           &nbsp;to store credit with amount
           &nbsp;<Currency value={data.storeCredit.availableBalance} currency={data.storeCredit.currency} />.
         </span>

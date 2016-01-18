@@ -5,7 +5,7 @@ import types, { derivedTypes } from '../base/types';
 
 // components
 import OrderTarget from '../base/order-target';
-import GiftCardCode from '../../../gift-cards/gift-card-code';
+import GiftCardLink from '../base/gift-card-link';
 
 const orderLineItemsChangedDesc = {
   title: (data, {kind}) => {
@@ -31,7 +31,7 @@ const orderLineItemsGcDesc = {
 
     return (
       <span>
-        <strong>{actionTitle} gift card</strong> <GiftCardCode value={data.gc.code} /> to <OrderTarget order={data.order} />.
+        <strong>{actionTitle} gift card</strong> <GiftCardLink {...data.gc} /> to <OrderTarget order={data.order} />.
       </span>
     );
   },
