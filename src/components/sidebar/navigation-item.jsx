@@ -21,7 +21,8 @@ export default class NavigationItem extends React.Component {
 
   static defaultProps = {
     isIndex: false,
-    isExpandable: false
+    isExpandable: false,
+    collapsed: false
   }
 
   constructor(props, ...args) {
