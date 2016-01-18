@@ -74,3 +74,9 @@ create table export_assignments (
     reference_number    text,
     assigned_at         text
 );
+
+create table export_store_admins (
+    email       text,
+    name        text,
+    department  text
+);
