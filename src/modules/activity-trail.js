@@ -6,13 +6,13 @@ import { update, assoc } from 'sprout-data';
 import { updateItems } from './state-helpers';
 import OrderParagon from '../paragons/order';
 import searchActivities from '../elastic/activities';
-//import types from '../components/activity-trail/activities/base/types';
+import types, { derivedTypes } from '../components/activity-trail/activities/base/types';
 
 const startFetching = createAction('ACTIVITY_TRAIL_START_FETCHING');
 const receivedActivities = createAction('ACTIVITY_TRAIL_RECEIVED', (trailId, data) => [trailId, data]);
 const fetchFailed = createAction('ACTIVITY_TRAIL_FETCH_FAILED', (trailId, err) => [trailId, err]);
 
-//const flatMap = _.compose(_.flatten, _.map);
+const flatMap = _.compose(_.flatten, _.map);
 
 export function processActivity(activity) {
   if (activity.data.order) {
@@ -20,23 +20,56 @@ export function processActivity(activity) {
   }
   if (activity.data.orderRefNum) {
     activity.data.order = new OrderParagon({
-      referenceNumber: activity.data.orderRefNum
+      referenceNumber: activity.data.orderRefNum,
+      orderStatus: activity.data.orderStatus,
     });
   }
   return activity;
 }
 
 export function processActivities(activities) {
-  //return flatMap(activities, activity => {
-  //  if (activity.kind == types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES ||
-  //    activity.kind == types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES_BY_CUSTOMER) {
-  //
-  //  }
-  //
-  //  return activity;
-  //});
+  return flatMap(activities, activity => {
+    if (activity.kind == types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES ||
+      activity.kind == types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES_BY_CUSTOMER) {
+      const { oldQuantities, newQuantities, ...restData } = activity.data;
 
-  return activities;
+      let newActivities = [];
+
+      _.each(newQuantities, (quantity, skuName) => {
+        const oldQuantity = skuName in oldQuantities ? oldQuantities[skuName] : 0;
+        const kind = oldQuantity > quantity ?
+          derivedTypes.ORDER_LINE_ITEMS_REMOVED_SKU : derivedTypes.ORDER_LINE_ITEMS_ADDED_SKU;
+
+        newActivities = [...newActivities, {
+          ...activity,
+          kind,
+          data: {
+            ...restData,
+            skuName,
+            difference: Math.abs(quantity - oldQuantity),
+          }
+        }];
+      });
+
+      _.each(oldQuantities, (quantity, skuName) => {
+        if (skuName in newQuantities) return;
+
+        newActivities = [...newActivities, {
+          ...activity,
+          kind: derivedTypes.ORDER_LINE_ITEMS_REMOVED_SKU,
+          data: {
+            ...restData,
+            skuName,
+            difference: quantity,
+          }
+        }];
+      });
+
+      return newActivities;
+    }
+
+    return activity;
+  });
 }
 
 export function fetchActivityTrail(entity, from) {

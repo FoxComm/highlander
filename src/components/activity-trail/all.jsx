@@ -2,7 +2,7 @@
 import React from 'react';
 import ActivityTrail from './activity-trail';
 import types from './activities/base/types';
-import { processActivity } from '../../modules/activity-trail';
+import { processActivity, processActivities } from '../../modules/activity-trail';
 import moment from 'moment';
 
 function addContext(activity, i) {
@@ -667,8 +667,43 @@ activities = [...activities,
   },
 ];
 
+createdAt = moment().subtract(shiftDays++, 'days').toString();
 
-activities = activities.map(processActivity).map(addContext);
+activities = [...activities,
+  {
+    kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES,
+    createdAt,
+    data: {
+      order,
+      oldQuantities: {
+        'Nike Air Max 2015': 2,
+      },
+      newQuantities: {
+        'Nike Dri-Fit Short-Slevel Women’s Running Shirt': 2,
+        'Nike Air Max 2015': 1,
+      }
+    }
+  },
+  {
+    kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES_BY_CUSTOMER,
+    createdAt,
+    data: {
+      order,
+      customer,
+      oldQuantities: {
+        'Nike Air Max 2015': 1,
+      },
+      newQuantities: {
+        'Nike Dri-Fit Short-Slevel Women’s Running Shirt': 2,
+      }
+    },
+    context: {
+      userType: 'customer',
+    }
+  },
+];
+
+activities = processActivities(activities.map(processActivity)).map(addContext);
 
 export default class AllActivities extends React.Component {
 

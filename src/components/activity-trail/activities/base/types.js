@@ -96,10 +96,9 @@ const types = {
   STORE_CREDIT_CAPTURED_FUNDS: 'store_credit_captured_funds',
 };
 
-const derivedTypes = {
-  ORDER_ADDED_SKU: 'order_added_sku',
-  ORDER_REMOVED_SKU: 'order_removed_sku',
-  ORDER_UPDATED_SKU: 'order_updated_sku',
+export const derivedTypes = {
+  ORDER_LINE_ITEMS_ADDED_SKU: 'order_added_sku',
+  ORDER_LINE_ITEMS_REMOVED_SKU: 'order_removed_sku',
 };
 
 export default types;

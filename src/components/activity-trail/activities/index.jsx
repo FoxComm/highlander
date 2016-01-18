@@ -8,6 +8,7 @@ import orderNotesActivities from './order-notes';
 import orderShippingAddressActivities from './order-shipping-address';
 import orderShippingMethodsActivities from './order-shipping-methods';
 import orderPaymentMethodsActivities from './order-payment-methods';
+import orderLineItemsActivities from './order-line-items';
 import customersActivities from './customers';
 import customerAddressesActivities from './customer-addresses';
 import customerCreditCardsActivities from './customer-credit-cards';
@@ -22,6 +23,7 @@ const representatives = {
   ...orderShippingAddressActivities,
   ...orderShippingMethodsActivities,
   ...orderPaymentMethodsActivities,
+  ...orderLineItemsActivities,
   ...customersActivities,
   ...customerAddressesActivities,
   ...customerCreditCardsActivities,
