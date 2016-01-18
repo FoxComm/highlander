@@ -10,6 +10,7 @@ import { transitionTo } from '../../route-helpers';
 
 // components
 import Counter from '../forms/counter';
+import PrependInput from '../forms/prepend-input';
 import Typeahead from '../typeahead/typeahead';
 import { PrimaryButton } from '../common/buttons';
 import { Dropdown, DropdownItem } from '../dropdown';
@@ -220,12 +221,15 @@ export default class NewGiftCard extends React.Component {
           </div>
           <fieldset>
             <label className="fc-new-gift-card__label" htmlFor="value">Value</label>
-            <div className="fc-input-group">
-              <div className="fc-input-prepend"><i className="icon-usd"></i></div>
-              <input type="hidden" name="balance" value={this.props.balance} />
-              <input type="number" className="_no-counters" name="balanceText"
-                     value={this.props.balanceText} step="0.01" min="1"/>
-            </div>
+            <PrependInput
+              icon="usd"
+              inputClass="_no-counters"
+              inputName="balance"
+              inputType="number"
+              inputValue={this.props.balance}
+              inputValuePretty={this.props.balanceText}
+              step="0.01"
+              min="1" />
             <div className="fc-new-gift-card__balances">
               {
                 [1000, 2500, 5000, 10000, 20000].map((balance, idx) => {

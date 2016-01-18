@@ -14,7 +14,12 @@ export default class MultiSelectTable extends React.Component {
     }),
     renderRow: PropTypes.func,
     setState: PropTypes.func,
-    emptyMessage: PropTypes.string.isRequired
+    emptyMessage: PropTypes.string.isRequired,
+    toggleColumnPresent: PropTypes.bool
+  }
+
+  static defaultProps = {
+    toggleColumnPresent: true
   }
 
   get columns() {
@@ -30,10 +35,13 @@ export default class MultiSelectTable extends React.Component {
       className: '__toggle-columns'
     };
 
-    return [
+    return this.props.toggleColumnPresent ? [
       selectColumn,
       ...this.props.columns,
       toggleColumn
+    ] : [
+      selectColumn,
+      ...this.props.columns
     ];
   }
 

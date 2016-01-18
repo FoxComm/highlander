@@ -91,7 +91,7 @@ const moduleReducer = createReducer({
     return assoc(state, [customerId, 'storeCreditToChange'], updated);
   },
   [setError]: (state, [customerId, err]) => {
-    console.log(err);
+    console.error(err);
 
     return state;
   }

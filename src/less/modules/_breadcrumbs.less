@@ -1,0 +1,23 @@
+.fc-breadcrumbs {
+  flex-grow: 1;
+  align-items: baseline;
+
+  &__item, &__delimeter {
+    display: inline;
+    .margin(0 5px);
+  }
+
+  &__delimeter {
+    .font-spec(15px, @normal, 20px);
+  }
+
+  &__link {
+    .font-spec(15px, @normal, 20px);
+    color: @color-decor5;
+    transition: all .2s;
+  }
+
+  &__link:hover {
+    color: @color-decor3;
+  }
+}

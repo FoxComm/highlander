@@ -1,0 +1,35 @@
+.fc-datepicker {
+  &__day {
+    &:hover {
+      background: @color-decor14;
+      color: @color-white;
+      cursor: pointer;
+    }
+
+    &._selected {
+      background: @color-decor15;
+      color: @color-white;
+      cursor: pointer;
+    }
+
+    &._last-month, &._next-month {
+      background: @color-decor10;
+      color: @color-decor1;
+
+      &:nth-child(7n + 1) {
+        border-left: none;
+      }
+    }
+  }
+
+  &._in-menu {
+    margin-bottom: 0;
+
+    .fc-datepicker__dropdown-container {
+      position: inherit;
+      margin-top: 0;
+      border-radius: 2px 2px 0 0;
+      box-shadow: none;
+    }
+  }
+}

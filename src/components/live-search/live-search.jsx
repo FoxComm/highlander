@@ -4,14 +4,16 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import classNames from 'classnames';
 
+import MaskedInput from '../masked-input/masked-input';
 import Menu from '../menu/menu';
 import MenuItem from '../menu/menu-item';
 import PilledInput from '../pilled-search/pilled-input';
 import SearchOption from './search-option';
 import TabListView from '../tabs/tabs';
 import EditableTabView from '../tabs/editable-tab';
+import DatePicker from '../datepicker/datepicker';
 
-import SearchTerm from '../../paragons/search-term';
+import SearchTerm, { getInputMask } from '../../paragons/search-term';
 
 function currentSearch(props) {
   return _.get(props, ['searches', 'savedSearches', props.searches.selectedSearch], []);
@@ -31,10 +33,12 @@ export default class LiveSearch extends React.Component {
 
     this.state = {
       availableOptions: currentOptions,
+      inputMask: null,
       isFocused: false,
       optionsVisible: false,
       pills: pills,
       searchDisplay: searchValue,
+      searchPrepend: '',
       searchOptions: currentOptions,
       searchValue: searchValue,
       selectionIndex: -1
@@ -66,21 +70,45 @@ export default class LiveSearch extends React.Component {
   }
 
   get searchOptions() {
-    const selectedIdx = this.state.selectionIndex;
-    const options = _.reduce(this.state.searchOptions, (result, option, idx) => {
-      if (!option.matchesSearchTerm(this.state.searchValue)) {
-        return result;
-      }
+    // Check to see if the date picker should be shown.
+    let options = null;
+    if (this.state.searchOptions.length == 1 && this.state.searchOptions[0].type == 'date') {
+      const clickAction = date => {
+        const dateVal = date.toLocaleString('en-us', {
+          month: '2-digit',
+          day: '2-digit',
+          year: 'numeric'
+        });
 
-      return [
-        ...result,
-        <SearchOption
-          className={classNames({ '_active': selectedIdx == idx, '_first': idx == 0 })}
-          key={`search-option-${idx}`}
-          option={option}
-          clickAction={(filter) => this.submitFilter(filter, true)} />
-      ];
-    }, []);
+        this.submitFilter(`${this.state.searchValue}${dateVal}`, true);
+      };
+
+
+      options = (
+        <DatePicker
+          className="_in-menu"
+          key="live-search-orders-datepicker"
+          onClick={clickAction}
+          showInput={false}
+          showPicker={true} />
+      );
+    } else {
+      const selectedIdx = this.state.selectionIndex;
+      options = _.reduce(this.state.searchOptions, (result, option, idx) => {
+        if (!option.matchesSearchTerm(this.state.searchValue)) {
+          return result;
+        }
+
+        return [
+          ...result,
+          <SearchOption
+            className={classNames({ '_active': selectedIdx == idx, '_first': idx == 0 })}
+            key={`search-option-${option.displayTerm}`}
+            option={option}
+            clickAction={(filter) => this.submitFilter(filter, true)} />
+        ];
+      }, []);
+    }
 
     const menuClass = classNames('fc-live-search__go-back _last', {
       '_active': this.state.selectionIndex == this.state.searchOptions.length
@@ -125,8 +153,7 @@ export default class LiveSearch extends React.Component {
           cancelEdit={this.props.editSearchNameCancel}
           completeEdit={this.props.editSearchNameComplete}
           startEdit={startEdit}
-          onClick={() => this.props.selectSavedSearch(idx)}
-        />
+          onClick={() => this.props.selectSavedSearch(idx)} />
       );
     });
 
@@ -178,9 +205,11 @@ export default class LiveSearch extends React.Component {
 
     this.setState({
       ...this.state,
+      inputMask: null,
       optionsVisible: isVisible,
       pills: search.searches,
       searchDisplay: search.searchValue,
+      searchPrepend: '',
       searchOptions: search.currentOptions,
       searchValue: search.searchValue,
       selectionIndex: -1
@@ -302,6 +331,8 @@ export default class LiveSearch extends React.Component {
     // First, update the available terms.
     let newSearchTerm = searchTerm;
     let options = SearchTerm.potentialTerms(this.state.availableOptions, searchTerm);
+    let inputMask = this.state.inputMask;
+    let searchPrepend = this.state.searchPrepend;
 
     // Second, if there is only one term, see if we can turn it into a saved search.
     if (options.length == 1) {
@@ -317,14 +348,27 @@ export default class LiveSearch extends React.Component {
         ]);
       } else if (option.children.length > 1) {
         options = option.children;
+        inputMask = '';
+        searchPrepend = '';
+      } else {
+        const newInputMask = getInputMask(option);
+        if (!_.isEqual(inputMask, newInputMask)) {
+          inputMask = newInputMask;
+          searchPrepend = searchTerm;
+        }
       }
+    } else {
+      inputMask = '';
+      searchPrepend = '';
     }
 
     // Third, update the state.
     this.setState({
       ...this.state,
+      inputMask: inputMask,
       searchOptions: options,
       searchDisplay: newSearchTerm,
+      searchPrepend: searchPrepend,
       searchValue: newSearchTerm,
       selectionIndex: -1
     });
@@ -345,13 +389,18 @@ export default class LiveSearch extends React.Component {
                 onPillClose={(pill, idx) => this.deleteFilter(idx)}
                 onPillClick={(pill, idx) => this.deleteFilter(idx)}
                 formatPill={this.formatPill}
-                placeholder="Add another filter or keyword search"
-                onChange={this.change}
-                onFocus={this.inputFocus}
-                onBlur={this.blur}
-                onKeyDown={this.keyDown}
-                pills={this.state.pills}
-                value={this.state.searchDisplay} />
+                pills={this.state.pills}>
+                <MaskedInput
+                  className="fc-pilled-input__input-field _no-fc-behavior"
+                  mask={this.state.inputMask}
+                  onChange={this.change}
+                  onFocus={this.inputFocus}
+                  onBlur={this.blur}
+                  onKeyDown={this.keyDown}
+                  placeholder="Add another filter or keyword search"
+                  prepend={this.state.searchPrepend}
+                  value={this.state.searchDisplay} />
+              </PilledInput>
             </form>
             <div>
               {this.state.optionsVisible && this.searchOptions}

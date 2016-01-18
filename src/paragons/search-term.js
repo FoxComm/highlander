@@ -37,6 +37,17 @@ const operators = {
   ],
 };
 
+export function getInputMask(searchTerm) {
+  const type = _.get(searchTerm, 'type', '');
+
+  switch(type) {
+    case 'currency':
+      return '99.99';
+    case 'date':
+      return '99/99/9999';
+  }
+}
+
 /**
  * SearchTerm represents a single term in the context of either the Live Search
  * or the Dynamic Customer Group.
