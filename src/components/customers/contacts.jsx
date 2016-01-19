@@ -52,7 +52,7 @@ export default class CustomerContacts extends React.Component {
 
   static validateEmail(newEmail) {
     if (!_.includes(newEmail, '@')) {
-      return '@ symbol is ommited';
+      return '@ symbol is omitted';
     }
   }
 

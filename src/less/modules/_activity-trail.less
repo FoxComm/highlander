@@ -15,7 +15,11 @@
 
       height: 21px;
       width: 2px;
-      background: #d9d9d9;
+      background: @color-decor9;
+    }
+
+    &.fc-activity:after {
+      left: 41px; // 42px - border size of .fc-activity
     }
 
     &:last-child:after {
@@ -23,13 +27,59 @@
     }
   }
 
+  &__no-activities {
+    font-size: 18px;
+    color: @color-decor8;
+    line-height: 80px;
+    background: @color-white;
+    border: 1px solid @color-decor9;
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,0.30);
+    height: 80px;
+    text-align: center;
+    border-radius: 3px;
+  }
+
   &__mark {
     .font-spec(14px, 19px);
     color: @color-white;
-    background: #3A4350;
+    background: @color-decor3;
     border-radius: 3px;
     padding: 10px 0;
     width: 84px;
     text-align: center;
+  }
+
+  &__year-mark {
+    color: @color-white;
+    font-weight: 700;
+    font-size: 16px;
+    background: @color-decor56;
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,0.30);
+    border-radius: 3px;
+    height: 80px;
+    line-height: 80px;
+    text-align: center;
+  }
+
+  .top-line(@height: 20px) {
+    margin-top: @height;
+    &:before {
+      content: "";
+      position: absolute;
+      top: -@height - 1px;
+      left: 42px;
+      height: @height + 1px;
+      width: 2px;
+      background: @color-decor9;
+    }
+  }
+
+  .fc-activity + &__mark,
+  &__year-mark + &__mark {
+    .top-line();
+  }
+
+  .fc-activity + &__year-mark {
+    .top-line(60px);
   }
 }

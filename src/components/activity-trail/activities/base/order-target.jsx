@@ -7,7 +7,7 @@ const OrderTarget = ({order}) => {
     <span>
       {order.title}
       &nbsp;
-      <Link to="order-details" params={{order: order.referenceNumber}}>{order.referenceNumber}</Link>
+      <Link className="fc-activity__link" to="order" params={{order: order.referenceNumber}}>{order.referenceNumber}</Link>
     </span>
   );
 };

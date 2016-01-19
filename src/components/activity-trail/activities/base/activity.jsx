@@ -1,7 +1,9 @@
 
 // libs
+import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
+import classNames from 'classnames';
 
 // components
 import { Button } from '../../../common/buttons';
@@ -12,14 +14,15 @@ export default class Activity extends React.Component {
 
   static propTypes = {
     activity: PropTypes.shape({
-      type: PropTypes.string.isRequired,
+      kind: PropTypes.string.isRequired,
     }).isRequired,
     undoAction: PropTypes.func,
-    actionDescription: PropTypes.node,
+    title: PropTypes.node,
     details: PropTypes.shape({
       newOne: PropTypes.node,
       previous: PropTypes.node,
     }),
+    isFirst: PropTypes.bool,
   };
 
   constructor(...args) {
@@ -40,9 +43,9 @@ export default class Activity extends React.Component {
     }
   }
 
-  get actionDescription() {
-    if (this.props.actionDescription) {
-      return this.props.actionDescription;
+  get title() {
+    if (this.props.title) {
+      return this.props.title;
     }
   }
 
@@ -80,22 +83,59 @@ export default class Activity extends React.Component {
     }
   }
 
+  get authorIcon() {
+    const { activity } = this.props;
+
+    const userType = _.get(activity, ['context', 'userType'], 'system');
+
+    switch (userType) {
+      case 'system':
+        return <div className="fc-activity__system-icon"></div>;
+      case 'admin':
+        return <UserInitials name={activity.data.admin.name} />;
+      default:
+        return (
+          <div className="fc-activity__customer-icon">
+            <i className="icon-customer"></i>
+          </div>
+        );
+    }
+  }
+
+  get authorTitle() {
+    const { activity } = this.props;
+
+    const userType = _.get(activity, ['context', 'userType'], 'system');
+
+    switch (userType) {
+      case 'system':
+        return 'FoxCommerce';
+      case 'admin':
+        return activity.data.admin.name;
+      default:
+        return 'The customer';
+    }
+  }
+
   render() {
     const props = this.props;
     const { activity } = props;
-    const data = activity.data;
+
+    const className = classNames('fc-activity', {
+      '_first': props.isFirst
+    });
 
     return (
-      <li className="fc-activity">
+      <li className={className}>
         <div className="fc-activity__head-content">
           <div className="fc-activity__body">
             <div className="fc-activity__timestamp">
               <Time value={activity.createdAt} />
             </div>
             <div className="fc-activity__info">
-              <UserInitials name={data.author} />
+              {this.authorIcon}
               <div className="fc-activity__description">
-                {this.actionDescription}
+                {this.authorTitle}&nbsp;{this.title}
                 {this.viewMoreLink}
               </div>
             </div>

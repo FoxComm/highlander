@@ -1,5 +1,5 @@
-import Link from './link.jsx';
-import IndexLink from './index-link.jsx';
+import Link from './link';
+import IndexLink from './index-link';
 
 export {
   Link,
