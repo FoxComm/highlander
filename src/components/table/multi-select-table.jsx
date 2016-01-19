@@ -16,11 +16,11 @@ export default class MultiSelectTable extends React.Component {
     setState: PropTypes.func,
     emptyMessage: PropTypes.string.isRequired,
     toggleColumnPresent: PropTypes.bool
-  }
+  };
 
   static defaultProps = {
     toggleColumnPresent: true
-  }
+  };
 
   get columns() {
     const selectColumn = {
