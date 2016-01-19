@@ -15,6 +15,7 @@ select distinct on (o.id)
     o.grand_total as grand_total,
     -- Customer
     json_build_object(
+        'id', c.id,
         'name', c.name,
         'email', c.email,
         'is_blacklisted', c.is_blacklisted,
