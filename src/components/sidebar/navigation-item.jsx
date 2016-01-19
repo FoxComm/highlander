@@ -16,13 +16,16 @@ export default class NavigationItem extends React.Component {
     icon: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     children: PropTypes.node,
-    routes: PropTypes.array.isRequired
+    routes: PropTypes.array.isRequired,
+    isOpen: PropTypes.bool,
+    toggleMenuItem: PropTypes.func.isRequired
   };
 
   static defaultProps = {
     isIndex: false,
     isExpandable: false,
-    collapsed: false
+    collapsed: false,
+    isOpen: false
   };
 
   @autobind
@@ -93,7 +96,6 @@ export default class NavigationItem extends React.Component {
   }
 
   render() {
-    console.log(this.props);
     return (
       <div className={this.containerClass}>
         { this.props.isIndex ? this.indexLink : this.link }

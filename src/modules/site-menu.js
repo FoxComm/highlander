@@ -10,7 +10,6 @@ export const toggleMenuItem = createAction('SITE_MENU_ITEM_TOGGLE');
 export function getMenuItemState(item) {
   return (dispatch, getState) => {
     const state = getState();
-    console.log(state);
     return _.get(state, ['siteMenu', 'menuItems', item], false);
   };
 };
@@ -29,7 +28,6 @@ const reducer = createReducer({
     };
   },
   [toggleMenuItem]: (state, item) => {
-    console.log(item);
     const currentItemState = _.get(state, ['menuItems', item], false);
     return assoc(state, ['menuItems', item], !currentItemState);
   },

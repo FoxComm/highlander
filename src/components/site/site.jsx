@@ -11,7 +11,9 @@ export default class Site extends React.Component {
 
   static propTypes = {
     children: PropTypes.node,
-    fetchCountries: PropTypes.func
+    fetchCountries: PropTypes.func,
+    routes: PropTypes.array.isRequired,
+    params: PropTypes.object.isRequired
   };
 
   componentDidMount() {

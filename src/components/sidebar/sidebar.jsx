@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 import static_url from '../../lib/s3';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
@@ -13,6 +13,18 @@ import * as SiteMenuActions from '../../modules/site-menu';
   ...state.siteMenu
 }), SiteMenuActions)
 export default class Sidebar extends React.Component {
+
+  static propTypes = {
+    isMenuExpanded: PropTypes.bool,
+    routes: PropTypes.array.isRequired,
+    getMenuItemState: PropTypes.func.isRequired,
+    toggleMenuItem: PropTypes.func.isRequired,
+    toggleSiteMenu: PropTypes.func.isRequired
+  };
+
+  static defaultProps = {
+    isMenuExpanded: true
+  };
 
   @autobind
   toggleSidebar() {
