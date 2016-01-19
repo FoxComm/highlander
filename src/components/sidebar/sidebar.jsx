@@ -38,7 +38,10 @@ export default class Sidebar extends React.Component {
         <div className={controlClass} onClick={this.toggleSidebar}>
           <i className={indicatorClass}></i>
         </div>
-        <Navigation routes={this.props.routes} collapsed={!this.props.isMenuExpanded}/>
+        <Navigation routes={this.props.routes}
+                    collapsed={!this.props.isMenuExpanded}
+                    getMenuItemState={this.props.getMenuItemState}
+                    toggleMenuItem={this.props.toggleMenuItem} />
       </aside>
     );
   }

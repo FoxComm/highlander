@@ -25,25 +25,6 @@ export default class NavigationItem extends React.Component {
     collapsed: false
   }
 
-  constructor(props, ...args) {
-    super(props, ...args);
-    this.state = {
-      open: this.isOpen(props)
-    };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (!nextProps.collapsed) {
-      this.setState({open: this.isOpen(nextProps)});
-    }
-  }
-
-  @autobind
-  expandItem() {
-    const status = !this.state.open;
-    this.setState({open: status});
-  }
-
   @autobind
   isOpen(props) {
     let initialIsOpen = false;
@@ -55,10 +36,19 @@ export default class NavigationItem extends React.Component {
     return initialIsOpen;
   }
 
+  @autobind
+  expandItem() {
+    this.props.toggleMenuItem(this.props.to);
+  }
+
+  get currentState() {
+    return this.props.isOpen;
+  }
+
   get expandButton() {
     const iconClass = classNames({
-      'icon-chevron-down': !this.state.open,
-      'icon-chevron-up': this.state.open
+      'icon-chevron-down': !this.currentState,
+      'icon-chevron-up': this.currentState
     });
     return (
       <div className="fc-navigation-item__expand" onClick={this.expandItem}>
@@ -93,7 +83,7 @@ export default class NavigationItem extends React.Component {
 
   get childrenClass() {
     return classNames('fc-navigation-item__children', {
-      '_open': !this.props.collapsed && this.props.isExpandable && this.state.open
+      '_open': !this.props.collapsed && this.props.isExpandable && this.currentState
     });
   }
 
@@ -107,6 +97,7 @@ export default class NavigationItem extends React.Component {
   }
 
   render() {
+    console.log(this.props);
     return (
       <div className={this.containerClass}>
         { this.props.isIndex ? this.indexLink : this.link }
