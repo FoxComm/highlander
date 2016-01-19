@@ -5,7 +5,7 @@ import SectionTitle from '../section-title/section-title';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { transitionTo } from '../../route-helpers';
-import * as customersActions from '../../modules/customers/list';
+import { actions as customersActions } from '../../modules/customers/list';
 
 @connect(state => ({customers: state.customers.customers}), customersActions)
 export default class CustomersBase extends React.Component {
@@ -14,6 +14,7 @@ export default class CustomersBase extends React.Component {
     header: PropTypes.node,
     children: PropTypes.node.isRequired,
     customers: PropTypes.object.isRequired,
+    fetch: PropTypes.func.isRequired,
   };
 
   static contextTypes = {
@@ -25,9 +26,15 @@ export default class CustomersBase extends React.Component {
     transitionTo(this.context.history, 'customers-new');
   }
 
+  get customersTotal() {
+    const selectedSearch = this.props.customers.selectedSearch;
+    const results = this.props.customers.savedSearches[selectedSearch].results;
+    return results.total;
+  }
+
   componentDidMount() {
-    if (!this.props.customers.total) {
-      this.props.fetch(this.props.customers);
+    if (!this.customersTotal) {
+      this.props.fetch("customers_search_view/_search");
     }
   }
 
@@ -36,7 +43,7 @@ export default class CustomersBase extends React.Component {
       <div className="fc-list-page">
         <div className="fc-list-page-header">
           <SectionTitle title="Customers"
-                      subtitle={ this.props.customers.total }
+                      subtitle={ this.customersTotal }
                       onAddClick={ this.onAddCustomerClick }
                       addTitle="Customer" />
           <LocalNav>
