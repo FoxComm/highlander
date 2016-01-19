@@ -17,24 +17,13 @@ export default class NavigationItem extends React.Component {
     title: PropTypes.string.isRequired,
     children: PropTypes.node,
     routes: PropTypes.array.isRequired
-  }
+  };
 
   static defaultProps = {
     isIndex: false,
     isExpandable: false,
     collapsed: false
-  }
-
-  @autobind
-  isOpen(props) {
-    let initialIsOpen = false;
-    if (!_.isEmpty(props.children)) {
-      const tos = _.compact(props.children.map(c => c.props.to));
-      const routeNames = _.compact(props.routes.map(route => route.name));
-      initialIsOpen = !_.isEmpty(_.intersection(tos, routeNames));
-    }
-    return initialIsOpen;
-  }
+  };
 
   @autobind
   expandItem() {
@@ -42,7 +31,14 @@ export default class NavigationItem extends React.Component {
   }
 
   get currentState() {
-    return this.props.isOpen;
+    let isSelected = false;
+    if (!_.isEmpty(this.props.children)) {
+      const tos = _.compact(this.props.children.map(c => c.props.to));
+      const routeNames = _.compact(this.props.routes.map(route => route.name));
+      isSelected = !_.isEmpty(_.intersection(tos, routeNames));
+    }
+    return !this.props.collapsed && this.props.isExpandable &&
+      (this.props.isOpen || isSelected);
   }
 
   get expandButton() {
@@ -83,7 +79,7 @@ export default class NavigationItem extends React.Component {
 
   get childrenClass() {
     return classNames('fc-navigation-item__children', {
-      '_open': !this.props.collapsed && this.props.isExpandable && this.currentState
+      '_open': this.currentState
     });
   }
 
