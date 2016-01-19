@@ -20,7 +20,7 @@ final case class CustomerConnector()(implicit ec: ExecutionContext) extends Acti
   def createConnection(customerId: BigInt, activityId: Int) : Connection = {
     Connection(
       dimension = dimension,
-      objectId = customerId,
+      objectId = customerId.toString,
       data = JNothing,
       activityId = activityId)
   }
