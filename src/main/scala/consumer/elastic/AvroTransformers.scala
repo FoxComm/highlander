@@ -186,6 +186,7 @@ object AvroTransformers {
         "grandTotal"              typed IntegerType,
         // Customer
         "customer" nested (
+          "id"                    typed IntegerType,
           "name"                  typed StringType analyzer "autocomplete",
           "email"                 typed StringType analyzer "autocomplete",
           "isBlacklisted"         typed BooleanType,
