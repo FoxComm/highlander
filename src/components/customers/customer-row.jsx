@@ -32,7 +32,7 @@ const setCellContents = (customer, field) => {
 };
 
 const CustomerRow = (props, context) => {
-  const { customer, columns, } = props;
+  const { customer, columns } = props;
   const key = `customer-${customer.id}`;
   const clickAction = () => {
     transitionTo(context.history, 'customer', { customerId: customer.id });
