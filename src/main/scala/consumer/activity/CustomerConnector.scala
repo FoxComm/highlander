@@ -1,41 +1,44 @@
 package consumer.activity
 
-import java.time.Instant
+import scala.concurrent.{ExecutionContext, Future}
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-
-import org.json4s.JsonAST.{JObject, JInt, JNothing}
-import org.json4s.jackson.JsonMethods._
+import org.json4s.JsonAST.{JInt, JNothing}
 
 final case class CustomerConnector()(implicit ec: ExecutionContext) extends ActivityConnector {
   val dimension = "customer"
-  def process(offset: Long, activity: Activity) : Future[Seq[Connection]] = Future {
-    activity.activityType match {
-      case "customer_updated" ⇒  customerUpdated(activity)
-      case _ ⇒ mightHaveCustomer(activity)
-    }
+
+  def process(offset: Long, activity: Activity): Future[Seq[Connection]] = Future {
+    val customerIds = byContextUserType(activity) ++: byCustomerData(activity) ++:
+      byCustomerUpdatedActivity(activity)
+    customerIds.distinct.map(createConnection(_, activity.id))
   }
 
-  def createConnection(customerId: BigInt, activityId: Int) : Connection = {
+  def createConnection(customerId: String, activityId: Int): Connection = {
     Connection(
       dimension = dimension,
-      objectId = customerId.toString,
+      objectId = customerId,
       data = JNothing,
       activityId = activityId)
   }
 
-  private def mightHaveCustomer(activity : Activity) : Seq[Connection] = {
-    activity.data \ "customer" \ "id" match {
-      case JInt(customerId) ⇒  Seq(createConnection(customerId, activity.id))
-      case _ ⇒ Seq.empty
+  private def byContextUserType(activity: Activity): Seq[String] = {
+    activity.context.userType match {
+      case "customer" ⇒ Seq(activity.context.userId.toString)
+      case _          ⇒ Seq.empty
     }
   }
 
-  private def customerUpdated(activity : Activity) : Seq[Connection] = {
-    activity.data \ "oldInfo" \ "id" match {
-      case JInt(customerId) ⇒  Seq(createConnection(customerId, activity.id))
-      case _ ⇒ Seq.empty
+  private def byCustomerData(activity: Activity): Seq[String] = {
+    activity.data \ "customer" \ "id" match {
+      case JInt(customerId) ⇒ Seq(customerId.toString)
+      case _                ⇒ Seq.empty
+    }
+  }
+
+  private def byCustomerUpdatedActivity(activity: Activity): Seq[String] = {
+    (activity.activityType, activity.data \ "oldInfo" \ "id") match {
+      case ("customer_updated", JInt(customerId)) ⇒ Seq(customerId.toString)
+      case _                                      ⇒ Seq.empty
     }
   }
 }

@@ -1,6 +1,6 @@
 package consumer
 
-import consumer.utils.JsonTransformer
+import consumer.utils.JsonTransformers
 import java.io.ByteArrayOutputStream
 
 import scala.concurrent.ExecutionContext
@@ -12,7 +12,7 @@ import org.apache.avro.generic.GenericDatumWriter
 import org.apache.avro.io.EncoderFactory
 import org.apache.kafka.common.errors.SerializationException
 
-import org.json4s.JsonAST.{JValue, JObject, JField, JString, JInt}
+import org.json4s.JsonAST.{JValue, JObject, JField, JString}
 import org.json4s.jackson.JsonMethods.{render, compact, parse}
 
 import scala.util.control.NonFatal
@@ -63,13 +63,13 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
 object AvroJsonHelper {
 
   def transformJson(json: String, fields: List[String] = List.empty): String = {
-    val filteredJson = JsonTransformer.camelCase(stringToJson(deannotateAvroTypes(parse(json)), fields))
+    val filteredJson = JsonTransformers.camelCase(stringToJson(deannotateAvroTypes(parse(json)), fields))
     compact(render(filteredJson))
   }
 
   private def convertType(typeName: String,  value: JValue) : JValue = 
     typeName match {
-      case "com.martinkl.bottledwater.datatypes.DateTime" ⇒ JsonTransformer.dateTimeToDateString(value)
+      case "com.martinkl.bottledwater.datatypes.DateTime" ⇒ JsonTransformers.dateTimeToDateString(value)
       case _ ⇒ value
     }
 
