@@ -1,11 +1,11 @@
 import { combineReducers } from 'redux';
-import cards from './cards';
+import list from './cards';
 import adding from './new';
 import details from './details';
 import transactions from './transactions';
 
 const giftCardReducer = combineReducers({
-  cards,
+  list,
   adding,
   details,
   transactions

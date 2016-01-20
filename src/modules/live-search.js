@@ -28,16 +28,17 @@ function _createAction(namespace, description, ...args) {
 }
 
 export default function makeLiveSearch(namespace, searchTerms, initialSearches) {
-  const cloneSearch = _createAction(namespace, 'CLONE_SEARCH');
-  const editSearchNameStart = _createAction(namespace, 'EDIT_SEARCH_NAME_START');
-  const editSearchNameCancel = _createAction(namespace, 'EDIT_SEARCH_NAME_CANCEL');
-  const editSearchNameComplete = _createAction(namespace, 'EDIT_SEARCH_NAME_COMPLETE');
-  const saveSearch = _createAction(namespace, 'SAVE_SEARCH');
-  const searchStart = _createAction(namespace, 'SEARCH_START');
-  const searchSuccess = _createAction(namespace, 'SEARCH_SUCCESS');
-  const searchFailure = _createAction(namespace, 'SEARCH_FAILURE');
-  const selectSavedSearch = _createAction(namespace, 'SELECT_SAVED_SEARCH');
-  const submitFilters = _createAction(namespace, 'SUBMIT_FILTER');
+  const internalNS = namespace.toUpperCase();
+  const cloneSearch = _createAction(internalNS, 'CLONE_SEARCH');
+  const editSearchNameStart = _createAction(internalNS, 'EDIT_SEARCH_NAME_START');
+  const editSearchNameCancel = _createAction(internalNS, 'EDIT_SEARCH_NAME_CANCEL');
+  const editSearchNameComplete = _createAction(internalNS, 'EDIT_SEARCH_NAME_COMPLETE');
+  const saveSearch = _createAction(internalNS, 'SAVE_SEARCH');
+  const searchStart = _createAction(internalNS, 'SEARCH_START');
+  const searchSuccess = _createAction(internalNS, 'SEARCH_SUCCESS');
+  const searchFailure = _createAction(internalNS, 'SEARCH_FAILURE');
+  const selectSavedSearch = _createAction(internalNS, 'SELECT_SAVED_SEARCH');
+  const submitFilters = _createAction(internalNS, 'SUBMIT_FILTER');
 
   const addSearchFilter = (url, filters) => {
     return dispatch => {
@@ -62,10 +63,10 @@ export default function makeLiveSearch(namespace, searchTerms, initialSearches) 
     return (dispatch, getState) => {
       dispatch(selectSavedSearch(idx));
 
-      const selectedSearch = _.get(getState(), ['orders', 'list', 'selectedSearch']);
+      const selectedSearch = _.get(getState(), [namespace, 'list', 'selectedSearch']);
       const searchTerms = _.get(
         getState(),
-        ['orders', 'list', 'savedSearches', selectedSearch, 'searches'],
+        [namespace, 'list', 'savedSearches', selectedSearch, 'searches'],
         []
       );
 

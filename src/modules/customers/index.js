@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import customers from './list';
+import list from './list';
 import adding from './new';
 
 import _details from './details';
@@ -15,7 +15,7 @@ import reduceReducers from 'reduce-reducers';
 const details = reduceReducers(_details, contacts);
 
 const customerReducer = combineReducers({
-  customers,
+  list,
   adding,
   details,
   addressesDetails,

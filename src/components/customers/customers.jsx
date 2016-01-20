@@ -7,7 +7,7 @@ import _ from 'lodash';
 import CustomerRow from './customer-row';
 import ListPage from '../list-page/list-page';
 
-const getState = state => ({ list: state.customers.customers });
+const getState = state => ({ list: state.customers.list });
 
 const mapDispatchToProps = dispatch => {
   return { actions: bindActionCreators(actions, dispatch) };

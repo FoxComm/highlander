@@ -44,7 +44,7 @@ const searches = [
   }
 ];
 
-const { reducer, actions } = makeLiveSearch('ORDERS', searchTerms, searches);
+const { reducer, actions } = makeLiveSearch('orders', searchTerms, searches);
 
 export {
   reducer as default,

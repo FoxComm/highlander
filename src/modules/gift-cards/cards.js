@@ -25,7 +25,7 @@ const searches = [
 
 const { actionAddEntities } = makePagination('/gift-cards', 'GIFT_CARDS');
 
-const { reducer, actions } = makeLiveSearch('GIFT_CARDS', searchTerms, searches);
+const { reducer, actions } = makeLiveSearch('giftCards', searchTerms, searches);
 
 export function createGiftCard() {
   return (dispatch, getState) => {

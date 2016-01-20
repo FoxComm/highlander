@@ -7,7 +7,7 @@ import _ from 'lodash';
 import GiftCardRow from './gift-card-row';
 import ListPage from '../list-page/list-page';
 
-const getState = state => ({ list: state.giftCards.cards });
+const getState = state => ({ list: state.giftCards.list });
 
 const mapDispatchToProps = dispatch => {
   return { actions: bindActionCreators(actions, dispatch) };
