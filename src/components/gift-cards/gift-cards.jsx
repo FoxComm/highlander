@@ -17,12 +17,12 @@ const mapDispatchToProps = dispatch => {
 @connect(getState, mapDispatchToProps)
 export default class GiftCards extends React.Component {
   static propTypes = {
-    list: PropTypes.object,
-    actions: PropTypes.object
+    list: PropTypes.object.isRequired,
+    actions: PropTypes.object.isRequired
   };
 
   static contextTypes = {
-    history: PropTypes.object
+    history: PropTypes.object.isRequired
   };
 
   get navLinks() {

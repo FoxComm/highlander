@@ -8,21 +8,14 @@ import MultiSelectRow from '../table/multi-select-row';
 const setCellContents = (giftCard, field) => {
   switch (field) {
     case 'id':
-      return giftCard.id;
     case 'code':
-      return giftCard.code;
     case 'originType':
-      return giftCard.originType;
     case 'originalBalance':
-      return giftCard.originalBalance;
     case 'availableBalance':
-      return giftCard.availableBalance;
     case 'currentBalance':
-      return giftCard.currentBalance;
     case 'status':
-      return giftCard.status;
     case 'createdAt':
-      return giftCard.createdAt;
+      return _.get(giftCard, field);
   }
 };
 
@@ -44,7 +37,7 @@ const GiftCardRow = (props, context) => {
 };
 
 GiftCardRow.propTypes = {
-  giftCard: PropTypes.object,
+  giftCard: PropTypes.object.isRequired,
   columns: PropTypes.array
 };
 
