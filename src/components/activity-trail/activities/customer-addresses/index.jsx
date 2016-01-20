@@ -16,7 +16,7 @@ const representatives = {
     title: data => {
       return (
         <span>
-          <strong>created new address</strong> for customer <CustomerLink customer={data.customer} />.
+          <strong>created a new address</strong> for customer <CustomerLink customer={data.customer} />.
         </span>
       );
     },
@@ -31,7 +31,7 @@ const representatives = {
     title: data => {
       return (
         <span>
-          <strong>created new address</strong>.
+          <strong>created a new address</strong>.
         </span>
       );
     },
@@ -46,7 +46,7 @@ const representatives = {
     title: data => {
       return (
         <span>
-        <strong>edited address</strong> for <CustomerLink customer={data.customer} />.
+        <strong>edited an address</strong> for <CustomerLink customer={data.customer} />.
       </span>
       );
     },
@@ -61,7 +61,7 @@ const representatives = {
     title: data => {
       return (
         <span>
-          <strong>removed address</strong> on customer <CustomerLink customer={data.customer} />.
+          <strong>removed an address</strong> on customer <CustomerLink customer={data.customer} />.
         </span>
       );
     },

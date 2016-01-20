@@ -17,7 +17,7 @@ const representatives = {
     title: data => {
       return (
         <span>
-          <strong>edited the shipping address</strong> on <OrderTarget order={data.order} />.
+          <strong>edited a shipping address</strong> on <OrderTarget order={data.order} />.
         </span>
       );
     },

@@ -42,7 +42,7 @@ const representatives = {
     title: data => {
       return (
         <span>
-          <strong>changed state for gift card</strong> <GiftCardLink {...data.giftCard} />
+          <strong>changed the state for gift card</strong> <GiftCardLink {...data.giftCard} />
           &nbsp;to {data.giftCard.status}.
         </span>
       );
