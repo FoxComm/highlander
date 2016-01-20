@@ -20,7 +20,7 @@ final case class AdminConnector()(implicit ec: ExecutionContext) extends Activit
   def createConnection(adminId: Int, activityId: Int) : Connection = {
     Connection(
       dimension = dimension,
-      objectId = adminId,
+      objectId = adminId.toString,
       data = JNothing,
       activityId = activityId)
   }

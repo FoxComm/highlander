@@ -39,7 +39,7 @@ final case class Activity(
 
 final case class Connection(
   dimension: String,
-  objectId: BigInt,
+  objectId: String,
   data: JValue,
   activityId: Int)
 
@@ -52,7 +52,7 @@ trait ActivityConnector {
 final case class FailedToConnectActivity (
   activityId: Int,
   dimension: String,
-  objectId: BigInt,
+  objectId: String,
   reason: String) 
   extends RuntimeException(s"Failed to connect activity ${activityId} to dimension '${dimension}' and object ${objectId} because: ${reason}")
 

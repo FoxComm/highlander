@@ -42,7 +42,7 @@ final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
   def mapping = "activity_connections" as (
         "id"                   typed IntegerType,
         "dimensionId"          typed IntegerType,
-        "objectId"             typed IntegerType,
+        "objectId"             typed StringType index "not_analyzed",
         "trailId"              typed IntegerType,
         "activity" nested(
           "id"                 typed IntegerType,
