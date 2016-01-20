@@ -18,7 +18,10 @@ export default class ActivityTrailPage extends React.Component {
 
   static propTypes = {
     entity: PropTypes.shape({
-      entityId: PropTypes.string,
+      entityId: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number,
+      ]),
       entityType: PropTypes.string,
     }).isRequired,
     fetchActivityTrail: PropTypes.func

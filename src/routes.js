@@ -69,6 +69,7 @@ const routes = (
         <IndexRoute name='customer-details' component={CustomerDetails}/>
         <Route name='customer-returns' path='returns' component={RmaChildList}/>
         <Route name='customer-notes' path='notes' component={Notes} />
+        <Route name='customer-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
         <Route name='customer-storecredits-base' path='storecredit'>
           <IndexRoute name='customer-storecredits' component={StoreCredits}/>
           <Route name='customer-storecredit-transactions'

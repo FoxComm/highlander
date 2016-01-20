@@ -73,19 +73,23 @@ export function processActivities(activities) {
 }
 
 export function fetchActivityTrail(entity, from) {
+  const trailId = `${entity.entityType}-${entity.entityId}`;
   return dispatch => {
-    dispatch(startFetching(entity.entityId));
-    searchActivities(from).then(
+    dispatch(startFetching(trailId));
+    searchActivities(from, {
+      dimension: entity.entityType,
+      objectId: entity.entityId,
+    }).then(
       response => {
         dispatch(receivedActivities(
-          entity.entityId,
+          trailId,
           {
             activities: processActivities(response.result.map(({activity}) => processActivity(activity))),
             hasMore: response.hasMore
           }
         ));
       },
-      err => dispatch(fetchFailed(entity.entityId, err))
+      err => dispatch(fetchFailed(trailId, err))
     );
   };
 }
