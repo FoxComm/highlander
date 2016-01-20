@@ -61,7 +61,6 @@ export default class Sidebar extends React.Component {
         <Navigation routes={this.props.routes}
                     collapsed={!this.props.isMenuExpanded}
                     menuItems={this.props.menuItems}
-                    getMenuItemState={this.props.getMenuItemState}
                     toggleMenuItem={this.props.toggleMenuItem} />
       </aside>
     );

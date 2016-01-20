@@ -21,7 +21,7 @@ export default class NavigationItem extends React.Component {
       isOpen: PropTypes.bool,
       toggledManually: PropTypes.bool
     }),
-    toggleMenuItem: PropTypes.func.isRequired
+    toggleMenuItem: PropTypes.func
   };
 
   static defaultProps = {

@@ -6,9 +6,7 @@ import NavigationItem from './navigation-item';
 import { IndexLink, Link } from '../link';
 
 function getMenuItemState(props, to) {
-  console.log(props);
-  const isOpen = _.get(props, ['menuItems', to]);
-  return isOpen;
+  return _.get(props, ['menuItems', to]);
 }
 
 function goNowhere(e) {
@@ -72,8 +70,12 @@ const Navigation = props => {
             <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Returns</a>
           </NavigationItem>
         </li>
-        <li><a href="" className="fc-navigation-link" onClick={goNowhere}><i className="icon-items"></i>Items</a></li>
-        <li><a href="" className="fc-navigation-link" onClick={goNowhere}><i className="icon-inventory"></i>Inventory</a></li>
+        <li>
+          <a href="" className="fc-navigation-link" onClick={goNowhere}><i className="icon-items"></i>Items</a>
+        </li>
+        <li>
+          <a href="" className="fc-navigation-link" onClick={goNowhere}><i className="icon-inventory"></i>Inventory</a>
+        </li>
         <li>
           <NavigationItem to="gift-cards"
                           icon="icon-gift-cards"
@@ -89,8 +91,12 @@ const Navigation = props => {
             <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Activity Trail</a>
           </NavigationItem>
         </li>
-        <li><a href="" className="fc-navigation-link" onClick={goNowhere}><i className="icon-discounts"></i>Discounts</a></li>
-        <li><a href="" className="fc-navigation-link" onClick={goNowhere}><i className="icon-settings"></i>Settings</a></li>
+        <li>
+          <a href="" className="fc-navigation-link" onClick={goNowhere}><i className="icon-discounts"></i>Discounts</a>
+        </li>
+        <li>
+          <a href="" className="fc-navigation-link" onClick={goNowhere}><i className="icon-settings"></i>Settings</a>
+        </li>
       </ul>
     </nav>
   );
@@ -99,7 +105,6 @@ const Navigation = props => {
 Navigation.propTypes = {
   routes: PropTypes.array.isRequired,
   collapsed: PropTypes.bool,
-  getMenuItemState: PropTypes.func.isRequired,
   toggleMenuItem: PropTypes.func.isRequired
 };
 
