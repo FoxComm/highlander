@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { actions } from '../../modules/gift-cards/cards';
+import { transitionTo } from '../../route-helpers';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
@@ -20,12 +21,20 @@ export default class GiftCards extends React.Component {
     actions: PropTypes.object
   };
 
+  static contextTypes = {
+    history: PropTypes.object
+  };
+
   get navLinks() {
     return [
       { title: 'Lists', to: 'gift-cards' },
       { title: 'Insights', to: '' },
       { title: 'Activity Trail', to: '' }
     ];
+  }
+
+  get newGiftCard() {
+    return () => transitionTo(this.context.history, 'gift-cards-new');
   }
 
   get renderRow() {
@@ -52,6 +61,7 @@ export default class GiftCards extends React.Component {
       <ListPage
         addTitle="Gift Card"
         emptyResultMessage="No gift cards found."
+        handleAddAction={this.newGiftCard}
         list={this.props.list}
         navLinks={this.navLinks}
         renderRow={this.renderRow}

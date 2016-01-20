@@ -30,7 +30,7 @@ const GiftCardRow = (props, context) => {
   const { giftCard, columns } = props;
   const key = `gift-card-${giftCard.id}`;
   const clickAction = () => {
-    transitionTo(context.history, 'giftCard', { giftCard: giftCard.code });
+    transitionTo(context.history, 'giftcard', { giftCard: giftCard.code });
   };
 
   return (
