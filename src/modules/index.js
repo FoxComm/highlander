@@ -15,6 +15,7 @@ import activityNotifications from './activity-notifications';
 import storeCreditTypes from './store-credit-types';
 import activityTrail from './activity-trail';
 import watchers from './watchers';
+import siteMenu from './site-menu';
 
 const rootReducer = combineReducers({
   router: routerStateReducer,
@@ -33,6 +34,7 @@ const rootReducer = combineReducers({
   activityNotifications,
   activityTrail,
   watchers,
+  siteMenu,
 });
 
 export default rootReducer;
