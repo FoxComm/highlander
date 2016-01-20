@@ -14,7 +14,7 @@ const setCellContents = (giftCard, field) => {
     case 'originType':
       return giftCard.originType;
     case 'originalBalance':
-      return giftCard.originBalance;
+      return giftCard.originalBalance;
     case 'availableBalance':
       return giftCard.availableBalance;
     case 'currentBalance':
