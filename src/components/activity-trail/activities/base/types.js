@@ -96,4 +96,9 @@ const types = {
   STORE_CREDIT_CAPTURED_FUNDS: 'store_credit_captured_funds',
 };
 
+export const derivedTypes = {
+  ORDER_LINE_ITEMS_ADDED_SKU: 'order_added_sku',
+  ORDER_LINE_ITEMS_REMOVED_SKU: 'order_removed_sku',
+};
+
 export default types;

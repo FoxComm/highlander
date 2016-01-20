@@ -3,16 +3,34 @@ import React from 'react';
 
 import Activity from './base/activity';
 
-import orderShippingAddressActivities from './order-shipping-address';
-import orderNotesActivities from './order-notes';
 import ordersActivities from './orders';
+import orderNotesActivities from './order-notes';
+import orderShippingAddressActivities from './order-shipping-address';
+import orderShippingMethodsActivities from './order-shipping-methods';
+import orderPaymentMethodsActivities from './order-payment-methods';
+import orderLineItemsActivities from './order-line-items';
 import customersActivities from './customers';
+import customerAddressesActivities from './customer-addresses';
+import customerCreditCardsActivities from './customer-credit-cards';
+import giftCardsActivities from './gift-cards';
+import storeCreditsActivities from './store-credits';
+import assignmentsActivities from './assignments';
+import watchersActivities from './watchers';
 
 const representatives = {
   ...ordersActivities,
   ...orderNotesActivities,
   ...orderShippingAddressActivities,
+  ...orderShippingMethodsActivities,
+  ...orderPaymentMethodsActivities,
+  ...orderLineItemsActivities,
   ...customersActivities,
+  ...customerAddressesActivities,
+  ...customerCreditCardsActivities,
+  ...giftCardsActivities,
+  ...storeCreditsActivities,
+  ...assignmentsActivities,
+  ...watchersActivities,
 };
 
 export function getActivityRepresentative(activity) {

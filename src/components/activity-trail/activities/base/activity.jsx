@@ -8,7 +8,8 @@ import classNames from 'classnames';
 // components
 import { Button } from '../../../common/buttons';
 import { Time } from '../../../common/datetime';
-import UserInitials from '../../../users/initials';
+import AuthorTitle from './author-title';
+import AuthorIcon from './author-icon';
 
 export default class Activity extends React.Component {
 
@@ -53,14 +54,22 @@ export default class Activity extends React.Component {
     const details = this.props.details;
 
     if (details && this.state.expanded) {
-      return (
-        <div className="fc-activity__details">
-          <div className="fc-activity__details-head">New</div>
-          {details.newOne}
-          <div className="fc-activity__details-head">Previous</div>
-          {details.previous}
-        </div>
-      );
+      if (details.newOne || details.previous) {
+        return (
+          <div className="fc-activity__details">
+            <div className="fc-activity__details-head">New</div>
+            {details.newOne}
+            <div className="fc-activity__details-head">Previous</div>
+            {details.previous}
+          </div>
+        );
+      } else {
+        return (
+          <div className="fc-activity__details">
+            {details}
+          </div>
+        );
+      }
     }
   }
 
@@ -83,40 +92,6 @@ export default class Activity extends React.Component {
     }
   }
 
-  get authorIcon() {
-    const { activity } = this.props;
-
-    const userType = _.get(activity, ['context', 'userType'], 'system');
-
-    switch (userType) {
-      case 'system':
-        return <div className="fc-activity__system-icon"></div>;
-      case 'admin':
-        return <UserInitials name={activity.data.admin.name} />;
-      default:
-        return (
-          <div className="fc-activity__customer-icon">
-            <i className="icon-customer"></i>
-          </div>
-        );
-    }
-  }
-
-  get authorTitle() {
-    const { activity } = this.props;
-
-    const userType = _.get(activity, ['context', 'userType'], 'system');
-
-    switch (userType) {
-      case 'system':
-        return 'FoxCommerce';
-      case 'admin':
-        return activity.data.admin.name;
-      default:
-        return 'The customer';
-    }
-  }
-
   render() {
     const props = this.props;
     const { activity } = props;
@@ -133,9 +108,9 @@ export default class Activity extends React.Component {
               <Time value={activity.createdAt} />
             </div>
             <div className="fc-activity__info">
-              {this.authorIcon}
+              <AuthorIcon activity={activity} />
               <div className="fc-activity__description">
-                {this.authorTitle}&nbsp;{this.title}
+                <AuthorTitle activity={activity} />&nbsp;{this.title}
                 {this.viewMoreLink}
               </div>
             </div>

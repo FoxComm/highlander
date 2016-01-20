@@ -65,19 +65,19 @@ const renderActivityItem = (activity, idx, list, hasMore) => {
   switch (activity.kind) {
     case 'mark':
       return (
-        <li className="fc-activity-trail__mark" key={`mark_${idx}`}>
+        <li className="fc-activity-trail__mark" key={`mark_${idx}_${activity.title}`}>
           {activity.title}
         </li>
       );
     case 'year_mark':
       return (
-        <li className="fc-activity-trail__year-mark" key={`mark_${idx}`}>
+        <li className="fc-activity-trail__year-mark" key={`mark_${idx}_${activity.title}`}>
           {activity.title}
         </li>
       );
     default:
       const isFirst = !hasMore && idx == list.length - 1;
-      return <Activity activity={activity} isFirst={isFirst} key={`activity_${idx}`} />;
+      return <Activity activity={activity} isFirst={isFirst} key={`activity_${activity.id}_${activity.kind}`} />;
   }
 };
 
