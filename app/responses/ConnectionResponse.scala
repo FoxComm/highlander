@@ -21,7 +21,7 @@ object ActivityConnectionResponse {
   final case class Root(
     id: Int, 
     dimension: String,
-    objectId: Int,
+    objectId: String,
     trailId: Int,
     activityId: Int,
     previousId: Option[Int],
@@ -30,7 +30,7 @@ object ActivityConnectionResponse {
     connectedBy: ActivityContext,
     createdAt: Instant) extends ResponseItem
 
-    def build(objectId: Int, d: Dimension , c: Connection) : Root =  {
+    def build(objectId: String, d: Dimension , c: Connection) : Root =  {
       Root(
         id = c.id,
         dimension = d.name,
@@ -57,7 +57,7 @@ object FullActivityConnectionResponse {
   final case class Root(
     id: Int, 
     dimension: String,
-    objectId: Int,
+    objectId: String,
     trailId: Int,
     activity: ActivityResp,
     previousId: Option[Int],
@@ -66,7 +66,7 @@ object FullActivityConnectionResponse {
     connectedBy: ActivityContext,
     createdAt: Instant) extends ResponseItem
 
-    def build(objectId: Int, d: Dimension , c: Connection, a: Activity) : Root =  {
+    def build(objectId: String, d: Dimension , c: Connection, a: Activity) : Root =  {
       Root(
         id = c.id,
         dimension = d.name,

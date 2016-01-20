@@ -32,7 +32,7 @@ object TrailManager {
 
     val autoDescription = "Automatically Generated"
 
-    def createTrail(payload: Trail)
+    def createTrail(payload: CreateTrail)
     (implicit ec: ExecutionContext, db: Database): Result[Int] =
       (for {
         trail ← * <~ Trails.create(
@@ -49,7 +49,7 @@ object TrailManager {
      */
     def appendActivityByObjectId(
       dimensionName: String,
-      objectId: Int,
+      objectId: String,
       payload: AppendActivity)
     (implicit context: ActivityContext, ec: ExecutionContext, db: Database) : Result[ActivityConnectionResponse.Root] =
       (for {

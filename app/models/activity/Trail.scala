@@ -26,7 +26,7 @@ import Aliases.Json
 final case class Trail(
   id: Int = 0, 
   dimensionId: Int,
-  objectId: Int,
+  objectId: String,
   tailConnectionId: Option[Int] = None,
   data: Option[Json] = None,   
   createdAt: Instant = Instant.now)
@@ -36,7 +36,7 @@ final case class Trail(
 class Trails(tag: Tag) extends GenericTable.TableWithId[Trail](tag, "activity_trails")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def dimensionId = column[Int]("dimension_id")
-  def objectId = column[Int]("object_id")
+  def objectId = column[String]("object_id")
   def tailConnectionId = column[Option[Int]]("tail_connection_id")
   def data = column[Option[Json]]("data")
   def createdAt = column[Instant]("created_at")
@@ -49,6 +49,6 @@ class Trails(tag: Tag) extends GenericTable.TableWithId[Trail](tag, "activity_tr
 object Trails extends TableQueryWithId[Trail, Trails](
   idLens = GenLens[Trail](_.id))(new Trails(_)) {
 
-    def findByObjectId(dimensionId: Int, objectId: Int) : QuerySeq =
+    def findByObjectId(dimensionId: Int, objectId: String) : QuerySeq =
       filter(_.dimensionId === dimensionId).filter(_.objectId === objectId)
   }
