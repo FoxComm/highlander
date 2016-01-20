@@ -1,42 +1,34 @@
-const
-  Router  = require('koa-router'),
-  Api     = require('../lib/api'),
-  koaBody = require('koa-body');
+
+const proxy = require('koa-proxy');
+const koaBody = require('koa-body');
+
+function toBase64(str) {
+  return new Buffer(str).toString('base64');
+}
 
 module.exports = function(app) {
-  const
-    config      = app.config.api,
-    api         = new Api(config.uri, config.auth);
+  const config = app.config.api;
+  const matchUriRegexp = new RegExp(`^/api/${config.version}/`);
+  const basicAuthHeader = toBase64(config.auth.user + ':' + (config.auth.password || ''));
 
-  let router = new Router({
-    prefix: `/api/${config.version}`
-  });
+  app.use(function *apiHandler(next) {
+    if (this.request.url.match(matchUriRegexp)) {
 
-  router.use(app.jsonError);
-  router.use(koaBody({multipart: true}));
+      this.request.headers['Accept'] = 'application/json';
+      this.request.headers['Authorization'] = 'Basic ' + basicAuthHeader;
 
-  router.all('/:path*', function *() {
-    let
-      query   = this.request.query,
-      body    = this.request.body,
-      method  = this.method.toLowerCase();
-
-    function getData() {
-      switch(method) {
-        case 'get': return query;
-        case 'delete':
-        case 'head':
-        case 'connect': return undefined;
-        default: return body.fields ? body.fields : body;
-      }
+      yield app.jsonError.call(this, next);
+    } else {
+      yield next;
     }
-
-    let res = yield api[method](this.params.path, getData());
-    this.status = res.status;
-    this.body = res.response;
   });
 
-  app
-    .use(router.routes())
-    .use(router.allowedMethods());
+  app.use(proxy({
+    host:  config.host,
+    match: matchUriRegexp,
+    map: function(path) {
+      return path.replace(/^\/api\//, '/');
+    }
+  }));
+
 };
