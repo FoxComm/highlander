@@ -12,7 +12,6 @@ const OrderLink = ({order}) => {
 
 OrderLink.propTypes = {
   order: PropTypes.shape({
-    title: PropTypes.string,
     referenceNumber: PropTypes.string.isRequired,
   }),
 };

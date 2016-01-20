@@ -11,7 +11,10 @@ const CustomerLink = props => {
 };
 
 CustomerLink.propTypes = {
-  customer: PropTypes.object,
+  customer: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    id: PropTypes.number.isRequired,
+  }),
 };
 
 export default CustomerLink;

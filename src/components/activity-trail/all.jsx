@@ -12,9 +12,6 @@ function addContext(activity, i) {
     userType = activity.context.userType;
   } else {
     userType = 'admin';
-    if (activity.data.admin) {
-      userType = 'admin';
-    }
     activity.context = {userType};
   }
 

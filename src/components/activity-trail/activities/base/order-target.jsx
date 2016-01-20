@@ -14,8 +14,7 @@ const OrderTarget = ({order}) => {
 
 OrderTarget.propTypes = {
   order: PropTypes.shape({
-    title: PropTypes.string,
-    referenceNumber: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
   }),
 };
 

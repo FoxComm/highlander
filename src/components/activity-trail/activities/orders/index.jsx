@@ -37,7 +37,7 @@ const representatives = {
   },
   [types.ORDER_BULK_STATE_CHANGED]: {
     title: data => {
-      const orders = data.orders.map(ref => <OrderLink order={{title: 'Order', referenceNumber: ref}} />);
+      const orders = data.orders.map(ref => <OrderLink key={ref} order={{title: 'Order', referenceNumber: ref}} />);
 
       return (
         <span>

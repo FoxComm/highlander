@@ -11,7 +11,7 @@ import Currency from '../../../common/currency';
 
 const authorizedAndCapturedDesc = {
   title: (data, {kind}) => {
-    const giftCards = data.giftCardCodes.map(code => <GiftCardLink code={code} />);
+    const giftCards = data.giftCardCodes.map(code => <GiftCardLink key={code} code={code} />);
     const giftCardText = giftCards.length == 1 ? 'gift card' : 'gift cards';
 
     const actionTitle = kind == types.GIFT_CARD_AUTHORIZED_FUNDS ?

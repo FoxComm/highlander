@@ -11,7 +11,7 @@ import Person from '../base/person';
 
 const bulkEventsToOrders = {
   title: (data, {kind}) => {
-    const orders = data.orders.map(referenceNumber => <OrderLink order={{title: 'Order', referenceNumber}} />);
+    const orders = data.orders.map(ref => <OrderLink key={ref} order={{title: 'Order', referenceNumber: ref}} />);
     const action = kind == types.BULK_ADDED_WATCHER_TO_ORDERS ? 'added watcher' : 'removed watcher';
     const directionSense = kind == types.BULK_ADDED_WATCHER_TO_ORDERS ? 'to' : 'from';
 
@@ -26,7 +26,7 @@ const bulkEventsToOrders = {
 const representatives = {
   [types.ADDED_WATCHERS_TO_ORDER]: {
     title: data => {
-      const persons = data.watchers.map(person => <Person {...person} />);
+      const persons = data.watchers.map((person, idx) => <Person key={idx} {...person} />);
 
       return (
         <span>
