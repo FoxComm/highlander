@@ -1,91 +1,74 @@
-import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import SectionTitle from '../section-title/section-title';
-import LocalNav from '../local-nav/local-nav';
-import TableView from '../table/tableview';
-import TableRow from '../table/row';
-import TableCell from '../table/cell';
-import { Link, IndexLink } from '../link';
-import { Date } from '../common/datetime';
-import { TabListView, TabView } from '../tabs';
+import { actions } from '../../modules/gift-cards/cards';
+import { transitionTo } from '../../route-helpers';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as giftCardActions from '../../modules/gift-cards/cards';
-import GiftCardCode from './gift-card-code';
-import Currency from '../common/currency';
+import _ from 'lodash';
 
-@connect(state => ({giftCards: state.giftCards.cards}), giftCardActions)
+import GiftCardRow from './gift-card-row';
+import ListPage from '../list-page/list-page';
+
+const getState = state => ({ list: state.giftCards.list });
+
+const mapDispatchToProps = dispatch => {
+  return { actions: bindActionCreators(actions, dispatch) };
+};
+
+@connect(getState, mapDispatchToProps)
 export default class GiftCards extends React.Component {
-
   static propTypes = {
-    giftCards: PropTypes.object,
-    tableColumns: PropTypes.array,
-    fetch: PropTypes.func,
+    list: PropTypes.object.isRequired,
+    actions: PropTypes.object.isRequired
   };
 
-  static defaultProps = {
-    tableColumns: [
+  static contextTypes = {
+    history: PropTypes.object.isRequired
+  };
+
+  get navLinks() {
+    return [
+      { title: 'Lists', to: 'gift-cards' },
+      { title: 'Insights', to: '' },
+      { title: 'Activity Trail', to: '' }
+    ];
+  }
+
+  get newGiftCard() {
+    return () => transitionTo(this.context.history, 'gift-cards-new');
+  }
+
+  get renderRow() {
+    return (row, index, columns) => {
+      const key = `gift-card-${row.code}`;
+      return <GiftCardRow giftCard={row} columns={columns} key={key} />;
+    };
+  }
+
+  get tableColumns() {
+    return [
       {field: 'code', text: 'Gift Card Number', type: 'link', model: 'giftcard', id: 'code'},
-      {field: 'originType', text: 'Type'},
+      {field: 'originType', text: 'Type', type: 'status', model: 'giftCard'},
       {field: 'originalBalance', text: 'Original Balance', type: 'currency'},
       {field: 'currentBalance', text: 'Current Balance', type: 'currency'},
       {field: 'availableBalance', text: 'Available Balance', type: 'currency'},
-      {field: 'status', text: 'State'},
+      {field: 'status', text: 'State', type: 'status', model: 'giftCard'},
       {field: 'createdAt', text: 'Date/Time Issued', type: 'date'}
-    ]
-  };
-
-  componentDidMount() {
-    this.props.fetch(this.props.giftCards);
+    ];
   }
 
   render() {
-    const renderRow = (row, index) => (
-      <TableRow key={`${index}`}>
-        <TableCell>
-          <Link to="giftcard" params={{giftCard: row.code}}>
-            <GiftCardCode value={row.code} />
-          </Link>
-        </TableCell>
-        <TableCell>{row.originType}</TableCell>
-        <TableCell><Currency value={row.originalBalance}/></TableCell>
-        <TableCell><Currency value={row.currentBalance}/></TableCell>
-        <TableCell><Currency value={row.availableBalance}/></TableCell>
-        <TableCell>{row.status}</TableCell>
-        <TableCell>
-          <Date value={row.createdAt}/>
-        </TableCell>
-      </TableRow>
-    );
-
     return (
-      <div className="fc-list-page">
-        <div className="fc-list-page-header">
-          <SectionTitle title="Gift Cards" subtitle={this.props.giftCards.total}>
-            <Link to="gift-cards-new" className="fc-btn fc-btn-primary">
-              <i className="icon-add"></i> Gift Card
-            </Link>
-          </SectionTitle>
-          <LocalNav>
-            <IndexLink to="gift-cards">Lists</IndexLink>
-            <a href="">Insights</a>
-            <a href="">Activity Trail</a>
-          </LocalNav>
-          <TabListView>
-            <TabView>All</TabView>
-            <TabView>Active</TabView>
-          </TabListView>
-        </div>
-        <div className="fc-grid fc-list-page-content">
-          <div className="fc-col-md-1-1">
-            <TableView
-              columns={this.props.tableColumns}
-              data={this.props.giftCards}
-              renderRow={renderRow}
-              setState={this.props.fetch}
-              />
-          </div>
-        </div>
-      </div>
+      <ListPage
+        addTitle="Gift Card"
+        emptyResultMessage="No gift cards found."
+        handleAddAction={this.newGiftCard}
+        list={this.props.list}
+        navLinks={this.navLinks}
+        renderRow={this.renderRow}
+        tableColumns={this.tableColumns}
+        searchActions={this.props.actions}
+        title="Gift Cards"
+        url="gift_cards/_search" />
     );
   }
 }

@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import SearchOperator from './search-operator';
 import SearchSuggestion from './search-suggestion';
+import { stringToCurrency } from '../lib/format-currency';
 
 const flatMap = _.compose(_.flatten, _.map);
 
@@ -198,15 +199,16 @@ export default class SearchTerm {
       selectedOperator: _.get(operators, [this._type, 0, 'operator'], ''),
       value: {
         type: this._type,
-        value: getValue(search)
+        value: getValue(search, this._type)
       }
     };
   }
 }
 
-function getValue(searchTerm) {
+function getValue(searchTerm, type) {
   const lastIdx = searchTerm.lastIndexOf(':');
-  return lastIdx > -1 ? searchTerm.slice(lastIdx + 1).trim() : '';
+  const value = lastIdx > -1 ? searchTerm.slice(lastIdx + 1).trim() : '';
+  return type == 'currency' ? _.trim(stringToCurrency(value), ' $') : value;
 }
 
 function removeValue(searchTerm) {

@@ -354,7 +354,7 @@ export default class LiveSearch extends React.Component {
         const newInputMask = getInputMask(option);
         if (!_.isEqual(inputMask, newInputMask)) {
           inputMask = newInputMask;
-          searchPrepend = searchTerm;
+          searchPrepend = option.type == 'currency' ? `${searchTerm}$` : searchTerm;
         }
       }
     } else {

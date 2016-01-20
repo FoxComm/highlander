@@ -3,12 +3,29 @@ import _ from 'lodash';
 import { get } from 'sprout-data';
 import Api from '../../lib/api';
 import makePagination from '../pagination';
+import makeLiveSearch from '../live-search';
+import searchTerms from './search-terms';
 
-const {
-  reducer,
-  fetch,
-  actionAddEntities
-  } = makePagination('/gift-cards', 'GIFT_CARDS');
+const searches = [
+  {
+    name: 'Active',
+    searches: [
+      {
+        display: 'Gift Card : Status',
+        selectedTerm: 'status',
+        selectedOperator: 'eq',
+        value: {
+          type: 'enum',
+          value: 'active'
+        }
+      }
+    ]
+  }
+];
+
+const { actionAddEntities } = makePagination('/gift-cards', 'GIFT_CARDS');
+
+const { reducer, actions } = makeLiveSearch('giftCards', searchTerms, searches);
 
 export function createGiftCard() {
   return (dispatch, getState) => {
@@ -36,5 +53,5 @@ export function createGiftCard() {
 
 export {
   reducer as default,
-  fetch
+  actions
 };
