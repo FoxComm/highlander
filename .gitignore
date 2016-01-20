@@ -1,2 +1,3 @@
 .vagrant
 bin/
+.vagrant.local.rb
