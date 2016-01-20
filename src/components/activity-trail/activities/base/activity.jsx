@@ -8,8 +8,8 @@ import classNames from 'classnames';
 // components
 import { Button } from '../../../common/buttons';
 import { Time } from '../../../common/datetime';
-import UserInitials from '../../../users/initials';
-import CustomerLink from './customer-link';
+import AuthorTitle from './author-title';
+import AuthorIcon from './author-icon';
 
 export default class Activity extends React.Component {
 
@@ -92,43 +92,6 @@ export default class Activity extends React.Component {
     }
   }
 
-  get authorIcon() {
-    const { activity } = this.props;
-
-    const userType = _.get(activity, ['context', 'userType'], 'system');
-
-    switch (userType) {
-      case 'admin':
-        return <UserInitials name={activity.data.admin.name} />;
-      case 'customer':
-        return (
-          <div className="fc-activity__customer-icon">
-            <i className="icon-customer"></i>
-          </div>
-        );
-      default:
-        return <div className="fc-activity__system-icon"></div>;
-    }
-  }
-
-  get authorTitle() {
-    const { activity } = this.props;
-
-    const userType = _.get(activity, ['context', 'userType'], 'system');
-
-    switch (userType) {
-      case 'admin':
-        return activity.data.admin.name;
-      case 'customer':
-        if (activity.data.customer) {
-          return <CustomerLink customer={activity.data.customer} />;
-        }
-        return 'The customer';
-      default:
-        return 'FoxCommerce';
-    }
-  }
-
   render() {
     const props = this.props;
     const { activity } = props;
@@ -145,9 +108,9 @@ export default class Activity extends React.Component {
               <Time value={activity.createdAt} />
             </div>
             <div className="fc-activity__info">
-              {this.authorIcon}
+              <AuthorIcon activity={activity} />
               <div className="fc-activity__description">
-                {this.authorTitle}&nbsp;{this.title}
+                <AuthorTitle activity={activity} />&nbsp;{this.title}
                 {this.viewMoreLink}
               </div>
             </div>
