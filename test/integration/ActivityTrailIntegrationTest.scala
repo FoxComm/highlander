@@ -13,7 +13,7 @@ import org.scalatest.mock.MockitoSugar
 import payloads.AppendActivity
 import responses.ActivityConnectionResponse
 import services.NotFoundFailure404
-import services.activity.CustomerUpdated
+import services.activity.CustomerTailored.CustomerUpdated
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._

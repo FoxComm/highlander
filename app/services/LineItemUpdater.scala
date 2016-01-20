@@ -71,8 +71,8 @@ object LineItemUpdater {
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = {
 
     val finder = Orders.mustFindByRefNum(refNum)
-    val logActivity = (o: FullOrder.Root, oldQtys: Map[String, Int]) ⇒
-      LogActivity.orderLineItemsUpdated(admin, o, oldQtys, payload)
+    val logActivity = (order: FullOrder.Root, oldQtys: Map[String, Int]) ⇒
+      LogActivity.orderLineItemsUpdated(order, oldQtys, payload, Some(admin))
 
     runUpdates(finder, logActivity, payload)
   }
@@ -84,8 +84,8 @@ object LineItemUpdater {
       .one
       .mustFindOr(NotFoundFailure404(s"Order with customerId=${customer.id} not found"))
 
-    val logActivity = (o: FullOrder.Root, oldQtys: Map[String, Int]) ⇒
-      LogActivity.orderLineItemsUpdatedByCustomer(customer, o, oldQtys, payload)
+    val logActivity = (order: FullOrder.Root, oldQtys: Map[String, Int]) ⇒
+      LogActivity.orderLineItemsUpdated(order, oldQtys, payload)
 
     runUpdates(finder, logActivity, payload)
   }
