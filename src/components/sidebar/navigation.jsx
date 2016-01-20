@@ -11,6 +11,10 @@ function getMenuItemState(props, to) {
   return isOpen;
 }
 
+function goNowhere(e) {
+  e.preventDefault();
+}
+
 const Navigation = props => {
   return (
     <nav>
@@ -35,8 +39,8 @@ const Navigation = props => {
                           toggleMenuItem={props.toggleMenuItem} >
             <IndexLink to="customers" className="fc-navigation-item__sublink">Lists</IndexLink>
             <IndexLink to="groups" className="fc-navigation-item__sublink">Customer Groups</IndexLink>
-            <a href="" className="fc-navigation-item__sublink">Insights</a>
-            <a href="" className="fc-navigation-item__sublink">Activity Trial</a>
+            <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Insights</a>
+            <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Activity Trial</a>
           </NavigationItem>
         </li>
         <li>
@@ -50,8 +54,8 @@ const Navigation = props => {
                           status={getMenuItemState(props, 'orders')}
                           toggleMenuItem={props.toggleMenuItem} >
             <IndexLink to="orders" className="fc-navigation-item__sublink">Lists</IndexLink>
-            <a href="" className="fc-navigation-item__sublink">Insights</a>
-            <a href="" className="fc-navigation-item__sublink">Activity Trail</a>
+            <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Insights</a>
+            <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Activity Trail</a>
           </NavigationItem>
         </li>
         <li>
@@ -65,11 +69,11 @@ const Navigation = props => {
                           status={getMenuItemState(props, 'rmas')}
                           toggleMenuItem={props.toggleMenuItem} >
             <IndexLink to="rmas" className="fc-navigation-item__sublink">Lists</IndexLink>
-            <a href="" className="fc-navigation-item__sublink">Returns</a>
+            <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Returns</a>
           </NavigationItem>
         </li>
-        <li><a href="" className="fc-navigation-link"><i className="icon-items"></i>Items</a></li>
-        <li><a href="" className="fc-navigation-link"><i className="icon-inventory"></i>Inventory</a></li>
+        <li><a href="" className="fc-navigation-link" onClick={goNowhere}><i className="icon-items"></i>Items</a></li>
+        <li><a href="" className="fc-navigation-link" onClick={goNowhere}><i className="icon-inventory"></i>Inventory</a></li>
         <li>
           <NavigationItem to="gift-cards"
                           icon="icon-gift-cards"
@@ -81,12 +85,12 @@ const Navigation = props => {
                           status={getMenuItemState(props, 'gift-cards')}
                           toggleMenuItem={props.toggleMenuItem} >
             <IndexLink to="gift-cards" className="fc-navigation-item__sublink">Lists</IndexLink>
-            <a href="" className="fc-navigation-item__sublink">Insights</a>
-            <a href="" className="fc-navigation-item__sublink">Activity Trail</a>
+            <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Insights</a>
+            <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Activity Trail</a>
           </NavigationItem>
         </li>
-        <li><a href="" className="fc-navigation-link"><i className="icon-discounts"></i>Discounts</a></li>
-        <li><a href="" className="fc-navigation-link"><i className="icon-settings"></i>Settings</a></li>
+        <li><a href="" className="fc-navigation-link" onClick={goNowhere}><i className="icon-discounts"></i>Discounts</a></li>
+        <li><a href="" className="fc-navigation-link" onClick={goNowhere}><i className="icon-settings"></i>Settings</a></li>
       </ul>
     </nav>
   );
