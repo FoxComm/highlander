@@ -17,7 +17,10 @@ export default class NavigationItem extends React.Component {
     title: PropTypes.string.isRequired,
     children: PropTypes.node,
     routes: PropTypes.array.isRequired,
-    isOpen: PropTypes.bool,
+    status: PropTypes.shape({
+      isOpen: PropTypes.bool,
+      toggledManually: PropTypes.bool
+    }),
     toggleMenuItem: PropTypes.func.isRequired
   };
 
@@ -25,23 +28,35 @@ export default class NavigationItem extends React.Component {
     isIndex: false,
     isExpandable: false,
     collapsed: false,
-    isOpen: false
+    status: {
+      isOpen: false,
+      toggledManually: false
+    }
   };
 
   @autobind
   expandItem() {
-    this.props.toggleMenuItem(this.props.to);
+    if (this.isSelected && !this.props.status.isOpen && !this.props.status.toggledManually) {
+      this.props.toggleMenuItem(this.props.to, true);
+    } else {
+      this.props.toggleMenuItem(this.props.to);
+    }
   }
 
-  get currentState() {
+  get isSelected() {
     let isSelected = false;
     if (!_.isEmpty(this.props.children)) {
       const tos = _.compact(this.props.children.map(c => c.props.to));
       const routeNames = _.compact(this.props.routes.map(route => route.name));
       isSelected = !_.isEmpty(_.intersection(tos, routeNames));
     }
+    return isSelected;
+  }
+
+  get currentState() {
+    const mustBeOpenAutomatically = !this.props.status.toggledManually && this.isSelected;
     return !this.props.collapsed && this.props.isExpandable &&
-      (this.props.isOpen || isSelected);
+      (this.props.status.isOpen || mustBeOpenAutomatically);
   }
 
   get expandButton() {

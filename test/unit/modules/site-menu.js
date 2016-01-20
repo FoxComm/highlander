@@ -22,9 +22,11 @@ describe('reasons module', function() {
       const initialState = {};
       const item = 'customers';
       const result = reducer(initialState, actions.toggleMenuItem(item));
-      expect(_.get(result, ['menuItems', item])).to.be.true;
+      expect(_.get(result, ['menuItems', item, 'isOpen'])).to.be.true;
       const newResult = reducer(result, actions.toggleMenuItem(item));
-      expect(_.get(newResult, ['menuItems', item])).to.be.false;
+      expect(_.get(newResult, ['menuItems', item, 'isOpen'])).to.be.false;
+      const thirdResult = reducer(newResult, actions.toggleMenuItem(item));
+      expect(_.get(thirdResult, ['menuItems', item, 'isOpen'])).to.be.true;
     });
 
   });

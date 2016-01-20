@@ -1,4 +1,5 @@
 
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import static_url from '../../lib/s3';
 import classNames from 'classnames';
@@ -16,15 +17,22 @@ export default class Sidebar extends React.Component {
 
   static propTypes = {
     isMenuExpanded: PropTypes.bool,
+    menuItems: PropTypes.object,
     routes: PropTypes.array.isRequired,
-    getMenuItemState: PropTypes.func.isRequired,
     toggleMenuItem: PropTypes.func.isRequired,
-    toggleSiteMenu: PropTypes.func.isRequired
+    toggleSiteMenu: PropTypes.func.isRequired,
+    resetManuallyChanged: PropTypes.func.isRequired
   };
 
   static defaultProps = {
     isMenuExpanded: true
   };
+
+  componentWillReceiveProps(newProps) {
+    if (!_.isEqual(this.props.routes, newProps.routes)) {
+      this.props.resetManuallyChanged();
+    }
+  }
 
   @autobind
   toggleSidebar() {
@@ -52,6 +60,7 @@ export default class Sidebar extends React.Component {
         </div>
         <Navigation routes={this.props.routes}
                     collapsed={!this.props.isMenuExpanded}
+                    menuItems={this.props.menuItems}
                     getMenuItemState={this.props.getMenuItemState}
                     toggleMenuItem={this.props.toggleMenuItem} />
       </aside>

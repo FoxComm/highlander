@@ -1,8 +1,15 @@
 
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
 import NavigationItem from './navigation-item';
 import { IndexLink, Link } from '../link';
+
+function getMenuItemState(props, to) {
+  console.log(props);
+  const isOpen = _.get(props, ['menuItems', to]);
+  return isOpen;
+}
 
 const Navigation = props => {
   return (
@@ -24,7 +31,7 @@ const Navigation = props => {
                           isExpandable={true}
                           routes={props.routes}
                           collapsed={props.collapsed}
-                          isOpen={props.getMenuItemState('customers')}
+                          status={getMenuItemState(props, 'customers')}
                           toggleMenuItem={props.toggleMenuItem} >
             <IndexLink to="customers" className="fc-navigation-item__sublink">Lists</IndexLink>
             <IndexLink to="groups" className="fc-navigation-item__sublink">Customer Groups</IndexLink>
@@ -40,7 +47,7 @@ const Navigation = props => {
                           isExpandable={true}
                           routes={props.routes}
                           collapsed={props.collapsed}
-                          isOpen={props.getMenuItemState('orders')}
+                          status={getMenuItemState(props, 'orders')}
                           toggleMenuItem={props.toggleMenuItem} >
             <IndexLink to="orders" className="fc-navigation-item__sublink">Lists</IndexLink>
             <a href="" className="fc-navigation-item__sublink">Insights</a>
@@ -55,7 +62,7 @@ const Navigation = props => {
                           isExpandable={true}
                           routes={props.routes}
                           collapsed={props.collapsed}
-                          isOpen={props.getMenuItemState('rmas')}
+                          status={getMenuItemState(props, 'rmas')}
                           toggleMenuItem={props.toggleMenuItem} >
             <IndexLink to="rmas" className="fc-navigation-item__sublink">Lists</IndexLink>
             <a href="" className="fc-navigation-item__sublink">Returns</a>
@@ -71,7 +78,7 @@ const Navigation = props => {
                           isExpandable={true}
                           routes={props.routes}
                           collapsed={props.collapsed}
-                          isOpen={props.getMenuItemState('gift-cards')}
+                          status={getMenuItemState(props, 'gift-cards')}
                           toggleMenuItem={props.toggleMenuItem} >
             <IndexLink to="gift-cards" className="fc-navigation-item__sublink">Lists</IndexLink>
             <a href="" className="fc-navigation-item__sublink">Insights</a>
