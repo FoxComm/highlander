@@ -2,7 +2,7 @@
 import React from 'react';
 
 import Activity from './base/activity';
-;
+
 import ordersActivities from './orders';
 import orderNotesActivities from './order-notes';
 import orderShippingAddressActivities from './order-shipping-address';
