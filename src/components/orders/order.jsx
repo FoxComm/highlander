@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { DateTime } from '../common/datetime';
 import { PanelList, PanelListItem } from '../panel/panel-list';
 import SectionTitle from '../section-title/section-title';
+import * as lineItemActions from '../../modules/orders/line-items';
 import * as orderActions from '../../modules/orders/details';
 import * as shippingMethodActions from '../../modules/orders/shipping-methods';
 import * as skusActions from '../../modules/skus';
@@ -21,20 +22,23 @@ import * as paymentMethodActions from '../../modules/orders/payment-methods';
 const mapStateToProps = (state) => {
   return {
     order: state.orders.details,
+    lineItems: state.orders.lineItems,
     shippingMethods: state.orders.shippingMethods,
     skusActions: state.skusActions,
     payments: state.orders.paymentMethods
   };
 };
 
-const mapDispatchToProps = {...orderActions, ...shippingMethodActions, ...skusActions, ...paymentMethodActions};
+const mapDispatchToProps = {...orderActions, ...lineItemActions, ...shippingMethodActions, ...skusActions, ...paymentMethodActions};
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class Order extends React.Component {
   static propTypes = {
     params: PropTypes.shape({
+      lineItems: PropTypes.string.isRequired,
       order: PropTypes.string.isRequired
     }).isRequired,
+    lineItems: PropTypes.object,
     order: PropTypes.shape({
       currentOrder: PropTypes.object
     }),

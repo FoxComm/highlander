@@ -5,18 +5,18 @@ describe('Order line items', function() {
   const ConfirmationDialog = requireComponent('modal/confirmation-dialog.jsx');
 
   const defaultProps = {
-    order: {
       lineItems: {
-        isEditing: true,
-        isDeleting: true,
-        items: []
+          isEditing: true,
+          isDeleting: true,
+          items: []
       },
-      currentOrder: {
-      }
-    },
-    orderLineItemsStartEdit: f => f,
-    orderLineItemsCancelEdit: f => f,
-    fetchSkus: () => []
+      order: {
+          currentOrder: {
+          }
+      },
+      orderLineItemsStartEdit: f => f,
+      orderLineItemsCancelEdit: f => f,
+      fetchSkus: () => []
   };
 
   it('should render ConfirmationDialog if isDeleting is truly', function *() {

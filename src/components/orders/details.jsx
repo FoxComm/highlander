@@ -48,6 +48,7 @@ const OrderDetails = props => {
 };
 
 OrderDetails.propTypes = {
+  lineItems: PropTypes.object,
   order: PropTypes.shape({
     currentOrder: PropTypes.object,
     validations: PropTypes.object

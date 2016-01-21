@@ -46,13 +46,12 @@ function createFilter(filter, boolFn, rangeFn) {
     case 'bool':
       return boolFn(selectedTerm, selectedOperator, value);
     case 'currency':
+    case 'date':
     case 'enum':
     case 'number':
       return rangeFn(selectedTerm, selectedOperator, value);
     case 'string':
       return rangeFn(selectedTerm, selectedOperator, value.toLowerCase());
-    case 'date':
-      return dateRangeFilter(selectedTerm, selectedOperator, value, rangeFn);
   }
 }
 
@@ -81,28 +80,6 @@ function _newClient(opts = {}) {
 export const newClient = _.memoize(_newClient);
 
 export const DEFAULT_INDEX = 'phoenix';
-
-function dateRangeFilter(field, operator, value, rangeFn) {
-  const formattedDate = moment(value, 'MM/DD/YYYY').format('YYYY-MM-DD HH:mm:ss');
-  const esDate = `${formattedDate}||/d`;
-
-  switch(operator) {
-    case 'eq':
-      const dates = [esDate, `${esDate}+1d`];
-      return rangeFn(field, 'gte__lte', dates);
-    case 'neq':
-      return ejs.OrFilter([
-        rangeFn(field, 'lt', esDate),
-        rangeFn(field, 'gte', `${esDate}+1d`)
-      ]);
-    case 'lt':
-    case 'gte':
-      return rangeFn(field, operator, esDate);
-    case 'lte':
-    case 'gt':
-      return rangeFn(field, operator, `${esDate}+1d`);
-  }
-}
 
 function _rangeTo(field, operator, value, eqFn, rangeFn) {
   const filter = rangeFn(field);
