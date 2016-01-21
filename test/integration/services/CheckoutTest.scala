@@ -98,10 +98,10 @@ class CheckoutTest
       "for all gift cards" in new PaymentFixture {
         val ids = (for {
           origin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = reason.id))
-          ids    ← * <~ (GiftCards.returningId ++= (1 to 3).map { _ ⇒
+          ids    ← * <~ GiftCards.createAllReturningIds((1 to 3).map { _ ⇒
             Factories.giftCard.copy(originalBalance = 25, originId = origin.id)
           })
-          _      ← * <~ (OrderPayments.returningId ++= ids.map { id ⇒
+          _      ← * <~ OrderPayments.createAllReturningIds(ids.map { id ⇒
             Factories.giftCardPayment.copy(orderId = cart.id, paymentMethodId = id, amount = 25.some)
           })
         } yield ids).runTxn().futureValue.rightVal
@@ -119,10 +119,10 @@ class CheckoutTest
       "for all store credits" in new PaymentFixture {
         val ids = (for {
           origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = admin.id, reasonId = reason.id))
-          ids    ← * <~ (StoreCredits.returningId ++= (1 to 3).map { _ ⇒
+          ids    ← * <~ StoreCredits.createAllReturningIds((1 to 3).map { _ ⇒
             Factories.storeCredit.copy(originalBalance = 25, originId = origin.id)
           })
-          _      ← * <~ (OrderPayments.returningId ++= ids.map { id ⇒
+          _      ← * <~ OrderPayments.createAllReturningIds(ids.map { id ⇒
             Factories.storeCreditPayment.copy(orderId = cart.id, paymentMethodId = id, amount = 25.some)
           })
         } yield ids).runTxn().futureValue.rightVal

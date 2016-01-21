@@ -23,14 +23,13 @@ class LineItemUpdaterTest extends IntegrationTestBase {
   val lineItemSkus = TableQuery[OrderLineItemSkus]
 
   def createSkus(num: Int): Unit = {
-    (Skus.returningId ++= (1 to num).map { i ⇒
+    Skus.createAllReturningIds((1 to num).map { i ⇒
       Factories.skus.head.copy(sku = i.toString, price = 5)
-    }).run().futureValue
+    }).run().futureValue.rightVal
   }
 
   def createLineItems(items: Seq[OrderLineItem]): Unit = {
-    val insert = lineItems ++= items
-    db.run(insert).futureValue
+    OrderLineItems.createAll(items).run().futureValue.rightVal
   }
 
   def createDefaultWarehouse() : Warehouse =

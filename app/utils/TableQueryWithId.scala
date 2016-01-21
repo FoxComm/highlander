@@ -81,7 +81,7 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
   val returningId: Returning[M#Id] = this.returning(map(_.id))
   def returningIdAction(id: M#Id)(model: M): M = idLens.set(id)(model)
 
-  def createAll(values: Seq[M])(implicit ec: ExecutionContext): DbResult[Option[Int]] = wrapDbResult((for {
+  def createAll(values: Iterable[M])(implicit ec: ExecutionContext): DbResult[Option[Int]] = wrapDbResult((for {
     saveUs ← * <~ beforeSaveBatch(values)
     result ← * <~ (this ++= saveUs).toXor
   } yield result).value)
@@ -92,7 +92,7 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
     result ← * <~ (returning ++= saveUs).toXor
   } yield result).value)
 
-  private def beforeSaveBatch(values: Seq[M])(implicit ec: ExecutionContext): DbResultT[Seq[M]] =
+  private def beforeSaveBatch(values: Iterable[M])(implicit ec: ExecutionContext): DbResultT[Iterable[M]] =
     DbResultT.sequence(values.map(beforeSave).map(DbResultT.fromXor))
 
   def create[R](model: M, returning: Returning[R] = returningId, action: R ⇒ M ⇒ M = returningIdAction _)

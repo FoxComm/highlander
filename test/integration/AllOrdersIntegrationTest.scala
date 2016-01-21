@@ -38,7 +38,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
         status = Order.RemorseHold,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))) }
 
-      _ ← * <~ (Orders ++= insertOrders)
+      _ ← * <~ Orders.createAll(insertOrders)
     } yield ()
 
     dbio.runTxn().futureValue

@@ -38,7 +38,7 @@ class CustomersGroupIntegrationTest extends IntegrationTestBase
 
     val insertGroups = (1 to numOfResults).map { _ ⇒ generateGroup(admin.id) }
     val dbio = for {
-      groups ← (CustomerDynamicGroups ++= insertGroups) >> CustomerDynamicGroups.result
+      groups ← CustomerDynamicGroups.createAll(insertGroups) >> CustomerDynamicGroups.result
     } yield groups.map(DynamicGroupResponse.build(_))
 
     dbio.transactionally.run().futureValue.toIndexedSeq

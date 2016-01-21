@@ -54,7 +54,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         availableBalance = balance)
     }
 
-    ((GiftCards ++= insertGcs) >> GiftCards.result).map { giftCards ⇒
+    (GiftCards.createAll(insertGcs) >> GiftCards.result).map { giftCards ⇒
       giftCards.map(responses.GiftCardResponse.build(_))
     }.transactionally.run().futureValue.toIndexedSeq
   }

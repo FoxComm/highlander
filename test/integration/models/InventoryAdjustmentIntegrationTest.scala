@@ -29,7 +29,7 @@ class InventoryAdjustmentIntegrationTest extends IntegrationTestBase {
       // Start actual testing
       val (warehouse, sku, lineItemSku, order) = seed()
 
-      (OrderLineItems.returningId ++= (1 to 5).map { _ ⇒
+      OrderLineItems.createAllReturningIds((1 to 5).map { _ ⇒
         OrderLineItem(orderId = order.id, originId = lineItemSku.id, originType = OrderLineItem.SkuItem)
       }).run().futureValue
 
