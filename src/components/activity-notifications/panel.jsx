@@ -1,5 +1,6 @@
 
 // libs
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
@@ -24,9 +25,17 @@ export default class NotificationPanel extends React.Component {
 
   get items() {
     const items = this.props.notifications;
-    return items.map(item => {
-      return (<NotificationItem item={item} key={`notification-item-${item.id}`}/>);
-    });
+    if (_.isEmpty(items)) {
+      return (
+        <div className="fc-activity-notifications__empty-message">
+          Nothing to see here yet!
+        </div>
+      );
+    } else {
+      return items.map(item => {
+        return (<NotificationItem item={item} key={`notification-item-${item.id}`}/>);
+      });
+    }
   }
 
   get footer() {
