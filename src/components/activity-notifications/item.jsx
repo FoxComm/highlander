@@ -8,6 +8,9 @@ import classNames from 'classnames';
 import { DateTime } from '../common/datetime';
 import UserInitials from '../users/initials';
 import { IndexLink, Link } from '../link';
+import AuthorTitle from '../activity-trail/activities/base/author-title';
+import AuthorIcon from '../activity-trail/activities/base/author-icon';
+import { representatives } from '../activity-trail/activities/index';
 
 const icon = (item) => {
   const type = _.get(item, 'activityType');
@@ -152,6 +155,15 @@ const NotificationItem = (props) => {
   const classes = classNames('fc-activity-notification-item', {
     '_not-read': !isRead
   });
+  const activity = props.item;
+  const desc = representatives[activity.kind];
+
+  if (!desc) return null;
+
+  const args = [activity.data, activity];
+
+  const title = desc.title(...args);
+
   return (
     <div className={ classes }>
       <div className="fc-activity-notification-item__content">
@@ -159,7 +171,7 @@ const NotificationItem = (props) => {
           <DateTime value={props.item.createdAt} />
         </div>
         <div className="fc-activity-notification-item__info">
-          <div className="fc-activity-notification-item__type">
+          {/*<div className="fc-activity-notification-item__type">
             { icon(props.item) }
           </div>
           <div className="fc-activity-notification-item__body">
@@ -169,6 +181,10 @@ const NotificationItem = (props) => {
             <div className="fc-activity-notification-item__text">
               { buildText(props.item) }
             </div>
+          </div>*/}
+          <AuthorIcon activity={activity} />
+          <div className="fc-activity__description">
+            <AuthorTitle activity={activity} />&nbsp;{props.title}
           </div>
         </div>
       </div>

@@ -65,7 +65,7 @@ export default class AddWatcherModal extends React.Component {
                   onCancel={cancelAction}
                   cancelClassName="fc-action-block-cancel"
                   onSave={onAddClick}
-                  cancelText="Assign" />
+                  saveText="Assign" />
     );
   }
 
