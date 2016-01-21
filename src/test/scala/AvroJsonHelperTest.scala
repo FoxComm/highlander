@@ -1,5 +1,4 @@
 import org.scalatest._
-import org.json4s.jackson.JsonMethods.{compact, parse}
 import consumer.AvroJsonHelper._
 
 class AvroJsonHelperTest extends FlatSpec with Matchers {

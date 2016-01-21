@@ -1,7 +1,5 @@
 package consumer
 
-import java.util.concurrent.Executors
-
 import com.typesafe.config.ConfigFactory
 
 import scala.collection.JavaConversions._
@@ -9,17 +7,14 @@ import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Await
 import scala.concurrent.Future
-import scala.concurrent.blocking
 import scala.concurrent.duration.Duration
 
 import akka.actor.ActorSystem
 import akka.http.ConnectionPoolSettings
 import akka.stream.ActorMaterializer
 
-import consumer.activity.ActivityConnectionTransformer
-import consumer.activity.ActivityProcessor
-import consumer.activity.AdminConnector
-import consumer.activity.CustomerConnector
+import consumer.activity.{OrderConnector, ActivityConnectionTransformer, ActivityProcessor, AdminConnector,
+CustomerConnector, GiftCardConnector, StoreCreditConnector}
 import consumer.elastic.AvroTransformers
 import consumer.elastic.ElasticSearchProcessor
 import consumer.utils.PhoenixConnectionInfo
@@ -143,7 +138,9 @@ object Main {
       pass = conf.phoenixPass)
 
     val activityWork = Future {
-      val activityConnectors = Seq(CustomerConnector(), AdminConnector())
+      val activityConnectors = Seq(AdminConnector(), CustomerConnector(), OrderConnector(), GiftCardConnector(),
+        StoreCreditConnector())
+
       val activityProcessor = new ActivityProcessor(phoenix, activityConnectors)
 
       val avroProcessor = new AvroProcessor(
