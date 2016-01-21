@@ -16,3 +16,4 @@ flyway_url: "https://bintray.com/artifact/download/business/maven/flyway-command
 flyway: "{{flyway_dir}}/flyway -locations=filesystem:sql/ -configFile=sql/flyway.conf"
 
 update_materialized_views_sql: "/usr/local/share/update_materialized_views.sql"
+update_materialized_views_cmd: "psql {{db_connection_string}} -f {{update_materialized_views_sql}}"

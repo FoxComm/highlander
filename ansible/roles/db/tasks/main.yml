@@ -49,6 +49,10 @@
   copy: src=libsnappy.pc dest=/usr/local/lib/pkgconfig/libsnappy.pc
   sudo: true
 
+- name: Kill Bottledwater if it is Running
+  shell: systemctl stop bottledwater || true
+  sudo: true
+
 - name: Get Bottledwater
   git: repo={{bottledwater_repo}} dest={{bottledwater_dir}} version={{bottledwater_version}}
 
@@ -111,10 +115,6 @@
       - "{{user}}"
       - phoenix
 
-- name: Kill Bottledwater if it is Running
-  shell: systemctl stop bottledwater || true
-  sudo: true
-
 - name: Create Phoenix Directory
   file: path={{phoenix_dir}} state=directory owner="{{user}}"
   sudo: true
@@ -154,11 +154,14 @@
   sudo: true
 
 - name: Setup Materialized Views Cron
-  cron: name="update materialized views" minute="*" hour="*" day="*" job="psql {{db_connection_string}} -f {{update_materialized_views_sql}}"
+  cron: name="update materialized views" minute="*" hour="*" day="*" job="{{update_materialized_views_cmd}}"
 
 - name: Seed Db
-  shell: sudo java -cp {{phoenix_jar}} utils.seeds.Seeds
+  shell: java -cp {{phoenix_jar}} utils.seeds.Seeds
   sudo: true
   args:
     chdir: "{{phoenix_dir}}"
 
+- name: Update Materialized Views
+  shell: "{{update_materialized_views_cmd}}"
+  sudo: true
