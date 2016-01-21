@@ -29,19 +29,15 @@ object JsonTransformers {
 
   def extractStringSeq(data: JValue, fieldName: String): Seq[String] = {
     data \ fieldName match {
-      case JArray(list: List[JValue]) if list forall { case JString(_) ⇒ true; case _ ⇒ false } ⇒
-        list.map { case JString(value) ⇒ value; case _ ⇒ "" }.filter(_ != "").toSeq
-      case _ ⇒
-        Seq.empty
+      case JArray(list: List[JValue]) ⇒ list.collect { case JString(value) ⇒ value }.toSeq
+      case _                          ⇒ Seq.empty
     }
   }
 
   def extractBigIntSeq(data: JValue, fieldName: String): Seq[String] = {
     data \ fieldName match {
-      case JArray(list: List[JValue]) if list forall { case JInt(_) ⇒ true; case _ ⇒ false } ⇒
-        list.map { case JInt(value) ⇒ value.toString; case _ ⇒ "" }.filter(_ != "").toSeq
-      case _ ⇒
-        Seq.empty
+      case JArray(list: List[JValue]) ⇒ list.collect { case JInt(value) ⇒ value.toString }.toSeq
+      case _                          ⇒ Seq.empty
     }
   }
 }
