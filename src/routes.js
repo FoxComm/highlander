@@ -65,6 +65,7 @@ const routes = (
         <Route name='groups-new-manual' path='new-manual' component={ManualGroup} />
         <Route name='group' path=':groupId' component={DynamicGroup} />
       </Route>
+      <Route name='customers-activity-trail' path='activity-trail' dimension="customer" component={ActivityTrailPage}/>
       <Route name='customer' path=':customerId' component={Customer}>
         <IndexRoute name='customer-details' component={CustomerDetails}/>
         <Route name='customer-returns' path='returns' component={RmaChildList}/>

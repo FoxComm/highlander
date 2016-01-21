@@ -73,12 +73,12 @@ export function processActivities(activities) {
   });
 }
 
-export function fetchActivityTrail(entity, from) {
+export function fetchActivityTrail({dimension, objectId = null}, from) {
   return dispatch => {
     dispatch(startFetching());
     searchActivities(from, {
-      dimension: entity.entityType,
-      objectId: entity.entityId,
+      dimension,
+      objectId
     }).then(
       response => {
         dispatch(receivedActivities(

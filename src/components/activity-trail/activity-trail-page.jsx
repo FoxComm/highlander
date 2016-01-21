@@ -23,18 +23,37 @@ export default class ActivityTrailPage extends React.Component {
         PropTypes.number,
       ]),
       entityType: PropTypes.string,
-    }).isRequired,
+    }),
     activities: PropTypes.array.isRequired,
     hasMore: PropTypes.bool,
     err: PropTypes.any,
     isFetching: PropTypes.bool,
+    route: PropTypes.shape({
+      dimension: PropTypes.string,
+    }),
     fetchActivityTrail: PropTypes.func,
     resetActivities: PropTypes.func,
   };
 
+  get trailParams() {
+    const { route, entity } = this.props;
+
+    if (route.dimension) {
+      return {
+        dimension: route.dimension
+      };
+    } else {
+      return {
+        dimension: entity.entityType,
+        objectId: entity.entityId,
+      };
+    }
+  }
+
   componentDidMount() {
+    window.a = this.props.route;
     this.props.resetActivities();
-    this.props.fetchActivityTrail(this.props.entity);
+    this.props.fetchActivityTrail(this.trailParams);
   }
 
   get content() {
@@ -64,7 +83,7 @@ export default class ActivityTrailPage extends React.Component {
 
     const fromActivity = activities[activities.length - 1];
 
-    this.props.fetchActivityTrail(this.props.entity, fromActivity);
+    this.props.fetchActivityTrail(this.trailParams, fromActivity);
   }
 
   render() {

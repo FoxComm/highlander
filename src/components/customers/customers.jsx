@@ -18,7 +18,7 @@ const Customers = props => {
     { title: 'Lists', to: 'customers' },
     { title: 'Customer Groups', to: 'groups' },
     { title: 'Insights', to: '' },
-    { title: 'Activity Trail', to: '' }
+    { title: 'Activity Trail', to: 'customers-activity-trail' }
   ];
 
   const renderRow = (row, index, columns) => {
@@ -46,7 +46,7 @@ const Customers = props => {
       tableColumns={tableColumns}
       searchActions={props.actions}
       title="Customers"
-      url="customers_search_view/_search" />        
+      url="customers_search_view/_search" />
   );
 };
 

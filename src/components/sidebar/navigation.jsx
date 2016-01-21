@@ -38,7 +38,9 @@ const Navigation = props => {
             <IndexLink to="customers" className="fc-navigation-item__sublink">Lists</IndexLink>
             <IndexLink to="groups" className="fc-navigation-item__sublink">Customer Groups</IndexLink>
             <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Insights</a>
-            <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Activity Trial</a>
+            <Link to="customers-activity-trail" className="fc-navigation-item__sublink">
+              Activity Trial
+            </Link>
           </NavigationItem>
         </li>
         <li>
