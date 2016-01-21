@@ -59,7 +59,7 @@ TableView.propTypes = {
     rows: PropTypes.array,
     total: PropTypes.number,
     from: PropTypes.number,
-    size: PropTypes.number
+    size: PropTypes.number,
   }),
   setState: PropTypes.func,
   renderRow: PropTypes.func,
