@@ -1,6 +1,7 @@
 package utils
 
 import util.TestBase
+import utils.Strings._
 
 import payloads.{GiftCardCreateByCsr, CreateNote, Watchers}
 
@@ -19,6 +20,14 @@ class UtilsTest extends TestBase {
       snakeCaseName(Watchers(watchers = Seq(1, 2, 3)))                must === ("watchers")
       snakeCaseName(CreateNote(body = "test"))                        must === ("create_note")
       snakeCaseName(GiftCardCreateByCsr(balance = 10, reasonId = 1))  must === ("gift_card_create_by_csr")
+    }
+  }
+
+  "singularize" - {
+    "should singularize table names properly" in {
+      "orders".tableNameToCamel must === ("order")
+      "order_line_items".tableNameToCamel must === ("orderLineItem")
+      "activities".tableNameToCamel must === ("activity")
     }
   }
 }

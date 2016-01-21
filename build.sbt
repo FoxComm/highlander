@@ -127,6 +127,7 @@ lazy val phoenixScala = (project in file(".")).
         "com.github.julien-truffaut" %% "monocle-core"        % monocleV,
         "com.github.julien-truffaut" %% "monocle-generic"     % monocleV,
         "com.github.julien-truffaut" %% "monocle-macro"       % monocleV,
+        "io.backchat.inflector" %% "scala-inflector"          % "1.3.5",
         // Testing
         "com.typesafe.akka"    %% "akka-testkit"              % akkaV      % "test",
         "org.scalatest"        %% "scalatest"                 % scalaTestV % "test",
