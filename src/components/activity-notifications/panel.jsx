@@ -2,6 +2,7 @@
 // libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
@@ -39,11 +40,17 @@ export default class NotificationPanel extends React.Component {
   }
 
   get footer() {
+    const items = this.props.notifications;
+    const shouldBeDisabled = _.isEmpty(items);
+    const buttonClassName = classNames('fc-activity-notifications__footer-button', {
+      '_disabled': shouldBeDisabled
+    });
     return (
       <div className="fc-activity-notifications__footer">
         <PrimaryButton onClick={this.props.markAsRead}
-                       className="fc-activity-notifications__footer-button">
-          View All
+                       className={buttonClassName}
+                       disabled={shouldBeDisabled}>
+          Mark All As Read
         </PrimaryButton>
       </div>
     );
