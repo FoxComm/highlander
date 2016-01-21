@@ -6,22 +6,16 @@ import { renderRow } from './helpers';
 import TableView from '../table/tableview';
 import { get } from 'sprout-data';
 
-function mapStateToProps(state, {entity}) {
-  const rmaData = get(state.rmas.list, [entity.entityType, entity.entityId], {rows: []});
-
-  return {
-    'rmas': rmaData
-  };
-}
-
-
-@connect(mapStateToProps, rmaActions)
+@connect(state => ({rmas: state.rmas.list}), rmaActions)
 export default class RmaChildList extends React.Component {
   static propTypes = {
     tableColumns: PropTypes.array,
     fetchRmas: PropTypes.func.isRequired,
-    entity: PropTypes.object,
-    rmas: PropTypes.object.isRequired
+    entity: PropTypes.object.isRequired,
+    rmas: PropTypes.shape({
+      rows: PropTypes.array.isRequired,
+      total: PropTypes.number
+    }).isRequired,
   };
 
   static defaultProps = {
