@@ -1,24 +1,24 @@
-
 // libs
 import _ from 'lodash';
+import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import { createSelector } from 'reselect';
 import { autobind } from 'core-decorators';
-import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
+
+// helpers
 import { transitionTo } from '../../route-helpers';
 
 // components
 import Counter from '../forms/counter';
 import PrependInput from '../forms/prepend-input';
 import Typeahead from '../typeahead/typeahead';
-import { PrimaryButton } from '../common/buttons';
 import { Dropdown, DropdownItem } from '../dropdown';
 import { Checkbox } from '../checkbox/checkbox';
-import { Link } from '../link';
 import { Form, FormField } from '../forms';
 import ChooseCustomers from './choose-customers';
 import PilledInput from '../pilled-search/pilled-input';
+import SaveCancel from '../common/save-cancel';
 
 // redux
 import * as GiftCardNewActions from '../../modules/gift-cards/new';
@@ -128,15 +128,15 @@ export default class NewGiftCard extends React.Component {
   }
 
   get chooseCustomersInput() {
-    const props = this.props;
+    const {customers, removeCustomer} = this.props;
 
     return (
       <PilledInput
         value={this.state.customersQuery}
         onChange={e => this.setState({customersQuery: e.target.value})}
-        pills={props.customers.map(customer => customer.name)}
+        pills={customers.map(customer => customer.name)}
         icon={null}
-        onPillClose={(name, idx) => props.removeCustomer(props.customers[idx].id)} />
+        onPillClose={(name, idx) => removeCustomer(customers[idx].id)} />
     );
   }
 
@@ -155,8 +155,7 @@ export default class NewGiftCard extends React.Component {
             inputElement={this.chooseCustomersInput}
             minQueryLength={2}
             label="Choose customers:"
-            name="customerQuery"
-          />
+            name="customerQuery" />
           <FormField className="fc-new-gift-card__message-to-customers"
                      label="Write a message for customers" optional
                      labelAtRight={ labelAtRight }
@@ -170,30 +169,39 @@ export default class NewGiftCard extends React.Component {
   }
 
   get quantitySection() {
-    if (!this.props.sendToCustomer) {
-
-      const changeQuantity = (event, amount) => {
-        event.preventDefault();
-        this.props.changeQuantity(this.props.quantity + amount);
-      };
-
-      return (
-        <fieldset>
-          <label className="fc-new-gift-card__label" htmlFor="quantity">Quantity</label>
-          <Counter
-            id="quantity"
-            value={this.props.quantity}
-            increaseAction={event => changeQuantity(event, 1)}
-            decreaseAction={event => changeQuantity(event, -1)}
-            onChange={({target}) => this.props.changeQuantity(target.value)}
-            min={1} />
-        </fieldset>
-      );
+    if (this.props.sendToCustomer) {
+      return null;
     }
+
+    const changeQuantity = (event, amount) => {
+      event.preventDefault();
+      this.props.changeQuantity(this.props.quantity + amount);
+    };
+
+    return (
+      <fieldset>
+        <label className="fc-new-gift-card__label" htmlFor="quantity">Quantity</label>
+        <Counter
+          id="quantity"
+          value={this.props.quantity}
+          increaseAction={event => changeQuantity(event, 1)}
+          decreaseAction={event => changeQuantity(event, -1)}
+          onChange={({target}) => this.props.changeQuantity(target.value)}
+          min={1} />
+      </fieldset>
+    );
   }
 
   render() {
-    const props = this.props;
+    const {
+      originType,
+      changeFormData,
+      types,
+      balance,
+      balanceText,
+      sendToCustomer,
+      customers
+    } = this.props;
 
     return (
       <div className="fc-new-gift-card">
@@ -208,13 +216,13 @@ export default class NewGiftCard extends React.Component {
           <div className="fc-grid fc-grid-no-gutter">
             <div className="fc-new-gift-card__types fc-col-md-1-2">
               <label className="fc-new-gift-card__label" htmlFor="originType">Gift Card Type</label>
-              <Dropdown value={props.originType} onChange={value => props.changeFormData('originType', value) }>
-                {props.types.map((entry, idx) => {
+              <Dropdown value={originType} onChange={value => changeFormData('originType', value) }>
+                {types.map((entry, idx) => {
                   const type = entry.originType;
                   const title = typeTitles[entry.originType];
 
                   return <DropdownItem value={type} key={`${idx}-${type}`}>{title}</DropdownItem>;
-                 })}
+                })}
               </Dropdown>
             </div>
             {this.subTypes}
@@ -226,8 +234,8 @@ export default class NewGiftCard extends React.Component {
               inputClass="_no-counters"
               inputName="balance"
               inputType="number"
-              inputValue={this.props.balance}
-              inputValuePretty={this.props.balanceText}
+              inputValue={balance}
+              inputValuePretty={balanceText}
               step="0.01"
               min="1" />
             <div className="fc-new-gift-card__balances">
@@ -236,12 +244,11 @@ export default class NewGiftCard extends React.Component {
                   return (
                     <div className={
                           classNames('fc-new-gift-card__balance-value', {
-                            '_selected': props.balance == balance
+                            '_selected': this.props.balance == balance
                           })
                         }
                          key={`balance-${idx}`}
-                         onClick={() => this.props.changeFormData('balance', balance)}>
-
+                         onClick={() => changeFormData('balance', balance)}>
                       ${balance/100}
                     </div>
                   );
@@ -251,17 +258,17 @@ export default class NewGiftCard extends React.Component {
           </fieldset>
           <fieldset>
             <label className="fc-new-gift-card__label">
-              <Checkbox id="sendToCustomer" name="sendToCustomer" checked={this.props.sendToCustomer} />
+              <Checkbox id="sendToCustomer" name="sendToCustomer" checked={sendToCustomer} />
               Send gift card(s) to customer(s)
             </label>
             { this.customerListBlock }
           </fieldset>
           {this.quantitySection}
           <div className="fc-action-block">
-            <Link to='gift-cards' className="fc-btn-link fc-action-block-cancel">Cancel</Link>
-            <PrimaryButton disabled={props.sendToCustomer && props.customers.length === 0} type="submit">
-              Issue Gift Card
-            </PrimaryButton>
+            <SaveCancel cancelTo="gift-cards"
+                        cancelClassName="fc-action-block-cancel"
+                        saveDisabled={sendToCustomer && customers.length === 0}
+                        saveText="Issue Gift Card" />
           </div>
         </form>
       </div>

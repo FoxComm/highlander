@@ -1,25 +1,29 @@
 
 // libs
+import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
+import classNames from 'classnames';
 
 // components
 import { Button } from '../../../common/buttons';
 import { Time } from '../../../common/datetime';
-import UserInitials from '../../../users/initials';
+import AuthorTitle from './author-title';
+import AuthorIcon from './author-icon';
 
 export default class Activity extends React.Component {
 
   static propTypes = {
     activity: PropTypes.shape({
-      type: PropTypes.string.isRequired,
+      kind: PropTypes.string.isRequired,
     }).isRequired,
     undoAction: PropTypes.func,
-    actionDescription: PropTypes.node,
+    title: PropTypes.node,
     details: PropTypes.shape({
       newOne: PropTypes.node,
       previous: PropTypes.node,
     }),
+    isFirst: PropTypes.bool,
   };
 
   constructor(...args) {
@@ -40,9 +44,9 @@ export default class Activity extends React.Component {
     }
   }
 
-  get actionDescription() {
-    if (this.props.actionDescription) {
-      return this.props.actionDescription;
+  get title() {
+    if (this.props.title) {
+      return this.props.title;
     }
   }
 
@@ -50,14 +54,22 @@ export default class Activity extends React.Component {
     const details = this.props.details;
 
     if (details && this.state.expanded) {
-      return (
-        <div className="fc-activity__details">
-          <div className="fc-activity__details-head">New</div>
-          {details.newOne}
-          <div className="fc-activity__details-head">Previous</div>
-          {details.previous}
-        </div>
-      );
+      if (details.newOne || details.previous) {
+        return (
+          <div className="fc-activity__details">
+            <div className="fc-activity__details-head">New</div>
+            {details.newOne}
+            <div className="fc-activity__details-head">Previous</div>
+            {details.previous}
+          </div>
+        );
+      } else {
+        return (
+          <div className="fc-activity__details">
+            {details}
+          </div>
+        );
+      }
     }
   }
 
@@ -83,19 +95,22 @@ export default class Activity extends React.Component {
   render() {
     const props = this.props;
     const { activity } = props;
-    const data = activity.data;
+
+    const className = classNames('fc-activity', {
+      '_first': props.isFirst
+    });
 
     return (
-      <li className="fc-activity">
+      <li className={className}>
         <div className="fc-activity__head-content">
           <div className="fc-activity__body">
             <div className="fc-activity__timestamp">
               <Time value={activity.createdAt} />
             </div>
             <div className="fc-activity__info">
-              <UserInitials name={data.author} />
+              <AuthorIcon activity={activity} />
               <div className="fc-activity__description">
-                {this.actionDescription}
+                <AuthorTitle activity={activity} />&nbsp;{this.title}
                 {this.viewMoreLink}
               </div>
             </div>

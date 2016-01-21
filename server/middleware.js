@@ -40,9 +40,7 @@ module.exports = function(app) {
 
       let body;
 
-      if (err.response) {
-        body = err.response;
-      } else if (err.stack && this.env !== 'production') {
+      if (err.stack && this.env !== 'production') {
         body = {error: err.stack};
       } else {
         body = {error: err.message ? err.message : String(err)};

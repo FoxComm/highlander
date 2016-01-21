@@ -3,9 +3,12 @@
 import { get } from 'sprout-data';
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
 
 // components
 import ActivityTrail from './activity-trail';
+import ErrorAlerts from '../alerts/error-alerts';
+import WaitAnimation from '../common/wait-animation';
 
 // redux
 import * as ActivityTrailActions from '../../modules/activity-trail';
@@ -25,14 +28,55 @@ export default class ActivityTrailPage extends React.Component {
     this.props.fetchActivityTrail(this.props.entity);
   }
 
-  render() {
-    const props = this.props;
-    const activities = get(props, [props.entity.entityId, 'activities'], []);
+  get activities() {
+    return get(this.props, [this.props.entity.entityId, 'activities'], []);
+  }
 
+  get isFetching() {
+    return get(this.props, [this.props.entity.entityId, 'isFetching'], null);
+  }
+
+  get err() {
+    return get(this.props, [this.props.entity.entityId, 'err']);
+  }
+
+  get content() {
+    const props = this.props;
+    const activities = this.activities;
+    const hasMore = get(props, [props.entity.entityId, 'hasMore'], false);
+
+    const params = {
+      activities,
+      hasMore,
+      fetchMore: this.fetchMore,
+    };
+
+    if (this.isFetching === false) {
+      if (!this.err) {
+        return <ActivityTrail {...params} />;
+      } else {
+        return <ErrorAlerts errors={[this.err]} />;
+      }
+    } else if (this.isFetching === true) {
+      return <WaitAnimation />;
+    }
+  }
+
+  @autobind
+  fetchMore() {
+    const activities = this.activities;
+    if (!activities.length) return;
+
+    const fromActivity = activities[activities.length - 1];
+
+    this.props.fetchActivityTrail(this.props.entity, fromActivity);
+  }
+
+  render() {
     return (
       <div className="fc-activity-trail-page">
         <h2>Activity Trail</h2>
-        <ActivityTrail activities={activities} />
+        {this.content}
       </div>
     );
   }

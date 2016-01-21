@@ -25,6 +25,16 @@ export const statuses = {
     capture: 'Captured',
     onHold: 'On Hold',
     active: 'Active'
+  },
+  giftCard: {
+    csrAppeasement: 'Appeasement',
+    customerPurchase: 'Customer Purchase',
+    fromStoreCredit: 'From Store Credit',
+    rmaProcess: 'RMA Process',
+    cart: 'Cart',
+    active: 'Active',
+    fullyRedeemed: 'Fully Redeemed',
+    canceled: 'Canceled'
   }
 };
 

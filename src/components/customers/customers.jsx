@@ -1,109 +1,53 @@
 import React, { PropTypes } from 'react';
-import TableView from '../table/tableview';
-import TableRow from '../table/row';
-import TableCell from '../table/cell';
-import TabListView from '../tabs/tabs';
-import TabView from '../tabs/tab';
-import { DateTime } from '../common/datetime';
-import SearchBar from '../search-bar/search-bar';
-import CustomersBase from './base';
-import { Link } from '../link';
+import { actions } from '../../modules/customers/list';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
-import * as customersActions from '../../modules/customers/list';
+import _ from 'lodash';
 
-@connect(state => ({customers: state.customers.customers}), customersActions)
-export default class Customers extends React.Component {
+import CustomerRow from './customer-row';
+import ListPage from '../list-page/list-page';
 
-  static defaultProps = {
-    tableColumns: [
-      {
-        field: 'name',
-        text: 'Name'
-      },
-      {
-        field: 'email',
-        text: 'Email'
-      },
-      {
-        field: 'id',
-        text: 'Customer ID'
-      },
-      {
-        field: 'shipRegion',
-        text: 'Ship To Region'
-      },
-      {
-        field: 'billRegion',
-        text: 'Bill To Region'
-      },
-      {
-        field: 'rank',
-        text: 'Rank'
-      },
-      {
-        field: 'createdAt',
-        text: 'Date/Time Joined',
-        type: 'date'
-      }
-    ]
+const getState = state => ({ list: state.customers.list });
+
+const mapDispatchToProps = dispatch => {
+  return { actions: bindActionCreators(actions, dispatch) };
+};
+
+const Customers = props => {
+  const navLinks = [
+    { title: 'Lists', to: 'customers' },
+    { title: 'Customer Groups', to: 'groups' },
+    { title: 'Insights', to: '' },
+    { title: 'Activity Trail', to: '' }
+  ];
+
+  const renderRow = (row, index, columns) => {
+    const key = `customer-${row.id}`;
+    return <CustomerRow customer={row} columns={columns} key={key} />;
   };
 
-  static propTypes = {
-    fetch: PropTypes.func,
-    customers: PropTypes.object,
-    tableColumns: PropTypes.array
-  };
+  const tableColumns = [
+    { field: 'name', text: 'Name' },
+    { field: 'email', text: 'Email' },
+    { field: 'id', text: 'Customer ID' },
+    { field: 'shipRegion', text: 'Ship To Region' },
+    { field: 'billRegion', text: 'Bill To Region' },
+    { field: 'rank', text: 'Rank' },
+    { field: 'joinedAt', text: 'Date/Time Joined', type: 'datetime' }
+  ];
 
-  componentDidMount() {
-    this.props.fetch(this.props.customers);
-  }
+  return (
+    <ListPage
+      addTitle="Customer"
+      emptyResultMessage="No customers found."
+      list={props.list}
+      navLinks={navLinks}
+      renderRow={renderRow}
+      tableColumns={tableColumns}
+      searchActions={props.actions}
+      title="Customers"
+      url="customers_search_view/_search" />        
+  );
+};
 
-  get header() {
-    return (
-      <TabListView>
-        <TabView draggable={false}>All</TabView>
-        <TabView>What</TabView>
-      </TabListView>
-    );
-  }
-
-  render() {
-    const renderRow = row => {
-      const params = {customerId: row.id};
-
-      return (
-        <TableRow key={`customer-row-${row.id}`}>
-          <TableCell><Link to='customer' params={params}>{ row.name }</Link></TableCell>
-          <TableCell>{ row.email }</TableCell>
-          <TableCell>{ row.id }</TableCell>
-          <TableCell>{ row.shipRegion }</TableCell>
-          <TableCell>{ row.billRegion }</TableCell>
-          <TableCell>{ row.rank }</TableCell>
-          <TableCell><DateTime value={ row.createdAt }/></TableCell>
-        </TableRow>
-      );
-    };
-
-    return (
-      <CustomersBase header={this.header}>
-        <div className="fc-grid fc-list-page-content">
-          <div className="fc-col-md-1-1 fc-action-bar fc-align-right">
-            <button className="fc-btn">
-              <i className="icon-external-link"/>
-            </button>
-          </div>
-          <SearchBar />
-          <div className="fc-col-md-1-1">
-            <TableView
-              columns={this.props.tableColumns}
-              data={this.props.customers}
-              renderRow={renderRow}
-              setState={this.props.fetch}
-              />
-          </div>
-        </div>
-      </CustomersBase>
-    );
-  }
-}
+export default connect(getState, mapDispatchToProps)(Customers);

@@ -1,12 +1,20 @@
+// libs
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
+
+// redux
+import * as CustomersActions from '../../modules/customers/new';
+
+// helpers
+import { transitionTo } from '../../route-helpers';
+
+// components
 import SectionTitle from '../section-title/section-title';
 import FormField from '../forms/formfield.jsx';
 import Form from '../forms/form.jsx';
 import { Link } from '../link';
-import { transitionTo } from '../../route-helpers';
-import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
-import * as CustomersActions from '../../modules/customers/new';
+import SaveCancel from '../common/save-cancel';
 
 @connect(state => state.customers.adding, {
   ...CustomersActions
@@ -23,7 +31,7 @@ export default class NewCustomer extends React.Component {
     name: PropTypes.string,
     email: PropTypes.string,
     id: PropTypes.number
-  }
+  };
 
   @autobind
   submitForm(event) {
@@ -36,7 +44,7 @@ export default class NewCustomer extends React.Component {
     this.props.changeFormData(target.name, target.value);
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
+  shouldComponentUpdate(nextProps) {
     if (nextProps.id !== undefined && nextProps.id !== null) {
       transitionTo(this.context.history, 'customer', {customerId: nextProps.id});
       return false;
@@ -45,6 +53,8 @@ export default class NewCustomer extends React.Component {
   }
 
   render () {
+    const {name, email} = this.props;
+
     return (
       <div className="fc-customer-create">
         <div className="fc-grid">
@@ -66,7 +76,7 @@ export default class NewCustomer extends React.Component {
                              name="name"
                              maxLength="255"
                              type="text"
-                             value={this.props.name}
+                             value={name}
                              required />
                     </FormField>
                   </li>
@@ -77,13 +87,13 @@ export default class NewCustomer extends React.Component {
                              name="email"
                              maxLength="255"
                              type="text"
-                             value={this.props.email}
+                             value={email}
                              required />
                     </FormField>
                   </li>
                   <li className="fc-customer-form-controls">
-                    <Link to='customers' className="fc-btn-link">Cancel</Link>
-                    <button type="submit" className="fc-btn fc-btn-primary">Save Customer</button>
+                    <SaveCancel cancelTo="customers"
+                                saveText="Save Customer" />
                   </li>
                 </ul>
               </Form>

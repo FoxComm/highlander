@@ -1,4 +1,6 @@
+// libs
 import React, { PropTypes } from 'react';
+import { autobind } from 'core-decorators';
 
 export default class NoteForm extends React.Component {
   static propTypes = {
@@ -27,12 +29,14 @@ export default class NoteForm extends React.Component {
     node.focus();
   }
 
-  handleChange(event) {
+  @autobind
+  handleChange() {
     this.setState({
       body: this.refs.body.value
     });
   }
 
+  @autobind
   handleSubmit(event) {
     event.preventDefault();
     this.props.onSubmit({
@@ -42,9 +46,12 @@ export default class NoteForm extends React.Component {
 
   render() {
     let title = this.props.body ? 'Edit note' : 'New note';
+    const {body} = this.state;
+    const {maxBodyLength, onReset} = this.props;
+
     return (
       <div className="fc-notes-form">
-        <form onChange={this.handleChange.bind(this)} onSubmit={this.handleSubmit.bind(this)}>
+        <form onChange={this.handleChange} onSubmit={this.handleSubmit}>
           <fieldset>
             <legend>{title}</legend>
             <div className="note-body">
@@ -52,13 +59,13 @@ export default class NoteForm extends React.Component {
               <textarea
                 ref="body"
                 name="body"
-                maxLength={this.props.maxBodyLength}
-                value={this.state.body}
+                maxLength={maxBodyLength}
+                value={body}
                 required>
               </textarea>
             </div>
             <div className="fc-notes-form-controls">
-              <input className="fc-btn fc-btn-secondary" type="reset" value="Cancel" onClick={this.props.onReset}/>
+              <input className="fc-btn fc-btn-secondary" type="reset" value="Cancel" onClick={onReset}/>
               <input className="fc-btn fc-btn-primary" type="submit" value="Save"/>
             </div>
           </fieldset>
