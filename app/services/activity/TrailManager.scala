@@ -55,9 +55,7 @@ object TrailManager {
       (for {
 
         //find or create the dimension
-        dimension ← * <~ Dimensions.findByName(dimensionName).one.findOrCreate {
-          Dimensions.create(Dimension(name = dimensionName, description = autoDescription))
-        }
+        dimension ← * <~ Dimensions.findOrCreateByName(dimensionName)
 
         //find or create
         trail ← * <~ Trails.findByObjectId(dimension.id, objectId).one.findOrCreate {
