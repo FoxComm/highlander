@@ -162,6 +162,9 @@ const NotificationItem = (props) => {
 
   const args = [activity.data, activity];
 
+  console.log(activity.kind);
+  console.log(desc);
+
   const title = desc.title(...args);
 
   return (
@@ -184,7 +187,7 @@ const NotificationItem = (props) => {
           </div>*/}
           <AuthorIcon activity={activity} />
           <div className="fc-activity__description">
-            <AuthorTitle activity={activity} />&nbsp;{props.title}
+            <AuthorTitle activity={activity} />&nbsp;{title}
           </div>
         </div>
       </div>

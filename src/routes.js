@@ -33,6 +33,7 @@ import StyleGuideButtons from './components/style-guide/style-guide-buttons';
 import StyleGuideContainers from './components/style-guide/style-guide-containers';
 
 import AllActivities from './components/activity-trail/all';
+import AllNotificationItems from './components/activity-notifications/all';
 
 const routes = (
   <Route path="/" component={Site}>
@@ -96,6 +97,7 @@ const routes = (
     </Route>
     <Route name='test' path="_">
       <Route name='test-activities' path='activities' component={AllActivities} />
+      <Route name='test-notifications' path='notifications' component={AllNotificationItems} />
     </Route>
   </Route>
 );
