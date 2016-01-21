@@ -3,14 +3,20 @@ package services
 import scala.concurrent.ExecutionContext
 
 import models.{PaymentMethod, StoreCredit, GiftCard, CreditCard, ShippingMethod, OrderShippingAddress,
-Region, Address, Customer, StoreAdmin, Order}
+Region, Address, Customer, StoreAdmin, Order, Note}
 import models.activity.{Activity, Activities, ActivityContext}
 import payloads.UpdateLineItemsPayload
 import responses.{CreditCardsResponse, Addresses, GiftCardResponse, CustomerResponse, FullOrder, StoreAdminResponse,
 StoreCreditResponse}
 import services.LineItemUpdater.foldQuantityPayload
-import services.activity._
 import utils.Slick.DbResult
+
+import services.activity.AssignmentsTailored._
+import services.activity.CustomerTailored._
+import services.activity.GiftCardTailored._
+import services.activity.OrderTailored._
+import services.activity.StoreCreditTailored._
+import services.activity.WatchersTailored._
 
 import StoreAdminResponse.{build ⇒ buildAdmin}
 import CustomerResponse.{build ⇒ buildCustomer}
@@ -29,18 +35,18 @@ object LogActivity {
     Activities.log(UnassignedFromOrder(buildAdmin(admin), order, buildAdmin(assignee)))
   }
 
-  def bulkAssignedToOrders(admin: StoreAdmin, assignee: Option[StoreAdmin], assigneeId: Int, orders: Seq[String])
+  def bulkAssignedToOrders(admin: StoreAdmin, assignee: Option[StoreAdmin], assigneeId: Int, orderRefNums: Seq[String])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = assignee match {
     case Some(a) ⇒
-      Activities.log(BulkAssignedToOrders(buildAdmin(admin), buildAdmin(a), orders))
+      Activities.log(BulkAssignedToOrders(buildAdmin(admin), buildAdmin(a), orderRefNums))
     case _ ⇒
       DbResult.failure(NotFoundFailure404(StoreAdmin, assigneeId))
   }
 
-  def bulkUnassignedFromOrders(admin: StoreAdmin, assignee: Option[StoreAdmin], assigneeId: Int, orders: Seq[String])
+  def bulkUnassignedFromOrders(admin: StoreAdmin, assignee: Option[StoreAdmin], assigneeId: Int, orderRefNums: Seq[String])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = assignee match {
     case Some(a) ⇒
-      Activities.log(BulkUnassignedFromOrders(buildAdmin(admin), buildAdmin(a), orders))
+      Activities.log(BulkUnassignedFromOrders(buildAdmin(admin), buildAdmin(a), orderRefNums))
     case _ ⇒
       DbResult.failure(NotFoundFailure404(StoreAdmin, assigneeId))
   }
@@ -56,18 +62,18 @@ object LogActivity {
     Activities.log(RemovedWatcherFromOrder(buildAdmin(admin), order, buildAdmin(watcher)))
   }
 
-  def bulkAddedWatcherToOrders(admin: StoreAdmin, assignee: Option[StoreAdmin], watcherId: Int, orders: Seq[String])
+  def bulkAddedWatcherToOrders(admin: StoreAdmin, assignee: Option[StoreAdmin], watcherId: Int, orderRefNums: Seq[String])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = assignee match {
     case Some(a) ⇒
-      Activities.log(BulkAddedWatcherToOrders(buildAdmin(admin), buildAdmin(a), orders))
+      Activities.log(BulkAddedWatcherToOrders(buildAdmin(admin), buildAdmin(a), orderRefNums))
     case _ ⇒
       DbResult.failure(NotFoundFailure404(StoreAdmin, watcherId))
   }
 
-  def bulkRemovedWatcherFromOrders(admin: StoreAdmin, assignee: Option[StoreAdmin], watcherId: Int, orders: Seq[String])
+  def bulkRemovedWatcherFromOrders(admin: StoreAdmin, assignee: Option[StoreAdmin], watcherId: Int, orderRefNums: Seq[String])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = assignee match {
     case Some(a) ⇒
-      Activities.log(BulkRemovedWatcherFromOrders(buildAdmin(admin), buildAdmin(a), orders))
+      Activities.log(BulkRemovedWatcherFromOrders(buildAdmin(admin), buildAdmin(a), orderRefNums))
     case _ ⇒
       DbResult.failure(NotFoundFailure404(StoreAdmin, watcherId))
   }
@@ -119,16 +125,7 @@ object LogActivity {
   /* Customer Addresses */
   def addressCreated(admin: Option[StoreAdmin], customer: Customer, address: Address, region: Region)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
-
-    val customerResponse  = buildCustomer(customer)
-    val addressResponse   = Addresses.build(address, region)
-
-    admin match {
-      case Some(a) ⇒
-        Activities.log(CustomerAddressCreatedByAdmin(StoreAdminResponse.build(a), customerResponse, addressResponse))
-      case _ ⇒
-        Activities.log(CustomerAddressCreated(customerResponse, addressResponse))
-    }
+    Activities.log(CustomerAddressCreated(buildCustomer(customer), Addresses.build(address, region), admin.map(buildAdmin)))
   }
 
   def addressUpdated(admin: StoreAdmin, customer: Customer, newAddress: Address, newRegion: Region,
@@ -136,14 +133,12 @@ object LogActivity {
     Activities.log(CustomerAddressUpdated(buildAdmin(admin), buildCustomer(customer),
       Addresses.build(newAddress, newRegion), Addresses.build(oldAddress, oldRegion)))
 
-
   def addressDeleted(admin: StoreAdmin, customer: Customer, address: Address, region: Region)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(CustomerAddressDeleted(buildAdmin(admin), buildCustomer(customer),
       Addresses.build(address, region)))
 
-
-  /* Credit Cards */
+  /* Customer Credit Cards */
   def ccCreated(admin: StoreAdmin, customer: Customer, cc: CreditCard)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(CreditCardAdded(buildAdmin(admin), buildCustomer(customer), buildCc(cc)))
@@ -202,22 +197,22 @@ object LogActivity {
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(OrderStateChanged(buildAdmin(admin), order, oldState))
 
-  def orderBulkStateChanged(admin: StoreAdmin, newState: Order.Status, orders: Seq[String])
+  def orderBulkStateChanged(admin: StoreAdmin, newState: Order.Status, orderRefNums: Seq[String])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderBulkStateChanged(buildAdmin(admin), newState, orders))
+    Activities.log(OrderBulkStateChanged(buildAdmin(admin), orderRefNums, newState))
 
   /* Order Notes */
-  def orderNoteCreated(admin: StoreAdmin, orderRefNum: String, status: Order.Status, text: String)
+  def orderNoteCreated(admin: StoreAdmin, order: Order, note: Note)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderNoteCreated(buildAdmin(admin), orderRefNum, status, text))
+    Activities.log(OrderNoteCreated(buildAdmin(admin), order, note))
 
-  def orderNoteUpdated(admin: StoreAdmin, orderRefNum: String, status: Order.Status, oldText: String, newText: String)
+  def orderNoteUpdated(admin: StoreAdmin, order: Order, oldNote: Note, note: Note)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderNoteUpdated(buildAdmin(admin), orderRefNum, status, oldText, newText))
+    Activities.log(OrderNoteUpdated(buildAdmin(admin), order, oldNote, note))
 
-  def orderNoteDeleted(admin: StoreAdmin, orderRefNum: String, status: Order.Status, text: String)
+  def orderNoteDeleted(admin: StoreAdmin, order: Order, note: Note)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderNoteDeleted(buildAdmin(admin), orderRefNum, status, text))
+    Activities.log(OrderNoteDeleted(buildAdmin(admin), order, note))
 
   /* Order Line Items */
   def orderLineItemsAddedGc(admin: StoreAdmin, order: FullOrder.Root, gc: GiftCard)
@@ -232,15 +227,9 @@ object LogActivity {
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(OrderLineItemsDeletedGiftCard(buildAdmin(admin), order, GiftCardResponse.build(gc)))
 
-  def orderLineItemsUpdated(admin: StoreAdmin, order: FullOrder.Root, oldQtys: Map[String, Int],
-    payload: Seq[UpdateLineItemsPayload])(implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderLineItemsUpdatedQuantities(buildAdmin(admin), order, oldQtys,
-      foldQuantityPayload(payload)))
-
-  def orderLineItemsUpdatedByCustomer(customer: Customer, order: FullOrder.Root, oldQtys: Map[String, Int],
-    payload: Seq[UpdateLineItemsPayload])(implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderLineItemsUpdatedQuantitiesByCustomer(buildCustomer(customer), order, oldQtys,
-      foldQuantityPayload(payload)))
+  def orderLineItemsUpdated(order: FullOrder.Root, oldQtys: Map[String, Int], payload: Seq[UpdateLineItemsPayload],
+    admin: Option[StoreAdmin] = None)(implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
+    Activities.log(OrderLineItemsUpdatedQuantities(order, oldQtys, foldQuantityPayload(payload), admin.map(buildAdmin)))
 
   /* Order Payment Methods */
   def orderPaymentMethodAddedCc(admin: StoreAdmin, order: FullOrder.Root, cc: CreditCard, region: Region)
