@@ -48,10 +48,11 @@ object OrderStatusUpdater {
         .partition(_.transitionAllowed(newStatus))
 
       val (lockedOrders, absolutelyPossibleUpdates) = validTransitions.partition(_.isLocked)
-      val orderIds      = absolutelyPossibleUpdates.map(_.id)
-      val orderRefNums  = absolutelyPossibleUpdates.map(_.referenceNumber)
+      val possibleIds     = absolutelyPossibleUpdates.map(_.id)
+      val possibleRefNums = absolutelyPossibleUpdates.map(_.referenceNumber)
+      val skipActivityMod = skipActivity || possibleRefNums.isEmpty
 
-      updateQueriesWrapper(admin, orderIds, orderRefNums, newStatus, skipActivity).flatMap { _ ⇒
+      updateQueriesWrapper(admin, possibleIds, possibleRefNums, newStatus, skipActivityMod).flatMap { _ ⇒
         // Failure handling
         val invalid = invalidTransitions.map { order ⇒
           StatusTransitionNotAllowed(order.status, newStatus, order.refNum)

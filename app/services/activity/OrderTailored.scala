@@ -10,7 +10,7 @@ object OrderTailored {
   final case class OrderStateChanged(admin: StoreAdminResponse.Root, order: FullOrder.Root, oldState: Order.Status)
     extends ActivityBase[OrderStateChanged]
 
-  final case class OrderBulkStateChanged(admin: StoreAdminResponse.Root, ordersRefNums: Seq[String],
+  final case class OrderBulkStateChanged(admin: StoreAdminResponse.Root, orderRefNums: Seq[String],
     newState: Order.Status)
     extends ActivityBase[OrderBulkStateChanged]
 
