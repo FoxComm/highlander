@@ -39,7 +39,10 @@ export function markAsReadAndClose() {
 
       if (_.isNumber(activityId)) {
         Api.post(`/notifications/${adminId}/last-seen/${activityId}`, {}).then(
-          () => dispatch(markNotificationsAsRead()),
+          () => {
+            dispatch(markNotificationsAsRead());
+            dispatch(toggleNotifications());
+          },
           () => dispatch(toggleNotifications())
         );
       } else {
@@ -98,9 +101,7 @@ const reducer = createReducer({
   [markNotificationsAsRead]: state => {
     const notificationList = _.get(state, 'notifications', []);
     const readNotifications = notificationList.map((item) => {
-      const copy = item;
-      copy.isRead = true;
-      return copy;
+      return assoc(item, 'isRead', true);
     });
 
     return {
