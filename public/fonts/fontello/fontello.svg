@@ -1,7 +1,7 @@
 <?xml version="1.0" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg xmlns="http://www.w3.org/2000/svg">
-<metadata>Copyright (C) 2015 by original authors @ fontello.com</metadata>
+<metadata>Copyright (C) 2016 by original authors @ fontello.com</metadata>
 <defs>
 <font id="fontello" horiz-adv-x="1000" >
 <font-face font-family="fontello" font-weight="400" font-stretch="normal" units-per-em="1000" ascent="850" descent="-150" />
@@ -65,6 +65,7 @@
 <glyph glyph-name="sort" unicode="&#xe838;" d="m571 243q0-15-10-25l-250-250q-11-11-25-11t-25 11l-250 250q-11 10-11 25t11 25 25 11h500q14 0 25-11t10-25z m0 214q0-14-10-25t-25-11h-500q-15 0-25 11t-11 25 11 25l250 250q10 11 25 11t25-11l250-250q10-10 10-25z" horiz-adv-x="571.4" />
 <glyph glyph-name="hierarchy" unicode="&#xe839;" d="m439 499h322v315h-322v-315z m-439-613h322v315h-322v-315z m439 0h322v315h-322v-315z m439 0h322v315h-322v-315z m-303 613h52v-298h-52v298z m-440-103h52v-195h-52v195z m878 0h52v-195h-52v195z m-877 0h929v-46h-929v46z" horiz-adv-x="1200" />
 <glyph glyph-name="ellipsis" unicode="&#xe83a;" d="m150 500c83 0 150-67 150-150s-67-150-150-150-150 67-150 150 67 150 150 150z m450 0c83 0 150-67 150-150s-67-150-150-150-150 67-150 150 67 150 150 150z m450 0c83 0 150-67 150-150s-67-150-150-150-150 67-150 150 67 150 150 150z" horiz-adv-x="1200" />
+<glyph glyph-name="minus" unicode="&#xe83b;" d="m786 439v-107q0-22-16-38t-38-15h-678q-23 0-38 15t-16 38v107q0 23 16 38t38 16h678q22 0 38-16t16-38z" horiz-adv-x="785.7" />
 </font>
 </defs>
 </svg>
