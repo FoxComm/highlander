@@ -1,13 +1,19 @@
 import _ from 'lodash';
 import nock from 'nock';
-const { default: reducer, ...actions } = importSource('modules/orders/line-items.js', [
-  'collectLineItems',
-  'orderLineItemsStartDelete',
-  'orderLineItemsCancelDelete',
-  'orderLineItemsStartEdit',
-  'orderLineItemsCancelEdit',
-  'deleteLineItem'
-]);
+
+const { 
+  default: reducer,
+  collectLineItems,
+  updateLineItemCount,
+  orderLineItemsFetchSuccess,
+  orderLineItemsStartDelete,
+  orderLineItemsCancelDelete,
+  orderLineItemsStartEdit,
+  orderLineItemsCancelEdit,
+  orderLineItemsRequest,
+  orderLineItemsRequestSuccess,
+  deleteLineItem
+} = requireSource('modules/orders/line-items.js');
 
 describe('order details module line items', function() {
 
@@ -16,18 +22,18 @@ describe('order details module line items', function() {
   context('collectLineItems', function() {
 
     it('should collapse non-unique skus', function() {
-      const result = actions.collectLineItems(orderLineItems);
+      const result = collectLineItems(orderLineItems);
       expect(result.length).to.be.equal(3);
     });
 
     it('should sum non-unique sku quantities', function() {
-      const result = actions.collectLineItems(orderLineItems);
+      const result = collectLineItems(orderLineItems);
       const skuYax = _.find(result, obj => obj.sku === 'SKU-YAX');
       expect(skuYax.quantity).to.be.equal(3);
     });
 
     it('should save quantity for unique skus', function() {
-      const result = actions.collectLineItems(orderLineItems);
+      const result = collectLineItems(orderLineItems);
       const skuZya = _.find(result, obj => obj.sku === 'SKU-ZYA');
       expect(skuZya.quantity).to.be.equal(1);
     });
@@ -50,7 +56,7 @@ describe('order details module line items', function() {
         };
 
       const sku = 'SKU-ABC';
-      const newState = reducer(initialState, actions.orderLineItemsStartDelete(sku));
+      const newState = reducer(initialState, orderLineItemsStartDelete(sku));
       expect(newState.skuToDelete).to.be.equal(sku);
       expect(newState.isDeleting).to.be.equal(true);
     });
@@ -68,7 +74,7 @@ describe('order details module line items', function() {
           items: []
       };
 
-      const newState = reducer(initialState, actions.orderLineItemsCancelDelete(sku));
+      const newState = reducer(initialState, orderLineItemsCancelDelete(sku));
       expect(newState.skuToDelete).to.be.equal(null);
       expect(newState.isDeleting).to.be.equal(false);
     });
@@ -89,7 +95,7 @@ describe('order details module line items', function() {
         items: []
       };
 
-      const newState = reducer(initialState, actions.orderLineItemsStartEdit());
+      const newState = reducer(initialState, orderLineItemsStartEdit());
       expect(newState.isEditing).to.be.equal(true);
     });
 
@@ -106,7 +112,7 @@ describe('order details module line items', function() {
           items: []
       };
 
-      const newState = reducer(initialState, actions.orderLineItemsCancelEdit());
+      const newState = reducer(initialState, orderLineItemsCancelEdit());
       expect(newState.isEditing).to.be.equal(false);
     });
 
@@ -123,8 +129,8 @@ describe('order details module line items', function() {
         items: []
       };
 
-      const newState = reducer(initialState, actions.orderLineItemsCancelEdit());
-      expect(newState.items).to.deep.equal(actions.collectLineItems(orderLineItems));
+      const newState = reducer(initialState, orderLineItemsCancelEdit());
+      expect(newState.items).to.deep.equal(collectLineItems(orderLineItems));
     });
 
   });
@@ -154,31 +160,31 @@ describe('order details module line items', function() {
 
       it('should trigger delete confirmation firstly', function*() {
         const expectedActions = [
-          actions.orderLineItemsStartDelete
+          orderLineItemsStartDelete
         ];
 
-        yield expect(actions.updateLineItemCount(orderRef, sku, 0), 'to dispatch actions', expectedActions);
+        yield expect(updateLineItemCount(orderRef, sku, 0), 'to dispatch actions', expectedActions);
       });
 
       it('should trigger delete API calls and proper actions', function*() {
         const expectedActions = [
-          actions.orderLineItemsRequest,
-          actions.orderLineItemsRequestSuccess,
-          actions.orderLineItemsFetchSuccess
+          orderLineItemsRequest,
+          orderLineItemsRequestSuccess,
+          orderLineItemsFetchSuccess
         ];
 
-        yield expect(actions.updateLineItemCount({referenceNumber: orderRef}, sku, 0, false),
+        yield expect(updateLineItemCount({referenceNumber: orderRef}, sku, 0, false),
                      'to dispatch actions', expectedActions);
       });
 
       it('deleteLineItem should trigger line item delete actions', function*() {
         const expectedActions = [
-          actions.orderLineItemsRequest,
-          actions.orderLineItemsRequestSuccess,
-          actions.orderLineItemsFetchSuccess
+          orderLineItemsRequest,
+          orderLineItemsRequestSuccess,
+          orderLineItemsFetchSuccess
         ];
 
-        yield expect(actions.deleteLineItem({referenceNumber: orderRef}, sku),
+        yield expect(deleteLineItem({referenceNumber: orderRef}, sku),
                      'to dispatch actions', expectedActions);
       });
 

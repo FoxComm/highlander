@@ -1,11 +1,12 @@
 import _ from 'lodash';
 import nock from 'nock';
 
-const { default: reducer, ...actions } = importSource('modules/orders/details.js', [
-  'orderRequest',
-  'orderSuccess',
-  'increaseRemorsePeriod'
-]);
+const {
+    fetchOrder,
+    orderRequest,
+    orderSuccess,
+    increaseRemorsePeriod
+} = requireSource('modules/orders/details.js');
 
 describe('order details module', function() {
 
@@ -32,11 +33,11 @@ describe('order details module', function() {
 
       it('dispatches correct actions', function*() {
         const expectedActions = [
-          actions.orderRequest,
-          actions.orderSuccess
+          orderRequest,
+          orderSuccess
         ];
 
-        yield expect(actions.fetchOrder(orderRef), 'to dispatch actions', expectedActions);
+        yield expect(fetchOrder(orderRef), 'to dispatch actions', expectedActions);
       });
     });
 
@@ -56,11 +57,11 @@ describe('order details module', function() {
 
       it('dispatches correct actions', function*() {
         const expectedActions = [
-          actions.orderRequest,
-          actions.orderSuccess
+          orderRequest,
+          orderSuccess
         ];
 
-        yield expect(actions.fetchOrder(orderRef), 'to dispatch actions', expectedActions);
+        yield expect(fetchOrder(orderRef), 'to dispatch actions', expectedActions);
       });
     });
 
@@ -80,11 +81,11 @@ describe('order details module', function() {
 
       it('increaseRemorsePeriod should trigger order refresh actions', function*() {
         const expectedActions = [
-          actions.orderRequest,
-          actions.orderSuccess
+          orderRequest,
+          orderSuccess
         ];
 
-        yield expect(actions.increaseRemorsePeriod(orderRef),
+        yield expect(increaseRemorsePeriod(orderRef),
                      'to dispatch actions', expectedActions);
       });
 
