@@ -1,32 +1,16 @@
 package services.activity
 
-import services._
+import scala.concurrent.ExecutionContext
 
-import java.time.Instant
-
-import scala.concurrent.{ExecutionContext, Future}
-
-import cats.implicits._
+import models.activity.Aliases.Json
+import models.activity._
+import payloads.{AppendActivity, CreateTrail}
+import responses.{ActivityConnectionResponse, FullActivityConnectionResponse}
+import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
-import utils.Slick._
-
-import models.activity.Activities
-import models.activity.ActivityContext
-import models.activity.Connection
-import models.activity.Connections
-import models.activity.Dimension
-import models.activity.Dimensions
-import models.activity.Trail
-import models.activity.Trails
-
-import payloads.CreateTrail
-import payloads.AppendActivity
-
-import responses.ActivityConnectionResponse
-import responses.FullActivityConnectionResponse
 
 object TrailManager {
 
@@ -47,23 +31,24 @@ object TrailManager {
      * The append function will create a dimension and trail if they don't exist.
      * The idea here is to lazily create resources to save space and query time.
      */
-    def appendActivityByObjectId(
-      dimensionName: String,
-      objectId: String,
-      payload: AppendActivity)
-    (implicit context: ActivityContext, ec: ExecutionContext, db: Database) : Result[ActivityConnectionResponse.Root] =
-      (for {
+    def appendActivityByObjectId(dimensionName: String, objectId: String, payload: AppendActivity)
+      (implicit context: ActivityContext, ec: ExecutionContext, db: Database): Result[ActivityConnectionResponse.Root] =
+      appendActivityByObjectIdInner(dimensionName, objectId, payload).runTxn()
+
+    private [services] def appendActivityByObjectIdInner(dimensionName: String, objectId: String, payload: AppendActivity,
+      newTrailData: Option[Json] = None)(implicit context: ActivityContext, ec: ExecutionContext, db: Database):
+      DbResultT[ActivityConnectionResponse.Root] = for {
 
         //find or create the dimension
         dimension ← * <~ Dimensions.findOrCreateByName(dimensionName)
 
         //find or create
         trail ← * <~ Trails.findByObjectId(dimension.id, objectId).one.findOrCreate {
-          Trails.create(Trail(dimensionId = dimension.id, objectId = objectId))
+          Trails.create(Trail(dimensionId = dimension.id, objectId = objectId, data = newTrailData))
         }
 
         //save old tail connection id
-        maybeOldTailId ←  * <~ trail.tailConnectionId
+        maybeOldTailId ← * <~ trail.tailConnectionId
 
         //insert new tail, point previous to old tail
         newTail ← * <~ Connections.create(Connection(
@@ -80,7 +65,7 @@ object TrailManager {
 
         //update old tail if there was one
         _ ← * <~ updateTail(maybeOldTailId, newTail.id)
-      } yield (ActivityConnectionResponse.build(objectId, dimension, newTail))).runTxn()
+      } yield ActivityConnectionResponse.build(objectId, dimension, newTail)
 
     private def updateTail(maybeOldTailId: Option[Int], newTailId: Int)
     (implicit ec: ExecutionContext, db: Database) : DbResultT[Unit] = {

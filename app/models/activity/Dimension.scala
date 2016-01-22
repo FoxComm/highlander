@@ -35,6 +35,7 @@ object Dimension {
   val order = "order"
   val customer = "customer"
   val admin = "admin"
+  val notification = "notification"
 }
 
 class Dimensions(tag: Tag) extends GenericTable.TableWithId[Dimension](tag, "activity_dimensions")  {

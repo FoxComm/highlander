@@ -70,6 +70,7 @@ class Service(
       logRequestResult("admin-rma-routes")(routes.admin.RmaRoutes.routes) ~
       logRequestResult("admin-activity-routes")(routes.admin.Activity.routes) ~
       logRequestResult("customer-routes")(routes.Customer.routes) ~
+      logRequestResult("notification-routes")(routes.NotificationRoutes.routes) ~
       logRequestResult("public-routes")(routes.Public.routes)
     }
   }

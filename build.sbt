@@ -100,6 +100,7 @@ lazy val phoenixScala = (project in file(".")).
         "com.typesafe.akka"    %% "akka-agent"               % akkaV,
         "com.typesafe.akka"    %% "akka-stream-experimental" % akkaHttpV,
         "com.typesafe.akka"    %% "akka-http-experimental"   % akkaHttpV,
+        "de.heikoseeberger"    %% "akka-sse"                 % "1.4.2",
         // JSON
         "org.json4s"           %% "json4s-core"              % json4sVersion,
         "org.json4s"           %% "json4s-jackson"           % json4sVersion,
@@ -111,6 +112,7 @@ lazy val phoenixScala = (project in file(".")).
         "com.zaxxer"           %  "HikariCP"                 % "2.4.1" % "provided",
         "org.postgresql"       %  "postgresql"               % "9.4-1205-jdbc42",
         "org.flywaydb"         %  "flyway-core"              % "3.2.1",
+        "com.github.mauricio"  %% "postgresql-async"         % "0.2.18",
         // Validations
         "com.wix"              %% "accord-core"              % "0.5",
         "org.scalactic"        %% "scalactic"                % "2.2.5",
@@ -130,6 +132,7 @@ lazy val phoenixScala = (project in file(".")).
         "io.backchat.inflector" %% "scala-inflector"          % "1.3.5",
         // Testing
         "com.typesafe.akka"    %% "akka-testkit"              % akkaV      % "test",
+        "com.typesafe.akka"    %% "akka-stream-testkit-experimental" % akkaHttpV % "test",
         "org.scalatest"        %% "scalatest"                 % scalaTestV % "test",
         "org.scalacheck"       %% "scalacheck"                % "1.12.5"   % "test",
         "org.mockito"          %  "mockito-core"              % "1.10.19"  % "test")
