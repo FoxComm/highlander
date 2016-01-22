@@ -19,22 +19,19 @@ const searchUrl = "orders_search_view/_search";
 }), mapDispatchToProps)
 export default class CustomerTransactions extends React.Component {
 
-  componentDidMount() {
-    this.props.actions.addSearchFilter(searchUrl, [{
-      display: "Customer: " + this.props.customer.id,
-      selectedTerm: "customer.id",
-      selectedOperator: "eq",
-      hidden: true,
-      value: {
-        type: "string",
-        value: '' + this.props.customer.id
-      }
-    }]);
-  }
-
   render() {
     const searchOptions = {
-      single: true,
+      singleSearch: true,
+      initialFilters: [{
+        display: "Customer: " + this.props.customer.id,
+        selectedTerm: "customer.id",
+        selectedOperator: "eq",
+        hidden: true,
+        value: {
+          type: "string",
+          value: '' + this.props.customer.id
+        }
+      }],
     };
 
     const renderRow = (row, index, columns) => {
