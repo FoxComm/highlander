@@ -281,34 +281,34 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 activities = [...activities,
 
   // order notes
-  // {
-  //   kind: types.ORDER_NOTE_CREATED,
-  //   id: id++,
-  //   createdAt,
-  //   data: {
-  //     orderRefNum: 'BR10001',
-  //     text: 'New note for order.'
-  //   }
-  // },
-  // {
-  //   kind: types.ORDER_NOTE_DELETED,
-  //   id: id++,
-  //   createdAt,
-  //   data: {
-  //     orderRefNum: 'BR10001',
-  //     text: 'Lorem ipsum dot color.'
-  //   }
-  // },
-  // {
-  //   kind: types.ORDER_NOTE_UPDATED,
-  //   id: id++,
-  //   createdAt,
-  //   data: {
-  //     orderRefNum: 'BR10001',
-  //     oldText: 'Lorem ipsum dot color.',
-  //     newText: 'New one'
-  //   }
-  // },
+  {
+    kind: types.ORDER_NOTE_CREATED,
+    id: id++,
+    createdAt,
+    data: {
+      orderRefNum: 'BR10001',
+      text: 'New note for order.'
+    }
+  },
+  {
+    kind: types.ORDER_NOTE_DELETED,
+    id: id++,
+    createdAt,
+    data: {
+      orderRefNum: 'BR10001',
+      text: 'Lorem ipsum dot color.'
+    }
+  },
+  {
+    kind: types.ORDER_NOTE_UPDATED,
+    id: id++,
+    createdAt,
+    data: {
+      orderRefNum: 'BR10001',
+      oldText: 'Lorem ipsum dot color.',
+      newText: 'New one'
+    }
+  },
 ];
 
 createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
@@ -524,22 +524,22 @@ activities = [...activities,
       userType: 'customer',
     }
   },
-  // {
-  //   kind: types.GIFT_CARD_CAPTURED_FUNDS,
-  //   id: id++,
-  //   createdAt,
-  //   data: {
-  //     orderRefNum: 'BR10001',
-  //     amount: 124,
-  //     customer,
-  //     giftCardCodes: [
-  //       '1111333344442222',
-  //     ]
-  //   },
-  //   context: {
-  //     userType: 'customer',
-  //   }
-  // },
+  {
+    kind: types.GIFT_CARD_CAPTURED_FUNDS,
+    id: id++,
+    createdAt,
+    data: {
+      orderRefNum: 'BR10001',
+      amount: 124,
+      customer,
+      giftCardCodes: [
+        '1111333344442222',
+      ]
+    },
+    context: {
+      userType: 'customer',
+    }
+  },
 ];
 
 createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
@@ -730,39 +730,39 @@ activities = [...activities,
 createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
-  // {
-  //   kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES,
-  //   id: id++,
-  //   createdAt,
-  //   data: {
-  //     order,
-  //     oldQuantities: {
-  //       'Nike Air Max 2015': 2,
-  //     },
-  //     newQuantities: {
-  //       'Nike Dri-Fit Short-Slevel Women’s Running Shirt': 2,
-  //       'Nike Air Max 2015': 1,
-  //     }
-  //   }
-  // },
-  // {
-  //   kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES_BY_CUSTOMER,
-  //   id: id++,
-  //   createdAt,
-  //   data: {
-  //     order,
-  //     customer,
-  //     oldQuantities: {
-  //       'Nike Air Max 2015': 1,
-  //     },
-  //     newQuantities: {
-  //       'Nike Dri-Fit Short-Slevel Women’s Running Shirt': 2,
-  //     }
-  //   },
-  //   context: {
-  //     userType: 'customer',
-  //   }
-  // },
+  {
+    kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES,
+    id: id++,
+    createdAt,
+    data: {
+      order,
+      oldQuantities: {
+        'Nike Air Max 2015': 2,
+      },
+      newQuantities: {
+        'Nike Dri-Fit Short-Slevel Women’s Running Shirt': 2,
+        'Nike Air Max 2015': 1,
+      }
+    }
+  },
+  {
+    kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES_BY_CUSTOMER,
+    id: id++,
+    createdAt,
+    data: {
+      order,
+      customer,
+      oldQuantities: {
+        'Nike Air Max 2015': 1,
+      },
+      newQuantities: {
+        'Nike Dri-Fit Short-Slevel Women’s Running Shirt': 2,
+      }
+    },
+    context: {
+      userType: 'customer',
+    }
+  },
   {
     kind: types.ORDER_LINE_ITEMS_ADDED_GIFT_CARD,
     id: id++,
@@ -781,15 +781,15 @@ activities = [...activities,
       gc: giftCard
     }
   },
-  // {
-  //   kind: types.ORDER_LINE_ITEMS_UPDATED_GIFT_CARD,
-  //   id: id++,
-  //   createdAt,
-  //   data: {
-  //     order,
-  //     gc: giftCard
-  //   }
-  // },
+  {
+    kind: types.ORDER_LINE_ITEMS_UPDATED_GIFT_CARD,
+    id: id++,
+    createdAt,
+    data: {
+      order,
+      gc: giftCard
+    }
+  },
 ];
 
 export default class AllNotificationItems extends React.Component {
