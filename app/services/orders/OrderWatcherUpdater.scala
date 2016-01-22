@@ -30,7 +30,7 @@ object OrderWatcherUpdater {
     assignedAdmins  = fullOrder.watchers.filter(w ⇒ newWatchers.map(_.watcherId).contains(w.watcher.id)).map(_.watcher)
     _               ← * <~ LogActivity.addedWatchersToOrder(admin, fullOrder, assignedAdmins)
     _               ← * <~ NotificationManager.subscribe(adminIds = assignedAdmins.map(_.id), dimension = Dimension.order,
-      reason = NotificationSubscription.Assigned, objectIds = Seq(order.id))
+      reason = NotificationSubscription.Assigned, objectIds = Seq(order.referenceNumber))
   } yield TheResponse.build(fullOrder, warnings = warnings)).runTxn()
 
   def unassign(admin: StoreAdmin, refNum: String, assigneeId: Int)
@@ -43,7 +43,7 @@ object OrderWatcherUpdater {
     fullOrder       ← * <~ FullOrder.fromOrder(order).toXor
     _               ← * <~ LogActivity.removedWatcherFromOrder(admin, fullOrder, watcher)
     _               ← * <~ NotificationManager.unsubscribe(adminIds = Seq(watcher.id), dimension = Dimension.order,
-      reason = NotificationSubscription.Assigned, objectIds = Seq(order.id))
+      reason = NotificationSubscription.Assigned, objectIds = Seq(order.referenceNumber))
   } yield fullOrder).runTxn()
 
   def watchBulk(admin: StoreAdmin, payload: payloads.BulkWatchers)
@@ -61,7 +61,7 @@ object OrderWatcherUpdater {
       orderRefNums    = orders.filter(o ⇒ newWatchers.map(_.orderId).contains(o.id)).map(_.referenceNumber)
       _               ← LogActivity.bulkAddedWatcherToOrders(admin, watcher.headOption, payload.watcherId, orderRefNums)
       _               ← NotificationManager.subscribe(adminIds = watcher.map(_.id), dimension = Dimension.order,
-        reason = NotificationSubscription.Watching, objectIds = orders.map(_.id)).value
+        reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber)).value
     } yield ResponseWithFailuresAndMetadata.fromXor(
       result = allOrders,
       addFailures = adminNotFound ++ ordersNotFound)
@@ -84,7 +84,7 @@ object OrderWatcherUpdater {
       orderRefNums    = orders.filter(o ⇒ payload.referenceNumbers.contains(o.refNum)).map(_.referenceNumber)
       _               ← LogActivity.bulkRemovedWatcherFromOrders(admin, watcher.headOption, payload.watcherId, orderRefNums)
       _               ← NotificationManager.unsubscribe(adminIds = watcher.map(_.id), dimension = Dimension.order,
-        reason = NotificationSubscription.Watching, objectIds = orders.map(_.id)).value
+        reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber)).value
     } yield ResponseWithFailuresAndMetadata.fromXor(
       result = allOrders,
       addFailures = adminNotFound ++ ordersNotFound)

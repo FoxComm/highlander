@@ -60,7 +60,7 @@ object NotificationManager {
     _ ← * <~ Trails.update(trail, trail.copy(data = Some(decompose(NotificationTrailMetadata(activityId)))))
   } yield LastSeenActivityResponse(trailId = trail.id, lastSeenActivityId = activityId)).runTxn()
 
-  def subscribe(adminIds: Seq[Int], objectIds: Seq[Int], reason: Sub.Reason, dimension: String)
+  def subscribe(adminIds: Seq[Int], objectIds: Seq[String], reason: Sub.Reason, dimension: String)
     (implicit ec: ExecutionContext, db: Database): DbResultT[TheResponse[Option[Int]]] = for {
     dimension     ← * <~ Dimensions.findOrCreateByName(dimension)
     realAdmins    ← * <~ StoreAdmins.filter(_.id.inSet(adminIds)).map(_.id).result.toXor
@@ -78,7 +78,7 @@ object NotificationManager {
     warnings      = Failures(adminIds.diff(realAdmins).map(NotFoundFailure404(StoreAdmin, _)): _*)
   } yield TheResponse.build(value = newSubsQty, warnings = warnings)
 
-  def unsubscribe(adminIds: Seq[Int], objectIds: Seq[Int], reason: Sub.Reason, dimension: String)
+  def unsubscribe(adminIds: Seq[Int], objectIds: Seq[String], reason: Sub.Reason, dimension: String)
     (implicit ec: ExecutionContext, db: Database): DbResultT[Unit] = for {
     d ← * <~ Dimensions.findByName(dimension).one.toXor
     _ ← * <~ d.fold(DbResult.unit) { dimension ⇒

@@ -30,7 +30,7 @@ object OrderAssignmentUpdater {
     assignedAdmins  = fullOrder.assignees.filter(a ⇒ newAssignments.map(_.assigneeId).contains(a.assignee.id)).map(_.assignee)
     _               ← * <~ LogActivity.assignedToOrder(admin, fullOrder, assignedAdmins)
     _               ← * <~ NotificationManager.subscribe(adminIds = assignedAdmins.map(_.id), dimension = Dimension.order,
-      reason = NotificationSubscription.Assigned, objectIds = Seq(order.id))
+      reason = NotificationSubscription.Assigned, objectIds = Seq(order.referenceNumber))
   } yield TheResponse.build(fullOrder, warnings = warnings)).runTxn()
 
   def unassign(admin: StoreAdmin, refNum: String, assigneeId: Int)
@@ -43,7 +43,7 @@ object OrderAssignmentUpdater {
     fullOrder       ← * <~ FullOrder.fromOrder(order).toXor
     _               ← * <~ LogActivity.unassignedFromOrder(admin, fullOrder, assignee)
     _               ← * <~ NotificationManager.unsubscribe(adminIds = Seq(assigneeId), dimension = Dimension.order,
-      reason = NotificationSubscription.Assigned, objectIds = Seq(order.id))
+      reason = NotificationSubscription.Assigned, objectIds = Seq(order.referenceNumber))
   } yield fullOrder).runTxn()
 
   def assignBulk(admin: StoreAdmin, payload: payloads.BulkAssignment)
@@ -61,7 +61,7 @@ object OrderAssignmentUpdater {
       orderRefNums    = orders.filter(o ⇒ newAssignments.map(_.orderId).contains(o.id)).map(_.referenceNumber)
       _               ← LogActivity.bulkAssignedToOrders(admin, assignee.headOption, payload.assigneeId, orderRefNums)
       _               ← NotificationManager.subscribe(adminIds = assignee.map(_.id), dimension = Dimension.order,
-        reason = NotificationSubscription.Watching, objectIds = orders.map(_.id)).value
+        reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber)).value
     } yield ResponseWithFailuresAndMetadata.fromXor(
         result = allOrders,
         addFailures = adminNotFound ++ ordersNotFound)
@@ -84,7 +84,7 @@ object OrderAssignmentUpdater {
       orderRefNums    = orders.filter(o ⇒ payload.referenceNumbers.contains(o.refNum)).map(_.referenceNumber)
       _               ← LogActivity.bulkUnassignedFromOrders(admin, assignee.headOption, payload.assigneeId, orderRefNums)
       _               ← NotificationManager.unsubscribe(adminIds = assignee.map(_.id), dimension = Dimension.order,
-        reason = NotificationSubscription.Watching, objectIds = orders.map(_.id)).value
+        reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber)).value
     } yield ResponseWithFailuresAndMetadata.fromXor(
         result = allOrders,
         addFailures = adminNotFound ++ ordersNotFound)

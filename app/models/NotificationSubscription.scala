@@ -11,7 +11,7 @@ import slick.jdbc.JdbcType
 import slick.lifted.Tag
 import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class NotificationSubscription(id: Int = 0, adminId: Int, dimensionId: Int, objectId: Int,
+final case class NotificationSubscription(id: Int = 0, adminId: Int, dimensionId: Int, objectId: String,
   createdAt: Instant = Instant.now, reason: NotificationSubscription.Reason)
   extends ModelWithIdParameter[NotificationSubscription] {
 
@@ -35,7 +35,7 @@ class NotificationSubscriptions(tag: Tag)
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def adminId = column[Int]("admin_id")
   def dimensionId = column[Int]("dimension_id")
-  def objectId = column[Int]("object_id")
+  def objectId = column[String]("object_id")
   def createdAt = column[Instant]("created_at")
   def reason = column[NotificationSubscription.Reason]("reason")
 
@@ -50,10 +50,10 @@ object NotificationSubscriptions extends TableQueryWithId[NotificationSubscripti
   idLens = GenLens[NotificationSubscription](_.id)
 )(new NotificationSubscriptions(_)) {
 
-  def findByDimensionAndObject(dimensionId: Int, objectId: Int): QuerySeq =
+  def findByDimensionAndObject(dimensionId: Int, objectId: String): QuerySeq =
     filter(_.dimensionId === dimensionId).filter(_.objectId === objectId)
 
-  def find(dimensionId: Int, objectId: Int, adminId: Int): QuerySeq =
+  def find(dimensionId: Int, objectId: String, adminId: Int): QuerySeq =
     findByDimensionAndObject(dimensionId = dimensionId, objectId = objectId).filter(_.adminId === adminId)
 }
 

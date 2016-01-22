@@ -150,7 +150,7 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
         val sub = NotificationSubscriptions.result.headOption.run().futureValue.value
         sub.adminId must === (1)
         sub.dimensionId must === (1)
-        sub.objectId must === (1)
+        sub.objectId must === ("1")
         sub.reason must === (Watching)
         POST("v1/notifications", newNotification).status must === (StatusCodes.OK)
         val connections = Connections.result.run().futureValue
@@ -238,7 +238,7 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
       newTrail.tailConnectionId.value must === (3)
       newTrail.data.value.extract[NotificationTrailMetadata].lastSeenActivityId must === (0)
 
-      unsubscribe(adminIds = Seq(1), objectIds = Seq(1), reason = Watching, dimension = customerDimension)
+      unsubscribe(adminIds = Seq(1), objectIds = Seq("1"), reason = Watching, dimension = customerDimension)
       createActivityAndConnections("Z")
       Activities.result.run().futureValue must have size 3
       // No new notification connections must appear
@@ -257,7 +257,7 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
       // Emulate Green river calls
       val aId = Activities.sortBy(_.id.desc).result.run().futureValue.headOption.value.id
       POST("v1/trails/" + customerDimension + "/1", AppendActivity(activityId = aId, data = None)).status must === (StatusCodes.OK)
-      val payload = CreateNotification(sourceDimension = customerDimension, sourceObjectId = 1, activityId = aId, data = None)
+      val payload = CreateNotification(sourceDimension = customerDimension, sourceObjectId = "1", activityId = aId, data = None)
       POST("v1/notifications", payload).status must === (StatusCodes.OK)
     }
   }
@@ -273,15 +273,15 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
 
   def activityJson(id: Int) = write(newActivity.copy(id = id))
 
-  val newNotification = CreateNotification(sourceDimension = Dimension.order, sourceObjectId = 1, activityId = 1, data = None)
+  val newNotification = CreateNotification(sourceDimension = Dimension.order, sourceObjectId = "1", activityId = 1, data = None)
 
   def subscribeToNotifications(adminIds: Seq[Int] = Seq(1), dimension: String = Dimension.order,
-    objectIds: Seq[Int] = Seq(1), reason: Reason = Watching) =
+    objectIds: Seq[String] = Seq("1"), reason: Reason = Watching) =
     NotificationManager.subscribe(adminIds = adminIds, dimension = dimension, objectIds = objectIds, reason = reason)
       .run().futureValue.rightVal
 
   def unsubscribeFromNotifications() =
-    NotificationManager.unsubscribe(Seq(1), Seq(1), Watching, Dimension.order).runTxn().futureValue.rightVal
+    NotificationManager.unsubscribe(Seq(1), Seq("1"), Watching, Dimension.order).runTxn().futureValue.rightVal
 
   trait Fixture {
     val (adminId, activityId) = (for {
