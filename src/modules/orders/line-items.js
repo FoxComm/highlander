@@ -79,10 +79,11 @@ const reducer = createReducer({
     //TODO Warnings and errors
 
     return assoc(state, 
-        ['currentSkus'], skus,
-        ['isFetching'], false,
-        ['validations', 'status', 'itemsStatus'], 'success',
-        ['items'], itemList);
+      ['currentSkus'], skus,
+      ['isFetching'], false,
+      ['validations', 'status', 'itemsStatus'], 'success',
+      ['items'], itemList
+    );
   },
   [orderLineItemsStartEdit]: (state) => {
     return assoc(state, ['isEditing'], true);
