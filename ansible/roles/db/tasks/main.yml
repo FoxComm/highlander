@@ -53,10 +53,6 @@
   shell: systemctl stop bottledwater || true
   sudo: true
 
-- name: Drop Replication Slot
-  shell: "{{drop_replication_slot_cmd}} || true"
-  sudo: true
-
 - name: Get Bottledwater
   git: repo={{bottledwater_repo}} dest={{bottledwater_dir}} version={{bottledwater_version}}
 
@@ -129,6 +125,10 @@
 
 - name: Copy Phoenix
   copy: src="{{phoenix_jar_src}}" dest="{{phoenix_jar}}" owner="{{user}}"
+  sudo: true
+
+- name: Drop Replication Slot
+  shell: "{{drop_replication_slot_cmd}} || true"
   sudo: true
 
 - name: Clean Db
