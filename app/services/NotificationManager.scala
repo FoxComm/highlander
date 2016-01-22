@@ -48,7 +48,7 @@ object NotificationManager {
       TrailManager.appendActivityByObjectIdInner(Dimension.notification, adminId.toString, appendActivity, newTrailData)
     })
     _ ← * <~ DBIO.sequence(adminIds.map { adminId ⇒
-      sqlu"NOTIFY #${notificationChannel(adminId)}, '#${write(activity.data)}'"
+      sqlu"NOTIFY #${notificationChannel(adminId)}, '#${write(activity)}'"
     }).toXor
   } yield response).runTxn()
 
