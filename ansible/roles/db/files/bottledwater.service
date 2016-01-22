@@ -12,5 +12,5 @@ RestartSec=30
 WantedBy=multi-user.target
 
 [Unit]
-Requires=schema-registry.service kafka.service
-After=schema-registry.service kafka.service
+Requires=schema-registry.service kafka.service postgresql.service
+After=schema-registry.service kafka.service postgresql.service

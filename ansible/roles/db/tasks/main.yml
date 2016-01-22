@@ -127,10 +127,6 @@
   copy: src="{{phoenix_jar_src}}" dest="{{phoenix_jar}}" owner="{{user}}"
   sudo: true
 
-- name: Drop Replication Slot
-  shell: "{{drop_replication_slot_cmd}} || true"
-  sudo: true
-
 - name: Clean Db
   shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
   args:
@@ -148,6 +144,9 @@
 - name: Copy Bottledwater Service
   copy: src=bottledwater.service dest="{{dest_services}}/bottledwater.service"
   sudo: true
+
+- name: Test Schema Registry to prevent bottledwater to fail.
+  shell: curl http://localhost:8081/
 
 - name: Start Bottledwater
   service: name=bottledwater state=started enabled=yes sleep=10
