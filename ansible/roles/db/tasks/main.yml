@@ -146,7 +146,7 @@
   sudo: true
 
 - name: Test Schema Registry to prevent bottledwater to fail.
-  shell: curl http://localhost:8081/
+  uri: url=http://localhost:8081/
 
 - name: Start Bottledwater
   service: name=bottledwater state=started enabled=yes sleep=10
