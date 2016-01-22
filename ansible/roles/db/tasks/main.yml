@@ -150,7 +150,7 @@
   sudo: true
 
 - name: Start Bottledwater
-  service: name=bottledwater state=started enabled=yes sleep=5
+  service: name=bottledwater state=started enabled=yes sleep=10
   sudo: true
 
 - name: Setup Update Materialzied Views Sql
