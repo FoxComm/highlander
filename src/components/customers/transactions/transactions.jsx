@@ -21,13 +21,13 @@ export default class CustomerTransactions extends React.Component {
 
   componentDidMount() {
     this.props.actions.addSearchFilter(searchUrl, [{
-      display: "Customer: " + this.props.customer.email,
-      selectedTerm: "customer.email", // FIXME: change to customer.id when ES will support this mapping
+      display: "Customer: " + this.props.customer.id,
+      selectedTerm: "customer.id",
       selectedOperator: "eq",
       hidden: true,
       value: {
         type: "string",
-        value: this.props.customer.email
+        value: '' + this.props.customer.id
       }
     }]);
   }
@@ -56,15 +56,15 @@ export default class CustomerTransactions extends React.Component {
     return (
       <div className="fc-customer-transactions">
         <ListPage
-        addTitle="Order"
-        emptyResultMessage="No orders found."
-        list={this.props.list}
-        renderRow={renderRow}
-        tableColumns={tableColumns}
-        searchActions={this.props.actions}
-        searchOptions={searchOptions}
-        title="Orders"
-        url={searchUrl} />
+          addTitle="Order"
+          emptyResultMessage="No orders found."
+          list={this.props.list}
+          renderRow={renderRow}
+          tableColumns={tableColumns}
+          searchActions={this.props.actions}
+          searchOptions={searchOptions}
+          title="Orders"
+          url={searchUrl} />
       </div>
     );
   }
