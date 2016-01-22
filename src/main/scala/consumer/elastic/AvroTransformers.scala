@@ -108,7 +108,7 @@ object AvroTransformers {
         "availableBalance"     typed IntegerType,
         "canceledAmount"       typed IntegerType,
         "canceledReason" nested (
-          "reason_type"        typed StringType analyzer "autocomplete",
+          "reasonType"        typed StringType analyzer "autocomplete",
           "body"               typed StringType analyzer "autocomplete"
         ),
         "createdAt"            typed DateType format dateFormat,
