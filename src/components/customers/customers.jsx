@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 
 import CustomerRow from './customer-row';
-import ListPage from '../list-page/list-page';
+import { SearchableList } from '../list-page';
 
 const getState = state => ({ list: state.customers.list });
 
@@ -14,12 +14,6 @@ const mapDispatchToProps = dispatch => {
 };
 
 const Customers = props => {
-  const navLinks = [
-    { title: 'Lists', to: 'customers' },
-    { title: 'Customer Groups', to: 'groups' },
-    { title: 'Insights', to: '' },
-    { title: 'Activity Trail', to: 'customers-activity-trail' }
-  ];
 
   const renderRow = (row, index, columns) => {
     const key = `customer-${row.id}`;
@@ -37,15 +31,12 @@ const Customers = props => {
   ];
 
   return (
-    <ListPage
-      addTitle="Customer"
+    <SearchableList
       emptyResultMessage="No customers found."
       list={props.list}
-      navLinks={navLinks}
       renderRow={renderRow}
       tableColumns={tableColumns}
       searchActions={props.actions}
-      title="Customers"
       url="customers_search_view/_search" />
   );
 };

@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import { Link } from '../link';
-import CustomersBase from '../customers/base';
+import CustomersBase from '../customers/list-page';
 
 const NewGroupBase = (props) => {
   return (
