@@ -2,10 +2,10 @@ import _ from 'lodash';
 import nock from 'nock';
 
 const {
-    fetchOrder,
-    orderRequest,
-    orderSuccess,
-    increaseRemorsePeriod
+  fetchOrder,
+  orderRequest,
+  orderSuccess,
+  increaseRemorsePeriod
 } = requireSource('modules/orders/details.js');
 
 describe('order details module', function() {

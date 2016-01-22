@@ -17,8 +17,8 @@ export function fetchOrder(refNum) {
     return Api.get(`/orders/${refNum}`)
       .then(
         order => {
-            dispatch(orderSuccess(order));
-            dispatch(orderLineItemsFetchSuccess(order));
+          dispatch(orderSuccess(order));
+          dispatch(orderLineItemsFetchSuccess(order));
         },
         err => dispatch(orderFailed(err, fetchOrder))
       );
@@ -31,8 +31,8 @@ export function updateOrder(id, data) {
     Api.patch(`/orders/${id}`, data)
       .then(
         order => {
-            dispatch(orderSuccess(order));
-            dispatch(orderLineItemsFetchSuccess(order));
+          dispatch(orderSuccess(order));
+          dispatch(orderLineItemsFetchSuccess(order));
         },
         err => dispatch(orderFailed(id, err, updateOrder))
       );
@@ -45,8 +45,8 @@ export function increaseRemorsePeriod(refNum) {
     return Api.post(`/orders/${refNum}/increase-remorse-period`)
       .then(
         order => {
-            dispatch(orderSuccess(order));
-            dispatch(orderLineItemsFetchSuccess(order));
+          dispatch(orderSuccess(order));
+          dispatch(orderLineItemsFetchSuccess(order));
         },
         err => dispatch(orderFailed(err, fetchOrder))
       );

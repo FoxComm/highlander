@@ -59,13 +59,13 @@ export function collectLineItems(skus) {
 }
 
 const initialState = {
-    currentSkus: [],
-    isEditing: false,
-    isUpdating: false,
-    isDeleting: false,
-    skuToUpdate: null,
-    skuToDelete: null,
-    items: []
+  currentSkus: [],
+  isEditing: false,
+  isUpdating: false,
+  isDeleting: false,
+  skuToUpdate: null,
+  skuToDelete: null,
+  items: []
 };
 
 const reducer = createReducer({
