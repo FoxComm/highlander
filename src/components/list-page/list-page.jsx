@@ -36,6 +36,10 @@ export default class ListPage extends React.Component {
       selectSearch: PropTypes.func.isRequired,
       submitFilters: PropTypes.func.isRequired
     }).isRequired,
+    searchOptions: PropTypes.shape({
+      singleSearch: PropTypes.bool,
+      initialFilters: PropTypes.array,
+    }),
     title: PropTypes.string.isRequired,
     url: PropTypes.string.isRequired,
   };
@@ -44,6 +48,10 @@ export default class ListPage extends React.Component {
     addTitle: '',
     emptyResultMessage: 'No results found.',
     handleAddAction: _.noop,
+    searchOptions: {
+      singleSearch: false,
+      initialFilters: [],
+    },
     navLinks: []
   };
 
@@ -94,6 +102,7 @@ export default class ListPage extends React.Component {
           editSearchNameCancel={props.searchActions.editSearchNameCancel}
           editSearchNameComplete={props.searchActions.editSearchNameComplete}
           saveSearch={props.searchActions.saveSearch}
+          {...props.searchOptions}
           selectSavedSearch={selectSearch}
           submitFilters={filter}
           searches={props.list}

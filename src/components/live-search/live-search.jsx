@@ -16,7 +16,10 @@ import DatePicker from '../datepicker/datepicker';
 import SearchTerm, { getInputMask } from '../../paragons/search-term';
 
 function currentSearch(props) {
-  return _.get(props, ['searches', 'savedSearches', props.searches.selectedSearch], []);
+  return _.chain(props)
+    .get(['searches', 'savedSearches', props.searches.selectedSearch], [])
+    .defaults({searchValue: '', currentOptions: [], searches: []})
+    .value();
 }
 
 /**
@@ -28,7 +31,12 @@ export default class LiveSearch extends React.Component {
   constructor(props, context) {
     super(props, context);
 
-    const search = _.defaults(currentSearch(props), {searchValue: '', currentOptions: [], searches: []});
+    const search = currentSearch(props);
+
+    if (!_.isEmpty(props.initialFilters) && _.isEmpty(search.searches)) {
+      search.searches = props.initialFilters;
+    }
+
     const {searchValue, currentOptions, searches: pills} = search;
 
     this.state = {
@@ -54,12 +62,19 @@ export default class LiveSearch extends React.Component {
     saveSearch: PropTypes.func,
     selectSavedSearch: PropTypes.func.isRequired,
     searches: PropTypes.object,
+    singleSearch: PropTypes.bool,
+    initialFilters: PropTypes.array,
     submitFilters: PropTypes.func.isRequired,
   };
 
-  get currentSearch() {
-    return _.get(this.props, ['searches', 'savedSearches', this.props.searches.selectedSearch], []);
+  static defaultProps = {
+    singleSearch: false,
+    initialFilters: [],
   };
+
+  get currentSearch() {
+    return currentSearch(this.props);
+  }
 
   get isDirty() {
     return this.currentSearch.isDirty;
@@ -129,7 +144,19 @@ export default class LiveSearch extends React.Component {
     );
   }
 
+  get header() {
+    if (this.props.singleSearch) return;
+
+    return (
+      <div className="fc-live-search__header">
+        {this.savedSearches}
+      </div>
+    );
+  }
+
   get savedSearches() {
+    if (this.props.singleSearch) return;
+
     const tabs = _.map(this.props.searches.savedSearches, (search, idx) => {
       const selected = idx === this.props.searches.selectedSearch;
       const isEditing = selected && this.isEditingName;
@@ -161,6 +188,8 @@ export default class LiveSearch extends React.Component {
   }
 
   get searchButton() {
+    if (this.props.singleSearch) return;
+
     const shouldSaveNew = this.currentSearch.name === 'All';
     const buttonContents = `${shouldSaveNew ? 'Save' : 'Update'} Search`;
     const clickAction = (event) => {
@@ -377,9 +406,7 @@ export default class LiveSearch extends React.Component {
   render() {
     return (
       <div className="fc-live-search">
-        <div className="fc-live-search__header">
-          {this.savedSearches}
-        </div>
+        {this.header}
         <div className="fc-grid fc-list-page-content">
           <div className="fc-col-md-1-1 fc-live-search__search-control">
             <form>
