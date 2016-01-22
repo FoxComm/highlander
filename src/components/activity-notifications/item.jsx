@@ -45,7 +45,7 @@ export default class NotificationItem extends React.Component {
       '_not-read': !isRead
     });
     const activity = processActivity(this.props.item);
-    const desc = representatives[activity.kind];
+    const desc = representatives[activity.activityType];
 
     if (!desc) return null;
 
@@ -67,7 +67,7 @@ export default class NotificationItem extends React.Component {
               <div className="fc-activity-notification-item__author">
                 <AuthorIcon activity={activity} />
               </div>
-              <div className="fc-activity__description">
+              <div className="fc-activity-notification-item__text">
                 <AuthorTitle activity={activity} />&nbsp;{title}
               </div>
             </div>
