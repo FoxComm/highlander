@@ -171,7 +171,7 @@ object Main {
         "store_credit_transactions_view"    → AvroTransformers.StoreCreditTransactionsView(),
         "skus"                              → AvroTransformers.Sku(),
         "gift_cards"                        → AvroTransformers.GiftCard(),
-        "store_credits"                     → AvroTransformers.StoreCredit(),
+        "store_credits_search_view"         → AvroTransformers.StoreCreditsSearchView(),
         conf.connectionTopic                → ActivityConnectionTransformer(phoenix))
 
       val topicsPlusActivity = conf.kafkaTopics :+ conf.connectionTopic
