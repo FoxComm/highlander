@@ -5,28 +5,22 @@ import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { transitionTo } from '../../route-helpers';
-import { createSelector } from 'reselect';
 
 // components
 import LocalNav from '../local-nav/local-nav';
 import { IndexLink, Link } from '../link';
 import SectionTitle from '../section-title/section-title';
-import { ListPageContainer } from '../list-page';
+import { ListPageContainer, selectCountFromLiveSearch } from '../list-page';
 
 // redux
 import { actions as customersActions } from '../../modules/customers/list';
 
-const customersCount = createSelector(
-  state => state.customers.list,
-  ({selectedSearch, savedSearches}) => ({customersCount: _.get(savedSearches, [selectedSearch, 'results', 'total'])})
-);
-
-@connect(customersCount, customersActions)
+@connect(selectCountFromLiveSearch(state => state.customers.list), customersActions)
 export default class CustomersListPage extends React.Component {
 
   static propTypes = {
     children: PropTypes.node.isRequired,
-    customersCount: PropTypes.number,
+    entitiesCount: PropTypes.number,
     fetch: PropTypes.func.isRequired,
   };
 
@@ -40,8 +34,8 @@ export default class CustomersListPage extends React.Component {
   }
 
   componentDidMount() {
-    if (this.props.customersCount == null) {
-      this.props.fetch("customers_search_view/_search");
+    if (this.props.entitiesCount == null) {
+      this.props.fetch('customers_search_view/_search');
     }
   }
 
@@ -56,7 +50,7 @@ export default class CustomersListPage extends React.Component {
     return (
       <ListPageContainer
         title="Customers"
-        subtitle={this.props.customersCount}
+        subtitle={this.props.entitiesCount}
         addTitle="Customer"
         handleAddAction={ this.onAddCustomerClick }
         navLinks={navLinks}

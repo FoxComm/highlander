@@ -6,6 +6,7 @@ import Rmas from './components/rmas/rmas';
 import Rma from './components/rmas/rma';
 import RmaChildList from './components/rmas/child-list';
 import RmaDetails from './components/rmas/details';
+import OrdersListPage from './components/orders/list-page';
 import Orders from './components/orders/orders';
 import Order from './components/orders/order';
 import OrderDetails from './components/orders/details';
@@ -48,7 +49,12 @@ const routes = (
       </Route>
     </Route>
     <Route name='orders-base' path="orders">
-      <IndexRoute name='orders' component={Orders}/>
+      <Route name='orders-list-pages' component={OrdersListPage}>
+        <IndexRoute name='orders' component={Orders}/>
+        <Route name='orders-activity-trail' path='activity-trail' dimension="order"
+               component={ActivityTrailPage}/>
+      </Route>
+
       <Route name='order' path=':order' component={Order}>
         <IndexRoute name='order-details' component={OrderDetails}/>
         <Route name='order-notes' path='notes' component={Notes}/>
@@ -60,7 +66,8 @@ const routes = (
     <Route name='customers-base' path='customers'>
       <Route name='customers-list-pages' component={CustomersListPage}>
         <IndexRoute name='customers' component={Customers}/>
-        <Route name='customers-activity-trail' path='activity-trail' dimension="customer" component={ActivityTrailPage}/>
+        <Route name='customers-activity-trail' path='activity-trail' dimension="customer"
+               component={ActivityTrailPage}/>
         <Route name='groups-base' path='groups'>
           <IndexRoute name='groups' component={Groups}/>
           <Route name='groups-new-dynamic' path='new-dynamic' component={DynamicGroup} />
