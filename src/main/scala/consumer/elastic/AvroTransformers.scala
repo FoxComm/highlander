@@ -146,7 +146,7 @@ object AvroTransformers {
         "orderCount"              typed IntegerType,
         "orders" nested(
           "referenceNumber"       typed StringType analyzer "autocomplete",
-          "status"                typed StringType index "not_analyzed",
+          "state"                 typed StringType index "not_analyzed",
           "createdAt"             typed DateType format dateFormat,
           "placedAt"              typed DateType format dateFormat,
           "subTotal"              typed IntegerType,
@@ -188,7 +188,7 @@ object AvroTransformers {
         // Order
         "id"                      typed IntegerType,
         "referenceNumber"         typed StringType analyzer "autocomplete",
-        "status"                  typed StringType index "not_analyzed",
+        "state"                   typed StringType index "not_analyzed",
         "createdAt"               typed DateType format dateFormat,
         "placedAt"                typed DateType format dateFormat,
         "currency"                typed StringType index "not_analyzed",
