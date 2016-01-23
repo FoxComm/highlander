@@ -1,0 +1,265 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{hyperref}
+\usepackage{listings}
+%for dotex
+\usepackage[pdftex]{graphicx}
+\usepackage[pdf]{graphviz}
+\usepackage[boxed]{algorithm2e} %end for dote
+\usepackage{color}
+
+% "define" Scala
+\lstdefinelanguage{scala}{
+  morekeywords={abstract,case,catch,class,def,%
+    do,else,extends,false,final,finally,%
+    for,if,implicit,import,match,mixin,%
+    new,null,object,override,package,%
+    private,protected,requires,return,sealed,%
+    super,this,throw,trait,true,try,%
+    type,val,var,while,with,yield},
+  otherkeywords={=>,<-,<\%,<:,>:,\#,@},
+  sensitive=true,
+  morecomment=[l]{//},
+  morecomment=[n]{/*}{*/},
+  morestring=[b]",
+  morestring=[b]',
+  morestring=[b]"""
+}
+
+\lstset{ %
+    language=scala,
+    identifierstyle=\textbf
+}
+
+\title{The Enlightened, Post-Modern Product Model}
+\author{Maxim Noah Khailo}
+\begin{document}
+\maketitle
+\section{Purpose}
+
+There is both a universal objective reality and our subjective interpretations of 
+it. The post-modern world is one of flux and uncertainty which can only collapse
+into the shadow of objectivity when illuminated. 
+
+Below is a description of a product model, nay, a content model that both provides
+variation in the face of contextualization, but has its objective reality and definition.
+
+Please read the companion paper "Everything is Search" after this one to realize
+the full potential of the approach described below.
+
+\section{Forces}
+
+We have to balance several problems.
+
+\begin{itemize}
+    \item Provide the most appropriate information at the right time.
+    \item Semantically structure information into a computable form.
+    \item Provide a manageable way to handle variation.
+\end{itemize}
+
+\newpage
+\section{The Form and Shadow}
+
+The model is split into two concepts, the \emph{Form} and the \emph{Shadow}. 
+A product takes on one form but can have many shadows. Shadows are created when
+a \emph{Context} illuminates the \emph{Form}.
+
+\digraph{Parts} {
+    node [shape=record];
+    Context [label="Context"];
+    Form [label="Product Form"];
+    Shadow1 [label="Desktop Shadow"];
+    Shadow2 [label="Mobile Shadow"];
+    Shadow3 [label="Shadow ..."];
+
+    Context -> Form [label="Illuminates"];
+    Form -> Shadow1 [label="Projects"];
+    Form -> Shadow2 [label="Projects"];
+    Form -> Shadow3 [label="Projects"];
+}
+
+\newpage
+\subsection{The Form}
+The form is a combination of schema and data. The model is composed of dynamic
+attributes which have a type. Each attribute is a map of values that have names.
+The Form may look like this, represented as JSON.
+
+\begin{lstlisting}
+    //Product Form
+    {
+        id: 3
+        name: { 
+            type: "string": 
+            x: "Red Shoe", 
+            y: "Big Red Shoe", 
+        },
+        description: { 
+            type: "string"
+            x: "Buy Me", 
+            y: "Purchase Me", 
+        },
+        image: { 
+            type: "uri"
+            x: "http://a", 
+            y: "http://b", 
+            z: "http://c",  
+        } 
+    }
+\end{lstlisting}
+
+
+\newpage
+\subsection{The Shadow}
+The Product Shadow is what is used when displaying a product to a customer.
+At any point in time, the customer has a Context. The Product Shadow is the shape 
+you get when you illuminate the Form from a particular vantage point called the Context.  
+Here is an example of a Shadow represented as JSON.
+
+\begin{lstlisting}
+    //Product Shadow for English Desktop
+    {
+        context: { modality: "desktop", language: "english" }
+        product: 3,
+        name: "x",
+        description: "x",
+        image: "x",
+    }
+\end{lstlisting}
+
+And here is another, but for mobile...
+
+\begin{lstlisting}
+    //Product Shadow for English Mobile
+    {
+        context: { modality: "mobile", language: "english" }
+        product: 3,
+        name: "y",
+        description: "y",
+        image: "z",
+    }
+\end{lstlisting}
+
+Each attribute in the Shadow corresponds to an attribute in the Form. It selects
+the value from the Form via it's name. For example, the 'x' value from the 'name' 
+attribute in the Form..
+
+\section{The Context}
+
+Each \emph{Shadow} is a representation of the product \emph{Form} given a \emph{Context}. Each user
+will have a Context when they interact with our system. The Context is used
+to select which shadows to display for a particular product.
+
+If we assign statistics to each of the Shadow's attributes, as described in 
+the companion paper "Everything is Search", this model will provide a solid
+foundation for algorithms that could modify shadows or create new ones based on 
+data and statistics.
+
+
+
+\newpage
+\section{Representing SKUs and Variations}
+The big question here is how do we map a product to a SKU? And the answer is
+the Product Form should have an attribute of type "variations".
+
+\begin{lstlisting}
+    {
+        variations: {
+            type: "variations",
+            variation1 : {
+                color : {
+                    red : "SKU-RED1",
+                    green : "SKU-GREEN2",
+                }
+            }
+            variation2 : {
+                color : {
+                    purple : "SKU-BLUE3",
+                    orange : "SKU-ORGAN3",
+                }
+            }
+            ...
+        }
+\end{lstlisting}
+
+The benefit of this model is we can represent arbitrarily complex variations 
+by simply assigning the leaves of the tree with SKU values. If the leaf nodes are
+empty, we can have an algorithm that can walk the tree and assign meaningful
+SKU numbers.
+
+Also, because of our Shadow model, we can handle cases such as "Only purple and orange
+are available in Germany." if the user is in a German context.
+
+\section{Models}
+
+\subsection{Context}
+
+A Context has an identifier, name, and attributes. 
+\begin{lstlisting}
+    case class Context(
+        id: Id,
+        name: String,
+        attributes: Json)
+\end{lstlisting}
+
+Where the attributes can be arbitrarily specific, but should be of a flat key/value nature.
+
+\begin{lstlisting}
+    {
+        modality: "x",
+        language: "y",
+        region: "z"
+    }
+\end{lstlisting}
+
+
+\subsection{ProductForm}
+
+The ProductForm represents a product as described above. 
+
+\begin{lstlisting}
+    case class ProductForm(
+        id: Id,
+        attributes: Json)
+\end{lstlisting}
+
+The attributes should be of the form
+\begin{lstlisting}
+    {
+        attribute1: {
+            type: "abc",
+            val1 : "x",
+            val2 : "y",
+            ...
+        }
+        attribute2: {
+            ...
+        }
+    }
+\end{lstlisting}
+
+\subsection{ProductShadow}
+
+The ProductShadow represents a Shadow of a product as described above. 
+
+\begin{lstlisting}
+    case class ProductShadow(
+        id: Id,
+        context: Id,
+        productForm: Id,
+        attributes: Json)
+\end{lstlisting}
+
+Where the attributes correspond to attributes in the product form, selected by
+name.
+
+\begin{lstlisting}
+    {
+        attribute1: "x",
+        attribute2: "...",
+        ...
+    }
+\end{lstlisting}
+
+
+\end{document}
