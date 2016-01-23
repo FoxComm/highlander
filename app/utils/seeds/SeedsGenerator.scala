@@ -16,8 +16,8 @@ object SeedsGenerator {
   def generateCustomer: Customer = Customer(email = s"${randomString(10)}@email.com",
     password = Some(randomString(10)), name = Some(randomString(10)))
 
-  def generateOrder(status: Order.Status, customerId: Int): Order = {
-    Order(customerId = customerId, referenceNumber = randomString(8) + "-17", status = status)
+  def generateOrder(state: Order.State, customerId: Int): Order = {
+    Order(customerId = customerId, referenceNumber = randomString(8) + "-17", state = state)
   }
 
   def generateOrderPayment[A <: PaymentMethod with ModelWithIdParameter[A]](orderId: Int,
@@ -74,8 +74,8 @@ object SeedsGenerator {
     DBIO.sequence(Seq(insertCustomers, insertOrders, insertPayments))
   }
 
-  def randomOrderStatus: Order.Status = {
-    val types = Order.Status.types.filterNot(_ == Order.Cart)
+  def randomOrderState: Order.State = {
+    val types = Order.State.types.filterNot(_ == Order.Cart)
     val index = Random.nextInt(types.size)
     types.drop(index).head
   }

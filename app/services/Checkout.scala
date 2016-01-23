@@ -107,7 +107,7 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)
   }
 
   private def remorseHold: DbResult[Order] = (for {
-    remorseHold  ← * <~ Orders.update(cart, cart.copy(status = RemorseHold, placedAt = Instant.now.some))
+    remorseHold  ← * <~ Orders.update(cart, cart.copy(state = RemorseHold, placedAt = Instant.now.some))
 
     onHoldGcs    ← * <~ (for {
       items ← OrderLineItemGiftCards.findByOrderId(cart.id).result

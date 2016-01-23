@@ -105,7 +105,7 @@ object AddressManager {
   def lastShippedTo(customerId: Int)
     (implicit db: Database, ec: ExecutionContext): DBIO[Option[(OrderShippingAddress, Region)]] = (for {
     order ← Orders.findByCustomerId(customerId)
-      .filter(_.status =!= (Order.Cart: models.Order.Status))
+      .filter(_.state =!= (Order.Cart: models.Order.State))
       .sortBy(_.id.desc)
     shipping ← OrderShippingAddresses if shipping.orderId === order.id
     region   ← Regions if region.id === shipping.regionId

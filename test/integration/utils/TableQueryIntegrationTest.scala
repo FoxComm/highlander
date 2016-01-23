@@ -32,7 +32,7 @@ class TableQueryIntegrationTest extends IntegrationTestBase with CatsHelpers {
   "for models with lock" - {
     "should return locked error" in new Fixture {
       val result = finder.selectOneForUpdate { _ ⇒
-        finder.map(_.status).updateReturningHead(Orders.map(identity), Order.FraudHold)
+        finder.map(_.state).updateReturningHead(Orders.map(identity), Order.FraudHold)
       }.futureValue.leftVal
 
       result.head mustBe LockedFailure(Order, order.referenceNumber)
@@ -40,10 +40,10 @@ class TableQueryIntegrationTest extends IntegrationTestBase with CatsHelpers {
 
     "should bypass lock" in new Fixture {
       val result = finder.selectOne ({ _ ⇒
-        finder.map(_.status).updateReturningHead(Orders.map(identity), Order.FraudHold)
+        finder.map(_.state).updateReturningHead(Orders.map(identity), Order.FraudHold)
       }, checks = Set.empty).futureValue.rightVal
 
-      result.status mustBe Order.FraudHold
+      result.state mustBe Order.FraudHold
     }
 
     trait Fixture {

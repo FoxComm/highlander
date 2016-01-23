@@ -44,7 +44,7 @@ class RmaServiceTest extends IntegrationTestBase {
       customer ← * <~ Customers.create(Factories.customer)
       order    ← * <~ Orders.create(Factories.order.copy(
         referenceNumber = "ABC-123",
-        status = Order.RemorseHold,
+        state = Order.RemorseHold,
         customerId = customer.id,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
     } yield (admin, order)).runTxn().futureValue.rightVal

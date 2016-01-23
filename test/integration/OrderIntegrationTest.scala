@@ -7,7 +7,7 @@ import akka.testkit.TestActorRef
 import models.Order._
 import models.rules.QueryStatement
 import models.{OrderAssignment, Address, Addresses, CreditCardCharge, CreditCardCharges, CreditCards, Customers,
-Order, OrderAssignments, OrderLineItem, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, OrderLockEvent,
+Order, OrderAssignments, OrderLineItem, OrderLineItemSkus, OrderLineItems, OrderLockEvent,
 OrderLockEvents, OrderPayments, OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, Regions,
 Shipment, Shipments, ShippingMethods, Skus, StoreAdmin, StoreAdmins, OrderWatcher, OrderWatchers}
 import org.json4s.jackson.JsonMethods._
@@ -15,7 +15,7 @@ import payloads.{Assignment, Watchers, UpdateLineItemsPayload, UpdateOrderPayloa
 import responses.{FullOrder, StoreAdminResponse}
 import services.CartFailures._
 import services.orders.OrderTotaler
-import services.{LockedFailure, NotFoundFailure404, NotLockedFailure, StatusTransitionNotAllowed,
+import services.{LockedFailure, NotFoundFailure404, NotLockedFailure, StateTransitionNotAllowed,
 OrderAssigneeNotFound, OrderWatcherNotFound}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
@@ -38,38 +38,38 @@ class OrderIntegrationTest extends IntegrationTestBase
     "payment status" - {
       "does not display payment status if no cc" in new Fixture {
         pending
-        Orders.findByRefNum(order.refNum).map(_.status).update(Order.ManualHold).run.futureValue
+        Orders.findByRefNum(order.refNum).map(_.state).update(Order.ManualHold).run.futureValue
 
         val response = GET(s"v1/orders/${order.refNum}")
         response.status must === (StatusCodes.OK)
         val fullOrder = response.withResultTypeOf[FullOrder.Root].result
-        fullOrder.paymentStatus must not be defined
+        fullOrder.paymentState must not be defined
         fullOrder.paymentMethods mustBe empty
       }
 
       "displays payment status if cc present" in new PaymentStatusFixture {
         pending
-        Orders.findByRefNum(order.refNum).map(_.status).update(Order.ManualHold).run.futureValue
+        Orders.findByRefNum(order.refNum).map(_.state).update(Order.ManualHold).run.futureValue
         CreditCardCharges.findById(ccc.id).extract.map(_.status).update(CreditCardCharge.Auth).run.futureValue
 
         val response = GET(s"v1/orders/${order.refNum}")
         response.status must === (StatusCodes.OK)
         val fullOrder = response.withResultTypeOf[FullOrder.Root].result
 
-        fullOrder.paymentStatus.value must === (CreditCardCharge.Auth)
+        fullOrder.paymentState.value must === (CreditCardCharge.Auth)
         // fullOrder.paymentMethods.head.value.status must === (CreditCardCharge.Auth)
       }
 
       "displays 'cart' payment status if order is cart and cc present" in new PaymentStatusFixture {
         pending
-        Orders.findByRefNum(order.refNum).map(_.status).update(Order.Cart).run.futureValue
+        Orders.findByRefNum(order.refNum).map(_.state).update(Order.Cart).run.futureValue
         CreditCardCharges.findById(ccc.id).extract.map(_.status).update(CreditCardCharge.Auth).run.futureValue
 
         val response = GET(s"v1/orders/${order.refNum}")
         response.status must === (StatusCodes.OK)
         val fullOrder = response.withResultTypeOf[FullOrder.Root].result
 
-        fullOrder.paymentStatus.value must === (CreditCardCharge.Cart)
+        fullOrder.paymentState.value must === (CreditCardCharge.Cart)
         // fullOrder.payment.value.status must === (CreditCardCharge.Auth)
       }
     }
@@ -121,7 +121,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
 
       val responseOrder = response.as[FullOrder.Root]
-      responseOrder.orderStatus must === (FraudHold)
+      responseOrder.orderState must === (FraudHold)
     }
 
     "fails if transition to destination status is not allowed" in {
@@ -132,18 +132,18 @@ class OrderIntegrationTest extends IntegrationTestBase
         UpdateOrderPayload(Cart))
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (StatusTransitionNotAllowed(order.status, Cart, order.refNum).description)
+      response.errors must === (StateTransitionNotAllowed(order.state, Cart, order.refNum).description)
     }
 
     "fails if transition from current status is not allowed" in {
-      val order = Orders.create(Factories.order.copy(status = Canceled)).run().futureValue.rightVal
+      val order = Orders.create(Factories.order.copy(state = Canceled)).run().futureValue.rightVal
 
       val response = PATCH(
         s"v1/orders/${order.referenceNumber}",
         UpdateOrderPayload(ManualHold))
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (StatusTransitionNotAllowed(order.status, ManualHold, order.refNum).description)
+      response.errors must === (StateTransitionNotAllowed(order.state, ManualHold, order.refNum).description)
     }
 
     "fails if the order is not found" in {
@@ -168,7 +168,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         UpdateOrderPayload(Canceled))
 
       val responseOrder = parse(response.bodyText).extract[FullOrder.Root]
-      responseOrder.orderStatus must === (Canceled)
+      responseOrder.orderState must === (Canceled)
       responseOrder.lineItems.head.status must === (OrderLineItem.Canceled)
 
       // Testing via DB as currently FullOrder returns 'order.status' as 'payment.status'
@@ -180,7 +180,7 @@ class OrderIntegrationTest extends IntegrationTestBase
   "POST /v1/orders/:refNum/increase-remorse-period" - {
 
     "successfully" in {
-      val order = Orders.create(Factories.order.copy(status = Order.RemorseHold)).run().futureValue.rightVal
+      val order = Orders.create(Factories.order.copy(state = Order.RemorseHold)).run().futureValue.rightVal
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
 
       val result = response.as[FullOrder.Root]
@@ -266,7 +266,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       (timer ? Tick).futureValue // Nothing should happen
       val order1 = getUpdated(refNum)
       order1.remorsePeriodEnd must ===(order.remorsePeriodEnd)
-      order1.status must ===(Order.RemorseHold)
+      order1.state must ===(Order.RemorseHold)
 
       Thread.sleep(3000)
 
@@ -278,7 +278,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val newRemorseEnd = order2.remorsePeriodEnd.value
 
       originalRemorseEnd.durationUntil(newRemorseEnd).getSeconds mustBe >= (3L)
-      order2.status must ===(Order.RemorseHold)
+      order2.state must ===(Order.RemorseHold)
     }
 
     "uses most recent lock record" in new RemorseFixture {
@@ -745,7 +745,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "fails if the order is not in cart status" in new ShippingAddressFixture {
-      Orders.update(order.copy(status = Order.FulfillmentStarted)).run().futureValue
+      Orders.update(order.copy(state = Order.FulfillmentStarted)).run().futureValue
 
       val response = DELETE(s"v1/orders/${order.referenceNumber}/shipping-address")
       response.status must === (StatusCodes.BadRequest)
@@ -794,7 +794,7 @@ class OrderIntegrationTest extends IntegrationTestBase
   trait Fixture {
     val (order, storeAdmin, customer) = (for {
       customer   ← * <~ Customers.create(Factories.customer)
-      order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, status = Order.Cart))
+      order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, state = Order.Cart))
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
     } yield (order, storeAdmin, customer)).runTxn().futureValue.rightVal
   }
@@ -875,7 +875,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     val (admin, order) = (for {
       admin ← * <~ StoreAdmins.create(Factories.storeAdmin)
       order ← * <~ Orders.create(Factories.order.copy(
-        status = Order.RemorseHold,
+        state = Order.RemorseHold,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
     } yield (admin, order)).runTxn().futureValue.rightVal
 

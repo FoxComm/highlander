@@ -595,10 +595,10 @@ class CustomerIntegrationTest extends IntegrationTestBase
     val (order, orderPayment, customer2) = (for {
       customer2 ← * <~ Customers.create(Factories.customer.copy(email = "second@example.org", name = Some("second")))
       order ← * <~ Orders.create(Factories.order.copy(customerId = customer.id,
-        status = Order.Shipped,
+        state = Order.Shipped,
         referenceNumber = "ABC-123"))
       order2 ← * <~ Orders.create(Factories.order.copy(customerId = customer2.id,
-        status = Order.Shipped,
+        state = Order.Shipped,
         referenceNumber = "ABC-456"))
       orderPayment ← * <~ OrderPayments.create(Factories.orderPayment.copy(orderId = order.id,
         paymentMethodId = creditCard.id,

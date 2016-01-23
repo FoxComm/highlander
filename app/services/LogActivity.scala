@@ -195,11 +195,11 @@ object LogActivity {
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(CartCreated(buildAdmin(admin), order))
 
-  def orderStateChanged(admin: StoreAdmin, order: FullOrder.Root, oldState: Order.Status)
+  def orderStateChanged(admin: StoreAdmin, order: FullOrder.Root, oldState: Order.State)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(OrderStateChanged(buildAdmin(admin), order, oldState))
 
-  def orderBulkStateChanged(admin: StoreAdmin, newState: Order.Status, orderRefNums: Seq[String])
+  def orderBulkStateChanged(admin: StoreAdmin, newState: Order.State, orderRefNums: Seq[String])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(OrderBulkStateChanged(buildAdmin(admin), orderRefNums, newState))
 

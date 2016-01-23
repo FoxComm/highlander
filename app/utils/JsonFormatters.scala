@@ -12,7 +12,7 @@ object JsonFormatters {
   val DefaultFormats = org.json4s.DefaultFormats + time.JavaTimeJson4sSerializer.jsonFormat + Money.jsonFormat
 
   val phoenixFormats = DefaultFormats +
-    Order.Status.jsonFormat +
+    Order.State.jsonFormat +
     OrderLineItem.Status.jsonFormat +
     Shipment.Status.jsonFormat +
     GiftCard.OriginType.jsonFormat +

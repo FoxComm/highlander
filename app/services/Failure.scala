@@ -72,17 +72,17 @@ case object CustomerHasDefaultCreditCard extends Failure {
   override def description = List("customer already has default credit card")
 }
 
-final case class StatusTransitionNotAllowed(message: String) extends Failure {
+final case class StateTransitionNotAllowed(message: String) extends Failure {
   override def description = List(message)
 }
 
-object StatusTransitionNotAllowed {
-  def apply[A](a: A, fromStatus: String, toStatus: String, searchKey: Any): StatusTransitionNotAllowed = {
-    StatusTransitionNotAllowed(s"Transition from $fromStatus to $toStatus is not allowed for ${friendlyClassName(a)} " +
+object StateTransitionNotAllowed {
+  def apply[A](a: A, fromState: String, toState: String, searchKey: Any): StateTransitionNotAllowed = {
+    StateTransitionNotAllowed(s"Transition from $fromState to $toState is not allowed for ${friendlyClassName(a)} " +
       s"with ${searchTerm(a)}=$searchKey")
   }
 
-  def apply(from: Order.Status, to: Order.Status, refNum: String): StatusTransitionNotAllowed = {
+  def apply(from: Order.State, to: Order.State, refNum: String): StateTransitionNotAllowed = {
     apply(Order, from.toString, to.toString, refNum)
   }
 }

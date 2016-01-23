@@ -11,7 +11,7 @@ import org.json4s.jackson.JsonMethods._
 import payloads.{RmaAssigneesPayload, RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCustomerPayload,
 RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload}
 import responses.RmaResponse.FullRmaWithWarnings
-import responses.{FullOrder, AllRmas, ResponseWithFailuresAndMetadata, RmaLockResponse, RmaResponse, StoreAdminResponse}
+import responses.{AllRmas, ResponseWithFailuresAndMetadata, RmaLockResponse, RmaResponse, StoreAdminResponse}
 import services.rmas.{RmaLineItemUpdater, RmaLockUpdater}
 import services.{RmaAssigneeNotFound, GeneralFailure, InvalidCancellationReasonFailure, LockedFailure,
 NotFoundFailure400, NotFoundFailure404, NotLockedFailure}
@@ -550,7 +550,7 @@ class RmaIntegrationTest extends IntegrationTestBase
       storeAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
       customer ← * <~ Customers.create(Factories.customer)
       order ← * <~ Orders.create(Factories.order.copy(
-        status = Order.RemorseHold,
+        state = Order.RemorseHold,
         customerId = customer.id,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
       rma ← * <~ Rmas.create(Factories.rma.copy(

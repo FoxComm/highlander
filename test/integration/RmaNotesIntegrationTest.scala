@@ -105,7 +105,7 @@ class RmaNotesIntegrationTest extends IntegrationTestBase with HttpSupport with 
       admin ← StoreAdmins.create(authedStoreAdmin).map(rightValue)
       customer ← Customers.create(Factories.customer).map(rightValue)
       order ← Orders.create(Factories.order.copy(
-        status = Order.RemorseHold,
+        state = Order.RemorseHold,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30)))).map(rightValue)
       rma ← Rmas.create(Factories.rma.copy(
         orderId = order.id,

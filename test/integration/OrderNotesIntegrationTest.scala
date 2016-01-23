@@ -86,8 +86,8 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
       response.bodyText mustBe empty
 
       val updatedNote = Notes.findOneById(note.id).run().futureValue.value
-      updatedNote.deletedBy.value === (1)
-      updatedNote.deletedAt.value.isBeforeNow === (true)
+      updatedNote.deletedBy.value === 1
+      updatedNote.deletedAt.value.isBeforeNow === true
 
       // Deleted note should not be returned
       val allNotesResponse = GET(s"v1/notes/order/${order.referenceNumber}")
@@ -103,7 +103,7 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
   trait Fixture {
     val (order, storeAdmin, customer) = (for {
       customer   ← * <~ Customers.create(Factories.customer)
-      order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, status = Order.Cart))
+      order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, state = Order.Cart))
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
     } yield (order, storeAdmin, customer)).runTxn().futureValue.rightVal
   }

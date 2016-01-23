@@ -32,7 +32,7 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
         response.status must ===(StatusCodes.OK)
         val root = response.as[Root]
         root.customer.value.id must ===(customer.id)
-        root.orderStatus must ===(Order.Cart)
+        root.orderState must ===(Order.Cart)
       }
 
       "fails when the customer is not found" in new Fixture {
@@ -62,7 +62,7 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
 
         response.status must ===(StatusCodes.OK)
         guest.isGuest mustBe true
-        root.orderStatus must ===(Order.Cart)
+        root.orderState must ===(Order.Cart)
         guest.id must !==(customer.id)
       }
     }
