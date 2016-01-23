@@ -18,8 +18,8 @@ object Customer {
   def routes(implicit ec: ExecutionContext, db: Database,
     mat: Materializer, customerAuth: AsyncAuthenticator[models.Customer]) = {
 
-    authenticateBasicAsync(realm = "private customer routes", customerAuth) { customer ⇒
-      pathPrefix("my") {
+    pathPrefix("my") {
+      authenticateBasicAsync(realm = "private customer routes", customerAuth) { customer ⇒
         (get & path("cart")) {
           goodOrFailures {
             val finder = Orders.findActiveOrderByCustomer(customer)
