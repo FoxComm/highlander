@@ -209,6 +209,8 @@ export default class LiveSearch extends React.Component {
   }
 
   formatPill(pill, idx, props) {
+    if (pill.hidden) return;
+
     return (
       <div
         className="fc-pilled-input__pill"
