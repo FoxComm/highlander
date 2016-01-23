@@ -1,8 +1,9 @@
 package services.orders
 
-import models.Orders
+import models.activity.ActivityContext
+import models.{StoreAdmin, Orders}
 import responses.FullOrder
-import services.Result
+import services.{LogActivity, Result}
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -13,12 +14,12 @@ import scala.concurrent.ExecutionContext
 
 object OrderUpdater {
 
-  def increaseRemorsePeriod(refNum: String)
-    (implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = (for {
-
+  def increaseRemorsePeriod(refNum: String, admin: StoreAdmin)
+    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[FullOrder.Root] = (for {
     order     ← * <~ Orders.mustFindByRefNum(refNum)
     isRemorse ← * <~ order.mustBeRemorseHold
     updated   ← * <~ Orders.update(order, order.copy(remorsePeriodEnd = order.remorsePeriodEnd.map(_.plusMinutes(15))))
     response  ← * <~ FullOrder.fromOrder(updated).toXor
+    _         ← * <~ LogActivity.orderRemorsePeriodIncreased(admin, response, order.remorsePeriodEnd)
   } yield response).runTxn()
 }

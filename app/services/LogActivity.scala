@@ -1,5 +1,7 @@
 package services
 
+import java.time.Instant
+
 import scala.concurrent.ExecutionContext
 
 import models.{PaymentMethod, StoreCredit, GiftCard, CreditCard, ShippingMethod, OrderShippingAddress,
@@ -200,6 +202,10 @@ object LogActivity {
   def orderBulkStateChanged(admin: StoreAdmin, newState: Order.Status, orderRefNums: Seq[String])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(OrderBulkStateChanged(buildAdmin(admin), orderRefNums, newState))
+
+  def orderRemorsePeriodIncreased(admin: StoreAdmin, order: FullOrder.Root, oldPeriodEnd: Option[Instant])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
+    Activities.log(OrderRemorsePeriodIncreased(buildAdmin(admin), order, oldPeriodEnd))
 
   /* Order Notes */
   def orderNoteCreated(admin: StoreAdmin, order: Order, note: Note)
