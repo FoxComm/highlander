@@ -18,7 +18,7 @@ import { processActivity } from '../../modules/activity-trail';
 export default class NotificationItem extends React.Component {
 
   get typeIcon() {
-    const type = _.get(this.props, ['item', 'kind']);
+    const type = _.get(this.props, ['item', 'activityType']);
     if (!_.isEmpty(type)) {
       if (type.indexOf('order') >= 0) {
         return <i className="icon icon-orders"></i>;

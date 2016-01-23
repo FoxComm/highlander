@@ -84,7 +84,7 @@ const reducer = createReducer({
   [notificationReceived]: (state, data) => {
     const notificationList = _.get(state, 'notifications', []);
     const notReadData = assoc(data, 'isRead', false);
-    const updatedNotifications = notificationList.concat([notReadData]);
+    const updatedNotifications = [notReadData].concat(notificationList);
     const newCount = updatedNotifications.reduce((acc, item) => {
       if (!item.isRead) {
         acc++;

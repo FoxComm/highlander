@@ -99,7 +99,7 @@ let id = 1;
 let activities = [
   // customers
   {
-    kind: types.CUSTOMER_UPDATED,
+    activityType: types.CUSTOMER_UPDATED,
     id: id++,
     createdAt,
     data: {
@@ -117,7 +117,7 @@ let activities = [
     }
   },
   {
-    kind: types.CUSTOMER_CREATED,
+    activityType: types.CUSTOMER_CREATED,
     id: id++,
     createdAt,
     data: {
@@ -125,7 +125,7 @@ let activities = [
     }
   },
   {
-    kind: types.CUSTOMER_REGISTERED,
+    activityType: types.CUSTOMER_REGISTERED,
     id: id++,
     createdAt,
     data: {
@@ -133,7 +133,7 @@ let activities = [
     }
   },
   {
-    kind: types.CUSTOMER_ACTIVATED,
+    activityType: types.CUSTOMER_ACTIVATED,
     id: id++,
     createdAt,
     data: {
@@ -141,7 +141,7 @@ let activities = [
     }
   },
   {
-    kind: types.CUSTOMER_BLACKLISTED,
+    activityType: types.CUSTOMER_BLACKLISTED,
     id: id++,
     createdAt,
     data: {
@@ -149,7 +149,7 @@ let activities = [
     }
   },
   {
-    kind: types.CUSTOMER_REMOVED_FROM_BLACKLIST,
+    activityType: types.CUSTOMER_REMOVED_FROM_BLACKLIST,
     id: id++,
     createdAt,
     data: {
@@ -157,7 +157,7 @@ let activities = [
     }
   },
   {
-    kind: types.CUSTOMER_ENABLED,
+    activityType: types.CUSTOMER_ENABLED,
     id: id++,
     createdAt,
     data: {
@@ -165,7 +165,7 @@ let activities = [
     }
   },
   {
-    kind: types.CUSTOMER_DISABLED,
+    activityType: types.CUSTOMER_DISABLED,
     id: id++,
     createdAt,
     data: {
@@ -181,7 +181,7 @@ activities = [...activities,
   // customer addresses
 
   {
-    kind: types.CUSTOMER_ADDRESS_CREATED_BY_ADMIN,
+    activityType: types.CUSTOMER_ADDRESS_CREATED_BY_ADMIN,
     id: id++,
     createdAt,
     data: {
@@ -194,7 +194,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.CUSTOMER_ADDRESS_CREATED,
+    activityType: types.CUSTOMER_ADDRESS_CREATED,
     id: id++,
     createdAt,
     data: {
@@ -206,7 +206,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.CUSTOMER_ADDRESS_UPDATED,
+    activityType: types.CUSTOMER_ADDRESS_UPDATED,
     id: id++,
     createdAt,
     data: {
@@ -219,7 +219,7 @@ activities = [...activities,
     },
   },
   {
-    kind: types.CUSTOMER_ADDRESS_DELETED,
+    activityType: types.CUSTOMER_ADDRESS_DELETED,
     id: id++,
     createdAt,
     data: {
@@ -236,7 +236,7 @@ activities = [...activities,
   // order shipping address
 
   {
-    kind: types.ORDER_SHIPPING_ADDRESS_UPDATED,
+    activityType: types.ORDER_SHIPPING_ADDRESS_UPDATED,
     id: id++,
     createdAt,
     data: {
@@ -257,7 +257,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_SHIPPING_ADDRESS_ADDED,
+    activityType: types.ORDER_SHIPPING_ADDRESS_ADDED,
     id: id++,
     createdAt,
     data: {
@@ -266,7 +266,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_SHIPPING_ADDRESS_REMOVED,
+    activityType: types.ORDER_SHIPPING_ADDRESS_REMOVED,
     id: id++,
     createdAt,
     data: {
@@ -282,7 +282,7 @@ activities = [...activities,
 
   // order notes
   {
-    kind: types.ORDER_NOTE_CREATED,
+    activityType: types.ORDER_NOTE_CREATED,
     id: id++,
     createdAt,
     data: {
@@ -291,7 +291,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_NOTE_DELETED,
+    activityType: types.ORDER_NOTE_DELETED,
     id: id++,
     createdAt,
     data: {
@@ -300,7 +300,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_NOTE_UPDATED,
+    activityType: types.ORDER_NOTE_UPDATED,
     id: id++,
     createdAt,
     data: {
@@ -317,7 +317,7 @@ activities = [...activities,
 
   // orders
   {
-    kind: types.ORDER_STATE_CHANGED,
+    activityType: types.ORDER_STATE_CHANGED,
     id: id++,
     createdAt,
     data: {
@@ -329,7 +329,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_BULK_STATE_CHANGED,
+    activityType: types.ORDER_BULK_STATE_CHANGED,
     id: id++,
     createdAt,
     data: {
@@ -343,7 +343,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.CART_CREATED,
+    activityType: types.CART_CREATED,
     id: id++,
     createdAt,
     data: {
@@ -357,7 +357,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.CREDIT_CARD_ADDED,
+    activityType: types.CREDIT_CARD_ADDED,
     id: id++,
     createdAt,
     data: {
@@ -366,7 +366,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.CREDIT_CARD_REMOVED,
+    activityType: types.CREDIT_CARD_REMOVED,
     id: id++,
     createdAt,
     data: {
@@ -375,7 +375,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.CREDIT_CARD_UPDATED,
+    activityType: types.CREDIT_CARD_UPDATED,
     id: id++,
     createdAt,
     data: {
@@ -393,7 +393,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.ORDER_SHIPPING_METHOD_UPDATED,
+    activityType: types.ORDER_SHIPPING_METHOD_UPDATED,
     id: id++,
     createdAt,
     data: {
@@ -401,7 +401,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_SHIPPING_METHOD_REMOVED,
+    activityType: types.ORDER_SHIPPING_METHOD_REMOVED,
     id: id++,
     createdAt,
     data: {
@@ -414,7 +414,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.ORDER_PAYMENT_METHOD_ADDED_CREDIT_CARD,
+    activityType: types.ORDER_PAYMENT_METHOD_ADDED_CREDIT_CARD,
     id: id++,
     createdAt,
     data: {
@@ -423,7 +423,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_PAYMENT_METHOD_ADDED_GIFT_CARD,
+    activityType: types.ORDER_PAYMENT_METHOD_ADDED_GIFT_CARD,
     id: id++,
     createdAt,
     data: {
@@ -432,7 +432,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_PAYMENT_METHOD_ADDED_STORE_CREDIT,
+    activityType: types.ORDER_PAYMENT_METHOD_ADDED_STORE_CREDIT,
     id: id++,
     createdAt,
     data: {
@@ -441,7 +441,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_PAYMENT_METHOD_DELETED,
+    activityType: types.ORDER_PAYMENT_METHOD_DELETED,
     id: id++,
     createdAt,
     data: {
@@ -450,7 +450,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_PAYMENT_METHOD_DELETED,
+    activityType: types.ORDER_PAYMENT_METHOD_DELETED,
     id: id++,
     createdAt,
     data: {
@@ -459,7 +459,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_PAYMENT_METHOD_DELETED,
+    activityType: types.ORDER_PAYMENT_METHOD_DELETED,
     id: id++,
     createdAt,
     data: {
@@ -468,7 +468,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_PAYMENT_METHOD_DELETED_GIFT_CARD,
+    activityType: types.ORDER_PAYMENT_METHOD_DELETED_GIFT_CARD,
     id: id++,
     createdAt,
     data: {
@@ -482,7 +482,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.GIFT_CARD_CREATED,
+    activityType: types.GIFT_CARD_CREATED,
     id: id++,
     createdAt,
     data: {
@@ -490,7 +490,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.GIFT_CARD_STATE_CHANGED,
+    activityType: types.GIFT_CARD_STATE_CHANGED,
     id: id++,
     createdAt,
     data: {
@@ -498,7 +498,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.GIFT_CARD_CONVERTED_TO_STORE_CREDIT,
+    activityType: types.GIFT_CARD_CONVERTED_TO_STORE_CREDIT,
     id: id++,
     createdAt,
     data: {
@@ -507,7 +507,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.GIFT_CARD_AUTHORIZED_FUNDS,
+    activityType: types.GIFT_CARD_AUTHORIZED_FUNDS,
     id: id++,
     createdAt,
     data: {
@@ -525,7 +525,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.GIFT_CARD_CAPTURED_FUNDS,
+    activityType: types.GIFT_CARD_CAPTURED_FUNDS,
     id: id++,
     createdAt,
     data: {
@@ -546,7 +546,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.STORE_CREDIT_CREATED,
+    activityType: types.STORE_CREDIT_CREATED,
     id: id++,
     createdAt,
     data: {
@@ -555,7 +555,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.STORE_CREDIT_STATE_CHANGED,
+    activityType: types.STORE_CREDIT_STATE_CHANGED,
     id: id++,
     createdAt,
     data: {
@@ -564,7 +564,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.STORE_CREDIT_CONVERTED_TO_GIFT_CARD,
+    activityType: types.STORE_CREDIT_CONVERTED_TO_GIFT_CARD,
     id: id++,
     createdAt,
     data: {
@@ -574,7 +574,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.STORE_CREDIT_AUTHORIZED_FUNDS,
+    activityType: types.STORE_CREDIT_AUTHORIZED_FUNDS,
     id: id++,
     createdAt,
     data: {
@@ -587,7 +587,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.STORE_CREDIT_CAPTURED_FUNDS,
+    activityType: types.STORE_CREDIT_CAPTURED_FUNDS,
     id: id++,
     createdAt,
     data: {
@@ -605,7 +605,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.ASSIGNED_TO_ORDER,
+    activityType: types.ASSIGNED_TO_ORDER,
     id: id++,
     createdAt,
     data: {
@@ -616,7 +616,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ASSIGNED_TO_ORDER,
+    activityType: types.ASSIGNED_TO_ORDER,
     id: id++,
     createdAt,
     data: {
@@ -628,7 +628,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.UNASSIGNED_FROM_ORDER,
+    activityType: types.UNASSIGNED_FROM_ORDER,
     id: id++,
     createdAt,
     data: {
@@ -637,7 +637,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.BULK_ASSIGNED_TO_ORDERS,
+    activityType: types.BULK_ASSIGNED_TO_ORDERS,
     id: id++,
     createdAt,
     data: {
@@ -650,7 +650,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.BULK_UNASSIGNED_FROM_ORDERS,
+    activityType: types.BULK_UNASSIGNED_FROM_ORDERS,
     id: id++,
     createdAt,
     data: {
@@ -668,7 +668,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.ADDED_WATCHERS_TO_ORDER,
+    activityType: types.ADDED_WATCHERS_TO_ORDER,
     id: id++,
     createdAt,
     data: {
@@ -679,7 +679,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ADDED_WATCHERS_TO_ORDER,
+    activityType: types.ADDED_WATCHERS_TO_ORDER,
     id: id++,
     createdAt,
     data: {
@@ -691,7 +691,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.REMOVED_WATCHER_FROM_ORDER,
+    activityType: types.REMOVED_WATCHER_FROM_ORDER,
     id: id++,
     createdAt,
     data: {
@@ -700,7 +700,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.BULK_ADDED_WATCHER_TO_ORDERS,
+    activityType: types.BULK_ADDED_WATCHER_TO_ORDERS,
     id: id++,
     createdAt,
     data: {
@@ -713,7 +713,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.BULK_REMOVED_WATCHER_FROM_ORDERS,
+    activityType: types.BULK_REMOVED_WATCHER_FROM_ORDERS,
     id: id++,
     createdAt,
     data: {
@@ -731,7 +731,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES,
+    activityType: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES,
     id: id++,
     createdAt,
     data: {
@@ -746,7 +746,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES_BY_CUSTOMER,
+    activityType: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES_BY_CUSTOMER,
     id: id++,
     createdAt,
     data: {
@@ -764,7 +764,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_LINE_ITEMS_ADDED_GIFT_CARD,
+    activityType: types.ORDER_LINE_ITEMS_ADDED_GIFT_CARD,
     id: id++,
     createdAt,
     data: {
@@ -773,7 +773,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_LINE_ITEMS_DELETED_GIFT_CARD,
+    activityType: types.ORDER_LINE_ITEMS_DELETED_GIFT_CARD,
     id: id++,
     createdAt,
     data: {
@@ -782,7 +782,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_LINE_ITEMS_UPDATED_GIFT_CARD,
+    activityType: types.ORDER_LINE_ITEMS_UPDATED_GIFT_CARD,
     id: id++,
     createdAt,
     data: {
@@ -799,7 +799,7 @@ export default class AllNotificationItems extends React.Component {
       <div style={{margin: '20px'}}>
         {activities.map(activity => {
           return (
-            <NotificationItem item={activity} />
+            <NotificationItem item={activity} key={`${activity.id}-notification`}/>
           );
         })}
       </div>
