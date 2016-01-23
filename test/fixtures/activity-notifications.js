@@ -1,9 +1,6 @@
 
-import _ from 'lodash';
-import React from 'react';
-import NotificationItem from './item';
-import types from '../activity-trail/activities/base/types';
 import moment from 'moment';
+import types from '../../src/components/activity-trail/activities/base/types';
 
 const customer = {
   id: 1,
@@ -792,17 +789,4 @@ activities = [...activities,
   },
 ];
 
-export default class AllNotificationItems extends React.Component {
-
-  render() {
-    return (
-      <div style={{margin: '20px'}}>
-        {activities.map(activity => {
-          return (
-            <NotificationItem item={activity} key={`${activity.id}-notification`}/>
-          );
-        })}
-      </div>
-    );
-  }
-}
+export default activities;
