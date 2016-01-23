@@ -11,7 +11,7 @@ import models.traits.Lockable
 import monocle.Lens
 import monocle.macros.GenLens
 import services.CartFailures.OrderMustBeCart
-import services.{Failure, Failures, GeneralFailure}
+import services.{StatusTransitionNotAllowed, Failure, Failures, GeneralFailure}
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
