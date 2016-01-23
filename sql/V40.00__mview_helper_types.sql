@@ -80,3 +80,15 @@ create table export_store_admins (
     name        text,
     department  text
 );
+
+create table export_gift_cards (
+    code        text,
+    origin_type text,
+    currency    character(3),
+    created_at  text
+);
+
+create table export_reasons (
+    reason_type text,
+    body        text
+);
