@@ -39,10 +39,13 @@
   file: path=/var/lib/kafka state=directory
   sudo: true
 
-- name: Setup Services
-  service: name={{ item }} state=started enabled=yes sleep=3
+- name: Kafka and Zookeeper
+  service: name={{ item }} state=started enabled=yes sleep=5
   sudo: true
   with_items:
     - zookeeper
     - kafka
-    - schema-registry
+
+- name: Setup Schema Registry
+  service: name=schema-registry state=started enabled=yes sleep=5
+  sudo: true
