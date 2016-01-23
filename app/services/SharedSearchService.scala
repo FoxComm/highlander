@@ -13,6 +13,16 @@ import utils.Slick._
 import utils.Slick.implicits._
 
 object SharedSearchService {
+  def getAll(admin: StoreAdmin, rawScope: Option[String])
+    (implicit ec: ExecutionContext, db: Database): Result[Seq[SharedSearch]] = {
+
+    rawScope.flatMap(SharedSearch.Scope.read) match {
+      case Some(scope) ⇒
+        SharedSearches.findActiveByScopeAndAdmin(scope, admin.id).result.toXor.run()
+      case None ⇒
+        SharedSearches.byAdmin(admin.id).result.toXor.run()
+    }
+  }
 
   def get(code: String)(implicit ec: ExecutionContext, db: Database): Result[SharedSearch] =
     mustFindActiveByCode(code).run()
