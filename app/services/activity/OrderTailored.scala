@@ -1,5 +1,7 @@
 package services.activity
 
+import java.time.Instant
+
 import models.{ShippingMethod, OrderShippingAddress, PaymentMethod, Order, Note}
 import responses.{CreditCardsResponse, FullOrder, GiftCardResponse, StoreAdminResponse}
 
@@ -9,6 +11,9 @@ object OrderTailored {
 
   final case class OrderStateChanged(admin: StoreAdminResponse.Root, order: FullOrder.Root, oldState: Order.Status)
     extends ActivityBase[OrderStateChanged]
+
+  final case class OrderRemorsePeriodIncreased(admin: StoreAdminResponse.Root, order: FullOrder.Root,
+    oldPeriodEnd: Option[Instant]) extends ActivityBase[OrderRemorsePeriodIncreased]
 
   final case class OrderBulkStateChanged(admin: StoreAdminResponse.Root, orderRefNums: Seq[String],
     newState: Order.Status)

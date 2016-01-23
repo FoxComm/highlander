@@ -103,8 +103,10 @@ object OrderRoutes {
           }
         } ~
         (post & path("increase-remorse-period") & pathEnd) {
-          goodOrFailures {
-            OrderUpdater.increaseRemorsePeriod(refNum)
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              OrderUpdater.increaseRemorsePeriod(refNum, admin)
+            }
           }
         } ~
         (post & path("lock") & pathEnd) {
