@@ -40,7 +40,7 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders", payload)
 
         response.status must ===(StatusCodes.BadRequest)
-        response.errors must ===(NotFoundFailure404(Customer, 99).description)
+        response.error must ===(NotFoundFailure404(Customer, 99).description)
       }
 
       "fails when the customer already has a cart" in new Fixture {
@@ -49,7 +49,7 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders", payload)
 
         response.status must ===(StatusCodes.BadRequest)
-        response.errors must ===(CustomerHasCart(customer.id).description)
+        response.error must ===(CustomerHasCart(customer.id).description)
       }
     }
 
@@ -72,7 +72,7 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders", payload)
 
       response.status must ===(StatusCodes.BadRequest)
-      response.errors must ===(List("customerId or email must be given"))
+      response.error must ===("customerId or email must be given")
     }
   }
 

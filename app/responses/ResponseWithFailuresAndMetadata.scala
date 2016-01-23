@@ -23,7 +23,7 @@ final case class ResponsePagingMetadata(
 final case class ResponseSortingMetadata(sortBy: Option[String] = None) extends CheckDefined
 
 final case class ResponseWithFailuresAndMetadata[A <: AnyRef](
-  result    : A, 
+  result    : A,
   errors    : Option[Seq[String]]             = None,
   pagination: Option[ResponsePagingMetadata]  = None,
   sorting   : Option[ResponseSortingMetadata] = None) {
@@ -42,7 +42,7 @@ final case class ResponseWithFailuresAndMetadata[A <: AnyRef](
 
 object ResponseWithFailuresAndMetadata {
 
-  private def failuresToSeqStrings(failures: Failures): Seq[String] = failures.toList.flatMap(_.description)
+  private def failuresToSeqStrings(failures: Failures): Seq[String] = failures.toList.map(_.description)
 
   def fromOption[A <: AnyRef](result: A, failures: Option[Failures]): ResponseWithFailuresAndMetadata[A] = {
     val errors = failures.map(failuresToSeqStrings)

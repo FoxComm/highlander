@@ -31,14 +31,14 @@ class RmaPaymentsIntegrationTest extends IntegrationTestBase
         val payload = payloads.RmaPaymentPayload(amount = -10)
         val response = POST(s"v1/rmas/${rma.referenceNumber}/payment-methods/gift-cards", payload)
         response.status must ===(StatusCodes.BadRequest)
-        response.errors must === (GeneralFailure("Amount got -10, expected more than 0").description)
+        response.error must === (GeneralFailure("Amount got -10, expected more than 0").description)
       }
 
       "fails if the RMA is not found" in new Fixture {
         val payload = payloads.RmaPaymentPayload(amount = 10)
         val response = POST(s"v1/rmas/99/payment-methods/gift-cards", payload)
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Rma, 99).description)
+        response.error must === (NotFoundFailure404(Rma, 99).description)
       }
     }
 
@@ -59,7 +59,7 @@ class RmaPaymentsIntegrationTest extends IntegrationTestBase
         val response = DELETE(s"v1/rmas/99/payment-methods/gift-cards")
 
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Rma, 99).description)
+        response.error must === (NotFoundFailure404(Rma, 99).description)
       }
     }
   }
@@ -80,7 +80,7 @@ class RmaPaymentsIntegrationTest extends IntegrationTestBase
         val payload = payloads.RmaPaymentPayload(amount = -10)
         val response = POST(s"v1/rmas/${rma.referenceNumber}/payment-methods/store-credit", payload)
         response.status must ===(StatusCodes.BadRequest)
-        response.errors must === (GeneralFailure("Amount got -10, expected more than 0").description)
+        response.error must === (GeneralFailure("Amount got -10, expected more than 0").description)
       }
 
       "fails if the RMA is not found" in new Fixture {
@@ -89,7 +89,7 @@ class RmaPaymentsIntegrationTest extends IntegrationTestBase
 
         val response = POST(s"v1/rmas/${notFound.refNum}/payment-methods/store-credit", payload)
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Rma, notFound.refNum).description)
+        response.error must === (NotFoundFailure404(Rma, notFound.refNum).description)
       }
     }
 
@@ -109,7 +109,7 @@ class RmaPaymentsIntegrationTest extends IntegrationTestBase
       "fails if the RMA is not found" in new Fixture {
         val response = DELETE(s"v1/rmas/99/payment-methods/store-credit")
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Rma, 99).description)
+        response.error must === (NotFoundFailure404(Rma, 99).description)
       }
     }
   }
@@ -130,14 +130,14 @@ class RmaPaymentsIntegrationTest extends IntegrationTestBase
         val payload = payloads.RmaCcPaymentPayload(amount = -10)
         val response = POST(s"v1/rmas/${rma.referenceNumber}/payment-methods/credit-cards", payload)
         response.status must ===(StatusCodes.BadRequest)
-        response.errors must === (GeneralFailure("Amount got -10, expected more than 0").description)
+        response.error must === (GeneralFailure("Amount got -10, expected more than 0").description)
       }
 
       "fails if the RMA is not found" in new Fixture {
         val payload = payloads.RmaCcPaymentPayload(amount = 50)
         val response = POST(s"v1/rmas/99/payment-methods/credit-cards", payload)
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Rma, 99).description)
+        response.error must === (NotFoundFailure404(Rma, 99).description)
       }
     }
 
@@ -158,7 +158,7 @@ class RmaPaymentsIntegrationTest extends IntegrationTestBase
         val response = DELETE(s"v1/rmas/99/payment-methods/credit-cards")
 
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Rma, 99).description)
+        response.error must === (NotFoundFailure404(Rma, 99).description)
       }
     }
   }

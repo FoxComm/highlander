@@ -7,7 +7,7 @@ final case class ResponseWithFailures[A <: AnyRef](result: A, errors: Option[Seq
 object ResponseWithFailures {
 
   def fromOption[A <: AnyRef](result: A, failures: Option[Failures]): ResponseWithFailures[A] = {
-    val list = failures.map(_.toList.flatMap(_.description))
+    val list = failures.map(_.toList.map(_.description))
     ResponseWithFailures(result, list)
   }
 

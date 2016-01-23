@@ -27,7 +27,7 @@ class JsonExceptionHandlerIntegrationTest extends IntegrationTestBase with HttpS
 
     response.status must ===(StatusCodes.BadRequest)
     response.entity.contentType must ===(ContentTypes.`application/json`)
-    response.errors.head must startWith(illegalRequestExceptionText)
+    response.error must startWith(illegalRequestExceptionText)
   }
 
   "return a valid JSON exception on an other exception" in {
@@ -35,7 +35,7 @@ class JsonExceptionHandlerIntegrationTest extends IntegrationTestBase with HttpS
 
     response.status must ===(StatusCodes.InternalServerError)
     response.entity.contentType must ===(ContentTypes.`application/json`)
-    response.errors.head must startWith(exceptionText)
+    response.error must startWith(exceptionText)
   }
 }
 

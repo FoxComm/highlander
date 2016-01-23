@@ -112,7 +112,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkRmaUpdateResponse]
       responseObj.result must === (getAllRmas)
-      responseObj.errors.value must === (NotFoundFailure404(Rma, "NOPE").description)
+      responseObj.errors.value.head must === (NotFoundFailure404(Rma, "NOPE").description)
     }
 
     "errors when admin to assign not found" in new BulkAssignmentFixture {
@@ -120,7 +120,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkRmaUpdateResponse]
       responseObj.result must === (getAllRmas)
-      responseObj.errors.value must === (NotFoundFailure404(StoreAdmin, 777).description)
+      responseObj.errors.value.head must === (NotFoundFailure404(StoreAdmin, 777).description)
     }
   }
 
@@ -165,7 +165,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkRmaUpdateResponse]
       responseObj.result must === (getAllRmas)
-      responseObj.errors.value must === (NotFoundFailure404(Rma, "NOPE").description)
+      responseObj.errors.value.head must === (NotFoundFailure404(Rma, "NOPE").description)
     }
 
     "errors when admin to unassign not found" in new BulkAssignmentFixture {
@@ -173,7 +173,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkRmaUpdateResponse]
       responseObj.result must === (getAllRmas)
-      responseObj.errors.value must === (NotFoundFailure404(StoreAdmin, 777).description)
+      responseObj.errors.value.head must === (NotFoundFailure404(StoreAdmin, 777).description)
     }
   }
 

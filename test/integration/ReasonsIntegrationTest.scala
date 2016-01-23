@@ -42,7 +42,7 @@ with AutomaticAuth {
         val reasonType = "lolwut"
         val response = GET(s"v1/reasons/$reasonType")
         response.status must ===(StatusCodes.BadRequest)
-        response.errors must ===(InvalidReasonTypeFailure(reasonType).description)
+        response.error must ===(InvalidReasonTypeFailure(reasonType).description)
       }
     }
   }
