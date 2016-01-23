@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import { assoc, get } from 'sprout-data';
 import { post } from '../lib/search';
+import Api from '../lib/api';
 import { toQuery } from '../elastic/common';
 import SearchTerm from '../paragons/search-term';
 
@@ -30,7 +31,7 @@ function _createAction(namespace, description, ...args) {
   return createAction(name, ...args);
 }
 
-export default function makeLiveSearch(namespace, searchTerms, initialSearches) {
+export default function makeLiveSearch(namespace, searchTerms, scope) {
   const internalNS = namespace.toUpperCase();
   const cloneSearch = _createAction(internalNS, 'CLONE_SEARCH');
   const editSearchNameStart = _createAction(internalNS, 'EDIT_SEARCH_NAME_START');
@@ -42,6 +43,9 @@ export default function makeLiveSearch(namespace, searchTerms, initialSearches) 
   const searchFailure = _createAction(internalNS, 'SEARCH_FAILURE');
   const selectSavedSearch = _createAction(internalNS, 'SELECT_SAVED_SEARCH');
   const submitFilters = _createAction(internalNS, 'SUBMIT_FILTER');
+  const fetchSearchesStart = _createAction(internalNS, 'FETCH_SEARCHES_START');
+  const fetchSearchesSuccess = _createAction(internalNS, 'FETCH_SEARCHES_SUCCESS');
+  const fetchSearchesFailure = _createAction(internalNS, 'FETCH_SEARCHES_FAILURE');
 
   const addSearchFilter = (url, filters) => {
     return dispatch => {
@@ -75,6 +79,17 @@ export default function makeLiveSearch(namespace, searchTerms, initialSearches) 
     };
   };
 
+  const fetchSearches = () => {
+    return dispatch => {
+      dispatch(fetchSearchesStart());
+      return Api.get(`/shared-search?=${scope}`)
+        .then(
+          searches => dispatch(fetchSearchesSuccess(searches)),
+          err => dispatch(fetchSearchesFailure(err, fetchSearches))
+        );
+      };
+  };
+
   const selectSearch = (url, idx) => {
     return (dispatch, getState) => {
       dispatch(selectSavedSearch(idx));
@@ -87,14 +102,8 @@ export default function makeLiveSearch(namespace, searchTerms, initialSearches) 
   };
 
   const terms = searchTerms.map(st => new SearchTerm(st));
-  const initialSavedSearches = !_.isEmpty(initialSearches) ? initialSearches.map(s => {
-    return {
-      ...emptyState,
-      ...s,
-      currentOptions: terms
-    };
-  }) : [];
   const initialState = {
+    fetchingSearches: false,
     potentialOptions: terms,
     selectedSearch: 0,
     savedSearches: [
@@ -102,8 +111,7 @@ export default function makeLiveSearch(namespace, searchTerms, initialSearches) 
         ...emptyState,
         name: 'All',
         currentOptions: terms
-      },
-      ...initialSavedSearches
+      }
     ]
   };
 
@@ -117,7 +125,10 @@ export default function makeLiveSearch(namespace, searchTerms, initialSearches) 
     [searchSuccess]: (state, res) => _searchSuccess(state, res),
     [searchFailure]: (state, [err, source]) => _searchFailure(state, [err, source]),
     [selectSavedSearch]: (state, idx) => _selectSavedSearch(state, idx),
-    [submitFilters]: (state, filters) => _submitFilters(state, filters)
+    [submitFilters]: (state, filters) => _submitFilters(state, filters),
+    [fetchSearchesStart]: (state) => _fetchSearchesStart(state),
+    [fetchSearchesSuccess]: (state, searches) => _fetchSearchesSuccess(state, searches),
+    [fetchSearchesFailure]: (state, [err, source]) => _fetchSearchesFailure(state, [err, source])
   }, initialState);
 
   return {
@@ -129,13 +140,17 @@ export default function makeLiveSearch(namespace, searchTerms, initialSearches) 
       editSearchNameCancel,
       editSearchNameComplete,
       fetch,
+      fetchSearches,
       saveSearch,
       searchStart,
       searchSuccess,
       searchFailure,
       selectSearch,
       selectSavedSearch,
-      submitFilters
+      submitFilters,
+      fetchSearchesStart,
+      fetchSearchesSuccess,
+      fetchSearchesFailure
     }
   };
 }
@@ -232,4 +247,20 @@ function _searchFailure(state, [err, source]) {
 
 function _submitFilters(state, filters) {
   return assoc(state, ['savedSearches', state.selectedSearch, 'searches'], filters);
+}
+
+function _fetchSearchesStart(state) {
+  return assoc(state, 'fetchingSearches', true);
+}
+
+function _fetchSearchesSuccess(state, searches) {
+  return assoc(state, 'fetchingSearches', false);
+}
+
+function _fetchSearchesFailure(state, [err, source]) {
+  if (source == fetchSuccess) {
+    console.error(err);
+    return assoc(state, 'fetchingSearches', false);
+  }
+  return assoc(state, 'fetchingSearches', false);
 }

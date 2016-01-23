@@ -161,6 +161,7 @@ export default class LiveSearch extends React.Component {
       const selected = idx === this.props.searches.selectedSearch;
       const isEditing = selected && this.isEditingName;
       const draggable = !isEditing && search.name !== 'All';
+      const isEditable = search.name !== 'All';
       const isDirty = this.props.searches.savedSearches[idx].isDirty;
 
       const startEdit = (event) => {
@@ -176,6 +177,7 @@ export default class LiveSearch extends React.Component {
           draggable={draggable}
           isDirty={isDirty}
           isEditing={isEditing}
+          isEditable={isEditable}
           selected={selected}
           cancelEdit={this.props.editSearchNameCancel}
           completeEdit={this.props.editSearchNameComplete}
@@ -228,6 +230,7 @@ export default class LiveSearch extends React.Component {
 
   componentDidMount() {
     this.props.submitFilters(this.currentSearch.searches);
+    this.props.fetchSearches();
   }
 
   componentWillReceiveProps(nextProps) {

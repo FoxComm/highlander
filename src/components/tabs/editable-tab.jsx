@@ -19,6 +19,7 @@ export default class EditableTabView extends React.Component {
     completeEdit: PropTypes.func,
     defaultValue: PropTypes.string.isRequired,
     isDirty: PropTypes.bool,
+    isEditable: PropTypes.bool,
     isEditing: PropTypes.bool,
     startEdit: PropTypes.func
   };
@@ -27,6 +28,7 @@ export default class EditableTabView extends React.Component {
     cancelEdit: _.noop,
     completeEdit: _.noop,
     isDirty: false,
+    isEditable: true,
     isEditing: false,
     startEdit: _.noop
   };
@@ -42,7 +44,7 @@ export default class EditableTabView extends React.Component {
   }
 
   get editButton() {
-    if (!this.props.isEditing) {
+    if (!this.props.isEditing && this.props.isEditable) {
       return (
         <button className="fc-editable-tab__edit-icon" onClick={this.props.startEdit}>
           <i className="icon-edit"/>
@@ -107,7 +109,9 @@ export default class EditableTabView extends React.Component {
         {this.dirtyState}
         <TabView className={this.className} {...this.props}>
           {this.tabContent}
-          {this.editButton}
+          <div className="fc-editable-tab__edit-icon-container">
+            {this.editButton}
+          </div>
         </TabView>
       </div>
     );
