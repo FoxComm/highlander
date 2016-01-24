@@ -41,7 +41,9 @@ export default class LiveSearch extends React.Component {
 
     this.state = {
       availableOptions: currentOptions,
+      editName: '',
       inputMask: null,
+      isEditingName: false,
       isFocused: false,
       optionsVisible: false,
       pills: pills,
@@ -55,10 +57,6 @@ export default class LiveSearch extends React.Component {
 
   static propTypes = {
     children: PropTypes.node,
-    cloneSearch: PropTypes.func.isRequired,
-    editSearchNameStart: PropTypes.func,
-    editSearchNameCancel: PropTypes.func,
-    editSearchNameComplete: PropTypes.func,
     saveSearch: PropTypes.func,
     selectSavedSearch: PropTypes.func.isRequired,
     searches: PropTypes.object,
@@ -78,10 +76,6 @@ export default class LiveSearch extends React.Component {
 
   get isDirty() {
     return this.currentSearch.isDirty;
-  }
-
-  get isEditingName() {
-    return this.currentSearch.isEditingName;
   }
 
   get searchOptions() {
@@ -154,21 +148,51 @@ export default class LiveSearch extends React.Component {
     );
   }
 
+  @autobind
+  editSearchNameStart(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.setState({
+      ...this.state,
+      editName: this.currentSearch.name,
+      isEditingName: true
+    });
+  }
+
+  @autobind
+  editSearchNameCancel(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.setState({
+      ...this.state,
+      editName: '',
+      isEditingName: false
+    });
+  }
+
+  @autobind
+  editSearchNameComplete() {
+    const payload = { ...this.currentSearch, name: this.editName };
+    // this.props.updateSearch(this.props.searches.selectedSearch, payload);
+
+    this.setState({
+      ...this.state,
+      editName: '',
+      isEditingName: false
+    });
+  }
+
   get savedSearches() {
     if (this.props.singleSearch) return;
 
     const tabs = _.map(this.props.searches.savedSearches, (search, idx) => {
       const selected = idx === this.props.searches.selectedSearch;
-      const isEditing = selected && this.isEditingName;
+      const isEditing = selected && this.state.isEditingName;
       const draggable = !isEditing && search.name !== 'All';
       const isEditable = search.name !== 'All';
       const isDirty = this.props.searches.savedSearches[idx].isDirty;
-
-      const startEdit = (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        this.props.editSearchNameStart(idx);
-      };
 
       return (
         <EditableTabView
@@ -179,9 +203,9 @@ export default class LiveSearch extends React.Component {
           isEditing={isEditing}
           isEditable={isEditable}
           selected={selected}
-          cancelEdit={this.props.editSearchNameCancel}
-          completeEdit={this.props.editSearchNameComplete}
-          startEdit={startEdit}
+          cancelEdit={this.editSearchNameCancel}
+          completeEdit={this.editSearchNameComplete}
+          startEdit={this.editSearchNameStart}
           onClick={() => this.props.selectSavedSearch(idx)} />
       );
     });
@@ -197,9 +221,12 @@ export default class LiveSearch extends React.Component {
     const clickAction = (event) => {
       event.preventDefault();
       if (shouldSaveNew) {
-        this.props.cloneSearch();
-      } else {
-        this.props.saveSearch();
+        this.props.saveSearch({
+          ...this.currentSearch,
+          name: `${this.currentSearch.name} - Copy`
+        });
+      } else if (this.currentSearch.isNew) {
+        // this.props.saveSearch();
       }
     };
 

@@ -8,12 +8,12 @@ import SearchTerm from '../paragons/search-term';
 
 const emptyState = {
   isDirty: false,
-  isEditingName: false,
   // isFetching = null, - fetching wasn't started yet
   // isFetching = true, - fetching was started
   // isFetching = false, - fetching was finished
   isFetching: null,
   isNew: false,
+  isSaving: false,
   options: [],
   results: {
     from: 0,
@@ -33,11 +33,12 @@ function _createAction(namespace, description, ...args) {
 
 export default function makeLiveSearch(namespace, searchTerms, scope) {
   const internalNS = namespace.toUpperCase();
-  const cloneSearch = _createAction(internalNS, 'CLONE_SEARCH');
-  const editSearchNameStart = _createAction(internalNS, 'EDIT_SEARCH_NAME_START');
-  const editSearchNameCancel = _createAction(internalNS, 'EDIT_SEARCH_NAME_CANCEL');
-  const editSearchNameComplete = _createAction(internalNS, 'EDIT_SEARCH_NAME_COMPLETE');
-  const saveSearch = _createAction(internalNS, 'SAVE_SEARCH');
+
+  // Methods internal to the live search module
+  const saveSearchStart = _createAction(internalNS, 'SAVE_SEARCH_START');
+  const saveSearchSuccess = _createAction(internalNS, 'SAVE_SEARCH_SUCCESS');
+  const saveSearchFailure = _createAction(internalNS, 'SAVE_SEARCH_FAILURE');
+
   const searchStart = _createAction(internalNS, 'SEARCH_START');
   const searchSuccess = _createAction(internalNS, 'SEARCH_SUCCESS');
   const searchFailure = _createAction(internalNS, 'SEARCH_FAILURE');
@@ -90,6 +91,23 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
       };
   };
 
+  const saveSearch = search => {
+    const payload = {
+      title: search.name,
+      query: search.searches,
+      scope: scope
+    };
+
+    return dispatch => {
+      dispatch(saveSearchStart());
+      return Api.post('/shared-search', payload)
+        .then(
+          search => dispatch(saveSearchSuccess(search)),
+          err => dispatch(saveSearchFailure(err, saveSearch))
+        );
+    };
+  };
+
   const selectSearch = (url, idx) => {
     return (dispatch, getState) => {
       dispatch(selectSavedSearch(idx));
@@ -103,6 +121,7 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
 
   const terms = searchTerms.map(st => new SearchTerm(st));
   const initialState = {
+    isSavingSearch: false,
     fetchingSearches: false,
     potentialOptions: terms,
     selectedSearch: 0,
@@ -116,11 +135,9 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
   };
 
   const reducer = createReducer({
-    [cloneSearch]: (state) => _cloneSearch(state),
-    [editSearchNameStart]: (state, idx) => _editSearchNameStart(state, idx),
-    [editSearchNameCancel]: (state) => _editSearchNameCancel(state),
-    [editSearchNameComplete]: (state, newName) => _editSearchNameComplete(state, newName),
-    [saveSearch]: (state) => _saveSearch(state),
+    [saveSearchStart]: (state, idx) => _saveSearchStart(state),
+    [saveSearchSuccess]: (state, payload) => _saveSearchSuccess(state, payload),
+    [saveSearchFailure]: (state, [err, source]) => _saveSearchFailure(state, [err, source]),
     [searchStart]: (state) => _searchStart(state),
     [searchSuccess]: (state, res) => _searchSuccess(state, res),
     [searchFailure]: (state, [err, source]) => _searchFailure(state, [err, source]),
@@ -129,16 +146,12 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
     [fetchSearchesStart]: (state) => _fetchSearchesStart(state),
     [fetchSearchesSuccess]: (state, searches) => _fetchSearchesSuccess(state, searches),
     [fetchSearchesFailure]: (state, [err, source]) => _fetchSearchesFailure(state, [err, source])
-  }, initialState);
+}, initialState);
 
   return {
     reducer: reducer,
     actions: {
       addSearchFilter,
-      cloneSearch,
-      editSearchNameStart,
-      editSearchNameCancel,
-      editSearchNameComplete,
       fetch,
       fetchSearches,
       saveSearch,
@@ -155,56 +168,25 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
   };
 }
 
-function _cloneSearch(state) {
-  const toClone = {
-    ...state.savedSearches[state.selectedSearch],
-    name: '',
-    isEditingName: true,
-    isNew: true
-  };
-
-  return {
-    ...state,
-    selectedSearch: state.savedSearches.length,
-    savedSearches: [...state.savedSearches, toClone]
-  };
+function _saveSearchStart(state) {
+  return assoc(state, 'isSavingSearch', true);
 }
 
-function _editSearchNameStart(state, idx) {
-  const newState = _selectSavedSearch(state, idx);
-  return assoc(newState, ['savedSearches', newState.selectedSearch, 'isEditingName'], true);
+function _saveSearchSuccess(state, payload) {
+  const searches = { ...state.savedSearches, payload };
+  return assoc(state,
+    ['savedSearches'], searches,
+    ['selectedSearch'], searches.length - 1
+  );
 }
 
-function _editSearchNameCancel(state) {
-  const currentState = state.savedSearches[state.selectedSearch];
-  if (currentState.isNew) {
-    const searches = [
-      ...state.savedSearches.slice(0, state.selectedSearch),
-      ...state.savedSearches.slice(state.selectedSearch + 1)
-    ];
-    return {
-      ...state,
-      savedSearches: searches,
-      selectedSearch: 0
-    };
-  }
-  return assoc(state, ['savedSearches', state.selectedSearch, 'isEditingName'], false);
-}
-
-function _editSearchNameComplete(state, newName) {
-  if (!_.isEmpty(newName)) {
-    const newState = assoc(state,
-      ['savedSearches', state.selectedSearch, 'name'], newName,
-      ['savedSearches', state.selectedSearch, 'isEditingName'], false
-    );
-    return newState;
+function _saveSearchFailure(state, [err, source]) {
+  if (source == saveSearch) {
+    console.error(err);
+    return assoc(state, 'isSavingSearch', false);
   }
 
   return state;
-}
-
-function _saveSearch(state) {
-  return assoc(state, ['savedSearches', state.selectedSearch, 'isDirty'], false);
 }
 
 function _selectSavedSearch(state, idx) {
