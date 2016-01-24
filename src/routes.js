@@ -22,6 +22,7 @@ import Notes from './components/notes/notes';
 import Notifications from './components/notifications/notifications';
 import ActivityTrailPage from './components/activity-trail/activity-trail-page';
 import GiftCards from './components/gift-cards/gift-cards';
+import GiftCardsListPage from './components/gift-cards/list-page';
 import NewGiftCard from './components/gift-cards/gift-cards-new';
 import GiftCard from './components/gift-cards/gift-card';
 import GiftCardTransactions from './components/gift-cards/transactions';
@@ -93,7 +94,11 @@ const routes = (
              component={NewStoreCredit} />
     </Route>
     <Route name='gift-cards-base' path='gift-cards'>
-      <IndexRoute name='gift-cards' component={GiftCards}/>
+      <Route name='gift-cards-list-page' component={GiftCardsListPage}>
+        <IndexRoute name='gift-cards' component={GiftCards}/>
+        <Route name='gift-cards-activity-trail' path='activity-trail' dimension="gift-card"
+               component={ActivityTrailPage}/>
+      </Route>
       <Route name='gift-cards-new' path='new' component={NewGiftCard} />
       <Route name='giftcard' path=':giftCard' component={GiftCard}>
         <IndexRoute name='gift-card-transactions' component={GiftCardTransactions} />
