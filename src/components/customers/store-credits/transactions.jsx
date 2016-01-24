@@ -1,5 +1,10 @@
+
+// libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
+
+// components
 import Summary from './summary';
 import TableView from '../../table/tableview';
 import TableRow from '../../table/row';
@@ -9,9 +14,10 @@ import { DateTime } from '../../common/datetime';
 import Currency from '../../common/currency';
 import SearchBar from '../../search-bar/search-bar';
 import { Checkbox } from '../../checkbox/checkbox';
-import { connect } from 'react-redux';
-import * as StoreCreditTransactionsActions from '../../../modules/customers/store-credit-transactions';
 import State from '../../common/state';
+
+// redux
+import * as StoreCreditTransactionsActions from '../../../modules/customers/store-credit-transactions';
 
 @connect((state, props) => ({
   storeCreditTransactions: state.customers.storeCreditTransactions[props.params.customerId],

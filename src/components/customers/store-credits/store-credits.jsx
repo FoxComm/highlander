@@ -1,5 +1,12 @@
+
+// libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
+import { ReasonType } from '../../../lib/reason-utils';
+
+// components
 import Summary from './summary';
 import TableView from '../../table/tableview';
 import TableRow from '../../table/row';
@@ -11,9 +18,8 @@ import SearchBar from '../../search-bar/search-bar';
 import Dropdown from '../../dropdown/dropdown';
 import ConfirmationDialog from '../../modal/confirmation-dialog';
 import { Checkbox } from '../../checkbox/checkbox';
-import { ReasonType } from '../../../lib/reason-utils';
-import { autobind } from 'core-decorators';
-import { connect } from 'react-redux';
+
+// redux
 import * as StoreCreditsActions from '../../../modules/customers/store-credits';
 import * as ReasonsActions from '../../../modules/reasons';
 
