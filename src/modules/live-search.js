@@ -8,7 +8,10 @@ import SearchTerm from '../paragons/search-term';
 const emptyState = {
   isDirty: false,
   isEditingName: false,
-  isFetching: false,
+  // isFetching = null, - fetching wasn't started yet
+  // isFetching = true, - fetching was started
+  // isFetching = false, - fetching was finished
+  isFetching: null,
   isNew: false,
   options: [],
   results: {
