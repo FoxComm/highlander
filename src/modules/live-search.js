@@ -14,6 +14,8 @@ const emptyState = {
   isFetching: null,
   isNew: false,
   isSaving: false,
+  isEditable: true,
+  isUpdating: false,
   options: [],
   results: {
     from: 0,
@@ -21,7 +23,7 @@ const emptyState = {
     total: 0,
     rows: []
   },
-  searches: [],
+  query: [],
   searchValue: '',
   selectedIndex: -1
 };
@@ -32,21 +34,22 @@ function _createAction(namespace, description, ...args) {
 }
 
 export default function makeLiveSearch(namespace, searchTerms, scope) {
-  const internalNS = namespace.toUpperCase();
-
   // Methods internal to the live search module
-  const saveSearchStart = _createAction(internalNS, 'SAVE_SEARCH_START');
-  const saveSearchSuccess = _createAction(internalNS, 'SAVE_SEARCH_SUCCESS');
-  const saveSearchFailure = _createAction(internalNS, 'SAVE_SEARCH_FAILURE');
+  const saveSearchStart = _createAction(namespace, 'SAVE_SEARCH_START');
+  const saveSearchSuccess = _createAction(namespace, 'SAVE_SEARCH_SUCCESS');
+  const saveSearchFailure = _createAction(namespace, 'SAVE_SEARCH_FAILURE');
+  const updateSearchStart = _createAction(namespace, 'UPDATE_SEARCH_START');
+  const updateSearchSuccess = _createAction(namespace, 'UPDATE_SEARCH_SUCCESS', (idx, payload) => [idx, payload]);
+  const updateSearchFailure = _createAction(namespace, 'UPDATE_SEARCH_FAILURE', (idx, err, source) => [idx, err, source]);
 
-  const searchStart = _createAction(internalNS, 'SEARCH_START');
-  const searchSuccess = _createAction(internalNS, 'SEARCH_SUCCESS');
-  const searchFailure = _createAction(internalNS, 'SEARCH_FAILURE');
-  const selectSavedSearch = _createAction(internalNS, 'SELECT_SAVED_SEARCH');
-  const submitFilters = _createAction(internalNS, 'SUBMIT_FILTER');
-  const fetchSearchesStart = _createAction(internalNS, 'FETCH_SEARCHES_START');
-  const fetchSearchesSuccess = _createAction(internalNS, 'FETCH_SEARCHES_SUCCESS');
-  const fetchSearchesFailure = _createAction(internalNS, 'FETCH_SEARCHES_FAILURE');
+  const searchStart = _createAction(namespace, 'SEARCH_START');
+  const searchSuccess = _createAction(namespace, 'SEARCH_SUCCESS');
+  const searchFailure = _createAction(namespace, 'SEARCH_FAILURE');
+  const selectSavedSearch = _createAction(namespace, 'SELECT_SAVED_SEARCH');
+  const submitFilters = _createAction(namespace, 'SUBMIT_FILTER');
+  const fetchSearchesStart = _createAction(namespace, 'FETCH_SEARCHES_START');
+  const fetchSearchesSuccess = _createAction(namespace, 'FETCH_SEARCHES_SUCCESS');
+  const fetchSearchesFailure = _createAction(namespace, 'FETCH_SEARCHES_FAILURE');
 
   const addSearchFilter = (url, filters) => {
     return dispatch => {
@@ -93,8 +96,8 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
 
   const saveSearch = search => {
     const payload = {
-      title: search.name,
-      query: search.searches,
+      title: search.title,
+      query: search.query,
       scope: scope
     };
 
@@ -119,23 +122,41 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
     };
   };
 
+  const updateSearch = (idx, search) => {
+    const payload = {
+      title: search.title,
+      query: search.query,
+      scope: scope
+    };
+
+    return dispatch => {
+      dispatch(updateSearchStart(idx));
+      return Api.patch(`/shared-search/${search.code}`, payload)
+        .then(
+          search => dispatch(updateSearchSuccess(idx, search)),
+          err => dispatch(updateSearchFailure(idx, err, updateSearch))
+        );
+    };
+  };
+
   const terms = searchTerms.map(st => new SearchTerm(st));
   const initialState = {
+    updateNum: 0,
     isSavingSearch: false,
     fetchingSearches: false,
-    potentialOptions: terms,
+    searchOptions: terms,
     selectedSearch: 0,
     savedSearches: [
       {
         ...emptyState,
-        name: 'All',
-        currentOptions: terms
+        title: 'All',
+        isEditable: false
       }
     ]
   };
 
   const reducer = createReducer({
-    [saveSearchStart]: (state, idx) => _saveSearchStart(state),
+    [saveSearchStart]: (state) => _saveSearchStart(state),
     [saveSearchSuccess]: (state, payload) => _saveSearchSuccess(state, payload),
     [saveSearchFailure]: (state, [err, source]) => _saveSearchFailure(state, [err, source]),
     [searchStart]: (state) => _searchStart(state),
@@ -145,7 +166,10 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
     [submitFilters]: (state, filters) => _submitFilters(state, filters),
     [fetchSearchesStart]: (state) => _fetchSearchesStart(state),
     [fetchSearchesSuccess]: (state, searches) => _fetchSearchesSuccess(state, searches),
-    [fetchSearchesFailure]: (state, [err, source]) => _fetchSearchesFailure(state, [err, source])
+    [fetchSearchesFailure]: (state, [err, source]) => _fetchSearchesFailure(state, [err, source]),
+    [updateSearchStart]: (state, idx) => _updateSearchStart(state),
+    [updateSearchSuccess]: (state, [idx, payload]) => _updateSearchSuccess(state, [idx, payload]),
+    [updateSearchFailure]: (state, [idx, err, source]) => _updateSearchFailure(state, [idx, err, source]),
 }, initialState);
 
   return {
@@ -161,9 +185,7 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
       selectSearch,
       selectSavedSearch,
       submitFilters,
-      fetchSearchesStart,
-      fetchSearchesSuccess,
-      fetchSearchesFailure
+      updateSearch
     }
   };
 }
@@ -173,10 +195,13 @@ function _saveSearchStart(state) {
 }
 
 function _saveSearchSuccess(state, payload) {
-  const searches = { ...state.savedSearches, payload };
+  const search = { ...emptyState, ...payload };
+  const searches = { ...state.savedSearches, search };
+
   return assoc(state,
     ['savedSearches'], searches,
-    ['selectedSearch'], searches.length - 1
+    ['selectedSearch'], searches.length - 1,
+    'isSavingSearch', false
   );
 }
 
@@ -228,7 +253,7 @@ function _searchFailure(state, [err, source]) {
 }
 
 function _submitFilters(state, filters) {
-  return assoc(state, ['savedSearches', state.selectedSearch, 'searches'], filters);
+  return assoc(state, ['savedSearches', state.selectedSearch, 'query'], filters);
 }
 
 function _fetchSearchesStart(state) {
@@ -236,7 +261,14 @@ function _fetchSearchesStart(state) {
 }
 
 function _fetchSearchesSuccess(state, searches) {
-  return assoc(state, 'fetchingSearches', false);
+  const mappedSearches = searches.map(search => {
+    return { ...emptyState, ...search };
+  });
+
+  return assoc(state, 
+    'fetchingSearches', false,
+    'savedSearches', [...state.savedSearches, ...mappedSearches]
+  );
 }
 
 function _fetchSearchesFailure(state, [err, source]) {
@@ -245,4 +277,23 @@ function _fetchSearchesFailure(state, [err, source]) {
     return assoc(state, 'fetchingSearches', false);
   }
   return assoc(state, 'fetchingSearches', false);
+}
+
+function _updateSearchStart(state, idx) {
+  return assoc(state, ['savedSearches', idx, 'isUpdating'], true);
+}
+
+function _updateSearchSuccess(state, [idx, payload]) {
+  return assoc(state, 
+    ['savedSearches', idx], { ...emptyState, ...payload },
+    'updateNum', state.updateNum + 1);
+}
+
+function _updateSearchFailure(state, [idx, err, source]) {
+  if (source == updateSearch) {
+    console.error(err);
+    return assoc(state, ['savedSearches', idx, 'isUpdating'], false);
+  }
+
+  return state;
 }

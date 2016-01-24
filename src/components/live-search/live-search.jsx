@@ -38,18 +38,17 @@ export default class LiveSearch extends React.Component {
     }
 
     const {searchValue, currentOptions, searches: pills} = search;
+    const options = _.get(props, ['searches', 'searchOptions'], []);
 
     this.state = {
-      availableOptions: currentOptions,
-      editName: '',
+      availableOptions: options,
       inputMask: null,
-      isEditingName: false,
       isFocused: false,
       optionsVisible: false,
       pills: pills,
       searchDisplay: searchValue,
       searchPrepend: '',
-      searchOptions: currentOptions,
+      searchOptions: options,
       searchValue: searchValue,
       selectionIndex: -1
     };
@@ -63,6 +62,7 @@ export default class LiveSearch extends React.Component {
     singleSearch: PropTypes.bool,
     initialFilters: PropTypes.array,
     submitFilters: PropTypes.func.isRequired,
+    updateSearch: PropTypes.func.isRequired
   };
 
   static defaultProps = {
@@ -149,39 +149,9 @@ export default class LiveSearch extends React.Component {
   }
 
   @autobind
-  editSearchNameStart(event) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    this.setState({
-      ...this.state,
-      editName: this.currentSearch.name,
-      isEditingName: true
-    });
-  }
-
-  @autobind
-  editSearchNameCancel(event) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    this.setState({
-      ...this.state,
-      editName: '',
-      isEditingName: false
-    });
-  }
-
-  @autobind
-  editSearchNameComplete() {
-    const payload = { ...this.currentSearch, name: this.editName };
-    // this.props.updateSearch(this.props.searches.selectedSearch, payload);
-
-    this.setState({
-      ...this.state,
-      editName: '',
-      isEditingName: false
-    });
+  editSearchNameComplete(newTitle) {
+    const payload = { ...this.currentSearch, title: newTitle };
+    this.props.updateSearch(this.props.searches.selectedSearch, payload);
   }
 
   get savedSearches() {
@@ -189,23 +159,18 @@ export default class LiveSearch extends React.Component {
 
     const tabs = _.map(this.props.searches.savedSearches, (search, idx) => {
       const selected = idx === this.props.searches.selectedSearch;
-      const isEditing = selected && this.state.isEditingName;
-      const draggable = !isEditing && search.name !== 'All';
-      const isEditable = search.name !== 'All';
+      const isEditable = search.isEditable;
       const isDirty = this.props.searches.savedSearches[idx].isDirty;
 
       return (
         <EditableTabView
-          key={`saved-search-${search.name}`}
-          defaultValue={search.name}
-          draggable={draggable}
+          key={`saved-search-${search.title}`}
+          defaultValue={search.title}
+          draggable={isEditable}
           isDirty={isDirty}
-          isEditing={isEditing}
           isEditable={isEditable}
           selected={selected}
-          cancelEdit={this.editSearchNameCancel}
           completeEdit={this.editSearchNameComplete}
-          startEdit={this.editSearchNameStart}
           onClick={() => this.props.selectSavedSearch(idx)} />
       );
     });
@@ -216,17 +181,17 @@ export default class LiveSearch extends React.Component {
   get searchButton() {
     if (this.props.singleSearch) return;
 
-    const shouldSaveNew = this.currentSearch.name === 'All';
+    const shouldSaveNew = this.currentSearch.title === 'All';
     const buttonContents = `${shouldSaveNew ? 'Save' : 'Update'} Search`;
     const clickAction = (event) => {
       event.preventDefault();
       if (shouldSaveNew) {
         this.props.saveSearch({
           ...this.currentSearch,
-          name: `${this.currentSearch.name} - Copy`
+          title: `${this.currentSearch.title} - Copy`
         });
-      } else if (this.currentSearch.isNew) {
-        // this.props.saveSearch();
+      } else {
+        this.props.updateSearch(this.props.searches.selectedSearch, this.currentSearch);
       }
     };
 
@@ -256,22 +221,23 @@ export default class LiveSearch extends React.Component {
   }
 
   componentDidMount() {
-    this.props.submitFilters(this.currentSearch.searches);
+    this.props.submitFilters(this.currentSearch.query);
     this.props.fetchSearches();
   }
 
   componentWillReceiveProps(nextProps) {
     const search = currentSearch(nextProps);
-    const isVisible = this.state.isFocused && search.currentOptions.length > 0;
+    const searchOptions = _.get(nextProps, ['searches', 'searchOptions'], []);
+    const isVisible = this.state.isFocused && searchOptions.length > 0;
 
     this.setState({
       ...this.state,
       inputMask: null,
       optionsVisible: isVisible,
-      pills: search.searches,
+      pills: search.query,
       searchDisplay: search.searchValue,
       searchPrepend: '',
-      searchOptions: search.currentOptions,
+      searchOptions: searchOptions,
       searchValue: search.searchValue,
       selectionIndex: -1
     });
