@@ -18,6 +18,7 @@ export default class Typeahead extends React.Component {
     // fetchItems if passed should return promise for results
     fetchItems: PropTypes.func,
     component: PropTypes.func,
+    isFetching: PropTypes.bool,
     items: PropTypes.array,
     label: PropTypes.string,
     name: PropTypes.string,
@@ -38,7 +39,6 @@ export default class Typeahead extends React.Component {
     super(...args);
     this.state = {
       showMenu: false,
-      updating: false,
       query: '',
     };
   }
@@ -77,15 +77,8 @@ export default class Typeahead extends React.Component {
   @debounce(500)
   fetchItems(value) {
     if (this.props.fetchItems) {
-      this.props.fetchItems(value).then(this.onFetchDone, this.onFetchDone);
+      this.props.fetchItems(value);
     }
-  }
-
-  @autobind
-  onFetchDone() {
-    this.setState({
-      updating: false
-    });
   }
 
   @autobind
@@ -97,7 +90,6 @@ export default class Typeahead extends React.Component {
     this.setState({
       showMenu: value.length > 0,
       query: value,
-      updating: needUpdateItems
     });
 
     if (needUpdateItems) {
@@ -125,7 +117,7 @@ export default class Typeahead extends React.Component {
       const itemsElement = this.props.itemsElement;
 
       const ourProps = {
-        updating: this.state.updating,
+        updating: this.props.isFetching,
         toggleVisibility: show => this.toggleVisibility(show),
       };
 
