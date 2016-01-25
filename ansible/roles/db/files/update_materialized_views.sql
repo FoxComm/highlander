@@ -25,6 +25,13 @@ refresh materialized view concurrently orders_search_view;
 refresh materialized view concurrently store_admin_assignments_view;
 refresh materialized view concurrently store_admins_search_view;
 
+-- store_credits
+refresh materialized view concurrently store_credit_admins_view;
+refresh materialized view concurrently store_credit_from_gift_cards_view;
+refresh materialized view concurrently store_credit_subtypes_view;
+refresh materialized view concurrently store_credit_cancellation_reasons_view;
+refresh materialized view concurrently store_credits_search_view;
+
 -- store_credit_transactions
 refresh materialized view concurrently store_credit_transactions_admins_view;
 refresh materialized view concurrently store_credit_transactions_view;
