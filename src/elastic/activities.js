@@ -9,10 +9,12 @@ const sortBy = [
   ejs.Sort('activity.createdAt').desc()
 ];
 
-export function fetch({fromId = null, untilDate = null, query = null} = {}, type = '_search') {
-
+function buildRequest({fromId = null, untilDate = null, query = null, dimension = 'admin', objectId = null} = {}) {
   function buildFilter(filter) {
-    filter = filter.must(ejs.TermQuery('dimension', 'admin'));
+    filter = filter.must(ejs.TermQuery('dimension', dimension));
+    if (objectId != null) {
+      filter = filter.must(ejs.TermQuery('objectId', objectId));
+    }
     if (fromId != null) {
       filter = filter.must(ejs.RangeQuery('id').lt(fromId));
     }
@@ -24,7 +26,11 @@ export function fetch({fromId = null, untilDate = null, query = null} = {}, type
 
   const filter = buildFilter(ejs.BoolQuery());
 
-  let q = ejs.Request().query(filter);
+  return ejs.Request().query(filter);
+}
+
+export function fetch(queryParams, type = '_search') {
+  let q = buildRequest(queryParams);
   if (type == '_search') {
     q = q.sort(sortBy);
   }
@@ -32,13 +38,10 @@ export function fetch({fromId = null, untilDate = null, query = null} = {}, type
   return post(`activity_connections/${type}`, q);
 }
 
-export default function searchActivities(fromActivity = null, days = 2, query = null) {
+export default function searchActivities(fromActivity = null, trailParams, days = 2, query = null) {
 
   function queryFirstActivity() {
-    return ejs.Request()
-      .query(
-        ejs.TermQuery('dimension', 'admin')
-      )
+    return buildRequest(trailParams)
       .sort(sortBy)
       .size(1);
   }

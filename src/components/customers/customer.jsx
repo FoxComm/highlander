@@ -52,7 +52,7 @@ export default class Customer extends React.Component {
           <a href="">Notifications</a>
           <a href="">Reviews</a>
           <Link to="customer-notes" params={this.props.params}>Notes</Link>
-          <a href="">Activity Trail</a>
+          <Link to="customer-activity-trail" params={this.props.params}>Activity Trail</Link>
         </LocalNav>
         <div className="fc-grid">
           <div className="fc-col-md-1-1">

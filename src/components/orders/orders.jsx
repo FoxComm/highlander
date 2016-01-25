@@ -4,8 +4,8 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
-import ListPage from '../list-page/list-page';
 import OrderRow from './order-row';
+import { SearchableList } from '../list-page';
 
 const getState = state => ({ list: state.orders.list });
 
@@ -14,12 +14,6 @@ const mapDispatchToProps = dispatch => {
 };
 
 const Orders = props => {
-  const navLinks = [
-    { title: 'Lists', to: 'orders' },
-    { title: 'Insights', to: '' },
-    { title: 'Activity Trail', to: '' }
-  ];
-
   const renderRow = (row, index, columns) => {
     const key = `order-${row.referenceNumber}`;
     return <OrderRow order={row} columns={columns} key={key} />;
@@ -36,15 +30,12 @@ const Orders = props => {
   ];
 
   return (
-    <ListPage
-      addTitle="Order"
+    <SearchableList
       emptyResultMessage="No orders found."
       list={props.list}
-      navLinks={navLinks}
       renderRow={renderRow}
       tableColumns={tableColumns}
       searchActions={props.actions}
-      title="Orders"
       url="orders_search_view/_search" />
   );
 };

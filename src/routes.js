@@ -6,10 +6,12 @@ import Rmas from './components/rmas/rmas';
 import Rma from './components/rmas/rma';
 import RmaChildList from './components/rmas/child-list';
 import RmaDetails from './components/rmas/details';
+import OrdersListPage from './components/orders/list-page';
 import Orders from './components/orders/orders';
 import Order from './components/orders/order';
 import OrderDetails from './components/orders/details';
 import Customers from './components/customers/customers';
+import CustomersListPage from './components/customers/list-page';
 import NewCustomer from './components/customers/new-customer';
 import Groups from './components/customers-groups/groups';
 import DynamicGroup from './components/customers-groups/dynamic-group';
@@ -20,6 +22,7 @@ import Notes from './components/notes/notes';
 import Notifications from './components/notifications/notifications';
 import ActivityTrailPage from './components/activity-trail/activity-trail-page';
 import GiftCards from './components/gift-cards/gift-cards';
+import GiftCardsListPage from './components/gift-cards/list-page';
 import NewGiftCard from './components/gift-cards/gift-cards-new';
 import GiftCard from './components/gift-cards/gift-card';
 import GiftCardTransactions from './components/gift-cards/transactions';
@@ -47,7 +50,12 @@ const routes = (
       </Route>
     </Route>
     <Route name='orders-base' path="orders">
-      <IndexRoute name='orders' component={Orders}/>
+      <Route name='orders-list-pages' component={OrdersListPage}>
+        <IndexRoute name='orders' component={Orders}/>
+        <Route name='orders-activity-trail' path='activity-trail' dimension="order"
+               component={ActivityTrailPage}/>
+      </Route>
+
       <Route name='order' path=':order' component={Order}>
         <IndexRoute name='order-details' component={OrderDetails}/>
         <Route name='order-notes' path='notes' component={Notes}/>
@@ -57,18 +65,23 @@ const routes = (
       </Route>
     </Route>
     <Route name='customers-base' path='customers'>
-      <IndexRoute name='customers' component={Customers}/>
-      <Route name='customers-new' path='new' component={NewCustomer} />
-      <Route name='groups-base' path='groups'>
-        <IndexRoute name='groups' component={Groups}/>
-        <Route name='groups-new-dynamic' path='new-dynamic' component={DynamicGroup} />
-        <Route name='groups-new-manual' path='new-manual' component={ManualGroup} />
-        <Route name='group' path=':groupId' component={DynamicGroup} />
+      <Route name='customers-list-pages' component={CustomersListPage}>
+        <IndexRoute name='customers' component={Customers}/>
+        <Route name='customers-activity-trail' path='activity-trail' dimension="customer"
+               component={ActivityTrailPage}/>
+        <Route name='groups-base' path='groups'>
+          <IndexRoute name='groups' component={Groups}/>
+          <Route name='groups-new-dynamic' path='new-dynamic' component={DynamicGroup} />
+          <Route name='groups-new-manual' path='new-manual' component={ManualGroup} />
+          <Route name='group' path=':groupId' component={DynamicGroup} />
+        </Route>
       </Route>
+      <Route name='customers-new' path='new' component={NewCustomer} />
       <Route name='customer' path=':customerId' component={Customer}>
         <IndexRoute name='customer-details' component={CustomerDetails}/>
         <Route name='customer-returns' path='returns' component={RmaChildList}/>
         <Route name='customer-notes' path='notes' component={Notes} />
+        <Route name='customer-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
         <Route name='customer-storecredits-base' path='storecredit'>
           <IndexRoute name='customer-storecredits' component={StoreCredits}/>
           <Route name='customer-storecredit-transactions'
@@ -81,7 +94,11 @@ const routes = (
              component={NewStoreCredit} />
     </Route>
     <Route name='gift-cards-base' path='gift-cards'>
-      <IndexRoute name='gift-cards' component={GiftCards}/>
+      <Route name='gift-cards-list-page' component={GiftCardsListPage}>
+        <IndexRoute name='gift-cards' component={GiftCards}/>
+        <Route name='gift-cards-activity-trail' path='activity-trail' dimension="gift-card"
+               component={ActivityTrailPage}/>
+      </Route>
       <Route name='gift-cards-new' path='new' component={NewGiftCard} />
       <Route name='giftcard' path=':giftCard' component={GiftCard}>
         <IndexRoute name='gift-card-transactions' component={GiftCardTransactions} />

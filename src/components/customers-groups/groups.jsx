@@ -12,7 +12,6 @@ import TabView from '../tabs/tab';
 import SectionTitle from '../section-title/section-title';
 import LocalNav from '../local-nav/local-nav';
 import Currency from '../common/currency';
-import CustomersBase from '../customers/base';
 import PilledInput from '../pilled-search/pilled-input';
 import { PrimaryButton } from '../common/buttons';
 import * as groupsActions from '../../modules/groups/list';
@@ -69,25 +68,23 @@ export default class Groups extends React.Component {
     );
 
     return (
-      <CustomersBase>
-        <div className="fc-grid fc-groups-components">
-          <div className="fc-col-md-1-1 _group-header _group-component">
-            <h2 className="_group-title">Customers Groups</h2>
-            <PrimaryButton icon="add" onClick={this.onAddGroup}></PrimaryButton>
-          </div>
-          <div className="fc-col-md-1-1 _group-component">
-            <PilledInput placeholder="Add filter or keyword search"/>
-          </div>
-          <div className="fc-col-md-1-1 _group-component">
-            <TableView
-                columns={this.props.tableColumns}
-                data={this.props.groups}
-                renderRow={renderRow}
-                setState={this.props.fetch}
-              />
-          </div>
+      <div className="fc-grid fc-groups-components">
+        <div className="fc-col-md-1-1 _group-header _group-component">
+          <h2 className="_group-title">Customers Groups</h2>
+          <PrimaryButton icon="add" onClick={this.onAddGroup}></PrimaryButton>
         </div>
-      </CustomersBase>
+        <div className="fc-col-md-1-1 _group-component">
+          <PilledInput placeholder="Add filter or keyword search"/>
+        </div>
+        <div className="fc-col-md-1-1 _group-component">
+          <TableView
+              columns={this.props.tableColumns}
+              data={this.props.groups}
+              renderRow={renderRow}
+              setState={this.props.fetch}
+            />
+        </div>
+      </div>
     );
   }
 }

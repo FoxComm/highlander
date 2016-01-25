@@ -18,32 +18,45 @@ export default class ActivityTrailPage extends React.Component {
 
   static propTypes = {
     entity: PropTypes.shape({
-      entityId: PropTypes.string,
+      entityId: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number,
+      ]),
       entityType: PropTypes.string,
-    }).isRequired,
-    fetchActivityTrail: PropTypes.func
+    }),
+    activities: PropTypes.array.isRequired,
+    hasMore: PropTypes.bool,
+    err: PropTypes.any,
+    isFetching: PropTypes.bool,
+    route: PropTypes.shape({
+      dimension: PropTypes.string,
+    }),
+    fetchActivityTrail: PropTypes.func.isRequired,
+    resetActivities: PropTypes.func.isRequired,
   };
 
+  get trailParams() {
+    const { route, entity } = this.props;
+
+    if (route.dimension) {
+      return {
+        dimension: route.dimension
+      };
+    } else {
+      return {
+        dimension: entity.entityType,
+        objectId: entity.entityId,
+      };
+    }
+  }
+
   componentDidMount() {
-    this.props.fetchActivityTrail(this.props.entity);
-  }
-
-  get activities() {
-    return get(this.props, [this.props.entity.entityId, 'activities'], []);
-  }
-
-  get isFetching() {
-    return get(this.props, [this.props.entity.entityId, 'isFetching'], null);
-  }
-
-  get err() {
-    return get(this.props, [this.props.entity.entityId, 'err']);
+    this.props.resetActivities();
+    this.props.fetchActivityTrail(this.trailParams);
   }
 
   get content() {
-    const props = this.props;
-    const activities = this.activities;
-    const hasMore = get(props, [props.entity.entityId, 'hasMore'], false);
+    const { activities, hasMore, err, isFetching = null } = this.props;
 
     const params = {
       activities,
@@ -51,25 +64,25 @@ export default class ActivityTrailPage extends React.Component {
       fetchMore: this.fetchMore,
     };
 
-    if (this.isFetching === false) {
-      if (!this.err) {
+    if (isFetching === false) {
+      if (!err) {
         return <ActivityTrail {...params} />;
       } else {
-        return <ErrorAlerts errors={[this.err]} />;
+        return <ErrorAlerts errors={[err]} />;
       }
-    } else if (this.isFetching === true) {
+    } else if (isFetching === true) {
       return <WaitAnimation />;
     }
   }
 
   @autobind
   fetchMore() {
-    const activities = this.activities;
+    const { activities } = this.props;
     if (!activities.length) return;
 
     const fromActivity = activities[activities.length - 1];
 
-    this.props.fetchActivityTrail(this.props.entity, fromActivity);
+    this.props.fetchActivityTrail(this.trailParams, fromActivity);
   }
 
   render() {
