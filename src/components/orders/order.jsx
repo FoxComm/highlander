@@ -129,10 +129,10 @@ export default class Order extends React.Component {
               {orderState}
             </PanelListItem>
             <PanelListItem title="Shipment State">
-              <Status value={order.shippingStatus} model={"shipment"} />
+              <Status value={order.shippingState} model={"shipment"} />
             </PanelListItem>
             <PanelListItem title="Payment State">
-              <Status value={order.paymentStatus} model={"payment"} />
+              <Status value={order.paymentState} model={"payment"} />
             </PanelListItem>
             <PanelListItem title="Fraud Score">
               {order.fraudScore}
