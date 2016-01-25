@@ -18,10 +18,12 @@ import SearchBar from '../../search-bar/search-bar';
 import Dropdown from '../../dropdown/dropdown';
 import ConfirmationDialog from '../../modal/confirmation-dialog';
 import { Checkbox } from '../../checkbox/checkbox';
+import LiveSearch from '../../live-search/live-search';
 
 // redux
 import * as StoreCreditsActions from '../../../modules/customers/store-credits';
 import * as ReasonsActions from '../../../modules/reasons';
+import * as StoreCreditTotalsActions from '../../../modules/customers/store-credit-totals';
 
 const activeStateTransitions = [
   ['onHold', 'On Hold'],
@@ -35,12 +37,14 @@ const onHoldStateTransitions = [
 
 const actions = {
   ...StoreCreditsActions,
-  ...ReasonsActions
+  ...ReasonsActions,
+  ...StoreCreditTotalsActions
 };
 
 @connect((state, props) => ({
   ...state.customers.storeCredits[props.params.customerId],
-  ...state.reasons
+  ...state.reasons,
+  storeCreditTotals: state.customers.storeCreditTotals[props.params.customerId]
 }), actions)
 export default class StoreCredits extends React.Component {
 
@@ -102,9 +106,30 @@ export default class StoreCredits extends React.Component {
     return ReasonType.CANCELLATION;
   }
 
+  get searchUrl() {
+    return 'store_credits_search_view/_search';
+  }
+
+  get defaultSearchOptions() {
+    return {
+      singleSearch: true,
+      initialFilters: [{
+        display: "Customer: " + this.customerId,
+        selectedTerm: "customer.customerId",
+        selectedOperator: "eq",
+        hidden: true,
+        value: {
+          type: "string",
+          value: '' + this.customerId
+        }
+      }],
+    };
+  }
+
   componentDidMount() {
     this.props.fetchStoreCredits(this.customerId);
     this.props.fetchReasons(this.reasonType);
+    this.props.fetchTotals(this.customerId);
   }
 
   @autobind
@@ -234,7 +259,7 @@ export default class StoreCredits extends React.Component {
 
   render() {
     const props = this.props;
-    const totals = _.get(props, ['storeCredits', 'totals']);
+    const totals = _.get(props, ['storeCreditTotals', 'totals'], {});
 
     return (
       <div className="fc-store-credits fc-list-page">
