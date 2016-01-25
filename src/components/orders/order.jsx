@@ -15,7 +15,7 @@ import * as shippingMethodActions from '../../modules/orders/shipping-methods';
 import * as skusActions from '../../modules/skus';
 import SubNav from './sub-nav';
 import classNames from 'classnames';
-import Status, { statuses } from '../common/status';
+import State, { states } from '../common/state';
 import * as paymentMethodActions from '../../modules/orders/payment-methods';
 
 const mapStateToProps = (state) => {
@@ -47,7 +47,7 @@ export default class Order extends React.Component {
   get changeOptions() {
     return {
       header: 'Confirm',
-      body: 'Are you sure you want to change the order status?',
+      body: 'Are you sure you want to change the order state?',
       cancel: 'Cancel',
       proceed: 'Yes'
     };
@@ -102,15 +102,15 @@ export default class Order extends React.Component {
       return;
     }
 
-    const orderStatuses = statuses.order;
+    const orderStates = states.order;
 
-    const orderStatus = (
+    const orderState = (
       <Dropdown
-        name="orderStatus"
-        items={orderStatuses}
-        placeholder={'Order status'}
-        value={order.orderStatus}
-        onChange={this.onStatusChange}
+        name="orderState"
+        items={orderStates}
+        placeholder={'Order state'}
+        value={order.orderState}
+        onChange={this.onStateChange}
       />
     );
 
@@ -119,13 +119,13 @@ export default class Order extends React.Component {
         <div className="fc-col-md-1-1">
           <PanelList>
             <PanelListItem title="Order State">
-              {orderStatus}
+              {orderState}
             </PanelListItem>
             <PanelListItem title="Shipment State">
-              <Status value={order.shippingStatus} model={"shipment"} />
+              <State value={order.shippingState} model={"shipment"} />
             </PanelListItem>
             <PanelListItem title="Payment State">
-              <Status value={order.paymentStatus} model={"payment"} />
+              <State value={order.paymentState} model={"payment"} />
             </PanelListItem>
             <PanelListItem title="Fraud Score">
               {order.fraudScore}
@@ -140,8 +140,8 @@ export default class Order extends React.Component {
   }
 
   @autobind
-  onStatusChange(value) {
-    this.props.updateOrder(this.orderRefNum, {status: value});
+  onStateChange(value) {
+    this.props.updateOrder(this.orderRefNum, {state: value});
   }
 
   componentDidMount() {

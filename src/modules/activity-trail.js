@@ -21,7 +21,7 @@ export function processActivity(activity) {
   if (activity.data.orderRefNum) {
     activity.data.order = new OrderParagon({
       referenceNumber: activity.data.orderRefNum,
-      orderStatus: activity.data.orderStatus,
+      orderState: activity.data.orderState,
     });
   }
   return activity;

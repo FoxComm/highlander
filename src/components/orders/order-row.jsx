@@ -7,11 +7,10 @@ import { DateTime } from '../common/datetime';
 import { Checkbox } from '../checkbox/checkbox';
 import Currency from '../common/currency';
 import Link from '../link/link';
-import Status from '../common/status';
 import MultiSelectRow from '../table/multi-select-row';
 
 const compileShippingStatus = order => {
-  if (order.status == 'canceled') {
+  if (order.state == 'canceled') {
     return 'Canceled';
   }
 
@@ -50,10 +49,10 @@ const compileShippingStatus = order => {
   });
 
   if (order.shipments.length > 0) {
-    if (order.status == 'fulfillmentStarted' && shippedItemCount > 0 &&
+    if (order.state == 'fulfillmentStarted' && shippedItemCount > 0 &&
         deliveredItemCount == 0 && (pendingItemCount > 0 || partiallyShippedItemCount > 0)) {
       return 'Partially Shipped';
-    } else if (order.status == 'fulfillmentStarted' && deliveredItemCount > 0 &&
+    } else if (order.state == 'fulfillmentStarted' && deliveredItemCount > 0 &&
                (shippedItemCount > 0 || pendingItemCount > 0)) {
       return 'Partially Delivered';
     } else if (canceledItemCount == order.shipments.length) {
@@ -74,7 +73,7 @@ const setCellContents = (order, field) => {
     case 'placedAt':
     case 'customer.name':
     case 'customer.email':
-    case 'status':
+    case 'state':
     case 'grandTotal':
       return _.get(order, field);
     case 'shipping.status':
