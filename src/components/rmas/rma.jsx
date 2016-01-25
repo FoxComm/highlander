@@ -9,7 +9,7 @@ import { PrimaryButton } from '../common/buttons';
 import LocalNav from '../local-nav/local-nav';
 import { PanelList, PanelListItem } from '../panel/panel-list';
 import ContentBox from '../content-box/content-box';
-import Status from '../common/status';
+import State from '../common/state';
 
 @connect((state, props) => ({
   rma: state.rmas.details
@@ -97,7 +97,7 @@ export default class Rma extends React.Component {
           <div className="fc-col-md-3-4">
             <PanelList>
               <PanelListItem title="Return State">
-                <Status value={this.rma.status} model="rma"/>
+                <State value={this.rma.status} model="rma"/>
               </PanelListItem>
               <PanelListItem title="Return Type">
                 {rma.rmaType}

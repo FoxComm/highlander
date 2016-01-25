@@ -30,8 +30,8 @@ const Orders = props => {
     {field: 'placedAt', text: 'Date/Time Placed', type: 'datetime'},
     {field: 'customer.name', text: 'Name'},
     {field: 'customer.email', text: 'Email'},
-    {field: 'state', text: 'Order State', type: 'status', model: 'order'},
-    {field: 'shipping.status', text: 'Shipment State', type: 'status', model: 'shipment'},
+    {field: 'state', text: 'Order State', type: 'state', model: 'order'},
+    {field: 'shipping.status', text: 'Shipment State', type: 'state', model: 'shipment'},
     {field: 'grandTotal', text: 'Total', type: 'currency'}
   ];
 

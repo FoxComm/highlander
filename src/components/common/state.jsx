@@ -3,7 +3,7 @@ import { get } from 'sprout-data';
 
 import { stateTitles as orderStateTitles } from '../../paragons/order';
 
-export const statuses = {
+export const states = {
   order: orderStateTitles,
   payment: {
     cart: 'Cart'
@@ -38,13 +38,13 @@ export const statuses = {
   }
 };
 
-const Status = (props) => {
+const State = (props) => {
   return <span className="fc-status">{get(statuses, [props.model, props.value], '[Invalid]')}</span>;
 };
 
-Status.propTypes = {
+State.propTypes = {
   value: PropTypes.string.isRequired,
-  model: PropTypes.string.isRequired
+  model: PropTypes.string.isRequired,
 };
 
-export default Status;
+export default State;
