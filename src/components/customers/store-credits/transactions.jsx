@@ -3,6 +3,7 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
 
 // components
 import Summary from './summary';
@@ -15,6 +16,7 @@ import Currency from '../../common/currency';
 import SearchBar from '../../search-bar/search-bar';
 import { Checkbox } from '../../checkbox/checkbox';
 import State from '../../common/state';
+import LiveSearch from '../../live-search/live-search';
 
 // redux
 import * as StoreCreditTransactionsActions from '../../../modules/customers/store-credit-transactions';
@@ -26,7 +28,7 @@ const actions = {
 };
 
 @connect((state, props) => ({
-  storeCreditTransactions: state.customers.storeCreditTransactions[props.params.customerId],
+  storeCreditTransactions: state.customers.storeCreditTransactions,
   storeCreditTotals: state.customers.storeCreditTotals[props.params.customerId]
 }), actions)
 export default class StoreCreditTransactions extends React.Component {
@@ -76,9 +78,28 @@ export default class StoreCreditTransactions extends React.Component {
     return this.props.params.customerId;
   }
 
+  get searchUrl() {
+    return 'store_credit_transactions_view/_search';
+  }
+
   componentDidMount() {
-    this.props.fetchStoreCreditTransactions(this.customerId);
     this.props.fetchTotals(this.customerId);
+  }
+
+  get defaultSearchOptions() {
+    return {
+      singleSearch: true,
+      initialFilters: [{
+        display: "Customer: " + this.customerId,
+        selectedTerm: "customer.customerId",
+        selectedOperator: "eq",
+        hidden: true,
+        value: {
+          type: "string",
+          value: '' + this.customerId
+        }
+      }],
+    };
   }
 
   renderRow(row) {
@@ -94,27 +115,58 @@ export default class StoreCreditTransactions extends React.Component {
     );
   }
 
+  @autobind
+  setState(params) {
+    if (params.sortBy) {
+      const sort = {};
+      const newState = {sortBy: params.sortBy};
+
+      let sortOrder = this.state.sortOrder;
+
+      if (params.sortBy == this.state.sortBy) {
+        sortOrder = newState['sortOrder'] = sortOrder == 'asc' ? 'desc' : 'asc';
+      }
+
+      sort[params.sortBy] = {order: sortOrder};
+      props.searchActions.fetch(props.url, {sort: [sort]});
+      this.setState(newState);
+    }
+  }
+
   render() {
     const props = this.props;
-    const totals = _.get(props, ['storeCreditTotals', 'totals']);
+    const totals = _.get(props, ['storeCreditTotals', 'totals'], {});
+    console.log(this.props);
+
+    const selectedSearch = props.storeCreditTransactions.selectedSearch;
+
+    const filter = searchTerms => props.searchActions.addSearchFilter(this.searchUrl, searchTerms);
+    const selectSearch = idx => props.searchActions.selectSearch(this.searchUrl, idx);
 
     return (
-      <div className="fc-store-credits fc-list-page">
+      <div className="fc-store-credits">
         <Summary totals={totals}
                  params={props.params}
                  history={this.context.history}
                  transactionsSelected={true} />
-        <div className="fc-grid fc-list-page-content">
-          <SearchBar />
-          <div className="fc-col-md-1-1">
-            <MultiSelectTable
-              columns={props.tableColumns}
-              data={props.storeCreditTransactions}
-              renderRow={this.renderRow}
-              emptyMessage="No transactions found."
-              toggleColumnPresent={false}
-              setState={params => this.props.fetchStoreCreditTransactions(this.customerId, params)} />
-          </div>
+        <div className="fc-list-page-content">
+          <LiveSearch
+            url={this.searchUrl}
+            selectSavedSearch={selectSearch}
+            submitFilters={filter}
+            searches={props.storeCreditTransactions}
+            {...this.defaultSearchOptions}
+            {...props} >
+            <div className="fc-store-credit-table-container">
+              <MultiSelectTable
+                columns={props.tableColumns}
+                data={props.storeCreditTransactions}
+                renderRow={this.renderRow}
+                emptyMessage="No transactions found."
+                toggleColumnPresent={false}
+                setState={this.setState} />
+            </div>
+          </LiveSearch>
         </div>
       </div>
     );
