@@ -108,14 +108,6 @@ class RenderEditFooter extends React.Component {
     return _.get(this.props, 'skuSearch.quickSearch.result.rows', []);
   }
 
-  suggestSkus(suggest, phrase) {
-    return new Promise(
-      (resolve, reject) => {
-        suggest(phrase);
-        resolve(true);
-    });
-  }
-
   render() {
     return (
       <div className="fc-line-items-add">
@@ -124,7 +116,8 @@ class RenderEditFooter extends React.Component {
         </div>
         <Typeahead onItemSelected={null}
                    component={SkuResult}
-                   fetchItems={(phrase) => {return this.suggestSkus(this.props.suggestSkus, phrase);} }
+                   isFetching={this.props.skuSearch.quickSearch.isFetching}
+                   fetchItems={this.props.suggestSkus}
                    items={this.skus}
                    placeholder="Product name or SKU..."/>
       </div>
