@@ -2,7 +2,7 @@
 // libs
 import React from 'react';
 import types from '../base/types';
-import { statusTitles } from '../../../../paragons/order';
+import { stateTitles } from '../../../../paragons/order';
 import { joinEntities } from '../base/utils';
 
 // components
@@ -14,15 +14,15 @@ const representatives = {
     title: data => {
       return (
         <span>
-          <strong>changed the order state</strong> to {data.order.statusTitle}
+          <strong>changed the order state</strong> to {data.order.stateTitle}
           &nbsp;on <OrderTarget order={data.order}/>.
         </span>
       );
     },
     details: data => {
       return {
-        newOne: data.order.statusTitle,
-        previous: statusTitles[data.oldState] || data.oldState,
+        newOne: data.order.stateTitle,
+        previous: stateTitles[data.oldState] || data.oldState,
       };
     }
   },
@@ -41,7 +41,7 @@ const representatives = {
 
       return (
         <span>
-          <strong>changed the order state</strong> to {statusTitles[data.newState]} on orders {joinEntities(orders)}.
+          <strong>changed the order state</strong> to {stateTitles[data.newState]} on orders {joinEntities(orders)}.
         </span>
       );
     },

@@ -61,7 +61,7 @@ export default class OrderShippingAddress extends React.Component {
 
     let actionBlock = null;
 
-    if (props.order.orderStatus === 'cart') {
+    if (props.order.orderState === 'cart') {
       actionBlock = (
         <Button onClick={() => props.startDeletingAddress(address.id, addressTypes.SHIPPING)}>
           Remove shipping address

@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { Moment, Date, DateTime, Time } from '../common/datetime';
 import Currency from '../common/currency';
-import Status from '../common/status';
+import State from '../common/state';
 import Link from '../link/link';
 
 import _ from 'lodash';
@@ -20,8 +20,8 @@ const TableCell = props => {
       case 'image':
         cell = <img src={children}/>;
         break;
-      case 'status':
-        cell = <Status value={children} model={column.model}/>;
+      case 'state':
+        cell = <State value={children} model={column.model}/>;
         break;
       case 'currency':
         cell = <Currency value={children}/>;

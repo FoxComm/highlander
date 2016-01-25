@@ -1,10 +1,10 @@
 import React, { PropTypes } from 'react';
 import { get } from 'sprout-data';
 
-import { statusTitles as orderStatuses } from '../../paragons/order';
+import { stateTitles as orderStateTitles } from '../../paragons/order';
 
-export const statuses = {
-  order: orderStatuses,
+export const states = {
+  order: orderStateTitles,
   payment: {
     cart: 'Cart'
   },
@@ -38,13 +38,13 @@ export const statuses = {
   }
 };
 
-const Status = (props) => {
-  return <span className="fc-status">{get(statuses, [props.model, props.value], '[Invalid]')}</span>;
+const State = (props) => {
+  return <span className="fc-status">{get(states, [props.model, props.value], '[Invalid]')}</span>;
 };
 
-Status.propTypes = {
+State.propTypes = {
   value: PropTypes.string.isRequired,
-  model: PropTypes.string.isRequired
+  model: PropTypes.string.isRequired,
 };
 
-export default Status;
+export default State;
