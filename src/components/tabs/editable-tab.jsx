@@ -18,22 +18,26 @@ export default class EditableTabView extends React.Component {
   }
 
   static propTypes = {
-    cancelEdit: PropTypes.func,
-    completeEdit: PropTypes.func,
     defaultValue: PropTypes.string.isRequired,
     isDirty: PropTypes.bool,
     isEditable: PropTypes.bool,
     startEdit: PropTypes.func,
-    editMenuOptions: PropTypes.array
+    editMenuOptions: PropTypes.array,
+    onSaveUpdateComplete: PropTypes.func,
+    onEditNameComplete: PropTypes.func,
+    onCopySearchComplete: PropTypes.func,
+    onDeleteSearchComplete: PropTypes.func,
   };
 
   static defaultProps = {
-    cancelEdit: _.noop,
-    completeEdit: _.noop,
     isDirty: false,
     isEditable: true,
     startEdit: _.noop,
-    editMenuOptions: []
+    editMenuOptions: [],
+    onSaveUpdateComplete: _.noop,
+    onEditNameComplete: _.noop,
+    onCopySearchComplete: _.noop,
+    onDeleteSearchComplete: _.noop,
   };
 
   static updateState(currentState, props) {
@@ -63,24 +67,59 @@ export default class EditableTabView extends React.Component {
     }
   }
 
-  get editMenu() {
-    if (!_.isEmpty(this.props.editMenuOptions)) {
-      return (
-        <EditSearchOptions
-          isVisible={this.state.isEditingMenu}
-          options={this.props.editMenuOptions} />
-      );
+  get editNameAction() {
+    return () => {
+      this.setState({
+        ...this.state,
+        isEditing: false 
+      }, () => this.props.onEditNameComplete(this.state.editValue));
     }
+  }
+
+  get editMenuOptions() {
+    const saveAction = this.props.isDirty
+      ? [{ title: 'Save Search Update', action: this.props.onSaveUpdateComplete }]
+      : [];
+
+    return [
+      ...saveAction,
+      { title: 'Edit Name', action: this.startEditName },
+      { title: 'Copy Search', action: this.props.onCopySearchComplete },
+      { title: 'Delete Search', action: this.props.onDeleteSearchComplete }
+    ];
+  }
+
+  get editMenu() {
+    const options = this.editMenuOptions.map(opt => {
+      return {
+        title: opt.title,
+        action: () => this.setState({
+          ...this.state,
+          isEditingMenu: false
+        }, opt.action)
+      };
+    });
+        
+    return (
+      <EditSearchOptions
+        isVisible={this.state.isEditingMenu}
+        options={options} />
+    );
   }
   
   @autobind
   startEdit(event) {
-    if (_.isEmpty(this.props.editMenuOptions)) {
-      this.setState({ ...this.state, isEditing: true });
-    } else {
-      event.stopPropagation();
-      this.setState({ ...this.state, isEditingMenu: true });
-    }
+    event.stopPropagation();
+    this.setState({ ...this.state, isEditingMenu: true });
+  }
+
+  @autobind
+  startEditName() {
+    this.setState({
+      ...this.state,
+      isEditing: true,
+      isEditingMenu: false
+    });
   }
 
   @autobind
@@ -120,9 +159,11 @@ export default class EditableTabView extends React.Component {
   }
 
   @autobind
-  blur(event) {
-    this.setState({ ...this.state, isEditing: false });
-    this.props.completeEdit(this.state.editValue);
+  blur() {
+    this.setState({
+      ...this.state,
+      isEditing: false 
+    }, () => this.props.onEditNameComplete(this.state.editValue));
   }
 
   @autobind
@@ -155,8 +196,8 @@ export default class EditableTabView extends React.Component {
           <div className="fc-editable-tab__edit-icon-container">
             {this.editButton}
           </div>
+          {this.editMenu}
         </TabView>
-        {this.editMenu}
       </div>
     );
   }

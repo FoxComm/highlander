@@ -37,7 +37,7 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
   // Methods internal to the live search module
   const saveSearchStart = _createAction(namespace, 'SAVE_SEARCH_START');
   const saveSearchSuccess = _createAction(namespace, 'SAVE_SEARCH_SUCCESS');
-  const saveSearchFailure = _createAction(namespace, 'SAVE_SEARCH_FAILURE');
+  const saveSearchFailure = _createAction(namespace, 'SAVE_SEARCH_FAILURE', (err, source) => [err, source]);
   const updateSearchStart = _createAction(namespace, 'UPDATE_SEARCH_START');
   const updateSearchSuccess = _createAction(namespace, 'UPDATE_SEARCH_SUCCESS', (idx, payload) => [idx, payload]);
   const updateSearchFailure = _createAction(namespace, 'UPDATE_SEARCH_FAILURE', (idx, err, source) => [idx, err, source]);
@@ -214,7 +214,7 @@ function _saveSearchStart(state) {
 
 function _saveSearchSuccess(state, payload) {
   const search = { ...emptyState, ...payload };
-  const searches = { ...state.savedSearches, search };
+  const searches = [ ...state.savedSearches, search ];
 
   return assoc(state,
     ['savedSearches'], searches,

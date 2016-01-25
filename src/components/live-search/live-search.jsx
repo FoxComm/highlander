@@ -149,12 +149,6 @@ export default class LiveSearch extends React.Component {
     );
   }
 
-  @autobind
-  editSearchNameComplete(newTitle) {
-    const payload = { ...this.currentSearch, title: newTitle };
-    this.props.updateSearch(this.props.searches.selectedSearch, payload);
-  }
-
   get savedSearches() {
     if (this.props.singleSearch) return;
 
@@ -163,18 +157,14 @@ export default class LiveSearch extends React.Component {
       const isEditable = search.isEditable;
       const isDirty = this.props.searches.savedSearches[idx].isDirty;
 
-      let editMenuOptions = [
-        { title: 'Edit Name', action: _.noop },
-        { title: 'Copy Search', action: _.noop },
-        { title: 'Delete Search', action: () => this.props.deleteSearch(idx, search) }
-      ];
-
-      if (isDirty) {
-        editMenuOptions = [
-          { title: 'Save Updates', action: _.noop },
-          ...editMenuOptions
-        ];
-      }
+      const copySearch = () => {
+        this.props.saveSearch({ ...search, title: `${search.title} - Copy` });
+      };
+      const deleteSearch = () => this.props.deleteSearch(idx, search);
+      const editName = title => {
+        this.props.updateSearch(idx, { ...search, title: title });
+      };
+      const saveSearch = () => this.props.saveSearch(search);
 
       return (
         <EditableTabView
@@ -184,9 +174,11 @@ export default class LiveSearch extends React.Component {
           isDirty={isDirty}
           isEditable={isEditable}
           selected={selected}
-          completeEdit={this.editSearchNameComplete}
           onClick={() => this.props.selectSavedSearch(idx)}
-          editMenuOptions={editMenuOptions} />
+          onSaveUpdateComplete={saveSearch}
+          onEditNameComplete={editName}
+          onCopySearchComplete={copySearch}
+          onDeleteSearchComplete={deleteSearch} /> 
       );
     });
 

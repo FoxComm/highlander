@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import { autobind } from 'core-decorators';
 
 import Menu from '../menu/menu';
 import MenuItem from '../menu/menu-item';
