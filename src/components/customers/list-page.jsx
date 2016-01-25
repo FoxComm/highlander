@@ -36,4 +36,8 @@ CustomersListPage.propTypes = {
   children: PropTypes.node,
 };
 
+CustomersListPage.contextTypes = {
+  history: PropTypes.object.isRequired,
+};
+
 export default CustomersListPage;

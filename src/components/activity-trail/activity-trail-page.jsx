@@ -31,8 +31,8 @@ export default class ActivityTrailPage extends React.Component {
     route: PropTypes.shape({
       dimension: PropTypes.string,
     }),
-    fetchActivityTrail: PropTypes.func,
-    resetActivities: PropTypes.func,
+    fetchActivityTrail: PropTypes.func.isRequired,
+    resetActivities: PropTypes.func.isRequired,
   };
 
   get trailParams() {
@@ -51,7 +51,6 @@ export default class ActivityTrailPage extends React.Component {
   }
 
   componentDidMount() {
-    window.a = this.props.route;
     this.props.resetActivities();
     this.props.fetchActivityTrail(this.trailParams);
   }

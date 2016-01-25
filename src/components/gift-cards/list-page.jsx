@@ -35,4 +35,8 @@ GiftCardsListPage.propTypes = {
   children: PropTypes.node,
 };
 
+GiftCardsListPage.contextTypes = {
+  history: PropTypes.object.isRequired,
+};
+
 export default GiftCardsListPage;
