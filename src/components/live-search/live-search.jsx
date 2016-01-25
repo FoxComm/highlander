@@ -12,6 +12,8 @@ import SearchOption from './search-option';
 import TabListView from '../tabs/tabs';
 import EditableTabView from '../tabs/editable-tab';
 import DatePicker from '../datepicker/datepicker';
+import ShareSearch from '../share-search/share-search';
+import { Button } from '../common/buttons';
 
 import SearchTerm, { getInputMask } from '../../paragons/search-term';
 
@@ -44,6 +46,7 @@ export default class LiveSearch extends React.Component {
       availableOptions: options,
       inputMask: null,
       isFocused: false,
+      isShareVisible: false,
       optionsVisible: false,
       pills: pills,
       searchDisplay: searchValue,
@@ -408,11 +411,37 @@ export default class LiveSearch extends React.Component {
     });
   }
 
+  @autobind
+  openShareSearch() {
+    this.setState({ ...this.state, isShareVisible: true });
+  }
+
+  @autobind
+  closeShareSearch() {
+    this.setState({ ...this.state, isShareVisible: false });
+  }
+
+  get shareSearch() {
+    return (
+      <div className="fc-col-md-1-1">
+        <Button 
+          className="fc-live-search__share-button fc-right" 
+          onClick={this.openShareSearch}
+          icon="external-link-2" />
+        <ShareSearch 
+          closeAction={this.closeShareSearch}
+          isVisible={this.state.isShareVisible} 
+          title={this.currentSearch.title} />
+      </div>
+    );
+  }
+
   render() {
     return (
       <div className="fc-live-search">
         {this.header}
         <div className="fc-grid fc-list-page-content">
+          {this.shareSearch}
           <div className="fc-col-md-1-1 fc-live-search__search-control">
             <form>
               <PilledInput
