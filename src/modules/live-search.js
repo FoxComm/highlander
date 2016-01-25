@@ -41,6 +41,9 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
   const updateSearchStart = _createAction(namespace, 'UPDATE_SEARCH_START');
   const updateSearchSuccess = _createAction(namespace, 'UPDATE_SEARCH_SUCCESS', (idx, payload) => [idx, payload]);
   const updateSearchFailure = _createAction(namespace, 'UPDATE_SEARCH_FAILURE', (idx, err, source) => [idx, err, source]);
+  const deleteSearchStart = _createAction(namespace, 'DELETE_SEARCH_START');
+  const deleteSearchSuccess = _createAction(namespace, 'DELETE_SEARCH_SUCCESS');
+  const deleteSearchFailure = _createAction(namespace, 'DELETE_SEARCH_FAILURE', (idx, err, source) => [idx, err, source]);
 
   const searchStart = _createAction(namespace, 'SEARCH_START');
   const searchSuccess = _createAction(namespace, 'SEARCH_SUCCESS');
@@ -139,6 +142,17 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
     };
   };
 
+  const deleteSearch = (idx, search) => {
+    return dispatch => {
+      dispatch(deleteSearchStart(idx));
+      return Api.delete(`/shared-search/${search.code}`)
+        .then(
+          resp => dispatch(deleteSearchSuccess(idx)),
+          err => dispatch(deleteSearchFailure(idx, err, deleteSearch))
+        );
+    };
+  };
+
   const terms = searchTerms.map(st => new SearchTerm(st));
   const initialState = {
     updateNum: 0,
@@ -167,9 +181,12 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
     [fetchSearchesStart]: (state) => _fetchSearchesStart(state),
     [fetchSearchesSuccess]: (state, searches) => _fetchSearchesSuccess(state, searches),
     [fetchSearchesFailure]: (state, [err, source]) => _fetchSearchesFailure(state, [err, source]),
-    [updateSearchStart]: (state, idx) => _updateSearchStart(state),
+    [updateSearchStart]: (state, idx) => _updateSearchStart(state, idx),
     [updateSearchSuccess]: (state, [idx, payload]) => _updateSearchSuccess(state, [idx, payload]),
     [updateSearchFailure]: (state, [idx, err, source]) => _updateSearchFailure(state, [idx, err, source]),
+    [deleteSearchStart]: (state, idx) => _deleteSearchStart(state, idx),
+    [deleteSearchSuccess]: (state, idx) => _deleteSearchSuccess(state, idx),
+    [deleteSearchFailure]: (state, [idx, err, source]) => _deleteSearchFailure(state, [idx, err, source]),
 }, initialState);
 
   return {
@@ -185,7 +202,8 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
       selectSearch,
       selectSavedSearch,
       submitFilters,
-      updateSearch
+      updateSearch,
+      deleteSearch
     }
   };
 }
@@ -293,6 +311,35 @@ function _updateSearchFailure(state, [idx, err, source]) {
   if (source == updateSearch) {
     console.error(err);
     return assoc(state, ['savedSearches', idx, 'isUpdating'], false);
+  }
+
+  return state;
+}
+
+function _deleteSearchStart(state, idx) {
+  return assoc(state, ['savedSearches', idx, 'isDeleting'], true);
+}
+
+function _deleteSearchSuccess(state, idx) {
+  const searches = [
+    ...state.savedSearches.slice(0, idx),
+    ...state.savedSearches.slice(idx + 1)
+  ];
+
+  const selectedSearch = idx == state.selectedSearch
+    ? state.selectedSearch - 1
+    : state.selectedSearch;
+
+  return assoc(state, 
+    'savedSearches', searches,
+    'selectedSearch', selectedSearch
+  );
+}
+
+function _deleteSearchFailure(state, [idx, err, source]) {
+  if (source == deleteSearch) {
+    console.error(err);
+    return assoc(state, ['savedSearches', idx, 'isDeleting'], false);
   }
 
   return state;

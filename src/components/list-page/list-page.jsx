@@ -29,6 +29,7 @@ export default ListPage;
     tableColumns: PropTypes.array.isRequired,
     searchActions: PropTypes.shape({
       addSearchFilter: PropTypes.func.isRequired,
+      deleteSearch: PropTypes.func.isRequired,
       fetch: PropTypes.func.isRequired,
       fetchSearches: PropTypes.func.isRequired,
       saveSearch: PropTypes.func.isRequired,
@@ -94,6 +95,7 @@ export default ListPage;
           selectSavedSearch={selectSearch}
           submitFilters={filter}
           searches={props.list}
+          deleteSearch={props.searchActions.deleteSearch}
           updateSearch={props.searchActions.updateSearch}
         >
           <MultiSelectTable

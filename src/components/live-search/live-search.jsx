@@ -56,6 +56,7 @@ export default class LiveSearch extends React.Component {
 
   static propTypes = {
     children: PropTypes.node,
+    deleteSearch: PropTypes.func.isRequired,
     saveSearch: PropTypes.func,
     selectSavedSearch: PropTypes.func.isRequired,
     searches: PropTypes.object,
@@ -165,7 +166,7 @@ export default class LiveSearch extends React.Component {
       let editMenuOptions = [
         { title: 'Edit Name', action: _.noop },
         { title: 'Copy Search', action: _.noop },
-        { title: 'Delete Search', action: _.noop }
+        { title: 'Delete Search', action: () => this.props.deleteSearch(idx, search) }
       ];
 
       if (isDirty) {
