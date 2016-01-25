@@ -7,7 +7,6 @@ import { DateTime } from '../../common/datetime';
 import { Checkbox } from '../../checkbox/checkbox';
 import Currency from '../../common/currency';
 import Link from '../../link/link';
-import Status from '../../common/status';
 import MultiSelectRow from '../../table/multi-select-row';
 
 
@@ -16,7 +15,7 @@ const setCellContents = (order, field) => {
     case 'referenceNumber':
     case 'placedAt':
     case 'customer.modality':
-    case 'status':
+    case 'state':
     case 'grandTotal':
       return _.get(order, field);
     case 'return':
