@@ -3,11 +3,10 @@ package responses
 import java.time.Instant
 
 import cats.implicits._
-import models.{OrderWatcher, OrderWatchers, OrderLockEvents, Adjustment, CreditCard, CreditCardCharge, CreditCards,
+import models.{OrderWatcher, OrderWatchers, OrderLockEvents, CreditCard, CreditCardCharge, CreditCards,
 Customer, Customers, GiftCard, Order, OrderAssignment, OrderAssignments, OrderLineItem, OrderLineItemGiftCard,
 OrderLineItemGiftCards, OrderLineItemSkus, OrderPayment, OrderPayments, Orders, PaymentMethod, Region,
 ShippingMethod, Sku, StoreAdmin, StoreAdmins, StoreCredit}
-import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 
@@ -35,7 +34,6 @@ object FullOrder {
     shippingState: Order.State,
     paymentState: Option[CreditCardCharge.Status] = Some(CreditCardCharge.Cart),
     lineItems: LineItems,
-    adjustments: Seq[Adjustment],
     fraudScore: Int,
     totals: Totals,
     customer: Option[CustomerResponse.Root] = None,
@@ -95,7 +93,7 @@ object FullOrder {
     }
   }
 
-  def build(order: Order, skus: Seq[(Sku, OrderLineItem)] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty,
+  def build(order: Order, skus: Seq[(Sku, OrderLineItem)] = Seq.empty,
     shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None,
     shippingAddress: Option[Addresses.Root] = None,
     ccPmt: Option[CcPayment] = None, gcPmts: Seq[(OrderPayment, GiftCard)] = Seq.empty,
@@ -138,7 +136,6 @@ object FullOrder {
       //paymentState = none,
       //paymentState = maybePayment.map(p ⇒ getPaymentStatus(order.status, p)),
       lineItems = LineItems(skus = skuList, giftCards = gcList),
-      adjustments = adjustments,
       fraudScore = scala.util.Random.nextInt(100),
       customer = customer.map(responses.CustomerResponse.build(_)),
       shippingAddress = shippingAddress,
