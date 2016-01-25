@@ -39,12 +39,12 @@ class CheckoutTest
 
   "Checkout" - {
     "fails if the order is not a cart" in new Fixture {
-      val nonCart = cart.copy(status = Order.RemorseHold)
+      val nonCart = cart.copy(state = Order.RemorseHold)
       val result = Checkout(nonCart, CartValidator(nonCart)).checkout.futureValue.leftVal
       val current = Orders.findById(cart.id).extract.one.run().futureValue.value
 
       result must === (OrderMustBeCart(nonCart.refNum).single)
-      current.status must === (cart.status)
+      current.state must === (cart.state)
     }
 
     "fails if the cart validator fails" in new CustomerFixture {
@@ -70,7 +70,7 @@ class CheckoutTest
       val result = Checkout(cart, cartValidator()).checkout.futureValue.rightVal
       val current = Orders.findById(cart.id).extract.one.run().futureValue.value
 
-      current.status must === (Order.RemorseHold)
+      current.state must === (Order.RemorseHold)
       current.placedAt.value mustBe >= (before)
     }
 
@@ -80,7 +80,7 @@ class CheckoutTest
       val newCart = Orders.findByCustomerId(cart.customerId).cartOnly.one.run().futureValue.value
 
       newCart.id must !== (cart.id)
-      newCart.status must === (Order.Cart)
+      newCart.state must === (Order.Cart)
       newCart.isLocked mustBe false
       newCart.placedAt mustBe 'empty
       newCart.remorsePeriodEnd mustBe 'empty

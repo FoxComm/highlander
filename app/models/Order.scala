@@ -6,12 +6,12 @@ import cats.data.Validated.valid
 import cats.data.Xor.{left, right}
 import cats.data.{ValidatedNel, Xor}
 import com.pellucid.sealerate
-import models.Order.{Cart, Status}
+import models.Order.{Cart, State}
 import models.traits.Lockable
 import monocle.Lens
 import monocle.macros.GenLens
 import services.CartFailures.OrderMustBeCart
-import services.{StatusTransitionNotAllowed, Failure, Failures, GeneralFailure}
+import services.{StateTransitionNotAllowed, Failure, Failures, GeneralFailure}
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
@@ -25,11 +25,11 @@ import scala.concurrent.ExecutionContext
 
 final case class Order(
   id: Int = 0, referenceNumber: String = "", customerId: Int,
-  status: Status = Cart, isLocked: Boolean = false, placedAt: Option[Instant] = None,
+  state: State = Cart, isLocked: Boolean = false, placedAt: Option[Instant] = None,
   remorsePeriodEnd: Option[Instant] = None, rmaCount: Int = 0, currency: Currency = Currency.USD,
   subTotal: Int = 0, shippingTotal: Int = 0, adjustmentsTotal: Int = 0, taxesTotal: Int = 0, grandTotal: Int = 0)
   extends ModelWithLockParameter[Order]
-  with FSM[Order.Status, Order]
+  with FSM[Order.State, Order]
   with Lockable[Order]
   with Validation[Order] {
 
@@ -40,15 +40,15 @@ final case class Order(
     valid(this)
   }
 
-  def isCart: Boolean = status == Cart
+  def isCart: Boolean = state == Cart
 
   def refNum: String = referenceNumber
 
-  def stateLens = GenLens[Order](_.status)
+  def stateLens = GenLens[Order](_.state)
   override def updateTo(newModel: Order): Failures Xor Order = super.transitionModel(newModel)
   override def primarySearchKeyLens: Lens[Order, String] = GenLens[Order](_.referenceNumber)
 
-  val fsm: Map[Status, Set[Status]] = Map(
+  val fsm: Map[State, Set[State]] = Map(
     Cart →
       Set(FraudHold, RemorseHold, Canceled, FulfillmentStarted),
     FraudHold →
@@ -62,7 +62,7 @@ final case class Order(
   )
 
   // If order is not in RemorseHold, remorsePeriodEnd should be None, but extra check wouldn't hurt
-  val getRemorsePeriodEnd: Option[Instant] = status match {
+  val getRemorsePeriodEnd: Option[Instant] = state match {
     case RemorseHold if !isLocked ⇒ remorsePeriodEnd
     case _ ⇒ None
   }
@@ -71,28 +71,28 @@ final case class Order(
     if (isCart) right(this) else left(OrderMustBeCart(this.refNum).single)
 
   def mustBeRemorseHold: Failures Xor Order =
-    if (status == RemorseHold) right(this) else left(GeneralFailure("Order is not in RemorseHold status").single)
+    if (state == RemorseHold) right(this) else left(GeneralFailure("Order is not in RemorseHold state").single)
 }
 
 object Order {
-  sealed trait Status
+  sealed trait State
 
-  case object Cart extends Status
-  case object Ordered extends Status
-  case object FraudHold extends Status
-  case object RemorseHold extends Status
-  case object ManualHold extends Status
-  case object Canceled extends Status
-  case object FulfillmentStarted extends Status
-  case object Shipped extends Status
+  case object Cart extends State
+  case object Ordered extends State
+  case object FraudHold extends State
+  case object RemorseHold extends State
+  case object ManualHold extends State
+  case object Canceled extends State
+  case object FulfillmentStarted extends State
+  case object Shipped extends State
 
-  object Status extends ADT[Status] {
-    def types = sealerate.values[Status]
+  object State extends ADT[State] {
+    def types = sealerate.values[State]
   }
 
-  implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
+  implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
 
-  def buildCart(customerId: Int): Order = Order(customerId = customerId, status = Order.Cart)
+  def buildCart(customerId: Int): Order = Order(customerId = customerId, state = Order.Cart)
 
   val orderRefNumRegex = """([a-zA-Z0-9-_]*)""".r
 }
@@ -102,7 +102,7 @@ class Orders(tag: Tag) extends GenericTable.TableWithLock[Order](tag, "orders") 
   // TODO: Find a way to deal with guest checkouts...
   def referenceNumber = column[String]("reference_number") //we should generate this based on certain rules; nullable until then
   def customerId = column[Int]("customer_id")
-  def status = column[Order.Status]("status")
+  def state = column[Order.State]("state")
   def isLocked = column[Boolean]("is_locked")
   def placedAt = column[Option[Instant]]("placed_at")
   def remorsePeriodEnd = column[Option[Instant]]("remorse_period_end")
@@ -115,7 +115,7 @@ class Orders(tag: Tag) extends GenericTable.TableWithLock[Order](tag, "orders") 
   def taxesTotal = column[Int]("taxes_total")
   def grandTotal = column[Int]("grand_total")
 
-  def * = (id, referenceNumber, customerId, status, isLocked, placedAt, remorsePeriodEnd,
+  def * = (id, referenceNumber, customerId, state, isLocked, placedAt, remorsePeriodEnd,
     rmaCount, currency, subTotal, shippingTotal, adjustmentsTotal,
     taxesTotal, grandTotal) <>((Order.apply _).tupled, Order.unapply)
 
@@ -154,12 +154,12 @@ object Orders extends TableQueryWithLock[Order, Orders](
     findByRefNum(refNum).cartOnly
 
   def findActiveOrderByCustomer(cust: Customer) =
-    filter(_.customerId === cust.id).filter(_.status === (Order.Cart: Order.Status))
+    filter(_.customerId === cust.id).filter(_.state === (Order.Cart: Order.State))
 
   object scope {
     implicit class OrdersQuerySeqConversions(q: QuerySeq) {
       def cartOnly: QuerySeq =
-        q.filter(_.status === (Order.Cart: Order.Status))
+        q.filter(_.state === (Order.Cart: Order.State))
     }
   }
 

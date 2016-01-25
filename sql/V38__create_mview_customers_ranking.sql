@@ -9,7 +9,7 @@ from
       c.id,
       coalesce(sum(CCc.amount),0) + coalesce(sum(SCa.debit), 0) + coalesce(sum(GCa.debit),0) - coalesce(sum(rp.amount),0) as revenue
     from customers as c
-    inner join orders on(c.id = orders.customer_id and orders.status = 'shipped')
+    inner join orders on(c.id = orders.customer_id and orders.state = 'shipped')
     inner join order_payments as op on(op.order_id = orders.id)
     left join credit_card_charges as CCc on(CCc.order_payment_id = op.id and CCc.status = 'fullCapture')
     left join store_credit_adjustments as SCa on(SCA.order_payment_id = op.id and SCa.status = 'capture')

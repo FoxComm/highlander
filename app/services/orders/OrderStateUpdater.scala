@@ -7,7 +7,7 @@ import models.Order.{Canceled, _}
 import models.{StoreAdmin, Order, OrderLineItem, OrderLineItems, Orders}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import responses.{FullOrder, ResponseWithFailuresAndMetadata}
-import services.{Result, StatusTransitionNotAllowed, NotFoundFailure400, LockedFailure, Failures}
+import services.{Result, StateTransitionNotAllowed, NotFoundFailure400, LockedFailure, Failures}
 import services.LogActivity.{orderStateChanged, orderBulkStateChanged}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
@@ -17,27 +17,27 @@ import utils.Slick.{DbResult, _}
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 
-object OrderStatusUpdater {
+object OrderStateUpdater {
 
-  def updateStatus(admin: StoreAdmin, refNum: String, newStatus: Order.Status)
+  def updateState(admin: StoreAdmin, refNum: String, newState: Order.State)
     (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[FullOrder.Root] = (for {
 
     order     ← * <~ Orders.mustFindByRefNum(refNum)
-    _         ← * <~ updateStatusesDbio(admin, Seq(refNum), newStatus, skipActivity = true)
+    _         ← * <~ updateStatesDbio(admin, Seq(refNum), newState, skipActivity = true)
     updated   ← * <~ Orders.mustFindByRefNum(refNum)
     response  ← * <~ FullOrder.fromOrder(updated).toXor
-    _         ← * <~ (if (order.status == newStatus) DbResult.unit else orderStateChanged(admin, response, order.status))
+    _         ← * <~ (if (order.state == newState) DbResult.unit else orderStateChanged(admin, response, order.state))
   } yield response).runTxn()
 
   // TODO: transfer sorting-paging metadata
-  def updateStatuses(admin: StoreAdmin, refNumbers: Seq[String], newStatus: Order.Status, skipActivity: Boolean = false)
+  def updateStates(admin: StoreAdmin, refNumbers: Seq[String], newState: Order.State, skipActivity: Boolean = false)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = {
-    updateStatusesDbio(admin, refNumbers, newStatus, skipActivity).zip(OrderQueries.findAll.result).map { case (failures, orders) ⇒
+    updateStatesDbio(admin, refNumbers, newState, skipActivity).zip(OrderQueries.findAll.result).map { case (failures, orders) ⇒
       ResponseWithFailuresAndMetadata.fromXor(orders, failures.swap.toOption.map(_.toList).getOrElse(Seq.empty))
     }.transactionally.run()
   }
 
-  private def updateStatusesDbio(admin: StoreAdmin, refNumbers: Seq[String], newStatus: Order.Status, skipActivity: Boolean = false)
+  private def updateStatesDbio(admin: StoreAdmin, refNumbers: Seq[String], newState: Order.State, skipActivity: Boolean = false)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage,
       ac: ActivityContext): DbResult[Unit] = {
 
@@ -45,18 +45,18 @@ object OrderStatusUpdater {
     appendForUpdate(query).flatMap { orders ⇒
 
       val (validTransitions, invalidTransitions) = orders
-        .filterNot(_.status == newStatus)
-        .partition(_.transitionAllowed(newStatus))
+        .filterNot(_.state == newState)
+        .partition(_.transitionAllowed(newState))
 
       val (lockedOrders, absolutelyPossibleUpdates) = validTransitions.partition(_.isLocked)
       val possibleIds     = absolutelyPossibleUpdates.map(_.id)
       val possibleRefNums = absolutelyPossibleUpdates.map(_.referenceNumber)
       val skipActivityMod = skipActivity || possibleRefNums.isEmpty
 
-      updateQueriesWrapper(admin, possibleIds, possibleRefNums, newStatus, skipActivityMod).flatMap { _ ⇒
+      updateQueriesWrapper(admin, possibleIds, possibleRefNums, newState, skipActivityMod).flatMap { _ ⇒
         // Failure handling
         val invalid = invalidTransitions.map { order ⇒
-          StatusTransitionNotAllowed(order.status, newStatus, order.refNum)
+          StateTransitionNotAllowed(order.state, newState, order.refNum)
         }
         val notFound = refNumbers
           .filterNot(refNum ⇒ orders.map(_.referenceNumber).contains(refNum))
@@ -68,22 +68,22 @@ object OrderStatusUpdater {
     }
   }
 
-  private def updateQueriesWrapper(admin: StoreAdmin, orderIds: Seq[Int], orderRefNums: Seq[String], newStatus: Status,
+  private def updateQueriesWrapper(admin: StoreAdmin, orderIds: Seq[Int], orderRefNums: Seq[String], newState: State,
     skipActivity: Boolean = false)(implicit db: Database, ec: ExecutionContext, ac: ActivityContext) = {
 
     if (skipActivity)
-        updateQueries(admin, orderIds, orderRefNums, newStatus)
+        updateQueries(admin, orderIds, orderRefNums, newState)
     else
-      orderBulkStateChanged(admin, newStatus, orderRefNums) >>
-        updateQueries(admin, orderIds, orderRefNums, newStatus)
+      orderBulkStateChanged(admin, newState, orderRefNums) >>
+        updateQueries(admin, orderIds, orderRefNums, newState)
   }
 
-  private def updateQueries(admin: StoreAdmin, orderIds: Seq[Int], orderRefNums: Seq[String], newStatus: Status)
-    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext) = newStatus match {
+  private def updateQueries(admin: StoreAdmin, orderIds: Seq[Int], orderRefNums: Seq[String], newState: State)
+    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext) = newState match {
       case Canceled ⇒
         cancelOrders(orderIds)
       case _ ⇒
-        Orders.filter(_.id.inSet(orderIds)).map(_.status).update(newStatus)
+        Orders.filter(_.id.inSet(orderIds)).map(_.state).update(newState)
   }
 
   private def cancelOrders(orderIds: Seq[Int]) = {
@@ -92,13 +92,13 @@ object OrderStatusUpdater {
       .map(_.status)
       .update(OrderLineItem.Canceled)
 
-    // TODO: canceling an order must cascade to status on each payment type not order_payments
+    // TODO: canceling an order must cascade to state on each payment type not order_payments
     //      val updateOrderPayments = OrderPayments
     //        .filter(_.orderId.inSetBind(orderIds))
-    //        .map(_.status)
+    //        .map(_.state)
     //        .update("cancelAuth")
 
-    val updateOrder = Orders.filter(_.id.inSetBind(orderIds)).map(_.status).update(Canceled)
+    val updateOrder = Orders.filter(_.id.inSetBind(orderIds)).map(_.state).update(Canceled)
 
     // (updateLineItems >> updateOrderPayments >> updateOrder).transactionally
     (updateLineItems >> updateOrder).transactionally

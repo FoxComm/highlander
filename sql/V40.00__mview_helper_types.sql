@@ -34,7 +34,7 @@ create table export_line_items (
 
 create table export_orders (
     reference_number    text,
-    status              text,
+    state               text,
     created_at          text,
     placed_at           text,
     sub_total           integer,

@@ -70,7 +70,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "FIXME fails if the order is not in cart status" in new GiftCardFixture {
-        Orders.findByRefNum(order.referenceNumber).map(_.status).update(Order.RemorseHold).run().futureValue
+        Orders.findByRefNum(order.referenceNumber).map(_.state).update(Order.RemorseHold).run().futureValue
         val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
@@ -221,7 +221,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the order is not in cart status" in new StoreCreditFixture {
-        Orders.findCartByRefNum(order.referenceNumber).map(_.status).update(Order.RemorseHold).run().futureValue
+        Orders.findCartByRefNum(order.referenceNumber).map(_.state).update(Order.RemorseHold).run().futureValue
         val payload = payloads.StoreCreditPayment(amount = 50)
         val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
@@ -287,7 +287,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the order is not in cart status" in new CreditCardFixture {
-        Orders.findCartByRefNum(order.referenceNumber).map(_.status).update(Order.RemorseHold).run().futureValue
+        Orders.findCartByRefNum(order.referenceNumber).map(_.state).update(Order.RemorseHold).run().futureValue
         val payload = payloads.CreditCardPayment(creditCard.id)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
 
@@ -358,7 +358,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
   trait Fixture {
     val (order, admin, customer) = (for {
       customer ← * <~ Customers.create(Factories.customer)
-      order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, status = Order.Cart))
+      order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, state = Order.Cart))
       admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
     } yield (order, admin, customer)).runTxn().futureValue.rightVal
   }

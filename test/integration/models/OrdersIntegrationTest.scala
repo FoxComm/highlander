@@ -36,7 +36,7 @@ class OrdersIntegrationTest extends IntegrationTestBase {
     "has a unique index on referenceNumber" in new Fixture {
       val order = Orders.create(Factories.cart.copy(customerId = customer.id)).run().futureValue.rightVal
 
-      val failure = Orders.create(order.copy(id = 0).copy(status = RemorseHold)).run().futureValue.leftVal
+      val failure = Orders.create(order.copy(id = 0).copy(state = RemorseHold)).run().futureValue.leftVal
       failure.getMessage must include("""value violates unique constraint "orders_reference_number_key"""")
     }
 
@@ -45,7 +45,7 @@ class OrdersIntegrationTest extends IntegrationTestBase {
 
       order.remorsePeriodEnd must ===(None)
 
-      db.run(Orders.update(order, order.copy(status = RemorseHold))).futureValue mustBe 'right
+      db.run(Orders.update(order, order.copy(state = RemorseHold))).futureValue mustBe 'right
 
       val updatedOrder = Orders.findByRefNum(order.referenceNumber).result.run().futureValue.headOption.value
       updatedOrder.remorsePeriodEnd.value.minuteOfHour must === (Instant.now.plusMinutes(30).minuteOfHour)
@@ -54,10 +54,10 @@ class OrdersIntegrationTest extends IntegrationTestBase {
     "trigger resets remorse period after status changes from RemorseHold" in {
       val order = Orders.create(Factories.order.copy(
         remorsePeriodEnd = Some(Instant.now),
-        status = RemorseHold))
+        state = RemorseHold))
         .run().futureValue.rightVal
 
-      db.run(Orders.findByRefNum(order.referenceNumber).map(_.status).update(ManualHold)).futureValue
+      db.run(Orders.findByRefNum(order.referenceNumber).map(_.state).update(ManualHold)).futureValue
 
       val updated = db.run(Orders.findByRefNum(order.referenceNumber).result).futureValue.headOption.value
       updated.remorsePeriodEnd must ===(None)

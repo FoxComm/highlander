@@ -37,7 +37,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       order ← * <~ Orders.create(Factories.order.copy(
         customerId = customer.id,
         referenceNumber = orderRefNum,
-        status = Order.RemorseHold,
+        state = Order.RemorseHold,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
 
       insertRmas = (1 to numOfResults).map { i ⇒

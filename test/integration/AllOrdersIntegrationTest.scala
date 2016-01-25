@@ -9,14 +9,14 @@ import payloads.{BulkAssignment, BulkUpdateOrdersPayload, BulkWatchers}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import responses.{AllOrders, FullOrder, StoreAdminResponse}
 import services.orders.OrderQueries
-import services.{LockedFailure, NotFoundFailure404, StatusTransitionNotAllowed}
+import services.{LockedFailure, NotFoundFailure404, StateTransitionNotAllowed}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import utils.seeds.Seeds.Factories
-import utils.seeds.{Seeds, SeedsGenerator}
+import utils.seeds.SeedsGenerator
 import utils.time._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -35,7 +35,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       insertOrders = (1 to numOfResults).map { _ ⇒ Factories.order.copy(
         customerId = customer.id,
         referenceNumber = SeedsGenerator.randomString(10),
-        status = Order.RemorseHold,
+        state = Order.RemorseHold,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))) }
 
       _ ← * <~ Orders.createAll(insertOrders)
@@ -76,9 +76,9 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
         referenceNumber = "ABCD1234-11",
         name = Some("Yax Fuentes"),
         email = "yax@yax.com",
-        orderStatus = Order.ManualHold,
-        paymentStatus = Some("FIXME"),
-        shippingStatus = Some("FIXME"),
+        orderState = Order.ManualHold,
+        paymentState = Some("FIXME"),
+        shippingState = Some("FIXME"),
         placedAt = None,
         total = 0,
         remorsePeriodEnd = None)
@@ -94,7 +94,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
 
       val all = response.as[BulkOrderUpdateResponse]
-      val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderStatus))
+      val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
 
       allOrders must contain allOf(
         ("foo", FulfillmentStarted),
@@ -113,11 +113,11 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
 
       response.status must === (StatusCodes.OK)
       val all = response.as[BulkOrderUpdateResponse]
-      val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderStatus))
+      val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
 
-      allOrders must === (Seq((order.refNum, order.status)))
+      allOrders must === (Seq((order.refNum, order.state)))
 
-      all.errors.value must === (StatusTransitionNotAllowed(order.status, Cart, order.refNum).description)
+      all.errors.value must === (StateTransitionNotAllowed(order.state, Cart, order.refNum).description)
     }
 
     "bulk update statuses with paging and sorting" in new StatusUpdateFixture {
@@ -129,7 +129,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       responseJson.status must === (StatusCodes.OK)
 
       val all = responseJson.as[BulkOrderUpdateResponse]
-      val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderStatus))
+      val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
 
       allOrders must contain theSameElementsInOrderAs Seq(
         ("foo", FulfillmentStarted))
@@ -357,10 +357,10 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
   trait StatusUpdateFixture {
     (for {
       cust ← * <~ Customers.create(Factories.customer)
-      foo  ← * <~ Orders.create(Factories.order.copy(customerId = cust.id, referenceNumber = "foo", status = FraudHold))
+      foo  ← * <~ Orders.create(Factories.order.copy(customerId = cust.id, referenceNumber = "foo", state = FraudHold))
       bar  ← * <~ Orders.create(Factories.order.copy(customerId = cust.id, referenceNumber = "bar",
-                                                                                   status = RemorseHold, isLocked = true))
-      baz  ← * <~ Orders.create(Factories.order.copy(customerId = cust.id, referenceNumber = "baz", status = ManualHold))
+        state = RemorseHold, isLocked = true))
+      baz  ← * <~ Orders.create(Factories.order.copy(customerId = cust.id, referenceNumber = "baz", state = ManualHold))
     } yield (cust, foo, bar)).runTxn().futureValue.rightVal
   }
 

@@ -3,13 +3,13 @@ package payloads
 import cats.data.ValidatedNel
 import cats.implicits._
 import utils.Litterbox._
-import models.Order.Status
+import models.Order.State
 import services.{GeneralFailure, Failure}
 import utils.Validation
 
-final case class UpdateOrderPayload(status: Status)
+final case class UpdateOrderPayload(state: State)
 
-final case class BulkUpdateOrdersPayload(referenceNumbers: Seq[String], status: Status)
+final case class BulkUpdateOrdersPayload(referenceNumbers: Seq[String], state: State)
 
 final case class CreateOrderNotePayload(body: String)
 

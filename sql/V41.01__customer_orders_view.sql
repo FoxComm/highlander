@@ -8,7 +8,7 @@ select
     else
         json_agg((
         	o1.reference_number,
-        	o1.status,
+        	o1.state,
         	to_char(o1.created_at, 'YYYY-MM-DD HH24:MI:SS'),
         	to_char(o1.placed_at, 'YYYY-MM-DD HH24:MI:SS'),
         	o1.sub_total,

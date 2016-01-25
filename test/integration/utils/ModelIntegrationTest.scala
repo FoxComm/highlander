@@ -1,7 +1,7 @@
 package utils
 
 import models.{Orders, Order, Customer, Addresses, Customers}
-import services.{DatabaseFailure, GeneralFailure, StatusTransitionNotAllowed}
+import services.{DatabaseFailure, GeneralFailure, StateTransitionNotAllowed}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -72,9 +72,9 @@ class ModelIntegrationTest extends IntegrationTestBase {
 
     "model refuses to update if FSM check fails" in {
       val origin = Factories.order
-      val destination = origin.copy(status = Order.Cart)
+      val destination = origin.copy(state = Order.Cart)
       val failure = leftValue(origin.updateTo(destination))
-      failure must === (StatusTransitionNotAllowed(origin.status,destination.status, origin.refNum).single)
+      failure must === (StateTransitionNotAllowed(origin.state,destination.state, origin.refNum).single)
     }
 
     "must update model successfully" in {
@@ -87,8 +87,8 @@ class ModelIntegrationTest extends IntegrationTestBase {
     "must run FSM check if applicable" in {
       val order = Orders.create(Factories.order).run.futureValue.rightVal
       order.isNew must === (false)
-      val updateFailure = leftValue(Orders.update(order, order.copy(status = Order.Cart)).run().futureValue)
-      updateFailure must === (StatusTransitionNotAllowed(order.status, Order.Cart, order.refNum).single)
+      val updateFailure = leftValue(Orders.update(order, order.copy(state = Order.Cart)).run().futureValue)
+      updateFailure must === (StateTransitionNotAllowed(order.state, Order.Cart, order.refNum).single)
       Orders.result.run().futureValue.headOption.value must === (order)
     }
   }
