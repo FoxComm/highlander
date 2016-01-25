@@ -53,6 +53,10 @@
   shell: systemctl stop bottledwater || true
   sudo: true
 
+- name: Kill Materialized Views if it is Running
+  shell: systemctl stop materialized_views || true
+  sudo: true
+
 - name: Get Bottledwater
   git: repo={{bottledwater_repo}} dest={{bottledwater_dir}} version={{bottledwater_version}}
 
@@ -156,8 +160,13 @@
   copy: src=update_materialized_views.sql dest={{update_materialized_views_sql}}
   sudo: true
 
-- name: Setup Materialized Views Cron
-  cron: name="update materialized views" minute="*" hour="*" day="*" job="{{update_materialized_views_cmd}}"
+- name: Setup Materialized Views Cmd
+  template: src=update_materialized_views_forever.sh dest="{{usr_local}}/bin/update_materialized_views_forever.sh" mode="u+x,g+x,o+x"
+  sudo: true
+
+- name: Setup Materialized Views Service
+  copy: src=materialized_views.service dest="{{dest_services}}/materialized_views.service"
+  sudo: true
 
 - name: Seed Db
   shell: java -cp {{phoenix_jar}} utils.seeds.Seeds
@@ -165,6 +174,6 @@
   args:
     chdir: "{{phoenix_dir}}"
 
-- name: Update Materialized Views
-  shell: "{{update_materialized_views_cmd}}"
+- name: Start Materialized Views Service
+  service: name=materialized_views state=started enabled=yes sleep=5
   sudo: true
