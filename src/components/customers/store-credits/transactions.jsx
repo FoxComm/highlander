@@ -18,10 +18,17 @@ import State from '../../common/state';
 
 // redux
 import * as StoreCreditTransactionsActions from '../../../modules/customers/store-credit-transactions';
+import * as StoreCreditTotalsActions from '../../../modules/customers/store-credit-totals';
+
+const actions = {
+  ...StoreCreditTransactionsActions,
+  ...StoreCreditTotalsActions
+};
 
 @connect((state, props) => ({
   storeCreditTransactions: state.customers.storeCreditTransactions[props.params.customerId],
-}), StoreCreditTransactionsActions)
+  storeCreditTotals: state.customers.storeCreditTotals[props.params.customerId]
+}), actions)
 export default class StoreCreditTransactions extends React.Component {
 
   static contextTypes = {
@@ -89,7 +96,7 @@ export default class StoreCreditTransactions extends React.Component {
 
   render() {
     const props = this.props;
-    const totals = _.get(props, ['storeCreditTransactions', 'totals']);
+    const totals = _.get(props, ['storeCreditTotals', 'totals']);
 
     return (
       <div className="fc-store-credits fc-list-page">
