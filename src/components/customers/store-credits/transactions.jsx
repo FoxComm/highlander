@@ -19,7 +19,7 @@ import State from '../../common/state';
 import LiveSearch from '../../live-search/live-search';
 
 // redux
-import * as StoreCreditTransactionsActions from '../../../modules/customers/store-credit-transactions';
+import { actions as StoreCreditTransactionsActions } from '../../../modules/customers/store-credit-transactions';
 import * as StoreCreditTotalsActions from '../../../modules/customers/store-credit-totals';
 
 const actions = {

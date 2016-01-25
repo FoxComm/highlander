@@ -17,7 +17,7 @@ const Summary = props => {
     ...props,
     customerId: props.params.customerId
   };
-  const availableBalance = _.get(props.totals, 'availableBalance');
+  const availableBalance = _.get(props.totals, 'availableBalance', 0);
 
   return (
     <div className="fc-list-page-header">
