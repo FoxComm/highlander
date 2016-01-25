@@ -12,7 +12,7 @@ const TypeaheadItems = props => {
     innerContent = props.items.map((item, index) => {
       return (
         <li onClick={() => { props.onItemSelected(item); }} key={`item-${index}`}>
-          {React.createElement(props.component, {item})}
+          {React.createElement(props.component, {model: item})}
         </li>
       );
     });

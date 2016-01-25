@@ -7,6 +7,7 @@ import EditableContentBox from '../content-box/editable-content-box';
 import Typeahead from '../typeahead/typeahead';
 import SkuResult from './sku-result';
 import PanelHeader from './panel-header';
+import { connect } from 'react-redux';
 
 const viewModeColumns = [
   {field: 'imagePath', text: 'Image', type: 'image'},
@@ -97,18 +98,22 @@ class RenderEditContent extends React.Component {
 class RenderEditFooter extends React.Component {
 
   static propTypes = {
-    fetchSkus: PropTypes.func,
-    skusActions: PropTypes.shape({
-      skus: PropTypes.array
-    })
+    skuSearch: PropTypes.object
   };
 
   componentDidMount() {
-     this.props.fetchSkus();
   }
 
   get skus() {
-    return _.get(this.props, 'skusActions.skus', []);
+    return _.get(this.props, 'skuSearch.quickSearch.result.rows', []);
+  }
+
+  suggestSkus(suggest, phrase) {
+    return new Promise(
+      (resolve, reject) => {
+        suggest(phrase);
+        resolve(true);
+    });
   }
 
   render() {
@@ -119,7 +124,7 @@ class RenderEditFooter extends React.Component {
         </div>
         <Typeahead onItemSelected={null}
                    component={SkuResult}
-                   fetchItems={null}
+                   fetchItems={(phrase) => {return this.suggestSkus(this.props.suggestSkus, phrase);} }
                    items={this.skus}
                    placeholder="Product name or SKU..."/>
       </div>
