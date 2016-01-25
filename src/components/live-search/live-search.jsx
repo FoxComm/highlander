@@ -162,6 +162,19 @@ export default class LiveSearch extends React.Component {
       const isEditable = search.isEditable;
       const isDirty = this.props.searches.savedSearches[idx].isDirty;
 
+      let editMenuOptions = [
+        { title: 'Edit Name', action: _.noop },
+        { title: 'Copy Search', action: _.noop },
+        { title: 'Delete Search', action: _.noop }
+      ];
+
+      if (isDirty) {
+        editMenuOptions = [
+          { title: 'Save Updates', action: _.noop },
+          ...editMenuOptions
+        ];
+      }
+
       return (
         <EditableTabView
           key={`saved-search-${search.title}`}
@@ -171,7 +184,8 @@ export default class LiveSearch extends React.Component {
           isEditable={isEditable}
           selected={selected}
           completeEdit={this.editSearchNameComplete}
-          onClick={() => this.props.selectSavedSearch(idx)} />
+          onClick={() => this.props.selectSavedSearch(idx)}
+          editMenuOptions={editMenuOptions} />
       );
     });
 

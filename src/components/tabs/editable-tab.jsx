@@ -5,10 +5,12 @@ import TabView from './tab';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
+import EditSearchOptions from '../live-search/edit-search-options';
+
 export default class EditableTabView extends React.Component {
   constructor(props, context) {
     super(props, context);
-    this.state = EditableTabView.updateState({}, props);
+    this.state = EditableTabView.updateState({ isEditingMenu: false }, props);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -21,7 +23,8 @@ export default class EditableTabView extends React.Component {
     defaultValue: PropTypes.string.isRequired,
     isDirty: PropTypes.bool,
     isEditable: PropTypes.bool,
-    startEdit: PropTypes.func
+    startEdit: PropTypes.func,
+    editMenuOptions: PropTypes.array
   };
 
   static defaultProps = {
@@ -29,7 +32,8 @@ export default class EditableTabView extends React.Component {
     completeEdit: _.noop,
     isDirty: false,
     isEditable: true,
-    startEdit: _.noop
+    startEdit: _.noop,
+    editMenuOptions: []
   };
 
   static updateState(currentState, props) {
@@ -58,10 +62,25 @@ export default class EditableTabView extends React.Component {
       );
     }
   }
+
+  get editMenu() {
+    if (!_.isEmpty(this.props.editMenuOptions)) {
+      return (
+        <EditSearchOptions
+          isVisible={this.state.isEditingMenu}
+          options={this.props.editMenuOptions} />
+      );
+    }
+  }
   
   @autobind
   startEdit(event) {
-    this.setState({ ...this.state, isEditing: true });
+    if (_.isEmpty(this.props.editMenuOptions)) {
+      this.setState({ ...this.state, isEditing: true });
+    } else {
+      event.stopPropagation();
+      this.setState({ ...this.state, isEditingMenu: true });
+    }
   }
 
   @autobind
@@ -137,6 +156,7 @@ export default class EditableTabView extends React.Component {
             {this.editButton}
           </div>
         </TabView>
+        {this.editMenu}
       </div>
     );
   }
