@@ -4,9 +4,10 @@ import Currency from '../common/currency';
 export default class SkuResult extends React.Component {
   render() {
     let model = this.props.model;
+    let imagePath = "http://lorempixel.com/75/75/fashion/"; //TODO use model.imagePath when it is available
     return (
       <div className="fc-grid">
-        <div className="fc-col-md-2-12"><img src={model.imagePath} /></div>
+        <div className="fc-col-md-2-12"><img src={imagePath} /></div>
         <div className="fc-col-md-4-12">{model.name}</div>
         <div className="fc-col-md-3-12"><strong>Sku</strong><br />{model.sku}</div>
         <div className="fc-col-md-3-12"><strong>Price</strong><br /><Currency value={model.price}/></div>
