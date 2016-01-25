@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-export const statusTitles = {
+export const stateTitles = {
   cart: 'Cart',
   remorseHold: 'Remorse Hold',
   manualHold: 'Manual Hold',
@@ -25,11 +25,11 @@ export default class Order {
   }
 
   get isCart() {
-    return this.orderStatus === 'cart';
+    return this.orderState === 'cart';
   }
 
   get isRemorseHold() {
-    return this.orderStatus === 'remorseHold';
+    return this.orderState === 'remorseHold';
   }
 
   get isNew() {
@@ -44,7 +44,7 @@ export default class Order {
     return this.isCart ? 'Cart' : 'Order';
   }
 
-  get statusTitle() {
-    return statusTitles[this.orderStatus];
+  get stateTitle() {
+    return stateTitles[this.orderState];
   }
 };

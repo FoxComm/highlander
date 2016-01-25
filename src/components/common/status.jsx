@@ -1,10 +1,10 @@
 import React, { PropTypes } from 'react';
 import { get } from 'sprout-data';
 
-import { statusTitles as orderStatuses } from '../../paragons/order';
+import { stateTitles as orderStateTitles } from '../../paragons/order';
 
 export const statuses = {
-  order: orderStatuses,
+  order: orderStateTitles,
   payment: {
     cart: 'Cart'
   },
