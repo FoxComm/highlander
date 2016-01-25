@@ -7,7 +7,8 @@ import models.Order.{Canceled, _}
 import models.{StoreAdmin, Order, OrderLineItem, OrderLineItems, Orders}
 import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import responses.{FullOrder, ResponseWithFailuresAndMetadata}
-import services.{LogActivity, Result, StatusTransitionNotAllowed, NotFoundFailure400, LockedFailure, Failures}
+import services.{Result, StatusTransitionNotAllowed, NotFoundFailure400, LockedFailure, Failures}
+import services.LogActivity.{orderStateChanged, orderBulkStateChanged}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
@@ -25,7 +26,7 @@ object OrderStatusUpdater {
     _         ← * <~ updateStatusesDbio(admin, Seq(refNum), newStatus, skipActivity = true)
     updated   ← * <~ Orders.mustFindByRefNum(refNum)
     response  ← * <~ FullOrder.fromOrder(updated).toXor
-    _         ← * <~ LogActivity.orderStateChanged(admin, response, order.status)
+    _         ← * <~ (if (order.status == newStatus) DbResult.unit else orderStateChanged(admin, response, order.status))
   } yield response).runTxn()
 
   // TODO: transfer sorting-paging metadata
@@ -73,7 +74,7 @@ object OrderStatusUpdater {
     if (skipActivity)
         updateQueries(admin, orderIds, orderRefNums, newStatus)
     else
-      LogActivity.orderBulkStateChanged(admin, newStatus, orderRefNums) >>
+      orderBulkStateChanged(admin, newStatus, orderRefNums) >>
         updateQueries(admin, orderIds, orderRefNums, newStatus)
   }
 
