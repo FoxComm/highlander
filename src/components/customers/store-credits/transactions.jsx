@@ -11,7 +11,7 @@ import SearchBar from '../../search-bar/search-bar';
 import { Checkbox } from '../../checkbox/checkbox';
 import { connect } from 'react-redux';
 import * as StoreCreditTransactionsActions from '../../../modules/customers/store-credit-transactions';
-import Status from '../../common/status';
+import State from '../../common/state';
 
 @connect((state, props) => ({
   storeCreditTransactions: state.customers.storeCreditTransactions[props.params.customerId],
@@ -48,7 +48,7 @@ export default class StoreCreditTransactions extends React.Component {
       {
         field: 'status',
         text: 'Payment State',
-        type: 'status',
+        type: 'state',
         model: 'storeCreditTransaction'
       },
       {
@@ -75,7 +75,7 @@ export default class StoreCreditTransactions extends React.Component {
         <TableCell><DateTime value={row.createdAt}/></TableCell>
         <TableCell>{row.transaction}</TableCell>
         <TableCell><Currency value={-row.debit} isTransaction={true}/></TableCell>
-        <TableCell><Status value={row.status} model={"storeCreditTransaction"}/></TableCell>
+        <TableCell><State value={row.status} model={"storeCreditTransaction"}/></TableCell>
         <TableCell><Currency value={row.availableBalance} /></TableCell>
       </TableRow>
     );

@@ -12,7 +12,6 @@ import TabView from '../tabs/tab';
 import SectionTitle from '../section-title/section-title';
 import LocalNav from '../local-nav/local-nav';
 import Currency from '../common/currency';
-import Status from '../common/status';
 import CustomersBase from '../customers/base';
 import PilledInput from '../pilled-search/pilled-input';
 import { PrimaryButton } from '../common/buttons';

@@ -17,7 +17,7 @@ import * as shippingMethodActions from '../../modules/orders/shipping-methods';
 import * as skusActions from '../../modules/skus';
 import SubNav from './sub-nav';
 import classNames from 'classnames';
-import Status, { statuses } from '../common/status';
+import State, { states } from '../common/state';
 import * as paymentMethodActions from '../../modules/orders/payment-methods';
 
 const mapStateToProps = (state) => {
@@ -109,7 +109,7 @@ export default class Order extends React.Component {
       return;
     }
 
-    const orderStates = statuses.order;
+    const orderStates = states.order;
 
     const orderState = (
       <Dropdown
@@ -129,10 +129,10 @@ export default class Order extends React.Component {
               {orderState}
             </PanelListItem>
             <PanelListItem title="Shipment State">
-              <Status value={order.shippingState} model={"shipment"} />
+              <State value={order.shippingState} model={"shipment"} />
             </PanelListItem>
             <PanelListItem title="Payment State">
-              <Status value={order.paymentState} model={"payment"} />
+              <State value={order.paymentState} model={"payment"} />
             </PanelListItem>
             <PanelListItem title="Fraud Score">
               {order.fraudScore}
