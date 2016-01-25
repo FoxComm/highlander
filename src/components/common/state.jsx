@@ -39,7 +39,7 @@ export const states = {
 };
 
 const State = (props) => {
-  return <span className="fc-status">{get(statuses, [props.model, props.value], '[Invalid]')}</span>;
+  return <span className="fc-status">{get(states, [props.model, props.value], '[Invalid]')}</span>;
 };
 
 State.propTypes = {
