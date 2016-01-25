@@ -11,7 +11,7 @@ const getState = state => ({ list: state.orders.list });
 
 const mapDispatchToProps = dispatch => {
   return { actions: bindActionCreators(actions, dispatch) };
-}; 
+};
 
 const Orders = props => {
   const navLinks = [
@@ -30,7 +30,7 @@ const Orders = props => {
     {field: 'placedAt', text: 'Date/Time Placed', type: 'datetime'},
     {field: 'customer.name', text: 'Name'},
     {field: 'customer.email', text: 'Email'},
-    {field: 'status', text: 'Order State', type: 'status', model: 'order'},
+    {field: 'state', text: 'Order State', type: 'status', model: 'order'},
     {field: 'shipping.status', text: 'Shipment State', type: 'status', model: 'shipment'},
     {field: 'grandTotal', text: 'Total', type: 'currency'}
   ];
@@ -45,7 +45,7 @@ const Orders = props => {
       tableColumns={tableColumns}
       searchActions={props.actions}
       title="Orders"
-      url="orders_search_view/_search" />        
+      url="orders_search_view/_search" />
   );
 };
 

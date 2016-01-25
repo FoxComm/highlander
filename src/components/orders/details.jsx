@@ -15,7 +15,7 @@ const OrderDetails = props => {
     return <div className="fc-order-details"></div>;
   } else {
     const order = props.order.currentOrder;
-    const isCart = _.isEqual(order.orderStatus, 'cart');
+    const isCart = _.isEqual(order.orderState, 'cart');
 
     const {
       errors,

@@ -90,7 +90,7 @@ const shippingMethod = {
 
 const order = {
   referenceNumber: 'BR10001',
-  orderStatus: 'cart',
+  orderState: 'cart',
   shippingAddress: {
     "id": 3,
     "region": {
@@ -342,7 +342,7 @@ activities = [...activities,
     data: {
       order: {
         referenceNumber: 'BR10004',
-        orderStatus: 'fraudHold'
+        orderState: 'fraudHold'
       },
       oldState: 'manualHold',
     }

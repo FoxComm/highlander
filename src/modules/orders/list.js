@@ -7,7 +7,7 @@ const searches = [
     searches: [
       {
         display: 'Order : State : Remorse Hold',
-        selectedTerm: 'status',
+        selectedTerm: 'state',
         selectedOperator: 'eq',
         value: {
           type: 'enum',
@@ -20,7 +20,7 @@ const searches = [
     searches: [
       {
         display: 'Order : State : Manual Hold',
-        selectedTerm: 'status',
+        selectedTerm: 'state',
         selectedOperator: 'eq',
         value: {
           type: 'enum',
@@ -33,7 +33,7 @@ const searches = [
     searches: [
       {
         display: 'Order : State : Fraud Hold',
-        selectedTerm: 'status',
+        selectedTerm: 'state',
         selectedOperator: 'eq',
         value: {
           type: 'enum',
