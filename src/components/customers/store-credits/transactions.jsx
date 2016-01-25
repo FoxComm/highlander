@@ -139,6 +139,7 @@ export default class StoreCreditTransactions extends React.Component {
     console.log(this.props);
 
     const selectedSearch = props.storeCreditTransactions.selectedSearch;
+    const results = props.storeCreditTransactions.savedSearches[selectedSearch].results;
 
     const filter = searchTerms => props.searchActions.addSearchFilter(this.searchUrl, searchTerms);
     const selectSearch = idx => props.searchActions.selectSearch(this.searchUrl, idx);
@@ -160,7 +161,7 @@ export default class StoreCreditTransactions extends React.Component {
             <div className="fc-store-credit-table-container">
               <MultiSelectTable
                 columns={props.tableColumns}
-                data={props.storeCreditTransactions}
+                data={results}
                 renderRow={this.renderRow}
                 emptyMessage="No transactions found."
                 toggleColumnPresent={false}
