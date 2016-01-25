@@ -75,10 +75,15 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
   }
 
   "DELETE v1/shared-search/:code" - {
-    "deletes shared search" in new Fixture {
+    "softly deletes shared search, shouldn't be shown in next request" in new Fixture {
       val code = POST(s"v1/shared-search", SharedSearchPayload("test", parse("{}"), CustomersScope)).as[SharedSearch].code
       val response = DELETE(s"v1/shared-search/$code")
       response.status must === (StatusCodes.NoContent)
+
+      val getResponse = GET(s"v1/shared-search/$code")
+      getResponse.status must === (StatusCodes.NotFound)
+
+      SharedSearches.findOneByCode(code).run().futureValue.isDefined must === (true)
     }
 
     "404 if not found" in {
