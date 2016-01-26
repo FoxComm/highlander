@@ -1,12 +1,14 @@
 package services
 
-import models.{OrderLineItemSkus, Sku, Skus, Order, OrderShippingAddress, Region, ShippingMethods}
+import models.{Orders, OrderLineItemSkus, Sku, Skus, Order, OrderShippingAddress, Region, ShippingMethods}
 import models.rules.{Condition, QueryStatement}
 import scala.concurrent.ExecutionContext
-import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 import utils.JsonFormatters
 import utils.Slick.DbResult
+import utils.Slick.implicits._
 
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats
@@ -14,20 +16,17 @@ object ShippingManager {
   final case class ShippingData(order: Order, orderTotal: Int, orderSubTotal: Int,
     shippingAddress: Option[OrderShippingAddress] = None, shippingRegion: Option[Region] = None, skus: Seq[Sku])
 
-  def getShippingMethodsForOrder(order: models.Order)
-    (implicit db: Database, ec: ExecutionContext): DbResult[Seq[responses.ShippingMethods.Root]] = {
-    ShippingMethods.findActive.result.flatMap { shippingMethods ⇒
-      getShippingData(order).flatMap { shippingData ⇒
-        val methodResponses = shippingMethods.collect {
-          case sm if QueryStatement.evaluate(sm.conditions, shippingData, evaluateCondition) ⇒
-            val restricted = QueryStatement.evaluate(sm.restrictions, shippingData, evaluateCondition)
-            responses.ShippingMethods.build(sm, !restricted)
-        }
-
-        DbResult.good(methodResponses)
-      }
+  def getShippingMethodsForOrder(refNum: String)
+    (implicit db: Database, ec: ExecutionContext): Result[Seq[responses.ShippingMethods.Root]] = (for {
+    order       ← * <~ Orders.mustFindByRefNum(refNum)
+    shipMethods ← * <~ ShippingMethods.findActive.result.toXor
+    shipData    ← * <~ getShippingData(order).toXor
+    response    = shipMethods.collect {
+      case sm if QueryStatement.evaluate(sm.conditions, shipData, evaluateCondition) ⇒
+        val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)
+        responses.ShippingMethods.build(sm, !restricted)
     }
-  }
+  } yield response).run()
 
   def evaluateShippingMethodForOrder(shippingMethod: models.ShippingMethod, order: Order)
     (implicit db: Database, ec: ExecutionContext): DbResult[Unit] = {

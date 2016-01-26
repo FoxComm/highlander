@@ -21,7 +21,7 @@ object CustomerCreditConverter {
     giftCard ← * <~ GiftCards.mustFindByCode(giftCardCode)
     _ ← * <~ (if (!giftCard.isActive) DbResult.failure(GiftCardConvertFailure(giftCard)) else DbResult.unit)
     _ ← * <~ Customers.mustFindById(customerId)
-    _ ← * <~ complainAboutOpenTransaction(GiftCardAdjustments.lastAuthByGiftCardId(giftCard.id).one)
+    _ ← * <~ GiftCardAdjustments.lastAuthByGiftCardId(giftCard.id).one.mustNotFindOr(OpenTransactionsFailure)
     // Update status and make adjustment
     _ ← * <~ GiftCards.findActiveByCode(giftCard.code).map(_.status).update(GiftCard.FullyRedeemed)
     adjustment ← * <~ GiftCards.redeemToStoreCredit(giftCard, admin)
@@ -41,7 +41,7 @@ object CustomerCreditConverter {
     credit ← * <~ StoreCredits.mustFindById(storeCreditId)
     _ ← * <~ (if (!credit.isActive) DbResult.failure(StoreCreditConvertFailure(credit)) else DbResult.unit)
     _ ← * <~ Customers.mustFindById(customerId)
-    _ ← * <~ complainAboutOpenTransaction(StoreCreditAdjustments.lastAuthByStoreCreditId(credit.id).one)
+    _ ← * <~ StoreCreditAdjustments.lastAuthByStoreCreditId(credit.id).one.mustNotFindOr(OpenTransactionsFailure)
     // Update status and make adjustment
     scUpdated ← * <~ StoreCredits.findActiveById(credit.id).map(_.status).update(StoreCredit.FullyRedeemed)
     adjustment ← * <~ StoreCredits.redeemToGiftCard(credit, admin)
@@ -52,8 +52,6 @@ object CustomerCreditConverter {
 
     // Activity
     _ ← * <~ LogActivity.scConvertedToGc(admin, giftCard, credit)
-  } yield GiftCardResponse.build(giftCard, None, Some(StoreAdminResponse.build(admin)))).runTxn
+  } yield GiftCardResponse.build(giftCard, None, Some(StoreAdminResponse.build(admin)))).runTxn()
 
-  private def complainAboutOpenTransaction[A](dbio: DBIO[Option[A]])(implicit ec: ExecutionContext): DbResult[Unit] =
-    dbio.flatMap(_.fold(DbResult.unit) { _ ⇒ DbResult.failure(OpenTransactionsFailure) })
 }

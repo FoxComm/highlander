@@ -8,17 +8,16 @@ import models.Region._
 import models.{Countries, Country, Region, Regions}
 import responses.CountryWithRegions
 import slick.driver.PostgresDriver.api._
-import utils.Slick.DbResult
+import utils.DbResultT._
+import utils.DbResultT.implicits._
+import utils.Slick.implicits._
 
 object Public {
 
-  def findCountry(countryId: Int)(implicit ec: ExecutionContext, db: Database): Result[CountryWithRegions] = {
-    Countries.findById(countryId).extract.selectOne { country ⇒
-      DbResult.fromDbio(Regions.filter(_.countryId === countryId).result.map { rs ⇒
-        CountryWithRegions(country, sortRegions(rs.to[Seq]))
-      })
-    }
-  }
+  def findCountry(countryId: Int)(implicit ec: ExecutionContext, db: Database): Result[CountryWithRegions] = (for {
+    country ← * <~ Countries.mustFindById(countryId)
+    regions ← * <~ Regions.filter(_.countryId === country.id).result.toXor
+  } yield CountryWithRegions(country, sortRegions(regions.to[Seq]))).run()
 
   def countries(implicit ec: ExecutionContext, db: Database): Future[Seq[Country]] =
     db.run(Countries.result).map { countries ⇒

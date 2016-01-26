@@ -5,7 +5,7 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.Order.orderRefNumRegex
 import models.Reason.reasonTypeRegex
-import models.{GiftCard, SharedSearch, Orders, Rma, StoreAdmin}
+import models.{GiftCard, SharedSearch, Rma, StoreAdmin}
 import services.{SharedSearchService, NoteManager, ReasonService, SaveForLaterManager, ShippingManager,
 StoreCreditAdjustmentsService, StoreCreditService}
 import slick.driver.PostgresDriver.api._
@@ -13,7 +13,6 @@ import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._
 
-import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext
 
 object Admin {
@@ -79,9 +78,7 @@ object Admin {
       pathPrefix("shipping-methods" / orderRefNumRegex) { refNum ⇒
         (get & pathEnd) {
           goodOrFailures {
-            Orders.findByRefNum(refNum).selectOne { order ⇒
-              ShippingManager.getShippingMethodsForOrder(order)
-            }
+            ShippingManager.getShippingMethodsForOrder(refNum)
           }
         }
       } ~

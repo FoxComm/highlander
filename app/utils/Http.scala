@@ -10,7 +10,6 @@ import org.json4s.jackson.Serialization.{write ⇒ json}
 import org.json4s.{Formats, jackson}
 import responses.ResponseWithFailuresAndMetadata
 import services.{Failures, NotFoundFailure404}
-import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits.{ResponseWithMetadata, _}
 
 object Http {
@@ -39,14 +38,6 @@ object Http {
 
   def renderNothingOrFailures(or: Failures Xor _)(implicit ec: ExecutionContext): HttpResponse =
     or.fold(renderFailure(_), _ ⇒ noContentResponse)
-
-  def whenFound[A, G <: AnyRef](finder: Future[Option[A]])
-    (handle: A ⇒ Future[Failures Xor G])
-    (implicit ec: ExecutionContext, db: Database): Future[HttpResponse] =
-    finder.flatMap { option ⇒
-      option.map(handle(_).map(renderGoodOrFailures)).
-        getOrElse(Future.successful(notFoundResponse))
-    }
 
   def renderOrNotFound[A <: AnyRef](resource: Future[Option[A]],
     onFound: (A ⇒ HttpResponse) = (r: A) ⇒ render(r))(implicit ec: ExecutionContext) = {

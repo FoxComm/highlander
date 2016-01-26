@@ -2,12 +2,12 @@ package services
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import cats.data.Validated.{Invalid, Valid}
-import cats.data.Xor
 import cats.implicits._
 import models.GiftCard.Canceled
 import models.GiftCardSubtypes.scope._
-import models.{Customer, Customers, GiftCard, GiftCardAdjustments, GiftCardManual, GiftCardManuals, GiftCardSubtype, GiftCardSubtypes, GiftCards, Reason, Reasons, StoreAdmin, StoreAdmins}
+import models.activity.ActivityContext
+import models.{Customers, GiftCard, GiftCardAdjustments, GiftCardManual, GiftCardManuals, GiftCardSubtype, GiftCardSubtypes, GiftCards, Reason, Reasons, StoreAdmin, StoreAdmins}
+import payloads.{GiftCardCreateByCsr, GiftCardUpdateStatusByCsr}
 import responses.GiftCardBulkResponse._
 import responses.GiftCardResponse._
 import responses.{CustomerResponse, GiftCardResponse, GiftCardSubTypesResponse, StoreAdminResponse}
@@ -16,11 +16,8 @@ import utils.CustomDirectives.SortAndPage
 import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Slick.UpdateReturning._
 import utils.Slick._
 import utils.Slick.implicits._
-
-import models.activity.ActivityContext
 
 object GiftCardService {
   val mockCustomerId = 1
@@ -41,170 +38,78 @@ object GiftCardService {
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] =
     GiftCards.queryByCode(code).result.map(_.map(GiftCardResponse.build(_)))
 
-  def getByCode(code: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
-    fetchDetails(code).run().flatMap {
-      case (Some(giftCard), Xor.Left(Some(customer))) ⇒
-        val customerResponse = Some(CustomerResponse.build(customer))
-        Result.right(GiftCardResponse.build(giftCard, customerResponse))
-      case (Some(giftCard), Xor.Right(Some(storeAdmin))) ⇒
-        val storeAdminResponse = Some(StoreAdminResponse.build(storeAdmin))
-        Result.right(GiftCardResponse.build(giftCard, None, storeAdminResponse))
-      case _ ⇒
-        Result.failure(NotFoundFailure404(GiftCard, code))
+  def getByCode(code: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
+    giftCard ← * <~ GiftCards.mustFindByCode(code)
+    response ← * <~ buildResponse(giftCard).toXor
+  } yield response).run()
+
+  private def buildResponse(giftCard: GiftCard)(implicit ec: ExecutionContext) = giftCard.originType match {
+    case GiftCard.CsrAppeasement ⇒ for {
+      origin ← GiftCardManuals.filter(_.id === giftCard.originId).one
+      admin ← origin.map(o ⇒ StoreAdmins.findOneById(o.adminId)).getOrElse(DBIO.successful(None))
+      adminResponse = admin.map(StoreAdminResponse.build)
+    } yield GiftCardResponse.build(giftCard, None, adminResponse)
+
+    case GiftCard.CustomerPurchase ⇒ Customers.findOneById(mockCustomerId).map { maybeCustomer ⇒
+      val customerResponse = maybeCustomer.map(c ⇒ CustomerResponse.build(c))
+      GiftCardResponse.build(giftCard, customerResponse, None)
     }
+
+    case _ ⇒ DBIO.successful(GiftCardResponse.build(giftCard, None, None))
   }
 
   def createByAdmin(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
-
-    pay       ← ResultT(Future.successful(payload.validate.toXor))
-    response  ← ResultT(createGiftCardModel(admin, payload))
-  } yield response).value
+    _        ← * <~ payload.validate
+    _        ← * <~ Reasons.mustFindById(payload.reasonId, NotFoundFailure400(Reason, _))
+    // If `subTypeId` is absent, don't query. Check for model existence otherwise.
+    subtype  ← * <~ payload.subTypeId.fold(DbResult.none[GiftCardSubtype]) { subId ⇒
+                      GiftCardSubtypes.csrAppeasements.filter(_.id === subId).one
+                        .mustFindOr(NotFoundFailure400(GiftCardSubtype, subId))
+                        .map(_.map(Some(_))) // A bit silly but need to rewrap it back
+                    }
+    origin   ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = payload.reasonId))
+    giftCard ← * <~ GiftCards.create(GiftCard.buildAppeasement(payload, origin.id))
+    adminResp = Some(StoreAdminResponse.build(admin))
+    _        ← * <~ LogActivity.gcCreated(admin, giftCard)
+  } yield build(gc = giftCard, admin = adminResp)).runTxn()
 
   def createBulkByAdmin(admin: StoreAdmin, payload: payloads.GiftCardBulkCreateByCsr)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Seq[ItemResult]] = {
-
-    payload.validate match {
-      case Valid(_) ⇒
-        val responses = (1 to payload.quantity).map { num ⇒
-          val itemPayload = payloads.GiftCardCreateByCsr(balance = payload.balance, reasonId = payload.reasonId,
-            currency = payload.currency)
-
-          createByAdmin(admin, itemPayload).map(buildItemResult(_))
-        }
-
-        val future = Future.sequence(responses).flatMap { seq ⇒
-          Future.successful(seq)
-        }
-
-        Result.fromFuture(future)
-      case Invalid(errors) ⇒
-        Result.failures(errors)
-    }
-  }
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Seq[ItemResult]] = (for {
+    _        ← ResultT.fromXor(payload.validate.toXor)
+    gcCreatePayload = GiftCardCreateByCsr(balance = payload.balance, reasonId = payload.reasonId, currency = payload.currency)
+    response ← ResultT.right(Future.sequence((1 to payload.quantity).map { num ⇒
+                 createByAdmin(admin, gcCreatePayload).map(buildItemResult(_))
+               }))
+  } yield response).value
 
   def bulkUpdateStatusByCsr(payload: payloads.GiftCardBulkUpdateStatusByCsr, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Seq[ItemResult]] = {
-
-    payload.validate match {
-      case Valid(_) ⇒
-        val responses = payload.codes.map { code ⇒
-          val itemPayload = payloads.GiftCardUpdateStatusByCsr(payload.status, payload.reasonId)
-          updateStatusByCsr(code, itemPayload, admin).map(buildItemResult(_, Some(code)))
-        }
-
-        val future = Future.sequence(responses).flatMap { seq ⇒
-          Future.successful(seq)
-        }
-
-        Result.fromFuture(future)
-      case Invalid(errors) ⇒
-        Result.failures(errors)
-    }
-  }
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Seq[ItemResult]] = (for {
+    _        ← ResultT.fromXor(payload.validate.toXor)
+    response ← ResultT.right(Future.sequence(payload.codes.map { code ⇒
+                 val itemPayload = GiftCardUpdateStatusByCsr(payload.status, payload.reasonId)
+                 updateStatusByCsr(code, itemPayload, admin).map(buildItemResult(_, Some(code)))
+               }))
+  } yield response).value
 
   def updateStatusByCsr(code: String, payload: payloads.GiftCardUpdateStatusByCsr, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = {
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
+    _        ← * <~ payload.validate
+    _        ← * <~ payload.reasonId.map(id ⇒ Reasons.mustFindById(id, _ ⇒ InvalidCancellationReasonFailure)).getOrElse(DbResult.unit)
+    giftCard ← * <~ GiftCards.mustFindByCode(code)
+    updated  ← * <~ cancelOrUpdate(giftCard, payload.status, payload.reasonId, admin)
+    _        ← * <~ LogActivity.gcUpdated(admin, giftCard, payload)
+  } yield GiftCardResponse.build(updated)).runTxn()
 
-    def cancelOrUpdate(finder: QuerySeq, giftCard: GiftCard): DbResult[Root] = (payload.status, payload.reasonId) match {
-      case (Canceled, Some(reason)) ⇒
-        cancelByCsr(finder, giftCard, payload, admin)
-      case (Canceled, None) ⇒
-        DbResult.failure(EmptyCancellationReasonFailure)
-      case (_, _) ⇒
-        val ifNotFound = NotFoundFailure404(GiftCard, giftCard.code)
+  private def cancelOrUpdate(giftCard: GiftCard, newState: GiftCard.Status, reasonId: Option[Int],
+    admin: StoreAdmin)(implicit ec: ExecutionContext, db: Database) = newState match {
+    case Canceled ⇒ for {
+      _   ← * <~ GiftCardAdjustments.lastAuthByGiftCardId(giftCard.id).one.mustNotFindOr(OpenTransactionsFailure)
+      upd ← * <~ GiftCards.update(giftCard, giftCard.copy(status = newState, canceledReason = reasonId,
+                   canceledAmount = giftCard.availableBalance.some))
+      _   ← * <~ GiftCards.cancelByCsr(giftCard, admin)
+    } yield upd
 
-        LogActivity.gcUpdated(admin, giftCard, payload) >>
-          finder.map(_.status)
-            .updateReturningHeadOption(GiftCards.map(identity), payload.status, ifNotFound)
-            .map(_.map(GiftCardResponse.build(_)))
-    }
-
-    payload.validate match {
-      case Valid(_) ⇒
-        val finder = GiftCards.findByCode(code)
-        finder.selectOneForUpdate { gc ⇒
-          gc.transitionState(payload.status) match {
-            case Xor.Left(message) ⇒ DbResult.failures(message)
-            case Xor.Right(_)      ⇒ cancelOrUpdate(finder, gc)
-          }
-        }
-      case Invalid(errors) ⇒
-        Result.failures(errors)
-    }
+    case newState ⇒ DbResultT(GiftCards.update(giftCard, giftCard.copy(status = newState)))
   }
-
-  private def cancelByCsr(finder: QuerySeq, gc: GiftCard, payload: payloads.GiftCardUpdateStatusByCsr,
-    admin: StoreAdmin)(implicit ec: ExecutionContext, db: Database, ac: ActivityContext) = {
-
-    GiftCardAdjustments.lastAuthByGiftCardId(gc.id).one.flatMap {
-      case Some(adjustment) ⇒
-        DbResult.failure(OpenTransactionsFailure)
-      case None ⇒
-        Reasons.findOneById(payload.reasonId.get).flatMap {
-          case None ⇒
-            DbResult.failure(InvalidCancellationReasonFailure)
-          case _ ⇒
-            val data = (payload.status, Some(gc.availableBalance), payload.reasonId)
-            val cancellation = finder
-              .map { gc ⇒ (gc.status, gc.canceledAmount, gc.canceledReason) }
-              .updateReturningHead(GiftCards.map(identity), data)
-              .map(_.map(GiftCardResponse.build(_)))
-
-            val cancelAdjustment = GiftCards.cancelByCsr(gc, admin)
-
-            cancellation.flatMap { xor ⇒
-              xorMapDbio(xor){ root ⇒
-                LogActivity.gcUpdated(admin, gc, payload) >> cancelAdjustment >> lift(root)
-              }
-            }
-        }
-    }
-  }
-
-  private def createGiftCardModel(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = {
-
-    def prepareForCreate(payload: payloads.GiftCardCreateByCsr): DbResult[Option[GiftCardSubtype]] = (for {
-      _       ← * <~ Reasons.mustFindById(payload.reasonId, NotFoundFailure400(Reason, _))
-      // If `subTypeId` is absent, don't query. Check for model existence otherwise.
-      subtype ← * <~ payload.subTypeId.fold(DbResult.none[GiftCardSubtype]) { subId ⇒
-        GiftCardSubtypes.csrAppeasements.filter(_.id === subId).one
-          .mustFindOr(NotFoundFailure400(GiftCardSubtype, subId))
-          .map(_.map(Some(_))) // A bit silly but need to rewrap it back
-      }
-    } yield subtype).value
-
-    def saveGiftCard(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr): DbResultT[Root] = for {
-      origin  ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = payload.reasonId))
-      gc      ← * <~ GiftCards.create(GiftCard.buildAppeasement(payload, origin.id))
-      storeAdminResponse = Some(StoreAdminResponse.build(admin))
-      _       ← * <~ LogActivity.gcCreated(admin, gc)
-    } yield build(gc = gc, admin = storeAdminResponse)
-
-    DbResultT(prepareForCreate(payload)).flatMap { subtype ⇒
-      saveGiftCard(admin, payload.copy(subTypeId = subtype.map(_.id)))
-    }.runTxn()
-  }
-
-  private def fetchDetails(code: String)(implicit db: Database, ec: ExecutionContext) = for {
-    giftCard  ← GiftCards.findByCode(code).one
-    gcOrigin  ← giftCard match {
-      case Some(gc) if gc.originType == GiftCard.CsrAppeasement ⇒ GiftCardManuals.filter(_.id === gc.originId).one
-      case _                                                    ⇒ DBIO.successful(None)
-    }
-    account   ← getAccount(giftCard, gcOrigin)
-  } yield (giftCard, account)
-
-  private def getAccount(giftCard: Option[GiftCard], origin: Option[GiftCardManual])
-    (implicit db: Database, ec: ExecutionContext): DBIO[Option[Customer] Xor Option[StoreAdmin]] = giftCard.map { gc ⇒
-    (gc.originType, origin) match {
-      case (GiftCard.CustomerPurchase, _) ⇒
-        Customers.findById(mockCustomerId).extract.one.map(Xor.left)
-      case (GiftCard.CsrAppeasement, Some(o)) ⇒
-        StoreAdmins.findById(o.adminId).extract.one.map(Xor.right)
-      case _ ⇒
-        lift(Xor.left(None))
-    }
-  }.getOrElse(lift(Xor.left(None)))
 }
