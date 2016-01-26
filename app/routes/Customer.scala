@@ -73,6 +73,9 @@ object Customer {
               finder.selectOne { order ⇒ DbResult.fromDbio(fullOrder(finder)) }
             }
           }
+        } ~
+        complete {
+          notFoundResponse
         }
       }
     }
