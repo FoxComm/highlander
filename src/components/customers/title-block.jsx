@@ -4,12 +4,14 @@ import Currency from '../common/currency';
 import _ from 'lodash';
 
 export default class Customer extends React.Component {
-  static propTypes ={
+
+  static propTypes = {
     customer: PropTypes.object.isRequired
-  }
+  };
 
   get customerName() {
     const customer = this.props.customer;
+
     if (customer.name) {
       return (
         <div className="fc-customer-info-name">
@@ -17,11 +19,11 @@ export default class Customer extends React.Component {
         </div>
       );
     }
-    return null;
   }
 
   get customerRank() {
     const customer = this.props.customer;
+
     if (_.isNumber(customer.rank)) {
       return (
         <div className="fc-customer-info-rank">
@@ -29,7 +31,6 @@ export default class Customer extends React.Component {
         </div>
       );
     }
-    return null;
   }
 
   render() {
@@ -83,7 +84,7 @@ export default class Customer extends React.Component {
                     </li>
                     <li>
                       <i className="icon-usd"></i>
-                      <span><Currency value={customer.totalSales} /></span>
+                      <Currency value={customer.totalSales || 0} />
                       <span className="fc-customer-info-comment">&nbsp;Total Sales</span>
                     </li>
                     <li className="fc-customer-info-days">
