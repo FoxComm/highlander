@@ -6,6 +6,23 @@
     float: right;
   }
 
+  .fc-activity__system-icon {
+    background-size: 30px 30px;
+  }
+
+  .fc-activity__customer-icon {
+    line-height: pxtorem(30px);
+
+    .icon-customer {
+      .width(30px);
+      .height(30px);
+    }
+  }
+
+  .initials {
+    .margin-right(12px);
+  }
+
   &__toggle {
     .colors(@color-decor5, @color-transparent);
     height: 6.5rem;
@@ -68,7 +85,7 @@
     width: 100%;
     .height(60px);
     border-top: 1px solid @color-decor9;
-    background: @color-decor12;
+    background: @color-white;
   }
 
   &__footer-button {
@@ -83,6 +100,12 @@
     left: 0;
     right: 0;
     z-index: 1000;
+  }
+
+  &__empty-message {
+    .font-spec(16px, @semibold, 22px);
+    .colors(@color-decor57, @color-decor12);
+    .padding(20px);
   }
 }
 

@@ -65,7 +65,7 @@ export default class AddWatcherModal extends React.Component {
                   onCancel={cancelAction}
                   cancelClassName="fc-action-block-cancel"
                   onSave={onAddClick}
-                  cancelText="Assign" />
+                  saveText="Assign" />
     );
   }
 
@@ -80,6 +80,7 @@ export default class AddWatcherModal extends React.Component {
 
     return (
       <PilledInput
+        autofocus={true}
         value={this.state.query}
         onChange={(e) => this.setState({query: e.target.value})}
         pills={pills}

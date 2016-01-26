@@ -17,7 +17,7 @@ import storeCreditsActivities from './store-credits';
 import assignmentsActivities from './assignments';
 import watchersActivities from './watchers';
 
-const representatives = {
+export const representatives = {
   ...ordersActivities,
   ...orderNotesActivities,
   ...orderShippingAddressActivities,
