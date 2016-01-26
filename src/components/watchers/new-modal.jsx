@@ -125,6 +125,7 @@ export default class AddWatcherModal extends React.Component {
             <Typeahead
               className="_no-search-icon"
               labelClass="fc-add-watcher-modal__label"
+              isFetching={false}
               fetchItems={suggestWatchers}
               minQueryLength={2}
               component={this.typeaheadItem}

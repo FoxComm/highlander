@@ -104,8 +104,12 @@ class RenderEditFooter extends React.Component {
   componentDidMount() {
   }
 
-  get skus() {
+  get suggestedSkus() {
     return _.get(this.props, 'skuSearch.quickSearch.result.rows', []);
+  }
+
+  get isFetching() {
+    return _.get(this.props, 'skuSearch.quickSearch.isFetching', false);
   }
 
   render() {
@@ -116,9 +120,9 @@ class RenderEditFooter extends React.Component {
         </div>
         <Typeahead onItemSelected={null}
                    component={SkuResult}
-                   isFetching={this.props.skuSearch.quickSearch.isFetching}
+                   isFetching={this.isFetching}
                    fetchItems={this.props.suggestSkus}
-                   items={this.skus}
+                   items={this.suggestedSkus}
                    placeholder="Product name or SKU..."/>
       </div>
     );
