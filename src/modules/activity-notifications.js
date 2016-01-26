@@ -37,15 +37,16 @@ export function markAsReadAndClose() {
     const activityId = _.get(_.last(activities), 'id');
     const dispatchToggle = () => dispatch(toggleNotifications());
 
-    const willFinished = Promise.resolve(() => {
-      if (!_.isEmpty(activities) && _.isNumber(activityId)) {
-        Api.post(`/notifications/${adminId}/last-seen/${activityId}`, {}).then(
-          () => {
-            dispatch(markNotificationsAsRead());
-          }
-        );
-      }
-    });
+    let willFinished = Promise.resolve();
+
+    if (!_.isEmpty(activities) && _.isNumber(activityId)) {
+      willFinished = Api.post(`/notifications/${adminId}/last-seen/${activityId}`, {}).then(
+        () => {
+          dispatch(markNotificationsAsRead());
+        }
+      );
+    }
+
     willFinished.then(dispatchToggle, dispatchToggle);
   };
 }
