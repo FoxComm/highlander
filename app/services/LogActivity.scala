@@ -5,7 +5,7 @@ import java.time.Instant
 import scala.concurrent.ExecutionContext
 
 import models.{PaymentMethod, StoreCredit, GiftCard, CreditCard, ShippingMethod, OrderShippingAddress,
-Region, Address, Customer, StoreAdmin, Order, Note}
+Region, Address, Customer, SharedSearch, StoreAdmin, Order, Note}
 import models.activity.{Activity, Activities, ActivityContext}
 import payloads.UpdateLineItemsPayload
 import responses.{CreditCardsResponse, Addresses, GiftCardResponse, CustomerResponse, FullOrder, StoreAdminResponse,
@@ -17,6 +17,7 @@ import services.activity.AssignmentsTailored._
 import services.activity.CustomerTailored._
 import services.activity.GiftCardTailored._
 import services.activity.OrderTailored._
+import services.activity.SharedSearchTailored._
 import services.activity.StoreCreditTailored._
 import services.activity.WatchersTailored._
 
@@ -25,6 +26,17 @@ import CustomerResponse.{build ⇒ buildCustomer}
 import CreditCardsResponse.{buildSimple ⇒ buildCc}
 
 object LogActivity {
+
+  /* Shared Search Associations */
+  def associatedWithSearch(admin: StoreAdmin, search: SharedSearch, associates: Seq[StoreAdmin])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(AssociatedWithSearch(buildAdmin(admin), search, associates.map(buildAdmin)))
+  }
+
+  def unassociatedFromSearch(admin: StoreAdmin, search: SharedSearch, associate: StoreAdmin)
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(UnassociatedFromSearch(buildAdmin(admin), search, buildAdmin(associate)))
+  }
 
   /* Assignments */
   def assignedToOrder(admin: StoreAdmin, order: FullOrder.Root, assignees: Seq[StoreAdminResponse.Root])

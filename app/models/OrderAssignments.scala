@@ -9,13 +9,13 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 import scala.concurrent.ExecutionContext
 
-final case class OrderAssignment(id: Int = 0, orderId: Int = 0, assigneeId: Int = 0, createdAt: Instant = Instant.now)
+final case class OrderAssignment(id: Int = 0, orderId: Int, assigneeId: Int, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[OrderAssignment]
 
 object OrderAssignment
 
 class OrderAssignments(tag: Tag) extends GenericTable.TableWithId[OrderAssignment](tag, "order_assignments") {
-  def id = column[Int]("id", O.AutoInc)
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def orderId = column[Int]("order_id")
   def assigneeId = column[Int]("assignee_id")
   def createdAt = column[Instant]("created_at")

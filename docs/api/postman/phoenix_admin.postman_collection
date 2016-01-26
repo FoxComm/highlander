@@ -190,7 +190,9 @@
 				"c79b60e0-172a-8ab3-9149-8986e38c33fd",
 				"8bf94750-aae2-4cba-02ef-b1cebb521a26",
 				"305400fb-1b26-0e99-2336-e9388fbf3e3b",
-				"ec79c855-9394-18b5-4460-a80c8ff7945d"
+				"ec79c855-9394-18b5-4460-a80c8ff7945d",
+				"7dc4b5d9-9bd7-f269-09fd-bb67b30163fc",
+				"fa02116e-d60c-45f3-bb4d-9c54579f4b54"
 			],
 			"owner": "131444"
 		},
@@ -2113,6 +2115,28 @@
 			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5"
 		},
 		{
+			"id": "7dc4b5d9-9bd7-f269-09fd-bb67b30163fc",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/shared-search/29e920c48be656c3/associate",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "POST",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Associate with Admins",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1453923454371,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"folder": "b16a4b71-815d-18b7-cc39-5d4a89fb0584",
+			"rawModeData": "{\n    \"associates\": [2, 3]\n}"
+		},
+		{
 			"id": "851c09a2-943b-d600-1cc7-0262da0799a9",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/line-items/gift-cards",
@@ -3579,6 +3603,27 @@
 				"timestamp": 1449091654128
 			},
 			"folder": "9e9937bd-ccd8-2425-de41-4fdf88f77a1b"
+		},
+		{
+			"id": "fa02116e-d60c-45f3-bb4d-9c54579f4b54",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/shared-search/29e920c48be656c3/associate/2",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "DELETE",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "params",
+			"name": "Delete Association",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1453923507380,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"folder": "b16a4b71-815d-18b7-cc39-5d4a89fb0584"
 		},
 		{
 			"id": "fddabd4a-d7a2-27af-2285-3e115acd2329",

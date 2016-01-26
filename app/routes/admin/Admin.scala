@@ -6,6 +6,7 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.Order.orderRefNumRegex
 import models.Reason.reasonTypeRegex
 import models.{GiftCard, SharedSearch, Rma, StoreAdmin}
+import payloads.SharedSearchAssociationPayload
 import services.{SharedSearchService, NoteManager, ReasonService, SaveForLaterManager, ShippingManager,
 StoreCreditAdjustmentsService, StoreCreditService}
 import slick.driver.PostgresDriver.api._
@@ -227,6 +228,22 @@ object Admin {
         (delete & pathEnd) {
           nothingOrFailures {
             SharedSearchService.delete(admin, code)
+          }
+        } ~
+        pathPrefix("associate") {
+          (post & pathEnd & entity(as[SharedSearchAssociationPayload])) { payload ⇒
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                SharedSearchService.associate(admin, code, payload.associates)
+              }
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { associateId ⇒
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                SharedSearchService.unassociate(admin, code, associateId)
+              }
+            }
           }
         }
       }
