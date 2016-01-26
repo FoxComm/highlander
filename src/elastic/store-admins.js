@@ -1,14 +1,8 @@
 import ejs from 'elastic.js';
-import { DEFAULT_INDEX, newClient, rangeToFilter } from './common';
 import _ from 'lodash';
 import { post } from '../lib/search';
 
-const ADMINS_TYPE = 'store_admins_search_view';
-
-const adminStartOpts = {
-  index: DEFAULT_INDEX,
-  type: ADMINS_TYPE,
-};
+const adminSearchUrl = 'store_admins_search_view/_search';
 
 export function searchAdmins(token) {
   const matchRule = ejs.Request().query(ejs.MatchAllQuery());
@@ -18,5 +12,5 @@ export function searchAdmins(token) {
 
   matchRule.filter(ejs.OrFilter([firstNameFilter, lastNameFilter, emailFilter]));
 
-  return post('store_admins_search_view/_search', matchRule);
+  return post(adminSearchUrl, matchRule);
 }
