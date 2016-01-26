@@ -2,9 +2,10 @@ package services.orders
 
 import scala.concurrent.ExecutionContext
 
-import models.{OrderPayments, Customers, Orders, javaTimeSlickMapper}
+import models.{Customer, OrderPayments, Customers, Orders, javaTimeSlickMapper}
 import OrderPayments.scope._
 import responses.{FullOrder, TheResponse, AllOrders}
+import services.CartFailures.CustomerHasNoActiveOrder
 import services.{Result, CartValidator}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
@@ -60,5 +61,11 @@ object OrderQueries {
     order     ← * <~ Orders.mustFindByRefNum(refNum)
     validated ← * <~ CartValidator(order).validate
     response  ← * <~ FullOrder.fromOrder(order).toXor
-  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runTxn()
+  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).run()
+
+  def findActiveOrderByCustomer(customer: Customer)
+    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = (for {
+    order     ← * <~ Orders.findActiveOrderByCustomer(customer).one.mustFindOr(CustomerHasNoActiveOrder(customer.id))
+    fullOrder ← * <~ FullOrder.fromOrder(order).toXor
+  } yield fullOrder).run()
 }

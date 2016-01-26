@@ -1,7 +1,9 @@
 package services
 
 import models.rules.QueryStatement
-import models.{Addresses, Customers, OrderLineItem, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, OrderShippingAddresses, Orders, ShippingMethods, Skus}
+import models.{Addresses, Customers, OrderLineItem, OrderLineItemSkus, OrderLineItems, OrderShippingAddresses, Orders, ShippingMethods, Skus}
+
+import services.ShippingManager.getShippingMethodsForOrder
 
 import services.orders.OrderTotaler
 import util.IntegrationTestBase
@@ -23,12 +25,12 @@ class ShippingManagerTest extends IntegrationTestBase {
     "Evaluates rule: shipped to CA, OR, or WA" - {
 
       "Is true when the order is shipped to WA" in new WashingtonOrderFixture {
-        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).run().futureValue
+        val matchingMethods = getShippingMethodsForOrder(order.refNum).futureValue
         rightValue(matchingMethods).head.name must === (shippingMethod.adminDisplayName)
       }
 
       "Is false when the order is shipped to MI" in new MichiganOrderFixture {
-        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).run().futureValue
+        val matchingMethods = getShippingMethodsForOrder(order.refNum).futureValue
         rightValue(matchingMethods) mustBe 'empty
       }
 
@@ -41,12 +43,12 @@ class ShippingManagerTest extends IntegrationTestBase {
         OrderShippingAddresses.filter(_.id === orderShippingAddress.id).delete.run().futureValue
         OrderShippingAddresses.copyFromAddress(address = canada, orderId = order.id).run().futureValue.rightVal
 
-        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).run().futureValue.rightVal
+        val matchingMethods = getShippingMethodsForOrder(order.refNum).futureValue.rightVal
         matchingMethods.headOption.value.name must === (shippingMethod.adminDisplayName)
       }
 
       "Is false when the order is shipped to US" in new CountryFixture {
-        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).run().futureValue
+        val matchingMethods = getShippingMethodsForOrder(order.refNum).futureValue
         rightValue(matchingMethods) mustBe 'empty
       }
     }
@@ -54,12 +56,12 @@ class ShippingManagerTest extends IntegrationTestBase {
     "Evaluates rule: order total is greater than $25" - {
 
       "Is true when the order total is greater than $25" in new PriceConditionFixture {
-        val matchingMethods = ShippingManager.getShippingMethodsForOrder(expensiveOrder).run().futureValue
+        val matchingMethods = getShippingMethodsForOrder(expensiveOrder.refNum).futureValue
         rightValue(matchingMethods).head.name must === (shippingMethod.adminDisplayName)
       }
 
       "Is false when the order total is less than $25" in new PriceConditionFixture {
-        val matchingMethods = ShippingManager.getShippingMethodsForOrder(cheapOrder).run().futureValue
+        val matchingMethods = getShippingMethodsForOrder(cheapOrder.refNum).futureValue
         rightValue(matchingMethods) mustBe 'empty
       }
 
@@ -73,7 +75,7 @@ class ShippingManagerTest extends IntegrationTestBase {
           orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).runTxn().futureValue.rightVal
 
-        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).run().futureValue
+        val matchingMethods = getShippingMethodsForOrder(order.refNum).futureValue
         rightValue(matchingMethods).head.name must === (shippingMethod.adminDisplayName)
       }
 
@@ -83,7 +85,7 @@ class ShippingManagerTest extends IntegrationTestBase {
           orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).runTxn().futureValue.rightVal
 
-        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).run().futureValue
+        val matchingMethods = getShippingMethodsForOrder(order.refNum).futureValue
         rightValue(matchingMethods) mustBe 'empty
       }
 
@@ -97,7 +99,7 @@ class ShippingManagerTest extends IntegrationTestBase {
           orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).runTxn().futureValue.rightVal
 
-        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).run().futureValue.rightVal
+        val matchingMethods = getShippingMethodsForOrder(order.refNum).futureValue.rightVal
         matchingMethods.headOption.value.name must === (shippingMethod.adminDisplayName)
       }
 
@@ -108,7 +110,7 @@ class ShippingManagerTest extends IntegrationTestBase {
           orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).runTxn().futureValue.rightVal
 
-        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).run().futureValue
+        val matchingMethods = getShippingMethodsForOrder(order.refNum).futureValue
         rightValue(matchingMethods) mustBe 'empty
       }
 
@@ -119,7 +121,7 @@ class ShippingManagerTest extends IntegrationTestBase {
           orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
         } yield (address, orderShippingAddress)).runTxn().futureValue.rightVal
 
-        val matchingMethods = ShippingManager.getShippingMethodsForOrder(order).run().futureValue
+        val matchingMethods = getShippingMethodsForOrder(order.refNum).futureValue
         rightValue(matchingMethods) mustBe 'empty
       }
 

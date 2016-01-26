@@ -2,22 +2,20 @@ package models
 
 import java.time.Instant
 
-import cats.data.ValidatedNel
-import cats.implicits._
-import services.Failure
-import utils.Litterbox._
-import utils.Validation
-
 import scala.concurrent.ExecutionContext
 
-import com.wix.accord.dsl.{validator ⇒ createValidator, _}
+import cats.data.ValidatedNel
+import cats.implicits._
 import monocle.macros.GenLens
+import payloads.CreateCustomerPayload
+import services.{CustomerEmailNotUnique, Failure}
 import slick.driver.PostgresDriver.api._
 import utils.GenericTable.TableWithId
-import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
-import utils.Slick.implicits._
-import payloads.CreateCustomerPayload
+import utils.Litterbox._
 import utils.Passwords._
+import utils.Slick.DbResult
+import utils.Slick.implicits._
+import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
 
 final case class Customer(id: Int = 0, email: String, password: Option[String] = None,
   name: Option[String] = None, isDisabled: Boolean = false, disabledBy: Option[Int] = None,
@@ -119,5 +117,15 @@ object Customers extends TableQueryWithId[Customer, Customers](
 
     }
   }
+
+  def activeCustomerByEmail(email: String)(implicit ec: ExecutionContext): QuerySeq =
+    filter(c ⇒ c.email === email && !c.isBlacklisted && !c.isDisabled && !c.isGuest)
+
+  def createEmailMustBeUnique(email: String)(implicit ec: ExecutionContext): DbResult[Unit] =
+    activeCustomerByEmail(email).one.mustNotFindOr(CustomerEmailNotUnique)
+
+  def updateEmailMustBeUnique(email: String, customerId: Int)(implicit ec: ExecutionContext): DbResult[Unit] =
+    activeCustomerByEmail(email).filterNot(_.id === customerId).one.mustNotFindOr(CustomerEmailNotUnique)
+
 }
 

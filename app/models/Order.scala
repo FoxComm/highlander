@@ -163,7 +163,4 @@ object Orders extends TableQueryWithLock[Order, Orders](
     }
   }
 
-  implicit class OrderQueryWrappers(q: QuerySeq) extends LockableQueryWrappers(q) {
-    def mustBeCart(order: Order): Failures Xor Order = order.mustBeCart
-  }
 }

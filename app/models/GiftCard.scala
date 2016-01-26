@@ -10,8 +10,8 @@ import models.GiftCard.{CustomerPurchase, OriginType, Status}
 import monocle.Lens
 import monocle.macros.GenLens
 import payloads.AddGiftCardLineItem
-import services.{Failure, Failures, GeneralFailure, GiftCardIsInactive, GiftCardMustBeCart, GiftCardMustNotBeCart,
-GiftCardNotEnoughBalance, LogActivity}
+import services.{EmptyCancellationReasonFailure, Failure, Failures, GeneralFailure, GiftCardIsInactive,
+GiftCardMustBeCart, GiftCardMustNotBeCart, GiftCardNotEnoughBalance, LogActivity}
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
@@ -157,7 +157,7 @@ object GiftCard {
 
   def validateStatusReason(status: Status, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
     if (status == Canceled) {
-      validExpr(reason.isDefined, "Please provide valid cancellation reason")
+      validExpr(reason.isDefined, EmptyCancellationReasonFailure.description)
     } else {
       valid({})
     }

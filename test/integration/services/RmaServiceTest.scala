@@ -3,6 +3,7 @@ package services
 import java.time.Instant
 
 import models.{Customers, Order, Orders, Rma, Rmas, StoreAdmins}
+import payloads.RmaCreatePayload
 import services.rmas.RmaService
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
@@ -18,11 +19,12 @@ class RmaServiceTest extends IntegrationTestBase {
 
   import concurrent.ExecutionContext.Implicits.global
 
-  val numberOfInserts = 100
+  val numberOfInserts = 20
 
   "RmaService" - {
     "doesn't create duplicate IDs during parallel requests for single order" in new Fixture {
-      val futures = (1 to numberOfInserts).map { _ ⇒ RmaService.createActions(order, admin, Rma.Standard).run() }
+      val payload = RmaCreatePayload(order.refNum, Rma.Standard)
+      val futures = (1 to numberOfInserts).map { _ ⇒ RmaService.createByAdmin(admin, payload) }
       Future.sequence(futures).futureValue
 
       val rmas = Rmas.result.run().futureValue

@@ -16,11 +16,10 @@ object SaveForLaterManager {
 
   def notFound(id: Int): NotFoundFailure404 = NotFoundFailure404(SaveForLater, id)
 
-  def findAll(customerId: Int)(implicit db: Database, ec: ExecutionContext): Result[SavedForLater] = {
-    Customers.findById(customerId).extract.selectOne { customer ⇒
-      DbResult.fromDbio(findAllDbio(customer))
-    }
-  }
+  def findAll(customerId: Int)(implicit db: Database, ec: ExecutionContext): Result[SavedForLater] = (for {
+    customer ← * <~ Customers.mustFindById(customerId)
+    response ← * <~ findAllDbio(customer).toXor
+  } yield response).run()
 
   def saveForLater(customerId: Int, skuId: Int)
     (implicit db: Database, ec: ExecutionContext): Result[SavedForLater] = (for {
@@ -30,7 +29,7 @@ object SaveForLaterManager {
       SaveForLaters.create(SaveForLater(customerId = customer.id, skuId = sku.id))
     } { _ ⇒ DbResult.failure(AlreadySavedForLater(customerId = customer.id, skuId = sku.id)) })
     response ← * <~ findAllDbio(customer).toXor
-  } yield response).runTxn
+  } yield response).runTxn()
 
   def deleteSaveForLater(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Unit] =
     SaveForLaters.deleteById(id, DbResult.unit, notFound).transactionally.run()

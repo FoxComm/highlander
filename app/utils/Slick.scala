@@ -40,14 +40,6 @@ object Slick {
 
   def liftFuture[A](future: Future[A]): DBIO[A] = DBIO.from(future)
 
-  def fullOrder(finder: Orders.QuerySeq)(implicit ec: ExecutionContext, db: Database): DBIO[FullOrder.Root] = {
-    finder.result.head.flatMap(FullOrder.fromOrder)
-  }
-
-  def fullRma(finder: Rmas.QuerySeq)(implicit ec: ExecutionContext, db: Database): DBIO[RmaResponse.Root] = {
-    finder.result.head.flatMap(RmaResponse.fromRma)
-  }
-
   object DbResult {
 
     val unit: DbResult[Unit] = DBIO.successful(Xor.right(Unit))
@@ -298,6 +290,11 @@ object Slick {
       def mustFindOr(notFoundFailure: Failure)(implicit ec: ExecutionContext): DbResult[R] = dbio.flatMap {
         case Some(model) ⇒ DbResult.good(model)
         case None ⇒ DbResult.failure(notFoundFailure)
+      }
+
+      def mustNotFindOr(shouldNotBeHere: Failure)(implicit ec: ExecutionContext): DbResult[Unit] = dbio.flatMap {
+        case None ⇒ DbResult.unit
+        case Some(_) ⇒ DbResult.failure(shouldNotBeHere)
       }
 
       // we only use this when we *know* we can call head safely on a query. (e.g., you've created a record which

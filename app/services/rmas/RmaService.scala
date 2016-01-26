@@ -1,10 +1,11 @@
 package services.rmas
 
+import cats.data.Xor
 import models.Rma.Canceled
-import models.{Customer, Customers, Order, Orders, Reason, Reasons, Rma, Rmas, StoreAdmin}
+import models.{Customers, Orders, Reason, Reasons, Rma, Rmas, StoreAdmin}
 import payloads.{RmaCreatePayload, RmaMessageToCustomerPayload, RmaUpdateStatusPayload}
 import responses.RmaResponse._
-import responses.{AllRmas, CustomerResponse, StoreAdminResponse}
+import responses.{RmaResponse, AllRmas, CustomerResponse, StoreAdminResponse}
 import services.rmas.Helpers._
 import services.{InvalidCancellationReasonFailure, Result}
 import slick.driver.PostgresDriver.api._
@@ -23,7 +24,8 @@ object RmaService {
     rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
     newMessage = if (payload.message.length > 0) Some(payload.message) else None
     update    ← * <~ Rmas.update(rma, rma.copy(messageToCustomer = newMessage))
-    response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
+    updated   ← * <~ Rmas.refresh(rma).toXor
+    response  ← * <~ RmaResponse.fromRma(updated).toXor
   } yield response).runTxn()
 
   def updateStatusByCsr(refNum: String, payload: RmaUpdateStatusPayload)
@@ -32,7 +34,8 @@ object RmaService {
     rma       ← * <~ Rmas.mustFindByRefNum(refNum)
     reason    ← * <~ payload.reasonId.map(Reasons.findOneById).getOrElse(lift(None)).toXor
     _         ← * <~ cancelOrUpdate(rma, reason, payload)
-    response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
+    updated   ← * <~ Rmas.refresh(rma).toXor
+    response  ← * <~ RmaResponse.fromRma(updated).toXor
   } yield response).runTxn()
 
   private def cancelOrUpdate(rma: Rma, reason: Option[Reason], payload: RmaUpdateStatusPayload)
@@ -49,51 +52,37 @@ object RmaService {
   }
 
   def createByAdmin(admin: StoreAdmin, payload: RmaCreatePayload)
-    (implicit db: Database, ec: ExecutionContext): Result[Root] = {
+    (implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
+    order    ← * <~ Orders.mustFindByRefNum(payload.orderRefNum)
+    rma      ← * <~ Rmas.create(Rma.build(order, admin, payload.rmaType))
+    customer ← * <~ Customers.findOneById(order.customerId).toXor
+    adminResponse = Some(StoreAdminResponse.build(admin))
+    customerResponse = customer.map(CustomerResponse.build(_))
+  } yield build(rma, customerResponse, adminResponse)).runTxn()
 
-    val finder = Orders.findByRefNum(payload.orderRefNum)
-    finder.selectOne({ order ⇒
+  def getByRefNum(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
+    rma      ← * <~ Rmas.mustFindByRefNum(refNum)
+    response ← * <~ fromRma(rma).toXor
+  } yield response).run()
 
-      createActions(order, admin, payload.rmaType).map { _.map {
-        case (rma, customer) ⇒
-          val adminResponse = Some(StoreAdminResponse.build(admin))
-          val customerResponse = customer.map(CustomerResponse.build(_))
-          build(rma, customerResponse, adminResponse)
-      }}
-    })
-  }
-
-  def createActions(order: Order, admin: StoreAdmin, rmaType: Rma.RmaType)
-    (implicit db: Database, ec: ExecutionContext): DbResult[(Rma, Option[Customer])] = for {
-        rmaXor ← Rmas.create(Rma.build(order, admin, rmaType))
-        customer ← Customers.findOneById(order.customerId)
-      } yield rmaXor.map(rma ⇒ (rma, customer))
-
-  def getByRefNum(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
-    val finder = Rmas.findByRefNum(refNum)
-    finder.selectOne(rma ⇒ DbResult.fromDbio(fromRma(rma)))
-  }
-
-  def getExpandedByRefNum(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[RootExpanded] = {
-    val finder = Rmas.findByRefNum(refNum)
-    finder.selectOne(rma ⇒ DbResult.fromDbio(fromRmaExpanded(rma)))
-  }
+  def getExpandedByRefNum(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[RootExpanded] = (for {
+    rma      ← * <~ Rmas.mustFindByRefNum(refNum)
+    response ← * <~ fromRmaExpanded(rma).toXor
+  } yield response).run()
 
   def findByOrderRef(refNum: String)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Future[ResultWithMetadata[Seq[AllRmas.Root]]] = {
-
-    val finder = Orders.findByRefNum(refNum)
-    finder.selectOneWithMetadata({
-      order ⇒ RmaQueries.findAll(Rmas.findByOrderRefNum(refNum))
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Future[ResultWithMetadata[Seq[AllRmas.Root]]] =
+    // FIXME #714
+    db.run(Orders.mustFindByRefNum(refNum).map {
+      case Xor.Right(order) ⇒ RmaQueries.findAll(Rmas.findByOrderRefNum(refNum))
+      case Xor.Left(failures) ⇒ ResultWithMetadata.fromFailures(failures)
     })
-  }
 
   def findByCustomerId(customerId: Int)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Future[ResultWithMetadata[Seq[AllRmas.Root]]] = {
-
-    val finder = Customers.filter(_.id === customerId)
-    finder.selectOneWithMetadata({
-      customer ⇒ RmaQueries.findAll(Rmas.findByCustomerId(customerId))
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Future[ResultWithMetadata[Seq[AllRmas.Root]]] =
+    // FIXME #714
+    db.run(Customers.mustFindById(customerId).map {
+      case Xor.Right(customer) ⇒ RmaQueries.findAll(Rmas.findByCustomerId(customerId))
+      case Xor.Left(failures) ⇒ ResultWithMetadata.fromFailures(failures)
     })
-  }
 }

@@ -13,6 +13,7 @@ import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
 import utils.DbResultT.implicits._
+import utils.Slick.DbResult
 import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._
 import utils.jdbc._
@@ -109,62 +110,33 @@ object CustomerManager {
   }
 
   def create(payload: CreateCustomerPayload, admin: Option[StoreAdmin] = None)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = {
-    val customer = Customer.buildFromPayload(payload)
-
-    def result = {
-      swapDatabaseFailure {
-        Customers.create(customer).run()
-      } { (NotUnique, CustomerEmailNotUnique) }.flatMap {
-        case Xor.Right(c) ⇒ Result.good(build(c))
-        case Xor.Left(eh) ⇒ Result.failures(eh)
-      }
-    }
-
-    (for {
-      _    ← ResultT.fromXor(customer.validate.toXor)
-      root ← ResultT(result)
-      _    ← ResultT(LogActivity.customerCreated(root, admin).run())
-    } yield root).value
-  }
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
+    customer ← * <~ Customer.buildFromPayload(payload).validate
+    _        ← * <~ (if (!payload.isGuest.getOrElse(false)) Customers.createEmailMustBeUnique(customer.email) else DbResult.unit)
+    updated  ← * <~ Customers.create(customer)
+    response = build(updated)
+    _        ← * <~ LogActivity.customerCreated(response, admin)
+  } yield response).runTxn()
 
   def update(customerId: Int, payload: UpdateCustomerPayload, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = {
-
-    swapDatabaseFailure {
-      (for {
-        _         ← * <~ payload.validate.toXor
-        customer  ← * <~ Customers.mustFindById(customerId, customerNotFound)
-        updated   ← * <~ Customers.update(customer, customer.copy(
-          name = payload.name.fold(customer.name)(Some(_)),
-          email = payload.email.getOrElse(customer.email),
-          phoneNumber = payload.phoneNumber.fold(customer.phoneNumber)(Some(_))
-        ))
-        _         ← * <~ LogActivity.customerUpdated(customer, updated, admin)
-      } yield build(updated)).runTxn()
-    } { (NotUnique, CustomerEmailNotUnique) }
-  }
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
+    _        ← * <~ payload.validate.toXor
+    customer ← * <~ Customers.mustFindById(customerId, customerNotFound)
+    _        ← * <~ payload.email.map(Customers.updateEmailMustBeUnique(_, customerId)).getOrElse(DbResult.unit)
+    updated  ← * <~ Customers.update(customer, customer.copy(
+                      name = payload.name.fold(customer.name)(Some(_)),
+                      email = payload.email.getOrElse(customer.email),
+                      phoneNumber = payload.phoneNumber.fold(customer.phoneNumber)(Some(_))))
+    _        ← * <~ LogActivity.customerUpdated(customer, updated, admin)
+  } yield build(updated)).runTxn()
 
   def activate(customerId: Int, payload: ActivateCustomerPayload, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = {
-
-    def result = {
-      val finder = Customers.filter(_.id === customerId)
-      val result = swapDatabaseFailure {
-        finder.selectOneForUpdate { customer ⇒
-          finder.map { c ⇒ (c.name, c.isGuest) }
-            .updateReturningHead(Customers.map(identity), (Some(payload.name), false))
-            .map(_.map(build(_)))
-        }
-      } { (NotUnique, CustomerEmailNotUnique) }
-
-      result.flatMap(_.fold(Result.failures, Result.good))
-    }
-
-    (for {
-      _    ← ResultT.fromXor(payload.validate.toXor)
-      root ← ResultT(result)
-      _    ← ResultT(LogActivity.customerActivated(root, admin).run())
-    } yield root).value
-  }
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
+    _        ← * <~ payload.validate
+    customer ← * <~ Customers.mustFindById(customerId)
+    _        ← * <~ Customers.updateEmailMustBeUnique(customer.email, customer.id)
+    updated  ← * <~ Customers.update(customer, customer.copy(name = payload.name.some, isGuest = false))
+    response = build(updated)
+    _        ← * <~ LogActivity.customerActivated(response, admin)
+  } yield response).runTxn()
 }

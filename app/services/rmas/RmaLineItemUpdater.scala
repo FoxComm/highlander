@@ -3,6 +3,7 @@ package services.rmas
 import models.{GiftCard, GiftCards, OrderLineItemGiftCards, OrderLineItemSkus, RmaLineItem, RmaLineItemGiftCard, RmaLineItemGiftCards, RmaLineItemShippingCost, RmaLineItemShippingCosts, RmaLineItemSku, RmaLineItemSkus, RmaLineItems, RmaReason, RmaReasons, Rmas, Shipments, Sku, Skus}
 import payloads.{RmaGiftCardLineItemsPayload, RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload}
 import responses.RmaResponse.Root
+import responses.RmaResponse
 import services.rmas.Helpers._
 import services.{NotFoundFailure400, NotFoundFailure404, Result, ShipmentNotFoundFailure}
 import services.RmaFailures.SkuNotFoundInOrder
@@ -30,7 +31,8 @@ object RmaLineItemUpdater {
       origin    ← * <~ RmaLineItemSkus.create(RmaLineItemSku(rmaId = rma.id, skuId = oli._2.id))
       li        ← * <~ RmaLineItems.create(RmaLineItem.buildSku(rma, reason, origin, payload))
       // Response
-      response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
+      updated   ← * <~ Rmas.refresh(rma).toXor
+      response  ← * <~ RmaResponse.fromRma(updated).toXor
     } yield response).runTxn()
 
   def deleteSkuLineItem(refNum: String, lineItemId: Int)
@@ -44,7 +46,8 @@ object RmaLineItemUpdater {
       _         ← * <~ RmaLineItems.filter(_.id === lineItemId).delete
       _         ← * <~ RmaLineItemSkus.filter(_.id === lineItem._2.id).delete
       // Response
-      response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
+      updated   ← * <~ Rmas.refresh(rma).toXor
+      response  ← * <~ RmaResponse.fromRma(updated).toXor
     } yield response).runTxn()
 
   def addGiftCardLineItem(refNum: String, payload: RmaGiftCardLineItemsPayload)
@@ -60,7 +63,8 @@ object RmaLineItemUpdater {
       origin    ← * <~ RmaLineItemGiftCards.create(RmaLineItemGiftCard(rmaId = rma.id, giftCardId = oli._2.id))
       li        ← * <~ RmaLineItems.create(RmaLineItem.buildGiftCard(rma, reason, origin))
       // Response
-      response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
+      updated   ← * <~ Rmas.refresh(rma).toXor
+      response  ← * <~ RmaResponse.fromRma(updated).toXor
     } yield response).runTxn()
 
   def deleteGiftCardLineItem(refNum: String, lineItemId: Int)
@@ -74,7 +78,8 @@ object RmaLineItemUpdater {
       _         ← * <~ RmaLineItems.filter(_.id === lineItemId).delete
       _         ← * <~ RmaLineItemGiftCards.filter(_.id === lineItem._2.id).delete
       // Response
-      response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
+      updated   ← * <~ Rmas.refresh(rma).toXor
+      response  ← * <~ RmaResponse.fromRma(updated).toXor
     } yield response).runTxn()
 
   def addShippingCostItem(refNum: String, payload: RmaShippingCostLineItemsPayload)
@@ -88,7 +93,8 @@ object RmaLineItemUpdater {
       origin    ← * <~ RmaLineItemShippingCosts.create(RmaLineItemShippingCost(rmaId = rma.id, shipmentId = shipment.id))
       li        ← * <~ RmaLineItems.create(RmaLineItem.buildShippinCost(rma, reason, origin))
       // Response
-      response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
+      updated   ← * <~ Rmas.refresh(rma).toXor
+      response  ← * <~ RmaResponse.fromRma(updated).toXor
     } yield response).runTxn()
 
   def deleteShippingCostLineItem(refNum: String, lineItemId: Int)
@@ -102,6 +108,7 @@ object RmaLineItemUpdater {
       _         ← * <~ RmaLineItems.filter(_.id === lineItemId).delete
       _         ← * <~ RmaLineItemShippingCosts.filter(_.id === lineItem._2.id).delete
       // Response
-      response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
+      updated   ← * <~ Rmas.refresh(rma).toXor
+      response  ← * <~ RmaResponse.fromRma(updated).toXor
     } yield response).runTxn()
 }
