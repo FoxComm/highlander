@@ -31,26 +31,22 @@ export function startFetchingNotifications() {
 
 export function markAsReadAndClose() {
   return (dispatch, getState) => {
+
     const adminId = 1;
     const activities = _.get(getState(), ['activityNotifications', 'notifications'], []);
+    const activityId = _.get(_.last(activities), 'id');
+    const dispatchToggle = () => dispatch(toggleNotifications());
 
-    if (!_.isEmpty(activities)) {
-      const activityId = _.get(_.last(activities), 'id');
-
-      if (_.isNumber(activityId)) {
+    const willFinished = Promise.resolve(() => {
+      if (!_.isEmpty(activities) && _.isNumber(activityId)) {
         Api.post(`/notifications/${adminId}/last-seen/${activityId}`, {}).then(
           () => {
             dispatch(markNotificationsAsRead());
-            dispatch(toggleNotifications());
-          },
-          () => dispatch(toggleNotifications())
+          }
         );
-      } else {
-        dispatch(toggleNotifications());
       }
-    } else {
-      dispatch(toggleNotifications());
-    }
+    });
+    willFinished.then(dispatchToggle, dispatchToggle);
   };
 }
 
@@ -60,7 +56,7 @@ export function markAsRead() {
     const activities = _.get(getState(), ['activityNotifications', 'notifications'], []);
 
     if (!_.isEmpty(activities)) {
-      const activityId = _.get(_.last(activities), 'id');
+      const activityId = _.get(_.head(activities), 'id');
 
       if (_.isNumber(activityId)) {
         Api.post(`/notifications/${adminId}/last-seen/${activityId}`, {}).then(
@@ -84,7 +80,7 @@ const reducer = createReducer({
   [notificationReceived]: (state, data) => {
     const notificationList = _.get(state, 'notifications', []);
     const notReadData = assoc(data, 'isRead', false);
-    const updatedNotifications = [notReadData].concat(notificationList);
+    const updatedNotifications = [notReadData, ...notificationList];
     const newCount = updatedNotifications.reduce((acc, item) => {
       if (!item.isRead) {
         acc++;
