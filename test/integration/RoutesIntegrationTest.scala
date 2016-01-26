@@ -19,9 +19,38 @@ class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase
     Future.successful(None)
   }
 
-  "GET /v1/404alkjflskfdjg" - {
-    "Request to N.E. url should return 404 with storeAdmin creds. but w/o customerAuth"  in {
-      GET("v1/404alkjflskfdjg").status === (StatusCodes.NotFound)
+  "Requests with StoreAdmin only session (w/o customer)" - {
+    "GET /v1/404alkjflskfdjg"  in {
+      GET("v1/404alkjflskfdjg").status must === (StatusCodes.NotFound)
     }
   }
+}
+
+
+class RoutesCustomerOnlyIntegrationTest extends IntegrationTestBase
+  with HttpSupport {
+
+  val authedCustomer = Customer(id = 1, email = "donkey@donkey.com", password = Some("donkeyPass"),
+    name = Some("Mister Donkey"))
+
+  val uriPrefix = "v1/my"
+
+  override def overrideCustomerAuth: AsyncAuthenticator[Customer] = (UserCredentials) ⇒ {
+    Future.successful(Some(authedCustomer))
+  }
+
+  override def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] = (UserCredentials) ⇒ {
+    Future.successful(None)
+  }
+
+  "Requests with Customer only session (w/o StoreAdmin)" - {
+    s"GET ${uriPrefix}/404hello" in {
+      GET(s"${uriPrefix}/404hello").status must === (StatusCodes.NotFound)
+    }
+
+    s"GET ${uriPrefix}/addresses" in {
+      GET(s"${uriPrefix}/addresses").status must === (StatusCodes.OK)
+    }
+  }
+
 }
