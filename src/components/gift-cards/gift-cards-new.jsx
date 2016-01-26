@@ -150,6 +150,7 @@ export default class NewGiftCard extends React.Component {
         <div className="fc-new-gift-card__send-to-customers">
           <Typeahead
             className="_no-search-icon"
+            isFetching={false}
             fetchItems={props.suggestCustomers}
             itemsElement={this.chooseCustomersMenu}
             inputElement={this.chooseCustomersInput}

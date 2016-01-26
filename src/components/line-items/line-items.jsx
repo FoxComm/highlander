@@ -9,6 +9,7 @@ import SkuResult from '../orders/sku-result';
 import Typeahead from '../typeahead/typeahead';
 import ContentBox from '../content-box/content-box';
 import {EditButton} from '../common/buttons';
+import _ from 'lodash';
 
 export default class LineItems extends React.Component {
   static propTypes = {
@@ -67,6 +68,14 @@ export default class LineItems extends React.Component {
     );
   }
 
+  get suggestedSkus() {
+    return _.get(this.props, 'skuSearch.quickSearch.result.rows', []);
+  }
+
+  get isFetching() {
+    return _.get(this.props, 'skuSearch.quickSearch.isFetching', false);
+  }
+
   render() {
     let actions = null;
     let controls = null;
@@ -92,7 +101,8 @@ export default class LineItems extends React.Component {
               </div>
               <Typeahead onItemSelected={this.itemSelected}
                          component={SkuResult}
-                         items={this.props.suggestedSkus}
+                         isFetching={this.isFetching}
+                         items={this.suggestedSkus}
                          placeholder="Product name or SKU..." />
             </div>
             <div className="fc-line-items-footer-editing-done">
