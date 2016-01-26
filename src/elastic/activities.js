@@ -58,11 +58,13 @@ export default function searchActivities(fromActivity = null, trailParams, days 
         if (result.length) {
           const firstActivityDate = moment(result[0].createdAt);
 
-          if (now.diff(firstActivityDate, 'days', true) > days) {
-            const untilDate = firstActivityDate.endOf('day').subtract(days, 'days');
+          // if we have activities in last 2 days - fetch activities for last 2 days
+          // if not - fetch activities for last 2 days from latest activity
 
-            return fetch({untilDate});
-          }
+          const markerDate = now.diff(firstActivityDate, 'days', true) > days ? firstActivityDate : now;
+          const untilDate = markerDate.endOf('day').subtract(days, 'days');
+
+          return fetch({untilDate, query});
         }
 
         return response;
