@@ -205,6 +205,11 @@ object Admin {
         }
       } ~
       pathPrefix("shared-search") {
+        (get & pathEnd & parameters('scope.as[String].?)) { scope ⇒
+          goodOrFailures {
+            SharedSearchService.getAll(admin, scope)
+          }
+        } ~
         (post & pathEnd & entity(as[payloads.SharedSearchPayload])) { payload ⇒
           goodOrFailures {
             SharedSearchService.create(admin, payload)

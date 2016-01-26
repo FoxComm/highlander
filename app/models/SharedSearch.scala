@@ -87,6 +87,9 @@ object SharedSearches extends TableQueryWithId[SharedSearch, SharedSearches](
   def findActiveByCodeAndAdmin(code: String, adminId: Int): DBIO[Option[SharedSearch]] =
     filter(_.code === code).filter(_.storeAdminId === adminId).notDeleted.one
 
+  def findActiveByScopeAndAdmin(scope: Scope, adminId: Int): QuerySeq =
+    byAdmin(adminId).filter(_.scope === scope).notDeleted
+
   def byAdmin(adminId: Int): QuerySeq = filter(_.storeAdminId === adminId)
 
   object scope {
