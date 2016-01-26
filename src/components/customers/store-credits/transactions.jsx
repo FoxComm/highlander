@@ -4,6 +4,7 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+import { bindActionCreators } from 'redux';
 
 // components
 import Summary from './summary';
@@ -16,21 +17,30 @@ import Currency from '../../common/currency';
 import SearchBar from '../../search-bar/search-bar';
 import { Checkbox } from '../../checkbox/checkbox';
 import State from '../../common/state';
-import LiveSearch from '../../live-search/live-search';
+import SearchableList from '../../list-page/searchable-list';
 
 // redux
 import { actions as StoreCreditTransactionsActions } from '../../../modules/customers/store-credit-transactions';
 import * as StoreCreditTotalsActions from '../../../modules/customers/store-credit-totals';
 
-const actions = {
-  ...StoreCreditTransactionsActions,
-  ...StoreCreditTotalsActions
+// const actions = {
+//   searchActions: StoreCreditTransactionsActions,
+//   ...StoreCreditTotalsActions
+// };
+
+const mapStateToProps = (state, props) => ({
+  list: state.customers.storeCreditTransactions,
+  storeCreditTotals: state.customers.storeCreditTotals[props.params.customerId]
+});
+
+const mapDispatchToProps = dispatch => {
+  return {
+    actions: bindActionCreators(StoreCreditTransactionsActions, dispatch),
+    totalsActions: bindActionCreators(StoreCreditTotalsActions, dispatch)
+  };
 };
 
-@connect((state, props) => ({
-  storeCreditTransactions: state.customers.storeCreditTransactions,
-  storeCreditTotals: state.customers.storeCreditTotals[props.params.customerId]
-}), actions)
+@connect(mapStateToProps, mapDispatchToProps)
 export default class StoreCreditTransactions extends React.Component {
 
   static contextTypes = {
@@ -83,7 +93,7 @@ export default class StoreCreditTransactions extends React.Component {
   }
 
   componentDidMount() {
-    this.props.fetchTotals(this.customerId);
+    this.props.totalsActions.fetchTotals(this.customerId);
   }
 
   get defaultSearchOptions() {
@@ -151,23 +161,25 @@ export default class StoreCreditTransactions extends React.Component {
                  history={this.context.history}
                  transactionsSelected={true} />
         <div className="fc-list-page-content">
-          <LiveSearch
+          {/*<SearchableList
+            tableColumns={props.tableColumns}
+            toggleColumnPresent={false}
+            renderRow={this.renderRow}
+            emptyMessage="No transactions found."
             url={this.searchUrl}
             selectSavedSearch={selectSearch}
             submitFilters={filter}
             searches={props.storeCreditTransactions}
-            {...this.defaultSearchOptions}
-            {...props} >
-            <div className="fc-store-credit-table-container">
-              <MultiSelectTable
-                columns={props.tableColumns}
-                data={results}
-                renderRow={this.renderRow}
-                emptyMessage="No transactions found."
-                toggleColumnPresent={false}
-                setState={this.setState} />
-            </div>
-          </LiveSearch>
+            searchActions = {props.searchActions}
+            {...this.defaultSearchOptions} >
+          </SearchableList>*/}
+          <SearchableList
+            emptyResultMessage="No transactions found."
+            list={props.list}
+            renderRow={this.renderRow}
+            tableColumns={props.tableColumns}
+            searchActions={props.actions}
+            url={this.searchUrl} />
         </div>
       </div>
     );
