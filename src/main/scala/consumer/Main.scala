@@ -64,18 +64,18 @@ import consumer.utils.PhoenixConnectionInfo
 **/
 
 final case class MainConfig(
-    activityTopic          : String,          
-    avroSchemaRegistryUrl  : String, 
-    connectionTopic        : String,      
-    elasticSearchCluster   : String, 
-    elasticSearchIndex     : String, 
-    elasticSearchUrl       : String, 
-    kafkaBroker            : String, 
-    kafkaGroupId           : String, 
-    kafkaTopics            : Seq[String], 
-    phoenixPass            : String, 
-    phoenixUri             : String, 
-    phoenixUser            : String, 
+    activityTopic          : String,
+    avroSchemaRegistryUrl  : String,
+    connectionTopic        : String,
+    elasticSearchCluster   : String,
+    elasticSearchIndex     : String,
+    elasticSearchUrl       : String,
+    kafkaBroker            : String,
+    kafkaGroupId           : String,
+    kafkaTopics            : Seq[String],
+    phoenixPass            : String,
+    phoenixUri             : String,
+    phoenixUser            : String,
     threadPoolCount        : Int,
     startFromBeginning : Boolean)
 
@@ -162,16 +162,17 @@ object Main {
 
     val trailWork = Future {
       val transformers = Map(
+        "skus"                              → AvroTransformers.Sku(),
         "regions"                           → AvroTransformers.Region(),
         "countries"                         → AvroTransformers.Country(),
         "customers_search_view"             → AvroTransformers.CustomersSearchView(),
         "orders_search_view"                → AvroTransformers.OrdersSearchView(),
         "store_admins_search_view"          → AvroTransformers.StoreAdminsSearchView(),
-        "failed_authorizations_search_view" → AvroTransformers.FailedAuthorizationsSearchView(),
-        "store_credit_transactions_view"    → AvroTransformers.StoreCreditTransactionsView(),
-        "skus"                              → AvroTransformers.Sku(),
-        "gift_cards"                        → AvroTransformers.GiftCard(),
+        "gift_cards_search_view"            → AvroTransformers.GiftCardsSearchView(),
+        "gift_card_transactions_view"       → AvroTransformers.GiftCardTransactionsView(),
         "store_credits_search_view"         → AvroTransformers.StoreCreditsSearchView(),
+        "store_credit_transactions_view"    → AvroTransformers.StoreCreditTransactionsView(),
+        "failed_authorizations_search_view" → AvroTransformers.FailedAuthorizationsSearchView(),
         conf.connectionTopic                → ActivityConnectionTransformer(phoenix))
 
       val topicsPlusActivity = conf.kafkaTopics :+ conf.connectionTopic
@@ -205,14 +206,14 @@ object Main {
     }
 
     activityWork onFailure {
-      case t ⇒ { 
+      case t ⇒ {
         Console.err.println(s"Error occurred consuming activities: ${t.getMessage}")
         System.exit(1);
       }
     }
 
     trailWork onFailure {
-      case t ⇒  { 
+      case t ⇒  {
         Console.err.println(s"Error occurred indexing to ES: ${t}")
         System.exit(1);
       }
