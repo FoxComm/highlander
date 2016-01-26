@@ -141,6 +141,10 @@
     font-weight: 500;
   }
 
+  &._half-checked input[type=checkbox]:checked + label > span:before {
+    content: "\e83b";
+  }
+
   & input[type=checkbox][disabled] + label > span {
     border-color: @color-decor9;
     background: @color-decor12;
