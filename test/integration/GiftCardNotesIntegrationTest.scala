@@ -31,14 +31,14 @@ class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
       val response = POST(s"v1/notes/gift-card/${giftCard.code}", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (List("body must not be empty"))
+      response.error must === ("body must not be empty")
     }
 
     "returns a 404 if the gift card is not found" in new Fixture {
       val response = POST(s"v1/notes/gift-card/999999", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.NotFound)
-      parseErrors(response) must === (NotFoundFailure404(GiftCard, 999999).description)
+      response.error must === (NotFoundFailure404(GiftCard, 999999).description)
     }
   }
 

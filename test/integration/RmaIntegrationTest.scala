@@ -54,7 +54,7 @@ class RmaIntegrationTest extends IntegrationTestBase
       "should return failure for non-existing customer" in new Fixture {
         val response = GET(s"v1/rmas/customer/255")
         response.status must ===(StatusCodes.NotFound)
-        response.errors must ===(NotFoundFailure404(Customer, 255).description)
+        response.error must ===(NotFoundFailure404(Customer, 255).description)
       }
     }
 
@@ -71,7 +71,7 @@ class RmaIntegrationTest extends IntegrationTestBase
       "should return failure for non-existing order" in new Fixture {
         val response = GET(s"v1/rmas/order/ABC-666")
         response.status must ===(StatusCodes.NotFound)
-        response.errors must ===(NotFoundFailure404(Order, "ABC-666").description)
+        response.error must ===(NotFoundFailure404(Order, "ABC-666").description)
       }
     }
 
@@ -87,7 +87,7 @@ class RmaIntegrationTest extends IntegrationTestBase
       "should return 404 if invalid rma is returned" in new Fixture {
         val response = GET(s"v1/rmas/ABC-666")
         response.status must ===(StatusCodes.NotFound)
-        response.errors must ===(NotFoundFailure404(Rma, "ABC-666").description)
+        response.error must ===(NotFoundFailure404(Rma, "ABC-666").description)
       }
     }
 
@@ -113,13 +113,13 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = PATCH(s"v1/rmas/${rma.referenceNumber}", payloads.RmaUpdateStatusPayload(status = Canceled,
           reasonId = Some(999)))
         response.status must ===(StatusCodes.BadRequest)
-        response.errors must ===(InvalidCancellationReasonFailure.description)
+        response.error must ===(InvalidCancellationReasonFailure.description)
       }
 
       "fails if refNum is not found" in new LineItemFixture {
         val response = PATCH(s"v1/rmas/ABC-666", payloads.RmaUpdateStatusPayload(status = Processing))
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Rma, "ABC-666").description)
+        response.error must === (NotFoundFailure404(Rma, "ABC-666").description)
       }
     }
 
@@ -137,7 +137,7 @@ class RmaIntegrationTest extends IntegrationTestBase
       "fails to create RMA with invalid order refNum provided" in new Fixture {
         val response = POST(s"v1/rmas", RmaCreatePayload(orderRefNum = "ABC-666", rmaType = Rma.Standard))
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Order, "ABC-666").description)
+        response.error must === (NotFoundFailure404(Order, "ABC-666").description)
       }
     }
 
@@ -164,7 +164,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/rmas/99/message", payload)
 
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Rma, "99").description)
+        response.error must === (NotFoundFailure404(Rma, "99").description)
       }
 
       "fails if message is too long" in new Fixture {
@@ -172,7 +172,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/rmas/99/message", payload)
 
         response.status must === (StatusCodes.BadRequest)
-        response.errors must === (GeneralFailure("Message length got 3000, expected 1000 or less").description)
+        response.error must === (GeneralFailure("Message length got 3000, expected 1000 or less").description)
       }
     }
 
@@ -228,7 +228,7 @@ class RmaIntegrationTest extends IntegrationTestBase
 
         val response = POST(s"v1/rmas/${rma.referenceNumber}/lock")
         response.status must === (StatusCodes.BadRequest)
-        response.errors must === (LockedFailure(Rma, rma.referenceNumber).description)
+        response.error must === (LockedFailure(Rma, rma.referenceNumber).description)
       }
 
       "avoids race condition" in new Fixture {
@@ -256,7 +256,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/rmas/${rma.referenceNumber}/unlock")
 
         response.status must ===(StatusCodes.BadRequest)
-        response.errors must ===(NotLockedFailure(Rma, rma.refNum).description)
+        response.error must ===(NotLockedFailure(Rma, rma.refNum).description)
       }
     }
 
@@ -273,7 +273,7 @@ class RmaIntegrationTest extends IntegrationTestBase
       "should return 404 if invalid rma is returned" in new Fixture {
         val response = GET(s"v1/rmas/ABC-666/expanded")
         response.status must ===(StatusCodes.NotFound)
-        response.errors must ===(NotFoundFailure404(Rma, "ABC-666").description)
+        response.error must ===(NotFoundFailure404(Rma, "ABC-666").description)
 
       }
     }
@@ -347,19 +347,19 @@ class RmaIntegrationTest extends IntegrationTestBase
       "400 if assignee is not found" in new AssignmentFixture {
         val response = DELETE(s"v1/rmas/${rma.referenceNumber}/assignees/${secondAdmin.id}")
         response.status must === (StatusCodes.BadRequest)
-        response.errors must === (RmaAssigneeNotFound(rma.referenceNumber, secondAdmin.id).description)
+        response.error must === (RmaAssigneeNotFound(rma.referenceNumber, secondAdmin.id).description)
       }
 
       "404 if RMA is not found" in new AssignmentFixture {
         val response = DELETE(s"v1/rmas/NOPE/assignees/${storeAdmin.id}")
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Rma, "NOPE").description)
+        response.error must === (NotFoundFailure404(Rma, "NOPE").description)
       }
 
       "404 if storeAdmin is not found" in new AssignmentFixture {
         val response = DELETE(s"v1/rmas/${rma.referenceNumber}/assignees/555")
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(StoreAdmin, 555).description)
+        response.error must === (NotFoundFailure404(StoreAdmin, 555).description)
       }
     }
   }
@@ -383,7 +383,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/rmas/ABC-666/line-items/skus", payload)
 
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Rma, "ABC-666").description)
+        response.error must === (NotFoundFailure404(Rma, "ABC-666").description)
       }
 
       "fails if reason is not found" in new LineItemFixture {
@@ -392,7 +392,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/rmas/${rma.referenceNumber}/line-items/skus", payload)
 
         response.status must === (StatusCodes.BadRequest)
-        response.errors must === (NotFoundFailure400(RmaReason, 100).description)
+        response.error must === (NotFoundFailure400(RmaReason, 100).description)
       }
 
       "fails if quantity is invalid" in new LineItemFixture {
@@ -401,7 +401,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/rmas/${rma.referenceNumber}/line-items/skus", payload)
 
         response.status must === (StatusCodes.BadRequest)
-        response.errors must === (GeneralFailure("Quantity got 0, expected more than 0").description)
+        response.error must === (GeneralFailure("Quantity got 0, expected more than 0").description)
       }
     }
 
@@ -423,13 +423,13 @@ class RmaIntegrationTest extends IntegrationTestBase
       "fails if refNum is not found" in new LineItemFixture {
         val response = DELETE(s"v1/rmas/ABC-666/line-items/skus/1")
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Rma, "ABC-666").description)
+        response.error must === (NotFoundFailure404(Rma, "ABC-666").description)
       }
 
       "fails if line item ID is not found" in new LineItemFixture {
         val response = DELETE(s"v1/rmas/${rma.referenceNumber}/line-items/skus/666")
         response.status must === (StatusCodes.BadRequest)
-        response.errors must === (NotFoundFailure400(RmaLineItem, 666).description)
+        response.error must === (NotFoundFailure400(RmaLineItem, 666).description)
       }
     }
 
@@ -449,7 +449,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/rmas/ABC-666/line-items/gift-cards", payload)
 
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Rma, "ABC-666").description)
+        response.error must === (NotFoundFailure404(Rma, "ABC-666").description)
       }
 
       "fails if reason is not found" in new LineItemFixture {
@@ -457,7 +457,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/rmas/${rma.referenceNumber}/line-items/gift-cards", payload)
 
         response.status must === (StatusCodes.BadRequest)
-        response.errors must === (NotFoundFailure400(RmaReason, 100).description)
+        response.error must === (NotFoundFailure400(RmaReason, 100).description)
       }
     }
 
@@ -478,13 +478,13 @@ class RmaIntegrationTest extends IntegrationTestBase
       "fails if refNum is not found" in new LineItemFixture {
         val response = DELETE(s"v1/rmas/ABC-666/line-items/gift-cards/1")
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Rma, "ABC-666").description)
+        response.error must === (NotFoundFailure404(Rma, "ABC-666").description)
       }
 
       "fails if line item ID is not found" in new LineItemFixture {
         val response = DELETE(s"v1/rmas/${rma.referenceNumber}/line-items/gift-cards/666")
         response.status must === (StatusCodes.BadRequest)
-        response.errors must === (NotFoundFailure400(RmaLineItem, 666).description)
+        response.error must === (NotFoundFailure400(RmaLineItem, 666).description)
       }
     }
 
@@ -505,7 +505,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/rmas/ABC-666/line-items/shipping-costs", payload)
 
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Rma, "ABC-666").description)
+        response.error must === (NotFoundFailure404(Rma, "ABC-666").description)
       }
 
       "fails if reason is not found" in new LineItemFixture {
@@ -513,7 +513,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/rmas/${rma.referenceNumber}/line-items/shipping-costs", payload)
 
         response.status must === (StatusCodes.BadRequest)
-        response.errors must === (NotFoundFailure400(RmaReason, 100).description)
+        response.error must === (NotFoundFailure400(RmaReason, 100).description)
       }
     }
 
@@ -534,13 +534,13 @@ class RmaIntegrationTest extends IntegrationTestBase
       "fails if refNum is not found" in new LineItemFixture {
         val response = DELETE(s"v1/rmas/ABC-666/line-items/shipping-costs/1")
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Rma, "ABC-666").description)
+        response.error must === (NotFoundFailure404(Rma, "ABC-666").description)
       }
 
       "fails if line item ID is not found" in new LineItemFixture {
         val response = DELETE(s"v1/rmas/${rma.referenceNumber}/line-items/shipping-costs/666")
         response.status must === (StatusCodes.BadRequest)
-        response.errors must === (NotFoundFailure400(RmaLineItem, 666).description)
+        response.error must === (NotFoundFailure400(RmaLineItem, 666).description)
       }
     }
   }

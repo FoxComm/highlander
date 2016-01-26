@@ -65,7 +65,7 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
     "404 if not found" in {
       val response = GET(s"v1/shared-search/nope")
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(SharedSearch, "nope").description)
+      response.error must === (NotFoundFailure404(SharedSearch, "nope").description)
     }
   }
 
@@ -105,7 +105,7 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
     "404 if not found" in {
       val response = PATCH(s"v1/shared-search/nope", SharedSearchPayload("test", parse("{}"), CustomersScope))
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(SharedSearch, "nope").description)
+      response.error must === (NotFoundFailure404(SharedSearch, "nope").description)
     }
   }
 
@@ -124,7 +124,7 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
     "404 if not found" in {
       val response = DELETE(s"v1/shared-search/nope")
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(SharedSearch, "nope").description)
+      response.error must === (NotFoundFailure404(SharedSearch, "nope").description)
     }
   }
 

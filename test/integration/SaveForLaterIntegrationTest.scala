@@ -31,7 +31,7 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
     "404 if customer is not found" in {
       val response = GET(s"v1/save-for-later/666")
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Customer, 666).description)
+      response.error must === (NotFoundFailure404(Customer, 666).description)
     }
   }
 
@@ -54,7 +54,7 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
 
       val duplicate = POST(s"v1/save-for-later/${customer.id}/${sku.id}")
       duplicate.status must === (StatusCodes.BadRequest)
-      duplicate.errors must === (AlreadySavedForLater(customer.id, sku.id).description)
+      duplicate.error must === (AlreadySavedForLater(customer.id, sku.id).description)
 
       SaveForLaters.result.run().futureValue must have size 1
     }
@@ -62,13 +62,13 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
     "404 if customer is not found" in new Fixture {
       val response = POST(s"v1/save-for-later/666/${sku.id}")
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Customer, 666).description)
+      response.error must === (NotFoundFailure404(Customer, 666).description)
     }
 
     "404 if sku is not found" in new Fixture {
       val response = POST(s"v1/save-for-later/${customer.id}/666")
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Sku, 666).description)
+      response.error must === (NotFoundFailure404(Sku, 666).description)
     }
   }
 
@@ -83,7 +83,7 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
     "404 if save for later is not found" in {
       val response = DELETE("v1/save-for-later/666")
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(SaveForLater, 666).description)
+      response.error must === (NotFoundFailure404(SaveForLater, 666).description)
     }
   }
 

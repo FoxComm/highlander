@@ -35,14 +35,14 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
       val response = POST(s"v1/notes/order/${order.referenceNumber}", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (List("body must not be empty"))
+      response.error must === ("body must not be empty")
     }
 
     "returns a 404 if the order is not found" in new Fixture {
       val response = POST(s"v1/notes/order/ABACADSF113", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.NotFound)
-      parseErrors(response) must === (NotFoundFailure404(Order, "ABACADSF113").description)
+      response.error must === (NotFoundFailure404(Order, "ABACADSF113").description)
     }
   }
 

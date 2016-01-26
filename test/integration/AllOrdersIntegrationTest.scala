@@ -102,8 +102,8 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
         ("baz", ManualHold))
 
       all.errors.value must contain allOf(
-        LockedFailure(Order, "bar").description.head,
-        NotFoundFailure404(Order, "nonExistent").description.head)
+        LockedFailure(Order, "bar").description,
+        NotFoundFailure404(Order, "nonExistent").description)
     }
 
     "refuses invalid status transition" in {
@@ -117,7 +117,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
 
       allOrders must === (Seq((order.refNum, order.state)))
 
-      all.errors.value must === (StateTransitionNotAllowed(order.state, Cart, order.refNum).description)
+      all.errors.value.head must === (StateTransitionNotAllowed(order.state, Cart, order.refNum).description)
     }
 
     "bulk update statuses with paging and sorting" in new StatusUpdateFixture {
@@ -135,8 +135,8 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
         ("foo", FulfillmentStarted))
 
       all.errors.value must contain allOf(
-        LockedFailure(Order, "bar").description.head,
-        NotFoundFailure404(Order, "nonExistent").description.head)
+        LockedFailure(Order, "bar").description,
+        NotFoundFailure404(Order, "nonExistent").description)
     }
   }
 
@@ -182,7 +182,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkOrderUpdateResponse]
       responseObj.result must === (getAllOrders)
-      responseObj.errors.value must === (NotFoundFailure404(Order, "NOPE").description)
+      responseObj.errors.value.head must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
     "warns when admin to assign not found" in new BulkAssignmentFixture {
@@ -190,7 +190,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkOrderUpdateResponse]
       responseObj.result must === (getAllOrders)
-      responseObj.errors.value must === (NotFoundFailure404(StoreAdmin, 777).description)
+      responseObj.errors.value.head must === (NotFoundFailure404(StoreAdmin, 777).description)
     }
   }
 
@@ -235,7 +235,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkOrderUpdateResponse]
       responseObj.result must === (getAllOrders)
-      responseObj.errors.value must === (NotFoundFailure404(Order, "NOPE").description)
+      responseObj.errors.value.head must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
     "warns when admin to unassign not found" in new BulkAssignmentFixture {
@@ -243,7 +243,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkOrderUpdateResponse]
       responseObj.result must === (getAllOrders)
-      responseObj.errors.value must === (NotFoundFailure404(StoreAdmin, 777).description)
+      responseObj.errors.value.head must === (NotFoundFailure404(StoreAdmin, 777).description)
     }
   }
 
@@ -289,7 +289,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkOrderUpdateResponse]
       responseObj.result must === (getAllOrders)
-      responseObj.errors.value must === (NotFoundFailure404(Order, "NOPE").description)
+      responseObj.errors.value.head must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
     "warns when admin to assign not found" in new BulkAssignmentFixture {
@@ -297,7 +297,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkOrderUpdateResponse]
       responseObj.result must === (getAllOrders)
-      responseObj.errors.value must === (NotFoundFailure404(StoreAdmin, 777).description)
+      responseObj.errors.value.head must === (NotFoundFailure404(StoreAdmin, 777).description)
     }
   }
 
@@ -342,7 +342,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkOrderUpdateResponse]
       responseObj.result must === (getAllOrders)
-      responseObj.errors.value must === (NotFoundFailure404(Order, "NOPE").description)
+      responseObj.errors.value.head must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
     "warns when admin to unwatch not found" in new BulkAssignmentFixture {
@@ -350,7 +350,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkOrderUpdateResponse]
       responseObj.result must === (getAllOrders)
-      responseObj.errors.value must === (NotFoundFailure404(StoreAdmin, 777).description)
+      responseObj.errors.value.head must === (NotFoundFailure404(StoreAdmin, 777).description)
     }
   }
 

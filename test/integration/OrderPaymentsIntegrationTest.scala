@@ -56,7 +56,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.BadRequest)
-        parseErrors(response) must === (NotFoundFailure404(GiftCard, payload.code).description)
+        response.error must === (NotFoundFailure404(GiftCard, payload.code).description)
         giftCardPayments(order) mustBe 'empty
       }
 
@@ -65,7 +65,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.BadRequest)
-        parseErrors(response) must === (GiftCardNotEnoughBalance(giftCard, payload.amount).description)
+        response.error must === (GiftCardNotEnoughBalance(giftCard, payload.amount).description)
         giftCardPayments(order) mustBe 'empty
       }
 
@@ -75,7 +75,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.BadRequest)
-        response.errors must === (OrderMustBeCart(order.refNum).description)
+        response.error must === (OrderMustBeCart(order.refNum).description)
         giftCardPayments(order) must have size 0
       }
 
@@ -85,7 +85,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
         response.status must === (StatusCodes.BadRequest)
-        parseErrors(response) must === (GiftCardIsInactive(giftCard).description)
+        response.error must === (GiftCardIsInactive(giftCard).description)
         giftCardPayments(order) mustBe 'empty
       }
 
@@ -95,7 +95,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/${order.refNum}/payment-methods/gift-cards", payload)
 
         response.status must ===(StatusCodes.BadRequest)
-        response.errors must ===(GiftCardMustNotBeCart(giftCard.code).description)
+        response.error must ===(GiftCardMustNotBeCart(giftCard.code).description)
       }
     }
 
@@ -116,7 +116,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = DELETE(s"v1/orders/99/payment-methods/gift-cards/123")
 
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Order, 99).description)
+        response.error must === (NotFoundFailure404(Order, 99).description)
         creditCardPayments(order) mustBe 'empty
       }
 
@@ -124,7 +124,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards/abc-123")
 
         response.status must === (StatusCodes.NotFound)
-        parseErrors(response) must === (NotFoundFailure404(GiftCard, "abc-123").description)
+        response.error must === (NotFoundFailure404(GiftCard, "abc-123").description)
         creditCardPayments(order) mustBe 'empty
       }
 
@@ -132,7 +132,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = DELETE(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards/${giftCard.code}")
 
         response.status must === (StatusCodes.BadRequest)
-        parseErrors(response) must === (OrderPaymentNotFoundFailure(GiftCard).description)
+        response.error must === (OrderPaymentNotFoundFailure(GiftCard).description)
         creditCardPayments(order) mustBe 'empty
       }
     }
@@ -195,7 +195,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/${notFound.refNum}/payment-methods/store-credit", payload)
 
         response.status must ===(StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Order, notFound.refNum).description)
+        response.error must === (NotFoundFailure404(Order, notFound.refNum).description)
         storeCreditPayments(order) mustBe 'empty
       }
 
@@ -205,7 +205,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
         response.status must ===(StatusCodes.BadRequest)
         val error = CustomerHasInsufficientStoreCredit(customer.id, 0, 50).description
-        parseErrors(response) must ===(error)
+        response.error must ===(error)
         storeCreditPayments(order) mustBe 'empty
       }
 
@@ -216,7 +216,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         response.status must ===(StatusCodes.BadRequest)
         val has = storeCredits.map(_.availableBalance).sum
         val error = CustomerHasInsufficientStoreCredit(customer.id, has, payload.amount).description
-        parseErrors(response) must ===(error)
+        response.error must ===(error)
         storeCreditPayments(order) mustBe 'empty
       }
 
@@ -226,7 +226,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
 
         response.status must === (StatusCodes.BadRequest)
-        response.errors must === (OrderMustBeCart(order.refNum).description)
+        response.error must === (OrderMustBeCart(order.refNum).description)
       }
     }
 
@@ -262,7 +262,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/99/payment-methods/credit-cards", payload)
 
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Order, 99).description)
+        response.error must === (NotFoundFailure404(Order, 99).description)
         creditCardPayments(order) mustBe 'empty
       }
 
@@ -271,7 +271,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
 
         response.status must === (StatusCodes.BadRequest)
-        parseErrors(response) must === (NotFoundFailure404(CreditCard, 99).description)
+        response.error must === (NotFoundFailure404(CreditCard, 99).description)
         creditCardPayments(order) mustBe 'empty
       }
 
@@ -282,7 +282,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
 
         response.status must ===(StatusCodes.BadRequest)
-        parseErrors(response) must ===(CannotUseInactiveCreditCard(creditCard).description)
+        response.error must ===(CannotUseInactiveCreditCard(creditCard).description)
         creditCardPayments(order) mustBe 'empty
       }
 
@@ -292,7 +292,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
 
         response.status must === (StatusCodes.BadRequest)
-        response.errors must === (OrderMustBeCart(order.refNum).description)
+        response.error must === (OrderMustBeCart(order.refNum).description)
         creditCardPayments(order) must have size 0
       }
     }
@@ -332,7 +332,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders/99/payment-methods/credit-cards", payload)
 
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Order, 99).description)
+        response.error must === (NotFoundFailure404(Order, 99).description)
         creditCardPayments(order) mustBe 'empty
       }
 

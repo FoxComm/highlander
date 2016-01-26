@@ -120,7 +120,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
 
         response.status must === (StatusCodes.BadRequest)
-        response.errors must === (NotFoundFailure404(StoreCreditSubtype, 255).description)
+        response.error must === (NotFoundFailure404(StoreCreditSubtype, 255).description)
       }
 
       "fails if the customer is not found" in {
@@ -128,7 +128,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/customers/99/payment-methods/store-credit", payload)
 
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Customer, 99).description)
+        response.error must === (NotFoundFailure404(Customer, 99).description)
       }
 
       "fails if the reason is not found" in new Fixture {
@@ -136,7 +136,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit", payload)
 
         response.status must === (StatusCodes.BadRequest)
-        response.errors must === (NotFoundFailure404(Reason, 255).description)
+        response.error must === (NotFoundFailure404(Reason, 255).description)
       }
     }
 
@@ -155,7 +155,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val response = GET(s"v1/customers/99/payment-methods/store-credit")
 
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Customer, 99).description)
+        response.error must === (NotFoundFailure404(Customer, 99).description)
       }
     }
 
@@ -174,7 +174,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val response = GET(s"v1/customers/99/payment-methods/store-credit/transactions")
 
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Customer, 99).description)
+        response.error must === (NotFoundFailure404(Customer, 99).description)
       }
     }
 
@@ -196,7 +196,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val response = GET(s"v1/customers/99/payment-methods/store-credit/totals")
 
         response.status must ===(StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Customer, 99).description)
+        response.error must === (NotFoundFailure404(Customer, 99).description)
       }
     }
 
@@ -242,14 +242,14 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       "returns error if no cancellation reason provided" in new Fixture {
         val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Canceled))
         response.status must ===(StatusCodes.BadRequest)
-        response.errors must ===(EmptyCancellationReasonFailure.description)
+        response.error must ===(EmptyCancellationReasonFailure.description)
       }
 
       "returns error on cancellation if store credit has auths" in new Fixture {
         val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Canceled,
           reasonId = Some(1)))
         response.status must ===(StatusCodes.BadRequest)
-        response.errors must ===(OpenTransactionsFailure.description)
+        response.error must ===(OpenTransactionsFailure.description)
       }
 
       "successfully cancels store credit with provided reason, cancel adjustment is created" in new Fixture {
@@ -280,7 +280,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Canceled,
           reasonId = Some(999)))
         response.status must ===(StatusCodes.BadRequest)
-        response.errors must ===(InvalidCancellationReasonFailure.description)
+        response.error must ===(InvalidCancellationReasonFailure.description)
       }
     }
 
@@ -309,7 +309,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
         val response = PATCH(s"v1/store-credits", payload)
         response.status must ===(StatusCodes.BadRequest)
-        response.errors must ===(EmptyCancellationReasonFailure.description)
+        response.error must ===(EmptyCancellationReasonFailure.description)
       }
     }
 
@@ -333,19 +333,19 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       "fails to convert when SC not found" in new Fixture {
         val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit/555/convert")
         response.status must ===(StatusCodes.NotFound)
-        response.errors must ===(NotFoundFailure404(StoreCredit, 555).description)
+        response.error must ===(NotFoundFailure404(StoreCredit, 555).description)
       }
 
       "fails to convert when customer not found" in new Fixture {
         val response = POST(s"v1/customers/666/payment-methods/store-credit/${scSecond.id}/convert")
         response.status must ===(StatusCodes.NotFound)
-        response.errors must ===(NotFoundFailure404(Customer, 666).description)
+        response.error must ===(NotFoundFailure404(Customer, 666).description)
       }
 
       "fails to convert SC to GC if open transactions are present" in new Fixture {
         val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit/${storeCredit.id}/convert")
         response.status must ===(StatusCodes.BadRequest)
-        response.errors must ===(OpenTransactionsFailure.description)
+        response.error must ===(OpenTransactionsFailure.description)
       }
 
       "fails to convert inactive SC to GC" in new Fixture {
@@ -354,7 +354,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
         val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit/${scSecond.id}/convert")
         response.status must ===(StatusCodes.BadRequest)
-        response.errors must ===(StoreCreditConvertFailure(updatedSc).description)
+        response.error must ===(StoreCreditConvertFailure(updatedSc).description)
       }
     }
   }

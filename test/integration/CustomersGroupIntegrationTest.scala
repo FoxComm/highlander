@@ -89,7 +89,7 @@ class CustomersGroupIntegrationTest extends IntegrationTestBase
       val response = GET(s"$uriPrefix/999")
 
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(CustomerDynamicGroup, 999).description)
+      response.error must === (NotFoundFailure404(CustomerDynamicGroup, 999).description)
     }
   }
 
@@ -112,7 +112,7 @@ class CustomersGroupIntegrationTest extends IntegrationTestBase
       val response = PATCH(s"$uriPrefix/999", payload)
 
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(CustomerDynamicGroup, 999).description)
+      response.error must === (NotFoundFailure404(CustomerDynamicGroup, 999).description)
     }
   }
 

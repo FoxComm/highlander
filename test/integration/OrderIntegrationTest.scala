@@ -96,16 +96,16 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       response.status must === (StatusCodes.OK)
       val ref = order.refNum
-      val expectedWarnings = List(EmptyCart(ref), NoShipAddress(ref), NoShipMethod(ref)).flatMap(_.description)
+      val expectedWarnings = List(EmptyCart(ref), NoShipAddress(ref), NoShipMethod(ref)).map(_.description)
       val responseWithValidation = response.withResultTypeOf[FullOrder.Root]
       responseWithValidation.alerts must not be defined
-      responseWithValidation.warnings.value.toList must contain theSameElementsAs expectedWarnings
+      responseWithValidation.warnings.value must contain theSameElementsAs expectedWarnings
     }
 
     "should respond with 404 if order is not found" in {
       val response = POST(s"v1/orders/NOPE/line-items", payload)
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Order, "NOPE").description)
+      response.error must === (NotFoundFailure404(Order, "NOPE").description)
     }
   }
 
@@ -132,7 +132,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         UpdateOrderPayload(Cart))
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (StateTransitionNotAllowed(order.state, Cart, order.refNum).description)
+      response.error must === (StateTransitionNotAllowed(order.state, Cart, order.refNum).description)
     }
 
     "fails if transition from current status is not allowed" in {
@@ -143,7 +143,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         UpdateOrderPayload(ManualHold))
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (StateTransitionNotAllowed(order.state, ManualHold, order.refNum).description)
+      response.error must === (StateTransitionNotAllowed(order.state, ManualHold, order.refNum).description)
     }
 
     "fails if the order is not found" in {
@@ -152,7 +152,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = PATCH(s"v1/orders/NOPE", UpdateOrderPayload(ManualHold))
 
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Order, "NOPE").description)
+      response.error must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
     /* This test should really test against an order and not a *cart*. Karin has filed a story to come back to this
@@ -219,7 +219,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val response = POST(s"v1/orders/${order.referenceNumber}/lock")
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (LockedFailure(Order, order.referenceNumber).description)
+      response.error must === (LockedFailure(Order, order.referenceNumber).description)
     }
 
     "avoids race condition" in {
@@ -255,7 +255,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/${order.referenceNumber}/unlock")
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (NotLockedFailure(Order, order.refNum).description)
+      response.error must === (NotLockedFailure(Order, order.refNum).description)
     }
 
     "adjusts remorse period when order is unlocked" in new RemorseFixture {
@@ -331,7 +331,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     "404 if order is not found" in new Fixture {
       val response = POST(s"v1/orders/NOPE/assignees", Assignment(Seq(storeAdmin.id)))
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Order, "NOPE").description)
+      response.error must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
     "warning if assignee is not found" in new Fixture {
@@ -340,7 +340,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val fullOrderWithWarnings = response.withResultTypeOf[FullOrder.Root]
       fullOrderWithWarnings.result.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(storeAdmin)))
-      fullOrderWithWarnings.warnings.value must === (NotFoundFailure404(StoreAdmin, 999).description)
+      fullOrderWithWarnings.warnings.value must === (List(NotFoundFailure404(StoreAdmin, 999).description))
     }
 
     "can be viewed with order" in new Fixture {
@@ -382,19 +382,19 @@ class OrderIntegrationTest extends IntegrationTestBase
     "400 if assignee is not found" in new AssignmentFixture {
       val response = DELETE(s"v1/orders/${order.referenceNumber}/assignees/${secondAdmin.id}")
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (OrderAssigneeNotFound(order.referenceNumber, secondAdmin.id).description)
+      response.error must === (OrderAssigneeNotFound(order.referenceNumber, secondAdmin.id).description)
     }
 
     "404 if order is not found" in new AssignmentFixture {
       val response = DELETE(s"v1/orders/NOPE/assignees/${storeAdmin.id}")
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Order, "NOPE").description)
+      response.error must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
     "404 if storeAdmin is not found" in new AssignmentFixture {
       val response = DELETE(s"v1/orders/${order.referenceNumber}/assignees/555")
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(StoreAdmin, 555).description)
+      response.error must === (NotFoundFailure404(StoreAdmin, 555).description)
     }
   }
 
@@ -426,7 +426,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     "404 if order is not found" in new Fixture {
       val response = POST(s"v1/orders/NOPE/watchers", Watchers(Seq(storeAdmin.id)))
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Order, "NOPE").description)
+      response.error must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
     "warning if watcher is not found" in new Fixture {
@@ -435,7 +435,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val fullOrderWithWarnings = response.withResultTypeOf[FullOrder.Root]
       fullOrderWithWarnings.result.watchers.map(_.watcher) must === (Seq(StoreAdminResponse.build(storeAdmin)))
-      fullOrderWithWarnings.warnings.value must === (NotFoundFailure404(StoreAdmin, 999).description)
+      fullOrderWithWarnings.warnings.value must === (List(NotFoundFailure404(StoreAdmin, 999).description))
     }
 
     "can be viewed with order" in new Fixture {
@@ -477,19 +477,19 @@ class OrderIntegrationTest extends IntegrationTestBase
     "400 if watcher is not found" in new WatcherFixture {
       val response = DELETE(s"v1/orders/${order.referenceNumber}/watchers/${secondAdmin.id}")
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (OrderWatcherNotFound(order.referenceNumber, secondAdmin.id).description)
+      response.error must === (OrderWatcherNotFound(order.referenceNumber, secondAdmin.id).description)
     }
 
     "404 if order is not found" in new WatcherFixture {
       val response = DELETE(s"v1/orders/NOPE/watchers/${storeAdmin.id}")
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Order, "NOPE").description)
+      response.error must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
     "404 if storeAdmin is not found" in new WatcherFixture {
       val response = DELETE(s"v1/orders/${order.referenceNumber}/watchers/555")
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(StoreAdmin, 555).description)
+      response.error must === (NotFoundFailure404(StoreAdmin, 555).description)
     }
   }
 
@@ -611,7 +611,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/99")
 
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Address, 99).description)
+        response.error must === (NotFoundFailure404(Address, 99).description)
       }
     }
 
@@ -636,7 +636,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/99")
 
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Address, 99).description)
+        response.error must === (NotFoundFailure404(Address, 99).description)
       }
 
       "does not change the current shipping address if the edit fails" in new ShippingAddressFixture {
@@ -714,7 +714,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
   "DELETE /v1/orders/:refNum/shipping-address" - {
     "succeeds if an address exists" in new ShippingAddressFixture {
-      val noShipAddressFailure = NoShipAddress(order.refNum).description.headOption.value
+      val noShipAddressFailure = NoShipAddress(order.refNum).description
 
       //get order and make sure it has a shipping address
       val fullOrderResponse = GET(s"v1/orders/${order.referenceNumber}")
@@ -739,7 +739,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     "fails if the order is not found" in new ShippingAddressFixture {
       val response = DELETE(s"v1/orders/ABC-123/shipping-address")
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Order, "ABC-123").description)
+      response.error must === (NotFoundFailure404(Order, "ABC-123").description)
 
       db.run(OrderShippingAddresses.length.result).futureValue must === (1)
     }
@@ -749,7 +749,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val response = DELETE(s"v1/orders/${order.referenceNumber}/shipping-address")
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (OrderMustBeCart(order.refNum).description)
+      response.error must === (OrderMustBeCart(order.refNum).description)
 
       db.run(OrderShippingAddresses.length.result).futureValue must === (1)
     }

@@ -158,7 +158,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
         name = Some("test")))
 
       response.status must ===(StatusCodes.BadRequest)
-      response.errors must ===(CustomerEmailNotUnique.description)
+      response.error must ===(CustomerEmailNotUnique.description)
     }
   }
 
@@ -247,7 +247,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = PATCH(s"v1/customers/${root.id}", payload)
 
       response.status must ===(StatusCodes.BadRequest)
-      response.errors must ===(CustomerEmailNotUnique.description)
+      response.error must ===(CustomerEmailNotUnique.description)
     }
   }
 
@@ -263,7 +263,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/customers/${root.id}/activate", payload)
 
       response.status must ===(StatusCodes.BadRequest)
-      response.errors must ===(CustomerEmailNotUnique.description)
+      response.error must ===(CustomerEmailNotUnique.description)
     }
 
     "sucessfully activate non-guest user" in new Fixture {
@@ -300,7 +300,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = POST(s"$uriPrefix/999/disable", payloads.ToggleCustomerDisabled(true))
 
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Customer, 999).description)
+      response.error must === (NotFoundFailure404(Customer, 999).description)
     }
 
     "disable already disabled account is ok (overwrite behaviour)" in new Fixture {
@@ -330,7 +330,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = POST(s"$uriPrefix/999/blacklist", payloads.ToggleCustomerBlacklisted(true))
 
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Customer, 999).description)
+      response.error must === (NotFoundFailure404(Customer, 999).description)
     }
 
     "blacklist already blacklisted account is ok (overwrite behaviour)" in new Fixture {
@@ -396,7 +396,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = POST(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/99/default", payload)
 
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(CreditCard, 99).description)
+      response.error must === (NotFoundFailure404(CreditCard, 99).description)
     }
   }
 
@@ -523,7 +523,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/99", payload)
 
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(CreditCard, 99).description)
+      response.error must === (NotFoundFailure404(CreditCard, 99).description)
     }
 
     "fails if the card is not inWallet" in new CreditCardFixture {
@@ -532,7 +532,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (CannotUseInactiveCreditCard(creditCard).description)
+      response.error must === (CannotUseInactiveCreditCard(creditCard).description)
     }
 
     "fails if the payload is invalid" in new CreditCardFixture {
@@ -540,7 +540,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must contain("holderName must not be empty")
+      response.error must === ("holderName must not be empty")
     }
 
     "fails if stripe returns an error" in new CreditCardFixture {
@@ -565,7 +565,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (List("Your card's expiration year is invalid"))
+      response.error must === ("Your card's expiration year is invalid")
     }
   }
 

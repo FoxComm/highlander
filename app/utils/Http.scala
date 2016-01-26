@@ -73,10 +73,12 @@ object Http {
       entity = jsonEntity(ResponseWithFailuresAndMetadata.withMetadata(resource, Some(metadata))))
 
   def renderFailure(failures: Failures, statusCode: ClientError = BadRequest): HttpResponse = {
-    import services._
-    val failuresList = failures.toList
+    import services.NotFoundFailure404
+    import cats.implicits._
+
+    val failuresList = failures.unwrap
     val notFound = failuresList.collectFirst { case f: NotFoundFailure404 ⇒ f }
-    notFound.fold(HttpResponse(statusCode, entity = jsonEntity("errors" → failuresList.flatMap(_.description)))) { nf ⇒
+    notFound.fold(HttpResponse(statusCode, entity = jsonEntity("errors" → failuresList.map(_.description)))) { nf ⇒
       renderNotFoundFailure(nf)
     }
   }
