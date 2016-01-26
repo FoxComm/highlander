@@ -70,27 +70,41 @@ object AvroTransformers {
     def fields = List.empty
   }
 
-  final case class GiftCard()(implicit ec: ExecutionContext) extends AvroTransformer {
+  final case class GiftCardsSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping =
-      "gift_cards" as (
+      "gift_cards_search_view" as (
         "id"                   typed IntegerType,
+        "code"                 typed StringType analyzer "autocomplete",
         "originId"             typed IntegerType,
         "originType"           typed StringType index "not_analyzed",
-        "subtypeId"            typed IntegerType,
-        "code"                 typed StringType analyzer "autocomplete",
+        "subtype"              typed StringType analyzer "autocomplete",
         "status"               typed StringType index "not_analyzed",
         "currency"             typed StringType index "not_analyzed",
         "originalBalance"      typed IntegerType,
         "currentBalance"       typed IntegerType,
         "availableBalance"     typed IntegerType,
-        "reloadable"           typed BooleanType,
         "canceledAmount"       typed IntegerType,
-        "canceledReason"       typed IntegerType,
+        "canceledReason" nested (
+          "reasonType"        typed StringType analyzer "autocomplete",
+          "body"               typed StringType analyzer "autocomplete"
+        ),
         "createdAt"            typed DateType format dateFormat,
-        "updatedAt"            typed DateType format dateFormat
+        "updatedAt"            typed DateType format dateFormat,
+        "storeAdmin" nested (
+          "email"              typed StringType analyzer "autocomplete",
+          "name"               typed StringType analyzer "autocomplete",
+          "department"         typed StringType analyzer "autocomplete"
+        ),
+        "storeCredit" nested (
+          "id"                 typed IntegerType,
+          "customerId"         typed IntegerType,
+          "originType"         typed StringType index "not_analyzed",
+          "currency"           typed StringType index "not_analyzed",
+          "status"             typed StringType index "not_analyzed"
+        )
       )
 
-    def fields = List.empty
+    def fields = List("store_admin", "store_credit", "canceled_reason")
   }
 
   final case class StoreCreditsSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
@@ -119,9 +133,9 @@ object AvroTransformers {
           "department"         typed StringType analyzer "autocomplete"
         ),
         "giftCard" nested (
-          "code"               typed StringType analyzer "autocomplete",          
+          "code"               typed StringType analyzer "autocomplete",
           "originType"         typed StringType index "not_analyzed",
-          "currency"           typed StringType index "not_analyzed",          
+          "currency"           typed StringType index "not_analyzed",
           "status"             typed StringType index "not_analyzed"
         )
       )
@@ -325,6 +339,7 @@ object AvroTransformers {
         "status"                typed StringType index "not_analyzed",
         "createdAt"             typed DateType format dateFormat,
         // Store Credit
+        "storeCreditId"         typed IntegerType,
         "customerId"            typed IntegerType,
         "originType"            typed StringType index "not_analyzed",
         "currency"              typed StringType index "not_analyzed",
@@ -332,7 +347,7 @@ object AvroTransformers {
         // Order
         "orderReferenceNumber"  typed StringType analyzer "autocomplete",
         "orderCreatedAt"        typed DateType format dateFormat,
-        "orderPaymentCreatedAt" typed DateType format dateFormat, 
+        "orderPaymentCreatedAt" typed DateType format dateFormat,
         // Store Admins
         "storeAdmin" nested (
           "email"       typed StringType analyzer "autocomplete",
@@ -342,5 +357,35 @@ object AvroTransformers {
       )
 
     def fields = List("store_admin")
-  }  
+  }
+
+  final case class GiftCardTransactionsView()(implicit ec: ExecutionContext) extends AvroTransformer {
+    def mapping =
+      "gift_card_transactions_view" as (
+        // Adjustment
+        "id"                    typed IntegerType,
+        "debit"                 typed IntegerType,
+        "credit"                typed IntegerType,
+        "availableBalance"      typed IntegerType,
+        "status"                typed StringType index "not_analyzed",
+        "createdAt"             typed DateType format dateFormat,
+        // Gift Card
+        "code"                  typed StringType analyzer "autocomplete",
+        "originType"            typed StringType index "not_analyzed",
+        "currency"              typed StringType index "not_analyzed",
+        "giftCardCreatedAt"     typed DateType format dateFormat,
+        // Order
+        "orderReferenceNumber"  typed StringType analyzer "autocomplete",
+        "orderCreatedAt"        typed DateType format dateFormat,
+        "orderPaymentCreatedAt" typed DateType format dateFormat,
+        // Store Admins
+        "storeAdmin" nested (
+          "email"       typed StringType analyzer "autocomplete",
+          "name"        typed StringType analyzer "autocomplete",
+          "department"  typed StringType analyzer "autocomplete"
+        )
+      )
+
+    def fields = List("store_admin")
+  }
 }
