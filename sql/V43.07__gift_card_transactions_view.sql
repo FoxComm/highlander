@@ -11,7 +11,7 @@ select distinct on (gca.id)
     gc.code,
     gc.origin_type,
     gc.currency,
-    to_char(gc.created_at, 'YYYY-MM-DD HH24:MI:SS') as store_credit_created_at,
+    to_char(gc.created_at, 'YYYY-MM-DD HH24:MI:SS') as gift_card_created_at,
     -- Order
     o.reference_number as order_reference_number,
     to_char(o.created_at, 'YYYY-MM-DD HH24:MI:SS') as order_created_at,
