@@ -155,7 +155,7 @@ export default class LiveSearch extends React.Component {
     const tabs = _.map(this.props.searches.savedSearches, (search, idx) => {
       const selected = idx === this.props.searches.selectedSearch;
       const isEditable = search.isEditable;
-      const isDirty = this.props.searches.savedSearches[idx].isDirty;
+      const isDirty = isEditable && this.props.searches.savedSearches[idx].isDirty;
 
       const copySearch = () => {
         this.props.saveSearch({ ...search, title: `${search.title} - Copy` });
@@ -164,7 +164,7 @@ export default class LiveSearch extends React.Component {
       const editName = title => {
         this.props.updateSearch(idx, { ...search, title: title });
       };
-      const saveSearch = () => this.props.saveSearch(search);
+      const saveSearch = () => this.props.updateSearch(idx, search);
 
       return (
         <EditableTabView

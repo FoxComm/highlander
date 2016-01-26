@@ -22,19 +22,19 @@ export default class SearchableList extends React.Component {
     tableColumns: PropTypes.array.isRequired,
     searchActions: PropTypes.shape({
       addSearchFilter: PropTypes.func.isRequired,
-      cloneSearch: PropTypes.func.isRequired,
-      editSearchNameStart: PropTypes.func.isRequired,
-      editSearchNameCancel: PropTypes.func.isRequired,
-      editSearchNameComplete: PropTypes.func.isRequired,
+      deleteSearch: PropTypes.func.isRequired,
       fetch: PropTypes.func.isRequired,
+      fetchSearches: PropTypes.func.isRequired,
       saveSearch: PropTypes.func.isRequired,
       selectSearch: PropTypes.func.isRequired,
-      submitFilters: PropTypes.func.isRequired
+      submitFilters: PropTypes.func.isRequired,
+      updateSearch: PropTypes.func.isRequired
     }).isRequired,
     searchOptions: PropTypes.shape({
       singleSearch: PropTypes.bool,
       initialFilters: PropTypes.array,
     }),
+    title: PropTypes.string.isRequired,
     url: PropTypes.string.isRequired,
   };
 
@@ -74,15 +74,14 @@ export default class SearchableList extends React.Component {
 
     return (
       <LiveSearch
-        cloneSearch={props.searchActions.cloneSearch}
-        editSearchNameStart={props.searchActions.editSearchNameStart}
-        editSearchNameCancel={props.searchActions.editSearchNameCancel}
-        editSearchNameComplete={props.searchActions.editSearchNameComplete}
+        fetchSearches={props.searchActions.fetchSearches}
         saveSearch={props.searchActions.saveSearch}
         {...props.searchOptions}
         selectSavedSearch={selectSearch}
         submitFilters={filter}
         searches={props.list}
+        deleteSearch={props.searchActions.deleteSearch}
+        updateSearch={props.searchActions.updateSearch}
       >
         <MultiSelectTable
           columns={props.tableColumns}

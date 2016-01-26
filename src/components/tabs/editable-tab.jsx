@@ -1,11 +1,13 @@
 import React, { PropTypes } from 'react';
+import ReactDOM from 'react-dom';
 import classnames from 'classnames';
-import { Button } from '../common/buttons';
-import TabView from './tab';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
-import EditSearchOptions from '../live-search/edit-search-options';
+import { Button } from '../common/buttons';
+import Menu from '../menu/menu';
+import MenuItem from '../menu/menu-item';
+import TabView from './tab';
 
 export default class EditableTabView extends React.Component {
   constructor(props, context) {
@@ -13,8 +15,16 @@ export default class EditableTabView extends React.Component {
     this.state = EditableTabView.updateState({ isEditingMenu: false }, props);
   }
 
+  componentDidMount() {
+    document.addEventListener('click', this.onDocumentClick);
+  }
+
   componentWillReceiveProps(nextProps) {
     this.setState(EditableTabView.updateState(this.state, nextProps));
+  }
+  
+  componentWillUnmount() {
+    document.removeEventListener('click', this.onDocumentClick);
   }
 
   static propTypes = {
@@ -60,7 +70,7 @@ export default class EditableTabView extends React.Component {
   get editButton() {
     if (!this.state.isEditing && this.props.isEditable) {
       return (
-        <button className="fc-editable-tab__edit-icon" onClick={this.startEdit}>
+        <button ref="editIcon" className="fc-editable-tab__edit-icon" onClick={this.startEdit}>
           <i className="icon-edit"/>
         </button>
       );
@@ -73,7 +83,7 @@ export default class EditableTabView extends React.Component {
         ...this.state,
         isEditing: false 
       }, () => this.props.onEditNameComplete(this.state.editValue));
-    }
+    };
   }
 
   get editMenuOptions() {
@@ -90,25 +100,33 @@ export default class EditableTabView extends React.Component {
   }
 
   get editMenu() {
-    const options = this.editMenuOptions.map(opt => {
-      return {
-        title: opt.title,
-        action: () => this.setState({
-          ...this.state,
-          isEditingMenu: false
-        }, opt.action)
-      };
-    });
-        
-    return (
-      <EditSearchOptions
-        isVisible={this.state.isEditingMenu}
-        options={options} />
-    );
+    if (this.state.isEditingMenu) {
+      const options = this.editMenuOptions.map((opt, idx) => {
+        return (
+          <MenuItem isFirst={idx == 0} clickAction={opt.action}>
+            {opt.title}
+          </MenuItem>
+        );
+      });
+          
+      return <Menu>{options}</Menu>;
+    }
   }
+
+  @autobind
+  onDocumentClick(event) {
+    const editIcon = ReactDOM.findDOMNode(this.refs.editIcon);
+    const isEditClick = editIcon && editIcon.contains(event.target);
+
+    if (!isEditClick && this.state.isEditingMenu) {
+      this.setState({ isEditingMenu: false });
+    }
+  }
+
   
   @autobind
   startEdit(event) {
+    event.preventDefault();
     event.stopPropagation();
     this.setState({ ...this.state, isEditingMenu: true });
   }
@@ -189,7 +207,7 @@ export default class EditableTabView extends React.Component {
 
   render() {
     return (
-      <div className="fc-editable-tab">
+      <div className="fc-editable-tab" ref="theTab">
         {this.dirtyState}
         <TabView className={this.className} draggable={this.props.isEditable} {...this.props}>
           {this.tabContent}

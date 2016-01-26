@@ -49,7 +49,7 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
   const searchSuccess = _createAction(namespace, 'SEARCH_SUCCESS');
   const searchFailure = _createAction(namespace, 'SEARCH_FAILURE');
   const selectSavedSearch = _createAction(namespace, 'SELECT_SAVED_SEARCH');
-  const submitFilters = _createAction(namespace, 'SUBMIT_FILTER');
+  const submitFilters = _createAction(namespace, 'SUBMIT_FILTERS');
   const fetchSearchesStart = _createAction(namespace, 'FETCH_SEARCHES_START');
   const fetchSearchesSuccess = _createAction(namespace, 'FETCH_SEARCHES_SUCCESS');
   const fetchSearchesFailure = _createAction(namespace, 'FETCH_SEARCHES_FAILURE');
@@ -271,7 +271,10 @@ function _searchFailure(state, [err, source]) {
 }
 
 function _submitFilters(state, filters) {
-  return assoc(state, ['savedSearches', state.selectedSearch, 'query'], filters);
+  return assoc(state, 
+    ['savedSearches', state.selectedSearch, 'query'], filters,
+    ['savedSearches', state.selectedSearch, 'isDirty'], true
+  );
 }
 
 function _fetchSearchesStart(state) {
