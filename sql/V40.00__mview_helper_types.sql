@@ -8,7 +8,7 @@ create table export_addresses (
     region              text,
     country             text,
     continent           text,
-    currency            character(3)
+    currency            currency
 );
 
 create table export_assignees (
@@ -47,7 +47,7 @@ create table export_orders (
 create table export_payments (
     payment_method_type text,
     amount              integer,
-    currency            character(3)
+    currency            currency
 );
 
 create table export_rmas (
@@ -84,7 +84,15 @@ create table export_store_admins (
 create table export_gift_cards (
     code        text,
     origin_type text,
-    currency    character(3),
+    currency    currency,
+    created_at  text
+);
+
+create table export_store_credits (
+    id          integer,
+    customer_id integer,
+    origin_type text,
+    currency    currency,
     created_at  text
 );
 
