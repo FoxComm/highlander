@@ -6,14 +6,17 @@ import types, { derivedTypes } from '../base/types';
 // components
 import OrderTarget from '../base/order-target';
 import GiftCardLink from '../base/gift-card-link';
+import CustomerLink from '../base/customer-link';
 
 const orderLineItemsChangedDesc = {
-  title: (data, {kind}) => {
+  title: (data, {kind, context}) => {
     const title = kind == derivedTypes.ORDER_LINE_ITEMS_ADDED_SKU ? 'added' : 'removed';
+    const targetSense = context.userType == 'admin' ?
+      <span> for customer <CustomerLink customer={data.order.customer} /></span> : null;
 
     return (
       <span>
-        <strong>{title} {data.difference} of {data.skuName}</strong> on <OrderTarget order={data.order} />.
+        <strong>{title} {data.difference} of {data.skuName}</strong> on <OrderTarget order={data.order} />{targetSense}.
       </span>
     );
   },

@@ -11,7 +11,7 @@ import Person from '../base/person';
 
 const bulkEventsToOrders = {
   title: (data, {kind}) => {
-    const orders = data.orders.map(ref => <OrderLink key={ref} order={{title: 'Order', referenceNumber: ref}} />);
+    const orders = data.orderRefNums.map(ref => <OrderLink key={ref} order={{title: 'Order', referenceNumber: ref}} />);
     const action = kind == types.BULK_ASSIGNED_TO_ORDERS ? 'assigned' : 'unassigned';
     const directionSense = kind == types.BULK_ASSIGNED_TO_ORDERS ? 'to' : 'from';
 

@@ -91,6 +91,7 @@ const shippingMethod = {
 const order = {
   referenceNumber: 'BR10001',
   orderState: 'cart',
+  customer,
   shippingAddress: {
     "id": 3,
     "region": {
@@ -200,7 +201,7 @@ activities = [...activities,
   // customer addresses
 
   {
-    kind: types.CUSTOMER_ADDRESS_CREATED_BY_ADMIN,
+    kind: types.CUSTOMER_ADDRESS_CREATED,
     id: id++,
     createdAt,
     data: {
@@ -306,7 +307,9 @@ activities = [...activities,
     createdAt,
     data: {
       orderRefNum: 'BR10001',
-      text: 'New note for order.'
+      note: {
+        body: 'New note for order.',
+      }
     }
   },
   {
@@ -315,7 +318,9 @@ activities = [...activities,
     createdAt,
     data: {
       orderRefNum: 'BR10001',
-      text: 'Lorem ipsum dot color.'
+      note: {
+        body: 'Lorem ipsum dot color.',
+      }
     }
   },
   {
@@ -324,8 +329,12 @@ activities = [...activities,
     createdAt,
     data: {
       orderRefNum: 'BR10001',
-      oldText: 'Lorem ipsum dot color.',
-      newText: 'New one'
+      oldNote: {
+        body: 'Lorem ipsum dot color.',
+      },
+      note: {
+        body: 'New one',
+      }
     }
   },
 ];
@@ -661,7 +670,7 @@ activities = [...activities,
     createdAt,
     data: {
       assignee: customer,
-      orders: [
+      orderRefNums: [
         'BR10001',
         'BR10002',
         'BR10003',
@@ -674,7 +683,7 @@ activities = [...activities,
     createdAt,
     data: {
       assignee: customer,
-      orders: [
+      orderRefNums: [
         'BR10001',
         'BR10002',
         'BR10003',
@@ -724,7 +733,7 @@ activities = [...activities,
     createdAt,
     data: {
       watcher: customer,
-      orders: [
+      orderRefNums: [
         'BR10001',
         'BR10002',
         'BR10003',
@@ -737,7 +746,7 @@ activities = [...activities,
     createdAt,
     data: {
       watcher: customer,
-      orders: [
+      orderRefNums: [
         'BR10001',
         'BR10002',
         'BR10003',
@@ -765,7 +774,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES_BY_CUSTOMER,
+    kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES,
     id: id++,
     createdAt,
     data: {
