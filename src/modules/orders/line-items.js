@@ -3,6 +3,7 @@ import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { haveType } from '../state-helpers';
 import { get, assoc } from 'sprout-data';
+import { orderSuccess} from './details.js';
 import OrderParagon from '../../paragons/order';
 
 const _createLineItemAction = (description, ...args) => {
@@ -30,8 +31,9 @@ export function updateLineItemCount(order, sku, quantity, confirmDelete = true) 
       return Api.post(`/orders/${order.referenceNumber}/line-items`, payload)
         .then(
           order => {
+            dispatch(orderSuccess(order));
             dispatch(orderLineItemsRequestSuccess(sku));
-            dispatch(orderLineItemsFetchSuccess(order.result));
+            dispatch(orderLineItemsFetchSuccess(order));
           },
           err => dispatch(orderLineItemsRequestFailed(err, updateLineItemCount))
         );
@@ -65,7 +67,7 @@ const initialState = {
   isDeleting: false,
   skuToUpdate: null,
   skuToDelete: null,
-  items: []
+  items: [],
 };
 
 const reducer = createReducer({
@@ -73,15 +75,10 @@ const reducer = createReducer({
     const order = _.get(payload, 'result', payload);
     const skus = _.get(order, 'lineItems.skus', []);
     const itemList = collectLineItems(skus);
-    const errors = _.get(payload, 'errors', []);
-    const warnings = _.get(payload, 'warnings', []);
-
-    //TODO Warnings and errors
 
     return assoc(state, 
       ['currentSkus'], skus,
       ['isFetching'], false,
-      ['validations', 'status', 'itemsStatus'], 'success',
       ['items'], itemList
     );
   },

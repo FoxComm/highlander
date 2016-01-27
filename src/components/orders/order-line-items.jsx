@@ -1,13 +1,15 @@
-import React, { PropTypes } from 'react';
 import _ from 'lodash';
-import ConfirmationDialog from '../modal/confirmation-dialog';
-import OrderLineItem from './order-line-item';
-import TableView from '../table/tableview';
-import EditableContentBox from '../content-box/editable-content-box';
-import Typeahead from '../typeahead/typeahead';
-import SkuResult from './sku-result';
-import PanelHeader from './panel-header';
+import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
+import React, { PropTypes } from 'react';
+
+import ConfirmationDialog from '../modal/confirmation-dialog';
+import EditableContentBox from '../content-box/editable-content-box';
+import OrderLineItem from './order-line-item';
+import PanelHeader from './panel-header';
+import SkuResult from './sku-result';
+import TableView from '../table/tableview';
+import Typeahead from '../typeahead/typeahead';
 
 const viewModeColumns = [
   {field: 'imagePath', text: 'Image', type: 'image'},
@@ -98,6 +100,9 @@ class RenderEditContent extends React.Component {
 class RenderEditFooter extends React.Component {
 
   static propTypes = {
+    updateLineItemCount: PropTypes.func,
+    order: PropTypes.object,
+    lineItems: PropTypes.object,
     skuSearch: PropTypes.object
   };
 
@@ -105,11 +110,34 @@ class RenderEditFooter extends React.Component {
   }
 
   get suggestedSkus() {
-    return _.get(this.props, 'skuSearch.quickSearch.result.rows', []);
+    return _.get(this.props, 'skuSearch.result.rows', []);
   }
 
   get isFetching() {
-    return _.get(this.props, 'skuSearch.quickSearch.isFetching', false);
+    return _.get(this.props, 'skuSearch.isFetching', false);
+  }
+
+  get orderSkus() {
+    return _.get(this.props, 'lineItems.items', []);
+  }
+
+  @autobind
+  currentQuantityForSku(sku) { 
+    let skus = this.orderSkus;
+    let matched = skus.find((o) => { return o.sku === sku;});
+    return _.isEmpty(matched) ? 0 : matched.quantity;
+  }
+
+  @autobind
+  skuSelected(item) {
+    const order = this.props.order.currentOrder;
+    const newQuantity = this.currentQuantityForSku(item.sku) + 1;
+    this.props.updateLineItemCount(order, item.sku, newQuantity);
+    this.props.clearSkuSearch();
+  }
+
+  get query() { 
+    return _.get(this.props, 'skuSearch.phrase', "");
   }
 
   render() {
@@ -118,11 +146,12 @@ class RenderEditFooter extends React.Component {
         <div className="fc-line-items-add-label">
           <strong>Add Item</strong>
         </div>
-        <Typeahead onItemSelected={null}
+        <Typeahead onItemSelected={this.skuSelected}
                    component={SkuResult}
                    isFetching={this.isFetching}
                    fetchItems={this.props.suggestSkus}
                    items={this.suggestedSkus}
+                   query={this.query}
                    placeholder="Product name or SKU..."/>
       </div>
     );
