@@ -69,11 +69,11 @@ export default class LineItems extends React.Component {
   }
 
   get suggestedSkus() {
-    return _.get(this.props, 'skuSearch.quickSearch.result.rows', []);
+    return _.get(this.props, 'skuSearch.result.rows', []);
   }
 
   get isFetching() {
-    return _.get(this.props, 'skuSearch.quickSearch.isFetching', false);
+    return _.get(this.props, 'skuSearch.isFetching', false);
   }
 
   render() {

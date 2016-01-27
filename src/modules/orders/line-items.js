@@ -65,23 +65,35 @@ const initialState = {
   isDeleting: false,
   skuToUpdate: null,
   skuToDelete: null,
-  items: []
+  items: [],
+  validations: {
+    errors: [],
+    warnings: [],
+    itemsStatus: 'success'
+  }
 };
+
+function determineStatus(warnings, errors) { 
+    let state = 'success'
+    if(warnings.length > 0) state = 'warning';
+    if(errors.length > 0) state = 'error';
+    return state;
+}
 
 const reducer = createReducer({
   [orderLineItemsFetchSuccess]: (state, payload) => {
     const order = _.get(payload, 'result', payload);
     const skus = _.get(order, 'lineItems.skus', []);
     const itemList = collectLineItems(skus);
-    const errors = _.get(payload, 'errors', []);
     const warnings = _.get(payload, 'warnings', []);
-
-    //TODO Warnings and errors
+    const errors = _.get(payload, 'errors', []);
 
     return assoc(state, 
       ['currentSkus'], skus,
       ['isFetching'], false,
-      ['validations', 'status', 'itemsStatus'], 'success',
+      ['validations', 'itemsStatus'], determineStatus(warnings, errors),
+      ['validations', 'errors'], errors,
+      ['validations', 'warnings'], warnings,
       ['items'], itemList
     );
   },

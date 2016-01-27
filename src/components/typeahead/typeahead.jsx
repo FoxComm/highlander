@@ -59,7 +59,8 @@ export default class Typeahead extends React.Component {
 
     if (doHide) {
       this.setState({
-        showMenu: false
+        showMenu: false,
+        query: ''
       });
     }
   }
@@ -138,6 +139,7 @@ export default class Typeahead extends React.Component {
     const inputElement = this.props.inputElement;
 
     const defaultProps = {
+      value: this.state.query,
       name: this.props.name,
       placeholder: this.props.placeholder,
     };
