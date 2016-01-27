@@ -12,8 +12,7 @@ final case class AdminConnector()(implicit ec: ExecutionContext) extends Activit
     // TODO: Reduce un-necessary extractions by matching activity name
     val adminIds = byContextUserType(activity) ++: byAdminData(activity, "admin") ++:
       byAssigneesData(activity) ++: byAdminData(activity, "assignee") ++:
-      byWatchersData(activity) ++: byAdminData(activity, "watcher") ++:
-      byAssociatesData(activity) ++: byAdminData(activity, "associate")
+      byWatchersData(activity) ++: byAdminData(activity, "watcher")
 
     adminIds.distinct.map(createConnection(_, activity.id))
   }
@@ -41,6 +40,5 @@ final case class AdminConnector()(implicit ec: ExecutionContext) extends Activit
   }
 
   private def byAssigneesData(activity: Activity): Seq[String] = extractStringSeq(activity.data, "assignees")
-  private def byAssociatesData(activity: Activity): Seq[String] = extractStringSeq(activity.data, "associates")
   private def byWatchersData(activity: Activity): Seq[String] = extractStringSeq(activity.data, "watchers")
 }
