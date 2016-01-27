@@ -22,7 +22,7 @@ import SaveCancel from '../common/save-cancel';
 
 // redux
 import * as GiftCardNewActions from '../../modules/gift-cards/new';
-import { createGiftCard } from '../../modules/gift-cards/cards';
+import { createGiftCard } from '../../modules/gift-cards/list';
 
 const typeTitles = {
   'csrAppeasement': 'Appeasement'

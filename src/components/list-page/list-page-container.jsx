@@ -32,7 +32,7 @@ ListPageContainer.propTypes = {
   children: PropTypes.node,
   addTitle: PropTypes.string,
   handleAddAction: PropTypes.func,
-  subtitle: PropTypes.string,
+  subtitle: PropTypes.node,
   title: PropTypes.string.isRequired,
   navLinks: PropTypes.array,
 };

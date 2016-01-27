@@ -6,10 +6,7 @@ import { connect } from 'react-redux';
 class TotalCounter extends React.Component {
   static propTypes = {
     url: PropTypes.string.isRequired,
-    isFetching: PropTypes.oneOfType([
-      PropTypes.bool,
-      PropTypes.oneOf([null])
-    ]).isRequired,
+    isFetching: PropTypes.oneOf([null, true, false]).isRequired,
     entitiesCount: PropTypes.number.isRequired,
     fetch: PropTypes.func.isRequired,
   };
