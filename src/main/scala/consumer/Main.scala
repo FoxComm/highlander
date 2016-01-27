@@ -14,7 +14,7 @@ import akka.http.ConnectionPoolSettings
 import akka.stream.ActorMaterializer
 
 import consumer.activity.{OrderConnector, ActivityConnectionTransformer, ActivityProcessor, AdminConnector,
-CustomerConnector, GiftCardConnector, StoreCreditConnector}
+CustomerConnector, GiftCardConnector, SharedSearchConnector, StoreCreditConnector}
 import consumer.elastic.AvroTransformers
 import consumer.elastic.ElasticSearchProcessor
 import consumer.utils.PhoenixConnectionInfo
@@ -139,7 +139,7 @@ object Main {
 
     val activityWork = Future {
       val activityConnectors = Seq(AdminConnector(), CustomerConnector(), OrderConnector(), GiftCardConnector(),
-        StoreCreditConnector())
+        SharedSearchConnector(), StoreCreditConnector())
 
       val activityProcessor = new ActivityProcessor(phoenix, activityConnectors)
 
