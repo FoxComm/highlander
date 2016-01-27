@@ -16,6 +16,7 @@ import storeCreditTypes from './store-credit-types';
 import activityTrail from './activity-trail';
 import watchers from './watchers';
 import siteMenu from './site-menu';
+import storeCreditTransactions from './store-credit-transactions';
 
 const rootReducer = combineReducers({
   router: routerStateReducer,
@@ -35,6 +36,7 @@ const rootReducer = combineReducers({
   activityTrail,
   watchers,
   siteMenu,
+  storeCreditTransactions
 });
 
 export default rootReducer;

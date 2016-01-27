@@ -5,7 +5,7 @@ const searchTerms = [];
 
 const searches = [];
 
-const { reducer, actions } = makeLiveSearch('STORE_CREDIT_TRANSACTIONS', searchTerms, searches);
+const { reducer, actions } = makeLiveSearch('storeCreditTransactions', searchTerms, searches);
 
 export {
   reducer as default,

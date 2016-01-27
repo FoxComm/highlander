@@ -20,7 +20,7 @@ import State from '../../common/state';
 import SearchableList from '../../list-page/searchable-list';
 
 // redux
-import { actions as StoreCreditTransactionsActions } from '../../../modules/customers/store-credit-transactions';
+import { actions as StoreCreditTransactionsActions } from '../../../modules/store-credit-transactions/list';
 import * as StoreCreditTotalsActions from '../../../modules/customers/store-credit-totals';
 
 // const actions = {
@@ -29,7 +29,7 @@ import * as StoreCreditTotalsActions from '../../../modules/customers/store-cred
 // };
 
 const mapStateToProps = (state, props) => ({
-  list: state.customers.storeCreditTransactions,
+  list: state.storeCreditTransactions.list,
   storeCreditTotals: state.customers.storeCreditTotals[props.params.customerId]
 });
 
@@ -148,11 +148,11 @@ export default class StoreCreditTransactions extends React.Component {
     const totals = _.get(props, ['storeCreditTotals', 'totals'], {});
     console.log(this.props);
 
-    const selectedSearch = props.storeCreditTransactions.selectedSearch;
-    const results = props.storeCreditTransactions.savedSearches[selectedSearch].results;
+    const selectedSearch = props.list.selectedSearch;
+    const results = props.list.savedSearches[selectedSearch].results;
 
-    const filter = searchTerms => props.searchActions.addSearchFilter(this.searchUrl, searchTerms);
-    const selectSearch = idx => props.searchActions.selectSearch(this.searchUrl, idx);
+    const filter = searchTerms => props.actions.addSearchFilter(this.searchUrl, searchTerms);
+    const selectSearch = idx => props.actions.selectSearch(this.searchUrl, idx);
 
     return (
       <div className="fc-store-credits">
@@ -179,7 +179,8 @@ export default class StoreCreditTransactions extends React.Component {
             renderRow={this.renderRow}
             tableColumns={props.tableColumns}
             searchActions={props.actions}
-            url={this.searchUrl} />
+            url={this.searchUrl}
+            searchOptions={this.defaultSearchOptions} />
         </div>
       </div>
     );
