@@ -47,5 +47,5 @@
     - kafka
 
 - name: Setup Schema Registry
-  service: name=schema-registry state=started enabled=yes sleep=5
+  service: name=schema-registry state=restarted enabled=yes sleep=10
   sudo: true
