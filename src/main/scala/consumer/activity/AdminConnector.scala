@@ -9,8 +9,11 @@ final case class AdminConnector()(implicit ec: ExecutionContext) extends Activit
   val dimension = "admin"
 
   def process(offset: Long, activity: Activity): Future[Seq[Connection]] = Future {
-    val adminIds = byContextUserType(activity) ++: byAdminData(activity) ++:
-      byAssigneesData(activity) ++: byWatchersData(activity)
+    // TODO: Reduce un-necessary extractions by matching activity name
+    val adminIds = byContextUserType(activity) ++: byAdminData(activity, "admin") ++:
+      byAssigneesData(activity) ++: byAdminData(activity, "assignee") ++:
+      byWatchersData(activity) ++: byAdminData(activity, "watcher") ++:
+      byAssociatesData(activity) ++: byAdminData(activity, "associate")
 
     adminIds.distinct.map(createConnection(_, activity.id))
   }
@@ -30,13 +33,14 @@ final case class AdminConnector()(implicit ec: ExecutionContext) extends Activit
     }
   }
 
-  private def byAdminData(activity: Activity): Seq[String] = {
-    activity.data \ "admin" \ "id" match {
+  private def byAdminData(activity: Activity, fieldName: String): Seq[String] = {
+    activity.data \ fieldName \ "id" match {
       case JInt(value) ⇒ Seq(value.toString)
       case _           ⇒ Seq.empty
     }
   }
 
   private def byAssigneesData(activity: Activity): Seq[String] = extractStringSeq(activity.data, "assignees")
+  private def byAssociatesData(activity: Activity): Seq[String] = extractStringSeq(activity.data, "associates")
   private def byWatchersData(activity: Activity): Seq[String] = extractStringSeq(activity.data, "watchers")
 }
