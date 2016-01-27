@@ -7,7 +7,7 @@ import { transitionTo } from '../../route-helpers';
 import { ListPageContainer, makeTotalCounter } from '../list-page';
 
 // redux
-import { actions } from '../../modules/gift-cards/cards';
+import { actions } from '../../modules/gift-cards/list';
 
 const GiftCardsListPage = (props, context) => {
   const TotalCounter = makeTotalCounter(state => state.giftCards.list, actions);
@@ -21,7 +21,7 @@ const GiftCardsListPage = (props, context) => {
   return (
     <ListPageContainer
       title="Gift Cards"
-      subtitle={<TotalCounter url="gift_cards/_search" />}
+      subtitle={<TotalCounter url="gift_cards_search_view/_search" />}
       addTitle="Gift Card"
       handleAddAction={ () => transitionTo(context.history, 'gift-cards-new') }
       navLinks={navLinks}

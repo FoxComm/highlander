@@ -11,7 +11,7 @@ import GiftCardRow from './gift-card-row';
 import { SearchableList } from '../list-page';
 
 // redux
-import { actions } from '../../modules/gift-cards/cards';
+import { actions } from '../../modules/gift-cards/list';
 
 const mapStateToProps = state => ({ list: state.giftCards.list });
 
@@ -42,7 +42,7 @@ const GiftCards = props => {
       renderRow={renderRow}
       tableColumns={tableColumns}
       searchActions={props.actions}
-      url="gift_cards/_search" />
+      url="gift_cards_search_view/_search" />
   );
 
 };
