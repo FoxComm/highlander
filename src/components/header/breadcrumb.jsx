@@ -19,16 +19,16 @@ export default class Breadcrumb extends React.Component {
   @autobind
   readableName(route) {
     const parts = route.name.split('-');
-    const composed = _.chain(parts)
+    const title = _.get(route, 'title', _.chain(parts)
       .filter(item => item !== 'base')
       .map(_.capitalize)
       .join(' ')
-      .value();
+      .value());
 
     if (route.path != null && route.path[0] === ':') {
-      return _.get(this.props, ['params', route.path.slice(1)], composed);
+      return _.get(this.props, ['params', route.path.slice(1)], title);
     } else {
-      return composed;
+      return title;
     }
   }
 
