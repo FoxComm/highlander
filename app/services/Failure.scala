@@ -163,6 +163,10 @@ final case class OrderAssigneeNotFound(refNum: String, assigneeId: Int) extends 
   override def description = s"storeAdmin with id=$assigneeId is not assigned to order with refNum=$refNum"
 }
 
+final case class SharedSearchAssociationNotFound(code: String, associateId: Int) extends Failure {
+  override def description = s"sharedSearch with code=$code is not associated to storeAdmin with id=$associateId"
+}
+
 final case class OrderWatcherNotFound(refNum: String, assigneeId: Int) extends Failure {
   override def description = s"storeAdmin with id=$assigneeId is not watching order with refNum=$refNum"
 }
