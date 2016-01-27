@@ -81,8 +81,8 @@ const routes = (
       <Route name='customers-new' path='new' component={NewCustomer} />
       <Route name='customer' path=':customerId' component={Customer}>
         <IndexRoute name='customer-details' component={CustomerDetails}/>
-        <Route name='customer-transactions' path='transactions' component={CustomerTransactions}/>
-        <Route name='customer-returns' path='returns' component={RmaChildList}/>
+        <Route title='Transactions' name='customer-transactions' path='transactions' component={CustomerTransactions}/>
+        <Route title='Returns' name='customer-returns' path='returns' component={RmaChildList}/>
         <Route name='customer-notes' path='notes' component={Notes} />
         <Route name='customer-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
         <Route name='customer-storecredits-base' path='storecredit'>
