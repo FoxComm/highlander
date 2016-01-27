@@ -1,59 +1,53 @@
+// libs
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
+
+// components
+import columnPropType from './column-prop-type';
 import { Moment, Date, DateTime, Time } from '../common/datetime';
 import Currency from '../common/currency';
 import State from '../common/state';
 import Link from '../link/link';
 
-import _ from 'lodash';
 
-const TableCell = props => {
+function getCell(column, children) {
+  const type = _.get(column, 'type', 'raw');
+  switch (type) {
+    case 'id':
+      return <Link to={column.model} params={{[column.model]: children}}>{children}</Link>;
+    case 'image':
+      return <img src={children} />;
+    case 'status':
+      return <State value={children} model={column.model} />;
+    case 'currency':
+      return <Currency value={children} />;
+    case 'transaction':
+      return <Currency value={children} isTransaction={true} />;
+    case 'moment':
+      return <Moment value={children} />;
+    case 'date':
+      return <Date value={children} />;
+    case 'datetime':
+      return <DateTime value={children} />;
+    case 'time':
+      return <Time value={children} />;
+    case 'raw':
+      return children;
+  }
+  throw new TypeError(`Unrecognized column type "${type}"`);
+}
+
+const TableBodyCell = props => {
   const { children, colspan, column, ...rest } = props;
 
-  let cell = null;
-
-  if (!_.isNull(children)) {
-    const type = _.get(column, 'type', '');
-    switch (type) {
-      case 'id':
-        cell = <Link to={column.model} params={{[column.model]: children}}>{children}</Link>;
-        break;
-      case 'image':
-        cell = <img src={children}/>;
-        break;
-      case 'state':
-        cell = <State value={children} model={column.model}/>;
-        break;
-      case 'currency':
-        cell = <Currency value={children}/>;
-        break;
-      case 'transaction':
-        cell = <Currency value={children} isTransaction={true} />;
-        break;
-      case 'moment':
-        cell = <Moment value={children}/>;
-        break;
-      case 'date':
-        cell = <Date value={children}/>;
-        break;
-      case 'datetime':
-        cell = <DateTime value={children}/>;
-        break;
-      case 'time':
-        cell = <Time value={children}/>;
-        break;
-      default:
-        cell = children;
-        break;
-    }
-  }
+  let cell = _.isNull(children) || getCell(column, children);
 
   return <td className="fc-table-td" colSpan={colspan} {...rest}>{cell}</td>;
 };
 
-TableCell.propTypes = {
-  children: PropTypes.node,
-  colspan: PropTypes.number,
-  column: PropTypes.object
+TableBodyCell.propTypes = {
+  column: columnPropType,
+  children: PropTypes.node
 };
 
-export default TableCell;
+export default TableBodyCell;

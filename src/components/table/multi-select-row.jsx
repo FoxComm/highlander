@@ -1,25 +1,31 @@
+// libs
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
+// components
 import { Checkbox } from '../checkbox/checkbox';
 import TableCell from '../table/cell';
 import TableRow from '../table/row';
 
 const MultiSelectRow = props => {
-  const { cellKeyPrefix, columns, onClick, row, setCellContents, ...rest } = props;
+  const { columns, onClick, row, setCellContents, rowState, setRowState, ...rest } = props;
 
   const cells = _.reduce(columns, (visibleCells, col) => {
-    const cellKey = `${cellKeyPrefix}-${col.field}`;
+    const cellKey = `row-${col.field}`;
     let cellContents = null;
     let cellClickAction = onClick;
 
-    switch(col.field) {
+    const onChange = ({target: { checked }}) => {
+      setRowState({checked});
+    };
+
+    switch (col.field) {
       case 'toggleColumns':
         cellContents = '';
         break;
       case 'selectColumn':
         cellClickAction = _.noop;
-        cellContents = <Checkbox />;
+        cellContents = <Checkbox checked={rowState.checked} onChange={onChange} />;
         break;
       default:
         cellContents = setCellContents(row, col.field);
@@ -43,11 +49,11 @@ const MultiSelectRow = props => {
 };
 
 MultiSelectRow.propTypes = {
-  cellKeyPrefix: PropTypes.string.isRequired,
   columns: PropTypes.array.isRequired,
   onClick: PropTypes.func,
   row: PropTypes.object.isRequired,
-  setCellContents: PropTypes.func.isRequired
+  setCellContents: PropTypes.func.isRequired,
+  setRowState: PropTypes.func.isRequired
 };
 
 MultiSelectRow.defaultProps = {
