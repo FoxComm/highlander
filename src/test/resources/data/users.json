@@ -1,22 +1,6 @@
 [
 	{
-		"name": "Adil",
-		"email": "adil@foxcommerce.com"
-	},
-	{
-		"name": "Yax",
-		"email": "yax@foxcommerce.com"
-	},
-	{
-		"name": "Max",
-		"email": "max@foxcommerce.com"
-	},
-	{
-		"name": "Anna",
-		"email": "anna@foxcommerce.com"
-	},
-	{
-		"name": "Pavel",
-		"email": "pavel@foxcommerce.com"
-	}	
+		"username": "admin@admin.com",
+		"password": "password"
+	}
 ]

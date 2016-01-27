@@ -4,11 +4,17 @@ Home for our integration (mainly between [Phoenix](https://github.com/FoxComm/ph
 
 ## Simulations
 
-TBD.
+* `com.foxcommerce.CustomerSimulation`
 
 ## Running
 
-TBD.
+To run all simulations:
+
+    $ sbt test
+
+To run all simulations in specific environment (see [application.conf](src/test/resources/application.conf)):
+
+    $ sbt -Denv=localhost test
 
 ## Links
 
