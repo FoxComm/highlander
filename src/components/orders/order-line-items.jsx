@@ -121,7 +121,6 @@ class RenderEditFooter extends React.Component {
     const order = this.props.order.currentOrder;
     const newQuantity = this.currentQuantityForSku(item.sku) + 1;
     this.props.updateLineItemCount(order, item.sku, newQuantity);
-    this.props.clearSkuSearch();
   }
 
   render() {
