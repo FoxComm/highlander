@@ -49,16 +49,15 @@ export function toQuery(filters, options = {}) {
   const topJoinFilter = joinWith == 'or' ? ejs.OrFilter : ejs.AndFilter;
 
   if (useQueryFilters) {
-    if (!_.isEmpty(esFilters)) {
-      return ejs.Request().query(ejs.FilteredQuery(query, topJoinFilter(esFilters)));
-    }
-    return ejs.Request().query(query);
+    const finalQuery = _.isEmpty(esFilters) ? query : ejs.FilteredQuery(query, topJoinFilter(esFilters));
+    return ejs.Request().query(finalQuery);
   }
 
-  return ejs
-    .Request()
-    .query(query)
-    .filter(topJoinFilter(esFilters));
+  const req = ejs.Request().query(query);
+  if (_.isEmpty(esFilters)) {
+    return req;
+  }
+  return req.filter(topJoinFilter(esFilters));
 }
 
 function phrasePrefixQuery(phrase, field = "_all") {
