@@ -51,6 +51,7 @@ const PilledInput = props => {
     <input
       className="fc-pilled-input__input-field _no-fc-behavior"
       type="text"
+      autoFocus={props.autofocus}
       {...rest} />
   );
 
@@ -80,7 +81,8 @@ PilledInput.propTypes = {
   pills: PropTypes.array,
   icon: PropTypes.string,
   button: PropTypes.node,
-  className: PropTypes.string
+  className: PropTypes.string,
+  autofocus: PropTypes.bool,
 };
 
 PilledInput.defaultProps = {
@@ -89,6 +91,7 @@ PilledInput.defaultProps = {
   formatPill,
   icon: 'search',
   inputMask: '',
+  autofocus: false,
 };
 
 export default PilledInput;

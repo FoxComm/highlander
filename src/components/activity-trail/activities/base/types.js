@@ -29,7 +29,6 @@ const types = {
 
   /* Customer Addresses */
 
-  CUSTOMER_ADDRESS_CREATED_BY_ADMIN: 'customer_address_created_by_admin',
   CUSTOMER_ADDRESS_CREATED: 'customer_address_created',
   CUSTOMER_ADDRESS_UPDATED: 'customer_address_updated',
   CUSTOMER_ADDRESS_DELETED: 'customer_address_deleted',
@@ -52,7 +51,6 @@ const types = {
   ORDER_LINE_ITEMS_UPDATED_GIFT_CARD: 'order_line_items_updated_gift_card',
   ORDER_LINE_ITEMS_DELETED_GIFT_CARD: 'order_line_items_deleted_gift_card',
   ORDER_LINE_ITEMS_UPDATED_QUANTITIES: 'order_line_items_updated_quantities',
-  ORDER_LINE_ITEMS_UPDATED_QUANTITIES_BY_CUSTOMER: 'order_line_items_updated_quantities_by_customer',
 
   /* Order Shipping Methods */
 

@@ -11,7 +11,7 @@ import { createSelector } from 'reselect';
 import FormField from '../../forms/formfield';
 import Form from '../../forms/form';
 import ErrorAlerts from '../../alerts/error-alerts';
-import SaveCancel from '../../../components/common/save-cancel';
+import SaveCancel from '../../common/save-cancel';
 
 // data
 import * as validators from '../../../lib/validators';

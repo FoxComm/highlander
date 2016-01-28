@@ -8,7 +8,10 @@ import SearchTerm from '../paragons/search-term';
 const emptyState = {
   isDirty: false,
   isEditingName: false,
-  isFetching: false,
+  // isFetching = null, - fetching wasn't started yet
+  // isFetching = true, - fetching was started
+  // isFetching = false, - fetching was finished
+  isFetching: null,
   isNew: false,
   options: [],
   results: {
@@ -48,14 +51,27 @@ export default function makeLiveSearch(namespace, searchTerms, initialSearches) 
     };
   };
 
+  const getSelectedSearch = (state) => {
+    const selectedSearch = _.get(state, [namespace, 'list', 'selectedSearch']);
+    return _.get(state, [namespace, 'list', 'savedSearches', selectedSearch]);
+  };
+
   const fetch = (url, ...args) => {
-    return dispatch => {
-      dispatch(searchStart());
-      return post(url, ...args)
-        .then(
-          res => dispatch(searchSuccess(res)),
-          err => dispatch(searchFailure(err, fetch))
-        );
+    let fetchPromise;
+
+    return (dispatch, getState) => {
+      const { isFetching } = getSelectedSearch(getState());
+
+      if (!isFetching) {
+        dispatch(searchStart());
+        fetchPromise = post(url, ...args)
+          .then(
+            res => dispatch(searchSuccess(res)),
+            err => dispatch(searchFailure(err, fetch))
+          );
+      }
+
+      return fetchPromise;
     };
   };
 
@@ -63,12 +79,7 @@ export default function makeLiveSearch(namespace, searchTerms, initialSearches) 
     return (dispatch, getState) => {
       dispatch(selectSavedSearch(idx));
 
-      const selectedSearch = _.get(getState(), [namespace, 'list', 'selectedSearch']);
-      const searchTerms = _.get(
-        getState(),
-        [namespace, 'list', 'savedSearches', selectedSearch, 'searches'],
-        []
-      );
+      const searchTerms = _.get(getSelectedSearch(getState()), 'searches', []);
 
       const esQuery = toQuery(searchTerms);
       dispatch(fetch(url, esQuery.toJSON()));

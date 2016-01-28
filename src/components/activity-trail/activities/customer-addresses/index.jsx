@@ -12,26 +12,14 @@ function omitAddressName(address) {
 }
 
 const representatives = {
-  [types.CUSTOMER_ADDRESS_CREATED_BY_ADMIN]: {
-    title: data => {
-      return (
-        <span>
-          <strong>created a new address</strong> for customer <CustomerLink customer={data.customer} />.
-        </span>
-      );
-    },
-    details: data => {
-      return {
-        newOne: <AddressDetails address={omitAddressName(data.address)} />,
-        previous: null,
-      };
-    },
-  },
   [types.CUSTOMER_ADDRESS_CREATED]: {
-    title: data => {
+    title: (data, {context}) => {
+      const targetSense = context.userType == 'admin' ?
+        <span> for customer <CustomerLink customer={data.customer} /></span> : null;
+
       return (
         <span>
-          <strong>created a new address</strong>.
+          <strong>created a new address</strong>{targetSense}.
         </span>
       );
     },

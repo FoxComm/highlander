@@ -9,8 +9,9 @@ import searchActivities from '../elastic/activities';
 import types, { derivedTypes } from '../components/activity-trail/activities/base/types';
 
 const startFetching = createAction('ACTIVITY_TRAIL_START_FETCHING');
-const receivedActivities = createAction('ACTIVITY_TRAIL_RECEIVED', (trailId, data) => [trailId, data]);
-const fetchFailed = createAction('ACTIVITY_TRAIL_FETCH_FAILED', (trailId, err) => [trailId, err]);
+const receivedActivities = createAction('ACTIVITY_TRAIL_RECEIVED');
+const fetchFailed = createAction('ACTIVITY_TRAIL_FETCH_FAILED');
+export const resetActivities = createAction('ACTIVITY_TRAIL_RESET');
 
 const flatMap = _.compose(_.flatten, _.map);
 
@@ -29,8 +30,7 @@ export function processActivity(activity) {
 
 export function processActivities(activities) {
   return flatMap(activities, activity => {
-    if (activity.kind == types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES ||
-      activity.kind == types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES_BY_CUSTOMER) {
+    if (activity.kind == types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES) {
       const { oldQuantities, newQuantities, ...restData } = activity.data;
 
       let newActivities = [];
@@ -72,20 +72,22 @@ export function processActivities(activities) {
   });
 }
 
-export function fetchActivityTrail(entity, from) {
+export function fetchActivityTrail({dimension, objectId = null}, from) {
   return dispatch => {
-    dispatch(startFetching(entity.entityId));
-    searchActivities(from).then(
+    dispatch(startFetching());
+    searchActivities(from, {
+      dimension,
+      objectId
+    }).then(
       response => {
         dispatch(receivedActivities(
-          entity.entityId,
           {
             activities: processActivities(response.result.map(({activity}) => processActivity(activity))),
             hasMore: response.hasMore
           }
         ));
       },
-      err => dispatch(fetchFailed(entity.entityId, err))
+      err => dispatch(fetchFailed(err))
     );
   };
 }
@@ -98,34 +100,42 @@ function mergeActivities(activities = [], newActivities) {
   });
 }
 
-const initialState = {};
+const initialState = {
+  isFetching: null,
+  err: null,
+  activities: [],
+  hasMore: false,
+};
 
 const reducer = createReducer({
-  [startFetching]: (state, trailId) => {
+  [startFetching]: state => {
     return assoc(state,
-      [trailId, 'isFetching'], true,
-      [trailId, 'err'], null
+      ['isFetching'], true,
+      ['err'], null
     );
   },
-  [receivedActivities]: (state, [trailId, data]) => {
+  [resetActivities]: () => {
+    return initialState;
+  },
+  [receivedActivities]: (state, data) => {
     const updater = _.flow(
-      _.partialRight(update, [trailId, 'activities'], mergeActivities, data.activities),
+      _.partialRight(update, ['activities'], mergeActivities, data.activities),
       _.partialRight(assoc,
-        [trailId, 'hasMore'], data.hasMore,
-        [trailId, 'isFetching'], false
+        ['hasMore'], data.hasMore,
+        ['isFetching'], false
       )
     );
 
     return updater(state);
   },
-  [fetchFailed]: (state, [trailId, result]) => {
+  [fetchFailed]: (state, result) => {
     console.error(result);
 
     return assoc(state,
-      [trailId, 'isFetching'], false,
-      [trailId, 'err'], result.responseJson.error
+      ['isFetching'], false,
+      ['err'], result.responseJson.error
     );
-  }
+  },
 }, initialState);
 
 export default reducer;

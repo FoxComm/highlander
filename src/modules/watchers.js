@@ -39,9 +39,8 @@ export function suggestWatchers(entity, term) {
   return dispatch => {
     return searchAdmins(term).then(
       (data) => {
-        const hits = _.get(data, ['hits', 'hits'], []);
-        const admins = _.pluck(hits, '_source');
-        return dispatch(setSuggestedWathcers(entity, admins));
+        const hits = _.get(data, ['result'], []);
+        return dispatch(setSuggestedWathcers(entity, hits));
       },
       () => dispatch(setSuggestedWathcers(entity, []))
     );

@@ -21,13 +21,14 @@ const SaveCancel = props => {
     cancelParams,
     onCancel,
     cancelText,
-    cancelClassName,
     cancelDisabled,
     onSave,
     saveText,
-    saveClassName,
     saveDisabled
   } = props;
+
+  const cancelClassName = 'fc-save-cancel__cancel';
+  const saveClassName = 'fc-save-cancel__save';
 
   const cancelControl = cancelTo
     ? <Link to={cancelTo}
@@ -48,7 +49,7 @@ const SaveCancel = props => {
                      disabled={saveDisabled}>{saveText}</PrimaryButton>;
 
   return (
-    <div className={className}>
+    <div className={classNames('fc-save-cancel', className)}>
       {cancelControl}
       {saveControl}
     </div>
@@ -61,17 +62,15 @@ SaveCancel.propTypes = {
   cancelParams: PropTypes.object,
   onCancel: PropTypes.func,
   cancelText: PropTypes.string.isRequired,
-  cancelClassName: PropTypes.string,
   cancelDisabled: PropTypes.bool,
   onSave: PropTypes.func,
   saveText: PropTypes.string.isRequired,
-  saveClassName: PropTypes.string,
-  saveDisabled: PropTypes.bool
+  saveDisabled: PropTypes.bool,
 };
 
 SaveCancel.defaultProps = {
   cancelText: 'Cancel',
-  saveText: 'Save'
+  saveText: 'Save',
 };
 
 export default SaveCancel;

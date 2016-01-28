@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import list from './cards';
+import list from './list';
 import adding from './new';
 import details from './details';
 import transactions from './transactions';

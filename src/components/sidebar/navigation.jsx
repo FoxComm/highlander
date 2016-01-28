@@ -38,7 +38,9 @@ const Navigation = props => {
             <IndexLink to="customers" className="fc-navigation-item__sublink">Lists</IndexLink>
             <IndexLink to="groups" className="fc-navigation-item__sublink">Customer Groups</IndexLink>
             <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Insights</a>
-            <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Activity Trial</a>
+            <Link to="customers-activity-trail" className="fc-navigation-item__sublink">
+              Activity Trial
+            </Link>
           </NavigationItem>
         </li>
         <li>
@@ -53,7 +55,9 @@ const Navigation = props => {
                           toggleMenuItem={props.toggleMenuItem} >
             <IndexLink to="orders" className="fc-navigation-item__sublink">Lists</IndexLink>
             <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Insights</a>
-            <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Activity Trail</a>
+            <Link to="orders-activity-trail" className="fc-navigation-item__sublink">
+              Activity Trial
+            </Link>
           </NavigationItem>
         </li>
         <li>
@@ -88,7 +92,10 @@ const Navigation = props => {
                           toggleMenuItem={props.toggleMenuItem} >
             <IndexLink to="gift-cards" className="fc-navigation-item__sublink">Lists</IndexLink>
             <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Insights</a>
-            <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Activity Trail</a>
+
+            <Link to="gift-cards-activity-trail" className="fc-navigation-item__sublink">
+              Activity Trial
+            </Link>
           </NavigationItem>
         </li>
         <li>

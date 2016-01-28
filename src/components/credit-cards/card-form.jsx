@@ -70,14 +70,14 @@ export default class CreditCardForm extends React.Component {
     }
 
     return (
-      <li className="fc-credit-card-form-line">
+      <li className="fc-credit-card-form__line">
         <div className="fc-grid">
           <div className="fc-col-md-3-4">
             <FormField label="Card Number"
-                       labelClassName="fc-credit-card-form-label"
+                       labelClassName="fc-credit-card-form__label"
                        validator="ascii">
               <input id="numberCardFormField"
-                     className="fc-credit-card-form-input"
+                     className="fc-credit-card-form__input"
                      name="number"
                      maxLength="255"
                      type="text"
@@ -87,10 +87,10 @@ export default class CreditCardForm extends React.Component {
           </div>
           <div className="fc-col-md-1-4">
             <FormField label="CVV"
-                       labelClassName="fc-credit-card-form-label"
+                       labelClassName="fc-credit-card-form__label"
                        validator="ascii">
               <input id="cvvCardFormField"
-                     className="fc-credit-card-form-input"
+                     className="fc-credit-card-form__input"
                      name="cvv"
                      maxLength="255"
                      type="text"
@@ -123,9 +123,9 @@ export default class CreditCardForm extends React.Component {
 
     if (isNew) {
       block = (
-        <li className="fc-credit-card-form-line">
+        <li className="fc-credit-card-form__line">
           <div>
-            <label className="fc-credit-card-form-label">
+            <label className="fc-credit-card-form__label">
               Billing Address
             </label>
             <AddressSelect name="addressId"
@@ -138,9 +138,9 @@ export default class CreditCardForm extends React.Component {
       );
     } else {
       block = (
-        <li className="fc-credit-card-form-line">
+        <li className="fc-credit-card-form__line">
           <div>
-            <label className="fc-credit-card-form-label">
+            <label className="fc-credit-card-form__label">
               Billing Address - <a className="fc-btn-link" onClick={ this.toggleSelectAddress }>Change</a>
             </label>
             { this.addressEditBlock }
@@ -155,7 +155,7 @@ export default class CreditCardForm extends React.Component {
   get header() {
     if (this.props.isNew) {
       return (
-        <header className="fc-credit-card-form-header">
+        <header className="fc-credit-card-form__header">
           New Credit Card
         </header>
       );
@@ -178,19 +178,19 @@ export default class CreditCardForm extends React.Component {
               onSubmit={ onSubmit }>
           { this.header }
           <div>
-            <ul className="fc-credit-card-form-fields">
-              <li className="fc-credit-card-form-line">
+            <ul className="fc-credit-card-form__fields">
+              <li className="fc-credit-card-form__line">
                 <label className="fc-credit-card-default-checkbox">
                   <Checkbox defaultChecked={ form.isDefault } name="isDefault" />
                   <span>Default Card</span>
                 </label>
               </li>
-              <li className="fc-credit-card-form-line">
+              <li className="fc-credit-card-form__line">
                 <FormField label="Name on Card"
                            validator="ascii"
-                           labelClassName="fc-credit-card-form-label">
+                           labelClassName="fc-credit-card-form__label">
                   <input id="nameCardFormField"
-                         className="fc-credit-card-form-input"
+                         className="fc-credit-card-form__input"
                          name="holderName"
                          maxLength="255"
                          type="text"
@@ -199,8 +199,8 @@ export default class CreditCardForm extends React.Component {
                 </FormField>
               </li>
               { this.cardNumberBlock }
-              <li className="fc-credit-card-form-line">
-                <label className="fc-credit-card-form-label">Expiration Date</label>
+              <li className="fc-credit-card-form__line">
+                <label className="fc-credit-card-form__label">Expiration Date</label>
                 <div className="fc-grid">
                   <div className="fc-col-md-1-2">
                     <Dropdown name="expMonth"
@@ -221,10 +221,7 @@ export default class CreditCardForm extends React.Component {
               { this.addressSelectBlock }
             </ul>
           </div>
-          <SaveCancel className="fc-credit-card-form-controls"
-                      onCancel={onCancel}
-                      cancelClassName="fc-credit-card-form-link"
-                      saveClassName="fc-credit-card-form-button"/>
+          <SaveCancel onCancel={onCancel} />
         </Form>
       </li>
     );

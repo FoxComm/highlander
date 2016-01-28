@@ -1,28 +1,6 @@
 
-import React from 'react';
-import ActivityTrail from './activity-trail';
-import types from './activities/base/types';
-import { processActivity, processActivities } from '../../modules/activity-trail';
 import moment from 'moment';
-
-function addContext(activity, i) {
-  let userType;
-
-  if (activity.context) {
-    userType = activity.context.userType;
-  } else {
-    userType = 'admin';
-    activity.context = {userType};
-  }
-
-  if (userType == 'admin' && !activity.data.admin) {
-    activity.data.admin = {
-      name: 'Jon Doe'
-    };
-  }
-
-  return activity;
-}
+import types from '../../src/components/activity-trail/activities/base/types';
 
 const customer = {
   id: 1,
@@ -39,17 +17,17 @@ const admin = {
 };
 
 const address = {
-  "id": 3,
-  "region": {
-    "id": 4177,
-    "countryId": 234,
-    "name": "California"
+  'id': 3,
+  'region': {
+    'id': 4177,
+    'countryId': 234,
+    'name': 'California'
   },
-  "name": "South",
-  "address1": "555 E Lake Union St.",
-  "city": "Los Angeles",
-  "zip": "54321",
-  "isDefault": false
+  'name': 'South',
+  'address1': '555 E Lake Union St.',
+  'city': 'Los Angeles',
+  'zip': '54321',
+  'isDefault': false
 };
 
 const creditCard = {
@@ -60,26 +38,26 @@ const creditCard = {
 };
 
 const giftCard = {
-  "id": 6,
-  "createdAt": "2016-01-14T19:46:21.272Z",
-  "code": "DDE2CEF877E7C5C5",
-  "originId": 1,
-  "originType": "csrAppeasement",
-  "status": "active",
-  "currency": "USD",
-  "originalBalance": 5000,
-  "availableBalance": 4000,
-  "currentBalance": 4000,
-  "storeAdmin": {"id": 1, "email": "admin@admin.com", "name": "Frankly Admin"},
-  "message": "Not implemented yet"
+  'id': 6,
+  'createdAt': '2016-01-14T19:46:21.272Z',
+  'code': 'DDE2CEF877E7C5C5',
+  'originId': 1,
+  'originType': 'csrAppeasement',
+  'status': 'active',
+  'currency': 'USD',
+  'originalBalance': 5000,
+  'availableBalance': 4000,
+  'currentBalance': 4000,
+  'storeAdmin': {'id': 1, 'email': 'admin@admin.com', 'name': 'Frankly Admin'},
+  'message': 'Not implemented yet'
 };
 
 const storeCredit = {
-  "currency": "USD",
-  "originalBalance": 3000,
-  "availableBalance": 2500,
-  "currentBalance": 2500,
-  "status": "active",
+  'currency': 'USD',
+  'originalBalance': 3000,
+  'availableBalance': 2500,
+  'currentBalance': 2500,
+  'status': 'active',
 };
 
 const shippingMethod = {
@@ -90,20 +68,19 @@ const shippingMethod = {
 
 const order = {
   referenceNumber: 'BR10001',
-  orderState: 'cart',
-  customer,
+  orderStatus: 'cart',
   shippingAddress: {
-    "id": 3,
-    "region": {
-      "id": 4177,
-      "countryId": 234,
-      "name": "Washington"
+    'id': 3,
+    'region': {
+      'id': 4177,
+      'countryId': 234,
+      'name': 'Washington'
     },
-    "name": "Home",
-    "address1": "555 E Lake Union St.",
-    "city": "Seattle",
-    "zip": "12345",
-    "isDefault": false
+    'name': 'Home',
+    'address1': '555 E Lake Union St.',
+    'city': 'Seattle',
+    'zip': '12345',
+    'isDefault': false
   },
   shippingMethod,
 };
@@ -119,7 +96,7 @@ let id = 1;
 let activities = [
   // customers
   {
-    kind: types.CUSTOMER_UPDATED,
+    activityType: types.CUSTOMER_UPDATED,
     id: id++,
     createdAt,
     data: {
@@ -137,7 +114,7 @@ let activities = [
     }
   },
   {
-    kind: types.CUSTOMER_CREATED,
+    activityType: types.CUSTOMER_CREATED,
     id: id++,
     createdAt,
     data: {
@@ -145,7 +122,7 @@ let activities = [
     }
   },
   {
-    kind: types.CUSTOMER_REGISTERED,
+    activityType: types.CUSTOMER_REGISTERED,
     id: id++,
     createdAt,
     data: {
@@ -153,7 +130,7 @@ let activities = [
     }
   },
   {
-    kind: types.CUSTOMER_ACTIVATED,
+    activityType: types.CUSTOMER_ACTIVATED,
     id: id++,
     createdAt,
     data: {
@@ -161,7 +138,7 @@ let activities = [
     }
   },
   {
-    kind: types.CUSTOMER_BLACKLISTED,
+    activityType: types.CUSTOMER_BLACKLISTED,
     id: id++,
     createdAt,
     data: {
@@ -169,7 +146,7 @@ let activities = [
     }
   },
   {
-    kind: types.CUSTOMER_REMOVED_FROM_BLACKLIST,
+    activityType: types.CUSTOMER_REMOVED_FROM_BLACKLIST,
     id: id++,
     createdAt,
     data: {
@@ -177,7 +154,7 @@ let activities = [
     }
   },
   {
-    kind: types.CUSTOMER_ENABLED,
+    activityType: types.CUSTOMER_ENABLED,
     id: id++,
     createdAt,
     data: {
@@ -185,7 +162,7 @@ let activities = [
     }
   },
   {
-    kind: types.CUSTOMER_DISABLED,
+    activityType: types.CUSTOMER_DISABLED,
     id: id++,
     createdAt,
     data: {
@@ -201,7 +178,7 @@ activities = [...activities,
   // customer addresses
 
   {
-    kind: types.CUSTOMER_ADDRESS_CREATED,
+    activityType: types.CUSTOMER_ADDRESS_CREATED_BY_ADMIN,
     id: id++,
     createdAt,
     data: {
@@ -214,7 +191,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.CUSTOMER_ADDRESS_CREATED,
+    activityType: types.CUSTOMER_ADDRESS_CREATED,
     id: id++,
     createdAt,
     data: {
@@ -226,7 +203,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.CUSTOMER_ADDRESS_UPDATED,
+    activityType: types.CUSTOMER_ADDRESS_UPDATED,
     id: id++,
     createdAt,
     data: {
@@ -239,7 +216,7 @@ activities = [...activities,
     },
   },
   {
-    kind: types.CUSTOMER_ADDRESS_DELETED,
+    activityType: types.CUSTOMER_ADDRESS_DELETED,
     id: id++,
     createdAt,
     data: {
@@ -256,28 +233,28 @@ activities = [...activities,
   // order shipping address
 
   {
-    kind: types.ORDER_SHIPPING_ADDRESS_UPDATED,
+    activityType: types.ORDER_SHIPPING_ADDRESS_UPDATED,
     id: id++,
     createdAt,
     data: {
       order,
       address: {
-        "id": 3,
-        "region": {
-          "id": 4177,
-          "countryId": 234,
-          "name": "California"
+        'id': 3,
+        'region': {
+          'id': 4177,
+          'countryId': 234,
+          'name': 'California'
         },
-        "name": "South",
-        "address1": "555 E Lake Union St.",
-        "city": "Los Angeles",
-        "zip": "54321",
-        "isDefault": false
+        'name': 'South',
+        'address1': '555 E Lake Union St.',
+        'city': 'Los Angeles',
+        'zip': '54321',
+        'isDefault': false
       }
     }
   },
   {
-    kind: types.ORDER_SHIPPING_ADDRESS_ADDED,
+    activityType: types.ORDER_SHIPPING_ADDRESS_ADDED,
     id: id++,
     createdAt,
     data: {
@@ -286,7 +263,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_SHIPPING_ADDRESS_REMOVED,
+    activityType: types.ORDER_SHIPPING_ADDRESS_REMOVED,
     id: id++,
     createdAt,
     data: {
@@ -302,39 +279,31 @@ activities = [...activities,
 
   // order notes
   {
-    kind: types.ORDER_NOTE_CREATED,
+    activityType: types.ORDER_NOTE_CREATED,
     id: id++,
     createdAt,
     data: {
       orderRefNum: 'BR10001',
-      note: {
-        body: 'New note for order.',
-      }
+      text: 'New note for order.'
     }
   },
   {
-    kind: types.ORDER_NOTE_DELETED,
+    activityType: types.ORDER_NOTE_DELETED,
     id: id++,
     createdAt,
     data: {
       orderRefNum: 'BR10001',
-      note: {
-        body: 'Lorem ipsum dot color.',
-      }
+      text: 'Lorem ipsum dot color.'
     }
   },
   {
-    kind: types.ORDER_NOTE_UPDATED,
+    activityType: types.ORDER_NOTE_UPDATED,
     id: id++,
     createdAt,
     data: {
       orderRefNum: 'BR10001',
-      oldNote: {
-        body: 'Lorem ipsum dot color.',
-      },
-      note: {
-        body: 'New one',
-      }
+      oldText: 'Lorem ipsum dot color.',
+      newText: 'New one'
     }
   },
 ];
@@ -345,24 +314,24 @@ activities = [...activities,
 
   // orders
   {
-    kind: types.ORDER_STATE_CHANGED,
+    activityType: types.ORDER_STATE_CHANGED,
     id: id++,
     createdAt,
     data: {
       order: {
         referenceNumber: 'BR10004',
-        orderState: 'fraudHold'
+        orderStatus: 'fraudHold'
       },
       oldState: 'manualHold',
     }
   },
   {
-    kind: types.ORDER_BULK_STATE_CHANGED,
+    activityType: types.ORDER_BULK_STATE_CHANGED,
     id: id++,
     createdAt,
     data: {
       newState: 'fraudHold',
-      orders: [
+      orderRefNums: [
         'BR10004',
         'BR10003',
         'BR10001',
@@ -371,7 +340,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.CART_CREATED,
+    activityType: types.CART_CREATED,
     id: id++,
     createdAt,
     data: {
@@ -385,7 +354,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.CREDIT_CARD_ADDED,
+    activityType: types.CREDIT_CARD_ADDED,
     id: id++,
     createdAt,
     data: {
@@ -394,7 +363,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.CREDIT_CARD_REMOVED,
+    activityType: types.CREDIT_CARD_REMOVED,
     id: id++,
     createdAt,
     data: {
@@ -403,7 +372,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.CREDIT_CARD_UPDATED,
+    activityType: types.CREDIT_CARD_UPDATED,
     id: id++,
     createdAt,
     data: {
@@ -421,7 +390,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.ORDER_SHIPPING_METHOD_UPDATED,
+    activityType: types.ORDER_SHIPPING_METHOD_UPDATED,
     id: id++,
     createdAt,
     data: {
@@ -429,7 +398,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_SHIPPING_METHOD_REMOVED,
+    activityType: types.ORDER_SHIPPING_METHOD_REMOVED,
     id: id++,
     createdAt,
     data: {
@@ -442,7 +411,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.ORDER_PAYMENT_METHOD_ADDED_CREDIT_CARD,
+    activityType: types.ORDER_PAYMENT_METHOD_ADDED_CREDIT_CARD,
     id: id++,
     createdAt,
     data: {
@@ -451,7 +420,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_PAYMENT_METHOD_ADDED_GIFT_CARD,
+    activityType: types.ORDER_PAYMENT_METHOD_ADDED_GIFT_CARD,
     id: id++,
     createdAt,
     data: {
@@ -460,7 +429,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_PAYMENT_METHOD_ADDED_STORE_CREDIT,
+    activityType: types.ORDER_PAYMENT_METHOD_ADDED_STORE_CREDIT,
     id: id++,
     createdAt,
     data: {
@@ -469,7 +438,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_PAYMENT_METHOD_DELETED,
+    activityType: types.ORDER_PAYMENT_METHOD_DELETED,
     id: id++,
     createdAt,
     data: {
@@ -478,7 +447,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_PAYMENT_METHOD_DELETED,
+    activityType: types.ORDER_PAYMENT_METHOD_DELETED,
     id: id++,
     createdAt,
     data: {
@@ -487,7 +456,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_PAYMENT_METHOD_DELETED,
+    activityType: types.ORDER_PAYMENT_METHOD_DELETED,
     id: id++,
     createdAt,
     data: {
@@ -496,7 +465,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_PAYMENT_METHOD_DELETED_GIFT_CARD,
+    activityType: types.ORDER_PAYMENT_METHOD_DELETED_GIFT_CARD,
     id: id++,
     createdAt,
     data: {
@@ -510,7 +479,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.GIFT_CARD_CREATED,
+    activityType: types.GIFT_CARD_CREATED,
     id: id++,
     createdAt,
     data: {
@@ -518,7 +487,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.GIFT_CARD_STATE_CHANGED,
+    activityType: types.GIFT_CARD_STATE_CHANGED,
     id: id++,
     createdAt,
     data: {
@@ -526,7 +495,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.GIFT_CARD_CONVERTED_TO_STORE_CREDIT,
+    activityType: types.GIFT_CARD_CONVERTED_TO_STORE_CREDIT,
     id: id++,
     createdAt,
     data: {
@@ -535,7 +504,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.GIFT_CARD_AUTHORIZED_FUNDS,
+    activityType: types.GIFT_CARD_AUTHORIZED_FUNDS,
     id: id++,
     createdAt,
     data: {
@@ -553,7 +522,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.GIFT_CARD_CAPTURED_FUNDS,
+    activityType: types.GIFT_CARD_CAPTURED_FUNDS,
     id: id++,
     createdAt,
     data: {
@@ -574,7 +543,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.STORE_CREDIT_CREATED,
+    activityType: types.STORE_CREDIT_CREATED,
     id: id++,
     createdAt,
     data: {
@@ -583,7 +552,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.STORE_CREDIT_STATE_CHANGED,
+    activityType: types.STORE_CREDIT_STATE_CHANGED,
     id: id++,
     createdAt,
     data: {
@@ -592,7 +561,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.STORE_CREDIT_CONVERTED_TO_GIFT_CARD,
+    activityType: types.STORE_CREDIT_CONVERTED_TO_GIFT_CARD,
     id: id++,
     createdAt,
     data: {
@@ -602,7 +571,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.STORE_CREDIT_AUTHORIZED_FUNDS,
+    activityType: types.STORE_CREDIT_AUTHORIZED_FUNDS,
     id: id++,
     createdAt,
     data: {
@@ -615,7 +584,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.STORE_CREDIT_CAPTURED_FUNDS,
+    activityType: types.STORE_CREDIT_CAPTURED_FUNDS,
     id: id++,
     createdAt,
     data: {
@@ -633,7 +602,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.ASSIGNED_TO_ORDER,
+    activityType: types.ASSIGNED_TO_ORDER,
     id: id++,
     createdAt,
     data: {
@@ -644,7 +613,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ASSIGNED_TO_ORDER,
+    activityType: types.ASSIGNED_TO_ORDER,
     id: id++,
     createdAt,
     data: {
@@ -656,7 +625,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.UNASSIGNED_FROM_ORDER,
+    activityType: types.UNASSIGNED_FROM_ORDER,
     id: id++,
     createdAt,
     data: {
@@ -665,7 +634,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.BULK_ASSIGNED_TO_ORDERS,
+    activityType: types.BULK_ASSIGNED_TO_ORDERS,
     id: id++,
     createdAt,
     data: {
@@ -678,7 +647,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.BULK_UNASSIGNED_FROM_ORDERS,
+    activityType: types.BULK_UNASSIGNED_FROM_ORDERS,
     id: id++,
     createdAt,
     data: {
@@ -696,7 +665,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.ADDED_WATCHERS_TO_ORDER,
+    activityType: types.ADDED_WATCHERS_TO_ORDER,
     id: id++,
     createdAt,
     data: {
@@ -707,7 +676,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ADDED_WATCHERS_TO_ORDER,
+    activityType: types.ADDED_WATCHERS_TO_ORDER,
     id: id++,
     createdAt,
     data: {
@@ -719,7 +688,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.REMOVED_WATCHER_FROM_ORDER,
+    activityType: types.REMOVED_WATCHER_FROM_ORDER,
     id: id++,
     createdAt,
     data: {
@@ -728,7 +697,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.BULK_ADDED_WATCHER_TO_ORDERS,
+    activityType: types.BULK_ADDED_WATCHER_TO_ORDERS,
     id: id++,
     createdAt,
     data: {
@@ -741,7 +710,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.BULK_REMOVED_WATCHER_FROM_ORDERS,
+    activityType: types.BULK_REMOVED_WATCHER_FROM_ORDERS,
     id: id++,
     createdAt,
     data: {
@@ -759,7 +728,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES,
+    activityType: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES,
     id: id++,
     createdAt,
     data: {
@@ -774,7 +743,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES,
+    activityType: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES_BY_CUSTOMER,
     id: id++,
     createdAt,
     data: {
@@ -792,7 +761,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_LINE_ITEMS_ADDED_GIFT_CARD,
+    activityType: types.ORDER_LINE_ITEMS_ADDED_GIFT_CARD,
     id: id++,
     createdAt,
     data: {
@@ -801,7 +770,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_LINE_ITEMS_DELETED_GIFT_CARD,
+    activityType: types.ORDER_LINE_ITEMS_DELETED_GIFT_CARD,
     id: id++,
     createdAt,
     data: {
@@ -810,7 +779,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_LINE_ITEMS_UPDATED_GIFT_CARD,
+    activityType: types.ORDER_LINE_ITEMS_UPDATED_GIFT_CARD,
     id: id++,
     createdAt,
     data: {
@@ -820,15 +789,4 @@ activities = [...activities,
   },
 ];
 
-activities = processActivities(activities.map(processActivity)).map(addContext);
-
-export default class AllActivities extends React.Component {
-
-  render() {
-    return (
-      <div style={{margin: '20px'}}>
-        <ActivityTrail activities={activities} hasMore={false} />
-      </div>
-    );
-  }
-}
+export default activities;
