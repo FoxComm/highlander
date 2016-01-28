@@ -132,6 +132,7 @@ export default class NewGiftCard extends React.Component {
 
     return (
       <PilledInput
+        solid={true}
         value={this.state.customersQuery}
         onChange={e => this.setState({customersQuery: e.target.value})}
         pills={customers.map(customer => customer.name)}
