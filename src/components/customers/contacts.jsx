@@ -130,9 +130,7 @@ export default class CustomerContacts extends React.Component {
 
   get formActions() {
     if (this.props.isContactsEditing) {
-      return <SaveCancel className="fc-customer-form-actions"
-                         onCancel={ this.props.toggleEditCustomer }
-                         cancelClassName="fc-customer-cancel-edit"/>;
+      return <SaveCancel onCancel={ this.props.toggleEditCustomer } />;
     }
   }
 

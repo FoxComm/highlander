@@ -19,7 +19,6 @@ const editBlock = (shippingMethod, isEditingPrice, editPriceAction, cancelPriceA
         </div>
         <SaveCancel className="fc-right"
                     onCancel={cancelPriceAction}
-                    cancelClassName="fc-action-block-cancel"
                     onSave={() => submitPriceAction(shippingMethod.id)} />
       </div>
     );
