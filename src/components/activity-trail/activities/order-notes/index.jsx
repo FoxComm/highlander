@@ -15,7 +15,7 @@ const representatives = {
     details: data => {
       return {
         previous: null,
-        newOne: data.text,
+        newOne: data.note.body,
       };
     },
   },
@@ -29,8 +29,8 @@ const representatives = {
     },
     details: data => {
       return {
-        previous: data.oldText,
-        newOne: data.newText,
+        previous: data.oldNote.body,
+        newOne: data.note.body,
       };
     },
   },
@@ -44,7 +44,7 @@ const representatives = {
     },
     details: data => {
       return {
-        previous: data.text,
+        previous: data.note.body,
         newOne: null,
       };
     },

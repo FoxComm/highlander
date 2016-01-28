@@ -30,8 +30,7 @@ export function processActivity(activity) {
 
 export function processActivities(activities) {
   return flatMap(activities, activity => {
-    if (activity.kind == types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES ||
-      activity.kind == types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES_BY_CUSTOMER) {
+    if (activity.kind == types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES) {
       const { oldQuantities, newQuantities, ...restData } = activity.data;
 
       let newActivities = [];
