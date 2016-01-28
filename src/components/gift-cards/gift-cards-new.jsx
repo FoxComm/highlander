@@ -204,9 +204,7 @@ export default class NewGiftCard extends React.Component {
         <header className="fc-col-md-1-1">
           <h1>Issue New Gift Card</h1>
         </header>
-        <form action="/gift-cards"
-              method="POST"
-              className="fc-form-vertical fc-col-md-1-1"
+        <Form className="fc-form-vertical fc-col-md-1-1"
               onSubmit={this.submitForm}
               onChange={this.onChangeValue}>
           <div className="fc-grid fc-grid-no-gutter fc-new-gift-card__fieldset">
@@ -229,6 +227,7 @@ export default class NewGiftCard extends React.Component {
               icon="usd"
               inputClass="_no-counters"
               inputName="balance"
+              inputNamePretty="balanceText"
               inputType="number"
               inputValue={balance}
               inputValuePretty={balanceText}
@@ -263,7 +262,7 @@ export default class NewGiftCard extends React.Component {
           <SaveCancel cancelTo="gift-cards"
                       saveDisabled={sendToCustomer && customers.length === 0}
                       saveText="Issue Gift Card" />
-        </form>
+        </Form>
       </div>
     );
   }
