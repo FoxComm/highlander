@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import elasticsearch from 'elasticsearch';
 import ejs from 'elastic.js';
 import moment from 'moment';
 
@@ -99,18 +98,6 @@ function createNestedFilter(filter) {
     .NestedFilter(path)
     .query(ejs.BoolQuery().must(query));
 }
-
-function _newClient(opts = {}) {
-  opts = _.merge({
-    host: 'localhost:9200',
-    apiVersion: '1.7',
-  }, opts);
-  return new elasticsearch.Client(opts);
-}
-
-export const newClient = _.memoize(_newClient);
-
-export const DEFAULT_INDEX = 'phoenix';
 
 function dateRangeFilter(field, operator, value, rangeFn) {
   const formattedDate = moment(value, 'MM/DD/YYYY').format('YYYY-MM-DD HH:mm:ss');
