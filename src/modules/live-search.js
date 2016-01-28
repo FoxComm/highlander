@@ -67,7 +67,7 @@ export default function makeLiveSearch(namespace, searchTerms, initialSearches) 
         fetchPromise = post(url, ...args)
           .then(
             res => dispatch(searchSuccess(res)),
-            err => dispatch(searchFailure(err, fetch))
+            err => dispatch(searchFailure(err))
           );
       }
 
@@ -115,7 +115,7 @@ export default function makeLiveSearch(namespace, searchTerms, initialSearches) 
     [saveSearch]: (state) => _saveSearch(state),
     [searchStart]: (state) => _searchStart(state),
     [searchSuccess]: (state, res) => _searchSuccess(state, res),
-    [searchFailure]: (state, [err, source]) => _searchFailure(state, [err, source]),
+    [searchFailure]: (state, err) => _searchFailure(state, err),
     [selectSavedSearch]: (state, idx) => _selectSavedSearch(state, idx),
     [submitFilters]: (state, filters) => _submitFilters(state, filters)
   }, initialState);
@@ -221,13 +221,9 @@ function _searchSuccess(state, res) {
   );
 }
 
-function _searchFailure(state, [err, source]) {
-  if (source === fetch) {
-    console.error(err);
-    return assoc(state, ['savedSearches', state.selectedSearch, 'isFetching'], false);
-  }
-
-  return state;
+function _searchFailure(state, err) {
+  console.error(err);
+  return assoc(state, ['savedSearches', state.selectedSearch, 'isFetching'], false);
 }
 
 function _submitFilters(state, filters) {
