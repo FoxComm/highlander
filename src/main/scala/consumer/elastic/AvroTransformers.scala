@@ -32,31 +32,6 @@ object AvroTransformers {
       "currency"  typed StringType analyzer "autocomplete"
     )
 
-  final case class Country()(implicit ec: ExecutionContext) extends AvroTransformer {
-    def mapping =
-      "countries" as (
-        "id"        typed IntegerType,
-        "name"      typed StringType analyzer "autocomplete",
-        "continent" typed StringType index "not_analyzed",
-        "currency"  typed StringType index "not_analyzed"
-      )
-
-    def fields = List.empty
-
-  }
-
-  final case class Region()(implicit ec: ExecutionContext) extends AvroTransformer {
-    def mapping =
-      "regions" as (
-        "id"           typed IntegerType,
-        "name"         typed StringType analyzer "autocomplete",
-        "countryId"   typed IntegerType index "not_analyzed",
-        "abbreviation" typed StringType index "not_analyzed"
-      )
-
-    def fields = List.empty
-  }
-
   final case class Sku()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping =
       "skus" as (

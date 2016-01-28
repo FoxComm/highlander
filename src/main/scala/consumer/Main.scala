@@ -163,8 +163,6 @@ object Main {
     val trailWork = Future {
       val transformers = Map(
         "skus"                              → AvroTransformers.Sku(),
-        "regions"                           → AvroTransformers.Region(),
-        "countries"                         → AvroTransformers.Country(),
         "customers_search_view"             → AvroTransformers.CustomersSearchView(),
         "orders_search_view"                → AvroTransformers.OrdersSearchView(),
         "store_admins_search_view"          → AvroTransformers.StoreAdminsSearchView(),
@@ -207,14 +205,14 @@ object Main {
 
     activityWork onFailure {
       case t ⇒ {
-        Console.err.println(s"Error occurred consuming activities: ${t.getMessage}")
+        Console.err.println(s"Error consuming activities: ${t.getMessage}")
         System.exit(1);
       }
     }
 
     trailWork onFailure {
       case t ⇒  {
-        Console.err.println(s"Error occurred indexing to ES: ${t}")
+        Console.err.println(s"Error indexing to ES: $t")
         System.exit(1);
       }
     }

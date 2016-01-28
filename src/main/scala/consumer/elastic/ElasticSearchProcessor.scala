@@ -76,7 +76,7 @@ class ElasticSearchProcessor(
     } catch {
       case e: RemoteTransportException ⇒ Console.err.println(s"Index already deleted")
       case e: NoNodeAvailableException ⇒ Console.err.println(s"Error communicating with Elasticsearch")
-      case NonFatal(e) ⇒ Console.err.println(s"Error deleting index, carry on... ${e}")
+      case NonFatal(e) ⇒ Console.err.println(s"Error deleting index, carry on... $e")
     }
   }
 
@@ -99,7 +99,7 @@ class ElasticSearchProcessor(
       }.await
     } catch {
       case e: RemoteTransportException ⇒  {
-        Console.err.println(s"Error connecting to ES: ${e}")
+        Console.err.println(s"Error connecting to ES: $e")
         throw e
       }
     }
