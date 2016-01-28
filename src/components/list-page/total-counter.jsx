@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 
 class TotalCounter extends React.Component {
   static propTypes = {
-    url: PropTypes.string.isRequired,
     isFetching: PropTypes.oneOf([null, true, false]).isRequired,
     entitiesCount: PropTypes.number.isRequired,
     fetch: PropTypes.func.isRequired,
@@ -20,9 +19,9 @@ class TotalCounter extends React.Component {
   }
 
   componentDidMount() {
-    const { isFetching, fetch, url} = this.props;
+    const { isFetching, fetch } = this.props;
     if (isFetching === null) {
-      fetch(url);
+      fetch();
     }
   }
 

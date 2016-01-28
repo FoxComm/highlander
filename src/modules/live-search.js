@@ -33,7 +33,7 @@ function _createAction(namespace, description, ...args) {
   return createAction(name, ...args);
 }
 
-export default function makeLiveSearch(namespace, searchTerms, scope) {
+export default function makeLiveSearch(namespace, searchTerms, esUrl, scope) {
   // Methods internal to the live search module
   const saveSearchStart = _createAction(namespace, 'SAVE_SEARCH_START');
   const saveSearchSuccess = _createAction(namespace, 'SAVE_SEARCH_SUCCESS');
@@ -54,11 +54,11 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
   const fetchSearchesSuccess = _createAction(namespace, 'FETCH_SEARCHES_SUCCESS');
   const fetchSearchesFailure = _createAction(namespace, 'FETCH_SEARCHES_FAILURE');
 
-  const addSearchFilter = (url, filters) => {
+  const addSearchFilters = filters => {
     return dispatch => {
       dispatch(submitFilters(filters));
       const esQuery = toQuery(filters);
-      dispatch(fetch(url, esQuery.toJSON()));
+      dispatch(fetch(esQuery.toJSON()));
     };
   };
 
@@ -67,7 +67,7 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
     return _.get(state, [namespace, 'list', 'savedSearches', selectedSearch]);
   };
 
-  const fetch = (url, ...args) => {
+  const fetch = (...args) => {
     let fetchPromise;
 
     return (dispatch, getState) => {
@@ -75,7 +75,7 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
 
       if (!isFetching) {
         dispatch(searchStart());
-        fetchPromise = post(url, ...args)
+        fetchPromise = post(esUrl, ...args)
           .then(
             res => dispatch(searchSuccess(res)),
             err => dispatch(searchFailure(err, fetch))
@@ -89,7 +89,7 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
   const fetchSearches = () => {
     return dispatch => {
       dispatch(fetchSearchesStart());
-      return Api.get(`/shared-search?=${scope}`)
+      return Api.get(`/shared-search?scope=${scope}`)
         .then(
           searches => dispatch(fetchSearchesSuccess(searches)),
           err => dispatch(fetchSearchesFailure(err, fetchSearches))
@@ -108,20 +108,27 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
       dispatch(saveSearchStart());
       return Api.post('/shared-search', payload)
         .then(
-          search => dispatch(saveSearchSuccess(search)),
+          search => {
+            dispatch(saveSearchSuccess(search));
+            dispatch(queryElasticSearch(esUrl));
+          },
           err => dispatch(saveSearchFailure(err, saveSearch))
         );
     };
   };
 
-  const selectSearch = (url, idx) => {
+  const selectSearch = idx => {
     return (dispatch, getState) => {
       dispatch(selectSavedSearch(idx));
+      dispatch(queryElasticSearch(esUrl));
+    };
+  };
 
-      const searchTerms = _.get(getSelectedSearch(getState()), 'searches', []);
-
+  const queryElasticSearch = () => {
+    return (dispatch, getState) => {
+      const searchTerms = _.get(getSelectedSearch(getState()), 'query', []);
       const esQuery = toQuery(searchTerms);
-      dispatch(fetch(url, esQuery.toJSON()));
+      dispatch(fetch(esQuery.toJSON()));
     };
   };
 
@@ -136,7 +143,10 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
       dispatch(updateSearchStart(idx));
       return Api.patch(`/shared-search/${search.code}`, payload)
         .then(
-          search => dispatch(updateSearchSuccess(idx, search)),
+          search => {
+            dispatch(updateSearchSuccess(idx, search));
+            dispatch(queryElasticSearch());
+          },
           err => dispatch(updateSearchFailure(idx, err, updateSearch))
         );
     };
@@ -192,7 +202,7 @@ export default function makeLiveSearch(namespace, searchTerms, scope) {
   return {
     reducer: reducer,
     actions: {
-      addSearchFilter,
+      addSearchFilters,
       fetch,
       fetchSearches,
       saveSearch,

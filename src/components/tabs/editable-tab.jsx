@@ -80,7 +80,6 @@ export default class EditableTabView extends React.Component {
   get editNameAction() {
     return () => {
       this.setState({
-        ...this.state,
         isEditing: false 
       }, () => this.props.onEditNameComplete(this.state.editValue));
     };
@@ -128,13 +127,12 @@ export default class EditableTabView extends React.Component {
   startEdit(event) {
     event.preventDefault();
     event.stopPropagation();
-    this.setState({ ...this.state, isEditingMenu: true });
+    this.setState({ isEditingMenu: true });
   }
 
   @autobind
   startEditName() {
     this.setState({
-      ...this.state,
       isEditing: true,
       isEditingMenu: false
     });
@@ -143,7 +141,7 @@ export default class EditableTabView extends React.Component {
   @autobind
   cancelEdit(event) {
     this.preventAction(event);
-    this.setState({ ...this.state, isEditing: false });
+    this.setState({ isEditing: false });
   }
 
   get tabContent() {
@@ -179,17 +177,13 @@ export default class EditableTabView extends React.Component {
   @autobind
   blur() {
     this.setState({
-      ...this.state,
       isEditing: false 
     }, () => this.props.onEditNameComplete(this.state.editValue));
   }
 
   @autobind
   changeInput({target}) {
-    this.setState({
-      ...this.state,
-      editValue: target.value
-    });
+    this.setState({ editValue: target.value });
   }
 
   @autobind

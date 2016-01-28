@@ -6,26 +6,15 @@ import makePagination from '../pagination';
 import makeLiveSearch from '../live-search';
 import searchTerms from './search-terms';
 
-const searches = [
-  {
-    name: 'Active',
-    searches: [
-      {
-        display: 'Gift Card : Status',
-        selectedTerm: 'status',
-        selectedOperator: 'eq',
-        value: {
-          type: 'enum',
-          value: 'active'
-        }
-      }
-    ]
-  }
-];
 
 const { actionAddEntities } = makePagination('/gift-cards', 'GIFT_CARDS');
 
-const { reducer, actions } = makeLiveSearch('giftCards', searchTerms, searches);
+const { reducer, actions } = makeLiveSearch(
+  'giftCards', 
+  searchTerms, 
+  'gift_cards_search_view/_search',
+  'giftCardsScope'
+);
 
 export function createGiftCard() {
   return (dispatch, getState) => {

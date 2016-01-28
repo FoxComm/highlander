@@ -19,7 +19,7 @@ const OrderListPage = props => {
   return (
     <ListPageContainer
       title="Orders"
-      subtitle={<TotalCounter url="orders_search_view/_search" />}
+      subtitle={<TotalCounter/>}
       addTitle="Order"
       navLinks={navLinks}>
       {props.children}

@@ -22,7 +22,7 @@ const CustomersListPage = (props, context) => {
   return (
     <ListPageContainer
       title="Customers"
-      subtitle={<TotalCounter url="customers_search_view/_search" />}
+      subtitle={<TotalCounter />}
       addTitle="Customer"
       handleAddAction={ () => transitionTo(context.history, 'customers-new') }
       navLinks={navLinks}

@@ -21,7 +21,7 @@ export default class SearchableList extends React.Component {
     renderRow: PropTypes.func.isRequired,
     tableColumns: PropTypes.array.isRequired,
     searchActions: PropTypes.shape({
-      addSearchFilter: PropTypes.func.isRequired,
+      addSearchFilters: PropTypes.func.isRequired,
       deleteSearch: PropTypes.func.isRequired,
       fetch: PropTypes.func.isRequired,
       fetchSearches: PropTypes.func.isRequired,
@@ -34,8 +34,7 @@ export default class SearchableList extends React.Component {
       singleSearch: PropTypes.bool,
       initialFilters: PropTypes.array,
     }),
-    title: PropTypes.string.isRequired,
-    url: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired
   };
 
   static defaultProps = {
@@ -52,8 +51,8 @@ export default class SearchableList extends React.Component {
     const selectedSearch = props.list.selectedSearch;
     const results = props.list.savedSearches[selectedSearch].results;
 
-    const filter = searchTerms => props.searchActions.addSearchFilter(props.url, searchTerms);
-    const selectSearch = idx => props.searchActions.selectSearch(props.url, idx);
+    const filter = searchTerms => props.searchActions.addSearchFilters(searchTerms);
+    const selectSearch = idx => props.searchActions.selectSearch(idx);
 
     const setState = params => {
       if (params.sortBy) {
@@ -67,7 +66,7 @@ export default class SearchableList extends React.Component {
         }
 
         sort[params.sortBy] = {order: sortOrder};
-        props.searchActions.fetch(props.url, {sort: [sort]});
+        props.searchActions.fetch({sort: [sort]});
         this.setState(newState);
       }
     };
