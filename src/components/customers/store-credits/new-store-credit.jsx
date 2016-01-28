@@ -222,7 +222,6 @@ export default class NewStoreCredit extends React.Component {
               <li className="fc-store-credit-form__controls">
                 <SaveCancel cancelTo="customer-storecredits"
                             cancelParams={{customerId: this.customerId}}
-                            saveClassName="fc-store-credit-form__submit"
                             saveText="Issue Store Credit" />
               </li>
             </ul>
@@ -282,7 +281,6 @@ export default class NewStoreCredit extends React.Component {
               <li className="fc-store-credit-form__controls">
                 <SaveCancel cancelTo="customer-storecredits"
                             cancelParams={{customerId: this.customerId}}
-                            saveClassName="fc-store-credit-form__submit"
                             saveText="Transfer Gift Card to Store Credit" />
               </li>
             </ul>

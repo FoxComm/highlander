@@ -264,12 +264,9 @@ export default class NewGiftCard extends React.Component {
             { this.customerListBlock }
           </fieldset>
           {this.quantitySection}
-          <div className="fc-action-block">
-            <SaveCancel cancelTo="gift-cards"
-                        cancelClassName="fc-action-block-cancel"
-                        saveDisabled={sendToCustomer && customers.length === 0}
-                        saveText="Issue Gift Card" />
-          </div>
+          <SaveCancel cancelTo="gift-cards"
+                      saveDisabled={sendToCustomer && customers.length === 0}
+                      saveText="Issue Gift Card" />
         </form>
       </div>
     );
