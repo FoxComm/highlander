@@ -1,4 +1,9 @@
+
+// libs
 import React, { PropTypes } from 'react';
+import classNames from 'classnames';
+
+// components
 import { IncrementButton, DecrementButton } from '../common/buttons';
 
 const Counter = props => {
@@ -11,6 +16,7 @@ const Counter = props => {
       </div>
       <input
         type="number"
+        className={classNames('fc-counter__input', props.className)}
         {...rest} />
       <div className="fc-input-append">
         <IncrementButton onClick={increaseAction} className="fc-btn-counter" />
