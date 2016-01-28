@@ -30,14 +30,14 @@ const editModeColumns = [
 const OrderLineItems = props => {
   const title = <PanelHeader isCart={props.isCart} status={props.status} text="Items" />;
   const viewContent = (
-    <TableView columns={viewModeColumns} data={{rows: props.order.lineItems.items}} />
+    <TableView columns={viewModeColumns} data={{rows: props.lineItems.items}} />
   );
 
   return (
     <EditableContentBox
       className='fc-line-items'
       title={title}
-      isEditing={props.order.lineItems.isEditing}
+      isEditing={props.lineItems.isEditing}
       editAction={props.orderLineItemsStartEdit}
       doneAction={props.orderLineItemsCancelEdit}
       editContent={<RenderEditContent {...props} />}
@@ -49,6 +49,7 @@ const OrderLineItems = props => {
 OrderLineItems.propTypes = {
   isCart: PropTypes.bool,
   order: PropTypes.object,
+  lineItems: PropTypes.object,
   orderLineItemsStartEdit: PropTypes.func,
   orderLineItemsCancelEdit: PropTypes.func,
   status: PropTypes.string
@@ -69,7 +70,7 @@ class RenderEditContent extends React.Component {
   render() {
     const props = this.props;
     const order = props.order.currentOrder;
-    const lineItemsStatus = props.order.lineItems;
+    const lineItemsStatus = props.lineItems;
 
     const renderRow = (lineItem) => {
       return <OrderLineItem key={`lineItem-${lineItem.sku}`} item={lineItem} {...props} />;
@@ -118,6 +119,7 @@ class RenderEditFooter extends React.Component {
         </div>
         <Typeahead onItemSelected={null}
                    component={SkuResult}
+                   fetchItems={null}
                    items={this.skus}
                    placeholder="Product name or SKU..."/>
       </div>

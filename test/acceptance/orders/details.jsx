@@ -7,6 +7,7 @@ describe('OrderDetails', function() {
 
   it('should render', function() {
     const props = {
+      lineItems: {},
       order: {
         currentOrder: order,
         validations: {}
