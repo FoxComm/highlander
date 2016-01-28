@@ -1,10 +1,13 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
-import DropdownItem from './dropdownItem';
 import { autobind } from 'core-decorators';
 
+import DropdownItem from './dropdownItem';
+
 export default class Dropdown extends React.Component {
+
+  static itemsType = PropTypes.arrayOf(PropTypes.array);
 
   static propTypes = {
     name: PropTypes.string,
@@ -15,8 +18,8 @@ export default class Dropdown extends React.Component {
     open: PropTypes.bool,
     placeholder: PropTypes.string,
     onChange: PropTypes.func,
-    items: PropTypes.object,
-    children: PropTypes.node
+    items: Dropdown.itemsType,
+    children: PropTypes.node,
   };
 
   constructor(...args) {
@@ -29,13 +32,15 @@ export default class Dropdown extends React.Component {
 
   findTitleByValue(value, props) {
     if (props.items) {
-      return props.items[value];
+      const item = _.find(props.items, item => item[0] == value);
+      return item && item[1];
     } else {
       const item = _.findWhere(React.Children.toArray(props.children), {props: {value: value}});
       return item && item.props.children;
     }
   }
 
+  @autobind
   handleToggleClick(event) {
     event.preventDefault();
     this.setState({
@@ -43,6 +48,7 @@ export default class Dropdown extends React.Component {
     });
   }
 
+  @autobind
   handleItemClick(value, title, event) {
     event.preventDefault();
     this.setState({
@@ -57,7 +63,7 @@ export default class Dropdown extends React.Component {
 
   get dropdownButton() {
     return (
-      <div className="fc-dropdown-button" onClick={this.handleToggleClick.bind(this)}>
+      <div className="fc-dropdown__button" onClick={this.handleToggleClick}>
         <i className="icon-chevron-down"></i>
       </div>
     );
@@ -77,9 +83,9 @@ export default class Dropdown extends React.Component {
   render() {
     const classnames = classNames(this.props.className, {
       'fc-dropdown': true,
-      'is_dropdown_primary': this.props.primary,
-      'is_dropdown_editable': this.props.editable,
-      'is_dropdown_open': this.state.open
+      '_primary': this.props.primary,
+      '_editable': this.props.editable,
+      '_open': this.state.open
     });
     const value = this.state.selectedValue || this.props.value;
     const title = this.findTitleByValue(value, this.props);
@@ -87,33 +93,33 @@ export default class Dropdown extends React.Component {
     return (
       <div className={classnames} onBlur={this.onBlur} tabIndex="0">
         {this.props.editable && (
-          <div className="fc-dropdown-controls">
+          <div className="fc-dropdown__controls">
             {this.dropdownButton}
-            <div className="fc-dropdown-value">
+            <div className="fc-dropdown__value">
               <input placeholder={this.props.placeholder} defaultValue={title} key={value}/>
             </div>
           </div>
         ) || (
-          <div className="fc-dropdown-controls" onClick={this.handleToggleClick.bind(this)}>
+          <div className="fc-dropdown__controls" onClick={this.handleToggleClick}>
             {this.dropdownButton}
-            <div className="fc-dropdown-value">
+            <div className="fc-dropdown__value">
               {title || this.props.placeholder}
               <input name={this.props.name} type="hidden" value={value}/>
             </div>
           </div>
         )}
-        <div className="fc-dropdown-items">
-          {this.props.items && _.map(this.props.items, (title, value) => (
-            <DropdownItem value={value} key={value} onClick={this.handleItemClick.bind(this, value, title)}>
+        <ul className="fc-dropdown__items">
+          {this.props.items && _.map(this.props.items, ([value, title]) => (
+            <DropdownItem value={value} key={value} onClick={(event) => this.handleItemClick(value, title, event)}>
               {title}
             </DropdownItem>
           )) || React.Children.map(this.props.children, item => (
               React.cloneElement(item, {
-                onClick: this.handleItemClick.bind(this, item.props.value, item.props.children)
+                onClick: (event) => this.handleItemClick(item.props.value, item.props.children, event)
               })
             )
           )}
-        </div>
+        </ul>
       </div>
     );
   }

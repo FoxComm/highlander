@@ -26,9 +26,9 @@ import * as ScTypesActions from '../../../modules/store-credit-types';
 import * as ReasonsActions from '../../../modules/reasons';
 
 // currency - USD only
-const currencyList = {
-  'USD': 'United States Dollar - USD'
-};
+const currencyList = [
+  ['USD', 'United States Dollar - USD'],
+];
 
 function validateCardCode(code) {
   if (!code) {
@@ -108,10 +108,7 @@ export default class NewStoreCredit extends React.Component {
   }
 
   get scTypes() {
-    return _.reduce(this.props.types, (acc, type) => {
-      acc[type.originType] = codeToName(type.originType);
-      return acc;
-    }, {});
+    return _.map(this.props.types, type => [type.originType, codeToName(type.originType)]);
   }
 
   get scSubtypes() {
@@ -121,10 +118,7 @@ export default class NewStoreCredit extends React.Component {
       const type = _.find(types, 'originType', form.type);
 
       if (type) {
-        return _.reduce(type.subTypes, (acc, type) => {
-          acc[type.originType] = codeToName(type.originType);
-          return acc;
-        }, {});
+        return _.map(type.subTypes, type => [type.originType, codeToName(type.originType)]);
       }
     }
   }

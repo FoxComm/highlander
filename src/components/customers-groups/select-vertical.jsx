@@ -64,6 +64,7 @@ export default class SelectVertical extends React.Component {
   }
 
   render() {
+    const props = this.props;
 
     const AddOrOr = ((isLast) => {
       if (isLast) {
@@ -74,7 +75,7 @@ export default class SelectVertical extends React.Component {
     }).bind(this);
 
     const availableValues = _.difference(_.keys(this.props.options), _.values(this.state.items));
-    const items = availableValues.reduce((r, value) => assoc(r, value, this.props.options[value]), {});
+    const items = availableValues.map(value => [value, props.options[value]]);
 
     function renderSelect(key, index, arr) {
       const isLast = index == arr.length - 1;
@@ -82,7 +83,7 @@ export default class SelectVertical extends React.Component {
 
       let curItems = items;
       if (selectedValue) {
-        curItems = assoc(curItems, selectedValue, this.props.options[selectedValue]);
+        curItems = [...items, [selectedValue, props.options[selectedValue]]];
       }
 
       return (

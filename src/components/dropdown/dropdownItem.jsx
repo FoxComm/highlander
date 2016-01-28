@@ -2,9 +2,9 @@ import React, { PropTypes } from 'react';
 
 const DropdownItem = props => {
   return (
-    <div className="fc-dropdown-item" key={props.value} onClick={props.onClick}>
+    <li className="fc-dropdown__item" key={props.value} onClick={props.onClick}>
       {props.children}
-    </div>
+    </li>
   );
 };
 

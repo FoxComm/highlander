@@ -113,7 +113,7 @@ export default class Order extends React.Component {
     const orderState = (
       <Dropdown
         name="orderState"
-        items={orderStates}
+        items={_.map(orderStates, (value, key) => [value, key])}
         placeholder={'Order state'}
         value={order.orderState}
         onChange={this.onStateChange}

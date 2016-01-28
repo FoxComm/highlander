@@ -17,15 +17,15 @@ import { connect } from 'react-redux';
 import * as StoreCreditsActions from '../../../modules/customers/store-credits';
 import * as ReasonsActions from '../../../modules/reasons';
 
-const activeStateTransitions = {
-  'onHold': 'On Hold',
-  'canceled': 'Cancel Store Credit'
-};
+const activeStateTransitions = [
+  ['onHold', 'On Hold'],
+  ['canceled', 'Cancel Store Credit'],
+];
 
-const onHoldStateTransitions = {
-  'active': 'Active',
-  'canceled': 'Cancel Store Credit'
-};
+const onHoldStateTransitions = [
+  ['active', 'Active'],
+  ['canceled', 'Cancel Store Credit'],
+];
 
 const actions = {
   ...StoreCreditsActions,
@@ -184,13 +184,11 @@ export default class StoreCredits extends React.Component {
   }
 
   get confirmCancellation() {
-    let reasons = {};
-    if (this.props.reasons &&
-        this.props.reasons[this.reasonType]) {
-      reasons = _.reduce(this.props.reasons[this.reasonType], (acc, reason) => {
-        acc[reason.id] = reason.body;
-        return acc;
-      }, {});
+    const props = this.props;
+
+    let reasons = [];
+    if (props.reasons && props.reasons[this.reasonType]) {
+      reasons = _.map(props.reasons[this.reasonType], reason => [reason.id, reason.body]);
     }
     const value = this.props.storeCreditToChange &&
       this.props.storeCreditToChange.reasonId;
