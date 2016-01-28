@@ -38,6 +38,11 @@ const operators = {
   ],
 };
 
+const boolSuggestions = [
+  { display: 'True', operator: 'eq', value: true },
+  { display: 'False', operator: 'eq', value: false },
+];
+
 export function getInputMask(searchTerm) {
   const type = _.get(searchTerm, 'type', '');
 
@@ -79,6 +84,13 @@ export default class SearchTerm {
       this._options = searchTermJson.options.map(o => new SearchTerm(o, this._title));
     } else if (!_.isEmpty(searchTermJson.suggestions)) {
       this._suggestions = searchTermJson.suggestions;
+    }
+
+    // Predefined suggestions or options for some types
+    switch(this._type) {
+      case 'bool':
+        this._suggestions = boolSuggestions;
+        break;
     }
   }
 
