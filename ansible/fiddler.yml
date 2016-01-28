@@ -1,7 +1,0 @@
-- name: Provision Phoenix And Green River
-  hosts: all
-  vars:
-    user: vagrant
-  roles:
-    - phoenix
-    - greenriver
