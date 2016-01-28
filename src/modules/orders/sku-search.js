@@ -9,13 +9,8 @@ const suggestSkus = (phrase) => {
   return actions.doSearch(phrase);
 };
 
-const clearSkuSearch = () => {
-  return actions.clearSearch();
-};
-
 export {
   suggestSkus,
-  clearSkuSearch,
   reducer as default,
   actions
 };

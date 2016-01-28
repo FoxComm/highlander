@@ -13,10 +13,10 @@ const emptyState = {
     from: 0,
     size: 0,
     total: 0,
-    rows: []
+    rows: [],
   },
   filters: [],
-  phrase: ""
+  phrase: "",
 };
 
 function _createAction(namespace, description, ...args) {
@@ -28,7 +28,6 @@ export default function makeQuickSearch(namespace, searchUrl, searchFilters, sea
   const searchSuccess = _createAction(namespace, 'SEARCH_SUCCESS');
   const searchFailure = _createAction(namespace, 'SEARCH_FAILURE', (err, source) => [err, source]);
   const submitSearch = _createAction(namespace, 'SUBMIT_SEARCH', (filters, phrase) => [filters, phrase]);
-  const clearSearch = _createAction(namespace, 'CLEAR_SEARCH');
 
   const url = searchUrl;
   const filters = searchFilters.map(st => new SearchTerm(st));
@@ -61,7 +60,6 @@ export default function makeQuickSearch(namespace, searchUrl, searchFilters, sea
     [searchSuccess]: (state, res) => _searchSuccess(state, res),
     [searchFailure]: (state, [err, source]) => _searchFailure(state, [err, source]),
     [submitSearch]: (state, [filters, phrase]) => _submitSearch(state, filters, phrase),
-    [clearSearch]: (state) => _clearSearch(state)
   }, initialState);
 
   return {
@@ -72,7 +70,6 @@ export default function makeQuickSearch(namespace, searchUrl, searchFilters, sea
       searchSuccess,
       searchFailure,
       submitSearch,
-      clearSearch
     }
   };
 }
@@ -105,8 +102,4 @@ function _submitSearch(state, filters, phrase) {
       ['isFetching'], true,
       ['filters'], filters,
       ['phrase'], phrase);
-}
-
-function _clearSearch(state) {
-  return assoc(state, 'phrase', "");
 }

@@ -109,21 +109,9 @@ class RenderEditFooter extends React.Component {
   componentDidMount() {
   }
 
-  get suggestedSkus() {
-    return _.get(this.props, 'skuSearch.result.rows', []);
-  }
-
-  get isFetching() {
-    return _.get(this.props, 'skuSearch.isFetching', false);
-  }
-
-  get orderSkus() {
-    return _.get(this.props, 'lineItems.items', []);
-  }
-
   @autobind
   currentQuantityForSku(sku) { 
-    let skus = this.orderSkus;
+    let skus = _.get(this.props, 'lineItems.items', []);
     let matched = skus.find((o) => { return o.sku === sku;});
     return _.isEmpty(matched) ? 0 : matched.quantity;
   }
@@ -136,11 +124,11 @@ class RenderEditFooter extends React.Component {
     this.props.clearSkuSearch();
   }
 
-  get query() { 
-    return _.get(this.props, 'skuSearch.phrase', "");
-  }
-
   render() {
+    const suggestedSkus = _.get(this.props, 'skuSearch.result.rows', []);
+    const isFetching = _.get(this.props, 'skuSearch.isFetching', false);
+    const orderSkus = _.get(this.props, 'lineItems.items', []);
+    const query = _.get(this.props, 'skuSearch.phrase', "");
     return (
       <div className="fc-line-items-add">
         <div className="fc-line-items-add-label">
@@ -148,10 +136,10 @@ class RenderEditFooter extends React.Component {
         </div>
         <Typeahead onItemSelected={this.skuSelected}
                    component={SkuResult}
-                   isFetching={this.isFetching}
+                   isFetching={isFetching}
                    fetchItems={this.props.suggestSkus}
-                   items={this.suggestedSkus}
-                   query={this.query}
+                   items={suggestedSkus}
+                   query={query}
                    placeholder="Product name or SKU..."/>
       </div>
     );

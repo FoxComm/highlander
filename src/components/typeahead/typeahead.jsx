@@ -60,7 +60,7 @@ export default class Typeahead extends React.Component {
     if (doHide) {
       this.setState({
         showMenu: false,
-        query: ''
+        query: '',
       });
     }
   }
