@@ -106,7 +106,7 @@ export default class NewGiftCard extends React.Component {
           <label className="fc-new-gift-card__label" htmlFor="subTypeId">Subtype</label>
           <Dropdown value={`${props.subTypeId}`} onChange={ value => props.changeFormData('subTypeId', Number(value)) }>
             {props.subTypes.map((subType, idx) => {
-              return <DropdownItem key={`subType-${idx}`} value={`${props.subTypeId}`}>{subType.title}</DropdownItem>;
+              return <DropdownItem key={`subType-${subType.id}`} value={`${subType.id}`}>{subType.title}</DropdownItem>;
             })}
           </Dropdown>
         </div>
