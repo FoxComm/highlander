@@ -49,8 +49,7 @@ export default class Dropdown extends React.Component {
   }
 
   @autobind
-  handleItemClick(value, title, event) {
-    event.preventDefault();
+  handleItemClick(value, title) {
     this.setState({
       open: false,
       selectedValue: value
@@ -110,12 +109,12 @@ export default class Dropdown extends React.Component {
         )}
         <ul className="fc-dropdown__items">
           {this.props.items && _.map(this.props.items, ([value, title]) => (
-            <DropdownItem value={value} key={value} onClick={(event) => this.handleItemClick(value, title, event)}>
+            <DropdownItem value={value} key={value} onSelect={this.handleItemClick}>
               {title}
             </DropdownItem>
           )) || React.Children.map(this.props.children, item => (
               React.cloneElement(item, {
-                onClick: (event) => this.handleItemClick(item.props.value, item.props.children, event)
+                onSelect: this.handleItemClick,
               })
             )
           )}

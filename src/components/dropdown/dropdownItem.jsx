@@ -1,17 +1,28 @@
 import React, { PropTypes } from 'react';
 
 const DropdownItem = props => {
+  const {value, children, onSelect} = props;
+
+  const handleClick = event => {
+    event.preventDefault();
+    onSelect(value, children);
+  };
+
   return (
-    <li className="fc-dropdown__item" key={props.value} onClick={props.onClick}>
-      {props.children}
+    <li className="fc-dropdown__item" key={value} onClick={handleClick}>
+      {children}
     </li>
   );
 };
 
 DropdownItem.propTypes = {
-  onClick: PropTypes.func,
+  onSelect: PropTypes.func,
   value: PropTypes.string,
-  children: PropTypes.node
+  children: PropTypes.node,
+};
+
+DropdownItem.defaultProps = {
+  onSelect: () => {},
 };
 
 export default DropdownItem;
