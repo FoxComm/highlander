@@ -30,9 +30,14 @@ const selectCurrentCountry = createSelector(
   (countries={}, countryId) => countries[countryId]
 );
 
+const sortCountries = createSelector(
+  state => state.countries,
+  (countries = {}) => _.values(countries).sort((a, b) => a.name < b.name ? -1 : 1)
+);
+
 function mapStateToProps(state, props) {
   return {
-    countries: _.values(state.countries),
+    countries: sortCountries(state),
     country: selectCurrentCountry(state, props),
     formData: {},
     ...state.addressForm[formNamespace(props)]
