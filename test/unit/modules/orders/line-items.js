@@ -15,6 +15,8 @@ const {
   deleteLineItem
 } = requireSource('modules/orders/line-items.js');
 
+const { orderSuccess } = requireSource('modules/orders/details.js');
+
 describe('order details module line items', function() {
 
   const orderLineItems = require('../../../fixtures/order-line-items.json');
@@ -169,6 +171,7 @@ describe('order details module line items', function() {
       it('should trigger delete API calls and proper actions', function*() {
         const expectedActions = [
           orderLineItemsRequest,
+          orderSuccess,
           orderLineItemsRequestSuccess,
           orderLineItemsFetchSuccess
         ];
@@ -180,6 +183,7 @@ describe('order details module line items', function() {
       it('deleteLineItem should trigger line item delete actions', function*() {
         const expectedActions = [
           orderLineItemsRequest,
+          orderSuccess,
           orderLineItemsRequestSuccess,
           orderLineItemsFetchSuccess
         ];

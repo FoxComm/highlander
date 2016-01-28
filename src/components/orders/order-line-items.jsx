@@ -1,12 +1,15 @@
-import React, { PropTypes } from 'react';
 import _ from 'lodash';
+import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
+import React, { PropTypes } from 'react';
+
 import ConfirmationDialog from '../modal/confirmation-dialog';
-import OrderLineItem from './order-line-item';
-import TableView from '../table/tableview';
 import EditableContentBox from '../content-box/editable-content-box';
-import Typeahead from '../typeahead/typeahead';
-import SkuResult from './sku-result';
+import OrderLineItem from './order-line-item';
 import PanelHeader from './panel-header';
+import SkuResult from './sku-result';
+import TableView from '../table/tableview';
+import Typeahead from '../typeahead/typeahead';
 
 const viewModeColumns = [
   {field: 'imagePath', text: 'Image', type: 'image'},
@@ -97,30 +100,45 @@ class RenderEditContent extends React.Component {
 class RenderEditFooter extends React.Component {
 
   static propTypes = {
-    fetchSkus: PropTypes.func,
-    skusActions: PropTypes.shape({
-      skus: PropTypes.array
-    })
+    updateLineItemCount: PropTypes.func,
+    order: PropTypes.object,
+    lineItems: PropTypes.object,
+    skuSearch: PropTypes.object
   };
 
   componentDidMount() {
-     this.props.fetchSkus();
   }
 
-  get skus() {
-    return _.get(this.props, 'skusActions.skus', []);
+  @autobind
+  currentQuantityForSku(sku) { 
+    let skus = _.get(this.props, 'lineItems.items', []);
+    let matched = skus.find((o) => { return o.sku === sku;});
+    return _.isEmpty(matched) ? 0 : matched.quantity;
+  }
+
+  @autobind
+  skuSelected(item) {
+    const order = this.props.order.currentOrder;
+    const newQuantity = this.currentQuantityForSku(item.sku) + 1;
+    this.props.updateLineItemCount(order, item.sku, newQuantity);
   }
 
   render() {
+    const suggestedSkus = _.get(this.props, 'skuSearch.result.rows', []);
+    const isFetching = _.get(this.props, 'skuSearch.isFetching', false);
+    const orderSkus = _.get(this.props, 'lineItems.items', []);
+    const query = _.get(this.props, 'skuSearch.phrase', "");
     return (
       <div className="fc-line-items-add">
         <div className="fc-line-items-add-label">
           <strong>Add Item</strong>
         </div>
-        <Typeahead onItemSelected={null}
+        <Typeahead onItemSelected={this.skuSelected}
                    component={SkuResult}
-                   fetchItems={null}
-                   items={this.skus}
+                   isFetching={isFetching}
+                   fetchItems={this.props.suggestSkus}
+                   items={suggestedSkus}
+                   query={query}
                    placeholder="Product name or SKU..."/>
       </div>
     );
