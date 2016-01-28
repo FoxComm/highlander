@@ -31,7 +31,7 @@ SliderCheckbox.propTypes = {
 
 const Checkbox = props => {
   const className = classNames(
-    'fc-checkbox', 
+    'fc-checkbox',
     {'_inline': props.inline},
     props.className,
   );
