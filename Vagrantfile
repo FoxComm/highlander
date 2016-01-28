@@ -5,7 +5,7 @@ require 'fileutils'
 
 CONFIG = File.join(File.dirname(__FILE__), "vagrant.local.rb")
 
-$vb_memory = 4048
+$vb_memory = 6048
 $vb_cpu = 2
 $backend_ip = "192.168.10.111"
 $ashes_ip = "192.168.10.112"
