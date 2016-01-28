@@ -124,7 +124,7 @@ class RenderEditFooter extends React.Component {
   @autobind
   currentQuantityForSku(sku) { 
     let skus = this.orderSkus;
-    let matched = skus.find((o) => { return o.sku === sku});
+    let matched = skus.find((o) => { return o.sku === sku;});
     return _.isEmpty(matched) ? 0 : matched.quantity;
   }
 
