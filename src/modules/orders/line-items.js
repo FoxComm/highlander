@@ -31,9 +31,9 @@ export function updateLineItemCount(order, sku, quantity, confirmDelete = true) 
       return Api.post(`/orders/${order.referenceNumber}/line-items`, payload)
         .then(
           order => {
-            dispatch(orderSuccess(order.result));
+            dispatch(orderSuccess(order));
             dispatch(orderLineItemsRequestSuccess(sku));
-            dispatch(orderLineItemsFetchSuccess(order.result));
+            dispatch(orderLineItemsFetchSuccess(order));
           },
           err => dispatch(orderLineItemsRequestFailed(err, updateLineItemCount))
         );
