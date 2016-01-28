@@ -111,11 +111,11 @@ const searchTerms = [
       }, {
         title: 'Blacklist Status',
         type: 'bool',
-        term: 'customer.is_blacklisted'
+        term: 'customer.isBlacklisted'
       }, {
         title: 'Date Joined',
         type: 'date',
-        term: 'customer.joined_at'
+        term: 'customer.joinedAt'
       }
     ]
   }, {

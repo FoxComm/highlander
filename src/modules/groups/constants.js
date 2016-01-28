@@ -7,9 +7,9 @@ const criteriaOptions = {
     title: 'Account is guest?',
     type: 'bool'
   },
-  isActive: {
+  isDisabled: {
     title: 'Account is active?',
-    type: 'bool'
+    type: 'bool_inverted'
   },
   ranking: {
     title: 'Rank',

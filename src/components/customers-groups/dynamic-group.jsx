@@ -91,8 +91,8 @@ export default class DynamicGroup extends React.Component {
 
   render() {
     const mainMatchStatuses = {
-      all: 'all',
-      one: 'one',
+      and: 'all',
+      or: 'one',
     };
 
     return (
