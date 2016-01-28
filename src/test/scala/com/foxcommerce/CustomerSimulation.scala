@@ -1,28 +1,31 @@
 package com.foxcommerce
 
-import com.foxcommerce.common.{Config, Customer}
+import com.foxcommerce.common.{Config, Customer, Utils}
 import io.gatling.core.Predef._
 
 class CustomerSimulation extends Simulation {
 
-  val config = Config.load()
+  val conf = Config.load()
 
   before {
-    config.before()
+    conf.before()
   }
 
-  val usersFeeder = jsonFile("data/users.json").random
-
-  val blacklistScenario = scenario("Customer Blacklist")
-    .feed(usersFeeder)
-    .exec(Customer.blacklistAdd(config))
-    .pause(config.greenRiverPause)
-    .exec(Customer.blacklistAssert(config, isBlacklisted = true))
-    .exec(Customer.blacklistRemove(config))
-    .pause(config.greenRiverPause)
-    .exec(Customer.blacklistAssert(config, isBlacklisted = false))
+  val customerScenario = scenario("Customer Scenario")
+    .feed(jsonFile("data/users.json").random)
+    .exec(Customer.create(name = "John Smith", email = Utils.randomEmail("john")))
+    .exec(Customer.update(name = "Max Power"))
+    .exec(Customer.blacklist(isBlacklisted = true))
+    .exec(Customer.disable(isDisabled = true))
+    .pause(conf.greenRiverPause)
+    .exec(Customer.assert(conf, name = "Max Power", isBlacklisted = true, isDisabled = true))
+    .exec(Customer.update(name = "Adil Wali"))
+    .exec(Customer.blacklist(isBlacklisted = false))
+    .exec(Customer.disable(isDisabled = false))
+    .pause(conf.greenRiverPause)
+    .exec(Customer.assert(conf, name = "Adil Wali", isBlacklisted = false, isDisabled = false))
 
   setUp(
-    blacklistScenario.inject(atOnceUsers(config.usersCount)).protocols(config.httpConf)
-  ).assertions(config.defaultAssertion)
+    customerScenario.inject(conf.defaultInjectionProfile).protocols(conf.httpConf)
+  ).assertions(conf.defaultAssertion)
 }

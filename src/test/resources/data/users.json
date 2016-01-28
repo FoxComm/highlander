@@ -1,6 +1,14 @@
 [
-	{
-		"username": "admin@admin.com",
-		"password": "password"
-	}
+  {
+    "email": "admin@admin.com",
+    "password": "password"
+  },
+  {
+    "email": "hackerman@yahoo.com",
+    "password": "password1"
+  },
+  {
+    "email": "admin_hero@xakep.ru",
+    "password": "password2"
+  }
 ]

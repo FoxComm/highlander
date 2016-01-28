@@ -12,9 +12,15 @@ To run all simulations:
 
     $ sbt test
 
-To run all simulations in specific environment (see [application.conf](src/test/resources/application.conf)):
+Configuration options:
 
-    $ sbt -Denv=localhost test
+    * `env` - override environment, see details in [application.conf](src/test/resources/application.conf) (default: `vagrant`)
+    * `users` - number of users injected per simulation (default: 1)
+    * `pause` - pause (in seconds) between Green River synchronization (default: 5)
+
+Example:
+
+    $ sbt -Denv=localhost -Dusers=5 -Dpause=1 test
 
 ## Links
 
