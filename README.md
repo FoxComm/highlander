@@ -25,11 +25,11 @@
 
 Run:
 
-  $ tools/update_greenriver_service.sh
+    $ tools/update_greenriver_service.sh
 
 or:
 
-  $ MACHINE=backend PROVIDER=vmware_fusion tools/update_greenriver_service.sh
+    $ MACHINE=backend PROVIDER=vmware_fusion tools/update_greenriver_service.sh
 
 ### Lint ansible scripts
 
