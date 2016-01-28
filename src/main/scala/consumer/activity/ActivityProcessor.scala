@@ -84,7 +84,7 @@ class ActivityProcessor(conn : PhoenixConnectionInfo, connectors: Seq[ActivityCo
       val activity =  parse(activityJson).extract[Activity]
 
       Console.err.println()
-      Console.err.println(s"Got Activity: ${activity.id}")
+      Console.err.println(s"Got Activity ${activity.activityType} with ID ${activity.id}")
 
       val result = connectors.map { connector ⇒
         for {
@@ -104,7 +104,7 @@ class ActivityProcessor(conn : PhoenixConnectionInfo, connectors: Seq[ActivityCo
 
     private def connectUsingPhoenix(c: Connection) : Future[HttpResponse] = { 
       val uri = s"trails/${c.dimension}/${c.objectId}"
-      Console.err.println(s"${uri}")
+      Console.err.println(s"Requesting ${uri}")
 
       //create append payload
       val append = AppendActivity(c.activityId, c.data)
