@@ -100,14 +100,13 @@
   & input[type=checkbox] + label {
     display: inline-block;
     margin-left: pxtorem(-24px);
-    line-height: pxtorem(24px);
   }
 
   & input[type=checkbox] + label > span {
     display: inline-block;
     width: pxtorem(24px);
     height: pxtorem(24px);
-    margin: 0.25rem 0.5rem 0.25rem 0.25rem;
+    margin: .margin(2.5px);
     border-radius: pxtorem(3px);
     vertical-align: bottom;
     border: 2px solid @color-decor9;
@@ -143,6 +142,22 @@
 
   &._half-checked input[type=checkbox]:checked + label > span:before {
     content: "\e83b";
+  }
+
+  &._inline input[type=checkbox] + label > span {
+    margin: 0;
+  }
+
+  &._inline._docked-left input[type=checkbox] + label > span {
+    border-right: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  &._inline._docked-right input[type=checkbox] + label > span {
+    border-left: none;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
   }
 
   & input[type=checkbox][disabled] + label > span {

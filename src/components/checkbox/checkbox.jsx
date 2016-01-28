@@ -16,6 +16,7 @@ DefaultCheckbox.propTypes = {
   className: PropTypes.string,
 };
 
+
 const SliderCheckbox = props => {
   return (
     <DefaultCheckbox {...props}
@@ -27,16 +28,29 @@ SliderCheckbox.propTypes = {
   className: PropTypes.string,
 };
 
+
 const Checkbox = props => {
+  const className = classNames(
+    'fc-checkbox', 
+    {'_inline': props.inline},
+    props.className,
+  );
+
   return (
     <DefaultCheckbox {...props}
-      className={ classNames('fc-checkbox', props.className) } />
+      className={ className } />
   );
 };
 
 Checkbox.propTypes = {
   className: PropTypes.string,
+  inline: PropTypes.bool,
 };
+
+Checkbox.defaultProps = {
+  inline: false,
+};
+
 
 const HalfCheckbox = props => {
   const className = classNames(
@@ -51,6 +65,7 @@ const HalfCheckbox = props => {
   );
 };
 
+
 HalfCheckbox.propTypes = {
   className: PropTypes.string,
   halfChecked: PropTypes.bool,
@@ -59,6 +74,7 @@ HalfCheckbox.propTypes = {
 HalfCheckbox.defaultProps = {
   halfChecked: false,
 };
+
 
 export {
   SliderCheckbox,
