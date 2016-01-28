@@ -55,7 +55,7 @@ export default class Criterion extends React.Component {
 
     switch(this.props.value.type) {
       case 'date':
-        return <DatePicker onChange={({target}) => this.props.changeValue(target.value)}/>;
+        return <DatePicker onClick={this.props.changeValue}/>;
       case 'number':
         return (<FormField><input onChange={({target}) => this.props.changeValue(target.value)}
                                   type="number"/></FormField>);
