@@ -197,7 +197,8 @@ export default class NewGiftCard extends React.Component {
       balance,
       balanceText,
       sendToCustomer,
-      customers
+      customers,
+      balances
     } = this.props;
 
     return (
@@ -236,7 +237,7 @@ export default class NewGiftCard extends React.Component {
               min="1" />
             <div className="fc-new-gift-card__balances">
               {
-                [1000, 2500, 5000, 10000, 20000].map((balance, idx) => {
+                balances.map((balance, idx) => {
                   return (
                     <div className={
                           classNames('fc-new-gift-card__balance-value', {

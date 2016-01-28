@@ -39,6 +39,7 @@ const initialState = {
   sendToCustomer: false,
   emailCSV: false,
   types: [],
+  balances: [1000, 2500, 5000, 10000, 20000],
 };
 
 export function fetchTypes() {
