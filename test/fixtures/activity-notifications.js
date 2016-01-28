@@ -331,7 +331,7 @@ activities = [...activities,
     createdAt,
     data: {
       newState: 'fraudHold',
-      orders: [
+      orderRefNums: [
         'BR10004',
         'BR10003',
         'BR10001',
@@ -639,7 +639,7 @@ activities = [...activities,
     createdAt,
     data: {
       assignee: customer,
-      orders: [
+      orderRefNums: [
         'BR10001',
         'BR10002',
         'BR10003',
@@ -652,7 +652,7 @@ activities = [...activities,
     createdAt,
     data: {
       assignee: customer,
-      orders: [
+      orderRefNums: [
         'BR10001',
         'BR10002',
         'BR10003',
@@ -702,7 +702,7 @@ activities = [...activities,
     createdAt,
     data: {
       watcher: customer,
-      orders: [
+      orderRefNums: [
         'BR10001',
         'BR10002',
         'BR10003',
@@ -715,7 +715,7 @@ activities = [...activities,
     createdAt,
     data: {
       watcher: customer,
-      orders: [
+      orderRefNums: [
         'BR10001',
         'BR10002',
         'BR10003',
