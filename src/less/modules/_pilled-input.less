@@ -20,6 +20,11 @@
     background-color: @color-decor11;
     display: flex;
     flex-grow: 1;
+
+    &._solid {
+      background-color: @color-white;
+      box-shadow: inset 1px 1px 1px 0 @color-decor58;
+    }
   }
 
   &__input-field {
@@ -27,6 +32,13 @@
     border: none;
     width: 100%;
     .line-height(38px);
+  }
+
+  input.fc-pilled-input__input-field._solid-input {
+    background-color: @color-transparent;
+    box-shadow: none;
+    border: none;
+    border-radius: 0;
   }
 
   &__input-wrapper {

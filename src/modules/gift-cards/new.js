@@ -3,6 +3,7 @@
 import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
+import { assoc } from 'sprout-data';
 
 const _createAction = (desc, ...args) => createAction(`GIFT_CARDS_NEW_${desc}`, ...args);
 
@@ -38,6 +39,7 @@ const initialState = {
   sendToCustomer: false,
   emailCSV: false,
   types: [],
+  balances: [1000, 2500, 5000, 10000, 20000],
 };
 
 export function fetchTypes() {
@@ -52,20 +54,19 @@ export function fetchTypes() {
 
 const reducer = createReducer({
   [changeFormData]: (state, {name, value}) => {
-    const newState = {
-      ...state,
-      [name]: value
-    };
-
     if (name === 'balanceText') {
-      newState.balance = textToBalance(value);
+      return assoc(state,
+        'balance', balanceToText(value),
+        'balanceText', value
+      );
     }
-
     if (name === 'balance') {
-      newState.balanceText = balanceToText(value);
+      return assoc(state,
+        'balanceText', balanceToText(value),
+        'balance', value
+      );
     }
-
-    return newState;
+    return assoc(state, name, value);
   },
   [setSuggestedCustomers]: (state, customers) => {
     return {

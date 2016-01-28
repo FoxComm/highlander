@@ -45,11 +45,19 @@ const iconWrapper = icon => {
 
 const PilledInput = props => {
 
-  const { button, children, className, icon, pills = [], ...rest } = props;
+  const { button, children, className, icon, pills = [], solid, ...rest } = props;
+
+  const containerClass = classNames('fc-pilled-input__input-container', {
+    '_solid': solid
+  });
+
+  const inputClass = classNames('fc-pilled-input__input-field', '_no-fc-behavior', {
+    '_solid-input': solid
+  });
 
   const input = children || (
     <input
-      className="fc-pilled-input__input-field _no-fc-behavior"
+      className={inputClass}
       type="text"
       autoFocus={props.autofocus}
       {...rest} />
@@ -57,7 +65,7 @@ const PilledInput = props => {
 
   return (
     <div className={classNames('fc-pilled-input', className)}>
-      <div className="fc-pilled-input__input-container">
+      <div className={containerClass}>
         <div className="fc-pilled-input__pills-wrapper">
           {pills.map((pill, idx) => {
             return props.formatPill(pill, idx, props);
@@ -83,6 +91,7 @@ PilledInput.propTypes = {
   button: PropTypes.node,
   className: PropTypes.string,
   autofocus: PropTypes.bool,
+  solid: PropTypes.bool,
 };
 
 PilledInput.defaultProps = {
@@ -92,6 +101,7 @@ PilledInput.defaultProps = {
   icon: 'search',
   inputMask: '',
   autofocus: false,
+  solid: false,
 };
 
 export default PilledInput;

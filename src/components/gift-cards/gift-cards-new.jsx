@@ -106,7 +106,7 @@ export default class NewGiftCard extends React.Component {
           <label className="fc-new-gift-card__label" htmlFor="subTypeId">Subtype</label>
           <Dropdown value={`${props.subTypeId}`} onChange={ value => props.changeFormData('subTypeId', Number(value)) }>
             {props.subTypes.map((subType, idx) => {
-              return <DropdownItem key={`subType-${idx}`} value={`${props.subTypeId}`}>{subType.title}</DropdownItem>;
+              return <DropdownItem key={`subType-${subType.id}`} value={`${subType.id}`}>{subType.title}</DropdownItem>;
             })}
           </Dropdown>
         </div>
@@ -132,6 +132,7 @@ export default class NewGiftCard extends React.Component {
 
     return (
       <PilledInput
+        solid={true}
         value={this.state.customersQuery}
         onChange={e => this.setState({customersQuery: e.target.value})}
         pills={customers.map(customer => customer.name)}
@@ -169,17 +170,13 @@ export default class NewGiftCard extends React.Component {
   }
 
   get quantitySection() {
-    if (this.props.sendToCustomer) {
-      return null;
-    }
-
     const changeQuantity = (event, amount) => {
       event.preventDefault();
       this.props.changeQuantity(this.props.quantity + amount);
     };
 
     return (
-      <fieldset>
+      <fieldset className="fc-new-gift-card__fieldset">
         <label className="fc-new-gift-card__label" htmlFor="quantity">Quantity</label>
         <Counter
           id="quantity"
@@ -200,7 +197,8 @@ export default class NewGiftCard extends React.Component {
       balance,
       balanceText,
       sendToCustomer,
-      customers
+      customers,
+      balances
     } = this.props;
 
     return (
@@ -208,12 +206,10 @@ export default class NewGiftCard extends React.Component {
         <header className="fc-col-md-1-1">
           <h1>Issue New Gift Card</h1>
         </header>
-        <form action="/gift-cards"
-              method="POST"
-              className="fc-form-vertical fc-col-md-1-1"
+        <Form className="fc-form-vertical fc-col-md-1-1"
               onSubmit={this.submitForm}
               onChange={this.onChangeValue}>
-          <div className="fc-grid fc-grid-no-gutter">
+          <div className="fc-grid fc-grid-no-gutter fc-new-gift-card__fieldset">
             <div className="fc-new-gift-card__types fc-col-md-1-2">
               <label className="fc-new-gift-card__label" htmlFor="originType">Gift Card Type</label>
               <Dropdown value={originType} onChange={value => changeFormData('originType', value) }>
@@ -227,12 +223,13 @@ export default class NewGiftCard extends React.Component {
             </div>
             {this.subTypes}
           </div>
-          <fieldset>
+          <fieldset className="fc-new-gift-card__fieldset fc-new-gift-card__amount">
             <label className="fc-new-gift-card__label" htmlFor="value">Value</label>
             <PrependInput
               icon="usd"
               inputClass="_no-counters"
               inputName="balance"
+              inputNamePretty="balanceText"
               inputType="number"
               inputValue={balance}
               inputValuePretty={balanceText}
@@ -240,7 +237,7 @@ export default class NewGiftCard extends React.Component {
               min="1" />
             <div className="fc-new-gift-card__balances">
               {
-                [1000, 2500, 5000, 10000, 20000].map((balance, idx) => {
+                balances.map((balance, idx) => {
                   return (
                     <div className={
                           classNames('fc-new-gift-card__balance-value', {
@@ -256,18 +253,18 @@ export default class NewGiftCard extends React.Component {
               }
             </div>
           </fieldset>
-          <fieldset>
+          {this.quantitySection}
+          <fieldset className="fc-new-gift-card__fieldset">
             <label className="fc-new-gift-card__label">
               <Checkbox id="sendToCustomer" name="sendToCustomer" checked={sendToCustomer} />
               Send gift card(s) to customer(s)
             </label>
             { this.customerListBlock }
           </fieldset>
-          {this.quantitySection}
           <SaveCancel cancelTo="gift-cards"
                       saveDisabled={sendToCustomer && customers.length === 0}
                       saveText="Issue Gift Card" />
-        </form>
+        </Form>
       </div>
     );
   }
