@@ -41,7 +41,10 @@ PrependInput.propTypes = {
   inputName: PropTypes.string.isRequired,
   inputNamePretty: PropTypes.string,
   inputType: PropTypes.string,
-  inputValue: PropTypes.string.isRequired,
+  inputValue: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number
+  ]).isRequired,
   inputValuePretty: PropTypes.string
 };
 
