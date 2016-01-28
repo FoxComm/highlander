@@ -37,7 +37,6 @@ const mapDispatchToProps = {...orderActions, ...lineItemActions, ...skuSearchAct
 export default class Order extends React.Component {
   static propTypes = {
     params: PropTypes.shape({
-      lineItems: PropTypes.string.isRequired,
       order: PropTypes.string.isRequired
     }).isRequired,
     lineItems: PropTypes.object,

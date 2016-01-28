@@ -80,6 +80,7 @@ const initialState = {
   validations: {
     errors: [],
     warnings: [],
+    itemsStatus: 'success',
     shippingAddressStatus: 'success',
     shippingMethodStatus: 'success',
     paymentMethodStatus: 'success'

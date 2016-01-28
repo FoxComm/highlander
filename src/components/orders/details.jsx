@@ -18,14 +18,13 @@ const OrderDetails = props => {
     const isCart = _.isEqual(order.orderState, 'cart');
 
     const {
+      errors,
+      warnings,
+      itemsStatus,
       shippingAddressStatus,
       shippingMethodStatus,
       paymentMethodStatus
     } = props.order.validations;
-
-    const itemsStatus = props.lineItems.validations.itemsStatus;
-    const warnings = props.order.validations.warnings.concat(props.lineItems.validations.warnings);
-    const errors = props.order.validations.errors.concat(props.lineItems.validations.errors);
 
     return (
       <div className="fc-order-details">
