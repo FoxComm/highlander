@@ -53,7 +53,7 @@ final case class FailedToConnectActivity (
   dimension: String,
   objectId: String,
   reason: String) 
-  extends RuntimeException(s"Failed to connect activity ${activityId} to dimension '${dimension}' and object ${objectId} because: ${reason}")
+  extends RuntimeException(s"Failed to connect activity $activityId to dimension '$dimension' and object $objectId because: $reason")
 
 final case class FailedToConnectNotification(
   activityId: Int,
@@ -104,7 +104,7 @@ class ActivityProcessor(conn : PhoenixConnectionInfo, connectors: Seq[ActivityCo
 
     private def connectUsingPhoenix(c: Connection) : Future[HttpResponse] = { 
       val uri = s"trails/${c.dimension}/${c.objectId}"
-      Console.err.println(s"Requesting ${uri}")
+      Console.err.println(s"Requesting Phoenix $uri")
 
       //create append payload
       val append = AppendActivity(c.activityId, c.data)

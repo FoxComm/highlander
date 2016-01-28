@@ -72,8 +72,8 @@ final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
   }
 
   private def queryPhoenixForConnection(id: BigInt) : Future[String] = {
-    val uri = s"connections/${id}"
-    Console.err.println(uri)
+    val uri = s"connections/$id"
+    Console.err.println(s"Requesting Phoenix $uri")
 
     phoenix.get(uri).map { _.bodyText}
   }
