@@ -38,6 +38,7 @@ function isNestedFilter(filter) {
 
 export function toQuery(filters, options = {}) {
   const { phrase, useQueryFilters, joinWith } = options;
+
   const esFilters = _.chain(filters).map(filter => {
     return isNestedFilter(filter)
       ? createNestedFilter(filter)
@@ -69,6 +70,7 @@ function phrasePrefixQuery(phrase, field = "_all") {
 
 function createFilter(filter, boolFn, rangeFn) {
   const { selectedTerm, selectedOperator, value: { type, value } } = filter;
+
   switch(type) {
     case 'bool':
       return boolFn(selectedTerm, value);
@@ -90,7 +92,7 @@ function createNestedFilter(filter) {
   const path = term.slice(0, term.lastIndexOf('.'));
   const query = createFilter(
     filter,
-    (term, operator, value) => ejs.MatchQuery(term, value),
+    ejs.MatchQuery,
     rangeToQuery
   );
 
