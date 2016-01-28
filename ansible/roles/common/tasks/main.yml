@@ -11,6 +11,7 @@
     - debconf-utils
     - jq
     - make
+    - python-httplib2
     - python-software-properties
     - software-properties-common
     - tmux
