@@ -21,6 +21,16 @@
     $ make build
     ```
 
+### Update Green River assembly
+
+Run:
+
+  $ tools/update_greenriver_service.sh
+
+or:
+
+  $ MACHINE=backend PROVIDER=vmware_fusion tools/update_greenriver_service.sh
+
 ### Lint ansible scripts
 
     $ make lint
@@ -44,9 +54,9 @@ This will bring up a machine on 192.168.10.111 with just the db, phoenix and gre
 
     $ vagrant up ashes
 
-This will bring up a machine on 192.168.10.112 with ashes installed. 
-By default it looks for the backed at '192.168.10.111'. If you want to 
-change this you can set the environtment variable 'BACKEND_HOST'. 
+This will bring up a machine on 192.168.10.112 with ashes installed.
+By default it looks for the backed at '192.168.10.111'. If you want to
+change this you can set the environtment variable 'BACKEND_HOST'.
 
 export BACKEND_HOST=10.240.0.8
 
@@ -67,4 +77,3 @@ Set the following environment variables.
 Then run
 
     $ vagrant up --provider=google
-
