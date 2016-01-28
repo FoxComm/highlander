@@ -4,7 +4,8 @@ import { createAction, createReducer } from 'redux-act';
 import { assoc, get, dissoc, merge, update } from 'sprout-data';
 import { criteriaOptions, criteriaOperators } from './constants';
 import { fetchRegions } from '../regions';
-import { groupCount, groupCriteriaToRequest } from '../../elastic/customers';
+import { groupCount } from '../../elastic/customers';
+import { toQuery } from '../../elastic/common';
 import { addGroup } from './list';
 
 //<editor-fold desc="funcs">
@@ -184,7 +185,7 @@ export function saveQuery(groupId) {
       name: state.name,
       clientState: dumpState(state),
       customersCount: state.searchResultsLength,
-      elasticRequest: groupCriteriaToRequest(state.criterions, state.matchCriteria),
+      elasticRequest: toQuery(state.criterions, {joinWith: state.matchCriteria}),
     };
     let response;
     if (groupId) {

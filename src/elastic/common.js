@@ -72,6 +72,8 @@ function createFilter(filter, boolFn, rangeFn) {
   switch(type) {
     case 'bool':
       return boolFn(selectedTerm, value);
+    case 'bool_inverted':
+      return boolFn(selectedTerm, !value);
     case 'currency':
     case 'enum':
     case 'number':
