@@ -13,6 +13,7 @@
     - make
     - python-software-properties
     - software-properties-common
+    - python-httplib2
     - tmux
     - htop
     - unzip
