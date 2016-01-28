@@ -39,10 +39,10 @@ export function groupCriteriaToRequest(criteria, match) {
 
   let matchFilter;
   switch(match) {
-    case 'one':
+    case 'or':
       matchFilter = ejs.OrFilter;
       break;
-    case 'all':
+    case 'and':
     default:
       matchFilter = ejs.AndFilter;
       break;
@@ -55,7 +55,8 @@ export function groupCriteriaToRequest(criteria, match) {
 }
 
 export function groupCount(criteria, match) {
-  const req = groupCriteriaToRequest(criteria, match);
+  //const req = groupCriteriaToRequest(criteria, match);
+  const req = toQuery(criteria, {joinWith: match, useQueryFilters: true});
   return newClient().count(_.merge(customersStartOpts, {
       body: req,
       requestTimeout: 1000,
@@ -64,7 +65,8 @@ export function groupCount(criteria, match) {
 }
 
 export function groupSearch(criteria, match) {
-  const req = groupCriteriaToRequest(criteria, match);
+  //const req = groupCriteriaToRequest(criteria, match);
+  const req = toQuery(criteria, {joinWith: match});
   return newClient().search(_.merge(customersStartOpts, {
       body: req
     }
