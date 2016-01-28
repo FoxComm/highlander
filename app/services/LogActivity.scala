@@ -49,20 +49,14 @@ object LogActivity {
     Activities.log(UnassignedFromOrder(buildAdmin(admin), order, buildAdmin(assignee)))
   }
 
-  def bulkAssignedToOrders(admin: StoreAdmin, assignee: Option[StoreAdmin], assigneeId: Int, orderRefNums: Seq[String])
-    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = assignee match {
-    case Some(a) ⇒
-      Activities.log(BulkAssignedToOrders(buildAdmin(admin), buildAdmin(a), orderRefNums))
-    case _ ⇒
-      DbResult.failure(NotFoundFailure404(StoreAdmin, assigneeId))
+  def bulkAssignedToOrders(admin: StoreAdmin, assignee: StoreAdmin, orderRefNums: Seq[String])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(BulkAssignedToOrders(buildAdmin(admin), buildAdmin(assignee), orderRefNums))
   }
 
-  def bulkUnassignedFromOrders(admin: StoreAdmin, assignee: Option[StoreAdmin], assigneeId: Int, orderRefNums: Seq[String])
-    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = assignee match {
-    case Some(a) ⇒
-      Activities.log(BulkUnassignedFromOrders(buildAdmin(admin), buildAdmin(a), orderRefNums))
-    case _ ⇒
-      DbResult.failure(NotFoundFailure404(StoreAdmin, assigneeId))
+  def bulkUnassignedFromOrders(admin: StoreAdmin, assignee: StoreAdmin, orderRefNums: Seq[String])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(BulkUnassignedFromOrders(buildAdmin(admin), buildAdmin(assignee), orderRefNums))
   }
 
   /* Watchers */
@@ -76,20 +70,14 @@ object LogActivity {
     Activities.log(RemovedWatcherFromOrder(buildAdmin(admin), order, buildAdmin(watcher)))
   }
 
-  def bulkAddedWatcherToOrders(admin: StoreAdmin, assignee: Option[StoreAdmin], watcherId: Int, orderRefNums: Seq[String])
-    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = assignee match {
-    case Some(a) ⇒
-      Activities.log(BulkAddedWatcherToOrders(buildAdmin(admin), buildAdmin(a), orderRefNums))
-    case _ ⇒
-      DbResult.failure(NotFoundFailure404(StoreAdmin, watcherId))
+  def bulkAddedWatcherToOrders(admin: StoreAdmin, assignee: StoreAdmin, orderRefNums: Seq[String])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(BulkAddedWatcherToOrders(buildAdmin(admin), buildAdmin(assignee), orderRefNums))
   }
 
-  def bulkRemovedWatcherFromOrders(admin: StoreAdmin, assignee: Option[StoreAdmin], watcherId: Int, orderRefNums: Seq[String])
-    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = assignee match {
-    case Some(a) ⇒
-      Activities.log(BulkRemovedWatcherFromOrders(buildAdmin(admin), buildAdmin(a), orderRefNums))
-    case _ ⇒
-      DbResult.failure(NotFoundFailure404(StoreAdmin, watcherId))
+  def bulkRemovedWatcherFromOrders(admin: StoreAdmin, assignee: StoreAdmin, orderRefNums: Seq[String])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(BulkRemovedWatcherFromOrders(buildAdmin(admin), buildAdmin(assignee), orderRefNums))
   }
 
   /* Customers */

@@ -165,7 +165,7 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
       response.status must === (StatusCodes.OK)
 
       val searchWithWarnings = response.withResultTypeOf[SharedSearch]
-      searchWithWarnings.warnings.value must === (List(NotFoundFailure404(StoreAdmin, 999).description))
+      searchWithWarnings.errors.value must === (List(NotFoundFailure404(StoreAdmin, 999).description))
     }
 
     "do not create duplicate records" in new AssociateBaseFixture {

@@ -1,7 +1,7 @@
 import akka.http.scaladsl.model.StatusCodes
 
 import org.scalatest.mock.MockitoSugar
-import responses.{ResponsePagingMetadata, ResponseWithFailuresAndMetadata, ResponseItem}
+import responses.{TheResponse, PaginationMetadata, ResponseItem}
 import util.IntegrationTestBase
 import utils.CustomDirectives
 
@@ -27,15 +27,14 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
     val itemsSorted: IndexedSeq[T] = responseItemsSort(items)
   }
 
-  implicit class ResponseWithFailuresAndMetadataChecks[A <: AnyRef](resp: ResponseWithFailuresAndMetadata[Seq[A]]) {
+  implicit class TheResponseMetadataChecks[A <: AnyRef](resp: TheResponse[Seq[A]]) {
     def checkSortingAndPagingMetadata(sortBy: String, from: Int, size: Int, resultSize: Int, total:
-        Option[Int] = None): ResponseWithFailuresAndMetadata[Seq[A]] = {
+        Option[Int] = None): TheResponse[Seq[A]] = {
       resp.checkSortingMetadata(sortBy).checkPagingMetadata(from, size, resultSize, total)
       resp
     }
 
-    def checkPagingMetadata(from: Int, size: Int, resultSize: Int, total:
-        Option[Int] = None): ResponseWithFailuresAndMetadata[Seq[A]] = {
+    def checkPagingMetadata(from: Int, size: Int, resultSize: Int, total: Option[Int] = None): TheResponse[Seq[A]] = {
       resp.result.size must === (resultSize)
       resp.pagination must be ('defined)
       resp.pagination.value.from must be ('defined)
@@ -49,7 +48,7 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
       resp
     }
 
-    def checkSortingMetadata(sortBy: String): ResponseWithFailuresAndMetadata[Seq[A]] = {
+    def checkSortingMetadata(sortBy: String): TheResponse[Seq[A]] = {
       resp.sorting must be ('defined)
       resp.sorting.value.sortBy must be ('defined)
       resp.sorting.value.sortBy.value must === (sortBy)
@@ -62,13 +61,13 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
     "sort by a column without paging" in new SortingAndPagingFixture {
       val response = GET(s"$uriPrefix?sortBy=$sortColumnName")
       response.status must === (StatusCodes.OK)
-      val respWithMetadata = response.as[ResponseWithFailuresAndMetadata[Seq[T]]]
+      val respWithMetadata = response.withResultTypeOf[Seq[T]]
       respWithMetadata.result must === (itemsSorted)
 
       respWithMetadata.sorting must be ('defined)
       respWithMetadata.sorting.value.sortBy must be ('defined)
       respWithMetadata.sorting.value.sortBy.value must === (sortColumnName)
-      respWithMetadata.pagination must === (Some(ResponsePagingMetadata(Some(0),Some(CustomDirectives.DefaultPageSize),
+      respWithMetadata.pagination must === (Some(PaginationMetadata(Some(0),Some(CustomDirectives.DefaultPageSize),
         Some(1),Some(30))))
     }
 
@@ -76,7 +75,7 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
       val response = GET(s"$uriPrefix?sortBy=$sortColumnName&from=12&size=6")
 
       response.status must === (StatusCodes.OK)
-      val respWithMetadata = response.as[ResponseWithFailuresAndMetadata[Seq[T]]]
+      val respWithMetadata = response.withResultTypeOf[Seq[T]]
       respWithMetadata.result must === (itemsSorted.drop(12).take(6))
 
       respWithMetadata.checkSortingAndPagingMetadata(sortColumnName, 12, 6, 6, Some(30))
@@ -86,21 +85,21 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
       val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&from=999&size=3")
 
       responseList.status must === (StatusCodes.OK)
-      responseList.as[ResponseWithFailuresAndMetadata[Seq[T]]].result must === (Seq.empty)
+      responseList.ignoreFailuresAndGiveMe[Seq[T]] must === (Seq.empty)
     }
 
     "sort by a column with paging #3" in new SortingAndPagingFixture {
       val responseList = GET(s"$uriPrefix?sortBy=$sortColumnName&from=0&size=999")
 
       responseList.status must === (StatusCodes.OK)
-      responseList.as[ResponseWithFailuresAndMetadata[Seq[T]]].result must === (itemsSorted)
+      responseList.ignoreFailuresAndGiveMe[Seq[T]] must === (itemsSorted)
     }
 
     "sort by a column in a reverse order with paging" in new SortingAndPagingFixture {
       val responseList = GET(s"$uriPrefix?sortBy=-$sortColumnName&from=12&size=6")
 
       responseList.status must === (StatusCodes.OK)
-      responseList.as[ResponseWithFailuresAndMetadata[Seq[T]]].result must === (itemsSorted.reverse.drop(12).take(6))
+      responseList.ignoreFailuresAndGiveMe[Seq[T]] must === (itemsSorted.reverse.drop(12).take(6))
     }
 
     "error on invalid from param #1" in new SortingAndPagingFixture {

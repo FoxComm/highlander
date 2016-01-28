@@ -11,7 +11,7 @@ StoreCreditManuals, StoreCreditSubtype, StoreCreditSubtypes, StoreCredits}
 import payloads.StoreCreditUpdateStatusByCsr
 import responses.StoreCreditBulkResponse._
 import responses.StoreCreditResponse._
-import responses.{StoreCreditResponse, StoreCreditSubTypesResponse}
+import responses.{TheResponse, StoreCreditResponse, StoreCreditSubTypesResponse}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT
@@ -31,7 +31,7 @@ object StoreCreditService {
     }.run())
 
   def findAllByCustomer(customerId: Int)
-    (implicit db: Database, ec: ExecutionContext, sp: SortAndPage): Result[ResponseWithMetadata[WithTotals]] = (for {
+    (implicit db: Database, ec: ExecutionContext, sp: SortAndPage): Result[TheResponse[WithTotals]] = (for {
 
     _           ← * <~ Customers.mustFindById(customerId)
     query       = StoreCredits.findAllByCustomerId(customerId)
@@ -40,12 +40,9 @@ object StoreCreditService {
     sc          ← * <~ query.result.map(StoreCreditResponse.build).toXor
     totals      ← * <~ fetchTotalsForCustomer(customerId).toXor
     withTotals  = WithTotals(storeCredits = sc, totals = totals)
-    response    ← * <~ ResultWithMetadata(result = DbResult.good(withTotals), metadata = paginated.metadata)
+    response    ← * <~ ResultWithMetadata(result = DbResult.good(withTotals), metadata = paginated.metadata).toTheResponse
 
-  } yield response).value.run().flatMap {
-    case Xor.Left(f)    ⇒ Result.failures(f)
-    case Xor.Right(res) ⇒ res.asResponseFuture.flatMap(Result.good)
-  }
+  } yield response).run()
 
   def totalsForCustomer(customerId: Int)
     (implicit db: Database, ec: ExecutionContext): Result[StoreCreditResponse.Totals] = (for {

@@ -5,7 +5,7 @@ import models.Rma.Canceled
 import models.{Customers, Orders, Reason, Reasons, Rma, Rmas, StoreAdmin}
 import payloads.{RmaCreatePayload, RmaMessageToCustomerPayload, RmaUpdateStatusPayload}
 import responses.RmaResponse._
-import responses.{RmaResponse, AllRmas, CustomerResponse, StoreAdminResponse}
+import responses.{TheResponse, RmaResponse, AllRmas, CustomerResponse, StoreAdminResponse}
 import services.rmas.Helpers._
 import services.{InvalidCancellationReasonFailure, Result}
 import slick.driver.PostgresDriver.api._
@@ -71,18 +71,14 @@ object RmaService {
   } yield response).run()
 
   def findByOrderRef(refNum: String)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Future[ResultWithMetadata[Seq[AllRmas.Root]]] =
-    // FIXME #714
-    db.run(Orders.mustFindByRefNum(refNum).map {
-      case Xor.Right(order) ⇒ RmaQueries.findAll(Rmas.findByOrderRefNum(refNum))
-      case Xor.Left(failures) ⇒ ResultWithMetadata.fromFailures(failures)
-    })
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[BulkRmaUpdateResponse] = (for {
+    order ← * <~ Orders.mustFindByRefNum(refNum)
+    rmas  ← * <~ RmaQueries.findAllDbio(Rmas.findByOrderRefNum(refNum))
+  } yield rmas).run()
 
   def findByCustomerId(customerId: Int)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Future[ResultWithMetadata[Seq[AllRmas.Root]]] =
-    // FIXME #714
-    db.run(Customers.mustFindById(customerId).map {
-      case Xor.Right(customer) ⇒ RmaQueries.findAll(Rmas.findByCustomerId(customerId))
-      case Xor.Left(failures) ⇒ ResultWithMetadata.fromFailures(failures)
-    })
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[BulkRmaUpdateResponse] = (for {
+    _    ← * <~ Customers.mustFindById(customerId)
+    rmas ← * <~ RmaQueries.findAllDbio(Rmas.findByCustomerId(customerId))
+  } yield rmas).run()
 }

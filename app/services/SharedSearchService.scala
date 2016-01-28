@@ -8,6 +8,7 @@ import models.activity.ActivityContext
 import models.{StoreAdmins, SharedSearch, SharedSearches, SharedSearchAssociation, SharedSearchAssociations, StoreAdmin}
 import payloads.SharedSearchPayload
 import responses.{StoreAdminResponse, TheResponse}
+import services.Util.diffToFailures
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -56,10 +57,10 @@ object SharedSearchService {
     newAssociations = adminIds.diff(associates.map(_.id))
       .map(adminId ⇒ SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = adminId))
     _               ← * <~ SharedSearchAssociations.createAll(newAssociations)
-    warnings        = Failures(requestedAssigneeIds.diff(adminIds).map(NotFoundFailure404(StoreAdmin, _)): _*)
+    notFoundAdmins  = diffToFailures(requestedAssigneeIds, adminIds, StoreAdmin)
     assignedAdmins  = associates.filter(a ⇒ newAssociations.map(_.storeAdminId).contains(a.id))
     _               ← * <~ LogActivity.associatedWithSearch(admin, search, assignedAdmins)
-  } yield TheResponse.build(search, warnings = warnings)).runTxn()
+  } yield TheResponse.build(search, errors = notFoundAdmins)).runTxn()
 
   def unassociate(admin: StoreAdmin, code: String, assigneeId: Int)
     (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[SharedSearch] = (for {

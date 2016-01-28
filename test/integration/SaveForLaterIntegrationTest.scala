@@ -3,8 +3,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import models.{Customer, SaveForLater, SaveForLaters, _}
-import responses.ResponseWithFailuresAndMetadata.SavedForLater
 import responses.SaveForLaterResponse
+import services.SaveForLaterManager.SavedForLater
 import services.{AlreadySavedForLater, NotFoundFailure404}
 import util.IntegrationTestBase
 import utils.DbResultT._

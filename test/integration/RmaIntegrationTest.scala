@@ -10,8 +10,7 @@ RmaLockEvents, RmaReason, RmaReasons, Rmas, Shipments, ShippingMethods, Skus, St
 import org.json4s.jackson.JsonMethods._
 import payloads.{RmaAssigneesPayload, RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCustomerPayload,
 RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload}
-import responses.RmaResponse.FullRmaWithWarnings
-import responses.{AllRmas, ResponseWithFailuresAndMetadata, RmaLockResponse, RmaResponse, StoreAdminResponse}
+import responses.{TheResponse, AllRmas, RmaLockResponse, RmaResponse, StoreAdminResponse}
 import services.rmas.{RmaLineItemUpdater, RmaLockUpdater}
 import services.{RmaAssigneeNotFound, GeneralFailure, InvalidCancellationReasonFailure, LockedFailure,
 NotFoundFailure400, NotFoundFailure404, NotLockedFailure}
@@ -35,9 +34,9 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = GET(s"v1/rmas")
         response.status must ===(StatusCodes.OK)
 
-        val root = response.as[ResponseWithFailuresAndMetadata[Seq[AllRmas.Root]]]
-        root.result.size must === (1)
-        root.result.head.referenceNumber must ===(rma.refNum)
+        val root = response.ignoreFailuresAndGiveMe[Seq[AllRmas.Root]]
+        root.size must === (1)
+        root.head.referenceNumber must ===(rma.refNum)
       }
     }
 
@@ -46,9 +45,9 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = GET(s"v1/rmas/customer/${customer.id}")
         response.status must ===(StatusCodes.OK)
 
-        val root = response.as[ResponseWithFailuresAndMetadata[Seq[AllRmas.Root]]]
-        root.result.size must === (1)
-        root.result.head.referenceNumber must ===(rma.refNum)
+        val root = response.ignoreFailuresAndGiveMe[Seq[AllRmas.Root]]
+        root.size must === (1)
+        root.head.referenceNumber must ===(rma.refNum)
       }
 
       "should return failure for non-existing customer" in new Fixture {
@@ -63,9 +62,9 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = GET(s"v1/rmas/order/${order.refNum}")
         response.status must ===(StatusCodes.OK)
 
-        val root = response.as[ResponseWithFailuresAndMetadata[Seq[AllRmas.Root]]]
-        root.result.size must === (1)
-        root.result.head.referenceNumber must ===(rma.refNum)
+        val root = response.ignoreFailuresAndGiveMe[Seq[AllRmas.Root]]
+        root.size must === (1)
+        root.head.referenceNumber must ===(rma.refNum)
       }
 
       "should return failure for non-existing order" in new Fixture {
@@ -283,9 +282,8 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/rmas/${rma.referenceNumber}/assignees", RmaAssigneesPayload(Seq(storeAdmin.id)))
         response.status must === (StatusCodes.OK)
 
-        val fullRmaWithWarnings = parse(response.bodyText).extract[FullRmaWithWarnings]
-        fullRmaWithWarnings.rma.assignees must not be empty
-        fullRmaWithWarnings.rma.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(storeAdmin))
+        val fullRmaWithWarnings = response.withResultTypeOf[RmaResponse.Root]
+        fullRmaWithWarnings.result.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(storeAdmin)))
         fullRmaWithWarnings.warnings mustBe empty
       }
 
@@ -304,15 +302,15 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/rmas/${rma.referenceNumber}/assignees", RmaAssigneesPayload(Seq(1, 999)))
         response.status must === (StatusCodes.OK)
 
-        val fullRmaWithWarnings = parse(response.bodyText).extract[FullRmaWithWarnings]
-        fullRmaWithWarnings.rma.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(storeAdmin))
-        fullRmaWithWarnings.warnings mustBe Seq(NotFoundFailure404(StoreAdmin, 999))
+        val fullRmaWithWarnings = response.withResultTypeOf[RmaResponse.Root]
+        fullRmaWithWarnings.result.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(storeAdmin)))
+        fullRmaWithWarnings.errors.value must === (Seq(NotFoundFailure404(StoreAdmin, 999).description))
       }
 
       "can be viewed with RMA" in new Fixture {
         val response1 = GET(s"v1/rmas/${rma.referenceNumber}")
         response1.status must === (StatusCodes.OK)
-        val responseOrder1 = parse(response1.bodyText).extract[RmaResponse.Root]
+        val responseOrder1 = response1.as[RmaResponse.Root]
         responseOrder1.assignees mustBe empty
 
         POST(s"v1/rmas/${rma.referenceNumber}/assignees", RmaAssigneesPayload(Seq(storeAdmin.id)))
@@ -320,8 +318,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         response2.status must === (StatusCodes.OK)
 
         val responseRma2 = parse(response2.bodyText).extract[RmaResponse.Root]
-        responseRma2.assignees must not be empty
-        responseRma2.assignees.map(_.assignee) mustBe Seq(StoreAdminResponse.build(storeAdmin))
+        responseRma2.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(storeAdmin)))
       }
 
       "do not create duplicate records" in new Fixture {
@@ -338,7 +335,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = DELETE(s"v1/rmas/${rma.referenceNumber}/assignees/${storeAdmin.id}")
         response.status must === (StatusCodes.OK)
 
-        val root = response.as[RmaResponse.Root]
+        val root = response.ignoreFailuresAndGiveMe[RmaResponse.Root]
         root.assignees.filter(_.assignee.id == storeAdmin.id) mustBe empty
 
         RmaAssignments.byRma(rma).result.run().futureValue mustBe empty

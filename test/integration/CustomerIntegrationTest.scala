@@ -12,7 +12,6 @@ import org.scalatest.mock.MockitoSugar
 import payloads.CreateAddressPayload
 import responses.CreditCardsResponse.{Root => CardResponse}
 import responses.{FullOrder, CustomerResponse}
-import services.CartFailures.CustomerHasNoActiveOrder
 import services.CreditCardFailure.StripeFailure
 import services.orders.OrderPaymentUpdater
 import services.{CannotUseInactiveCreditCard, CreditCardManager, CustomerEmailNotUnique, GeneralFailure, NotFoundFailure404, Result}
@@ -22,10 +21,9 @@ import utils.DbResultT.implicits._
 import utils.Money.Currency
 import utils.Slick.implicits._
 import utils.jdbc._
-import utils.seeds.Seeds
 import utils.seeds.Seeds.Factories
 import utils.seeds.SeedsGenerator.generateCustomer
-import utils.{Apis, CustomDirectives, StripeApi}
+import utils.{Apis, StripeApi}
 import Extensions._
 import slick.driver.PostgresDriver.api._
 import util.SlickSupport.implicits._
@@ -86,31 +84,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
 
       response.status must === (StatusCodes.OK)
-      response.as[CustomerResponse.Root#ResponseMetadataSeq].result must === (Seq(customerRoot))
-    }
-
-    "returns only 2 customers" in new Fixture {
-      pendingUntilFixed {
-        Customers.createAll((1 to 3).map { _ ⇒ generateCustomer }).run().futureValue.rightVal
-
-        val response = GET(s"$uriPrefix?size=2")
-        val customers = response.as[CustomerResponse.Root#ResponseMetadataSeq]
-
-        response.status must ===(StatusCodes.OK)
-        customers.checkPagingMetadata(from = 0, size = 2, resultSize = 2)
-      }
-    }
-
-    "count of requested customers should be limited to default page size" in new Fixture {
-      pendingUntilFixed {
-        Customers.createAll((1 to (CustomDirectives.DefaultPageSize + 1)).map(_ ⇒ generateCustomer))
-          .run().futureValue.rightVal
-
-        val response = GET(s"$uriPrefix")
-        response.status must ===(StatusCodes.OK)
-        response.as[CustomerResponse.Root#ResponseMetadataSeq].checkPagingMetadata(from = 0,
-          size = CustomDirectives.DefaultPageSize, resultSize = CustomDirectives.DefaultPageSize)
-      }
+      response.ignoreFailuresAndGiveMe[Seq[CustomerResponse.Root]] must === (Seq(customerRoot))
     }
 
     "lists customers without default address" in new Fixture {
@@ -119,7 +93,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customerRoot = CustomerResponse.build(customer)
 
       response.status must === (StatusCodes.OK)
-      response.as[CustomerResponse.Root#ResponseMetadataSeq].result must === (Seq(customerRoot))
+      response.ignoreFailuresAndGiveMe[Seq[CustomerResponse.Root]] must === (Seq(customerRoot))
     }
 
     "customer listing shows valid billingRegion" in new CreditCardFixture {
@@ -129,7 +103,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customerRoot = CustomerResponse.build(customer, shippingRegion = region, billingRegion = billRegion)
 
       response.status must === (StatusCodes.OK)
-      response.as[CustomerResponse.Root#ResponseMetadataSeq].result must === (Seq(customerRoot))
+      response.ignoreFailuresAndGiveMe[Seq[CustomerResponse.Root]] must === (Seq(customerRoot))
     }
 
     "customer listing shows valid billingRegion without default CreditCard" in new CreditCardFixture {
@@ -138,7 +112,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
 
       response.status must === (StatusCodes.OK)
-      response.as[CustomerResponse.Root#ResponseMetadataSeq].result must === (Seq(customerRoot))
+      response.ignoreFailuresAndGiveMe[Seq[CustomerResponse.Root]] must === (Seq(customerRoot))
     }
   }
 
@@ -604,7 +578,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = GET(s"${uriPrefix}/searchForNewOrder?term=${customer.email.drop(2)}")
       response.status must === (StatusCodes.OK)
 
-      response.as[CustomerResponse.Root#ResponseMetadataSeq].result.size must === (1)
+      response.ignoreFailuresAndGiveMe[Seq[CustomerResponse.Root]].size must === (1)
     }
   }
 

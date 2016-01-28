@@ -340,7 +340,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val fullOrderWithWarnings = response.withResultTypeOf[FullOrder.Root]
       fullOrderWithWarnings.result.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(storeAdmin)))
-      fullOrderWithWarnings.warnings.value must === (List(NotFoundFailure404(StoreAdmin, 999).description))
+      fullOrderWithWarnings.errors.value must === (List(NotFoundFailure404(StoreAdmin, 999).description))
     }
 
     "can be viewed with order" in new Fixture {
@@ -435,7 +435,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val fullOrderWithWarnings = response.withResultTypeOf[FullOrder.Root]
       fullOrderWithWarnings.result.watchers.map(_.watcher) must === (Seq(StoreAdminResponse.build(storeAdmin)))
-      fullOrderWithWarnings.warnings.value must === (List(NotFoundFailure404(StoreAdmin, 999).description))
+      fullOrderWithWarnings.errors.value must === (List(NotFoundFailure404(StoreAdmin, 999).description))
     }
 
     "can be viewed with order" in new Fixture {
@@ -468,7 +468,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = DELETE(s"v1/orders/${order.referenceNumber}/watchers/${storeAdmin.id}")
       response.status must === (StatusCodes.OK)
 
-      val root = response.as[FullOrder.Root]
+      val root = response.ignoreFailuresAndGiveMe[FullOrder.Root]
       root.assignees.filter(_.assignee.id == storeAdmin.id) mustBe empty
 
       OrderWatchers.byOrder(order).result.run().futureValue mustBe empty

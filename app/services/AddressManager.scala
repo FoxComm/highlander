@@ -10,7 +10,7 @@ import models.{StoreAdmin, Address, Addresses, Customer, Customers, Order, Order
 OrderShippingAddresses, Orders, Region, Regions}
 import payloads.CreateAddressPayload
 import responses.Addresses._
-import responses.{Addresses ⇒ Response}
+import responses.{Addresses ⇒ Response, TheResponse}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
@@ -24,10 +24,10 @@ object AddressManager {
   private def addressNotFound(id: Int): NotFoundFailure404 = NotFoundFailure404(Address, id)
 
   def findAllVisibleByCustomer(customerId: Int)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = {
     val query = Addresses.findAllVisibleByCustomerIdWithRegions(customerId)
 
-    Addresses.sortedAndPagedWithRegions(query).result.map(Response.build)
+    Addresses.sortedAndPagedWithRegions(query).result.map(Response.build).toTheResponse.run()
   }
 
   def create(payload: CreateAddressPayload, customerId: Int, admin: Option[StoreAdmin] = None)
@@ -56,7 +56,7 @@ object AddressManager {
 
     address ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
     region  ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
-  } yield Response.build(address, region, address.isDefaultShipping.some)).runTxn()
+  } yield Response.build(address, region, address.isDefaultShipping.some)).run()
 
   def remove(customerId: Int, addressId: Int, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Unit] = (for {
