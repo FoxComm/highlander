@@ -9,9 +9,10 @@ import MultiSelectRow from '../table/multi-select-row';
 const setCellContents = (giftCard, field) => {
   switch(field) {
     case 'createdAt':
-    case 'amount':
+    case 'debit':
     case 'state':
     case 'availableBalance':
+    case 'orderReferenceNumber':
       return _.get(giftCard, field);
     default:
       return null;
