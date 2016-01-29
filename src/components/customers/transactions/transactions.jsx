@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 
 import ListPage from '../../list-page/list-page';
-import OrderTransactionRow from './order-txn-row';
+import OrderTransactionRow from './transaction-row';
 
 const mapDispatchToProps = dispatch => {
   return { actions: bindActionCreators(actions, dispatch) };
