@@ -41,8 +41,7 @@ const GiftCards = props => {
       list={props.list}
       renderRow={renderRow}
       tableColumns={tableColumns}
-      searchActions={props.actions}
-      url="gift_cards_search_view/_search" />
+      searchActions={props.actions} />
   );
 
 };

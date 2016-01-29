@@ -38,16 +38,17 @@ export default class LiveSearch extends React.Component {
     }
 
     const {searchValue, currentOptions, searches: pills} = search;
+    const options = _.get(props, ['searches', 'searchOptions'], []);
 
     this.state = {
-      availableOptions: currentOptions,
+      availableOptions: options,
       inputMask: null,
       isFocused: false,
       optionsVisible: false,
       pills: pills,
       searchDisplay: searchValue,
       searchPrepend: '',
-      searchOptions: currentOptions,
+      searchOptions: options,
       searchValue: searchValue,
       selectionIndex: -1
     };
@@ -55,16 +56,14 @@ export default class LiveSearch extends React.Component {
 
   static propTypes = {
     children: PropTypes.node,
-    cloneSearch: PropTypes.func.isRequired,
-    editSearchNameStart: PropTypes.func,
-    editSearchNameCancel: PropTypes.func,
-    editSearchNameComplete: PropTypes.func,
+    deleteSearch: PropTypes.func.isRequired,
     saveSearch: PropTypes.func,
     selectSavedSearch: PropTypes.func.isRequired,
     searches: PropTypes.object,
     singleSearch: PropTypes.bool,
     initialFilters: PropTypes.array,
     submitFilters: PropTypes.func.isRequired,
+    updateSearch: PropTypes.func.isRequired
   };
 
   static defaultProps = {
@@ -78,10 +77,6 @@ export default class LiveSearch extends React.Component {
 
   get isDirty() {
     return this.currentSearch.isDirty;
-  }
-
-  get isEditingName() {
-    return this.currentSearch.isEditingName;
   }
 
   get searchOptions() {
@@ -159,28 +154,31 @@ export default class LiveSearch extends React.Component {
 
     const tabs = _.map(this.props.searches.savedSearches, (search, idx) => {
       const selected = idx === this.props.searches.selectedSearch;
-      const isEditing = selected && this.isEditingName;
-      const draggable = !isEditing && search.name !== 'All';
-      const isDirty = this.props.searches.savedSearches[idx].isDirty;
+      const isEditable = search.isEditable;
+      const isDirty = isEditable && this.props.searches.savedSearches[idx].isDirty;
 
-      const startEdit = (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        this.props.editSearchNameStart(idx);
+      const copySearch = () => {
+        this.props.saveSearch({ ...search, title: `${search.title} - Copy` });
       };
+      const deleteSearch = () => this.props.deleteSearch(idx, search);
+      const editName = title => {
+        this.props.updateSearch(idx, { ...search, title: title });
+      };
+      const saveSearch = () => this.props.updateSearch(idx, search);
 
       return (
         <EditableTabView
-          key={`saved-search-${search.name}`}
-          defaultValue={search.name}
-          draggable={draggable}
+          key={`saved-search-${search.title}`}
+          defaultValue={search.title}
+          draggable={isEditable}
           isDirty={isDirty}
-          isEditing={isEditing}
+          isEditable={isEditable}
           selected={selected}
-          cancelEdit={this.props.editSearchNameCancel}
-          completeEdit={this.props.editSearchNameComplete}
-          startEdit={startEdit}
-          onClick={() => this.props.selectSavedSearch(idx)} />
+          onClick={() => this.props.selectSavedSearch(idx)}
+          onSaveUpdateComplete={saveSearch}
+          onEditNameComplete={editName}
+          onCopySearchComplete={copySearch}
+          onDeleteSearchComplete={deleteSearch} /> 
       );
     });
 
@@ -190,14 +188,17 @@ export default class LiveSearch extends React.Component {
   get searchButton() {
     if (this.props.singleSearch) return;
 
-    const shouldSaveNew = this.currentSearch.name === 'All';
+    const shouldSaveNew = this.currentSearch.title === 'All';
     const buttonContents = `${shouldSaveNew ? 'Save' : 'Update'} Search`;
     const clickAction = (event) => {
       event.preventDefault();
       if (shouldSaveNew) {
-        this.props.cloneSearch();
+        this.props.saveSearch({
+          ...this.currentSearch,
+          title: `${this.currentSearch.title} - Copy`
+        });
       } else {
-        this.props.saveSearch();
+        this.props.updateSearch(this.props.searches.selectedSearch, this.currentSearch);
       }
     };
 
@@ -227,21 +228,23 @@ export default class LiveSearch extends React.Component {
   }
 
   componentDidMount() {
-    this.props.submitFilters(this.currentSearch.searches);
+    this.props.submitFilters(this.currentSearch.query);
+    this.props.fetchSearches();
   }
 
   componentWillReceiveProps(nextProps) {
     const search = currentSearch(nextProps);
-    const isVisible = this.state.isFocused && search.currentOptions.length > 0;
+    const searchOptions = _.get(nextProps, ['searches', 'searchOptions'], []);
+    const isVisible = this.state.isFocused && searchOptions.length > 0;
 
     this.setState({
       ...this.state,
       inputMask: null,
       optionsVisible: isVisible,
-      pills: search.searches,
+      pills: search.query,
       searchDisplay: search.searchValue,
       searchPrepend: '',
-      searchOptions: search.currentOptions,
+      searchOptions: searchOptions,
       searchValue: search.searchValue,
       selectionIndex: -1
     });

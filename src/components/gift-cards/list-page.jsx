@@ -21,7 +21,7 @@ const GiftCardsListPage = (props, context) => {
   return (
     <ListPageContainer
       title="Gift Cards"
-      subtitle={<TotalCounter url="gift_cards_search_view/_search" />}
+      subtitle={<TotalCounter />}
       addTitle="Gift Card"
       handleAddAction={ () => transitionTo(context.history, 'gift-cards-new') }
       navLinks={navLinks}

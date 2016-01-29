@@ -36,8 +36,7 @@ const Customers = props => {
       list={props.list}
       renderRow={renderRow}
       tableColumns={tableColumns}
-      searchActions={props.actions}
-      url="customers_search_view/_search" />
+      searchActions={props.actions} />
   );
 };
 

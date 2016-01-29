@@ -21,21 +21,20 @@ export default class SearchableList extends React.Component {
     renderRow: PropTypes.func.isRequired,
     tableColumns: PropTypes.array.isRequired,
     searchActions: PropTypes.shape({
-      addSearchFilter: PropTypes.func.isRequired,
-      cloneSearch: PropTypes.func.isRequired,
-      editSearchNameStart: PropTypes.func.isRequired,
-      editSearchNameCancel: PropTypes.func.isRequired,
-      editSearchNameComplete: PropTypes.func.isRequired,
+      addSearchFilters: PropTypes.func.isRequired,
+      deleteSearch: PropTypes.func.isRequired,
       fetch: PropTypes.func.isRequired,
+      fetchSearches: PropTypes.func.isRequired,
       saveSearch: PropTypes.func.isRequired,
       selectSearch: PropTypes.func.isRequired,
-      submitFilters: PropTypes.func.isRequired
+      submitFilters: PropTypes.func.isRequired,
+      updateSearch: PropTypes.func.isRequired
     }).isRequired,
     searchOptions: PropTypes.shape({
       singleSearch: PropTypes.bool,
       initialFilters: PropTypes.array,
     }),
-    url: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired
   };
 
   static defaultProps = {
@@ -52,8 +51,8 @@ export default class SearchableList extends React.Component {
     const selectedSearch = props.list.selectedSearch;
     const results = props.list.savedSearches[selectedSearch].results;
 
-    const filter = searchTerms => props.searchActions.addSearchFilter(props.url, searchTerms);
-    const selectSearch = idx => props.searchActions.selectSearch(props.url, idx);
+    const filter = searchTerms => props.searchActions.addSearchFilters(searchTerms);
+    const selectSearch = idx => props.searchActions.selectSearch(idx);
 
     const setState = params => {
       if (params.sortBy) {
@@ -67,22 +66,21 @@ export default class SearchableList extends React.Component {
         }
 
         sort[params.sortBy] = {order: sortOrder};
-        props.searchActions.fetch(props.url, {sort: [sort]});
+        props.searchActions.fetch({sort: [sort]});
         this.setState(newState);
       }
     };
 
     return (
       <LiveSearch
-        cloneSearch={props.searchActions.cloneSearch}
-        editSearchNameStart={props.searchActions.editSearchNameStart}
-        editSearchNameCancel={props.searchActions.editSearchNameCancel}
-        editSearchNameComplete={props.searchActions.editSearchNameComplete}
+        fetchSearches={props.searchActions.fetchSearches}
         saveSearch={props.searchActions.saveSearch}
         {...props.searchOptions}
         selectSavedSearch={selectSearch}
         submitFilters={filter}
         searches={props.list}
+        deleteSearch={props.searchActions.deleteSearch}
+        updateSearch={props.searchActions.updateSearch}
       >
         <MultiSelectTable
           columns={props.tableColumns}

@@ -1,50 +1,12 @@
 import makeLiveSearch from '../live-search';
 import searchTerms from './search-terms';
 
-const searches = [
-  {
-    name: 'Remorse Hold',
-    searches: [
-      {
-        display: 'Order : State : Remorse Hold',
-        selectedTerm: 'state',
-        selectedOperator: 'eq',
-        value: {
-          type: 'enum',
-          value: 'remorseHold'
-        }
-      }
-    ]
-  }, {
-    name: 'Manual Hold',
-    searches: [
-      {
-        display: 'Order : State : Manual Hold',
-        selectedTerm: 'state',
-        selectedOperator: 'eq',
-        value: {
-          type: 'enum',
-          value: 'manualHold'
-        }
-      }
-    ]
-  }, {
-    name: 'Fraud Hold',
-    searches: [
-      {
-        display: 'Order : State : Fraud Hold',
-        selectedTerm: 'state',
-        selectedOperator: 'eq',
-        value: {
-          type: 'enum',
-          value: 'fraudHold'
-        }
-      }
-    ]
-  }
-];
-
-const { reducer, actions } = makeLiveSearch('orders', searchTerms, searches);
+const { reducer, actions } = makeLiveSearch(
+  'orders', 
+  searchTerms, 
+  'orders_search_view/_search',
+  'ordersScope'
+);
 
 export {
   reducer as default,
