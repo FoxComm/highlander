@@ -4,10 +4,10 @@ import java.time.Instant
 
 import scala.concurrent.ExecutionContext
 
-import models.activity.{Dimension, ActivityContext}
+import models.activity.ActivityContext
 import models.{StoreAdmins, SharedSearch, SharedSearches, SharedSearchAssociation, SharedSearchAssociations, StoreAdmin}
 import payloads.SharedSearchPayload
-import responses.TheResponse
+import responses.{StoreAdminResponse, TheResponse}
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -22,6 +22,11 @@ object SharedSearchService {
 
   def get(code: String)(implicit ec: ExecutionContext, db: Database): Result[SharedSearch] =
     mustFindActiveByCode(code).run()
+
+  def getAssociates(code: String)(implicit ec: ExecutionContext, db: Database): Result[Seq[StoreAdminResponse.Root]] = (for {
+    search      ← * <~ mustFindActiveByCode(code)
+    associates  ← * <~ SharedSearchAssociations.associatedAdmins(search).result.toXor
+  } yield associates.map(StoreAdminResponse.build)).run()
 
   def create(admin: StoreAdmin, payload: SharedSearchPayload)
     (implicit ec: ExecutionContext, db: Database): Result[SharedSearch] = (for {
