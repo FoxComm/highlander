@@ -28,7 +28,7 @@ final case class Config(environment: String, phoenixUrl: String, elasticUrl: Str
 object Config {
   val defaultEnvironment = "vagrant"
   val defaultUsersCount  = 1
-  val defaultPause       = 6
+  val defaultPause       = 10
 
   def load(): Config = {
     val env   = sys.props.getOrElse("env", defaultEnvironment)
