@@ -1,17 +1,19 @@
 import React, { PropTypes } from 'react';
-import { IndexLink, Link } from '../link';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
+
+import { IndexLink, Link } from '../link';
 import GiftCardCode from './gift-card-code';
-import * as GiftCardActions from '../../modules/gift-cards/details';
 import { DateTime } from '../common/datetime';
 import Currency from '../common/currency';
-import SectionTitle from '../section-title/section-title';
+import { PrimaryButton } from '../common/buttons';
+import { PageTitle } from '../section-title';
 import Panel from '../panel/panel';
 import {PanelList, PanelListItem} from '../panel/panel-list';
-import Dropdown from '../dropdown/dropdown';
-import DropdownItem from '../dropdown/dropdownItem';
+import { Dropdown, DropdownItem } from '../dropdown';
 import LocalNav from '../local-nav/local-nav';
+
+import * as GiftCardActions from '../../modules/gift-cards/details';
 
 @connect((state, props) => ({
   ...state.giftCards.details[props.params.giftCard]
@@ -42,6 +44,7 @@ export default class GiftCard extends React.Component {
     this.props.editGiftCard(this.props.card.code, {state: target.value});
   }
 
+  @autobind
   resendGiftCard() {
     console.log('Resend');
   }
@@ -96,9 +99,9 @@ export default class GiftCard extends React.Component {
 
     return (
       <div className="fc-gift-card">
-        <SectionTitle title="Gift Card" subtitle={<GiftCardCode value={card.code} />}>
-          <button onClick={this.resendGiftCard.bind(this)} className="fc-btn fc-btn-primary">Resend Gift Card</button>
-        </SectionTitle>
+        <PageTitle title="Gift Card" subtitle={<GiftCardCode value={card.code} />}>
+          <PrimaryButton onClick={this.resendGiftCard}>Resend Gift Card</PrimaryButton>
+        </PageTitle>
         <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-3">
             <Panel title="Available Balance" featured={true}>

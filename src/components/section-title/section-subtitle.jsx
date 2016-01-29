@@ -1,15 +1,11 @@
 import React, { PropTypes } from 'react';
 
 const SectionSubtitle = props => {
-  return (
-    <div>
-      <h2>{ props.title }</h2>
-    </div>
-  );
+  return <h2>{ props.children }</h2>;
 };
 
 SectionSubtitle.propTypes = {
-  title: PropTypes.string
+  children: PropTypes.node.isRequired,
 };
 
 export default SectionSubtitle;

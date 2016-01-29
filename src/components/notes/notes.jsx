@@ -1,9 +1,13 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
+import { createSelector } from 'reselect';
+import { assoc } from 'sprout-data';
+import { connect } from 'react-redux';
+
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import { PrimaryButton } from '../../components/common/buttons';
-import SectionTitle from '../section-title/section-title';
+import { SectionTitle } from '../section-title';
 import TableView from '../table/tableview';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
@@ -11,11 +15,10 @@ import NoteControls from './controls';
 import NoteForm from './form';
 import { DateTime } from '../common/datetime';
 import ConfirmModal from '../modal/confirm';
-import { connect } from 'react-redux';
+
 import * as NotesActinos from '../../modules/notes';
 import { entityId } from '../../modules/state-helpers';
-import { createSelector } from 'reselect';
-import { assoc } from 'sprout-data';
+
 
 const editingNote = createSelector(
   (state, entity) => _.get(state.notes, [entity.entityType, entity.entityId, 'rows'], []),
@@ -142,9 +145,7 @@ export default class Notes extends React.Component {
   render() {
     return (
       <div className={this.sectionClassName} >
-        <SectionTitle className="fc-grid-gutter fc-notes-section-title"
-                      title="Notes"
-                      isPrimary={false}>{this.controls}</SectionTitle>
+        <SectionTitle className="fc-grid-gutter fc-notes-section-title" title="Notes">{this.controls}</SectionTitle>
         <TableView
           renderRow={this.renderNoteRow}
           processRows={this.injectAddingForm}

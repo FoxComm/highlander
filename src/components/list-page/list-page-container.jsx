@@ -3,7 +3,7 @@ import _ from 'lodash';
 
 import { IndexLink } from '../link';
 import LocalNav from '../local-nav/local-nav';
-import SectionTitle from '../section-title/section-title';
+import { PageTitle } from '../section-title';
 
 const ListPageContainer = props => {
 
@@ -16,7 +16,7 @@ const ListPageContainer = props => {
   return (
     <div className="fc-list-page">
       <div className="fc-list-page-header">
-        <SectionTitle
+        <PageTitle
           title={props.title}
           subtitle={props.subtitle}
           onAddClick={props.handleAddAction}

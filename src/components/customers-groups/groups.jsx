@@ -9,7 +9,6 @@ import Link from '../link/link';
 import { DateTime } from '../common/datetime';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
-import SectionTitle from '../section-title/section-title';
 import LocalNav from '../local-nav/local-nav';
 import Currency from '../common/currency';
 import PilledInput from '../pilled-search/pilled-input';

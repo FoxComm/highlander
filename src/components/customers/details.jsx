@@ -34,7 +34,7 @@ export default class CustomerDetails extends React.Component {
     const addresses = this.props.addresses;
     return (
       <div className="fc-customer-details">
-        <SectionSubtitle title="Details" />
+        <SectionSubtitle>Details</SectionSubtitle>
         <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-2">
             <CustomerContacts customerId={ customer.id } />

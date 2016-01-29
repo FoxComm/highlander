@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import SectionTitle from '../section-title/section-title';
 import FormField from '../forms/formfield';
 import Form from '../forms/form.jsx';
 import Dropdown from '../dropdown/dropdown';
