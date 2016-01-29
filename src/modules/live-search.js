@@ -71,7 +71,7 @@ export default function makeLiveSearch(namespace, searchTerms, esUrl, scope) {
     let fetchPromise;
 
     return (dispatch, getState) => {
-      const { isFetching } = getSelectedSearch(getState());
+      const isFetching = _.get(getSelectedSearch(getState()), 'isFetching');
 
       if (!isFetching) {
         dispatch(searchStart());

@@ -45,6 +45,7 @@ export default class Customer extends React.Component {
           <a href="">Insights</a>
           <IndexLink to="customer-details" params={this.props.params}>Details</IndexLink>
           <NavDropdown title="Transaction">
+            <Link to="customer-transactions" params={this.props.params}>Orders</Link>
             <Link to="customer-returns" params={this.props.params}>Returns</Link>
           </NavDropdown>
           <a href="">Items</a>

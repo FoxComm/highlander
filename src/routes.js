@@ -29,6 +29,7 @@ import GiftCardTransactions from './components/gift-cards/transactions';
 import StoreCredits from './components/customers/store-credits/store-credits';
 import StoreCreditsTransactions from './components/customers/store-credits/transactions';
 import NewStoreCredit from './components/customers/store-credits/new-store-credit';
+import CustomerTransactions from './components/customers/transactions/transactions';
 
 import StyleGuide from './components/style-guide/style-guide';
 import StyleGuideGrid from './components/style-guide/style-guide-grid';
@@ -80,7 +81,8 @@ const routes = (
       <Route name='customers-new' path='new' component={NewCustomer} />
       <Route name='customer' path=':customerId' component={Customer}>
         <IndexRoute name='customer-details' component={CustomerDetails}/>
-        <Route name='customer-returns' path='returns' component={RmaChildList}/>
+        <Route title='Transactions' name='customer-transactions' path='transactions' component={CustomerTransactions}/>
+        <Route title='Returns' name='customer-returns' path='returns' component={RmaChildList}/>
         <Route name='customer-notes' path='notes' component={Notes} />
         <Route name='customer-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
         <Route name='customer-storecredits-base' path='storecredit'>

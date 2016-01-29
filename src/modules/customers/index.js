@@ -6,6 +6,7 @@ import _details from './details';
 import addressesDetails from './addresses-details';
 import addresses from './addresses';
 import contacts from './contacts';
+import transactions from './transactions';
 import creditCards from './credit-cards';
 import storeCredits from './store-credits';
 import storeCreditTransactions from './store-credit-transactions';
@@ -18,6 +19,7 @@ const customerReducer = combineReducers({
   list,
   adding,
   details,
+  transactions,
   addressesDetails,
   addresses,
   creditCards,

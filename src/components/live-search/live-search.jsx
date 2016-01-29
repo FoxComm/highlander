@@ -398,7 +398,6 @@ export default class LiveSearch extends React.Component {
 
     // Third, update the state.
     this.setState({
-      ...this.state,
       inputMask: inputMask,
       searchOptions: options,
       searchDisplay: newSearchTerm,
