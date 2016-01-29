@@ -44,11 +44,7 @@ server {
         content_by_lua '
 
             --forward to internal es
-            local res = request_internal_search()
-
-            --parse
-            local j = cjson.new()
-            local json = j.decode(res.body)
+            local json = request_internal_search()
 
             -- we need only _source filed from the hits
             json.hits.result = map(json.hits.hits, function(hit)
@@ -70,11 +66,7 @@ server {
         content_by_lua '
 
             --forward to internal es
-            local res = request_internal_search()
-
-            --parse
-            local j = cjson.new()
-            local json = j.decode(res.body)
+            local json = request_internal_search()
 
             --remove shards
             json._shards = nil
@@ -91,11 +83,7 @@ server {
         content_by_lua '
 
             --forward to internal es
-            local res = request_internal_search()
-
-            --parse
-            local j = cjson.new()
-            local json = j.decode(res.body)
+            local json = request_internal_search()
 
             if json.found == true then
                 --only show _source
