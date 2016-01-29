@@ -47,6 +47,7 @@ export default class Customer extends React.Component {
           <NavDropdown title="Transaction">
             <Link to="customer-transactions" params={this.props.params}>Orders</Link>
             <Link to="customer-returns" params={this.props.params}>Returns</Link>
+            <Link to="customer-cart" params={this.props.params}>Cart</Link>
           </NavDropdown>
           <a href="">Items</a>
           <Link to="customer-storecredits" params={this.props.params}>Store Credit</Link>

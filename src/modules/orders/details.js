@@ -8,21 +8,29 @@ import { orderLineItemsFetchSuccess } from './line-items';
 import OrderParagon from '../../paragons/order';
 
 export const orderRequest = createAction('ORDER_REQUEST');
+export const cartRequest = createAction('CART_REQUEST');
 export const orderSuccess = createAction('ORDER_SUCCESS');
 export const orderFailed = createAction('ORDER_FAILED', (err, source) => [err, source]);
 
-export function fetchOrder(refNum) {
+
+function baseFetchOrder(url, actionBefore) {
   return dispatch => {
-    dispatch(orderRequest(refNum));
-    return Api.get(`/orders/${refNum}`)
-      .then(
-        order => {
+    dispatch(actionBefore);
+    return Api.get(url)
+      .then(order => {
           dispatch(orderSuccess(order));
           dispatch(orderLineItemsFetchSuccess(order));
         },
-        err => dispatch(orderFailed(err, fetchOrder))
-      );
+        err => dispatch(orderFailed(err, baseFetchOrder)));
   };
+}
+
+export function fetchOrder(refNum) {
+  return baseFetchOrder(`/orders/${refNum}`, orderRequest(refNum));
+}
+
+export function fetchCustomerCart(customerId) {
+  return baseFetchOrder(`/customers/${customerId}/cart`, cartRequest(customerId));
 }
 
 export function updateOrder(id, data) {
@@ -94,6 +102,12 @@ const reducer = createReducer({
       isFetching: true
     };
   },
+  [cartRequest]: (state) => {
+    return {
+      ...state,
+      isFetching: true
+    };
+  },
   [orderSuccess]: (state, payload) => {
     const order = _.get(payload, 'result', payload);
     const skus = _.get(order, 'lineItems.skus', []);
@@ -126,7 +140,7 @@ const reducer = createReducer({
     };
   },
   [orderFailed]: (state, [err, source]) => {
-    if (source === fetchOrder) {
+    if (source === baseFetchOrder) {
       console.error(err);
 
       return {
