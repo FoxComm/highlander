@@ -5,6 +5,7 @@ import React, { PropTypes } from 'react';
 import { createSelector } from 'reselect';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+import { bindActionCreators } from 'redux';
 
 // components
 import TableView from '../table/tableview';
@@ -12,9 +13,16 @@ import { SearchableList } from '../list-page';
 import GiftCardTransactionRow from './gift-card-transaction-row';
 
 // redux
-import { actions as GiftCardsTransactionActions } from '../../modules/gift-cards/transactions';
+import { actions } from '../../modules/gift-cards/transactions';
 
-@connect(state => state.giftCards, GiftCardsTransactionActions)
+const mapDispatchToProps = dispatch => {
+  return { actions: bindActionCreators(actions, dispatch) };
+};
+
+@connect((state, props) => ({
+  list: state.giftCards.transactions,
+  giftCard: state.giftCards.details[props.params.giftCard],
+}), mapDispatchToProps)
 export default class GiftCardTransactions extends React.Component {
   static propTypes = {
     fetch: PropTypes.func,
@@ -38,10 +46,6 @@ export default class GiftCardTransactions extends React.Component {
     ]
   };
 
-  get giftCard() {
-    return this.props.params.giftCard;
-  }
-
   get defaultSearchOptions() {
     return {
       singleSearch: true,
@@ -55,14 +59,17 @@ export default class GiftCardTransactions extends React.Component {
   }
 
   render() {
+    console.log(this.props);
     return (
-      <SearchableList
-        emptyResultMessage="No transactions found."
-        list={this.props.list}
-        renderRow={this.renderRow}
-        tableColumns={this.props.tableColumns}
-        searchActions={this.props}
-        searchOptions={this.defaultSearchOptions} />
+      <div className="fc-gift-card-transactions">
+        <SearchableList
+          emptyResultMessage="No transactions found."
+          list={this.props.list}
+          renderRow={this.renderRow}
+          tableColumns={this.props.tableColumns}
+          searchActions={this.props.actions}
+          searchOptions={this.defaultSearchOptions} />
+      </div>
     );
   }
 }

@@ -13,10 +13,10 @@ const searchTerms = [];
 // const searches = [];
 
 const { reducer, actions } = makeLiveSearch(
-  'giftCardTransactions',
+  'giftCards-transactions',
   searchTerms,
   'gift_card_transactions_view/_search',
-  'giftCardTransactions'
+  'giftCardTransactionsScope'
 );
 
 export {
