@@ -35,11 +35,18 @@ gulp.task('dev', function(cb) {
 
 gulp.task('default', ['build']);
 
-
-gulp.on('err', function() {
+function handleErrors(err) {
+  if (err) {
+    console.error(err);
+  }
   exitStatus = 1;
   $.util.beep();
-});
+}
+
+process.on('unhandledRejection', handleErrors);
+process.on('uncaughtException', handleErrors);
+
+gulp.on('err', handleErrors);
 
 process.on('exit', function() {
   process.exit(exitStatus);
