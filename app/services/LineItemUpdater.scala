@@ -98,13 +98,14 @@ object LineItemUpdater {
 
     order ← * <~ finder
     _     ← * <~ order.mustBeCart
-    _     ← * <~ updateQuantities(order, payload)
     // load old line items for activity trail
     li    ← * <~ OrderLineItemSkus.findLineItemsByOrder(order).result
     lineItems = li.foldLeft(Map[String, Int]()) { case (acc, (sku, _)) ⇒
       val quantity = acc.getOrElse(sku.sku, 0)
       acc.updated(sku.sku, quantity + 1)
     }
+    // update quantities
+    _     ← * <~ updateQuantities(order, payload)
     // update changed totals
     order ← * <~ OrderTotaler.saveTotals(order)
     valid ← * <~ CartValidator(order).validate
