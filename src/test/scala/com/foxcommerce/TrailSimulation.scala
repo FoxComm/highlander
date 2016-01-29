@@ -24,7 +24,7 @@ class TrailSimulation extends Simulation {
     address2 = "Baker street, 39", city = "Londonkey", zip = "33333")
   val order = OrderPayload(customer = customer, shippingAddress = shippingAddress)
 
-  // Copy modified payload
+  // Prepare modified payloads by copying original
   val addressUpdated = address.copy(city = "Seattle", zip = "66666")
   val shippingAddressUpdated = shippingAddress.copy(city = "London", zip = "22222")
   val customerUpdated = customer.copy(name = "Adil Wali", address = addressUpdated, isBlacklisted = true,
@@ -40,7 +40,7 @@ class TrailSimulation extends Simulation {
     .exec(StoreCreditEndpoint.create(storeCredit))
     .exec(GiftCardEndpoint.create(giftCard))
     .exec(OrderEndpoint.create(order))
-    .exec(OrderEndpoint.addShippingAddress(shippingAddress))
+    .exec(OrderEndpoint.addShippingAddress(order))
     .exitHereIfFailed
     // Pause and check indexes
     .pause(conf.greenRiverPause)
@@ -56,12 +56,12 @@ class TrailSimulation extends Simulation {
     .exec(CustomerAddressEndpoint.update(addressUpdated))
     .exec(StoreCreditEndpoint.cancel())
     .exec(GiftCardEndpoint.cancel())
-    .exec(OrderEndpoint.updateShippingAddress(shippingAddressUpdated))
+    .exec(OrderEndpoint.updateShippingAddress(orderUpdated))
     .exec(OrderEndpoint.cancel())
     .exitHereIfFailed
     // Pause and check indexes
     .pause(conf.greenRiverPause)
-    .exec(SearchEndpoint.checkCustomer(conf, customerUpdated))
+    .exec(SearchEndpoint.checkCustomer(conf, customerUpdated.copy(address = shippingAddress)))
     .exec(SearchEndpoint.checkStoreCredit(conf, storeCredit, state = "canceled"))
     .exec(SearchEndpoint.checkGiftCard(conf, giftCard, state = "canceled"))
     .exec(SearchEndpoint.checkOrder(conf, orderUpdated, state = "canceled"))

@@ -29,31 +29,31 @@ object OrderEndpoint {
     .check(status.is(200))
     .check(jsonPath("$.orderState").ofType[String].is("canceled"))
 
-  def addShippingAddress(address: AddressPayload): HttpRequestBuilder = {
+  def addShippingAddress(order: OrderPayload): HttpRequestBuilder = {
     http("Add Order Shipping Address")
       .post("/v1/orders/${orderRefNum}/shipping-address")
       .basicAuth("${email}", "${password}")
-      .body(StringBody(Utils.addressPayloadBody(address)))
+      .body(StringBody(Utils.addressPayloadBody(order.shippingAddress)))
       .check(status.is(200))
-      .check(jsonPath("$.result.shippingAddress.name").ofType[String].is(address.name))
-      .check(jsonPath("$.result.shippingAddress.region.id").ofType[Long].is(address.regionId))
-      .check(jsonPath("$.result.shippingAddress.address1").ofType[String].is(address.address1))
-      .check(jsonPath("$.result.shippingAddress.address2").ofType[String].is(address.address2))
-      .check(jsonPath("$.result.shippingAddress.city").ofType[String].is(address.city))
-      .check(jsonPath("$.result.shippingAddress.zip").ofType[String].is(address.zip))
+      .check(jsonPath("$.result.shippingAddress.name").ofType[String].is(order.shippingAddress.name))
+      .check(jsonPath("$.result.shippingAddress.region.id").ofType[Long].is(order.shippingAddress.regionId))
+      .check(jsonPath("$.result.shippingAddress.address1").ofType[String].is(order.shippingAddress.address1))
+      .check(jsonPath("$.result.shippingAddress.address2").ofType[String].is(order.shippingAddress.address2))
+      .check(jsonPath("$.result.shippingAddress.city").ofType[String].is(order.shippingAddress.city))
+      .check(jsonPath("$.result.shippingAddress.zip").ofType[String].is(order.shippingAddress.zip))
   }
 
-  def updateShippingAddress(address: AddressPayload): HttpRequestBuilder = {
+  def updateShippingAddress(order: OrderPayload): HttpRequestBuilder = {
     http("Update Order Shipping Address")
       .patch("/v1/orders/${orderRefNum}/shipping-address")
       .basicAuth("${email}", "${password}")
-      .body(StringBody(Utils.addressPayloadBody(address)))
+      .body(StringBody(Utils.addressPayloadBody(order.shippingAddress)))
       .check(status.is(200))
-      .check(jsonPath("$.result.shippingAddress.name").ofType[String].is(address.name))
-      .check(jsonPath("$.result.shippingAddress.region.id").ofType[Long].is(address.regionId))
-      .check(jsonPath("$.result.shippingAddress.address1").ofType[String].is(address.address1))
-      .check(jsonPath("$.result.shippingAddress.address2").ofType[String].is(address.address2))
-      .check(jsonPath("$.result.shippingAddress.city").ofType[String].is(address.city))
-      .check(jsonPath("$.result.shippingAddress.zip").ofType[String].is(address.zip))
+      .check(jsonPath("$.result.shippingAddress.name").ofType[String].is(order.shippingAddress.name))
+      .check(jsonPath("$.result.shippingAddress.region.id").ofType[Long].is(order.shippingAddress.regionId))
+      .check(jsonPath("$.result.shippingAddress.address1").ofType[String].is(order.shippingAddress.address1))
+      .check(jsonPath("$.result.shippingAddress.address2").ofType[String].is(order.shippingAddress.address2))
+      .check(jsonPath("$.result.shippingAddress.city").ofType[String].is(order.shippingAddress.city))
+      .check(jsonPath("$.result.shippingAddress.zip").ofType[String].is(order.shippingAddress.zip))
   }
 }
