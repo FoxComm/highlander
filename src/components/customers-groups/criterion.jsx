@@ -41,7 +41,7 @@ export default class Criterion extends React.Component {
     return (
       <Dropdown
         className='fc-group-builder-crit-op'
-        items={ _.map(operators, (value, key) => [value, key]) }
+        items={ _.map(operators, (title, operator) => [operator, title]) }
         value={ selectedOperator }
         onChange={ changeOperator }
       />
