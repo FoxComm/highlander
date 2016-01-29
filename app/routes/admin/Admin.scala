@@ -230,6 +230,13 @@ object Admin {
             SharedSearchService.delete(admin, code)
           }
         } ~
+        pathPrefix("associates") {
+          (get & pathEnd) {
+            goodOrFailures {
+              SharedSearchService.getAssociates(code)
+            }
+          }
+        } ~
         pathPrefix("associate") {
           (post & pathEnd & entity(as[SharedSearchAssociationPayload])) { payload ⇒
             activityContext(admin) { implicit ac ⇒

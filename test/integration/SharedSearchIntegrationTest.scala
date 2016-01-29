@@ -2,11 +2,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import akka.http.scaladsl.model.StatusCodes
 import Extensions._
-import models.{SharedSearchAssociations, StoreAdmin, StoreAdmins, SharedSearch, SharedSearches, SharedSearchAssociation}
+import models.{SharedSearchAssociations, StoreAdmin, StoreAdmins, SharedSearch, SharedSearches}
 import models.SharedSearchAssociation.{build ⇒ buildAssociation}
 import models.SharedSearch.{CustomersScope, OrdersScope, StoreAdminsScope}
 import payloads.{SharedSearchPayload, SharedSearchAssociationPayload}
 import services.{SharedSearchAssociationNotFound, NotFoundFailure404}
+import responses.StoreAdminResponse.{Root ⇒ AdminRoot, build ⇒ buildAdmin}
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -172,6 +173,32 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
       POST(s"v1/shared-search/${search.code}/associate", SharedSearchAssociationPayload(Seq(storeAdmin.id)))
 
       SharedSearchAssociations.bySharedSearch(search).result.run().futureValue.size mustBe 1
+    }
+  }
+
+  "GET v1/shared-search/:code/associates" - {
+    "returns associates by code" in new AssociateSecondaryFixture {
+      val response = GET(s"v1/shared-search/${search.code}/associates")
+      response.status must === (StatusCodes.OK)
+
+      val root = response.as[Seq[AdminRoot]]
+      root must === (Seq(storeAdmin).map(buildAdmin))
+    }
+
+    "returns multiple associates by code" in new AssociateSecondaryFixture {
+      SharedSearchAssociations.create(buildAssociation(search, secondAdmin)).run().futureValue
+
+      val response = GET(s"v1/shared-search/${search.code}/associates")
+      response.status must === (StatusCodes.OK)
+
+      val root = response.as[Seq[AdminRoot]]
+      root must === (Seq(storeAdmin, secondAdmin).map(buildAdmin))
+    }
+
+    "404 if not found" in {
+      val response = GET(s"v1/shared-search/nope/associates")
+      response.status must === (StatusCodes.NotFound)
+      response.error must === (NotFoundFailure404(SharedSearch, "nope").description)
     }
   }
 
