@@ -60,6 +60,27 @@ export default class Dropdown extends React.Component {
     });
   }
 
+  get input() {
+    const {editable, placeholder, name, value} = this.props;
+    const actualValue = this.state.selectedValue || value;
+    const title = this.findTitleByValue(actualValue, this.props);
+
+    if (editable) {
+      return (
+          <div className="fc-dropdown__value">
+            <input placeholder={placeholder} defaultValue={title} key={actualValue} />
+          </div>
+      );
+    }
+
+    return (
+        <div className="fc-dropdown__value">
+          {title || placeholder}
+          <input name={name} type="hidden" value={actualValue} />
+        </div>
+    );
+  }
+
   get dropdownButton() {
     return (
       <div className="fc-dropdown__button" onClick={this.handleToggleClick}>
@@ -86,27 +107,13 @@ export default class Dropdown extends React.Component {
       '_editable': this.props.editable,
       '_open': this.state.open
     });
-    const value = this.state.selectedValue || this.props.value;
-    const title = this.findTitleByValue(value, this.props);
 
     return (
       <div className={classnames} onBlur={this.onBlur} tabIndex="0">
-        {this.props.editable && (
-          <div className="fc-dropdown__controls">
-            {this.dropdownButton}
-            <div className="fc-dropdown__value">
-              <input placeholder={this.props.placeholder} defaultValue={title} key={value}/>
-            </div>
-          </div>
-        ) || (
-          <div className="fc-dropdown__controls" onClick={this.handleToggleClick}>
-            {this.dropdownButton}
-            <div className="fc-dropdown__value">
-              {title || this.props.placeholder}
-              <input name={this.props.name} type="hidden" value={value}/>
-            </div>
-          </div>
-        )}
+        <div className="fc-dropdown__controls" onClick={this.props.editable ? this.handleToggleClick : null}>
+          {this.dropdownButton}
+          {this.input}
+        </div>
         <ul className="fc-dropdown__items">
           {this.props.items && _.map(this.props.items, ([value, title]) => (
             <DropdownItem value={value} key={value} onSelect={this.handleItemClick}>
