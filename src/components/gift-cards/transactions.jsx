@@ -49,6 +49,16 @@ export default class GiftCardTransactions extends React.Component {
   get defaultSearchOptions() {
     return {
       singleSearch: true,
+      initialFilters: [{
+        display: "Gift Card: " + this.props.params.giftCard,
+        selectedTerm: "code",
+        selectedOperator: "eq",
+        hidden: true,
+        value: {
+          type: "string",
+          value: this.props.params.giftCard
+        }
+      }],
     };
   }
 
