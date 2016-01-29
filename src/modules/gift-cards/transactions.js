@@ -10,9 +10,14 @@ import makeLiveSearch from '../live-search';
 // );
 const searchTerms = [];
 
-const searches = [];
+// const searches = [];
 
-const { reducer, actions } = makeLiveSearch('giftCardTransactions', searchTerms, searches);
+const { reducer, actions } = makeLiveSearch(
+  'giftCardTransactions',
+  searchTerms,
+  'gift_card_transactions_view/_search',
+  'giftCardTransactions'
+);
 
 export {
   reducer as default,

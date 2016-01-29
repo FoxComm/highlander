@@ -4,10 +4,12 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { createSelector } from 'reselect';
 import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
 
 // components
 import TableView from '../table/tableview';
 import { SearchableList } from '../list-page';
+import GiftCardTransactionRow from './gift-card-transaction-row';
 
 // redux
 import { actions as GiftCardsTransactionActions } from '../../modules/gift-cards/transactions';
@@ -46,13 +48,10 @@ export default class GiftCardTransactions extends React.Component {
     };
   }
 
-  componentDidMount() {
-    this.props.actionReset(); // clean state from previous values
-    this.props.initialFetch(this.giftCard);
-  }
-
-  renderRow() {
-    return 'row';
+  @autobind
+  renderRow(row, index, columns) {
+    const key = `gift-card-${row.code}`;
+    return <GiftCardTransactionRow giftCard={row} columns={columns} key={key}/>;
   }
 
   render() {
@@ -63,8 +62,7 @@ export default class GiftCardTransactions extends React.Component {
         renderRow={this.renderRow}
         tableColumns={this.props.tableColumns}
         searchActions={this.props}
-        searchOptions={this.defaultSearchOptions}
-        url="gift_card_transactions_view/_search" />
+        searchOptions={this.defaultSearchOptions} />
     );
   }
 }

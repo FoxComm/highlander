@@ -63,8 +63,14 @@ export default function makeLiveSearch(namespace, searchTerms, esUrl, scope) {
   };
 
   const getSelectedSearch = (state) => {
-    const selectedSearch = _.get(state, [namespace, 'list', 'selectedSearch']);
-    return _.get(state, [namespace, 'list', 'savedSearches', selectedSearch]);
+    console.log(state);
+    const dataPath = ['giftCards', 'transactions', 'selectedSearch'];// [namespace, 'list', 'selectedSearch'];
+    const selectedSearch = _.get(state, dataPath);
+    console.log(selectedSearch);
+    const resultPath = ['giftCards', 'transactions', 'savedSearches', selectedSearch]; //[namespace, 'list', 'savedSearches', selectedSearch];
+    const result = _.get(state, resultPath);
+    console.log(result);
+    return result;
   };
 
   const fetch = (...args) => {
@@ -277,7 +283,7 @@ function _searchFailure(state, err) {
 }
 
 function _submitFilters(state, filters) {
-  return assoc(state, 
+  return assoc(state,
     ['savedSearches', state.selectedSearch, 'query'], filters,
     ['savedSearches', state.selectedSearch, 'isDirty'], true
   );
@@ -292,7 +298,7 @@ function _fetchSearchesSuccess(state, searches) {
     return { ...emptyState, ...search };
   });
 
-  return assoc(state, 
+  return assoc(state,
     'fetchingSearches', false,
     'savedSearches', [...state.savedSearches, ...mappedSearches]
   );
@@ -311,7 +317,7 @@ function _updateSearchStart(state, idx) {
 }
 
 function _updateSearchSuccess(state, [idx, payload]) {
-  return assoc(state, 
+  return assoc(state,
     ['savedSearches', idx], { ...emptyState, ...payload },
     'updateNum', state.updateNum + 1);
 }
@@ -339,7 +345,7 @@ function _deleteSearchSuccess(state, idx) {
     ? state.selectedSearch - 1
     : state.selectedSearch;
 
-  return assoc(state, 
+  return assoc(state,
     'savedSearches', searches,
     'selectedSearch', selectedSearch
   );
