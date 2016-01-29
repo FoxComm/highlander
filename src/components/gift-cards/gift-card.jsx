@@ -40,8 +40,8 @@ export default class GiftCard extends React.Component {
   }
 
   @autobind
-  onChangeState({target}) {
-    this.props.editGiftCard(this.props.card.code, {state: target.value});
+  onChangeState(value) {
+    this.props.editGiftCard(this.props.card.code, {status: value});
   }
 
   @autobind
