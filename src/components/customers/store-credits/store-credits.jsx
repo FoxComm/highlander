@@ -17,15 +17,15 @@ import { connect } from 'react-redux';
 import * as StoreCreditsActions from '../../../modules/customers/store-credits';
 import * as ReasonsActions from '../../../modules/reasons';
 
-const activeStateTransitions = {
-  'onHold': 'On Hold',
-  'canceled': 'Cancel Store Credit'
-};
+const activeStateTransitions = [
+  ['onHold', 'On Hold'],
+  ['canceled', 'Cancel Store Credit'],
+];
 
-const onHoldStateTransitions = {
-  'active': 'Active',
-  'canceled': 'Cancel Store Credit'
-};
+const onHoldStateTransitions = [
+  ['active', 'Active'],
+  ['canceled', 'Cancel Store Credit'],
+];
 
 const actions = {
   ...StoreCreditsActions,
@@ -184,16 +184,14 @@ export default class StoreCredits extends React.Component {
   }
 
   get confirmCancellation() {
-    let reasons = {};
-    if (this.props.reasons &&
-        this.props.reasons[this.reasonType]) {
-      reasons = _.reduce(this.props.reasons[this.reasonType], (acc, reason) => {
-        acc[reason.id] = reason.body;
-        return acc;
-      }, {});
+    const props = this.props;
+
+    let reasons = [];
+    if (props.reasons && props.reasons[this.reasonType]) {
+      reasons = _.map(props.reasons[this.reasonType], reason => [reason.id, reason.body]);
     }
-    const value = this.props.storeCreditToChange &&
-      this.props.storeCreditToChange.reasonId;
+    const value = props.storeCreditToChange && props.storeCreditToChange.reasonId;
+
     const body = (
       <div>
         <div>Are you sure you want to cancel this store credit?</div>
@@ -209,13 +207,13 @@ export default class StoreCredits extends React.Component {
                       placeholder="- Select -"
                       items={ reasons }
                       value={ value }
-                      onChange={ (value) => this.props.reasonChange(this.customerId, value) } />
+                      onChange={ (value) => props.reasonChange(this.customerId, value) } />
           </div>
         </div>
       </div>
     );
-    const shouldDisplay = this.props.storeCreditToChange &&
-      this.props.storeCreditToChange.status === 'canceled';
+    const shouldDisplay = props.storeCreditToChange && props.storeCreditToChange.status === 'canceled';
+
     return (
       <ConfirmationDialog
           isVisible={ shouldDisplay }
@@ -223,8 +221,8 @@ export default class StoreCredits extends React.Component {
           body={ body }
           cancel="Cancel"
           confirm="Yes, Cancel"
-          cancelAction={ () => this.props.cancelChange(this.customerId) }
-          confirmAction={ () => this.props.saveStatusChange(this.customerId) } />
+          cancelAction={ () => props.cancelChange(this.customerId) }
+          confirmAction={ () => props.saveStatusChange(this.customerId) } />
     );
   }
 

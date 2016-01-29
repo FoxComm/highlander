@@ -90,10 +90,10 @@ export default class DynamicGroup extends React.Component {
   }
 
   render() {
-    const mainMatchStatuses = {
-      and: 'all',
-      or: 'one',
-    };
+    const mainMatchStatuses = [
+      ['and', 'all'],
+      ['or', 'one'],
+    ];
 
     return (
       <NewGroupBase title='New Dynamic Customer Group'

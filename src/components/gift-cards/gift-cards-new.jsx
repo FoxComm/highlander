@@ -105,7 +105,7 @@ export default class NewGiftCard extends React.Component {
         <div className="fc-new-gift-card__subtypes fc-col-md-1-2">
           <label className="fc-new-gift-card__label" htmlFor="subTypeId">Subtype</label>
           <Dropdown value={`${props.subTypeId}`} onChange={ value => props.changeFormData('subTypeId', Number(value)) }>
-            {props.subTypes.map((subType, idx) => {
+            {props.subTypes.map(subType => {
               return <DropdownItem key={`subType-${subType.id}`} value={`${subType.id}`}>{subType.title}</DropdownItem>;
             })}
           </Dropdown>
@@ -163,7 +163,7 @@ export default class NewGiftCard extends React.Component {
                      labelAtRight={ labelAtRight }
                      labelClassName="fc-new-gift-card__label">
             <textarea className="fc-input" name="customerMessage"
-                      maxLength="1000" onChange={this.changeCustomerMessage.bind(this)}></textarea>
+                      maxLength="1000" onChange={this.changeCustomerMessage.bind(this)} />
           </FormField>
         </div>
       );

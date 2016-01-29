@@ -12,6 +12,7 @@ import FormField from '../../forms/formfield';
 import Form from '../../forms/form';
 import ErrorAlerts from '../../alerts/error-alerts';
 import SaveCancel from '../../common/save-cancel';
+import { Dropdown, DropdownItem } from '../../dropdown';
 
 // data
 import * as validators from '../../../lib/validators';
@@ -29,9 +30,14 @@ const selectCurrentCountry = createSelector(
   (countries={}, countryId) => countries[countryId]
 );
 
+const sortCountries = createSelector(
+  state => state.countries,
+  (countries = {}) => _.values(countries).sort((a, b) => a.name < b.name ? -1 : 1)
+);
+
 function mapStateToProps(state, props) {
   return {
-    countries: _.values(state.countries),
+    countries: sortCountries(state),
     country: selectCurrentCountry(state, props),
     formData: {},
     ...state.addressForm[formNamespace(props)]
@@ -196,11 +202,11 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label="Country">
-                  <select name="countryId" data-type="int" value={props.countryId}>
+                  <Dropdown value={props.countryId} onChange={value => props.changeValue('countryId', Number(value))}>
                     {countries.map((country, index) => {
-                      return <option value={country.id} key={`${index}-${country.id}`}>{country.name}</option>;
-                      })}
-                  </select>
+                      return <DropdownItem value={country.id} key={`${index}-${country.id}`}>{country.name}</DropdownItem>;
+                    })}
+                  </Dropdown>
                 </FormField>
               </li>
               <li>
@@ -219,12 +225,12 @@ export default class AddressForm extends React.Component {
                 </FormField>
               </li>
               <li>
-                <FormField label={regionName(countryCode)}>
-                  <select name="regionId" value={formData.regionId} data-type="int" required>
+                <FormField label={regionName(countryCode)} required>
+                  <Dropdown value={formData.regionId} onChange={value => props.changeValue('regionId', Number(value))}>
                     {regions.map((state, index) => {
-                      return <option value={state.id} key={`${index}-${state.id}`}>{state.name}</option>;
-                      })}
-                  </select>
+                      return <DropdownItem value={state.id} key={`${index}-${state.id}`}>{state.name}</DropdownItem>;
+                    })}
+                  </Dropdown>
                 </FormField>
               </li>
               <li>

@@ -23,15 +23,17 @@ export default class QueryBuilder extends React.Component {
   }
 
   get criterions() {
-    const selectedValues = _.pluck(_.values(this.props.criterions), 'selectedTerm');
-    const availableValues = _.difference(_.keys(this.props.termOptions), selectedValues);
-    const items = availableValues.reduce((r, term) => assoc(r, term, this.props.termOptions[term]), {});
+    const props = this.props;
+
+    const selectedValues = _.pluck(_.values(props.criterions), 'selectedTerm');
+    const availableValues = _.difference(_.keys(props.termOptions), selectedValues);
+    const items = availableValues.map(term => [term, props.termOptions[term]]);
 
     function buildCriterion(key) {
-      const selectedVal = get(this.props.criterions, [key, 'selectedTerm']);
+      const selectedVal = get(props.criterions, [key, 'selectedTerm']);
       let curItems = items;
       if (selectedVal) {
-        curItems = assoc(curItems, selectedVal, this.props.termOptions[selectedVal]);
+        curItems = [...items, [selectedVal, props.termOptions[selectedVal]]];
       }
 
       return <Criterion key={key} id={key} terms={curItems} selectedTerm={selectedVal}/>;
@@ -39,7 +41,7 @@ export default class QueryBuilder extends React.Component {
 
     return (
       <div className='fc-grid fc-group-builder-criterions'>
-        {_.keys(this.props.criterions).map(buildCriterion.bind(this))}
+        {_.keys(this.props.criterions).map(buildCriterion)}
       </div>
     );
   };

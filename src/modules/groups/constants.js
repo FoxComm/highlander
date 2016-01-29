@@ -29,6 +29,9 @@ const criteriaOperators = {
   bool: {
     eq: 'is'
   },
+  bool_inverted: {
+    eq: 'is'
+  },
   date: {
     'gt': 'is after',
     'lt': 'is before',
