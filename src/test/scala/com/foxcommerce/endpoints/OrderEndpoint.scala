@@ -4,43 +4,56 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
 
-import com.foxcommerce.payloads.CustomerPayload
+import com.foxcommerce.payloads._
+import com.foxcommerce.common._
 
 object OrderEndpoint {
 
-  def create(customer: CustomerPayload): HttpRequestBuilder = {
-    val requestBody = """{"name": "%s", "email": "%s"}""".format(customer.name, customer.email)
-
-    http("Create Customer")
-      .post("/v1/customers")
+  def create(order: OrderPayload): HttpRequestBuilder = {
+    http("Create Order")
+      .post("/v1/orders")
       .basicAuth("${email}", "${password}")
-      .body(StringBody(requestBody))
+      .body(StringBody("""{"customerId": ${customerId}}"""))
       .check(status.is(200))
-      .check(jsonPath("$.id").ofType[Long].saveAs("customerId"))
-      .check(jsonPath("$.name").ofType[String].is(customer.name))
-      .check(jsonPath("$.email").ofType[String].is(customer.email))
+      .check(jsonPath("$.id").ofType[Long].saveAs("orderId"))
+      .check(jsonPath("$.referenceNumber").ofType[String].saveAs("orderRefNum"))
+      .check(jsonPath("$.orderState").ofType[String].is("cart"))
+      .check(jsonPath("$.customer.id").ofType[String].is("${customerId}"))
+      .check(jsonPath("$.customer.name").ofType[String].is(order.customer.name))
   }
 
-  def update(customer: CustomerPayload): HttpRequestBuilder = http("Update Customer")
-    .patch("/v1/customers/${customerId}")
+  def cancel(): HttpRequestBuilder = http("Cancel Order")
+    .patch("/v1/orders/${orderRefNum}")
     .basicAuth("${email}", "${password}")
-    .body(StringBody("""{"name": "%s"}""".format(customer.name)))
+    .body(StringBody("""{"state": "canceled"}"""))
     .check(status.is(200))
-    .check(jsonPath("$.id").ofType[Long].is("${customerId}"))
-    .check(jsonPath("$.name").ofType[String].is(customer.name))
-    .check(jsonPath("$.email").ofType[String].is(customer.email))
+    .check(jsonPath("$.orderState").ofType[String].is("canceled"))
 
-  def blacklist(customer: CustomerPayload): HttpRequestBuilder = http("Toggle Customer Blacklisted Flag")
-    .post("/v1/customers/${customerId}/blacklist")
-    .basicAuth("${email}", "${password}")
-    .body(StringBody("""{"blacklisted": %b}""".format(customer.isBlacklisted)))
-    .check(status.is(200))
-    .check(jsonPath("$.isBlacklisted").ofType[Boolean].is(customer.isBlacklisted))
+  def addShippingAddress(address: AddressPayload): HttpRequestBuilder = {
+    http("Add Order Shipping Address")
+      .post("/v1/orders/${orderRefNum}/shipping-address")
+      .basicAuth("${email}", "${password}")
+      .body(StringBody(Utils.addressPayloadBody(address)))
+      .check(status.is(200))
+      .check(jsonPath("$.result.shippingAddress.name").ofType[String].is(address.name))
+      .check(jsonPath("$.result.shippingAddress.region.id").ofType[Long].is(address.regionId))
+      .check(jsonPath("$.result.shippingAddress.address1").ofType[String].is(address.address1))
+      .check(jsonPath("$.result.shippingAddress.address2").ofType[String].is(address.address2))
+      .check(jsonPath("$.result.shippingAddress.city").ofType[String].is(address.city))
+      .check(jsonPath("$.result.shippingAddress.zip").ofType[String].is(address.zip))
+  }
 
-  def disable(customer: CustomerPayload): HttpRequestBuilder = http("Toggle Customer Disabled Flag")
-    .post("/v1/customers/${customerId}/disable")
-    .basicAuth("${email}", "${password}")
-    .body(StringBody("""{"disabled": %b}""".format(customer.isBlacklisted)))
-    .check(status.is(200))
-    .check(jsonPath("$.disabled").ofType[Boolean].is(customer.isBlacklisted))
+  def updateShippingAddress(address: AddressPayload): HttpRequestBuilder = {
+    http("Update Order Shipping Address")
+      .patch("/v1/orders/${orderRefNum}/shipping-address")
+      .basicAuth("${email}", "${password}")
+      .body(StringBody(Utils.addressPayloadBody(address)))
+      .check(status.is(200))
+      .check(jsonPath("$.result.shippingAddress.name").ofType[String].is(address.name))
+      .check(jsonPath("$.result.shippingAddress.region.id").ofType[Long].is(address.regionId))
+      .check(jsonPath("$.result.shippingAddress.address1").ofType[String].is(address.address1))
+      .check(jsonPath("$.result.shippingAddress.address2").ofType[String].is(address.address2))
+      .check(jsonPath("$.result.shippingAddress.city").ofType[String].is(address.city))
+      .check(jsonPath("$.result.shippingAddress.zip").ofType[String].is(address.zip))
+  }
 }

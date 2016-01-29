@@ -40,4 +40,15 @@ object SearchEndpoint {
       .check(jsonPath("$._source.status").ofType[String].is(state))
       .check(jsonPath("$._source.originalBalance").ofType[Long].is(giftCard.balance))
   }
+
+  def checkOrder(conf: Config, order: OrderPayload, state: String): HttpRequestBuilder = {
+    http("Check Order Presence in Elasticsearch")
+      .get(s"${conf.elasticUrl}/${conf.indexName}" ++ "/orders_search_view/${orderId}")
+      .check(status.is(200))
+      .check(jsonPath("$._source.state").ofType[String].is(state))
+      .check(jsonPath("$._source.shippingAddresses[0].address1").ofType[String].is(order.shippingAddress.address1))
+      .check(jsonPath("$._source.shippingAddresses[0].address2").ofType[String].is(order.shippingAddress.address2))
+      .check(jsonPath("$._source.shippingAddresses[0].city").ofType[String].is(order.shippingAddress.city))
+      .check(jsonPath("$._source.shippingAddresses[0].zip").ofType[String].is(order.shippingAddress.zip))
+  }
 }

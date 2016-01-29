@@ -6,9 +6,11 @@ Home for our integration (mainly between [Phoenix](https://github.com/FoxComm/ph
 
 * `com.foxcommerce.ActivitySimulation` - TBD
 * `com.foxcommerce.NotificationSimulation` - TBD
-* `com.foxcommerce.TrailSimulation` - materialized views synchronization simulation. Tested entities:
+* `com.foxcommerce.TrailSimulation` - materialized views synchronization simulation. Covered entities:
     * `Customer`
     * `CustomerAddress`
+    * `Order`
+    * `OrderShippingAddress`
     * `GiftCard`
     * `StoreCredit`
 
