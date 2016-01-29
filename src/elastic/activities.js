@@ -64,14 +64,14 @@ export default function searchActivities(fromActivity = null, trailParams, days 
           const markerDate = now.diff(firstActivityDate, 'days', true) > days ? firstActivityDate : now;
           const untilDate = markerDate.endOf('day').subtract(days, 'days');
 
-          return fetch({untilDate, query});
+          return fetch({...trailParams, untilDate, query});
         }
 
         return response;
       });
   } else {
     const untilDate = moment(fromActivity.createdAt).startOf('day').subtract(days, 'days');
-    promise = fetch({fromId: fromActivity.id, untilDate, query});
+    promise = fetch({...trailParams, fromId: fromActivity.id, untilDate, query});
   }
 
   let response;
@@ -84,7 +84,7 @@ export default function searchActivities(fromActivity = null, trailParams, days 
       if (result.length == 0) {
         hasMore = false;
       } else {
-        return fetch({fromId: _.last(result).id, query}, '_count')
+        return fetch({...trailParams, fromId: _.last(result).id, query}, '_count')
           .then(response => hasMore = response.count > 0);
       }
     })
