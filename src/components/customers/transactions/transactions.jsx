@@ -11,8 +11,6 @@ const mapDispatchToProps = dispatch => {
   return { actions: bindActionCreators(actions, dispatch) };
 };
 
-const searchUrl = "orders_search_view/_search";
-
 @connect((state, props) => ({
   list: state.customers.transactions,
   customer: state.customers.details[props.params.customerId].details,
@@ -60,8 +58,7 @@ export default class CustomerTransactions extends React.Component {
           tableColumns={tableColumns}
           searchActions={this.props.actions}
           searchOptions={searchOptions}
-          title="Orders"
-          url={searchUrl} />
+          title="Orders"/>
       </div>
     );
   }

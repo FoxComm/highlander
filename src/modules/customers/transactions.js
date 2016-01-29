@@ -97,9 +97,10 @@ const searchTerms = [
   }
 ];
 
-const searches = [];
-
-const { reducer, actions } = makeLiveSearch('CUSTOMERS_TRANSACTIONS', searchTerms, searches);
+const { reducer, actions } = makeLiveSearch('customer-transactions',
+  searchTerms,
+  "orders_search_view/_search",
+  'customerTransactionsScope');
 
 export {
   reducer as default,
