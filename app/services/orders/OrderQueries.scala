@@ -2,7 +2,7 @@ package services.orders
 
 import scala.concurrent.ExecutionContext
 
-import models.{Customer, OrderPayments, Customers, Orders, javaTimeSlickMapper}
+import models.{Customer, OrderPayments, Customers, Order, Orders, javaTimeSlickMapper}
 import OrderPayments.scope._
 import responses.{FullOrder, TheResponse, AllOrders}
 import services.CartFailures.CustomerHasNoActiveOrder
@@ -65,7 +65,24 @@ object OrderQueries {
 
   def findActiveOrderByCustomer(customer: Customer)
     (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = (for {
-    order     ← * <~ Orders.findActiveOrderByCustomer(customer).one.mustFindOr(CustomerHasNoActiveOrder(customer.id))
-    fullOrder ← * <~ FullOrder.fromOrder(order).toXor
-  } yield fullOrder).run()
+    order     ← * <~ Orders.findActiveOrderByCustomer(customer).one.toXor
+    cart      ← * <~ createNewIfAbsent(order, customer)
+    fullOrder ← * <~ FullOrder.fromOrder(cart).toXor
+  } yield fullOrder).runTxn()
+
+  def findActiveOrderByCustomerId(customerId: Int)
+    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = (for {
+    customer  ← * <~ Customers.mustFindById(customerId)
+    order     ← * <~ Orders.findActiveOrderByCustomer(customer).one.toXor
+    cart      ← * <~ createNewIfAbsent(order, customer)
+    fullOrder ← * <~ FullOrder.fromOrder(cart).toXor
+  } yield fullOrder).runTxn()
+
+  private def createNewIfAbsent(order: Option[Order], customer: Customer)
+    (implicit ec: ExecutionContext, db: Database): DbResult[Order] = {
+    order match {
+      case Some(o)  ⇒ DbResult.good(o)
+      case _        ⇒ Orders.create(Order.buildCart(customer.id))
+    }
+  }
 }

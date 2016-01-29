@@ -11,7 +11,8 @@ import org.mockito.{Matchers => m}
 import org.scalatest.mock.MockitoSugar
 import payloads.CreateAddressPayload
 import responses.CreditCardsResponse.{Root => CardResponse}
-import responses.CustomerResponse
+import responses.{FullOrder, CustomerResponse}
+import services.CartFailures.CustomerHasNoActiveOrder
 import services.CreditCardFailure.StripeFailure
 import services.orders.OrderPaymentUpdater
 import services.{CannotUseInactiveCreditCard, CreditCardManager, CustomerEmailNotUnique, GeneralFailure, NotFoundFailure404, Result}
@@ -217,6 +218,35 @@ class CustomerIntegrationTest extends IntegrationTestBase
         rank2.revenue must ===(100)
         rank2.rank must ===(1)
       }
+    }
+  }
+
+  "GET /v1/customers/:customerId/cart" - {
+    "returns customer cart" in new CartFixture {
+      val response = GET(s"$uriPrefix/${customer.id}/cart")
+      response.status must === (StatusCodes.OK)
+
+      val root = response.as[FullOrder.Root]
+      root.referenceNumber must === (order.referenceNumber)
+      root.orderState must === (Order.Cart)
+
+      Orders.findActiveOrderByCustomer(customer).result.run().futureValue.size mustBe 1
+    }
+
+    "creates cart if no present" in new Fixture {
+      val response = GET(s"$uriPrefix/${customer.id}/cart")
+      response.status must === (StatusCodes.OK)
+
+      val root = response.as[FullOrder.Root]
+      root.orderState must === (Order.Cart)
+
+      Orders.findActiveOrderByCustomer(customer).result.run().futureValue.size mustBe 1
+    }
+
+    "returns 404 if customer not found" in new CartFixture {
+      val response = GET(s"$uriPrefix/999/cart")
+      response.status must === (StatusCodes.NotFound)
+      response.error must ===(NotFoundFailure404(Customer, 999).description)
     }
   }
 
@@ -589,6 +619,11 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
   trait CreditCardFixture extends Fixture {
     val creditCard = CreditCards.create(Factories.creditCard.copy(customerId = customer.id)).run().futureValue.rightVal
+  }
+
+  trait CartFixture extends Fixture {
+    val order = Orders.create(Factories.order.copy(customerId = customer.id, state = Order.Cart,
+      referenceNumber = "ABC-123")).run().futureValue.rightVal
   }
 
   trait FixtureForRanking extends CreditCardFixture {
