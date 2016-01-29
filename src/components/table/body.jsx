@@ -13,7 +13,6 @@ export default class TableBody extends React.Component {
     predicate: PropTypes.func,
     processRows: PropTypes.func,
     detectNewRows: PropTypes.bool,
-    showEmptyMessage: PropTypes.bool,
     emptyMessage: PropTypes.string
   };
 
@@ -21,7 +20,6 @@ export default class TableBody extends React.Component {
     predicate: entity => entity.id,
     processRows: _.identity,
     detectNewRows: false,
-    showEmptyMessage: false,
     emptyMessage: ''
   };
 
@@ -63,7 +61,7 @@ export default class TableBody extends React.Component {
     }
   }
 
-  get renderEmptyMessage() {
+  get emptyMessage() {
       return (
         <tr>
           <td  colSpan={this.props.columns.length}>
@@ -75,8 +73,8 @@ export default class TableBody extends React.Component {
       );
   }
   get tableRows() {
-    if (_.isEmpty(this.props.rows) && this.props.showEmptyMessage) {
-      return this.renderEmptyMessage;
+    if (_.isEmpty(this.props.rows) && this.props.emptyMessage) {
+      return this.emptyMessage;
     }
 
     const renderRow = this.props.renderRow || this.defaultRenderRow;

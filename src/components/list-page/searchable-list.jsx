@@ -89,7 +89,6 @@ export default class SearchableList extends React.Component {
           data={results}
           renderRow={props.renderRow}
           setState={setState}
-          showEmptyMessage={true}
           emptyMessage={props.emptyResultMessage} />
       </LiveSearch>
     );

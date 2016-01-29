@@ -22,7 +22,6 @@ Table.propTypes = {
   predicate: PropTypes.func,
   processRows: PropTypes.func,
   detectNewRows: PropTypes.bool,
-  showEmptyMessage: PropTypes.bool,
   emptyMessage: PropTypes.string,
   className: PropTypes.string
 };

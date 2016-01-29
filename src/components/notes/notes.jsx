@@ -152,6 +152,7 @@ export default class Notes extends React.Component {
           columns={this.props.tableColumns}
           data={this.props.data}
           setState={this.props.fetchNotes}
+          emptyMessage="No notes yet."
         />
         <ConfirmationDialog
           {...Notes.deleteOptions}
