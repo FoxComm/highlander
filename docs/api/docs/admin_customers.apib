@@ -31,6 +31,11 @@
 + Response 200 (application/json)
     + Attributes (CustomerResponse)
 
+### View Cart [GET /v1/customers/{id}/cart]
+
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
 ### Create [POST /v1/customers]
 
 + Request (application/json)
@@ -61,7 +66,7 @@
 + Request (application/json)
     + Attributes(CustomerToggleBlacklistPayload)
 + Response 200 (application/json)
-    + Attributes (CustomerResponse) 
+    + Attributes (CustomerResponse)
 
 ### Activate Guest [POST /v1/customers/{id}/activate]
 

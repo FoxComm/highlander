@@ -8,6 +8,7 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.{Customers, StoreAdmin}
 import payloads.{ActivateCustomerPayload, CreateAddressPayload, UpdateCustomerPayload}
 import services.{AddressManager, CreditCardManager, CustomerCreditConverter, CustomerManager, StoreCreditAdjustmentsService, StoreCreditService}
+import services.orders.OrderQueries
 import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.CustomDirectives._
@@ -47,6 +48,11 @@ object CustomerRoutes {
         (get & pathEnd) {
           goodOrFailures {
             CustomerManager.getById(customerId)
+          }
+        } ~
+        (get & path("cart")) {
+          goodOrFailures {
+            OrderQueries.findActiveOrderByCustomerId(customerId)
           }
         } ~
         (patch & pathEnd & entity(as[UpdateCustomerPayload])) { payload ⇒
