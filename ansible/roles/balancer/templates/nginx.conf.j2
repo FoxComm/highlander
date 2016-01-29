@@ -71,6 +71,47 @@ http {
       cjson = require "cjson"
       uuid4 = require "uuid4"
       math = require "math"
+      j = cjson.new()
+
+      function map(array, func)
+        local new_array = {}
+        for i,v in ipairs(array) do
+        new_array[i] = func(v)
+        end
+        return new_array
+      end
+
+      function request_internal_search()
+        local uri = ngx.re.sub(ngx.var.uri, "api/search", "internal-search")
+        local req = uri
+        if not ngx.var.args == nil then 
+            req = uri .. "?" .. ngx.var.args
+        end
+
+        -- map is needed because ngx.var.request_method returns a string
+        local methodsMap = {
+            GET = ngx.HTTP_GET,
+            POST = ngx.HTTP_POST,
+            PUT = ngx.HTTP_PUT,
+            DELETE = ngx.HTTP_DELETE
+        }
+
+        local body = ngx.req.read_body()
+        local method = methodsMap[ngx.var.request_method]
+
+        --get json result from elastic search
+        local res = ngx.location.capture(req, { method = method,  body = body })
+
+        --parse
+        local json = j.decode(res.body)
+
+        if json.error ~= nil or json.errors ~= nil then
+            ngx.say(res.body)
+            ngx.exit(0)
+        end
+
+        return json
+      end
       ';
 
   log_by_lua '
