@@ -4,7 +4,12 @@ Home for our integration (mainly between [Phoenix](https://github.com/FoxComm/ph
 
 ## Simulations
 
-* `com.foxcommerce.CustomerSimulation`
+* `com.foxcommerce.ActivitySimulation` - TBD
+* `com.foxcommerce.NotificationSimulation` - TBD
+* `com.foxcommerce.TrailSimulation` - materialized views synchronization simulation.
+    * `Customer`
+    * `CustomerAddress`
+    * `StoreCredit`
 
 ## Running
 

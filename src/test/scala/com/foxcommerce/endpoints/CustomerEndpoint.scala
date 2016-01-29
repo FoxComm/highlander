@@ -4,20 +4,9 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
 
-import com.foxcommerce.common.Config
 import com.foxcommerce.payloads.CustomerPayload
 
 object CustomerEndpoint {
-
-  def assert(conf: Config, customer: CustomerPayload): HttpRequestBuilder = {
-    http("Assert Customer Presence in Elasticsearch")
-      .get(s"${conf.elasticUrl}/${conf.indexName}/customers_search_view/" ++ "${customerId}")
-      .check(status.is(200))
-      .check(jsonPath("$._source.name").ofType[String].is(customer.name))
-      .check(jsonPath("$._source.email").ofType[String].is(customer.email))
-      .check(jsonPath("$._source.isBlacklisted").ofType[Boolean].is(customer.isBlacklisted))
-      .check(jsonPath("$._source.isDisabled").ofType[Boolean].is(customer.isDisabled))
-  }
 
   def create(customer: CustomerPayload): HttpRequestBuilder = {
     val requestBody = """{"name": "%s", "email": "%s"}""".format(customer.name, customer.email)
