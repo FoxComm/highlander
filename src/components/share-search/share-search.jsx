@@ -1,10 +1,15 @@
 import React, { Component, PropTypes } from 'react';
+import _ from 'lodash';
+
+import * as adminSearchActions from '../../modules/orders/admin-search';
 
 import wrapModal from '../modal/wrapper';
+import AdminResult from '../orders/admin-result';
 import ContentBox from '../content-box/content-box';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import Typeahead from '../typeahead/typeahead';
+import quickSearchTypeahead from '../typeahead/quick-search-typeahead';
 
 @wrapModal
 export default class ShareSearch extends Component {
@@ -25,6 +30,17 @@ export default class ShareSearch extends Component {
     return <span>Share Search: <strong>{this.props.title}</strong></span>;
   }
 
+  get search() {
+    const getState = state => _.get(state, 'orders.adminSearch');
+    let Component = quickSearchTypeahead(getState, adminSearchActions);
+    return (
+      <Component
+        itemComponent={AdminResult}
+        onItemSelected={_.noop}
+        placeholder="Name or email..." />
+    );
+  }
+
   render() {
     return (
       <div className="fc-share-search">
@@ -33,9 +49,7 @@ export default class ShareSearch extends Component {
             <div className="fc-share-search__search-form">
               <Form onSubmit={() => console.log('submit')}>
                 <FormField label="Invite Users">
-                  <Typeahead 
-                    placeholder="Name or email..."
-                    items={[]} />
+                  {this.search}
                 </FormField>
                 <FormField className="fc-share-search__submit-share">
                   <input className="fc-btn fc-btn-primary" type="submit" value="Share" />
