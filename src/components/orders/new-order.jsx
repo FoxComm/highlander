@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 
-import { Checkbox } from '../checkbox/checkbox';
+import BigCheckbox from '../checkbox/big-checkbox';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import Typeahead from '../typeahead/typeahead';
@@ -30,7 +30,7 @@ const NewOrder = props => {
                     items={[]} />
                 </FormField>
                 <FormField className="fc-col-md-2-8" label="Checkout as Guest">
-                  <Checkbox name="guestCheckout" inline={true} />
+                  <BigCheckbox name="guestCheckout" />
                 </FormField>
                 <FormField className="fc-col-md-1-8">
                   <input className="fc-btn fc-btn-primary" type="submit" value="Next" />

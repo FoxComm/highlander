@@ -1,0 +1,20 @@
+.fc-big-checkbox__visible-box {
+  &:hover {
+    cursor: pointer;
+  }
+
+  &._checked {
+    background: #3A4350;
+    border: 2px solid #3A4350;
+    border-radius: 3px;
+
+    &:before {
+      font-family: "fontello";
+      content: "\e827";
+      color: @color-white;
+      font-size: 24px;
+      padding-left: 4px;
+      line-height: 36px;
+    }
+  }
+}
