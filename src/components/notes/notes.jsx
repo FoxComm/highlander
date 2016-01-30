@@ -20,6 +20,13 @@ import * as NotesActinos from '../../modules/notes';
 import { entityId } from '../../modules/state-helpers';
 
 
+const entityTitles = {
+  rma: 'Return',
+  order: 'Order',
+  giftCard: 'GiftCard',
+  customer: 'Customer'
+};
+
 const editingNote = createSelector(
   (state, entity) => _.get(state.notes, [entity.entityType, entity.entityId, 'rows'], []),
   (state, entity) => _.get(state.notes, [entity.entityType, entity.entityId, 'editingNoteId']),
@@ -58,23 +65,36 @@ export default class Notes extends React.Component {
   };
 
   static propTypes = {
-    tableColumns: PropTypes.array,
     entity: PropTypes.shape({
       entityId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       entityType: PropTypes.string.isRequired
     })
   };
 
-  static defaultProps = {
-    tableColumns: [
-      {field: 'createdAt', text: 'Date/Time'},
-      {field: 'body', text: 'Note'},
-      {field: 'author', text: 'Author'}
-    ]
-  };
-
   componentDidMount() {
     this.props.fetchNotes();
+  }
+
+  get isCustomerNotes() {
+    return this.props.entity.entityType == 'customer';
+  }
+
+  get tableColumns() {
+    let baseColumns = [
+      {field: 'body', text: 'Note'},
+      {field: 'author', text: 'Author'}
+    ];
+    if (this.isCustomerNotes) {
+      baseColumns = [
+        {field: null, text: 'Transaction'},
+        ...baseColumns,
+      ];
+    }
+
+    return [
+      {field: 'createdAt', text: 'Date/Time'},
+      ...baseColumns
+    ];
   }
 
   @autobind
@@ -82,7 +102,7 @@ export default class Notes extends React.Component {
     if (this.props.editingNoteId === row.id) {
       return (
         <TableRow key={`row-${index}`}>
-          <TableCell colspan={3}>
+          <TableCell colspan={this.tableColumns.length}>
             <NoteForm
               body={this.props.editingNote && this.props.editingNote.body}
               onReset={this.props.stopAddingOrEditingNote}
@@ -92,11 +112,29 @@ export default class Notes extends React.Component {
         </TableRow>
       );
     } else {
+      let transaction = null;
+      if (this.isCustomerNotes) {
+        let cell = null;
+        if (row.referenceType != 'customer') {
+          cell = (
+            <div>
+              <div>{entityTitles[row.referenceType] || row.referenceType}</div>
+              <div>{row.referenceId}</div>
+            </div>
+          );
+        }
+        transaction = (
+          <TableCell>
+            {cell}
+          </TableCell>
+        );
+      }
       return (
         <TableRow key={`row-${index}`} isNew={isNew}>
           <TableCell>
             <DateTime value={row.createdAt}/>
           </TableCell>
+          {transaction}
           <TableCell>
             {row.body}
           </TableCell>
@@ -118,7 +156,7 @@ export default class Notes extends React.Component {
     if (this.props.editingNoteId === -1) {
       return [
         <TableRow key="row-add">
-          <TableCell colspan={this.props.tableColumns.length}>
+          <TableCell colspan={this.tableColumns.length}>
             <NoteForm
               onReset={this.props.stopAddingOrEditingNote}
               onSubmit={this.props.createNote}
@@ -150,7 +188,7 @@ export default class Notes extends React.Component {
           renderRow={this.renderNoteRow}
           processRows={this.injectAddingForm}
           detectNewRows={this.props.wasReceived}
-          columns={this.props.tableColumns}
+          columns={this.tableColumns}
           data={this.props.data}
           setState={this.props.fetchNotes}
           emptyMessage="No notes yet."
