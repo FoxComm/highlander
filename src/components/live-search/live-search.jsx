@@ -63,12 +63,14 @@ export default class LiveSearch extends React.Component {
     singleSearch: PropTypes.bool,
     initialFilters: PropTypes.array,
     submitFilters: PropTypes.func.isRequired,
-    updateSearch: PropTypes.func.isRequired
+    updateSearch: PropTypes.func.isRequired,
+    noGutter: PropTypes.bool,
   };
 
   static defaultProps = {
     singleSearch: false,
     initialFilters: [],
+    noGutter: false,
   };
 
   get currentSearch() {
@@ -178,7 +180,7 @@ export default class LiveSearch extends React.Component {
           onSaveUpdateComplete={saveSearch}
           onEditNameComplete={editName}
           onCopySearchComplete={copySearch}
-          onDeleteSearchComplete={deleteSearch} /> 
+          onDeleteSearchComplete={deleteSearch} />
       );
     });
 
@@ -408,10 +410,13 @@ export default class LiveSearch extends React.Component {
   }
 
   render() {
+    const gridClass = classNames('fc-grid', 'fc-list-page-content', {
+      'fc-grid-no-gutter': this.props.noGutter
+    });
     return (
       <div className="fc-live-search">
         {this.header}
-        <div className="fc-grid fc-list-page-content">
+        <div className={gridClass}>
           <div className="fc-col-md-1-1 fc-live-search__search-control">
             <form>
               <PilledInput
