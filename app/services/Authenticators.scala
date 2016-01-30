@@ -31,8 +31,9 @@ object Authenticator {
     auth[Customer, EmailFinder[Customer]]("private customer routes")(credentials, Customers.findByEmail, _.hashedPassword)
   }
 
-  def storeAdmin(credentials: Option[HttpCredentials])(implicit ec: EC, db: DB): Future[AuthenticationResult[StoreAdmin]] = {
-    auth[StoreAdmin, EmailFinder[StoreAdmin]]("admin")(credentials, StoreAdmins.findByEmail, m ⇒ Some(m.hashedPassword))
+  def storeAdmin(credentials: Option[HttpCredentials])
+              (implicit ec: EC, db: DB): Future[AuthenticationResult[StoreAdmin]] = {
+    auth[StoreAdmin, EmailFinder[StoreAdmin]]("admin")(credentials, StoreAdmins.findByEmail, _.hashedPassword)
   }
 
   def requireAdminAuth(auth: AsyncAuthenticator[StoreAdmin]): AuthenticationDirective[StoreAdmin] = {

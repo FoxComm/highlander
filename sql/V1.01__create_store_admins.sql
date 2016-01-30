@@ -1,7 +1,7 @@
 create table store_admins (
     id serial primary key,
     email email not null,
-    hashed_password generic_string not null,
+    hashed_password generic_string,
     name generic_string,
     department generic_string,
     created_at timestamp without time zone default (now() at time zone 'utc'),
