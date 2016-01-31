@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
@@ -10,6 +11,7 @@ import ChooseCustomer from './choose-customer';
 import ChooseCustomerRow from './choose-customer-row';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
+import PilledInput from '../pilled-search/pilled-input';
 import Typeahead from '../typeahead/typeahead';
 
 function mapStateToProps(state) {
@@ -24,6 +26,15 @@ export default class NewOrder extends Component {
     suggestCustomers: PropTypes.func.isRequired,
   };
 
+  constructor(props, ...args) {
+    super(props, ...args);
+
+    this.state = {
+      customers: [],
+      query: '',
+    };
+  }
+
   get suggestedCustomers() {
     const empty = { rows: [], from: 0, size: 0, total: 0 };
     return _.get(this.props, 'newOrder.result', empty);
@@ -35,8 +46,38 @@ export default class NewOrder extends Component {
 
   get customersList() {
     return (
-      <ChooseCustomer items={this.suggestedCustomers} />
+      <ChooseCustomer items={this.suggestedCustomers} onItemClick={this.selectCustomer} />
     );
+  }
+
+  get customers() {
+    return this.state.customers.map(c => c.email);
+  }
+
+  get chooseCustomerInput() {
+    return (
+      <PilledInput
+        solid={true}
+        value={this.state.query}
+        onChange={e => this.setState({query: e.target.value})}
+        pills={this.customers}
+        onPillClose={this.clearCustomer} />
+    );
+  }
+
+  @autobind
+  clearCustomer() {
+    this.setState({
+      customers: [],
+    });
+  }
+
+  @autobind
+  selectCustomer(customer) {
+    this.setState({
+      customers: [customer],
+      query: '',
+    });
   }
 
   render() {
@@ -61,6 +102,7 @@ export default class NewOrder extends Component {
                     fetchItems={this.props.suggestCustomers}
                     isFetching={this.isFetching}
                     itemsElement={this.customersList}
+                    inputElement={this.chooseCustomerInput}
                     placeholder="Customer name or email..." />
                   <FormField
                     className="fc-order-create__guest-checkout fc-col-md-2-8"
