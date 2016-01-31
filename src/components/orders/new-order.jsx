@@ -29,7 +29,10 @@ const NewOrder = props => {
                     placeholder="Customer name or email..."
                     items={[]} />
                 </FormField>
-                <FormField className="fc-col-md-2-8" label="Checkout as Guest">
+                <FormField
+                  className="fc-order-create__guest-checkout fc-col-md-2-8" 
+                  label="Checkout as Guest"
+                  labelAfterInput={true}>
                   <BigCheckbox name="guestCheckout" />
                 </FormField>
                 <FormField className="fc-col-md-1-8">

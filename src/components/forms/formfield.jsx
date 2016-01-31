@@ -22,6 +22,7 @@ export default class FormField extends React.Component {
     target: PropTypes.string,
     getTargetValue: PropTypes.func,
     className: PropTypes.string,
+    labelAfterInput: PropTypes.bool,
   };
 
   static contextTypes = {
@@ -31,6 +32,7 @@ export default class FormField extends React.Component {
   static defaultProps = {
     target: 'input,textarea,select',
     getTargetValue: node => node.type == 'checkbox' ? node.checked : node.value,
+    labelAfterInput: false,
   };
 
   constructor(...args) {
@@ -203,12 +205,23 @@ export default class FormField extends React.Component {
   }
 
   render() {
-    return (
-      <div className={ classNames('fc-form-field', this.props.className) }>
-        {this.label}
-        {this.props.children}
-        {this.errorMessages}
-      </div>
-    );
+    const className = classNames('fc-form-field', this.props.className);
+    if (!this.props.labelAfterInput) {
+      return (
+        <div className={className}>
+          {this.label}
+          {this.props.children}
+          {this.errorMessages}
+        </div>
+      );
+    } else {
+      return (
+        <div className={className}>
+          {this.props.children}
+          {this.label}
+          {this.errorMessages}
+        </div>
+      );
+    }
   }
 }
