@@ -20,7 +20,7 @@ import State from '../../common/state';
 import SearchableList from '../../list-page/searchable-list';
 
 // redux
-import { actions as StoreCreditTransactionsActions } from '../../../modules/store-credit-transactions/list';
+import { actions as StoreCreditTransactionsActions } from '../../../modules/customers/store-credit-transactions';
 import * as StoreCreditTotalsActions from '../../../modules/customers/store-credit-totals';
 
 // const actions = {
@@ -29,7 +29,7 @@ import * as StoreCreditTotalsActions from '../../../modules/customers/store-cred
 // };
 
 const mapStateToProps = (state, props) => ({
-  list: state.storeCreditTransactions.list,
+  list: state.customers.storeCreditTransactions,
   storeCreditTotals: state.customers.storeCreditTotals[props.params.customerId]
 });
 
@@ -88,10 +88,6 @@ export default class StoreCreditTransactions extends React.Component {
     return this.props.params.customerId;
   }
 
-  get searchUrl() {
-    return 'store_credit_transactions_view/_search';
-  }
-
   componentDidMount() {
     this.props.totalsActions.fetchTotals(this.customerId);
   }
@@ -125,61 +121,24 @@ export default class StoreCreditTransactions extends React.Component {
     );
   }
 
-  @autobind
-  setState(params) {
-    if (params.sortBy) {
-      const sort = {};
-      const newState = {sortBy: params.sortBy};
-
-      let sortOrder = this.state.sortOrder;
-
-      if (params.sortBy == this.state.sortBy) {
-        sortOrder = newState['sortOrder'] = sortOrder == 'asc' ? 'desc' : 'asc';
-      }
-
-      sort[params.sortBy] = {order: sortOrder};
-      props.searchActions.fetch(props.url, {sort: [sort]});
-      this.setState(newState);
-    }
-  }
-
   render() {
-    const props = this.props;
-    const totals = _.get(props, ['storeCreditTotals', 'totals'], {});
+    const totals = _.get(this.props, ['storeCreditTotals', 'totals'], {});
     console.log(this.props);
-
-    const selectedSearch = props.list.selectedSearch;
-    const results = props.list.savedSearches[selectedSearch].results;
-
-    const filter = searchTerms => props.actions.addSearchFilter(this.searchUrl, searchTerms);
-    const selectSearch = idx => props.actions.selectSearch(this.searchUrl, idx);
 
     return (
       <div className="fc-store-credits">
         <Summary totals={totals}
-                 params={props.params}
+                 params={this.props.params}
                  history={this.context.history}
                  transactionsSelected={true} />
         <div className="fc-list-page-content">
-          {/*<SearchableList
-            tableColumns={props.tableColumns}
-            toggleColumnPresent={false}
-            renderRow={this.renderRow}
-            emptyMessage="No transactions found."
-            url={this.searchUrl}
-            selectSavedSearch={selectSearch}
-            submitFilters={filter}
-            searches={props.storeCreditTransactions}
-            searchActions = {props.searchActions}
-            {...this.defaultSearchOptions} >
-          </SearchableList>*/}
           <SearchableList
+            title="Transactions"
             emptyResultMessage="No transactions found."
-            list={props.list}
+            list={this.props.list}
             renderRow={this.renderRow}
-            tableColumns={props.tableColumns}
-            searchActions={props.actions}
-            url={this.searchUrl}
+            tableColumns={this.props.tableColumns}
+            searchActions={this.props.actions}
             searchOptions={this.defaultSearchOptions} />
         </div>
       </div>
