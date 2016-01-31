@@ -413,6 +413,9 @@ export default class LiveSearch extends React.Component {
     const gridClass = classNames('fc-grid', 'fc-list-page-content', {
       'fc-grid-no-gutter': this.props.noGutter
     });
+    const tableClass = classNames('fc-col-md-1-1', 'fc-live-search__table', {
+      '_no-gutter': this.props.noGutter
+    });
     return (
       <div className="fc-live-search">
         {this.header}
@@ -442,7 +445,7 @@ export default class LiveSearch extends React.Component {
               {this.state.optionsVisible && this.searchOptions}
             </div>
           </div>
-          <div className="fc-col-md-1-1">
+          <div className={tableClass} >
             {this.props.children}
           </div>
         </div>
