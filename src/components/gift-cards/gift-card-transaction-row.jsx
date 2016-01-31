@@ -6,18 +6,7 @@ import React, { PropTypes } from 'react';
 // components
 import MultiSelectRow from '../table/multi-select-row';
 
-const setCellContents = (giftCard, field) => {
-  switch(field) {
-    case 'createdAt':
-    case 'debit':
-    case 'state':
-    case 'availableBalance':
-    case 'orderReferenceNumber':
-      return _.get(giftCard, field);
-    default:
-      return null;
-  }
-};
+const setCellContents = (giftCard, field) => _.get(giftCard, field, null);
 
 const GiftCardTransactionRow = props => {
   const { giftCard, columns } = props;
