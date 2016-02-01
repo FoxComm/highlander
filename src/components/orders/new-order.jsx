@@ -37,11 +37,11 @@ export default class NewOrder extends Component {
 
   get suggestedCustomers() {
     const empty = { rows: [], from: 0, size: 0, total: 0 };
-    return _.get(this.props, 'newOrder.result', empty);
+    return _.get(this.props, 'newOrder.customers.result', empty);
   }
 
   get isFetching() {
-    return _.get(this.props, 'newOrder.isFetching', false);
+    return _.get(this.props, 'newOrder.customers.isFetching', false);
   }
 
   get customersList() {
@@ -64,6 +64,19 @@ export default class NewOrder extends Component {
         onPillClose={this.clearCustomer} />
     );
   }
+
+  get nextButton() {
+    const clickAction = _.isEmpty(this.state.customers)
+      ? _.noop
+      : () => this.props.createOrder(this.state.customers[0]);
+
+    return (
+      <Button className="fc-btn-primary fc-right" onClick={clickAction}>
+        Next
+        <i className="icon-chevron-right" />
+      </Button>
+    );
+  }  
 
   @autobind
   clearCustomer() {
@@ -111,10 +124,7 @@ export default class NewOrder extends Component {
                     <BigCheckbox name="guestCheckout" />
                   </FormField>
                   <FormField className="fc-col-md-1-8">
-                    <Button className="fc-btn-primary fc-right">
-                      Next
-                      <i className="icon-chevron-right" />
-                    </Button>
+                    {this.nextButton}
                   </FormField>
                 </Form>
               </div>
