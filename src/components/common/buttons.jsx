@@ -4,10 +4,16 @@ import classNames from 'classnames';
 import _ from 'lodash';
 
 const Button = (props = {}) => {
-  const {icon, children, ...restProps} = props;
+  const {icon, inline, docked, children, ...restProps} = props;
+  const className = classNames(
+    'fc-btn',
+    {'_docked-left': docked && docked === 'left'},
+    {'_docked-right': docked && docked === 'right'},
+    props.className,
+  );
 
   return (
-    <button {...restProps} className={ classNames('fc-btn', props.className) }>
+    <button {...restProps} className={className}>
       {icon && <i className={`icon-${icon}`}></i>}
       {children}
     </button>
@@ -16,8 +22,12 @@ const Button = (props = {}) => {
 
 Button.propTypes = {
   className: PropTypes.string,
+  docked: PropTypes.oneOf([
+    'left',
+    'right',
+  ]),
   icon: PropTypes.string,
-  children: PropTypes.node
+  children: PropTypes.node,
 };
 
 const LeftButton = props => {
@@ -41,7 +51,7 @@ const DeleteButton = (props = {}) => {
 };
 
 DeleteButton.propTypes = {
-  className: PropTypes.string
+  className: PropTypes.string,
 };
 
 const EditButton = props => {
@@ -62,7 +72,7 @@ const PrimaryButton = (props = {}) => {
 
 PrimaryButton.propTypes = {
   children: PropTypes.node,
-  className: PropTypes.string
+  className: PropTypes.string,
 };
 
 export {
@@ -74,5 +84,5 @@ export {
   EditButton,
   AddButton,
   IncrementButton,
-  PrimaryButton
+  PrimaryButton,
 };

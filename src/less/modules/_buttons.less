@@ -1,4 +1,7 @@
+@button-width: 40px;
 @button-height: 40px;
+@button-width-small: 24px;
+@button-height-small: 24px;
 @button-font-size: 14px;
 
 .fc-btn {
@@ -11,6 +14,7 @@
   user-select: none;
   cursor: pointer;
   .inline-block();
+  vertical-align: bottom;
 
   &:hover {
     .colors(@color-control-standard-hover-fg, @color-control-standard-hover-bg);
@@ -58,13 +62,31 @@
     border: none;
   }
 
+  &._small {
+    .padding(0 12px);
+    .height(@button-height-small);
+    .line-height(@button-height-small);
+  }
+
+  &._docked-left {
+    border-right: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  &._docked-right {
+    border-left: none;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
   &-close {
     cursor: pointer;
   }
 
   &[class*=" icon-"] {
     padding: 0;
-    .width(40px);
+    .width(@button-width);
   }
 
   i[class*="icon-"]:only-child {
