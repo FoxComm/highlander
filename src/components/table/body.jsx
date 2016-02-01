@@ -67,7 +67,7 @@ export default class TableBody extends React.Component {
       return (
         <tr>
           <td  colSpan={this.props.columns.length}>
-            <div className='fc-content-box__empty-row'>
+            <div className="fc-content-box__empty-row">
               {this.props.emptyMessage}
             </div>
           </td>
