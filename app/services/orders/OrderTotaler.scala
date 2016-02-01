@@ -28,10 +28,10 @@ object OrderTotaler {
   def subTotal(order: Order)(implicit ec: ExecutionContext): DBIO[Int] =
     sql"""select count(*), sum(coalesce(gc.original_balance, 0)) + sum(coalesce(skus.price, 0)) as sum
          |	from order_line_items oli
-         |	left outer join order_line_item_skus sli on (sli.id = oli.id)
+         |	left outer join order_line_item_skus sli on (sli.id = oli.origin_id)
          |	left outer join skus on (skus.id = sli.sku_id)
          |
-         |	left outer join order_line_item_gift_cards gcli on (gcli.id = oli.id)
+         |	left outer join order_line_item_gift_cards gcli on (gcli.id = oli.origin_id)
          |	left outer join gift_cards gc on (gc.id = gcli.gift_card_id)
          |	where oli.order_id = ${order.id}
          | """.stripMargin.as[(Int, Int)].headOption.map {
