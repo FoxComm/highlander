@@ -38,7 +38,7 @@ const representatives = {
     },
     details: data => {
       return {
-        newOne: <AddressDetails address={omitAddressName(data.address)} />,
+        newOne: <AddressDetails address={omitAddressName(data.shippingAddress)} />,
         previous: null,
       };
     }
@@ -52,9 +52,11 @@ const representatives = {
       );
     },
     details: data => {
+      if (!data.shippingAddress) return null;
+
       return {
         newOne: null,
-        previous: <AddressDetails address={omitAddressName(data.address)} />,
+        previous: <AddressDetails address={omitAddressName(data.shippingAddress)} />,
       };
     }
   },
