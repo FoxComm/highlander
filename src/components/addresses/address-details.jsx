@@ -5,6 +5,16 @@ import CountryInfo from './country-info';
 const AddressDetails = props => {
   const address = props.address;
 
+  let countryInfo = null;
+
+  if (address.region) {
+    countryInfo = (
+      <li>
+        <CountryInfo display={country => country.name} countryId={address.region.countryId} />
+      </li>
+    );
+  }
+
   return (
     <ul className="fc-address-details">
       {address.name && <li className="name">{address.name}</li>}
@@ -13,7 +23,7 @@ const AddressDetails = props => {
       <li>
         {address.city}, <span>{address.region && address.region.name}</span> <span>{address.zip}</span>
       </li>
-      <li><CountryInfo display={country => country.name} countryId={address.region.countryId} /></li>
+      {countryInfo}
       {address.phoneNumber && <li><PhoneNumber>{address.phoneNumber}</PhoneNumber></li>}
     </ul>
   );
