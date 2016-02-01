@@ -5,8 +5,7 @@ import models.{Customers, GiftCard, GiftCardAdjustment, GiftCardAdjustments, Gif
 GiftCardSubtype, GiftCardSubtypes, GiftCards, OrderPayments, Orders, PaymentMethod, Reason, Reasons, StoreAdmins}
 import org.joda.money.CurrencyUnit
 import org.scalatest.BeforeAndAfterEach
-import responses.{GiftCardAdjustmentsResponse, GiftCardBulkResponse, GiftCardResponse, GiftCardSubTypesResponse,
-ResponseWithFailuresAndMetadata, StoreCreditResponse}
+import responses.{GiftCardAdjustmentsResponse, GiftCardBulkResponse, GiftCardResponse, GiftCardSubTypesResponse, StoreCreditResponse}
 import services.{EmptyCancellationReasonFailure, GeneralFailure, GiftCardConvertFailure,
 InvalidCancellationReasonFailure, NotFoundFailure404, OpenTransactionsFailure}
 import slick.driver.PostgresDriver.api._
@@ -85,8 +84,8 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         val giftCards = Seq(giftCard, gcSecond)
 
         response.status must ===(StatusCodes.OK)
-        val resp = response.as[ResponseWithFailuresAndMetadata[Seq[GiftCard]]]
-        resp.result.map(_.id).sorted must ===(giftCards.map(_.id).sorted)
+        val resp = response.ignoreFailuresAndGiveMe[Seq[GiftCard]]
+        resp.map(_.id).sorted must ===(giftCards.map(_.id).sorted)
       }
     }
 
@@ -242,7 +241,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
         // Ensure that cancel adjustment is automatically created
         val transactionsRep = GET(s"v1/gift-cards/${giftCard.code}/transactions")
-        val adjustments = transactionsRep.as[GiftCardAdjustmentsResponse.Root#ResponseMetadataSeq].result
+        val adjustments = transactionsRep.ignoreFailuresAndGiveMe[Seq[GiftCardAdjustmentsResponse.Root]]
         response.status must ===(StatusCodes.OK)
         adjustments.size mustBe 2
         adjustments.head.state must ===(GiftCardAdjustment.CancellationCapture)
@@ -262,7 +261,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     "GET /v1/gift-cards/:code/transactions" - {
       "returns the list of adjustments" in new Fixture {
         val response = GET(s"v1/gift-cards/${giftCard.code}/transactions")
-        val adjustments = response.as[GiftCardAdjustmentsResponse.Root#ResponseMetadataSeq].result
+        val adjustments = response.ignoreFailuresAndGiveMe[Seq[GiftCardAdjustmentsResponse.Root]]
 
         response.status must ===(StatusCodes.OK)
         adjustments.size mustBe 1
@@ -279,7 +278,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         val adjustment3 = GiftCards.auth(giftCard, Some(payment.id), 2).run().futureValue.rightVal
 
         val response = GET(s"v1/gift-cards/${giftCard.code}/transactions?sortBy=-id&from=2&size=2")
-        val adjustments = response.as[GiftCardAdjustmentsResponse.Root#ResponseMetadataSeq].result
+        val adjustments = response.ignoreFailuresAndGiveMe[Seq[GiftCardAdjustmentsResponse.Root]]
 
         response.status must ===(StatusCodes.OK)
         adjustments.size mustBe 1

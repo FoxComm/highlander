@@ -4,8 +4,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.matching.Regex
 
 import cats.data.Xor
-import models.{Rmas, Orders}
-import responses.{RmaResponse, FullOrder}
+import responses.{SortingMetadata, PaginationMetadata, TheResponse}
 import services.{Failure, Failures, Result}
 import slick.ast._
 import slick.driver.PostgresDriver._
@@ -17,7 +16,8 @@ import slick.profile.{SqlAction, SqlStreamingAction}
 import slick.relational.{CompiledMapping, ResultConverter}
 import slick.util.SQLBuilder
 import utils.CustomDirectives.{Sort, SortAndPage}
-import utils.DbResultT.DbResultT
+import utils.DbResultT.{DbResultT, _}
+import DbResultT.implicits._
 import utils.ExceptionWrapper._
 
 object Slick {
@@ -129,7 +129,7 @@ object Slick {
       from      : Option[Int]         = None,
       size      : Option[Int]         = None,
       pageNo    : Option[Int]         = None,
-      total     : Option[Future[Int]] = None)
+      total     : Option[DBIO[Int]] = None)
 
     object QueryMetadata {
       def empty = QueryMetadata()
@@ -156,36 +156,13 @@ object Slick {
       def flatMap[S](f: Failures Xor A => DbResult[S])(implicit ec: ExecutionContext): ResultWithMetadata[S] =
         this.copy(result = result.flatMap(f))
 
-      def asResponseFuture(implicit db: Database, ec: ExecutionContext): Future[ResponseWithMetadata[A]] = {
-        metadata.total match {
-          case None              ⇒
-            for (res ← result.run())
-              yield ResponseWithMetadata(
-                res,
-                ResponseMetadata(
-                  sortBy = metadata.sortBy,
-                  from = metadata.from,
-                  size = metadata.size,
-                  pageNo = metadata.pageNo,
-                  total = None
-                )
-              )
-
-          case Some(totalFuture) ⇒
-            for {
-              res   ← result.run()
-              total ← totalFuture
-            } yield ResponseWithMetadata(
-              res,
-              ResponseMetadata(
-                sortBy = metadata.sortBy,
-                from = metadata.from,
-                size = metadata.size,
-                pageNo = metadata.pageNo,
-                total = Some(total)
-              )
-            )
-        }
+      def toTheResponse(implicit ec: ExecutionContext): DbResultT[TheResponse[A]] = {
+        val pagingMetadata = PaginationMetadata(from = metadata.from, size = metadata.size, pageNo = metadata.pageNo)
+        (for {
+          result ← * <~ this.result
+          total  ← * <~ metadata.total.map(_.map(Some(_)).toXor).getOrElse(DbResult.none[Int])
+        } yield TheResponse(result, pagination = Some(pagingMetadata.copy(total = total)),
+                                    sorting    = Some(SortingMetadata(sortBy = metadata.sortBy))))
       }
     }
 
@@ -249,15 +226,13 @@ object Slick {
 
         // size > 0 costraint is defined in SortAndPage
         val pageNo = (from / size) + 1
-        // TODO: left as DBIO and compose
-        val total  = query.length.result.run()
 
         val metadata = QueryMetadata(
           sortBy = sortAndPage.sortBy,
           from   = Some(from),
           size   = Some(size),
           pageNo = Some(pageNo),
-          total  = Some(total))
+          total  = Some(query.length.result))
 
         withMetadata(metadata)
       }

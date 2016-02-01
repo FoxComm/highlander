@@ -6,11 +6,9 @@ import cats.data.Xor
 import models.Order._
 import models.{Customers, Order, Orders, StoreAdmin, StoreAdmins}
 import payloads.{BulkAssignment, BulkUpdateOrdersPayload, BulkWatchers}
-import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import responses.{AllOrders, FullOrder, StoreAdminResponse}
-import services.orders.OrderQueries
+import services.orders.{BulkOrderUpdateResponse, OrderQueries}
 import services.{LockedFailure, NotFoundFailure404, StateTransitionNotAllowed}
-import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -53,9 +51,9 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
   // paging and sorting API end
 
   def getAllOrders: Seq[AllOrders.Root] = {
-    OrderQueries.findAll.result.run().futureValue match {
+    OrderQueries.findAll.futureValue match {
       case Xor.Left(s)    ⇒ fail(s.toList.mkString(";"))
-      case Xor.Right(seq) ⇒ seq
+      case Xor.Right(seq) ⇒ seq.result
     }
   }
 
@@ -67,7 +65,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       val responseJson = GET(s"v1/orders")
       responseJson.status must === (StatusCodes.OK)
 
-      val allOrders = responseJson.as[AllOrders.Root#ResponseMetadataSeq].result
+      val allOrders = responseJson.ignoreFailuresAndGiveMe[Seq[AllOrders.Root]]
       allOrders.size must === (1)
 
       val actual = allOrders.head
@@ -185,12 +183,10 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       responseObj.errors.value.head must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
-    "warns when admin to assign not found" in new BulkAssignmentFixture {
+    "errors when admin to assign not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/orders/assignees", BulkAssignment(Seq(orderRef1), 777))
-      response.status must === (StatusCodes.OK)
-      val responseObj = response.as[BulkOrderUpdateResponse]
-      responseObj.result must === (getAllOrders)
-      responseObj.errors.value.head must === (NotFoundFailure404(StoreAdmin, 777).description)
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (NotFoundFailure404(StoreAdmin, 777).description)
     }
   }
 
@@ -238,12 +234,10 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       responseObj.errors.value.head must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
-    "warns when admin to unassign not found" in new BulkAssignmentFixture {
+    "errors when admin to unassign not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/orders/assignees/delete", BulkAssignment(Seq(orderRef1), 777))
-      response.status must === (StatusCodes.OK)
-      val responseObj = response.as[BulkOrderUpdateResponse]
-      responseObj.result must === (getAllOrders)
-      responseObj.errors.value.head must === (NotFoundFailure404(StoreAdmin, 777).description)
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (NotFoundFailure404(StoreAdmin, 777).description)
     }
   }
 
@@ -292,12 +286,10 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       responseObj.errors.value.head must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
-    "warns when admin to assign not found" in new BulkAssignmentFixture {
+    "errors when admin to assign not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/orders/watchers", BulkWatchers(Seq(orderRef1), 777))
-      response.status must === (StatusCodes.OK)
-      val responseObj = response.as[BulkOrderUpdateResponse]
-      responseObj.result must === (getAllOrders)
-      responseObj.errors.value.head must === (NotFoundFailure404(StoreAdmin, 777).description)
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (NotFoundFailure404(StoreAdmin, 777).description)
     }
   }
 
@@ -345,12 +337,10 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       responseObj.errors.value.head must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
-    "warns when admin to unwatch not found" in new BulkAssignmentFixture {
+    "errors when admin to unwatch not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/orders/watchers/delete", BulkWatchers(Seq(orderRef1), 777))
-      response.status must === (StatusCodes.OK)
-      val responseObj = response.as[BulkOrderUpdateResponse]
-      responseObj.result must === (getAllOrders)
-      responseObj.errors.value.head must === (NotFoundFailure404(StoreAdmin, 777).description)
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (NotFoundFailure404(StoreAdmin, 777).description)
     }
   }
 

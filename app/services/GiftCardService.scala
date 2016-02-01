@@ -10,7 +10,7 @@ import models.{Customers, GiftCard, GiftCardAdjustments, GiftCardManual, GiftCar
 import payloads.{GiftCardCreateByCsr, GiftCardUpdateStatusByCsr}
 import responses.GiftCardBulkResponse._
 import responses.GiftCardResponse._
-import responses.{CustomerResponse, GiftCardResponse, GiftCardSubTypesResponse, StoreAdminResponse}
+import responses.{TheResponse, CustomerResponse, GiftCardResponse, GiftCardSubTypesResponse, StoreAdminResponse}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT
@@ -31,8 +31,8 @@ object GiftCardService {
     response ← * <~ GiftCardSubTypesResponse.build(GiftCard.OriginType.types.toSeq, subTypes)
   } yield response).runTxn()
 
-  def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] =
-    GiftCards.queryAll.result.map(_.map(GiftCardResponse.build(_)))
+  def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] =
+    GiftCards.queryAll.result.map(_.map(GiftCardResponse.build(_))).toTheResponse.run()
 
   def findByCode(code: String)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] =

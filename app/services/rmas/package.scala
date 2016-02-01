@@ -4,6 +4,7 @@ import scala.concurrent.ExecutionContext
 
 import models.{Rma, Rmas, Order, OrderPayments, OrderPayment}
 import models.OrderPayments.scope._
+import responses.{AllRmas, TheResponse}
 import utils.Slick.implicits._
 import utils.Slick.DbResult
 
@@ -18,4 +19,6 @@ package object rmas {
       OrderPayments.findAllByOrderId(orderId).creditCards
         .one.mustFindOr(OrderPaymentNotFoundFailure(Order))
   }
+
+  type BulkRmaUpdateResponse = TheResponse[Seq[AllRmas.Root]]
 }

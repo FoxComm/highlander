@@ -6,7 +6,6 @@ import models.{Customers, GiftCard, Orders, PaymentMethod, Rma, RmaAssignments, 
 RmaLineItemShippingCosts, RmaLineItemSkus, RmaPayment, RmaPayments, Shipment, Sku, StoreAdmins}
 import responses.CustomerResponse.{Root => Customer}
 import responses.StoreAdminResponse.{Root => StoreAdmin}
-import services.NotFoundFailure404
 import services.rmas.RmaTotaler
 import slick.driver.PostgresDriver.api._
 import utils.Money._
@@ -17,8 +16,6 @@ import scala.concurrent.ExecutionContext
 
 object RmaResponse {
   final case class RmaTotals(subTotal: Int, shipping: Int, taxes: Int, total: Int) extends ResponseItem
-  final case class FullRmaWithWarnings(rma: Root, warnings: Seq[NotFoundFailure404])
-  final case class FullRmaExpandedWithWarnings(rma: RootExpanded, warnings: Seq[NotFoundFailure404])
 
   final case class LineItemSku(lineItemId: Int, sku: DisplaySku) extends ResponseItem
   final case class LineItemGiftCard(lineItemId: Int, giftCard: GiftCardResponse.Root) extends ResponseItem

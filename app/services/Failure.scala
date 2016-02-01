@@ -1,7 +1,5 @@
 package services
 
-import scala.collection.immutable
-
 import com.stripe.exception.StripeException
 import models.activity.Dimension
 import models.{CreditCard, GiftCard, Order, Rma, StoreCredit}
@@ -297,4 +295,12 @@ object Util {
     case Dimension | _: Dimension ⇒ "name"
     case _ ⇒ "id"
   }
+
+  /* Diff lists of model identifiers to produce a list of failures for absent models */
+  def diffToFailures[A, B](requested: Seq[A], available: Seq[A], modelType: B): Option[Failures] =
+    Failures(requested.diff(available).map(NotFoundFailure404(modelType, _)): _*)
+
+  /* Diff lists of model identifiers to produce a list of warnings for absent models */
+  def diffToFlatFailures[A, B](requested: Seq[A], available: Seq[A], modelType: B): Option[List[String]] =
+    diffToFailures(requested, available, modelType).map(_.flatten)
 }

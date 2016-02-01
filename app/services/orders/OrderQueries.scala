@@ -4,7 +4,7 @@ import scala.concurrent.ExecutionContext
 
 import models.{Customer, OrderPayments, Customers, Order, Orders, javaTimeSlickMapper}
 import OrderPayments.scope._
-import responses.{FullOrder, TheResponse, AllOrders}
+import responses.{SortingMetadata, PaginationMetadata, FullOrder, TheResponse, AllOrders}
 import services.CartFailures.CustomerHasNoActiveOrder
 import services.{Result, CartValidator}
 import slick.driver.PostgresDriver.api._
@@ -18,7 +18,11 @@ import utils.DbResultT.implicits._
 object OrderQueries {
 
   def findAll(implicit ec: ExecutionContext, db: Database,
-    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): ResultWithMetadata[Seq[AllOrders.Root]] = {
+    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[TheResponse[Seq[AllOrders.Root]]] =
+    findAllDbio.run()
+
+  def findAllDbio(implicit ec: ExecutionContext, db: Database,
+    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[AllOrders.Root]]] = {
 
     val ordersAndCustomers = Orders.join(Customers).on(_.customerId === _.id)
     val query = ordersAndCustomers.joinLeft(OrderPayments.creditCards).on(_._1.id === _.orderId)
@@ -53,7 +57,7 @@ object OrderQueries {
         case ((order, customer), payment) ⇒
           AllOrders.build(order, customer, payment)
       })
-    })
+    }).toTheResponse
   }
 
   def findOne(refNum: String)

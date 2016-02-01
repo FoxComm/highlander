@@ -6,9 +6,9 @@ StoreCreditAdjustment, StoreCreditAdjustments, StoreCreditManual, StoreCreditMan
 StoreCreditSubtypes, StoreCredits}
 import org.joda.money.CurrencyUnit
 import org.scalatest.BeforeAndAfterEach
-import responses.{GiftCardResponse, ResponseWithFailuresAndMetadata, StoreCreditAdjustmentsResponse,
-StoreCreditResponse, StoreCreditSubTypesResponse}
-import services.{StoreCreditService, EmptyCancellationReasonFailure, InvalidCancellationReasonFailure,
+import responses.{TheResponse, GiftCardResponse, StoreCreditAdjustmentsResponse, StoreCreditResponse, 
+StoreCreditSubTypesResponse}
+import services.{EmptyCancellationReasonFailure, InvalidCancellationReasonFailure,
 NotFoundFailure404, OpenTransactionsFailure, StoreCreditConvertFailure}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
@@ -17,9 +17,7 @@ import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import utils.seeds.Seeds.Factories
 
-import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.Random
 
 class StoreCreditIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -146,7 +144,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val storeCredits = Seq(storeCredit, scSecond)
         response.status must ===(StatusCodes.OK)
 
-        val result = response.as[ResponseWithFailuresAndMetadata[StoreCreditResponse.WithTotals]].result
+        val result = response.ignoreFailuresAndGiveMe[StoreCreditResponse.WithTotals]
         result.storeCredits.map(_.id).sorted must ===(storeCredits.map(_.id).sorted)
         result.totals must not be 'empty
       }
@@ -164,7 +162,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val response = GET(s"v1/customers/${customer.id}/payment-methods/store-credit/transactions")
         response.status must ===(StatusCodes.OK)
 
-        val adjustments = response.as[StoreCreditAdjustmentsResponse.Root#ResponseMetadataSeq].result
+        val adjustments = response.ignoreFailuresAndGiveMe[Seq[StoreCreditAdjustmentsResponse.Root]]
 
         adjustments.size must === (1)
         adjustments.headOption.value.id must === (adjustment.id)
@@ -203,7 +201,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
     "GET /v1/store-credits/:id/transactions" - {
       "returns the list of adjustments" in new Fixture {
         val response = GET(s"v1/store-credits/${storeCredit.id}/transactions")
-        val adjustments = response.as[StoreCreditAdjustmentsResponse.Root#ResponseMetadataSeq].result
+        val adjustments = response.ignoreFailuresAndGiveMe[Seq[StoreCreditAdjustmentsResponse.Root]]
 
         response.status must ===(StatusCodes.OK)
         adjustments.size must === (1)
@@ -219,12 +217,12 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val adjustment3 = StoreCredits.auth(storeCredit, Some(payment.id), 2).run().futureValue
 
         val response = GET(s"v1/store-credits/${storeCredit.id}/transactions?sortBy=-id&from=2&size=2")
-        val adjustments = response.as[StoreCreditAdjustmentsResponse.Root#ResponseMetadataSeq]
+        val adjustments = response.ignoreFailuresAndGiveMe[Seq[StoreCreditAdjustmentsResponse.Root]]
 
         response.status must ===(StatusCodes.OK)
         //adjustments.checkSortingAndPagingMetadata("-id", from = 2, size = 2, resultSize = 1)
 
-        val firstAdjustment = adjustments.result.head
+        val firstAdjustment = adjustments.head
         firstAdjustment.debit must === (10)
         firstAdjustment.orderRef.value must === (order.referenceNumber)
       }
@@ -265,8 +263,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
         // Ensure that cancel adjustment is automatically created
         val transactionsRep = GET(s"v1/store-credits/${storeCredit.id}/transactions")
-        val adjustments = transactionsRep.as[StoreCreditAdjustmentsResponse.Root#ResponseMetadataSeq]
-          .result
+        val adjustments = transactionsRep.ignoreFailuresAndGiveMe[Seq[StoreCreditAdjustmentsResponse.Root]]
 
         response.status must ===(StatusCodes.OK)
         adjustments.size mustBe 2

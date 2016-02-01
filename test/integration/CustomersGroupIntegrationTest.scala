@@ -59,7 +59,7 @@ class CustomersGroupIntegrationTest extends IntegrationTestBase
       val groupRoot = DynamicGroupResponse.build(group)
 
       response.status must === (StatusCodes.OK)
-      response.as[DynamicGroupResponse.Root#ResponseMetadataSeq].result must === (Seq(groupRoot))
+      response.ignoreFailuresAndGiveMe[Seq[DynamicGroupResponse.Root]] must === (Seq(groupRoot))
     }
   }
 

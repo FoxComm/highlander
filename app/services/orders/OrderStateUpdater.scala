@@ -5,8 +5,7 @@ import models.activity.ActivityContext
 
 import models.Order.{Canceled, _}
 import models.{StoreAdmin, Order, OrderLineItem, OrderLineItems, Orders}
-import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
-import responses.{FullOrder, ResponseWithFailuresAndMetadata}
+import responses.{TheResponse, FullOrder}
 import services.{Result, StateTransitionNotAllowed, NotFoundFailure400, LockedFailure, Failures}
 import services.LogActivity.{orderStateChanged, orderBulkStateChanged}
 import slick.driver.PostgresDriver.api._
@@ -31,11 +30,14 @@ object OrderStateUpdater {
 
   // TODO: transfer sorting-paging metadata
   def updateStates(admin: StoreAdmin, refNumbers: Seq[String], newState: Order.State, skipActivity: Boolean = false)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = {
-    updateStatesDbio(admin, refNumbers, newState, skipActivity).zip(OrderQueries.findAll.result).map { case (failures, orders) ⇒
-      ResponseWithFailuresAndMetadata.fromXor(orders, failures.swap.toOption.map(_.toList).getOrElse(Seq.empty))
-    }.transactionally.run()
-  }
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
+    // Turn failures into errors
+    errors ← * <~ updateStatesDbio(admin, refNumbers, newState, skipActivity).flatMap { xor ⇒ xor.fold(
+      failures ⇒ DbResult.good(Some(failures)),
+      _        ⇒ DbResult.good(None))
+    }
+    response ← * <~ OrderQueries.findAllDbio
+  } yield response.copy(errors = errors.map(_.flatten))).runTxn()
 
   private def updateStatesDbio(admin: StoreAdmin, refNumbers: Seq[String], newState: Order.State, skipActivity: Boolean = false)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage,

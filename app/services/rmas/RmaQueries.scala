@@ -1,23 +1,28 @@
 package services.rmas
 
 import models.{RmaAssignments, Customers, Rmas, StoreAdmins, javaTimeSlickMapper}
-import responses.{AllRmas, AssignmentResponse}
+import responses.{PaginationMetadata, SortingMetadata, TheResponse, AllRmas, AssignmentResponse}
+import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
 import utils.Slick._
 import utils.Slick.implicits._
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 
 import scala.concurrent.ExecutionContext
 
 object RmaQueries {
 
   def findAll(query: Rmas.QuerySeq)(implicit ec: ExecutionContext, db: Database,
-    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): ResultWithMetadata[Seq[AllRmas.Root]] = {
+    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[BulkRmaUpdateResponse] =
+    findAllDbio(query).run()
 
-    val rmasAndCustomers = for {
-      (rma, customer) ← query.join(Customers).on(_.customerId === _.id)
-    } yield (rma, customer)
+  def findAllDbio(query: Rmas.QuerySeq)(implicit ec: ExecutionContext, db: Database,
+    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[BulkRmaUpdateResponse] = {
+
+    val rmasAndCustomers = query.join(Customers).on(_.customerId === _.id)
 
     val withStoreAdmins = rmasAndCustomers.joinLeft(StoreAdmins).on(_._1.storeAdminId === _.id)
 
@@ -64,6 +69,6 @@ object RmaQueries {
           AllRmas.build(rma, customer, admin, currentAssignees)
         }
       }
-    })
+    }).toTheResponse
   }
 }

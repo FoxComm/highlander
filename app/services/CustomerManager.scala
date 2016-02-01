@@ -3,20 +3,18 @@ package services
 import scala.concurrent.ExecutionContext
 
 import cats.data.Validated.{Invalid, Valid}
-import cats.data.Xor
 import cats.implicits._
 import models.Customers.scope._
 import models.{Customer, Customers, Orders, StoreAdmin, javaTimeSlickMapper}
 import payloads.{ActivateCustomerPayload, CreateCustomerPayload, CustomerSearchForNewOrder, UpdateCustomerPayload}
 import responses.CustomerResponse.{build, Root}
+import responses.TheResponse
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.DbResult
-import utils.Slick.UpdateReturning._
 import utils.Slick.implicits._
-import utils.jdbc._
 
 import models.activity.ActivityContext
 
@@ -40,9 +38,8 @@ object CustomerManager {
       _         ← * <~ LogActivity.customerBlacklisted(blacklisted, customer, admin)
     } yield build(updated)).runTxn()
 
-  def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
+  def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = {
     val query = Customers.withRegionsAndRank
-
     val queryWithMetadata = query.withMetadata.sortAndPageIfNeeded { case (s, (customer, _, _, _)) ⇒
       s.sortColumn match {
         case "id"                ⇒ if(s.asc) customer.id.asc                 else customer.id.desc
@@ -67,11 +64,12 @@ object CustomerManager {
         case (customer, shipRegion, billRegion, rank) ⇒
           build(customer = customer, shippingRegion = shipRegion, billingRegion = billRegion, rank = rank)
       }
-    }
+    }.toTheResponse.run()
   }
 
+  // FIXME: ugly `_ <: Seq` should be just `Seq`
   def searchForNewOrder(payload: CustomerSearchForNewOrder)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[TheResponse[_ <: Seq[Root]]] = {
 
     def customersAndNumOrders = {
       val likeQuery = s"%${payload.term}%".toLowerCase
@@ -90,13 +88,14 @@ object CustomerManager {
       } yield (c, count)
     }
 
-    payload.validate match {
+    val rwm = payload.validate match {
       case Valid(_) ⇒
         customersAndNumOrders.withMetadata.result.map(_.map { case (customer, numOrders) ⇒
           build(customer = customer, numOrders = Some(numOrders))
         })
       case Invalid(errors) ⇒ ResultWithMetadata.fromFailures(errors)
     }
+    rwm.toTheResponse.runTxn()
   }
 
   def getById(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
