@@ -10,6 +10,8 @@ const formatMessage = message => {
     return 'No shipping address applied.';
   } else if (message.indexOf('invalid shipping method') != -1) {
     return 'Shipping method is not valid.';
+  } else if (message.indexOf('has no shipping method') != -1 ) {
+    return 'No shipping method applied.';
   } else if (message.indexOf('no payment method') != -1) {
     return 'No payment method applied.';
   }
@@ -28,12 +30,17 @@ const Messages = props => {
     return <Alert type={Alert.WARNING}>{formatMessage(w)}</Alert>;
   });
 
-  return (
-    <div className="fc-order-messages">
-      {errorAlerts}
-      {warningAlerts}
-    </div>
-  );
+  const totalCount = errorAlerts.length + warningAlerts.length;
+  if (totalCount > 0) {
+    return (
+      <div className="fc-order-messages">
+        {errorAlerts}
+        {warningAlerts}
+      </div>
+    );
+  } else {
+    return <div></div>;
+  }
 };
 
 Messages.propTypes = {
