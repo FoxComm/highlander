@@ -32,9 +32,17 @@ const editModeColumns = [
 
 const OrderLineItems = props => {
   const title = <PanelHeader isCart={props.isCart} status={props.status} text="Items" />;
-  const viewContent = (
-    <TableView columns={viewModeColumns} data={{rows: props.lineItems.items}} />
-  );
+  const viewContent = _.isEmpty(props.lineItems.items) ? 
+    (
+      <div className='fc-content-box__empty-text'>
+        No items yet.
+      </div>)
+    : 
+    (
+      <TableView 
+        columns={viewModeColumns} 
+        data={{rows: props.lineItems.items}}/>
+    );
 
   return (
     <EditableContentBox
@@ -83,7 +91,9 @@ class RenderEditContent extends React.Component {
       <div>
         <TableView columns={ editModeColumns }
                    data={{rows: lineItemsStatus.items}}
-                   renderRow={ renderRow } />
+                   renderRow={ renderRow } 
+                   showEmptyMessage={true}
+                   emptyMessage="No items yet."/>
         <ConfirmationDialog
           isVisible={lineItemsStatus.isDeleting}
           header='Confirm'

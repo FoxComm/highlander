@@ -63,15 +63,20 @@ export default class TableBody extends React.Component {
     }
   }
 
-  get tableRows() {
-    if (_.isEmpty(this.props.rows) && this.props.showEmptyMessage) {
+  get renderEmptyMessage() {
       return (
         <tr>
-          <td colSpan={this.props.columns.length}>
-            {this.props.emptyMessage}
+          <td  colSpan={this.props.columns.length}>
+            <div className='fc-content-box__empty-row'>
+              {this.props.emptyMessage}
+            </div>
           </td>
         </tr>
       );
+  }
+  get tableRows() {
+    if (_.isEmpty(this.props.rows) && this.props.showEmptyMessage) {
+      return this.renderEmptyMessage;
     }
 
     const renderRow = this.props.renderRow || this.defaultRenderRow;
