@@ -8,7 +8,7 @@ import TableCell from '../table/cell';
 import TableRow from '../table/row';
 
 const MultiSelectRow = props => {
-  const { columns, onClick, row, setCellContents, rowState, setRowState, ...rest } = props;
+  const { columns, onClick, row, setCellContents, checked, setChecked, ...rest } = props;
 
   const cells = _.reduce(columns, (visibleCells, col) => {
     const cellKey = `row-${col.field}`;
@@ -16,7 +16,7 @@ const MultiSelectRow = props => {
     let cellClickAction = onClick;
 
     const onChange = ({target: { checked }}) => {
-      setRowState({checked});
+      setChecked(checked);
     };
 
     switch (col.field) {
@@ -25,7 +25,7 @@ const MultiSelectRow = props => {
         break;
       case 'selectColumn':
         cellClickAction = _.noop;
-        cellContents = <Checkbox checked={rowState.checked} onChange={onChange} />;
+        cellContents = <Checkbox checked={checked} onChange={onChange} />;
         break;
       default:
         cellContents = setCellContents(row, col.field);
@@ -53,7 +53,8 @@ MultiSelectRow.propTypes = {
   onClick: PropTypes.func,
   row: PropTypes.object.isRequired,
   setCellContents: PropTypes.func.isRequired,
-  setRowState: PropTypes.func.isRequired
+  checked: PropTypes.bool.isRequired,
+  setChecked: PropTypes.func.isRequired,
 };
 
 MultiSelectRow.defaultProps = {

@@ -2,10 +2,11 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
+import classNames from 'classnames';
 
 // components
 import TableView from './tableview';
-import { HalfCheckbox } from '../checkbox/checkbox';
+import MultiSelectHead, { selectionState } from './multi-select-head';
 
 export default class MultiSelectTable extends React.Component {
   static propTypes = {
@@ -14,7 +15,7 @@ export default class MultiSelectTable extends React.Component {
       rows: PropTypes.array,
       total: PropTypes.number,
       from: PropTypes.number,
-      size: PropTypes.number
+      size: PropTypes.number,
     }),
     renderRow: PropTypes.func,
     setState: PropTypes.func,
@@ -28,43 +29,75 @@ export default class MultiSelectTable extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-    this.state = {};
+    this.state = {
+      allChecked: false,
+      checkedIds: [],
+    };
   }
 
-  getSetRowState(key) {
-    return (patch) => {
-      const states = this.state;
-      const state = states[key];
+  getRowSetChecked(key) {
+    return (checked) => {
+      let {allChecked, checkedIds} = this.state;
 
-      this.setState({
-        ...states,
-        [key]: {
-          ...state,
-          ...patch
-        }
-      });
+      if (allChecked !== checked) {
+        checkedIds = checkedIds.concat(key);
+      } else {
+        checkedIds = _.difference(checkedIds, [key]);
+      }
+
+      checkedIds = _.uniq(checkedIds);
+
+      this.setState({checkedIds});
     };
+  }
+
+  @autobind
+  setAllChecked(checked) {
+    //set allChecked flag and reset checkedIds list
+    this.setState({allChecked: checked, checkedIds: []});
+  }
+
+  @autobind
+  setPageChecked(checked) {
+    let {allChecked, checkedIds} = this.state;
+
+    //if checked states differ - add id's, else - remove them
+    if (allChecked !== checked) {
+      checkedIds = checkedIds.concat(this.keys);
+    } else {
+      checkedIds = _.difference(checkedIds, this.keys);
+    }
+
+    checkedIds = _.uniq(checkedIds);
+
+    this.setState({checkedIds});
+  }
+
+  get keys() {
+    const {data: {rows}, predicate} = this.props;
+
+    return _.uniq(_.map(rows, predicate));
   }
 
   get checkboxHead() {
-    const {state} = this;
-    const {data: {rows}, predicate} = this.props;
+    const keys = this.keys;
+    const {allChecked, checkedIds} = this.state;
+    const {None, Some, All} = selectionState;
+    const checkedCount = checkedIds.filter(key => keys.includes(key)).length;
 
-    //get ids of all currently displayed rows
-    const keys = _.uniq(_.map(rows, predicate));
-    const checkedCount = _.filter(state, (state, key)=> keys.includes(key) && state.checked).length;
-    const handleChange = ({target: { checked }}) => {
-      let patch = {};
-
-      keys.forEach((key) => { patch[key] = { checked }; });
-
-      this.setState(patch);
-    };
+    let pageChecked;
+    if (checkedCount === keys.length) {
+      pageChecked = allChecked ? None : All;
+    } else if (checkedCount > 0) {
+      pageChecked = Some;
+    } else {
+      pageChecked = allChecked ? All : None;
+    }
 
     return (
-      <HalfCheckbox checked={checkedCount>0}
-                    halfChecked={checkedCount<keys.length}
-                    onChange={handleChange} />
+      <MultiSelectHead pageChecked={pageChecked}
+                       setAllChecked={this.setAllChecked}
+                       setPageChecked={this.setPageChecked} />
     );
   }
 
@@ -94,27 +127,23 @@ export default class MultiSelectTable extends React.Component {
 
   @autobind
   renderRow(row, index) {
+    const {allChecked, checkedIds} = this.state;
     const {renderRow, predicate} = this.props;
     const key = predicate(row);
 
     return renderRow(row, index, this.columns, {
-      rowState: this.state[key] || {},
-      setRowState: this.getSetRowState(key),
+      checked: allChecked !== checkedIds.includes(key),
+      setChecked: this.getRowSetChecked(key),
     });
   }
 
   render() {
     return (
       <TableView
-        className="fc-multi-select-table"
+        {...this.props}
+        className={classNames('fc-multi-select-table', this.props.className)}
         columns={this.columns}
-        data={this.props.data}
-        renderRow={this.renderRow}
-        setState={this.props.setState}
-        showEmptyMessage={true}
-        predicate={this.props.predicate}
-        emptyMessage={this.props.emptyMessage}
-        />
+        renderRow={this.renderRow} />
     );
   }
 }

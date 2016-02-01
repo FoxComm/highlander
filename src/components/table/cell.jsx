@@ -40,7 +40,7 @@ function getCell(column, children) {
 const TableBodyCell = props => {
   const { children, colspan, column, ...rest } = props;
 
-  let cell = _.isNull(children) || getCell(column, children);
+  const cell = _.isNull(children) ? null : getCell(column, children);
 
   return <td className="fc-table-td" colSpan={colspan} {...rest}>{cell}</td>;
 };
