@@ -17,12 +17,11 @@ create table export_assignees (
 );
 
 create table export_customers (
+    id                  integer,
     name                text,
     email               text,
     is_blacklisted      boolean,
-    joined_at           text,
-    rank                integer,
-    revenue             integer
+    joined_at           text
 );
 
 create table export_line_items (
@@ -33,6 +32,7 @@ create table export_line_items (
 );
 
 create table export_orders (
+    customer_id         integer,
     reference_number    text,
     state               text,
     created_at          text,
