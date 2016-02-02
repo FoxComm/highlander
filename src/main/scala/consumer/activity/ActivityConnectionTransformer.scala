@@ -3,21 +3,13 @@ package consumer.activity
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.mappings.FieldType._
 
-import consumer.AvroJsonHelper
-import consumer.elastic.AvroTransformer
-
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.language.postfixOps
 
 import akka.actor.ActorSystem
 import akka.http.ConnectionPoolSettings
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.headers.Authorization
-import akka.http.scaladsl.model.headers.BasicHttpCredentials
-import akka.http.scaladsl.model.{ContentTypes, HttpMethods, HttpRequest, HttpResponse}
-import akka.util.ByteString
-import akka.stream.{ActorMaterializer, Materializer}
+import akka.stream.Materializer
 
 import org.json4s.JsonAST.JInt
 import org.json4s.jackson.JsonMethods.parse
@@ -29,11 +21,9 @@ import consumer.elastic.AvroTransformers
 import consumer.utils.PhoenixConnectionInfo
 import consumer.utils.Phoenix
 import consumer.utils.HttpResponseExtensions._
-import akka.http.scaladsl.model.StatusCodes
-
 
 final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
-(implicit ec:ExecutionContext, mat: Materializer, ac: ActorSystem, cp: ConnectionPoolSettings) extends JsonTransformer { 
+  (implicit ec:ExecutionContext, mat: Materializer, ac: ActorSystem, cp: ConnectionPoolSettings) extends JsonTransformer {
 
   implicit val formats: DefaultFormats.type = DefaultFormats
 

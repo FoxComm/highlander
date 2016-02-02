@@ -134,6 +134,7 @@ object AvroTransformers {
         // Orders
         "orderCount"              typed IntegerType,
         "orders" nested(
+          "customerId"            typed IntegerType,
           "referenceNumber"       typed StringType analyzer "autocomplete",
           "state"                 typed StringType index "not_analyzed",
           "createdAt"             typed DateType format dateFormat,
@@ -302,6 +303,51 @@ object AvroTransformers {
       )
 
     def fields = List.empty
+  }
+
+  final case class NotesSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
+    def mapping =
+      "notes_search_view" as (
+        // Note
+        "id"                    typed IntegerType,
+        "referenceType"         typed StringType analyzer "not_analyzed",
+        "body"                  typed StringType analyzer "autocomplete",
+        "priority"              typed StringType index "not_analyzed",
+        "createdAt"             typed DateType format dateFormat,
+        "deletedAt"             typed DateType format dateFormat,
+        "storeAdmin" nested (
+          "email"       typed StringType analyzer "autocomplete",
+          "name"        typed StringType analyzer "autocomplete",
+          "department"  typed StringType analyzer "autocomplete"
+        ),
+        "order" nested(
+          "customerId"            typed IntegerType,
+          "referenceNumber"       typed StringType analyzer "autocomplete",
+          "state"                 typed StringType index "not_analyzed",
+          "createdAt"             typed DateType format dateFormat,
+          "placedAt"              typed DateType format dateFormat,
+          "subTotal"              typed IntegerType,
+          "shippingTotal"         typed IntegerType,
+          "adjustmentsTotal"      typed IntegerType,
+          "taxesTotal"            typed IntegerType,
+          "grandTotal"            typed IntegerType
+        ),
+        "customer" nested (
+          "id"                    typed IntegerType,
+          "name"                  typed StringType analyzer "autocomplete",
+          "email"                 typed StringType analyzer "autocomplete",
+          "isBlacklisted"         typed BooleanType,
+          "joinedAt"              typed DateType format dateFormat
+        ),
+        "giftCard" nested (
+          "code"                  typed StringType analyzer "autocomplete",
+          "originType"            typed StringType index "not_analyzed",
+          "currency"              typed StringType index "not_analyzed",
+          "createdAt"             typed DateType format dateFormat
+        )
+      )
+
+    def fields = List("store_admin", "order", "customer", "gift_card")
   }
 
   final case class StoreCreditTransactionsView()(implicit ec: ExecutionContext) extends AvroTransformer {
