@@ -20,8 +20,6 @@ import akka.stream.{ActorMaterializer, Materializer}
 import consumer.JsonProcessor
 import consumer.AvroJsonHelper
 
-import org.json4s.Formats
-
 import scala.language.postfixOps
 
 final case class PhoenixConnectionInfo(
@@ -61,7 +59,6 @@ case class Phoenix(conn: PhoenixConnectionInfo)
  */
 object HttpResponseExtensions {
   implicit class RichHttpResponse(val res: HttpResponse) extends AnyVal {
-    import org.json4s.jackson.JsonMethods._
 
     def bodyText(implicit ec: ExecutionContext, mat: Materializer): Future[String] =
       res.entity.dataBytes.runFold(ByteString(""))(_ ++ _) map { b ⇒ b.utf8String}
