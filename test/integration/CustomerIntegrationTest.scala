@@ -204,7 +204,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       root.referenceNumber must === (order.referenceNumber)
       root.orderState must === (Order.Cart)
 
-      Orders.findActiveOrderByCustomer(customer).result.run().futureValue.size mustBe 1
+      Orders.findActiveOrderByCustomer(customer).result.run().futureValue must have size 1
     }
 
     "creates cart if no present" in new Fixture {
@@ -214,7 +214,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val root = response.as[FullOrder.Root]
       root.orderState must === (Order.Cart)
 
-      Orders.findActiveOrderByCustomer(customer).result.run().futureValue.size mustBe 1
+      Orders.findActiveOrderByCustomer(customer).result.run().futureValue must have size 1
     }
 
     "returns 404 if customer not found" in new CartFixture {

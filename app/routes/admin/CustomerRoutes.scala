@@ -51,8 +51,10 @@ object CustomerRoutes {
           }
         } ~
         (get & path("cart")) {
-          goodOrFailures {
-            OrderQueries.findActiveOrderByCustomerId(customerId)
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              OrderQueries.findOrCreateCartByCustomerId(customerId, Some(admin))
+            }
           }
         } ~
         (patch & pathEnd & entity(as[UpdateCustomerPayload])) { payload ⇒

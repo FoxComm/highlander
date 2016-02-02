@@ -191,9 +191,9 @@ object LogActivity {
     Activities.log(StoreCreditAuthorizedFunds(buildCustomer(customer), order, scIds, amount))
 
   /* Orders */
-  def cartCreated(admin: StoreAdmin, order: FullOrder.Root)
+  def cartCreated(admin: Option[StoreAdmin], order: FullOrder.Root)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(CartCreated(buildAdmin(admin), order))
+    Activities.log(CartCreated(admin.map(buildAdmin), order))
 
   def orderStateChanged(admin: StoreAdmin, order: FullOrder.Root, oldState: Order.State)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =

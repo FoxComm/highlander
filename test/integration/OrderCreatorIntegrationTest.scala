@@ -4,14 +4,12 @@ import models.{StoreAdmins, Order, Customer, Customers}
 import payloads.CreateOrder
 import responses.FullOrder.Root
 import services.orders.OrderCreator
-import services.CartFailures.CustomerHasCart
-import services.NotFoundFailure404
+import services.NotFoundFailure400
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.seeds.Seeds
 import Seeds.Factories
-import utils.Slick.implicits._
 import cats.implicits._
 
 class OrderCreatorIntegrationTest extends IntegrationTestBase
@@ -40,16 +38,18 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/orders", payload)
 
         response.status must ===(StatusCodes.BadRequest)
-        response.error must ===(NotFoundFailure404(Customer, 99).description)
+        response.error must ===(NotFoundFailure400(Customer, 99).description)
       }
 
-      "fails when the customer already has a cart" in new Fixture {
+      "returns current cart if customer already has one" in new Fixture {
         val payload = CreateOrder(customerId = customer.id.some)
         OrderCreator.createCart(storeAdmin, payload).futureValue
         val response = POST(s"v1/orders", payload)
 
-        response.status must ===(StatusCodes.BadRequest)
-        response.error must ===(CustomerHasCart(customer.id).description)
+        response.status must ===(StatusCodes.OK)
+        val root = response.as[Root]
+        root.customer.value.id must ===(customer.id)
+        root.orderState must ===(Order.Cart)
       }
     }
 

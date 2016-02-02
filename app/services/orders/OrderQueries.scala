@@ -2,11 +2,11 @@ package services.orders
 
 import scala.concurrent.ExecutionContext
 
-import models.{Customer, OrderPayments, Customers, Order, Orders, javaTimeSlickMapper}
+import models.activity.ActivityContext
+import models.{StoreAdmin, Customer, OrderPayments, Customers, Order, Orders, javaTimeSlickMapper}
 import OrderPayments.scope._
-import responses.{SortingMetadata, PaginationMetadata, FullOrder, TheResponse, AllOrders}
-import services.CartFailures.CustomerHasNoActiveOrder
-import services.{Result, CartValidator}
+import responses.{FullOrder, TheResponse, AllOrders}
+import services.{Result, CartValidator, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
@@ -67,26 +67,28 @@ object OrderQueries {
     response  ← * <~ FullOrder.fromOrder(order).toXor
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).run()
 
-  def findActiveOrderByCustomer(customer: Customer)
-    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = (for {
-    order     ← * <~ Orders.findActiveOrderByCustomer(customer).one.toXor
-    cart      ← * <~ createNewIfAbsent(order, customer)
-    fullOrder ← * <~ FullOrder.fromOrder(cart).toXor
-  } yield fullOrder).runTxn()
+  def findOrCreateCartByCustomer(customer: Customer, admin: Option[StoreAdmin] = None)
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[FullOrder.Root] =
+    findOrCreateCartByCustomerInner(customer, admin).runTxn()
 
-  def findActiveOrderByCustomerId(customerId: Int)
-    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = (for {
+  def findOrCreateCartByCustomerId(customerId: Int, admin: Option[StoreAdmin] = None)
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[FullOrder.Root] = (for {
     customer  ← * <~ Customers.mustFindById(customerId)
-    order     ← * <~ Orders.findActiveOrderByCustomer(customer).one.toXor
-    cart      ← * <~ createNewIfAbsent(order, customer)
-    fullOrder ← * <~ FullOrder.fromOrder(cart).toXor
+    fullOrder ← * <~ findOrCreateCartByCustomerInner(customer, admin)
   } yield fullOrder).runTxn()
 
-  private def createNewIfAbsent(order: Option[Order], customer: Customer)
-    (implicit ec: ExecutionContext, db: Database): DbResult[Order] = {
-    order match {
-      case Some(o)  ⇒ DbResult.good(o)
-      case _        ⇒ Orders.create(Order.buildCart(customer.id))
-    }
+  def findOrCreateCartByCustomerInner(customer: Customer, admin: Option[StoreAdmin])
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): DbResultT[FullOrder.Root] = for {
+    result                  ← * <~ Orders.findActiveOrderByCustomer(customer).one
+      .findOrCreateExtended(Orders.create(Order.buildCart(customer.id)))
+    (order, foundOrCreated) = result
+    fullOrder               ← * <~ FullOrder.fromOrder(order).toXor
+    _                       ← * <~ logCartCreation(foundOrCreated, fullOrder, admin)
+  } yield fullOrder
+
+  private def logCartCreation(foundOrCreated: FoundOrCreated, order: FullOrder.Root, admin: Option[StoreAdmin])
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext) = foundOrCreated match {
+    case Created ⇒ LogActivity.cartCreated(admin, order)
+    case Found   ⇒ DbResult.unit
   }
 }

@@ -22,8 +22,10 @@ object Customer {
     pathPrefix("my") {
       authenticateBasicAsync(realm = "private customer routes", customerAuth) { customer ⇒
         (get & path("cart")) {
-          goodOrFailures {
-            OrderQueries.findActiveOrderByCustomer(customer)
+          activityContext(customer) { implicit ac ⇒
+            goodOrFailures {
+              OrderQueries.findOrCreateCartByCustomer(customer)
+            }
           }
         } ~
         pathPrefix("addresses") {
@@ -68,8 +70,10 @@ object Customer {
             }
           } ~
           (get & pathEnd) {
-            goodOrFailures {
-              OrderQueries.findActiveOrderByCustomer(customer)
+            activityContext(customer) { implicit ac ⇒
+              goodOrFailures {
+                OrderQueries.findOrCreateCartByCustomer(customer)
+              }
             }
           }
         } ~
