@@ -1,11 +1,7 @@
 package consumer.utils
 
-import scala.concurrent.Await.result
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import scala.concurrent.duration._
-
-import cats.std.future._
 
 import akka.actor.ActorSystem
 import akka.http.ConnectionPoolSettings
@@ -14,7 +10,7 @@ import akka.http.scaladsl.model.headers.Authorization
 import akka.http.scaladsl.model.headers.BasicHttpCredentials
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest, HttpResponse}
 import akka.util.ByteString
-import akka.stream.{ActorMaterializer, Materializer}
+import akka.stream.Materializer
 
 import scala.language.postfixOps
 
@@ -47,7 +43,7 @@ case class Phoenix(conn: PhoenixConnectionInfo)
       Http().singleRequest(request, cp)
     }
 
-    private def fullUri(suffix: String) = s"${conn.uri}/${suffix}"
+    private def fullUri(suffix: String) = s"${conn.uri}/$suffix"
 }
 
 /**
