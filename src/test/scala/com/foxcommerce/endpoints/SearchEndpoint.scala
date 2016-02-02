@@ -5,16 +5,16 @@ import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
 
 import com.foxcommerce.common.Config
-import com.foxcommerce.payloads._
+import com.foxcommerce.fixtures._
 
 object SearchEndpoint {
 
-  def checkCustomer(conf: Config, customer: CustomerPayload): HttpRequestBuilder = {
+  def checkCustomer(conf: Config, customer: CustomerFixture): HttpRequestBuilder = {
     http("Check Customer Presence in Elasticsearch")
       .get(s"${conf.elasticUrl}/${conf.indexName}" ++ "/customers_search_view/${customerId}")
       .check(status.is(200))
       .check(jsonPath("$._source.name").ofType[String].is(customer.name))
-      .check(jsonPath("$._source.email").ofType[String].is(customer.email))
+      .check(jsonPath("$._source.email").ofType[String].is("${customerEmail}"))
       .check(jsonPath("$._source.isBlacklisted").ofType[Boolean].is(customer.isBlacklisted))
       .check(jsonPath("$._source.isDisabled").ofType[Boolean].is(customer.isDisabled))
       .check(jsonPath("$._source.shippingAddresses[0].address1").ofType[String].is(customer.address.address1))
@@ -25,7 +25,7 @@ object SearchEndpoint {
       .check(jsonPath("$._source.storeCreditTotal").ofType[Long].is(customer.storeCreditTotal))
   }
 
-  def checkStoreCredit(conf: Config, storeCredit: StoreCreditPayload, state: String): HttpRequestBuilder = {
+  def checkStoreCredit(conf: Config, storeCredit: StoreCreditFixture, state: String): HttpRequestBuilder = {
     http("Check Store Credit Presence in Elasticsearch")
       .get(s"${conf.elasticUrl}/${conf.indexName}" ++ "/store_credits_search_view/${storeCreditId}")
       .check(status.is(200))
@@ -33,7 +33,7 @@ object SearchEndpoint {
       .check(jsonPath("$._source.originalBalance").ofType[Long].is(storeCredit.amount))
   }
 
-  def checkGiftCard(conf: Config, giftCard: GiftCardPayload, state: String): HttpRequestBuilder = {
+  def checkGiftCard(conf: Config, giftCard: GiftCardFixture, state: String): HttpRequestBuilder = {
     http("Check Gift Card Presence in Elasticsearch")
       .get(s"${conf.elasticUrl}/${conf.indexName}" ++ "/gift_cards_search_view/${giftCardId}")
       .check(status.is(200))
@@ -41,7 +41,7 @@ object SearchEndpoint {
       .check(jsonPath("$._source.originalBalance").ofType[Long].is(giftCard.balance))
   }
 
-  def checkOrder(conf: Config, order: OrderPayload, state: String): HttpRequestBuilder = {
+  def checkOrder(conf: Config, order: OrderFixture, state: String): HttpRequestBuilder = {
     http("Check Order Presence in Elasticsearch")
       .get(s"${conf.elasticUrl}/${conf.indexName}" ++ "/orders_search_view/${orderId}")
       .check(status.is(200))

@@ -4,14 +4,14 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
 
-import com.foxcommerce.payloads.GiftCardPayload
+import com.foxcommerce.fixtures.GiftCardFixture
 
 object GiftCardEndpoint {
 
   val originType = "csrAppeasement"
   val cancellationReasonId = 1
 
-  def create(payload: GiftCardPayload): HttpRequestBuilder = http("Create Gift Card")
+  def create(payload: GiftCardFixture): HttpRequestBuilder = http("Create Gift Card")
     .post("/v1/gift-cards")
     .basicAuth("${email}", "${password}")
     .body(StringBody("""{"balance": %d, "reasonId": %d, "quantity": 1}""".format(payload.balance, payload.reasonId)))

@@ -1,20 +1,19 @@
 package com.foxcommerce.common
 
-import com.foxcommerce.payloads.AddressPayload
+import java.util.concurrent.ThreadLocalRandom
+
+import com.foxcommerce.fixtures.AddressFixture
 
 object Utils {
   val defaultDomain = "foxcommerce.com"
 
   def randomEmail(prefix: String, domain: String = defaultDomain): String = {
-    prefix ++ "_" ++ randomString(10) ++ "@" ++ domain
+    prefix ++ "_" ++ randomString() ++ "@" ++ domain
   }
 
-  def randomString(length: Int) = {
-  	val rnd = new scala.util.Random()
-  	rnd.nextString(length)
-  }
+  def randomString(limit: Int = 1000000) = ThreadLocalRandom.current.nextInt(limit).toString
 
-  def addressPayloadBody(address: AddressPayload): String =
+  def addressPayloadBody(address: AddressFixture): String =
     """{"name": "%s", "regionId": %d, "address1": "%s", "address2": "%s", "city": "%s", "zip": "%s"}""".
       format(address.name, address.regionId, address.address1, address.address2, address.city, address.zip)
 }

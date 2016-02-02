@@ -4,12 +4,12 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
 
-import com.foxcommerce.payloads._
+import com.foxcommerce.fixtures._
 import com.foxcommerce.common._
 
 object CustomerAddressEndpoint {
 
-  def create(address: AddressPayload): HttpRequestBuilder = http("Create Customer Address")
+  def create(address: AddressFixture): HttpRequestBuilder = http("Create Customer Address")
     .post("/v1/customers/${customerId}/addresses")
     .basicAuth("${email}", "${password}")
     .body(StringBody(Utils.addressPayloadBody(address)))
@@ -22,7 +22,7 @@ object CustomerAddressEndpoint {
     .check(jsonPath("$.city").ofType[String].is(address.city))
     .check(jsonPath("$.zip").ofType[String].is(address.zip))
 
-  def update(address: AddressPayload): HttpRequestBuilder = http("Update Customer Address")
+  def update(address: AddressFixture): HttpRequestBuilder = http("Update Customer Address")
     .patch("/v1/customers/${customerId}/addresses/${customerAddressId}")
     .basicAuth("${email}", "${password}")
     .body(StringBody(Utils.addressPayloadBody(address)))

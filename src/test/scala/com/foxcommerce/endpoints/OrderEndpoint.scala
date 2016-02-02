@@ -4,12 +4,12 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
 
-import com.foxcommerce.payloads._
+import com.foxcommerce.fixtures._
 import com.foxcommerce.common._
 
 object OrderEndpoint {
 
-  def create(order: OrderPayload): HttpRequestBuilder = {
+  def create(order: OrderFixture): HttpRequestBuilder = {
     http("Create Order")
       .post("/v1/orders")
       .basicAuth("${email}", "${password}")
@@ -29,7 +29,7 @@ object OrderEndpoint {
     .check(status.is(200))
     .check(jsonPath("$.orderState").ofType[String].is("canceled"))
 
-  def addShippingAddress(order: OrderPayload): HttpRequestBuilder = {
+  def addShippingAddress(order: OrderFixture): HttpRequestBuilder = {
     http("Add Order Shipping Address")
       .post("/v1/orders/${orderRefNum}/shipping-address")
       .basicAuth("${email}", "${password}")
@@ -43,7 +43,7 @@ object OrderEndpoint {
       .check(jsonPath("$.result.shippingAddress.zip").ofType[String].is(order.shippingAddress.zip))
   }
 
-  def updateShippingAddress(order: OrderPayload): HttpRequestBuilder = {
+  def updateShippingAddress(order: OrderFixture): HttpRequestBuilder = {
     http("Update Order Shipping Address")
       .patch("/v1/orders/${orderRefNum}/shipping-address")
       .basicAuth("${email}", "${password}")

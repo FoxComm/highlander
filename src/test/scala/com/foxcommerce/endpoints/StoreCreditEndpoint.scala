@@ -4,14 +4,14 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
 
-import com.foxcommerce.payloads.StoreCreditPayload
+import com.foxcommerce.fixtures.StoreCreditFixture
 
 object StoreCreditEndpoint {
 
   val originType = "csrAppeasement"
   val cancellationReasonId = 1
 
-  def create(payload: StoreCreditPayload): HttpRequestBuilder = http("Create Store Credit For Customer")
+  def create(payload: StoreCreditFixture): HttpRequestBuilder = http("Create Store Credit For Customer")
     .post("/v1/customers/${customerId}/payment-methods/store-credit")
     .basicAuth("${email}", "${password}")
     .body(StringBody("""{"amount": %d, "reasonId": %d}""".format(payload.amount, payload.reasonId)))
