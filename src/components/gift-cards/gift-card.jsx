@@ -187,10 +187,10 @@ export default class GiftCard extends React.Component {
           </div>
           <div className="fc-gift-card-detail__cancel-reason-selector">
             <Dropdown name="cancellationReason"
-                      placeholder="- Select -"
-                      items={reasons}
-                      value={value}
-                      onChange={ (value) => {} } />
+              placeholder="- Select -"
+              items={reasons}
+              value={value}
+              onChange={(reasonId) => this.props.cancelReasonChangeGiftCard(this.props.params.giftCard, reasonId)} />
           </div>
         </div>
       </div>
@@ -204,7 +204,7 @@ export default class GiftCard extends React.Component {
           cancel="Cancel"
           confirm="Yes, Cancel"
           cancelAction={() => this.props.cancelChangeGiftCardStatus(this.props.params.giftCard)}
-          confirmAction={ () => {} } />
+          confirmAction={() => {}} />
     );
   }
 
