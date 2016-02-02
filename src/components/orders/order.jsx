@@ -21,32 +21,15 @@ import State, { states } from '../common/state';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 
 // redux
-import * as paymentMethodActions from '../../modules/orders/payment-methods';
-import * as lineItemActions from '../../modules/orders/line-items';
-import * as skuSearchActions from '../../modules/orders/sku-search';
 import * as orderActions from '../../modules/orders/details';
-import * as shippingMethodActions from '../../modules/orders/shipping-methods';
-import * as skusActions from '../../modules/skus';
 
 const mapStateToProps = (state) => {
   return {
     order: state.orders.details,
-    lineItems: state.orders.lineItems,
-    skuSearch: state.orders.skuSearch,
-    shippingMethods: state.orders.shippingMethods,
-    skusActions: state.skusActions,
-    payments: state.orders.paymentMethods
   };
 };
 
-const mapDispatchToProps = {
-  ...orderActions,
-  ...lineItemActions,
-  ...skuSearchActions,
-  ...shippingMethodActions,
-  ...skusActions,
-  ...paymentMethodActions,
-};
+const mapDispatchToProps = {...orderActions};
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class Order extends React.Component {
@@ -54,8 +37,6 @@ export default class Order extends React.Component {
     params: PropTypes.shape({
       order: PropTypes.string.isRequired
     }).isRequired,
-    lineItems: PropTypes.object,
-    skuSearch: PropTypes.object,
     order: PropTypes.shape({
       currentOrder: PropTypes.object
     }),

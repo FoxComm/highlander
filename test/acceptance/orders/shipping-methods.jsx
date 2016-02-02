@@ -33,7 +33,7 @@ const getEditableMethodPrice = row => {
 };
 
 describe('Order Shipping Methods', function() {
-  const ShippingMethods = requireComponent('orders/order-shipping-method.jsx');
+  const { OrderShippingMethod } = requireComponent('orders/order-shipping-method.jsx');
 
   const defaultProps = {
     order: {
@@ -70,7 +70,7 @@ describe('Order Shipping Methods', function() {
 
   it('should render the selected shipping method in the default state', function *() {
     const { container } = yield renderIntoDocument(
-      <div><ShippingMethods {...defaultProps} /></div>
+      <div><OrderShippingMethod {...defaultProps} /></div>
     );
 
     expect(container.querySelector('.fc-shipping-methods')).to.not.equal(null);
@@ -88,7 +88,7 @@ describe('Order Shipping Methods', function() {
     };
 
     const { container } = yield renderIntoDocument(
-      <div><ShippingMethods {...props} /></div>
+      <div><OrderShippingMethod {...props} /></div>
     );
 
     const firstRow = getTableRow(container, 0);
@@ -122,7 +122,7 @@ describe('Order Shipping Methods', function() {
     };
 
     const { container } = yield renderIntoDocument(
-      <div><ShippingMethods {...props} /></div>
+      <div><OrderShippingMethod {...props} /></div>
     );
 
     const firstRow = getTableRow(container, 0);
@@ -159,7 +159,7 @@ describe('Order Shipping Methods', function() {
     };
 
     const { container } = yield renderIntoDocument(
-      <div><ShippingMethods {...emptyProps} /></div>
+      <div><OrderShippingMethod {...emptyProps} /></div>
     );
 
     const emptyText = container.querySelector('.fc-content-box__empty-text');
@@ -183,7 +183,7 @@ describe('Order Shipping Methods', function() {
     };
 
     const { container } = yield renderIntoDocument(
-      <div><ShippingMethods {...emptyProps} /></div>
+      <div><OrderShippingMethod {...emptyProps} /></div>
     );
 
     const emptyText = container.querySelector('.fc-content-box__empty-text');
@@ -207,7 +207,7 @@ describe('Order Shipping Methods', function() {
     };
 
     const { container } = yield renderIntoDocument(
-      <div><ShippingMethods {...props} /></div>
+      <div><OrderShippingMethod {...props} /></div>
     );
 
     const firstRow = getTableRow(container, 0);

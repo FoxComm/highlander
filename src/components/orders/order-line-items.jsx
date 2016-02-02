@@ -3,6 +3,9 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import React, { PropTypes } from 'react';
 
+import * as lineItemActions from '../../modules/orders/line-items';
+import * as skuSearchActions from '../../modules/orders/sku-search';
+
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import EditableContentBox from '../content-box/editable-content-box';
 import ContentBox from '../content-box/content-box';
@@ -31,52 +34,80 @@ const editModeColumns = [
   {field: 'delete', text: '', component: 'DeleteLineItem'}
 ];
 
-const OrderLineItems = props => {
-  const title = <PanelHeader isCart={props.isCart} status={props.state} text="Items" />;
-  const viewContent = _.isEmpty(props.lineItems.items) ?
-    (
-      <div className="fc-content-box__empty-text">
-        No items yet.
-      </div>)
-    :
-    (
-      <TableView
-        columns={viewModeColumns}
-        data={{rows: props.lineItems.items}}/>
+const mapStateToProps = state => {
+  return { 
+    lineItems: state.orders.lineItems,
+    skuSearch: state.orders.skuSearch,
+  };
+};
+
+const mapDispatchToProps = {
+  ...lineItemActions,
+  ...skuSearchActions,
+};
+
+export class OrderLineItems extends React.Component {
+  static propTypes = {
+    isCart: PropTypes.bool,
+    order: PropTypes.object,
+    lineItems: PropTypes.object,
+    orderLineItemsStartEdit: PropTypes.func,
+    orderLineItemsCancelEdit: PropTypes.func,
+    status: PropTypes.string,
+    readOnly: PropTypes.bool,
+  };
+
+  static defaultProps = {
+    isCart: false,
+    status: '',
+    readOnly: false,
+  };
+
+  render() {
+    const props = this.props;
+
+    const title = (
+      <PanelHeader
+        isCart={props.isCart}
+        status={props.status}
+        text="Items" />
     );
 
-  const LineItemsContentBox = props.readOnly ? ContentBox : EditableContentBox;
+    const items = _.get(props, 'lineItems.items', []);
 
-  return (
-    <LineItemsContentBox
-      className='fc-line-items'
-      title={title}
-      isEditing={props.lineItems.isEditing}
-      editAction={props.orderLineItemsStartEdit}
-      doneAction={props.orderLineItemsCancelEdit}
-      editContent={<RenderEditContent {...props} />}
-      editFooter={<RenderEditFooter {...props} />}
-      indentContent={false}
-      viewContent={viewContent}
-    />
-  );
-};
+    let viewContent = null;
+    if (items.length > 0) {
+      viewContent = (
+        <TableView
+          columns={viewModeColumns}
+          emptyMessage="No items yet."
+          showEmptyMessage={true}
+          data={{rows: props.lineItems.items}} />
+      );
+    } else {
+      viewContent = (
+        <div className='fc-content-box__empty-text'>
+          No items yet.
+        </div>
+      );
+    }
 
-OrderLineItems.propTypes = {
-  isCart: PropTypes.bool,
-  order: PropTypes.object,
-  lineItems: PropTypes.object,
-  orderLineItemsStartEdit: PropTypes.func,
-  orderLineItemsCancelEdit: PropTypes.func,
-  state: PropTypes.string,
-  readOnly: PropTypes.bool,
-};
+    const LineItemsContentBox = props.readOnly ? ContentBox : EditableContentBox;
 
-OrderLineItems.defaultProps = {
-  isCart: false,
-  state: '',
-  readOnly: false,
-};
+    return (
+      <LineItemsContentBox
+        className='fc-line-items'
+        title={title}
+        isEditing={props.lineItems.isEditing}
+        editAction={props.orderLineItemsStartEdit}
+        doneAction={props.orderLineItemsCancelEdit}
+        editContent={<RenderEditContent {...props} />}
+        editFooter={<RenderEditFooter {...props} />}
+        indentContent={false}
+        viewContent={viewContent} />
+    );
+  }
+}
 
 class RenderEditContent extends React.Component {
 
@@ -163,4 +194,4 @@ class RenderEditFooter extends React.Component {
   }
 };
 
-export default OrderLineItems;
+export default connect(mapStateToProps, mapDispatchToProps)(OrderLineItems);

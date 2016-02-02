@@ -48,8 +48,6 @@ const OrderDetails = props => {
 };
 
 OrderDetails.propTypes = {
-  skuSearch: PropTypes.object,
-  lineItems: PropTypes.object,
   order: PropTypes.shape({
     currentOrder: PropTypes.object,
     validations: PropTypes.object
