@@ -3,11 +3,6 @@
 Phoenix is a quasi-RESTful HTTP API server which forms the foundation of
 FoxCommerce's transactional orders system.
 
-- slick3
-- cats
-- akka-http
-- FP
-
 ## Design goals
 
 0. **Correctness.**
