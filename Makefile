@@ -6,8 +6,14 @@ all: build
 build:
 	$(GO) build -o bin/inventory inventory.go
 
+seed-cloud:
+	terraform apply terraform/
+
 deploy-stage:
 	ansible-playbook -i ./staging ansible/stage.yml
+
+deploy-gatling: seed-cloud
+	ansible-playbook -i ./staging ansible/gatling.yml
 
 lint:
 	ansible-lint ansible/*.yml

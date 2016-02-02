@@ -34,12 +34,6 @@ resource "google_compute_instance" "gatling-ashes" {
     network_interface {
         network = "default"
     }
-
-    provisioner "local-exec" {
-        command = <<EOF
-        ansible-playbook -T 30 -i ./staging ansible/gatling_ashes.yml
-EOF
-    }
 }
 
 resource "google_compute_instance" "gatling-backend" { 
@@ -56,10 +50,5 @@ resource "google_compute_instance" "gatling-backend" {
 
     network_interface {
         network = "default"
-    }
-    provisioner "local-exec" {
-        command = <<EOF
-        ansible-playbook -T 30 -i ./staging ansible/gatling_backend.yml
-EOF
     }
 }
