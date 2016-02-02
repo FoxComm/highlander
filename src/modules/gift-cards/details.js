@@ -7,6 +7,7 @@ export const receiveGiftCard = createAction('GIFT_CARD_RECEIVE', (id, card) => [
 export const failGiftCard = createAction('GIFT_CARD_FAIL', (id, err, source) => [id, err, source]);
 export const requestGiftCard = createAction('GIFT_CARD_REQUEST');
 export const updateGiftCard = createAction('GIFT_CARD_UPDATED', (id, card) => [id, card]);
+export const changeGiftCardStatus = createAction('GIFT_CARD_CHANGE_STATUS', (id, stauts) => [id, stauts]);
 
 function shouldFetchGiftCard(id, state) {
   const entry = state.giftCards.details[id];
@@ -57,7 +58,9 @@ const reducer = createReducer({
         ...entries[id],
         isFetching: true,
         didInvalidate: false,
-        err: null
+        err: null,
+        nextStatus: null,
+        confirmationShown: false,
       }
     };
   },
@@ -68,6 +71,8 @@ const reducer = createReducer({
         err: null,
         isFetching: false,
         didInvalidate: false,
+        nextStatus: null,
+        confirmationShown: false,
         card: haveType(card, 'gift-card')
       }
     };
@@ -94,7 +99,20 @@ const reducer = createReducer({
       [id]: {
         ...state[id],
         err: null,
+        nextStatus: null,
+        confirmationShown: false,
         card
+      }
+    };
+  },
+  [changeGiftCardStatus]: (state, [id, status]) => {
+    return {
+      ...state,
+      [id]: {
+        ...state[id],
+        err: null,
+        nextStatus: status,
+        confirmationShown: true
       }
     };
   }

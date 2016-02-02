@@ -1,8 +1,10 @@
 
 // libs
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
+import { ReasonType } from '../../lib/reason-utils';
 
 // components
 import { IndexLink, Link } from '../link';
@@ -19,6 +21,7 @@ import ConfirmationDialog from '../modal/confirmation-dialog';
 
 // redux
 import * as GiftCardActions from '../../modules/gift-cards/details';
+import * as ReasonsActions from '../../modules/reasons';
 
 import * as GiftCardActions from '../../modules/gift-cards/details';
 
@@ -32,9 +35,15 @@ const onHoldStateTransitions = [
   ['canceled', 'Cancel Gift Card'],
 ];
 
+const actions = {
+  ...GiftCardActions,
+  ...ReasonsActions,
+};
+
 @connect((state, props) => ({
-  ...state.giftCards.details[props.params.giftCard]
-}), GiftCardActions)
+  ...state.giftCards.details[props.params.giftCard],
+  ...state.reasons,
+}), actions)
 export default class GiftCard extends React.Component {
 
   static propTypes = {
@@ -54,11 +63,12 @@ export default class GiftCard extends React.Component {
     const { giftCard } = this.props.params;
 
     this.props.fetchGiftCardIfNeeded(giftCard);
+    this.props.fetchReasons(this.reasonType);
   }
 
   @autobind
   onChangeState(value) {
-    this.props.editGiftCard(this.props.card.code, {status: value});
+    this.props.changeGiftCardStatus(this.props.card.code, value);
   }
 
   @autobind
@@ -89,6 +99,10 @@ export default class GiftCard extends React.Component {
         </div>
       </div>
     );
+  }
+
+  get reasonType() {
+    return ReasonType.CANCELLATION;
   }
 
   formattedStatus(status) {
@@ -125,11 +139,73 @@ export default class GiftCard extends React.Component {
   }
 
   get changeConfirmationModal() {
-    return null;
+    const shouldDisplay = this.props.confirmationShown && this.props.nextStatus !== 'canceled';
+
+    let status = '';
+    if (this.props.confirmationShown) {
+      status = this.formattedStatus(this.props.nextStatus);
+    }
+
+    const message = (
+      <span>
+        Are you sure you want to change the gift card state to
+        <strong className="fc-gift-card-detail__new-status">{ status }</strong>
+        ?
+      </span>
+    );
+    return (
+      <ConfirmationDialog
+          isVisible={shouldDisplay}
+          header="Change Gift Card State?"
+          body={message}
+          cancel="Cancel"
+          confirm="Yes, Change State"
+          cancelAction={() => {}}
+          confirmAction={() => {}} />
+    );
   }
 
   get cancellationConfirmationModal() {
-    return null;
+    const props = this.props;
+    const shouldDisplay = this.props.confirmationShown && this.props.nextStatus === 'canceled';
+
+    let reasons = [];
+    if (props.reasons && props.reasons[this.reasonType]) {
+      reasons = _.map(props.reasons[this.reasonType], reason => [reason.id, reason.body]);
+    }
+    const value = props.reasonId;
+
+    const body = (
+      <div>
+        <div>Are you sure you want to cancel this gift card?</div>
+        <div className="fc-gift-card-detail__cancel-reason">
+          <div>
+            <label>
+              Cancel Reason
+              <span className="fc-gift-card-detail__cancel-reason-asterisk">*</span>
+            </label>
+          </div>
+          <div className="fc-gift-card-detail__cancel-reason-selector">
+            <Dropdown name="cancellationReason"
+                      placeholder="- Select -"
+                      items={reasons}
+                      value={value}
+                      onChange={ (value) => {} } />
+          </div>
+        </div>
+      </div>
+    );
+
+    return (
+      <ConfirmationDialog
+          isVisible={ shouldDisplay }
+          header="Cancel Store Credit?"
+          body={ body }
+          cancel="Cancel"
+          confirm="Yes, Cancel"
+          cancelAction={ () => {} }
+          confirmAction={ () => {} } />
+    );
   }
 
   render() {
