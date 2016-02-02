@@ -126,7 +126,7 @@ export default class GiftCard extends React.Component {
     }
 
     if (status === 'canceled') {
-      return <span>{status}</span>;
+      return <span>Canceled</span>;
     } else {
       return (
         <Dropdown
@@ -161,7 +161,7 @@ export default class GiftCard extends React.Component {
           cancel="Cancel"
           confirm="Yes, Change State"
           cancelAction={() => this.props.cancelChangeGiftCardStatus(this.props.params.giftCard)}
-          confirmAction={() => {}} />
+          confirmAction={() => this.props.saveGiftCardStatus(this.props.params.giftCard)} />
     );
   }
 
@@ -204,11 +204,12 @@ export default class GiftCard extends React.Component {
           cancel="Cancel"
           confirm="Yes, Cancel"
           cancelAction={() => this.props.cancelChangeGiftCardStatus(this.props.params.giftCard)}
-          confirmAction={() => {}} />
+          confirmAction={() => this.props.saveGiftCardStatus(this.props.params.giftCard)} />
     );
   }
 
   render() {
+    console.log(this.props);
     const card = this.props.card;
 
     if (!card) {

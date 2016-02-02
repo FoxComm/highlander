@@ -41,13 +41,33 @@ export function fetchGiftCardIfNeeded(id) {
   };
 }
 
+function sendUpdate(id, data, dispatch) {
+  return Api.patch(`/gift-cards/${id}`, data)
+    .then(
+      card => dispatch(updateGiftCard(id, card)),
+      err => dispatch(failGiftCard(id, err, editGiftCard))
+    );
+}
+
 export function editGiftCard(id, data) {
   return dispatch => {
-    Api.patch(`/gift-cards/${id}`, data)
-      .then(
-        card => dispatch(updateGiftCard(id, card)),
-        err => dispatch(failGiftCard(id, err, editGiftCard))
-      );
+    return sendUpdate(id, data, dispatch)
+  };
+}
+
+export function saveGiftCardStatus(id) {
+  return (dispatch, getStatus) => {
+    const status = getStatus();
+    console.log(status);
+    const cardData = _.get(status, ['giftCards', 'details', id]);
+    console.log(cardData);
+    if (!_.isEmpty(cardData)) {
+      const payload = {
+        status: cardData.nextStatus,
+        reasonId: cardData.reasonId,
+      };
+      return sendUpdate(id, payload, dispatch)
+    }
   };
 }
 
