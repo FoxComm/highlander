@@ -20,6 +20,10 @@ To run all simulations:
 
     $ sbt test
 
+To run a single simulation:
+
+    $ sbt testOnly com.foxcommerce.TrailSimulation
+
 Configuration options:
 
 * `env` - override environment, see details in [application.conf](src/test/resources/application.conf) (default: `vagrant`)
