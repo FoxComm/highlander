@@ -1,0 +1,17 @@
+---
+
+- name: Provision Gatling Backend
+  hosts: gatling-backend
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+    - common
+    - scala
+    - kafka
+    - db
+    - phoenix
+    - elasticsearch
+    - { role: rsyslog, sudo: yes }
+    - { role: kibana, sudo: yes }
+    - greenriver
