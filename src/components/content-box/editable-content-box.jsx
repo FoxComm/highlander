@@ -54,7 +54,7 @@ EditableContentBox.propTypes = {
   renderContent: PropTypes.func,
   renderFooter: PropTypes.func,
   renderActions: PropTypes.func,
-  title: PropTypes.string,
+  title: PropTypes.node,
   indentContent: PropTypes.bool
 };
 
