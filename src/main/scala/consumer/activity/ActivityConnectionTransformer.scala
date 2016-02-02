@@ -75,7 +75,7 @@ final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
     val uri = s"connections/$id"
     Console.err.println(s"Requesting Phoenix $uri")
 
-    phoenix.get(uri).map { _.bodyText}
+    phoenix.get(uri).flatMap { _.bodyText}
   }
 
 }

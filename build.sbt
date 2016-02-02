@@ -30,7 +30,7 @@ lazy val phoenixScala = (project in file(".")).
     ),
     libraryDependencies ++= {
       val akkaV      = "2.3.11"
-      val akkaHttpV  = "1.0"
+      val akkaHttpV  = "2.0.1"
       val scalaTestV = "2.2.5"
       val monocleV   = "1.1.1"
       val json4sVersion = "3.3.0.RC3"
