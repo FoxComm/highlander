@@ -37,20 +37,16 @@ export default class MultiSelectHead extends React.Component {
   handleSelect(key) {
     switch (key) {
       case 'selectAll':
-        console.log('select all');
         this.props.setAllChecked(true);
         break;
       case 'selectPage':
-        console.log('select page');
         this.props.setPageChecked(true);
         break;
       case 'deselectAll':
-        console.log('deselect all');
         this.props.setAllChecked(false);
         break;
       case 'deselectPage':
-        console.log('deselect page');
-        this.props.setPageChecked(true);
+        this.props.setPageChecked(false);
         break;
     }
   }
