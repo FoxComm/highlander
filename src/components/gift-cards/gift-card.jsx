@@ -1,7 +1,10 @@
+
+// libs
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
+// components
 import { IndexLink, Link } from '../link';
 import GiftCardCode from './gift-card-code';
 import { DateTime } from '../common/datetime';
@@ -12,6 +15,10 @@ import Panel from '../panel/panel';
 import {PanelList, PanelListItem} from '../panel/panel-list';
 import { Dropdown, DropdownItem } from '../dropdown';
 import LocalNav from '../local-nav/local-nav';
+import ConfirmationDialog from '../modal/confirmation-dialog';
+
+// redux
+import * as GiftCardActions from '../../modules/gift-cards/details';
 
 import * as GiftCardActions from '../../modules/gift-cards/details';
 
@@ -44,7 +51,7 @@ export default class GiftCard extends React.Component {
   };
 
   componentDidMount() {
-    let { giftCard } = this.props.params;
+    const { giftCard } = this.props.params;
 
     this.props.fetchGiftCardIfNeeded(giftCard);
   }
@@ -117,8 +124,16 @@ export default class GiftCard extends React.Component {
     }
   }
 
+  get changeConfirmationModal() {
+    return null;
+  }
+
+  get cancellationConfirmationModal() {
+    return null;
+  }
+
   render() {
-    let card = this.props.card;
+    const card = this.props.card;
 
     if (!card) {
       return <div className="fc-gift-card-detail"></div>;
@@ -179,6 +194,8 @@ export default class GiftCard extends React.Component {
           </div>
         </div>
         {this.subNav}
+        {this.changeConfirmationModal}
+        {this.cancellationConfirmationModal}
       </div>
     );
   }
