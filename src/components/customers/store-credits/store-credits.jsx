@@ -164,7 +164,7 @@ export default class StoreCredits extends React.Component {
     }
     const message = (
       <span>
-        Are you sure you want to change the gift card state to
+        Are you sure you want to change the store credit state to
         <strong className="fc-store-credit-new-status">{ status }</strong>
         ?
       </span>
