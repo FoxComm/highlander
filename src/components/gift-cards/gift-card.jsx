@@ -53,10 +53,21 @@ export default class GiftCard extends React.Component {
     }),
     children: PropTypes.node,
     editGiftCard: PropTypes.func,
+    confirmationShown: PropTypes.bool,
+    reasons: PropTypes.array,
+    reasonId: PropTypes.number,
     fetchGiftCardIfNeeded: PropTypes.func.isRequired,
+    changeGiftCardStatus: PropTypes.func.isRequired,
+    saveGiftCardStatus: PropTypes.func.isRequired,
+    fetchReasons: PropTypes.func.isRequired,
+    cancelChangeGiftCardStatus: PropTypes.func.isRequired,
     params: PropTypes.shape({
       giftCard: PropTypes.string.isRequired
     }).isRequired
+  };
+
+  static defaultProps = {
+    confirmationShown: false
   };
 
   componentDidMount() {
@@ -198,9 +209,9 @@ export default class GiftCard extends React.Component {
 
     return (
       <ConfirmationDialog
-          isVisible={ shouldDisplay }
+          isVisible={shouldDisplay}
           header="Cancel Store Credit?"
-          body={ body }
+          body={body}
           cancel="Cancel"
           confirm="Yes, Cancel"
           cancelAction={() => this.props.cancelChangeGiftCardStatus(this.props.params.giftCard)}
