@@ -9,7 +9,7 @@ export const requestGiftCard = createAction('GIFT_CARD_REQUEST');
 export const updateGiftCard = createAction('GIFT_CARD_UPDATED', (id, card) => [id, card]);
 export const changeGiftCardStatus = createAction('GIFT_CARD_CHANGE_STATUS', (id, stauts) => [id, stauts]);
 export const cancelChangeGiftCardStatus = createAction('GIFT_CARD_CANCEL_CHANGE_STATUS');
-export const cancelReasonChangeGiftCard = createAction('GIFT_CARD_CANCEL_REASON_CAHNGE',
+export const changeCancellationReason = createAction('GIFT_CARD_CANCEL_REASON_CAHNGE',
   (id, reasonId) => [id, reasonId]);
 
 function shouldFetchGiftCard(id, state) {
@@ -152,7 +152,7 @@ const reducer = createReducer({
       }
     };
   },
-  [cancelReasonChangeGiftCard]: (state, [id, reasonId]) => {
+  [changeCancellationReason]: (state, [id, reasonId]) => {
     return {
       ...state,
       [id]: {

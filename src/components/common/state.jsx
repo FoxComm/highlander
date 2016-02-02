@@ -48,4 +48,15 @@ State.propTypes = {
   model: PropTypes.string.isRequired,
 };
 
+export function formattedStatus(status) {
+  switch (status) {
+    case 'onHold':
+      return 'On Hold';
+    case 'active':
+      return 'Active';
+    default:
+      return status;
+  }
+}
+
 export default State;

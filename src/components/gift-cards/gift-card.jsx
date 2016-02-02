@@ -18,6 +18,7 @@ import {PanelList, PanelListItem} from '../panel/panel-list';
 import { Dropdown, DropdownItem } from '../dropdown';
 import LocalNav from '../local-nav/local-nav';
 import ConfirmationDialog from '../modal/confirmation-dialog';
+import { formattedStatus } from '../common/state';
 
 // redux
 import * as GiftCardActions from '../../modules/gift-cards/details';
@@ -60,7 +61,7 @@ export default class GiftCard extends React.Component {
     changeGiftCardStatus: PropTypes.func.isRequired,
     saveGiftCardStatus: PropTypes.func.isRequired,
     fetchReasons: PropTypes.func.isRequired,
-    cancelChangeGiftCardStatus: PropTypes.func.isRequired,
+    changeCancellationReason: PropTypes.func.isRequired,
     params: PropTypes.shape({
       giftCard: PropTypes.string.isRequired
     }).isRequired
@@ -116,20 +117,9 @@ export default class GiftCard extends React.Component {
     return ReasonType.CANCELLATION;
   }
 
-  formattedStatus(status) {
-    switch (status) {
-      case 'onHold':
-        return 'On Hold';
-      case 'active':
-        return 'Active';
-      default:
-        return status;
-    }
-  }
-
   get cardStatus() {
     const {status} = this.props.card;
-    const currentStatus = this.formattedStatus(status);
+    const currentStatus = formattedStatus(status);
 
     let availableTransitions = activeStateTransitions;
     if (status === 'onHold') {
@@ -154,7 +144,7 @@ export default class GiftCard extends React.Component {
 
     let status = '';
     if (this.props.confirmationShown) {
-      status = this.formattedStatus(this.props.nextStatus);
+      status = formattedStatus(this.props.nextStatus);
     }
 
     const message = (
@@ -201,7 +191,7 @@ export default class GiftCard extends React.Component {
               placeholder="- Select -"
               items={reasons}
               value={value}
-              onChange={(reasonId) => this.props.cancelReasonChangeGiftCard(this.props.params.giftCard, reasonId)} />
+              onChange={(reasonId) => this.props.changeCancellationReason(this.props.params.giftCard, reasonId)} />
           </div>
         </div>
       </div>
