@@ -51,22 +51,20 @@ function sendUpdate(id, data, dispatch) {
 
 export function editGiftCard(id, data) {
   return dispatch => {
-    return sendUpdate(id, data, dispatch)
+    return sendUpdate(id, data, dispatch);
   };
 }
 
 export function saveGiftCardStatus(id) {
   return (dispatch, getStatus) => {
     const status = getStatus();
-    console.log(status);
     const cardData = _.get(status, ['giftCards', 'details', id]);
-    console.log(cardData);
     if (!_.isEmpty(cardData)) {
       const payload = {
         status: cardData.nextStatus,
         reasonId: cardData.reasonId,
       };
-      return sendUpdate(id, payload, dispatch)
+      return sendUpdate(id, payload, dispatch);
     }
   };
 }

@@ -209,7 +209,6 @@ export default class GiftCard extends React.Component {
   }
 
   render() {
-    console.log(this.props);
     const card = this.props.card;
 
     if (!card) {
