@@ -160,7 +160,7 @@ export default class GiftCard extends React.Component {
           body={message}
           cancel="Cancel"
           confirm="Yes, Change State"
-          cancelAction={() => {}}
+          cancelAction={() => this.props.cancelChangeGiftCardStatus(this.props.params.giftCard)}
           confirmAction={() => {}} />
     );
   }
@@ -203,7 +203,7 @@ export default class GiftCard extends React.Component {
           body={ body }
           cancel="Cancel"
           confirm="Yes, Cancel"
-          cancelAction={ () => {} }
+          cancelAction={() => this.props.cancelChangeGiftCardStatus(this.props.params.giftCard)}
           confirmAction={ () => {} } />
     );
   }

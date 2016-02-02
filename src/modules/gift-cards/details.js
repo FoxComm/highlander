@@ -8,6 +8,7 @@ export const failGiftCard = createAction('GIFT_CARD_FAIL', (id, err, source) => 
 export const requestGiftCard = createAction('GIFT_CARD_REQUEST');
 export const updateGiftCard = createAction('GIFT_CARD_UPDATED', (id, card) => [id, card]);
 export const changeGiftCardStatus = createAction('GIFT_CARD_CHANGE_STATUS', (id, stauts) => [id, stauts]);
+export const cancelChangeGiftCardStatus = createAction('GIFT_CARD_CANCEL_CHANGE_STATUS');
 
 function shouldFetchGiftCard(id, state) {
   const entry = state.giftCards.details[id];
@@ -113,6 +114,16 @@ const reducer = createReducer({
         err: null,
         nextStatus: status,
         confirmationShown: true
+      }
+    };
+  },
+  [cancelChangeGiftCardStatus]: (state, id) => {
+    return {
+      ...state,
+      [id]: {
+        ...state[id],
+        nextStatus: null,
+        confirmationShown: false
       }
     };
   }
