@@ -7,6 +7,7 @@ select
         '[]'
     else
         json_agg((
+            o1.customer_id,
         	o1.reference_number,
         	o1.state,
         	to_char(o1.created_at, 'YYYY-MM-DD HH24:MI:SS'),
