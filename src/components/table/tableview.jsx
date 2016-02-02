@@ -36,7 +36,7 @@ function getActionsHandler({bulkActions, allChecked, checkedIds}) {
   return (value) => {
     const handler = _.find(bulkActions, ([label, handler]) => label === value)[1];
     handler(allChecked, checkedIds);
-  }
+  };
 }
 
 const TableView = props => {
@@ -53,8 +53,10 @@ const TableView = props => {
   // hold actions menu
   const showBulkActions = Boolean(props.bulkActions.length);
   if (showBulkActions) {
+    const totalSelected = props.allChecked ? props.data.total - props.checkedIds.length : props.checkedIds.length;
+
     topItems.push(
-      <div className={getClassName({col: 2, align: 'left'})}>
+      <div className={getClassName({col: 3, align: 'left'})}>
         <Dropdown placeholder="Actions"
                   changeable={false}
                   onChange={getActionsHandler(props)}>
@@ -62,6 +64,7 @@ const TableView = props => {
             <DropdownItem key={title} value={title}>{title}</DropdownItem>
           ))}
         </Dropdown>
+        {totalSelected} Selected
       </div>
     );
   }
@@ -78,7 +81,7 @@ const TableView = props => {
     );
 
     topItems.push(
-      <div className={getClassName({col: 2, direction: 'push', offset: showBulkActions ? 8 : 10, align: 'right'})}>
+      <div className={getClassName({col: 2, direction: 'push', offset: showBulkActions ? 7 : 10, align: 'right'})}>
         {tablePaginator}
       </div>
     );
