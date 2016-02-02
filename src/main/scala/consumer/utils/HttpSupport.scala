@@ -10,15 +10,11 @@ import cats.std.future._
 import akka.actor.ActorSystem
 import akka.http.ConnectionPoolSettings
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.headers.Connection
 import akka.http.scaladsl.model.headers.Authorization
 import akka.http.scaladsl.model.headers.BasicHttpCredentials
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest, HttpResponse}
 import akka.util.ByteString
 import akka.stream.{ActorMaterializer, Materializer}
-
-import consumer.JsonProcessor
-import consumer.AvroJsonHelper
 
 import scala.language.postfixOps
 
