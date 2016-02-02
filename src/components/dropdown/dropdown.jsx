@@ -14,6 +14,7 @@ export default class Dropdown extends React.Component {
     className: PropTypes.string,
     value: PropTypes.string,
     editable: PropTypes.bool,
+    changeable: PropTypes.bool,
     primary: PropTypes.bool,
     open: PropTypes.bool,
     placeholder: PropTypes.string,
@@ -27,6 +28,10 @@ export default class Dropdown extends React.Component {
     renderNullTitle: (value, placeholder) => {
       return placeholder;
     }
+  };
+
+  static defaultProps = {
+    changeable: true,
   };
 
   constructor(...args) {
@@ -57,10 +62,12 @@ export default class Dropdown extends React.Component {
 
   @autobind
   handleItemClick(value, title) {
-    this.setState({
-      open: false,
-      selectedValue: value
-    }, () => {
+    let state = {open: false};
+    if (this.props.changeable) {
+      state.selectedValue = value;
+    }
+
+    this.setState(state, () => {
       if (this.props.onChange) {
         this.props.onChange(value, title);
       }

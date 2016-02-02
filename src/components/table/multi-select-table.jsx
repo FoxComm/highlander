@@ -141,6 +141,8 @@ export default class MultiSelectTable extends React.Component {
     return (
       <TableView
         {...this.props}
+        allChecked={this.state.allChecked}
+        checkedIds={this.state.checkedIds}
         className={classNames('fc-multi-select-table', this.props.className)}
         columns={this.columns}
         renderRow={this.renderRow} />

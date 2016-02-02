@@ -1,7 +1,43 @@
+// libs
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import classNames from 'classnames';
+
+// components
 import Table from './table';
 import TablePaginator from './paginator';
 import TablePageSize from './pagesize';
+import {Dropdown, DropdownItem} from '../dropdown';
+
+
+function getLine(position, items) {
+  if (!items.length) {
+    return;
+  }
+
+  return (
+    <div className={`fc-table-${position} fc-grid fc-grid-no-gutter`}>
+      {items}
+    </div>
+  );
+}
+
+function getClassName({col, direction, offset, align, table='md'}) {
+  return classNames(
+    `fc-col-${table}-${col}-12`,
+    {[`fc-pull-${table}-${offset}-12`]: direction === 'pull'},
+    {[`fc-push-${table}-${offset}-12`]: direction === 'push'},
+    {'fc-align-left': align === 'left'},
+    {'fc-align-right': align === 'right'},
+  );
+}
+
+function getActionsHandler({bulkActions, allChecked, checkedIds}) {
+  return (value) => {
+    const handler = _.find(bulkActions, ([label, handler]) => label === value)[1];
+    handler(allChecked, checkedIds);
+  }
+}
 
 const TableView = props => {
   let setState = null;
@@ -11,44 +47,59 @@ const TableView = props => {
     };
   }
 
-  const tablePaginator = (
-    <TablePaginator
-      total={props.data.total}
-      from={props.data.from}
-      size={props.data.size}
-      setState={setState}
-      />
-  );
-  const tablePageSize = (
-    <TablePageSize setState={setState}/>
-  );
+  let topItems = [];
+  let bottomItems = [];
+
+  // hold actions menu
+  const showBulkActions = Boolean(props.bulkActions.length);
+  if (showBulkActions) {
+    topItems.push(
+      <div className={getClassName({col: 2, align: 'left'})}>
+        <Dropdown placeholder="Actions"
+                  changeable={false}
+                  onChange={getActionsHandler(props)}>
+          {props.bulkActions.map(([title, handler]) => (
+            <DropdownItem key={title} value={title}>{title}</DropdownItem>
+          ))}
+        </Dropdown>
+      </div>
+    );
+  }
 
   const showPagination = props.paginator && props.setState;
+  if (showPagination) {
+    const {data} = props;
 
-  const topPaginator = (
-    <div className="fc-table-header fc-grid fc-grid-no-gutter">
-      <div className="fc-col-md-2-12 fc-push-md-10-12 fc-align-right">
+    const tablePaginator = (
+      <TablePaginator total={data.total} from={data.from} size={data.size} setState={setState} />
+    );
+    const tablePageSize = (
+      <TablePageSize setState={setState} />
+    );
+
+    topItems.push(
+      <div className={getClassName({col: 2, direction: 'push', offset: showBulkActions ? 8 : 10, align: 'right'})}>
         {tablePaginator}
       </div>
-    </div>
-  );
+    );
 
-  const bottomPaginator = (
-    <div className="fc-table-footer fc-grid fc-grid-no-gutter">
-      <div className="fc-col-md-2-12 fc-align-left">
+    bottomItems.push(
+      <div className={getClassName({col: 2, align: 'left'})}>
         {tablePageSize}
       </div>
-      <div className="fc-col-md-2-12 fc-push-md-8-12 fc-align-right">
+    );
+    bottomItems.push(
+      <div className={getClassName({col: 2, direction: 'push', offset: 8, align: 'right'})}>
         {tablePaginator}
       </div>
-    </div>
-  );
+    );
+  }
 
   return (
     <div className="fc-tableview">
-      {showPagination && topPaginator}
-      <Table {...props} setState={setState}/>
-      {showPagination && bottomPaginator}
+      {getLine('header', topItems)}
+      <Table {...props} setState={setState} />
+      {getLine('bottom', bottomItems)}
     </div>
   );
 };
@@ -66,17 +117,21 @@ TableView.propTypes = {
   processRows: PropTypes.func,
   detectNewRows: PropTypes.bool,
   paginator: PropTypes.bool,
+  bulkActions: PropTypes.arrayOf(PropTypes.array),
+  allChecked: PropTypes.bool,
+  checkedIds: PropTypes.array,
   showEmptyMessage: PropTypes.bool,
   emptyMessage: PropTypes.string,
-  className: PropTypes.string
+  className: PropTypes.string,
 };
 
 TableView.defaultProps = {
   paginator: true,
+  bulkActions: [],
   data: {
     rows: [],
     total: 0,
-  }
+  },
 };
 
 export default TableView;
