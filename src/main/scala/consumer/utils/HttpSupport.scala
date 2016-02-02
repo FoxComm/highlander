@@ -10,6 +10,7 @@ import cats.std.future._
 import akka.actor.ActorSystem
 import akka.http.ConnectionPoolSettings
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.headers.Connection
 import akka.http.scaladsl.model.headers.Authorization
 import akka.http.scaladsl.model.headers.BasicHttpCredentials
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest, HttpResponse}
@@ -33,8 +34,8 @@ case class Phoenix(conn: PhoenixConnectionInfo)
 
     def get(suffix: String) : Future[HttpResponse] = { 
       val uri  = fullUri(suffix)
-      val request = HttpRequest(HttpMethods.GET,uri).addHeader(
-        Authorization(BasicHttpCredentials(conn.user, conn.pass)))
+      val request = HttpRequest(HttpMethods.GET,uri)
+        .addHeader(Authorization(BasicHttpCredentials(conn.user, conn.pass)))
 
       Http().singleRequest(request, cp)
     }
@@ -62,14 +63,7 @@ object HttpResponseExtensions {
   implicit class RichHttpResponse(val res: HttpResponse) extends AnyVal {
     import org.json4s.jackson.JsonMethods._
 
-    def bodyText(implicit ec: ExecutionContext, mat: Materializer): String =
-      result(res.entity.toStrict(10 seconds).map(_.data.utf8String), 1 minute)
-
-    def as[A <: AnyRef]
-    (implicit ec:ExecutionContext, 
-      fm: Formats, 
-      mf: scala.reflect.Manifest[A], 
-      mat: Materializer): A =
-      parse(bodyText).extract[A]
+    def bodyText(implicit ec: ExecutionContext, mat: Materializer): Future[String] =
+      res.entity.dataBytes.runFold(ByteString(""))(_ ++ _) map { b ⇒ b.utf8String}
   }
 }

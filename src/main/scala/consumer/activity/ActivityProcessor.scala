@@ -52,16 +52,16 @@ final case class FailedToConnectActivity (
   activityId: Int,
   dimension: String,
   objectId: String,
-  reason: String) 
-  extends RuntimeException(s"Failed to connect activity $activityId to dimension '$dimension' and object $objectId because: $reason")
+  response: HttpResponse) 
+  extends RuntimeException(s"Failed to connect activity $activityId to dimension '$dimension' and object $objectId response: $response")
 
 final case class FailedToConnectNotification(
   activityId: Int,
   dimension: String,
   objectId: String,
-  reason: String)
+  response: HttpResponse)
   extends RuntimeException(s"Failed to create notification for connection of activity $activityId to dimension " +
-    s"'$dimension' and object $objectId because: $reason")
+    s"'$dimension' and object $objectId response: $response")
 
 /**
  * This is a JsonProcessor which listens to the activity stream and processes the activity
@@ -116,7 +116,7 @@ class ActivityProcessor(conn : PhoenixConnectionInfo, connectors: Seq[ActivityCo
           if(resp.status == StatusCodes.OK) {
             createPhoenixNotification(c, phoenix)
           } else {
-            throw FailedToConnectActivity(c.activityId, c.dimension, c.objectId, resp.as[String])
+            throw FailedToConnectActivity(c.activityId, c.dimension, c.objectId, resp)
           }
           resp
       }
@@ -134,7 +134,7 @@ class ActivityProcessor(conn : PhoenixConnectionInfo, connectors: Seq[ActivityCo
 
     phoenix.post("notifications", notification).map { response ⇒
       if (response.status != StatusCodes.OK) {
-        throw new FailedToConnectNotification(conn.activityId, conn.dimension, conn.objectId, response.as[String])
+        throw new FailedToConnectNotification(conn.activityId, conn.dimension, conn.objectId, response)
       }
       response
     }

@@ -63,10 +63,15 @@ class MultiTopicConsumer(
         Console.err.println(s"Processing ${r.topic} offset ${r.offset}")
         val f = processor.process(r.offset, r.topic, r.value)
         f onSuccess { 
-          case result ⇒ Console.err.println(s"Processed ${r.topic} offset ${r.offset}")
+          case result ⇒  { 
+            Console.err.println(s"Processed ${r.topic} offset ${r.offset}")
+          }
         }
-        Await.result(f, 60 seconds)
+
+        Await.result(f, 120 seconds)
         consumer.commitSync()
+
+        Console.err.println(s"Offset ${r.offset} for ${r.topic} synced ")
       }
     }
   }

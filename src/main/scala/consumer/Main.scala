@@ -76,7 +76,7 @@ final case class MainConfig(
     phoenixPass            : String,
     phoenixUri             : String,
     phoenixUser            : String,
-    threadPoolCount        : Int,
+    maxConnections         : Int,
     startFromBeginning : Boolean)
 
 object MainConfig {
@@ -102,7 +102,7 @@ object MainConfig {
       phoenixPass           = conf.getString(s"$env.activity.phoenix.pass"),
       phoenixUri            = conf.getString(s"$env.activity.phoenix.url"),
       phoenixUser           = conf.getString(s"$env.activity.phoenix.user"),
-      threadPoolCount       = conf.getInt(s"$env.thread.pool"),
+      maxConnections       =  conf.getInt(s"$env.max.connections"),
       startFromBeginning    = conf.getBoolean(s"$env.consume.restart"))
   }
 }
@@ -112,19 +112,18 @@ object Main {
   implicit val system = ActorSystem("system")
   implicit val materializer = ActorMaterializer()
 
-  implicit lazy final val connectionPoolSettings =
-    ConnectionPoolSettings.create(implicitly[ActorSystem]).copy(
-      maxConnections  = 32,
-      maxOpenRequests = 32,
-      maxRetries      = 0)
-
-
   def main(args: Array[String]): Unit = {
     // Load configuration parameters & environment
 
     val conf = MainConfig.loadFromConfig
 
-    val threadPool = java.util.concurrent.Executors.newFixedThreadPool(conf.threadPoolCount)
+    implicit val connectionPoolSettings =
+      ConnectionPoolSettings.create(system).copy(
+        maxConnections  = conf.maxConnections,
+        maxOpenRequests = conf.maxConnections,
+        maxRetries      = 1)
+
+    val threadPool = java.util.concurrent.Executors.newCachedThreadPool()
     implicit val ec = ExecutionContext.fromExecutor(threadPool)
 
     Console.err.println(s"ES: ${conf.elasticSearchUrl}")
