@@ -18,6 +18,7 @@ import { PanelList, PanelListItem } from '../panel/panel-list';
 import SectionTitle from '../section-title/section-title';
 import SubNav from './sub-nav';
 import State, { states } from '../common/state';
+import ConfirmationDialog from '../modal/confirmation-dialog';
 
 // redux
 import * as paymentMethodActions from '../../modules/orders/payment-methods';
@@ -63,6 +64,17 @@ export default class Order extends React.Component {
     fetchOrder: PropTypes.func,
     increaseRemorsePeriod: PropTypes.func
   };
+
+  constructor(...args) {
+    super(...args);
+    this.state = {
+      newOrderState: null,
+    };
+  }
+
+  componentDidMount() {
+    this.props.fetchOrder(this.orderRefNum);
+  }
 
   get changeOptions() {
     return {
@@ -113,6 +125,28 @@ export default class Order extends React.Component {
 
   get subNav() {
     return <SubNav order={this.order} />;
+  }
+
+  @autobind
+  onStateChange(value) {
+    this.setState({
+      newOrderState: value,
+    });
+  }
+
+  @autobind
+  confirmStateChange() {
+    this.setState({
+      newOrderState: null
+    });
+    this.props.updateOrder(this.orderRefNum, {state: this.state.newOrderState});
+  }
+
+  @autobind
+  cancelStateChange() {
+    this.setState({
+      newOrderState: null
+    });
   }
 
   get orderStateDropdown() {
@@ -178,15 +212,6 @@ export default class Order extends React.Component {
     );
   }
 
-  @autobind
-  onStateChange(value) {
-    this.props.updateOrder(this.orderRefNum, {state: value});
-  }
-
-  componentDidMount() {
-    this.props.fetchOrder(this.orderRefNum);
-  }
-
   render() {
     const order = this.order;
     const className = classNames('fc-order', {'fc-cart': order.isCart});
@@ -205,6 +230,15 @@ export default class Order extends React.Component {
           {this.subNav}
           {this.details}
         </div>
+        <ConfirmationDialog
+          isVisible={this.state.newOrderState != null}
+          header="Change Order State ?"
+          body={`Are you sure you want to change order state to ${states.order[this.state.newOrderState]} ?`}
+          cancel="Cancel"
+          confirm="Yes, Change"
+          cancelAction={this.cancelStateChange}
+          confirmAction={this.confirmStateChange}
+          />
       </div>
     );
   }
