@@ -24,6 +24,10 @@ object Slick {
 
   type DbResult[T] = DBIO[Failures Xor T]
 
+  sealed trait FoundOrCreated
+  case object Found extends FoundOrCreated
+  case object Created extends FoundOrCreated
+
   def xorMapDbio[LeftX, RightX, RightY](xor: Xor[LeftX, RightX])(f: RightX ⇒ DBIO[RightY])
     (implicit ec: ExecutionContext): DBIO[Xor[LeftX, RightY]] = {
     xor.fold(
@@ -158,11 +162,12 @@ object Slick {
 
       def toTheResponse(implicit ec: ExecutionContext): DbResultT[TheResponse[A]] = {
         val pagingMetadata = PaginationMetadata(from = metadata.from, size = metadata.size, pageNo = metadata.pageNo)
-        (for {
+
+        for {
           result ← * <~ this.result
           total  ← * <~ metadata.total.map(_.map(Some(_)).toXor).getOrElse(DbResult.none[Int])
         } yield TheResponse(result, pagination = Some(pagingMetadata.copy(total = total)),
-                                    sorting    = Some(SortingMetadata(sortBy = metadata.sortBy))))
+                                    sorting    = Some(SortingMetadata(sortBy = metadata.sortBy)))
       }
     }
 
@@ -257,19 +262,27 @@ object Slick {
 
       def findOrCreate(r: DbResult[R])(implicit ec: ExecutionContext): DbResult[R] = {
         dbio.flatMap { 
-          case Some(model) ⇒ DbResult.good(model)
-          case None ⇒  r
+          case Some(model)  ⇒ DbResult.good(model)
+          case None         ⇒ r
+        }
+      }
+
+      // Last item in tuple determines if cart was created or not
+      def findOrCreateExtended(r: DbResult[R])(implicit ec: ExecutionContext): DbResult[(R, FoundOrCreated)] = {
+        dbio.flatMap {
+          case Some(model)  ⇒ DbResult.good((model, Found))
+          case _            ⇒ r.map(_.map(result ⇒ (result, Created)))
         }
       }
 
       def mustFindOr(notFoundFailure: Failure)(implicit ec: ExecutionContext): DbResult[R] = dbio.flatMap {
-        case Some(model) ⇒ DbResult.good(model)
-        case None ⇒ DbResult.failure(notFoundFailure)
+        case Some(model)  ⇒ DbResult.good(model)
+        case None         ⇒ DbResult.failure(notFoundFailure)
       }
 
       def mustNotFindOr(shouldNotBeHere: Failure)(implicit ec: ExecutionContext): DbResult[Unit] = dbio.flatMap {
-        case None ⇒ DbResult.unit
-        case Some(_) ⇒ DbResult.failure(shouldNotBeHere)
+        case None     ⇒ DbResult.unit
+        case Some(_)  ⇒ DbResult.failure(shouldNotBeHere)
       }
 
       // we only use this when we *know* we can call head safely on a query. (e.g., you've created a record which

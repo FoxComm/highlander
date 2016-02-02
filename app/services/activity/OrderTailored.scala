@@ -6,7 +6,7 @@ import models.{ShippingMethod, OrderShippingAddress, PaymentMethod, Order, Note}
 import responses.{CreditCardsResponse, FullOrder, GiftCardResponse, StoreAdminResponse}
 
 object OrderTailored {
-  final case class CartCreated(admin: StoreAdminResponse.Root, order: FullOrder.Root)
+  final case class CartCreated(admin: Option[StoreAdminResponse.Root], order: FullOrder.Root)
     extends ActivityBase[CartCreated]
 
   final case class OrderStateChanged(admin: StoreAdminResponse.Root, order: FullOrder.Root, oldState: Order.State)
