@@ -15,6 +15,16 @@ import LocalNav from '../local-nav/local-nav';
 
 import * as GiftCardActions from '../../modules/gift-cards/details';
 
+const activeStateTransitions = [
+  ['onHold', 'On Hold'],
+  ['canceled', 'Cancel Gift Card'],
+];
+
+const onHoldStateTransitions = [
+  ['active', 'Active'],
+  ['canceled', 'Cancel Gift Card'],
+];
+
 @connect((state, props) => ({
   ...state.giftCards.details[props.params.giftCard]
 }), GiftCardActions)
@@ -74,18 +84,35 @@ export default class GiftCard extends React.Component {
     );
   }
 
-  get cardState() {
-    const {state} = this.props.card;
+  formattedStatus(status) {
+    switch (status) {
+      case 'onHold':
+        return 'On Hold';
+      case 'active':
+        return 'Active';
+      default:
+        return status;
+    }
+  }
 
-    if (state === 'Canceled') {
-      return <span>{state}</span>;
+  get cardStatus() {
+    const {status} = this.props.card;
+    const currentStatus = this.formattedStatus(status);
+
+    let availableTransitions = activeStateTransitions;
+    if (status === 'onHold') {
+      availableTransitions = onHoldStateTransitions;
+    }
+
+    if (status === 'canceled') {
+      return <span>{status}</span>;
     } else {
       return (
-        <Dropdown onChange={this.onChangeState} value={state}>
-          <DropdownItem value="active">Active</DropdownItem>
-          <DropdownItem value="onHold">On Hold</DropdownItem>
-          <DropdownItem value="canceled">Cancel Gift Card</DropdownItem>
-        </Dropdown>
+        <Dropdown
+          placeholder={ currentStatus }
+          value={status}
+          onChange={this.onChangeState}
+          items={availableTransitions} />
       );
     }
   }
