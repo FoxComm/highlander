@@ -28,7 +28,7 @@ Configuration options:
 
 * `env` - override environment, see details in [application.conf](src/test/resources/application.conf) (default: `vagrant`)
 * `users` - number of users injected per simulation (default: 1)
-* `pause` - pause (in seconds) between Green River synchronization (default: 10)
+* `pause` - pause (in seconds) between Green River synchronization (default: 7)
 
 Example:
 
