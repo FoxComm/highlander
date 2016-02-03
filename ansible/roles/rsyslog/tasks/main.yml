@@ -14,7 +14,18 @@
   notify:
     - restart rsyslog
 
+- name: Install base rsyslog config
+  template: >
+    src=rsyslog.conf.j2
+    dest=/etc/rsyslog.conf
+    owner=root
+    group=root
+    mode=0644
+  notify:
+    - restart rsyslog
+
 - name: Install rsyslog config
+  debug: msg = "{{hostvars[groups['greenriver-stage'][0]]}}"
   template: >
     src=elastic.conf.j2
     dest=/etc/rsyslog.d/51-elastic.conf
