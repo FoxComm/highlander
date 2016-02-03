@@ -310,7 +310,7 @@ object AvroTransformers {
       "notes_search_view" as (
         // Note
         "id"                    typed IntegerType,
-        "referenceType"         typed StringType analyzer "not_analyzed",
+        "referenceType"         typed StringType index "not_analyzed",
         "body"                  typed StringType analyzer "autocomplete",
         "priority"              typed StringType index "not_analyzed",
         "createdAt"             typed DateType format dateFormat,
