@@ -3,6 +3,7 @@ package consumer.elastic
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.ElasticDsl.{mapping ⇒ esMapping}
 import com.sksamuel.elastic4s.mappings.FieldType._
 
 import consumer.AvroJsonHelper
@@ -20,26 +21,24 @@ object AvroTransformers {
   val dateFormat = "yyyy-MM-dd HH:mm:ss"
   val strictDateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
 
-  def address(name: String) =
-    name nested (
-      "address1"  typed StringType analyzer "autocomplete",
-      "address2"  typed StringType analyzer "autocomplete",
-      "city"      typed StringType analyzer "autocomplete",
-      "zip"       typed StringType index "not_analyzed",
-      "region"    typed StringType analyzer "autocomplete",
-      "country"   typed StringType analyzer "autocomplete",
-      "continent" typed StringType analyzer "autocomplete",
-      "currency"  typed StringType analyzer "autocomplete"
+  def address(name: String) = field(name).nested(
+      field("address1", StringType).analyzer("autocomplete"),
+      field("address2", StringType).analyzer("autocomplete"),
+      field("city", StringType).analyzer("autocomplete"),
+      field("zip", StringType).index("not_analyzed"),
+      field("region", StringType).analyzer("autocomplete"),
+      field("country", StringType).analyzer("autocomplete"),
+      field("continent", StringType).analyzer("autocomplete"),
+      field("currency", StringType).analyzer("autocomplete")
     )
 
   final case class Sku()(implicit ec: ExecutionContext) extends AvroTransformer {
-    def mapping =
-      "skus" as (
-        "id"            typed IntegerType,
-        "sku"           typed StringType analyzer "autocomplete",
-        "name"          typed StringType analyzer "autocomplete",
-        "is_hazardous"  typed BooleanType,
-        "price"         typed IntegerType
+    def mapping = esMapping("skus").fields(
+        field("id", IntegerType),
+        field("sku", StringType).analyzer("autocomplete"),
+        field("name", StringType).analyzer("autocomplete"),
+        field("is_hazardous", BooleanType),
+        field("price", IntegerType)
       )
 
     def fields = List.empty
@@ -47,35 +46,35 @@ object AvroTransformers {
 
   final case class GiftCardsSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping =
-      "gift_cards_search_view" as (
-        "id"                   typed IntegerType,
-        "code"                 typed StringType analyzer "autocomplete",
-        "originId"             typed IntegerType,
-        "originType"           typed StringType index "not_analyzed",
-        "subtype"              typed StringType analyzer "autocomplete",
-        "state"                typed StringType index "not_analyzed",
-        "currency"             typed StringType index "not_analyzed",
-        "originalBalance"      typed IntegerType,
-        "currentBalance"       typed IntegerType,
-        "availableBalance"     typed IntegerType,
-        "canceledAmount"       typed IntegerType,
-        "canceledReason" nested (
-          "reasonType"        typed StringType analyzer "autocomplete",
-          "body"               typed StringType analyzer "autocomplete"
+      esMapping("gift_cards_search_view").fields(
+        field("id", IntegerType),
+        field("code", StringType) analyzer "autocomplete",
+        field("originId", IntegerType),
+        field("originType", StringType) index "not_analyzed",
+        field("subtype", StringType) analyzer "autocomplete",
+        field("state", StringType) index "not_analyzed",
+        field("currency", StringType) index "not_analyzed",
+        field("originalBalance", IntegerType),
+        field("currentBalance", IntegerType),
+        field("availableBalance", IntegerType),
+        field("canceledAmount", IntegerType),
+        field("canceledReason").nested (
+          field("reasonType", StringType) analyzer "autocomplete",
+          field("body", StringType) analyzer "autocomplete"
         ),
-        "createdAt"            typed DateType format dateFormat,
-        "updatedAt"            typed DateType format dateFormat,
-        "storeAdmin" nested (
-          "email"              typed StringType analyzer "autocomplete",
-          "name"               typed StringType analyzer "autocomplete",
-          "department"         typed StringType analyzer "autocomplete"
+        field("createdAt", DateType) format dateFormat,
+        field("updatedAt", DateType) format dateFormat,
+        field("storeAdmin").nested (
+          field("email", StringType) analyzer "autocomplete",
+          field("name", StringType) analyzer "autocomplete",
+          field("department", StringType) analyzer "autocomplete"
         ),
-        "storeCredit" nested (
-          "id"                 typed IntegerType,
-          "customerId"         typed IntegerType,
-          "originType"         typed StringType index "not_analyzed",
-          "currency"           typed StringType index "not_analyzed",
-          "state"              typed StringType index "not_analyzed"
+        field("storeCredit").nested (
+          field("id", IntegerType),
+          field("customerId", IntegerType),
+          field("originType", StringType) index "not_analyzed",
+          field("currency", StringType) index "not_analyzed",
+          field("state", StringType) index "not_analyzed"
         )
       )
 
@@ -84,34 +83,34 @@ object AvroTransformers {
 
   final case class StoreCreditsSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping =
-      "store_credits_search_view" as (
-        "id"                   typed IntegerType,
-        "customerId"           typed IntegerType,
-        "originId"             typed IntegerType,
-        "originType"           typed StringType index "not_analyzed",
-        "subtype"              typed StringType analyzer "autocomplete",
-        "state"                typed StringType index "not_analyzed",
-        "currency"             typed StringType index "not_analyzed",
-        "originalBalance"      typed IntegerType,
-        "currentBalance"       typed IntegerType,
-        "availableBalance"     typed IntegerType,
-        "canceledAmount"       typed IntegerType,
-        "canceledReason" nested (
-          "reasonType"        typed StringType analyzer "autocomplete",
-          "body"               typed StringType analyzer "autocomplete"
+      esMapping("store_credits_search_view").fields(
+        field("id", IntegerType),
+        field("customerId", IntegerType),
+        field("originId", IntegerType),
+        field("originType", StringType) index "not_analyzed",
+        field("subtype", StringType) analyzer "autocomplete",
+        field("state", StringType) index "not_analyzed",
+        field("currency", StringType) index "not_analyzed",
+        field("originalBalance", IntegerType),
+        field("currentBalance", IntegerType),
+        field("availableBalance", IntegerType),
+        field("canceledAmount", IntegerType),
+        field("canceledReason").nested (
+          field("reasonType", StringType) analyzer "autocomplete",
+          field("body", StringType) analyzer "autocomplete"
         ),
-        "createdAt"            typed DateType format dateFormat,
-        "updatedAt"            typed DateType format dateFormat,
-        "storeAdmin" nested (
-          "email"              typed StringType analyzer "autocomplete",
-          "name"               typed StringType analyzer "autocomplete",
-          "department"         typed StringType analyzer "autocomplete"
+        field("createdAt", DateType) format dateFormat,
+        field("updatedAt", DateType) format dateFormat,
+        field("storeAdmin").nested (
+          field("email", StringType) analyzer "autocomplete",
+          field("name", StringType) analyzer "autocomplete",
+          field("department", StringType) analyzer "autocomplete"
         ),
-        "giftCard" nested (
-          "code"               typed StringType analyzer "autocomplete",
-          "originType"         typed StringType index "not_analyzed",
-          "currency"           typed StringType index "not_analyzed",
-          "state"              typed StringType index "not_analyzed"
+        field("giftCard").nested (
+          field("code", StringType) analyzer "autocomplete",
+          field("originType", StringType) index "not_analyzed",
+          field("currency", StringType) index "not_analyzed",
+          field("state", StringType) index "not_analyzed"
         )
       )
 
@@ -120,54 +119,54 @@ object AvroTransformers {
 
   final case class CustomersSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping =
-      "customers_search_view" as (
+      esMapping("customers_search_view").fields(
         // Customer
-        "id"                      typed IntegerType,
-        "name"                    typed StringType analyzer "autocomplete",
-        "email"                   typed StringType analyzer "autocomplete",
-        "isDisabled"              typed BooleanType,
-        "isGuest"                 typed BooleanType,
-        "isBlacklisted"           typed BooleanType,
-        "phoneNumber"             typed StringType index "not_analyzed",
-        "location"                typed StringType analyzer "autocomplete",
-        "joinedAt"                typed DateType format dateFormat,
-        "revenue"                 typed IntegerType,
-        "rank"                    typed IntegerType,
+        field("id", IntegerType),
+        field("name", StringType) analyzer "autocomplete",
+        field("email", StringType) analyzer "autocomplete",
+        field("isDisabled", BooleanType),
+        field("isGuest", BooleanType),
+        field("isBlacklisted", BooleanType),
+        field("phoneNumber", StringType) index "not_analyzed",
+        field("location", StringType) analyzer "autocomplete",
+        field("joinedAt", DateType) format dateFormat,
+        field("revenue", IntegerType),
+        field("rank", IntegerType),
         // Orders
-        "orderCount"              typed IntegerType,
-        "orders" nested(
-          "customerId"            typed IntegerType,
-          "referenceNumber"       typed StringType analyzer "autocomplete",
-          "state"                 typed StringType index "not_analyzed",
-          "createdAt"             typed DateType format dateFormat,
-          "placedAt"              typed DateType format dateFormat,
-          "subTotal"              typed IntegerType,
-          "shippingTotal"         typed IntegerType,
-          "adjustmentsTotal"      typed IntegerType,
-          "taxesTotal"            typed IntegerType,
-          "grandTotal"            typed IntegerType
+        field("orderCount", IntegerType),
+        field("orders").nested(
+          field("customerId", IntegerType),
+          field("referenceNumber", StringType) analyzer "autocomplete",
+          field("state", StringType) index "not_analyzed",
+          field("createdAt", DateType) format dateFormat,
+          field("placedAt", DateType) format dateFormat,
+          field("subTotal", IntegerType),
+          field("shippingTotal", IntegerType),
+          field("adjustmentsTotal", IntegerType),
+          field("taxesTotal", IntegerType),
+          field("grandTotal", IntegerType)
         ),
         // Purchased items
-        "purchasedItemCount"      typed IntegerType,
-        "purchasedItems" nested (
-          "sku"                   typed StringType analyzer "autocomplete",
-          "name"                  typed StringType analyzer "autocomplete",
-          "price"                 typed IntegerType
+        field("purchasedItemCount", IntegerType),
+        field("purchasedItems").nested (
+          field("sku", StringType) analyzer "autocomplete",
+          field("name", StringType) analyzer "autocomplete",
+          field("price", IntegerType)
         ),
         // Addresses
-        "shippingAddressesCount"  typed IntegerType,
+        field("shippingAddressesCount", IntegerType),
         address("shippingAddresses"),
-        "billingAddressesCount"   typed IntegerType,
+        field("billingAddressesCount", IntegerType),
         address("billingAddresses"),
         // Store credits
-        "storeCreditTotal"        typed IntegerType,
-        "storeCreditCount"        typed IntegerType,
+        field("storeCreditTotal", IntegerType),
+        field("storeCreditCount", IntegerType),
         // Saved for later
-        "savedForLaterCount"      typed IntegerType,
-        "savedForLater" nested (
-          "sku"                   typed StringType analyzer "autocomplete",
-          "name"                  typed StringType analyzer "autocomplete",
-          "price"                 typed IntegerType
+        field("savedForLaterCount", IntegerType),
+        field("savedForLater").nested (
+          field("sku", StringType) analyzer "autocomplete",
+          field("name", StringType) analyzer "autocomplete",
+          field("price", IntegerType)
         )
       )
 
@@ -176,76 +175,76 @@ object AvroTransformers {
 
   final case class OrdersSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping = {
-      "orders_search_view" as (
+      esMapping("orders_search_view").fields(
         // Order
-        "id"                      typed IntegerType,
-        "referenceNumber"         typed StringType analyzer "autocomplete",
-        "state"                   typed StringType index "not_analyzed",
-        "createdAt"               typed DateType format dateFormat,
-        "placedAt"                typed DateType format dateFormat,
-        "currency"                typed StringType index "not_analyzed",
+        field("id", IntegerType),
+        field("referenceNumber", StringType) analyzer "autocomplete",
+        field("state", StringType) index "not_analyzed",
+        field("createdAt", DateType) format dateFormat,
+        field("placedAt", DateType) format dateFormat,
+        field("currency", StringType) index "not_analyzed",
         // Totals
-        "subTotal"                typed IntegerType,
-        "shippingTotal"           typed IntegerType,
-        "adjustmentsTotal"        typed IntegerType,
-        "taxesTotal"              typed IntegerType,
-        "grandTotal"              typed IntegerType,
+        field("subTotal", IntegerType),
+        field("shippingTotal", IntegerType),
+        field("adjustmentsTotal", IntegerType),
+        field("taxesTotal", IntegerType),
+        field("grandTotal", IntegerType),
         // Customer
-        "customer" nested (
-          "id"                    typed IntegerType,
-          "name"                  typed StringType analyzer "autocomplete",
-          "email"                 typed StringType analyzer "autocomplete",
-          "isBlacklisted"         typed BooleanType,
-          "joinedAt"              typed DateType format dateFormat,
-          "revenue"               typed IntegerType,
-          "rank"                  typed IntegerType
+        field("customer").nested (
+          field("id", IntegerType),
+          field("name", StringType) analyzer "autocomplete",
+          field("email", StringType) analyzer "autocomplete",
+          field("isBlacklisted", BooleanType),
+          field("joinedAt", DateType) format dateFormat,
+          field("revenue", IntegerType),
+          field("rank", IntegerType)
         ),
         // Line items
-        "lineItemCount"           typed IntegerType,
-        "lineItems" nested (
-          "state"                 typed StringType index "not_analyzed",
-          "sku"                   typed StringType analyzer "autocomplete",
-          "name"                  typed StringType analyzer "autocomplete",
-          "price"                 typed IntegerType
+        field("lineItemCount", IntegerType),
+        field("lineItems").nested (
+          field("state", StringType) index "not_analyzed",
+          field("sku", StringType) analyzer "autocomplete",
+          field("name", StringType) analyzer "autocomplete",
+          field("price", IntegerType)
         ),
         // Payments
-        "payments" nested (
-          "paymentMethodType"     typed StringType index "not_analyzed",
-          "amount"                typed IntegerType,
-          "currency"              typed StringType index "not_analyzed"
+        field("payments").nested (
+          field("paymentMethodType", StringType) index "not_analyzed",
+          field("amount", IntegerType),
+          field("currency", StringType) index "not_analyzed"
         ),
-        "creditCardCount"         typed IntegerType,
-        "creditCardTotal"         typed IntegerType,
-        "giftCardCount"           typed IntegerType,
-        "giftCardTotal"           typed IntegerType,
-        "storeCreditCount"        typed IntegerType,
-        "storeCreditTotal"        typed IntegerType,
+        field("creditCardCount", IntegerType),
+        field("creditCardTotal", IntegerType),
+        field("giftCardCount", IntegerType),
+        field("giftCardTotal", IntegerType),
+        field("storeCreditCount", IntegerType),
+        field("storeCreditTotal", IntegerType),
         // Shipments
-        "shipmentCount"           typed IntegerType,
-        "shipments" nested (
-          "state"                 typed StringType index "not_analyzed",
-          "shippingPrice"         typed IntegerType,
-          "adminDisplayName"      typed StringType analyzer "autocomplete",
-          "storefrontDisplayName" typed StringType analyzer "autocomplete"
+        field("shipmentCount", IntegerType),
+        field("shipments").nested (
+          field("state", StringType) index "not_analyzed",
+          field("shippingPrice", IntegerType),
+          field("adminDisplayName", StringType) analyzer "autocomplete",
+          field("storefrontDisplayName", StringType) analyzer "autocomplete"
         ),
         // Addresses
-        "shippingAddressesCount"  typed IntegerType,
+        field("shippingAddressesCount", IntegerType),
         address("shippingAddresses"),
-        "billingAddressesCount"   typed IntegerType,
+        field("billingAddressesCount", IntegerType),
         address("billingAddresses"),
         // Assignments
-        "assignmentCount"         typed IntegerType,
-        "assignees" nested (
-          "name"                  typed StringType analyzer "autocomplete",
-          "assignedAt"            typed DateType format dateFormat
+        field("assignmentCount", IntegerType),
+        field("assignees").nested (
+          field("name", StringType) analyzer "autocomplete",
+          field("assignedAt", DateType) format dateFormat
         ),
         // RMAs
-        "rmaCount"                typed IntegerType,
-        "rmas" nested (
-          "referenceNumber"       typed StringType analyzer "autocomplete",
-          "state"                 typed StringType index "not_analyzed",
-          "rmaType"               typed StringType index "not_analyzed",
-          "placedAt"              typed DateType format dateFormat
+        field("rmaCount", IntegerType),
+        field("rmas").nested (
+          field("referenceNumber", StringType) analyzer "autocomplete",
+          field("state", StringType) index "not_analyzed",
+          field("rmaType", StringType) index "not_analyzed",
+          field("placedAt", DateType) format dateFormat
         )
       )
     }
@@ -257,18 +256,18 @@ object AvroTransformers {
 
   final case class StoreAdminsSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping =
-      "store_admins_search_view" as (
+      esMapping("store_admins_search_view").fields(
         // Store Admin
-        "id"                typed IntegerType,
-        "email"             typed StringType analyzer "autocomplete",
-        "name"              typed StringType analyzer "autocomplete",
-        "department"        typed StringType analyzer "autocomplete",
-        "createdAt"         typed DateType format dateFormat,
+        field("id", IntegerType),
+        field("email", StringType) analyzer "autocomplete",
+        field("name", StringType) analyzer "autocomplete",
+        field("department", StringType) analyzer "autocomplete",
+        field("createdAt", DateType) format dateFormat,
         // Assignments
-        "assignmentsCount"  typed IntegerType,
-        "assignments" nested (
-          "referenceNumber" typed StringType analyzer "autocomplete",
-          "assignedAt"      typed DateType format dateFormat
+        field("assignmentsCount", IntegerType),
+        field("assignments").nested (
+          field("referenceNumber", StringType) analyzer "autocomplete",
+          field("assignedAt", DateType) format dateFormat
         )
       )
 
@@ -277,31 +276,31 @@ object AvroTransformers {
 
   final case class FailedAuthorizationsSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping =
-      "failed_authorizations_search_view" as (
+      esMapping("failed_authorizations_search_view").fields(
         // Credit Card Charge
-        "id"                    typed IntegerType,
-        "chargeId"              typed StringType analyzer "autocomplete",
-        "amount"                typed IntegerType,
-        "currency"              typed StringType index "not_analyzed",
-        "state"                 typed StringType index "not_analyzed",
-        "createdAt"             typed DateType format dateFormat,
+        field("id", IntegerType),
+        field("chargeId", StringType) analyzer "autocomplete",
+        field("amount", IntegerType),
+        field("currency", StringType) index "not_analyzed",
+        field("state", StringType) index "not_analyzed",
+        field("createdAt", DateType) format dateFormat,
         // Credit Card
-        "holderName"            typed StringType analyzer "autocomplete",
-        "lastFour"              typed IntegerType,
-        "expMonth"              typed IntegerType,
-        "expYear"               typed IntegerType,
-        "brand"                 typed StringType analyzer "autocomplete",
+        field("holderName", StringType) analyzer "autocomplete",
+        field("lastFour", IntegerType),
+        field("expMonth", IntegerType),
+        field("expYear", IntegerType),
+        field("brand", StringType) analyzer "autocomplete",
         // Billing Address
-        "address1"              typed StringType analyzer "autocomplete",
-        "address2"              typed StringType analyzer "autocomplete",
-        "city"                  typed StringType analyzer "autocomplete",
-        "zip"                   typed StringType index "not_analyzed",
-        "region"                typed StringType analyzer "autocomplete",
-        "country"               typed StringType analyzer "autocomplete",
-        "continent"             typed StringType analyzer "autocomplete",
+        field("address1", StringType) analyzer "autocomplete",
+        field("address2", StringType) analyzer "autocomplete",
+        field("city", StringType) analyzer "autocomplete",
+        field("zip", StringType) index "not_analyzed",
+        field("region", StringType) analyzer "autocomplete",
+        field("country", StringType) analyzer "autocomplete",
+        field("continent", StringType) analyzer "autocomplete",
         // Order and Customer
-        "orderReferenceNumber"  typed StringType analyzer "autocomplete",
-        "customerId"            typed IntegerType
+        field("orderReferenceNumber", StringType) analyzer "autocomplete",
+        field("customerId", IntegerType)
       )
 
     def fields = List.empty
@@ -309,43 +308,43 @@ object AvroTransformers {
 
   final case class NotesSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping =
-      "notes_search_view" as (
+      esMapping("notes_search_view").fields(
         // Note
-        "id"                    typed IntegerType,
-        "referenceType"         typed StringType index "not_analyzed",
-        "body"                  typed StringType analyzer "autocomplete",
-        "priority"              typed StringType index "not_analyzed",
-        "createdAt"             typed DateType format dateFormat,
-        "deletedAt"             typed DateType format dateFormat,
-        "storeAdmin" nested (
-          "email"       typed StringType analyzer "autocomplete",
-          "name"        typed StringType analyzer "autocomplete",
-          "department"  typed StringType analyzer "autocomplete"
+        field("id", IntegerType),
+        field("referenceType", StringType) index "not_analyzed",
+        field("body", StringType) analyzer "autocomplete",
+        field("priority", StringType) index "not_analyzed",
+        field("createdAt", DateType) format dateFormat,
+        field("deletedAt", DateType) format dateFormat,
+        field("storeAdmin").nested (
+          field("email", StringType) analyzer "autocomplete",
+          field("name", StringType) analyzer "autocomplete",
+          field("department", StringType) analyzer "autocomplete"
         ),
-        "order" nested(
-          "customerId"            typed IntegerType,
-          "referenceNumber"       typed StringType analyzer "autocomplete",
-          "state"                 typed StringType index "not_analyzed",
-          "createdAt"             typed DateType format dateFormat,
-          "placedAt"              typed DateType format dateFormat,
-          "subTotal"              typed IntegerType,
-          "shippingTotal"         typed IntegerType,
-          "adjustmentsTotal"      typed IntegerType,
-          "taxesTotal"            typed IntegerType,
-          "grandTotal"            typed IntegerType
+        field("order").nested(
+          field("customerId", IntegerType),
+          field("referenceNumber", StringType) analyzer "autocomplete",
+          field("state", StringType) index "not_analyzed",
+          field("createdAt", DateType) format dateFormat,
+          field("placedAt", DateType) format dateFormat,
+          field("subTotal", IntegerType),
+          field("shippingTotal", IntegerType),
+          field("adjustmentsTotal", IntegerType),
+          field("taxesTotal", IntegerType),
+          field("grandTotal", IntegerType)
         ),
-        "customer" nested (
-          "id"                    typed IntegerType,
-          "name"                  typed StringType analyzer "autocomplete",
-          "email"                 typed StringType analyzer "autocomplete",
-          "isBlacklisted"         typed BooleanType,
-          "joinedAt"              typed DateType format dateFormat
+        field("customer").nested (
+          field("id", IntegerType),
+          field("name", StringType) analyzer "autocomplete",
+          field("email", StringType) analyzer "autocomplete",
+          field("isBlacklisted", BooleanType),
+          field("joinedAt", DateType) format dateFormat
         ),
-        "giftCard" nested (
-          "code"                  typed StringType analyzer "autocomplete",
-          "originType"            typed StringType index "not_analyzed",
-          "currency"              typed StringType index "not_analyzed",
-          "createdAt"             typed DateType format dateFormat
+        field("giftCard").nested (
+          field("code", StringType) analyzer "autocomplete",
+          field("originType", StringType) index "not_analyzed",
+          field("currency", StringType) index "not_analyzed",
+          field("createdAt", DateType) format dateFormat
         )
       )
 
@@ -354,28 +353,28 @@ object AvroTransformers {
 
   final case class StoreCreditTransactionsView()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping =
-      "store_credit_transactions_view" as (
+      esMapping("store_credit_transactions_view").fields(
         // Adjustment
-        "id"                    typed IntegerType,
-        "debit"                 typed IntegerType,
-        "availableBalance"      typed IntegerType,
-        "state"                 typed StringType index "not_analyzed",
-        "createdAt"             typed DateType format dateFormat,
+        field("id", IntegerType),
+        field("debit", IntegerType),
+        field("availableBalance", IntegerType),
+        field("state", StringType) index "not_analyzed",
+        field("createdAt", DateType) format dateFormat,
         // Store Credit
-        "storeCreditId"         typed IntegerType,
-        "customerId"            typed IntegerType,
-        "originType"            typed StringType index "not_analyzed",
-        "currency"              typed StringType index "not_analyzed",
-        "storeCreditCreatedAt"  typed DateType format dateFormat,
+        field("storeCreditId", IntegerType),
+        field("customerId", IntegerType),
+        field("originType", StringType) index "not_analyzed",
+        field("currency", StringType) index "not_analyzed",
+        field("storeCreditCreatedAt", DateType) format dateFormat,
         // Order
-        "orderReferenceNumber"  typed StringType analyzer "autocomplete",
-        "orderCreatedAt"        typed DateType format dateFormat,
-        "orderPaymentCreatedAt" typed DateType format dateFormat,
+        field("orderReferenceNumber", StringType) analyzer "autocomplete",
+        field("orderCreatedAt", DateType) format dateFormat,
+        field("orderPaymentCreatedAt", DateType) format dateFormat,
         // Store Admins
-        "storeAdmin" nested (
-          "email"       typed StringType analyzer "autocomplete",
-          "name"        typed StringType analyzer "autocomplete",
-          "department"  typed StringType analyzer "autocomplete"
+        field("storeAdmin").nested (
+          field("email", StringType) analyzer "autocomplete",
+          field("name", StringType) analyzer "autocomplete",
+          field("department", StringType) analyzer "autocomplete"
         )
       )
 
@@ -384,28 +383,28 @@ object AvroTransformers {
 
   final case class GiftCardTransactionsView()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping =
-      "gift_card_transactions_view" as (
+      esMapping("gift_card_transactions_view").fields(
         // Adjustment
-        "id"                    typed IntegerType,
-        "debit"                 typed IntegerType,
-        "credit"                typed IntegerType,
-        "availableBalance"      typed IntegerType,
-        "state"                 typed StringType index "not_analyzed",
-        "createdAt"             typed DateType format dateFormat,
+        field("id", IntegerType),
+        field("debit", IntegerType),
+        field("credit", IntegerType),
+        field("availableBalance", IntegerType),
+        field("state", StringType) index "not_analyzed",
+        field("createdAt", DateType) format dateFormat,
         // Gift Card
-        "code"                  typed StringType analyzer "autocomplete",
-        "originType"            typed StringType index "not_analyzed",
-        "currency"              typed StringType index "not_analyzed",
-        "giftCardCreatedAt"     typed DateType format dateFormat,
+        field("code", StringType) analyzer "autocomplete",
+        field("originType", StringType) index "not_analyzed",
+        field("currency", StringType) index "not_analyzed",
+        field("giftCardCreatedAt", DateType) format dateFormat,
         // Order
-        "orderReferenceNumber"  typed StringType analyzer "autocomplete",
-        "orderCreatedAt"        typed DateType format dateFormat,
-        "orderPaymentCreatedAt" typed DateType format dateFormat,
+        field("orderReferenceNumber", StringType) analyzer "autocomplete",
+        field("orderCreatedAt", DateType) format dateFormat,
+        field("orderPaymentCreatedAt", DateType) format dateFormat,
         // Store Admins
-        "storeAdmin" nested (
-          "email"       typed StringType analyzer "autocomplete",
-          "name"        typed StringType analyzer "autocomplete",
-          "department"  typed StringType analyzer "autocomplete"
+        field("storeAdmin").nested (
+          field("email", StringType) analyzer "autocomplete",
+          field("name", StringType) analyzer "autocomplete",
+          field("department", StringType) analyzer "autocomplete"
         )
       )
 
