@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
+import { transitionTo } from '../../route-helpers';
 import _ from 'lodash';
 
 import * as newOrderActions from '../../modules/orders/new-order';
@@ -26,13 +27,27 @@ export default class NewOrder extends Component {
     suggestCustomers: PropTypes.func.isRequired,
   };
 
-  constructor(props, ...args) {
-    super(props, ...args);
+  static contextTypes = {
+    history: PropTypes.object.isRequired,
+  };
+
+  constructor(props, context) {
+    super(props, context);
 
     this.state = {
       customers: [],
       query: '',
     };
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    const cart = _.get(nextProps, 'newOrder.order.cart.referenceNumber');
+    if (cart) {
+      transitionTo(this.context.history, 'order', { order: cart });
+      return false;
+    }
+
+    return true;
   }
 
   get suggestedCustomers() {
@@ -120,10 +135,11 @@ export default class NewOrder extends Component {
                   <FormField
                     className="fc-order-create__guest-checkout fc-col-md-2-8"
                     label="Checkout as guest"
+                    type="checkbox"
                     labelAfterInput={true}>
                     <BigCheckbox name="guestCheckout" />
                   </FormField>
-                  <FormField className="fc-col-md-1-8">
+                  <FormField className="fc-col-md-1-8" type="submit">
                     {this.nextButton}
                   </FormField>
                 </Form>
