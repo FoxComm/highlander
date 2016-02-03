@@ -8,8 +8,8 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - common
     - { role: buildkite_accessible, sudo: yes}
+    - common
     - scala
     - kafka
     - db
@@ -27,8 +27,8 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - common
     - { role: buildkite_accessible, sudo: yes}
+    - common
     - { role: rsyslog, sudo: yes }
     - node
     - ashes
@@ -42,8 +42,8 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - common
     - { role: buildkite_accessible, sudo: yes}
+    - common
     - { role: rsyslog, sudo: yes }
     - scala
     - gatling
