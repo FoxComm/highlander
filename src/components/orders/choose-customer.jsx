@@ -48,12 +48,14 @@ const ChooseCustomer = (props, context) => {
 ChooseCustomer.propTypes = {
   items: PropTypes.object.isRequired,
   onItemClick: PropTypes.func,
-  updating: PropTypes.bool.isRequired,
-  toggleVisibility: PropTypes.func.isRequired,
+  updating: PropTypes.bool,
+  toggleVisibility: PropTypes.func,
 };
 
 ChooseCustomer.defaultProps = {
   onItemClick: _.noop,
+  updating: false,
+  toggleVisibility: _.noop,
 };
 
 ChooseCustomer.contextTypes = {

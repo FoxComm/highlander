@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import { transitionTo } from '../../route-helpers';
-import classNames from 'classNames';
+import classNames from 'classnames';
 import _ from 'lodash';
 
 import { Button } from '../common/buttons';
@@ -26,7 +26,7 @@ const ChooseCustomerRow = (props, context) => {
     <TableRow className={className} onClick={clickAction}>
       <TableCell>
         <div className="fc-choose-customer-row__name">{customer.name}</div>
-        <div classname="fc-choose-customer-row__email">{customer.email}</div>
+        <div className="fc-choose-customer-row__email">{customer.email}</div>
       </TableCell>
       <TableCell>
         {props.customer.orderCount}
@@ -45,7 +45,7 @@ const ChooseCustomerRow = (props, context) => {
 };
 
 ChooseCustomerRow.propTypes = {
-  customer: PropTypes.node.isRequired,
+  customer: PropTypes.object.isRequired,
   onClick: PropTypes.func,
 };
 

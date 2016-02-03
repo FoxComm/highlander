@@ -34,7 +34,6 @@ export default class SearchableList extends React.Component {
       singleSearch: PropTypes.bool,
       initialFilters: PropTypes.array,
     }),
-    title: PropTypes.string.isRequired,
     noGutter: PropTypes.bool,
   };
 

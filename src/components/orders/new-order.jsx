@@ -81,15 +81,11 @@ export default class NewOrder extends Component {
   }
 
   get nextButton() {
-    const clickAction = _.isEmpty(this.state.customers)
-      ? _.noop
-      : () => this.props.createOrder(this.state.customers[0]);
-
     return (
-      <Button className="fc-btn-primary fc-right" onClick={clickAction}>
-        Next
-        <i className="icon-chevron-right" />
-      </Button>
+      <input 
+        type="submit" 
+        className="fc-order-create__submit fc-btn fc-btn-primary fc-right" 
+        value="Next &#xe804;" />
     );
   }  
 
@@ -108,6 +104,13 @@ export default class NewOrder extends Component {
     });
   }
 
+  @autobind
+  submitAction() {
+    if (!_.isEmpty(this.state.customers)) {
+      this.props.createOrder(this.state.customers[0]);
+    }
+  }
+
   render() {
     return (
       <div className="fc-order-create">
@@ -123,7 +126,10 @@ export default class NewOrder extends Component {
                 <h2>Customer</h2>
               </div>
               <div className="fc-order-create__customer-form fc-col-md-1-1">
-                <Form autoComplete="off" className="fc-grid fc-grid-no-gutter">
+                <Form 
+                  autoComplete="off" 
+                  className="fc-grid fc-grid-no-gutter"
+                  onSubmit={this.submitAction}>
                   <Typeahead
                     className="fc-order-create__customer-search fc-col-md-5-8"
                     component={ChooseCustomerRow}
@@ -135,11 +141,10 @@ export default class NewOrder extends Component {
                   <FormField
                     className="fc-order-create__guest-checkout fc-col-md-2-8"
                     label="Checkout as guest"
-                    type="checkbox"
                     labelAfterInput={true}>
                     <BigCheckbox name="guestCheckout" />
                   </FormField>
-                  <FormField className="fc-col-md-1-8" type="submit">
+                  <FormField className="fc-col-md-1-8">
                     {this.nextButton}
                   </FormField>
                 </Form>
