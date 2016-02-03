@@ -31,4 +31,5 @@ We make use of the following features out of Postgres:
     pattern is employed to maintain referential integrity.
 
 - listen/notify
-  - PSQL can do pub/sub and akka actors are perfect fit here.
+  - PSQL can do pub/sub and we use akka actors as the perfect fit to
+    execute simple logic upon an event.
