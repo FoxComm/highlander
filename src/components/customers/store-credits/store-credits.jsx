@@ -274,7 +274,7 @@ export default class StoreCredits extends React.Component {
                  params={props.params}
                  history={this.context.history}
                  transactionsSelected={false} />
-        <div className="fc-grid fc-list-page-content">
+        <div className="fc-grid fc-list-page-content fc-store-credits__list">
           <SearchableList
             title="Store Credits"
             emptyResultMessage="No store credits found."
