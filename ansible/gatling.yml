@@ -1,0 +1,50 @@
+---
+
+- name: Provision Gatling Backend
+  hosts: gatling-backend
+  tags:
+      - backend
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+    - common
+    - { role: buildkite_accessible, sudo: yes}
+    - scala
+    - kafka
+    - db
+    - phoenix
+    - elasticsearch
+    - { role: rsyslog, sudo: yes }
+    - { role: kibana, sudo: yes }
+    - greenriver
+
+- name: Provision Gatling Ashes
+  hosts: gatling-ashes
+  tags:
+      - ashes
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+    - common
+    - { role: buildkite_accessible, sudo: yes}
+    - { role: rsyslog, sudo: yes }
+    - node
+    - ashes
+    - { role: balancer, sudo: yes }
+
+- name: Provision Gatling Gun
+  hosts: gatling-gun
+  tags:
+      - gatling
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+    - common
+    - { role: buildkite_accessible, sudo: yes}
+    - { role: rsyslog, sudo: yes }
+    - scala
+    - gatling
+
