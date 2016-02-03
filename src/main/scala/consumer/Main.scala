@@ -171,6 +171,7 @@ object Main {
         "store_credit_transactions_view"    → AvroTransformers.StoreCreditTransactionsView(),
         "failed_authorizations_search_view" → AvroTransformers.FailedAuthorizationsSearchView(),
         "notes_search_view"                 → AvroTransformers.NotesSearchView(),
+        "inventory_search_view"             → AvroTransformers.InventorySearchView(),
         conf.connectionTopic                → ActivityConnectionTransformer(phoenix))
 
       val topicsPlusActivity = conf.kafkaTopics :+ conf.connectionTopic
