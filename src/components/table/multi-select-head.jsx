@@ -4,7 +4,7 @@ import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
-import CheckboxDropdown from '../bulk-actions/checkbox-dropdown';
+import CheckboxDropdown from '../checkbox/checkbox-dropdown';
 import { DropdownItem } from '../dropdown';
 
 export const selectionState = {

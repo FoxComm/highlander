@@ -31,62 +31,62 @@ export default class MultiSelectTable extends React.Component {
     super(props, context);
     this.state = {
       allChecked: false,
-      checkedIds: [],
+      toggledIds: [],
     };
   }
 
   getRowSetChecked(key) {
     return (checked) => {
-      let {allChecked, checkedIds} = this.state;
+      let {allChecked, toggledIds} = this.state;
 
       if (allChecked !== checked) {
-        checkedIds = checkedIds.concat(key);
+        toggledIds = toggledIds.concat(key);
       } else {
-        checkedIds = _.difference(checkedIds, [key]);
+        toggledIds = _.difference(toggledIds, [key]);
       }
 
-      checkedIds = _.uniq(checkedIds);
+      toggledIds = _.uniq(toggledIds);
 
-      this.setState({checkedIds});
+      this.setState({toggledIds});
     };
   }
 
   @autobind
   setAllChecked(checked) {
-    //set allChecked flag and reset checkedIds list
-    this.setState({allChecked: checked, checkedIds: []});
+    //set allChecked flag and reset toggledIds list
+    this.setState({allChecked: checked, toggledIds: []});
   }
 
   @autobind
   setPageChecked(checked) {
-    let {allChecked, checkedIds} = this.state;
+    let {allChecked, toggledIds} = this.state;
 
     //if checked states differ - add id's, else - remove them
     if (allChecked !== checked) {
-      checkedIds = checkedIds.concat(this.keys);
+      toggledIds = toggledIds.concat(this.currentPageIds);
     } else {
-      checkedIds = _.difference(checkedIds, this.keys);
+      toggledIds = _.difference(toggledIds, this.currentPageIds);
     }
 
-    checkedIds = _.uniq(checkedIds);
+    toggledIds = _.uniq(toggledIds);
 
-    this.setState({checkedIds});
+    this.setState({toggledIds});
   }
 
-  get keys() {
+  get currentPageIds() {
     const {data: {rows}, predicate} = this.props;
 
     return _.uniq(_.map(rows, predicate));
   }
 
   get checkboxHead() {
-    const keys = this.keys;
-    const {allChecked, checkedIds} = this.state;
+    const currentPageIds = this.currentPageIds;
+    const {allChecked, toggledIds} = this.state;
     const {None, Some, All} = selectionState;
-    const checkedCount = checkedIds.filter(key => keys.includes(key)).length;
+    const checkedCount = toggledIds.filter(key => currentPageIds.includes(key)).length;
 
     let pageChecked;
-    if (checkedCount === keys.length) {
+    if (checkedCount === currentPageIds.length) {
       pageChecked = allChecked ? None : All;
     } else if (checkedCount > 0) {
       pageChecked = Some;
@@ -127,12 +127,12 @@ export default class MultiSelectTable extends React.Component {
 
   @autobind
   renderRow(row, index) {
-    const {allChecked, checkedIds} = this.state;
+    const {allChecked, toggledIds} = this.state;
     const {renderRow, predicate} = this.props;
     const key = predicate(row);
 
     return renderRow(row, index, this.columns, {
-      checked: allChecked !== checkedIds.includes(key),
+      checked: allChecked !== toggledIds.includes(key),
       setChecked: this.getRowSetChecked(key),
     });
   }
@@ -142,7 +142,7 @@ export default class MultiSelectTable extends React.Component {
       <TableView
         {...this.props}
         allChecked={this.state.allChecked}
-        checkedIds={this.state.checkedIds}
+        toggledIds={this.state.toggledIds}
         className={classNames('fc-multi-select-table', this.props.className)}
         columns={this.columns}
         renderRow={this.renderRow} />

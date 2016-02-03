@@ -62,7 +62,7 @@ export default class Dropdown extends React.Component {
 
   @autobind
   handleItemClick(value, title) {
-    let state = {open: false};
+    const state = {open: false};
     if (this.props.changeable) {
       state.selectedValue = value;
     }

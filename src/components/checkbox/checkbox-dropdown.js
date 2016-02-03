@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
 // components
-import { HalfCheckbox } from '../checkbox/checkbox';
+import { HalfCheckbox } from './checkbox';
 import { DecrementButton } from '../common/buttons';
 
 export default class CheckboxDropdown extends React.Component {

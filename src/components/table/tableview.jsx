@@ -32,10 +32,10 @@ function getClassName({col, direction, offset, align, table='md'}) {
   );
 }
 
-function getActionsHandler({bulkActions, allChecked, checkedIds}) {
+function getActionsHandler({bulkActions, allChecked, toggledIds}) {
   return (value) => {
     const handler = _.find(bulkActions, ([label, handler]) => label === value)[1];
-    handler(allChecked, checkedIds);
+    handler(allChecked, toggledIds);
   };
 }
 
@@ -53,7 +53,7 @@ const TableView = props => {
   // hold actions menu
   const showBulkActions = Boolean(props.bulkActions.length);
   if (showBulkActions) {
-    const totalSelected = props.allChecked ? props.data.total - props.checkedIds.length : props.checkedIds.length;
+    const totalSelected = props.allChecked ? props.data.total - props.toggledIds.length : props.toggledIds.length;
 
     topItems.push(
       <div className={getClassName({col: 3, align: 'left'})}>
@@ -122,7 +122,7 @@ TableView.propTypes = {
   paginator: PropTypes.bool,
   bulkActions: PropTypes.arrayOf(PropTypes.array),
   allChecked: PropTypes.bool,
-  checkedIds: PropTypes.array,
+  toggledIds: PropTypes.array,
   showEmptyMessage: PropTypes.bool,
   emptyMessage: PropTypes.string,
   className: PropTypes.string,
