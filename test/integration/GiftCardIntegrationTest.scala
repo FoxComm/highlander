@@ -6,8 +6,8 @@ GiftCardSubtype, GiftCardSubtypes, GiftCards, OrderPayments, Orders, PaymentMeth
 import org.joda.money.CurrencyUnit
 import org.scalatest.BeforeAndAfterEach
 import responses.{GiftCardAdjustmentsResponse, GiftCardBulkResponse, GiftCardResponse, GiftCardSubTypesResponse, StoreCreditResponse}
-import services.{EmptyCancellationReasonFailure, GeneralFailure, GiftCardConvertFailure,
-InvalidCancellationReasonFailure, NotFoundFailure404, OpenTransactionsFailure}
+import services.{NotFoundFailure400, EmptyCancellationReasonFailure, GeneralFailure, GiftCardConvertFailure,
+NotFoundFailure404, OpenTransactionsFailure}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -254,7 +254,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStatusByCsr(status = Canceled,
           reasonId = Some(999)))
         response.status must ===(StatusCodes.BadRequest)
-        response.error must ===(InvalidCancellationReasonFailure.description)
+        response.error must ===(NotFoundFailure400(Reason, 999).description)
       }
     }
 

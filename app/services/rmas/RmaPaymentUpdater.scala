@@ -20,7 +20,7 @@ object RmaPaymentUpdater {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
       payment   ← * <~ mustFindCcPaymentsByOrderId(rma.orderId)
-      cc        ← * <~ CreditCards.mustFindById(payment.paymentMethodId)
+      cc        ← * <~ CreditCards.mustFindById404(payment.paymentMethodId)
       deleteAll ← * <~ deleteCc(rma.id).toXor
       ccRefund  ← * <~ RmaPayments.create(RmaPayment.build(cc, rma.id, payload.amount, payment.currency))
       updated   ← * <~ Rmas.refresh(rma).toXor

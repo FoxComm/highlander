@@ -47,7 +47,7 @@ object CreditCardManager {
 
     (for {
       _                  ← * <~ payload.validate.toXor
-      customer           ← * <~ Customers.mustFindById(customerId)
+      customer           ← * <~ Customers.mustFindById404(customerId)
       stripeIdAndAddress ← * <~ getExistingStripeIdAndAddress
       (stripeId, address) = stripeIdAndAddress
       stripeStuff        ← * <~ DBIO.from(gateway.createCard(customer.email, payload, stripeId, address))
@@ -72,7 +72,7 @@ object CreditCardManager {
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Unit] = {
 
     (for {
-      customer  ← * <~ Customers.mustFindById(customerId)
+      customer  ← * <~ Customers.mustFindById404(customerId)
       cc        ← * <~ CreditCards.mustFindByIdAndCustomer(id, customerId)
       region    ← * <~ Regions.findOneById(cc.regionId).safeGet.toXor
       update    ← * <~ CreditCards.update(cc, cc.copy(inWallet = false, deletedAt = Some(Instant.now())))
@@ -123,7 +123,7 @@ object CreditCardManager {
 
     (for {
       _           ← * <~ payload.validate
-      customer    ← * <~ Customers.mustFindById(customerId)
+      customer    ← * <~ Customers.mustFindById404(customerId)
       creditCard  ← * <~ getCardAndAddressChange
       updated     ← * <~ update(customer, creditCard)
       withAddress ← * <~ createNewAddressIfProvided(updated)

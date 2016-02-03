@@ -20,7 +20,7 @@ object CustomerCreditConverter {
 
     giftCard ← * <~ GiftCards.mustFindByCode(giftCardCode)
     _ ← * <~ (if (!giftCard.isActive) DbResult.failure(GiftCardConvertFailure(giftCard)) else DbResult.unit)
-    _ ← * <~ Customers.mustFindById(customerId)
+    _ ← * <~ Customers.mustFindById404(customerId)
     _ ← * <~ GiftCardAdjustments.lastAuthByGiftCardId(giftCard.id).one.mustNotFindOr(OpenTransactionsFailure)
     // Update status and make adjustment
     _ ← * <~ GiftCards.findActiveByCode(giftCard.code).map(_.status).update(GiftCard.FullyRedeemed)
@@ -38,9 +38,9 @@ object CustomerCreditConverter {
   def toGiftCard(storeCreditId: Int, customerId: Int, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[GiftCardResponse.Root] = (for {
 
-    credit ← * <~ StoreCredits.mustFindById(storeCreditId)
+    credit ← * <~ StoreCredits.mustFindById404(storeCreditId)
     _ ← * <~ (if (!credit.isActive) DbResult.failure(StoreCreditConvertFailure(credit)) else DbResult.unit)
-    _ ← * <~ Customers.mustFindById(customerId)
+    _ ← * <~ Customers.mustFindById404(customerId)
     _ ← * <~ StoreCreditAdjustments.lastAuthByStoreCreditId(credit.id).one.mustNotFindOr(OpenTransactionsFailure)
     // Update status and make adjustment
     scUpdated ← * <~ StoreCredits.findActiveById(credit.id).map(_.status).update(StoreCredit.FullyRedeemed)

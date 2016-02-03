@@ -25,6 +25,6 @@ object ActivityManager {
 
     def findById(activityId: Int)(implicit ec: ExecutionContext, db: Database) : Result[ActivityResponse.Root] =
       (for {
-        activity ← * <~ Activities.mustFindById(activityId)
+        activity ← * <~ Activities.mustFindById404(activityId)
       } yield ActivityResponse.build(activity)).run()
 }

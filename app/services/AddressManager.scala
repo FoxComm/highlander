@@ -33,7 +33,7 @@ object AddressManager {
   def create(payload: CreateAddressPayload, customerId: Int, admin: Option[StoreAdmin] = None)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
 
-    customer  ← * <~ Customers.mustFindById(customerId)
+    customer  ← * <~ Customers.mustFindById404(customerId)
     address   ← * <~ Addresses.create(Address.fromPayload(payload).copy(customerId = customerId))
     region    ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
     _         ← * <~ LogActivity.addressCreated(admin, customer, address, region)
@@ -42,7 +42,7 @@ object AddressManager {
   def edit(addressId: Int, customerId: Int, payload: CreateAddressPayload, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
 
-    customer    ← * <~ Customers.mustFindById(customerId)
+    customer    ← * <~ Customers.mustFindById404(customerId)
     oldAddress  ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
     oldRegion   ← * <~ Regions.findOneById(oldAddress.regionId).safeGet.toXor
     address     ← * <~ Address.fromPayload(payload).copy(customerId = customerId, id = addressId).validate
@@ -61,7 +61,7 @@ object AddressManager {
   def remove(customerId: Int, addressId: Int, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Unit] = (for {
 
-    customer    ← * <~ Customers.mustFindById(customerId)
+    customer    ← * <~ Customers.mustFindById404(customerId)
     address     ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
     region      ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
     softDelete  ← * <~ address.updateTo(address.copy(deletedAt = Instant.now.some, isDefaultShipping = false))

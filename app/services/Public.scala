@@ -15,7 +15,7 @@ import utils.Slick.implicits._
 object Public {
 
   def findCountry(countryId: Int)(implicit ec: ExecutionContext, db: Database): Result[CountryWithRegions] = (for {
-    country ← * <~ Countries.mustFindById(countryId)
+    country ← * <~ Countries.mustFindById404(countryId)
     regions ← * <~ Regions.filter(_.countryId === country.id).result.toXor
   } yield CountryWithRegions(country, sortRegions(regions.to[Seq]))).run()
 

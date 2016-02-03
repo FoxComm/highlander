@@ -33,7 +33,7 @@ object StoreCreditService {
   def findAllByCustomer(customerId: Int)
     (implicit db: Database, ec: ExecutionContext, sp: SortAndPage): Result[TheResponse[WithTotals]] = (for {
 
-    _           ← * <~ Customers.mustFindById(customerId)
+    _           ← * <~ Customers.mustFindById404(customerId)
     query       = StoreCredits.findAllByCustomerId(customerId)
     paginated   = StoreCredits.sortedAndPaged(query)
 
@@ -46,7 +46,7 @@ object StoreCreditService {
 
   def totalsForCustomer(customerId: Int)
     (implicit db: Database, ec: ExecutionContext): Result[StoreCreditResponse.Totals] = (for {
-    _       ← * <~ Customers.mustFindById(customerId)
+    _       ← * <~ Customers.mustFindById404(customerId)
     totals  ← * <~ fetchTotalsForCustomer(customerId).toXor
   } yield totals).map(_.getOrElse(Totals(0, 0))).value.run()
 
@@ -61,7 +61,7 @@ object StoreCreditService {
 
   def createManual(admin: StoreAdmin, customerId: Int, payload: payloads.CreateManualStoreCredit)
     (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[Root] = (for {
-    customer ← * <~ Customers.mustFindById(customerId)
+    customer ← * <~ Customers.mustFindById404(customerId)
     _ ← * <~ Reasons.findById(payload.reasonId).extract.one.mustFindOr(NotFoundFailure400(Reason, payload.reasonId))
     // Check subtype only if id is present in payload; discard actual model
     _ ← * <~ payload.subTypeId.fold(DbResult.unit) { subtypeId ⇒
@@ -77,7 +77,7 @@ object StoreCreditService {
   } yield build(storeCredit)).runTxn
 
   def getById(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
-    storeCredit ← * <~ StoreCredits.mustFindById(id)
+    storeCredit ← * <~ StoreCredits.mustFindById404(id)
   } yield StoreCreditResponse.build(storeCredit)).run()
 
   def bulkUpdateStatusByCsr(payload: payloads.StoreCreditBulkUpdateStatusByCsr, admin: StoreAdmin)
@@ -92,7 +92,7 @@ object StoreCreditService {
   def updateStatusByCsr(id: Int, payload: payloads.StoreCreditUpdateStatusByCsr, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
     _           ← * <~ payload.validate
-    storeCredit ← * <~ StoreCredits.mustFindById(id)
+    storeCredit ← * <~ StoreCredits.mustFindById404(id)
     updated     ← * <~ cancelOrUpdate(storeCredit, payload.status, payload.reasonId, admin)
     _           ← * <~ LogActivity.scUpdated(admin, storeCredit, payload)
   } yield StoreCreditResponse.build(updated)).runTxn()
@@ -101,7 +101,7 @@ object StoreCreditService {
     admin: StoreAdmin)(implicit ec: ExecutionContext, db: Database) = newState match {
     case Canceled ⇒ for {
       _   ← * <~ StoreCreditAdjustments.lastAuthByStoreCreditId(storeCredit.id).one.mustNotFindOr(OpenTransactionsFailure)
-      _   ← * <~ reasonId.map(id ⇒ Reasons.mustFindById(id, _ ⇒ InvalidCancellationReasonFailure)).getOrElse(DbResult.unit)
+      _   ← * <~ reasonId.map(id ⇒ Reasons.mustFindById400(id)).getOrElse(DbResult.unit)
       upd ← * <~ StoreCredits.update(storeCredit, storeCredit.copy(status = newState, canceledReason = reasonId,
                    canceledAmount = storeCredit.availableBalance.some))
       _   ← * <~ StoreCredits.cancelByCsr(storeCredit, admin)

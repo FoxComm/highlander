@@ -38,7 +38,7 @@ object OrderAssignmentUpdater {
     (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[FullOrder.Root] = (for {
 
     order           ← * <~ Orders.mustFindByRefNum(refNum)
-    assignee        ← * <~ StoreAdmins.mustFindById(assigneeId)
+    assignee        ← * <~ StoreAdmins.mustFindById404(assigneeId)
     assignment      ← * <~ OrderAssignments.byAssignee(assignee).one.mustFindOr(OrderAssigneeNotFound(refNum, assigneeId))
     _               ← * <~ OrderAssignments.byAssignee(assignee).delete
     fullOrder       ← * <~ FullOrder.fromOrder(order).toXor
@@ -51,7 +51,7 @@ object OrderAssignmentUpdater {
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
     // TODO: transfer sorting-paging metadata
     orders          ← * <~ Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result.toXor
-    assignee        ← * <~ StoreAdmins.mustFindById(payload.assigneeId, id ⇒ NotFoundFailure400(StoreAdmin, id))
+    assignee        ← * <~ StoreAdmins.mustFindById400(payload.assigneeId)
     newAssignments  = for (o ← orders) yield OrderAssignment(orderId = o.id, assigneeId = assignee.id)
     _               ← * <~ OrderAssignments.createAll(newAssignments)
     response        ← * <~ OrderQueries.findAllDbio
@@ -66,7 +66,7 @@ object OrderAssignmentUpdater {
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
     // TODO: transfer sorting-paging metadata
     orders    ← * <~ Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
-    assignee  ← * <~ StoreAdmins.mustFindById(payload.assigneeId, id ⇒ NotFoundFailure400(StoreAdmin, id))
+    assignee  ← * <~ StoreAdmins.mustFindById400(payload.assigneeId)
     _         ← * <~ OrderAssignments.filter(_.assigneeId === payload.assigneeId)
                                      .filter(_.orderId.inSetBind(orders.map(_.id))).delete
     response  ← * <~ OrderQueries.findAllDbio

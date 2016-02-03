@@ -4,12 +4,10 @@ import models.StoreCredit._
 import models.{Customer, Customers, OrderPayments, Orders, PaymentMethod, Reason, Reasons, StoreAdmins, StoreCredit,
 StoreCreditAdjustment, StoreCreditAdjustments, StoreCreditManual, StoreCreditManuals, StoreCreditSubtype,
 StoreCreditSubtypes, StoreCredits}
-import org.joda.money.CurrencyUnit
 import org.scalatest.BeforeAndAfterEach
-import responses.{TheResponse, GiftCardResponse, StoreCreditAdjustmentsResponse, StoreCreditResponse, 
-StoreCreditSubTypesResponse}
-import services.{EmptyCancellationReasonFailure, InvalidCancellationReasonFailure,
-NotFoundFailure404, OpenTransactionsFailure, StoreCreditConvertFailure}
+import responses.{GiftCardResponse, StoreCreditAdjustmentsResponse, StoreCreditResponse, StoreCreditSubTypesResponse}
+import services.{NotFoundFailure400, EmptyCancellationReasonFailure, NotFoundFailure404, OpenTransactionsFailure,
+StoreCreditConvertFailure}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -277,7 +275,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Canceled,
           reasonId = Some(999)))
         response.status must ===(StatusCodes.BadRequest)
-        response.error must ===(InvalidCancellationReasonFailure.description)
+        response.error must ===(NotFoundFailure400(Reason, 999).description)
       }
     }
 

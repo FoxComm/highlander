@@ -73,7 +73,7 @@ object OrderQueries {
 
   def findOrCreateCartByCustomerId(customerId: Int, admin: Option[StoreAdmin] = None)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[FullOrder.Root] = (for {
-    customer  ← * <~ Customers.mustFindById(customerId)
+    customer  ← * <~ Customers.mustFindById404(customerId)
     fullOrder ← * <~ findOrCreateCartByCustomerInner(customer, admin)
   } yield fullOrder).runTxn()
 

@@ -36,7 +36,7 @@ object OrderWatcherUpdater {
   def unassign(admin: StoreAdmin, refNum: String, assigneeId: Int)(implicit db: Database, ec: ExecutionContext,
     ac: ActivityContext): Result[TheResponse[Root]] = (for {
     order           ← * <~ Orders.mustFindByRefNum(refNum)
-    watcher         ← * <~ StoreAdmins.mustFindById(assigneeId)
+    watcher         ← * <~ StoreAdmins.mustFindById404(assigneeId)
     assignment      ← * <~ OrderWatchers.byWatcher(watcher).one.mustFindOr(OrderWatcherNotFound(refNum, assigneeId))
     _               ← * <~ OrderWatchers.byWatcher(watcher).delete
     fullOrder       ← * <~ FullOrder.fromOrder(order).toXor
@@ -49,7 +49,7 @@ object OrderWatcherUpdater {
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
     // TODO: transfer sorting-paging metadata
     orders         ← * <~ Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
-    watcher        ← * <~ StoreAdmins.mustFindById(payload.watcherId, id ⇒ NotFoundFailure400(StoreAdmin, id))
+    watcher        ← * <~ StoreAdmins.mustFindById400(payload.watcherId)
     newWatchers    = for (order ← orders) yield OrderWatcher(orderId = order.id, watcherId = watcher.id)
     _              ← * <~ OrderWatchers.createAll(newWatchers)
     allOrders      ← * <~ OrderQueries.findAllDbio
@@ -64,7 +64,7 @@ object OrderWatcherUpdater {
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
     // TODO: transfer sorting-paging metadata
     orders         ← * <~ Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
-    watcher        ← * <~ StoreAdmins.mustFindById(payload.watcherId, id ⇒ NotFoundFailure400(StoreAdmin, id))
+    watcher        ← * <~ StoreAdmins.mustFindById400(payload.watcherId)
     _              ← * <~ OrderWatchers.filter(_.watcherId === payload.watcherId).filter(_.orderId.inSetBind(orders.map(_.id))).delete
     response       ← * <~ OrderQueries.findAllDbio
     ordersNotFound = diffToFlatFailures(payload.referenceNumbers, orders.map(_.referenceNumber), Order)

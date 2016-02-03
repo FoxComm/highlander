@@ -1,4 +1,4 @@
-create table customers_dynamic_groups (
+create table customer_dynamic_groups (
     id serial primary key,
     created_by integer not null references store_admins(id) on update restrict on delete restrict,
     name generic_string not null unique,

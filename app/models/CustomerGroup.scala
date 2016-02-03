@@ -33,7 +33,7 @@ object CustomerDynamicGroup {
 }
 
 
-class CustomerDynamicGroups(tag: Tag) extends GenericTable.TableWithId[CustomerDynamicGroup](tag, "customers_dynamic_groups")  {
+class CustomerDynamicGroups(tag: Tag) extends GenericTable.TableWithId[CustomerDynamicGroup](tag, "customer_dynamic_groups")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def createdBy = column[Int]("created_by")
   def name = column[String]("name")

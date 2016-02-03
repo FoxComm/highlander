@@ -30,7 +30,7 @@ object RmaAssignmentUpdater {
   def unassign(admin: StoreAdmin, refNum: String, assigneeId: Int)
     (implicit db: Database, ec: ExecutionContext): Result[TheResponse[RmaResponse.Root]] = (for {
     rma             ← * <~ Rmas.mustFindByRefNum(refNum)
-    assignee        ← * <~ StoreAdmins.mustFindById(assigneeId)
+    assignee        ← * <~ StoreAdmins.mustFindById404(assigneeId)
     assignment      ← * <~ RmaAssignments.byAssignee(assignee).one.mustFindOr(RmaAssigneeNotFound(refNum, assigneeId))
     _               ← * <~ RmaAssignments.byAssignee(assignee).delete
     fullRma         ← * <~ RmaResponse.fromRma(rma).toXor
@@ -39,7 +39,7 @@ object RmaAssignmentUpdater {
   def assignBulk(payload: payloads.RmaBulkAssigneesPayload)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage): Result[BulkRmaUpdateResponse] = (for {
     rmas     ← * <~ Rmas.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result.toXor
-    admin    ← * <~ StoreAdmins.mustFindById(payload.assigneeId, id ⇒ NotFoundFailure400(StoreAdmin, id))
+    admin    ← * <~ StoreAdmins.mustFindById400(payload.assigneeId)
     _        ← * <~ RmaAssignments.createAll(for (r ← rmas) yield RmaAssignment(rmaId = r.id, assigneeId = admin.id))
     response ← * <~ RmaQueries.findAllDbio(Rmas)
     rmasNotFound = diffToFlatFailures(payload.referenceNumbers, rmas.map(_.referenceNumber), Rma)
@@ -48,7 +48,7 @@ object RmaAssignmentUpdater {
   def unassignBulk(payload: payloads.RmaBulkAssigneesPayload)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage): Result[BulkRmaUpdateResponse] = (for {
     rmas ← * <~ Rmas.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result.toXor
-    _    ← * <~ StoreAdmins.mustFindById(payload.assigneeId, id ⇒ NotFoundFailure400(StoreAdmin, id))
+    _    ← * <~ StoreAdmins.mustFindById400(payload.assigneeId)
     _    ← * <~ RmaAssignments.filter(_.assigneeId === payload.assigneeId)
                               .filter(_.rmaId.inSetBind(rmas.map(_.id)))
                               .delete
