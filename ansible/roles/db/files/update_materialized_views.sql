@@ -56,3 +56,6 @@ refresh materialized view concurrently notes_customers_view;
 refresh materialized view concurrently notes_gift_cards_view;
 refresh materialized view concurrently notes_admins_view;
 refresh materialized view concurrently notes_search_view;
+
+-- inventory
+refresh materialized view concurrently inventory_search_view;
