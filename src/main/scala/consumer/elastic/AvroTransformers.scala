@@ -19,7 +19,6 @@ abstract class AvroTransformer(implicit ec: ExecutionContext) extends JsonTransf
 
 object AvroTransformers {
   val dateFormat = "yyyy-MM-dd HH:mm:ss"
-  val strictDateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
 
   def address(name: String) = field(name).nested(
       field("address1", StringType).analyzer("autocomplete"),

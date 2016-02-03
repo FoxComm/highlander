@@ -37,7 +37,7 @@ final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
         field("trailId", IntegerType),
         field("activity").nested(
           field("id", IntegerType),
-          field("createdAt", DateType).format(AvroTransformers.strictDateFormat),
+          field("createdAt", DateType).format(AvroTransformers.dateFormat),
           field("kind", StringType).index("not_analyzed"),
           field("context").nested(
             field("transactionId", StringType).index("not_analyzed"),
@@ -50,7 +50,7 @@ final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
         field("nextId", IntegerType),
         field("data", ObjectType),
         field("connectedBy", ObjectType),
-        field("createdAt", DateType).format(AvroTransformers.strictDateFormat))
+        field("createdAt", DateType).format(AvroTransformers.dateFormat))
 
   def transform(json: String) : Future[String] = {
 
