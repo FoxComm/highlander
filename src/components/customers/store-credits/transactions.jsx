@@ -92,7 +92,7 @@ export default class StoreCreditTransactions extends React.Component {
       singleSearch: true,
       initialFilters: [{
         display: "Customer: " + this.customerId,
-        selectedTerm: "customer.customerId",
+        selectedTerm: "customerId",
         selectedOperator: "eq",
         hidden: true,
         value: {

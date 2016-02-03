@@ -122,7 +122,7 @@ export default class StoreCredits extends React.Component {
       singleSearch: true,
       initialFilters: [{
         display: "Customer: " + this.customerId,
-        selectedTerm: "customer.customerId",
+        selectedTerm: "customerId",
         selectedOperator: "eq",
         hidden: true,
         value: {
@@ -136,6 +136,22 @@ export default class StoreCredits extends React.Component {
   componentDidMount() {
     this.props.reasonsActions.fetchReasons(this.reasonType);
     this.props.totalsActions.fetchTotals(this.customerId);
+  }
+
+  get defaultSearchOptions() {
+    return {
+      singleSearch: true,
+      initialFilters: [{
+        display: "Customer: " + this.customerId,
+        selectedTerm: "customerId",
+        selectedOperator: "eq",
+        hidden: true,
+        value: {
+          type: "string",
+          value: '' + this.customerId
+        }
+      }],
+    };
   }
 
   @autobind
