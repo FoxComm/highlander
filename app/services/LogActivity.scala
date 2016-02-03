@@ -259,17 +259,17 @@ object LogActivity {
     Activities.log(OrderPaymentMethodDeletedGiftCard(buildAdmin(admin), order, GiftCardResponse.build(gc)))
 
   /* Order Shipping Addresses */
-  def orderShippingAddressAdded(admin: StoreAdmin, order: FullOrder.Root, address: OrderShippingAddress)
+  def orderShippingAddressAdded(admin: StoreAdmin, order: FullOrder.Root, address: Addresses.Root)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(OrderShippingAddressAdded(buildAdmin(admin), order, address))
 
-  def orderShippingAddressUpdated(admin: StoreAdmin, order: FullOrder.Root, address: OrderShippingAddress)
+  def orderShippingAddressUpdated(admin: StoreAdmin, order: FullOrder.Root, address: Addresses.Root)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(OrderShippingAddressUpdated(buildAdmin(admin), order, address))
 
-  def orderShippingAddressDeleted(admin: StoreAdmin, order: FullOrder.Root)
+  def orderShippingAddressDeleted(admin: StoreAdmin, order: FullOrder.Root, address: Addresses.Root)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderShippingAddressRemoved(buildAdmin(admin), order))
+    Activities.log(OrderShippingAddressRemoved(buildAdmin(admin), order, address))
 
   /* Order Shipping Methods */
   def orderShippingMethodUpdated(admin: StoreAdmin, order: FullOrder.Root, shippingMethod: Option[ShippingMethod])
