@@ -3,7 +3,7 @@ package services.activity
 import java.time.Instant
 
 import models.{ShippingMethod, OrderShippingAddress, PaymentMethod, Order, Note}
-import responses.{CreditCardsResponse, FullOrder, GiftCardResponse, StoreAdminResponse}
+import responses.{Addresses, CreditCardsResponse, FullOrder, GiftCardResponse, StoreAdminResponse}
 
 object OrderTailored {
   final case class CartCreated(admin: Option[StoreAdminResponse.Root], order: FullOrder.Root)
@@ -47,14 +47,15 @@ object OrderTailored {
 
   /* Order Shipping Addresses */
   final case class OrderShippingAddressAdded(admin: StoreAdminResponse.Root, order: FullOrder.Root,
-    shippingAddress: OrderShippingAddress)
+    shippingAddress: Addresses.Root)
     extends ActivityBase[OrderShippingAddressAdded]
 
   final case class OrderShippingAddressUpdated(admin: StoreAdminResponse.Root, order: FullOrder.Root,
-    shippingAddress: OrderShippingAddress)
+    shippingAddress: Addresses.Root)
     extends ActivityBase[OrderShippingAddressUpdated]
 
-  final case class OrderShippingAddressRemoved(admin: StoreAdminResponse.Root, order: FullOrder.Root)
+  final case class OrderShippingAddressRemoved(admin: StoreAdminResponse.Root, order: FullOrder.Root,
+    shippingAddress: Addresses.Root)
     extends ActivityBase[OrderShippingAddressRemoved]
 
   /* Order Payment Methods */
