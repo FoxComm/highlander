@@ -23,11 +23,6 @@ import SearchableList from '../../list-page/searchable-list';
 import { actions as StoreCreditTransactionsActions } from '../../../modules/customers/store-credit-transactions';
 import * as StoreCreditTotalsActions from '../../../modules/customers/store-credit-totals';
 
-// const actions = {
-//   searchActions: StoreCreditTransactionsActions,
-//   ...StoreCreditTotalsActions
-// };
-
 const mapStateToProps = (state, props) => ({
   list: state.customers.storeCreditTransactions,
   storeCreditTotals: state.customers.storeCreditTotals[props.params.customerId]

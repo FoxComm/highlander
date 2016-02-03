@@ -5,6 +5,7 @@ import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { ReasonType } from '../../../lib/reason-utils';
+import { bindActionCreators } from 'redux';
 
 // components
 import Summary from './summary';
@@ -18,10 +19,10 @@ import SearchBar from '../../search-bar/search-bar';
 import Dropdown from '../../dropdown/dropdown';
 import ConfirmationDialog from '../../modal/confirmation-dialog';
 import { Checkbox } from '../../checkbox/checkbox';
-import LiveSearch from '../../live-search/live-search';
+import SearchableList from '../../list-page/searchable-list';
 
 // redux
-import * as StoreCreditsActions from '../../../modules/customers/store-credits';
+import { actions as StoreCreditsActions } from '../../../modules/customers/store-credits';
 import * as ReasonsActions from '../../../modules/reasons';
 import * as StoreCreditTotalsActions from '../../../modules/customers/store-credit-totals';
 
@@ -35,17 +36,27 @@ const onHoldStateTransitions = [
   ['canceled', 'Cancel Store Credit'],
 ];
 
-const actions = {
-  ...StoreCreditsActions,
-  ...ReasonsActions,
-  ...StoreCreditTotalsActions
+// const actions = {
+//   ...StoreCreditsActions,
+//   ...ReasonsActions,
+//   ...StoreCreditTotalsActions
+// };
+
+const mapStateToProps = (state, props) => ({
+  list: state.customers.storeCredits,
+  storeCreditTotals: state.customers.storeCreditTotals[props.params.customerId],
+  reasons: state.reasons,
+});
+
+const mapDispatchToProps = dispatch => {
+  return {
+    actions: bindActionCreators(StoreCreditsActions, dispatch),
+    totalsActions: bindActionCreators(StoreCreditTotalsActions, dispatch),
+    reasonsActions: bindActionCreators(ReasonsActions, dispatch),
+  };
 };
 
-@connect((state, props) => ({
-  ...state.customers.storeCredits[props.params.customerId],
-  ...state.reasons,
-  storeCreditTotals: state.customers.storeCreditTotals[props.params.customerId]
-}), actions)
+@connect(mapStateToProps, mapDispatchToProps)
 export default class StoreCredits extends React.Component {
 
   static contextTypes = {
@@ -106,10 +117,6 @@ export default class StoreCredits extends React.Component {
     return ReasonType.CANCELLATION;
   }
 
-  get searchUrl() {
-    return 'store_credits_search_view/_search';
-  }
-
   get defaultSearchOptions() {
     return {
       singleSearch: true,
@@ -127,9 +134,8 @@ export default class StoreCredits extends React.Component {
   }
 
   componentDidMount() {
-    this.props.fetchStoreCredits(this.customerId);
-    this.props.fetchReasons(this.reasonType);
-    this.props.fetchTotals(this.customerId);
+    this.props.reasonsActions.fetchReasons(this.reasonType);
+    this.props.totalsActions.fetchTotals(this.customerId);
   }
 
   @autobind
@@ -204,9 +210,9 @@ export default class StoreCredits extends React.Component {
       this.props.storeCreditToChange.status !== 'canceled';
     return (
       <ConfirmationDialog
-          isVisible={ shouldDisplay }
+          isVisible={shouldDisplay}
           header="Change Store Credit State?"
-          body={ message }
+          body={message}
           cancel="Cancel"
           confirm="Yes, Change State"
           cancelAction={ () => this.props.cancelChange(this.customerId) }
@@ -236,9 +242,9 @@ export default class StoreCredits extends React.Component {
           <div className="fc-store-credit-cancel-reason-selector">
             <Dropdown name="cancellationReason"
                       placeholder="- Select -"
-                      items={ reasons }
-                      value={ value }
-                      onChange={ (value) => props.reasonChange(this.customerId, value) } />
+                      items={reasons}
+                      value={value}
+                      onChange={(value) => props.reasonChange(this.customerId, value)} />
           </div>
         </div>
       </div>
@@ -260,6 +266,7 @@ export default class StoreCredits extends React.Component {
   render() {
     const props = this.props;
     const totals = _.get(props, ['storeCreditTotals', 'totals'], {});
+    console.log(this.props);
 
     return (
       <div className="fc-store-credits fc-list-page">
@@ -268,17 +275,14 @@ export default class StoreCredits extends React.Component {
                  history={this.context.history}
                  transactionsSelected={false} />
         <div className="fc-grid fc-list-page-content">
-          <SearchBar />
-          <div className="fc-col-md-1-1 fc-store-credit-table-container">
-            <MultiSelectTable
-              columns={props.tableColumns}
-              data={props.storeCredits}
-              renderRow={this.renderRow}
-              emptyMessage="No store credits found."
-              toggleColumnPresent={false}
-              setState={params => props.fetchStoreCredits(this.customerId, params)}
-              />
-          </div>
+          <SearchableList
+            title="Store Credits"
+            emptyResultMessage="No store credits found."
+            list={this.props.list}
+            renderRow={this.renderRow}
+            tableColumns={this.props.tableColumns}
+            searchActions={this.props.actions}
+            searchOptions={this.defaultSearchOptions} />
         </div>
         { this.confirmStatusChange }
         { this.confirmCancellation }
