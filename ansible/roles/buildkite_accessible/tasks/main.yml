@@ -2,6 +2,6 @@
 
 - name: Setting Up Buildkite User
   user: name=buildkite-agent groups=admin
- 
+
 - name: Setting Up SSH Access
   authorized_key: user=buildkite-agent key="{{lookup('file', 'buildkite.pub')}}"

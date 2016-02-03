@@ -2,7 +2,7 @@
 
 - name: Provision Gatling Backend
   hosts: gatling-backend
-  tags: 
+  tags:
       - backend
   vars:
     user: '{{ansible_ssh_user}}'
@@ -21,7 +21,7 @@
 
 - name: Provision Gatling Ashes
   hosts: gatling-ashes
-  tags: 
+  tags:
       - ashes
   vars:
     user: '{{ansible_ssh_user}}'
@@ -36,7 +36,7 @@
 
 - name: Provision Gatling Gun
   hosts: gatling-gun
-  tags: 
+  tags:
       - gatling
   vars:
     user: '{{ansible_ssh_user}}'

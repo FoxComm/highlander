@@ -20,7 +20,7 @@
     - lua-cjson-dev
     - nginx-extras
   sudo: true
-     
+
 - name: Assign {{user}} to Group www-data
   user: name={{user}} groups=www-data
   sudo: true
@@ -30,7 +30,7 @@
   sudo: true
 
 - name: Setup symlink to gatling results
-  file: src={{gatling_install_dir}}/target/gatling dest=/var/www/gatling state=link 
+  file: src={{gatling_install_dir}}/target/gatling dest=/var/www/gatling state=link
   sudo: true
 
 - name: Install default hosts
