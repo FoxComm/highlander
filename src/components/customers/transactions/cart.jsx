@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 
 import TotalsSummary from '../../common/totals';
 import OrderLineItems from '../../orders/order-line-items';
+import { PrimaryButton } from '../../common/buttons';
 import OrderShippingAddress from '../../orders/shipping-address';
 import OrderShippingMethod from '../../orders/order-shipping-method';
 import Payments from '../../orders/payments';
@@ -57,17 +58,21 @@ export default class CustomerCart extends React.Component {
         } = props.order.validations;
 
       return (
-        <div className="fc-order-details">
-          <div className="fc-order-details-body">
-            <div className="fc-order-details-main">
-              <OrderLineItems isCart={isCart} status={itemsStatus} {...props} />
-              <OrderShippingAddress isCart={isCart} status={shippingAddressStatus} order={order}/>
-              <OrderShippingMethod isCart={isCart} status={shippingMethodStatus} {...props} />
-              <Payments isCart={isCart} status={paymentMethodStatus} {...props} />
-            </div>
-            <div className="fc-order-details-aside">
-              <TotalsSummary entity={order} title={order.title}/>
-              <Watchers entity={haveType(order, 'order')}/>
+        <div class="fc-customer-cart">
+          <h2>Cart {order.referenceNumber}</h2>
+          <PrimaryButton>Edit Cart</PrimaryButton>
+          <div className="fc-order-details">
+            <div className="fc-order-details-body">
+              <div className="fc-order-details-main">
+                <OrderLineItems isCart={isCart} status={itemsStatus} {...props} />
+                <OrderShippingAddress isCart={isCart} status={shippingAddressStatus} order={order}/>
+                <OrderShippingMethod isCart={isCart} status={shippingMethodStatus} {...props} />
+                <Payments isCart={isCart} status={paymentMethodStatus} {...props} />
+              </div>
+              <div className="fc-order-details-aside">
+                <TotalsSummary entity={order} title={order.title}/>
+                <Watchers entity={haveType(order, 'order')}/>
+              </div>
             </div>
           </div>
         </div>
