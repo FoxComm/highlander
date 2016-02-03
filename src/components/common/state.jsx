@@ -22,10 +22,6 @@ export const states = {
     canceled: 'Canceled',
   },
   giftCard: {
-    csrAppeasement: 'Appeasement',
-    customerPurchase: 'Customer Purchase',
-    fromStoreCredit: 'From Store Credit',
-    rmaProcess: 'RMA Process',
     cart: 'Cart',
     active: 'Active',
     onHold: 'On Hold',
