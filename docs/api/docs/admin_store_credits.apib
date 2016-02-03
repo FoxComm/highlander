@@ -20,6 +20,7 @@
             + `availableBalance`
             + `canceledAmount`
             + `canceledReason`
+            + `state`
             + `createdAt`
 + Response 200 (application/json)
   + Attributes (StoreCreditsWithTotals)
@@ -31,17 +32,17 @@
 + Response 200 (application/json)
     + Attributes (StoreCredit)
 
-### Update Status [PATCH /v1/store-credits/{id}]
+### Update State [PATCH /v1/store-credits/{id}]
 
 + Request (application/json)
-    + Attributes (StoreCreditUpdateStatusPayload)
+    + Attributes (StoreCreditUpdateStatePayload)
 + Response 200 (application/json)
     + Attributes (StoreCredit)
 
-### Bulk Update Status [PATCH /v1/store-credits]
+### Bulk Update State [PATCH /v1/store-credits]
 
 + Request (application/json)
-    + Attributes (StoreCreditBulkStatusUpdatePayload)
+    + Attributes (StoreCreditBulkStateUpdatePayload)
 + Response 200 (application/json)
     + Attributes (array[StoreCreditBulkResponse])
 
@@ -58,7 +59,7 @@
             + `orderPaymentId`
             + `debit`
             + `availableBalance`
-            + `status`
+            + `state`
             + `createdAt`
 + Response 200 (application/json)
     + Attributes (StoreCreditAdjustments)

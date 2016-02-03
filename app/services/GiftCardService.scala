@@ -8,7 +8,7 @@ import models.GiftCardSubtypes.scope._
 import models.activity.ActivityContext
 import models.{Customers, GiftCard, GiftCardAdjustments, GiftCardManual, GiftCardManuals, GiftCardSubtype,
 GiftCardSubtypes, GiftCards, Reasons, StoreAdmin, StoreAdmins}
-import payloads.{GiftCardCreateByCsr, GiftCardUpdateStatusByCsr}
+import payloads.{GiftCardCreateByCsr, GiftCardUpdateStateByCsr}
 import responses.GiftCardBulkResponse._
 import responses.GiftCardResponse._
 import responses.{TheResponse, CustomerResponse, GiftCardResponse, GiftCardSubTypesResponse, StoreAdminResponse}
@@ -84,33 +84,33 @@ object GiftCardService {
                }))
   } yield response).value
 
-  def bulkUpdateStatusByCsr(payload: payloads.GiftCardBulkUpdateStatusByCsr, admin: StoreAdmin)
+  def bulkUpdateStateByCsr(payload: payloads.GiftCardBulkUpdateStateByCsr, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Seq[ItemResult]] = (for {
     _        ← ResultT.fromXor(payload.validate.toXor)
     response ← ResultT.right(Future.sequence(payload.codes.map { code ⇒
-                 val itemPayload = GiftCardUpdateStatusByCsr(payload.status, payload.reasonId)
-                 updateStatusByCsr(code, itemPayload, admin).map(buildItemResult(_, Some(code)))
+                 val itemPayload = GiftCardUpdateStateByCsr(payload.state, payload.reasonId)
+                 updateStateByCsr(code, itemPayload, admin).map(buildItemResult(_, Some(code)))
                }))
   } yield response).value
 
-  def updateStatusByCsr(code: String, payload: payloads.GiftCardUpdateStatusByCsr, admin: StoreAdmin)
+  def updateStateByCsr(code: String, payload: payloads.GiftCardUpdateStateByCsr, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
     _        ← * <~ payload.validate
     _        ← * <~ payload.reasonId.map(id ⇒ Reasons.mustFindById400(id)).getOrElse(DbResult.unit)
     giftCard ← * <~ GiftCards.mustFindByCode(code)
-    updated  ← * <~ cancelOrUpdate(giftCard, payload.status, payload.reasonId, admin)
+    updated  ← * <~ cancelOrUpdate(giftCard, payload.state, payload.reasonId, admin)
     _        ← * <~ LogActivity.gcUpdated(admin, giftCard, payload)
   } yield GiftCardResponse.build(updated)).runTxn()
 
-  private def cancelOrUpdate(giftCard: GiftCard, newState: GiftCard.Status, reasonId: Option[Int],
+  private def cancelOrUpdate(giftCard: GiftCard, newState: GiftCard.State, reasonId: Option[Int],
     admin: StoreAdmin)(implicit ec: ExecutionContext, db: Database) = newState match {
     case Canceled ⇒ for {
       _   ← * <~ GiftCardAdjustments.lastAuthByGiftCardId(giftCard.id).one.mustNotFindOr(OpenTransactionsFailure)
-      upd ← * <~ GiftCards.update(giftCard, giftCard.copy(status = newState, canceledReason = reasonId,
+      upd ← * <~ GiftCards.update(giftCard, giftCard.copy(state = newState, canceledReason = reasonId,
                    canceledAmount = giftCard.availableBalance.some))
       _   ← * <~ GiftCards.cancelByCsr(giftCard, admin)
     } yield upd
 
-    case newState ⇒ DbResultT(GiftCards.update(giftCard, giftCard.copy(status = newState)))
+    case newState ⇒ DbResultT(GiftCards.update(giftCard, giftCard.copy(state = newState)))
   }
 }

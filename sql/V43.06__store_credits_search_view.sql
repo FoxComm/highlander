@@ -6,7 +6,7 @@ select distinct on (sc.id)
     sc.origin_id,
     sc.origin_type,
     scsv.subtype,
-    sc.status,    
+    sc.state,
     sc.currency,
     sc.original_balance,
     sc.current_balance,

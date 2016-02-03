@@ -25,20 +25,20 @@ import utils.Slick.implicits._
 import utils.Slick.DbResult
 
 final case class Rma(id: Int = 0, referenceNumber: String = "", orderId: Int, orderRefNum: String,
-  rmaType: RmaType = Standard, status: Status = Pending, isLocked: Boolean = false,
+  rmaType: RmaType = Standard, state: State = Pending, isLocked: Boolean = false,
   customerId: Int, storeAdminId: Option[Int] = None, messageToCustomer: Option[String] = None,
   canceledReason: Option[Int] = None, createdAt: Instant = Instant.now,
   updatedAt: Instant = Instant.now, deletedAt: Option[Instant] = None)
   extends ModelWithLockParameter[Rma]
   with Lockable[Rma]
-  with FSM[Rma.Status, Rma] {
+  with FSM[Rma.State, Rma] {
 
   def refNum: String = referenceNumber
 
-  def stateLens = GenLens[Rma](_.status)
+  def stateLens = GenLens[Rma](_.state)
   override def primarySearchKeyLens: Lens[Rma, String] = GenLens[Rma](_.referenceNumber)
 
-  val fsm: Map[Status, Set[Status]] = Map(
+  val fsm: Map[State, Set[State]] = Map(
     Pending →
       Set(Processing, Canceled),
     Processing →
@@ -49,12 +49,12 @@ final case class Rma(id: Int = 0, referenceNumber: String = "", orderId: Int, or
 }
 
 object Rma {
-  sealed trait Status
-  case object Pending extends Status
-  case object Processing extends Status
-  case object Review extends Status
-  case object Complete extends Status
-  case object Canceled extends Status
+  sealed trait State
+  case object Pending extends State
+  case object Processing extends State
+  case object Review extends State
+  case object Complete extends State
+  case object Canceled extends State
 
   sealed trait RmaType
   case object Standard extends RmaType
@@ -65,12 +65,12 @@ object Rma {
     def types = sealerate.values[RmaType]
   }
 
-  object Status extends ADT[Status] {
-    def types = sealerate.values[Status]
+  object State extends ADT[State] {
+    def types = sealerate.values[State]
   }
 
   implicit val RmaTypeColumnType: JdbcType[RmaType] with BaseTypedType[RmaType] = RmaType.slickColumn
-  implicit val StatusTypeColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
+  implicit val StateTypeColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
 
   val rmaRefNumRegex = """([a-zA-Z0-9-_.]*)""".r
   val messageToCustomerMaxLength = 1000
@@ -85,8 +85,8 @@ object Rma {
     )
   }
 
-  def validateStatusReason(status: Status, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
-    if (status == Canceled) {
+  def validateStateReason(state: State, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
+    if (state == Canceled) {
       validExpr(reason.isDefined, "Please provide valid cancellation reason")
     } else {
       valid({})
@@ -100,7 +100,7 @@ class Rmas(tag: Tag) extends GenericTable.TableWithLock[Rma](tag, "rmas")  {
   def orderId = column[Int]("order_id")
   def orderRefNum = column[String]("order_refnum")
   def rmaType = column[RmaType]("rma_type")
-  def status = column[Status]("status")
+  def state = column[State]("state")
   def isLocked = column[Boolean]("is_locked")
   def customerId = column[Int]("customer_id")
   def storeAdminId = column[Option[Int]]("store_admin_id")
@@ -110,7 +110,7 @@ class Rmas(tag: Tag) extends GenericTable.TableWithLock[Rma](tag, "rmas")  {
   def updatedAt = column[Instant]("updated_at")
   def deletedAt = column[Option[Instant]]("deleted_at")
 
-  def * = (id, referenceNumber, orderId, orderRefNum, rmaType, status, isLocked, customerId, storeAdminId,
+  def * = (id, referenceNumber, orderId, orderRefNum, rmaType, state, isLocked, customerId, storeAdminId,
     messageToCustomer, canceledReason, createdAt, updatedAt, deletedAt) <> ((Rma.apply _).tupled, Rma.unapply)
 }
 
@@ -137,5 +137,5 @@ object Rmas extends TableQueryWithLock[Rma, Rmas](
   def findOneByRefNum(refNum: String): DBIO[Option[Rma]] = filter(_.referenceNumber === refNum).one
 
   def findOnePendingByRefNum(refNum: String): DBIO[Option[Rma]] =
-    filter(_.referenceNumber === refNum).filter(_.status === (Rma.Pending: Rma.Status)).one
+    filter(_.referenceNumber === refNum).filter(_.state === (Rma.Pending: Rma.State)).one
 }

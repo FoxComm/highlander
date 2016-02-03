@@ -47,10 +47,10 @@ class OrderIntegrationTest extends IntegrationTestBase
         fullOrder.paymentMethods mustBe empty
       }
 
-      "displays payment status if cc present" in new PaymentStatusFixture {
+      "displays payment state if cc present" in new PaymentStateFixture {
         pending
         Orders.findByRefNum(order.refNum).map(_.state).update(Order.ManualHold).run.futureValue
-        CreditCardCharges.findById(ccc.id).extract.map(_.status).update(CreditCardCharge.Auth).run.futureValue
+        CreditCardCharges.findById(ccc.id).extract.map(_.state).update(CreditCardCharge.Auth).run.futureValue
 
         val response = GET(s"v1/orders/${order.refNum}")
         response.status must === (StatusCodes.OK)
@@ -60,17 +60,17 @@ class OrderIntegrationTest extends IntegrationTestBase
         // fullOrder.paymentMethods.head.value.status must === (CreditCardCharge.Auth)
       }
 
-      "displays 'cart' payment status if order is cart and cc present" in new PaymentStatusFixture {
+      "displays 'cart' payment state if order is cart and cc present" in new PaymentStateFixture {
         pending
         Orders.findByRefNum(order.refNum).map(_.state).update(Order.Cart).run.futureValue
-        CreditCardCharges.findById(ccc.id).extract.map(_.status).update(CreditCardCharge.Auth).run.futureValue
+        CreditCardCharges.findById(ccc.id).extract.map(_.state).update(CreditCardCharge.Auth).run.futureValue
 
         val response = GET(s"v1/orders/${order.refNum}")
         response.status must === (StatusCodes.OK)
         val fullOrder = response.withResultTypeOf[FullOrder.Root].result
 
         fullOrder.paymentState.value must === (CreditCardCharge.Cart)
-        // fullOrder.payment.value.status must === (CreditCardCharge.Auth)
+        // fullOrder.payment.value.state must === (CreditCardCharge.Auth)
       }
     }
   }
@@ -80,7 +80,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     val payload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
 
     "should successfully update line items" in new OrderShippingMethodFixture with ShippingAddressFixture with
-      PaymentStatusFixture {
+      PaymentStateFixture {
       val response = POST(s"v1/orders/${order.refNum}/line-items", payload)
 
       response.status must === (StatusCodes.OK)
@@ -169,10 +169,10 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val responseOrder = parse(response.bodyText).extract[FullOrder.Root]
       responseOrder.orderState must === (Canceled)
-      responseOrder.lineItems.head.status must === (OrderLineItem.Canceled)
+      responseOrder.lineItems.head.state must === (OrderLineItem.Canceled)
 
-      // Testing via DB as currently FullOrder returns 'order.status' as 'payment.status'
-      // OrderPayments.findAllByOrderId(order.id).futureValue.head.status must === ("cancelAuth")
+      // Testing via DB as currently FullOrder returns 'order.state' as 'payment.state'
+      // OrderPayments.findAllByOrderId(order.id).futureValue.head.state must === ("cancelAuth")
     }
     */
   }
@@ -883,7 +883,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     val originalRemorseEnd = order.remorsePeriodEnd.value
   }
 
-  trait PaymentStatusFixture extends Fixture {
+  trait PaymentStateFixture extends Fixture {
     val (cc, op, ccc) = (for {
       cc  ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
       op  ← * <~ OrderPayments.create(Factories.orderPayment.copy(orderId = order.id, paymentMethodId = cc.id))

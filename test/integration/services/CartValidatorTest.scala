@@ -57,7 +57,7 @@ class CartValidatorTest extends IntegrationTestBase {
           admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
           reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
           origin   ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = reason.id))
-          giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active,
+          giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active,
             originalBalance = notEnoughFunds))
           payment  ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = cart.id,
             amount = sku.price.some, paymentMethodId = giftCard.id))

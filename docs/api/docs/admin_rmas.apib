@@ -15,7 +15,7 @@
             + `orderId`
             + `orderRefNum`
             + `rmaType`
-            + `status`
+            + `state`
             + `locked`
             + `customerId`
             + `storeAdminId`
@@ -35,7 +35,7 @@
             + `orderId`
             + `orderRefNum`
             + `rmaType`
-            + `status`
+            + `state`
             + `locked`
             + `customerId`
             + `storeAdminId`
@@ -55,7 +55,7 @@
             + `orderId`
             + `orderRefNum`
             + `rmaType`
-            + `status`
+            + `state`
             + `locked`
             + `customerId`
             + `storeAdminId`
@@ -104,12 +104,12 @@ Expanded view with embedded Order + warnings and includes.
 + Response 200 (application/json)
     + Attributes (Rma)
 
-### Update Status [PATCH /v1/rmas/{refNum}]
+### Update State [PATCH /v1/rmas/{refNum}]
 
 + Parameters
     + refNum: `ABC-123.1` (required, string) - RMA reference number
 + Request (application/json)
-    + Attributes (RmaStatusUpdatePayload)
+    + Attributes (RmaStateUpdatePayload)
 + Response 200 (application/json)
     + Attributes (Rma)
 

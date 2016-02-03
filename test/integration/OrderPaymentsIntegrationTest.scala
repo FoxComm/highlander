@@ -80,7 +80,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the giftCard is inactive" in new GiftCardFixture {
-        GiftCards.findByCode(giftCard.code).map(_.status).update(GiftCard.Canceled).run().futureValue
+        GiftCards.findByCode(giftCard.code).map(_.state).update(GiftCard.Canceled).run().futureValue
         val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance + 1)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
@@ -90,7 +90,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails to add GC with cart status as payment method" in new GiftCardFixture {
-        GiftCards.findByCode(giftCard.code).map(_.status).update(GiftCard.Cart).run().futureValue
+        GiftCards.findByCode(giftCard.code).map(_.state).update(GiftCard.Cart).run().futureValue
         val payload = payloads.GiftCardPayment(code = giftCard.code, amount = 15)
         val response = POST(s"v1/orders/${order.refNum}/payment-methods/gift-cards", payload)
 
@@ -159,7 +159,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
         "only uses active store credit" in new StoreCreditFixture {
           // inactive 1 and 2
-          StoreCredits.filter(_.id === 1).map(_.status).update(StoreCredit.Canceled).run().futureValue
+          StoreCredits.filter(_.id === 1).map(_.state).update(StoreCredit.Canceled).run().futureValue
           StoreCredits.filter(_.id === 2).map(_.availableBalance).update(0).run().futureValue
 
           val payload = payloads.StoreCreditPayment(amount = 7500)
@@ -367,7 +367,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
     val giftCard = (for {
       reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
       origin   ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = reason.id))
-      giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active))
+      giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
     } yield giftCard).runTxn().futureValue.rightVal
   }
 
@@ -378,7 +378,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         StoreCreditManual(adminId = admin.id, reasonId = reason.id)
       })
       _ ← * <~ StoreCredits.createAll((1 to 5).map { i ⇒
-        Factories.storeCredit.copy(status = StoreCredit.Active, customerId = customer.id, originId = i)
+        Factories.storeCredit.copy(state = StoreCredit.Active, customerId = customer.id, originId = i)
       })
       storeCredits ← * <~ StoreCredits.findAllByCustomerId(customer.id).result
     } yield storeCredits).runTxn().futureValue.rightVal

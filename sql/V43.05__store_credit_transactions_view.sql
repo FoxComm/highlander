@@ -4,7 +4,7 @@ select distinct on (sca.id)
     sca.id,
     sca.debit,
     sca.available_balance,
-    sca.status,
+    sca.state,
     to_char(sca.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
     -- Store Credit
     sc.id as store_credit_id,

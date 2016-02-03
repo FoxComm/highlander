@@ -32,7 +32,7 @@ object FullOrder {
     referenceNumber: String,
     orderState: Order.State,
     shippingState: Order.State,
-    paymentState: Option[CreditCardCharge.Status] = Some(CreditCardCharge.Cart),
+    paymentState: Option[CreditCardCharge.State] = Some(CreditCardCharge.Cart),
     lineItems: LineItems,
     fraudScore: Int,
     totals: Totals,
@@ -52,7 +52,7 @@ object FullOrder {
     price: Int = 33,
     quantity: Int = 1,
     totalPrice: Int = 33,
-    status: OrderLineItem.Status) extends ResponseItem
+    state: OrderLineItem.State) extends ResponseItem
 
   sealed trait Payments
 
@@ -124,7 +124,7 @@ object FullOrder {
     val paymentMethods: Seq[Payments] = creditCardPmt ++ giftCardPmts ++ storeCreditPmts
 
     val skuList = skus.map { case (sku, li) ⇒
-      DisplayLineItem(sku = sku.sku, status = li.status, name = sku.name.getOrElse("donkey product"),
+      DisplayLineItem(sku = sku.sku, state = li.state, name = sku.name.getOrElse("donkey product"),
         price = sku.price, totalPrice = sku.price)
     }
     val gcList = giftCards.map { case (gc, li) ⇒ GiftCardResponse.build(gc) }
@@ -134,7 +134,7 @@ object FullOrder {
       orderState = order.state,
       shippingState = order.state,
       //paymentState = none,
-      //paymentState = maybePayment.map(p ⇒ getPaymentStatus(order.status, p)),
+      //paymentState = maybePayment.map(p ⇒ getPaymentState(order.state, p)),
       lineItems = LineItems(skus = skuList, giftCards = gcList),
       fraudScore = scala.util.Random.nextInt(100),
       customer = customer.map(responses.CustomerResponse.build(_)),

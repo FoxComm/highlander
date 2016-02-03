@@ -65,7 +65,7 @@ class CheckoutTest
       result must === (failure)
     }
 
-    "updates status to RemorseHold and touches placedAt" in new Fixture {
+    "updates state to RemorseHold and touches placedAt" in new Fixture {
       val before = Instant.now
       val result = Checkout(cart, cartValidator()).checkout.futureValue.rightVal
       val current = Orders.findById(cart.id).extract.one.run().futureValue.value
@@ -91,7 +91,7 @@ class CheckoutTest
       val current = Orders.findById(cart.id).extract.one.run().futureValue.value
       val gc = GiftCards.findById(giftCard.id).extract.one.run().futureValue.value
 
-      gc.status must ===(GiftCard.OnHold)
+      gc.state must ===(GiftCard.OnHold)
     }
 
     "authorizes payments" - {
@@ -112,7 +112,7 @@ class CheckoutTest
 
         import GiftCardAdjustment._
 
-        adjustments.map(_.status).toSet must === (Set[Status](Auth))
+        adjustments.map(_.state).toSet must === (Set[State](Auth))
         adjustments.map(_.debit) must === (List(25, 25, 25))
       }
 
@@ -133,7 +133,7 @@ class CheckoutTest
 
         import StoreCreditAdjustment._
 
-        adjustments.map(_.status).toSet must === (Set[Status](Auth))
+        adjustments.map(_.state).toSet must === (Set[State](Auth))
         adjustments.map(_.debit) must === (List(25, 25, 25))
       }
     }

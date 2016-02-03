@@ -91,7 +91,7 @@ object OrderStateUpdater {
   private def cancelOrders(orderIds: Seq[Int]) = {
     val updateLineItems = OrderLineItems
       .filter(_.orderId.inSetBind(orderIds))
-      .map(_.status)
+      .map(_.state)
       .update(OrderLineItem.Canceled)
 
     // TODO: canceling an order must cascade to state on each payment type not order_payments

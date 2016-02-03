@@ -1,14 +1,14 @@
 # Data Structures
 
 ### StoreCreditOriginType
-+ originType: CsrAppeasement (required, enum[string]) - GC origin type.
++ originType: CsrAppeasement (required, enum[string]) - SC origin type.
     + Members
         + `csrAppeasement`
         + `giftCardTransfer`
         + `returnProcess`
 
-### StoreCreditStatus
-+ status: OnHold (required, enum[string]) - GC status.
+### StoreCreditState
++ state: OnHold (required, enum[string]) - SC state.
     + Members
         + `onHold`
         + `active`
@@ -20,7 +20,7 @@
 + currency: USD (required, string) - SC currency.
 + Include StoreCreditOriginType
 + subTypeId: 1 (optional, number) - Optional subtype.
-+ Include StoreCreditStatus
++ Include StoreCreditState
 + originalBalance: 50 (required, number) - Opening balance for SC (amount it was issued for).
 + currentBalance: 50 (required, number) - Opening balance minus "captured" debits.
 + availableBalance: 50 (required, number) - Opening balance minus "auth" debits.
@@ -39,7 +39,7 @@
 + id: 1 (required, number) - Unique identifier.
 + debit: 50 (required, number) - Debit of adjustment.
 + availableBalance: 10 (required, number) - Current availableBalance for this SC
-+ state: Auth (required, enum[string]) - Gift Card status.
++ state: Auth (required, enum[string]) - Gift Card state.
     + Members
         + `auth`
         + `capture`
@@ -66,13 +66,13 @@
 + subReasonId: 1 (optional, number) - Subreason.
 + currency: USD (optional, string) - Store credit currency.
 
-### StoreCreditBulkStatusUpdatePayload
+### StoreCreditBulkStateUpdatePayload
 + ids (required, array[number]) - List of Store Credit ID's.
-+ status: onHold (required, string) - Status to be switched to.
++ state: onHold (required, string) - State to be switched to.
 + reasonId: 1 (optional, number) - ID of cancellation reason.
 
-### StoreCreditUpdateStatusPayload
-+ status: onHold (required, string) - New store credit status.
+### StoreCreditUpdateStatePayload
++ state: onHold (required, string) - New store credit state.
 + reasonId: 1 (optional, number) - ID of cancellation reason.
 
 ### StoreCredits

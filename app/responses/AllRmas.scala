@@ -17,14 +17,14 @@ object AllRmas {
     referenceNumber: String,
     orderRefNum: String,
     rmaType: Rma.RmaType,
-    status: Rma.Status,
+    state: Rma.State,
     customer: CustomerResponse.Root,
     storeAdmin: Option[StoreAdminResponse.Root] = None,
     assignees: Seq[AssignmentResponse.Root],
     createdAt: Instant,
     updatedAt: Instant,
     total: Option[Int] = None
-    ) extends ResponseItem
+  ) extends ResponseItem
 
   def fromRma(rma: Rma, customer: Customer, admin: Option[StoreAdmin] = None)
     (implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
@@ -45,7 +45,7 @@ object AllRmas {
       referenceNumber = rma.referenceNumber,
       orderRefNum = rma.orderRefNum,
       rmaType = rma.rmaType,
-      status = rma.status,
+      state = rma.state,
       customer = CustomerResponse.build(customer),
       storeAdmin = admin.map(StoreAdminResponse.build),
       assignees = assignees,

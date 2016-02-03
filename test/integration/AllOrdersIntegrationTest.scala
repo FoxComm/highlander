@@ -86,7 +86,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
   }
 
   "PATCH /v1/orders" - {
-    "bulk update statuses" in new StatusUpdateFixture {
+    "bulk update states" in new StateUpdateFixture {
       val response = PATCH("v1/orders", BulkUpdateOrdersPayload(Seq("foo", "bar", "nonExistent"), FulfillmentStarted))
 
       response.status must === (StatusCodes.OK)
@@ -118,7 +118,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       all.errors.value.head must === (StateTransitionNotAllowed(order.state, Cart, order.refNum).description)
     }
 
-    "bulk update statuses with paging and sorting" in new StatusUpdateFixture {
+    "bulk update states with paging and sorting" in new StateUpdateFixture {
       val responseJson = PATCH(
         "v1/orders?size=2&from=2&sortBy=referenceNumber",
         BulkUpdateOrdersPayload(Seq("foo", "bar", "nonExistent"), FulfillmentStarted)
@@ -344,7 +344,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
     }
   }
 
-  trait StatusUpdateFixture {
+  trait StateUpdateFixture {
     (for {
       cust ← * <~ Customers.create(Factories.customer)
       foo  ← * <~ Orders.create(Factories.order.copy(customerId = cust.id, referenceNumber = "foo", state = FraudHold))

@@ -105,7 +105,7 @@ class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
       admin ← StoreAdmins.create(authedStoreAdmin).map(rightValue)
       reason ← Reasons.create(Factories.reason.copy(storeAdminId = admin.id)).map(rightValue)
       origin ← GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = reason.id)).map(rightValue)
-      giftCard ← GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active)).map(rightValue)
+      giftCard ← GiftCards.create(Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active)).map(rightValue)
     } yield (admin, giftCard)).run().futureValue
   }
 

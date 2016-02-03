@@ -25,7 +25,7 @@ create table export_customers (
 );
 
 create table export_line_items (
-    status  text,
+    state   text,
     sku     text,
     name    text,
     price   integer
@@ -52,13 +52,13 @@ create table export_payments (
 
 create table export_rmas (
     reference_number text,
-    status           text,
+    state            text,
     rma_type         text,
     placed_at        text
 );
 
 create table export_shipments (
-    status                      text,
+    state                       text,
     shipping_price              integer,
     admin_display_name          text,
     storefront_display_name     text

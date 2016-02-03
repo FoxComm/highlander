@@ -9,7 +9,7 @@ class GiftCardTest extends TestBase {
   "GiftCard" - {
     ".validate" - {
       "returns errors when canceled with no corresponding reason" in {
-        val gc = Factories.giftCard.copy(status = GiftCard.Canceled)
+        val gc = Factories.giftCard.copy(state = GiftCard.Canceled)
         val result = gc.validate
         invalidValue(result) must includeFailure("canceledAmount must be present when canceled")
       }

@@ -4,7 +4,7 @@ create table gift_cards (
     origin_type gc_origin_type,
     subtype_id integer null references gift_card_subtypes(id) on update restrict on delete restrict,
     code generic_string not null unique,
-    status generic_string not null,
+    state generic_string not null,
     currency currency,
     original_balance integer not null,
     current_balance integer not null,
@@ -16,11 +16,11 @@ create table gift_cards (
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (id) references payment_methods(id) on update restrict on delete restrict,
     foreign key (origin_id) references gift_card_origins(id) on update restrict on delete restrict,
-    constraint valid_status check (status in ('onHold', 'active', 'canceled', 'cart', 'fullyRedeemed')),
+    constraint valid_state check (state in ('onHold', 'active', 'canceled', 'cart', 'fullyRedeemed')),
     constraint positive_balance check (original_balance >= 0 and current_balance >= 0 and available_balance >= 0)
 );
 
-create index gift_cards_idx on gift_cards (code, status);
+create index gift_cards_idx on gift_cards (code, state);
 
 -- unique code generation prototype
 create function generate_gift_card_code(len integer) returns text AS $$

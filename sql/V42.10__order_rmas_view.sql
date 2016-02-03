@@ -6,7 +6,7 @@ select
     then
         '[]'
     else
-        json_agg((rmas.reference_number, rmas.status, rmas.rma_type, to_char(rmas.created_at, 'YYYY-MM-DD HH24:MI:SS'))::export_rmas)
+        json_agg((rmas.reference_number, rmas.state, rmas.rma_type, to_char(rmas.created_at, 'YYYY-MM-DD HH24:MI:SS'))::export_rmas)
     end as rmas
 from orders as o
 left join rmas on (o.id = rmas.order_id)

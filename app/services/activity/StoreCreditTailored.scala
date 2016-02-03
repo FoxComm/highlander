@@ -9,7 +9,7 @@ object StoreCreditTailored {
     extends ActivityBase[StoreCreditCreated]
 
   final case class StoreCreditStateChanged(admin: StoreAdminResponse.Root, storeCredit: StoreCreditResponse.Root,
-    payload: payloads.StoreCreditUpdateStatusByCsr)
+    payload: payloads.StoreCreditUpdateStateByCsr)
     extends ActivityBase[StoreCreditStateChanged]
 
   final case class StoreCreditConvertedToGiftCard(admin: StoreAdminResponse.Root, giftCard: GiftCardResponse.Root,

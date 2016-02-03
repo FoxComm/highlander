@@ -28,10 +28,10 @@ object Admin {
             StoreCreditService.getOriginTypes
           }
         } ~
-        (patch & pathEnd & entity(as[payloads.StoreCreditBulkUpdateStatusByCsr])) { payload ⇒
+        (patch & pathEnd & entity(as[payloads.StoreCreditBulkUpdateStateByCsr])) { payload ⇒
           activityContext(admin) { implicit ac ⇒
             goodOrFailures {
-              StoreCreditService.bulkUpdateStatusByCsr(payload, admin)
+              StoreCreditService.bulkUpdateStateByCsr(payload, admin)
             }
           }
         }
@@ -42,10 +42,10 @@ object Admin {
             StoreCreditService.getById(storeCreditId)
           }
         } ~
-        (patch & pathEnd & entity(as[payloads.StoreCreditUpdateStatusByCsr])) { payload ⇒
+        (patch & pathEnd & entity(as[payloads.StoreCreditUpdateStateByCsr])) { payload ⇒
           activityContext(admin) { implicit ac ⇒
             goodOrFailures {
-              StoreCreditService.updateStatusByCsr(storeCreditId, payload, admin)
+              StoreCreditService.updateStateByCsr(storeCreditId, payload, admin)
             }
           }
         } ~

@@ -103,10 +103,10 @@ trait OrderSeeds {
                       shippingAddressId = shipA.id.some))
   } yield order
 
-  def addSkusToOrder(skuIds: Seq[Sku#Id], orderId: Order#Id, status: OrderLineItem.Status): DbResultT[Unit] = for {
+  def addSkusToOrder(skuIds: Seq[Sku#Id], orderId: Order#Id, state: OrderLineItem.State): DbResultT[Unit] = for {
     liSkus ← * <~ OrderLineItemSkus.filter(_.skuId.inSet(skuIds)).result
     _ ← * <~ OrderLineItems.createAll(liSkus.seq.map { liSku ⇒
-      OrderLineItem(orderId = orderId, originId = liSku.id, originType = OrderLineItem.SkuItem, status = status)
+      OrderLineItem(orderId = orderId, originId = liSku.id, originType = OrderLineItem.SkuItem, state = state)
     })
   } yield {}
 

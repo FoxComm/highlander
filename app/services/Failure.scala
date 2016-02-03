@@ -109,7 +109,7 @@ object RmaFailures {
 
 object CartFailures {
   final case class OrderMustBeCart(refNum: String) extends Failure {
-    override def description = s"order with referenceNumber=$refNum is not in cart status"
+    override def description = s"order with referenceNumber=$refNum is not in cart state"
   }
 
   final case class CustomerHasCart(id: Int) extends Failure {
@@ -142,19 +142,19 @@ object CartFailures {
 }
 
 final case class GiftCardMustBeCart(code: String) extends Failure {
-  override def description = s"giftCart with code=$code is not in cart status"
+  override def description = s"giftCart with code=$code is not in cart state"
 }
 
 final case class GiftCardMustNotBeCart(code: String) extends Failure {
-  override def description = s"giftCart with code=$code must not be in cart status"
+  override def description = s"giftCart with code=$code must not be in cart state"
 }
 
 final case class GiftCardConvertFailure(gc: GiftCard) extends Failure {
-  override def description = s"cannot convert a gift card with status '${gc.status}'"
+  override def description = s"cannot convert a gift card with state '${gc.state}'"
 }
 
 final case class StoreCreditConvertFailure(sc: StoreCredit) extends Failure {
-  override def description = s"cannot convert a store credit with status '${sc.status}'"
+  override def description = s"cannot convert a store credit with state '${sc.state}'"
 }
 
 final case class OrderAssigneeNotFound(refNum: String, assigneeId: Int) extends Failure {

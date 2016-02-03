@@ -93,7 +93,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
           response.status must === (StatusCodes.OK)
 
           val sc = response.as[responses.StoreCreditResponse.Root]
-          sc.status must === (StoreCredit.Active)
+          sc.state must === (StoreCredit.Active)
 
           // Check that proper link is created
           val manual = StoreCreditManuals.findOneById(sc.originId).run().futureValue.value
@@ -228,21 +228,21 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
     "PATCH /v1/store-credits/:id" - {
       "successfully changes status from Active to OnHold and vice-versa" in new Fixture {
-        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = OnHold))
+        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStateByCsr(state = OnHold))
         response.status must ===(StatusCodes.OK)
 
-        val responseBack = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Active))
+        val responseBack = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStateByCsr(state = Active))
         responseBack.status must ===(StatusCodes.OK)
       }
 
       "returns error if no cancellation reason provided" in new Fixture {
-        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Canceled))
+        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStateByCsr(state = Canceled))
         response.status must ===(StatusCodes.BadRequest)
         response.error must ===(EmptyCancellationReasonFailure.description)
       }
 
       "returns error on cancellation if store credit has auths" in new Fixture {
-        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Canceled,
+        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStateByCsr(state = Canceled,
           reasonId = Some(1)))
         response.status must ===(StatusCodes.BadRequest)
         response.error must ===(OpenTransactionsFailure.description)
@@ -252,7 +252,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         // Cancel pending adjustment
         StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
 
-        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Canceled,
+        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStateByCsr(state = Canceled,
           reasonId = Some(1)))
         response.status must ===(StatusCodes.OK)
 
@@ -265,14 +265,14 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
         response.status must ===(StatusCodes.OK)
         adjustments.size mustBe 2
-        adjustments.head.status must ===(StoreCreditAdjustment.CancellationCapture)
+        adjustments.head.state must ===(StoreCreditAdjustment.CancellationCapture)
       }
 
       "fails to cancel store credit if invalid reason provided" in new Fixture {
         // Cancel pending adjustment
         StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
 
-        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStatusByCsr(status = Canceled,
+        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStateByCsr(state = Canceled,
           reasonId = Some(999)))
         response.status must ===(StatusCodes.BadRequest)
         response.error must ===(NotFoundFailure400(Reason, 999).description)
@@ -281,25 +281,25 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
     "PATCH /v1/store-credits" - {
       "successfully changes statuses of multiple store credits" in new Fixture {
-        val payload = payloads.StoreCreditBulkUpdateStatusByCsr(
+        val payload = payloads.StoreCreditBulkUpdateStateByCsr(
           ids = Seq(storeCredit.id, scSecond.id),
-          status = StoreCredit.OnHold
+          state = StoreCredit.OnHold
         )
 
         val response = PATCH(s"v1/store-credits", payload)
         response.status must ===(StatusCodes.OK)
 
         val firstUpdated = StoreCredits.findOneById(storeCredit.id).run().futureValue
-        firstUpdated.value.status must ===(StoreCredit.OnHold)
+        firstUpdated.value.state must ===(StoreCredit.OnHold)
 
         val secondUpdated = StoreCredits.findOneById(scSecond.id).run().futureValue
-        secondUpdated.value.status must ===(StoreCredit.OnHold)
+        secondUpdated.value.state must ===(StoreCredit.OnHold)
       }
 
       "returns multiple errors if no cancellation reason provided" in new Fixture {
-        val payload = payloads.StoreCreditBulkUpdateStatusByCsr(
+        val payload = payloads.StoreCreditBulkUpdateStateByCsr(
           ids = Seq(storeCredit.id, scSecond.id),
-          status = StoreCredit.Canceled
+          state = StoreCredit.Canceled
         )
 
         val response = PATCH(s"v1/store-credits", payload)
@@ -316,11 +316,11 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
 
         val root = response.as[GiftCardResponse.Root]
         root.originType       must ===(models.GiftCard.FromStoreCredit)
-        root.status           must ===(models.GiftCard.Active)
+        root.state            must ===(models.GiftCard.Active)
         root.originalBalance  must ===(scSecond.originalBalance)
 
         val redeemedSc = StoreCredits.filter(_.id === scSecond.id).one.run().futureValue.value
-        redeemedSc.status           must ===(StoreCredit.FullyRedeemed)
+        redeemedSc.state            must ===(StoreCredit.FullyRedeemed)
         redeemedSc.availableBalance must ===(0)
         redeemedSc.currentBalance   must ===(0)
       }
@@ -344,7 +344,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       }
 
       "fails to convert inactive SC to GC" in new Fixture {
-        StoreCredits.findActiveById(scSecond.id).map(_.status).update(StoreCredit.OnHold).run().futureValue
+        StoreCredits.findActiveById(scSecond.id).map(_.state).update(StoreCredit.OnHold).run().futureValue
         val updatedSc = StoreCredits.findActiveById(scSecond.id).one.run().futureValue.value
 
         val response = POST(s"v1/customers/${customer.id}/payment-methods/store-credit/${scSecond.id}/convert")

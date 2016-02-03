@@ -30,10 +30,10 @@ object GiftCardRoutes {
             GiftCardService.getOriginTypes
           }
         } ~
-        (patch & pathEnd & entity(as[payloads.GiftCardBulkUpdateStatusByCsr])) { payload ⇒
+        (patch & pathEnd & entity(as[payloads.GiftCardBulkUpdateStateByCsr])) { payload ⇒
           activityContext(admin) { implicit ac ⇒
             goodOrFailures {
-              GiftCardService.bulkUpdateStatusByCsr(payload, admin)
+              GiftCardService.bulkUpdateStateByCsr(payload, admin)
             }
           }
         } ~
@@ -63,10 +63,10 @@ object GiftCardRoutes {
             }
           }
         } ~
-        (patch & path(Segment) & pathEnd & entity(as[payloads.GiftCardUpdateStatusByCsr])) { (code, payload) ⇒
+        (patch & path(Segment) & pathEnd & entity(as[payloads.GiftCardUpdateStateByCsr])) { (code, payload) ⇒
           activityContext(admin) { implicit ac ⇒
             goodOrFailures {
-              GiftCardService.updateStatusByCsr(code, payload, admin)
+              GiftCardService.updateStateByCsr(code, payload, admin)
             }
           }
         } ~

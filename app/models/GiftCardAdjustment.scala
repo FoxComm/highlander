@@ -6,7 +6,7 @@ import scala.concurrent.ExecutionContext
 
 import cats.data.Xor
 import com.pellucid.sealerate
-import models.GiftCardAdjustment.{Auth, Status}
+import models.GiftCardAdjustment.{Auth, State}
 import models.Notes._
 import monocle.macros.GenLens
 import slick.ast.BaseTypedType
@@ -19,34 +19,35 @@ import utils.{CustomDirectives, ADT, FSM, GenericTable, ModelWithIdParameter, Ta
 import utils.Slick.implicits._
 
 final case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId: Option[Int],
-  storeAdminId: Option[Int] = None, credit: Int, debit: Int, availableBalance: Int, status: Status = Auth, createdAt: Instant = Instant.now())
+  storeAdminId: Option[Int] = None, credit: Int, debit: Int, availableBalance: Int, state: State = Auth, 
+  createdAt: Instant = Instant.now())
   extends ModelWithIdParameter[GiftCardAdjustment]
-  with FSM[GiftCardAdjustment.Status, GiftCardAdjustment] {
+  with FSM[GiftCardAdjustment.State, GiftCardAdjustment] {
 
   import GiftCardAdjustment._
 
-  def stateLens = GenLens[GiftCardAdjustment](_.status)
+  def stateLens = GenLens[GiftCardAdjustment](_.state)
   override def updateTo(newModel: GiftCardAdjustment): Failures Xor GiftCardAdjustment = super.transitionModel(newModel)
 
   def getAmount: Int = if (credit > 0) credit else -debit
 
-  val fsm: Map[Status, Set[Status]] = Map(
+  val fsm: Map[State, Set[State]] = Map(
     Auth → Set(Canceled, Capture)
   )
 }
 
 object GiftCardAdjustment {
-  sealed trait Status
-  case object Auth extends Status
-  case object Canceled extends Status
-  case object Capture extends Status
-  case object CancellationCapture extends Status
+  sealed trait State
+  case object Auth extends State
+  case object Canceled extends State
+  case object Capture extends State
+  case object CancellationCapture extends State
 
-  object Status extends ADT[Status] {
-    def types = sealerate.values[Status]
+  object State extends ADT[State] {
+    def types = sealerate.values[State]
   }
 
-  implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
+  implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
 
   def build(gc: GiftCard, orderPayment: OrderPayment): GiftCardAdjustment =
     GiftCardAdjustment(giftCardId = gc.id, orderPaymentId = Some(orderPayment.id), credit = 0, debit = 0,
@@ -64,11 +65,11 @@ class GiftCardAdjustments(tag: Tag)
   def credit = column[Int]("credit")
   def debit = column[Int]("debit")
   def availableBalance = column[Int]("available_balance")
-  def status = column[GiftCardAdjustment.Status]("status")
+  def state = column[GiftCardAdjustment.State]("state")
   def createdAt = column[Instant]("created_at")
 
   def * = (id, giftCardId, orderPaymentId, storeAdminId, credit, debit, availableBalance,
-    status, createdAt) <> ((GiftCardAdjustment.apply _).tupled, GiftCardAdjustment.unapply)
+    state, createdAt) <> ((GiftCardAdjustment.apply _).tupled, GiftCardAdjustment.unapply)
 
   def payment = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id.?)
 }
@@ -88,7 +89,7 @@ object GiftCardAdjustments extends TableQueryWithId[GiftCardAdjustment, GiftCard
       case "credit"           ⇒ if (s.asc) adj.credit.asc           else adj.credit.desc
       case "debit"            ⇒ if (s.asc) adj.debit.asc            else adj.debit.desc
       case "availableBalance" ⇒ if (s.asc) adj.availableBalance.asc else adj.availableBalance.desc
-      case "status"           ⇒ if (s.asc) adj.status.asc           else adj.status.desc
+      case "state"            ⇒ if (s.asc) adj.state.asc            else adj.state.desc
       case "createdAt"        ⇒ if (s.asc) adj.createdAt.asc        else adj.createdAt.desc
       case other              ⇒ invalidSortColumn(other)
     }
@@ -101,7 +102,7 @@ object GiftCardAdjustments extends TableQueryWithId[GiftCardAdjustment, GiftCard
   def filterByGiftCardId(id: Int): QuerySeq = filter(_.giftCardId === id)
 
   def lastAuthByGiftCardId(id: Int): QuerySeq =
-    filterByGiftCardId(id).filter(_.status === (Auth: Status)).sortBy(_.createdAt).take(1)
+    filterByGiftCardId(id).filter(_.state === (Auth: State)).sortBy(_.createdAt).take(1)
 
-  def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.status).update(Canceled)
+  def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.state).update(Canceled)
 }
