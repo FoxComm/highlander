@@ -5,3 +5,6 @@
 
 - name: Setting Up SSH Access
   authorized_key: user=buildkite-agent key="{{lookup('file', 'buildkite.pub')}}"
+
+- name: Setup Sudoers
+  lineinfile: 'dest=/etc/sudoers backup=yes state=present insertafter="^#includedir" regexp="^buildkite" line="buildkite-agent ALL=NOPASSWD: ALL"'
