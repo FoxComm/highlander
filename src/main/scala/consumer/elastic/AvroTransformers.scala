@@ -128,6 +128,8 @@ object AvroTransformers {
         "isDisabled"              typed BooleanType,
         "isGuest"                 typed BooleanType,
         "isBlacklisted"           typed BooleanType,
+        "phoneNumber"             typed StringType index "not_analyzed",
+        "location"                typed StringType analyzer "autocomplete",
         "joinedAt"                typed DateType format dateFormat,
         "revenue"                 typed IntegerType,
         "rank"                    typed IntegerType,
