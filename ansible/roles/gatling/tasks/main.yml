@@ -25,10 +25,21 @@
   user: name={{user}} groups=www-data
   sudo: true
 
+- name: Give it magical access.
+  file: path={{gatling_install_dir}}/target state=directory mode="u=rwx,g=rwx,o=rwx"
+  sudo: true
 
 - name: Setup symlink to gatling results
-  file: src={{gatling_install_dir}}/target dest=/var/www/gatling state=link 
+  file: src={{gatling_install_dir}}/target/gatling dest=/var/www/gatling state=link 
   sudo: true
+
+- name: Install default hosts
+  template: src=default.j2 dest=/etc/nginx/sites-available/default
+  sudo: true
+
+- name: Restart Nginx
+  service: name=nginx state=reloaded
+  sudo: yes
 
 
 

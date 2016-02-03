@@ -1,0 +1,15 @@
+---
+
+- name: Run the Gatling Gun
+  hosts: gatling-gun
+  tags: 
+    - run-gatling
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  tasks:
+      - name: Run Gatling Tests
+        shell: ./run_tests.sh
+        args:
+            chdir: "{{gatling_install_dir}}"
+
