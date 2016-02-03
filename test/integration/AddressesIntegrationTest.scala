@@ -35,7 +35,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
     val items = (1 to numOfResults).map { i ⇒
       for {
         address ← * <~ Addresses.create(SeedsGenerator.generateAddress.copy(customerId = currentCustomer.id))
-        region  ← * <~ Regions.mustFindById(address.regionId)
+        region  ← * <~ Regions.mustFindById404(address.regionId)
       } yield responses.Addresses.build(address, region, Some(address.isDefaultShipping))
     }
 

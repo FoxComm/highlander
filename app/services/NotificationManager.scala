@@ -40,7 +40,7 @@ object NotificationManager {
   def createNotification(payload: CreateNotification)(implicit ac: ActivityContext, ec: ExecutionContext, db: Database):
   Result[Seq[ActivityConnectionResponse.Root]] = (for {
     sourceDimensionId ← * <~ dimensionIdByName(payload.sourceDimension)
-    activity ← * <~ Activities.mustFindById(payload.activityId, i ⇒ NotFoundFailure400(Activity, i))
+    activity ← * <~ Activities.mustFindById400(payload.activityId)
     adminIds ← * <~ Subs.findByDimensionAndObject(sourceDimensionId, payload.sourceObjectId).map(_.adminId).result.toXor
     response ← * <~ DbResultT.sequence(adminIds.map { adminId ⇒
       val appendActivity = AppendActivity(payload.activityId, payload.data)
@@ -54,8 +54,8 @@ object NotificationManager {
 
   def updateLastSeen(adminId: Int, activityId: Int)(implicit ec: ExecutionContext, db: Database):
   Result[LastSeenActivityResponse] = (for {
-    _ ← * <~ StoreAdmins.mustFindById(adminId)
-    _ ← * <~ Activities.mustFindById(activityId)
+    _ ← * <~ StoreAdmins.mustFindById404(adminId)
+    _ ← * <~ Activities.mustFindById404(activityId)
     trail ← * <~ Trails.findNotificationByAdminId(adminId).one.mustFindOr(NotificationTrailNotFound400(adminId))
     _ ← * <~ Trails.update(trail, trail.copy(data = Some(decompose(NotificationTrailMetadata(activityId)))))
   } yield LastSeenActivityResponse(trailId = trail.id, lastSeenActivityId = activityId)).runTxn()

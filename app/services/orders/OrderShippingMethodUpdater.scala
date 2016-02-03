@@ -23,7 +23,7 @@ object OrderShippingMethodUpdater {
     order           ← * <~ Orders.mustFindByRefNum(refNum)
     _               ← * <~ order.mustBeCart
     oldShipMethod   ← * <~ ShippingMethods.forOrder(order).one.toXor
-    shippingMethod  ← * <~ ShippingMethods.mustFindById(payload.shippingMethodId, i ⇒ NotFoundFailure400(ShippingMethod, i))
+    shippingMethod  ← * <~ ShippingMethods.mustFindById400(payload.shippingMethodId)
     _               ← * <~ shippingMethod.mustBeActive
     _               ← * <~ ShippingManager.evaluateShippingMethodForOrder(shippingMethod, order)
     _               ← * <~ Shipments.filter(_.orderId === order.id).map(_.orderShippingMethodId).update(None)

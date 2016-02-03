@@ -31,7 +31,7 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)
 
   def checkout: Result[Order] = (for {
       _         ← * <~ cart.mustBeCart
-      customer  ← * <~ Customers.mustFindById(cart.customerId)
+      customer  ← * <~ Customers.mustFindById404(cart.customerId)
       _         ← * <~ checkInventory
       _         ← * <~ activePromos
       _         ← * <~ authPayments(customer)

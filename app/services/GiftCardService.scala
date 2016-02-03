@@ -6,7 +6,8 @@ import cats.implicits._
 import models.GiftCard.Canceled
 import models.GiftCardSubtypes.scope._
 import models.activity.ActivityContext
-import models.{Customers, GiftCard, GiftCardAdjustments, GiftCardManual, GiftCardManuals, GiftCardSubtype, GiftCardSubtypes, GiftCards, Reason, Reasons, StoreAdmin, StoreAdmins}
+import models.{Customers, GiftCard, GiftCardAdjustments, GiftCardManual, GiftCardManuals, GiftCardSubtype,
+GiftCardSubtypes, GiftCards, Reasons, StoreAdmin, StoreAdmins}
 import payloads.{GiftCardCreateByCsr, GiftCardUpdateStatusByCsr}
 import responses.GiftCardBulkResponse._
 import responses.GiftCardResponse._
@@ -61,7 +62,7 @@ object GiftCardService {
   def createByAdmin(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
     _        ← * <~ payload.validate
-    _        ← * <~ Reasons.mustFindById(payload.reasonId, NotFoundFailure400(Reason, _))
+    _        ← * <~ Reasons.mustFindById400(payload.reasonId)
     // If `subTypeId` is absent, don't query. Check for model existence otherwise.
     subtype  ← * <~ payload.subTypeId.fold(DbResult.none[GiftCardSubtype]) { subId ⇒
                       GiftCardSubtypes.csrAppeasements.filter(_.id === subId).one
@@ -95,7 +96,7 @@ object GiftCardService {
   def updateStatusByCsr(code: String, payload: payloads.GiftCardUpdateStatusByCsr, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
     _        ← * <~ payload.validate
-    _        ← * <~ payload.reasonId.map(id ⇒ Reasons.mustFindById(id, _ ⇒ InvalidCancellationReasonFailure)).getOrElse(DbResult.unit)
+    _        ← * <~ payload.reasonId.map(id ⇒ Reasons.mustFindById400(id)).getOrElse(DbResult.unit)
     giftCard ← * <~ GiftCards.mustFindByCode(code)
     updated  ← * <~ cancelOrUpdate(giftCard, payload.status, payload.reasonId, admin)
     _        ← * <~ LogActivity.gcUpdated(admin, giftCard, payload)

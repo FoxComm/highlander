@@ -66,7 +66,7 @@ object SharedSearchService {
     (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[SharedSearch] = (for {
 
     search     ← * <~ mustFindActiveByCode(code)
-    associate  ← * <~ StoreAdmins.mustFindById(assigneeId)
+    associate  ← * <~ StoreAdmins.mustFindById404(assigneeId)
     assignment ← * <~ SharedSearchAssociations.byStoreAdmin(associate).one.mustFindOr(SharedSearchAssociationNotFound(code, assigneeId))
     _          ← * <~ SharedSearchAssociations.byStoreAdmin(associate).delete
     _          ← * <~ LogActivity.unassociatedFromSearch(admin, search, associate)

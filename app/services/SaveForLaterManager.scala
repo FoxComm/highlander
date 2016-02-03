@@ -16,14 +16,14 @@ object SaveForLaterManager {
   type SavedForLater = TheResponse[Seq[SaveForLaterResponse.Root]]
 
   def findAll(customerId: Int)(implicit db: Database, ec: ExecutionContext): Result[SavedForLater] = (for {
-    customer ← * <~ Customers.mustFindById(customerId)
+    customer ← * <~ Customers.mustFindById404(customerId)
     response ← * <~ findAllDbio(customer).toXor
   } yield response).run()
 
   def saveForLater(customerId: Int, skuId: Int)
     (implicit db: Database, ec: ExecutionContext): Result[SavedForLater] = (for {
-    customer ← * <~ Customers.mustFindById(customerId)
-    sku ← * <~ Skus.mustFindById(skuId)
+    customer ← * <~ Customers.mustFindById404(customerId)
+    sku ← * <~ Skus.mustFindById404(skuId)
     _   ← * <~ SaveForLaters.find(customerId = customer.id, skuId = sku.id).one
                  .mustNotFindOr(AlreadySavedForLater(customerId = customer.id, skuId = sku.id))
     _   ← * <~ SaveForLaters.create(SaveForLater(customerId = customer.id, skuId = sku.id))

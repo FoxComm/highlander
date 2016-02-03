@@ -16,7 +16,7 @@ object StoreCreditAdjustmentsService {
 
   def forStoreCredit(id: Int)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = (for {
-    storeCredit ← * <~ StoreCredits.mustFindById(id)
+    storeCredit ← * <~ StoreCredits.mustFindById404(id)
     query = StoreCreditAdjustments.filterByStoreCreditId(storeCredit.id)
       .joinLeft(OrderPayments).on(_.orderPaymentId === _.id)
       .joinLeft(Orders).on(_._2.map(_.orderId) === _.id)
@@ -33,7 +33,7 @@ object StoreCreditAdjustmentsService {
 
   def forCustomer(customerId: Int)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = (for {
-    _ ← * <~ Customers.mustFindById(customerId)
+    _ ← * <~ Customers.mustFindById404(customerId)
 
     query = StoreCreditAdjustments
       .joinLeft(OrderPayments).on(_.orderPaymentId === _.id)

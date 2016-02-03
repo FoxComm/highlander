@@ -20,11 +20,9 @@ import models.activity.ActivityContext
 
 object CustomerManager {
 
-  private def customerNotFound(id: Int): NotFoundFailure404 = NotFoundFailure404(Customer, id)
-
   def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
-      customer  ← * <~ Customers.mustFindById(customerId, customerNotFound)
+      customer  ← * <~ Customers.mustFindById404(customerId)
       updated   ← * <~ Customers.update(customer, customer.copy(isDisabled = disabled, disabledBy = Some(admin.id)))
       _         ← * <~ LogActivity.customerDisabled(disabled, customer, admin)
     } yield build(updated)).runTxn()
@@ -32,7 +30,7 @@ object CustomerManager {
   // TODO: add blacklistedReason later
   def toggleBlacklisted(customerId: Int, blacklisted: Boolean, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
-      customer  ← * <~ Customers.mustFindById(customerId, customerNotFound)
+      customer  ← * <~ Customers.mustFindById404(customerId)
       updated   ← * <~ Customers.update(customer, customer.copy(isBlacklisted = blacklisted,
         blacklistedBy = Some(admin.id)))
       _         ← * <~ LogActivity.customerBlacklisted(blacklisted, customer, admin)
@@ -120,7 +118,7 @@ object CustomerManager {
   def update(customerId: Int, payload: UpdateCustomerPayload, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
     _        ← * <~ payload.validate.toXor
-    customer ← * <~ Customers.mustFindById(customerId, customerNotFound)
+    customer ← * <~ Customers.mustFindById404(customerId)
     _        ← * <~ payload.email.map(Customers.updateEmailMustBeUnique(_, customerId)).getOrElse(DbResult.unit)
     updated  ← * <~ Customers.update(customer, customer.copy(
                       name = payload.name.fold(customer.name)(Some(_)),
@@ -132,7 +130,7 @@ object CustomerManager {
   def activate(customerId: Int, payload: ActivateCustomerPayload, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
     _        ← * <~ payload.validate
-    customer ← * <~ Customers.mustFindById(customerId)
+    customer ← * <~ Customers.mustFindById404(customerId)
     _        ← * <~ Customers.updateEmailMustBeUnique(customer.email, customer.id)
     updated  ← * <~ Customers.update(customer, customer.copy(name = payload.name.some, isGuest = false))
     response = build(updated)

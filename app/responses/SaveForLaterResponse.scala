@@ -24,7 +24,7 @@ object SaveForLaterResponse {
   )
 
   def forSkuId(skuId: Int)(implicit ec: ExecutionContext, db: Database): DbResultT[Root] = for {
-    sku ← * <~ Skus.mustFindById(skuId)
+    sku ← * <~ Skus.mustFindById404(skuId)
     sfl ← * <~ SaveForLaters.filter(_.skuId === skuId).one
                  .mustFindOr(NotFoundFailure404(s"Save for later entry for sku with id=$skuId not found"))
   } yield build(sfl, sku)

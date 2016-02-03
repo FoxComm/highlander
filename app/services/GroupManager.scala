@@ -13,7 +13,6 @@ import utils.Slick.implicits._
 import scala.concurrent.ExecutionContext
 
 object GroupManager {
-  private def groupNotFound(id: Int): NotFoundFailure404 = NotFoundFailure404(CustomerDynamicGroup, id)
 
   def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = {
     CustomerDynamicGroups.sortedAndPaged(CustomerDynamicGroups.query).result.map(groups ⇒
@@ -22,7 +21,7 @@ object GroupManager {
   }
 
   def getById(groupId: Int)(implicit  db: Database, ec: ExecutionContext): Result[Root] = (for {
-    group ← * <~ CustomerDynamicGroups.mustFindById(groupId, groupNotFound)
+    group ← * <~ CustomerDynamicGroups.mustFindById404(groupId)
   } yield build(group)).run()
 
   def create(payload: CustomerDynamicGroupPayload, admin: StoreAdmin)
@@ -32,7 +31,7 @@ object GroupManager {
 
   def update(groupId: Int, payload: CustomerDynamicGroupPayload)
     (implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
-    group ← * <~ CustomerDynamicGroups.mustFindById(groupId, groupNotFound)
+    group ← * <~ CustomerDynamicGroups.mustFindById404(groupId)
     groupEdited ← * <~ CustomerDynamicGroups.update(group,
       CustomerDynamicGroup.fromPayloadAndAdmin(payload, group.createdBy).copy(id = groupId))
   } yield build(groupEdited)).runTxn()

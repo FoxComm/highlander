@@ -24,7 +24,7 @@ object OrderCreator {
     }
 
     def createCartForCustomer(customerId: Int): Result[Root] = (for {
-        customer  ← * <~ Customers.mustFindById(customerId, i ⇒ NotFoundFailure400(Customer, i))
+        customer  ← * <~ Customers.mustFindById400(customerId)
         fullOrder ← * <~ OrderQueries.findOrCreateCartByCustomerInner(customer, Some(admin))
       } yield fullOrder).runTxn()
 

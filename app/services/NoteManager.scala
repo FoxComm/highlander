@@ -33,7 +33,7 @@ object NoteManager {
 
   def createCustomerNote(customerId: Int, author: StoreAdmin, payload: payloads.CreateNote)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
-    customer ← * <~ Customers.mustFindById(customerId)
+    customer ← * <~ Customers.mustFindById404(customerId)
     response ← * <~ createModelNote(customer.id, Note.Customer, author, payload)
   } yield response).runTxn()
 
@@ -77,7 +77,7 @@ object NoteManager {
 
   def updateCustomerNote(customerId: Int, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
-    _        ← * <~ Customers.mustFindById(customerId)
+    _        ← * <~ Customers.mustFindById404(customerId)
     response ← * <~ updateNote(noteId, author, payload)
   } yield response).runTxn()
 
@@ -94,7 +94,7 @@ object NoteManager {
   } yield AdminNotes.build(newNote, author)
 
   def deleteNote(noteId: Int, admin: StoreAdmin)(implicit ec: ExecutionContext, db: Database): Result[Unit] = (for {
-    note ← * <~ Notes.mustFindById(noteId)
+    note ← * <~ Notes.mustFindById404(noteId)
     _    ← * <~ Notes.update(note, note.copy(deletedAt = Some(Instant.now), deletedBy = Some(admin.id)))
   } yield {}).runTxn()
 
@@ -109,7 +109,7 @@ object NoteManager {
   } yield response).run()
 
   def forCustomer(customerId: Int)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = (for {
-    customer ← * <~ Customers.mustFindById(customerId)
+    customer ← * <~ Customers.mustFindById404(customerId)
     response ← * <~ forModel(Notes.filterByCustomerId(customer.id).notDeleted)
   } yield response).run()
 

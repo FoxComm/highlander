@@ -78,7 +78,7 @@ object RmaService {
 
   def findByCustomerId(customerId: Int)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[BulkRmaUpdateResponse] = (for {
-    _    ← * <~ Customers.mustFindById(customerId)
+    _    ← * <~ Customers.mustFindById404(customerId)
     rmas ← * <~ RmaQueries.findAllDbio(Rmas.findByCustomerId(customerId))
   } yield rmas).run()
 }

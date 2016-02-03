@@ -61,7 +61,7 @@ object OrderPaymentUpdater {
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
     order   ← * <~ Orders.mustFindByRefNum(refNum)
     _       ← * <~ order.mustBeCart
-    cc      ← * <~ CreditCards.mustFindById(id, i ⇒ NotFoundFailure400(CreditCard, i))
+    cc      ← * <~ CreditCards.mustFindById400(id)
     _       ← * <~ cc.mustBeInWallet
     region  ← * <~ Regions.findOneById(cc.regionId).safeGet.toXor
     _       ← * <~ OrderPayments.filter(_.orderId === order.id).creditCards.delete

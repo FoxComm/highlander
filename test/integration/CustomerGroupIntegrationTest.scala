@@ -25,7 +25,7 @@ import org.json4s.JObject
 
 import concurrent.ExecutionContext.Implicits.global
 
-class CustomersGroupIntegrationTest extends IntegrationTestBase
+class CustomerGroupIntegrationTest extends IntegrationTestBase
   with HttpSupport
   with AutomaticAuth
   with SortingAndPaging[DynamicGroupResponse.Root]
@@ -39,7 +39,7 @@ class CustomersGroupIntegrationTest extends IntegrationTestBase
     val insertGroups = (1 to numOfResults).map { _ ⇒ generateGroup(admin.id) }
     val dbio = for {
       groups ← CustomerDynamicGroups.createAll(insertGroups) >> CustomerDynamicGroups.result
-    } yield groups.map(DynamicGroupResponse.build(_))
+    } yield groups.map(DynamicGroupResponse.build)
 
     dbio.transactionally.run().futureValue.toIndexedSeq
   }
