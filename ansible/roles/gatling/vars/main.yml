@@ -1,0 +1,2 @@
+gatling_source_dir: "{{role_path}}/../../../../integration-tests"
+gatling_install_dir: "{{home}}/integration-tests"

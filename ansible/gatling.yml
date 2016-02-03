@@ -30,3 +30,15 @@
     - ashes
     - { role: balancer, sudo: yes }
 
+- name: Provision Gatling Gun
+  hosts: gatling-gun
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+    - common
+    - { role: buildkite_accessible, sudo: yes}
+    - { role: rsyslog, sudo: yes }
+    - scala
+    - gatling
+
