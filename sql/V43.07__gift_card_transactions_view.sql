@@ -5,7 +5,7 @@ select distinct on (gca.id)
     gca.debit,
     gca.credit,
     gca.available_balance,
-    gca.status,
+    gca.state,
     to_char(gca.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
     -- Gift Card
     gc.code,

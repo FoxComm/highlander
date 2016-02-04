@@ -1,7 +1,7 @@
 # Data Structures
 
-### LineItemStatus
-+ status: Cart (required, enum[string]) - Line item status.
+### LineItemState
++ state: Cart (required, enum[string]) - Line item state.
     + Members
         + `Cart`
         + `Pending`
@@ -124,7 +124,7 @@
 + sku: `SKU-YAX` (required, string) - SKU.
 + price: 33 (required, number) - SKU price.
 + quantity: 1 (required, number) - Quantity.
-+ Include LineItemStatus
++ Include LineItemState
 + totalPrice: 33 (required, number) - Price per item multiplied by quantity
 
 ### Adjustment
@@ -155,7 +155,7 @@
 ### StoreCreditPaymentPayload
 + amount: 10 (required, number) - Amount to pay.
 
-### OrderBulkStatusUpdatePayload
+### OrderBulkStateUpdatePayload
 + referenceNumbers: `ABC-123` (required, array[string]) - Order reference numbers.
 - Include OrderState
 + reasonId: 1 (optional, number) - Cancellation reason.

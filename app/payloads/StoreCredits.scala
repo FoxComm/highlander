@@ -9,22 +9,22 @@ import utils.Money._
 import utils.Validation
 import Validation._
 
-final case class StoreCreditUpdateStatusByCsr(status: StoreCredit.Status, reasonId: Option[Int] = None)
-  extends Validation[StoreCreditUpdateStatusByCsr] {
+final case class StoreCreditUpdateStateByCsr(state: StoreCredit.State, reasonId: Option[Int] = None)
+  extends Validation[StoreCreditUpdateStateByCsr] {
 
-  def validate: ValidatedNel[Failure, StoreCreditUpdateStatusByCsr] = {
-    StoreCredit.validateStatusReason(status, reasonId).map { case _ ⇒ this }
+  def validate: ValidatedNel[Failure, StoreCreditUpdateStateByCsr] = {
+    StoreCredit.validateStateReason(state, reasonId).map { case _ ⇒ this }
   }
 }
 
-final case class StoreCreditBulkUpdateStatusByCsr(ids: Seq[Int], status: StoreCredit.Status,
+final case class StoreCreditBulkUpdateStateByCsr(ids: Seq[Int], state: StoreCredit.State,
   reasonId: Option[Int] = None)
-  extends Validation[StoreCreditBulkUpdateStatusByCsr] {
+  extends Validation[StoreCreditBulkUpdateStateByCsr] {
 
   val bulkUpdateLimit = 20
 
-  def validate: ValidatedNel[Failure, StoreCreditBulkUpdateStatusByCsr] = {
-    (StoreCredit.validateStatusReason(status, reasonId)
+  def validate: ValidatedNel[Failure, StoreCreditBulkUpdateStateByCsr] = {
+    (StoreCredit.validateStateReason(state, reasonId)
       |@| validExpr(ids.nonEmpty, "Please provide at least one code to update")
       |@| lesserThanOrEqual(ids.length, bulkUpdateLimit, "Quantity")
       ).map { case _ ⇒ this }

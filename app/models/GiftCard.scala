@@ -6,7 +6,7 @@ import cats.data.Validated._
 import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
 import com.pellucid.sealerate
-import models.GiftCard.{CustomerPurchase, OriginType, Status}
+import models.GiftCard.{CustomerPurchase, OriginType, State}
 import monocle.Lens
 import monocle.macros.GenLens
 import payloads.AddGiftCardLineItem
@@ -27,19 +27,19 @@ import utils.table.SearchByCode
 import scala.concurrent.ExecutionContext
 
 final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase,
-  code: String = "", subTypeId: Option[Int] = None, currency: Currency = Currency.USD, status: Status = GiftCard.Active,
+  code: String = "", subTypeId: Option[Int] = None, currency: Currency = Currency.USD, state: State = GiftCard.Active,
   originalBalance: Int, currentBalance: Int = 0, availableBalance: Int = 0, canceledAmount: Option[Int] = None,
   canceledReason: Option[Int] = None, reloadable: Boolean = false, createdAt: Instant = Instant.now())
   extends PaymentMethod
   with ModelWithIdParameter[GiftCard]
-  with FSM[GiftCard.Status, GiftCard]
+  with FSM[GiftCard.State, GiftCard]
   with Validation[GiftCard] {
 
   import GiftCard._
   import Validation._
 
   override def validate: ValidatedNel[Failure, GiftCard] = {
-    val canceledWithReason: ValidatedNel[Failure, Unit] = (status, canceledAmount, canceledReason) match {
+    val canceledWithReason: ValidatedNel[Failure, Unit] = (state, canceledAmount, canceledReason) match {
       case (Canceled, None, _) ⇒ invalidNel(GeneralFailure("canceledAmount must be present when canceled"))
       case (Canceled, _, None) ⇒ invalidNel(GeneralFailure("canceledReason must be present when canceled"))
       case _                   ⇒ valid({})
@@ -49,21 +49,21 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = C
       // |@| notEmpty(code, "code") // FIXME: this check does not allow to create models
       |@| validExpr(originalBalance >= 0, "originalBalance should be greater or equal than zero")
       |@| validExpr(currentBalance >= 0, "currentBalance should be greater or equal than zero")
-      ).map { case _ ⇒ this }
+    ).map { case _ ⇒ this }
   }
 
-  def stateLens = GenLens[GiftCard](_.status)
+  def stateLens = GenLens[GiftCard](_.state)
   override def primarySearchKeyLens: Lens[GiftCard, String] = GenLens[GiftCard](_.code)
   override def updateTo(newModel: GiftCard): Failures Xor GiftCard = super.transitionModel(newModel)
 
-  val fsm: Map[Status, Set[Status]] = Map(
+  val fsm: Map[State, Set[State]] = Map(
     OnHold → Set(Active, Canceled),
     Active → Set(OnHold, Canceled),
     Cart   → Set(Canceled)
   )
 
-  def isActive: Boolean = status == Active
-  def isCart: Boolean   = status == Cart
+  def isActive: Boolean = state == Active
+  def isCart: Boolean   = state == Cart
 
   def hasAvailable(amount: Int): Boolean = availableBalance >= amount
 
@@ -78,12 +78,12 @@ final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = C
 }
 
 object GiftCard {
-  sealed trait Status
-  case object OnHold extends Status
-  case object Active extends Status
-  case object Canceled extends Status
-  case object Cart extends Status
-  case object FullyRedeemed extends Status
+  sealed trait State
+  case object OnHold extends State
+  case object Active extends State
+  case object Canceled extends State
+  case object Cart extends State
+  case object FullyRedeemed extends State
 
   sealed trait OriginType
   case object CsrAppeasement extends OriginType
@@ -91,8 +91,8 @@ object GiftCard {
   case object FromStoreCredit extends OriginType
   case object RmaProcess extends OriginType
 
-  object Status extends ADT[Status] {
-    def types = sealerate.values[Status]
+  object State extends ADT[State] {
+    def types = sealerate.values[State]
   }
 
   object OriginType extends ADT[OriginType] {
@@ -111,7 +111,7 @@ object GiftCard {
       originId = originId,
       originType = GiftCard.CsrAppeasement,
       subTypeId = payload.subTypeId,
-      status = GiftCard.Active,
+      state = GiftCard.Active,
       currency = payload.currency,
       originalBalance = payload.balance,
       availableBalance = payload.balance,
@@ -123,7 +123,7 @@ object GiftCard {
     GiftCard(
       originId = originId,
       originType = GiftCard.FromStoreCredit,
-      status = GiftCard.Active,
+      state = GiftCard.Active,
       currency = currency,
       originalBalance = balance,
       availableBalance = balance,
@@ -135,7 +135,7 @@ object GiftCard {
     GiftCard(
       originId = originId,
       originType = GiftCard.CustomerPurchase,
-      status = GiftCard.Cart,
+      state = GiftCard.Cart,
       currency = currency,
       originalBalance = balance,
       availableBalance = balance,
@@ -147,7 +147,7 @@ object GiftCard {
     GiftCard(
       originId = originId,
       originType = GiftCard.RmaProcess,
-      status = GiftCard.Cart,
+      state = GiftCard.Cart,
       currency = currency,
       originalBalance = 0,
       availableBalance = 0,
@@ -155,15 +155,15 @@ object GiftCard {
     )
   }
 
-  def validateStatusReason(status: Status, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
-    if (status == Canceled) {
+  def validateStateReason(state: State, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
+    if (state == Canceled) {
       validExpr(reason.isDefined, EmptyCancellationReasonFailure.description)
     } else {
       valid({})
     }
   }
 
-  implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
+  implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
   implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] = OriginType.slickColumn
 }
 
@@ -173,7 +173,7 @@ class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_
   def originType = column[GiftCard.OriginType]("origin_type")
   def subTypeId = column[Option[Int]]("subtype_id")
   def code = column[String]("code")
-  def status = column[GiftCard.Status]("status")
+  def state = column[GiftCard.State]("state")
   def currency = column[Currency]("currency")
   def originalBalance = column[Int]("original_balance")
   def currentBalance = column[Int]("current_balance")
@@ -183,7 +183,7 @@ class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_
   def reloadable = column[Boolean]("reloadable")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, originId, originType, code, subTypeId, currency, status, originalBalance, currentBalance,
+  def * = (id, originId, originType, code, subTypeId, currency, state, originalBalance, currentBalance,
     availableBalance, canceledAmount, canceledReason, reloadable, createdAt) <> ((GiftCard.apply _).tupled, GiftCard
     .unapply)
 }
@@ -205,7 +205,7 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
         case "originType"       ⇒ if (s.asc) giftCard.originType.asc       else giftCard.originType.desc
         case "subTypeId"        ⇒ if (s.asc) giftCard.subTypeId.asc        else giftCard.subTypeId.desc
         case "code"             ⇒ if (s.asc) giftCard.code.asc             else giftCard.code.desc
-        case "status"           ⇒ if (s.asc) giftCard.status.asc           else giftCard.status.desc
+        case "state"            ⇒ if (s.asc) giftCard.state.asc            else giftCard.state.desc
         case "currency"         ⇒ if (s.asc) giftCard.currency.asc         else giftCard.currency.desc
         case "originalBalance"  ⇒ if (s.asc) giftCard.originalBalance.asc  else giftCard.originalBalance.desc
         case "currentBalance"   ⇒ if (s.asc) giftCard.currentBalance.asc   else giftCard.currentBalance.desc
@@ -228,7 +228,7 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
 
   def auth(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)
     (implicit ec: ExecutionContext): DbResult[Adj] =
-    adjust(giftCard, orderPaymentId, debit = debit, credit = credit, status = Adj.Auth)
+    adjust(giftCard, orderPaymentId, debit = debit, credit = credit, state = Adj.Auth)
 
   def authOrderPayment(giftCard: GiftCard, pmt: OrderPayment)
     (implicit ec: ExecutionContext): DbResult[Adj] =
@@ -236,17 +236,17 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
 
   def capture(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)
     (implicit ec: ExecutionContext): DbResult[Adj] =
-    adjust(giftCard, orderPaymentId, debit = debit, credit = credit, status = Adj.Capture)
+    adjust(giftCard, orderPaymentId, debit = debit, credit = credit, state = Adj.Capture)
 
   def cancelByCsr(giftCard: GiftCard, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DbResult[Adj] = {
     val adjustment = Adj(giftCardId = giftCard.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
-      debit = giftCard.availableBalance, credit = 0, availableBalance = 0, status = Adj.CancellationCapture)
+      debit = giftCard.availableBalance, credit = 0, availableBalance = 0, state = Adj.CancellationCapture)
     Adjs.create(adjustment)
   }
 
   def redeemToStoreCredit(giftCard: GiftCard, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DbResult[Adj] = {
     val adjustment = Adj(giftCardId = giftCard.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
-      debit = giftCard.availableBalance, credit = 0, availableBalance = 0, status = Adj.Capture)
+      debit = giftCard.availableBalance, credit = 0, availableBalance = 0, state = Adj.Capture)
     Adjs.create(adjustment)
   }
 
@@ -257,7 +257,7 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
     findByCode(code).one
 
   def findActiveByCode(code: String): QuerySeq =
-    findByCode(code).filter(_.status === (GiftCard.Active: GiftCard.Status))
+    findByCode(code).filter(_.state === (GiftCard.Active: GiftCard.State))
 
   type ReturningIdCodeBalances = (Int, String, Int, Int)
 
@@ -273,11 +273,11 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
     (implicit ec: ExecutionContext): DbResult[GiftCard] = super.create(gc, returningIdCodeAndBalance, returningAction)
 
   private def adjust(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0,
-    status: Adj.Status = Adj.Auth)
+    state: Adj.State = Adj.Auth)
     (implicit ec: ExecutionContext): DbResult[Adj] = {
     val balance = giftCard.availableBalance - debit + credit
     val adjustment = Adj(giftCardId = giftCard.id, orderPaymentId = orderPaymentId,
-      debit = debit, credit = credit, availableBalance = balance, status = status)
+      debit = debit, credit = credit, availableBalance = balance, state = state)
     Adjs.create(adjustment)
   }
 

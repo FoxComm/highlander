@@ -6,7 +6,7 @@ select
     then
         '[]'
     else
-        json_agg((oli.status, s.sku, s.name, s.price)::export_line_items)
+        json_agg((oli.state, s.sku, s.name, s.price)::export_line_items)
     end as items
 from orders as o
 left join order_line_items as oli on (o.id = oli.order_id)

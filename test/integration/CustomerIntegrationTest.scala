@@ -179,9 +179,9 @@ class CustomerIntegrationTest extends IntegrationTestBase
         pending
         CustomersRanks.refresh.futureValue
 
-        // check that statuses used in sql still actual
-        sqlu"UPDATE orders SET status = 'shipped' WHERE id = ${order.id}".run().futureValue
-        sqlu"UPDATE rmas SET status = 'complete' WHERE id = ${orderPayment.id}".run().futureValue
+        // check that states used in sql still actual
+        sqlu"UPDATE orders SET state = 'shipped' WHERE id = ${order.id}".run().futureValue
+        sqlu"UPDATE rmas SET state = 'complete' WHERE id = ${orderPayment.id}".run().futureValue
 
         val response = GET(s"$uriPrefix/${customer.id}")
         response.status must ===(StatusCodes.OK)
@@ -618,7 +618,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       rma ← * <~ Rmas.create(Factories.rma.copy(
         referenceNumber = "ABC-123.1",
         orderId = order.id,
-        status = Rma.Complete,
+        state = Rma.Complete,
         orderRefNum = order.referenceNumber,
         customerId = customer.id))
       rmaPayment ← * <~ sqlu"""insert into rma_payments(rma_id, payment_method_id, payment_method_type, amount, currency)

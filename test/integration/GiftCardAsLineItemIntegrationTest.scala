@@ -35,7 +35,7 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
       newGiftCard.originalBalance must === (100)
       newGiftCard.currentBalance must === (100)
       newGiftCard.availableBalance must === (100)
-      newGiftCard.status must === (GiftCard.Cart)
+      newGiftCard.state must === (GiftCard.Cart)
     }
 
     "fails to create new GC as line item for invalid order" in new LineItemFixture {
@@ -74,7 +74,7 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
       newGiftCard.originalBalance must === (555)
       newGiftCard.currentBalance must === (555)
       newGiftCard.availableBalance must === (555)
-      newGiftCard.status must === (GiftCard.Cart)
+      newGiftCard.state must === (GiftCard.Cart)
     }
 
     "fails to update new GC as line item for invalid order" in new LineItemFixture {
@@ -93,7 +93,7 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
     }
 
     "fails to update GC as line item for GC not in Cart state" in new LineItemFixture {
-      GiftCards.findByCode(giftCard.code).map(_.status).update(GiftCard.Canceled).run().futureValue
+      GiftCards.findByCode(giftCard.code).map(_.state).update(GiftCard.Canceled).run().futureValue
       val response = PATCH(s"v1/orders/${order.refNum}/gift-cards/${giftCard.code}", payloads.AddGiftCardLineItem(balance = 100))
 
       response.status must ===(StatusCodes.BadRequest)
@@ -142,7 +142,7 @@ class GiftCardAsLineItemIntegrationTest extends IntegrationTestBase
     }
 
     "fails to delete GC as line item for GC not in Cart state" in new LineItemFixture {
-      GiftCards.findByCode(giftCard.code).map(_.status).update(GiftCard.Canceled).run().futureValue
+      GiftCards.findByCode(giftCard.code).map(_.state).update(GiftCard.Canceled).run().futureValue
       val response = DELETE(s"v1/orders/${order.refNum}/gift-cards/${giftCard.code}")
 
       response.status must ===(StatusCodes.BadRequest)

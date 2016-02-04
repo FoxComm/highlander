@@ -33,7 +33,7 @@ object RmaQueries {
         case "orderId"                    ⇒ if (s.asc) rma.orderId.asc                else rma.orderId.desc
         case "orderRefNum"                ⇒ if (s.asc) rma.orderRefNum.asc            else rma.orderRefNum.desc
         case "rmaType"                    ⇒ if (s.asc) rma.rmaType.asc                else rma.rmaType.desc
-        case "status"                     ⇒ if (s.asc) rma.status.asc                 else rma.status.desc
+        case "state"                      ⇒ if (s.asc) rma.state.asc                  else rma.state.desc
         case "isLocked"                   ⇒ if (s.asc) rma.isLocked.asc               else rma.isLocked.desc
         case "customerId"                 ⇒ if (s.asc) rma.customerId.asc             else rma.customerId.desc
         case "storeAdminId"               ⇒ if (s.asc) rma.storeAdminId.asc           else rma.storeAdminId.desc

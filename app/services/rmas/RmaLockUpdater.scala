@@ -13,7 +13,7 @@ import scala.concurrent.ExecutionContext
 
 object RmaLockUpdater {
 
-  def getLockStatus(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[RmaLockResponse.Root] = (for {
+  def getLockState(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[RmaLockResponse.Root] = (for {
     rma   ← * <~ Rmas.mustFindByRefNum(refNum)
     event ← * <~ RmaLockEvents.latestLockByRma(rma.id).one.toXor
     admin ← * <~ event.map(e ⇒ StoreAdmins.findById(e.lockedBy).extract.one).getOrElse(lift(None)).toXor

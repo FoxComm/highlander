@@ -207,22 +207,22 @@ class GiftCardIntegrationTest extends IntegrationTestBase
     }
 
     "PATCH /v1/gift-cards/:code" - {
-      "successfully changes status from Active to OnHold and vice-versa" in new Fixture {
-        val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStatusByCsr(status = OnHold))
+      "successfully changes state from Active to OnHold and vice-versa" in new Fixture {
+        val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStateByCsr(state = OnHold))
         response.status must ===(StatusCodes.OK)
 
-        val responseBack = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStatusByCsr(status = Active))
+        val responseBack = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStateByCsr(state = Active))
         responseBack.status must ===(StatusCodes.OK)
       }
 
       "returns error if no cancellation reason provided" in new Fixture {
-        val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStatusByCsr(status = Canceled))
+        val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStateByCsr(state = Canceled))
         response.status must ===(StatusCodes.BadRequest)
         response.error must ===(EmptyCancellationReasonFailure.description)
       }
 
       "returns error on cancellation if gift card has auths" in new Fixture {
-        val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStatusByCsr(status = Canceled,
+        val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStateByCsr(state = Canceled,
           reasonId = Some(1)))
         response.status must ===(StatusCodes.BadRequest)
         response.error must ===(OpenTransactionsFailure.description)
@@ -232,7 +232,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         // Cancel pending adjustment
         GiftCardAdjustments.cancel(adjustment1.id).run().futureValue
 
-        val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStatusByCsr(status = Canceled,
+        val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStateByCsr(state = Canceled,
           reasonId = Some(1)))
         response.status must ===(StatusCodes.OK)
 
@@ -251,7 +251,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         // Cancel pending adjustment
         GiftCardAdjustments.cancel(adjustment1.id).run().futureValue
 
-        val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStatusByCsr(status = Canceled,
+        val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStateByCsr(state = Canceled,
           reasonId = Some(999)))
         response.status must ===(StatusCodes.BadRequest)
         response.error must ===(NotFoundFailure400(Reason, 999).description)
@@ -292,25 +292,25 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
     "PATCH /v1/gift-cards" - {
       "successfully changes statuses of multiple gift cards" in new Fixture {
-        val payload = payloads.GiftCardBulkUpdateStatusByCsr(
+        val payload = payloads.GiftCardBulkUpdateStateByCsr(
           codes = Seq(giftCard.code, gcSecond.code),
-          status = GiftCard.OnHold
+          state = GiftCard.OnHold
         )
 
         val response = PATCH(s"v1/gift-cards", payload)
         response.status must ===(StatusCodes.OK)
 
         val firstUpdated = GiftCards.findOneById(giftCard.id).run().futureValue
-        firstUpdated.value.status must ===(GiftCard.OnHold)
+        firstUpdated.value.state must ===(GiftCard.OnHold)
 
         val secondUpdated = GiftCards.findOneById(gcSecond.id).run().futureValue
-        secondUpdated.value.status must ===(GiftCard.OnHold)
+        secondUpdated.value.state must ===(GiftCard.OnHold)
       }
 
       "returns multiple errors if no cancellation reason provided" in new Fixture {
-        val payload = payloads.GiftCardBulkUpdateStatusByCsr(
+        val payload = payloads.GiftCardBulkUpdateStateByCsr(
           codes = Seq(giftCard.code, gcSecond.code),
-          status = GiftCard.Canceled
+          state = GiftCard.Canceled
         )
 
         val response = PATCH(s"v1/gift-cards", payload)
@@ -327,11 +327,11 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         val root = response.as[StoreCreditResponse.Root]
         root.customerId must ===(customer.id)
         root.originType must ===(models.StoreCredit.GiftCardTransfer)
-        root.status must ===(models.StoreCredit.Active)
+        root.state must ===(models.StoreCredit.Active)
         root.originalBalance must ===(gcSecond.originalBalance)
 
         val redeemedGc = GiftCards.findByCode(gcSecond.code).one.run().futureValue.value
-        redeemedGc.status must ===(GiftCard.FullyRedeemed)
+        redeemedGc.state must ===(GiftCard.FullyRedeemed)
         redeemedGc.availableBalance must ===(0)
         redeemedGc.currentBalance must ===(0)
       }
@@ -355,7 +355,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       }
 
       "fails to convert inactive GC to SC" in new Fixture {
-        GiftCards.findByCode(gcSecond.code).map(_.status).update(GiftCard.OnHold).run().futureValue
+        GiftCards.findByCode(gcSecond.code).map(_.state).update(GiftCard.OnHold).run().futureValue
         val updatedGc = GiftCards.findByCode(gcSecond.code).one.run().futureValue
 
         val response = POST(s"v1/gift-cards/${gcSecond.code}/convert/${customer.id}")
@@ -374,8 +374,8 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       reason    ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
       gcSubType ← * <~ GiftCardSubtypes.create(Factories.giftCardSubTypes.head)
       origin    ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = reason.id))
-      giftCard  ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active))
-      gcSecond  ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active,
+      giftCard  ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
+      gcSecond  ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active,
         code = "ABC-234"))
       payment   ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = order.id, paymentMethodId =
         giftCard.id, paymentMethodType = PaymentMethod.GiftCard, amount = Some(25)))

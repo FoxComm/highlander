@@ -2,7 +2,7 @@ package models
 
 import cats.data.Xor
 import com.pellucid.sealerate
-import models.OrderLineItem.{Cart, Status, GiftCardItem, SkuItem, OriginType}
+import models.OrderLineItem.{Cart, State, GiftCardItem, SkuItem, OriginType}
 import monocle.macros.GenLens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -11,16 +11,16 @@ import services.Failures
 import utils._
 
 final case class OrderLineItem(id: Int = 0, orderId: Int, originId: Int,
-  originType: OriginType = OrderLineItem.SkuItem, status: Status = Cart)
+  originType: OriginType = OrderLineItem.SkuItem, state: State = Cart)
   extends ModelWithIdParameter[OrderLineItem]
-  with FSM[OrderLineItem.Status, OrderLineItem] {
+  with FSM[OrderLineItem.State, OrderLineItem] {
 
   import OrderLineItem._
 
-  def stateLens = GenLens[OrderLineItem](_.status)
+  def stateLens = GenLens[OrderLineItem](_.state)
   override def updateTo(newModel: OrderLineItem): Failures Xor OrderLineItem = super.transitionModel(newModel)
 
-  val fsm: Map[Status, Set[Status]] = Map(
+  val fsm: Map[State, Set[State]] = Map(
     Cart →
       Set(Pending, PreOrdered, BackOrdered, Canceled),
     Pending →
@@ -33,16 +33,16 @@ final case class OrderLineItem(id: Int = 0, orderId: Int, originId: Int,
 }
 
 object OrderLineItem {
-  sealed trait Status
-  case object Cart extends Status
-  case object Pending extends Status
-  case object PreOrdered extends Status
-  case object BackOrdered extends Status
-  case object Canceled extends Status
-  case object Shipped extends Status
+  sealed trait State
+  case object Cart extends State
+  case object Pending extends State
+  case object PreOrdered extends State
+  case object BackOrdered extends State
+  case object Canceled extends State
+  case object Shipped extends State
 
-  object Status extends ADT[Status] {
-    def types = sealerate.values[Status]
+  object State extends ADT[State] {
+    def types = sealerate.values[State]
   }
 
   sealed trait OriginType
@@ -53,7 +53,7 @@ object OrderLineItem {
     def types = sealerate.values[OriginType]
   }
 
-  implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
+  implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
   implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] = OriginType.slickColumn
 
   def buildGiftCard(order: Order, origin: OrderLineItemGiftCard): OrderLineItem = {
@@ -61,7 +61,7 @@ object OrderLineItem {
       orderId = order.id,
       originId = origin.id,
       originType = GiftCardItem,
-      status = Cart
+      state = Cart
     )
   }
 
@@ -70,7 +70,7 @@ object OrderLineItem {
       orderId = order.id,
       originId = sku.id,
       originType = SkuItem,
-      status = Cart
+      state = Cart
     )
   }
 }
@@ -81,8 +81,8 @@ class OrderLineItems(tag: Tag) extends GenericTable.TableWithId[OrderLineItem](t
   def orderId = column[Int]("order_id")
   def originId = column[Int]("origin_id")
   def originType = column[OrderLineItem.OriginType]("origin_type")
-  def status = column[OrderLineItem.Status]("status")
-  def * = (id, orderId, originId, originType, status) <> ((OrderLineItem.apply _).tupled, OrderLineItem.unapply)
+  def state = column[OrderLineItem.State]("state")
+  def * = (id, orderId, originId, originType, state) <> ((OrderLineItem.apply _).tupled, OrderLineItem.unapply)
 
   def skuLineItems = foreignKey(OrderLineItemSkus.tableName, originId, OrderLineItemSkus)(_.id)
 }

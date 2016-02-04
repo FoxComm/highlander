@@ -5,7 +5,7 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.{Order, Rma, Rmas, StoreAdmin}
 import payloads.{RmaAssigneesPayload, RmaBulkAssigneesPayload, RmaCreatePayload, RmaGiftCardLineItemsPayload,
-RmaMessageToCustomerPayload, RmaPaymentPayload, RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload, RmaUpdateStatusPayload}
+RmaMessageToCustomerPayload, RmaPaymentPayload, RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload, RmaUpdateStatePayload}
 import services.rmas._
 import slick.driver.PostgresDriver.api._
 import utils.Apis
@@ -73,9 +73,9 @@ object RmaRoutes {
             RmaService.getExpandedByRefNum(refNum)
           }
         } ~
-        (patch & pathEnd & entity(as[RmaUpdateStatusPayload])) { payload ⇒
+        (patch & pathEnd & entity(as[RmaUpdateStatePayload])) { payload ⇒
           goodOrFailures {
-            RmaService.updateStatusByCsr(refNum, payload)
+            RmaService.updateStateByCsr(refNum, payload)
           }
         } ~
         (post & path("message") & pathEnd & entity(as[RmaMessageToCustomerPayload])) { payload ⇒
@@ -85,7 +85,7 @@ object RmaRoutes {
         } ~
         (get & path("lock") & pathEnd) {
           goodOrFailures {
-            RmaLockUpdater.getLockStatus(refNum)
+            RmaLockUpdater.getLockState(refNum)
           }
         } ~
         (post & path("lock") & pathEnd) {

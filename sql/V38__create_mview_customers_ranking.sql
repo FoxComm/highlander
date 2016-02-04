@@ -11,10 +11,10 @@ from
     from customers as c
     inner join orders on(c.id = orders.customer_id and orders.state = 'shipped')
     inner join order_payments as op on(op.order_id = orders.id)
-    left join credit_card_charges as CCc on(CCc.order_payment_id = op.id and CCc.status = 'fullCapture')
-    left join store_credit_adjustments as SCa on(SCA.order_payment_id = op.id and SCa.status = 'capture')
-    left join gift_card_adjustments as GCa on (GCa.order_payment_id = op.id and GCa.status = 'capture')
-    left join rmas on(rmas.order_id = orders.id and rmas.status = 'complete')
+    left join credit_card_charges as CCc on(CCc.order_payment_id = op.id and CCc.state = 'fullCapture')
+    left join store_credit_adjustments as SCa on(SCA.order_payment_id = op.id and SCa.state = 'capture')
+    left join gift_card_adjustments as GCa on (GCa.order_payment_id = op.id and GCa.state = 'capture')
+    left join rmas on(rmas.order_id = orders.id and rmas.state = 'complete')
     left join rma_payments as rp on (rp.rma_id = rmas.id and rp.amount is not null)
     where is_guest = false
     group by (c.id)

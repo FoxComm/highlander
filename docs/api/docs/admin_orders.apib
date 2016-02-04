@@ -16,7 +16,7 @@ orders further.
             + `id`
             + `referenceNumber`
             + `customerId`
-            + `status`
+            + `state`
             + `isLocked`
             + `placedAt`
             + `remorsePeriodEnd`
@@ -50,10 +50,10 @@ given or creates a cart along with a new guest account when `email` is given.
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
-### Bulk Update Status [PATCH /v1/orders]
+### Bulk Update State [PATCH /v1/orders]
 
 + Request (application/json)
-    + Attributes (OrderBulkStatusUpdatePayload)
+    + Attributes (OrderBulkStateUpdatePayload)
 + Response 200 (application/json)
     + Attributes (OrderList)
 
@@ -73,7 +73,7 @@ given or creates a cart along with a new guest account when `email` is given.
 
 ### Increase Remorse Period [POST /v1/orders/{refNum}/increase-remorse-period]
 
-Order must be in `remorseHold` status.
+Order must be in `remorseHold` state.
 
 + Parameters
     + refNum: `ABC-123` (required, string) - Order reference number

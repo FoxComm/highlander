@@ -113,7 +113,7 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)
       items ← OrderLineItemGiftCards.findByOrderId(cart.id).result
       holds ← GiftCards
         .filter(_.id.inSet(items.map(_.giftCardId)))
-        .map(_.status).update(GiftCard.OnHold)
+        .map(_.state).update(GiftCard.OnHold)
     } yield holds).toXor
 
   } yield remorseHold).value

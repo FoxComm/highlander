@@ -3,12 +3,11 @@ package services
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.implicits._
-import cats.data.Xor
 import models.StoreCredit.Canceled
 import models.StoreCreditSubtypes.scope._
 import models.{Customers, Reason, Reasons, StoreAdmin, StoreCredit, StoreCreditAdjustments, StoreCreditManual,
 StoreCreditManuals, StoreCreditSubtype, StoreCreditSubtypes, StoreCredits}
-import payloads.StoreCreditUpdateStatusByCsr
+import payloads.StoreCreditUpdateStateByCsr
 import responses.StoreCreditBulkResponse._
 import responses.StoreCreditResponse._
 import responses.{TheResponse, StoreCreditResponse, StoreCreditSubTypesResponse}
@@ -80,33 +79,33 @@ object StoreCreditService {
     storeCredit ← * <~ StoreCredits.mustFindById404(id)
   } yield StoreCreditResponse.build(storeCredit)).run()
 
-  def bulkUpdateStatusByCsr(payload: payloads.StoreCreditBulkUpdateStatusByCsr, admin: StoreAdmin)
+  def bulkUpdateStateByCsr(payload: payloads.StoreCreditBulkUpdateStateByCsr, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Seq[ItemResult]] = (for {
     _        ← ResultT.fromXor(payload.validate.toXor)
     response ← ResultT.right(Future.sequence(payload.ids.map { id ⇒
-                 val itemPayload = StoreCreditUpdateStatusByCsr(payload.status, payload.reasonId)
-                 updateStatusByCsr(id, itemPayload, admin).map(buildItemResult(id, _))
+                 val itemPayload = StoreCreditUpdateStateByCsr(payload.state, payload.reasonId)
+                 updateStateByCsr(id, itemPayload, admin).map(buildItemResult(id, _))
                }))
   } yield response).value
 
-  def updateStatusByCsr(id: Int, payload: payloads.StoreCreditUpdateStatusByCsr, admin: StoreAdmin)
+  def updateStateByCsr(id: Int, payload: payloads.StoreCreditUpdateStateByCsr, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
     _           ← * <~ payload.validate
     storeCredit ← * <~ StoreCredits.mustFindById404(id)
-    updated     ← * <~ cancelOrUpdate(storeCredit, payload.status, payload.reasonId, admin)
+    updated     ← * <~ cancelOrUpdate(storeCredit, payload.state, payload.reasonId, admin)
     _           ← * <~ LogActivity.scUpdated(admin, storeCredit, payload)
   } yield StoreCreditResponse.build(updated)).runTxn()
 
-  private def cancelOrUpdate(storeCredit: StoreCredit, newState: StoreCredit.Status, reasonId: Option[Int],
+  private def cancelOrUpdate(storeCredit: StoreCredit, newState: StoreCredit.State, reasonId: Option[Int],
     admin: StoreAdmin)(implicit ec: ExecutionContext, db: Database) = newState match {
     case Canceled ⇒ for {
       _   ← * <~ StoreCreditAdjustments.lastAuthByStoreCreditId(storeCredit.id).one.mustNotFindOr(OpenTransactionsFailure)
       _   ← * <~ reasonId.map(id ⇒ Reasons.mustFindById400(id)).getOrElse(DbResult.unit)
-      upd ← * <~ StoreCredits.update(storeCredit, storeCredit.copy(status = newState, canceledReason = reasonId,
+      upd ← * <~ StoreCredits.update(storeCredit, storeCredit.copy(state = newState, canceledReason = reasonId,
                    canceledAmount = storeCredit.availableBalance.some))
       _   ← * <~ StoreCredits.cancelByCsr(storeCredit, admin)
     } yield upd
 
-    case _ ⇒ DbResultT(StoreCredits.update(storeCredit, storeCredit.copy(status = newState)))
+    case _ ⇒ DbResultT(StoreCredits.update(storeCredit, storeCredit.copy(state = newState)))
   }
 }

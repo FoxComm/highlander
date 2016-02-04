@@ -22,8 +22,8 @@ object CustomerCreditConverter {
     _ ← * <~ (if (!giftCard.isActive) DbResult.failure(GiftCardConvertFailure(giftCard)) else DbResult.unit)
     _ ← * <~ Customers.mustFindById404(customerId)
     _ ← * <~ GiftCardAdjustments.lastAuthByGiftCardId(giftCard.id).one.mustNotFindOr(OpenTransactionsFailure)
-    // Update status and make adjustment
-    _ ← * <~ GiftCards.findActiveByCode(giftCard.code).map(_.status).update(GiftCard.FullyRedeemed)
+    // Update state and make adjustment
+    _ ← * <~ GiftCards.findActiveByCode(giftCard.code).map(_.state).update(GiftCard.FullyRedeemed)
     adjustment ← * <~ GiftCards.redeemToStoreCredit(giftCard, admin)
 
     // Finally, convert to Store Credit
@@ -42,8 +42,8 @@ object CustomerCreditConverter {
     _ ← * <~ (if (!credit.isActive) DbResult.failure(StoreCreditConvertFailure(credit)) else DbResult.unit)
     _ ← * <~ Customers.mustFindById404(customerId)
     _ ← * <~ StoreCreditAdjustments.lastAuthByStoreCreditId(credit.id).one.mustNotFindOr(OpenTransactionsFailure)
-    // Update status and make adjustment
-    scUpdated ← * <~ StoreCredits.findActiveById(credit.id).map(_.status).update(StoreCredit.FullyRedeemed)
+    // Update state and make adjustment
+    scUpdated ← * <~ StoreCredits.findActiveById(credit.id).map(_.state).update(StoreCredit.FullyRedeemed)
     adjustment ← * <~ StoreCredits.redeemToGiftCard(credit, admin)
     // Convert to Gift Card
     conversion ← * <~ GiftCardFromStoreCredits.create(GiftCardFromStoreCredit(storeCreditId = credit.id))

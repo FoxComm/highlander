@@ -1,11 +1,10 @@
 package services.rmas
 
-import cats.data.Xor
 import models.Rma.Canceled
 import models.{Customers, Orders, Reason, Reasons, Rma, Rmas, StoreAdmin}
-import payloads.{RmaCreatePayload, RmaMessageToCustomerPayload, RmaUpdateStatusPayload}
+import payloads.{RmaCreatePayload, RmaMessageToCustomerPayload, RmaUpdateStatePayload}
 import responses.RmaResponse._
-import responses.{TheResponse, RmaResponse, AllRmas, CustomerResponse, StoreAdminResponse}
+import responses.{RmaResponse, CustomerResponse, StoreAdminResponse}
 import services.rmas.Helpers._
 import services.{InvalidCancellationReasonFailure, Result}
 import slick.driver.PostgresDriver.api._
@@ -28,7 +27,7 @@ object RmaService {
     response  ← * <~ RmaResponse.fromRma(updated).toXor
   } yield response).runTxn()
 
-  def updateStatusByCsr(refNum: String, payload: RmaUpdateStatusPayload)
+  def updateStateByCsr(refNum: String, payload: RmaUpdateStatePayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
     _         ← * <~ payload.validate.toXor
     rma       ← * <~ Rmas.mustFindByRefNum(refNum)
@@ -38,16 +37,16 @@ object RmaService {
     response  ← * <~ RmaResponse.fromRma(updated).toXor
   } yield response).runTxn()
 
-  private def cancelOrUpdate(rma: Rma, reason: Option[Reason], payload: RmaUpdateStatusPayload)
+  private def cancelOrUpdate(rma: Rma, reason: Option[Reason], payload: RmaUpdateStatePayload)
     (implicit ec: ExecutionContext, db: Database) = {
 
-    (payload.status, reason) match {
+    (payload.state, reason) match {
       case (Canceled, Some(r)) ⇒
-        Rmas.update(rma, rma.copy(status = payload.status, canceledReason = Some(r.id)))
+        Rmas.update(rma, rma.copy(state = payload.state, canceledReason = Some(r.id)))
       case (Canceled, None) ⇒
         DbResult.failure(InvalidCancellationReasonFailure)
       case (_, _) ⇒
-        Rmas.update(rma, rma.copy(status = payload.status))
+        Rmas.update(rma, rma.copy(state = payload.state))
     }
   }
 
