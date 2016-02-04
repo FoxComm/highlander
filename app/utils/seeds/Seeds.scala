@@ -46,7 +46,7 @@ object Seeds {
         //https://github.com/slick/slick/issues/1186
         (1 to batchs) map { b ⇒ 
           Console.err.println(s"Generating random batch $b of $batchSize customers")
-          val result: Failures Xor Unit = Await.result(SeedsGenerator.insertRandomizedSeeds(batchSize).runT(txn = false), 60.second)
+          val result: Failures Xor Unit = Await.result(SeedsGenerator.insertRandomizedSeeds(batchSize).runTxn(), 60.second)
           result.fold(failures ⇒ {
             Console.err.println("Failed generating random seeds")
             failures.flatten.foreach(f⇒  { 
@@ -57,7 +57,7 @@ object Seeds {
         }
       case "ranking" ⇒
         Console.err.println(s"Inserting ranking seeds")
-        Await.result(db.run(SeedsGenerator.Ranking.insertRankingSeeds(1700).transactionally), 30.second)
+        Await.result(db.run(RankingSeedsGenerator.insertRankingSeeds(1700).transactionally), 30.second)
       case _ ⇒ None
     }
 
