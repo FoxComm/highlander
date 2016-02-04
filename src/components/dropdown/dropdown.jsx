@@ -27,10 +27,7 @@ export default class Dropdown extends React.Component {
   static defaultProps = {
     renderNullTitle: (value, placeholder) => {
       return placeholder;
-    }
-  };
-
-  static defaultProps = {
+    },
     changeable: true,
   };
 

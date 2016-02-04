@@ -16,7 +16,7 @@ function getLine(position, items) {
   }
 
   return (
-    <div className={`fc-table-${position}`}>
+    <div className={`fc-table__${position}`}>
       {items}
     </div>
   );
@@ -54,7 +54,7 @@ const TableView = props => {
   const showPagination = props.paginator && props.setState;
   if (showPagination) {
     const {from, total, size} = props.data;
-    const flexSeparator = <div className="fc-table-flex-separator" />;
+    const flexSeparator = <div className="fc-table__flex-separator" />;
     const tablePaginator = <TablePaginator total={total} from={from} size={size} setState={setState} />;
 
     topItems.push(flexSeparator, tablePaginator);

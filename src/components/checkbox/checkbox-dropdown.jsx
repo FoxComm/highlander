@@ -71,7 +71,7 @@ export default class CheckboxDropdown extends React.Component {
                       halfChecked={halfChecked}
                       onChange={onToggle} />
         <DecrementButton docked="right"
-                         className="_small"
+                         className="_inline _small"
                          onClick={this.handleToggleClick} />
         <ul className="fc-dropdown__items">
           {React.Children.map(children, item => (

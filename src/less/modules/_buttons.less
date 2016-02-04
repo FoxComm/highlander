@@ -14,7 +14,10 @@
   user-select: none;
   cursor: pointer;
   .inline-block();
-  vertical-align: bottom;
+
+  &._inline {
+    vertical-align: bottom;
+  }
 
   &:hover {
     .colors(@color-control-standard-hover-fg, @color-control-standard-hover-bg);
