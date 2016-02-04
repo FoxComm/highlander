@@ -16,7 +16,7 @@ export const actionTypes = {
   FETCH: 'FETCH',
   RECEIVED: 'RECEIVED',
   FETCH_FAILED: 'FETCH_FAILED',
-  SET_FETCH_PARAMS: 'SET_FETCH_PARAMS',
+  UPDATE_STATE: 'UPDATE_STATE',
   ADD_ENTITY: 'ADD_ENTITY',
   REMOVE_ENTITY: 'REMOVE_ENTITY',
   ADD_ENTITIES: 'ADD_ENTITIES',
@@ -32,14 +32,6 @@ export function fetchMeta(namespace, actionType) {
       namespace
     }
   });
-}
-
-export function pickFetchParams(state, extraState = {}) {
-  return {
-    from: get(extraState, 'from', state && state.from),
-    size: get(extraState, 'size', state && state.size),
-    sortBy: get(extraState, 'sortBy', state && state.sortBy)
-  };
 }
 
 export function makePaginateActionCreator(namespace, payloadReducer = null, metaReducer = _.noop) {
@@ -110,7 +102,7 @@ export function paginate(state = initialState, action) {
         ...state,
         isFetching: false
       };
-    case actionTypes.SET_FETCH_PARAMS:
+    case actionTypes.UPDATE_STATE:
       return {
         ...state,
         ...payload

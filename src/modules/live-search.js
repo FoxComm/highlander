@@ -54,11 +54,18 @@ export default function makeLiveSearch(namespace, searchTerms, esUrl, scope) {
   const fetchSearchesSuccess = _createAction(namespace, 'FETCH_SEARCHES_SUCCESS');
   const fetchSearchesFailure = _createAction(namespace, 'FETCH_SEARCHES_FAILURE');
 
+  const queryElasticSearch = () => {
+    return (dispatch, getState) => {
+      const searchTerms = _.get(getSelectedSearch(getState()), 'query', []);
+      const esQuery = toQuery(searchTerms);
+      dispatch(fetch(esQuery.toJSON()));
+    };
+  };
+
   const addSearchFilters = filters => {
     return dispatch => {
       dispatch(submitFilters(filters));
-      const esQuery = toQuery(filters);
-      dispatch(fetch(esQuery.toJSON()));
+      dispatch(queryElasticSearch());
     };
   };
 
@@ -123,14 +130,6 @@ export default function makeLiveSearch(namespace, searchTerms, esUrl, scope) {
     return (dispatch, getState) => {
       dispatch(selectSavedSearch(idx));
       dispatch(queryElasticSearch(esUrl));
-    };
-  };
-
-  const queryElasticSearch = () => {
-    return (dispatch, getState) => {
-      const searchTerms = _.get(getSelectedSearch(getState()), 'query', []);
-      const esQuery = toQuery(searchTerms);
-      dispatch(fetch(esQuery.toJSON()));
     };
   };
 

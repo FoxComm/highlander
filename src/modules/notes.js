@@ -25,6 +25,16 @@ export const notesUri = (entity, noteId) => {
   return uri;
 };
 
+function doFetch(state) {
+  const {entityType, entityId} = state;
+
+  return Api.get(notesUri({entityType, entityId}), {
+    from: state.from,
+    size: state.size,
+    sortBy: state.sortBy,
+  });
+}
+
 const {
     fetch,
     actionAddEntity,

@@ -1,42 +1,42 @@
 
-import Api from '../../lib/api';
-import {createPaginateActions, pickFetchParams} from './base';
+import _ from 'lodash';
+import { createPaginateActions } from './base';
 
-export const createFetchAction = (makeUrl, paginateActions, actionsArgsReducer = () => []) => {
+export const createFetchAction = (namespace, doFetch, paginateActions) => {
   const {
     actionFetch,
     actionReceived,
     actionFetchFailed,
-    actionSetFetchParams
     } = paginateActions;
 
-  return (...args) => dispatch => {
-    const newFetchParams = args.pop();
+  return (...args) => (dispatch, getState) => {
+    const state = _.get(getState(), namespace);
 
-    const fetchParams = pickFetchParams(newFetchParams);
-    const actionsArgs = actionsArgsReducer(args);
+    dispatch(actionFetch());
 
-    dispatch(actionFetch(...actionsArgs));
-    dispatch(actionSetFetchParams(...actionsArgs, newFetchParams));
-    const url = makeUrl(...args);
-
-    return Api.get(url, fetchParams)
+    return doFetch(...args, state)
       .then(
-        result => dispatch(actionReceived(...actionsArgs, result)),
-        err => dispatch(actionFetchFailed(...actionsArgs, err))
+        result => dispatch(actionReceived(result)),
+        err => dispatch(actionFetchFailed(err))
       );
   };
 };
 
-const createActions = (makeUrl, namespace, payloadReducer, actionsArgsReducer) => {
+const createActions = (namespace, doFetch, payloadReducer) => {
   const paginateActions = createPaginateActions(namespace, payloadReducer);
-  const fetch = createFetchAction(makeUrl, paginateActions, actionsArgsReducer);
-  // fetch with default params
-  const initialFetch = (...args) => fetch(...args, {});
+  const fetch = createFetchAction(doFetch, paginateActions);
+
+  const { actionUpdateState } = paginateActions;
+  const setFetchParams = (newState, ...args) => {
+    return dispatch => {
+      dispatch(actionUpdateState(newState));
+      dispatch(fetch(...args));
+    };
+  };
 
   return {
     fetch,
-    initialFetch,
+    setFetchParams,
     ...paginateActions
   };
 };

@@ -2,7 +2,7 @@
 
 ## The concepts
 
-What is pagination mean ? Actually that functionality is for synchronizing data from server based on some defined criteria.
+What is pagination mean ? Actually that functionality is for synchronizing some list of entities from server based on some defined criteria.
 For example you have list of orders. List has maximum elements to show per each page. Later you can want:
 
 1. Show another page.
