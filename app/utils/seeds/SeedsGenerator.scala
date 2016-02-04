@@ -111,9 +111,9 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
   def randomSubset[T](vals: Seq[T]) : Seq[T] = {
     require(vals.length > 0)
     val size = Math.max(Random.nextInt(Math.min(vals.length, 5)), 1)
-    (1 to size) map { 
+    (1 to size).map { 
       i ⇒  vals(i * Random.nextInt(vals.length) % vals.length) 
-    }
+    }.distinct
   }
 
   def insertRandomizedSeeds(customersCount: Int)(implicit db: Database, ec: ExecutionContext) = {
