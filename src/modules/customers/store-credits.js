@@ -23,9 +23,9 @@ const searchTerms = [
         ]
       },
       {
-        title: 'Status',
+        title: 'State',
         type: 'enum',
-        term: 'status',
+        term: 'state',
         suggestions: [
           { display: 'Cart', value: 'cart' },
           { display: 'Active', value: 'active' },

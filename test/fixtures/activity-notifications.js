@@ -43,7 +43,7 @@ const giftCard = {
   'code': 'DDE2CEF877E7C5C5',
   'originId': 1,
   'originType': 'csrAppeasement',
-  'status': 'active',
+  'state': 'active',
   'currency': 'USD',
   'originalBalance': 5000,
   'availableBalance': 4000,
@@ -57,7 +57,7 @@ const storeCredit = {
   'originalBalance': 3000,
   'availableBalance': 2500,
   'currentBalance': 2500,
-  'status': 'active',
+  'state': 'active',
 };
 
 const shippingMethod = {

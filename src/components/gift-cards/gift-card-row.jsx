@@ -13,7 +13,7 @@ const setCellContents = (giftCard, field) => {
     case 'originalBalance':
     case 'availableBalance':
     case 'currentBalance':
-    case 'status':
+    case 'state':
     case 'createdAt':
       return _.get(giftCard, field);
   }

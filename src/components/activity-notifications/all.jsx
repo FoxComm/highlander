@@ -46,7 +46,7 @@ const giftCard = {
   'code': 'DDE2CEF877E7C5C5',
   'originId': 1,
   'originType': 'csrAppeasement',
-  'status': 'active',
+  'state': 'active',
   'currency': 'USD',
   'originalBalance': 5000,
   'availableBalance': 4000,
@@ -60,7 +60,7 @@ const storeCredit = {
   'originalBalance': 3000,
   'availableBalance': 2500,
   'currentBalance': 2500,
-  'status': 'active',
+  'state': 'active',
 };
 
 const shippingMethod = {
@@ -71,7 +71,7 @@ const shippingMethod = {
 
 const order = {
   referenceNumber: 'BR10001',
-  orderStatus: 'cart',
+  orderState: 'cart',
   shippingAddress: {
     'id': 3,
     'region': {
@@ -323,7 +323,7 @@ activities = [...activities,
     data: {
       order: {
         referenceNumber: 'BR10004',
-        orderStatus: 'fraudHold'
+        orderState: 'fraudHold'
       },
       oldState: 'manualHold',
     }

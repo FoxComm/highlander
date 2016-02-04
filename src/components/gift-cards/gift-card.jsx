@@ -21,7 +21,7 @@ export default class GiftCard extends React.Component {
   static propTypes = {
     card: PropTypes.shape({
       code: PropTypes.string,
-      status: PropTypes.string
+      state: PropTypes.string
     }),
     children: PropTypes.node,
     editGiftCard: PropTypes.func,
@@ -39,7 +39,7 @@ export default class GiftCard extends React.Component {
 
   @autobind
   onChangeState({target}) {
-    this.props.editGiftCard(this.props.card.code, {status: target.value});
+    this.props.editGiftCard(this.props.card.code, {state: target.value});
   }
 
   resendGiftCard() {
@@ -71,14 +71,14 @@ export default class GiftCard extends React.Component {
     );
   }
 
-  get cardStatus() {
-    const {status} = this.props.card;
+  get cardState() {
+    const {state} = this.props.card;
 
-    if (status === 'Canceled') {
-      return <span>{status}</span>;
+    if (state === 'Canceled') {
+      return <span>{state}</span>;
     } else {
       return (
-        <Dropdown onChange={this.onChangeState} value={status}>
+        <Dropdown onChange={this.onChangeState} value={state}>
           <DropdownItem value="active">Active</DropdownItem>
           <DropdownItem value="onHold">On Hold</DropdownItem>
           <DropdownItem value="canceled">Cancel Gift Card</DropdownItem>
@@ -120,7 +120,7 @@ export default class GiftCard extends React.Component {
             { card.originType }
           </PanelListItem>
           <PanelListItem title="Current State">
-            { this.cardStatus }
+            { this.cardState }
           </PanelListItem>
         </PanelList>
         <div className="fc-grid fc-grid-md-1-1 fc-grid-collapse fc-panel fc-gift-card-detail-message">

@@ -42,7 +42,7 @@ export default class CustomerTransactions extends React.Component {
       {field: 'placedAt', text: 'Date/Time', type: 'datetime'},
       {field: 'customer.modality', text: 'Modality'},
       {field: 'state', text: 'Order State', type: 'state', model: 'order'},
-      {field: 'payment.status', text: 'Payment Status'},
+      {field: 'payment.state', text: 'Payment State'},
       {field: 'assignee', text: 'Assignee'},
       {field: 'grandTotal', text: 'Total'},
       //{field: 'return', text: 'Return'},

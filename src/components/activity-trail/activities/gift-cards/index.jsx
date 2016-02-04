@@ -37,13 +37,13 @@ const representatives = {
       );
     },
   },
-  // todo: do we have previous status ?
+  // todo: do we have previous state ?
   [types.GIFT_CARD_STATE_CHANGED]: {
     title: data => {
       return (
         <span>
           <strong>changed the state for gift card</strong> <GiftCardLink {...data.giftCard} />
-          &nbsp;to {data.giftCard.status}.
+          &nbsp;to {data.giftCard.state}.
         </span>
       );
     }

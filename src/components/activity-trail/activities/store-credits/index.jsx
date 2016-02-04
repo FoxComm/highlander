@@ -21,12 +21,12 @@ const representatives = {
       );
     },
   },
-  // todo: do we have previous status and customer ?
+  // todo: do we have previous state and customer ?
   [types.STORE_CREDIT_STATE_CHANGED]: {
     title: data => {
       return (
         <span>
-          <strong>changed the state for store credit</strong> to {data.storeCredit.status}.
+          <strong>changed the state for store credit</strong> to {data.storeCredit.state}.
         </span>
       );
     }

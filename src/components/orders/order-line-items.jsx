@@ -31,16 +31,16 @@ const editModeColumns = [
 ];
 
 const OrderLineItems = props => {
-  const title = <PanelHeader isCart={props.isCart} status={props.status} text="Items" />;
-  const viewContent = _.isEmpty(props.lineItems.items) ? 
+  const title = <PanelHeader isCart={props.isCart} status={props.state} text="Items" />;
+  const viewContent = _.isEmpty(props.lineItems.items) ?
     (
       <div className="fc-content-box__empty-text">
         No items yet.
       </div>)
-    : 
+    :
     (
-      <TableView 
-        columns={viewModeColumns} 
+      <TableView
+        columns={viewModeColumns}
         data={{rows: props.lineItems.items}}/>
     );
 
@@ -63,12 +63,12 @@ OrderLineItems.propTypes = {
   lineItems: PropTypes.object,
   orderLineItemsStartEdit: PropTypes.func,
   orderLineItemsCancelEdit: PropTypes.func,
-  status: PropTypes.string
+  state: PropTypes.string
 };
 
 OrderLineItems.defaultProps = {
   isCart: false,
-  status: ''
+  state: ''
 };
 
 class RenderEditContent extends React.Component {
@@ -91,7 +91,7 @@ class RenderEditContent extends React.Component {
       <div>
         <TableView columns={ editModeColumns }
                    data={{rows: lineItemsStatus.items}}
-                   renderRow={ renderRow } 
+                   renderRow={ renderRow }
                    showEmptyMessage={true}
                    emptyMessage="No items yet."/>
         <ConfirmationDialog
@@ -120,7 +120,7 @@ class RenderEditFooter extends React.Component {
   }
 
   @autobind
-  currentQuantityForSku(sku) { 
+  currentQuantityForSku(sku) {
     let skus = _.get(this.props, 'lineItems.items', []);
     let matched = skus.find((o) => { return o.sku === sku;});
     return _.isEmpty(matched) ? 0 : matched.quantity;

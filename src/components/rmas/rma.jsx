@@ -97,7 +97,7 @@ export default class Rma extends React.Component {
           <div className="fc-col-md-3-4">
             <PanelList>
               <PanelListItem title="Return State">
-                <State value={this.rma.status} model="rma"/>
+                <State value={this.rma.state} model="rma"/>
               </PanelListItem>
               <PanelListItem title="Return Type">
                 {rma.rmaType}

@@ -141,25 +141,25 @@ export default class StoreCredits extends React.Component {
   @autobind
   renderRowState(rowId, rowState) {
     const customerId = this.customerId;
-    const currentStatus = this.formattedStatus(rowState);
+    const currentState = this.formattedState(rowState);
     switch(rowState) {
       case 'active':
         return (
-          <Dropdown name="status"
+          <Dropdown name="state"
                     items={ activeStateTransitions }
-                    placeholder={ currentStatus }
+                    placeholder={ currentState }
                     value={ rowState }
                     onChange={ (value, title) =>
-                      this.props.changeStatus(customerId, rowId, value) } />
+                      this.props.changeState(customerId, rowId, value) } />
         );
       case 'onHold':
         return (
-          <Dropdown name="status"
+          <Dropdown name="state"
                     items={ onHoldStateTransitions }
-                    placeholder={ currentStatus }
+                    placeholder={ currentState }
                     value={ rowState }
                     onChange={ (value, title) =>
-                      this.props.changeStatus(customerId, rowId, value) } />
+                      this.props.changeState(customerId, rowId, value) } />
         );
       default:
         return (<span>{rowState}</span>);
@@ -171,31 +171,31 @@ export default class StoreCredits extends React.Component {
     return <StoreCreditRow storeCredit={row} columns={columns} key={key}/>;
   }
 
-  formattedStatus(status) {
-    switch (status) {
+  formattedState(state) {
+    switch (state) {
       case 'onHold':
         return 'On Hold';
       case 'active':
         return 'Active';
       default:
-        return status;
+        return state;
     }
   }
 
-  get confirmStatusChange() {
-    let status = '';
+  get confirmStateChange() {
+    let state = '';
     if (this.props.storeCreditToChange) {
-      status = this.formattedStatus(this.props.storeCreditToChange.status);
+      state = this.formattedState(this.props.storeCreditToChange.state);
     }
     const message = (
       <span>
         Are you sure you want to change the store credit state to
-        <strong className="fc-store-credit-new-status">{ status }</strong>
+        <strong className="fc-store-credit-new-state">{ state }</strong>
         ?
       </span>
     );
     const shouldDisplay = this.props.storeCreditToChange &&
-      this.props.storeCreditToChange.status !== 'canceled';
+      this.props.storeCreditToChange.state !== 'canceled';
     return (
       <ConfirmationDialog
           isVisible={shouldDisplay}
@@ -204,7 +204,7 @@ export default class StoreCredits extends React.Component {
           cancel="Cancel"
           confirm="Yes, Change State"
           cancelAction={ () => this.props.cancelChange(this.customerId) }
-          confirmAction={ () => this.props.saveStatusChange(this.customerId) } />
+          confirmAction={ () => this.props.saveStateChange(this.customerId) } />
     );
   }
 
@@ -237,7 +237,7 @@ export default class StoreCredits extends React.Component {
         </div>
       </div>
     );
-    const shouldDisplay = props.storeCreditToChange && props.storeCreditToChange.status === 'canceled';
+    const shouldDisplay = props.storeCreditToChange && props.storeCreditToChange.state === 'canceled';
 
     return (
       <ConfirmationDialog
@@ -247,7 +247,7 @@ export default class StoreCredits extends React.Component {
           cancel="Cancel"
           confirm="Yes, Cancel"
           cancelAction={ () => props.cancelChange(this.customerId) }
-          confirmAction={ () => props.saveStatusChange(this.customerId) } />
+          confirmAction={ () => props.saveStateChange(this.customerId) } />
     );
   }
 
@@ -271,7 +271,7 @@ export default class StoreCredits extends React.Component {
             searchActions={this.props.actions}
             searchOptions={this.defaultSearchOptions} />
         </div>
-        { this.confirmStatusChange }
+        { this.confirmStateChange }
         { this.confirmCancellation }
       </div>
     );

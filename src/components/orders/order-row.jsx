@@ -22,7 +22,7 @@ const compileShippingStatus = order => {
   let deliveredItemCount = 0;
 
   _.forEach(order.shipments, shipment => {
-    switch(shipment.status) {
+    switch(shipment.state) {
       case 'canceled':
         canceledItemCount += 1;
         break;
@@ -76,7 +76,7 @@ const setCellContents = (order, field) => {
     case 'state':
     case 'grandTotal':
       return _.get(order, field);
-    case 'shipping.status':
+    case 'shipping.state':
       return compileShippingStatus(order);
     default:
       return null;

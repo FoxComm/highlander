@@ -23,7 +23,7 @@ RmaPayment.defaultProps = {
   tableColumns: [
     {field: 'paymentMethod', text: 'Method', component: 'PaymentMethod'},
     {field: 'amount', text: 'Amount', type: 'currency'},
-    {field: 'status', text: 'Status'},
+    {field: 'state', text: 'State'},
     {field: 'createdAt', text: 'Date/Time', type: 'date'}
   ]
 };

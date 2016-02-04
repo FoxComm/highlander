@@ -13,7 +13,7 @@ const searchTerms = [
       {
         title: 'State',
         type: 'enum',
-        term: 'status',
+        term: 'state',
         suggestions: [
           { display: 'Cart', value: 'cart' },
           { display: 'Remorse Hold', value: 'remorseHold' },
