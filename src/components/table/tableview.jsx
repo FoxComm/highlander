@@ -5,9 +5,9 @@ import classNames from 'classnames';
 
 // components
 import Table from './table';
+import ActionsDropdown from '../bulk-actions/actions-dropdown';
 import TablePaginator from './paginator';
 import TablePageSize from './pagesize';
-import {Dropdown, DropdownItem} from '../dropdown';
 
 
 function getLine(position, items) {
@@ -16,19 +16,9 @@ function getLine(position, items) {
   }
 
   return (
-    <div className={`fc-table-${position} fc-grid fc-grid-no-gutter`}>
+    <div className={`fc-table-${position}`}>
       {items}
     </div>
-  );
-}
-
-function getClassName({col, direction, offset, align, table='md'}) {
-  return classNames(
-    `fc-col-${table}-${col}-12`,
-    {[`fc-pull-${table}-${offset}-12`]: direction === 'pull'},
-    {[`fc-push-${table}-${offset}-12`]: direction === 'push'},
-    {'fc-align-left': align === 'left'},
-    {'fc-align-right': align === 'right'},
   );
 }
 
@@ -53,49 +43,23 @@ const TableView = props => {
   // hold actions menu
   const showBulkActions = Boolean(props.bulkActions.length);
   if (showBulkActions) {
-    const totalSelected = props.allChecked ? props.data.total - props.toggledIds.length : props.toggledIds.length;
-
     topItems.push(
-      <div className={getClassName({col: 3, align: 'left'})}>
-        <Dropdown placeholder="Actions"
-                  changeable={false}
-                  onChange={getActionsHandler(props)}>
-          {props.bulkActions.map(([title, handler]) => (
-            <DropdownItem key={title} value={title}>{title}</DropdownItem>
-          ))}
-        </Dropdown>
-        {totalSelected} Selected
-      </div>
+      <ActionsDropdown actions={props.bulkActions}
+                       allChecked={props.allChecked}
+                       toggledIds={props.toggledIds}
+                       total={props.data.total} />
     );
   }
 
   const showPagination = props.paginator && props.setState;
   if (showPagination) {
-    const {data} = props;
+    const {from, total, size} = props.data;
+    const flexSeparator = <div className="fc-table-flex-separator" />;
+    const tablePaginator = <TablePaginator total={total} from={from} size={size} setState={setState} />;
 
-    const tablePaginator = (
-      <TablePaginator total={data.total} from={data.from} size={data.size} setState={setState} />
-    );
-    const tablePageSize = (
-      <TablePageSize setState={setState} />
-    );
+    topItems.push(flexSeparator, tablePaginator);
 
-    topItems.push(
-      <div className={getClassName({col: 2, direction: 'push', offset: showBulkActions ? 7 : 10, align: 'right'})}>
-        {tablePaginator}
-      </div>
-    );
-
-    bottomItems.push(
-      <div className={getClassName({col: 2, align: 'left'})}>
-        {tablePageSize}
-      </div>
-    );
-    bottomItems.push(
-      <div className={getClassName({col: 2, direction: 'push', offset: 8, align: 'right'})}>
-        {tablePaginator}
-      </div>
-    );
+    bottomItems.push(<TablePageSize setState={setState} />, flexSeparator, tablePaginator);
   }
 
   return (
