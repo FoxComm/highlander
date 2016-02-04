@@ -9,13 +9,13 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 import scala.concurrent.ExecutionContext
 
-final case class OrderWatcher(id: Int = 0, orderId: Int = 0, watcherId: Int = 0, createdAt: Instant = Instant.now)
+final case class OrderWatcher(id: Int = 0, orderId: Int, watcherId: Int, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[OrderWatcher]
 
 object OrderWatcher
 
 class OrderWatchers(tag: Tag) extends GenericTable.TableWithId[OrderWatcher](tag, "order_watchers") {
-  def id = column[Int]("id", O.AutoInc)
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def orderId = column[Int]("order_id")
   def watcherId = column[Int]("watcher_id")
   def createdAt = column[Instant]("created_at")

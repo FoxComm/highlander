@@ -13,7 +13,6 @@ import services.{LineItemUpdater, Result}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives._
 import utils.Http._
-import utils.Slick.DbResult
 import utils.Apis
 
 import scala.collection.immutable.Seq
@@ -43,7 +42,7 @@ object OrderRoutes {
           entity(as[BulkUpdateOrdersPayload]) { payload ⇒
             activityContext(admin) { implicit ac ⇒
               goodOrFailures {
-                OrderStatusUpdater.updateStatuses(admin, payload.referenceNumbers, payload.status)
+                OrderStateUpdater.updateStates(admin, payload.referenceNumbers, payload.state)
               }
             }
           }
@@ -98,13 +97,15 @@ object OrderRoutes {
         (patch & pathEnd & entity(as[UpdateOrderPayload])) { payload ⇒
           activityContext(admin) { implicit ac ⇒
             goodOrFailures {
-              OrderStatusUpdater.updateStatus(admin, refNum, payload.status)
+              OrderStateUpdater.updateState(admin, refNum, payload.state)
             }
           }
         } ~
         (post & path("increase-remorse-period") & pathEnd) {
-          goodOrFailures {
-            OrderUpdater.increaseRemorsePeriod(refNum)
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              OrderUpdater.increaseRemorsePeriod(refNum, admin)
+            }
           }
         } ~
         (post & path("lock") & pathEnd) {

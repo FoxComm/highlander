@@ -7,8 +7,8 @@
         + `customerPurchase`
         + `fromStoreCredit`
 
-### GiftCardStatus
-+ status: OnHold (required, enum[string]) - GC status.
+### GiftCardState
++ state: OnHold (required, enum[string]) - GC state.
     + Members
         + `onHold`
         + `active`
@@ -20,7 +20,7 @@
 + code: `ABC-123` (required, string) - Public unique identifier.
 + Include GiftCardOriginType
 + subTypeId: 1 (optional, number) - Optional subtype.
-+ Include GiftCardStatus
++ Include GiftCardState
 + originalBalance: 50 (required, number) - Opening balance for GC (amount it was issued for).
 + currentBalance: 50 (required, number) - Opening balance minus "captured" debits.
 + availableBalance: 50 (required, number) - Opening balance minus "auth" debits.
@@ -41,7 +41,7 @@
 + id: 1 (required, number) - Unique identifier.
 + amount: 50 (required, number) - Amount of adjustment (can be negative).
 + availableBalance: 50 (required, number) - Gift card current balance plus amount.
-+ state: Auth (required, enum[string]) - Gift Card status.
++ state: Auth (required, enum[string]) - Gift Card state.
     + Members
         + `auth`
         + `capture`
@@ -67,13 +67,13 @@
 + currency: USD (optional, string) - Gift card currency.
 + subTypeId: 1 (optional, number) - Possible subtype ID.
 
-### GiftCardUpdateStatusPayload
-+ status: onHold (required, string) - New gift card status.
+### GiftCardUpdateStatePayload
++ state: onHold (required, string) - New gift card state.
 + reasonId: 1 (optional, number) - ID of cancellation reason.
 
-### GiftCardBulkStatusUpdatePayload
+### GiftCardBulkStateUpdatePayload
 + codes: `ABC-123`, `ABC-345` (required, array[string]) - List of Gift Card codes.
-+ status: onHold (required, string) - Status to be switched to.
++ state: onHold (required, string) - State to be switched to.
 + reasonId: 1 (optional, number) - ID of cancellation reason.
 
 ### GiftCards

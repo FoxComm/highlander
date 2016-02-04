@@ -32,22 +32,22 @@ final case class GiftCardBulkCreateByCsr(quantity: Int, balance: Int, reasonId: 
   }
 }
 
-final case class GiftCardUpdateStatusByCsr(status: GiftCard.Status, reasonId: Option[Int] = None)
-  extends Validation[GiftCardUpdateStatusByCsr] {
+final case class GiftCardUpdateStateByCsr(state: GiftCard.State, reasonId: Option[Int] = None)
+  extends Validation[GiftCardUpdateStateByCsr] {
 
-  def validate: ValidatedNel[Failure, GiftCardUpdateStatusByCsr] = {
-    GiftCard.validateStatusReason(status, reasonId).map { case _ ⇒ this }
+  def validate: ValidatedNel[Failure, GiftCardUpdateStateByCsr] = {
+    GiftCard.validateStateReason(state, reasonId).map { case _ ⇒ this }
   }
 }
 
-final case class GiftCardBulkUpdateStatusByCsr(codes: Seq[String], status: GiftCard.Status,
+final case class GiftCardBulkUpdateStateByCsr(codes: Seq[String], state: GiftCard.State,
   reasonId: Option[Int] = None)
-  extends Validation[GiftCardBulkUpdateStatusByCsr] {
+  extends Validation[GiftCardBulkUpdateStateByCsr] {
 
   val bulkUpdateLimit = 20
 
-  def validate: ValidatedNel[Failure, GiftCardBulkUpdateStatusByCsr] = {
-    (GiftCard.validateStatusReason(status, reasonId)
+  def validate: ValidatedNel[Failure, GiftCardBulkUpdateStateByCsr] = {
+    (GiftCard.validateStateReason(state, reasonId)
       |@| validExpr(codes.nonEmpty, "Please provide at least one code to update")
       |@| lesserThanOrEqual(codes.length, bulkUpdateLimit, "Quantity")
       ).map { case _ ⇒ this }

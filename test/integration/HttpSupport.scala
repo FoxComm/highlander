@@ -1,8 +1,16 @@
 import java.net.ServerSocket
 
+import akka.http.scaladsl.client.RequestBuilding.Get
+import akka.http.scaladsl.unmarshalling.Unmarshal
+import akka.stream.scaladsl.{Flow, Sink, Source}
+import akka.stream.testkit.TestSubscriber.Probe
+import akka.stream.testkit.scaladsl.TestSink
+import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
+import de.heikoseeberger.akkasse.ServerSentEvent
+
 import scala.collection.immutable
 import scala.concurrent.Await.result
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration._
 import akka.actor.ActorSystem
 import akka.http.ConnectionPoolSettings
@@ -70,8 +78,8 @@ trait HttpSupport
     finally {
       (Http().shutdownAllConnectionPools() >> service.close()).futureValue
 
-      system.shutdown()
-      system.awaitTermination()
+      system.terminate()
+      Await.result(system.whenTerminated, Duration.Inf)
     }
   }
 
@@ -190,7 +198,7 @@ trait HttpSupport
 
   private def dispatchRequest(req: HttpRequest): HttpResponse = {
     val response = Http().singleRequest(req, connectionPoolSettings).futureValue
-    ValidResponseContentTypes must contain(response.entity.contentType())
+    ValidResponseContentTypes must contain(response.entity.contentType)
     response
   }
 
@@ -198,6 +206,29 @@ trait HttpSupport
     maxConnections  = 32,
     maxOpenRequests = 32,
     maxRetries      = 0)
+
+  object SSE {
+
+    def sseProbe(path: String, skipHeartbeat: Boolean = true): Probe[String] =
+      probe(if (skipHeartbeat) skipHeartbeats(sseSource(path)) else sseSource(path))
+
+    def sseSource(path: String): Source[String, Any] = {
+      val localAddress = serverBinding.localAddress
+
+      Source.single(Get(pathToAbsoluteUrl(path)))
+        .via(Http().outgoingConnection(localAddress.getHostString, localAddress.getPort))
+        .mapAsync(1)(Unmarshal(_).to[Source[ServerSentEvent, Any]])
+        .runWith(Sink.head).futureValue
+        .map(_.data)
+    }
+
+    def skipHeartbeats(sse: Source[String, Any]): Source[String, Any] =
+      sse.via(Flow[String].filter(_ != ServerSentEvent.heartbeat.data))
+
+    def probe(source: Source[String, Any]) =
+      source.runWith(TestSink.probe[String])
+  }
+
 }
 
 object Extensions {
@@ -217,6 +248,9 @@ object Extensions {
       parse(bodyText).extract[TheResponse[A]]
 
     def errors(implicit fm: Formats, mat: Materializer): List[String] =
-      parse(bodyText).extract[Map[String, List[String]]].getOrElse("errors", List.empty[String])
+      (parse(bodyText) \ "errors").extractOrElse[List[String]](List.empty[String])
+
+    def error(implicit fm: Formats, mat: Materializer): String =
+      errors.headOption.getOrElse("never gonna give you up. never gonna let you down.")
   }
 }

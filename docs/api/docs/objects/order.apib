@@ -1,7 +1,7 @@
 # Data Structures
 
-### LineItemStatus
-+ status: Cart (required, enum[string]) - Line item status.
+### LineItemState
++ state: Cart (required, enum[string]) - Line item state.
     + Members
         + `Cart`
         + `Pending`
@@ -10,8 +10,8 @@
         + `Canceled`
         + `Shipped`
 
-### OrderStatus
-+ orderStatus: Cart (required, enum[string]) - Order Status.
+### OrderState
++ orderState: Cart (required, enum[string]) - Order State.
     + Members
         + `Cart`
         + `Ordered`
@@ -22,8 +22,8 @@
         + `FulfillmentStarted`
         + `Shipped`
 
-### PaymentStatus
-+ paymentStatus: Cart (optional, enum[string]) - Credit Card payment status.
+### PaymentState
++ paymentState: Cart (optional, enum[string]) - Credit Card payment state.
     + Members
         + `Cart`
         + `Ordered`
@@ -34,8 +34,8 @@
         + `FulfillmentStarted`
         + `Shipped`
 
-### ShippingStatus
-+ shippingStatus: Cart (required, enum[string]) - Shipping status.
+### ShippingState
++ shippingState: Cart (required, enum[string]) - Shipping state.
     + Members
         + `Cart`
         + `Ordered`
@@ -50,18 +50,18 @@
 + referenceNumber: `ABC-123` (required, string) - Unique identifier.
 + name: `John Smith` (optional, string) - Customer full name.
 + email: `john@smith.com` (required, string) - Customer email.
-+ Include OrderStatus
-+ Include PaymentStatus
-+ Include ShippingStatus
++ Include OrderState
++ Include PaymentState
++ Include ShippingState
 + placedAt: `2015-09-10T14:55:50Z` (optional, string) - Timestamp of when order was placed.
 + total (required, number) - grand total value.
 
 ### FullOrder
 + id: 1 (required, number) - Unique identifier.
 + referenceNumber: `ABC-123` (required, string) - Order reference number.
-+ Include OrderStatus
-+ Include ShippingStatus
-+ Include PaymentStatus
++ Include OrderState
++ Include ShippingState
++ Include PaymentState
 + lineItems (required, LineItems) - Line items with different types.
 + adjustments (required, array[Adjustment]) - Order adjustments.
 + fraudScore: 0 (required, number) - Fraud score.
@@ -124,7 +124,7 @@
 + sku: `SKU-YAX` (required, string) - SKU.
 + price: 33 (required, number) - SKU price.
 + quantity: 1 (required, number) - Quantity.
-+ Include LineItemStatus
++ Include LineItemState
 + totalPrice: 33 (required, number) - Price per item multiplied by quantity
 
 ### Adjustment
@@ -155,9 +155,9 @@
 ### StoreCreditPaymentPayload
 + amount: 10 (required, number) - Amount to pay.
 
-### OrderBulkStatusUpdatePayload
+### OrderBulkStateUpdatePayload
 + referenceNumbers: `ABC-123` (required, array[string]) - Order reference numbers.
-- Include OrderStatus
+- Include OrderState
 + reasonId: 1 (optional, number) - Cancellation reason.
 
 ### OrderAssignPayload

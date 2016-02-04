@@ -17,7 +17,7 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
         DbResultT(Customers.create(Factories.customer.copy(email = s"$i")))
       }
       val cool: DbResultT[Seq[Customer]] = DbResultT.sequence(sux)
-      cool.runT().futureValue.rightVal
+      cool.runTxn().futureValue.rightVal
 
       val allCustomers = Customers.result.run().futureValue
       allCustomers must have size 3
@@ -30,7 +30,7 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
       }
       val cool: DbResultT[Seq[Customer]] = DbResultT.sequence(sux)
 
-      val result = cool.runT().futureValue.leftVal
+      val result = cool.runTxn().futureValue.leftVal
 
       val allCustomers = Customers.result.run().futureValue
       allCustomers mustBe empty
@@ -42,7 +42,7 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
       }
       val cool: DbResultT[Seq[Customer]] = DbResultT.sequence(sux)
 
-      val failures = cool.runT(txn = false).futureValue.leftVal
+      val failures = cool.run().futureValue.leftVal
       val expectedFailure = DatabaseFailure(
         "ERROR: duplicate key value violates unique constraint \"customers_active_non_guest_email\"\n" +
           "  Detail: Key (email, is_disabled, is_guest)=(boom, f, f) already exists.")

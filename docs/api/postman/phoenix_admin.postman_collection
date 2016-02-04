@@ -102,6 +102,7 @@
 				"8fffdccd-15b3-81a9-f296-641fc20f97fd",
 				"06e6ebf3-d64f-f0db-9b0f-fcb53e6e2cca",
 				"78cb7b67-517d-53a9-3f09-a2e2da737c39",
+				"21875813-1363-7ec5-5bfb-4aba113a577b",
 				"a13b8e1e-713f-0a2b-3fa2-a668023184d6",
 				"e26bc17a-bcb6-0f6e-e92f-1070f047ad07",
 				"29553fb4-a2b7-0628-c1f4-1089c63a0d78",
@@ -189,7 +190,9 @@
 				"c79b60e0-172a-8ab3-9149-8986e38c33fd",
 				"8bf94750-aae2-4cba-02ef-b1cebb521a26",
 				"305400fb-1b26-0e99-2336-e9388fbf3e3b",
-				"ec79c855-9394-18b5-4460-a80c8ff7945d"
+				"ec79c855-9394-18b5-4460-a80c8ff7945d",
+				"7dc4b5d9-9bd7-f269-09fd-bb67b30163fc",
+				"fa02116e-d60c-45f3-bb4d-9c54579f4b54"
 			],
 			"owner": "131444"
 		},
@@ -661,6 +664,34 @@
 			"rawModeData": "{\n    \"shippingMethodId\": 1\n}"
 		},
 		{
+			"id": "21875813-1363-7ec5-5bfb-4aba113a577b",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/orders/BR10002",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "PATCH",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Update State",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1453528385903,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"username": "admin@admin.com",
+				"password": "password",
+				"saveToRequest": true,
+				"id": "basic",
+				"timestamp": 1449091654128
+			},
+			"folder": "ff488287-463d-001f-9aa5-90ee84cfd2d1",
+			"rawModeData": "{\n    \"state\": \"manualHold\"\n}"
+		},
+		{
 			"id": "232c3937-a94f-69af-71c6-2427520f6664",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/customers/1/payment-methods/store-credit",
@@ -1057,12 +1088,12 @@
 				"timestamp": 1449091654128
 			},
 			"time": 1449842062046,
-			"name": "Update Status",
+			"name": "Update State",
 			"description": "",
 			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
 			"responses": [],
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed",
-			"rawModeData": "{\n    \"status\": \"processing\"\n}"
+			"rawModeData": "{\n    \"state\": \"processing\"\n}"
 		},
 		{
 			"id": "3d0e3998-601c-03e0-04b1-6b1f829ce480",
@@ -1340,10 +1371,10 @@
 		{
 			"id": "529c4648-f9aa-d661-e85d-80f0470d390f",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
-			"url": "http://localhost:9090/v1/customers/1/disable",
+			"url": "http://localhost:9090/v1/customers/1",
 			"preRequestScript": "",
 			"pathVariables": {},
-			"method": "POST",
+			"method": "PATCH",
 			"data": [],
 			"dataMode": "raw",
 			"version": 2,
@@ -1356,13 +1387,12 @@
 				"id": "basic",
 				"timestamp": 1449091654128
 			},
-			"time": 1449756442815,
+			"time": 1452632231782,
 			"name": "Update",
 			"description": "",
 			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
 			"responses": [],
-			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5",
-			"rawModeData": "{\n  \"disabled\": true\n}"
+			"rawModeData": "{\n  \"name\": \"Smith John\"\n}"
 		},
 		{
 			"id": "52eef521-70fe-4494-0eae-f5a2dba5c279",
@@ -1402,7 +1432,7 @@
 			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
 			"data": [],
 			"dataMode": "raw",
-			"name": "Update Status",
+			"name": "Update State",
 			"description": "",
 			"descriptionFormat": "html",
 			"time": 1449776936925,
@@ -1418,7 +1448,7 @@
 				"timestamp": 1449091654128
 			},
 			"folder": "9caee848-aa0a-0c33-5eb2-5fd7126f6010",
-			"rawModeData": "{\n    \"status\": \"active\"\n}"
+			"rawModeData": "{\n    \"state\": \"active\"\n}"
 		},
 		{
 			"id": "5591931f-c8dc-9f01-cfb0-895ef387b3cc",
@@ -1457,7 +1487,7 @@
 			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
 			"data": [],
 			"dataMode": "raw",
-			"name": "Update Status",
+			"name": "Update State",
 			"description": "",
 			"descriptionFormat": "html",
 			"time": 1449774949856,
@@ -1473,7 +1503,7 @@
 				"timestamp": 1449091654128
 			},
 			"folder": "36059bc1-c1ca-aba5-1436-a26d9e65da15",
-			"rawModeData": "{\n  \"status\": \"active\"\n}"
+			"rawModeData": "{\n  \"state\": \"active\"\n}"
 		},
 		{
 			"id": "59034d1a-55a9-19d4-28a9-b5b9b6adfe54",
@@ -2039,7 +2069,7 @@
 			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
 			"data": [],
 			"dataMode": "raw",
-			"name": "Bulk Update Status",
+			"name": "Bulk Update State",
 			"description": "",
 			"descriptionFormat": "html",
 			"time": 1449775169762,
@@ -2055,7 +2085,7 @@
 				"timestamp": 1449091654128
 			},
 			"folder": "36059bc1-c1ca-aba5-1436-a26d9e65da15",
-			"rawModeData": "{\n  \"codes\": [\"7C0103EB46E4A14\"],\n  \"status\": \"active\"\n}"
+			"rawModeData": "{\n  \"codes\": [\"7C0103EB46E4A14\"],\n  \"state\": \"active\"\n}"
 		},
 		{
 			"id": "7c3d47c0-76ae-a681-f214-aa665e6d8fb7",
@@ -2083,6 +2113,28 @@
 				"timestamp": 1449091654128
 			},
 			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5"
+		},
+		{
+			"id": "7dc4b5d9-9bd7-f269-09fd-bb67b30163fc",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/shared-search/29e920c48be656c3/associate",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "POST",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Associate with Admins",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1453923454371,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"folder": "b16a4b71-815d-18b7-cc39-5d4a89fb0584",
+			"rawModeData": "{\n    \"associates\": [2, 3]\n}"
 		},
 		{
 			"id": "851c09a2-943b-d600-1cc7-0262da0799a9",
@@ -2476,7 +2528,7 @@
 			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
 			"data": [],
 			"dataMode": "raw",
-			"name": "Bulk Update Status",
+			"name": "Bulk Update State",
 			"description": "",
 			"descriptionFormat": "html",
 			"time": 1449845424578,
@@ -2493,7 +2545,7 @@
 			},
 			"folder": "ff488287-463d-001f-9aa5-90ee84cfd2d1",
 			"isFromCollection": true,
-			"rawModeData": "{\n    \"referenceNumbers\": [\"BR10007\"],\n    \"status\": \"manualHold\"\n}"
+			"rawModeData": "{\n    \"referenceNumbers\": [\"BR10007\"],\n    \"state\": \"manualHold\"\n}"
 		},
 		{
 			"id": "a40d187d-e0d8-b38c-ac03-ecafbc8459d5",
@@ -2638,12 +2690,12 @@
 		{
 			"id": "ae251f85-190f-e71e-89c8-2385c70e65c9",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
-			"url": "http://localhost:9090/v1/gift-cards/7C0103EB46E4A14/convert/1",
+			"url": "http://localhost:9090/v1/customers",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "POST",
 			"data": [],
-			"dataMode": "params",
+			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
 			"currentHelper": "basicAuth",
@@ -2654,12 +2706,12 @@
 				"id": "basic",
 				"timestamp": 1449091654128
 			},
-			"time": 1449775004567,
+			"time": 1452631925493,
 			"name": "Create",
 			"description": "",
 			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
 			"responses": [],
-			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5"
+			"rawModeData": "{\n    \"name\": \"John Smith\",\n    \"email\": \"john@smith.com\"\n}"
 		},
 		{
 			"id": "aee1cf9d-5392-0dda-a6aa-1cdb75f46ec8",
@@ -2884,18 +2936,12 @@
 			"id": "ba41ee5d-0d33-df7e-7fc5-022259c3e460",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/customers/1/payment-methods/credit-cards",
-			"pathVariables": {},
 			"preRequestScript": "",
+			"pathVariables": {},
 			"method": "POST",
-			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
 			"data": [],
 			"dataMode": "raw",
-			"name": "Create Credit Card",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1449759818382,
 			"version": 2,
-			"responses": [],
 			"tests": "",
 			"currentHelper": "basicAuth",
 			"helperAttributes": {
@@ -2905,8 +2951,12 @@
 				"id": "basic",
 				"timestamp": 1449091654128
 			},
-			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5",
-			"rawModeData": "{\n    \"holderName\": \"John Smith\",\n    \"number\": \"55555555555555\",\n    \"cvv\": \"555\",\n    \"expMonth\": 4,\n    \"expYear\": 2022,\n    \"addressId\": 1\n}"
+			"time": 1452634846907,
+			"name": "Create Credit Card",
+			"description": "",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"responses": [],
+			"rawModeData": "{\n    \"holderName\": \"John Smith\",\n    \"number\": \"4242424242424242\",\n    \"cvv\": \"555\",\n    \"expMonth\": 4,\n    \"expYear\": 2022,\n    \"addressId\": 1\n}"
 		},
 		{
 			"id": "bc57f8e1-aa7e-fa9c-85ef-2ba4bd518acf",
@@ -2918,7 +2968,7 @@
 			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
 			"data": [],
 			"dataMode": "raw",
-			"name": "Bulk Update Status",
+			"name": "Bulk Update State",
 			"description": "",
 			"descriptionFormat": "html",
 			"time": 1449776965798,
@@ -2934,7 +2984,7 @@
 				"timestamp": 1449091654128
 			},
 			"folder": "9caee848-aa0a-0c33-5eb2-5fd7126f6010",
-			"rawModeData": "{\n    \"ids\": [8],\n    \"status\": \"active\"\n}"
+			"rawModeData": "{\n    \"ids\": [8],\n    \"state\": \"active\"\n}"
 		},
 		{
 			"id": "bf0451dc-8915-bb8b-bd70-39b8512e85a5",
@@ -3553,6 +3603,27 @@
 				"timestamp": 1449091654128
 			},
 			"folder": "9e9937bd-ccd8-2425-de41-4fdf88f77a1b"
+		},
+		{
+			"id": "fa02116e-d60c-45f3-bb4d-9c54579f4b54",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/shared-search/29e920c48be656c3/associate/2",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "DELETE",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "params",
+			"name": "Delete Association",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1453923507380,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"folder": "b16a4b71-815d-18b7-cc39-5d4a89fb0584"
 		},
 		{
 			"id": "fddabd4a-d7a2-27af-2285-3e115acd2329",

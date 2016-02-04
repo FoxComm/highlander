@@ -33,14 +33,14 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
       val response = POST(s"v1/notes/customer/${customer.id}", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (List("body must not be empty"))
+      response.error must === ("body must not be empty")
     }
 
     "returns a 404 if the customer is not found" in new Fixture {
       val response = POST(s"v1/notes/customer/999999", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.NotFound)
-      parseErrors(response) must === (NotFoundFailure404(Customer, 999999).description)
+      response.error must === (NotFoundFailure404(Customer, 999999).description)
     }
   }
 
@@ -106,7 +106,7 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
     val (admin, customer) = (for {
       admin    ← * <~ StoreAdmins.create(authedStoreAdmin)
       customer ← * <~ Customers.create(Factories.customer)
-    } yield (admin, customer)).runT().futureValue.rightVal
+    } yield (admin, customer)).runTxn().futureValue.rightVal
   }
 
 }

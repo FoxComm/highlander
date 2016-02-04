@@ -29,7 +29,7 @@ object Seeds {
     flyWayMigrate(config)
     Console.err.println(s"Inserting seeds")
     implicit val db: PostgresDriver.backend.DatabaseDef = Database.forConfig("db", config)
-    val result: Failures Xor Unit = Await.result(createAll().runT(txn = false), 5.second)
+    val result: Failures Xor Unit = Await.result(createAll().runTxn(), 20.second)
     result.fold(failures ⇒ {
       Console.err.println("Well, fuck...")
       failures.flatten.foreach(Console.err.println)
@@ -55,6 +55,9 @@ object Seeds {
           },
           _ ⇒ Console.err.println("Success!"))
         }
+      case "ranking" ⇒
+        Console.err.println(s"Inserting ranking seeds")
+        Await.result(db.run(SeedsGenerator.Ranking.insertRankingSeeds(1700).transactionally), 30.second)
       case _ ⇒ None
     }
 
@@ -78,7 +81,8 @@ object Seeds {
   } yield {}
 
   object Factories extends CustomerSeeds with GiftCardSeeds with StoreCreditSeeds with RmaSeeds with InventorySeeds
-  with ShipmentSeeds with OrderSeeds with StoreAdminSeeds with AddressSeeds with CreditCardSeeds {
+  with ShipmentSeeds with OrderSeeds with StoreAdminSeeds with AddressSeeds with CreditCardSeeds
+  with CustomersGroupSeeds {
 
     implicit val formats = JsonFormatters.phoenixFormats
 

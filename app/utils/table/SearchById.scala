@@ -22,12 +22,17 @@ trait SearchById[M <: ModelWithIdParameter[M], T <: GenericTable.TableWithId[M]]
   protected def notFound400K[K](searchKey: K) =
     NotFoundFailure400(s"${tableName.tableNameToCamel} with $primarySearchTerm=$searchKey not found")
 
-  def mustFindById(id: M#Id, notFoundFailure: M#Id ⇒ Failure = notFound404K)
+  def mustFindById404(id: M#Id)(implicit ec: ExecutionContext, db: Database): DbResult[M] = mustFindById(id)
+
+  def mustFindById400(id: M#Id)(implicit ec: ExecutionContext, db: Database): DbResult[M] =
+    mustFindById(id, notFound400K)
+
+  private def mustFindById(id: M#Id, notFoundFailure: M#Id ⇒ Failure = notFound404K)
     (implicit ec: ExecutionContext, db: Database): DbResult[M] = {
 
     this.findOneById(id).flatMap {
-      case Some(model) ⇒ DbResult.good(model)
-      case None ⇒ DbResult.failure(notFoundFailure(id))
+      case Some(model)  ⇒ DbResult.good(model)
+      case None         ⇒ DbResult.failure(notFoundFailure(id))
     }
   }
 }

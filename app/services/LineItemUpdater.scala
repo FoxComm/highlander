@@ -9,6 +9,7 @@ StoreAdmin}
 import payloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
 import responses.FullOrder.refreshAndFullOrder
 import responses.{FullOrder, TheResponse}
+import services.CartFailures.CustomerHasNoActiveOrder
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
@@ -16,7 +17,7 @@ import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
 
-import models.activity.ActivityContext
+import models.activity.{Activity, ActivityContext}
 
 object LineItemUpdater {
   def addGiftCard(admin: StoreAdmin, refNum: String, payload: AddGiftCardLineItem)
@@ -33,7 +34,7 @@ object LineItemUpdater {
     valid  ← * <~ CartValidator(order).validate
     result ← * <~ refreshAndFullOrder(order).toXor
     _      ← * <~ LogActivity.orderLineItemsAddedGc(admin, result, gc)
-  } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runT()
+  } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def editGiftCard(admin: StoreAdmin, refNum: String, code: String, payload: AddGiftCardLineItem)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
@@ -48,7 +49,7 @@ object LineItemUpdater {
     valid    ← * <~ CartValidator(order).validate
     result   ← * <~ refreshAndFullOrder(order).toXor
     _        ← * <~ LogActivity.orderLineItemsUpdatedGc(admin, result, giftCard)
-  } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runT()
+  } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def deleteGiftCard(admin: StoreAdmin, refNum: String, code: String)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
@@ -65,34 +66,52 @@ object LineItemUpdater {
     valid ← * <~ CartValidator(order).validate
     res   ← * <~ refreshAndFullOrder(order).toXor
     _     ← * <~ LogActivity.orderLineItemsDeletedGc(admin, res, gc)
-  } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runT()
+  } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def updateQuantitiesOnOrder(admin: StoreAdmin, refNum: String, payload: Seq[UpdateLineItemsPayload])
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = {
+
+    val finder = Orders.mustFindByRefNum(refNum)
+    val logActivity = (order: FullOrder.Root, oldQtys: Map[String, Int]) ⇒
+      LogActivity.orderLineItemsUpdated(order, oldQtys, payload, Some(admin))
+
+    runUpdates(finder, logActivity, payload)
+  }
+
+  def updateQuantitiesOnCustomersOrder(customer: Customer, payload: Seq[UpdateLineItemsPayload])
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = {
+
+    val finder = Orders.findActiveOrderByCustomer(customer)
+      .one
+      .mustFindOr(CustomerHasNoActiveOrder(customer.id))
+
+    val logActivity = (order: FullOrder.Root, oldQtys: Map[String, Int]) ⇒
+      LogActivity.orderLineItemsUpdated(order, oldQtys, payload)
+
+    runUpdates(finder, logActivity, payload)
+  }
+
+  private def runUpdates(finder: DbResult[Order],
+    logAct: (FullOrder.Root, Map[String, Int]) ⇒ DbResult[Activity],
+    payload: Seq[UpdateLineItemsPayload])
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
-    order ← * <~ Orders.mustFindByRefNum(refNum)
+
+    order ← * <~ finder
     _     ← * <~ order.mustBeCart
+    // load old line items for activity trail
+    li    ← * <~ OrderLineItemSkus.findLineItemsByOrder(order).result
+    lineItems = li.foldLeft(Map[String, Int]()) { case (acc, (sku, _)) ⇒
+      val quantity = acc.getOrElse(sku.sku, 0)
+      acc.updated(sku.sku, quantity + 1)
+    }
+    // update quantities
     _     ← * <~ updateQuantities(order, payload)
     // update changed totals
     order ← * <~ OrderTotaler.saveTotals(order)
     valid ← * <~ CartValidator(order).validate
     res   ← * <~ refreshAndFullOrder(order).toXor
-    _     ← * <~ LogActivity.orderLineItemsUpdated(admin, res, payload)
-  } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runT()
-
-  def updateQuantitiesOnCustomersOrder(customer: Customer, payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = {
-    def failure = NotFoundFailure404(s"Order with customerId=${customer.id} not found")
-    (for {
-      order ← * <~ Orders.findActiveOrderByCustomer(customer).one.mustFindOr(failure)
-      _     ← * <~ order.mustBeCart
-      _     ← * <~ updateQuantities(order, payload)
-      // update changed totals
-      order ← * <~ OrderTotaler.saveTotals(order)
-      valid ← * <~ CartValidator(order).validate
-      res   ← * <~ refreshAndFullOrder(order).toXor
-      _     ← * <~ LogActivity.orderLineItemsUpdatedByCustomer(customer, res, payload)
-    } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runT()
-  }
+    _     ← * <~ logAct(res, lineItems)
+  } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   private def qtyAvailableForSkus(skus: Seq[String])
     (implicit ec: ExecutionContext, db: Database): DBIO[Map[Sku, Int]] = {
@@ -104,13 +123,17 @@ object LineItemUpdater {
     } yield (sku, 1000000)).result.map(_.toMap)
   }
 
-  private def updateQuantities(order: Order, payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: ExecutionContext, db: Database): DbResult[Seq[OrderLineItem]] = {
-
-    val updateQuantities = payload.foldLeft(Map[String, Int]()) { (acc, item) ⇒
+  def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[String, Int] = {
+    payload.foldLeft(Map[String, Int]()) { (acc, item) ⇒
       val quantity = acc.getOrElse(item.sku, 0)
       acc.updated(item.sku, quantity + item.quantity)
     }
+  }
+
+  private def updateQuantities(order: Order, payload: Seq[UpdateLineItemsPayload])
+    (implicit ec: ExecutionContext, db: Database): DbResult[Seq[OrderLineItem]] = {
+
+    val updateQuantities = foldQuantityPayload(payload)
 
     qtyAvailableForSkus(updateQuantities.keys.toSeq).flatMap { availableQuantities ⇒
       val enoughOnHand = availableQuantities.foldLeft(Map.empty[Sku, Int]) { case (acc, (sku, numAvailable)) ⇒
@@ -142,12 +165,9 @@ object LineItemUpdater {
             val delta = newQuantity - current
 
             val queries = for {
-              relation ← OrderLineItemSkus.filter(_.skuId === sku.id).one
-              origin ← relation match {
-                case Some(o)   ⇒ DBIO.successful(o)
-                case _         ⇒ OrderLineItemSkus.saveNew(OrderLineItemSku(skuId = sku.id, orderId = order.id))
-              }
-              bulkInsert ← OrderLineItems ++= (1 to delta).map { _ ⇒ OrderLineItem(0, order.id, origin.id) }.toSeq
+              origin      ← OrderLineItemSkus.safeFindBySkuId(sku.id)
+              // FIXME: should use `createAll` instead of `++=` but this method is a nightmare to refactor
+              bulkInsert  ← OrderLineItems ++= (1 to delta).map { _ ⇒ OrderLineItem(0, order.id, origin.id) }.toSeq
             } yield ()
 
             DbResult.fromDbio(queries)
@@ -157,11 +177,6 @@ object LineItemUpdater {
               deleteLi ← OrderLineItems.filter(_.id in OrderLineItems.filter(_.orderId === order.id).skuItems
                 .join(OrderLineItemSkus).on(_.originId === _.id).filter(_._2.skuId === sku.id).sortBy(_._1.id.asc)
                 .take(current - newQuantity).map(_._1.id)).delete
-
-              deleteRel ← newQuantity == 0 match {
-                case true   ⇒ OrderLineItemSkus.filter(_.skuId === sku.id).filter(_.orderId === order.id).delete
-                case false  ⇒ DBIO.successful({})
-              }
             } yield ()
 
             DbResult.fromDbio(queries)

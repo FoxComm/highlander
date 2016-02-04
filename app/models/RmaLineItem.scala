@@ -3,7 +3,6 @@ package models
 import java.time.Instant
 
 import com.pellucid.sealerate
-import models.Rma.Status
 import models.RmaLineItem.{OriginType, InventoryDisposition, Putaway}
 import monocle.macros.GenLens
 import payloads.RmaSkuLineItemsPayload

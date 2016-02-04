@@ -3,7 +3,7 @@ select distinct on (o.id)
     -- Order
     o.id as id,
     o.reference_number as reference_number,
-    o.status as status,
+    o.state as state,
     to_char(o.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
     to_char(o.placed_at, 'YYYY-MM-DD HH24:MI:SS') as placed_at,
     o.currency as currency,
@@ -15,6 +15,7 @@ select distinct on (o.id)
     o.grand_total as grand_total,
     -- Customer
     json_build_object(
+        'id', c.id,
         'name', c.name,
         'email', c.email,
         'is_blacklisted', c.is_blacklisted,

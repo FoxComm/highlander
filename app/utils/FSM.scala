@@ -2,7 +2,7 @@ package utils
 
 import cats.data.Xor
 import monocle.Lens
-import services.{Failures, StatusTransitionNotAllowed}
+import services.{Failures, StateTransitionNotAllowed}
 
 trait FSM[S, M <: FSM[S, M]] { self: M ⇒
   /* this is a def because a val confuses jackson somehow for json rendering
@@ -22,7 +22,7 @@ trait FSM[S, M <: FSM[S, M]] { self: M ⇒
         Xor.right(stateLens.set(newState)(this))
       case _ ⇒
         val searchKey = primarySearchKeyLens.get(this)
-        Xor.left(StatusTransitionNotAllowed(self, currentState.toString, newState.toString, searchKey).single)
+        Xor.left(StateTransitionNotAllowed(self, currentState.toString, newState.toString, searchKey).single)
       }
 
   def transitionAllowed(newState: S): Boolean = transitionState(newState).isRight

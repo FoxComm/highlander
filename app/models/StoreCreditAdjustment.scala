@@ -6,8 +6,7 @@ import scala.concurrent.ExecutionContext
 
 import cats.data.Xor
 import com.pellucid.sealerate
-import models.GiftCards._
-import models.StoreCreditAdjustment.{Auth, Status}
+import models.StoreCreditAdjustment.{Auth, State}
 import monocle.macros.GenLens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -19,34 +18,34 @@ import utils.Slick.implicits._
 import utils.{CustomDirectives, ADT, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, orderPaymentId: Option[Int],
-  storeAdminId: Option[Int] = None, debit: Int, availableBalance: Int, status: Status = Auth, createdAt: Instant = Instant.now())
+  storeAdminId: Option[Int] = None, debit: Int, availableBalance: Int, state: State = Auth, createdAt: Instant = Instant.now())
   extends ModelWithIdParameter[StoreCreditAdjustment]
-  with FSM[StoreCreditAdjustment.Status, StoreCreditAdjustment] {
+  with FSM[StoreCreditAdjustment.State, StoreCreditAdjustment] {
 
   import StoreCreditAdjustment._
 
-  def stateLens = GenLens[StoreCreditAdjustment](_.status)
+  def stateLens = GenLens[StoreCreditAdjustment](_.state)
   override def updateTo(newModel: StoreCreditAdjustment): Failures Xor StoreCreditAdjustment = super.transitionModel(newModel)
 
   def getAmount: Int = debit
 
-  val fsm: Map[Status, Set[Status]] = Map(
+  val fsm: Map[State, Set[State]] = Map(
     Auth → Set(Canceled, Capture)
   )
 }
 
 object StoreCreditAdjustment {
-  sealed trait Status
-  case object Auth extends Status
-  case object Canceled extends Status
-  case object Capture extends Status
-  case object CancellationCapture extends Status
+  sealed trait State
+  case object Auth extends State
+  case object Canceled extends State
+  case object Capture extends State
+  case object CancellationCapture extends State
 
-  object Status extends ADT[Status] {
-    def types = sealerate.values[Status]
+  object State extends ADT[State] {
+    def types = sealerate.values[State]
   }
 
-  implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
+  implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
 }
 
 class StoreCreditAdjustments(tag: Tag)
@@ -59,11 +58,11 @@ class StoreCreditAdjustments(tag: Tag)
   def orderPaymentId = column[Option[Int]]("order_payment_id")
   def debit = column[Int]("debit")
   def availableBalance = column[Int]("available_balance")
-  def status = column[StoreCreditAdjustment.Status]("status")
+  def state = column[StoreCreditAdjustment.State]("state")
   def createdAt = column[Instant]("created_at")
 
   def * = (id, storeCreditId, orderPaymentId, storeAdminId, debit, availableBalance,
-    status, createdAt) <> ((StoreCreditAdjustment.apply _).tupled, StoreCreditAdjustment.unapply)
+    state, createdAt) <> ((StoreCreditAdjustment.apply _).tupled, StoreCreditAdjustment.unapply)
 
   def payment = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id.?)
   def storeCredit = foreignKey(StoreCredits.tableName, storeCreditId, StoreCredits)(_.id)
@@ -83,7 +82,7 @@ object StoreCreditAdjustments
       case "orderPaymentId"   ⇒ if (s.asc) adj.orderPaymentId.asc   else adj.orderPaymentId.desc
       case "debit"            ⇒ if (s.asc) adj.debit.asc            else adj.debit.desc
       case "availableBalance" ⇒ if (s.asc) adj.availableBalance.asc else adj.availableBalance.desc
-      case "status"           ⇒ if (s.asc) adj.status.asc           else adj.status.desc
+      case "state"            ⇒ if (s.asc) adj.state.asc            else adj.state.desc
       case "createdAt"        ⇒ if (s.asc) adj.createdAt.asc        else adj.createdAt.desc
       case other              ⇒ invalidSortColumn(other)
     }
@@ -100,7 +99,7 @@ object StoreCreditAdjustments
   def filterByStoreCreditId(id: Int): QuerySeq = filter(_.storeCreditId === id)
 
   def lastAuthByStoreCreditId(id: Int): QuerySeq =
-    filterByStoreCreditId(id).filter(_.status === (Auth: Status)).sortBy(_.createdAt).take(1)
+    filterByStoreCreditId(id).filter(_.state === (Auth: State)).sortBy(_.createdAt).take(1)
 
-  def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.status).update(Canceled)
+  def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.state).update(Canceled)
 }

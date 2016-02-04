@@ -5,18 +5,14 @@ import akka.http.scaladsl.model.StatusCodes
 import cats.data.Xor
 import models.{StoreAdmins, Customers, Order, Orders, Rma, Rmas, StoreAdmin}
 import payloads.RmaBulkAssigneesPayload
-import responses.ResponseWithFailuresAndMetadata.BulkRmaUpdateResponse
 import responses.{AllRmas, RmaResponse, StoreAdminResponse}
 import services.NotFoundFailure404
 import services.rmas._
-import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Slick.implicits._
 import utils.seeds.Seeds.Factories
-import utils.seeds.{Seeds, SeedsGenerator}
+import utils.seeds.SeedsGenerator
 import utils.time._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -37,7 +33,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       order ← * <~ Orders.create(Factories.order.copy(
         customerId = customer.id,
         referenceNumber = orderRefNum,
-        status = Order.RemorseHold,
+        state = Order.RemorseHold,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
 
       insertRmas = (1 to numOfResults).map { i ⇒
@@ -49,10 +45,10 @@ class AllRmasIntegrationTest extends IntegrationTestBase
         )
       }
 
-      _ ← * <~ (Rmas ++= insertRmas)
+      _ ← * <~ Rmas.createAll(insertRmas)
     } yield ()
 
-    dbio.runT().futureValue
+    dbio.runTxn().futureValue
     getAllRmas.toIndexedSeq
   }
 
@@ -64,9 +60,9 @@ class AllRmasIntegrationTest extends IntegrationTestBase
   // paging and sorting API end
 
   def getAllRmas: Seq[AllRmas.Root] = {
-    RmaQueries.findAll(Rmas).result.run().futureValue match {
+    RmaQueries.findAll(Rmas).futureValue match {
       case Xor.Left(s)    ⇒ fail(s.toList.mkString(";"))
-      case Xor.Right(seq) ⇒ seq
+      case Xor.Right(seq) ⇒ seq.result
     }
   }
 
@@ -112,15 +108,13 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkRmaUpdateResponse]
       responseObj.result must === (getAllRmas)
-      responseObj.errors.value must === (NotFoundFailure404(Rma, "NOPE").description)
+      responseObj.errors.value.head must === (NotFoundFailure404(Rma, "NOPE").description)
     }
 
     "errors when admin to assign not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/rmas/assignees", RmaBulkAssigneesPayload(Seq(rmaRef1), 777))
-      response.status must === (StatusCodes.OK)
-      val responseObj = response.as[BulkRmaUpdateResponse]
-      responseObj.result must === (getAllRmas)
-      responseObj.errors.value must === (NotFoundFailure404(StoreAdmin, 777).description)
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (NotFoundFailure404(StoreAdmin, 777).description)
     }
   }
 
@@ -165,15 +159,13 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkRmaUpdateResponse]
       responseObj.result must === (getAllRmas)
-      responseObj.errors.value must === (NotFoundFailure404(Rma, "NOPE").description)
+      responseObj.errors.value.head must === (NotFoundFailure404(Rma, "NOPE").description)
     }
 
     "errors when admin to unassign not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/rmas/assignees/delete", RmaBulkAssigneesPayload(Seq(rmaRef1), 777))
-      response.status must === (StatusCodes.OK)
-      val responseObj = response.as[BulkRmaUpdateResponse]
-      responseObj.result must === (getAllRmas)
-      responseObj.errors.value must === (NotFoundFailure404(StoreAdmin, 777).description)
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (NotFoundFailure404(StoreAdmin, 777).description)
     }
   }
 
@@ -184,7 +176,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       rma1  ← * <~ Rmas.create(Factories.rma.copy(id = 1, referenceNumber = "foo", customerId = cust.id))
       rma2  ← * <~ Rmas.create(Factories.rma.copy(id = 2, referenceNumber = "bar", customerId = cust.id))
       admin ← * <~ StoreAdmins.create(Factories.storeAdmin)
-    } yield (rma1, rma2, admin)).runT().futureValue.rightVal
+    } yield (rma1, rma2, admin)).runTxn().futureValue.rightVal
 
     val rmaRef1 = rma1.referenceNumber
     val rmaRef2 = rma2.referenceNumber

@@ -24,7 +24,7 @@ object ActivityManager {
     def activityNotFound(activityId: Int): NotFoundFailure404 = NotFoundFailure404(Activity, activityId)
 
     def findById(activityId: Int)(implicit ec: ExecutionContext, db: Database) : Result[ActivityResponse.Root] =
-      (for { 
-        activity ← * <~ Activities.mustFindById(activityId)
-      } yield (ActivityResponse.build(activity))).runT(false)
+      (for {
+        activity ← * <~ Activities.mustFindById404(activityId)
+      } yield ActivityResponse.build(activity)).run()
 }

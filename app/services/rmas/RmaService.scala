@@ -1,10 +1,10 @@
 package services.rmas
 
 import models.Rma.Canceled
-import models.{Customer, Customers, Order, Orders, Reason, Reasons, Rma, Rmas, StoreAdmin}
-import payloads.{RmaCreatePayload, RmaMessageToCustomerPayload, RmaUpdateStatusPayload}
+import models.{Customers, Orders, Reason, Reasons, Rma, Rmas, StoreAdmin}
+import payloads.{RmaCreatePayload, RmaMessageToCustomerPayload, RmaUpdateStatePayload}
 import responses.RmaResponse._
-import responses.{AllRmas, CustomerResponse, StoreAdminResponse}
+import responses.{RmaResponse, CustomerResponse, StoreAdminResponse}
 import services.rmas.Helpers._
 import services.{InvalidCancellationReasonFailure, Result}
 import slick.driver.PostgresDriver.api._
@@ -23,77 +23,61 @@ object RmaService {
     rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
     newMessage = if (payload.message.length > 0) Some(payload.message) else None
     update    ← * <~ Rmas.update(rma, rma.copy(messageToCustomer = newMessage))
-    response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
-  } yield response).runT()
+    updated   ← * <~ Rmas.refresh(rma).toXor
+    response  ← * <~ RmaResponse.fromRma(updated).toXor
+  } yield response).runTxn()
 
-  def updateStatusByCsr(refNum: String, payload: RmaUpdateStatusPayload)
+  def updateStateByCsr(refNum: String, payload: RmaUpdateStatePayload)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
     _         ← * <~ payload.validate.toXor
     rma       ← * <~ Rmas.mustFindByRefNum(refNum)
     reason    ← * <~ payload.reasonId.map(Reasons.findOneById).getOrElse(lift(None)).toXor
     _         ← * <~ cancelOrUpdate(rma, reason, payload)
-    response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
-  } yield response).runT()
+    updated   ← * <~ Rmas.refresh(rma).toXor
+    response  ← * <~ RmaResponse.fromRma(updated).toXor
+  } yield response).runTxn()
 
-  private def cancelOrUpdate(rma: Rma, reason: Option[Reason], payload: RmaUpdateStatusPayload)
+  private def cancelOrUpdate(rma: Rma, reason: Option[Reason], payload: RmaUpdateStatePayload)
     (implicit ec: ExecutionContext, db: Database) = {
 
-    (payload.status, reason) match {
+    (payload.state, reason) match {
       case (Canceled, Some(r)) ⇒
-        Rmas.update(rma, rma.copy(status = payload.status, canceledReason = Some(r.id)))
+        Rmas.update(rma, rma.copy(state = payload.state, canceledReason = Some(r.id)))
       case (Canceled, None) ⇒
         DbResult.failure(InvalidCancellationReasonFailure)
       case (_, _) ⇒
-        Rmas.update(rma, rma.copy(status = payload.status))
+        Rmas.update(rma, rma.copy(state = payload.state))
     }
   }
 
   def createByAdmin(admin: StoreAdmin, payload: RmaCreatePayload)
-    (implicit db: Database, ec: ExecutionContext): Result[Root] = {
+    (implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
+    order    ← * <~ Orders.mustFindByRefNum(payload.orderRefNum)
+    rma      ← * <~ Rmas.create(Rma.build(order, admin, payload.rmaType))
+    customer ← * <~ Customers.findOneById(order.customerId).toXor
+    adminResponse = Some(StoreAdminResponse.build(admin))
+    customerResponse = customer.map(CustomerResponse.build(_))
+  } yield build(rma, customerResponse, adminResponse)).runTxn()
 
-    val finder = Orders.findByRefNum(payload.orderRefNum)
-    finder.selectOne({ order ⇒
+  def getByRefNum(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
+    rma      ← * <~ Rmas.mustFindByRefNum(refNum)
+    response ← * <~ fromRma(rma).toXor
+  } yield response).run()
 
-      createActions(order, admin, payload.rmaType).map { _.map {
-        case (rma, customer) ⇒
-          val adminResponse = Some(StoreAdminResponse.build(admin))
-          val customerResponse = customer.map(CustomerResponse.build(_))
-          build(rma, customerResponse, adminResponse)
-      }}
-    })
-  }
-
-  def createActions(order: Order, admin: StoreAdmin, rmaType: Rma.RmaType)
-    (implicit db: Database, ec: ExecutionContext): DbResult[(Rma, Option[Customer])] = for {
-        rmaXor ← Rmas.create(Rma.build(order, admin, rmaType))
-        customer ← Customers.findOneById(order.customerId)
-      } yield rmaXor.map(rma ⇒ (rma, customer))
-
-  def getByRefNum(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
-    val finder = Rmas.findByRefNum(refNum)
-    finder.selectOne(rma ⇒ DbResult.fromDbio(fromRma(rma)))
-  }
-
-  def getExpandedByRefNum(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[RootExpanded] = {
-    val finder = Rmas.findByRefNum(refNum)
-    finder.selectOne(rma ⇒ DbResult.fromDbio(fromRmaExpanded(rma)))
-  }
+  def getExpandedByRefNum(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[RootExpanded] = (for {
+    rma      ← * <~ Rmas.mustFindByRefNum(refNum)
+    response ← * <~ fromRmaExpanded(rma).toXor
+  } yield response).run()
 
   def findByOrderRef(refNum: String)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Future[ResultWithMetadata[Seq[AllRmas.Root]]] = {
-
-    val finder = Orders.findByRefNum(refNum)
-    finder.selectOneWithMetadata({
-      order ⇒ RmaQueries.findAll(Rmas.findByOrderRefNum(refNum))
-    })
-  }
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[BulkRmaUpdateResponse] = (for {
+    order ← * <~ Orders.mustFindByRefNum(refNum)
+    rmas  ← * <~ RmaQueries.findAllDbio(Rmas.findByOrderRefNum(refNum))
+  } yield rmas).run()
 
   def findByCustomerId(customerId: Int)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Future[ResultWithMetadata[Seq[AllRmas.Root]]] = {
-
-    val finder = Customers.filter(_.id === customerId)
-    finder.selectOneWithMetadata({
-      customer ⇒ RmaQueries.findAll(Rmas.findByCustomerId(customerId))
-    })
-  }
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[BulkRmaUpdateResponse] = (for {
+    _    ← * <~ Customers.mustFindById404(customerId)
+    rmas ← * <~ RmaQueries.findAllDbio(Rmas.findByCustomerId(customerId))
+  } yield rmas).run()
 }

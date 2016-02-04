@@ -6,7 +6,7 @@ import cats.data.Validated._
 import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
 import com.pellucid.sealerate
-import models.StoreCredit.{Active, CsrAppeasement, OriginType, Status}
+import models.StoreCredit.{Active, CsrAppeasement, OriginType, State}
 import monocle.macros.GenLens
 import services.{Failure, Failures, GeneralFailure}
 import slick.ast.BaseTypedType
@@ -23,18 +23,18 @@ import scala.concurrent.ExecutionContext
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: OriginType = CsrAppeasement,
   subTypeId: Option[Int] = None, currency: Currency = Currency.USD, originalBalance: Int, currentBalance: Int = 0,
-  availableBalance: Int = 0, status: Status = Active, canceledAmount: Option[Int] = None,
+  availableBalance: Int = 0, state: State = Active, canceledAmount: Option[Int] = None,
   canceledReason: Option[Int] = None, createdAt: Instant = Instant.now())
   extends PaymentMethod
   with ModelWithIdParameter[StoreCredit]
-  with FSM[StoreCredit.Status, StoreCredit]
+  with FSM[StoreCredit.State, StoreCredit]
   with Validation[StoreCredit] {
 
   import StoreCredit._
   import Validation._
 
   override def validate: ValidatedNel[Failure, StoreCredit] = {
-    val canceledWithReason: ValidatedNel[Failure, Unit] = (status, canceledAmount, canceledReason) match {
+    val canceledWithReason: ValidatedNel[Failure, Unit] = (state, canceledAmount, canceledReason) match {
       case (Canceled, None, _) ⇒ invalidNel(GeneralFailure("canceledAmount must be present when canceled"))
       case (Canceled, _, None) ⇒ invalidNel(GeneralFailure("canceledReason must be present when canceled"))
       case _                   ⇒ valid({})
@@ -47,39 +47,39 @@ final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, origin
     ).map { case _ ⇒ this }
   }
 
-  def stateLens = GenLens[StoreCredit](_.status)
+  def stateLens = GenLens[StoreCredit](_.state)
   override def updateTo(newModel: StoreCredit): Failures Xor StoreCredit = super.transitionModel(newModel)
 
-  val fsm: Map[Status, Set[Status]] = Map(
+  val fsm: Map[State, Set[State]] = Map(
     OnHold → Set(Active, Canceled),
     Active → Set(OnHold, Canceled)
   )
 
-  def isActive: Boolean = status == Active
+  def isActive: Boolean = state == Active
 }
 
 object StoreCredit {
-  sealed trait Status
-  case object OnHold extends Status
-  case object Active extends Status
-  case object Canceled extends Status
-  case object FullyRedeemed extends Status
+  sealed trait State
+  case object OnHold extends State
+  case object Active extends State
+  case object Canceled extends State
+  case object FullyRedeemed extends State
 
   sealed trait OriginType
   case object CsrAppeasement extends OriginType
   case object GiftCardTransfer extends OriginType
   case object RmaProcess extends OriginType
 
-  object Status extends ADT[Status] {
-    def types = sealerate.values[Status]
+  object State extends ADT[State] {
+    def types = sealerate.values[State]
   }
 
   object OriginType extends ADT[OriginType] {
     def types = sealerate.values[OriginType]
   }
 
-  def validateStatusReason(status: Status, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
-    if (status == Canceled) {
+  def validateStateReason(state: State, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
+    if (state == Canceled) {
       validExpr(reason.isDefined, "Please provide valid cancellation reason")
     } else {
       valid({})
@@ -101,7 +101,7 @@ object StoreCredit {
       currency = currency, originalBalance = 0)
   }
 
-  implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
+  implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
   implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] = OriginType.slickColumn
 
   def processFifo(storeCredits: List[StoreCredit], requestedAmount: Int): Map[StoreCredit, Int] = {
@@ -133,13 +133,13 @@ class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, 
   def originalBalance = column[Int]("original_balance")
   def currentBalance = column[Int]("current_balance")
   def availableBalance = column[Int]("available_balance")
-  def status = column[StoreCredit.Status]("status")
+  def state = column[StoreCredit.State]("state")
   def canceledAmount = column[Option[Int]]("canceled_amount")
   def canceledReason = column[Option[Int]]("canceled_reason")
   def createdAt = column[Instant]("created_at")
 
   def * = (id, customerId, originId, originType, subTypeId, currency, originalBalance, currentBalance,
-    availableBalance, status, canceledAmount, canceledReason, createdAt) <> ((StoreCredit.apply _).tupled, StoreCredit
+    availableBalance, state, canceledAmount, canceledReason, createdAt) <> ((StoreCredit.apply _).tupled, StoreCredit
     .unapply)
 }
 
@@ -157,6 +157,7 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
         case "id"               ⇒ if (s.asc) storeCredit.id.asc               else storeCredit.id.desc
         case "originId"         ⇒ if (s.asc) storeCredit.originId.asc         else storeCredit.originId.desc
         case "originType"       ⇒ if (s.asc) storeCredit.originType.asc       else storeCredit.originType.desc
+        case "state"            ⇒ if (s.asc) storeCredit.state.asc            else storeCredit.state.desc
         case "customerId"       ⇒ if (s.asc) storeCredit.customerId.asc       else storeCredit.customerId.desc
         case "currency"         ⇒ if (s.asc) storeCredit.currency.asc         else storeCredit.currency.desc
         case "originalBalance"  ⇒ if (s.asc) storeCredit.originalBalance.asc  else storeCredit.originalBalance.desc
@@ -164,7 +165,7 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
         case "availableBalance" ⇒ if (s.asc) storeCredit.availableBalance.asc else storeCredit.availableBalance.desc
         case "canceledAmount"   ⇒ if (s.asc) storeCredit.canceledAmount.asc   else storeCredit.canceledAmount.desc
         case "canceledReason"   ⇒ if (s.asc) storeCredit.canceledReason.asc   else storeCredit.canceledReason.desc
-        case "createdAt"        ⇒ if (s.asc) storeCredit.createdAt.asc      else storeCredit.createdAt.desc
+        case "createdAt"        ⇒ if (s.asc) storeCredit.createdAt.asc        else storeCredit.createdAt.desc
         case other              ⇒ invalidSortColumn(other)
       }
     }
@@ -175,7 +176,7 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
 
   def auth(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0)
     (implicit ec: ExecutionContext): DbResult[Adj] =
-    debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, status = Adj.Auth)
+    debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, state = Adj.Auth)
 
   def authOrderPayment(storeCredit: StoreCredit, pmt: OrderPayment)
     (implicit ec: ExecutionContext): DbResult[Adj] =
@@ -183,17 +184,17 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
 
   def capture(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0)
     (implicit ec: ExecutionContext): DbResult[Adj] =
-    debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, status = Adj.Capture)
+    debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, state = Adj.Capture)
 
   def cancelByCsr(storeCredit: StoreCredit, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DbResult[Adj] = {
     val adjustment = Adj(storeCreditId = storeCredit.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
-      debit = storeCredit.availableBalance, availableBalance = 0, status = Adj.CancellationCapture)
+      debit = storeCredit.availableBalance, availableBalance = 0, state = Adj.CancellationCapture)
     Adjs.create(adjustment)
   }
 
   def redeemToGiftCard(storeCredit: StoreCredit, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DbResult[Adj] = {
     val adjustment = Adj(storeCreditId = storeCredit.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
-      debit = storeCredit.availableBalance, availableBalance = 0, status = Adj.Capture)
+      debit = storeCredit.availableBalance, availableBalance = 0, state = Adj.Capture)
     Adjs.create(adjustment)
   }
 
@@ -203,7 +204,7 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
     filter(_.customerId === customerId)
 
   def findAllActiveByCustomerId(customerId: Int): QuerySeq =
-    filter(_.customerId === customerId).filter(_.status === (Active: Status)).filter(_.availableBalance > 0)
+    filter(_.customerId === customerId).filter(_.state === (Active: State)).filter(_.availableBalance > 0)
 
   def findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: ExecutionContext): DBIO[Option[StoreCredit]] =
     filter(_.customerId === customerId).filter(_.id === id).one
@@ -223,10 +224,10 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
     super.create(sc, returningIdAndBalances, returningAction)
 
   private def debit(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0,
-    status: Adj.Status = Adj.Auth)
+    state: Adj.State = Adj.Auth)
     (implicit ec: ExecutionContext): DbResult[Adj] = {
     val adjustment = Adj(storeCreditId = storeCredit.id, orderPaymentId = orderPaymentId,
-      debit = amount, availableBalance = storeCredit.availableBalance, status = status)
+      debit = amount, availableBalance = storeCredit.availableBalance, state = state)
     Adjs.create(adjustment)
   }
 }

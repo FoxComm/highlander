@@ -14,23 +14,23 @@ import scala.concurrent.{ExecutionContext, Future}
 object Authenticator {
   type EmailFinder[M] = String ⇒ DBIO[Option[M]]
 
-  def customer(credentials: UserCredentials)
+  def customer(credentials: Credentials)
               (implicit ec: ExecutionContext, db: Database): Future[Option[Customer]] = {
     auth[Customer, EmailFinder[Customer]](credentials, Customers.findByEmail, _.password)
   }
 
-  def storeAdmin(credentials: UserCredentials)
+  def storeAdmin(credentials: Credentials)
                 (implicit ec: ExecutionContext, db: Database): Future[Option[StoreAdmin]] = {
     auth[StoreAdmin, EmailFinder[StoreAdmin]](credentials, StoreAdmins.findByEmail, (m) ⇒ Some(m.password))
   }
 
-  private[this] def auth[M, F <: EmailFinder[M]](credentials: UserCredentials, finder: F, getPassword: M ⇒
+  private[this] def auth[M, F <: EmailFinder[M]](credentials: Credentials, finder: F, getPassword: M ⇒
     Option[String])
    (implicit ec: ExecutionContext, db: Database): Future[Option[M]] = credentials match {
 
-    case p: UserCredentials.Provided ⇒
-      finder(p.username).run().map { optModel ⇒
-        optModel.filter { m ⇒ getPassword(m).map(p.verifySecret(_)).getOrElse(false) }
+    case p: Credentials.Provided ⇒
+      finder(p.identifier).run().map { optModel ⇒
+        optModel.filter { m ⇒ getPassword(m).map(p.verify(_)).getOrElse(false) }
       }
     case _ ⇒
       Future.successful(None)

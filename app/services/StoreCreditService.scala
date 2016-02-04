@@ -2,21 +2,18 @@ package services
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import cats.data.Validated.{Invalid, Valid}
-import cats.data.Xor
 import cats.implicits._
 import models.StoreCredit.Canceled
 import models.StoreCreditSubtypes.scope._
-import models.{Customer, Customers, Reason, Reasons, StoreAdmin, StoreCredit, StoreCreditAdjustments, StoreCreditManual,
+import models.{Customers, Reason, Reasons, StoreAdmin, StoreCredit, StoreCreditAdjustments, StoreCreditManual,
 StoreCreditManuals, StoreCreditSubtype, StoreCreditSubtypes, StoreCredits}
+import payloads.StoreCreditUpdateStateByCsr
 import responses.StoreCreditBulkResponse._
 import responses.StoreCreditResponse._
-import responses.{StoreCreditResponse, StoreCreditSubTypesResponse}
-import slick.dbio
-import slick.dbio.Effect.All
+import responses.{TheResponse, StoreCreditResponse, StoreCreditSubTypesResponse}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
-import utils.Slick.UpdateReturning._
+import utils.DbResultT
 import utils.Slick._
 import utils.Slick.implicits._
 import utils.DbResultT.implicits._
@@ -27,32 +24,28 @@ import models.activity.ActivityContext
 object StoreCreditService {
   type QuerySeq = StoreCredits.QuerySeq
 
-  def getOriginTypes(implicit db: Database, ec: ExecutionContext): Result[Seq[StoreCreditSubTypesResponse.Root]] = {
-    StoreCreditSubtypes.select { subTypes ⇒
-      DbResult.good(StoreCreditSubTypesResponse.build(StoreCredit.OriginType.types.toSeq, subTypes))
-    }
-  }
+  def getOriginTypes(implicit db: Database, ec: ExecutionContext): Result[Seq[StoreCreditSubTypesResponse.Root]] =
+    Result.fromFuture(StoreCreditSubtypes.result.map { subTypes ⇒
+      StoreCreditSubTypesResponse.build(StoreCredit.OriginType.types.toSeq, subTypes)
+    }.run())
 
   def findAllByCustomer(customerId: Int)
-    (implicit db: Database, ec: ExecutionContext, sp: SortAndPage): Result[ResponseWithMetadata[WithTotals]] = (for {
+    (implicit db: Database, ec: ExecutionContext, sp: SortAndPage): Result[TheResponse[WithTotals]] = (for {
 
-    _           ← * <~ Customers.mustFindById(customerId)
+    _           ← * <~ Customers.mustFindById404(customerId)
     query       = StoreCredits.findAllByCustomerId(customerId)
     paginated   = StoreCredits.sortedAndPaged(query)
 
     sc          ← * <~ query.result.map(StoreCreditResponse.build).toXor
     totals      ← * <~ fetchTotalsForCustomer(customerId).toXor
     withTotals  = WithTotals(storeCredits = sc, totals = totals)
-    response    ← * <~ ResultWithMetadata(result = DbResult.good(withTotals), metadata = paginated.metadata)
+    response    ← * <~ ResultWithMetadata(result = DbResult.good(withTotals), metadata = paginated.metadata).toTheResponse
 
-  } yield response).value.run().flatMap {
-    case Xor.Left(f)    ⇒ Result.failures(f)
-    case Xor.Right(res) ⇒ res.asResponseFuture.flatMap(Result.good)
-  }
+  } yield response).run()
 
   def totalsForCustomer(customerId: Int)
     (implicit db: Database, ec: ExecutionContext): Result[StoreCreditResponse.Totals] = (for {
-    _       ← * <~ Customers.mustFindById(customerId)
+    _       ← * <~ Customers.mustFindById404(customerId)
     totals  ← * <~ fetchTotalsForCustomer(customerId).toXor
   } yield totals).map(_.getOrElse(Totals(0, 0))).value.run()
 
@@ -66,147 +59,53 @@ object StoreCreditService {
   }
 
   def createManual(admin: StoreAdmin, customerId: Int, payload: payloads.CreateManualStoreCredit)
-    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[Root] = {
-
-    def prepareForCreate(customerId: Int, payload: payloads.CreateManualStoreCredit):
-      ResultT[(Customer, Reason, Option[StoreCreditSubtype])] = {
-
-      val queries = for {
-        customer ← Customers.findOneById(customerId)
-        reason   ← Reasons.findOneById(payload.reasonId)
-        subtype  ← payload.subTypeId match {
-          case Some(id) ⇒ StoreCreditSubtypes.csrAppeasements.filter(_.id === id).one
-          case None     ⇒ lift(None)
-        }
-      } yield (customer, reason, subtype, payload.subTypeId)
-
-      ResultT(queries.run().map {
-        case (None, _, _, _) ⇒
-          Xor.left(NotFoundFailure404(Customer, customerId).single)
-        case (_, None, _, _) ⇒
-          Xor.left(NotFoundFailure400(Reason, payload.reasonId).single)
-        case (_, _, None, Some(subId)) ⇒
-          Xor.left(NotFoundFailure400(StoreCreditSubtype, subId).single)
-        case (Some(c), Some(r), s, _) ⇒
-          Xor.right((c, r, s))
-      })
+    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[Root] = (for {
+    customer ← * <~ Customers.mustFindById404(customerId)
+    _ ← * <~ Reasons.findById(payload.reasonId).extract.one.mustFindOr(NotFoundFailure400(Reason, payload.reasonId))
+    // Check subtype only if id is present in payload; discard actual model
+    _ ← * <~ payload.subTypeId.fold(DbResult.unit) { subtypeId ⇒
+      StoreCreditSubtypes.csrAppeasements.filter(_.id === subtypeId).one.flatMap(_.fold {
+        DbResult.failure[Unit](NotFoundFailure400(StoreCreditSubtype, subtypeId))
+      } { _ ⇒ DbResult.unit })
     }
+    manual = StoreCreditManual(adminId = admin.id, reasonId = payload.reasonId, subReasonId = payload.subReasonId)
+    origin ← * <~ StoreCreditManuals.create(manual)
+    appeasement = StoreCredit.buildAppeasement(customerId = customer.id, originId = origin.id, payload = payload)
+    storeCredit ← * <~ StoreCredits.create(appeasement)
+    _ ← * <~ LogActivity.scCreated(admin, customer, storeCredit)
+  } yield build(storeCredit)).runTxn
 
-    def saveStoreCredit(admin: StoreAdmin, customer: Customer, payload: payloads.CreateManualStoreCredit):
-      ResultT[DBIO[Root]] = {
+  def getById(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
+    storeCredit ← * <~ StoreCredits.mustFindById404(id)
+  } yield StoreCreditResponse.build(storeCredit)).run()
 
-      val actions = for {
-        origin  ← StoreCreditManuals.saveNew(StoreCreditManual(adminId = admin.id, reasonId = payload.reasonId,
-          subReasonId = payload.subReasonId))
-        sc      ← StoreCredits.saveNew(StoreCredit.buildAppeasement(customerId = customer.id, originId = origin.id,
-          payload = payload))
-        _       ← LogActivity.scCreated(admin, customer, sc)
-      } yield sc
+  def bulkUpdateStateByCsr(payload: payloads.StoreCreditBulkUpdateStateByCsr, admin: StoreAdmin)
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Seq[ItemResult]] = (for {
+    _        ← ResultT.fromXor(payload.validate.toXor)
+    response ← ResultT.right(Future.sequence(payload.ids.map { id ⇒
+                 val itemPayload = StoreCreditUpdateStateByCsr(payload.state, payload.reasonId)
+                 updateStateByCsr(id, itemPayload, admin).map(buildItemResult(id, _))
+               }))
+  } yield response).value
 
-      ResultT.rightAsync(actions.flatMap(sc ⇒ lift(build(sc))))
-    }
+  def updateStateByCsr(id: Int, payload: payloads.StoreCreditUpdateStateByCsr, admin: StoreAdmin)
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
+    _           ← * <~ payload.validate
+    storeCredit ← * <~ StoreCredits.mustFindById404(id)
+    updated     ← * <~ cancelOrUpdate(storeCredit, payload.state, payload.reasonId, admin)
+    _           ← * <~ LogActivity.scUpdated(admin, storeCredit, payload)
+  } yield StoreCreditResponse.build(updated)).runTxn()
 
-    val transformer = for {
-      prepare ← prepareForCreate(customerId, payload)
-      sc ← prepare match { case (customer, reason, subtype) ⇒
-        val newPayload = payload.copy(subTypeId = subtype.map(_.id))
-        saveStoreCredit(admin, customer, newPayload)
-      }
-    } yield sc
+  private def cancelOrUpdate(storeCredit: StoreCredit, newState: StoreCredit.State, reasonId: Option[Int],
+    admin: StoreAdmin)(implicit ec: ExecutionContext, db: Database) = newState match {
+    case Canceled ⇒ for {
+      _   ← * <~ StoreCreditAdjustments.lastAuthByStoreCreditId(storeCredit.id).one.mustNotFindOr(OpenTransactionsFailure)
+      _   ← * <~ reasonId.map(id ⇒ Reasons.mustFindById400(id)).getOrElse(DbResult.unit)
+      upd ← * <~ StoreCredits.update(storeCredit, storeCredit.copy(state = newState, canceledReason = reasonId,
+                   canceledAmount = storeCredit.availableBalance.some))
+      _   ← * <~ StoreCredits.cancelByCsr(storeCredit, admin)
+    } yield upd
 
-    transformer.value.flatMap(_.fold(Result.left, dbio ⇒ Result.fromFuture(dbio.transactionally.run())))
+    case _ ⇒ DbResultT(StoreCredits.update(storeCredit, storeCredit.copy(state = newState)))
   }
-
-  def getById(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
-    fetchDetails(id).run().flatMap {
-      case Some(storeCredit) ⇒
-        Result.right(responses.StoreCreditResponse.build(storeCredit))
-      case _ ⇒
-        Result.failure(NotFoundFailure404(StoreCredit, id))
-    }
-  }
-
-  def bulkUpdateStatusByCsr(payload: payloads.StoreCreditBulkUpdateStatusByCsr, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Seq[ItemResult]] = {
-
-    payload.validate match {
-      case Valid(_) ⇒
-        val responses = payload.ids.map { id ⇒
-          val itemPayload = payloads.StoreCreditUpdateStatusByCsr(payload.status, payload.reasonId)
-          updateStatusByCsr(id, itemPayload, admin).map(buildItemResult(id, _))
-        }
-
-        val future = Future.sequence(responses).flatMap { seq ⇒
-          Future.successful(seq)
-        }
-
-        Result.fromFuture(future)
-      case Invalid(errors) ⇒
-        Result.failures(errors)
-    }
-  }
-
-  def updateStatusByCsr(id: Int, payload: payloads.StoreCreditUpdateStatusByCsr, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = {
-
-    def cancelOrUpdate(finder: QuerySeq, sc: StoreCredit): DbResult[Root] = (payload.status, payload.reasonId) match {
-      case (Canceled, Some(reason)) ⇒
-        cancelByCsr(finder, sc, payload, admin)
-      case (Canceled, None) ⇒
-        DbResult.failure(EmptyCancellationReasonFailure)
-      case (_, _) ⇒
-        val ifNotFound = NotFoundFailure404(StoreCredit, sc.id)
-
-        LogActivity.scUpdated(admin, sc, payload) >>
-          finder.map(_.status)
-            .updateReturningHeadOption(StoreCredits.map(identity), payload.status, ifNotFound)
-            .map(_.map(StoreCreditResponse.build))
-    }
-
-    payload.validate match {
-      case Valid(_) ⇒
-        val finder = StoreCredits.filter(_.id === id)
-
-        finder.selectOneForUpdate { sc ⇒
-          sc.transitionState(payload.status) match {
-            case Xor.Left(message) ⇒ DbResult.failures(message)
-            case Xor.Right(_)      ⇒ cancelOrUpdate(finder, sc)
-          }
-        }
-      case Invalid(errors) ⇒
-        Result.failures(errors)
-    }
-  }
-
-  private def cancelByCsr(finder: QuerySeq, sc: StoreCredit, payload: payloads.StoreCreditUpdateStatusByCsr,
-    admin: StoreAdmin)(implicit ec: ExecutionContext, db: Database, ac: ActivityContext): DbResult[Root] = {
-
-    StoreCreditAdjustments.lastAuthByStoreCreditId(sc.id).one.flatMap {
-      case Some(adjustment) ⇒
-        DbResult.failure(OpenTransactionsFailure)
-      case None ⇒
-        Reasons.findOneById(payload.reasonId.get).flatMap {
-          case None ⇒
-            DbResult.failure(InvalidCancellationReasonFailure)
-          case _ ⇒
-            val data = (payload.status, Some(sc.availableBalance), payload.reasonId)
-            val cancellation = finder
-              .map { gc ⇒ (gc.status, gc.canceledAmount, gc.canceledReason) }
-              .updateReturningHead(StoreCredits.map(identity), data)
-              .map(_.map(StoreCreditResponse.build))
-
-            val cancelAdjustment = StoreCredits.cancelByCsr(sc, admin)
-
-            cancellation.flatMap { xor ⇒
-              xorMapDbio(xor){ root ⇒
-                LogActivity.scUpdated(admin, sc, payload) >> cancelAdjustment >> lift(root)
-              }
-            }
-        }
-    }
-  }
-
-  private def fetchDetails(id: Int)(implicit db: Database, ec: ExecutionContext) = for {
-    storeCredit ← StoreCredits.findOneById(id)
-  } yield storeCredit
 }

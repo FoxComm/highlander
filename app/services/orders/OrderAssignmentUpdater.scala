@@ -1,9 +1,10 @@
 package services.orders
 
-import models.{Order, OrderAssignment, OrderAssignments, Orders, StoreAdmin, StoreAdmins}
-import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
-import responses.{FullOrder, ResponseWithFailuresAndMetadata, TheResponse}
-import services.{LogActivity, Failure, Failurez, NotFoundFailure404, OrderAssigneeNotFound, Result}
+import models.{NotificationSubscription, Order, OrderAssignment, OrderAssignments, Orders, StoreAdmin, StoreAdmins}
+import payloads.BulkAssignment
+import responses.{FullOrder, TheResponse}
+import services.Util._
+import services.{NotFoundFailure400, NotificationManager, LogActivity, OrderAssigneeNotFound, Result}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
@@ -11,7 +12,7 @@ import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 
 import scala.concurrent.ExecutionContext
-import models.activity.ActivityContext
+import models.activity.{Dimension, ActivityContext}
 
 object OrderAssignmentUpdater {
 
@@ -26,70 +27,53 @@ object OrderAssignmentUpdater {
     _               ← * <~ OrderAssignments.createAll(newAssignments)
     newOrder        ← * <~ Orders.refresh(order).toXor
     fullOrder       ← * <~ FullOrder.fromOrder(newOrder).toXor
-    warnings        = Failurez(requestedAssigneeIds.diff(adminIds).map(NotFoundFailure404(StoreAdmin, _)): _*)
+    notFoundAdmins  = diffToFailures(requestedAssigneeIds, adminIds, StoreAdmin)
     assignedAdmins  = fullOrder.assignees.filter(a ⇒ newAssignments.map(_.assigneeId).contains(a.assignee.id)).map(_.assignee)
     _               ← * <~ LogActivity.assignedToOrder(admin, fullOrder, assignedAdmins)
-  } yield TheResponse.build(fullOrder, warnings = warnings)).runT()
+    _               ← * <~ NotificationManager.subscribe(adminIds = assignedAdmins.map(_.id), dimension = Dimension.order,
+      reason = NotificationSubscription.Assigned, objectIds = Seq(order.referenceNumber))
+  } yield TheResponse.build(fullOrder, errors = notFoundAdmins)).runTxn()
 
   def unassign(admin: StoreAdmin, refNum: String, assigneeId: Int)
     (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[FullOrder.Root] = (for {
 
     order           ← * <~ Orders.mustFindByRefNum(refNum)
-    assignee        ← * <~ StoreAdmins.mustFindById(assigneeId)
+    assignee        ← * <~ StoreAdmins.mustFindById404(assigneeId)
     assignment      ← * <~ OrderAssignments.byAssignee(assignee).one.mustFindOr(OrderAssigneeNotFound(refNum, assigneeId))
     _               ← * <~ OrderAssignments.byAssignee(assignee).delete
     fullOrder       ← * <~ FullOrder.fromOrder(order).toXor
     _               ← * <~ LogActivity.unassignedFromOrder(admin, fullOrder, assignee)
-  } yield fullOrder).runT()
+    _               ← * <~ NotificationManager.unsubscribe(adminIds = Seq(assigneeId), dimension = Dimension.order,
+      reason = NotificationSubscription.Assigned, objectIds = Seq(order.referenceNumber))
+  } yield fullOrder).runTxn()
 
-  def assignBulk(admin: StoreAdmin, payload: payloads.BulkAssignment)
-    (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = {
-
+  def assignBulk(admin: StoreAdmin, payload: BulkAssignment)(implicit ec: ExecutionContext, db: Database,
+    sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
     // TODO: transfer sorting-paging metadata
-    val query = for {
-      orders          ← Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
-      assignee        ← StoreAdmins.findById(payload.assigneeId).result
-      newAssignments  = for (o ← orders; a ← assignee) yield OrderAssignment(orderId = o.id, assigneeId = a.id)
-      _               ← OrderAssignments.createAll(newAssignments)
-      allOrders       ← OrderQueries.findAll.result
-      adminNotFound   = adminNotFoundFailure(assignee.headOption, payload.assigneeId)
-      ordersNotFound  = ordersNotFoundFailures(payload.referenceNumbers, orders.map(_.referenceNumber))
-      orderRefNums    = orders.filter(o ⇒ newAssignments.map(_.orderId).contains(o.id)).map(_.referenceNumber)
-      _               ← LogActivity.bulkAssignedToOrders(admin, assignee.headOption, payload.assigneeId, orderRefNums)
-    } yield ResponseWithFailuresAndMetadata.fromXor(
-        result = allOrders,
-        addFailures = adminNotFound ++ ordersNotFound)
+    orders          ← * <~ Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result.toXor
+    assignee        ← * <~ StoreAdmins.mustFindById400(payload.assigneeId)
+    newAssignments  = for (o ← orders) yield OrderAssignment(orderId = o.id, assigneeId = assignee.id)
+    _               ← * <~ OrderAssignments.createAll(newAssignments)
+    response        ← * <~ OrderQueries.findAllDbio
+    ordersNotFound  = diffToFlatFailures(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
+    orderRefNums    = orders.filter(o ⇒ newAssignments.map(_.orderId).contains(o.id)).map(_.referenceNumber)
+    _               ← * <~ LogActivity.bulkAssignedToOrders(admin, assignee, orderRefNums)
+    _               ← * <~ NotificationManager.subscribe(adminIds = Seq(assignee.id), dimension = Dimension.order,
+      reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber)).value
+  } yield response.copy(errors = ordersNotFound)).runTxn()
 
-    query.transactionally.run()
-  }
-
-  def unassignBulk(admin: StoreAdmin, payload: payloads.BulkAssignment)
-    (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = {
-
+  def unassignBulk(admin: StoreAdmin, payload: BulkAssignment)(implicit ec: ExecutionContext, db: Database,
+    sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
     // TODO: transfer sorting-paging metadata
-    val query = for {
-      orders          ← Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
-      assignee        ← StoreAdmins.findById(payload.assigneeId).result
-      _               ← OrderAssignments.filter(_.assigneeId === payload.assigneeId)
-        .filter(_.orderId.inSetBind(orders.map(_.id))).delete
-      allOrders       ← OrderQueries.findAll.result
-      adminNotFound   = adminNotFoundFailure(assignee.map(_.id).headOption, payload.assigneeId)
-      ordersNotFound  = ordersNotFoundFailures(payload.referenceNumbers, orders.map(_.referenceNumber))
-      orderRefNums    = orders.filter(o ⇒ payload.referenceNumbers.contains(o.refNum)).map(_.referenceNumber)
-      _               ← LogActivity.bulkUnassignedFromOrders(admin, assignee.headOption, payload.assigneeId, orderRefNums)
-    } yield ResponseWithFailuresAndMetadata.fromXor(
-        result = allOrders,
-        addFailures = adminNotFound ++ ordersNotFound)
-
-    query.transactionally.run()
-  }
-
-  private def adminNotFoundFailure(a: Option[_], id: Int) = a match {
-    case Some(_) ⇒ Seq.empty[Failure]
-    case None    ⇒ Seq(NotFoundFailure404(StoreAdmin, id))
-  }
-
-  private def ordersNotFoundFailures(requestedRefs: Seq[String], availableRefs: Seq[String]) =
-    requestedRefs.diff(availableRefs).map(NotFoundFailure404(Order, _))
-
+    orders    ← * <~ Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
+    assignee  ← * <~ StoreAdmins.mustFindById400(payload.assigneeId)
+    _         ← * <~ OrderAssignments.filter(_.assigneeId === payload.assigneeId)
+                                     .filter(_.orderId.inSetBind(orders.map(_.id))).delete
+    response  ← * <~ OrderQueries.findAllDbio
+    ordersNotFound = diffToFlatFailures(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
+    refNums   = orders.filter(o ⇒ payload.referenceNumbers.contains(o.refNum)).map(_.referenceNumber)
+    _         ← * <~ LogActivity.bulkUnassignedFromOrders(admin, assignee, refNums)
+    _         ← * <~ NotificationManager.unsubscribe(adminIds = Seq(assignee.id), dimension = Dimension.order,
+      reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber)).value
+  } yield response.copy(errors = ordersNotFound)).runTxn()
 }

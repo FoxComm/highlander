@@ -19,7 +19,7 @@ trait RmaSeeds {
     _ ← * <~ Notes.createAll(rmaNotes)
   } yield {}
 
-  def rma = Rma(orderId = 1, orderRefNum = "", rmaType = Rma.Standard, status = Rma.Pending, customerId = 1)
+  def rma = Rma(orderId = 1, orderRefNum = "", rmaType = Rma.Standard, state = Rma.Pending, customerId = 1)
 
   def rmaLineItemSkus = Seq(
     RmaLineItemSku(id = 0, rmaId = 1, skuId = 1),

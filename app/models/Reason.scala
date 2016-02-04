@@ -46,7 +46,7 @@ object Reason {
 
   val reasonTypeRegex = """([a-zA-Z]*)""".r
 
-  implicit val statusColumnType: JdbcType[ReasonType] with BaseTypedType[ReasonType] = ReasonType.slickColumn
+  implicit val reasonTypeColumnType: JdbcType[ReasonType] with BaseTypedType[ReasonType] = ReasonType.slickColumn
 }
 
 class Reasons(tag: Tag) extends GenericTable.TableWithId[Reason](tag, "reasons")  {

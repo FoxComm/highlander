@@ -65,15 +65,14 @@ class OrderTotalerTest extends IntegrationTestBase {
       customer ← * <~ Customers.create(Factories.customer)
       address  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
       order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
-    } yield (customer, address, order)).runT().futureValue.rightVal
+    } yield (customer, address, order)).runTxn().futureValue.rightVal
   }
 
   trait SkuLineItemsFixture extends Fixture {
     val sku = (for {
       sku ← * <~ Skus.create(Factories.skus.head)
-      _   ← * <~ OrderLineItemSkus.create(OrderLineItemSku(skuId = sku.id, orderId = order.id))
       _   ← * <~ OrderLineItems.create(OrderLineItem.buildSku(order, sku))
-    } yield sku).runT().futureValue.rightVal
+    } yield sku).runTxn().futureValue.rightVal
   }
 
   trait AllLineItemsFixture extends SkuLineItemsFixture {
@@ -82,6 +81,6 @@ class OrderTotalerTest extends IntegrationTestBase {
       giftCard  ← * <~ GiftCards.create(GiftCard.buildLineItem(balance = 150, originId = origin.id, currency = Currency.USD))
       gcLi      ← * <~ OrderLineItemGiftCards.create(OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = order.id))
       lineItems ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(order, gcLi))
-    } yield (giftCard, lineItems)).runT().futureValue.rightVal
+    } yield (giftCard, lineItems)).runTxn().futureValue.rightVal
   }
 }

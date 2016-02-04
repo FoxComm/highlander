@@ -36,7 +36,7 @@ object Activity {
           }
         }
       } ~
-      pathPrefix("trails" / Segment / IntNumber) { (dimension, objectId) ⇒
+      pathPrefix("trails" / Segment / Segment) { (dimension, objectId) ⇒
         (post & pathEnd & activityContext(admin)) { implicit ac ⇒
           entity(as[AppendActivity]) { payload ⇒
             goodOrFailures {

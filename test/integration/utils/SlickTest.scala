@@ -16,7 +16,7 @@ class SlickTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
   "supports update with returning query for a single column" in {
-    val customer = Customers.saveNew(Factories.customer.copy(name = "Jane".some)).run().futureValue
+    val customer = Customers.create(Factories.customer.copy(name = "Jane".some)).run().futureValue.rightVal
     val update = Customers.filter(_.id === 1).map(_.name).
       updateReturningHead(Customers.map(_.name), "Sally".some)
 
@@ -38,7 +38,7 @@ class SlickTest extends IntegrationTestBase {
       customer ← * <~ Customers.create(Factories.customer.copy(name = "Jane".some))
       updatedCustomer ← * <~ Customers.filter(_.id === 1).map(_.name).
         updateReturningHead(Customers.map(identity), "Sally".some)
-    } yield (customer, updatedCustomer.value)).runT().futureValue.rightVal
+    } yield (customer, updatedCustomer.value)).runTxn().futureValue.rightVal
 
     customer must !== (updatedCustomer)
     updatedCustomer.name must === ("Sally".some)
@@ -49,7 +49,7 @@ class SlickTest extends IntegrationTestBase {
       customer ← * <~ Customers.create(Factories.customer.copy(name = "Jane".some))
       updatedCustomer ← * <~ Customers.filter(_.id === 1).map{c ⇒ (c.name, c.password) }.
         updateReturningHead(Customers.map(identity), ("Sally".some, "123qwe".some))
-    } yield (customer, updatedCustomer.value)).runT().futureValue.rightVal
+    } yield (customer, updatedCustomer.value)).runTxn().futureValue.rightVal
 
     customer must !== (updatedCustomer)
     updatedCustomer.name must === ("Sally".some)

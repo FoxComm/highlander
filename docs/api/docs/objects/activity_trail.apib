@@ -1,0 +1,29 @@
+# Data Structures
+
+### ActivityContext
++ userId: 1 - Creator id
++ userType: `admin` (required, string) - Creator (admin/customer)
++ transactionId: `1b8960b0-0ad3-490c-8909-b8f301941245` (required, string) - Transaction id
+
+### Activity
++ id: 1 (required, number) - id
++ activityType: `order_state_changed` (required, string) - Activity type
++ data: ` { "foo": "bar" } ` (required, string) - JSON data
++ context (required, ActivityContext) - Activity context
++ createdAt: `2016-01-21T16:35:26.653Z` (required, string) - Creation date
+
+### ActivityConnectionResponse
++ id: 1 (required, number) - Id
++ dimension: `order` (required, string) - Dimension
++ objectId: 1 (required, string) - Object identifier (id, reference number, code etc)
++ trailId: 1 (required, number) - Trail id
++ activityId: 1 (required, number) - Activity id
++ previousId: 1 (optional, number) - Previous connection id
++ nextId: 1 (optional, number) - Next connection id
++ data: `{ "foo": "bar" }` (optional, string) - JSON connection data
++ connectedBy (required, ActivityContext) - Activity context
++ createdAt: `2016-01-21T16:35:26.653Z` (required, string) - Connection creation datetime
+
+### LastSeenActivityResponse
++ trailId: 1 (required, number) - Trail id
++ lastSeenActivityId: 1 (required, number) - Last seen activity id

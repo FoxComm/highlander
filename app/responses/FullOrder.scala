@@ -3,11 +3,10 @@ package responses
 import java.time.Instant
 
 import cats.implicits._
-import models.{OrderWatcher, OrderWatchers, OrderLockEvents, Adjustment, CreditCard, CreditCardCharge, CreditCards,
+import models.{OrderWatcher, OrderWatchers, OrderLockEvents, CreditCard, CreditCardCharge, CreditCards,
 Customer, Customers, GiftCard, Order, OrderAssignment, OrderAssignments, OrderLineItem, OrderLineItemGiftCard,
 OrderLineItemGiftCards, OrderLineItemSkus, OrderPayment, OrderPayments, Orders, PaymentMethod, Region,
 ShippingMethod, Sku, StoreAdmin, StoreAdmins, StoreCredit}
-import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 
@@ -31,11 +30,10 @@ object FullOrder {
   final case class Root(
     id: Int,
     referenceNumber: String,
-    orderStatus: Order.Status,
-    shippingStatus: Order.Status,
-    paymentStatus: Option[CreditCardCharge.Status] = Some(CreditCardCharge.Cart),
+    orderState: Order.State,
+    shippingState: Order.State,
+    paymentState: Option[CreditCardCharge.State] = Some(CreditCardCharge.Cart),
     lineItems: LineItems,
-    adjustments: Seq[Adjustment],
     fraudScore: Int,
     totals: Totals,
     customer: Option[CustomerResponse.Root] = None,
@@ -54,7 +52,7 @@ object FullOrder {
     price: Int = 33,
     quantity: Int = 1,
     totalPrice: Int = 33,
-    status: OrderLineItem.Status) extends ResponseItem
+    state: OrderLineItem.State) extends ResponseItem
 
   sealed trait Payments
 
@@ -95,7 +93,7 @@ object FullOrder {
     }
   }
 
-  def build(order: Order, skus: Seq[(Sku, OrderLineItem)] = Seq.empty, adjustments: Seq[Adjustment] = Seq.empty,
+  def build(order: Order, skus: Seq[(Sku, OrderLineItem)] = Seq.empty,
     shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None,
     shippingAddress: Option[Addresses.Root] = None,
     ccPmt: Option[CcPayment] = None, gcPmts: Seq[(OrderPayment, GiftCard)] = Seq.empty,
@@ -126,19 +124,18 @@ object FullOrder {
     val paymentMethods: Seq[Payments] = creditCardPmt ++ giftCardPmts ++ storeCreditPmts
 
     val skuList = skus.map { case (sku, li) ⇒
-      DisplayLineItem(sku = sku.sku, status = li.status, name = sku.name.getOrElse("donkey product"),
+      DisplayLineItem(sku = sku.sku, state = li.state, name = sku.name.getOrElse("donkey product"),
         price = sku.price, totalPrice = sku.price)
     }
     val gcList = giftCards.map { case (gc, li) ⇒ GiftCardResponse.build(gc) }
 
     Root(id = order.id,
       referenceNumber = order.referenceNumber,
-      orderStatus = order.status,
-      shippingStatus = order.status,
-      //paymentStatus = none,
-      //paymentStatus = maybePayment.map(p ⇒ getPaymentStatus(order.status, p)),
+      orderState = order.state,
+      shippingState = order.state,
+      //paymentState = none,
+      //paymentState = maybePayment.map(p ⇒ getPaymentState(order.state, p)),
       lineItems = LineItems(skus = skuList, giftCards = gcList),
-      adjustments = adjustments,
       fraudScore = scala.util.Random.nextInt(100),
       customer = customer.map(responses.CustomerResponse.build(_)),
       shippingAddress = shippingAddress,
@@ -167,12 +164,7 @@ object FullOrder {
     Totals(subTotal = order.subTotal, shipping = order.shippingTotal, adjustments = order.adjustmentsTotal,
     taxes = order.taxesTotal, total = order.grandTotal)
 
-  private def fetchOrderDetails(order: Order)(implicit ec: ExecutionContext) = {
-    val shippingMethodQ = for {
-      orderShippingMethod ← models.OrderShippingMethods.filter(_.orderId === order.id)
-      shipMethod ← models.ShippingMethods.filter(_.id === orderShippingMethod.shippingMethodId)
-    } yield shipMethod
-
+  private def fetchOrderDetails(order: Order)(implicit ec: ExecutionContext, db: Database) = {
     val ccPaymentQ = for {
       payment     ← OrderPayments.findAllByOrderId(order.id)
       creditCard  ← CreditCards.filter(_.id === payment.paymentMethodId)
@@ -184,7 +176,7 @@ object FullOrder {
       customer    ← Customers.findById(order.customerId).extract.one
       lineItems   ← OrderLineItemSkus.findLineItemsByOrder(order).sortBy(_._1.sku).result
       giftCards   ← OrderLineItemGiftCards.findLineItemsByOrder(order).result
-      shipMethod  ← shippingMethodQ.one
+      shipMethod  ← models.ShippingMethods.forOrder(order).one
       shipAddress ← Addresses.forOrderId(order.id)
       payments    ← ccPaymentQ.one
       gcPayments  ← OrderPayments.findAllGiftCardsByOrderId(order.id).result

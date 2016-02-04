@@ -1,23 +1,28 @@
 package services.rmas
 
 import models.{RmaAssignments, Customers, Rmas, StoreAdmins, javaTimeSlickMapper}
-import responses.{AllRmas, AssignmentResponse}
+import responses.{PaginationMetadata, SortingMetadata, TheResponse, AllRmas, AssignmentResponse}
+import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
 import utils.Slick._
 import utils.Slick.implicits._
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 
 import scala.concurrent.ExecutionContext
 
 object RmaQueries {
 
   def findAll(query: Rmas.QuerySeq)(implicit ec: ExecutionContext, db: Database,
-    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): ResultWithMetadata[Seq[AllRmas.Root]] = {
+    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[BulkRmaUpdateResponse] =
+    findAllDbio(query).run()
 
-    val rmasAndCustomers = for {
-      (rma, customer) ← query.join(Customers).on(_.customerId === _.id)
-    } yield (rma, customer)
+  def findAllDbio(query: Rmas.QuerySeq)(implicit ec: ExecutionContext, db: Database,
+    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[BulkRmaUpdateResponse] = {
+
+    val rmasAndCustomers = query.join(Customers).on(_.customerId === _.id)
 
     val withStoreAdmins = rmasAndCustomers.joinLeft(StoreAdmins).on(_._1.storeAdminId === _.id)
 
@@ -28,7 +33,7 @@ object RmaQueries {
         case "orderId"                    ⇒ if (s.asc) rma.orderId.asc                else rma.orderId.desc
         case "orderRefNum"                ⇒ if (s.asc) rma.orderRefNum.asc            else rma.orderRefNum.desc
         case "rmaType"                    ⇒ if (s.asc) rma.rmaType.asc                else rma.rmaType.desc
-        case "status"                     ⇒ if (s.asc) rma.status.asc                 else rma.status.desc
+        case "state"                      ⇒ if (s.asc) rma.state.asc                  else rma.state.desc
         case "isLocked"                   ⇒ if (s.asc) rma.isLocked.asc               else rma.isLocked.desc
         case "customerId"                 ⇒ if (s.asc) rma.customerId.asc             else rma.customerId.desc
         case "storeAdminId"               ⇒ if (s.asc) rma.storeAdminId.asc           else rma.storeAdminId.desc
@@ -64,6 +69,6 @@ object RmaQueries {
           AllRmas.build(rma, customer, admin, currentAssignees)
         }
       }
-    })
+    }).toTheResponse
   }
 }

@@ -11,8 +11,8 @@
         + `creditOnly`
         + `restockOnly`
 
-### RmaStatus
-+ status: `pending` (required, enum[string]) - Status to be switched to.
+### RmaState
++ state: `pending` (required, enum[string]) - State to be switched to.
     + Members
         + `pending`
         + `processed`
@@ -40,7 +40,7 @@
 
 ### RmaBase
 + Include RmaType
-+ Include RmaStatus
++ Include RmaState
 + customer (optional, CustomerResponse) - Customer who created RMA.
 + storeAdmin (optional, StoreAdminResponse) - StoreAdmin who created RMA.
 + lineItems (optional, RmaLineItems) - RMA line items divided by categories.
@@ -70,7 +70,7 @@
 + Include RmaHeader
 + orderId: 1 (required, number) - Related order ID.
 + Include RmaType
-+ Include RmaStatus
++ Include RmaState
 + customer (optional, CustomerResponse) - Customer who created RMA.
 + storeAdmin (optional, StoreAdminResponse) - StoreAdmin who created RMA.
 + assignees (required, array[AssignmentResponse]) - List of RMA assignees.
@@ -107,8 +107,8 @@
 + orderRefNum: `ABC-123` (required, string) - Related order refNum.
 + Include RmaType
 
-### RmaStatusUpdatePayload
-+ Include RmaStatus
+### RmaStateUpdatePayload
++ Include RmaState
 + reasonId (optional, number) - Possible reason, required for cancellation.
 
 ### RmaLockInfo

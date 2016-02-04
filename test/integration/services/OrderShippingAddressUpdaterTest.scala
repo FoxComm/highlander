@@ -70,8 +70,8 @@ class OrderShippingAddressUpdaterTest extends IntegrationTestBase {
       admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
       customer ← * <~ Customers.create(Factories.customer)
       address  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
-      order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, status = Order.Cart))
-    } yield (admin, customer, address, order)).runT().futureValue.rightVal
+      order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, state = Order.Cart))
+    } yield (admin, customer, address, order)).runTxn().futureValue.rightVal
   }
 
   trait UpdateAddressFixture extends Fixture {
@@ -79,6 +79,6 @@ class OrderShippingAddressUpdaterTest extends IntegrationTestBase {
       orderShippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
       newAddress ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, name = "New Address",
         isDefaultShipping = false))
-    } yield (orderShippingAddress, newAddress)).runT().futureValue.rightVal
+    } yield (orderShippingAddress, newAddress)).runTxn().futureValue.rightVal
   }
 }

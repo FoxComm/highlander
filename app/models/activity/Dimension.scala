@@ -1,21 +1,15 @@
 package models.activity
 
-import java.time.Instant
+import scala.concurrent.ExecutionContext
 
 import cats.data.ValidatedNel
 import monocle.macros.GenLens
-import org.json4s.JsonAST.JValue
-
 import services.Failure
-
 import utils.ExPostgresDriver.api._
-import utils.time.JavaTimeSlickMapper._
+import utils.Slick.DbResult
+import utils.Slick.implicits._
+import utils.Validation._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
-
-import Validation._
-
-
-import Aliases.Json
 
 /**
  * An activity dimension has a set of activity trails. It is used as a logical grouping
@@ -37,6 +31,13 @@ final case class Dimension(
 
   }
 
+object Dimension {
+  val order         = "order"
+  val customer      = "customer"
+  val admin         = "admin"
+  val notification  = "notification"
+}
+
 class Dimensions(tag: Tag) extends GenericTable.TableWithId[Dimension](tag, "activity_dimensions")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
@@ -50,4 +51,9 @@ object Dimensions extends TableQueryWithId[Dimension, Dimensions](
 
     def findByName(name: String) : QuerySeq = filter(_.name === name) 
 
+  def findOrCreateByName(name: String)(implicit ec: ExecutionContext): DbResult[Dimension] =
+    findByName(name).one.flatMap {
+      case Some(dimension) ⇒ DbResult.good(dimension)
+      case None ⇒ create(Dimension(name = name, description = name.capitalize))
+    }
   }

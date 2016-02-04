@@ -2,9 +2,11 @@ package services
 
 import java.time.Instant
 
-import cats.data.Validated.{Invalid, Valid}
+import scala.concurrent.ExecutionContext
+
 import models.Notes.scope._
-import models.{Customers, GiftCards, Note, Notes, Orders, Rmas, StoreAdmin, javaTimeSlickMapper}
+import models.activity.ActivityContext
+import models.{Customers, GiftCards, Note, Notes, Orders, Rmas, StoreAdmin}
 import responses.AdminNotes
 import responses.AdminNotes.Root
 import slick.driver.PostgresDriver.api._
@@ -14,58 +16,49 @@ import utils.ModelWithIdParameter
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 
-import scala.concurrent.ExecutionContext
-import models.activity.ActivityContext
-
 object NoteManager {
 
   def createOrderNote(refNum: String, author: StoreAdmin, payload: payloads.CreateNote)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
-
     order ← * <~ Orders.mustFindByRefNum(refNum)
     note  ← * <~ Notes.create(Note.forOrder(order.id, author.id, payload))
-    _     ← * <~ LogActivity.orderNoteCreated(author, refNum, payload.body)
-  } yield AdminNotes.build(note, author)).runT()
+    _     ← * <~ LogActivity.orderNoteCreated(author, order, note)
+  } yield AdminNotes.build(note, author)).runTxn()
 
   def createGiftCardNote(code: String, author: StoreAdmin, payload: payloads.CreateNote)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    GiftCards.findByCode(code).selectOne { giftCard ⇒
-      createModelNote(giftCard.id, Note.GiftCard, author, payload)
-    }
-  }
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
+    giftCard ← * <~ GiftCards.mustFindByCode(code)
+    response ← * <~ createModelNote(giftCard.id, Note.GiftCard, author, payload)
+  } yield response).runTxn()
 
   def createCustomerNote(customerId: Int, author: StoreAdmin, payload: payloads.CreateNote)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    Customers.findById(customerId).extract.selectOne { customer ⇒
-      createModelNote(customer.id, Note.Customer, author, payload)
-    }
-  }
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
+    customer ← * <~ Customers.mustFindById404(customerId)
+    response ← * <~ createModelNote(customer.id, Note.Customer, author, payload)
+  } yield response).runTxn()
 
   def createRmaNote(refNum: String, author: StoreAdmin, payload: payloads.CreateNote)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    Rmas.findByRefNum(refNum).selectOne { rma ⇒
-      createModelNote(rma.id, Note.Rma, author, payload)
-    }
-  }
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
+    rma      ← * <~ Rmas.mustFindByRefNum(refNum)
+    response ← * <~ createModelNote(rma.id, Note.Rma, author, payload)
+  } yield response).runTxn()
 
   private def createModelNote(refId: Int, refType: Note.ReferenceType, author: StoreAdmin,
-    payload: payloads.CreateNote)(implicit ec: ExecutionContext, db: Database): DbResult[Root] = {
-    createNote(Note(
+    payload: payloads.CreateNote)(implicit ec: ExecutionContext, db: Database): DbResultT[Root] = for {
+    note ← * <~ Notes.create(Note(
       storeAdminId = author.id,
       referenceId = refId,
       referenceType = refType,
-      body = payload.body)
-    ).map(_.map(AdminNotes.build(_, author)))
-  }
+      body = payload.body))
+  } yield AdminNotes.build(note, author)
 
   def updateOrderNote(refNum: String, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
-
     order   ← * <~ Orders.mustFindByRefNum(refNum)
     oldNote ← * <~ Notes.findOneByIdAndAdminId(noteId, author.id).mustFindOr(NotFoundFailure404(Note, noteId))
     note    ← * <~ Notes.update(oldNote, oldNote.copy(body = payload.body))
-    _       ← * <~ LogActivity.orderNoteUpdated(author, refNum, oldNote.body, payload.body)
-  } yield AdminNotes.build(note, author)).runT()
+    _       ← * <~ LogActivity.orderNoteUpdated(author, order, oldNote, note)
+  } yield AdminNotes.build(note, author)).runTxn()
 
   def deleteOrderNote(refNum: String, noteId: Int, author: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Unit] = (for {
@@ -73,96 +66,61 @@ object NoteManager {
     order   ← * <~ Orders.mustFindByRefNum(refNum)
     oldNote ← * <~ Notes.findOneByIdAndAdminId(noteId, author.id).mustFindOr(NotFoundFailure404(Note, noteId))
     note    ← * <~ Notes.update(oldNote, oldNote.copy(deletedAt = Some(Instant.now), deletedBy = Some(author.id)))
-    _       ← * <~ LogActivity.orderNoteDeleted(author, refNum, note.body)
-  } yield ()).runT()
+    _       ← * <~ LogActivity.orderNoteDeleted(author, order, note)
+  } yield ()).runTxn()
 
   def updateGiftCardNote(code: String, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    GiftCards.findByCode(code).selectOne { _ ⇒ updateNote(noteId, author, payload) }
-  }
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
+    _        ← * <~ GiftCards.mustFindByCode(code)
+    response ← * <~ updateNote(noteId, author, payload)
+  } yield response).runTxn()
 
   def updateCustomerNote(customerId: Int, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    Customers.findById(customerId).extract.selectOne { _ ⇒ updateNote(noteId, author, payload) }
-  }
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
+    _        ← * <~ Customers.mustFindById404(customerId)
+    response ← * <~ updateNote(noteId, author, payload)
+  } yield response).runTxn()
 
   def updateRmaNote(refNum: String, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = {
-    Rmas.findByRefNum(refNum).selectOne { _ ⇒ updateNote(noteId, author, payload) }
-  }
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
+    _        ← * <~ Rmas.mustFindByRefNum(refNum)
+    response ← * <~ updateNote(noteId, author, payload)
+  } yield response).runTxn()
 
   private def updateNote(noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
-    (implicit ec: ExecutionContext, db: Database): DbResult[Root] = {
+    (implicit ec: ExecutionContext, db: Database): DbResultT[Root] = for {
+    oldNote ← * <~ Notes.filterByIdAndAdminId(noteId, author.id).one.mustFindOr(NotFoundFailure404(Note, noteId))
+    newNote ← * <~ Notes.update(oldNote, oldNote.copy(body = payload.body))
+  } yield AdminNotes.build(newNote, author)
 
-    val finder = Notes.filterByIdAndAdminId(noteId, author.id)
-    val update = finder.map(_.body).update(payload.body)
+  def deleteNote(noteId: Int, admin: StoreAdmin)(implicit ec: ExecutionContext, db: Database): Result[Unit] = (for {
+    note ← * <~ Notes.mustFindById404(noteId)
+    _    ← * <~ Notes.update(note, note.copy(deletedAt = Some(Instant.now), deletedBy = Some(admin.id)))
+  } yield {}).runTxn()
 
-    update.flatMap { rowsAffected ⇒
-      if (rowsAffected == 1) {
-        finder.one.flatMap {
-          case Some(note) ⇒ DbResult.good(AdminNotes.build(note, author))
-          case None       ⇒ DbResult.failure(notFound(noteId))
-        }
-      } else {
-        DbResult.failure(notFound(noteId))
-      }
-    }
-  }
+  def forOrder(refNum: String)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = (for {
+    order    ← * <~ Orders.mustFindByRefNum(refNum)
+    response ← * <~ forModel(Notes.filterByOrderId(order.id).notDeleted)
+  } yield response).run()
 
-  private def notFound(noteId: Int): NotFoundFailure404 = NotFoundFailure404(Note, noteId)
+  def forGiftCard(code: String)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = (for {
+    giftCard ← * <~ GiftCards.mustFindByCode(code)
+    response ← * <~ forModel(Notes.filterByGiftCardId(giftCard.id).notDeleted)
+  } yield response).run()
 
-  def deleteNote(noteId: Int, admin: StoreAdmin)(implicit ec: ExecutionContext, db: Database): Result[Unit] = {
-    val finder = Notes.findById(noteId).extract
+  def forCustomer(customerId: Int)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = (for {
+    customer ← * <~ Customers.mustFindById404(customerId)
+    response ← * <~ forModel(Notes.filterByCustomerId(customer.id).notDeleted)
+  } yield response).run()
 
-    finder.selectOneForUpdate { note ⇒
-      finder.map(n ⇒ (n.deletedAt, n.deletedBy)).update((Some(Instant.now), Some(admin.id))) >> DbResult.unit
-    }
-  }
-
-  private def createNote(note: Note)
-    (implicit ec: ExecutionContext, db: Database): DbResult[Note] = {
-    note.validate match {
-      case Valid(_)         ⇒ Notes.create(note)
-      case Invalid(errors)  ⇒ DbResult.failures(errors)
-    }
-  }
-
-  def forOrder(refNum: String)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
-    Orders.findByRefNum(refNum).selectOne { order ⇒
-      forModel(Notes.filterByOrderId(order.id).notDeleted)
-    }
-  }
-
-  def forGiftCard(code: String)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
-    GiftCards.findByCode(code).selectOne { giftCard ⇒
-      forModel(Notes.filterByGiftCardId(giftCard.id).notDeleted)
-    }
-  }
-
-  def forCustomer(customerId: Int)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
-    Customers.findById(customerId).extract.selectOne { customer ⇒
-      forModel(Notes.filterByCustomerId(customer.id).notDeleted)
-    }
-  }
-
-  def forRma(refNum: String)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = {
-    Rmas.findByRefNum(refNum).selectOne { rma ⇒
-      forModel(Notes.filterByRmaId(rma.id).notDeleted)
-    }
-  }
+  def forRma(refNum: String)(implicit ec: ExecutionContext, db: Database): Result[Seq[Root]] = (for {
+    rma      ← * <~ Rmas.mustFindByRefNum(refNum)
+    response ← * <~ forModel(Notes.filterByRmaId(rma.id).notDeleted)
+  } yield response).run()
 
   private def forModel[M <: ModelWithIdParameter[M]](finder: Notes.QuerySeq)
     (implicit ec: ExecutionContext, db: Database): DbResult[Seq[Root]] = {
-    val q = for {
-      notes ← finder
-      authors ← notes.author
-    } yield (notes, authors)
-
-    val notes = q.result.map { _.map {
-        case (note, author) ⇒ AdminNotes.build(note, author)
-      }
-    }
-
-    DbResult.fromDbio(notes)
+    val query = for (notes ← finder; authors ← notes.author) yield (notes, authors)
+    DbResult.fromDbio(query.result.map(_.map { case (note, author) ⇒ AdminNotes.build(note, author) }))
   }
 }

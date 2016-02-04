@@ -15,9 +15,9 @@ object AllOrders {
     referenceNumber: String,
     email: String,
     name: Option[String] = None,
-    orderStatus: Order.Status,
-    paymentStatus: Option[String] = None,
-    shippingStatus: Option[String] = None,
+    orderState: Order.State,
+    paymentState: Option[String] = None,
+    shippingState: Option[String] = None,
     placedAt: Option[Instant] = None,
     remorsePeriodEnd: Option[Instant] = None,
     total: Int) extends ResponseItem
@@ -27,10 +27,10 @@ object AllOrders {
       referenceNumber = order.referenceNumber,
       name = customer.name,
       email = customer.email,
-      orderStatus = order.status,
+      orderState = order.state,
       // TODO: FIXME
-      paymentStatus = Some("FIXME"),
-      shippingStatus = Some("FIXME"),
+      paymentState = Some("FIXME"),
+      shippingState = Some("FIXME"),
       placedAt = order.placedAt,
       remorsePeriodEnd = order.getRemorsePeriodEnd,
       total = order.grandTotal

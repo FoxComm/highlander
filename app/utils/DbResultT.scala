@@ -35,8 +35,11 @@ object DbResultT {
     }
 
     implicit class EnrichedDbResultT[A](dbResultT: DbResultT[A]) {
-      def runT(txn: Boolean = true)(implicit ec: ExecutionContext, db: Database): Result[A] =
-        if (txn) dbResultT.value.transactionally.run() else dbResultT.value.run()
+      def runTxn()(implicit ec: ExecutionContext, db: Database): Result[A] =
+        dbResultT.value.transactionally.run()
+
+      def run()(implicit ec: ExecutionContext, db: Database): Result[A] =
+        dbResultT.value.run()
     }
   }
 

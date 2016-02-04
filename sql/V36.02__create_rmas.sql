@@ -4,7 +4,7 @@ create table rmas (
     order_id integer not null references orders(id) on update restrict on delete restrict,
     order_refnum reference_number not null,
     rma_type rma_type not null,
-    status rma_status not null,
+    state rma_state not null,
     is_locked boolean default false,
     message_to_customer text null,
     customer_id integer not null references customers(id) on update restrict on delete restrict,
@@ -15,7 +15,7 @@ create table rmas (
     deleted_at timestamp without time zone null
 );
 
-create index rmas_order_id_and_status on rmas (order_id, status);
+create index rmas_order_id_and_state on rmas (order_id, state);
 
 create function set_rmas_reference_number() returns trigger as $$
 begin

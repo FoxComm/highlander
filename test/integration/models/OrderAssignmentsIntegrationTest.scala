@@ -43,7 +43,7 @@ class OrderAssignmentsIntegrationTest extends IntegrationTestBase {
         admin1 ← * <~ StoreAdmins.create(Factories.storeAdmin)
         admin2 ← * <~ StoreAdmins.create(Factories.storeAdmin.copy(id = 2, email = "foo@foo.foo"))
         admin3 ← * <~ StoreAdmins.create(Factories.storeAdmin.copy(id = 3, email = "bar@bar.bar"))
-      } yield (order1, order2, order3, admin1, admin2, admin3)).runT().futureValue.rightVal
+      } yield (order1, order2, order3, admin1, admin2, admin3)).runTxn().futureValue.rightVal
     }
   }
 

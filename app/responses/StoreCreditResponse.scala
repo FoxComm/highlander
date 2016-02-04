@@ -17,7 +17,7 @@ object StoreCreditResponse {
     availableBalance: Int,
     canceledAmount: Option[Int],
     canceledReason: Option[Int],
-    status: models.StoreCredit.Status,
+    state: models.StoreCredit.State,
     createdAt: Instant) extends ResponseItem
 
   final case class Totals(availableBalance: Int = 0, currentBalance: Int = 0)
@@ -38,7 +38,7 @@ object StoreCreditResponse {
       availableBalance = storeCredit.availableBalance,
       canceledAmount = storeCredit.canceledAmount,
       canceledReason = storeCredit.canceledReason,
-      status = storeCredit.status,
+      state = storeCredit.state,
       createdAt = storeCredit.createdAt)
   }
 }

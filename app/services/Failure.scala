@@ -1,18 +1,17 @@
 package services
 
-import scala.collection.immutable
-
 import com.stripe.exception.StripeException
+import models.activity.Dimension
 import models.{CreditCard, GiftCard, Order, Rma, StoreCredit}
 import services.Util.searchTerm
 import utils.friendlyClassName
 
 sealed trait Failure {
-  def description: immutable.Traversable[String]
+  def description: String
 }
 
 final case class NotFoundFailure404(message: String) extends Failure {
-  override def description = List(message)
+  override def description = message
 }
 
 object NotFoundFailure404 {
@@ -22,7 +21,7 @@ object NotFoundFailure404 {
 }
 
 final case class NotFoundFailure400(message: String) extends Failure {
-  override def description = List(message)
+  override def description = message
 }
 
 object NotFoundFailure400 {
@@ -32,134 +31,146 @@ object NotFoundFailure400 {
 }
 
 final case class DatabaseFailure(message: String) extends Failure {
-  override def description = List(message)
+  override def description = message
 }
 
 final case class InvalidReasonTypeFailure(name: String) extends Failure {
-  override def description = List(s"Reason type named '${name}' doesn't exist")
+  override def description = s"Reason type named '${name}' doesn't exist"
 }
 
 final case class InvalidFieldFailure(name: String) extends Failure {
-  override def description = List(s"Invalid value for field '${name}' provided")
+  override def description = s"Invalid value for field '${name}' provided"
 }
 
 final case class GeneralFailure(a: String) extends Failure {
-  override def description = List(a)
+  override def description = a
 }
 
 final case class ShipmentNotFoundFailure(orderRefNum: String) extends Failure {
-  override def description = List(s"No shipments found for order with refNum=$orderRefNum")
+  override def description = s"No shipments found for order with refNum=$orderRefNum"
 }
 
 case object EmptyCancellationReasonFailure extends Failure {
-  override def description = List("Please provide valid cancellation reason")
+  override def description = "Please provide valid cancellation reason"
 }
 
 case object InvalidCancellationReasonFailure extends Failure {
-  override def description = List("Cancellation reason doesn't exist")
+  override def description = "Cancellation reason doesn't exist"
 }
 
 case object OpenTransactionsFailure extends Failure {
-  override def description = List("Open transactions should be canceled/completed")
+  override def description = "Open transactions should be canceled/completed"
 }
 
 case object CustomerHasDefaultShippingAddress extends Failure {
-  override def description = List("customer already has default shipping address")
+  override def description = "customer already has default shipping address"
 }
 
 case object CustomerHasDefaultCreditCard extends Failure {
-  override def description = List("customer already has default credit card")
+  override def description = "customer already has default credit card"
 }
 
-final case class StatusTransitionNotAllowed(message: String) extends Failure {
-  override def description = List(message)
+final case class StateTransitionNotAllowed(message: String) extends Failure {
+  override def description = message
 }
 
-object StatusTransitionNotAllowed {
-  def apply[A](a: A, fromStatus: String, toStatus: String, searchKey: Any): StatusTransitionNotAllowed = {
-    StatusTransitionNotAllowed(s"Transition from $fromStatus to $toStatus is not allowed for ${friendlyClassName(a)} " +
+object StateTransitionNotAllowed {
+  def apply[A](a: A, fromState: String, toState: String, searchKey: Any): StateTransitionNotAllowed = {
+    StateTransitionNotAllowed(s"Transition from $fromState to $toState is not allowed for ${friendlyClassName(a)} " +
       s"with ${searchTerm(a)}=$searchKey")
   }
 
-  def apply(from: Order.Status, to: Order.Status, refNum: String): StatusTransitionNotAllowed = {
+  def apply(from: Order.State, to: Order.State, refNum: String): StateTransitionNotAllowed = {
     apply(Order, from.toString, to.toString, refNum)
   }
 }
 
+final case class NotificationTrailNotFound400(adminId: Int) extends Failure {
+  override def description = s"Notification trail for adminId=$adminId not found"
+}
+
 case object CustomerEmailNotUnique extends Failure {
-  override def description = List("The email address you entered is already in use")
+  override def description = "The email address you entered is already in use"
 }
 
 final case class OrderUpdateFailure(referenceNumber: String, reason: String) extends Failure {
-  override def description = List(reason)
+  override def description = reason
 }
 
 object RmaFailures {
   final case class EmptyRma(refNum: String) extends Failure {
-    override def description = List(s"rma with referenceNumber=$refNum has no line items")
+    override def description = s"rma with referenceNumber=$refNum has no line items"
   }
 
   final case class SkuNotFoundInOrder(sku: String, refNum: String) extends Failure {
-    override def description = List(s"line item with sku=$sku not found in order with referenceNumber=$refNum")
+    override def description = s"line item with sku=$sku not found in order with referenceNumber=$refNum"
   }
 }
 
 object CartFailures {
   final case class OrderMustBeCart(refNum: String) extends Failure {
-    override def description = List(s"order with referenceNumber=$refNum is not in cart status")
+    override def description = s"order with referenceNumber=$refNum is not in cart state"
   }
 
   final case class CustomerHasCart(id: Int) extends Failure {
-    override def description = List(s"customer with id=$id already has an active cart")
+    override def description = s"customer with id=$id already has an active cart"
+  }
+
+  final case class CustomerHasNoActiveOrder(customerId: Int) extends Failure {
+    override def description = s"customer with id=$customerId has no active order"
   }
 
   final case class EmptyCart(refNum: String) extends Failure {
-    override def description = List(s"order with referenceNumber=$refNum is an empty cart")
+    override def description = s"order with referenceNumber=$refNum is an empty cart"
   }
 
   final case class NoShipAddress(refNum: String) extends Failure {
-    override def description = List(s"order with referenceNumber=$refNum has no shipping address")
+    override def description = s"order with referenceNumber=$refNum has no shipping address"
   }
 
   final case class NoShipMethod(refNum: String) extends Failure {
-    override def description = List(s"order with referenceNumber=$refNum has no shipping method")
+    override def description = s"order with referenceNumber=$refNum has no shipping method"
   }
 
   final case class InvalidShippingMethod(refNum: String) extends Failure {
-    override def description = List(s"order with referenceNumber=$refNum has invalid shipping method")
+    override def description = s"order with referenceNumber=$refNum has invalid shipping method"
   }
 
   final case class InsufficientFunds(refNum: String) extends Failure {
-    override def description = List(s"order with referenceNumber=$refNum has insufficient funds")
+    override def description = s"order with referenceNumber=$refNum has insufficient funds"
   }
 }
 
 final case class GiftCardMustBeCart(code: String) extends Failure {
-  override def description = List(s"giftCart with code=$code is not in cart status")
+  override def description = s"giftCart with code=$code is not in cart state"
 }
 
 final case class GiftCardMustNotBeCart(code: String) extends Failure {
-  override def description = List(s"giftCart with code=$code must not be in cart status")
+  override def description = s"giftCart with code=$code must not be in cart state"
 }
 
 final case class GiftCardConvertFailure(gc: GiftCard) extends Failure {
-  override def description = List(s"cannot convert a gift card with status '${gc.status}'")
+  override def description = s"cannot convert a gift card with state '${gc.state}'"
 }
 
 final case class StoreCreditConvertFailure(sc: StoreCredit) extends Failure {
-  override def description = List(s"cannot convert a store credit with status '${sc.status}'")
+  override def description = s"cannot convert a store credit with state '${sc.state}'"
 }
 
 final case class OrderAssigneeNotFound(refNum: String, assigneeId: Int) extends Failure {
-  override def description = List(s"storeAdmin with id=$assigneeId is not assigned to order with refNum=$refNum")
+  override def description = s"storeAdmin with id=$assigneeId is not assigned to order with refNum=$refNum"
+}
+
+final case class SharedSearchAssociationNotFound(code: String, associateId: Int) extends Failure {
+  override def description = s"sharedSearch with code=$code is not associated to storeAdmin with id=$associateId"
 }
 
 final case class OrderWatcherNotFound(refNum: String, assigneeId: Int) extends Failure {
-  override def description = List(s"storeAdmin with id=$assigneeId is not watching order with refNum=$refNum")
+  override def description = s"storeAdmin with id=$assigneeId is not watching order with refNum=$refNum"
 }
 
 final case class RmaAssigneeNotFound(refNum: String, assigneeId: Int) extends Failure {
-  override def description = List(s"storeAdmin with id=$assigneeId is not assigned to RMA with refNum=$refNum")
+  override def description = s"storeAdmin with id=$assigneeId is not assigned to RMA with refNum=$refNum"
 }
 
 object OrderPaymentNotFoundFailure {
@@ -172,23 +183,23 @@ object RmaPaymentNotFoundFailure {
 
 final case class GiftCardNotEnoughBalance(gc: GiftCard, requestedAmount: Int) extends Failure {
   override def description =
-    List(s"giftCard with code=${gc.code} has availableBalance=${gc.availableBalance} less than requestedAmount=$requestedAmount")
+    s"giftCard with code=${gc.code} has availableBalance=${gc.availableBalance} less than requestedAmount=$requestedAmount"
 }
 
 final case class GiftCardIsInactive(gc: GiftCard) extends Failure {
-  override def description = List(s"giftCard with id=${gc.id} is inactive")
+  override def description = s"giftCard with id=${gc.id} is inactive"
 }
 
 final case class StoreCreditIsInactive(sc: StoreCredit) extends Failure {
-  override def description = List(s"storeCredit with id=${sc.id} is inactive")
+  override def description = s"storeCredit with id=${sc.id} is inactive"
 }
 
 final case class CannotUseInactiveCreditCard(cc: CreditCard) extends Failure {
-  override def description = List(s"creditCard with id=${cc.id} is inactive")
+  override def description = s"creditCard with id=${cc.id} is inactive"
 }
 
 final case class LockedFailure(message: String) extends Failure {
-  override def description = List(message)
+  override def description = message
 }
 
 object LockedFailure {
@@ -198,7 +209,7 @@ object LockedFailure {
 }
 
 final case class NotLockedFailure(message: String) extends Failure {
-  override def description = List(message)
+  override def description = message
 }
 
 object NotLockedFailure {
@@ -208,72 +219,72 @@ object NotLockedFailure {
 }
 
 final case class CustomerHasInsufficientStoreCredit(id: Int, has: Int, want: Int) extends Failure {
-  override def description = List(s"customer with id=$id has storeCredit=$has less than requestedAmount=$want")
+  override def description = s"customer with id=$id has storeCredit=$has less than requestedAmount=$want"
 }
 
 final case class ShippingMethodIsNotActive(shippingMethodId: Int) extends Failure {
-  override def description = List(s"Shipping method $shippingMethodId can't be added because it's not active")
+  override def description = s"Shipping method $shippingMethodId can't be added because it's not active"
 }
 
 final case class ShippingMethodNotApplicableToOrder(shippingMethodId: Int, referenceNumber: String) extends Failure {
-  override def description = List(s"Shipping method $shippingMethodId is not applicable to order $referenceNumber")
+  override def description = s"Shipping method $shippingMethodId is not applicable to order $referenceNumber"
 }
 
 case object CreditCardMustHaveAddress extends Failure {
-  override def description = List("cannot create creditCard without an address")
+  override def description = "cannot create creditCard without an address"
 }
 
 final case class AlreadySavedForLater(customerId: Int, skuId: Int) extends Failure {
-  override def description = List(s"Customer with id=$customerId already has SKU with id=$skuId saved for later")
+  override def description = s"Customer with id=$customerId already has SKU with id=$skuId saved for later"
 }
 
 object CreditCardFailure {
   final case class StripeFailure(exception: StripeException) extends Failure {
-    override def description = List(exception.getMessage)
+    override def description = exception.getMessage
   }
 
   case object InvalidCvc extends Failure {
-    override def description = List("failed CVC check")
+    override def description = "failed CVC check"
   }
 
   case object IncorrectCvc extends Failure {
-    override def description = List("The credit card's cvc is incorrect")
+    override def description = "The credit card's cvc is incorrect"
   }
 
   case object MonthExpirationInvalid extends Failure {
-    override def description = List("The credit card's month expiration is invalid")
+    override def description = "The credit card's month expiration is invalid"
   }
 
   case object YearExpirationInvalid extends Failure {
-    override def description = List("The credit card's year expiration is invalid")
+    override def description = "The credit card's year expiration is invalid"
   }
 
   case object IncorrectNumber extends Failure {
-    override def description = List("The credit card's number is incorrect")
+    override def description = "The credit card's number is incorrect"
   }
 
   case object InvalidNumber extends Failure {
-    override def description = List("The card number is not a valid credit card number")
+    override def description = "The card number is not a valid credit card number"
   }
 
   case object ExpiredCard extends Failure {
-    override def description = List("The credit card is expired")
+    override def description = "The credit card is expired"
   }
 
   case object IncorrectZip extends Failure {
-    override def description = List("The zip code failed verification")
+    override def description = "The zip code failed verification"
   }
 
   case object CardDeclined extends Failure {
-    override def description = List("The credit card was declined")
+    override def description = "The credit card was declined"
   }
 
   case object Missing extends Failure {
-    override def description = List("Could not find a credit card for the customer")
+    override def description = "Could not find a credit card for the customer"
   }
 
   case object ProcessingError extends Failure {
-    override def description = List("There was an error processing the credit card request")
+    override def description = "There was an error processing the credit card request"
   }
 }
 
@@ -281,6 +292,15 @@ object Util {
   def searchTerm[A](a: A): String = a match {
     case Order | _: Order | Rma | _: Rma ⇒ "referenceNumber"
     case GiftCard | _: GiftCard ⇒ "code"
+    case Dimension | _: Dimension ⇒ "name"
     case _ ⇒ "id"
   }
+
+  /* Diff lists of model identifiers to produce a list of failures for absent models */
+  def diffToFailures[A, B](requested: Seq[A], available: Seq[A], modelType: B): Option[Failures] =
+    Failures(requested.diff(available).map(NotFoundFailure404(modelType, _)): _*)
+
+  /* Diff lists of model identifiers to produce a list of warnings for absent models */
+  def diffToFlatFailures[A, B](requested: Seq[A], available: Seq[A], modelType: B): Option[List[String]] =
+    diffToFailures(requested, available, modelType).map(_.flatten)
 }

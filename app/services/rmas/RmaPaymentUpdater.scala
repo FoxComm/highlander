@@ -20,11 +20,12 @@ object RmaPaymentUpdater {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
       payment   ← * <~ mustFindCcPaymentsByOrderId(rma.orderId)
-      cc        ← * <~ CreditCards.mustFindById(payment.paymentMethodId)
+      cc        ← * <~ CreditCards.mustFindById404(payment.paymentMethodId)
       deleteAll ← * <~ deleteCc(rma.id).toXor
       ccRefund  ← * <~ RmaPayments.create(RmaPayment.build(cc, rma.id, payload.amount, payment.currency))
-      response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
-    } yield response).runT()
+      updated   ← * <~ Rmas.refresh(rma).toXor
+      response  ← * <~ RmaResponse.fromRma(rma).toXor
+    } yield response).runTxn()
 
   def addGiftCard(admin: StoreAdmin, refNum: String, payload: RmaPaymentPayload)
     (implicit ec: ExecutionContext, db: Database): Result[RmaResponse.Root] = (for {
@@ -35,8 +36,9 @@ object RmaPaymentUpdater {
       origin    ← * <~ GiftCardRefunds.create(GiftCardRefund(rmaId = rma.id))
       gc        ← * <~ GiftCards.create(GiftCard.buildRmaProcess(origin.id, payment.currency))
       pmt       ← * <~ RmaPayments.create(RmaPayment.build(gc, rma.id, payload.amount, payment.currency))
-      response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
-    } yield response).runT()
+      updated   ← * <~ Rmas.refresh(rma).toXor
+      response  ← * <~ RmaResponse.fromRma(rma).toXor
+    } yield response).runTxn()
 
   def addStoreCredit(admin: StoreAdmin, refNum: String, payload: RmaPaymentPayload)
     (implicit ec: ExecutionContext, db: Database): Result[RmaResponse.Root] = (for {
@@ -49,26 +51,30 @@ object RmaPaymentUpdater {
       storeCredit = StoreCredit.buildRmaProcess(rma.customerId, origin.id, payment.currency)
       sc        ← * <~ StoreCredits.create(storeCredit)
       pmt       ← * <~ RmaPayments.create(RmaPayment.build(sc, rma.id, payload.amount, payment.currency))
-      response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
-    } yield response).runT()
+      updated   ← * <~ Rmas.refresh(rma).toXor
+      response  ← * <~ RmaResponse.fromRma(rma).toXor
+    } yield response).runTxn()
 
   def deleteCreditCard(refNum: String)(implicit ec: ExecutionContext, db: Database): Result[RmaResponse.Root] = (for {
     rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
     deleteAll ← * <~ deleteCc(rma.id).toXor
-    response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
-  } yield response).runT()
+    updated   ← * <~ Rmas.refresh(rma).toXor
+    response  ← * <~ RmaResponse.fromRma(rma).toXor
+  } yield response).runTxn()
 
   def deleteGiftCard(refNum: String)(implicit ec: ExecutionContext, db: Database): Result[RmaResponse.Root] = (for {
     rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
     deleteAll ← * <~ deleteGc(rma.id).toXor
-    response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
-  } yield response).runT()
+    updated   ← * <~ Rmas.refresh(rma).toXor
+    response  ← * <~ RmaResponse.fromRma(rma).toXor
+  } yield response).runTxn()
 
   def deleteStoreCredit(refNum: String)(implicit ec: ExecutionContext, db: Database): Result[RmaResponse.Root] = (for {
     rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
     deleteAll ← * <~ deleteSc(rma.id).toXor
-    response  ← * <~ fullRma(Rmas.findByRefNum(refNum)).toXor
-  } yield response).runT()
+    updated   ← * <~ Rmas.refresh(rma).toXor
+    response  ← * <~ RmaResponse.fromRma(rma).toXor
+  } yield response).runTxn()
 
   private def deleteCc(rmaId: Int)(implicit ec: ExecutionContext, db: Database) = {
     RmaPayments.filter(_.rmaId === rmaId).creditCards.result.flatMap { seq ⇒

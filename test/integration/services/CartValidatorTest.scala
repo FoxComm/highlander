@@ -57,11 +57,11 @@ class CartValidatorTest extends IntegrationTestBase {
           admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
           reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
           origin   ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = reason.id))
-          giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, status = GiftCard.Active,
+          giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active,
             originalBalance = notEnoughFunds))
           payment  ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = cart.id,
             amount = sku.price.some, paymentMethodId = giftCard.id))
-        } yield payment).runT().futureValue.rightVal
+        } yield payment).runTxn().futureValue.rightVal
 
         val result = CartValidator(refresh(cart)).validate.run().futureValue.rightVal
 
@@ -104,11 +104,9 @@ class CartValidatorTest extends IntegrationTestBase {
   trait LineItemsFixture extends Fixture {
     val (sku, items) = (for {
       sku   ← * <~ Skus.create(Factories.skus.head)
-      _     ← * <~ OrderLineItemSkus.create(OrderLineItemSku(skuId = sku.id, orderId = cart.id))
       items ← * <~ OrderLineItems.create(OrderLineItem.buildSku(cart, sku))
-
       _     ← * <~ OrderTotaler.saveTotals(cart)
-    } yield (sku, items)).runT().futureValue.rightVal
+    } yield (sku, items)).runTxn().futureValue.rightVal
   }
 
   trait CreditCartFixture extends Fixture {
@@ -116,6 +114,6 @@ class CartValidatorTest extends IntegrationTestBase {
       customer ← * <~ Customers.create(Factories.customer)
       cc       ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
       _        ← * <~ OrderPayments.create(Factories.orderPayment.copy(orderId = cart.id, paymentMethodId = cc.id))
-    } yield (customer, cc)).runT().futureValue.rightVal
+    } yield (customer, cc)).runTxn().futureValue.rightVal
   }
 }

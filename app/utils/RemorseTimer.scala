@@ -24,10 +24,10 @@ class RemorseTimer(implicit ec: ExecutionContext, db: Database) extends Actor {
 
   private def tick(implicit ec: ExecutionContext, db: Database): RemorseTimerResponse = {
     val advance = Orders
-      .filter(_.status === (RemorseHold: Status))
+      .filter(_.state === (RemorseHold: State))
       .filterNot(_.isLocked)
       .filter(_.remorsePeriodEnd.map(_ < Instant.now))
-      .map(_.status)
+      .map(_.state)
       .update(Order.FulfillmentStarted)
 
     RemorseTimerResponse(db.run(advance))

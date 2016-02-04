@@ -4,26 +4,29 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.matching.Regex
 
 import cats.data.Xor
-import models.{Rmas, Orders}
-import responses.{RmaResponse, FullOrder}
-import services.{Failure, Failures, Result, GeneralFailure}
+import responses.{SortingMetadata, PaginationMetadata, TheResponse}
+import services.{Failure, Failures, Result}
 import slick.ast._
-import slick.dbio.Effect.All
 import slick.driver.PostgresDriver._
 import slick.driver.PostgresDriver.api._
-import slick.jdbc.{ResultSetInvoker, SQLActionBuilder, GetResult, JdbcResultConverterDomain, SetParameter}
+import slick.jdbc.{SQLActionBuilder, GetResult, JdbcResultConverterDomain, SetParameter}
 
 import slick.lifted.{ColumnOrdered, Ordered, Query}
 import slick.profile.{SqlAction, SqlStreamingAction}
 import slick.relational.{CompiledMapping, ResultConverter}
 import slick.util.SQLBuilder
 import utils.CustomDirectives.{Sort, SortAndPage}
-import utils.DbResultT.DbResultT
+import utils.DbResultT.{DbResultT, _}
+import DbResultT.implicits._
 import utils.ExceptionWrapper._
 
 object Slick {
 
   type DbResult[T] = DBIO[Failures Xor T]
+
+  sealed trait FoundOrCreated
+  case object Found extends FoundOrCreated
+  case object Created extends FoundOrCreated
 
   def xorMapDbio[LeftX, RightX, RightY](xor: Xor[LeftX, RightX])(f: RightX ⇒ DBIO[RightY])
     (implicit ec: ExecutionContext): DBIO[Xor[LeftX, RightY]] = {
@@ -41,14 +44,6 @@ object Slick {
 
   def liftFuture[A](future: Future[A]): DBIO[A] = DBIO.from(future)
 
-  def fullOrder(finder: Orders.QuerySeq)(implicit ec: ExecutionContext, db: Database): DBIO[FullOrder.Root] = {
-    finder.result.head.flatMap(FullOrder.fromOrder)
-  }
-
-  def fullRma(finder: Rmas.QuerySeq)(implicit ec: ExecutionContext, db: Database): DBIO[RmaResponse.Root] = {
-    finder.result.head.flatMap(RmaResponse.fromRma)
-  }
-
   object DbResult {
 
     val unit: DbResult[Unit] = DBIO.successful(Xor.right(Unit))
@@ -63,7 +58,7 @@ object Slick {
 
     def fromFuture[A](future: Future[A])(implicit ec: ExecutionContext): DbResult[A] = fromDbio(liftFuture(future))
 
-    def failure[A](failure: Failure): DbResult[A] = liftFuture(Result.failures(failure))
+    def failure[A](failure: Failure): DbResult[A] = liftFuture(Result.failure(failure))
 
     def failures[A](failures: Failures): DbResult[A] = liftFuture(Result.failures(failures))
   }
@@ -138,7 +133,7 @@ object Slick {
       from      : Option[Int]         = None,
       size      : Option[Int]         = None,
       pageNo    : Option[Int]         = None,
-      total     : Option[Future[Int]] = None)
+      total     : Option[DBIO[Int]] = None)
 
     object QueryMetadata {
       def empty = QueryMetadata()
@@ -165,36 +160,14 @@ object Slick {
       def flatMap[S](f: Failures Xor A => DbResult[S])(implicit ec: ExecutionContext): ResultWithMetadata[S] =
         this.copy(result = result.flatMap(f))
 
-      def asResponseFuture(implicit db: Database, ec: ExecutionContext): Future[ResponseWithMetadata[A]] = {
-        metadata.total match {
-          case None              ⇒
-            for (res ← result.run())
-              yield ResponseWithMetadata(
-                res,
-                ResponseMetadata(
-                  sortBy = metadata.sortBy,
-                  from = metadata.from,
-                  size = metadata.size,
-                  pageNo = metadata.pageNo,
-                  total = None
-                )
-              )
+      def toTheResponse(implicit ec: ExecutionContext): DbResultT[TheResponse[A]] = {
+        val pagingMetadata = PaginationMetadata(from = metadata.from, size = metadata.size, pageNo = metadata.pageNo)
 
-          case Some(totalFuture) ⇒
-            for {
-              res   ← result.run()
-              total ← totalFuture
-            } yield ResponseWithMetadata(
-              res,
-              ResponseMetadata(
-                sortBy = metadata.sortBy,
-                from = metadata.from,
-                size = metadata.size,
-                pageNo = metadata.pageNo,
-                total = Some(total)
-              )
-            )
-        }
+        for {
+          result ← * <~ this.result
+          total  ← * <~ metadata.total.map(_.map(Some(_)).toXor).getOrElse(DbResult.none[Int])
+        } yield TheResponse(result, pagination = Some(pagingMetadata.copy(total = total)),
+                                    sorting    = Some(SortingMetadata(sortBy = metadata.sortBy)))
       }
     }
 
@@ -258,15 +231,13 @@ object Slick {
 
         // size > 0 costraint is defined in SortAndPage
         val pageNo = (from / size) + 1
-        // TODO: left as DBIO and compose
-        val total  = query.length.result.run()
 
         val metadata = QueryMetadata(
           sortBy = sortAndPage.sortBy,
           from   = Some(from),
           size   = Some(size),
           pageNo = Some(pageNo),
-          total  = Some(total))
+          total  = Some(query.length.result))
 
         withMetadata(metadata)
       }
@@ -291,14 +262,27 @@ object Slick {
 
       def findOrCreate(r: DbResult[R])(implicit ec: ExecutionContext): DbResult[R] = {
         dbio.flatMap { 
-          case Some(model) ⇒ DbResult.good(model)
-          case None ⇒  r
+          case Some(model)  ⇒ DbResult.good(model)
+          case None         ⇒ r
+        }
+      }
+
+      // Last item in tuple determines if cart was created or not
+      def findOrCreateExtended(r: DbResult[R])(implicit ec: ExecutionContext): DbResult[(R, FoundOrCreated)] = {
+        dbio.flatMap {
+          case Some(model)  ⇒ DbResult.good((model, Found))
+          case _            ⇒ r.map(_.map(result ⇒ (result, Created)))
         }
       }
 
       def mustFindOr(notFoundFailure: Failure)(implicit ec: ExecutionContext): DbResult[R] = dbio.flatMap {
-        case Some(model) ⇒ DbResult.good(model)
-        case None ⇒ DbResult.failure(notFoundFailure)
+        case Some(model)  ⇒ DbResult.good(model)
+        case None         ⇒ DbResult.failure(notFoundFailure)
+      }
+
+      def mustNotFindOr(shouldNotBeHere: Failure)(implicit ec: ExecutionContext): DbResult[Unit] = dbio.flatMap {
+        case None     ⇒ DbResult.unit
+        case Some(_)  ⇒ DbResult.failure(shouldNotBeHere)
       }
 
       // we only use this when we *know* we can call head safely on a query. (e.g., you've created a record which

@@ -12,21 +12,21 @@ object JsonFormatters {
   val DefaultFormats = org.json4s.DefaultFormats + time.JavaTimeJson4sSerializer.jsonFormat + Money.jsonFormat
 
   val phoenixFormats = DefaultFormats +
-    Order.Status.jsonFormat +
-    OrderLineItem.Status.jsonFormat +
-    Shipment.Status.jsonFormat +
+    Order.State.jsonFormat +
+    OrderLineItem.State.jsonFormat +
+    Shipment.State.jsonFormat +
     GiftCard.OriginType.jsonFormat +
-    GiftCard.Status.jsonFormat +
-    GiftCardAdjustment.Status.jsonFormat +
-    StoreCredit.Status.jsonFormat +
+    GiftCard.State.jsonFormat +
+    GiftCardAdjustment.State.jsonFormat +
+    StoreCredit.State.jsonFormat +
     StoreCredit.OriginType.jsonFormat +
-    StoreCreditAdjustment.Status.jsonFormat +
+    StoreCreditAdjustment.State.jsonFormat +
     Reason.ReasonType.jsonFormat +
-    Rma.Status.jsonFormat +
+    Rma.State.jsonFormat +
     Rma.RmaType.jsonFormat +
     RmaLineItem.InventoryDisposition.jsonFormat +
     RmaReason.ReasonType.jsonFormat +
-    CreditCardCharge.Status.jsonFormat +
+    CreditCardCharge.State.jsonFormat +
     CountryWithRegions.jsonFormat +
     QueryStatement.Comparison.jsonFormat +
     Condition.Operator.jsonFormat +

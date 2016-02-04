@@ -14,11 +14,11 @@ import Validation._
 
 final case class RmaCreatePayload(orderRefNum: String, rmaType: Rma.RmaType)
 
-final case class RmaUpdateStatusPayload(status: Rma.Status, reasonId: Option[Int] = None)
-  extends Validation[RmaUpdateStatusPayload] {
+final case class RmaUpdateStatePayload(state: Rma.State, reasonId: Option[Int] = None)
+  extends Validation[RmaUpdateStatePayload] {
 
-  def validate: ValidatedNel[Failure, RmaUpdateStatusPayload] = {
-    Rma.validateStatusReason(status, reasonId).map { case _ ⇒ this }
+  def validate: ValidatedNel[Failure, RmaUpdateStatePayload] = {
+    Rma.validateStateReason(state, reasonId).map { case _ ⇒ this }
   }
 }
 

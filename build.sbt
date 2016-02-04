@@ -88,11 +88,11 @@ lazy val phoenixScala = (project in file(".")).
       "justwrote" at "http://repo.justwrote.it/releases/"
     ),
     libraryDependencies ++= {
-      val akkaV      = "2.3.11"
-      val akkaHttpV  = "1.0"
+      val akkaV      = "2.4.0"
+      val akkaHttpV  = "2.0.1"
       val scalaTestV = "2.2.5"
       val monocleV   = "1.1.1"
-      val json4sVersion = "3.3.0.RC3"
+      val json4sVersion = "3.3.0"
 
       Seq(
         // Akka
@@ -101,17 +101,19 @@ lazy val phoenixScala = (project in file(".")).
         "com.typesafe.akka"    %% "akka-agent"               % akkaV,
         "com.typesafe.akka"    %% "akka-stream-experimental" % akkaHttpV,
         "com.typesafe.akka"    %% "akka-http-experimental"   % akkaHttpV,
+        "de.heikoseeberger"    %% "akka-sse"                 % "1.4.2",
         // JSON
         "org.json4s"           %% "json4s-core"              % json4sVersion,
         "org.json4s"           %% "json4s-jackson"           % json4sVersion,
         "org.json4s"           %% "json4s-ext"               % json4sVersion,
-        "de.heikoseeberger"    %% "akka-http-json4s"         % "1.0.0",
+        "de.heikoseeberger"    %% "akka-http-json4s"         % "1.4.2",
         // Database
         "com.typesafe.slick"   %% "slick"                    % "3.1.0",
         "com.typesafe.slick"   %% "slick-hikaricp"           % "3.1.0",
         "com.zaxxer"           %  "HikariCP"                 % "2.4.1" % "provided",
         "org.postgresql"       %  "postgresql"               % "9.4-1205-jdbc42",
         "org.flywaydb"         %  "flyway-core"              % "3.2.1",
+        "com.github.mauricio"  %% "postgresql-async"         % "0.2.18",
         // Validations
         "com.wix"              %% "accord-core"              % "0.5",
         "org.scalactic"        %% "scalactic"                % "2.2.5",
@@ -129,11 +131,13 @@ lazy val phoenixScala = (project in file(".")).
         "com.github.julien-truffaut" %% "monocle-generic"     % monocleV,
         "com.github.julien-truffaut" %% "monocle-macro"       % monocleV,
         "it.justwrote" %% "scala-faker" % "0.3",
+        "io.backchat.inflector" %% "scala-inflector"          % "1.3.5",
         // Testing
         "org.conbere"          % "markov_2.10"              % "0.2.0",
         "com.typesafe.akka"    %% "akka-testkit"              % akkaV      % "test",
+        "com.typesafe.akka"    %% "akka-stream-testkit-experimental" % akkaHttpV % "test",
         "org.scalatest"        %% "scalatest"                 % scalaTestV % "test",
-        "org.scalacheck"       %% "scalacheck"                % "1.12.5"   % "test", 
+        "org.scalacheck"       %% "scalacheck"                % "1.12.5"   % "test",
         "org.mockito"          %  "mockito-core"              % "1.10.19"  % "test")
 
     },

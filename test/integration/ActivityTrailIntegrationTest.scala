@@ -13,7 +13,7 @@ import org.scalatest.mock.MockitoSugar
 import payloads.AppendActivity
 import responses.ActivityConnectionResponse
 import services.NotFoundFailure404
-import services.activity.CustomerUpdated
+import services.activity.CustomerTailored.CustomerUpdated
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -34,7 +34,7 @@ import scala.language.implicitConversions
 import Extensions._
 
 final case class DumbActivity(
-  randomWord: String, 
+  randomWord: String,
   randomNumber: Int)
 
 object DumbActivity {
@@ -90,7 +90,7 @@ class ActivityTrailIntegrationTest extends IntegrationTestBase
 
       // Update email, name, and phone number. This should generate a CustomerUpdated activity
       val payload = payloads.UpdateCustomerPayload(
-        name = "Updated Name".some, 
+        name = "Updated Name".some,
         email = "updated.name@name.com".some,
         phoneNumber = "666 666 6666".some)
 
@@ -134,7 +134,7 @@ class ActivityTrailIntegrationTest extends IntegrationTestBase
       val dimensionList = Gen.oneOf("d1", "d2", "d3")
       val objectList = Gen.oneOf(1, 2, 3, 4, 5, 6)
       val wordList = Gen.oneOf(
-        "hi", "ho", "hum", "he", "mo", "mof", "barf", "poop", 
+        "hi", "ho", "hum", "he", "mo", "mof", "barf", "poop",
         "scoop", "foop", "oop", "coop", "doop", "tarf", "larg", "karf", "snarf",
         "abc", "cde3", "mma", "cca", "tafda", "fdafdafda", "fafdafd")
 
@@ -192,7 +192,7 @@ class ActivityTrailIntegrationTest extends IntegrationTestBase
       case None ⇒ true
     }
 
-    previousLinked && nextLinked 
+    previousLinked && nextLinked
   }
 
   def connectionsLinked(a: Connection, b: Connection) : Boolean = {
@@ -207,7 +207,7 @@ class ActivityTrailIntegrationTest extends IntegrationTestBase
   def checkValidTrail(a:Connection, count: Int = 0) : Boolean = {
     if(count > 1000) false
     else {
-      connectionLinkedCorrectly(a) && (a.previousId match { 
+      connectionLinkedCorrectly(a) && (a.previousId match {
         case Some(previousId) ⇒ {
           val previous = getConnection(previousId)
           checkValidTrail(previous, count + 1)
@@ -221,6 +221,6 @@ class ActivityTrailIntegrationTest extends IntegrationTestBase
     val (customer, admin) = (for {
       customer ← * <~ Customers.create(Factories.customer)
       admin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (customer, admin)).runT().futureValue.rightVal
+    } yield (customer, admin)).runTxn().futureValue.rightVal
   }
 }

@@ -6,25 +6,19 @@ import cats.implicits._
 package object services {
   type Failures = NonEmptyList[Failure]
 
-  // TODO: kill it with fire! https://github.com/FoxComm/phoenix-scala/issues/595
-  def Failures(failures: Failure*): Failures = failures.toList match {
-    case Nil          ⇒ throw new IllegalArgumentException("Can't instantiate NonEmptyList from an empty collection")
-    case head :: tail ⇒ NonEmptyList(head, tail)
-  }
-
-  def Failurez(failures: Failure*): Option[Failures] = failures.toList match {
+  def Failures(failures: Failure*): Option[Failures] = failures.toList match {
     case Nil          ⇒ None
     case head :: tail ⇒ Some(NonEmptyList(head, tail))
   }
 
   implicit class FailureOps(val underlying: Failure) extends AnyVal {
-    def single: Failures = Failures(underlying)
+    def single: Failures = NonEmptyList(underlying)
   }
 
   implicit class FailuresOps(val underlying: Failures) extends AnyVal {
-    def toList: List[Failure] = underlying.head :: underlying.tail
+    def toList: List[Failure] = underlying.unwrap
 
-    def flatten: List[String] = underlying.toList.flatMap(_.description)
+    def flatten: List[String] = toList.map(_.description)
   }
 
   type Result[A] = Future[Failures Xor A]
@@ -42,11 +36,8 @@ package object services {
     def failures(fs: Failures): Result[Nothing] =
       Future.successful(Xor.left(fs))
 
-    def failures(fs: Failure*): Result[Nothing] =
-      failures(Failures(fs: _*))
-
     def failure(failure: Failure): Result[Nothing] =
-      failures(failure)
+      failures(NonEmptyList(failure))
   }
 
   type ResultT[A] = XorT[Future, Failures, A]

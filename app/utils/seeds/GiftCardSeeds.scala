@@ -3,7 +3,7 @@ package utils.seeds
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.GiftCard.{buildAppeasement ⇒ build}
-import models.{GiftCard, GiftCardManual, GiftCardManuals, GiftCardSubtype, GiftCardSubtypes, GiftCards}
+import models.{Notes, Note, GiftCard, GiftCardManual, GiftCardManuals, GiftCardSubtype, GiftCardSubtypes, GiftCards}
 import payloads.{GiftCardCreateByCsr ⇒ payload}
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -19,6 +19,7 @@ trait GiftCardSeeds {
     _      ← * <~ GiftCards.capture(gc1, debit = 1000, orderPaymentId = None)
 
     gc2    ← * <~ GiftCards.create(build(payload(balance = 10000, reasonId = 1), originId = origin.id))
+    _         ← * <~ Notes.createAll(giftCardNotes.map(_.copy(referenceId = gc1.id)))
   } yield {}
 
   def giftCardSubTypes: Seq[GiftCardSubtype] = Seq(
@@ -27,4 +28,13 @@ trait GiftCardSeeds {
     GiftCardSubtype(title = "Appeasement Subtype C", originType = GiftCard.CsrAppeasement)
   )
 
+  def giftCardNotes: Seq[Note] = {
+    def newNote(body: String) = Note(referenceId = 1, referenceType = Note.GiftCard, storeAdminId = 1, body = body)
+    Seq(
+      newNote("This customer is a donkey."),
+      newNote("No, seriously."),
+      newNote("Like, an actual donkey."),
+      newNote("How did a donkey even place an order on our website?")
+    )
+  }
 }

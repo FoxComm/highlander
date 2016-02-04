@@ -1,7 +1,7 @@
 create table activity_trails(
     id serial primary key,
     dimension_id integer,
-    object_id integer, 
+    object_id generic_string, 
     tail_connection_id integer null,
     data jsonb null,
     created_at timestamp without time zone default (now() at time zone 'utc'),

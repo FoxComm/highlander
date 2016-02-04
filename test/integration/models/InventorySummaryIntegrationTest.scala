@@ -18,12 +18,12 @@ class InventorySummaryIntegrationTest extends IntegrationTestBase {
         warehouse ← * <~ Warehouses.create(Factories.warehouse)
         sku       ← * <~ Skus.create(Factories.skus.head.copy(price = 5))
         order     ← * <~ Orders.create(Order(id = 0, customerId = 1))
-      } yield (warehouse, sku, order)).runT().futureValue.rightVal
+      } yield (warehouse, sku, order)).runTxn().futureValue.rightVal
 
       def adjustment(warehouseId: Int, skuId: Int, orderId: Int, reserved: Int = 0) =
         InventoryAdjustments.create(InventoryAdjustment(
-          warehouseId = warehouseId, 
-          skuId = skuId, 
+          warehouseId = warehouseId,
+          skuId = skuId,
           eventId = orderId,
           onHand = 0,
           onHold = 0,

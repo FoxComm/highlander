@@ -1,96 +1,58 @@
 package services.rmas
 
-import models.activity.ActivityContext
+import scala.concurrent.ExecutionContext
+
 import models.{Rma, RmaAssignment, RmaAssignments, Rmas, StoreAdmin, StoreAdmins}
-import responses.ResponseWithFailuresAndMetadata
-import responses.ResponseWithFailuresAndMetadata._
-import responses.RmaResponse._
-import services.{RmaAssigneeNotFound, Failure, NotFoundFailure404, Result}
+import responses.{RmaResponse, TheResponse}
+import services.Util._
+import services.{NotFoundFailure400, Result, RmaAssigneeNotFound}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Slick._
 import utils.Slick.implicits._
-
-import scala.concurrent.ExecutionContext
 
 object RmaAssignmentUpdater {
 
   def assign(refNum: String, requestedAssigneeIds: Seq[Int])
-    (implicit db: Database, ec: ExecutionContext): Result[FullRmaWithWarnings] = {
-    val finder = Rmas.findByRefNum(refNum)
-
-    finder.selectOne({ rma ⇒
-      DbResult.fromDbio(for {
-        existingAdminIds ← StoreAdmins.filter(_.id.inSetBind(requestedAssigneeIds)).map(_.id).result
-
-        alreadyAssigned ← RmaAssignments.assigneesFor(rma)
-        alreadyAssignedIds = alreadyAssigned.map(_.id)
-
-        newAssignments = existingAdminIds.diff(alreadyAssignedIds)
-          .map(adminId ⇒ RmaAssignment(rmaId = rma.id, assigneeId = adminId))
-
-        inserts = RmaAssignments ++= newAssignments
-        newOrder ← inserts >> finder.result.head
-
-        fullRma ← fromRma(rma)
-        warnings = requestedAssigneeIds.diff(existingAdminIds).map(NotFoundFailure404(StoreAdmin, _))
-      } yield FullRmaWithWarnings(fullRma, warnings))
-    }, checks = Set.empty)
-  }
+    (implicit db: Database, ec: ExecutionContext): Result[TheResponse[RmaResponse.Root]] = (for {
+    rma          ← * <~ Rmas.mustFindByRefNum(refNum)
+    realAdminIds ← * <~ StoreAdmins.filter(_.id.inSetBind(requestedAssigneeIds)).map(_.id).result
+    assigned     ← * <~ RmaAssignments.assigneesFor(rma).toXor
+    _            ← * <~ RmaAssignments.createAll(realAdminIds.diff(assigned.map(_.id)).map { adminId ⇒
+                          RmaAssignment(rmaId = rma.id, assigneeId = adminId)
+                        })
+    newRma       ← * <~ Rmas.refresh(rma).toXor
+    fullRma      ← * <~ RmaResponse.fromRma(newRma).toXor
+    notFoundAdmins = diffToFailures(requestedAssigneeIds, realAdminIds, StoreAdmin)
+  } yield TheResponse.build(fullRma, errors = notFoundAdmins)).runTxn()
 
   def unassign(admin: StoreAdmin, refNum: String, assigneeId: Int)
-    (implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
-
+    (implicit db: Database, ec: ExecutionContext): Result[TheResponse[RmaResponse.Root]] = (for {
     rma             ← * <~ Rmas.mustFindByRefNum(refNum)
-    assignee        ← * <~ StoreAdmins.mustFindById(assigneeId)
+    assignee        ← * <~ StoreAdmins.mustFindById404(assigneeId)
     assignment      ← * <~ RmaAssignments.byAssignee(assignee).one.mustFindOr(RmaAssigneeNotFound(refNum, assigneeId))
     _               ← * <~ RmaAssignments.byAssignee(assignee).delete
-    fullRma         ← * <~ fromRma(rma).toXor
-  } yield fullRma).runT()
+    fullRma         ← * <~ RmaResponse.fromRma(rma).toXor
+  } yield TheResponse.build(fullRma)).runTxn()
 
-  def assignBulk(payload: payloads.RmaBulkAssigneesPayload)
-    (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage): Result[BulkRmaUpdateResponse] = {
+  def assignBulk(payload: payloads.RmaBulkAssigneesPayload)(implicit ec: ExecutionContext, db: Database,
+    sortAndPage: SortAndPage): Result[BulkRmaUpdateResponse] = (for {
+    rmas     ← * <~ Rmas.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result.toXor
+    admin    ← * <~ StoreAdmins.mustFindById400(payload.assigneeId)
+    _        ← * <~ RmaAssignments.createAll(for (r ← rmas) yield RmaAssignment(rmaId = r.id, assigneeId = admin.id))
+    response ← * <~ RmaQueries.findAllDbio(Rmas)
+    rmasNotFound = diffToFlatFailures(payload.referenceNumbers, rmas.map(_.referenceNumber), Rma)
+  } yield response.copy(errors = rmasNotFound)).runTxn()
 
-    // TODO: transfer sorting-paging metadata
-    val query = for {
-      rmas ← Rmas.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
-      admin ← StoreAdmins.findById(payload.assigneeId).result
-      newAssignments = for (r ← rmas; a ← admin) yield RmaAssignment(rmaId = r.id, assigneeId = a.id)
-      allRmas ← (RmaAssignments ++= newAssignments) >> RmaQueries.findAll(Rmas).result
-      adminNotFound = adminNotFoundFailure(admin.headOption, payload.assigneeId)
-      rmasNotFound = rmasNotFoundFailures(payload.referenceNumbers, rmas.map(_.referenceNumber))
-    } yield ResponseWithFailuresAndMetadata.fromXor(
-        result = allRmas,
-        addFailures = adminNotFound ++ rmasNotFound)
-
-    query.transactionally.run()
-  }
-
-  def unassignBulk(payload: payloads.RmaBulkAssigneesPayload)
-    (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage): Result[BulkRmaUpdateResponse] = {
-
-    // TODO: transfer sorting-paging metadata
-    val query = for {
-      rmas ← Rmas.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
-      adminId ← StoreAdmins.findById(payload.assigneeId).extract.map(_.id).result
-      _ ← RmaAssignments.filter(_.assigneeId === payload.assigneeId).filter(_.rmaId.inSetBind(rmas.map(_.id))).delete
-      allRmas ← RmaQueries.findAll(Rmas).result
-      adminNotFound = adminNotFoundFailure(adminId.headOption, payload.assigneeId)
-      rmasNotFound = rmasNotFoundFailures(payload.referenceNumbers, rmas.map(_.referenceNumber))
-    } yield ResponseWithFailuresAndMetadata.fromXor(
-        result = allRmas,
-        addFailures = adminNotFound ++ rmasNotFound)
-
-    query.transactionally.run()
-  }
-
-  private def adminNotFoundFailure(a: Option[_], id: Int) = a match {
-    case Some(_) ⇒ Seq.empty[Failure]
-    case None ⇒ Seq(NotFoundFailure404(StoreAdmin, id))
-  }
-
-  private def rmasNotFoundFailures(requestedRefs: Seq[String], availableRefs: Seq[String]) =
-    requestedRefs.diff(availableRefs).map(NotFoundFailure404(Rma, _))
+  def unassignBulk(payload: payloads.RmaBulkAssigneesPayload)(implicit ec: ExecutionContext, db: Database,
+    sortAndPage: SortAndPage): Result[BulkRmaUpdateResponse] = (for {
+    rmas ← * <~ Rmas.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result.toXor
+    _    ← * <~ StoreAdmins.mustFindById400(payload.assigneeId)
+    _    ← * <~ RmaAssignments.filter(_.assigneeId === payload.assigneeId)
+                              .filter(_.rmaId.inSetBind(rmas.map(_.id)))
+                              .delete
+    resp ← * <~ RmaQueries.findAllDbio(Rmas)
+    rmasNotFound = diffToFlatFailures(payload.referenceNumbers, rmas.map(_.referenceNumber), Rma)
+  } yield resp.copy(errors = rmasNotFound)).runTxn()
 }

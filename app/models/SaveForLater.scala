@@ -30,4 +30,6 @@ object SaveForLaters extends TableQueryWithId[SaveForLater, SaveForLaters](
   idLens = GenLens[SaveForLater](_.id)
 )(new SaveForLaters(_)) {
 
+  def find(customerId: Int, skuId: Int): QuerySeq =
+    filter(_.customerId === customerId).filter(_.skuId === skuId)
 }

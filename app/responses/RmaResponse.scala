@@ -6,7 +6,6 @@ import models.{Customers, GiftCard, Orders, PaymentMethod, Rma, RmaAssignments, 
 RmaLineItemShippingCosts, RmaLineItemSkus, RmaPayment, RmaPayments, Shipment, Sku, StoreAdmins}
 import responses.CustomerResponse.{Root => Customer}
 import responses.StoreAdminResponse.{Root => StoreAdmin}
-import services.NotFoundFailure404
 import services.rmas.RmaTotaler
 import slick.driver.PostgresDriver.api._
 import utils.Money._
@@ -17,8 +16,6 @@ import scala.concurrent.ExecutionContext
 
 object RmaResponse {
   final case class RmaTotals(subTotal: Int, shipping: Int, taxes: Int, total: Int) extends ResponseItem
-  final case class FullRmaWithWarnings(rma: Root, warnings: Seq[NotFoundFailure404])
-  final case class FullRmaExpandedWithWarnings(rma: RootExpanded, warnings: Seq[NotFoundFailure404])
 
   final case class LineItemSku(lineItemId: Int, sku: DisplaySku) extends ResponseItem
   final case class LineItemGiftCard(lineItemId: Int, giftCard: GiftCardResponse.Root) extends ResponseItem
@@ -49,7 +46,7 @@ object RmaResponse {
     referenceNumber: String,
     orderRefNum: String,
     rmaType: Rma.RmaType,
-    status: Rma.Status,
+    state: Rma.State,
     lineItems: LineItems,
     payments: Seq[DisplayPayment],
     customer: Option[Customer] = None,
@@ -66,7 +63,7 @@ object RmaResponse {
     referenceNumber: String,
     order: Option[FullOrder.Root],
     rmaType: Rma.RmaType,
-    status: Rma.Status,
+    state: Rma.State,
     lineItems: LineItems,
     payments: Seq[DisplayPayment],
     customer: Option[Customer] = None,
@@ -144,7 +141,7 @@ object RmaResponse {
       referenceNumber = rma.refNum,
       orderRefNum = rma.orderRefNum,
       rmaType = rma.rmaType,
-      status = rma.status,
+      state = rma.state,
       customer = customer,
       storeAdmin = storeAdmin,
       payments = payments,
@@ -165,7 +162,7 @@ object RmaResponse {
       referenceNumber = rma.refNum,
       order = order,
       rmaType = rma.rmaType,
-      status = rma.status,
+      state = rma.state,
       customer = customer,
       storeAdmin = storeAdmin,
       payments = payments,

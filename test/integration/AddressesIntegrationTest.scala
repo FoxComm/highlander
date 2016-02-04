@@ -35,11 +35,11 @@ class AddressesIntegrationTest extends IntegrationTestBase
     val items = (1 to numOfResults).map { i ⇒
       for {
         address ← * <~ Addresses.create(SeedsGenerator.generateAddress.copy(customerId = currentCustomer.id))
-        region  ← * <~ Regions.mustFindById(address.regionId)
+        region  ← * <~ Regions.mustFindById404(address.regionId)
       } yield responses.Addresses.build(address, region, Some(address.isDefaultShipping))
     }
 
-    DbResultT.sequence(items).runT().futureValue.rightVal
+    DbResultT.sequence(items).runTxn().futureValue.rightVal
   }
 
   val sortColumnName = "name"
@@ -60,7 +60,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
 
       response.status must === (StatusCodes.OK)
 
-      val addresses = response.as[responses.Addresses.Root#ResponseMetadataSeq].result
+      val addresses = response.ignoreFailuresAndGiveMe[Seq[responses.Addresses.Root]]
 
       addresses must have size 1
       addresses.head.name must === (address.name)
@@ -166,7 +166,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
       addressesResponse.status must === (StatusCodes.OK)
 
       //If you get all the addresses, our newly deleted one should not show up
-      val addresses = addressesResponse.as[responses.Addresses.Root#ResponseMetadataSeq].result
+      val addresses = addressesResponse.ignoreFailuresAndGiveMe[Seq[responses.Addresses.Root]]
       addresses.filter(_.id == newAddress.id) must have length 0
     }
 
@@ -216,7 +216,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
     (for {
       order           ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       shippingAddress ← * <~ OrderShippingAddresses.copyFromAddress(address, order.id)
-    } yield (order, shippingAddress)).runT().futureValue.rightVal
+    } yield (order, shippingAddress)).runTxn().futureValue.rightVal
   }
 
   trait NoDefaultAddressFixture extends CustomerFixture {
@@ -224,6 +224,6 @@ class AddressesIntegrationTest extends IntegrationTestBase
       address ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
       order   ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       shipAdd ← * <~ OrderShippingAddresses.copyFromAddress(address, order.id)
-    } yield (address, order, shipAdd)).runT().futureValue.rightVal
+    } yield (address, order, shipAdd)).runTxn().futureValue.rightVal
   }
 }

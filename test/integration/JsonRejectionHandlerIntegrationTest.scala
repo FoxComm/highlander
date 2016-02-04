@@ -12,7 +12,7 @@ class JsonRejectionHandlerIntegrationTest extends IntegrationTestBase with HttpS
 
       response.status must ===(StatusCodes.Unauthorized)
       response.entity.contentType must ===(ContentTypes.`application/json`)
-      response.errors.head must ===("The resource requires authentication, which was not supplied with the request")
+      response.error must ===("The resource requires authentication, which was not supplied with the request")
     }
 
     "return a valid JSON rejection on 404 NotFound" in {
@@ -20,7 +20,7 @@ class JsonRejectionHandlerIntegrationTest extends IntegrationTestBase with HttpS
 
       response.status must ===(StatusCodes.NotFound)
       response.entity.contentType must ===(ContentTypes.`application/json`)
-      response.errors.head must ===("The requested resource could not be found.")
+      response.error must ===("The requested resource could not be found.")
     }
   }
 
