@@ -2,7 +2,7 @@
 -- this provides a mapping to orders <--> skus as polymorphic line items
 create table order_line_item_skus (
     id integer primary key,
-    sku_id integer not null unique references skus(id) on update restrict on delete restrict,
+    sku_id integer not null,
     foreign key (id) references order_line_item_origins(id) on update restrict on delete restrict
 );
 
