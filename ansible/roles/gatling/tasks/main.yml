@@ -30,7 +30,7 @@
   sudo: true
 
 - name: Setup symlink to gatling results
-  file: src={{gatling_install_dir}}/target/gatling dest=/var/www/gatling state=link
+  file: src={{gatling_install_dir}}/target/gatling dest=/var/www/gatling state=link force=yes
   sudo: true
 
 - name: Install default hosts
