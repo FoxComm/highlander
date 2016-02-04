@@ -1,5 +1,13 @@
+
+// libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
+import { ReasonType } from '../../../lib/reason-utils';
+import { bindActionCreators } from 'redux';
+
+// components
 import Summary from './summary';
 import TableView from '../../table/tableview';
 import TableRow from '../../table/row';
@@ -11,11 +19,13 @@ import SearchBar from '../../search-bar/search-bar';
 import Dropdown from '../../dropdown/dropdown';
 import ConfirmationDialog from '../../modal/confirmation-dialog';
 import { Checkbox } from '../../checkbox/checkbox';
-import { ReasonType } from '../../../lib/reason-utils';
-import { autobind } from 'core-decorators';
-import { connect } from 'react-redux';
-import * as StoreCreditsActions from '../../../modules/customers/store-credits';
+import SearchableList from '../../list-page/searchable-list';
+import StoreCreditRow from './storecredit-row';
+
+// redux
+import { actions as StoreCreditsActions } from '../../../modules/customers/store-credits';
 import * as ReasonsActions from '../../../modules/reasons';
+import * as StoreCreditTotalsActions from '../../../modules/customers/store-credit-totals';
 
 const activeStateTransitions = [
   ['onHold', 'On Hold'],
@@ -27,15 +37,21 @@ const onHoldStateTransitions = [
   ['canceled', 'Cancel Store Credit'],
 ];
 
-const actions = {
-  ...StoreCreditsActions,
-  ...ReasonsActions
+const mapStateToProps = (state, props) => ({
+  list: state.customers.storeCredits,
+  storeCreditTotals: state.customers.storeCreditTotals[props.params.customerId],
+  reasons: state.reasons,
+});
+
+const mapDispatchToProps = dispatch => {
+  return {
+    actions: bindActionCreators(StoreCreditsActions, dispatch),
+    totalsActions: bindActionCreators(StoreCreditTotalsActions, dispatch),
+    reasonsActions: bindActionCreators(ReasonsActions, dispatch),
+  };
 };
 
-@connect((state, props) => ({
-  ...state.customers.storeCredits[props.params.customerId],
-  ...state.reasons
-}), actions)
+@connect(mapStateToProps, mapDispatchToProps)
 export default class StoreCredits extends React.Component {
 
   static contextTypes = {
@@ -62,7 +78,7 @@ export default class StoreCredits extends React.Component {
         text: 'Store Credit Id'
       },
       {
-        field: 'type',
+        field: 'originType',
         text: 'Type'
       },
       {
@@ -71,19 +87,24 @@ export default class StoreCredits extends React.Component {
       },
       {
         field: 'originalBalance',
-        text: 'Original Balance'
+        text: 'Original Balance',
+        type: 'currency'
       },
       {
         field: 'currentBalance',
-        text: 'Current Balance'
+        text: 'Current Balance',
+        type: 'currency'
       },
       {
         field: 'availableBalance',
-        text: 'Available Balance'
+        text: 'Available Balance',
+        type: 'currency'
       },
       {
         field: 'state',
-        text: 'State'
+        text: 'State',
+        type: 'state',
+        model: 'storeCredit'
       }
     ]
   };
@@ -96,9 +117,25 @@ export default class StoreCredits extends React.Component {
     return ReasonType.CANCELLATION;
   }
 
+  get defaultSearchOptions() {
+    return {
+      singleSearch: true,
+      initialFilters: [{
+        display: 'Customer: ' + this.customerId,
+        selectedTerm: 'customerId',
+        selectedOperator: 'eq',
+        hidden: true,
+        value: {
+          type: 'number',
+          value: this.customerId
+        }
+      }],
+    };
+  }
+
   componentDidMount() {
-    this.props.fetchStoreCredits(this.customerId);
-    this.props.fetchReasons(this.reasonType);
+    this.props.reasonsActions.fetchReasons(this.reasonType);
+    this.props.totalsActions.fetchTotals(this.customerId);
   }
 
   @autobind
@@ -129,21 +166,9 @@ export default class StoreCredits extends React.Component {
     }
   }
 
-  @autobind
-  renderRow(row) {
-    return (
-      <TableRow key={`storeCredits-row-${row.id}`}>
-        <TableCell><Checkbox /></TableCell>
-        <TableCell><DateTime value={ row.createdAt }/></TableCell>
-        <TableCell>{ row.id }</TableCell>
-        <TableCell>{ row.originType }</TableCell>
-        <TableCell>{ /* store credit, no data for it too */ }</TableCell>
-        <TableCell><Currency value={ row.originalBalance } /></TableCell>
-        <TableCell><Currency value={ row.currentBalance } /></TableCell>
-        <TableCell><Currency value={ row.availableBalance } /></TableCell>
-        <TableCell>{ this.renderRowState(row.id, row.status) }</TableCell>
-      </TableRow>
-    );
+  renderRow(row, index, columns) {
+    const key = `sc-transaction-${row.id}`;
+    return <StoreCreditRow storeCredit={row} columns={columns} key={key}/>;
   }
 
   formattedStatus(status) {
@@ -173,9 +198,9 @@ export default class StoreCredits extends React.Component {
       this.props.storeCreditToChange.status !== 'canceled';
     return (
       <ConfirmationDialog
-          isVisible={ shouldDisplay }
+          isVisible={shouldDisplay}
           header="Change Store Credit State?"
-          body={ message }
+          body={message}
           cancel="Cancel"
           confirm="Yes, Change State"
           cancelAction={ () => this.props.cancelChange(this.customerId) }
@@ -205,9 +230,9 @@ export default class StoreCredits extends React.Component {
           <div className="fc-store-credit-cancel-reason-selector">
             <Dropdown name="cancellationReason"
                       placeholder="- Select -"
-                      items={ reasons }
-                      value={ value }
-                      onChange={ (value) => props.reasonChange(this.customerId, value) } />
+                      items={reasons}
+                      value={value}
+                      onChange={(value) => props.reasonChange(this.customerId, value)} />
           </div>
         </div>
       </div>
@@ -228,7 +253,7 @@ export default class StoreCredits extends React.Component {
 
   render() {
     const props = this.props;
-    const totals = _.get(props, ['storeCredits', 'totals']);
+    const totals = _.get(props, ['storeCreditTotals', 'totals'], {});
 
     return (
       <div className="fc-store-credits fc-list-page">
@@ -236,18 +261,15 @@ export default class StoreCredits extends React.Component {
                  params={props.params}
                  history={this.context.history}
                  transactionsSelected={false} />
-        <div className="fc-grid fc-list-page-content">
-          <SearchBar />
-          <div className="fc-col-md-1-1 fc-store-credit-table-container">
-            <MultiSelectTable
-              columns={props.tableColumns}
-              data={props.storeCredits}
-              renderRow={this.renderRow}
-              emptyMessage="No store credits found."
-              toggleColumnPresent={false}
-              setState={params => props.fetchStoreCredits(this.customerId, params)}
-              />
-          </div>
+        <div className="fc-grid fc-list-page-content fc-store-credits__list">
+          <SearchableList
+            title="Store Credits"
+            emptyResultMessage="No store credits found."
+            list={this.props.list}
+            renderRow={this.renderRow}
+            tableColumns={this.props.tableColumns}
+            searchActions={this.props.actions}
+            searchOptions={this.defaultSearchOptions} />
         </div>
         { this.confirmStatusChange }
         { this.confirmCancellation }

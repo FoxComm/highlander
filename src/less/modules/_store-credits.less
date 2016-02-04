@@ -4,8 +4,26 @@
     background: @color-white;
   }
 
+  .initials {
+    color: @color-white;
+    .margin-right(5px);
+  }
+
+  & &__list {
+    padding-right: 0;
+    margin: 0;
+  }
+
   .fc-list-page-header {
     .margin(0 -(@gutter));
+  }
+
+  .fc-live-search {
+    margin-bottom: 0;
+  }
+
+  .fc-live-search__search-control {
+    .margin-top(30px);
   }
 
   &-summary-balance {

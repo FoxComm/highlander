@@ -1,54 +1,91 @@
 
-import _ from 'lodash';
-import { assoc } from 'sprout-data';
-import { createAction, createReducer } from 'redux-act';
-import makePagination from '../pagination/structured-store';
-import Api from '../../lib/api';
+import makeLiveSearch from '../live-search';
 
-const dataPath = storeCreditId => [storeCreditId];
-
-const receivedTotal = createAction('SC_TRANSACTIONS_RECEIVED_TOTAL', (customerId, payload) => [customerId, payload]);
-const setError = createAction('SC_TRANSACTIONS_ERROR', (customerId, err) => [customerId, err]);
-
-const { makeActions, makeReducer } = makePagination('STORECREDIT_TRANSACTIONS', dataPath);
-
-function storeCreditTransactionsUrl(customerId) {
-  return `/customers/${customerId}/payment-methods/store-credit/transactions`;
-}
-
-function storeCreditTotalUrl(customerId) {
-  return `/customers/${customerId}/payment-methods/store-credit/totals`;
-}
-
-export function fetchTotals(customerId) {
-  return dispatch => {
-    return Api.get(storeCreditTotalUrl(customerId))
-      .then(
-        json => {
-          dispatch(receivedTotal(customerId, json));
-        },
-        err => dispatch(setError(customerId, err))
-      );
-  };
-}
-
-const moduleReducer = createReducer({
-  [receivedTotal]: (state, [customerId, payload]) => {
-    return assoc(state, [customerId, 'totals'], payload);
+const searchTerms = [
+  {
+    title: 'Adjustment',
+    type: 'object',
+    options: [
+      {
+        title: 'ID',
+        type: 'string',
+        term: 'id'
+      },
+      {
+        title: 'Created At',
+        type: 'date',
+        term: 'createdAt'
+      },
+      {
+        title: 'Debit',
+        type: 'currency',
+        term: 'debit'
+      },
+      {
+        title: 'Available Balance',
+        type: 'currency',
+        term: 'availableBalance'
+      },
+    ]
   },
-  [setError]: (state, [customerId, err]) => {
-    console.log(err);
-
-    return state;
+  {
+    title: 'Store Credit',
+    type: 'object',
+    options: [
+      {
+        title: 'ID',
+        type: 'string',
+        term: 'storeCreditId'
+      },
+      {
+        title: 'Origin Type',
+        type: 'enum',
+        term: 'originType',
+        suggestions: [
+          { display: 'Appeasement', value: 'csrAppeasement' },
+          { display: 'Customer Purchase', value: 'customerPurchase' },
+          { display: 'From Store Credit', value: 'fromStoreCredit' },
+          { display: 'RMA Process', value: 'rmaProcess' },
+        ]
+      },
+      {
+        title: 'Created Date',
+        type: 'date',
+        term: 'storeCreditCreatedAt'
+      },
+    ]
+  },
+  {
+    title: 'Order',
+    type: 'object',
+    options: [
+      {
+        title: 'Reference Number',
+        type: 'string',
+        term: 'orderReferenceNumber'
+      },
+      {
+        title: 'Created At',
+        type: 'date',
+        term: 'orderCreatedAt'
+      },
+      {
+        title: 'Payment Created At',
+        type: 'date',
+        term: 'orderPaymentCreatedAt'
+      },
+    ]
   }
-});
+];
 
-const { fetch } = makeActions(storeCreditTransactionsUrl);
-const reducer = makeReducer(moduleReducer);
-
-const fetchStoreCreditTransactions = (customerId, params = {}) => fetch(customerId, params);
+const { reducer, actions } = makeLiveSearch(
+  'customers-storeCreditTransactions',
+  searchTerms,
+  'store_credit_transactions_view/_search',
+  'customerStoreCreditTransactionsScope'
+);
 
 export {
   reducer as default,
-  fetchStoreCreditTransactions
+  actions
 };

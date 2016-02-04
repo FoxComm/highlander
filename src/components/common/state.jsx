@@ -24,7 +24,8 @@ export const states = {
   storeCreditTransaction: {
     capture: 'Captured',
     onHold: 'On Hold',
-    active: 'Active'
+    active: 'Active',
+    canceled: 'Canceled',
   },
   giftCard: {
     csrAppeasement: 'Appeasement',
@@ -34,8 +35,14 @@ export const states = {
     cart: 'Cart',
     active: 'Active',
     fullyRedeemed: 'Fully Redeemed',
-    canceled: 'Canceled'
-  }
+    canceled: 'Canceled',
+  },
+  storeCredit: {
+    cart: 'Cart',
+    active: 'Active',
+    fullyRedeemed: 'Fully Redeemed',
+    canceled: 'Canceled',
+  },
 };
 
 const State = (props) => {
