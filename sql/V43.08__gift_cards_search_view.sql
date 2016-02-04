@@ -13,8 +13,8 @@ select distinct on (gc.id)
     gc.available_balance,
     gc.canceled_amount,
     gccrv.canceled_reason,
-    to_char(gc.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
-    to_char(gc.updated_at, 'YYYY-MM-DD HH24:MI:SS') as updated_at,
+    to_char(gc.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
+    to_char(gc.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as updated_at,
     -- Issued by either
     gcav.store_admin,
     gcfscv.store_credit

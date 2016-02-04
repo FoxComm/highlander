@@ -11,7 +11,7 @@ select
             c.name,
             c.email,
             c.is_blacklisted,
-            to_char(c.created_at, 'YYYY-MM-DD HH24:MI:SS')
+            to_char(c.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
         )::export_customers)
     end as customer
 from notes as n

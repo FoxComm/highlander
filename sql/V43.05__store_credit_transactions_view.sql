@@ -5,17 +5,17 @@ select distinct on (sca.id)
     sca.debit,
     sca.available_balance,
     sca.state,
-    to_char(sca.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
+    to_char(sca.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
     -- Store Credit
     sc.id as store_credit_id,
     sc.customer_id,
     sc.origin_type,
     sc.currency,
-    to_char(sc.created_at, 'YYYY-MM-DD HH24:MI:SS') as store_credit_created_at,
+    to_char(sc.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as store_credit_created_at,
     -- Order
     o.reference_number as order_reference_number,
-    to_char(o.created_at, 'YYYY-MM-DD HH24:MI:SS') as order_created_at,
-    to_char(op.created_at, 'YYYY-MM-DD HH24:MI:SS') as order_payment_created_at,
+    to_char(o.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as order_created_at,
+    to_char(op.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as order_payment_created_at,
     -- Store admins
     sctav.store_admin
 from store_credit_adjustments as sca

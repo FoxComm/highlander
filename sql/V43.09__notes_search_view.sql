@@ -5,8 +5,8 @@ select distinct on (n.id)
     n.reference_type as reference_type,
     n.body as body,
     n.priority as priority,
-    to_char(n.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
-    to_char(n.deleted_at, 'YYYY-MM-DD HH24:MI:SS') as deleted_at,
+    to_char(n.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
+    to_char(n.deleted_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as deleted_at,
     -- Store admin
     nav.store_admin,
     -- Order

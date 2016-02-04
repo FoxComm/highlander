@@ -6,7 +6,7 @@ select
     then
         null
     else
-        to_json((gc.code, gc.origin_type, gc.currency, to_char(gc.created_at, 'YYYY-MM-DD HH24:MI:SS'))::export_gift_cards)
+        to_json((gc.code, gc.origin_type, gc.currency, to_char(gc.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'))::export_gift_cards)
     end as gift_card
 from notes as n
 left join gift_cards as gc on (n.reference_id = gc.id AND n.reference_type = 'giftCard')
