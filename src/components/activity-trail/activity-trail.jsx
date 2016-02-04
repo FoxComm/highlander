@@ -37,7 +37,7 @@ export function injectTimeMarks(activities) {
   const flatMap = _.flow(_.map, _.flatten);
 
   return flatMap(activities, activity => {
-    const activityTime = moment.utc(activity.createdAt);
+    const activityTime = moment.utc(activity.createdAt).local();
     const daysDiff = now.diff(activityTime, 'days');
 
     let result = [activity];

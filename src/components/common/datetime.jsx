@@ -5,8 +5,8 @@ const Moment = props => {
   const timeValue = props.utc ? moment.utc(props.value) : moment(props.value);
 
   return (
-    <time dateTime={timeValue.format()}>
-      {timeValue.format(props.format)}
+    <time dateTime={timeValue.local().format()}>
+      {timeValue.local().format(props.format)}
     </time>
   );
 };
