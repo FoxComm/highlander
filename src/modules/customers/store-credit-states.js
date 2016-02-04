@@ -7,12 +7,12 @@ const dataNamespace = ['customers', 'storeCreditStates'];
 const dataPath = customerId => [customerId, 'storeCredits'];
 
 const _createAction = (description, ...args) => {
-  return createAction('CUSTOMER_STORE_CREDITS_STATUS_' + description, ...args);
+  return createAction('CUSTOMER_STORE_CREDITS_STATE_' + description, ...args);
 };
 
-export const changeStatus = _createAction('CHANGE_STARTS',
-                                          (customerId, targetId, targetStatus) => [customerId, targetId, targetStatus]);
-export const cancelChange = _createAction('CANCEL_STATUS_CHANGE');
+export const changeState = _createAction('CHANGE_STARTS',
+                                          (customerId, targetId, targetState) => [customerId, targetId, targetState]);
+export const cancelChange = _createAction('CANCEL_STATE_CHANGE');
 export const reasonChange = _createAction('REASON_CHANGE',
                                           (customerId, reasonId) => [customerId, reasonId]);
 const updateStoreCredits = _createAction('UPDATE',
@@ -29,7 +29,7 @@ function updateStoreCreditsUrl(scId) {
   return `/store-credits/${scId}`;
 }
 
-export function saveStatusChange(customerId) {
+export function saveStateChange(customerId) {
   return (dispatch, getState) => {
     const creditToChange = get(getState(), ['customers', 'storeCreditStates', customerId, 'storeCreditToChange']);
 
@@ -53,12 +53,12 @@ const reducer = createReducer({
       return update(storeCredits, index, merge, data);
     });
   },
-  [changeStatus]: (state, [customerId, targetId, targetStatus]) => {
+  [changeState]: (state, [customerId, targetId, targetState]) => {
     const storeCredits = get(state, [...dataPath(customerId), 'rows']);
     const creditToChange = _.find(storeCredits, {id: targetId} );
     const preparedToChange = {
       ...creditToChange,
-      status: targetStatus
+      state: targetState
     };
 
     return assoc(state, [customerId, 'storeCreditToChange'], preparedToChange);

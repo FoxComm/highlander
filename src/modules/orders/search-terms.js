@@ -42,7 +42,7 @@ const searchTerms = [
       {
         title: 'State',
         type: 'enum',
-        term: 'shipments.status',
+        term: 'shipments.state',
         suggestions: [
           { display: 'Shipped', value: 'shipped' },
           { display: 'Partially Shipped', value: 'partiallyShipped' },

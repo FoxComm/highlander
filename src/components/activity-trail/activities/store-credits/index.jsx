@@ -21,7 +21,7 @@ const representatives = {
       );
     },
   },
-  // todo: do we have previous status and customer ?
+  // todo: do we have previous state and customer ?
   [types.STORE_CREDIT_STATE_CHANGED]: {
     title: data => {
       return (

@@ -31,7 +31,7 @@ const GiftCards = props => {
     {field: 'originalBalance', text: 'Original Balance', type: 'currency'},
     {field: 'currentBalance', text: 'Current Balance', type: 'currency'},
     {field: 'availableBalance', text: 'Available Balance', type: 'currency'},
-    {field: 'status', text: 'State', type: 'state', model: 'giftCard'},
+    {field: 'state', text: 'State', type: 'state', model: 'giftCard'},
     {field: 'createdAt', text: 'Date/Time Issued', type: 'date'}
   ];
 

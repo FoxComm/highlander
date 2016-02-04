@@ -25,7 +25,7 @@ const Orders = props => {
     {field: 'customer.name', text: 'Name'},
     {field: 'customer.email', text: 'Email'},
     {field: 'state', text: 'Order State', type: 'state', model: 'order'},
-    {field: 'shipping.status', text: 'Shipment State', type: 'state', model: 'shipment'},
+    {field: 'shipping.state', text: 'Shipment State', type: 'state', model: 'shipment'},
     {field: 'grandTotal', text: 'Total', type: 'currency'}
   ];
 

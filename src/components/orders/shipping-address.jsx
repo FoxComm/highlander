@@ -49,7 +49,7 @@ export default class OrderShippingAddress extends React.Component {
   static defaultProps = {
     isCart: false,
     status: ''
-  }
+  };
 
   componentDidMount() {
     this.props.fetchAddresses(this.props.customerId);

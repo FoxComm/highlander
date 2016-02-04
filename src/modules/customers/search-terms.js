@@ -36,7 +36,7 @@ const searchTerms = [
       }, {
         title: 'State',
         type: 'enum',
-        term: 'orders.status',
+        term: 'orders.state',
         suggestions: [
           { display: 'Cart', value: 'cart' },
           { display: 'Remorse Hold', value: 'remorseHold' },

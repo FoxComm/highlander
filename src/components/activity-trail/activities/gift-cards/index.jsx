@@ -37,7 +37,7 @@ const representatives = {
       );
     },
   },
-  // todo: do we have previous status ?
+  // todo: do we have previous state ?
   [types.GIFT_CARD_STATE_CHANGED]: {
     title: data => {
       return (

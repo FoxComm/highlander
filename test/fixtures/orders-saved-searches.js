@@ -4,7 +4,7 @@ const searches = [
     searches: [
       {
         display: 'Order : State : Remorse Hold',
-        selectedTerm: 'status',
+        selectedTerm: 'state',
         selectedOperator: 'eq',
         value: {
           type: 'enum',
