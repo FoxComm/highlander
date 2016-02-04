@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import { Moment, Date, DateTime, Time } from '../common/datetime';
 import Currency from '../common/currency';
 import State from '../common/state';
+import OriginType from '../common/origin-type';
 import Link from '../link/link';
 
 import _ from 'lodash';
@@ -40,6 +41,9 @@ const TableCell = props => {
         break;
       case 'time':
         cell = <Time value={children}/>;
+        break;
+      case 'transactionOrigin':
+        cell = <OriginType value={children}/>;
         break;
       default:
         cell = children;
