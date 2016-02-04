@@ -18,6 +18,9 @@ deploy-gatling: seed-cloud
 run-gatling: deploy-gatling
 	ansible-playbook -i ./staging ansible/run_gatling.yml
 
+deploy-demo: seed-cloud
+	ansible-playbook -i ./staging ansible/demo.yml
+
 lint:
 	ansible-lint ansible/*.yml
 
