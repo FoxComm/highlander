@@ -18,7 +18,7 @@ object StoreCreditEndpoint {
     .check(status.is(200))
     .check(jsonPath("$.id").ofType[Long].saveAs("storeCreditId"))
     .check(jsonPath("$.originType").ofType[String].is(originType))
-    .check(jsonPath("$.status").ofType[String].is("active"))
+    .check(jsonPath("$.state").ofType[String].is("active"))
     .check(jsonPath("$.originalBalance").ofType[Long].is(payload.amount))
     .check(jsonPath("$.currentBalance").ofType[Long].is(payload.amount))
     .check(jsonPath("$.availableBalance").ofType[Long].is(payload.amount))
@@ -26,7 +26,7 @@ object StoreCreditEndpoint {
   def cancel(): HttpRequestBuilder = http("Cancel Store Credit")
     .patch("/v1/store-credits/${storeCreditId}")
     .basicAuth("${email}", "${password}")
-    .body(StringBody("""{"status": "canceled", "reasonId": %d}""".format(cancellationReasonId)))
+    .body(StringBody("""{"state": "canceled", "reasonId": %d}""".format(cancellationReasonId)))
     .check(status.is(200))
-    .check(jsonPath("$.status").ofType[String].is("canceled"))
+    .check(jsonPath("$.state").ofType[String].is("canceled"))
 }
