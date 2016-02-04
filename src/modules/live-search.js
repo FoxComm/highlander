@@ -63,8 +63,10 @@ export default function makeLiveSearch(namespace, searchTerms, esUrl, scope) {
   };
 
   const getSelectedSearch = (state) => {
-    const selectedSearch = _.get(state, [namespace, 'list', 'selectedSearch']);
-    return _.get(state, [namespace, 'list', 'savedSearches', selectedSearch]);
+    const dataPath = [namespace, 'list', 'selectedSearch'];
+    const selectedSearch = _.get(state, dataPath);
+    const resultPath = [namespace, 'list', 'savedSearches', selectedSearch];
+    return _.get(state, resultPath);
   };
 
   const fetch = (...args) => {

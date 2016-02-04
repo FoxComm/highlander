@@ -34,7 +34,8 @@ export default class SearchableList extends React.Component {
       singleSearch: PropTypes.bool,
       initialFilters: PropTypes.array,
     }),
-    title: PropTypes.string.isRequired
+    title: PropTypes.string.isRequired,
+    noGutter: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -43,6 +44,7 @@ export default class SearchableList extends React.Component {
       singleSearch: false,
       initialFilters: [],
     },
+    noGutter: false
   };
 
   render() {
@@ -81,7 +83,7 @@ export default class SearchableList extends React.Component {
         searches={props.list}
         deleteSearch={props.searchActions.deleteSearch}
         updateSearch={props.searchActions.updateSearch}
-      >
+        noGutter={props.noGutter} >
         <MultiSelectTable
           columns={props.tableColumns}
           data={results}
