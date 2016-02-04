@@ -19,11 +19,10 @@ const setCellContents = (sc, field) => {
   }
 
   return _.get(sc, field, null);
-}
+};
 
 const StoreCreditRow = props => {
   const { storeCredit, columns } = props;
-  console.log(storeCredit);
 
   const key = `sc-${storeCredit.id}`;
 

@@ -58,19 +58,13 @@ export default function makeLiveSearch(namespace, searchTerms, esUrl, scope) {
     return dispatch => {
       dispatch(submitFilters(filters));
       const esQuery = toQuery(filters);
-      console.log('payload: ');
-      console.log(esQuery.toJSON());
       dispatch(fetch(esQuery.toJSON()));
     };
   };
 
   const getSelectedSearch = (state) => {
-    console.log(state);
     const selectedSearch = _.get(state, [namespace, 'list', 'selectedSearch']);
-    console.log(selectedSearch);
-    const result = _.get(state, [namespace, 'list', 'savedSearches', selectedSearch]);
-    console.log(result);
-    return result;
+    return _.get(state, [namespace, 'list', 'savedSearches', selectedSearch]);
   };
 
   const fetch = (...args) => {

@@ -35,8 +35,14 @@ export const states = {
     cart: 'Cart',
     active: 'Active',
     fullyRedeemed: 'Fully Redeemed',
-    canceled: 'Canceled'
-  }
+    canceled: 'Canceled',
+  },
+  storeCredit: {
+    cart: 'Cart',
+    active: 'Active',
+    fullyRedeemed: 'Fully Redeemed',
+    canceled: 'Canceled',
+  },
 };
 
 const State = (props) => {

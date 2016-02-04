@@ -11,7 +11,7 @@ const setCellContents = (txn, field) => {
     return (-1) * _.get(txn, field, null);
   }
   return _.get(txn, field, null);
-}
+};
 
 const StoreCreditTransactionRow = props => {
   const { storeCreditTransaction, columns } = props;

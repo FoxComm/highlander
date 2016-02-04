@@ -102,7 +102,9 @@ export default class StoreCredits extends React.Component {
       },
       {
         field: 'state',
-        text: 'State'
+        text: 'State',
+        type: 'state',
+        model: 'storeCredit'
       }
     ]
   };
@@ -163,23 +165,6 @@ export default class StoreCredits extends React.Component {
         return (<span>{rowState}</span>);
     }
   }
-
-  // @autobind
-  // renderRow(row) {
-  //   return (
-  //     <TableRow key={`storeCredits-row-${row.id}`}>
-  //       <TableCell><Checkbox /></TableCell>
-  //       <TableCell><DateTime value={ row.createdAt }/></TableCell>
-  //       <TableCell>{ row.id }</TableCell>
-  //       <TableCell>{ row.originType }</TableCell>
-  //       <TableCell>{  store credit, no data for it too  }</TableCell>
-  //       <TableCell><Currency value={ row.originalBalance } /></TableCell>
-  //       <TableCell><Currency value={ row.currentBalance } /></TableCell>
-  //       <TableCell><Currency value={ row.availableBalance } /></TableCell>
-  //       <TableCell>{ this.renderRowState(row.id, row.status) }</TableCell>
-  //     </TableRow>
-  //   );
-  // }
 
   renderRow(row, index, columns) {
     const key = `sc-transaction-${row.id}`;

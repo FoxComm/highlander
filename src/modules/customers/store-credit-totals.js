@@ -29,7 +29,7 @@ const moduleReducer = createReducer({
     return assoc(state, [customerId, 'totals'], payload);
   },
   [setError]: (state, [customerId, err]) => {
-    console.log(err);
+    console.error(err);
 
     return state;
   }
