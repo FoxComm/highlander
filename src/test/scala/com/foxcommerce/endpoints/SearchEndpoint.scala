@@ -29,7 +29,7 @@ object SearchEndpoint {
     http("Check Store Credit Presence in Elasticsearch")
       .get(s"${conf.elasticUrl}/${conf.indexName}" ++ "/store_credits_search_view/${storeCreditId}")
       .check(status.is(200))
-      .check(jsonPath("$._source.status").ofType[String].is(state))
+      .check(jsonPath("$._source.state").ofType[String].is(state))
       .check(jsonPath("$._source.originalBalance").ofType[Long].is(storeCredit.amount))
   }
 
@@ -37,7 +37,7 @@ object SearchEndpoint {
     http("Check Gift Card Presence in Elasticsearch")
       .get(s"${conf.elasticUrl}/${conf.indexName}" ++ "/gift_cards_search_view/${giftCardId}")
       .check(status.is(200))
-      .check(jsonPath("$._source.status").ofType[String].is(state))
+      .check(jsonPath("$._source.state").ofType[String].is(state))
       .check(jsonPath("$._source.originalBalance").ofType[Long].is(giftCard.balance))
   }
 

@@ -19,7 +19,7 @@ object GiftCardEndpoint {
     .check(jsonPath("$[0].giftCard.id").ofType[Long].saveAs("giftCardId"))
     .check(jsonPath("$[0].giftCard.code").ofType[String].saveAs("giftCardCode"))
     .check(jsonPath("$[0].giftCard.originType").ofType[String].is(originType))
-    .check(jsonPath("$[0].giftCard.status").ofType[String].is("active"))
+    .check(jsonPath("$[0].giftCard.state").ofType[String].is("active"))
     .check(jsonPath("$[0].giftCard.originalBalance").ofType[Long].is(payload.balance))
     .check(jsonPath("$[0].giftCard.currentBalance").ofType[Long].is(payload.balance))
     .check(jsonPath("$[0].giftCard.availableBalance").ofType[Long].is(payload.balance))
@@ -27,7 +27,7 @@ object GiftCardEndpoint {
   def cancel(): HttpRequestBuilder = http("Cancel Gift Card")
     .patch("/v1/gift-cards/${giftCardCode}")
     .basicAuth("${email}", "${password}")
-    .body(StringBody("""{"status": "canceled", "reasonId": %d}""".format(cancellationReasonId)))
+    .body(StringBody("""{"state": "canceled", "reasonId": %d}""".format(cancellationReasonId)))
     .check(status.is(200))
-    .check(jsonPath("$.status").ofType[String].is("canceled"))
+    .check(jsonPath("$.state").ofType[String].is("canceled"))
 }
