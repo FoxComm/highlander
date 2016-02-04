@@ -1,7 +1,6 @@
 import _ from 'lodash';
-import { createAction } from 'redux-act';
-import { merge, get, update } from 'sprout-data';
-import { updateItems } from '../state-helpers';
+import { createAction, createReducer } from 'redux-act';
+import { updateItems as _updateItems } from '../state-helpers';
 
 export const DEFAULT_PAGE_SIZE = 50;
 
@@ -12,138 +11,126 @@ export const DEFAULT_PAGE_SIZES = [
   ['100', 'View 100'],
 ];
 
-export const actionTypes = {
-  FETCH: 'FETCH',
-  RECEIVED: 'RECEIVED',
-  FETCH_FAILED: 'FETCH_FAILED',
-  UPDATE_STATE: 'UPDATE_STATE',
-  ADD_ENTITY: 'ADD_ENTITY',
-  REMOVE_ENTITY: 'REMOVE_ENTITY',
-  ADD_ENTITIES: 'ADD_ENTITIES',
-  RESET: 'RESET',
-  UPDATE_ITEMS: 'UPDATE_ITEMS',
-};
-
-export function fetchMeta(namespace, actionType) {
-  return (meta = {}) => ({
-    ...meta,
-    fetch: {
-      actionType,
-      namespace
-    }
-  });
-}
-
-export function makePaginateActionCreator(namespace, payloadReducer = null, metaReducer = _.noop) {
-  return actionType => {
-    return createAction(
-      `${namespace}_${actionType}`,
-      payloadReducer,
-      _.flow(metaReducer, fetchMeta(namespace, actionType))
-    );
-  };
-}
-
-export function createPaginateActions(namespace, payloadReducer, metaReducer) {
-  const createPaginateAction = makePaginateActionCreator(namespace, payloadReducer, metaReducer);
-
-  return _.transform(actionTypes, (result, type) => {
-    const name = _.camelCase(`action_${type}`);
-    result[name] = createPaginateAction(type);
-  });
-}
-
 const initialState = {
-  isFetching: false,
+  isFetching: null,
   rows: [],
   total: 0,
   from: 0,
   size: DEFAULT_PAGE_SIZE
 };
 
-export function paginate(state = initialState, action) {
-  const payload = action.payload;
+export default function makePagination(namespace, fetcher) {
 
-  switch (action.type) {
-    case actionTypes.FETCH:
+  const _createAction = (description, ...args) => {
+    const name = `${namespace}_${description}`.toUpperCase();
+    return createAction(name, ...args);
+  };
+
+  const submitSearch = _createAction('SUBMIT_SEARCH');
+  const searchSuccess = _createAction('SEARCH_SUCCESS');
+  const searchFailure = _createAction('SEARCH_FAILURE');
+  const updateState = _createAction('UPDATE_STATE');
+  const addEntity = _createAction('ADD_ENTITY');
+  const addEntities = _createAction('ADD_ENTITIES');
+  const removeEntity = _createAction('REMOVE_ENTITY');
+  const reset = _createAction('RESET');
+  const updateItems = _createAction('UPDATE_ITEMS');
+
+  const fetch = (...args) => (dispatch, getState) => {
+    const state = _.get(getState(), namespace);
+
+    dispatch(submitSearch());
+
+    return fetcher(...args, state)
+      .then(
+        result => dispatch(searchSuccess(result)),
+        err => dispatch(searchFailure(err))
+      );
+  };
+
+  const setFetchParams = (newState, ...args) => {
+    return dispatch => {
+      dispatch(updateState(newState));
+      dispatch(fetch(...args));
+    };
+  };
+
+  const reducer = createReducer({
+    [submitSearch]: state => {
       return {
         ...state,
         isFetching: true
       };
-    case actionTypes.RECEIVED:
+    },
+    [searchSuccess]: (state, response) => {
       return {
         ...state,
         isFetching: false,
-        rows: get(payload, 'result', payload),
-        total: get(payload, ['pagination', 'total'], payload.length)
+        rows: _.get(response, 'result', response),
+        total: _.get(response, ['pagination', 'total'], response.length)
       };
-    case actionTypes.ADD_ENTITY:
-      return {
-        ...state,
-        rows: [payload, ...state.rows],
-        total: state.total + 1
-      };
-    case actionTypes.ADD_ENTITIES:
-      return {
-        ...state,
-        rows: [...payload, ...state.rows],
-        total: state.total + payload.length
-      };
-    case actionTypes.REMOVE_ENTITY:
-      return {
-        ...state,
-        rows: _.reject(state.rows, payload),
-        total: state.total - 1
-      };
-    case actionTypes.FETCH_FAILED:
-      console.error(payload);
+    },
+    [searchFailure]: (state, err) => {
+      console.error(err);
 
       return {
         ...state,
         isFetching: false
       };
-    case actionTypes.UPDATE_STATE:
+    },
+    [addEntity]: (state, entity) => {
       return {
         ...state,
-        ...payload
+        rows: [entity, ...state.rows],
+        total: state.total + 1
       };
-    case actionTypes.UPDATE_ITEMS:
+    },
+    [addEntities]: (state, entities) => {
       return {
         ...state,
-        rows: updateItems(state.rows, payload)
+        rows: [...entities, ...state.rows],
+        total: state.total + entities.length
       };
-    case actionTypes.RESET:
-      return initialState;
-  }
-
-  return state;
-}
-
-function defaultPaginateBehaviour(state, action, fetchActionType) {
-  return paginate(state, {
-    ...action,
-    type: fetchActionType
-  });
-}
-
-export function paginateReducer(namespace, reducer = state => state, updateBehaviour = defaultPaginateBehaviour) {
-  return (state, action) => {
-    if (state === void 0) {
-      state = merge(
-        reducer(state, action) || {},
-        updateBehaviour(state, action)
-      );
+    },
+    [removeEntity]: (state, entity) => {
+      return {
+        ...state,
+        rows: _.reject(state.rows, entity),
+        total: state.total - 1
+      };
+    },
+    [updateState]: (state, newState) => {
+      return {
+        ...state,
+        ...newState
+      };
+    },
+    [updateItems]: (state, items) => {
+      return {
+        ...state,
+        rows: _updateItems(state.rows, items)
+      };
+    },
+    [reset]: state => {
+      return {
+        ...state,
+        ...initialState
+      };
     }
+  }, initialState);
 
-    const actionType = get(action, ['meta', 'fetch', 'actionType']);
-    const actionNamespace = get(action, ['meta', 'fetch', 'namespace']);
-
-    if (actionType && actionNamespace === namespace) {
-      state = updateBehaviour(state, action, actionType);
-    }
-
-    return reducer(state, action);
+  return {
+    reducer,
+    fetch,
+    setFetchParams,
+    submitSearch,
+    searchSuccess,
+    searchFailure,
+    updateState,
+    addEntity,
+    addEntities,
+    removeEntity,
+    reset,
+    updateItems,
   };
 }
-
-export default paginateReducer;
