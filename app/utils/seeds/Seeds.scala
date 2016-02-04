@@ -46,7 +46,7 @@ object Seeds {
         //https://github.com/slick/slick/issues/1186
         (1 to batchs) map { b ⇒ 
           Console.err.println(s"Generating random batch $b of $batchSize customers")
-          val result: Failures Xor Unit = Await.result(SeedsGenerator.insertRandomizedSeeds(batchSize).runTxn(), 60.second)
+          val result: Failures Xor Unit = Await.result(SeedsGenerator.insertRandomizedSeeds(batchSize).runTxn(), 120.second)
           result.fold(failures ⇒ {
             Console.err.println("Failed generating random seeds")
             failures.flatten.foreach(f⇒  { 
