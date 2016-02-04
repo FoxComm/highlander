@@ -20,6 +20,13 @@ export default class Dropdown extends React.Component {
     onChange: PropTypes.func,
     items: Dropdown.itemsType,
     children: PropTypes.node,
+    renderNullTitle: PropTypes.func,
+  };
+
+  static defaultProps = {
+    renderNullTitle: (value, placeholder) => {
+      return placeholder;
+    }
   };
 
   constructor(...args) {
@@ -30,7 +37,7 @@ export default class Dropdown extends React.Component {
     };
   }
 
-  findTitleByValue(value, props) {
+  findTitleByValue(value, props = this.props) {
     if (props.items) {
       const item = _.find(props.items, item => item[0] == value);
       return item && item[1];
@@ -61,23 +68,23 @@ export default class Dropdown extends React.Component {
   }
 
   get input() {
-    const {editable, placeholder, name, value} = this.props;
+    const {editable, placeholder, name, value, renderNullTitle} = this.props;
     const actualValue = this.state.selectedValue || value;
-    const title = this.findTitleByValue(actualValue, this.props);
+    const title = this.findTitleByValue(actualValue) || renderNullTitle(value, placeholder);
 
     if (editable) {
       return (
-          <div className="fc-dropdown__value">
-            <input placeholder={placeholder} defaultValue={title} key={actualValue} />
-          </div>
+        <div className="fc-dropdown__value">
+          <input placeholder={placeholder} defaultValue={title} key={actualValue} />
+        </div>
       );
     }
 
     return (
-        <div className="fc-dropdown__value">
-          {title || placeholder}
-          <input name={name} type="hidden" value={actualValue} />
-        </div>
+      <div className="fc-dropdown__value">
+        {title}
+        <input name={name} type="hidden" value={actualValue} />
+      </div>
     );
   }
 

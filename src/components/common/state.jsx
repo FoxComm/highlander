@@ -9,14 +9,8 @@ export const states = {
     cart: 'Cart'
   },
   shipment: {
-    cart: 'Cart',
+    ...orderStateTitles,
     ordered: 'Ordered',
-    manualHold: 'Manual Hold',
-    remorseHold: 'Remorse Hold',
-    fraudHold: 'Fraud Hold',
-    fulfillmentStarted: 'Fulfillment Started',
-    partiallyShipped: 'Partially Shipped',
-    shipped: 'Shipped'
   },
   rma: {
     pending: 'Pending'
