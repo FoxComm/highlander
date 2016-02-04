@@ -33,11 +33,11 @@ export default class LiveSearch extends React.Component {
 
     const search = currentSearch(props);
 
-    if (!_.isEmpty(props.initialFilters) && _.isEmpty(search.searches)) {
-      search.searches = props.initialFilters;
+    if (!_.isEmpty(props.initialFilters) && _.isEmpty(search.query)) {
+      search.query = props.initialFilters;
     }
 
-    const {searchValue, currentOptions, searches: pills} = search;
+    const {searchValue, query: pills} = search;
     const options = _.get(props, ['searches', 'searchOptions'], []);
 
     this.state = {
@@ -178,7 +178,7 @@ export default class LiveSearch extends React.Component {
           onSaveUpdateComplete={saveSearch}
           onEditNameComplete={editName}
           onCopySearchComplete={copySearch}
-          onDeleteSearchComplete={deleteSearch} /> 
+          onDeleteSearchComplete={deleteSearch} />
       );
     });
 
