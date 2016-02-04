@@ -26,7 +26,6 @@
 
   thead {
 
-
     th {
       position: relative;
       vertical-align: middle;
@@ -108,10 +107,33 @@
 }
 
 .fc-table-header {
+  display: flex;
   .margin-bottom(20px);
 }
+
 .fc-table-footer {
+  display: flex;
   .margin-top(20px);
+}
+
+.fc-table-flex-separator {
+  flex: 1;
+}
+
+.fc-table-actions {
+  .line-height(40px);
+
+  &__dropdown {
+    .width(100px);
+  }
+
+  &__selected {
+    .padding-left(10px);
+  }
+}
+
+.fc-table-pagesize {
+  .width(100px);
 }
 
 .fc-table-paginator {
@@ -119,7 +141,6 @@
   float: right;
   line-height: pxtorem(40px);
   align-items: baseline;
-
 
   &__current-page, &__total-pages {
     .margin(0 10px);

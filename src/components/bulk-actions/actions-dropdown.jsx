@@ -30,7 +30,7 @@ const ActionsDropdown = ({actions, allChecked, toggledIds, total}) => {
         {totalSelected} Selected
       </span>
     </div>
-  )
+  );
 };
 
 ActionsDropdown.propTypes = {};

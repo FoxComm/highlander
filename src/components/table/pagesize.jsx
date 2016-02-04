@@ -22,11 +22,10 @@ class TablePaginator extends React.Component {
 
   render() {
     return (
-      <Dropdown
-        onChange={this.onPageSizeChange}
-        items={DEFAULT_PAGE_SIZES}
-        value={this.props.value}
-        />
+      <Dropdown className="fc-table-pagesize"
+                onChange={this.onPageSizeChange}
+                items={DEFAULT_PAGE_SIZES}
+                value={this.props.value} />
     );
   }
 }

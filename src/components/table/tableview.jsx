@@ -66,7 +66,7 @@ const TableView = props => {
     <div className="fc-tableview">
       {getLine('header', topItems)}
       <Table {...props} setState={setState} />
-      {getLine('bottom', bottomItems)}
+      {getLine('footer', bottomItems)}
     </div>
   );
 };
