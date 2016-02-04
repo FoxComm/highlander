@@ -30,7 +30,7 @@ const renderRow = (row, index) => {
       <TableCell><DateTime value={row.createdAt} /></TableCell>
       <TableCell><Link to="order" params={{order: row.orderRefNum}}>{row.orderRefNum}</Link></TableCell>
       <TableCell>{row.customer.email}</TableCell>
-      <TableCell>{row.status}</TableCell>
+      <TableCell>{row.state}</TableCell>
       <TableCell><Currency value={row.total} /></TableCell>
     </TableRow>
   );

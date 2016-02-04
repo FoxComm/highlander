@@ -83,7 +83,7 @@ editContent.propTypes = {
 };
 
 const Payments = props => {
-  const title = <PanelHeader isCart={props.isCart} status={props.status} text="Payment Method" />;
+  const title = <PanelHeader isCart={props.isCart} status={props.state} text="Payment Method" />;
   return (
     <EditableContentBox
       className="fc-order-payment"
@@ -105,7 +105,7 @@ Payments.propTypes = {
       paymentMethods: PropTypes.array
     })
   }).isRequired,
-  status: PropTypes.string,
+  state: PropTypes.string,
   payments: PropTypes.shape({
     isEditing: PropTypes.bool.isRequired
   }),

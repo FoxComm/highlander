@@ -26,7 +26,7 @@ const representatives = {
     title: data => {
       return (
         <span>
-          <strong>changed the state for store credit</strong> to {data.storeCredit.status}.
+          <strong>changed the state for store credit</strong> to {data.storeCredit.state}.
         </span>
       );
     }
