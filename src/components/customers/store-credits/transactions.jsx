@@ -18,6 +18,7 @@ import SearchBar from '../../search-bar/search-bar';
 import { Checkbox } from '../../checkbox/checkbox';
 import State from '../../common/state';
 import SearchableList from '../../list-page/searchable-list';
+import StoreCreditTransactionRow from './transactions-row';
 
 // redux
 import { actions as StoreCreditTransactionsActions } from '../../../modules/customers/store-credit-transactions';
@@ -66,7 +67,7 @@ export default class StoreCreditTransactions extends React.Component {
         type: 'transaction'
       },
       {
-        field: 'status',
+        field: 'state',
         text: 'Payment State',
         type: 'state',
         model: 'storeCreditTransaction'
@@ -103,22 +104,13 @@ export default class StoreCreditTransactions extends React.Component {
     };
   }
 
-  renderRow(row) {
-    return (
-      <TableRow key={`storeCreditTransaction-row-${row.id}`}>
-        <TableCell><Checkbox /></TableCell>
-        <TableCell><DateTime value={row.createdAt}/></TableCell>
-        <TableCell>{row.transaction}</TableCell>
-        <TableCell><Currency value={-row.debit} isTransaction={true}/></TableCell>
-        <TableCell><State value={row.status} model={"storeCreditTransaction"}/></TableCell>
-        <TableCell><Currency value={row.availableBalance} /></TableCell>
-      </TableRow>
-    );
+  renderRow(row, index, columns) {
+    const key = `sc-transaction-${row.id}`;
+    return <StoreCreditTransactionRow storeCreditTransaction={row} columns={columns} key={key}/>;
   }
 
   render() {
     const totals = _.get(this.props, ['storeCreditTotals', 'totals'], {});
-    console.log(this.props);
 
     return (
       <div className="fc-store-credits">
@@ -126,7 +118,7 @@ export default class StoreCreditTransactions extends React.Component {
                  params={this.props.params}
                  history={this.context.history}
                  transactionsSelected={true} />
-        <div className="fc-list-page-content">
+        <div className="fc-list-page-content fc-store-credits__list">
           <SearchableList
             title="Transactions"
             emptyResultMessage="No transactions found."

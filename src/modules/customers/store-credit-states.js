@@ -7,10 +7,10 @@ const dataNamespace = ['customers', 'storeCreditStates'];
 const dataPath = customerId => [customerId, 'storeCredits'];
 
 const _createAction = (description, ...args) => {
-  return createAction('CUSTOMER_STORE_CREDITS_' + description, ...args);
+  return createAction('CUSTOMER_STORE_CREDITS_STATUS_' + description, ...args);
 };
 
-export const changeStatus = _createAction('STATUS_CHANGE',
+export const changeStatus = _createAction('CHANGE_STARTS',
                                           (customerId, targetId, targetStatus) => [customerId, targetId, targetStatus]);
 export const cancelChange = _createAction('CANCEL_STATUS_CHANGE');
 export const reasonChange = _createAction('REASON_CHANGE',

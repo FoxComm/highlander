@@ -24,7 +24,8 @@ export const states = {
   storeCreditTransaction: {
     capture: 'Captured',
     onHold: 'On Hold',
-    active: 'Active'
+    active: 'Active',
+    canceled: 'Canceled',
   },
   giftCard: {
     csrAppeasement: 'Appeasement',

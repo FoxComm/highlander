@@ -20,6 +20,7 @@ import Dropdown from '../../dropdown/dropdown';
 import ConfirmationDialog from '../../modal/confirmation-dialog';
 import { Checkbox } from '../../checkbox/checkbox';
 import SearchableList from '../../list-page/searchable-list';
+import StoreCreditRow from './storecredit-row';
 
 // redux
 import { actions as StoreCreditsActions } from '../../../modules/customers/store-credits';
@@ -35,12 +36,6 @@ const onHoldStateTransitions = [
   ['active', 'Active'],
   ['canceled', 'Cancel Store Credit'],
 ];
-
-// const actions = {
-//   ...StoreCreditsActions,
-//   ...ReasonsActions,
-//   ...StoreCreditTotalsActions
-// };
 
 const mapStateToProps = (state, props) => ({
   list: state.customers.storeCredits,
@@ -83,7 +78,7 @@ export default class StoreCredits extends React.Component {
         text: 'Store Credit Id'
       },
       {
-        field: 'type',
+        field: 'originType',
         text: 'Type'
       },
       {
@@ -92,15 +87,18 @@ export default class StoreCredits extends React.Component {
       },
       {
         field: 'originalBalance',
-        text: 'Original Balance'
+        text: 'Original Balance',
+        type: 'currency'
       },
       {
         field: 'currentBalance',
-        text: 'Current Balance'
+        text: 'Current Balance',
+        type: 'currency'
       },
       {
         field: 'availableBalance',
-        text: 'Available Balance'
+        text: 'Available Balance',
+        type: 'currency'
       },
       {
         field: 'state',
@@ -166,21 +164,26 @@ export default class StoreCredits extends React.Component {
     }
   }
 
-  @autobind
-  renderRow(row) {
-    return (
-      <TableRow key={`storeCredits-row-${row.id}`}>
-        <TableCell><Checkbox /></TableCell>
-        <TableCell><DateTime value={ row.createdAt }/></TableCell>
-        <TableCell>{ row.id }</TableCell>
-        <TableCell>{ row.originType }</TableCell>
-        <TableCell>{ /* store credit, no data for it too */ }</TableCell>
-        <TableCell><Currency value={ row.originalBalance } /></TableCell>
-        <TableCell><Currency value={ row.currentBalance } /></TableCell>
-        <TableCell><Currency value={ row.availableBalance } /></TableCell>
-        <TableCell>{ this.renderRowState(row.id, row.status) }</TableCell>
-      </TableRow>
-    );
+  // @autobind
+  // renderRow(row) {
+  //   return (
+  //     <TableRow key={`storeCredits-row-${row.id}`}>
+  //       <TableCell><Checkbox /></TableCell>
+  //       <TableCell><DateTime value={ row.createdAt }/></TableCell>
+  //       <TableCell>{ row.id }</TableCell>
+  //       <TableCell>{ row.originType }</TableCell>
+  //       <TableCell>{  store credit, no data for it too  }</TableCell>
+  //       <TableCell><Currency value={ row.originalBalance } /></TableCell>
+  //       <TableCell><Currency value={ row.currentBalance } /></TableCell>
+  //       <TableCell><Currency value={ row.availableBalance } /></TableCell>
+  //       <TableCell>{ this.renderRowState(row.id, row.status) }</TableCell>
+  //     </TableRow>
+  //   );
+  // }
+
+  renderRow(row, index, columns) {
+    const key = `sc-transaction-${row.id}`;
+    return <StoreCreditRow storeCredit={row} columns={columns} key={key}/>;
   }
 
   formattedStatus(status) {
@@ -266,7 +269,6 @@ export default class StoreCredits extends React.Component {
   render() {
     const props = this.props;
     const totals = _.get(props, ['storeCreditTotals', 'totals'], {});
-    console.log(this.props);
 
     return (
       <div className="fc-store-credits fc-list-page">
