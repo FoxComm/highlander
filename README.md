@@ -1,5 +1,7 @@
 # Integration tests
 
+[![Build status](https://badge.buildkite.com/492f4c4fd3b69777da73de0d8b8553f1a194d41c0448a677c5.svg)](https://buildkite.com/foxcommerce/integration-tests)
+
 Home for our integration (mainly between [Phoenix](https://github.com/FoxComm/phoenix-scala) and [Green River](https://github.com/FoxComm/green-river)) and stress tests.
 
 ## Simulations
