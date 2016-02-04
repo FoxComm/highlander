@@ -50,13 +50,13 @@ export default function searchActivities(fromActivity = null, trailParams, days 
     hasMore;
 
   if (fromActivity == null) {
-    const now = moment();
+    const now = moment.utc();
 
     promise = post('activity_connections/_search', queryFirstActivity())
       .then(response => {
         const result = response.result;
         if (result.length) {
-          const firstActivityDate = moment(result[0].createdAt);
+          const firstActivityDate = moment.utc(result[0].createdAt);
 
           // if we have activities in last 2 days - fetch activities for last 2 days
           // if not - fetch activities for last 2 days from latest activity
@@ -70,7 +70,7 @@ export default function searchActivities(fromActivity = null, trailParams, days 
         return response;
       });
   } else {
-    const untilDate = moment(fromActivity.createdAt).startOf('day').subtract(days, 'days');
+    const untilDate = moment.utc(fromActivity.createdAt).startOf('day').subtract(days, 'days');
     promise = fetch({...trailParams, fromId: fromActivity.id, untilDate, query});
   }
 

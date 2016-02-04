@@ -37,7 +37,7 @@ export default class Customer extends React.Component {
     let customer = this.props.customer;
     let joinedAt = '';
     if (customer.createdAt !== undefined) {
-      joinedAt = moment(customer.createdAt).format('MM/DD/YYYY HH:mm:ss');
+      joinedAt = moment.utc(customer.createdAt).format('MM/DD/YYYY HH:mm:ss');
     }
 
     return (
