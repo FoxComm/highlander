@@ -53,7 +53,7 @@ object AvroTransformers {
         "originId"             typed IntegerType,
         "originType"           typed StringType index "not_analyzed",
         "subtype"              typed StringType analyzer "autocomplete",
-        "status"               typed StringType index "not_analyzed",
+        "state"                typed StringType index "not_analyzed",
         "currency"             typed StringType index "not_analyzed",
         "originalBalance"      typed IntegerType,
         "currentBalance"       typed IntegerType,
@@ -75,7 +75,7 @@ object AvroTransformers {
           "customerId"         typed IntegerType,
           "originType"         typed StringType index "not_analyzed",
           "currency"           typed StringType index "not_analyzed",
-          "status"             typed StringType index "not_analyzed"
+          "state"              typed StringType index "not_analyzed"
         )
       )
 
@@ -90,7 +90,7 @@ object AvroTransformers {
         "originId"             typed IntegerType,
         "originType"           typed StringType index "not_analyzed",
         "subtype"              typed StringType analyzer "autocomplete",
-        "status"               typed StringType index "not_analyzed",
+        "state"                typed StringType index "not_analyzed",
         "currency"             typed StringType index "not_analyzed",
         "originalBalance"      typed IntegerType,
         "currentBalance"       typed IntegerType,
@@ -111,7 +111,7 @@ object AvroTransformers {
           "code"               typed StringType analyzer "autocomplete",
           "originType"         typed StringType index "not_analyzed",
           "currency"           typed StringType index "not_analyzed",
-          "status"             typed StringType index "not_analyzed"
+          "state"              typed StringType index "not_analyzed"
         )
       )
 
@@ -203,7 +203,7 @@ object AvroTransformers {
         // Line items
         "lineItemCount"           typed IntegerType,
         "lineItems" nested (
-          "status"                typed StringType index "not_analyzed",
+          "state"                 typed StringType index "not_analyzed",
           "sku"                   typed StringType analyzer "autocomplete",
           "name"                  typed StringType analyzer "autocomplete",
           "price"                 typed IntegerType
@@ -223,7 +223,7 @@ object AvroTransformers {
         // Shipments
         "shipmentCount"           typed IntegerType,
         "shipments" nested (
-          "status"                typed StringType index "not_analyzed",
+          "state"                 typed StringType index "not_analyzed",
           "shippingPrice"         typed IntegerType,
           "adminDisplayName"      typed StringType analyzer "autocomplete",
           "storefrontDisplayName" typed StringType analyzer "autocomplete"
@@ -243,7 +243,7 @@ object AvroTransformers {
         "rmaCount"                typed IntegerType,
         "rmas" nested (
           "referenceNumber"       typed StringType analyzer "autocomplete",
-          "status"                typed StringType index "not_analyzed",
+          "state"                 typed StringType index "not_analyzed",
           "rmaType"               typed StringType index "not_analyzed",
           "placedAt"              typed DateType format dateFormat
         )
@@ -283,7 +283,7 @@ object AvroTransformers {
         "chargeId"              typed StringType analyzer "autocomplete",
         "amount"                typed IntegerType,
         "currency"              typed StringType index "not_analyzed",
-        "status"                typed StringType index "not_analyzed",
+        "state"                 typed StringType index "not_analyzed",
         "createdAt"             typed DateType format dateFormat,
         // Credit Card
         "holderName"            typed StringType analyzer "autocomplete",
@@ -359,7 +359,7 @@ object AvroTransformers {
         "id"                    typed IntegerType,
         "debit"                 typed IntegerType,
         "availableBalance"      typed IntegerType,
-        "status"                typed StringType index "not_analyzed",
+        "state"                 typed StringType index "not_analyzed",
         "createdAt"             typed DateType format dateFormat,
         // Store Credit
         "storeCreditId"         typed IntegerType,
@@ -390,7 +390,7 @@ object AvroTransformers {
         "debit"                 typed IntegerType,
         "credit"                typed IntegerType,
         "availableBalance"      typed IntegerType,
-        "status"                typed StringType index "not_analyzed",
+        "state"                 typed StringType index "not_analyzed",
         "createdAt"             typed DateType format dateFormat,
         // Gift Card
         "code"                  typed StringType analyzer "autocomplete",
