@@ -58,6 +58,8 @@ export default function makeLiveSearch(namespace, searchTerms, esUrl, scope) {
     return dispatch => {
       dispatch(submitFilters(filters));
       const esQuery = toQuery(filters);
+      console.log('payload: ');
+      console.log(esQuery.toJSON());
       dispatch(fetch(esQuery.toJSON()));
     };
   };
@@ -281,7 +283,7 @@ function _searchFailure(state, err) {
 }
 
 function _submitFilters(state, filters) {
-  return assoc(state, 
+  return assoc(state,
     ['savedSearches', state.selectedSearch, 'query'], filters,
     ['savedSearches', state.selectedSearch, 'isDirty'], true
   );
@@ -296,7 +298,7 @@ function _fetchSearchesSuccess(state, searches) {
     return { ...emptyState, ...search };
   });
 
-  return assoc(state, 
+  return assoc(state,
     'fetchingSearches', false,
     'savedSearches', [...state.savedSearches, ...mappedSearches]
   );
@@ -315,7 +317,7 @@ function _updateSearchStart(state, idx) {
 }
 
 function _updateSearchSuccess(state, [idx, payload]) {
-  return assoc(state, 
+  return assoc(state,
     ['savedSearches', idx], { ...emptyState, ...payload },
     'updateNum', state.updateNum + 1);
 }
@@ -343,7 +345,7 @@ function _deleteSearchSuccess(state, idx) {
     ? state.selectedSearch - 1
     : state.selectedSearch;
 
-  return assoc(state, 
+  return assoc(state,
     'savedSearches', searches,
     'selectedSearch', selectedSearch
   );

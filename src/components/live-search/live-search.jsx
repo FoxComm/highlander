@@ -40,6 +40,10 @@ export default class LiveSearch extends React.Component {
     const {searchValue, query: pills} = search;
     const options = _.get(props, ['searches', 'searchOptions'], []);
 
+    console.log(searchValue);
+    console.log(currentOptions);
+    console.log(pills);
+
     this.state = {
       availableOptions: options,
       inputMask: null,
