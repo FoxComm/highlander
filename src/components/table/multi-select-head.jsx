@@ -14,9 +14,9 @@ export const selectionState = {
 };
 
 const dropdownItems = [
-  ['selectAll', 'Select all'],
+  //['selectAll', 'Select all'],
   ['selectPage', 'Select current page'],
-  ['deselectAll', 'Deselect all'],
+  //['deselectAll', 'Deselect all'],
   ['deselectPage', 'Deselect current page'],
 ];
 
