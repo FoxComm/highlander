@@ -109,7 +109,7 @@ const order = {
 };
 
 function getStartDate() {
-  return moment('2016-01-20T21:44:23.697Z');
+  return moment.utc('2016-01-20 21:44:23');
 }
 
 let createdAt = getStartDate().toString();
