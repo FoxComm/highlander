@@ -31,9 +31,13 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = {...orderActions, ...lineItemActions,
-  ...skuSearchActions, ...shippingMethodActions,
-  ...skusActions, ...paymentMethodActions};
+const mapDispatchToProps = {
+  ...orderActions,
+  ...lineItemActions,
+  ...skuSearchActions,
+  ...shippingMethodActions,
+  ...skusActions,
+  ...paymentMethodActions};
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class CustomerCart extends React.Component {
@@ -77,7 +81,9 @@ export default class CustomerCart extends React.Component {
         <div className="fc-customer-cart">
           <div className="_header">
             <div className="fc-subtitle">Cart {order.referenceNumber}</div>
-            <div className="_edit-button"><PrimaryButton onClick={this.editCart}>Edit Cart</PrimaryButton></div>
+            <div className="fc-customer-cart__edit-btn">
+              <PrimaryButton onClick={this.editCart}>Edit Cart</PrimaryButton>
+            </div>
           </div>
           <div className="fc-order-details">
             <div className="fc-order-details-body">
