@@ -1,6 +1,8 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
+import { transitionTo } from '../../../route-helpers';
+import { autobind } from 'core-decorators';
 
 import TotalsSummary from '../../common/totals';
 import OrderLineItems from '../../orders/order-line-items';
@@ -9,8 +11,8 @@ import OrderShippingAddress from '../../orders/shipping-address';
 import OrderShippingMethod from '../../orders/order-shipping-method';
 import Payments from '../../orders/payments';
 import Watchers from '../../watchers/watchers';
-import { haveType } from '../../../modules/state-helpers';
 
+import { haveType } from '../../../modules/state-helpers';
 import * as lineItemActions from '../../../modules/orders/line-items';
 import * as skuSearchActions from '../../../modules/orders/sku-search';
 import * as orderActions from '../../../modules/orders/details';
@@ -36,9 +38,23 @@ const mapDispatchToProps = {...orderActions, ...lineItemActions,
 @connect(mapStateToProps, mapDispatchToProps)
 export default class CustomerCart extends React.Component {
 
+  static contextTypes = {
+    history: PropTypes.object.isRequired
+  };
 
   componentWillMount() {
     this.props.fetchCustomerCart(this.props.params.customerId);
+  }
+
+  get order() {
+    return this.props.order.currentOrder;
+  }
+
+  @autobind
+  editCart() {
+    if (this.order) {
+      transitionTo(this.context.history, 'order', {order: this.order.referenceNumber});
+    }
   }
 
   render() {
@@ -61,7 +77,7 @@ export default class CustomerCart extends React.Component {
         <div className="fc-customer-cart">
           <div className="_header">
             <div className="fc-subtitle">Cart {order.referenceNumber}</div>
-            <div className="_edit-button"><PrimaryButton>Edit Cart</PrimaryButton></div>
+            <div className="_edit-button"><PrimaryButton onClick={this.editCart}>Edit Cart</PrimaryButton></div>
           </div>
           <div className="fc-order-details">
             <div className="fc-order-details-body">
