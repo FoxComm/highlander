@@ -60,7 +60,6 @@ export default class StoreCreditTransactions extends React.Component {
       {
         field: 'transaction',
         text: 'Transaction',
-        type: 'transactionOrigin',
       },
       {
         field: 'debit',
@@ -107,7 +106,6 @@ export default class StoreCreditTransactions extends React.Component {
 
   renderRow(row, index, columns) {
     const key = `sc-transaction-${row.id}`;
-    console.log(row);
     return <StoreCreditTransactionRow storeCreditTransaction={row} columns={columns} key={key}/>;
   }
 

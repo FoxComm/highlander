@@ -5,10 +5,16 @@ import React, { PropTypes } from 'react';
 
 // components
 import MultiSelectRow from '../../table/multi-select-row';
+import OriginType from '../../common/origin-type';
 
 const setCellContents = (txn, field) => {
   if (field === 'debit') {
     return (-1) * _.get(txn, field, null);
+  }
+  if (field === 'transaction') {
+    return (
+      <OriginType value={txn}/>
+    );
   }
   return _.get(txn, field, null);
 };

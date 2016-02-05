@@ -42,9 +42,6 @@ const TableCell = props => {
       case 'time':
         cell = <Time value={children}/>;
         break;
-      case 'transactionOrigin':
-        cell = <OriginType value={children}/>;
-        break;
       default:
         cell = children;
         break;
