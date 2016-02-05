@@ -5,31 +5,7 @@ import { autobind } from 'core-decorators';
 
 import DropdownItem from './dropdownItem';
 
-export default class Dropdown extends React.Component {
-
-  static itemsType = PropTypes.arrayOf(PropTypes.array);
-
-  static propTypes = {
-    name: PropTypes.string,
-    className: PropTypes.string,
-    value: PropTypes.string,
-    editable: PropTypes.bool,
-    changeable: PropTypes.bool,
-    primary: PropTypes.bool,
-    open: PropTypes.bool,
-    placeholder: PropTypes.string,
-    onChange: PropTypes.func,
-    items: Dropdown.itemsType,
-    children: PropTypes.node,
-    renderNullTitle: PropTypes.func,
-  };
-
-  static defaultProps = {
-    renderNullTitle: (value, placeholder) => {
-      return placeholder;
-    },
-    changeable: true,
-  };
+class Dropdown extends React.Component {
 
   constructor(...args) {
     super(...args);
@@ -141,3 +117,29 @@ export default class Dropdown extends React.Component {
     );
   }
 }
+
+Dropdown.itemsType = PropTypes.arrayOf(PropTypes.array);
+
+Dropdown.propTypes = {
+  name: PropTypes.string,
+  className: PropTypes.string,
+  value: PropTypes.string,
+  editable: PropTypes.bool,
+  changeable: PropTypes.bool,
+  primary: PropTypes.bool,
+  open: PropTypes.bool,
+  placeholder: PropTypes.string,
+  onChange: PropTypes.func,
+  items: Dropdown.itemsType,
+  children: PropTypes.node,
+  renderNullTitle: PropTypes.func,
+};
+
+Dropdown.defaultProps = {
+  renderNullTitle: (value, placeholder) => {
+    return placeholder;
+  },
+  changeable: true,
+};
+
+export default Dropdown;
