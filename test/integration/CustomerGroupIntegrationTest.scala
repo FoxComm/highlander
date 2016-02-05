@@ -17,7 +17,7 @@ import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import utils.jdbc._
 import utils.seeds.Seeds.Factories
-import utils.seeds.SeedsGenerator.generateGroup
+import utils.seeds.RankingSeedsGenerator.generateGroup
 import Extensions._
 import slick.driver.PostgresDriver.api._
 import util.SlickSupport.implicits._

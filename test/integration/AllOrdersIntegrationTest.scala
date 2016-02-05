@@ -14,7 +14,7 @@ import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import utils.seeds.Seeds.Factories
-import utils.seeds.SeedsGenerator
+import utils.seeds.RankingSeedsGenerator
 import utils.time._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -29,10 +29,10 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
 
   def responseItems = {
     val dbio = for {
-      customer ← * <~ Customers.create(SeedsGenerator.generateCustomer)
+      customer ← * <~ Customers.create(RankingSeedsGenerator.generateCustomer)
       insertOrders = (1 to numOfResults).map { _ ⇒ Factories.order.copy(
         customerId = customer.id,
-        referenceNumber = SeedsGenerator.randomString(10),
+        referenceNumber = RankingSeedsGenerator.randomString(10),
         state = Order.RemorseHold,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))) }
 

@@ -12,7 +12,7 @@ import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.seeds.Seeds.Factories
-import utils.seeds.SeedsGenerator
+import utils.seeds.RankingSeedsGenerator
 import utils.time._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -26,10 +26,10 @@ class AllRmasIntegrationTest extends IntegrationTestBase
   def uriPrefix = "v1/rmas"
 
   def responseItems = {
-    val orderRefNum = SeedsGenerator.randomString(10)
+    val orderRefNum = RankingSeedsGenerator.randomString(10)
 
     val dbio = for {
-      customer ← * <~ Customers.create(SeedsGenerator.generateCustomer)
+      customer ← * <~ Customers.create(RankingSeedsGenerator.generateCustomer)
       order ← * <~ Orders.create(Factories.order.copy(
         customerId = customer.id,
         referenceNumber = orderRefNum,
