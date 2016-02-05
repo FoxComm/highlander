@@ -58,9 +58,11 @@ export default class CustomerCart extends React.Component {
         } = props.order.validations;
 
       return (
-        <div class="fc-customer-cart">
-          <h2>Cart {order.referenceNumber}</h2>
-          <PrimaryButton>Edit Cart</PrimaryButton>
+        <div className="fc-customer-cart">
+          <div className="_header">
+            <div className="fc-subtitle">Cart {order.referenceNumber}</div>
+            <div className="_edit-button"><PrimaryButton>Edit Cart</PrimaryButton></div>
+          </div>
           <div className="fc-order-details">
             <div className="fc-order-details-body">
               <div className="fc-order-details-main">
