@@ -57,7 +57,7 @@ const searchTerms = [
 ];
 
 const { reducer, actions } = makeLiveSearch(
-  'giftCards-transactions',
+  'giftCards.transactions',
   searchTerms,
   'gift_card_transactions_view/_search',
   'giftCardTransactionsScope'

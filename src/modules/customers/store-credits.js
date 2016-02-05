@@ -63,7 +63,7 @@ const searchTerms = [
 ];
 
 const { reducer, actions } = makeLiveSearch(
-  'customers-storeCredits',
+  'customers.storeCredits',
   searchTerms,
   'store_credits_search_view/_search',
   'customerStoreCreditsScope'
