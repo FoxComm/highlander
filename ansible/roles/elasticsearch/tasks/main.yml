@@ -20,8 +20,15 @@
   sudo: true
 
 - name: Purge Elasticsearch data
-  file: path={{es_home}}/data state=absent
+  file: path={{es_path}}/data state=absent
   sudo: true
+
+- name: Create Elasticsearch subdirectories
+  file: path={{es_path}}/{{item}} owner={{ansible_ssh_user}} state=directory
+  sudo: true
+  with_items:
+    - logs
+    - plugins
 
 - name: Setup Service
   service: name=elasticsearch state=restarted enabled=yes sleep=5

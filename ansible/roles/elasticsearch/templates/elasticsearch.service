@@ -7,6 +7,7 @@ StandardError=syslog
 SyslogIdentifier=elasticsearch
 TimeoutStartSec=5m
 RestartSec=1m
+User=vagrant
 
 [Install]
 WantedBy=multi-user.target
