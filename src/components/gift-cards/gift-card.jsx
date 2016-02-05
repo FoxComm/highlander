@@ -24,8 +24,6 @@ import { formattedStatus } from '../common/state';
 import * as GiftCardActions from '../../modules/gift-cards/details';
 import * as ReasonsActions from '../../modules/reasons';
 
-import * as GiftCardActions from '../../modules/gift-cards/details';
-
 const activeStateTransitions = [
   ['onHold', 'On Hold'],
   ['canceled', 'Cancel Gift Card'],
@@ -117,16 +115,16 @@ export default class GiftCard extends React.Component {
     return ReasonType.CANCELLATION;
   }
 
-  get cardStatus() {
-    const {status} = this.props.card;
-    const currentStatus = formattedStatus(status);
+  get cardState() {
+    const {state} = this.props.card;
+    const currentStatus = formattedStatus(state);
 
     let availableTransitions = activeStateTransitions;
-    if (status === 'onHold') {
+    if (state === 'onHold') {
       availableTransitions = onHoldStateTransitions;
     }
 
-    if (status === 'canceled') {
+    if (state === 'canceled') {
       return <span>Canceled</span>;
     } else {
       return (
@@ -140,11 +138,11 @@ export default class GiftCard extends React.Component {
   }
 
   get changeConfirmationModal() {
-    const shouldDisplay = this.props.confirmationShown && this.props.nextStatus !== 'canceled';
+    const shouldDisplay = this.props.confirmationShown && this.props.nextState !== 'canceled';
 
     let status = '';
     if (this.props.confirmationShown) {
-      status = formattedStatus(this.props.nextStatus);
+      status = formattedStatus(this.props.nextState);
     }
 
     const message = (
@@ -168,7 +166,7 @@ export default class GiftCard extends React.Component {
 
   get cancellationConfirmationModal() {
     const props = this.props;
-    const shouldDisplay = this.props.confirmationShown && this.props.nextStatus === 'canceled';
+    const shouldDisplay = this.props.confirmationShown && this.props.nextState === 'canceled';
 
     let reasons = [];
     if (props.reasons && props.reasons[this.reasonType]) {

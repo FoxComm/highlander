@@ -61,7 +61,7 @@ export function saveGiftCardStatus(id) {
     const cardData = _.get(status, ['giftCards', 'details', id]);
     if (!_.isEmpty(cardData)) {
       const payload = {
-        status: cardData.nextStatus,
+        state: cardData.nextState,
         reasonId: cardData.reasonId,
       };
       return sendUpdate(id, payload, dispatch);
@@ -80,7 +80,7 @@ const reducer = createReducer({
         isFetching: true,
         didInvalidate: false,
         err: null,
-        nextStatus: null,
+        nextState: null,
         confirmationShown: false,
         reasonId: null,
       }
@@ -93,7 +93,7 @@ const reducer = createReducer({
         err: null,
         isFetching: false,
         didInvalidate: false,
-        nextStatus: null,
+        nextState: null,
         confirmationShown: false,
         reasonId: null,
         card: haveType(card, 'gift-card')
@@ -122,7 +122,7 @@ const reducer = createReducer({
       [id]: {
         ...state[id],
         err: null,
-        nextStatus: null,
+        nextState: null,
         confirmationShown: false,
         reasonId: null,
         card
@@ -135,7 +135,7 @@ const reducer = createReducer({
       [id]: {
         ...state[id],
         err: null,
-        nextStatus: status,
+        nextState: status,
         confirmationShown: true,
         reasonId: null,
       }
@@ -146,7 +146,7 @@ const reducer = createReducer({
       ...state,
       [id]: {
         ...state[id],
-        nextStatus: null,
+        nextState: null,
         confirmationShown: false,
         reasonId: null,
       }
