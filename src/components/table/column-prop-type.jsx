@@ -5,7 +5,7 @@ const columnType = PropTypes.shape({
   type: PropTypes.oneOf([
     'id',
     'image',
-    'status',
+    'state',
     'currency',
     'transaction',
     'moment',

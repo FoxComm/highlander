@@ -17,7 +17,7 @@ function getCell(column, children) {
       return <Link to={column.model} params={{[column.model]: children}}>{children}</Link>;
     case 'image':
       return <img src={children} />;
-    case 'status':
+    case 'state':
       return <State value={children} model={column.model} />;
     case 'currency':
       return <Currency value={children} />;
