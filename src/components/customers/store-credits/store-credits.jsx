@@ -27,16 +27,6 @@ import { actions as StoreCreditsActions } from '../../../modules/customers/store
 import * as ReasonsActions from '../../../modules/reasons';
 import * as StoreCreditTotalsActions from '../../../modules/customers/store-credit-totals';
 
-const activeStateTransitions = [
-  ['onHold', 'On Hold'],
-  ['canceled', 'Cancel Store Credit'],
-];
-
-const onHoldStateTransitions = [
-  ['active', 'Active'],
-  ['canceled', 'Cancel Store Credit'],
-];
-
 const mapStateToProps = (state, props) => ({
   list: state.customers.storeCredits,
   storeCreditTotals: state.customers.storeCreditTotals[props.params.customerId],
@@ -103,8 +93,6 @@ export default class StoreCredits extends React.Component {
       {
         field: 'state',
         text: 'State',
-        type: 'state',
-        model: 'storeCredit'
       }
     ]
   };
@@ -139,40 +127,16 @@ export default class StoreCredits extends React.Component {
   }
 
   @autobind
-  renderRowState(rowId, rowState) {
-    const customerId = this.customerId;
-    const currentState = this.formattedState(rowState);
-    switch(rowState) {
-      case 'active':
-        return (
-          <Dropdown name="state"
-                    items={ activeStateTransitions }
-                    placeholder={ currentState }
-                    value={ rowState }
-                    onChange={ (value, title) =>
-                      this.props.changeState(customerId, rowId, value) } />
-        );
-      case 'onHold':
-        return (
-          <Dropdown name="state"
-                    items={ onHoldStateTransitions }
-                    placeholder={ currentState }
-                    value={ rowState }
-                    onChange={ (value, title) =>
-                      this.props.changeState(customerId, rowId, value) } />
-        );
-      default:
-        return (<span>{rowState}</span>);
-    }
-  }
-
   renderRow(row, index, columns, params) {
+    const customerId = this.customerId;
     const key = `sc-transaction-${row.id}`;
     return (
-      <StoreCreditRow key={key}
-                      storeCredit={row}
-                      columns={columns}
-                      params={params} />
+      <StoreCreditRow
+        storeCredit={row}
+        columns={columns}
+        changeState={(rowId, value) => this.props.changeState(customerId, rowId, value)}
+        key={key}
+        params={params}/>
     );
   }
 
