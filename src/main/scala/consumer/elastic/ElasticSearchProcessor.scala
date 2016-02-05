@@ -3,11 +3,11 @@ package consumer.elastic
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-import com.sksamuel.elastic4s.{EdgeNGramTokenFilter, LowercaseTokenFilter, StandardTokenizer,
-CustomAnalyzerDefinition, ElasticClient, ElasticsearchClientUri}
-import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
+import com.sksamuel.elastic4s.analyzers.{EdgeNGramTokenFilter, LowercaseTokenFilter, StandardTokenizer, CustomAnalyzerDefinition}
 import com.sksamuel.elastic4s.mappings.MappingDefinition
-import org.elasticsearch.common.settings.ImmutableSettings
+import com.sksamuel.elastic4s.ElasticDsl._
+import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.client.transport.NoNodeAvailableException
 import org.elasticsearch.transport.RemoteTransportException
 
@@ -46,8 +46,8 @@ class ElasticSearchProcessor(
 (implicit ec: ExecutionContext)
   extends JsonProcessor {
 
-  val settings = ImmutableSettings.settingsBuilder().put("cluster.name", cluster).build()
-  val client = ElasticClient.remote(settings, ElasticsearchClientUri(uri))
+  val settings = Settings.settingsBuilder().put("cluster.name", cluster).build()
+  val client = ElasticClient.transport(settings, ElasticsearchClientUri(uri))
 
 
   def beforeAction(): Unit = {

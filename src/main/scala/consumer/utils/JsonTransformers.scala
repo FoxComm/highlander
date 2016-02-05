@@ -23,7 +23,9 @@ object JsonTransformers {
       JInt(hour) ← obj \ "hour"
       JInt(minute) ← obj \ "minute"
       JInt(second) ← obj \ "second"
-    } yield JString(f"$year%04d-$month%02d-$day%02d $hour%02d:$minute%02d:$second%02d")
+      JInt(micro) ← obj \ "micro"
+      milliseconds = micro / 1000
+    } yield JString(f"$year%04d-$month%02d-$day%02dT$hour%02d:$minute%02d:$second%02d.$milliseconds%03dZ")
     if (date.isEmpty) obj else date.head
   }
 

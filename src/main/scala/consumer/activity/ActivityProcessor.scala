@@ -111,9 +111,9 @@ class ActivityProcessor(conn : PhoenixConnectionInfo, connectors: Seq[ActivityCo
       val body = render(append)
 
       //make request
-      phoenix.post(uri, body).map{
+      phoenix.post(uri, body).map {
         resp ⇒ 
-          if(resp.status == StatusCodes.OK) {
+          if (resp.status == StatusCodes.OK) {
             createPhoenixNotification(c, phoenix)
           } else {
             throw FailedToConnectActivity(c.activityId, c.dimension, c.objectId, resp)

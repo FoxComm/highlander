@@ -1,6 +1,7 @@
 package consumer.activity
 
 import com.sksamuel.elastic4s.ElasticDsl._
+import com.sksamuel.elastic4s.ElasticDsl.{mapping ⇒ esMapping}
 import com.sksamuel.elastic4s.mappings.FieldType._
 
 import scala.concurrent.ExecutionContext
@@ -29,27 +30,27 @@ final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
 
   val phoenix = Phoenix(conn)
 
-  def mapping = "activity_connections" as (
-        "id"                   typed IntegerType,
-        "dimensionId"          typed IntegerType,
-        "objectId"             typed StringType index "not_analyzed",
-        "trailId"              typed IntegerType,
-        "activity" nested(
-          "id"                 typed IntegerType,
-          "createdAt"          typed DateType format AvroTransformers.strictDateFormat,
-          "kind"               typed StringType index "not_analyzed",
-          "context" nested(
-            "transactionId"    typed StringType index "not_analyzed",
-            "userId"           typed IntegerType,
-            "userType"         typed StringType index "not_analyzed"
+  def mapping = esMapping("activity_connections").fields(
+        field("id", IntegerType),
+        field("dimensionId", IntegerType),
+        field("objectId", StringType).index("not_analyzed"),
+        field("trailId", IntegerType),
+        field("activity").nested(
+          field("id", IntegerType),
+          field("createdAt", DateType).format(AvroTransformers.dateFormat),
+          field("kind", StringType).index("not_analyzed"),
+          field("context").nested(
+            field("transactionId", StringType).index("not_analyzed"),
+            field("userId", IntegerType),
+            field("userType", StringType).index("not_analyzed")
             ),
-          "data"               typed ObjectType
+          field("data", ObjectType)
           ),
-        "previousId"           typed IntegerType,
-        "nextId"               typed IntegerType,
-        "data"                 typed ObjectType,
-        "connectedBy"          typed ObjectType,
-        "createdAt"            typed DateType format AvroTransformers.strictDateFormat)
+        field("previousId", IntegerType),
+        field("nextId", IntegerType),
+        field("data", ObjectType),
+        field("connectedBy", ObjectType),
+        field("createdAt", DateType).format(AvroTransformers.dateFormat))
 
   def transform(json: String) : Future[String] = {
 

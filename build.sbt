@@ -45,7 +45,7 @@ lazy val phoenixScala = (project in file(".")).
         // Search
         "org.apache.kafka"          % "kafka_2.11"            % "0.9.0.0",
         "io.confluent"              % "kafka-avro-serializer" % "1.0",
-        "com.sksamuel.elastic4s"    %% "elastic4s-core"       % "1.7.4",
+        "com.sksamuel.elastic4s"    %% "elastic4s-core"       % "2.1.2",
         // Akka
         "com.typesafe.akka"    %% "akka-slf4j"               % akkaV,
         "com.typesafe.akka"    %% "akka-actor"               % akkaV,
