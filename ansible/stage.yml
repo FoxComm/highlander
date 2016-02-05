@@ -21,6 +21,9 @@
   vars:
     user: '{{ansible_ssh_user}}'
 
+  handlers:
+      - include: handlers/main.yml
+
   roles:
     - common
     - { role: rsyslog, sudo: yes }

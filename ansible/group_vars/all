@@ -28,3 +28,5 @@ search_server: 127.0.0.1:9300
 ashes_server: 127.0.0.1:4000
 kafka_server: 127.0.0.1:9092
 schema_server: 127.0.0.1:8081
+
+seeds_cmd: utils.seeds.Seeds 

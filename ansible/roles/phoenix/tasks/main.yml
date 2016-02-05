@@ -7,6 +7,8 @@
 - name: Copy Service
   template: src=phoenix.service dest="{{dest_services}}/phoenix.service"
   sudo: true
+  notify:
+      - reload systemd
 
 - name: Setup Service
   service: name=phoenix state=restarted enabled=yes

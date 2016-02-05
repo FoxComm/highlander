@@ -148,6 +148,8 @@
 - name: Copy Bottledwater Service
   copy: src=bottledwater.service dest="{{dest_services}}/bottledwater.service"
   sudo: true
+  notify:
+      - reload systemd
 
 - name: Test Schema Registry to prevent bottledwater to fail.
   uri: url=http://localhost:8081/
@@ -167,9 +169,11 @@
 - name: Setup Materialized Views Service
   copy: src=materialized_views.service dest="{{dest_services}}/materialized_views.service"
   sudo: true
+  notify:
+      - reload systemd
 
 - name: Seed Db
-  shell: java -cp {{phoenix_jar}} utils.seeds.Seeds
+  shell: java -cp {{phoenix_jar}} {{seeds_cmd}}
   sudo: true
   args:
     chdir: "{{phoenix_dir}}"

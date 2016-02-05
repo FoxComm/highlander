@@ -20,6 +20,8 @@
     - lua-cjson-dev
     - nginx-extras
   sudo: true
+  notify:
+    - reload systemd
 
 - name: Assign {{user}} to Group www-data
   user: name={{user}} groups=www-data

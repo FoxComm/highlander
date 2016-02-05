@@ -8,6 +8,8 @@
 - name: Copy Service
   template: src=greenriver.service dest="{{dest_services}}/greenriver.service"
   sudo: true
+  notify:
+    - reload systemd
 
 - name: Setup Service
   service: name=greenriver state=restarted enabled=yes

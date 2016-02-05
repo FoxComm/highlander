@@ -15,6 +15,7 @@
 - name: Copy Kibana service
   template: src=kibana.service.j2 dest={{dest_services}}/kibana.service
   notify:
+    - reload systemd
     - restart kibana
 
 - name: Setup Kibana service

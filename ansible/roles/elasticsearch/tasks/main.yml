@@ -14,6 +14,8 @@
 - name: Copy ElasticSearch service
   template: src=elasticsearch.service dest={{dest_services}}/
   sudo: true
+  notify:
+      - reload systemd
 
 - name: Kill Elasticsearch if it is Running
   shell: systemctl stop elasticsearch || true
