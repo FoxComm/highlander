@@ -21,12 +21,16 @@ class TableHead extends React.Component {
   }
 
   @autobind
-  renderColumn(column, index) {
-    const classnames = classNames(column.className, {
+  renderColumn(column) {
+    const {sortBy, setState} = this.props;
+    const {field} = column;
+    const sortable = column.sortable !== false;
+
+    const className = classNames(column.className, {
       'fc-table-th': true,
-      'sorting': this.props.setState,
-      'sorting-desc': `${column.field}` === this.props.sortBy,
-      'sorting-asc': `-${column.field}` === this.props.sortBy
+      'sorting': sortable && setState,
+      'sorting-desc': sortable && `${field}` === sortBy,
+      'sorting-asc': sortable && `-${field}` === sortBy
     });
 
     let contents = null;
@@ -39,7 +43,9 @@ class TableHead extends React.Component {
     }
 
     return (
-      <th className={classnames} key={`${column.field}`} onClick={this.onHeaderClick.bind(this, column.field)}>
+      <th className={className}
+          key={`${field}`}
+          onClick={sortable ? this.onHeaderClick.bind(this, field) : null}>
         {contents}
       </th>
     );

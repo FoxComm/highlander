@@ -1,7 +1,33 @@
+// libs
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import classNames from 'classnames';
+
+// components
 import Table from './table';
+import ActionsDropdown from '../bulk-actions/actions-dropdown';
 import TablePaginator from './paginator';
 import TablePageSize from './pagesize';
+
+
+function getLine(position, items) {
+  if (!items.length) {
+    return;
+  }
+
+  return (
+    <div className={`fc-table__${position}`}>
+      {items.map((item, index) => React.cloneElement(item, {key: `${position}-${index}`}))}
+    </div>
+  );
+}
+
+function getActionsHandler({bulkActions, allChecked, toggledIds}) {
+  return (value) => {
+    const handler = _.find(bulkActions, ([label, handler]) => label === value)[1];
+    handler(allChecked, toggledIds);
+  };
+}
 
 const TableView = props => {
   let setState = null;
@@ -11,44 +37,36 @@ const TableView = props => {
     };
   }
 
-  const tablePaginator = (
-    <TablePaginator
-      total={props.data.total}
-      from={props.data.from}
-      size={props.data.size}
-      setState={setState}
-      />
-  );
-  const tablePageSize = (
-    <TablePageSize setState={setState}/>
-  );
+  let topItems = [];
+  let bottomItems = [];
+
+  // hold actions menu
+  const showBulkActions = Boolean(props.bulkActions.length);
+  if (showBulkActions) {
+    topItems.push(
+      <ActionsDropdown actions={props.bulkActions}
+                       allChecked={props.allChecked}
+                       toggledIds={props.toggledIds}
+                       total={props.data.total} />
+    );
+  }
 
   const showPagination = props.paginator && props.setState;
+  if (showPagination) {
+    const {from, total, size} = props.data;
+    const flexSeparator = <div className="fc-table__flex-separator" />;
+    const tablePaginator = <TablePaginator total={total} from={from} size={size} setState={setState} />;
 
-  const topPaginator = (
-    <div className="fc-table-header fc-grid fc-grid-no-gutter">
-      <div className="fc-col-md-2-12 fc-push-md-10-12 fc-align-right">
-        {tablePaginator}
-      </div>
-    </div>
-  );
+    topItems.push(flexSeparator, tablePaginator);
 
-  const bottomPaginator = (
-    <div className="fc-table-footer fc-grid fc-grid-no-gutter">
-      <div className="fc-col-md-2-12 fc-align-left">
-        {tablePageSize}
-      </div>
-      <div className="fc-col-md-2-12 fc-push-md-8-12 fc-align-right">
-        {tablePaginator}
-      </div>
-    </div>
-  );
+    bottomItems.push(<TablePageSize setState={setState} />, flexSeparator, tablePaginator);
+  }
 
   return (
     <div className="fc-tableview">
-      {showPagination && topPaginator}
-      <Table {...props} setState={setState}/>
-      {showPagination && bottomPaginator}
+      {getLine('header', topItems)}
+      <Table {...props} setState={setState} />
+      {getLine('footer', bottomItems)}
     </div>
   );
 };
@@ -66,17 +84,21 @@ TableView.propTypes = {
   processRows: PropTypes.func,
   detectNewRows: PropTypes.bool,
   paginator: PropTypes.bool,
+  bulkActions: PropTypes.arrayOf(PropTypes.array),
+  allChecked: PropTypes.bool,
+  toggledIds: PropTypes.array,
   showEmptyMessage: PropTypes.bool,
   emptyMessage: PropTypes.string,
-  className: PropTypes.string
+  className: PropTypes.string,
 };
 
 TableView.defaultProps = {
   paginator: true,
+  bulkActions: [],
   data: {
     rows: [],
     total: 0,
-  }
+  },
 };
 
 export default TableView;

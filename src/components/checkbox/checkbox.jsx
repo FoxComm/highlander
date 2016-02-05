@@ -29,10 +29,12 @@ SliderCheckbox.propTypes = {
 };
 
 
-const Checkbox = props => {
+const Checkbox = ({inline, docked, ...props}) => {
   const className = classNames(
-    'fc-checkbox', 
-    {'_inline': props.inline},
+    'fc-checkbox',
+    {'_inline': inline},
+    {'_docked-left': docked && docked === 'left'},
+    {'_docked-right': docked && docked === 'right'},
     props.className,
   );
 
@@ -49,18 +51,21 @@ Checkbox.propTypes = {
 
 Checkbox.defaultProps = {
   inline: false,
+  docked: PropTypes.oneOf([
+    'left',
+    'right',
+  ]),
 };
 
 
 const HalfCheckbox = props => {
   const className = classNames(
-    'fc-checkbox',
     {'_half-checked': props.checked && props.halfChecked},
     props.className,
   );
 
   return (
-    <DefaultCheckbox {...props}
+    <Checkbox {...props}
       className={ className } />
   );
 };
