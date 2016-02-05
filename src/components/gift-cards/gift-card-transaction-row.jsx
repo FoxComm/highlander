@@ -9,7 +9,7 @@ import MultiSelectRow from '../table/multi-select-row';
 const setCellContents = (giftCard, field) => _.get(giftCard, field, null);
 
 const GiftCardTransactionRow = props => {
-  const { giftCard, columns } = props;
+  const { giftCard, columns, params } = props;
 
   const key = `gc-transaction-${giftCard.code}`;
 
@@ -18,7 +18,8 @@ const GiftCardTransactionRow = props => {
       cellKeyPrefix={key}
       columns={columns}
       row={giftCard}
-      setCellContents={setCellContents} />
+      setCellContents={setCellContents}
+      params={params} />
   );
 };
 

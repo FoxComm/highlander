@@ -14,9 +14,14 @@ const mapDispatchToProps = dispatch => {
 };
 
 const Orders = props => {
-  const renderRow = (row, index, columns) => {
+  const renderRow = (row, index, columns, params) => {
     const key = `order-${row.referenceNumber}`;
-    return <OrderRow order={row} columns={columns} key={key} />;
+    return (
+      <OrderRow key={key}
+                order={row}
+                columns={columns}
+                params={params} />
+    );
   };
 
   const tableColumns = [

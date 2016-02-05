@@ -32,9 +32,14 @@ export default class CustomerTransactions extends React.Component {
       }],
     };
 
-    const renderRow = (row, index, columns) => {
+    const renderRow = (row, index, columns, params) => {
       const key = `order-${row.referenceNumber}`;
-      return <OrderTransactionRow order={row} columns={columns} key={key} />;
+      return (
+        <OrderTransactionRow key={key}
+                             order={row}
+                             columns={columns}
+                             params={params} />
+      );
     };
 
     const tableColumns = [

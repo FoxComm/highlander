@@ -104,9 +104,14 @@ export default class StoreCreditTransactions extends React.Component {
     };
   }
 
-  renderRow(row, index, columns) {
+  renderRow(row, index, columns, params) {
     const key = `sc-transaction-${row.id}`;
-    return <StoreCreditTransactionRow storeCreditTransaction={row} columns={columns} key={key}/>;
+    return (
+      <StoreCreditTransactionRow key={key}
+                                 storeCreditTransaction={row}
+                                 columns={columns}
+                                 params={params} />
+    );
   }
 
   render() {

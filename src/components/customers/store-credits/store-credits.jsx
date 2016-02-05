@@ -166,9 +166,14 @@ export default class StoreCredits extends React.Component {
     }
   }
 
-  renderRow(row, index, columns) {
+  renderRow(row, index, columns, params) {
     const key = `sc-transaction-${row.id}`;
-    return <StoreCreditRow storeCredit={row} columns={columns} key={key}/>;
+    return (
+      <StoreCreditRow key={key}
+                      storeCredit={row}
+                      columns={columns}
+                      params={params} />
+    );
   }
 
   formattedState(state) {
