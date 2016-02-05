@@ -1,6 +1,6 @@
 ---
 
-- name: Get ElasticSearch
+- name: Get ElasticSearch 2.0
   get_url: url=https://download.elastic.co/elasticsearch/elasticsearch/{{es_zip}} dest={{home}}/{{es_zip}}
 
 - name: Unzip ElasticSearch
