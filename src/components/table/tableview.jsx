@@ -17,7 +17,7 @@ function getLine(position, items) {
 
   return (
     <div className={`fc-table__${position}`}>
-      {items}
+      {items.map((item, index) => React.cloneElement(item, {key: `${position}-${index}`}))}
     </div>
   );
 }
