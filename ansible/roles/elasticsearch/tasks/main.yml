@@ -32,6 +32,10 @@
     - plugins
     - config/scripts
 
+- name: Copy Elasticsearch Config
+  template: src=elasticsearch.yml dest={{es_path}}/config/elasticsearch.yml
+  sudo: true
+
 - name: Reload Systemd for Elastic Search
   sudo: yes
   command: systemctl daemon-reload
