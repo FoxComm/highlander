@@ -26,6 +26,11 @@ export default class MultiSelectHead extends React.Component {
     pageChecked: PropTypes.oneOf(_.values(selectionState)),
     setAllChecked: PropTypes.func,
     setPageChecked: PropTypes.func,
+    disabled: PropTypes.bool,
+  };
+
+  static defaultProps = {
+    disabled: false,
   };
 
   @autobind
@@ -52,12 +57,13 @@ export default class MultiSelectHead extends React.Component {
   }
 
   render() {
-    const {pageChecked} = this.props;
+    const {pageChecked, disabled} = this.props;
 
     return (
       <div>
         <CheckboxDropdown checked={pageChecked !== selectionState.None}
                           halfChecked={pageChecked === selectionState.Some}
+                          disabled={disabled}
                           onToggle={this.handleToggle}
                           onSelect={this.handleSelect}>
           {dropdownItems.map(([value, title]) => (

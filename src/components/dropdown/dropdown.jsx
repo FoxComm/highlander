@@ -28,6 +28,9 @@ class Dropdown extends React.Component {
   @autobind
   handleToggleClick(event) {
     event.preventDefault();
+    if (this.props.disabled) {
+      return;
+    }
     this.setState({
       open: !this.state.open
     });
@@ -48,14 +51,14 @@ class Dropdown extends React.Component {
   }
 
   get input() {
-    const {editable, placeholder, name, value, renderNullTitle} = this.props;
+    const {editable, disabled, placeholder, name, value, renderNullTitle} = this.props;
     const actualValue = this.state.selectedValue || value;
     const title = this.findTitleByValue(actualValue) || renderNullTitle(value, placeholder);
 
     if (editable) {
       return (
         <div className="fc-dropdown__value">
-          <input placeholder={placeholder} defaultValue={title} key={actualValue} />
+          <input placeholder={placeholder} disabled={disabled} defaultValue={title} key={actualValue} />
         </div>
       );
     }
@@ -70,7 +73,9 @@ class Dropdown extends React.Component {
 
   get dropdownButton() {
     return (
-      <div className="fc-dropdown__button" onClick={this.handleToggleClick}>
+      <div className="fc-dropdown__button"
+           disabled={this.props.disabled}
+           onClick={this.handleToggleClick}>
         <i className="icon-chevron-down"></i>
       </div>
     );
@@ -88,25 +93,26 @@ class Dropdown extends React.Component {
   }
 
   render() {
-    const classnames = classNames(this.props.className, {
+    const {primary, editable, items, children} = this.props;
+    const className = classNames(this.props.className, {
       'fc-dropdown': true,
-      '_primary': this.props.primary,
-      '_editable': this.props.editable,
+      '_primary': primary,
+      '_editable': editable,
       '_open': this.state.open
     });
 
     return (
-      <div className={classnames} onBlur={this.onBlur} tabIndex="0">
-        <div className="fc-dropdown__controls" onClick={this.props.editable ? this.handleToggleClick : null}>
+      <div className={className} onBlur={this.onBlur} tabIndex="0">
+        <div className="fc-dropdown__controls" onClick={editable ? this.handleToggleClick : null}>
           {this.dropdownButton}
           {this.input}
         </div>
         <ul className="fc-dropdown__items">
-          {this.props.items && _.map(this.props.items, ([value, title]) => (
+          {items && _.map(items, ([value, title]) => (
             <DropdownItem value={value} key={value} onSelect={this.handleItemClick}>
               {title}
             </DropdownItem>
-          )) || React.Children.map(this.props.children, item => (
+          )) || React.Children.map(children, item => (
               React.cloneElement(item, {
                 onSelect: this.handleItemClick,
               })
@@ -124,6 +130,7 @@ Dropdown.propTypes = {
   name: PropTypes.string,
   className: PropTypes.string,
   value: PropTypes.string,
+  disabled: PropTypes.bool,
   editable: PropTypes.bool,
   changeable: PropTypes.bool,
   primary: PropTypes.bool,
@@ -140,6 +147,7 @@ Dropdown.defaultProps = {
     return placeholder;
   },
   changeable: true,
+  disabled: false,
 };
 
 export default Dropdown;

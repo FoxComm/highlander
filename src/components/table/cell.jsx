@@ -11,7 +11,7 @@ import Link from '../link/link';
 
 
 function getCell(column, children) {
-  const type = _.get(column, 'type', 'raw');
+  const type = _.get(column, 'type');
   switch (type) {
     case 'id':
       return <Link to={column.model} params={{[column.model]: children}}>{children}</Link>;
@@ -31,10 +31,9 @@ function getCell(column, children) {
       return <DateTime value={children} />;
     case 'time':
       return <Time value={children} />;
-    case 'raw':
+    default:
       return children;
   }
-  throw new TypeError(`Unrecognized column type "${type}"`);
 }
 
 const TableBodyCell = props => {

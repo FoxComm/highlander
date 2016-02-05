@@ -38,7 +38,7 @@ export default class CustomerTransactions extends React.Component {
     };
 
     const tableColumns = [
-      {field: 'referenceNumber', text: 'Order', type: 'text', model: 'order'},
+      {field: 'referenceNumber', text: 'Order', model: 'order'},
       {field: 'placedAt', text: 'Date/Time', type: 'datetime'},
       {field: 'customer.modality', text: 'Modality'},
       {field: 'state', text: 'Order State', type: 'state', model: 'order'},

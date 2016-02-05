@@ -13,6 +13,7 @@ export default class CheckboxDropdown extends React.Component {
   static propTypes = {
     name: PropTypes.string,
     className: PropTypes.string,
+    disabled: PropTypes.bool,
     checked: PropTypes.bool,
     halfChecked: PropTypes.bool,
     onToggle: PropTypes.func,
@@ -23,6 +24,7 @@ export default class CheckboxDropdown extends React.Component {
   static defaultProps = {
     checked: false,
     halfChecked: false,
+    onToggle: _.noop,
     onSelect: _.noop,
   };
 
@@ -56,7 +58,7 @@ export default class CheckboxDropdown extends React.Component {
   }
 
   render() {
-    const {checked, halfChecked, onToggle, children} = this.props;
+    const {disabled, checked, halfChecked, onToggle, children} = this.props;
     const className = classNames(
       this.props.className,
       'fc-dropdown',
@@ -67,10 +69,12 @@ export default class CheckboxDropdown extends React.Component {
       <div className={className} onBlur={this.onBlur} tabIndex="0">
         <HalfCheckbox inline={true}
                       docked="left"
+                      disabled={disabled}
                       checked={checked}
                       halfChecked={halfChecked}
                       onChange={onToggle} />
         <DecrementButton docked="right"
+                         disabled={disabled}
                          className="_inline _small"
                          onClick={this.handleToggleClick} />
         <ul className="fc-dropdown__items">

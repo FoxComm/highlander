@@ -13,7 +13,7 @@ function getActionsHandler(actions, allChecked, toggledIds) {
   };
 }
 
-const ActionsDropdown = ({actions, allChecked, toggledIds, total}) => {
+const ActionsDropdown = ({actions, disabled, allChecked, toggledIds, total}) => {
   const totalSelected = allChecked ? total - toggledIds.length : toggledIds.length;
 
   return (
@@ -21,18 +21,35 @@ const ActionsDropdown = ({actions, allChecked, toggledIds, total}) => {
       <Dropdown className="fc-table-actions__dropdown"
                 placeholder="Actions"
                 changeable={false}
+                disabled={disabled}
                 onChange={getActionsHandler(actions, allChecked, toggledIds)}>
         {actions.map(([title, handler]) => (
           <DropdownItem key={title} value={title}>{title}</DropdownItem>
         ))}
       </Dropdown>
-      <span className="fc-table-actions__selected">
-        {totalSelected} Selected
-      </span>
+      { totalSelected > 0 ? (
+        <span className="fc-table-actions__selected">
+          {totalSelected} Selected
+        </span>
+      ) : null}
     </div>
   );
 };
 
-ActionsDropdown.propTypes = {};
+ActionsDropdown.propTypes = {
+  actions: PropTypes.arrayOf(PropTypes.array),
+  disabled: PropTypes.bool,
+  allChecked: PropTypes.bool,
+  toggledIds: PropTypes.array,
+  total: PropTypes.number,
+};
+
+ActionsDropdown.defaultProps = {
+  actions: [],
+  disabled: false,
+  allChecked: false,
+  toggledIds: [],
+  total: 0,
+};
 
 export default ActionsDropdown;

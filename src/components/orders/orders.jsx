@@ -20,7 +20,7 @@ const Orders = props => {
   };
 
   const tableColumns = [
-    {field: 'referenceNumber', text: 'Order', type: 'text', model: 'order'},
+    {field: 'referenceNumber', text: 'Order', model: 'order'},
     {field: 'placedAt', text: 'Date/Time Placed', type: 'datetime'},
     {field: 'customer.name', text: 'Name'},
     {field: 'customer.email', text: 'Email'},
