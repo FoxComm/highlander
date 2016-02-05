@@ -12,12 +12,35 @@ export const DEFAULT_PAGE_SIZES = [
 ];
 
 const initialState = {
+  // isFetching = null, - fetching wasn't started yet
+  // isFetching = true, - fetching was started
+  // isFetching = false, - fetching was finished
   isFetching: null,
   rows: [],
   total: 0,
   from: 0,
   size: DEFAULT_PAGE_SIZE
 };
+
+export function makeFetchAction(fetcher, actions, findSearchState) {
+  let fetchPromise;
+
+  return (...args) => (dispatch, getState) => {
+    const state = findSearchState(getState());
+
+    if (!state.isFetching) {
+      dispatch(actions.searchStart());
+
+      fetchPromise = fetcher(...args, {state, getState})
+        .then(
+          result => dispatch(actions.searchSuccess(result)),
+          err => dispatch(actions.searchFailure(err))
+        );
+    }
+
+    return fetchPromise;
+  };
+}
 
 export default function makePagination(namespace, fetcher) {
 
@@ -26,29 +49,19 @@ export default function makePagination(namespace, fetcher) {
     return createAction(name, ...args);
   };
 
-  const submitSearch = _createAction('SUBMIT_SEARCH');
+  const searchStart = _createAction('SEARCH_START');
   const searchSuccess = _createAction('SEARCH_SUCCESS');
   const searchFailure = _createAction('SEARCH_FAILURE');
   const updateState = _createAction('UPDATE_STATE');
   const addEntity = _createAction('ADD_ENTITY');
   const addEntities = _createAction('ADD_ENTITIES');
   const removeEntity = _createAction('REMOVE_ENTITY');
-  const reset = _createAction('RESET');
+  const resetSearch = _createAction('RESET_SEARCH');
   const updateItems = _createAction('UPDATE_ITEMS');
 
-  const fetch = (...args) => (dispatch, getState) => {
-    const state = _.get(getState(), namespace);
+  const fetch = makeFetchAction(fetcher, {searchStart, searchSuccess, searchFailure}, state => _.get(state, namespace));
 
-    dispatch(submitSearch());
-
-    return fetcher(...args, state)
-      .then(
-        result => dispatch(searchSuccess(result)),
-        err => dispatch(searchFailure(err))
-      );
-  };
-
-  const setFetchParams = (newState, ...args) => {
+  const updateStateAndFetch = (newState, ...args) => {
     return dispatch => {
       dispatch(updateState(newState));
       dispatch(fetch(...args));
@@ -56,7 +69,7 @@ export default function makePagination(namespace, fetcher) {
   };
 
   const reducer = createReducer({
-    [submitSearch]: state => {
+    [searchStart]: state => {
       return {
         ...state,
         isFetching: true
@@ -111,7 +124,7 @@ export default function makePagination(namespace, fetcher) {
         rows: _updateItems(state.rows, items)
       };
     },
-    [reset]: state => {
+    [resetSearch]: state => {
       return {
         ...state,
         ...initialState
@@ -122,15 +135,15 @@ export default function makePagination(namespace, fetcher) {
   return {
     reducer,
     fetch,
-    setFetchParams,
-    submitSearch,
+    updateStateAndFetch,
+    searchStart,
     searchSuccess,
     searchFailure,
     updateState,
     addEntity,
     addEntities,
     removeEntity,
-    reset,
+    resetSearch,
     updateItems,
   };
 }

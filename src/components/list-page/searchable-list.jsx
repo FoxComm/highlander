@@ -7,14 +7,6 @@ import MultiSelectTable from '../table/multi-select-table';
 
 export default class SearchableList extends React.Component {
 
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      sortOrder: 'asc',
-      sortBy: null,
-    };
-  }
-
   static propTypes = {
     emptyResultMessage: PropTypes.string,
     list: PropTypes.object,
@@ -55,23 +47,6 @@ export default class SearchableList extends React.Component {
     const filter = searchTerms => props.searchActions.addSearchFilters(searchTerms);
     const selectSearch = idx => props.searchActions.selectSearch(idx);
 
-    const setState = params => {
-      if (params.sortBy) {
-        const sort = {};
-        const newState = {sortBy: params.sortBy};
-
-        let sortOrder = this.state.sortOrder;
-
-        if (params.sortBy == this.state.sortBy) {
-          sortOrder = newState['sortOrder'] = sortOrder == 'asc' ? 'desc' : 'asc';
-        }
-
-        sort[params.sortBy] = {order: sortOrder};
-        props.searchActions.fetch({sort: [sort]});
-        this.setState(newState);
-      }
-    };
-
     return (
       <LiveSearch
         fetchSearches={props.searchActions.fetchSearches}
@@ -87,7 +62,7 @@ export default class SearchableList extends React.Component {
           columns={props.tableColumns}
           data={results}
           renderRow={props.renderRow}
-          setState={setState}
+          setState={props.searchActions.updateStateAndFetch}
           emptyMessage={props.emptyResultMessage} />
       </LiveSearch>
     );

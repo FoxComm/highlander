@@ -10,13 +10,13 @@ function pickFetchParams(state) {
 }
 
 export function apiStaticUrl(url) {
-  return state => {
+  return ({state}) => {
     return Api.get(url, pickFetchParams(state));
   };
 }
 
 export function apiDynamicUrl(makeUrl) {
-  return (entity, state) => {
+  return (entity, {state}) => {
     return Api.get(makeUrl(entity), pickFetchParams(state));
   };
 }
