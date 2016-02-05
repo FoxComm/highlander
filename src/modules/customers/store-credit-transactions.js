@@ -79,7 +79,7 @@ const searchTerms = [
 ];
 
 const { reducer, actions } = makeLiveSearch(
-  'customers-storeCreditTransactions',
+  'customers.storeCreditTransactions',
   searchTerms,
   'store_credit_transactions_view/_search',
   'customerStoreCreditTransactionsScope'
