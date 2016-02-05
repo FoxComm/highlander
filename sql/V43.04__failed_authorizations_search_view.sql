@@ -6,7 +6,7 @@ select distinct on (ccc.id)
     ccc.amount,
     ccc.currency,
     ccc.state,
-    to_char(ccc.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
+    to_char(ccc.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
     -- Credit Card
     cc.holder_name,
     cc.last_four,

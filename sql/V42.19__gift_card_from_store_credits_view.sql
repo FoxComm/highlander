@@ -6,7 +6,7 @@ select
     then
         null
     else
-        to_json((sc.id, sc.customer_id, sc.origin_type, sc.currency, to_char(sc.created_at, 'YYYY-MM-DD HH24:MI:SS'))::export_store_credits)
+        to_json((sc.id, sc.customer_id, sc.origin_type, sc.currency, to_char(sc.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'))::export_store_credits)
     end as store_credit
 from gift_cards as gc
 left join gift_card_from_store_credits as gcfsc on (gc.origin_id = gcfsc.id)
