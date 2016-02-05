@@ -8,7 +8,7 @@ import models.Reason.reasonTypeRegex
 import models.{GiftCard, SharedSearch, Rma, StoreAdmin}
 import payloads.SharedSearchAssociationPayload
 import services.{SharedSearchService, NoteManager, ReasonService, SaveForLaterManager, ShippingManager,
-StoreCreditAdjustmentsService, StoreCreditService}
+StoreCreditAdjustmentsService, StoreCreditService, SharedSearchInvalidQueryFailure}
 import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.CustomDirectives._
@@ -208,7 +208,7 @@ object Admin {
             SharedSearchService.getAll(admin, scope)
           }
         } ~
-        (post & pathEnd & entity(as[payloads.SharedSearchPayload])) { payload ⇒
+        (post & pathEnd & entityOr(as[payloads.SharedSearchPayload], SharedSearchInvalidQueryFailure)) { payload ⇒
           goodOrFailures {
             SharedSearchService.create(admin, payload)
           }
@@ -220,7 +220,7 @@ object Admin {
             SharedSearchService.get(code)
           }
         } ~
-        (patch & pathEnd & entity(as[payloads.SharedSearchPayload])) { payload ⇒
+        (patch & pathEnd & entityOr(as[payloads.SharedSearchPayload], SharedSearchInvalidQueryFailure)) { payload ⇒
           goodOrFailures {
             SharedSearchService.update(admin, code, payload)
           }
