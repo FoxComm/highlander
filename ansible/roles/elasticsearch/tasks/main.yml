@@ -29,6 +29,7 @@
   with_items:
     - logs
     - plugins
+    - config/scripts
 
 - name: Setup Service
   service: name=elasticsearch state=restarted enabled=yes sleep=5
