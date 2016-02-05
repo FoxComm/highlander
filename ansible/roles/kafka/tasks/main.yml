@@ -18,8 +18,10 @@
     - zookeeper.service
     - kafka.service
     - schema-registry.service
-  notify:
-    - reload systemd
+
+- name: Reload Systemd for Kafka Related Services
+  sudo: yes
+  command: systemctl daemon-reload
 
 - name: Kill Zookeeper if it is Running
   shell: systemctl stop zookeeper || true

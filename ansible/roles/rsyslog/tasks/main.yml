@@ -11,8 +11,6 @@
     - rsyslog-mmnormalize
     - rsyslog-mmjsonparse
       #- rsyslog-kafka
-  notify:
-    - restart rsyslog
 
 - name: Install base rsyslog config
   template: >
@@ -21,8 +19,6 @@
     owner=root
     group=root
     mode=0644
-  notify:
-    - restart rsyslog
 
 - name: Install rsyslog config
   template: >
@@ -31,5 +27,10 @@
     owner=root
     group=root
     mode=0644
-  notify:
-    - restart rsyslog
+
+- name: Reload Systemd for Rsyslog
+  sudo: yes
+  command: systemctl daemon-reload
+
+- name: Restart Rsyslog
+  service: name=rsyslog state=restarted

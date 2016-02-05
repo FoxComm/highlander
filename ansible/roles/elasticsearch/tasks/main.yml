@@ -14,8 +14,6 @@
 - name: Copy ElasticSearch service
   template: src=elasticsearch.service dest={{dest_services}}/
   sudo: true
-  notify:
-      - reload systemd
 
 - name: Kill Elasticsearch if it is Running
   shell: systemctl stop elasticsearch || true
@@ -29,9 +27,14 @@
   file: path={{es_path}}/{{item}} owner={{ansible_ssh_user}} state=directory
   sudo: true
   with_items:
+    - data
     - logs
     - plugins
     - config/scripts
+
+- name: Reload Systemd for Elastic Search
+  sudo: yes
+  command: systemctl daemon-reload
 
 - name: Setup Service
   service: name=elasticsearch state=restarted enabled=yes sleep=5

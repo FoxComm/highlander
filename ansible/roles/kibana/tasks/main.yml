@@ -14,9 +14,10 @@
 
 - name: Copy Kibana service
   template: src=kibana.service.j2 dest={{dest_services}}/kibana.service
-  notify:
-    - reload systemd
-    - restart kibana
 
-- name: Setup Kibana service
-  service: name=kibana state=started enabled=yes
+- name: Reload Systemd for Kibana
+  sudo: yes
+  command: systemctl daemon-reload
+
+- name: Restart Kibana
+  service: name=kibana state=restarted

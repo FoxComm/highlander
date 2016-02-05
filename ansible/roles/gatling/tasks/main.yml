@@ -20,8 +20,6 @@
     - lua-cjson-dev
     - nginx-extras
   sudo: true
-  notify:
-    - reload systemd
 
 - name: Assign {{user}} to Group www-data
   user: name={{user}} groups=www-data
@@ -39,10 +37,11 @@
   template: src=default.j2 dest=/etc/nginx/sites-available/default
   sudo: true
 
+- name: Reload Systemd for Nginx
+  sudo: yes
+  command: systemctl daemon-reload
+
 - name: Restart Nginx
   service: name=nginx state=reloaded
   sudo: yes
-
-
-
 

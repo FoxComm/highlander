@@ -22,9 +22,13 @@
 - name: Install base config
   template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf
 
+- name: Reload Systemd for Nginx
+  sudo: yes
+  command: systemctl daemon-reload
+
 - name: Install default hosts
   template: src=default.j2 dest=/etc/nginx/sites-available/default
 
 - name: Restart Nginx
-  service: name=nginx state=reloaded
+  service: name=nginx state=restarted
   sudo: yes

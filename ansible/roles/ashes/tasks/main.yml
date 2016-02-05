@@ -43,8 +43,10 @@
   template:
     src: ashes.service.j2
     dest: "{{dest_services}}/ashes.service"
-  notify:
-      - reload systemd
+
+- name: Reload Systemd for Ashes
+  sudo: yes
+  command: systemctl daemon-reload
 
 - name: Restart Ashes
   service: name=ashes state=restarted
