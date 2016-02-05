@@ -55,7 +55,8 @@ EditableContentBox.propTypes = {
   renderFooter: PropTypes.func,
   renderActions: PropTypes.func,
   title: PropTypes.node,
-  indentContent: PropTypes.bool
+  indentContent: PropTypes.bool,
+  readOnly: PropTypes.bool,
 };
 
 // eslint you are drunk, renderFooter and renderActions are just functions
@@ -66,7 +67,7 @@ EditableContentBox.defaultProps = {
     return isEditing ? props.editContent : props.viewContent;
   },
   renderFooter: (props, footer) => {
-    if (props.isEditing) {
+    if (props.isEditing && !props.readOnly) {
       return (
         <footer className="fc-editable-content-box-footer">
           {footer}
@@ -78,8 +79,9 @@ EditableContentBox.defaultProps = {
     }
   },
   renderActions: props => {
-    return props.isEditing ? null : <EditButton onClick={props.editAction} />;
-  }
+    return (props.isEditing || props.readOnly) ? null : <EditButton onClick={props.editAction} />;
+  },
+  readOnly: false,
 };
 
 export default EditableContentBox;

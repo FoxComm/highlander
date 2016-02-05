@@ -51,6 +51,7 @@ const OrderLineItems = props => {
       isEditing={props.lineItems.isEditing}
       editAction={props.orderLineItemsStartEdit}
       doneAction={props.orderLineItemsCancelEdit}
+      readOnly={props.readOnly}
       editContent={<RenderEditContent {...props} />}
       editFooter={<RenderEditFooter {...props} />}
       viewContent={viewContent} />
@@ -63,12 +64,14 @@ OrderLineItems.propTypes = {
   lineItems: PropTypes.object,
   orderLineItemsStartEdit: PropTypes.func,
   orderLineItemsCancelEdit: PropTypes.func,
-  state: PropTypes.string
+  state: PropTypes.string,
+  readOnly: PropTypes.bool,
 };
 
 OrderLineItems.defaultProps = {
   isCart: false,
-  state: ''
+  state: '',
+  readOnly: false,
 };
 
 class RenderEditContent extends React.Component {

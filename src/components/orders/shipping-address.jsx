@@ -43,12 +43,14 @@ export default class OrderShippingAddress extends React.Component {
   static propTypes = {
     isCart: PropTypes.bool,
     order: PropTypes.object.isRequired,
-    status: PropTypes.string
+    status: PropTypes.string,
+    readOnly: PropTypes.bool,
   };
 
   static defaultProps = {
     isCart: false,
-    status: ''
+    status: '',
+    readOnly: false,
   };
 
   componentDidMount() {
@@ -176,6 +178,7 @@ export default class OrderShippingAddress extends React.Component {
           title={title}
           indentContent={true}
           isEditing={props.isEditing}
+          readOnly={props.readOnly}
           editAction={props.startEditing}
           doneAction={props.stopEditing}
           renderContent={ this.renderContent }

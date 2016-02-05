@@ -75,6 +75,7 @@ const ShippingMethod = props => {
       className='fc-shipping-methods'
       title={props.title}
       isEditing={props.isEditing}
+      readOnly={props.readOnly}
       editAction={props.editAction}
       doneAction={props.doneAction}
       viewContent={viewContent(props)}
@@ -95,11 +96,13 @@ ShippingMethod.propTypes = {
   shippingMethods: PropTypes.array.isRequired,
   currentOrder: PropTypes.object,
   updateAction: PropTypes.func,
-  title: PropTypes.node
+  title: PropTypes.node,
+  readOnly: PropTypes.bool,
 };
 
 ShippingMethod.defaultProps = {
-  title: 'Shipping Method'
+  title: 'Shipping Method',
+  readOnly: false,
 };
 
 export default ShippingMethod;

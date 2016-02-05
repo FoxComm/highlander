@@ -66,10 +66,10 @@ export default class CustomerCart extends React.Component {
           <div className="fc-order-details">
             <div className="fc-order-details-body">
               <div className="fc-order-details-main">
-                <OrderLineItems isCart={isCart} status={itemsStatus} {...props} />
-                <OrderShippingAddress isCart={isCart} status={shippingAddressStatus} order={order}/>
-                <OrderShippingMethod isCart={isCart} status={shippingMethodStatus} {...props} />
-                <Payments isCart={isCart} status={paymentMethodStatus} {...props} />
+                <OrderLineItems readOnly={true} isCart={isCart} status={itemsStatus} {...props} />
+                <OrderShippingAddress readOnly={true} isCart={isCart} status={shippingAddressStatus} order={order}/>
+                <OrderShippingMethod readOnly={true} isCart={isCart} status={shippingMethodStatus} {...props} />
+                <Payments readOnly={true} isCart={isCart} status={paymentMethodStatus} {...props} />
               </div>
               <div className="fc-order-details-aside">
                 <TotalsSummary entity={order} title={order.title}/>

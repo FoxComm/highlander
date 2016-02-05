@@ -89,6 +89,7 @@ const Payments = props => {
       className="fc-order-payment"
       title={title}
       isTable={true}
+      readOnly={props.readOnly}
       editContent={editContent(props)}
       isEditing={props.payments.isEditing}
       editAction={props.orderPaymentMethodStartEdit}
@@ -114,7 +115,12 @@ Payments.propTypes = {
 
   deleteOrderGiftCardPayment: PropTypes.func.isRequired,
   deleteOrderStoreCreditPayment: PropTypes.func.isRequired,
-  deleteOrderCreditCardPayment: PropTypes.func.isRequired
+  deleteOrderCreditCardPayment: PropTypes.func.isRequired,
+  readOnly: PropTypes.bool,
+};
+
+Payments.defaultProps = {
+  readOnly: false,
 };
 
 export default Payments;
