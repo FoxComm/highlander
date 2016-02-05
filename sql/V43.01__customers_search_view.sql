@@ -9,7 +9,7 @@ select distinct on (c.id)
     c.is_blacklisted as is_blacklisted,
     c.phone_number as phone_number,
     c.location as location,
-    to_char(c.created_at, 'YYYY-MM-DD HH24:MI:SS') as joined_at,
+    to_char(c.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as joined_at,
     -- Ranking
     rank.rank,
     coalesce(rank.revenue, 0) as revenue,
