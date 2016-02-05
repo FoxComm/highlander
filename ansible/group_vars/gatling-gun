@@ -1,3 +1,4 @@
+api_server: "{{hostvars[groups['gatling-ashes'][0]]['ansible_eth0']['ipv4']['address'] }}"
 phoenix_server: "{{hostvars[groups['gatling-backend'][0]]['ansible_eth0']['ipv4']['address'] }}:9090"
 search_server:  "{{hostvars[groups['gatling-backend'][0]]['ansible_eth0']['ipv4']['address'] }}:9300"
 search_server_http:  "{{hostvars[groups['gatling-backend'][0]]['ansible_eth0']['ipv4']['address'] }}:9200"
