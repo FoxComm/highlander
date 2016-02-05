@@ -8,6 +8,7 @@ import MultiSelectRow from '../../table/multi-select-row';
 import Initials from '../../users/initials';
 import OriginType from '../../common/origin-type';
 import State from '../../common/state';
+import Dropdown from '../../dropdown/dropdown';
 
 const activeStateTransitions = [
   ['onHold', 'On Hold'],
@@ -45,9 +46,10 @@ const stateChanger = (rowId, rowState, changeState) => {
 
 const setCellContents = (sc, field) => {
   if (field === 'state') {
+    console.log(field);
     const state = sc.state;
     const id = sc.id;
-    return stateChanger(state, id, sc.changeState);
+    return stateChanger(id, state, sc.changeState);
   }
 
   if (field === 'issuedBy') {
