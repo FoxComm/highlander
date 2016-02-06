@@ -1,18 +1,18 @@
-import ejs from 'elastic.js';
 import { toQuery } from './common';
 import { post } from '../lib/search';
 import _ from 'lodash';
 import { assoc } from 'sprout-data';
 
-const mapping = 'customers_search_view';
-
+const mapping = 'customers_search_view/_search';
 
 export function groupCount(criteria, match) {
-  const req = toQuery(criteria, {joinWith: match, useQueryFilters: true});
-  return post(`${mapping}/_count`, req.toJSON());
+  return groupSearch(criteria, match, true);
 }
 
-export function groupSearch(criteria, match) {
-  const req = toQuery(criteria, {joinWith: match});
-  return post(`${mapping}/_search`, req.toJSON());
+export function groupSearch(criteria, match, forCount = false) {
+  const req = toQuery(criteria, {atLeastOne: match == 'or'});
+  if (forCount) {
+    req.size = 0;
+  }
+  return post(mapping, req);
 }

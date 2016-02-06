@@ -100,7 +100,6 @@
     "co-body": "^4.0.0",
     "core-decorators": "^0.8.0",
     "currency-symbol-map": "^2.1.0",
-    "elastic.js": "^1.2.0",
     "event-source-polyfill": "0.0.6",
     "fleck": "^0.5.1",
     "history": "^1.17.0",
