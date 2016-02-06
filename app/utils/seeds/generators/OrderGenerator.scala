@@ -7,6 +7,8 @@ GiftCardOrders, GiftCards, Note, Notes, Order, OrderLineItem, OrderLineItemGiftC
 OrderLineItemSku, OrderLineItemSkus, OrderLineItems, OrderPayment, OrderPayments, OrderShippingAddress,
 OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, ShippingMethods, Orders, Shipment, Shipments, Sku, StoreCredit,
 StoreCreditManual, StoreCreditManuals, StoreCredits}
+import models.GiftCard.buildAppeasement
+import payloads.GiftCardCreateByCsr
 import models.Order.{ManualHold, Cart, Shipped}
 import utils.seeds.ShipmentSeeds
 
@@ -69,8 +71,6 @@ trait OrderGenerator extends ShipmentSeeds {
   } yield order
 
   def generateOrder3(customerId: Customer#Id, skus: Seq[Sku])(implicit db: Database): DbResultT[Order] = {
-    import models.GiftCard.{buildAppeasement => build}
-    import payloads.{GiftCardCreateByCsr => payload}
     val balance1 = nextBalance
     val balance2 = nextBalance
 
@@ -79,8 +79,8 @@ trait OrderGenerator extends ShipmentSeeds {
       _      ← * <~ addSkusToOrder(skus.map(_.id), orderId = order.id, OrderLineItem.Cart)
       origin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = 1, reasonId = 1))
       totals = total(skus)
-      gc1    ← * <~ GiftCards.create(build(payload(balance = balance1, reasonId = 1), originId = origin.id))
-      gc2    ← * <~ GiftCards.create(build(payload(balance = balance2, reasonId = 1), originId = origin.id))
+      gc1    ← * <~ GiftCards.create(buildAppeasement(GiftCardCreateByCsr(balance = balance1, reasonId = 1), originId = origin.id))
+      gc2    ← * <~ GiftCards.create(buildAppeasement(GiftCardCreateByCsr(balance = balance2, reasonId = 1), originId = origin.id))
       cc     ← * <~ getCc(customerId)
       _      ← * <~ OrderPayments.createAll(Seq(
         OrderPayment.build(gc1).copy(orderId = order.id, amount = balance1.some),
@@ -123,11 +123,9 @@ trait OrderGenerator extends ShipmentSeeds {
   }
 
   def addSkusToOrder(skuIds: Seq[Sku#Id], orderId: Order#Id, state: OrderLineItem.State): DbResultT[Unit] = for {
-    liSkus ← * <~ OrderLineItemSkus.createAllReturningIds(skuIds.map { skuId ⇒
-      OrderLineItemSku(skuId = skuId)
-    })
-    _ ← * <~ OrderLineItems.createAll(liSkus.seq.map { oId ⇒
-      OrderLineItem(orderId = orderId, originId = oId, originType = OrderLineItem.SkuItem, state = state)
+    liSkus ← * <~ OrderLineItemSkus.filter(_.id.inSet(skuIds)).result
+    _ ← * <~ OrderLineItems.createAll(liSkus.seq.map { liSku ⇒
+      OrderLineItem(orderId = orderId, originId = liSku.id, originType = OrderLineItem.SkuItem, state = state)
     })
   } yield {}
 

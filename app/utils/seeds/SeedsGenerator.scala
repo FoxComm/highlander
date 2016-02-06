@@ -5,7 +5,9 @@ import scala.util.Random
 import utils.seeds.generators.{CustomerGenerator, AddressGenerator, CreditCardGenerator, 
 OrderGenerator, InventoryGenerator}
 import models.{Address, Addresses, CreditCard, CreditCards, Customer, Customers, 
-Order, OrderPayment, OrderPayments, Orders, PaymentMethod, Skus, Sku, CustomerDynamicGroup}
+Order, OrderPayment, OrderPayments, Orders, PaymentMethod, Skus, Sku, CustomerDynamicGroup,
+OrderLineItemSku, OrderLineItemSkus}
+
 import utils.ModelWithIdParameter
 import utils.DbResultT
 import utils.DbResultT._
@@ -95,8 +97,6 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
 
   import org.json4s.JObject
 
-  
-
   def generateAddresses(customerIds: Seq[Int]): Seq[Address] = { 
     customerIds.flatMap { id ⇒ 
         generateAddress(customerId = id, isDefault = true) +: 
@@ -106,7 +106,7 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
     }
   }
 
-  def makeSkus = (1 to 10 + Random.nextInt(20)).map { i ⇒  generateSku }
+  def makeSkus(productCount: Int) = (1 to productCount).map { i ⇒  generateSku }
 
   def randomSubset[T](vals: Seq[T]) : Seq[T] = {
     require(vals.length > 0)
@@ -116,14 +116,17 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
     }.distinct
   }
 
-  def insertRandomizedSeeds(customersCount: Int)(implicit db: Database, ec: ExecutionContext) = {
+  def insertRandomizedSeeds(customersCount: Int, productCount: Int)(implicit db: Database, ec: ExecutionContext) = {
     Faker.locale("en")
     val location = "Random"
 
     for {
       shipMethods ← * <~ createShipmentRules
       _ ← * <~  generateWarehouses
-      skuIds ← * <~  generateInventory(makeSkus)
+      skuIds ← * <~  generateInventory(makeSkus(productCount))
+      liSkus ← * <~ OrderLineItemSkus.createAllReturningIds(skuIds.map { skuId ⇒
+        OrderLineItemSku(skuId = skuId)
+      })
       skus  ← * <~ Skus.filter(_.id.inSet(skuIds)).result
       customerIds ← * <~ Customers.createAllReturningIds(generateCustomers(customersCount, location))
       customers  ← * <~ Customers.filter(_.id.inSet(customerIds)).result

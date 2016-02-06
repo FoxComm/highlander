@@ -23,9 +23,9 @@ trait InventoryGenerator {
   val stop = "\u0002"
   val start = "\u0003"
   def nameGenerator = Source.fromURL(getClass.getResource("/product_titles.txt"), "UTF-8").getLines
-    .map{_.grouped(2)} //group characters in line into sets of 2
+    .map(_.grouped(2)) //group characters in line into sets of 2
     .foldLeft(new MarkovChain[String](start, stop))((acc, wordChunks) => 
-        acc.insert(wordChunks.map{_.toLowerCase}.toList))
+        acc.insert(wordChunks.map(_.toLowerCase).toList))
 
   def generateInventorySummary(skuId: Int) = {
     InventorySummary.buildNew(warehouse.id, skuId = skuId, onHand = Random.nextInt(100))
@@ -41,9 +41,9 @@ trait InventoryGenerator {
       sku = base.letterify("???-???"), 
       name = Some(nameGenerator.generate(Math.max(5, Random.nextInt(20))).mkString("")), 
       price = Random.nextInt(10000))
+
     Console.err.println(s"sku: ${sk.name}")
     sk
-
   }
 
   def generateWarehouses = for {
