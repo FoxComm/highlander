@@ -10,7 +10,7 @@ class TotalCounter extends React.Component {
     fetch: PropTypes.func.isRequired,
   };
 
-  static defaultProps: {
+  static defaultProps = {
     isFetching: null,
   };
 
