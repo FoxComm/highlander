@@ -5,12 +5,14 @@ import { transitionTo } from '../../route-helpers';
 import _ from 'lodash';
 
 import * as newOrderActions from '../../modules/orders/new-order';
+import { email } from '../../lib/validators';
 
 import { Button } from '../common/buttons';
 import BigCheckbox from '../checkbox/big-checkbox';
 import ChooseCustomer from './choose-customer';
 import ChooseCustomerRow from './choose-customer-row';
 import ContentBox from '../content-box/content-box';
+import ErrorAlerts from '../alerts/error-alerts';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import PilledInput from '../pilled-search/pilled-input';
@@ -37,7 +39,9 @@ export default class NewOrder extends Component {
     super(props, context);
 
     this.state = {
+      checkoutAsGuest: false,
       customers: [],
+      errors: [],
       query: '',
     };
   }
@@ -63,7 +67,11 @@ export default class NewOrder extends Component {
 
   get customersList() {
     return (
-      <ChooseCustomer items={this.suggestedCustomers} onItemClick={this.selectCustomer} />
+      <ChooseCustomer 
+        items={this.suggestedCustomers}
+        onItemClick={this.selectCustomer}
+        isGuest={this.state.checkoutAsGuest}
+        query={this.state.query} />
     );
   }
 
@@ -91,6 +99,40 @@ export default class NewOrder extends Component {
     );
   }  
 
+  get search() {
+    const label = this.state.checkoutAsGuest
+      ? "Guest Customer's Email"
+      : "Search All Customers";
+
+    const placeholder = this.state.checkoutAsGuest
+      ? "Enter guest customer's email"
+      : "Customer name or email...";
+
+    return (
+      <Typeahead
+        className="fc-order-create__customer-search fc-col-md-5-8"
+        component={ChooseCustomerRow}
+        fetchItems={this.props.suggestCustomers}
+        isFetching={this.isFetching}
+        itemsElement={this.customersList}
+        inputElement={this.chooseCustomerInput}
+        label={label}
+        onBlur={this.blur}
+        placeholder={placeholder} />
+    );
+  }
+
+  @autobind
+  blur({target}) {
+    if (this.state.checkoutAsGuest) {
+      if (email(target.value)) {
+        this.selectCustomer({ email: target.value });
+      } else if (!_.isEmpty(this.state.query) && _.isEmpty(this.state.customers)) {
+        this.setState({ errors: ['Please enter a valid email.'] });
+      }
+    }
+  }
+
   @autobind
   clearCustomer() {
     this.setState({
@@ -102,6 +144,7 @@ export default class NewOrder extends Component {
   selectCustomer(customer) {
     this.setState({
       customers: [customer],
+      errors: [],
       query: '',
     });
   }
@@ -109,8 +152,16 @@ export default class NewOrder extends Component {
   @autobind
   submitAction() {
     if (!_.isEmpty(this.state.customers)) {
-      this.props.createOrder(this.state.customers[0]);
+      this.setState({ errors: [] });
+      this.props.createOrder(this.state.customers[0], this.state.checkoutAsGuest);
+    } else {
+      this.setState({ errors: ['Please choose a customer.'] });
     }
+  }
+
+  @autobind
+  toggleGuest(value) {
+    this.setState({ checkoutAsGuest: value });
   }
 
   render() {
@@ -125,24 +176,20 @@ export default class NewOrder extends Component {
               <div className="fc-order-create__customer-form-subtitle fc-col-md-1-1">
                 <h2>Customer</h2>
               </div>
+              <div className="fc-order-create__errors fc-col-md-1-1">
+                <ErrorAlerts errors={this.state.errors} />
+              </div>
               <div className="fc-order-create__customer-form fc-col-md-1-1">
                 <Form 
                   autoComplete="off" 
                   className="fc-grid fc-grid-no-gutter"
                   onSubmit={this.submitAction}>
-                  <Typeahead
-                    className="fc-order-create__customer-search fc-col-md-5-8"
-                    component={ChooseCustomerRow}
-                    fetchItems={this.props.suggestCustomers}
-                    isFetching={this.isFetching}
-                    itemsElement={this.customersList}
-                    inputElement={this.chooseCustomerInput}
-                    placeholder="Customer name or email..." />
+                  {this.search}
                   <FormField
                     className="fc-order-create__guest-checkout fc-col-md-2-8"
                     label="Checkout as guest"
                     labelAfterInput={true}>
-                    <BigCheckbox name="guestCheckout" />
+                    <BigCheckbox name="guestCheckout" onToggle={this.toggleGuest} />
                   </FormField>
                   <FormField className="fc-col-md-1-8">
                     {this.nextButton}

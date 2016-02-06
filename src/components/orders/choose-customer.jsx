@@ -9,6 +9,10 @@ import Table from '../table/table';
 import WaitAnimation from '../common/wait-animation';
 
 const ChooseCustomer = (props, context) => {
+  if (_.isEmpty(props.query)) {
+    return <div></div>;
+  }
+
   const renderRow = (row, index, columns) => {
     const key = `order-choose-customer-${row.id}`;
     const clickItem = () => {
@@ -25,10 +29,14 @@ const ChooseCustomer = (props, context) => {
     { field: 'accountType', text: 'Account Type' },
   ];
 
-  const primaryButton = (
-    <PrimaryButton onClick={() => transitionTo(context.history, 'customers-new')}>
-      Create New Customer
-    </PrimaryButton>
+  const footer = props.isGuest ? null : (
+    <div className="fc-orders-choose-customer__footer">
+      <Button>Checkout As Guest</Button>
+      <div>or</div>
+      <PrimaryButton onClick={() => transitionTo(context.history, 'customers-new')}>
+        Create New Customer
+      </PrimaryButton>
+    </div>
   );
 
   const data = props.updating ? { rows: [] } : props.items;
@@ -46,26 +54,26 @@ const ChooseCustomer = (props, context) => {
         columns={tableColumns} />
       {waitAnimation}
       {noResults}
-      <div className="fc-orders-choose-customer__footer">
-        <Button>Checkout As Guest</Button>
-        <div className="fc-orders-choose-customer__footer-divider">or</div>
-        {primaryButton}
-      </div>
+      {footer}
     </div>
   );
 };
 
 ChooseCustomer.propTypes = {
+  isGuest: PropTypes.bool,
   items: PropTypes.object.isRequired,
   onItemClick: PropTypes.func,
   updating: PropTypes.bool,
   toggleVisibility: PropTypes.func,
+  query: PropTypes.string,
 };
 
 ChooseCustomer.defaultProps = {
+  isGuest: false,
   onItemClick: _.noop,
   updating: false,
   toggleVisibility: _.noop,
+  query: '',
 };
 
 ChooseCustomer.contextTypes = {

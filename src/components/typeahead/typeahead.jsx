@@ -4,6 +4,7 @@ import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import { debounce, autobind } from 'core-decorators';
 import { cloneElement } from '../../lib/react-utils';
+import _ from 'lodash';
 
 // components
 import TypeaheadItems from './items';
@@ -14,6 +15,7 @@ import Alert from '../alerts/alert';
 export default class Typeahead extends React.Component {
 
   static propTypes = {
+    onBlur: PropTypes.func,
     onItemSelected: PropTypes.func,
     // fetchItems if passed should return promise for results
     fetchItems: PropTypes.func,
@@ -31,6 +33,7 @@ export default class Typeahead extends React.Component {
 
   static defaultProps = {
     name: 'typeahead',
+    onBlur: _.noop,
     placeholder: 'Search',
     minQueryLength: 1,
   };
@@ -145,6 +148,7 @@ export default class Typeahead extends React.Component {
     };
 
     const handlers = {
+      onBlur: this.props.onBlur,
       onChange: this.textChange,
       onKeyUp: this.inputKeyUp,
     };
