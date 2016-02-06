@@ -22,7 +22,7 @@ const setCellContents = (sc, field) => {
 };
 
 const StoreCreditRow = props => {
-  const { storeCredit, columns } = props;
+  const { storeCredit, columns, params } = props;
 
   const key = `sc-${storeCredit.id}`;
 
@@ -31,7 +31,8 @@ const StoreCreditRow = props => {
       cellKeyPrefix={key}
       columns={columns}
       row={storeCredit}
-      setCellContents={setCellContents} />
+      setCellContents={setCellContents}
+      params={params} />
   );
 };
 

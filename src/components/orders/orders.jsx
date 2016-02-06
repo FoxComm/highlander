@@ -14,13 +14,18 @@ const mapDispatchToProps = dispatch => {
 };
 
 const Orders = props => {
-  const renderRow = (row, index, columns) => {
+  const renderRow = (row, index, columns, params) => {
     const key = `order-${row.referenceNumber}`;
-    return <OrderRow order={row} columns={columns} key={key} />;
+    return (
+      <OrderRow key={key}
+                order={row}
+                columns={columns}
+                params={params} />
+    );
   };
 
   const tableColumns = [
-    {field: 'referenceNumber', text: 'Order', type: 'text', model: 'order'},
+    {field: 'referenceNumber', text: 'Order', model: 'order'},
     {field: 'placedAt', text: 'Date/Time Placed', type: 'datetime'},
     {field: 'customer.name', text: 'Name'},
     {field: 'customer.email', text: 'Email'},

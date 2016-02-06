@@ -43,11 +43,18 @@ const TableView = props => {
   // hold actions menu
   const showBulkActions = Boolean(props.bulkActions.length);
   if (showBulkActions) {
+    const {bulkActions, toggledIds, allChecked, data:{total}} = props;
+
+    //disabled if no data or nothing selected
+    const totalSelected = allChecked ? total - toggledIds.length : toggledIds.length;
+    const disabled = total === 0 || totalSelected === 0;
+
     topItems.push(
-      <ActionsDropdown actions={props.bulkActions}
-                       allChecked={props.allChecked}
-                       toggledIds={props.toggledIds}
-                       total={props.data.total} />
+      <ActionsDropdown actions={bulkActions}
+                       disabled={disabled}
+                       allChecked={allChecked}
+                       toggledIds={toggledIds}
+                       total={total} />
     );
   }
 

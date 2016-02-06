@@ -63,9 +63,14 @@ export default class GiftCardTransactions extends React.Component {
   }
 
   @autobind
-  renderRow(row, index, columns) {
+  renderRow(row, index, columns, params) {
     const key = `gift-card-${row.code}`;
-    return <GiftCardTransactionRow giftCard={row} columns={columns} key={key}/>;
+    return (
+      <GiftCardTransactionRow key={key}
+                              giftCard={row}
+                              columns={columns}
+                              params={params} />
+    );
   }
 
   render() {

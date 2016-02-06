@@ -20,7 +20,7 @@ const setCellContents = (giftCard, field) => {
 };
 
 const GiftCardRow = (props, context) => {
-  const { giftCard, columns } = props;
+  const { giftCard, columns, params } = props;
   const key = `gift-card-${giftCard.id}`;
   const clickAction = () => {
     transitionTo(context.history, 'giftcard', { giftCard: giftCard.code });
@@ -32,7 +32,8 @@ const GiftCardRow = (props, context) => {
       columns={columns}
       onClick={clickAction}
       row={giftCard}
-      setCellContents={setCellContents} />
+      setCellContents={setCellContents}
+      params={params} />
   );
 };
 

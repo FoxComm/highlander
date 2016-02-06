@@ -85,7 +85,7 @@ const setCellContents = (order, field) => {
 
 
 const OrderRow = (props, context) => {
-  const { order, columns } = props;
+  const { order, columns, params } = props;
   const key = `order-${order.referenceNumber}`;
   const clickAction = () => {
     transitionTo(context.history, 'order', { order: order.referenceNumber });
@@ -97,7 +97,8 @@ const OrderRow = (props, context) => {
       columns={columns}
       onClick={clickAction}
       row={order}
-      setCellContents={setCellContents} />
+      setCellContents={setCellContents}
+      params={params} />
   );
 };
 

@@ -20,9 +20,14 @@ const mapDispatchToProps = dispatch => {
 };
 
 const GiftCards = props => {
-  const renderRow = (row, index, columns) => {
+  const renderRow = (row, index, columns, params) => {
     const key = `gift-card-${row.code}`;
-    return <GiftCardRow giftCard={row} columns={columns} key={key} />;
+    return (
+      <GiftCardRow key={key}
+                   giftCard={row}
+                   columns={columns}
+                   params={params} />
+    );
   };
 
   const tableColumns = [

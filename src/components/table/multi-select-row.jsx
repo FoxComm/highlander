@@ -8,7 +8,7 @@ import TableCell from '../table/cell';
 import TableRow from '../table/row';
 
 const MultiSelectRow = props => {
-  const { columns, onClick, row, setCellContents, checked, setChecked, ...rest } = props;
+  const { columns, onClick, row, setCellContents, params: {checked, setChecked}, ...rest } = props;
 
   const cells = _.reduce(columns, (visibleCells, col) => {
     const cellKey = `row-${col.field}`;
@@ -53,8 +53,10 @@ MultiSelectRow.propTypes = {
   onClick: PropTypes.func,
   row: PropTypes.object.isRequired,
   setCellContents: PropTypes.func.isRequired,
-  checked: PropTypes.bool.isRequired,
-  setChecked: PropTypes.func.isRequired,
+  params: PropTypes.shape({
+    checked: PropTypes.bool.isRequired,
+    setChecked: PropTypes.func.isRequired,
+  }),
 };
 
 MultiSelectRow.defaultProps = {
