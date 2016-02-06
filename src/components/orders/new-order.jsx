@@ -76,6 +76,7 @@ export default class NewOrder extends Component {
       <ChooseCustomer 
         items={this.suggestedCustomers}
         onItemClick={this.selectCustomer}
+        onGuestClick={this.submitGuest}
         isGuest={this.state.checkoutAsGuest} />
     );
   }
@@ -129,13 +130,25 @@ export default class NewOrder extends Component {
   }
 
   @autobind
-  blur({target}) {
+  blur() {
     if (this.state.checkoutAsGuest) {
-      if (email(target.value)) {
-        this.selectCustomer({ email: target.value });
-      } else if (!_.isEmpty(this.state.query) && _.isEmpty(this.state.customers)) {
-        this.setState({ errors: ['Please enter a valid email.'] });
-      }
+      this.submitGuest();
+    }
+  }
+
+
+  @autobind
+  submitGuest() {
+    const guest = this.state.query;
+    if (email(guest)) {
+      this.setState({ 
+        checkoutAsGuest: true
+      }, () => this.selectCustomer({ email: guest }));
+    } else if (!_.isEmpty(this.state.query) && _.isEmpty(this.state.customers)) {
+      this.setState({ 
+        checkoutAsGuest: true, 
+        errors: ['Please enter a valid email.'],
+      });
     }
   }
 
@@ -195,7 +208,10 @@ export default class NewOrder extends Component {
                     className="fc-order-create__guest-checkout fc-col-md-2-8"
                     label="Checkout as guest"
                     labelAfterInput={true}>
-                    <BigCheckbox name="guestCheckout" onToggle={this.toggleGuest} />
+                    <BigCheckbox
+                      name="guestCheckout"
+                      value={this.state.checkoutAsGuest}
+                      onToggle={this.toggleGuest} />
                   </FormField>
                   <FormField className="fc-col-md-1-8">
                     {this.nextButton}

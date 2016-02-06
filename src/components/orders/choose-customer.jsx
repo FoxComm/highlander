@@ -25,9 +25,14 @@ const ChooseCustomer = (props, context) => {
     { field: 'accountType', text: 'Account Type' },
   ];
 
+  const guestCheckoutAction = () => {
+    props.onGuestClick();
+    props.toggleVisibility(false);
+  };
+
   const footer = props.isGuest ? null : (
     <div className="fc-orders-choose-customer__footer">
-      <Button>Checkout As Guest</Button>
+      <Button onClick={guestCheckoutAction}>Checkout As Guest</Button>
       <div>or</div>
       <PrimaryButton onClick={() => transitionTo(context.history, 'customers-new')}>
         Create New Customer
@@ -59,6 +64,7 @@ ChooseCustomer.propTypes = {
   isGuest: PropTypes.bool,
   items: PropTypes.object.isRequired,
   onItemClick: PropTypes.func,
+  onGuestClick: PropTypes.func.isRequired,
   updating: PropTypes.bool,
   toggleVisibility: PropTypes.func,
 };
