@@ -22,7 +22,7 @@ import utils.Money.Currency
 import utils.Slick.implicits._
 import utils.jdbc._
 import utils.seeds.Seeds.Factories
-import utils.seeds.SeedsGenerator.generateCustomer
+import utils.seeds.RankingSeedsGenerator.generateCustomer
 import utils.{Apis, StripeApi}
 import Extensions._
 import slick.driver.PostgresDriver.api._
