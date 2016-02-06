@@ -1,10 +1,15 @@
 import _ from 'lodash';
+<<<<<<< HEAD
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
 import * as paymentActions from '../../modules/orders/payment-methods';
 
+=======
+import React, { Component, PropTypes } from 'react';
+import { autobind } from 'core-decorators';
+>>>>>>> Update payments component to handle new payments
 import EditableContentBox from '../content-box/editable-content-box';
 import ContentBox from '../content-box/content-box';
 import TableView from '../table/tableview';
@@ -14,6 +19,8 @@ import CreditCard from './payments/credit-card';
 import Dropdown from '../dropdown/dropdown';
 import { AddButton } from '../common/buttons';
 import PanelHeader from './panel-header';
+
+import NewPayment from './payments/new-payment';
 
 const viewColumns = [
   {field: 'name', text: 'Method'},
@@ -51,6 +58,29 @@ export default class Payments extends React.Component {
     readOnly: false,
   };
 
+  constructor(props, ...args) {
+    super(props, ...args);
+
+    this.state = {
+      isAdding: false,
+    };
+  }
+
+  get viewContent() {
+    const paymentMethods = this.props.order.currentOrder.paymentMethods;
+
+    if (_.isEmpty(paymentMethods)) {
+      return <div className="fc-content-box__empty-text">No payment method applied.</div>;
+    } else {
+      return (
+        <TableView
+          columns={viewColumns}
+          data={{rows: paymentMethods}}
+          renderRow={this.renderRow(false)} />
+      );
+    }
+  }
+
   get editContent() {
     const paymentMethods = this.props.order.currentOrder.paymentMethods;
 
@@ -64,25 +94,35 @@ export default class Payments extends React.Component {
       <TableView
         columns={editColumns}
         data={{rows: paymentMethods}}
-        renderRow={this.renderRow(true)}
-      />
+        processRows={this.processRows}
+        renderRow={this.renderRow(true)} />
     );
   }
 
-  get viewContent() {
-    const paymentMethods = this.props.order.currentOrder.paymentMethods;
-
-    if (_.isEmpty(paymentMethods)) {
-      return <div className="fc-content-box__empty-text">No payment method applied.</div>;
-    } else {
-      return (
-        <TableView
-          columns={viewColumns}
-          data={{rows: paymentMethods}}
-          renderRow={this.renderRow(false)}
-        />
-      );
+  get editingActions() {
+    if (!this.state.isAdding) {
+      const action = () => this.setState({ isAdding: true });
+      return <AddButton onClick={action} />;
     }
+  }
+
+  @autobind
+  doneAction() {
+    this.setState({
+      isAdding: false,
+    }, this.props.orderPaymentMethodStopEdit);
+  }
+
+  @autobind
+  processRows(rows) {
+    if (this.state.isAdding) {
+      return [
+        <NewPayment />,
+        ...rows
+      ];
+    }
+
+    return rows;
   }
 
   @autobind
@@ -97,12 +137,12 @@ export default class Payments extends React.Component {
           return <StoreCredit paymentMethod={row} isEditing={isEditing} {...this.props} />;
       }
     };
-  }
+  };
 
   render() {
     const props = this.props;
+    const title = <PanelHeader isCart={props.isCart} status={props.state} text="Payment Method" />;
 
-    const title = <PanelHeader isCart={props.isCart} status={props.status} text="Payment Method" />;
     const PaymentsContentBox = props.readOnly ? ContentBox : EditableContentBox;
     return (
       <PaymentsContentBox
@@ -112,11 +152,10 @@ export default class Payments extends React.Component {
         editContent={this.editContent}
         isEditing={props.payments.isEditing}
         editAction={props.orderPaymentMethodStartEdit}
-        doneAction={props.orderPaymentMethodStopEdit}
+        doneAction={this.doneAction}
+        editingActions={this.editingActions}
         indentContent={false}
-        viewContent={this.viewContent}
-      />
+        viewContent={this.viewContent} />
     );
   }
 }
-
