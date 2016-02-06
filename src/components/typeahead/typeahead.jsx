@@ -20,6 +20,7 @@ export default class Typeahead extends React.Component {
     // fetchItems if passed should return promise for results
     fetchItems: PropTypes.func,
     component: PropTypes.func,
+    hideOnBlur: PropTypes.bool,
     isFetching: PropTypes.bool,
     items: PropTypes.array,
     label: PropTypes.string,
@@ -34,6 +35,7 @@ export default class Typeahead extends React.Component {
   static defaultProps = {
     name: 'typeahead',
     onBlur: _.noop,
+    hideOnBlur: false,
     placeholder: 'Search',
     minQueryLength: 1,
   };
@@ -66,6 +68,14 @@ export default class Typeahead extends React.Component {
         query: '',
       });
     }
+  }
+
+  @autobind
+  onBlur(event) {
+    if (this.props.hideOnBlur) {
+      this.toggleVisibility(false);
+    }
+    this.props.onBlur(event);
   }
 
   @autobind
@@ -148,7 +158,7 @@ export default class Typeahead extends React.Component {
     };
 
     const handlers = {
-      onBlur: this.props.onBlur,
+      onBlur: this.onBlur,
       onChange: this.textChange,
       onKeyUp: this.inputKeyUp,
     };

@@ -28,6 +28,7 @@ function mapStateToProps(state) {
 @connect(mapStateToProps, { ...newOrderActions})
 export default class NewOrder extends Component {
   static propTypes = {
+    resetForm: PropTypes.func.isRequired,
     suggestCustomers: PropTypes.func.isRequired,
   };
 
@@ -46,9 +47,14 @@ export default class NewOrder extends Component {
     };
   }
 
+  componentDidMount() {
+    this.props.suggestCustomers('');
+  }
+
   shouldComponentUpdate(nextProps, nextState) {
     const cart = _.get(nextProps, 'newOrder.order.cart.referenceNumber');
     if (cart) {
+      this.props.resetForm();
       transitionTo(this.context.history, 'order', { order: cart });
       return false;
     }
@@ -70,8 +76,7 @@ export default class NewOrder extends Component {
       <ChooseCustomer 
         items={this.suggestedCustomers}
         onItemClick={this.selectCustomer}
-        isGuest={this.state.checkoutAsGuest}
-        query={this.state.query} />
+        isGuest={this.state.checkoutAsGuest} />
     );
   }
 
@@ -112,7 +117,8 @@ export default class NewOrder extends Component {
       <Typeahead
         className="fc-order-create__customer-search fc-col-md-5-8"
         component={ChooseCustomerRow}
-        fetchItems={this.props.suggestCustomers}
+        fetchItems={(item) => this.props.suggestCustomers(item, this.state.checkoutAsGuest)}
+        hideOnBlur={this.state.checkoutAsGuest}
         isFetching={this.isFetching}
         itemsElement={this.customersList}
         inputElement={this.chooseCustomerInput}

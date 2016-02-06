@@ -14,13 +14,23 @@ const quickSearch = makeQuickSearch(
   emptyPhrase
 );
 
-function suggestCustomers(phrase) {
-  return quickSearch.actions.doSearch(phrase);
+function suggestCustomers(phrase, guest = false) {
+  const guestFilters = guest ? [{
+    selectedTerm: 'isGuest',
+    selectedOperator: 'eq',
+    value: {
+      type: 'bool',
+      value: true,
+    },
+  }] : [];
+
+  return quickSearch.actions.doSearch(phrase, guestFilters);
 }
 
 const createOrderStart = createAction('NEW_ORDER_CREATE_ORDER_START');
 const createOrderSuccess = createAction('NEW_ORDER_CREATE_ORDER_SUCCESS');
 const createOrderFailure = createAction('NEW_ORDER_CREATE_ORDER_FAILURE');
+const resetForm = createAction('NEW_ORDER_RESET_FORM');
 
 function createOrder(customer, isGuest = false) {
   const payload = isGuest
@@ -56,6 +66,7 @@ const orderReducer = createReducer({
     console.error(err);
     return assoc(state, 'isCreating', false);
   },
+  [resetForm]: (state) => initialState,
 }, initialState);
 
 const reducer = combineReducers({
@@ -67,4 +78,5 @@ export {
   reducer as default,
   suggestCustomers,
   createOrder,
+  resetForm,
 };

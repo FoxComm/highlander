@@ -9,10 +9,6 @@ import Table from '../table/table';
 import WaitAnimation from '../common/wait-animation';
 
 const ChooseCustomer = (props, context) => {
-  if (_.isEmpty(props.query)) {
-    return <div></div>;
-  }
-
   const renderRow = (row, index, columns) => {
     const key = `order-choose-customer-${row.id}`;
     const clickItem = () => {
@@ -65,7 +61,6 @@ ChooseCustomer.propTypes = {
   onItemClick: PropTypes.func,
   updating: PropTypes.bool,
   toggleVisibility: PropTypes.func,
-  query: PropTypes.string,
 };
 
 ChooseCustomer.defaultProps = {
@@ -73,7 +68,6 @@ ChooseCustomer.defaultProps = {
   onItemClick: _.noop,
   updating: false,
   toggleVisibility: _.noop,
-  query: '',
 };
 
 ChooseCustomer.contextTypes = {
