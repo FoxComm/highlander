@@ -10,9 +10,11 @@ import { Button } from '../common/buttons';
 import BigCheckbox from '../checkbox/big-checkbox';
 import ChooseCustomer from './choose-customer';
 import ChooseCustomerRow from './choose-customer-row';
+import ContentBox from '../content-box/content-box';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import PilledInput from '../pilled-search/pilled-input';
+import SectionTitle from '../section-title/section-title';
 import Typeahead from '../typeahead/typeahead';
 
 function mapStateToProps(state) {
@@ -115,11 +117,9 @@ export default class NewOrder extends Component {
     return (
       <div className="fc-order-create">
         <div className="fc-grid">
-          <header className="fc-order-create__header fc-col-md-1-1">
-            <h1 className="fc-title">
-              New Order
-            </h1>
-          </header>
+          <div className="fc-col-md-1-1">
+            <SectionTitle className="fc-grid-no-gutter" title="New Order" />
+          </div>
           <article className="fc-col-md-1-1">
             <div className="fc-grid fc-order-create__customer-form-panel">
               <div className="fc-order-create__customer-form-subtitle fc-col-md-1-1">

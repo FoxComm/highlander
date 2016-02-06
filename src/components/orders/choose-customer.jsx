@@ -1,10 +1,12 @@
 import React, { Component, PropTypes } from 'react';
 import { transitionTo } from '../../route-helpers';
+import classnames from 'classnames';
 import _ from 'lodash';
 
 import { Button, PrimaryButton } from '../common/buttons';
 import ChooseCustomerRow from './choose-customer-row';
 import Table from '../table/table';
+import WaitAnimation from '../common/wait-animation';
 
 const ChooseCustomer = (props, context) => {
   const renderRow = (row, index, columns) => {
@@ -29,13 +31,21 @@ const ChooseCustomer = (props, context) => {
     </PrimaryButton>
   );
 
+  const data = props.updating ? { rows: [] } : props.items;
+  const waitAnimation = props.updating && <WaitAnimation />;
+  const hasNoResults = !props.updating && _.isEmpty(_.get(props, 'items.rows'));
+  const noResults = hasNoResults
+    ? <div className="fc-orders-choose-customer__no-results">No results.</div>
+    : null;
+
   return (
     <div className="fc-orders-choose-customer">
       <Table
-        className="_adaptable"
-        data={props.items}
+        data={data}
         renderRow={renderRow}
         columns={tableColumns} />
+      {waitAnimation}
+      {noResults}
       <div className="fc-orders-choose-customer__footer">
         <Button>Checkout As Guest</Button>
         <div className="fc-orders-choose-customer__footer-divider">or</div>

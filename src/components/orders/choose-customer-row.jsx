@@ -27,6 +27,7 @@ const ChooseCustomerRow = (props, context) => {
       <TableCell>
         <div className="fc-choose-customer-row__name">{customer.name}</div>
         <div className="fc-choose-customer-row__email">{customer.email}</div>
+        <div className="fc-choose-customer-row__phone">{customer.phoneNumber}</div>
       </TableCell>
       <TableCell>
         {props.customer.orderCount}
