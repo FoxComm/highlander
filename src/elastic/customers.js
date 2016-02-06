@@ -9,10 +9,10 @@ const mapping = 'customers_search_view';
 
 export function groupCount(criteria, match) {
   const req = toQuery(criteria, {joinWith: match, useQueryFilters: true});
-  return post(mapping + '/_count', req.toJSON());
+  return post(`${mapping}/_count`, req.toJSON());
 }
 
 export function groupSearch(criteria, match) {
   const req = toQuery(criteria, {joinWith: match});
-  return post(mapping + '/_search', req.toJSON());
+  return post(`${mapping}/_search`, req.toJSON());
 }

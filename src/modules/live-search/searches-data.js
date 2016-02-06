@@ -6,7 +6,7 @@ import makePagination, { makeFetchAction } from '../pagination/base';
 
 // module is responsible for data in search tab
 
-export default function makeDataInSearches(namespae, esUrl) {
+export default function makeDataInSearches(namespace, esUrl) {
   const getSelectedSearch = (state) => {
     const dataPath = [namespace, 'list', 'selectedSearch'];
     const selectedSearch = _.get(state, dataPath);

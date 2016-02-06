@@ -24,7 +24,6 @@ export default class SearchableList extends React.Component {
     }).isRequired,
     searchOptions: PropTypes.shape({
       singleSearch: PropTypes.bool,
-      initialFilters: PropTypes.array,
     }),
     noGutter: PropTypes.bool,
   };
@@ -33,7 +32,6 @@ export default class SearchableList extends React.Component {
     emptyResultMessage: 'No results found.',
     searchOptions: {
       singleSearch: false,
-      initialFilters: [],
     },
     noGutter: false
   };
