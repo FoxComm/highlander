@@ -26,18 +26,23 @@ import StoreCreditRow from './storecredit-row';
 import { actions as StoreCreditsActions } from '../../../modules/customers/store-credits';
 import * as ReasonsActions from '../../../modules/reasons';
 import * as StoreCreditTotalsActions from '../../../modules/customers/store-credit-totals';
+import * as StoreCreditStateActions from '../../../modules/customers/store-credit-states';
 
-const mapStateToProps = (state, props) => ({
+const mapStateToProps = (state, props) => {
+  console.log(state.customers);
+  return {
   list: state.customers.storeCredits,
   storeCreditTotals: state.customers.storeCreditTotals[props.params.customerId],
   reasons: state.reasons,
-});
+  states: state.customers.storeCreditStates[props.params.customerId],
+};};
 
 const mapDispatchToProps = dispatch => {
   return {
     actions: bindActionCreators(StoreCreditsActions, dispatch),
     totalsActions: bindActionCreators(StoreCreditTotalsActions, dispatch),
     reasonsActions: bindActionCreators(ReasonsActions, dispatch),
+    stateActions: bindActionCreators(StoreCreditStateActions, dispatch),
   };
 };
 
@@ -134,7 +139,7 @@ export default class StoreCredits extends React.Component {
       <StoreCreditRow
         storeCredit={row}
         columns={columns}
-        changeState={(rowId, value) => this.props.changeState(customerId, rowId, value)}
+        changeState={(rowId, value) => this.props.stateActions.changeState(customerId, rowId, value)}
         key={key}
         params={params}/>
     );
@@ -153,8 +158,8 @@ export default class StoreCredits extends React.Component {
 
   get confirmStateChange() {
     let state = '';
-    if (this.props.storeCreditToChange) {
-      state = this.formattedState(this.props.storeCreditToChange.state);
+    if (this.props.states && this.props.states.storeCreditToChange) {
+      state = this.formattedState(this.props.states.storeCreditToChange.state);
     }
     const message = (
       <span>
@@ -163,8 +168,8 @@ export default class StoreCredits extends React.Component {
         ?
       </span>
     );
-    const shouldDisplay = this.props.storeCreditToChange &&
-      this.props.storeCreditToChange.state !== 'canceled';
+    const shouldDisplay = this.props.states && this.props.states.storeCreditToChange &&
+      this.props.states.storeCreditToChange.state !== 'canceled';
     return (
       <ConfirmationDialog
           isVisible={shouldDisplay}
@@ -172,8 +177,8 @@ export default class StoreCredits extends React.Component {
           body={message}
           cancel="Cancel"
           confirm="Yes, Change State"
-          cancelAction={ () => this.props.cancelChange(this.customerId) }
-          confirmAction={ () => this.props.saveStateChange(this.customerId) } />
+          cancelAction={ () => this.props.stateActions.cancelChange(this.customerId) }
+          confirmAction={ () => this.props.stateActions.saveStateChange(this.customerId) } />
     );
   }
 
@@ -184,7 +189,7 @@ export default class StoreCredits extends React.Component {
     if (props.reasons && props.reasons[this.reasonType]) {
       reasons = _.map(props.reasons[this.reasonType], reason => [reason.id, reason.body]);
     }
-    const value = props.storeCreditToChange && props.storeCreditToChange.reasonId;
+    const value = props.states && props.states.storeCreditToChange && props.states.storeCreditToChange.reasonId;
 
     const body = (
       <div>
@@ -206,7 +211,7 @@ export default class StoreCredits extends React.Component {
         </div>
       </div>
     );
-    const shouldDisplay = props.storeCreditToChange && props.storeCreditToChange.state === 'canceled';
+    const shouldDisplay = props.states && props.states.storeCreditToChange && props.states.storeCreditToChange.state === 'canceled';
 
     return (
       <ConfirmationDialog
@@ -215,14 +220,15 @@ export default class StoreCredits extends React.Component {
           body={ body }
           cancel="Cancel"
           confirm="Yes, Cancel"
-          cancelAction={ () => props.cancelChange(this.customerId) }
-          confirmAction={ () => props.saveStateChange(this.customerId) } />
+          cancelAction={ () => props.stateActions.cancelChange(this.customerId) }
+          confirmAction={ () => props.stateActions.saveStateChange(this.customerId) } />
     );
   }
 
   render() {
     const props = this.props;
     const totals = _.get(props, ['storeCreditTotals', 'totals'], {});
+    console.log(props);
 
     return (
       <div className="fc-store-credits fc-list-page">

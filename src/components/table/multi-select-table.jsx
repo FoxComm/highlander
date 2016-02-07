@@ -140,7 +140,7 @@ export default class MultiSelectTable extends React.Component {
     const key = predicate(row);
 
     return renderRow(row, index, this.columns, {
-      checked: allChecked !== toggledIds.includes(key),
+      checked: allChecked !== _.includes(toggledIds, key),
       setChecked: this.getRowSetChecked(key),
     });
   }
