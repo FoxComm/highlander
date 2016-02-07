@@ -28,6 +28,7 @@ export default class CustomerTransactions extends React.Component {
     this.props.actions.setExtraFilters([
       dsl.nestedTermFilter('customer.id', this.props.customer.id)
     ]);
+    this.props.actions.fetch();
   }
 
   render() {

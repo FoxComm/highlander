@@ -92,6 +92,7 @@ export default class StoreCreditTransactions extends React.Component {
       {term: {customerId: this.customerId}}
     ]);
     this.props.totalsActions.fetchTotals(this.customerId);
+    this.props.actions.fetch();
   }
 
   renderRow(row, index, columns, params) {

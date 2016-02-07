@@ -48,6 +48,7 @@ export default class GiftCardTransactions extends React.Component {
     this.props.actions.setExtraFilters([
       {term: {code: this.props.params.giftCard}}
     ]);
+    this.props.actions.fetch();
   }
 
   @autobind
