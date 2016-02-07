@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { post } from '../../lib/search';
 import { createReducer } from 'redux-act';
-import { createNsAction } from './utils';
+import { createNsAction } from './../utils';
 import { toQuery, addNativeFilters } from '../../elastic/common';
 import reduceReducers from 'reduce-reducers';
 

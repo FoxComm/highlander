@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import { updateItems as _updateItems } from '../state-helpers';
+import { createNsAction } from '../utils';
 
 export const DEFAULT_PAGE_SIZE = 50;
 
@@ -44,9 +45,8 @@ export function makeFetchAction(fetcher, actions, findSearchState) {
 
 export default function makePagination(namespace, fetcher) {
 
-  const _createAction = (description, ...args) => {
-    const name = `${namespace}_${description}`.toUpperCase();
-    return createAction(name, ...args);
+  const _createAction = (...args) => {
+    return createNsAction(namespace, ...args);
   };
 
   const searchStart = _createAction('SEARCH_START');

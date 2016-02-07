@@ -4,7 +4,7 @@ import util from 'util';
 
 const ordersSearchTerms = require('../../../fixtures/orders-search-terms.js');
 const ordersSavedSearches = require('../../../fixtures/orders-saved-searches.js');
-const makeLiveSearch = importSource('modules/live-search.js');
+const makeLiveSearch = importSource('modules/live-search/index.js');
 const { reducer: reducer, actions: actions } = makeLiveSearch('TEST', ordersSearchTerms, ordersSavedSearches);
 const { deleteSearchFilter, selectSavedSearch, submitFilters } = actions;
 

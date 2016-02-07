@@ -21,12 +21,12 @@ const {reducer, actions} = makeLiveSearch(
   }
 );
 
-const notesFailed = createAction('NOTES_FAILED', (entity, err) => [entity, err]);
+const notesFailed = createAction('NOTES_FAILED');
 export const setCurrentEntity = createAction('NOTES_SET_CURRENT_ENTITY');
-export const startDeletingNote = createAction('NOTES_START_DELETING', (entity, id) => [entity, id]);
-export const stopDeletingNote = createAction('NOTES_STOP_DELETING', (entity, id) => [entity, id]);
+export const startDeletingNote = createAction('NOTES_START_DELETING');
+export const stopDeletingNote = createAction('NOTES_STOP_DELETING');
 export const startAddingNote = createAction('NOTES_START_ADDING');
-export const startEditingNote = createAction('NOTES_START_EDITING', (entity, id) => [entity, id]);
+export const startEditingNote = createAction('NOTES_START_EDITING');
 export const stopAddingOrEditingNote = createAction('NOTES_STOP_EDITING_OR_ADDING');
 
 export const notesUri = (entity, noteId) => {
@@ -39,33 +39,33 @@ export const notesUri = (entity, noteId) => {
 
 export function createNote(entity, data) {
   return dispatch => {
-    dispatch(stopAddingOrEditingNote(entity));
+    dispatch(stopAddingOrEditingNote());
     Api.post(notesUri(entity), data)
       .then(
-        json => dispatch(actions.addEntity(entity, json)),
-        err => dispatch(notesFailed(entity, err))
+        json => dispatch(actions.addEntity(json)),
+        err => dispatch(notesFailed(err))
       );
   };
 }
 
 export function editNote(entity, id, data) {
   return dispatch => {
-    dispatch(stopAddingOrEditingNote(entity));
+    dispatch(stopAddingOrEditingNote());
     Api.patch(notesUri(entity, id), data)
       .then(
         json => dispatch(actions.updateItems([json])),
-        err => dispatch(notesFailed(entity, err))
+        err => dispatch(notesFailed(err))
       );
   };
 }
 
 export function deleteNote(entity, id) {
   return dispatch => {
-    dispatch(stopDeletingNote(entity, id));
+    dispatch(stopDeletingNote(id));
     Api.delete(notesUri(entity, id))
       .then(
-        json => dispatch(actions.removeEntity(entity, {id})),
-        err => dispatch(notesFailed(entity, err))
+        json => dispatch(actions.removeEntity({id})),
+        err => dispatch(notesFailed(err))
       );
   };
 }

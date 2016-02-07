@@ -3,7 +3,7 @@ import { createReducer } from 'redux-act';
 import { assoc } from 'sprout-data';
 import Api from '../../lib/api';
 import SearchTerm from '../../paragons/search-term';
-import { createNsAction } from './utils';
+import { createNsAction } from './../utils';
 
 const emptyState = {
   isDirty: false,
