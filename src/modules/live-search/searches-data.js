@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import { post } from '../../lib/search';
 import { createReducer } from 'redux-act';
-import { assoc } from 'sprout-data';
 import { createNsAction } from './utils';
 import { toQuery, addNativeFilters } from '../../elastic/common';
 import reduceReducers from 'reduce-reducers';
@@ -16,11 +15,12 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
   const setExtraFilters = createNsAction(namespace, 'SET_EXTRA_FILTERS');
   const ns = namespace.split(/\./);
 
-  const reducer = createReducer({
+  const rootReducer = createReducer({
     [setExtraFilters]: (state, extraFilters) => {
-      return assoc(state,
-        [...ns, 'extraFilters'], extraFilters
-      );
+      return {
+        ...state,
+        extraFilters,
+      };
     },
   });
 
@@ -30,7 +30,7 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
     return _.get(state, resultPath);
   };
 
-  const {reducer: paginationReducer, ...actions} = makePagination(namespace);
+  const {reducer, ...actions} = makePagination(namespace);
 
   const fetcher = ({searchState, getState}) => {
     const searchTerms = _.get(getSelectedSearch(getState()), 'query', []);
@@ -57,7 +57,8 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
   };
 
   return {
-    reducer: reduceReducers(paginationReducer, reducer),
+    reducer,
+    rootReducer,
     actions: {
       ...actions,
       fetch,

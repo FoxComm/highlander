@@ -14,8 +14,14 @@ export default function makeLiveSearch(namespace, searchTerms, esUrl, scope, opt
     );
   };
 
+  const reducer = reduceReducers(
+    searches.reducer,
+    reduceSelectedSearch,
+    dataInSearches.rootReducer
+  );
+
   return {
-    reducer: reduceReducers(searches.reducer, reduceSelectedSearch),
+    reducer,
     actions: {
       ...dataInSearches.actions,
       ...searches.actions,
