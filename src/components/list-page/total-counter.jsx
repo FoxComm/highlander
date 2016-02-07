@@ -54,7 +54,7 @@ function makePropsMapper(getLSState) {
 
     return {
       entitiesCount: _.get(savedSearches, [selectedSearch, 'results', 'total']),
-      isFetching: _.get(savedSearches, [selectedSearch, 'isFetching']),
+      isFetching: _.get(savedSearches, [selectedSearch, 'results', 'isFetching']),
     };
   };
 }

@@ -1,6 +1,6 @@
 
-export function query(query) {
-  return {query};
+export function query(query, rest = {}) {
+  return {query, ...rest};
 }
 
 export function termFilter(field, value) {
@@ -19,7 +19,7 @@ export function rangeFilter(field, operations) {
   };
 }
 
-export function matchQuery(query, {field = '_all', type = 'phrase_prefix', max_expansions = 10, ...rest} = {}) {
+export function matchQuery(query, field = '_all', {type = 'phrase_prefix', max_expansions = 10, ...rest} = {}) {
   return {
     match: {
       [field]: {
@@ -39,6 +39,12 @@ export function nestedQuery(path, query) {
       query
     }
   };
+}
+
+export function nestedTermFilter(term, value) {
+  const path = term.slice(0, term.lastIndexOf('.'));
+
+  return nestedQuery(path, termFilter(term, value));
 }
 
 export function sortByField(field, order = 'asc') {

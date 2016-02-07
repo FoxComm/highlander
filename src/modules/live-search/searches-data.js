@@ -1,48 +1,54 @@
 import _ from 'lodash';
 import { post } from '../../lib/search';
-import { toQuery } from '../../elastic/common';
+import { createReducer } from 'redux-act';
+import { assoc } from 'sprout-data';
+import { createNsAction } from './utils';
+import { toQuery, addNativeFilters } from '../../elastic/common';
+import reduceReducers from 'reduce-reducers';
 
 import makePagination, { makeFetchAction } from '../pagination/base';
 
 // module is responsible for data in search tab
 
-export default function makeDataInSearches(namespace, esUrl) {
-  const getSelectedSearch = (state) => {
-    const dataPath = [namespace, 'list', 'selectedSearch'];
-    const selectedSearch = _.get(state, dataPath);
-    const resultPath = [namespace, 'list', 'savedSearches', selectedSearch];
+export default function makeDataInSearches(namespace, esUrl, options = {}) {
+  const { extraFilters = null, processQuery = _.identity } = options;
+
+  const setExtraFilters = createNsAction(namespace, 'SET_EXTRA_FILTERS');
+  const ns = namespace.split(/\./);
+
+  const reducer = createReducer({
+    [setExtraFilters]: (state, extraFilters) => {
+      return assoc(state,
+        [...ns, 'extraFilters'], extraFilters
+      );
+    },
+  });
+
+  const getSelectedSearch = state => {
+    const selectedSearch = _.get(state, [...ns, 'selectedSearch']);
+    const resultPath = [...ns, 'savedSearches', selectedSearch];
     return _.get(state, resultPath);
   };
 
-  const {reducer, ...actions} = makePagination(namespace);
+  const {reducer: paginationReducer, ...actions} = makePagination(namespace);
 
-  const fetcher = ({state, getState}) => {
-    let sort = null;
-
-    if (state.sortBy) {
-      const field = state.sortBy.replace('-', '');
-      const sortByField = {
-        [field]: {
-          order: state.sortBy.charAt(0) == '-' ? 'desc': 'asc'
-        }
-      };
-      sort = [sortByField];
-    }
-
+  const fetcher = ({searchState, getState}) => {
     const searchTerms = _.get(getSelectedSearch(getState()), 'query', []);
-    const esQuery = toQuery(searchTerms);
+    const extraFilters = _.get(getState(), [...ns, 'extraFilters'], extraFilters);
+    const jsonQuery = toQuery(searchTerms, {
+      sortBy: searchState.sortBy
+    });
 
-    const jsonQuery = esQuery.toJSON();
-    if (sort) {
-      jsonQuery.sort = sort;
+    if (extraFilters) {
+      addNativeFilters(jsonQuery, extraFilters);
     }
 
-    return post(esUrl, jsonQuery);
+    return post(esUrl, processQuery(jsonQuery, {searchState, getState}));
   };
 
   const fetch = makeFetchAction(fetcher, actions, state => getSelectedSearch(state).results);
 
-  // for overriding updateStateAndFetch in paginateActions
+  // for overriding updateStateAndFetch in pagination actions
   const updateStateAndFetch = (newState, ...args) => {
     return dispatch => {
       dispatch(actions.updateState(newState));
@@ -51,10 +57,12 @@ export default function makeDataInSearches(namespace, esUrl) {
   };
 
   return {
-    reducer,
+    reducer: reduceReducers(paginationReducer, reducer),
     actions: {
       ...actions,
+      fetch,
       updateStateAndFetch,
+      setExtraFilters,
     }
   };
 }

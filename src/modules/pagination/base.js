@@ -26,12 +26,12 @@ export function makeFetchAction(fetcher, actions, findSearchState) {
   let fetchPromise;
 
   return (...args) => (dispatch, getState) => {
-    const state = findSearchState(getState());
+    const searchState = findSearchState(getState());
 
-    if (!state.isFetching) {
+    if (!searchState.isFetching) {
       dispatch(actions.searchStart());
 
-      fetchPromise = fetcher(...args, {state, getState})
+      fetchPromise = fetcher(...args, {searchState, getState})
         .then(
           result => dispatch(actions.searchSuccess(result)),
           err => dispatch(actions.searchFailure(err))

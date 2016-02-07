@@ -60,7 +60,9 @@ const { reducer, actions } = makeLiveSearch(
   'giftCards.transactions',
   searchTerms,
   'gift_card_transactions_view/_search',
-  'giftCardTransactionsScope'
+  'giftCardTransactionsScope', {
+    skipInitialFetch: true
+  }
 );
 
 export {

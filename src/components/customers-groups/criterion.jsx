@@ -24,10 +24,10 @@ export default class Criterion extends React.Component {
   static propTypes = {
     id: PropTypes.string.isRequired,
     terms: Dropdown.itemsType, // [value, title]
-    selectedTerm: PropTypes.string,
+    term: PropTypes.string,
     value: PropTypes.object.isRequired, // {type: :widget-type, other fields, like :options}
     operators: PropTypes.object, // {value -> title}
-    selectedOperator: PropTypes.string,
+    operator: PropTypes.string,
     changeTerm: PropTypes.func.isRequired,
     changeOperator: PropTypes.func.isRequired,
     removeCriterion: PropTypes.func.isRequired,
@@ -35,14 +35,14 @@ export default class Criterion extends React.Component {
   };
 
   get operator() {
-    const {value, operators, selectedOperator, changeOperator } = this.props;
+    const {value, operators, operator, changeOperator } = this.props;
     if (!value.type) return;
 
     return (
       <Dropdown
         className='fc-group-builder-crit-op'
         items={ _.map(operators, (title, operator) => [operator, title]) }
-        value={ selectedOperator }
+        value={ operator }
         onChange={ changeOperator }
       />
     );
@@ -78,7 +78,7 @@ export default class Criterion extends React.Component {
           items={ this.props.terms }
           className='fc-group-builder-crit-term'
           placeholder='- Select criteria -'
-          value={this.props.selectedTerm}
+          value={this.props.term}
           onChange={ this.props.changeTerm }
         />
         {this.operator}

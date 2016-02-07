@@ -10,8 +10,8 @@ import * as dsl from './dsl';
  * @param {Object[]} filters An array of the Ashes version of a search terms.
  *  A filter is in the following format:
  *  {
- *    selectedTerm: 'someTerm',
- *    selectedOperator: 'eq',
+ *    term: 'someTerm',
+ *    operator: 'eq',
  *    value: {
  *      type: 'bool',
  *      value: true
@@ -20,10 +20,11 @@ import * as dsl from './dsl';
  * @param {Object} [options] - Additional options for build query
  * @param {String} [options.phrase] - Adds Phrase prefix
  * @param {Boolean} [options.atLeastOne=false] - if is set to true only one matched filter is enough to success query
+ * @param {String} [options.sortBy] - sorting field, can be `-field` for desc order or `field` for asc order
  * @returns The ElasticSearch query.
  */
 export function toQuery(filters, options = {}) {
-  const { phrase, atLeastOne = false } = options;
+  const { phrase, atLeastOne = false, sortBy } = options;
 
   const boolQuery = {
     bool: {
@@ -32,51 +33,58 @@ export function toQuery(filters, options = {}) {
     },
   };
 
-  return dsl.query(boolQuery);
+  return dsl.query(boolQuery, {
+    sort: sortBy ? convertSorting(sortBy) : void 0
+  });
+}
+
+export function addNativeFilters(req, filters) {
+  req.query.bool.filter = [
+    ...(req.query.bool.filter || []),
+    ...filters
+  ];
+
+  return req;
 }
 
 // add additional filters to query
-export function addFiltersToQuery(query, filters) {
-  query.bool.filter = [
-    ...(query.bool.filter || []),
-    ...convertFilters(filters)
-  ];
-
-  return query;
+export function addFilters(req, filters) {
+  return addNativeFilters(req, convertFilters(filters));
 }
 
 function createFilter(filter) {
-  const { selectedTerm, selectedOperator, value: { type, value } } = filter;
+  const { term, operator, value: { type, value } } = filter;
 
   switch(type) {
     case 'bool':
-      return dsl.termFilter(selectedTerm, value);
+      return dsl.termFilter(term, value);
     case 'bool_inverted':
-      return dsl.termFilter(selectedTerm, !value);
+      return dsl.termFilter(term, !value);
     case 'currency':
     case 'enum':
     case 'number':
-      return rangeToFilter(selectedTerm, selectedOperator, value);
+      return rangeToFilter(term, operator, value);
     case 'string':
-      return rangeToFilter(selectedTerm, selectedOperator, value.toLowerCase());
+      return rangeToFilter(term, operator, value.toLowerCase());
     case 'date':
-      return dateRangeFilter(selectedTerm, selectedOperator, value);
+      return dateRangeFilter(term, operator, value);
   }
 }
 
 function isNestedFilter(filter) {
-  const term = filter.selectedTerm;
+  const { term } = filter;
+
   if (!term) return false;
   return term.lastIndexOf('.') != -1;
 }
 
 function createNestedFilter(filter) {
-  const term = filter.selectedTerm;
+  const { term } = filter;
   const path = term.slice(0, term.lastIndexOf('.'));
   const query = createFilter(filter);
 
   return dsl.nestedQuery(path, {
-    bool: {must: query}
+    bool: {filter: query}
   });
 }
 
@@ -95,8 +103,10 @@ function dateRangeFilter(field, operator, value) {
 
   switch(operator) {
     case 'eq':
-      const dates = [esDate, `${esDate}+1d`];
-      return rangeToFilter(field, 'gte__lte', dates);
+      return dsl.rangeFilter(field, {
+        'gte': esDate,
+        'lte': `${esDate}+1d`,
+      });
     case 'neq':
       return {bool: {must_not: dateRangeFilter(field, 'eq', value)}};
     case 'lt':
@@ -109,28 +119,17 @@ function dateRangeFilter(field, operator, value) {
 }
 
 export function rangeToFilter(field, operator, value) {
-  switch(operator) {
-    case 'eq':
-      return dsl.termFilter(field, value);
-    case 'gt':
-    case 'gte':
-    case 'lte':
-    case 'from':
-    case 'to':
-    case 'lt':
-      return dsl.rangeFilter(field, {
-        [operator]: value
-      });
-      break;
-    default:
-      if (_.contains(operator, '__') && _.isArray(value)) {
-        const [op1, op2] = operator.split('__');
-
-        return dsl.rangeFilter(field, {
-          [op1]: value[0],
-          [op2]: value[1],
-        });
-      }
-      console.error('operator', operator, 'isn\'t suitable for value', value);
+  if (operator == 'eq') {
+    return dsl.termFilter(field, value);
   }
+
+  return dsl.rangeFilter(field, {
+    [operator]: value
+  });
+}
+
+export function convertSorting(sortBy) {
+  const field = sortBy.replace('-', '');
+
+  return [dsl.sortByField(field, sortBy.charAt(0) == '-' ? 'desc': 'asc')];
 }

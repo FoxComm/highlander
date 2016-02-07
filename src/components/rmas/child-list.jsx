@@ -38,7 +38,7 @@ export default class RmaChildList extends React.Component {
       <TableView
           data={this.props.rmas}
           columns={this.props.tableColumns}
-          setState={(data, params) => this.props.fetchRmas(params)}
+          setState={this.props.updateStateAndFetch}
           renderRow={renderRow}
       />
     );

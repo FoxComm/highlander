@@ -13,8 +13,8 @@ const selectedSearch = (state) => state.savedSearches[state.selectedSearch];
 xdescribe('modules.orders.list', function() {
   const sampleFilter = {
     display: 'Order : ID : 7',
-    selectedTerm: 'id',
-    selectedOperator: 'eq',
+    term: 'id',
+    operator: 'eq',
     value: {
       type: 'number',
       value: 7

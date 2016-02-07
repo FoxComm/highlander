@@ -1,8 +1,9 @@
 import _ from 'lodash';
-import { createAction, createReducer } from 'redux-act';
+import { createReducer } from 'redux-act';
 import { assoc } from 'sprout-data';
 import Api from '../../lib/api';
 import SearchTerm from '../../paragons/search-term';
+import { createNsAction } from './utils';
 
 const emptyState = {
   isDirty: false,
@@ -17,35 +18,36 @@ const emptyState = {
   selectedIndex: -1
 };
 
-function _createAction(namespace, description, ...args) {
-  const name = `${namespace}_${description}`.toUpperCase();
-  return createAction(name, ...args);
-}
-
 // module is responsible for search tabs
 
-export default function makeSearches(namespace, fetch, searchTerms, scope) {
+export default function makeSearches(namespace, fetch, searchTerms, scope, options = {}) {
+  const { skipInitialFetch = false } = options;
+
   // Methods internal to the live search module
-  const saveSearchStart = _createAction(namespace, 'SAVE_SEARCH_START');
-  const saveSearchSuccess = _createAction(namespace, 'SAVE_SEARCH_SUCCESS');
-  const saveSearchFailure = _createAction(namespace, 'SAVE_SEARCH_FAILURE');
-  const updateSearchStart = _createAction(namespace, 'UPDATE_SEARCH_START');
-  const updateSearchSuccess = _createAction(namespace, 'UPDATE_SEARCH_SUCCESS', (idx, payload) => [idx, payload]);
-  const updateSearchFailure = _createAction(namespace, 'UPDATE_SEARCH_FAILURE', (idx, err) => [idx, err]);
-  const deleteSearchStart = _createAction(namespace, 'DELETE_SEARCH_START');
-  const deleteSearchSuccess = _createAction(namespace, 'DELETE_SEARCH_SUCCESS');
-  const deleteSearchFailure = _createAction(namespace, 'DELETE_SEARCH_FAILURE', (idx, err) => [idx, err]);
+  const saveSearchStart = createNsAction(namespace, 'SAVE_SEARCH_START');
+  const saveSearchSuccess = createNsAction(namespace, 'SAVE_SEARCH_SUCCESS');
+  const saveSearchFailure = createNsAction(namespace, 'SAVE_SEARCH_FAILURE');
+  const updateSearchStart = createNsAction(namespace, 'UPDATE_SEARCH_START');
+  const updateSearchSuccess = createNsAction(namespace, 'UPDATE_SEARCH_SUCCESS', (idx, payload) => [idx, payload]);
+  const updateSearchFailure = createNsAction(namespace, 'UPDATE_SEARCH_FAILURE', (idx, err) => [idx, err]);
+  const deleteSearchStart = createNsAction(namespace, 'DELETE_SEARCH_START');
+  const deleteSearchSuccess = createNsAction(namespace, 'DELETE_SEARCH_SUCCESS');
+  const deleteSearchFailure = createNsAction(namespace, 'DELETE_SEARCH_FAILURE', (idx, err) => [idx, err]);
 
-  const selectSavedSearch = _createAction(namespace, 'SELECT_SAVED_SEARCH');
-  const submitFilters = _createAction(namespace, 'SUBMIT_FILTERS');
-  const fetchSearchesStart = _createAction(namespace, 'FETCH_SEARCHES_START');
-  const fetchSearchesSuccess = _createAction(namespace, 'FETCH_SEARCHES_SUCCESS');
-  const fetchSearchesFailure = _createAction(namespace, 'FETCH_SEARCHES_FAILURE');
+  const selectSavedSearch = createNsAction(namespace, 'SELECT_SAVED_SEARCH');
+  const submitFilters = createNsAction(namespace, 'SUBMIT_FILTERS');
+  const fetchSearchesStart = createNsAction(namespace, 'FETCH_SEARCHES_START');
+  const fetchSearchesSuccess = createNsAction(namespace, 'FETCH_SEARCHES_SUCCESS');
+  const fetchSearchesFailure = createNsAction(namespace, 'FETCH_SEARCHES_FAILURE');
 
-  const addSearchFilters = filters => {
+  const setSearchTerms = createNsAction(namespace, 'SET_SEARCH_TERMS');
+
+  const addSearchFilters = (filters, initial = false) => {
     return dispatch => {
       dispatch(submitFilters(filters));
-      dispatch(fetch());
+      if (!initial || !skipInitialFetch) {
+        dispatch(fetch());
+      }
     };
   };
 
@@ -81,7 +83,7 @@ export default function makeSearches(namespace, fetch, searchTerms, scope) {
   };
 
   const selectSearch = idx => {
-    return (dispatch, getState) => {
+    return dispatch => {
       dispatch(selectSavedSearch(idx));
       dispatch(fetch());
     };
@@ -118,12 +120,10 @@ export default function makeSearches(namespace, fetch, searchTerms, scope) {
     };
   };
 
-  const terms = searchTerms.map(st => new SearchTerm(st));
-  const initialState = {
+  const initialState = _setSearchTerms({
     updateNum: 0,
     isSavingSearch: false,
     fetchingSearches: false,
-    searchOptions: terms,
     selectedSearch: 0,
     savedSearches: [
       {
@@ -131,8 +131,11 @@ export default function makeSearches(namespace, fetch, searchTerms, scope) {
         title: 'All',
         isEditable: false
       }
-    ]
-  };
+    ],
+    get currentSearch() {
+      return this.savedSearches[this.selectedSearch];
+    }
+  }, searchTerms);
 
   const reducer = createReducer({
     [saveSearchStart]: (state) => _saveSearchStart(state),
@@ -149,6 +152,7 @@ export default function makeSearches(namespace, fetch, searchTerms, scope) {
     [deleteSearchStart]: (state, idx) => _deleteSearchStart(state, idx),
     [deleteSearchSuccess]: (state, idx) => _deleteSearchSuccess(state, idx),
     [deleteSearchFailure]: (state, [idx, err]) => _deleteSearchFailure(state, [idx, err]),
+    [setSearchTerms]: (state, searchTerms) => _setSearchTerms(state, searchTerms),
   }, initialState);
 
   return {
@@ -163,8 +167,15 @@ export default function makeSearches(namespace, fetch, searchTerms, scope) {
       submitFilters,
       updateSearch,
       deleteSearch,
+      setSearchTerms,
     }
   };
+}
+
+function _setSearchTerms(state, searchTerms) {
+  const terms = searchTerms.map(st => new SearchTerm(st));
+
+  return assoc(state, 'searchOptions', terms);
 }
 
 function _saveSearchStart(state) {

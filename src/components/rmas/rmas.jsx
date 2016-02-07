@@ -68,7 +68,7 @@ export default class Rmas extends React.Component {
             <TableView
                 data={this.props.rmas}
                 columns={this.props.tableColumns}
-                setState={this.props.fetchRmas}
+                setState={this.props.updateStateAndFetch}
                 renderRow={renderRow}
             />
           </div>

@@ -40,14 +40,14 @@ function newVal(state, id, term, type) {
 
 function newCrit(state, id, term) {
   const nullCrit = {
-    selectedTerm: null, operators: {}, selectedOperator: null, value: {}
+    term: null, operators: {}, operator: null, value: {}
   };
   if (!term) {
     return nullCrit;
   }
   const type = get(criteriaOptions, [term, 'type']);
   if (!type) {
-    console.error(`Can't find type for term ${newTerm}`);
+    console.error(`Can't find type for term ${term}`);
     return nullCrit;
   }
   const operators = criteriaOperators[type];
@@ -56,15 +56,15 @@ function newCrit(state, id, term) {
     return nullCrit;
   }
   return {
-    selectedTerm: term,
+    term,
     operators: operators,
-    selectedOperator: _.first(_.keys(operators)),
+    operator: _.first(_.keys(operators)),
     value: newVal(state, id, term, type)
   };
 }
 
 const currentTerms = state => {
-  return _.pluck(_.values(state.criterions), 'selectedTerm');
+  return _.pluck(_.values(state.criterions), 'term');
 };
 //</editor-fold>
 
@@ -311,7 +311,7 @@ const reducer = createReducer({
     return assoc(state, ['criterions', id], merge(state.criterions[id], newCrit));
   },
   [changeOperator]: (state, [id, newOpVal]) => {
-    return assoc(state, ['criterions', id, 'selectedOperator'], newOpVal);
+    return assoc(state, ['criterions', id, 'operator'], newOpVal);
   },
   [changeValue]: (state, [id, newVal]) => {
     return assoc(state, ['criterions', id, 'value', 'value'], newVal);

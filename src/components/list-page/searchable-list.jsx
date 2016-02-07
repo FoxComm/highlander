@@ -25,6 +25,7 @@ export default class SearchableList extends React.Component {
     searchOptions: PropTypes.shape({
       singleSearch: PropTypes.bool,
     }),
+    processRows: PropTypes.func,
     noGutter: PropTypes.bool,
   };
 
@@ -42,16 +43,13 @@ export default class SearchableList extends React.Component {
     const selectedSearch = props.list.selectedSearch;
     const results = props.list.savedSearches[selectedSearch].results;
 
-    const filter = searchTerms => props.searchActions.addSearchFilters(searchTerms);
-    const selectSearch = idx => props.searchActions.selectSearch(idx);
-
     return (
       <LiveSearch
         fetchSearches={props.searchActions.fetchSearches}
         saveSearch={props.searchActions.saveSearch}
         {...props.searchOptions}
-        selectSavedSearch={selectSearch}
-        submitFilters={filter}
+        selectSavedSearch={props.searchActions.selectSearch}
+        submitFilters={props.searchActions.addSearchFilters}
         searches={props.list}
         deleteSearch={props.searchActions.deleteSearch}
         updateSearch={props.searchActions.updateSearch}
@@ -60,6 +58,7 @@ export default class SearchableList extends React.Component {
           columns={props.tableColumns}
           data={results}
           renderRow={props.renderRow}
+          processRows={props.processRows}
           setState={props.searchActions.updateStateAndFetch}
           emptyMessage={props.emptyResultMessage} />
       </LiveSearch>

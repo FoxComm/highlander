@@ -1,24 +1,25 @@
+
+// libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
-import { createSelector } from 'reselect';
-import { assoc } from 'sprout-data';
 import { connect } from 'react-redux';
+import { createSelector } from 'reselect';
+import { bindActionCreators } from 'redux';
 
+// components
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import { PrimaryButton } from '../../components/common/buttons';
-import { SectionTitle } from '../section-title';
-import TableView from '../table/tableview';
+import SectionTitle from '../section-title/section-title';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
 import NoteControls from './controls';
 import NoteForm from './form';
 import { DateTime } from '../common/datetime';
-import ConfirmModal from '../modal/confirm';
+import SearchableList from '../list-page/searchable-list';
 
-import * as NotesActinos from '../../modules/notes';
-import { entityId } from '../../modules/state-helpers';
-
+// redux
+import * as notesActions from '../../modules/notes';
 
 const entityTitles = {
   rma: 'Return',
@@ -28,29 +29,25 @@ const entityTitles = {
 };
 
 const editingNote = createSelector(
-  (state, entity) => _.get(state.notes, [entity.entityType, entity.entityId, 'rows'], []),
-  (state, entity) => _.get(state.notes, [entity.entityType, entity.entityId, 'editingNoteId']),
+  state => _.get(state.notes, 'currentSearch.results.rows', []),
+  state => _.get(state.notes, 'editingNoteId'),
   (notes, editingNoteId) => {
     return _.findWhere(notes, {id: editingNoteId});
   }
 );
 
-function mapStateToProps(state, {entity}) {
-  const notesData = _.get(state.notes, [entity.entityType, entity.entityId], {rows: []});
-
-  return assoc(
-    notesData,
-    'editingNote', editingNote(state, entity),
-    'data', notesData
-  );
+function mapStateToProps(state) {
+  return {
+    ...state.notes,
+    editingNote: editingNote(state),
+  };
 }
 
-function mapDispatchToProps(dispatch, props) {
-  return _.transform(NotesActinos, (result, action, key) => {
-    result[key] = (...args) => {
-      return dispatch(action(props.entity, ...args));
-    };
-  });
+function mapDispatchToProps(dispatch) {
+  return {
+    ...bindActionCreators(notesActions, dispatch),
+    searchActions: bindActionCreators(notesActions.actions, dispatch),
+  };
 }
 
 /*eslint "react/prop-types": 0*/
@@ -72,7 +69,9 @@ export default class Notes extends React.Component {
   };
 
   componentDidMount() {
-    this.props.fetchNotes();
+    this.props.setCurrentEntity(this.props.entity);
+    this.props.searchActions.resetSearch();
+    this.props.searchActions.fetch();
   }
 
   get isCustomerNotes() {
@@ -184,15 +183,17 @@ export default class Notes extends React.Component {
     return (
       <div className={this.sectionClassName} >
         <SectionTitle className="fc-grid-gutter fc-notes-section-title" title="Notes">{this.controls}</SectionTitle>
-        <TableView
+        <SearchableList
+          emptyResultMessage="No notes found."
+          list={this.props.list}
           renderRow={this.renderNoteRow}
           processRows={this.injectAddingForm}
-          detectNewRows={this.props.wasReceived}
-          columns={this.tableColumns}
-          data={this.props.data}
-          setState={this.props.fetchNotes}
-          emptyMessage="No notes yet."
-        />
+          tableColumns={this.tableColumns}
+          skipInitialFetch={true}
+          searchActions={this.props.searchActions}
+          searchOptions={{
+          singleSearch: true,
+          }} />
         <ConfirmationDialog
           {...Notes.deleteOptions}
           isVisible={this.props.noteIdToDelete != null}

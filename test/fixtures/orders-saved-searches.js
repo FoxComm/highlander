@@ -4,8 +4,8 @@ const searches = [
     searches: [
       {
         display: 'Order : State : Remorse Hold',
-        selectedTerm: 'state',
-        selectedOperator: 'eq',
+        term: 'state',
+        operator: 'eq',
         value: {
           type: 'enum',
           value: 'remorseHold'

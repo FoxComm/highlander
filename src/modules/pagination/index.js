@@ -10,7 +10,7 @@ export default function(url, namespace, moduleReducer) {
   const {reducer, ...rest} = makePagination(namespace, fetcher);
 
   return {
-    reducer: moduleReducer ?reduceReducers(reducer, moduleReducer) : reducer,
+    reducer: moduleReducer ? reduceReducers(reducer, moduleReducer) : reducer,
     ...rest
   };
 }

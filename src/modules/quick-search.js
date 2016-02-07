@@ -16,7 +16,7 @@ const emptyState = {
     rows: [],
   },
   filters: [],
-  phrase: "",
+  phrase: '',
 };
 
 function _createAction(namespace, description, ...args) {
@@ -42,7 +42,7 @@ export default function makeQuickSearch(namespace, searchUrl, searchFilters, sea
     return dispatch => {
       dispatch(submitSearch(queryFilters, phrase));
       const esQuery = toQuery(queryFilters, {phrase: phrase});
-      dispatch(fetch(url, esQuery.toJSON()));
+      dispatch(fetch(url, esQuery));
     };
   };
 
@@ -98,7 +98,7 @@ function _searchFailure(state, [err, source]) {
 }
 
 function _submitSearch(state, filters, phrase) {
-  return assoc(state, 
+  return assoc(state,
       ['isFetching'], true,
       ['filters'], filters,
       ['phrase'], phrase);

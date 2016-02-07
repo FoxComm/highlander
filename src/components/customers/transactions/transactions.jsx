@@ -3,6 +3,7 @@ import { actions } from '../../../modules/customers/transactions';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
+import * as dsl from '../../../elastic/dsl';
 
 import ListPage from '../../list-page/list-page';
 import OrderTransactionRow from './transaction-row';
@@ -23,19 +24,15 @@ export default class CustomerTransactions extends React.Component {
     actions: PropTypes.object.isRequired,
   };
 
+  componentDidMount() {
+    this.props.actions.setExtraFilters([
+      dsl.nestedTermFilter('customer.id', this.props.customer.id)
+    ]);
+  }
+
   render() {
     const searchOptions = {
       singleSearch: true,
-      initialFilters: [{
-        display: 'Customer: ' + this.props.customer.id,
-        selectedTerm: 'customer.id',
-        selectedOperator: 'eq',
-        hidden: true,
-        value: {
-          type: 'string',
-          value: '' + this.props.customer.id
-        }
-      }],
     };
 
     const renderRow = (row, index, columns, params) => {

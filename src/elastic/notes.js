@@ -1,72 +1,28 @@
 
-import { post } from '../lib/search';
+import * as dsl from './dsl';
+import { addNativeFilters } from './common';
 
-
-function buildQuery({entityType, entityId}) {
+export default function processQuery({entityType, entityId}, query) {
   switch (entityType) {
     case 'customer':
-      return {
+      return addNativeFilters(query, [{
         bool: {
           should: [
-            {
-              nested: {
-                path: 'order',
-                query: {
-                  term: {
-                    'order.customerId': {
-                      value: entityId
-                    }
-                  }
-                }
-              }
-            },
-            {
-              nested: {
-                path: 'customer',
-                query: {
-                  term: {
-                    'customer.id': {
-                      value: entityId
-                    }
-                  }
-                }
-              }
-            }
+            dsl.nestedTermFilter('order.customerId', entityId),
+            dsl.nestedTermFilter('customer.id', entityId),
           ],
           minimum_number_should_match: 1
         }
-      };
+      }]);
     case 'order':
-      return {
-        nested: {
-          path: 'order',
-          query: {
-            match: {
-              'order.referenceNumber': entityId
-            }
-          }
-        }
-      };
+      return addNativeFilters(query, [
+        dsl.nestedTermFilter('order.referenceNumber', entityId),
+      ]);
     case 'gift-card':
-      return {
-        nested: {
-          path: 'giftCard',
-          query: {
-            match: {
-              'giftCard.code': entityId
-            }
-          }
-        }
-      };
-      break;
+      return addNativeFilters(query, [
+        dsl.nestedTermFilter('giftCard.code', entityId),
+      ]);
   }
-}
 
-export default function searchNotes(entity) {
-  const request = {
-    query: buildQuery(entity)
-  };
-
-
-  return post('notes_search_view/_search', request);
+  return query;
 }

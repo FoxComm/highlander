@@ -16,7 +16,7 @@ import DatePicker from '../datepicker/datepicker';
 import SearchTerm, { getInputMask } from '../../paragons/search-term';
 
 function currentSearch(props) {
-  return _.get(props.searches, ['savedSearches', props.searches.selectedSearch], {});
+  return props.searches.currentSearch || {};
 }
 
 /**
@@ -204,8 +204,6 @@ export default class LiveSearch extends React.Component {
   }
 
   formatPill(pill, idx, props) {
-    if (pill.hidden) return;
-
     return (
       <div
         className="fc-pilled-input__pill"
@@ -222,7 +220,7 @@ export default class LiveSearch extends React.Component {
   }
 
   componentDidMount() {
-    this.props.submitFilters(this.currentSearch.query);
+    this.props.submitFilters(this.currentSearch.query, true);
     this.props.fetchSearches();
   }
 
