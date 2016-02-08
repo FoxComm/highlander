@@ -13,11 +13,7 @@ import Payments from '../../orders/payments';
 import Watchers from '../../watchers/watchers';
 
 import { haveType } from '../../../modules/state-helpers';
-import * as lineItemActions from '../../../modules/orders/line-items';
-import * as skuSearchActions from '../../../modules/orders/sku-search';
 import * as orderActions from '../../../modules/orders/details';
-import * as shippingMethodActions from '../../../modules/orders/shipping-methods';
-import * as skusActions from '../../../modules/skus';
 import * as paymentMethodActions from '../../../modules/orders/payment-methods';
 
 const mapStateToProps = (state) => {
@@ -33,10 +29,6 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = {
   ...orderActions,
-  ...lineItemActions,
-  ...skuSearchActions,
-  ...shippingMethodActions,
-  ...skusActions,
   ...paymentMethodActions};
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -95,7 +87,6 @@ export default class CustomerCart extends React.Component {
               </div>
               <div className="fc-order-details-aside">
                 <TotalsSummary entity={order} title={order.title}/>
-                <Watchers entity={haveType(order, 'order')}/>
               </div>
             </div>
           </div>
