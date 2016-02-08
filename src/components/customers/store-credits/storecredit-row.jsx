@@ -42,7 +42,7 @@ const stateChanger = (rowId, rowState, changeState) => {
                   onChange={(value) => changeState(rowId, value)} />
       );
     default:
-      return (<span>{rowState}</span>);
+      return (<span>{currentState}</span>);
   }
 };
 

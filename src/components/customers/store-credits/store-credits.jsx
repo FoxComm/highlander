@@ -183,11 +183,13 @@ export default class StoreCredits extends React.Component {
   get confirmCancellation() {
     const props = this.props;
 
+    const rawReasons = _.get(props, ['reasons', 'reasons', this.reasonType]);
+
     let reasons = [];
-    if (props.reasons && props.reasons[this.reasonType]) {
-      reasons = _.map(props.reasons[this.reasonType], reason => [reason.id, reason.body]);
+    if (!_.isEmpty(rawReasons)) {
+      reasons = _.map(rawReasons, reason => [reason.id, reason.body]);
     }
-    const value = props.states && props.states.storeCreditToChange && props.states.storeCreditToChange.reasonId;
+    const value = _.get(props, ['states', 'storeCreditToChange', 'reasonId']);
 
     const body = (
       <div>
@@ -204,12 +206,12 @@ export default class StoreCredits extends React.Component {
                       placeholder="- Select -"
                       items={reasons}
                       value={value}
-                      onChange={(value) => props.reasonChange(this.customerId, value)} />
+                      onChange={(value) => props.stateActions.reasonChange(this.customerId, value)} />
           </div>
         </div>
       </div>
     );
-    const shouldDisplay = props.states && props.states.storeCreditToChange && props.states.storeCreditToChange.state === 'canceled';
+    const shouldDisplay = _.isEqual(_.get(props, ['states', 'storeCreditToChange', 'state']), 'canceled');
 
     return (
       <ConfirmationDialog

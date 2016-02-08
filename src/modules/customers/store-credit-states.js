@@ -32,8 +32,12 @@ function updateStoreCreditsUrl(scId) {
 export function saveStateChange(customerId) {
   return (dispatch, getState) => {
     const creditToChange = get(getState(), ['customers', 'storeCreditStates', customerId, 'storeCreditToChange']);
+    const payload = {
+      state: creditToChange.state,
+      reasonId: creditToChange.reasonId
+    };
 
-    Api.patch(updateStoreCreditsUrl(creditToChange.targetId), creditToChange)
+    Api.patch(updateStoreCreditsUrl(creditToChange.targetId), payload)
       .then(
         json => {
           dispatch(cancelChange(customerId));
