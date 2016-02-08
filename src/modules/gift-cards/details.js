@@ -7,6 +7,10 @@ export const receiveGiftCard = createAction('GIFT_CARD_RECEIVE', (id, card) => [
 export const failGiftCard = createAction('GIFT_CARD_FAIL', (id, err, source) => [id, err, source]);
 export const requestGiftCard = createAction('GIFT_CARD_REQUEST');
 export const updateGiftCard = createAction('GIFT_CARD_UPDATED', (id, card) => [id, card]);
+export const changeGiftCardStatus = createAction('GIFT_CARD_CHANGE_STATUS', (id, stauts) => [id, stauts]);
+export const cancelChangeGiftCardStatus = createAction('GIFT_CARD_CANCEL_CHANGE_STATUS');
+export const changeCancellationReason = createAction('GIFT_CARD_CANCEL_REASON_CAHNGE',
+  (id, reasonId) => [id, reasonId]);
 
 function shouldFetchGiftCard(id, state) {
   const entry = state.giftCards.details[id];
@@ -37,13 +41,31 @@ export function fetchGiftCardIfNeeded(id) {
   };
 }
 
+function sendUpdate(id, data, dispatch) {
+  return Api.patch(`/gift-cards/${id}`, data)
+    .then(
+      card => dispatch(updateGiftCard(id, card)),
+      err => dispatch(failGiftCard(id, err, editGiftCard))
+    );
+}
+
 export function editGiftCard(id, data) {
   return dispatch => {
-    Api.patch(`/gift-cards/${id}`, data)
-      .then(
-        card => dispatch(updateGiftCard(id, card)),
-        err => dispatch(failGiftCard(id, err, editGiftCard))
-      );
+    return sendUpdate(id, data, dispatch);
+  };
+}
+
+export function saveGiftCardStatus(id) {
+  return (dispatch, getStatus) => {
+    const status = getStatus();
+    const cardData = _.get(status, ['giftCards', 'details', id]);
+    if (!_.isEmpty(cardData)) {
+      const payload = {
+        state: cardData.nextState,
+        reasonId: cardData.reasonId,
+      };
+      return sendUpdate(id, payload, dispatch);
+    }
   };
 }
 
@@ -57,7 +79,10 @@ const reducer = createReducer({
         ...entries[id],
         isFetching: true,
         didInvalidate: false,
-        err: null
+        err: null,
+        nextState: null,
+        confirmationShown: false,
+        reasonId: null,
       }
     };
   },
@@ -68,6 +93,9 @@ const reducer = createReducer({
         err: null,
         isFetching: false,
         didInvalidate: false,
+        nextState: null,
+        confirmationShown: false,
+        reasonId: null,
         card: haveType(card, 'gift-card')
       }
     };
@@ -94,7 +122,42 @@ const reducer = createReducer({
       [id]: {
         ...state[id],
         err: null,
+        nextState: null,
+        confirmationShown: false,
+        reasonId: null,
         card
+      }
+    };
+  },
+  [changeGiftCardStatus]: (state, [id, status]) => {
+    return {
+      ...state,
+      [id]: {
+        ...state[id],
+        err: null,
+        nextState: status,
+        confirmationShown: true,
+        reasonId: null,
+      }
+    };
+  },
+  [cancelChangeGiftCardStatus]: (state, id) => {
+    return {
+      ...state,
+      [id]: {
+        ...state[id],
+        nextState: null,
+        confirmationShown: false,
+        reasonId: null,
+      }
+    };
+  },
+  [changeCancellationReason]: (state, [id, reasonId]) => {
+    return {
+      ...state,
+      [id]: {
+        ...state[id],
+        reasonId: reasonId,
       }
     };
   }

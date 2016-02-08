@@ -22,12 +22,9 @@ export const states = {
     canceled: 'Canceled',
   },
   giftCard: {
-    csrAppeasement: 'Appeasement',
-    customerPurchase: 'Customer Purchase',
-    fromStoreCredit: 'From Store Credit',
-    rmaProcess: 'RMA Process',
     cart: 'Cart',
     active: 'Active',
+    onHold: 'On Hold',
     fullyRedeemed: 'Fully Redeemed',
     canceled: 'Canceled',
   },
@@ -47,5 +44,16 @@ State.propTypes = {
   value: PropTypes.string.isRequired,
   model: PropTypes.string.isRequired,
 };
+
+export function formattedStatus(status) {
+  switch (status) {
+    case 'onHold':
+      return 'On Hold';
+    case 'active':
+      return 'Active';
+    default:
+      return status;
+  }
+}
 
 export default State;
