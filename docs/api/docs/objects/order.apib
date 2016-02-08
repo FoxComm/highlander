@@ -22,6 +22,18 @@
         + `FulfillmentStarted`
         + `Shipped`
 
+### OrderStatePayload
++ state: Cart (required, enum[string]) - Order State.
+    + Members
+        + `Cart`
+        + `Ordered`
+        + `FraudHold`
+        + `RemorseHold`
+        + `ManualHold`
+        + `Canceled`
+        + `FulfillmentStarted`
+        + `Shipped`        
+
 ### PaymentState
 + paymentState: Cart (optional, enum[string]) - Credit Card payment state.
     + Members
@@ -157,7 +169,7 @@
 
 ### OrderBulkStateUpdatePayload
 + referenceNumbers: `ABC-123` (required, array[string]) - Order reference numbers.
-- Include OrderState
+- Include OrderStatePayload
 + reasonId: 1 (optional, number) - Cancellation reason.
 
 ### OrderAssignPayload

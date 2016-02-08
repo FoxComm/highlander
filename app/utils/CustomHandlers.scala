@@ -1,7 +1,6 @@
 package utils
 
 import scala.collection.immutable
-import scala.compat.Platform._
 import scala.util.control.NonFatal
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.model._
@@ -51,7 +50,7 @@ object CustomHandlers {
       ctx.complete(HttpResponse(BadRequest, entity = errorsJsonEntity(e.getMessage)))
     }
     case NonFatal(e) ⇒ ctx ⇒ {
-      val errMsg = if(isProduction) "There was an internal server error." else e.getMessage
+      val errMsg = if (isProduction) "There was an internal server error." else e.getMessage
       ctx.log.warning("Error {} during processing of request {}", e, ctx.request)
       ctx.complete(HttpResponse(InternalServerError, entity = errorsJsonEntity(errMsg)))
     }

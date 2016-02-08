@@ -1,15 +1,14 @@
 package utils
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.directives.RouteDirectives.complete
-import akka.http.scaladsl.server.{Directive1, StandardRoute}
-import akka.http.scaladsl.model.headers.RawHeader
+import akka.http.scaladsl.server.{MalformedRequestContentRejection, UnsupportedRequestContentTypeRejection,
+RequestEntityExpectedRejection, Directive1, StandardRoute, ValidationRejection}
+import akka.http.scaladsl.unmarshalling.{Unmarshaller, FromRequestUnmarshaller}
 
 import services.Result
-import slick.driver.PostgresDriver.api._
 import utils.Http._
-import utils.Slick.implicits.ResultWithMetadata
 
 import models.{Customer, StoreAdmin}
 import models.activity.ActivityContext
@@ -80,4 +79,24 @@ object CustomDirectives {
 
   def nothingOrFailures(a: Result[_])(implicit ec: ExecutionContext): StandardRoute =
     complete(a.map(renderNothingOrFailures))
+
+  def entityOr[T](um: FromRequestUnmarshaller[T], failure: services.Failure): Directive1[T] =
+    extractRequestContext.flatMap[Tuple1[T]] { ctx ⇒
+      import ctx.executionContext
+      import ctx.materializer
+      onComplete(um(ctx.request)).flatMap {
+        case Success(value) ⇒
+          provide(value)
+        case Failure(Unmarshaller.NoContentException) ⇒
+          reject(RequestEntityExpectedRejection)
+        case Failure(Unmarshaller.UnsupportedContentTypeException(x)) ⇒
+          reject(UnsupportedRequestContentTypeRejection(x))
+        case Failure(x: Throwable) ⇒
+          ctx.log.error("Error unmarshalling request {} body: {}", ctx.request, failure.description)
+          reject(ValidationRejection(s"${failure.description}", None))
+        case Failure(x) ⇒
+          ctx.log.error("Error unmarshalling request {} body: {}", ctx.request, failure.description)
+          reject(MalformedRequestContentRejection(s"${failure.description}", None))
+      }
+    } & cancelRejections(RequestEntityExpectedRejection.getClass, classOf[UnsupportedRequestContentTypeRejection])
 }

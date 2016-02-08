@@ -6,7 +6,7 @@ import models.{SharedSearchAssociations, StoreAdmin, StoreAdmins, SharedSearch, 
 import models.SharedSearchAssociation.{build ⇒ buildAssociation}
 import models.SharedSearch.{CustomersScope, OrdersScope, StoreAdminsScope}
 import payloads.{SharedSearchPayload, SharedSearchAssociationPayload}
-import services.{SharedSearchAssociationNotFound, NotFoundFailure404}
+import services.{GeneralFailure, SharedSearchAssociationNotFound, NotFoundFailure404, SharedSearchInvalidQueryFailure}
 import responses.StoreAdminResponse.{Root ⇒ AdminRoot, build ⇒ buildAdmin}
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -103,6 +103,20 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
 
       SharedSearches.byAdmin(storeAdmin.id).result.run().futureValue.size must === (1)
     }
+
+    "400 if query has invalid JSON payload" in new Fixture {
+      val query =
+        """
+          | {
+          |   "title": "Test",
+          |   "query": xxx,
+          |   "scope": "customersScope"
+          | }
+        """.stripMargin
+      val response = POST(s"v1/shared-search", query)
+      response.status must === (StatusCodes.BadRequest)
+      response.error must include (SharedSearchInvalidQueryFailure.description)
+    }
   }
 
   "PATCH v1/shared-search/:code" - {
@@ -120,6 +134,22 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
       val response = PATCH(s"v1/shared-search/nope", SharedSearchPayload("test", parse("{}"), CustomersScope))
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(SharedSearch, "nope").description)
+    }
+
+    "400 if query has invalid JSON payload" in new Fixture {
+      val code = POST(s"v1/shared-search", SharedSearchPayload("test", parse("{}"), CustomersScope)).as[SharedSearch].code
+
+      val query =
+        """
+          | {
+          |   "title": "Test",
+          |   "query": xxx,
+          |   "scope": "customersScope"
+          | }
+        """.stripMargin
+      val response = PATCH(s"v1/shared-search/$code", query)
+      response.status must === (StatusCodes.BadRequest)
+      response.error must include (SharedSearchInvalidQueryFailure.description)
     }
   }
 
