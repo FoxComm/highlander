@@ -8,8 +8,7 @@ export function searchAdmins(token) {
   const matchRule = dsl.query({
     bool: {
       should: [
-        dsl.termFilter('firstName', token),
-        dsl.termFilter('lastName', token),
+        dsl.termFilter('name', token),
         dsl.termFilter('email', token),
       ]
     }
