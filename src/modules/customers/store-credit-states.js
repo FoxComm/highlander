@@ -4,7 +4,7 @@ import { createAction, createReducer } from 'redux-act';
 import Api from '../../lib/api';
 
 const dataNamespace = ['customers', 'storeCreditStates'];
-const dataPath = customerId => [customerId, 'storeCredits'];
+const dataPath = customerId => [customerId, 'storeCreditToChange'];
 
 const _createAction = (description, ...args) => {
   return createAction('CUSTOMER_STORE_CREDITS_STATE_' + description, ...args);
@@ -32,12 +32,15 @@ function updateStoreCreditsUrl(scId) {
 export function saveStateChange(customerId) {
   return (dispatch, getState) => {
     const creditToChange = get(getState(), ['customers', 'storeCreditStates', customerId, 'storeCreditToChange']);
+    const payload = {
+      state: creditToChange.state,
+      reasonId: creditToChange.reasonId
+    };
 
-    Api.patch(updateStoreCreditsUrl(creditToChange.id), creditToChange)
+    Api.patch(updateStoreCreditsUrl(creditToChange.targetId), payload)
       .then(
         json => {
           dispatch(cancelChange(customerId));
-          dispatch(updateStoreCredits(customerId, creditToChange.id, json));
         },
         err => dispatch(setError(customerId, err))
       );
@@ -45,19 +48,11 @@ export function saveStateChange(customerId) {
 }
 
 const reducer = createReducer({
-  [updateStoreCredits]: (state, [customerId, scId, data]) => {
-    return update(state,
-      [...dataPath(customerId), 'rows'], storeCredits => {
-      const index = _.findIndex(storeCredits, {id: scId});
-
-      return update(storeCredits, index, merge, data);
-    });
-  },
   [changeState]: (state, [customerId, targetId, targetState]) => {
-    const storeCredits = get(state, [...dataPath(customerId), 'rows']);
-    const creditToChange = _.find(storeCredits, {id: targetId} );
+    const creditToChange = get(state, [customerId, 'storeCreditToChange']);
     const preparedToChange = {
       ...creditToChange,
+      targetId,
       state: targetState
     };
 
