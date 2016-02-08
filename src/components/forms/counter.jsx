@@ -32,6 +32,7 @@ Counter.propTypes = {
   step: PropTypes.number,
   decreaseAction: PropTypes.func,
   increaseAction: PropTypes.func,
+  className: PropTypes.string,
 };
 
 Counter.defaultProps = {

@@ -25,7 +25,8 @@ const GiftCardTransactionRow = props => {
 
 GiftCardTransactionRow.propTypes = {
   giftCard: PropTypes.object.isRequired,
-  columns: PropTypes.array.isRequired
+  columns: PropTypes.array.isRequired,
+  params: PropTypes.object.isRequired,
 };
 
 export default GiftCardTransactionRow;

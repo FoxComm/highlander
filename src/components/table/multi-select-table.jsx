@@ -22,6 +22,7 @@ export default class MultiSelectTable extends React.Component {
     emptyMessage: PropTypes.string.isRequired,
     toggleColumnPresent: PropTypes.bool,
     predicate: PropTypes.func,
+    className: PropTypes.string,
   };
 
   static defaultProps = {

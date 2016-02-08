@@ -48,7 +48,8 @@ const CustomerRow = (props, context) => {
 
 CustomerRow.propTypes = {
   customer: PropTypes.object,
-  columns: PropTypes.array
+  columns: PropTypes.array,
+  params: PropTypes.object,
 };
 
 CustomerRow.contextTypes = {

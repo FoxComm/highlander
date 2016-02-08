@@ -74,10 +74,12 @@ const HalfCheckbox = props => {
 HalfCheckbox.propTypes = {
   className: PropTypes.string,
   halfChecked: PropTypes.bool,
+  checked: PropTypes.bool,
 };
 
 HalfCheckbox.defaultProps = {
   halfChecked: false,
+  checked: false,
 };
 
 

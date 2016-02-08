@@ -65,6 +65,7 @@ export default class LiveSearch extends React.Component {
     submitFilters: PropTypes.func.isRequired,
     updateSearch: PropTypes.func.isRequired,
     noGutter: PropTypes.bool,
+    fetchSearches: PropTypes.func.isRequired,
   };
 
   static defaultProps = {

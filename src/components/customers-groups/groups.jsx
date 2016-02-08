@@ -70,7 +70,7 @@ export default class Groups extends React.Component {
       <div className="fc-grid fc-groups-components">
         <div className="fc-col-md-1-1 _group-header _group-component">
           <h2 className="_group-title">Customers Groups</h2>
-          <PrimaryButton icon="add" onClick={this.onAddGroup}></PrimaryButton>
+          <PrimaryButton icon="add" onClick={this.onAddGroup} />
         </div>
         <div className="fc-col-md-1-1 _group-component">
           <PilledInput placeholder="Add filter or keyword search"/>
