@@ -16,7 +16,7 @@ import ErrorAlerts from '../alerts/error-alerts';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import PilledInput from '../pilled-search/pilled-input';
-import SectionTitle from '../section-title/section-title';
+import PageTitle from '../section-title/page-title';
 import Typeahead from '../typeahead/typeahead';
 
 function mapStateToProps(state) {
@@ -190,9 +190,7 @@ export default class NewOrder extends Component {
     return (
       <div className="fc-order-create">
         <div className="fc-grid">
-          <div className="fc-col-md-1-1">
-            <SectionTitle className="fc-grid-no-gutter" title="New Order" />
-          </div>
+          <PageTitle title="New Order" />
           <article className="fc-col-md-1-1">
             <div className="fc-grid fc-order-create__customer-form-panel">
               <div className="fc-order-create__customer-form-subtitle fc-col-md-1-1">
