@@ -26,6 +26,8 @@ export default class SearchableList extends React.Component {
     }),
     processRows: PropTypes.func,
     noGutter: PropTypes.bool,
+    bulkActions: PropTypes.arrayOf(PropTypes.array),
+    predicate: PropTypes.func,
   };
 
   static defaultProps = {
@@ -54,6 +56,9 @@ export default class SearchableList extends React.Component {
           renderRow={props.renderRow}
           processRows={props.processRows}
           setState={props.searchActions.updateStateAndFetch}
+          bulkActions={props.bulkActions}
+          predicate={props.predicate}
+          showEmptyMessage={true}
           emptyMessage={props.emptyResultMessage} />
       </LiveSearchAdapter>
     );
