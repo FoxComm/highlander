@@ -135,7 +135,7 @@ export default class MultiSelectTable extends React.Component {
   }
 
   @autobind
-  renderRow(row, index) {
+  renderRow(row, index, isNew) {
     const {allChecked, toggledIds} = this.state;
     const {renderRow, predicate} = this.props;
     const key = predicate(row);
@@ -143,6 +143,7 @@ export default class MultiSelectTable extends React.Component {
     return renderRow(row, index, this.columns, {
       checked: allChecked !== _.includes(toggledIds, key),
       setChecked: this.getRowSetChecked(key),
+      isNew,
     });
   }
 

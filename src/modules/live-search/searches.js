@@ -132,7 +132,7 @@ export default function makeSearches(namespace, fetch, searchTerms, scope, optio
         isEditable: false
       }
     ],
-    get currentSearch() {
+    currentSearch() {
       return this.savedSearches[this.selectedSearch];
     }
   }, searchTerms);

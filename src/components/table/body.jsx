@@ -91,7 +91,7 @@ export default class TableBody extends React.Component {
   render() {
     return (
       <tbody className="fc-table-tbody">
-        {this.props.processRows(this.tableRows)}
+        {this.props.processRows(this.tableRows, this.props.columns)}
       </tbody>
     );
   }

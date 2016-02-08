@@ -16,7 +16,7 @@ import DatePicker from '../datepicker/datepicker';
 import SearchTerm, { getInputMask } from '../../paragons/search-term';
 
 function currentSearch(props) {
-  return props.searches.currentSearch || {};
+  return props.searches.currentSearch() || {};
 }
 
 /**

@@ -1,8 +1,7 @@
 
 import React, { PropTypes } from 'react';
-import _ from 'lodash';
 
-import LiveSearch from '../live-search/live-search';
+import LiveSearchAdapter from '../live-search/live-search-adapter';
 import MultiSelectTable from '../table/multi-select-table';
 
 export default class SearchableList extends React.Component {
@@ -40,20 +39,15 @@ export default class SearchableList extends React.Component {
   render() {
     const props = this.props;
 
-    const selectedSearch = props.list.selectedSearch;
-    const results = props.list.savedSearches[selectedSearch].results;
+    const results = props.list.currentSearch().results;
 
     return (
-      <LiveSearch
-        fetchSearches={props.searchActions.fetchSearches}
-        saveSearch={props.searchActions.saveSearch}
+      <LiveSearchAdapter
         {...props.searchOptions}
-        selectSavedSearch={props.searchActions.selectSearch}
-        submitFilters={props.searchActions.addSearchFilters}
+        searchActions={props.searchActions}
         searches={props.list}
-        deleteSearch={props.searchActions.deleteSearch}
-        updateSearch={props.searchActions.updateSearch}
-        noGutter={props.noGutter} >
+        noGutter={props.noGutter}
+        >
         <MultiSelectTable
           columns={props.tableColumns}
           data={results}
@@ -61,7 +55,7 @@ export default class SearchableList extends React.Component {
           processRows={props.processRows}
           setState={props.searchActions.updateStateAndFetch}
           emptyMessage={props.emptyResultMessage} />
-      </LiveSearch>
+      </LiveSearchAdapter>
     );
   };
 }

@@ -7,13 +7,17 @@ import { updateItems } from './state-helpers';
 import makeLiveSearch from './live-search';
 import processQuery from '../elastic/notes';
 
+function geCurrentEntity(state) {
+  return _.get(state, 'notes.currentEntity');
+}
+
 const {reducer, actions} = makeLiveSearch(
   'notes.list',
   [],
   'notes_search_view/_search',
   null, {
     processQuery: (query, {getState}) => {
-      const currentEntity = _.get(getState(), 'notes.currentEntity');
+      const currentEntity = geCurrentEntity(getState());
 
       return processQuery(currentEntity, query);
     },
@@ -37,8 +41,10 @@ export const notesUri = (entity, noteId) => {
   return uri;
 };
 
-export function createNote(entity, data) {
-  return dispatch => {
+export function createNote(data) {
+  return (dispatch, getState) => {
+    const entity = geCurrentEntity(getState());
+
     dispatch(stopAddingOrEditingNote());
     Api.post(notesUri(entity), data)
       .then(
@@ -48,8 +54,10 @@ export function createNote(entity, data) {
   };
 }
 
-export function editNote(entity, id, data) {
-  return dispatch => {
+export function editNote(id, data) {
+  return (dispatch, getState) => {
+    const entity = geCurrentEntity(getState());
+
     dispatch(stopAddingOrEditingNote());
     Api.patch(notesUri(entity, id), data)
       .then(
@@ -59,8 +67,10 @@ export function editNote(entity, id, data) {
   };
 }
 
-export function deleteNote(entity, id) {
-  return dispatch => {
+export function deleteNote(id) {
+  return (dispatch, getState) => {
+    const entity = geCurrentEntity(getState());
+
     dispatch(stopDeletingNote(id));
     Api.delete(notesUri(entity, id))
       .then(
