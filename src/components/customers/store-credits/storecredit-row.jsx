@@ -6,6 +6,7 @@ import React, { PropTypes } from 'react';
 // components
 import MultiSelectRow from '../../table/multi-select-row';
 import Initials from '../../users/initials';
+import OriginType from '../../common/origin-type';
 
 const setCellContents = (sc, field) => {
   if (field === 'issuedBy') {
@@ -15,6 +16,12 @@ const setCellContents = (sc, field) => {
 
     return (
       <div><Initials name={admin.name} email={admin.email} />{admin.name}</div>
+    );
+  }
+
+  if (field === 'originType') {
+    return (
+      <OriginType value={sc}/>
     );
   }
 

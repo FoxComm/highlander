@@ -59,7 +59,7 @@ export default class StoreCreditTransactions extends React.Component {
       },
       {
         field: 'transaction',
-        text: 'Transaction'
+        text: 'Transaction',
       },
       {
         field: 'debit',
