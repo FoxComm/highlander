@@ -39,7 +39,7 @@ const searchTerms = [
         type: 'enum',
         term: 'state',
         suggestions: [
-          { display: "Cart", value: 'cart' },
+          { display: 'Cart', value: 'cart' },
           { display: 'Active', value: 'active' },
           { display: 'On Hold', value: 'onHold' },
           { display: 'Fully Redeemed', value: 'fullyRedeemed' },

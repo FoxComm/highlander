@@ -33,7 +33,8 @@ MenuItem.propTypes = {
   className: PropTypes.string,
   children: PropTypes.node.isRequired,
   isActive: PropTypes.bool,
-  isFirst: PropTypes.bool
+  isFirst: PropTypes.bool,
+  clickAction: PropTypes.func,
 };
 
 export default MenuItem;
