@@ -33,11 +33,10 @@ export function saveStateChange(customerId) {
   return (dispatch, getState) => {
     const creditToChange = get(getState(), ['customers', 'storeCreditStates', customerId, 'storeCreditToChange']);
 
-    Api.patch(updateStoreCreditsUrl(creditToChange.id), creditToChange)
+    Api.patch(updateStoreCreditsUrl(creditToChange.targetId), creditToChange)
       .then(
         json => {
           dispatch(cancelChange(customerId));
-          // dispatch(updateStoreCredits(customerId, creditToChange.id, json));
         },
         err => dispatch(setError(customerId, err))
       );
@@ -45,14 +44,6 @@ export function saveStateChange(customerId) {
 }
 
 const reducer = createReducer({
-  [updateStoreCredits]: (state, [customerId, scId, data]) => {
-    return update(state,
-      [...dataPath(customerId), 'rows'], storeCredits => {
-      const index = _.findIndex(storeCredits, {id: scId});
-
-      return update(storeCredits, index, merge, data);
-    });
-  },
   [changeState]: (state, [customerId, targetId, targetState]) => {
     const creditToChange = get(state, [customerId, 'storeCreditToChange']);
     const preparedToChange = {

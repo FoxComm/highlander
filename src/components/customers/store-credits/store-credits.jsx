@@ -28,14 +28,12 @@ import * as ReasonsActions from '../../../modules/reasons';
 import * as StoreCreditTotalsActions from '../../../modules/customers/store-credit-totals';
 import * as StoreCreditStateActions from '../../../modules/customers/store-credit-states';
 
-const mapStateToProps = (state, props) => {
-  console.log(state.customers);
-  return {
+const mapStateToProps = (state, props) => ({
   list: state.customers.storeCredits,
   storeCreditTotals: state.customers.storeCreditTotals[props.params.customerId],
   reasons: state.reasons,
   states: state.customers.storeCreditStates[props.params.customerId],
-};};
+});
 
 const mapDispatchToProps = dispatch => {
   return {
@@ -228,7 +226,6 @@ export default class StoreCredits extends React.Component {
   render() {
     const props = this.props;
     const totals = _.get(props, ['storeCreditTotals', 'totals'], {});
-    console.log(props);
 
     return (
       <div className="fc-store-credits fc-list-page">

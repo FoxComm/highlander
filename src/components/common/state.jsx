@@ -31,6 +31,7 @@ export const states = {
   storeCredit: {
     cart: 'Cart',
     active: 'Active',
+    onHold: 'On Hold',
     fullyRedeemed: 'Fully Redeemed',
     canceled: 'Canceled',
   },

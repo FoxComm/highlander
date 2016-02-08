@@ -22,7 +22,6 @@ const onHoldStateTransitions = [
 
 const stateChanger = (rowId, rowState, changeState) => {
   const currentState = <State value={rowState} model="storeCredit"/>;
-  console.log(changeState);
   switch(rowState) {
     case 'active':
       return (
@@ -79,8 +78,6 @@ const StoreCreditRow = props => {
     ...storeCredit,
     changeState,
   };
-
-  console.log(rowData);
 
   const key = `sc-${storeCredit.id}`;
 
