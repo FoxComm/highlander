@@ -27,6 +27,7 @@ const stateChanger = (rowId, rowState, changeState) => {
     case 'active':
       return (
         <Dropdown name="state"
+                  className="fc-store-credits__status-dropdown"
                   items={ activeStateTransitions }
                   placeholder={ currentState }
                   value={ rowState }
@@ -35,6 +36,7 @@ const stateChanger = (rowId, rowState, changeState) => {
     case 'onHold':
       return (
         <Dropdown name="state"
+                  className="fc-store-credits__status-dropdown"
                   items={ onHoldStateTransitions }
                   placeholder={ currentState }
                   value={ rowState }
