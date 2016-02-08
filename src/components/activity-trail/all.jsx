@@ -39,17 +39,17 @@ const admin = {
 };
 
 const address = {
-  "id": 3,
-  "region": {
-    "id": 4177,
-    "countryId": 234,
-    "name": "California"
+  'id': 3,
+  'region': {
+    'id': 4177,
+    'countryId': 234,
+    'name': 'California'
   },
-  "name": "South",
-  "address1": "555 E Lake Union St.",
-  "city": "Los Angeles",
-  "zip": "54321",
-  "isDefault": false
+  'name': 'South',
+  'address1': '555 E Lake Union St.',
+  'city': 'Los Angeles',
+  'zip': '54321',
+  'isDefault': false
 };
 
 const creditCard = {
@@ -60,26 +60,26 @@ const creditCard = {
 };
 
 const giftCard = {
-  "id": 6,
-  "createdAt": "2016-01-14T19:46:21.272Z",
-  "code": "DDE2CEF877E7C5C5",
-  "originId": 1,
-  "originType": "csrAppeasement",
-  "state": "active",
-  "currency": "USD",
-  "originalBalance": 5000,
-  "availableBalance": 4000,
-  "currentBalance": 4000,
-  "storeAdmin": {"id": 1, "email": "admin@admin.com", "name": "Frankly Admin"},
-  "message": "Not implemented yet"
+  'id': 6,
+  'createdAt': '2016-01-14T19:46:21.272Z',
+  'code': 'DDE2CEF877E7C5C5',
+  'originId': 1,
+  'originType': 'csrAppeasement',
+  'state': 'active',
+  'currency': 'USD',
+  'originalBalance': 5000,
+  'availableBalance': 4000,
+  'currentBalance': 4000,
+  'storeAdmin': {'id': 1, 'email': 'admin@admin.com', 'name': 'Frankly Admin'},
+  'message': 'Not implemented yet'
 };
 
 const storeCredit = {
-  "currency": "USD",
-  "originalBalance": 3000,
-  "availableBalance": 2500,
-  "currentBalance": 2500,
-  "state": "active",
+  'currency': 'USD',
+  'originalBalance': 3000,
+  'availableBalance': 2500,
+  'currentBalance': 2500,
+  'state': 'active',
 };
 
 const shippingMethod = {
@@ -93,17 +93,17 @@ const order = {
   orderState: 'cart',
   customer,
   shippingAddress: {
-    "id": 3,
-    "region": {
-      "id": 4177,
-      "countryId": 234,
-      "name": "Washington"
+    'id': 3,
+    'region': {
+      'id': 4177,
+      'countryId': 234,
+      'name': 'Washington'
     },
-    "name": "Home",
-    "address1": "555 E Lake Union St.",
-    "city": "Seattle",
-    "zip": "12345",
-    "isDefault": false
+    'name': 'Home',
+    'address1': '555 E Lake Union St.',
+    'city': 'Seattle',
+    'zip': '12345',
+    'isDefault': false
   },
   shippingMethod,
 };
@@ -262,17 +262,17 @@ activities = [...activities,
     data: {
       order,
       address: {
-        "id": 3,
-        "region": {
-          "id": 4177,
-          "countryId": 234,
-          "name": "California"
+        'id': 3,
+        'region': {
+          'id': 4177,
+          'countryId': 234,
+          'name': 'California'
         },
-        "name": "South",
-        "address1": "555 E Lake Union St.",
-        "city": "Los Angeles",
-        "zip": "54321",
-        "isDefault": false
+        'name': 'South',
+        'address1': '555 E Lake Union St.',
+        'city': 'Los Angeles',
+        'zip': '54321',
+        'isDefault': false
       }
     }
   },

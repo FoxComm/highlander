@@ -45,4 +45,9 @@ const Customers = props => {
   );
 };
 
+Customers.propTypes = {
+  list: PropTypes.object.isRequired,
+  actions: PropTypes.object.isRequired,
+};
+
 export default connect(getState, mapDispatchToProps)(Customers);

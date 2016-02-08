@@ -47,7 +47,8 @@ const TableBodyCell = props => {
 
 TableBodyCell.propTypes = {
   column: columnPropType,
-  children: PropTypes.node
+  children: PropTypes.node,
+  colspan: PropTypes.number,
 };
 
 export default TableBodyCell;

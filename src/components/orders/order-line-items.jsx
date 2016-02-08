@@ -96,10 +96,10 @@ class RenderEditContent extends React.Component {
                    emptyMessage="No items yet."/>
         <ConfirmationDialog
           isVisible={lineItemsStatus.isDeleting}
-          header='Confirm'
-          body='Are you sure you want to delete this item?'
-          cancel='Cancel'
-          confirm='Yes, Delete'
+          header="Confirm"
+          body="Are you sure you want to delete this item?"
+          cancel="Cancel"
+          confirm="Yes, Delete"
           cancelAction={() => props.orderLineItemsCancelDelete(lineItemsStatus.skuToDelete)}
           confirmAction={() => props.deleteLineItem(order, lineItemsStatus.skuToDelete)} />
       </div>
@@ -113,7 +113,8 @@ class RenderEditFooter extends React.Component {
     updateLineItemCount: PropTypes.func,
     order: PropTypes.object,
     lineItems: PropTypes.object,
-    skuSearch: PropTypes.object
+    skuSearch: PropTypes.object,
+    suggestSkus: PropTypes.array,
   };
 
   componentDidMount() {
@@ -137,7 +138,7 @@ class RenderEditFooter extends React.Component {
     const suggestedSkus = _.get(this.props, 'skuSearch.result.rows', []);
     const isFetching = _.get(this.props, 'skuSearch.isFetching', false);
     const orderSkus = _.get(this.props, 'lineItems.items', []);
-    const query = _.get(this.props, 'skuSearch.phrase', "");
+    const query = _.get(this.props, 'skuSearch.phrase', '');
     return (
       <div className="fc-line-items-add">
         <div className="fc-line-items-add-label">

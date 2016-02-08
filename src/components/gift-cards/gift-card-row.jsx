@@ -39,7 +39,8 @@ const GiftCardRow = (props, context) => {
 
 GiftCardRow.propTypes = {
   giftCard: PropTypes.object.isRequired,
-  columns: PropTypes.array
+  columns: PropTypes.array,
+  params: PropTypes.object.isRequired,
 };
 
 GiftCardRow.contextTypes = {

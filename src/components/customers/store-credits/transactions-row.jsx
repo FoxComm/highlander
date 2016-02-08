@@ -36,7 +36,8 @@ const StoreCreditTransactionRow = props => {
 
 StoreCreditTransactionRow.propTypes = {
   storeCreditTransaction: PropTypes.object.isRequired,
-  columns: PropTypes.array.isRequired
+  columns: PropTypes.array.isRequired,
+  params: PropTypes.object.isRequiered,
 };
 
 export default StoreCreditTransactionRow;

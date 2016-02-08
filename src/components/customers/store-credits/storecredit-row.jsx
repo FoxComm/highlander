@@ -93,6 +93,7 @@ StoreCreditRow.propTypes = {
   storeCredit: PropTypes.object.isRequired,
   columns: PropTypes.array.isRequired,
   changeState: PropTypes.func.isRequired,
+  params: PropTypes.object.isRequired,
 };
 
 export default StoreCreditRow;

@@ -37,7 +37,16 @@ const editBlock = (shippingMethod, isEditingPrice, editPriceAction, cancelPriceA
 };
 
 const ShippingMethodRow = props => {
-  const { shippingMethod, updateAction, isEditingPrice, editPriceAction, cancelPriceAction, submitPriceAction, ...rest} = props;
+  const {
+    shippingMethod,
+    updateAction,
+    isEditingPrice,
+    editPriceAction,
+    cancelPriceAction,
+    submitPriceAction,
+    ...rest
+  } = props;
+
   return (
     <TableRow {...rest} >
       <TableCell>

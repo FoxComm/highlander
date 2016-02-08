@@ -204,7 +204,9 @@ export default class AddressForm extends React.Component {
                 <FormField label="Country">
                   <Dropdown value={props.countryId} onChange={value => props.changeValue('countryId', Number(value))}>
                     {countries.map((country, index) => {
-                      return <DropdownItem value={country.id} key={`${index}-${country.id}`}>{country.name}</DropdownItem>;
+                      return (
+                        <DropdownItem value={country.id} key={`${index}-${country.id}`}>{country.name}</DropdownItem>
+                      );
                     })}
                   </Dropdown>
                 </FormField>

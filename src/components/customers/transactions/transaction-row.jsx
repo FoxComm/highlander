@@ -54,7 +54,8 @@ const OrderTransactionRow = (props, context) => {
 
 OrderTransactionRow.propTypes = {
   order: PropTypes.object,
-  columns: PropTypes.array
+  columns: PropTypes.array,
+  params: PropTypes.object,
 };
 
 OrderTransactionRow.contextTypes = {

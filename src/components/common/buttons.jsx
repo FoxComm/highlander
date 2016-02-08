@@ -28,6 +28,11 @@ Button.propTypes = {
   ]),
   icon: PropTypes.string,
   children: PropTypes.node,
+  inline: PropTypes.bool,
+};
+
+Button.defaultProps = {
+  inline: false,
 };
 
 const LeftButton = props => {

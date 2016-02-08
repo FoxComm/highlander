@@ -17,16 +17,22 @@ const mapDispatchToProps = dispatch => {
 }), mapDispatchToProps)
 export default class CustomerTransactions extends React.Component {
 
+  static propTypes = {
+    list: PropTypes.object.isRequired,
+    params: PropTypes.object.isRequired,
+    actions: PropTypes.object.isRequired,
+  };
+
   render() {
     const searchOptions = {
       singleSearch: true,
       initialFilters: [{
-        display: "Customer: " + this.props.customer.id,
-        selectedTerm: "customer.id",
-        selectedOperator: "eq",
+        display: 'Customer: ' + this.props.customer.id,
+        selectedTerm: 'customer.id',
+        selectedOperator: 'eq',
         hidden: true,
         value: {
-          type: "string",
+          type: 'string',
           value: '' + this.props.customer.id
         }
       }],

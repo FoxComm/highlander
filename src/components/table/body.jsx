@@ -64,7 +64,7 @@ export default class TableBody extends React.Component {
   get emptyMessage() {
       return (
         <tr>
-          <td  colSpan={this.props.columns.length}>
+          <td colSpan={this.props.columns.length}>
             <div className="fc-content-box__empty-row">
               {this.props.emptyMessage}
             </div>
