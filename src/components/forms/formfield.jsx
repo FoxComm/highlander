@@ -206,22 +206,15 @@ export default class FormField extends React.Component {
 
   render() {
     const className = classNames('fc-form-field', this.props.className);
-    if (!this.props.labelAfterInput) {
-      return (
-        <div className={className}>
-          {this.label}
-          {this.props.children}
-          {this.errorMessages}
-        </div>
-      );
-    } else {
-      return (
-        <div className={className}>
-          {this.props.children}
-          {this.label}
-          {this.errorMessages}
-        </div>
-      );
-    }
+    const content = this.props.labelAfterInput
+      ? [this.props.children, this.label]
+      : [this.label, this.props.children];
+
+    return (
+      <div className={className}>
+        {content}
+        {this.errorMessages}
+      </div>
+    );
   }
 }

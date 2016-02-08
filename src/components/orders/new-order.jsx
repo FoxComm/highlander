@@ -7,7 +7,7 @@ import _ from 'lodash';
 import * as newOrderActions from '../../modules/orders/new-order';
 import { email } from '../../lib/validators';
 
-import { Button } from '../common/buttons';
+import { Button, PrimaryButton } from '../common/buttons';
 import BigCheckbox from '../checkbox/big-checkbox';
 import ChooseCustomer from './choose-customer';
 import ChooseCustomerRow from './choose-customer-row';
@@ -28,6 +28,7 @@ function mapStateToProps(state) {
 @connect(mapStateToProps, { ...newOrderActions})
 export default class NewOrder extends Component {
   static propTypes = {
+    createOrder: PropTypes.func.isRequired,
     resetForm: PropTypes.func.isRequired,
     suggestCustomers: PropTypes.func.isRequired,
   };
@@ -73,7 +74,7 @@ export default class NewOrder extends Component {
 
   get customersList() {
     return (
-      <ChooseCustomer 
+      <ChooseCustomer
         items={this.suggestedCustomers}
         onItemClick={this.selectCustomer}
         onGuestClick={this.submitGuest}
@@ -98,21 +99,23 @@ export default class NewOrder extends Component {
 
   get nextButton() {
     return (
-      <input 
-        type="submit" 
-        className="fc-order-create__submit fc-btn fc-btn-primary fc-right" 
-        value="Next &#xe804;" />
+      <PrimaryButton type="submit"
+                     onClick={this.submitAction}
+                     className="fc-order-create__submit fc-btn fc-btn-primary fc-right" >
+        Next
+        <i className="icon-chevron-right" />
+      </PrimaryButton>
     );
-  }  
+  }
 
   get search() {
     const label = this.state.checkoutAsGuest
-      ? "Guest Customer's Email"
-      : "Search All Customers";
+      ? 'Guest Customer\'s Email'
+      : 'Search All Customers';
 
     const placeholder = this.state.checkoutAsGuest
-      ? "Enter guest customer's email"
-      : "Customer name or email...";
+      ? 'Enter guest customer\'s email'
+      : 'Customer name or email...';
 
     return (
       <Typeahead
@@ -141,12 +144,12 @@ export default class NewOrder extends Component {
   submitGuest() {
     const guest = this.state.query;
     if (email(guest)) {
-      this.setState({ 
+      this.setState({
         checkoutAsGuest: true
       }, () => this.selectCustomer({ email: guest }));
     } else if (!_.isEmpty(this.state.query) && _.isEmpty(this.state.customers)) {
-      this.setState({ 
-        checkoutAsGuest: true, 
+      this.setState({
+        checkoutAsGuest: true,
         errors: ['Please enter a valid email.'],
       });
     }
@@ -199,10 +202,9 @@ export default class NewOrder extends Component {
                 <ErrorAlerts errors={this.state.errors} />
               </div>
               <div className="fc-order-create__customer-form fc-col-md-1-1">
-                <Form 
-                  autoComplete="off" 
-                  className="fc-grid fc-grid-no-gutter"
-                  onSubmit={this.submitAction}>
+                <Form
+                  autoComplete="off"
+                  className="fc-grid fc-grid-no-gutter">
                   {this.search}
                   <FormField
                     className="fc-order-create__guest-checkout fc-col-md-2-8"

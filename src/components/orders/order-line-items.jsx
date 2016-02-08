@@ -35,7 +35,7 @@ const editModeColumns = [
 ];
 
 const mapStateToProps = state => {
-  return { 
+  return {
     lineItems: state.orders.lineItems,
     skuSearch: state.orders.skuSearch,
   };
@@ -81,7 +81,6 @@ export class OrderLineItems extends React.Component {
         <TableView
           columns={viewModeColumns}
           emptyMessage="No items yet."
-          showEmptyMessage={true}
           data={{rows: props.lineItems.items}} />
       );
     } else {
