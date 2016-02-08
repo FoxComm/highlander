@@ -4,17 +4,16 @@
   }
 
   &._checked {
-    background: #3A4350;
-    border: 2px solid #3A4350;
+    background: @color-decor3;
+    border: 2px solid @color-decor3;
     border-radius: 3px;
 
     &:before {
+      .font-spec(24px, 400, 36px);
+      .padding-left(4px);
       font-family: "fontello";
       content: "\e827";
       color: @color-white;
-      font-size: 24px;
-      padding-left: 4px;
-      line-height: 36px;
     }
   }
 }
