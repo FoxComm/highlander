@@ -33,3 +33,4 @@
     - node
     - ashes
     - { role: balancer, sudo: yes }
+    - { role: demo_ashes, sudo: yes }
