@@ -60,7 +60,6 @@ export default class CustomerCart extends React.Component {
       return <div className="fc-order-details"></div>;
     } else {
       const order = props.order.currentOrder;
-      const isCart = _.isEqual(order.orderState, 'cart');
 
       const {
         itemsStatus,
@@ -80,10 +79,10 @@ export default class CustomerCart extends React.Component {
           <div className="fc-order-details">
             <div className="fc-order-details-body">
               <div className="fc-order-details-main">
-                <OrderLineItems readOnly={true} isCart={isCart} status={itemsStatus} {...props} />
-                <OrderShippingAddress readOnly={true} isCart={isCart} status={shippingAddressStatus} order={order}/>
-                <OrderShippingMethod readOnly={true} isCart={isCart} status={shippingMethodStatus} {...props} />
-                <Payments readOnly={true} isCart={isCart} status={paymentMethodStatus} {...props} />
+                <OrderLineItems readOnly={true} isCart={false} status={itemsStatus} {...props} />
+                <OrderShippingAddress readOnly={true} isCart={false} status={shippingAddressStatus} order={order}/>
+                <OrderShippingMethod readOnly={true} isCart={false} status={shippingMethodStatus} {...props} />
+                <Payments readOnly={true} isCart={false} status={paymentMethodStatus} {...props} />
               </div>
               <div className="fc-order-details-aside">
                 <TotalsSummary entity={order} title={order.title}/>
