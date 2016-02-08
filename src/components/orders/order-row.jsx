@@ -103,8 +103,9 @@ const OrderRow = (props, context) => {
 };
 
 OrderRow.propTypes = {
-  order: PropTypes.object,
-  columns: PropTypes.array
+  order: PropTypes.object.isRequired,
+  columns: PropTypes.array,
+  params: PropTypes.object.isRequired,
 };
 
 OrderRow.contextTypes = {

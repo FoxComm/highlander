@@ -44,4 +44,9 @@ const Orders = props => {
   );
 };
 
+Orders.propTypes = {
+  list: PropTypes.object.isRequired,
+  actions: PropTypes.object.isRequired,
+};
+
 export default connect(getState, mapDispatchToProps)(Orders);

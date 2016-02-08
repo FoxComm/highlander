@@ -53,10 +53,26 @@ export default class StoreCredits extends React.Component {
 
   static propTypes = {
     params: PropTypes.object,
+    actions: PropTypes.object,
+    list: PropTypes.object,
     tableColumns: PropTypes.array,
-    fetchStoreCredits: PropTypes.func,
-    fetchReasons: PropTypes.func,
-    cancelChange: PropTypes.func
+    reasonsActions: PropTypes.shape({
+      fetchReasons: PropTypes.func,
+    }),
+    totalsActions: PropTypes.shape({
+      fetchTotals: PropTypes.func,
+    }),
+    storeCreditToChange: PropTypes.shape({
+      state: PropTypes.string,
+    }),
+    states: PropTypes.shape({
+      storeCreditToChange: PropTypes.object,
+    }),
+    stateActions: PropTypes.shape({
+      cancelChange: PropTypes.func,
+      changeState: PropTypes.func,
+      saveStateChange: PropTypes.func,
+    }),
   };
 
   static defaultProps = {
