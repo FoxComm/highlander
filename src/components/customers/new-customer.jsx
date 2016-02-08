@@ -10,7 +10,6 @@ import * as CustomersActions from '../../modules/customers/new';
 import { transitionTo } from '../../route-helpers';
 
 // components
-import SectionTitle from '../section-title/section-title';
 import FormField from '../forms/formfield.jsx';
 import Form from '../forms/form.jsx';
 import { Link } from '../link';

@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 
 // components
 import { Link } from '../link';
-import SectionTitle from '../section-title/section-title';
+import { PageTitle } from '../section-title';
 import LocalNav from '../local-nav/local-nav';
 import { TabListView, TabView } from '../tabs';
 import TableView from '../table/tableview';
@@ -53,7 +53,7 @@ export default class Rmas extends React.Component {
     return (
       <div className="fc-list-page">
         <div className="fc-list-page-header">
-          <SectionTitle title="Returns" subtitle={this.props.rmas.total} />
+          <PageTitle title="Returns" subtitle={this.props.rmas.total} />
           <LocalNav>
             <a href="">Lists</a>
             <a href="">Returns</a>

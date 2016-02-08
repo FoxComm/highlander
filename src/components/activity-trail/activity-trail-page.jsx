@@ -9,6 +9,7 @@ import { autobind } from 'core-decorators';
 import ActivityTrail from './activity-trail';
 import ErrorAlerts from '../alerts/error-alerts';
 import WaitAnimation from '../common/wait-animation';
+import { SectionTitle } from '../section-title';
 
 // redux
 import * as ActivityTrailActions from '../../modules/activity-trail';
@@ -88,7 +89,7 @@ export default class ActivityTrailPage extends React.Component {
   render() {
     return (
       <div className="fc-activity-trail-page">
-        <h2>Activity Trail</h2>
+        <SectionTitle title="Activity Trail" />
         {this.content}
       </div>
     );

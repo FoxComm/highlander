@@ -1,18 +1,24 @@
 .fc-section-title {
-  background: @color-default-bg;
-  .margin-top(40px);
+  display: flex;
+  align-items: center;
 
-  &-primary {
-    .margin(0 0 40px 0);
+  .margin-bottom(@gutter);
+
+  &._page-context {
+    .margin(40px @gutter 40px @gutter);
   }
-  &-secondary {
-    .margin(0);
+
+  &__title {
+    flex-grow: 1;
+    margin: 0;
   }
-  &-subtitle {
+
+  &__subtitle {
     color: @color-subtitle;
     font-weight: 400;
   }
-  &-actions {
+
+  &__actions {
     text-align: right;
   }
 }

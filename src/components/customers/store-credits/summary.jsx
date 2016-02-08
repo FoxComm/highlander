@@ -5,7 +5,7 @@ import React, { PropTypes } from 'react';
 import { transitionTo } from '../../../route-helpers';
 
 // components
-import SectionTitle from '../../section-title/section-title';
+import { SectionTitle } from '../../section-title';
 import TabListView from '../../tabs/tabs';
 import TabView from '../../tabs/tab';
 import Currency from '../../common/currency';
@@ -21,12 +21,14 @@ const Summary = props => {
 
   return (
     <div className="fc-list-page-header">
-      <SectionTitle title="Store Credit"
-                    addTitle="Store Credit"
-                    onAddClick={ () => transitionTo(props.history, 'customer-storecredits-new', params) }
-                    isPrimary={false} />
-
-      <div className="fc-grid fc-grid-gutter fc-store-credits-summary">
+      <div className="fc-grid">
+        <div className="fc-col-md-1-1">
+          <SectionTitle title="Store Credit"
+                        addTitle="Store Credit"
+                        onAddClick={ () => transitionTo(props.history, 'customer-storecredits-new', params) } />
+        </div>
+      </div>
+      <div className="fc-grid fc-store-credits-summary">
         <div className="fc-col-md-1-4">
           <PanelList>
             <PanelListItem title="Total Available Balance">

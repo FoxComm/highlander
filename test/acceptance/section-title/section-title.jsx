@@ -9,7 +9,7 @@ describe('SectionTitle', function() {
   it('should render', function *() {
     const sectionTitle = SectionTitle({title: 'Orders'});
 
-    expect(sectionTitle.props.className).to.contain('fc-grid');
+    expect(sectionTitle.props.className).to.contain('fc-section-title');
   });
 
   it('should not render button if handler is not set', function *() {

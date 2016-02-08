@@ -15,7 +15,7 @@ import ConfirmModal from '../modal/confirm';
 import RemorseTimer from './remorseTimer';
 import { DateTime } from '../common/datetime';
 import { PanelList, PanelListItem } from '../panel/panel-list';
-import SectionTitle from '../section-title/section-title';
+import { PageTitle } from '../section-title';
 import SubNav from './sub-nav';
 import State, { states } from '../common/state';
 import ConfirmationDialog from '../modal/confirmation-dialog';
@@ -222,9 +222,9 @@ export default class Order extends React.Component {
 
     return (
       <div className={className}>
-        <SectionTitle title={`${order.title} ${this.orderRefNum}`}>
+        <PageTitle title={`${order.title} ${this.orderRefNum}`}>
           {this.remorseTimer}
-        </SectionTitle>
+        </PageTitle>
         {this.statusHeader}
         <div>
           {this.subNav}

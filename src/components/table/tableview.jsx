@@ -94,7 +94,6 @@ TableView.propTypes = {
   bulkActions: PropTypes.arrayOf(PropTypes.array),
   allChecked: PropTypes.bool,
   toggledIds: PropTypes.array,
-  showEmptyMessage: PropTypes.bool,
   emptyMessage: PropTypes.string,
   className: PropTypes.string,
 };
