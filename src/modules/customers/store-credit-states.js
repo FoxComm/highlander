@@ -4,7 +4,7 @@ import { createAction, createReducer } from 'redux-act';
 import Api from '../../lib/api';
 
 const dataNamespace = ['customers', 'storeCreditStates'];
-const dataPath = customerId => [customerId, 'storeCredits'];
+const dataPath = customerId => [customerId, 'storeCreditToChange'];
 
 const _createAction = (description, ...args) => {
   return createAction('CUSTOMER_STORE_CREDITS_STATE_' + description, ...args);
@@ -37,7 +37,7 @@ export function saveStateChange(customerId) {
       .then(
         json => {
           dispatch(cancelChange(customerId));
-          dispatch(updateStoreCredits(customerId, creditToChange.id, json));
+          // dispatch(updateStoreCredits(customerId, creditToChange.id, json));
         },
         err => dispatch(setError(customerId, err))
       );
@@ -54,10 +54,10 @@ const reducer = createReducer({
     });
   },
   [changeState]: (state, [customerId, targetId, targetState]) => {
-    const storeCredits = get(state, [...dataPath(customerId), 'rows']);
-    const creditToChange = _.find(storeCredits, {id: targetId} );
+    const creditToChange = get(state, [customerId, 'storeCreditToChange']);
     const preparedToChange = {
       ...creditToChange,
+      targetId,
       state: targetState
     };
 
