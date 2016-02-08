@@ -66,6 +66,10 @@ export default class Payments extends React.Component {
     };
   }
 
+  get currentCustomer() {
+    return _.get(this.props, 'order.currentOrder.customer.id');
+  }
+
   get viewContent() {
     const paymentMethods = this.props.order.currentOrder.paymentMethods;
 
@@ -117,7 +121,7 @@ export default class Payments extends React.Component {
   processRows(rows) {
     if (this.state.isAdding) {
       return [
-        <NewPayment />,
+        <NewPayment customerId={this.currentCustomer} />,
         ...rows
       ];
     }

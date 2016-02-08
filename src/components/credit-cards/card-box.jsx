@@ -12,7 +12,8 @@ const CreditCardBox = (props) => {
                                isDefault={ card.isDefault }
                                checkboxChangeHandler={ props.onDefaultToggle }
                                deleteHandler={ props.onDeleteClick }
-                               editHandler={ props.onEditClick } >
+                               editHandler={ props.onEditClick }
+                               chooseHandler={ props.onChooseClick }>
       <CreditCardDetails customerId={ props.customerId} card={ card } />
     </EditableItemCardContainer>
   );
@@ -23,7 +24,8 @@ CreditCardBox.propTypes = {
   customerId: PropTypes.number.isRequired,
   onDeleteClick: PropTypes.func,
   onDefaultToggle: PropTypes.func,
-  onEditClick: PropTypes.func
+  onEditClick: PropTypes.func,
+  onChooseClick: PropTypes.func,
 };
 
 export default CreditCardBox;
