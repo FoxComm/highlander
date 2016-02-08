@@ -61,10 +61,10 @@ SaveCancel.propTypes = {
   cancelTo: PropTypes.string,
   cancelParams: PropTypes.object,
   onCancel: PropTypes.func,
-  cancelText: PropTypes.string.isRequired,
+  cancelText: PropTypes.string,
   cancelDisabled: PropTypes.bool,
   onSave: PropTypes.func,
-  saveText: PropTypes.string.isRequired,
+  saveText: PropTypes.string,
   saveDisabled: PropTypes.bool,
 };
 
