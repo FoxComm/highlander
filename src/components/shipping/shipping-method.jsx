@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import EditableContentBox from '../content-box/editable-content-box';
+import ContentBox from '../content-box/content-box';
 import TableView from '../table/tableview';
 import ShippingMethodRow from './shipping-method-row';
 
@@ -70,16 +71,18 @@ const ShippingMethod = props => {
       />
   );
 
+  const ShippingMethodContentBox = props.readOnly ? ContentBox : EditableContentBox;
+
   return (
-    <EditableContentBox
+    <ShippingMethodContentBox
       className='fc-shipping-methods'
       title={props.title}
       isEditing={props.isEditing}
-      readOnly={props.readOnly}
       editAction={props.editAction}
       doneAction={props.doneAction}
       viewContent={viewContent(props)}
       editContent={editContent}
+      indentContent={false}
       />
   );
 };

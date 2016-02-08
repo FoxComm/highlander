@@ -18,7 +18,7 @@ EditDoneButton.propTypes = {
 };
 
 const EditableContentBox = props => {
-  const {editFooter, indentContent, ...rest} = props;
+  const {editFooter, indentContent, renderContent, ...rest} = props;
 
   const className = classNames(
     'fc-editable-content-box',
@@ -36,7 +36,7 @@ const EditableContentBox = props => {
       indentContent={false}
     >
       <div className="fc-editable-content-box-content">
-        { props.renderContent(props.isEditing, props) }
+        { renderContent(props.isEditing, props) }
       </div>
       { props.renderFooter && props.renderFooter(rest, editFooter) }
     </ContextBox>
@@ -56,7 +56,6 @@ EditableContentBox.propTypes = {
   renderActions: PropTypes.func,
   title: PropTypes.node,
   indentContent: PropTypes.bool,
-  readOnly: PropTypes.bool,
 };
 
 // eslint you are drunk, renderFooter and renderActions are just functions
@@ -67,7 +66,7 @@ EditableContentBox.defaultProps = {
     return isEditing ? props.editContent : props.viewContent;
   },
   renderFooter: (props, footer) => {
-    if (props.isEditing && !props.readOnly) {
+    if (props.isEditing) {
       return (
         <footer className="fc-editable-content-box-footer">
           {footer}
@@ -79,9 +78,8 @@ EditableContentBox.defaultProps = {
     }
   },
   renderActions: props => {
-    return (props.isEditing || props.readOnly) ? null : <EditButton onClick={props.editAction} />;
+    return props.isEditing ? null : <EditButton onClick={props.editAction} />;
   },
-  readOnly: false,
 };
 
 export default EditableContentBox;

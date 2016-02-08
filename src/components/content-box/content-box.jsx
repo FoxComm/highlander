@@ -1,14 +1,20 @@
 
+import _ from 'lodash';
 import classNames from 'classnames';
 import React, { PropTypes } from 'react';
 
 const ContextBox = props => {
   let body = props.children;
 
+  if (_.isEmpty(body)) {
+    if (props.renderContent) body = props.renderContent();
+    else if (props.viewContent) body = props.viewContent;
+  }
+
   if (props.indentContent) {
     body = (
       <div className="fc-content-box-indent">
-        {props.children}
+        {body}
       </div>
     );
   }
@@ -35,7 +41,9 @@ ContextBox.propTypes = {
   actionBlock: PropTypes.node,
   children: PropTypes.node,
   footer: PropTypes.node,
-  indentContent: PropTypes.bool
+  indentContent: PropTypes.bool,
+  renderContent: PropTypes.func,
+  viewContent: PropTypes.node,
 };
 
 ContextBox.defaultProps = {

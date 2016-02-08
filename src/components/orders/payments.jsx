@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import EditableContentBox from '../content-box/editable-content-box';
-import TableView from '../table/tableview';
 import ContentBox from '../content-box/content-box';
+import TableView from '../table/tableview';
 import GiftCard from './payments/gift-card';
 import StoreCredit from './payments/store-credit';
 import CreditCard from './payments/credit-card';
@@ -84,16 +84,17 @@ editContent.propTypes = {
 
 const Payments = props => {
   const title = <PanelHeader isCart={props.isCart} status={props.state} text="Payment Method" />;
+  const PaymentsContentBox = props.readOnly ? ContentBox : EditableContentBox;
   return (
-    <EditableContentBox
+    <PaymentsContentBox
       className="fc-order-payment"
       title={title}
       isTable={true}
-      readOnly={props.readOnly}
       editContent={editContent(props)}
       isEditing={props.payments.isEditing}
       editAction={props.orderPaymentMethodStartEdit}
       doneAction={props.orderPaymentMethodStopEdit}
+      indentContent={false}
       viewContent={viewContent(props)}
     />
   );
