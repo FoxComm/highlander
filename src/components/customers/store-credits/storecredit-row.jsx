@@ -48,9 +48,7 @@ const stateChanger = (rowId, rowState, changeState) => {
 
 const setCellContents = (sc, field) => {
   if (field === 'state') {
-    const state = sc.state;
-    const id = sc.id;
-    return stateChanger(id, state, sc.changeState);
+    return stateChanger(sc.id, sc.state, sc.changeState);
   }
 
   if (field === 'issuedBy') {
