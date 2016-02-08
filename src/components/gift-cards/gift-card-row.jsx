@@ -1,22 +1,18 @@
+
 import React, { PropTypes } from 'react';
 
 import _ from 'lodash';
 import { transitionTo } from '../../route-helpers';
 
 import MultiSelectRow from '../table/multi-select-row';
+import OriginType from '../common/origin-type';
 
 const setCellContents = (giftCard, field) => {
-  switch (field) {
-    case 'id':
-    case 'code':
-    case 'originType':
-    case 'originalBalance':
-    case 'availableBalance':
-    case 'currentBalance':
-    case 'state':
-    case 'createdAt':
-      return _.get(giftCard, field);
+  if (field === 'originType') {
+    return <OriginType value={giftCard} />;
   }
+
+  return _.get(giftCard, field);
 };
 
 const GiftCardRow = (props, context) => {

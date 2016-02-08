@@ -19,6 +19,9 @@ const OriginType = (props) => {
       formattedType = 'Gift Card Transfer';
       content = get(props, ['value', 'giftCard', 'code']);
       break;
+    case 'customerPurchase':
+      formattedType = 'Customer Purchase';
+      break;
     default:
       formattedType = type;
   }
