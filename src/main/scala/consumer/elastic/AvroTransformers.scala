@@ -365,10 +365,12 @@ object AvroTransformers {
         field("originType", StringType) index "not_analyzed",
         field("currency", StringType) index "not_analyzed",
         field("storeCreditCreatedAt", DateType) format dateFormat,
-        // Order
-        field("orderReferenceNumber", StringType) analyzer "autocomplete",
-        field("orderCreatedAt", DateType) format dateFormat,
-        field("orderPaymentCreatedAt", DateType) format dateFormat,
+        // Order Payment
+        field("orderPayment").nested (
+          field("orderReferenceNumber", StringType) analyzer "autocomplete",
+          field("orderCreatedAt", DateType) format dateFormat,
+          field("orderPaymentCreatedAt", DateType) format dateFormat
+        ),
         // Store Admins
         field("storeAdmin").nested (
           field("email", StringType) analyzer "autocomplete",
@@ -377,7 +379,7 @@ object AvroTransformers {
         )
       )
 
-    def fields = List("store_admin")
+    def fields = List("store_admin", "order_payment")
   }
 
   final case class GiftCardTransactionsView()(implicit ec: ExecutionContext) extends AvroTransformer {
@@ -395,10 +397,12 @@ object AvroTransformers {
         field("originType", StringType) index "not_analyzed",
         field("currency", StringType) index "not_analyzed",
         field("giftCardCreatedAt", DateType) format dateFormat,
-        // Order
-        field("orderReferenceNumber", StringType) analyzer "autocomplete",
-        field("orderCreatedAt", DateType) format dateFormat,
-        field("orderPaymentCreatedAt", DateType) format dateFormat,
+        // Order Payment
+        field("orderPayment").nested (
+          field("orderReferenceNumber", StringType) analyzer "autocomplete",
+          field("orderCreatedAt", DateType) format dateFormat,
+          field("orderPaymentCreatedAt", DateType) format dateFormat
+        ),
         // Store Admins
         field("storeAdmin").nested (
           field("email", StringType) analyzer "autocomplete",
@@ -407,6 +411,6 @@ object AvroTransformers {
         )
       )
 
-    def fields = List("store_admin")
+    def fields = List("store_admin", "order_payment")
   }
 }
