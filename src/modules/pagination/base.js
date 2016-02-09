@@ -30,9 +30,9 @@ export function makeFetchAction(fetcher, actions, findSearchState) {
     const searchState = findSearchState(getState());
 
     if (!searchState.isFetching) {
-      dispatch(actions.searchStart());
+      dispatch(actions.searchStart(...args));
 
-      fetchPromise = fetcher(...args, {searchState, getState})
+      fetchPromise = fetcher.apply({searchState, getState, dispatch}, args)
         .then(
           result => dispatch(actions.searchSuccess(result)),
           err => dispatch(actions.searchFailure(err))
@@ -43,13 +43,13 @@ export function makeFetchAction(fetcher, actions, findSearchState) {
   };
 }
 
-export default function makePagination(namespace, fetcher) {
+function makePagination(namespace, fetcher = null, findSearchInState = state => _.get(state, namespace)) {
 
   const _createAction = (...args) => {
     return createNsAction(namespace, ...args);
   };
 
-  const searchStart = _createAction('SEARCH_START');
+  const searchStart = _createAction('SEARCH_START', (...args) => [args]);
   const searchSuccess = _createAction('SEARCH_SUCCESS');
   const searchFailure = _createAction('SEARCH_FAILURE');
   const updateState = _createAction('UPDATE_STATE');
@@ -59,7 +59,7 @@ export default function makePagination(namespace, fetcher) {
   const resetSearch = _createAction('RESET_SEARCH');
   const updateItems = _createAction('UPDATE_ITEMS');
 
-  const fetch = makeFetchAction(fetcher, {searchStart, searchSuccess, searchFailure}, state => _.get(state, namespace));
+  const fetch = makeFetchAction(fetcher, {searchStart, searchSuccess, searchFailure}, findSearchInState);
 
   const updateStateAndFetch = (newState, ...args) => {
     return dispatch => {
@@ -147,3 +147,5 @@ export default function makePagination(namespace, fetcher) {
     updateItems,
   };
 }
+
+export default makePagination;

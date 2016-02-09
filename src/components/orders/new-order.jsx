@@ -69,7 +69,7 @@ export default class NewOrder extends Component {
   }
 
   get isFetching() {
-    return _.get(this.props, 'newOrder.customers.isFetching', false);
+    return _.get(this.props, 'newOrder.customers.result.isFetching', false);
   }
 
   get customersList() {

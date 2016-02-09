@@ -8,7 +8,7 @@ import makeQuickSearch from '../quick-search';
 const emptyFilters = [];
 const emptyPhrase = '';
 const quickSearch = makeQuickSearch(
-  'order_customers',
+  'orders.newOrder.customers',
   'customers_search_view/_search',
   emptyFilters,
   emptyPhrase
@@ -24,7 +24,7 @@ function suggestCustomers(phrase, guest = false) {
     },
   }] : [];
 
-  return quickSearch.actions.doSearch(phrase, guestFilters);
+  return quickSearch.actions.fetch(phrase, guestFilters);
 }
 
 const createOrderStart = createAction('NEW_ORDER_CREATE_ORDER_START');

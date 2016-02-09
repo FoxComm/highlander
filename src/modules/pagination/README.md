@@ -20,11 +20,12 @@ and `makeFetchAction` which creates fetch actions and used inside `makePaginatio
 
 
 `makeFetchAction(fetcher, actions, findSearchState)` creates fetch action what calls `fetcher` method with passed
-arguments and adds one extra -> `{searchState, getState}` (schema: `fetch(...args) -> fetcher(...args, {searchState, getState}).`
+arguments and context (`this` property inside function) -> `{searchState, getState}`
+(schema: `fetch(...args) -> fetcher(...args) called with context this={searchState, getState, dispatch}).`
 `searchState` is provided by `findSearchState` and `getState` is accessor for root redux state.
 
-In `makePagination(namespace, fetcher)` method `makeFetchAction` called with `state => _.get(state, namespace)` value for
-`findSearchState` argument, that means actions will lookup needed state in that place.
+In `makePagination(namespace, fetcher, findSearchState=)` method `makeFetchAction` called with `state => _.get(state, namespace)` value for
+`findSearchState` argument by default, that means actions will lookup needed state in that place.
 
 In `index.js` located helper function `makePagination(url, namespace, reducer) which chooses `fetcher` for you.
 You can see code for discover this stuff, it's simple.

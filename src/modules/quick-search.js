@@ -1,102 +1,56 @@
 import _ from 'lodash';
-import { createAction, createReducer } from 'redux-act';
-import { assoc, get } from 'sprout-data';
+import { createReducer } from 'redux-act';
 import { post } from '../lib/search';
+import { update } from 'sprout-data';
 import { toQuery } from '../elastic/common';
 import SearchTerm from '../paragons/search-term';
+import makePagination, {makeFetchAction} from './pagination/base';
+import reduceReducers from 'reduce-reducers';
 
 const emptyState = {
   isDirty: false,
-  isFetching: false,
   isNew: false,
-  result: {
-    from: 0,
-    size: 0,
-    total: 0,
-    rows: [],
-  },
+  result: void 0,
   filters: [],
   phrase: '',
 };
 
-function _createAction(namespace, description, ...args) {
-  const name = `${namespace}_${description}`.toUpperCase();
-  return createAction(name, ...args);
-}
-
-export default function makeQuickSearch(namespace, searchUrl, searchFilters, searchPhrase) {
-  const searchSuccess = _createAction(namespace, 'SEARCH_SUCCESS');
-  const searchFailure = _createAction(namespace, 'SEARCH_FAILURE');
-  const submitSearch = _createAction(namespace, 'SUBMIT_SEARCH', (filters, phrase) => [filters, phrase]);
-
+export default function makeQuickSearch(namespace, searchUrl, searchFilters, phrase) {
   const url = searchUrl;
   const filters = searchFilters.map(st => new SearchTerm(st));
-  const phrase = searchPhrase;
   const initialState = {
     ...emptyState,
-    filters: filters,
-    phrase: phrase
+    filters,
+    phrase
   };
 
-  const doSearch = (phrase, queryFilters = filters) => {
-    return dispatch => {
-      dispatch(submitSearch(queryFilters, phrase));
-      const esQuery = toQuery(queryFilters, {phrase: phrase});
-      dispatch(fetch(url, esQuery));
-    };
+  const fetcher = (phrase, queryFilters = filters) => {
+    const esQuery = toQuery(queryFilters, {phrase});
+    return post(url, esQuery);
   };
 
-  const fetch = (url, ...args) => {
-    return dispatch => {
-      return post(url, ...args)
-        .then(
-          res => dispatch(searchSuccess(res)),
-          err => dispatch(searchFailure(err))
-        );
-    };
-  };
+  const {reducer, ...actions} = makePagination(namespace, fetcher, state => _.get(state, `${namespace}.result`));
 
-  const reducer = createReducer({
-    [searchSuccess]: (state, res) => _searchSuccess(state, res),
-    [searchFailure]: (state, err) => _searchFailure(state, err),
-    [submitSearch]: (state, [filters, phrase]) => _submitSearch(state, filters, phrase),
+
+  const qsReducer = createReducer({
+    [actions.searchStart]: (state, [phrase, filters]) => {
+      return {
+        ...state,
+        phrase,
+        filters
+      };
+    },
   }, initialState);
 
+  const reduceInResult = (state, action) => {
+    return update(state,
+      'result', reducer, action
+    );
+  };
+
   return {
-    reducer: reducer,
-    actions: {
-      doSearch,
-      fetch,
-      searchSuccess,
-      searchFailure,
-      submitSearch,
-    }
+    reducer: reduceReducers(qsReducer, reduceInResult),
+    actions,
   };
 }
 
-function _searchSuccess(state, res) {
-  // Needed because nginx returns an array when result is found and an object otherwise.
-  const results = _.isEmpty(res.result) ? [] : res.result;
-  const total = get(res, ['pagination', 'total'], 0);
-
-  return assoc(state,
-    ['isFetching'], false,
-    ['result', 'rows'], results,
-    ['result', 'from'], 0,
-    ['result', 'size'], total,
-    ['result', 'total'], total
-  );
-}
-
-function _searchFailure(state, err) {
-  console.error(err);
-  return assoc(state, ['isFetching'], false);
-}
-
-function _submitSearch(state, filters, phrase) {
-  return assoc(state,
-    ['isFetching'], true,
-    ['filters'], filters,
-    ['phrase'], phrase
-  );
-}

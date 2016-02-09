@@ -32,7 +32,9 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
 
   const {reducer, ...actions} = makePagination(namespace);
 
-  const fetcher = ({searchState, getState}) => {
+  function fetcher() {
+    const {searchState, getState} = this;
+
     const searchTerms = _.get(getSelectedSearch(getState()), 'query', []);
     const extraFilters = _.get(getState(), [...ns, 'extraFilters'], extraFilters);
     const jsonQuery = toQuery(searchTerms, {
@@ -44,7 +46,7 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
     }
 
     return post(esUrl, processQuery(jsonQuery, {searchState, getState}));
-  };
+  }
 
   const fetch = makeFetchAction(fetcher, actions, state => getSelectedSearch(state).results);
 

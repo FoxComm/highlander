@@ -29,7 +29,7 @@ LiveSearchAdapter.propTypes = {
     deleteSearch: PropTypes.func,
     updateSearch: PropTypes.func
   }),
-  searches: PropTypes.array,
+  searches: PropTypes.object,
 };
 
 export default LiveSearchAdapter;
