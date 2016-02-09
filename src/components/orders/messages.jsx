@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import classnames from 'classnames';
 import _ from 'lodash';
 
 import Alert from '../alerts/alert';
@@ -30,17 +31,16 @@ const Messages = props => {
     return <Alert type={Alert.WARNING}>{formatMessage(w)}</Alert>;
   });
 
-  const totalCount = errorAlerts.length + warningAlerts.length;
-  if (totalCount > 0) {
-    return (
-      <div className="fc-order-messages">
-        {errorAlerts}
-        {warningAlerts}
-      </div>
-    );
-  } else {
-    return <div></div>;
-  }
+  const className = classnames('fc-order-messages', {
+    '_empty': errorAlerts.length + warningAlerts.length == 0
+  });
+
+  return (
+    <div className={className}>
+      {errorAlerts}
+      {warningAlerts}
+    </div>
+  );
 };
 
 Messages.propTypes = {
