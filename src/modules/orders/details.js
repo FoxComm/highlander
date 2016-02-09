@@ -12,6 +12,10 @@ export const cartRequest = createAction('CART_REQUEST');
 export const orderSuccess = createAction('ORDER_SUCCESS');
 export const orderFailed = createAction('ORDER_FAILED', (err, source) => [err, source]);
 
+const checkoutRequest = createAction('ORDER_CHECKOUT_REQUEST');
+const checkoutSuccess = createAction('ORDER_CHECKOUT_SUCCESS');
+const checkoutFailure = createAction('ORDER_CHECKOUT_FAILURE');
+
 
 function baseFetchOrder(url, actionBefore) {
   return dispatch => {
@@ -31,6 +35,20 @@ export function fetchOrder(refNum) {
 
 export function fetchCustomerCart(customerId) {
   return baseFetchOrder(`/customers/${customerId}/cart`, cartRequest(customerId));
+}
+
+export function checkout(refNum) {
+  return dispatch => {
+    dispatch(checkoutRequest());
+    return Api.post(`/orders/${refNum}/checkout`)
+      .then(
+        order => {
+          dispatch(orderSuccess(order));
+          dispatch(checkoutSuccess());
+        },
+        err => dispatch(checkoutFailed(err))
+      );
+  };
 }
 
 export function updateOrder(id, data) {
@@ -83,6 +101,7 @@ function parseMessages(messages, state) {
 
 
 const initialState = {
+  isCheckingOut: false,
   isFetching: false,
   currentOrder: {},
   validations: {
@@ -150,7 +169,17 @@ const reducer = createReducer({
     }
 
     return state;
-  }
+  },
+  [checkoutRequest]: (state) => {
+    return { ...state, isCheckingOut: true };
+  },
+  [checkoutSuccess]: (state) => {
+    return { ...state, isCheckingOut: false };
+  },
+  [checkoutRequest]: (state, err) => {
+    console.error(err);
+    return { ...state, isCheckingOut: false };
+  },
 }, initialState);
 
 export default reducer;
