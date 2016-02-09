@@ -48,6 +48,15 @@ const representatives = {
       );
     },
   },
+  [types.ORDER_REMORSE_PERIOD_INCREASED]: {
+    title: data => {
+      return (
+        <span>
+          <strong>increased remorse period for</strong> <OrderTarget order={data.order}/>.
+        </span>
+      );
+    }
+  },
 };
 
 

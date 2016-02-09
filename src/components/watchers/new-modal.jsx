@@ -95,6 +95,9 @@ export default class AddWatcherModal extends React.Component {
   @autobind
   typeaheadItem(props) {
     const item = props.item;
+
+    if (_.isEmpty(item)) return null;
+
     const name = this.username(item);
 
     return (
