@@ -27,7 +27,7 @@ export class OrderShippingMethod extends React.Component {
     orderShippingMethodStartEditPrice: PropTypes.func,
     orderShippingMethodCancelEditPrice: PropTypes.func,
     status: PropTypes.string,
-    updateShippingMethod: PropTypes.func
+    updateShippingMethod: PropTypes.func,
     readOnly: PropTypes.bool,
   };
 
