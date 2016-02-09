@@ -5,7 +5,6 @@ import { AddButton } from '../common/buttons';
 import Criterion from './criterion';
 import Currency from '../common/currency';
 // stuff
-import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { assoc, dissoc, get } from 'sprout-data';
 

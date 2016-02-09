@@ -13,10 +13,6 @@ const _createAction = (description, ...args) => {
   return createAction('GROUP_BUILDER_' + description, ...args);
 };
 
-function append(collection, item) {
-  return assoc(collection, collection.length, item);
-}
-
 function newVal(state, id, term, type) {
   const val = {type};
 
@@ -27,6 +23,7 @@ function newVal(state, id, term, type) {
   }
   switch(type) {
     case 'bool':
+    case 'bool_inverted':
       val['value'] = true;
       break;
     case 'enum':
@@ -76,7 +73,7 @@ const initialState = {
   counter: 2,
   name: '',
   termOptions: _.reduce(criteriaOptions, (r, v, k) => assoc(r, k, v.title), {}),
-  matchCriteria: 'all',
+  matchCriteria: 'and',
   criterions: {1: newCrit()},
   staticData: {}
 };
@@ -102,7 +99,7 @@ function calculateCount(dispatch, getState) {
   }
 }
 
-// -- fn that create actions will triger ES query for count customers
+// -- fn that create actions will trigger ES query for count customers
 const _createStateChangeAction = (description, ...args) => {
   const f = _createAction(description, ...args);
 
@@ -185,7 +182,7 @@ export function saveQuery(groupId) {
       name: state.name,
       clientState: dumpState(state),
       customersCount: state.searchResultsLength,
-      elasticRequest: toQuery(state.criterions, {joinWith: state.matchCriteria}),
+      elasticRequest: toQuery(state.criterions, {atLeastOne: state.matchCriteria == 'or'}),
     };
     let response;
     if (groupId) {
@@ -274,7 +271,7 @@ const reducer = createReducer({
   [searchCompleted]: (state, results) => {
     return assoc(state,
       'esStart', false,
-      'searchResultsLength', get(results, ['count']),
+      'searchResultsLength', get(results, ['pagination', 'total']),
       'searchResults', results
     );
   },

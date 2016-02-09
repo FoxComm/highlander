@@ -62,6 +62,7 @@ export default class Criterion extends React.Component {
       case 'currency':
         return <CurrencyInput onChange={this.props.changeValue} value={this.props.value.value}/>;
       case 'bool':
+      case 'bool_inverted':
         return (<SliderCheckbox onChange={({target}) => this.props.changeValue(target.checked)}
                                 checked={this.props.value.value}/>);
       case 'enum':

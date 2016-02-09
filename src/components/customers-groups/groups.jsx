@@ -43,7 +43,7 @@ export default class Groups extends React.Component {
   };
 
   componentDidMount() {
-    this.props.fetch(this.props.groups);
+    this.props.fetch();
   }
 
   @autobind

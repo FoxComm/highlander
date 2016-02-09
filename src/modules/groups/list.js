@@ -1,7 +1,7 @@
 import makePagination from '../pagination';
 
 
-const {reducer, fetch, addEntity, updateStateAndFetch} = makePagination('/groups', 'GROUPS');
+const {reducer, fetch, addEntity, updateStateAndFetch} = makePagination('/groups', 'groups.list');
 
 export {
   reducer as default,
