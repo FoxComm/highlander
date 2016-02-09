@@ -10,6 +10,7 @@ import OrdersListPage from './components/orders/list-page';
 import Orders from './components/orders/orders';
 import Order from './components/orders/order';
 import OrderDetails from './components/orders/details';
+import NewOrder from './components/orders/new-order';
 import Customers from './components/customers/customers';
 import CustomersListPage from './components/customers/list-page';
 import NewCustomer from './components/customers/new-customer';
@@ -53,6 +54,7 @@ const routes = (
       </Route>
     </Route>
     <Route name='orders-base' path="orders">
+      <Route name='new-order' path="new" component={NewOrder}/>
       <Route name='orders-list-pages' component={OrdersListPage}>
         <IndexRoute name='orders' component={Orders}/>
         <Route name='orders-activity-trail' path='activity-trail' dimension="order"

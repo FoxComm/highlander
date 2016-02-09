@@ -13,35 +13,47 @@ const mapDispatchToProps = dispatch => {
   return { actions: bindActionCreators(actions, dispatch) };
 };
 
-const Orders = props => {
-  const renderRow = (row, index, columns, params) => {
-    const key = `order-${row.referenceNumber}`;
-    return (
-      <OrderRow key={key}
-                order={row}
-                columns={columns}
-                params={params} />
-    );
+class Orders extends React.Component {
+  static propTypes = {
+    list: PropTypes.object.isRequired,
+    actions: PropTypes.object.isRequired,
   };
+  
+  get renderRow() {
+    return (row, index, columns, params) => {
+      const key = `order-${row.referenceNumber}`;
+      return (
+        <OrderRow
+          order={row}
+          columns={columns}
+          key={key}
+          params={params} />
+      );
+    };
+  }
 
-  const tableColumns = [
-    {field: 'referenceNumber', text: 'Order', model: 'order'},
-    {field: 'placedAt', text: 'Date/Time Placed', type: 'datetime'},
-    {field: 'customer.name', text: 'Name'},
-    {field: 'customer.email', text: 'Email'},
-    {field: 'state', text: 'Order State', type: 'state', model: 'order'},
-    {field: 'shipping.state', text: 'Shipment State', type: 'state', model: 'shipment'},
-    {field: 'grandTotal', text: 'Total', type: 'currency'}
-  ];
+  get tableColumns() {
+    return [
+      {field: 'referenceNumber', text: 'Order', model: 'order'},
+      {field: 'placedAt', text: 'Date/Time Placed', type: 'datetime'},
+      {field: 'customer.name', text: 'Name'},
+      {field: 'customer.email', text: 'Email'},
+      {field: 'state', text: 'Order State', type: 'state', model: 'order'},
+      {field: 'shipping.state', text: 'Shipment State', type: 'state', model: 'shipment'},
+      {field: 'grandTotal', text: 'Total', type: 'currency'}
+    ];
+  }
 
-  return (
-    <SearchableList
-      emptyResultMessage="No orders found."
-      list={props.list}
-      renderRow={renderRow}
-      tableColumns={tableColumns}
-      searchActions={props.actions} />
-  );
+  render() {
+    return (
+      <SearchableList
+        emptyResultMessage="No orders found."
+        list={this.props.list}
+        renderRow={this.renderRow}
+        tableColumns={this.tableColumns}
+        searchActions={this.props.actions} />
+    );
+  }
 };
 
 Orders.propTypes = {

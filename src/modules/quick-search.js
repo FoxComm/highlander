@@ -38,10 +38,10 @@ export default function makeQuickSearch(namespace, searchUrl, searchFilters, sea
     phrase: phrase
   };
 
-  const doSearch = (phrase) => {
+  const doSearch = (phrase, queryFilters = filters) => {
     return dispatch => {
-      dispatch(submitSearch(filters, phrase));
-      const esQuery = toQuery(filters, {phrase: phrase});
+      dispatch(submitSearch(queryFilters, phrase));
+      const esQuery = toQuery(queryFilters, {phrase: phrase});
       dispatch(fetch(url, esQuery.toJSON()));
     };
   };

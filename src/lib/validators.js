@@ -15,3 +15,7 @@ export function ascii(value, label) {
 export function phoneNumber(value, label) {
   return /^[\d#\-\(\)\+\*) ]+$/.test(value) ? null : `${label} must not contain letters or other non-valid characters`;
 }
+
+export function email(value) {
+  return /.+@.+/.test(value);
+}
