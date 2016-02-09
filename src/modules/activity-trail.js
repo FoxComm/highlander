@@ -51,20 +51,6 @@ export function processActivities(activities) {
         }];
       });
 
-      _.each(oldQuantities, (quantity, skuName) => {
-        if (skuName in newQuantities) return;
-
-        newActivities = [...newActivities, {
-          ...activity,
-          kind: derivedTypes.ORDER_LINE_ITEMS_REMOVED_SKU,
-          data: {
-            ...restData,
-            skuName,
-            difference: quantity,
-          }
-        }];
-      });
-
       return newActivities;
     }
 
