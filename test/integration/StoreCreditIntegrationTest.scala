@@ -249,7 +249,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       }
 
       "successfully cancels store credit with provided reason, cancel adjustment is created" in new Fixture {
-        // Cancel pending adjustment
+        // Cancel pending adjustment (should be done before cancellation)
         StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
 
         val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStateByCsr(state = Canceled,
@@ -260,10 +260,26 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         root.canceledAmount must ===(Some(storeCredit.originalBalance))
 
         // Ensure that cancel adjustment is automatically created
-        val transactionsRep = GET(s"v1/store-credits/${storeCredit.id}/transactions")
-        val adjustments = transactionsRep.ignoreFailuresAndGiveMe[Seq[StoreCreditAdjustmentsResponse.Root]]
+        val adjustments = StoreCreditAdjustments.filterByStoreCreditId(storeCredit.id).result.run().futureValue
+        adjustments.size mustBe 2
+        adjustments.head.state must ===(StoreCreditAdjustment.CancellationCapture)
+      }
 
+      "successfully cancels store credit with zero balance" in new Fixture {
+        // Cancel pending adjustment (should be done before cancellation)
+        StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
+        // Update balance
+        StoreCredits.update(storeCredit, storeCredit.copy(availableBalance = 0)).run().futureValue
+
+        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStateByCsr(state = Canceled,
+          reasonId = Some(1)))
         response.status must ===(StatusCodes.OK)
+
+        val root = response.as[StoreCreditResponse.Root]
+        root.canceledAmount must ===(Some(0))
+
+        // Ensure that cancel adjustment is automatically created
+        val adjustments = StoreCreditAdjustments.filterByStoreCreditId(storeCredit.id).result.run().futureValue
         adjustments.size mustBe 2
         adjustments.head.state must ===(StoreCreditAdjustment.CancellationCapture)
       }
