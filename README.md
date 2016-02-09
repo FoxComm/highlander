@@ -21,7 +21,7 @@
     $ make build
     ```
 
-### Update Phoenix / Green River assembly
+### Update Green River assembly
 
 Run:
 
