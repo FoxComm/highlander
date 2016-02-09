@@ -22,7 +22,7 @@ object jdbc {
     result.map(_.leftMap { currentFailures ⇒ (currentFailures.head, failed) match {
         case (dbFailure: DatabaseFailure, (symbol, replacement)) ⇒
           constraints.get(symbol).map { regex ⇒
-            if (regex.findFirstIn(dbFailure.description.head).nonEmpty) replacement.single
+            if (regex.findFirstIn(dbFailure.description).nonEmpty) replacement.single
             else dbFailure.single
           }.getOrElse(dbFailure.single)
         case (otherFailure, _) ⇒

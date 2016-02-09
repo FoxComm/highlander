@@ -11,7 +11,7 @@ import org.mockito.{Matchers => m}
 import org.scalatest.mock.MockitoSugar
 import payloads.CreateAddressPayload
 import responses.CreditCardsResponse.{Root => CardResponse}
-import responses.CustomerResponse
+import responses.{FullOrder, CustomerResponse}
 import services.CreditCardFailure.StripeFailure
 import services.orders.OrderPaymentUpdater
 import services.{CannotUseInactiveCreditCard, CreditCardManager, CustomerEmailNotUnique, GeneralFailure, NotFoundFailure404, Result}
@@ -21,10 +21,9 @@ import utils.DbResultT.implicits._
 import utils.Money.Currency
 import utils.Slick.implicits._
 import utils.jdbc._
-import utils.seeds.Seeds
 import utils.seeds.Seeds.Factories
-import utils.seeds.SeedsGenerator.generateCustomer
-import utils.{Apis, CustomDirectives, StripeApi}
+import utils.seeds.RankingSeedsGenerator.generateCustomer
+import utils.{Apis, StripeApi}
 import Extensions._
 import slick.driver.PostgresDriver.api._
 import util.SlickSupport.implicits._
@@ -85,31 +84,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
 
       response.status must === (StatusCodes.OK)
-      response.as[CustomerResponse.Root#ResponseMetadataSeq].result must === (Seq(customerRoot))
-    }
-
-    "returns only 2 customers" in new Fixture {
-      pendingUntilFixed {
-        Customers.createAll((1 to 3).map { _ ⇒ generateCustomer }).run().futureValue.rightVal
-
-        val response = GET(s"$uriPrefix?size=2")
-        val customers = response.as[CustomerResponse.Root#ResponseMetadataSeq]
-
-        response.status must ===(StatusCodes.OK)
-        customers.checkPagingMetadata(from = 0, size = 2, resultSize = 2)
-      }
-    }
-
-    "count of requested customers should be limited to default page size" in new Fixture {
-      pendingUntilFixed {
-        Customers.createAll((1 to (CustomDirectives.DefaultPageSize + 1)).map(_ ⇒ generateCustomer))
-          .run().futureValue.rightVal
-
-        val response = GET(s"$uriPrefix")
-        response.status must ===(StatusCodes.OK)
-        response.as[CustomerResponse.Root#ResponseMetadataSeq].checkPagingMetadata(from = 0,
-          size = CustomDirectives.DefaultPageSize, resultSize = CustomDirectives.DefaultPageSize)
-      }
+      response.ignoreFailuresAndGiveMe[Seq[CustomerResponse.Root]] must === (Seq(customerRoot))
     }
 
     "lists customers without default address" in new Fixture {
@@ -118,7 +93,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customerRoot = CustomerResponse.build(customer)
 
       response.status must === (StatusCodes.OK)
-      response.as[CustomerResponse.Root#ResponseMetadataSeq].result must === (Seq(customerRoot))
+      response.ignoreFailuresAndGiveMe[Seq[CustomerResponse.Root]] must === (Seq(customerRoot))
     }
 
     "customer listing shows valid billingRegion" in new CreditCardFixture {
@@ -128,7 +103,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customerRoot = CustomerResponse.build(customer, shippingRegion = region, billingRegion = billRegion)
 
       response.status must === (StatusCodes.OK)
-      response.as[CustomerResponse.Root#ResponseMetadataSeq].result must === (Seq(customerRoot))
+      response.ignoreFailuresAndGiveMe[Seq[CustomerResponse.Root]] must === (Seq(customerRoot))
     }
 
     "customer listing shows valid billingRegion without default CreditCard" in new CreditCardFixture {
@@ -137,7 +112,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val customerRoot = CustomerResponse.build(customer, shippingRegion = region)
 
       response.status must === (StatusCodes.OK)
-      response.as[CustomerResponse.Root#ResponseMetadataSeq].result must === (Seq(customerRoot))
+      response.ignoreFailuresAndGiveMe[Seq[CustomerResponse.Root]] must === (Seq(customerRoot))
     }
   }
 
@@ -158,7 +133,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
         name = Some("test")))
 
       response.status must ===(StatusCodes.BadRequest)
-      response.errors must ===(CustomerEmailNotUnique.description)
+      response.error must ===(CustomerEmailNotUnique.description)
     }
   }
 
@@ -204,9 +179,9 @@ class CustomerIntegrationTest extends IntegrationTestBase
         pending
         CustomersRanks.refresh.futureValue
 
-        // check that statuses used in sql still actual
-        sqlu"UPDATE orders SET status = 'shipped' WHERE id = ${order.id}".run().futureValue
-        sqlu"UPDATE rmas SET status = 'complete' WHERE id = ${orderPayment.id}".run().futureValue
+        // check that states used in sql still actual
+        sqlu"UPDATE orders SET state = 'shipped' WHERE id = ${order.id}".run().futureValue
+        sqlu"UPDATE rmas SET state = 'complete' WHERE id = ${orderPayment.id}".run().futureValue
 
         val response = GET(s"$uriPrefix/${customer.id}")
         response.status must ===(StatusCodes.OK)
@@ -217,6 +192,35 @@ class CustomerIntegrationTest extends IntegrationTestBase
         rank2.revenue must ===(100)
         rank2.rank must ===(1)
       }
+    }
+  }
+
+  "GET /v1/customers/:customerId/cart" - {
+    "returns customer cart" in new CartFixture {
+      val response = GET(s"$uriPrefix/${customer.id}/cart")
+      response.status must === (StatusCodes.OK)
+
+      val root = response.as[FullOrder.Root]
+      root.referenceNumber must === (order.referenceNumber)
+      root.orderState must === (Order.Cart)
+
+      Orders.findActiveOrderByCustomer(customer).result.run().futureValue must have size 1
+    }
+
+    "creates cart if no present" in new Fixture {
+      val response = GET(s"$uriPrefix/${customer.id}/cart")
+      response.status must === (StatusCodes.OK)
+
+      val root = response.as[FullOrder.Root]
+      root.orderState must === (Order.Cart)
+
+      Orders.findActiveOrderByCustomer(customer).result.run().futureValue must have size 1
+    }
+
+    "returns 404 if customer not found" in new CartFixture {
+      val response = GET(s"$uriPrefix/999/cart")
+      response.status must === (StatusCodes.NotFound)
+      response.error must ===(NotFoundFailure404(Customer, 999).description)
     }
   }
 
@@ -247,7 +251,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = PATCH(s"v1/customers/${root.id}", payload)
 
       response.status must ===(StatusCodes.BadRequest)
-      response.errors must ===(CustomerEmailNotUnique.description)
+      response.error must ===(CustomerEmailNotUnique.description)
     }
   }
 
@@ -263,7 +267,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/customers/${root.id}/activate", payload)
 
       response.status must ===(StatusCodes.BadRequest)
-      response.errors must ===(CustomerEmailNotUnique.description)
+      response.error must ===(CustomerEmailNotUnique.description)
     }
 
     "sucessfully activate non-guest user" in new Fixture {
@@ -300,7 +304,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = POST(s"$uriPrefix/999/disable", payloads.ToggleCustomerDisabled(true))
 
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Customer, 999).description)
+      response.error must === (NotFoundFailure404(Customer, 999).description)
     }
 
     "disable already disabled account is ok (overwrite behaviour)" in new Fixture {
@@ -330,7 +334,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = POST(s"$uriPrefix/999/blacklist", payloads.ToggleCustomerBlacklisted(true))
 
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Customer, 999).description)
+      response.error must === (NotFoundFailure404(Customer, 999).description)
     }
 
     "blacklist already blacklisted account is ok (overwrite behaviour)" in new Fixture {
@@ -396,7 +400,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = POST(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/99/default", payload)
 
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(CreditCard, 99).description)
+      response.error must === (NotFoundFailure404(CreditCard, 99).description)
     }
   }
 
@@ -523,7 +527,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/99", payload)
 
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(CreditCard, 99).description)
+      response.error must === (NotFoundFailure404(CreditCard, 99).description)
     }
 
     "fails if the card is not inWallet" in new CreditCardFixture {
@@ -532,7 +536,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (CannotUseInactiveCreditCard(creditCard).description)
+      response.error must === (CannotUseInactiveCreditCard(creditCard).description)
     }
 
     "fails if the payload is invalid" in new CreditCardFixture {
@@ -540,7 +544,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must contain("holderName must not be empty")
+      response.error must === ("holderName must not be empty")
     }
 
     "fails if stripe returns an error" in new CreditCardFixture {
@@ -565,7 +569,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (List("Your card's expiration year is invalid"))
+      response.error must === ("Your card's expiration year is invalid")
     }
   }
 
@@ -574,7 +578,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       val response = GET(s"${uriPrefix}/searchForNewOrder?term=${customer.email.drop(2)}")
       response.status must === (StatusCodes.OK)
 
-      response.as[CustomerResponse.Root#ResponseMetadataSeq].result.size must === (1)
+      response.ignoreFailuresAndGiveMe[Seq[CustomerResponse.Root]].size must === (1)
     }
   }
 
@@ -591,14 +595,19 @@ class CustomerIntegrationTest extends IntegrationTestBase
     val creditCard = CreditCards.create(Factories.creditCard.copy(customerId = customer.id)).run().futureValue.rightVal
   }
 
+  trait CartFixture extends Fixture {
+    val order = Orders.create(Factories.order.copy(customerId = customer.id, state = Order.Cart,
+      referenceNumber = "ABC-123")).run().futureValue.rightVal
+  }
+
   trait FixtureForRanking extends CreditCardFixture {
     val (order, orderPayment, customer2) = (for {
       customer2 ← * <~ Customers.create(Factories.customer.copy(email = "second@example.org", name = Some("second")))
       order ← * <~ Orders.create(Factories.order.copy(customerId = customer.id,
-        status = Order.Shipped,
+        state = Order.Shipped,
         referenceNumber = "ABC-123"))
       order2 ← * <~ Orders.create(Factories.order.copy(customerId = customer2.id,
-        status = Order.Shipped,
+        state = Order.Shipped,
         referenceNumber = "ABC-456"))
       orderPayment ← * <~ OrderPayments.create(Factories.orderPayment.copy(orderId = order.id,
         paymentMethodId = creditCard.id,
@@ -609,7 +618,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
       rma ← * <~ Rmas.create(Factories.rma.copy(
         referenceNumber = "ABC-123.1",
         orderId = order.id,
-        status = Rma.Complete,
+        state = Rma.Complete,
         orderRefNum = order.referenceNumber,
         customerId = customer.id))
       rmaPayment ← * <~ sqlu"""insert into rma_payments(rma_id, payment_method_id, payment_method_type, amount, currency)

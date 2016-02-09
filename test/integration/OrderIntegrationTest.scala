@@ -7,7 +7,7 @@ import akka.testkit.TestActorRef
 import models.Order._
 import models.rules.QueryStatement
 import models.{OrderAssignment, Address, Addresses, CreditCardCharge, CreditCardCharges, CreditCards, Customers,
-Order, OrderAssignments, OrderLineItem, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, OrderLockEvent,
+Order, OrderAssignments, OrderLineItem, OrderLineItemSkus, OrderLineItems, OrderLockEvent,
 OrderLockEvents, OrderPayments, OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, Regions,
 Shipment, Shipments, ShippingMethods, Skus, StoreAdmin, StoreAdmins, OrderWatcher, OrderWatchers}
 import org.json4s.jackson.JsonMethods._
@@ -15,7 +15,7 @@ import payloads.{Assignment, Watchers, UpdateLineItemsPayload, UpdateOrderPayloa
 import responses.{FullOrder, StoreAdminResponse}
 import services.CartFailures._
 import services.orders.OrderTotaler
-import services.{LockedFailure, NotFoundFailure404, NotLockedFailure, StatusTransitionNotAllowed,
+import services.{LockedFailure, NotFoundFailure404, NotLockedFailure, StateTransitionNotAllowed,
 OrderAssigneeNotFound, OrderWatcherNotFound}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
@@ -38,39 +38,39 @@ class OrderIntegrationTest extends IntegrationTestBase
     "payment status" - {
       "does not display payment status if no cc" in new Fixture {
         pending
-        Orders.findByRefNum(order.refNum).map(_.status).update(Order.ManualHold).run.futureValue
+        Orders.findByRefNum(order.refNum).map(_.state).update(Order.ManualHold).run.futureValue
 
         val response = GET(s"v1/orders/${order.refNum}")
         response.status must === (StatusCodes.OK)
         val fullOrder = response.withResultTypeOf[FullOrder.Root].result
-        fullOrder.paymentStatus must not be defined
+        fullOrder.paymentState must not be defined
         fullOrder.paymentMethods mustBe empty
       }
 
-      "displays payment status if cc present" in new PaymentStatusFixture {
+      "displays payment state if cc present" in new PaymentStateFixture {
         pending
-        Orders.findByRefNum(order.refNum).map(_.status).update(Order.ManualHold).run.futureValue
-        CreditCardCharges.findById(ccc.id).extract.map(_.status).update(CreditCardCharge.Auth).run.futureValue
+        Orders.findByRefNum(order.refNum).map(_.state).update(Order.ManualHold).run.futureValue
+        CreditCardCharges.findById(ccc.id).extract.map(_.state).update(CreditCardCharge.Auth).run.futureValue
 
         val response = GET(s"v1/orders/${order.refNum}")
         response.status must === (StatusCodes.OK)
         val fullOrder = response.withResultTypeOf[FullOrder.Root].result
 
-        fullOrder.paymentStatus.value must === (CreditCardCharge.Auth)
+        fullOrder.paymentState.value must === (CreditCardCharge.Auth)
         // fullOrder.paymentMethods.head.value.status must === (CreditCardCharge.Auth)
       }
 
-      "displays 'cart' payment status if order is cart and cc present" in new PaymentStatusFixture {
+      "displays 'cart' payment state if order is cart and cc present" in new PaymentStateFixture {
         pending
-        Orders.findByRefNum(order.refNum).map(_.status).update(Order.Cart).run.futureValue
-        CreditCardCharges.findById(ccc.id).extract.map(_.status).update(CreditCardCharge.Auth).run.futureValue
+        Orders.findByRefNum(order.refNum).map(_.state).update(Order.Cart).run.futureValue
+        CreditCardCharges.findById(ccc.id).extract.map(_.state).update(CreditCardCharge.Auth).run.futureValue
 
         val response = GET(s"v1/orders/${order.refNum}")
         response.status must === (StatusCodes.OK)
         val fullOrder = response.withResultTypeOf[FullOrder.Root].result
 
-        fullOrder.paymentStatus.value must === (CreditCardCharge.Cart)
-        // fullOrder.payment.value.status must === (CreditCardCharge.Auth)
+        fullOrder.paymentState.value must === (CreditCardCharge.Cart)
+        // fullOrder.payment.value.state must === (CreditCardCharge.Auth)
       }
     }
   }
@@ -80,7 +80,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     val payload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
 
     "should successfully update line items" in new OrderShippingMethodFixture with ShippingAddressFixture with
-      PaymentStatusFixture {
+      PaymentStateFixture {
       val response = POST(s"v1/orders/${order.refNum}/line-items", payload)
 
       response.status must === (StatusCodes.OK)
@@ -96,16 +96,16 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       response.status must === (StatusCodes.OK)
       val ref = order.refNum
-      val expectedWarnings = List(EmptyCart(ref), NoShipAddress(ref), NoShipMethod(ref)).flatMap(_.description)
+      val expectedWarnings = List(EmptyCart(ref), NoShipAddress(ref), NoShipMethod(ref)).map(_.description)
       val responseWithValidation = response.withResultTypeOf[FullOrder.Root]
       responseWithValidation.alerts must not be defined
-      responseWithValidation.warnings.value.toList must contain theSameElementsAs expectedWarnings
+      responseWithValidation.warnings.value must contain theSameElementsAs expectedWarnings
     }
 
     "should respond with 404 if order is not found" in {
       val response = POST(s"v1/orders/NOPE/line-items", payload)
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Order, "NOPE").description)
+      response.error must === (NotFoundFailure404(Order, "NOPE").description)
     }
   }
 
@@ -121,7 +121,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
 
       val responseOrder = response.as[FullOrder.Root]
-      responseOrder.orderStatus must === (FraudHold)
+      responseOrder.orderState must === (FraudHold)
     }
 
     "fails if transition to destination status is not allowed" in {
@@ -132,18 +132,18 @@ class OrderIntegrationTest extends IntegrationTestBase
         UpdateOrderPayload(Cart))
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (StatusTransitionNotAllowed(order.status, Cart, order.refNum).description)
+      response.error must === (StateTransitionNotAllowed(order.state, Cart, order.refNum).description)
     }
 
     "fails if transition from current status is not allowed" in {
-      val order = Orders.create(Factories.order.copy(status = Canceled)).run().futureValue.rightVal
+      val order = Orders.create(Factories.order.copy(state = Canceled)).run().futureValue.rightVal
 
       val response = PATCH(
         s"v1/orders/${order.referenceNumber}",
         UpdateOrderPayload(ManualHold))
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (StatusTransitionNotAllowed(order.status, ManualHold, order.refNum).description)
+      response.error must === (StateTransitionNotAllowed(order.state, ManualHold, order.refNum).description)
     }
 
     "fails if the order is not found" in {
@@ -152,7 +152,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = PATCH(s"v1/orders/NOPE", UpdateOrderPayload(ManualHold))
 
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Order, "NOPE").description)
+      response.error must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
     /* This test should really test against an order and not a *cart*. Karin has filed a story to come back to this
@@ -168,11 +168,11 @@ class OrderIntegrationTest extends IntegrationTestBase
         UpdateOrderPayload(Canceled))
 
       val responseOrder = parse(response.bodyText).extract[FullOrder.Root]
-      responseOrder.orderStatus must === (Canceled)
-      responseOrder.lineItems.head.status must === (OrderLineItem.Canceled)
+      responseOrder.orderState must === (Canceled)
+      responseOrder.lineItems.head.state must === (OrderLineItem.Canceled)
 
-      // Testing via DB as currently FullOrder returns 'order.status' as 'payment.status'
-      // OrderPayments.findAllByOrderId(order.id).futureValue.head.status must === ("cancelAuth")
+      // Testing via DB as currently FullOrder returns 'order.state' as 'payment.state'
+      // OrderPayments.findAllByOrderId(order.id).futureValue.head.state must === ("cancelAuth")
     }
     */
   }
@@ -180,7 +180,7 @@ class OrderIntegrationTest extends IntegrationTestBase
   "POST /v1/orders/:refNum/increase-remorse-period" - {
 
     "successfully" in {
-      val order = Orders.create(Factories.order.copy(status = Order.RemorseHold)).run().futureValue.rightVal
+      val order = Orders.create(Factories.order.copy(state = Order.RemorseHold)).run().futureValue.rightVal
       val response = POST(s"v1/orders/${order.referenceNumber}/increase-remorse-period")
 
       val result = response.as[FullOrder.Root]
@@ -219,7 +219,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val response = POST(s"v1/orders/${order.referenceNumber}/lock")
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (LockedFailure(Order, order.referenceNumber).description)
+      response.error must === (LockedFailure(Order, order.referenceNumber).description)
     }
 
     "avoids race condition" in {
@@ -255,7 +255,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = POST(s"v1/orders/${order.referenceNumber}/unlock")
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (NotLockedFailure(Order, order.refNum).description)
+      response.error must === (NotLockedFailure(Order, order.refNum).description)
     }
 
     "adjusts remorse period when order is unlocked" in new RemorseFixture {
@@ -266,7 +266,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       (timer ? Tick).futureValue // Nothing should happen
       val order1 = getUpdated(refNum)
       order1.remorsePeriodEnd must ===(order.remorsePeriodEnd)
-      order1.status must ===(Order.RemorseHold)
+      order1.state must ===(Order.RemorseHold)
 
       Thread.sleep(3000)
 
@@ -278,7 +278,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val newRemorseEnd = order2.remorsePeriodEnd.value
 
       originalRemorseEnd.durationUntil(newRemorseEnd).getSeconds mustBe >= (3L)
-      order2.status must ===(Order.RemorseHold)
+      order2.state must ===(Order.RemorseHold)
     }
 
     "uses most recent lock record" in new RemorseFixture {
@@ -331,7 +331,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     "404 if order is not found" in new Fixture {
       val response = POST(s"v1/orders/NOPE/assignees", Assignment(Seq(storeAdmin.id)))
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Order, "NOPE").description)
+      response.error must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
     "warning if assignee is not found" in new Fixture {
@@ -340,7 +340,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val fullOrderWithWarnings = response.withResultTypeOf[FullOrder.Root]
       fullOrderWithWarnings.result.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(storeAdmin)))
-      fullOrderWithWarnings.warnings.value must === (NotFoundFailure404(StoreAdmin, 999).description)
+      fullOrderWithWarnings.errors.value must === (List(NotFoundFailure404(StoreAdmin, 999).description))
     }
 
     "can be viewed with order" in new Fixture {
@@ -382,19 +382,19 @@ class OrderIntegrationTest extends IntegrationTestBase
     "400 if assignee is not found" in new AssignmentFixture {
       val response = DELETE(s"v1/orders/${order.referenceNumber}/assignees/${secondAdmin.id}")
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (OrderAssigneeNotFound(order.referenceNumber, secondAdmin.id).description)
+      response.error must === (OrderAssigneeNotFound(order.referenceNumber, secondAdmin.id).description)
     }
 
     "404 if order is not found" in new AssignmentFixture {
       val response = DELETE(s"v1/orders/NOPE/assignees/${storeAdmin.id}")
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Order, "NOPE").description)
+      response.error must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
     "404 if storeAdmin is not found" in new AssignmentFixture {
       val response = DELETE(s"v1/orders/${order.referenceNumber}/assignees/555")
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(StoreAdmin, 555).description)
+      response.error must === (NotFoundFailure404(StoreAdmin, 555).description)
     }
   }
 
@@ -426,7 +426,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     "404 if order is not found" in new Fixture {
       val response = POST(s"v1/orders/NOPE/watchers", Watchers(Seq(storeAdmin.id)))
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Order, "NOPE").description)
+      response.error must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
     "warning if watcher is not found" in new Fixture {
@@ -435,7 +435,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
       val fullOrderWithWarnings = response.withResultTypeOf[FullOrder.Root]
       fullOrderWithWarnings.result.watchers.map(_.watcher) must === (Seq(StoreAdminResponse.build(storeAdmin)))
-      fullOrderWithWarnings.warnings.value must === (NotFoundFailure404(StoreAdmin, 999).description)
+      fullOrderWithWarnings.errors.value must === (List(NotFoundFailure404(StoreAdmin, 999).description))
     }
 
     "can be viewed with order" in new Fixture {
@@ -468,7 +468,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val response = DELETE(s"v1/orders/${order.referenceNumber}/watchers/${storeAdmin.id}")
       response.status must === (StatusCodes.OK)
 
-      val root = response.as[FullOrder.Root]
+      val root = response.ignoreFailuresAndGiveMe[FullOrder.Root]
       root.assignees.filter(_.assignee.id == storeAdmin.id) mustBe empty
 
       OrderWatchers.byOrder(order).result.run().futureValue mustBe empty
@@ -477,19 +477,19 @@ class OrderIntegrationTest extends IntegrationTestBase
     "400 if watcher is not found" in new WatcherFixture {
       val response = DELETE(s"v1/orders/${order.referenceNumber}/watchers/${secondAdmin.id}")
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (OrderWatcherNotFound(order.referenceNumber, secondAdmin.id).description)
+      response.error must === (OrderWatcherNotFound(order.referenceNumber, secondAdmin.id).description)
     }
 
     "404 if order is not found" in new WatcherFixture {
       val response = DELETE(s"v1/orders/NOPE/watchers/${storeAdmin.id}")
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Order, "NOPE").description)
+      response.error must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
     "404 if storeAdmin is not found" in new WatcherFixture {
       val response = DELETE(s"v1/orders/${order.referenceNumber}/watchers/555")
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(StoreAdmin, 555).description)
+      response.error must === (NotFoundFailure404(StoreAdmin, 555).description)
     }
   }
 
@@ -611,7 +611,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/99")
 
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Address, 99).description)
+        response.error must === (NotFoundFailure404(Address, 99).description)
       }
     }
 
@@ -636,7 +636,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/99")
 
         response.status must === (StatusCodes.NotFound)
-        response.errors must === (NotFoundFailure404(Address, 99).description)
+        response.error must === (NotFoundFailure404(Address, 99).description)
       }
 
       "does not change the current shipping address if the edit fails" in new ShippingAddressFixture {
@@ -714,7 +714,7 @@ class OrderIntegrationTest extends IntegrationTestBase
 
   "DELETE /v1/orders/:refNum/shipping-address" - {
     "succeeds if an address exists" in new ShippingAddressFixture {
-      val noShipAddressFailure = NoShipAddress(order.refNum).description.headOption.value
+      val noShipAddressFailure = NoShipAddress(order.refNum).description
 
       //get order and make sure it has a shipping address
       val fullOrderResponse = GET(s"v1/orders/${order.referenceNumber}")
@@ -739,17 +739,17 @@ class OrderIntegrationTest extends IntegrationTestBase
     "fails if the order is not found" in new ShippingAddressFixture {
       val response = DELETE(s"v1/orders/ABC-123/shipping-address")
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Order, "ABC-123").description)
+      response.error must === (NotFoundFailure404(Order, "ABC-123").description)
 
       db.run(OrderShippingAddresses.length.result).futureValue must === (1)
     }
 
     "fails if the order is not in cart status" in new ShippingAddressFixture {
-      Orders.update(order.copy(status = Order.FulfillmentStarted)).run().futureValue
+      Orders.update(order.copy(state = Order.FulfillmentStarted)).run().futureValue
 
       val response = DELETE(s"v1/orders/${order.referenceNumber}/shipping-address")
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (OrderMustBeCart(order.refNum).description)
+      response.error must === (OrderMustBeCart(order.refNum).description)
 
       db.run(OrderShippingAddresses.length.result).futureValue must === (1)
     }
@@ -794,7 +794,7 @@ class OrderIntegrationTest extends IntegrationTestBase
   trait Fixture {
     val (order, storeAdmin, customer) = (for {
       customer   ← * <~ Customers.create(Factories.customer)
-      order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, status = Order.Cart))
+      order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, state = Order.Cart))
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
     } yield (order, storeAdmin, customer)).runTxn().futureValue.rightVal
   }
@@ -875,7 +875,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     val (admin, order) = (for {
       admin ← * <~ StoreAdmins.create(Factories.storeAdmin)
       order ← * <~ Orders.create(Factories.order.copy(
-        status = Order.RemorseHold,
+        state = Order.RemorseHold,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))))
     } yield (admin, order)).runTxn().futureValue.rightVal
 
@@ -883,7 +883,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     val originalRemorseEnd = order.remorsePeriodEnd.value
   }
 
-  trait PaymentStatusFixture extends Fixture {
+  trait PaymentStateFixture extends Fixture {
     val (cc, op, ccc) = (for {
       cc  ← * <~ CreditCards.create(Factories.creditCard.copy(customerId = customer.id))
       op  ← * <~ OrderPayments.create(Factories.orderPayment.copy(orderId = order.id, paymentMethodId = cc.id))

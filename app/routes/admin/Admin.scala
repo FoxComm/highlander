@@ -5,15 +5,15 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.Order.orderRefNumRegex
 import models.Reason.reasonTypeRegex
-import models.{GiftCard, SharedSearch, Orders, Rma, StoreAdmin}
+import models.{GiftCard, SharedSearch, Rma, StoreAdmin}
+import payloads.SharedSearchAssociationPayload
 import services.{SharedSearchService, NoteManager, ReasonService, SaveForLaterManager, ShippingManager,
-StoreCreditAdjustmentsService, StoreCreditService}
+StoreCreditAdjustmentsService, StoreCreditService, SharedSearchInvalidQueryFailure}
 import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._
 
-import scala.collection.immutable.Seq
 import scala.concurrent.ExecutionContext
 
 object Admin {
@@ -28,10 +28,10 @@ object Admin {
             StoreCreditService.getOriginTypes
           }
         } ~
-        (patch & pathEnd & entity(as[payloads.StoreCreditBulkUpdateStatusByCsr])) { payload ⇒
+        (patch & pathEnd & entity(as[payloads.StoreCreditBulkUpdateStateByCsr])) { payload ⇒
           activityContext(admin) { implicit ac ⇒
             goodOrFailures {
-              StoreCreditService.bulkUpdateStatusByCsr(payload, admin)
+              StoreCreditService.bulkUpdateStateByCsr(payload, admin)
             }
           }
         }
@@ -42,10 +42,10 @@ object Admin {
             StoreCreditService.getById(storeCreditId)
           }
         } ~
-        (patch & pathEnd & entity(as[payloads.StoreCreditUpdateStatusByCsr])) { payload ⇒
+        (patch & pathEnd & entity(as[payloads.StoreCreditUpdateStateByCsr])) { payload ⇒
           activityContext(admin) { implicit ac ⇒
             goodOrFailures {
-              StoreCreditService.updateStatusByCsr(storeCreditId, payload, admin)
+              StoreCreditService.updateStateByCsr(storeCreditId, payload, admin)
             }
           }
         } ~
@@ -79,9 +79,7 @@ object Admin {
       pathPrefix("shipping-methods" / orderRefNumRegex) { refNum ⇒
         (get & pathEnd) {
           goodOrFailures {
-            Orders.findByRefNum(refNum).selectOne { order ⇒
-              ShippingManager.getShippingMethodsForOrder(order)
-            }
+            ShippingManager.getShippingMethodsForOrder(refNum)
           }
         }
       } ~
@@ -205,7 +203,12 @@ object Admin {
         }
       } ~
       pathPrefix("shared-search") {
-        (post & pathEnd & entity(as[payloads.SharedSearchPayload])) { payload ⇒
+        (get & pathEnd & parameters('scope.as[String].?)) { scope ⇒
+          goodOrFailures {
+            SharedSearchService.getAll(admin, scope)
+          }
+        } ~
+        (post & pathEnd & entityOr(as[payloads.SharedSearchPayload], SharedSearchInvalidQueryFailure)) { payload ⇒
           goodOrFailures {
             SharedSearchService.create(admin, payload)
           }
@@ -217,7 +220,7 @@ object Admin {
             SharedSearchService.get(code)
           }
         } ~
-        (patch & pathEnd & entity(as[payloads.SharedSearchPayload])) { payload ⇒
+        (patch & pathEnd & entityOr(as[payloads.SharedSearchPayload], SharedSearchInvalidQueryFailure)) { payload ⇒
           goodOrFailures {
             SharedSearchService.update(admin, code, payload)
           }
@@ -225,6 +228,29 @@ object Admin {
         (delete & pathEnd) {
           nothingOrFailures {
             SharedSearchService.delete(admin, code)
+          }
+        } ~
+        pathPrefix("associates") {
+          (get & pathEnd) {
+            goodOrFailures {
+              SharedSearchService.getAssociates(code)
+            }
+          }
+        } ~
+        pathPrefix("associate") {
+          (post & pathEnd & entity(as[SharedSearchAssociationPayload])) { payload ⇒
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                SharedSearchService.associate(admin, code, payload.associates)
+              }
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { associateId ⇒
+            activityContext(admin) { implicit ac ⇒
+              goodOrFailures {
+                SharedSearchService.unassociate(admin, code, associateId)
+              }
+            }
           }
         }
       }

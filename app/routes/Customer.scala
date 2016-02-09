@@ -5,6 +5,7 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.{Orders, StoreCredits}
 import payloads.{CreateAddressPayload, UpdateLineItemsPayload}
+import services.orders.OrderQueries
 import services.{AddressManager, LineItemUpdater, Result, StoreCreditService}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives._
@@ -21,9 +22,10 @@ object Customer {
     pathPrefix("my") {
       authenticateBasicAsync(realm = "private customer routes", customerAuth) { customer ⇒
         (get & path("cart")) {
-          goodOrFailures {
-            val finder = Orders.findActiveOrderByCustomer(customer)
-            finder.selectOne { _ ⇒ DbResult.fromDbio(fullOrder(finder)) }
+          activityContext(customer) { implicit ac ⇒
+            goodOrFailures {
+              OrderQueries.findOrCreateCartByCustomer(customer)
+            }
           }
         } ~
         pathPrefix("addresses") {
@@ -68,11 +70,15 @@ object Customer {
             }
           } ~
           (get & pathEnd) {
-            goodOrFailures {
-              val finder = Orders.findActiveOrderByCustomer(customer)
-              finder.selectOne { order ⇒ DbResult.fromDbio(fullOrder(finder)) }
+            activityContext(customer) { implicit ac ⇒
+              goodOrFailures {
+                OrderQueries.findOrCreateCartByCustomer(customer)
+              }
             }
           }
+        } ~
+        complete {
+          notFoundResponse
         }
       }
     }

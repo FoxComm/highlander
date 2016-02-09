@@ -40,7 +40,8 @@ object SharedSearch {
     SharedSearch(
       title = payload.title,
       query = payload.query,
-      storeAdminId = admin.id
+      storeAdminId = admin.id,
+      scope = payload.scope
     )
 
   implicit val scopeColumnType: JdbcType[Scope] with BaseTypedType[Scope] = Scope.slickColumn
@@ -86,6 +87,9 @@ object SharedSearches extends TableQueryWithId[SharedSearch, SharedSearches](
 
   def findActiveByCodeAndAdmin(code: String, adminId: Int): DBIO[Option[SharedSearch]] =
     filter(_.code === code).filter(_.storeAdminId === adminId).notDeleted.one
+
+  def findActiveByScopeAndAdmin(scope: Scope, adminId: Int): QuerySeq =
+    byAdmin(adminId).filter(_.scope === scope).notDeleted
 
   def byAdmin(adminId: Int): QuerySeq = filter(_.storeAdminId === adminId)
 

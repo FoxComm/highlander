@@ -1,7 +1,6 @@
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
 import models.{Reason, Reasons, RmaReason, RmaReasons, StoreAdmins}
-import responses.ResponseWithFailuresAndMetadata
 import services.InvalidReasonTypeFailure
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -21,9 +20,9 @@ with AutomaticAuth {
         val response = GET(s"v1/reasons")
         response.status must ===(StatusCodes.OK)
 
-        val root = response.as[ResponseWithFailuresAndMetadata[Seq[Reason]]]
-        root.result.size must ===(1)
-        root.result.headOption.value.id must ===(reason.id)
+        val root = response.ignoreFailuresAndGiveMe[Seq[Reason]]
+        root.size must ===(1)
+        root.headOption.value.id must ===(reason.id)
       }
     }
 
@@ -33,16 +32,16 @@ with AutomaticAuth {
         val response = GET(s"v1/reasons/$reasonType")
         response.status must ===(StatusCodes.OK)
 
-        val root = response.as[ResponseWithFailuresAndMetadata[Seq[Reason]]]
-        root.result.size must ===(1)
-        root.result.headOption.value.id must ===(reason.id)
+        val root = response.ignoreFailuresAndGiveMe[Seq[Reason]]
+        root.size must ===(1)
+        root.headOption.value.id must ===(reason.id)
       }
 
       "should return error if invalid type provided" in new Fixture {
         val reasonType = "lolwut"
         val response = GET(s"v1/reasons/$reasonType")
         response.status must ===(StatusCodes.BadRequest)
-        response.errors must ===(InvalidReasonTypeFailure(reasonType).description)
+        response.error must ===(InvalidReasonTypeFailure(reasonType).description)
       }
     }
   }
@@ -53,9 +52,9 @@ with AutomaticAuth {
         val response = GET(s"v1/rma-reasons")
         response.status must ===(StatusCodes.OK)
 
-        val root = response.as[ResponseWithFailuresAndMetadata[Seq[RmaReason]]]
-        root.result.size must ===(1)
-        root.result.headOption.value.id must ===(rmaReason.id)
+        val root = response.ignoreFailuresAndGiveMe[Seq[RmaReason]]
+        root.size must ===(1)
+        root.headOption.value.id must ===(rmaReason.id)
       }
     }
   }

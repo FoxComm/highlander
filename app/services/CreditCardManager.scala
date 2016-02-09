@@ -10,7 +10,7 @@ import models.activity.ActivityContext
 import models.{Address, Addresses, CreditCard, CreditCards, Customer, Customers, OrderPayments, Orders, Region, Regions, StoreAdmin}
 import payloads.{CreateAddressPayload, CreateCreditCard, EditCreditCard}
 import slick.driver.PostgresDriver.api._
-import utils.Apis
+import utils.{DbResultT, Apis}
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.DbResult
@@ -32,28 +32,28 @@ object CreditCardManager {
   def createCardThroughGateway(admin: StoreAdmin, customerId: Int, payload: CreateCreditCard)
     (implicit ec: ExecutionContext, db: Database, apis: Apis, ac: ActivityContext): Result[Root] = {
 
-    def createCard(customer: Customer, sCustomer: StripeCustomer, sCard: StripeCard, address: Address) = ResultT((for {
+    def createCard(customer: Customer, sCustomer: StripeCustomer, sCard: StripeCard, address: Address) = for {
       _       ← * <~ (if (address.isNew) Addresses.create(address.copy(customerId = customerId)) else DbResult.unit)
       cc = CreditCard.build(customerId, sCustomer, sCard, payload, address)
       newCard ← * <~ CreditCards.create(cc)
       region  ← * <~ Regions.findOneById(newCard.regionId).safeGet.toXor
       _       ← * <~ LogActivity.ccCreated(admin, customer, cc)
-    } yield buildResponse(newCard, region)).runTxn())
+    } yield buildResponse(newCard, region)
 
-    def getExistingStripeIdAndAddress = ResultT((for {
+    def getExistingStripeIdAndAddress = for {
       stripeId ← * <~ CreditCards.filter(_.customerId === customerId).map(_.gatewayCustomerId).one.toXor
       address ← * <~ getAddressFromPayload(payload.addressId, payload.address).mustFindOr(CreditCardMustHaveAddress)
-    } yield (stripeId, address)).runTxn())
+    } yield (stripeId, address)
 
     (for {
-      _                  ← ResultT.fromXor(payload.validate.toXor)
-      customer           ← ResultT(Customers.mustFindById(customerId).run())
-      stripeIdAndAddress ← getExistingStripeIdAndAddress
+      _                  ← * <~ payload.validate.toXor
+      customer           ← * <~ Customers.mustFindById404(customerId)
+      stripeIdAndAddress ← * <~ getExistingStripeIdAndAddress
       (stripeId, address) = stripeIdAndAddress
-      stripeStuff        ← ResultT(gateway.createCard(customer.email, payload, stripeId, address))
+      stripeStuff        ← * <~ DBIO.from(gateway.createCard(customer.email, payload, stripeId, address))
       (stripeCustomer, stripeCard) = stripeStuff
-      newCard            ← createCard(customer, stripeCustomer, stripeCard, address)
-    } yield newCard).value
+      newCard            ← * <~ createCard(customer, stripeCustomer, stripeCard, address)
+    } yield newCard).runTxn()
 
   }
 
@@ -72,7 +72,7 @@ object CreditCardManager {
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Unit] = {
 
     (for {
-      customer  ← * <~ Customers.mustFindById(customerId)
+      customer  ← * <~ Customers.mustFindById404(customerId)
       cc        ← * <~ CreditCards.mustFindByIdAndCustomer(id, customerId)
       region    ← * <~ Regions.findOneById(cc.regionId).safeGet.toXor
       update    ← * <~ CreditCards.update(cc, cc.copy(inWallet = false, deletedAt = Some(Instant.now())))
@@ -91,20 +91,17 @@ object CreditCardManager {
         expMonth = payload.expMonth.getOrElse(cc.expMonth)
       )
       for {
-        _ ← ResultT(gateway.editCard(updated))
-
-        cc ← ResultT((for {
-          _ ← * <~ (if (!cc.inWallet) DbResult.failure(CannotUseInactiveCreditCard(cc)) else DbResult.unit)
-          _ ← * <~ CreditCards.update(cc, cc.copy(inWallet = false))
-          cc ← * <~ CreditCards.create(updated)
-          _ ← * <~ LogActivity.ccUpdated(admin, customer, updated, cc)
-        } yield cc).runTxn())
+        _  ← * <~ DBIO.from(gateway.editCard(updated))
+        _  ← * <~ (if (!cc.inWallet) DbResult.failure(CannotUseInactiveCreditCard(cc)) else DbResult.unit)
+        _  ← * <~ CreditCards.update(cc, cc.copy(inWallet = false))
+        cc ← * <~ CreditCards.create(updated)
+        _  ← * <~ LogActivity.ccUpdated(admin, customer, updated, cc)
       } yield cc
     }
 
-    def createNewAddressIfProvided(cc: CreditCard) = ResultT(payload.address.fold(DbResult.good(cc))(_ ⇒ (for {
+    def createNewAddressIfProvided(cc: CreditCard) = payload.address.fold(DbResultT.rightLift(cc))(_ ⇒ (for {
       address ← * <~ Addresses.create(Address.fromCreditCard(cc).copy(customerId = customerId))
-    } yield cc).value).run())
+    } yield cc))
 
     def cascadeChangesToCarts(updated: CreditCard) = {
       val paymentIds = for {
@@ -112,26 +109,26 @@ object CreditCardManager {
         pmts ← OrderPayments.filter(_.paymentMethodId === updated.parentId).creditCards if pmts.orderId === orders.id
       } yield pmts.id
 
-      ResultT.right((for {
+      for {
         cc ← OrderPayments.filter(_.id.in(paymentIds)).map(_.paymentMethodId).update(updated.id).map(_ ⇒ updated)
         region ← Regions.findOneById(cc.regionId).safeGet
-      } yield buildResponse(cc, region)).run())
+      } yield buildResponse(cc, region)
     }
 
-    val getCardAndAddressChange = ResultT((for {
+    val getCardAndAddressChange = for {
       creditCard ← * <~ CreditCards.findById(id).extract.filter(_.customerId === customerId).one
         .mustFindOr(NotFoundFailure404(CreditCard, id))
       address ← * <~ getAddressFromPayload(payload.addressId, payload.address).toXor
-    } yield address.fold(creditCard)(creditCard.copyFromAddress)).runTxn())
+    } yield address.fold(creditCard)(creditCard.copyFromAddress)
 
     (for {
-      _           ← ResultT.fromXor(payload.validate.toXor)
-      customer    ← ResultT(Customers.mustFindById(customerId).run())
-      creditCard  ← getCardAndAddressChange
-      updated     ← update(customer, creditCard)
-      withAddress ← createNewAddressIfProvided(updated)
-      payment     ← cascadeChangesToCarts(withAddress)
-    } yield payment).value
+      _           ← * <~ payload.validate
+      customer    ← * <~ Customers.mustFindById404(customerId)
+      creditCard  ← * <~ getCardAndAddressChange
+      updated     ← * <~ update(customer, creditCard)
+      withAddress ← * <~ createNewAddressIfProvided(updated)
+      payment     ← * <~ cascadeChangesToCarts(withAddress).toXor
+    } yield payment).runTxn()
   }
 
   def creditCardsInWalletFor(customerId: Int)

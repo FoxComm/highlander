@@ -6,12 +6,12 @@ create table store_credit_adjustments (
     store_admin_id integer null,
     debit integer not null,
     available_balance integer not null default 0,
-    status character varying(255) not null,
+    state character varying(255) not null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (store_credit_id) references store_credits(id) on update restrict on delete restrict,
     foreign key (order_payment_id) references order_payments(id) on update restrict on delete restrict,
     constraint valid_debit check (debit > 0),
-    constraint valid_status check (status in ('auth','canceled','capture','cancellationCapture'))
+    constraint valid_state check (state in ('auth','canceled','capture','cancellationCapture'))
 );
 
 create function update_store_credit_current_balance() returns trigger as $$
@@ -22,8 +22,8 @@ begin
     adjustment = new.debit;
 
     -- canceling an adjustment should remove its monetary change from the gc
-    if new.status = 'canceled' and old.status != 'canceled' then
-        if old.status = 'capture' or old.status = 'cancellationCapture' then
+    if new.state = 'canceled' and old.state != 'canceled' then
+        if old.state = 'capture' or old.state = 'cancellationCapture' then
             update store_credits
                 set current_balance = current_balance + adjustment,
                     available_balance = available_balance + adjustment
@@ -41,7 +41,7 @@ begin
     end if;
 
     -- handle credit or debit for auth or capture
-    if new.status = 'capture' then
+    if new.state = 'capture' then
         update store_credits
             set current_balance = current_balance - adjustment,
                 available_balance = available_balance - adjustment
@@ -71,6 +71,6 @@ create trigger update_store_credit_current_balance_trg
     for each row
     execute procedure update_store_credit_current_balance();
 
-create index store_credit_adjustments_payment_status_idx on store_credit_adjustments (order_payment_id, status);
+create index store_credit_adjustments_payment_state_idx on store_credit_adjustments (order_payment_id, state);
 create index store_credit_adjustments_store_credit_idx on store_credit_adjustments (store_credit_id);
 

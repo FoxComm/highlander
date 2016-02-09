@@ -70,7 +70,7 @@ class OrderShippingAddressUpdaterTest extends IntegrationTestBase {
       admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
       customer ← * <~ Customers.create(Factories.customer)
       address  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id))
-      order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, status = Order.Cart))
+      order    ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, state = Order.Cart))
     } yield (admin, customer, address, order)).runTxn().futureValue.rightVal
   }
 

@@ -16,9 +16,9 @@ package object services {
   }
 
   implicit class FailuresOps(val underlying: Failures) extends AnyVal {
-    def toList: List[Failure] = underlying.head :: underlying.tail
+    def toList: List[Failure] = underlying.unwrap
 
-    def flatten: List[String] = underlying.toList.flatMap(_.description)
+    def flatten: List[String] = toList.map(_.description)
   }
 
   type Result[A] = Future[Failures Xor A]

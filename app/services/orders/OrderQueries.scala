@@ -2,10 +2,11 @@ package services.orders
 
 import scala.concurrent.ExecutionContext
 
-import models.{OrderPayments, Customers, Orders, javaTimeSlickMapper}
+import models.activity.ActivityContext
+import models.{StoreAdmin, Customer, OrderPayments, Customers, Order, Orders, javaTimeSlickMapper}
 import OrderPayments.scope._
 import responses.{FullOrder, TheResponse, AllOrders}
-import services.{Result, CartValidator}
+import services.{Result, CartValidator, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
@@ -17,7 +18,11 @@ import utils.DbResultT.implicits._
 object OrderQueries {
 
   def findAll(implicit ec: ExecutionContext, db: Database,
-    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): ResultWithMetadata[Seq[AllOrders.Root]] = {
+    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[TheResponse[Seq[AllOrders.Root]]] =
+    findAllDbio.run()
+
+  def findAllDbio(implicit ec: ExecutionContext, db: Database,
+    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[AllOrders.Root]]] = {
 
     val ordersAndCustomers = Orders.join(Customers).on(_.customerId === _.id)
     val query = ordersAndCustomers.joinLeft(OrderPayments.creditCards).on(_._1.id === _.orderId)
@@ -27,7 +32,7 @@ object OrderQueries {
         case "id"                         ⇒ if (s.asc) order.id.asc                   else order.id.desc
         case "referenceNumber"            ⇒ if (s.asc) order.referenceNumber.asc      else order.referenceNumber.desc
         case "customerId"                 ⇒ if (s.asc) order.customerId.asc           else order.customerId.desc
-        case "status"                     ⇒ if (s.asc) order.status.asc               else order.status.desc
+        case "state"                      ⇒ if (s.asc) order.state.asc                else order.state.desc
         case "isLocked"                   ⇒ if (s.asc) order.isLocked.asc             else order.isLocked.desc
         case "placedAt"                   ⇒ if (s.asc) order.placedAt.asc             else order.placedAt.desc
         case "remorsePeriodEnd"           ⇒ if (s.asc) order.remorsePeriodEnd.asc     else order.remorsePeriodEnd.desc
@@ -52,7 +57,7 @@ object OrderQueries {
         case ((order, customer), payment) ⇒
           AllOrders.build(order, customer, payment)
       })
-    })
+    }).toTheResponse
   }
 
   def findOne(refNum: String)
@@ -60,5 +65,30 @@ object OrderQueries {
     order     ← * <~ Orders.mustFindByRefNum(refNum)
     validated ← * <~ CartValidator(order).validate
     response  ← * <~ FullOrder.fromOrder(order).toXor
-  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runTxn()
+  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).run()
+
+  def findOrCreateCartByCustomer(customer: Customer, admin: Option[StoreAdmin] = None)
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[FullOrder.Root] =
+    findOrCreateCartByCustomerInner(customer, admin).runTxn()
+
+  def findOrCreateCartByCustomerId(customerId: Int, admin: Option[StoreAdmin] = None)
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[FullOrder.Root] = (for {
+    customer  ← * <~ Customers.mustFindById404(customerId)
+    fullOrder ← * <~ findOrCreateCartByCustomerInner(customer, admin)
+  } yield fullOrder).runTxn()
+
+  def findOrCreateCartByCustomerInner(customer: Customer, admin: Option[StoreAdmin])
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): DbResultT[FullOrder.Root] = for {
+    result                  ← * <~ Orders.findActiveOrderByCustomer(customer).one
+      .findOrCreateExtended(Orders.create(Order.buildCart(customer.id)))
+    (order, foundOrCreated) = result
+    fullOrder               ← * <~ FullOrder.fromOrder(order).toXor
+    _                       ← * <~ logCartCreation(foundOrCreated, fullOrder, admin)
+  } yield fullOrder
+
+  private def logCartCreation(foundOrCreated: FoundOrCreated, order: FullOrder.Root, admin: Option[StoreAdmin])
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext) = foundOrCreated match {
+    case Created ⇒ LogActivity.cartCreated(admin, order)
+    case Found   ⇒ DbResult.unit
+  }
 }

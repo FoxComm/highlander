@@ -32,7 +32,7 @@ trait OrderSeeds {
   } yield (o1.id, o2.id, o3.id, o4.id, o5.id)
 
   def createOrder1(customerId: Customer#Id)(implicit db: Database): DbResultT[Order] = for {
-    order ← * <~ Orders.create(Order(status = ManualHold, customerId = customerId))
+    order ← * <~ Orders.create(Order(state = ManualHold, customerId = customerId))
     orig  ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
     gc    ← * <~ GiftCards.create(GiftCard.buildLineItem(balance = 7500, originId = orig.id, currency = Currency.USD))
     liGc  ← * <~ OrderLineItemGiftCards.create(OrderLineItemGiftCard(giftCardId = gc.id, orderId = order.id))
@@ -44,7 +44,7 @@ trait OrderSeeds {
   } yield order
 
   def createOrder2(customerId: Customer#Id, skus: Seq[Sku])(implicit db: Database): DbResultT[Order] = for {
-    order  ← * <~ Orders.create(Order(status = ManualHold, customerId = customerId))
+    order  ← * <~ Orders.create(Order(state = ManualHold, customerId = customerId))
     _      ← * <~ addSkusToOrder(skus.map(_.id), order.id, OrderLineItem.Pending)
     origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = 1, reasonId = 1))
     totals = total(skus)
@@ -60,7 +60,7 @@ trait OrderSeeds {
     import models.GiftCard.{buildAppeasement => build}
     import payloads.{GiftCardCreateByCsr => payload}
     for {
-      order  ← * <~ Orders.create(Order(status = Cart, customerId = customerId))
+      order  ← * <~ Orders.create(Order(state = Cart, customerId = customerId))
       _      ← * <~ addSkusToOrder(skus.map(_.id), orderId = order.id, OrderLineItem.Cart)
       origin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = 1, reasonId = 1))
       totals = total(skus)
@@ -79,7 +79,7 @@ trait OrderSeeds {
   }
 
   def createOrder4(customerId: Customer#Id, skus: Seq[Sku])(implicit db: Database): DbResultT[Order] = for {
-    order ← * <~ Orders.create(Order(status = Cart, customerId = customerId))
+    order ← * <~ Orders.create(Order(state = Cart, customerId = customerId))
     _     ← * <~ addSkusToOrder(skus.map(_.id), order.id, OrderLineItem.Cart)
     cc    ← * <~ getCc(customerId)
     _     ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
@@ -90,7 +90,7 @@ trait OrderSeeds {
 
   def createOrder5(customerId: Customer#Id, skus: Seq[Sku], shipMethod: OrderShippingMethod#Id)
     (implicit db: Database): DbResultT[Order] = for {
-    order ← * <~ Orders.create(Order(status = Shipped,
+    order ← * <~ Orders.create(Order(state = Shipped,
       customerId = customerId, placedAt = Some(time.yesterday.toInstant)))
     _     ← * <~ addSkusToOrder(skus.map(_.id), order.id, OrderLineItem.Shipped)
     cc    ← * <~ getCc(customerId) // TODO: auth
@@ -103,10 +103,10 @@ trait OrderSeeds {
                       shippingAddressId = shipA.id.some))
   } yield order
 
-  def addSkusToOrder(skuIds: Seq[Sku#Id], orderId: Order#Id, status: OrderLineItem.Status): DbResultT[Unit] = for {
+  def addSkusToOrder(skuIds: Seq[Sku#Id], orderId: Order#Id, state: OrderLineItem.State): DbResultT[Unit] = for {
     liSkus ← * <~ OrderLineItemSkus.filter(_.skuId.inSet(skuIds)).result
     _ ← * <~ OrderLineItems.createAll(liSkus.seq.map { liSku ⇒
-      OrderLineItem(orderId = orderId, originId = liSku.id, originType = OrderLineItem.SkuItem, status = status)
+      OrderLineItem(orderId = orderId, originId = liSku.id, originType = OrderLineItem.SkuItem, state = state)
     })
   } yield {}
 
@@ -130,7 +130,7 @@ trait OrderSeeds {
     Addresses.findAllByCustomerId(customerId).filter(_.isDefaultShipping).one
       .mustFindOr(GeneralFailure(s"No default address found for customer with id =$customerId"))
 
-  def order = Order(customerId = 0, referenceNumber = "ABCD1234-11", status = ManualHold)
+  def order = Order(customerId = 0, referenceNumber = "ABCD1234-11", state = ManualHold)
 
-  def cart = order.copy(status = Order.Cart)
+  def cart = order.copy(state = Order.Cart)
 }

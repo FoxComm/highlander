@@ -5,9 +5,10 @@ import java.time.Instant
 import scala.concurrent.ExecutionContext
 
 import models.{SaveForLater, SaveForLaters, Sku, Skus}
-import services.{Result, NotFoundFailure404}
+import services.NotFoundFailure404
 import slick.driver.PostgresDriver.api._
-import utils.Slick.DbResult
+import utils.DbResultT.implicits._
+import utils.DbResultT.{DbResultT, _}
 import utils.Slick.implicits._
 
 object SaveForLaterResponse {
@@ -22,16 +23,11 @@ object SaveForLaterResponse {
     favorite: Boolean = false
   )
 
-  def forSkuId(skuId: Int)(implicit ec: ExecutionContext, db: Database): DbResult[Root] = {
-    Skus.findOneById(skuId).zip(SaveForLaters.filter(_.skuId === skuId).one).flatMap {
-      case (Some(sku), Some(sfl)) ⇒
-        DbResult.good(build(sfl, sku))
-      case (None, _) ⇒
-        DbResult.failure(NotFoundFailure404(Sku, skuId))
-      case (_, None) ⇒
-        DbResult.failure(NotFoundFailure404(s"Save for later entry for sku with id=$skuId not found"))
-    }
-  }
+  def forSkuId(skuId: Int)(implicit ec: ExecutionContext, db: Database): DbResultT[Root] = for {
+    sku ← * <~ Skus.mustFindById404(skuId)
+    sfl ← * <~ SaveForLaters.filter(_.skuId === skuId).one
+                 .mustFindOr(NotFoundFailure404(s"Save for later entry for sku with id=$skuId not found"))
+  } yield build(sfl, sku)
 
   def build(sfl: SaveForLater, sku: Sku): Root =
     Root(

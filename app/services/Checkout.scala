@@ -31,7 +31,7 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)
 
   def checkout: Result[Order] = (for {
       _         ← * <~ cart.mustBeCart
-      customer  ← * <~ Customers.mustFindById(cart.customerId)
+      customer  ← * <~ Customers.mustFindById404(cart.customerId)
       _         ← * <~ checkInventory
       _         ← * <~ activePromos
       _         ← * <~ authPayments(customer)
@@ -107,13 +107,13 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)
   }
 
   private def remorseHold: DbResult[Order] = (for {
-    remorseHold  ← * <~ Orders.update(cart, cart.copy(status = RemorseHold, placedAt = Instant.now.some))
+    remorseHold  ← * <~ Orders.update(cart, cart.copy(state = RemorseHold, placedAt = Instant.now.some))
 
     onHoldGcs    ← * <~ (for {
       items ← OrderLineItemGiftCards.findByOrderId(cart.id).result
       holds ← GiftCards
         .filter(_.id.inSet(items.map(_.giftCardId)))
-        .map(_.status).update(GiftCard.OnHold)
+        .map(_.state).update(GiftCard.OnHold)
     } yield holds).toXor
 
   } yield remorseHold).value

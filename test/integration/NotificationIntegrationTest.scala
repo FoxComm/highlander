@@ -93,20 +93,20 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
     "404 if admin not found" in {
       val response = POST("v1/notifications/666/last-seen/1")
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(StoreAdmin, 666).description)
+      response.error must === (NotFoundFailure404(StoreAdmin, 666).description)
     }
 
     "404 if activity not found" in {
       val adminId = StoreAdmins.create(Factories.storeAdmin).run().futureValue.rightVal.id
       val response = POST(s"v1/notifications/$adminId/last-seen/666")
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(Activity, 666).description)
+      response.error must === (NotFoundFailure404(Activity, 666).description)
     }
 
     "400 if notification trail not found" in new Fixture {
       val response = POST(s"v1/notifications/$adminId/last-seen/$activityId")
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (NotificationTrailNotFound400(1).description)
+      response.error must === (NotificationTrailNotFound400(1).description)
     }
   }
 
@@ -130,14 +130,14 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
     "400 if source dimension not found" in {
       val response = POST("v1/notifications", newNotification)
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (NotFoundFailure400(Dimension, Dimension.order).description)
+      response.error must === (NotFoundFailure400(Dimension, Dimension.order).description)
     }
 
     "400 if source activity not found" in {
       createDimension.run().futureValue.rightVal
       val response = POST("v1/notifications", newNotification)
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (NotFoundFailure400(Activity, 1).description)
+      response.error must === (NotFoundFailure400(Activity, 1).description)
     }
   }
 
@@ -163,7 +163,7 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
       "warns about absent admins" in new Fixture {
         val result = subscribeToNotifications(adminIds = Seq(1, 2))
         result.result.value must === (1)
-        result.warnings.value must === (NotFoundFailure404(StoreAdmin, 2).description)
+        result.warnings.value must === (List(NotFoundFailure404(StoreAdmin, 2).description))
       }
 
       "subscribes twice for different reasons" in new Fixture {

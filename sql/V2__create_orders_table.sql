@@ -2,7 +2,7 @@ create table orders (
     id bigint primary key,
     reference_number reference_number not null unique,
     customer_id integer,
-    status generic_string not null,
+    state generic_string not null,
     is_locked boolean default false,
     created_at timestamp without time zone default (now() at time zone 'utc'),
     updated_at timestamp without time zone default (now() at time zone 'utc'),
@@ -17,15 +17,15 @@ create table orders (
     taxes_total integer not null default 0,
     grand_total integer not null default 0,
     foreign key (id) references inventory_events(id) on update restrict on delete restrict,
-    constraint valid_status check (status in ('cart','ordered','fraudHold','remorseHold','manualHold','canceled',
+    constraint valid_state check (state in ('cart','ordered','fraudHold','remorseHold','manualHold','canceled',
                                               'fulfillmentStarted','shipped'))
 );
 
-create index orders_customer_and_status_idx on orders (customer_id, status);
+create index orders_customer_and_state_idx on orders (customer_id, state);
 
 -- partial index ensures we never have more than 1 cart per customer
-create unique index orders_has_only_one_cart on orders (customer_id, status)
-    where status = 'cart';
+create unique index orders_has_only_one_cart on orders (customer_id, state)
+    where state = 'cart';
 
 -- atomic increment procedure, used for sequential RMA suffix generation
 create function next_rma_id(order_id integer) returns integer as $$
@@ -58,30 +58,30 @@ create trigger set_order_reference_number_trg
     for each row
     execute procedure set_order_reference_number();
 
--- Sets remorse period when order moves to remorseHold status
+-- Sets remorse period when order moves to remorseHold state
 create function start_remorse_period() returns trigger as $$
 declare
 begin
-  if old.status != 'remorseHold' and new.status = 'remorseHold' then
+  if old.state != 'remorseHold' and new.state = 'remorseHold' then
     new.remorse_period_end = now() + (30 ||' minutes')::interval;
   end if;
   return new;
 end;
 $$ language plpgsql;
 
-create trigger remorse_hold_start before update of status on orders
+create trigger remorse_hold_start before update of state on orders
 for each row execute procedure start_remorse_period();
 
--- Reset remorse period when order moves from remorseHold status
+-- Reset remorse period when order moves from remorseHold state
 create function reset_remorse_period() returns trigger as $$
 declare
 begin
-  if old.status = 'remorseHold' and new.status != 'remorseHold' then
+  if old.state = 'remorseHold' and new.state != 'remorseHold' then
     new.remorse_period_end = null;
   end if;
   return new;
 end;
 $$ language plpgsql;
 
-create trigger remorse_hold_watch before update of status on orders
+create trigger remorse_hold_watch before update of state on orders
 for each row execute procedure reset_remorse_period();

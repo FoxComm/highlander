@@ -35,14 +35,14 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
       val response = POST(s"v1/notes/order/${order.referenceNumber}", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (List("body must not be empty"))
+      response.error must === ("body must not be empty")
     }
 
     "returns a 404 if the order is not found" in new Fixture {
       val response = POST(s"v1/notes/order/ABACADSF113", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.NotFound)
-      parseErrors(response) must === (NotFoundFailure404(Order, "ABACADSF113").description)
+      response.error must === (NotFoundFailure404(Order, "ABACADSF113").description)
     }
   }
 
@@ -86,8 +86,8 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
       response.bodyText mustBe empty
 
       val updatedNote = Notes.findOneById(note.id).run().futureValue.value
-      updatedNote.deletedBy.value === (1)
-      updatedNote.deletedAt.value.isBeforeNow === (true)
+      updatedNote.deletedBy.value === 1
+      updatedNote.deletedAt.value.isBeforeNow === true
 
       // Deleted note should not be returned
       val allNotesResponse = GET(s"v1/notes/order/${order.referenceNumber}")
@@ -103,7 +103,7 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
   trait Fixture {
     val (order, storeAdmin, customer) = (for {
       customer   ← * <~ Customers.create(Factories.customer)
-      order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, status = Order.Cart))
+      order      ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, state = Order.Cart))
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
     } yield (order, storeAdmin, customer)).runTxn().futureValue.rightVal
   }

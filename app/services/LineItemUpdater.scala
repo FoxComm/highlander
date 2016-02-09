@@ -9,6 +9,7 @@ StoreAdmin}
 import payloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
 import responses.FullOrder.refreshAndFullOrder
 import responses.{FullOrder, TheResponse}
+import services.CartFailures.CustomerHasNoActiveOrder
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
@@ -82,7 +83,7 @@ object LineItemUpdater {
 
     val finder = Orders.findActiveOrderByCustomer(customer)
       .one
-      .mustFindOr(NotFoundFailure404(s"Order with customerId=${customer.id} not found"))
+      .mustFindOr(CustomerHasNoActiveOrder(customer.id))
 
     val logActivity = (order: FullOrder.Root, oldQtys: Map[String, Int]) ⇒
       LogActivity.orderLineItemsUpdated(order, oldQtys, payload)
@@ -97,13 +98,14 @@ object LineItemUpdater {
 
     order ← * <~ finder
     _     ← * <~ order.mustBeCart
-    _     ← * <~ updateQuantities(order, payload)
     // load old line items for activity trail
     li    ← * <~ OrderLineItemSkus.findLineItemsByOrder(order).result
     lineItems = li.foldLeft(Map[String, Int]()) { case (acc, (sku, _)) ⇒
       val quantity = acc.getOrElse(sku.sku, 0)
       acc.updated(sku.sku, quantity + 1)
     }
+    // update quantities
+    _     ← * <~ updateQuantities(order, payload)
     // update changed totals
     order ← * <~ OrderTotaler.saveTotals(order)
     valid ← * <~ CartValidator(order).validate

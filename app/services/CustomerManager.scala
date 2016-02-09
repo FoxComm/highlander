@@ -3,29 +3,26 @@ package services
 import scala.concurrent.ExecutionContext
 
 import cats.data.Validated.{Invalid, Valid}
-import cats.data.Xor
 import cats.implicits._
 import models.Customers.scope._
 import models.{Customer, Customers, Orders, StoreAdmin, javaTimeSlickMapper}
 import payloads.{ActivateCustomerPayload, CreateCustomerPayload, CustomerSearchForNewOrder, UpdateCustomerPayload}
 import responses.CustomerResponse.{build, Root}
+import responses.TheResponse
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Slick.UpdateReturning._
+import utils.Slick.DbResult
 import utils.Slick.implicits._
-import utils.jdbc._
 
 import models.activity.ActivityContext
 
 object CustomerManager {
 
-  private def customerNotFound(id: Int): NotFoundFailure404 = NotFoundFailure404(Customer, id)
-
   def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
-      customer  ← * <~ Customers.mustFindById(customerId, customerNotFound)
+      customer  ← * <~ Customers.mustFindById404(customerId)
       updated   ← * <~ Customers.update(customer, customer.copy(isDisabled = disabled, disabledBy = Some(admin.id)))
       _         ← * <~ LogActivity.customerDisabled(disabled, customer, admin)
     } yield build(updated)).runTxn()
@@ -33,15 +30,14 @@ object CustomerManager {
   // TODO: add blacklistedReason later
   def toggleBlacklisted(customerId: Int, blacklisted: Boolean, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
-      customer  ← * <~ Customers.mustFindById(customerId, customerNotFound)
+      customer  ← * <~ Customers.mustFindById404(customerId)
       updated   ← * <~ Customers.update(customer, customer.copy(isBlacklisted = blacklisted,
         blacklistedBy = Some(admin.id)))
       _         ← * <~ LogActivity.customerBlacklisted(blacklisted, customer, admin)
     } yield build(updated)).runTxn()
 
-  def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
+  def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = {
     val query = Customers.withRegionsAndRank
-
     val queryWithMetadata = query.withMetadata.sortAndPageIfNeeded { case (s, (customer, _, _, _)) ⇒
       s.sortColumn match {
         case "id"                ⇒ if(s.asc) customer.id.asc                 else customer.id.desc
@@ -66,11 +62,12 @@ object CustomerManager {
         case (customer, shipRegion, billRegion, rank) ⇒
           build(customer = customer, shippingRegion = shipRegion, billingRegion = billRegion, rank = rank)
       }
-    }
+    }.toTheResponse.run()
   }
 
+  // FIXME: ugly `_ <: Seq` should be just `Seq`
   def searchForNewOrder(payload: CustomerSearchForNewOrder)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[TheResponse[_ <: Seq[Root]]] = {
 
     def customersAndNumOrders = {
       val likeQuery = s"%${payload.term}%".toLowerCase
@@ -89,13 +86,14 @@ object CustomerManager {
       } yield (c, count)
     }
 
-    payload.validate match {
+    val rwm = payload.validate match {
       case Valid(_) ⇒
         customersAndNumOrders.withMetadata.result.map(_.map { case (customer, numOrders) ⇒
           build(customer = customer, numOrders = Some(numOrders))
         })
       case Invalid(errors) ⇒ ResultWithMetadata.fromFailures(errors)
     }
+    rwm.toTheResponse.runTxn()
   }
 
   def getById(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Root] = {
@@ -109,62 +107,33 @@ object CustomerManager {
   }
 
   def create(payload: CreateCustomerPayload, admin: Option[StoreAdmin] = None)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = {
-    val customer = Customer.buildFromPayload(payload)
-
-    def result = {
-      swapDatabaseFailure {
-        Customers.create(customer).run()
-      } { (NotUnique, CustomerEmailNotUnique) }.flatMap {
-        case Xor.Right(c) ⇒ Result.good(build(c))
-        case Xor.Left(eh) ⇒ Result.failures(eh)
-      }
-    }
-
-    (for {
-      _    ← ResultT.fromXor(customer.validate.toXor)
-      root ← ResultT(result)
-      _    ← ResultT(LogActivity.customerCreated(root, admin).run())
-    } yield root).value
-  }
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
+    customer ← * <~ Customer.buildFromPayload(payload).validate
+    _        ← * <~ (if (!payload.isGuest.getOrElse(false)) Customers.createEmailMustBeUnique(customer.email) else DbResult.unit)
+    updated  ← * <~ Customers.create(customer)
+    response = build(updated)
+    _        ← * <~ LogActivity.customerCreated(response, admin)
+  } yield response).runTxn()
 
   def update(customerId: Int, payload: UpdateCustomerPayload, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = {
-
-    swapDatabaseFailure {
-      (for {
-        _         ← * <~ payload.validate.toXor
-        customer  ← * <~ Customers.mustFindById(customerId, customerNotFound)
-        updated   ← * <~ Customers.update(customer, customer.copy(
-          name = payload.name.fold(customer.name)(Some(_)),
-          email = payload.email.getOrElse(customer.email),
-          phoneNumber = payload.phoneNumber.fold(customer.phoneNumber)(Some(_))
-        ))
-        _         ← * <~ LogActivity.customerUpdated(customer, updated, admin)
-      } yield build(updated)).runTxn()
-    } { (NotUnique, CustomerEmailNotUnique) }
-  }
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
+    _        ← * <~ payload.validate.toXor
+    customer ← * <~ Customers.mustFindById404(customerId)
+    _        ← * <~ payload.email.map(Customers.updateEmailMustBeUnique(_, customerId)).getOrElse(DbResult.unit)
+    updated  ← * <~ Customers.update(customer, customer.copy(
+                      name = payload.name.fold(customer.name)(Some(_)),
+                      email = payload.email.getOrElse(customer.email),
+                      phoneNumber = payload.phoneNumber.fold(customer.phoneNumber)(Some(_))))
+    _        ← * <~ LogActivity.customerUpdated(customer, updated, admin)
+  } yield build(updated)).runTxn()
 
   def activate(customerId: Int, payload: ActivateCustomerPayload, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = {
-
-    def result = {
-      val finder = Customers.filter(_.id === customerId)
-      val result = swapDatabaseFailure {
-        finder.selectOneForUpdate { customer ⇒
-          finder.map { c ⇒ (c.name, c.isGuest) }
-            .updateReturningHead(Customers.map(identity), (Some(payload.name), false))
-            .map(_.map(build(_)))
-        }
-      } { (NotUnique, CustomerEmailNotUnique) }
-
-      result.flatMap(_.fold(Result.failures, Result.good))
-    }
-
-    (for {
-      _    ← ResultT.fromXor(payload.validate.toXor)
-      root ← ResultT(result)
-      _    ← ResultT(LogActivity.customerActivated(root, admin).run())
-    } yield root).value
-  }
+    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
+    _        ← * <~ payload.validate
+    customer ← * <~ Customers.mustFindById404(customerId)
+    _        ← * <~ Customers.updateEmailMustBeUnique(customer.email, customer.id)
+    updated  ← * <~ Customers.update(customer, customer.copy(name = payload.name.some, isGuest = false))
+    response = build(updated)
+    _        ← * <~ LogActivity.customerActivated(response, admin)
+  } yield response).runTxn()
 }

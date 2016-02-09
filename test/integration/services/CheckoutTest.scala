@@ -39,12 +39,12 @@ class CheckoutTest
 
   "Checkout" - {
     "fails if the order is not a cart" in new Fixture {
-      val nonCart = cart.copy(status = Order.RemorseHold)
+      val nonCart = cart.copy(state = Order.RemorseHold)
       val result = Checkout(nonCart, CartValidator(nonCart)).checkout.futureValue.leftVal
       val current = Orders.findById(cart.id).extract.one.run().futureValue.value
 
       result must === (OrderMustBeCart(nonCart.refNum).single)
-      current.status must === (cart.status)
+      current.state must === (cart.state)
     }
 
     "fails if the cart validator fails" in new CustomerFixture {
@@ -65,12 +65,12 @@ class CheckoutTest
       result must === (failure)
     }
 
-    "updates status to RemorseHold and touches placedAt" in new Fixture {
+    "updates state to RemorseHold and touches placedAt" in new Fixture {
       val before = Instant.now
       val result = Checkout(cart, cartValidator()).checkout.futureValue.rightVal
       val current = Orders.findById(cart.id).extract.one.run().futureValue.value
 
-      current.status must === (Order.RemorseHold)
+      current.state must === (Order.RemorseHold)
       current.placedAt.value mustBe >= (before)
     }
 
@@ -80,7 +80,7 @@ class CheckoutTest
       val newCart = Orders.findByCustomerId(cart.customerId).cartOnly.one.run().futureValue.value
 
       newCart.id must !== (cart.id)
-      newCart.status must === (Order.Cart)
+      newCart.state must === (Order.Cart)
       newCart.isLocked mustBe false
       newCart.placedAt mustBe 'empty
       newCart.remorsePeriodEnd mustBe 'empty
@@ -91,7 +91,7 @@ class CheckoutTest
       val current = Orders.findById(cart.id).extract.one.run().futureValue.value
       val gc = GiftCards.findById(giftCard.id).extract.one.run().futureValue.value
 
-      gc.status must ===(GiftCard.OnHold)
+      gc.state must ===(GiftCard.OnHold)
     }
 
     "authorizes payments" - {
@@ -112,7 +112,7 @@ class CheckoutTest
 
         import GiftCardAdjustment._
 
-        adjustments.map(_.status).toSet must === (Set[Status](Auth))
+        adjustments.map(_.state).toSet must === (Set[State](Auth))
         adjustments.map(_.debit) must === (List(25, 25, 25))
       }
 
@@ -133,7 +133,7 @@ class CheckoutTest
 
         import StoreCreditAdjustment._
 
-        adjustments.map(_.status).toSet must === (Set[Status](Auth))
+        adjustments.map(_.state).toSet must === (Set[State](Auth))
         adjustments.map(_.debit) must === (List(25, 25, 25))
       }
     }

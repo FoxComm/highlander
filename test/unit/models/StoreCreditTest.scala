@@ -22,7 +22,7 @@ class StoreCreditTest extends TestBase {
       }
 
       "fails when canceled with no corresponding reason" in {
-        val sc = Factories.storeCredit.copy(status = StoreCredit.Canceled)
+        val sc = Factories.storeCredit.copy(state = StoreCredit.Canceled)
         val result = sc.validate
 
         result mustBe 'invalid

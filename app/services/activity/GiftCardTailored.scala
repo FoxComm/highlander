@@ -8,7 +8,7 @@ object GiftCardTailored {
     extends ActivityBase[GiftCardCreated]
 
   final case class GiftCardStateChanged(admin: StoreAdminResponse.Root, giftCard: GiftCardResponse.Root,
-    payload: payloads.GiftCardUpdateStatusByCsr)
+    payload: payloads.GiftCardUpdateStateByCsr)
     extends ActivityBase[GiftCardStateChanged]
 
   final case class GiftCardConvertedToStoreCredit(admin: StoreAdminResponse.Root, giftCard: GiftCardResponse.Root,

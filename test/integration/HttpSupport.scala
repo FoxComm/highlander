@@ -248,6 +248,9 @@ object Extensions {
       parse(bodyText).extract[TheResponse[A]]
 
     def errors(implicit fm: Formats, mat: Materializer): List[String] =
-      parse(bodyText).extract[Map[String, List[String]]].getOrElse("errors", List.empty[String])
+      (parse(bodyText) \ "errors").extractOrElse[List[String]](List.empty[String])
+
+    def error(implicit fm: Formats, mat: Materializer): String =
+      errors.headOption.getOrElse("never gonna give you up. never gonna let you down.")
   }
 }

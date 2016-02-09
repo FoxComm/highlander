@@ -1,9 +1,6 @@
 package models
 
-import scala.concurrent.ExecutionContext
-
 import com.pellucid.sealerate
-import services.Result
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import utils.ADT

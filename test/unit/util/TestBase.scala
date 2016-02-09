@@ -26,7 +26,7 @@ trait TestBase extends FreeSpecLike
   }
 
   implicit class FailuresTestOps(val failures: Failures) {
-    def getMessage: String = failures.head.description.headOption.value
+    def getMessage: String = failures.head.description
   }
 }
 

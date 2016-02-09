@@ -5,7 +5,7 @@ import java.time.Instant
 import scala.concurrent.ExecutionContext
 
 import models.{PaymentMethod, StoreCredit, GiftCard, CreditCard, ShippingMethod, OrderShippingAddress,
-Region, Address, Customer, StoreAdmin, Order, Note}
+Region, Address, Customer, SharedSearch, StoreAdmin, Order, Note}
 import models.activity.{Activity, Activities, ActivityContext}
 import payloads.UpdateLineItemsPayload
 import responses.{CreditCardsResponse, Addresses, GiftCardResponse, CustomerResponse, FullOrder, StoreAdminResponse,
@@ -17,6 +17,7 @@ import services.activity.AssignmentsTailored._
 import services.activity.CustomerTailored._
 import services.activity.GiftCardTailored._
 import services.activity.OrderTailored._
+import services.activity.SharedSearchTailored._
 import services.activity.StoreCreditTailored._
 import services.activity.WatchersTailored._
 
@@ -25,6 +26,17 @@ import CustomerResponse.{build ⇒ buildCustomer}
 import CreditCardsResponse.{buildSimple ⇒ buildCc}
 
 object LogActivity {
+
+  /* Shared Search Associations */
+  def associatedWithSearch(admin: StoreAdmin, search: SharedSearch, associates: Seq[StoreAdmin])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(AssociatedWithSearch(buildAdmin(admin), search, associates.map(buildAdmin)))
+  }
+
+  def unassociatedFromSearch(admin: StoreAdmin, search: SharedSearch, associate: StoreAdmin)
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(UnassociatedFromSearch(buildAdmin(admin), search, buildAdmin(associate)))
+  }
 
   /* Assignments */
   def assignedToOrder(admin: StoreAdmin, order: FullOrder.Root, assignees: Seq[StoreAdminResponse.Root])
@@ -37,20 +49,14 @@ object LogActivity {
     Activities.log(UnassignedFromOrder(buildAdmin(admin), order, buildAdmin(assignee)))
   }
 
-  def bulkAssignedToOrders(admin: StoreAdmin, assignee: Option[StoreAdmin], assigneeId: Int, orderRefNums: Seq[String])
-    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = assignee match {
-    case Some(a) ⇒
-      Activities.log(BulkAssignedToOrders(buildAdmin(admin), buildAdmin(a), orderRefNums))
-    case _ ⇒
-      DbResult.failure(NotFoundFailure404(StoreAdmin, assigneeId))
+  def bulkAssignedToOrders(admin: StoreAdmin, assignee: StoreAdmin, orderRefNums: Seq[String])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(BulkAssignedToOrders(buildAdmin(admin), buildAdmin(assignee), orderRefNums))
   }
 
-  def bulkUnassignedFromOrders(admin: StoreAdmin, assignee: Option[StoreAdmin], assigneeId: Int, orderRefNums: Seq[String])
-    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = assignee match {
-    case Some(a) ⇒
-      Activities.log(BulkUnassignedFromOrders(buildAdmin(admin), buildAdmin(a), orderRefNums))
-    case _ ⇒
-      DbResult.failure(NotFoundFailure404(StoreAdmin, assigneeId))
+  def bulkUnassignedFromOrders(admin: StoreAdmin, assignee: StoreAdmin, orderRefNums: Seq[String])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(BulkUnassignedFromOrders(buildAdmin(admin), buildAdmin(assignee), orderRefNums))
   }
 
   /* Watchers */
@@ -64,20 +70,14 @@ object LogActivity {
     Activities.log(RemovedWatcherFromOrder(buildAdmin(admin), order, buildAdmin(watcher)))
   }
 
-  def bulkAddedWatcherToOrders(admin: StoreAdmin, assignee: Option[StoreAdmin], watcherId: Int, orderRefNums: Seq[String])
-    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = assignee match {
-    case Some(a) ⇒
-      Activities.log(BulkAddedWatcherToOrders(buildAdmin(admin), buildAdmin(a), orderRefNums))
-    case _ ⇒
-      DbResult.failure(NotFoundFailure404(StoreAdmin, watcherId))
+  def bulkAddedWatcherToOrders(admin: StoreAdmin, assignee: StoreAdmin, orderRefNums: Seq[String])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(BulkAddedWatcherToOrders(buildAdmin(admin), buildAdmin(assignee), orderRefNums))
   }
 
-  def bulkRemovedWatcherFromOrders(admin: StoreAdmin, assignee: Option[StoreAdmin], watcherId: Int, orderRefNums: Seq[String])
-    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = assignee match {
-    case Some(a) ⇒
-      Activities.log(BulkRemovedWatcherFromOrders(buildAdmin(admin), buildAdmin(a), orderRefNums))
-    case _ ⇒
-      DbResult.failure(NotFoundFailure404(StoreAdmin, watcherId))
+  def bulkRemovedWatcherFromOrders(admin: StoreAdmin, assignee: StoreAdmin, orderRefNums: Seq[String])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(BulkRemovedWatcherFromOrders(buildAdmin(admin), buildAdmin(assignee), orderRefNums))
   }
 
   /* Customers */
@@ -158,7 +158,7 @@ object LogActivity {
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(GiftCardCreated(buildAdmin(admin), GiftCardResponse.build(giftCard)))
 
-  def gcUpdated(admin: StoreAdmin, giftCard: GiftCard, payload: payloads.GiftCardUpdateStatusByCsr)
+  def gcUpdated(admin: StoreAdmin, giftCard: GiftCard, payload: payloads.GiftCardUpdateStateByCsr)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(GiftCardStateChanged(buildAdmin(admin), GiftCardResponse.build(giftCard), payload))
 
@@ -177,7 +177,7 @@ object LogActivity {
     Activities.log(StoreCreditCreated(buildAdmin(admin), buildCustomer(customer),
       StoreCreditResponse.build(sc)))
 
-  def scUpdated(admin: StoreAdmin, sc: StoreCredit, payload: payloads.StoreCreditUpdateStatusByCsr)
+  def scUpdated(admin: StoreAdmin, sc: StoreCredit, payload: payloads.StoreCreditUpdateStateByCsr)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(StoreCreditStateChanged(buildAdmin(admin), StoreCreditResponse.build(sc), payload))
 
@@ -191,15 +191,15 @@ object LogActivity {
     Activities.log(StoreCreditAuthorizedFunds(buildCustomer(customer), order, scIds, amount))
 
   /* Orders */
-  def cartCreated(admin: StoreAdmin, order: FullOrder.Root)
+  def cartCreated(admin: Option[StoreAdmin], order: FullOrder.Root)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(CartCreated(buildAdmin(admin), order))
+    Activities.log(CartCreated(admin.map(buildAdmin), order))
 
-  def orderStateChanged(admin: StoreAdmin, order: FullOrder.Root, oldState: Order.Status)
+  def orderStateChanged(admin: StoreAdmin, order: FullOrder.Root, oldState: Order.State)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(OrderStateChanged(buildAdmin(admin), order, oldState))
 
-  def orderBulkStateChanged(admin: StoreAdmin, newState: Order.Status, orderRefNums: Seq[String])
+  def orderBulkStateChanged(admin: StoreAdmin, newState: Order.State, orderRefNums: Seq[String])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(OrderBulkStateChanged(buildAdmin(admin), orderRefNums, newState))
 
@@ -259,17 +259,17 @@ object LogActivity {
     Activities.log(OrderPaymentMethodDeletedGiftCard(buildAdmin(admin), order, GiftCardResponse.build(gc)))
 
   /* Order Shipping Addresses */
-  def orderShippingAddressAdded(admin: StoreAdmin, order: FullOrder.Root, address: OrderShippingAddress)
+  def orderShippingAddressAdded(admin: StoreAdmin, order: FullOrder.Root, address: Addresses.Root)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(OrderShippingAddressAdded(buildAdmin(admin), order, address))
 
-  def orderShippingAddressUpdated(admin: StoreAdmin, order: FullOrder.Root, address: OrderShippingAddress)
+  def orderShippingAddressUpdated(admin: StoreAdmin, order: FullOrder.Root, address: Addresses.Root)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(OrderShippingAddressUpdated(buildAdmin(admin), order, address))
 
-  def orderShippingAddressDeleted(admin: StoreAdmin, order: FullOrder.Root)
+  def orderShippingAddressDeleted(admin: StoreAdmin, order: FullOrder.Root, address: Addresses.Root)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderShippingAddressRemoved(buildAdmin(admin), order))
+    Activities.log(OrderShippingAddressRemoved(buildAdmin(admin), order, address))
 
   /* Order Shipping Methods */
   def orderShippingMethodUpdated(admin: StoreAdmin, order: FullOrder.Root, shippingMethod: Option[ShippingMethod])

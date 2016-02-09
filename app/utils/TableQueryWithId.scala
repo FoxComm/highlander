@@ -1,9 +1,11 @@
 package utils
 
+import scala.concurrent.ExecutionContext
+
 import cats.data.Validated.Valid
 import cats.data.{ValidatedNel, Xor}
 import monocle.Lens
-import services.{DatabaseFailure, Failure, Failures, LockedFailure, NotFoundFailure400, NotFoundFailure404, Result}
+import services.{DatabaseFailure, Failure, Failures}
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
@@ -12,8 +14,6 @@ import utils.Slick.implicits._
 import utils.Slick.{DbResult, _}
 import utils.Strings._
 import utils.table.SearchById
-
-import scala.concurrent.{ExecutionContext, Future}
 
 trait ModelWithIdParameter[T <: ModelWithIdParameter[T]] extends Validation[T] { self: T ⇒
   type Id = Int
@@ -132,87 +132,20 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
 
   implicit class TableQueryWrappers(q: QuerySeq) {
 
-    type Checks = Set[M ⇒ Failures Xor M]
-
-    def checks: Checks = Set()
-
-    private def applyAllChecks(checks: Checks, maybe: Option[M], notFoundFailure: Failure): Failures Xor M = {
-      mustExist(maybe, notFoundFailure).flatMap { model ⇒
-        checks.view.map(check ⇒ check(model)).find(_.isLeft)
-          .getOrElse(Xor.right[Failures, M](model))
-      }
-    }
-
-    protected def selectInner[R](dbio: DBIO[Option[M]])(action: M ⇒ DbResult[R], checks: Checks = checks,
-      notFoundFailure: Failure = notFound404)(implicit ec: ExecutionContext, db: Database): Result[R] = {
-      dbio.map(maybe ⇒ applyAllChecks(checks, maybe, notFoundFailure)).flatMap {
-        case Xor.Right(value) ⇒ wrapDbResult(action(value))
-        case failures @ Xor.Left(_) ⇒ lift(failures)
-      }.transactionally.run()
-    }
-
-    // TODO: try to run ResultWithMetadata.result in the same transaction
-    // TODO: until than do not use this for transactional updates
-    protected def selectInnerWithMetadata[R](dbio: DBIO[Option[M]])(action: M ⇒ ResultWithMetadata[R],
-      checks: Checks = checks,  notFoundFailure: Failure = notFound404)
-      (implicit ec: ExecutionContext, db: Database): Future[ResultWithMetadata[R]] = {
-      dbio.map(maybe ⇒ applyAllChecks(checks, maybe, notFoundFailure) match {
-        case Xor.Right(value)   ⇒ action(value).wrapExceptions
-        case Xor.Left(failures) ⇒ ResultWithMetadata.fromFailures[R](failures)
-      }).run()
-    }
-
-    def selectOne[R](action: M ⇒ DbResult[R], checks: Checks = checks, notFoundFailure: Failure = notFound404)
-      (implicit ec: ExecutionContext, db: Database): Result[R] = {
-      selectInner(q.result.headOption)(action, checks)
-    }
-
-    def selectOneWithMetadata[R](action: M ⇒ ResultWithMetadata[R], checks: Checks = checks,
-      notFoundFailure: Failure = notFound404)
-      (implicit ec: ExecutionContext, db: Database): Future[ResultWithMetadata[R]] = {
-      selectInnerWithMetadata(q.result.headOption)(action, checks)
-    }
-
-    def selectOneForUpdate[R](action: M ⇒ DbResult[R], checks: Checks = checks, notFoundFailure: Failure = notFound404)
-      (implicit ec: ExecutionContext, db: Database): Result[R] = {
-      selectInner(appendForUpdate(q.result.headOption))(action, checks)
-    }
-
-    def select[R](action: Seq[M] ⇒ DbResult[R])
-      (implicit ec: ExecutionContext, db: Database): Result[R] = {
-      q.result.flatMap(action).transactionally.run()
-    }
-
-    def selectForUpdate[R](action: Seq[M] ⇒ DbResult[R])
-      (implicit ec: ExecutionContext, db: Database): Result[R] = {
-      appendForUpdate(q.result).flatMap(action).transactionally.run()
-    }
-
     def deleteAll[A](onSuccess: ⇒ DbResult[A], onFailure: ⇒ DbResult[A])(implicit ec: ExecutionContext): DbResult[A] = {
       q.delete.flatMap {
         case 0 ⇒ onFailure
         case _ ⇒ onSuccess
       }
     }
-
-    protected def querySearchKey: Option[Any] = QueryErrorInfo.searchKeyForQuery(q, primarySearchTerm)
-
-    def queryError: String = querySearchKey.map(key ⇒ s"${tableName.tableNameToCamel} with $primarySearchTerm=$key")
-      .getOrElse(s"${tableName.tableNameToCamel}")
-
-    def notFound404 = NotFoundFailure404(s"$queryError not found")
-    def notFound400 = NotFoundFailure400(s"$queryError not found")
-
-    protected def mustExist(maybe: Option[M], notFoundFailure: Failure): Failures Xor M =
-      Xor.fromOption(maybe, notFoundFailure.single)
   }
 }
 
 object ExceptionWrapper {
   def wrapDbio[A](dbio: DBIO[A])(implicit ec: ExecutionContext): DbResult[A] = {
-    import services.DatabaseFailure
-
     import scala.util.{Failure, Success}
+
+    import services.DatabaseFailure
 
     dbio.asTry.flatMap {
       case Success(value) ⇒ DbResult.good(value)
@@ -234,13 +167,5 @@ abstract class TableQueryWithLock[M <: ModelWithLockParameter[M], T <: GenericTa
   (idLens: Lens[M, M#Id])
   (construct: Tag ⇒ T)
   (implicit ev: BaseTypedType[M#Id]) extends TableQueryWithId[M, T](idLens)(construct) {
-
-  implicit class LockableQueryWrappers(q: QuerySeq) extends TableQueryWrappers(q) {
-
-    override def checks: Checks = super.checks + mustNotBeLocked
-
-    def mustNotBeLocked(model: M): Failures Xor M =
-      if (model.isLocked) Xor.left(LockedFailure(s"$queryError is locked").single) else Xor.Right(model)
-  }
 
 }

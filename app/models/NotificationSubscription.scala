@@ -26,7 +26,7 @@ object NotificationSubscription {
     def types = sealerate.values[Reason]
   }
 
-  implicit val statusColumnType: JdbcType[Reason] with BaseTypedType[Reason] = Reason.slickColumn
+  implicit val reasonColumnType: JdbcType[Reason] with BaseTypedType[Reason] = Reason.slickColumn
 }
 
 class NotificationSubscriptions(tag: Tag)

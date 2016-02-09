@@ -2,7 +2,7 @@ package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.{Customer, Customers}
+import models.{Notes, Note, Customer, Customers}
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 
@@ -12,6 +12,7 @@ trait CustomerSeeds {
 
   def createCustomers: DbResultT[Customers] = for {
     customers ← * <~ Customers.createAllReturningIds(customers)
+    _         ← * <~ Notes.createAll(customerNotes.map(_.copy(referenceId = customers.head)))
   } yield customers.toList match {
       case c1 :: c2 :: c3 :: c4 :: Nil ⇒ (c1, c2, c3, c4)
       case _ ⇒ ???
@@ -39,4 +40,13 @@ trait CustomerSeeds {
 
   def customer: Customer = usCustomer1
 
+  def customerNotes: Seq[Note] = {
+    def newNote(body: String) = Note(referenceId = 1, referenceType = Note.Customer, storeAdminId = 1, body = body)
+    Seq(
+      newNote("This customer is a donkey."),
+      newNote("No, seriously."),
+      newNote("Like, an actual donkey."),
+      newNote("How did a donkey even place an order on our website?")
+    )
+  }
 }

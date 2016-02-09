@@ -19,6 +19,8 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
+
+
 object Seeds {
 
   def main(args: Array[String]): Unit = {
@@ -35,9 +37,29 @@ object Seeds {
     _ ⇒ Console.err.println("Success!"))
 
     args.headOption.map {
+      case "random" ⇒
+        Console.err.println(s"Inserting random seeds")
+        val customers = 1000
+        val batchSize = 100 
+        val batchs = customers / batchSize
+        val productsPerBatch = 20
+        //Have to generate data in batches because of DBIO.seq stack overflow bug.
+        //https://github.com/slick/slick/issues/1186
+        (1 to batchs) map { b ⇒ 
+          Console.err.println(s"Generating random batch $b of $batchSize customers")
+          val result: Failures Xor Unit = Await.result(
+            SeedsGenerator.insertRandomizedSeeds(batchSize, productsPerBatch).runTxn(), 120.second)
+          result.fold(failures ⇒ {
+            Console.err.println("Failed generating random seeds")
+            failures.flatten.foreach(f⇒  { 
+              Console.err.println(f)
+            })
+          },
+          _ ⇒ Console.err.println("Success!"))
+        }
       case "ranking" ⇒
         Console.err.println(s"Inserting ranking seeds")
-        Await.result(db.run(SeedsGenerator.insertRankingSeeds(1700).transactionally), 30.second)
+        Await.result(db.run(RankingSeedsGenerator.insertRankingSeeds(1700).transactionally), 30.second)
       case _ ⇒ None
     }
 

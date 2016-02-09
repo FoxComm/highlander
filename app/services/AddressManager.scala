@@ -10,7 +10,7 @@ import models.{StoreAdmin, Address, Addresses, Customer, Customers, Order, Order
 OrderShippingAddresses, Orders, Region, Regions}
 import payloads.CreateAddressPayload
 import responses.Addresses._
-import responses.{Addresses ⇒ Response}
+import responses.{Addresses ⇒ Response, TheResponse}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
@@ -24,16 +24,16 @@ object AddressManager {
   private def addressNotFound(id: Int): NotFoundFailure404 = NotFoundFailure404(Address, id)
 
   def findAllVisibleByCustomer(customerId: Int)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] = {
+    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = {
     val query = Addresses.findAllVisibleByCustomerIdWithRegions(customerId)
 
-    Addresses.sortedAndPagedWithRegions(query).result.map(Response.build)
+    Addresses.sortedAndPagedWithRegions(query).result.map(Response.build).toTheResponse.run()
   }
 
   def create(payload: CreateAddressPayload, customerId: Int, admin: Option[StoreAdmin] = None)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
 
-    customer  ← * <~ Customers.mustFindById(customerId)
+    customer  ← * <~ Customers.mustFindById404(customerId)
     address   ← * <~ Addresses.create(Address.fromPayload(payload).copy(customerId = customerId))
     region    ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
     _         ← * <~ LogActivity.addressCreated(admin, customer, address, region)
@@ -42,7 +42,7 @@ object AddressManager {
   def edit(addressId: Int, customerId: Int, payload: CreateAddressPayload, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
 
-    customer    ← * <~ Customers.mustFindById(customerId)
+    customer    ← * <~ Customers.mustFindById404(customerId)
     oldAddress  ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
     oldRegion   ← * <~ Regions.findOneById(oldAddress.regionId).safeGet.toXor
     address     ← * <~ Address.fromPayload(payload).copy(customerId = customerId, id = addressId).validate
@@ -56,12 +56,12 @@ object AddressManager {
 
     address ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
     region  ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
-  } yield Response.build(address, region, address.isDefaultShipping.some)).runTxn()
+  } yield Response.build(address, region, address.isDefaultShipping.some)).run()
 
   def remove(customerId: Int, addressId: Int, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Unit] = (for {
 
-    customer    ← * <~ Customers.mustFindById(customerId)
+    customer    ← * <~ Customers.mustFindById404(customerId)
     address     ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
     region      ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
     softDelete  ← * <~ address.updateTo(address.copy(deletedAt = Instant.now.some, isDefaultShipping = false))
@@ -105,7 +105,7 @@ object AddressManager {
   def lastShippedTo(customerId: Int)
     (implicit db: Database, ec: ExecutionContext): DBIO[Option[(OrderShippingAddress, Region)]] = (for {
     order ← Orders.findByCustomerId(customerId)
-      .filter(_.status =!= (Order.Cart: models.Order.Status))
+      .filter(_.state =!= (Order.Cart: models.Order.State))
       .sortBy(_.id.desc)
     shipping ← OrderShippingAddresses if shipping.orderId === order.id
     region   ← Regions if region.id === shipping.regionId

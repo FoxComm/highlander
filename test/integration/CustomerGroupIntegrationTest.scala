@@ -17,7 +17,7 @@ import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import utils.jdbc._
 import utils.seeds.Seeds.Factories
-import utils.seeds.SeedsGenerator.generateGroup
+import utils.seeds.RankingSeedsGenerator.generateGroup
 import Extensions._
 import slick.driver.PostgresDriver.api._
 import util.SlickSupport.implicits._
@@ -25,7 +25,7 @@ import org.json4s.JObject
 
 import concurrent.ExecutionContext.Implicits.global
 
-class CustomersGroupIntegrationTest extends IntegrationTestBase
+class CustomerGroupIntegrationTest extends IntegrationTestBase
   with HttpSupport
   with AutomaticAuth
   with SortingAndPaging[DynamicGroupResponse.Root]
@@ -39,7 +39,7 @@ class CustomersGroupIntegrationTest extends IntegrationTestBase
     val insertGroups = (1 to numOfResults).map { _ ⇒ generateGroup(admin.id) }
     val dbio = for {
       groups ← CustomerDynamicGroups.createAll(insertGroups) >> CustomerDynamicGroups.result
-    } yield groups.map(DynamicGroupResponse.build(_))
+    } yield groups.map(DynamicGroupResponse.build)
 
     dbio.transactionally.run().futureValue.toIndexedSeq
   }
@@ -59,7 +59,7 @@ class CustomersGroupIntegrationTest extends IntegrationTestBase
       val groupRoot = DynamicGroupResponse.build(group)
 
       response.status must === (StatusCodes.OK)
-      response.as[DynamicGroupResponse.Root#ResponseMetadataSeq].result must === (Seq(groupRoot))
+      response.ignoreFailuresAndGiveMe[Seq[DynamicGroupResponse.Root]] must === (Seq(groupRoot))
     }
   }
 
@@ -89,7 +89,7 @@ class CustomersGroupIntegrationTest extends IntegrationTestBase
       val response = GET(s"$uriPrefix/999")
 
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(CustomerDynamicGroup, 999).description)
+      response.error must === (NotFoundFailure404(CustomerDynamicGroup, 999).description)
     }
   }
 
@@ -112,7 +112,7 @@ class CustomersGroupIntegrationTest extends IntegrationTestBase
       val response = PATCH(s"$uriPrefix/999", payload)
 
       response.status must === (StatusCodes.NotFound)
-      response.errors must === (NotFoundFailure404(CustomerDynamicGroup, 999).description)
+      response.error must === (NotFoundFailure404(CustomerDynamicGroup, 999).description)
     }
   }
 

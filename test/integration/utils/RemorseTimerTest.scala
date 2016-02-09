@@ -39,7 +39,7 @@ class RemorseTimerTest(_system: ActorSystem) extends TestKit(_system) with Integ
       byRefNum.map(_.remorsePeriodEnd).update(overdue).run().futureValue
       tick()
       updated.remorsePeriodEnd must ===(None)
-      updated.status must ===(FulfillmentStarted)
+      updated.state must ===(FulfillmentStarted)
     }
   }
 
@@ -53,7 +53,7 @@ class RemorseTimerTest(_system: ActorSystem) extends TestKit(_system) with Integ
 
   trait Fixture {
     val order = Orders.create(Factories.order.copy(
-      status = Order.RemorseHold,
+      state = Order.RemorseHold,
       remorsePeriodEnd = Some(Instant.now.plusSeconds(30 * 60))))
       .run().futureValue.rightVal
   }

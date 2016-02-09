@@ -104,7 +104,7 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
           val cards     = CreditCards.futureValue
 
           response.status must ===(StatusCodes.BadRequest)
-          response.errors must contain ("address or addressId must be defined")
+          response.error must contain ("address or addressId must be defined")
           cards mustBe 'empty
         }
 
@@ -114,7 +114,7 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
           val cards     = CreditCards.futureValue
 
           response.status must ===(StatusCodes.BadRequest)
-          response.errors must contain (NotFoundFailure404(Address, 1).description)
+          response.error must contain (NotFoundFailure404(Address, 1).description)
           cards mustBe 'empty
         }
 
@@ -125,7 +125,7 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
           val cards     = CreditCards.futureValue
 
           response.status must ===(StatusCodes.BadRequest)
-          response.errors must contain ("incorrect_number")
+          response.error must contain ("incorrect_number")
           cards mustBe 'empty
         }
 
@@ -135,7 +135,7 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
           val cards     = CreditCards.futureValue
 
           response.status must ===(StatusCodes.BadRequest)
-          response.errors must ===(InvalidCvc.description)
+          response.error must ===(InvalidCvc.description)
           cards mustBe 'empty
         }
 
@@ -145,7 +145,7 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
           val cards     = CreditCards.futureValue
 
           response.status must ===(StatusCodes.NotFound)
-          response.errors must ===(NotFoundFailure404(Customer, 99).description)
+          response.error must ===(NotFoundFailure404(Customer, 99).description)
           cards mustBe 'empty
         }
       }

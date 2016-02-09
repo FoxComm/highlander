@@ -72,7 +72,7 @@ object TrailManager {
       maybeOldTailId match {
         case Some(oldTailId) ⇒
           for {
-            oldTail ← * <~ Connections.mustFindById(oldTailId)
+            oldTail ← * <~ Connections.mustFindById404(oldTailId)
               _ ← * <~ Connections.update(oldTail, oldTail.copy(nextId = Some(newTailId)))
           } yield Unit
         case None ⇒  pure(Unit)
@@ -82,10 +82,10 @@ object TrailManager {
     def findConnection(connectionId: Int)
     (implicit ec: ExecutionContext, db: Database) : Result[FullActivityConnectionResponse.Root] = {
       (for {
-        connection ← * <~ Connections.mustFindById(connectionId)
-        trail ← * <~ Trails.mustFindById(connection.trailId)
-        dimension ← * <~ Dimensions.mustFindById(trail.dimensionId)
-        activity ← * <~ Activities.mustFindById(connection.activityId)
+        connection ← * <~ Connections.mustFindById404(connectionId)
+        trail ← * <~ Trails.mustFindById404(connection.trailId)
+        dimension ← * <~ Dimensions.mustFindById404(trail.dimensionId)
+        activity ← * <~ Activities.mustFindById404(connection.activityId)
       } yield (FullActivityConnectionResponse.build(trail.objectId, dimension, connection, activity))).runTxn()
     }
 

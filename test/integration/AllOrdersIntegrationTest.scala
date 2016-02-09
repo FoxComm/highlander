@@ -6,17 +6,15 @@ import cats.data.Xor
 import models.Order._
 import models.{Customers, Order, Orders, StoreAdmin, StoreAdmins}
 import payloads.{BulkAssignment, BulkUpdateOrdersPayload, BulkWatchers}
-import responses.ResponseWithFailuresAndMetadata.BulkOrderUpdateResponse
 import responses.{AllOrders, FullOrder, StoreAdminResponse}
-import services.orders.OrderQueries
-import services.{LockedFailure, NotFoundFailure404, StatusTransitionNotAllowed}
-import slick.driver.PostgresDriver.api._
+import services.orders.{BulkOrderUpdateResponse, OrderQueries}
+import services.{LockedFailure, NotFoundFailure404, StateTransitionNotAllowed}
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import utils.seeds.Seeds.Factories
-import utils.seeds.{Seeds, SeedsGenerator}
+import utils.seeds.RankingSeedsGenerator
 import utils.time._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -31,11 +29,11 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
 
   def responseItems = {
     val dbio = for {
-      customer ← * <~ Customers.create(SeedsGenerator.generateCustomer)
+      customer ← * <~ Customers.create(RankingSeedsGenerator.generateCustomer)
       insertOrders = (1 to numOfResults).map { _ ⇒ Factories.order.copy(
         customerId = customer.id,
-        referenceNumber = SeedsGenerator.randomString(10),
-        status = Order.RemorseHold,
+        referenceNumber = RankingSeedsGenerator.randomString(10),
+        state = Order.RemorseHold,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30))) }
 
       _ ← * <~ Orders.createAll(insertOrders)
@@ -53,9 +51,9 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
   // paging and sorting API end
 
   def getAllOrders: Seq[AllOrders.Root] = {
-    OrderQueries.findAll.result.run().futureValue match {
+    OrderQueries.findAll.futureValue match {
       case Xor.Left(s)    ⇒ fail(s.toList.mkString(";"))
-      case Xor.Right(seq) ⇒ seq
+      case Xor.Right(seq) ⇒ seq.result
     }
   }
 
@@ -67,7 +65,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       val responseJson = GET(s"v1/orders")
       responseJson.status must === (StatusCodes.OK)
 
-      val allOrders = responseJson.as[AllOrders.Root#ResponseMetadataSeq].result
+      val allOrders = responseJson.ignoreFailuresAndGiveMe[Seq[AllOrders.Root]]
       allOrders.size must === (1)
 
       val actual = allOrders.head
@@ -76,9 +74,9 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
         referenceNumber = "ABCD1234-11",
         name = Some("Yax Fuentes"),
         email = "yax@yax.com",
-        orderStatus = Order.ManualHold,
-        paymentStatus = Some("FIXME"),
-        shippingStatus = Some("FIXME"),
+        orderState = Order.ManualHold,
+        paymentState = Some("FIXME"),
+        shippingState = Some("FIXME"),
         placedAt = None,
         total = 0,
         remorsePeriodEnd = None)
@@ -88,13 +86,13 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
   }
 
   "PATCH /v1/orders" - {
-    "bulk update statuses" in new StatusUpdateFixture {
+    "bulk update states" in new StateUpdateFixture {
       val response = PATCH("v1/orders", BulkUpdateOrdersPayload(Seq("foo", "bar", "nonExistent"), FulfillmentStarted))
 
       response.status must === (StatusCodes.OK)
 
       val all = response.as[BulkOrderUpdateResponse]
-      val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderStatus))
+      val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
 
       allOrders must contain allOf(
         ("foo", FulfillmentStarted),
@@ -102,8 +100,8 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
         ("baz", ManualHold))
 
       all.errors.value must contain allOf(
-        LockedFailure(Order, "bar").description.head,
-        NotFoundFailure404(Order, "nonExistent").description.head)
+        LockedFailure(Order, "bar").description,
+        NotFoundFailure404(Order, "nonExistent").description)
     }
 
     "refuses invalid status transition" in {
@@ -113,14 +111,14 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
 
       response.status must === (StatusCodes.OK)
       val all = response.as[BulkOrderUpdateResponse]
-      val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderStatus))
+      val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
 
-      allOrders must === (Seq((order.refNum, order.status)))
+      allOrders must === (Seq((order.refNum, order.state)))
 
-      all.errors.value must === (StatusTransitionNotAllowed(order.status, Cart, order.refNum).description)
+      all.errors.value.head must === (StateTransitionNotAllowed(order.state, Cart, order.refNum).description)
     }
 
-    "bulk update statuses with paging and sorting" in new StatusUpdateFixture {
+    "bulk update states with paging and sorting" in new StateUpdateFixture {
       val responseJson = PATCH(
         "v1/orders?size=2&from=2&sortBy=referenceNumber",
         BulkUpdateOrdersPayload(Seq("foo", "bar", "nonExistent"), FulfillmentStarted)
@@ -129,14 +127,14 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       responseJson.status must === (StatusCodes.OK)
 
       val all = responseJson.as[BulkOrderUpdateResponse]
-      val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderStatus))
+      val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
 
       allOrders must contain theSameElementsInOrderAs Seq(
         ("foo", FulfillmentStarted))
 
       all.errors.value must contain allOf(
-        LockedFailure(Order, "bar").description.head,
-        NotFoundFailure404(Order, "nonExistent").description.head)
+        LockedFailure(Order, "bar").description,
+        NotFoundFailure404(Order, "nonExistent").description)
     }
   }
 
@@ -182,15 +180,13 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkOrderUpdateResponse]
       responseObj.result must === (getAllOrders)
-      responseObj.errors.value must === (NotFoundFailure404(Order, "NOPE").description)
+      responseObj.errors.value.head must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
-    "warns when admin to assign not found" in new BulkAssignmentFixture {
+    "errors when admin to assign not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/orders/assignees", BulkAssignment(Seq(orderRef1), 777))
-      response.status must === (StatusCodes.OK)
-      val responseObj = response.as[BulkOrderUpdateResponse]
-      responseObj.result must === (getAllOrders)
-      responseObj.errors.value must === (NotFoundFailure404(StoreAdmin, 777).description)
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (NotFoundFailure404(StoreAdmin, 777).description)
     }
   }
 
@@ -235,15 +231,13 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkOrderUpdateResponse]
       responseObj.result must === (getAllOrders)
-      responseObj.errors.value must === (NotFoundFailure404(Order, "NOPE").description)
+      responseObj.errors.value.head must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
-    "warns when admin to unassign not found" in new BulkAssignmentFixture {
+    "errors when admin to unassign not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/orders/assignees/delete", BulkAssignment(Seq(orderRef1), 777))
-      response.status must === (StatusCodes.OK)
-      val responseObj = response.as[BulkOrderUpdateResponse]
-      responseObj.result must === (getAllOrders)
-      responseObj.errors.value must === (NotFoundFailure404(StoreAdmin, 777).description)
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (NotFoundFailure404(StoreAdmin, 777).description)
     }
   }
 
@@ -289,15 +283,13 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkOrderUpdateResponse]
       responseObj.result must === (getAllOrders)
-      responseObj.errors.value must === (NotFoundFailure404(Order, "NOPE").description)
+      responseObj.errors.value.head must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
-    "warns when admin to assign not found" in new BulkAssignmentFixture {
+    "errors when admin to assign not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/orders/watchers", BulkWatchers(Seq(orderRef1), 777))
-      response.status must === (StatusCodes.OK)
-      val responseObj = response.as[BulkOrderUpdateResponse]
-      responseObj.result must === (getAllOrders)
-      responseObj.errors.value must === (NotFoundFailure404(StoreAdmin, 777).description)
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (NotFoundFailure404(StoreAdmin, 777).description)
     }
   }
 
@@ -342,25 +334,23 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       response.status must === (StatusCodes.OK)
       val responseObj = response.as[BulkOrderUpdateResponse]
       responseObj.result must === (getAllOrders)
-      responseObj.errors.value must === (NotFoundFailure404(Order, "NOPE").description)
+      responseObj.errors.value.head must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
-    "warns when admin to unwatch not found" in new BulkAssignmentFixture {
+    "errors when admin to unwatch not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/orders/watchers/delete", BulkWatchers(Seq(orderRef1), 777))
-      response.status must === (StatusCodes.OK)
-      val responseObj = response.as[BulkOrderUpdateResponse]
-      responseObj.result must === (getAllOrders)
-      responseObj.errors.value must === (NotFoundFailure404(StoreAdmin, 777).description)
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (NotFoundFailure404(StoreAdmin, 777).description)
     }
   }
 
-  trait StatusUpdateFixture {
+  trait StateUpdateFixture {
     (for {
       cust ← * <~ Customers.create(Factories.customer)
-      foo  ← * <~ Orders.create(Factories.order.copy(customerId = cust.id, referenceNumber = "foo", status = FraudHold))
+      foo  ← * <~ Orders.create(Factories.order.copy(customerId = cust.id, referenceNumber = "foo", state = FraudHold))
       bar  ← * <~ Orders.create(Factories.order.copy(customerId = cust.id, referenceNumber = "bar",
-                                                                                   status = RemorseHold, isLocked = true))
-      baz  ← * <~ Orders.create(Factories.order.copy(customerId = cust.id, referenceNumber = "baz", status = ManualHold))
+        state = RemorseHold, isLocked = true))
+      baz  ← * <~ Orders.create(Factories.order.copy(customerId = cust.id, referenceNumber = "baz", state = ManualHold))
     } yield (cust, foo, bar)).runTxn().futureValue.rightVal
   }
 

@@ -15,7 +15,7 @@
             + `originType`
             + `subTypeId`
             + `code`
-            + `status`
+            + `state`
             + `currency`
             + `originalBalance`
             + `currentBalance`
@@ -42,17 +42,17 @@ If `quantity` parameter is provided in payload, multiple GiftCard will be genera
 + Response 200 (application/json)
     + Attributes (GiftCard)
 
-### Update Status [PATCH]
+### Update State [PATCH]
 
 + Request (application/json)
-    + Attributes (GiftCardUpdateStatusPayload)
+    + Attributes (GiftCardUpdateStatePayload)
 + Response 200 (application/json)
     + Attributes (GiftCard)
 
-### Bulk Update Status [PATCH /v1/gift-cards]
+### Bulk Update State [PATCH /v1/gift-cards]
 
 + Request (application/json)
-    + Attributes (GiftCardBulkStatusUpdatePayload)
+    + Attributes (GiftCardBulkStateUpdatePayload)
 + Response 200 (application/json)
     + Attributes (array[GiftCardBulkResponse])
 
@@ -81,7 +81,7 @@ Converts GiftCard to specified customer's Store Credit if it's active and has no
             + `credit`
             + `debit`
             + `availableBalance`
-            + `status`
+            + `state`
             + `createdAt`
 + Response 200 (application/json)
     + Attributes (GiftCardAdjustments)

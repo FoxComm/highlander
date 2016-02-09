@@ -10,26 +10,26 @@ import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.Slick.implicits._
 
 final case class Shipment(id: Int = 0, orderId: Int, orderShippingMethodId: Option[Int] = None, shippingAddressId:
-Option[Int] = None, status: Shipment.Status = Cart, shippingPrice: Option[Int] = None)
+Option[Int] = None, state: Shipment.State = Cart, shippingPrice: Option[Int] = None)
   extends ModelWithIdParameter[Shipment]
 
 object Shipment {
-  sealed trait Status
-  case object Cart extends Status
-  case object Ordered extends Status
-  case object FraudHold extends Status //this only applies at the order_header level
-  case object RemorseHold extends Status //this only applies at the order_header level
-  case object ManualHold extends Status //this only applies at the order_header level
-  case object Canceled extends Status
-  case object FulfillmentStarted extends Status
-  case object PartiallyShipped extends Status
-  case object Shipped extends Status
+  sealed trait State
+  case object Cart extends State
+  case object Ordered extends State
+  case object FraudHold extends State //this only applies at the order_header level
+  case object RemorseHold extends State //this only applies at the order_header level
+  case object ManualHold extends State //this only applies at the order_header level
+  case object Canceled extends State
+  case object FulfillmentStarted extends State
+  case object PartiallyShipped extends State
+  case object Shipped extends State
 
-  object Status extends ADT[Status] {
-    def types = sealerate.values[Status]
+  object State extends ADT[State] {
+    def types = sealerate.values[State]
   }
 
-  implicit val statusColumnType: JdbcType[Status] with BaseTypedType[Status] = Status.slickColumn
+  implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
 }
 
 class Shipments(tag: Tag) extends GenericTable.TableWithId[Shipment](tag, "shipments")  {
@@ -37,10 +37,10 @@ class Shipments(tag: Tag) extends GenericTable.TableWithId[Shipment](tag, "shipm
   def orderId = column[Int]("order_id")
   def orderShippingMethodId = column[Option[Int]]("order_shipping_method_id")
   def shippingAddressId = column[Option[Int]]("shipping_address_id") //Addresses table
-  def status = column[Shipment.Status]("status")
+  def state = column[Shipment.State]("state")
   def shippingPrice = column[Option[Int]]("shipping_price") //gets filled in upon checkout
 
-  def * = (id, orderId, orderShippingMethodId, shippingAddressId, status, shippingPrice) <> ((Shipment.apply _).tupled,
+  def * = (id, orderId, orderShippingMethodId, shippingAddressId, state, shippingPrice) <> ((Shipment.apply _).tupled,
     Shipment.unapply)
 }
 

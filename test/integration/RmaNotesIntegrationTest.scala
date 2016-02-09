@@ -31,14 +31,14 @@ class RmaNotesIntegrationTest extends IntegrationTestBase with HttpSupport with 
       val response = POST(s"v1/notes/rma/${rma.refNum}", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.BadRequest)
-      response.errors must === (List("body must not be empty"))
+      response.error must === ("body must not be empty")
     }
 
     "returns a 404 if the gift card is not found" in new Fixture {
       val response = POST(s"v1/notes/rma/RMA-666", payloads.CreateNote(body = ""))
 
       response.status must === (StatusCodes.NotFound)
-      parseErrors(response) must === (NotFoundFailure404(Rma, "RMA-666").description)
+      response.error must === (NotFoundFailure404(Rma, "RMA-666").description)
     }
   }
 
@@ -105,7 +105,7 @@ class RmaNotesIntegrationTest extends IntegrationTestBase with HttpSupport with 
       admin ← StoreAdmins.create(authedStoreAdmin).map(rightValue)
       customer ← Customers.create(Factories.customer).map(rightValue)
       order ← Orders.create(Factories.order.copy(
-        status = Order.RemorseHold,
+        state = Order.RemorseHold,
         remorsePeriodEnd = Some(Instant.now.plusMinutes(30)))).map(rightValue)
       rma ← Rmas.create(Factories.rma.copy(
         orderId = order.id,

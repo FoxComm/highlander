@@ -5,7 +5,7 @@ select distinct on (s.id)
     s.email as email,
     s.name as name,
     s.department as department,
-    to_char(s.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
+    to_char(s.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
     -- Assignments
     a.count as assignments_count,
     a.assignments as assignments

@@ -6,15 +6,15 @@ select distinct on (sc.id)
     sc.origin_id,
     sc.origin_type,
     scsv.subtype,
-    sc.status,    
+    sc.state,
     sc.currency,
     sc.original_balance,
     sc.current_balance,
     sc.available_balance,
     sc.canceled_amount,
     sccrv.canceled_reason,
-    to_char(sc.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
-    to_char(sc.updated_at, 'YYYY-MM-DD HH24:MI:SS') as updated_at,
+    to_char(sc.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
+    to_char(sc.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as updated_at,
     -- Issued by either
     scav.store_admin,
     scfgcv.gift_card

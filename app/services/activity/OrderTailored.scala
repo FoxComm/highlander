@@ -3,20 +3,20 @@ package services.activity
 import java.time.Instant
 
 import models.{ShippingMethod, OrderShippingAddress, PaymentMethod, Order, Note}
-import responses.{CreditCardsResponse, FullOrder, GiftCardResponse, StoreAdminResponse}
+import responses.{Addresses, CreditCardsResponse, FullOrder, GiftCardResponse, StoreAdminResponse}
 
 object OrderTailored {
-  final case class CartCreated(admin: StoreAdminResponse.Root, order: FullOrder.Root)
+  final case class CartCreated(admin: Option[StoreAdminResponse.Root], order: FullOrder.Root)
     extends ActivityBase[CartCreated]
 
-  final case class OrderStateChanged(admin: StoreAdminResponse.Root, order: FullOrder.Root, oldState: Order.Status)
+  final case class OrderStateChanged(admin: StoreAdminResponse.Root, order: FullOrder.Root, oldState: Order.State)
     extends ActivityBase[OrderStateChanged]
 
   final case class OrderRemorsePeriodIncreased(admin: StoreAdminResponse.Root, order: FullOrder.Root,
     oldPeriodEnd: Option[Instant]) extends ActivityBase[OrderRemorsePeriodIncreased]
 
   final case class OrderBulkStateChanged(admin: StoreAdminResponse.Root, orderRefNums: Seq[String],
-    newState: Order.Status)
+    newState: Order.State)
     extends ActivityBase[OrderBulkStateChanged]
 
   /* Order Line Items */
@@ -47,14 +47,15 @@ object OrderTailored {
 
   /* Order Shipping Addresses */
   final case class OrderShippingAddressAdded(admin: StoreAdminResponse.Root, order: FullOrder.Root,
-    shippingAddress: OrderShippingAddress)
+    shippingAddress: Addresses.Root)
     extends ActivityBase[OrderShippingAddressAdded]
 
   final case class OrderShippingAddressUpdated(admin: StoreAdminResponse.Root, order: FullOrder.Root,
-    shippingAddress: OrderShippingAddress)
+    shippingAddress: Addresses.Root)
     extends ActivityBase[OrderShippingAddressUpdated]
 
-  final case class OrderShippingAddressRemoved(admin: StoreAdminResponse.Root, order: FullOrder.Root)
+  final case class OrderShippingAddressRemoved(admin: StoreAdminResponse.Root, order: FullOrder.Root,
+    shippingAddress: Addresses.Root)
     extends ActivityBase[OrderShippingAddressRemoved]
 
   /* Order Payment Methods */

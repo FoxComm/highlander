@@ -24,7 +24,7 @@ class InventoryAdjustmentIntegrationTest extends IntegrationTestBase {
       // Simulate `order_line_item_skus` offset, to make SKU ID different from relation ID
       // This is required to properly test query in `InventoryAdjustment.createAdjustmentsForOrder()`
       seed()
-      Orders.findByCustomerId(1).map(_.status).update(Order.Shipped).run().futureValue
+      Orders.findByCustomerId(1).map(_.state).update(Order.Shipped).run().futureValue
 
       // Start actual testing
       val (warehouse, sku, lineItemSku, order) = seed()

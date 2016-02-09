@@ -20,22 +20,22 @@ class JsonFormattersTest extends TestBase {
 
   implicit val formats: Formats = phoenixFormats
 
-  case class Test(order: Order.Status, gc: GiftCard.Status, cc: CreditCardCharge.Status)
+  case class Test(order: Order.State, gc: GiftCard.State, cc: CreditCardCharge.State)
   case class Product(price: Int, currency: Currency)
 
   "Adt serialization" - {
     "can (de-)serialize JSON" in {
       val ast = parse(write(Test(order = Order.Cart, cc = CreditCardCharge.Auth, gc = GiftCard.OnHold)))
-      (ast \ "order").extract[Order.Status] mustBe Order.Cart
-      (ast \ "gc").extract[GiftCard.Status] mustBe GiftCard.OnHold
-      (ast \ "cc").extract[CreditCardCharge.Status] mustBe CreditCardCharge.Auth
+      (ast \ "order").extract[Order.State] mustBe Order.Cart
+      (ast \ "gc").extract[GiftCard.State] mustBe GiftCard.OnHold
+      (ast \ "cc").extract[CreditCardCharge.State] mustBe CreditCardCharge.Auth
     }
   }
 
   "Can JSON (de-)serialize Currency" in {
     val ast = parse(write(Product(price = 50, currency = Currency.USD)))
-    (ast \ "price").extract[Int] === (50)
-    (ast \ "currency").extract[Currency] === (Currency.USD)
+    (ast \ "price").extract[Int] must === (50)
+    (ast \ "currency").extract[Currency] must === (Currency.USD)
   }
 
   "(de)serializes java.time.Instant" in {

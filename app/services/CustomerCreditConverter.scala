@@ -20,10 +20,10 @@ object CustomerCreditConverter {
 
     giftCard ← * <~ GiftCards.mustFindByCode(giftCardCode)
     _ ← * <~ (if (!giftCard.isActive) DbResult.failure(GiftCardConvertFailure(giftCard)) else DbResult.unit)
-    _ ← * <~ Customers.mustFindById(customerId)
-    _ ← * <~ complainAboutOpenTransaction(GiftCardAdjustments.lastAuthByGiftCardId(giftCard.id).one)
-    // Update status and make adjustment
-    _ ← * <~ GiftCards.findActiveByCode(giftCard.code).map(_.status).update(GiftCard.FullyRedeemed)
+    _ ← * <~ Customers.mustFindById404(customerId)
+    _ ← * <~ GiftCardAdjustments.lastAuthByGiftCardId(giftCard.id).one.mustNotFindOr(OpenTransactionsFailure)
+    // Update state and make adjustment
+    _ ← * <~ GiftCards.findActiveByCode(giftCard.code).map(_.state).update(GiftCard.FullyRedeemed)
     adjustment ← * <~ GiftCards.redeemToStoreCredit(giftCard, admin)
 
     // Finally, convert to Store Credit
@@ -38,12 +38,12 @@ object CustomerCreditConverter {
   def toGiftCard(storeCreditId: Int, customerId: Int, admin: StoreAdmin)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[GiftCardResponse.Root] = (for {
 
-    credit ← * <~ StoreCredits.mustFindById(storeCreditId)
+    credit ← * <~ StoreCredits.mustFindById404(storeCreditId)
     _ ← * <~ (if (!credit.isActive) DbResult.failure(StoreCreditConvertFailure(credit)) else DbResult.unit)
-    _ ← * <~ Customers.mustFindById(customerId)
-    _ ← * <~ complainAboutOpenTransaction(StoreCreditAdjustments.lastAuthByStoreCreditId(credit.id).one)
-    // Update status and make adjustment
-    scUpdated ← * <~ StoreCredits.findActiveById(credit.id).map(_.status).update(StoreCredit.FullyRedeemed)
+    _ ← * <~ Customers.mustFindById404(customerId)
+    _ ← * <~ StoreCreditAdjustments.lastAuthByStoreCreditId(credit.id).one.mustNotFindOr(OpenTransactionsFailure)
+    // Update state and make adjustment
+    scUpdated ← * <~ StoreCredits.findActiveById(credit.id).map(_.state).update(StoreCredit.FullyRedeemed)
     adjustment ← * <~ StoreCredits.redeemToGiftCard(credit, admin)
     // Convert to Gift Card
     conversion ← * <~ GiftCardFromStoreCredits.create(GiftCardFromStoreCredit(storeCreditId = credit.id))
@@ -52,8 +52,6 @@ object CustomerCreditConverter {
 
     // Activity
     _ ← * <~ LogActivity.scConvertedToGc(admin, giftCard, credit)
-  } yield GiftCardResponse.build(giftCard, None, Some(StoreAdminResponse.build(admin)))).runTxn
+  } yield GiftCardResponse.build(giftCard, None, Some(StoreAdminResponse.build(admin)))).runTxn()
 
-  private def complainAboutOpenTransaction[A](dbio: DBIO[Option[A]])(implicit ec: ExecutionContext): DbResult[Unit] =
-    dbio.flatMap(_.fold(DbResult.unit) { _ ⇒ DbResult.failure(OpenTransactionsFailure) })
 }
