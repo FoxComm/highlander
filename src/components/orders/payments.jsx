@@ -37,8 +37,10 @@ export default class Payments extends React.Component {
     }).isRequired,
     status: PropTypes.string,
     payments: PropTypes.shape({
-      isEditing: PropTypes.bool.isRequired
+      isAdding: PropTypes.bool.isRequired,
+      isEditing: PropTypes.bool.isRequired,
     }),
+    orderPaymentMethodStartAdd: PropTypes.func.isRequired,
     orderPaymentMethodStartEdit: PropTypes.func.isRequired,
     orderPaymentMethodStopEdit: PropTypes.func.isRequired,
 
@@ -134,6 +136,10 @@ export default class Payments extends React.Component {
     const title = <PanelHeader isCart={props.isCart} status={props.state} text="Payment Method" />;
 
     const PaymentsContentBox = props.readOnly ? ContentBox : EditableContentBox;
+
+    const isCheckingOut = _.get(props, 'order.isCheckingOut', false);
+    const editAction = isCheckingOut ? null : props.orderPaymentMethodStartEdit;
+
     return (
       <PaymentsContentBox
         className="fc-order-payment"
@@ -141,9 +147,9 @@ export default class Payments extends React.Component {
         isTable={true}
         editContent={this.editContent}
         isEditing={props.payments.isEditing}
-        editAction={props.orderPaymentMethodStartEdit}
         doneAction={this.doneAction}
         editingActions={this.editingActions}
+        editAction={editAction}
         indentContent={false}
         viewContent={this.viewContent} />
     );

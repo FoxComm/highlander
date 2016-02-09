@@ -52,8 +52,13 @@ const OrderDetails = props => {
 OrderDetails.propTypes = {
   order: PropTypes.shape({
     currentOrder: PropTypes.object,
-    validations: PropTypes.object
-  })
+    validations: PropTypes.object,
+  }),
+  checkout: PropTypes.func,
+};
+
+OrderDetails.defaultProps = {
+  checkout: _.noop,
 };
 
 export default OrderDetails;

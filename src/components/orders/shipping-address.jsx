@@ -174,6 +174,9 @@ export default class OrderShippingAddress extends React.Component {
 
     const OrderShippingContentBox = props.readOnly ? ContentBox : EditableContentBox;
 
+    const isCheckingOut = _.get(props, 'order.isCheckingOut', false);
+    const editAction = isCheckingOut ? null : props.startEditing;
+
     return (
       <div>
         <OrderShippingContentBox
@@ -181,7 +184,7 @@ export default class OrderShippingAddress extends React.Component {
           title={title}
           indentContent={true}
           isEditing={props.isEditing}
-          editAction={props.startEditing}
+          editAction={editAction}
           doneAction={props.stopEditing}
           renderContent={ this.renderContent }
         />
