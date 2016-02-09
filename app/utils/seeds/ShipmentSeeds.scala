@@ -29,6 +29,8 @@ trait ShipmentSeeds {
       isActive = true, conditions = Some(upsGround)),
     ShippingMethod(adminDisplayName = "UPS Next day", storefrontDisplayName = "UPS Next day", price = 0,
       isActive = true, conditions = Some(over50Bucks)),
+    ShippingMethod(adminDisplayName = "UPS 2-day", storefrontDisplayName = "UPS 2-day", price = 550,
+      isActive = true, conditions = Some(upsGround)),
     ShippingMethod(adminDisplayName = "DHL Express", storefrontDisplayName = "DHL Express", price = 1500,
       isActive = true, conditions = Some(under50Bucks)),
     ShippingMethod(adminDisplayName = "International", storefrontDisplayName = "International", price = 1000,
