@@ -26,7 +26,7 @@ function _createAction(namespace, description, ...args) {
 
 export default function makeQuickSearch(namespace, searchUrl, searchFilters, searchPhrase) {
   const searchSuccess = _createAction(namespace, 'SEARCH_SUCCESS');
-  const searchFailure = _createAction(namespace, 'SEARCH_FAILURE', (err, source) => [err, source]);
+  const searchFailure = _createAction(namespace, 'SEARCH_FAILURE');
   const submitSearch = _createAction(namespace, 'SUBMIT_SEARCH', (filters, phrase) => [filters, phrase]);
 
   const url = searchUrl;
@@ -51,14 +51,14 @@ export default function makeQuickSearch(namespace, searchUrl, searchFilters, sea
       return post(url, ...args)
         .then(
           res => dispatch(searchSuccess(res)),
-          err => dispatch(searchFailure(err, fetch))
+          err => dispatch(searchFailure(err))
         );
     };
   };
 
   const reducer = createReducer({
     [searchSuccess]: (state, res) => _searchSuccess(state, res),
-    [searchFailure]: (state, [err, source]) => _searchFailure(state, [err, source]),
+    [searchFailure]: (state, err) => _searchFailure(state, err),
     [submitSearch]: (state, [filters, phrase]) => _submitSearch(state, filters, phrase),
   }, initialState);
 
@@ -88,18 +88,15 @@ function _searchSuccess(state, res) {
   );
 }
 
-function _searchFailure(state, [err, source]) {
-  if (source === fetch) {
-    console.error(err);
-    return assoc(state, ['isFetching'], false);
-  }
-
-  return state;
+function _searchFailure(state, err) {
+  console.error(err);
+  return assoc(state, ['isFetching'], false);
 }
 
 function _submitSearch(state, filters, phrase) {
   return assoc(state,
-      ['isFetching'], true,
-      ['filters'], filters,
-      ['phrase'], phrase);
+    ['isFetching'], true,
+    ['filters'], filters,
+    ['phrase'], phrase
+  );
 }

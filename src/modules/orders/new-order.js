@@ -16,8 +16,8 @@ const quickSearch = makeQuickSearch(
 
 function suggestCustomers(phrase, guest = false) {
   const guestFilters = guest ? [{
-    selectedTerm: 'isGuest',
-    selectedOperator: 'eq',
+    term: 'isGuest',
+    operator: 'eq',
     value: {
       type: 'bool',
       value: true,
@@ -36,7 +36,7 @@ function createOrder(customer, isGuest = false) {
   const payload = isGuest
     ? { email: customer.email }
     : { customerId: customer.id };
-  
+
   return dispatch => {
     dispatch(createOrderStart());
     return Api.post('/orders', payload)
