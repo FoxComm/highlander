@@ -8,6 +8,7 @@ import CreditCardBox from '../../credit-cards/card-box';
 import CreditCardDetails from '../../credit-cards/card-details';
 import { Dropdown, DropdownItem } from '../../dropdown';
 import { Form, FormField } from '../../forms';
+import OrderCreditCardForm from './credit-card-form';
 import SaveCancel from '../../common/save-cancel';
 import TileSelector from '../../tile-selector/tile-selector';
 import TableCell from '../../table/cell';
@@ -47,6 +48,7 @@ class NewPayment extends Component {
     super(...args);
 
     this.state = {
+      isCreditCardFormVisible: false,
       paymentType: null,
       selectedPayment: null,
     };
@@ -67,10 +69,27 @@ class NewPayment extends Component {
     });
   }
 
+  get creditCardForm() {
+    return <OrderCreditCardForm customerId={1} />;
+  }
+
   get creditCardSelector() {
     if (this.state.paymentType == 'creditCard' && _.isNull(this.state.selectedPayment)) {
-      return <TileSelector items={this.creditCards} title="Customer's Credit Cards" />;
+      if (this.state.isCreditCardFormVisible) {
+        return this.creditCardForm;
+      } else {
+        return this.creditCardTiles;
+      }
     }
+  }
+
+  get creditCardTiles() {
+    return (
+      <TileSelector
+        items={this.creditCards}
+        onAddClick={this.toggleCreditCardForm}
+        title="Customer's Credit Cards" />
+    );
   }
 
   get formControls() {
@@ -136,6 +155,13 @@ class NewPayment extends Component {
         type: 'creditCard',
         ...card,
       },
+    });
+  }
+
+  @autobind
+  toggleCreditCardForm() {
+    this.setState({
+      isCreditCardFormVisible: !this.state.isCreditCardFormVisible
     });
   }
 

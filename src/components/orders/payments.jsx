@@ -95,6 +95,7 @@ export default class Payments extends React.Component {
         columns={editColumns}
         data={{rows: paymentMethods}}
         processRows={this.processRows}
+        emptyMessage="No payment method applied."
         renderRow={this.renderRow(true)} />
     );
   }
