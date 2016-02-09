@@ -2,14 +2,15 @@ package services
 
 import scala.concurrent.ExecutionContext
 
-import models.{GiftCards, Order, OrderLineItems, OrderPayment, OrderPayments, OrderShippingAddresses, OrderShippingMethods, StoreCredits}
+import models.{GiftCards, StoreCredits, StoreCreditAdjustments, GiftCardAdjustments, Order, OrderLineItems,
+OrderPayment, OrderPayments, OrderShippingAddresses, OrderShippingMethods}
 import services.CartFailures._
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 import utils.Slick.{DbResult, lift}
 
 trait CartValidation {
-  def validate: DbResult[CartValidatorResponse]
+  def validate(isCheckout: Boolean = false): DbResult[CartValidatorResponse]
 }
 
 // warnings would be turned into `errors` during checkout but if we're still in cart mode
@@ -21,13 +22,13 @@ final case class CartValidatorResponse(
 final case class CartValidator(cart: Order)(implicit db: Database, ec: ExecutionContext)
   extends CartValidation {
 
-  def validate: DbResult[CartValidatorResponse] = {
+  def validate(isCheckout: Boolean = false): DbResult[CartValidatorResponse] = {
     val response = CartValidatorResponse()
     (for {
       state ← hasItems(response)
       state ← hasShipAddress(state)
       state ← validShipMethod(state)
-      state ← sufficientPayments(state)
+      state ← sufficientPayments(state, isCheckout)
     } yield state).flatMap(DbResult.good)
   }
 
@@ -61,19 +62,33 @@ final case class CartValidator(cart: Order)(implicit db: Database, ec: Execution
     }
   }
 
-  private def sufficientPayments(response: CartValidatorResponse): DBIO[CartValidatorResponse] = {
+  private def sufficientPayments(response: CartValidatorResponse, isCheckout: Boolean): DBIO[CartValidatorResponse] = {
+
+    def cartFunds(payments: Seq[OrderPayment]) = {
+      if (isCheckout) {
+        val paymentIds = payments.map(_.id)
+
+        val authorizedStoreCreditPayments = StoreCreditAdjustments.authorizedOrderPayments(paymentIds).map(_.debit)
+        val authorizedGiftCardPayments = GiftCardAdjustments.authorizedOrderPayments(paymentIds).map(_.debit)
+
+        authorizedStoreCreditPayments.unionAll(authorizedGiftCardPayments)
+      } else {
+        def forType(typeFilter: OrderPayment ⇒ Boolean) = payments.filter(typeFilter).map(_.paymentMethodId).toSet
+
+        val availableStoreCreditBalance = StoreCredits.findAllByIds(forType(_.isStoreCredit)).map(_.availableBalance)
+        val availableGiftCardBalance = GiftCards.findAllByIds(forType(_.isGiftCard)).map(_.availableBalance)
+
+        availableStoreCreditBalance.unionAll(availableGiftCardBalance)
+      }
+    }
+
     def availableFunds(grandTotal: Int, payments: Seq[OrderPayment]): DBIO[CartValidatorResponse] = {
       // we'll find out if the CC doesn't auth at checkout but we presume sufficient funds if we have a
       // credit card regardless of GC/SC funds availability
       if (payments.exists(_.isCreditCard)) {
         lift(response)
       } else if (payments.nonEmpty) {
-        def ids(f: OrderPayment ⇒ Boolean) = payments.filter(f).map(_.paymentMethodId).toSet
-
-        StoreCredits.findAllByIds(ids(_.isStoreCredit)).map(_.availableBalance)
-          .unionAll(GiftCards.findAllByIds(ids(_.isGiftCard)).map(_.availableBalance))
-          .sum
-          .result.map {
+        cartFunds(payments).sum.result.map {
           case Some(funds) if funds >= grandTotal ⇒
             response
 

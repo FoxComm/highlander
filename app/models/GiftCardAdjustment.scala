@@ -7,7 +7,6 @@ import scala.concurrent.ExecutionContext
 import cats.data.Xor
 import com.pellucid.sealerate
 import models.GiftCardAdjustment.{Auth, State}
-import models.Notes._
 import monocle.macros.GenLens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -105,4 +104,8 @@ object GiftCardAdjustments extends TableQueryWithId[GiftCardAdjustment, GiftCard
     filterByGiftCardId(id).filter(_.state === (Auth: State)).sortBy(_.createdAt).take(1)
 
   def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.state).update(Canceled)
+
+  def authorizedOrderPayments(orderPaymentIds: Seq[Int]): QuerySeq =
+    filter(adj ⇒ adj.orderPaymentId.inSet(orderPaymentIds) && adj.state === (Auth: State))
+
 }

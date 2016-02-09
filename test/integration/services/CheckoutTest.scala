@@ -33,14 +33,14 @@ class CheckoutTest
 
   def cartValidator(resp: CartValidatorResponse = CartValidatorResponse()): CartValidation = {
     val m = mock[CartValidation]
-    when(m.validate).thenReturn(DbResult.good(resp))
+    when(m.validate(isCheckout = true)).thenReturn(DbResult.good(resp))
     m
   }
 
   "Checkout" - {
     "fails if the order is not a cart" in new Fixture {
       val nonCart = cart.copy(state = Order.RemorseHold)
-      val result = Checkout(nonCart, CartValidator(nonCart)).checkout.futureValue.leftVal
+      val result = Checkout(nonCart, CartValidator(nonCart)).checkout.run().futureValue.leftVal
       val current = Orders.findById(cart.id).extract.one.run().futureValue.value
 
       result must === (OrderMustBeCart(nonCart.refNum).single)
@@ -50,24 +50,25 @@ class CheckoutTest
     "fails if the cart validator fails" in new CustomerFixture {
       val failure = GeneralFailure("scalac").single
       val mockValidator = mock[CartValidation]
-      when(mockValidator.validate).thenReturn(DbResult.failures(failure))
+      when(mockValidator.validate(isCheckout = true)).thenReturn(DbResult.failures(failure))
 
-      val result = Checkout(Factories.cart.copy(customerId = customer.id), mockValidator).checkout.futureValue.leftVal
+      val result = Checkout(Factories.cart.copy(customerId = customer.id), mockValidator).checkout.run().futureValue.leftVal
       result must === (failure)
     }
 
     "fails if the cart validator has warnings" in new CustomerFixture {
       val failure = GeneralFailure("scalac").single
       val mockValidator = mock[CartValidation]
-      when(mockValidator.validate).thenReturn(DbResult.good(CartValidatorResponse(warnings = failure.some)))
+      when(mockValidator.validate(isCheckout = true)).thenReturn(DbResult.good(CartValidatorResponse(warnings = failure.some)))
 
-      val result = Checkout(Factories.cart.copy(customerId = customer.id), mockValidator).checkout.futureValue.leftVal
+      val cart = Orders.create(Factories.cart).run().futureValue.rightVal
+      val result = Checkout(cart.copy(customerId = customer.id), mockValidator).checkout.run().futureValue.leftVal
       result must === (failure)
     }
 
     "updates state to RemorseHold and touches placedAt" in new Fixture {
       val before = Instant.now
-      val result = Checkout(cart, cartValidator()).checkout.futureValue.rightVal
+      val result = Checkout(cart, cartValidator()).checkout.run().futureValue.rightVal
       val current = Orders.findById(cart.id).extract.one.run().futureValue.value
 
       current.state must === (Order.RemorseHold)
@@ -75,7 +76,7 @@ class CheckoutTest
     }
 
     "creates new cart for user at the end" in new Fixture {
-      val result = Checkout(cart, cartValidator()).checkout.futureValue.rightVal
+      val result = Checkout(cart, cartValidator()).checkout.run().futureValue.rightVal
       val current = Orders.findById(cart.id).extract.one.run().futureValue.value
       val newCart = Orders.findByCustomerId(cart.customerId).cartOnly.one.run().futureValue.value
 
@@ -87,7 +88,7 @@ class CheckoutTest
     }
 
     "sets all gift card line item purchases as GiftCard.OnHold" in new GCLineItemFixture {
-      val result = Checkout(cart, cartValidator()).checkout.futureValue.rightVal
+      val result = Checkout(cart, cartValidator()).checkout.run().futureValue.rightVal
       val current = Orders.findById(cart.id).extract.one.run().futureValue.value
       val gc = GiftCards.findById(giftCard.id).extract.one.run().futureValue.value
 
@@ -106,7 +107,7 @@ class CheckoutTest
           })
         } yield ids).runTxn().futureValue.rightVal
 
-        val result = Checkout(cart, cartValidator()).checkout.futureValue.rightVal
+        val result = Checkout(cart, cartValidator()).checkout.run().futureValue.rightVal
         val current = Orders.findById(cart.id).extract.one.run().futureValue.value
         val adjustments = GiftCardAdjustments.filter(_.giftCardId.inSet(ids)).result.run().futureValue
 
@@ -127,7 +128,7 @@ class CheckoutTest
           })
         } yield ids).runTxn().futureValue.rightVal
 
-        val result = Checkout(cart, cartValidator()).checkout.futureValue.rightVal
+        val result = Checkout(cart, cartValidator()).checkout.run().futureValue.rightVal
         val current = Orders.findById(cart.id).extract.one.run().futureValue.value
         val adjustments = StoreCreditAdjustments.filter(_.storeCreditId.inSet(ids)).result.run().futureValue
 

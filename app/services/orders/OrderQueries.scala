@@ -63,7 +63,7 @@ object OrderQueries {
   def findOne(refNum: String)
     (implicit ec: ExecutionContext, db: Database): Result[TheResponse[FullOrder.Root]] = (for {
     order     ← * <~ Orders.mustFindByRefNum(refNum)
-    validated ← * <~ CartValidator(order).validate
+    validated ← * <~ CartValidator(order).validate()
     response  ← * <~ FullOrder.fromOrder(order).toXor
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).run()
 

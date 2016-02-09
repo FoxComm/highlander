@@ -11,7 +11,7 @@ import models.traits.Lockable
 import monocle.Lens
 import monocle.macros.GenLens
 import services.CartFailures.OrderMustBeCart
-import services.{StateTransitionNotAllowed, Failure, Failures, GeneralFailure}
+import services.{Failure, Failures, GeneralFailure}
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
@@ -78,7 +78,6 @@ object Order {
   sealed trait State
 
   case object Cart extends State
-  case object Ordered extends State
   case object FraudHold extends State
   case object RemorseHold extends State
   case object ManualHold extends State

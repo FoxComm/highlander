@@ -102,4 +102,7 @@ object StoreCreditAdjustments
     filterByStoreCreditId(id).filter(_.state === (Auth: State)).sortBy(_.createdAt).take(1)
 
   def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.state).update(Canceled)
+
+  def authorizedOrderPayments(orderPaymentIds: Seq[Int]): QuerySeq =
+    filter(adj ⇒ adj.orderPaymentId.inSet(orderPaymentIds) && adj.state === (Auth: State))
 }
