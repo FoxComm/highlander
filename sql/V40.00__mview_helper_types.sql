@@ -50,6 +50,12 @@ create table export_payments (
     currency            currency
 );
 
+create table export_order_payments (
+    order_reference_number      text,
+    order_created_at            text,
+    order_payment_created_at    text
+);
+
 create table export_rmas (
     reference_number text,
     state            text,

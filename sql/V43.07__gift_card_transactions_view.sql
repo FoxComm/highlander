@@ -12,16 +12,13 @@ select distinct on (gca.id)
     gc.origin_type,
     gc.currency,
     to_char(gc.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as gift_card_created_at,
-    -- Order
-    o.reference_number as order_reference_number,
-    to_char(o.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as order_created_at,
-    to_char(op.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as order_payment_created_at,
+    -- Order Payment
+    gctpv.order_payment,
     -- Store admins
     gctav.store_admin
 from gift_card_adjustments as gca
 inner join gift_cards as gc on (gc.id = gca.gift_card_id)
-inner join order_payments as op on (op.id = gca.order_payment_id)
-inner join orders as o on (op.order_id = o.id)
+inner join gift_card_transactions_payments_view as gctpv on (gctpv.id = gca.id)
 inner join gift_card_transactions_admins_view as gctav on (gctav.id = gca.id)
 order by gca.id;
 
