@@ -21,15 +21,15 @@
     $ make build
     ```
 
-### Update Green River assembly
+### Update Phoenix / Green River assembly
 
 Run:
 
-    $ tools/update_greenriver_service.sh
+    $ tools/update_greenriver.sh
 
 or:
 
-    $ MACHINE=backend PROVIDER=vmware_fusion tools/update_greenriver_service.sh
+    $ MACHINE=backend PROVIDER=vmware_fusion tools/update_greenriver.sh
 
 ### Lint ansible scripts
 
