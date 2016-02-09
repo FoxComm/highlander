@@ -5,8 +5,6 @@ import React, { PropTypes } from 'react';
 const TypeaheadItems = props => {
   let innerContent = null;
 
-  console.log(props);
-
   if (props.updating) {
     innerContent = <li>Loading Results</li>;
   } else if (_.isEmpty(props.items)) {
