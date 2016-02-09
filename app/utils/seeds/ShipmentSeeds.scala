@@ -13,14 +13,14 @@ import Seeds.Factories._
 
 trait ShipmentSeeds {
 
-  type ShippingMethods = (ShippingMethod#Id, ShippingMethod#Id, ShippingMethod#Id, ShippingMethod#Id)
+  type ShippingMethods = (ShippingMethod#Id, ShippingMethod#Id, ShippingMethod#Id, ShippingMethod#Id, ShippingMethod#Id)
 
   def createShipmentRules: DbResultT[ShippingMethods] = for {
     methods ← * <~ ShippingMethods.createAllReturningIds(shippingMethods)
     _ ← * <~ ShippingPriceRules.createAll(shippingPriceRules)
     _ ← * <~ ShippingMethodsPriceRules.createAll(shippingMethodRuleMappings)
   } yield methods.seq.toList match {
-      case m1 :: m2 :: m3 :: m4 :: Nil ⇒ (m1, m2, m3, m4)
+      case m1 :: m2 :: m3 :: m4 :: m5 :: Nil ⇒ (m1, m2, m3, m4, m5)
       case _ ⇒ ???
     }
 
@@ -52,7 +52,7 @@ trait ShipmentSeeds {
     ShippingMethodPriceRule(shippingMethodId = 2, shippingPriceRuleId = 2, ruleRank = 2),
     ShippingMethodPriceRule(shippingMethodId = 2, shippingPriceRuleId = 3, ruleRank = 3),
 
-    ShippingMethodPriceRule(shippingMethodId = 3, shippingPriceRuleId = 1, ruleRank = 1)
+    ShippingMethodPriceRule(shippingMethodId = 4, shippingPriceRuleId = 1, ruleRank = 1)
   )
 
   def upsGround = parse(
