@@ -17,7 +17,10 @@ const DropdownItem = props => {
 
 DropdownItem.propTypes = {
   onSelect: PropTypes.func,
-  value: PropTypes.string,
+  value: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+  ]),
   children: PropTypes.node,
 };
 

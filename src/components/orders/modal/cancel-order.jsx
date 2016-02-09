@@ -1,40 +1,70 @@
 // libs
 import React, { PropTypes } from 'react';
 
+//helpers
+import { inflect } from '../../../i18n';
+
 // components
 import modal from '../../modal/wrapper';
 import ContentBox from '../../content-box/content-box';
 import { PrimaryButton, CloseButton } from '../../common/buttons';
+import { Dropdown, DropdownItem } from '../../dropdown';
 
+@modal
+export default class CancelOrder extends React.Component {
 
-const CancelOrder = ({onCancel, onConfirm}) => {
-  const actionBlock = <i onClick={onCancel} className="fc-btn-close icon-close" title="Close" />;
-  const handleKeyUp = ({key}) => key === 'Escape' && onCancel();
+  static propTypes = {
+    reasons: PropTypes.array.isRequired,
+    onCancel: PropTypes.func.isRequired,
+    onConfirm: PropTypes.func.isRequired,
+    count: PropTypes.number,
+  };
 
-  return (
-    <ContentBox title="Cancel orders"
-                className="fc-address-form-modal"
-                actionBlock={actionBlock}>
-      <div className='fc-modal-body'>
-        Are you sure you wanna cancel these orders?
-      </div>
-      <div className='fc-modal-footer'>
-        <a tabIndex="2" className="fc-modal-close" onClick={onCancel}>
-          Cancel
-        </a>
-        <PrimaryButton tabIndex="1" autoFocus={true}
-                       onClick={onConfirm}
-                       onKeyUp={handleKeyUp}>
-          YES
-        </PrimaryButton>
-      </div>
-    </ContentBox>
-  );
-};
+  state = {
+    reason: null
+  };
 
-CancelOrder.propTypes = {
-  onCancel: PropTypes.func.isRequired,
-  onConfirm: PropTypes.func.isRequired,
-};
+  render() {
+    const {reasons, count, onCancel, onConfirm} = this.props;
 
-export default modal(CancelOrder);
+    const actionBlock = <i onClick={onCancel} className="fc-btn-close icon-close" title="Close" />;
+
+    return (
+      <ContentBox title="Cancel Orders?"
+                  className="fc-address-form-modal"
+                  actionBlock={actionBlock}>
+        <div className='fc-modal-body'>
+          Are you sure you want to cancel <b>{count} {inflect(count, 'order', 'orders')}</b>?
+          <div className="fc-order-cancel-reason">
+            <div>
+              <label>
+                Cancel Reason
+                <span className="fc-order-cancel-reason-asterisk">*</span>
+              </label>
+            </div>
+            <Dropdown className="fc-order-cancel-reason-selector"
+                      name="cancellationReason"
+                      placeholder="- Select -"
+                      value={this.state.reason}
+                      onChange={(reason) => this.setState({reason})}>
+              {reasons.map(({id, body}) => (
+                <DropdownItem key={id} value={id}>{body}</DropdownItem>
+              ))}
+            </Dropdown>
+          </div>
+        </div>
+        <div className='fc-modal-footer'>
+          <a tabIndex="2" className="fc-modal-close" onClick={onCancel}>
+            No
+          </a>
+          <PrimaryButton tabIndex="1"
+                         autoFocus={true}
+                         disabled={this.state.reason === null}
+                         onClick={() => onConfirm(this.state.reason)}>
+            Yes, Cancel
+          </PrimaryButton>
+        </div>
+      </ContentBox>
+    );
+  }
+}

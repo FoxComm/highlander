@@ -5,8 +5,13 @@ import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
+//utils
+import { ReasonType } from '../../lib/reason-utils';
+
 // data
 import { actions } from '../../modules/orders/list';
+import * as bulkActions from '../../modules/orders/bulk';
+import { fetchReasons } from '../../modules/reasons';
 
 // components
 import { SearchableList } from '../list-page';
@@ -24,17 +29,33 @@ const tableColumns = [
   {field: 'grandTotal', text: 'Total', type: 'currency'}
 ];
 
-const mapStateToProps = state => ({list: state.orders.list});
+const mapStateToProps = ({orders: {list, bulk}, reasons}) => {
+  return {
+    list,
+    bulk,
+    cancellationReasons: _.get(reasons, ['reasons', ReasonType.CANCELLATION], []),
+  };
+};
 
 const mapDispatchToProps = dispatch => {
-  return {actions: bindActionCreators(actions, dispatch)};
+  return {
+    actions: bindActionCreators(actions, dispatch),
+    bulkActions: bindActionCreators(bulkActions, dispatch),
+    fetchReasons: () => dispatch(fetchReasons(ReasonType.CANCELLATION)),
+  };
 };
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class Orders extends React.Component {
   static propTypes = {
     list: PropTypes.object.isRequired,
-    actions: PropTypes.object.isRequired,
+    bulk: PropTypes.shape({
+      errors: PropTypes.arrayOf(PropTypes.string),
+    }).isRequired,
+    cancellationReasons: PropTypes.object,
+    actions: PropTypes.objectOf(PropTypes.func).isRequired,
+    bulkActions: PropTypes.objectOf(PropTypes.func).isRequired,
+    fetchReasons: PropTypes.func,
   };
 
   static tableColumns = [
@@ -48,8 +69,12 @@ export default class Orders extends React.Component {
   ];
 
   state = {
-    modal: null
+    modal: null,
   };
+
+  componentDidMount() {
+    this.props.fetchReasons();
+  }
 
   @autobind
   hideModal() {
@@ -58,12 +83,18 @@ export default class Orders extends React.Component {
 
   @autobind
   cancelOrders(allChecked, toggledIds) {
+    const {bulkActions: {cancelOrders}, cancellationReasons} = this.props;
+
     this.setState({
       modal: (
         <CancelOrderModal
           isVisible={true}
+          count={toggledIds.length}
+          reasons={cancellationReasons}
           onCancel={this.hideModal}
-          onConfirm={()=>{}} />
+          onConfirm={(reasonId) => {
+            cancelOrders(toggledIds, reasonId);
+          }} />
       )
     });
   }
@@ -71,6 +102,7 @@ export default class Orders extends React.Component {
   get renderRow() {
     return (row, index, columns, params) => {
       const key = `order-${row.referenceNumber}`;
+
       return (
         <OrderRow
           order={row}
@@ -81,8 +113,13 @@ export default class Orders extends React.Component {
     };
   }
 
+  renderBulkErrors() {
+    const {errors} = this.props.bulk;
+    debugger;
+  }
+
   render() {
-    const {list, actions} = this.props;
+    const {list, actions, bulk} = this.props;
 
     return (
       <div>
@@ -97,6 +134,7 @@ export default class Orders extends React.Component {
           ]}
           predicate={({referenceNumber}) => referenceNumber} />
         {this.state.modal}
+        {bulk.errors ? this.renderBulkErrors() : null}
       </div>
     );
   }
