@@ -13,12 +13,31 @@ export const orderPaymentMethodRequestSuccess = _createAction('REQUEST_SUCCESS')
 export const orderPaymentMethodRequestFailed = _createAction('REQUEST_FAILED');
 export const orderPaymentMethodStartEdit = _createAction('START_EDIT');
 export const orderPaymentMethodStopEdit = _createAction('STOP_EDIT');
+export const orderPaymentMethodStartAdd = _createAction('START_ADD');
+export const orderPaymentMethodStopAdd = _createAction('STOP_ADD');
+
+const orderPaymentMethodAddCreditCardStart = _createAction('ADD_CREDIT_CARD_START');
+const orderPaymentMethodAddCreditCardSuccess = _createAction('ADD_CREDIT_CARD_SUCCESS');
 
 function deleteOrderPaymentMethod(path) {
   return dispatch => {
     return Api.delete(path)
       .then(
         order => dispatch(orderSuccess(order)),
+        err => dispatch(setError(err))
+      );
+  };
+}
+
+export function addOrderCreditCardPayment(orderRefNum, creditCardId) {
+  return dispatch => {
+    dispatch(orderPaymentMethodStartAdd());
+    return Api.post(`${basePath(orderRefNum)}/credit-cards`, { creditCardId: creditCardId })
+      .then(
+        order => {
+          dispatch(orderPaymentMethodAddCreditCardSuccess());
+          dispatch(orderSuccess(order));
+        },
         err => dispatch(setError(err))
       );
   };
@@ -39,13 +58,16 @@ export function deleteOrderCreditCardPayment(orderRefNum) {
   return deleteOrderPaymentMethod(path);
 }
 
+
 function basePath(refNum) {
   return `/orders/${refNum}/payment-methods`;
 }
 
 const initialState = {
+  isAdding: false,
   isEditing: false,
-  isFetching: false
+  isFetching: false,
+  isUpdating: false,
 };
 
 const reducer = createReducer({
@@ -77,8 +99,30 @@ const reducer = createReducer({
   [orderPaymentMethodStopEdit]: (state) => {
     return {
       ...state,
+      isAdding: false,
       isEditing: false
     };
+  },
+  [orderPaymentMethodStartAdd]: (state) => {
+    return {
+      ...state,
+      isAdding: true,
+    };
+  },
+  [orderPaymentMethodStopAdd]: (state) => {
+    return {
+      ...state,
+      isAdding: false,
+    };
+  },
+  [orderPaymentMethodAddCreditCardStart]: (state) => {
+    return {
+      ...state,
+      isUpdating: true,
+    };
+  },
+  [orderPaymentMethodAddCreditCardSuccess]: (state) => {
+    return initialState;
   },
   [setError]: (state, err) => {
     return {

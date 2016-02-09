@@ -60,10 +60,6 @@ export default class Payments extends React.Component {
 
   constructor(props, ...args) {
     super(props, ...args);
-
-    this.state = {
-      isAdding: false,
-    };
   }
 
   get currentCustomer() {
@@ -104,22 +100,19 @@ export default class Payments extends React.Component {
   }
 
   get editingActions() {
-    if (!this.state.isAdding) {
-      const action = () => this.setState({ isAdding: true });
-      return <AddButton onClick={action} />;
+    if (!this.props.payments.isAdding) {
+      return <AddButton onClick={this.props.orderPaymentMethodStartAdd} />;
     }
   }
 
   @autobind
   doneAction() {
-    this.setState({
-      isAdding: false,
-    }, this.props.orderPaymentMethodStopEdit);
+    this.props.orderPaymentMethodStopEdit();
   }
 
   @autobind
   processRows(rows) {
-    if (this.state.isAdding) {
+    if (this.props.payments.isAdding) {
       return [
         <NewPayment customerId={this.currentCustomer} />,
         ...rows

@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
-import { Button } from '../common/buttons';
+import { AddButton } from '../common/buttons';
 
 const TileSelector = props => {
   const tileItems = props.items.map(i => {
@@ -14,6 +14,12 @@ const TileSelector = props => {
 
   return (
     <div className="fc-tile-selector">
+      <div className="fc-tile-selector__header">
+        <div className="fc-tile-selector__title">
+          {props.title}
+        </div>
+        <AddButton />
+      </div>
       <div className="fc-tile-selector__items">
         {tileItems}
       </div>
@@ -23,6 +29,7 @@ const TileSelector = props => {
 
 TileSelector.propTypes = {
   items: PropTypes.array,
+  title: PropTypes.string.isRequired,
 };
 
 TileSelector.defaultProps = {
