@@ -44,6 +44,40 @@ describe('Activity Trail module', function() {
         }
       ]
     },
+    {
+      original: [
+        {
+          kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES,
+          data: {
+            oldQuantities: {sku1: 1, sku2: 1},
+            newQuantities: {sku1: 2}
+          }
+        },
+        {
+          kind: types.ORDER_LINE_ITEMS_UPDATED_QUANTITIES,
+          data: {
+            oldQuantities: {sku1: 2, sku2: 1},
+            newQuantities: {sku1: 3}
+          }
+        }
+      ],
+      expected: [
+        {
+          kind: derivedTypes.ORDER_LINE_ITEMS_ADDED_SKU,
+          data: {
+            difference: 1,
+            skuName: 'sku1'
+          }
+        },
+        {
+          kind: derivedTypes.ORDER_LINE_ITEMS_ADDED_SKU,
+          data: {
+            difference: 1,
+            skuName: 'sku1'
+          }
+        },
+      ]
+    },
   ];
 
   examples.map((ex, i) => {
