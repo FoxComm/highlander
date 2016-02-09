@@ -10,6 +10,7 @@ const OrderShippingMethod = props => {
     <ShippingMethod
       currentOrder={props.order.currentOrder}
       title={title}
+      readOnly={props.readOnly}
       availableShippingMethods={props.shippingMethods.availableMethods}
       shippingMethods={[shippingMethod]}
       isEditing={props.shippingMethods.isEditing}
@@ -38,12 +39,14 @@ OrderShippingMethod.propTypes = {
   orderShippingMethodStartEditPrice: PropTypes.func,
   orderShippingMethodCancelEditPrice: PropTypes.func,
   status: PropTypes.string,
-  updateShippingMethod: PropTypes.func
+  updateShippingMethod: PropTypes.func,
+  readOnly: PropTypes.bool,
 };
 
 OrderShippingMethod.defaultProps = {
   isCart: false,
-  status: 'success'
+  status: 'success',
+  readOnly: false,
 };
 
 

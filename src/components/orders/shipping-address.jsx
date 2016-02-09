@@ -8,6 +8,7 @@ import AddressBox from '../addresses/address-box';
 import AddressDetails from '../addresses/address-details';
 import * as OrdersActions from '../../modules/orders/list';
 import EditableContentBox from '../content-box/editable-content-box';
+import ContentBox from '../content-box/content-box';
 import { connect } from 'react-redux';
 import * as AddressesActions from '../../modules/customers/addresses';
 import * as ShippingAddressesActions from '../../modules/orders/shipping-addresses';
@@ -43,12 +44,14 @@ export default class OrderShippingAddress extends React.Component {
   static propTypes = {
     isCart: PropTypes.bool,
     order: PropTypes.object.isRequired,
-    status: PropTypes.string
+    status: PropTypes.string,
+    readOnly: PropTypes.bool,
   };
 
   static defaultProps = {
     isCart: false,
-    status: ''
+    status: '',
+    readOnly: false,
   };
 
   componentDidMount() {
@@ -169,9 +172,11 @@ export default class OrderShippingAddress extends React.Component {
         text="Shipping Address" />
     );
 
+    const OrderShippingContentBox = props.readOnly ? ContentBox : EditableContentBox;
+
     return (
       <div>
-        <EditableContentBox
+        <OrderShippingContentBox
           className="fc-shipping-address"
           title={title}
           indentContent={true}

@@ -1,3 +1,6 @@
+@subtitle-font-size: 26px;
+@subtitle-line-length: 37px;
+
 .fc-section-title {
   display: flex;
   align-items: center;
@@ -15,10 +18,14 @@
 
   &__subtitle {
     color: @color-subtitle;
-    font-weight: 400;
+    font-weight: @normal;
   }
 
   &__actions {
     text-align: right;
   }
+}
+
+.fc-subtitle {
+  .font-spec(@subtitle-font-size, @semibold, @subtitle-line-length);
 }

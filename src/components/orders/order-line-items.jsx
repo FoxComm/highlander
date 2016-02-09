@@ -5,6 +5,7 @@ import React, { PropTypes } from 'react';
 
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import EditableContentBox from '../content-box/editable-content-box';
+import ContentBox from '../content-box/content-box';
 import OrderLineItem from './order-line-item';
 import PanelHeader from './panel-header';
 import SkuResult from './sku-result';
@@ -44,8 +45,10 @@ const OrderLineItems = props => {
         data={{rows: props.lineItems.items}}/>
     );
 
+  const LineItemsContentBox = props.readOnly ? ContentBox : EditableContentBox;
+
   return (
-    <EditableContentBox
+    <LineItemsContentBox
       className='fc-line-items'
       title={title}
       isEditing={props.lineItems.isEditing}
@@ -53,7 +56,9 @@ const OrderLineItems = props => {
       doneAction={props.orderLineItemsCancelEdit}
       editContent={<RenderEditContent {...props} />}
       editFooter={<RenderEditFooter {...props} />}
-      viewContent={viewContent} />
+      indentContent={false}
+      viewContent={viewContent}
+    />
   );
 };
 
@@ -63,12 +68,14 @@ OrderLineItems.propTypes = {
   lineItems: PropTypes.object,
   orderLineItemsStartEdit: PropTypes.func,
   orderLineItemsCancelEdit: PropTypes.func,
-  state: PropTypes.string
+  state: PropTypes.string,
+  readOnly: PropTypes.bool,
 };
 
 OrderLineItems.defaultProps = {
   isCart: false,
-  state: ''
+  state: '',
+  readOnly: false,
 };
 
 class RenderEditContent extends React.Component {
