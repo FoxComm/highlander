@@ -43,7 +43,7 @@ it. The post-modern world is one of flux and uncertainty which can only collapse
 into the shadow of objectivity when illuminated. 
 
 Below is a description of a product model, nay, a content model that both provides
-variation in the face of contextualization, but has its objective reality and definition.
+variant in the face of contextualization, but has its objective reality and definition.
 
 Please read the companion paper "Everything is Search" after this one to realize
 the full potential of the approach described below.
@@ -55,7 +55,7 @@ We have to balance several problems.
 \begin{itemize}
     \item Provide the most appropriate information at the right time.
     \item Semantically structure information into a computable form.
-    \item Provide a manageable way to handle variation.
+    \item Provide a manageable way to handle variant.
 \end{itemize}
 
 \newpage
@@ -144,6 +144,7 @@ Each attribute in the Shadow corresponds to an attribute in the Form. It selects
 the value from the Form via it's name. For example, the 'x' value from the 'name' 
 attribute in the Form..
 
+
 \section{The Context}
 
 Each \emph{Shadow} is a representation of the product \emph{Form} given a \emph{Context}. Each user
@@ -158,37 +159,93 @@ data and statistics.
 
 
 \newpage
-\section{Representing SKUs and Variations}
-The big question here is how do we map a product to a SKU? And the answer is
-the Product Form should have an attribute of type "variations".
+\section{Mapping Variants to SKUs}
+
+The big question here is how do we handle variants. How do we map a product variant to a SKU? 
+The Product Form can have variants which represent trees where the leaf nodes are
+the skus.
 
 \begin{lstlisting}
     {
-        variations: {
-            type: "variations",
-            variation1 : {
-                color : {
-                    red : "SKU-RED1",
-                    green : "SKU-GREEN2",
-                }
+        variants1 : {
+            color : {
+                red : "SKU-RED1",
+                green : "SKU-GREEN2",
             }
-            variation2 : {
-                color : {
-                    purple : "SKU-BLUE3",
-                    orange : "SKU-ORGAN3",
-                }
-            }
-            ...
         }
+        variants2 : {
+            color : {
+                purple : "SKU-BLUE3",
+                orange : "SKU-ORGAN3",
+            }
+        }
+        ...
+    }
 \end{lstlisting}
 
-The benefit of this model is we can represent arbitrarily complex variations 
+The benefit of this model is we can represent arbitrarily complex variants 
 by simply assigning the leaves of the tree with SKU values. If the leaf nodes are
 empty, we can have an algorithm that can walk the tree and assign meaningful
 SKU numbers.
 
 Also, because of our Shadow model, we can handle cases such as "Only purple and orange
-are available in Germany." if the user is in a German context.
+are available in Germany." if the user is in a German context. 
+
+Image a product has the following variants
+
+\begin{lstlisting}
+    //Product Form With Variants
+    {
+        Germany : {
+            color : {
+                red : "SKU-RED1",
+                green : "SKU-GREEN2",
+            }
+        }
+        USA : {
+            color : {
+                purple : "SKU-BLUE3",
+                orange : "SKU-ORGAN3",
+            }
+        }
+        ...
+    }
+\end{lstlisting}
+We can map the variant in the product form and shadow like so.
+
+\begin{lstlisting}
+    //Product Form with Variant Attributes
+    {
+        id: 3
+        name: { 
+            type: "string": 
+            USA : {  
+                color : {
+                    purple: "Purple Shoe", 
+                    orange: "Sun Orange Shoe", 
+                }
+            }
+            German : { ... }
+        }
+        ...
+    }
+\end{lstlisting}
+
+\begin{lstlisting}
+    //Product Shadow Using "USA" variant
+    {
+        context: { language: "english", region: "USA" }
+        product: 3,
+        name: "usa",
+        description: "english"
+    }
+\end{lstlisting}
+
+The benefit of this approach is that not all attributes have to change based on variants
+But it allows some to change. For example, the description attribute above doesn't
+change based on variant, but the name attribute does.
+
+Also we can reuse different variants and attributes in different contexts.
 
 \section{Models}
 
@@ -207,8 +264,7 @@ Where the attributes can be arbitrarily specific, but should be of a flat key/va
 \begin{lstlisting}
     {
         modality: "x",
-        language: "y",
-        region: "z"
+        language: "y"
     }
 \end{lstlisting}
 
@@ -220,7 +276,8 @@ The ProductForm represents a product as described above.
 \begin{lstlisting}
     case class ProductForm(
         id: Id,
-        attributes: Json)
+        attributes: Json,
+        variants: Json)
 \end{lstlisting}
 
 The attributes should be of the form
@@ -237,6 +294,7 @@ The attributes should be of the form
         }
     }
 \end{lstlisting}
+
 
 \subsection{ProductShadow}
 
@@ -260,6 +318,51 @@ name.
         ...
     }
 \end{lstlisting}
+
+\newpage
+\subsection{Tiny MVP}
+
+For Tiny MVP we do the following for product form
+\begin{lstlisting}
+    {
+        title: { 
+            type: "string",
+            ...
+        }
+        description: { 
+            type: "string",
+            ...  
+        }
+        images: { 
+            type: "images"
+            ...  
+        }
+        price: {
+            type: "price"
+            ...
+        }
+    }
+\end{lstlisting}
+\newpage
+
+We provide the following endpoints
+
+\begin{itemize}
+    \item GET /api/v1/contexts
+    \item GET /api/v1/products/x
+    \item POST /api/v1/products/
+    \item PUT /api/v1/products/x
+    \item GET /api/v1/product-forms/x
+    \item POST /api/v1/product-forms/
+    \item PUT /api/v1/product-forms/x
+\end{itemize}
+
+We can index everything in ES using context like this.
+
+\begin{itemize}
+    \item /api/search/products-[context]/
+    \item /api/search/product-forms-[context]/
+\end{itemize}
 
 
 \end{document}
