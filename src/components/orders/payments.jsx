@@ -1,15 +1,10 @@
 import _ from 'lodash';
-<<<<<<< HEAD
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
 import * as paymentActions from '../../modules/orders/payment-methods';
 
-=======
-import React, { Component, PropTypes } from 'react';
-import { autobind } from 'core-decorators';
->>>>>>> Update payments component to handle new payments
 import EditableContentBox from '../content-box/editable-content-box';
 import ContentBox from '../content-box/content-box';
 import TableView from '../table/tableview';
