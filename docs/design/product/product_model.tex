@@ -322,8 +322,11 @@ name.
 \newpage
 \subsection{Tiny MVP}
 
-For Tiny MVP we do the following for product form
+For Tiny MVP we will seed only 1 default context. The product form will have one
+"default" variant and minimal set of attributes.
+
 \begin{lstlisting}
+    //MVP Product Form
     {
         title: { 
             type: "string",
@@ -345,22 +348,27 @@ For Tiny MVP we do the following for product form
 \end{lstlisting}
 \newpage
 
-We provide the following endpoints
+We provide the following Admin endpoints
 
 \begin{itemize}
     \item GET /api/v1/contexts
     \item GET /api/v1/products/x
-    \item POST /api/v1/products/
-    \item PUT /api/v1/products/x
+    \item GET /api/v1/product-shadows/x
+    \item POST /api/v1/product-shadows/
+    \item PUT /api/v1/product-shadows/x
     \item GET /api/v1/product-forms/x
     \item POST /api/v1/product-forms/
     \item PUT /api/v1/product-forms/x
 \end{itemize}
 
+The "/api/v1/products/" route will implement what eventually the storefront JSON will look
+like.
+
 We can index everything in ES using context like this.
 
 \begin{itemize}
     \item /api/search/products-[context]/
+    \item /api/search/product-shadows-[context]/
     \item /api/search/product-forms-[context]/
 \end{itemize}
 
