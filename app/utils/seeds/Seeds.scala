@@ -32,12 +32,13 @@ object Seeds {
     createBaseSeeds()
 
     args.headOption.map {
-      case "random" ⇒  createRandomSeeds()
-      case "ranking" ⇒ createRankingSeeds()
-      case "demo" ⇒  { 
+      case "random" ⇒  
+        createRandomSeeds()
+      case "ranking" ⇒ 
+        createRankingSeeds()
+      case "demo" ⇒   
         createDemoSeeds()
         createRandomSeeds()
-      }
       case _ ⇒ None
     }
 
@@ -46,31 +47,33 @@ object Seeds {
 
   def createBaseSeeds()(implicit db: Database) {
     Console.err.println(s"Inserting seeds")
-    val result: Failures Xor Unit = Await.result(createAll().runTxn(), 20.second)
+    val result: Failures Xor Unit = Await.result(createAll().runTxn(), 20.seconds)
     validateResults("base", result)
   }
 
   def createDemoSeeds()(implicit db: Database) {
-    val result: Failures Xor Unit = Await.result(DemoSeeds.insertDemoSeeds.runTxn(), 120.seconds)
-      validateResults("demo", result)
+    val result = Await.result(DemoSeeds.insertDemoSeeds.runTxn(), 120.seconds)
+    validateResults("demo", result)
   }
 
   def createRankingSeeds()(implicit db: Database) {
     Console.err.println(s"Inserting ranking seeds")
-    Await.result(db.run(RankingSeedsGenerator.insertRankingSeeds(1700).transactionally), 30.second)
+    Await.result(db.run(RankingSeedsGenerator.insertRankingSeeds(1700).transactionally), 30.seconds)
   }
 
   def createRandomSeeds()(implicit db: Database) {
     Console.err.println(s"Inserting random seeds")
+
     val customers = 1000
     val batchSize = 100 
     val batchs = customers / batchSize
     val productsPerBatch = 20
+
     //Have to generate data in batches because of DBIO.seq stack overflow bug.
     //https://github.com/slick/slick/issues/1186
     (1 to batchs) map { b ⇒ 
       Console.err.println(s"Generating random batch $b of $batchSize customers")
-      val result: Failures Xor Unit = Await.result(
+      val result = Await.result(
         SeedsGenerator.insertRandomizedSeeds(batchSize, productsPerBatch).runTxn(), 120.second)
       validateResults("random", result)
     }
@@ -147,9 +150,7 @@ object Seeds {
   private def validateResults(seed: String, result: Failures Xor Unit) {
     result.fold(failures ⇒ {
       Console.err.println(s"Failed generating $seed seeds")
-      failures.flatten.foreach(f⇒  { 
-        Console.err.println(f)
-      })
+      failures.flatten.foreach(Console.err.println)
     },
     _ ⇒ Console.err.println("Success!"))
   }
