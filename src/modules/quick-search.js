@@ -4,7 +4,7 @@ import { post } from '../lib/search';
 import { update } from 'sprout-data';
 import { toQuery } from '../elastic/common';
 import SearchTerm from '../paragons/search-term';
-import makePagination, {makeFetchAction} from './pagination/base';
+import makePagination from './pagination/base';
 import reduceReducers from 'reduce-reducers';
 
 const emptyState = {
