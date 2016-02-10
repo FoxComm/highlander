@@ -1,49 +1,52 @@
 
 import _ from 'lodash';
 import { get, post } from '../lib/search';
-import ejs from 'elastic.js';
 import moment from 'moment';
+import * as dsl from './dsl';
 
 const sortBy = [
-  ejs.Sort('createdAt').desc(),
-  ejs.Sort('activity.createdAt').desc()
+  dsl.sortByField('createdAt', 'desc'),
+  dsl.sortByField('activity.createdAt', 'desc'),
 ];
 
 function buildRequest({fromId = null, untilDate = null, query = null, dimension = 'admin', objectId = null} = {}) {
-  function buildFilter(filter) {
-    filter = filter.must(ejs.TermQuery('dimension', dimension));
-    if (objectId != null) {
-      filter = filter.must(ejs.TermQuery('objectId', objectId));
-    }
-    if (fromId != null) {
-      filter = filter.must(ejs.RangeQuery('id').lt(fromId));
-    }
-    if (untilDate) {
-      filter = filter.must(ejs.RangeQuery('createdAt').gt(untilDate));
-    }
-    return filter;
+  const filter = [
+    dsl.termFilter('dimension', dimension)
+  ];
+  if (objectId != null) {
+    filter.push(dsl.termFilter('objectId', objectId));
+  }
+  if (fromId != null) {
+    filter.push(dsl.rangeFilter('id', {lt: fromId}));
+  }
+  if (untilDate) {
+    filter.push(dsl.rangeFilter('createdAt', {gt: untilDate}));
   }
 
-  const filter = buildFilter(ejs.BoolQuery());
-
-  return ejs.Request().query(filter);
+  return dsl.query({
+    bool: {filter}
+  });
 }
 
-export function fetch(queryParams, type = '_search') {
+export function fetch(queryParams, forCount = false) {
   let q = buildRequest(queryParams);
-  if (type == '_search') {
-    q = q.sort(sortBy);
+  if (!forCount) {
+    q.sort = sortBy;
+  } else {
+    q.size = 0;
   }
 
-  return post(`activity_connections/${type}`, q);
+  return post(`activity_connections/_search`, q);
 }
 
 export default function searchActivities(fromActivity = null, trailParams, days = 2, query = null) {
 
   function queryFirstActivity() {
-    return buildRequest(trailParams)
-      .sort(sortBy)
-      .size(1);
+    return {
+      ...buildRequest(trailParams),
+      sort: sortBy,
+      size: 1,
+    };
   }
 
   let promise,

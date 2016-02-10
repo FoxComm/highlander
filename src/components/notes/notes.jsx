@@ -1,49 +1,47 @@
+
+// libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
-import { createSelector } from 'reselect';
-import { assoc } from 'sprout-data';
 import { connect } from 'react-redux';
+import { createSelector } from 'reselect';
+import { bindActionCreators } from 'redux';
 
+// components
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import { PrimaryButton } from '../../components/common/buttons';
-import { SectionTitle } from '../section-title';
+import SectionTitle from '../section-title/section-title';
 import TableView from '../table/tableview';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
-import NoteControls from './controls';
 import NoteForm from './form';
 import { DateTime } from '../common/datetime';
-import ConfirmModal from '../modal/confirm';
+import LiveSearchAdapter from '../live-search/live-search-adapter';
+import NoteRow from './note-row';
 
-import * as NotesActinos from '../../modules/notes';
-import { entityId } from '../../modules/state-helpers';
-
+// redux
+import * as notesActions from '../../modules/notes';
 
 const editingNote = createSelector(
-  (state, entity) => _.get(state.notes, [entity.entityType, entity.entityId, 'rows'], []),
-  (state, entity) => _.get(state.notes, [entity.entityType, entity.entityId, 'editingNoteId']),
+  state => _.get(state.notes.list.currentSearch(), 'results.rows', []),
+  state => _.get(state.notes, 'editingNoteId'),
   (notes, editingNoteId) => {
     return _.findWhere(notes, {id: editingNoteId});
   }
 );
 
-function mapStateToProps(state, {entity}) {
-  const notesData = _.get(state.notes, [entity.entityType, entity.entityId], {rows: []});
-
-  return assoc(
-    notesData,
-    'editingNote', editingNote(state, entity),
-    'data', notesData
-  );
+function mapStateToProps(state) {
+  return {
+    ...state.notes,
+    editingNote: editingNote(state),
+  };
 }
 
 function mapDispatchToProps(dispatch, props) {
-  return _.transform(NotesActinos, (result, action, key) => {
-    result[key] = (...args) => {
-      return dispatch(action(props.entity, ...args));
-    };
-  });
+  return {
+    ...bindActionCreators(notesActions, dispatch),
+    searchActions: bindActionCreators(notesActions.actions, dispatch),
+  };
 }
 
 /*eslint "react/prop-types": 0*/
@@ -58,23 +56,38 @@ export default class Notes extends React.Component {
   };
 
   static propTypes = {
-    tableColumns: PropTypes.array,
     entity: PropTypes.shape({
       entityId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
       entityType: PropTypes.string.isRequired
     })
   };
 
-  static defaultProps = {
-    tableColumns: [
-      {field: 'createdAt', text: 'Date/Time'},
+  componentDidMount() {
+    this.props.setCurrentEntity(this.props.entity);
+    this.props.searchActions.resetSearch();
+    this.props.searchActions.fetch();
+  }
+
+  get isCustomerNotes() {
+    return this.props.entity.entityType == 'customer';
+  }
+
+  get tableColumns() {
+    let baseColumns = [
       {field: 'body', text: 'Note'},
       {field: 'author', text: 'Author'}
-    ]
-  };
+    ];
+    if (this.isCustomerNotes) {
+      baseColumns = [
+        {field: 'transaction', text: 'Transaction'},
+        ...baseColumns,
+      ];
+    }
 
-  componentDidMount() {
-    this.props.fetchNotes();
+    return [
+      {field: 'createdAt', text: 'Date/Time', type: 'DateTime'},
+      ...baseColumns
+    ];
   }
 
   @autobind
@@ -82,7 +95,7 @@ export default class Notes extends React.Component {
     if (this.props.editingNoteId === row.id) {
       return (
         <TableRow key={`row-${index}`}>
-          <TableCell colspan={3}>
+          <TableCell colspan={this.tableColumns.length}>
             <NoteForm
               body={this.props.editingNote && this.props.editingNote.body}
               onReset={this.props.stopAddingOrEditingNote}
@@ -93,32 +106,23 @@ export default class Notes extends React.Component {
       );
     } else {
       return (
-        <TableRow key={`row-${index}`} isNew={isNew}>
-          <TableCell>
-            <DateTime value={row.createdAt}/>
-          </TableCell>
-          <TableCell>
-            {row.body}
-          </TableCell>
-          <TableCell>
-            <NoteControls
-              model={row}
-              onEditClick={(item) => this.props.startEditingNote(item.id)}
-              onDeleteClick={(item) => this.props.startDeletingNote(item.id)}
-            />
-          </TableCell>
-        </TableRow>
+        <NoteRow
+          note={row}
+          columns={this.tableColumns}
+          params={isNew}
+          actions={this.props}
+          />
       );
     }
   }
 
   @autobind
-  injectAddingForm(rows) {
+  injectAddingForm(rows, columns) {
     // -1 means we want add new note
     if (this.props.editingNoteId === -1) {
       return [
         <TableRow key="row-add">
-          <TableCell colspan={this.props.tableColumns.length}>
+          <TableCell colspan={columns.length}>
             <NoteForm
               onReset={this.props.stopAddingOrEditingNote}
               onSubmit={this.props.createNote}
@@ -143,18 +147,24 @@ export default class Notes extends React.Component {
   }
 
   render() {
+    const props = this.props;
+
     return (
       <div className={this.sectionClassName} >
         <SectionTitle className="fc-grid-gutter fc-notes-section-title" title="Notes">{this.controls}</SectionTitle>
-        <TableView
-          renderRow={this.renderNoteRow}
-          processRows={this.injectAddingForm}
-          detectNewRows={this.props.wasReceived}
-          columns={this.props.tableColumns}
-          data={this.props.data}
-          setState={this.props.fetchNotes}
-          emptyMessage="No notes yet."
-        />
+        <LiveSearchAdapter
+          searches={props.list}
+          searchActions={props.searchActions}
+          singleSearch={true}
+          >
+          <TableView
+            emptyMessage="No notes found."
+            data={props.list.currentSearch().results}
+            renderRow={this.renderNoteRow}
+            columns={this.tableColumns}
+            processRows={this.injectAddingForm}
+            />
+        </LiveSearchAdapter>
         <ConfirmationDialog
           {...Notes.deleteOptions}
           isVisible={this.props.noteIdToDelete != null}

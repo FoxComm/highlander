@@ -65,11 +65,11 @@ export default class NewOrder extends Component {
 
   get suggestedCustomers() {
     const empty = { rows: [], from: 0, size: 0, total: 0 };
-    return _.get(this.props, 'newOrder.customers.result', empty);
+    return _.get(this.props, 'newOrder.customers.results', empty);
   }
 
   get isFetching() {
-    return _.get(this.props, 'newOrder.customers.isFetching', false);
+    return _.get(this.props, 'newOrder.customers.results.isFetching', false);
   }
 
   get customersList() {

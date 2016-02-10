@@ -43,7 +43,7 @@ export default class Groups extends React.Component {
   };
 
   componentDidMount() {
-    this.props.fetch(this.props.groups);
+    this.props.fetch();
   }
 
   @autobind
@@ -80,7 +80,7 @@ export default class Groups extends React.Component {
               columns={this.props.tableColumns}
               data={this.props.groups}
               renderRow={renderRow}
-              setState={this.props.fetch}
+              setState={this.props.updateStateAndFetch}
             />
         </div>
       </div>

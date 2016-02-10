@@ -88,23 +88,11 @@ export default class StoreCreditTransactions extends React.Component {
   }
 
   componentDidMount() {
+    this.props.actions.setExtraFilters([
+      {term: {customerId: this.customerId}}
+    ]);
     this.props.totalsActions.fetchTotals(this.customerId);
-  }
-
-  get defaultSearchOptions() {
-    return {
-      singleSearch: true,
-      initialFilters: [{
-        display: 'Customer: ' + this.customerId,
-        selectedTerm: 'customerId',
-        selectedOperator: 'eq',
-        hidden: true,
-        value: {
-          type: 'number',
-          value: '' + this.customerId
-        }
-      }],
-    };
+    this.props.actions.fetch();
   }
 
   renderRow(row, index, columns, params) {
@@ -134,7 +122,7 @@ export default class StoreCreditTransactions extends React.Component {
             renderRow={this.renderRow}
             tableColumns={this.props.tableColumns}
             searchActions={this.props.actions}
-            searchOptions={this.defaultSearchOptions} />
+            searchOptions={{singleSearch: true}} />
         </div>
       </div>
     );

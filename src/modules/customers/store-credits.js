@@ -66,7 +66,9 @@ const { reducer, actions } = makeLiveSearch(
   'customers.storeCredits',
   searchTerms,
   'store_credits_search_view/_search',
-  'customerStoreCreditsScope'
+  'customerStoreCreditsScope', {
+    skipInitialFetch: true
+  }
 );
 
 export {

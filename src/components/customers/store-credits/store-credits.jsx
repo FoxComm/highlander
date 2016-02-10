@@ -124,25 +124,13 @@ export default class StoreCredits extends React.Component {
     return ReasonType.CANCELLATION;
   }
 
-  get defaultSearchOptions() {
-    return {
-      singleSearch: true,
-      initialFilters: [{
-        display: 'Customer: ' + this.customerId,
-        selectedTerm: 'customerId',
-        selectedOperator: 'eq',
-        hidden: true,
-        value: {
-          type: 'number',
-          value: this.customerId
-        }
-      }],
-    };
-  }
-
   componentDidMount() {
+    this.props.actions.setExtraFilters([
+      {term: {'customerId': this.customerId} }
+    ]);
     this.props.reasonsActions.fetchReasons(this.reasonType);
     this.props.totalsActions.fetchTotals(this.customerId);
+    this.props.actions.fetch();
   }
 
   @autobind
@@ -259,7 +247,7 @@ export default class StoreCredits extends React.Component {
             renderRow={this.renderRow}
             tableColumns={this.props.tableColumns}
             searchActions={this.props.actions}
-            searchOptions={this.defaultSearchOptions} />
+            searchOptions={{singleSearch: true}} />
         </div>
         { this.confirmStateChange }
         { this.confirmCancellation }

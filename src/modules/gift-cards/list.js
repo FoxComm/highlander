@@ -2,16 +2,12 @@
 import _ from 'lodash';
 import { get } from 'sprout-data';
 import Api from '../../lib/api';
-import makePagination from '../pagination';
 import makeLiveSearch from '../live-search';
 import searchTerms from './search-terms';
 
-
-const { actionAddEntities } = makePagination('/gift-cards', 'GIFT_CARDS');
-
 const { reducer, actions } = makeLiveSearch(
-  'giftCards', 
-  searchTerms, 
+  'giftCards.list',
+  searchTerms,
   'gift_cards_search_view/_search',
   'giftCardsScope'
 );
@@ -30,9 +26,8 @@ export function createGiftCard() {
 
     return Api.post('/gift-cards', postData)
       .then(
-        results => {
-          const giftCards = _.filter(results, {success: true}).map(entry => entry.giftCard);
-          dispatch(actionAddEntities(giftCards));
+        () => {
+          dispatch(actions.fetch());
         },
         err => console.error(err)
       );

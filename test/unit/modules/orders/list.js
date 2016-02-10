@@ -4,7 +4,7 @@ import util from 'util';
 
 const ordersSearchTerms = require('../../../fixtures/orders-search-terms.js');
 const ordersSavedSearches = require('../../../fixtures/orders-saved-searches.js');
-const makeLiveSearch = importSource('modules/live-search.js');
+const makeLiveSearch = importSource('modules/live-search/index.js');
 const { reducer: reducer, actions: actions } = makeLiveSearch('TEST', ordersSearchTerms, ordersSavedSearches);
 const { deleteSearchFilter, selectSavedSearch, submitFilters } = actions;
 
@@ -13,8 +13,8 @@ const selectedSearch = (state) => state.savedSearches[state.selectedSearch];
 xdescribe('modules.orders.list', function() {
   const sampleFilter = {
     display: 'Order : ID : 7',
-    selectedTerm: 'id',
-    selectedOperator: 'eq',
+    term: 'id',
+    operator: 'eq',
     value: {
       type: 'number',
       value: 7

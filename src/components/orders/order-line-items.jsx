@@ -172,9 +172,8 @@ class RenderEditFooter extends React.Component {
   }
 
   render() {
-    const suggestedSkus = _.get(this.props, 'skuSearch.result.rows', []);
-    const isFetching = _.get(this.props, 'skuSearch.isFetching', false);
-    const orderSkus = _.get(this.props, 'lineItems.items', []);
+    const suggestedSkus = _.get(this.props, 'skuSearch.results.rows', []);
+    const isFetching = _.get(this.props, 'skuSearch.results.isFetching', false);
     const query = _.get(this.props, 'skuSearch.phrase', '');
     return (
       <div className="fc-line-items-add">

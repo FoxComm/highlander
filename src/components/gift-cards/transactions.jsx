@@ -8,7 +8,6 @@ import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 
 // components
-import TableView from '../table/tableview';
 import { SearchableList } from '../list-page';
 import GiftCardTransactionRow from './gift-card-transaction-row';
 
@@ -27,7 +26,6 @@ export default class GiftCardTransactions extends React.Component {
   static propTypes = {
     fetch: PropTypes.func,
     initialFetch: PropTypes.func,
-    actionReset: PropTypes.func,
     setGiftCard: PropTypes.func,
     tableColumns: PropTypes.array,
     params: PropTypes.shape({
@@ -46,20 +44,11 @@ export default class GiftCardTransactions extends React.Component {
     ]
   };
 
-  get defaultSearchOptions() {
-    return {
-      singleSearch: true,
-      initialFilters: [{
-        display: 'Gift Card: ' + this.props.params.giftCard,
-        selectedTerm: 'code',
-        selectedOperator: 'eq',
-        hidden: true,
-        value: {
-          type: 'string',
-          value: this.props.params.giftCard
-        }
-      }],
-    };
+  componentDidMount() {
+    this.props.actions.setExtraFilters([
+      {term: {code: this.props.params.giftCard}}
+    ]);
+    this.props.actions.fetch();
   }
 
   @autobind
@@ -83,7 +72,7 @@ export default class GiftCardTransactions extends React.Component {
           renderRow={this.renderRow}
           tableColumns={this.props.tableColumns}
           searchActions={this.props.actions}
-          searchOptions={this.defaultSearchOptions} />
+          searchOptions={{singleSearch: true}} />
       </div>
     );
   }

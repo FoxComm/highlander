@@ -8,7 +8,7 @@ import makeQuickSearch from '../quick-search';
 const emptyFilters = [];
 const emptyPhrase = '';
 const quickSearch = makeQuickSearch(
-  'order_customers',
+  'orders.newOrder.customers',
   'customers_search_view/_search',
   emptyFilters,
   emptyPhrase
@@ -16,15 +16,15 @@ const quickSearch = makeQuickSearch(
 
 function suggestCustomers(phrase, guest = false) {
   const guestFilters = guest ? [{
-    selectedTerm: 'isGuest',
-    selectedOperator: 'eq',
+    term: 'isGuest',
+    operator: 'eq',
     value: {
       type: 'bool',
       value: true,
     },
   }] : [];
 
-  return quickSearch.actions.doSearch(phrase, guestFilters);
+  return quickSearch.actions.fetch(phrase, guestFilters);
 }
 
 const createOrderStart = createAction('NEW_ORDER_CREATE_ORDER_START');
@@ -36,7 +36,7 @@ function createOrder(customer, isGuest = false) {
   const payload = isGuest
     ? { email: customer.email }
     : { customerId: customer.id };
-  
+
   return dispatch => {
     dispatch(createOrderStart());
     return Api.post('/orders', payload)

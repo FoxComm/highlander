@@ -16,10 +16,7 @@ import DatePicker from '../datepicker/datepicker';
 import SearchTerm, { getInputMask } from '../../paragons/search-term';
 
 function currentSearch(props) {
-  return _.chain(props)
-    .get(['searches', 'savedSearches', props.searches.selectedSearch], [])
-    .defaults({searchValue: '', currentOptions: [], searches: []})
-    .value();
+  return props.searches.currentSearch() || {};
 }
 
 /**
@@ -33,11 +30,7 @@ export default class LiveSearch extends React.Component {
 
     const search = currentSearch(props);
 
-    if (!_.isEmpty(props.initialFilters) && _.isEmpty(search.query)) {
-      search.query = props.initialFilters;
-    }
-
-    const {searchValue, query: pills} = search;
+    const {searchValue = '', query: pills} = search;
     const options = _.get(props, ['searches', 'searchOptions'], []);
 
     this.state = {
@@ -61,7 +54,6 @@ export default class LiveSearch extends React.Component {
     selectSavedSearch: PropTypes.func.isRequired,
     searches: PropTypes.object,
     singleSearch: PropTypes.bool,
-    initialFilters: PropTypes.array,
     submitFilters: PropTypes.func.isRequired,
     updateSearch: PropTypes.func.isRequired,
     noGutter: PropTypes.bool,
@@ -70,7 +62,6 @@ export default class LiveSearch extends React.Component {
 
   static defaultProps = {
     singleSearch: false,
-    initialFilters: [],
     noGutter: false,
   };
 
@@ -213,8 +204,6 @@ export default class LiveSearch extends React.Component {
   }
 
   formatPill(pill, idx, props) {
-    if (pill.hidden) return;
-
     return (
       <div
         className="fc-pilled-input__pill"
@@ -231,7 +220,7 @@ export default class LiveSearch extends React.Component {
   }
 
   componentDidMount() {
-    this.props.submitFilters(this.currentSearch.query);
+    this.props.submitFilters(this.currentSearch.query, true);
     this.props.fetchSearches();
   }
 

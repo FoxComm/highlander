@@ -101,7 +101,9 @@ const { reducer, actions } = makeLiveSearch(
   'customers.transactions',
   searchTerms,
   'orders_search_view/_search',
-  'customerTransactionsScope'
+  'customerTransactionsScope', {
+    skipInitialFetch: true
+  }
 );
 
 export {

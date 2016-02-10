@@ -2,7 +2,7 @@
 
 ## The concepts
 
-What is pagination mean ? Actually that functionality is for synchronizing data from server based on some defined criteria.
+What is pagination mean ? Actually that functionality is for synchronizing some list of entities from server based on some defined criteria.
 For example you have list of orders. List has maximum elements to show per each page. Later you can want:
 
 1. Show another page.
@@ -14,46 +14,34 @@ So, pagination it's important part of underlying functionality, but not complete
 
 ## Architecture
 
-Core functionality located in `base.js` and this functionality designed for maximum flexibility.
-
-Quick introduction to entities in `base.js` module:
-
-### First Layer
-
-##### actionTypes
-
-Enum that contains action types for pagination/fetching purposes.
-Each action type in enum is just string.
+Core functionality located in `base.js`.
+There are two methods `makePagination` which creates actions and reducer
+and `makeFetchAction` which creates fetch actions and used inside `makePagination`.
 
 
-##### paginate(state, action)
+`makeFetchAction(fetcher, actions, findSearchState)` creates fetch action what calls `fetcher` method with passed
+arguments and context (`this` property inside function) -> `{searchState, getState}`
+(schema: `fetch(...args) -> fetcher(...args) called with context this={searchState, getState, dispatch}).`
+`searchState` is provided by `findSearchState` and `getState` is accessor for root redux state.
 
-Main reducer that accepts action from `actionTypes` enum and update state for us.
+In `makePagination(namespace, fetcher, findSearchState=)` method `makeFetchAction` called with `state => _.get(state, namespace)` value for
+`findSearchState` argument by default, that means actions will lookup needed state in that place.
 
-### Second Layer
+In `index.js` located helper function `makePagination(url, namespace, reducer) which chooses `fetcher` for you.
+You can see code for discover this stuff, it's simple.
 
-Ok, we have action types and reducer. But our reducer can't handle all lists in app.
-So, it's time for namespaces and actions creators.
+`namespace` is path to `searchData` relatively root level of redux state.
 
-##### createPaginateActions(namespace, payloadReducer, metaReducer)
+## Intent of fetch
 
-Creates action in terms of `redux-act` for each action type enumerated in `actionTypes`.
-namespace is necessary to distinguish different actions between different reducers.
+Main intent of `fetch` action is fetch _actual_ data for _current_ state.
+So, that's why there is `{searchState, getState}` in last argument for fetch method.
 
-##### paginateReducer(namespace, reducer, updateBehaviour)
-
-It's high order reducer that adds ability to handle pagination actions to your reducer.
-
-### Async actions
-
-There is `createActions` function in `actions-creator.js` file.
-
-Except actions from `createPaginateActions` it creates `fetch` async action.
-We will not consider in detail it here, if you want you can see the source code.
+You can checkout `live-search/searches-data.js` code to see usage of `makeFetchAction` method for live-search purposes.
 
 ## Use cases
 
-### Static url, flat store
+### Static url
 
 In that case you have static url (`/orders` for example) and flat store for underlying data.
 
@@ -62,7 +50,7 @@ Usage example:
 ```es6
 import makePagination from '../pagination';
 
-const { reducer, fetch } = makePagination('/orders', 'ORDERS');
+const { reducer, fetch } = makePagination('/orders', 'orders');
 
 export {
   reducer as default,
@@ -87,28 +75,24 @@ export {
 }
 ```
 
-Interface for fetch is `fetch(fetchParams={})` in this case.
-
-### Dynamic url, flat store
+### Dynamic url
 
 In that case you have dynamic url (`/gift-cards/:id/transactions` for example) and flat store for underlying data.
-I.e. you don't want store different transactions from different gift cards at the same time.
-Seriously, do you really need it ?
 
 Ok, let's see example
 
 ```es6
 import makePagination from '../pagination';
 
-const { reducer, fetch, actionReset } = makePagination(
+const { reducer, fetch, resetSearch } = makePagination(
   id => `/gift-cards/${id}/transactions`,
-  'GIFTCARD_TRANSACTIONS'
+  'giftCards'
 );
 
 export {
   reducer as default,
   fetch as fetchTransactions,
-  actionReset
+  resetSearch
 }
 ```
 
@@ -117,43 +101,8 @@ First you should reset redux state each time when you mount your component.
 Because you have flat store, you can't be sure that store is empty.
 And second, instead of static url you define method that accepts some argument and returns url.
 
-Oh, and third. Interface for fetch is `fetch(entity, fetchParams={})` in this case.
+Oh, and third. Interface for fetch is `fetch(entity)` in this case.
 `entity` is anything that you see fit as argument to the function that creates URL.
-
-### Dynamic url, structured store
-
-In that case you have dynamic url (`/notes/:type/:id` for example) and some structured store for underlying data.
-I.e. you _want_ to store different notes from different entities at the same time.
-
-Ok, let's see example, it will be a little harder:
-
-```es6
-
-import makePagination from './pagination/structured-store';
-
-const dataPath = ({entityType, entityId}) => [entityType, entityId];
-const { makeActions, makeReducer } = makePagination('NOTES', dataPath);
-
-export const notesUri = entity => `/notes/${entity.entityType}/${entity.entityId}`;
-
-const { fetch, actionAddEntity, ... } = makeActions(notesUri);
-
-const notesReducer = createReducer(...)
-
-const reducer = makeReducer(notesReducer);
-
-export {
-  reducer as default,
-  fetch as fetchNotes,
-  ...
-}
-```
-
-Note that you import `makePagination` from different path.
-
-`dataPath` is function that accepts an `entity` and should return path as array where data and pagination info will be saved.
-
-Interface for fetch is `fetch(entity, fetchParams={})`.
 
 ## TableView component
 
@@ -162,7 +111,7 @@ TableView is component for rendering and manipulate some list-like data.
 TableView in terms of this article accepts two arguments:
 
 - `data` - data that pagination reducer creates.
-- `setState` - method that invoked with new fetchParams, usually you should call fetch there.
+- `setState` - method that invoked with new fetchParams, usually you should call `updateStateAndFetch` action there.
 
 Example:
 
@@ -173,14 +122,14 @@ class Transactions extends React.Component {
 
   componentDidMount() {
     this.props.actionReset();
-    this.props.fetchTransaction(this.giftCardId);
+    this.props.fetch(this.giftCardId);
   }
 
   render() {
     return (
       <TableView
         data={this.props.transactions}
-        setState={params => this.props.fetchTransaction(this.giftCardId)}
+        setState={this.props.updateStateAndFetch}
     );
   }
 }

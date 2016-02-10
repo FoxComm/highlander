@@ -82,7 +82,9 @@ const { reducer, actions } = makeLiveSearch(
   'customers.storeCreditTransactions',
   searchTerms,
   'store_credit_transactions_view/_search',
-  'customerStoreCreditTransactionsScope'
+  'customerStoreCreditTransactionsScope', {
+    skipInitialFetch: true
+  }
 );
 
 export {
