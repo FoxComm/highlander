@@ -10,7 +10,7 @@ import reduceReducers from 'reduce-reducers';
 const emptyState = {
   isDirty: false,
   isNew: false,
-  result: void 0,
+  results: void 0,
   filters: [],
   phrase: '',
 };
@@ -29,7 +29,7 @@ export default function makeQuickSearch(namespace, searchUrl, searchFilters, phr
     return post(url, esQuery);
   };
 
-  const {reducer, ...actions} = makePagination(namespace, fetcher, state => _.get(state, `${namespace}.result`));
+  const {reducer, ...actions} = makePagination(namespace, fetcher, state => _.get(state, `${namespace}.results`));
 
 
   const qsReducer = createReducer({
@@ -42,14 +42,14 @@ export default function makeQuickSearch(namespace, searchUrl, searchFilters, phr
     },
   }, initialState);
 
-  const reduceInResult = (state, action) => {
+  const reduceInResults = (state, action) => {
     return update(state,
-      'result', reducer, action
+      'results', reducer, action
     );
   };
 
   return {
-    reducer: reduceReducers(qsReducer, reduceInResult),
+    reducer: reduceReducers(qsReducer, reduceInResults),
     actions,
   };
 }
