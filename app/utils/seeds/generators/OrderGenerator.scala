@@ -13,7 +13,7 @@ import models.Order.{ManualHold, Cart, Shipped}
 import utils.seeds.ShipmentSeeds
 
 import utils.Money.Currency
-import services.GeneralFailure
+import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
@@ -138,9 +138,9 @@ trait OrderGenerator extends ShipmentSeeds {
 
   private def getCc(customerId: Customer#Id)(implicit db: Database) =
     CreditCards.findDefaultByCustomerId(customerId).one
-      .mustFindOr(GeneralFailure(s"No cc found for customer with id=$customerId"))
+      .mustFindOr(CustomerHasNoCreditCard(customerId))
 
   private def getDefaultAddress(customerId: Customer#Id)(implicit db: Database) =
     Addresses.findAllByCustomerId(customerId).filter(_.isDefaultShipping).one
-      .mustFindOr(GeneralFailure(s"No default address found for customer with id =$customerId"))
+      .mustFindOr(CustomerHasNoDefaultAddress(customerId))
 }

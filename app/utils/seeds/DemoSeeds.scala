@@ -11,9 +11,8 @@ import models.{Customer, Customers, OrderShippingMethods, OrderShippingMethod,
 import models.inventory.{Warehouse, Warehouses, InventorySummary}
 import models.Order.Shipped
 
-import services.GeneralFailure
+import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
 import services.orders.OrderTotaler
-import services.NotFoundFailure404
 import services.Result
 
 import utils.seeds.generators.GeneratorUtils.randomString
@@ -40,13 +39,13 @@ trait DemoSeedHelpers {
   def warehouses: Seq[Warehouse] = Seq(warehouse)
 
   def generateCustomer(name:String, email: String): Customer = 
-    Customer(email = email, password = Some(randomString(10)), name = Some(name), 
-      location=Some("Seattle,WA"))
+    Customer(email = email, password = randomString(10).some, name = name.some, 
+      location ="Seattle,WA".some)
 
   def createShippedOrder(customerId: Customer#Id, skuIds: Seq[Sku#Id], 
     shipMethod: ShippingMethod#Id)(implicit db: Database): DbResultT[Order] = for {
     order ← * <~ Orders.create(Order(state = Shipped,
-      customerId = customerId, placedAt = Some(time.yesterday.toInstant)))
+      customerId = customerId, placedAt = time.yesterday.toInstant.some))
     _     ← * <~ addSkusToOrder(skuIds, order.id, OrderLineItem.Shipped)
     cc    ← * <~ getCc(customerId) // TODO: auth
     op    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
@@ -68,19 +67,16 @@ trait DemoSeedHelpers {
 
   private def getCc(customerId: Customer#Id)(implicit db: Database) =
     CreditCards.findDefaultByCustomerId(customerId).one
-      .mustFindOr(GeneralFailure(s"No cc found for customer with id=$customerId"))
+      .mustFindOr(CustomerHasNoCreditCard(customerId))
 
   private def getDefaultAddress(customerId: Customer#Id)(implicit db: Database) =
     Addresses.findAllByCustomerId(customerId).filter(_.isDefaultShipping).one
-      .mustFindOr(GeneralFailure(s"No default address found for customer with id =$customerId"))
+      .mustFindOr(CustomerHasNoDefaultAddress(customerId))
 
   def createAddresses(customers: Seq[Customer#Id], address: Address): DbResultT[Seq[Int]] = for {
     addressIds ← * <~ Addresses.createAllReturningIds(customers.map{ id ⇒ address.copy(customerId = id)})
   } yield addressIds
 
-}
-
-trait DemoScenario1 {
 }
 
 /**
@@ -106,11 +102,11 @@ trait DemoScenario2 extends DemoSeedHelpers {
 
 
   def skus2: Seq[Sku] = Seq(
-    Sku(sku = "SKU-ALG", name = Some("Alegria Women's Vanessa Sandal"), price = 35),
-    Sku(sku = "SKU-NIK", name = Some("Nike Men's Donwshifter 6 Running Shoe"), price = 25),
-    Sku(sku = "SKU-BAL", name = Some("New Balance Men's M520V2 Running Shoe"), price = 28),
-    Sku(sku = "SKU-CLK", name = Some("Clarks Women's Aria Pump Flat"), price = 79),
-    Sku(sku = "SKU-ADS", name = Some("adidas Performance Women's Galactic Elite Running Shoe"), price = 49))
+    Sku(sku = "SKU-ALG", name = "Alegria Women's Vanessa Sandal".some, price = 3500),
+    Sku(sku = "SKU-NIK", name = "Nike Men's Donwshifter 6 Running Shoe".some, price = 2500),
+    Sku(sku = "SKU-BAL", name = "New Balance Men's M520V2 Running Shoe".some, price = 2800),
+    Sku(sku = "SKU-CLK", name = "Clarks Women's Aria Pump Flat".some, price = 7900),
+    Sku(sku = "SKU-ADS", name = "adidas Performance Women's Galactic Elite Running Shoe".some, price = 4900))
 
   def inventorySummaries(skus: Seq[Sku]): Seq[InventorySummary] = 
     skus.map { sku ⇒ InventorySummary.buildNew(warehouse.id, skuId = sku.id, onHand = 100) } 
@@ -148,11 +144,11 @@ trait DemoScenario3 extends DemoSeedHelpers {
   def customers3 = Seq(
     generateCustomer("Mary Vera", "mary.vera@gmail.com"),
     generateCustomer("Richard Pavlik", "richard5123@comcast.net"),
-    generateCustomer("Larry Bolff", "casperbolff@gmail.c← * <~om"),
+    generateCustomer("Larry Bolff", "casperbolff@gmail.com"),
     generateCustomer("Susan Cage", "susan@compuglobal.com"),
     generateCustomer("John Dole", "john.dole@yahoo.com"))
 
-  def skus3: Seq[Sku] = Seq(Sku(sku = "SKU-CLK2", name = "Clarks Women's Aria Pump Flat".some, price = 79))
+  def skus3: Seq[Sku] = Seq(Sku(sku = "SKU-CLK2", name = "Clarks Women's Aria Pump Flat".some, price = 7900))
 
   def address3 = Address(customerId = 0, regionId = 4177, name = "Home", 
     address1 = "555 E Lake Union St.", address2 = None, city = "Seattle", 
@@ -194,7 +190,7 @@ trait DemoScenario6 extends DemoSeedHelpers {
     order ← * <~ Orders.create(Order(state = Shipped, customerId = customer.id, referenceNumber = orderReferenceNum))
     orig  ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
     _  ← * <~ GiftCards.createAll(
-      (1 to 23) map { i ⇒ 
+      (1 to 23).map { _ ⇒ 
         GiftCard.buildLineItem(balance = 50000, originId = orig.id, 
           currency = Currency.USD)
       })
