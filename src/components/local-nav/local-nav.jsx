@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { Link, IndexLink } from '../link';
 import _ from 'lodash';
+import flatMap from 'lodash.flatmap';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
@@ -35,14 +36,15 @@ class LocalNav extends React.Component {
     let children = item.props.children;
     if (!_.isArray(children)) children = [children];
 
-    return _.chain(children).flatMap((child) => {
+    return flatMap(children, child => {
       if (child.type === Link || child.type === IndexLink) {
         return child;
       }
       if (React.isValidElement(child)) {
         return this.compileLinks(child);
       }
-    }).filter().value();
+      return [];
+    });
   }
 
   @autobind

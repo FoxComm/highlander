@@ -1,5 +1,6 @@
 
 import _ from 'lodash';
+import flatMap from 'lodash.flatmap';
 import Api from '../lib/api';
 import {createAction, createReducer} from 'redux-act';
 import { update, assoc } from 'sprout-data';
@@ -12,8 +13,6 @@ const startFetching = createAction('ACTIVITY_TRAIL_START_FETCHING');
 const receivedActivities = createAction('ACTIVITY_TRAIL_RECEIVED');
 const fetchFailed = createAction('ACTIVITY_TRAIL_FETCH_FAILED');
 export const resetActivities = createAction('ACTIVITY_TRAIL_RESET');
-
-const flatMap = _.compose(_.flatten, _.map);
 
 export function processActivity(activity) {
   if (activity.data.order) {

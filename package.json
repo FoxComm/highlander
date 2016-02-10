@@ -84,7 +84,12 @@
       "react/jsx-uses-vars": 1,
       "react/no-did-mount-set-state": 1,
       "react/no-did-update-set-state": 1,
-      "react/no-multi-comp": [1, { "ignoreStateless": true}],
+      "react/no-multi-comp": [
+        1,
+        {
+          "ignoreStateless": true
+        }
+      ],
       "react/prop-types": 1,
       "react/react-in-jsx-scope": 1,
       "react/self-closing-comp": 1,
@@ -120,6 +125,7 @@
     "less-plugin-group-css-media-queries": "^1.0.1",
     "less-plugin-npm-import": "^2.1.0",
     "lodash": "^3.10.1",
+    "lodash.flatmap": "^4.1.0",
     "moment": "^2.10.3",
     "normalize.css": "^3.0.3",
     "react": "^0.14.0",
