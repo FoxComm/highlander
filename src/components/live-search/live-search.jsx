@@ -435,6 +435,8 @@ export default class LiveSearch extends React.Component {
               {this.state.optionsVisible && this.searchOptions}
             </div>
           </div>
+        </div>
+        <div className={gridClass}>
           <div className={tableClass} >
             {this.props.children}
           </div>
