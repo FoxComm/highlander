@@ -5,7 +5,7 @@ variable "demo_image" {
 resource "google_compute_instance" "demo-ashes" { 
     name = "demo-ashes"
     machine_type = "n1-highcpu-4"
-    tags = ["no-ip", "demo-ashes"]
+    tags = ["http-server", "https-server", "demo-ashes"]
     zone = "us-central1-a"
 
     disk {
