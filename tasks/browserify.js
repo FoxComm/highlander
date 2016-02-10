@@ -9,6 +9,20 @@ const source = require('vinyl-source-stream');
 const buffer = require('vinyl-buffer');
 const runSequence = require('run-sequence');
 const affectsServer = require('./server').affectsServer;
+const envify = require('envify/custom');
+
+function setDemoAuthToken() {
+  /*  The demo site is protected by basic auth. All requests from javascript
+   *  require basic auth headers. This will create the basic auth base64 encoded
+   *  header and set it on the client side via the process.env.DEMO_AUTH_TOKEN
+   *  variable. This is replaced in-line by envify with the correct value.
+   */
+  var demoAuthToken = process.env.DEMO_USER && process.env.DEMO_PASS ? 
+    new Buffer(process.env.DEMO_USER+":"+process.env.DEMO_PASS).toString('base64')
+    : undefined;
+
+  process.env.DEMO_AUTH_TOKEN = demoAuthToken;
+}
 
 module.exports = function(gulp, opts, $) {
   let production = (process.env.NODE_ENV === 'production');
@@ -43,8 +57,13 @@ module.exports = function(gulp, opts, $) {
     return bundler;
   }
 
+  setDemoAuthToken();
+
   gulp.task('browserify', function() {
     const stream = getBundler()
+      .transform(envify({
+            DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN
+      }))
       .bundle()
       .on('error', function(err) {
         stream.emit('error', err);

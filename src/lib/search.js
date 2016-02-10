@@ -1,6 +1,7 @@
 
 import _ from 'lodash';
 import fetch from 'isomorphic-fetch';
+import { addAuthHeaders } from './api';
 
 function searchURI(uri) {
   return `/api/search/${uri}`;
@@ -28,6 +29,8 @@ function request(method, uri, data) {
   const headers = {
     'Content-Type': 'application/json:charset=UTF-8'
   };
+
+  addAuthHeaders(headers);
 
   const options = { method, headers };
 
