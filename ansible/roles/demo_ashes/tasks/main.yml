@@ -7,7 +7,7 @@
   apt: name=apache2-utils state=latest force=yes
 
 - name: Setup Demo Password
-  htpasswd: path=/etc/nginx/passwdfile name=demo password=Xv6yEcAz owner=root group=www-data mode=0640
+  htpasswd: path=/etc/nginx/passwdfile name=demo password=Xv6yEcAzXv6yEcAz owner=root group=www-data mode=0640
 
 - name: Add Auth to Nginx
   lineinfile:
