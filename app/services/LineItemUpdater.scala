@@ -31,7 +31,7 @@ object LineItemUpdater {
     _      ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(order, liGc))
     // update changed totals
     order  ← * <~ OrderTotaler.saveTotals(order)
-    valid  ← * <~ CartValidator(order).validate
+    valid  ← * <~ CartValidator(order).validate()
     result ← * <~ refreshAndFullOrder(order).toXor
     _      ← * <~ LogActivity.orderLineItemsAddedGc(admin, result, gc)
   } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
@@ -46,7 +46,7 @@ object LineItemUpdater {
     _        ← * <~ GiftCards.filter(_.id === giftCard.id).update(GiftCard.update(giftCard, payload))
     // update changed totals
     order    ← * <~ OrderTotaler.saveTotals(order)
-    valid    ← * <~ CartValidator(order).validate
+    valid    ← * <~ CartValidator(order).validate()
     result   ← * <~ refreshAndFullOrder(order).toXor
     _        ← * <~ LogActivity.orderLineItemsUpdatedGc(admin, result, giftCard)
   } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
@@ -63,7 +63,7 @@ object LineItemUpdater {
     _     ← * <~ GiftCardOrders.filter(_.id === gc.originId).delete
     // update changed totals
     order ← * <~ OrderTotaler.saveTotals(order)
-    valid ← * <~ CartValidator(order).validate
+    valid ← * <~ CartValidator(order).validate()
     res   ← * <~ refreshAndFullOrder(order).toXor
     _     ← * <~ LogActivity.orderLineItemsDeletedGc(admin, res, gc)
   } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
@@ -108,7 +108,7 @@ object LineItemUpdater {
     _     ← * <~ updateQuantities(order, payload)
     // update changed totals
     order ← * <~ OrderTotaler.saveTotals(order)
-    valid ← * <~ CartValidator(order).validate
+    valid ← * <~ CartValidator(order).validate()
     res   ← * <~ refreshAndFullOrder(order).toXor
     _     ← * <~ logAct(res, lineItems)
   } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()

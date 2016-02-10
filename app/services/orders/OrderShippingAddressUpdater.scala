@@ -39,7 +39,7 @@ object OrderShippingAddressUpdater {
     (address, _)  = addAndReg
     shipAddress   ← * <~ OrderShippingAddresses.copyFromAddress(address, order.id)
     region        ← * <~ Regions.mustFindById404(shipAddress.regionId)
-    validated     ← * <~ CartValidator(order).validate
+    validated     ← * <~ CartValidator(order).validate()
     response      ← * <~ FullOrder.refreshAndFullOrder(order).toXor
     _             ← * <~ LogActivity.orderShippingAddressAdded(admin, response, buildOneShipping(shipAddress, region))
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runTxn()
@@ -53,7 +53,7 @@ object OrderShippingAddressUpdater {
     _           ← * <~ OrderShippingAddresses.findByOrderId(order.id).delete
     shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(newAddress, order.id)
     region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
-    validated   ← * <~ CartValidator(order).validate
+    validated   ← * <~ CartValidator(order).validate()
     response    ← * <~ FullOrder.refreshAndFullOrder(order).toXor
     _           ← * <~ LogActivity.orderShippingAddressAdded(admin, response, buildOneShipping(shipAddress, region))
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runTxn()
@@ -67,7 +67,7 @@ object OrderShippingAddressUpdater {
     region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
     patch       =      OrderShippingAddress.fromPatchPayload(shipAddress, payload)
     _           ← * <~ OrderShippingAddresses.update(shipAddress, patch)
-    validated   ← * <~ CartValidator(order).validate
+    validated   ← * <~ CartValidator(order).validate()
     response    ← * <~ FullOrder.refreshAndFullOrder(order).toXor
     _           ← * <~ LogActivity.orderShippingAddressUpdated(admin, response, buildOneShipping(shipAddress, region))
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runTxn()
@@ -80,7 +80,7 @@ object OrderShippingAddressUpdater {
     shipAddress ← * <~ mustFindShipAddressForOrder(order)
     region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
     _           ← * <~ OrderShippingAddresses.findById(shipAddress.id).delete
-    validated   ← * <~ CartValidator(order).validate
+    validated   ← * <~ CartValidator(order).validate()
     fullOrder   ← * <~ FullOrder.refreshAndFullOrder(order).toXor
     _           ← * <~ LogActivity.orderShippingAddressDeleted(admin, fullOrder, buildOneShipping(shipAddress, region))
   } yield TheResponse.build(fullOrder, alerts = validated.alerts, warnings = validated.warnings)).runTxn()

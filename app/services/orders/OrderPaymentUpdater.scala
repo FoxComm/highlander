@@ -30,7 +30,7 @@ object OrderPaymentUpdater {
     _     ← * <~ gc.mustHaveEnoughBalance(payload.amount)
     _     ← * <~ OrderPayments.create(OrderPayment.build(gc).copy(orderId = order.id, amount = Some(payload.amount)))
     resp  ← * <~ refreshAndFullOrder(order).toXor
-    valid ← * <~ CartValidator(order).validate
+    valid ← * <~ CartValidator(order).validate()
     _     ← * <~ LogActivity.orderPaymentMethodAddedGc(admin, resp, gc, payload.amount)
   } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
@@ -51,7 +51,7 @@ object OrderPaymentUpdater {
         }
         delete.flatMap(_ ⇒ OrderPayments.createAll(payments))
       })
-      validation   ← * <~ CartValidator(order).validate
+      validation   ← * <~ CartValidator(order).validate()
       response     ← * <~ refreshAndFullOrder(order).toXor
       _            ← * <~ LogActivity.orderPaymentMethodAddedSc(admin, response, payload.amount)
     } yield TheResponse.build(response, alerts = validation.alerts, warnings = validation.warnings)).runTxn()
@@ -66,7 +66,7 @@ object OrderPaymentUpdater {
     region  ← * <~ Regions.findOneById(cc.regionId).safeGet.toXor
     _       ← * <~ OrderPayments.filter(_.orderId === order.id).creditCards.delete
     _       ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = None))
-    valid   ← * <~ CartValidator(order).validate
+    valid   ← * <~ CartValidator(order).validate()
     resp    ← * <~ refreshAndFullOrder(order).toXor
     _       ← * <~ LogActivity.orderPaymentMethodAddedCc(admin, resp, cc, region)
   } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
@@ -83,7 +83,7 @@ object OrderPaymentUpdater {
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
     order ← * <~ Orders.mustFindByRefNum(refNum)
     _     ← * <~ order.mustBeCart
-    valid ← * <~ CartValidator(order).validate
+    valid ← * <~ CartValidator(order).validate()
     resp  ← * <~ OrderPayments
                 .filter(_.orderId === order.id)
                 .byType(pmt).deleteAll(
@@ -97,7 +97,7 @@ object OrderPaymentUpdater {
     order     ← * <~ Orders.mustFindByRefNum(refNum)
     _         ← * <~ order.mustBeCart
     giftCard  ← * <~ GiftCards.mustFindByCode(code)
-    validated ← * <~ CartValidator(order).validate
+    validated ← * <~ CartValidator(order).validate()
     deleteRes ← * <~ OrderPayments
                       .filter(_.paymentMethodId === giftCard.id)
                       .filter(_.orderId === order.id)

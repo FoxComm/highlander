@@ -1,8 +1,9 @@
 package services
 
 import cats.implicits._
-import models.{GiftCardManual, CreditCards, Customers, GiftCard, GiftCardManuals, GiftCards, Order, OrderLineItem,
-OrderLineItemSku, OrderLineItemSkus, OrderLineItems, OrderPayments, Orders, Reasons, Skus, StoreAdmins}
+import models.{CreditCards, Customers, GiftCard, GiftCardManual, GiftCardManuals, GiftCards, Order, OrderLineItem,
+OrderLineItems, OrderPayment, OrderPayments, Orders, Reasons, Skus, StoreAdmins, StoreCredit, StoreCreditManual,
+StoreCreditManuals, StoreCredits}
 import services.CartFailures._
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
@@ -19,32 +20,30 @@ class CartValidatorTest extends IntegrationTestBase {
 
   "CartValidator" - {
 
-    def refresh(cart: Order) = Orders.refresh(cart).run().futureValue
-
     "has warnings" - {
       "if the cart has no items" in new Fixture {
-        val result = CartValidator(refresh(cart)).validate.run().futureValue.rightVal
+        val result = CartValidator(refresh(cart)).validate().run().futureValue.rightVal
 
         result.alerts mustBe 'empty
         result.warnings.value.toList must contain(EmptyCart(cart.refNum))
       }
 
       "if the cart has no shipping address" in new Fixture {
-        val result = CartValidator(refresh(cart)).validate.run().futureValue.rightVal
+        val result = CartValidator(refresh(cart)).validate().run().futureValue.rightVal
 
         result.alerts mustBe 'empty
         result.warnings.value.toList must contain(NoShipAddress(cart.refNum))
       }
 
       "if the cart has no shipping method" in new Fixture {
-        val result = CartValidator(refresh(cart)).validate.run().futureValue.rightVal
+        val result = CartValidator(refresh(cart)).validate().run().futureValue.rightVal
 
         result.alerts mustBe 'empty
         result.warnings.value.toList must contain(NoShipMethod(cart.refNum))
       }
 
       "if the cart has line items but no payment methods" in new LineItemsFixture {
-        val result = CartValidator(refresh(cart)).validate.run().futureValue.rightVal
+        val result = CartValidator(refresh(cart)).validate().run().futureValue.rightVal
 
         result.alerts mustBe 'empty
         result.warnings.value.toList must contain(InsufficientFunds(cart.refNum))
@@ -63,7 +62,7 @@ class CartValidatorTest extends IntegrationTestBase {
             amount = sku.price.some, paymentMethodId = giftCard.id))
         } yield payment).runTxn().futureValue.rightVal
 
-        val result = CartValidator(refresh(cart)).validate.run().futureValue.rightVal
+        val result = CartValidator(refresh(cart)).validate().run().futureValue.rightVal
 
         result.alerts mustBe 'empty
         result.warnings.value.toList must contain(InsufficientFunds(cart.refNum))
@@ -72,7 +71,7 @@ class CartValidatorTest extends IntegrationTestBase {
 
     "never has warnings for sufficient funds" - {
       "if there is no grandTotal" in new Fixture {
-        val result = CartValidator(refresh(cart)).validate.run().futureValue.rightVal
+        val result = CartValidator(refresh(cart)).validate().run().futureValue.rightVal
 
         result.alerts mustBe 'empty
         result.warnings.value.toList mustNot contain(InsufficientFunds(cart.refNum))
@@ -82,17 +81,55 @@ class CartValidatorTest extends IntegrationTestBase {
         Skus.findById(sku.id).extract.map(_.price).update(0).run().futureValue
         OrderTotaler.saveTotals(cart).run().futureValue.rightVal
 
-        val result = CartValidator(refresh(cart)).validate.run().futureValue.rightVal
+        val result = CartValidator(refresh(cart)).validate().run().futureValue.rightVal
 
         result.alerts mustBe 'empty
         result.warnings.value.toList mustNot contain(InsufficientFunds(cart.refNum))
       }
 
       "if a credit card is present" in new CreditCartFixture with LineItemsFixture {
-        val result = CartValidator(refresh(cart)).validate.run().futureValue.rightVal
+        val result = CartValidator(refresh(cart)).validate().run().futureValue.rightVal
 
         result.alerts mustBe 'empty
         result.warnings.value.toList mustNot contain(InsufficientFunds(cart.refNum))
+      }
+    }
+
+    "has different rules for GC/SC pre-checkout and checkout funds check" - {
+      "checks available balance for gift card before checkout" in new GiftCardFixture {
+        val result = CartValidator(refresh(cart)).validate(isCheckout = false).run().futureValue.rightVal
+        result.alerts mustBe 'empty
+        result.warnings.value.toList mustNot contain(InsufficientFunds(cart.refNum))
+      }
+
+      "checks authorized funds for gift card during checkout" in new GiftCardFixture {
+        // Does not approve sufficient available balance
+        val result1 = CartValidator(refresh(cart)).validate(isCheckout = true).run().futureValue.rightVal
+        result1.alerts mustBe 'empty
+        result1.warnings.value.toList must contain(InsufficientFunds(cart.refNum))
+        // Approves authrorized funds
+        GiftCards.auth(giftCard, orderPayment.id.some, grandTotal, 0).run().futureValue.rightVal
+        val result2 = CartValidator(refresh(cart)).validate(isCheckout = true).run().futureValue.rightVal
+        result2.alerts mustBe 'empty
+        result2.warnings.value.toList mustNot contain(InsufficientFunds(cart.refNum))
+      }
+
+      "checks available balance for store credit before checkout" in new StoreCreditFixture {
+        val result = CartValidator(refresh(cart)).validate(isCheckout = false).run().futureValue.rightVal
+        result.alerts mustBe 'empty
+        result.warnings.value.toList mustNot contain(InsufficientFunds(cart.refNum))
+      }
+
+      "checks authorized funds for store credit during checkout" in new StoreCreditFixture {
+        // Does not approve sufficient available balance
+        val result1 = CartValidator(refresh(cart)).validate(isCheckout = true).run().futureValue.rightVal
+        result1.alerts mustBe 'empty
+        result1.warnings.value.toList must contain(InsufficientFunds(cart.refNum))
+        // Approves authrorized funds
+        StoreCredits.auth(storeCredit, orderPayment.id.some, grandTotal).run().futureValue.rightVal
+        val result2 = CartValidator(refresh(cart)).validate(isCheckout = true).run().futureValue.rightVal
+        result2.alerts mustBe 'empty
+        result2.warnings.value.toList mustNot contain(InsufficientFunds(cart.refNum))
       }
     }
   }
@@ -107,6 +144,8 @@ class CartValidatorTest extends IntegrationTestBase {
       items ← * <~ OrderLineItems.create(OrderLineItem.buildSku(cart, sku))
       _     ← * <~ OrderTotaler.saveTotals(cart)
     } yield (sku, items)).runTxn().futureValue.rightVal
+
+    val grandTotal = refresh(cart).grandTotal
   }
 
   trait CreditCartFixture extends Fixture {
@@ -116,4 +155,27 @@ class CartValidatorTest extends IntegrationTestBase {
       _        ← * <~ OrderPayments.create(Factories.orderPayment.copy(orderId = cart.id, paymentMethodId = cc.id))
     } yield (customer, cc)).runTxn().futureValue.rightVal
   }
+
+  trait GiftCardFixture extends LineItemsFixture {
+    val (admin, giftCard, orderPayment) = (for {
+      admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      reason   ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      origin   ← * <~ GiftCardManuals.create(GiftCardManual(adminId = admin.id, reasonId = reason.id))
+      giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
+      payment  ← * <~ OrderPayments.create(OrderPayment.build(giftCard).copy(orderId = cart.id, amount = grandTotal.some))
+    } yield (admin, giftCard, payment)).run().futureValue.rightVal
+  }
+
+  trait StoreCreditFixture extends LineItemsFixture {
+    val (admin, storeCredit, orderPayment) = (for {
+      admin       ← * <~ StoreAdmins.create(Factories.storeAdmin)
+      reason      ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
+      origin      ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = admin.id, reasonId = reason.id))
+      storeCredit ← * <~ StoreCredits.create(Factories.storeCredit.copy(originId = origin.id, state = StoreCredit.Active))
+      payment     ← * <~ OrderPayments.create(OrderPayment.build(storeCredit).copy(orderId = cart.id, amount = grandTotal.some))
+    } yield (admin, storeCredit, payment)).run().futureValue.rightVal
+  }
+
+  def refresh(cart: Order) = Orders.refresh(cart).run().futureValue
+
 }

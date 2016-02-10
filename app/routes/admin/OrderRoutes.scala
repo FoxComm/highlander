@@ -9,7 +9,7 @@ import models.{GiftCard, StoreAdmin}
 import payloads.{AddGiftCardLineItem, Assignment, BulkAssignment, BulkUpdateOrdersPayload, CreateOrder,
 UpdateLineItemsPayload, UpdateOrderPayload, Watchers, BulkWatchers}
 import services.orders._
-import services.{LineItemUpdater, Result}
+import services.{Checkout, LineItemUpdater}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives._
 import utils.Http._
@@ -119,8 +119,10 @@ object OrderRoutes {
           }
         } ~
         (post & path("checkout")) {
-          nothingOrFailures {
-            Result.unit // FIXME Stubbed until checkout is updated
+          activityContext(admin) { implicit ac ⇒
+            goodOrFailures {
+              Checkout.fromCart(refNum)
+            }
           }
         } ~
         (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
