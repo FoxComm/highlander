@@ -1,9 +1,8 @@
 import _ from 'lodash';
+import flatMap from 'lodash.flatmap';
 import SearchOperator from './search-operator';
 import SearchSuggestion from './search-suggestion';
 import { stringToCurrency } from '../lib/format-currency';
-
-const flatMap = _.compose(_.flatten, _.map);
 
 const operators = {
   currency: [
