@@ -44,6 +44,7 @@ const types = {
   CART_CREATED: 'cart_created',
   ORDER_STATE_CHANGED: 'order_state_changed',
   ORDER_BULK_STATE_CHANGED: 'order_bulk_state_changed',
+  ORDER_REMORSE_PERIOD_INCREASED: 'order_remorse_period_increased',
 
   /* Order Line Items */
 
