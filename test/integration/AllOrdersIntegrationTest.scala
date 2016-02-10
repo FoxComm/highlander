@@ -53,7 +53,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
   // paging and sorting API end
 
   def getAllOrders: Seq[AllOrders.Root] = {
-    OrderQueries.findAll.futureValue match {
+    OrderQueries.list.futureValue match {
       case Xor.Left(s)    ⇒ fail(s.toList.mkString(";"))
       case Xor.Right(seq) ⇒ seq.result
     }

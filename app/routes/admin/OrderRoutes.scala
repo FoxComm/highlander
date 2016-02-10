@@ -8,6 +8,7 @@ import models.payment.giftcard.GiftCard
 import GiftCard.giftCardCodeRegex
 import Order.orderRefNumRegex
 import models.StoreAdmin
+import models.traits.Originator
 import payloads.{AddGiftCardLineItem, Assignment, BulkAssignment, BulkUpdateOrdersPayload, CreateOrder,
 UpdateLineItemsPayload, UpdateOrderPayload, Watchers, BulkWatchers}
 import services.orders._
@@ -30,7 +31,7 @@ object OrderRoutes {
       pathPrefix("orders") {
         (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
           goodOrFailures {
-            OrderQueries.findAll
+            OrderQueries.list
           }
         } ~
         (post & pathEnd & entity(as[CreateOrder])) { payload ⇒
@@ -156,17 +157,17 @@ object OrderRoutes {
           }
         } ~
         pathPrefix("payment-methods" / "credit-cards") {
-          ((post | patch) & pathEnd & entity(as[payloads.CreditCardPayment])) { payload ⇒
+          (post & pathEnd & entity(as[payloads.CreditCardPayment])) { payload ⇒
             activityContext(admin) { implicit ac ⇒
               goodOrFailures {
-                OrderPaymentUpdater.addCreditCard(admin, refNum, payload.creditCardId)
+                OrderPaymentUpdater.addCreditCard(Originator(admin), payload.creditCardId, Some(refNum))
               }
             }
           } ~
           (delete & pathEnd) {
             activityContext(admin) { implicit ac ⇒
               goodOrFailures {
-                OrderPaymentUpdater.deleteCreditCard(admin, refNum)
+                OrderPaymentUpdater.deleteCreditCard(Originator(admin), Some(refNum))
               }
             }
           }
@@ -175,30 +176,30 @@ object OrderRoutes {
           (post & pathEnd & entity(as[payloads.GiftCardPayment])) { payload ⇒
             activityContext(admin) { implicit ac ⇒
               goodOrFailures {
-                OrderPaymentUpdater.addGiftCard(admin, refNum, payload)
+                OrderPaymentUpdater.addGiftCard(Originator(admin), payload, Some(refNum))
               }
             }
           } ~
           (delete & path(GiftCard.giftCardCodeRegex) & pathEnd) { code ⇒
             activityContext(admin) { implicit ac ⇒
               goodOrFailures {
-                OrderPaymentUpdater.deleteGiftCard(admin, refNum, code)
+                OrderPaymentUpdater.deleteGiftCard(Originator(admin), code, Some(refNum))
               }
             }
           }
         } ~
         pathPrefix("payment-methods" / "store-credit") {
-          ((post|patch) & pathEnd & entity(as[payloads.StoreCreditPayment])) { payload ⇒
+          (post & pathEnd & entity(as[payloads.StoreCreditPayment])) { payload ⇒
             activityContext(admin) { implicit ac ⇒
               goodOrFailures {
-                OrderPaymentUpdater.addStoreCredit(admin, refNum, payload)
+                OrderPaymentUpdater.addStoreCredit(Originator(admin), payload, Some(refNum))
               }
             }
           } ~
           (delete & pathEnd) {
             activityContext(admin) { implicit ac ⇒
               goodOrFailures {
-                OrderPaymentUpdater.deleteStoreCredit(admin, refNum)
+                OrderPaymentUpdater.deleteStoreCredit(Originator(admin), Some(refNum))
               }
             }
           }
@@ -230,7 +231,7 @@ object OrderRoutes {
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
             activityContext(admin) { implicit ac ⇒
               goodOrFailures {
-                OrderWatcherUpdater.unassign(admin, refNum, assigneeId)
+                OrderWatcherUpdater.unwatch(admin, refNum, assigneeId)
               }
             }
           }
@@ -239,28 +240,28 @@ object OrderRoutes {
           (post & pathEnd & entity(as[payloads.CreateAddressPayload])) { payload ⇒
             activityContext(admin) { implicit ac ⇒
               goodOrFailures {
-                OrderShippingAddressUpdater.createShippingAddressFromPayload(admin, payload, refNum)
+                OrderShippingAddressUpdater.createShippingAddressFromPayload(Originator(admin), payload, Some(refNum))
               }
             }
           } ~
           (patch & path(IntNumber) & pathEnd) { addressId ⇒
             activityContext(admin) { implicit ac ⇒
               goodOrFailures {
-                OrderShippingAddressUpdater.createShippingAddressFromAddressId(admin, addressId, refNum)
+                OrderShippingAddressUpdater.createShippingAddressFromAddressId(Originator(admin), addressId, Some(refNum))
               }
             }
           } ~
           (patch & pathEnd & entity(as[payloads.UpdateAddressPayload])) { payload ⇒
             activityContext(admin) { implicit ac ⇒
               goodOrFailures {
-                OrderShippingAddressUpdater.updateShippingAddressFromPayload(admin, payload, refNum)
+                OrderShippingAddressUpdater.updateShippingAddressFromPayload(Originator(admin), payload, Some(refNum))
               }
             }
           } ~
           (delete & pathEnd) {
             activityContext(admin) { implicit ac ⇒
               goodOrFailures {
-                OrderShippingAddressUpdater.removeShippingAddress(admin, refNum)
+                OrderShippingAddressUpdater.removeShippingAddress(Originator(admin), Some(refNum))
               }
             }
           }
@@ -269,14 +270,14 @@ object OrderRoutes {
           (patch & pathEnd & entity(as[payloads.UpdateShippingMethod])) { payload ⇒
             activityContext(admin) { implicit ac ⇒
               goodOrFailures {
-                OrderShippingMethodUpdater.updateShippingMethod(admin, payload, refNum)
+                OrderShippingMethodUpdater.updateShippingMethod(Originator(admin), payload, Some(refNum))
               }
             }
           } ~
           (delete & pathEnd) {
             activityContext(admin) { implicit ac ⇒
               goodOrFailures {
-                OrderShippingMethodUpdater.deleteShippingMethod(admin, refNum)
+                OrderShippingMethodUpdater.deleteShippingMethod(Originator(admin), Some(refNum))
               }
             }
           }

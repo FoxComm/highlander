@@ -9,6 +9,7 @@ import models.{StoreAdmin, javaTimeSlickMapper}
 import OrderPayments.scope._
 import responses.{FullOrder, TheResponse, AllOrders}
 import services.{Result, CartValidator, LogActivity}
+import services.NotFoundFailure404
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
@@ -19,17 +20,13 @@ import utils.DbResultT.implicits._
 
 object OrderQueries {
 
-  def findAll(implicit ec: ExecutionContext, db: Database,
-    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[TheResponse[Seq[AllOrders.Root]]] =
-    findAllDbio.run()
-
-  def findAllDbio(implicit ec: ExecutionContext, db: Database,
+  def findAllByQuery(query: Orders.QuerySeq = Orders)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[AllOrders.Root]]] = {
 
-    val ordersAndCustomers = Orders.join(Customers).on(_.customerId === _.id)
-    val query = ordersAndCustomers.joinLeft(OrderPayments.creditCards).on(_._1.id === _.orderId)
+    val ordersAndCustomers = query.join(Customers).on(_.customerId === _.id)
+    val withOrderPayments = ordersAndCustomers.joinLeft(OrderPayments.creditCards).on(_._1.id === _.orderId)
 
-    val sortedQuery = query.withMetadata.sortAndPageIfNeeded { case (s, ((order, customer), _)) ⇒
+    val sortedQuery = withOrderPayments.withMetadata.sortAndPageIfNeeded { case (s, ((order, customer), _)) ⇒
       s.sortColumn match {
         case "id"                         ⇒ if (s.asc) order.id.asc                   else order.id.desc
         case "referenceNumber"            ⇒ if (s.asc) order.referenceNumber.asc      else order.referenceNumber.desc
@@ -62,9 +59,30 @@ object OrderQueries {
     }).toTheResponse
   }
 
+  def findAll(implicit ec: ExecutionContext, db: Database,
+    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[AllOrders.Root]]] =
+    findAllByQuery(Orders)
+
+  def list(implicit ec: ExecutionContext, db: Database,
+    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[TheResponse[Seq[AllOrders.Root]]] =
+    findAllByQuery(Orders).run()
+
+  def listByCustomer(customer: Customer)(implicit ec: ExecutionContext, db: Database,
+    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[TheResponse[Seq[AllOrders.Root]]] =
+    findAllByQuery(Orders.filter(_.customerId === customer.id)).run()
+
   def findOne(refNum: String)
     (implicit ec: ExecutionContext, db: Database): Result[TheResponse[FullOrder.Root]] = (for {
     order     ← * <~ Orders.mustFindByRefNum(refNum)
+    validated ← * <~ CartValidator(order).validate()
+    response  ← * <~ FullOrder.fromOrder(order).toXor
+  } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).run()
+
+  def findOneByCustomer(refNum: String, customer: Customer)
+    (implicit ec: ExecutionContext, db: Database): Result[TheResponse[FullOrder.Root]] = (for {
+    order     ← * <~ Orders.findOneByRefNumAndCustomer(refNum, customer)
+                           .one
+                           .mustFindOr(NotFoundFailure404(Orders, refNum))
     validated ← * <~ CartValidator(order).validate()
     response  ← * <~ FullOrder.fromOrder(order).toXor
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).run()

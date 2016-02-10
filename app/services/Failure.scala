@@ -59,6 +59,10 @@ case object EmptyCancellationReasonFailure extends Failure {
   override def description = "Please provide valid cancellation reason"
 }
 
+case object EmptyRefNumFailure extends Failure {
+  override def description = "Please provide an order reference number"
+}
+
 case object InvalidCancellationReasonFailure extends Failure {
   override def description = "Cancellation reason doesn't exist"
 }

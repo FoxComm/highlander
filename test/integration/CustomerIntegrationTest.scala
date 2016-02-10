@@ -12,6 +12,7 @@ import models.payment.creditcard.{CreditCards, CreditCard}
 import models.rma.{Rmas, Rma}
 import models.stripe._
 import models.StoreAdmins
+import models.traits.Originator
 import org.mockito.Mockito.{reset, when}
 import org.mockito.{Matchers => m}
 import org.scalatest.mock.MockitoSugar
@@ -477,7 +478,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
           thenReturn(Result.good(mock[StripeCard]))
 
         val order = Orders.create(Factories.cart.copy(customerId = customer.id)).run().futureValue.rightVal
-        OrderPaymentUpdater.addCreditCard(admin, order.refNum, creditCard.id).futureValue
+        OrderPaymentUpdater.addCreditCard(Originator(admin), creditCard.id, Some(order.refNum)).futureValue
 
         val payload = payloads.EditCreditCard(holderName = Some("Bob"))
         val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
@@ -537,7 +538,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
     }
 
     "fails if the card is not inWallet" in new CreditCardFixture {
-      CreditCardManager.deleteCreditCard(admin, customer.id, creditCard.id).futureValue
+      CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(admin)).futureValue
       val payload = payloads.EditCreditCard
       val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
 

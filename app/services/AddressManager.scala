@@ -32,6 +32,13 @@ object AddressManager {
     Addresses.sortedAndPagedWithRegions(query).result.map(Response.build).toTheResponse.run()
   }
 
+  def getByIdAndCustomer(addressId: Int, customer: Customer)
+    (implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
+    address ← * <~ Addresses.findByIdAndCustomer(addressId, customer.id)
+                            .mustFindOr(NotFoundFailure404(Address, addressId))
+    region  ← * <~ Regions.mustFindById404(address.regionId)
+  } yield Response.build(address, region, address.isDefaultShipping.some)).run()
+
   def create(payload: CreateAddressPayload, customerId: Int, admin: Option[StoreAdmin] = None)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
 
@@ -41,7 +48,7 @@ object AddressManager {
     _         ← * <~ LogActivity.addressCreated(admin, customer, address, region)
   } yield Response.build(address, region)).runTxn()
 
-  def edit(addressId: Int, customerId: Int, payload: CreateAddressPayload, admin: StoreAdmin)
+  def edit(addressId: Int, customerId: Int, payload: CreateAddressPayload, admin: Option[StoreAdmin] = None)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
 
     customer    ← * <~ Customers.mustFindById404(customerId)
@@ -60,7 +67,7 @@ object AddressManager {
     region  ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
   } yield Response.build(address, region, address.isDefaultShipping.some)).run()
 
-  def remove(customerId: Int, addressId: Int, admin: StoreAdmin)
+  def remove(customerId: Int, addressId: Int, admin: Option[StoreAdmin] = None)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Unit] = (for {
 
     customer    ← * <~ Customers.mustFindById404(customerId)
@@ -72,13 +79,13 @@ object AddressManager {
   } yield {}).runTxn()
 
   def setDefaultShippingAddress(customerId: Int, addressId: Int)
-    (implicit ec: ExecutionContext, db: Database): Result[Unit] = (for {
-    _           ← Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false)
-    newDefault  ← Addresses.findById(addressId).extract.map(_.isDefaultShipping).update(true)
-  } yield newDefault).transactionally.run().flatMap {
-    case rowsAffected if rowsAffected == 1 ⇒ Result.unit
-    case _ ⇒ Result.failure(NotFoundFailure404(Address, addressId))
-  }
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
+    customer    ← * <~ Customers.mustFindById404(customerId)
+    _           ← * <~ Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false)
+    newAddress  ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
+    address     ← * <~ Addresses.update(newAddress, newAddress.copy(isDefaultShipping = true))
+    region      ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
+  } yield Response.build(address, region)).run()
 
   def removeDefaultShippingAddress(customerId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Int] =

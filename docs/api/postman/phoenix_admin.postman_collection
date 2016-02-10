@@ -5,20 +5,6 @@
 	"order": [],
 	"folders": [
 		{
-			"id": "99027869-9d36-7254-4358-1f4419bf52ac",
-			"name": "Common",
-			"description": "",
-			"order": [
-				"e6449c2b-1bd3-d1a1-20d5-9332f4845136",
-				"f1b989ea-810c-e119-b23e-c89105574c90",
-				"8e1cd834-4570-b19b-c5b4-5c340cbcfa26",
-				"e9214e2e-6be7-9cc4-11e7-0663d57744e3",
-				"6d8b2fe5-5089-1e0b-00e2-35602f7eead3"
-			],
-			"owner": "131444",
-			"collectionId": "a10ca76c-a4b6-b843-ac1a-41ddea4f5a10"
-		},
-		{
 			"id": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5",
 			"name": "Customer",
 			"description": "",
@@ -100,6 +86,7 @@
 			"description": "",
 			"order": [
 				"8fffdccd-15b3-81a9-f296-641fc20f97fd",
+				"0135224e-5aa6-3596-9500-2bf0e1508544",
 				"06e6ebf3-d64f-f0db-9b0f-fcb53e6e2cca",
 				"78cb7b67-517d-53a9-3f09-a2e2da737c39",
 				"21875813-1363-7ec5-5bfb-4aba113a577b",
@@ -214,6 +201,33 @@
 	"remoteLink": "",
 	"public": false,
 	"requests": [
+		{
+			"id": "0135224e-5aa6-3596-9500-2bf0e1508544",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/shipping-methods/BR10002",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "GET",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "params",
+			"name": "List Shipping Methods",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1455261120756,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"username": "admin@admin.com",
+				"password": "password",
+				"saveToRequest": true,
+				"id": "basic",
+				"timestamp": 1449091654128
+			},
+			"folder": "ff488287-463d-001f-9aa5-90ee84cfd2d1"
+		},
 		{
 			"id": "0227bdf5-9ddd-7738-b57e-90f0190ebfe4",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
@@ -667,18 +681,12 @@
 			"id": "21875813-1363-7ec5-5bfb-4aba113a577b",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/orders/BR10002",
-			"pathVariables": {},
 			"preRequestScript": "",
+			"pathVariables": {},
 			"method": "PATCH",
-			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
 			"data": [],
 			"dataMode": "raw",
-			"name": "Update State",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1453528385903,
 			"version": 2,
-			"responses": [],
 			"tests": "",
 			"currentHelper": "basicAuth",
 			"helperAttributes": {
@@ -688,7 +696,11 @@
 				"id": "basic",
 				"timestamp": 1449091654128
 			},
-			"folder": "ff488287-463d-001f-9aa5-90ee84cfd2d1",
+			"time": 1455120206702,
+			"name": "Update State",
+			"description": "",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"responses": [],
 			"rawModeData": "{\n    \"state\": \"manualHold\"\n}"
 		},
 		{
@@ -1087,12 +1099,11 @@
 				"id": "basic",
 				"timestamp": 1449091654128
 			},
-			"time": 1449842062046,
+			"time": 1455120191615,
 			"name": "Update State",
 			"description": "",
 			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
 			"responses": [],
-			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed",
 			"rawModeData": "{\n    \"state\": \"processing\"\n}"
 		},
 		{
@@ -1426,18 +1437,12 @@
 			"id": "53bb3988-ff79-ebd1-c016-ce54d4f057e3",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/store-credits/8",
-			"pathVariables": {},
 			"preRequestScript": "",
+			"pathVariables": {},
 			"method": "PATCH",
-			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
 			"data": [],
 			"dataMode": "raw",
-			"name": "Update State",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1449776936925,
 			"version": 2,
-			"responses": [],
 			"tests": "",
 			"currentHelper": "basicAuth",
 			"helperAttributes": {
@@ -1447,7 +1452,11 @@
 				"id": "basic",
 				"timestamp": 1449091654128
 			},
-			"folder": "9caee848-aa0a-0c33-5eb2-5fd7126f6010",
+			"time": 1455120167746,
+			"name": "Update State",
+			"description": "",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"responses": [],
 			"rawModeData": "{\n    \"state\": \"active\"\n}"
 		},
 		{
@@ -1481,18 +1490,12 @@
 			"id": "57009066-07c3-cf84-44da-6ac344bbc7b9",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/gift-cards/7C0103EB46E4A14",
-			"pathVariables": {},
 			"preRequestScript": "",
+			"pathVariables": {},
 			"method": "PATCH",
-			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
 			"data": [],
 			"dataMode": "raw",
-			"name": "Update State",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1449774949856,
 			"version": 2,
-			"responses": [],
 			"tests": "",
 			"currentHelper": "basicAuth",
 			"helperAttributes": {
@@ -1502,7 +1505,11 @@
 				"id": "basic",
 				"timestamp": 1449091654128
 			},
-			"folder": "36059bc1-c1ca-aba5-1436-a26d9e65da15",
+			"time": 1455119884670,
+			"name": "Update State",
+			"description": "",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"responses": [],
 			"rawModeData": "{\n  \"state\": \"active\"\n}"
 		},
 		{
@@ -1811,33 +1818,6 @@
 			"rawModeData": "{\n  \"referenceNumbers\": [\n    \"BR10001\"\n  ],\n  \"watcherId\": 1\n}"
 		},
 		{
-			"id": "6d8b2fe5-5089-1e0b-00e2-35602f7eead3",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
-			"url": "http://localhost:9090/v1/rma-reasons",
-			"pathVariables": {},
-			"preRequestScript": "",
-			"method": "GET",
-			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
-			"data": [],
-			"dataMode": "params",
-			"name": "List RMA Reasons",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1449686255632,
-			"version": 2,
-			"responses": [],
-			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
-			"folder": "99027869-9d36-7254-4358-1f4419bf52ac"
-		},
-		{
 			"id": "6f4a14ec-a406-2455-07a6-b75379c41ca7",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/lock",
@@ -2063,18 +2043,12 @@
 			"id": "7a66b2c6-16c0-77af-4d74-20c507f5724a",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/gift-cards",
-			"pathVariables": {},
 			"preRequestScript": "",
+			"pathVariables": {},
 			"method": "PATCH",
-			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
 			"data": [],
 			"dataMode": "raw",
-			"name": "Bulk Update State",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1449775169762,
 			"version": 2,
-			"responses": [],
 			"tests": "",
 			"currentHelper": "basicAuth",
 			"helperAttributes": {
@@ -2084,7 +2058,11 @@
 				"id": "basic",
 				"timestamp": 1449091654128
 			},
-			"folder": "36059bc1-c1ca-aba5-1436-a26d9e65da15",
+			"time": 1455119892511,
+			"name": "Bulk Update State",
+			"description": "",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"responses": [],
 			"rawModeData": "{\n  \"codes\": [\"7C0103EB46E4A14\"],\n  \"state\": \"active\"\n}"
 		},
 		{
@@ -2267,34 +2245,6 @@
 				"timestamp": 1449091654128
 			},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed"
-		},
-		{
-			"id": "8e1cd834-4570-b19b-c5b4-5c340cbcfa26",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
-			"url": "http://localhost:9090/v1/gift-cards/types",
-			"pathVariables": {},
-			"preRequestScript": "",
-			"method": "GET",
-			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
-			"data": [],
-			"dataMode": "params",
-			"name": "List Gift Card Types",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1449774843057,
-			"version": 2,
-			"responses": [],
-			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
-			"folder": "99027869-9d36-7254-4358-1f4419bf52ac",
-			"isFromCollection": true
 		},
 		{
 			"id": "8fffdccd-15b3-81a9-f296-641fc20f97fd",
@@ -2522,18 +2472,12 @@
 			"id": "a13b8e1e-713f-0a2b-3fa2-a668023184d6",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/orders",
-			"pathVariables": {},
 			"preRequestScript": "",
+			"pathVariables": {},
 			"method": "PATCH",
-			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
 			"data": [],
 			"dataMode": "raw",
-			"name": "Bulk Update State",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1449845424578,
 			"version": 2,
-			"responses": [],
 			"tests": "",
 			"currentHelper": "basicAuth",
 			"helperAttributes": {
@@ -2543,8 +2487,11 @@
 				"id": "basic",
 				"timestamp": 1449091654128
 			},
-			"folder": "ff488287-463d-001f-9aa5-90ee84cfd2d1",
-			"isFromCollection": true,
+			"time": 1455120214959,
+			"name": "Bulk Update State",
+			"description": "",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"responses": [],
 			"rawModeData": "{\n    \"referenceNumbers\": [\"BR10007\"],\n    \"state\": \"manualHold\"\n}"
 		},
 		{
@@ -2750,7 +2697,7 @@
 			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
 			"data": [],
 			"dataMode": "raw",
-			"name": "Add SKU Line Items",
+			"name": "Update SKU Line Items",
 			"description": "",
 			"descriptionFormat": "html",
 			"time": 1449846435097,
@@ -2962,18 +2909,12 @@
 			"id": "bc57f8e1-aa7e-fa9c-85ef-2ba4bd518acf",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/store-credits",
-			"pathVariables": {},
 			"preRequestScript": "",
+			"pathVariables": {},
 			"method": "PATCH",
-			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
 			"data": [],
 			"dataMode": "raw",
-			"name": "Bulk Update State",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1449776965798,
 			"version": 2,
-			"responses": [],
 			"tests": "",
 			"currentHelper": "basicAuth",
 			"helperAttributes": {
@@ -2983,7 +2924,11 @@
 				"id": "basic",
 				"timestamp": 1449091654128
 			},
-			"folder": "9caee848-aa0a-0c33-5eb2-5fd7126f6010",
+			"time": 1455120174864,
+			"name": "Bulk Update State",
+			"description": "",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"responses": [],
 			"rawModeData": "{\n    \"ids\": [8],\n    \"state\": \"active\"\n}"
 		},
 		{
@@ -3337,33 +3282,6 @@
 			"folder": "ff488287-463d-001f-9aa5-90ee84cfd2d1"
 		},
 		{
-			"id": "e6449c2b-1bd3-d1a1-20d5-9332f4845136",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
-			"url": "http://localhost:9090/v1/reasons",
-			"pathVariables": {},
-			"preRequestScript": "",
-			"method": "GET",
-			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
-			"data": [],
-			"dataMode": "params",
-			"name": "List Reasons",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1449686090346,
-			"version": 2,
-			"responses": [],
-			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
-			"folder": "99027869-9d36-7254-4358-1f4419bf52ac"
-		},
-		{
 			"id": "e76d61c1-0699-c6a3-edda-06511e3ef461",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/orders/BR10004/payment-methods/store-credit",
@@ -3421,33 +3339,6 @@
 			"rawModeData": "{\n  \"referenceNumbers\": [\n    \"BR10001.1\"\n  ],\n  \"assigneeId\": 1\n}"
 		},
 		{
-			"id": "e9214e2e-6be7-9cc4-11e7-0663d57744e3",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
-			"url": "http://localhost:9090/v1/store-credits/types",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
-			"time": 1449758676110,
-			"name": "List Store Credit Types",
-			"description": "",
-			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
-			"responses": [],
-			"folder": "99027869-9d36-7254-4358-1f4419bf52ac",
-			"isFromCollection": true
-		},
-		{
 			"id": "ec79c855-9394-18b5-4460-a80c8ff7945d",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/shared-search/2b89d1a282d0b5af",
@@ -3494,33 +3385,6 @@
 				"timestamp": 1449091654128
 			},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed"
-		},
-		{
-			"id": "f1b989ea-810c-e119-b23e-c89105574c90",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
-			"url": "http://localhost:9090/v1/reasons/cancellation",
-			"pathVariables": {},
-			"preRequestScript": "",
-			"method": "GET",
-			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
-			"data": [],
-			"dataMode": "params",
-			"name": "List Reasons By Type",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1449686202336,
-			"version": 2,
-			"responses": [],
-			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
-			"folder": "99027869-9d36-7254-4358-1f4419bf52ac"
 		},
 		{
 			"id": "f22b0517-bc82-8d42-f238-8aec7c0b74f2",
