@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react';
 import ContentBox from '../content-box/content-box';
 import CreditCardBox from '../credit-cards/card-box';
 import ConfirmationDialog from '../modal/confirmation-dialog';
-import CreditCardForm from '../credit-cards/card-form';
+import CustomerCreditCardForm from './credit-card-form';
 import { AddButton } from '../common/buttons';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
@@ -112,7 +112,7 @@ export default class CustomerCreditCards extends React.Component {
     let box = null;
     if (card.id === this.props.editingId) {
       box = (
-        <CreditCardForm key={ key }
+        <CustomerCreditCardForm key={ key }
                         card={ card }
                         form={ this.props.editingCreditCard }
                         customerId={ this.props.customerId }
@@ -144,7 +144,7 @@ export default class CustomerCreditCards extends React.Component {
                   actionBlock={ this.actionBlock }>
         <ul className="fc-float-list">
           {(this.props.cards && this.props.cards.map(this.createCardBox))}
-          {(this.props.newCreditCard && <CreditCardForm customerId={ this.props.customerId }
+          {(this.props.newCreditCard && <CustomerCreditCardForm customerId={ this.props.customerId }
                                                           form={ this.props.newCreditCard }
                                                           addresses={ this.props.addresses }
                                                           onCancel={ this.onAddingCancel }

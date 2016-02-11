@@ -24,6 +24,7 @@ export default class CreditCardForm extends React.Component {
     onSubmit: PropTypes.func,
     onCancel: PropTypes.func,
     isNew: PropTypes.bool,
+    isDefaultEnabled: PropTypes.bool,
     form: PropTypes.object,
     addresses: PropTypes.array,
     card: PropTypes.shape({
@@ -31,7 +32,14 @@ export default class CreditCardForm extends React.Component {
         id: PropTypes.number
       })
     }),
-    customerId: PropTypes.number
+    customerId: PropTypes.number,
+    className: PropTypes.string,
+    showFormControls: PropTypes.bool,
+  };
+
+  static defaultProps = {
+    isDefaultEnabled: true,
+    showFormControls: true,
   };
 
   constructor(...args) {
@@ -123,7 +131,7 @@ export default class CreditCardForm extends React.Component {
 
     if (isNew) {
       block = (
-        <li className="fc-credit-card-form__line">
+        <li className="fc-credit-card-form__addresses">
           <div>
             <label className="fc-credit-card-form__label">
               Billing Address
@@ -162,68 +170,77 @@ export default class CreditCardForm extends React.Component {
     }
   }
 
-  render() {
-    const {form, isNew, onChange, onSubmit, onCancel} = this.props;
-    const containerClass = classNames(
-      'fc-card-container',
-      'fc-credit-cards',
-      {'fc-credit-cards-new' : isNew },
-      {'fc-credit-cards-edit' : !isNew }
-    );
+  get defaultCheckbox() {
+    const { form, isDefaultEnabled } = this.props;
+
+    const className = classNames('fc-credit-card-form__default', {
+      '_disabled': !isDefaultEnabled,
+    });
 
     return (
-      <li className={ containerClass }>
-        <Form className="fc-customer-credit-card-form fc-form-vertical"
-              onChange={ onChange }
-              onSubmit={ onSubmit }>
-          { this.header }
-          <div>
-            <ul className="fc-credit-card-form__fields">
-              <li className="fc-credit-card-form__line">
-                <label className="fc-credit-card-default-checkbox">
-                  <Checkbox defaultChecked={ form.isDefault } name="isDefault" />
-                  <span>Default Card</span>
-                </label>
-              </li>
-              <li className="fc-credit-card-form__line">
-                <FormField label="Name on Card"
-                           validator="ascii"
-                           labelClassName="fc-credit-card-form__label">
-                  <input id="nameCardFormField"
-                         className="fc-credit-card-form__input"
-                         name="holderName"
-                         maxLength="255"
-                         type="text"
-                         required
-                         value={ form.holderName } />
-                </FormField>
-              </li>
-              { this.cardNumberBlock }
-              <li className="fc-credit-card-form__line">
-                <label className="fc-credit-card-form__label">Expiration Date</label>
-                <div className="fc-grid">
-                  <div className="fc-col-md-1-2">
-                    <Dropdown name="expMonth"
-                              items={ CardUtils.monthList() }
-                              placeholder="Month"
-                              value={ form.expMonth }
-                              onChange={ this.onExpMonthChange } />
-                  </div>
-                  <div className="fc-col-md-1-2">
-                    <Dropdown name="expYear"
-                              items={ CardUtils.expirationYears() }
-                              placeholder="Year"
-                              value={ form.expYear }
-                              onChange={ this.onExpYearChange } />
-                  </div>
-                </div>
-              </li>
-              { this.addressSelectBlock }
-            </ul>
-          </div>
-          <SaveCancel onCancel={onCancel} />
-        </Form>
+      <li className="fc-credit-card-form__line">
+        <label className={className}>
+          <Checkbox disabled={!isDefaultEnabled}
+                    defaultChecked={form.isDefault}
+                    className="fc-credit-card-form__default-checkbox"
+                    name="isDefault" />
+          <span className="fc-credit-card-form__default-label">Default Card</span>
+        </label>
       </li>
+    );
+  }
+
+  render() {
+    const {form, isDefaultEnabled, onChange, onSubmit, onCancel} = this.props;
+    const className = classNames('fc-credit-card-form fc-form-vertical', this.props.className);
+
+
+    return (
+      <Form className={ className }
+            onChange={ onChange }
+            onSubmit={ onSubmit }>
+        { this.header }
+        <div>
+          <ul className="fc-credit-card-form__fields">
+            {this.defaultCheckbox}
+            <li className="fc-credit-card-form__line">
+              <FormField label="Name on Card"
+                         validator="ascii"
+                         labelClassName="fc-credit-card-form__label">
+                <input id="nameCardFormField"
+                       className="fc-credit-card-form__input"
+                       name="holderName"
+                       maxLength="255"
+                       type="text"
+                       required
+                       value={ form.holderName } />
+              </FormField>
+            </li>
+            { this.cardNumberBlock }
+            <li className="fc-credit-card-form__line">
+              <label className="fc-credit-card-form__label">Expiration Date</label>
+              <div className="fc-grid">
+                <div className="fc-col-md-1-2">
+                  <Dropdown name="expMonth"
+                            items={ CardUtils.monthList() }
+                            placeholder="Month"
+                            value={ form.expMonth }
+                            onChange={ this.onExpMonthChange } />
+                </div>
+                <div className="fc-col-md-1-2">
+                  <Dropdown name="expYear"
+                            items={ CardUtils.expirationYears() }
+                            placeholder="Year"
+                            value={ form.expYear }
+                            onChange={ this.onExpYearChange } />
+                </div>
+              </div>
+            </li>
+            { this.addressSelectBlock }
+          </ul>
+        </div>
+        {this.props.showFormControls && <SaveCancel onCancel={onCancel} />}
+      </Form>
     );
   }
 

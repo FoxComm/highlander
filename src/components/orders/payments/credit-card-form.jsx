@@ -23,13 +23,16 @@ class OrderCreditCardForm extends Component {
     };
 
     return (
-      <CreditCardForm card={props.card}
-                      customerId={props.customerId}
-                      form={blankCreditCard}
-                      isNew={true} />
+      <div className="fc-order-credit-card-form">
+        <CreditCardForm card={props.card}
+                        customerId={props.customerId}
+                        form={blankCreditCard}
+                        isDefaultEnabled={false}
+                        showFormControls={false}
+                        isNew={true} />
+      </div>
     );
   }
 }
 
 export default OrderCreditCardForm;
-
