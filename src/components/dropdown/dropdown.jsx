@@ -129,7 +129,10 @@ Dropdown.itemsType = PropTypes.arrayOf(PropTypes.array);
 Dropdown.propTypes = {
   name: PropTypes.string,
   className: PropTypes.string,
-  value: PropTypes.string,
+  value: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+  ]),
   disabled: PropTypes.bool,
   editable: PropTypes.bool,
   changeable: PropTypes.bool,

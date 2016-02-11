@@ -2,7 +2,7 @@
 import React, { PropTypes } from 'react';
 
 //helpers
-import { inflect } from '../../../i18n';
+import { inflect } from '../../../lib/text-utils';
 
 // components
 import modal from '../../modal/wrapper';

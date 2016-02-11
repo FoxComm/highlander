@@ -31,7 +31,3 @@ export function phoneExample(countryCode) {
 export function phoneMask(countryCode) {
   return '(999) 999-9999';
 }
-
-export function inflect(count, singlularForm, pluralForm) {
-  return count % 10 === 1 ? singlularForm : pluralForm;
-}

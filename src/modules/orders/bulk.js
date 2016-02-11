@@ -1,19 +1,37 @@
 // libs
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
-import { get, assoc } from 'sprout-data';
 
 // helpers
 import Api from '../../lib/api';
-import { haveType } from '../state-helpers';
 
-// data
-import { orderLineItemsFetchSuccess } from './line-items';
-import OrderParagon from '../../paragons/order';
 
-export const bulkRequest = createAction('BULK_REQUEST');
-export const bulkSucceed = createAction('BULK_SUCCEED');
-export const bulkFailed = createAction('BULK_FAILED');
+const bulkRequest = createAction('BULK_REQUEST');
+const bulkDone = createAction('BULK_DONE', (successes, errors) => [successes, errors]);
+const bulkReset = createAction('BULK_RESET');
+const bulkClearSuccesses = createAction('BULK_CLEAR_SUCCESSES');
+const bulkClearErrors = createAction('BULK_CLEAR_ERRORS');
+
+// TODO remove when https://github.com/FoxComm/phoenix-scala/issues/763 closed
+const parseErrors = (errors) => {
+  const referenceNumberPattern = /\w{2}\d{5}/;
+
+  return _.transform(errors, (result, value) => {
+    const referenceNumber = referenceNumberPattern.exec(value)[0];
+    result[referenceNumber] = [value];
+  }, {});
+};
+
+const getSuccesses = (referenceNumbers, errors = {}) => {
+  return referenceNumbers
+    .filter(referenceNumber => !(referenceNumber in errors))
+    .reduce((result, referenceNumber) => {
+      return {
+        ...result,
+        [referenceNumber]: []
+      };
+    }, {});
+};
 
 export function cancelOrders(referenceNumbers, reasonId) {
   return dispatch => {
@@ -26,16 +44,35 @@ export function cancelOrders(referenceNumbers, reasonId) {
       .then(
         ({errors}) => {
           if (errors) {
-            dispatch(bulkFailed(errors));
+            errors = parseErrors(errors);
+            dispatch(bulkDone(getSuccesses(referenceNumbers, errors), errors));
           } else {
-            dispatch(bulkSucceed());
+            dispatch(bulkDone(getSuccesses(referenceNumbers)));
           }
         },
         error => {
+          // TODO handle when https://github.com/FoxComm/Ashes/issues/466 closed
           console.error(error);
-          dispatch(bulkFailed());
         }
       );
+  };
+}
+
+export function reset() {
+  return dispatch => {
+    dispatch(bulkReset());
+  };
+}
+
+export function clearSuccesses() {
+  return dispatch => {
+    dispatch(bulkClearSuccesses());
+  };
+}
+
+export function clearErrors() {
+  return dispatch => {
+    dispatch(bulkClearErrors());
   };
 }
 
@@ -49,16 +86,23 @@ const reducer = createReducer({
       isFetching: true,
     };
   },
-  [bulkSucceed]: () => {
+  [bulkDone]: (state, [successes, errors]) => {
+    return {
+      isFetching: false,
+      successes: _.size(successes) ? successes : null,
+      errors: _.size(errors) ? errors : null,
+    };
+  },
+  [bulkReset]: () => {
     return {
       isFetching: false,
     };
   },
-  [bulkFailed]: (state, errors) => {
-    return {
-      isFetching: false,
-      errors,
-    };
+  [bulkClearSuccesses]: (state) => {
+    return _.omit(state, 'successes');
+  },
+  [bulkClearErrors]: (state) => {
+    return _.omit(state, 'errors');
   },
 }, initialState);
 

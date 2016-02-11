@@ -1,0 +1,52 @@
+.fc-bulk-notification {
+  .border-radius(3px);
+  .margin(0 10px 10px 10px);
+
+  &._success {
+    background: @color-decor17;
+  }
+
+  &._error {
+    background: @color-decor23;
+  }
+
+  a {
+    .colors(@color-default-fg, @color-transparent);
+  }
+
+  &__preview {
+    .height(36px);
+    .line-height(36px);
+  }
+
+  &__icon {
+    .padding(0 10px);
+    .font-spec(18px);
+  }
+
+  a&__details-link {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  &__close {
+    .padding(0 10px);
+    .font-spec(18px);
+    float: right;
+  }
+
+  &__details {
+    display: none;
+    box-sizing: border-box;
+    .padding-left(40px);
+
+    &._open {
+      display: block;
+    }
+
+    > * {
+      display: block;
+      .padding-bottom(10px);
+    }
+  }
+}

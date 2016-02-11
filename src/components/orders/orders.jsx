@@ -17,6 +17,8 @@ import { fetchReasons } from '../../modules/reasons';
 import { SearchableList } from '../list-page';
 import OrderRow from './order-row';
 import { CancelOrderModal } from './modal';
+import { SuccessNotification, ErrorNotification } from '../bulk-actions/notifications';
+import { Link } from '../link';
 
 
 const tableColumns = [
@@ -50,9 +52,10 @@ export default class Orders extends React.Component {
   static propTypes = {
     list: PropTypes.object.isRequired,
     bulk: PropTypes.shape({
-      errors: PropTypes.arrayOf(PropTypes.string),
+      successes: PropTypes.object,
+      errors: PropTypes.object,
     }).isRequired,
-    cancellationReasons: PropTypes.object,
+    cancellationReasons: PropTypes.array,
     actions: PropTypes.objectOf(PropTypes.func).isRequired,
     bulkActions: PropTypes.objectOf(PropTypes.func).isRequired,
     fetchReasons: PropTypes.func,
@@ -83,7 +86,7 @@ export default class Orders extends React.Component {
 
   @autobind
   cancelOrders(allChecked, toggledIds) {
-    const {bulkActions: {cancelOrders}, cancellationReasons} = this.props;
+    const {bulkActions: {reset, cancelOrders}, cancellationReasons} = this.props;
 
     this.setState({
       modal: (
@@ -93,6 +96,8 @@ export default class Orders extends React.Component {
           reasons={cancellationReasons}
           onCancel={this.hideModal}
           onConfirm={(reasonId) => {
+            reset();
+            this.hideModal();
             cancelOrders(toggledIds, reasonId);
           }} />
       )
@@ -113,16 +118,55 @@ export default class Orders extends React.Component {
     };
   }
 
-  renderBulkErrors() {
-    const {errors} = this.props.bulk;
-    debugger;
+  renderBulkMessages() {
+    const {
+      bulk: {successes, errors},
+      bulkActions: {clearSuccesses, clearErrors}
+      } = this.props;
+
+    const notifications = [];
+
+    if (successes) {
+      notifications.push(
+        <SuccessNotification key="successes"
+                             entityForms={['order','orders']}
+                             overviewMessage="successfully canceled"
+                             onHide={clearSuccesses}>
+          {_.map(successes, (messages, referenceNumber) => (
+            <span key={referenceNumber}>
+              Order
+              <Link to="order-details" params={{order:referenceNumber}}>{referenceNumber}</Link>
+            </span>
+          ))}
+        </SuccessNotification>
+      );
+    }
+
+    if (errors) {
+      notifications.push(
+        <ErrorNotification key="errors"
+                           entityForms={['order','orders']}
+                           overviewMessage="could not be canceled"
+                           onHide={clearErrors}>
+          {_.map(errors, (messages, referenceNumber) => (
+            <span key={referenceNumber}>
+              Order
+              <Link to="order-details" params={{order:referenceNumber}}>{referenceNumber}</Link>
+            </span>
+          ))}
+        </ErrorNotification>
+      );
+    }
+
+    return notifications;
   }
 
   render() {
-    const {list, actions, bulk} = this.props;
+    const {list, actions} = this.props;
 
     return (
       <div>
+        {this.renderBulkMessages()}
         <SearchableList
           emptyResultMessage="No orders found."
           list={list}
@@ -134,7 +178,6 @@ export default class Orders extends React.Component {
           ]}
           predicate={({referenceNumber}) => referenceNumber} />
         {this.state.modal}
-        {bulk.errors ? this.renderBulkErrors() : null}
       </div>
     );
   }
