@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
+import ApplyGiftCard from './apply-gift-card';
 import CreditCardBox from '../../credit-cards/card-box';
 import CreditCardDetails from '../../credit-cards/card-details';
 import { Dropdown, DropdownItem } from '../../dropdown';
@@ -73,6 +74,10 @@ class NewPayment extends Component {
     return <OrderCreditCardForm customerId={1} />;
   }
 
+  get giftCardForm() {
+    return <ApplyGiftCard />;
+  }
+
   get creditCardSelector() {
     if (this.state.paymentType == 'creditCard' && _.isNull(this.state.selectedPayment)) {
       if (this.state.isCreditCardFormVisible) {
@@ -80,6 +85,8 @@ class NewPayment extends Component {
       } else {
         return this.creditCardTiles;
       }
+    } else if (this.state.paymentType == 'giftCard') {
+      return this.giftCardForm;
     }
   }
 
