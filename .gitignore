@@ -1,0 +1,20 @@
+# Logs
+logs
+*.log
+
+# IDEs
+.idea
+.iml
+
+node_modules
+
+# Users Environment Variables & settings
+.lock-wscript
+/.env
+
+.DS_Store
+.#*
+
+# Vim
+*.swp
+*.iml
