@@ -41,7 +41,9 @@ module.exports = function(gulp, opts, $) {
       debug: !production,
       cache: {},
       packageCache: {}
-    });
+    }).transform(envify({
+          DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN
+    }));
 
     if (opts.devMode) {
       let watchifyOpts = {
@@ -61,9 +63,6 @@ module.exports = function(gulp, opts, $) {
 
   gulp.task('browserify', function() {
     const stream = getBundler()
-      .transform(envify({
-            DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN
-      }))
       .bundle()
       .on('error', function(err) {
         stream.emit('error', err);
