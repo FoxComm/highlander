@@ -42,7 +42,7 @@ module.exports = function(gulp, opts, $) {
       cache: {},
       packageCache: {}
     }).transform(envify({
-          DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN
+      DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN
     }));
 
     if (opts.devMode) {
