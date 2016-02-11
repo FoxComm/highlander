@@ -37,13 +37,13 @@ class InventorySummaries(tag: Tag)
 }
 
 object InventorySummary {
-  def buildNew(warehouseId: Int, skuId: Int, onHand: Int = 0, reserved: Int = 0): InventorySummary =
+  def buildNew(warehouseId: Int, skuId: Int, onHand: Int = 0, onHold: Int = 0, reserved: Int = 0): InventorySummary =
     InventorySummary(
       id = 0,
       warehouseId = warehouseId,
       skuId = skuId,
       onHand = onHand,
-      onHold = 0,
+      onHold = onHold,
       reserved = reserved,
       nonSellable = 0,
       safetyStock = 0,
