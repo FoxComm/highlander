@@ -7,7 +7,7 @@ GiftCardOrders, GiftCards, Note, Notes, Order, OrderLineItem, OrderLineItemGiftC
 OrderLineItemSku, OrderLineItemSkus, OrderLineItems, OrderPayment, OrderPayments, OrderShippingAddress,
 OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, Shipment, Shipments, Sku, StoreCredit,
 StoreCreditManual, StoreCreditManuals, StoreCredits}
-import services.GeneralFailure
+import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT.implicits._
@@ -124,11 +124,11 @@ trait OrderSeeds {
 
   private def getCc(customerId: Customer#Id)(implicit db: Database) =
     CreditCards.findDefaultByCustomerId(customerId).one
-      .mustFindOr(GeneralFailure(s"No cc found for customer with id=$customerId"))
+      .mustFindOr(CustomerHasNoCreditCard(customerId))
 
   private def getDefaultAddress(customerId: Customer#Id)(implicit db: Database) =
     Addresses.findAllByCustomerId(customerId).filter(_.isDefaultShipping).one
-      .mustFindOr(GeneralFailure(s"No default address found for customer with id =$customerId"))
+      .mustFindOr(CustomerHasNoDefaultAddress(customerId))
 
   def order = Order(customerId = 0, referenceNumber = "ABCD1234-11", state = ManualHold)
 

@@ -70,6 +70,10 @@ case object CustomerHasDefaultCreditCard extends Failure {
   override def description = "customer already has default credit card"
 }
 
+final case class CustomerHasNoDefaultAddress(customerId: Int) extends Failure {
+  override def description = s"No default address found for customer with id =$customerId"
+}
+
 final case class StateTransitionNotAllowed(message: String) extends Failure {
   override def description = message
 }
@@ -236,6 +240,10 @@ final case class ShippingMethodNotApplicableToOrder(shippingMethodId: Int, refer
 
 case object CreditCardMustHaveAddress extends Failure {
   override def description = "cannot create creditCard without an address"
+}
+
+final case class CustomerHasNoCreditCard(customerId: Int) extends Failure {
+  override def description = s"No credit card found for customer with id=$customerId"
 }
 
 final case class AlreadySavedForLater(customerId: Int, skuId: Int) extends Failure {

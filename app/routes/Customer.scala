@@ -3,21 +3,21 @@ package routes
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.{Orders, StoreCredits}
+import models.StoreCredits
 import payloads.{CreateAddressPayload, UpdateLineItemsPayload}
 import services.orders.OrderQueries
-import services.{AddressManager, LineItemUpdater, Result, StoreCreditService}
+import services.{AddressManager, Checkout, LineItemUpdater, StoreCreditService}
 import slick.driver.PostgresDriver.api._
+import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._
 import utils.Slick.implicits._
-import utils.Slick.{DbResult, _}
 
 import scala.concurrent.ExecutionContext
 
 object Customer {
   def routes(implicit ec: ExecutionContext, db: Database,
-    mat: Materializer, customerAuth: AsyncAuthenticator[models.Customer]) = {
+    mat: Materializer, customerAuth: AsyncAuthenticator[models.Customer], apis: Apis) = {
 
     pathPrefix("my") {
       authenticateBasicAsync(realm = "private customer routes", customerAuth) { customer ⇒
@@ -58,8 +58,10 @@ object Customer {
         } ~
         pathPrefix("order") {
           (post & path("checkout")) {
-            nothingOrFailures {
-              Result.unit // FIXME Stubbed until checkout is updated
+            activityContext(customer) { implicit ac ⇒
+              goodOrFailures {
+                Checkout.fromCustomerCart(customer)
+              }
             }
           } ~
           (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
@@ -84,4 +86,3 @@ object Customer {
     }
   }
 }
-

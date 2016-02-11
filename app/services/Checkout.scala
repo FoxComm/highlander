@@ -2,21 +2,37 @@ package services
 
 import java.time.Instant
 
+import scala.concurrent.ExecutionContext
+
 import cats.implicits._
 import models.Order.RemorseHold
-import models.{StoreCredit, Customers, CreditCardCharge, CreditCardCharges, GiftCard, GiftCardAdjustment, GiftCards,
-Order, OrderLineItemGiftCards, OrderPayment, OrderPayments, Orders, StoreCreditAdjustment, StoreCredits}
-import services.orders.OrderTotaler
+import models.activity.ActivityContext
+import models.{CreditCardCharge, CreditCardCharges, Customer, Customers, GiftCard, GiftCards, Order,
+OrderLineItemGiftCards, OrderPayment, OrderPayments, Orders, StoreCredits}
+import responses.FullOrder
+import services.CartFailures.CustomerHasNoActiveOrder
 import slick.driver.PostgresDriver.api._
-import utils.{Apis, DbResultT}
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Litterbox._
 import utils.Slick.DbResult
 import utils.Slick.implicits._
+import utils.{Apis, DbResultT}
 
-import scala.concurrent.ExecutionContext
-import models.activity.ActivityContext
+object Checkout {
+
+  def fromCart(refNum: String)
+    (implicit db: Database, ec: ExecutionContext, apis: Apis, ac: ActivityContext): Result[FullOrder.Root] = (for {
+    cart  ← * <~ Orders.mustFindByRefNum(refNum)
+    order ← * <~ Checkout(cart, CartValidator(cart)).checkout
+  } yield order).runTxn()
+
+  def fromCustomerCart(customer: Customer)
+    (implicit db: Database, ec: ExecutionContext, apis: Apis, ac: ActivityContext): Result[FullOrder.Root] = (for {
+    cart  ← * <~ Orders.findActiveOrderByCustomer(customer).one.mustFindOr(CustomerHasNoActiveOrder(customer.id))
+    order ← * <~ Checkout(cart, CartValidator(cart)).checkout
+  } yield order).runTxn()
+}
 
 /*
   1) Run cart through validator
@@ -29,17 +45,19 @@ import models.activity.ActivityContext
 final case class Checkout(cart: Order, cartValidator: CartValidation)
   (implicit db: Database, ec: ExecutionContext, apis: Apis, ac: ActivityContext) {
 
-  def checkout: Result[Order] = (for {
+  def checkout: DbResultT[FullOrder.Root] = for {
       _         ← * <~ cart.mustBeCart
       customer  ← * <~ Customers.mustFindById404(cart.customerId)
       _         ← * <~ checkInventory
       _         ← * <~ activePromos
       _         ← * <~ authPayments(customer)
       _         ← * <~ remorseHold
-      order     ← * <~ createNewCart
-      valid     ← * <~ cartValidator.validate
-      resp      ← * <~ valid.warnings.fold(DbResult.good(order))(DbResult.failures)
-    } yield resp).runTxn()
+      _         ← * <~ createNewCart
+      valid     ← * <~ cartValidator.validate(isCheckout = true)
+      updated   ← * <~ Orders.refresh(cart).toXor
+      fullOrder ← * <~ FullOrder.fromOrder(updated).toXor
+      response  ← * <~ valid.warnings.fold(DbResult.good(fullOrder))(DbResult.failures)
+    } yield response
 
   private def checkInventory: DbResult[Unit] = DbResult.unit
 

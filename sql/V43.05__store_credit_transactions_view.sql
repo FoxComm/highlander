@@ -12,16 +12,13 @@ select distinct on (sca.id)
     sc.origin_type,
     sc.currency,
     to_char(sc.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as store_credit_created_at,
-    -- Order
-    o.reference_number as order_reference_number,
-    to_char(o.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as order_created_at,
-    to_char(op.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as order_payment_created_at,
+    -- Order Payment
+    sctpv.order_payment,
     -- Store admins
     sctav.store_admin
 from store_credit_adjustments as sca
 inner join store_credits as sc on (sc.id = sca.store_credit_id)
-inner join order_payments as op on (op.id = sca.order_payment_id)
-inner join orders as o on (op.order_id = o.id)
+inner join store_credit_transactions_payments_view as sctpv on (sctpv.id = sca.id)
 inner join store_credit_transactions_admins_view as sctav on (sctav.id = sca.id)
 order by sca.id;
 

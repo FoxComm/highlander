@@ -134,3 +134,4 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
   }
 
 }
+

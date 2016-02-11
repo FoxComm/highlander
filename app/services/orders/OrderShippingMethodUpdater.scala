@@ -32,7 +32,7 @@ object OrderShippingMethodUpdater {
     _               ← * <~ Shipments.filter(_.orderId === order.id).map(_.orderShippingMethodId).update(orderShipMethod.id.some)
     // update changed totals
     order           ← * <~ OrderTotaler.saveTotals(order)
-    validated       ← * <~ CartValidator(order).validate
+    validated       ← * <~ CartValidator(order).validate()
     response        ← * <~ FullOrder.refreshAndFullOrder(order).toXor
     _               ← * <~ LogActivity.orderShippingMethodUpdated(admin, response, oldShipMethod)
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runTxn()
@@ -45,7 +45,7 @@ object OrderShippingMethodUpdater {
     _           ← * <~ OrderShippingMethods.findByOrderId(order.id).delete
     // update changed totals
     order       ← * <~ OrderTotaler.saveTotals(order)
-    valid       ← * <~ CartValidator(order).validate
+    valid       ← * <~ CartValidator(order).validate()
     resp        ← * <~ FullOrder.refreshAndFullOrder(order).toXor
     _           ← * <~ LogActivity.orderShippingMethodDeleted(admin, resp, shipMethod)
   } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
