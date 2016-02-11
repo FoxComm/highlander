@@ -30,13 +30,15 @@ const InventoryList = props => {
     {field: 'sku', text: 'SKU'},
     {field: 'skuActive', text: 'SKU State'},
     {field: 'skuType', text: 'SKU Type'},
-    {field: 'warehouse', text: 'Warehouse', type: 'state'},
+    {field: 'warehouse', text: 'Warehouse'},
     {field: 'onHand', text: 'On Hand'},
     {field: 'onHold', text: 'Hold'},
     {field: 'reserved', text: 'Reserved'},
     {field: 'safetyStock', text: 'Safety Stock'},
     {field: 'afs', text: 'AFS'},
   ];
+
+  console.log(props.list);
 
   return (
     <SearchableList

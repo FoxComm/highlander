@@ -7,10 +7,10 @@ import { transitionTo } from '../../route-helpers';
 import { ListPageContainer, makeTotalCounter } from '../list-page';
 
 // redux
-import { actions as customersActions } from '../../modules/customers/list';
+import { actions as inventoryActions } from '../../modules/inventory/list';
 
 const InventoryListPage = (props, context) => {
-  const TotalCounter = makeTotalCounter(state => state.inventory.list, customersActions);
+  const TotalCounter = makeTotalCounter(state => state.inventory.list, inventoryActions);
 
   const navLinks = [
     { title: 'Lists', to: 'inventory' },

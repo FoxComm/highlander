@@ -4,6 +4,9 @@ import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import { transitionTo } from '../../route-helpers';
 
+// components
+import MultiSelectRow from '../table/multi-select-row';
+
 const setCellContents = (sku, field) => {
   if (field === 'productActive' || field === 'skuActive') {
     return _.get(sku, field) ? 'Active' : 'Inactive';
@@ -24,7 +27,7 @@ const InventoryListRow = (props, context) => {
       cellKeyPrefix={key}
       columns={columns}
       onClick={clickAction}
-      row={giftCard}
+      row={sku}
       setCellContents={setCellContents}
       params={params} />
   );
