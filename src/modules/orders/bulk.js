@@ -5,12 +5,8 @@ import { createAction, createReducer } from 'redux-act';
 // helpers
 import Api from '../../lib/api';
 
-
-const bulkRequest = createAction('BULK_REQUEST');
-const bulkDone = createAction('BULK_DONE', (successes, errors) => [successes, errors]);
-const bulkReset = createAction('BULK_RESET');
-const bulkClearSuccesses = createAction('BULK_CLEAR_SUCCESSES');
-const bulkClearErrors = createAction('BULK_CLEAR_ERRORS');
+// data
+import reducer, { bulkRequest, bulkDone } from '../bulk';
 
 // TODO remove when https://github.com/FoxComm/phoenix-scala/issues/763 closed
 const parseErrors = (errors) => {
@@ -58,52 +54,5 @@ export function cancelOrders(referenceNumbers, reasonId) {
   };
 }
 
-export function reset() {
-  return dispatch => {
-    dispatch(bulkReset());
-  };
-}
-
-export function clearSuccesses() {
-  return dispatch => {
-    dispatch(bulkClearSuccesses());
-  };
-}
-
-export function clearErrors() {
-  return dispatch => {
-    dispatch(bulkClearErrors());
-  };
-}
-
-const initialState = {
-  isFetching: false,
-};
-
-const reducer = createReducer({
-  [bulkRequest]: () => {
-    return {
-      isFetching: true,
-    };
-  },
-  [bulkDone]: (state, [successes, errors]) => {
-    return {
-      isFetching: false,
-      successes: _.size(successes) ? successes : null,
-      errors: _.size(errors) ? errors : null,
-    };
-  },
-  [bulkReset]: () => {
-    return {
-      isFetching: false,
-    };
-  },
-  [bulkClearSuccesses]: (state) => {
-    return _.omit(state, 'successes');
-  },
-  [bulkClearErrors]: (state) => {
-    return _.omit(state, 'errors');
-  },
-}, initialState);
-
 export default reducer;
+export { reset, clearSuccesses, clearErrors } from '../bulk';
