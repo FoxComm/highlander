@@ -413,4 +413,25 @@ object AvroTransformers {
 
     def fields = List("store_admin", "order_payment")
   }
+
+  final case class InventorySearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
+    def mapping =
+      esMapping("inventory_search_view").fields(
+        field("id", IntegerType),
+        field("product", StringType) analyzer "autocomplete",
+        field("productActive", BooleanType),
+        field("sku", StringType) analyzer "autocomplete",
+        field("skuActive", BooleanType),
+        field("skuType", StringType) analyzer "autocomplete",
+        field("warehouse", StringType) analyzer "autocomplete",
+        field("onHand", IntegerType),
+        field("onHold", IntegerType),
+        field("reserved", IntegerType),
+        field("safetyStock", IntegerType),
+        field("afs", IntegerType)
+      )
+
+    def fields = List.empty
+  }
+
 }
