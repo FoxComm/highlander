@@ -5,6 +5,9 @@ import _ from 'lodash';
 import { transitionTo } from '../../route-helpers';
 
 const setCellContents = (sku, field) => {
+  if (field === 'productActive' || field === 'skuActive') {
+    return _.get(sku, field) ? 'Active' : 'Inactive';
+  }
   return _.get(sku, field);
 };
 
