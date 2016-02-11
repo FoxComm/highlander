@@ -4,7 +4,8 @@ import java.time.Instant
 
 import models.activity.ActivityContext
 import models.inventory._
-import models.{StoreAdmins, Order, OrderLineItem, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, Orders, Skus}
+import models.{StoreAdmins, Order, OrderLineItem, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, Orders}
+import models.product.Skus
 import payloads.{UpdateLineItemsPayload => Payload}
 import util.IntegrationTestBase
 import utils.DbResultT._

@@ -2,15 +2,18 @@ package responses
 
 import java.time.Instant
 
+import models.{OrderWatcher, OrderWatchers, OrderLockEvents, CreditCard, 
+  CreditCardCharge, CreditCards, Customer, Customers, GiftCard, Order, 
+  OrderAssignment, OrderAssignments, OrderLineItem, OrderLineItemGiftCard, 
+  OrderLineItemGiftCards, OrderLineItemSkus, OrderPayment, OrderPayments, 
+  Orders, PaymentMethod, Region, ShippingMethod, StoreAdmin, StoreAdmins, 
+  StoreCredit}
+import models.product.Sku
+
 import cats.implicits._
-import models.{OrderWatcher, OrderWatchers, OrderLockEvents, CreditCard, CreditCardCharge, CreditCards,
-Customer, Customers, GiftCard, Order, OrderAssignment, OrderAssignments, OrderLineItem, OrderLineItemGiftCard,
-OrderLineItemGiftCards, OrderLineItemSkus, OrderPayment, OrderPayments, Orders, PaymentMethod, Region,
-ShippingMethod, Sku, StoreAdmin, StoreAdmins, StoreCredit}
+import scala.concurrent.{ExecutionContext, Future}
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
-
-import scala.concurrent.{ExecutionContext, Future}
 
 object FullOrder {
   type Response = Future[Root]

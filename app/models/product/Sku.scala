@@ -1,4 +1,4 @@
-package models
+package models.product
 
 import scala.concurrent.ExecutionContext
 import models.inventory.InventorySummaries

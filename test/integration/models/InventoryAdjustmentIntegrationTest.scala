@@ -1,6 +1,7 @@
 package models
 
 import models.inventory._
+import models.product.{Sku, Skus}
 import utils.seeds.Seeds
 import Seeds.Factories
 import util.IntegrationTestBase

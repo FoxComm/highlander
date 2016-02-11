@@ -2,29 +2,34 @@ package utils.seeds.generators
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.{Addresses, CreditCards, Customer, GiftCard, GiftCardManual, GiftCardManuals, GiftCardOrder,
-GiftCardOrders, GiftCards, Note, Notes, Order, OrderLineItem, OrderLineItemGiftCard, OrderLineItemGiftCards,
-OrderLineItemSku, OrderLineItemSkus, OrderLineItems, OrderPayment, OrderPayments, OrderShippingAddress,
-OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, ShippingMethods, Orders, Shipment, Shipments, Sku, StoreCredit,
-StoreCreditManual, StoreCreditManuals, StoreCredits}
+import models.{Addresses, CreditCards, Customer, GiftCard, GiftCardManual, 
+  GiftCardManuals, GiftCardOrder, GiftCardOrders, GiftCards, Note, Notes, Order, 
+  OrderLineItem, OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItemSku, 
+  OrderLineItemSkus, OrderLineItems, OrderPayment, OrderPayments, OrderShippingAddress,
+  OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, ShippingMethods, 
+  Orders, Shipment, Shipments, StoreCredit, StoreCreditManual, StoreCreditManuals, 
+  StoreCredits}
+import GeneratorUtils.randomString
 import models.GiftCard.buildAppeasement
-import payloads.GiftCardCreateByCsr
 import models.Order.{ManualHold, Cart, Shipped}
-import utils.seeds.ShipmentSeeds
+import models.product.Sku
 
-import utils.Money.Currency
-import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
+import payloads.GiftCardCreateByCsr
+
 import services.orders.OrderTotaler
-import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
+import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
+
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import GeneratorUtils.randomString
-import scala.util.Random
+import utils.Money.Currency
+import utils.Slick.implicits._
+import utils.seeds.ShipmentSeeds
 import utils.time
-import cats.implicits._
 
+import cats.implicits._
 import faker._;
+import scala.util.Random
+import slick.driver.PostgresDriver.api._
 
 trait OrderGenerator extends ShipmentSeeds {
 

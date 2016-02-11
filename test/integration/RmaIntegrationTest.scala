@@ -6,7 +6,8 @@ import models.Rma.{Canceled, Processing}
 import models.{RmaAssignment, Customer, Customers, GiftCard, GiftCardManual, GiftCardManuals,
 GiftCards, Order, OrderLineItem, OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItems,
 OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, Reasons, Rma, RmaAssignments, RmaLineItem,
-RmaLockEvents, RmaReason, RmaReasons, Rmas, Shipments, ShippingMethods, Skus, StoreAdmin, StoreAdmins}
+RmaLockEvents, RmaReason, RmaReasons, Rmas, Shipments, ShippingMethods, StoreAdmin, StoreAdmins}
+import models.product.Skus
 import org.json4s.jackson.JsonMethods._
 import payloads.{RmaAssigneesPayload, RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCustomerPayload,
 RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload}

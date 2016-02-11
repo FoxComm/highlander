@@ -2,11 +2,14 @@ package utils.seeds
 
 import cats.implicits._
 import models.Order._
-import models.{Addresses, CreditCards, Customer, GiftCard, GiftCardManual, GiftCardManuals, GiftCardOrder,
-GiftCardOrders, GiftCards, Note, Notes, Order, OrderLineItem, OrderLineItemGiftCard, OrderLineItemGiftCards,
-OrderLineItemSku, OrderLineItemSkus, OrderLineItems, OrderPayment, OrderPayments, OrderShippingAddress,
-OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, Shipment, Shipments, Sku, StoreCredit,
-StoreCreditManual, StoreCreditManuals, StoreCredits}
+import models.{Addresses, CreditCards, Customer, GiftCard, GiftCardManual, 
+  GiftCardManuals, GiftCardOrder, GiftCardOrders, GiftCards, Note, Notes, Order, 
+  OrderLineItem, OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItemSku, 
+  OrderLineItemSkus, OrderLineItems, OrderPayment, OrderPayments, OrderShippingAddress,
+  OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, 
+  Shipment, Shipments, StoreCredit, StoreCreditManual, StoreCreditManuals, 
+  StoreCredits}
+import models.product.Sku
 import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._

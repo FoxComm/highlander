@@ -1,7 +1,8 @@
 package services
 
 import models.rules.QueryStatement
-import models.{Addresses, Customers, OrderLineItem, OrderLineItemSkus, OrderLineItems, OrderShippingAddresses, Orders, ShippingMethods, Skus}
+import models.{Addresses, Customers, OrderLineItem, OrderLineItemSkus, OrderLineItems, OrderShippingAddresses, Orders, ShippingMethods}
+import models.product.Skus
 
 import services.ShippingManager.getShippingMethodsForOrder
 

@@ -1,23 +1,25 @@
 package services
 
-import scala.concurrent.ExecutionContext
 
 import models.OrderLineItems.scope._
-import models.{Customer, GiftCard, GiftCardOrder, GiftCardOrders, GiftCards, Order, OrderLineItem,
-OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, Orders, Sku, Skus,
-StoreAdmin}
+import models.{Customer, GiftCard, GiftCardOrder, GiftCardOrders, GiftCards, 
+  Order, OrderLineItem, OrderLineItemGiftCard, OrderLineItemGiftCards, 
+  OrderLineItemSku, OrderLineItemSkus, OrderLineItems, Orders, StoreAdmin}
+
+import models.activity.{Activity, ActivityContext}
+import models.product.{Sku, Skus}
 import payloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
 import responses.FullOrder.refreshAndFullOrder
 import responses.{FullOrder, TheResponse}
 import services.CartFailures.CustomerHasNoActiveOrder
 import services.orders.OrderTotaler
-import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
 
-import models.activity.{Activity, ActivityContext}
+import scala.concurrent.ExecutionContext
+import slick.driver.PostgresDriver.api._
 
 object LineItemUpdater {
   def addGiftCard(admin: StoreAdmin, refNum: String, payload: AddGiftCardLineItem)

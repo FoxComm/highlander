@@ -2,11 +2,13 @@ package models
 
 import scala.concurrent.ExecutionContext
 
+import models.product.{Sku, Skus}
+import utils.Slick.implicits._
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class OrderLineItemSku(id: Int = 0, skuId: Int)
   extends ModelWithIdParameter[OrderLineItemSku]

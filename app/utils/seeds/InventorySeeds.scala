@@ -1,11 +1,11 @@
 package utils.seeds
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 import models.inventory.{InventorySummaries, InventorySummary, Warehouse, Warehouses}
-import models.{Sku, Skus}
+import models.product.{Sku, Skus}
 import utils.DbResultT._
 import utils.DbResultT.implicits._
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 trait InventorySeeds {
 

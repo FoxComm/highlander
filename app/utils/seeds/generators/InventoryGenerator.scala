@@ -1,19 +1,18 @@
 package utils.seeds.generators
 
-import java.time.{Instant, ZoneId}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
-import models.{Sku,Skus}
+import GeneratorUtils.randomString
 import models.inventory.{InventorySummary, InventorySummaries, Warehouse, Warehouses}
+import models.product.{Sku, Skus}
+import scala.util.Random
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import GeneratorUtils.randomString
-import scala.util.Random
 
-import scala.io.Source
-import org.conbere.markov.MarkovChain
 import faker._;
+import java.time.{Instant, ZoneId}
+import org.conbere.markov.MarkovChain
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.io.Source
 
 trait InventoryGenerator {
 

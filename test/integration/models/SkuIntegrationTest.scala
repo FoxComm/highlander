@@ -1,13 +1,16 @@
 package models
 
-import org.scalatest.prop.TableDrivenPropertyChecks._
-import org.scalatest.prop.Tables.Table
+import models.product.Skus
+
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
+import utils.Slick.implicits._
 import utils.seeds.Seeds
 import Seeds.Factories
-import utils.Slick.implicits._
+
+import org.scalatest.prop.TableDrivenPropertyChecks._
+import org.scalatest.prop.Tables.Table
 
 class SkuIntegrationTest extends IntegrationTestBase {
   import api._

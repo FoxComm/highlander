@@ -3,10 +3,11 @@ package utils.seeds
 import scala.util.Random
 
 import utils.seeds.generators.{CustomerGenerator, AddressGenerator, CreditCardGenerator, 
-OrderGenerator, InventoryGenerator}
+  OrderGenerator, InventoryGenerator}
 import models.{Address, Addresses, CreditCard, CreditCards, Customer, Customers, 
-Order, OrderPayment, OrderPayments, Orders, PaymentMethod, Skus, Sku, CustomerDynamicGroup,
-OrderLineItemSku, OrderLineItemSkus}
+  Order, OrderPayment, OrderPayments, Orders, PaymentMethod, CustomerDynamicGroup,
+  OrderLineItemSku, OrderLineItemSkus}
+import models.product.{Sku, Skus}
 
 import utils.ModelWithIdParameter
 import utils.DbResultT

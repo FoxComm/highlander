@@ -2,8 +2,9 @@ package services
 
 import cats.implicits._
 import models.{CreditCards, Customers, GiftCard, GiftCardManual, GiftCardManuals, GiftCards, Order, OrderLineItem,
-OrderLineItems, OrderPayment, OrderPayments, Orders, Reasons, Skus, StoreAdmins, StoreCredit, StoreCreditManual,
+OrderLineItems, OrderPayment, OrderPayments, Orders, Reasons, StoreAdmins, StoreCredit, StoreCreditManual,
 StoreCreditManuals, StoreCredits}
+import models.product.Skus
 import services.CartFailures._
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._

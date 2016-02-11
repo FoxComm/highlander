@@ -9,7 +9,8 @@ import models.rules.QueryStatement
 import models.{OrderAssignment, Address, Addresses, CreditCardCharge, CreditCardCharges, CreditCards, Customers,
 Order, OrderAssignments, OrderLineItem, OrderLineItemSkus, OrderLineItems, OrderLockEvent,
 OrderLockEvents, OrderPayments, OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, Regions,
-Shipment, Shipments, ShippingMethods, Skus, StoreAdmin, StoreAdmins, OrderWatcher, OrderWatchers}
+Shipment, Shipments, ShippingMethods, StoreAdmin, StoreAdmins, OrderWatcher, OrderWatchers}
+import models.product.Skus
 import org.json4s.jackson.JsonMethods._
 import payloads.{Assignment, Watchers, UpdateLineItemsPayload, UpdateOrderPayload}
 import responses.{FullOrder, StoreAdminResponse}

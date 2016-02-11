@@ -2,7 +2,8 @@ import Extensions._
 import akka.http.scaladsl.model.StatusCodes
 import models.rules.QueryStatement
 import models.{Addresses, Customers, OrderLineItem, OrderLineItemSku, OrderLineItemSkus, OrderLineItems,
-OrderShippingAddresses, Orders, Sku, Skus, StoreAdmins}
+OrderShippingAddresses, Orders, StoreAdmins}
+import models.product.{Sku, Skus}
 import org.json4s.jackson.JsonMethods._
 import services.orders.OrderTotaler
 import util.IntegrationTestBase

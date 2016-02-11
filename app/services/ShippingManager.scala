@@ -1,14 +1,16 @@
 package services
 
-import models.{Orders, OrderLineItemSkus, Sku, Skus, Order, OrderShippingAddress, Region, ShippingMethods}
+import models.{Orders, OrderLineItemSkus, Order, OrderShippingAddress, Region, ShippingMethods}
+import models.product.{Sku, Skus}
 import models.rules.{Condition, QueryStatement}
-import scala.concurrent.ExecutionContext
-import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.JsonFormatters
 import utils.Slick.DbResult
 import utils.Slick.implicits._
+
+import scala.concurrent.ExecutionContext
+import slick.driver.PostgresDriver.api._
 
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats

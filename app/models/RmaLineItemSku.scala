@@ -1,10 +1,12 @@
 package models
 
-import java.time.Instant
 
+import models.product.{Sku, Skus}
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+
+import java.time.Instant
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class RmaLineItemSku(id: Int = 0, rmaId: Int, skuId: Int, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[RmaLineItemSku]

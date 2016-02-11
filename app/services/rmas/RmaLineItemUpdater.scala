@@ -1,19 +1,23 @@
 package services.rmas
 
-import models.{GiftCard, GiftCards, OrderLineItemGiftCards, OrderLineItemSkus, RmaLineItem, RmaLineItemGiftCard, RmaLineItemGiftCards, RmaLineItemShippingCost, RmaLineItemShippingCosts, RmaLineItemSku, RmaLineItemSkus, RmaLineItems, RmaReason, RmaReasons, Rmas, Shipments, Sku, Skus}
+import models.{GiftCard, GiftCards, OrderLineItemGiftCards, OrderLineItemSkus, 
+  RmaLineItem, RmaLineItemGiftCard, RmaLineItemGiftCards, RmaLineItemShippingCost, 
+  RmaLineItemShippingCosts, RmaLineItemSku, RmaLineItemSkus, RmaLineItems, 
+  RmaReason, RmaReasons, Rmas, Shipments}
+import models.product.{Sku, Skus}
 import payloads.{RmaGiftCardLineItemsPayload, RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload}
-import responses.RmaResponse.Root
 import responses.RmaResponse
+import responses.RmaResponse.Root
+import services.RmaFailures.SkuNotFoundInOrder
 import services.rmas.Helpers._
 import services.{NotFoundFailure400, NotFoundFailure404, Result, ShipmentNotFoundFailure}
-import services.RmaFailures.SkuNotFoundInOrder
-import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
 
 import scala.concurrent.ExecutionContext
+import slick.driver.PostgresDriver.api._
 
 object RmaLineItemUpdater {
 

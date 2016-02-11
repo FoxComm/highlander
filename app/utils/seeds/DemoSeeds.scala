@@ -3,11 +3,12 @@ package utils.seeds
 
 
 import models.{Customer, Customers, OrderShippingMethods, OrderShippingMethod, 
-  ShippingMethod, ShippingMethods, Skus, Sku, Shipments, OrderLineItemSkus, 
-  OrderLineItems, OrderLineItem, GiftCards, GiftCard, Order, Orders, CreditCards, 
-  Address, Addresses, OrderPayments, OrderPayment, OrderShippingAddresses, 
-  OrderShippingAddress, Shipment, GiftCardOrder, GiftCardOrders}
+  ShippingMethod, ShippingMethods, OrderLineItemSkus, OrderLineItems, 
+  OrderLineItem, GiftCards, GiftCard, Order, Orders, CreditCards, Address, 
+  Addresses, OrderPayments, OrderPayment, OrderShippingAddresses, 
+  OrderShippingAddress, Shipment, Shipments, GiftCardOrder, GiftCardOrders}
 
+import models.product.{Sku, Skus}
 import models.inventory.{Warehouse, Warehouses, InventorySummary}
 import models.Order.Shipped
 
@@ -22,10 +23,10 @@ import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 
+import cats.implicits._
+import faker._;
 import scala.concurrent.ExecutionContext.Implicits.global
 import slick.driver.PostgresDriver.api._
-import faker._;
-import cats.implicits._
 import utils.time
 
 /**

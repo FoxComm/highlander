@@ -3,7 +3,8 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.StatusCodes.OK
 
 import Extensions._
-import models.{Addresses, Customers, Order, Orders, Reasons, ShippingMethods, Skus, StoreAdmins}
+import models.{Addresses, Customers, Order, Orders, Reasons, ShippingMethods, StoreAdmins}
+import models.product.Skus
 import payloads.{CreateOrder, GiftCardCreateByCsr, GiftCardPayment, UpdateLineItemsPayload, UpdateShippingMethod}
 import responses.FullOrder.Root
 import responses.{FullOrder, GiftCardResponse}
