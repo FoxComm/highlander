@@ -29,7 +29,7 @@ const InventoryList = props => {
     {field: 'productActive', text: 'Product State'},
     {field: 'sku', text: 'SKU'},
     {field: 'skuActive', text: 'SKU State'},
-    {field: 'skuType', text: 'SKU Type'},
+    {field: 'skuType', text: 'SKU Type', type: 'state', model: 'sku'},
     {field: 'warehouse', text: 'Warehouse'},
     {field: 'onHand', text: 'On Hand'},
     {field: 'onHold', text: 'Hold'},
@@ -38,11 +38,9 @@ const InventoryList = props => {
     {field: 'afs', text: 'AFS'},
   ];
 
-  console.log(props.list);
-
   return (
     <SearchableList
-      emptyResultMessage="No SKUs found."
+      emptyResultMessage="No priducts found."
       list={props.list}
       renderRow={renderRow}
       tableColumns={tableColumns}
