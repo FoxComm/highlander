@@ -152,6 +152,7 @@
     "browserify": "^11.0.1",
     "chai": "^3.0.0",
     "co-mocha": "^1.1.2",
+    "envify" : "^3.4.0",
     "eslint": "^1.10.1",
     "eslint-plugin-react": "^3.10.0",
     "gulp": "^3.9.0",

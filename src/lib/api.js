@@ -29,13 +29,11 @@ export default class Api {
     uri = this.apiURI(uri);
 
     const isFormData = !isServer && data instanceof FormData;
-    const token = localStorage.getItem('token');
 
     const headers = {};
 
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
+    addAuthHeaders(headers);
+
     if (!isFormData) {
       headers['Content-Type'] = 'application/json;charset=UTF-8';
     }
@@ -107,3 +105,16 @@ export default class Api {
     return this.request('PATCH', ...args);
   }
 }
+
+export function addAuthHeaders(headers) { 
+  const token = localStorage.getItem('token');
+  const demoToken = process.env.DEMO_AUTH_TOKEN;
+
+  if(demoToken) { 
+    headers['Authorization'] = "Basic " + demoToken;
+  } else if (token) {
+    headers['Authorization'] = "Bearer " + token;
+  }
+}
+
+
