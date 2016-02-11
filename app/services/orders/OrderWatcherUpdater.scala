@@ -2,10 +2,10 @@ package services.orders
 
 import models.order._
 import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
-import responses.FullOrder.Root
-import responses.{FullOrder, TheResponse}
+import responses.TheResponse
+import responses.order.FullOrder
 import services.Util._
-import services.{NotFoundFailure400, NotificationManager, LogActivity, OrderWatcherNotFound, Result}
+import services.{NotificationManager, LogActivity, OrderWatcherNotFound, Result}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
@@ -18,7 +18,7 @@ import models.activity.{Dimension, ActivityContext}
 object OrderWatcherUpdater {
 
   def watch(admin: StoreAdmin, refNum: String, requestedWatcherIds: Seq[Int])(implicit db: Database,
-    ec: ExecutionContext, ac: ActivityContext): Result[TheResponse[Root]] = (for {
+    ec: ExecutionContext, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
 
     order           ← * <~ Orders.mustFindByRefNum(refNum)
     adminIds        ← * <~ StoreAdmins.filter(_.id.inSetBind(requestedWatcherIds)).map(_.id).result
@@ -35,7 +35,7 @@ object OrderWatcherUpdater {
   } yield TheResponse.build(fullOrder, errors = notFoundAdmins)).runTxn()
 
   def unwatch(admin: StoreAdmin, refNum: String, assigneeId: Int)(implicit db: Database, ec: ExecutionContext,
-    ac: ActivityContext): Result[TheResponse[Root]] = (for {
+    ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
     order           ← * <~ Orders.mustFindByRefNum(refNum)
     watcher         ← * <~ StoreAdmins.mustFindById404(assigneeId)
     assignment      ← * <~ OrderWatchers.byWatcher(watcher).one.mustFindOr(OrderWatcherNotFound(refNum, assigneeId))

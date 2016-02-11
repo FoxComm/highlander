@@ -4,7 +4,8 @@ import models.customer.{Customers, Customer}
 import models.StoreAdmins
 import models.order.Order
 import payloads.CreateOrder
-import responses.FullOrder.Root
+import responses.order.FullOrder
+import FullOrder.Root
 import services.orders.OrderCreator
 import services.NotFoundFailure400
 import util.IntegrationTestBase

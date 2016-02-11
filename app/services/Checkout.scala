@@ -13,7 +13,7 @@ import models.customer.{Customers, Customer}
 import models.payment.creditcard.{CreditCardCharges, CreditCardCharge}
 import models.payment.giftcard.{GiftCards, GiftCard}
 import models.payment.storecredit.StoreCredits
-import responses.FullOrder
+import responses.order.FullOrder
 import services.CartFailures.CustomerHasNoActiveOrder
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._

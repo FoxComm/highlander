@@ -5,6 +5,7 @@ import java.time.Instant
 import cats.data.Xor
 import com.pellucid.sealerate
 import models.order.{OrderPayments, OrderPayment}
+import models.stripe.StripeCharge
 import models.{javaTimeSlickMapper, currencyColumnTypeMapper}
 import monocle.macros.GenLens
 import services.Failures
@@ -50,8 +51,6 @@ object CreditCardCharge {
   }
 
   implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
-
-  import com.stripe.model.{Charge ⇒ StripeCharge}
 
   def authFromStripe(card: CreditCard, pmt: OrderPayment, stripe: StripeCharge, currency: Currency): CreditCardCharge =
     CreditCardCharge(creditCardId = card.id, orderPaymentId = pmt.id,

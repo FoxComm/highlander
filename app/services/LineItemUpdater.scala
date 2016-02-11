@@ -10,8 +10,9 @@ import models.order._
 import models.payment.giftcard._
 import models.StoreAdmin
 import payloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
-import responses.FullOrder.refreshAndFullOrder
-import responses.{FullOrder, TheResponse}
+import responses.order.FullOrder
+import FullOrder.refreshAndFullOrder
+import responses.TheResponse
 import services.CartFailures.CustomerHasNoActiveOrder
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._

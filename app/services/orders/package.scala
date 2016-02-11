@@ -5,7 +5,8 @@ import scala.concurrent.ExecutionContext
 import models.activity.ActivityContext
 import models.traits.{Originator, CustomerOriginator, AdminOriginator}
 import models.order.{Order, Orders}
-import responses.{AllOrders, TheResponse}
+import responses.TheResponse
+import responses.order.AllOrders
 import slick.driver.PostgresDriver.api._
 import services.CartFailures.CustomerHasNoActiveOrder
 import utils.Slick.DbResult

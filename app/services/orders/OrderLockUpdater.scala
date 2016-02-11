@@ -4,7 +4,7 @@ import java.time.{Duration, Instant}
 
 import models.order._
 import models.StoreAdmin
-import responses.FullOrder
+import responses.order.FullOrder
 import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._

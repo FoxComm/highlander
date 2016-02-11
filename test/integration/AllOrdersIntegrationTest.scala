@@ -6,9 +6,11 @@ import cats.data.Xor
 import models.order.{Orders, Order}
 import Order._
 import models.customer.Customers
+import models.payment.creditcard.CreditCardCharge
 import models.{StoreAdmin, StoreAdmins}
 import payloads.{BulkAssignment, BulkUpdateOrdersPayload, BulkWatchers}
-import responses.{AllOrders, FullOrder, StoreAdminResponse}
+import responses.order._
+import responses.StoreAdminResponse
 import services.orders.{BulkOrderUpdateResponse, OrderQueries}
 import services.{LockedFailure, NotFoundFailure404, StateTransitionNotAllowed}
 import util.IntegrationTestBase
@@ -77,8 +79,8 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
         name = Some("Yax Fuentes"),
         email = "yax@yax.com",
         orderState = Order.ManualHold,
-        paymentState = Some("FIXME"),
-        shippingState = Some("FIXME"),
+        paymentState = CreditCardCharge.Cart,
+        shippingState = Some(Order.ManualHold),
         placedAt = None,
         total = 0,
         remorsePeriodEnd = None)

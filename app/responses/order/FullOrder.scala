@@ -1,4 +1,4 @@
-package responses
+package responses.order
 
 import java.time.Instant
 
@@ -14,6 +14,8 @@ import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
 import models.shipping.ShippingMethod
 import models.{shipping, StoreAdmin, StoreAdmins}
+import responses._
+import services.orders.OrderQueries
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 
@@ -38,8 +40,8 @@ object FullOrder {
     id: Int,
     referenceNumber: String,
     orderState: Order.State,
-    shippingState: Order.State,
-    paymentState: Option[CreditCardCharge.State] = Some(CreditCardCharge.Cart),
+    shippingState: Option[Order.State] = None,
+    paymentState: CreditCardCharge.State,
     lineItems: LineItems,
     fraudScore: Int,
     totals: Totals,
@@ -50,7 +52,7 @@ object FullOrder {
     watchers: Seq[WatcherResponse.Root] = Seq.empty,
     remorsePeriodEnd: Option[Instant] = None,
     paymentMethods: Seq[Payments] = Seq.empty,
-    lockedBy: Option[StoreAdmin]) extends ResponseItem
+    lockedBy: Option[StoreAdmin]) extends ResponseItem with OrderResponseBase
 
   final case class DisplayLineItem(
     imagePath: String = "http://lorempixel.com/75/75/fashion",
@@ -81,7 +83,7 @@ object FullOrder {
 
   def fromOrder(order: Order)(implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
     fetchOrderDetails(order).map {
-      case (customer, skus, shipMethod, shipAddress, ccPmt, gcPmts, scPmts, assignees, gcs, totals, lockedBy, watchers) ⇒
+      case (customer, skus, shipMethod, shipAddress, ccPmt, gcPmts, scPmts, assignees, gcs, totals, lockedBy, payState, watchers) ⇒
       build(
         order = order,
         customer = customer,
@@ -95,6 +97,7 @@ object FullOrder {
         gcPmts = gcPmts,
         scPmts = scPmts,
         lockedBy = lockedBy,
+        paymentState = payState,
         totals = totals
       )
     }
@@ -109,6 +112,7 @@ object FullOrder {
     giftCards: Seq[(GiftCard, OrderLineItemGiftCard)] = Seq.empty,
     totals: Option[Totals] = None,
     lockedBy: Option[StoreAdmin] = None,
+    paymentState: CreditCardCharge.State = CreditCardCharge.Cart,
     watchers: Seq[(OrderWatcher, StoreAdmin)] = Seq.empty): Root = {
 
     val creditCardPmt = ccPmt.map { case (pmt, cc, region) ⇒
@@ -139,9 +143,8 @@ object FullOrder {
     Root(id = order.id,
       referenceNumber = order.referenceNumber,
       orderState = order.state,
-      shippingState = order.state,
-      //paymentState = none,
-      //paymentState = maybePayment.map(p ⇒ getPaymentState(order.state, p)),
+      shippingState = order.getShippingState,
+      paymentState = paymentState,
       lineItems = LineItems(skus = skuList, giftCards = gcList),
       fraudScore = scala.util.Random.nextInt(100),
       customer = customer.map(responses.CustomerResponse.build(_)),
@@ -176,8 +179,7 @@ object FullOrder {
       payment     ← OrderPayments.findAllByOrderId(order.id)
       creditCard  ← CreditCards.filter(_.id === payment.paymentMethodId)
       region      ← creditCard.region
-      //creditCardCharge ← CreditCardCharges.filter(_.orderPaymentId === payment.id)
-    } yield (payment, creditCard, region)//, creditCardCharge)
+    } yield (payment, creditCard, region)
 
     for {
       customer    ← Customers.findById(order.customerId).extract.one
@@ -193,7 +195,8 @@ object FullOrder {
       watchlist   ← OrderWatchers.filter(_.orderId === order.id).result
       watchers    ← StoreAdmins.filter(_.id.inSetBind(watchlist.map(_.watcherId))).result
       lockedBy    ← currentLock(order)
+      payState    ← OrderQueries.getPaymentState(order.id)
     } yield (customer, lineItems, shipMethod, shipAddress, payments, gcPayments, scPayments, assignments.zip(admins),
-      giftCards, Some(totals(order)), lockedBy, watchlist.zip(watchers))
+      giftCards, Some(totals(order)), lockedBy, payState, watchlist.zip(watchers))
   }
 }

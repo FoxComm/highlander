@@ -18,7 +18,8 @@ import org.mockito.{Matchers => m}
 import org.scalatest.mock.MockitoSugar
 import payloads.CreateAddressPayload
 import responses.CreditCardsResponse.{Root => CardResponse}
-import responses.{FullOrder, CustomerResponse}
+import responses.CustomerResponse
+import responses.order.FullOrder
 import services.CreditCardFailure.StripeFailure
 import services.orders.OrderPaymentUpdater
 import services.{CannotUseInactiveCreditCard, CreditCardManager, CustomerEmailNotUnique, GeneralFailure, NotFoundFailure404, Result}

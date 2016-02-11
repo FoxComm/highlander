@@ -7,7 +7,8 @@ import models.order._
 import models.shipping.{Shipments, ShippingMethods}
 import models.traits.Originator
 import payloads.UpdateShippingMethod
-import responses.{FullOrder, TheResponse}
+import responses.TheResponse
+import responses.order.FullOrder
 import services.{LogActivity, CartValidator, Result, ShippingManager}
 import services.CartFailures.NoShipMethod
 import slick.driver.PostgresDriver.api._
