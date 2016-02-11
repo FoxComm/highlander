@@ -20,7 +20,18 @@ const InventoryList = props => {
 
   const renderRow = () => { return <div>row</div>; };
 
-  const tableColumns = [];
+  const tableColumns = [
+    {field: 'product', text: 'Product'},
+    {field: 'productActive', text: 'Product State'},
+    {field: 'sku', text: 'SKU'},
+    {field: 'skuType', text: 'SKU Type'},
+    {field: 'warehouse', text: 'Warehouse', type: 'state'},
+    {field: 'onHand', text: 'On Hand'},
+    {field: 'onHold', text: 'Hold'},
+    {field: 'reserved', text: 'Reserved'},
+    {field: 'safetyStock', text: 'Safety Stock'},
+    {field: 'afs', text: 'AFS'},
+  ];
 
   return (
     <SearchableList
