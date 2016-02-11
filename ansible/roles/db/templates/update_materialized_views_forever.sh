@@ -2,5 +2,5 @@
 while :
 do
     {{update_materialized_views_cmd}}
-    sleep 5
+    sleep 1
 done
