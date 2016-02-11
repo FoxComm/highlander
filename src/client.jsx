@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Router, browserHistory } from 'react-router';
-import { ReduxAsyncConnect } from 'redux-async-connect';
 import { Provider } from 'react-redux'
 import { render } from 'react-dom'
 import makeStore from './store';
@@ -12,7 +11,7 @@ export function renderApp() {
 
   render((
     <Provider store={store} key="provider">
-      <Router render={(props) => <ReduxAsyncConnect {...props}/>} history={browserHistory}>
+      <Router history={browserHistory}>
         {routes}
       </Router>
     </Provider>

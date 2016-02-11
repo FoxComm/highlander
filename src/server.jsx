@@ -1,8 +1,7 @@
 
 import React from 'react';
-import { renderToString } from 'react-dom/server'
-import { match, RoutingContext } from 'react-router'
-import { ReduxAsyncConnect, loadOnServer, reducer as reduxAsyncConnect } from 'redux-async-connect'
+import { renderToString } from 'react-dom/server';
+import { match, RouterContext } from 'react-router';
 import createHistory from 'history/lib/createMemoryHistory';
 import {Provider} from 'react-redux';
 import makeStore from './store';
@@ -19,11 +18,11 @@ export default function *renderReact(next) {
   } else if (!renderProps) {
     this.status = 404;
   } else {
-    yield loadOnServer(renderProps, store);
+    //yield loadOnServer(renderProps, store);
 
     const appHtml = renderToString(
       <Provider store={store} key="provider">
-        <ReduxAsyncConnect {...renderProps} />
+        <RouterContext {...renderProps} />
       </Provider>
     );
 

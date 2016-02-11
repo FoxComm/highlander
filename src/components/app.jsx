@@ -1,16 +1,30 @@
 
 import React from 'react';
-import { asyncConnect } from 'redux-async-connect';
+import Cat from './cat';
 
-@asyncConnect({
-  lunch: (params, helpers) => Promise.resolve({id: 1, name: 'Borsch'})
-})
 class App extends React.Component {
+
+  constructor(...args) {
+    super(...args);
+    this.state = {
+      cats: []
+    };
+  }
+
+  addCat() {
+    this.setState({
+      cats: [...this.state.cats, 'Murka']
+    });
+  }
+
   render() {
-    const lunch = this.props.lunch;
 
     return (
-      <div>Borsch govno</div>
+      <div>
+        <Cat>Hilka</Cat>
+        {this.state.cats.map(cat => <Cat>{cat}</Cat>)}
+        <button onClick={::this.addCat}>Add Cat!</button>
+      </div>
     );
   }
 }
