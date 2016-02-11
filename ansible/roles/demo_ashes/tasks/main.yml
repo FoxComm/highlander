@@ -14,7 +14,7 @@
       dest: /etc/nginx/sites-available/default
       regexp:  "auth_basic"
       insertafter: "server_name _;"
-      line: "auth_basic \"Restricted\"; auth_basic_user_file /etc/nginx/passwdfile;"
+      line: "auth_basic \"Restricted\"; auth_basic_user_file /etc/nginx/passwdfile; server_name {{demo_domain}};"
 
 - name: Restart Nginx
   service: name=nginx state=restarted
