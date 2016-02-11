@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 
 // component
 import { SearchableList } from '../list-page';
+import InventoryListRow from './inventory-list-row';
 
 // redux
 import { actions } from '../../modules/inventory/list';
@@ -18,12 +19,16 @@ const mapDispatchToProps = dispatch => {
 
 const InventoryList = props => {
 
-  const renderRow = () => { return <div>row</div>; };
+  const renderRow = (row, index, columns, params) => {
+    const key = `inventory-sku-${row.id}`;
+    return <InventoryListRow sku={row} columns={columns} params={params} />;
+  };
 
   const tableColumns = [
     {field: 'product', text: 'Product'},
     {field: 'productActive', text: 'Product State'},
     {field: 'sku', text: 'SKU'},
+    {field: 'skuActive', text: 'SKU State'},
     {field: 'skuType', text: 'SKU Type'},
     {field: 'warehouse', text: 'Warehouse', type: 'state'},
     {field: 'onHand', text: 'On Hand'},

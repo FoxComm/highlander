@@ -10,7 +10,7 @@ import { ListPageContainer, makeTotalCounter } from '../list-page';
 import { actions as customersActions } from '../../modules/customers/list';
 
 const InventoryListPage = (props, context) => {
-  const TotalCounter = makeTotalCounter(state => state.customers.list, customersActions);
+  const TotalCounter = makeTotalCounter(state => state.inventory.list, customersActions);
 
   const navLinks = [
     { title: 'Lists', to: 'inventory' },
