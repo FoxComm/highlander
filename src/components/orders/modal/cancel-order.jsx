@@ -1,39 +1,22 @@
 // libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import { connect } from 'react-redux';
 
 // helpers
 import { ReasonType } from '../../../lib/reason-utils';
 import { inflect } from '../../../lib/text-utils';
 
-// data
-import { fetchReasons } from '../../../modules/reasons';
-
 // components
 import modal from '../../modal/wrapper';
 import ContentBox from '../../content-box/content-box';
 import { PrimaryButton, CloseButton } from '../../common/buttons';
-import { Dropdown, DropdownItem } from '../../dropdown';
+import { CancelReason } from '../../fields';
 
-const mapStateToProps = ({reasons}) => {
-  return {
-    reasons: _.get(reasons, ['reasons', ReasonType.CANCELLATION], []),
-  };
-};
-
-const mapDispatchToProps = dispatch => {
-  return {
-    fetchReasons: () => dispatch(fetchReasons(ReasonType.CANCELLATION)),
-  };
-};
 
 @modal
-@connect(mapStateToProps, mapDispatchToProps)
 export default class CancelOrder extends React.Component {
 
   static propTypes = {
-    reasons: PropTypes.array.isRequired,
     onCancel: PropTypes.func.isRequired,
     onConfirm: PropTypes.func.isRequired,
     count: PropTypes.number,
@@ -43,12 +26,8 @@ export default class CancelOrder extends React.Component {
     reason: null
   };
 
-  componentDidMount() {
-    this.props.fetchReasons();
-  }
-
   render() {
-    const {reasons, count, onCancel, onConfirm} = this.props;
+    const {count, onCancel, onConfirm} = this.props;
 
     const actionBlock = <i onClick={onCancel} className="fc-btn-close icon-close" title="Close" />;
 
@@ -58,23 +37,10 @@ export default class CancelOrder extends React.Component {
                   actionBlock={actionBlock}>
         <div className='fc-modal-body'>
           Are you sure you want to cancel <b>{count} {inflect(count, 'order', 'orders')}</b>?
-          <div className="fc-order-cancel-reason">
-            <div>
-              <label>
-                Cancel Reason
-                <span className="fc-order-cancel-reason-asterisk">*</span>
-              </label>
-            </div>
-            <Dropdown className="fc-order-cancel-reason-selector"
-                      name="cancellationReason"
-                      placeholder="- Select -"
-                      value={this.state.reason}
-                      onChange={(reason) => this.setState({reason})}>
-              {reasons.map(({id, body}) => (
-                <DropdownItem key={id} value={id}>{body}</DropdownItem>
-              ))}
-            </Dropdown>
-          </div>
+          <CancelReason reasonType={ReasonType.CANCELLATION}
+                        className="fc-order-cancel-reason"
+                        value={this.state.reason}
+                        onChange={(reason) => this.setState({reason})} />
         </div>
         <div className='fc-modal-footer'>
           <a tabIndex="2" className="fc-modal-close" onClick={onCancel}>

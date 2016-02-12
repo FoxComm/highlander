@@ -40,8 +40,8 @@ const reducer = createReducer({
   [bulkDone]: (state, [successes, errors]) => {
     return {
       isFetching: false,
-      successes: _.size(successes) ? successes : null,
-      errors: _.size(errors) ? errors : null,
+      successes: _.isEmpty(successes) ? null : successes,
+      errors: _.isEmpty(errors) ? null : errors,
     };
   },
   [bulkReset]: () => {
