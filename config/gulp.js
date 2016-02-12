@@ -4,6 +4,9 @@ const fs = require('fs');
 // by default enable for all platforms, except mac
 exports.enableNotifier = process.platform != 'darwin';
 
-if (fs.existsSync('./.gulpconfig')) {
-  Object.assign(exports, require('../.gulpconfig'));
+// install pre-push hooks
+exports.autoInstallHooks = true;
+
+if (fs.existsSync('./.gulprc')) {
+  Object.assign(exports, require('../.gulprc'));
 }

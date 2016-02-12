@@ -11,6 +11,7 @@ node_modules
 # Users Environment Variables & settings
 .lock-wscript
 /.env
+/.gulprc
 
 .DS_Store
 .#*

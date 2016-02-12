@@ -1,10 +1,11 @@
 {
   "name": "firebird",
   "version": "1.0.0",
-  "description": "FoxComm Storefront",
+  "description": "The demo storefront UI",
   "main": "index.js",
   "scripts": {
     "lint": "eslint --ext .js --ext .jsx .",
+    "dev": "gulp dev",
     "test": "mocha"
   },
   "author": "FoxCommerce",
