@@ -159,19 +159,28 @@ data and statistics.
 \newpage
 \section{Mapping Variants to SKUs}
 
-The big question here is how do we handle variants. How do we map a product variant to a SKU? 
-The Product can have variants which represent trees where the leaf nodes are
-the skus.
+The product varies in two different ways. It varies based on the context the user
+is in and it varies based on properties like size and color. Remember a context
+describes the environment the customer is in like "mobile and english"
+
+Lets call the way the product varies by context the "Context Variant" and the way
+the product varies by property the "Property Varaint"
+
+How do we map all the ways the product varies to a SKUs? 
+
+The Product can have "Context Variants" which represent trees where the leaf nodes are
+the SKUs. A walk down the tree represents a unique ID. Given the product ID and this
+walk down the tree we get a mapping of product to SKU.
 
 \begin{lstlisting}
     {
-        variants1 : {
+        context1 : {
             color : {
                 red : "SKU-RED1",
                 green : "SKU-GREEN2",
             }
         }
-        variants2 : {
+        context2 : {
             color : {
                 purple : "SKU-BLUE3",
                 orange : "SKU-ORGAN3",
