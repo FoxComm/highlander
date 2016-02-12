@@ -16,8 +16,6 @@ export default class App extends KoaApp {
     const port = 3000;
 
     this.listen(port);
-    console.log(`Listening on port ${port}`)
+    console.log(`Listening on port ${port}`);
   }
 }
-
-

@@ -5,6 +5,8 @@ const path = require('path');
 const stripColors = require('strip-ansi');
 const notifier = require('node-notifier');
 
+/* eslint no-param-reassign:0 */
+
 function notify(opts, type) {
   if (process.platform === 'linux') {
     if (type == 'error') {
@@ -24,19 +26,18 @@ function notify(opts, type) {
   notifier.notify(opts);
 }
 
-var completedTasks = [];
-var notifyTimer = null;
-var notifyAboutCompletedTasks = _.debounce(function() {
-  let message = `Task${completedTasks.length > 1 ? 's' : ''} ${completedTasks.join(', ')} successfully completed.`;
+let completedTasks = [];
+const notifyAboutCompletedTasks = _.debounce(function() {
+  const message = `Task${completedTasks.length > 1 ? 's' : ''} ${completedTasks.join(', ')} successfully completed.`;
   notify({
     title: 'Gulp tasks completed',
-    message
+    message,
   });
   completedTasks = [];
 }, 125);
 
 
-module.exports = function(gulp, opts, $) {
+module.exports = function(gulp) {
   gulp.task('notifier', function() {
     gulp.on('task_stop', function(e) {
       completedTasks.push(e.task);
@@ -51,8 +52,8 @@ module.exports = function(gulp, opts, $) {
 
       notify({
         title: 'Gulp emit error',
-        message: stripColors(e && e.toString() || '')
-      })
+        message: stripColors(e && e.toString() || ''),
+      });
     });
   });
 };

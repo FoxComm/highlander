@@ -1,3 +1,21 @@
 {
-  "extends": "airbnb"
+  "extends": "airbnb",
+  "rules": {
+    "eqeqeq": 0,
+    "no-console": 0,
+    "strict": 0,
+    "space-before-function-paren": 0,
+    "func-names": 0,
+    "comma-dangle": 1,
+    "prefer-arrow-callback": 0,
+    "object-curly-spacing": 0,
+    "max-len": [2, 120, 4,
+      {
+        "ignoreComments": true,
+        "ignoreUrls": true,
+        "ignorePattern": "^\\s*var\\s.+=\\s*require\\s*\\("
+      }
+    ]
+  },
+  "parser": "babel-eslint"
 }

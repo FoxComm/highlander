@@ -10,7 +10,7 @@ const opts = require('./config/gulp');
 
 let exitStatus = 0;
 
-for (let task of fs.readdirSync('./tasks')) {
+for (const task of fs.readdirSync('./tasks')) {
   const file = path.join('./tasks', task);
   require(path.resolve(file))(gulp, opts, $);
 }
@@ -20,11 +20,11 @@ gulp.task('build', ['browserify']);
 gulp.task('dev', function(cb) {
   opts.devMode = true;
 
-  let tasks = _.compact([
+  const tasks = _.compact([
     'build',
     'server',
     'watch',
-    opts.enableNotifier ? 'notifier' : null
+    opts.enableNotifier ? 'notifier' : null,
   ]);
 
   runSequence.apply(this, tasks.concat(cb));
@@ -45,6 +45,6 @@ process.on('uncaughtException', handleErrors);
 
 gulp.on('err', handleErrors);
 
-process.on('exit', function() {
+process.on('exit', () => {
   process.exit(exitStatus);
 });

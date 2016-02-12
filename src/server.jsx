@@ -10,33 +10,11 @@ import cssnext from 'postcss-cssnext';
 cssHook({
   prepend: [
     cssnext(),
-  ]
-})
+  ],
+});
 
 import makeStore from './store';
 import routes from './routes';
-
-export default function *renderReact(next) {
-  const history = createHistory();
-  const store = makeStore(history);
-
-  const [redirectLocation, renderProps] = yield match.bind(null, {routes, location: this.path, history });
-
-  if (redirectLocation) {
-    this.redirect(redirectLocation.pathname + redirectLocation.search);
-  } else if (!renderProps) {
-    this.status = 404;
-  } else {
-    const rootElement = (
-      <Provider store={store} key="provider">
-        <RouterContext {...renderProps} />
-      </Provider>
-    );
-
-    const appHtml = yield store.renderToString(ReactDOM, rootElement);
-    this.body = createPage(appHtml, store);
-  }
-};
 
 function createPage(html, store) {
   return `
@@ -59,4 +37,26 @@ function createPage(html, store) {
       </body>
     </html>
   `;
+}
+
+export default function *renderReact() {
+  const history = createHistory();
+  const store = makeStore(history);
+
+  const [redirectLocation, renderProps] = yield match.bind(null, {routes, location: this.path, history });
+
+  if (redirectLocation) {
+    this.redirect(redirectLocation.pathname + redirectLocation.search);
+  } else if (!renderProps) {
+    this.status = 404;
+  } else {
+    const rootElement = (
+      <Provider store={store} key="provider">
+        <RouterContext {...renderProps} />
+      </Provider>
+    );
+
+    const appHtml = yield store.renderToString(ReactDOM, rootElement);
+    this.body = createPage(appHtml, store);
+  }
 }

@@ -8,7 +8,6 @@ const source = require('vinyl-source-stream');
 const buffer = require('vinyl-buffer');
 const runSequence = require('run-sequence');
 const affectsServer = require('./server').affectsServer;
-const modulesify = require('css-modulesify');
 
 module.exports = function(gulp, opts, $) {
   const production = (process.env.NODE_ENV === 'production');
@@ -25,11 +24,11 @@ module.exports = function(gulp, opts, $) {
       extensions: ['.jsx'],
       debug: !production,
       cache: {},
-      packageCache: {}
+      packageCache: {},
     });
     bundler.plugin(require('css-modulesify'), {
       output: path.resolve('public/app.css'),
-      after: ['postcss-cssnext']
+      after: ['postcss-cssnext'],
     });
     if (!production) {
       bundler.plugin('livereactload');
@@ -37,7 +36,7 @@ module.exports = function(gulp, opts, $) {
 
     if (opts.devMode) {
       let watchifyOpts = {
-        poll: parseInt(process.env.WATCHIFY_POLL_INTERVAL || 250)
+        poll: parseInt(process.env.WATCHIFY_POLL_INTERVAL || 250, 10),
       };
 
       if (fs.existsSync('.watchifyrc')) {
@@ -68,5 +67,5 @@ module.exports = function(gulp, opts, $) {
     getBundler().on('update', function() {
       runSequence('browserify');
     });
-  })
+  });
 };

@@ -1,15 +1,17 @@
 'use strict';
 
+/* eslint camelcase: 0 */
+
 const child_process = require('child_process');
 const runSequence = require('run-sequence');
 
-let affectsServerTasks = {};
+const affectsServerTasks = {};
 
 function affectsServer(task) {
   affectsServerTasks[task] = 1;
 }
 
-module.exports = function(gulp, opts, $) {
+module.exports = function(gulp) {
   let node = null;
 
   let affectTasksRunning = 0;

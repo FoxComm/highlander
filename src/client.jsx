@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { Router, browserHistory } from 'react-router';
-import { Provider } from 'react-redux'
-import { render } from 'react-dom'
+import { Provider } from 'react-redux';
+import { render } from 'react-dom';
 import makeStore from './store';
 import routes from './routes';
 
@@ -17,6 +17,3 @@ export function renderApp() {
     </Provider>
   ), document.getElementById('app'));
 }
-
-
-
