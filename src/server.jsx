@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { renderToString } from 'react-dom/server';
+import ReactDOM from 'react-dom/server';
 import { match, RouterContext } from 'react-router';
 import createHistory from 'history/lib/createMemoryHistory';
 import {Provider} from 'react-redux';
@@ -18,14 +18,15 @@ export default function *renderReact(next) {
   } else if (!renderProps) {
     this.status = 404;
   } else {
-    //yield loadOnServer(renderProps, store);
-
-    const appHtml = renderToString(
+    const rootElement = (
       <Provider store={store} key="provider">
         <RouterContext {...renderProps} />
       </Provider>
     );
 
+    console.time('render');
+    const appHtml = yield store.renderToString(ReactDOM, rootElement);
+    console.timeEnd('render');
     this.body = createPage(appHtml, store);
   }
 };
