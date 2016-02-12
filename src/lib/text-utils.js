@@ -1,5 +1,5 @@
-export function inflect(count, singlularForm, pluralForm) {
-  return count % 10 === 1 ? singlularForm : pluralForm;
+export function inflect(count, singularForm, pluralForm) {
+  return count === 1 ? singularForm : pluralForm;
 }
 
 export function capitalize(word) {

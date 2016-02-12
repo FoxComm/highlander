@@ -1,20 +1,26 @@
 .fc-bulk-notification {
-  .border-radius(3px);
-  .margin(0 10px 10px 10px);
+  background: @color-decor0;
+  .padding(0 10px 10px 10px);
 
-  &._success {
+  > * {
+    .border-radius(3px);
+  }
+
+  &._success > * {
     background: @color-decor17;
   }
 
-  &._error {
+  &._error > * {
     background: @color-decor23;
   }
 
   a {
     .colors(@color-default-fg, @color-transparent);
+    text-decoration: underline;
   }
 
   &__preview {
+    display: flex;
     .height(36px);
     .line-height(36px);
   }
@@ -29,10 +35,13 @@
     text-decoration: underline;
   }
 
+  &__flex-separator {
+    flex: 1;
+  }
+
   &__close {
     .padding(0 10px);
     .font-spec(18px);
-    float: right;
   }
 
   &__details {

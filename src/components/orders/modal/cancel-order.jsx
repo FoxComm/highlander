@@ -1,8 +1,14 @@
 // libs
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
 
-//helpers
+// helpers
+import { ReasonType } from '../../../lib/reason-utils';
 import { inflect } from '../../../lib/text-utils';
+
+// data
+import { fetchReasons } from '../../../modules/reasons';
 
 // components
 import modal from '../../modal/wrapper';
@@ -10,7 +16,20 @@ import ContentBox from '../../content-box/content-box';
 import { PrimaryButton, CloseButton } from '../../common/buttons';
 import { Dropdown, DropdownItem } from '../../dropdown';
 
+const mapStateToProps = ({reasons}) => {
+  return {
+    reasons: _.get(reasons, ['reasons', ReasonType.CANCELLATION], []),
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    fetchReasons: () => dispatch(fetchReasons(ReasonType.CANCELLATION)),
+  };
+};
+
 @modal
+@connect(mapStateToProps, mapDispatchToProps)
 export default class CancelOrder extends React.Component {
 
   static propTypes = {
@@ -23,6 +42,10 @@ export default class CancelOrder extends React.Component {
   state = {
     reason: null
   };
+
+  componentDidMount() {
+    this.props.fetchReasons();
+  }
 
   render() {
     const {reasons, count, onCancel, onConfirm} = this.props;
