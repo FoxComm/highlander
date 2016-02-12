@@ -34,6 +34,8 @@ import CustomerTransactions from './components/customers/transactions/transactio
 import CustomerCart from './components/customers/transactions/cart';
 import InventoryListPage from './components/inventory/list-page';
 import InventoryList from './components/inventory/list';
+import InventoryItem from './components/inventory/item';
+import InventoryItemDetails from './components/inventory/item-details';
 
 import StyleGuide from './components/style-guide/style-guide';
 import StyleGuideGrid from './components/style-guide/style-guide-grid';
@@ -120,6 +122,9 @@ const routes = (
         <IndexRoute name='inventory' component={InventoryList}/>
         <Route name='inventory-activity-trail' path='activity-trail' dimension="inventory"
                component={ActivityTrailPage}/>
+      </Route>
+      <Route name='inventory-item-base' path=':sku' component={InventoryItem}>
+        <IndexRoute name='inventory-item-details' component={InventoryItemDetails}/>
       </Route>
     </Route>
     <Route name='style-guide' path='style-guide' component={StyleGuide}>
