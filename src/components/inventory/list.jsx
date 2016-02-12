@@ -40,7 +40,7 @@ const InventoryList = props => {
 
   return (
     <SearchableList
-      emptyResultMessage="No priducts found."
+      emptyResultMessage="No products found."
       list={props.list}
       renderRow={renderRow}
       tableColumns={tableColumns}
