@@ -146,6 +146,8 @@ export default class LiveSearch extends React.Component {
   get savedSearches() {
     if (this.props.singleSearch) return;
 
+    console.log(this.props.searches.savedSearches);
+
     const tabs = _.map(this.props.searches.savedSearches, (search, idx) => {
       const selected = idx === this.props.searches.selectedSearch;
       const isEditable = search.isEditable;
