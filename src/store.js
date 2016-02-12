@@ -10,7 +10,7 @@ export default function makeStore(history, initialState = void 0) {
 
   const reduxRouterMiddleware = syncHistory(history);
 
-  return createStore(
+  const store = createStore(
     rootReducer,
     initialState,
     _.flow(
@@ -18,4 +18,15 @@ export default function makeStore(history, initialState = void 0) {
       applyMiddleware(thunk)
     )
   );
+
+  if (module.onReload) {
+    module.onReload(() => {
+      const nextReducer = require('./modules');
+      store.replaceReducer(nextReducer.default || nextReducer);
+
+      return true;
+    });
+  }
+
+  return store;
 }

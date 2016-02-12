@@ -11,7 +11,7 @@ const affectsServer = require('./server').affectsServer;
 const modulesify = require('css-modulesify');
 
 module.exports = function(gulp, opts, $) {
-  let production = (process.env.NODE_ENV === 'production');
+  const production = (process.env.NODE_ENV === 'production');
 
   let bundler = null;
 
@@ -31,6 +31,9 @@ module.exports = function(gulp, opts, $) {
       output: path.resolve('public/app.css'),
       after: ['postcss-cssnext']
     });
+    if (!production) {
+      bundler.plugin('livereactload');
+    }
 
     if (opts.devMode) {
       let watchifyOpts = {

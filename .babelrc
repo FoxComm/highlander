@@ -22,5 +22,17 @@
     "transform-es2015-typeof-symbol",
     "transform-es2015-unicode-regex"
   ],
-  "presets": ["stage-0", "react"]
+  "presets": ["stage-0", "react"],
+  "env": {
+    "development": {
+      "plugins": [
+        ["react-transform", {
+          "transforms": [{
+            "transform": "livereactload/babel-transform",
+            "imports": ["react"]
+          }]
+        }]
+      ]
+    }
+  }
 }
