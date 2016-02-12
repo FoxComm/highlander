@@ -1,12 +1,12 @@
 [Service]
 WorkingDirectory={{es_home}}
 ExecStart=/bin/bash {{es_home}}/run_elasticsearch.sh {{es_path}}
-Restart=on-failure
+Restart=always
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=elasticsearch
 TimeoutStartSec=5m
-RestartSec=1m
+RestartSec=10
 User={{ansible_ssh_user}}
 
 [Install]

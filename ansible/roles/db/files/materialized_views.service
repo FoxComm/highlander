@@ -1,12 +1,12 @@
 [Service]
 WorkingDirectory=/usr/local
 ExecStart=/bin/bash /usr/local/bin/update_materialized_views_forever.sh
-Restart=on-failure
+Restart=always
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=materialized_views
 TimeoutStartSec=30
-RestartSec=30
+RestartSec=10
 
 [Install]
 WantedBy=multi-user.target

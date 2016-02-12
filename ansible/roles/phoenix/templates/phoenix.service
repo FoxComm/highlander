@@ -2,12 +2,12 @@
 Environment="PHOENIX_ENV={{phoenix_env}}"
 WorkingDirectory=/usr/share
 ExecStart=/usr/bin/java -jar {{phoenix_jar}}
-Restart=on-failure
+Restart=always
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=phoenix
 TimeoutStartSec=5m
-RestartSec=1m
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target

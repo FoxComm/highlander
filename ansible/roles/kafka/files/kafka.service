@@ -1,12 +1,12 @@
 [Service]
 WorkingDirectory=/usr/local/share
 ExecStart=/usr/bin/kafka-server-start /etc/kafka/server.properties
-Restart=on-failure
+Restart=always
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=kafka
 TimeoutStartSec=5m
-RestartSec=1m
+RestartSec=10
 
 [Install]
 WantedBy=multi-user.target

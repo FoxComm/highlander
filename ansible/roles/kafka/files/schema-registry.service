@@ -1,12 +1,12 @@
 [Service]
 WorkingDirectory=/usr/local/share
 ExecStart=/usr/bin/schema-registry-start /etc/schema-registry/schema-registry.properties
-Restart=on-failure
+Restart=always
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=schema-registry
 TimeoutStartSec=5m
-RestartSec=1m
+RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
