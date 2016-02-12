@@ -22,11 +22,7 @@ export default class InventoryItem extends React.Component {
           <a href="">Notes</a>
           <a href="">Activity Trail</a>
         </LocalNav>
-        <div className="fc-grid">
-          <div className="fc-col-md-1-1">
-            {this.props.children}
-          </div>
-        </div>
+        {this.props.children}
       </div>
     );
   }
