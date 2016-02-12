@@ -2,28 +2,17 @@ package models.inventory
 
 import scala.concurrent.ExecutionContext
 
-import com.pellucid.sealerate
 import monocle.macros.GenLens
-import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
-import slick.jdbc.JdbcType
 import utils.Slick.implicits._
 import utils.table.SearchByCode
-import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class Sku(id: Int = 0, code: String, name: Option[String] = None, isHazardous: Boolean = false, price: Int,
-  isActive: Boolean = true, `type`: Sku.Type = Sku.Sellable)
+  isActive: Boolean = true)
   extends ModelWithIdParameter[Sku]
 
 object Sku {
-  sealed trait Type
-  case object Sellable extends Type
-  case object Preorder extends Type
-  case object Backorder extends Type
-  case object NonSellable extends Type
-  object Type extends ADT[Type] { def types = sealerate.values[Type] }
-  implicit val typeColumnType: JdbcType[Type] with BaseTypedType[Type] = Type.slickColumn
-
   val skuCodeRegex = """([a-zA-Z0-9-_]*)""".r
 }
 
@@ -35,9 +24,8 @@ class Skus(tag: Tag) extends GenericTable.TableWithId[Sku](tag, "skus")  {
   def isHazardous = column[Boolean]("is_hazardous")
   def price = column[Int]("price")
   def isActive = column[Boolean]("is_active")
-  def `type` = column[Sku.Type]("type")
 
-  def * = (id, code, name, isHazardous, price, isActive, `type`) <> ((Sku.apply _).tupled, Sku.unapply)
+  def * = (id, code, name, isHazardous, price, isActive) <> ((Sku.apply _).tupled, Sku.unapply)
 }
 
 object Skus extends TableQueryWithId[Sku, Skus](
@@ -45,16 +33,16 @@ object Skus extends TableQueryWithId[Sku, Skus](
   )(new Skus(_))
   with SearchByCode[Sku, Skus] {
 
+  val HARD_CODED_WAREHOUSE_ID = 1
+
   def findOneByCode(code: String): DBIO[Option[Sku]] = filter(_.code === code).one
 
   def isAvailableOnHand(id: Int)(implicit ec: ExecutionContext, db: Database): Rep[Boolean] = {
-    //TODO: Use inventory system here
-    val HARD_CODED_WAREHOUSE_ID = 1
-    InventorySummaries.findBySkuId(HARD_CODED_WAREHOUSE_ID, id).filter(s => (s.onHand - s.reserved) > 0).exists
+    InventorySummaries.findBySkuIdInWarehouse(HARD_CODED_WAREHOUSE_ID, id).filter(s => (s.onHand - s.reserved) > 0)
+      .exists
   }
 
   def qtyAvailableForSkus(skus: Seq[String])(implicit ec: ExecutionContext, db: Database): DBIO[Map[Sku, Int]] = {
-    //TODO: Use inventory system here
     (for {
       sku  ← Skus.filter(_.code inSet skus)
       summ ← InventorySummaries if summ.skuId === sku.id

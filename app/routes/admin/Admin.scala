@@ -6,14 +6,13 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
 import models.order.Order
 import Order.orderRefNumRegex
-import models.Reason.reasonTypeRegex
 import models.payment.giftcard.GiftCard
 import models.rma.Rma
 import models.StoreAdmin
 import models.sharedsearch.SharedSearch
 import payloads._
-import services.{SharedSearchService, NoteManager, ReasonService, SaveForLaterManager, ShippingManager,
-StoreCreditAdjustmentsService, StoreCreditService, SharedSearchInvalidQueryFailure}
+import services.{SharedSearchService, NoteManager, SaveForLaterManager,
+ShippingManager, StoreCreditAdjustmentsService, StoreCreditService, SharedSearchInvalidQueryFailure}
 import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.CustomDirectives._

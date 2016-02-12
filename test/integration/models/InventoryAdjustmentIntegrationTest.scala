@@ -37,7 +37,7 @@ class InventoryAdjustmentIntegrationTest extends IntegrationTestBase {
 
       InventoryAdjustments.createAdjustmentsForOrder(order, warehouse.id).run().futureValue
       val numAdjustments = InventoryAdjustments.filter(_.eventId === order.id).length.result.run().futureValue
-      val summary = InventorySummaries.findBySkuId(warehouse.id, sku.id).one.run().futureValue.value
+      val summary = InventorySummaries.findSellableBySkuIdInWarehouse(warehouse.id, sku.id).one.run().futureValue.value
 
       numAdjustments mustBe 1
       summary.reserved must === (5)

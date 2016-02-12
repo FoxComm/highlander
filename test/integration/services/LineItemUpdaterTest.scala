@@ -45,8 +45,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
       onHand = onHand,
       onHold = 0,
       reserved = 0,
-      nonSellable = 0,
-      safetyStock = 0,
+      safetyStock = None,
       updatedAt = Instant.now())
 
     InventorySummaries.create(summary).run().futureValue.rightVal

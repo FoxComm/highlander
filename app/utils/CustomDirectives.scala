@@ -72,9 +72,6 @@ object CustomDirectives {
   def good[A <: AnyRef](a: A): StandardRoute =
     complete(render(a))
 
-  def goodOrNotFound[A <: AnyRef](a: Future[Option[A]])(implicit ec: ExecutionContext): StandardRoute =
-    complete(renderOrNotFound(a))
-
   def goodOrFailures[A <: AnyRef](a: Result[A])(implicit ec: ExecutionContext): StandardRoute =
     complete(a.map(renderGoodOrFailures))
 

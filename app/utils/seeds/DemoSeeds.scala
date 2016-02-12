@@ -14,11 +14,9 @@ import Order.Shipped
 
 import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
 import services.orders.OrderTotaler
-import services.Result
 
 import utils.seeds.generators.GeneratorUtils.randomString
 import utils.Money.Currency
-import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
@@ -110,7 +108,7 @@ trait DemoScenario2 extends DemoSeedHelpers {
     Sku(code = "SKU-ADS", name = "adidas Performance Women's Galactic Elite Running Shoe".some, price = 4900))
 
   def inventorySummaries(skus: Seq[Sku]): Seq[InventorySummary] = 
-    skus.map { sku ⇒ InventorySummary.buildNew(warehouse.id, skuId = sku.id, onHand = 100) } 
+    skus.map { sku ⇒ InventorySummary.build(warehouse.id, skuId = sku.id, onHand = 100) }
 
   def address2 = Address(customerId = 0, regionId = 4177, name = "Home", 
     address1 = "555 E Lake Union St.", address2 = None, city = "Seattle", 
