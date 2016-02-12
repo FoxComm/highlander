@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -19,7 +20,10 @@ import * as CreditCardActions from '../../../modules/customers/credit-cards';
 import * as PaymentMethodActions from '../../../modules/orders/payment-methods';
 
 function mapStateToProps(state, props) {
-  return { creditCards: state.customers.creditCards[props.customerId] };
+  return { 
+    creditCards: state.customers.creditCards[props.customerId],
+    paymentMethods: state.orders.paymentMethods,
+  };
 }
 
 function mapDispatchToProps(dispatch, props) {
@@ -39,6 +43,8 @@ class NewPayment extends Component {
     creditCards: PropTypes.object,
     customerId: PropTypes.number.isRequired,
     fetchCreditCards: PropTypes.func.isRequired,
+    orderPaymentMethodNewCreditCard: PropTypes.func.isRequired,
+    paymentMethods: PropTypes.object,
   };
 
   static defaultProps = {
@@ -50,6 +56,12 @@ class NewPayment extends Component {
 
     this.state = {
       isCreditCardFormVisible: false,
+      newCreditCard: {
+        isDefault: false,
+        address: {
+          id: null
+        },
+      },
       paymentType: null,
       selectedPayment: null,
     };
@@ -71,7 +83,11 @@ class NewPayment extends Component {
   }
 
   get creditCardForm() {
-    return <OrderCreditCardForm customerId={1} />;
+    return (
+      <OrderCreditCardForm card={this.state.newCreditCard}
+                           customerId={this.props.customerId}
+                           onChange={this.handleCreditCardChange} />
+    );
   }
 
   get giftCardForm() {
@@ -99,8 +115,15 @@ class NewPayment extends Component {
     );
   }
 
+  get hasNewCreditCard() {
+    const card = this.state.newCreditCard;
+    return !_.isEmpty(card.holderName) && !_.isEmpty(card.number) &&
+      !_.isEmpty(card.cvv) && !_.isUndefined(card.expMonth) &&
+      !_.isUndefined(card.expYear) && !_.isNull(card.address.id);
+  }
+
   get formControls() {
-    const saveDisabled = _.isNull(this.state.selectedPayment);
+    const saveDisabled = _.isNull(this.state.selectedPayment) && !this.hasNewCreditCard;
     const onSave = () => this.props.addOrderCreditCardPayment(
       'BR10004',
       _.get(this.state, 'selectedPayment.id')
@@ -153,6 +176,12 @@ class NewPayment extends Component {
   @autobind
   changePaymentType(value) {
     this.setState({ paymentType: value });
+  }
+
+  @autobind
+  handleCreditCardChange({target}) {
+    const name = _.isEqual(target.name, 'addressId') ? ['address', 'id'] : [target.name];
+    this.setState(assoc(this.state, ['newCreditCard', ...name], target.value));
   }
 
   @autobind
