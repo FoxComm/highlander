@@ -3,7 +3,16 @@ import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { match, RouterContext } from 'react-router';
 import createHistory from 'history/lib/createMemoryHistory';
-import {Provider} from 'react-redux';
+import { Provider } from 'react-redux';
+import cssHook from 'css-modules-require-hook';
+import cssnext from 'postcss-cssnext';
+
+cssHook({
+  prepend: [
+    cssnext(),
+  ]
+})
+
 import makeStore from './store';
 import routes from './routes';
 
@@ -24,9 +33,7 @@ export default function *renderReact(next) {
       </Provider>
     );
 
-    console.time('render');
     const appHtml = yield store.renderToString(ReactDOM, rootElement);
-    console.timeEnd('render');
     this.body = createPage(appHtml, store);
   }
 };
@@ -35,6 +42,9 @@ function createPage(html, store) {
   return `
     <!doctype html>
     <html>
+      <head>
+        <link rel="stylesheet" href="./app.css" />
+      </head>
       <body>
         <div id="app">${html}</div>
 

@@ -1,6 +1,6 @@
 
 import _ from 'lodash';
-import { createStore, combineReducers } from 'redux';
+import { createStore } from 'redux';
 import { syncHistory } from 'react-router-redux'
 import applyMiddleware from 'redux-wait';
 import thunk from 'redux-thunk';

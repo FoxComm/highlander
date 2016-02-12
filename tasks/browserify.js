@@ -8,6 +8,7 @@ const source = require('vinyl-source-stream');
 const buffer = require('vinyl-buffer');
 const runSequence = require('run-sequence');
 const affectsServer = require('./server').affectsServer;
+const modulesify = require('css-modulesify');
 
 module.exports = function(gulp, opts, $) {
   let production = (process.env.NODE_ENV === 'production');
@@ -25,6 +26,10 @@ module.exports = function(gulp, opts, $) {
       debug: !production,
       cache: {},
       packageCache: {}
+    });
+    bundler.plugin(require('css-modulesify'), {
+      output: path.resolve('public/app.css'),
+      after: ['postcss-cssnext']
     });
 
     if (opts.devMode) {
