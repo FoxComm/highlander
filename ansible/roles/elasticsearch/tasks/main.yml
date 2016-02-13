@@ -8,7 +8,7 @@
   sudo: true
 
 - name: Copy Run Script
-  copy: src=run_elasticsearch.sh dest={{usr_local}}
+  template: src=run_elasticsearch.sh dest={{usr_local}}
   sudo: true
 
 - name: Copy ElasticSearch service
