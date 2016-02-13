@@ -35,43 +35,74 @@ export default class CreditCardForm extends React.Component {
     customerId: PropTypes.number,
     className: PropTypes.string,
     showFormControls: PropTypes.bool,
+    showSelectedAddress: PropTypes.bool,
   };
 
   static defaultProps = {
     isDefaultEnabled: true,
     showFormControls: true,
+    showSelectedAddress: false,
   };
 
   constructor(...args) {
     super(...args);
     this.state = {
-      editingAddress: false
+      editingAddress: this.props.isNew,
     };
   }
 
-  @autobind
-  onExpYearChange(value) {
-    this.props.onChange( {target: {name: 'expYear', value: +value} } );
+  get header() {
+    if (this.props.isNew) {
+      return (
+        <header className="fc-credit-card-form__header">
+          New Credit Card
+        </header>
+      );
+    }
   }
 
-  @autobind
-  onExpMonthChange(value) {
-    this.props.onChange( {target: {name: 'expMonth', value: +value} } );
+  get defaultCheckboxBlock() {
+    const { form, isDefaultEnabled } = this.props;
+
+    const className = classNames('fc-credit-card-form__default', {
+      '_disabled': !isDefaultEnabled,
+    });
+
+    return (
+      <li className="fc-credit-card-form__line">
+        <label className={className}>
+          <Checkbox disabled={!isDefaultEnabled}
+                    defaultChecked={form.isDefault}
+                    className="fc-credit-card-form__default-checkbox"
+                    name="isDefault" />
+          <span className="fc-credit-card-form__default-label">
+            Default Card
+          </span>
+        </label>
+      </li>
+    );
   }
 
-  @autobind
-  onAddressChange(value) {
-    this.props.onChange( {target: {name: 'addressId', value: +value} } );
-  }
-
-  @autobind
-  toggleSelectAddress() {
-    const newState = { editingAddress: !this.state.editingAddress };
-    this.setState(newState);
+  get nameBlock() {
+    return (
+      <li className="fc-credit-card-form__line">
+        <FormField label="Name on Card"
+                   validator="ascii"
+                   labelClassName="fc-credit-card-form__label">
+        <input id="nameCardFormField"
+               className="fc-credit-card-form__input"
+               name="holderName"
+               maxLength="255"
+               type="text"
+               required
+               value={this.props.form.holderName} />
+        </FormField>
+      </li>
+    );
   }
 
   get cardNumberBlock() {
-    const {isNew, form} = this.props;
+    const { isNew, form } = this.props;
 
     if (!isNew) {
       return null;
@@ -90,7 +121,7 @@ export default class CreditCardForm extends React.Component {
                      maxLength="255"
                      type="text"
                      required
-                     value={ form.number }/>
+                     value={form.number}/>
             </FormField>
           </div>
           <div className="fc-col-md-1-4">
@@ -103,7 +134,7 @@ export default class CreditCardForm extends React.Component {
                      maxLength="255"
                      type="text"
                      required
-                     value={ form.cvv }/>
+                     value={form.cvv}/>
             </FormField>
           </div>
         </div>
@@ -111,137 +142,138 @@ export default class CreditCardForm extends React.Component {
     );
   }
 
-  get addressEditBlock() {
-    const {addresses, card, customerId} = this.props;
-
-    return this.state.editingAddress
-      ? ( <AddressSelect name="addressId"
-                         items={ addresses }
-                         initialValue={ card.address.id }
-                         customerId={ customerId }
-                         onItemSelect={ this.onAddressChange }/>)
-      : ( <AddressDetails customerId={ customerId }
-                          address={ card.address }/>);
-  }
-
-  get addressSelectBlock() {
-    const {isNew, addresses, customerId} = this.props;
-    let block = null;
-    let addressId = _.get(this.props, 'card.address.id');
-
-    if (isNew) {
-      block = (
-        <li className="fc-credit-card-form__addresses">
-          <div>
-            <label className="fc-credit-card-form__label">
-              Billing Address
-            </label>
-            <AddressSelect name="addressId"
-                           customerId={ customerId }
-                           items={ addresses }
-                           initialValue={ addressId }
-                           onItemSelect={ this.onAddressChange } />
-          </div>
-        </li>
-      );
-    } else {
-      block = (
-        <li className="fc-credit-card-form__line">
-          <div>
-            <label className="fc-credit-card-form__label">
-              Billing Address - <a className="fc-btn-link" onClick={ this.toggleSelectAddress }>Change</a>
-            </label>
-            { this.addressEditBlock }
-          </div>
-        </li>
-      );
-    }
-
-    return block;
-  }
-
-  get header() {
-    if (this.props.isNew) {
-      return (
-        <header className="fc-credit-card-form__header">
-          New Credit Card
-        </header>
-      );
-    }
-  }
-
-  get defaultCheckbox() {
-    const { form, isDefaultEnabled } = this.props;
-
-    const className = classNames('fc-credit-card-form__default', {
-      '_disabled': !isDefaultEnabled,
-    });
+  get expirationBlock() {
+    const { form } = this.props;
 
     return (
       <li className="fc-credit-card-form__line">
-        <label className={className}>
-          <Checkbox disabled={!isDefaultEnabled}
-                    defaultChecked={form.isDefault}
-                    className="fc-credit-card-form__default-checkbox"
-                    name="isDefault" />
-          <span className="fc-credit-card-form__default-label">Default Card</span>
-        </label>
+        <label className="fc-credit-card-form__label">Expiration Date</label>
+        <div className="fc-grid">
+          <div className="fc-col-md-1-2">
+            <Dropdown name="expMonth"
+                      items={CardUtils.monthList()}
+                      placeholder="Month"
+                      value={form.expMonth}
+                      onChange={this.onExpMonthChange} />
+          </div>
+          <div className="fc-col-md-1-2">
+            <Dropdown name="expYear"
+                      items={CardUtils.expirationYears()}
+                      placeholder="Year"
+                      value={form.expYear}
+                      onChange={this.onExpYearChange} />
+          </div>
+        </div>
       </li>
     );
   }
+
+  get billingAddress() {
+    const { card, customerId, isNew, showSelectedAddress } = this.props;
+    const addressId = _.get(card, 'address.id');
+
+    let address = null;
+    let changeLink = null;
+
+    if (!this.state.editingAddress && showSelectedAddress) {
+      changeLink = (
+        <span>
+          - <a className="fc-btn-link" onClick={this.toggleSelectAddress}>Change</a>
+        </span>
+      );
+
+      address = <AddressDetails customerId={customerId} address={card.address} />;
+    }
+
+    return (
+      <li className="fc-credit-card-form__line">
+        <div>
+          <label className="fc-credit-card-form__label">
+            Billing Address {changeLink}
+          </label>
+          {address}
+        </div>
+      </li>
+    );
+  }
+
+  get addressBook() {
+    const { isNew, addresses, customerId, showSelectedAddress } = this.props;
+    const addressId = _.get(this.props, 'card.address.id');
+
+    if (this.state.editingAddress || !showSelectedAddress) {
+      return (
+        <li className="fc-credit-card-form__addresses">
+          <div>
+            <AddressSelect name="addressId"
+                           customerId={customerId}
+                           items={addresses}
+                           initialValue={addressId}
+                           onItemSelect={this.onAddressChange} />
+          </div>
+        </li>
+      );
+    }
+  }
+
+  get submit() {
+    if (this.props.showFormControls) {
+      return <SaveCancel onCancel={this.props.onCancel} />;
+    }
+  }
+
+  @autobind
+  onExpYearChange(value) {
+    this.props.onChange( {target: {name: 'expYear', value: +value} } );
+  }
+
+  @autobind
+  onExpMonthChange(value) {
+    this.props.onChange( {target: {name: 'expMonth', value: +value} } );
+  }
+
+  @autobind
+  onAddressChange(value) {
+    const changeValue = {
+      target: {
+        name: 'addressId',
+        value: +value,
+      },
+    };
+
+    this.setState({
+      editingAddress: false,
+    }, () => this.props.onChange(changeValue));
+  }
+
+  @autobind
+  toggleSelectAddress() {
+    const newState = { editingAddress: !this.state.editingAddress };
+    this.setState(newState);
+  }
+
 
   render() {
     const {form, isDefaultEnabled, onChange, onSubmit, onCancel} = this.props;
     const className = classNames('fc-credit-card-form fc-form-vertical', this.props.className);
 
-
     return (
-      <Form className={ className }
-            onChange={ onChange }
-            onSubmit={ onSubmit }>
-        { this.header }
+      <Form className={className}
+            onChange={onChange}
+            onSubmit={onSubmit}>
+        {this.header}
         <div>
           <ul className="fc-credit-card-form__fields">
-            {this.defaultCheckbox}
-            <li className="fc-credit-card-form__line">
-              <FormField label="Name on Card"
-                         validator="ascii"
-                         labelClassName="fc-credit-card-form__label">
-                <input id="nameCardFormField"
-                       className="fc-credit-card-form__input"
-                       name="holderName"
-                       maxLength="255"
-                       type="text"
-                       required
-                       value={ form.holderName } />
-              </FormField>
-            </li>
-            { this.cardNumberBlock }
-            <li className="fc-credit-card-form__line">
-              <label className="fc-credit-card-form__label">Expiration Date</label>
-              <div className="fc-grid">
-                <div className="fc-col-md-1-2">
-                  <Dropdown name="expMonth"
-                            items={ CardUtils.monthList() }
-                            placeholder="Month"
-                            value={ form.expMonth }
-                            onChange={ this.onExpMonthChange } />
-                </div>
-                <div className="fc-col-md-1-2">
-                  <Dropdown name="expYear"
-                            items={ CardUtils.expirationYears() }
-                            placeholder="Year"
-                            value={ form.expYear }
-                            onChange={ this.onExpYearChange } />
-                </div>
-              </div>
-            </li>
-            { this.addressSelectBlock }
+            {this.defaultCheckboxBlock}
+            {this.nameBlock}
+            {this.cardNumberBlock}
+            {this.expirationBlock}
+            {this.billingAddress}
+            {this.addressBook}
           </ul>
         </div>
-        {this.props.showFormControls && <SaveCancel onCancel={onCancel} />}
+        {this.submit}
       </Form>
     );
   }
-
 }

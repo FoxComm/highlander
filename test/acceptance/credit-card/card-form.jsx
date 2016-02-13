@@ -28,7 +28,7 @@ describe('CreditCardForm', function() {
     }
   });
 
-  it('should contain New Credit Card header when creating new card', function *() {
+  xit('should contain New Credit Card header when creating new card', function *() {
     form = shallowRender(
       <CreditCardForm isNew={ true } {...defaultProps} />
     );

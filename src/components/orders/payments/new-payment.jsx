@@ -10,7 +10,7 @@ import CreditCardBox from '../../credit-cards/card-box';
 import CreditCardDetails from '../../credit-cards/card-details';
 import { Dropdown, DropdownItem } from '../../dropdown';
 import { Form, FormField } from '../../forms';
-import OrderCreditCardForm from './credit-card-form';
+import NewCreditCard from './new-credit-card';
 import SaveCancel from '../../common/save-cancel';
 import TileSelector from '../../tile-selector/tile-selector';
 import TableCell from '../../table/cell';
@@ -20,7 +20,7 @@ import * as CreditCardActions from '../../../modules/customers/credit-cards';
 import * as PaymentMethodActions from '../../../modules/orders/payment-methods';
 
 function mapStateToProps(state, props) {
-  return { 
+  return {
     creditCards: state.customers.creditCards[props.customerId],
     paymentMethods: state.orders.paymentMethods,
   };
@@ -67,59 +67,14 @@ class NewPayment extends Component {
     };
   }
 
-  componentDidMount() {
-    this.props.fetchCreditCards();
-  }
-
-  get creditCards() {
-    return _.map(_.get(this.props, 'creditCards.cards', []), card => {
-      return (
-        <CreditCardBox
-          card={card}
-          customerId={this.props.customerId}
-          onChooseClick={() => this.selectCreditCard(card)} />
-      );
-    });
-  }
-
-  get creditCardForm() {
-    return (
-      <OrderCreditCardForm card={this.state.newCreditCard}
-                           customerId={this.props.customerId}
-                           onChange={this.handleCreditCardChange} />
-    );
-  }
-
   get giftCardForm() {
     return <ApplyGiftCard />;
   }
 
   get creditCardSelector() {
-    if (this.state.paymentType == 'creditCard' && _.isNull(this.state.selectedPayment)) {
-      if (this.state.isCreditCardFormVisible) {
-        return this.creditCardForm;
-      } else {
-        return this.creditCardTiles;
-      }
-    } else if (this.state.paymentType == 'giftCard') {
+    if (this.state.paymentType == 'giftCard') {
       return this.giftCardForm;
     }
-  }
-
-  get creditCardTiles() {
-    return (
-      <TileSelector
-        items={this.creditCards}
-        onAddClick={this.toggleCreditCardForm}
-        title="Customer's Credit Cards" />
-    );
-  }
-
-  get hasNewCreditCard() {
-    const card = this.state.newCreditCard;
-    return !_.isEmpty(card.holderName) && !_.isEmpty(card.number) &&
-      !_.isEmpty(card.cvv) && !_.isUndefined(card.expMonth) &&
-      !_.isUndefined(card.expYear) && !_.isNull(card.address.id);
   }
 
   get formControls() {
@@ -164,41 +119,15 @@ class NewPayment extends Component {
     );
   }
 
-  get selectedPayment() {
-    const paymentType = _.get(this.state, 'selectedPayment.type');
-    switch (paymentType) {
-      case 'creditCard':
-        const card = this.state.selectedPayment;
-        return <CreditCardDetails customerId={this.props.customerId} card={card} />;
-    }
-  }
-
   @autobind
   changePaymentType(value) {
     this.setState({ paymentType: value });
   }
 
-  @autobind
-  handleCreditCardChange({target}) {
-    const name = _.isEqual(target.name, 'addressId') ? ['address', 'id'] : [target.name];
-    this.setState(assoc(this.state, ['newCreditCard', ...name], target.value));
-  }
-
-  @autobind
-  selectCreditCard(card) {
-    this.setState({
-      selectedPayment: {
-        type: 'creditCard',
-        ...card,
-      },
-    });
-  }
-
-  @autobind
-  toggleCreditCardForm() {
-    this.setState({
-      isCreditCardFormVisible: !this.state.isCreditCardFormVisible
-    });
+  get newCreditCard() {
+    if (Object.is(this.state.paymentType, 'creditCard')) {
+      return <NewCreditCard customerId={this.props.customerId} />;
+    }
   }
 
   render() {
@@ -206,8 +135,7 @@ class NewPayment extends Component {
       <TableRow>
         <TableCell className="fc-new-order-payment" colspan={3}>
           {this.paymentForm}
-          {this.selectedPayment}
-          {this.creditCardSelector}
+          {this.newCreditCard}
           {this.formControls}
         </TableCell>
       </TableRow>

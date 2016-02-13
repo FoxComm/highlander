@@ -25,4 +25,32 @@
     color: #484848;
     display: block;
   }
+
+  .fc-address-select {
+    &-list {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    &-item {
+      .height(278px);
+      .width(406px);
+      .margin-bottom(10px);
+      .margin-right(10px);
+      background: #F5F5F5;
+      border: 1px solid #CDCCCC;
+      display: flex;
+      flex-direction: column;
+    }
+
+    &-item-info {
+      flex-grow: 1;
+    }
+
+    &-item-controlls {
+      .fc-btn {
+        .width(140px);
+      }
+    }
+  }
 }
