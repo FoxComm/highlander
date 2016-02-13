@@ -1,4 +1,3 @@
-
 package models.product
 
 import utils.ExPostgresDriver.api._
@@ -22,41 +21,41 @@ import slick.jdbc.JdbcType
 import Aliases.Json
 
 /**
- * A ProductShadow is what you get when a context illuminates a Product.
- * The ProductShadow, when applied to a Product is what is displayed on the 
+ * A SkuShadow is what you get when a context illuminates a Sku.
+ * The SkuShadow, when applied to a Sku is what is displayed on the 
  * storefront.
  */
-final case class ProductShadow(
+final case class SkuShadow(
   id: Int = 0, 
   productContextId: Int, 
-  productId: Int, 
+  skuId: Int, 
   attributes: Json, 
   createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[ProductShadow]
-  with Validation[ProductShadow]
+  extends ModelWithIdParameter[SkuShadow]
+  with Validation[SkuShadow]
 
-class ProductShadows(tag: Tag) extends GenericTable.TableWithId[ProductShadow](tag, "product_shadows")  {
+class SkuShadows(tag: Tag) extends GenericTable.TableWithId[SkuShadow](tag, "product_shadows")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def productContextId = column[Int]("product_context_id")
-  def productId = column[Int]("product_id")
+  def skuId = column[Int]("sku_id")
   def attributes = column[Json]("attributes")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, productContextId, productId, attributes, createdAt) <> ((ProductShadow.apply _).tupled, ProductShadow.unapply)
+  def * = (id, productContextId, skuId, attributes, createdAt) <> ((SkuShadow.apply _).tupled, SkuShadow.unapply)
 
   def productContext = foreignKey(ProductContexts.tableName, productContextId, ProductContexts)(_.id)
-  def product = foreignKey(Products.tableName, productId, Products)(_.id)
+  def sku = foreignKey(Skus.tableName, skuId, Skus)(_.id)
 }
 
-object ProductShadows extends TableQueryWithId[ProductShadow, ProductShadows](
-  idLens = GenLens[ProductShadow](_.id))(new ProductShadows(_)) {
+object SkuShadows extends TableQueryWithId[SkuShadow, SkuShadows](
+  idLens = GenLens[SkuShadow](_.id))(new SkuShadows(_)) {
 
   implicit val formats = JsonFormatters.phoenixFormats
 
   def filterByContext(productContextId: Int): QuerySeq = 
     filter(_.productContextId === productContextId)
-  def filterByProduct(productId: Int): QuerySeq = 
-    filter(_.productId === productId)
+  def filterBySku(skuId: Int): QuerySeq = 
+    filter(_.skuId === skuId)
   def filterByAttributes(key: String, value: String): QuerySeq = 
     filter(_.attributes+>>(key) === value)
 }

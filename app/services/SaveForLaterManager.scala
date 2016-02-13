@@ -18,12 +18,12 @@ object SaveForLaterManager {
 
   type SavedForLater = TheResponse[Seq[SaveForLaterResponse.Root]]
 
-  def findAll(customerId: Int)(implicit db: Database, ec: ExecutionContext): Result[SavedForLater] = (for {
+  def findAll(customerId: Int, productContextId: Int )(implicit db: Database, ec: ExecutionContext): Result[SavedForLater] = (for {
     customer ← * <~ Customers.mustFindById404(customerId)
-    response ← * <~ findAllDbio(customer).toXor
+    response ← * <~ findAllDbio(customer, productContextId).toXor
   } yield response).run()
 
-  def saveForLater(customerId: Int, skuId: Int)
+  def saveForLater(customerId: Int, skuId: Int, productContextId: Int)
     (implicit db: Database, ec: ExecutionContext): Result[SavedForLater] = (for {
     customer ← * <~ Customers.mustFindById404(customerId)
     sku ← * <~ Skus.mustFindById404(skuId)
@@ -36,9 +36,9 @@ object SaveForLaterManager {
   def deleteSaveForLater(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Unit] =
     SaveForLaters.deleteById(id, DbResult.unit, i ⇒ NotFoundFailure404(SaveForLater, i)).run()
 
-  private def findAllDbio(customer: Customer)(implicit ec: ExecutionContext, db: Database): DBIO[SavedForLater] = for {
+  private def findAllDbio(customer: Customer, productContextId: Int)(implicit ec: ExecutionContext, db: Database): DBIO[SavedForLater] = for {
     sfls ← SaveForLaters.filter(_.customerId === customer.id).result
-    xors ← DBIO.sequence(sfls.map(_.skuId).map(skuId ⇒ SaveForLaterResponse.forSkuId(skuId).value))
+    xors ← DBIO.sequence(sfls.map(_.skuId).map(skuId ⇒ SaveForLaterResponse.forSkuId(skuId, productContextId).value))
 
     fails = xors.collect { case Xor.Left(f) ⇒ f }.flatMap(_.toList)
     roots = xors.collect { case Xor.Right(r) ⇒ r }

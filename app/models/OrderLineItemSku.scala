@@ -2,24 +2,39 @@ package models
 
 import scala.concurrent.ExecutionContext
 
-import models.product.{Sku, Skus}
+import models.product.{Product, Products, ProductShadow, ProductShadows, Sku, Skus,
+  SkuShadow, SkuShadows}
 import utils.Slick.implicits._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.Money.Currency
 
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
 
-final case class OrderLineItemSku(id: Int = 0, skuId: Int)
+
+final case class OrderLineItemSku(id: Int = 0, skuId: Int, skuShadowId: Int, price: Int, currency: Currency)
   extends ModelWithIdParameter[OrderLineItemSku]
+
+final case class OrderLineItemProductData(
+  product: Product, 
+  productShadow: ProductShadow, 
+  sku: Sku, 
+  skuShadow: SkuShadow, 
+  lineItem: OrderLineItem)
 
 object OrderLineItemSku {}
 
 class OrderLineItemSkus(tag: Tag) extends GenericTable.TableWithId[OrderLineItemSku](tag, "order_line_item_skus")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def skuId = column[Int]("sku_id")
+  def skuShadowId = column[Int]("sku_shadow_id")
+  def productId = column[Int]("product_id")
+  def productShadowId = column[Int]("product_shadow_id")
+  def price = column[Int]("price")
+  def currency = column[Currency]("currency")
 
-  def * = (id, skuId) <> ((OrderLineItemSku.apply _).tupled, OrderLineItemSku.unapply)
+  def * = (id, skuId, skuShadowId, price, currency) <> ((OrderLineItemSku.apply _).tupled, OrderLineItemSku.unapply)
   def sku = foreignKey(Skus.tableName, skuId, Skus)(_.id)
 }
 
@@ -39,11 +54,18 @@ object OrderLineItemSkus extends TableQueryWithId[OrderLineItemSku, OrderLineIte
     skuLis  ← lis.skuLineItems
   } yield skuLis
 
-  def findLineItemsByOrder(order: Order): Query[(Skus, OrderLineItems), (Sku, OrderLineItem), Seq] = for {
+  def findLineItemsByOrder(order: Order): 
+  Query[
+  (Products, ProductShadows, Skus, SkuShadows, OrderLineItems), 
+  (Product, ProductShadow, Sku, SkuShadow, OrderLineItem), 
+  Seq] = for {
     lis     ← OrderLineItems.filter(_.orderId === order.id)
     skuLis  ← lis.skuLineItems
     sku     ← Skus if sku.id === skuLis.skuId
-  } yield (sku, lis)
+    skuShadow ← SkuShadows if skuShadow.id === skuLis.skuShadowId
+    product ← Products if product.id === sku.productId
+    productShadow ← ProductShadows if productShadow.id === skuLis.productShadowId
+  } yield (product, productShadow, sku, skuShadow, lis)
 
   object scope {
     implicit class OrderLineItemSkusQuerySeqConversions(q: QuerySeq) {

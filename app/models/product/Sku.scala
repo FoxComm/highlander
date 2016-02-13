@@ -1,17 +1,35 @@
 package models.product
 
-import scala.concurrent.ExecutionContext
-import com.pellucid.sealerate
 import models.inventory.InventorySummaries
-
-import monocle.macros.GenLens
-import slick.ast.BaseTypedType
-import slick.driver.PostgresDriver.api._
-import slick.jdbc.JdbcType
+import scala.concurrent.ExecutionContext
+import utils.ExPostgresDriver.api._
+import utils.JsonFormatters
+import utils.Slick.DbResult
+import utils.Slick.implicits._
+import utils.time.JavaTimeSlickMapper._
 import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
-final case class Sku(id: Int = 0, sku: String, name: Option[String] = None, isHazardous: Boolean = false, price: Int,
-  isActive: Boolean = true, `type`: Sku.Type = Sku.Sellable)
+import com.pellucid.sealerate
+import java.time.Instant
+import monocle.macros.GenLens
+import org.json4s.DefaultFormats
+import org.json4s.Extraction
+import org.json4s.JsonAST.JValue
+import org.json4s.JsonDSL._
+import org.json4s.jackson.Serialization.{write ⇒ render}
+import scala.concurrent.ExecutionContext
+import slick.ast.BaseTypedType
+import slick.jdbc.JdbcType
+
+import Aliases.Json
+
+final case class Sku(
+  id: Int = 0, 
+  sku: String, 
+  productId: Int,
+  attributes: Json, 
+  `type`: Sku.Type = Sku.Sellable)
   extends ModelWithIdParameter[Sku]
 
 object Sku {
@@ -28,13 +46,13 @@ object Sku {
 class Skus(tag: Tag) extends GenericTable.TableWithId[Sku](tag, "skus")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def sku = column[String]("sku")
-  def name = column[Option[String]]("name")
-  def isHazardous = column[Boolean]("is_hazardous")
-  def price = column[Int]("price")
-  def isActive = column[Boolean]("is_active")
+  def productId = column[Int]("product_id")
+  def attributes = column[Json]("attributes")
   def `type` = column[Sku.Type]("type")
 
-  def * = (id, sku, name, isHazardous, price, isActive, `type`) <> ((Sku.apply _).tupled, Sku.unapply)
+  def * = (id, sku, productId, attributes, `type`) <> ((Sku.apply _).tupled, Sku.unapply)
+
+  def product = foreignKey(Products.tableName, productId, Products)(_.id)
 }
 
 object Skus extends TableQueryWithId[Sku, Skus](

@@ -29,6 +29,7 @@ import Aliases.Json
  */
 final case class ProductContext(
   id: Int = 0, 
+  name: String,
   context: Json, 
   createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[ProductContext]
@@ -36,10 +37,11 @@ final case class ProductContext(
 
 class ProductContexts(tag: Tag) extends GenericTable.TableWithId[ProductContext](tag, "product_contexts")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def name = column[String]("name")
   def context = column[Json]("context")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, context, createdAt) <> ((ProductContext.apply _).tupled, ProductContext.unapply)
+  def * = (id, name, context, createdAt) <> ((ProductContext.apply _).tupled, ProductContext.unapply)
 
 }
 
@@ -48,6 +50,8 @@ object ProductContexts extends TableQueryWithId[ProductContext, ProductContexts]
 
   implicit val formats = JsonFormatters.phoenixFormats
 
+  def filterByName(name: String): QuerySeq = 
+    filter(_.name === name)
   def filterByContext(key: String, value: String): QuerySeq = 
     filter(_.context+>>(key) === value)
 }

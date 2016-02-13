@@ -1,8 +1,6 @@
-
-create table products(
+create table product_contexts(
     id serial primary key,
-    attributes jsonb,
-    variants jsonb,
-    is_active bool not null default true,
+    name generic_string,
+    context jsonb,
     created_at timestamp without time zone default (now() at time zone 'utc')
 );

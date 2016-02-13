@@ -33,6 +33,7 @@ final case class Product(
   id: Int = 0, 
   attributes: Json, 
   variants: Json, 
+  isActive: Boolean = true, 
   createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[Product]
   with Validation[Product]
@@ -41,9 +42,10 @@ class Products(tag: Tag) extends GenericTable.TableWithId[Product](tag, "product
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def attributes = column[Json]("attributes")
   def variants = column[Json]("variants")
+  def isActive = column[Boolean]("is_active")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, attributes, variants, createdAt) <> ((Product.apply _).tupled, Product.unapply)
+  def * = (id, attributes, variants, isActive, createdAt) <> ((Product.apply _).tupled, Product.unapply)
 
 }
 

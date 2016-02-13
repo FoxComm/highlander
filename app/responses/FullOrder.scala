@@ -7,8 +7,9 @@ import models.{OrderWatcher, OrderWatchers, OrderLockEvents, CreditCard,
   OrderAssignment, OrderAssignments, OrderLineItem, OrderLineItemGiftCard, 
   OrderLineItemGiftCards, OrderLineItemSkus, OrderPayment, OrderPayments, 
   Orders, PaymentMethod, Region, ShippingMethod, StoreAdmin, StoreAdmins, 
-  StoreCredit}
-import models.product.Sku
+  StoreCredit, OrderLineItemProductData}
+import models.product.{Sku, SkuShadow, Product, ProductShadow, Mvp}
+import utils.Money.Currency
 
 import cats.implicits._
 import scala.concurrent.{ExecutionContext, Future}
@@ -77,11 +78,11 @@ object FullOrder {
 
   def fromOrder(order: Order)(implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
     fetchOrderDetails(order).map {
-      case (customer, skus, shipMethod, shipAddress, ccPmt, gcPmts, scPmts, assignees, gcs, totals, lockedBy, watchers) ⇒
+      case (customer, lineItems, shipMethod, shipAddress, ccPmt, gcPmts, scPmts, assignees, gcs, totals, lockedBy, watchers) ⇒
       build(
         order = order,
         customer = customer,
-        skus = skus,
+        lineItems = lineItems,
         giftCards = gcs,
         shippingAddress = shipAddress.toOption,
         shippingMethod = shipMethod,
@@ -96,7 +97,7 @@ object FullOrder {
     }
   }
 
-  def build(order: Order, skus: Seq[(Sku, OrderLineItem)] = Seq.empty,
+  def build(order: Order, lineItems: Seq[OrderLineItemProductData] = Seq.empty,
     shippingMethod: Option[ShippingMethod] = None, customer: Option[Customer] = None,
     shippingAddress: Option[Addresses.Root] = None,
     ccPmt: Option[CcPayment] = None, gcPmts: Seq[(OrderPayment, GiftCard)] = Seq.empty,
@@ -126,9 +127,12 @@ object FullOrder {
 
     val paymentMethods: Seq[Payments] = creditCardPmt ++ giftCardPmts ++ storeCreditPmts
 
-    val skuList = skus.map { case (sku, li) ⇒
-      DisplayLineItem(sku = sku.sku, state = li.state, name = sku.name.getOrElse("donkey product"),
-        price = sku.price, totalPrice = sku.price)
+    val skuList = lineItems.map { 
+      case data ⇒ { 
+        val price = Mvp.price(data.sku, data.skuShadow).getOrElse((0, Currency.USD))
+        val name = Mvp.name(data.product, data.productShadow).getOrElse("")
+        DisplayLineItem(sku = data.sku.sku, state = data.lineItem.state, name = name, price = price._1, totalPrice = price._1)
+      }
     }
     val gcList = giftCards.map { case (gc, li) ⇒ GiftCardResponse.build(gc) }
 
@@ -177,7 +181,7 @@ object FullOrder {
 
     for {
       customer    ← Customers.findById(order.customerId).extract.one
-      lineItems   ← OrderLineItemSkus.findLineItemsByOrder(order).sortBy(_._1.sku).result
+      lineItems   ← OrderLineItemSkus.findLineItemsByOrder(order).sortBy(_._3.sku).result
       giftCards   ← OrderLineItemGiftCards.findLineItemsByOrder(order).result
       shipMethod  ← models.ShippingMethods.forOrder(order).one
       shipAddress ← Addresses.forOrderId(order.id)
@@ -189,7 +193,21 @@ object FullOrder {
       watchlist   ← OrderWatchers.filter(_.orderId === order.id).result
       watchers    ← StoreAdmins.filter(_.id.inSetBind(watchlist.map(_.watcherId))).result
       lockedBy    ← currentLock(order)
-    } yield (customer, lineItems, shipMethod, shipAddress, payments, gcPayments, scPayments, assignments.zip(admins),
-      giftCards, Some(totals(order)), lockedBy, watchlist.zip(watchers))
+    } yield (
+      customer, 
+      lineItems.map { 
+        case (product, productShadow, sku, skuShadow, lineItem) ⇒ 
+          OrderLineItemProductData(product, productShadow, sku, skuShadow, lineItem)
+      },
+      shipMethod, 
+      shipAddress, 
+      payments, 
+      gcPayments, 
+      scPayments, 
+      assignments.zip(admins),
+      giftCards, 
+      Some(totals(order)), 
+      lockedBy, 
+      watchlist.zip(watchers))
   }
 }

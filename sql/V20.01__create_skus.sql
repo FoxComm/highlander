@@ -1,11 +1,10 @@
 create table skus (
     id serial primary key,
+    product_id integer,
     sku generic_string,
-    name generic_string,
     type generic_string,
-    is_active bool not null default true,
-    is_hazardous bool not null default false, -- This is temp before we build out items.
-    price int not null -- Yax needs this for real payments.
+    attributes jsonb,
+    foreign key (product_context_id) references product_contexts(id) on update restrict on delete restrict
 );
 
 create function create_order_line_item_skus_mapping() returns trigger as $$

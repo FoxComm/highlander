@@ -186,14 +186,16 @@ object Admin {
         }
       } ~
       pathPrefix("save-for-later") {
+        //TODO: This will be searched based on context passed in.
+        val HARD_CODED_CONTEXT_ID = 1
         (get & path(IntNumber) & pathEnd) { customerId ⇒
           goodOrFailures {
-            SaveForLaterManager.findAll(customerId)
+            SaveForLaterManager.findAll(customerId, HARD_CODED_CONTEXT_ID)
           }
         } ~
         (post & path(IntNumber / IntNumber) & pathEnd) { (customerId, skuId) ⇒
           goodOrFailures {
-            SaveForLaterManager.saveForLater(customerId, skuId)
+            SaveForLaterManager.saveForLater(customerId, skuId, HARD_CODED_CONTEXT_ID)
           }
         } ~
         (delete & path(IntNumber) & pathEnd) { id ⇒
