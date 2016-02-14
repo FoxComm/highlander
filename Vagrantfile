@@ -74,6 +74,10 @@ Vagrant.configure("2") do |config|
     expose_backend_ports(app)
     expose_ashes(app)
 
+    app.vm.synced_folder "../ashes", "/dev/ashes"
+    app.vm.synced_folder "../green-river", "/dev/green-river"
+    app.vm.synced_folder "../phoenix-scala", "/dev/phoenix-scala"
+
     app.vm.provision "ansible" do |ansible|
         ansible.verbose = "vv"
         ansible.playbook = "ansible/vagrant_appliance.yml"
