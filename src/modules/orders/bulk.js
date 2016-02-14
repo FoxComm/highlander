@@ -38,13 +38,9 @@ export function cancelOrders(referenceNumbers, reasonId) {
         state: 'canceled',
       })
       .then(
-        ({errors}) => {
-          if (errors) {
-            errors = parseErrors(errors);
-            dispatch(bulkDone(getSuccesses(referenceNumbers, errors), errors));
-          } else {
-            dispatch(bulkDone(getSuccesses(referenceNumbers)));
-          }
+        ({errors = []}) => {
+          errors = parseErrors(errors);
+          dispatch(bulkDone(getSuccesses(referenceNumbers, errors), errors));
         },
         error => {
           // TODO handle when https://github.com/FoxComm/Ashes/issues/466 closed

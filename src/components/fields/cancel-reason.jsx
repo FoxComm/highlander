@@ -33,10 +33,10 @@ export default class CancelReason extends React.Component {
     reasonType: PropTypes.oneOf(_.values(ReasonType)).isRequired,
     className: PropTypes.string,
     reasons: PropTypes.array,
-    value: PropTypes.oneOfType(
+    value: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number,
-    ),
+    ]),
     onChange: PropTypes.func.isRequired,
     fetchReasons: PropTypes.func.isRequired,
   };

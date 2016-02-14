@@ -10,19 +10,14 @@ import { actions } from '../../modules/orders/list';
 import * as bulkActions from '../../modules/orders/bulk';
 
 // components
+import BulkActions from '../bulk-actions/bulk-actions';
 import { SearchableList } from '../list-page';
 import OrderRow from './order-row';
 import { CancelOrderModal } from './modal';
-import { SuccessNotification, ErrorNotification } from '../bulk-actions/notifications';
 import { Link } from '../link';
 
 
-const mapStateToProps = ({orders: {list, bulk}}) => {
-  return {
-    list,
-    bulk,
-  };
-};
+const mapStateToProps = ({orders: {list}}) => ({list});
 
 const mapDispatchToProps = dispatch => {
   return {
@@ -35,10 +30,6 @@ const mapDispatchToProps = dispatch => {
 export default class Orders extends React.Component {
   static propTypes = {
     list: PropTypes.object.isRequired,
-    bulk: PropTypes.shape({
-      successes: PropTypes.object,
-      errors: PropTypes.object,
-    }).isRequired,
     actions: PropTypes.objectOf(PropTypes.func).isRequired,
     bulkActions: PropTypes.objectOf(PropTypes.func).isRequired,
   };
@@ -53,32 +44,17 @@ export default class Orders extends React.Component {
     {field: 'grandTotal', text: 'Total', type: 'currency'}
   ];
 
-  state = {
-    modal: null,
-  };
-
-  @autobind
-  hideModal() {
-    this.setState({modal: null});
-  }
-
   @autobind
   cancelOrders(allChecked, toggledIds) {
-    const {reset, cancelOrders} = this.props.bulkActions;
+    const {cancelOrders} = this.props.bulkActions;
 
-    this.setState({
-      modal: (
-        <CancelOrderModal
-          isVisible={true}
-          count={toggledIds.length}
-          onCancel={this.hideModal}
-          onConfirm={(reasonId) => {
-            reset();
-            this.hideModal();
-            cancelOrders(toggledIds, reasonId);
-          }} />
-      )
-    });
+    return (
+      <CancelOrderModal
+        count={toggledIds.length}
+        onConfirm={(reasonId) => {
+          cancelOrders(toggledIds, reasonId);
+        }} />
+    );
   }
 
   get renderRow() {
@@ -95,63 +71,29 @@ export default class Orders extends React.Component {
     };
   }
 
-  get bulkMessages() {
-    const {successes, errors} = this.props.bulk;
-    const {clearSuccesses, clearErrors} = this.props.bulkActions;
-
-    const notifications = [];
-
-    if (successes) {
-      notifications.push(
-        <SuccessNotification key="successes"
-                             entityForms={['order', 'orders']}
-                             overviewMessage="successfully canceled"
-                             onHide={clearSuccesses}>
-          {_.map(successes, (messages, referenceNumber) => (
-            <span key={referenceNumber}>
-              Order <Link to="order-details" params={{order: referenceNumber}}>{referenceNumber}</Link>
-            </span>
-          ))}
-        </SuccessNotification>
-      );
-    }
-
-    if (errors) {
-      notifications.push(
-        <ErrorNotification key="errors"
-                           entityForms={['order', 'orders']}
-                           overviewMessage="could not be canceled"
-                           onHide={clearErrors}>
-          {_.map(errors, (messages, referenceNumber) => (
-            <span key={referenceNumber}>
-              Order <Link to="order-details" params={{order: referenceNumber}}>{referenceNumber}</Link>
-            </span>
-          ))}
-        </ErrorNotification>
-      );
-    }
-
-    return notifications;
-  }
-
   render() {
     const {list, actions} = this.props;
 
     return (
-      <div>
-        {this.bulkMessages}
+      <BulkActions
+        module="orders"
+        actions={[
+          ['Cancel Orders', this.cancelOrders, 'successfully canceled', 'could not be canceled']
+        ]}
+        entityForms={['order', 'orders']}
+        renderDetail={(messages, referenceNumber) => (
+          <span key={referenceNumber}>
+            Order <Link to="order-details" params={{order: referenceNumber}}>{referenceNumber}</Link>
+          </span>
+        )}>
         <SearchableList
           emptyResultMessage="No orders found."
           list={list}
           renderRow={this.renderRow}
           tableColumns={Orders.tableColumns}
           searchActions={actions}
-          bulkActions={[
-            ['Cancel Orders', this.cancelOrders]
-          ]}
           predicate={({referenceNumber}) => referenceNumber} />
-        {this.state.modal}
-      </div>
+      </BulkActions>
     );
   }
 }
