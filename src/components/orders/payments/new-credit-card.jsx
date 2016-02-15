@@ -1,4 +1,4 @@
-  import React, { Component, PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';

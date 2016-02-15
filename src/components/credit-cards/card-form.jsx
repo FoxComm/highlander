@@ -178,8 +178,7 @@ export default class CreditCardForm extends React.Component {
   }
 
   get billingAddress() {
-    const { customerId, isNew, showSelectedAddress } = this.props;
-    const addressId = _.get(this.state, 'card.address.id');
+    const { customerId, showSelectedAddress } = this.props;
     const address = _.get(this.state, 'card.address');
 
     let addressDetails = null;
@@ -208,7 +207,7 @@ export default class CreditCardForm extends React.Component {
   }
 
   get addressBook() {
-    const { isNew, addresses, customerId, showSelectedAddress } = this.props;
+    const { addresses, customerId, showSelectedAddress } = this.props;
     const addressId = _.get(this.state, 'card.address.id');
 
     if (this.state.editingAddress || !showSelectedAddress) {
@@ -234,10 +233,9 @@ export default class CreditCardForm extends React.Component {
   }
 
   @autobind
-  onChange(event) {
-    const { target } = event;
+  onChange({target}) {
     const newState = assoc(this.state, ['card', target.name], target.value);
-    this.setState(newState, () => this.props.onChange(event));
+    this.setState(newState, () => this.props.onChange({target}));
   }
 
   @autobind

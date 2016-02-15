@@ -53,10 +53,6 @@ export default class Payments extends React.Component {
     readOnly: false,
   };
 
-  constructor(props, ...args) {
-    super(props, ...args);
-  }
-
   get currentCustomer() {
     return _.get(this.props, 'order.currentOrder.customer.id');
   }
