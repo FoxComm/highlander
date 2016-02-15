@@ -48,9 +48,11 @@ import StyleGuideContainers from './components/style-guide/style-guide-container
 
 import AllActivities from './components/activity-trail/all';
 import AllNotificationItems from './components/activity-notifications/all';
+import Login from './components/auth/login';
 
 const routes = (
   <Route path="/" component={Site}>
+    <Route name="login" path="/login" component={Login}/>
     <IndexRoute name="home" component={Home}/>
     <IndexRedirect from="/" to="/orders/" />
     <Route name='rmas-base' path='returns'>

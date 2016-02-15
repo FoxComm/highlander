@@ -1,0 +1,98 @@
+.fc-login {
+  @color-google-btn: rgb(243, 86, 88);
+  @color-google-btn-hover: rgb(240, 60, 67);
+  @controls-width: 388px;
+  @label-line-height: 19px;
+
+
+  color: @color-decor5;
+  margin-top: 50px;
+  flex-direction: column;
+  align-items: center;
+
+  .fc-form-field-label {
+    .font-spec(14px, @normal, @label-line-height);
+  }
+
+  .fc-input {
+    .width(@controls-width);
+  }
+
+  &__logo {
+    .margin-top(40px);
+  }
+
+  &__title {
+    .font-spec(20px, 27px);
+    .margin-top(40px);
+  }
+
+  &__or-cont {
+    position: relative;
+    &:before, &:after {
+      content: "";
+      .width(@controls-width/2 - 15px);
+      border-top: 1.5px solid @color-decor5;
+      top: pxtorem(-@label-line-height/2 - 0.6px);
+      position: absolute;
+      box-shadow: 0 0 0.2px 0 @color-decor5;
+    }
+
+    &:before {
+      left: pxtorem(-@controls-width/2);
+    }
+
+    &:after {
+      left: 1em;
+    }
+  }
+
+  &__or {
+    .margin-top(20px);
+    .font-spec(16px, 22px);
+  }
+
+  &__google-btn.fc-btn {
+    .margin-top(30px);
+    .width(@controls-width);
+    color: #ffffff;
+    background-color: @color-google-btn;
+    &:hover {
+      color: #ffffff;
+      background-color: @color-google-btn-hover;
+    }
+  }
+
+  &__email {
+    .margin-top(10px);
+  }
+
+  &__password {
+    .margin-top(10px);
+
+    &-label {
+      display: flex;
+    }
+
+    &-forgot {
+      margin-left: auto;
+      .font-spec(13px, 18px);
+      &:hover {
+        color: @color-decor1;
+      }
+    }
+  }
+
+  &__signin-btn {
+    .margin-top(20px);
+    .width(@controls-width);
+  }
+
+  &__copyright {
+    color: @color-decor6;
+    .font-spec(13px, 24px);
+    .margin-top(60px);
+  }
+
+
+}

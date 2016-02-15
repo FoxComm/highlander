@@ -6,7 +6,8 @@ module.exports = function(app) {
   router.use(app.requireAdmin);
 
   router
-    .get('/:path*', app.renderReact, app.renderLayout);
+    .get('/login', app.renderLogin, app.renderLayout('login'))
+    .get('/:path*', app.renderReact, app.renderLayout('admin'));
 
   app
     .use(router.routes())

@@ -10,7 +10,6 @@ const buffer = require('vinyl-buffer');
 const runSequence = require('run-sequence');
 const affectsServer = require('./server').affectsServer;
 const envify = require('envify/custom');
-const es = require('event-stream');
 
 
 function setDemoAuthToken() {
@@ -52,7 +51,6 @@ module.exports = function(gulp, opts, $) {
 
     // map them to our stream function
     bundlers = appEntries.map(function(entry) {
-      console.log(entry);
       const entries  = path.join(opts.srcDir, entry.file);
 
       let bundler = browserify({
@@ -85,7 +83,7 @@ module.exports = function(gulp, opts, $) {
           .pipe(gulp.dest(opts.publicDir));
       };
 
-      const taskName = 'browserify.' + entry.name;
+      const taskName = `browserify.${entry.name}`;
       gulp.task(taskName, function() {
         return bundle();
       });
@@ -99,7 +97,6 @@ module.exports = function(gulp, opts, $) {
       };
 
     });
-
 
     return bundlers;
   }
@@ -122,7 +119,7 @@ module.exports = function(gulp, opts, $) {
   gulp.task('browserify.watch', function() {
     getBundlers().map(function(entry) {
       entry.bundler.on('update', function() {
-        runSequence('browserify.' + entry.name);
+        runSequence(`browserify.${entry.name}`);
       });
     });
   });
