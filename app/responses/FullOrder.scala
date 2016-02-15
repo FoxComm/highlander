@@ -131,7 +131,7 @@ object FullOrder {
     val paymentMethods: Seq[Payments] = creditCardPmt ++ giftCardPmts ++ storeCreditPmts
 
     val skuList = skus.map { case (sku, li) ⇒
-      DisplayLineItem(sku = sku.sku, state = li.state, name = sku.name.getOrElse("donkey product"),
+      DisplayLineItem(sku = sku.code, state = li.state, name = sku.name.getOrElse("donkey product"),
         price = sku.price, totalPrice = sku.price)
     }
     val gcList = giftCards.map { case (gc, li) ⇒ GiftCardResponse.build(gc) }
@@ -181,7 +181,7 @@ object FullOrder {
 
     for {
       customer    ← Customers.findById(order.customerId).extract.one
-      lineItems   ← OrderLineItemSkus.findLineItemsByOrder(order).sortBy(_._1.sku).result
+      lineItems   ← OrderLineItemSkus.findLineItemsByOrder(order).sortBy(_._1.code).result
       giftCards   ← OrderLineItemGiftCards.findLineItemsByOrder(order).result
       shipMethod  ← shipping.ShippingMethods.forOrder(order).one
       shipAddress ← Addresses.forOrderId(order.id)

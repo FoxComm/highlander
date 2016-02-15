@@ -104,8 +104,8 @@ object LineItemUpdater {
     // load old line items for activity trail
     li    ← * <~ OrderLineItemSkus.findLineItemsByOrder(order).result
     lineItems = li.foldLeft(Map[String, Int]()) { case (acc, (sku, _)) ⇒
-      val quantity = acc.getOrElse(sku.sku, 0)
-      acc.updated(sku.sku, quantity + 1)
+      val quantity = acc.getOrElse(sku.code, 0)
+      acc.updated(sku.code, quantity + 1)
     }
     // update quantities
     _     ← * <~ updateQuantities(order, payload)
@@ -122,7 +122,7 @@ object LineItemUpdater {
     // TODO: inventory... 'nuff said. (aka FIXME)
     // Skus.qtyAvailableForSkus(updateQuantities.keys.toSeq).flatMap { availableQuantities ⇒
     (for {
-      sku ← Skus.filter(_.sku.inSet(skus))
+      sku ← Skus.filter(_.code.inSet(skus))
     } yield (sku, 1000000)).result.map(_.toMap)
   }
 
@@ -140,7 +140,7 @@ object LineItemUpdater {
 
     qtyAvailableForSkus(updateQuantities.keys.toSeq).flatMap { availableQuantities ⇒
       val enoughOnHand = availableQuantities.foldLeft(Map.empty[Sku, Int]) { case (acc, (sku, numAvailable)) ⇒
-        val numRequested = updateQuantities.getOrElse(sku.sku, 0)
+        val numRequested = updateQuantities.getOrElse(sku.code, 0)
         if (numRequested >= 0) acc.updated(sku, numRequested) else acc
           // TODO: reinstate when we have real inventory
 //        if (numAvailable >= numRequested && numRequested >= 0)

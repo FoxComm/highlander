@@ -195,9 +195,9 @@ object Admin {
             SaveForLaterManager.findAll(customerId)
           }
         } ~
-        (post & path(IntNumber / IntNumber) & pathEnd) { (customerId, skuId) ⇒
+        (post & path(IntNumber / Segment) & pathEnd) { (customerId, skuCode) ⇒
           goodOrFailures {
-            SaveForLaterManager.saveForLater(customerId, skuId)
+            SaveForLaterManager.saveForLater(customerId, skuCode)
           }
         } ~
         (delete & path(IntNumber) & pathEnd) { id ⇒

@@ -30,7 +30,7 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       createCart.status must === (OK)
       val refNum = createCart.as[FullOrder.Root].referenceNumber
       // Add line items
-      POST(s"v1/orders/$refNum/line-items", Seq(UpdateLineItemsPayload(sku.sku, 1))).status must === (OK)
+      POST(s"v1/orders/$refNum/line-items", Seq(UpdateLineItemsPayload(sku.code, 1))).status must === (OK)
       // Set address
       PATCH(s"v1/orders/$refNum/shipping-address/${address.id}").status must === (OK)
       // Set shipping method

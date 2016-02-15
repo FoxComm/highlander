@@ -21,14 +21,14 @@ trait InventorySeeds {
     }
 
   def skus: Seq[Sku] = Seq(
-    Sku(sku = "SKU-YAX", name = Some("Flonkey"), price = 3300),
-    Sku(sku = "SKU-BRO", name = Some("Bronkey"), price = 15300),
-    Sku(sku = "SKU-ABC", name = Some("Shark"), price = 4500, `type` = Preorder),
-    Sku(sku = "SKU-SHH", name = Some("Sharkling"), price = 1500, `type` = Preorder),
-    Sku(sku = "SKU-ZYA", name = Some("Dolphin"), price = 8800, `type` = Backorder),
-    Sku(sku = "SKU-MRP", name = Some("Morphin"), price = 7700),
+    Sku(code = "SKU-YAX", name = Some("Flonkey"), price = 3300),
+    Sku(code = "SKU-BRO", name = Some("Bronkey"), price = 15300),
+    Sku(code = "SKU-ABC", name = Some("Shark"), price = 4500, `type` = Preorder),
+    Sku(code = "SKU-SHH", name = Some("Sharkling"), price = 1500, `type` = Preorder),
+    Sku(code = "SKU-ZYA", name = Some("Dolphin"), price = 8800, `type` = Backorder),
+    Sku(code = "SKU-MRP", name = Some("Morphin"), price = 7700),
     // Why beetle? Cuz it's probably a bug. FIXME: add validation!!!
-    Sku(sku = "SKU-TRL", name = Some("Beetle"), price = -100, isHazardous = true, `type` = NonSellable, isActive = false))
+    Sku(code = "SKU-TRL", name = Some("Beetle"), price = -100, isHazardous = true, `type` = NonSellable, isActive = false))
 
   def warehouse: Warehouse = Warehouse.buildDefault()
 

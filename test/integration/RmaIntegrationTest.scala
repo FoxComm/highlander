@@ -369,13 +369,13 @@ class RmaIntegrationTest extends IntegrationTestBase
     // SKU Line Items
     "POST /v1/rmas/:refNum/line-items/skus" - {
       "successfully adds SKU line item" in new LineItemFixture {
-        val payload = RmaSkuLineItemsPayload(sku = sku.sku, quantity = 1, reasonId = rmaReason.id,
+        val payload = RmaSkuLineItemsPayload(sku = sku.code, quantity = 1, reasonId = rmaReason.id,
           isReturnItem = true, inventoryDisposition = RmaLineItem.Putaway)
         val response = POST(s"v1/rmas/${rma.referenceNumber}/line-items/skus", payload)
         response.status must === (StatusCodes.OK)
 
         val root = response.as[RmaResponse.Root]
-        root.lineItems.skus.headOption.value.sku.sku must === (sku.sku)
+        root.lineItems.skus.headOption.value.sku.sku must === (sku.code)
       }
 
       "fails if refNum is not found" in new LineItemFixture {
@@ -409,7 +409,7 @@ class RmaIntegrationTest extends IntegrationTestBase
     "DELETE /v1/rmas/:refNum/line-items/skus/:id" - {
       "successfully deletes SKU line item" in new LineItemFixture {
         // Create
-        val payload = RmaSkuLineItemsPayload(sku = sku.sku, quantity = 1, reasonId = rmaReason.id,
+        val payload = RmaSkuLineItemsPayload(sku = sku.code, quantity = 1, reasonId = rmaReason.id,
           isReturnItem = true, inventoryDisposition = RmaLineItem.Putaway)
         val updatedRma = RmaLineItemUpdater.addSkuLineItem(rma.referenceNumber, payload).futureValue.rightVal
         val lineItemId = updatedRma.lineItems.skus.headOption.value.lineItemId

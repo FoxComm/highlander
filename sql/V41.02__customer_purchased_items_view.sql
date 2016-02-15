@@ -6,7 +6,7 @@ select
     then
         '[]'
     else
-        json_agg((s.sku, s.name, s.price)::export_skus)
+        json_agg((s.code, s.name, s.price)::export_skus)
     end as items
 from customers as c
 left join orders as o2 on c.id = o2.customer_id and o2.state = 'shipped'

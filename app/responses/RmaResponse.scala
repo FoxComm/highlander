@@ -93,7 +93,7 @@ object RmaResponse {
   def buildLineItems(skus: Seq[(Sku, RmaLineItem)], giftCards: Seq[(GiftCard, RmaLineItem)],
     shipments: Seq[(Shipment, RmaLineItem)]): LineItems = {
     LineItems(
-      skus = skus.map { case (sku, li) ⇒ LineItemSku(lineItemId = li.id, sku = DisplaySku(sku = sku.sku)) },
+      skus = skus.map { case (sku, li) ⇒ LineItemSku(lineItemId = li.id, sku = DisplaySku(sku = sku.code)) },
       giftCards = giftCards.map { case (gc, li) ⇒
         LineItemGiftCard(lineItemId = li.id, giftCard = GiftCardResponse.build(gc)) },
       shippingCosts = shipments.map { case (shipment, li) ⇒

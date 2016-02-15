@@ -26,7 +26,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
 
   def createSkus(num: Int): Unit = {
     Skus.createAllReturningIds((1 to num).map { i ⇒
-      Factories.skus.head.copy(sku = i.toString, price = 5)
+      Factories.skus.head.copy(code = i.toString, price = 5)
     }).run().futureValue.rightVal
   }
 

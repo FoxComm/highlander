@@ -103,11 +103,11 @@ trait DemoScenario2 extends DemoSeedHelpers {
 
 
   def skus2: Seq[Sku] = Seq(
-    Sku(sku = "SKU-ALG", name = "Alegria Women's Vanessa Sandal".some, price = 3500),
-    Sku(sku = "SKU-NIK", name = "Nike Men's Donwshifter 6 Running Shoe".some, price = 2500),
-    Sku(sku = "SKU-BAL", name = "New Balance Men's M520V2 Running Shoe".some, price = 2800),
-    Sku(sku = "SKU-CLK", name = "Clarks Women's Aria Pump Flat".some, price = 7900),
-    Sku(sku = "SKU-ADS", name = "adidas Performance Women's Galactic Elite Running Shoe".some, price = 4900))
+    Sku(code = "SKU-ALG", name = "Alegria Women's Vanessa Sandal".some, price = 3500),
+    Sku(code = "SKU-NIK", name = "Nike Men's Donwshifter 6 Running Shoe".some, price = 2500),
+    Sku(code = "SKU-BAL", name = "New Balance Men's M520V2 Running Shoe".some, price = 2800),
+    Sku(code = "SKU-CLK", name = "Clarks Women's Aria Pump Flat".some, price = 7900),
+    Sku(code = "SKU-ADS", name = "adidas Performance Women's Galactic Elite Running Shoe".some, price = 4900))
 
   def inventorySummaries(skus: Seq[Sku]): Seq[InventorySummary] = 
     skus.map { sku ⇒ InventorySummary.buildNew(warehouse.id, skuId = sku.id, onHand = 100) } 
@@ -149,7 +149,7 @@ trait DemoScenario3 extends DemoSeedHelpers {
     generateCustomer("Susan Cage", "susan@compuglobal.com"),
     generateCustomer("John Dole", "john.dole@yahoo.com"))
 
-  def skus3: Seq[Sku] = Seq(Sku(sku = "SKU-CLK2", name = "Clarks Women's Aria Pump Flat".some, price = 7900))
+  def skus3: Seq[Sku] = Seq(Sku(code = "SKU-CLK2", name = "Clarks Women's Aria Pump Flat".some, price = 7900))
 
   def address3 = Address(customerId = 0, regionId = 4177, name = "Home", 
     address1 = "555 E Lake Union St.", address2 = None, city = "Seattle", 

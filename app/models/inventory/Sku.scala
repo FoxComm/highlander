@@ -7,9 +7,11 @@ import monocle.macros.GenLens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
+import utils.Slick.implicits._
+import utils.table.SearchByCode
 import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class Sku(id: Int = 0, sku: String, name: Option[String] = None, isHazardous: Boolean = false, price: Int,
+final case class Sku(id: Int = 0, code: String, name: Option[String] = None, isHazardous: Boolean = false, price: Int,
   isActive: Boolean = true, `type`: Sku.Type = Sku.Sellable)
   extends ModelWithIdParameter[Sku]
 
@@ -26,19 +28,22 @@ object Sku {
 // This table mostly acts a placeholder in our system.  We may or may not import skus from 'origin' into this.
 class Skus(tag: Tag) extends GenericTable.TableWithId[Sku](tag, "skus")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def sku = column[String]("sku")
+  def code = column[String]("code")
   def name = column[Option[String]]("name")
   def isHazardous = column[Boolean]("is_hazardous")
   def price = column[Int]("price")
   def isActive = column[Boolean]("is_active")
   def `type` = column[Sku.Type]("type")
 
-  def * = (id, sku, name, isHazardous, price, isActive, `type`) <> ((Sku.apply _).tupled, Sku.unapply)
+  def * = (id, code, name, isHazardous, price, isActive, `type`) <> ((Sku.apply _).tupled, Sku.unapply)
 }
 
 object Skus extends TableQueryWithId[Sku, Skus](
   idLens = GenLens[Sku](_.id)
-)(new Skus(_)) {
+  )(new Skus(_))
+  with SearchByCode[Sku, Skus] {
+
+  def findOneByCode(code: String): DBIO[Option[Sku]] = filter(_.code === code).one
 
   def isAvailableOnHand(id: Int)(implicit ec: ExecutionContext, db: Database): Rep[Boolean] = {
     //TODO: Use inventory system here
@@ -49,7 +54,7 @@ object Skus extends TableQueryWithId[Sku, Skus](
   def qtyAvailableForSkus(skus: Seq[String])(implicit ec: ExecutionContext, db: Database): DBIO[Map[Sku, Int]] = {
     //TODO: Use inventory system here
     (for {
-      sku  ← Skus.filter(_.sku inSet skus)
+      sku  ← Skus.filter(_.code inSet skus)
       summ ← InventorySummaries if summ.skuId === sku.id
     } yield (sku, summ.onHand)).result.map(_.toMap)
   }

@@ -6,7 +6,7 @@ select
     then
         '[]'
     else
-        json_agg((sku_later.sku, sku_later.name, sku_later.price)::export_skus)
+        json_agg((sku_later.code, sku_later.name, sku_later.price)::export_skus)
     end as items  
 from customers as c
 left join save_for_later as later on (c.id = later.customer_id)
