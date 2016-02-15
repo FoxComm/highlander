@@ -118,6 +118,8 @@ const routes = (
     <Route name='inventory-base' path='inventory'>
       <Route name='inventory-list-page' component={InventoryListPage}>
         <IndexRoute name='inventory' component={InventoryList}/>
+        <Route name='inventory-activity-trail' path='activity-trail' dimension="inventory"
+               component={ActivityTrailPage}/>
       </Route>
     </Route>
     <Route name='style-guide' path='style-guide' component={StyleGuide}>

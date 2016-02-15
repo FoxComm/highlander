@@ -89,7 +89,9 @@ const Navigation = props => {
                           toggleMenuItem={props.toggleMenuItem} >
               <IndexLink to="inventory" className="fc-navigation-item__sublink">Lists</IndexLink>
               <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Insights</a>
-              <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Activity Trail</a>
+              <Link to="inventory-activity-trail" className="fc-navigation-item__sublink">
+                Activity Trail
+              </Link>
           </NavigationItem>
         </li>
         <li>
