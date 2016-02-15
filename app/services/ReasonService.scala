@@ -3,7 +3,8 @@ package services
 import scala.concurrent.ExecutionContext
 
 import models.Reason.ReasonType
-import models.{RmaReason, RmaReasons, Reasons, Reason}
+import models.rma.{RmaReasons, RmaReason}
+import models.{Reasons, Reason}
 import responses.TheResponse
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage

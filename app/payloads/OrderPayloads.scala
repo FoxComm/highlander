@@ -2,8 +2,9 @@ package payloads
 
 import cats.data.ValidatedNel
 import cats.implicits._
+import models.order.Order
 import utils.Litterbox._
-import models.Order.State
+import Order.State
 import services.{GeneralFailure, Failure}
 import utils.Validation
 

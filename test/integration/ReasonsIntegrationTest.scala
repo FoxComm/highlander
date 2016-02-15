@@ -1,6 +1,7 @@
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
-import models.{Reason, Reasons, RmaReason, RmaReasons, StoreAdmins}
+import models.rma.{RmaReasons, RmaReason}
+import models.{Reason, Reasons, StoreAdmins}
 import services.InvalidReasonTypeFailure
 import util.IntegrationTestBase
 import utils.DbResultT._

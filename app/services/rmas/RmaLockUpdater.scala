@@ -1,6 +1,7 @@
 package services.rmas
 
-import models.{RmaLockEvent, RmaLockEvents, Rmas, StoreAdmin, StoreAdmins}
+import models.rma.{RmaLockEvents, RmaLockEvent, Rmas}
+import models.{StoreAdmin, StoreAdmins}
 import responses.{RmaLockResponse, RmaResponse}
 import services.Result
 import slick.driver.PostgresDriver.api._

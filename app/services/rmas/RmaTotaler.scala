@@ -1,7 +1,7 @@
 package services.rmas
 
 import cats.syntax.order
-import models.Rma
+import models.rma.Rma
 import slick.driver.PostgresDriver.api._
 import scala.concurrent.ExecutionContext
 import cats.implicits._

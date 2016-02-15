@@ -1,14 +1,10 @@
 package utils.seeds.generators
 
-import java.time.{Instant, ZoneId}
-
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.{Sku,Skus}
-import models.inventory.{InventorySummary, InventorySummaries, Warehouse, Warehouses}
+import models.inventory._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import GeneratorUtils.randomString
 import scala.util.Random
 
 import scala.io.Source

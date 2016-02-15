@@ -1,15 +1,16 @@
 
 package utils.seeds
 
+import models.customer.{Customers, Customer}
+import models.location.{Addresses, Address}
+import models.order.lineitems._
+import models.order._
+import models.payment.creditcard.CreditCards
+import models.payment.giftcard._
+import models.shipping._
 
-import models.{Customer, Customers, OrderShippingMethods, OrderShippingMethod, 
-  ShippingMethod, ShippingMethods, Skus, Sku, Shipments, OrderLineItemSkus, 
-  OrderLineItems, OrderLineItem, GiftCards, GiftCard, Order, Orders, CreditCards, 
-  Address, Addresses, OrderPayments, OrderPayment, OrderShippingAddresses, 
-  OrderShippingAddress, Shipment, GiftCardOrder, GiftCardOrders}
-
-import models.inventory.{Warehouse, Warehouses, InventorySummary}
-import models.Order.Shipped
+import models.inventory._
+import Order.Shipped
 
 import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
 import services.orders.OrderTotaler

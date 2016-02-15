@@ -3,6 +3,8 @@ import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import models.activity.ActivityContext
+import models.customer.Customers
+import models.order.{Orders, Order}
 import models.{Notes, _}
 import responses.AdminNotes
 import services.{NotFoundFailure404, NoteManager}

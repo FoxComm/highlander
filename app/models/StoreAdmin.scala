@@ -4,6 +4,7 @@ import scala.concurrent.ExecutionContext
 
 import cats.data.ValidatedNel
 import cats.implicits._
+import models.order.OrderAssignments
 import services.Failure
 import utils.Litterbox._
 import utils.Validation

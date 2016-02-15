@@ -6,7 +6,11 @@ import scala.concurrent.ExecutionContext
 
 import models.Notes.scope._
 import models.activity.ActivityContext
-import models.{Customers, GiftCards, Note, Notes, Orders, Rmas, StoreAdmin}
+import models.customer.Customers
+import models.order.Orders
+import models.payment.giftcard.GiftCards
+import models.rma.Rmas
+import models.{Note, Notes, StoreAdmin}
 import responses.AdminNotes
 import responses.AdminNotes.Root
 import slick.driver.PostgresDriver.api._

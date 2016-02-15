@@ -7,10 +7,12 @@ import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.testkit.{TestActorRef, TestKit}
 
-import models.Order.FulfillmentStarted
-import models.{OrderLockEvents, StoreAdmins, Order, Orders}
+import models.order.{Orders, Order}
+import Order.FulfillmentStarted
+import models.StoreAdmins
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures
+import services.actors._
 import services.orders.OrderUpdater
 import slick.driver.PostgresDriver.api._
 import util.{DbTestSupport, IntegrationTestBase}

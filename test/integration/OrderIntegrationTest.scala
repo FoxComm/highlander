@@ -4,16 +4,21 @@ import Extensions._
 import akka.http.scaladsl.model.StatusCodes
 import akka.pattern.ask
 import akka.testkit.TestActorRef
-import models.Order._
+import models.inventory.Skus
+import models.order._
+import Order._
+import models.customer.Customers
+import models.location.{Addresses, Address, Regions}
+import models.order.lineitems._
+import models.payment.creditcard._
 import models.rules.QueryStatement
-import models.{OrderAssignment, Address, Addresses, CreditCardCharge, CreditCardCharges, CreditCards, Customers,
-Order, OrderAssignments, OrderLineItem, OrderLineItemSkus, OrderLineItems, OrderLockEvent,
-OrderLockEvents, OrderPayments, OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, Regions,
-Shipment, Shipments, ShippingMethods, Skus, StoreAdmin, StoreAdmins, OrderWatcher, OrderWatchers}
+import models.shipping._
+import models.{StoreAdmin, StoreAdmins}
 import org.json4s.jackson.JsonMethods._
 import payloads.{Assignment, Watchers, UpdateLineItemsPayload, UpdateOrderPayload}
 import responses.{FullOrder, StoreAdminResponse}
 import services.CartFailures._
+import services.actors.{Tick, RemorseTimer}
 import services.orders.OrderTotaler
 import services.{LockedFailure, NotFoundFailure404, NotLockedFailure, StateTransitionNotAllowed,
 OrderAssigneeNotFound, OrderWatcherNotFound}
@@ -24,7 +29,6 @@ import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import utils.seeds.Seeds.Factories
 import utils.time._
-import utils.{RemorseTimer, Tick}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

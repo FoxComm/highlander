@@ -2,8 +2,7 @@ package utils.seeds.generators
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
-
-import models.Address
+import models.location.Address
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import GeneratorUtils.randomString

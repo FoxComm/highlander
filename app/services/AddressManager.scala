@@ -5,9 +5,11 @@ import java.time.Instant
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.implicits._
-import models.Order._
-import models.{StoreAdmin, Address, Addresses, Customer, Customers, Order, OrderShippingAddress,
-OrderShippingAddresses, Orders, Region, Regions}
+import models.order._
+import Order._
+import models.customer._
+import models.location._
+import models.StoreAdmin
 import payloads.CreateAddressPayload
 import responses.Addresses._
 import responses.{Addresses ⇒ Response, TheResponse}
@@ -105,7 +107,7 @@ object AddressManager {
   def lastShippedTo(customerId: Int)
     (implicit db: Database, ec: ExecutionContext): DBIO[Option[(OrderShippingAddress, Region)]] = (for {
     order ← Orders.findByCustomerId(customerId)
-      .filter(_.state =!= (Order.Cart: models.Order.State))
+      .filter(_.state =!= (Order.Cart: Order.State))
       .sortBy(_.id.desc)
     shipping ← OrderShippingAddresses if shipping.orderId === order.id
     region   ← Regions if region.id === shipping.regionId

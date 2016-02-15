@@ -3,9 +3,13 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.Order.orderRefNumRegex
+import models.order.Order
+import Order.orderRefNumRegex
 import models.Reason.reasonTypeRegex
-import models.{GiftCard, SharedSearch, Rma, StoreAdmin}
+import models.payment.giftcard.GiftCard
+import models.rma.Rma
+import models.StoreAdmin
+import models.sharedsearch.SharedSearch
 import payloads.SharedSearchAssociationPayload
 import services.{SharedSearchService, NoteManager, ReasonService, SaveForLaterManager, ShippingManager,
 StoreCreditAdjustmentsService, StoreCreditService, SharedSearchInvalidQueryFailure}

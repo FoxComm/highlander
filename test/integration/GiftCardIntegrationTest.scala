@@ -1,8 +1,12 @@
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
-import models.GiftCard._
-import models.{Customers, GiftCard, GiftCardAdjustment, GiftCardAdjustments, GiftCardManual, GiftCardManuals,
-GiftCardSubtype, GiftCardSubtypes, GiftCards, OrderPayments, Orders, PaymentMethod, Reason, Reasons, StoreAdmins}
+import models.order.{OrderPayments, Orders}
+import models.payment.giftcard._
+import GiftCard._
+import models.customer.{Customers, Customer}
+import models.payment.{PaymentMethod, storecredit}
+import models.payment.storecredit.StoreCredit
+import models.{Reason, Reasons, StoreAdmins}
 import org.joda.money.CurrencyUnit
 import org.scalatest.BeforeAndAfterEach
 import responses.{GiftCardAdjustmentsResponse, GiftCardBulkResponse, GiftCardResponse, GiftCardSubTypesResponse, StoreCreditResponse}
@@ -326,8 +330,8 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
         val root = response.as[StoreCreditResponse.Root]
         root.customerId must ===(customer.id)
-        root.originType must ===(models.StoreCredit.GiftCardTransfer)
-        root.state must ===(models.StoreCredit.Active)
+        root.originType must ===(StoreCredit.GiftCardTransfer)
+        root.state must ===(storecredit.StoreCredit.Active)
         root.originalBalance must ===(gcSecond.originalBalance)
 
         val redeemedGc = GiftCards.findByCode(gcSecond.code).one.run().futureValue.value
@@ -345,7 +349,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       "fails to convert when customer not found" in new Fixture {
         val response = POST(s"v1/gift-cards/${gcSecond.code}/convert/666")
         response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(models.Customer, 666).description)
+        response.error must ===(NotFoundFailure404(Customer, 666).description)
       }
 
       "fails to convert GC to SC if open transactions are present" in new Fixture {

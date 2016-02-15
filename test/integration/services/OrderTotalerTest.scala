@@ -1,7 +1,11 @@
 package services
 
-import models.{Addresses, Customers, GiftCard, GiftCardOrder, GiftCardOrders, GiftCards, OrderLineItem,
-OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, Orders, Skus}
+import models.customer.Customers
+import models.inventory.Skus
+import models.location.Addresses
+import models.order.Orders
+import models.order.lineitems._
+import models.payment.giftcard.{GiftCardOrders, GiftCardOrder, GiftCards, GiftCard}
 import services.orders.OrderTotaler
 import util.IntegrationTestBase
 import utils.DbResultT._

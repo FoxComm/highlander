@@ -1,7 +1,9 @@
 package services.orders
 
 import cats.implicits._
-import models.{Customer, Customers, Order, Orders, StoreAdmin}
+import models.customer.{Customers, Customer}
+import models.order.{Orders, Order}
+import models.StoreAdmin
 import payloads.CreateOrder
 import responses.FullOrder
 import responses.FullOrder.Root

@@ -1,6 +1,7 @@
 package models
 
 import models.inventory._
+import models.order.{Orders, Order}
 
 import utils.DbResultT._
 import utils.DbResultT.implicits._

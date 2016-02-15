@@ -1,6 +1,5 @@
 import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
-import models.Customers
 import models.StoreAdmins
 import models.activity.Activities
 import models.activity.ActivityContext
@@ -9,6 +8,7 @@ import models.activity.Dimensions
 import models.activity.Connections
 import models.activity.Connection
 import models.activity.OpaqueActivity
+import models.customer.Customers
 import org.scalatest.mock.MockitoSugar
 import payloads.AppendActivity
 import responses.ActivityConnectionResponse

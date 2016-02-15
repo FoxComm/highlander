@@ -2,11 +2,13 @@ package utils.seeds
 
 import scala.util.Random
 
-import utils.seeds.generators.{CustomerGenerator, AddressGenerator, CreditCardGenerator, 
-OrderGenerator, InventoryGenerator}
-import models.{Address, Addresses, CreditCard, CreditCards, Customer, Customers, 
-Order, OrderPayment, OrderPayments, Orders, PaymentMethod, Skus, Sku, CustomerDynamicGroup,
-OrderLineItemSku, OrderLineItemSkus}
+import models.customer.{CustomerDynamicGroup, Customers, Customer}
+import models.inventory.Skus
+import models.location.{Addresses, Address}
+import models.order._
+import models.payment.PaymentMethod
+import models.payment.creditcard.{CreditCards, CreditCard}
+import utils.seeds.generators._
 
 import utils.ModelWithIdParameter
 import utils.DbResultT

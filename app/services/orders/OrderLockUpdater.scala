@@ -2,7 +2,8 @@ package services.orders
 
 import java.time.{Duration, Instant}
 
-import models.{Order, OrderLockEvent, OrderLockEvents, Orders, StoreAdmin}
+import models.order._
+import models.StoreAdmin
 import responses.FullOrder
 import services.Result
 import slick.driver.PostgresDriver.api._

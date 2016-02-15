@@ -1,5 +1,6 @@
 
-import models.{Customer, StoreAdmin}
+import models.StoreAdmin
+import models.customer.Customer
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.{Suite, SuiteMixin}
 import akka.http.scaladsl.server.Directives.AsyncAuthenticator

@@ -1,5 +1,10 @@
 import akka.http.scaladsl.model.StatusCodes
-import models.{Addresses, CreditCards, Customers, OrderPayments, Orders, Rma, Rmas, StoreAdmins}
+import models.customer.Customers
+import models.location.Addresses
+import models.order.{OrderPayments, Orders}
+import models.payment.creditcard.CreditCards
+import models.rma.{Rmas, Rma}
+import models.StoreAdmins
 import responses.RmaResponse.Root
 import services.{GeneralFailure, NotFoundFailure404}
 import util.IntegrationTestBase

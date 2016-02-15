@@ -3,11 +3,16 @@ package services
 import java.time.Instant
 
 import cats.implicits._
-import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer}
-import models.OrderPayments.scope._
-import models.Orders.scope._
+import models.order._
+import OrderPayments.scope._
+import models.order._
+import Orders.scope._
 import models.activity.ActivityContext
-import models.{Address, Addresses, CreditCard, CreditCards, Customer, Customers, OrderPayments, Orders, Region, Regions, StoreAdmin}
+import models.customer._
+import models.location._
+import models.payment.creditcard.{CreditCards, CreditCard}
+import models.stripe._
+import models.StoreAdmin
 import payloads.{CreateAddressPayload, CreateCreditCard, EditCreditCard}
 import slick.driver.PostgresDriver.api._
 import utils.{DbResultT, Apis}

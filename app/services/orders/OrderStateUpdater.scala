@@ -2,9 +2,11 @@ package services.orders
 
 import scala.concurrent.ExecutionContext
 import models.activity.ActivityContext
+import models.order.lineitems.{OrderLineItems, OrderLineItem}
+import models.order.{Orders, Order}
 
-import models.Order.{Canceled, _}
-import models.{StoreAdmin, Order, OrderLineItem, OrderLineItems, Orders}
+import Order.{Canceled, _}
+import models.StoreAdmin
 import responses.{TheResponse, FullOrder}
 import services.{Result, StateTransitionNotAllowed, NotFoundFailure400, LockedFailure, Failures}
 import services.LogActivity.{orderStateChanged, orderBulkStateChanged}

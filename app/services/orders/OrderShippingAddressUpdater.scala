@@ -2,9 +2,10 @@ package services.orders
 
 import scala.concurrent.ExecutionContext
 
-import models.Addresses.scope._
-import models.{Address, Addresses, Order, Orders, OrderShippingAddress, OrderShippingAddresses, Region, Regions,
-StoreAdmin}
+import models.location.{Address, Addresses, Regions, Region}
+import Addresses.scope._
+import models.order._
+import models.StoreAdmin
 import payloads.{CreateAddressPayload, UpdateAddressPayload}
 import responses.{FullOrder, TheResponse}
 import responses.Addresses.buildOneShipping

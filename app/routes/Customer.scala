@@ -3,7 +3,7 @@ package routes
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.StoreCredits
+import models.payment.storecredit.StoreCredits
 import payloads.{CreateAddressPayload, UpdateLineItemsPayload}
 import services.orders.OrderQueries
 import services.{AddressManager, Checkout, LineItemUpdater, StoreCreditService}
@@ -17,7 +17,7 @@ import scala.concurrent.ExecutionContext
 
 object Customer {
   def routes(implicit ec: ExecutionContext, db: Database,
-    mat: Materializer, customerAuth: AsyncAuthenticator[models.Customer], apis: Apis) = {
+    mat: Materializer, customerAuth: AsyncAuthenticator[models.customer.Customer], apis: Apis) = {
 
     pathPrefix("my") {
       authenticateBasicAsync(realm = "private customer routes", customerAuth) { customer ⇒

@@ -2,7 +2,7 @@ package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.{CreditCard, CreditCards}
+import models.payment.creditcard._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import Seeds.today

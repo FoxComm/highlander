@@ -2,9 +2,14 @@ package services.orders
 
 import scala.concurrent.ExecutionContext
 
-import models.OrderPayments.scope._
-import models.{CreditCard, CreditCards, GiftCard, GiftCards, OrderPayment, OrderPayments, Orders, Regions,
-PaymentMethod, StoreAdmin, StoreCredit, StoreCredits}
+import models.order._
+import OrderPayments.scope._
+import models.location.Regions
+import models.payment.PaymentMethod
+import models.payment.creditcard.CreditCards
+import models.payment.giftcard.{GiftCards, GiftCard}
+import models.payment.storecredit.{StoreCredits, StoreCredit}
+import models.StoreAdmin
 import payloads.{GiftCardPayment, StoreCreditPayment}
 import responses.FullOrder.refreshAndFullOrder
 import responses.{FullOrder, TheResponse}

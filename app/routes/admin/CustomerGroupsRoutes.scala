@@ -3,7 +3,7 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.{Customers, StoreAdmin}
+import models.StoreAdmin
 import models.activity.ActivityContext
 import payloads.CustomerDynamicGroupPayload
 import services.GroupManager

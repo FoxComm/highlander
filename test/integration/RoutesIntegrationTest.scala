@@ -2,7 +2,8 @@ import scala.concurrent.Future
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 
-import models.{Customer, StoreAdmin}
+import models.StoreAdmin
+import models.customer.Customer
 import util.IntegrationTestBase
 
 class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase

@@ -3,7 +3,9 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.{Order, Rma, Rmas, StoreAdmin}
+import models.order.Order
+import models.rma.{Rmas, Rma}
+import models.StoreAdmin
 import payloads.{RmaAssigneesPayload, RmaBulkAssigneesPayload, RmaCreatePayload, RmaGiftCardLineItemsPayload,
 RmaMessageToCustomerPayload, RmaPaymentPayload, RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload, RmaUpdateStatePayload}
 import services.rmas._

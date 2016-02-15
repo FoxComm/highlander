@@ -1,20 +1,18 @@
 package services
 
 import scala.collection.JavaConversions.mapAsJavaMap
-import scala.collection.JavaConverters._
-import scala.concurrent.{ExecutionContext, Future}
-import cats.implicits._
+import scala.concurrent.ExecutionContext
 
-import cats.data.{XorT, Xor}
+import cats.data.Xor
 import cats.data.Xor.{left, right}
-import com.stripe.exception.{AuthenticationException, StripeException, CardException, InvalidRequestException}
-import com.stripe.model.{Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer, Account, ExternalAccount}
-import com.stripe.net.{RequestOptions ⇒ StripeRequestOptions}
-import models.{CreditCard, Customer, Address}
-
-import payloads.{EditCreditCard, CreateCreditCard}
-import utils.{StripeApi, Apis}
+import cats.implicits._
+import com.stripe.model.ExternalAccount
+import models.location.Address
+import models.payment.creditcard.CreditCard
+import models.stripe._
+import payloads.CreateCreditCard
 import utils.Money._
+import utils.{Apis, StripeApi}
 
 // TODO(yax): do not default apiKey, it should come from store
 final case class Stripe(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ")

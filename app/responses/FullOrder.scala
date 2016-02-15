@@ -3,10 +3,17 @@ package responses
 import java.time.Instant
 
 import cats.implicits._
-import models.{OrderWatcher, OrderWatchers, OrderLockEvents, CreditCard, CreditCardCharge, CreditCards,
-Customer, Customers, GiftCard, Order, OrderAssignment, OrderAssignments, OrderLineItem, OrderLineItemGiftCard,
-OrderLineItemGiftCards, OrderLineItemSkus, OrderPayment, OrderPayments, Orders, PaymentMethod, Region,
-ShippingMethod, Sku, StoreAdmin, StoreAdmins, StoreCredit}
+import models.customer.{Customers, Customer}
+import models.inventory.Sku
+import models.location.Region
+import models.order._
+import models.order.lineitems._
+import models.payment.PaymentMethod
+import models.payment.creditcard._
+import models.payment.giftcard.GiftCard
+import models.payment.storecredit.StoreCredit
+import models.shipping.ShippingMethod
+import models.{shipping, StoreAdmin, StoreAdmins}
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 
@@ -176,7 +183,7 @@ object FullOrder {
       customer    ← Customers.findById(order.customerId).extract.one
       lineItems   ← OrderLineItemSkus.findLineItemsByOrder(order).sortBy(_._1.sku).result
       giftCards   ← OrderLineItemGiftCards.findLineItemsByOrder(order).result
-      shipMethod  ← models.ShippingMethods.forOrder(order).one
+      shipMethod  ← shipping.ShippingMethods.forOrder(order).one
       shipAddress ← Addresses.forOrderId(order.id)
       payments    ← ccPaymentQ.one
       gcPayments  ← OrderPayments.findAllGiftCardsByOrderId(order.id).result

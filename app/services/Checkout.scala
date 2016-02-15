@@ -5,10 +5,14 @@ import java.time.Instant
 import scala.concurrent.ExecutionContext
 
 import cats.implicits._
-import models.Order.RemorseHold
+import models.order.lineitems.OrderLineItemGiftCards
+import models.order._
+import Order.RemorseHold
 import models.activity.ActivityContext
-import models.{CreditCardCharge, CreditCardCharges, Customer, Customers, GiftCard, GiftCards, Order,
-OrderLineItemGiftCards, OrderPayment, OrderPayments, Orders, StoreCredits}
+import models.customer.{Customers, Customer}
+import models.payment.creditcard.{CreditCardCharges, CreditCardCharge}
+import models.payment.giftcard.{GiftCards, GiftCard}
+import models.payment.storecredit.StoreCredits
 import responses.FullOrder
 import services.CartFailures.CustomerHasNoActiveOrder
 import slick.driver.PostgresDriver.api._
@@ -63,7 +67,7 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)
 
   private def activePromos: DbResult[Unit] = DbResult.unit
 
-  private def authPayments(customer: models.Customer): DbResult[Unit] = {
+  private def authPayments(customer: Customer): DbResult[Unit] = {
     (for {
       // Authorize GC payments
       gcPayments    ← OrderPayments.findAllGiftCardsByOrderId(cart.id).result

@@ -2,9 +2,7 @@ package utils.seeds.generators
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.{Customer, Customers}
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import models.customer.Customer
 import GeneratorUtils.randomString
 
 import faker._;

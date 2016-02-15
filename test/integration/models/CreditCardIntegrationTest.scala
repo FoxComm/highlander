@@ -1,5 +1,8 @@
 package models
 
+import models.customer.Customers
+import models.location.Addresses
+import models.payment.creditcard.CreditCards
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._

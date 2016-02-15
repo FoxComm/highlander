@@ -3,11 +3,13 @@ package responses
 import java.time.Instant
 import scala.concurrent.ExecutionContext
 
-import models.{CreditCard, OrderShippingAddresses, Address, Customer, OrderShippingAddress, Region}
+import models.customer.Customer
+import models.location.{Address, Region}
+import models.order.{OrderShippingAddresses, OrderShippingAddress}
+import models.payment.creditcard.CreditCard
 import services.NotFoundFailure404
 import utils.Slick.DbResult
 import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
 
 object Addresses {
   final case class Root(id: Int, customer: Option[Customer] = None, region: Region, name: String, address1: String,
@@ -22,10 +24,10 @@ object Addresses {
     Root(id = 0, region = region, name = cc.name, address1 = cc.address1, address2 = cc.address2,
       city = cc.city, zip = cc.zip, isDefault = None, phoneNumber = cc.phoneNumber)
 
-  def build(records: Seq[(models.Address, Region)]): Seq[Root] =
+  def build(records: Seq[(Address, Region)]): Seq[Root] =
     records.map { case (address, region) ⇒ build(address, region, Some(address.isDefaultShipping)) }
 
-  def buildShipping(records: Seq[(models.Address, OrderShippingAddress, Region)]): Seq[Root] = {
+  def buildShipping(records: Seq[(Address, OrderShippingAddress, Region)]): Seq[Root] = {
     records.map { case (address, shippingAddress, region) ⇒
       build(address, region)
     }

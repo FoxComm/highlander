@@ -1,6 +1,6 @@
 package responses
 
-import models.{Sku, Skus}
+import models.inventory.{Skus, Sku}
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 

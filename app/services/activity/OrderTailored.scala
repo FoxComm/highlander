@@ -2,7 +2,10 @@ package services.activity
 
 import java.time.Instant
 
-import models.{ShippingMethod, OrderShippingAddress, PaymentMethod, Order, Note}
+import models.order.Order
+import models.payment.PaymentMethod
+import models.shipping.ShippingMethod
+import models.Note
 import responses.{Addresses, CreditCardsResponse, FullOrder, GiftCardResponse, StoreAdminResponse}
 
 object OrderTailored {

@@ -4,8 +4,7 @@ package utils.seeds.generators
 import java.time.{Instant, ZoneId}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-
-import models.{Customer, CreditCard}
+import models.payment.creditcard.CreditCard
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import GeneratorUtils.randomString

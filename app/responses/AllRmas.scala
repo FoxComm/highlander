@@ -2,7 +2,9 @@ package responses
 
 import java.time.Instant
 
-import models.{Customer, Rma, RmaAssignments, StoreAdmin, StoreAdmins}
+import models.customer.Customer
+import models.rma.{RmaAssignments, Rma}
+import models.{StoreAdmin, StoreAdmins}
 import slick.driver.PostgresDriver.api._
 
 import scala.concurrent.{ExecutionContext, Future}

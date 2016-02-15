@@ -2,7 +2,8 @@ package responses
 
 import java.time.Instant
 
-import models.{StoreAdmin, OrderWatcher}
+import models.StoreAdmin
+import models.order.OrderWatcher
 
 object WatcherResponse {
 

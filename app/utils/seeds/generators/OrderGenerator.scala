@@ -2,14 +2,19 @@ package utils.seeds.generators
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.{Addresses, CreditCards, Customer, GiftCard, GiftCardManual, GiftCardManuals, GiftCardOrder,
-GiftCardOrders, GiftCards, Note, Notes, Order, OrderLineItem, OrderLineItemGiftCard, OrderLineItemGiftCards,
-OrderLineItemSku, OrderLineItemSkus, OrderLineItems, OrderPayment, OrderPayments, OrderShippingAddress,
-OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, ShippingMethods, Orders, Shipment, Shipments, Sku, StoreCredit,
-StoreCreditManual, StoreCreditManuals, StoreCredits}
-import models.GiftCard.buildAppeasement
+import models.customer.Customer
+import models.inventory.Sku
+import models.location.Addresses
+import models.order.lineitems._
+import models.order._
+import models.payment.creditcard.CreditCards
+import models.payment.giftcard._
+import models.payment.storecredit._
+import models.shipping.{Shipments, ShippingMethods, Shipment}
+import models.{Note, Notes}
+import GiftCard.buildAppeasement
 import payloads.GiftCardCreateByCsr
-import models.Order.{ManualHold, Cart, Shipped}
+import Order.{ManualHold, Cart, Shipped}
 import utils.seeds.ShipmentSeeds
 
 import utils.Money.Currency

@@ -9,12 +9,14 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route}
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
-import models.{Customer, StoreAdmin}
+import models.StoreAdmin
+import models.customer.Customer
 import org.json4s.jackson.Serialization
 import org.json4s.{Formats, jackson}
 import services.Authenticator
+import services.actors._
 import slick.driver.PostgresDriver.api._
-import utils.{Apis, CustomHandlers, RemorseTimer, RemorseTimerMate, Tick, WiredStripeApi}
+import utils.{Apis, CustomHandlers, WiredStripeApi}
 
 import scala.collection.immutable
 import scala.concurrent.duration._

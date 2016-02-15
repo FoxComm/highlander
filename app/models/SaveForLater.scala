@@ -2,6 +2,7 @@ package models
 
 import java.time.Instant
 
+import models.customer.Customers
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}

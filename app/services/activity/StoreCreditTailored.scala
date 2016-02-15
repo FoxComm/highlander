@@ -1,6 +1,6 @@
 package services.activity
 
-import models.Order
+import models.order.Order
 import responses.{CustomerResponse, GiftCardResponse, StoreCreditResponse, StoreAdminResponse}
 
 object StoreCreditTailored {

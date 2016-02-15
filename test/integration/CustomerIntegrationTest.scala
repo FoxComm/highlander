@@ -1,11 +1,17 @@
 import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import com.stripe.exception.CardException
-import com.stripe.model.{Card, Customer => StripeCustomer}
-import models.OrderPayments.scope._
+import models.order._
+import OrderPayments.scope._
 import models.activity.ActivityContext
-import models.{Addresses, CreditCard, CreditCards, Customer, Customers, CustomersRanks, Order, OrderPayments, Orders,
-PaymentMethod, Regions, Rma, Rmas, StoreAdmins}
+import models.customer._
+import models.location.{Addresses, Regions}
+import models.order.{Orders, Order}
+import models.payment.PaymentMethod
+import models.payment.creditcard.{CreditCards, CreditCard}
+import models.rma.{Rmas, Rma}
+import models.stripe._
+import models.StoreAdmins
 import org.mockito.Mockito.{reset, when}
 import org.mockito.{Matchers => m}
 import org.scalatest.mock.MockitoSugar
@@ -424,10 +430,10 @@ class CustomerIntegrationTest extends IntegrationTestBase
           thenReturn(Result.good(new StripeCustomer))
 
         when(stripeApi.findDefaultCard(m.any(), m.any())).
-          thenReturn(Result.good(new Card))
+          thenReturn(Result.good(new StripeCard))
 
         when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
-          thenReturn(Result.good(new Card))
+          thenReturn(Result.good(new StripeCard))
 
         val payload = payloads.EditCreditCard(holderName = Some("Bob"))
         val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
@@ -444,10 +450,10 @@ class CustomerIntegrationTest extends IntegrationTestBase
           thenReturn(Result.good(new StripeCustomer))
 
         when(stripeApi.findDefaultCard(m.any(), m.any())).
-          thenReturn(Result.good(new Card))
+          thenReturn(Result.good(new StripeCard))
 
         when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
-          thenReturn(Result.good(new Card))
+          thenReturn(Result.good(new StripeCard))
 
         val payload = payloads.EditCreditCard(holderName = Some("Bob"))
         val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
@@ -465,10 +471,10 @@ class CustomerIntegrationTest extends IntegrationTestBase
           thenReturn(Result.good(new StripeCustomer))
 
         when(stripeApi.findDefaultCard(m.any(), m.any())).
-          thenReturn(Result.good(new Card))
+          thenReturn(Result.good(new StripeCard))
 
         when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
-          thenReturn(Result.good(mock[Card]))
+          thenReturn(Result.good(mock[StripeCard]))
 
         val order = Orders.create(Factories.cart.copy(customerId = customer.id)).run().futureValue.rightVal
         OrderPaymentUpdater.addCreditCard(admin, order.refNum, creditCard.id).futureValue
@@ -502,10 +508,10 @@ class CustomerIntegrationTest extends IntegrationTestBase
           thenReturn(Result.good(new StripeCustomer))
 
         when(stripeApi.findDefaultCard(m.any(), m.any())).
-          thenReturn(Result.good(new Card))
+          thenReturn(Result.good(new StripeCard))
 
         when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
-          thenReturn(Result.good(mock[Card]))
+          thenReturn(Result.good(mock[StripeCard]))
 
         val payload = payloads.EditCreditCard(holderName = Some("Bob"),
           address = CreateAddressPayload(name = "Home Office", regionId = address.regionId + 1,
@@ -554,7 +560,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
         thenReturn(Result.good(new StripeCustomer))
 
       when(stripeApi.findDefaultCard(m.any(), m.any())).
-        thenReturn(Result.good(new Card))
+        thenReturn(Result.good(new StripeCard))
 
       when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
         thenReturn(Result.failure(

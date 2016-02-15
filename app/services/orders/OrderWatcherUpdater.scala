@@ -1,6 +1,7 @@
 package services.orders
 
-import models.{NotificationSubscription, Order, OrderWatcher, OrderWatchers, Orders, StoreAdmin, StoreAdmins}
+import models.order._
+import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
 import responses.FullOrder.Root
 import responses.{FullOrder, TheResponse}
 import services.Util._

@@ -2,7 +2,8 @@ package models.inventory
 
 import java.time.Instant
 
-import models.{Order, javaTimeSlickMapper}
+import models.javaTimeSlickMapper
+import models.order.Order
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}

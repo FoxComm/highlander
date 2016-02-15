@@ -3,8 +3,9 @@ package services.orders
 import scala.concurrent.ExecutionContext
 
 import cats.implicits._
-import models.{OrderShippingMethod, OrderShippingMethods, Order, Orders, Shipments, ShippingMethod, ShippingMethods,
-StoreAdmin}
+import models.order._
+import models.shipping.{Shipments, ShippingMethods}
+import models.StoreAdmin
 import payloads.UpdateShippingMethod
 import responses.{FullOrder, TheResponse}
 import services.{LogActivity, CartValidator, NotFoundFailure400, Result, ShippingManager}

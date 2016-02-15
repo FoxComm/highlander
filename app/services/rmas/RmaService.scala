@@ -1,7 +1,10 @@
 package services.rmas
 
-import models.Rma.Canceled
-import models.{Customers, Orders, Reason, Reasons, Rma, Rmas, StoreAdmin}
+import models.customer.Customers
+import models.order.Orders
+import models.rma.{Rmas, Rma}
+import Rma.Canceled
+import models.{Reason, Reasons, StoreAdmin}
 import payloads.{RmaCreatePayload, RmaMessageToCustomerPayload, RmaUpdateStatePayload}
 import responses.RmaResponse._
 import responses.{RmaResponse, CustomerResponse, StoreAdminResponse}

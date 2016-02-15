@@ -2,10 +2,13 @@ package services
 
 import scala.concurrent.ExecutionContext
 
-import models.OrderLineItems.scope._
-import models.{Customer, GiftCard, GiftCardOrder, GiftCardOrders, GiftCards, Order, OrderLineItem,
-OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, Orders, Sku, Skus,
-StoreAdmin}
+import models.inventory.{Skus, Sku}
+import models.order.lineitems._
+import OrderLineItems.scope._
+import models.customer.Customer
+import models.order._
+import models.payment.giftcard._
+import models.StoreAdmin
 import payloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
 import responses.FullOrder.refreshAndFullOrder
 import responses.{FullOrder, TheResponse}
