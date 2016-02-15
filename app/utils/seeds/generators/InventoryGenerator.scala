@@ -34,7 +34,7 @@ trait InventoryGenerator {
     val base = new Base{}
     //TODO: Use a markov chain created from product descriptions to generate hilarious product names.
     val sk = Sku(
-      sku = base.letterify("???-???"), 
+      code = base.letterify("???-???"),
       name = Some(nameGenerator.generate(Math.max(5, Random.nextInt(20))).mkString("")), 
       price = Random.nextInt(10000))
 

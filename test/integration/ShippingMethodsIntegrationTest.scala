@@ -117,7 +117,7 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
 
       "Shipping method is returned, but disabled with a hazardous SKU" in new ShipToCaliforniaButNotHazardous {
         (for {
-          hazSku      ← * <~ Skus.create(Sku(sku = "HAZ-SKU", name = Some("fox"), price = 56, isHazardous = true))
+          hazSku      ← * <~ Skus.create(Sku(code = "HAZ-SKU", name = Some("fox"), price = 56, isHazardous = true))
           lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(hazSku.id).toXor
           lineItem    ← * <~ OrderLineItems.create(OrderLineItem(orderId = order.id, originId = lineItemSku.id))
         } yield lineItem).runTxn().futureValue.rightVal

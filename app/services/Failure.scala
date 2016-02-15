@@ -3,6 +3,7 @@ package services
 import com.stripe.exception.StripeException
 import models.activity.Dimension
 import models.order.Order
+import models.inventory.Sku
 import models.payment.creditcard.CreditCard
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
@@ -307,7 +308,7 @@ object CreditCardFailure {
 object Util {
   def searchTerm[A](a: A): String = a match {
     case Order | _: Order | Rma | _: Rma ⇒ "referenceNumber"
-    case GiftCard | _: GiftCard ⇒ "code"
+    case GiftCard | _: GiftCard | Sku | _: Sku ⇒ "code"
     case Dimension | _: Dimension ⇒ "name"
     case _ ⇒ "id"
   }

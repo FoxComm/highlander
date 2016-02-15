@@ -22,10 +22,10 @@ object SaveForLaterManager {
     response ← * <~ findAllDbio(customer).toXor
   } yield response).run()
 
-  def saveForLater(customerId: Int, skuId: Int)
+  def saveForLater(customerId: Int, skuCode: String)
     (implicit db: Database, ec: ExecutionContext): Result[SavedForLater] = (for {
     customer ← * <~ Customers.mustFindById404(customerId)
-    sku ← * <~ Skus.mustFindById404(skuId)
+    sku ← * <~ Skus.mustFindByCode(skuCode)
     _   ← * <~ SaveForLaters.find(customerId = customer.id, skuId = sku.id).one
                  .mustNotFindOr(AlreadySavedForLater(customerId = customer.id, skuId = sku.id))
     _   ← * <~ SaveForLaters.create(SaveForLater(customerId = customer.id, skuId = sku.id))

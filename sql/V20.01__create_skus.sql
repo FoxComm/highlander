@@ -1,6 +1,6 @@
 create table skus (
     id serial primary key,
-    sku generic_string,
+    code generic_string,
     name generic_string,
     type generic_string,
     is_active bool not null default true,

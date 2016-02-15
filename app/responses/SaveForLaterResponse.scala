@@ -34,7 +34,7 @@ object SaveForLaterResponse {
     Root(
       id = sfl.id,
       name = sku.name,
-      sku = sku.sku,
+      sku = sku.code,
       price = sku.price,
       createdAt = sfl.createdAt
     )
