@@ -109,8 +109,9 @@ export default class Payments extends React.Component {
   @autobind
   processRows(rows) {
     if (this.props.payments.isAdding) {
+      const order = _.get(this.props, 'order.currentOrder');
       return [
-        <NewPayment customerId={this.currentCustomer} />,
+        <NewPayment order={order} customerId={this.currentCustomer} />,
         ...rows
       ];
     }

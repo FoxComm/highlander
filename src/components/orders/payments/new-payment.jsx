@@ -11,7 +11,6 @@ import CreditCardDetails from '../../credit-cards/card-details';
 import { Dropdown, DropdownItem } from '../../dropdown';
 import { Form, FormField } from '../../forms';
 import NewCreditCard from './new-credit-card';
-import SaveCancel from '../../common/save-cancel';
 import TileSelector from '../../tile-selector/tile-selector';
 import TableCell from '../../table/cell';
 import TableRow from '../../table/row';
@@ -21,7 +20,6 @@ import * as PaymentMethodActions from '../../../modules/orders/payment-methods';
 
 function mapStateToProps(state, props) {
   return {
-    creditCards: state.customers.creditCards[props.customerId],
     paymentMethods: state.orders.paymentMethods,
   };
 }
@@ -40,30 +38,18 @@ function mapDispatchToProps(dispatch, props) {
 @connect(mapStateToProps, mapDispatchToProps)
 class NewPayment extends Component {
   static propTypes = {
-    creditCards: PropTypes.object,
     customerId: PropTypes.number.isRequired,
     fetchCreditCards: PropTypes.func.isRequired,
+    order: PropTypes.object.isRequired,
     orderPaymentMethodNewCreditCard: PropTypes.func.isRequired,
     paymentMethods: PropTypes.object,
-  };
-
-  static defaultProps = {
-    creditCards: {},
   };
 
   constructor(...args) {
     super(...args);
 
     this.state = {
-      isCreditCardFormVisible: false,
-      newCreditCard: {
-        isDefault: false,
-        address: {
-          id: null
-        },
-      },
       paymentType: null,
-      selectedPayment: null,
     };
   }
 
@@ -75,23 +61,6 @@ class NewPayment extends Component {
     if (this.state.paymentType == 'giftCard') {
       return this.giftCardForm;
     }
-  }
-
-  get formControls() {
-    const saveDisabled = _.isNull(this.state.selectedPayment) && !this.hasNewCreditCard;
-    const onSave = () => this.props.addOrderCreditCardPayment(
-      'BR10004',
-      _.get(this.state, 'selectedPayment.id')
-    );
-
-    return (
-      <SaveCancel
-        className="fc-new-order-payment__form-controls"
-        saveText="Add Payment Method"
-        saveDisabled={saveDisabled}
-        onSave={onSave}
-        onCancel={this.props.orderPaymentMethodStopAdd} />
-    );
   }
 
   get paymentForm() {
@@ -126,7 +95,7 @@ class NewPayment extends Component {
 
   get newCreditCard() {
     if (Object.is(this.state.paymentType, 'creditCard')) {
-      return <NewCreditCard customerId={this.props.customerId} />;
+      return <NewCreditCard order={this.props.order} customerId={this.props.customerId} />;
     }
   }
 
@@ -136,7 +105,6 @@ class NewPayment extends Component {
         <TableCell className="fc-new-order-payment" colspan={3}>
           {this.paymentForm}
           {this.newCreditCard}
-          {this.formControls}
         </TableCell>
       </TableRow>
     );

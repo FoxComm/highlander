@@ -43,6 +43,37 @@ export function addOrderCreditCardPayment(orderRefNum, creditCardId) {
   };
 }
 
+export function createAndAddOrderCreditCardPayment(orderRefNum, creditCard, customerId) {
+  return dispatch => {
+    dispatch(orderPaymentMethodStartAdd());
+
+    const ccPayload = {
+      isDefault: creditCard.isDefault,
+      holderName: creditCard.holderName,
+      number: creditCard.number,
+      cvv: creditCard.cvv,
+      expMonth: creditCard.expMonth,
+      expYear: creditCard.expYear,
+      addressId: creditCard.addressId,
+    };
+
+    return Api.post(`/customers/${customerId}/payment-methods/credit-cards`, ccPayload)
+      .then(
+        res => {
+          return Api.post(`${basePath(orderRefNum)}/credit-cards`, { creditCardId: res.id })
+            .then(
+              order => {
+                dispatch(orderPaymentMethodAddCreditCardSuccess());
+                dispatch(orderSuccess(order));
+              },
+              err => dispatch(setError(err))
+            );
+        },
+        err => dispatch(setError(err))
+      );
+  };
+}
+
 export function deleteOrderGiftCardPayment(orderRefNum, code) {
   const path = `${basePath(orderRefNum)}/gift-cards/${code}`;
   return deleteOrderPaymentMethod(path);

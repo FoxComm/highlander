@@ -1,6 +1,7 @@
 // libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 
@@ -34,19 +35,20 @@ export default class CreditCardForm extends React.Component {
     }),
     customerId: PropTypes.number,
     className: PropTypes.string,
-    showFormControls: PropTypes.bool,
     showSelectedAddress: PropTypes.bool,
+    saveText: PropTypes.string,
   };
 
   static defaultProps = {
     isDefaultEnabled: true,
-    showFormControls: true,
     showSelectedAddress: false,
+    saveText: 'Save',
   };
 
   constructor(...args) {
     super(...args);
     this.state = {
+      card: this.props.card,
       editingAddress: this.props.isNew,
     };
   }
@@ -68,11 +70,13 @@ export default class CreditCardForm extends React.Component {
       '_disabled': !isDefaultEnabled,
     });
 
+    const isDefault = _.get(this.state, 'card.isDefault', false);
+
     return (
       <li className="fc-credit-card-form__line">
         <label className={className}>
           <Checkbox disabled={!isDefaultEnabled}
-                    defaultChecked={form.isDefault}
+                    defaultChecked={isDefault}
                     className="fc-credit-card-form__default-checkbox"
                     name="isDefault" />
           <span className="fc-credit-card-form__default-label">
@@ -84,6 +88,7 @@ export default class CreditCardForm extends React.Component {
   }
 
   get nameBlock() {
+    const holderName = _.get(this.state, 'card.holderName', '');
     return (
       <li className="fc-credit-card-form__line">
         <FormField label="Name on Card"
@@ -95,14 +100,16 @@ export default class CreditCardForm extends React.Component {
                maxLength="255"
                type="text"
                required
-               value={this.props.form.holderName} />
+               value={holderName} />
         </FormField>
       </li>
     );
   }
 
   get cardNumberBlock() {
-    const { isNew, form } = this.props;
+    const { isNew } = this.props;
+    const number = _.get(this.state, 'card.number', '');
+    const cvv = _.get(this.state, 'card.cvv', '');
 
     if (!isNew) {
       return null;
@@ -121,7 +128,7 @@ export default class CreditCardForm extends React.Component {
                      maxLength="255"
                      type="text"
                      required
-                     value={form.number}/>
+                     value={number}/>
             </FormField>
           </div>
           <div className="fc-col-md-1-4">
@@ -134,7 +141,7 @@ export default class CreditCardForm extends React.Component {
                      maxLength="255"
                      type="text"
                      required
-                     value={form.cvv}/>
+                     value={cvv}/>
             </FormField>
           </div>
         </div>
@@ -143,7 +150,8 @@ export default class CreditCardForm extends React.Component {
   }
 
   get expirationBlock() {
-    const { form } = this.props;
+    const expMonth = _.get(this.state, 'card.expMonth');
+    const expYear = _.get(this.state, 'card.expYear');
 
     return (
       <li className="fc-credit-card-form__line">
@@ -153,14 +161,14 @@ export default class CreditCardForm extends React.Component {
             <Dropdown name="expMonth"
                       items={CardUtils.monthList()}
                       placeholder="Month"
-                      value={form.expMonth}
+                      value={expMonth}
                       onChange={this.onExpMonthChange} />
           </div>
           <div className="fc-col-md-1-2">
             <Dropdown name="expYear"
                       items={CardUtils.expirationYears()}
                       placeholder="Year"
-                      value={form.expYear}
+                      value={expYear}
                       onChange={this.onExpYearChange} />
           </div>
         </div>
@@ -169,10 +177,11 @@ export default class CreditCardForm extends React.Component {
   }
 
   get billingAddress() {
-    const { card, customerId, isNew, showSelectedAddress } = this.props;
-    const addressId = _.get(card, 'address.id');
+    const { customerId, isNew, showSelectedAddress } = this.props;
+    const addressId = _.get(this.state, 'card.address.id');
+    const address = _.get(this.state, 'card.address');
 
-    let address = null;
+    let addressDetails = null;
     let changeLink = null;
 
     if (!this.state.editingAddress && showSelectedAddress) {
@@ -182,7 +191,7 @@ export default class CreditCardForm extends React.Component {
         </span>
       );
 
-      address = <AddressDetails customerId={customerId} address={card.address} />;
+      addressDetails = <AddressDetails customerId={customerId} address={address} />;
     }
 
     return (
@@ -191,7 +200,7 @@ export default class CreditCardForm extends React.Component {
           <label className="fc-credit-card-form__label">
             Billing Address {changeLink}
           </label>
-          {address}
+          {addressDetails}
         </div>
       </li>
     );
@@ -199,7 +208,7 @@ export default class CreditCardForm extends React.Component {
 
   get addressBook() {
     const { isNew, addresses, customerId, showSelectedAddress } = this.props;
-    const addressId = _.get(this.props, 'card.address.id');
+    const addressId = _.get(this.state, 'card.address.id');
 
     if (this.state.editingAddress || !showSelectedAddress) {
       return (
@@ -217,50 +226,59 @@ export default class CreditCardForm extends React.Component {
   }
 
   get submit() {
-    if (this.props.showFormControls) {
-      return <SaveCancel onCancel={this.props.onCancel} />;
-    }
+    return (
+      <SaveCancel saveText={this.props.saveText}
+                  onCancel={this.props.onCancel} />
+    );
+  }
+
+  @autobind
+  onChange({target}) {
+    this.setState(assoc(this.state, ['card', target.name], target.value));
   }
 
   @autobind
   onExpYearChange(value) {
-    this.props.onChange( {target: {name: 'expYear', value: +value} } );
+    this.setState(assoc(this.state, ['card', 'expYear'], +value));
   }
 
   @autobind
   onExpMonthChange(value) {
-    this.props.onChange( {target: {name: 'expMonth', value: +value} } );
+    this.setState(assoc(this.state, ['card', 'expMonth'], +value));
   }
 
   @autobind
   onAddressChange(value) {
-    const changeValue = {
-      target: {
-        name: 'addressId',
-        value: +value,
-      },
-    };
+    console.log('onAddressChange');
+    const addressId = +value;
+    const address = _.find(this.props.addresses, { id: addressId });
 
-    this.setState({
-      editingAddress: false,
-    }, () => this.props.onChange(changeValue));
+    this.setState(assoc(this.state,
+      'editingAddress', false,
+      ['card', 'addressId'], addressId,
+      ['card', 'address'], address
+    ));
   }
 
   @autobind
   toggleSelectAddress() {
-    const newState = { editingAddress: !this.state.editingAddress };
-    this.setState(newState);
+    this.setState({ editingAddress: !this.state.editingAddress });
+  }
+
+  @autobind
+  onSubmit() {
+    console.log(this.state.card);
   }
 
 
   render() {
-    const {form, isDefaultEnabled, onChange, onSubmit, onCancel} = this.props;
-    const className = classNames('fc-credit-card-form fc-form-vertical', this.props.className);
+    const { className, onSubmit } = this.props;
+    const formClassName = classNames('fc-credit-card-form fc-form-vertical', className);
 
     return (
-      <Form className={className}
-            onChange={onChange}
-            onSubmit={onSubmit}>
+      <Form className={formClassName}
+            onChange={this.onChange}
+            onSubmit={() => onSubmit(this.state.card)}>
         {this.header}
         <div>
           <ul className="fc-credit-card-form__fields">

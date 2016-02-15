@@ -8,6 +8,7 @@ import _ from 'lodash';
 import CreditCardBox from '../../credit-cards/card-box';
 import CreditCardDetails from '../../credit-cards/card-details';
 import CreditCardForm from '../../credit-cards/card-form';
+import SaveCancel from '../../common/save-cancel';
 import TileSelector from '../../tile-selector/tile-selector';
 
 import * as AddressActions from '../../../modules/customers/addresses';
@@ -32,9 +33,11 @@ function mapActionsToCustomer(dispatch, actions, customerId) {
 
 function mapDispatchToProps(dispatch, props) {
   return {
-    ...mapActionsToCustomer(dispatch, AddressActions, props.customerId),
-    ...mapActionsToCustomer(dispatch, CreditCardActions, props.customerId),
-    ...bindActionCreators(dispatch, PaymentMethodActions, dispatch),
+    actions: {
+      ...mapActionsToCustomer(dispatch, AddressActions, props.customerId),
+      ...mapActionsToCustomer(dispatch, CreditCardActions, props.customerId),
+      ...bindActionCreators(PaymentMethodActions, dispatch),
+    },
   };
 }
 
@@ -44,8 +47,15 @@ export default class NewCreditCard extends Component {
     addresses: PropTypes.object.isRequired,
     creditCards: PropTypes.object.isRequired,
     customerId: PropTypes.number.isRequired,
-    fetchAddresses: PropTypes.func.isRequired,
-    fetchCreditCards: PropTypes.func.isRequired,
+    order: PropTypes.object.isRequired,
+
+    actions: PropTypes.shape({
+      addOrderCreditCardPayment: PropTypes.func.isRequired,
+      createAndAddOrderCreditCardPayment: PropTypes.func.isRequired,
+      fetchAddresses: PropTypes.func.isRequired,
+      fetchCreditCards: PropTypes.func.isRequired,
+      orderPaymentMethodStopAdd: PropTypes.func.isRequired,
+    }).isRequired,
   };
 
   constructor(...args) {
@@ -59,8 +69,8 @@ export default class NewCreditCard extends Component {
   }
 
   componentDidMount() {
-    this.props.fetchCreditCards();
-    this.props.fetchAddresses();
+    this.props.actions.fetchCreditCards();
+    this.props.actions.fetchAddresses();
   }
 
   get creditCards() {
@@ -69,7 +79,7 @@ export default class NewCreditCard extends Component {
       return (
         <CreditCardBox card={card}
                        customerId={this.props.customerId}
-                       onChooseClick={() => this.setState({ newCard: card })} />
+                       onChooseClick={() => this.selectCard(card)} />
       );
     });
   }
@@ -85,7 +95,9 @@ export default class NewCreditCard extends Component {
                           isDefaultEnabled={false}
                           showFormControls={false}
                           isNew={true}
-                          onChange={this.handleCreditCardChange}
+                          onCancel={() => this.setState({ showForm: false })}
+                          onSubmit={this.handleCreditCardSubmit}
+                          saveText="Add Payment Method"
                           showSelectedAddress={true} />
         </div>
       );
@@ -93,11 +105,29 @@ export default class NewCreditCard extends Component {
   }
 
   get creditCardTiles() {
-    if (!this.state.showForm) {
+    if (!this.state.showForm && _.isNull(this.state.selectedCard)) {
       return (
         <TileSelector items={this.creditCards}
                       onAddClick={this.toggleCreditCardForm}
                       title="Customer's Credit Cards" />
+      );
+    }
+  }
+
+  get formControls() {
+    if (!this.state.showForm) {
+      const saveDisabled = _.isNull(this.state.selectedCard);
+      const onSave = () => this.props.actions.addOrderCreditCardPayment(
+        this.props.order.referenceNumber,
+        _.get(this.state, 'selectedCard.id')
+      );
+
+      return (
+        <SaveCancel className="fc-new-order-payment__form-controls"
+                    saveText="Add Payment Method"
+                    saveDisabled={saveDisabled}
+                    onSave={onSave}
+                    onCancel={this.props.actions.orderPaymentMethodStopAdd} />
       );
     }
   }
@@ -111,31 +141,25 @@ export default class NewCreditCard extends Component {
   }
 
   @autobind
-  handleCreditCardChange({target}) {
-    const address = Object.is(target.name, 'addressId')
-      ? _.find(this.props.addresses.addresses, { id: target.value })
-      : this.state.newCard.address;
+  handleCreditCardSubmit(creditCard) {
+    this.props.actions.createAndAddOrderCreditCardPayment(
+      this.props.order.referenceNumber,
+      creditCard,
+      this.props.customerId
+    );
+  }
 
-    this.setState(assoc(this.state,
-      ['newCard', target.name], target.value,
-      ['newCard', 'address'], address
-    ));
+  @autobind
+  selectCard(card) {
+    this.setState({
+      selectedCard: card,
+    });
   }
 
   @autobind
   toggleCreditCardForm() {
     this.setState({
-      newCard: {
-        isDefault: false,
-        holderName: null,
-        number: null,
-        cvv: null,
-        expMonth: null,
-        expYear: null,
-        address: {
-          id: null,
-        },
-      },
+      newCard: null,
       showForm: !this.state.showForm,
     });
   }
@@ -146,6 +170,7 @@ export default class NewCreditCard extends Component {
         {this.selectedCard}
         {this.creditCardForm}
         {this.creditCardTiles}
+        {this.formControls}
       </div>
     );
   }
