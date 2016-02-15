@@ -3,7 +3,6 @@ package services
 import java.time.Instant
 
 import cats.implicits._
-import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer}
 import models.order._
 import OrderPayments.scope._
 import models.order._
@@ -12,6 +11,7 @@ import models.activity.ActivityContext
 import models.customer._
 import models.location._
 import models.payment.creditcard.{CreditCards, CreditCard}
+import models.stripe._
 import models.StoreAdmin
 import payloads.{CreateAddressPayload, CreateCreditCard, EditCreditCard}
 import slick.driver.PostgresDriver.api._

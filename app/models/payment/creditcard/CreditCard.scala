@@ -6,12 +6,12 @@ import scala.concurrent.ExecutionContext
 
 import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
-import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer}
 import models.javaTimeSlickMapper
 import models.customer.Customers
 import models.location._
 import models.payment.PaymentMethod
 import models.traits.Addressable
+import models.stripe._
 import monocle.Lens
 import monocle.macros.GenLens
 import payloads.CreateCreditCard

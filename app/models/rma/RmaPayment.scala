@@ -1,11 +1,11 @@
 package models.rma
 
-import com.stripe.model.{Customer ⇒ StripeCustomer}
 import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCards, CreditCard}
 import models.payment.giftcard.GiftCard
 import models.currencyColumnTypeMapper
 import models.payment.storecredit.StoreCredit
+import models.stripe._
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.Money._

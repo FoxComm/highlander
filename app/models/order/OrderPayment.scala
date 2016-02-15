@@ -1,12 +1,12 @@
 package models.order
 
 import cats.data.ValidatedNel
-import com.stripe.model.{Customer ⇒ StripeCustomer}
 import models.currencyColumnTypeMapper
 import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCard, CreditCards}
 import models.payment.giftcard.{GiftCard, GiftCards}
 import models.payment.storecredit.{StoreCredit, StoreCredits}
+import models.stripe._
 import monocle.macros.GenLens
 import services.Failure
 import slick.driver.PostgresDriver.api._
