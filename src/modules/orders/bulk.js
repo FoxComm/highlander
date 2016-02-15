@@ -50,5 +50,25 @@ export function cancelOrders(referenceNumbers, reasonId) {
   };
 }
 
+export function changeOrdersState(referenceNumbers, state) {
+  return dispatch => {
+    dispatch(bulkRequest());
+    Api.patch('/orders', {
+        referenceNumbers,
+        state,
+      })
+      .then(
+        ({errors = []}) => {
+          errors = parseErrors(errors);
+          dispatch(bulkDone(getSuccesses(referenceNumbers, errors), errors));
+        },
+        error => {
+          // TODO handle when https://github.com/FoxComm/Ashes/issues/466 closed
+          console.error(error);
+        }
+      );
+  };
+}
+
 export default reducer;
 export { reset, clearSuccesses, clearErrors } from '../bulk';

@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 // data
+import { stateTitles } from '../../paragons/order';
 import { actions } from '../../modules/orders/list';
 import * as bulkActions from '../../modules/orders/bulk';
 
@@ -13,7 +14,7 @@ import * as bulkActions from '../../modules/orders/bulk';
 import BulkActions from '../bulk-actions/bulk-actions';
 import { SearchableList } from '../list-page';
 import OrderRow from './order-row';
-import { CancelModal } from '../bulk-actions/modal';
+import { ChangeStateModal, CancelModal } from '../bulk-actions/modal';
 import { Link } from '../link';
 
 
@@ -57,6 +58,44 @@ export default class Orders extends React.Component {
     );
   }
 
+  getChangeOrdersState(state) {
+    const stateTitle = stateTitles[state];
+
+    return (allChecked, toggledIds) => {
+      const {changeOrdersState} = this.props.bulkActions;
+
+      return (
+        <ChangeStateModal
+          count={toggledIds.length}
+          stateTitle={stateTitle}
+          onConfirm={() => {
+          changeOrdersState(toggledIds, state);
+        }} />
+      );
+    };
+  }
+
+  getChangeStateAction(state) {
+    const stateTitle = stateTitles[state];
+
+    return [
+      `Change Orders state to ${stateTitle}`,
+      this.getChangeOrdersState(state),
+      `successfully changed state to ${stateTitle}`,
+      `could not change state to ${stateTitle}`,
+    ];
+  }
+
+  get bulkActions() {
+    return [
+      ['Cancel Orders', this.cancelOrders, 'successfully canceled', 'could not be canceled'],
+      this.getChangeStateAction('manualHold'),
+      this.getChangeStateAction('fraudHold'),
+      this.getChangeStateAction('remorseHold'),
+      this.getChangeStateAction('fulfillmentStarted'),
+    ];
+  }
+
   get renderRow() {
     return (row, index, columns, params) => {
       const key = `order-${row.referenceNumber}`;
@@ -77,9 +116,7 @@ export default class Orders extends React.Component {
     return (
       <BulkActions
         module="orders"
-        actions={[
-          ['Cancel Orders', this.cancelOrders, 'successfully canceled', 'could not be canceled']
-        ]}
+        actions={this.bulkActions}
         entityForms={['order', 'orders']}
         renderDetail={(messages, referenceNumber) => (
           <span key={referenceNumber}>
