@@ -39,7 +39,6 @@ ListPageContainer.propTypes = {
 
 ListPageContainer.defaultProps = {
   addTitle: '',
-  handleAddAction: _.noop,
   navLinks: [],
 };
 

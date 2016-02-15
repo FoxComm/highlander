@@ -32,6 +32,8 @@ import StoreCreditsTransactions from './components/customers/store-credits/trans
 import NewStoreCredit from './components/customers/store-credits/new-store-credit';
 import CustomerTransactions from './components/customers/transactions/transactions';
 import CustomerCart from './components/customers/transactions/cart';
+import InventoryListPage from './components/inventory/list-page';
+import InventoryList from './components/inventory/list';
 
 import StyleGuide from './components/style-guide/style-guide';
 import StyleGuideGrid from './components/style-guide/style-guide-grid';
@@ -111,6 +113,11 @@ const routes = (
         <IndexRoute name='gift-card-transactions' component={GiftCardTransactions} />
         <Route name='gift-card-notes' path='notes' component={Notes} />
         <Route name='gift-card-activity-trail' path='activity-trail' component={ActivityTrailPage} />
+      </Route>
+    </Route>
+    <Route name='inventory-base' path='inventory'>
+      <Route name='inventory-list-page' component={InventoryListPage}>
+        <IndexRoute name='inventory' component={InventoryList}/>
       </Route>
     </Route>
     <Route name='style-guide' path='style-guide' component={StyleGuide}>

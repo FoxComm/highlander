@@ -35,6 +35,12 @@ export const states = {
     fullyRedeemed: 'Fully Redeemed',
     canceled: 'Canceled',
   },
+  sku: {
+    backorder: 'Backorder',
+    sellable: 'Sellable',
+    preorder: 'Preorder',
+    nonSellable: 'Non-sellable',
+  }
 };
 
 const State = (props) => {
