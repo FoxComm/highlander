@@ -176,7 +176,7 @@ const reducer = createReducer({
   [checkoutSuccess]: (state) => {
     return { ...state, isCheckingOut: false };
   },
-  [checkoutRequest]: (state, err) => {
+  [checkoutFailure]: (state, err) => {
     console.error(err);
     return { ...state, isCheckingOut: false };
   },
