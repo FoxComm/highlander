@@ -1,8 +1,7 @@
 package utils
 
 import akka.http.scaladsl.model.StatusCodes
-
-import models.Order
+import models.order.Order
 import util.TestBase
 import Http._
 import services.{NotFoundFailure404, CustomerHasDefaultCreditCard, GeneralFailure}

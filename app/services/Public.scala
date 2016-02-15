@@ -3,9 +3,9 @@ package services
 import scala.collection.immutable.Seq
 import scala.concurrent.{ExecutionContext, Future}
 
-import models.Country._
-import models.Region._
-import models.{Countries, Country, Region, Regions}
+import models.location._
+import Country._
+import Region._
 import responses.CountryWithRegions
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._

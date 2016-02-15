@@ -2,9 +2,8 @@ package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.Sku._
-import models.inventory.{InventorySummaries, InventorySummary, Warehouse, Warehouses}
-import models.{Sku, Skus}
+import models.inventory.Sku._
+import models.inventory._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 

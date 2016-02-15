@@ -1,6 +1,10 @@
 package services.rmas
 
-import models.{GiftCard, GiftCards, OrderLineItemGiftCards, OrderLineItemSkus, RmaLineItem, RmaLineItemGiftCard, RmaLineItemGiftCards, RmaLineItemShippingCost, RmaLineItemShippingCosts, RmaLineItemSku, RmaLineItemSkus, RmaLineItems, RmaReason, RmaReasons, Rmas, Shipments, Sku, Skus}
+import models.inventory.Skus
+import models.order.lineitems.{OrderLineItemSkus, OrderLineItemGiftCards}
+import models.payment.giftcard.{GiftCards, GiftCard}
+import models.rma._
+import models.shipping.Shipments
 import payloads.{RmaGiftCardLineItemsPayload, RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload}
 import responses.RmaResponse.Root
 import responses.RmaResponse

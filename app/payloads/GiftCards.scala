@@ -2,7 +2,7 @@ package payloads
 
 import cats.data._
 import cats.implicits._
-import models.GiftCard
+import models.payment.giftcard.GiftCard
 import services.Failure
 import utils.Litterbox._
 import utils.Money._

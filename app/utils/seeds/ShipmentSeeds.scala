@@ -2,10 +2,11 @@ package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.Country.unitedStatesId
-import models.ShippingPriceRule._
-import models.rules.{Condition, QueryStatement}
-import models.{Shipment, ShippingMethod, ShippingMethodPriceRule, ShippingMethods, ShippingMethodsPriceRules, ShippingPriceRule, ShippingPriceRules}
+import models.location.Country
+import Country.unitedStatesId
+import models.shipping._
+import ShippingPriceRule._
+import models.rules._
 import org.json4s.jackson.JsonMethods._
 import utils.DbResultT._
 import utils.DbResultT.implicits._

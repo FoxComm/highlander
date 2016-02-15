@@ -1,5 +1,7 @@
 package models
 
+import models.inventory.Skus
+import models.order.lineitems.OrderLineItemSkus
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
 import util.IntegrationTestBase

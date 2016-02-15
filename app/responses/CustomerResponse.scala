@@ -2,7 +2,8 @@ package responses
 
 import java.time.Instant
 
-import models.{Region, Customer, CustomerRank}
+import models.customer.{CustomerRank, Customer}
+import models.location.Region
 
 object CustomerResponse {
   final case class Root(

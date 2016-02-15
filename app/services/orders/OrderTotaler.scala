@@ -1,6 +1,6 @@
 package services.orders
 
-import models.Order
+import models.order.{Orders, Order}
 import slick.driver.PostgresDriver.api._
 import scala.concurrent.ExecutionContext
 import cats.implicits._
@@ -55,6 +55,6 @@ object OrderTotaler {
     t           ← * <~ totals(order).toXor
     withTotals  = order.copy(subTotal = t.subTotal, shippingTotal = t.shipping,
       adjustmentsTotal = t.adjustments, taxesTotal = t.taxes, grandTotal = t.total)
-    updated     ← * <~ models.Orders.update(order, withTotals)
+    updated     ← * <~ Orders.update(order, withTotals)
   } yield updated).value
 }

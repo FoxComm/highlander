@@ -3,8 +3,10 @@ import java.time.Instant
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
 import cats.data.Xor
-import models.Order._
-import models.{Customers, Order, Orders, StoreAdmin, StoreAdmins}
+import models.order.{Orders, Order}
+import Order._
+import models.customer.Customers
+import models.{StoreAdmin, StoreAdmins}
 import payloads.{BulkAssignment, BulkUpdateOrdersPayload, BulkWatchers}
 import responses.{AllOrders, FullOrder, StoreAdminResponse}
 import services.orders.{BulkOrderUpdateResponse, OrderQueries}

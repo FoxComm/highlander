@@ -1,5 +1,6 @@
 package models
 
+import models.order._
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._

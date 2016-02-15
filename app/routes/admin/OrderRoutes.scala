@@ -3,9 +3,11 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.GiftCard.giftCardCodeRegex
-import models.Order.orderRefNumRegex
-import models.{GiftCard, StoreAdmin}
+import models.order.Order
+import models.payment.giftcard.GiftCard
+import GiftCard.giftCardCodeRegex
+import Order.orderRefNumRegex
+import models.StoreAdmin
 import payloads.{AddGiftCardLineItem, Assignment, BulkAssignment, BulkUpdateOrdersPayload, CreateOrder,
 UpdateLineItemsPayload, UpdateOrderPayload, Watchers, BulkWatchers}
 import services.orders._

@@ -1,6 +1,10 @@
 package services
 
-import models.{Orders, OrderLineItemSkus, Sku, Skus, Order, OrderShippingAddress, Region, ShippingMethods}
+import models.inventory.{Skus, Sku}
+import models.location.Region
+import models.order.lineitems.OrderLineItemSkus
+import models.order._
+import models.shipping.{ShippingMethods, ShippingMethod}
 import models.rules.{Condition, QueryStatement}
 import scala.concurrent.ExecutionContext
 import slick.driver.PostgresDriver.api._
@@ -28,7 +32,7 @@ object ShippingManager {
     }
   } yield response).run()
 
-  def evaluateShippingMethodForOrder(shippingMethod: models.ShippingMethod, order: Order)
+  def evaluateShippingMethodForOrder(shippingMethod: ShippingMethod, order: Order)
     (implicit db: Database, ec: ExecutionContext): DbResult[Unit] = {
     getShippingData(order).flatMap { shippingData ⇒
       val failure = ShippingMethodNotApplicableToOrder(shippingMethod.id, order.refNum)
@@ -43,7 +47,7 @@ object ShippingManager {
 
   private def getShippingData(order: Order)(implicit db: Database, ec: ExecutionContext): DBIO[ShippingData] = {
     for {
-      orderShippingAddress ← models.OrderShippingAddresses.findByOrderIdWithRegions(order.id).result.headOption
+      orderShippingAddress ← OrderShippingAddresses.findByOrderIdWithRegions(order.id).result.headOption
       skus ← (for {
         liSku ← OrderLineItemSkus.findByOrderId(order.id)
         skus ← Skus if skus.id === liSku.skuId

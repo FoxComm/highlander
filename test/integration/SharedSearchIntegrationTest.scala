@@ -2,9 +2,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import akka.http.scaladsl.model.StatusCodes
 import Extensions._
-import models.{SharedSearchAssociations, StoreAdmin, StoreAdmins, SharedSearch, SharedSearches}
-import models.SharedSearchAssociation.{build ⇒ buildAssociation}
-import models.SharedSearch.{CustomersScope, OrdersScope, StoreAdminsScope}
+import models.sharedsearch.{SharedSearchAssociations, SharedSearches, SharedSearchAssociation, SharedSearch}
+import models.{StoreAdmin, StoreAdmins}
+import SharedSearchAssociation.{build ⇒ buildAssociation}
+import SharedSearch.{CustomersScope, OrdersScope, StoreAdminsScope}
 import payloads.{SharedSearchPayload, SharedSearchAssociationPayload}
 import services.{GeneralFailure, SharedSearchAssociationNotFound, NotFoundFailure404, SharedSearchInvalidQueryFailure}
 import responses.StoreAdminResponse.{Root ⇒ AdminRoot, build ⇒ buildAdmin}

@@ -2,13 +2,17 @@ import java.time.ZonedDateTime
 
 import akka.http.scaladsl.model.StatusCodes
 
-
-import models.Order._
+import models.order._
+import Order._
 import models.activity.ActivityContext
-import models.{StoreCreditManual, GiftCardManual, CreditCards, CreditCard, Addresses, Order, Orders, StoreCredits,
-StoreCredit, StoreCreditManuals, OrderPayments, OrderPayment, Customers, GiftCards, GiftCard, GiftCardManuals,
-StoreAdmins, Reasons, PaymentMethod}
-import models.OrderPayments.scope._
+import models.customer.Customers
+import models.location.Addresses
+import models.payment.PaymentMethod
+import models.payment.creditcard.{CreditCards, CreditCard}
+import models.payment.giftcard.{GiftCardManuals, GiftCardManual, GiftCards, GiftCard}
+import models.payment.storecredit.{StoreCreditManuals, StoreCreditManual, StoreCredits, StoreCredit}
+import models.{StoreAdmins, Reasons}
+import OrderPayments.scope._
 import services.{GiftCardMustNotBeCart, OrderPaymentNotFoundFailure, CannotUseInactiveCreditCard,
 CustomerHasInsufficientStoreCredit, CreditCardManager, GiftCardIsInactive, GiftCardNotEnoughBalance, NotFoundFailure404}
 import services.CartFailures.OrderMustBeCart

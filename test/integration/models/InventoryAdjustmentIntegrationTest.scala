@@ -1,6 +1,8 @@
 package models
 
 import models.inventory._
+import models.order.lineitems._
+import models.order.{Orders, Order}
 import utils.seeds.Seeds
 import Seeds.Factories
 import util.IntegrationTestBase

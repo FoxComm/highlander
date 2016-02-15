@@ -2,7 +2,8 @@ package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.{Notes, Note, Customer, Customers}
+import models.customer.{Customers, Customer}
+import models.{Notes, Note}
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 

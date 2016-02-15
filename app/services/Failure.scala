@@ -2,7 +2,11 @@ package services
 
 import com.stripe.exception.StripeException
 import models.activity.Dimension
-import models.{CreditCard, GiftCard, Order, Rma, StoreCredit}
+import models.order.Order
+import models.payment.creditcard.CreditCard
+import models.payment.giftcard.GiftCard
+import models.payment.storecredit.StoreCredit
+import models.rma.Rma
 import services.Util.searchTerm
 import utils.friendlyClassName
 

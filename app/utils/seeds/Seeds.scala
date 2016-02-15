@@ -4,7 +4,9 @@ import java.time.{Instant, ZoneId}
 
 import cats.data.Xor
 import models.Reason._
-import models.{CreditCardCharge, OrderPayment, OrderShippingAddress, Reason, Reasons}
+import models.order.{OrderShippingAddress, OrderPayment}
+import models.payment.creditcard.CreditCardCharge
+import models.{Reason, Reasons}
 import org.postgresql.ds.PGSimpleDataSource
 import services.{Failures, FailuresOps}
 import slick.driver.PostgresDriver

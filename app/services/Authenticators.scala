@@ -1,7 +1,8 @@
 package services
 
 import akka.http.scaladsl.server.directives._
-import models.{Customer, Customers, StoreAdmin, StoreAdmins}
+import models.customer.{Customers, Customer}
+import models.{StoreAdmin, StoreAdmins}
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 

@@ -1,7 +1,8 @@
 import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import models.activity.ActivityContext
-import models.{Customer, CustomerDynamicGroups, CustomerDynamicGroup, StoreAdmins}
+import models.customer.{CustomerDynamicGroups, CustomerDynamicGroup}
+import models.StoreAdmins
 import org.mockito.Mockito.{reset, when}
 import org.mockito.{Matchers => m}
 import org.scalatest.mock.MockitoSugar

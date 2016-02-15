@@ -4,7 +4,8 @@ import java.time.Instant
 
 import scala.concurrent.ExecutionContext
 
-import models.{SaveForLater, SaveForLaters, Sku, Skus}
+import models.inventory.{Skus, Sku}
+import models.{SaveForLater, SaveForLaters}
 import services.NotFoundFailure404
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT.implicits._

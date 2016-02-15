@@ -1,12 +1,17 @@
 package utils.seeds
 
 import cats.implicits._
-import models.Order._
-import models.{Addresses, CreditCards, Customer, GiftCard, GiftCardManual, GiftCardManuals, GiftCardOrder,
-GiftCardOrders, GiftCards, Note, Notes, Order, OrderLineItem, OrderLineItemGiftCard, OrderLineItemGiftCards,
-OrderLineItemSku, OrderLineItemSkus, OrderLineItems, OrderPayment, OrderPayments, OrderShippingAddress,
-OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, Shipment, Shipments, Sku, StoreCredit,
-StoreCreditManual, StoreCreditManuals, StoreCredits}
+import models.inventory.Sku
+import models.order.lineitems._
+import models.order._
+import Order._
+import models.customer.Customer
+import models.location.Addresses
+import models.payment.creditcard.CreditCards
+import models.payment.giftcard._
+import models.payment.storecredit._
+import models.shipping.{Shipment, Shipments}
+import models.{Note, Notes}
 import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
@@ -57,7 +62,7 @@ trait OrderSeeds {
   } yield order
 
   def createOrder3(customerId: Customer#Id, skus: Seq[Sku])(implicit db: Database): DbResultT[Order] = {
-    import models.GiftCard.{buildAppeasement => build}
+    import GiftCard.{buildAppeasement => build}
     import payloads.{GiftCardCreateByCsr => payload}
     for {
       order  ← * <~ Orders.create(Order(state = Cart, customerId = customerId))

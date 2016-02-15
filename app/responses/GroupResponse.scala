@@ -1,8 +1,9 @@
 package responses
 
-import org.json4s.JsonAST.{JValue ⇒ Json }
 import java.time.Instant
-import models.CustomerDynamicGroup
+
+import models.customer.CustomerDynamicGroup
+import org.json4s.JsonAST.{JValue ⇒ Json}
 
 object DynamicGroupResponse {
   final case class Root(

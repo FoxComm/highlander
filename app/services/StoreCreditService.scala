@@ -3,10 +3,11 @@ package services
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.implicits._
-import models.StoreCredit.Canceled
-import models.StoreCreditSubtypes.scope._
-import models.{Customers, Reason, Reasons, StoreAdmin, StoreCredit, StoreCreditAdjustments, StoreCreditManual,
-StoreCreditManuals, StoreCreditSubtype, StoreCreditSubtypes, StoreCredits}
+import models.payment.storecredit._
+import StoreCredit.Canceled
+import StoreCreditSubtypes.scope._
+import models.customer.Customers
+import models.{Reason, Reasons, StoreAdmin}
 import payloads.StoreCreditUpdateStateByCsr
 import responses.StoreCreditBulkResponse._
 import responses.StoreCreditResponse._

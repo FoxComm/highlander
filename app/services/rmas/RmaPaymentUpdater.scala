@@ -1,7 +1,11 @@
 package services.rmas
 
-import models.RmaPayments.scope._
-import models.{CreditCards, GiftCard, GiftCardRefund, GiftCardRefunds, GiftCards, RmaPayment, RmaPayments, Rmas, StoreAdmin, StoreCredit, StoreCreditRefund, StoreCreditRefunds, StoreCredits}
+import models.payment.creditcard.CreditCards
+import models.payment.giftcard._
+import models.payment.storecredit._
+import models.rma._
+import RmaPayments.scope._
+import models.StoreAdmin
 import payloads.RmaPaymentPayload
 import responses.RmaResponse
 import services.Result

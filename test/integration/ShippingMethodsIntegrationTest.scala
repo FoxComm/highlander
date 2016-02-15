@@ -1,8 +1,13 @@
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
+import models.customer.Customers
+import models.inventory.{Skus, Sku}
+import models.location.Addresses
+import models.order.{OrderShippingAddresses, Orders}
+import models.order.lineitems._
 import models.rules.QueryStatement
-import models.{Addresses, Customers, OrderLineItem, OrderLineItemSku, OrderLineItemSkus, OrderLineItems,
-OrderShippingAddresses, Orders, Sku, Skus, StoreAdmins}
+import models.shipping.ShippingMethods
+import models.{shipping, StoreAdmins}
 import org.json4s.jackson.JsonMethods._
 import services.orders.OrderTotaler
 import util.IntegrationTestBase
@@ -30,7 +35,7 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
             | }
           """.stripMargin).extract[QueryStatement]
 
-        val action = models.ShippingMethods.create(Factories.shippingMethods.head.copy(
+        val action = shipping.ShippingMethods.create(Factories.shippingMethods.head.copy(
           conditions = Some(conditions)))
         val shippingMethod = db.run(action).futureValue.rightVal
 
@@ -58,7 +63,7 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
             | }
           """.stripMargin).extract[QueryStatement]
 
-        val action = models.ShippingMethods.create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+        val action = shipping.ShippingMethods.create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
         val shippingMethod = db.run(action).futureValue.rightVal
 
         val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
@@ -180,7 +185,7 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
           |}
         """.stripMargin).extract[QueryStatement]
 
-    val action = models.ShippingMethods.create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+    val action = ShippingMethods.create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
     val shippingMethod = db.run(action).futureValue.rightVal
   }
 
@@ -230,7 +235,7 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
           |}
       """.stripMargin).extract[QueryStatement]
 
-    val action = models.ShippingMethods.create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
+    val action = shipping.ShippingMethods.create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
     val shippingMethod = db.run(action).futureValue.rightVal
   }
 
@@ -266,7 +271,7 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
       """.stripMargin).extract[QueryStatement]
 
     val shippingMethod = (for {
-      shippingMethod ← models.ShippingMethods.create(Factories.shippingMethods.head.copy(
+      shippingMethod ← shipping.ShippingMethods.create(Factories.shippingMethods.head.copy(
         conditions = Some(conditions), restrictions = Some(restrictions)))
     } yield shippingMethod).run().futureValue.rightVal
   }

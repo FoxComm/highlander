@@ -3,6 +3,9 @@ import java.time.Instant
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import models.customer.Customers
+import models.order.{Orders, Order}
+import models.rma.{Rmas, Rma}
 import models.{Notes, _}
 import responses.AdminNotes
 import services.{NotFoundFailure404, NoteManager}

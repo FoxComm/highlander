@@ -2,8 +2,14 @@ package responses
 
 import java.time.Instant
 
-import models.{Customers, GiftCard, Orders, PaymentMethod, Rma, RmaAssignments, RmaLineItem, RmaLineItemGiftCards,
-RmaLineItemShippingCosts, RmaLineItemSkus, RmaPayment, RmaPayments, Shipment, Sku, StoreAdmins}
+import models.customer.Customers
+import models.inventory.Sku
+import models.order.Orders
+import models.payment.PaymentMethod
+import models.payment.giftcard.GiftCard
+import models.rma._
+import models.shipping.Shipment
+import models.StoreAdmins
 import responses.CustomerResponse.{Root => Customer}
 import responses.StoreAdminResponse.{Root => StoreAdmin}
 import services.rmas.RmaTotaler

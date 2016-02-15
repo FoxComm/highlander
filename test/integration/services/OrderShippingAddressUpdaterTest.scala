@@ -1,7 +1,10 @@
 package services
 
 import models.activity.ActivityContext
-import models.{Order, OrderShippingAddresses, Orders, Customers, Addresses, StoreAdmins}
+import models.customer.Customers
+import models.location.Addresses
+import models.order._
+import models.StoreAdmins
 import services.orders.OrderShippingAddressUpdater._
 import util.IntegrationTestBase
 import utils.DbResultT._

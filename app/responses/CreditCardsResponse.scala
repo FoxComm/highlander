@@ -1,13 +1,7 @@
 package responses
 
-import java.time.Instant
-import scala.concurrent.ExecutionContext
-
-import models.{CreditCard, OrderShippingAddresses, Address, Customer, OrderShippingAddress, Region}
-import services.NotFoundFailure404
-import utils.Slick.DbResult
-import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
+import models.location.Region
+import models.payment.creditcard.CreditCard
 
 object CreditCardsResponse {
   final case class Root(id: Int, customerId: Int, holderName: String, lastFour: String, expMonth: Int, expYear: Int,

@@ -2,11 +2,15 @@ import java.time.Instant
 
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
-import models.Rma.{Canceled, Processing}
-import models.{RmaAssignment, Customer, Customers, GiftCard, GiftCardManual, GiftCardManuals,
-GiftCards, Order, OrderLineItem, OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItems,
-OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, Reasons, Rma, RmaAssignments, RmaLineItem,
-RmaLockEvents, RmaReason, RmaReasons, Rmas, Shipments, ShippingMethods, Skus, StoreAdmin, StoreAdmins}
+import models.customer.{Customers, Customer}
+import models.inventory.Skus
+import models.order.lineitems._
+import models.order._
+import models.payment.giftcard.{GiftCardManuals, GiftCardManual, GiftCards, GiftCard}
+import models.rma._
+import Rma.{Canceled, Processing}
+import models.shipping.{Shipments, ShippingMethods}
+import models.{Reasons, StoreAdmin, StoreAdmins}
 import org.json4s.jackson.JsonMethods._
 import payloads.{RmaAssigneesPayload, RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCustomerPayload,
 RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload}

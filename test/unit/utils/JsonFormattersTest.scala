@@ -5,11 +5,12 @@ import java.time.{Instant, ZonedDateTime}
 import scalaz.Show
 
 import com.pellucid.sealerate
+import models.order.Order
+import models.payment.creditcard.CreditCardCharge
+import models.payment.giftcard.GiftCard
 import org.json4s.Formats
 import org.json4s.JsonAST.JObject
 import util.TestBase
-
-import models.{GiftCard, CreditCardCharge, Order}
 import utils.Money.Currency
 
 class JsonFormattersTest extends TestBase {

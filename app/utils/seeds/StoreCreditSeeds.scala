@@ -2,7 +2,9 @@ package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.{Customer, StoreAdmin, StoreCredit, StoreCreditManual, StoreCreditManuals, StoreCreditSubtype, StoreCreditSubtypes, StoreCredits}
+import models.customer.Customer
+import models.payment.storecredit._
+import models.StoreAdmin
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Money.Currency

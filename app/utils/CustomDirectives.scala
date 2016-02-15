@@ -7,10 +7,11 @@ import akka.http.scaladsl.server.{MalformedRequestContentRejection, UnsupportedR
 RequestEntityExpectedRejection, Directive1, StandardRoute, ValidationRejection}
 import akka.http.scaladsl.unmarshalling.{Unmarshaller, FromRequestUnmarshaller}
 
+import models.customer.Customer
 import services.Result
 import utils.Http._
 
-import models.{Customer, StoreAdmin}
+import models.StoreAdmin
 import models.activity.ActivityContext
 
 object CustomDirectives {

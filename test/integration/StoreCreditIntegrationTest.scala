@@ -1,9 +1,12 @@
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
-import models.StoreCredit._
-import models.{Customer, Customers, OrderPayments, Orders, PaymentMethod, Reason, Reasons, StoreAdmins, StoreCredit,
-StoreCreditAdjustment, StoreCreditAdjustments, StoreCreditManual, StoreCreditManuals, StoreCreditSubtype,
-StoreCreditSubtypes, StoreCredits}
+import models.order.{OrderPayments, Orders}
+import models.payment.storecredit._
+import StoreCredit._
+import models.customer.{Customers, Customer}
+import models.payment.{PaymentMethod, giftcard}
+import models.payment.giftcard.GiftCard
+import models.{Reason, Reasons, StoreAdmins}
 import org.scalatest.BeforeAndAfterEach
 import responses.{GiftCardResponse, StoreCreditAdjustmentsResponse, StoreCreditResponse, StoreCreditSubTypesResponse}
 import services.{NotFoundFailure400, EmptyCancellationReasonFailure, NotFoundFailure404, OpenTransactionsFailure,
@@ -315,8 +318,8 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         response.status must ===(StatusCodes.OK)
 
         val root = response.as[GiftCardResponse.Root]
-        root.originType       must ===(models.GiftCard.FromStoreCredit)
-        root.state            must ===(models.GiftCard.Active)
+        root.originType       must ===(GiftCard.FromStoreCredit)
+        root.state            must ===(giftcard.GiftCard.Active)
         root.originalBalance  must ===(scSecond.originalBalance)
 
         val redeemedSc = StoreCredits.filter(_.id === scSecond.id).one.run().futureValue.value

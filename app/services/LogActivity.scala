@@ -4,8 +4,16 @@ import java.time.Instant
 
 import scala.concurrent.ExecutionContext
 
-import models.{PaymentMethod, StoreCredit, GiftCard, CreditCard, ShippingMethod, OrderShippingAddress,
-Region, Address, Customer, SharedSearch, StoreAdmin, Order, Note}
+import models.customer.Customer
+import models.location.{Address, Region}
+import models.order.Order
+import models.payment.PaymentMethod
+import models.payment.creditcard.CreditCard
+import models.payment.giftcard.GiftCard
+import models.payment.storecredit.StoreCredit
+import models.sharedsearch.SharedSearch
+import models.shipping.ShippingMethod
+import models.{StoreAdmin, Note}
 import models.activity.{Activity, Activities, ActivityContext}
 import payloads.UpdateLineItemsPayload
 import responses.{CreditCardsResponse, Addresses, GiftCardResponse, CustomerResponse, FullOrder, StoreAdminResponse,

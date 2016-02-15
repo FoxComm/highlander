@@ -3,7 +3,9 @@ package services
 import scala.concurrent.ExecutionContext
 
 import cats.data.Xor
-import models.{Customer, Customers, SaveForLater, SaveForLaters, Skus}
+import models.customer.{Customers, Customer}
+import models.inventory.Skus
+import models.{SaveForLater, SaveForLaters}
 import responses.{SaveForLaterResponse, TheResponse}
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._

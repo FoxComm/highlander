@@ -5,7 +5,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.{Customers, StoreAdmin}
+import models.StoreAdmin
+import models.customer.Customers
 import payloads.{ActivateCustomerPayload, CreateAddressPayload, UpdateCustomerPayload}
 import services.{AddressManager, CreditCardManager, CustomerCreditConverter, CustomerManager, StoreCreditAdjustmentsService, StoreCreditService}
 import services.orders.OrderQueries

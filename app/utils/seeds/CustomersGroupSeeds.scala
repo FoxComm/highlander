@@ -2,7 +2,7 @@ package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.{CustomerDynamicGroup, CustomerDynamicGroups}
+import models.customer._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import org.json4s.JObject

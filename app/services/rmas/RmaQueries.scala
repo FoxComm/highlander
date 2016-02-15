@@ -1,6 +1,8 @@
 package services.rmas
 
-import models.{RmaAssignments, Customers, Rmas, StoreAdmins, javaTimeSlickMapper}
+import models.customer.Customers
+import models.rma.{RmaAssignments, Rmas}
+import models.{StoreAdmins, javaTimeSlickMapper}
 import responses.{PaginationMetadata, SortingMetadata, TheResponse, AllRmas, AssignmentResponse}
 import services.Result
 import slick.driver.PostgresDriver.api._

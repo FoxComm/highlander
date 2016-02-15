@@ -23,7 +23,8 @@ import akka.stream.{ActorMaterializer, Materializer}
 import akka.util.ByteString
 
 import com.typesafe.config.ConfigFactory
-import models.{Customer, StoreAdmin}
+import models.StoreAdmin
+import models.customer.Customer
 import org.json4s.Formats
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}

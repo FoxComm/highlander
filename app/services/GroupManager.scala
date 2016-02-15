@@ -1,6 +1,7 @@
 package services
 
-import models.{CustomerDynamicGroups, CustomerDynamicGroup, StoreAdmin}
+import models.customer.{CustomerDynamicGroups, CustomerDynamicGroup}
+import models.StoreAdmin
 import payloads.CustomerDynamicGroupPayload
 import responses.DynamicGroupResponse.{Root, build}
 import responses.TheResponse

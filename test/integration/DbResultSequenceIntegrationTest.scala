@@ -1,4 +1,4 @@
-import models.{Customer, Customers}
+import models.customer.{Customers, Customer}
 import services.DatabaseFailure
 import util.IntegrationTestBase
 import utils.seeds.Seeds

@@ -2,10 +2,16 @@ import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import com.stripe.exception.CardException
 import com.stripe.model.{Card, Customer => StripeCustomer}
-import models.OrderPayments.scope._
+import models.order._
+import OrderPayments.scope._
 import models.activity.ActivityContext
-import models.{Addresses, CreditCard, CreditCards, Customer, Customers, CustomersRanks, Order, OrderPayments, Orders,
-PaymentMethod, Regions, Rma, Rmas, StoreAdmins}
+import models.customer._
+import models.location.{Addresses, Regions}
+import models.order.{Orders, Order}
+import models.payment.PaymentMethod
+import models.payment.creditcard.{CreditCards, CreditCard}
+import models.rma.{Rmas, Rma}
+import models.StoreAdmins
 import org.mockito.Mockito.{reset, when}
 import org.mockito.{Matchers => m}
 import org.scalatest.mock.MockitoSugar

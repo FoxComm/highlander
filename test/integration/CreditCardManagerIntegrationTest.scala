@@ -2,7 +2,9 @@ import java.time.ZonedDateTime
 
 import akka.http.scaladsl.model.StatusCodes
 
-import models.{Address, Customer, CreditCards, CreditCard, Customers, Addresses}
+import models.customer.{Customers, Customer}
+import models.location.{Addresses, Address}
+import models.payment.creditcard.CreditCards
 import payloads.CreateAddressPayload
 import services.NotFoundFailure404
 import services.CreditCardFailure.InvalidCvc

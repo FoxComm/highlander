@@ -6,7 +6,8 @@ import Extensions._
 import cats.implicits._
 import models.NotificationSubscription._
 import models.activity._
-import models.{Customers, Notification, NotificationSubscriptions, NotificationTrailMetadata, StoreAdmin, StoreAdmins}
+import models.customer.Customers
+import models.{Notification, NotificationSubscriptions, NotificationTrailMetadata, StoreAdmin, StoreAdmins}
 import org.json4s.JsonAST.JString
 import org.json4s.jackson.Serialization.write
 import payloads.{AppendActivity, CreateNotification, UpdateCustomerPayload}

@@ -2,7 +2,8 @@ package responses
 
 import java.time.Instant
 
-import models.{Rma, RmaLockEvent, StoreAdmin}
+import models.rma.{RmaLockEvent, Rma}
+import models.StoreAdmin
 
 object RmaLockResponse {
   final case class Root(

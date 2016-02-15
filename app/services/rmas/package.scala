@@ -2,8 +2,9 @@ package services
 
 import scala.concurrent.ExecutionContext
 
-import models.{Rma, Rmas, Order, OrderPayments, OrderPayment}
-import models.OrderPayments.scope._
+import models.order._
+import models.rma.{Rmas, Rma}
+import OrderPayments.scope._
 import responses.{AllRmas, TheResponse}
 import utils.Slick.implicits._
 import utils.Slick.DbResult

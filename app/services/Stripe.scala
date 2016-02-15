@@ -10,7 +10,8 @@ import cats.data.Xor.{left, right}
 import com.stripe.exception.{AuthenticationException, StripeException, CardException, InvalidRequestException}
 import com.stripe.model.{Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer, Account, ExternalAccount}
 import com.stripe.net.{RequestOptions ⇒ StripeRequestOptions}
-import models.{CreditCard, Customer, Address}
+import models.location.Address
+import models.payment.creditcard.CreditCard
 
 import payloads.{EditCreditCard, CreateCreditCard}
 import utils.{StripeApi, Apis}

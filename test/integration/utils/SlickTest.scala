@@ -1,6 +1,6 @@
 package utils
 
-import models.Customers
+import models.customer.Customers
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._

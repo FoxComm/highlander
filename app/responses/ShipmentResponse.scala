@@ -1,7 +1,8 @@
 package responses
 
-import models.Shipment
-import models.Shipment._
+import models.shipping.Shipment
+import Shipment._
+import models.shipping.Shipment
 
 object ShipmentResponse {
   final case class Root(id: Int, orderId: Int, state: State, shippingPrice: Option[Int] = None) extends ResponseItem

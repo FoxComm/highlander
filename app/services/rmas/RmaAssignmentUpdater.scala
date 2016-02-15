@@ -2,7 +2,8 @@ package services.rmas
 
 import scala.concurrent.ExecutionContext
 
-import models.{Rma, RmaAssignment, RmaAssignments, Rmas, StoreAdmin, StoreAdmins}
+import models.rma.{RmaAssignments, RmaAssignment, Rmas, Rma}
+import models.{StoreAdmin, StoreAdmins}
 import responses.{RmaResponse, TheResponse}
 import services.Util._
 import services.{NotFoundFailure400, Result, RmaAssigneeNotFound}

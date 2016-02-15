@@ -3,7 +3,9 @@ package services.orders
 import scala.concurrent.ExecutionContext
 
 import models.activity.ActivityContext
-import models.{StoreAdmin, Customer, OrderPayments, Customers, Order, Orders, javaTimeSlickMapper}
+import models.customer.{Customers, Customer}
+import models.order._
+import models.{StoreAdmin, javaTimeSlickMapper}
 import OrderPayments.scope._
 import responses.{FullOrder, TheResponse, AllOrders}
 import services.{Result, CartValidator, LogActivity}

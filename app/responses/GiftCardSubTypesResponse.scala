@@ -1,6 +1,6 @@
 package responses
 
-import models.{GiftCard, GiftCardSubtype}
+import models.payment.giftcard.{GiftCard, GiftCardSubtype}
 
 object GiftCardSubTypesResponse {
   final case class Root(originType: GiftCard.OriginType, subTypes: Seq[GiftCardSubtype]) extends ResponseItem

@@ -1,6 +1,8 @@
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 
-import models.{Addresses, Customer, Customers, OrderShippingAddresses, Orders, Regions}
+import models.customer.{Customers, Customer}
+import models.location.{Addresses, Regions}
+import models.order.{OrderShippingAddresses, Orders}
 import util.IntegrationTestBase
 import util.SlickSupport.implicits._
 import utils.DbResultT

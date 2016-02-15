@@ -1,8 +1,8 @@
 import akka.http.scaladsl.model.StatusCodes
 
-import models.{Countries, Region, Country}
-import models.Country._
-import models.Region._
+import models.location.{Region, Countries, Country}
+import Country._
+import Region._
 import responses.CountryWithRegions
 import util.IntegrationTestBase
 import utils.Slick.implicits._
