@@ -1,0 +1,65 @@
+.fc-bulk-notification {
+  background: @color-decor0;
+  .padding(0 10px 10px 10px);
+
+  > * {
+    .border-radius(3px);
+  }
+
+  &._success > * {
+    background: @color-decor17;
+  }
+
+  &._error > * {
+    background: @color-decor23;
+  }
+
+  a {
+    .colors(@color-default-fg, @color-transparent);
+    text-decoration: underline;
+  }
+
+  &__preview {
+    display: flex;
+    .height(36px);
+    .line-height(36px);
+  }
+
+  &__icon {
+    .padding(0 10px);
+    .font-spec(18px);
+  }
+
+  &__message {
+    .padding-right(5px);
+  }
+
+  a&__details-link {
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  &__flex-separator {
+    flex: 1;
+  }
+
+  &__close {
+    .padding(0 10px);
+    .font-spec(18px);
+  }
+
+  &__details {
+    display: none;
+    box-sizing: border-box;
+    .padding-left(40px);
+
+    &._open {
+      display: block;
+    }
+
+    > * {
+      display: block;
+      .padding-bottom(10px);
+    }
+  }
+}

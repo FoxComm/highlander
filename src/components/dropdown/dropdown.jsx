@@ -64,7 +64,7 @@ class Dropdown extends React.Component {
     }
 
     return (
-      <div className="fc-dropdown__value">
+      <div className="fc-dropdown__value" onClick={this.handleToggleClick}>
         {title}
         <input name={name} type="hidden" value={actualValue} />
       </div>
@@ -129,7 +129,10 @@ Dropdown.itemsType = PropTypes.arrayOf(PropTypes.array);
 Dropdown.propTypes = {
   name: PropTypes.string,
   className: PropTypes.string,
-  value: PropTypes.string,
+  value: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+  ]),
   disabled: PropTypes.bool,
   editable: PropTypes.bool,
   changeable: PropTypes.bool,

@@ -11,7 +11,7 @@ import MultiSelectRow from '../table/multi-select-row';
 
 const compileShippingStatus = order => {
   if (order.state == 'canceled') {
-    return 'Canceled';
+    return 'canceled';
   }
 
   let canceledItemCount = 0;

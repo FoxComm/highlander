@@ -67,6 +67,10 @@ const AddButton = props => {
   return <Button icon='add' {...props} />;
 };
 
+const CloseButton = props => {
+  return <Button icon='close' {...props} />;
+};
+
 const PrimaryButton = (props = {}) => {
   return (
     <Button {...props} className={ classNames('fc-btn-primary', props.className) }>
@@ -85,9 +89,10 @@ export {
   LeftButton,
   RightButton,
   DecrementButton,
+  IncrementButton,
   DeleteButton,
   EditButton,
   AddButton,
-  IncrementButton,
+  CloseButton,
   PrimaryButton,
 };

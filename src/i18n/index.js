@@ -1,4 +1,3 @@
-
 import _ from 'lodash';
 
 export function regionName(countryCode) {
