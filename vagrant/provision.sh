@@ -21,6 +21,9 @@ echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | 
 apt-get install -y oracle-java8-installer
 apt-get install -y oracle-java8-set-default
 
+apt-get install --reinstall ca-certificates-java
+update-ca-certificates -f
+
 #install sbt
 if [[ ! -f /etc/apt/sources.list.d/sbt.list ]]; then
     echo "deb http://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list
