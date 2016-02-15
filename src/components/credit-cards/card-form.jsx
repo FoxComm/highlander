@@ -41,6 +41,7 @@ export default class CreditCardForm extends React.Component {
 
   static defaultProps = {
     isDefaultEnabled: true,
+    onChange: _.noop,
     showSelectedAddress: false,
     saveText: 'Save',
   };
@@ -233,43 +234,49 @@ export default class CreditCardForm extends React.Component {
   }
 
   @autobind
-  onChange({target}) {
-    this.setState(assoc(this.state, ['card', target.name], target.value));
+  onChange(event) {
+    const { target } = event;
+    const newState = assoc(this.state, ['card', target.name], target.value);
+    this.setState(newState, () => this.props.onChange(event));
   }
 
   @autobind
   onExpYearChange(value) {
-    this.setState(assoc(this.state, ['card', 'expYear'], +value));
+    const payload = { target: { name: 'expYear', value: +value } };
+    this.setState(
+      assoc(this.state, ['card', 'expYear'], +value),
+      () => this.props.onChange(payload)
+    );
   }
 
   @autobind
   onExpMonthChange(value) {
-    this.setState(assoc(this.state, ['card', 'expMonth'], +value));
+    const payload = { target: { name: 'expMonth', value: +value } };
+    this.setState(
+      assoc(this.state, ['card', 'expMonth'], +value),
+      () => this.props.onChange(payload)
+    );
   }
 
   @autobind
   onAddressChange(value) {
-    console.log('onAddressChange');
     const addressId = +value;
     const address = _.find(this.props.addresses, { id: addressId });
+    const payload = { target: { name: 'addressId', value: addressId } };
 
-    this.setState(assoc(this.state,
+    const newState = assoc(this.state,
       'editingAddress', false,
       ['card', 'addressId'], addressId,
       ['card', 'address'], address
-    ));
+    );
+
+    this.setState(newState, () => this.props.onChange(payload));
   }
 
   @autobind
   toggleSelectAddress() {
     this.setState({ editingAddress: !this.state.editingAddress });
   }
-
-  @autobind
-  onSubmit() {
-    console.log(this.state.card);
-  }
-
 
   render() {
     const { className, onSubmit } = this.props;
@@ -278,7 +285,7 @@ export default class CreditCardForm extends React.Component {
     return (
       <Form className={formClassName}
             onChange={this.onChange}
-            onSubmit={() => onSubmit(this.state.card)}>
+            onSubmit={(event) => onSubmit(event, this.state.card)}>
         {this.header}
         <div>
           <ul className="fc-credit-card-form__fields">

@@ -141,7 +141,7 @@ export default class NewCreditCard extends Component {
   }
 
   @autobind
-  handleCreditCardSubmit(creditCard) {
+  handleCreditCardSubmit(event, creditCard) {
     this.props.actions.createAndAddOrderCreditCardPayment(
       this.props.order.referenceNumber,
       creditCard,
