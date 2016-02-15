@@ -9,7 +9,8 @@ import { connect } from 'react-redux';
 import * as bulkActions from '../../modules/bulk';
 
 // components
-import { SuccessNotification, ErrorNotification } from '../bulk-actions/notifications';
+import SuccessNotification from '../bulk-actions/success-notification';
+import ErrorNotification from '../bulk-actions/error-notification';
 
 
 const mapStateToProps = (state, {module}) => {

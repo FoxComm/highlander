@@ -5,34 +5,11 @@ import { createAction, createReducer } from 'redux-act';
 
 export const bulkRequest = createAction('BULK_REQUEST');
 export const bulkDone = createAction('BULK_DONE', (successes, errors) => [successes, errors]);
-export const bulkSetMessages = createAction('BULK_SET_MESSAGES');
-export const bulkReset = createAction('BULK_RESET');
-export const bulkClearSuccesses = createAction('BULK_CLEAR_SUCCESSES');
-export const bulkClearErrors = createAction('BULK_CLEAR_ERRORS');
+export const setMessages = createAction('BULK_SET_MESSAGES');
+export const reset = createAction('BULK_RESET');
+export const clearSuccesses = createAction('BULK_CLEAR_SUCCESSES');
+export const clearErrors = createAction('BULK_CLEAR_ERRORS');
 
-export function setMessages(messages) {
-  return dispatch => {
-    dispatch(bulkSetMessages(messages));
-  };
-}
-
-export function reset() {
-  return dispatch => {
-    dispatch(bulkReset());
-  };
-}
-
-export function clearSuccesses() {
-  return dispatch => {
-    dispatch(bulkClearSuccesses());
-  };
-}
-
-export function clearErrors() {
-  return dispatch => {
-    dispatch(bulkClearErrors());
-  };
-}
 
 const initialState = {
   isFetching: false,
@@ -54,21 +31,21 @@ const reducer = createReducer({
       errors: _.isEmpty(errors) ? null : errors,
     };
   },
-  [bulkSetMessages]: (state, messages) => {
+  [setMessages]: (state, messages) => {
     return {
       ...state,
       messages,
     };
   },
-  [bulkReset]: () => {
+  [reset]: () => {
     return {
       ...initialState,
     };
   },
-  [bulkClearSuccesses]: (state) => {
+  [clearSuccesses]: (state) => {
     return _.omit(state, 'successes');
   },
-  [bulkClearErrors]: (state) => {
+  [clearErrors]: (state) => {
     return _.omit(state, 'errors');
   },
 }, initialState);
