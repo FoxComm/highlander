@@ -1,13 +1,9 @@
-const
-  Router  = require('koa-router'),
-  parse   = require('co-body');
+const Router  = require('koa-router');
 
 module.exports = function(app) {
-  let router = new Router();
+  const router = new Router();
 
-  // @todo this will be reenabled once auth is available
-  // - Tivs
-  // router.use(app.requireAdmin);
+  router.use(app.requireAdmin);
 
   router
     .get('/:path*', app.renderReact, app.renderLayout);

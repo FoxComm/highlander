@@ -10,6 +10,8 @@ const buffer = require('vinyl-buffer');
 const runSequence = require('run-sequence');
 const affectsServer = require('./server').affectsServer;
 const envify = require('envify/custom');
+const es = require('event-stream');
+
 
 function setDemoAuthToken() {
   /*  The demo site is protected by basic auth. All requests from javascript
@@ -24,63 +26,104 @@ function setDemoAuthToken() {
   process.env.DEMO_AUTH_TOKEN = demoAuthToken;
 }
 
+function getWatchifyOpts() {
+  let watchifyOpts = {
+    poll: parseInt(process.env.WATCHIFY_POLL_INTERVAL || 250)
+  };
+
+  if (fs.existsSync('.watchifyrc')) {
+    watchifyOpts = JSON.parse(fs.readFileSync('.watchifyrc'));
+  }
+  return watchifyOpts;
+}
+
 module.exports = function(gulp, opts, $) {
   let production = (process.env.NODE_ENV === 'production');
 
-  let bundler = null;
+  let bundlers = null;
 
-  function getBundler() {
-    if (bundler) return bundler;
+  function getBundlers() {
+    if (bundlers) return bundlers;
 
-    let entries = path.join(opts.srcDir, 'app.js');
-    bundler = browserify({
-      entries: [entries],
-      standalone: 'App',
-      transform: ['babelify'],
-      extensions: ['.jsx'],
-      debug: true,
-      cache: {},
-      packageCache: {}
-    }).transform(envify({
-      DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN
-    }));
+    const appEntries = [
+      {name: 'app', file: 'app.js', out: 'admin.js'},
+      {name: 'login', file: 'login.js', out: 'login.js'},
+    ];
 
-    if (opts.devMode) {
-      let watchifyOpts = {
-        poll: parseInt(process.env.WATCHIFY_POLL_INTERVAL || 250)
+    // map them to our stream function
+    bundlers = appEntries.map(function(entry) {
+      console.log(entry);
+      const entries  = path.join(opts.srcDir, entry.file);
+
+      let bundler = browserify({
+        entries: [entries],
+        standalone: 'App',
+        transform: ['babelify'],
+        extensions: ['.jsx'],
+        debug: true,
+        cache: {},
+        packageCache: {}
+      }).transform(envify({
+        DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN
+      }));
+
+      if (opts.devMode) {
+        const watchifyOpts = getWatchifyOpts();
+        bundler = watchify(bundler, watchifyOpts);
+      }
+
+      let bundle = function() {
+        return bundler.bundle()
+          .pipe(source(entry.out))
+          .on('error', function(err) {
+            stream.emit('error', err);
+          })
+          .pipe(buffer())
+          .pipe($.if(production, $.sourcemaps.init({loadMaps: true})))
+          .pipe($.if(production, $.uglify()))
+          .pipe($.if(production, $.sourcemaps.write('_', {addComment: false})))
+          .pipe(gulp.dest(opts.publicDir));
       };
 
-      if (fs.existsSync('.watchifyrc')) {
-        watchifyOpts = JSON.parse(fs.readFileSync('.watchifyrc'));
-      }
-      bundler = watchify(bundler, watchifyOpts);
-    }
+      const taskName = 'browserify.' + entry.name;
+      gulp.task(taskName, function() {
+        return bundle();
+      });
 
-    return bundler;
+      affectsServer(taskName);
+
+      return {
+        name: entry.name,
+        bundler: bundler,
+        bundle: bundle,
+      };
+
+    });
+
+
+    return bundlers;
   }
 
   setDemoAuthToken();
 
   gulp.task('browserify', function() {
-    const stream = getBundler()
-      .bundle()
-      .on('error', function(err) {
-        stream.emit('error', err);
-      })
-      .pipe(source(`admin.js`))
-      .pipe(buffer())
-      .pipe($.if(production, $.sourcemaps.init({loadMaps: true})))
-      .pipe($.if(production, $.uglify()))
-      .pipe($.if(production, $.sourcemaps.write('_', {addComment: false})))
-      .pipe(gulp.dest(opts.publicDir));
+    let stream = merge(getBundlers().map(function(entry) {
+      return entry.bundle()
+        .on('error', function(err) {
+          stream.emit('error', err);
+        });
+    }));
 
     return stream;
   });
   affectsServer('browserify');
 
+
   gulp.task('browserify.watch', function() {
-    getBundler().on('update', function() {
-      runSequence('browserify');
+    getBundlers().map(function(entry) {
+      entry.bundler.on('update', function() {
+        runSequence('browserify.' + entry.name);
+      });
     });
-  })
+  });
 };

@@ -18,12 +18,13 @@ module.exports = function(env) {
   }
 
   function auth() {
-    switch(env.environment) {
-      case 'staging':
-        return {user: 'admin@admin.com', password: 'password' };
-      default:
-        return {user: 'admin@admin.com', password: 'password'};
-    }
+    const auth = {
+      header: 'X-JWT',
+      secret: 'adfm103ka09jsgo;sihd985ht209j;aoshg;osznfb;kzjdfhg0923jrt0wiejfaskfpaefmos%*rng3',
+      loginUri: '/api/v1/setuser',
+    };
+
+    return auth;
   }
 
   return {

@@ -4,10 +4,12 @@ import { renderToString } from 'react-dom/server';
 import { reduxReactRouter, ReduxRouter } from 'redux-router';
 import {reduxReactRouter as serverReduxReactRouter, match as _match} from 'redux-router/server';
 import { createHistory as _createHistory, createMemoryHistory as _createMemoryHistory } from 'history';
+
 import routes from './routes';
 import { Provider } from 'react-redux';
 import configureStore from './store';
 import { addRouteLookupForHistory } from './route-helpers';
+
 
 const createHistory = addRouteLookupForHistory(_createHistory, routes);
 const createMemoryHistory = addRouteLookupForHistory(_createMemoryHistory, routes);

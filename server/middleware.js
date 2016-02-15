@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
+const jwt = require('jsonwebtoken');
+
 const htmlescape = require('htmlescape');
 const errors = require('./errors');
 
@@ -18,16 +20,22 @@ module.exports = function(app) {
     }
   });
 
-  app.requireUser = function *(next) {
-    if (!this.currentUser) {
-      throw new errors.Unauthorized();
+  Object.defineProperty(app, 'token', {
+    get: function() {
+      const token = this.get(config.api.auth.header);
+      if (!token) return null;
+      try {
+        return jwt.verify(token, config.api.auth.secret);
+      }
+      catch(err) {
+        console.error("Can't decode token: ", err);
+      }
     }
-    yield next;
-  };
+  });
 
   app.requireAdmin = function *(next) {
-    if (!this.currentUser || !this.currentUser.isAdmin) {
-      throw new errors.Unauthorized();
+    if (!this.token || !this.token.admin) {
+      this.redirect(config.api.auth.loginUri);
     }
     yield next;
   };
