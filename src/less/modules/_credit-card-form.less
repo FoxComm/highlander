@@ -1,0 +1,41 @@
+.fc-credit-card-form {
+  &__header {
+    .font-spec(18px, 600, 24px);
+    .margin-bottom(35px);
+  }
+
+  &__line, &__addresses {
+    display: block;
+    width: 100%;
+    .margin-bottom(20px);
+
+    .fc-grid {
+      padding-right: 0;
+      margin-left: -1.85%;
+    }
+  }
+
+  &__label {
+    .font-spec(16px, 600, 22px);
+    .margin-bottom(15px);
+  }
+
+  &__input {
+    width: 100%;
+  }
+
+  &__default-checkbox {
+    .margin-right(10px);
+  }
+
+  &__default-label {
+    color: @color-decor31;
+    .font-spec(13px, 400, 18px);
+    .margin-bottom(6px;)
+  }
+}
+
+.fc-form-vertical label.fc-credit-card-form__default {
+  display: flex;
+  align-items: center;
+}

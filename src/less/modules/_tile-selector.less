@@ -1,0 +1,29 @@
+.fc-tile-selector {
+  &__items {
+    .margin-left(-15px);
+    display: flex;
+    align-items: stretch;
+    flex-wrap: wrap;
+    max-height: 435px;
+    overflow: auto;
+  }
+
+  &__item {
+    display: flex;
+    align-items: stretch;
+  }
+
+  &__header {
+    .padding-bottom(10px);
+    .margin-bottom(20px);
+
+    border-bottom: 2px solid @color-decor7;
+    display: flex;
+    align-items: center;
+  }
+
+  &__title {
+    flex-grow: 1;
+    .font-spec(16px, 700, 24px);
+  }
+}

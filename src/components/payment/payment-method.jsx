@@ -10,7 +10,7 @@ export default class PaymentMethod extends React.Component {
     return (
       <div className="fc-payment-method">
         <div className="fc-left">
-          <img className="fc-icon-lg" src={static_url(`images/payments/payment_${card.brand.toLowerCase()}.png`)}></img>
+          <img className="fc-icon-lg" src={static_url(`images/payments/payment_${card.brand.toLowerCase()}.svg`)}></img>
         </div>
         <div className="fc-left">
           <div className="fc-strong">{CardUtils.formatNumber(card)}</div>

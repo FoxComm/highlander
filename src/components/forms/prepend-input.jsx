@@ -4,12 +4,12 @@ import classNames from 'classnames';
 
 const PrependInput = props => {
   const {
-    icon, inputClass, inputName, inputType, inputValue, inputValuePretty, inputNamePretty, ...rest
+    icon, inputClass, inputName, inputType, value, inputValuePretty, inputNamePretty, ...rest
   } = props;
 
   const vInputClass = classNames('fc-prepend-input__input-field', inputClass);
   const vInputName = inputNamePretty ? inputNamePretty : `${inputName}Pretty`;
-  const vInputValue = inputValuePretty || inputValue;
+  const vInputValue = inputValuePretty || value;
 
   const visibleInput = (
     <input
@@ -41,11 +41,11 @@ PrependInput.propTypes = {
   inputName: PropTypes.string.isRequired,
   inputNamePretty: PropTypes.string,
   inputType: PropTypes.string,
-  inputValue: PropTypes.oneOfType([
+  value: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number
   ]).isRequired,
-  inputValuePretty: PropTypes.string
+  inputValuePretty: PropTypes.string,
 };
 
 PrependInput.defaultTypes = {

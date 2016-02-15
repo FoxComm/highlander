@@ -234,7 +234,7 @@ export default class NewGiftCard extends React.Component {
               inputName="balance"
               inputNamePretty="balanceText"
               inputType="number"
-              inputValue={balance}
+              value={balance}
               inputValuePretty={balanceText}
               step="0.01"
               min="1" />

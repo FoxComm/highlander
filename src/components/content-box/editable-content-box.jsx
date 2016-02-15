@@ -50,12 +50,17 @@ EditableContentBox.propTypes = {
   isEditing: PropTypes.bool,
   editAction: PropTypes.func,
   doneAction: PropTypes.func,
+  editingActions: PropTypes.node,
   editFooter: PropTypes.node,
   renderContent: PropTypes.func,
   renderFooter: PropTypes.func,
   renderActions: PropTypes.func,
   title: PropTypes.node,
   indentContent: PropTypes.bool,
+};
+
+EditableContentBox.defaultProps = {
+  editingActions: null,
 };
 
 // eslint you are drunk, renderFooter and renderActions are just functions
@@ -78,8 +83,8 @@ EditableContentBox.defaultProps = {
     }
   },
   renderActions: props => {
-    return props.isEditing ? null : <EditButton onClick={props.editAction} />;
-  },
+    return props.isEditing ? props.editingActions : <EditButton onClick={props.editAction} />;
+  }
 };
 
 export default EditableContentBox;
