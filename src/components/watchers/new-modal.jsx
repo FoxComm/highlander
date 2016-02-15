@@ -79,6 +79,7 @@ export default class AddWatcherModal extends React.Component {
 
     return (
       <PilledInput
+        solid={true}
         autofocus={true}
         value={this.state.query}
         onChange={(e) => this.setState({query: e.target.value})}

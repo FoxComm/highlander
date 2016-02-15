@@ -1,4 +1,5 @@
 
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
 const TypeaheadItems = props => {
@@ -6,7 +7,7 @@ const TypeaheadItems = props => {
 
   if (props.updating) {
     innerContent = <li>Loading Results</li>;
-  } else if (props.items.length === 0) {
+  } else if (_.isEmpty(props.items)) {
     innerContent = <li>No results found.</li>;
   } else {
     innerContent = props.items.map((item, index) => {
