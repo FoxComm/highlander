@@ -53,13 +53,12 @@ class NewPayment extends Component {
     };
   }
 
-  get giftCardForm() {
-    return <ApplyGiftCard />;
-  }
-
-  get creditCardSelector() {
-    if (this.state.paymentType == 'giftCard') {
-      return this.giftCardForm;
+  get newPaymentMethod() {
+    switch(this.state.paymentType) {
+    case 'creditCard':
+      return <NewCreditCard order={this.props.order} customerId={this.props.customerId} />;
+    case 'giftCard':
+      return <ApplyGiftCard />;
     }
   }
 
@@ -79,7 +78,7 @@ class NewPayment extends Component {
               value={this.state.paymentType}
               onChange={this.changePaymentType}>
               <DropdownItem value="creditCard">Credit Card</DropdownItem>
-              <DropdownItem value="storeCredit">Store Card</DropdownItem>
+              <DropdownItem value="storeCredit">Store Credit</DropdownItem>
               <DropdownItem value="giftCard">Gift Card</DropdownItem>
             </Dropdown>
           </FormField>
@@ -93,18 +92,13 @@ class NewPayment extends Component {
     this.setState({ paymentType: value });
   }
 
-  get newCreditCard() {
-    if (Object.is(this.state.paymentType, 'creditCard')) {
-      return <NewCreditCard order={this.props.order} customerId={this.props.customerId} />;
-    }
-  }
 
   render() {
     return (
       <TableRow>
         <TableCell className="fc-new-order-payment" colspan={3}>
           {this.paymentForm}
-          {this.newCreditCard}
+          {this.newPaymentMethod}
         </TableCell>
       </TableRow>
     );
