@@ -1,4 +1,10 @@
 
 .main {
   margin-left: 20vw;
+  font-size: 2em;
+}
+
+:global #app {
+  text-align: center;
+  margin: 0 auto;
 }

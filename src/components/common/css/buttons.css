@@ -1,0 +1,9 @@
+@value blackish, waitish from "./colors.css";
+
+.button {
+  font-size: 21px;
+  background-color: blackish;
+  color: waitish;
+  padding: 20px;
+  text-align: center;
+}

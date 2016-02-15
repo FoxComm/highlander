@@ -1,0 +1,7 @@
+@value blackish, waitish from "./colors.css";
+
+.text-input {
+  padding: 20px 10px;
+  font-size: 20px;
+  border: 1px solid blackish;
+}
