@@ -93,12 +93,15 @@ export class OrderLineItems extends React.Component {
 
     const LineItemsContentBox = props.readOnly ? ContentBox : EditableContentBox;
 
+    const isCheckingOut = _.get(props, 'order.isCheckingOut', false);
+    const editAction = isCheckingOut ? null : props.orderLineItemsStartEdit;
+
     return (
       <LineItemsContentBox
         className='fc-line-items'
         title={title}
         isEditing={props.lineItems.isEditing}
-        editAction={props.orderLineItemsStartEdit}
+        editAction={editAction}
         doneAction={props.orderLineItemsCancelEdit}
         editContent={<RenderEditContent {...props} />}
         editFooter={<RenderEditFooter {...props} />}

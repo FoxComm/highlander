@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import TotalsSummary from '../common/totals';
+import Checkout from './checkout';
 import CustomerInfo from './customer-info';
 import Messages from './messages';
 import OrderLineItems from './order-line-items';
@@ -34,6 +35,7 @@ const OrderDetails = props => {
             <OrderShippingAddress isCart={isCart} status={shippingAddressStatus} order={order} />
             <OrderShippingMethod isCart={isCart} status={shippingMethodStatus} {...props} />
             <Payments isCart={isCart} status={paymentMethodStatus} {...props} />
+            {isCart && <Checkout checkout={props.checkout} order={props.order} />}
           </div>
           <div className="fc-order-details-aside">
             <Messages errors={errors} warnings={warnings} />
@@ -50,8 +52,13 @@ const OrderDetails = props => {
 OrderDetails.propTypes = {
   order: PropTypes.shape({
     currentOrder: PropTypes.object,
-    validations: PropTypes.object
-  })
+    validations: PropTypes.object,
+  }),
+  checkout: PropTypes.func,
+};
+
+OrderDetails.defaultProps = {
+  checkout: _.noop,
 };
 
 export default OrderDetails;

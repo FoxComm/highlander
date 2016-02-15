@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 
 import * as shippingMethodActions from '../../modules/orders/shipping-methods';
 
@@ -43,6 +44,11 @@ export class OrderShippingMethod extends React.Component {
     const shippingMethod = props.order.currentOrder.shippingMethod;
     const title = <PanelHeader isCart={props.isCart} status={props.status} text="Shipping Method" />;
 
+    const isCheckingOut = _.get(props, 'order.isCheckingOut', false);
+    const editAction = isCheckingOut
+      ? null
+      : () => props.fetchShippingMethods(props.order.currentOrder);
+
     return (
       <ShippingMethod
         currentOrder={props.order.currentOrder}
@@ -51,7 +57,7 @@ export class OrderShippingMethod extends React.Component {
         availableShippingMethods={props.shippingMethods.availableMethods}
         shippingMethods={[shippingMethod]}
         isEditing={props.shippingMethods.isEditing}
-        editAction={() => props.fetchShippingMethods(props.order.currentOrder)}
+        editAction={editAction}
         doneAction={props.orderShippingMethodCancelEdit}
         updateAction={props.updateShippingMethod}
         isEditingPrice={props.shippingMethods.isEditingPrice}

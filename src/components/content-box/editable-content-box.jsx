@@ -83,8 +83,14 @@ EditableContentBox.defaultProps = {
     }
   },
   renderActions: props => {
-    return props.isEditing ? props.editingActions : <EditButton onClick={props.editAction} />;
-  }
+    if (props.isEditing) {
+      return props.editingActions;
+    } else {
+      return props.editAction
+        ? <EditButton onClick={props.editAction} />
+        : <EditButton disabled={true} />;
+    }
+  },
 };
 
 export default EditableContentBox;
