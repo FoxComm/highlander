@@ -4,7 +4,7 @@ import React, { PropTypes } from 'react';
 
 // helpers
 import { ReasonType } from '../../../lib/reason-utils';
-import { inflect } from '../../../lib/text-utils';
+import { capitalize, inflect } from '../../../lib/text-utils';
 
 // components
 import modal from '../../modal/wrapper';
@@ -14,12 +14,13 @@ import { CancelReason } from '../../fields';
 
 
 @modal
-export default class CancelOrder extends React.Component {
+export default class CancelModal extends React.Component {
 
   static propTypes = {
+    entityForms: PropTypes.arrayOf(PropTypes.string).isRequired,
+    count: PropTypes.number,
     onCancel: PropTypes.func.isRequired,
     onConfirm: PropTypes.func.isRequired,
-    count: PropTypes.number,
   };
 
   state = {
@@ -27,18 +28,19 @@ export default class CancelOrder extends React.Component {
   };
 
   render() {
-    const {count, onCancel, onConfirm} = this.props;
+    const {entityForms, count, onCancel, onConfirm} = this.props;
 
     const actionBlock = <i onClick={onCancel} className="fc-btn-close icon-close" title="Close" />;
+    const entityForm = inflect(count, entityForms);
 
     return (
-      <ContentBox title="Cancel Orders?"
-                  className="fc-address-form-modal"
+      <ContentBox title={`Cancel ${capitalize(entityForm)}?`}
+                  className="fc-bulk-action-modal"
                   actionBlock={actionBlock}>
         <div className='fc-modal-body'>
-          Are you sure you want to cancel <b>{count} {inflect(count, 'order', 'orders')}</b>?
+          Are you sure you want to cancel <b>{count} {entityForm}</b>?
           <CancelReason reasonType={ReasonType.CANCELLATION}
-                        className="fc-order-cancel-reason"
+                        className="fc-modal-cancel-reason"
                         value={this.state.reason}
                         onChange={(reason) => this.setState({reason})} />
         </div>

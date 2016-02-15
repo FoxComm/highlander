@@ -1,4 +1,4 @@
-export function inflect(count, singularForm, pluralForm) {
+export function inflect(count, [singularForm, pluralForm]) {
   return count === 1 ? singularForm : pluralForm;
 }
 

@@ -33,7 +33,7 @@ export default class Notification extends React.Component {
     const {resultType, entityForms, overviewMessage, children, onHide} = this.props;
     const {expanded} = this.state;
     const count = React.Children.count(children);
-    const message = `${count} ${inflect(count, entityForms[0], entityForms[1])} ${overviewMessage}.`;
+    const message = `${count} ${inflect(count, entityForms)} ${overviewMessage}.`;
 
     return (
       <div className={classNames('fc-bulk-notification', `_${resultType}`)}>

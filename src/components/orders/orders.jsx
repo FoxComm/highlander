@@ -13,7 +13,7 @@ import * as bulkActions from '../../modules/orders/bulk';
 import BulkActions from '../bulk-actions/bulk-actions';
 import { SearchableList } from '../list-page';
 import OrderRow from './order-row';
-import { CancelOrderModal } from './modal';
+import { CancelModal } from '../bulk-actions/modal';
 import { Link } from '../link';
 
 
@@ -49,7 +49,7 @@ export default class Orders extends React.Component {
     const {cancelOrders} = this.props.bulkActions;
 
     return (
-      <CancelOrderModal
+      <CancelModal
         count={toggledIds.length}
         onConfirm={(reasonId) => {
           cancelOrders(toggledIds, reasonId);
