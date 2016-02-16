@@ -16,8 +16,8 @@ export const orderPaymentMethodStopEdit = _createAction('STOP_EDIT');
 export const orderPaymentMethodStartAdd = _createAction('START_ADD');
 export const orderPaymentMethodStopAdd = _createAction('STOP_ADD');
 
-const orderPaymentMethodAddCreditCardStart = _createAction('ADD_CREDIT_CARD_START');
-const orderPaymentMethodAddCreditCardSuccess = _createAction('ADD_CREDIT_CARD_SUCCESS');
+const orderPaymentMethodAddNewPaymentStart = _createAction('ADD_NEW_PAYMENT_START');
+const orderPaymentMethodAddNewPaymentSuccess = _createAction('ADD_NEW_PAYMENT_SUCCESS');
 
 function deleteOrderPaymentMethod(path) {
   return dispatch => {
@@ -31,11 +31,11 @@ function deleteOrderPaymentMethod(path) {
 
 export function addOrderCreditCardPayment(orderRefNum, creditCardId) {
   return dispatch => {
-    dispatch(orderPaymentMethodStartAdd());
+    dispatch(orderPaymentMethodAddNewPaymentStart());
     return Api.post(`${basePath(orderRefNum)}/credit-cards`, { creditCardId: creditCardId })
       .then(
         order => {
-          dispatch(orderPaymentMethodAddCreditCardSuccess());
+          dispatch(orderPaymentMethodAddNewPaymentSuccess());
           dispatch(orderSuccess(order));
         },
         err => dispatch(setError(err))
@@ -45,7 +45,7 @@ export function addOrderCreditCardPayment(orderRefNum, creditCardId) {
 
 export function createAndAddOrderCreditCardPayment(orderRefNum, creditCard, customerId) {
   return dispatch => {
-    dispatch(orderPaymentMethodStartAdd());
+    dispatch(orderPaymentMethodAddNewPaymentStart());
 
     const ccPayload = {
       isDefault: creditCard.isDefault,
@@ -63,11 +63,25 @@ export function createAndAddOrderCreditCardPayment(orderRefNum, creditCard, cust
           return Api.post(`${basePath(orderRefNum)}/credit-cards`, { creditCardId: res.id })
             .then(
               order => {
-                dispatch(orderPaymentMethodAddCreditCardSuccess());
+                dispatch(orderPaymentMethodAddNewPaymentSuccess());
                 dispatch(orderSuccess(order));
               },
               err => dispatch(setError(err))
             );
+        },
+        err => dispatch(setError(err))
+      );
+  };
+}
+
+export function addOrderStoreCreditPayment(orderRefNum, amount) {
+  return dispatch => {
+    dispatch(orderPaymentMethodAddNewPaymentStart());
+    return Api.post(`${basePath(orderRefNum)}/store-credit`, { amount: amount })
+      .then(
+        order => {
+          dispatch(orderPaymentMethodAddNewPaymentSuccess());
+          dispatch(orderSuccess(order));
         },
         err => dispatch(setError(err))
       );
@@ -146,13 +160,13 @@ const reducer = createReducer({
       isAdding: false,
     };
   },
-  [orderPaymentMethodAddCreditCardStart]: (state) => {
+  [orderPaymentMethodAddNewPaymentStart]: (state) => {
     return {
       ...state,
       isUpdating: true,
     };
   },
-  [orderPaymentMethodAddCreditCardSuccess]: (state) => {
+  [orderPaymentMethodAddNewPaymentSuccess]: (state) => {
     return initialState;
   },
   [setError]: (state, err) => {

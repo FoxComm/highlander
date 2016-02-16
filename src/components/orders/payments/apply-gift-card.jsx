@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
-import formatCurrency, { stringToCurrency } from '../../../lib/format-currency';
+import formatCurrency from '../../../lib/format-currency';
 
 import CurrencyInput from '../../forms/currency-input';
 import { Form, FormField } from '../../forms';
@@ -16,7 +16,7 @@ class ApplyGiftCard extends Component {
 
   constructor(...args) {
     super(...args);
-    
+
     this.state = {
       amountToUse: 0,
       giftCardNumber: null,
@@ -67,7 +67,7 @@ class ApplyGiftCard extends Component {
           <FormField className="fc-order-apply-gift-card__amount-form fc-col-md-1-4"
                      label="Amount to Use"
                      labelClassName="fc-order-apply-gift-card__amount-form-value">
-            <CurrencyInput onChange={this.handleAmountToUseChange} 
+            <CurrencyInput onChange={this.handleAmountToUseChange}
                            value={this.state.amountToUse} />
           </FormField>
           <div className="fc-order-apply-gift-card__statistic fc-col-md-1-4">
