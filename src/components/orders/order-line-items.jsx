@@ -170,8 +170,8 @@ class RenderEditFooter extends React.Component {
   @autobind
   skuSelected(item) {
     const order = this.props.order.currentOrder;
-    const newQuantity = this.currentQuantityForSku(item.sku) + 1;
-    this.props.updateLineItemCount(order, item.sku, newQuantity);
+    const newQuantity = this.currentQuantityForSku(item.code) + 1;
+    this.props.updateLineItemCount(order, item.code, newQuantity);
   }
 
   render() {
