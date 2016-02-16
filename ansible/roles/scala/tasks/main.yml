@@ -15,5 +15,4 @@
   apt: name={{ item }} state=latest force=yes
   sudo: true
   with_items:
-    - openjdk-8-jdk
     - sbt

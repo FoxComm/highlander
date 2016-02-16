@@ -12,7 +12,6 @@
     - jq
     - debconf-utils
     - cmake
-    - openjdk-8-jdk
     - build-essential
     - libpq-dev
     - libcurl4-openssl-dev

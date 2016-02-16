@@ -1,7 +1,11 @@
 ---
-- name: Update System Package Cache
-  apt: update_cache=yes
+- name: Add Oracle Java Repository
+  apt_repository: repo='ppa:webupd8team/java' update_cache=yes
   sudo: true
+
+- name: Automatically select the Oracle License
+  sudo: true
+  shell: echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
 
 - name: Install Packages
   apt: name={{ item }} state=latest force=yes
@@ -17,6 +21,14 @@
     - tmux
     - htop
     - unzip
+
+- name: Install Java Packages
+  apt: name={{ item }} state=latest force=yes
+  sudo: true
+  with_items:
+    - oracle-java8-installer
+    - oracle-java8-set-default
+    - ca-certificates-java
 
 - name: Setup Unprivileged
   command: /usr/sbin/usermod -a -G systemd-journal {{ user }}
