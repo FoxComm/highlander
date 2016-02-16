@@ -1,6 +1,8 @@
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { orderSuccess } from './details.js';
+import { post } from '../../lib/search';
+import { toQuery } from '../../elastic/common';
 
 const _createAction = (description, ...args) => {
   return createAction('ORDER_PAYMENT_METHOD_' + description, ...args);
@@ -18,6 +20,9 @@ export const orderPaymentMethodStopAdd = _createAction('STOP_ADD');
 
 const orderPaymentMethodAddNewPaymentStart = _createAction('ADD_NEW_PAYMENT_START');
 const orderPaymentMethodAddNewPaymentSuccess = _createAction('ADD_NEW_PAYMENT_SUCCESS');
+
+const giftCardSearchStart = _createAction('GIFT_CARD_SEARCH_START');
+const giftCardSearchSuccess = _createAction('GIFT_CARD_SEARCH_SUCCESS');
 
 function deleteOrderPaymentMethod(path) {
   return dispatch => {
@@ -88,6 +93,40 @@ export function addOrderStoreCreditPayment(orderRefNum, amount) {
   };
 }
 
+export function addOrderGiftCardPayment(orderRefNum, code, amount) {
+  return dispatch => {
+    dispatch(orderPaymentMethodAddNewPaymentStart());
+    return Api.post(`${basePath(orderRefNum)}/gift-cards`, { code: code, amount: amount })
+      .then(
+        order => {
+          dispatch(orderPaymentMethodAddNewPaymentSuccess());
+          dispatch(orderSuccess(order));
+        },
+        err => dispatch(setError(err))
+      );
+  };
+}
+
+export function giftCardSearch(code) {
+  return dispatch => {
+    const filters = [{
+      term: 'code',
+      operator: 'eq',
+      value: {
+        type: 'string',
+        value: code,
+      },
+    }];
+
+    dispatch(giftCardSearchStart());
+    return post('gift_cards_search_view/_search', toQuery(filters))
+      .then(
+        res => dispatch(giftCardSearchSuccess(res)),
+        err => dispatch(setError(err))
+      );
+  };
+}
+
 export function deleteOrderGiftCardPayment(orderRefNum, code) {
   const path = `${basePath(orderRefNum)}/gift-cards/${code}`;
   return deleteOrderPaymentMethod(path);
@@ -113,6 +152,8 @@ const initialState = {
   isEditing: false,
   isFetching: false,
   isUpdating: false,
+  isSearchingGiftCards: false,
+  giftCards: [],
 };
 
 const reducer = createReducer({
@@ -168,6 +209,19 @@ const reducer = createReducer({
   },
   [orderPaymentMethodAddNewPaymentSuccess]: (state) => {
     return initialState;
+  },
+  [giftCardSearchStart]: (state) => {
+    return {
+      ...state,
+      isSearchingGiftCards: true,
+    };
+  },
+  [giftCardSearchSuccess]: (state, payload) => {
+    return {
+      ...state,
+      isSearchingGiftCards: false,
+      giftCards: payload.result,
+    };
   },
   [setError]: (state, err) => {
     return {

@@ -133,7 +133,7 @@ export default class Payments extends React.Component {
 
   render() {
     const props = this.props;
-    const title = <PanelHeader isCart={props.isCart} status={props.state} text="Payment Method" />;
+    const title = <PanelHeader isCart={props.isCart} status={props.status} text="Payment Method" />;
 
     const PaymentsContentBox = props.readOnly ? ContentBox : EditableContentBox;
 
