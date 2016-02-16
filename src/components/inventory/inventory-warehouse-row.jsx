@@ -11,6 +11,10 @@ const setCellContents = (warehouse, field) => {
   return _.get(warehouse, field);
 };
 
+const setDrawerContent = () => {
+  return (<div>Drawer!</div>);
+};
+
 const InventoryWarehouseRow = props => {
   const { warehouse, columns } = props;
   const key = `inventory-list-${warehouse.id}`;
@@ -21,7 +25,8 @@ const InventoryWarehouseRow = props => {
       columns={columns}
       onClick={_.noop}
       row={warehouse}
-      setCellContents={setCellContents} />
+      setCellContents={setCellContents}
+      setDrawerContent={setDrawerContent} />
   );
 };
 
