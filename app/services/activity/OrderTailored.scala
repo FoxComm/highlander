@@ -40,46 +40,46 @@ object OrderTailored {
     extends ActivityBase[OrderLineItemsUpdatedQuantities]
 
   /* Order Shipping Methods */
-  final case class OrderShippingMethodUpdated(admin: StoreAdminResponse.Root, order: FullOrder.Root,
-    shippingMethod: Option[ShippingMethod])
+  final case class OrderShippingMethodUpdated(order: FullOrder.Root, shippingMethod: Option[ShippingMethod],
+    admin: Option[StoreAdminResponse.Root])
     extends ActivityBase[OrderShippingMethodUpdated]
 
-  final case class OrderShippingMethodRemoved(admin: StoreAdminResponse.Root, order: FullOrder.Root,
-    shippingMethod: ShippingMethod)
+  final case class OrderShippingMethodRemoved(order: FullOrder.Root, shippingMethod: ShippingMethod,
+    admin: Option[StoreAdminResponse.Root])
     extends ActivityBase[OrderShippingMethodRemoved]
 
   /* Order Shipping Addresses */
-  final case class OrderShippingAddressAdded(admin: StoreAdminResponse.Root, order: FullOrder.Root,
-    shippingAddress: Addresses.Root)
+  final case class OrderShippingAddressAdded(order: FullOrder.Root, shippingAddress: Addresses.Root,
+    admin: Option[StoreAdminResponse.Root])
     extends ActivityBase[OrderShippingAddressAdded]
 
-  final case class OrderShippingAddressUpdated(admin: StoreAdminResponse.Root, order: FullOrder.Root,
-    shippingAddress: Addresses.Root)
+  final case class OrderShippingAddressUpdated(order: FullOrder.Root, shippingAddress: Addresses.Root,
+    admin: Option[StoreAdminResponse.Root])
     extends ActivityBase[OrderShippingAddressUpdated]
 
-  final case class OrderShippingAddressRemoved(admin: StoreAdminResponse.Root, order: FullOrder.Root,
-    shippingAddress: Addresses.Root)
+  final case class OrderShippingAddressRemoved(order: FullOrder.Root, shippingAddress: Addresses.Root,
+    admin: Option[StoreAdminResponse.Root])
     extends ActivityBase[OrderShippingAddressRemoved]
 
   /* Order Payment Methods */
-  final case class OrderPaymentMethodAddedCreditCard(admin: StoreAdminResponse.Root, order: FullOrder.Root,
-    creditCard: CreditCardsResponse.Root)
+  final case class OrderPaymentMethodAddedCreditCard(order: FullOrder.Root, creditCard: CreditCardsResponse.Root,
+    admin: Option[StoreAdminResponse.Root])
     extends ActivityBase[OrderPaymentMethodAddedCreditCard]
 
-  final case class OrderPaymentMethodAddedGiftCard(admin: StoreAdminResponse.Root, order: FullOrder.Root,
-    giftCard: GiftCardResponse.Root, amount: Int)
+  final case class OrderPaymentMethodAddedGiftCard(order: FullOrder.Root, giftCard: GiftCardResponse.Root, amount: Int,
+    admin: Option[StoreAdminResponse.Root])
     extends ActivityBase[OrderPaymentMethodAddedGiftCard]
 
-  final case class OrderPaymentMethodAddedStoreCredit(admin: StoreAdminResponse.Root, order: FullOrder.Root,
-    amount: Int)
+  final case class OrderPaymentMethodAddedStoreCredit(order: FullOrder.Root, amount: Int,
+    admin: Option[StoreAdminResponse.Root])
     extends ActivityBase[OrderPaymentMethodAddedStoreCredit]
 
-  final case class OrderPaymentMethodDeleted(admin: StoreAdminResponse.Root, order: FullOrder.Root,
-    pmt: PaymentMethod.Type)
+  final case class OrderPaymentMethodDeleted(order: FullOrder.Root, pmt: PaymentMethod.Type,
+    admin: Option[StoreAdminResponse.Root])
     extends ActivityBase[OrderPaymentMethodDeleted]
 
-  final case class OrderPaymentMethodDeletedGiftCard(admin: StoreAdminResponse.Root, order: FullOrder.Root,
-    giftCard: GiftCardResponse.Root)
+  final case class OrderPaymentMethodDeletedGiftCard(order: FullOrder.Root, giftCard: GiftCardResponse.Root,
+    admin: Option[StoreAdminResponse.Root])
     extends ActivityBase[OrderPaymentMethodDeletedGiftCard]
 
   /* Order Notes */

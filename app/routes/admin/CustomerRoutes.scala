@@ -61,7 +61,7 @@ object CustomerRoutes {
         (patch & pathEnd & entity(as[UpdateCustomerPayload])) { payload ⇒
           activityContext(admin) { implicit ac ⇒
             goodOrFailures {
-              CustomerManager.update(customerId, payload, admin)
+              CustomerManager.update(customerId, payload, Some(admin))
             }
           }
         } ~
@@ -100,7 +100,7 @@ object CustomerRoutes {
             }
           } ~
           (post & path(IntNumber / "default") & pathEnd) { id ⇒
-            nothingOrFailures {
+            goodOrFailures {
               AddressManager.setDefaultShippingAddress(customerId, id)
             }
           } ~
@@ -112,7 +112,7 @@ object CustomerRoutes {
           (delete & path(IntNumber) & pathEnd)  { id ⇒
             activityContext(admin) { implicit ac ⇒
               nothingOrFailures {
-                AddressManager.remove(customerId, id, admin)
+                AddressManager.remove(customerId, id, Some(admin))
               }
             }
           } ~
@@ -124,7 +124,7 @@ object CustomerRoutes {
           (patch & path(IntNumber) & pathEnd & entity(as[CreateAddressPayload])) { (addressId, payload) ⇒
             activityContext(admin) { implicit ac ⇒
               goodOrFailures {
-                AddressManager.edit(addressId, customerId, payload, admin)
+                AddressManager.edit(addressId, customerId, payload, Some(admin))
               }
             }
           } ~
@@ -152,21 +152,21 @@ object CustomerRoutes {
           (post & pathEnd & entity(as[payloads.CreateCreditCard])) { payload ⇒
             activityContext(admin) { implicit ac ⇒
               goodOrFailures {
-                CreditCardManager.createCardThroughGateway(admin, customerId, payload)
+                CreditCardManager.createCardThroughGateway(customerId, payload, Some(admin))
               }
             }
           } ~
           (patch & path(IntNumber) & pathEnd & entity(as[payloads.EditCreditCard])) { (cardId, payload) ⇒
             activityContext(admin) { implicit ac ⇒
               nothingOrFailures {
-                CreditCardManager.editCreditCard(admin, customerId, cardId, payload)
+                CreditCardManager.editCreditCard(customerId, cardId, payload, Some(admin))
               }
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { cardId ⇒
             activityContext(admin) { implicit ac ⇒
               nothingOrFailures {
-                CreditCardManager.deleteCreditCard(admin = admin, customerId = customerId, id = cardId)
+                CreditCardManager.deleteCreditCard(customerId, cardId, Some(admin))
               }
             }
           }

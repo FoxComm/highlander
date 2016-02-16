@@ -9,7 +9,7 @@ import models.payment.storecredit.StoreCredit
 import models.{Reason, Reasons, StoreAdmins}
 import org.joda.money.CurrencyUnit
 import org.scalatest.BeforeAndAfterEach
-import responses.{GiftCardAdjustmentsResponse, GiftCardBulkResponse, GiftCardResponse, GiftCardSubTypesResponse, StoreCreditResponse}
+import responses.{GiftCardAdjustmentsResponse, GiftCardBulkResponse, GiftCardResponse, StoreCreditResponse}
 import services.{NotFoundFailure400, EmptyCancellationReasonFailure, GeneralFailure, GiftCardConvertFailure,
 NotFoundFailure404, OpenTransactionsFailure}
 import slick.driver.PostgresDriver.api._
@@ -70,18 +70,6 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   // paging and sorting API end
 
   "GiftCards" - {
-    "GET /v1/gift-cards/types" - {
-      "should return all GC types and related sub-types" in new Fixture {
-        val response = GET(s"v1/gift-cards/types")
-        response.status must ===(StatusCodes.OK)
-
-        val root = response.as[Seq[GiftCardSubTypesResponse.Root]]
-        root.size must === (GiftCard.OriginType.types.size)
-        root.map(_.originType) must === (GiftCard.OriginType.types.toSeq)
-        root.filter(_.originType == gcSubType.originType).head.subTypes must === (Seq(gcSubType))
-      }
-    }
-
     "GET /v1/gift-cards" - {
       "returns list of gift cards" in new Fixture {
         val response = GET(s"v1/gift-cards")

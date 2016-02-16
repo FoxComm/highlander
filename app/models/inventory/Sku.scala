@@ -23,6 +23,8 @@ object Sku {
   case object NonSellable extends Type
   object Type extends ADT[Type] { def types = sealerate.values[Type] }
   implicit val typeColumnType: JdbcType[Type] with BaseTypedType[Type] = Type.slickColumn
+
+  val skuCodeRegex = """([a-zA-Z0-9-_]*)""".r
 }
 
 // This table mostly acts a placeholder in our system.  We may or may not import skus from 'origin' into this.

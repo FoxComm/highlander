@@ -15,6 +15,7 @@ import models.sharedsearch.SharedSearch
 import models.shipping.ShippingMethod
 import models.{StoreAdmin, Note}
 import models.activity.{Activity, Activities, ActivityContext}
+import models.traits.{AdminOriginator, CustomerOriginator, Originator}
 import payloads.UpdateLineItemsPayload
 import responses.{CreditCardsResponse, Addresses, GiftCardResponse, CustomerResponse, FullOrder, StoreAdminResponse,
 StoreCreditResponse}
@@ -101,10 +102,9 @@ object LogActivity {
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(CustomerActivated(buildAdmin(admin), customer))
 
-  def customerUpdated(customer: Customer, updated: Customer, admin: StoreAdmin)
+  def customerUpdated(customer: Customer, updated: Customer, admin: Option[StoreAdmin])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(CustomerUpdated(buildAdmin(admin), buildCustomer(customer),
-      buildCustomer(updated)))
+    Activities.log(CustomerUpdated(buildCustomer(customer), buildCustomer(updated), admin.map(buildAdmin)))
 
   def customerDisabled(disabled: Boolean, customer: Customer, admin: StoreAdmin)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
@@ -138,28 +138,27 @@ object LogActivity {
     Activities.log(CustomerAddressCreated(buildCustomer(customer), Addresses.build(address, region), admin.map(buildAdmin)))
   }
 
-  def addressUpdated(admin: StoreAdmin, customer: Customer, newAddress: Address, newRegion: Region,
+  def addressUpdated(admin: Option[StoreAdmin], customer: Customer, newAddress: Address, newRegion: Region,
     oldAddress: Address, oldRegion: Region)(implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(CustomerAddressUpdated(buildAdmin(admin), buildCustomer(customer),
-      Addresses.build(newAddress, newRegion), Addresses.build(oldAddress, oldRegion)))
+    Activities.log(CustomerAddressUpdated(buildCustomer(customer), Addresses.build(newAddress, newRegion),
+      Addresses.build(oldAddress, oldRegion), admin.map(buildAdmin)))
 
-  def addressDeleted(admin: StoreAdmin, customer: Customer, address: Address, region: Region)
+  def addressDeleted(admin: Option[StoreAdmin], customer: Customer, address: Address, region: Region)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(CustomerAddressDeleted(buildAdmin(admin), buildCustomer(customer),
-      Addresses.build(address, region)))
+    Activities.log(CustomerAddressDeleted(buildCustomer(customer), Addresses.build(address, region), admin.map(buildAdmin)))
 
   /* Customer Credit Cards */
-  def ccCreated(admin: StoreAdmin, customer: Customer, cc: CreditCard)
+  def ccCreated(customer: Customer, cc: CreditCard, admin: Option[StoreAdmin])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(CreditCardAdded(buildAdmin(admin), buildCustomer(customer), buildCc(cc)))
+    Activities.log(CreditCardAdded(buildCustomer(customer), buildCc(cc), admin.map(buildAdmin)))
 
-  def ccUpdated(admin: StoreAdmin, customer: Customer, newCc: CreditCard, oldCc: CreditCard)
+  def ccUpdated(customer: Customer, newCc: CreditCard, oldCc: CreditCard, admin: Option[StoreAdmin])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(CreditCardUpdated(buildAdmin(admin), buildCustomer(customer), buildCc(newCc), buildCc(oldCc)))
+    Activities.log(CreditCardUpdated(buildCustomer(customer), buildCc(newCc), buildCc(oldCc), admin.map(buildAdmin)))
 
-  def ccDeleted(admin: StoreAdmin, customer: Customer, cc: CreditCard)
+  def ccDeleted(customer: Customer, cc: CreditCard, admin: Option[StoreAdmin])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(CreditCardRemoved(buildAdmin(admin), buildCustomer(customer), buildCc(cc)))
+    Activities.log(CreditCardRemoved(buildCustomer(customer), buildCc(cc), admin.map(buildAdmin)))
 
   /* Gift Cards */
   def gcCreated(admin: StoreAdmin, giftCard: GiftCard)
@@ -246,45 +245,51 @@ object LogActivity {
     Activities.log(OrderLineItemsUpdatedQuantities(order, oldQtys, foldQuantityPayload(payload), admin.map(buildAdmin)))
 
   /* Order Payment Methods */
-  def orderPaymentMethodAddedCc(admin: StoreAdmin, order: FullOrder.Root, cc: CreditCard, region: Region)
+  def orderPaymentMethodAddedCc(originator: Originator, order: FullOrder.Root, cc: CreditCard, region: Region)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderPaymentMethodAddedCreditCard(buildAdmin(admin), order, CreditCardsResponse.build(cc, region)))
+    Activities.log(OrderPaymentMethodAddedCreditCard(order, CreditCardsResponse.build(cc, region), buildOriginator(originator)))
 
-  def orderPaymentMethodAddedGc(admin: StoreAdmin, order: FullOrder.Root, gc: GiftCard, amount: Int)
+  def orderPaymentMethodAddedGc(originator: Originator, order: FullOrder.Root, gc: GiftCard, amount: Int)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderPaymentMethodAddedGiftCard(buildAdmin(admin), order, GiftCardResponse.build(gc), amount))
+    Activities.log(OrderPaymentMethodAddedGiftCard(order, GiftCardResponse.build(gc), amount, buildOriginator(originator)))
 
-  def orderPaymentMethodAddedSc(admin: StoreAdmin, order: FullOrder.Root, amount: Int)
+  def orderPaymentMethodAddedSc(originator: Originator, order: FullOrder.Root, amount: Int)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderPaymentMethodAddedStoreCredit(buildAdmin(admin), order, amount))
+    Activities.log(OrderPaymentMethodAddedStoreCredit(order, amount, buildOriginator(originator)))
 
-  def orderPaymentMethodDeleted(admin: StoreAdmin, order: FullOrder.Root, pmt: PaymentMethod.Type)
+  def orderPaymentMethodDeleted(originator: Originator, order: FullOrder.Root, pmt: PaymentMethod.Type)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderPaymentMethodDeleted(buildAdmin(admin), order, pmt))
+    Activities.log(OrderPaymentMethodDeleted(order, pmt, buildOriginator(originator)))
 
-  def orderPaymentMethodDeletedGc(admin: StoreAdmin, order: FullOrder.Root, gc: GiftCard)
+  def orderPaymentMethodDeletedGc(originator: Originator, order: FullOrder.Root, gc: GiftCard)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderPaymentMethodDeletedGiftCard(buildAdmin(admin), order, GiftCardResponse.build(gc)))
+    Activities.log(OrderPaymentMethodDeletedGiftCard(order, GiftCardResponse.build(gc), buildOriginator(originator)))
 
   /* Order Shipping Addresses */
-  def orderShippingAddressAdded(admin: StoreAdmin, order: FullOrder.Root, address: Addresses.Root)
+  def orderShippingAddressAdded(originator: Originator, order: FullOrder.Root, address: Addresses.Root)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderShippingAddressAdded(buildAdmin(admin), order, address))
+    Activities.log(OrderShippingAddressAdded(order, address, buildOriginator(originator)))
 
-  def orderShippingAddressUpdated(admin: StoreAdmin, order: FullOrder.Root, address: Addresses.Root)
+  def orderShippingAddressUpdated(originator: Originator, order: FullOrder.Root, address: Addresses.Root)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderShippingAddressUpdated(buildAdmin(admin), order, address))
+    Activities.log(OrderShippingAddressUpdated(order, address, buildOriginator(originator)))
 
-  def orderShippingAddressDeleted(admin: StoreAdmin, order: FullOrder.Root, address: Addresses.Root)
+  def orderShippingAddressDeleted(originator: Originator, order: FullOrder.Root, address: Addresses.Root)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderShippingAddressRemoved(buildAdmin(admin), order, address))
+    Activities.log(OrderShippingAddressRemoved(order, address, buildOriginator(originator)))
 
   /* Order Shipping Methods */
-  def orderShippingMethodUpdated(admin: StoreAdmin, order: FullOrder.Root, shippingMethod: Option[ShippingMethod])
+  def orderShippingMethodUpdated(originator: Originator, order: FullOrder.Root, shippingMethod: Option[ShippingMethod])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderShippingMethodUpdated(buildAdmin(admin), order, shippingMethod))
+    Activities.log(OrderShippingMethodUpdated(order, shippingMethod, buildOriginator(originator)))
 
-  def orderShippingMethodDeleted(admin: StoreAdmin, order: FullOrder.Root, shippingMethod: ShippingMethod)
+  def orderShippingMethodDeleted(originator: Originator, order: FullOrder.Root, shippingMethod: ShippingMethod)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderShippingMethodRemoved(buildAdmin(admin), order, shippingMethod))
+    Activities.log(OrderShippingMethodRemoved(order, shippingMethod, buildOriginator(originator)))
+
+  private def buildOriginator(originator: Originator)
+    (implicit ec: ExecutionContext, ac: ActivityContext): Option[StoreAdminResponse.Root] = originator match {
+    case AdminOriginator(admin)     ⇒ Some(buildAdmin(admin))
+    case CustomerOriginator(inner)  ⇒ None // We don't need customer, he's already in FullOrder.Root
+  }
 }

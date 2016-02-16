@@ -1,13 +1,14 @@
 package routes
 
 import scala.concurrent.ExecutionContext
+
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
-
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
-import responses.PublicSku
+import models.Reason.reasonTypeRegex
 import slick.driver.PostgresDriver.api._
-import services.CustomerManager
+import services.{GiftCardService, ReasonService, StoreCreditService, CustomerManager}
+import services.PublicService._
 import utils.CustomDirectives._
 
 object Public {
@@ -24,26 +25,58 @@ object Public {
         }
       }
     } ~
-    pathPrefix("skus") {
-      (get & path(IntNumber)) { skuId ⇒
-        complete {
-          renderOrNotFound(PublicSku.findById(skuId))
+    pathPrefix("regions") {
+      (get & pathEnd) {
+        good {
+          listRegions
         }
       }
     } ~
-    (get & path("countries") & pathEnd) {
-      complete {
-        services.Public.countries.map(render(_))
+    pathPrefix("countries") {
+      (get & pathEnd) {
+        good {
+          listCountries
+        }
+      } ~
+      (get & path(IntNumber) & pathEnd) { countryId ⇒
+        goodOrFailures {
+          findCountry(countryId)
+        }
       }
     } ~
-    (get & path("regions") & pathEnd) {
-      complete {
-        services.Public.regions.map(render(_))
+    pathPrefix("gift-cards" / "types") {
+      (get & pathEnd) {
+        goodOrFailures {
+          GiftCardService.getOriginTypes
+        }
       }
     } ~
-    (get & path("countries" / IntNumber) & pathEnd) { countryId ⇒
-      complete {
-        services.Public.findCountry(countryId).map(renderGoodOrFailures(_))
+    pathPrefix("store-credits" / "types") {
+      (get & pathEnd) {
+        goodOrFailures {
+          StoreCreditService.getOriginTypes
+        }
+      }
+    } ~
+    pathPrefix("reasons") {
+      (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+        goodOrFailures {
+          ReasonService.listReasons
+        }
+      }
+    } ~
+    pathPrefix("reasons" / reasonTypeRegex) { reasonType ⇒
+      (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+        goodOrFailures {
+          ReasonService.listReasonsByType(reasonType)
+        }
+      }
+    } ~
+    pathPrefix("rma-reasons") {
+      (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+        goodOrFailures {
+          ReasonService.listRmaReasons
+        }
       }
     }
   }

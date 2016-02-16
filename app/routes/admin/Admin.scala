@@ -27,11 +27,6 @@ object Admin {
 
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
       pathPrefix("store-credits") {
-        (get & path("types") & pathEnd) {
-          goodOrFailures {
-            StoreCreditService.getOriginTypes
-          }
-        } ~
         (patch & pathEnd & entity(as[payloads.StoreCreditBulkUpdateStateByCsr])) { payload ⇒
           activityContext(admin) { implicit ac ⇒
             goodOrFailures {
@@ -56,27 +51,6 @@ object Admin {
         (get & path("transactions") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
           goodOrFailures {
             StoreCreditAdjustmentsService.forStoreCredit(storeCreditId)
-          }
-        }
-      } ~
-      pathPrefix("reasons") {
-        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-          goodOrFailures {
-            ReasonService.listReasons
-          }
-        }
-      } ~
-      pathPrefix("reasons" / reasonTypeRegex) { reasonType ⇒
-        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-          goodOrFailures {
-            ReasonService.listReasonsByType(reasonType)
-          }
-        }
-      } ~
-      pathPrefix("rma-reasons") {
-        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-          goodOrFailures {
-            ReasonService.listRmaReasons
           }
         }
       } ~

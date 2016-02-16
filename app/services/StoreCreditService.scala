@@ -6,7 +6,7 @@ import cats.implicits._
 import models.payment.storecredit._
 import StoreCredit.Canceled
 import StoreCreditSubtypes.scope._
-import models.customer.Customers
+import models.customer.{Customers, Customer}
 import models.{Reason, Reasons, StoreAdmin}
 import payloads.StoreCreditUpdateStateByCsr
 import responses.StoreCreditBulkResponse._
@@ -78,6 +78,12 @@ object StoreCreditService {
 
   def getById(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
     storeCredit ← * <~ StoreCredits.mustFindById404(id)
+  } yield StoreCreditResponse.build(storeCredit)).run()
+
+  def getByIdAndCustomer(storeCreditId: Int, customer: Customer)
+    (implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
+    storeCredit ← * <~ StoreCredits.findByIdAndCustomerId(storeCreditId, customer.id)
+                                   .mustFindOr(NotFoundFailure404(StoreCredit, storeCreditId))
   } yield StoreCreditResponse.build(storeCredit)).run()
 
   def bulkUpdateStateByCsr(payload: payloads.StoreCreditBulkUpdateStateByCsr, admin: StoreAdmin)

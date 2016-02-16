@@ -38,7 +38,7 @@ object OrderStateUpdater {
       failures ⇒ DbResult.good(Some(failures)),
       _        ⇒ DbResult.good(None))
     }
-    response ← * <~ OrderQueries.findAllDbio
+    response ← * <~ OrderQueries.findAll
   } yield response.copy(errors = errors.map(_.flatten))).runTxn()
 
   private def updateStatesDbio(admin: StoreAdmin, refNumbers: Seq[String], newState: Order.State, skipActivity: Boolean = false)

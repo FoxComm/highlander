@@ -5,6 +5,7 @@ import models.customer.Customers
 import models.location.Addresses
 import models.order._
 import models.StoreAdmins
+import models.traits.Originator
 import services.orders.OrderShippingAddressUpdater._
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -20,7 +21,7 @@ class OrderShippingAddressUpdaterTest extends IntegrationTestBase {
   "OrderUpdater" - {
 
     "Adds a shipping address by referencing an order that already exists" in new Fixture {
-      val fullOrder = createShippingAddressFromAddressId(admin, address.id, order.refNum).futureValue.get
+      val fullOrder = createShippingAddressFromAddressId(Originator(admin), address.id, Some(order.refNum)).futureValue.get
       fullOrder.result.shippingAddress must not be 'empty
       val orderAddress = fullOrder.result.shippingAddress.value
 
@@ -35,7 +36,7 @@ class OrderShippingAddressUpdaterTest extends IntegrationTestBase {
       val newAddress = payloads.CreateAddressPayload(name = "Home Office", regionId = 1, address1 = "3000 Coolio Dr",
         city = "Seattle", zip = "55555")
 
-      val fullOrder = createShippingAddressFromPayload(admin, newAddress, order.refNum).futureValue.get
+      val fullOrder = createShippingAddressFromPayload(Originator(admin), newAddress, Some(order.refNum)).futureValue.get
       fullOrder.result.shippingAddress must not be 'empty
       val orderAddress = fullOrder.result.shippingAddress.value
 
@@ -47,7 +48,7 @@ class OrderShippingAddressUpdaterTest extends IntegrationTestBase {
     }
 
     "Updates a shipping address by referencing an order that already exists" in new UpdateAddressFixture {
-      val fullOrder = createShippingAddressFromAddressId(admin, newAddress.id, order.refNum).futureValue.get
+      val fullOrder = createShippingAddressFromAddressId(Originator(admin), newAddress.id, Some(order.refNum)).futureValue.get
       fullOrder.result.shippingAddress must not be 'empty
       val orderAddress = fullOrder.result.shippingAddress.value
 
@@ -60,7 +61,7 @@ class OrderShippingAddressUpdaterTest extends IntegrationTestBase {
 
     "Updates a shipping address by sending fields in the payload" in new UpdateAddressFixture {
       val payload = payloads.UpdateAddressPayload(name = Some("Don Keyhote"))
-      val fullOrder = updateShippingAddressFromPayload(admin, payload, order.refNum).futureValue.get
+      val fullOrder = updateShippingAddressFromPayload(Originator(admin), payload, Some(order.refNum)).futureValue.get
       fullOrder.result.shippingAddress must not be 'empty
       val orderAddress = fullOrder.result.shippingAddress.value
 

@@ -1,10 +1,11 @@
 package services
 
+import models.customer.Customer
 import models.inventory.{Skus, Sku}
 import models.location.Region
 import models.order.lineitems.OrderLineItemSkus
 import models.order._
-import models.shipping.{ShippingMethods, ShippingMethod}
+import models.shipping.{ShippingMethod, ShippingMethods}
 import models.rules.{Condition, QueryStatement}
 import scala.concurrent.ExecutionContext
 import slick.driver.PostgresDriver.api._
@@ -20,9 +21,9 @@ object ShippingManager {
   final case class ShippingData(order: Order, orderTotal: Int, orderSubTotal: Int,
     shippingAddress: Option[OrderShippingAddress] = None, shippingRegion: Option[Region] = None, skus: Seq[Sku])
 
-  def getShippingMethodsForOrder(refNum: String)
+  def getShippingMethodsForOrder(refNum: String, customer: Option[Customer] = None)
     (implicit db: Database, ec: ExecutionContext): Result[Seq[responses.ShippingMethods.Root]] = (for {
-    order       ← * <~ Orders.mustFindByRefNum(refNum)
+    order       ← * <~ findByRefNumAndOptionalCustomer(refNum, customer)
     shipMethods ← * <~ ShippingMethods.findActive.result.toXor
     shipData    ← * <~ getShippingData(order).toXor
     response    = shipMethods.collect {
@@ -31,6 +32,12 @@ object ShippingManager {
         responses.ShippingMethods.build(sm, !restricted)
     }
   } yield response).run()
+
+  private def findByRefNumAndOptionalCustomer(refNum: String, customer: Option[Customer] = None)
+    (implicit db: Database, ec: ExecutionContext): DbResult[Order] = customer match {
+    case Some(c)  ⇒ Orders.findOneByRefNumAndCustomer(refNum, c).one.mustFindOr(NotFoundFailure404(Orders, refNum))
+    case _        ⇒ Orders.mustFindByRefNum(refNum)
+  }
 
   def evaluateShippingMethodForOrder(shippingMethod: ShippingMethod, order: Order)
     (implicit db: Database, ec: ExecutionContext): DbResult[Unit] = {

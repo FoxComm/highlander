@@ -145,6 +145,10 @@ object CreditCards extends TableQueryWithId[CreditCard, CreditCards](
   def findDefaultByCustomerId(customerId: Int)(implicit db: Database): Query[CreditCards, CreditCard, Seq] =
     findInWalletByCustomerId(customerId).filter(_.isDefault === true)
 
+  def findByIdAndCustomerId(id: Int, customerId: Int)
+    (implicit ec: ExecutionContext): Query[CreditCards, CreditCard, Seq] =
+    filter(_.customerId === customerId).filter(_.id === id)
+
   def mustFindByIdAndCustomer(id: Int, customerId: Int)
     (implicit ec: ExecutionContext): DbResult[CreditCard] = {
     filter(cc ⇒ cc.id === id && cc.customerId === customerId).one.flatMap {
