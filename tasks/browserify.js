@@ -31,8 +31,9 @@ module.exports = function(gulp, opts, $) {
     bundler.plugin(require('css-modulesify'), {
       output: path.resolve('public/app.css'),
       use: plugins,
+      jsonOutput: 'public/css-modules.json'
     });
-    if (!production) {
+    if (!production && opts.devMode) {
       bundler.plugin('livereactload');
     }
 

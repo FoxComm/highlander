@@ -1,11 +1,12 @@
-@value blackish, whitish, black-decor from "./colors.css";
+
+@import "colors.css";
 
 .button {
   font-size: 21px;
-  background-color: blackish;
-  color: whitish;
+  background-color: var(--blackish);
+  color: var(--whitish);
   padding: 20px;
   text-align: center;
   cursor: pointer;
-  border: black-decor;
+  border: var(--black-decor);
 }

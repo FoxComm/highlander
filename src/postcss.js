@@ -22,6 +22,9 @@ function generateShortName (name, filename, css) {
 const generateScopedName = process.env.NODE_ENV === 'production' ? generateShortName : generateLongName;
 
 const plugins = [
+  require('postcss-import')({
+    path: 'src/css',
+  }),
   require('postcss-modules-values'),
   require('postcss-modules-extract-imports'),
   require('postcss-modules-local-by-default'),
@@ -32,9 +35,13 @@ const plugins = [
 ];
 
 exports.installHook = function() {
-  require('css-modules-require-hook')({
-    use: plugins,
-  });
+  require.extensions['.css'] = function(m, filename) {
+    const map = require('../public/css-modules.json');
+    const relativePath = path.relative(process.cwd(), filename);
+
+    const tokens = map[relativePath];
+    return m._compile(`module.exports = ${JSON.stringify(tokens)}`, filename);
+  };
 };
 
 exports.plugins = plugins;

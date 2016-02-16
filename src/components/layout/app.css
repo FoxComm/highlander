@@ -1,4 +1,6 @@
 
+@import 'reset.css';
+
 :global #app {
   text-align: center;
 }
