@@ -1,3 +1,13 @@
+### List Gift Card Types [GET /v1/gift-cards/types]
+
++ Response 200 (application/json)
+    + Attributes (array[GiftCardOriginTypeResponse])
+
+### List Store Credit Types [GET /v1/store-credits/types]
+
++ Response 200 (application/json)
+    + Attributes (array[StoreCreditOriginTypeResponse])
+
 ### List Reasons [GET /v1/reasons]
 
 Reasons are widely-used descriptions of various management actions, e.g. cancellation of gift card or purpose of it's creation.
@@ -30,16 +40,6 @@ Reasons are widely-used descriptions of various management actions, e.g. cancell
             + `body`
 + Response 200 (application/json)
     + Attributes (Reasons)
-
-### List Gift Card Types [GET /v1/gift-cards/types]
-
-+ Response 200 (application/json)
-    + Attributes (array[GiftCardOriginTypeResponse])
-
-### List Store Credit Types [GET /v1/store-credits/types]
-
-+ Response 200 (application/json)
-    + Attributes (array[StoreCreditOriginTypeResponse])
 
 ### List RMA Reasons [GET /v1/rma-reasons]
 

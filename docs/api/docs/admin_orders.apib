@@ -40,6 +40,13 @@ orders further.
 + Response 200 (application/json)
   + Attributes (FullOrder)
 
+### List Shipping Methods [GET /v1/orders/{refNum}/shipping-methods]
+
++ Parameters
+    + refNum: `BR1001` (required, string) - Order reference number
++ Response 204
+    + Attributes (array[ShippingMethod])
+
 ### Create [POST /v1/orders]
 
 Creates a cart for an existing customer (or guest account) when `customerId`
@@ -139,13 +146,6 @@ Order must be in `remorseHold` state.
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
-### Edit [PATCH]
-
-+ Request (application/json)
-    + Attributes (CreditCardPaymentPayload)
-+ Response 200 (application/json)
-    + Attributes (FullOrder)
-
 ### Delete [DELETE]
 
 + Response 200 (application/json)
@@ -163,13 +163,6 @@ Order must be in `remorseHold` state.
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
-### Edit [PATCH]
-
-+ Request (application/json)
-    + Attributes (GiftCardPaymentPayload)
-+ Response 200 (application/json)
-    + Attributes (FullOrder)
-
 ### Delete [DELETE]
 
 + Response 200 (application/json)
@@ -181,13 +174,6 @@ Order must be in `remorseHold` state.
     + refNum: `ABC-123` (required, string) - Order reference number
 
 ### Add [POST]
-
-+ Request (application/json)
-    + Attributes (StoreCreditPaymentPayload)
-+ Response 200 (application/json)
-    + Attributes (FullOrder)
-
-### Edit [PATCH]
 
 + Request (application/json)
     + Attributes (StoreCreditPaymentPayload)

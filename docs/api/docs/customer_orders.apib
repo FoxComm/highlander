@@ -1,0 +1,49 @@
+## Orders [/v1/my/orders]
+
+Customer's order history.
+
+### List [GET /v1/my/orders{?size,from,sortBy}]
+
+Lists basic information of Orders for a quick table view to drill-down into
+orders further.
+
++ Parameters
+    + size:   1           (optional, number)       - Page size.
+    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
+    + sortBy: `id`        (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
+        + Members
+            + `id`
+            + `referenceNumber`
+            + `customerId`
+            + `state`
+            + `isLocked`
+            + `placedAt`
+            + `remorsePeriodEnd`
+            + `customer_isDisabled`
+            + `customer_disabledBy`
+            + `customer_isBlacklisted`
+            + `customer_blacklistedBy`
+            + `customer_blacklistedReason`
+            + `customer_email`
+            + `customer_name`
+            + `customer_phoneNumber`
+            + `customer_location`
+            + `customer_modality`
+            + `customer_isGuest`
+            + `customer_createdAt`
++ Response 200 (application/json)
+  + Attributes (OrderList)
+
+### View [GET /v1/my/orders/{refNum}]
+
++ Parameters
+    + refNum: `BR1001` (required, string) - Order reference number
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### List Shipping Methods [GET /v1/my/orders/{refNum}/shipping-methods]
+
++ Parameters
+    + refNum: `BR1001` (required, string) - Order reference number
++ Response 204
+	+ Attributes (array[ShippingMethod])

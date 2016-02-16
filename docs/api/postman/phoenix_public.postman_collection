@@ -4,7 +4,6 @@
 	"description": "",
 	"order": [
 		"18ff7e0f-4b52-ebea-6f44-a81fd5ee2e84",
-		"87a02bc3-451a-d936-2c36-fef6dddd091a",
 		"75982126-c2ae-43e2-2cab-06275b0c68d9",
 		"4f936ff6-7598-361d-4ed0-cc432c7823c2",
 		"7c4ac0a4-c0a9-339d-5077-2b55f2a98689",
@@ -132,25 +131,6 @@
 			"helperAttributes": {},
 			"time": 1449675101113,
 			"name": "View Country",
-			"description": "",
-			"collectionId": "b7a0ebbb-9ede-383e-4a59-57b7cf161795",
-			"responses": []
-		},
-		{
-			"id": "87a02bc3-451a-d936-2c36-fef6dddd091a",
-			"headers": "Content-Type: application/json\nAccept: application/json\n",
-			"url": "http://localhost:9090/v1/skus/1",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "GET",
-			"data": [],
-			"dataMode": "params",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1449676383413,
-			"name": "View Sku",
 			"description": "",
 			"collectionId": "b7a0ebbb-9ede-383e-4a59-57b7cf161795",
 			"responses": []
