@@ -24,7 +24,62 @@ export default class InventoryItemDetails extends React.Component {
     ];
   }
 
+  get drawerColumns() {
+    return [
+      {field: 'type', text: 'Type'},
+      {field: 'onHand', text: 'On Hand'},
+      {field: 'onHold', text: 'Hold'},
+      {field: 'reserved', text: 'Reserved'},
+      {field: 'safetyStock', text: 'Safety Stock'},
+      {field: 'afs', text: 'AFS'},
+      {field: 'afsCostValue', text: 'AFS Cost Value', type: 'currency'},
+    ];
+  }
+
   // mocked data for table
+  get mockedDrawerData() {
+    return {
+      rows:[
+        {
+          type: 'Sellable',
+          onHand: 52,
+          onHold: 2,
+          reserved: 5,
+          safetyStock: 3,
+          afs: 42,
+          afsCostValue: 42000,
+        },
+        {
+          type: 'Preorder',
+          onHand: 0,
+          onHold: 0,
+          reserved: 0,
+          safetyStock: 0,
+          afs: 0,
+          afsCostValue: 0,
+        },
+        {
+          type: 'Backorder',
+          onHand: 0,
+          onHold: 0,
+          reserved: 0,
+          safetyStock: 0,
+          afs: 0,
+          afsCostValue: 0,
+        },
+        {
+          type: 'Non-sellable',
+          onHand: 0,
+          onHold: 0,
+          reserved: 0,
+          safetyStock: 0,
+          afs: 0,
+          afsCostValue: 0,
+        },
+      ], total:4, from:0, size:25
+    };
+  }
+
   get mockedData() {
     return {
       rows:[
@@ -47,6 +102,10 @@ export default class InventoryItemDetails extends React.Component {
   }
 
   render() {
+    const params = {
+      drawerData: this.mockedDrawerData,
+      drawerColumns: this.drawerColumns,
+    };
     return (
       <div className="fc-inventory-item-details">
         <div className="fc-grid">
@@ -76,6 +135,7 @@ export default class InventoryItemDetails extends React.Component {
               columns={this.tableColumns}
               data={this.mockedData}
               renderRow={this.renderRow}
+              params={params}
               emptyMessage="No warehouse data found."
               className="fc-inventory-item-details__warehouses-table"/>
           </div>

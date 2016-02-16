@@ -6,13 +6,21 @@ import { transitionTo } from '../../route-helpers';
 
 // components
 import ExpandableRow from '../table/expandable-row';
+import Table from '../table/table';
 
 const setCellContents = (warehouse, field, params) => {
   return _.get(warehouse, field);
 };
 
-const setDrawerContent = (params) => {
-  return (<div>Drawer!</div>);
+const setDrawerContent = (row, params) => {
+  console.log(params);
+  return (
+    <div>
+      <Table
+        columns={params.drawerColumns}
+        data={params.drawerData} />
+    </div>
+  );
 };
 
 const InventoryWarehouseRow = props => {

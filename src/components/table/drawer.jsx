@@ -20,7 +20,7 @@ const Drawer = props => {
       </td>
     </TableRow>
   );
-}
+};
 
 Drawer.propTypes = {
   isVisible: PropTypes.bool,

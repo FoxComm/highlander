@@ -18,10 +18,10 @@ class ExpandableRow extends React.Component {
   }
 
   get drawer() {
-    const { setDrawerContent, columns, params } = this.props;
-    const content = setDrawerContent(params);
+    const { setDrawerContent, columns, row, params } = this.props;
+    const content = setDrawerContent(row, params);
     return (
-      <Drawer isVisible={this.state.isOpen} colspan={columns.length} params={params}>{content}</Drawer>
+      <Drawer isVisible={this.state.isOpen} colspan={columns.length}>{content}</Drawer>
     );
   }
 

@@ -28,10 +28,10 @@ export default class ExpandableTable extends React.Component {
   };
 
   @autobind
-  renderRow(row, index, isNew) {
-    const {renderRow} = this.props;
+  renderRow(row, index) {
+    const {renderRow, columns, params} = this.props;
 
-    return renderRow(row, index, this.props.columns);
+    return renderRow(row, index, columns, params);
   }
 
   render() {
