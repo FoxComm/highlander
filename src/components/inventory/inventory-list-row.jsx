@@ -18,7 +18,7 @@ const InventoryListRow = (props, context) => {
   const { sku, columns, params } = props;
   const key = `inventory-list-${sku.id}`;
   const clickAction = () => {
-    transitionTo(context.history, 'inventory-item-details', { sku: sku.sku });
+    transitionTo(context.history, 'inventory-item-details', { sku: sku.code });
   };
 
   return (

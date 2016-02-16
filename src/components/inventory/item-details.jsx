@@ -7,8 +7,45 @@ import { SectionTitle } from '../section-title';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import { Link, IndexLink } from '../link';
+import ExpandableTable from '../table/expandable-table';
+import InventoryWarehouseRow from './inventory-warehouse-row';
 
 export default class InventoryItemDetails extends React.Component {
+
+  get tableColumns() {
+    return [
+      {field: 'warehouse', text: 'Warehouse'},
+      {field: 'onHand', text: 'On Hand'},
+      {field: 'onHold', text: 'Hold'},
+      {field: 'reserved', text: 'Reserved'},
+      {field: 'safetyStock', text: 'Safety Stock'},
+      {field: 'afs', text: 'AFS'},
+      {field: 'afsCostValue', text: 'AFS Cost Value', type: 'currency'},
+    ];
+  }
+
+  // mocked data for table
+  get mockedData() {
+    return {
+      rows:[
+        {
+          warehouse: 'Colombus',
+          onHand: 52,
+          onHold: 2,
+          reserved: 5,
+          safetyStock: 3,
+          afs: 42,
+          afsCostValue: 42000,
+        }
+      ], total:1, from:0, size:25
+    };
+  }
+
+  renderRow(row, index, columns, params) {
+    const key = `inventory-warehouse-row-${row.warehouse}`;
+    return <InventoryWarehouseRow warehouse={row} columns={columns} params={params} />;
+  }
+
   render() {
     return (
       <div className="fc-inventory-item-details">
@@ -33,6 +70,16 @@ export default class InventoryItemDetails extends React.Component {
             </Link>
           </TabView>
         </TabListView>
+        <div className="fc-grid">
+          <div className="fc-col-md-1-1">
+            <ExpandableTable
+              columns={this.tableColumns}
+              data={this.mockedData}
+              renderRow={this.renderRow}
+              emptyMessage="No warehouse data found."
+              className="fc-inventory-item-details__warehouses-table"/>
+          </div>
+        </div>
       </div>
     );
   }
