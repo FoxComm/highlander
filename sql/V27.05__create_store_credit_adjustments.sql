@@ -10,7 +10,10 @@ create table store_credit_adjustments (
     created_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (store_credit_id) references store_credits(id) on update restrict on delete restrict,
     foreign key (order_payment_id) references order_payments(id) on update restrict on delete restrict,
-    constraint valid_debit check (debit > 0),
+    constraint valid_debit check (
+        (debit > 0 and state <> 'cancellationCapture') or 
+        (debit >= 0 and state = 'cancellationCapture')
+    ),
     constraint valid_state check (state in ('auth','canceled','capture','cancellationCapture'))
 );
 

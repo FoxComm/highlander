@@ -221,7 +221,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       }
 
       "successfully cancels gift card with provided reason, cancel adjustment is created" in new Fixture {
-        // Cancel pending adjustment
+        // Cancel pending adjustment (should be done before cancellation)
         GiftCardAdjustments.cancel(adjustment1.id).run().futureValue
 
         val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStateByCsr(state = Canceled,
@@ -232,9 +232,26 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         root.canceledAmount must ===(Some(giftCard.originalBalance))
 
         // Ensure that cancel adjustment is automatically created
-        val transactionsRep = GET(s"v1/gift-cards/${giftCard.code}/transactions")
-        val adjustments = transactionsRep.ignoreFailuresAndGiveMe[Seq[GiftCardAdjustmentsResponse.Root]]
+        val adjustments = GiftCardAdjustments.filterByGiftCardId(giftCard.id).result.run().futureValue
+        adjustments.size mustBe 2
+        adjustments.head.state must ===(GiftCardAdjustment.CancellationCapture)
+      }
+
+      "successfully cancels gift card with zero balance" in new Fixture {
+        // Cancel pending adjustment (should be done before cancellation)
+        GiftCardAdjustments.cancel(adjustment1.id).run().futureValue
+        // Update balance
+        GiftCards.update(giftCard, giftCard.copy(availableBalance = 0)).run().futureValue
+
+        val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStateByCsr(state = Canceled,
+          reasonId = Some(1)))
         response.status must ===(StatusCodes.OK)
+
+        val root = response.as[GiftCardResponse.Root]
+        root.canceledAmount must ===(Some(0))
+
+        // Ensure that cancel adjustment is automatically created
+        val adjustments = GiftCardAdjustments.filterByGiftCardId(giftCard.id).result.run().futureValue
         adjustments.size mustBe 2
         adjustments.head.state must ===(GiftCardAdjustment.CancellationCapture)
       }
