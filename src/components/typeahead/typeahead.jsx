@@ -79,9 +79,8 @@ export default class Typeahead extends React.Component {
   }
 
   @autobind
-  inputKeyUp({keyCode}) {
-    if (keyCode === 27) {
-      // They hit escape
+  inputKeyUp({key}) {
+    if (key === 'Escape') {
       this.setState({
         showMenu: false
       });
