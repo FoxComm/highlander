@@ -1,0 +1,17 @@
+
+.form-field {
+
+}
+
+.optional {
+  color: darkgrey;
+}
+
+.error {
+  color: darkred;
+  padding-top: 0.4rem;
+}
+
+.label {
+  font-weight: 600;
+}

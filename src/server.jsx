@@ -21,9 +21,10 @@ function createPage(html, store) {
     <!doctype html>
     <html>
       <head>
-        <link rel="stylesheet" href="./app.css" />
+        <title>StoreFront</title>
       </head>
       <body>
+        <link rel="stylesheet" href="./app.css" />
         <div id="app">${html}</div>
 
         <!-- its a Redux initial data -->

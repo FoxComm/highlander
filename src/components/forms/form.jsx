@@ -1,0 +1,48 @@
+
+import React, { PropTypes } from 'react';
+import { EventEmitter } from 'events';
+
+export default class Form extends React.Component {
+
+  static propTypes = {
+    onSubmit: PropTypes.func,
+    children: PropTypes.node,
+  };
+
+  static childContextTypes = {
+    formDispatcher: PropTypes.object,
+  };
+
+  getChildContext() {
+    return this._context || (this._context = {
+      formDispatcher: new EventEmitter()
+    });
+  }
+
+  onSubmit(event) {
+    event.preventDefault();
+
+    let isValid = true;
+    this._emit('submit', (isFieldValid) => {
+      if (!isFieldValid) isValid = false;
+    });
+
+    if (isValid && this.props.onSubmit) {
+      this.props.onSubmit(event);
+    }
+  }
+
+  _emit(type, ...args) {
+    this.getChildContext().formDispatcher.emit(type, ...args);
+  }
+
+  render() {
+    const props = {...this.props, onSubmit: ::this.onSubmit};
+
+    return (
+      <form {...props}>
+        {this.props.children}
+      </form>
+    );
+  }
+}

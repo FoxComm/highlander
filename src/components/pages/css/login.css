@@ -1,6 +1,8 @@
 
-.block {
+.login-block {
   font-size: 1.2rem;
+  width: 475px;
+  margin: 0 auto;
 }
 
 .title {

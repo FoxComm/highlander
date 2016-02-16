@@ -4,6 +4,7 @@ import cssModules from 'react-css-modules';
 import styles from './css/login.css';
 
 import { TextInput } from '../common/inputs';
+import { Form, FormField } from '../forms';
 
 @cssModules(styles)
 export default class Login extends React.Component {
@@ -15,13 +16,13 @@ export default class Login extends React.Component {
 
   onChangeEmail({target}) {
     this.setState({
-      email: target.value
+      email: target.value,
     });
   }
 
   onChangePassword({target}) {
     this.setState({
-      password: target.value
+      password: target.value,
     });
   }
 
@@ -29,13 +30,17 @@ export default class Login extends React.Component {
     const { email, password } = this.state;
 
     return (
-      <div styleName="block">
+      <div styleName="login-block">
         <div styleName="title">LOG IN</div>
         <div>------------- or ------------</div>
-        <form>
-          <TextInput placeholder="EMAIL" value={email} onChane={::this.onChangeEmail} />
-          <TextInput placeholder="PASSWORD" value={password} onChane={::this.onChangePassword} type="password" />
-        </form>
+        <Form>
+          <FormField>
+            <TextInput placeholder="EMAIL" value={email} onChane={::this.onChangeEmail} />
+          </FormField>
+          <FormField>
+            <TextInput placeholder="PASSWORD" value={password} onChane={::this.onChangePassword} type="password" />
+          </FormField>
+        </Form>
       </div>
     );
   }
