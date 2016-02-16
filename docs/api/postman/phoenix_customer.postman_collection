@@ -36,8 +36,8 @@
 			"description": "",
 			"order": [
 				"ffa4e5f0-b374-131a-828b-1efb15c4fabe",
-				"5ec75697-98f5-cf18-b664-eff131bbc25d",
 				"3df315d0-506b-d5fa-638b-0298c8b32fa0",
+				"5ec75697-98f5-cf18-b664-eff131bbc25d",
 				"75755fbe-c658-102b-13d9-134c52870e1e",
 				"14b5bebb-9675-018c-35f6-dceee5eee5da",
 				"41b7caf8-98a4-a318-eb17-31f242a979f7",
@@ -164,19 +164,13 @@
 		{
 			"id": "0e39ecb9-2bd1-461b-427a-9151c9187d13",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic eWF4QHlheC5jb206cGFzc3dvcmQ=\n",
-			"url": "http://localhost:9090/v1/my/save-for-later/1",
-			"pathVariables": {},
+			"url": "http://localhost:9090/v1/my/save-for-later/SKU-YAX",
 			"preRequestScript": "",
+			"pathVariables": {},
 			"method": "POST",
-			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
 			"data": [],
 			"dataMode": "params",
-			"name": "Add",
-			"description": "",
-			"descriptionFormat": "html",
-			"time": 1455267099834,
 			"version": 2,
-			"responses": [],
 			"tests": "",
 			"currentHelper": "basicAuth",
 			"helperAttributes": {
@@ -186,7 +180,11 @@
 				"id": "basic",
 				"timestamp": 1449091654128
 			},
-			"folder": "7786e2f5-6428-ba00-678d-115d2941c4b5"
+			"time": 1455632509963,
+			"name": "Add",
+			"description": "",
+			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
+			"responses": []
 		},
 		{
 			"id": "14b5bebb-9675-018c-35f6-dceee5eee5da",

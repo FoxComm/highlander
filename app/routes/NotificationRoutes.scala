@@ -7,6 +7,8 @@ import akka.stream.Materializer
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import de.heikoseeberger.akkasse.EventStreamMarshalling._
+
+import payloads._
 import services.NotificationManager
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives._
@@ -16,22 +18,22 @@ object NotificationRoutes {
 
   def routes(implicit ec: ExecutionContext, db: Database, mat: Materializer, system: ActorSystem) = {
 
-    pathPrefix("notifications") {
-      (get & path(IntNumber) & pathEnd) { adminId ⇒
-        complete {
-          NotificationManager.streamByAdminId(adminId)
-        }
-      } ~
-      (post & pathEnd & entity(as[payloads.CreateNotification])) { payload ⇒
-        activityContext() { implicit ac ⇒
+    activityContext() { implicit ac ⇒
+      pathPrefix("notifications") {
+        (get & path(IntNumber) & pathEnd) { adminId ⇒
+          complete {
+            NotificationManager.streamByAdminId(adminId)
+          }
+        } ~
+        (post & pathEnd & entity(as[CreateNotification])) { payload ⇒
           goodOrFailures {
             NotificationManager.createNotification(payload)
           }
-        }
-      } ~
-      (post & path(IntNumber / "last-seen" / IntNumber) & pathEnd) { (adminId, activityId) ⇒
-        goodOrFailures {
-          NotificationManager.updateLastSeen(adminId, activityId)
+        } ~
+        (post & path(IntNumber / "last-seen" / IntNumber) & pathEnd) { (adminId, activityId) ⇒
+          goodOrFailures {
+            NotificationManager.updateLastSeen(adminId, activityId)
+          }
         }
       }
     }

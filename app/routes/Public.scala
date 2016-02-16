@@ -5,7 +5,9 @@ import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
+
 import models.Reason.reasonTypeRegex
+import payloads._
 import slick.driver.PostgresDriver.api._
 import services.{GiftCardService, ReasonService, StoreCreditService, CustomerManager}
 import services.PublicService._
@@ -16,66 +18,66 @@ object Public {
     import Json4sSupport._
     import utils.Http._
 
-    pathPrefix("registrations") {
-      (post & path("new") & pathEnd & entity(as[payloads.CreateCustomerPayload])) { regRequest ⇒
-        activityContext() { implicit ac ⇒
+    activityContext() { implicit ac ⇒
+      pathPrefix("registrations") {
+        (post & path("new") & pathEnd & entity(as[CreateCustomerPayload])) { regRequest ⇒
           goodOrFailures {
             CustomerManager.create(regRequest)
           }
         }
-      }
-    } ~
-    pathPrefix("regions") {
-      (get & pathEnd) {
-        good {
-          listRegions
-        }
-      }
-    } ~
-    pathPrefix("countries") {
-      (get & pathEnd) {
-        good {
-          listCountries
+      } ~
+      pathPrefix("regions") {
+        (get & pathEnd) {
+          good {
+            listRegions
+          }
         }
       } ~
-      (get & path(IntNumber) & pathEnd) { countryId ⇒
-        goodOrFailures {
-          findCountry(countryId)
+      pathPrefix("countries") {
+        (get & pathEnd) {
+          good {
+            listCountries
+          }
+        } ~
+        (get & path(IntNumber) & pathEnd) { countryId ⇒
+          goodOrFailures {
+            findCountry(countryId)
+          }
         }
-      }
-    } ~
-    pathPrefix("gift-cards" / "types") {
-      (get & pathEnd) {
-        goodOrFailures {
-          GiftCardService.getOriginTypes
+      } ~
+      pathPrefix("gift-cards" / "types") {
+        (get & pathEnd) {
+          goodOrFailures {
+            GiftCardService.getOriginTypes
+          }
         }
-      }
-    } ~
-    pathPrefix("store-credits" / "types") {
-      (get & pathEnd) {
-        goodOrFailures {
-          StoreCreditService.getOriginTypes
+      } ~
+      pathPrefix("store-credits" / "types") {
+        (get & pathEnd) {
+          goodOrFailures {
+            StoreCreditService.getOriginTypes
+          }
         }
-      }
-    } ~
-    pathPrefix("reasons") {
-      (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-        goodOrFailures {
-          ReasonService.listReasons
+      } ~
+      pathPrefix("reasons") {
+        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+          goodOrFailures {
+            ReasonService.listReasons
+          }
         }
-      }
-    } ~
-    pathPrefix("reasons" / reasonTypeRegex) { reasonType ⇒
-      (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-        goodOrFailures {
-          ReasonService.listReasonsByType(reasonType)
+      } ~
+      pathPrefix("reasons" / reasonTypeRegex) { reasonType ⇒
+        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+          goodOrFailures {
+            ReasonService.listReasonsByType(reasonType)
+          }
         }
-      }
-    } ~
-    pathPrefix("rma-reasons") {
-      (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-        goodOrFailures {
-          ReasonService.listRmaReasons
+      } ~
+      pathPrefix("rma-reasons") {
+        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+          goodOrFailures {
+            ReasonService.listRmaReasons
+          }
         }
       }
     }

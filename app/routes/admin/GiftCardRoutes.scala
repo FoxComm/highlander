@@ -3,7 +3,9 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+
 import models.StoreAdmin
+import payloads._
 import services.{CustomerCreditConverter, GiftCardAdjustmentsService, GiftCardService}
 import slick.driver.PostgresDriver.api._
 import utils.Apis
@@ -18,56 +20,47 @@ object GiftCardRoutes {
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
-
-      pathPrefix("gift-cards") {
-        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-          goodOrFailures {
-            GiftCardService.findAll
-          }
-        } ~
-        (patch & pathEnd & entity(as[payloads.GiftCardBulkUpdateStateByCsr])) { payload ⇒
-          activityContext(admin) { implicit ac ⇒
+      activityContext(admin) { implicit ac ⇒
+        pathPrefix("gift-cards") {
+          (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+            goodOrFailures {
+              GiftCardService.findAll
+            }
+          } ~
+          (patch & pathEnd & entity(as[GiftCardBulkUpdateStateByCsr])) { payload ⇒
             goodOrFailures {
               GiftCardService.bulkUpdateStateByCsr(payload, admin)
             }
-          }
-        } ~
-        (get & path(Segment) & pathEnd) { code ⇒
-          goodOrFailures {
-            GiftCardService.getByCode(code)
-          }
-        } ~
-        (get & path(Segment / "transactions")) { code ⇒
-          (pathEnd & sortAndPage) { implicit sortAndPage ⇒
+          } ~
+          (get & path(Segment) & pathEnd) { code ⇒
             goodOrFailures {
-              GiftCardAdjustmentsService.forGiftCard(code)
+              GiftCardService.getByCode(code)
             }
-          }
-        } ~
-        (post & pathEnd & entity(as[payloads.GiftCardBulkCreateByCsr])) { payload ⇒
-          activityContext(admin) { implicit ac ⇒
+          } ~
+          (get & path(Segment / "transactions")) { code ⇒
+            (pathEnd & sortAndPage) { implicit sortAndPage ⇒
+              goodOrFailures {
+                GiftCardAdjustmentsService.forGiftCard(code)
+              }
+            }
+          } ~
+          (post & pathEnd & entity(as[GiftCardBulkCreateByCsr])) { payload ⇒
             goodOrFailures {
               GiftCardService.createBulkByAdmin(admin, payload)
             }
-          }
-        } ~
-        (post & pathEnd & entity(as[payloads.GiftCardCreateByCsr])) { payload ⇒
-          activityContext(admin) { implicit ac ⇒
+          } ~
+          (post & pathEnd & entity(as[GiftCardCreateByCsr])) { payload ⇒
             goodOrFailures {
               GiftCardService.createByAdmin(admin, payload)
             }
-          }
-        } ~
-        (patch & path(Segment) & pathEnd & entity(as[payloads.GiftCardUpdateStateByCsr])) { (code, payload) ⇒
-          activityContext(admin) { implicit ac ⇒
+          } ~
+          (patch & path(Segment) & pathEnd & entity(as[GiftCardUpdateStateByCsr])) { (code, payload) ⇒
             goodOrFailures {
               GiftCardService.updateStateByCsr(code, payload, admin)
             }
-          }
-        } ~
-        path(Segment / "convert" / IntNumber) { (code, customerId) ⇒
-          (post & pathEnd) {
-            activityContext(admin) { implicit ac ⇒
+          } ~
+          path(Segment / "convert" / IntNumber) { (code, customerId) ⇒
+            (post & pathEnd) {
               goodOrFailures {
                 CustomerCreditConverter.toStoreCredit(code, customerId, admin)
               }
