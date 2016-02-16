@@ -33,14 +33,16 @@ object Seeds {
 
     createBaseSeeds()
 
+    val scale = if (args.length == 2) args(1).toInt else  1 
+
     args.headOption.map {
       case "random" ⇒  
-        createRandomSeeds()
+        createRandomSeeds(scale)
       case "ranking" ⇒ 
         createRankingSeeds()
       case "demo" ⇒   
         createDemoSeeds()
-        createRandomSeeds()
+        createRandomSeeds(scale)
       case _ ⇒ None
     }
 
@@ -63,20 +65,23 @@ object Seeds {
     Await.result(db.run(RankingSeedsGenerator.insertRankingSeeds(1700).transactionally), 30.seconds)
   }
 
-  def createRandomSeeds()(implicit db: Database) {
+  def createRandomSeeds(scale: Int)(implicit db: Database) {
     Console.err.println(s"Inserting random seeds")
 
-    val customers = 1000
+    val customers = 1000 * scale
     val batchSize = 100 
     val batchs = customers / batchSize
-    val productsPerBatch = 20
+    val products = 1000 * scale
+    val productsPerBatch = products / batchSize 
+
+    Console.err.println(s"Generating ${customers} customers and a ${products} products in ${batchs} batches")
 
     //Have to generate data in batches because of DBIO.seq stack overflow bug.
     //https://github.com/slick/slick/issues/1186
     (1 to batchs) map { b ⇒ 
       Console.err.println(s"Generating random batch $b of $batchSize customers")
       val result = Await.result(
-        SeedsGenerator.insertRandomizedSeeds(batchSize, productsPerBatch).runTxn(), 120.second)
+        SeedsGenerator.insertRandomizedSeeds(batchSize, productsPerBatch).runTxn(), (120 * scale).second)
       validateResults("random", result)
     }
   }
