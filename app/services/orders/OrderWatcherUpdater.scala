@@ -34,7 +34,7 @@ object OrderWatcherUpdater {
       reason = NotificationSubscription.Assigned, objectIds = Seq(order.referenceNumber))
   } yield TheResponse.build(fullOrder, errors = notFoundAdmins)).runTxn()
 
-  def unassign(admin: StoreAdmin, refNum: String, assigneeId: Int)(implicit db: Database, ec: ExecutionContext,
+  def unwatch(admin: StoreAdmin, refNum: String, assigneeId: Int)(implicit db: Database, ec: ExecutionContext,
     ac: ActivityContext): Result[TheResponse[Root]] = (for {
     order           ← * <~ Orders.mustFindByRefNum(refNum)
     watcher         ← * <~ StoreAdmins.mustFindById404(assigneeId)
@@ -53,13 +53,13 @@ object OrderWatcherUpdater {
     watcher        ← * <~ StoreAdmins.mustFindById400(payload.watcherId)
     newWatchers    = for (order ← orders) yield OrderWatcher(orderId = order.id, watcherId = watcher.id)
     _              ← * <~ OrderWatchers.createAll(newWatchers)
-    allOrders      ← * <~ OrderQueries.findAllDbio
+    response       ← * <~ OrderQueries.findAll
     ordersNotFound = diffToFlatFailures(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
     orderRefNums   = orders.filter(o ⇒ newWatchers.map(_.orderId).contains(o.id)).map(_.referenceNumber)
     _              ← * <~ LogActivity.bulkAddedWatcherToOrders(admin, watcher, orderRefNums)
     _              ← * <~ NotificationManager.subscribe(adminIds = Seq(watcher.id), dimension = Dimension.order,
                             reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber))
-  } yield allOrders.copy(errors = ordersNotFound)).runTxn()
+  } yield response.copy(errors = ordersNotFound)).runTxn()
 
   def unwatchBulk(admin: StoreAdmin, payload: payloads.BulkWatchers)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
@@ -67,7 +67,7 @@ object OrderWatcherUpdater {
     orders         ← * <~ Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
     watcher        ← * <~ StoreAdmins.mustFindById400(payload.watcherId)
     _              ← * <~ OrderWatchers.filter(_.watcherId === payload.watcherId).filter(_.orderId.inSetBind(orders.map(_.id))).delete
-    response       ← * <~ OrderQueries.findAllDbio
+    response       ← * <~ OrderQueries.findAll
     ordersNotFound = diffToFlatFailures(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
     orderRefNums   = orders.filter(o ⇒ payload.referenceNumbers.contains(o.refNum)).map(_.referenceNumber)
     _              ← * <~ LogActivity.bulkRemovedWatcherFromOrders(admin, watcher, orderRefNums)

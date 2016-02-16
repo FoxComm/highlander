@@ -117,7 +117,7 @@ object CustomerManager {
     _        ← * <~ LogActivity.customerCreated(response, admin)
   } yield response).runTxn()
 
-  def update(customerId: Int, payload: UpdateCustomerPayload, admin: StoreAdmin)
+  def update(customerId: Int, payload: UpdateCustomerPayload, admin: Option[StoreAdmin] = None)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
     _        ← * <~ payload.validate.toXor
     customer ← * <~ Customers.mustFindById404(customerId)

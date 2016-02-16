@@ -34,7 +34,7 @@ object CreditCardManager {
   def buildResponses(records: Seq[(CreditCard, Region)]): Seq[Root] =
     records.map((buildResponse _).tupled)
 
-  def createCardThroughGateway(admin: StoreAdmin, customerId: Int, payload: CreateCreditCard)
+  def createCardThroughGateway(customerId: Int, payload: CreateCreditCard, admin: Option[StoreAdmin] = None)
     (implicit ec: ExecutionContext, db: Database, apis: Apis, ac: ActivityContext): Result[Root] = {
 
     def createCard(customer: Customer, sCustomer: StripeCustomer, sCard: StripeCard, address: Address) = for {
@@ -42,7 +42,7 @@ object CreditCardManager {
       cc = CreditCard.build(customerId, sCustomer, sCard, payload, address)
       newCard ← * <~ CreditCards.create(cc)
       region  ← * <~ Regions.findOneById(newCard.regionId).safeGet.toXor
-      _       ← * <~ LogActivity.ccCreated(admin, customer, cc)
+      _       ← * <~ LogActivity.ccCreated(customer, cc, admin)
     } yield buildResponse(newCard, region)
 
     def getExistingStripeIdAndAddress = for {
@@ -73,7 +73,7 @@ object CreditCardManager {
     region  ← * <~ Regions.findOneById(cc.regionId).safeGet.toXor
   } yield buildResponse(default, region)).runTxn()
 
-  def deleteCreditCard(admin: StoreAdmin, customerId: Int, id: Int)
+  def deleteCreditCard(customerId: Int, id: Int, admin: Option[StoreAdmin] = None)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Unit] = {
 
     (for {
@@ -81,11 +81,11 @@ object CreditCardManager {
       cc        ← * <~ CreditCards.mustFindByIdAndCustomer(id, customerId)
       region    ← * <~ Regions.findOneById(cc.regionId).safeGet.toXor
       update    ← * <~ CreditCards.update(cc, cc.copy(inWallet = false, deletedAt = Some(Instant.now())))
-      _         ← * <~ LogActivity.ccDeleted(admin, customer, cc)
+      _         ← * <~ LogActivity.ccDeleted(customer, cc, admin)
     } yield ()).runTxn()
   }
 
-  def editCreditCard(admin: StoreAdmin, customerId: Int, id: Int, payload: EditCreditCard)
+  def editCreditCard(customerId: Int, id: Int, payload: EditCreditCard, admin: Option[StoreAdmin] = None)
     (implicit ec: ExecutionContext, db: Database, apis: Apis, ac: ActivityContext): Result[Root] = {
 
     def update(customer: Customer, cc: CreditCard) = {
@@ -100,13 +100,13 @@ object CreditCardManager {
         _  ← * <~ (if (!cc.inWallet) DbResult.failure(CannotUseInactiveCreditCard(cc)) else DbResult.unit)
         _  ← * <~ CreditCards.update(cc, cc.copy(inWallet = false))
         cc ← * <~ CreditCards.create(updated)
-        _  ← * <~ LogActivity.ccUpdated(admin, customer, updated, cc)
+        _  ← * <~ LogActivity.ccUpdated(customer, updated, cc, admin)
       } yield cc
     }
 
-    def createNewAddressIfProvided(cc: CreditCard) = payload.address.fold(DbResultT.rightLift(cc))(_ ⇒ (for {
+    def createNewAddressIfProvided(cc: CreditCard) = payload.address.fold(DbResultT.rightLift(cc))(_ ⇒ for {
       address ← * <~ Addresses.create(Address.fromCreditCard(cc).copy(customerId = customerId))
-    } yield cc))
+    } yield cc)
 
     def cascadeChangesToCarts(updated: CreditCard) = {
       val paymentIds = for {
@@ -141,6 +141,14 @@ object CreditCardManager {
     cc      ← CreditCards.findInWalletByCustomerId(customerId)
     region  ← cc.region
   } yield (cc, region)).result.map(buildResponses).run()
+
+  def getByIdAndCustomer(creditCardId: Int, customer: Customer)
+    (implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
+    cc      ← * <~ CreditCards.findByIdAndCustomerId(creditCardId, customer.id)
+                              .one
+                              .mustFindOr(NotFoundFailure404(CreditCard, creditCardId))
+    region  ← * <~ Regions.mustFindById404(cc.regionId)
+  } yield buildResponse(cc, region)).run()
 
   private def getAddressFromPayload(id: Option[Int], payload: Option[CreateAddressPayload]): DBIO[Option[Address]] = {
     (id, payload) match {

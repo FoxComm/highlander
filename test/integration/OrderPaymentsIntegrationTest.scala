@@ -155,7 +155,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
           val payments = storeCreditPayments(order)
 
           response.status must ===(StatusCodes.OK)
-          payments must have size (2)
+          payments must have size 2
 
           val expected = payments.sortBy(_.paymentMethodId).map(p ⇒ (p.paymentMethodId, p.amount)).toList
           expected must ===(List((3, Some(5000)), (4, Some(2500))))
@@ -172,24 +172,24 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
           response.status must ===(StatusCodes.OK)
           val payments = storeCreditPayments(order)
           payments.map(_.paymentMethodId) must contain noneOf(1, 2)
-          payments must have size (2)
+          payments must have size 2
         }
 
-        "adding or editing store credit should remove previous order payments" in new StoreCreditFixture {
+        "adding store credit should remove previous order payments" in new StoreCreditFixture {
           val payload = payloads.StoreCreditPayment(amount = 7500)
           val createdResponse = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
           val createdPayments = storeCreditPayments(order)
 
           createdResponse.status must ===(StatusCodes.OK)
-          createdPayments must have size (2)
+          createdPayments must have size 2
 
           val createdPaymentIds = createdPayments.map(_.id).toList
-          val editedResponse = PATCH(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
+          val editedResponse = POST(s"v1/orders/${order.refNum}/payment-methods/store-credit", payload)
           val editedPayments = storeCreditPayments(order)
 
           editedResponse.status must ===(StatusCodes.OK)
-          editedPayments must have size (2)
-          editedPayments.map(_.id) mustNot contain theSameElementsAs(createdPaymentIds)
+          editedPayments must have size 2
+          editedPayments.map(_.id) mustNot contain theSameElementsAs createdPaymentIds
         }
       }
 
@@ -257,8 +257,23 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val payments = creditCardPayments(order)
 
         response.status must ===(StatusCodes.OK)
-        payments must have size(1)
+        payments must have size 1
         payments.head.amount must === (None)
+      }
+
+      "successfully replaces an existing card" in new CreditCardFixture {
+        val first = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards",
+          payloads.CreditCardPayment(creditCard.id))
+        first.status must ===(StatusCodes.OK)
+
+        val newCreditCard = CreditCards.create(creditCard.copy(id = 0, isDefault = false)).run().futureValue.rightVal
+        val second = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards",
+          payloads.CreditCardPayment(newCreditCard.id))
+        second.status must ===(StatusCodes.OK)
+
+        val payments = creditCardPayments(order)
+        payments must have size 1
+        payments.head.paymentMethodId must === (newCreditCard.id)
       }
 
       "fails if the order is not found" in new CreditCardFixture {
@@ -282,7 +297,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       "fails if the creditCard is inActive" in new CreditCardFixture {
         val payload = payloads.CreditCardPayment(creditCard.id)
         implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
-        CreditCardManager.deleteCreditCard(admin = admin, customerId = customer.id, id = creditCard.id).futureValue
+        CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(admin)).futureValue
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
 
         response.status must ===(StatusCodes.BadRequest)
@@ -298,23 +313,6 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         response.status must === (StatusCodes.BadRequest)
         response.error must === (OrderMustBeCart(order.refNum).description)
         creditCardPayments(order) must have size 0
-      }
-    }
-
-    "PATCH /v1/orders/:ref/payment-methods/credit-cards" - {
-      "successfully replaces an existing card" in new CreditCardFixture {
-        val first = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards",
-          payloads.CreditCardPayment(creditCard.id))
-        first.status must ===(StatusCodes.OK)
-
-        val newCreditCard = CreditCards.create(creditCard.copy(id = 0, isDefault = false)).run().futureValue.rightVal
-        val second = PATCH(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards",
-          payloads.CreditCardPayment(newCreditCard.id))
-        second.status must ===(StatusCodes.OK)
-
-        val payments = creditCardPayments(order)
-        payments must have size (1)
-        payments.head.paymentMethodId must === (newCreditCard.id)
       }
     }
 

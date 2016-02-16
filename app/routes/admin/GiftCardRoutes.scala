@@ -25,11 +25,6 @@ object GiftCardRoutes {
             GiftCardService.findAll
           }
         } ~
-        (get & path("types") & pathEnd) {
-          goodOrFailures {
-            GiftCardService.getOriginTypes
-          }
-        } ~
         (patch & pathEnd & entity(as[payloads.GiftCardBulkUpdateStateByCsr])) { payload ⇒
           activityContext(admin) { implicit ac ⇒
             goodOrFailures {

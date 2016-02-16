@@ -1,10 +1,5 @@
 package utils
 
-import scala.concurrent.ExecutionContext
-
-import services.{Result, Failures}
-import cats.{Monad, Applicative, Functor}
-import cats.data.{Validated, XorT, Xor}
 import scala.collection.generic.CanBuildFrom
 import scala.concurrent.ExecutionContext
 

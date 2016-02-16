@@ -20,8 +20,8 @@ object CustomerResponse {
     rank: Option[Int] = None,
     totalSales: Option[Int] = None,
     numOrders: Option[Int] = None,
-    billingRegion: Option[String] = None,
-    shippingRegion: Option[String] = None) extends ResponseItem
+    billingRegion: Option[Region] = None,
+    shippingRegion: Option[Region] = None) extends ResponseItem
 
   def build(customer: Customer,
     shippingRegion: Option[Region] = None,
@@ -41,6 +41,6 @@ object CustomerResponse {
       rank = rank.map(_.rank),
       totalSales = rank.map(_.revenue),
       numOrders = numOrders,
-      billingRegion = billingRegion.map(_.name),
-      shippingRegion = shippingRegion.map(_.name))
+      billingRegion = billingRegion,
+      shippingRegion = shippingRegion)
 }

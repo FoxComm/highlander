@@ -149,6 +149,9 @@ object Orders extends TableQueryWithLock[Order, Orders](
   def findOneByRefNum(refNum: String): DBIO[Option[Order]] =
     filter(_.referenceNumber === refNum).one
 
+  def findOneByRefNumAndCustomer(refNum: String, customer: Customer): QuerySeq =
+    filter(_.referenceNumber === refNum).filter(_.customerId === customer.id)
+
   def findCartByRefNum(refNum: String): QuerySeq =
     findByRefNum(refNum).cartOnly
 
