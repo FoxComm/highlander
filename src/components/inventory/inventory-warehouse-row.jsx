@@ -7,16 +7,16 @@ import { transitionTo } from '../../route-helpers';
 // components
 import ExpandableRow from '../table/expandable-row';
 
-const setCellContents = (warehouse, field) => {
+const setCellContents = (warehouse, field, params) => {
   return _.get(warehouse, field);
 };
 
-const setDrawerContent = () => {
+const setDrawerContent = (params) => {
   return (<div>Drawer!</div>);
 };
 
 const InventoryWarehouseRow = props => {
-  const { warehouse, columns } = props;
+  const { warehouse, columns, params } = props;
   const key = `inventory-list-${warehouse.id}`;
 
   return (
@@ -25,6 +25,7 @@ const InventoryWarehouseRow = props => {
       columns={columns}
       onClick={_.noop}
       row={warehouse}
+      params={params}
       setCellContents={setCellContents}
       setDrawerContent={setDrawerContent} />
   );

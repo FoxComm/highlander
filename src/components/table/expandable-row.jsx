@@ -6,26 +6,7 @@ import classNames from 'classnames';
 // components
 import TableCell from '../table/cell';
 import TableRow from '../table/row';
-
-class Drawer extends React.Component {
-  get drawerClass() {
-    return classNames('fc-expandable-table__drawer', {
-      '_shown': this.props.isVisible,
-      '_hidden': !this.props.isVisible,
-    });
-  }
-
-  render() {
-    console.log(this.props);
-    return (
-      <TableRow className={this.drawerClass}>
-        <td colSpan={this.props.colspan}>
-          {this.props.children}
-        </td>
-      </TableRow>
-    );
-  }
-}
+import Drawer from './drawer';
 
 class ExpandableRow extends React.Component {
 
@@ -37,10 +18,10 @@ class ExpandableRow extends React.Component {
   }
 
   get drawer() {
-    const { setDrawerContent, columns } = this.props;
-    const content = setDrawerContent();
+    const { setDrawerContent, columns, params } = this.props;
+    const content = setDrawerContent(params);
     return (
-      <Drawer isVisible={this.state.isOpen} colspan={columns.length}>{content}</Drawer>
+      <Drawer isVisible={this.state.isOpen} colspan={columns.length} params={params}>{content}</Drawer>
     );
   }
 
