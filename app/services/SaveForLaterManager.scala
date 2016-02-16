@@ -30,7 +30,7 @@ object SaveForLaterManager {
     _   ← * <~ SaveForLaters.find(customerId = customer.id, skuId = sku.id).one
                  .mustNotFindOr(AlreadySavedForLater(customerId = customer.id, skuId = sku.id))
     _   ← * <~ SaveForLaters.create(SaveForLater(customerId = customer.id, skuId = sku.id))
-    response ← * <~ findAllDbio(customer).toXor
+    response ← * <~ findAllDbio(customer, productContextId).toXor
   } yield response).runTxn()
 
   def deleteSaveForLater(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Unit] =

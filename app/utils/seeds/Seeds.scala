@@ -86,17 +86,18 @@ object Seeds {
     customers ← * <~ Factories.createCustomers
     _ ← * <~ Factories.createAddresses(customers)
     _ ← * <~ Factories.createCreditCards(customers)
+    products ← * <~ Factories.createProducts
     skus ← * <~ Factories.createInventory
     shipMethods ← * <~ Factories.createShipmentRules
     _ ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = admin)))
     _ ← * <~ Factories.createGiftCards
     _ ← * <~ Factories.createStoreCredits(admin, customers._1, customers._3)
-    orders ← * <~ Factories.createOrders(customers, skus, shipMethods)
+    orders ← * <~ Factories.createOrders(customers, products, shipMethods)
     _ ← * <~ Factories.createRmas
   } yield {}
 
-  object Factories extends CustomerSeeds with GiftCardSeeds with StoreCreditSeeds with RmaSeeds with InventorySeeds
-  with ShipmentSeeds with OrderSeeds with StoreAdminSeeds with AddressSeeds with CreditCardSeeds
+  object Factories extends CustomerSeeds with GiftCardSeeds with StoreCreditSeeds with RmaSeeds with ProductSeeds 
+  with InventorySeeds with ShipmentSeeds with OrderSeeds with StoreAdminSeeds with AddressSeeds with CreditCardSeeds
   with CustomersGroupSeeds {
 
     implicit val formats = JsonFormatters.phoenixFormats

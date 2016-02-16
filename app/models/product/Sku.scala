@@ -29,6 +29,8 @@ final case class Sku(
   sku: String, 
   productId: Int,
   attributes: Json, 
+  isHazardous: Boolean = false,
+  isActive: Boolean = true,
   `type`: Sku.Type = Sku.Sellable)
   extends ModelWithIdParameter[Sku]
 
@@ -48,9 +50,11 @@ class Skus(tag: Tag) extends GenericTable.TableWithId[Sku](tag, "skus")  {
   def sku = column[String]("sku")
   def productId = column[Int]("product_id")
   def attributes = column[Json]("attributes")
+  def isHazardous = column[Boolean]("is_hazardous")
+  def isActive = column[Boolean]("is_hazardous")
   def `type` = column[Sku.Type]("type")
 
-  def * = (id, sku, productId, attributes, `type`) <> ((Sku.apply _).tupled, Sku.unapply)
+  def * = (id, sku, productId, attributes, isHazardous, isActive, `type`) <> ((Sku.apply _).tupled, Sku.unapply)
 
   def product = foreignKey(Products.tableName, productId, Products)(_.id)
 }

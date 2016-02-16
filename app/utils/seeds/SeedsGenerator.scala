@@ -3,7 +3,7 @@ package utils.seeds
 import scala.util.Random
 
 import utils.seeds.generators.{CustomerGenerator, AddressGenerator, CreditCardGenerator, 
-  OrderGenerator, InventoryGenerator}
+  OrderGenerator, InventoryGenerator, ProductGenerator}
 import models.{Address, Addresses, CreditCard, CreditCards, Customer, Customers, 
   Order, OrderPayment, OrderPayments, Orders, PaymentMethod, CustomerDynamicGroup,
   OrderLineItemSku, OrderLineItemSkus}
@@ -94,7 +94,8 @@ object RankingSeedsGenerator {
 }
 
 object SeedsGenerator extends CustomerGenerator with AddressGenerator 
-  with CreditCardGenerator with OrderGenerator with InventoryGenerator{
+  with CreditCardGenerator with OrderGenerator with ProductGenerator 
+  with InventoryGenerator{
 
   import org.json4s.JObject
 
@@ -107,7 +108,7 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
     }
   }
 
-  def makeSkus(productCount: Int) = (1 to productCount).map { i ⇒  generateSku }
+  def makeProducts(productCount: Int) = (1 to productCount).map { i ⇒  generateProduct }
 
   def randomSubset[T](vals: Seq[T]) : Seq[T] = {
     require(vals.length > 0)
@@ -124,7 +125,8 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
     for {
       shipMethods ← * <~ createShipmentRules
       _ ← * <~  generateWarehouses
-      skuIds ← * <~  generateInventory(makeSkus(productCount))
+      products ← * <~ generateProducts(makeProducts(productCount))
+      skuIds ← * <~  generateInventory(products)
       skus  ← * <~ Skus.filter(_.id.inSet(skuIds)).result
       customerIds ← * <~ Customers.createAllReturningIds(generateCustomers(customersCount, location))
       customers  ← * <~ Customers.filter(_.id.inSet(customerIds)).result

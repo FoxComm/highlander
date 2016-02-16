@@ -8,7 +8,7 @@ import models.{Customer, Customers, OrderShippingMethods, OrderShippingMethod,
   Addresses, OrderPayments, OrderPayment, OrderShippingAddresses, 
   OrderShippingAddress, Shipment, Shipments, GiftCardOrder, GiftCardOrders}
 
-import models.product.{Sku, Skus}
+import models.product.{Sku, Skus, SimpleProductData, Mvp, ProductContexts, SimpleContext}
 import models.inventory.{Warehouse, Warehouses, InventorySummary}
 import models.Order.Shipped
 
@@ -78,6 +78,8 @@ trait DemoSeedHelpers {
     addressIds ← * <~ Addresses.createAllReturningIds(customers.map{ id ⇒ address.copy(customerId = id)})
   } yield addressIds
 
+  def createInventory(skuIds: Seq[Int]): Seq[InventorySummary] = 
+    skuIds.map { skuId ⇒ InventorySummary.buildNew(warehouse.id, skuId = skuId, onHand = 100) } 
 }
 
 /**
@@ -102,25 +104,30 @@ trait DemoScenario2 extends DemoSeedHelpers {
     generateCustomer("Susan Dole", "susan.dole@yahoo.com"))
 
 
-  def skus2: Seq[Sku] = Seq(
-    Sku(sku = "SKU-ALG", name = "Alegria Women's Vanessa Sandal".some, price = 3500),
-    Sku(sku = "SKU-NIK", name = "Nike Men's Donwshifter 6 Running Shoe".some, price = 2500),
-    Sku(sku = "SKU-BAL", name = "New Balance Men's M520V2 Running Shoe".some, price = 2800),
-    Sku(sku = "SKU-CLK", name = "Clarks Women's Aria Pump Flat".some, price = 7900),
-    Sku(sku = "SKU-ADS", name = "adidas Performance Women's Galactic Elite Running Shoe".some, price = 4900))
-
-  def inventorySummaries(skus: Seq[Sku]): Seq[InventorySummary] = 
-    skus.map { sku ⇒ InventorySummary.buildNew(warehouse.id, skuId = sku.id, onHand = 100) } 
+  def products2: Seq[SimpleProductData] = Seq(
+    SimpleProductData(sku = "SKU-ALG", title = "Alegria Women's Vanessa Sandal",
+      description = "Alegria Women's Vanessa Sandal", price = 3500),
+    SimpleProductData(sku = "SKU-NIK", title = "Nike Men's Donwshifter 6 Running Shoe",
+      description = "Nike Men's Donwshifter 6 Running Shoe", price = 2500),
+    SimpleProductData(sku = "SKU-BAL", title = "New Balance Men's M520V2 Running Shoe",
+      description = "New Balance Men's M520V2 Running Shoe", price = 2800),
+    SimpleProductData(sku = "SKU-CLK", title = "Clarks Women's Aria Pump Flat",
+      description = "Clarks Women's Aria Pump Flat", price = 7900),
+    SimpleProductData(sku = "SKU-ADS", title = "adidas Performance Women's Galactic Elite Running Shoe",
+      description = "adidas Performance Women's Galactic Elite Running Shoe", price = 4900))
 
   def address2 = Address(customerId = 0, regionId = 4177, name = "Home", 
     address1 = "555 E Lake Union St.", address2 = None, city = "Seattle", 
     zip = "12345", isDefaultShipping = true, phoneNumber = "2025550113".some)
 
   def createScenario2(implicit db: Database) = for { 
+    productContext ← * <~ ProductContexts.create(SimpleContext.create)
     warehouseIds ← * <~ Warehouses.createAllReturningIds(warehouses)
     customerIds ← * <~ Customers.createAllReturningIds(customers2)
     addressIds ← * <~ createAddresses(customerIds, address2)
-    skuIds ← * <~ Skus.createAllReturningIds(skus2)
+    productData ← * <~ Mvp.insertProducts(products2, productContext.id)
+    skuIds ← * <~ productData.map(_.skuId)
+    inventory ← * <~ createInventory(skuIds)
   } yield {}
 
 }
@@ -149,19 +156,23 @@ trait DemoScenario3 extends DemoSeedHelpers {
     generateCustomer("Susan Cage", "susan@compuglobal.com"),
     generateCustomer("John Dole", "john.dole@yahoo.com"))
 
-  def skus3: Seq[Sku] = Seq(Sku(sku = "SKU-CLK2", name = "Clarks Women's Aria Pump Flat".some, price = 7900))
+  def products3: Seq[SimpleProductData] = Seq(SimpleProductData(sku = "SKU-CLK2", 
+    title = "Clarks Women's Aria Pump Flat", description = "Clarks Women's Aria Pump Flat", price = 7900))
 
   def address3 = Address(customerId = 0, regionId = 4177, name = "Home", 
     address1 = "555 E Lake Union St.", address2 = None, city = "Seattle", 
     zip = "12345", isDefaultShipping = true, phoneNumber = "2025550113".some)
 
   def createScenario3(implicit db: Database) = for { 
+    productContext ← * <~ ProductContexts.create(SimpleContext.create)
     shippingMethod  ← * <~ ShippingMethods.filter(_.adminDisplayName === "UPS 2-day").one.mustFindOr(
       NotFoundFailure404("Unable to find 2-day shipping method"))
     warehouseIds ← * <~ Warehouses.createAllReturningIds(warehouses)
     customerIds ← * <~ Customers.createAllReturningIds(customers3)
     addressIds ← * <~ createAddresses(customerIds, address3)
-    skuIds ← * <~ Skus.createAllReturningIds(skus3)
+    productData ← * <~ Mvp.insertProducts(products3, productContext.id)
+    skuIds ← * <~ productData.map(_.skuId)
+    inventory ← * <~ createInventory(skuIds)
     orders ← * <~ customerIds.map { id ⇒ createShippedOrder(id, skuIds, shippingMethod.id)}
   } yield {}
 }

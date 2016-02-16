@@ -1,12 +1,17 @@
 package models.product
 
 import Aliases.Json
-import utils.Money.Currency
+import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
+import utils.Money.Currency
 
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
+
+import slick.driver.PostgresDriver.api._
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object SimpleContext { 
   val variant =  "default"
@@ -124,6 +129,34 @@ final case class SimpleProductData(
   isActive: Boolean = true)
 
 object Mvp { 
+
+  def insertProduct(contextId: Int, p: SimpleProductData)(implicit db: Database): 
+  DbResultT[SimpleProductData] = for {
+    simpleProduct ← * <~ SimpleProduct(p.title, p.description, p.image, p.sku, p.isActive)
+    product ← * <~ Products.create(simpleProduct.create)
+    simpleShadow ← * <~ SimpleProductShadow(contextId, product.id)
+    productShadow ← * <~ ProductShadows.create(simpleShadow.create)
+    simpleSku ← * <~ SimpleSku(product.id, p.sku, p.price, p.currency, p.skuType)
+    sku ← * <~ Skus.create(simpleSku.create)
+    simpleSkuShadow ← * <~ SimpleSkuShadow(contextId, sku.id)
+    skuShadow ← * <~ SkuShadows.create(simpleSkuShadow.create)
+  } yield p.copy(
+    productId = product.id,
+    productShadowId = productShadow.id,
+    skuId = sku.id,
+    skuShadowId = skuShadow.id)
+
+  def getPrice(product: SimpleProductData)(implicit db: Database): 
+  DbResultT[Int] = for {
+    sku ← * <~ Skus.mustFindById404(product.skuId)
+    skuShadow ← * <~ SkuShadows.mustFindById404(product.skuShadowId)
+    p ← * <~ price(sku, skuShadow).getOrElse((0, Currency.USD))
+  } yield p._1
+
+  def insertProducts(ps : Seq[SimpleProductData], contextId: Int)(implicit db: Database) : 
+  DbResultT[Seq[SimpleProductData]] = for {
+    results ← * <~ DbResultT.sequence(ps.map { p ⇒ insertProduct(contextId, p) } )
+  } yield results
 
   def priceFromJson(p: JValue) : Option[(Int, Currency)] = {
     val price = for {

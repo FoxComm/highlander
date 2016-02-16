@@ -4,7 +4,9 @@ create table skus (
     sku generic_string,
     type generic_string,
     attributes jsonb,
-    foreign key (product_context_id) references product_contexts(id) on update restrict on delete restrict
+    is_hazardous bool,
+    is_active bool,
+    foreign key (product_id) references products(id) on update restrict on delete restrict
 );
 
 create function create_order_line_item_skus_mapping() returns trigger as $$
