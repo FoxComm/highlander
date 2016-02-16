@@ -5,8 +5,9 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+
 import models.StoreAdmin
-import payloads.AppendActivity
+import payloads._
 import services.activity.{ActivityManager, TrailManager}
 import slick.driver.PostgresDriver.api._
 import utils.Apis
@@ -19,28 +20,29 @@ object Activity {
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
-
-      pathPrefix("activities") {
-        pathPrefix(IntNumber) { activityId ⇒
-          (get & pathEnd) {
-            goodOrFailures {
-              ActivityManager.findById(activityId)
+      activityContext(admin) { implicit ac ⇒
+        pathPrefix("activities") {
+          pathPrefix(IntNumber) { activityId ⇒
+            (get & pathEnd) {
+              goodOrFailures {
+                ActivityManager.findById(activityId)
+              }
             }
           }
-        }
-      } ~
-      pathPrefix("connections" / IntNumber) { connectionId ⇒
-        (get & pathEnd) {
-          goodOrFailures {
-            TrailManager.findConnection(connectionId)
-          }
-        }
-      } ~
-      pathPrefix("trails" / Segment / Segment) { (dimension, objectId) ⇒
-        (post & pathEnd & activityContext(admin)) { implicit ac ⇒
-          entity(as[AppendActivity]) { payload ⇒
+        } ~
+        pathPrefix("connections" / IntNumber) { connectionId ⇒
+          (get & pathEnd) {
             goodOrFailures {
-              TrailManager.appendActivityByObjectId(dimension, objectId, payload)
+              TrailManager.findConnection(connectionId)
+            }
+          }
+        } ~
+        pathPrefix("trails" / Segment / Segment) { (dimension, objectId) ⇒
+          (post & pathEnd) {
+            entity(as[AppendActivity]) { payload ⇒
+              goodOrFailures {
+                TrailManager.appendActivityByObjectId(dimension, objectId, payload)
+              }
             }
           }
         }

@@ -289,7 +289,7 @@ object LogActivity {
 
   private def buildOriginator(originator: Originator)
     (implicit ec: ExecutionContext, ac: ActivityContext): Option[StoreAdminResponse.Root] = originator match {
-    case AdminOriginator(admin)     ⇒ Some(buildAdmin(admin))
-    case CustomerOriginator(inner)  ⇒ None // We don't need customer, he's already in FullOrder.Root
+    case AdminOriginator(admin)   ⇒ Some(buildAdmin(admin))
+    case CustomerOriginator(_)    ⇒ None // We don't need customer, he's already in FullOrder.Root
   }
 }
