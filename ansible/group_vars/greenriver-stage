@@ -3,3 +3,4 @@ search_server: 127.0.0.1:9300
 search_server_http: 127.0.0.1:9200
 ashes_server: "{{hostvars[groups['ashes-stage'][0]]['ansible_eth0']['ipv4']['address'] }}"
 es_heap_size: 1g
+seeds_cmd: utils.seeds.Seeds demo 10
