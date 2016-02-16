@@ -4,15 +4,6 @@ import ReactDOM from 'react-dom/server';
 import { match, RouterContext } from 'react-router';
 import createHistory from 'history/lib/createMemoryHistory';
 import { Provider } from 'react-redux';
-import cssHook from 'css-modules-require-hook';
-import cssnext from 'postcss-cssnext';
-
-cssHook({
-  prepend: [
-    cssnext(),
-  ],
-});
-
 import makeStore from './store';
 import routes from './routes';
 

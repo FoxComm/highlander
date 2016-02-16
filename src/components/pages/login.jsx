@@ -2,9 +2,12 @@
 import React from 'react';
 import cssModules from 'react-css-modules';
 import styles from './css/login.css';
+import { autobind } from 'core-decorators';
 
 import { TextInput } from '../common/inputs';
 import { Form, FormField } from '../forms';
+import Button from '../common/buttons';
+
 
 @cssModules(styles)
 export default class Login extends React.Component {
@@ -14,12 +17,14 @@ export default class Login extends React.Component {
     password: '',
   };
 
+  @autobind
   onChangeEmail({target}) {
     this.setState({
       email: target.value,
     });
   }
 
+  @autobind
   onChangePassword({target}) {
     this.setState({
       password: target.value,
@@ -34,12 +39,13 @@ export default class Login extends React.Component {
         <div styleName="title">LOG IN</div>
         <div>------------- or ------------</div>
         <Form>
-          <FormField>
-            <TextInput placeholder="EMAIL" value={email} onChane={::this.onChangeEmail} />
+          <FormField styleName="form-field">
+            <TextInput placeholder="EMAIL" value={email} onChange={this.onChangeEmail} />
           </FormField>
-          <FormField>
-            <TextInput placeholder="PASSWORD" value={password} onChane={::this.onChangePassword} type="password" />
+          <FormField styleName="form-field">
+            <TextInput placeholder="PASSWORD" value={password} onChange={this.onChangePassword} type="password" />
           </FormField>
+          <Button>LOG IN</Button>
         </Form>
       </div>
     );

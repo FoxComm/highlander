@@ -5,6 +5,15 @@
   margin: 0 auto;
 }
 
+.form-field {
+  width: 100%;
+  margin-bottom: 15px;
+
+  & > input {
+    width: 100%;
+  }
+}
+
 .title {
 
 }

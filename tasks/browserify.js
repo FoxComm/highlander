@@ -9,6 +9,8 @@ const buffer = require('vinyl-buffer');
 const runSequence = require('run-sequence');
 const affectsServer = require('./server').affectsServer;
 
+const plugins = require('../src/postcss').plugins;
+
 module.exports = function(gulp, opts, $) {
   const production = (process.env.NODE_ENV === 'production');
 
@@ -28,7 +30,7 @@ module.exports = function(gulp, opts, $) {
     });
     bundler.plugin(require('css-modulesify'), {
       output: path.resolve('public/app.css'),
-      after: ['postcss-cssnext'],
+      use: plugins,
     });
     if (!production) {
       bundler.plugin('livereactload');
