@@ -1,4 +1,3 @@
-
 // libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
@@ -6,158 +5,129 @@ import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
+// data
+import { groups, emptyTitle } from '../../paragons/watcher';
+
 // components
 import Panel from '../panel/panel';
 import { AddButton } from '../common/buttons';
 import UserInitials from '../users/initials';
 import { Button } from '../common/buttons';
-import AddWatcherModal from './new-modal';
+import SelectWatcherModal from './select-modal';
 
-// redux
-import * as WatchersActions from '../../modules/watchers';
-
-const Groups = {
-  ASSIGNEES: 'assignees',
-  WATCHERS: 'watchers'
-};
 
 const maxDisplayed = 7;
 
-@connect((state, props) => ({
-  data: _.get(state.watchers, [props.entity.entityType, props.entity.entityId], {})
-}), WatchersActions)
 export default class Watchers extends React.Component {
 
   static propTypes = {
-    entity: PropTypes.shape({
-      entityType: PropTypes.string,
-      entityId: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-    }).isRequired
+    entityType: PropTypes.string.isRequired,
+    data: PropTypes.object.isRequired,
+    actions: PropTypes.shape({
+      showSelectModal: PropTypes.func.isRequired,
+      hideSelectModal: PropTypes.func.isRequired,
+      toggleListModal: PropTypes.func.isRequired,
+      suggestWatchers: PropTypes.func.isRequired,
+      selectItem: PropTypes.func.isRequired,
+      deselectItem: PropTypes.func.isRequired,
+      addWatchers: PropTypes.func.isRequired,
+      removeWatcher: PropTypes.func.isRequired,
+    }).isRequired,
   };
 
-  componentDidMount() {
-    this.props.fetchWatchers(this.entity);
-    this.props.fetchAssignees(this.entity);
-  }
+  renderGroup(group) {
+    const {data, actions: {showSelectModal}} = this.props;
+    const users = _.get(data, [group, 'entries'], []);
 
-  get entity() {
-    return this.props.entity;
-  }
-
-  get assignees() {
-    const assignees = _.get(this.props, ['data', 'assignees', 'entries'], []);
-    if (_.isEmpty(assignees)) {
-      return (
-        <div className="fc-watchers__users-row fc-watchers__assignees-row">
-          <AddButton className="fc-watchers__add-button"
-                       onClick={() => this.props.showAddingModal(this.entity, Groups.ASSIGNEES)}/>
-          <div className="fc-watchers__empty-list fc-watchers__assignees-empty">
-            Unassigned
-          </div>
-        </div>
-      );
-    } else {
-      return this.buildRow(assignees, 'fc-watchers__assignees-row', Groups.ASSIGNEES);
-    }
-  }
-
-  get watchers() {
-    const watchers = _.get(this.props, ['data', 'watchers', 'entries'], []);
-    if (_.isEmpty(watchers)) {
-      return (
-        <div className="fc-watchers__users-row fc-watchers__watchers-row">
-          <AddButton className="fc-watchers__add-button"
-                       onClick={() => this.props.showAddingModal(this.entity, Groups.WATCHERS)}/>
-          <div className="fc-watchers__empty-list fc-watchers__watchers-empty">
-            Unwatched
-          </div>
-        </div>
-      );
-    } else {
-      return this.buildRow(watchers, 'fc-watchers__watchers-row', Groups.WATCHERS);
-    }
-  }
-
-  renderCell(user, key, removeFromGroup) {
-    const actionBlock = (
-      <Button icon="close" onClick={() => removeFromGroup(user.name)} />
-    );
     return (
-      <div className="fc-watchers__cell" key={key}>
-        <UserInitials name={user.name}
-                      firstName={user.firstName}
-                      lastName={user.lastName}
-                      email={user.email}
-                      actionBlock={actionBlock}
-                      showTooltipOnClick={true}/>
+      <div className={classNames('fc-watchers__users-row', `fc-watchers__${group}-row`)}>
+        <AddButton className="fc-watchers__add-button"
+                   onClick={() => showSelectModal(group)} />
+        {this.renderRow(group, users)}
       </div>
     );
   }
 
   @autobind
-  buildHiddenRow(hiddenCells, group) {
-    const active = _.get(this.props, ['data', group, 'displayed'], false);
-    const hiddenBlockClass = classNames('fc-watchers__rest-block', {
-      '_shown': active
-    });
-    const hiddenBlockOverlayClass = classNames('fc-watchers__rest-block-overlay', {
-      '_shown': active
-    });
-    const buttonClass = classNames('fc-watchers__toggle-watchers-btn', {
-      '_active': active
-    });
+  renderRow(group, users) {
+    //empty label if nothing to show
+    if (_.isEmpty(users)) {
+      return (
+        <div className={classNames('fc-watchers__empty-list', `fc-watchers__${group}-empty`)}>
+          {emptyTitle[group]}
+        </div>
+      );
+    }
+
+    const {actions} = this.props;
+    const removeWatcher = (id) => actions.removeWatcher(group, id);
+
+    if (users.length <= maxDisplayed) {
+      return users.map((user) => this.renderCell(group, user, removeWatcher));
+    }
+
+    const displayedUsers = users.slice(0, maxDisplayed - 1);
+    const hiddenUsers = users.slice(maxDisplayed - 1);
+
+    const displayedCells = displayedUsers.map((user) => this.renderCell(group, user, removeWatcher));
+    const hiddenCells = hiddenUsers.map((user) => this.renderCell(group, user, removeWatcher, true));
+
+    return [
+      displayedCells,
+      this.renderHiddenRow(hiddenCells, group),
+    ];
+  }
+
+  @autobind
+  renderHiddenRow(group, cells) {
+    const {data, actions: {toggleListModal}} = this.props;
+    const active = _.get(data, [group, 'listModalDisplayed'], false);
+
+    const hiddenBlockClass = classNames('fc-watchers__rest-block', {'_shown': active});
+    const hiddenBlockOverlayClass = classNames('fc-watchers__rest-block-overlay', {'_shown': active});
+    const buttonClass = classNames('fc-watchers__toggle-watchers-btn', {'_active': active});
+
     return (
       <div className="fc-watchers__rest-cell">
         <Button icon="ellipsis"
                 className={buttonClass}
-                onClick={() => this.props.toggleWatchers(this.entity, group)} />
+                onClick={() => toggleListModal(group)} />
         <div className={hiddenBlockOverlayClass}
-             onClick={() => this.props.toggleWatchers(this.entity, group)}></div>
+             onClick={() => toggleListModal(group)}></div>
         <div className={hiddenBlockClass}>
           <div className="fc-watchers__users-row">
-            {hiddenCells}
+            {cells}
           </div>
         </div>
       </div>
     );
   }
 
-  @autobind
-  buildRow(users, className, group) {
-    const rowClass = classNames('fc-watchers__users-row', className);
-    const removeFromGroup = (name) => this.props.removeFromGroup(this.entity, group, name);
-    if (users.length <= maxDisplayed) {
-      const cells = users.map(
-        (watcher, idx) => this.renderCell(watcher, `cell-${group}-${watcher.name}`, removeFromGroup));
-      return (
-        <div className={rowClass}>
-          <AddButton className="fc-watchers__add-button"
-                     onClick={() => this.props.showAddingModal(this.entity, group)}/>
-          {cells}
-        </div>
-      );
-    } else {
-      const displayedWatchers = users.slice(0, maxDisplayed - 1);
-      const hiddenWatchers = users.slice(maxDisplayed - 1);
-      const displayedCells = displayedWatchers.map(
-        (watcher, idx) => this.renderCell(watcher, `cell-${group}-${watcher.name}`, removeFromGroup));
-      const hiddenCells = hiddenWatchers.map(
-        (watcher, idx) => this.renderCell(watcher, `cell-hidden-${group}-${watcher.name}`, removeFromGroup));
-      return (
-        <div className={rowClass}>
-          <AddButton className="fc-watchers__add-button"
-                     onClick={() => this.props.showAddingModal(this.entity, group)}/>
-          {displayedCells}
-          {this.buildHiddenRow(hiddenCells, group)}
-        </div>
-      );
-    }
+  renderCell(group, user, removeWatcher, hidden = false) {
+    const {id, name, firstName, lastName, email} = user;
+    const key = hidden ? `cell-hidden-${group}-${name}` : `cell-${group}-${name}`;
+
+    const actionBlock = (
+      <Button icon="close" onClick={() => removeWatcher(id)} />
+    );
+
+    return (
+      <div className="fc-watchers__cell" key={key}>
+        <UserInitials name={name}
+                      firstName={firstName}
+                      lastName={lastName}
+                      email={email}
+                      actionBlock={actionBlock}
+                      showTooltipOnClick={true} />
+      </div>
+    );
   }
 
   render() {
-    const suggestedItems = _.get(this.props, ['data', 'suggestedWatchers'], []);
-    const isVisible = _.get(this.props, ['data', 'modalDisplayed'], false);
-    const selectedItems = _.get(this.props, ['data', 'selectedItems'], []);
+    const {entityType, data, actions} = this.props;
+    const {displayed, suggested, selected} = data.selectModal;
+    const {selectItem, deselectItem, hideSelectModal, suggestWatchers, addWatchers} = actions;
+
     return (
       <Panel className="fc-watchers">
         <div className="fc-watchers__container">
@@ -170,7 +140,7 @@ export default class Watchers extends React.Component {
             </div>
           </div>
           <div className="fc-watchers__users-row fc-watchers__assignees">
-            {this.assignees}
+            {this.renderGroup(groups.assignees)}
           </div>
           <div className="fc-watchers__title-row">
             <div className="fc-watchers__title">
@@ -181,18 +151,19 @@ export default class Watchers extends React.Component {
             </div>
           </div>
           <div className="fc-watchers__users-row fc-watchers__watchers">
-            {this.watchers}
+            {this.renderGroup(groups.watchers)}
           </div>
         </div>
-        <AddWatcherModal isVisible={isVisible}
-                         entity={this.entity}
-                         cancelAction={() => this.props.closeAddingModal(this.entity)}
-                         suggestWatchers={(term) => this.props.suggestWatchers(this.entity, term)}
-                         suggestedItems={suggestedItems}
-                         selectedWatchers={selectedItems}
-                         onItemSelected={(item) => this.props.itemSelected(this.entity, item)}
-                         onAddClick={() => this.props.addWatchers(this.entity)}
-                         onDeleteClick={(name, idx) => this.props.itemDeleted(this.entity, name, idx)}/>
+        <SelectWatcherModal
+          isVisible={displayed}
+          entityType={entityType}
+          onCancel={hideSelectModal}
+          onConfirm={addWatchers}
+          suggested={suggested}
+          selected={selected}
+          suggestWatchers={suggestWatchers}
+          onSelectItem={selectItem}
+          onDeselectItem={deselectItem} />
       </Panel>
     );
   }

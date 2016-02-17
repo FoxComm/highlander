@@ -13,7 +13,6 @@ import reasons from './reasons';
 import activityNotifications from './activity-notifications';
 import storeCreditTypes from './store-credit-types';
 import activityTrail from './activity-trail';
-import watchers from './watchers';
 import siteMenu from './site-menu';
 import inventory from './inventory';
 
@@ -32,7 +31,6 @@ const rootReducer = combineReducers({
   groups,
   activityNotifications,
   activityTrail,
-  watchers,
   siteMenu,
   inventory,
 });

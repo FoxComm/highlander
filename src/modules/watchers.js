@@ -1,157 +1,98 @@
+// libs
 import _ from 'lodash';
-import Api from '../lib/api';
-import { searchAdmins } from '../elastic/store-admins';
 import { assoc } from 'sprout-data';
-import { createAction, createReducer } from 'redux-act';
 
-export const toggleWatchers = createAction('WATCHERS_TOGGLE', (entity, group) => [entity, group]);
-export const showAddingModal = createAction('WATCHERS_ADDING_MODAL_SHOW', (entity, group) => [entity, group]);
-export const closeAddingModal = createAction('WATCHERS_ADDING_MODAL_CLOSE');
-export const itemSelected = createAction('WATCHERS_SELECT_NEW', (entity, item) => [entity, item]);
-export const itemDeleted = createAction('WATCHERS_DELETE_NEW', (entity, name, idx) => [entity, name, idx]);
+// data
+import { searchAdmins } from '../elastic/store-admins';
+import { entityForms } from '../paragons/watcher';
 
-const setSuggestedWathcers = createAction('WATCHERS_SET_SUGGERSTED_WATCHERS', (entity, payload) => [entity, payload]);
-const setWatchers = createAction('WATCHERS_SET_WATCHERS', (entity, payload) => [entity, payload]);
-const setAssignees = createAction('WATCHERS_SET_ASSIGNEES', (entity, payload) => [entity, payload]);
-const assignWatchers = createAction('WATCHERS_ASSIGN', (entity, group, payload) => [entity, group, payload]);
-const deleteFromGroup = createAction('WATCHERS_DELETE_FROM_GROUP', (entity, group, name) => [entity, group, name]);
-const failWatchersAction = createAction('WATCHERS_FAIL');
+// helpers
+import { getSingularForm, getPluralForm } from '../lib/text-utils';
 
-export function fetchWatchers(entity) {
-  return (dispatch, getState) => {
-    const state = getState();
-    const watchers = _.get(state, ['orders', 'details', 'currentOrder', 'watchers'], []);
-    const data = _.pluck(watchers, 'watcher');
-    dispatch(setWatchers(entity, data));
-  };
-}
 
-export function fetchAssignees(entity) {
-  return (dispatch, getState) => {
-    const state = getState();
-    const assignees = _.get(state, ['orders', 'details', 'currentOrder', 'assignees'], []);
-    const data = _.pluck(assignees, 'assignee');
-    dispatch(setAssignees(entity, data));
-  };
-}
+/**
+ * What is stored:
+ * {
+ *  [group]: {
+ *    listModalDisplayed: Boolean (whether modal window with full list of group watchers is displayed)
+ *  },
+ *  selectModal: {
+ *    group: String (one of valid watcher groups for currently open add modal),
+ *    displayed: Boolean (whether add modal is displayed),
+ *    suggested: Object[] (array of watchers' entries suggested in modal),
+ *    selected: Number[] (array of watchers' ids that are selected for add/remove action)
+ *  }
+ * }
+ */
+export const creators = {
+  toggleListModal: (state, group) => {
+    const path = [group, 'listModalDisplayed'];
+    const oldValue = _.get(state, path, false);
 
-export function suggestWatchers(entity, term) {
-  return dispatch => {
-    return searchAdmins(term).then(
-      (data) => {
-        const hits = _.get(data, ['result'], []);
-        return dispatch(setSuggestedWathcers(entity, hits));
-      },
-      () => dispatch(setSuggestedWathcers(entity, []))
-    );
-  };
-}
-
-export function addWatchers(entity) {
-  return (dispatch, getState) => {
-    const state = getState();
-    const {entityType, entityId} = entity;
-    const items = _.get(state, ['watchers', entityType, entityId, 'selectedItems'], []);
-    const group = _.get(state, ['watchers', entityType, entityId, 'modalGroup']);
-
-    const data = {
-      [group]: items.map((item) => item.id)
-    };
-
-    return Api.post(`/orders/${entityId}/${group}`, data).then(
-      (payload) => {
-        dispatch(assignWatchers(entity, group, payload));
-        dispatch(closeAddingModal(entity));
-      },
-      (err) => dispatch(failWatchersAction(err))
-    );
-  };
-}
-
-export function removeFromGroup(entity, group, name) {
-  return (dispatch, getState) => {
-    const state = getState();
-    const {entityType, entityId} = entity;
-    const groupMemberId = group.substring(0, group.length-1) + 'Id';
-    const groupEntries = _.get(state, ['watchers', entityType, entityId, group, 'entries'], []);
-    const groupMemberToDelete = _.find(groupEntries, {name: name});
-
-    const data = {
-      referenceNumbers: [entityId],
-      [groupMemberId]: groupMemberToDelete.id
-    };
-
-    Api.post(`/orders/${group}/delete`, data).then(
-      () => dispatch(deleteFromGroup(entity, group, name)),
-      (err) => dispatch(failWatchersAction(err))
-    );
-  };
-}
-
-const initialState = {};
-
-const reducer = createReducer({
-  [toggleWatchers]: (state, [{entityType, entityId}, group]) => {
-    const oldValue = _.get(state, [entityType, entityId, group, 'displayed'], false);
-    return assoc(state, [entityType, entityId, group, 'displayed'], !oldValue);
+    return assoc(state, path, !oldValue);
   },
-  [showAddingModal]: (state, [{entityType, entityId}, group]) => {
+  showSelectModal: (state, group) => {
     return assoc(state,
-      [entityType, entityId, 'modalDisplayed'], true,
-      [entityType, entityId, 'modalGroup'], group
+      ['selectModal', 'group'], group,
+      ['selectModal', 'displayed'], true
     );
   },
-  [closeAddingModal]: (state, {entityType, entityId}) => {
+  hideSelectModal: (state) => {
     return assoc(state,
-      [entityType, entityId, 'modalDisplayed'], false,
-      [entityType, entityId, 'modalGroup'], null
+      ['selectModal', 'group'], null,
+      ['selectModal', 'displayed'], false
     );
   },
-  [setWatchers]: (state, [{entityType, entityId}, payload]) => {
-    return assoc(state, [entityType, entityId, 'watchers', 'entries'], payload);
-  },
-  [setAssignees]: (state, [{entityType, entityId}, payload]) => {
-    return assoc(state, [entityType, entityId, 'assignees', 'entries'], payload);
-  },
-  [setSuggestedWathcers]: (state, [{entityType, entityId}, payload]) => {
-    return assoc(state, [entityType, entityId, 'suggestedWatchers'], payload);
-  },
-  [itemSelected]: (state, [{entityType, entityId}, item]) => {
-    const items = _.get(state, [entityType, entityId, 'selectedItems'], []);
-    const newItems = items.concat(item);
-    return assoc(state, [entityType, entityId, 'selectedItems'], newItems);
-  },
-  [itemDeleted]: (state, [{entityType, entityId}, name, idx]) => {
-    const group = _.get(state, [entityType, entityId, 'modalGroup']);
-    const items = _.get(state, [entityType, entityId, 'selectedItems'], []);
-    const newItems = [];
-    _.each(items, item => {if (item.name !== name) newItems.push(item);});
-    return assoc(state,
-      [entityType, entityId, 'selectedItems'], newItems
-    );
-  },
-  [assignWatchers]: (state, [{entityType, entityId}, group, payload]) => {
-    const items = _.get(payload, ['result', group], []);
-    const groupMember = group.substring(0, group.length-1);
-    const newEntries = items.map((item) => item[groupMember]);
-    return assoc(state,
-      [entityType, entityId, 'modalGroup'], null,
-      [entityType, entityId, 'selectedItems'], [],
-      [entityType, entityId, group, 'entries'], newEntries
-    );
-  },
-  [deleteFromGroup]: (state, [{entityType, entityId}, group, name]) => {
-    const groupEntries = _.get(state, [entityType, entityId, group, 'entries'], []);
-    const newItems = [];
-    _.each(groupEntries, item => {if (item.name !== name) newItems.push(item);});
-    return assoc(state,
-      [entityType, entityId, group, 'entries'], newItems
-    );
-  },
-  [failWatchersAction]: (state, error) => {
-    console.error(error);
+  selectItem: (state, item) => {
+    const path = ['selectModal', 'selected'];
+
+    const items = _.get(state, path, []);
+
+    if (_.findIndex(items, ({id}) => id === item.id) < 0) {
+      return assoc(state, path, items.concat(item));
+    }
+
     return state;
-  }
-}, initialState);
+  },
+  deselectItem: (state, index) => {
+    const path = ['selectModal', 'selected'];
 
-export default reducer;
+    const items = _.get(state, path, []);
+    const newItems = _.without(items, items[index]);
+
+    return assoc(state, path, newItems);
+  },
+  clearSelected: (state) => {
+    const path = ['selectModal', 'selected'];
+
+    return assoc(state, path, []);
+  },
+  setSuggested: (state, payload) => {
+    return assoc(state, ['selectModal', 'suggested'], payload);
+  },
+  failWatchersAction: (state, error) => {
+    console.error(error);
+
+    return state;
+  },
+};
+
+export const actions = {
+  suggestWatchers: (term, actions) => {
+    return dispatch => {
+      searchAdmins(term).then(
+        ({result}) => dispatch(actions.setSuggested(_.isEmpty(result) ? [] : result)),
+        () => dispatch(actions.setSuggested([]))
+      );
+    };
+  }
+};
+
+export const initialState = {
+  selectModal: {
+    group: null,
+    displayed: false,
+    suggested: [],
+    selected: [],
+  },
+};
