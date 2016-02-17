@@ -1,9 +1,5 @@
 .fc-expandable-table {
   &__drawer {
-    border: none;
-    border-top: 1px solid @color-decor9;
-
-
     &._shown {
       display: table-row;
     }
@@ -12,8 +8,19 @@
       display: none;
     }
   }
+
+  .fc-table tbody td&__drawer-cell {
+    background: none;
+    padding: 0;
+    border: none;
+    border-top: 1px solid @color-decor9;
+  }
+
+  .fc-table tbody tr&__drawer {
+    background: none;
+    padding: 0;
+    border: none;
+    border-top: 1px solid @color-decor9;
+  }
 }
 
-.fc-table tbody tr.fc-expandable-table__drawer {
-  background: none;
-}
