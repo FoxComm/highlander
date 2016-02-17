@@ -3,9 +3,9 @@ import { post } from '../../lib/search';
 import { createReducer } from 'redux-act';
 import { createNsAction } from './../utils';
 import { toQuery, addNativeFilters } from '../../elastic/common';
-import reduceReducers from 'reduce-reducers';
 
 import makePagination, { makeFetchAction } from '../pagination/base';
+import { addPaginationParams } from '../pagination';
 
 // module is responsible for data in search tab
 
@@ -45,7 +45,7 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
       addNativeFilters(jsonQuery, extraFilters);
     }
 
-    return post(esUrl, processQuery(jsonQuery, {searchState, getState}));
+    return post(addPaginationParams(esUrl, searchState), processQuery(jsonQuery, {searchState, getState}));
   }
 
   const fetch = makeFetchAction(fetcher, actions, state => getSelectedSearch(state).results);

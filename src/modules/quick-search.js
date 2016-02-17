@@ -5,6 +5,7 @@ import { update } from 'sprout-data';
 import { toQuery } from '../elastic/common';
 import SearchTerm from '../paragons/search-term';
 import makePagination from './pagination/base';
+import { addPaginationParams } from './pagination';
 import reduceReducers from 'reduce-reducers';
 
 const emptyState = {
@@ -24,9 +25,9 @@ export default function makeQuickSearch(namespace, searchUrl, searchFilters, phr
     phrase
   };
 
-  const fetcher = (phrase, queryFilters = filters) => {
+  function fetcher(phrase, queryFilters = filters) {
     const esQuery = toQuery(queryFilters, {phrase});
-    return post(url, esQuery);
+    return post(addPaginationParams(url, this.searchState), esQuery);
   };
 
   const {reducer, ...actions} = makePagination(namespace, fetcher, state => _.get(state, `${namespace}.results`));
