@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
+import flatMap from 'lodash.flatmap';
 import React, { PropTypes } from 'react';
 import TableRow from './row';
 import TableCell from './cell';
@@ -8,7 +9,10 @@ export default class TableBody extends React.Component {
 
   static propTypes = {
     columns: PropTypes.array.isRequired,
-    rows: PropTypes.array.isRequired,
+    rows: PropTypes.oneOfType([
+      PropTypes.array,
+      PropTypes.object,
+    ]).isRequired,
     renderRow: PropTypes.func,
     predicate: PropTypes.func,
     processRows: PropTypes.func,
@@ -79,7 +83,7 @@ export default class TableBody extends React.Component {
 
     const renderRow = this.props.renderRow || this.defaultRenderRow;
 
-    return _.flatten(this.props.rows.map((row, index) => {
+    return flatMap(this.props.rows, ((row, index) => {
       const isNew = this.props.detectNewRows &&
                     this.props.predicate &&
                     (this.state.newIds.indexOf(String(this.props.predicate(row))) != -1);

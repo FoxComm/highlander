@@ -44,9 +44,7 @@ export default function makeQuickSearch(namespace, searchUrl, searchFilters, phr
   }, initialState);
 
   const reduceInResults = (state, action) => {
-    return update(state,
-      'results', reducer, action
-    );
+    return update(state, 'results', reducer, action);
   };
 
   return {
@@ -54,4 +52,3 @@ export default function makeQuickSearch(namespace, searchUrl, searchFilters, phr
     actions,
   };
 }
-
