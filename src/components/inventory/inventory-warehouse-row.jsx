@@ -16,6 +16,7 @@ const setDrawerContent = (row, params) => {
   return (
     <div>
       <Table
+        className="fc-inventory-item-details__warehouse-details-table"
         columns={params.drawerColumns}
         data={params.drawerData} />
     </div>

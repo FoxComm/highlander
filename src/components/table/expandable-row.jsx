@@ -48,9 +48,12 @@ class ExpandableRow extends React.Component {
 
   render() {
     const { columns, row, setCellContents, ...rest } = this.props;
+    const parentRowClass = classNames('fc-expandable-table__parent-row', {
+      '_drawer-open': this.state.isOpen
+    });
 
     return (
-      <TableRow {...rest}>
+      <TableRow className={parentRowClass} {...rest}>
         {this.cells}
         {this.drawer}
       </TableRow>
