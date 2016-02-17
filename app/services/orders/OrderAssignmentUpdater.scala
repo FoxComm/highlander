@@ -3,7 +3,8 @@ package services.orders
 import models.order._
 import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
 import payloads.BulkAssignment
-import responses.{FullOrder, TheResponse}
+import responses.TheResponse
+import responses.order.FullOrder
 import services.Util._
 import services.{NotFoundFailure400, NotificationManager, LogActivity, OrderAssigneeNotFound, Result}
 import slick.driver.PostgresDriver.api._

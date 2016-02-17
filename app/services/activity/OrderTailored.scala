@@ -6,7 +6,8 @@ import models.order.Order
 import models.payment.PaymentMethod
 import models.shipping.ShippingMethod
 import models.Note
-import responses.{Addresses, CreditCardsResponse, FullOrder, GiftCardResponse, StoreAdminResponse}
+import responses.order.FullOrder
+import responses.{Addresses, CreditCardsResponse, GiftCardResponse, StoreAdminResponse}
 
 object OrderTailored {
   final case class CartCreated(admin: Option[StoreAdminResponse.Root], order: FullOrder.Root)

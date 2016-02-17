@@ -67,6 +67,11 @@ final case class Order(
     case _ ⇒ None
   }
 
+  def getShippingState: Option[State] = state match {
+    case Cart ⇒ None
+    case _    ⇒ Some(state)
+  }
+
   def mustBeCart: Failures Xor Order =
     if (isCart) right(this) else left(OrderMustBeCart(this.refNum).single)
 

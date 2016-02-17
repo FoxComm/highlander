@@ -7,7 +7,7 @@ import models.order.{Orders, Order}
 
 import Order.{Canceled, _}
 import models.StoreAdmin
-import responses.{TheResponse, FullOrder}
+import responses.order.FullOrder
 import services.{Result, StateTransitionNotAllowed, NotFoundFailure400, LockedFailure, Failures}
 import services.LogActivity.{orderStateChanged, orderBulkStateChanged}
 import slick.driver.PostgresDriver.api._

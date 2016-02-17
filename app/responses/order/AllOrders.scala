@@ -1,12 +1,13 @@
-package responses
+package responses.order
 
 import java.time.Instant
 
-import models.customer.Customer
-
 import scala.concurrent.{ExecutionContext, Future}
 
-import models.order.{OrderPayment, Order}
+import models.customer.Customer
+import models.order.Order
+import models.payment.creditcard.CreditCardCharge
+import responses.ResponseItem
 
 object AllOrders {
   type Response = Future[Seq[Root]]
@@ -16,21 +17,20 @@ object AllOrders {
     email: String,
     name: Option[String] = None,
     orderState: Order.State,
-    paymentState: Option[String] = None,
-    shippingState: Option[String] = None,
+    paymentState: CreditCardCharge.State,
+    shippingState: Option[Order.State] = None,
     placedAt: Option[Instant] = None,
     remorsePeriodEnd: Option[Instant] = None,
-    total: Int) extends ResponseItem
+    total: Int) extends ResponseItem with OrderResponseBase
 
-  def build(order: Order, customer: Customer, payment: Option[OrderPayment])
+  def build(order: Order, customer: Customer, paymentState: CreditCardCharge.State)
     (implicit ec: ExecutionContext): Root = Root(
       referenceNumber = order.referenceNumber,
       name = customer.name,
       email = customer.email,
       orderState = order.state,
-      // TODO: FIXME
-      paymentState = Some("FIXME"),
-      shippingState = Some("FIXME"),
+      paymentState = paymentState,
+      shippingState = order.getShippingState,
       placedAt = order.placedAt,
       remorsePeriodEnd = order.getRemorsePeriodEnd,
       total = order.grandTotal

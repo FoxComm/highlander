@@ -8,8 +8,9 @@ import models.order._
 import models.StoreAdmin
 import models.traits.Originator
 import payloads.{CreateAddressPayload, UpdateAddressPayload}
-import responses.{FullOrder, TheResponse}
+import responses.TheResponse
 import responses.Addresses.buildOneShipping
+import responses.order.FullOrder
 import services.CartFailures.NoShipAddress
 import services.{LogActivity, CartValidator, NotFoundFailure404, Result}
 import slick.driver.PostgresDriver.api._

@@ -4,7 +4,7 @@ import models.order.lineitems._
 import models.order.{Orders, Order}
 import models.payment.giftcard._
 import org.scalatest.BeforeAndAfterEach
-import responses.FullOrder
+import responses.order.FullOrder
 import services.CartFailures.OrderMustBeCart
 import services.{GeneralFailure, GiftCardMustBeCart, NotFoundFailure404}
 import slick.driver.PostgresDriver.api._

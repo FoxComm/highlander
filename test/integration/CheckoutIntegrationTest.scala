@@ -10,8 +10,9 @@ import models.order.{Orders, Order}
 import models.shipping.ShippingMethods
 import models.{Reasons, StoreAdmins}
 import payloads.{CreateOrder, GiftCardCreateByCsr, GiftCardPayment, UpdateLineItemsPayload, UpdateShippingMethod}
-import responses.FullOrder.Root
-import responses.{FullOrder, GiftCardResponse}
+import responses.order.FullOrder
+import FullOrder.Root
+import responses.GiftCardResponse
 import services.CartFailures.CustomerHasNoActiveOrder
 import services.NotFoundFailure404
 import util.IntegrationTestBase

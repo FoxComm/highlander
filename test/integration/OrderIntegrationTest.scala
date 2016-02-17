@@ -16,7 +16,8 @@ import models.shipping._
 import models.{StoreAdmin, StoreAdmins}
 import org.json4s.jackson.JsonMethods._
 import payloads.{Assignment, Watchers, UpdateLineItemsPayload, UpdateOrderPayload}
-import responses.{FullOrder, StoreAdminResponse}
+import responses.StoreAdminResponse
+import responses.order.FullOrder
 import services.CartFailures._
 import services.actors.{Tick, RemorseTimer}
 import services.orders.OrderTotaler
@@ -39,42 +40,27 @@ class OrderIntegrationTest extends IntegrationTestBase
   def getUpdated(refNum: String) = db.run(Orders.findByRefNum(refNum).result.headOption).futureValue.value
 
   "GET /v1/orders/:refNum" - {
-    "payment status" - {
-      "does not display payment status if no cc" in new Fixture {
-        pending
-        Orders.findByRefNum(order.refNum).map(_.state).update(Order.ManualHold).run.futureValue
+    "payment state" - {
+
+      "displays 'cart' payment state" in new Fixture {
+        Orders.findByRefNum(order.refNum).map(_.state).update(Order.Cart).run.futureValue
 
         val response = GET(s"v1/orders/${order.refNum}")
         response.status must === (StatusCodes.OK)
-        val fullOrder = response.withResultTypeOf[FullOrder.Root].result
-        fullOrder.paymentState must not be defined
-        fullOrder.paymentMethods mustBe empty
+        val fullOrder = response.ignoreFailuresAndGiveMe[FullOrder.Root]
+
+        fullOrder.paymentState must === (CreditCardCharge.Cart)
       }
 
-      "displays payment state if cc present" in new PaymentStateFixture {
-        pending
-        Orders.findByRefNum(order.refNum).map(_.state).update(Order.ManualHold).run.futureValue
-        CreditCardCharges.findById(ccc.id).extract.map(_.state).update(CreditCardCharge.Auth).run.futureValue
-
-        val response = GET(s"v1/orders/${order.refNum}")
-        response.status must === (StatusCodes.OK)
-        val fullOrder = response.withResultTypeOf[FullOrder.Root].result
-
-        fullOrder.paymentState.value must === (CreditCardCharge.Auth)
-        // fullOrder.paymentMethods.head.value.status must === (CreditCardCharge.Auth)
-      }
-
-      "displays 'cart' payment state if order is cart and cc present" in new PaymentStateFixture {
-        pending
+      "displays 'auth' payment state" in new PaymentStateFixture {
         Orders.findByRefNum(order.refNum).map(_.state).update(Order.Cart).run.futureValue
         CreditCardCharges.findById(ccc.id).extract.map(_.state).update(CreditCardCharge.Auth).run.futureValue
 
         val response = GET(s"v1/orders/${order.refNum}")
         response.status must === (StatusCodes.OK)
-        val fullOrder = response.withResultTypeOf[FullOrder.Root].result
+        val fullOrder = response.ignoreFailuresAndGiveMe[FullOrder.Root]
 
-        fullOrder.paymentState.value must === (CreditCardCharge.Cart)
-        // fullOrder.payment.value.state must === (CreditCardCharge.Auth)
+        fullOrder.paymentState must === (CreditCardCharge.Auth)
       }
     }
   }

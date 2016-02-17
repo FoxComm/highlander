@@ -12,6 +12,7 @@ import models.shipping.Shipment
 import models.StoreAdmins
 import responses.CustomerResponse.{Root => Customer}
 import responses.StoreAdminResponse.{Root => StoreAdmin}
+import responses.order.FullOrder
 import services.rmas.RmaTotaler
 import slick.driver.PostgresDriver.api._
 import utils.Money._

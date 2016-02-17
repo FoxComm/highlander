@@ -7,13 +7,13 @@ import models.traits.Originator
 import OrderPayments.scope._
 import models.location.Regions
 import models.payment.PaymentMethod
-import models.payment.creditcard.CreditCards
-import models.payment.giftcard.{GiftCards, GiftCard}
-import models.payment.storecredit.{StoreCredits, StoreCredit}
-import models.StoreAdmin
+import models.payment.creditcard._
+import models.payment.giftcard._
+import models.payment.storecredit._
 import payloads.{GiftCardPayment, StoreCreditPayment}
-import responses.FullOrder.refreshAndFullOrder
-import responses.{FullOrder, TheResponse}
+import responses.order.FullOrder
+import FullOrder.refreshAndFullOrder
+import responses.TheResponse
 import services.{LogActivity, CartValidator, CustomerHasInsufficientStoreCredit, NotFoundFailure400,
 OrderPaymentNotFoundFailure, Result}
 import slick.driver.PostgresDriver.api._

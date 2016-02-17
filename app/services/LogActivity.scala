@@ -17,7 +17,8 @@ import models.{StoreAdmin, Note}
 import models.activity.{Activity, Activities, ActivityContext}
 import models.traits.{AdminOriginator, CustomerOriginator, Originator}
 import payloads.UpdateLineItemsPayload
-import responses.{CreditCardsResponse, Addresses, GiftCardResponse, CustomerResponse, FullOrder, StoreAdminResponse,
+import responses.order.FullOrder
+import responses.{CreditCardsResponse, Addresses, GiftCardResponse, CustomerResponse, StoreAdminResponse,
 StoreCreditResponse}
 import services.LineItemUpdater.foldQuantityPayload
 import utils.Slick.DbResult
