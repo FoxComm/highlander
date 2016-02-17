@@ -69,10 +69,10 @@ object Seeds {
     Console.err.println(s"Inserting random seeds")
 
     val customers = 1000 * scale
-    val batchSize = 10
+    val batchSize = 100
+    val productsPerBatch = 100
     val batchs = customers / batchSize
-    val products = 1000 * scale
-    val productsPerBatch = products / batchSize 
+    val products = batchs * productsPerBatch
 
     Console.err.println(s"Generating ${customers} customers and a ${products} products in ${batchs} batches")
 
