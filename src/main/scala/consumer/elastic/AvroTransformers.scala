@@ -47,7 +47,7 @@ object AvroTransformers {
     def mapping =
       esMapping("gift_cards_search_view").fields(
         field("id", IntegerType),
-        field("code", StringType) analyzer "autocomplete",
+        field("code", StringType) index "not_analyzed",
         field("originId", IntegerType),
         field("originType", StringType) index "not_analyzed",
         field("subtype", StringType) analyzer "autocomplete",
@@ -106,7 +106,7 @@ object AvroTransformers {
           field("department", StringType) analyzer "autocomplete"
         ),
         field("giftCard").nested (
-          field("code", StringType) analyzer "autocomplete",
+          field("code", StringType) index "not_analyzed",
           field("originType", StringType) index "not_analyzed",
           field("currency", StringType) index "not_analyzed",
           field("state", StringType) index "not_analyzed"
@@ -340,7 +340,7 @@ object AvroTransformers {
           field("joinedAt", DateType) format dateFormat
         ),
         field("giftCard").nested (
-          field("code", StringType) analyzer "autocomplete",
+          field("code", StringType) index "not_analyzed",
           field("originType", StringType) index "not_analyzed",
           field("currency", StringType) index "not_analyzed",
           field("createdAt", DateType) format dateFormat
@@ -393,7 +393,7 @@ object AvroTransformers {
         field("state", StringType) index "not_analyzed",
         field("createdAt", DateType) format dateFormat,
         // Gift Card
-        field("code", StringType) analyzer "autocomplete",
+        field("code", StringType) index "not_analyzed",
         field("originType", StringType) index "not_analyzed",
         field("currency", StringType) index "not_analyzed",
         field("giftCardCreatedAt", DateType) format dateFormat,
