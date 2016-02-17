@@ -156,7 +156,6 @@
   display: flex;
   float: right;
   line-height: pxtorem(40px);
-  align-items: baseline;
 
   &__current-page, &__total-pages {
     .margin(0 10px);
@@ -168,6 +167,11 @@
 
   &__current-page-field {
     .width(50px);
+  }
+
+  // somehow it fixes funky scrollbar for table
+  > .fc-btn > i {
+    vertical-align: top;
   }
 
   .fc-form-field input.fc-table-paginator__current-page-field._disabled {
