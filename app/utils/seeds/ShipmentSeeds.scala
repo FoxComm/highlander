@@ -12,14 +12,16 @@ import utils.DbResultT._
 import utils.DbResultT.implicits._
 import Seeds.Factories._
 
+import slick.driver.PostgresDriver.api._
+
 trait ShipmentSeeds {
 
   type ShippingMethods = (ShippingMethod#Id, ShippingMethod#Id, ShippingMethod#Id, ShippingMethod#Id, ShippingMethod#Id)
 
-  def getShipmentRules : DbResultT[ShippingMethods] = for {
-    methods ← * <~ ShippingMethods.createAllReturningIds(shippingMethods)
+  def getShipmentRules(implicit db: Database) : DbResultT[ShippingMethods] = for {
+    methods ← * <~ ShippingMethods.findActive.result
     } yield methods.seq.toList match {
-      case m1 :: m2 :: m3 :: m4 :: m5 :: Nil ⇒ (m1, m2, m3, m4, m5)
+      case m1 :: m2 :: m3 :: m4 :: m5 :: Nil ⇒ (m1.id, m2.id, m3.id, m4.id, m5.id)
       case _ ⇒ ???
     }
 
@@ -33,9 +35,9 @@ trait ShipmentSeeds {
     }
 
   def shippingMethods = Seq(
-    ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", price = 0,
+    ShippingMethod(adminDisplayName = "UPS Ground", storefrontDisplayName = "UPS Ground", price = 250,
       isActive = true, conditions = Some(upsGround)),
-    ShippingMethod(adminDisplayName = "UPS Next day", storefrontDisplayName = "UPS Next day", price = 0,
+    ShippingMethod(adminDisplayName = "UPS Next day", storefrontDisplayName = "UPS Next day", price = 700,
       isActive = true, conditions = Some(over50Bucks)),
     ShippingMethod(adminDisplayName = "UPS 2-day", storefrontDisplayName = "UPS 2-day", price = 550,
       isActive = true, conditions = Some(upsGround)),
