@@ -250,6 +250,14 @@ final case class AlreadySavedForLater(customerId: Int, skuId: Int) extends Failu
   override def description = s"Customer with id=$customerId already has SKU with id=$skuId saved for later"
 }
 
+final case class SkuNotFoundForContext(skuId: Int, productContextId: Int) extends Failure {
+  override def description = s"Sku with id=$skuId with product context $productContextId cannot be found"
+}
+
+final case class ProductNotFoundForContext(productId: Int, productContextId: Int) extends Failure {
+  override def description = s"Product with id=$productId with product context $productContextId cannot be found"
+}
+
 object CreditCardFailure {
   final case class StripeFailure(exception: StripeException) extends Failure {
     override def description = exception.getMessage

@@ -1,7 +1,7 @@
 package services
 
 import models.{Customer, Customers, SaveForLater, SaveForLaters}
-import models.product.Skus
+import models.product.{Products, ProductShadows, Skus, SkuShadows}
 
 import responses.{SaveForLaterResponse, TheResponse}
 
@@ -27,9 +27,16 @@ object SaveForLaterManager {
     (implicit db: Database, ec: ExecutionContext): Result[SavedForLater] = (for {
     customer ← * <~ Customers.mustFindById404(customerId)
     sku ← * <~ Skus.mustFindById404(skuId)
+    product ← * <~ Products.mustFindById404(sku.productId)
+    skuShadow ← * <~ SkuShadows.filter(_.skuId === sku.id).filter(_.productContextId === productContextId).one
+                .mustFindOr(SkuNotFoundForContext(sku.id, productContextId))
+    productShadow ← * <~ ProductShadows.filter(_.productId === product.id).filter(_.productContextId === productContextId).one
+                .mustFindOr(ProductNotFoundForContext(product.id, productContextId))
     _   ← * <~ SaveForLaters.find(customerId = customer.id, skuId = sku.id).one
                  .mustNotFindOr(AlreadySavedForLater(customerId = customer.id, skuId = sku.id))
-    _   ← * <~ SaveForLaters.create(SaveForLater(customerId = customer.id, skuId = sku.id))
+    _   ← * <~ SaveForLaters.create(SaveForLater(customerId = customer.id, 
+                skuId = sku.id, skuShadowId = skuShadow.id, productId = product.id, 
+                productShadowId = productShadow.id))
     response ← * <~ findAllDbio(customer, productContextId).toXor
   } yield response).runTxn()
 

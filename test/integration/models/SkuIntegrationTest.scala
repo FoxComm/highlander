@@ -1,6 +1,6 @@
 package models
 
-import models.product.Skus
+import models.product.{Mvp, ProductContexts, SimpleContext}
 
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -18,12 +18,13 @@ class SkuIntegrationTest extends IntegrationTestBase {
 
   "Skus" - {
     "a Postgres trigger creates a `order_line_item_skus` record after `skus` insert" in {
-      val (sku, liSku) = (for {
-        sku ← * <~ Skus.create(Factories.skus.head).run().futureValue.rightVal
-        liSku ← * <~ OrderLineItemSkus.safeFindBySkuId(sku.id).toXor
-      } yield (sku, liSku)).runTxn().futureValue.rightVal
+      val (product, liSku) = (for {
+        productContext ← * <~ ProductContexts.create(SimpleContext.create)
+        product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
+        liSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
+      } yield (product, liSku)).runTxn().futureValue.rightVal
 
-      sku.id must === (liSku.skuId)
+      product.skuId must === (liSku.skuId)
     }
   }
 }

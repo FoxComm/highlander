@@ -126,13 +126,12 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
       shipMethods ← * <~ createShipmentRules
       _ ← * <~  generateWarehouses
       products ← * <~ generateProducts(makeProducts(productCount))
-      skuIds ← * <~  generateInventory(products)
-      skus  ← * <~ Skus.filter(_.id.inSet(skuIds)).result
+      _ ← * <~  generateInventory(products)
       customerIds ← * <~ Customers.createAllReturningIds(generateCustomers(customersCount, location))
       customers  ← * <~ Customers.filter(_.id.inSet(customerIds)).result
       _ ← * <~ Addresses.createAll(generateAddresses(customerIds))
       _ ← * <~ CreditCards.createAll(generateCreditCards(customerIds))
-      orders ← * <~ DbResultT.sequence(customers.map{ c ⇒ generateOrder(c.id, randomSubset(skus))})
+      orders ← * <~ DbResultT.sequence(customers.map{ c ⇒ generateOrder(c.id, randomSubset(products))})
     } yield {}
   }
 

@@ -59,6 +59,7 @@ object IlluminatedProduct {
         case JObject(p) ⇒ 
           s.obj.map {
             case (attr, JString(key)) ⇒  findAttribute(attr, key, p)
+            case (attr, _) ⇒  (attr, JNothing)
           }
         case _ ⇒ JNothing
       }

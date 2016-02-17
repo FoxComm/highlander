@@ -4,14 +4,16 @@ import cats.implicits._
 import models.{CreditCards, Customers, GiftCard, GiftCardManual, GiftCardManuals, GiftCards, Order, OrderLineItem,
 OrderLineItems, OrderPayment, OrderPayments, Orders, Reasons, StoreAdmins, StoreCredit, StoreCreditManual,
 StoreCreditManuals, StoreCredits}
-import models.product.Skus
+import models.product.{Products, ProductShadows, Skus, SkuShadows, ProductContexts, SimpleContext, Mvp}
 import services.CartFailures._
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
+import utils.Slick.implicits._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.seeds.Seeds
+import utils.Money.Currency
 import Seeds.Factories
 import utils.Slick.implicits._
 
@@ -51,7 +53,8 @@ class CartValidatorTest extends IntegrationTestBase {
       }
 
       "if the cart has no credit card and insufficient GC/SC available balances" in new LineItemsFixture {
-        val notEnoughFunds = sku.price - 1
+        val skuPrice = Mvp.price(sku, skuShadow).getOrElse((0, Currency.USD))._1
+        val notEnoughFunds = skuPrice - 1
 
         (for {
           admin    ← * <~ StoreAdmins.create(Factories.storeAdmin)
@@ -60,7 +63,7 @@ class CartValidatorTest extends IntegrationTestBase {
           giftCard ← * <~ GiftCards.create(Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active,
             originalBalance = notEnoughFunds))
           payment  ← * <~ OrderPayments.create(Factories.giftCardPayment.copy(orderId = cart.id,
-            amount = sku.price.some, paymentMethodId = giftCard.id))
+          amount = skuPrice.some, paymentMethodId = giftCard.id))
         } yield payment).runTxn().futureValue.rightVal
 
         val result = CartValidator(refresh(cart)).validate().run().futureValue.rightVal
@@ -79,7 +82,7 @@ class CartValidatorTest extends IntegrationTestBase {
       }
 
       "if the grandTotal == 0" in new LineItemsFixture {
-        Skus.findById(sku.id).extract.map(_.price).update(0).run().futureValue
+        Skus.findById(sku.id).extract.update(sku.copy(attributes = Mvp.updatePrice(sku, skuShadow, 0))).run().futureValue
         OrderTotaler.saveTotals(cart).run().futureValue.rightVal
 
         val result = CartValidator(refresh(cart)).validate().run().futureValue.rightVal
@@ -140,11 +143,16 @@ class CartValidatorTest extends IntegrationTestBase {
   }
 
   trait LineItemsFixture extends Fixture {
-    val (sku, items) = (for {
-      sku   ← * <~ Skus.create(Factories.skus.head)
-      items ← * <~ OrderLineItems.create(OrderLineItem.buildSku(cart, sku))
-      _     ← * <~ OrderTotaler.saveTotals(cart)
-    } yield (sku, items)).runTxn().futureValue.rightVal
+    val (product, productShadow, sku, skuShadow, items) = (for {
+      productContext ← * <~ ProductContexts.create(SimpleContext.create)
+      productData    ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
+      product        ← * <~ Products.mustFindById404(productData.productId)
+      productShadow  ← * <~ ProductShadows.mustFindById404(productData.productShadowId)
+      sku            ← * <~ Skus.mustFindById404(productData.skuId)
+      skuShadow      ← * <~ SkuShadows.mustFindById404(productData.skuShadowId)
+      items          ← * <~ OrderLineItems.create(OrderLineItem.buildSku(cart, sku))
+      _              ← * <~ OrderTotaler.saveTotals(cart)
+    } yield (product, productShadow, sku, skuShadow, items)).runTxn().futureValue.rightVal
 
     val grandTotal = refresh(cart).grandTotal
   }

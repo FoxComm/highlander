@@ -19,6 +19,7 @@ import payloads.GiftCardCreateByCsr
 import services.orders.OrderTotaler
 import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
 
+import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Money.Currency
@@ -66,7 +67,7 @@ trait OrderGenerator extends ShipmentSeeds {
     order  ← * <~ Orders.create(Order(state = ManualHold, customerId = customerId, referenceNumber = orderReferenceNum))
     _      ← * <~ addProductsToOrder(products, order.id, OrderLineItem.Pending)
     origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = 1, reasonId = 1))
-    totals = total(products)
+    totals ← * <~ total(products)
     sc     ← * <~ StoreCredits.create(StoreCredit(originId = origin.id, customerId = customerId, originalBalance = totals))
     op     ← * <~ OrderPayments.create(OrderPayment.build(sc).copy(orderId = order.id, amount = totals.some))
     _      ← * <~ StoreCredits.capture(sc, op.id.some, totals) 
@@ -83,7 +84,7 @@ trait OrderGenerator extends ShipmentSeeds {
       order  ← * <~ Orders.create(Order(state = Cart, customerId = customerId, referenceNumber = orderReferenceNum))
       _      ← * <~ addProductsToOrder(products, orderId = order.id, OrderLineItem.Cart)
       origin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = 1, reasonId = 1))
-      totals = total(products)
+      totals ← * <~ total(products)
       gc1    ← * <~ GiftCards.create(buildAppeasement(GiftCardCreateByCsr(balance = balance1, reasonId = 1), originId = origin.id))
       gc2    ← * <~ GiftCards.create(buildAppeasement(GiftCardCreateByCsr(balance = balance2, reasonId = 1), originId = origin.id))
       cc     ← * <~ getCc(customerId)

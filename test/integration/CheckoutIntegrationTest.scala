@@ -4,7 +4,7 @@ import akka.http.scaladsl.model.StatusCodes.OK
 
 import Extensions._
 import models.{Addresses, Customers, Order, Orders, Reasons, ShippingMethods, StoreAdmins}
-import models.product.Skus
+import models.product.{Skus, Mvp, ProductContexts, SimpleContext}
 import payloads.{CreateOrder, GiftCardCreateByCsr, GiftCardPayment, UpdateLineItemsPayload, UpdateShippingMethod}
 import responses.FullOrder.Root
 import responses.{FullOrder, GiftCardResponse}
@@ -64,13 +64,15 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
   }
 
   trait Fixture {
-    val (customer, address, shipMethod, sku, reason) = (for {
+    val (customer, address, shipMethod, product, sku, reason) = (for {
+      productContext ← * <~ ProductContexts.create(SimpleContext.create)
       customer   ← * <~ Customers.create(Factories.customer)
       address    ← * <~ Addresses.create(Factories.usAddress1.copy(customerId = customer.id))
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
-      sku        ← * <~ Skus.create(Factories.skus.head)
+      product    ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
+      sku        ← * <~ Skus.mustFindById404(product.skuId)
       admin      ← * <~ StoreAdmins.create(Factories.storeAdmin)
       reason     ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-    } yield (customer, address, shipMethod, sku, reason)).run().futureValue.rightVal
+    } yield (customer, address, shipMethod, product, sku, reason)).run().futureValue.rightVal
   }
 }

@@ -3,7 +3,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import models.{Customer, SaveForLater, SaveForLaters, _}
-import models.product.{Sku, Skus}
+import models.product.{Sku, Skus, Mvp, ProductContexts, SimpleContext}
 import responses.SaveForLaterResponse
 import services.SaveForLaterManager.SavedForLater
 import services.{AlreadySavedForLater, NotFoundFailure404}
@@ -23,7 +23,10 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
       emptyResponse.status must === (StatusCodes.OK)
       emptyResponse.as[SavedForLater].result mustBe empty
 
-      SaveForLaters.create(SaveForLater(customerId = customer.id, skuId = sku.id)).run().futureValue.rightVal
+      SaveForLaters.create(SaveForLater(customerId = customer.id, 
+        skuId = product.skuId, productId = product.productId, 
+        productShadowId = product.productShadowId, 
+        skuShadowId = product.skuShadowId)).run().futureValue.rightVal
       val notEmptyResponse = GET(s"v1/save-for-later/${customer.id}")
       notEmptyResponse.status must === (StatusCodes.OK)
       notEmptyResponse.as[SavedForLater].result must === (roots)
@@ -38,7 +41,7 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
 
   "POST v1/save-for-later/:customerId/:sku" - {
     "adds sku to customer's save for later list" in new Fixture {
-      val response = POST(s"v1/save-for-later/${customer.id}/${sku.id}")
+      val response = POST(s"v1/save-for-later/${customer.id}/${product.skuId}")
       response.status must === (StatusCodes.OK)
       response.as[SavedForLater].result must === (roots)
 
@@ -48,20 +51,20 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
     }
 
     "does not create duplicate records" in new Fixture {
-      val create = POST(s"v1/save-for-later/${customer.id}/${sku.id}")
+      val create = POST(s"v1/save-for-later/${customer.id}/${product.skuId}")
       create.status must === (StatusCodes.OK)
       val result = create.as[SavedForLater].result
       result must === (roots)
 
-      val duplicate = POST(s"v1/save-for-later/${customer.id}/${sku.id}")
+      val duplicate = POST(s"v1/save-for-later/${customer.id}/${product.skuId}")
       duplicate.status must === (StatusCodes.BadRequest)
-      duplicate.error must === (AlreadySavedForLater(customer.id, sku.id).description)
+      duplicate.error must === (AlreadySavedForLater(customer.id, product.skuId).description)
 
       SaveForLaters.result.run().futureValue must have size 1
     }
 
     "404 if customer is not found" in new Fixture {
-      val response = POST(s"v1/save-for-later/666/${sku.id}")
+      val response = POST(s"v1/save-for-later/666/${product.skuId}")
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Customer, 666).description)
     }
@@ -75,7 +78,7 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
 
   "DELETE v1/save-for-later/:id" - {
     "deletes save for later" in new Fixture {
-      val sflId = POST(s"v1/save-for-later/${customer.id}/${sku.id}").as[SavedForLater].result.head.id
+      val sflId = POST(s"v1/save-for-later/${customer.id}/${product.skuId}").as[SavedForLater].result.head.id
 
       val response = DELETE(s"v1/save-for-later/$sflId")
       response.status must === (StatusCodes.NoContent)
@@ -89,11 +92,12 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
   }
 
   trait Fixture {
-    val (customer, sku) = (for {
+    val (customer, product, productContext) = (for {
+      productContext ← * <~ ProductContexts.create(SimpleContext.create)
       customer ← * <~ Customers.create(Factories.customer)
-      sku      ← * <~ Skus.create(Factories.skus.head)
-    } yield (customer, sku)).runTxn().futureValue.rightVal
+      product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
+    } yield (customer, product, productContext)).runTxn().futureValue.rightVal
 
-    def roots = Seq(rightValue(SaveForLaterResponse.forSkuId(sku.id).run().futureValue))
+    def roots = Seq(rightValue(SaveForLaterResponse.forSkuId(product.skuId, productContext.id).run().futureValue))
   }
 }

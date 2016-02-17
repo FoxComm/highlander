@@ -10,7 +10,7 @@ import models.{OrderAssignment, Address, Addresses, CreditCardCharge, CreditCard
 Order, OrderAssignments, OrderLineItem, OrderLineItemSkus, OrderLineItems, OrderLockEvent,
 OrderLockEvents, OrderPayments, OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, Regions,
 Shipment, Shipments, ShippingMethods, StoreAdmin, StoreAdmins, OrderWatcher, OrderWatchers}
-import models.product.Skus
+import models.product.{Skus, Mvp, ProductContexts, SimpleContext}
 import org.json4s.jackson.JsonMethods._
 import payloads.{Assignment, Watchers, UpdateLineItemsPayload, UpdateOrderPayload}
 import responses.{FullOrder, StoreAdminResponse}
@@ -851,8 +851,9 @@ class OrderIntegrationTest extends IntegrationTestBase
     val highSm = Factories.shippingMethods.head.copy(adminDisplayName = "High", conditions = Some(highConditions))
 
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = (for {
-      sku         ← * <~ Skus.create(Factories.skus.head.copy(price = 100))
-      lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(sku.id).toXor
+      productContext ← * <~ ProductContexts.create(SimpleContext.create)
+      product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head.copy(price = 100))
+      lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
       lineItem    ← * <~ OrderLineItems.create(OrderLineItem(orderId = order.id, originId = lineItemSku.id,
         originType = OrderLineItem.SkuItem))
 

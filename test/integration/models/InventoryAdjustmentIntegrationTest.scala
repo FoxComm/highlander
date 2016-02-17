@@ -1,7 +1,7 @@
 package models
 
 import models.inventory._
-import models.product.{Sku, Skus}
+import models.product.{SimpleProductData, Mvp, ProductContexts, SimpleContext}
 import utils.seeds.Seeds
 import Seeds.Factories
 import util.IntegrationTestBase
@@ -13,12 +13,13 @@ class InventoryAdjustmentIntegrationTest extends IntegrationTestBase {
   import api._
   import concurrent.ExecutionContext.Implicits.global
 
-  def seed(): (Warehouse, Sku, OrderLineItemSku, Order) = (for {
+  def seed(): (Warehouse, SimpleProductData, OrderLineItemSku, Order) = (for {
+    productContext ← * <~ ProductContexts.create(SimpleContext.create)
     warehouse   ← * <~ Warehouses.create(Factories.warehouse)
-    sku         ← * <~ Skus.create(Factories.skus.head.copy(price = 5))
+    product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head.copy(price = 5))
     order       ← * <~ Orders.create(Order(id = 0, customerId = 1))
-    lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(sku.id).toXor
-  } yield (warehouse, sku, lineItemSku, order)).runTxn().futureValue.rightVal
+    lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
+  } yield (warehouse, product, lineItemSku, order)).runTxn().futureValue.rightVal
 
   "InventoryAdjustment" - {
     "createAdjustmentsForOrder creates an adjustment with the correct reservation based on line items" in {
@@ -28,7 +29,7 @@ class InventoryAdjustmentIntegrationTest extends IntegrationTestBase {
       Orders.findByCustomerId(1).map(_.state).update(Order.Shipped).run().futureValue
 
       // Start actual testing
-      val (warehouse, sku, lineItemSku, order) = seed()
+      val (warehouse, product, lineItemSku, order) = seed()
 
       OrderLineItems.createAllReturningIds((1 to 5).map { _ ⇒
         OrderLineItem(orderId = order.id, originId = lineItemSku.id, originType = OrderLineItem.SkuItem)
@@ -36,7 +37,7 @@ class InventoryAdjustmentIntegrationTest extends IntegrationTestBase {
 
       InventoryAdjustments.createAdjustmentsForOrder(order, warehouse.id).run().futureValue
       val numAdjustments = InventoryAdjustments.filter(_.eventId === order.id).length.result.run().futureValue
-      val summary = InventorySummaries.findBySkuId(warehouse.id, sku.id).one.run().futureValue.value
+      val summary = InventorySummaries.findBySkuId(warehouse.id, product.skuId).one.run().futureValue.value
 
       numAdjustments mustBe 1
       summary.reserved must === (5)

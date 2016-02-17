@@ -7,7 +7,7 @@ import models.{RmaAssignment, Customer, Customers, GiftCard, GiftCardManual, Gif
 GiftCards, Order, OrderLineItem, OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItems,
 OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, Reasons, Rma, RmaAssignments, RmaLineItem,
 RmaLockEvents, RmaReason, RmaReasons, Rmas, Shipments, ShippingMethods, StoreAdmin, StoreAdmins}
-import models.product.Skus
+import models.product.{Skus, Mvp, ProductContexts, SimpleContext}
 import org.json4s.jackson.JsonMethods._
 import payloads.{RmaAssigneesPayload, RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCustomerPayload,
 RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload}
@@ -569,7 +569,9 @@ class RmaIntegrationTest extends IntegrationTestBase
   trait LineItemFixture extends Fixture {
     val (rmaReason, sku, giftCard, shipment) = (for {
       rmaReason ← * <~ RmaReasons.create(Factories.rmaReasons.head)
-      sku ← * <~ Skus.create(Factories.skus.head)
+      productContext ← * <~ ProductContexts.create(SimpleContext.create)
+      product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
+      sku ← * <~ Skus.mustFindById404(product.skuId)
       _ ← * <~ Factories.addSkusToOrder(Seq(sku.id), order.id, OrderLineItem.Cart)
 
       gcReason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))

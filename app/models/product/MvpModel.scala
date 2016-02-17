@@ -82,7 +82,8 @@ final case class SimpleSku(
   sku: String,
   price: Int,
   currency: Currency,
-  skuType: Sku.Type) {
+  skuType: Sku.Type,
+  isHazardous: Boolean) {
 
     def create : Sku = 
       Sku(
@@ -98,6 +99,7 @@ final case class SimpleSku(
             }
           }
         }"""),
+      isHazardous = isHazardous,
       `type` = skuType)
 }
 
@@ -126,7 +128,8 @@ final case class SimpleProductData(
   skuType: Sku.Type = Sku.Sellable,
   price: Int,
   currency: Currency = Currency.USD,
-  isActive: Boolean = true)
+  isActive: Boolean = true,
+  isHazardous: Boolean = false)
 
 object Mvp { 
 
@@ -136,7 +139,7 @@ object Mvp {
     product ← * <~ Products.create(simpleProduct.create)
     simpleShadow ← * <~ SimpleProductShadow(contextId, product.id)
     productShadow ← * <~ ProductShadows.create(simpleShadow.create)
-    simpleSku ← * <~ SimpleSku(product.id, p.sku, p.price, p.currency, p.skuType)
+    simpleSku ← * <~ SimpleSku(product.id, p.sku, p.price, p.currency, p.skuType, p.isHazardous)
     sku ← * <~ Skus.create(simpleSku.create)
     simpleSkuShadow ← * <~ SimpleSkuShadow(contextId, sku.id)
     skuShadow ← * <~ SkuShadows.create(simpleSkuShadow.create)
@@ -163,13 +166,31 @@ object Mvp {
       JInt(value) ← p \ "value"
       JString(currency) ← p \ "currency"
     } yield (value.toInt, Currency(currency))
-    if (price.isEmpty) None else Some(price.head)
+    if (price.isEmpty) None else price.headOption
   }
 
   def price(s: Sku, ss: SkuShadow) : Option[(Int, Currency)] = {
     ss.attributes \ "price" match {
       case JString(key) ⇒  priceFromJson(s.attributes \ "price" \ key)
       case _ ⇒ None
+    }
+  }
+
+  def updatePrice(s: Sku, ss: SkuShadow, price: Int) : Json = {
+    ss.attributes \ "price" match {
+      case JString(key) ⇒  
+        s.attributes merge parse(
+        s"""
+        {
+          "price" : {
+            "type" : "price",
+            "${key}" : {
+              "value" : $price,
+            }
+          }
+        }
+        """)
+      case _ ⇒  s.attributes
     }
   }
 

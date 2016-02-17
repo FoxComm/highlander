@@ -32,7 +32,7 @@ trait ProductGenerator {
     SimpleProductData(
       sku = sku, 
       title = title,
-      description = title
+      description = title,
       price = Random.nextInt(10000))
   }
 
