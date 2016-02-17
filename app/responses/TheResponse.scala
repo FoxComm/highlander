@@ -1,6 +1,6 @@
 package responses
 
-import services.Failures
+import services.{Failure, Failures}
 
 final case class TheResponse[A](
   result     : A,
@@ -8,7 +8,8 @@ final case class TheResponse[A](
   sorting    : Option[SortingMetadata] = None,
   alerts     : Option[List[String]] = None,
   errors     : Option[List[String]] = None,
-  warnings   : Option[List[String]] = None)
+  warnings   : Option[List[String]] = None,
+  batch      : Option[BatchMetadata] = None)
 
 object TheResponse {
 
@@ -17,13 +18,15 @@ object TheResponse {
                sorting     : Option[SortingMetadata] = None,
                alerts      : Option[Failures] = None,
                errors      : Option[Failures] = None,
-               warnings    : Option[Failures] = None): TheResponse[A] =
+               warnings    : Option[Failures] = None,
+               batch       : Option[BatchMetadata] = None): TheResponse[A] =
     TheResponse(result     = value,
                 pagination = pagination,
                 sorting    = sorting,
                 alerts     = alerts.map(_.flatten),
                 errors     = errors.map(_.flatten),
-                warnings   = warnings.map(_.flatten))
+                warnings   = warnings.map(_.flatten),
+                batch      = batch)
 }
 
 final case class PaginationMetadata(
@@ -33,3 +36,5 @@ final case class PaginationMetadata(
   total     : Option[Int] = None)
 
 final case class SortingMetadata(sortBy: Option[String] = None)
+
+final case class BatchMetadata(success: Seq[String], failures: Map[String, String])

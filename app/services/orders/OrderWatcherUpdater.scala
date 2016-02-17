@@ -2,6 +2,7 @@ package services.orders
 
 import models.order._
 import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
+import responses.{TheResponse, BatchMetadata}
 import payloads.OrderBulkWatchersPayload
 import responses.TheResponse
 import responses.order.FullOrder
@@ -55,12 +56,14 @@ object OrderWatcherUpdater {
     newWatchers    = for (order ← orders) yield OrderWatcher(orderId = order.id, watcherId = watcher.id)
     _              ← * <~ OrderWatchers.createAll(newWatchers)
     response       ← * <~ OrderQueries.findAll
-    ordersNotFound = diffToFlatFailures(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
     orderRefNums   = orders.filter(o ⇒ newWatchers.map(_.orderId).contains(o.id)).map(_.referenceNumber)
     _              ← * <~ LogActivity.bulkAddedWatcherToOrders(admin, watcher, orderRefNums)
     _              ← * <~ NotificationManager.subscribe(adminIds = Seq(watcher.id), dimension = Dimension.order,
                             reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber))
-  } yield response.copy(errors = ordersNotFound)).runTxn()
+    // Prepare response
+    batchFailures  = diffToFlatMap(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
+    batchMetadata  = BatchMetadata(success = orderRefNums, failures = batchFailures)
+  } yield response.copy(errors = liftFromFlatMap(batchFailures), batch = Some(batchMetadata))).runTxn()
 
   def unwatchBulk(admin: StoreAdmin, payload: OrderBulkWatchersPayload)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
@@ -69,10 +72,12 @@ object OrderWatcherUpdater {
     watcher        ← * <~ StoreAdmins.mustFindById400(payload.watcherId)
     _              ← * <~ OrderWatchers.filter(_.watcherId === payload.watcherId).filter(_.orderId.inSetBind(orders.map(_.id))).delete
     response       ← * <~ OrderQueries.findAll
-    ordersNotFound = diffToFlatFailures(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
     orderRefNums   = orders.filter(o ⇒ payload.referenceNumbers.contains(o.refNum)).map(_.referenceNumber)
     _              ← * <~ LogActivity.bulkRemovedWatcherFromOrders(admin, watcher, orderRefNums)
     _              ← * <~ NotificationManager.unsubscribe(adminIds = Seq(watcher.id), dimension = Dimension.order,
                             reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber))
-    } yield response.copy(errors = ordersNotFound)).runTxn()
+    // Prepare response
+    batchFailures  = diffToFlatMap(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
+    batchMetadata  = BatchMetadata(success = orderRefNums, failures = batchFailures)
+  } yield response.copy(errors = liftFromFlatMap(batchFailures), batch = Some(batchMetadata))).runTxn()
 }

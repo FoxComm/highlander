@@ -4,6 +4,7 @@ import models.order._
 import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
 import payloads.OrderBulkAssignmentPayload
 import responses.TheResponse
+import responses.{BatchMetadata, TheResponse}
 import responses.order.FullOrder
 import services.Util._
 import services.{NotificationManager, LogActivity, OrderAssigneeNotFound, Result}
@@ -57,12 +58,14 @@ object OrderAssignmentUpdater {
     newAssignments  = for (o ← orders) yield OrderAssignment(orderId = o.id, assigneeId = assignee.id)
     _               ← * <~ OrderAssignments.createAll(newAssignments)
     response        ← * <~ OrderQueries.findAll
-    ordersNotFound  = diffToFlatFailures(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
-    orderRefNums    = orders.filter(o ⇒ newAssignments.map(_.orderId).contains(o.id)).map(_.referenceNumber)
-    _               ← * <~ LogActivity.bulkAssignedToOrders(admin, assignee, orderRefNums)
+    refNums         = orders.filter(o ⇒ newAssignments.map(_.orderId).contains(o.id)).map(_.referenceNumber)
+    _               ← * <~ LogActivity.bulkAssignedToOrders(admin, assignee, refNums)
     _               ← * <~ NotificationManager.subscribe(adminIds = Seq(assignee.id), dimension = Dimension.order,
       reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber)).value
-  } yield response.copy(errors = ordersNotFound)).runTxn()
+    // Prepare response
+    batchFailures  = diffToFlatMap(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
+    batchMetadata  = BatchMetadata(success = refNums, failures = batchFailures)
+  } yield response.copy(errors = liftFromFlatMap(batchFailures), batch = Some(batchMetadata))).runTxn()
 
   def unassignBulk(admin: StoreAdmin, payload: OrderBulkAssignmentPayload)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
@@ -72,10 +75,12 @@ object OrderAssignmentUpdater {
     _         ← * <~ OrderAssignments.filter(_.assigneeId === payload.assigneeId)
                                      .filter(_.orderId.inSetBind(orders.map(_.id))).delete
     response  ← * <~ OrderQueries.findAll
-    ordersNotFound = diffToFlatFailures(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
     refNums   = orders.filter(o ⇒ payload.referenceNumbers.contains(o.refNum)).map(_.referenceNumber)
     _         ← * <~ LogActivity.bulkUnassignedFromOrders(admin, assignee, refNums)
     _         ← * <~ NotificationManager.unsubscribe(adminIds = Seq(assignee.id), dimension = Dimension.order,
       reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber)).value
-  } yield response.copy(errors = ordersNotFound)).runTxn()
+    // Prepare response
+    batchFailures  = diffToFlatMap(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
+    batchMetadata  = BatchMetadata(success = refNums, failures = batchFailures)
+  } yield response.copy(errors = liftFromFlatMap(batchFailures), batch = Some(batchMetadata))).runTxn()
 }
