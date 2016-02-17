@@ -66,7 +66,7 @@ const TableView = props => {
 
     topItems.push(flexSeparator, tablePaginator);
 
-    bottomItems.push(<TablePageSize setState={setState} />, flexSeparator, tablePaginator);
+    bottomItems.push(<TablePageSize setState={setState} value={size} />, flexSeparator, tablePaginator);
   }
 
   return (
