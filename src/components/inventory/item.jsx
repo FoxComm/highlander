@@ -7,23 +7,30 @@ import { Link, IndexLink } from '../link';
 import LocalNav, { NavDropdown } from '../local-nav/local-nav';
 import { PageTitle } from '../section-title';
 
-export default class InventoryItem extends React.Component {
-  render() {
-    return (
-      <div className="fc-inventory-item">
-        <div className="fc-grid">
-          <div className="fc-col-md-1-1">
-            <PageTitle title="SKU" subtitle={this.props.params.sku} />
-          </div>
+const InventoryItem = props => {
+  return (
+    <div className="fc-inventory-item">
+      <div className="fc-grid">
+        <div className="fc-col-md-1-1">
+          <PageTitle title="SKU" subtitle={props.params.sku} />
         </div>
-        <LocalNav gutter={true}>
-          <a href="">General</a>
-          <IndexLink to="inventory-item-details" params={this.props.params}>Inventory</IndexLink>
-          <a href="">Notes</a>
-          <a href="">Activity Trail</a>
-        </LocalNav>
-        {this.props.children}
       </div>
-    );
-  }
-}
+      <LocalNav gutter={true}>
+        <a href="">General</a>
+        <IndexLink to="inventory-item-details" params={props.params}>Inventory</IndexLink>
+        <a href="">Notes</a>
+        <a href="">Activity Trail</a>
+      </LocalNav>
+      {props.children}
+    </div>
+  );
+};
+
+InventoryItem.propTypes = {
+  params: PropTypes.shape({
+    sku: PropTypes.string,
+  }),
+  children: PropTypes.node,
+};
+
+export default InventoryItem;

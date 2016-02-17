@@ -63,6 +63,7 @@ ExpandableRow.propTypes = {
   row: PropTypes.object.isRequired,
   setCellContents: PropTypes.func.isRequired,
   setDrawerContent: PropTypes.func.isRequired,
+  params: PropTypes.object,
 };
 
 export default ExpandableRow;

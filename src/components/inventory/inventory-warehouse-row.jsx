@@ -13,7 +13,6 @@ const setCellContents = (warehouse, field, params) => {
 };
 
 const setDrawerContent = (row, params) => {
-  console.log(params);
   return (
     <div>
       <Table
@@ -42,6 +41,7 @@ const InventoryWarehouseRow = props => {
 InventoryWarehouseRow.propTypes = {
   warehouse: PropTypes.object.isRequired,
   columns: PropTypes.array,
+  params: PropTypes.object,
 };
 
 export default InventoryWarehouseRow;

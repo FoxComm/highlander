@@ -12,6 +12,10 @@ import InventoryWarehouseRow from './inventory-warehouse-row';
 
 export default class InventoryItemDetails extends React.Component {
 
+  static propTypes = {
+    params: PropTypes.object,
+  }
+
   get tableColumns() {
     return [
       {field: 'warehouse', text: 'Warehouse'},

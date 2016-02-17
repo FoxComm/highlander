@@ -19,8 +19,8 @@ export default class ExpandableTable extends React.Component {
     }),
     renderRow: PropTypes.func,
     emptyMessage: PropTypes.string.isRequired,
-    predicate: PropTypes.func,
     className: PropTypes.string,
+    params: PropTypes.object,
   };
 
   static defaultProps = {
