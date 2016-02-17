@@ -2,6 +2,7 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import InputMask from 'react-input-mask';
+import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -9,7 +10,7 @@ import { createSelector } from 'reselect';
 
 // components
 import FormField from '../../forms/formfield';
-import Form from '../../forms/form';
+import FoxyForm from '../../forms/foxy-form';
 import ErrorAlerts from '../../alerts/error-alerts';
 import SaveCancel from '../../common/save-cancel';
 import { Dropdown, DropdownItem } from '../../dropdown';
@@ -89,37 +90,34 @@ export default class AddressForm extends React.Component {
     switch (name) {
       case 'phoneNumber':
         return value.replace(/[^\d]/g, '');
+      case 'countryId':
+      case 'regionId':
+        return parseInt(value);
       default:
         return value;
     }
   }
 
   @autobind
-  handleFormSubmit(event) {
-    event.preventDefault();
-    const props = this.props;
-
-    const customerId = props.customerId;
-
-    const formData = _.transform(props.formData, (result, value, name) => {
-      result[name] = this.prepareValue(name, value);
-    });
+  handleFormSubmit(data) {
+    const { closeAction, customerId, onSaved, submitAction, submitForm } = this.props;
+    const formData = _.mapValues(data, (v, k) => this.prepareValue(k, v));
 
     let willSaved;
 
-    if (props.submitAction) {
-      willSaved = props.submitAction(formData);
+    if (submitAction) {
+      willSaved = submitAction(formData);
     } else {
-      willSaved = props.submitForm(customerId, formData);
+      willSaved = submitForm(customerId, formData);
     }
 
     willSaved
       .then(address => {
-        if (props.onSaved) {
-          props.onSaved(address.id);
+        if (onSaved) {
+          onSaved(address.id);
         }
 
-        props.closeAction();
+        closeAction();
       });
   }
 
@@ -137,14 +135,15 @@ export default class AddressForm extends React.Component {
   }
 
   validateZipCode() {
-    const countryCode = this.countryCode;
-    const formData = this.props.formData;
-
-    if (validators.zipCode(formData.zip, countryCode)) {
-      return null;
-    } else {
-      return `${zipName(countryCode)} is invalid for selected country`;
-    }
+    // const countryCode = this.countryCode;
+    // const formData = this.props.formData;
+    //
+    // if (validators.zipCode(formData.zip, countryCode)) {
+    //   return null;
+    // } else {
+    //   return `${zipName(countryCode)} is invalid for selected country`;
+    // }
+    return null;
   }
 
   get phoneInput() {
@@ -152,13 +151,15 @@ export default class AddressForm extends React.Component {
 
     if (this.countryCode === 'US') {
       return (
-        <InputMask type="tel" name="phoneNumber" mask={phoneMask(this.countryCode)}
-                        onChange={this.handleFormChange}
-                        value={formData.phoneNumber} placeholder={phoneExample(this.countryCode)}/>
+        <InputMask type="tel"
+                   name="phoneNumber"
+                   mask={phoneMask(this.countryCode)}
+                   defaultValue={formData.phoneNumber}
+                   placeholder={phoneExample(this.countryCode)} />
       );
     }
     return (
-      <input type="tel" name="phoneNumber" value={formData.phoneNumber}
+      <input type="tel" name="phoneNumber" defaultValue={formData.phoneNumber}
              maxLength="15" placeholder={phoneExample(this.countryCode)} />
     );
   }
@@ -191,18 +192,17 @@ export default class AddressForm extends React.Component {
       <div className="fc-address-form">
         {this.errorMessages}
         <article>
-          <Form onSubmit={this.handleFormSubmit}
-                onChange={this.handleFormChange}>
+          <FoxyForm onSubmit={this.handleFormSubmit}>
             <ul className="fc-address-form-fields">
               { this.formTitle }
               <li>
                 <FormField label="Name" validator="ascii" maxLength={255}>
-                  <input name="name" type="text" value={formData.name} required />
+                  <input name="name" type="text" defaultValue={formData.name} required />
                 </FormField>
               </li>
               <li>
                 <FormField label="Country">
-                  <Dropdown value={props.countryId} onChange={value => props.changeValue('countryId', Number(value))}>
+                  <Dropdown name="countryId" value={props.countryId} onChange={value => props.changeValue('countryId', Number(value))}>
                     {countries.map((country, index) => {
                       return (
                         <DropdownItem value={country.id} key={`${index}-${country.id}`}>{country.name}</DropdownItem>
@@ -213,22 +213,22 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label="Street Address" validator="ascii" maxLength={255}>
-                  <input name="address1" type="text" value={formData.address1} required />
+                  <input name="address1" type="text" defaultValue={formData.address1} required />
                 </FormField>
               </li>
               <li>
                 <FormField label="Street Address 2" validator="ascii" maxLength={255} optional>
-                  <input name="address2" type="text" value={formData.address2} />
+                  <input name="address2" type="text" defaultValue={formData.address2} />
                 </FormField>
               </li>
               <li>
                 <FormField label="City" validator="ascii" maxLength={255}>
-                  <input name="city" type="text" value={formData.city} required />
+                  <input name="city" type="text" defaultValue={formData.city} required />
                 </FormField>
               </li>
               <li>
                 <FormField label={regionName(countryCode)} required>
-                  <Dropdown value={formData.regionId} onChange={value => props.changeValue('regionId', Number(value))}>
+                  <Dropdown name="regionId" value={formData.regionId}>
                     {regions.map((state, index) => {
                       return <DropdownItem value={state.id} key={`${index}-${state.id}`}>{state.name}</DropdownItem>;
                     })}
@@ -239,7 +239,7 @@ export default class AddressForm extends React.Component {
                 <FormField label={zipName(countryCode)} validator={this.validateZipCode.bind(this)}>
                   <input type="text" name="zip"
                          placeholder={zipExample(countryCode)}
-                         value={formData.zip} className='control' required />
+                         defaultValue={formData.zip} className='control' required />
                 </FormField>
               </li>
               <li>
@@ -252,7 +252,7 @@ export default class AddressForm extends React.Component {
                             saveText={props.saveTitle}/>
               </li>
             </ul>
-            </Form>
+          </FoxyForm>
         </article>
       </div>
     );
