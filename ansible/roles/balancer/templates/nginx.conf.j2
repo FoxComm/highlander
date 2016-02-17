@@ -82,11 +82,7 @@ http {
       end
 
       function request_internal_search()
-        local uri = ngx.re.sub(ngx.var.uri, "api/search", "internal-search")
-        local req = uri
-        if not ngx.var.args == nil then 
-            req = uri .. "?" .. ngx.var.args
-        end
+        local req = ngx.re.sub(ngx.var.request_uri, "api/search", "internal-search")
 
         -- map is needed because ngx.var.request_method returns a string
         local methodsMap = {
