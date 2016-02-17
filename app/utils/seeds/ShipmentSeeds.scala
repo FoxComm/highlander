@@ -16,6 +16,13 @@ trait ShipmentSeeds {
 
   type ShippingMethods = (ShippingMethod#Id, ShippingMethod#Id, ShippingMethod#Id, ShippingMethod#Id, ShippingMethod#Id)
 
+  def getShipmentRules : DbResultT[ShippingMethods] = for {
+    methods ← * <~ ShippingMethods.createAllReturningIds(shippingMethods)
+    } yield methods.seq.toList match {
+      case m1 :: m2 :: m3 :: m4 :: m5 :: Nil ⇒ (m1, m2, m3, m4, m5)
+      case _ ⇒ ???
+    }
+
   def createShipmentRules: DbResultT[ShippingMethods] = for {
     methods ← * <~ ShippingMethods.createAllReturningIds(shippingMethods)
     _ ← * <~ ShippingPriceRules.createAll(shippingPriceRules)

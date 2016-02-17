@@ -123,7 +123,7 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
     val location = "Random"
 
     for {
-      shipMethods ← * <~ createShipmentRules
+      shipMethods ← * <~ getShipmentRules
       _ ← * <~  generateWarehouses
       skuIds ← * <~  generateInventory(makeSkus(productCount))
       skus  ← * <~ Skus.filter(_.id.inSet(skuIds)).result
