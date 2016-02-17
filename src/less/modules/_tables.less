@@ -169,6 +169,11 @@
     .width(50px);
   }
 
+  // somehow it fixes funky scrollbar for table
+  > .fc-btn > i {
+    vertical-align: top;
+  }
+
   .fc-form-field input.fc-table-paginator__current-page-field._disabled {
     background-color: @color-decor12;
     border: 1px solid @color-decor7;
