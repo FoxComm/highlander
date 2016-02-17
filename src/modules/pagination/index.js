@@ -5,7 +5,6 @@ import reduceReducers from 'reduce-reducers';
 import { apiStaticUrl, apiDynamicUrl } from './fetchers';
 
 export function addPaginationParams(url, searchState) {
-  let finalUrl = url;
   let uriGetParams = [];
 
   if (searchState.from || searchState.size) {
@@ -18,10 +17,11 @@ export function addPaginationParams(url, searchState) {
   }
 
   if (uriGetParams.length) {
-    finalUrl += '?' + uriGetParams.join('&');
+    const joinWith = url.indexOf('?') != -1 ? '&' : '?';
+    return url + joinWith + uriGetParams.join('&');
   }
 
-  return finalUrl;
+  return url;
 }
 
 export default function(url, namespace, moduleReducer) {
