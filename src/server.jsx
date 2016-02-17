@@ -6,30 +6,7 @@ import createHistory from 'history/lib/createMemoryHistory';
 import { Provider } from 'react-redux';
 import makeStore from './store';
 import routes from './routes';
-
-function createPage(html, store) {
-  return `
-    <!doctype html>
-    <html>
-      <head>
-        <title>StoreFront</title>
-      </head>
-      <body>
-        <link rel="stylesheet" href="./app.css" />
-        <div id="app">${html}</div>
-
-        <!-- its a Redux initial data -->
-        <script charset="UTF-8">
-          window.__data=${JSON.stringify(store.getState())};
-        </script>
-        <script type="text/javascript" src="./app.js"></script>
-        <script type="text/javascript">
-          App.renderApp();
-        </script>
-      </body>
-    </html>
-  `;
-}
+import renderPage from '../build/main.html';
 
 export default function *renderReact() {
   const history = createHistory();
@@ -49,6 +26,9 @@ export default function *renderReact() {
     );
 
     const appHtml = yield store.renderToString(ReactDOM, rootElement);
-    this.body = createPage(appHtml, store);
+    this.body = renderPage({
+      html: appHtml,
+      state: JSON.stringify(store.getState()),
+    });
   }
 }

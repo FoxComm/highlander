@@ -37,6 +37,7 @@ export default class Login extends React.Component {
     return (
       <div styleName="login-block">
         <div styleName="title">LOG IN</div>
+        <Button icon="ei-gear" styleName="google-login">LOG IN WITH GOOGLE</Button>
         <div>------------- or ------------</div>
         <Form>
           <FormField styleName="form-field">

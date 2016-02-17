@@ -23,7 +23,7 @@ const generateScopedName = process.env.NODE_ENV === 'production' ? generateShort
 
 const plugins = [
   require('postcss-import')({
-    path: 'src/css',
+    path: ['src/css', 'node_modules'],
   }),
   require('postcss-modules-values'),
   require('postcss-modules-extract-imports'),
@@ -36,7 +36,7 @@ const plugins = [
 
 exports.installHook = function() {
   require.extensions['.css'] = function(m, filename) {
-    const map = require('../public/css-modules.json');
+    const map = require('../build/css-modules.json');
     const relativePath = path.relative(process.cwd(), filename);
 
     const tokens = map[relativePath];

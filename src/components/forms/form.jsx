@@ -15,7 +15,7 @@ export default class Form extends React.Component {
 
   getChildContext() {
     return this._context || (this._context = {
-      formDispatcher: new EventEmitter()
+      formDispatcher: new EventEmitter(),
     });
   }
 

@@ -29,9 +29,9 @@ module.exports = function(gulp, opts, $) {
       packageCache: {},
     });
     bundler.plugin(require('css-modulesify'), {
-      output: path.resolve('public/app.css'),
+      output: path.resolve('build/bundle.css'),
       use: plugins,
-      jsonOutput: 'public/css-modules.json'
+      jsonOutput: 'build/css-modules.json',
     });
     if (!production && opts.devMode) {
       bundler.plugin('livereactload');

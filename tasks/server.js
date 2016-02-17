@@ -32,7 +32,7 @@ module.exports = function(gulp) {
       if (affectTasksRunning <= 0) {
         affectTasksRunning = 0;
         process.nextTick(function() {
-          runSequence('server.start');
+          runSequence('server.invalidate');
         });
       }
     }
@@ -45,6 +45,14 @@ module.exports = function(gulp) {
       node = null;
     } else {
       cb();
+    }
+  });
+
+  gulp.task('server.invalidate', function(cb) {
+    if (node) {
+      runSequence('server.stop', 'server.start', cb);
+    } else {
+      runSequence('server.start', cb);
     }
   });
 

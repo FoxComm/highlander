@@ -15,7 +15,9 @@ for (const task of fs.readdirSync('./tasks')) {
   require(path.resolve(file))(gulp, opts, $);
 }
 
-gulp.task('build', ['browserify']);
+gulp.task('build', function(cb) {
+  runSequence('templates', 'browserify', 'css', cb);
+});
 
 gulp.task('dev', function(cb) {
   opts.devMode = true;
