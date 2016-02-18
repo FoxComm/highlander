@@ -58,7 +58,11 @@ class Dropdown extends React.Component {
     if (editable) {
       return (
         <div className="fc-dropdown__value">
-          <input placeholder={placeholder} disabled={disabled} defaultValue={title} key={actualValue} />
+          <input name={name}
+                 placeholder={placeholder}
+                 disabled={disabled}
+                 defaultValue={title}
+                 key={actualValue} />
         </div>
       );
     }
@@ -66,7 +70,7 @@ class Dropdown extends React.Component {
     return (
       <div className="fc-dropdown__value" onClick={this.handleToggleClick}>
         {title}
-        <input name={name} type="hidden" value={actualValue} />
+        <input name={name} type="hidden" value={actualValue} readOnly />
       </div>
     );
   }
