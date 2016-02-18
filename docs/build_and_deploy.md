@@ -3,10 +3,10 @@ Build and Deploy for Infrastructure
 
 Our infrastructure uses the following tools
 
-    * Buildkite for automating build and provisioning execution.
-    * Google Compute where our machines live
-    * Ansible for provisioning machines.
-    * Terraform to setup cloud resources.
+  * Buildkite for automating build and provisioning execution.
+  * Google Compute where our machines live
+  * Ansible for provisioning machines.
+  * Terraform to setup cloud resources.
 
 
 Builds
@@ -31,8 +31,8 @@ Provisioning
 
 There are two provisioning pipelines at the moment.
 
-    * Test & Stage Provisioning
-    * Demo
+  * Test & Stage Provisioning
+  * Demo
 
 Test & Stage Provisioning
 ---------------------------------------
@@ -45,9 +45,9 @@ store.
 
 We use Ansible for provisioning machines. The pipeline looks like this.
 
-    1. Terraform script is executed which makes sure the VM resources are available.
-    2. The Gatling test environment is provisioned and Gatling tests are executed.
-    3. Stage environment is provisioned.
+  1. Terraform script is executed which makes sure the VM resources are available.
+  2. The Gatling test environment is provisioned and Gatling tests are executed.
+  3. Stage environment is provisioned.
 
 If you have VPN access you can access the staging environment at 
 [http://stage.foxcommerce.com](http://stage.foxcommerce.com)
@@ -58,8 +58,8 @@ Demo
 The demo environment pipeline is currently only executed manually. The process
 we take to update the environment is the following.
 
-    1. Check staging to make sure everything we want working is working.
-    2. Run the Demo buildkite pipeline which will essentially duplicate the staging environment
+  1. Check staging to make sure everything we want working is working.
+  2. Run the Demo buildkite pipeline which will essentially duplicate the staging environment
        but with more data. 
 
 The Demo environment is also available via a public DNS. 
