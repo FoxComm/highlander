@@ -114,7 +114,7 @@ export function giftCardSearch(code) {
       term: 'code',
       operator: 'eq',
       value: {
-        type: 'string',
+        type: 'term',
         value: code,
       },
     }];
