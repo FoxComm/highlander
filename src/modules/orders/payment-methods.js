@@ -1,6 +1,8 @@
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { orderSuccess } from './details.js';
+import { post } from '../../lib/search';
+import { toQuery } from '../../elastic/common';
 
 const _createAction = (description, ...args) => {
   return createAction('ORDER_PAYMENT_METHOD_' + description, ...args);
@@ -16,8 +18,12 @@ export const orderPaymentMethodStopEdit = _createAction('STOP_EDIT');
 export const orderPaymentMethodStartAdd = _createAction('START_ADD');
 export const orderPaymentMethodStopAdd = _createAction('STOP_ADD');
 
-const orderPaymentMethodAddCreditCardStart = _createAction('ADD_CREDIT_CARD_START');
-const orderPaymentMethodAddCreditCardSuccess = _createAction('ADD_CREDIT_CARD_SUCCESS');
+const orderPaymentMethodAddNewPaymentStart = _createAction('ADD_NEW_PAYMENT_START');
+const orderPaymentMethodAddNewPaymentSuccess = _createAction('ADD_NEW_PAYMENT_SUCCESS');
+
+const giftCardSearchStart = _createAction('GIFT_CARD_SEARCH_START');
+const giftCardSearchSuccess = _createAction('GIFT_CARD_SEARCH_SUCCESS');
+const giftCardSearchFailure = _createAction('GIFT_CARD_SEARCH_FAILURE');
 
 function deleteOrderPaymentMethod(path) {
   return dispatch => {
@@ -31,11 +37,11 @@ function deleteOrderPaymentMethod(path) {
 
 export function addOrderCreditCardPayment(orderRefNum, creditCardId) {
   return dispatch => {
-    dispatch(orderPaymentMethodStartAdd());
+    dispatch(orderPaymentMethodAddNewPaymentStart());
     return Api.post(`${basePath(orderRefNum)}/credit-cards`, { creditCardId: creditCardId })
       .then(
         order => {
-          dispatch(orderPaymentMethodAddCreditCardSuccess());
+          dispatch(orderPaymentMethodAddNewPaymentSuccess());
           dispatch(orderSuccess(order));
         },
         err => dispatch(setError(err))
@@ -45,7 +51,7 @@ export function addOrderCreditCardPayment(orderRefNum, creditCardId) {
 
 export function createAndAddOrderCreditCardPayment(orderRefNum, creditCard, customerId) {
   return dispatch => {
-    dispatch(orderPaymentMethodStartAdd());
+    dispatch(orderPaymentMethodAddNewPaymentStart());
 
     const ccPayload = {
       isDefault: creditCard.isDefault,
@@ -63,13 +69,64 @@ export function createAndAddOrderCreditCardPayment(orderRefNum, creditCard, cust
           return Api.post(`${basePath(orderRefNum)}/credit-cards`, { creditCardId: res.id })
             .then(
               order => {
-                dispatch(orderPaymentMethodAddCreditCardSuccess());
+                dispatch(orderPaymentMethodAddNewPaymentSuccess());
                 dispatch(orderSuccess(order));
               },
               err => dispatch(setError(err))
             );
         },
         err => dispatch(setError(err))
+      );
+  };
+}
+
+export function addOrderStoreCreditPayment(orderRefNum, amount) {
+  return dispatch => {
+    dispatch(orderPaymentMethodAddNewPaymentStart());
+    return Api.post(`${basePath(orderRefNum)}/store-credit`, { amount: amount })
+      .then(
+        order => {
+          dispatch(orderPaymentMethodAddNewPaymentSuccess());
+          dispatch(orderSuccess(order));
+        },
+        err => dispatch(setError(err))
+      );
+  };
+}
+
+export function addOrderGiftCardPayment(orderRefNum, code, amount) {
+  return dispatch => {
+    dispatch(orderPaymentMethodAddNewPaymentStart());
+    return Api.post(`${basePath(orderRefNum)}/gift-cards`, { code: code, amount: amount })
+      .then(
+        order => {
+          dispatch(orderPaymentMethodAddNewPaymentSuccess());
+          dispatch(orderSuccess(order));
+        },
+        err => dispatch(setError(err))
+      );
+  };
+}
+
+export function giftCardSearch(code) {
+  return dispatch => {
+    const filters = [{
+      term: 'code',
+      operator: 'eq',
+      value: {
+        type: 'string',
+        value: code,
+      },
+    }];
+
+    dispatch(giftCardSearchStart());
+    return post('gift_cards_search_view/_search', toQuery(filters))
+      .then(
+        res => dispatch(giftCardSearchSuccess(res)),
+        err => {
+          dispatch(giftCardSearchFailure());
+          dispatch(setError(err));
+        },
       );
   };
 }
@@ -99,6 +156,8 @@ const initialState = {
   isEditing: false,
   isFetching: false,
   isUpdating: false,
+  isSearchingGiftCards: false,
+  giftCards: [],
 };
 
 const reducer = createReducer({
@@ -146,14 +205,27 @@ const reducer = createReducer({
       isAdding: false,
     };
   },
-  [orderPaymentMethodAddCreditCardStart]: (state) => {
+  [orderPaymentMethodAddNewPaymentStart]: (state) => {
     return {
       ...state,
       isUpdating: true,
     };
   },
-  [orderPaymentMethodAddCreditCardSuccess]: (state) => {
+  [orderPaymentMethodAddNewPaymentSuccess]: (state) => {
     return initialState;
+  },
+  [giftCardSearchStart]: (state) => {
+    return {
+      ...state,
+      isSearchingGiftCards: true,
+    };
+  },
+  [giftCardSearchSuccess]: (state, payload) => {
+    return {
+      ...state,
+      isSearchingGiftCards: false,
+      giftCards: payload.result,
+    };
   },
   [setError]: (state, err) => {
     return {

@@ -5,11 +5,12 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
-import ApplyGiftCard from './apply-gift-card';
 import CreditCardBox from '../../credit-cards/card-box';
 import CreditCardDetails from '../../credit-cards/card-details';
 import { Dropdown, DropdownItem } from '../../dropdown';
 import { Form, FormField } from '../../forms';
+import NewGiftCard from './new-gift-card';
+import NewStoreCredit from './new-store-credit';
 import NewCreditCard from './new-credit-card';
 import TileSelector from '../../tile-selector/tile-selector';
 import TableCell from '../../table/cell';
@@ -54,11 +55,15 @@ class NewPayment extends Component {
   }
 
   get newPaymentMethod() {
+    const { customerId, order } = this.props;
+
     switch(this.state.paymentType) {
     case 'creditCard':
-      return <NewCreditCard order={this.props.order} customerId={this.props.customerId} />;
+      return <NewCreditCard order={order} customerId={customerId} />;
     case 'giftCard':
-      return <ApplyGiftCard />;
+      return <NewGiftCard order={order} customerId={customerId} />;
+    case 'storeCredit':
+      return <NewStoreCredit order={order} customerId={customerId} />;
     }
   }
 

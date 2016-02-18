@@ -1,6 +1,20 @@
-.fc-order-apply-gift-card {
-  &__card-number {
+.fc-order-debit-credit {
+  display: flex;
+  flex-direction: column;
+
+  &__form {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    .max-width(800px);
+  }
+
+  &__amount-form, &__statistic {
+    .margin-top(30px);
+    .margin-right(30px);
     .margin-bottom(30px);
+    display: block;
+    flex-grow: 1;
   }
 
   &__statistic-label, &__amount-form-value {
@@ -12,6 +26,16 @@
   &__statistic-value {
     .font-spec(32px, 600, 43px);
     color: @color-decor8;
+  }
+
+  &__submit {
+    .margin-top(20px);
+  }
+
+  &__title {
+    .font-spec(16px, 600, 24px);
+    .padding-bottom(10px);
+    border-bottom: 2px solid @color-decor7;
   }
 
   .fc-prepend-input {

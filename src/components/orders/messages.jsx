@@ -15,6 +15,8 @@ const formatMessage = message => {
     return 'No shipping method applied.';
   } else if (message.indexOf('no payment method') != -1) {
     return 'No payment method applied.';
+  } else if (message.indexOf('insufficient funds') != -1) {
+    return 'Insufficient funds.';
   }
 
   return message;
