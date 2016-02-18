@@ -32,6 +32,11 @@ module.exports = function(gulp, $, opts) {
       output: path.resolve('build/bundle.css'),
       use: plugins,
       jsonOutput: 'build/css-modules.json',
+      'postcss-cssnext': {
+        features: {
+          customProperties: false,
+        },
+      },
     });
     if (!production && opts.devMode) {
       bundler.plugin('livereactload');

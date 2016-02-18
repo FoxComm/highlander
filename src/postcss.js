@@ -25,13 +25,18 @@ const plugins = [
   require('postcss-import')({
     path: ['src/css', 'node_modules'],
   }),
+  require('lost')({
+    flexbox: 'flex',
+    gutter: '2.4%',
+  }),
   require('postcss-modules-values'),
   require('postcss-modules-extract-imports'),
   require('postcss-modules-local-by-default'),
   require('postcss-modules-scope')({
     generateScopedName,
   }),
-  require('postcss-cssnext'),
+  require('postcss-css-variables'),
+  'postcss-cssnext', // why string is here ? see https://github.com/css-modules/css-modulesify/pull/85
 ];
 
 exports.installHook = function() {
