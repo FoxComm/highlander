@@ -35,6 +35,7 @@ export default class NewGiftCard extends Component {
     actions: PropTypes.shape({
       addOrderGiftCardPayment: PropTypes.func.isRequired,
       giftCardSearch: PropTypes.func.isRequired,
+      orderPaymentMethodStopEdit: PropTypes.func.isRequired,
     }).isRequired,
   };
 
@@ -70,6 +71,7 @@ export default class NewGiftCard extends Component {
       return (
         <DebitCredit amountToUse={this.state.amountToUse}
                      availableBalance={this.availableBalance}
+                     onCancel={this.props.actions.orderPaymentMethodStopEdit}
                      onChange={this.handleAmountToUseChange}
                      onSubmit={this.handleGiftCardSubmit} />
       );

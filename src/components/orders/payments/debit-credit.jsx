@@ -38,7 +38,8 @@ const DebitCredit = props => {
       </div>
       <div className="fc-order-debit-credit__submit">
         <SaveCancel saveText="Add Payment Method"
-                    saveDisabled={props.amountToUse == 0} />
+                    saveDisabled={props.amountToUse == 0}
+                    onCancel={props.onCancel} />
       </div>
     </Form>
   );
@@ -47,6 +48,7 @@ const DebitCredit = props => {
 DebitCredit.propTypes = {
   amountToUse: PropTypes.number.isRequired,
   availableBalance: PropTypes.number.isRequired,
+  onCancel: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,

@@ -45,6 +45,7 @@ export default class NewStoreCredit extends Component {
     actions: PropTypes.shape({
       addOrderStoreCreditPayment: PropTypes.func.isRequired,
       fetchTotals: PropTypes.func.isRequired,
+      orderPaymentMethodStopEdit: PropTypes.func.isRequired,
     }).isRequired,
   };
 
@@ -84,6 +85,7 @@ export default class NewStoreCredit extends Component {
       <div className="fc-order-apply-store-credit">
         <DebitCredit amountToUse={this.state.amountToUse}
                      availableBalance={this.availableBalance}
+                     onCancel={this.props.actions.orderPaymentMethodStopEdit}
                      onChange={this.handleChange}
                      onSubmit={this.handleSubmit}
                      title="Customer's Store Credit" />

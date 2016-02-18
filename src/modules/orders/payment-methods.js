@@ -23,6 +23,7 @@ const orderPaymentMethodAddNewPaymentSuccess = _createAction('ADD_NEW_PAYMENT_SU
 
 const giftCardSearchStart = _createAction('GIFT_CARD_SEARCH_START');
 const giftCardSearchSuccess = _createAction('GIFT_CARD_SEARCH_SUCCESS');
+const giftCardSearchFailure = _createAction('GIFT_CARD_SEARCH_FAILURE');
 
 function deleteOrderPaymentMethod(path) {
   return dispatch => {
@@ -122,7 +123,10 @@ export function giftCardSearch(code) {
     return post('gift_cards_search_view/_search', toQuery(filters))
       .then(
         res => dispatch(giftCardSearchSuccess(res)),
-        err => dispatch(setError(err))
+        err => {
+          dispatch(giftCardSearchFailure());
+          dispatch(setError(err));
+        },
       );
   };
 }
