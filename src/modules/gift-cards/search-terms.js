@@ -5,7 +5,7 @@ const searchTerms = [
     options: [
       {
         title: 'Number',
-        type: 'string',
+        type: 'term',
         term: 'code'
       },
       {

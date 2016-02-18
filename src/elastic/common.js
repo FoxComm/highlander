@@ -63,6 +63,7 @@ function createFilter(filter) {
     case 'currency':
     case 'enum':
     case 'number':
+    case 'term':
       return rangeToFilter(term, operator, value);
     case 'string':
       return rangeToFilter(term, operator, value.toLowerCase());
