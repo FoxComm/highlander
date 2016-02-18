@@ -3,15 +3,17 @@
 import React, {PropTypes} from 'react';
 import { inflect } from 'fleck';
 
+import * as auth from '../../auth';
+
 // components
 import NotificationBlock from '../activity-notifications/notification-block';
 import DetailedInitials from '../users/detailed-initials';
 import Breadcrumb from './breadcrumb';
 
-export const currentUser = {id: 1, name: 'Frankly Admin', email: 'admin@admin.com'};
-
 const Header = props => {
-  const name = currentUser.name.split(' ')[0];
+  const currentUser = auth.cachedCurrentUser();
+
+  const name = currentUser ? currentUser.name.split(' ')[0] : '';
   return (
     <header role='banner' className="fc-header">
       <Breadcrumb routes={props.routes} params={props.params}/>
@@ -19,7 +21,7 @@ const Header = props => {
         <NotificationBlock />
         <div className="fc-header__initials"><DetailedInitials {...currentUser} /></div>
           <div className="fc-header__name">{name}</div>
-          <div className="sort"><i className="icon-chevron-down"></i></div>
+          <div className="sort"><i className="icon-chevron-down"/></div>
       </div>
     </header>
   );

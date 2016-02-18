@@ -37,6 +37,9 @@ export default class Login extends React.Component {
     }).then(response => {
       localStorage.setItem('jwt', response.headers.get('jwt'));
       localStorage.setItem('refresh-token', response.headers.get('set-refresh-token'));
+      response.json().then(token => {
+        localStorage.setItem('user', JSON.stringify(token));
+      });
       transitionTo(context.history, 'home');
     }, e => {
       console.log('login failed', e);
