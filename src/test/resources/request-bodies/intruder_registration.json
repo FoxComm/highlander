@@ -1,0 +1,6 @@
+{
+  "email": "${intruderEmail}",
+  "password": "${intruderPassword}",
+  "name": "Suspicious Intruder",
+  "isGuest": false
+}

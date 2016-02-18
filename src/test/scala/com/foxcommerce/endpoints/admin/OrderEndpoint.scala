@@ -1,11 +1,10 @@
-package com.foxcommerce.endpoints
+package com.foxcommerce.endpoints.admin
 
+import com.foxcommerce.common._
+import com.foxcommerce.fixtures._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
-
-import com.foxcommerce.fixtures._
-import com.foxcommerce.common._
 
 object OrderEndpoint {
 

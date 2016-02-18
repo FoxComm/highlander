@@ -2,7 +2,7 @@ package com.foxcommerce.common
 
 import java.util.concurrent.ThreadLocalRandom
 
-import com.foxcommerce.fixtures.AddressFixture
+import com.foxcommerce.fixtures.{CreditCardFixture, AddressFixture}
 
 object Utils {
   val defaultDomain = "foxcommerce.com"
