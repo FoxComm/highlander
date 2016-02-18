@@ -53,6 +53,9 @@
 #
 network.host: 0.0.0.0
 
+threadpool:
+    index:
+        queue_size: 1000
 #
 # Set a custom port for HTTP:
 #
