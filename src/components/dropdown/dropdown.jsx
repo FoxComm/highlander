@@ -70,7 +70,7 @@ class Dropdown extends React.Component {
     return (
       <div className="fc-dropdown__value" onClick={this.handleToggleClick}>
         {title}
-        <input name={name} type="hidden" value={actualValue} />
+        <input name={name} type="hidden" value={actualValue} readOnly />
       </div>
     );
   }

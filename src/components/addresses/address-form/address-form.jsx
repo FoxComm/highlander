@@ -61,7 +61,7 @@ export default class AddressForm extends React.Component {
 
     closeAction: PropTypes.func.isRequired,
     fetchCountry: PropTypes.func.isRequired,
-    onSaved: PropTypes.func.isRequired,
+    onSaved: PropTypes.func,
     submitAction: PropTypes.func,
     submitForm: PropTypes.func.isRequired,
   };
@@ -88,7 +88,7 @@ export default class AddressForm extends React.Component {
   componentDidMount() {
     this.props.fetchCountry(this.state.countryId);
   }
-  
+
   get country() {
     return _.find(this.props.countries, { id: this.state.countryId });
   }
@@ -174,10 +174,14 @@ export default class AddressForm extends React.Component {
   @autobind
   handleFormSubmit(data) {
     const { closeAction, customerId, onSaved, submitAction, submitForm } = this.props;
-    const formData = {
-      ...this.props.address,
-      ..._.mapValues(data, (v, k) => this.prepareValue(k, v)),
-    };
+
+    const formData = _.reduce(data, (res, val, key) => {
+      if (val !== '') {
+        res[key] = this.prepareValue(key, val);
+      }
+
+      return res;
+    }, this.props.address);
 
     let willSaved;
 
@@ -209,9 +213,9 @@ export default class AddressForm extends React.Component {
   }
 
   render() {
-    const props = this.props;
-    const address = props.address;
+    const { address, closeAction, saveTitle } = this.props;
     const countryCode = this.countryCode;
+    const regionId = _.get(address, 'region.id');
 
     return (
       <div className="fc-address-form">
@@ -219,7 +223,7 @@ export default class AddressForm extends React.Component {
         <article>
           <FoxyForm onSubmit={this.handleFormSubmit}>
             <ul className="fc-address-form-fields">
-              { this.formTitle }
+              {this.formTitle}
               <li>
                 <FormField label="Name" validator="ascii" maxLength={255}>
                   <input name="name" type="text" defaultValue={address.name} required />
@@ -251,7 +255,7 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label={regionName(countryCode)} required>
-                  <Dropdown name="regionId" value={address.regionId}>
+                  <Dropdown name="regionId" value={regionId}>
                     {this.regionItems}
                   </Dropdown>
                 </FormField>
@@ -269,8 +273,8 @@ export default class AddressForm extends React.Component {
                 </FormField>
               </li>
               <li className="fc-address-form-controls">
-                <SaveCancel onCancel={props.closeAction}
-                            saveText={props.saveTitle}/>
+                <SaveCancel onCancel={closeAction}
+                            saveText={saveTitle}/>
               </li>
             </ul>
           </FoxyForm>
