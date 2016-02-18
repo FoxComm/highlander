@@ -36,6 +36,7 @@ node_modules
 # Ignore compiled js/css
 public/themes
 public/admin.*
+public/_
 
 .vagrant
 !.vagrant/machines/default/google

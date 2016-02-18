@@ -17,7 +17,7 @@ function setDemoAuthToken() {
    *  header and set it on the client side via the process.env.DEMO_AUTH_TOKEN
    *  variable. This is replaced in-line by envify with the correct value.
    */
-  var demoAuthToken = process.env.DEMO_USER && process.env.DEMO_PASS ? 
+  var demoAuthToken = process.env.DEMO_USER && process.env.DEMO_PASS ?
     new Buffer(process.env.DEMO_USER+":"+process.env.DEMO_PASS).toString('base64')
     : undefined;
 
@@ -38,7 +38,7 @@ module.exports = function(gulp, opts, $) {
       standalone: 'App',
       transform: ['babelify'],
       extensions: ['.jsx'],
-      debug: !production,
+      debug: true,
       cache: {},
       packageCache: {}
     }).transform(envify({
@@ -69,9 +69,9 @@ module.exports = function(gulp, opts, $) {
       })
       .pipe(source(`admin.js`))
       .pipe(buffer())
-      //.pipe($.sourcemaps.init())
+      .pipe($.if(production, $.sourcemaps.init({loadMaps: true})))
       .pipe($.if(production, $.uglify()))
-      //.pipe($.sourcemaps.write('./maps'))
+      .pipe($.if(production, $.sourcemaps.write('_', {addComment: false})))
       .pipe(gulp.dest(opts.publicDir));
 
     return stream;
