@@ -8,57 +8,43 @@ import TableCell from '../table/cell';
 import TableRow from '../table/row';
 import Drawer from './drawer';
 
-class ExpandableRow extends React.Component {
+function drawer(columns, row, params, setDrawerContent) {
+  const content = setDrawerContent(row, params);
+  return (
+    <Drawer isVisible={params.isOpen} colspan={columns.length}>{content}</Drawer>
+  );
+}
 
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      isOpen: false,
-    };
-  }
-
-  get drawer() {
-    const { setDrawerContent, columns, row, params } = this.props;
-    const content = setDrawerContent(row, params);
-    return (
-      <Drawer isVisible={this.state.isOpen} colspan={columns.length}>{content}</Drawer>
+function cells(columns, row, params, setCellContents) {
+  const cells = _.reduce(columns, (visibleCells, col) => {
+    const cellKey = `row-${col.field}`;
+    const cellContents = setCellContents(row, col.field);
+    visibleCells.push(
+      <TableCell onClick={params.toggleDrawerState} key={cellKey} column={col}>
+        {cellContents}
+      </TableCell>
     );
-  }
+    return visibleCells;
+  }, []);
 
-  get cells() {
-    const { columns, row, setCellContents, ...rest } = this.props;
+  return cells;
+}
 
-    const cells = _.reduce(columns, (visibleCells, col) => {
-      const cellKey = `row-${col.field}`;
+const ExpandableRow = props => {
+  const { columns, row, params, setDrawerContent, setCellContents, ...rest } = props;
+  const parentRowClass = classNames('fc-expandable-table__parent-row', {
+    '_drawer-open': params.isOpen
+  });
 
-      const cellClickAction = () => this.setState({isOpen: !this.state.isOpen});
-      const cellContents = setCellContents(row, col.field);
+  const rowCells = cells(columns, row, params, setCellContents);
+  const rowDrawer = drawer(columns, row, params, setDrawerContent);
 
-      visibleCells.push(
-        <TableCell onClick={cellClickAction} key={cellKey} column={col}>
-          {cellContents}
-        </TableCell>
-      );
-
-      return visibleCells;
-    }, []);
-
-    return cells;
-  }
-
-  render() {
-    const { columns, row, setCellContents, ...rest } = this.props;
-    const parentRowClass = classNames('fc-expandable-table__parent-row', {
-      '_drawer-open': this.state.isOpen
-    });
-
-    return (
-      <TableRow className={parentRowClass} {...rest}>
-        {this.cells}
-        {this.drawer}
-      </TableRow>
-    );
-  }
+  return (
+    <TableRow className={parentRowClass} {...rest}>
+      {rowCells}
+      {rowDrawer}
+    </TableRow>
+  );
 };
 
 ExpandableRow.propTypes = {
@@ -67,6 +53,12 @@ ExpandableRow.propTypes = {
   setCellContents: PropTypes.func.isRequired,
   setDrawerContent: PropTypes.func.isRequired,
   params: PropTypes.object,
+  toggleDrawerState: PropTypes.func.isRequired,
+  isOpen: PropTypes.bool,
+};
+
+ExpandableRow.defaultProps = {
+  isOpen: false,
 };
 
 export default ExpandableRow;

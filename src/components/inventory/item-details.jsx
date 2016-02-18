@@ -1,6 +1,7 @@
 
 //libs
 import React, { PropTypes } from 'react';
+import { haveType } from '../../modules/state-helpers';
 
 // components
 import { SectionTitle } from '../section-title';
@@ -142,6 +143,8 @@ export default class InventoryItemDetails extends React.Component {
               data={this.mockedData}
               renderRow={this.renderRow}
               params={params}
+              entity={haveType(this.props.params, 'inventoryItem')}
+              idField="warehouse"
               emptyMessage="No warehouse data found."
               className="fc-inventory-item-details__warehouses-table"/>
           </div>

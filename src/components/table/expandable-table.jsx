@@ -3,11 +3,18 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
+import { connect } from 'react-redux';
 
 // components
 import TableView from './tableview';
 import MultiSelectHead, { selectionState } from './multi-select-head';
 
+// redux
+import * as ExtandableTableActions from '../../modules/expandable-tables';
+
+@connect((state, props) => ({
+  tableState: _.get(state, ['expandableTables', props.entity.entityType, props.entity.entityId], {})
+}), {...ExtandableTableActions})
 export default class ExpandableTable extends React.Component {
   static propTypes = {
     columns: PropTypes.array.isRequired,
@@ -21,17 +28,24 @@ export default class ExpandableTable extends React.Component {
     emptyMessage: PropTypes.string.isRequired,
     className: PropTypes.string,
     params: PropTypes.object,
-  };
-
-  static defaultProps = {
-    predicate: entity => entity.id,
+    tableState: PropTypes.object,
+    idField: PropTypes.string.isRequired,
   };
 
   @autobind
   renderRow(row, index) {
-    const {renderRow, columns, params} = this.props;
+    const {renderRow, entity, columns, params, tableState, idField, toggleDrawerState} = this.props;
 
-    return renderRow(row, index, columns, params);
+    const id = _.get(row, idField).toString().replace(/ /g,'-');
+    const state = _.get(tableState, [id], false);
+
+    const hackedParams = {
+      ...params,
+      toggleDrawerState: () => toggleDrawerState(entity, id),
+      isOpen: state,
+    };
+
+    return renderRow(row, index, columns, hackedParams);
   }
 
   render() {
