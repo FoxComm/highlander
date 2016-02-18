@@ -21,7 +21,7 @@ const PrependInput = props => {
   );
 
   const hiddenInput = inputValuePretty
-    ? <input name={inputName} type="hidden" value={inputValue} />
+    ? <input name={inputName} type="hidden" value={vInputValue} />
     : null;
 
   return (
