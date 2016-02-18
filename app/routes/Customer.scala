@@ -209,7 +209,7 @@ object Customer {
               }
             } ~
             (patch & path(IntNumber) & pathEnd & entity(as[EditCreditCard])) { (cardId, payload) ⇒
-              nothingOrFailures {
+              goodOrFailures {
                 CreditCardManager.editCreditCard(customer.id, cardId, payload)
               }
             } ~

@@ -4,12 +4,15 @@ import java.time.Instant
 
 import scala.concurrent.ExecutionContext
 
+import cats.data.Xor
+import cats.data.Xor.{left, right}
 import models.javaTimeSlickMapper
 import models.order.OrderShippingAddress
 import models.payment.creditcard.CreditCard
 import models.traits.Addressable
 import monocle.macros.GenLens
 import payloads.CreateAddressPayload
+import services.{Failures, NotFoundFailure404}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.GenericTable.TableWithId
@@ -28,6 +31,10 @@ final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: Stri
   def zipLens = GenLens[Address](_.zip)
   override def sanitize = super.sanitize(this)
   override def validate = super.validate
+
+  def mustBelongToCustomer(customerId: Int): Failures Xor Address =
+    if (this.isNew || this.customerId == customerId) right(this) else left(NotFoundFailure404(Address, this.id).single)
+
 }
 
 object Address {
@@ -119,8 +126,8 @@ object Addresses extends TableQueryWithId[Address, Addresses](
   def findById(customerId: Int, addressId: Int): QuerySeq =
    findById(addressId).extract.filter(_.customerId === customerId)
 
-  def findByIdAndCustomer(addressId: Int, customerId: Int): DBIO[Option[Address]] =
-    findById(addressId).extract.filter(_.customerId === customerId).result.headOption
+  def findVisibleByIdAndCustomer(addressId: Int, customerId: Int): DBIO[Option[Address]] =
+    findById(addressId).extract.filter(_.customerId === customerId).filter(_.deletedAt.isEmpty).result.headOption
 
   object scope {
     implicit class AddressesQuerySeqConversions(q: QuerySeq) {

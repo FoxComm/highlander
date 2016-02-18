@@ -41,6 +41,7 @@ object OrderShippingAddressUpdater {
     addAndReg     ← * <~ mustFindAddressWithRegion(addressId)
     _             ← * <~ OrderShippingAddresses.findByOrderId(order.id).delete
     (address, _)  = addAndReg
+    _             ← * <~ address.mustBelongToCustomer(order.customerId)
     shipAddress   ← * <~ OrderShippingAddresses.copyFromAddress(address, order.id)
     region        ← * <~ Regions.mustFindById404(shipAddress.regionId)
     validated     ← * <~ CartValidator(order).validate()

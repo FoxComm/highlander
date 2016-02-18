@@ -34,10 +34,10 @@ object AddressManager {
 
   def getByIdAndCustomer(addressId: Int, customer: Customer)
     (implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
-    address ← * <~ Addresses.findByIdAndCustomer(addressId, customer.id)
+    address ← * <~ Addresses.findVisibleByIdAndCustomer(addressId, customer.id)
                             .mustFindOr(NotFoundFailure404(Address, addressId))
     region  ← * <~ Regions.mustFindById404(address.regionId)
-  } yield Response.build(address, region, address.isDefaultShipping.some)).run()
+  } yield Response.build(address, region)).run()
 
   def create(payload: CreateAddressPayload, customerId: Int, admin: Option[StoreAdmin] = None)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
@@ -52,7 +52,7 @@ object AddressManager {
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
 
     customer    ← * <~ Customers.mustFindById404(customerId)
-    oldAddress  ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
+    oldAddress  ← * <~ Addresses.findVisibleByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
     oldRegion   ← * <~ Regions.findOneById(oldAddress.regionId).safeGet.toXor
     address     ← * <~ Address.fromPayload(payload).copy(customerId = customerId, id = addressId).validate
     _           ← * <~ Addresses.insertOrUpdate(address).toXor
@@ -63,15 +63,15 @@ object AddressManager {
   def get(customerId: Int, addressId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
 
-    address ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
+    address ← * <~ Addresses.findVisibleByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
     region  ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
-  } yield Response.build(address, region, address.isDefaultShipping.some)).run()
+  } yield Response.build(address, region)).run()
 
   def remove(customerId: Int, addressId: Int, admin: Option[StoreAdmin] = None)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Unit] = (for {
 
     customer    ← * <~ Customers.mustFindById404(customerId)
-    address     ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
+    address     ← * <~ Addresses.findVisibleByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
     region      ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
     softDelete  ← * <~ address.updateTo(address.copy(deletedAt = Instant.now.some, isDefaultShipping = false))
     updated     ← * <~ Addresses.update(address, softDelete)
@@ -82,10 +82,11 @@ object AddressManager {
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
     customer    ← * <~ Customers.mustFindById404(customerId)
     _           ← * <~ Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false)
-    newAddress  ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
-    address     ← * <~ Addresses.update(newAddress, newAddress.copy(isDefaultShipping = true))
+    address     ← * <~ Addresses.findVisibleByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
+    newAddress  = address.copy(isDefaultShipping = true)
+    address     ← * <~ Addresses.update(address, newAddress)
     region      ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
-  } yield Response.build(address, region)).run()
+  } yield Response.build(newAddress, region)).run()
 
   def removeDefaultShippingAddress(customerId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Int] =
@@ -97,10 +98,10 @@ object AddressManager {
 
     defaultShipping(customer.id).run().flatMap {
       case Some((address, region)) ⇒
-        Future.successful(Response.build(address, region, true.some).some)
+        Future.successful(Response.build(address, region).some)
       case None ⇒
         lastShippedTo(customer.id).run().map {
-          case Some((ship, region)) ⇒ Response.buildOneShipping(ship, region, false).some
+          case Some((ship, region)) ⇒ Response.buildOneShipping(ship, region, isDefault = false).some
           case None ⇒ None
         }
     }

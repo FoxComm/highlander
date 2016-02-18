@@ -2,6 +2,7 @@ package services
 
 import java.time.Instant
 
+import cats.data.Xor
 import cats.implicits._
 import models.order._
 import OrderPayments.scope._
@@ -48,6 +49,7 @@ object CreditCardManager {
     def getExistingStripeIdAndAddress = for {
       stripeId ← * <~ CreditCards.filter(_.customerId === customerId).map(_.gatewayCustomerId).one.toXor
       address ← * <~ getAddressFromPayload(payload.addressId, payload.address).mustFindOr(CreditCardMustHaveAddress)
+      _       ← * <~ validateOptionalAddressOwnership(Some(address), customerId)
     } yield (stripeId, address)
 
     (for {
@@ -124,6 +126,7 @@ object CreditCardManager {
       creditCard ← * <~ CreditCards.findById(id).extract.filter(_.customerId === customerId).one
         .mustFindOr(NotFoundFailure404(CreditCard, id))
       address ← * <~ getAddressFromPayload(payload.addressId, payload.address).toXor
+      _       ← * <~ validateOptionalAddressOwnership(address, customerId)
     } yield address.fold(creditCard)(creditCard.copyFromAddress)
 
     (for {
@@ -149,6 +152,13 @@ object CreditCardManager {
                               .mustFindOr(NotFoundFailure404(CreditCard, creditCardId))
     region  ← * <~ Regions.mustFindById404(cc.regionId)
   } yield buildResponse(cc, region)).run()
+
+  private def validateOptionalAddressOwnership(address: Option[Address], customerId: Int): Failures Xor Unit = {
+    address match {
+      case Some(a) ⇒ a.mustBelongToCustomer(customerId).map(_ ⇒ Unit)
+      case _       ⇒ Xor.Right(Unit)
+    }
+  }
 
   private def getAddressFromPayload(id: Option[Int], payload: Option[CreateAddressPayload]): DBIO[Option[Address]] = {
     (id, payload) match {
