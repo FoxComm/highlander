@@ -8,8 +8,12 @@ import MultiSelectRow from '../table/multi-select-row';
 
 const setCellContents = (giftCard, field) => {
   const r = _.get(giftCard, field, null);
-  return field == 'debit' ?  -r : r;
-}
+
+  if(field == 'debit') return -r;
+  else if(field == 'orderPayment') return _.get(r, 'orderReferenceNumber');
+
+  return r;
+};
 
 const GiftCardTransactionRow = props => {
   const { giftCard, columns, params } = props;

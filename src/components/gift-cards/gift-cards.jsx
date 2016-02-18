@@ -31,7 +31,7 @@ const GiftCards = props => {
   };
 
   const tableColumns = [
-    {field: 'code', text: 'Gift Card Number', type: 'link', model: 'giftcard', id: 'code'},
+    {field: 'code', text: 'Gift Card Number', type: 'string', model: 'giftcard'},
     {field: 'originType', text: 'Type', type: 'string', model: 'giftCard'},
     {field: 'originalBalance', text: 'Original Balance', type: 'currency'},
     {field: 'currentBalance', text: 'Current Balance', type: 'currency'},

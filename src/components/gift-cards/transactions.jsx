@@ -37,7 +37,7 @@ export default class GiftCardTransactions extends React.Component {
   static defaultProps = {
     tableColumns: [
       {field: 'createdAt', text: 'Date/Time', type: 'date'},
-      {field: 'orderReferenceNumber', text: 'Transaction', type: 'link', model: 'order', id: 'orderRef'},
+      {field: 'orderPayment', text: 'Order', type: 'id', model: 'order', id: 'orderRef'},
       {field: 'debit', text: 'Amount', type: 'transaction'},
       {field: 'state', text: 'Payment State'},
       {field: 'availableBalance', text: 'Available Balance', type: 'currency'}
