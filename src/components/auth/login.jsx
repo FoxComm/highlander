@@ -18,7 +18,6 @@ export default class Login extends React.Component {
     this.state = {
       email: '',
       password: '',
-      loading: false,
     }
   }
 
@@ -28,7 +27,7 @@ export default class Login extends React.Component {
 
   @autobind
   submitLogin () {
-    this.setState({loading: true});
+    const context = this.context;
 
     const headers = {'Content-Type': 'application/json;charset=UTF-8'};
     fetch(Api.apiURI('/login'), {
@@ -38,9 +37,10 @@ export default class Login extends React.Component {
     }).then(response => {
       localStorage.setItem('jwt', response.headers.get('jwt'));
       localStorage.setItem('refresh-token', response.headers.get('set-refresh-token'));
+      transitionTo(context.history, 'home');
     }, e => {
       console.log('login failed', e);
-    }).then(_ => this.setState({loading: false}));
+    });
   }
 
   @autobind

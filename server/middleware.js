@@ -20,29 +20,24 @@ module.exports = function(app) {
     }
   });
 
-  Object.defineProperty(app, 'renderLogin', {
-    get: function() {
-      const Login = require('../src/login');
-
-      return Login.renderReact;
+  function getToken(request) {
+    const token = request.get(config.api.auth.header);
+    if (!token) {
+      console.log('token not found!');
+      return null;
     }
-  });
-
-  Object.defineProperty(app, 'token', {
-    get: function() {
-      const token = this.get(config.api.auth.header);
-      if (!token) return null;
-      try {
-        return jwt.verify(token, config.api.auth.secret);
-      }
-      catch(err) {
-        console.error("Can't decode token: ", err);
-      }
+    try {
+      console.log('verify token');
+      return jwt.verify(token, config.api.auth.secret);
     }
-  });
+    catch(err) {
+      console.error("Can't decode token: ", err);
+    }
+  }
 
   app.requireAdmin = function *(next) {
-    if (!this.token || !this.token.admin) {
+    const token = getToken(this.request);
+    if (!token || !token.admin) {
       if (!this.request.url.match(config.api.auth.loginUri)) {
         this.redirect(config.api.auth.loginUri);
       }
@@ -68,20 +63,18 @@ module.exports = function(app) {
     }
   };
 
-  app.renderLayout = function(kind) {
-    return function *() {
-      let bootstrap = {
-        path: this.path
-      };
-
-      let layoutData = _.defaults({
-        stylesheet: `/admin.css`,
-        javascript: `/${kind}.js`,
-        rootHTML: this.state.html,
-        appStart: `App.start(${htmlescape(bootstrap)});`
-      }, config.layout.pageConstants);
-
-      this.body = layout(layoutData);
+  app.renderLayout = function *() {
+    let bootstrap = {
+      path: this.path
     };
+
+    let layoutData = _.defaults({
+      stylesheet: `/admin.css`,
+      javascript: `/admin.js`,
+      rootHTML: this.state.html,
+      appStart: `App.start(${htmlescape(bootstrap)});`
+    }, config.layout.pageConstants);
+
+    this.body = layout(layoutData);
   }
 };
