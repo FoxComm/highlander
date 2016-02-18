@@ -14,7 +14,7 @@ function installHooks() {
 }
 
 
-module.exports = function(gulp, opts) {
+module.exports = function(gulp, $, opts) {
   if (opts.autoInstallHooks) {
     installHooks();
   }

@@ -11,7 +11,7 @@ const affectsServer = require('./server').affectsServer;
 
 const plugins = require('../src/postcss').plugins;
 
-module.exports = function(gulp, opts, $) {
+module.exports = function(gulp, $, opts) {
   const production = (process.env.NODE_ENV === 'production');
 
   let bundler = null;

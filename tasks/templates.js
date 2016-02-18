@@ -1,11 +1,12 @@
 
+const fs = require('fs');
 const dot = require('dot');
 const through = require('through2');
 
 /* eslint no-param-reassign:0 */
 
 module.exports = function(gulp) {
-  gulp.task('templates', function() {
+  gulp.task('templates', ['sprites'], function() {
     const evilIcons = require('evil-icons');
 
     gulp.src('src/templates/main.html')
@@ -15,6 +16,7 @@ module.exports = function(gulp) {
           Object.assign({selfcontained: true}, dot.templateSettings),
           {
             evilSprite: evilIcons.sprite,
+            fcSprite: String(fs.readFileSync('build/svg/fc-sprite.svg')),
           }
         ).toString();
         file.contents = new Buffer(`module.exports = ${fn}`);

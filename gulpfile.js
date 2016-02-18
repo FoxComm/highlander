@@ -12,7 +12,7 @@ let exitStatus = 0;
 
 for (const task of fs.readdirSync('./tasks')) {
   const file = path.join('./tasks', task);
-  require(path.resolve(file))(gulp, opts, $);
+  require(path.resolve(file))(gulp, $, opts);
 }
 
 gulp.task('build', function(cb) {
@@ -36,7 +36,7 @@ gulp.task('default', ['build']);
 
 function handleErrors(err) {
   if (err) {
-    console.error(err);
+    console.error(err && err.stack);
   }
   exitStatus = 1;
   $.util.beep();

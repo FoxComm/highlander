@@ -1,5 +1,5 @@
 
-module.exports = function(gulp, opts, $) {
+module.exports = function(gulp, $) {
   const src = [
     'node_modules/evil-icons/assets/evil-icons.css',
     'build/bundle.css',
