@@ -26,7 +26,7 @@ export default class FoxyForm extends Component {
     let data = {};
     for (let i = 0; i < target.length; i++) {
       const elt = target[i];
-      if (!Object.is(elt.type, 'submit')) {
+      if (elt.type !== 'submit') {
         data[target[i].name] = target[i].value;
       }
     }

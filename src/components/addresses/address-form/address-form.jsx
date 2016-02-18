@@ -18,18 +18,10 @@ import { Dropdown, DropdownItem } from '../../dropdown';
 // data
 import * as validators from '../../../lib/validators';
 import * as AddressFormActions from '../../../modules/address-form';
+import * as CountryActions from '../../../modules/countries';
 import {regionName, zipName, zipExample, phoneExample, phoneMask} from '../../../i18n';
 
-const formNamespace = props => props.address && props.address.id || 'new';
-
-const selectCurrentCountry = createSelector(
-  state => state.countries,
-  (state, props) => {
-    const addressForm = state.addressForm[formNamespace(props)];
-    return addressForm && addressForm.countryId;
-  },
-  (countries={}, countryId) => countries[countryId]
-);
+const formNamespace = props => _.get(props, 'address.id', 'new');
 
 const sortCountries = createSelector(
   state => state.countries,
@@ -39,18 +31,20 @@ const sortCountries = createSelector(
 function mapStateToProps(state, props) {
   return {
     countries: sortCountries(state),
-    country: selectCurrentCountry(state, props),
-    formData: {},
     ...state.addressForm[formNamespace(props)]
   };
 }
 
 function mapDispatchToProps(dispatch, props) {
-  return _.transform(AddressFormActions, (result, action, key) => {
+  const aActions = _.transform(AddressFormActions, (result, action, key) => {
     result[key] = (...args) => {
       return dispatch(action(formNamespace(props), ...args));
     };
   });
+
+  const cActions = bindActionCreators(CountryActions, dispatch);
+
+  return { ...aActions, ...cActions };
 }
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -58,27 +52,99 @@ export default class AddressForm extends React.Component {
 
   static propTypes = {
     address: PropTypes.object,
-    customerId: PropTypes.number,
-    onSaved: PropTypes.func,
-    closeAction: PropTypes.func.isRequired,
-    submitAction: PropTypes.func,
-    showFormTitle: PropTypes.bool,
-    setAddress: PropTypes.func,
-    changeValue: PropTypes.func,
-    formData: PropTypes.object,
+    countries: PropTypes.array,
+    customerId: PropTypes.number.isRequired,
     err: PropTypes.any,
     isAdding: PropTypes.bool,
-    countryId: PropTypes.number,
-    saveTitle: PropTypes.node
+    saveTitle: PropTypes.node,
+    showFormTitle: PropTypes.bool,
+
+    closeAction: PropTypes.func.isRequired,
+    fetchCountry: PropTypes.func.isRequired,
+    onSaved: PropTypes.func.isRequired,
+    submitAction: PropTypes.func,
+    submitForm: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
+    address: {},
+    saveTitle: 'Save',
     showFormTitle: true,
-    saveTitle: 'Save'
   };
 
+  constructor(...args) {
+    super(...args);
+
+    const countryId = _.get(this.props,
+      'address.countryId',
+      _.find(this.props.countries, { alpha2: 'US' }).id
+    );
+
+    this.state = {
+      countryId: countryId,
+    };
+  }
+
   componentDidMount() {
-    this.props.setAddress(this.props.address);
+    this.props.fetchCountry(this.state.countryId);
+  }
+  
+  get country() {
+    return _.find(this.props.countries, { id: this.state.countryId });
+  }
+
+  get countryCode() {
+    return _.get(this.country, 'alpha2');
+  }
+
+  get phoneInput() {
+    const address = _.get(this.props, 'address', {});
+
+    if (this.countryCode === 'US') {
+      return (
+        <InputMask type="tel"
+                   name="phoneNumber"
+                   mask={phoneMask(this.countryCode)}
+                   defaultValue={address.phoneNumber}
+                   placeholder={phoneExample(this.countryCode)} />
+      );
+    }
+    return (
+      <input type="tel" name="phoneNumber" defaultValue={address.phoneNumber}
+             maxLength="15" placeholder={phoneExample(this.countryCode)} />
+    );
+  }
+
+  get regionItems() {
+    const regions = _.get(this.country, 'regions', []);
+    return _.map(regions, region => {
+      const key = `dd-item-region-${region.name}`;
+      return <DropdownItem value={region.id} key={key}>{region.name}</DropdownItem>;
+    });
+  }
+
+  get countryItems() {
+    const countries = _.get(this.props, 'countries', []);
+    return _.map(countries, country => {
+      const key = `dd-item-country-${country.id}`;
+      return <DropdownItem value={country.id} key={key}>{country.name}</DropdownItem>;
+    });
+  }
+
+  get errorMessages() {
+    return <ErrorAlerts error={this.props.err} />;
+  }
+
+  get formTitle() {
+    if (this.props.showFormTitle) {
+      const title = this.props.address.id ? 'Edit Address' : 'New Address';
+
+      return (
+        <li>
+          <div className="fc-address-form-field-title">{title}</div>
+        </li>
+      );
+    }
   }
 
   /**
@@ -99,9 +165,19 @@ export default class AddressForm extends React.Component {
   }
 
   @autobind
+  handleCountryChange(countryId) {
+    this.setState({
+      countryId: countryId,
+    }, () => this.props.fetchCountry(countryId));
+  }
+
+  @autobind
   handleFormSubmit(data) {
     const { closeAction, customerId, onSaved, submitAction, submitForm } = this.props;
-    const formData = _.mapValues(data, (v, k) => this.prepareValue(k, v));
+    const formData = {
+      ...this.props.address,
+      ..._.mapValues(data, (v, k) => this.prepareValue(k, v)),
+    };
 
     let willSaved;
 
@@ -122,71 +198,20 @@ export default class AddressForm extends React.Component {
   }
 
   @autobind
-  handleFormChange({target}) {
-    const value = target.dataset.type === 'int' ? Number(target.value) : target.value;
+  validateZipCode(value, label) {
+    const countryCode = this.countryCode;
 
-    this.props.changeValue(target.name, value);
-  }
-
-  get countryCode() {
-    const props = this.props;
-
-    return props.country && props.country.alpha2;
-  }
-
-  validateZipCode() {
-    // const countryCode = this.countryCode;
-    // const formData = this.props.formData;
-    //
-    // if (validators.zipCode(formData.zip, countryCode)) {
-    //   return null;
-    // } else {
-    //   return `${zipName(countryCode)} is invalid for selected country`;
-    // }
-    return null;
-  }
-
-  get phoneInput() {
-    const formData = this.props.formData;
-
-    if (this.countryCode === 'US') {
-      return (
-        <InputMask type="tel"
-                   name="phoneNumber"
-                   mask={phoneMask(this.countryCode)}
-                   defaultValue={formData.phoneNumber}
-                   placeholder={phoneExample(this.countryCode)} />
-      );
-    }
-    return (
-      <input type="tel" name="phoneNumber" defaultValue={formData.phoneNumber}
-             maxLength="15" placeholder={phoneExample(this.countryCode)} />
-    );
-  }
-
-  get errorMessages() {
-    return <ErrorAlerts error={this.props.err} />;
-  }
-
-  get formTitle() {
-    if (this.props.showFormTitle) {
-      const title = this.props.isAdding ? 'New Address' : 'Edit Address';
-
-      return (
-        <li>
-          <div className="fc-address-form-field-title">{title}</div>
-        </li>
-      );
+    if (validators.zipCode(value, countryCode)) {
+      return null;
+    } else {
+      return `${zipName(countryCode)} is invalid for selected country`;
     }
   }
 
   render() {
     const props = this.props;
-    const formData = props.formData;
-    const countries = props.countries || [];
-
+    const address = props.address;
     const countryCode = this.countryCode;
-    const regions = props.country && props.country.regions || [];
 
     return (
       <div className="fc-address-form">
@@ -197,49 +222,45 @@ export default class AddressForm extends React.Component {
               { this.formTitle }
               <li>
                 <FormField label="Name" validator="ascii" maxLength={255}>
-                  <input name="name" type="text" defaultValue={formData.name} required />
+                  <input name="name" type="text" defaultValue={address.name} required />
                 </FormField>
               </li>
               <li>
                 <FormField label="Country">
-                  <Dropdown name="countryId" value={props.countryId} onChange={value => props.changeValue('countryId', Number(value))}>
-                    {countries.map((country, index) => {
-                      return (
-                        <DropdownItem value={country.id} key={`${index}-${country.id}`}>{country.name}</DropdownItem>
-                      );
-                    })}
+                  <Dropdown name="countryId"
+                            value={this.state.countryId}
+                            onChange={value => this.handleCountryChange(Number(value))}>
+                    {this.countryItems}
                   </Dropdown>
                 </FormField>
               </li>
               <li>
                 <FormField label="Street Address" validator="ascii" maxLength={255}>
-                  <input name="address1" type="text" defaultValue={formData.address1} required />
+                  <input name="address1" type="text" defaultValue={address.address1} required />
                 </FormField>
               </li>
               <li>
                 <FormField label="Street Address 2" validator="ascii" maxLength={255} optional>
-                  <input name="address2" type="text" defaultValue={formData.address2} />
+                  <input name="address2" type="text" defaultValue={address.address2} />
                 </FormField>
               </li>
               <li>
                 <FormField label="City" validator="ascii" maxLength={255}>
-                  <input name="city" type="text" defaultValue={formData.city} required />
+                  <input name="city" type="text" defaultValue={address.city} required />
                 </FormField>
               </li>
               <li>
                 <FormField label={regionName(countryCode)} required>
-                  <Dropdown name="regionId" value={formData.regionId}>
-                    {regions.map((state, index) => {
-                      return <DropdownItem value={state.id} key={`${index}-${state.id}`}>{state.name}</DropdownItem>;
-                    })}
+                  <Dropdown name="regionId" value={address.regionId}>
+                    {this.regionItems}
                   </Dropdown>
                 </FormField>
               </li>
               <li>
-                <FormField label={zipName(countryCode)} validator={this.validateZipCode.bind(this)}>
+                <FormField label={zipName(countryCode)} validator={this.validateZipCode}>
                   <input type="text" name="zip"
                          placeholder={zipExample(countryCode)}
-                         defaultValue={formData.zip} className='control' required />
+                         defaultValue={address.zip} className='control' required />
                 </FormField>
               </li>
               <li>
