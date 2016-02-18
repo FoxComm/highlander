@@ -587,7 +587,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         regionId = 1))
       shippingMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
       orderShippingMethod ← * <~ OrderShippingMethods.create(
-        OrderShippingMethod(orderId = order.id, shippingMethodId = shippingMethod.id))
+        OrderShippingMethod.build(order = order, method = shippingMethod))
       shipment ← * <~ Shipments.create(Factories.shipment)
     } yield (rmaReason, sku, giftCard, shipment)).runTxn().futureValue.rightVal
   }

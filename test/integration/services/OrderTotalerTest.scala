@@ -40,7 +40,7 @@ class OrderTotalerTest extends IntegrationTestBase {
 
     "taxes" - {
       "are hardcoded to 5%" in new SkuLineItemsFixture {
-        val totals = OrderTotaler.totals(order).run().futureValue
+        val totals = OrderTotaler.totals(order).run().futureValue.rightVal
         val taxes = (sku.price * 0.05).toInt
 
         totals.subTotal === sku.price
@@ -53,7 +53,7 @@ class OrderTotalerTest extends IntegrationTestBase {
 
     "totals" - {
       "all are zero when there are no line items and no adjustments" in new Fixture {
-        val totals = OrderTotaler.totals(order).run().futureValue
+        val totals = OrderTotaler.totals(order).run().futureValue.rightVal
 
         totals.subTotal mustBe 0
         totals.shipping mustBe 0

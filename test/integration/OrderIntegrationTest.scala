@@ -856,7 +856,7 @@ class OrderIntegrationTest extends IntegrationTestBase
   trait OrderShippingMethodFixture extends ShippingMethodFixture {
     val shipment = (for {
       orderShipMethod ← * <~ OrderShippingMethods.create(
-        OrderShippingMethod(orderId = order.id, shippingMethodId = highShippingMethod.id))
+        OrderShippingMethod.build(order = order, method = highShippingMethod))
       shipment ← * <~ Shipments.create(Shipment(orderId = order.id, orderShippingMethodId = Some(orderShipMethod.id)))
     } yield shipment).runTxn().futureValue
   }
