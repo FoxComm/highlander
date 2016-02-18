@@ -9,8 +9,6 @@ const initialState = {};
 
 const reducer = createReducer({
   [toggleDrawerState]: (state, [{entityType, entityId}, id]) => {
-    console.log('in reducer');
-    console.log(entityType); console.log(entityId); console.log(id);
     const currentState = get(state, [entityType, entityId, id], false);
     return assoc(state, [entityType, entityId, id], !currentState);
   }
