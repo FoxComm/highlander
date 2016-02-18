@@ -1,5 +1,6 @@
 package utils
 
+import models.inventory.SkuType
 import models.order.Order
 import models.order.lineitems.OrderLineItem
 import models.payment.PaymentMethod
@@ -39,6 +40,7 @@ object JsonFormatters {
     QueryStatement.Comparison.jsonFormat +
     Condition.Operator.jsonFormat +
     PaymentMethod.Type.jsonFormat +
+    SkuType.jsonFormat +
     SharedSearch.Scope.jsonFormat
 }
 

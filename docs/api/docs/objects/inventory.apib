@@ -1,0 +1,24 @@
+# Data Structures
+
+### SellableSkuCounts
++ onHand: 500 (required, number) - On hand quantity
++ onHold: 100 (required, number) - On hold quantity
++ reserved: 100 (required, number) - Reserved quantity
++ safetyStock: 100 (required, number) - Safety stock quantity
++ afs: 200 (required, number) - Available for sale quantity
++ afsCost: 2000 (required, number) - Available for sale cost
+
+### SkuCounts
++ onHand: 500 (required, number) - On hand quantity
++ onHold: 100 (required, number) - On hold quantity
++ reserved: 100 (required, number) - Reserved quantity
++ afs: 200 (required, number) - Available for sale quantity
++ afsCost: 2000 (required, number) - Available for sale cost
+
+### Warehouse
++ id: 1 (required, number) - Warehouse id
++ name: `Columbus` (required, string) - Warehouse name
+
+### SkuSummary
++ warehouse (required, Warehouse)
++ counts (required, SellableSkuCounts)

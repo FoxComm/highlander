@@ -33,7 +33,7 @@ class InventorySummaryIntegrationTest extends IntegrationTestBase {
       "inserts a negative new record if there is none after an insert to InventoryAdjustment" in {
         val (warehouse, sku, order) = seed()
         adjustment(warehouse.id, sku.id, order.id, reserved = -10)
-        val summary = InventorySummaries.findBySkuId(warehouse.id, sku.id).one.run().futureValue.value
+        val summary = InventorySummaries.findSellableBySkuIdInWarehouse(warehouse.id, sku.id).one.run().futureValue.value
 
         summary.reserved must === (-10)
       }
@@ -41,7 +41,7 @@ class InventorySummaryIntegrationTest extends IntegrationTestBase {
       "inserts a positive new record if there is none after an insert to InventoryAdjustment" in {
         val (warehouse, sku, order) = seed()
         adjustment(warehouse.id, sku.id, order.id, reserved = 25)
-        val summary = InventorySummaries.findBySkuId(warehouse.id, sku.id).one.run().futureValue.value
+        val summary = InventorySummaries.findSellableBySkuIdInWarehouse(warehouse.id, sku.id).one.run().futureValue.value
 
         summary.reserved must === (25)
       }
@@ -50,7 +50,7 @@ class InventorySummaryIntegrationTest extends IntegrationTestBase {
         val (warehouse, sku, order) = seed()
         List(10, 50, 0, 3, 2, -30, -30).foreach { r ⇒  { adjustment(warehouse.id, sku.id, order.id, reserved = r) }}
 
-        val summary = InventorySummaries.findBySkuId(warehouse.id, sku.id).one.run().futureValue.value
+        val summary = InventorySummaries.findBySkuIdInWarehouse(warehouse.id, sku.id).one.run().futureValue.value
 
         summary.reserved must === (5)
       }
