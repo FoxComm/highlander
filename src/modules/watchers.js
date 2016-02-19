@@ -14,8 +14,8 @@ const addWatchers = (entityType, fetchEntity) => (actions, entityId) => (dispatc
   const state = getState();
   const path = [entityType, 'watchers', entityId, 'selectModal'];
 
-  const group = _.get(state, path.concat('group'));
-  const items = _.get(state, path.concat('selected'), []);
+  const group = _.get(state, [...path, 'group']);
+  const items = _.get(state, [...path, 'selected'], []);
 
   const data = {
     [group]: items.map((item) => item.id)
@@ -74,16 +74,16 @@ const reducers = {
     const path = [entityId, 'selectModal'];
 
     return assoc(state,
-      path.concat('group'), group,
-      path.concat('displayed'), true
+      [...path, 'group'], group,
+      [...path, 'displayed'], true
     );
   },
   hideSelectModal: (state, entityId) => {
     const path = [entityId, 'selectModal'];
 
     return assoc(state,
-      path.concat('group'), null,
-      path.concat('displayed'), false
+      [...path, 'group'], null,
+      [...path, 'displayed'], false
     );
   },
   selectItem: (state, [entityId, item]) => {
@@ -92,7 +92,7 @@ const reducers = {
     const items = _.get(state, path, []);
 
     if (_.findIndex(items, ({id}) => id === item.id) < 0) {
-      return assoc(state, path, items.concat(item));
+      return assoc(state, path, [...items, item]);
     }
 
     return state;

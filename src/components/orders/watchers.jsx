@@ -23,7 +23,6 @@ function getGroupData(group, watchers, order) {
 }
 
 function mapStateToProps({orders: {watchers}}, {order}) {
-  console.debug('map state to props of OrderWatchers');
   return {
     data: {
       assignees: getGroupData(groups.assignees, watchers, order),
@@ -32,22 +31,19 @@ function mapStateToProps({orders: {watchers}}, {order}) {
   };
 }
 
-@connect(mapStateToProps)
-export default class OrderWatchers extends React.Component {
-  static propTypes = {
-    order: PropTypes.object.isRequired,
-    data: PropTypes.object.isRequired,
-  };
-
-  render() {
-    const {data, order} = this.props;
-
-    return (
-      <Watchers entity={{
+function OrderWatchers({data, order}) {
+  return (
+    <Watchers entity={{
                   entityType: 'orders',
                   entityId: order.referenceNumber,
                 }}
-                data={data} />
-    );
-  }
-}
+              data={data} />
+  );
+};
+
+OrderWatchers.propTypes = {
+  order: PropTypes.object.isRequired,
+  data: PropTypes.object.isRequired,
+};
+
+export default connect(mapStateToProps)(OrderWatchers);

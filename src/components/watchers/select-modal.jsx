@@ -22,76 +22,72 @@ function mapStateToProps(state, {storePath, entity}) {
     selected = [],
   } = _.get(state, path, {});
 
-  console.debug('map state to props of SelectWatcherModal');
   return {
     isVisible: displayed,
     selected,
   };
 }
 
-@connect(mapStateToProps)
-export default class SelectWatcherModal extends React.Component {
-  static propTypes = {
-    storePath: PropTypes.string,
-    entity: PropTypes.shape({
-      entityType: PropTypes.string.isRequired,
-      entityId: PropTypes.string.isRequired,
-    }).isRequired,
-    onCancel: PropTypes.func.isRequired,
-    onConfirm: PropTypes.func.isRequired,
+function SelectWatcherModal(props) {
+  const {isVisible, storePath, entity} = props;
 
-    //connected
-    isVisible: PropTypes.bool,
-    selected: PropTypes.array.isRequired,
-  };
+  return (
+    <ModalContainer isVisible={isVisible}>
+      <ContentBox
+        title={renderTitle(entity)}
+        actionBlock={renderActionBlock(props)}
+        footer={renderFooter(props)}
+        className="fc-add-watcher-modal">
+        <div className="fc-modal-body fc-add-watcher-modal__content">
+          <WatcherTypeahead
+            storePath={storePath}
+            entity={entity}
+            label={renderText(entity)} />
+        </div>
+      </ContentBox>
+    </ModalContainer>
+  );
+}
 
-  get title() {
-    return `Assign ${this.props.entity.entityType}`;
-  }
+function renderTitle({entityType}) {
+  return `Assign ${entityType}`;
+}
 
-  get text() {
-    return `${this.title} to:`;
-  }
+function renderText({entityType}) {
+  return `Assign ${entityType} to:`;
+}
 
-  get actionBlock() {
-    return (
-      <a className='fc-modal-close' onClick={this.props.onCancel}>
-        <i className='icon-close'></i>
-      </a>
-    );
-  }
+function renderActionBlock({onCancel}) {
+  return (
+    <a className='fc-modal-close' onClick={onCancel}>
+      <i className='icon-close'></i>
+    </a>
+  );
+}
 
-  get footer() {
-    const {onCancel, onConfirm, selected} = this.props;
+function renderFooter({onCancel, onConfirm, selected}) {
+  return (
+    <SaveCancel
+      className="fc-modal-footer fc-add-watcher-modal__footer"
+      onCancel={onCancel}
+      onSave={onConfirm}
+      saveDisabled={!selected.length}
+      saveText="Assign" />
+  );
+}
 
-    return (
-      <SaveCancel
-        className="fc-modal-footer fc-add-watcher-modal__footer"
-        onCancel={onCancel}
-        onSave={onConfirm}
-        saveDisabled={!selected.length}
-        saveText="Assign" />
-    );
-  }
+SelectWatcherModal.propTypes = {
+  storePath: PropTypes.string,
+  entity: PropTypes.shape({
+    entityType: PropTypes.string.isRequired,
+    entityId: PropTypes.string.isRequired,
+  }).isRequired,
+  onCancel: PropTypes.func.isRequired,
+  onConfirm: PropTypes.func.isRequired,
 
-  render() {
-    const {isVisible, storePath, entity} = this.props;
-
-    return (
-      <ModalContainer isVisible={isVisible}>
-        <ContentBox
-          title={this.title}
-          actionBlock={this.actionBlock}
-          footer={this.footer}
-          className="fc-add-watcher-modal">
-          <div className="fc-modal-body fc-add-watcher-modal__content">
-            <WatcherTypeahead
-              storePath={storePath}
-              entity={entity}
-              label={this.text} />
-          </div>
-        </ContentBox>
-      </ModalContainer>
-    );
-  }
+  //connected
+  isVisible: PropTypes.bool,
+  selected: PropTypes.array.isRequired,
 };
+
+export default connect(mapStateToProps)(SelectWatcherModal);
