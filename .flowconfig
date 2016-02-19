@@ -1,0 +1,11 @@
+[ignore]
+.*/public/.*
+.*/node_modules/babel-.*
+.*/node_modules/fbjs/.*
+
+[include]
+src
+
+[libs]
+
+[options]
