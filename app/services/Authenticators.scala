@@ -34,7 +34,7 @@ object Authenticator {
 
   def storeAdmin(credentials: Option[HttpCredentials])
               (implicit ec: ExecutionContext, db: Database): Future[AuthenticationResult[StoreAdmin]] = {
-    auth[StoreAdmin, EmailFinder[StoreAdmin]]("admin")(credentials, StoreAdmins.findByEmail, (m) ⇒ Some(m.password))
+    auth[StoreAdmin, EmailFinder[StoreAdmin]]("admin")(credentials, StoreAdmins.findByEmail, m ⇒ Some(m.hashedPassword))
   }
 
   def requireAdmin(auth: AsyncAuthenticator[StoreAdmin]): AuthenticationDirective[StoreAdmin] = {
