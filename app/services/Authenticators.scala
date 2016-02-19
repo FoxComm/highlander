@@ -1,10 +1,16 @@
 package services
 
-import akka.http.scaladsl.server.directives._
+import akka.http.scaladsl.model.headers.{OAuth2BearerToken, BasicHttpCredentials}
+import akka.http.scaladsl.server.directives.{AuthenticationResult, AuthenticationDirective}
+import akka.http.scaladsl.server.Directives.extractExecutionContext
+import akka.http.scaladsl.server.directives.SecurityDirectives.{AuthenticationResult, challengeFor,
+  authenticateOrRejectWithChallenge}
+import akka.http.scaladsl.model.headers.HttpCredentials
 import models.customer.{Customers, Customer}
 import models.{StoreAdmin, StoreAdmins}
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
+import utils.Passwords.checkPassword
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -13,27 +19,58 @@ import scala.concurrent.{ExecutionContext, Future}
 // TODO: Add Roles and Permissions.  Check those before taking on an action
 // TODO: Investigate 2-factor Authentication
 object Authenticator {
+
   type EmailFinder[M] = String ⇒ DBIO[Option[M]]
 
-  def customer(credentials: Credentials)
-              (implicit ec: ExecutionContext, db: Database): Future[Option[Customer]] = {
-    auth[Customer, EmailFinder[Customer]](credentials, Customers.findByEmail, _.password)
+  type FutureAuthResult[M] = Future[AuthenticationResult[M]]
+  type AsyncAuthenticator[M] = (Option[HttpCredentials]) ⇒ FutureAuthResult[M]
+
+  final case class Credentials(identifier: String, secret: String)
+
+  def customer(credentials: Option[HttpCredentials])
+              (implicit ec: ExecutionContext, db: Database): Future[AuthenticationResult[Customer]] = {
+    auth[Customer, EmailFinder[Customer]]("private customer routes")(credentials, Customers.findByEmail, _.password)
   }
 
-  def storeAdmin(credentials: Credentials)
-                (implicit ec: ExecutionContext, db: Database): Future[Option[StoreAdmin]] = {
-    auth[StoreAdmin, EmailFinder[StoreAdmin]](credentials, StoreAdmins.findByEmail, (m) ⇒ Some(m.password))
+  def storeAdmin(credentials: Option[HttpCredentials])
+              (implicit ec: ExecutionContext, db: Database): Future[AuthenticationResult[StoreAdmin]] = {
+    auth[StoreAdmin, EmailFinder[StoreAdmin]]("admin")(credentials, StoreAdmins.findByEmail, (m) ⇒ Some(m.password))
   }
 
-  private[this] def auth[M, F <: EmailFinder[M]](credentials: Credentials, finder: F, getPassword: M ⇒
-    Option[String])
-   (implicit ec: ExecutionContext, db: Database): Future[Option[M]] = credentials match {
+  def requireAdmin(auth: AsyncAuthenticator[StoreAdmin]): AuthenticationDirective[StoreAdmin] = {
+    extractExecutionContext.flatMap { implicit ec ⇒
+      authenticateOrRejectWithChallenge(auth)
+    }
+  }
 
-    case p: Credentials.Provided ⇒
-      finder(p.identifier).run().map { optModel ⇒
-        optModel.filter { m ⇒ getPassword(m).map(p.verify(_)).getOrElse(false) }
-      }
-    case _ ⇒
-      Future.successful(None)
+  def requireCustomer(auth: AsyncAuthenticator[Customer]): AuthenticationDirective[Customer] = {
+    extractExecutionContext.flatMap { implicit ec ⇒
+      authenticateOrRejectWithChallenge(auth)
+    }
+  }
+
+  private[this] def auth[M, F <: EmailFinder[M]](realm: String)
+    (credentials: Option[HttpCredentials],
+    finder: F, getPassword: M ⇒ Option[String])
+   (implicit ec: ExecutionContext, db: Database): Future[AuthenticationResult[M]] = {
+    credentials.flatMap(extractCredentials) match {
+      case Some(p) ⇒
+        finder(p.identifier).run().map { optModel ⇒
+          optModel.filter { m ⇒ getPassword(m).exists(checkPassword(p.secret, _)) }
+        }.map {
+          case Some(instance) ⇒ AuthenticationResult.success(instance)
+          case None ⇒ AuthenticationResult.failWithChallenge(challengeFor(realm))
+        }
+      case _ ⇒
+        Future.successful(AuthenticationResult.failWithChallenge(challengeFor(realm)))
+    }
+  }
+
+  private def extractCredentials(cred: HttpCredentials): Option[Credentials] = {
+    cred match {
+      case BasicHttpCredentials(username, secret) ⇒ Some(Credentials(username, secret))
+      case OAuth2BearerToken(token) ⇒ Some(Credentials(token, token))
+      case _ ⇒ None
+    }
   }
 }
