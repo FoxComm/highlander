@@ -87,11 +87,8 @@ trait OrderGenerator extends ShipmentSeeds {
       gc     ← * <~ GiftCards.mustFindById404(giftCard.id)
       totals = total(skus)
       deductFromGc = deductAmount(gc.availableBalance, totals)
-      opIds      ← * <~ OrderPayments.createAllReturningIds(Seq(
-        OrderPayment.build(gc).copy(orderId = order.id, amount = deductFromGc.some),
-        OrderPayment.build(cc).copy(orderId = order.id, amount = none)
-      ))
-      ops ← * <~ OrderPayments.filter(_.id inSet opIds).result
+      op1    ← * <~ OrderPayments.create(OrderPayment.build(gc).copy(orderId = order.id, amount = deductFromGc.some))
+      op2    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
       gcPayments ← * <~ OrderPayments.findAllGiftCardsByOrderId(order.id).result
       _     ← * <~ authGiftCard(gcPayments)
       // Authorize SC payments
@@ -142,10 +139,8 @@ trait OrderGenerator extends ShipmentSeeds {
       totals = total(skus)
       deductFromGc = deductAmount(gc.availableBalance, totals)
       cc    ← * <~ getCc(customerId) // TODO: auth
-      opIds    ← * <~ OrderPayments.createAllReturningIds(Seq(
-        OrderPayment.build(gc).copy(orderId = order.id, amount = deductFromGc.some),
-        OrderPayment.build(cc).copy(orderId = order.id, amount = none)))
-      ops ← * <~ OrderPayments.filter(_.id inSet opIds).result
+      op1    ← * <~ OrderPayments.create(OrderPayment.build(gc).copy(orderId = order.id, amount = deductFromGc.some))
+      op2    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
       gcPayments ← * <~ OrderPayments.findAllGiftCardsByOrderId(order.id).result
       _     ← * <~ authGiftCard(gcPayments)
       addr  ← * <~ getDefaultAddress(customerId)
