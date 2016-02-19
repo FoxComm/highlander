@@ -184,5 +184,9 @@ trait OrderGenerator extends ShipmentSeeds {
     DbResultT.sequence(results.map { case (pmt, m) ⇒ DbResultT(GiftCards.authOrderPayment(m, pmt)) })
   
   private def deductAmount(availableBalance: Int, totalCost: Int) : Int = 
-      Math.max(1, Math.min(Random.nextInt(Math.abs(availableBalance)), Random.nextInt(Math.abs(totalCost))))
+      Math.max(1, Math.min(
+        Random.nextInt(
+          Math.max(1, availableBalance)), 
+        Random.nextInt(
+          Math.max(1, totalCost))))
 }

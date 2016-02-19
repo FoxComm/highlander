@@ -22,7 +22,10 @@ trait GiftCardGenerator {
     base.bothify("????####-##")
   }
 
-  def nextGcBalance = 20 + Random.nextInt(200)
+  def nextGcBalance = {
+    val prices = Seq(1000, 2500, 3000, 5000, 7500, 10000, 15000, 20000) 
+    prices(Random.nextInt(prices.length))
+  }
 
   def generateGiftCardAppeasement(implicit db: Database) : DbResultT[GiftCard] = for { 
     origin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = 1, reasonId = 1))
