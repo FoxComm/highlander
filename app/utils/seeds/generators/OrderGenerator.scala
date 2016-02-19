@@ -64,7 +64,7 @@ trait OrderGenerator extends ShipmentSeeds {
     val cartFun = cartFunctions(cartIdx)
     for {
       _ ← * <~ cartFun(customerId, randomSubset(skus), giftCard)
-      _ ← * <~ DbResultT.sequence((1 to 1 + Random.nextInt(5)).map { i ⇒ 
+      _ ← * <~ DbResultT.sequence((1 to 1 + Random.nextInt(4)).map { i ⇒ 
         val orderIdx = Random.nextInt(orderFunctions.length)
         val orderFun = orderFunctions(cartIdx)
         orderFun(customerId, randomSubset(skus), giftCard)
