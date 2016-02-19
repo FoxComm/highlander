@@ -172,7 +172,9 @@ export default class OrderShippingAddress extends React.Component {
         text="Shipping Address" />
     );
 
-    const OrderShippingContentBox = props.readOnly ? ContentBox : EditableContentBox;
+    const OrderShippingContentBox = props.readOnly || !props.isCart
+      ? ContentBox
+      : EditableContentBox;
 
     const isCheckingOut = _.get(props, 'order.isCheckingOut', false);
     const editAction = isCheckingOut ? null : props.startEditing;

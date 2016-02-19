@@ -91,7 +91,9 @@ export class OrderLineItems extends React.Component {
       );
     }
 
-    const LineItemsContentBox = props.readOnly ? ContentBox : EditableContentBox;
+    const LineItemsContentBox = props.readOnly || !props.isCart 
+      ? ContentBox
+      : EditableContentBox;
 
     const isCheckingOut = _.get(props, 'order.isCheckingOut', false);
     const editAction = isCheckingOut ? null : props.orderLineItemsStartEdit;

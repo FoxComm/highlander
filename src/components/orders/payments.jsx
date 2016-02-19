@@ -135,7 +135,9 @@ export default class Payments extends React.Component {
     const props = this.props;
     const title = <PanelHeader isCart={props.isCart} status={props.status} text="Payment Method" />;
 
-    const PaymentsContentBox = props.readOnly ? ContentBox : EditableContentBox;
+    const PaymentsContentBox = props.readOnly || !props.isCart
+      ? ContentBox
+      : EditableContentBox;
 
     const isCheckingOut = _.get(props, 'order.isCheckingOut', false);
     const editAction = isCheckingOut ? null : props.orderPaymentMethodStartEdit;
