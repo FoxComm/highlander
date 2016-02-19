@@ -16,7 +16,7 @@ function getInitials({ name, firstName = '', lastName = '' }) {
     if (name) {
       [firstName, lastName] = name.split(/\s+/);
     } else {
-      throw new Error('UserInitials: at least firstName,lastName or name are required');
+      firstName = lastName = '?';
     }
   }
 
