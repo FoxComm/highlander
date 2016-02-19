@@ -5,20 +5,21 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import models.customer.Customer
 import GeneratorUtils.randomString
 
+import cats.implicits._
 import faker._;
 
 trait CustomerGenerator {
 
-  def generateEmail(name:String) = {
+  def generateEmail(name: String) = {
     val base = new Base{}
-    val num = base.bothify("??##")
+    val num  = base.bothify("??##")
     Internet.user_name(name) + num  + "@" + Internet.domain_name
   }
 
   def generateCustomer(location: String): Customer = { 
     val name = Name.name
-    Customer(email = generateEmail(name), password = Some(randomString(10)), 
-      name = Some(name), location=Some(location))
+    Customer(email = generateEmail(name), password = randomString(10).some, 
+      name = name.some, location=location.some)
   }
 
   def generateCustomers(total: Int, location: String) : Seq[Customer] =
