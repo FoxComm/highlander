@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
+import AutoScroll from '../../common/auto-scroll';
 import CreditCardBox from '../../credit-cards/card-box';
 import CreditCardDetails from '../../credit-cards/card-details';
 import { Dropdown, DropdownItem } from '../../dropdown';
@@ -88,6 +89,7 @@ class NewPayment extends Component {
             </Dropdown>
           </FormField>
         </Form>
+        <AutoScroll />
       </div>
     );
   }
