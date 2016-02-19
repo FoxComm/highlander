@@ -50,8 +50,7 @@ object Authenticator {
   }
 
   private[this] def auth[M, F <: EmailFinder[M]](realm: String)
-    (credentials: Option[HttpCredentials],
-    finder: F, getPassword: M ⇒ Option[String])
+    (credentials: Option[HttpCredentials], finder: F, getPassword: M ⇒ Option[String])
    (implicit ec: ExecutionContext, db: Database): Future[AuthenticationResult[M]] = {
     credentials.flatMap(extractCredentials) match {
       case Some(p) ⇒
