@@ -8,7 +8,8 @@ import models.order.{Orders, Order}
 import Order.{Canceled, _}
 import models.StoreAdmin
 import responses.order.FullOrder
-import services.{Result, StateTransitionNotAllowed, NotFoundFailure400, LockedFailure, Failures}
+import responses.BatchMetadata
+import services.{Result, StateTransitionNotAllowed, NotFoundFailure400, LockedFailure}
 import services.LogActivity.{orderStateChanged, orderBulkStateChanged}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
@@ -17,6 +18,7 @@ import utils.Slick.implicits._
 import utils.Slick.{DbResult, _}
 import utils.DbResultT._
 import utils.DbResultT.implicits._
+import utils.friendlyClassName
 
 object OrderStateUpdater {
 
@@ -24,7 +26,8 @@ object OrderStateUpdater {
     (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[FullOrder.Root] = (for {
 
     order     ← * <~ Orders.mustFindByRefNum(refNum)
-    _         ← * <~ updateStatesDbio(admin, Seq(refNum), newState, skipActivity = true)
+    _         ← * <~ order.transitionState(newState)
+    _         ← * <~ updateQueries(admin, Seq(order.id), Seq(refNum), newState).toXor
     updated   ← * <~ Orders.mustFindByRefNum(refNum)
     response  ← * <~ FullOrder.fromOrder(updated).toXor
     _         ← * <~ (if (order.state == newState) DbResult.unit else orderStateChanged(admin, response, order.state))
@@ -34,16 +37,13 @@ object OrderStateUpdater {
   def updateStates(admin: StoreAdmin, refNumbers: Seq[String], newState: Order.State, skipActivity: Boolean = false)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
     // Turn failures into errors
-    errors ← * <~ updateStatesDbio(admin, refNumbers, newState, skipActivity).flatMap { xor ⇒ xor.fold(
-      failures ⇒ DbResult.good(Some(failures)),
-      _        ⇒ DbResult.good(None))
-    }
-    response ← * <~ OrderQueries.findAll
-  } yield response.copy(errors = errors.map(_.flatten))).runTxn()
+    batchMetadata ← * <~ updateStatesDbio(admin, refNumbers, newState, skipActivity)
+    response      ← * <~ OrderQueries.findAll
+  } yield response.copy(errors = batchMetadata.flatten(), batch = Some(batchMetadata))).runTxn()
 
   private def updateStatesDbio(admin: StoreAdmin, refNumbers: Seq[String], newState: Order.State, skipActivity: Boolean = false)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage,
-      ac: ActivityContext): DbResult[Unit] = {
+      ac: ActivityContext): DbResult[BatchMetadata] = {
 
     val query = Orders.filter(_.referenceNumber.inSet(refNumbers)).result
     appendForUpdate(query).flatMap { orders ⇒
@@ -59,15 +59,17 @@ object OrderStateUpdater {
 
       updateQueriesWrapper(admin, possibleIds, possibleRefNums, newState, skipActivityMod).flatMap { _ ⇒
         // Failure handling
-        val invalid = invalidTransitions.map { order ⇒
-          StateTransitionNotAllowed(order.state, newState, order.refNum)
-        }
+        val invalid = invalidTransitions
+          .map(o ⇒ (o.refNum, StateTransitionNotAllowed(o.state, newState, o.refNum).description))
         val notFound = refNumbers
           .filterNot(refNum ⇒ orders.map(_.referenceNumber).contains(refNum))
-          .map(refNum ⇒ NotFoundFailure400(Order, refNum))
-        val locked = lockedOrders.map { order ⇒ LockedFailure(Order, order.refNum) }
+          .map(refNum ⇒ (refNum, NotFoundFailure400(Order, refNum).description))
+        val locked = lockedOrders.map { o ⇒ (o.refNum, LockedFailure(Order, o.refNum).description) }
 
-        Failures(invalid ++ notFound ++ locked: _*).fold(DbResult.unit)(DbResult.failures)
+        val batchFailures = (invalid ++ notFound ++ locked).toMap
+        val buildInput = List((friendlyClassName(Order), possibleRefNums, batchFailures))
+
+        DbResult.good(BatchMetadata.build(buildInput))
       }
     }
   }

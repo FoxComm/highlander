@@ -15,8 +15,8 @@ sealed trait Failure {
   def description: String
 }
 
-final case class NotFoundFailure404(message: String) extends Failure {
-  override def description = message
+final case class NotFoundFailure404(message: String, key: Option[String] = None) extends Failure {
+  override def description  = message
 }
 
 object NotFoundFailure404 {
@@ -25,8 +25,8 @@ object NotFoundFailure404 {
   }
 }
 
-final case class NotFoundFailure400(message: String) extends Failure {
-  override def description = message
+final case class NotFoundFailure400(message: String, key: Option[String] = None) extends Failure {
+  override def description  = message
 }
 
 object NotFoundFailure400 {
@@ -342,7 +342,7 @@ object Util {
     requested.diff(available).map(id ⇒ (id.toString, NotFoundFailure404(modelType, id).description)).toMap
 
   def liftFromFlatMap(input: Map[String, String]): Option[List[String]] = {
-    val errors = input.map { case (k, v) ⇒ v }.toList
+    val errors = input.values.toList
     if (errors.nonEmpty) Some(errors) else None
   }
 

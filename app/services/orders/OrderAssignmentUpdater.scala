@@ -13,6 +13,7 @@ import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
+import utils.friendlyClassName
 
 import scala.concurrent.ExecutionContext
 import models.activity.{Dimension, ActivityContext}
@@ -63,8 +64,8 @@ object OrderAssignmentUpdater {
     _               ← * <~ NotificationManager.subscribe(adminIds = Seq(assignee.id), dimension = Dimension.order,
       reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber)).value
     // Prepare response
-    batchFailures  = diffToFlatMap(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
-    batchMetadata  = BatchMetadata(success = refNums, failures = batchFailures)
+    batchFailures   = diffToFlatMap(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
+    batchMetadata   = BatchMetadata.build(List((friendlyClassName(Order), refNums, batchFailures)))
   } yield response.copy(errors = liftFromFlatMap(batchFailures), batch = Some(batchMetadata))).runTxn()
 
   def unassignBulk(admin: StoreAdmin, payload: OrderBulkAssignmentPayload)(implicit ec: ExecutionContext, db: Database,
@@ -81,6 +82,6 @@ object OrderAssignmentUpdater {
       reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber)).value
     // Prepare response
     batchFailures  = diffToFlatMap(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
-    batchMetadata  = BatchMetadata(success = refNums, failures = batchFailures)
+    batchMetadata  = BatchMetadata.build(List((friendlyClassName(Order), refNums, batchFailures)))
   } yield response.copy(errors = liftFromFlatMap(batchFailures), batch = Some(batchMetadata))).runTxn()
 }

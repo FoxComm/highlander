@@ -16,6 +16,7 @@ import utils.Slick.implicits._
 
 import scala.concurrent.ExecutionContext
 import models.activity.{Dimension, ActivityContext}
+import utils._
 
 object OrderWatcherUpdater {
 
@@ -62,7 +63,7 @@ object OrderWatcherUpdater {
                             reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber))
     // Prepare response
     batchFailures  = diffToFlatMap(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
-    batchMetadata  = BatchMetadata(success = orderRefNums, failures = batchFailures)
+    batchMetadata  = BatchMetadata.build(List((friendlyClassName(Order), orderRefNums, batchFailures)))
   } yield response.copy(errors = liftFromFlatMap(batchFailures), batch = Some(batchMetadata))).runTxn()
 
   def unwatchBulk(admin: StoreAdmin, payload: OrderBulkWatchersPayload)(implicit ec: ExecutionContext, db: Database,
@@ -78,6 +79,6 @@ object OrderWatcherUpdater {
                             reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber))
     // Prepare response
     batchFailures  = diffToFlatMap(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
-    batchMetadata  = BatchMetadata(success = orderRefNums, failures = batchFailures)
+    batchMetadata  = BatchMetadata.build(List((friendlyClassName(Order), orderRefNums, batchFailures)))
   } yield response.copy(errors = liftFromFlatMap(batchFailures), batch = Some(batchMetadata))).runTxn()
 }
