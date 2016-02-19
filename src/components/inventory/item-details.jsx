@@ -1,5 +1,6 @@
 
 //libs
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { haveType } from '../../modules/state-helpers';
 import { connect } from 'react-redux';
@@ -16,7 +17,7 @@ import InventoryWarehouseRow from './inventory-warehouse-row';
 import * as WarehousesActions from '../../modules/inventory/warehouses';
 
 const mapStateToProps = (state, props) => ({
-  tableState: _.get(state, ['inventory', 'warehouses', props.params.code], {})
+  tableState: _.get(state, ['inventory', 'warehouses', props.params.sku], {})
 });
 
 @connect(mapStateToProps, {...WarehousesActions})
@@ -27,99 +28,40 @@ export default class InventoryItemDetails extends React.Component {
   }
 
   componentDidMount() {
-    this.props.fetchSummary(this.props.params.code);
+    this.props.fetchSummary(this.props.params.sku);
   }
 
   get tableColumns() {
     return [
-      {field: 'warehouse', text: 'Warehouse'},
+      {field: 'name', text: 'Warehouse'},
       {field: 'onHand', text: 'On Hand'},
       {field: 'onHold', text: 'Hold'},
       {field: 'reserved', text: 'Reserved'},
       {field: 'safetyStock', text: 'Safety Stock'},
       {field: 'afs', text: 'AFS'},
-      {field: 'afsCostValue', text: 'AFS Cost Value', type: 'currency'},
+      {field: 'afsCost', text: 'AFS Cost Value', type: 'currency'},
     ];
   }
 
   get drawerColumns() {
     return [
-      {field: 'type', text: 'Type'},
+      {field: 'skuType', text: 'Type'},
       {field: 'onHand', text: 'On Hand'},
       {field: 'onHold', text: 'Hold'},
       {field: 'reserved', text: 'Reserved'},
       {field: 'safetyStock', text: 'Safety Stock'},
       {field: 'afs', text: 'AFS'},
-      {field: 'afsCostValue', text: 'AFS Cost Value', type: 'currency'},
+      {field: 'afsCost', text: 'AFS Cost Value', type: 'currency'},
     ];
   }
 
-  // mocked data for table
-  get mockedDrawerData() {
-    return {
-      rows:[
-        {
-          type: 'Sellable',
-          onHand: 52,
-          onHold: 2,
-          reserved: 5,
-          safetyStock: 3,
-          afs: 42,
-          afsCostValue: 42000,
-        },
-        {
-          type: 'Preorder',
-          onHand: 0,
-          onHold: 0,
-          reserved: 0,
-          safetyStock: 0,
-          afs: 0,
-          afsCostValue: 0,
-        },
-        {
-          type: 'Backorder',
-          onHand: 0,
-          onHold: 0,
-          reserved: 0,
-          safetyStock: 0,
-          afs: 0,
-          afsCostValue: 0,
-        },
-        {
-          type: 'Non-sellable',
-          onHand: 0,
-          onHold: 0,
-          reserved: 0,
-          safetyStock: 0,
-          afs: 0,
-          afsCostValue: 0,
-        },
-      ], total:4, from:0, size:25
-    };
-  }
-
-  get mockedData() {
-    return {
-      rows:[
-        {
-          warehouse: 'Colombus',
-          onHand: 52,
-          onHold: 2,
-          reserved: 5,
-          safetyStock: 3,
-          afs: 42,
-          afsCostValue: 42000,
-        }
-      ], total:1, from:0, size:25
-    };
-  }
-
   renderRow(row, index, columns, params) {
-    const key = `inventory-warehouse-row-${row.warehouse}`;
+    const key = `inventory-warehouse-row-${row.id}`;
     return <InventoryWarehouseRow warehouse={row} columns={columns} params={params} />;
   }
 
   render() {
+    console.log(this.props.tableState);
     const params = {
       drawerData: this.mockedDrawerData,
       drawerColumns: this.drawerColumns,
@@ -153,11 +95,11 @@ export default class InventoryItemDetails extends React.Component {
           <div className="fc-col-md-1-1">
             <ExpandableTable
               columns={this.tableColumns}
-              data={this.mockedData}
+              data={_.get(this.props, ['tableState', 'summary', 'results'], {})}
               renderRow={this.renderRow}
               params={params}
               entity={haveType(this.props.params, 'inventoryItem')}
-              idField="warehouse"
+              idField="id"
               emptyMessage="No warehouse data found."
               className="fc-inventory-item-details__warehouses-table"/>
           </div>
