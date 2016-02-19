@@ -2,6 +2,7 @@
 import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
+import { assoc } from 'sprout-data';
 
 const warehousesFetchSummaryStart = createAction('WAREHOUSES_FETCH_SUMMARY_START');
 const warehousesFetchSummarySuccess = createAction('WAREHOUSES_FETCH_SUMMARY_SUCCESS', (sku, payload) => [sku, payload]);
@@ -29,6 +30,38 @@ export function fetchDetails(skuCode, warehouseId) {
   };
 }
 
+function parseSummaries(summaries) {
+  const data = _.map(summaries, (summary) => {
+    const result = {
+      id: _.get(summary, ['warehouse', 'id']),
+      name: _.get(summary, ['warehouse', 'name']),
+      ...summary.counts
+    };
+    return result;
+  });
+  return data;
+}
+
+function parseDetails(payload) {
+  const data = _.map(payload, (entry) => {
+    const result = {
+      skuType: entry.skuType,
+      ...entry.counts
+    };
+    return result;
+  });
+  return data;
+}
+
+function convertToTableData(data) {
+  return {
+    rows: data,
+    total: data.length,
+    from: 0,
+    size: 25,
+  };
+}
+
 const initialState = {};
 
 const reducer = createReducer({
@@ -36,20 +69,22 @@ const reducer = createReducer({
     return assoc(state, [sku, 'summary', 'isFetching'], true);
   },
   [warehousesFetchSummarySuccess]: (state, [sku, payload]) => {
-    console.log(payload);
+    const data = parseSummaries(payload);
+    const tableData = convertToTableData(data);
     return assoc(state,
       [sku, 'summary', 'isFetching'], false,
-      [sku, 'summary', 'results'], payload
+      [sku, 'summary', 'results'], tableData
     );
   },
   [warehousesFetchDetailsStart]: (state, sku) => {
     return assoc(state, [sku, 'details', 'isFetching'], true);
   },
-  [warehousesFetchDetailsStart]: (state, [sku, warehouseId, payload]) => {
-    console.log(payload);
+  [warehousesFetchDetailsSuccess]: (state, [sku, warehouseId, payload]) => {
+    const data = parseDetails(payload);
+    const tableData = convertToTableData(data);
     return assoc(state,
       [sku, 'details', 'isFetching'], false,
-      [sku, warehouseId, 'results'], payload
+      [sku, warehouseId, 'results'], tableData
     );
   },
   [warehousesFetchFailed]: (state, [sku, err]) => {
