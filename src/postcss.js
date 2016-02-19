@@ -25,6 +25,7 @@ const plugins = [
   require('postcss-import')({
     path: ['src/css', 'node_modules'],
   }),
+  require('postcss-css-variables'),
   require('lost')({
     flexbox: 'flex',
     gutter: '2.4%',
@@ -35,7 +36,6 @@ const plugins = [
   require('postcss-modules-scope')({
     generateScopedName,
   }),
-  require('postcss-css-variables'),
   'postcss-cssnext', // why string is here ? see https://github.com/css-modules/css-modulesify/pull/85
 ];
 

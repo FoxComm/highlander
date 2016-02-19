@@ -15,9 +15,13 @@ table {
 }
 
 body {
-  font-family: 'Open Sans', sans-serif;
+  font-family: Lato, 'Open Sans', sans-serif;
   margin: 0;
   padding: 0;
+}
+
+input, textarea, keygen, select, button {
+  font-family: Lato, 'Open Sans', sans-serif;
 }
 
 hr {

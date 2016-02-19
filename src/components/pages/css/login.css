@@ -1,9 +1,9 @@
 
 @import "colors.css";
+@import "media-queries.css";
 
 .login-block {
-  font-size: 1.2rem;
-  width: 475px;
+  lost-center: 455px;
   margin: 0 auto;
 }
 

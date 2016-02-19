@@ -7,6 +7,7 @@ import { autobind } from 'core-decorators';
 import { TextInput } from '../common/inputs';
 import { Form, FormField } from '../forms';
 import Button from '../common/buttons';
+import WrapToLines from '../common/wrap-to-lines';
 
 
 @cssModules(styles)
@@ -38,7 +39,7 @@ export default class Login extends React.Component {
       <div styleName="login-block">
         <div styleName="title">LOG IN</div>
         <Button icon="fc-google" styleName="google-login">LOG IN WITH GOOGLE</Button>
-        <div>------------- or ------------</div>
+        <WrapToLines>or</WrapToLines>
         <Form>
           <FormField styleName="form-field">
             <TextInput placeholder="EMAIL" value={email} onChange={this.onChangeEmail} />

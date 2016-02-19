@@ -1,0 +1,18 @@
+
+@import "colors.css";
+
+.block {
+  display: flex;
+  align-items: center;
+}
+
+.line {
+  flex-grow: 1;
+  height: 1px;
+  background: var(--blackish);
+  margin-top: 2px;
+}
+
+.content {
+  padding: 15px;
+}

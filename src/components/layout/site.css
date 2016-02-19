@@ -1,0 +1,22 @@
+
+@import "media-queries.css";
+@import "variables.css";
+
+:global #app {
+  text-align: center;
+}
+
+html, body {
+  font-size: 16px;
+}
+
+@media (--small-viewport) {
+  html, body {
+    font-size: 14px;
+  }
+}
+
+.site {
+  lost-flex-container: row;
+  margin: 0 var(--grid-margin);
+}
