@@ -95,7 +95,8 @@ object RankingSeedsGenerator {
 }
 
 object SeedsGenerator extends CustomerGenerator with AddressGenerator 
-  with CreditCardGenerator with OrderGenerator with InventoryGenerator{
+  with CreditCardGenerator with OrderGenerator with InventoryGenerator 
+  with GiftCardGenerator {
 
   import org.json4s.JObject
 
@@ -118,6 +119,8 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
     }.distinct
   }
 
+  def pickOne[T](vals: Seq[T]) : T = vals(Random.nextInt(vals.length))
+
   def insertRandomizedSeeds(customersCount: Int, productCount: Int)(implicit db: Database, ec: ExecutionContext) = {
     Faker.locale("en")
     val location = "Random"
@@ -131,7 +134,11 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
       customers  ← * <~ Customers.filter(_.id.inSet(customerIds)).result
       _ ← * <~ Addresses.createAll(generateAddresses(customerIds))
       _ ← * <~ CreditCards.createAll(generateCreditCards(customerIds))
-      orders ← * <~ DbResultT.sequence(customers.map{ c ⇒ generateOrder(c.id, randomSubset(skus))})
+      orderedGcs ← * <~ DbResultT.sequence(randomSubset(customerIds).map { id ⇒ generateGiftCardPurchase(id)})
+      appeasementCount = Math.max(productCount / 8, Random.nextInt(productCount))
+      appeasements  ← * <~ DbResultT.sequence((1 to appeasementCount).map { i ⇒ generateGiftCardAppeasement})
+      giftCards  ← * <~  orderedGcs ++ appeasements
+      cards ← * <~ DbResultT.sequence(customers.map{ c ⇒ generateOrder(c.id, randomSubset(skus), pickOne(giftCards))})
     } yield {}
   }
 
