@@ -29,7 +29,7 @@ object Authenticator {
 
   def customer(credentials: Option[HttpCredentials])
               (implicit ec: ExecutionContext, db: Database): Future[AuthenticationResult[Customer]] = {
-    auth[Customer, EmailFinder[Customer]]("private customer routes")(credentials, Customers.findByEmail, _.password)
+    auth[Customer, EmailFinder[Customer]]("private customer routes")(credentials, Customers.findByEmail, _.hashedPassword)
   }
 
   def storeAdmin(credentials: Option[HttpCredentials])
@@ -50,12 +50,14 @@ object Authenticator {
   }
 
   private[this] def auth[M, F <: EmailFinder[M]](realm: String)
-    (credentials: Option[HttpCredentials], finder: F, getPassword: M ⇒ Option[String])
+    (credentials: Option[HttpCredentials], finder: F, getHashedPassword: M ⇒ Option[String])
    (implicit ec: ExecutionContext, db: Database): Future[AuthenticationResult[M]] = {
     credentials.flatMap(extractCredentials) match {
       case Some(p) ⇒
         finder(p.identifier).run().map { optModel ⇒
-          optModel.filter { m ⇒ getPassword(m).exists(checkPassword(p.secret, _)) }
+          optModel.filter { userModel ⇒
+            getHashedPassword(userModel).exists(checkPassword(p.secret, _))
+          }
         }.map {
           case Some(instance) ⇒ AuthenticationResult.success(instance)
           case None ⇒ AuthenticationResult.failWithChallenge(challengeFor(realm))
@@ -65,11 +67,9 @@ object Authenticator {
     }
   }
 
-  private def extractCredentials(cred: HttpCredentials): Option[Credentials] = {
-    cred match {
-      case BasicHttpCredentials(username, secret) ⇒ Some(Credentials(username, secret))
-      case OAuth2BearerToken(token) ⇒ Some(Credentials(token, token))
-      case _ ⇒ None
-    }
+  private def extractCredentials(cred: HttpCredentials): Option[Credentials] = cred match {
+    case BasicHttpCredentials(username, secret) ⇒ Some(Credentials(username, secret))
+    case OAuth2BearerToken(token) ⇒ Some(Credentials(token, token))
+    case _ ⇒ None
   }
 }
