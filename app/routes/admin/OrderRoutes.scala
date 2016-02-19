@@ -13,7 +13,7 @@ import models.traits.Originator
 import payloads._
 import services.orders._
 import services.{Checkout, LineItemUpdater}
-import services.Authenticator.{AsyncAuthenticator, requireAdmin}
+import services.Authenticator.{AsyncAuthenticator, requireAdminAuth}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives._
 import utils.Http._
@@ -27,7 +27,7 @@ object OrderRoutes {
   def routes(implicit ec: ExecutionContext, db: Database,
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
-    requireAdmin(storeAdminAuth) { admin ⇒
+    requireAdminAuth(storeAdminAuth) { admin ⇒
       activityContext(admin) { implicit ac ⇒
         pathPrefix("orders") {
           (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒

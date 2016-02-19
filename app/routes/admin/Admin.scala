@@ -13,7 +13,7 @@ import models.sharedsearch.SharedSearch
 import payloads._
 import services.{NoteManager, SaveForLaterManager, SharedSearchService,
 ShippingManager, StoreCreditAdjustmentsService, StoreCreditService, SharedSearchInvalidQueryFailure}
-import services.Authenticator.{AsyncAuthenticator, requireAdmin}
+import services.Authenticator.{AsyncAuthenticator, requireAdminAuth}
 import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.CustomDirectives._
@@ -26,7 +26,7 @@ object Admin {
   def routes(implicit ec: ExecutionContext, db: Database,
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
-    requireAdmin(storeAdminAuth) { admin ⇒
+    requireAdminAuth(storeAdminAuth) { admin ⇒
       activityContext(admin) { implicit ac ⇒
         pathPrefix("store-credits") {
           (patch & pathEnd & entity(as[StoreCreditBulkUpdateStateByCsr])) { payload ⇒

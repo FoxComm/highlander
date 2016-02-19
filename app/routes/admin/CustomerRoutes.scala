@@ -10,7 +10,7 @@ import models.customer.Customers
 import payloads.{ActivateCustomerPayload, CreateAddressPayload, UpdateCustomerPayload}
 import services.{AddressManager, CreditCardManager, CustomerCreditConverter, CustomerManager,
 StoreCreditAdjustmentsService, StoreCreditService}
-import services.Authenticator.{AsyncAuthenticator, requireAdmin}
+import services.Authenticator.{AsyncAuthenticator, requireAdminAuth}
 import services.orders.OrderQueries
 import slick.driver.PostgresDriver.api._
 import utils.Apis
@@ -23,7 +23,7 @@ object CustomerRoutes {
   def routes(implicit ec: ExecutionContext, db: Database,
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
-    requireAdmin(storeAdminAuth) { admin ⇒
+    requireAdminAuth(storeAdminAuth) { admin ⇒
       activityContext(admin) { implicit ac ⇒
         pathPrefix("customers") {
           (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒

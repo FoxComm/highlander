@@ -37,13 +37,13 @@ object Authenticator {
     auth[StoreAdmin, EmailFinder[StoreAdmin]]("admin")(credentials, StoreAdmins.findByEmail, m ⇒ Some(m.hashedPassword))
   }
 
-  def requireAdmin(auth: AsyncAuthenticator[StoreAdmin]): AuthenticationDirective[StoreAdmin] = {
+  def requireAdminAuth(auth: AsyncAuthenticator[StoreAdmin]): AuthenticationDirective[StoreAdmin] = {
     extractExecutionContext.flatMap { implicit ec ⇒
       authenticateOrRejectWithChallenge(auth)
     }
   }
 
-  def requireCustomer(auth: AsyncAuthenticator[Customer]): AuthenticationDirective[Customer] = {
+  def requireCustomerAuth(auth: AsyncAuthenticator[Customer]): AuthenticationDirective[Customer] = {
     extractExecutionContext.flatMap { implicit ec ⇒
       authenticateOrRejectWithChallenge(auth)
     }
