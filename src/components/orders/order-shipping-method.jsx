@@ -53,7 +53,7 @@ export class OrderShippingMethod extends React.Component {
       <ShippingMethod
         currentOrder={props.order.currentOrder}
         title={title}
-        readOnly={props.readOnly}
+        readOnly={props.readOnly || !props.isCart}
         availableShippingMethods={props.shippingMethods.availableMethods}
         shippingMethods={[shippingMethod]}
         isEditing={props.shippingMethods.isEditing}

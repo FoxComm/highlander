@@ -5,9 +5,11 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
+import AutoScroll from '../../common/auto-scroll';
 import CreditCardBox from '../../credit-cards/card-box';
 import CreditCardDetails from '../../credit-cards/card-details';
 import { Dropdown, DropdownItem } from '../../dropdown';
+import ErrorAlerts from '../../alerts/error-alerts';
 import { Form, FormField } from '../../forms';
 import NewGiftCard from './new-gift-card';
 import NewStoreCredit from './new-store-credit';
@@ -54,6 +56,10 @@ class NewPayment extends Component {
     };
   }
 
+  get errorMessages() {
+    return <ErrorAlerts error={this.props.paymentMethods.err} />;
+  }
+
   get newPaymentMethod() {
     const { customerId, order } = this.props;
 
@@ -70,6 +76,7 @@ class NewPayment extends Component {
   get paymentForm() {
     return (
       <div className="fc-new-order-payment__form">
+        {this.errorMessages}
         <Form>
           <h2 className="fc-new-order-payment__form-title">
             New Payment Method
@@ -88,6 +95,7 @@ class NewPayment extends Component {
             </Dropdown>
           </FormField>
         </Form>
+        <AutoScroll />
       </div>
     );
   }
