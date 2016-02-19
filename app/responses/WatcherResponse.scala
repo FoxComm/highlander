@@ -3,6 +3,7 @@ package responses
 import java.time.Instant
 
 import models.StoreAdmin
+import models.customer.CustomerWatcher
 import models.order.OrderWatcher
 
 object WatcherResponse {
@@ -13,5 +14,8 @@ object WatcherResponse {
   ) extends ResponseItem
 
   def build(watcher: OrderWatcher, admin: StoreAdmin): Root =
+    Root(StoreAdminResponse.build(admin), watcher.createdAt)
+
+  def buildForCustomer(watcher: CustomerWatcher, admin: StoreAdmin): Root =
     Root(StoreAdminResponse.build(admin), watcher.createdAt)
 }

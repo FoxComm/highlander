@@ -6,7 +6,7 @@ import payloads.BulkAssignment
 import responses.TheResponse
 import responses.order.FullOrder
 import services.Util._
-import services.{NotFoundFailure400, NotificationManager, LogActivity, OrderAssigneeNotFound, Result}
+import services.{NotificationManager, LogActivity, OrderAssigneeNotFound, Result}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._

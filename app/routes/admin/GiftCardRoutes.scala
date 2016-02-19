@@ -6,7 +6,8 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
 import models.StoreAdmin
 import payloads._
-import services.{CustomerCreditConverter, GiftCardAdjustmentsService, GiftCardService}
+import services.giftcards.{GiftCardService, GiftCardAdjustmentsService}
+import services.CustomerCreditConverter
 import services.Authenticator.{AsyncAuthenticator, requireAdminAuth}
 import slick.driver.PostgresDriver.api._
 import utils.Apis

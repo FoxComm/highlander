@@ -1,9 +1,10 @@
 package services.activity
 
-import responses.StoreAdminResponse
+import responses.{CustomerResponse, StoreAdminResponse}
 import responses.order.FullOrder
 
 object AssignmentsTailored {
+  /* Orders */
   final case class AssignedToOrder(admin: StoreAdminResponse.Root, order: FullOrder.Root,
     assignees: Seq[StoreAdminResponse.Root])
     extends ActivityBase[AssignedToOrder]
@@ -19,4 +20,21 @@ object AssignmentsTailored {
   final case class BulkUnassignedFromOrders(admin: StoreAdminResponse.Root, assignee: StoreAdminResponse.Root,
     orderRefNums: Seq[String])
     extends ActivityBase[BulkUnassignedFromOrders]
+
+  /* Customers */
+  final case class AssignedToCustomer(admin: StoreAdminResponse.Root, customer: CustomerResponse.Root,
+    assignees: Seq[StoreAdminResponse.Root])
+    extends ActivityBase[AssignedToCustomer]
+
+  final case class UnassignedFromCustomer(admin: StoreAdminResponse.Root, customer: CustomerResponse.Root,
+    assignee: StoreAdminResponse.Root)
+    extends ActivityBase[UnassignedFromCustomer]
+
+  final case class BulkAssignedToCustomers(admin: StoreAdminResponse.Root, assignee: StoreAdminResponse.Root,
+    customerIds: Seq[Int])
+    extends ActivityBase[BulkAssignedToCustomers]
+
+  final case class BulkUnassignedFromCustomers(admin: StoreAdminResponse.Root, assignee: StoreAdminResponse.Root,
+    customerIds: Seq[Int])
+    extends ActivityBase[BulkUnassignedFromCustomers]
 }

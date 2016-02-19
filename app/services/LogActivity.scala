@@ -48,7 +48,7 @@ object LogActivity {
     Activities.log(UnassociatedFromSearch(buildAdmin(admin), search, buildAdmin(associate)))
   }
 
-  /* Assignments */
+  /* Order Assignments */
   def assignedToOrder(admin: StoreAdmin, order: FullOrder.Root, assignees: Seq[StoreAdminResponse.Root])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
     Activities.log(AssignedToOrder(buildAdmin(admin), order, assignees))
@@ -69,7 +69,28 @@ object LogActivity {
     Activities.log(BulkUnassignedFromOrders(buildAdmin(admin), buildAdmin(assignee), orderRefNums))
   }
 
-  /* Watchers */
+  /* Customer Assignments */
+  def assignedToCustomer(admin: StoreAdmin, customer: Customer, assignees: Seq[StoreAdminResponse.Root])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(AssignedToCustomer(buildAdmin(admin), buildCustomer(customer), assignees))
+  }
+
+  def unassignedFromCustomer(admin: StoreAdmin, customer: Customer, assignee: StoreAdmin)
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(UnassignedFromCustomer(buildAdmin(admin), buildCustomer(customer), buildAdmin(assignee)))
+  }
+
+  def bulkAssignedToCustomers(admin: StoreAdmin, assignee: StoreAdmin, customerIds: Seq[Int])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(BulkAssignedToCustomers(buildAdmin(admin), buildAdmin(assignee), customerIds))
+  }
+
+  def bulkUnassignedFromCustomers(admin: StoreAdmin, assignee: StoreAdmin, customerIds: Seq[Int])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(BulkUnassignedFromCustomers(buildAdmin(admin), buildAdmin(assignee), customerIds))
+  }
+
+  /* Order Watchers */
   def addedWatchersToOrder(admin: StoreAdmin, order: FullOrder.Root, watchers: Seq[StoreAdminResponse.Root])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
     Activities.log(AddedWatchersToOrder(buildAdmin(admin), order, watchers))
@@ -88,6 +109,27 @@ object LogActivity {
   def bulkRemovedWatcherFromOrders(admin: StoreAdmin, assignee: StoreAdmin, orderRefNums: Seq[String])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
     Activities.log(BulkRemovedWatcherFromOrders(buildAdmin(admin), buildAdmin(assignee), orderRefNums))
+  }
+
+  /* Customer Watchers */
+  def addedWatchersToCustomer(admin: StoreAdmin, customer: Customer, watchers: Seq[StoreAdminResponse.Root])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(AddedWatchersToCustomer(buildAdmin(admin), buildCustomer(customer), watchers))
+  }
+
+  def removedWatcherFromCustomer(admin: StoreAdmin, customer: Customer, watcher: StoreAdmin)
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(RemovedWatcherFromCustomer(buildAdmin(admin), buildCustomer(customer), buildAdmin(watcher)))
+  }
+
+  def bulkAddedWatcherToCustomers(admin: StoreAdmin, assignee: StoreAdmin, customerIds: Seq[Int])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(BulkAddedWatcherToCustomers(buildAdmin(admin), buildAdmin(assignee), customerIds))
+  }
+
+  def bulkRemovedWatcherFromCustomers(admin: StoreAdmin, assignee: StoreAdmin, customerIds: Seq[Int])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(BulkRemovedWatcherFromCustomers(buildAdmin(admin), buildAdmin(assignee), customerIds))
   }
 
   /* Customers */
