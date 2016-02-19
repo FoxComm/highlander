@@ -2,6 +2,7 @@
 //libs
 import React, { PropTypes } from 'react';
 import { haveType } from '../../modules/state-helpers';
+import { connect } from 'react-redux';
 
 // components
 import { SectionTitle } from '../section-title';
@@ -11,10 +12,22 @@ import { Link, IndexLink } from '../link';
 import ExpandableTable from '../table/expandable-table';
 import InventoryWarehouseRow from './inventory-warehouse-row';
 
+// redux
+import * as WarehousesActions from '../../modules/inventory/warehouses';
+
+const mapStateToProps = (state, props) => ({
+  tableState: _.get(state, ['inventory', 'warehouses', props.params.code], {})
+});
+
+@connect(mapStateToProps, {...WarehousesActions})
 export default class InventoryItemDetails extends React.Component {
 
   static propTypes = {
     params: PropTypes.object,
+  }
+
+  componentDidMount() {
+    this.props.fetchSummary(this.props.params.code);
   }
 
   get tableColumns() {
