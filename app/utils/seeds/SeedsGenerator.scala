@@ -111,14 +111,6 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
 
   def makeSkus(productCount: Int) = (1 to productCount).par.map { i ⇒  generateSku }.toList
 
-  def randomSubset[T](vals: Seq[T]) : Seq[T] = {
-    require(vals.length > 0)
-    val size = Math.max(Random.nextInt(Math.min(vals.length, 5)), 1)
-    (1 to size).map { 
-      i ⇒  vals(i * Random.nextInt(vals.length) % vals.length) 
-    }.distinct
-  }
-
   def pickOne[T](vals: Seq[T]) : T = vals(Random.nextInt(vals.length))
 
   def insertRandomizedSeeds(customersCount: Int, productCount: Int)(implicit db: Database, ec: ExecutionContext) = {
@@ -138,7 +130,7 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
       appeasementCount = Math.max(productCount / 8, Random.nextInt(productCount))
       appeasements  ← * <~ DbResultT.sequence((1 to appeasementCount).map { i ⇒ generateGiftCardAppeasement})
       giftCards  ← * <~  orderedGcs ++ appeasements
-      cards ← * <~ DbResultT.sequence(customers.map{ c ⇒ generateOrder(c.id, randomSubset(skus), pickOne(giftCards))})
+      _ ← * <~ DbResultT.sequence(customers.map{ c ⇒ generateOrders(c.id, skus, pickOne(giftCards))})
     } yield {}
   }
 

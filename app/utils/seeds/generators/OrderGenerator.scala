@@ -7,7 +7,7 @@ import models.inventory.Sku
 import models.location.Addresses
 import models.order.lineitems._
 import models.order._
-import models.payment.creditcard.CreditCards
+import models.payment.creditcard.{CreditCard, CreditCards}
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.shipping.{Shipments, ShippingMethods, Shipment}
@@ -37,7 +37,11 @@ trait OrderGenerator extends ShipmentSeeds {
 
   def orderGenerators()(implicit db: Database) = 
     List[(Int, Seq[Sku], GiftCard) ⇒  DbResultT[Order]](
-      generateOrder1, generateOrder2, generateOrder3, generateOrder4, generateOrder5, generateOrder6) 
+      generateOrder1, generateOrder2, generateOrder5, generateOrder6) 
+
+  def cartGenerators()(implicit db: Database) = 
+    List[(Int, Seq[Sku], GiftCard) ⇒  DbResultT[Order]](
+      generateOrder3, generateOrder4) 
 
   def nextBalance = 1 + Random.nextInt(8000)
   def orderReferenceNum = {
@@ -45,11 +49,27 @@ trait OrderGenerator extends ShipmentSeeds {
     base.bothify("????####-##")
   }
 
-  def generateOrder(customerId: Int, skus: Seq[Sku], giftCard: GiftCard) (implicit db: Database) : DbResultT[Order] = {
-    val genFunctions = orderGenerators
-    val genIdx = Random.nextInt(orderGenerators.length)
-    val genFun = genFunctions(genIdx)
-    genFun(customerId, skus, giftCard)
+  def randomSubset[T](vals: Seq[T]) : Seq[T] = {
+    require(vals.length > 0)
+    val size = Math.max(Random.nextInt(Math.min(vals.length, 5)), 1)
+    (1 to size).map { 
+      i ⇒  vals(i * Random.nextInt(vals.length) % vals.length) 
+    }.distinct
+  }
+
+  def generateOrders(customerId: Int, skus: Seq[Sku], giftCard: GiftCard) (implicit db: Database) : DbResultT[Unit] = {
+    val cartFunctions = cartGenerators
+    val orderFunctions = orderGenerators
+    val cartIdx = Random.nextInt(cartFunctions.length)
+    val cartFun = cartFunctions(cartIdx)
+    for {
+      _ ← * <~ cartFun(customerId, randomSubset(skus), giftCard)
+      _ ← * <~ (1 to 1 + Random.nextInt(1)).map { i ⇒ 
+        val orderIdx = Random.nextInt(orderFunctions.length)
+        val orderFun = orderFunctions(cartIdx)
+        orderFun(customerId, randomSubset(skus), giftCard)
+      }
+    } yield {}
   }
 
   def generateOrder1(customerId: Int, skus: Seq[Sku], giftCard: GiftCard)(implicit db: Database): DbResultT[Order] = for {
@@ -87,8 +107,7 @@ trait OrderGenerator extends ShipmentSeeds {
       gc     ← * <~ GiftCards.mustFindById404(giftCard.id)
       totals = total(skus)
       deductFromGc = deductAmount(gc.availableBalance, totals)
-      op1    ← * <~ OrderPayments.create(OrderPayment.build(gc).copy(orderId = order.id, amount = deductFromGc.some))
-      op2    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
+      _    ← * <~ generateOrderPayments(order, cc, gc, deductFromGc)
       gcPayments ← * <~ OrderPayments.findAllGiftCardsByOrderId(order.id).result
       _     ← * <~ authGiftCard(gcPayments)
       // Authorize SC payments
@@ -141,8 +160,7 @@ trait OrderGenerator extends ShipmentSeeds {
       totals = total(skus)
       deductFromGc = deductAmount(gc.availableBalance, totals)
       cc    ← * <~ getCc(customerId) // TODO: auth
-      op1    ← * <~ OrderPayments.create(OrderPayment.build(gc).copy(orderId = order.id, amount = deductFromGc.some))
-      op2    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
+      _    ← * <~ generateOrderPayments(order, cc, gc, deductFromGc)
       gcPayments ← * <~ OrderPayments.findAllGiftCardsByOrderId(order.id).result
       _     ← * <~ authGiftCard(gcPayments)
       addr  ← * <~ getDefaultAddress(customerId)
@@ -164,6 +182,16 @@ trait OrderGenerator extends ShipmentSeeds {
   def orderNotes: Seq[Note] = {
     def newNote(body: String) = Note(referenceId = 1, referenceType = Note.Order, storeAdminId = 1, body = body)
     (1 to Random.nextInt(4)) map { i ⇒  newNote(Lorem.sentence(Random.nextInt(5))) } 
+  }
+
+  def generateOrderPayments(order: Order, cc: CreditCard, gc: GiftCard, deductFromGc: Int) : DbResultT[Unit] = {
+    if(gc.availableBalance > 0) for {
+      op1    ← * <~ OrderPayments.create(OrderPayment.build(gc).copy(orderId = order.id, amount = deductFromGc.some))
+      op2    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
+    } yield {}
+    else for {
+      op    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
+    } yield {}
   }
 
   private def total(skus: Seq[Sku]) = skus.foldLeft(0)(_ + _.price)
