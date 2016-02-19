@@ -4,11 +4,49 @@ import { assoc } from 'sprout-data';
 
 // data
 import { searchAdmins } from '../elastic/store-admins';
-import { entityForms } from '../paragons/watcher';
 
 // helpers
-import { getSingularForm, getPluralForm } from '../lib/text-utils';
+import Api from '../lib/api';
+import createStore from '../lib/store-creator';
 
+
+const addWatchers = (entityType, fetchEntity) => (actions, entityId) => (dispatch, getState) => {
+  const state = getState();
+  const path = [entityType, 'watchers', entityId, 'selectModal'];
+
+  const group = _.get(state, path.concat('group'));
+  const items = _.get(state, path.concat('selected'), []);
+
+  const data = {
+    [group]: items.map((item) => item.id)
+  };
+
+  Api.post(`/${entityType}/${entityId}/${group}`, data).then(
+    () => {
+      dispatch(actions.clearSelected(entityId));
+      dispatch(actions.hideSelectModal(entityId));
+      dispatch(fetchEntity(entityId));
+    },
+    (error) => dispatch(actions.failWatchersAction(error))
+  );
+};
+
+const removeWatcher = (entityType, fetchEntity) => (actions, entityId, group, id) => (dispatch) => {
+  Api.delete(`/${entityType}/${entityId}/${group}/${id}`).then(
+    () => dispatch(fetchEntity(entityId)),
+    (error) => dispatch(actions.failWatchersAction(error))
+  );
+};
+
+const suggestWatchers = entityType => (actions, entityId) => (dispatch, getState) => {
+  const state = getState();
+  const term = _.get(state, [entityType, 'watchers', entityId, 'selectModal', 'term']);
+
+  searchAdmins(term).then(
+    ({result}) => dispatch(actions.setSuggested(entityId, _.isEmpty(result) ? [] : result)),
+    () => dispatch(actions.setSuggested(entityId, []))
+  );
+};
 
 /**
  * What is stored:
@@ -19,32 +57,37 @@ import { getSingularForm, getPluralForm } from '../lib/text-utils';
  *  selectModal: {
  *    group: String (one of valid watcher groups for currently open add modal),
  *    displayed: Boolean (whether add modal is displayed),
+ *    term: String (entered search term)
  *    suggested: Object[] (array of watchers' entries suggested in modal),
  *    selected: Number[] (array of watchers' ids that are selected for add/remove action)
  *  }
  * }
  */
-export const creators = {
-  toggleListModal: (state, group) => {
-    const path = [group, 'listModalDisplayed'];
+const reducers = {
+  toggleListModal: (state, [entityId, group]) => {
+    const path = [entityId, group, 'listModalDisplayed'];
     const oldValue = _.get(state, path, false);
 
     return assoc(state, path, !oldValue);
   },
-  showSelectModal: (state, group) => {
+  showSelectModal: (state, [entityId,group]) => {
+    const path = [entityId, 'selectModal'];
+
     return assoc(state,
-      ['selectModal', 'group'], group,
-      ['selectModal', 'displayed'], true
+      path.concat('group'), group,
+      path.concat('displayed'), true
     );
   },
-  hideSelectModal: (state) => {
+  hideSelectModal: (state, entityId) => {
+    const path = [entityId, 'selectModal'];
+
     return assoc(state,
-      ['selectModal', 'group'], null,
-      ['selectModal', 'displayed'], false
+      path.concat('group'), null,
+      path.concat('displayed'), false
     );
   },
-  selectItem: (state, item) => {
-    const path = ['selectModal', 'selected'];
+  selectItem: (state, [entityId, item]) => {
+    const path = [entityId, 'selectModal', 'selected'];
 
     const items = _.get(state, path, []);
 
@@ -54,45 +97,39 @@ export const creators = {
 
     return state;
   },
-  deselectItem: (state, index) => {
-    const path = ['selectModal', 'selected'];
+  deselectItem: (state, [entityId, index]) => {
+    const path = [entityId, 'selectModal', 'selected'];
 
     const items = _.get(state, path, []);
     const newItems = _.without(items, items[index]);
 
     return assoc(state, path, newItems);
   },
-  clearSelected: (state) => {
-    const path = ['selectModal', 'selected'];
+  clearSelected: (state, entityId) => {
+    const path = [entityId, 'selectModal', 'selected'];
 
     return assoc(state, path, []);
   },
-  setSuggested: (state, payload) => {
-    return assoc(state, ['selectModal', 'suggested'], payload);
+  setTerm: (state, [entityId, term]) => {
+    return assoc(state, [entityId, 'selectModal', 'term'], term);
   },
-  failWatchersAction: (state, error) => {
+  setSuggested: (state, [entityId, payload]) => {
+    return assoc(state, [entityId, 'selectModal', 'suggested'], payload);
+  },
+  failWatchersAction: (state, [entityId, error]) => {
     console.error(error);
 
     return state;
   },
 };
 
-export const actions = {
-  suggestWatchers: (term, actions) => {
-    return dispatch => {
-      searchAdmins(term).then(
-        ({result}) => dispatch(actions.setSuggested(_.isEmpty(result) ? [] : result)),
-        () => dispatch(actions.setSuggested([]))
-      );
-    };
-  }
-};
-
-export const initialState = {
-  selectModal: {
-    group: null,
-    displayed: false,
-    suggested: [],
-    selected: [],
+export default (entityType, {fetchEntity}) => createStore({
+  entity: 'watchers',
+  scope: entityType,
+  actions: {
+    suggestWatchers: suggestWatchers(entityType),
+    addWatchers: addWatchers(entityType, fetchEntity),
+    removeWatcher: removeWatcher(entityType, fetchEntity),
   },
-};
+  reducers,
+});

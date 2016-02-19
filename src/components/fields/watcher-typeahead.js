@@ -2,7 +2,12 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
+import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+
+// helpers
+import { getStore } from '../../lib/store-creator';
+import { getStorePath } from '../../lib/store-utils';
 
 // components
 import Typeahead from '../typeahead/typeahead';
@@ -10,20 +15,55 @@ import PilledInput from '../pilled-search/pilled-input';
 import UserInitials from '../users/initials';
 
 
+function mapStateToProps(state, {storePath, entity}) {
+  const path = getStorePath(storePath, entity, 'watchers', 'selectModal');
+
+  console.debug('map state to props of WatcherTypeahead');
+  const {
+    term = null,
+    suggested = [],
+    selected = []
+  } = _.get(state, path, {});
+
+  return {term, suggested, selected};
+}
+
+function mapDispatchToProps(dispatch, {entity: {entityType, entityId}}) {
+  const {actions} = getStore('watchers', entityType);
+
+  console.debug('map dispatch to props of WatcherTypeahead');
+  return {
+    setTerm: term => dispatch(actions.setTerm(entityId, term)),
+    suggestWatchers: () => dispatch(actions.suggestWatchers(entityId)),
+    onSelectItem: item => dispatch(actions.selectItem(entityId, item)),
+    onDeselectItem: index => dispatch(actions.deselectItem(entityId, index)),
+  };
+}
+
+@connect(mapStateToProps, mapDispatchToProps)
 export default class WatcherTypeahead extends React.Component {
 
   static propTypes = {
+    storePath: PropTypes.string,
+    entity: PropTypes.shape({
+      entityType: PropTypes.string.isRequired,
+      entityId: PropTypes.string.isRequired,
+    }).isRequired,
     className: PropTypes.string,
     label: PropTypes.string,
+
+    //connected
+    term: PropTypes.string,
     suggested: PropTypes.array.isRequired,
     selected: PropTypes.array.isRequired,
+    setTerm: PropTypes.func.isRequired,
     suggestWatchers: PropTypes.func.isRequired,
     onSelectItem: PropTypes.func.isRequired,
     onDeselectItem: PropTypes.func.isRequired,
   };
 
-  state = {
-    term: '',
+  static defaultProps = {
+    storePath: '',
   };
 
   username(user) {
@@ -38,14 +78,15 @@ export default class WatcherTypeahead extends React.Component {
   }
 
   get pilledInput() {
-    const pills = this.props.selected.map(this.username);
+    const {term, setTerm, selected} = this.props;
+    const pills = selected.map(this.username);
 
     return (
       <PilledInput
         solid={true}
         autofocus={true}
-        value={this.state.term}
-        onChange={({target}) => this.setState({term: target.value})}
+        value={term}
+        onChange={({target}) => setTerm(target.value)}
         pills={pills}
         icon={null}
         onPillClose={this.onItemDeselected} />
@@ -54,10 +95,11 @@ export default class WatcherTypeahead extends React.Component {
 
   @autobind
   onItemSelected(item) {
-    const {selected, onSelectItem} = this.props;
+    const {setTerm, selected, onSelectItem} = this.props;
 
     if (_.findIndex(selected, ({id}) => id === item.id) < 0) {
-      this.setState({term: ''}, () => onSelectItem(item));
+      setTerm('');
+      onSelectItem(item);
     }
   }
 

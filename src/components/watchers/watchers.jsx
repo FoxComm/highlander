@@ -8,6 +8,9 @@ import { autobind } from 'core-decorators';
 // data
 import { groups, emptyTitle } from '../../paragons/watcher';
 
+//helpers
+import { getStore } from '../../lib/store-creator';
+
 // components
 import Panel from '../panel/panel';
 import { AddButton } from '../common/buttons';
@@ -18,25 +21,41 @@ import SelectWatcherModal from './select-modal';
 
 const maxDisplayed = 7;
 
+
+function mapDispatchToProps(dispatch, {entity: {entityType, entityId}}) {
+  const {actions} = getStore('watchers', entityType);
+
+  console.debug('map dispatch to props of Watchers');
+  return {
+    showSelectModal: (group) => dispatch(actions.showSelectModal(entityId, group)),
+    hideSelectModal: () => dispatch(actions.hideSelectModal(entityId)),
+    toggleListModal: (group) => dispatch(actions.toggleListModal(entityId, group)),
+    addWatchers: () => dispatch(actions.addWatchers(entityId)),
+    removeWatcher: (group, id) => dispatch(actions.removeWatcher(entityId, group, id)),
+  };
+}
+
+@connect(null, mapDispatchToProps)
 export default class Watchers extends React.Component {
 
   static propTypes = {
-    entityType: PropTypes.string.isRequired,
-    data: PropTypes.object.isRequired,
-    actions: PropTypes.shape({
-      showSelectModal: PropTypes.func.isRequired,
-      hideSelectModal: PropTypes.func.isRequired,
-      toggleListModal: PropTypes.func.isRequired,
-      suggestWatchers: PropTypes.func.isRequired,
-      selectItem: PropTypes.func.isRequired,
-      deselectItem: PropTypes.func.isRequired,
-      addWatchers: PropTypes.func.isRequired,
-      removeWatcher: PropTypes.func.isRequired,
+    storePath: PropTypes.string,
+    entity: PropTypes.shape({
+      entityType: PropTypes.string.isRequired,
+      entityId: PropTypes.string.isRequired,
     }).isRequired,
+    data: PropTypes.object.isRequired,
+
+    //connected
+    showSelectModal: PropTypes.func.isRequired,
+    hideSelectModal: PropTypes.func.isRequired,
+    toggleListModal: PropTypes.func.isRequired,
+    addWatchers: PropTypes.func.isRequired,
+    removeWatcher: PropTypes.func.isRequired,
   };
 
   renderGroup(group) {
-    const {data, actions: {showSelectModal}} = this.props;
+    const {data, showSelectModal} = this.props;
     const users = _.get(data, [group, 'entries'], []);
 
     return (
@@ -59,8 +78,7 @@ export default class Watchers extends React.Component {
       );
     }
 
-    const {actions} = this.props;
-    const removeWatcher = (id) => actions.removeWatcher(group, id);
+    const removeWatcher = (id) => this.props.removeWatcher(group, id);
 
     if (users.length <= maxDisplayed) {
       return users.map((user) => this.renderCell(group, user, removeWatcher));
@@ -80,7 +98,7 @@ export default class Watchers extends React.Component {
 
   @autobind
   renderHiddenRow(group, cells) {
-    const {data, actions: {toggleListModal}} = this.props;
+    const {data, toggleListModal} = this.props;
     const active = _.get(data, [group, 'listModalDisplayed'], false);
 
     const hiddenBlockClass = classNames('fc-watchers__rest-block', {'_shown': active});
@@ -124,9 +142,7 @@ export default class Watchers extends React.Component {
   }
 
   render() {
-    const {entityType, data, actions} = this.props;
-    const {displayed, suggested, selected} = data.selectModal;
-    const {selectItem, deselectItem, hideSelectModal, suggestWatchers, addWatchers} = actions;
+    const {entity, data, addWatchers, hideSelectModal} = this.props;
 
     return (
       <Panel className="fc-watchers">
@@ -155,15 +171,9 @@ export default class Watchers extends React.Component {
           </div>
         </div>
         <SelectWatcherModal
-          isVisible={displayed}
-          entityType={entityType}
+          entity={entity}
           onCancel={hideSelectModal}
-          onConfirm={addWatchers}
-          suggested={suggested}
-          selected={selected}
-          suggestWatchers={suggestWatchers}
-          onSelectItem={selectItem}
-          onDeselectItem={deselectItem} />
+          onConfirm={addWatchers} />
       </Panel>
     );
   }

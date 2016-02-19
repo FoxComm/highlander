@@ -18,7 +18,7 @@ export function toConstName(word) {
   const name = [];
 
   for (var i = 0; i < word.length; i++) {
-    if (word[i] < 'a') {
+    if (word[i] >= 'A' && word[i] <= 'Z') {
       name.push('_');
     }
     name.push(word[i].toUpperCase());

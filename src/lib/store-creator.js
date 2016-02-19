@@ -3,23 +3,37 @@ import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 
 // helpers
-import { toConstName, capitalize } from '../lib/text-utils';
+import { toConstName } from '../lib/text-utils';
 
 
-function getActionDescription(entity, name) {
-  if (entity) {
-    return toConstName(entity + capitalize(name));
+//created stores storage
+const STORES = {};
+
+function saveStore(entity, scope, store) {
+  if (getStore(entity, scope)) {
+    throw new TypeError(`Store ${entity}:${scope} already exists`);
   }
 
-  return toConstName(name);
+  _.set(STORES, [entity, scope], store);
+
+  return store;
+}
+
+export function getStore(entity, scope) {
+  return _.get(STORES, [entity, scope], null);
+}
+
+
+function getActionDescription(entity, scope, name) {
+  return toConstName(`${entity}_${scope}_${name}`);
 }
 
 function payloadReducer(...args) {
-  if (arguments.length > 1) {
+  if (args.length > 1) {
     return [...args];
   }
 
-  return arguments[0];
+  return args[0];
 }
 
 /**
@@ -30,45 +44,46 @@ function payloadReducer(...args) {
  * 1. plain actions. Are created by createAction. Are used in reducer. Payload reducer is automatic.
  * 2. complex actions. Cannot be used in reducer
  *
- * @param {String}  entity        name of entity, actions are created for
- * @param {Object}  actionsMap    map of complex actions
+ * @param {String}  entity          name of entity, actions are created for
+ * @param {String}  [scope]         scope of created store (allows to use several stores of one entity)
+ * @param {Object}  actions         map of complex actions
  * Map format:
  * {
  *   complexAction: (...args, actions) => { dispatch => dispatch(actions.basicAction(...args)) },
  * }
  * Here by, createAction is called as: createAction('PERFORM_ACTION', map.PERFORM_ACTION.payload)
- * @param {Object}  creatorsMap   map of action creators
+ * @param {Object}  reducers        map of action creators
  * Map format:
  * {
  *   basicAction: (state, payload) => {state},
  * }
  * all plain actions are passed in the last argument to the wrapped complex actions
  * Reducer, respectively, is created with all plain actions
- * @param {Object}  initialState  initial state for reducer, passed as is
+ * @param {Object}  [initialState]  initial state for reducer, passed as is
  */
-export default function createStore(entity, actionsMap, creatorsMap, initialState) {
-  const creators = {};
-  const reducerActions = {};
+export default function createStore({entity, scope = '', actions, reducers, initialState = {}}) {
+  const simpleActions = {};
+  const reducersMap = {};
 
-  _.each(creatorsMap, (handler, name) => {
+  _.each(reducers, (handler, name) => {
     //create action with entity prefix and default creator
-    const action = creators[name] = createAction(getActionDescription(entity, name), payloadReducer);
+    const simpleAction = simpleActions[name] = createAction(getActionDescription(entity, scope, name), payloadReducer);
 
-    //add it to reducerActions
-    reducerActions[action] = handler;
+    //add it to reducersMap
+    reducersMap[simpleAction] = handler;
   });
 
-  const actions = {};
+  const asyncActions = {};
 
-  _.each(actionsMap, (handler, name) => {
-    actions[name] = (...args) => handler(...args, creators);
+  _.each(actions, (handler, name) => {
+    asyncActions[name] = (...args) => handler(simpleActions, ...args);
   });
 
-  return {
+  return saveStore(entity, scope, {
     actions: {
-      ...creators,
-      ...actions,
+      ...simpleActions,
+      ...asyncActions,
     },
-    reducer: createReducer(reducerActions, initialState),
-  };
+    reducer: createReducer(reducersMap, initialState),
+  });
 }

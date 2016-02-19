@@ -3,19 +3,18 @@ import React from 'react';
 import ShallowTestUtils from 'react-shallow-testutils';
 
 describe('Watchers', function () {
-  const { initialState } = importSource('modules/watchers');
-  const Watchers = requireComponent('watchers/watchers.jsx');
+  const Watchers = requireComponent('watchers/watchers.jsx').WrappedComponent;
 
   let watchers;
-  const entityType = 'order';
-  const data = {...initialState};
+  const entity = {
+    entityType: 'orders',
+    entityId: 'BR0001',
+  };
+  const data = {};
   const actions = {
     showSelectModal: _.noop,
     hideSelectModal: _.noop,
     toggleListModal: _.noop,
-    suggestWatchers: _.noop,
-    selectItem: _.noop,
-    deselectItem: _.noop,
     addWatchers: _.noop,
     removeWatcher: _.noop,
   };
@@ -29,7 +28,7 @@ describe('Watchers', function () {
 
   it('should render message when assignees are empty', function *() {
     watchers = shallowRender(
-      <Watchers entityType={entityType} data={data} actions={actions} />
+      <Watchers entity={entity} data={data} {...actions} />
     );
     const box = ShallowTestUtils.findWithClass(watchers, "fc-watchers__assignees-empty");
     expect(box).not.to.be.empty;
@@ -43,7 +42,7 @@ describe('Watchers', function () {
     ];
 
     watchers = shallowRender(
-      <Watchers entityType={entityType} data={{...data, assignees: {entries: assignees}}} actions={actions} />
+      <Watchers entity={entity} data={{...data, assignees: {entries: assignees}}} {...actions} />
     );
     const cells = ShallowTestUtils.findAllWithClass(watchers, "fc-watchers__cell");
     expect(cells).not.to.be.empty;
@@ -65,7 +64,7 @@ describe('Watchers', function () {
     ];
 
     watchers = shallowRender(
-      <Watchers entityType={entityType} data={{...data, assignees: {entries: assignees}}} actions={actions} />
+      <Watchers entity={entity} data={{...data, assignees: {entries: assignees}}} {...actions} />
     );
     const cells = ShallowTestUtils.findAllWithClass(watchers, "fc-watchers__cell");
     expect(cells).not.to.be.empty;
