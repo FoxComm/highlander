@@ -65,7 +65,8 @@ describe('Order Shipping Methods', function() {
       ],
       isEditing: false,
       isEditingPrice: false
-    }
+    },
+    isCart: true,
   };
 
   it('should render the selected shipping method in the default state', function *() {
