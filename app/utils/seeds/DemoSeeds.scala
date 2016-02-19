@@ -20,10 +20,11 @@ import utils.Money.Currency
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
+import utils.Passwords.hashPassword
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import slick.driver.PostgresDriver.api._
-import faker._;
+import faker._
 import cats.implicits._
 import utils.time
 
@@ -38,7 +39,7 @@ trait DemoSeedHelpers {
   def warehouses: Seq[Warehouse] = Seq(warehouse)
 
   def generateCustomer(name:String, email: String): Customer = 
-    Customer(email = email, password = randomString(10).some, name = name.some, 
+    Customer(email = email, password = hashPassword(randomString(10)).some, name = name.some,
       location ="Seattle,WA".some)
 
   def createShippedOrder(customerId: Customer#Id, skuIds: Seq[Sku#Id], 

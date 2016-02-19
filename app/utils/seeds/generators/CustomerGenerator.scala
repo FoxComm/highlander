@@ -3,16 +3,17 @@ package utils.seeds.generators
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.customer.Customer
+import utils.Passwords.hashPassword
 import GeneratorUtils.randomString
 
 import cats.implicits._
-import faker._;
+import faker._
 
 trait CustomerGenerator {
 
   def generateCustomer(location: String): Customer = { 
     val name = Name.name
-    Customer(email = generateEmail(name), password = randomString(10).some, 
+    Customer(email = generateEmail(name), password = hashPassword(randomString(10)).some,
       name = name.some, location = location.some)
   }
 
