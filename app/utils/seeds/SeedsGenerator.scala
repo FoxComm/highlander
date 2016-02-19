@@ -130,7 +130,7 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
       appeasementCount = Math.max(productCount / 8, Random.nextInt(productCount))
       appeasements  ← * <~ DbResultT.sequence((1 to appeasementCount).map { i ⇒ generateGiftCardAppeasement})
       giftCards  ← * <~  orderedGcs ++ appeasements
-      _ ← * <~ DbResultT.sequence(customers.map{ c ⇒ generateOrders(c.id, skus, pickOne(giftCards))})
+      _ ← * <~ DbResultT.sequence(randomSubset(customers, customers.length).map{ c ⇒ generateOrders(c.id, skus, pickOne(giftCards))})
     } yield {}
   }
 

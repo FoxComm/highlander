@@ -49,9 +49,9 @@ trait OrderGenerator extends ShipmentSeeds {
     base.bothify("????####-##")
   }
 
-  def randomSubset[T](vals: Seq[T]) : Seq[T] = {
+  def randomSubset[T](vals: Seq[T], maxSize: Int = 5) : Seq[T] = {
     require(vals.length > 0)
-    val size = Math.max(Random.nextInt(Math.min(vals.length, 5)), 1)
+    val size = Math.max(Random.nextInt(Math.min(vals.length, maxSize)), 1)
     (1 to size).map { 
       i ⇒  vals(i * Random.nextInt(vals.length) % vals.length) 
     }.distinct
@@ -64,11 +64,11 @@ trait OrderGenerator extends ShipmentSeeds {
     val cartFun = cartFunctions(cartIdx)
     for {
       _ ← * <~ cartFun(customerId, randomSubset(skus), giftCard)
-      _ ← * <~ (1 to 1 + Random.nextInt(1)).map { i ⇒ 
+      _ ← * <~ DbResultT.sequence((1 to 1 + Random.nextInt(5)).map { i ⇒ 
         val orderIdx = Random.nextInt(orderFunctions.length)
         val orderFun = orderFunctions(cartIdx)
         orderFun(customerId, randomSubset(skus), giftCard)
-      }
+      })
     } yield {}
   }
 
