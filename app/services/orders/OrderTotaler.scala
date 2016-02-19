@@ -1,6 +1,6 @@
 package services.orders
 
-import models.order.{Orders, Order}
+import models.order.{Orders, Order, OrderShippingMethods}
 import slick.driver.PostgresDriver.api._
 import scala.concurrent.ExecutionContext
 import cats.implicits._
@@ -8,6 +8,7 @@ import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
+import services.Result
 
 // TODO: Use utils.Money
 object OrderTotaler {
@@ -39,20 +40,22 @@ object OrderTotaler {
       case _ ⇒ 0
     }
 
-  def shippingTotal(order: Order)(implicit ec: ExecutionContext): DBIO[Int] =
-    DBIO.successful(0)
+  def shippingTotal(order: Order)(implicit ec: ExecutionContext, db: Database): DbResult[Int] = (for {
+    orderShippingMethods ← * <~ OrderShippingMethods.findByOrderId(order.id).result.toXor
+    sum = orderShippingMethods.foldLeft(0)(_ + _.price)
+  } yield sum).value
 
   def adjustmentsTotal(order: Order)(implicit ec: ExecutionContext): DBIO[Int] =
     DBIO.successful(0)
 
-  def totals(order: Order)(implicit ec: ExecutionContext): DBIO[Totals] = for {
-    sub   ← subTotal(order)
-    ship  ← shippingTotal(order)
-    adj   ← adjustmentsTotal(order)
-  } yield Totals.build(subTotal = sub, shipping = ship, adjustments = adj)
+  def totals(order: Order)(implicit ec: ExecutionContext, db: Database): DbResult[Totals] = (for {
+    sub   ← * <~ subTotal(order).toXor
+    ship  ← * <~ shippingTotal(order)
+    adj   ← * <~ adjustmentsTotal(order).toXor
+  } yield Totals.build(subTotal = sub, shipping = ship, adjustments = adj)).value
 
   def saveTotals(order: Order)(implicit ec: ExecutionContext, db: Database): DbResult[Order] = (for {
-    t           ← * <~ totals(order).toXor
+    t           ← * <~ totals(order)
     withTotals  = order.copy(subTotal = t.subTotal, shippingTotal = t.shipping,
       adjustmentsTotal = t.adjustments, taxesTotal = t.taxes, grandTotal = t.total)
     updated     ← * <~ Orders.update(order, withTotals)

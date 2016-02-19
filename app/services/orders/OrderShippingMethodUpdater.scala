@@ -30,7 +30,8 @@ object OrderShippingMethodUpdater {
     _               ← * <~ ShippingManager.evaluateShippingMethodForOrder(shippingMethod, order)
     _               ← * <~ Shipments.filter(_.orderId === order.id).map(_.orderShippingMethodId).update(None)
     _               ← * <~ OrderShippingMethods.findByOrderId(order.id).delete
-    orderShipMethod ← * <~ OrderShippingMethods.create(OrderShippingMethod(orderId = order.id, shippingMethodId = shippingMethod.id))
+    orderShipMethod ← * <~ OrderShippingMethods.create(
+      OrderShippingMethod(orderId = order.id, shippingMethodId = shippingMethod.id, price = shippingMethod.price))
     _               ← * <~ Shipments.filter(_.orderId === order.id).map(_.orderShippingMethodId).update(orderShipMethod.id.some)
     // update changed totals
     order           ← * <~ OrderTotaler.saveTotals(order)

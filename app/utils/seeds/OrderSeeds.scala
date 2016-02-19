@@ -10,9 +10,9 @@ import models.location.Addresses
 import models.payment.creditcard.CreditCards
 import models.payment.giftcard._
 import models.payment.storecredit._
-import models.shipping.{Shipment, Shipments}
+import models.shipping.{ShippingMethods, Shipment, Shipments}
 import models.{Note, Notes}
-import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
+import services.{ShippingMethodIsNotActive, CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT.implicits._
@@ -93,7 +93,7 @@ trait OrderSeeds {
     _     ← * <~ OrderTotaler.saveTotals(order)
   } yield order
 
-  def createOrder5(customerId: Customer#Id, skus: Seq[Sku], shipMethod: OrderShippingMethod#Id)
+  def createOrder5(customerId: Customer#Id, skus: Seq[Sku], shipMethodId: OrderShippingMethod#Id)
     (implicit db: Database): DbResultT[Order] = for {
     order ← * <~ Orders.create(Order(state = Shipped,
       customerId = customerId, placedAt = Some(time.yesterday.toInstant)))
@@ -102,7 +102,8 @@ trait OrderSeeds {
     op    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
     addr  ← * <~ getDefaultAddress(customerId)
     shipA ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
-    shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod(orderId = order.id, shippingMethodId = shipMethod))
+    meth  ← * <~ getShipMethod(shipMethodId)
+    shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(order = order, method = meth))
     _     ← * <~ OrderTotaler.saveTotals(order)
     _     ← * <~ Shipments.create(Shipment(orderId = order.id, orderShippingMethodId = shipM.id.some,
                       shippingAddressId = shipA.id.some))
@@ -134,6 +135,10 @@ trait OrderSeeds {
   private def getDefaultAddress(customerId: Customer#Id)(implicit db: Database) =
     Addresses.findAllByCustomerId(customerId).filter(_.isDefaultShipping).one
       .mustFindOr(CustomerHasNoDefaultAddress(customerId))
+
+  private def getShipMethod(shipMethodId: Int)(implicit db: Database) =
+    ShippingMethods.findActiveById(shipMethodId).one
+      .mustFindOr(ShippingMethodIsNotActive(shipMethodId))
 
   def order = Order(customerId = 0, referenceNumber = "ABCD1234-11", state = ManualHold)
 

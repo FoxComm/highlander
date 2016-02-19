@@ -18,7 +18,7 @@ import Order.{ManualHold, Cart, Shipped}
 import utils.seeds.ShipmentSeeds
 
 import utils.Money.Currency
-import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
+import services.{ShippingMethodIsNotActive, CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
@@ -118,7 +118,8 @@ trait OrderGenerator extends ShipmentSeeds {
   (implicit db: Database): DbResultT[Order] = { 
     for {
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
-      shipMethodId ← * <~ shipMethodIds(Random.nextInt(shipMethodIds.length))
+      shipMethod ← * <~ getShipMethod(Random.nextInt(shipMethodIds.length))
+      shipMethodId ← * <~ shipMethod.id
       order ← * <~ Orders.create(Order(state = Shipped,
         customerId = customerId, placedAt = Some(time.yesterday.toInstant), referenceNumber = orderReferenceNum))
       _     ← * <~ addSkusToOrder(skus.map(_.id), order.id, OrderLineItem.Shipped)
@@ -126,7 +127,7 @@ trait OrderGenerator extends ShipmentSeeds {
       op    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
       addr  ← * <~ getDefaultAddress(customerId)
       shipA ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
-      shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod(orderId = order.id, shippingMethodId = shipMethodId))
+      shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(order = order, method = shipMethod))
       _     ← * <~ OrderTotaler.saveTotals(order)
       _     ← * <~ Shipments.create(Shipment(orderId = order.id, orderShippingMethodId = shipM.id.some,
         shippingAddressId = shipA.id.some))
@@ -139,7 +140,8 @@ trait OrderGenerator extends ShipmentSeeds {
 
     for {
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
-      shipMethodId ← * <~ shipMethodIds(Random.nextInt(shipMethodIds.length))
+      shipMethod ← * <~ getShipMethod(Random.nextInt(shipMethodIds.length))
+      shipMethodId ← * <~ shipMethod.id
       order ← * <~ Orders.create(Order(state = Shipped,
         customerId = customerId, placedAt = Some(time.yesterday.toInstant), referenceNumber = orderReferenceNum))
       _  ← * <~ addSkusToOrder(skus.map(_.id), order.id, OrderLineItem.Shipped)
@@ -155,7 +157,7 @@ trait OrderGenerator extends ShipmentSeeds {
       _     ← * <~ authGiftCard(gcPayments)
       addr  ← * <~ getDefaultAddress(customerId)
       shipA ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
-      shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod(orderId = order.id, shippingMethodId = shipMethodId))
+      shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(order = order, method = shipMethod))
       _     ← * <~ OrderTotaler.saveTotals(order)
       _     ← * <~ Shipments.create(Shipment(orderId = order.id, orderShippingMethodId = shipM.id.some,
         shippingAddressId = shipA.id.some))
@@ -183,6 +185,10 @@ trait OrderGenerator extends ShipmentSeeds {
   private def getDefaultAddress(customerId: Customer#Id)(implicit db: Database) =
     Addresses.findAllByCustomerId(customerId).filter(_.isDefaultShipping).one
       .mustFindOr(CustomerHasNoDefaultAddress(customerId))
+
+  private def getShipMethod(shipMethodId: Int)(implicit db: Database) =
+    ShippingMethods.findActiveById(shipMethodId).one
+      .mustFindOr(ShippingMethodIsNotActive(shipMethodId))
 
   private def authGiftCard(results: Seq[(OrderPayment, GiftCard)]): 
   DbResultT[Seq[GiftCardAdjustment]] = 

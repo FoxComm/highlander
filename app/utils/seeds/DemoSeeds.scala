@@ -42,7 +42,7 @@ trait DemoSeedHelpers {
       location ="Seattle,WA".some)
 
   def createShippedOrder(customerId: Customer#Id, skuIds: Seq[Sku#Id], 
-    shipMethod: ShippingMethod#Id)(implicit db: Database): DbResultT[Order] = for {
+    shipMethod: ShippingMethod)(implicit db: Database): DbResultT[Order] = for {
     order ← * <~ Orders.create(Order(state = Shipped,
       customerId = customerId, placedAt = time.yesterday.toInstant.some))
     _     ← * <~ addSkusToOrder(skuIds, order.id, OrderLineItem.Shipped)
@@ -50,7 +50,7 @@ trait DemoSeedHelpers {
     op    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
     addr  ← * <~ getDefaultAddress(customerId)
     shipA ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
-    shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod(orderId = order.id, shippingMethodId = shipMethod))
+    shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(order = order, method = shipMethod))
     _     ← * <~ OrderTotaler.saveTotals(order)
     _     ← * <~ Shipments.create(Shipment(orderId = order.id, orderShippingMethodId = shipM.id.some,
                       shippingAddressId = shipA.id.some))
@@ -160,7 +160,7 @@ trait DemoScenario3 extends DemoSeedHelpers {
     customerIds ← * <~ Customers.createAllReturningIds(customers3)
     addressIds ← * <~ createAddresses(customerIds, address3)
     skuIds ← * <~ Skus.createAllReturningIds(skus3)
-    orders ← * <~ customerIds.map { id ⇒ createShippedOrder(id, skuIds, shippingMethod.id)}
+    orders ← * <~ customerIds.map { id ⇒ createShippedOrder(id, skuIds, shippingMethod)}
   } yield {}
 }
 
