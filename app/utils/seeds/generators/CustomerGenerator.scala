@@ -19,7 +19,7 @@ trait CustomerGenerator {
   def generateCustomer(location: String): Customer = { 
     val name = Name.name
     Customer(email = generateEmail(name), password = randomString(10).some, 
-      name = name.some, location=location.some)
+      name = name.some, location = location.some)
   }
 
   def generateCustomers(total: Int, location: String) : Seq[Customer] =
