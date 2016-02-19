@@ -30,9 +30,10 @@ final case class StoreAdmin(id: Int = 0, email: String, hashedPassword: String, 
 }
 
 object StoreAdmin {
-  def build(email: String, password: String, name: String, department: Option[String] = None): StoreAdmin = {
+  def build(id: Int = 0, email: String, password: String, name: String,
+    department: Option[String] = None): StoreAdmin = {
     val passwordHash = hashPassword(password)
-    StoreAdmin(id = 0, email = email, hashedPassword = passwordHash, name = name, department = department)
+    StoreAdmin(id = id, email = email, hashedPassword = passwordHash, name = name, department = department)
   }
 }
 

@@ -6,14 +6,13 @@ import akka.http.scaladsl.server.directives.SecurityDirectives.challengeFor
 import models.StoreAdmin
 import models.customer.Customer
 import util.IntegrationTestBase
-import utils.Passwords.hashPassword
 
 import services.Authenticator.AsyncAuthenticator
 
 class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase
   with HttpSupport {
 
-  val authedStoreAdmin = StoreAdmin(id = 1, email = "donkey@donkey.com", password = hashPassword("donkeyPass"),
+  val authedStoreAdmin = StoreAdmin.build(id = 1, email = "donkey@donkey.com", password = "donkeyPass",
     name = "Mister Donkey")
 
   override def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] = (UserCredentials) ⇒ {
@@ -35,7 +34,7 @@ class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase
 class RoutesCustomerOnlyIntegrationTest extends IntegrationTestBase
   with HttpSupport {
 
-  val authedCustomer = Customer(id = 1, email = "donkey@donkey.com", password = Some(hashPassword("donkeyPass")),
+  val authedCustomer = Customer.build(id = 1, email = "donkey@donkey.com", password = Some("donkeyPass"),
     name = Some("Mister Donkey"))
 
   val uriPrefix = "v1/my"

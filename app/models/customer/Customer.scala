@@ -55,12 +55,12 @@ object Customer {
       isGuest = payload.isGuest.getOrElse(false))
   }
 
-  def build(email: String, name: Option[String] = None, isGuest: Boolean = false, password: Option[String] = None,
-    phoneNumber: Option[String] = None, modality: Option[String] = None, location: Option[String] = None,
-    isDisabled: Boolean = false): Customer = {
+  def build(id: Int = 0, email: String, name: Option[String] = None, isGuest: Boolean = false,
+    password: Option[String] = None, phoneNumber: Option[String] = None, modality: Option[String] = None,
+    location: Option[String] = None, isDisabled: Boolean = false): Customer = {
 
     val optHash = password.map(hashPassword)
-    Customer(id = 0, name = name, email = email, hashedPassword = optHash, isGuest = isGuest,
+    Customer(id = id, name = name, email = email, hashedPassword = optHash, isGuest = isGuest,
       phoneNumber = phoneNumber, modality = modality, location = location, isDisabled = isDisabled)
   }
 }
