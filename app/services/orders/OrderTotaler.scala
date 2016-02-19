@@ -1,6 +1,6 @@
 package services.orders
 
-import models.order.{Orders, Order}
+import models.order.{Orders, Order, OrderShippingMethods}
 import slick.driver.PostgresDriver.api._
 import scala.concurrent.ExecutionContext
 import cats.implicits._
@@ -41,7 +41,7 @@ object OrderTotaler {
     }
 
   def shippingTotal(order: Order)(implicit ec: ExecutionContext, db: Database): DbResult[Int] = (for {
-    orderShippingMethods ← * <~ models.order.OrderShippingMethods.findByOrderId(order.id).result.toXor
+    orderShippingMethods ← * <~ OrderShippingMethods.findByOrderId(order.id).result.toXor
     sum = orderShippingMethods.foldLeft(0)(_ + _.price)
   } yield sum).value
 
