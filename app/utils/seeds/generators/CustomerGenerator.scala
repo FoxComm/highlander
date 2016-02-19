@@ -22,6 +22,6 @@ trait CustomerGenerator {
   private def generateEmail(name: String) : String = {
     val base = new Base{}
     val num = base.bothify("??##")
-    Internet.user_name(name) + num  + "@" + Internet.domain_name
+    Internet.user_name(name) + num + "@" + Internet.domain_name
   }
 }
