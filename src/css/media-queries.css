@@ -1,5 +1,5 @@
 
-@custom-media --x-large-viewport (min-width: 1441px);
-@custom-media --large-viewport (width >= 1280px) and (width <= 1440px);
-@custom-media --medium-viewport (width > 767px) and (width <= 1279px);
-@custom-media --small-viewport (max-width: 767px);
+@custom-media --x-large-viewport (min-device-width: 1441px), (min-width: 1441px);
+@custom-media --large-viewport (device-width >= 1280px) and (device-width <= 1440px), (width >= 1280px) and (width <= 1440px);
+@custom-media --medium-viewport (device-width > 767px) and (device-width <= 1279px), (width > 767px) and (width <= 1279px);
+@custom-media --small-viewport (max-device-width: 767px), (max-width: 767px);

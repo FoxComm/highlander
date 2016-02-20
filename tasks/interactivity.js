@@ -1,0 +1,39 @@
+const gulp = require('gulp');
+const runSequence = require('run-sequence');
+const chalk = require('chalk');
+
+function listen(cb) {
+  process.stdin.setEncoding('utf8');
+  process.stdin.setRawMode(true);
+
+  console.log(`Press ${chalk.white.bold('j')} to re-run ${chalk.green('browserify')} task.`);
+  console.log(`Press ${chalk.white.bold('c')} to re-run ${chalk.green('css')} task.`);
+
+  process.stdin.on('data', function(chunk) {
+    switch (chunk) {
+      case 'j':
+        runSequence('browserify.purge_cache', 'browserify');
+        break;
+      case 'c':
+        runSequence('css');
+        break;
+      case '\r':
+        process.stdout.write('\n');
+        break;
+      case '\u0003':
+        process.stdout.write('^C\n');
+        process.exit();
+        break;
+      case 'q':
+        process.exit();
+        break;
+      default:
+        process.stdout.write(chunk);
+
+    }
+  });
+
+  cb();
+}
+
+gulp.task('interactivity', listen);

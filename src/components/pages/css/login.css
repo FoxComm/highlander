@@ -3,8 +3,26 @@
 @import "media-queries.css";
 
 .login-block {
-  lost-center: 455px;
-  margin: 0 auto;
+  lost-column: 3/11;
+  lost-offset: -4/11;
+
+  & > * {
+    width: 100%;
+  }
+}
+
+@media (--small-viewport) {
+  .login-block {
+    lost-column: 1/1;
+    lost-offset: 0;
+  }
+}
+
+@media (--medium-viewport) {
+  .login-block {
+    lost-column: 5/11;
+    lost-offset: -3/11;
+  }
 }
 
 .form-field {
@@ -12,6 +30,12 @@
   margin-bottom: 15px;
 
   & > input {
+    width: 100%;
+  }
+}
+
+.form {
+  & > * {
     width: 100%;
   }
 }

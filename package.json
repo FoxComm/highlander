@@ -27,6 +27,7 @@
     "babel-runtime": "^6.5.0",
     "babelify": "^7.2.0",
     "browserify": "^13.0.0",
+    "chalk": "^1.1.1",
     "css-modulesify": "^0.17.1",
     "dot": "^1.0.3",
     "eslint": "^1.10.3",

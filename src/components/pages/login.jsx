@@ -40,7 +40,7 @@ export default class Login extends React.Component {
         <div styleName="title">LOG IN</div>
         <Button icon="fc-google" styleName="google-login">LOG IN WITH GOOGLE</Button>
         <WrapToLines>or</WrapToLines>
-        <Form>
+        <Form styleName="form">
           <FormField styleName="form-field">
             <TextInput placeholder="EMAIL" value={email} onChange={this.onChangeEmail} />
           </FormField>

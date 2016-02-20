@@ -19,15 +19,13 @@ module.exports = function(gulp, $, opts) {
   function getBundler() {
     if (bundler) return bundler;
 
-    bundler = browserify({
+    bundler = browserify(Object.assign({
       entries: ['src/client.jsx'],
       transform: ['babelify'],
       standalone: 'App',
       extensions: ['.jsx'],
       debug: !production,
-      cache: {},
-      packageCache: {},
-    });
+    }, watchify.args));
     bundler.plugin(require('css-modulesify'), {
       output: path.resolve('build/bundle.css'),
       use: plugins,
@@ -55,6 +53,14 @@ module.exports = function(gulp, $, opts) {
 
     return bundler;
   }
+
+  gulp.task('browserify.purge_cache', function() {
+    const cache = watchify.args.cache;
+
+    Object.keys(cache).map(key => {
+      delete cache[key];
+    });
+  });
 
   gulp.task('browserify', function() {
     const stream = getBundler()
