@@ -7,6 +7,7 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
 import payloads._
 import services.{CustomerCreditConverter, GiftCardAdjustmentsService, GiftCardService}
+import services.Authenticator.{AsyncAuthenticator, requireAdminAuth}
 import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.CustomDirectives._
@@ -19,7 +20,7 @@ object GiftCardRoutes {
   def routes(implicit ec: ExecutionContext, db: Database,
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
-    authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
+    requireAdminAuth(storeAdminAuth) { admin ⇒
       activityContext(admin) { implicit ac ⇒
         pathPrefix("gift-cards") {
           (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒

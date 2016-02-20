@@ -14,6 +14,7 @@ import models.customer.Customer
 import org.json4s.jackson.Serialization
 import org.json4s.{Formats, jackson}
 import services.Authenticator
+import services.Authenticator.AsyncAuthenticator
 import services.actors._
 import slick.driver.PostgresDriver.api._
 import utils.{Apis, CustomHandlers, WiredStripeApi}
@@ -55,9 +56,8 @@ class Service(
   implicit val db:   Database = dbOverride.getOrElse(Database.forConfig("db", config))
   implicit val apis: Apis     = apisOverride.getOrElse(Apis(new WiredStripeApi))
 
-  implicit def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.storeAdmin
-
-  implicit def customerAuth: AsyncAuthenticator[Customer] = Authenticator.customer
+  implicit val storeAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.storeAdmin
+  implicit val customerAuth: AsyncAuthenticator[Customer] = Authenticator.customer
 
   val defaultRoutes = {
     pathPrefix("v1") {

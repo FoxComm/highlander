@@ -14,18 +14,19 @@ import utils.ModelWithIdParameter
 import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
+import cats.implicits._
 import Seeds.Factories
 
 import slick.driver.PostgresDriver.api._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
-import faker.Faker;
+import faker.Faker
 import org.json4s.JObject
 
 object RankingSeedsGenerator {
   def fakeJson = JObject()
 
-  def generateCustomer: Customer = Customer(email = s"${randomString(10)}@email.com",
+  def generateCustomer: Customer = Customer.build(email = s"${randomString(10)}@email.com",
     password = Some(randomString(10)), name = Some(randomString(10)))
 
   def generateOrder(state: Order.State, customerId: Int): Order = {
@@ -61,7 +62,7 @@ object RankingSeedsGenerator {
 
     val insertCustomers = Customers.createAll((1 to customersCount).map { i ⇒
       val s = randomString(15)
-      Customer(name = Some(s), email = s"$s-$i@email.com", password = Some(s), location = Some(location))
+      Customer.build(name = s.some, email = s"$s-$i@email.com", password = s.some, location = location.some)
     })
 
     val insertOrders = Customers.filter(_.location === location).result.flatMap { customers ⇒

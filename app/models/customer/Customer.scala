@@ -20,7 +20,7 @@ import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
 
-final case class Customer(id: Int = 0, email: String, password: Option[String] = None,
+final case class Customer(id: Int = 0, email: String, hashedPassword: Option[String] = None,
   name: Option[String] = None, isDisabled: Boolean = false, disabledBy: Option[Int] = None,
   isBlacklisted: Boolean = false, blacklistedBy: Option[Int] = None,
   phoneNumber: Option[String] = None, location: Option[String] = None,
@@ -51,9 +51,17 @@ object Customer {
     Customer(isGuest = true, email = email)
 
   def buildFromPayload(payload: CreateCustomerPayload): Customer = {
-    val hash = payload.password.map(hashPassword(_))
-    Customer(id = 0, email = payload.email, password = hash, name = payload.name,
+    build(email = payload.email, password = payload.password, name = payload.name,
       isGuest = payload.isGuest.getOrElse(false))
+  }
+
+  def build(id: Int = 0, email: String, name: Option[String] = None, isGuest: Boolean = false,
+    password: Option[String] = None, phoneNumber: Option[String] = None, modality: Option[String] = None,
+    location: Option[String] = None, isDisabled: Boolean = false): Customer = {
+
+    val optHash = password.map(hashPassword)
+    Customer(id = id, name = name, email = email, hashedPassword = optHash, isGuest = isGuest,
+      phoneNumber = phoneNumber, modality = modality, location = location, isDisabled = isDisabled)
   }
 }
 
@@ -65,7 +73,7 @@ class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") {
   def blacklistedBy = column[Option[Int]]("blacklisted_by")
   def blacklistedReason = column[Option[String]]("blacklisted_reason")
   def email = column[String]("email")
-  def password = column[Option[String]]("hashed_password")
+  def hashedPassword = column[Option[String]]("hashed_password")
   def name = column[Option[String]]("name")
   def phoneNumber = column[Option[String]]("phone_number")
   def location = column[Option[String]]("location")
@@ -73,7 +81,7 @@ class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") {
   def isGuest = column[Boolean]("is_guest")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, email, password, name,
+  def * = (id, email, hashedPassword, name,
     isDisabled, disabledBy, isBlacklisted, blacklistedBy, phoneNumber,
     location, modality, isGuest, createdAt) <>((Customer.apply _).tupled, Customer.unapply)
 }

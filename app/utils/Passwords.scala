@@ -1,5 +1,6 @@
 package utils
 
+import scala.util.Try
 import com.lambdaworks.crypto.SCryptUtil
 
 object Passwords {
@@ -8,6 +9,6 @@ object Passwords {
   }
 
   def checkPassword(password: String, hash: String): Boolean = {
-    SCryptUtil.check(password, hash)
+    Try { SCryptUtil.check(password, hash) }.getOrElse(false)
   }
 }

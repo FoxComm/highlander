@@ -23,7 +23,7 @@ import utils.Slick.implicits._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import slick.driver.PostgresDriver.api._
-import faker._;
+import faker._
 import cats.implicits._
 import utils.time
 
@@ -37,9 +37,9 @@ trait DemoSeedHelpers {
   def warehouse: Warehouse = Warehouse.buildDefault()
   def warehouses: Seq[Warehouse] = Seq(warehouse)
 
-  def generateCustomer(name:String, email: String): Customer = 
-    Customer(email = email, password = randomString(10).some, name = name.some, 
-      location ="Seattle,WA".some)
+  def generateCustomer(name: String, email: String): Customer =
+    Customer.build(email = email, password = randomString(10).some, name = name.some,
+      location = "Seattle,WA".some)
 
   def createShippedOrder(customerId: Customer#Id, skuIds: Seq[Sku#Id], 
     shipMethod: ShippingMethod)(implicit db: Database): DbResultT[Order] = for {
