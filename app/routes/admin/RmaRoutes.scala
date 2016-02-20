@@ -9,18 +9,20 @@ import models.StoreAdmin
 import payloads.{RmaAssigneesPayload, RmaBulkAssigneesPayload, RmaCreatePayload, RmaGiftCardLineItemsPayload,
 RmaMessageToCustomerPayload, RmaPaymentPayload, RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload, RmaUpdateStatePayload}
 import services.rmas._
-import services.Authenticator.{AsyncAuthenticator, requireAdminAuth}
+import services.Authenticator.{AsyncAuthenticator}
 import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._
 import utils.aliases._
+import models.auth.Session.requireAdminAuth
+
 
 object RmaRoutes {
 
   def routes(implicit ec: EC, db: DB, mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
-      requireAdminAuth(storeAdminAuth) { admin ⇒
+      requireAdminAuth { admin ⇒
         activityContext(admin) { implicit ac ⇒
           determineProductContext(db, ec) { productContext ⇒ 
 

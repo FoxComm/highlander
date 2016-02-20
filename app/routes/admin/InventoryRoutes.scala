@@ -5,16 +5,18 @@ import akka.stream.Materializer
 
 import models.StoreAdmin
 import services.InventoryManager
-import services.Authenticator.{AsyncAuthenticator, requireAdminAuth}
+import services.Authenticator.{AsyncAuthenticator}
 import utils.Apis
 import utils.CustomDirectives._
 import utils.aliases._
+
+import models.auth.Session.requireAdminAuth
 
 object InventoryRoutes {
 
   def routes(implicit ec: EC, db: DB, mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
-    requireAdminAuth(storeAdminAuth) { admin ⇒
+    requireAdminAuth { admin ⇒
       activityContext(admin) { implicit ac ⇒
         determineProductContext(db, ec) { productContext ⇒ 
 

@@ -104,6 +104,9 @@ lazy val phoenixScala = (project in file(".")).
         "com.typesafe.akka"          %% "akka-stream"            % akkaV,
         "com.typesafe.akka"          %% "akka-http-core"         % akkaV,
         "de.heikoseeberger"          %% "akka-sse"               % "1.6.3",
+        // Auth
+        "com.softwaremill.akka-http-session" %% "core"           % "0.2.3",
+        "com.softwaremill.akka-http-session" %% "jwt"            % "0.2.3",
         // JSON
         "org.json4s"                 %% "json4s-core"            % json4sV,
         "org.json4s"                 %% "json4s-jackson"         % json4sV,

@@ -6,6 +6,7 @@ import utils.Validation
 import Validation._
 import utils.Litterbox._
 import cats.implicits._
+import utils.Passwords.checkPassword
 
 final case class CreateCustomerPayload(email: String,
   name: Option[String] = None,

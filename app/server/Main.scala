@@ -61,6 +61,7 @@ class Service(
 
   val defaultRoutes = {
     pathPrefix("v1") {
+      logRequestResult("auth-routes")(routes.AuthRoutes.routes) ~
       logRequestResult("admin-routes")(routes.admin.Admin.routes) ~
       logRequestResult("admin-order-routes")(routes.admin.OrderRoutes.routes) ~
       logRequestResult("admin-customer-routes")(routes.admin.CustomerRoutes.routes) ~

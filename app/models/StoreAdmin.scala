@@ -13,10 +13,18 @@ import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.aliases._
 
+trait BaseStoreAdmin {
+  val id: Int
+  val name: String
+  val department: Option[String]
+  val email: String
+}
+
 final case class StoreAdmin(id: Int = 0, email: String, hashedPassword: Option[String], name: String,
   department: Option[String] = None)
   extends ModelWithIdParameter[StoreAdmin]
-  with Validation[StoreAdmin] {
+  with Validation[StoreAdmin]
+  with BaseStoreAdmin {
 
   import Validation._
 

@@ -1,6 +1,6 @@
 package responses
 
-import models.StoreAdmin
+import models.{BaseStoreAdmin ⇒ StoreAdmin}
 
 object StoreAdminResponse {
   final case class Root(
