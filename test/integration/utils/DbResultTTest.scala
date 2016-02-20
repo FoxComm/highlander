@@ -28,7 +28,7 @@ class DbResultTTest
       "succeeds when everything is Xor.Right" in {
         val transformer = for {
           a ← DbResultT.fromXor(Xor.right(Factories.order))
-          b ← DbResultT.rightLift(Factories.customer)
+          b ← DbResultT.rightLift(Factories.rma)
           c ← DbResultT.rightLift(Factories.address)
         } yield c
 
