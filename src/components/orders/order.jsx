@@ -19,6 +19,7 @@ import { PageTitle } from '../section-title';
 import SubNav from './sub-nav';
 import State, { states } from '../common/state';
 import ConfirmationDialog from '../modal/confirmation-dialog';
+import WaitAnimation from '../common/wait-animation';
 
 // redux
 import * as orderActions from '../../modules/orders/details';
@@ -197,7 +198,10 @@ export default class Order extends React.Component {
     const order = this.order;
     const className = classNames('fc-order', {'fc-cart': order.isCart});
 
-    if (_.isEmpty(order)) {
+    if (this.props.order.isFetching) {
+      return <div className={className}><WaitAnimation /></div>;
+    }
+    else if (_.isEmpty(order)) {
       return <div className={className}></div>;
     }
 
