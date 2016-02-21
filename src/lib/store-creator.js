@@ -2,9 +2,6 @@
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 
-// helpers
-import { toConstName } from '../lib/text-utils';
-
 
 //created stores storage
 const STORES = {};
@@ -25,7 +22,7 @@ export function getStore(entity, scope) {
 
 
 function getActionDescription(entity, scope, name) {
-  return toConstName(`${entity}_${scope}_${name}`);
+  return _.snakeCase(`${entity}_${scope}_${name}`).toUpperCase();
 }
 
 function payloadReducer(...args) {

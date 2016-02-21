@@ -29,8 +29,8 @@ const mapDispatchToProps = dispatch => {
 export default class BulkActions extends React.Component {
   static propTypes = {
     module: PropTypes.string.isRequired,
+    entity: PropTypes.string.isRequired,
     actions: PropTypes.arrayOf(PropTypes.array).isRequired,
-    entityForms: PropTypes.arrayOf(PropTypes.string).isRequired,
     renderDetail: PropTypes.func.isRequired,
     bulk: PropTypes.shape({
       successes: PropTypes.object,
@@ -49,7 +49,7 @@ export default class BulkActions extends React.Component {
   };
 
   get bulkMessages() {
-    const {entityForms, renderDetail} = this.props;
+    const {entity, renderDetail} = this.props;
     const {successes, errors, messages} = this.props.bulk;
     const {clearSuccesses, clearErrors} = this.props.bulkActions;
 
@@ -58,7 +58,7 @@ export default class BulkActions extends React.Component {
     if (successes) {
       notifications.push(
         <SuccessNotification key="successes"
-                             entityForms={entityForms}
+                             entity={entity}
                              overviewMessage={messages.success}
                              onHide={clearSuccesses}>
           {_.map(successes, renderDetail)}
@@ -69,7 +69,7 @@ export default class BulkActions extends React.Component {
     if (errors) {
       notifications.push(
         <ErrorNotification key="errors"
-                           entityForms={entityForms}
+                           entity={entity}
                            overviewMessage={messages.error}
                            onHide={clearErrors}>
           {_.map(errors, renderDetail)}
@@ -82,7 +82,7 @@ export default class BulkActions extends React.Component {
 
   @autobind
   getActionWrapper([label, handler, successMessage, errorMessage]) {
-    const {entityForms} = this.props;
+    const {entity} = this.props;
 
     const setState = this.setState.bind(this);
 
@@ -101,7 +101,7 @@ export default class BulkActions extends React.Component {
         //modal's valuable props are provided and onCancel/onConfirm are wrapped
         const modal = React.cloneElement(result, {
           isVisible: true,
-          entityForms,
+          entity,
           onCancel: this.getModalCancelHandler(result.props.onCancel),
           onConfirm: this.getModalConfirmHandler(result.props.onConfirm, {
             success: successMessage,

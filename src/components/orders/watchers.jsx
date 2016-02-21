@@ -3,21 +3,21 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { singularize } from 'fleck';
 
 // data
 import { actions } from '../../modules/orders/watchers';
-import { groups, entityForms } from '../../paragons/watcher';
+import { groups } from '../../paragons/watcher';
 
 // components
 import Watchers from '../watchers/watchers';
 
-//helpers
-import { getSingularForm } from '../../lib/text-utils';
-
 
 function getGroupData(group, watchers, order) {
+  const entityForm = singularize(group);
+
   return {
-    entries: order[group].map(user => user[getSingularForm(entityForms[group])]),
+    entries: order[group].map(user => user[entityForm]),
     listModalDisplayed: _.get(watchers, [order.referenceNumber, group, 'listModalDisplayed'], false),
   };
 }

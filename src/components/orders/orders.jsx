@@ -117,7 +117,7 @@ export default class Orders extends React.Component {
       <BulkActions
         module="orders"
         actions={this.bulkActions}
-        entityForms={['order', 'orders']}
+        entity="order"
         renderDetail={(messages, referenceNumber) => (
           <span key={referenceNumber}>
             Order <Link to="order-details" params={{order: referenceNumber}}>{referenceNumber}</Link>
