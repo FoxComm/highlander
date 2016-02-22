@@ -83,24 +83,24 @@ export default class MultiSelectTable extends React.Component {
   }
 
   get checkboxHead() {
+    const {total} = this.props.data;
     const {None, Some, All} = selectionState;
-    if (!this.props.data.total) {
+    if (!total) {
       return (
         <MultiSelectHead pageChecked={None} disabled={true} />
       );
     }
 
-    const currentPageIds = this.currentPageIds;
     const {allChecked, toggledIds} = this.state;
-    const checkedCount = toggledIds.filter(key => currentPageIds.includes(key)).length;
+    const toggled = toggledIds.length;
 
     let pageChecked;
-    if (checkedCount === currentPageIds.length) {
-      pageChecked = allChecked ? None : All;
-    } else if (checkedCount > 0) {
+    if ((allChecked && !toggled) || (!allChecked && toggled === total)) {
+      pageChecked = All;
+    } else if (toggled) {
       pageChecked = Some;
     } else {
-      pageChecked = allChecked ? All : None;
+      pageChecked = None;
     }
 
     return (
