@@ -18,8 +18,7 @@ const InventoryListRow = (props, context) => {
   const { sku, columns, params } = props;
   const key = `inventory-list-${sku.id}`;
   const clickAction = () => {
-    console.log('Not implemented yet.');
-    //transitionTo(context.history, 'giftcard', { giftCard: giftCard.code });
+    transitionTo(context.history, 'inventory-item-details', { sku: sku.code });
   };
 
   return (

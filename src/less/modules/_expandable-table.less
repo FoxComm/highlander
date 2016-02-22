@@ -1,0 +1,59 @@
+.fc-expandable-table {
+  border: none;
+
+  &.fc-table tbody tr {
+    border: 1px solid @color-decor9;
+  }
+
+  &.fc-table thead th:last-child {
+    border-right: 1px solid @color-decor9;
+  }
+
+  &__drawer {
+    &._shown {
+      display: table-row;
+    }
+
+    &._hidden {
+      display: none;
+    }
+  }
+
+  .fc-table tbody td&__drawer-cell {
+    background: none;
+    padding: 0;
+    .padding-left(20px);
+    border: none;
+    border-top: 1px solid @color-decor9;
+  }
+
+  .fc-table tbody tr&__drawer {
+    background: none;
+    padding: 0;
+    border: none;
+    border-top: 1px solid @color-decor9;
+  }
+
+  &__parent-row._drawer-open {
+    box-shadow: 0px 2px 3px 1px @color-decor43;
+  }
+}
+
+// Children element default styles
+.fc-expandable-table__drawer {
+  .fc-table thead th {
+    background: @color-decor60;
+    border: 1px solid @color-decor9;
+  }
+
+  .fc-table tbody tr.even, .fc-table tbody tr:nth-child(2n) {
+    background: @color-decor60;
+    border: 1px solid @color-decor9;
+  }
+
+  .fc-table tbody tr.odd, .fc-table tbody tr:nth-child(2n+1) {
+    background: @color-decor61;
+    border: 1px solid @color-decor9;
+  }
+}
+

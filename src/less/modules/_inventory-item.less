@@ -1,0 +1,38 @@
+.fc-inventory-item {
+  background: @color-white;
+
+  &__summary {
+    background: @color-decor0;
+    overflow: hidden;
+  }
+}
+
+.fc-inventory-item-details {
+  &__summary {
+    background: @color-decor0;
+  }
+
+  &__tab-link {
+    width: 100%;
+    height: 100%;
+    .margin-right(20px);
+    .padding-top(20px);
+    .font-spec(14px, @normal, 14px);
+    color: @color-decor1;
+  }
+
+  &__warehouses-table {
+    .margin-top(40px);
+    .margin-bottom(60px);
+
+    tbody tr {
+      .height(84px);
+    }
+  }
+
+  &__warehouse-details-table {
+    thead tr {
+      .height(62px);
+    }
+  }
+}
