@@ -4,6 +4,7 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { haveType } from '../../modules/state-helpers';
 import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
 
 // components
 import { SectionTitle } from '../section-title';
@@ -31,6 +32,14 @@ export default class InventoryItemDetails extends React.Component {
     this.props.fetchSummary(this.props.params.sku);
   }
 
+  componentWillReceiveProps(nextProps) {
+    const warehouses = _.get(nextProps, ['tableState', 'summary', 'results', 'rows'], []);
+    _.each(warehouses, (wh) => {
+      console.log(wh.id);
+      this.props.fetchDetails(this.props.params.sku, wh.id);
+    });
+  }
+
   get tableColumns() {
     return [
       {field: 'name', text: 'Warehouse'},
@@ -55,15 +64,30 @@ export default class InventoryItemDetails extends React.Component {
     ];
   }
 
+  @autobind
   renderRow(row, index, columns, params) {
     const key = `inventory-warehouse-row-${row.id}`;
-    return <InventoryWarehouseRow warehouse={row} columns={columns} params={params} />;
+    return (
+      <InventoryWarehouseRow
+        warehouse={row}
+        columns={columns}
+        params={params}
+        fetchDetails={(warehouseId) => this.props.fetchDetails(this.props.params.sku)} />
+    );
+  }
+
+  get summaryData() {
+    return _.get(this.props, ['tableState', 'summary', 'results'], {});
+  }
+
+  get drawerData() {
+    return warehouseId => _.get(this.props, ['tableState', warehouseId, 'results'], {});
   }
 
   render() {
     console.log(this.props.tableState);
     const params = {
-      drawerData: this.mockedDrawerData,
+      drawerData: this.drawerData,
       drawerColumns: this.drawerColumns,
     };
     return (
@@ -95,7 +119,7 @@ export default class InventoryItemDetails extends React.Component {
           <div className="fc-col-md-1-1">
             <ExpandableTable
               columns={this.tableColumns}
-              data={_.get(this.props, ['tableState', 'summary', 'results'], {})}
+              data={this.summaryData}
               renderRow={this.renderRow}
               params={params}
               entity={haveType(this.props.params, 'inventoryItem')}

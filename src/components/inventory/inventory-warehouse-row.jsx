@@ -18,31 +18,40 @@ const setDrawerContent = (row, params) => {
       <Table
         className="fc-inventory-item-details__warehouse-details-table"
         columns={params.drawerColumns}
-        data={params.drawerData} />
+        data={params.drawerData(row.id)} />
     </div>
   );
 };
 
-const InventoryWarehouseRow = props => {
-  const { warehouse, columns, params } = props;
-  const key = `inventory-list-${warehouse.id}`;
+class InventoryWarehouseRow extends React.Component {
 
-  return (
-    <ExpandableRow
-      cellKeyPrefix={key}
-      columns={columns}
-      onClick={_.noop}
-      row={warehouse}
-      params={params}
-      setCellContents={setCellContents}
-      setDrawerContent={setDrawerContent} />
-  );
+  // componentDidMount() {
+  //   this.props.fetchDetails(this.props.warehouse.id);
+  // }
+
+  render() {
+    const { warehouse, columns, params } = this.props;
+    const key = `inventory-list-${warehouse.id}`;
+
+    return (
+      <ExpandableRow
+        key={key}
+        cellKeyPrefix={key}
+        columns={columns}
+        onClick={_.noop}
+        row={warehouse}
+        params={params}
+        setCellContents={setCellContents}
+        setDrawerContent={setDrawerContent} />
+    );
+  }
 };
 
 InventoryWarehouseRow.propTypes = {
   warehouse: PropTypes.object.isRequired,
-  columns: PropTypes.array,
-  params: PropTypes.object,
+  columns: PropTypes.array.isRequired,
+  params: PropTypes.object.isRequired,
+  fetchDetails: PropTypes.func.isRequired,
 };
 
 export default InventoryWarehouseRow;

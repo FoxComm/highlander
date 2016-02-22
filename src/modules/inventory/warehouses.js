@@ -21,6 +21,7 @@ export function fetchSummary(skuCode) {
 }
 
 export function fetchDetails(skuCode, warehouseId) {
+  console.log(warehouseId);
   return dispatch => {
     dispatch(warehousesFetchDetailsStart(skuCode));
     Api.get(`/inventory/skus/${skuCode}/${warehouseId}`).then(

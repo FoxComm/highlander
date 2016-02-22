@@ -14,11 +14,11 @@ const Drawer = props => {
   });
 
   return (
-    <TableRow className={drawerClass}>
-      <td className="fc-expandable-table__drawer-cell" colSpan={props.colspan}>
+    <td className={drawerClass}>
+      <div className="fc-expandable-table__drawer-cell" colSpan={props.colspan}>
         {props.children}
-      </td>
-    </TableRow>
+      </div>
+    </td>
   );
 };
 
