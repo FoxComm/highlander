@@ -31,6 +31,7 @@ export default class OrderShippingAddress extends Component {
     if (this.state.isEditing) {
       return (
         <ChooseShippingAddress
+          customerId={this.props.order.customer.id}
           selectedAddress={this.props.order.shippingAddress} />
       );
     } else {

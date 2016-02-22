@@ -1,8 +1,8 @@
-
-import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import AddressBox from './address-box';
+import _ from 'lodash';
 import { connect } from 'react-redux';
+
+import AddressBox from './address-box';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 
 /**
