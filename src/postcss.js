@@ -36,7 +36,11 @@ const plugins = [
   require('postcss-modules-scope')({
     generateScopedName,
   }),
-  'postcss-cssnext', // why string is here ? see https://github.com/css-modules/css-modulesify/pull/85
+  require('postcss-cssnext')({
+    features: {
+      customProperties: false,
+    },
+  }),
 ];
 
 exports.installHook = function() {

@@ -44,7 +44,7 @@ export default class Login extends React.Component {
         <WrapToLines styleName="divider">or</WrapToLines>
         <Form styleName="form">
           <FormField styleName="form-field">
-            <TextInput placeholder="EMAIL" value={email} onChange={this.onChangeEmail} />
+            <TextInput placeholder="EMAIL" value={email} type="email" onChange={this.onChangeEmail} />
           </FormField>
           <FormField styleName="form-field">
             <TextInput placeholder="PASSWORD" value={password} onChange={this.onChangePassword} type="password" />
