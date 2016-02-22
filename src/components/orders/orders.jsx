@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import { stateTitles } from '../../paragons/order';
 import { groups } from '../../paragons/watcher';
 import { actions } from '../../modules/orders/list';
-import * as bulkActions from '../../modules/orders/bulk';
+import { actions as bulkActions } from '../../modules/orders/bulk';
 
 // helpers
 import { numberize } from '../../lib/text-utils';

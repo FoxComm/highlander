@@ -5,9 +5,10 @@ import { createAction, createReducer } from 'redux-act';
 // helpers
 import Api from '../../lib/api';
 import { singularize } from 'fleck';
+import createStore from '../../lib/store-creator';
 
 // data
-import reducer, { bulkRequest, bulkDone } from '../bulk';
+import { initialState, reducers } from '../bulk';
 
 // TODO remove when https://github.com/FoxComm/phoenix-scala/issues/763 closed
 const parseErrors = (errors) => {
@@ -30,9 +31,9 @@ const getSuccesses = (referenceNumbers, errors = {}) => {
     }, {});
 };
 
-export function cancelOrders(referenceNumbers, reasonId) {
-  return dispatch => {
-    dispatch(bulkRequest());
+const cancelOrders = (actions, referenceNumbers, reasonId) =>
+  dispatch => {
+    dispatch(actions.bulkRequest());
     Api.patch('/orders', {
         referenceNumbers,
         reasonId,
@@ -41,7 +42,7 @@ export function cancelOrders(referenceNumbers, reasonId) {
       .then(
         ({errors = []}) => {
           errors = parseErrors(errors);
-          dispatch(bulkDone(getSuccesses(referenceNumbers, errors), errors));
+          dispatch(actions.bulkDone(getSuccesses(referenceNumbers, errors), errors));
         },
         error => {
           // TODO handle when https://github.com/FoxComm/Ashes/issues/466 closed
@@ -49,11 +50,10 @@ export function cancelOrders(referenceNumbers, reasonId) {
         }
       );
   };
-}
 
-export function changeOrdersState(referenceNumbers, state) {
-  return dispatch => {
-    dispatch(bulkRequest());
+const changeOrdersState = (actions, referenceNumbers, state) =>
+  dispatch => {
+    dispatch(actions.bulkRequest());
     Api.patch('/orders', {
         referenceNumbers,
         state,
@@ -61,7 +61,7 @@ export function changeOrdersState(referenceNumbers, state) {
       .then(
         ({errors = []}) => {
           errors = parseErrors(errors);
-          dispatch(bulkDone(getSuccesses(referenceNumbers, errors), errors));
+          dispatch(actions.bulkDone(getSuccesses(referenceNumbers, errors), errors));
         },
         error => {
           // TODO handle when https://github.com/FoxComm/Ashes/issues/466 closed
@@ -69,34 +69,48 @@ export function changeOrdersState(referenceNumbers, state) {
         }
       );
   };
-}
 
-const toggleWatchOrders = watch => (group, referenceNumbers, watchers) => dispatch => {
-  const groupMember = singularize(group);
+const toggleWatchOrders = isDirectAction =>
+  (actions, group, referenceNumbers, watchers) =>
+    dispatch => {
+      const groupMember = singularize(group);
 
-  dispatch(bulkRequest());
+      dispatch(actions.bulkRequest());
 
-  const url = watch ? `/orders/${group}` : `/orders/${group}/delete`;
+      const url = isDirectAction ? `/orders/${group}` : `/orders/${group}/delete`;
 
-  Api.post(url, {
-      referenceNumbers,
-      [`${groupMember}Id`]: watchers[0],
-    })
-    .then(
-      ({errors = []}) => {
-        errors = parseErrors(errors);
-        dispatch(bulkDone(getSuccesses(referenceNumbers, errors), errors));
-      },
-      error => {
-        // TODO handle when https://github.com/FoxComm/Ashes/issues/466 closed
-        console.error(error);
-      }
-    );
-};
+      Api.post(url, {
+          referenceNumbers,
+          [`${groupMember}Id`]: watchers[0],
+        })
+        .then(
+          ({errors = []}) => {
+            errors = parseErrors(errors);
+            dispatch(actions.bulkDone(getSuccesses(referenceNumbers, errors), errors));
+          },
+          error => {
+            // TODO handle when https://github.com/FoxComm/Ashes/issues/466 closed
+            console.error(error);
+          }
+        );
+    };
 
 export const watchOrders = toggleWatchOrders(true);
 export const unwatchOrders = toggleWatchOrders(false);
 
+const { actions, reducer } = createStore({
+  entity: 'bulk',
+  scope: 'orders',
+  actions: {
+    cancelOrders,
+    changeOrdersState,
+    watchOrders: toggleWatchOrders(true),
+    unwatchOrders: toggleWatchOrders(false),
+  },
+  reducers,
+});
 
-export default reducer;
-export { reset, clearSuccesses, clearErrors } from '../bulk';
+export {
+  actions,
+  reducer as default
+};
