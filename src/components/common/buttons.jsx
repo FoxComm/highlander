@@ -2,12 +2,12 @@
 import React, { PropTypes } from 'react';
 import styles from './css/buttons.css';
 import cssModules from 'react-css-modules';
-import Icon from 'react-evil-icons';
+import Icon from './icon';
 
 const Button = props => {
   let icon = null;
   if (props.icon) {
-    icon = <Icon name={props.icon} size="" />;
+    icon = <Icon name={props.icon} />;
   }
 
   return (

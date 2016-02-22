@@ -1,0 +1,29 @@
+
+@import "colors.css";
+@import "media-queries.css";
+
+.block {
+  display: flex;
+  align-items: center;
+  width: 108%;
+  margin-left: -4%;
+}
+
+@media (--small-viewport) {
+  .block {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+
+.line {
+  flex-grow: 1;
+  height: 1px;
+  background: var(--blackish);
+  margin-top: 2px;
+}
+
+.content {
+  padding: 15px;
+}

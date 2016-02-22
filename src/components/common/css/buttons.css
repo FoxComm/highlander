@@ -1,11 +1,14 @@
 
 @import "colors.css";
+@import "media-queries.css";
 
 .button {
-  font-size: 21px;
+  font-size: 1rem;
+  line-height: 19px;
+  padding: 15px 10px;
   background-color: var(--blackish);
   color: var(--whitish);
-  padding: 20px;
+
   text-align: center;
   cursor: pointer;
   border: 1px solid var(--black-decor);
@@ -17,5 +20,12 @@
   & > :global(.icon) {
     vertical-align: middle;
     margin-right: 0.3em;
+  }
+}
+
+@media (--small-viewport) {
+  .button {
+    line-height: 16px;
+    padding: 11px 6px;
   }
 }

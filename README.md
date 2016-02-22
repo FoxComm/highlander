@@ -50,9 +50,9 @@ For **icons** svg icons is used. Just place svg icon to `src/images/svg` folder 
 automatically. Name for each icon in a sprite will be `fc-<file-name-lowecased>` Usage:
 
 ```jsx
-import Icon from 'react-evil-icons';
+import Icon from '../common/icon';
 
-const icon = <Icon name="fc-google" size="" />;
+const icon = <Icon name="fc-google" />;
 
 ```
 

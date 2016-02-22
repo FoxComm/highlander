@@ -12,7 +12,10 @@ let exitStatus = 0;
 
 for (const task of fs.readdirSync('./tasks')) {
   const file = path.join('./tasks', task);
-  require(path.resolve(file))(gulp, $, opts);
+  const taskModule = require(path.resolve(file));
+  if (typeof taskModule == 'function') {
+    taskModule(gulp, $, opts);
+  }
 }
 
 gulp.task('build', function(cb) {
@@ -26,6 +29,7 @@ gulp.task('dev', function(cb) {
     'build',
     'server',
     'watch',
+    'interactivity',
     opts.enableNotifier ? 'notifier' : null,
   ]);
 

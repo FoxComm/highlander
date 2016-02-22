@@ -1,13 +1,13 @@
 import React from 'react';
 import { Route, IndexRoute } from 'react-router';
-import App from './components/layout/app';
+import Site from './components/layout/site';
 import Home from './components/pages/home';
 import NoMatch from './components/pages/404';
 import Login from './components/pages/login';
 import Grid from './components/pages/grid';
 
 const routes = (
-  <Route path="/" component={App}>
+  <Route path="/" component={Site}>
     <IndexRoute component={Home} />
     <Route path="/login" component={Login} />
     <Route path="/grid" component={Grid} />

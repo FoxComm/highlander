@@ -1,0 +1,13 @@
+
+/*
+ This file only extends base class which defined in evil-icons node package
+*/
+
+@import "media-queries.css";
+
+@media (--small-viewport) {
+  :global(.icon) {
+    width: 16px;
+    height: 16px;
+  }
+}

@@ -1,7 +1,16 @@
 @import "colors.css";
+@import "media-queries.css";
 
 .text-input {
-  padding: 20px 10px;
-  font-size: 20px;
-  border: 2px solid var(--blackish);
+  padding: 15px 6px;
+  font-size: 1rem;
+  line-height: 19px;
+  border: 1px solid var(--blackish);
+}
+
+@media (--small-viewport) {
+  .text-input {
+    line-height: 17px;
+    padding: 11px 6px;
+  }
 }
