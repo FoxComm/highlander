@@ -8,6 +8,7 @@ import { TextInput } from '../common/inputs';
 import { Form, FormField } from '../forms';
 import Button from '../common/buttons';
 import WrapToLines from '../common/wrap-to-lines';
+import Icon from '../common/icon';
 
 
 @cssModules(styles)
@@ -37,9 +38,10 @@ export default class Login extends React.Component {
 
     return (
       <div styleName="login-block">
+        <Icon styleName="icon" name="fc-some_brand_logo" />
         <div styleName="title">LOG IN</div>
         <Button icon="fc-google" styleName="google-login">LOG IN WITH GOOGLE</Button>
-        <WrapToLines>or</WrapToLines>
+        <WrapToLines styleName="divider">or</WrapToLines>
         <Form styleName="form">
           <FormField styleName="form-field">
             <TextInput placeholder="EMAIL" value={email} onChange={this.onChangeEmail} />
@@ -49,6 +51,9 @@ export default class Login extends React.Component {
           </FormField>
           <Button>LOG IN</Button>
         </Form>
+        <div styleName="signup">
+          Don’t have an account? Sign Up.
+        </div>
       </div>
     );
   }

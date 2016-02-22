@@ -1,10 +1,8 @@
 
 @import "media-queries.css";
 @import "variables.css";
-
-:global #app {
-  text-align: center;
-}
+@import "colors.css";
+@import "icons.css";
 
 html, body {
   font-size: 16px;
@@ -19,4 +17,5 @@ html, body {
 .site {
   lost-flex-container: row;
   margin: 0 var(--grid-margin);
+  color: var(--blackish);
 }

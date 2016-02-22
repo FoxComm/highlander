@@ -55,7 +55,6 @@
     "postcss-cssnext": "^2.4.0",
     "postcss-devtools": "^1.0.0",
     "postcss-import": "^8.0.2",
-    "react-evil-icons": "^0.4.0",
     "react-proxy": "^1.1.2",
     "redux-thunk": "^1.0.3",
     "run-sequence": "^1.1.5",

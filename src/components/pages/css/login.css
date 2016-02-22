@@ -3,6 +3,9 @@
 @import "media-queries.css";
 
 .login-block {
+  text-align: center;
+  margin-top: 44px;
+
   lost-column: 3/11;
   lost-offset: -4/11;
 
@@ -11,23 +14,37 @@
   }
 }
 
-@media (--small-viewport) {
-  .login-block {
-    lost-column: 1/1;
-    lost-offset: 0;
-  }
+.icon {
+  width: 96px;
+  height: 96px;
+  margin-bottom: 48px;
 }
 
-@media (--medium-viewport) {
-  .login-block {
-    lost-column: 5/11;
-    lost-offset: -3/11;
-  }
+.title {
+  margin-bottom: 26px;
+  font-size: 15px;
+  line-height: 18px;
+}
+
+:root {
+  --dividerMargin: 20px;
+}
+
+.google-login {
+  composes: button from "../../common/css/buttons.css";
+  background-color: var(--redish);
+  border: 1px solid color(var(--redish) blackness(+20%));
+  margin-bottom: calc(46px - var(--dividerMargin));
+}
+
+.divider {
+  composes: block from "../../common/css/wrap-to-lines.css";
+  margin-bottom: calc(30px - var(--dividerMargin));
 }
 
 .form-field {
   width: 100%;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 
   & > input {
     width: 100%;
@@ -40,12 +57,47 @@
   }
 }
 
-.google-login {
-  composes: button from "../../common/css/buttons.css";
-  background-color: var(--redish);
-  border: 1px solid color(var(--redish) blackness(+20%));
+.signup {
+  margin-top: 19px;
+  font-size: 15px;
+  line-height: 18px;
 }
 
-.title {
+@media (--small-viewport) {
+  .login-block {
+    lost-column: 1/1;
+    lost-offset: 0;
+    margin-top: 10px;
+  }
 
+  .icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 20px;
+  }
+
+  .title {
+    margin-bottom: 20px;
+  }
+
+  .google-login {
+    margin-bottom: calc(20px - var(--dividerMargin));
+  }
+
+  .divider {
+    composes: block from "../../common/css/wrap-to-lines.css";
+    margin-bottom: calc(20px - var(--dividerMargin));
+  }
+
+  .signup {
+    font-size: 14px;
+    line-height: 17px;
+  }
+}
+
+@media (--medium-viewport) {
+  .login-block {
+    lost-column: 5/11;
+    lost-offset: -3/11;
+  }
 }
