@@ -25,10 +25,6 @@ const setDrawerContent = (row, params) => {
 
 class InventoryWarehouseRow extends React.Component {
 
-  // componentDidMount() {
-  //   this.props.fetchDetails(this.props.warehouse.id);
-  // }
-
   render() {
     const { warehouse, columns, params } = this.props;
     const key = `inventory-list-${warehouse.id}`;

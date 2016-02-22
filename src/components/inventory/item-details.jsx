@@ -33,11 +33,13 @@ export default class InventoryItemDetails extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    const oldWarehouses = _.get(this.props, ['tableState', 'summary', 'results', 'rows'], []);
     const warehouses = _.get(nextProps, ['tableState', 'summary', 'results', 'rows'], []);
-    _.each(warehouses, (wh) => {
-      console.log(wh.id);
-      this.props.fetchDetails(this.props.params.sku, wh.id);
-    });
+      if (!_.isEqual(oldWarehouses, warehouses)) {
+      _.each(warehouses, (wh) => {
+        this.props.fetchDetails(this.props.params.sku, wh.id);
+      });
+    }
   }
 
   get tableColumns() {
