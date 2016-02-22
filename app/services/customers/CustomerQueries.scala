@@ -5,7 +5,7 @@ import scala.concurrent.ExecutionContext
 import models.customer.Customers
 import models.javaTimeSlickMapper
 import responses.TheResponse
-import responses.CustomerResponse.{Root, build}
+import responses.CustomerResponse.{RootSimple, buildForList}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
@@ -17,7 +17,7 @@ import utils.DbResultT.implicits._
 object CustomerQueries {
 
   def findAllByQuery(query: Customers.QuerySeq = Customers)(implicit ec: ExecutionContext, db: Database,
-    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[Root]]] = {
+    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[RootSimple]]] = {
 
     val sortedQuery = query.withMetadata.sortAndPageIfNeeded { case (s, customer) ⇒
       s.sortColumn match {
@@ -38,10 +38,10 @@ object CustomerQueries {
       }
     }
 
-    sortedQuery.result.map(_.map(build(_))).toTheResponse
+    sortedQuery.result.map(_.map(buildForList)).toTheResponse
   }
 
   def findAll(implicit ec: ExecutionContext, db: Database,
-    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[Root]]] =
+    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[RootSimple]]] =
     findAllByQuery(Customers)
 }

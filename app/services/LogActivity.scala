@@ -34,6 +34,7 @@ import services.activity.WatchersTailored._
 import StoreAdminResponse.{build ⇒ buildAdmin}
 import CustomerResponse.{build ⇒ buildCustomer}
 import CreditCardsResponse.{buildSimple ⇒ buildCc}
+import GiftCardResponse.{buildForList ⇒ buildGc}
 
 object LogActivity {
 
@@ -90,6 +91,27 @@ object LogActivity {
     Activities.log(BulkUnassignedFromCustomers(buildAdmin(admin), buildAdmin(assignee), customerIds))
   }
 
+  /* Gift Card Assignments */
+  def assignedToGiftCard(admin: StoreAdmin, gc: GiftCard, assignees: Seq[StoreAdminResponse.Root])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(AssignedToGiftCard(buildAdmin(admin), buildGc(gc), assignees))
+  }
+
+  def unassignedFromGiftCard(admin: StoreAdmin, gc: GiftCard, assignee: StoreAdmin)
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(UnassignedFromGiftCard(buildAdmin(admin), buildGc(gc), buildAdmin(assignee)))
+  }
+
+  def bulkAssignedToGiftCards(admin: StoreAdmin, assignee: StoreAdmin, giftCardCodes: Seq[String])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(BulkAssignedToGiftCards(buildAdmin(admin), buildAdmin(assignee), giftCardCodes))
+  }
+
+  def bulkUnassignedFromGiftCards(admin: StoreAdmin, assignee: StoreAdmin, giftCardCodes: Seq[String])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(BulkUnassignedFromGiftCards(buildAdmin(admin), buildAdmin(assignee), giftCardCodes))
+  }
+
   /* Order Watchers */
   def addedWatchersToOrder(admin: StoreAdmin, order: FullOrder.Root, watchers: Seq[StoreAdminResponse.Root])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
@@ -130,6 +152,27 @@ object LogActivity {
   def bulkRemovedWatcherFromCustomers(admin: StoreAdmin, assignee: StoreAdmin, customerIds: Seq[Int])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
     Activities.log(BulkRemovedWatcherFromCustomers(buildAdmin(admin), buildAdmin(assignee), customerIds))
+  }
+
+  /* Gift Card Watchers */
+  def addedWatchersToGiftCard(admin: StoreAdmin, gc: GiftCard, watchers: Seq[StoreAdminResponse.Root])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(AddedWatchersToGiftCard(buildAdmin(admin), buildGc(gc), watchers))
+  }
+
+  def removedWatcherFromGiftCard(admin: StoreAdmin, gc: GiftCard, watcher: StoreAdmin)
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(RemovedWatcherFromGiftCard(buildAdmin(admin), buildGc(gc), buildAdmin(watcher)))
+  }
+
+  def bulkAddedWatcherToGiftCards(admin: StoreAdmin, assignee: StoreAdmin, giftCardCodes: Seq[String])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(BulkAddedWatcherToGiftCards(buildAdmin(admin), buildAdmin(assignee), giftCardCodes))
+  }
+
+  def bulkRemovedWatcherFromGiftCards(admin: StoreAdmin, assignee: StoreAdmin, giftCardCodes: Seq[String])
+    (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
+    Activities.log(BulkRemovedWatcherFromGiftCards(buildAdmin(admin), buildAdmin(assignee), giftCardCodes))
   }
 
   /* Customers */

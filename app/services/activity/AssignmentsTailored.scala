@@ -1,6 +1,6 @@
 package services.activity
 
-import responses.{CustomerResponse, StoreAdminResponse}
+import responses.{CustomerResponse, GiftCardResponse, StoreAdminResponse}
 import responses.order.FullOrder
 
 object AssignmentsTailored {
@@ -37,4 +37,21 @@ object AssignmentsTailored {
   final case class BulkUnassignedFromCustomers(admin: StoreAdminResponse.Root, assignee: StoreAdminResponse.Root,
     customerIds: Seq[Int])
     extends ActivityBase[BulkUnassignedFromCustomers]
+
+  /* GiftCards */
+  final case class AssignedToGiftCard(admin: StoreAdminResponse.Root, giftCard: GiftCardResponse.RootSimple,
+    assignees: Seq[StoreAdminResponse.Root])
+    extends ActivityBase[AssignedToGiftCard]
+
+  final case class UnassignedFromGiftCard(admin: StoreAdminResponse.Root, customer: GiftCardResponse.RootSimple,
+    assignee: StoreAdminResponse.Root)
+    extends ActivityBase[UnassignedFromGiftCard]
+
+  final case class BulkAssignedToGiftCards(admin: StoreAdminResponse.Root, assignee: StoreAdminResponse.Root,
+    giftCardCodes: Seq[String])
+    extends ActivityBase[BulkAssignedToGiftCards]
+
+  final case class BulkUnassignedFromGiftCards(admin: StoreAdminResponse.Root, assignee: StoreAdminResponse.Root,
+    giftCardCodes: Seq[String])
+    extends ActivityBase[BulkUnassignedFromGiftCards]
 }

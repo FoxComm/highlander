@@ -5,6 +5,7 @@ import java.time.Instant
 import models.customer.CustomerAssignment
 import models.order.OrderAssignment
 import models.rma.RmaAssignment
+import models.payment.giftcard.GiftCardAssignment
 import models.StoreAdmin
 
 object AssignmentResponse {
@@ -21,5 +22,8 @@ object AssignmentResponse {
     Root(StoreAdminResponse.build(admin), assignment.createdAt)
 
   def buildForCustomer(assignment: CustomerAssignment, admin: StoreAdmin): Root =
+    Root(StoreAdminResponse.build(admin), assignment.createdAt)
+
+  def buildForGiftCard(assignment: GiftCardAssignment, admin: StoreAdmin): Root =
     Root(StoreAdminResponse.build(admin), assignment.createdAt)
 }

@@ -1,6 +1,6 @@
 package services.activity
 
-import responses.{CustomerResponse, StoreAdminResponse}
+import responses.{CustomerResponse, GiftCardResponse, StoreAdminResponse}
 import responses.order.FullOrder
 
 object WatchersTailored {
@@ -37,4 +37,21 @@ object WatchersTailored {
   final case class BulkRemovedWatcherFromCustomers(admin: StoreAdminResponse.Root, watcher: StoreAdminResponse.Root,
     customerIds: Seq[Int])
     extends ActivityBase[BulkRemovedWatcherFromCustomers]
+
+  /* Gift Card Watchers */
+  final case class AddedWatchersToGiftCard(admin: StoreAdminResponse.Root, giftCard: GiftCardResponse.RootSimple,
+    watchers: Seq[StoreAdminResponse.Root])
+    extends ActivityBase[AddedWatchersToGiftCard]
+
+  final case class RemovedWatcherFromGiftCard(admin: StoreAdminResponse.Root, giftCard: GiftCardResponse.RootSimple,
+    watcher: StoreAdminResponse.Root)
+    extends ActivityBase[RemovedWatcherFromGiftCard]
+
+  final case class BulkAddedWatcherToGiftCards(admin: StoreAdminResponse.Root, watcher: StoreAdminResponse.Root,
+    giftCardCodes: Seq[String])
+    extends ActivityBase[BulkAddedWatcherToGiftCards]
+
+  final case class BulkRemovedWatcherFromGiftCards(admin: StoreAdminResponse.Root, watcher: StoreAdminResponse.Root,
+    giftCardCodes: Seq[String])
+    extends ActivityBase[BulkRemovedWatcherFromGiftCards]
 }
