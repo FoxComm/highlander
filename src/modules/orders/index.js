@@ -2,6 +2,7 @@ import { combineReducers } from 'redux';
 import lineItems from './line-items';
 import details from './details';
 import bulk from './bulk';
+import watchers from './watchers';
 import list from './list';
 import newOrder from './new-order';
 import skuSearch from './sku-search';
@@ -13,6 +14,7 @@ const orderReducer = combineReducers({
   lineItems,
   details,
   bulk,
+  watchers,
   list,
   skuSearch,
   shippingMethods,

@@ -4,7 +4,7 @@ import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 
 // helpers
-import { inflect, capitalize } from '../../lib/text-utils';
+import { numberize } from '../../lib/text-utils';
 
 
 export default class Notification extends React.Component {
@@ -14,7 +14,7 @@ export default class Notification extends React.Component {
       'success',
       'error',
     ]),
-    entityForms: PropTypes.array.isRequired,
+    entity: PropTypes.string.isRequired,
     overviewMessage: PropTypes.string.isRequired,
     children: PropTypes.node.isRequired,
     onHide: PropTypes.func.isRequired,
@@ -30,10 +30,10 @@ export default class Notification extends React.Component {
   }
 
   render() {
-    const {resultType, entityForms, overviewMessage, children, onHide} = this.props;
+    const {resultType, entity, overviewMessage, children, onHide} = this.props;
     const {expanded} = this.state;
     const count = React.Children.count(children);
-    const message = `${count} ${inflect(count, entityForms)} ${overviewMessage}.`;
+    const message = `${count} ${numberize(entity, count)} ${overviewMessage}.`;
 
     return (
       <div className={classNames('fc-bulk-notification', `_${resultType}`)}>

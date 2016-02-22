@@ -4,7 +4,7 @@ import React, { PropTypes } from 'react';
 
 // helpers
 import { ReasonType } from '../../../lib/reason-utils';
-import { capitalize, inflect } from '../../../lib/text-utils';
+import { numberize } from '../../../lib/text-utils';
 
 // components
 import modal from '../../modal/wrapper';
@@ -17,7 +17,7 @@ import { CancelReason } from '../../fields';
 export default class CancelModal extends React.Component {
 
   static propTypes = {
-    entityForms: PropTypes.arrayOf(PropTypes.string).isRequired,
+    entity: PropTypes.string.isRequired,
     count: PropTypes.number,
     onCancel: PropTypes.func.isRequired,
     onConfirm: PropTypes.func.isRequired,
@@ -28,13 +28,13 @@ export default class CancelModal extends React.Component {
   };
 
   render() {
-    const {entityForms, count, onCancel, onConfirm} = this.props;
+    const {entity, count, onCancel, onConfirm} = this.props;
 
     const actionBlock = <i onClick={onCancel} className="fc-btn-close icon-close" title="Close" />;
-    const entityForm = inflect(count, entityForms);
+    const entityForm = numberize(entity, count);
 
     return (
-      <ContentBox title={`Cancel ${capitalize(entityForm)}?`}
+      <ContentBox title={`Cancel ${_.capitalize(entityForm)}?`}
                   className="fc-bulk-action-modal"
                   actionBlock={actionBlock}>
         <div className='fc-modal-body'>

@@ -10,7 +10,6 @@ import { PrimaryButton } from '../../common/buttons';
 import OrderShippingAddress from '../../orders/shipping-address';
 import OrderShippingMethod from '../../orders/order-shipping-method';
 import Payments from '../../orders/payments';
-import Watchers from '../../watchers/watchers';
 
 import { haveType } from '../../../modules/state-helpers';
 import * as orderActions from '../../../modules/orders/details';

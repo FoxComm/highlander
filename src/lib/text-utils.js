@@ -1,7 +1,5 @@
-export function inflect(count, [singularForm, pluralForm]) {
-  return count === 1 ? singularForm : pluralForm;
-}
+import { singularize, pluralize } from 'fleck';
 
-export function capitalize(word) {
-  return word[0].toUpperCase() + word.slice(1);
+export function numberize(entity, count) {
+  return count === 1 ? singularize(entity) : pluralize(entity);
 }
