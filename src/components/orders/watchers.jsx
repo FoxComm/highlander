@@ -34,9 +34,9 @@ const mapStateToProps = ({orders: {watchers}}, {order}) => {
 const OrderWatchers = ({data, order}) => {
   return (
     <Watchers entity={{
-                  entityType: 'orders',
-                  entityId: order.referenceNumber,
-                }}
+                entityType: 'orders',
+                entityId: order.referenceNumber,
+              }}
               data={data} />
   );
 };
