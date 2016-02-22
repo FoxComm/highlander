@@ -13,25 +13,25 @@ import { groups } from '../../paragons/watcher';
 import Watchers from '../watchers/watchers';
 
 
-function getGroupData(group, watchers, order) {
+const getGroupData = (group, watchers, order) => {
   const entityForm = singularize(group);
 
   return {
     entries: order[group].map(user => user[entityForm]),
     listModalDisplayed: _.get(watchers, [order.referenceNumber, group, 'listModalDisplayed'], false),
   };
-}
+};
 
-function mapStateToProps({orders: {watchers}}, {order}) {
+const mapStateToProps = ({orders: {watchers}}, {order}) => {
   return {
     data: {
       assignees: getGroupData(groups.assignees, watchers, order),
       watchers: getGroupData(groups.watchers, watchers, order),
     }
   };
-}
+};
 
-function OrderWatchers({data, order}) {
+const OrderWatchers = ({data, order}) => {
   return (
     <Watchers entity={{
                   entityType: 'orders',

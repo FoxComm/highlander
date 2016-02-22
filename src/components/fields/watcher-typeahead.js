@@ -15,7 +15,7 @@ import PilledInput from '../pilled-search/pilled-input';
 import UserInitials from '../users/initials';
 
 
-function mapStateToProps(state, {storePath, entity}) {
+const mapStateToProps = (state, {storePath, entity}) => {
   const path = getStorePath(storePath, entity, 'watchers', 'selectModal');
 
   const {
@@ -25,9 +25,9 @@ function mapStateToProps(state, {storePath, entity}) {
   } = _.get(state, path, {});
 
   return {term, suggested, selected};
-}
+};
 
-function mapDispatchToProps(dispatch, {entity: {entityType, entityId}}) {
+const mapDispatchToProps = (dispatch, {entity: {entityType, entityId}}) => {
   const {actions} = getStore('watchers', entityType);
 
   return {
@@ -36,9 +36,9 @@ function mapDispatchToProps(dispatch, {entity: {entityType, entityId}}) {
     onSelectItem: item => dispatch(actions.selectItem(entityId, item)),
     onDeselectItem: index => dispatch(actions.deselectItem(entityId, index)),
   };
-}
+};
 
-function WatcherTypeahead(props) {
+const WatcherTypeahead = (props) => {
   const {className, label, suggested, suggestWatchers} = props;
 
   return (
@@ -61,9 +61,9 @@ function WatcherTypeahead(props) {
         onItemSelected={(item) => selectItem(props,item)} />
     </div>
   );
-}
+};
 
-function TypeaheadItem(props) {
+const TypeaheadItem = (props) => {
   const item = props.model;
   const name = getUsername(item);
 
@@ -80,9 +80,9 @@ function TypeaheadItem(props) {
       </div>
     </div>
   );
-}
+};
 
-function renderPilledInput(props) {
+const renderPilledInput = (props) => {
   const {term, setTerm, selected, onDeselectItem} = props;
   const pills = selected.map(getUsername);
 
@@ -96,20 +96,20 @@ function renderPilledInput(props) {
       icon={null}
       onPillClose={(name,index) => onDeselectItem(index)} />
   );
-}
+};
 
-function selectItem({setTerm, selected, onSelectItem}, item) {
+const selectItem = ({setTerm, selected, onSelectItem}, item) => {
   if (_.findIndex(selected, ({id}) => id === item.id) < 0) {
     setTerm('');
     onSelectItem(item);
   }
-}
+};
 
-function getUsername(user) {
+const getUsername = (user) => {
   return user.name
     ? user.name
     : `${user.firstName} ${user.lastName}`;
-}
+};
 
 
 WatcherTypeahead.propTypes = {

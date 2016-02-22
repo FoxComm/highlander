@@ -22,7 +22,7 @@ import SelectWatcherModal from './select-modal';
 const maxDisplayed = 7;
 
 
-function mapDispatchToProps(dispatch, {entity: {entityType, entityId}}) {
+const mapDispatchToProps = (dispatch, {entity: {entityType, entityId}}) => {
   const {actions} = getStore('watchers', entityType);
 
   return {
@@ -32,9 +32,9 @@ function mapDispatchToProps(dispatch, {entity: {entityType, entityId}}) {
     addWatchers: () => dispatch(actions.addWatchers(entityId)),
     removeWatcher: (group, id) => dispatch(actions.removeWatcher(entityId, group, id)),
   };
-}
+};
 
-function Watchers(props) {
+const Watchers = (props) => {
   return (
     <Panel className="fc-watchers">
       <div className="fc-watchers__container">
@@ -67,9 +67,9 @@ function Watchers(props) {
         onConfirm={props.addWatchers} />
     </Panel>
   );
-}
+};
 
-function renderGroup(props, group) {
+const renderGroup = (props, group) => {
   const users = _.get(props.data, [group, 'entries'], []);
 
   return (
@@ -79,9 +79,9 @@ function renderGroup(props, group) {
       {renderRow(props, group, users)}
     </div>
   );
-}
+};
 
-function renderRow(props, group, users) {
+const renderRow = (props, group, users) => {
   //empty label if nothing to show
   if (_.isEmpty(users)) {
     return (
@@ -107,9 +107,9 @@ function renderRow(props, group, users) {
     displayedCells,
     renderHiddenRow(props, hiddenCells, group),
   ];
-}
+};
 
-function renderHiddenRow(props, group, cells) {
+const renderHiddenRow = (props, group, cells) => {
   const {toggleListModal} = props;
   const active = _.get(props.data, [group, 'listModalDisplayed'], false);
 
@@ -131,9 +131,9 @@ function renderHiddenRow(props, group, cells) {
       </div>
     </div>
   );
-}
+};
 
-function renderCell(group, user, removeWatcher, hidden = false) {
+const renderCell = (group, user, removeWatcher, hidden = false) => {
   const {id, name, firstName, lastName, email} = user;
   const key = hidden ? `cell-hidden-${group}-${name}` : `cell-${group}-${name}`;
 
@@ -151,7 +151,7 @@ function renderCell(group, user, removeWatcher, hidden = false) {
                     showTooltipOnClick={true} />
     </div>
   );
-}
+};
 
 Watchers.propTypes = {
   storePath: PropTypes.string,
