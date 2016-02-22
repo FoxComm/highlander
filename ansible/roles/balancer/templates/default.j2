@@ -136,22 +136,30 @@ server {
 
   # Error pages
   location @500 {
-    more_set_headers 'Content-Type: application/json charset=UTF-8';
-    return 500 '{"code": 500, "reason": "Internal Server Error"}';
+    if ($http_content_type ~ .*json.*) {
+      more_set_headers 'Content-Type: application/json charset=UTF-8';
+      return 500 '{"code": 500, "reason": "Internal Server Error"}';
+    }
   }
 
   location @502 {
-    more_set_headers 'Content-Type: application/json charset=UTF-8';
-    return 502 '{"code": 502, "reason": "Bad gateway"}';
+    if ($http_content_type ~ .*json.*) {
+      more_set_headers 'Content-Type: application/json charset=UTF-8';
+      return 502 '{"code": 502, "reason": "Bad gateway"}';
+    }
   }
 
   location @503 {
-    more_set_headers 'Content-Type: application/json charset=UTF-8';
-    return 503 '{"code": 503, "reason": "Service Unavailable"}';
+    if ($http_content_type ~ .*json.*) {
+      more_set_headers 'Content-Type: application/json charset=UTF-8';
+      return 503 '{"code": 503, "reason": "Service Unavailable"}';
+    }
   }
 
   location @504 {
-    more_set_headers 'Content-Type: application/json charset=UTF-8';
-    return 504 '{"code": 504, "reason": "Gateway timeout"}';
+    if ($http_content_type ~ .*json.*) {
+      more_set_headers 'Content-Type: application/json charset=UTF-8';
+      return 504 '{"code": 504, "reason": "Gateway timeout"}';
+    }
   }
 }
