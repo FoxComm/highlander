@@ -83,7 +83,7 @@ const TypeaheadItem = (props) => {
 };
 
 const renderPilledInput = (props) => {
-  const {term, setTerm, selected, onDeselectItem} = props;
+  const {term, setTerm, selected, maxUsers, onDeselectItem} = props;
   const pills = selected.map(getUsername);
 
   return (
@@ -91,6 +91,7 @@ const renderPilledInput = (props) => {
       solid={true}
       autofocus={true}
       value={term}
+      disabled={selected.length >= maxUsers}
       onChange={({target}) => setTerm(target.value)}
       pills={pills}
       icon={null}
@@ -120,6 +121,7 @@ WatcherTypeahead.propTypes = {
   }).isRequired,
   className: PropTypes.string,
   label: PropTypes.string,
+  maxUsers: PropTypes.number,
 
   //connected
   term: PropTypes.string,
