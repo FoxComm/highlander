@@ -190,6 +190,10 @@ case object SharedSearchInvalidQueryFailure extends Failure {
   override def description = s"Invalid JSON provided for shared search query"
 }
 
+final case class GiftCardPaymentAlreadyAdded(refNum: String, code: String) extends Failure {
+  override def description = s"giftCard with code=$code already added as payment method to order with refNum=$refNum"
+}
+
 object OrderPaymentNotFoundFailure {
   def apply[M](m: M): NotFoundFailure400 = NotFoundFailure400(s"${friendlyClassName(m)} payment not found")
 }
