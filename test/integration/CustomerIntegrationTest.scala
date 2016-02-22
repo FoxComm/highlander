@@ -442,6 +442,10 @@ class CustomerIntegrationTest extends IntegrationTestBase
         val inactive = CreditCards.findOneById(creditCard.id).run().futureValue.value
 
         response.status must === (StatusCodes.OK)
+
+        val root = response.as[CardResponse]
+        root.id must !== (creditCard.id)
+        root.inWallet mustBe true
       }
 
       "creates a new version of the edited card in the wallet" in new CreditCardFixture {
