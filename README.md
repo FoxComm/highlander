@@ -6,15 +6,14 @@ Home for our integration (mainly between [Phoenix](https://github.com/FoxComm/ph
 
 ## Simulations
 
-* `com.foxcommerce.ActivitySimulation` - TBD
-* `com.foxcommerce.NotificationSimulation` - TBD
-* `com.foxcommerce.TrailSimulation` - materialized views synchronization simulation. Covered entities:
+* `com.foxcommerce.SearchViewSimulation` - materialized views synchronization simulation. Covered entities:
     * `Customer`
     * `CustomerAddress`
     * `Order`
     * `OrderShippingAddress`
     * `GiftCard`
     * `StoreCredit`
+* `com.foxcommerce.StorefrontAccessSimulation` - basic ACL tests for Storefront API.
 
 ## Running
 
@@ -24,7 +23,7 @@ To run all simulations:
 
 To run a single simulation:
 
-    $ sbt testOnly com.foxcommerce.TrailSimulation
+    $ sbt testOnly com.foxcommerce.StorefrontAccessSimulation
 
 Configuration options:
 

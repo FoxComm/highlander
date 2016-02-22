@@ -1,0 +1,8 @@
+{
+  "holderName": "${ccHolderName}",
+  "number": "${ccNumber}",
+  "cvv": "${ccCvv}",
+  "expMonth": ${ccExpMonth},
+  "expYear": ${ccExpYear},
+  "addressId": ${customerAddressId}
+}

@@ -1,10 +1,9 @@
-package com.foxcommerce.endpoints
+package com.foxcommerce.endpoints.admin
 
+import com.foxcommerce.fixtures.CustomerFixture
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
-
-import com.foxcommerce.fixtures.CustomerFixture
 
 object CustomerEndpoint {
 

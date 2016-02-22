@@ -1,11 +1,10 @@
-package com.foxcommerce.endpoints
-
-import io.gatling.core.Predef._
-import io.gatling.http.Predef._
-import io.gatling.http.request.builder.HttpRequestBuilder
+package com.foxcommerce.endpoints.admin
 
 import com.foxcommerce.common.Config
 import com.foxcommerce.fixtures._
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
+import io.gatling.http.request.builder.HttpRequestBuilder
 
 object SearchEndpoint {
 
