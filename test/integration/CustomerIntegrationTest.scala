@@ -441,8 +441,11 @@ class CustomerIntegrationTest extends IntegrationTestBase
         val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
         val inactive = CreditCards.findOneById(creditCard.id).run().futureValue.value
 
-        response.status must === (StatusCodes.NoContent)
+        response.status must === (StatusCodes.OK)
 
+        val root = response.as[CardResponse]
+        root.id must !== (creditCard.id)
+        root.inWallet mustBe true
       }
 
       "creates a new version of the edited card in the wallet" in new CreditCardFixture {
@@ -461,7 +464,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
         val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
         val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.run().futureValue.toList
 
-        response.status must === (StatusCodes.NoContent)
+        response.status must === (StatusCodes.OK)
         newVersion.inWallet mustBe true
         newVersion.isDefault must === (creditCard.isDefault)
       }
@@ -486,7 +489,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
         val (pmt :: Nil) = OrderPayments.filter(_.orderId === order.id).creditCards.result.run().futureValue.toList
         val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.run().futureValue.toList
 
-        response.status must === (StatusCodes.NoContent)
+        response.status must === (StatusCodes.OK)
         pmt.amount mustBe 'empty
         pmt.isCreditCard mustBe true
         pmt.paymentMethodId must === (newVersion.id)
@@ -498,7 +501,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
         val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.futureValue.toList
         val numAddresses = Addresses.length.result.futureValue
 
-        response.status must === (StatusCodes.NoContent)
+        response.status must === (StatusCodes.OK)
         numAddresses must === (1)
         (newVersion.zip, newVersion.regionId) must === ((address.zip, address.regionId))
       }
@@ -523,7 +526,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
         val addresses = Addresses.result.run().futureValue
         val newAddress = addresses.last
 
-        response.status must === (StatusCodes.NoContent)
+        response.status must === (StatusCodes.OK)
         addresses must have size 2
         (newVersion.zip, newVersion.regionId) must === (("54321", address.regionId + 1))
         (newVersion.zip, newVersion.regionId) must === ((newAddress.zip, newAddress.regionId))

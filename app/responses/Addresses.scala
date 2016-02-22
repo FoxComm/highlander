@@ -3,6 +3,7 @@ package responses
 import java.time.Instant
 import scala.concurrent.ExecutionContext
 
+import cats.implicits._
 import models.customer.Customer
 import models.location.{Address, Region}
 import models.order.{OrderShippingAddresses, OrderShippingAddress}
@@ -16,16 +17,16 @@ object Addresses {
     address2: Option[String] = None, city: String, zip: String, isDefault: Option[Boolean] = None,
     phoneNumber: Option[String] = None, deletedAt: Option[Instant] = None) extends ResponseItem
 
-  def build(address: Address, region: Region, isDefault: Option[Boolean] = None): Root =
+  def build(address: Address, region: Region): Root =
     Root(id = address.id, region = region, name = address.name, address1 = address.address1, address2 = address.address2,
-      city = address.city, zip = address.zip, isDefault = isDefault, phoneNumber = address.phoneNumber, deletedAt = address.deletedAt)
+      city = address.city, zip = address.zip, isDefault = address.isDefaultShipping.some,
+      phoneNumber = address.phoneNumber, deletedAt = address.deletedAt)
 
   def buildFromCreditCard(cc: CreditCard, region: Region): Root =
     Root(id = 0, region = region, name = cc.name, address1 = cc.address1, address2 = cc.address2,
       city = cc.city, zip = cc.zip, isDefault = None, phoneNumber = cc.phoneNumber)
 
-  def build(records: Seq[(Address, Region)]): Seq[Root] =
-    records.map { case (address, region) ⇒ build(address, region, Some(address.isDefaultShipping)) }
+  def buildMulti(records: Seq[(Address, Region)]): Seq[Root] = records.map((build _).tupled)
 
   def buildShipping(records: Seq[(Address, OrderShippingAddress, Region)]): Seq[Root] = {
     records.map { case (address, shippingAddress, region) ⇒

@@ -38,7 +38,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
       for {
         address ← * <~ Addresses.create(RankingSeedsGenerator.generateAddress.copy(customerId = currentCustomer.id))
         region  ← * <~ Regions.mustFindById404(address.regionId)
-      } yield responses.Addresses.build(address, region, Some(address.isDefaultShipping))
+      } yield responses.Addresses.build(address, region)
     }
 
     DbResultT.sequence(items).runTxn().futureValue.rightVal
@@ -80,7 +80,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
       val newAddress = response.as[responses.Addresses.Root]
 
       newAddress.name must === (payload.name)
-      newAddress.isDefault must === (None)
+      newAddress.isDefault must === (Some(false))
     }
 
   }
@@ -153,23 +153,9 @@ class AddressesIntegrationTest extends IntegrationTestBase
       val deleteResponse = DELETE(s"v1/customers/${customer.id}/addresses/${newAddress.id}")
       validateDeleteResponse(deleteResponse)
 
-      //now get
-      val getResponse = GET(s"v1/customers/${customer.id}/addresses/${newAddress.id}")
-      getResponse.status must === (StatusCodes.OK)
-      val gotAddress = getResponse.as[responses.Addresses.Root]
-
-      //deleted address is not default anymore
-      gotAddress.isDefault.value mustBe false
-
-      //deleted address should have a deletedAt timestamp
-      gotAddress.deletedAt mustBe defined
-
-      val addressesResponse = GET(s"v1/customers/${customer.id}/addresses")
-      addressesResponse.status must === (StatusCodes.OK)
-
-      //If you get all the addresses, our newly deleted one should not show up
-      val addresses = addressesResponse.ignoreFailuresAndGiveMe[Seq[responses.Addresses.Root]]
-      addresses.filter(_.id == newAddress.id) must have length 0
+      val deletedAddress = Addresses.findOneById(newAddress.id).run().futureValue.value
+      deletedAddress.isDefaultShipping mustBe false
+      deletedAddress.deletedAt mustBe defined
     }
 
     "fails deleting using wrong address id" in new AddressFixture {
