@@ -14,7 +14,8 @@ import models.payment.storecredit.{StoreCreditManuals, StoreCreditManual, StoreC
 import models.{StoreAdmins, Reasons}
 import OrderPayments.scope._
 import services.{GiftCardMustNotBeCart, OrderPaymentNotFoundFailure, CannotUseInactiveCreditCard,
-CustomerHasInsufficientStoreCredit, CreditCardManager, GiftCardIsInactive, GiftCardNotEnoughBalance, NotFoundFailure404}
+CustomerHasInsufficientStoreCredit, CreditCardManager, GiftCardIsInactive, GiftCardNotEnoughBalance,
+NotFoundFailure404, GiftCardPaymentAlreadyAdded}
 import services.CartFailures.OrderMustBeCart
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
@@ -39,12 +40,22 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
         val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
-        response.status must ===(StatusCodes.OK)
+        response.status must === (StatusCodes.OK)
         val (p :: Nil) = OrderPayments.findAllByOrderId(order.id).result.run().futureValue.toList
 
         val payments = giftCardPayments(order)
-        payments must have size(1)
-        payments.head.amount must === ((Some(payload.amount)))
+        payments must have size 1
+        payments.head.amount must === (Some(payload.amount))
+      }
+
+      "fails when adding same gift card twice" in new GiftCardFixture {
+        val payload = payloads.GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance)
+        val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
+        response.status must === (StatusCodes.OK)
+
+        val secondResponse = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
+        secondResponse.status must === (StatusCodes.BadRequest)
+        secondResponse.error must === (GiftCardPaymentAlreadyAdded(order.referenceNumber, giftCard.code).description)
       }
 
       "fails if the order is not found" in new GiftCardFixture {
