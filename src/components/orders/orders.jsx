@@ -7,18 +7,27 @@ import { connect } from 'react-redux';
 
 // data
 import { stateTitles } from '../../paragons/order';
+import { groups } from '../../paragons/watcher';
 import { actions } from '../../modules/orders/list';
 import * as bulkActions from '../../modules/orders/bulk';
+
+// helpers
+import { numberize } from '../../lib/text-utils';
 
 // components
 import BulkActions from '../bulk-actions/bulk-actions';
 import { SearchableList } from '../list-page';
 import OrderRow from './order-row';
-import { ChangeStateModal, CancelModal } from '../bulk-actions/modal';
+import { ChangeStateModal, CancelModal, SelectUsersModal } from '../bulk-actions/modal';
 import { Link } from '../link';
 
 
-const mapStateToProps = ({orders: {list}}) => ({list});
+const mapStateToProps = ({orders: {list, watchers}}) => {
+  return {
+    list,
+    selectedWatchers: _.get(watchers, 'list.selectModal.selected', []).map(({id}) => id),
+  };
+};
 
 const mapDispatchToProps = dispatch => {
   return {
@@ -31,6 +40,7 @@ const mapDispatchToProps = dispatch => {
 export default class Orders extends React.Component {
   static propTypes = {
     list: PropTypes.object.isRequired,
+    selectedWatchers: PropTypes.array.isRequired,
     actions: PropTypes.objectOf(PropTypes.func).isRequired,
     bulkActions: PropTypes.objectOf(PropTypes.func).isRequired,
   };
@@ -68,14 +78,12 @@ export default class Orders extends React.Component {
         <ChangeStateModal
           count={toggledIds.length}
           stateTitle={stateTitle}
-          onConfirm={() => {
-          changeOrdersState(toggledIds, state);
-        }} />
+          onConfirm={() => changeOrdersState(toggledIds, state)} />
       );
     };
   }
 
-  getChangeStateAction(state) {
+  getChangeOrdersStateAction(state) {
     const stateTitle = stateTitles[state];
 
     return [
@@ -86,13 +94,49 @@ export default class Orders extends React.Component {
     ];
   }
 
+  getWatchOrders(group, action, isDirectAction) {
+    return (allChecked, toggledIds) => {
+      const {bulkActions} = this.props;
+
+      const labelAction = isDirectAction ? 'Add to' : 'Remove from';
+      const count = toggledIds.length;
+      const label = <span>{labelAction} {group} for <b>{count}</b> {numberize('order', count)}</span>;
+
+      const bulkAction = isDirectAction ? bulkActions.watchOrders : bulkActions.unwatchOrders;
+
+      return (
+        <SelectUsersModal
+          action={action}
+          count={count}
+          label={label}
+          maxUsers={1}
+          onConfirm={() => bulkAction(group, toggledIds, this.props.selectedWatchers)} />
+      );
+    };
+  }
+
+  getWatchOrdersAction(group, action, isDirectAction, successMessage, errorMessage) {
+    const actionForm = isDirectAction ? action : `un${action}`;
+
+    return [
+      `${_.capitalize(actionForm)} Orders`,
+      this.getWatchOrders(group, actionForm, isDirectAction),
+      successMessage,
+      errorMessage,
+    ];
+  }
+
   get bulkActions() {
     return [
       ['Cancel Orders', this.cancelOrders, 'successfully canceled', 'could not be canceled'],
-      this.getChangeStateAction('manualHold'),
-      this.getChangeStateAction('fraudHold'),
-      this.getChangeStateAction('remorseHold'),
-      this.getChangeStateAction('fulfillmentStarted'),
+      this.getChangeOrdersStateAction('manualHold'),
+      this.getChangeOrdersStateAction('fraudHold'),
+      this.getChangeOrdersStateAction('remorseHold'),
+      this.getChangeOrdersStateAction('fulfillmentStarted'),
+      this.getWatchOrdersAction(groups.assignees, 'assign', true, 'successfully assigned', 'failed to assign'),
+      this.getWatchOrdersAction(groups.assignees, 'assign', false, 'successfully unassigned', 'failed to unassign'),
+      this.getWatchOrdersAction(groups.watchers, 'watch', true, 'successfully started watching', 'failed to start watching'),
+      this.getWatchOrdersAction(groups.watchers, 'watch', false, 'failed to stop watching', 'failed to stop watching'),
     ];
   }
 

@@ -82,7 +82,7 @@ export default class BulkActions extends React.Component {
 
   @autobind
   getActionWrapper([label, handler, successMessage, errorMessage]) {
-    const {entity} = this.props;
+    const {module, entity} = this.props;
 
     const setState = this.setState.bind(this);
 
@@ -101,6 +101,7 @@ export default class BulkActions extends React.Component {
         //modal's valuable props are provided and onCancel/onConfirm are wrapped
         const modal = React.cloneElement(result, {
           isVisible: true,
+          module,
           entity,
           onCancel: this.getModalCancelHandler(result.props.onCancel),
           onConfirm: this.getModalConfirmHandler(result.props.onConfirm, {
