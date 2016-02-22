@@ -61,9 +61,7 @@ export default class AddressForm extends React.Component {
 
     closeAction: PropTypes.func.isRequired,
     fetchCountry: PropTypes.func.isRequired,
-    onSaved: PropTypes.func,
-    submitAction: PropTypes.func,
-    submitForm: PropTypes.func.isRequired,
+    submitAction: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -173,7 +171,7 @@ export default class AddressForm extends React.Component {
 
   @autobind
   handleFormSubmit(data) {
-    const { closeAction, customerId, onSaved, submitAction, submitForm } = this.props;
+    const { closeAction, customerId, submitAction } = this.props;
 
     const formData = _.reduce(data, (res, val, key) => {
       if (val !== '') {
@@ -183,22 +181,7 @@ export default class AddressForm extends React.Component {
       return res;
     }, this.props.address);
 
-    let willSaved;
-
-    if (submitAction) {
-      willSaved = submitAction(formData);
-    } else {
-      willSaved = submitForm(customerId, formData);
-    }
-
-    willSaved
-      .then(address => {
-        if (onSaved) {
-          onSaved(address.id);
-        }
-
-        closeAction();
-      });
+    submitAction(formData);
   }
 
   @autobind
