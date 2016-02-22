@@ -26,8 +26,7 @@ object Addresses {
     Root(id = 0, region = region, name = cc.name, address1 = cc.address1, address2 = cc.address2,
       city = cc.city, zip = cc.zip, isDefault = None, phoneNumber = cc.phoneNumber)
 
-  def build(records: Seq[(Address, Region)]): Seq[Root] =
-    records.map { case (address, region) ⇒ build(address, region) }
+  def buildMulti(records: Seq[(Address, Region)]): Seq[Root] = records.map((build _).tupled)
 
   def buildShipping(records: Seq[(Address, OrderShippingAddress, Region)]): Seq[Root] = {
     records.map { case (address, shippingAddress, region) ⇒

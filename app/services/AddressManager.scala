@@ -29,7 +29,7 @@ object AddressManager {
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = {
     val query = Addresses.findAllVisibleByCustomerIdWithRegions(customerId)
 
-    Addresses.sortedAndPagedWithRegions(query).result.map(Response.build).toTheResponse.run()
+    Addresses.sortedAndPagedWithRegions(query).result.map(Response.buildMulti).toTheResponse.run()
   }
 
   def getByIdAndCustomer(addressId: Int, customer: Customer)
