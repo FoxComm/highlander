@@ -6,8 +6,14 @@ import { render } from 'react-dom';
 import makeStore from './store';
 import routes from './routes';
 
+const DEBUG = true;
+
 export function renderApp() {
   const store = makeStore(browserHistory, window.__data);
+
+  if (DEBUG) {
+    window.store = store;
+  }
 
   render((
     <Provider store={store} key="provider">

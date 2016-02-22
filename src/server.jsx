@@ -9,7 +9,7 @@ import routes from './routes';
 import renderPage from '../build/main.html';
 
 export default function *renderReact() {
-  const history = createHistory();
+  const history = createHistory(this.path);
   const store = makeStore(history);
 
   const [redirectLocation, renderProps] = yield match.bind(null, {routes, location: this.path, history });

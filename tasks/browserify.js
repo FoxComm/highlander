@@ -65,7 +65,13 @@ module.exports = function(gulp, $, opts) {
       })
       .pipe(source(`app.js`))
       .pipe(buffer())
-      .pipe($.if(production, $.uglify()))
+      .pipe($.if(production, $.uglify({
+        compress: {
+          global_defs: {
+            DEBUG: false,
+          },
+        },
+      })))
       .pipe(gulp.dest('public'));
 
     return stream;

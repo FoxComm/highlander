@@ -3,8 +3,11 @@ import _ from 'lodash';
 import { createStore } from 'redux';
 import { syncHistory } from 'react-router-redux';
 import applyMiddleware from 'redux-wait';
+import logger from 'redux-diff-logger';
 import thunk from 'redux-thunk';
 import rootReducer from './modules';
+
+const isServer = typeof self == 'undefined';
 
 export default function makeStore(history, initialState = void 0) {
   const reduxRouterMiddleware = syncHistory(history);
@@ -12,10 +15,11 @@ export default function makeStore(history, initialState = void 0) {
   const store = createStore(
     rootReducer,
     initialState,
-    _.flow(
+    _.flow(..._.compact([
+      !isServer ? applyMiddleware(logger) : null,
       applyMiddleware(reduxRouterMiddleware),
-      applyMiddleware(thunk)
-    )
+      applyMiddleware(thunk),
+    ]))
   );
 
   if (module.onReload) {
