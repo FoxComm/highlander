@@ -48,10 +48,9 @@
   }
 }
 
-.form {
-  & > * {
-    width: 100%;
-  }
+.login-button {
+  composes: button from "../../common/css/buttons.css";
+  width: 100%;
 }
 
 .signup {
@@ -91,6 +90,7 @@
     line-height: 17px;
   }
 }
+
 
 @media (--medium-viewport) {
   .login-block {

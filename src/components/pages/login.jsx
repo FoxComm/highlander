@@ -10,7 +10,6 @@ import Button from '../common/buttons';
 import WrapToLines from '../common/wrap-to-lines';
 import Icon from '../common/icon';
 
-
 @cssModules(styles)
 export default class Login extends React.Component {
 
@@ -42,14 +41,14 @@ export default class Login extends React.Component {
         <div styleName="title">LOG IN</div>
         <Button icon="fc-google" styleName="google-login">LOG IN WITH GOOGLE</Button>
         <WrapToLines styleName="divider">or</WrapToLines>
-        <Form styleName="form">
+        <Form>
           <FormField styleName="form-field">
             <TextInput placeholder="EMAIL" value={email} type="email" onChange={this.onChangeEmail} />
           </FormField>
           <FormField styleName="form-field">
             <TextInput placeholder="PASSWORD" value={password} onChange={this.onChangePassword} type="password" />
           </FormField>
-          <Button>LOG IN</Button>
+          <Button styleName="login-button">LOG IN</Button>
         </Form>
         <div styleName="signup">
           Don’t have an account? Sign Up.
