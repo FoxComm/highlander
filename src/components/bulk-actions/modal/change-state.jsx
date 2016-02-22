@@ -35,16 +35,14 @@ export default class ChangeStateModal extends React.Component {
         <div className='fc-modal-body'>
           Are you sure you want to change the state to <b>{stateTitle}</b> for <b>{count} {entityForm}</b>?
         </div>
-        <div className='fc-modal-footer'>
-          <a tabIndex="2" className="fc-modal-close" onClick={onCancel}>
-            No
-          </a>
-          <PrimaryButton tabIndex="1"
-                         autoFocus={true}
-                         onClick={onConfirm}>
-            Yes, Change State
-          </PrimaryButton>
-        </div>
+        <SaveCancel className="fc-modal-footer"
+                    cancelTabIndex="2"
+                    cancelClassName="fc-modal-close"
+                    cancelText="No"
+                    onCancel={onCancel}
+                    saveTabIndex="1"
+                    onSave={onConfirm}
+                    saveText="Yes, Change State" />
       </ContentBox>
     );
   }

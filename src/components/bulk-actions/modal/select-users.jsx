@@ -1,18 +1,28 @@
 // libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
 
 // helpers
 import { numberize } from '../../../lib/text-utils';
+import { getStorePath } from '../../../lib/store-utils';
 
 // components
 import modal from '../../modal/wrapper';
 import ContentBox from '../../content-box/content-box';
 import WatcherTypeahead from '../../fields/watcher-typeahead';
-import { PrimaryButton, CloseButton } from '../../common/buttons';
+import SaveCancel from '../../common/save-cancel';
 
 
-const SelectUsersModal = ({module, action, entity, count, label, maxUsers, onCancel, onConfirm}) => {
+const mapStateToProps = (state, {storePath, module}) => {
+  const path = getStorePath(storePath, module, 'watchers', 'list', 'selectModal', 'selected');
+
+  return {
+    selected: _.get(state, path, []).map(({id}) => id),
+  };
+};
+
+const SelectUsersModal = ({module, action, entity, count, label, maxUsers, onCancel, onConfirm, selected}) => {
   const actionBlock = <i onClick={onCancel} className="fc-btn-close icon-close" title="Close" />;
   const actionForm = _.capitalize(action);
   const entityForm = numberize(entity, count);
@@ -30,22 +40,22 @@ const SelectUsersModal = ({module, action, entity, count, label, maxUsers, onCan
           }}
           maxUsers={maxUsers} />
       </div>
-      <div className='fc-modal-footer'>
-        <a tabIndex="2" className="fc-modal-close" onClick={onCancel}>
-          No
-        </a>
-        <PrimaryButton tabIndex="1"
-                       autoFocus={true}
-                       onClick={onConfirm}>
-          {actionForm}
-        </PrimaryButton>
-      </div>
+      <SaveCancel className="fc-modal-footer"
+                  cancelTabIndex="2"
+                  cancelClassName="fc-modal-close"
+                  cancelText="No"
+                  onCancel={onCancel}
+                  saveTabIndex="1"
+                  onSave={onConfirm}
+                  saveText={actionForm}
+                  saveDisabled={!selected.length} />
     </ContentBox>
   );
 };
 
 SelectUsersModal.propTypes = {
   module: PropTypes.string.isRequired,
+  storePath: PropTypes.string,
   action: PropTypes.string.isRequired,
   entity: PropTypes.string.isRequired,
   count: PropTypes.number.isRequired,
@@ -56,6 +66,13 @@ SelectUsersModal.propTypes = {
   maxUsers: PropTypes.number.isRequired,
   onCancel: PropTypes.func.isRequired,
   onConfirm: PropTypes.func.isRequired,
+
+  //connected
+  selected: PropTypes.array.isRequired,
 };
 
-export default modal(SelectUsersModal);
+SelectUsersModal.defaultProps = {
+  storePath: '',
+};
+
+export default connect(mapStateToProps)(modal(SelectUsersModal));
