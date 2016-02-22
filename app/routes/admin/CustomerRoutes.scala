@@ -7,9 +7,8 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
 import models.customer.Customers
-import payloads.{CustomerBulkAssignmentPayload, CustomerBulkWatchersPayload, ActivateCustomerPayload,
-CreateAddressPayload, UpdateCustomerPayload, CustomerAssignmentPayload, CustomerWatchersPayload}
-import services.customers.{CustomerManager, CustomerAssignmentUpdater, CustomerWatcherUpdater}
+import payloads._
+import services.customers._
 import services.{AddressManager, CreditCardManager, CustomerCreditConverter, StoreCreditAdjustmentsService,
 StoreCreditService}
 import services.Authenticator.{AsyncAuthenticator, requireAdminAuth}

@@ -52,6 +52,7 @@ object GiftCardAssignmentUpdater {
 
   def assignBulk(admin: StoreAdmin, payload: GiftCardBulkAssignmentPayload)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkGiftCardUpdateResponse] = (for {
+
     // TODO: transfer sorting-paging metadata
     giftCards       ← * <~ GiftCards.filter(_.code.inSetBind(payload.giftCardCodes)).result.toXor
     assignee        ← * <~ StoreAdmins.mustFindById400(payload.assigneeId)
@@ -62,11 +63,12 @@ object GiftCardAssignmentUpdater {
     success         = giftCards.filter(gc ⇒ newAssignments.map(_.giftCardId).contains(gc.id)).map(_.code)
     _               ← * <~ LogActivity.bulkAssignedToGiftCards(admin, assignee, success)
     _               ← * <~ NotificationManager.subscribe(adminIds = Seq(assignee.id), dimension = Dimension.giftCard,
-      reason = NotificationSubscription.Watching, objectIds = giftCards.map(_.code)).value
+      reason = NotificationSubscription.Assigned, objectIds = giftCards.map(_.code)).value
   } yield response.copy(errors = notFound)).runTxn()
 
   def unassignBulk(admin: StoreAdmin, payload: GiftCardBulkAssignmentPayload)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkGiftCardUpdateResponse] = (for {
+
     // TODO: transfer sorting-paging metadata
     giftCards ← * <~ GiftCards.filter(_.code.inSetBind(payload.giftCardCodes)).result
     assignee  ← * <~ StoreAdmins.mustFindById400(payload.assigneeId)
@@ -77,6 +79,6 @@ object GiftCardAssignmentUpdater {
     success   = giftCards.filter(gc ⇒ payload.giftCardCodes.contains(gc.code)).map(_.code)
     _         ← * <~ LogActivity.bulkUnassignedFromGiftCards(admin, assignee, success)
     _         ← * <~ NotificationManager.unsubscribe(adminIds = Seq(assignee.id), dimension = Dimension.giftCard,
-      reason = NotificationSubscription.Watching, objectIds = giftCards.map(_.code)).value
+      reason = NotificationSubscription.Assigned, objectIds = giftCards.map(_.code)).value
   } yield response.copy(errors = notFound)).runTxn()
 }

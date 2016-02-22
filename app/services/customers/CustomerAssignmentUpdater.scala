@@ -61,7 +61,7 @@ object CustomerAssignmentUpdater {
     success         = customers.filter(c ⇒ newAssignments.map(_.customerId).contains(c.id)).map(_.id)
     _               ← * <~ LogActivity.bulkAssignedToCustomers(admin, assignee, success)
     _               ← * <~ NotificationManager.subscribe(adminIds = Seq(assignee.id), dimension = Dimension.customer,
-      reason = NotificationSubscription.Watching, objectIds = customers.map(_.id.toString)).value
+      reason = NotificationSubscription.Assigned, objectIds = customers.map(_.id.toString)).value
   } yield response.copy(errors = notFound)).runTxn()
 
   def unassignBulk(admin: StoreAdmin, payload: CustomerBulkAssignmentPayload)(implicit ec: ExecutionContext, db: Database,
@@ -76,6 +76,6 @@ object CustomerAssignmentUpdater {
     success   = customers.filter(c ⇒ payload.customerIds.contains(c.id)).map(_.id)
     _         ← * <~ LogActivity.bulkUnassignedFromCustomers(admin, assignee, success)
     _         ← * <~ NotificationManager.unsubscribe(adminIds = Seq(assignee.id), dimension = Dimension.customer,
-      reason = NotificationSubscription.Watching, objectIds = customers.map(_.id.toString)).value
+      reason = NotificationSubscription.Assigned, objectIds = customers.map(_.id.toString)).value
   } yield response.copy(errors = notFound)).runTxn()
 }
