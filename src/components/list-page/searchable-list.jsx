@@ -19,8 +19,8 @@ export default class SearchableList extends React.Component {
       saveSearch: PropTypes.func.isRequired,
       selectSearch: PropTypes.func.isRequired,
       submitFilters: PropTypes.func.isRequired,
-      submitPhrase: PropTypes.func.isRequired,
-      updateSearch: PropTypes.func.isRequired
+      updateSearch: PropTypes.func.isRequired,
+      updateStateAndFetch: PropTypes.func.isRequired,
     }).isRequired,
     searchOptions: PropTypes.shape({
       singleSearch: PropTypes.bool,

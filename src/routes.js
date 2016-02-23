@@ -36,6 +36,9 @@ import InventoryListPage from './components/inventory/list-page';
 import InventoryList from './components/inventory/list';
 import InventoryItem from './components/inventory/item';
 import InventoryItemDetails from './components/inventory/item-details';
+import Products from './components/products/products';
+import Product from './components/products/product';
+import ProductDetails from './components/products/details';
 
 import StyleGuide from './components/style-guide/style-guide';
 import StyleGuideGrid from './components/style-guide/style-guide-grid';
@@ -104,6 +107,14 @@ const routes = (
       <Route name='customer-storecredits-new'
              path=':customerId/storecredits/new'
              component={NewStoreCredit} />
+    </Route>
+    <Route name='products-base' path='products'>
+      <Route name='products-list-pages'>
+        <IndexRoute name='products' component={Products} />
+      </Route>
+      <Route name='product' path=':productId' component={Product}>
+        <IndexRoute name='product-details' component={ProductDetails} />
+      </Route>
     </Route>
     <Route name='gift-cards-base' path='gift-cards'>
       <Route name='gift-cards-list-page' component={GiftCardsListPage}>
