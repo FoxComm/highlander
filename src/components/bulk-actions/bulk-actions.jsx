@@ -16,9 +16,9 @@ import SuccessNotification from '../bulk-actions/success-notification';
 import ErrorNotification from '../bulk-actions/error-notification';
 
 
-const mapStateToProps = (state, {module}) => {
+const mapStateToProps = (state, {storePath}) => {
   return {
-    bulk: state[module].bulk,
+    bulk: _.get(state, storePath, {}),
   };
 };
 
@@ -33,6 +33,7 @@ const mapDispatchToProps = (dispatch, {module}) => {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class BulkActions extends React.Component {
   static propTypes = {
+    storePath: PropTypes.string.isRequired,
     module: PropTypes.string.isRequired,
     entity: PropTypes.string.isRequired,
     actions: PropTypes.arrayOf(PropTypes.array).isRequired,

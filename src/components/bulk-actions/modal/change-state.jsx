@@ -8,7 +8,7 @@ import { numberize } from '../../../lib/text-utils';
 // components
 import modal from '../../modal/wrapper';
 import ContentBox from '../../content-box/content-box';
-import { PrimaryButton, CloseButton } from '../../common/buttons';
+import SaveCancel from '../../common/save-cancel';
 
 
 @modal
