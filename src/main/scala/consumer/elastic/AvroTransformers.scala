@@ -10,10 +10,10 @@ import consumer.AvroJsonHelper
 
 abstract class AvroTransformer(implicit ec: ExecutionContext) extends JsonTransformer {
 
-  def fields(): List[String]
+  def nestedFields(): List[String]
 
   def transform(json: String): Future[String] = Future {
-    AvroJsonHelper.transformJson(json, fields)
+    AvroJsonHelper.transformJson(json, nestedFields())
   }
 }
 
@@ -32,7 +32,7 @@ object AvroTransformers {
     )
 
   final case class Sku()(implicit ec: ExecutionContext) extends AvroTransformer {
-    def mapping = esMapping("skus").fields(
+    def mapping() = esMapping("skus").fields(
         field("id", IntegerType),
         field("sku", StringType).analyzer("autocomplete"),
         field("name", StringType).analyzer("autocomplete"),
@@ -40,11 +40,11 @@ object AvroTransformers {
         field("price", IntegerType)
       )
 
-    def fields = List.empty
+    def nestedFields() = List.empty
   }
 
   final case class GiftCardsSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
-    def mapping =
+    def mapping() =
       esMapping("gift_cards_search_view").fields(
         field("id", IntegerType),
         field("code", StringType) index "not_analyzed",
@@ -77,11 +77,11 @@ object AvroTransformers {
         )
       )
 
-    def fields = List("store_admin", "store_credit", "canceled_reason")
+    def nestedFields() = List("store_admin", "store_credit", "canceled_reason")
   }
 
   final case class StoreCreditsSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
-    def mapping =
+    def mapping() =
       esMapping("store_credits_search_view").fields(
         field("id", IntegerType),
         field("customerId", IntegerType),
@@ -113,11 +113,11 @@ object AvroTransformers {
         )
       )
 
-    def fields = List("store_admin", "gift_card", "canceled_reason")
+    def nestedFields() = List("store_admin", "gift_card", "canceled_reason")
   }
 
   final case class CustomersSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
-    def mapping =
+    def mapping() =
       esMapping("customers_search_view").fields(
         // Customer
         field("id", IntegerType),
@@ -169,11 +169,11 @@ object AvroTransformers {
         )
       )
 
-    def fields = List("orders", "purchased_items", "shipping_addresses", "billing_addresses", "save_for_later")
+    def nestedFields() = List("orders", "purchased_items", "shipping_addresses", "billing_addresses", "save_for_later")
   }
 
   final case class OrdersSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
-    def mapping = {
+    def mapping() = {
       esMapping("orders_search_view").fields(
         // Order
         field("id", IntegerType),
@@ -248,13 +248,13 @@ object AvroTransformers {
       )
     }
 
-    def fields = List("customer", "orders", "line_items", "payments", "shipments", "shipping_addresses",
+    def nestedFields() = List("customer", "orders", "line_items", "payments", "shipments", "shipping_addresses",
       "billing_addresses", "assignees", "rmas"
     )
   }
 
   final case class StoreAdminsSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
-    def mapping =
+    def mapping() =
       esMapping("store_admins_search_view").fields(
         // Store Admin
         field("id", IntegerType),
@@ -270,11 +270,11 @@ object AvroTransformers {
         )
       )
 
-    def fields = List("assignments")
+    def nestedFields() = List("assignments")
   }
 
   final case class FailedAuthorizationsSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
-    def mapping =
+    def mapping() =
       esMapping("failed_authorizations_search_view").fields(
         // Credit Card Charge
         field("id", IntegerType),
@@ -302,11 +302,11 @@ object AvroTransformers {
         field("customerId", IntegerType)
       )
 
-    def fields = List.empty
+    def nestedFields() = List.empty
   }
 
   final case class NotesSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
-    def mapping =
+    def mapping() =
       esMapping("notes_search_view").fields(
         // Note
         field("id", IntegerType),
@@ -315,7 +315,7 @@ object AvroTransformers {
         field("priority", StringType) index "not_analyzed",
         field("createdAt", DateType) format dateFormat,
         field("deletedAt", DateType) format dateFormat,
-        field("storeAdmin").nested (
+        field("author").nested (
           field("email", StringType) analyzer "autocomplete",
           field("name", StringType) analyzer "autocomplete",
           field("department", StringType) analyzer "autocomplete"
@@ -347,11 +347,11 @@ object AvroTransformers {
         )
       )
 
-    def fields = List("store_admin", "order", "customer", "gift_card")
+    def nestedFields() = List("author", "order", "customer", "gift_card")
   }
 
   final case class StoreCreditTransactionsView()(implicit ec: ExecutionContext) extends AvroTransformer {
-    def mapping =
+    def mapping() =
       esMapping("store_credit_transactions_view").fields(
         // Adjustment
         field("id", IntegerType),
@@ -379,11 +379,11 @@ object AvroTransformers {
         )
       )
 
-    def fields = List("store_admin", "order_payment")
+    def nestedFields() = List("store_admin", "order_payment")
   }
 
   final case class GiftCardTransactionsView()(implicit ec: ExecutionContext) extends AvroTransformer {
-    def mapping =
+    def mapping() =
       esMapping("gift_card_transactions_view").fields(
         // Adjustment
         field("id", IntegerType),
@@ -411,11 +411,11 @@ object AvroTransformers {
         )
       )
 
-    def fields = List("store_admin", "order_payment")
+    def nestedFields() = List("store_admin", "order_payment")
   }
 
   final case class InventorySearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
-    def mapping =
+    def mapping() =
       esMapping("inventory_search_view").fields(
         field("id", IntegerType),
         field("product", StringType) analyzer "autocomplete",
@@ -431,7 +431,7 @@ object AvroTransformers {
         field("afs", IntegerType)
       )
 
-    def fields = List.empty
+    def nestedFields() = List.empty
   }
 
 }
