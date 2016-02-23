@@ -315,7 +315,7 @@ object AvroTransformers {
         field("priority", StringType) index "not_analyzed",
         field("createdAt", DateType) format dateFormat,
         field("deletedAt", DateType) format dateFormat,
-        field("storeAdmin").nested (
+        field("author").nested (
           field("email", StringType) analyzer "autocomplete",
           field("name", StringType) analyzer "autocomplete",
           field("department", StringType) analyzer "autocomplete"
@@ -347,7 +347,7 @@ object AvroTransformers {
         )
       )
 
-    def fields = List("store_admin", "order", "customer", "gift_card")
+    def fields = List("author", "order", "customer", "gift_card")
   }
 
   final case class StoreCreditTransactionsView()(implicit ec: ExecutionContext) extends AvroTransformer {
