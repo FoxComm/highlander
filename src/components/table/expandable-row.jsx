@@ -24,7 +24,7 @@ function cells(columns, row, params, setCellContents) {
 }
 
 const ExpandableRow = props => {
-  const { columns, row, params, setDrawerContent, setCellContents, ...rest } = props;
+  const { columns, row, params, setCellContents, ...rest } = props;
   const parentRowClass = classNames('fc-expandable-table__parent-row', {
     '_drawer-open': params.isOpen
   });

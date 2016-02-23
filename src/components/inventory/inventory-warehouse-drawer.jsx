@@ -22,4 +22,10 @@ const WarehouseDrawer = props => {
   );
 };
 
+WarehouseDrawer.propTypes = {
+  row: PropTypes.object.isRequired,
+  drawerColumns: PropTypes.array.isRequired,
+  drawerData: PropTypes.func.isRequired,
+};
+
 export default WarehouseDrawer;

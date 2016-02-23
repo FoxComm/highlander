@@ -13,9 +13,6 @@ const Drawer = props => {
     '_hidden': !props.params.isOpen,
   });
 
-  console.log('drawer');
-  console.log(props);
-
   return (
     <TableRow className={drawerClass}>
       <td className="fc-expandable-table__drawer-cell" colSpan={props.params.colspan}>
@@ -26,8 +23,10 @@ const Drawer = props => {
 };
 
 Drawer.propTypes = {
-  isOpen: PropTypes.bool,
-  colspan: PropTypes.number,
+  params: PropTypes.shape({
+    isOpen: PropTypes.bool,
+    colspan: PropTypes.number,
+  }),
   children: PropTypes.node,
 };
 

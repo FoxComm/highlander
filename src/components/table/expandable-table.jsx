@@ -20,8 +20,6 @@ const ExpandableTable = props => {
     const {renderRow, renderDrawer, entity, columns, params, tableState, idField, toggleDrawerState} = props;
     const id = _.get(row, idField).toString().replace(/ /g,'-');
     const state = _.get(tableState, [id], false);
-    console.log('table');
-    console.log(state);
 
     const hackedParams = {
       ...params,

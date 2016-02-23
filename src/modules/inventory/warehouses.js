@@ -5,10 +5,12 @@ import { createAction, createReducer } from 'redux-act';
 import { assoc } from 'sprout-data';
 
 const warehousesFetchSummaryStart = createAction('WAREHOUSES_FETCH_SUMMARY_START');
-const warehousesFetchSummarySuccess = createAction('WAREHOUSES_FETCH_SUMMARY_SUCCESS', (sku, payload) => [sku, payload]);
+const warehousesFetchSummarySuccess = createAction('WAREHOUSES_FETCH_SUMMARY_SUCCESS',
+                                                   (sku, payload) => [sku, payload]);
 const warehousesFetchFailed = createAction('WAREHOUSES_FETCH_ERROR', (sku, err) => [sku, err]);
 const warehousesFetchDetailsStart = createAction('WAREHOUSES_FETCH_DETAILS_START');
-const warehousesFetchDetailsSuccess = createAction('WAREHOUSES_FETCH_DETAILS_SUCCESS', (sku, warehouseId, payload) => [sku, warehouseId, payload]);
+const warehousesFetchDetailsSuccess = createAction('WAREHOUSES_FETCH_DETAILS_SUCCESS',
+                                                   (sku, warehouseId, payload) => [sku, warehouseId, payload]);
 
 export function fetchSummary(skuCode) {
   return dispatch => {
@@ -21,7 +23,6 @@ export function fetchSummary(skuCode) {
 }
 
 export function fetchDetails(skuCode, warehouseId) {
-  console.log(warehouseId);
   return dispatch => {
     dispatch(warehousesFetchDetailsStart(skuCode));
     Api.get(`/inventory/skus/${skuCode}/${warehouseId}`).then(

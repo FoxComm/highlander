@@ -26,7 +26,9 @@ const mapStateToProps = (state, props) => ({
 export default class InventoryItemDetails extends React.Component {
 
   static propTypes = {
-    params: PropTypes.object,
+    params: PropTypes.object.isRequired,
+    fetchSummary: PropTypes.func.isRequired,
+    fetchDetails: PropTypes.func.isRequired,
   }
 
   componentDidMount() {
