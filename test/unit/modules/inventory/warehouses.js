@@ -4,7 +4,6 @@ import nock from 'nock';
 const { default: reducer, ...actions } = importSource('modules/inventory/warehouses.js', [
   'warehousesFetchSummaryStart',
   'warehousesFetchSummarySuccess',
-  'warehousesFetchFailed',
   'warehousesFetchDetailsStart',
   'warehousesFetchDetailsSuccess',
   'fetchSummary',

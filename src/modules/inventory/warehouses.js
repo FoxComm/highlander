@@ -7,17 +7,18 @@ import { assoc } from 'sprout-data';
 const warehousesFetchSummaryStart = createAction('WAREHOUSES_FETCH_SUMMARY_START');
 const warehousesFetchSummarySuccess = createAction('WAREHOUSES_FETCH_SUMMARY_SUCCESS',
                                                    (sku, payload) => [sku, payload]);
-const warehousesFetchFailed = createAction('WAREHOUSES_FETCH_ERROR', (sku, err) => [sku, err]);
+const warehousesFetchSummaryFailed = createAction('WAREHOUSES_FETCH_SUMMARY_ERROR', (sku, err) => [sku, err]);
 const warehousesFetchDetailsStart = createAction('WAREHOUSES_FETCH_DETAILS_START');
 const warehousesFetchDetailsSuccess = createAction('WAREHOUSES_FETCH_DETAILS_SUCCESS',
                                                    (sku, warehouseId, payload) => [sku, warehouseId, payload]);
+const warehousesFetchDetailsFailed = createAction('WAREHOUSES_FETCH_DETAILS_ERROR', (sku, err) => [sku, err]);
 
 export function fetchSummary(skuCode) {
   return dispatch => {
     dispatch(warehousesFetchSummaryStart(skuCode));
     Api.get(`/inventory/skus/${skuCode}/summary`).then(
       data => dispatch(warehousesFetchSummarySuccess(skuCode, data)),
-      err => dispatch(warehousesFetchFailed(err))
+      err => dispatch(warehousesFetchSummaryFailed(err))
     );
   };
 }
@@ -27,7 +28,7 @@ export function fetchDetails(skuCode, warehouseId) {
     dispatch(warehousesFetchDetailsStart(skuCode));
     Api.get(`/inventory/skus/${skuCode}/${warehouseId}`).then(
       data => dispatch(warehousesFetchDetailsSuccess(skuCode, warehouseId, data)),
-      err => dispatch(warehousesFetchFailed(err))
+      err => dispatch(warehousesFetchDetailsFailed(err))
     );
   };
 }
@@ -89,10 +90,15 @@ const reducer = createReducer({
       [sku, warehouseId, 'results'], tableData
     );
   },
-  [warehousesFetchFailed]: (state, [sku, err]) => {
+  [warehousesFetchSummaryFailed]: (state, [sku, err]) => {
     console.error(err);
     return assoc(state,
-      [sku, 'summary', 'isFetching'], false,
+      [sku, 'summary', 'isFetching'], false
+    );
+  },
+  [warehousesFetchDetailsFailed]: (state, [sku, err]) => {
+    console.error(err);
+    return assoc(state,
       [sku, 'details', 'isFetching'], false
     );
   },
