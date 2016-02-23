@@ -16,6 +16,7 @@ import { numberize } from '../../lib/text-utils';
 
 // components
 import BulkActions from '../bulk-actions/bulk-actions';
+import BulkMessages from '../bulk-actions/bulk-messages';
 import { SearchableList } from '../list-page';
 import OrderRow from './order-row';
 import { ChangeStateModal, CancelModal, SelectUsersModal } from '../bulk-actions/modal';
@@ -154,28 +155,37 @@ export default class Orders extends React.Component {
     };
   }
 
+  renderDetail(messages, referenceNumber) {
+    return (
+      <span key={referenceNumber}>
+        Order <Link to="order-details" params={{order: referenceNumber}}>{referenceNumber}</Link>
+      </span>
+    );
+  }
+
   render() {
     const {list, actions} = this.props;
 
     return (
-      <BulkActions
-        storePath="orders.bulk"
-        module="orders"
-        actions={this.bulkActions}
-        entity="order"
-        renderDetail={(messages, referenceNumber) => (
-          <span key={referenceNumber}>
-            Order <Link to="order-details" params={{order: referenceNumber}}>{referenceNumber}</Link>
-          </span>
-        )}>
-        <SearchableList
-          emptyResultMessage="No orders found."
-          list={list}
-          renderRow={this.renderRow}
-          tableColumns={Orders.tableColumns}
-          searchActions={actions}
-          predicate={({referenceNumber}) => referenceNumber} />
-      </BulkActions>
+      <div>
+        <BulkMessages
+          storePath="orders.bulk"
+          module="orders"
+          entity="order"
+          renderDetail={this.renderDetail} />
+        <BulkActions
+          module="orders"
+          entity="order"
+          actions={this.bulkActions}>
+          <SearchableList
+            emptyResultMessage="No orders found."
+            list={list}
+            renderRow={this.renderRow}
+            tableColumns={Orders.tableColumns}
+            searchActions={actions}
+            predicate={({referenceNumber}) => referenceNumber} />
+        </BulkActions>
+      </div>
     );
   }
 }

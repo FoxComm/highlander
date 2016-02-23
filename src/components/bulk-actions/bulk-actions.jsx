@@ -16,12 +16,6 @@ import SuccessNotification from '../bulk-actions/success-notification';
 import ErrorNotification from '../bulk-actions/error-notification';
 
 
-const mapStateToProps = (state, {storePath}) => {
-  return {
-    bulk: _.get(state, storePath, {}),
-  };
-};
-
 const mapDispatchToProps = (dispatch, {module}) => {
   const {actions} = getStore('bulk', module);
 
@@ -30,61 +24,21 @@ const mapDispatchToProps = (dispatch, {module}) => {
   };
 };
 
-@connect(mapStateToProps, mapDispatchToProps)
+@connect(null, mapDispatchToProps)
 export default class BulkActions extends React.Component {
   static propTypes = {
-    storePath: PropTypes.string.isRequired,
     module: PropTypes.string.isRequired,
     entity: PropTypes.string.isRequired,
     actions: PropTypes.arrayOf(PropTypes.array).isRequired,
-    renderDetail: PropTypes.func.isRequired,
-    bulk: PropTypes.shape({
-      successes: PropTypes.object,
-      errors: PropTypes.object,
-      messages: PropTypes.shape({
-        success: PropTypes.string,
-        error: PropTypes.string,
-      }),
-    }).isRequired,
-    bulkActions: PropTypes.objectOf(PropTypes.func).isRequired,
     children: PropTypes.element.isRequired,
+
+    //computed
+    bulkActions: PropTypes.objectOf(PropTypes.func).isRequired,
   };
 
   state = {
     modal: null,
   };
-
-  get bulkMessages() {
-    const {entity, renderDetail} = this.props;
-    const {successes, errors, messages} = this.props.bulk;
-    const {clearSuccesses, clearErrors} = this.props.bulkActions;
-
-    const notifications = [];
-
-    if (successes) {
-      notifications.push(
-        <SuccessNotification key="successes"
-                             entity={entity}
-                             overviewMessage={messages.success}
-                             onHide={clearSuccesses}>
-          {_.map(successes, renderDetail)}
-        </SuccessNotification>
-      );
-    }
-
-    if (errors) {
-      notifications.push(
-        <ErrorNotification key="errors"
-                           entity={entity}
-                           overviewMessage={messages.error}
-                           onHide={clearErrors}>
-          {_.map(errors, renderDetail)}
-        </ErrorNotification>
-      );
-    }
-
-    return notifications;
-  }
 
   @autobind
   getActionWrapper([label, handler, successMessage, errorMessage]) {
@@ -157,7 +111,6 @@ export default class BulkActions extends React.Component {
   render() {
     return (
       <div>
-        {this.bulkMessages}
         {this.child}
         {this.state.modal}
       </div>
