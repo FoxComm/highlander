@@ -44,17 +44,15 @@ export default class CancelModal extends React.Component {
                         value={this.state.reason}
                         onChange={(reason) => this.setState({reason})} />
         </div>
-        <div className='fc-modal-footer'>
-          <a tabIndex="2" className="fc-modal-close" onClick={onCancel}>
-            No
-          </a>
-          <PrimaryButton tabIndex="1"
-                         autoFocus={true}
-                         disabled={this.state.reason === null}
-                         onClick={() => onConfirm(this.state.reason)}>
-            Yes, Cancel
-          </PrimaryButton>
-        </div>
+        <SaveCancel className="fc-modal-footer"
+                    cancelTabIndex="2"
+                    cancelClassName="fc-modal-close"
+                    cancelText="No"
+                    onCancel={onCancel}
+                    saveTabIndex="1"
+                    onSave={() => onConfirm(this.state.reason)}
+                    saveText="Yes, Cancel"
+                    saveDisabled={this.state.reason === null} />
       </ContentBox>
     );
   }

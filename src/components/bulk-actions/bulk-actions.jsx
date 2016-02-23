@@ -8,6 +8,9 @@ import { connect } from 'react-redux';
 // data
 import * as bulkActions from '../../modules/bulk';
 
+//helpers
+import { getStore } from '../../lib/store-creator';
+
 // components
 import SuccessNotification from '../bulk-actions/success-notification';
 import ErrorNotification from '../bulk-actions/error-notification';
@@ -19,9 +22,11 @@ const mapStateToProps = (state, {module}) => {
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch, {module}) => {
+  const {actions} = getStore('bulk', module);
+
   return {
-    bulkActions: bindActionCreators(bulkActions, dispatch),
+    bulkActions: bindActionCreators(actions, dispatch),
   };
 };
 
@@ -82,7 +87,7 @@ export default class BulkActions extends React.Component {
 
   @autobind
   getActionWrapper([label, handler, successMessage, errorMessage]) {
-    const {entity} = this.props;
+    const {module, entity} = this.props;
 
     const setState = this.setState.bind(this);
 
@@ -101,6 +106,7 @@ export default class BulkActions extends React.Component {
         //modal's valuable props are provided and onCancel/onConfirm are wrapped
         const modal = React.cloneElement(result, {
           isVisible: true,
+          module,
           entity,
           onCancel: this.getModalCancelHandler(result.props.onCancel),
           onConfirm: this.getModalConfirmHandler(result.props.onConfirm, {

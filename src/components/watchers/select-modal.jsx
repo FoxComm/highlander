@@ -4,7 +4,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
-//helpers
+// helpers
 import { getStorePath } from '../../lib/store-utils';
 
 // components
