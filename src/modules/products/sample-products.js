@@ -17,7 +17,13 @@ const products = [
       },
     },
     variants: {
-      default: ['SCALA-MUG-RED', 'SCALA-MUG-BLU', 'SCALA-MUG-BLK'],
+      default: {
+        color: {
+          red: 'SCALA-MUG-RED',
+          blue: 'SCALA-MUG-BLU',
+          black: 'SCALA-MUG-BLK',
+        },
+      },
     },
   },
   {
@@ -38,7 +44,7 @@ const products = [
       },
     },
     variants: {
-      default: [],
+      default: {},
     },
   },
 ];
@@ -74,14 +80,6 @@ const skus = [
         type: 'string',
         default: 'Black Scala Mug',
       },
-      color: {
-        type: 'color',
-        default: {
-          name: 'black',
-          swatch: '#000',
-          title: 'Midnight Black',
-        },
-      },
       price: {
         type: 'price',
         default: {
@@ -98,14 +96,6 @@ const skus = [
         type: 'string',
         default: 'Red Scala Mug',
       },
-      color: {
-        type: 'color',
-        default: {
-          name: 'red',
-          swatch: '#ff0000',
-          title: 'Ruby Red',
-        },
-      },
       price: {
         type: 'price',
         default: {
@@ -121,14 +111,6 @@ const skus = [
       title: {
         type: 'string',
         default: 'Blue Scala Mug',
-      },
-      color: {
-        type: 'color',
-        default: {
-          name: 'blue',
-          swatch: '#0000ff',
-          title: 'Ocean Blue',
-        },
       },
       price: {
         type: 'price',
@@ -148,7 +130,6 @@ const skuShadows = [
     skuId: 1,
     attributes: {
       title: 'default',
-      color: 'default',
       price: 'default',
     },
   },
@@ -158,7 +139,6 @@ const skuShadows = [
     skuId: 2,
     attributes: {
       title: 'default',
-      color: 'default',
       price: 'default',
     },
   },
@@ -168,7 +148,6 @@ const skuShadows = [
     skuId: 3,
     attributes: {
       title: 'default',
-      color: 'default',
       price: 'default',
     },
   },
