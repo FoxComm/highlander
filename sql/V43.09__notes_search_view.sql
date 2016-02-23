@@ -7,8 +7,7 @@ select distinct on (n.id)
     n.priority as priority,
     to_char(n.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
     to_char(n.deleted_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as deleted_at,
-    -- Store admin
-    nav.store_admin,
+    nav.store_admin as author,
     -- Order
     nov.order,
     -- Customer
