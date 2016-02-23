@@ -1,0 +1,10 @@
+[ignore]
+.*/node_modules/.*
+.*\.json
+
+[include]
+./src/
+
+[libs]
+
+[options]

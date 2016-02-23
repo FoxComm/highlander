@@ -16,6 +16,12 @@ nvm install 5.1.0
 nvm use 5.1.0
 ```
 
+### Install Flow
+
+We're using [Flow](https://flowtype.org) to gradually implement type checking in Ashes. Currently, only PIM modules are typed.
+
+Install Flow per the instructions on the website.
+
 ### Install npm modules
 
 ```
