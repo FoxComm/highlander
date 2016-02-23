@@ -12,22 +12,19 @@ const setCellContents = (warehouse, field, params) => {
   return _.get(warehouse, field);
 };
 
-class InventoryWarehouseRow extends React.Component {
+const InventoryWarehouseRow = props => {
+  const { warehouse, columns, params } = props;
+  const key = `inventory-list-${warehouse.id}`;
 
-  render() {
-    const { warehouse, columns, params } = this.props;
-    const key = `inventory-list-${warehouse.id}`;
-
-    return (
-      <ExpandableRow
-        key={key}
-        cellKeyPrefix={key}
-        columns={columns}
-        row={warehouse}
-        params={params}
-        setCellContents={setCellContents} />
-    );
-  }
+  return (
+    <ExpandableRow
+      key={key}
+      cellKeyPrefix={key}
+      columns={columns}
+      row={warehouse}
+      params={params}
+      setCellContents={setCellContents} />
+  );
 };
 
 InventoryWarehouseRow.propTypes = {
