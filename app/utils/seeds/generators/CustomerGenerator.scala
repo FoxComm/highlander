@@ -4,15 +4,18 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.customer.Customer
 import GeneratorUtils.randomString
+import utils.Passwords.hashPassword
 
 import cats.implicits._
 import faker._
 
 trait CustomerGenerator {
 
+  val hashedPassword = hashPassword(randomString(10))
+
   def generateCustomer(location: String): Customer = { 
     val name = Name.name
-    Customer.build(email = generateEmail(name), password = randomString(10).some,
+    Customer(email = generateEmail(name), hashedPassword = hashedPassword.some,
       name = name.some, location = location.some)
   }
 
