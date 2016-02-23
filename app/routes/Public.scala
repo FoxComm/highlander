@@ -82,6 +82,6 @@ object Public {
           }
         }
       }
-    }  
+    }
   }
 }
