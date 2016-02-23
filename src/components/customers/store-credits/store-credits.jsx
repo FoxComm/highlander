@@ -1,4 +1,3 @@
-
 // libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
@@ -12,6 +11,9 @@ import Summary from './summary';
 import TableView from '../../table/tableview';
 import TableRow from '../../table/row';
 import TableCell from '../../table/cell';
+import BulkActions from '../../bulk-actions/bulk-actions';
+import BulkMessages from '../../bulk-actions/bulk-messages';
+import { ChangeStateModal, CancelModal } from '../../bulk-actions/modal';
 import MultiSelectTable from '../../table/multi-select-table';
 import { DateTime } from '../../common/datetime';
 import Currency from '../../common/currency';
@@ -22,8 +24,10 @@ import { Checkbox } from '../../checkbox/checkbox';
 import SearchableList from '../../list-page/searchable-list';
 import StoreCreditRow from './storecredit-row';
 
-// redux
+// data
+import { stateTitles } from '../../../paragons/store-credit';
 import { actions as StoreCreditsActions } from '../../../modules/customers/store-credits';
+import { actions as bulkActions } from '../../../modules/customers/store-credit-bulk';
 import * as ReasonsActions from '../../../modules/reasons';
 import * as StoreCreditTotalsActions from '../../../modules/customers/store-credit-totals';
 import * as StoreCreditStateActions from '../../../modules/customers/store-credit-states';
@@ -41,6 +45,7 @@ const mapDispatchToProps = dispatch => {
     totalsActions: bindActionCreators(StoreCreditTotalsActions, dispatch),
     reasonsActions: bindActionCreators(ReasonsActions, dispatch),
     stateActions: bindActionCreators(StoreCreditStateActions, dispatch),
+    bulkActions: bindActionCreators(bulkActions, dispatch),
   };
 };
 
@@ -126,7 +131,7 @@ export default class StoreCredits extends React.Component {
 
   componentDidMount() {
     this.props.actions.setExtraFilters([
-      {term: {'customerId': this.customerId} }
+      {term: {'customerId': this.customerId}}
     ]);
     this.props.reasonsActions.fetchReasons(this.reasonType);
     this.props.totalsActions.fetchTotals(this.customerId);
@@ -143,7 +148,7 @@ export default class StoreCredits extends React.Component {
         columns={columns}
         changeState={(rowId, value) => this.props.stateActions.changeState(customerId, rowId, value)}
         key={key}
-        params={params}/>
+        params={params} />
     );
   }
 
@@ -174,13 +179,13 @@ export default class StoreCredits extends React.Component {
       this.props.states.storeCreditToChange.state !== 'canceled';
     return (
       <ConfirmationDialog
-          isVisible={shouldDisplay}
-          header="Change Store Credit State?"
-          body={message}
-          cancel="Cancel"
-          confirm="Yes, Change State"
-          cancelAction={ () => this.props.stateActions.cancelChange(this.customerId) }
-          confirmAction={ () => this.props.stateActions.saveStateChange(this.customerId) } />
+        isVisible={shouldDisplay}
+        header="Change Store Credit State?"
+        body={message}
+        cancel="Cancel"
+        confirm="Yes, Change State"
+        cancelAction={ () => this.props.stateActions.cancelChange(this.customerId) }
+        confirmAction={ () => this.props.stateActions.saveStateChange(this.customerId) } />
     );
   }
 
@@ -219,14 +224,65 @@ export default class StoreCredits extends React.Component {
 
     return (
       <ConfirmationDialog
-          isVisible={ shouldDisplay }
-          header="Cancel Store Credit?"
-          body={ body }
-          cancel="Cancel"
-          confirm="Yes, Cancel"
-          cancelAction={ () => props.stateActions.cancelChange(this.customerId) }
-          confirmAction={ () => props.stateActions.saveStateChange(this.customerId) } />
+        isVisible={ shouldDisplay }
+        header="Cancel Store Credit?"
+        body={ body }
+        cancel="Cancel"
+        confirm="Yes, Cancel"
+        cancelAction={ () => props.stateActions.cancelChange(this.customerId) }
+        confirmAction={ () => props.stateActions.saveStateChange(this.customerId) } />
     );
+  }
+
+  @autobind
+  cancelStoreCredits(allChecked, toggledIds) {
+    const {cancelStoreCredits} = this.props.bulkActions;
+
+    return (
+      <CancelModal
+        count={toggledIds.length}
+        onConfirm={(reasonId) => {
+          cancelStoreCredits(toggledIds, reasonId);
+        }} />
+    );
+  }
+
+  getChangeStoreCreditsState(state) {
+    const stateTitle = stateTitles[state];
+
+    return (allChecked, toggledIds) => {
+      const {changeStoreCreditsState} = this.props.bulkActions;
+
+      return (
+        <ChangeStateModal
+          count={toggledIds.length}
+          stateTitle={stateTitle}
+          onConfirm={() => changeStoreCreditsState(toggledIds, state)} />
+      );
+    };
+  }
+
+  getChangeStoreCreditsStateAction(state) {
+    const stateTitle = stateTitles[state];
+
+    return [
+      `Change Store Credits state to ${stateTitle}`,
+      this.getChangeStoreCreditsState(state),
+      `successfully changed state to ${stateTitle}`,
+      `could not change state to ${stateTitle}`,
+    ];
+  }
+
+  get bulkActions() {
+    return [
+      ['Cancel Store Credits', this.cancelStoreCredits, 'successfully canceled', 'could not be canceled'],
+      this.getChangeStoreCreditsStateAction('active'),
+      this.getChangeStoreCreditsStateAction('onHold'),
+    ];
+  }
+
+  renderDetail(messages, id) {
+    return (<span key={id}>Store credit #{id}</span>);
   }
 
   render() {
@@ -235,19 +291,29 @@ export default class StoreCredits extends React.Component {
 
     return (
       <div className="fc-store-credits fc-list-page">
+        <BulkMessages
+          storePath="customers.storeCreditBulk"
+          module="customers.store-credits"
+          entity="store credit"
+          renderDetail={this.renderDetail} />
         <Summary totals={totals}
                  params={props.params}
                  history={this.context.history}
                  transactionsSelected={false} />
         <div className="fc-grid fc-list-page-content fc-store-credits__list">
-          <SearchableList
-            title="Store Credits"
-            emptyResultMessage="No store credits found."
-            list={this.props.list}
-            renderRow={this.renderRow}
-            tableColumns={this.props.tableColumns}
-            searchActions={this.props.actions}
-            searchOptions={{singleSearch: true}} />
+          <BulkActions
+            module="customers.store-credits"
+            entity="store credit"
+            actions={this.bulkActions}>
+            <SearchableList
+              title="Store Credits"
+              emptyResultMessage="No store credits found."
+              list={this.props.list}
+              renderRow={this.renderRow}
+              tableColumns={this.props.tableColumns}
+              searchActions={this.props.actions}
+              searchOptions={{singleSearch: true}} />
+          </BulkActions>
         </div>
         { this.confirmStateChange }
         { this.confirmCancellation }
