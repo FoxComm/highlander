@@ -14,13 +14,10 @@ import payloads._
 import services.{NoteManager, SaveForLaterManager, SharedSearchService,
 ShippingManager, StoreCreditAdjustmentsService, StoreCreditService, SharedSearchInvalidQueryFailure}
 import services.Authenticator.{AsyncAuthenticator, requireAuth}
-import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._
 import utils.aliases._
-
-import models.auth.Session.requireAdminAuth
 
 
 object Admin {

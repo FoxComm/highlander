@@ -1,24 +1,25 @@
 package services
 
 import scala.concurrent.Future
-import akka.http.scaladsl.model.headers.{GenericHttpCredentials, OAuth2BearerToken, BasicHttpCredentials,
-HttpCredentials}
-import akka.http.scaladsl.server.directives.{AuthenticationResult, AuthenticationDirective}
-import akka.http.scaladsl.server.Directives.extractExecutionContext
-import akka.http.scaladsl.server.directives.SecurityDirectives.{AuthenticationResult, challengeFor,
-  authenticateOrRejectWithChallenge}
-import models.customer.{Customer, Customers}
+import akka.http.scaladsl.model.headers.{HttpCredentials, RawHeader}
+import akka.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server._
+import akka.http.scaladsl.server.directives.RespondWithDirectives.respondWithHeader
+import akka.http.scaladsl.server.directives.SecurityDirectives.{AuthenticationResult, challengeFor, extractCredentials}
+import akka.http.scaladsl.server.directives.{AuthenticationDirective, AuthenticationResult}
+
 import cats.data.Xor
+import models.auth.{Identity, _}
+import models.customer.{Customer, Customers}
 import models.{StoreAdmin, StoreAdmins}
-import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
-import utils.Passwords.checkPassword
-import utils.aliases._
-import models.auth.Identity
-import models.auth._
 import payloads.LoginPayload
+import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
+import utils.Passwords.checkPassword
+import utils.Slick.implicits._
+import utils.aliases._
 
 // TODO: Implement real session-based authentication with JWT
 // TODO: Probably abstract this out so that we use one for both AdminUsers and Customers
@@ -28,57 +29,81 @@ import utils.DbResultT.implicits._
 object Authenticator {
 
   type EmailFinder[M] = String ⇒ DBIO[Option[M]]
+  type TokenToModel[M] = Token ⇒ Failures Xor DBIO[Option[M]]
   type AsyncAuthenticator[M] = (Option[HttpCredentials]) ⇒ Future[AuthenticationResult[M]]
 
-  def customer(credentials: Option[HttpCredentials])
+  def basicCustomer(credentials: Option[HttpCredentials])
               (implicit ec: EC, db: DB): Future[AuthenticationResult[Customer]] = {
-    authCheck[Customer, EmailFinder[Customer]]("private customer routes")(credentials, Customers.findByEmail, _.hashedPassword)
+    basicAuth[Customer, EmailFinder[Customer]]("private customer routes")(credentials, Customers.findByEmail, _.hashedPassword)
   }
 
-  def storeAdmin(credentials: Option[HttpCredentials])
+  def basicStoreAdmin(credentials: Option[HttpCredentials])
               (implicit ec: EC, db: DB): Future[AuthenticationResult[StoreAdmin]] = {
-    authCheck[StoreAdmin, EmailFinder[StoreAdmin]]("admin")(credentials, StoreAdmins.findByEmail, _.hashedPassword)
+    basicAuth[StoreAdmin, EmailFinder[StoreAdmin]]("admin")(credentials, StoreAdmins.findByEmail, _.hashedPassword)
   }
 
-  def requireAuth[M](auth: AsyncAuthenticator[M]): AuthenticationDirective[M] = {
-    extractExecutionContext.flatMap { implicit ec ⇒
-      authenticateOrRejectWithChallenge(auth)
+  def requireAuth[T](auth: AsyncAuthenticator[T]): AuthenticationDirective[T] = {
+    extractCredentials.flatMap { optCreds ⇒
+      onSuccess(auth(optCreds)).flatMap {
+        case Right(user) ⇒ provide(user)
+        case Left(challenge) ⇒
+          val cause = if (optCreds.isEmpty) CredentialsMissing else CredentialsRejected
+          reject(AuthenticationFailedRejection(cause, challenge)): Directive1[T]
+      }
     }
   }
 
-  private[this] def authCheck[M, F <: EmailFinder[M]](realm: String)
-    (credentials: Option[HttpCredentials], finder: F, getHashedPassword: M ⇒ Option[String])
-   (implicit ec: EC, db: DB): Future[AuthenticationResult[M]] = {
+  def setJwtHeader(t: Token): Directive0 = {
+    respondWithHeader(RawHeader("JWT", t.encode))
+  }
+
+  def jwtCustomer(credentials: Option[HttpCredentials])
+    (implicit ec: EC, db: Database): Future[AuthenticationResult[Customer]] = {
+    jwtAuth[Customer, TokenToModel[Customer]]("private customer routes")(credentials, customerFromToken)
+  }
+
+  def jwtStoreAdmin(credentials: Option[HttpCredentials])
+    (implicit ec: EC, db: Database): Future[AuthenticationResult[StoreAdmin]] = {
+    jwtAuth[StoreAdmin, TokenToModel[StoreAdmin]]("admin")(credentials, adminFromToken)
+  }
+
+  private[this] def jwtAuth[M, F <: TokenToModel[M]](realm: String)
+      (credentials: Option[HttpCredentials], userFromToken: F)
+    (implicit ec: EC, db: Database): Future[AuthenticationResult[M]] = {
     (for {
-      userCredentials ← * <~ credentials.flatMap {
-        case BasicHttpCredentials(username, secret) ⇒ Some(SecretCredentials(username, secret))
-        case _ ⇒ None
-      }.toXor(LoginFailed.single)
-      user ← * <~ finder(userCredentials.identifier).mustFindOr(LoginFailed)
-      validated ← * <~ validatePassword(user, getHashedPassword(user), userCredentials.secret)
-    } yield validated).runTxn().map {
+      jwtCredentials ← * <~ Credentials.mustJwtOr(credentials, LoginFailed.single)
+      token ← * <~ validateTokenCredentials(jwtCredentials)
+      userDbio ← * <~ userFromToken(token)
+      user ← * <~ userDbio.mustFindOr(LoginFailed)
+    } yield user).run().map {
       case Xor.Right(entity) ⇒ AuthenticationResult.success(entity)
       case Xor.Left(_) ⇒ AuthenticationResult.failWithChallenge(challengeFor(realm))
     }
   }
 
-  private def extractCredentials(cred: HttpCredentials): Option[Credentials] = cred match {
-    case BasicHttpCredentials(username, secret) ⇒ Some(SecretCredentials(username, secret))
-    case OAuth2BearerToken(token) ⇒ Some(OauthCredentials(token))
-    // assume it's JWT, also it's not a typo - token contained in scheme for GenericHttpCredentials
-    case GenericHttpCredentials(scheme, token, params) ⇒ Some(JWTCredentials(scheme))
-    case _ ⇒ None
+  private[this] def basicAuth[M, F <: EmailFinder[M]](realm: String)
+    (credentials: Option[HttpCredentials], finder: F, getHashedPassword: M ⇒ Option[String])
+   (implicit ec: EC, db: DB): Future[AuthenticationResult[M]] = {
+    (for {
+      userCredentials ← * <~ Credentials.mustBasicOr(credentials, LoginFailed.single)
+      user ← * <~ finder(userCredentials.identifier).mustFindOr(LoginFailed)
+      validated ← * <~ validatePassword(user, getHashedPassword(user), userCredentials.secret)
+    } yield validated).run().map {
+      case Xor.Right(entity) ⇒ AuthenticationResult.success(entity)
+      case Xor.Left(_) ⇒ AuthenticationResult.failWithChallenge(challengeFor(realm))
+    }
   }
 
   def authenticate(payload: LoginPayload)
     (implicit ec: EC, db: DB): Result[Token] = {
 
-    def auth[M, F <: EmailFinder[M], T](finder: F, getHashedPassword: M ⇒ Option[String], builder: M ⇒ T): Result[T] = {
+    def auth[M, F <: EmailFinder[M], T](finder: F, getHashedPassword: M ⇒ Option[String], tokenFromModel: M ⇒ T):
+      Result[T] = {
       (for {
-        instance ← * <~ finder(payload.email).mustFindOr(LoginFailed)
-        validated ← * <~ validatePassword(instance, getHashedPassword(instance), payload.password)
-        checked ← * <~ builder(validated)
-      } yield checked).run()
+        userInstance ← * <~ finder(payload.email).mustFindOr(LoginFailed)
+        validatedUser ← * <~ validatePassword(userInstance, getHashedPassword(userInstance), payload.password)
+        checkedToken ← * <~ tokenFromModel(validatedUser)
+      } yield checkedToken).run()
     }
 
     payload.kind match {
@@ -97,6 +122,28 @@ object Authenticator {
       Xor.right(model)
     else
       Xor.left(LoginFailed.single)
+  }
+
+  private def validateTokenCredentials(token: JWTCredentials): Failures Xor Token = {
+    Token.fromString(token.secret)
+  }
+
+  private def adminFromToken(token: Token): Failures Xor DBIO[Option[StoreAdmin]] = {
+    token match {
+      case token: AdminToken ⇒ Xor.right(DBIO.successful(Some(StoreAdmin(id = token.id,
+        email = token.email,
+        hashedPassword = None,
+        name = token.name.getOrElse(""),
+        department = token.department))))
+      case _ ⇒ Xor.left(LoginFailed.single)
+    }
+  }
+
+  private def customerFromToken(token: Token): Failures Xor DBIO[Option[Customer]] = {
+    token match {
+      case token: CustomerToken ⇒ Xor.right(Customers.findOneById(token.id))
+      case _ ⇒ Xor.left(LoginFailed.single)
+    }
   }
 
 }

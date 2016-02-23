@@ -1,19 +1,15 @@
 package routes
 
-import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import akka.stream.Materializer
-import slick.driver.PostgresDriver.api._
-
-import models.auth.Session.setTokenSession
 import services.Authenticator
-
 import utils.Http._
+import utils.aliases._
 
 object AuthRoutes {
 
-  def routes(implicit ec: ExecutionContext, db: Database, mat: Materializer) = {
+  def routes(implicit ec: EC, db: DB, mat: Materializer) = {
 
     pathPrefix("public") {
       (post & path("login") & entity(as[payloads.LoginPayload])) { payload ⇒
@@ -21,7 +17,7 @@ object AuthRoutes {
           result.fold({ f ⇒
             complete(renderFailure(f))
           }, { token ⇒
-            setTokenSession(token) {
+            Authenticator.setJwtHeader(token) {
               complete(render(token))
             }
           })

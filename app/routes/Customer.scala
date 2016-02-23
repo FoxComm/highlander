@@ -13,15 +13,12 @@ import services.customers.CustomerManager
 import services.orders._
 import services.{SaveForLaterManager, StoreCreditAdjustmentsService, ShippingManager, Checkout,
 CreditCardManager, AddressManager, LineItemUpdater, StoreCreditService}
-import services.Authenticator.{AsyncAuthenticator}
-import slick.driver.PostgresDriver.api._
+import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._
 import utils.Slick.implicits._
 import utils.aliases._
-
-import models.auth.Session.requireCustomerAuth
 
 
 object Customer {
@@ -29,7 +26,7 @@ object Customer {
     mat: Materializer, customerAuth: AsyncAuthenticator[models.customer.Customer], apis: Apis) = {
 
     pathPrefix("my") {
-      requireCustomerAuth(db) { customer ⇒
+      requireAuth(customerAuth) { customer ⇒
         activityContext(customer) { implicit ac ⇒
           pathPrefix("cart") {
             determineProductContext(db, ec) { productContext ⇒ 

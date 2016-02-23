@@ -1,5 +1,8 @@
 package server
 
+import scala.collection.immutable
+import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContextExecutor, Future}
 import akka.actor.{ActorSystem, Cancellable, Props}
 import akka.agent.Agent
 import akka.event.Logging
@@ -8,8 +11,10 @@ import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route}
 import akka.stream.ActorMaterializer
+
 import com.typesafe.config.Config
 import models.StoreAdmin
+import models.auth.Keys
 import models.customer.Customer
 import org.json4s.jackson.Serialization
 import org.json4s.{Formats, jackson}
@@ -19,9 +24,6 @@ import services.actors._
 import slick.driver.PostgresDriver.api._
 import utils.{Apis, CustomHandlers, WiredStripeApi}
 
-import scala.collection.immutable
-import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContextExecutor, Future}
 
 object Main extends App {
   implicit val env = utils.Config.environment
@@ -56,8 +58,8 @@ class Service(
   implicit val db:   Database = dbOverride.getOrElse(Database.forConfig("db", config))
   implicit val apis: Apis     = apisOverride.getOrElse(Apis(new WiredStripeApi))
 
-  implicit val storeAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.storeAdmin
-  implicit val customerAuth: AsyncAuthenticator[Customer] = Authenticator.customer
+  implicit val storeAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.jwtStoreAdmin
+  implicit val customerAuth: AsyncAuthenticator[Customer] = Authenticator.jwtCustomer
 
   val defaultRoutes = {
     pathPrefix("v1") {
@@ -100,4 +102,5 @@ class Service(
     val remorseTimerBuddy = system.actorOf(Props(new RemorseTimerMate()), "remorse-timer-mate")
     system.scheduler.schedule(Duration.Zero, 1.minute, remorseTimer, Tick)(executionContext, remorseTimerBuddy)
   }
+
 }
