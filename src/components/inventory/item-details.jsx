@@ -36,8 +36,9 @@ export default class InventoryItemDetails extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const oldWarehouses = _.get(this.props, ['tableState', 'summary', 'results', 'rows'], []);
-    const warehouses = _.get(nextProps, ['tableState', 'summary', 'results', 'rows'], []);
+    const namespace = ['tableState', 'summary', 'results', 'rows'];
+    const oldWarehouses = _.get(this.props, namespace, []);
+    const warehouses = _.get(nextProps, namespace, []);
     if (!_.isEqual(oldWarehouses, warehouses)) {
       _.each(warehouses, (wh) => {
         this.props.fetchDetails(this.props.params.sku, wh.id);
@@ -73,7 +74,12 @@ export default class InventoryItemDetails extends React.Component {
   renderDrawer(row, index, params) {
     const key = `inventory-warehouse-drawer-${row.id}`;
     return (
-      <WarehouseDrawer row={row} drawerData={params.drawerData} drawerColumns={params.drawerColumns} params={params} />
+      <WarehouseDrawer
+        key={key}
+        row={row}
+        drawerData={params.drawerData}
+        drawerColumns={params.drawerColumns}
+        params={params} />
     );
   }
 
@@ -82,6 +88,7 @@ export default class InventoryItemDetails extends React.Component {
     const key = `inventory-warehouse-row-${row.id}`;
     return (
       <InventoryWarehouseRow
+        key={key}
         warehouse={row}
         columns={columns}
         params={params} />
