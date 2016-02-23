@@ -88,7 +88,11 @@ export default class TableBody extends React.Component {
                     this.props.predicate &&
                     (this.state.newIds.indexOf(String(this.props.predicate(row))) != -1);
 
-      return renderRow(row, index, isNew);
+      if (_.isArray(renderRow)) {
+        return renderRow.each((render) => render(row, index, isNew));
+      } else {
+        return renderRow(row, index, isNew);
+      }
     }));
   }
 

@@ -17,17 +17,23 @@ const mapStateToProps = (state, props) => ({
 
 const ExpandableTable = props => {
   const renderRow = (row, index) => {
-    const {renderRow, entity, columns, params, tableState, idField, toggleDrawerState} = props;
+    const {renderRow, renderDrawer, entity, columns, params, tableState, idField, toggleDrawerState} = props;
     const id = _.get(row, idField).toString().replace(/ /g,'-');
     const state = _.get(tableState, [id], false);
+    console.log('table');
+    console.log(state);
 
     const hackedParams = {
       ...params,
       toggleDrawerState: () => toggleDrawerState(entity, id),
       isOpen: state,
+      colspan: columns.length,
     };
 
-    return renderRow(row, index, columns, hackedParams);
+    return [
+      renderRow(row, index, columns, hackedParams),
+      renderDrawer(row, index, hackedParams),
+    ];
   };
 
   return (
@@ -47,7 +53,8 @@ ExpandableTable.propTypes = {
     from: PropTypes.number,
     size: PropTypes.number,
   }),
-  renderRow: PropTypes.func,
+  renderRow: PropTypes.func.isRequired,
+  renderDrawer: PropTypes.func.isRequired,
   emptyMessage: PropTypes.string.isRequired,
   className: PropTypes.string,
   params: PropTypes.object,

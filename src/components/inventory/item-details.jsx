@@ -13,6 +13,7 @@ import TabView from '../tabs/tab';
 import { Link, IndexLink } from '../link';
 import ExpandableTable from '../table/expandable-table';
 import InventoryWarehouseRow from './inventory-warehouse-row';
+import WarehouseDrawer from './inventory-warehouse-drawer';
 
 // redux
 import * as WarehousesActions from '../../modules/inventory/warehouses';
@@ -35,7 +36,7 @@ export default class InventoryItemDetails extends React.Component {
   componentWillReceiveProps(nextProps) {
     const oldWarehouses = _.get(this.props, ['tableState', 'summary', 'results', 'rows'], []);
     const warehouses = _.get(nextProps, ['tableState', 'summary', 'results', 'rows'], []);
-      if (!_.isEqual(oldWarehouses, warehouses)) {
+    if (!_.isEqual(oldWarehouses, warehouses)) {
       _.each(warehouses, (wh) => {
         this.props.fetchDetails(this.props.params.sku, wh.id);
       });
@@ -67,14 +68,21 @@ export default class InventoryItemDetails extends React.Component {
   }
 
   @autobind
+  renderDrawer(row, index, params) {
+    const key = `inventory-warehouse-drawer-${row.id}`;
+    return (
+      <WarehouseDrawer row={row} drawerData={params.drawerData} drawerColumns={params.drawerColumns} params={params} />
+    );
+  }
+
+  @autobind
   renderRow(row, index, columns, params) {
     const key = `inventory-warehouse-row-${row.id}`;
     return (
       <InventoryWarehouseRow
         warehouse={row}
         columns={columns}
-        params={params}
-        fetchDetails={(warehouseId) => this.props.fetchDetails(this.props.params.sku)} />
+        params={params} />
     );
   }
 
@@ -87,7 +95,6 @@ export default class InventoryItemDetails extends React.Component {
   }
 
   render() {
-    console.log(this.props.tableState);
     const params = {
       drawerData: this.drawerData,
       drawerColumns: this.drawerColumns,
@@ -123,6 +130,7 @@ export default class InventoryItemDetails extends React.Component {
               columns={this.tableColumns}
               data={this.summaryData}
               renderRow={this.renderRow}
+              renderDrawer={this.renderDrawer}
               params={params}
               entity={haveType(this.props.params, 'inventoryItem')}
               idField="id"
