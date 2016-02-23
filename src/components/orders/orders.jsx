@@ -63,9 +63,7 @@ export default class Orders extends React.Component {
     return (
       <CancelModal
         count={toggledIds.length}
-        onConfirm={(reasonId) => {
-          cancelOrders(toggledIds, reasonId);
-        }} />
+        onConfirm={(reasonId) => cancelOrders(toggledIds, reasonId)} />
     );
   }
 

@@ -18,7 +18,7 @@ const preprocessResponse = (results) => {
 
   const errors = results
     .filter(({success}) => !success)
-    .reduce((result, {id, errors}) => ({...result, [id]: errors.head.message}), {});
+    .reduce((result, {id, errors}) => ({...result, [id]: errors[0]}), {});
 
   return {
     batch: {

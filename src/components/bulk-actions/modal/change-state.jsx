@@ -11,39 +11,40 @@ import ContentBox from '../../content-box/content-box';
 import SaveCancel from '../../common/save-cancel';
 
 
-@modal
-export default class ChangeStateModal extends React.Component {
+const ChangeStateModal = ({entity, stateTitle, count, label: rawLabel, onCancel, onConfirm}) => {
+  const actionBlock = <i onClick={onCancel} className="fc-btn-close icon-close" title="Close" />;
+  const entityForm = numberize(entity, count);
 
-  static propTypes = {
-    entity: PropTypes.string.isRequired,
-    stateTitle: PropTypes.string.isRequired,
-    count: PropTypes.number,
-    onCancel: PropTypes.func.isRequired,
-    onConfirm: PropTypes.func.isRequired,
-  };
+  const label = rawLabel
+    ? rawLabel
+    : <span>Are you sure you want to change the state to <b>{stateTitle}</b> for <b>{count} {entityForm}</b>?</span>;
 
-  render() {
-    const {entity, stateTitle, count, onCancel, onConfirm} = this.props;
+  return (
+    <ContentBox title={`Change ${_.capitalize(entityForm)} state to ${stateTitle}?`}
+                className="fc-bulk-action-modal"
+                actionBlock={actionBlock}>
+      <div className="fc-modal-body">
+        {label}
+      </div>
+      <SaveCancel className="fc-modal-footer"
+                  cancelTabIndex="2"
+                  cancelClassName="fc-modal-close"
+                  cancelText="No"
+                  onCancel={onCancel}
+                  saveTabIndex="1"
+                  onSave={onConfirm}
+                  saveText="Yes, Change State" />
+    </ContentBox>
+  );
+};
 
-    const actionBlock = <i onClick={onCancel} className="fc-btn-close icon-close" title="Close" />;
-    const entityForm = numberize(entity, count);
+ChangeStateModal.propTypes = {
+  entity: PropTypes.string.isRequired,
+  stateTitle: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  count: PropTypes.number.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+};
 
-    return (
-      <ContentBox title={`Change ${_.capitalize(entityForm)} state to ${stateTitle}?`}
-                  className="fc-bulk-action-modal"
-                  actionBlock={actionBlock}>
-        <div className='fc-modal-body'>
-          Are you sure you want to change the state to <b>{stateTitle}</b> for <b>{count} {entityForm}</b>?
-        </div>
-        <SaveCancel className="fc-modal-footer"
-                    cancelTabIndex="2"
-                    cancelClassName="fc-modal-close"
-                    cancelText="No"
-                    onCancel={onCancel}
-                    saveTabIndex="1"
-                    onSave={onConfirm}
-                    saveText="Yes, Change State" />
-      </ContentBox>
-    );
-  }
-}
+export default modal(ChangeStateModal);
