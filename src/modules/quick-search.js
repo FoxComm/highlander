@@ -28,7 +28,7 @@ export default function makeQuickSearch(namespace, searchUrl, searchFilters, phr
   function fetcher(phrase, queryFilters = filters) {
     const esQuery = toQuery(queryFilters, {phrase});
     return post(addPaginationParams(url, this.searchState), esQuery);
-  };
+  }
 
   const {reducer, ...actions} = makePagination(namespace, fetcher, state => _.get(state, `${namespace}.results`));
 
