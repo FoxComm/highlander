@@ -14,12 +14,12 @@ import utils.seeds.Seeds.Factories
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class PublicRoutesIntegrationTest extends IntegrationTestBase
+class PaymentTypesIntegrationTest extends IntegrationTestBase
   with HttpSupport
   with BeforeAndAfterEach {
 
   "GiftCard Types" - {
-    "GET /v1/pubilc/gift-cards/types" - {
+    "GET /v1/public/gift-cards/types" - {
       "should return all GC types and related sub-types" in new GiftCardFixture {
         val response = GET(s"v1/public/gift-cards/types")
         response.status must ===(StatusCodes.OK)
