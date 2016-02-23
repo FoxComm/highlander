@@ -19,64 +19,66 @@ object Public {
     import utils.Http._
 
     activityContext() { implicit ac ⇒
-      pathPrefix("registrations") {
-        (post & path("new") & pathEnd & entity(as[CreateCustomerPayload])) { regRequest ⇒
-          goodOrFailures {
-            CustomerManager.create(regRequest)
-          }
-        }
-      } ~
-      pathPrefix("regions") {
-        (get & pathEnd) {
-          good {
-            listRegions
-          }
-        }
-      } ~
-      pathPrefix("countries") {
-        (get & pathEnd) {
-          good {
-            listCountries
+      pathPrefix("public") {
+        pathPrefix("registrations") {
+          (post & path("new") & pathEnd & entity(as[CreateCustomerPayload])) { regRequest ⇒
+            goodOrFailures {
+              CustomerManager.create(regRequest)
+            }
           }
         } ~
-        (get & path(IntNumber) & pathEnd) { countryId ⇒
-          goodOrFailures {
-            findCountry(countryId)
+        pathPrefix("regions") {
+          (get & pathEnd) {
+            good {
+              listRegions
+            }
           }
-        }
-      } ~
-      pathPrefix("gift-cards" / "types") {
-        (get & pathEnd) {
-          goodOrFailures {
-            GiftCardService.getOriginTypes
+        } ~
+        pathPrefix("countries") {
+          (get & pathEnd) {
+            good {
+              listCountries
+            }
+          } ~
+          (get & path(IntNumber) & pathEnd) { countryId ⇒
+            goodOrFailures {
+              findCountry(countryId)
+            }
           }
-        }
-      } ~
-      pathPrefix("store-credits" / "types") {
-        (get & pathEnd) {
-          goodOrFailures {
-            StoreCreditService.getOriginTypes
+        } ~
+        pathPrefix("gift-cards" / "types") {
+          (get & pathEnd) {
+            goodOrFailures {
+              GiftCardService.getOriginTypes
+            }
           }
-        }
-      } ~
-      pathPrefix("reasons") {
-        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-          goodOrFailures {
-            ReasonService.listReasons
+        } ~
+        pathPrefix("store-credits" / "types") {
+          (get & pathEnd) {
+            goodOrFailures {
+              StoreCreditService.getOriginTypes
+            }
           }
-        }
-      } ~
-      pathPrefix("reasons" / reasonTypeRegex) { reasonType ⇒
-        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-          goodOrFailures {
-            ReasonService.listReasonsByType(reasonType)
+        } ~
+        pathPrefix("reasons") {
+          (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+            goodOrFailures {
+              ReasonService.listReasons
+            }
           }
-        }
-      } ~
-      pathPrefix("rma-reasons") {
-        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-          goodOrFailures {
-            ReasonService.listRmaReasons
+        } ~
+        pathPrefix("reasons" / reasonTypeRegex) { reasonType ⇒
+          (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+            goodOrFailures {
+              ReasonService.listReasonsByType(reasonType)
+            }
+          }
+        } ~
+        pathPrefix("rma-reasons") {
+          (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+            goodOrFailures {
+              ReasonService.listRmaReasons
+            }
           }
         }
       }

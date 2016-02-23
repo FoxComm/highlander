@@ -19,20 +19,22 @@ object NotificationRoutes {
   def routes(implicit ec: ExecutionContext, db: Database, mat: Materializer, system: ActorSystem) = {
 
     activityContext() { implicit ac ⇒
-      pathPrefix("notifications") {
-        (get & path(IntNumber) & pathEnd) { adminId ⇒
-          complete {
-            NotificationManager.streamByAdminId(adminId)
-          }
-        } ~
-        (post & pathEnd & entity(as[CreateNotification])) { payload ⇒
-          goodOrFailures {
-            NotificationManager.createNotification(payload)
-          }
-        } ~
-        (post & path(IntNumber / "last-seen" / IntNumber) & pathEnd) { (adminId, activityId) ⇒
-          goodOrFailures {
-            NotificationManager.updateLastSeen(adminId, activityId)
+      pathPrefix("public") {
+        pathPrefix("notifications") {
+          (get & path(IntNumber) & pathEnd) { adminId ⇒
+            complete {
+              NotificationManager.streamByAdminId(adminId)
+            }
+          } ~
+          (post & pathEnd & entity(as[CreateNotification])) { payload ⇒
+            goodOrFailures {
+              NotificationManager.createNotification(payload)
+            }
+          } ~
+          (post & path(IntNumber / "last-seen" / IntNumber) & pathEnd) { (adminId, activityId) ⇒
+            goodOrFailures {
+              NotificationManager.updateLastSeen(adminId, activityId)
+            }
           }
         }
       }

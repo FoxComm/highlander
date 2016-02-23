@@ -7,13 +7,13 @@ import responses.CountryWithRegions
 import util.IntegrationTestBase
 import utils.Slick.implicits._
 
-class PublicIntegrationTest extends IntegrationTestBase with HttpSupport {
+class LocationsIntegrationTest extends IntegrationTestBase with HttpSupport {
 
   import Extensions._
 
-  "GET /countries/:id" - {
+  "GET /v1/public/countries/:id" - {
     "lists the country and its regions sorted along with shippable and payable flags" in {
-      val response = GET(s"v1/countries/$unitedStatesId")
+      val response = GET(s"v1/public/countries/$unitedStatesId")
       response.status must ===(StatusCodes.OK)
       val usWithRegions = response.as[CountryWithRegions]
 
@@ -30,7 +30,7 @@ class PublicIntegrationTest extends IntegrationTestBase with HttpSupport {
     }
 
     "successfully returns response if there are no regions" in {
-      val response = GET(s"v1/countries/27")
+      val response = GET(s"v1/public/countries/27")
       response.status must === (StatusCodes.OK)
       val countryWithRegions = response.as[CountryWithRegions]
       countryWithRegions.regions must === (Seq.empty[Region])
@@ -38,9 +38,9 @@ class PublicIntegrationTest extends IntegrationTestBase with HttpSupport {
     }
   }
 
-  "GET /countries" - {
+  "GET /v1/public/countries" - {
     "lists countries sorted" in {
-      val response = GET(s"v1/countries")
+      val response = GET(s"v1/public/countries")
 
       response.status must === (StatusCodes.OK)
 
@@ -54,9 +54,9 @@ class PublicIntegrationTest extends IntegrationTestBase with HttpSupport {
     }
   }
 
-  "GET /regions" - {
+  "GET /v1/public/regions" - {
     "lists regions sorted" in {
-      val response = GET(s"v1/regions")
+      val response = GET(s"v1/public/regions")
       response.status must === (StatusCodes.OK)
       val regions = response.as[Seq[Region]]
 
