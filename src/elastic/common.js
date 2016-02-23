@@ -28,7 +28,11 @@ export function toQuery(filters, options = {}) {
 
   const boolQuery = {
     bool: {
-      must: _.isEmpty(phrase) ? void 0 : dsl.matchQuery(phrase),
+      must: _.isEmpty(phrase) ? void 0 : dsl.matchQuery('_all', {
+        query: phrase,
+        type: 'phrase_prefix',
+        max_expansions: 10,
+      }),
       [atLeastOne ? 'should' : 'filter']: convertFilters(filters),
     },
   };

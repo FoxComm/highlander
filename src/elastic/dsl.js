@@ -19,15 +19,10 @@ export function rangeFilter(field, operations) {
   };
 }
 
-export function matchQuery(query, field = '_all', {type = 'phrase_prefix', max_expansions = 10, ...rest} = {}) {
+export function matchQuery(field, query) {
   return {
     match: {
-      [field]: {
-        query,
-        type,
-        max_expansions,
-        ...rest
-      }
+      [field]: query
     }
   };
 }
@@ -45,6 +40,12 @@ export function nestedTermFilter(term, value) {
   const path = term.slice(0, term.lastIndexOf('.'));
 
   return nestedQuery(path, termFilter(term, value));
+}
+
+export function nestedMatchFilter(term, value) {
+  const path = term.slice(0, term.lastIndexOf('.'));
+
+  return nestedQuery(path, matchQuery(term, value));
 }
 
 export function sortByField(field, order = 'asc') {
