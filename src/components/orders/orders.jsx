@@ -159,6 +159,7 @@ export default class Orders extends React.Component {
 
     return (
       <BulkActions
+        storePath="orders.bulk"
         module="orders"
         actions={this.bulkActions}
         entity="order"
