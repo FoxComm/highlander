@@ -45,12 +45,24 @@ export default class CustomerAddressBook extends React.Component {
             customerId={props.customerId}
             closeAction={() => props.stopAddingAddress()}
             showFormTitle={ false }
+            submitAction={this.handleSubmitAddress}
           />
         </ItemCardContainer>
       ];
     }
 
     return addresses;
+  }
+
+  @autobind
+  handleSubmitAddress(address) {
+    if (address.id) {
+      this.props.patchAddress(this.props.customerId, address.id, address);
+      this.props.stopEditingAddress(address.id);
+    } else {
+      this.props.createAddress(this.props.customerId, address);
+      this.props.stopAddingAddress();
+    }
   }
 
   createAddressBox(address, idx, props) {
@@ -67,6 +79,7 @@ export default class CustomerAddressBook extends React.Component {
             customerId={props.customerId}
             closeAction={() => props.stopEditingAddress(address.id)}
             showFormTitle={ false }
+            submitAction={this.handleSubmitAddress}
           />
         </AddressBox>
       );

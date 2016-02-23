@@ -2,33 +2,28 @@ import React, { PropTypes } from 'react';
 import _ from 'lodash';
 
 import { AddButton } from '../common/buttons';
+import TileItems from './tile-items';
 
 const TileSelector = props => {
-  const tileItems = props.items.map(i => {
-    return (
-      <div className="fc-tile-selector__item">
-        {i}
-      </div>
-    );
-  });
+  const { emptyMessage, isFetching, items, onAddClick, title } = props;
 
   return (
     <div className="fc-tile-selector">
       <div className="fc-tile-selector__header">
         <div className="fc-tile-selector__title">
-          {props.title}
+          {title}
         </div>
-        <AddButton onClick={props.onAddClick} />
+        <AddButton onClick={onAddClick} />
       </div>
-      <div className="fc-tile-selector__items">
-        {tileItems}
-      </div>
+      <TileItems emptyMessage={emptyMessage} isFetching={isFetching} items={items} />
     </div>
   );
 };
 
 TileSelector.propTypes = {
   onAddClick: PropTypes.func,
+  emptyMessage: PropTypes.string,
+  isFetching: PropTypes.bool,
   items: PropTypes.array,
   title: PropTypes.string.isRequired,
 };

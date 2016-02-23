@@ -6,7 +6,14 @@ import { stateTitles as orderStateTitles } from '../../paragons/order';
 export const states = {
   order: orderStateTitles,
   payment: {
-    cart: 'Cart'
+    cart: 'Cart',
+    auth: 'Auth',
+    failedAuth: 'Failed Auth',
+    expiredAuth: 'Expired Auth',
+    canceledAuth: 'Canceled Auth',
+    partialCapture: 'Partial Capture',
+    failedCapture: 'Failed Capture',
+    fullCapture: 'Full Capture',
   },
   shipment: {
     ...orderStateTitles,

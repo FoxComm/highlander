@@ -59,6 +59,7 @@ export default class SearchableList extends React.Component {
           bulkActions={props.bulkActions}
           predicate={props.predicate}
           showEmptyMessage={true}
+          isLoading={results.isFetching}
           emptyMessage={props.emptyResultMessage} />
       </LiveSearchAdapter>
     );

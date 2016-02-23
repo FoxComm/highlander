@@ -2,8 +2,10 @@ import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import flatMap from 'lodash.flatmap';
 import React, { PropTypes } from 'react';
+
 import TableRow from './row';
 import TableCell from './cell';
+import WaitAnimation from '../common/wait-animation';
 
 export default class TableBody extends React.Component {
 
@@ -17,14 +19,16 @@ export default class TableBody extends React.Component {
     predicate: PropTypes.func,
     processRows: PropTypes.func,
     detectNewRows: PropTypes.bool,
-    emptyMessage: PropTypes.string
+    emptyMessage: PropTypes.string,
+    isLoading: PropTypes.bool,
   };
 
   static defaultProps = {
     predicate: entity => entity.id,
     processRows: _.identity,
     detectNewRows: false,
-    emptyMessage: ''
+    emptyMessage: '',
+    isLoading: false,
   };
 
   constructor(props, context) {
@@ -66,18 +70,33 @@ export default class TableBody extends React.Component {
   }
 
   get emptyMessage() {
-      return (
-        <tr>
-          <td colSpan={this.props.columns.length}>
-            <div className="fc-content-box__empty-row">
-              {this.props.emptyMessage}
-            </div>
-          </td>
-        </tr>
-      );
+    return (
+      <tr>
+        <td colSpan={this.props.columns.length}>
+          <div className="fc-content-box__empty-row">
+            {this.props.emptyMessage}
+          </div>
+        </td>
+      </tr>
+    );
   }
+
+  get loadingAnimation() {
+    return (
+      <tr>
+        <td colSpan={this.props.columns.length}>
+          <div className="fc-content-box__empty-row">
+            <WaitAnimation />
+          </div>
+        </td>
+      </tr>
+    );
+  }
+
   get tableRows() {
-    if (_.isEmpty(this.props.rows) && this.props.emptyMessage) {
+    if (this.props.isLoading) {
+      return this.loadingAnimation;
+    } else if (_.isEmpty(this.props.rows) && this.props.emptyMessage) {
       return this.emptyMessage;
     }
 

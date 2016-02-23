@@ -1,8 +1,5 @@
-import Api from '../../lib/api';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
-
-import { orderSuccess } from './details';
 
 const _createAction = (description, ...args) => {
   return createAction(`SHIPPING_ADDRESSES_DEUX_${description}`, ...args);
@@ -46,44 +43,9 @@ export function deleteShippingAddress(refNum) {
   };
 }
 
-export function patchShippingAddress(refNum, data) {
-  return dispatch => {
-    dispatch(updateAddressStart());
-    return Api.patch(`/orders/${refNum}/shipping-address`, data)
-      .then(
-        order => {
-          dispatch(updateAddressFinish());
-          dispatch(orderSuccess(order));
-        },
-        err => {
-          dispatch(updateAddressFinish());
-          dispatch(setError(err));
-        }
-      );
-  };
-}
-
-export function createShippingAddress(refNum, data) {
-  return dispatch => {
-    dispatch(updateAddressStart());
-    return Api.post(`orders/${refNum}/shipping-address`, data)
-      .then(
-        order => {
-          dispatch(updateAddressFinish());
-          dispatch(orderSuccess(order));
-        },
-        err => {
-          dispatch(updateAddressFinish());
-          dispatch(setError(err));
-        }
-      );
-  };
-}
-
 const initialState = {
   err: null,
   isUpdating: false,
-  updateNum: 0,
 };
 
 const reducer = createReducer({
@@ -94,10 +56,7 @@ const reducer = createReducer({
     return assoc(state, 'isUpdating', true);
   },
   [updateAddressFinish]: (state) => {
-    return assoc(state,
-      'isUpdating', false,
-      'updateNum', state.updateNum + 1
-    );
+    return assoc(state, 'isUpdating', false);
   }
 }, initialState);
 
