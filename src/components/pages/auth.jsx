@@ -4,15 +4,16 @@ import React, { PropTypes, Component, Element } from 'react';
 import cssModules from 'react-css-modules';
 import styles from './css/auth.css';
 import { autobind } from 'core-decorators';
-import { routeActions } from 'react-router-redux';
 import { connect } from 'react-redux';
 
-import { TextInput } from '../common/inputs';
+import { TextInput, TextInputWithLabel } from '../common/inputs';
 import { Form, FormField } from '../forms';
 import Button from '../common/buttons';
 import WrapToLines from '../common/wrap-to-lines';
 import Icon from '../common/icon';
 import Link from '../common/link';
+
+import * as authActions from '../../modules/auth';
 
 type AuthState = {
   email: string,
@@ -21,7 +22,7 @@ type AuthState = {
 };
 
 /* ::`*/
-@connect(state => state.auth)
+@connect(state => state.auth, authActions)
 @cssModules(styles)
 /* ::`*/
 export default class Auth extends Component {
@@ -29,6 +30,7 @@ export default class Auth extends Component {
   static propTypes = {
     stage: PropTypes.oneOf(['login', 'signup']),
     dispatch: PropTypes.func,
+    switchStage: PropTypes.func,
   };
 
   state: AuthState = {
@@ -61,7 +63,7 @@ export default class Auth extends Component {
   @autobind
   onSwitchStage(event: SEvent<HTMLInputElement>) {
     event.preventDefault();
-    this.props.dispatch(routeActions.push(this.props.stage == 'login' ? '/signup' : '/login'));
+    this.props.switchStage();
   }
 
   get signWithGoogleText(): string {
@@ -79,7 +81,8 @@ export default class Auth extends Component {
         <TextInput placeholder="EMAIL" value={email} type="email" onChange={this.onChangeEmail} />
       </FormField>,
       <FormField key="passwd" styleName="form-field">
-        <TextInput placeholder={passwordPlaceholder}
+        <TextInputWithLabel placeholder={passwordPlaceholder}
+          label="forgot ?"
           value={password} onChange={this.onChangePassword} type="password"
         />
       </FormField>,

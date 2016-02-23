@@ -1,0 +1,26 @@
+
+@import "media-queries.css";
+
+.block {
+  position: relative;
+}
+
+.text-input {
+  composes: text-input from "./input.css";
+  width: 100%;
+}
+
+.label {
+  --line-height: 19px;
+  position: absolute;
+  right: 6px;
+  top: 5px;
+  line-height: var(--line-height);
+  top: calc(50% - var(--line-height)/2 - 2px);
+}
+
+@media (--small-viewport) {
+  .label {
+    --line-height: 17px;
+  }
+}
