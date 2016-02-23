@@ -10,14 +10,14 @@ import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
 import de.heikoseeberger.akkasse.ServerSentEvent
 import scala.collection.immutable
 import scala.concurrent.Await.result
-import scala.concurrent.{Await, ExecutionContext}
+import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.actor.ActorSystem
-import akka.http.ConnectionPoolSettings
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest, HttpResponse, Uri}
 import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.settings.ConnectionPoolSettings
 import akka.stream.{ActorMaterializer, Materializer}
 import akka.util.ByteString
 
@@ -29,7 +29,7 @@ import org.json4s.Formats
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{Args, MustMatchers, Status, Suite, SuiteMixin}
+import org.scalatest.{BeforeAndAfterAll, MustMatchers, Suite, SuiteMixin}
 import responses.TheResponse
 import server.Service
 import services.Authenticator
@@ -46,6 +46,7 @@ trait HttpSupport
   extends SuiteMixin
   with ScalaFutures
   with MustMatchers
+  with BeforeAndAfterAll
   with MockitoSugar { this: Suite with PatienceConfiguration with DbTestSupport ⇒
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
@@ -54,7 +55,6 @@ trait HttpSupport
 
   private val ValidResponseContentTypes = Set(ContentTypes.`application/json`, ContentTypes.NoContentType)
 
-  import org.json4s.jackson.JsonMethods._
   import Extensions._
 
   protected implicit var system:        ActorSystem       = _
@@ -64,7 +64,7 @@ trait HttpSupport
 
   protected def additionalRoutes: immutable.Seq[Route] = immutable.Seq.empty
 
-  override protected abstract def runTests(testName: Option[String], args: Args): Status = {
+  override def beforeAll: Unit = {
     system       = ActorSystem("system", actorSystemConfig)
     materializer = ActorMaterializer()
     service      = makeService
@@ -72,17 +72,16 @@ trait HttpSupport
     serverBinding = service.bind(ConfigFactory.parseString(
       s"""
          |http.interface = 127.0.0.1
-         |http.port      = ${ getFreePort }
+         |http.port      = ${getFreePort}
       """.stripMargin)).futureValue
+  }
 
-    try super.runTests(testName, args)
-
-    finally {
-      (Http().shutdownAllConnectionPools() >> service.close()).futureValue
-
-      system.terminate()
-      Await.result(system.whenTerminated, Duration.Inf)
-    }
+  override def afterAll: Unit = {
+    Await.result(for {
+      _ ← Http().shutdownAllConnectionPools()
+      _ ← service.close()
+      _ ← system.terminate()
+    } yield {}, 1.minute)
   }
 
   private def actorSystemConfig = ConfigFactory.parseString(
@@ -90,7 +89,7 @@ trait HttpSupport
       |akka {
       |  log-dead-letters = off
       |}
-    """.stripMargin).withFallback(ConfigFactory.load)
+    """.stripMargin).withFallback(ConfigFactory.load())
 
   def makeApis: Option[Apis] = Some(Apis(mock[StripeApi]))
 
@@ -199,15 +198,16 @@ trait HttpSupport
     response.errors
 
   private def dispatchRequest(req: HttpRequest): HttpResponse = {
-    val response = Http().singleRequest(req, connectionPoolSettings).futureValue
+    val response = Http().singleRequest(req, settings = connectionPoolSettings).futureValue
     ValidResponseContentTypes must contain(response.entity.contentType)
     response
   }
 
-  lazy final val connectionPoolSettings = ConnectionPoolSettings.create(implicitly[ActorSystem]).copy(
-    maxConnections  = 32,
-    maxOpenRequests = 32,
-    maxRetries      = 0)
+  lazy final val connectionPoolSettings =
+    ConnectionPoolSettings.default(implicitly[ActorSystem])
+      .withMaxConnections(32)
+      .withMaxOpenRequests(32)
+      .withMaxRetries(0)
 
   object SSE {
 
