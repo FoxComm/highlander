@@ -76,18 +76,6 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
   */
 
   "StoreCredits" - {
-    "GET /v1/store-credits/types" - {
-      "should return all SC types and related subtypes" in new Fixture {
-        val response = GET(s"v1/store-credits/types")
-        response.status must ===(StatusCodes.OK)
-
-        val root = response.as[Seq[StoreCreditSubTypesResponse.Root]]
-        root.size must === (StoreCredit.OriginType.types.size)
-        root.map(_.originType) must === (StoreCredit.OriginType.types.toSeq)
-        root.filter(_.originType == scSubType.originType).head.subTypes must === (Seq(scSubType))
-      }
-    }
-
     "POST /v1/customers/:id/payment-methods/store-credit" - {
       "when successful" - {
         "responds with the new storeCredit" in new Fixture {
