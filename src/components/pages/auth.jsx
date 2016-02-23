@@ -1,5 +1,6 @@
+/* @flow */
 
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes, Component, Element } from 'react';
 import cssModules from 'react-css-modules';
 import styles from './css/auth.css';
 import { autobind } from 'core-decorators';
@@ -13,8 +14,16 @@ import WrapToLines from '../common/wrap-to-lines';
 import Icon from '../common/icon';
 import Link from '../common/link';
 
+type AuthState = {
+  email: string,
+  password: string,
+  username: string
+};
+
+/* ::`*/
 @connect(state => state.auth)
 @cssModules(styles)
+/* ::`*/
 export default class Auth extends Component {
 
   static propTypes = {
@@ -22,44 +31,44 @@ export default class Auth extends Component {
     dispatch: PropTypes.func,
   };
 
-  state = {
+  state: AuthState = {
     email: '',
     password: '',
     username: '',
   };
 
   @autobind
-  onChangeEmail({target}) {
+  onChangeEmail({target}: SEvent<HTMLInputElement>) {
     this.setState({
       email: target.value,
     });
   }
 
   @autobind
-  onChangePassword({target}) {
+  onChangePassword({target}: SEvent<HTMLInputElement>) {
     this.setState({
       password: target.value,
     });
   }
 
   @autobind
-  onChangeUsername({target}) {
+  onChangeUsername({target}: SEvent<HTMLInputElement>) {
     this.setState({
       username: target.value,
     });
   }
 
   @autobind
-  onSwitchStage(event) {
+  onSwitchStage(event: SEvent<HTMLInputElement>) {
     event.preventDefault();
     this.props.dispatch(routeActions.push(this.props.stage == 'login' ? '/signup' : '/login'));
   }
 
-  get signWithGoogleText() {
+  get signWithGoogleText(): string {
     return this.props.stage == 'login' ? 'LOG IN WITH GOOGLE' : 'SIGN UP WITH GOOGLE';
   }
 
-  get formFields() {
+  get formFields(): Array<Element> {
     const { email, password, username } = this.state;
     const { stage } = this.props;
 
@@ -88,7 +97,7 @@ export default class Auth extends Component {
     return fields;
   }
 
-  get switchStage() {
+  get switchStage(): Element {
     if (this.props.stage == 'login') {
       return (
         <span>
@@ -104,11 +113,11 @@ export default class Auth extends Component {
     );
   }
 
-  get title() {
+  get title(): string {
     return this.props.stage == 'login' ? 'LOG IN' : 'SIGN UP';
   }
 
-  render() {
+  render(): Element {
     return (
       <div styleName="login-block">
         <Icon styleName="icon" name="fc-some_brand_logo" />
