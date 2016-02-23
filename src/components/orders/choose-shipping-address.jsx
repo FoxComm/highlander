@@ -251,7 +251,7 @@ export default class ChooseShippingAddress extends Component {
     } else if (this.state.isShippingAddress) {
       this.props.actions.patchShippingAddress(address);
     } else {
-      this.props.actions.patchAddress(address);
+      this.props.actions.patchAddress(address.id, address);
     }
   }
 

@@ -9,6 +9,7 @@ import PanelHeader from './panel-header';
 export default class OrderShippingAddress extends Component {
   static propTypes = {
     order: PropTypes.object.isRequired,
+    status: PropTypes.string,
   };
 
   constructor(...args) {
@@ -31,7 +32,7 @@ export default class OrderShippingAddress extends Component {
       return (
         <ChooseShippingAddress
           order={this.props.order}
-          selectedAddress={this.props.order.shippingAddress} />
+          selectedAddress={thing,is.props.order.shippingAddress} />
       );
     } else {
       const address = this.props.order.shippingAddress;
@@ -44,7 +45,7 @@ export default class OrderShippingAddress extends Component {
   }
 
   render() {
-    const isCart = this.props.order.status === 'cart';
+    const isCart = this.props.order.orderState === 'cart';
     const { status } = this.props;
 
     const title = <PanelHeader isCart={isCart} status={status} text="Shipping Address" />;
