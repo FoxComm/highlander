@@ -18,8 +18,8 @@ trait ProductSeeds {
     SimpleProductData, SimpleProductData, SimpleProductData, SimpleProductData)
 
   def createProducts(implicit db: Database) : DbResultT[SeedProducts] = for {
-    context ← * <~ ProductContexts.create(SimpleContext.create)
-    ps ← * <~ Mvp.insertProducts(products, context.id)
+    productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+    ps ← * <~ Mvp.insertProducts(products, productContext.id)
     } yield ps match {
       case p1 :: p2 :: s3 :: p4 :: p5 :: p6 :: p7 :: Nil ⇒ 
         ( p1, p2, s3, p4, p5, p6, p7)

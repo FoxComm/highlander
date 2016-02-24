@@ -24,11 +24,11 @@ class LineItemUpdaterTest extends IntegrationTestBase {
   val lineItemSkus = TableQuery[OrderLineItemSkus]
 
   def createProducts(num: Int): DbResultT[(ProductContext, Seq[SimpleProductData])] = for {
-    context ← * <~ ProductContexts.create(SimpleContext.create)
+    productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
     products ← * <~ Mvp.insertProducts((1 to num).map { i ⇒
       Factories.products.head.copy(sku = i.toString, price = 5)
-    }, context.id)
-  } yield (context, products)
+    }, productContext.id)
+  } yield (productContext, products)
 
   def createLineItems(items: Seq[OrderLineItem]): Unit = {
     OrderLineItems.createAll(items).run().futureValue.rightVal

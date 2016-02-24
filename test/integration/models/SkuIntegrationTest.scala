@@ -19,6 +19,7 @@ class SkuIntegrationTest extends IntegrationTestBase {
   "Skus" - {
     "a Postgres trigger creates a `order_line_item_skus` record after `skus` insert" in {
       val (product, liSku) = (for {
+        productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
         productContext ← * <~ ProductContexts.create(SimpleContext.create)
         product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
         liSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor

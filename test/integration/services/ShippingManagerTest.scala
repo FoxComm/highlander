@@ -131,17 +131,17 @@ class ShippingManagerTest extends IntegrationTestBase {
   }
 
   trait Fixture {
-    val (context, customer, order) = (for {
-      context     ← * <~ ProductContexts.create(SimpleContext.create)
+    val (productContext, customer, order) = (for {
+      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
       customer    ← * <~ Customers.create(Factories.customer)
       order       ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
-      product     ← * <~ Mvp.insertProduct(context.id, Factories.products.head.copy(title = "Donkey", price = 27))
+      product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head.copy(title = "Donkey", price = 27))
       lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
       lineItem    ← * <~ OrderLineItems.create(OrderLineItem(orderId = order.id, originId = lineItemSku.id,
         originType = OrderLineItem.SkuItem))
 
       order       ← * <~ OrderTotaler.saveTotals(order)
-    } yield (context, customer, order)).runTxn().futureValue.rightVal
+    } yield (productContext, customer, order)).runTxn().futureValue.rightVal
 
     val californiaId = 4129
     val michiganId = 4148
@@ -243,17 +243,17 @@ val conditions = parse(
       """.stripMargin).extract[QueryStatement]
 
     val (shippingMethod, cheapOrder, expensiveOrder) = (for {
-      context     ← * <~ ProductContexts.create(SimpleContext.create)
+      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
       shippingMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
       cheapOrder ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, referenceNumber = "CS1234-AA"))
-      cheapProduct ← * <~ Mvp.insertProduct(context.id, Factories.products.head.copy(title = "Cheap Donkey", price = 10))
+      cheapProduct ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head.copy(title = "Cheap Donkey", price = 10))
       cheapLineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(cheapProduct.skuId).toXor
       cheapLineItem ← * <~ OrderLineItems.create(OrderLineItem(orderId = cheapOrder.id, originId = cheapLineItemSku.id,
         originType = OrderLineItem.SkuItem))
       cheapAddress ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, isDefaultShipping = false))
       _ ← * <~ OrderShippingAddresses.copyFromAddress(address = cheapAddress, orderId = cheapOrder.id)
       expensiveOrder ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, referenceNumber = "CS1234-AB"))
-      expensiveProduct ← * <~ Mvp.insertProduct(context.id, Factories.products.head.copy(title = "Expensive Donkey", price = 100))
+      expensiveProduct ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head.copy(title = "Expensive Donkey", price = 100))
       expensiveLineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(expensiveProduct.skuId).toXor
       expensiveLineItem ← * <~ OrderLineItems.create(OrderLineItem(orderId = expensiveOrder.id,
         originId = expensiveLineItemSku.id, originType = OrderLineItem.SkuItem))

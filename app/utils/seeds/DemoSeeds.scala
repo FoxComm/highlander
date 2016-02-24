@@ -121,7 +121,7 @@ trait DemoScenario2 extends DemoSeedHelpers {
     zip = "12345", isDefaultShipping = true, phoneNumber = "2025550113".some)
 
   def createScenario2(implicit db: Database) = for { 
-    productContext ← * <~ ProductContexts.create(SimpleContext.create)
+    productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
     warehouseIds ← * <~ Warehouses.createAllReturningIds(warehouses)
     customerIds ← * <~ Customers.createAllReturningIds(customers2)
     addressIds ← * <~ createAddresses(customerIds, address2)
@@ -164,7 +164,7 @@ trait DemoScenario3 extends DemoSeedHelpers {
     zip = "12345", isDefaultShipping = true, phoneNumber = "2025550113".some)
 
   def createScenario3(implicit db: Database) = for { 
-    productContext ← * <~ ProductContexts.create(SimpleContext.create)
+    productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
     shippingMethod  ← * <~ ShippingMethods.filter(_.adminDisplayName === "UPS 2-day").one.mustFindOr(
       NotFoundFailure404("Unable to find 2-day shipping method"))
     warehouseIds ← * <~ Warehouses.createAllReturningIds(warehouses)
@@ -198,7 +198,7 @@ trait DemoScenario6 extends DemoSeedHelpers {
   def customer6 = generateCustomer("Joe Carson", "carson19@yahoo.com")
 
   def createScenario6(implicit db: Database): DbResultT[Unit] = for {
-    productContext ← * <~ ProductContexts.create(SimpleContext.create)
+    productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
     customer ← * <~ Customers.create(customer6)
     order ← * <~ Orders.create(Order(state = Shipped, customerId = customer.id, 
       productContextId = productContext.id, referenceNumber = orderReferenceNum))

@@ -16,9 +16,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 object SimpleContext { 
   val name =  "default"
   val variant = name
+  val id = 1
   def create: ProductContext = 
     ProductContext(
-      id = 1,
+      id = id,
       name = SimpleContext.variant,
       context = parse(s"""
       {
@@ -219,8 +220,8 @@ object Mvp {
   }
 
   def nameFromJson(form: Json, shadow: Json) : Option[String] = {
-    form \ "title" match {
-      case JString(key) ⇒  shadow \ "title" \ key match { 
+    shadow \ "title" match {
+      case JString(key) ⇒  form \ "title" \ key match { 
         case JString(name) ⇒ Some(name)
         case _ ⇒ None
       }

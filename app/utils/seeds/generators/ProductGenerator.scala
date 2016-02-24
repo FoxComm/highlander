@@ -37,8 +37,8 @@ trait ProductGenerator {
   }
 
   def generateProducts(data: Seq[SimpleProductData])(implicit db: Database) = for {
-    context ← * <~ ProductContexts.create(SimpleContext.create)
-    products ← * <~ Mvp.insertProducts(data, context.id)
+    productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+    products ← * <~ Mvp.insertProducts(data, productContext.id)
   } yield products
 
 }

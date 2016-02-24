@@ -65,7 +65,7 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
 
   trait Fixture {
     val (customer, address, shipMethod, product, sku, reason) = (for {
-      productContext ← * <~ ProductContexts.create(SimpleContext.create)
+      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
       customer   ← * <~ Customers.create(Factories.customer)
       address    ← * <~ Addresses.create(Factories.usAddress1.copy(customerId = customer.id))
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)

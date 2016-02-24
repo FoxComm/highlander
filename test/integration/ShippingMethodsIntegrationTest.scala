@@ -113,7 +113,7 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
 
       "Shipping method is returned, but disabled with a hazardous SKU" in new ShipToCaliforniaButNotHazardous {
         (for {
-          productContext ← * <~ ProductContexts.create(SimpleContext.create)
+          productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
           product     ← * <~ Mvp.insertProduct(productContext.id, SimpleProductData(
             sku = "HAZ-SKU", title = "fox", description = "fox", price = 56, isHazardous = true))
           lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
@@ -148,9 +148,9 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
     val washingtonId = 4177
 
     val (address, orderShippingAddress) = (for {
+      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
       address     ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, regionId = californiaId))
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-      productContext ← * <~ ProductContexts.create(SimpleContext.create)
       product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head.copy(title = "Donkey", price = 27))
       lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
       lineItems   ← * <~ OrderLineItems.create(OrderLineItem(orderId = order.id, originId = lineItemSku.id))

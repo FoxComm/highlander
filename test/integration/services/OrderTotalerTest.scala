@@ -70,13 +70,13 @@ class OrderTotalerTest extends IntegrationTestBase {
   }
 
   trait SkuLineItemsFixture extends Fixture {
-    val (context, product, productShadow, sku, skuShadow, skuPrice) = (for {
-      context ← * <~ ProductContexts.create(SimpleContext.create)
-      simpleProduct ← * <~ Mvp.insertProduct(context.id, Factories.products.head)
+    val (productContext, product, productShadow, sku, skuShadow, skuPrice) = (for {
+      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+      simpleProduct ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
       tup ← * <~ Mvp.getProductTuple(simpleProduct)
       _   ← * <~ OrderLineItems.create(OrderLineItem.buildSku(order, tup.sku))
       skuPrice ← * <~ Mvp.priceAsInt(tup.sku, tup.skuShadow)
-    } yield (context, tup.product, tup.productShadow, tup.sku, tup.skuShadow, skuPrice)).runTxn().futureValue.rightVal
+    } yield (productContext, tup.product, tup.productShadow, tup.sku, tup.skuShadow, skuPrice)).runTxn().futureValue.rightVal
   }
 
   trait AllLineItemsFixture extends SkuLineItemsFixture {

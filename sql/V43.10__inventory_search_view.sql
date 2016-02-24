@@ -1,7 +1,7 @@
 create materialized view inventory_search_view as
 select distinct on (sku.sku)
   sku.id,
-  product.attributes->'name',
+  product.attributes->'default'->>'title',
   -- TODO: replace with product.is_active
   product.is_active as product_active,
   sku.sku,

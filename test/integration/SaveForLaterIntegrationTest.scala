@@ -14,6 +14,10 @@ import utils.seeds.Seeds
 import Seeds.Factories
 import utils.Slick.implicits._
 import slick.driver.PostgresDriver.api._
+import org.json4s.DefaultFormats
+
+import org.json4s.JsonAST.{JValue, JString, JObject, JField, JNothing}
+import org.json4s.jackson.Serialization.{write ⇒ render}
 
 class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
@@ -22,6 +26,7 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
       val emptyResponse = GET(s"v1/save-for-later/${customer.id}")
       emptyResponse.status must === (StatusCodes.OK)
       emptyResponse.as[SavedForLater].result mustBe empty
+      
 
       SaveForLaters.create(SaveForLater(customerId = customer.id, 
         skuId = product.skuId, productId = product.productId, 
@@ -93,7 +98,7 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
 
   trait Fixture {
     val (customer, product, productContext) = (for {
-      productContext ← * <~ ProductContexts.create(SimpleContext.create)
+      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.create.id)
       customer ← * <~ Customers.create(Factories.customer)
       product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
     } yield (customer, product, productContext)).runTxn().futureValue.rightVal

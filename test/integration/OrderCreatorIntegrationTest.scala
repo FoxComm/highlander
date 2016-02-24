@@ -79,7 +79,7 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
 
   trait Fixture {
     val (productContext, storeAdmin, customer) = (for {
-      productContext ← * <~ ProductContexts.create(SimpleContext.create)
+      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
       customer   ← * <~ Customers.create(Factories.customer)
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
     } yield (productContext, storeAdmin, customer)).runTxn().futureValue.rightVal

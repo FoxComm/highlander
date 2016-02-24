@@ -34,14 +34,16 @@ object SaveForLaterResponse {
 
   def build(sfl: SaveForLater, sku: Sku, skuShadow: SkuShadow): Root = { 
 
-    val price = Mvp.price(sku, skuShadow).getOrElse((0, Currency.USD))
+    val price = Mvp.priceAsInt(sku, skuShadow)
     val name = Mvp.name(sku, skuShadow)
+
+    Console.err.println(s"NAME : ${name} price ${price}")
 
     Root(
       id = sfl.id,
       name = name,
       sku = sku.sku,
-      price = price._1,
+      price = price,
       createdAt = sfl.createdAt
     )
   }

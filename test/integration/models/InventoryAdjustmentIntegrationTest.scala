@@ -14,7 +14,7 @@ class InventoryAdjustmentIntegrationTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
   def seed(): (Warehouse, SimpleProductData, OrderLineItemSku, Order) = (for {
-    productContext ← * <~ ProductContexts.create(SimpleContext.create)
+    productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
     warehouse   ← * <~ Warehouses.create(Factories.warehouse)
     product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head.copy(price = 5))
     order       ← * <~ Orders.create(Order(id = 0, customerId = 1, productContextId = productContext.id))

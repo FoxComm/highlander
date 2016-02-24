@@ -144,7 +144,7 @@ class CartValidatorTest extends IntegrationTestBase {
 
   trait LineItemsFixture extends Fixture {
     val (product, productShadow, sku, skuShadow, items) = (for {
-      productContext ← * <~ ProductContexts.create(SimpleContext.create)
+      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
       productData    ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
       product        ← * <~ Products.mustFindById404(productData.productId)
       productShadow  ← * <~ ProductShadows.mustFindById404(productData.productShadowId)

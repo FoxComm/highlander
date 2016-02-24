@@ -569,7 +569,7 @@ class RmaIntegrationTest extends IntegrationTestBase
   trait LineItemFixture extends Fixture {
     val (productContext, rmaReason, sku, giftCard, shipment) = (for {
       rmaReason ← * <~ RmaReasons.create(Factories.rmaReasons.head)
-      productContext ← * <~ ProductContexts.create(SimpleContext.create)
+      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
       product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
       sku ← * <~ Skus.mustFindById404(product.skuId)
       _ ← * <~ Factories.addSkusToOrder(Seq(sku.id), order.id, OrderLineItem.Cart)

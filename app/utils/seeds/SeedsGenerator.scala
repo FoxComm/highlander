@@ -66,7 +66,7 @@ object RankingSeedsGenerator {
     })
 
     val insertOrders = for { 
-      productContext ← * <~ ProductContexts.create(SimpleContext.create)
+      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
       customers ← * <~ Customers.filter(_.location === location).result
       newCreditCards ← * <~  customers.map { c ⇒
         Factories.creditCard.copy(customerId = c.id, holderName = c.name.getOrElse(""))
@@ -132,8 +132,7 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
     val location = "Random"
 
     for {
-      
-      productContext ← * <~ ProductContexts.create(SimpleContext.create)
+      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
       shipMethods ← * <~ createShipmentRules
       _ ← * <~  generateWarehouses
       products ← * <~ generateProducts(makeProducts(productCount))

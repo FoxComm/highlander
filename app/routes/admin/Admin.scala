@@ -22,6 +22,7 @@ object Admin {
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
     authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
+
       pathPrefix("store-credits") {
         (get & path("types") & pathEnd) {
           goodOrFailures {
@@ -186,22 +187,25 @@ object Admin {
         }
       } ~
       pathPrefix("save-for-later") {
-        //TODO: This will be searched based on context passed in.
-        val HARD_CODED_CONTEXT_ID = 1
-        (get & path(IntNumber) & pathEnd) { customerId ⇒
-          goodOrFailures {
-            SaveForLaterManager.findAll(customerId, HARD_CODED_CONTEXT_ID)
+
+        determineProductContext(db, ec) { productContext ⇒ 
+
+          (get & path(IntNumber) & pathEnd) { customerId ⇒
+            goodOrFailures {
+              SaveForLaterManager.findAll(customerId, productContext.id)
+            }
+          } ~
+          (post & path(IntNumber / IntNumber) & pathEnd) { (customerId, skuId) ⇒
+            goodOrFailures {
+              SaveForLaterManager.saveForLater(customerId, skuId, productContext.id)
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { id ⇒
+            nothingOrFailures {
+              SaveForLaterManager.deleteSaveForLater(id)
+            }
           }
-        } ~
-        (post & path(IntNumber / IntNumber) & pathEnd) { (customerId, skuId) ⇒
-          goodOrFailures {
-            SaveForLaterManager.saveForLater(customerId, skuId, HARD_CODED_CONTEXT_ID)
-          }
-        } ~
-        (delete & path(IntNumber) & pathEnd) { id ⇒
-          nothingOrFailures {
-            SaveForLaterManager.deleteSaveForLater(id)
-          }
+
         }
       } ~
       pathPrefix("shared-search") {
