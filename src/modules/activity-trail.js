@@ -65,9 +65,11 @@ export function fetchActivityTrail({dimension, objectId = null}, from) {
       objectId
     }).then(
       response => {
+        // nginx sends empty object instead of empty array
+        const result = _.isEmpty(response.result) ? [] : response.result;
         dispatch(receivedActivities(
           {
-            activities: processActivities(response.result.map(({activity}) => processActivity(activity))),
+            activities: processActivities(result.map(({activity}) => processActivity(activity))),
             hasMore: response.hasMore
           }
         ));
@@ -114,6 +116,7 @@ const reducer = createReducer({
     return updater(state);
   },
   [fetchFailed]: (state, result) => {
+    console.log(result);
     console.error(result);
 
     return assoc(state,
