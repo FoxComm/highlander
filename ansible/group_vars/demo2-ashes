@@ -4,4 +4,4 @@ search_server_http:  "{{hostvars[groups['demo2-backend'][0]]['ansible_eth0']['ip
 ashes_server: 127.0.0.1:4000
 demo_user: demo
 demo_pass: Xv6yEcAzXv6yEcAz
-demo_domain: demo.foxcommerce.com
+demo_domain: demo2.foxcommerce.com

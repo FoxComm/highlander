@@ -24,6 +24,12 @@ deploy-demo: seed-cloud
 deploy-demo2: seed-cloud
 	ansible-playbook -v -i ./staging ansible/demo2.yml
 
+deploy-usertest1: seed-cloud
+	ansible-playbook -v -i ./staging ansible/usertest1.yml
+
+deploy-usertest2: seed-cloud
+	ansible-playbook -v -i ./staging ansible/usertest2.yml
+
 lint:
 	ansible-lint ansible/*.yml
 
