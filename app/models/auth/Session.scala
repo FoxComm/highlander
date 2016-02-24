@@ -29,7 +29,7 @@ object Session {
       adminSession.optionalSessionT(token ⇒ Future.successful(Some(StoreAdmin(id = token.id,
               email = token.email,
               hashedPassword = None,
-              name = token.name,
+              name = token.name.getOrElse(""),
               department = token.department
         ))))
     }
@@ -43,9 +43,12 @@ object Session {
     }
   }
 
-  def setAdminSession(token: AdminToken) = {
+  def setTokenSession(token: Token) = {
     extractExecutionContext.flatMap { implicit ec ⇒
-      adminSession.setSessionT(token)
+      token match {
+        case t: AdminToken ⇒ adminSession.setSessionT(t)
+        case t: CustomerToken ⇒ customerSession.setSessionT(t)
+      }
     }
   }
 

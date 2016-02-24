@@ -10,10 +10,11 @@ import models.customer.{Customer, Customers}
 import cats.data.Xor
 import models.{StoreAdmin, StoreAdmins}
 import slick.driver.PostgresDriver.api._
+import utils.ModelWithIdParameter
 import utils.Slick.implicits._
 import utils.Passwords.checkPassword
 import utils.aliases._
-
+import models.auth.Identity
 import models.auth.{AdminToken, CustomerToken, Token}
 import payloads.LoginPayload
 import utils.DbResultT._
@@ -78,20 +79,32 @@ object Authenticator {
     case _ ⇒ None
   }
 
-  def adminLogin(payload: LoginPayload)
-    (implicit ec: ExecutionContext, db: Database): Result[AdminToken] = {
-    (for {
-      storeAdmin ← * <~ StoreAdmins
-        .findByEmail(payload.email)
-        .mustFindOr(LoginFailed)
-      checked ← * <~ checkAndBuild(storeAdmin, payload.password)
-    } yield checked).run()
+  def authenticate(payload: LoginPayload)
+    (implicit ec: ExecutionContext, db: Database): Result[Token] = {
+
+    def auth[M, F <: EmailFinder[M], T](finder: F, getHashedPassword: M ⇒ Option[String], builder: M ⇒ T): Result[T] = {
+      (for {
+        instance ← * <~ finder(payload.email)
+          .mustFindOr(LoginFailed)
+        instance ← * <~ validatePassword(instance, getHashedPassword(instance), payload.password)
+        checked ← * <~ builder(instance)
+      } yield checked).run()
+    }
+
+    payload.kind match {
+      case Identity.Admin ⇒
+        auth[StoreAdmin, EmailFinder[StoreAdmin], AdminToken](StoreAdmins.findByEmail,
+          _.hashedPassword, AdminToken.fromAdmin)
+      case Identity.Customer ⇒
+        auth[Customer, EmailFinder[Customer], CustomerToken](Customers.findByEmail,
+          _.hashedPassword, CustomerToken.fromCustomer)
+    }
   }
 
-  private def checkAndBuild(admin: StoreAdmin, password: String): Failures Xor AdminToken = {
-    val hash = admin.hashedPassword.getOrElse("")
+  private def validatePassword[M](model: M, hashedPassword: Option[String], password: String): Failures Xor M = {
+    val hash = hashedPassword.getOrElse("")
     if (checkPassword(password, hash))
-      Xor.right(AdminToken.fromAdmin(admin))
+      Xor.right(model)
     else
       Xor.left(LoginFailed.single)
   }

@@ -9,7 +9,7 @@ import org.json4s.Extraction
 import akka.stream.Materializer
 import slick.driver.PostgresDriver.api._
 
-import models.auth.Session.{setAdminSession, setCustomerSession, requireAdminAuth, requireCustomerAuth}
+import models.auth.Session.{setTokenSession, requireAdminAuth, requireCustomerAuth}
 import models.auth.{AdminToken, CustomerToken}
 import services.{Result, Authenticator}
 import utils.CustomDirectives._
@@ -20,12 +20,12 @@ object AuthRoutes {
 
   def routes(implicit ec: ExecutionContext, db: Database, mat: Materializer) = {
     
-    (post & path("login") & entity(as[payloads.LoginPayload])) { login ⇒
-      onSuccess(Authenticator.adminLogin(login)) { result ⇒
+    (post & path("login") & entity(as[payloads.LoginPayload])) { payload ⇒
+      onSuccess(Authenticator.authenticate(payload)) { result ⇒
         result.fold({ f ⇒
             complete(renderFailure(f))
           }, { token ⇒
-          setAdminSession(token) {
+          setTokenSession(token) {
             complete(render(token))
           }
         })

@@ -1,6 +1,7 @@
 package responses
 
-import models.{BaseStoreAdmin ⇒ StoreAdmin}
+import models.StoreAdmin
+import models.auth.AdminToken
 
 object StoreAdminResponse {
   final case class Root(
@@ -14,5 +15,9 @@ object StoreAdminResponse {
       id = admin.id,
       email = admin.email,
       name = admin.name,
+      department = admin.department)
+
+  def build(admin: AdminToken): Root =
+    Root(id = admin.id, email = admin.email, name = admin.name.getOrElse(""),
       department = admin.department)
 }
