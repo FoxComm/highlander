@@ -49,14 +49,14 @@ object OrderRoutes {
           } ~
           pathPrefix("assignees") {
             (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              entity(as[BulkAssignment]) { payload ⇒
+              entity(as[OrderBulkAssignmentPayload]) { payload ⇒
                 goodOrFailures {
                   OrderAssignmentUpdater.assignBulk(admin, payload)
                 }
               }
             } ~
             (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              entity(as[BulkAssignment]) { payload ⇒
+              entity(as[OrderBulkAssignmentPayload]) { payload ⇒
                 goodOrFailures {
                   OrderAssignmentUpdater.unassignBulk(admin, payload)
                 }
@@ -65,14 +65,14 @@ object OrderRoutes {
           } ~
           pathPrefix("watchers") {
             (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              entity(as[BulkWatchers]) { payload ⇒
+              entity(as[OrderBulkWatchersPayload]) { payload ⇒
                 goodOrFailures {
                   OrderWatcherUpdater.watchBulk(admin, payload)
                 }
               }
             } ~
             (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              entity(as[BulkWatchers]) { payload ⇒
+              entity(as[OrderBulkWatchersPayload]) { payload ⇒
                 goodOrFailures {
                   OrderWatcherUpdater.unwatchBulk(admin, payload)
                 }
@@ -168,7 +168,7 @@ object OrderRoutes {
             }
           } ~
           pathPrefix("assignees") {
-            (post & pathEnd & entity(as[Assignment])) { payload ⇒
+            (post & pathEnd & entity(as[OrderAssignmentPayload])) { payload ⇒
               goodOrFailures {
                 OrderAssignmentUpdater.assign(admin, refNum, payload.assignees)
               }
@@ -180,7 +180,7 @@ object OrderRoutes {
             }
           } ~
           pathPrefix("watchers") {
-            (post & pathEnd & entity(as[Watchers])) { payload ⇒
+            (post & pathEnd & entity(as[OrderWatchersPayload])) { payload ⇒
               goodOrFailures {
                 OrderWatcherUpdater.watch(admin, refNum, payload.watchers)
               }

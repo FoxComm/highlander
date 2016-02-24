@@ -2,7 +2,7 @@ package services.orders
 
 import models.order._
 import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
-import payloads.BulkAssignment
+import payloads.OrderBulkAssignmentPayload
 import responses.TheResponse
 import responses.order.FullOrder
 import services.Util._
@@ -49,7 +49,7 @@ object OrderAssignmentUpdater {
       reason = NotificationSubscription.Assigned, objectIds = Seq(order.referenceNumber))
   } yield fullOrder).runTxn()
 
-  def assignBulk(admin: StoreAdmin, payload: BulkAssignment)(implicit ec: ExecutionContext, db: Database,
+  def assignBulk(admin: StoreAdmin, payload: OrderBulkAssignmentPayload)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
     // TODO: transfer sorting-paging metadata
     orders          ← * <~ Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result.toXor
@@ -64,7 +64,7 @@ object OrderAssignmentUpdater {
       reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber)).value
   } yield response.copy(errors = ordersNotFound)).runTxn()
 
-  def unassignBulk(admin: StoreAdmin, payload: BulkAssignment)(implicit ec: ExecutionContext, db: Database,
+  def unassignBulk(admin: StoreAdmin, payload: OrderBulkAssignmentPayload)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
     // TODO: transfer sorting-paging metadata
     orders    ← * <~ Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
