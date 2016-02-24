@@ -6,28 +6,25 @@ all: build
 build:
 	$(GO) build -o bin/inventory inventory.go
 
-seed-cloud:
-	terraform apply terraform/
-
 deploy-stage:
 	ansible-playbook -v -i ./staging ansible/stage.yml
 
-deploy-gatling: seed-cloud
+deploy-gatling:
 	ansible-playbook -v  -i ./staging ansible/gatling.yml
 
 run-gatling: deploy-gatling
 	ansible-playbook -v -i ./staging ansible/run_gatling.yml
 
-deploy-demo: seed-cloud
+deploy-demo:
 	ansible-playbook -v -i ./staging ansible/demo.yml
 
-deploy-demo2: seed-cloud
+deploy-demo2:
 	ansible-playbook -v -i ./staging ansible/demo2.yml
 
-deploy-usertest1: seed-cloud
+deploy-usertest1:
 	ansible-playbook -v -i ./staging ansible/usertest1.yml
 
-deploy-usertest2: seed-cloud
+deploy-usertest2:
 	ansible-playbook -v -i ./staging ansible/usertest2.yml
 
 lint:
