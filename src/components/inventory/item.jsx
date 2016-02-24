@@ -1,6 +1,7 @@
 
 //libs
 import React, { PropTypes } from 'react';
+import { haveType } from '../../modules/state-helpers';
 
 // components
 import { Link, IndexLink } from '../link';
@@ -8,6 +9,9 @@ import LocalNav, { NavDropdown } from '../local-nav/local-nav';
 import { PageTitle } from '../section-title';
 
 const InventoryItem = props => {
+
+  const content = React.cloneElement(props.children, {entity: haveType(props.params, 'inventoryItem') });
+
   return (
     <div className="fc-inventory-item">
       <div className="fc-inventory-item__summary">
@@ -20,10 +24,10 @@ const InventoryItem = props => {
           <a href="">General</a>
           <IndexLink to="inventory-item-details" params={props.params}>Inventory</IndexLink>
           <a href="">Notes</a>
-          <a href="">Activity Trail</a>
+          <Link to="inventory-item-activity-trail" params={props.params}>Activity Trail</Link>
         </LocalNav>
       </div>
-      {props.children}
+      {content}
     </div>
   );
 };
