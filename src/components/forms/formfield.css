@@ -1,0 +1,14 @@
+
+@import "colors.css";
+
+.has-error {
+  & > input,
+  & > textarea {
+    border-color: var(--redish);
+  }
+}
+
+.error {
+  color: var(--redish);
+  text-align: left;
+}

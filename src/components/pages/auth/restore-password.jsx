@@ -1,28 +1,41 @@
 /* @flow */
 
-import React, { Component, Element } from 'react';
+import React, { Component, Element, PropTypes } from 'react';
 import cssModules from 'react-css-modules';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
+import {reduxForm} from 'redux-form';
 
 import { TextInput } from '../../common/inputs';
-import { Form, FormField } from '../../forms';
+import { FormField } from '../../forms';
 import Button from '../../common/buttons';
 import { Link } from 'react-router';
 
+type FormData = {
+  email: string;
+};
 
 type RestoreState = {
-  email: string,
   sent: boolean
 };
 
 /* ::`*/
+@reduxForm({
+  form: 'restore-password',
+  fields: ['email'],
+})
 @cssModules(styles)
 /* ::`*/
 export default class RestorePassword extends Component {
 
+  static propTypes = {
+    fields: PropTypes.object.isRequired,
+    handleSubmit: PropTypes.func.isRequired,
+    resetForm: PropTypes.func.isRequired,
+    submitting: PropTypes.bool.isRequired,
+  };
+
   state: RestoreState = {
-    email: '',
     sent: false,
   };
 
@@ -34,19 +47,26 @@ export default class RestorePassword extends Component {
   }
 
   @autobind
-  handleSubmit() {
-    this.setState({
-      sent: true,
-    });
+  handleSubmit(data: FormData) {
+    if (data.email.endsWith('.com')) {
+      this.setState({
+        sent: true,
+      });
+    } else {
+      return Promise.reject({
+        email: 'A user with this email does not exist.',
+      });
+    }
   }
 
   get topMessage(): Element {
-    const { sent, email } = this.state;
+    const { sent } = this.state;
+    const { fields: {email}} = this.props;
 
     if (sent) {
       return (
         <div styleName="top-message-success">
-          An email was successfully sent to <strong>{email}</strong> with reset instructions!
+          An email was successfully sent to <strong>{email.value}</strong> with reset instructions!
         </div>
       );
     }
@@ -59,26 +79,29 @@ export default class RestorePassword extends Component {
   }
 
   get emailField(): ?Element {
-    const { sent, email } = this.state;
+    const { sent } = this.state;
+    const { fields: {email}} = this.props;
 
     if (sent) return null;
 
     return (
-      <FormField key="email" styleName="form-field">
-        <TextInput placeholder="EMAIL" required value={email} type="email" onChange={this.onChangeEmail} />
+      <FormField key="email" styleName="form-field" {...email}>
+        <TextInput placeholder="EMAIL" required type="email" {...email} />
       </FormField>
     );
   }
 
   render(): Element {
+    const {handleSubmit} = this.props;
+
     return (
       <div>
         <div styleName="title">FORGOT PASSWORD</div>
         {this.topMessage}
-        <Form onSubmit={this.handleSubmit}>
+        <form onSubmit={handleSubmit(this.handleSubmit)}>
           {this.emailField}
           <Button styleName="primary-button">SUBMIT</Button>
-        </Form>
+        </form>
         <div styleName="switch-stage">
           <Link to="/login">BACK TO LOG IN</Link>
         </div>
