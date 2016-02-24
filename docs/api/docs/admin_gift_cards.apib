@@ -69,7 +69,7 @@ Converts GiftCard to specified customer's Store Credit if it's active and has no
 ### List Transactions [GET /v1/gift-cards/{code}/transactions/{?size,from,sortBy}]
 
 + Parameters
-    + code: `ABC-123` (required, string)           - Gift card code
+    + code: `ABC-123`     (required, string)       - Gift card code
     + size:   1           (optional, number)       - Page size.
     + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
     + sortBy: `createdAt` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
@@ -85,3 +85,73 @@ Converts GiftCard to specified customer's Store Credit if it's active and has no
             + `createdAt`
 + Response 200 (application/json)
     + Attributes (GiftCardAdjustments)
+
+## Assignees [/v1/gift-cards/{code}/assignees]
+
++ Parameters
+    + code: `ABC-123` (required, string) - Gift card code
+
+### Assign [POST]
+
++ Request (application/json)
+    + Attributes (GiftCardAssignPayload)
++ Response 200 (application/json)
+    + Attributes (FullGiftCard)
+
+### Unassign [DELETE /v1/gift-cards/{code}/assignees/{assigneeId}]
+
++ Parameters
+    + code: `ABC-123` (required, string) - Gift card code
+    + assigneeId: 1 (required, number) - Store admin ID.
++ Request (application/json)
++ Response 200 (application/json)
+    + Attributes (FullGiftCard)
+
+### Bulk Assign [POST /v1/gift-cards/assignees]
+
++ Request (application/json)
+    + Attributes (GiftCardBulkAssignPayload)
++ Response 200 (application/json)
+    + Attributes (GiftCardBaseList)
+
+### Bulk Unassign [POST /v1/gift-cards/assignees/delete]
+
++ Request (application/json)
+    + Attributes (GiftCardBulkAssignPayload)
++ Response 200 (application/json)
+    + Attributes (GiftCardBaseList)
+
+## Watchers [/v1/gift-cards/{code}/watchers]
+
++ Parameters
+    + code: `ABC-123` (required, string) - Gift card code
+
+### Watch [POST]
+
++ Request (application/json)
+    + Attributes (GiftCardWatchPayload)
++ Response 200 (application/json)
+    + Attributes (FullGiftCard)
+
+### Unwatch [DELETE /v1/gift-cards/{code}/watchers/{assigneeId}]
+
++ Parameters
+    + code: `ABC-123` (required, string) - Gift card code
+    + assigneeId: 1 (required, number) - Store admin ID.
++ Request (application/json)
++ Response 200 (application/json)
+    + Attributes (FullGiftCard)
+
+### Bulk Watch [POST /v1/gift-cards/watchers]
+
++ Request (application/json)
+    + Attributes (GiftCardBulkAssignPayload)
++ Response 200 (application/json)
+    + Attributes (GiftCardBaseList)
+
+### Bulk Unwatch [POST /v1/gift-cards/watchers/delete]
+
++ Request (application/json)
+    + Attributes (GiftCardBulkWatchPayload)
++ Response 200 (application/json)
+    + Attributes (GiftCardBaseList)

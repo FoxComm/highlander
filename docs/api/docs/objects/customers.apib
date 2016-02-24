@@ -1,6 +1,6 @@
 # Data Structures
 
-## CustomerResponse
+## CustomerBase
 + id: 1 (required, number) - Unique identifier.
 + name: `John Smith` (optional, string) - Full name.
 + email: `john@smith.com` (required, string) - E-mail.
@@ -11,11 +11,19 @@
 + disabled: false (required, boolean) - Defines whether account is disabled.
 + isGuest: false (required, boolean) - Defines whether account is guest.
 + isBlacklisted: false (required, boolean) - Defines whether account is added to blacklisted.
+
+## CustomerResponse
+- Include CustomerBase
 + billingRegion (optional, Region) - Billing region name.
 + shippingRegion (optional, Region) - Shipping region name.
 + rank: 1 (optional, number) - Customer ranking.
 + numOrders: 1 (optional, number) - Total number of orders.
 + totalSales: 100 (optional, number) - Customers sales stats.
+
+## FullCustomer
+- Include CustomerResponse
++ assignees (required, array[Assignee]) - Customer assignees.
++ watchers (required, array[Watcher]) - Customer watchers.
 
 ## CustomerCreatePayload
 + email: `user@example.org` (required, string) - Customer email.
@@ -40,3 +48,21 @@
 ## CustomersList
 + result     (required, array[CustomerResponse])
 - Include ResultMetadata
+
+## CustomerBaseList
++ result     (required, array[CustomerBase])
+- Include ResultMetadata
+
+### CustomerAssignPayload
++ assignees (required, array[number]) - StoreAdmin IDs.
+
+### CustomerBulkAssignPayload
++ customerIds: 1 (required, array[number]) - Target customer IDs.
++ assigneeId: 1 (required, number) - StoreAdmin ID.
+
+### CustomerWatchPayload
++ watchers (required, array[number]) - StoreAdmin IDs.
+
+### CustomerBulkWatchPayload
++ customerIds: 1 (required, array[number]) - Target customer IDs.
++ watcherId: 1 (required, number) - StoreAdmin ID.
