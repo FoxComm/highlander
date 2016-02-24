@@ -116,7 +116,6 @@ const reducer = createReducer({
     return updater(state);
   },
   [fetchFailed]: (state, result) => {
-    console.log(result);
     console.error(result);
 
     return assoc(state,
