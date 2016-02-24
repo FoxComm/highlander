@@ -2,7 +2,7 @@
 @import "colors.css";
 @import "media-queries.css";
 
-.login-block {
+.auth-block {
   text-align: center;
   margin-top: 44px;
 
@@ -48,7 +48,7 @@
   }
 }
 
-.login-button {
+.primary-button {
   composes: button from "../../common/css/buttons.css";
   width: 100%;
 }
@@ -59,11 +59,26 @@
   line-height: 18px;
 }
 
+.top-message {
+  margin-bottom: 30px;
+  font-size: 15px;
+  line-height: 18px;
+}
+
+.top-message-success {
+  composes: top-message;
+  color: var(--greenish);
+}
+
 @media (--small-viewport) {
-  .login-block {
+  .auth-block {
     lost-column: 1/1;
     lost-offset: 0;
     margin-top: 10px;
+  }
+
+  .top-message {
+    margin-bottom: 20px;
   }
 
   .icon {
@@ -93,7 +108,7 @@
 
 
 @media (--medium-viewport) {
-  .login-block {
+  .auth-block {
     lost-column: 5/11;
     lost-offset: -3/11;
   }

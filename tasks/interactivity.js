@@ -6,8 +6,9 @@ function listen(cb) {
   process.stdin.setEncoding('utf8');
   process.stdin.setRawMode(true);
 
-  console.log(`Press ${chalk.white.bold('j')} to re-run ${chalk.green('browserify')} task.`);
+  console.log(`Press ${chalk.white.bold('j')} to clean caches and re-run ${chalk.green('browserify')} task.`);
   console.log(`Press ${chalk.white.bold('c')} to re-run ${chalk.green('css')} task.`);
+  console.log(`Press ${chalk.white.bold('s')} to re-run ${chalk.green('server')}.`);
 
   process.stdin.on('data', function(chunk) {
     switch (chunk) {
@@ -16,6 +17,9 @@ function listen(cb) {
         break;
       case 'c':
         runSequence('css');
+        break;
+      case 's':
+        runSequence('server.invalidate');
         break;
       case '\r':
         process.stdout.write('\n');
