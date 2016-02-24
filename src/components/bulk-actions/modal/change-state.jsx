@@ -41,7 +41,7 @@ const ChangeStateModal = ({entity, stateTitle, count, label: rawLabel, onCancel,
 ChangeStateModal.propTypes = {
   entity: PropTypes.string.isRequired,
   stateTitle: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
+  label: PropTypes.string,
   count: PropTypes.number.isRequired,
   onCancel: PropTypes.func.isRequired,
   onConfirm: PropTypes.func.isRequired,
