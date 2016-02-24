@@ -9,13 +9,13 @@ import TableRow from '../table/row';
 
 const Drawer = props => {
   const drawerClass = classNames('fc-expandable-table__drawer', {
-    '_shown': props.isVisible,
-    '_hidden': !props.isVisible,
+    '_shown': props.params.isOpen,
+    '_hidden': !props.params.isOpen,
   });
 
   return (
     <TableRow className={drawerClass}>
-      <td className="fc-expandable-table__drawer-cell" colSpan={props.colspan}>
+      <td className="fc-expandable-table__drawer-cell" colSpan={props.params.colspan}>
         {props.children}
       </td>
     </TableRow>
@@ -23,14 +23,18 @@ const Drawer = props => {
 };
 
 Drawer.propTypes = {
-  isVisible: PropTypes.bool,
-  colspan: PropTypes.number,
+  params: PropTypes.shape({
+    isOpen: PropTypes.bool,
+    colspan: PropTypes.number,
+  }),
   children: PropTypes.node,
 };
 
 Drawer.defaultProps = {
-  isVisible: false,
-  colspan: 1,
+  params: {
+    isOpen: false,
+    colspan: 1,
+  },
 };
 
 export default Drawer;

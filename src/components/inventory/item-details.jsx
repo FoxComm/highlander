@@ -1,7 +1,10 @@
 
 //libs
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { haveType } from '../../modules/state-helpers';
+import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
 
 // components
 import { SectionTitle } from '../section-title';
@@ -10,105 +13,99 @@ import TabView from '../tabs/tab';
 import { Link, IndexLink } from '../link';
 import ExpandableTable from '../table/expandable-table';
 import InventoryWarehouseRow from './inventory-warehouse-row';
+import WarehouseDrawer from './inventory-warehouse-drawer';
 
+// redux
+import * as WarehousesActions from '../../modules/inventory/warehouses';
+
+const mapStateToProps = (state, props) => ({
+  tableState: _.get(state, ['inventory', 'warehouses', props.params.sku], {})
+});
+
+@connect(mapStateToProps, {...WarehousesActions})
 export default class InventoryItemDetails extends React.Component {
 
   static propTypes = {
-    params: PropTypes.object,
+    params: PropTypes.object.isRequired,
+    fetchSummary: PropTypes.func.isRequired,
+    fetchDetails: PropTypes.func.isRequired,
+  }
+
+  componentDidMount() {
+    this.props.fetchSummary(this.props.params.sku);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const namespace = ['tableState', 'summary', 'results', 'rows'];
+    const oldWarehouses = _.get(this.props, namespace, []);
+    const warehouses = _.get(nextProps, namespace, []);
+    if (!_.isEqual(oldWarehouses, warehouses)) {
+      _.each(warehouses, (wh) => {
+        this.props.fetchDetails(this.props.params.sku, wh.id);
+      });
+    }
   }
 
   get tableColumns() {
     return [
-      {field: 'warehouse', text: 'Warehouse'},
+      {field: 'name', text: 'Warehouse'},
       {field: 'onHand', text: 'On Hand'},
       {field: 'onHold', text: 'Hold'},
       {field: 'reserved', text: 'Reserved'},
       {field: 'safetyStock', text: 'Safety Stock'},
       {field: 'afs', text: 'AFS'},
-      {field: 'afsCostValue', text: 'AFS Cost Value', type: 'currency'},
+      {field: 'afsCost', text: 'AFS Cost Value', type: 'currency'},
     ];
   }
 
   get drawerColumns() {
     return [
-      {field: 'type', text: 'Type'},
+      {field: 'skuType', text: 'Type'},
       {field: 'onHand', text: 'On Hand'},
       {field: 'onHold', text: 'Hold'},
       {field: 'reserved', text: 'Reserved'},
       {field: 'safetyStock', text: 'Safety Stock'},
       {field: 'afs', text: 'AFS'},
-      {field: 'afsCostValue', text: 'AFS Cost Value', type: 'currency'},
+      {field: 'afsCost', text: 'AFS Cost Value', type: 'currency'},
     ];
   }
 
-  // mocked data for table
-  get mockedDrawerData() {
-    return {
-      rows:[
-        {
-          type: 'Sellable',
-          onHand: 52,
-          onHold: 2,
-          reserved: 5,
-          safetyStock: 3,
-          afs: 42,
-          afsCostValue: 42000,
-        },
-        {
-          type: 'Preorder',
-          onHand: 0,
-          onHold: 0,
-          reserved: 0,
-          safetyStock: 0,
-          afs: 0,
-          afsCostValue: 0,
-        },
-        {
-          type: 'Backorder',
-          onHand: 0,
-          onHold: 0,
-          reserved: 0,
-          safetyStock: 0,
-          afs: 0,
-          afsCostValue: 0,
-        },
-        {
-          type: 'Non-sellable',
-          onHand: 0,
-          onHold: 0,
-          reserved: 0,
-          safetyStock: 0,
-          afs: 0,
-          afsCostValue: 0,
-        },
-      ], total:4, from:0, size:25
-    };
+  @autobind
+  renderDrawer(row, index, params) {
+    const key = `inventory-warehouse-drawer-${row.id}`;
+    return (
+      <WarehouseDrawer
+        key={key}
+        row={row}
+        drawerData={params.drawerData}
+        drawerColumns={params.drawerColumns}
+        params={params} />
+    );
   }
 
-  get mockedData() {
-    return {
-      rows:[
-        {
-          warehouse: 'Colombus',
-          onHand: 52,
-          onHold: 2,
-          reserved: 5,
-          safetyStock: 3,
-          afs: 42,
-          afsCostValue: 42000,
-        }
-      ], total:1, from:0, size:25
-    };
-  }
-
+  @autobind
   renderRow(row, index, columns, params) {
-    const key = `inventory-warehouse-row-${row.warehouse}`;
-    return <InventoryWarehouseRow warehouse={row} columns={columns} params={params} />;
+    const key = `inventory-warehouse-row-${row.id}`;
+    return (
+      <InventoryWarehouseRow
+        key={key}
+        warehouse={row}
+        columns={columns}
+        params={params} />
+    );
+  }
+
+  get summaryData() {
+    return _.get(this.props, ['tableState', 'summary', 'results'], {});
+  }
+
+  get drawerData() {
+    return warehouseId => _.get(this.props, ['tableState', warehouseId, 'results'], {});
   }
 
   render() {
     const params = {
-      drawerData: this.mockedDrawerData,
+      drawerData: this.drawerData,
       drawerColumns: this.drawerColumns,
     };
     return (
@@ -140,11 +137,12 @@ export default class InventoryItemDetails extends React.Component {
           <div className="fc-col-md-1-1">
             <ExpandableTable
               columns={this.tableColumns}
-              data={this.mockedData}
+              data={this.summaryData}
               renderRow={this.renderRow}
+              renderDrawer={this.renderDrawer}
               params={params}
               entity={haveType(this.props.params, 'inventoryItem')}
-              idField="warehouse"
+              idField="id"
               emptyMessage="No warehouse data found."
               className="fc-inventory-item-details__warehouses-table"/>
           </div>
