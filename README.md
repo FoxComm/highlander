@@ -70,7 +70,7 @@ Then run
     
 ### Update Green River assembly
 
-You can pass green river *.jar file without re-provisioning.
+You can pass green river `*.jar` file without re-provisioning.
 
 Just run:
 
