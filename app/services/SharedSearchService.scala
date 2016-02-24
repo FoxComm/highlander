@@ -5,7 +5,8 @@ import java.time.Instant
 import scala.concurrent.ExecutionContext
 
 import models.activity.ActivityContext
-import models.{StoreAdmins, SharedSearch, SharedSearches, SharedSearchAssociation, SharedSearchAssociations, StoreAdmin}
+import models.sharedsearch.{SharedSearchAssociations, SharedSearchAssociation, SharedSearches, SharedSearch}
+import models.{StoreAdmins, StoreAdmin}
 import payloads.SharedSearchPayload
 import responses.{StoreAdminResponse, TheResponse}
 import services.Util.diffToFailures

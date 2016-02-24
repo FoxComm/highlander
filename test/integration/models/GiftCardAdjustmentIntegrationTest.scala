@@ -1,5 +1,8 @@
 package models
 
+import models.customer.Customers
+import models.order.{OrderPayments, Orders}
+import models.payment.giftcard._
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._

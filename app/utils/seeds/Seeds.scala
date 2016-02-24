@@ -4,8 +4,10 @@ import java.time.{Instant, ZoneId}
 
 import cats.data.Xor
 import models.Reason._
-import models.{CreditCardCharge, OrderPayment, OrderShippingAddress, Reason, Reasons}
 import models.product.{ProductContexts, SimpleContext}
+import models.order.{OrderShippingAddress, OrderPayment}
+import models.payment.creditcard.CreditCardCharge
+import models.{Reason, Reasons}
 import org.postgresql.ds.PGSimpleDataSource
 import services.{Failures, FailuresOps}
 import slick.driver.PostgresDriver
@@ -32,14 +34,16 @@ object Seeds {
 
     createBaseSeeds()
 
+    val scale = if (args.length == 2) args(1).toInt else  1 
+
     args.headOption.map {
       case "random" ⇒  
-        createRandomSeeds()
+        createRandomSeeds(scale)
       case "ranking" ⇒ 
         createRankingSeeds()
       case "demo" ⇒   
         createDemoSeeds()
-        createRandomSeeds()
+        createRandomSeeds(scale)
       case _ ⇒ None
     }
 
@@ -62,20 +66,23 @@ object Seeds {
     Await.result(RankingSeedsGenerator.insertRankingSeeds(1700).runTxn(), 120.seconds)
   }
 
-  def createRandomSeeds()(implicit db: Database) {
+  def createRandomSeeds(scale: Int)(implicit db: Database) {
     Console.err.println(s"Inserting random seeds")
 
-    val customers = 1000
-    val batchSize = 100 
+    val customers = 1000 * scale
+    val batchSize = 100
+    val productsPerBatch = 100
     val batchs = customers / batchSize
-    val productsPerBatch = 20
+    val products = batchs * productsPerBatch
+
+    Console.err.println(s"Generating ${customers} customers and a ${products} products in ${batchs} batches")
 
     //Have to generate data in batches because of DBIO.seq stack overflow bug.
     //https://github.com/slick/slick/issues/1186
     (1 to batchs) map { b ⇒ 
       Console.err.println(s"Generating random batch $b of $batchSize customers")
       val result = Await.result(
-        SeedsGenerator.insertRandomizedSeeds(batchSize, productsPerBatch).runTxn(), 120.second)
+        SeedsGenerator.insertRandomizedSeeds(batchSize, productsPerBatch).runTxn(), (120 * scale).second)
       validateResults("random", result)
     }
   }

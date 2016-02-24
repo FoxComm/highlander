@@ -2,29 +2,32 @@ package utils.seeds
 
 import scala.util.Random
 
-import utils.seeds.generators.{CustomerGenerator, AddressGenerator, CreditCardGenerator, 
-  OrderGenerator, InventoryGenerator, ProductGenerator}
-import models.{Address, Addresses, CreditCard, CreditCards, Customer, Customers, 
-  Order, OrderPayment, OrderPayments, Orders, PaymentMethod, CustomerDynamicGroup,
-  OrderLineItemSku, OrderLineItemSkus}
-import models.product.{Sku, Skus, ProductContext, ProductContexts, SimpleContext}
+import models.customer.{CustomerDynamicGroup, Customers, Customer}
+import models.inventory.Skus
+import models.location.{Addresses, Address}
+import models.order._
+import models.payment.PaymentMethod
+import models.payment.creditcard.{CreditCards, CreditCard}
+import models.product.{ProductContext, ProductContexts, SimpleContext}
+import utils.seeds.generators._
 
 import utils.ModelWithIdParameter
 import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
+import cats.implicits._
 import Seeds.Factories
 
 import slick.driver.PostgresDriver.api._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
-import faker.Faker;
+import faker.Faker
 import org.json4s.JObject
 
 object RankingSeedsGenerator {
   def fakeJson = JObject()
 
-  def generateCustomer: Customer = Customer(email = s"${randomString(10)}@email.com",
+  def generateCustomer: Customer = Customer.build(email = s"${randomString(10)}@email.com",
     password = Some(randomString(10)), name = Some(randomString(10)))
 
   def generateOrder(state: Order.State, customerId: Int, productContext: ProductContext): Order = {
@@ -62,7 +65,7 @@ object RankingSeedsGenerator {
 
     val insertCustomers = Customers.createAll((1 to customersCount).map { i ⇒
       val s = randomString(15)
-      Customer(name = Some(s), email = s"$s-$i@email.com", password = Some(s), location = Some(location))
+      Customer.build(name = s.some, email = s"$s-$i@email.com", password = s.some, location = location.some)
     })
 
     val insertOrders = for { 
@@ -104,7 +107,7 @@ object RankingSeedsGenerator {
 
 object SeedsGenerator extends CustomerGenerator with AddressGenerator 
   with CreditCardGenerator with OrderGenerator with ProductGenerator 
-  with InventoryGenerator{
+  with InventoryGenerator with GiftCardGenerator {
 
   import org.json4s.JObject
 
@@ -117,15 +120,9 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
     }
   }
 
-  def makeProducts(productCount: Int) = (1 to productCount).map { i ⇒  generateProduct }
+  def makeProducts(productCount: Int) = (1 to productCount).par.map { i ⇒  generateProduct }
 
-  def randomSubset[T](vals: Seq[T]) : Seq[T] = {
-    require(vals.length > 0)
-    val size = Math.max(Random.nextInt(Math.min(vals.length, 5)), 1)
-    (1 to size).map { 
-      i ⇒  vals(i * Random.nextInt(vals.length) % vals.length) 
-    }.distinct
-  }
+  def pickOne[T](vals: Seq[T]) : T = vals(Random.nextInt(vals.length))
 
   def insertRandomizedSeeds(customersCount: Int, productCount: Int)(implicit db: Database, ec: ExecutionContext) = {
     Faker.locale("en")
@@ -133,7 +130,7 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
 
     for {
       productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
-      shipMethods ← * <~ createShipmentRules
+      shipMethods ← * <~ getShipmentRules
       _ ← * <~  generateWarehouses
       products ← * <~ generateProducts(makeProducts(productCount))
       _ ← * <~  generateInventory(products)
@@ -141,7 +138,14 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
       customers  ← * <~ Customers.filter(_.id.inSet(customerIds)).result
       _ ← * <~ Addresses.createAll(generateAddresses(customerIds))
       _ ← * <~ CreditCards.createAll(generateCreditCards(customerIds))
-      orders ← * <~ DbResultT.sequence(customers.map{ c ⇒ generateOrder(c.id, productContext, randomSubset(products))})
+      orderedGcs ← * <~ DbResultT.sequence(randomSubset(customerIds).map { id ⇒ generateGiftCardPurchase(id)})
+      appeasementCount = Math.max(productCount / 8, Random.nextInt(productCount))
+      appeasements  ← * <~ DbResultT.sequence((1 to appeasementCount).map { i ⇒ generateGiftCardAppeasement})
+      giftCards  ← * <~  orderedGcs ++ appeasements
+      _ ← * <~ DbResultT.sequence(
+        randomSubset(customerIds, customerIds.length).map{ 
+          id ⇒ generateOrders(id, productContext, products, pickOne(giftCards))
+        })
     } yield {}
   }
 

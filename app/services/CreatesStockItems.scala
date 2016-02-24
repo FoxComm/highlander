@@ -1,10 +1,8 @@
 package services
 
-import models.{StockItems, StockItem}
+import scala.concurrent.ExecutionContext
 
-
-import scala.concurrent.{Future, ExecutionContext}
-
+import models.inventory.{StockItem, StockItems}
 import slick.driver.PostgresDriver.api._
 
 object CreatesStockItems {

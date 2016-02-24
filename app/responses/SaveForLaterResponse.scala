@@ -1,6 +1,11 @@
 package responses
 
-import models.product.{Product, Products, ProductShadow, ProductShadows, Sku, Skus, SkuShadow, SkuShadows, Mvp}
+import java.time.Instant
+
+import scala.concurrent.ExecutionContext
+
+import models.inventory.{Skus, Sku, SkuShadow, SkuShadows}
+import models.product.{Product, Products, ProductShadow, ProductShadows, Mvp}
 import models.{SaveForLater, SaveForLaters}
 import services.NotFoundFailure404
 import utils.DbResultT.implicits._
@@ -42,7 +47,7 @@ object SaveForLaterResponse {
     Root(
       id = sfl.id,
       name = name,
-      sku = sku.sku,
+      sku = sku.code,
       price = price,
       createdAt = sfl.createdAt
     )

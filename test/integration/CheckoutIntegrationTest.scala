@@ -3,11 +3,17 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.StatusCodes.OK
 
 import Extensions._
-import models.{Addresses, Customers, Order, Orders, Reasons, ShippingMethods, StoreAdmins}
-import models.product.{Skus, Mvp, ProductContexts, SimpleContext}
+import models.product.{Mvp, ProductContexts, SimpleContext}
+import models.customer.Customers
+import models.inventory.Skus
+import models.location.Addresses
+import models.order.{Orders, Order}
+import models.shipping.ShippingMethods
+import models.{Reasons, StoreAdmins}
 import payloads.{CreateOrder, GiftCardCreateByCsr, GiftCardPayment, UpdateLineItemsPayload, UpdateShippingMethod}
-import responses.FullOrder.Root
-import responses.{FullOrder, GiftCardResponse}
+import responses.order.FullOrder
+import FullOrder.Root
+import responses.GiftCardResponse
 import services.CartFailures.CustomerHasNoActiveOrder
 import services.NotFoundFailure404
 import util.IntegrationTestBase
@@ -26,7 +32,7 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       createCart.status must === (OK)
       val refNum = createCart.as[FullOrder.Root].referenceNumber
       // Add line items
-      POST(s"v1/orders/$refNum/line-items", Seq(UpdateLineItemsPayload(sku.sku, 1))).status must === (OK)
+      POST(s"v1/orders/$refNum/line-items", Seq(UpdateLineItemsPayload(sku.code, 1))).status must === (OK)
       // Set address
       PATCH(s"v1/orders/$refNum/shipping-address/${address.id}").status must === (OK)
       // Set shipping method
@@ -53,11 +59,11 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
     }
   }
 
-  "POST v1/my/order/checkout" - {
+  "POST v1/my/cart/checkout" - {
     "errors if no cart found for customer" in {
       val customer = Customers.create(Factories.customer).run().futureValue.rightVal
 
-      val response = POST("v1/my/order/checkout")
+      val response = POST("v1/my/cart/checkout")
       response.status must === (StatusCodes.BadRequest)
       response.errors must contain(CustomerHasNoActiveOrder(customer.id).description)
     }

@@ -1,6 +1,6 @@
 package responses
 
-import models.GiftCardAdjustment
+import models.payment.giftcard.GiftCardAdjustment
 
 object GiftCardAdjustmentsResponse {
   final case class Root(

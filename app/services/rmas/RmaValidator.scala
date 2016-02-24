@@ -1,6 +1,6 @@
 package services.rmas
 
-import models.{Rma, RmaLineItems}
+import models.rma._
 import services.RmaFailures._
 import services.{Failure, Failures}
 import slick.driver.PostgresDriver.api._

@@ -1,5 +1,10 @@
 package services
 
+import models.customer.Customers
+import models.inventory.Skus
+import models.location.Addresses
+import models.order.{OrderShippingAddresses, Orders}
+import models.order.lineitems._
 import models.rules.QueryStatement
 import models.{Addresses, Customers, OrderLineItem, OrderLineItemSkus, OrderLineItems, OrderShippingAddresses, Orders, ShippingMethods}
 import models.product.{Skus, Mvp, ProductContexts, SimpleContext, SimpleProductData}

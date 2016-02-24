@@ -1,9 +1,12 @@
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
-import models.StoreCredit._
-import models.{Customer, Customers, OrderPayments, Orders, PaymentMethod, Reason, Reasons, StoreAdmins, StoreCredit,
-StoreCreditAdjustment, StoreCreditAdjustments, StoreCreditManual, StoreCreditManuals, StoreCreditSubtype,
-StoreCreditSubtypes, StoreCredits}
+import models.order.{OrderPayments, Orders}
+import models.payment.storecredit._
+import StoreCredit._
+import models.customer.{Customers, Customer}
+import models.payment.{PaymentMethod, giftcard}
+import models.payment.giftcard.GiftCard
+import models.{Reason, Reasons, StoreAdmins}
 import org.scalatest.BeforeAndAfterEach
 import responses.{GiftCardResponse, StoreCreditAdjustmentsResponse, StoreCreditResponse, StoreCreditSubTypesResponse}
 import services.{NotFoundFailure400, EmptyCancellationReasonFailure, NotFoundFailure404, OpenTransactionsFailure,
@@ -73,18 +76,6 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
   */
 
   "StoreCredits" - {
-    "GET /v1/store-credits/types" - {
-      "should return all SC types and related subtypes" in new Fixture {
-        val response = GET(s"v1/store-credits/types")
-        response.status must ===(StatusCodes.OK)
-
-        val root = response.as[Seq[StoreCreditSubTypesResponse.Root]]
-        root.size must === (StoreCredit.OriginType.types.size)
-        root.map(_.originType) must === (StoreCredit.OriginType.types.toSeq)
-        root.filter(_.originType == scSubType.originType).head.subTypes must === (Seq(scSubType))
-      }
-    }
-
     "POST /v1/customers/:id/payment-methods/store-credit" - {
       "when successful" - {
         "responds with the new storeCredit" in new Fixture {
@@ -249,7 +240,7 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
       }
 
       "successfully cancels store credit with provided reason, cancel adjustment is created" in new Fixture {
-        // Cancel pending adjustment
+        // Cancel pending adjustment (should be done before cancellation)
         StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
 
         val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStateByCsr(state = Canceled,
@@ -260,10 +251,26 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         root.canceledAmount must ===(Some(storeCredit.originalBalance))
 
         // Ensure that cancel adjustment is automatically created
-        val transactionsRep = GET(s"v1/store-credits/${storeCredit.id}/transactions")
-        val adjustments = transactionsRep.ignoreFailuresAndGiveMe[Seq[StoreCreditAdjustmentsResponse.Root]]
+        val adjustments = StoreCreditAdjustments.filterByStoreCreditId(storeCredit.id).result.run().futureValue
+        adjustments.size mustBe 2
+        adjustments.head.state must ===(StoreCreditAdjustment.CancellationCapture)
+      }
 
+      "successfully cancels store credit with zero balance" in new Fixture {
+        // Cancel pending adjustment (should be done before cancellation)
+        StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
+        // Update balance
+        StoreCredits.update(storeCredit, storeCredit.copy(availableBalance = 0)).run().futureValue
+
+        val response = PATCH(s"v1/store-credits/${storeCredit.id}", payloads.StoreCreditUpdateStateByCsr(state = Canceled,
+          reasonId = Some(1)))
         response.status must ===(StatusCodes.OK)
+
+        val root = response.as[StoreCreditResponse.Root]
+        root.canceledAmount must ===(Some(0))
+
+        // Ensure that cancel adjustment is automatically created
+        val adjustments = StoreCreditAdjustments.filterByStoreCreditId(storeCredit.id).result.run().futureValue
         adjustments.size mustBe 2
         adjustments.head.state must ===(StoreCreditAdjustment.CancellationCapture)
       }
@@ -315,8 +322,8 @@ class StoreCreditIntegrationTest extends IntegrationTestBase
         response.status must ===(StatusCodes.OK)
 
         val root = response.as[GiftCardResponse.Root]
-        root.originType       must ===(models.GiftCard.FromStoreCredit)
-        root.state            must ===(models.GiftCard.Active)
+        root.originType       must ===(GiftCard.FromStoreCredit)
+        root.state            must ===(giftcard.GiftCard.Active)
         root.originalBalance  must ===(scSecond.originalBalance)
 
         val redeemedSc = StoreCredits.filter(_.id === scSecond.id).one.run().futureValue.value

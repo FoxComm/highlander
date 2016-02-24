@@ -2,6 +2,9 @@ package models
 
 import java.time.Instant
 
+import models.customer.Customers
+import models.order.{Orders, Order}
+import models.rma.{Rmas, Rma}
 import slick.driver.PostgresDriver.api._
 import services.DatabaseFailure
 import util.IntegrationTestBase

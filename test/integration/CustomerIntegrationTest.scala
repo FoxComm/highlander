@@ -1,17 +1,25 @@
 import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import com.stripe.exception.CardException
-import com.stripe.model.{Card, Customer => StripeCustomer}
-import models.OrderPayments.scope._
+import models.order._
+import OrderPayments.scope._
 import models.activity.ActivityContext
-import models.{Addresses, CreditCard, CreditCards, Customer, Customers, CustomersRanks, Order, OrderPayments, Orders,
-PaymentMethod, Regions, Rma, Rmas, StoreAdmins}
+import models.customer._
+import models.location.{Addresses, Regions}
+import models.order.{Orders, Order}
+import models.payment.PaymentMethod
+import models.payment.creditcard.{CreditCards, CreditCard}
+import models.rma.{Rmas, Rma}
+import models.stripe._
+import models.StoreAdmins
+import models.traits.Originator
 import org.mockito.Mockito.{reset, when}
 import org.mockito.{Matchers => m}
 import org.scalatest.mock.MockitoSugar
 import payloads.CreateAddressPayload
 import responses.CreditCardsResponse.{Root => CardResponse}
-import responses.{FullOrder, CustomerResponse}
+import responses.CustomerResponse
+import responses.order.FullOrder
 import services.CreditCardFailure.StripeFailure
 import services.orders.OrderPaymentUpdater
 import services.{CannotUseInactiveCreditCard, CreditCardManager, CustomerEmailNotUnique, GeneralFailure, NotFoundFailure404, Result}
@@ -424,17 +432,20 @@ class CustomerIntegrationTest extends IntegrationTestBase
           thenReturn(Result.good(new StripeCustomer))
 
         when(stripeApi.findDefaultCard(m.any(), m.any())).
-          thenReturn(Result.good(new Card))
+          thenReturn(Result.good(new StripeCard))
 
         when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
-          thenReturn(Result.good(new Card))
+          thenReturn(Result.good(new StripeCard))
 
         val payload = payloads.EditCreditCard(holderName = Some("Bob"))
         val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
         val inactive = CreditCards.findOneById(creditCard.id).run().futureValue.value
 
-        response.status must === (StatusCodes.NoContent)
+        response.status must === (StatusCodes.OK)
 
+        val root = response.as[CardResponse]
+        root.id must !== (creditCard.id)
+        root.inWallet mustBe true
       }
 
       "creates a new version of the edited card in the wallet" in new CreditCardFixture {
@@ -444,16 +455,16 @@ class CustomerIntegrationTest extends IntegrationTestBase
           thenReturn(Result.good(new StripeCustomer))
 
         when(stripeApi.findDefaultCard(m.any(), m.any())).
-          thenReturn(Result.good(new Card))
+          thenReturn(Result.good(new StripeCard))
 
         when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
-          thenReturn(Result.good(new Card))
+          thenReturn(Result.good(new StripeCard))
 
         val payload = payloads.EditCreditCard(holderName = Some("Bob"))
         val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
         val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.run().futureValue.toList
 
-        response.status must === (StatusCodes.NoContent)
+        response.status must === (StatusCodes.OK)
         newVersion.inWallet mustBe true
         newVersion.isDefault must === (creditCard.isDefault)
       }
@@ -465,20 +476,20 @@ class CustomerIntegrationTest extends IntegrationTestBase
           thenReturn(Result.good(new StripeCustomer))
 
         when(stripeApi.findDefaultCard(m.any(), m.any())).
-          thenReturn(Result.good(new Card))
+          thenReturn(Result.good(new StripeCard))
 
         when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
-          thenReturn(Result.good(mock[Card]))
+          thenReturn(Result.good(mock[StripeCard]))
 
         val order = Orders.create(Factories.cart.copy(customerId = customer.id)).run().futureValue.rightVal
-        OrderPaymentUpdater.addCreditCard(admin, order.refNum, creditCard.id).futureValue
+        OrderPaymentUpdater.addCreditCard(Originator(admin), creditCard.id, Some(order.refNum)).futureValue
 
         val payload = payloads.EditCreditCard(holderName = Some("Bob"))
         val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
         val (pmt :: Nil) = OrderPayments.filter(_.orderId === order.id).creditCards.result.run().futureValue.toList
         val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.run().futureValue.toList
 
-        response.status must === (StatusCodes.NoContent)
+        response.status must === (StatusCodes.OK)
         pmt.amount mustBe 'empty
         pmt.isCreditCard mustBe true
         pmt.paymentMethodId must === (newVersion.id)
@@ -490,7 +501,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
         val (newVersion :: Nil) = CreditCards.filter(_.parentId === creditCard.id).result.futureValue.toList
         val numAddresses = Addresses.length.result.futureValue
 
-        response.status must === (StatusCodes.NoContent)
+        response.status must === (StatusCodes.OK)
         numAddresses must === (1)
         (newVersion.zip, newVersion.regionId) must === ((address.zip, address.regionId))
       }
@@ -502,10 +513,10 @@ class CustomerIntegrationTest extends IntegrationTestBase
           thenReturn(Result.good(new StripeCustomer))
 
         when(stripeApi.findDefaultCard(m.any(), m.any())).
-          thenReturn(Result.good(new Card))
+          thenReturn(Result.good(new StripeCard))
 
         when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
-          thenReturn(Result.good(mock[Card]))
+          thenReturn(Result.good(mock[StripeCard]))
 
         val payload = payloads.EditCreditCard(holderName = Some("Bob"),
           address = CreateAddressPayload(name = "Home Office", regionId = address.regionId + 1,
@@ -515,7 +526,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
         val addresses = Addresses.result.run().futureValue
         val newAddress = addresses.last
 
-        response.status must === (StatusCodes.NoContent)
+        response.status must === (StatusCodes.OK)
         addresses must have size 2
         (newVersion.zip, newVersion.regionId) must === (("54321", address.regionId + 1))
         (newVersion.zip, newVersion.regionId) must === ((newAddress.zip, newAddress.regionId))
@@ -531,7 +542,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
     }
 
     "fails if the card is not inWallet" in new CreditCardFixture {
-      CreditCardManager.deleteCreditCard(admin, customer.id, creditCard.id).futureValue
+      CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(admin)).futureValue
       val payload = payloads.EditCreditCard
       val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
 
@@ -554,7 +565,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
         thenReturn(Result.good(new StripeCustomer))
 
       when(stripeApi.findDefaultCard(m.any(), m.any())).
-        thenReturn(Result.good(new Card))
+        thenReturn(Result.good(new StripeCard))
 
       when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
         thenReturn(Result.failure(

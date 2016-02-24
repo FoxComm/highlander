@@ -1,6 +1,6 @@
 package utils
 
-import models.Customers
+import models.customer.Customers
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -26,8 +26,8 @@ class SlickTest extends IntegrationTestBase {
 
   "supports update with returning query for a multiple columns" in {
     Customers.create(Factories.customer.copy(name = "Jane".some)).run().futureValue.rightVal
-    val update = Customers.filter(_.id === 1).map { c ⇒ (c.name, c.password) }.
-      updateReturningHead(Customers.map { c ⇒ (c.name, c.password) }, ("Sally".some, "123qwe".some))
+    val update = Customers.filter(_.id === 1).map { c ⇒ (c.name, c.hashedPassword) }.
+      updateReturningHead(Customers.map { c ⇒ (c.name, c.hashedPassword) }, ("Sally".some, "123qwe".some))
 
     val names = update.futureValue.rightVal
     names must === (("Sally".some, "123qwe".some))
@@ -47,12 +47,12 @@ class SlickTest extends IntegrationTestBase {
   "supports update with returning query for mapping to a new model for multiple columns" in {
     val (customer, updatedCustomer) = (for {
       customer ← * <~ Customers.create(Factories.customer.copy(name = "Jane".some))
-      updatedCustomer ← * <~ Customers.filter(_.id === 1).map{c ⇒ (c.name, c.password) }.
+      updatedCustomer ← * <~ Customers.filter(_.id === 1).map{c ⇒ (c.name, c.hashedPassword) }.
         updateReturningHead(Customers.map(identity), ("Sally".some, "123qwe".some))
     } yield (customer, updatedCustomer.value)).runTxn().futureValue.rightVal
 
     customer must !== (updatedCustomer)
     updatedCustomer.name must === ("Sally".some)
-    updatedCustomer.password must === ("123qwe".some)
+    updatedCustomer.hashedPassword must === ("123qwe".some)
   }
 }

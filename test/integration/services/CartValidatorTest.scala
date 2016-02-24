@@ -1,9 +1,14 @@
 package services
 
 import cats.implicits._
-import models.{CreditCards, Customers, GiftCard, GiftCardManual, GiftCardManuals, GiftCards, Order, OrderLineItem,
-OrderLineItems, OrderPayment, OrderPayments, Orders, Reasons, StoreAdmins, StoreCredit, StoreCreditManual,
-StoreCreditManuals, StoreCredits}
+import models.customer.Customers
+import models.inventory.Skus
+import models.order.lineitems.{OrderLineItems, OrderLineItem}
+import models.order._
+import models.payment.creditcard.CreditCards
+import models.payment.giftcard.{GiftCardManuals, GiftCardManual, GiftCards, GiftCard}
+import models.payment.storecredit.{StoreCreditManuals, StoreCreditManual, StoreCredits, StoreCredit}
+import models.{Reasons, StoreAdmins}
 import models.product.{Products, ProductShadows, Skus, SkuShadows, ProductContexts, SimpleContext, Mvp}
 import services.CartFailures._
 import services.orders.OrderTotaler

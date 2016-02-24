@@ -37,7 +37,7 @@ final case class SimpleProduct(
   title: String,
   description: String,
   image: String,
-  sku: String,
+  code: String,
   isActive: Boolean) {
 
     def create : Product = 
@@ -59,7 +59,7 @@ final case class SimpleProduct(
         }"""),
         variants = parse(s"""
         {
-          "${SimpleContext.variant}" : "$sku"
+          "${SimpleContext.variant}" : "$code"
         }"""),
         isActive = isActive)
 }
@@ -82,7 +82,7 @@ final case class SimpleProductShadow(
 
 final case class SimpleSku(
   productId: Int,
-  sku: String,
+  code: String,
   title: String,
   price: Int,
   currency: Currency,
@@ -91,7 +91,7 @@ final case class SimpleSku(
 
     def create : Sku = 
       Sku(
-        sku = sku,
+        code = code,
         productId = productId,
         attributes = parse(s"""
         {
@@ -133,7 +133,7 @@ final case class SimpleProductData(
   title: String,
   description: String,
   image: String = SimpleProductDefaults.imageUrl,
-  sku: String,
+  code: String,
   skuType: Sku.Type = Sku.Sellable,
   price: Int,
   currency: Currency = Currency.USD,
@@ -150,11 +150,11 @@ object Mvp {
 
   def insertProduct(contextId: Int, p: SimpleProductData)(implicit db: Database): 
   DbResultT[SimpleProductData] = for {
-    simpleProduct ← * <~ SimpleProduct(p.title, p.description, p.image, p.sku, p.isActive)
+    simpleProduct ← * <~ SimpleProduct(p.title, p.description, p.image, p.code, p.isActive)
     product ← * <~ Products.create(simpleProduct.create)
     simpleShadow ← * <~ SimpleProductShadow(contextId, product.id)
     productShadow ← * <~ ProductShadows.create(simpleShadow.create)
-    simpleSku ← * <~ SimpleSku(product.id, p.sku, p.title, p.price, p.currency, p.skuType, p.isHazardous)
+    simpleSku ← * <~ SimpleSku(product.id, p.code, p.title, p.price, p.currency, p.skuType, p.isHazardous)
     sku ← * <~ Skus.create(simpleSku.create)
     simpleSkuShadow ← * <~ SimpleSkuShadow(contextId, sku.id)
     skuShadow ← * <~ SkuShadows.create(simpleSkuShadow.create)

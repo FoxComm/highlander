@@ -1,7 +1,9 @@
 package models
 
 import models.product.{Mvp, ProductContexts, SimpleContext}
-
+import models.order.lineitems.OrderLineItemSkus
+import org.scalatest.prop.TableDrivenPropertyChecks._
+import org.scalatest.prop.Tables.Table
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -20,7 +22,6 @@ class SkuIntegrationTest extends IntegrationTestBase {
     "a Postgres trigger creates a `order_line_item_skus` record after `skus` insert" in {
       val (product, liSku) = (for {
         productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
-        productContext ← * <~ ProductContexts.create(SimpleContext.create)
         product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
         liSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
       } yield (product, liSku)).runTxn().futureValue.rightVal

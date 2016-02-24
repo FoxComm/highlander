@@ -1,10 +1,10 @@
 package utils.seeds
 
-import models.inventory.{InventorySummaries, InventorySummary, Warehouse, Warehouses}
-import models.product.{Sku, Skus}
-import models.product.Sku._
+import models.inventory._
+import models.inventory.Sku._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
+import utils.seeds.generators.InventoryGenerator
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

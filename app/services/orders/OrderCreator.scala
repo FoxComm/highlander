@@ -2,10 +2,13 @@ package services.orders
 
 import cats.implicits._
 import models.product.ProductContext
-import models.{Customer, Customers, Order, Orders, StoreAdmin}
+import models.customer.{Customers, Customer}
+import models.order.{Orders, Order}
+import models.StoreAdmin
 import payloads.CreateOrder
-import responses.FullOrder
-import responses.FullOrder.Root
+import responses.order.FullOrder
+import FullOrder.Root
+import responses.order.FullOrder
 import services.{LogActivity, NotFoundFailure400, Result, ResultT}
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._

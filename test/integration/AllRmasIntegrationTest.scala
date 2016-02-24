@@ -3,7 +3,10 @@ import java.time.Instant
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
 import cats.data.Xor
-import models.{StoreAdmins, Customers, Order, Orders, Rma, Rmas, StoreAdmin}
+import models.customer.Customers
+import models.order.{Orders, Order}
+import models.rma.{Rmas, Rma}
+import models.{StoreAdmins, StoreAdmin}
 import payloads.RmaBulkAssigneesPayload
 import responses.{AllRmas, RmaResponse, StoreAdminResponse}
 import services.NotFoundFailure404

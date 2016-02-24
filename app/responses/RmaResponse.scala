@@ -2,13 +2,18 @@ package responses
 
 import java.time.Instant
 
-import models.{Customers, GiftCard, Orders, PaymentMethod, Rma, RmaAssignments, 
-  RmaLineItem, RmaLineItemGiftCards, RmaLineItemShippingCosts, RmaLineItemSkus, 
-  RmaPayment, RmaPayments, Shipment, StoreAdmins}
-
-import models.product.{Sku, SkuShadow, Mvp}
+import models.customer.Customers
+import models.inventory.{Sku, SkuShadow}
+import models.product.Mvp
+import models.order.Orders
+import models.payment.PaymentMethod
+import models.payment.giftcard.GiftCard
+import models.rma._
+import models.shipping.Shipment
+import models.StoreAdmins
 import responses.CustomerResponse.{Root => Customer}
 import responses.StoreAdminResponse.{Root => StoreAdmin}
+import responses.order.FullOrder
 import services.rmas.RmaTotaler
 import utils.Money._
 import utils.Slick._
@@ -90,7 +95,7 @@ object RmaResponse {
   def buildLineItems(skus: Seq[(Sku, SkuShadow, RmaLineItem)], giftCards: Seq[(GiftCard, RmaLineItem)],
     shipments: Seq[(Shipment, RmaLineItem)]): LineItems = {
     LineItems(
-      skus = skus.map { case (sku, skuShadow, li) ⇒ LineItemSku(lineItemId = li.id, sku = DisplaySku(sku = sku.sku,  price = Mvp.priceAsInt(sku, skuShadow))) },
+      skus = skus.map { case (sku, skuShadow, li) ⇒ LineItemSku(lineItemId = li.id, sku = DisplaySku(sku = sku.code,  price = Mvp.priceAsInt(sku, skuShadow))) },
       giftCards = giftCards.map { case (gc, li) ⇒
         LineItemGiftCard(lineItemId = li.id, giftCard = GiftCardResponse.build(gc)) },
       shippingCosts = shipments.map { case (shipment, li) ⇒

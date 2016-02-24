@@ -1,6 +1,7 @@
 package services.activity
 
-import responses.{FullOrder, StoreAdminResponse}
+import responses.StoreAdminResponse
+import responses.order.FullOrder
 
 object AssignmentsTailored {
   final case class AssignedToOrder(admin: StoreAdminResponse.Root, order: FullOrder.Root,

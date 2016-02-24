@@ -6,7 +6,7 @@ select
     then
         '[]'
     else
-        json_agg((sku_later.sku, 
+        json_agg((sku_later.code, 
                 sku_later.attributes->'title'->>(sku_shadow.attributes->>'title'), 
                 sku_later.attributes->'price'->(sku_shadow.attributes->>'price')->>'value')::export_skus)
     end as items  

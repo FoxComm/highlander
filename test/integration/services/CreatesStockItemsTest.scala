@@ -1,7 +1,8 @@
 package services
 
 import cats.data.Xor
-import models.StockItems
+import models.inventory
+import models.inventory.StockItems
 import org.scalatest.Inside
 import util.IntegrationTestBase
 
@@ -32,6 +33,6 @@ class CreatesStockItemsTest extends IntegrationTestBase with Inside {
   def withStockItemSchema(testCode: ⇒ Any) = {
     db.run(StockItems.query.schema.create).futureValue
     testCode
-    db.run(models.StockItems.query.schema.drop).futureValue
+    db.run(inventory.StockItems.query.schema.drop).futureValue
   }
 }

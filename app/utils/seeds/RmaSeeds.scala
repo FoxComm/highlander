@@ -2,8 +2,9 @@ package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.{Orders, Note, Notes, Rma, RmaLineItem, RmaLineItemSku, RmaLineItemSkus, RmaLineItems, RmaReason,
-RmaReasons, Rmas}
+import models.order.Orders
+import models.rma._
+import models.{Note, Notes}
 import utils.Slick.implicits._
 import utils.DbResultT._
 import utils.DbResultT.implicits._

@@ -14,9 +14,9 @@ trait StoreAdminSeeds {
   } yield adminIds.head
 
   def storeAdmins = Seq(
-    StoreAdmin(email = "admin@admin.com", password = "password", name = "Frankly Admin"),
-    StoreAdmin(email = "hackerman@yahoo.com", password = "password1", name = "Such Root"),
-    StoreAdmin(email = "admin_hero@xakep.ru", password = "password2", name = "Admin Hero")
+    StoreAdmin.build(email = "admin@admin.com", password = "password", name = "Frankly Admin"),
+    StoreAdmin.build(email = "hackerman@yahoo.com", password = "password1", name = "Such Root"),
+    StoreAdmin.build(email = "admin_hero@xakep.ru", password = "password2", name = "Admin Hero")
   )
 
   def storeAdmin = storeAdmins.head

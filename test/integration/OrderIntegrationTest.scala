@@ -4,17 +4,24 @@ import Extensions._
 import akka.http.scaladsl.model.StatusCodes
 import akka.pattern.ask
 import akka.testkit.TestActorRef
-import models.Order._
+import models.inventory.Skus
+import models.order._
+import Order._
+import models.customer.Customers
+import models.location.{Addresses, Address, Regions}
+import models.order.lineitems._
+import models.payment.creditcard._
 import models.rules.QueryStatement
-import models.{OrderAssignment, Address, Addresses, CreditCardCharge, CreditCardCharges, CreditCards, Customers,
-Order, OrderAssignments, OrderLineItem, OrderLineItemSkus, OrderLineItems, OrderLockEvent,
-OrderLockEvents, OrderPayments, OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, Regions,
-Shipment, Shipments, ShippingMethods, StoreAdmin, StoreAdmins, OrderWatcher, OrderWatchers}
-import models.product.{Skus, Mvp, ProductContexts, SimpleContext}
+import models.shipping._
+import models.{StoreAdmin, StoreAdmins}
+import models.inventory.Skus
+import models.product.{Mvp, ProductContexts, SimpleContext}
 import org.json4s.jackson.JsonMethods._
 import payloads.{Assignment, Watchers, UpdateLineItemsPayload, UpdateOrderPayload}
-import responses.{FullOrder, StoreAdminResponse}
+import responses.StoreAdminResponse
+import responses.order.FullOrder
 import services.CartFailures._
+import services.actors.{Tick, RemorseTimer}
 import services.orders.OrderTotaler
 import services.{LockedFailure, NotFoundFailure404, NotLockedFailure, StateTransitionNotAllowed,
 OrderAssigneeNotFound, OrderWatcherNotFound}
@@ -25,7 +32,6 @@ import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import utils.seeds.Seeds.Factories
 import utils.time._
-import utils.{RemorseTimer, Tick}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -36,42 +42,27 @@ class OrderIntegrationTest extends IntegrationTestBase
   def getUpdated(refNum: String) = db.run(Orders.findByRefNum(refNum).result.headOption).futureValue.value
 
   "GET /v1/orders/:refNum" - {
-    "payment status" - {
-      "does not display payment status if no cc" in new Fixture {
-        pending
-        Orders.findByRefNum(order.refNum).map(_.state).update(Order.ManualHold).run.futureValue
+    "payment state" - {
+
+      "displays 'cart' payment state" in new Fixture {
+        Orders.findByRefNum(order.refNum).map(_.state).update(Order.Cart).run.futureValue
 
         val response = GET(s"v1/orders/${order.refNum}")
         response.status must === (StatusCodes.OK)
-        val fullOrder = response.withResultTypeOf[FullOrder.Root].result
-        fullOrder.paymentState must not be defined
-        fullOrder.paymentMethods mustBe empty
+        val fullOrder = response.ignoreFailuresAndGiveMe[FullOrder.Root]
+
+        fullOrder.paymentState must === (CreditCardCharge.Cart)
       }
 
-      "displays payment state if cc present" in new PaymentStateFixture {
-        pending
-        Orders.findByRefNum(order.refNum).map(_.state).update(Order.ManualHold).run.futureValue
-        CreditCardCharges.findById(ccc.id).extract.map(_.state).update(CreditCardCharge.Auth).run.futureValue
-
-        val response = GET(s"v1/orders/${order.refNum}")
-        response.status must === (StatusCodes.OK)
-        val fullOrder = response.withResultTypeOf[FullOrder.Root].result
-
-        fullOrder.paymentState.value must === (CreditCardCharge.Auth)
-        // fullOrder.paymentMethods.head.value.status must === (CreditCardCharge.Auth)
-      }
-
-      "displays 'cart' payment state if order is cart and cc present" in new PaymentStateFixture {
-        pending
+      "displays 'auth' payment state" in new PaymentStateFixture {
         Orders.findByRefNum(order.refNum).map(_.state).update(Order.Cart).run.futureValue
         CreditCardCharges.findById(ccc.id).extract.map(_.state).update(CreditCardCharge.Auth).run.futureValue
 
         val response = GET(s"v1/orders/${order.refNum}")
         response.status must === (StatusCodes.OK)
-        val fullOrder = response.withResultTypeOf[FullOrder.Root].result
+        val fullOrder = response.ignoreFailuresAndGiveMe[FullOrder.Root]
 
-        fullOrder.paymentState.value must === (CreditCardCharge.Cart)
-        // fullOrder.payment.value.state must === (CreditCardCharge.Auth)
+        fullOrder.paymentState must === (CreditCardCharge.Auth)
       }
     }
   }
@@ -868,7 +859,7 @@ class OrderIntegrationTest extends IntegrationTestBase
   trait OrderShippingMethodFixture extends ShippingMethodFixture {
     val shipment = (for {
       orderShipMethod ← * <~ OrderShippingMethods.create(
-        OrderShippingMethod(orderId = order.id, shippingMethodId = highShippingMethod.id))
+        OrderShippingMethod.build(order = order, method = highShippingMethod))
       shipment ← * <~ Shipments.create(Shipment(orderId = order.id, orderShippingMethodId = Some(orderShipMethod.id)))
     } yield shipment).runTxn().futureValue
   }

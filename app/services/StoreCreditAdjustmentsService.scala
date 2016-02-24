@@ -1,7 +1,9 @@
 package services
 
 import cats.data.Xor
-import models.{Customers, OrderPayments, Orders, StoreCreditAdjustments, StoreCredits}
+import models.customer.Customers
+import models.order.{OrderPayments, Orders}
+import models.payment.storecredit.{StoreCreditAdjustments, StoreCredits}
 import responses.StoreCreditAdjustmentsResponse.{Root, build}
 import responses.TheResponse
 import slick.driver.PostgresDriver.api._

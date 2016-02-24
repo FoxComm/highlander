@@ -1,4 +1,4 @@
-## Save for later [/v1/save-for-later/{customerId}]
+## Save For Later [/v1/save-for-later/{customerId}]
 
 + Parameters
     + customerId: 1 (required, number) - Customer ID
@@ -8,11 +8,11 @@
 + Response 200 (application/json)
     + Attributes (SaveForLaterResponse)
 
-### Save [POST /v1/save-for-later/{customerId}/{skuId}]
+### Save [POST /v1/save-for-later/{customerId}/{skuCode}]
 
 + Parameters
 	+ customerId: 1 (required, number) - Customer ID
-    + skuId: 1 (required, number) - SKU ID
+    + skuCode: `SKU-ABC` (required, string) - SKU code
 + Response 200 (application/json)
     + Attributes (SaveForLaterResponse)
 

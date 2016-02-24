@@ -1,8 +1,10 @@
 package services
 
-import models.{Customer, Customers, SaveForLater, SaveForLaters}
-import models.product.{Products, ProductShadows, Skus, SkuShadows}
-
+import cats.data.Xor
+import models.customer.{Customers, Customer}
+import models.inventory.{Skus, SkuShadows}
+import models.product.{Products, ProductShadows}
+import models.{SaveForLater, SaveForLaters}
 import responses.{SaveForLaterResponse, TheResponse}
 
 import utils.DbResultT._
@@ -23,10 +25,10 @@ object SaveForLaterManager {
     response ← * <~ findAllDbio(customer, productContextId).toXor
   } yield response).run()
 
-  def saveForLater(customerId: Int, skuId: Int, productContextId: Int)
+  def saveForLater(customerId: Int, skuCode: String, productContextId: Int)
     (implicit db: Database, ec: ExecutionContext): Result[SavedForLater] = (for {
     customer ← * <~ Customers.mustFindById404(customerId)
-    sku ← * <~ Skus.mustFindById404(skuId)
+    sku ← * <~ Skus.mustFindByIdCode(skuId)
     product ← * <~ Products.mustFindById404(sku.productId)
     skuShadow ← * <~ SkuShadows.filter(_.skuId === sku.id).filter(_.productContextId === productContextId).one
                 .mustFindOr(SkuNotFoundForContext(sku.id, productContextId))

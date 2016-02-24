@@ -3,11 +3,13 @@ package services.orders
 import scala.concurrent.ExecutionContext
 
 import cats.implicits._
-import models.{OrderShippingMethod, OrderShippingMethods, Order, Orders, Shipments, ShippingMethod, ShippingMethods,
-StoreAdmin}
+import models.order._
+import models.shipping.{Shipments, ShippingMethods}
+import models.traits.Originator
 import payloads.UpdateShippingMethod
-import responses.{FullOrder, TheResponse}
-import services.{LogActivity, CartValidator, NotFoundFailure400, Result, ShippingManager}
+import responses.TheResponse
+import responses.order.FullOrder
+import services.{LogActivity, CartValidator, Result, ShippingManager}
 import services.CartFailures.NoShipMethod
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
@@ -18,9 +20,9 @@ import models.activity.ActivityContext
 
 object OrderShippingMethodUpdater {
 
-  def updateShippingMethod(admin: StoreAdmin, payload: UpdateShippingMethod, refNum: String)
+  def updateShippingMethod(originator: Originator, payload: UpdateShippingMethod, refNum: Option[String] = None)
     (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
-    order           ← * <~ Orders.mustFindByRefNum(refNum)
+    order           ← * <~ getCartByOriginator(originator, refNum)
     _               ← * <~ order.mustBeCart
     oldShipMethod   ← * <~ ShippingMethods.forOrder(order).one.toXor
     shippingMethod  ← * <~ ShippingMethods.mustFindById400(payload.shippingMethodId)
@@ -28,25 +30,26 @@ object OrderShippingMethodUpdater {
     _               ← * <~ ShippingManager.evaluateShippingMethodForOrder(shippingMethod, order)
     _               ← * <~ Shipments.filter(_.orderId === order.id).map(_.orderShippingMethodId).update(None)
     _               ← * <~ OrderShippingMethods.findByOrderId(order.id).delete
-    orderShipMethod ← * <~ OrderShippingMethods.create(OrderShippingMethod(orderId = order.id, shippingMethodId = shippingMethod.id))
+    orderShipMethod ← * <~ OrderShippingMethods.create(
+      OrderShippingMethod(orderId = order.id, shippingMethodId = shippingMethod.id, price = shippingMethod.price))
     _               ← * <~ Shipments.filter(_.orderId === order.id).map(_.orderShippingMethodId).update(orderShipMethod.id.some)
     // update changed totals
     order           ← * <~ OrderTotaler.saveTotals(order)
     validated       ← * <~ CartValidator(order).validate()
     response        ← * <~ FullOrder.refreshAndFullOrder(order).toXor
-    _               ← * <~ LogActivity.orderShippingMethodUpdated(admin, response, oldShipMethod)
+    _               ← * <~ LogActivity.orderShippingMethodUpdated(originator, response, oldShipMethod)
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runTxn()
 
-  def deleteShippingMethod(admin: StoreAdmin, refNum: String)
+  def deleteShippingMethod(originator: Originator, refNum: Option[String] = None)
     (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
-    order       ← * <~ Orders.mustFindByRefNum(refNum)
+    order       ← * <~ getCartByOriginator(originator, refNum)
     _           ← * <~ order.mustBeCart
-    shipMethod  ← * <~ ShippingMethods.forOrder(order).one.mustFindOr(NoShipMethod(refNum))
+    shipMethod  ← * <~ ShippingMethods.forOrder(order).one.mustFindOr(NoShipMethod(order.refNum))
     _           ← * <~ OrderShippingMethods.findByOrderId(order.id).delete
     // update changed totals
     order       ← * <~ OrderTotaler.saveTotals(order)
     valid       ← * <~ CartValidator(order).validate()
     resp        ← * <~ FullOrder.refreshAndFullOrder(order).toXor
-    _           ← * <~ LogActivity.orderShippingMethodDeleted(admin, resp, shipMethod)
+    _           ← * <~ LogActivity.orderShippingMethodDeleted(originator, resp, shipMethod)
   } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 }

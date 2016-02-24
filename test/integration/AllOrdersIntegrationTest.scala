@@ -3,10 +3,14 @@ import java.time.Instant
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
 import cats.data.Xor
-import models.Order._
-import models.{Customers, Order, Orders, StoreAdmin, StoreAdmins}
+import models.order.{Orders, Order}
+import Order._
+import models.customer.Customers
+import models.payment.creditcard.CreditCardCharge
+import models.{StoreAdmin, StoreAdmins}
 import payloads.{BulkAssignment, BulkUpdateOrdersPayload, BulkWatchers}
-import responses.{AllOrders, FullOrder, StoreAdminResponse}
+import responses.order._
+import responses.StoreAdminResponse
 import services.orders.{BulkOrderUpdateResponse, OrderQueries}
 import services.{LockedFailure, NotFoundFailure404, StateTransitionNotAllowed}
 import util.IntegrationTestBase
@@ -51,7 +55,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
   // paging and sorting API end
 
   def getAllOrders: Seq[AllOrders.Root] = {
-    OrderQueries.findAll.futureValue match {
+    OrderQueries.list.futureValue match {
       case Xor.Left(s)    ⇒ fail(s.toList.mkString(";"))
       case Xor.Right(seq) ⇒ seq.result
     }
@@ -75,8 +79,8 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
         name = Some("Yax Fuentes"),
         email = "yax@yax.com",
         orderState = Order.ManualHold,
-        paymentState = Some("FIXME"),
-        shippingState = Some("FIXME"),
+        paymentState = CreditCardCharge.Cart,
+        shippingState = Some(Order.ManualHold),
         placedAt = None,
         total = 0,
         remorsePeriodEnd = None)

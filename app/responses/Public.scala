@@ -1,8 +1,7 @@
 package responses
 
 import scala.collection.immutable.Seq
-
-import models.{Country, Region}
+import models.location.{Region, Country}
 import org.json4s.JsonAST.{JField, JObject}
 import org.json4s.{Formats, CustomSerializer, Extraction, JValue}
 import utils.JsonFormatters

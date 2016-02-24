@@ -2,10 +2,12 @@ package services.orders
 
 import scala.concurrent.ExecutionContext
 import models.activity.ActivityContext
+import models.order.lineitems.{OrderLineItems, OrderLineItem}
+import models.order.{Orders, Order}
 
-import models.Order.{Canceled, _}
-import models.{StoreAdmin, Order, OrderLineItem, OrderLineItems, Orders}
-import responses.{TheResponse, FullOrder}
+import Order.{Canceled, _}
+import models.StoreAdmin
+import responses.order.FullOrder
 import services.{Result, StateTransitionNotAllowed, NotFoundFailure400, LockedFailure, Failures}
 import services.LogActivity.{orderStateChanged, orderBulkStateChanged}
 import slick.driver.PostgresDriver.api._
@@ -36,7 +38,7 @@ object OrderStateUpdater {
       failures ⇒ DbResult.good(Some(failures)),
       _        ⇒ DbResult.good(None))
     }
-    response ← * <~ OrderQueries.findAllDbio
+    response ← * <~ OrderQueries.findAll
   } yield response.copy(errors = errors.map(_.flatten))).runTxn()
 
   private def updateStatesDbio(admin: StoreAdmin, refNumbers: Seq[String], newState: Order.State, skipActivity: Boolean = false)

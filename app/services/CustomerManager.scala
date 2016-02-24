@@ -4,8 +4,10 @@ import scala.concurrent.ExecutionContext
 
 import cats.data.Validated.{Invalid, Valid}
 import cats.implicits._
-import models.Customers.scope._
-import models.{Customer, Customers, Orders, StoreAdmin, javaTimeSlickMapper}
+import models.customer.{Customer, Customers}
+import Customers.scope._
+import models.order.Orders
+import models.{StoreAdmin, javaTimeSlickMapper}
 import payloads.{ActivateCustomerPayload, CreateCustomerPayload, CustomerSearchForNewOrder, UpdateCustomerPayload}
 import responses.CustomerResponse.{build, Root}
 import responses.TheResponse
@@ -115,7 +117,7 @@ object CustomerManager {
     _        ← * <~ LogActivity.customerCreated(response, admin)
   } yield response).runTxn()
 
-  def update(customerId: Int, payload: UpdateCustomerPayload, admin: StoreAdmin)
+  def update(customerId: Int, payload: UpdateCustomerPayload, admin: Option[StoreAdmin] = None)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
     _        ← * <~ payload.validate.toXor
     customer ← * <~ Customers.mustFindById404(customerId)

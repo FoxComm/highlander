@@ -1,24 +1,23 @@
 
 package utils.seeds
 
+import models.customer.{Customers, Customer}
+import models.location.{Addresses, Address}
+import models.order.lineitems._
+import models.order._
+import models.payment.creditcard.CreditCards
+import models.payment.giftcard._
+import models.shipping._
 
-import models.{Customer, Customers, OrderShippingMethods, OrderShippingMethod, 
-  ShippingMethod, ShippingMethods, OrderLineItemSkus, OrderLineItems, 
-  OrderLineItem, GiftCards, GiftCard, Order, Orders, CreditCards, Address, 
-  Addresses, OrderPayments, OrderPayment, OrderShippingAddresses, 
-  OrderShippingAddress, Shipment, Shipments, GiftCardOrder, GiftCardOrders}
-
-import models.product.{Sku, Skus, SimpleProductData, Mvp, ProductContexts, SimpleContext}
-import models.inventory.{Warehouse, Warehouses, InventorySummary}
-import models.Order.Shipped
+import models.inventory._
+import models.product.{SimpleProductData, Mvp, ProductContexts, SimpleContext}
+import Order.Shipped
 
 import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
 import services.orders.OrderTotaler
-import services.Result
 
 import utils.seeds.generators.GeneratorUtils.randomString
 import utils.Money.Currency
-import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
@@ -39,9 +38,9 @@ trait DemoSeedHelpers {
   def warehouse: Warehouse = Warehouse.buildDefault()
   def warehouses: Seq[Warehouse] = Seq(warehouse)
 
-  def generateCustomer(name:String, email: String): Customer = 
-    Customer(email = email, password = randomString(10).some, name = name.some, 
-      location ="Seattle,WA".some)
+  def generateCustomer(name: String, email: String): Customer =
+    Customer.build(email = email, password = randomString(10).some, name = name.some,
+      location = "Seattle,WA".some)
 
   def createShippedOrder(customerId: Customer#Id, productContextId: Int, skuIds: Seq[Sku#Id], 
     shipMethod: ShippingMethod#Id)(implicit db: Database): DbResultT[Order] = for {
@@ -52,7 +51,7 @@ trait DemoSeedHelpers {
     op    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
     addr  ← * <~ getDefaultAddress(customerId)
     shipA ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
-    shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod(orderId = order.id, shippingMethodId = shipMethod))
+    shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(order = order, method = shipMethod))
     _     ← * <~ OrderTotaler.saveTotals(order)
     _     ← * <~ Shipments.create(Shipment(orderId = order.id, orderShippingMethodId = shipM.id.some,
                       shippingAddressId = shipA.id.some))
@@ -105,15 +104,15 @@ trait DemoScenario2 extends DemoSeedHelpers {
 
 
   def products2: Seq[SimpleProductData] = Seq(
-    SimpleProductData(sku = "SKU-ALG", title = "Alegria Women's Vanessa Sandal",
+    SimpleProductData(code = "SKU-ALG", title = "Alegria Women's Vanessa Sandal",
       description = "Alegria Women's Vanessa Sandal", price = 3500),
-    SimpleProductData(sku = "SKU-NIK", title = "Nike Men's Donwshifter 6 Running Shoe",
+    SimpleProductData(code = "SKU-NIK", title = "Nike Men's Donwshifter 6 Running Shoe",
       description = "Nike Men's Donwshifter 6 Running Shoe", price = 2500),
-    SimpleProductData(sku = "SKU-BAL", title = "New Balance Men's M520V2 Running Shoe",
+    SimpleProductData(code = "SKU-BAL", title = "New Balance Men's M520V2 Running Shoe",
       description = "New Balance Men's M520V2 Running Shoe", price = 2800),
-    SimpleProductData(sku = "SKU-CLK", title = "Clarks Women's Aria Pump Flat",
+    SimpleProductData(code = "SKU-CLK", title = "Clarks Women's Aria Pump Flat",
       description = "Clarks Women's Aria Pump Flat", price = 7900),
-    SimpleProductData(sku = "SKU-ADS", title = "adidas Performance Women's Galactic Elite Running Shoe",
+    SimpleProductData(code = "SKU-ADS", title = "adidas Performance Women's Galactic Elite Running Shoe",
       description = "adidas Performance Women's Galactic Elite Running Shoe", price = 4900))
 
   def address2 = Address(customerId = 0, regionId = 4177, name = "Home", 
@@ -156,7 +155,7 @@ trait DemoScenario3 extends DemoSeedHelpers {
     generateCustomer("Susan Cage", "susan@compuglobal.com"),
     generateCustomer("John Dole", "john.dole@yahoo.com"))
 
-  def products3: Seq[SimpleProductData] = Seq(SimpleProductData(sku = "SKU-CLK2", 
+  def products3: Seq[SimpleProductData] = Seq(SimpleProductData(code = "SKU-CLK2", 
     title = "Clarks Women's Aria Pump Flat", description = "Clarks Women's Aria Pump Flat", price = 7900))
 
   def address3 = Address(customerId = 0, regionId = 4177, name = "Home", 

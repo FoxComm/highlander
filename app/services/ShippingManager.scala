@@ -1,7 +1,11 @@
 package services
 
-import models.{Orders, OrderLineItemSkus, Order, OrderShippingAddress, Region, ShippingMethods}
-import models.product.{Sku, Skus}
+import models.customer.Customer
+import models.inventory.{Skus, Sku}
+import models.location.Region
+import models.order.lineitems.OrderLineItemSkus
+import models.order._
+import models.shipping.{ShippingMethod, ShippingMethods}
 import models.rules.{Condition, QueryStatement}
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -18,9 +22,9 @@ object ShippingManager {
   final case class ShippingData(order: Order, orderTotal: Int, orderSubTotal: Int,
     shippingAddress: Option[OrderShippingAddress] = None, shippingRegion: Option[Region] = None, skus: Seq[Sku])
 
-  def getShippingMethodsForOrder(refNum: String)
+  def getShippingMethodsForOrder(refNum: String, customer: Option[Customer] = None)
     (implicit db: Database, ec: ExecutionContext): Result[Seq[responses.ShippingMethods.Root]] = (for {
-    order       ← * <~ Orders.mustFindByRefNum(refNum)
+    order       ← * <~ findByRefNumAndOptionalCustomer(refNum, customer)
     shipMethods ← * <~ ShippingMethods.findActive.result.toXor
     shipData    ← * <~ getShippingData(order).toXor
     response    = shipMethods.collect {
@@ -30,7 +34,13 @@ object ShippingManager {
     }
   } yield response).run()
 
-  def evaluateShippingMethodForOrder(shippingMethod: models.ShippingMethod, order: Order)
+  private def findByRefNumAndOptionalCustomer(refNum: String, customer: Option[Customer] = None)
+    (implicit db: Database, ec: ExecutionContext): DbResult[Order] = customer match {
+    case Some(c)  ⇒ Orders.findOneByRefNumAndCustomer(refNum, c).one.mustFindOr(NotFoundFailure404(Orders, refNum))
+    case _        ⇒ Orders.mustFindByRefNum(refNum)
+  }
+
+  def evaluateShippingMethodForOrder(shippingMethod: ShippingMethod, order: Order)
     (implicit db: Database, ec: ExecutionContext): DbResult[Unit] = {
     getShippingData(order).flatMap { shippingData ⇒
       val failure = ShippingMethodNotApplicableToOrder(shippingMethod.id, order.refNum)
@@ -45,7 +55,7 @@ object ShippingManager {
 
   private def getShippingData(order: Order)(implicit db: Database, ec: ExecutionContext): DBIO[ShippingData] = {
     for {
-      orderShippingAddress ← models.OrderShippingAddresses.findByOrderIdWithRegions(order.id).result.headOption
+      orderShippingAddress ← OrderShippingAddresses.findByOrderIdWithRegions(order.id).result.headOption
       skus ← (for {
         liSku ← OrderLineItemSkus.findByOrderId(order.id)
         skus ← Skus if skus.id === liSku.skuId

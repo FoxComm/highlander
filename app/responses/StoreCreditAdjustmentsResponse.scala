@@ -2,7 +2,7 @@ package responses
 
 import java.time.Instant
 
-import models.StoreCreditAdjustment
+import models.payment.storecredit.StoreCreditAdjustment
 
 object StoreCreditAdjustmentsResponse {
   final case class Root(

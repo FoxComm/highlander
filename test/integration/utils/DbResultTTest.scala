@@ -2,13 +2,15 @@ package utils
 
 import cats.data.{XorT, Xor}
 import cats.implicits._
+import models.customer.Customers
+import models.location.Addresses
+import models.order.Orders
 import services.{GeneralFailure, Failures}
 import util.{DbTestSupport, TestBase, CatsHelpers}
 import utils.seeds.Seeds
 import Seeds.Factories
 import slick.driver.PostgresDriver._
 import slick.driver.PostgresDriver.api._
-import models.{Customers, Orders, Addresses}
 import utils.Slick.implicits._
 import util.SlickSupport.implicits._
 
@@ -26,7 +28,7 @@ class DbResultTTest
       "succeeds when everything is Xor.Right" in {
         val transformer = for {
           a ← DbResultT.fromXor(Xor.right(Factories.order))
-          b ← DbResultT.rightLift(Factories.customer)
+          b ← DbResultT.rightLift(Factories.rma)
           c ← DbResultT.rightLift(Factories.address)
         } yield c
 

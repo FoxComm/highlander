@@ -1,6 +1,7 @@
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
-import models.{Reason, Reasons, RmaReason, RmaReasons, StoreAdmins}
+import models.rma.{RmaReasons, RmaReason}
+import models.{Reason, Reasons, StoreAdmins}
 import services.InvalidReasonTypeFailure
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -15,9 +16,9 @@ with HttpSupport
 with AutomaticAuth {
 
   "Reasons" - {
-    "GET /v1/reasons" - {
+    "GET /v1/public/reasons" - {
       "should return list of reasons" in new Fixture {
-        val response = GET(s"v1/reasons")
+        val response = GET(s"v1/public/reasons")
         response.status must ===(StatusCodes.OK)
 
         val root = response.ignoreFailuresAndGiveMe[Seq[Reason]]
@@ -26,10 +27,10 @@ with AutomaticAuth {
       }
     }
 
-    "GET /v1/reasons/:type" - {
+    "GET /v1/public/reasons/:type" - {
       "should return list of reasons by type" in new Fixture {
         val reasonType = Reason.GiftCardCreation.toString.lowerCaseFirstLetter
-        val response = GET(s"v1/reasons/$reasonType")
+        val response = GET(s"v1/public/reasons/$reasonType")
         response.status must ===(StatusCodes.OK)
 
         val root = response.ignoreFailuresAndGiveMe[Seq[Reason]]
@@ -39,7 +40,7 @@ with AutomaticAuth {
 
       "should return error if invalid type provided" in new Fixture {
         val reasonType = "lolwut"
-        val response = GET(s"v1/reasons/$reasonType")
+        val response = GET(s"v1/public/reasons/$reasonType")
         response.status must ===(StatusCodes.BadRequest)
         response.error must ===(InvalidReasonTypeFailure(reasonType).description)
       }
@@ -47,9 +48,9 @@ with AutomaticAuth {
   }
 
   "RmaReasons" - {
-    "GET /v1/rma-reasons" - {
+    "GET /v1/public/rma-reasons" - {
       "should return list of RMA reasons" in new Fixture {
-        val response = GET(s"v1/rma-reasons")
+        val response = GET(s"v1/public/rma-reasons")
         response.status must ===(StatusCodes.OK)
 
         val root = response.ignoreFailuresAndGiveMe[Seq[RmaReason]]

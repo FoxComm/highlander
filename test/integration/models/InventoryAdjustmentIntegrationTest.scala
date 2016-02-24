@@ -2,6 +2,8 @@ package models
 
 import models.inventory._
 import models.product.{SimpleProductData, Mvp, ProductContexts, SimpleContext}
+import models.order.lineitems._
+import models.order.{Orders, Order}
 import utils.seeds.Seeds
 import Seeds.Factories
 import util.IntegrationTestBase
@@ -37,7 +39,7 @@ class InventoryAdjustmentIntegrationTest extends IntegrationTestBase {
 
       InventoryAdjustments.createAdjustmentsForOrder(order, warehouse.id).run().futureValue
       val numAdjustments = InventoryAdjustments.filter(_.eventId === order.id).length.result.run().futureValue
-      val summary = InventorySummaries.findBySkuId(warehouse.id, product.skuId).one.run().futureValue.value
+      val summary = InventorySummaries.findSellableBySkuIdInWarehouse(warehouse.id, product.skuId).one.run().futureValue.value
 
       numAdjustments mustBe 1
       summary.reserved must === (5)

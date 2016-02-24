@@ -1,7 +1,7 @@
 create table skus (
     id serial primary key,
     product_id integer,
-    sku generic_string,
+    code generic_string,
     type generic_string,
     attributes jsonb,
     is_hazardous bool,

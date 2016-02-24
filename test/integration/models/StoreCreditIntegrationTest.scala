@@ -1,5 +1,8 @@
 package models
 
+import models.customer.Customers
+import models.order.{OrderPayments, Orders}
+import models.payment.storecredit.{StoreCreditManuals, StoreCreditManual, StoreCreditAdjustments, StoreCredits}
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._

@@ -1,6 +1,6 @@
 package responses
 
-import models.{StoreCredit, StoreCreditSubtype}
+import models.payment.storecredit.{StoreCredit, StoreCreditSubtype}
 
 object StoreCreditSubTypesResponse {
   final case class Root(originType: StoreCredit.OriginType, subTypes: Seq[StoreCreditSubtype]) extends ResponseItem

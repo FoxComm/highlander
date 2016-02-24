@@ -2,7 +2,12 @@ package services
 
 import com.stripe.exception.StripeException
 import models.activity.Dimension
-import models.{CreditCard, GiftCard, Order, Rma, StoreCredit}
+import models.order.Order
+import models.inventory.Sku
+import models.payment.creditcard.CreditCard
+import models.payment.giftcard.GiftCard
+import models.payment.storecredit.StoreCredit
+import models.rma.Rma
 import services.Util.searchTerm
 import utils.friendlyClassName
 
@@ -52,6 +57,10 @@ final case class ShipmentNotFoundFailure(orderRefNum: String) extends Failure {
 
 case object EmptyCancellationReasonFailure extends Failure {
   override def description = "Please provide valid cancellation reason"
+}
+
+case object EmptyRefNumFailure extends Failure {
+  override def description = "Please provide an order reference number"
 }
 
 case object InvalidCancellationReasonFailure extends Failure {
@@ -179,6 +188,10 @@ final case class RmaAssigneeNotFound(refNum: String, assigneeId: Int) extends Fa
 
 case object SharedSearchInvalidQueryFailure extends Failure {
   override def description = s"Invalid JSON provided for shared search query"
+}
+
+final case class GiftCardPaymentAlreadyAdded(refNum: String, code: String) extends Failure {
+  override def description = s"giftCard with code=$code already added as payment method to order with refNum=$refNum"
 }
 
 object OrderPaymentNotFoundFailure {
@@ -311,7 +324,7 @@ object CreditCardFailure {
 object Util {
   def searchTerm[A](a: A): String = a match {
     case Order | _: Order | Rma | _: Rma ⇒ "referenceNumber"
-    case GiftCard | _: GiftCard ⇒ "code"
+    case GiftCard | _: GiftCard | Sku | _: Sku ⇒ "code"
     case Dimension | _: Dimension ⇒ "name"
     case _ ⇒ "id"
   }

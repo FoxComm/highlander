@@ -7,7 +7,7 @@ select
         '[]'
     else
         json_agg(
-            (s.sku, 
+            (s.code, 
                 s.attributes->'title'->>(ss.attributes->>'title'), 
                 s.attributes->'price'->(ss.attributes->>'price')->>'value')::export_skus)
     end as items

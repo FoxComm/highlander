@@ -4,7 +4,9 @@ import java.time.Instant
 
 import models.activity.ActivityContext
 import models.inventory._
-import models.{StoreAdmins, Order, OrderLineItem, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, Orders}
+import models.order.lineitems._
+import models.order.{Orders, Order}
+import models.StoreAdmins
 import models.product.{Skus, Mvp, ProductContext, ProductContexts, SimpleContext, SimpleProductData}
 import payloads.{UpdateLineItemsPayload => Payload}
 import util.IntegrationTestBase
@@ -45,8 +47,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
       onHand = onHand,
       onHold = 0,
       reserved = 0,
-      nonSellable = 0,
-      safetyStock = 0,
+      safetyStock = None,
       updatedAt = Instant.now())
 
     InventorySummaries.create(summary).run().futureValue.rightVal

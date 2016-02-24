@@ -1,8 +1,10 @@
 package services.orders
 
-import models.{NotificationSubscription, Order, OrderAssignment, OrderAssignments, Orders, StoreAdmin, StoreAdmins}
+import models.order._
+import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
 import payloads.BulkAssignment
-import responses.{FullOrder, TheResponse}
+import responses.TheResponse
+import responses.order.FullOrder
 import services.Util._
 import services.{NotFoundFailure400, NotificationManager, LogActivity, OrderAssigneeNotFound, Result}
 import slick.driver.PostgresDriver.api._
@@ -54,7 +56,7 @@ object OrderAssignmentUpdater {
     assignee        ← * <~ StoreAdmins.mustFindById400(payload.assigneeId)
     newAssignments  = for (o ← orders) yield OrderAssignment(orderId = o.id, assigneeId = assignee.id)
     _               ← * <~ OrderAssignments.createAll(newAssignments)
-    response        ← * <~ OrderQueries.findAllDbio
+    response        ← * <~ OrderQueries.findAll
     ordersNotFound  = diffToFlatFailures(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
     orderRefNums    = orders.filter(o ⇒ newAssignments.map(_.orderId).contains(o.id)).map(_.referenceNumber)
     _               ← * <~ LogActivity.bulkAssignedToOrders(admin, assignee, orderRefNums)
@@ -69,7 +71,7 @@ object OrderAssignmentUpdater {
     assignee  ← * <~ StoreAdmins.mustFindById400(payload.assigneeId)
     _         ← * <~ OrderAssignments.filter(_.assigneeId === payload.assigneeId)
                                      .filter(_.orderId.inSetBind(orders.map(_.id))).delete
-    response  ← * <~ OrderQueries.findAllDbio
+    response  ← * <~ OrderQueries.findAll
     ordersNotFound = diffToFlatFailures(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
     refNums   = orders.filter(o ⇒ payload.referenceNumbers.contains(o.refNum)).map(_.referenceNumber)
     _         ← * <~ LogActivity.bulkUnassignedFromOrders(admin, assignee, refNums)

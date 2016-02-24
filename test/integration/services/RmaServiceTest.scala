@@ -2,7 +2,10 @@ package services
 
 import java.time.Instant
 
-import models.{Customers, Order, Orders, Rma, Rmas, StoreAdmins}
+import models.customer.Customers
+import models.order.{Orders, Order}
+import models.rma.{Rmas, Rma}
+import models.StoreAdmins
 import payloads.RmaCreatePayload
 import services.rmas.RmaService
 import slick.driver.PostgresDriver.api._

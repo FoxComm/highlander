@@ -2,6 +2,7 @@ package models
 
 import models.inventory._
 import models.product.{SimpleProductData, Mvp, ProductContexts, SimpleContext}
+import models.order.{Orders, Order}
 
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -34,7 +35,7 @@ class InventorySummaryIntegrationTest extends IntegrationTestBase {
       "inserts a negative new record if there is none after an insert to InventoryAdjustment" in {
         val (warehouse, product, order) = seed()
         adjustment(warehouse.id, product.skuId, order.id, reserved = -10)
-        val summary = InventorySummaries.findBySkuId(warehouse.id, product.skuId).one.run().futureValue.value
+        val summary = InventorySummaries.findSellableBySkuIdInWarehouse(warehouse.id, product.skuId).one.run().futureValue.value
 
         summary.reserved must === (-10)
       }
@@ -42,7 +43,7 @@ class InventorySummaryIntegrationTest extends IntegrationTestBase {
       "inserts a positive new record if there is none after an insert to InventoryAdjustment" in {
         val (warehouse, product, order) = seed()
         adjustment(warehouse.id, product.skuId, order.id, reserved = 25)
-        val summary = InventorySummaries.findBySkuId(warehouse.id, product.skuId).one.run().futureValue.value
+        val summary = InventorySummaries.findSellableBySkuIdInWarehouse(warehouse.id, product.skuId).one.run().futureValue.value
 
         summary.reserved must === (25)
       }
@@ -51,7 +52,7 @@ class InventorySummaryIntegrationTest extends IntegrationTestBase {
         val (warehouse, product, order) = seed()
         List(10, 50, 0, 3, 2, -30, -30).foreach { r ⇒  { adjustment(warehouse.id, product.skuId, order.id, reserved = r) }}
 
-        val summary = InventorySummaries.findBySkuId(warehouse.id, product.skuId).one.run().futureValue.value
+        val summary = InventorySummaries.findBySkuIdInWarehouse(warehouse.id, product.skuId).one.run().futureValue.value
 
         summary.reserved must === (5)
       }

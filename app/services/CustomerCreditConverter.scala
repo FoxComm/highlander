@@ -1,9 +1,10 @@
 package services
 
 import models.activity.ActivityContext
-import models.{Customers, GiftCard, GiftCardAdjustments, GiftCardFromStoreCredit, GiftCardFromStoreCredits,
-GiftCards, StoreAdmin, StoreCredit, StoreCreditAdjustments, StoreCreditFromGiftCard, StoreCreditFromGiftCards,
-StoreCredits}
+import models.customer.Customers
+import models.payment.giftcard._
+import models.payment.storecredit._
+import models.StoreAdmin
 import responses.{GiftCardResponse, StoreAdminResponse, StoreCreditResponse}
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._

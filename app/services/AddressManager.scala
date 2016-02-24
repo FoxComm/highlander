@@ -5,9 +5,11 @@ import java.time.Instant
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.implicits._
-import models.Order._
-import models.{StoreAdmin, Address, Addresses, Customer, Customers, Order, OrderShippingAddress,
-OrderShippingAddresses, Orders, Region, Regions}
+import models.order._
+import Order._
+import models.customer._
+import models.location._
+import models.StoreAdmin
 import payloads.CreateAddressPayload
 import responses.Addresses._
 import responses.{Addresses ⇒ Response, TheResponse}
@@ -27,8 +29,15 @@ object AddressManager {
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = {
     val query = Addresses.findAllVisibleByCustomerIdWithRegions(customerId)
 
-    Addresses.sortedAndPagedWithRegions(query).result.map(Response.build).toTheResponse.run()
+    Addresses.sortedAndPagedWithRegions(query).result.map(Response.buildMulti).toTheResponse.run()
   }
+
+  def getByIdAndCustomer(addressId: Int, customer: Customer)
+    (implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
+    address ← * <~ Addresses.findVisibleByIdAndCustomer(addressId, customer.id)
+                            .mustFindOr(NotFoundFailure404(Address, addressId))
+    region  ← * <~ Regions.mustFindById404(address.regionId)
+  } yield Response.build(address, region)).run()
 
   def create(payload: CreateAddressPayload, customerId: Int, admin: Option[StoreAdmin] = None)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
@@ -39,11 +48,11 @@ object AddressManager {
     _         ← * <~ LogActivity.addressCreated(admin, customer, address, region)
   } yield Response.build(address, region)).runTxn()
 
-  def edit(addressId: Int, customerId: Int, payload: CreateAddressPayload, admin: StoreAdmin)
+  def edit(addressId: Int, customerId: Int, payload: CreateAddressPayload, admin: Option[StoreAdmin] = None)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Root] = (for {
 
     customer    ← * <~ Customers.mustFindById404(customerId)
-    oldAddress  ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
+    oldAddress  ← * <~ Addresses.findVisibleByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
     oldRegion   ← * <~ Regions.findOneById(oldAddress.regionId).safeGet.toXor
     address     ← * <~ Address.fromPayload(payload).copy(customerId = customerId, id = addressId).validate
     _           ← * <~ Addresses.insertOrUpdate(address).toXor
@@ -54,15 +63,15 @@ object AddressManager {
   def get(customerId: Int, addressId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
 
-    address ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
+    address ← * <~ Addresses.findVisibleByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
     region  ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
-  } yield Response.build(address, region, address.isDefaultShipping.some)).run()
+  } yield Response.build(address, region)).run()
 
-  def remove(customerId: Int, addressId: Int, admin: StoreAdmin)
+  def remove(customerId: Int, addressId: Int, admin: Option[StoreAdmin] = None)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Unit] = (for {
 
     customer    ← * <~ Customers.mustFindById404(customerId)
-    address     ← * <~ Addresses.findByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
+    address     ← * <~ Addresses.findVisibleByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
     region      ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
     softDelete  ← * <~ address.updateTo(address.copy(deletedAt = Instant.now.some, isDefaultShipping = false))
     updated     ← * <~ Addresses.update(address, softDelete)
@@ -70,13 +79,14 @@ object AddressManager {
   } yield {}).runTxn()
 
   def setDefaultShippingAddress(customerId: Int, addressId: Int)
-    (implicit ec: ExecutionContext, db: Database): Result[Unit] = (for {
-    _           ← Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false)
-    newDefault  ← Addresses.findById(addressId).extract.map(_.isDefaultShipping).update(true)
-  } yield newDefault).transactionally.run().flatMap {
-    case rowsAffected if rowsAffected == 1 ⇒ Result.unit
-    case _ ⇒ Result.failure(NotFoundFailure404(Address, addressId))
-  }
+    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
+    customer    ← * <~ Customers.mustFindById404(customerId)
+    _           ← * <~ Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false)
+    address     ← * <~ Addresses.findVisibleByIdAndCustomer(addressId, customerId).mustFindOr(addressNotFound(addressId))
+    newAddress  = address.copy(isDefaultShipping = true)
+    address     ← * <~ Addresses.update(address, newAddress)
+    region      ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
+  } yield Response.build(newAddress, region)).run()
 
   def removeDefaultShippingAddress(customerId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Int] =
@@ -88,10 +98,10 @@ object AddressManager {
 
     defaultShipping(customer.id).run().flatMap {
       case Some((address, region)) ⇒
-        Future.successful(Response.build(address, region, true.some).some)
+        Future.successful(Response.build(address, region).some)
       case None ⇒
         lastShippedTo(customer.id).run().map {
-          case Some((ship, region)) ⇒ Response.buildOneShipping(ship, region, false).some
+          case Some((ship, region)) ⇒ Response.buildOneShipping(ship, region, isDefault = false).some
           case None ⇒ None
         }
     }
@@ -105,7 +115,7 @@ object AddressManager {
   def lastShippedTo(customerId: Int)
     (implicit db: Database, ec: ExecutionContext): DBIO[Option[(OrderShippingAddress, Region)]] = (for {
     order ← Orders.findByCustomerId(customerId)
-      .filter(_.state =!= (Order.Cart: models.Order.State))
+      .filter(_.state =!= (Order.Cart: Order.State))
       .sortBy(_.id.desc)
     shipping ← OrderShippingAddresses if shipping.orderId === order.id
     region   ← Regions if region.id === shipping.regionId

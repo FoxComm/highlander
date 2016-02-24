@@ -1,5 +1,8 @@
 package models
 
+import models.customer.Customers
+import models.order.{OrderPayments, Orders}
+import models.payment.storecredit.{StoreCreditManuals, StoreCreditManual, StoreCreditAdjustments, StoreCredits}
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
 import util.IntegrationTestBase

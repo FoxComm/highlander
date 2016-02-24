@@ -3,12 +3,14 @@ package services
 import java.time.Instant
 
 import cats.implicits._
-import models.Orders.scope._
+import models.order.lineitems._
+import models.order._
+import Orders.scope._
 import models.activity.ActivityContext
-import models.{StoreCreditManual, GiftCardManual, Customers, GiftCard, GiftCardAdjustment, GiftCardAdjustments,
-GiftCardManuals, GiftCardOrder, GiftCardOrders, GiftCards, Order, OrderLineItem, OrderLineItemGiftCard,
-OrderLineItemGiftCards, OrderLineItems, OrderPayments, Orders, Reasons, StoreAdmins, StoreCreditAdjustment,
-StoreCreditAdjustments, StoreCreditManuals, StoreCredits}
+import models.customer.Customers
+import models.payment.giftcard._
+import models.payment.storecredit._
+import models.{Reasons, StoreAdmins}
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import services.CartFailures._

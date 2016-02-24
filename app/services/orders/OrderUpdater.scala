@@ -1,8 +1,9 @@
 package services.orders
 
 import models.activity.ActivityContext
-import models.{StoreAdmin, Orders}
-import responses.FullOrder
+import models.StoreAdmin
+import models.order.Orders
+import responses.order.FullOrder
 import services.{LogActivity, Result}
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._

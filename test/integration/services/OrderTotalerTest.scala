@@ -1,8 +1,13 @@
 package services
 
-import models.{Addresses, Customers, GiftCard, GiftCardOrder, GiftCardOrders, GiftCards, OrderLineItem,
-OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, Orders}
+import models.customer.Customers
+import models.inventory.Skus
+import models.location.Addresses
+import models.order.{OrderShippingMethod, OrderShippingMethods, Orders}
+import models.order.lineitems._
 import models.product.{Mvp, ProductContexts, SimpleContext, SimpleProductData, Skus}
+import models.payment.giftcard.{GiftCardOrders, GiftCardOrder, GiftCards, GiftCard}
+import models.shipping.{ShippingMethod, ShippingMethods}
 import services.orders.OrderTotaler
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -35,9 +40,16 @@ class OrderTotalerTest extends IntegrationTestBase {
       }
     }
 
+    "shipping" - {
+      "sums the shipping total from both shipping methods" in new ShippingMethodFixture {
+        val subTotal = OrderTotaler.shippingTotal(order).run().futureValue.rightVal
+        subTotal must === (295)
+      }
+    }
+
     "taxes" - {
       "are hardcoded to 5%" in new SkuLineItemsFixture {
-        val totals = OrderTotaler.totals(order).run().futureValue
+        val totals = OrderTotaler.totals(order).run().futureValue.rightVal
         val taxes = (skuPrice * 0.05).toInt
 
         totals.subTotal === skuPrice
@@ -50,7 +62,7 @@ class OrderTotalerTest extends IntegrationTestBase {
 
     "totals" - {
       "all are zero when there are no line items and no adjustments" in new Fixture {
-        val totals = OrderTotaler.totals(order).run().futureValue
+        val totals = OrderTotaler.totals(order).run().futureValue.rightVal
 
         totals.subTotal mustBe 0
         totals.shipping mustBe 0
@@ -86,5 +98,12 @@ class OrderTotalerTest extends IntegrationTestBase {
       gcLi      ← * <~ OrderLineItemGiftCards.create(OrderLineItemGiftCard(giftCardId = giftCard.id, orderId = order.id))
       lineItems ← * <~ OrderLineItems.create(OrderLineItem.buildGiftCard(order, gcLi))
     } yield (giftCard, lineItems)).runTxn().futureValue.rightVal
+  }
+
+  trait ShippingMethodFixture extends Fixture {
+    val orderShippingMethods = (for {
+      shipM ← * <~ ShippingMethods.create(Factories.shippingMethods.head.copy(price = 295))
+      osm   ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(order, shipM))
+    } yield osm).runTxn().futureValue.rightVal
   }
 }

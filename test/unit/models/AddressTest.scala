@@ -1,6 +1,7 @@
 package models
 
 import cats.data.NonEmptyList
+import models.location.{Address, Region}
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import services.{Failure, GeneralFailure}
 import util.CustomMatchers._

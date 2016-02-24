@@ -2,8 +2,9 @@ package payloads
 
 import cats.data._
 import cats.implicits._
-import models.Rma
-import models.RmaLineItem.InventoryDisposition
+import models.rma.{RmaLineItem, Rma}
+import RmaLineItem.InventoryDisposition
+import models.rma.Rma
 import services.Failure
 import utils.Litterbox._
 import utils.Money.Currency

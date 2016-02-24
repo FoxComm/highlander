@@ -2,8 +2,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import akka.http.scaladsl.model.StatusCodes
 import Extensions._
-import models.{Customer, SaveForLater, SaveForLaters, _}
-import models.product.{Sku, Skus, Mvp, ProductContexts, SimpleContext}
+import models.customer.{Customers, Customer}
+import models.inventory.{Skus, Sku}
+import models.{SaveForLater, SaveForLaters, _}
+import models.product.{Mvp, ProductContexts, SimpleContext}
 import responses.SaveForLaterResponse
 import services.SaveForLaterManager.SavedForLater
 import services.{AlreadySavedForLater, NotFoundFailure404}
@@ -46,7 +48,7 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
 
   "POST v1/save-for-later/:customerId/:sku" - {
     "adds sku to customer's save for later list" in new Fixture {
-      val response = POST(s"v1/save-for-later/${customer.id}/${product.skuId}")
+      val response = POST(s"v1/save-for-later/${customer.id}/${product.code}")
       response.status must === (StatusCodes.OK)
       response.as[SavedForLater].result must === (roots)
 
@@ -56,12 +58,12 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
     }
 
     "does not create duplicate records" in new Fixture {
-      val create = POST(s"v1/save-for-later/${customer.id}/${product.skuId}")
+      val create = POST(s"v1/save-for-later/${customer.id}/${product.code}")
       create.status must === (StatusCodes.OK)
       val result = create.as[SavedForLater].result
       result must === (roots)
 
-      val duplicate = POST(s"v1/save-for-later/${customer.id}/${product.skuId}")
+      val duplicate = POST(s"v1/save-for-later/${customer.id}/${product.code}")
       duplicate.status must === (StatusCodes.BadRequest)
       duplicate.error must === (AlreadySavedForLater(customer.id, product.skuId).description)
 
@@ -75,15 +77,15 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
     }
 
     "404 if sku is not found" in new Fixture {
-      val response = POST(s"v1/save-for-later/${customer.id}/666")
+      val response = POST(s"v1/save-for-later/${customer.id}/NOPE")
       response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Sku, 666).description)
+      response.error must === (NotFoundFailure404(Sku, "NOPE").description)
     }
   }
 
   "DELETE v1/save-for-later/:id" - {
     "deletes save for later" in new Fixture {
-      val sflId = POST(s"v1/save-for-later/${customer.id}/${product.skuId}").as[SavedForLater].result.head.id
+      val sflId = POST(s"v1/save-for-later/${customer.id}/${product.code}").as[SavedForLater].result.head.id
 
       val response = DELETE(s"v1/save-for-later/$sflId")
       response.status must === (StatusCodes.NoContent)

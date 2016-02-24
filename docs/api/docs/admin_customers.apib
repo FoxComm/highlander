@@ -86,7 +86,7 @@
 ### List [GET /v1/customers/{customerId}/addresses{?size,from,sortBy}]
 
 + Parameters
-    + customerId: 1       (required, number)       - Cusotomer unique ID.
+    + customerId: 1       (required, number)       - Customer unique ID.
     + size:   1           (optional, number)       - Page size.
     + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
     + sortBy: `id` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
@@ -137,7 +137,8 @@
 + Parameters
     + customerId: 1 (required, number) - Customer ID.
     + addressId: 1 (required, number) - Address ID.
-+ Response 204 (application/json)
++ Response 200 (application/json)
+    + Attributes (Address)
 
 ### Remove Default Address [DELETE /v1/customers/{customerId}/addresses/default]
 
@@ -160,31 +161,10 @@ This endpoint removes `isDefault` flag from any existing customer address.
     + customerId: 1 (required, number) - Customer ID.
     + creditCard: 1 (required, number) - Credit card ID.
 
-### List [GET /v1/customers/{customerId}/payment-methods/credit-cards{?size,from,sortBy}]
+### List [GET /v1/customers/{customerId}/payment-methods/credit-cards]
 
 + Parameters
-    + customerId: 1       (required, number)       - Cusotomer unique ID.
-    + size:   1           (optional, number)       - Page size.
-    + from:   1           (optional, number)       - Start element (counting from 0) or # of elements to skip.
-    + sortBy: `id` (optional, enum[string]) - Field to sort by (`-fieldName` for descending order).
-        + Members
-            + `id`
-            + `parentId`
-            + `gatewayCustomerId`
-            + `gatewayCardId`
-            + `holderName`
-            + `lastFour`
-            + `isDefault`
-            + `address1Check`
-            + `zipCheck`
-            + `inWallet`
-            + `deletedAt`
-            + `regionId`
-            + `addressName`
-            + `address1`
-            + `address2`
-            + `city`
-            + `zip`
+    + customerId: 1       (required, number) - Customer unique ID.
 + Response 200 (application/json)
     + Attributes (CreditCards)
 
@@ -201,7 +181,8 @@ This endpoint removes `isDefault` flag from any existing customer address.
 
 + Request (application/json)
     + Attributes(CreditCardUpdatePayload)
-+ Response 204 (application/json)
++ Response 200 (application/json)
+    + Attributes (CreditCard)
 
 ### Set as Default [POST /v1/customers/{customerId}/payment-methods/credit-cards/{creditCardId}/default]
 

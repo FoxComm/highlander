@@ -1,5 +1,6 @@
 package models
 
+import models.customer.Customer
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import util.TestBase
 import util.CustomMatchers._

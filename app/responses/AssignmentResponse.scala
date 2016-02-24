@@ -2,7 +2,9 @@ package responses
 
 import java.time.Instant
 
-import models.{RmaAssignment, StoreAdmin, OrderAssignment}
+import models.order.OrderAssignment
+import models.rma.RmaAssignment
+import models.StoreAdmin
 
 object AssignmentResponse {
 

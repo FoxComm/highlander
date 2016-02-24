@@ -2,7 +2,8 @@ package services
 
 import scala.concurrent.ExecutionContext
 
-import models.{GiftCardAdjustments, GiftCards, OrderPayments, Orders}
+import models.order.{OrderPayments, Orders}
+import models.payment.giftcard.{GiftCardAdjustments, GiftCards}
 import responses.GiftCardAdjustmentsResponse._
 import responses.TheResponse
 import slick.driver.PostgresDriver.api._

@@ -3,13 +3,17 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.GiftCard.giftCardCodeRegex
-import models.Order.orderRefNumRegex
-import models.{GiftCard, StoreAdmin}
-import payloads.{AddGiftCardLineItem, Assignment, BulkAssignment, BulkUpdateOrdersPayload, CreateOrder,
-UpdateLineItemsPayload, UpdateOrderPayload, Watchers, BulkWatchers}
+
+import models.order.Order
+import models.payment.giftcard.GiftCard
+import GiftCard.giftCardCodeRegex
+import Order.orderRefNumRegex
+import models.StoreAdmin
+import models.traits.Originator
+import payloads._
 import services.orders._
 import services.{Checkout, LineItemUpdater}
+import services.Authenticator.{AsyncAuthenticator, requireAdminAuth}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives._
 import utils.Http._
@@ -23,260 +27,203 @@ object OrderRoutes {
   def routes(implicit ec: ExecutionContext, db: Database,
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
-      authenticateBasicAsync(realm = "admin", storeAdminAuth) { admin ⇒
-
+      requireAdminAuth(storeAdminAuth) { admin ⇒
         determineProductContext(db, ec) { productContext ⇒ 
-
-          pathPrefix("orders") {
-            (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              goodOrFailures {
-                OrderQueries.findAll
-              }
-            } ~
-            (post & pathEnd & entity(as[CreateOrder])) { payload ⇒
-              activityContext(admin) { implicit ac ⇒
+          activityContext(admin) { implicit ac ⇒
+            pathPrefix("orders") {
+              (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
                 goodOrFailures {
-                  OrderCreator.createCart(admin, payload, productContext)
+                  OrderQueries.list
                 }
-              }
-            } ~
-            (patch & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              entity(as[BulkUpdateOrdersPayload]) { payload ⇒
-                activityContext(admin) { implicit ac ⇒
+              } ~
+              (post & pathEnd & entity(as[CreateOrder])) { payload ⇒
+                goodOrFailures {
+                  OrderCreator.createCart(admin, payload)
+                }
+              } ~
+              (patch & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+                entity(as[BulkUpdateOrdersPayload]) { payload ⇒
                   goodOrFailures {
-                    OrderStateUpdater.updateStates(admin, payload.referenceNumbers, payload.state)
-                  }
-                }
-              }
-            } ~
-            pathPrefix("assignees") {
-              (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-                entity(as[BulkAssignment]) { payload ⇒
-                  activityContext(admin) { implicit ac ⇒
-                    goodOrFailures {
-                      OrderAssignmentUpdater.assignBulk(admin, payload)
-                    }
+                    OrderQueries.findAll
                   }
                 }
               } ~
-              (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-                entity(as[BulkAssignment]) { payload ⇒
-                  activityContext(admin) { implicit ac ⇒
+              pathPrefix("assignees") {
+                (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+                  entity(as[BulkAssignment]) { payload ⇒
+                    goodOrFailures {
+                      OrderCreator.createCart(admin, payload, productContext)
+                    }
+                  }
+                } ~
+                (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+                  entity(as[BulkAssignment]) { payload ⇒
                     goodOrFailures {
                       OrderAssignmentUpdater.unassignBulk(admin, payload)
                     }
                   }
                 }
-              }
-            } ~
-            pathPrefix("watchers") {
-              (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-                entity(as[BulkWatchers]) { payload ⇒
-                  activityContext(admin) { implicit ac ⇒
+              } ~
+              pathPrefix("watchers") {
+                (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+                  entity(as[BulkWatchers]) { payload ⇒
                     goodOrFailures {
                       OrderWatcherUpdater.watchBulk(admin, payload)
                     }
                   }
-                }
-              } ~
-              (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-                entity(as[BulkWatchers]) { payload ⇒
-                  activityContext(admin) { implicit ac ⇒
+                } ~
+                (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+                  entity(as[BulkWatchers]) { payload ⇒
                     goodOrFailures {
-                      OrderWatcherUpdater.unwatchBulk(admin, payload)
+                      OrderStateUpdater.updateState(admin, refNum, payload.state)
                     }
                   }
                 }
               }
-            }
-          } ~
-          pathPrefix("orders" / orderRefNumRegex) { refNum ⇒
-            (get & pathEnd) {
-              goodOrFailures {
-                OrderQueries.findOne(refNum)
-              }
             } ~
-            (patch & pathEnd & entity(as[UpdateOrderPayload])) { payload ⇒
-              activityContext(admin) { implicit ac ⇒
+            pathPrefix("orders" / orderRefNumRegex) { refNum ⇒
+              (get & pathEnd) {
+                goodOrFailures {
+                  OrderQueries.findOne(refNum)
+                }
+              } ~
+              (patch & pathEnd & entity(as[UpdateOrderPayload])) { payload ⇒
                 goodOrFailures {
                   OrderStateUpdater.updateState(admin, refNum, payload.state)
                 }
-              }
-            } ~
-            (post & path("increase-remorse-period") & pathEnd) {
-              activityContext(admin) { implicit ac ⇒
+              } ~
+              (post & path("increase-remorse-period") & pathEnd) {
                 goodOrFailures {
                   OrderUpdater.increaseRemorsePeriod(refNum, admin)
                 }
-              }
-            } ~
-            (post & path("lock") & pathEnd) {
-              goodOrFailures {
-                OrderLockUpdater.lock(refNum, admin)
-              }
-            } ~
-            (post & path("unlock") & pathEnd) {
-              goodOrFailures {
-                OrderLockUpdater.unlock(refNum)
-              }
-            } ~
-            (post & path("checkout")) {
-              activityContext(admin) { implicit ac ⇒
+              } ~
+              (post & path("lock") & pathEnd) {
+                goodOrFailures {
+                  OrderLockUpdater.lock(refNum, admin)
+                }
+              } ~
+              (post & path("unlock") & pathEnd) {
+                goodOrFailures {
+                  OrderLockUpdater.unlock(refNum)
+                }
+              } ~
+              (post & path("checkout")) {
                 goodOrFailures {
                   Checkout.fromCart(refNum)
                 }
-              }
-            } ~
-            (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
-              activityContext(admin) { implicit ac ⇒
+              } ~
+              (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
                 goodOrFailures {
                   LineItemUpdater.updateQuantitiesOnOrder(admin, refNum, reqItems)
                 }
-              }
-            } ~
-            (post & path("gift-cards") & pathEnd & entity(as[AddGiftCardLineItem])) { payload ⇒
-              activityContext(admin) { implicit ac ⇒
+              } ~
+              (post & path("gift-cards") & pathEnd & entity(as[AddGiftCardLineItem])) { payload ⇒
                 goodOrFailures {
                   LineItemUpdater.addGiftCard(admin, refNum, payload)
                 }
-              }
-            } ~
-            (patch & path("gift-cards" / giftCardCodeRegex) & pathEnd & entity(as[AddGiftCardLineItem])) { (code, payload) ⇒
-              activityContext(admin) { implicit ac ⇒
+              } ~
+              (patch & path("gift-cards" / giftCardCodeRegex) & pathEnd & entity(as[AddGiftCardLineItem])) { (code, payload) ⇒
                 goodOrFailures {
                   LineItemUpdater.editGiftCard(admin, refNum, code, payload)
                 }
-              }
-            } ~
-            (delete & path("gift-cards" / giftCardCodeRegex) & pathEnd) { code ⇒
-              activityContext(admin) { implicit ac ⇒
+              } ~
+              (delete & path("gift-cards" / giftCardCodeRegex) & pathEnd) { code ⇒
                 goodOrFailures {
                   LineItemUpdater.deleteGiftCard(admin, refNum, code)
                 }
-              }
-            } ~
-            pathPrefix("payment-methods" / "credit-cards") {
-              ((post | patch) & pathEnd & entity(as[payloads.CreditCardPayment])) { payload ⇒
-                activityContext(admin) { implicit ac ⇒
+              } ~
+              pathPrefix("payment-methods" / "credit-cards") {
+                (post & pathEnd & entity(as[CreditCardPayment])) { payload ⇒
                   goodOrFailures {
-                    OrderPaymentUpdater.addCreditCard(admin, refNum, payload.creditCardId)
+                    OrderPaymentUpdater.addCreditCard(Originator(admin), payload.creditCardId, Some(refNum))
+                  }
+                } ~
+                (delete & pathEnd) {
+                  goodOrFailures {
+                    OrderPaymentUpdater.deleteCreditCard(Originator(admin), Some(refNum))
                   }
                 }
               } ~
-              (delete & pathEnd) {
-                activityContext(admin) { implicit ac ⇒
+              pathPrefix("payment-methods" / "gift-cards") {
+                (post & pathEnd & entity(as[GiftCardPayment])) { payload ⇒
                   goodOrFailures {
-                    OrderPaymentUpdater.deleteCreditCard(admin, refNum)
+                    OrderPaymentUpdater.addGiftCard(Originator(admin), payload, Some(refNum))
                   }
-                }
-              }
-            } ~
-            pathPrefix("payment-methods" / "gift-cards") {
-              (post & pathEnd & entity(as[payloads.GiftCardPayment])) { payload ⇒
-                activityContext(admin) { implicit ac ⇒
+                } ~
+                (delete & path(GiftCard.giftCardCodeRegex) & pathEnd) { code ⇒
                   goodOrFailures {
-                    OrderPaymentUpdater.addGiftCard(admin, refNum, payload)
+                    OrderPaymentUpdater.deleteGiftCard(Originator(admin), code, Some(refNum))
                   }
                 }
               } ~
-              (delete & path(GiftCard.giftCardCodeRegex) & pathEnd) { code ⇒
-                activityContext(admin) { implicit ac ⇒
+              pathPrefix("payment-methods" / "store-credit") {
+                (post & pathEnd & entity(as[StoreCreditPayment])) { payload ⇒
                   goodOrFailures {
-                    OrderPaymentUpdater.deleteGiftCard(admin, refNum, code)
+                    OrderPaymentUpdater.addStoreCredit(Originator(admin), payload, Some(refNum))
                   }
-                }
-              }
-            } ~
-            pathPrefix("payment-methods" / "store-credit") {
-              ((post|patch) & pathEnd & entity(as[payloads.StoreCreditPayment])) { payload ⇒
-                activityContext(admin) { implicit ac ⇒
+                } ~
+                (delete & pathEnd) {
                   goodOrFailures {
-                    OrderPaymentUpdater.addStoreCredit(admin, refNum, payload)
+                    OrderPaymentUpdater.deleteStoreCredit(Originator(admin), Some(refNum))
                   }
                 }
               } ~
-              (delete & pathEnd) {
-                activityContext(admin) { implicit ac ⇒
-                  goodOrFailures {
-                    OrderPaymentUpdater.deleteStoreCredit(admin, refNum)
-                  }
-                }
-              }
-            } ~
-            pathPrefix("assignees") {
-              (post & pathEnd & entity(as[Assignment])) { payload ⇒
-                activityContext(admin) { implicit ac ⇒
+              pathPrefix("assignees") {
+                (post & pathEnd & entity(as[Assignment])) { payload ⇒
                   goodOrFailures {
                     OrderAssignmentUpdater.assign(admin, refNum, payload.assignees)
                   }
-                }
-              } ~
-              (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-                activityContext(admin) { implicit ac ⇒
+                } ~
+                (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
                   goodOrFailures {
                     OrderAssignmentUpdater.unassign(admin, refNum, assigneeId)
                   }
                 }
-              }
-            } ~
-            pathPrefix("watchers") {
-              (post & pathEnd & entity(as[Watchers])) { payload ⇒
-                activityContext(admin) { implicit ac ⇒
+              } ~
+              pathPrefix("watchers") {
+                (post & pathEnd & entity(as[Watchers])) { payload ⇒
                   goodOrFailures {
                     OrderWatcherUpdater.watch(admin, refNum, payload.watchers)
                   }
-                }
-              } ~
-              (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-                activityContext(admin) { implicit ac ⇒
+                } ~
+                (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
                   goodOrFailures {
-                    OrderWatcherUpdater.unassign(admin, refNum, assigneeId)
-                  }
-                }
-              }
-            } ~
-            pathPrefix("shipping-address") {
-              (post & pathEnd & entity(as[payloads.CreateAddressPayload])) { payload ⇒
-                activityContext(admin) { implicit ac ⇒
-                  goodOrFailures {
-                    OrderShippingAddressUpdater.createShippingAddressFromPayload(admin, payload, refNum)
+                    OrderWatcherUpdater.unwatch(admin, refNum, assigneeId)
                   }
                 }
               } ~
-              (patch & path(IntNumber) & pathEnd) { addressId ⇒
-                activityContext(admin) { implicit ac ⇒
+              pathPrefix("shipping-address") {
+                (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
                   goodOrFailures {
-                    OrderShippingAddressUpdater.createShippingAddressFromAddressId(admin, addressId, refNum)
+                    OrderShippingAddressUpdater.createShippingAddressFromPayload(Originator(admin), payload, Some(refNum))
+                  }
+                } ~
+                (patch & path(IntNumber) & pathEnd) { addressId ⇒
+                  goodOrFailures {
+                    OrderShippingAddressUpdater.createShippingAddressFromAddressId(Originator(admin), addressId,
+                      Some(refNum))
+                  }
+                } ~
+                (patch & pathEnd & entity(as[UpdateAddressPayload])) { payload ⇒
+                  goodOrFailures {
+                    OrderShippingAddressUpdater.updateShippingAddressFromPayload(Originator(admin), payload, Some(refNum))
+                  }
+                } ~
+                (delete & pathEnd) {
+                  goodOrFailures {
+                    OrderShippingAddressUpdater.removeShippingAddress(Originator(admin), Some(refNum))
                   }
                 }
               } ~
-              (patch & pathEnd & entity(as[payloads.UpdateAddressPayload])) { payload ⇒
-                activityContext(admin) { implicit ac ⇒
+              pathPrefix("shipping-method") {
+                (patch & pathEnd & entity(as[UpdateShippingMethod])) { payload ⇒
                   goodOrFailures {
-                    OrderShippingAddressUpdater.updateShippingAddressFromPayload(admin, payload, refNum)
+                    OrderShippingMethodUpdater.updateShippingMethod(Originator(admin), payload, Some(refNum))
                   }
-                }
-              } ~
-              (delete & pathEnd) {
-                activityContext(admin) { implicit ac ⇒
+                } ~
+                (delete & pathEnd) {
                   goodOrFailures {
-                    OrderShippingAddressUpdater.removeShippingAddress(admin, refNum)
-                  }
-                }
-              }
-            } ~
-            pathPrefix("shipping-method") {
-              (patch & pathEnd & entity(as[payloads.UpdateShippingMethod])) { payload ⇒
-                activityContext(admin) { implicit ac ⇒
-                  goodOrFailures {
-                    OrderShippingMethodUpdater.updateShippingMethod(admin, payload, refNum)
-                  }
-                }
-              } ~
-              (delete & pathEnd) {
-                activityContext(admin) { implicit ac ⇒
-                  goodOrFailures {
-                    OrderShippingMethodUpdater.deleteShippingMethod(admin, refNum)
+                    OrderShippingMethodUpdater.deleteShippingMethod(Originator(admin), Some(refNum))
                   }
                 }
               }

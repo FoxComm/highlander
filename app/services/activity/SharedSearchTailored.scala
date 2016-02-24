@@ -1,6 +1,6 @@
 package services.activity
 
-import models.SharedSearch
+import models.sharedsearch.SharedSearch
 import responses.StoreAdminResponse
 
 object SharedSearchTailored {

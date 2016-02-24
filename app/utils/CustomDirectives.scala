@@ -8,11 +8,12 @@ RequestEntityExpectedRejection, Directive1, StandardRoute, ValidationRejection}
 import akka.http.scaladsl.unmarshalling.{Unmarshaller, FromRequestUnmarshaller}
 import slick.driver.PostgresDriver.api._
 
+import models.StoreAdmin
+import models.customer.Customer
+import models.product.{SimpleContext, ProductContext, ProductContexts}
 import services.Result
 import utils.Http._
 
-import models.{Customer, StoreAdmin}
-import models.product.{SimpleContext, ProductContext, ProductContexts}
 import models.activity.ActivityContext
 
 object CustomDirectives {
@@ -86,9 +87,6 @@ object CustomDirectives {
 
   def good[A <: AnyRef](a: A): StandardRoute =
     complete(render(a))
-
-  def goodOrNotFound[A <: AnyRef](a: Future[Option[A]])(implicit ec: ExecutionContext): StandardRoute =
-    complete(renderOrNotFound(a))
 
   def goodOrFailures[A <: AnyRef](a: Result[A])(implicit ec: ExecutionContext): StandardRoute =
     complete(a.map(renderGoodOrFailures))

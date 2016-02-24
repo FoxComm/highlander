@@ -3,11 +3,12 @@ package services
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.implicits._
-import models.GiftCard.Canceled
-import models.GiftCardSubtypes.scope._
+import models.payment.giftcard._
+import GiftCard.Canceled
+import GiftCardSubtypes.scope._
 import models.activity.ActivityContext
-import models.{Customers, GiftCard, GiftCardAdjustments, GiftCardManual, GiftCardManuals, GiftCardSubtype,
-GiftCardSubtypes, GiftCards, Reasons, StoreAdmin, StoreAdmins}
+import models.customer.Customers
+import models.{Reasons, StoreAdmin, StoreAdmins}
 import payloads.{GiftCardCreateByCsr, GiftCardUpdateStateByCsr}
 import responses.GiftCardBulkResponse._
 import responses.GiftCardResponse._

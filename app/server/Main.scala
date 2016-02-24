@@ -9,12 +9,15 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route}
 import akka.stream.ActorMaterializer
 import com.typesafe.config.Config
-import models.{Customer, StoreAdmin}
+import models.StoreAdmin
+import models.customer.Customer
 import org.json4s.jackson.Serialization
 import org.json4s.{Formats, jackson}
 import services.Authenticator
+import services.Authenticator.AsyncAuthenticator
+import services.actors._
 import slick.driver.PostgresDriver.api._
-import utils.{Apis, CustomHandlers, RemorseTimer, RemorseTimerMate, Tick, WiredStripeApi}
+import utils.{Apis, CustomHandlers, WiredStripeApi}
 
 import scala.collection.immutable
 import scala.concurrent.duration._
@@ -53,9 +56,8 @@ class Service(
   implicit val db:   Database = dbOverride.getOrElse(Database.forConfig("db", config))
   implicit val apis: Apis     = apisOverride.getOrElse(Apis(new WiredStripeApi))
 
-  implicit def storeAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.storeAdmin
-
-  implicit def customerAuth: AsyncAuthenticator[Customer] = Authenticator.customer
+  implicit val storeAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.storeAdmin
+  implicit val customerAuth: AsyncAuthenticator[Customer] = Authenticator.customer
 
   val defaultRoutes = {
     pathPrefix("v1") {
@@ -66,6 +68,7 @@ class Service(
       logRequestResult("admin-giftcard-routes")(routes.admin.GiftCardRoutes.routes) ~
       logRequestResult("admin-rma-routes")(routes.admin.RmaRoutes.routes) ~
       logRequestResult("admin-activity-routes")(routes.admin.Activity.routes) ~
+      logRequestResult("admin-inventory-routes")(routes.admin.InventoryRoutes.routes) ~
       logRequestResult("customer-routes")(routes.Customer.routes) ~
       logRequestResult("notification-routes")(routes.NotificationRoutes.routes) ~
       logRequestResult("public-routes")(routes.Public.routes)

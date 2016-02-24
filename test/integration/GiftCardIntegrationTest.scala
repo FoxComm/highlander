@@ -1,11 +1,15 @@
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
-import models.GiftCard._
-import models.{Customers, GiftCard, GiftCardAdjustment, GiftCardAdjustments, GiftCardManual, GiftCardManuals,
-GiftCardSubtype, GiftCardSubtypes, GiftCards, OrderPayments, Orders, PaymentMethod, Reason, Reasons, StoreAdmins}
+import models.order.{OrderPayments, Orders}
+import models.payment.giftcard._
+import GiftCard._
+import models.customer.{Customers, Customer}
+import models.payment.{PaymentMethod, storecredit}
+import models.payment.storecredit.StoreCredit
+import models.{Reason, Reasons, StoreAdmins}
 import org.joda.money.CurrencyUnit
 import org.scalatest.BeforeAndAfterEach
-import responses.{GiftCardAdjustmentsResponse, GiftCardBulkResponse, GiftCardResponse, GiftCardSubTypesResponse, StoreCreditResponse}
+import responses.{GiftCardAdjustmentsResponse, GiftCardBulkResponse, GiftCardResponse, StoreCreditResponse}
 import services.{NotFoundFailure400, EmptyCancellationReasonFailure, GeneralFailure, GiftCardConvertFailure,
 NotFoundFailure404, OpenTransactionsFailure}
 import slick.driver.PostgresDriver.api._
@@ -66,18 +70,6 @@ class GiftCardIntegrationTest extends IntegrationTestBase
   // paging and sorting API end
 
   "GiftCards" - {
-    "GET /v1/gift-cards/types" - {
-      "should return all GC types and related sub-types" in new Fixture {
-        val response = GET(s"v1/gift-cards/types")
-        response.status must ===(StatusCodes.OK)
-
-        val root = response.as[Seq[GiftCardSubTypesResponse.Root]]
-        root.size must === (GiftCard.OriginType.types.size)
-        root.map(_.originType) must === (GiftCard.OriginType.types.toSeq)
-        root.filter(_.originType == gcSubType.originType).head.subTypes must === (Seq(gcSubType))
-      }
-    }
-
     "GET /v1/gift-cards" - {
       "returns list of gift cards" in new Fixture {
         val response = GET(s"v1/gift-cards")
@@ -229,7 +221,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       }
 
       "successfully cancels gift card with provided reason, cancel adjustment is created" in new Fixture {
-        // Cancel pending adjustment
+        // Cancel pending adjustment (should be done before cancellation)
         GiftCardAdjustments.cancel(adjustment1.id).run().futureValue
 
         val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStateByCsr(state = Canceled,
@@ -240,9 +232,26 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         root.canceledAmount must ===(Some(giftCard.originalBalance))
 
         // Ensure that cancel adjustment is automatically created
-        val transactionsRep = GET(s"v1/gift-cards/${giftCard.code}/transactions")
-        val adjustments = transactionsRep.ignoreFailuresAndGiveMe[Seq[GiftCardAdjustmentsResponse.Root]]
+        val adjustments = GiftCardAdjustments.filterByGiftCardId(giftCard.id).result.run().futureValue
+        adjustments.size mustBe 2
+        adjustments.head.state must ===(GiftCardAdjustment.CancellationCapture)
+      }
+
+      "successfully cancels gift card with zero balance" in new Fixture {
+        // Cancel pending adjustment (should be done before cancellation)
+        GiftCardAdjustments.cancel(adjustment1.id).run().futureValue
+        // Update balance
+        GiftCards.update(giftCard, giftCard.copy(availableBalance = 0)).run().futureValue
+
+        val response = PATCH(s"v1/gift-cards/${giftCard.code}", payloads.GiftCardUpdateStateByCsr(state = Canceled,
+          reasonId = Some(1)))
         response.status must ===(StatusCodes.OK)
+
+        val root = response.as[GiftCardResponse.Root]
+        root.canceledAmount must ===(Some(0))
+
+        // Ensure that cancel adjustment is automatically created
+        val adjustments = GiftCardAdjustments.filterByGiftCardId(giftCard.id).result.run().futureValue
         adjustments.size mustBe 2
         adjustments.head.state must ===(GiftCardAdjustment.CancellationCapture)
       }
@@ -326,8 +335,8 @@ class GiftCardIntegrationTest extends IntegrationTestBase
 
         val root = response.as[StoreCreditResponse.Root]
         root.customerId must ===(customer.id)
-        root.originType must ===(models.StoreCredit.GiftCardTransfer)
-        root.state must ===(models.StoreCredit.Active)
+        root.originType must ===(StoreCredit.GiftCardTransfer)
+        root.state must ===(storecredit.StoreCredit.Active)
         root.originalBalance must ===(gcSecond.originalBalance)
 
         val redeemedGc = GiftCards.findByCode(gcSecond.code).one.run().futureValue.value
@@ -345,7 +354,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       "fails to convert when customer not found" in new Fixture {
         val response = POST(s"v1/gift-cards/${gcSecond.code}/convert/666")
         response.status must ===(StatusCodes.NotFound)
-        response.error must ===(NotFoundFailure404(models.Customer, 666).description)
+        response.error must ===(NotFoundFailure404(Customer, 666).description)
       }
 
       "fails to convert GC to SC if open transactions are present" in new Fixture {

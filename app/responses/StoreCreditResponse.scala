@@ -1,14 +1,15 @@
 package responses
 
 import java.time.Instant
-import slick.driver.PostgresDriver.api._
+
+import models.payment.storecredit.StoreCredit
 import utils.Money.Currency
 
 object StoreCreditResponse {
   final case class Root(
     id: Int,
     originId: Int,
-    originType: models.StoreCredit.OriginType,
+    originType: StoreCredit.OriginType,
     subTypeId: Option[Int],
     currency: Currency,
     customerId: Int,
@@ -17,16 +18,16 @@ object StoreCreditResponse {
     availableBalance: Int,
     canceledAmount: Option[Int],
     canceledReason: Option[Int],
-    state: models.StoreCredit.State,
+    state: StoreCredit.State,
     createdAt: Instant) extends ResponseItem
 
   final case class Totals(availableBalance: Int = 0, currentBalance: Int = 0)
 
   final case class WithTotals(storeCredits: Seq[Root], totals: Option[Totals])
 
-  def build(records: Seq[models.StoreCredit]): Seq[Root] = records.map(build)
+  def build(records: Seq[StoreCredit]): Seq[Root] = records.map(build)
 
-  def build(storeCredit: models.StoreCredit): Root = {
+  def build(storeCredit: StoreCredit): Root = {
     Root(id = storeCredit.id,
       originId = storeCredit.originId,
       originType = storeCredit.originType,

@@ -1,8 +1,17 @@
 package utils
 
+import models.inventory.SkuType
+import models.order.Order
+import models.order.lineitems.OrderLineItem
+import models.payment.PaymentMethod
+import models.payment.creditcard.CreditCardCharge
+import models.payment.giftcard.{GiftCardAdjustment, GiftCard}
+import models.payment.storecredit.{StoreCreditAdjustment, StoreCredit}
+import models.rma.{RmaReason, RmaLineItem, Rma}
 import models.rules.{Condition, QueryStatement}
-import models.{SharedSearch, CreditCardCharge, GiftCard, GiftCardAdjustment, Order, OrderLineItem, PaymentMethod,
-Rma, RmaLineItem, RmaReason, Shipment, StoreCredit, StoreCreditAdjustment, Reason}
+import models.sharedsearch.SharedSearch
+import models.shipping.Shipment
+import models.Reason
 import org.json4s.jackson
 import responses.CountryWithRegions
 
@@ -31,6 +40,7 @@ object JsonFormatters {
     QueryStatement.Comparison.jsonFormat +
     Condition.Operator.jsonFormat +
     PaymentMethod.Type.jsonFormat +
+    SkuType.jsonFormat +
     SharedSearch.Scope.jsonFormat
 }
 

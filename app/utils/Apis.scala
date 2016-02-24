@@ -7,10 +7,10 @@ import scala.concurrent.{ExecutionContext, Future, blocking}
 
 import cats.data.Xor
 import cats.implicits._
-import com.stripe.exception.StripeException
-import com.stripe.model.{Card ⇒ StripeCard, Customer ⇒ StripeCustomer, ExternalAccount, Charge ⇒ StripeCharge}
+import com.stripe.model.{ExternalAccount, Customer ⇒ StripeCustomer, Charge ⇒ StripeCharge} // Stupid `static`s
 import com.stripe.exception.{StripeException, CardException}
 import com.stripe.net.RequestOptions
+import models.stripe._
 import services.CreditCardFailure.StripeFailure
 import services.{ResultT, CreditCardFailure, Failure, Failures, GeneralFailure, Result}
 

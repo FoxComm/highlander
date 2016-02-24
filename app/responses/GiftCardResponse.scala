@@ -2,12 +2,8 @@ package responses
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
-import models.GiftCard
-import slick.driver.PostgresDriver.api._
+import models.payment.giftcard.GiftCard
 import utils.Money._
-import utils.Slick.implicits._
 
 object GiftCardResponse {
   final val mockMessage = "Not implemented yet"

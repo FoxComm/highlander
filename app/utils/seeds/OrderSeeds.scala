@@ -1,16 +1,19 @@
 package utils.seeds
 
 import cats.implicits._
-import models.Order._
-import models.{Addresses, CreditCards, Customer, GiftCard, GiftCardManual, 
-  GiftCardManuals, GiftCardOrder, GiftCardOrders, GiftCards, Note, Notes, Order, 
-  OrderLineItem, OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItemSku, 
-  OrderLineItemSkus, OrderLineItems, OrderPayment, OrderPayments, OrderShippingAddress,
-  OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, 
-  Shipment, Shipments, StoreCredit, StoreCreditManual, StoreCreditManuals, 
-  StoreCredits}
+import models.inventory.Sku
 import models.product.{SimpleProductData, Mvp, ProductContext}
-import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
+import models.order.lineitems._
+import models.order._
+import Order._
+import models.customer.Customer
+import models.location.Addresses
+import models.payment.creditcard.CreditCards
+import models.payment.giftcard._
+import models.payment.storecredit._
+import models.shipping.{ShippingMethods, Shipment, Shipments}
+import models.{Note, Notes}
+import services.{ShippingMethodIsNotActive, CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT
@@ -61,7 +64,7 @@ trait OrderSeeds {
   } yield order
 
   def createOrder3(customerId: Customer#Id, productContext: ProductContext, products: Seq[SimpleProductData])(implicit db: Database): DbResultT[Order] = {
-    import models.GiftCard.{buildAppeasement => build}
+    import GiftCard.{buildAppeasement => build}
     import payloads.{GiftCardCreateByCsr => payload}
     for {
       order  ← * <~ Orders.create(Order(state = Cart, customerId = customerId, productContextId = productContext.id))
@@ -92,7 +95,7 @@ trait OrderSeeds {
     _     ← * <~ OrderTotaler.saveTotals(order)
   } yield order
 
-  def createOrder5(customerId: Customer#Id, productContext: ProductContext, products: Seq[SimpleProductData], shipMethod: OrderShippingMethod#Id)
+  def createOrder5(customerId: Customer#Id, productContext: ProductContext, products: Seq[SimpleProductData], shipMethodId: OrderShippingMethod#Id)
     (implicit db: Database): DbResultT[Order] = for {
     order ← * <~ Orders.create(Order(state = Shipped,
       customerId = customerId, productContextId = productContext.id, 
@@ -102,7 +105,8 @@ trait OrderSeeds {
     op    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
     addr  ← * <~ getDefaultAddress(customerId)
     shipA ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
-    shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod(orderId = order.id, shippingMethodId = shipMethod))
+    meth  ← * <~ getShipMethod(shipMethodId)
+    shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(order = order, method = meth))
     _     ← * <~ OrderTotaler.saveTotals(order)
     _     ← * <~ Shipments.create(Shipment(orderId = order.id, orderShippingMethodId = shipM.id.some,
                       shippingAddressId = shipA.id.some))
@@ -137,6 +141,10 @@ trait OrderSeeds {
   private def getDefaultAddress(customerId: Customer#Id)(implicit db: Database) =
     Addresses.findAllByCustomerId(customerId).filter(_.isDefaultShipping).one
       .mustFindOr(CustomerHasNoDefaultAddress(customerId))
+
+  private def getShipMethod(shipMethodId: Int)(implicit db: Database) =
+    ShippingMethods.findActiveById(shipMethodId).one
+      .mustFindOr(ShippingMethodIsNotActive(shipMethodId))
 
   def order = 
     Order(customerId = 0, referenceNumber = "ABCD1234-11", state = ManualHold, productContextId = 1)

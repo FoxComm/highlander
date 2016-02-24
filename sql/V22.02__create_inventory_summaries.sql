@@ -5,12 +5,14 @@ create table inventory_summaries (
     on_hand integer not null default 0,
     on_hold integer not null default 0,
     reserved integer not null default 0,
-    non_sellable integer not null default 0,
-    safety_stock integer not null default 0,
+    safety_stock integer default null,
+    sku_type generic_string not null,
     updated_at timestamp without time zone default (now() at time zone 'utc'),
     foreign key (sku_id) references skus(id) on update restrict on delete restrict,
     foreign key (warehouse_id) references warehouses(id) on update restrict on delete restrict
 );
+
+create unique index inventory_summaries_sku_type_idx on inventory_summaries(id, sku_type);
 
 create function update_inventory_summaries() returns trigger as $$
 declare
@@ -22,10 +24,12 @@ begin
     new_on_hand := new.on_hand;
     new_on_hold := new.on_hold;
 
-    update inventory_summaries set on_hand=(on_hand + new_on_hand), on_hold=(on_hold + new_on_hold), reserved=(reserved + new_reserved) where warehouse_id = new.warehouse_id and sku_id = new.sku_id;
+    update inventory_summaries set on_hand=(on_hand + new_on_hand), on_hold=(on_hold + new_on_hold), reserved=(reserved + new_reserved)
+    where warehouse_id = new.warehouse_id and sku_id = new.sku_id and sku_type = new.sku_type;
     if found then return new; end if;
     if not found then
-        insert into inventory_summaries (warehouse_id, sku_id, on_hand, on_hold, reserved) values (new.warehouse_id, new.sku_id, new_on_hand, new_on_hold, new_reserved);
+        insert into inventory_summaries (warehouse_id, sku_id, on_hand, on_hold, reserved, sku_type)
+        values (new.warehouse_id, new.sku_id, new_on_hand, new_on_hold, new_reserved, new.sku_type);
     end if;
 
     return new;

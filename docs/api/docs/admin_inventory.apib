@@ -1,0 +1,66 @@
+## SKUs [/v1/inventory/skus/{code}]
+
++ Parameters
+    + code: `SKU-ABC` (required, string) - SKU code
+
+### Summary [GET /v1/inventory/skus/{code}/summary]
+
+Summary for sellable type of given SKU across all warehouses.
+
++ Parameters
+    + code: `SKU-ABC` (required, string) - SKU code
++ Response 200 (application/json)
+    + Attributes(SkuSummary)
+
+### Details [GET /v1/inventory/skus/{code}/{warehouseId}]
+
+Details for all SKU summary types (sellable, backorder, preorder, nonSellable) in given warehouse.
+
++ Parameters
+    + code: `SKU-ABC` (required, string) - SKU code
+    + warehouseId: 1 (required, number) - Warehouse id
++ Response 200 (application/json)
+
+        [
+          {
+            "skuType": "backorder",
+            "counts": {
+              "onHand": 240,
+              "onHold": 3,
+              "reserved": 1,
+              "afs": 236,
+              "afsCost": 778800
+            }
+          },
+          {
+            "skuType": "nonSellable",
+            "counts": {
+              "onHand": 318,
+              "onHold": 27,
+              "reserved": 2,
+              "afs": 289,
+              "afsCost": 953700
+            }
+          },
+          {
+            "skuType": "preorder",
+            "counts": {
+              "onHand": 256,
+              "onHold": 34,
+              "reserved": 41,
+              "afs": 181,
+              "afsCost": 597300
+            }
+          },
+          {
+            "skuType": "sellable",
+            "counts": {
+              "onHand": 516,
+              "onHold": 5,
+              "reserved": 75,
+              "safetyStock": 7,
+              "afs": 429,
+              "afsCost": 1415700
+            }
+          }
+        ]

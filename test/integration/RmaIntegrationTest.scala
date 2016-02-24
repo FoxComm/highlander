@@ -2,12 +2,16 @@ import java.time.Instant
 
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
-import models.Rma.{Canceled, Processing}
-import models.{RmaAssignment, Customer, Customers, GiftCard, GiftCardManual, GiftCardManuals,
-GiftCards, Order, OrderLineItem, OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItems,
-OrderShippingAddresses, OrderShippingMethod, OrderShippingMethods, Orders, Reasons, Rma, RmaAssignments, RmaLineItem,
-RmaLockEvents, RmaReason, RmaReasons, Rmas, Shipments, ShippingMethods, StoreAdmin, StoreAdmins}
-import models.product.{Skus, Mvp, ProductContexts, SimpleContext}
+import models.customer.{Customers, Customer}
+import models.inventory.Skus
+import models.order.lineitems._
+import models.order._
+import models.payment.giftcard.{GiftCardManuals, GiftCardManual, GiftCards, GiftCard}
+import models.rma._
+import Rma.{Canceled, Processing}
+import models.shipping.{Shipments, ShippingMethods}
+import models.{Reasons, StoreAdmin, StoreAdmins}
+import models.product.{Mvp, ProductContexts, SimpleContext}
 import org.json4s.jackson.JsonMethods._
 import payloads.{RmaAssigneesPayload, RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCustomerPayload,
 RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload}
@@ -366,13 +370,13 @@ class RmaIntegrationTest extends IntegrationTestBase
     // SKU Line Items
     "POST /v1/rmas/:refNum/line-items/skus" - {
       "successfully adds SKU line item" in new LineItemFixture {
-        val payload = RmaSkuLineItemsPayload(sku = sku.sku, quantity = 1, reasonId = rmaReason.id,
+        val payload = RmaSkuLineItemsPayload(sku = sku.code, quantity = 1, reasonId = rmaReason.id,
           isReturnItem = true, inventoryDisposition = RmaLineItem.Putaway)
         val response = POST(s"v1/rmas/${rma.referenceNumber}/line-items/skus", payload)
         response.status must === (StatusCodes.OK)
 
         val root = response.as[RmaResponse.Root]
-        root.lineItems.skus.headOption.value.sku.sku must === (sku.sku)
+        root.lineItems.skus.headOption.value.sku.sku must === (sku.code)
       }
 
       "fails if refNum is not found" in new LineItemFixture {
@@ -406,7 +410,7 @@ class RmaIntegrationTest extends IntegrationTestBase
     "DELETE /v1/rmas/:refNum/line-items/skus/:id" - {
       "successfully deletes SKU line item" in new LineItemFixture {
         // Create
-        val payload = RmaSkuLineItemsPayload(sku = sku.sku, quantity = 1, reasonId = rmaReason.id,
+        val payload = RmaSkuLineItemsPayload(sku = sku.code, quantity = 1, reasonId = rmaReason.id,
           isReturnItem = true, inventoryDisposition = RmaLineItem.Putaway)
         val updatedRma = RmaLineItemUpdater.addSkuLineItem(rma.referenceNumber, payload, productContext).futureValue.rightVal
         val lineItemId = updatedRma.lineItems.skus.headOption.value.lineItemId
@@ -586,7 +590,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         regionId = 1))
       shippingMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
       orderShippingMethod ← * <~ OrderShippingMethods.create(
-        OrderShippingMethod(orderId = order.id, shippingMethodId = shippingMethod.id))
+        OrderShippingMethod.build(order = order, method = shippingMethod))
       shipment ← * <~ Shipments.create(Factories.shipment)
     } yield (productContext, rmaReason, sku, giftCard, shipment)).runTxn().futureValue.rightVal
   }
