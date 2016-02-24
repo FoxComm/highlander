@@ -9,7 +9,7 @@ import io.gatling.http.request.builder.HttpRequestBuilder
 object IntruderActivity {
 
   def register(): HttpRequestBuilder = http("Intruder Registration")
-    .post("/v1/registrations/new")
+    .post("/v1/public/registrations/new")
     .body(ELFileBody("request-bodies/intruder_registration.json"))
     .check(status.is(200))
     .check(jsonPath("$.id").ofType[Long].saveAs("${intuderId}"))
