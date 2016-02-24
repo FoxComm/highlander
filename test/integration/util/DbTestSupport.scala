@@ -9,6 +9,7 @@ import utils.flyway.newFlyway
 import org.scalatest.{BeforeAndAfterAll, Outcome, Suite, SuiteMixin}
 import services.Failures
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
+import slick.driver.PostgresDriver.api.Database
 import java.sql.Connection
 import util.SlickSupport.implicits._
 
@@ -26,12 +27,14 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
 
   override protected def beforeAll(): Unit = {
     if (!migrated) {
-      val flyway = newFlyway(jdbcDataSourceFromSlickDB(db))
+      val db4fly = Database.forConfig("db", TestBase.config)
+      val flyway = newFlyway(jdbcDataSourceFromSlickDB(db4fly))
 
       flyway.clean()
       flyway.migrate()
 
       migrated = true
+      db4fly.close()
     }
 
     setupProductContext()
@@ -81,7 +84,6 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
 }
 
 object DbTestSupport {
-  import slick.driver.PostgresDriver.api.Database
 
   @volatile var migrated = false
 
