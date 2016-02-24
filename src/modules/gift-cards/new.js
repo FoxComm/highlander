@@ -44,7 +44,7 @@ const initialState = {
 
 export function fetchTypes() {
   return dispatch => {
-    Api.get(`/gift-cards/types`)
+    Api.get(`/public/gift-cards/types`)
       .then(
         types => dispatch(setTypes(types)),
         err => dispatch(setError(err))

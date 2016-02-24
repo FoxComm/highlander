@@ -17,7 +17,7 @@ export function fetchReasons(reasonType) {
   return dispatch => {
     dispatch(reasonsRequested());
 
-    return Api.get(`/reasons/${reasonType}`)
+    return Api.get(`/public/reasons/${reasonType}`)
       .then(
         json => dispatch(reasonsReceived(json, reasonType)),
         err => dispatch(reasonsFailed(err))
