@@ -39,7 +39,7 @@ object OrderStateUpdater {
     // Turn failures into errors
     batchMetadata ← * <~ updateStatesDbio(admin, refNumbers, newState, skipActivity)
     response      ← * <~ OrderQueries.findAll
-  } yield response.copy(errors = batchMetadata.flatten(), batch = Some(batchMetadata))).runTxn()
+  } yield response.copy(errors = batchMetadata.flatten, batch = Some(batchMetadata))).runTxn()
 
   private def updateStatesDbio(admin: StoreAdmin, refNumbers: Seq[String], newState: Order.State, skipActivity: Boolean = false)
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage,
