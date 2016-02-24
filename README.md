@@ -21,16 +21,6 @@
     $ make build
     ```
 
-### Update Green River assembly
-
-Run:
-
-    $ tools/update_greenriver.sh
-
-or:
-
-    $ MACHINE=backend PROVIDER=vmware_fusion tools/update_greenriver.sh
-
 ### Lint ansible scripts
 
     $ make lint
@@ -77,3 +67,15 @@ Set the following environment variables.
 Then run
 
     $ vagrant up --provider=google
+    
+### Update Green River assembly
+
+You can pass green river *.jar file without re-provisioning.
+
+Just run:
+
+    $ tools/update_greenriver.sh
+
+or:
+
+    $ MACHINE=backend PROVIDER=vmware_fusion tools/update_greenriver.sh    
