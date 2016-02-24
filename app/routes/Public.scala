@@ -8,8 +8,10 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 
 import models.Reason.reasonTypeRegex
 import payloads._
+import services.customers.CustomerManager
+import services.giftcards.GiftCardService
 import slick.driver.PostgresDriver.api._
-import services.{GiftCardService, ReasonService, StoreCreditService, CustomerManager}
+import services.{ReasonService, StoreCreditService}
 import services.PublicService._
 import utils.CustomDirectives._
 

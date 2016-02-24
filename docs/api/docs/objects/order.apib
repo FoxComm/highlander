@@ -81,20 +81,12 @@
 + totals (required, Totals) - Order totals.
 + shippingMethod (optional, ShippingMethod) - Shipping method.
 + shippingAddress (optional, OrderShippingAddress) - Shipping address.
-+ assignees (required, array[OrderAssignee]) - Order assignees.
-+ watchers (required, array[OrderWatcher]) - Order watchers.
++ assignees (required, array[Assignee]) - Order assignees.
++ watchers (required, array[Watcher]) - Order watchers.
 + remorsePeriodEnd: `2015-09-10T14:55:50Z` (optional, string) - Remorse period end.
 + paymentMethods (optional, array[DisplayPayment]) - Order payment.
 + lockedBy (optional, StoreAdminResponse) - Currently locked by.
 + warnings: `List of validation errors and warnings` (optional, array[string]) - Warnings.
-
-### OrderAssignee
-+ assignee (required, StoreAdminResponse) - Assigned store admin.
-+ createdAt: `2015-09-10T14:55:50Z` (optional, string) - Assignment date.
-
-### OrderWatcher
-+ watcher (required, StoreAdminResponse) - Watching store admin.
-+ createdAt: `2015-09-10T14:55:50Z` (optional, string) - Watch date.
 
 ### OrderShippingAddress
 + id: 1 (required, number) - Unique ID.

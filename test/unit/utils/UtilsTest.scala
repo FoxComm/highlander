@@ -3,7 +3,8 @@ package utils
 import util.TestBase
 import utils.Strings._
 
-import payloads.{GiftCardCreateByCsr, CreateNote, Watchers}
+import payloads.{GiftCardCreateByCsr, CreateNote}
+import models.activity.Trail
 
 class UtilsTest extends TestBase {
 
@@ -17,7 +18,7 @@ class UtilsTest extends TestBase {
 
   "camelToUnderscores" - {
     "should convert camelCase class to snake_case string" in {
-      snakeCaseName(Watchers(watchers = Seq(1, 2, 3)))                must === ("watchers")
+      snakeCaseName(Trail(dimensionId = 1, objectId = "1"))           must === ("trail")
       snakeCaseName(CreateNote(body = "test"))                        must === ("create_note")
       snakeCaseName(GiftCardCreateByCsr(balance = 10, reasonId = 1))  must === ("gift_card_create_by_csr")
     }

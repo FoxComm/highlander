@@ -2,6 +2,7 @@ package services.orders
 
 import models.order._
 import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
+import payloads.OrderBulkWatchersPayload
 import responses.TheResponse
 import responses.order.FullOrder
 import services.Util._
@@ -46,7 +47,7 @@ object OrderWatcherUpdater {
       reason = NotificationSubscription.Assigned, objectIds = Seq(order.referenceNumber))
   } yield TheResponse.build(fullOrder)).runTxn()
 
-  def watchBulk(admin: StoreAdmin, payload: payloads.BulkWatchers)(implicit ec: ExecutionContext, db: Database,
+  def watchBulk(admin: StoreAdmin, payload: OrderBulkWatchersPayload)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
     // TODO: transfer sorting-paging metadata
     orders         ← * <~ Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
@@ -61,7 +62,7 @@ object OrderWatcherUpdater {
                             reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber))
   } yield response.copy(errors = ordersNotFound)).runTxn()
 
-  def unwatchBulk(admin: StoreAdmin, payload: payloads.BulkWatchers)(implicit ec: ExecutionContext, db: Database,
+  def unwatchBulk(admin: StoreAdmin, payload: OrderBulkWatchersPayload)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
     // TODO: transfer sorting-paging metadata
     orders         ← * <~ Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result

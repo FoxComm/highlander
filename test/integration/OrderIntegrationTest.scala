@@ -17,7 +17,7 @@ import models.{StoreAdmin, StoreAdmins}
 import models.inventory.Skus
 import models.product.{Mvp, ProductContexts, SimpleContext}
 import org.json4s.jackson.JsonMethods._
-import payloads.{Assignment, Watchers, UpdateLineItemsPayload, UpdateOrderPayload}
+import payloads.{OrderAssignmentPayload, OrderWatchersPayload, UpdateLineItemsPayload, UpdateOrderPayload}
 import responses.StoreAdminResponse
 import responses.order.FullOrder
 import services.CartFailures._
@@ -298,7 +298,7 @@ class OrderIntegrationTest extends IntegrationTestBase
   "POST /v1/orders/:refNum/assignees" - {
 
     "can be assigned to order" in new Fixture {
-      val response = POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
+      val response = POST(s"v1/orders/${order.referenceNumber}/assignees", OrderAssignmentPayload(Seq(storeAdmin.id)))
       response.status must === (StatusCodes.OK)
 
       val fullOrderWithWarnings = response.withResultTypeOf[FullOrder.Root]
@@ -314,20 +314,20 @@ class OrderIntegrationTest extends IntegrationTestBase
         order      ← * <~ Orders.create(Factories.order.copy(isLocked = true, customerId = customer.id))
         storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
       } yield (order, storeAdmin)).runTxn().futureValue.rightVal
-      val response = POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
+      val response = POST(s"v1/orders/${order.referenceNumber}/assignees", OrderAssignmentPayload(Seq(storeAdmin.id)))
       response.status must === (StatusCodes.OK)
 
       OrderAssignments.byOrder(order).result.run().futureValue.size mustBe 1
     }
 
     "404 if order is not found" in new Fixture {
-      val response = POST(s"v1/orders/NOPE/assignees", Assignment(Seq(storeAdmin.id)))
+      val response = POST(s"v1/orders/NOPE/assignees", OrderAssignmentPayload(Seq(storeAdmin.id)))
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
     "warning if assignee is not found" in new Fixture {
-      val response = POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(1, 999)))
+      val response = POST(s"v1/orders/${order.referenceNumber}/assignees", OrderAssignmentPayload(Seq(1, 999)))
       response.status must === (StatusCodes.OK)
 
       val fullOrderWithWarnings = response.withResultTypeOf[FullOrder.Root]
@@ -341,7 +341,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val responseOrder1 = response1.withResultTypeOf[FullOrder.Root].result
       responseOrder1.assignees mustBe empty
 
-      POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
+      POST(s"v1/orders/${order.referenceNumber}/assignees", OrderAssignmentPayload(Seq(storeAdmin.id)))
       val response2 = GET(s"v1/orders/${order.referenceNumber}")
       response2.status must === (StatusCodes.OK)
       val responseOrder2 = response2.withResultTypeOf[FullOrder.Root].result
@@ -352,8 +352,8 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "do not create duplicate records" in new Fixture {
-      POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
-      POST(s"v1/orders/${order.referenceNumber}/assignees", Assignment(Seq(storeAdmin.id)))
+      POST(s"v1/orders/${order.referenceNumber}/assignees", OrderAssignmentPayload(Seq(storeAdmin.id)))
+      POST(s"v1/orders/${order.referenceNumber}/assignees", OrderAssignmentPayload(Seq(storeAdmin.id)))
 
       OrderAssignments.byOrder(order).result.run().futureValue.size mustBe 1
     }
@@ -393,7 +393,7 @@ class OrderIntegrationTest extends IntegrationTestBase
   "POST /v1/orders/:refNum/watchers" - {
 
     "can be added to order" in new Fixture {
-      val response = POST(s"v1/orders/${order.referenceNumber}/watchers", Watchers(Seq(storeAdmin.id)))
+      val response = POST(s"v1/orders/${order.referenceNumber}/watchers", OrderWatchersPayload(Seq(storeAdmin.id)))
       response.status must === (StatusCodes.OK)
 
       val fullOrderWithWarnings = response.withResultTypeOf[FullOrder.Root]
@@ -409,20 +409,20 @@ class OrderIntegrationTest extends IntegrationTestBase
         order      ← * <~ Orders.create(Factories.order.copy(isLocked = true, customerId = customer.id))
         storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
       } yield (order, storeAdmin)).runTxn().futureValue.rightVal
-      val response = POST(s"v1/orders/${order.referenceNumber}/watchers", Watchers(Seq(storeAdmin.id)))
+      val response = POST(s"v1/orders/${order.referenceNumber}/watchers", OrderWatchersPayload(Seq(storeAdmin.id)))
       response.status must === (StatusCodes.OK)
 
       OrderWatchers.byOrder(order).result.run().futureValue.size mustBe 1
     }
 
     "404 if order is not found" in new Fixture {
-      val response = POST(s"v1/orders/NOPE/watchers", Watchers(Seq(storeAdmin.id)))
+      val response = POST(s"v1/orders/NOPE/watchers", OrderWatchersPayload(Seq(storeAdmin.id)))
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Order, "NOPE").description)
     }
 
     "warning if watcher is not found" in new Fixture {
-      val response = POST(s"v1/orders/${order.referenceNumber}/watchers", Watchers(Seq(1, 999)))
+      val response = POST(s"v1/orders/${order.referenceNumber}/watchers", OrderWatchersPayload(Seq(1, 999)))
       response.status must === (StatusCodes.OK)
 
       val fullOrderWithWarnings = response.withResultTypeOf[FullOrder.Root]
@@ -436,7 +436,7 @@ class OrderIntegrationTest extends IntegrationTestBase
       val responseOrder1 = response1.withResultTypeOf[FullOrder.Root].result
       responseOrder1.watchers mustBe empty
 
-      POST(s"v1/orders/${order.referenceNumber}/watchers", Watchers(Seq(storeAdmin.id)))
+      POST(s"v1/orders/${order.referenceNumber}/watchers", OrderWatchersPayload(Seq(storeAdmin.id)))
       val response2 = GET(s"v1/orders/${order.referenceNumber}")
       response2.status must === (StatusCodes.OK)
       val responseOrder2 = response2.withResultTypeOf[FullOrder.Root].result
@@ -447,8 +447,8 @@ class OrderIntegrationTest extends IntegrationTestBase
     }
 
     "do not create duplicate records" in new Fixture {
-      POST(s"v1/orders/${order.referenceNumber}/watchers", Watchers(Seq(storeAdmin.id)))
-      POST(s"v1/orders/${order.referenceNumber}/watchers", Watchers(Seq(storeAdmin.id)))
+      POST(s"v1/orders/${order.referenceNumber}/watchers", OrderWatchersPayload(Seq(storeAdmin.id)))
+      POST(s"v1/orders/${order.referenceNumber}/watchers", OrderWatchersPayload(Seq(storeAdmin.id)))
 
       OrderWatchers.byOrder(order).result.run().futureValue.size mustBe 1
     }

@@ -1,18 +1,19 @@
-package services
+package services.giftcards
 
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.implicits._
-import models.payment.giftcard._
-import GiftCard.Canceled
-import GiftCardSubtypes.scope._
 import models.activity.ActivityContext
 import models.customer.Customers
+import models.payment.giftcard.GiftCard.Canceled
+import models.payment.giftcard.GiftCardSubtypes.scope._
+import models.payment.giftcard._
 import models.{Reasons, StoreAdmin, StoreAdmins}
 import payloads.{GiftCardCreateByCsr, GiftCardUpdateStateByCsr}
 import responses.GiftCardBulkResponse._
 import responses.GiftCardResponse._
-import responses.{TheResponse, CustomerResponse, GiftCardResponse, GiftCardSubTypesResponse, StoreAdminResponse}
+import responses.{CustomerResponse, GiftCardResponse, GiftCardSubTypesResponse, StoreAdminResponse, TheResponse}
+import services._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT
