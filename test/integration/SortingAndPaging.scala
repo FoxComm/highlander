@@ -57,6 +57,7 @@ trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: Integrati
   }
 
   "supports sorting and paging" - {
+    pending
 
     "sort by a column without paging" in new SortingAndPagingFixture {
       val response = GET(s"$uriPrefix?sortBy=$sortColumnName")
