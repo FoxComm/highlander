@@ -1,8 +1,19 @@
 package models.auth
 
-import responses.ResponseItem
-import utils.Strings.EnrichedString
 import models.{StoreAdmin, BaseStoreAdmin}
+import com.pellucid.sealerate
+import utils.ADT
+
+
+object Identity {
+  sealed trait IdentityKind
+  case object Admin extends IdentityKind
+  case object Customer extends IdentityKind
+
+  object IdentityKind extends ADT[IdentityKind] {
+    def types = sealerate.values[IdentityKind]
+  }
+}
 
 sealed trait Token {
   val id: Int
