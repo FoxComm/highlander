@@ -68,18 +68,15 @@ trait HttpSupport
 
   import Extensions._
 
-  protected implicit var mat:  ActorMaterializer = materializer
-  protected implicit var actorSystem: ActorSystem = system
+  protected implicit lazy val mat:  ActorMaterializer = materializer
+  protected implicit lazy val actorSystem: ActorSystem = system
 
   protected def additionalRoutes: immutable.Seq[Route] = immutable.Seq.empty
 
   override def beforeAll: Unit = {
     if (!akkaConfigured) {
       system = ActorSystem("system", actorSystemConfig)
-      actorSystem = system
-
       materializer = ActorMaterializer()
-      mat = materializer
 
       service = makeService
 
