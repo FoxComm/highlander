@@ -42,12 +42,23 @@ import cats.syntax.flatMap._
 import utils.aliases.EC
 
 // TODO: Move away from root package when `Service' moverd
+object HttpSupport {
+  @volatile var akkaConfigured = false
+
+  protected var system:        ActorSystem       = _
+  protected var materializer:  ActorMaterializer = _
+  protected var service:       Service           = _
+  protected var serverBinding: ServerBinding     = _
+}
+
 trait HttpSupport
   extends SuiteMixin
   with ScalaFutures
   with MustMatchers
   with BeforeAndAfterAll
   with MockitoSugar { this: Suite with PatienceConfiguration with DbTestSupport ⇒
+
+  import HttpSupport._
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
@@ -57,31 +68,37 @@ trait HttpSupport
 
   import Extensions._
 
-  protected implicit var system:        ActorSystem       = _
-  protected implicit var materializer:  ActorMaterializer = _
-  protected          var service:       Service           = _
-  protected          var serverBinding: ServerBinding     = _
+  protected implicit var mat:  ActorMaterializer = materializer
+  protected implicit var actorSystem: ActorSystem = system
 
   protected def additionalRoutes: immutable.Seq[Route] = immutable.Seq.empty
 
   override def beforeAll: Unit = {
-    system       = ActorSystem("system", actorSystemConfig)
-    materializer = ActorMaterializer()
-    service      = makeService
+    if (!akkaConfigured) {
+      system = ActorSystem("system", actorSystemConfig)
+      actorSystem = system
 
-    serverBinding = service.bind(ConfigFactory.parseString(
-      s"""
-         |http.interface = 127.0.0.1
-         |http.port      = ${getFreePort}
-      """.stripMargin)).futureValue
+      materializer = ActorMaterializer()
+      mat = materializer
+
+      service = makeService
+
+      serverBinding = service.bind(ConfigFactory.parseString(
+        s"""
+           |http.interface = 127.0.0.1
+           |http.port      = ${getFreePort}
+        """.stripMargin)).futureValue
+
+      akkaConfigured = true
+    }
   }
 
   override def afterAll: Unit = {
-    Await.result(for {
-      _ ← Http().shutdownAllConnectionPools()
-      _ ← service.close()
-      _ ← system.terminate()
-    } yield {}, 1.minute)
+//    Await.result(for {
+//      _ ← Http().shutdownAllConnectionPools()
+//      _ ← service.close()
+//      _ ← system.terminate()
+//    } yield {}, 1.minute)
   }
 
   private def actorSystemConfig = ConfigFactory.parseString(
