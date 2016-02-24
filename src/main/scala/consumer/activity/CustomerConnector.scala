@@ -2,6 +2,8 @@ package consumer.activity
 
 import scala.concurrent.{ExecutionContext, Future}
 
+import consumer.utils.JsonTransformers.extractStringSeq
+
 import org.json4s.JsonAST.{JInt, JNothing}
 
 final case class CustomerConnector()(implicit ec: ExecutionContext) extends ActivityConnector {
@@ -9,7 +11,7 @@ final case class CustomerConnector()(implicit ec: ExecutionContext) extends Acti
 
   def process(offset: Long, activity: Activity): Future[Seq[Connection]] = Future {
     val customerIds = byContextUserType(activity) ++: byCustomerData(activity) ++:
-      byCustomerUpdatedActivity(activity)
+      byCustomerUpdatedActivity(activity) ++: byBulkData(activity)
     customerIds.distinct.map(createConnection(_, activity.id))
   }
 
@@ -20,6 +22,8 @@ final case class CustomerConnector()(implicit ec: ExecutionContext) extends Acti
       data = JNothing,
       activityId = activityId)
   }
+
+  private def byBulkData(activity: Activity): Seq[String] = extractStringSeq(activity.data, "customerIds")
 
   private def byContextUserType(activity: Activity): Seq[String] = {
     activity.context.userType match {
