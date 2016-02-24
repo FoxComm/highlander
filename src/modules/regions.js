@@ -7,7 +7,7 @@ const regionsFailed = createAction('REGIONS_FAILED');
 
 export function fetchRegions() {
   return dispatch => {
-    return Api.get(`/regions`)
+    return Api.get(`/public/regions`)
       .then(
         regions => dispatch(regionsReceived(regions)),
         err => dispatch(regionsFailed(err))
