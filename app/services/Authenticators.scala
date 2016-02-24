@@ -10,7 +10,6 @@ import models.customer.{Customer, Customers}
 import cats.data.Xor
 import models.{StoreAdmin, StoreAdmins}
 import slick.driver.PostgresDriver.api._
-import utils.ModelWithIdParameter
 import utils.Slick.implicits._
 import utils.Passwords.checkPassword
 import utils.aliases._
@@ -28,28 +27,21 @@ import utils.DbResultT.implicits._
 object Authenticator {
 
   type EmailFinder[M] = String ⇒ DBIO[Option[M]]
-
-  type FutureAuthResult[M] = Future[AuthenticationResult[M]]
-  type AsyncAuthenticator[M] = (Option[HttpCredentials]) ⇒ FutureAuthResult[M]
+  type AsyncAuthenticator[M] = (Option[HttpCredentials]) ⇒ Future[AuthenticationResult[M]]
 
   final case class Credentials(identifier: String, secret: String)
 
-  def customer(credentials: Option[HttpCredentials])(implicit ec: EC, db: DB): Future[AuthenticationResult[Customer]] = {
+  def customer(credentials: Option[HttpCredentials])
+    (implicit ec: EC, db: DB): Future[AuthenticationResult[Customer]] = {
     auth[Customer, EmailFinder[Customer]]("private customer routes")(credentials, Customers.findByEmail, _.hashedPassword)
   }
 
   def storeAdmin(credentials: Option[HttpCredentials])
-              (implicit ec: EC, db: DB): Future[AuthenticationResult[StoreAdmin]] = {
+    (implicit ec: EC, db: DB): Future[AuthenticationResult[StoreAdmin]] = {
     auth[StoreAdmin, EmailFinder[StoreAdmin]]("admin")(credentials, StoreAdmins.findByEmail, _.hashedPassword)
   }
 
-  def requireAdminAuth(auth: AsyncAuthenticator[StoreAdmin]): AuthenticationDirective[StoreAdmin] = {
-    extractExecutionContext.flatMap { implicit ec ⇒
-      authenticateOrRejectWithChallenge(auth)
-    }
-  }
-
-  def requireCustomerAuth(auth: AsyncAuthenticator[Customer]): AuthenticationDirective[Customer] = {
+  def requireAuth[M](auth: AsyncAuthenticator[M]): AuthenticationDirective[M] = {
     extractExecutionContext.flatMap { implicit ec ⇒
       authenticateOrRejectWithChallenge(auth)
     }
@@ -58,18 +50,13 @@ object Authenticator {
   private[this] def auth[M, F <: EmailFinder[M]](realm: String)
     (credentials: Option[HttpCredentials], finder: F, getHashedPassword: M ⇒ Option[String])
    (implicit ec: EC, db: DB): Future[AuthenticationResult[M]] = {
-    credentials.flatMap(extractCredentials) match {
-      case Some(p) ⇒
-        finder(p.identifier).run().map { optModel ⇒
-          optModel.filter { userModel ⇒
-            getHashedPassword(userModel).exists(checkPassword(p.secret, _))
-          }
-        }.map {
-          case Some(instance) ⇒ AuthenticationResult.success(instance)
-          case None ⇒ AuthenticationResult.failWithChallenge(challengeFor(realm))
-        }
-      case _ ⇒
-        Future.successful(AuthenticationResult.failWithChallenge(challengeFor(realm)))
+    (for {
+      userCredentials ← * <~ credentials.flatMap(extractCredentials).toXor(LoginFailed.single)
+      user ← * <~ finder(userCredentials.identifier).mustFindOr(LoginFailed)
+      validated ← * <~ validatePassword(user, getHashedPassword(user), userCredentials.secret)
+    } yield validated).runTxn().map {
+      case Xor.Right(entity) ⇒ AuthenticationResult.success(entity)
+      case Xor.Left(_) ⇒ AuthenticationResult.failWithChallenge(challengeFor(realm))
     }
   }
 
@@ -84,10 +71,9 @@ object Authenticator {
 
     def auth[M, F <: EmailFinder[M], T](finder: F, getHashedPassword: M ⇒ Option[String], builder: M ⇒ T): Result[T] = {
       (for {
-        instance ← * <~ finder(payload.email)
-          .mustFindOr(LoginFailed)
-        instance ← * <~ validatePassword(instance, getHashedPassword(instance), payload.password)
-        checked ← * <~ builder(instance)
+        instance ← * <~ finder(payload.email).mustFindOr(LoginFailed)
+        validated ← * <~ validatePassword(instance, getHashedPassword(instance), payload.password)
+        checked ← * <~ builder(validated)
       } yield checked).run()
     }
 

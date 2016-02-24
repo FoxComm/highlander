@@ -13,7 +13,7 @@ import models.sharedsearch.SharedSearch
 import payloads._
 import services.{NoteManager, SaveForLaterManager, SharedSearchService,
 ShippingManager, StoreCreditAdjustmentsService, StoreCreditService, SharedSearchInvalidQueryFailure}
-import services.Authenticator.{AsyncAuthenticator}
+import services.Authenticator.AsyncAuthenticator
 import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.CustomDirectives._

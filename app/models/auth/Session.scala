@@ -2,9 +2,7 @@ package models.auth
 
 import scala.concurrent.{Future, ExecutionContext}
 
-import akka.http.scaladsl.server.directives.AuthenticationDirective
-import akka.http.scaladsl.server.{Directive1, AuthorizationFailedRejection}
-
+import akka.http.scaladsl.server.Directive1
 import com.softwaremill.session.{InMemoryRefreshTokenStorage, SessionManager, JwtSessionEncoder,
 JValueSessionSerializer, SessionConfig}
 import com.softwaremill.session.SessionDirectives._
@@ -12,7 +10,6 @@ import com.softwaremill.session.SessionOptions._
 import models.StoreAdmin
 import models.customer.{Customers, Customer}
 import slick.driver.PostgresDriver.api._
-import utils.ModelWithIdParameter
 import utils.Slick.implicits._
 import akka.http.scaladsl.server.Directives._
 
