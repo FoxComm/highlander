@@ -1,4 +1,4 @@
-package services
+package services.giftcards
 
 import scala.concurrent.ExecutionContext
 
@@ -6,11 +6,12 @@ import models.order.{OrderPayments, Orders}
 import models.payment.giftcard.{GiftCardAdjustments, GiftCards}
 import responses.GiftCardAdjustmentsResponse._
 import responses.TheResponse
+import services._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
-import utils.Slick.implicits._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
+import utils.Slick.implicits._
 
 object GiftCardAdjustmentsService {
 

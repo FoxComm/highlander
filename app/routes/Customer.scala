@@ -9,9 +9,10 @@ import models.order.Order.orderRefNumRegex
 import models.inventory.Sku.skuCodeRegex
 import models.traits.Originator
 import payloads._
+import services.customers.CustomerManager
 import services.orders.{OrderShippingAddressUpdater, OrderShippingMethodUpdater, OrderPaymentUpdater, OrderQueries}
 import services.{SaveForLaterManager, StoreCreditAdjustmentsService, ShippingManager, Checkout,
-CreditCardManager, AddressManager, CustomerManager, LineItemUpdater, StoreCreditService}
+CreditCardManager, AddressManager, LineItemUpdater, StoreCreditService}
 import services.Authenticator.{AsyncAuthenticator, requireCustomerAuth}
 import slick.driver.PostgresDriver.api._
 import utils.Apis

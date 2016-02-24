@@ -5,8 +5,10 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
 import models.StoreAdmin
+import models.payment.giftcard.GiftCard.giftCardCodeRegex
 import payloads._
-import services.{CustomerCreditConverter, GiftCardAdjustmentsService, GiftCardService}
+import services.giftcards._
+import services.CustomerCreditConverter
 import services.Authenticator.{AsyncAuthenticator, requireAdminAuth}
 import slick.driver.PostgresDriver.api._
 import utils.Apis
@@ -33,18 +35,6 @@ object GiftCardRoutes {
               GiftCardService.bulkUpdateStateByCsr(payload, admin)
             }
           } ~
-          (get & path(Segment) & pathEnd) { code ⇒
-            goodOrFailures {
-              GiftCardService.getByCode(code)
-            }
-          } ~
-          (get & path(Segment / "transactions")) { code ⇒
-            (pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              goodOrFailures {
-                GiftCardAdjustmentsService.forGiftCard(code)
-              }
-            }
-          } ~
           (post & pathEnd & entity(as[GiftCardBulkCreateByCsr])) { payload ⇒
             goodOrFailures {
               GiftCardService.createBulkByAdmin(admin, payload)
@@ -55,12 +45,82 @@ object GiftCardRoutes {
               GiftCardService.createByAdmin(admin, payload)
             }
           } ~
-          (patch & path(Segment) & pathEnd & entity(as[GiftCardUpdateStateByCsr])) { (code, payload) ⇒
+          pathPrefix("assignees") {
+            (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+              entity(as[GiftCardBulkAssignmentPayload]) { payload ⇒
+                goodOrFailures {
+                  GiftCardAssignmentUpdater.assignBulk(admin, payload)
+                }
+              }
+            } ~
+            (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+              entity(as[GiftCardBulkAssignmentPayload]) { payload ⇒
+                goodOrFailures {
+                  GiftCardAssignmentUpdater.unassignBulk(admin, payload)
+                }
+              }
+            }
+          } ~
+          pathPrefix("watchers") {
+            (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+              entity(as[GiftCardBulkWatchersPayload]) { payload ⇒
+                goodOrFailures {
+                  GiftCardWatcherUpdater.watchBulk(admin, payload)
+                }
+              }
+            } ~
+            (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+              entity(as[GiftCardBulkWatchersPayload]) { payload ⇒
+                goodOrFailures {
+                  GiftCardWatcherUpdater.unwatchBulk(admin, payload)
+                }
+              }
+            }
+          }
+        } ~
+        pathPrefix("gift-cards" / giftCardCodeRegex) { code ⇒
+          (get & pathEnd) {
+            goodOrFailures {
+              GiftCardService.getByCode(code)
+            }
+          } ~
+          (patch & pathEnd & entity(as[GiftCardUpdateStateByCsr])) { payload ⇒
             goodOrFailures {
               GiftCardService.updateStateByCsr(code, payload, admin)
             }
           } ~
-          path(Segment / "convert" / IntNumber) { (code, customerId) ⇒
+          pathPrefix("assignees") {
+            (post & pathEnd & entity(as[GiftCardAssignmentPayload])) { payload ⇒
+              goodOrFailures {
+                GiftCardAssignmentUpdater.assign(admin, code, payload.assignees)
+              }
+            } ~
+            (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
+              goodOrFailures {
+                GiftCardAssignmentUpdater.unassign(admin, code, assigneeId)
+              }
+            }
+          } ~
+          pathPrefix("watchers") {
+            (post & pathEnd & entity(as[GiftCardWatchersPayload])) { payload ⇒
+              goodOrFailures {
+                GiftCardWatcherUpdater.watch(admin, code, payload.watchers)
+              }
+            } ~
+            (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
+              goodOrFailures {
+                GiftCardWatcherUpdater.unwatch(admin, code, assigneeId)
+              }
+            }
+          } ~
+          path("transactions") {
+            (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+              goodOrFailures {
+                GiftCardAdjustmentsService.forGiftCard(code)
+              }
+            }
+          } ~
+          path("convert" / IntNumber) { customerId ⇒
             (post & pathEnd) {
               goodOrFailures {
                 CustomerCreditConverter.toStoreCredit(code, customerId, admin)

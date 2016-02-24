@@ -26,10 +26,10 @@ final case class CreateOrder(customerId: Option[Int] = None, email: Option[Strin
   }
 }
 
-final case class Assignment(assignees: Seq[Int])
+final case class OrderAssignmentPayload(assignees: Seq[Int])
 
-final case class BulkAssignment(referenceNumbers: Seq[String], assigneeId: Int)
+final case class OrderBulkAssignmentPayload(referenceNumbers: Seq[String], assigneeId: Int)
 
-final case class Watchers(watchers: Seq[Int])
+final case class OrderWatchersPayload(watchers: Seq[Int])
 
-final case class BulkWatchers(referenceNumbers: Seq[String], watcherId: Int)
+final case class OrderBulkWatchersPayload(referenceNumbers: Seq[String], watcherId: Int)

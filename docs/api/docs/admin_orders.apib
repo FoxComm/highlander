@@ -282,14 +282,14 @@ Removes the shipping method from the cart.
 + Parameters
     + refNum: `ABC-123` (required, string) - Order reference number
 
-### Assign [POST]
+### Watch [POST]
 
 + Request (application/json)
     + Attributes (OrderWatchPayload)
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
-### Unassign [DELETE /v1/orders/{refNum}/watchers/{assigneeId}]
+### Unwatch [DELETE /v1/orders/{refNum}/watchers/{assigneeId}]
 
 + Parameters
     + refNum: `ABC-123` (required, string) - Order reference number

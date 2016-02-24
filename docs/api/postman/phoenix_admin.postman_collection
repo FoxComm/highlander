@@ -64,7 +64,15 @@
 				"f22b0517-bc82-8d42-f238-8aec7c0b74f2",
 				"101f7f80-cd6f-c2c5-c72a-45a127f95626",
 				"52eef521-70fe-4494-0eae-f5a2dba5c279",
-				"dcfe81ae-8990-9f8d-426e-cb2993e41bdc"
+				"dcfe81ae-8990-9f8d-426e-cb2993e41bdc",
+				"18b7ff72-f8ff-d50b-4536-0fcb8a497752",
+				"dedb7095-29ba-2017-79c6-5fe8559423ff",
+				"5491a0b5-da3c-df95-88d9-34bc7c04850c",
+				"766b3e64-c1f5-00d9-dfcc-c6b6c08f6218",
+				"cdc5d374-5ad8-f2fc-63af-97a2a63bd5da",
+				"8e923400-d66b-23e3-0155-e333757e0ea5",
+				"3f1ac05f-342e-7a47-f478-e60114e2f85e",
+				"630fa01d-38ed-e17e-3969-c187a1cdeeea"
 			],
 			"owner": "131444",
 			"collectionId": "a10ca76c-a4b6-b843-ac1a-41ddea4f5a10"
@@ -80,7 +88,15 @@
 				"57009066-07c3-cf84-44da-6ac344bbc7b9",
 				"7a66b2c6-16c0-77af-4d74-20c507f5724a",
 				"385dda66-cb55-d89b-ac8a-1ae3cf028641",
-				"b0a4e2c9-98f6-3c18-8c65-01ee0ee4be80"
+				"b0a4e2c9-98f6-3c18-8c65-01ee0ee4be80",
+				"c16bebf6-8281-6586-15df-bef70fc2d9e0",
+				"7c8dff16-901c-dfcc-b07f-36f11aead612",
+				"62a27232-afd0-ee01-839a-c66f5382213c",
+				"8d8296e6-1c2b-3799-3be7-5f5ba5fe1892",
+				"e23f5273-8008-4a1e-ca86-4f931ae16bc9",
+				"45e0d38a-808a-fcac-9477-85d341195926",
+				"6dea1e85-b095-29a2-9763-4130cc467335",
+				"b6614c93-b9bb-6e38-b0c4-1358b07147e5"
 			],
 			"owner": "131444",
 			"collectionId": "a10ca76c-a4b6-b843-ac1a-41ddea4f5a10"
@@ -546,6 +562,34 @@
 			},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed",
 			"isFromCollection": true,
+			"rawModeData": "{\n  \"assignees\": [\n    1, 2\n  ]\n}"
+		},
+		{
+			"id": "18b7ff72-f8ff-d50b-4536-0fcb8a497752",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/customers/1/assignees",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "POST",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Assign",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1456172306046,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"username": "admin@admin.com",
+				"password": "password",
+				"saveToRequest": true,
+				"id": "basic",
+				"timestamp": 1449091654128
+			},
+			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5",
 			"rawModeData": "{\n  \"assignees\": [\n    1, 2\n  ]\n}"
 		},
 		{
@@ -1144,6 +1188,34 @@
 			"responses": []
 		},
 		{
+			"id": "3f1ac05f-342e-7a47-f478-e60114e2f85e",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/customers/watchers",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "POST",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Bulk Watch",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1456176896681,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"username": "admin@admin.com",
+				"password": "password",
+				"saveToRequest": true,
+				"id": "basic",
+				"timestamp": 1449091654128
+			},
+			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5",
+			"rawModeData": "{\n  \"customerIds\": [\n    1, 2\n  ],\n  \"watcherId\": 1\n}"
+		},
+		{
 			"id": "40fb906e-3524-d534-e2f6-045bff8bd0ec",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/notes/order/BR10001/1",
@@ -1223,6 +1295,33 @@
 			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
 			"responses": [],
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed"
+		},
+		{
+			"id": "45e0d38a-808a-fcac-9477-85d341195926",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/gift-cards/27A7E93329D08A16/watchers/1",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "DELETE",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "params",
+			"name": "Unwatch",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1456176958181,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"username": "admin@admin.com",
+				"password": "password",
+				"saveToRequest": true,
+				"id": "basic",
+				"timestamp": 1449091654128
+			},
+			"folder": "36059bc1-c1ca-aba5-1436-a26d9e65da15"
 		},
 		{
 			"id": "4758cce0-5be0-f29d-46bc-0f87a978a5d5",
@@ -1470,6 +1569,34 @@
 			"rawModeData": "{\n    \"state\": \"active\"\n}"
 		},
 		{
+			"id": "5491a0b5-da3c-df95-88d9-34bc7c04850c",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/customers/assignees",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "POST",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Bulk Assign",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1456172361514,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"username": "admin@admin.com",
+				"password": "password",
+				"saveToRequest": true,
+				"id": "basic",
+				"timestamp": 1449091654128
+			},
+			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5",
+			"rawModeData": "{\n  \"customerIds\": [\n    1, 2\n  ],\n  \"assigneeId\": 1\n}"
+		},
+		{
 			"id": "5591931f-c8dc-9f01-cfb0-895ef387b3cc",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/payment-methods/credit-cards",
@@ -1577,6 +1704,62 @@
 			},
 			"folder": "8dd279dd-e395-8cc4-1534-9b12b3915029",
 			"isFromCollection": true
+		},
+		{
+			"id": "62a27232-afd0-ee01-839a-c66f5382213c",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/gift-cards/assignees",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "POST",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Bulk Assign",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1456176801394,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"username": "admin@admin.com",
+				"password": "password",
+				"saveToRequest": true,
+				"id": "basic",
+				"timestamp": 1449091654128
+			},
+			"folder": "36059bc1-c1ca-aba5-1436-a26d9e65da15",
+			"rawModeData": "{\n  \"giftCardCodes\": [\n    \"27A7E93329D08A16\", \"test\"\n  ],\n  \"assigneeId\": 1\n}"
+		},
+		{
+			"id": "630fa01d-38ed-e17e-3969-c187a1cdeeea",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/customers/watchers/delete",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "POST",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Bulk Unwatch",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1456176910938,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"username": "admin@admin.com",
+				"password": "password",
+				"saveToRequest": true,
+				"id": "basic",
+				"timestamp": 1449091654128
+			},
+			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5",
+			"rawModeData": "{\n  \"customerIds\": [\n    1, 2\n  ],\n  \"watcherId\": 1\n}"
 		},
 		{
 			"id": "6448fdff-f928-4510-516c-976895163d1b",
@@ -1828,6 +2011,34 @@
 			"rawModeData": "{\n  \"referenceNumbers\": [\n    \"BR10001\"\n  ],\n  \"watcherId\": 1\n}"
 		},
 		{
+			"id": "6dea1e85-b095-29a2-9763-4130cc467335",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/gift-cards/watchers",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "POST",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Bulk Watch",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1456176972919,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"username": "admin@admin.com",
+				"password": "password",
+				"saveToRequest": true,
+				"id": "basic",
+				"timestamp": 1449091654128
+			},
+			"folder": "36059bc1-c1ca-aba5-1436-a26d9e65da15",
+			"rawModeData": "{\n  \"giftCardCodes\": [\n    \"27A7E93329D08A16\", \"test\"\n  ],\n  \"watcherId\": 1\n}"
+		},
+		{
 			"id": "6f4a14ec-a406-2455-07a6-b75379c41ca7",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/lock",
@@ -1964,6 +2175,34 @@
 				"timestamp": 1449091654128
 			},
 			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5"
+		},
+		{
+			"id": "766b3e64-c1f5-00d9-dfcc-c6b6c08f6218",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/customers/assignees/delete",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "POST",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Bulk Unassign",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1456172386215,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"username": "admin@admin.com",
+				"password": "password",
+				"saveToRequest": true,
+				"id": "basic",
+				"timestamp": 1449091654128
+			},
+			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5",
+			"rawModeData": "{\n  \"customerIds\": [\n    1, 2\n  ],\n  \"assigneeId\": 1\n}"
 		},
 		{
 			"id": "7899d204-76e5-ee2d-c60b-5c4059fcaba9",
@@ -2103,6 +2342,33 @@
 			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5"
 		},
 		{
+			"id": "7c8dff16-901c-dfcc-b07f-36f11aead612",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/gift-cards/27A7E93329D08A16/assignees/1",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "DELETE",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "params",
+			"name": "Unassign",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1456176769025,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"username": "admin@admin.com",
+				"password": "password",
+				"saveToRequest": true,
+				"id": "basic",
+				"timestamp": 1449091654128
+			},
+			"folder": "36059bc1-c1ca-aba5-1436-a26d9e65da15"
+		},
+		{
 			"id": "7dc4b5d9-9bd7-f269-09fd-bb67b30163fc",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/shared-search/29e920c48be656c3/associate",
@@ -2230,6 +2496,34 @@
 			"folder": "b16a4b71-815d-18b7-cc39-5d4a89fb0584"
 		},
 		{
+			"id": "8d8296e6-1c2b-3799-3be7-5f5ba5fe1892",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/gift-cards/assignees/delete",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "POST",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Bulk Unassign",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1456176840911,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"username": "admin@admin.com",
+				"password": "password",
+				"saveToRequest": true,
+				"id": "basic",
+				"timestamp": 1449091654128
+			},
+			"folder": "36059bc1-c1ca-aba5-1436-a26d9e65da15",
+			"rawModeData": "{\n  \"giftCardCodes\": [\n    \"27A7E93329D08A16\", \"test\"\n  ],\n  \"assigneeId\": 1\n}"
+		},
+		{
 			"id": "8da385e4-06ef-7988-6a58-e33ffc535c2e",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/rmas",
@@ -2255,6 +2549,33 @@
 				"timestamp": 1449091654128
 			},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed"
+		},
+		{
+			"id": "8e923400-d66b-23e3-0155-e333757e0ea5",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/customers/1/watchers/1",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "DELETE",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "params",
+			"name": "Unwatch",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1456176880258,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"username": "admin@admin.com",
+				"password": "password",
+				"saveToRequest": true,
+				"id": "basic",
+				"timestamp": 1449091654128
+			},
+			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5"
 		},
 		{
 			"id": "8fffdccd-15b3-81a9-f296-641fc20f97fd",
@@ -2838,6 +3159,34 @@
 			"rawModeData": "{\n  \"watchers\": [\n    1, 2\n  ]\n}"
 		},
 		{
+			"id": "b6614c93-b9bb-6e38-b0c4-1358b07147e5",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/gift-cards/watchers/delete",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "POST",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Bulk Unwatch",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1456176992832,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"username": "admin@admin.com",
+				"password": "password",
+				"saveToRequest": true,
+				"id": "basic",
+				"timestamp": 1449091654128
+			},
+			"folder": "36059bc1-c1ca-aba5-1436-a26d9e65da15",
+			"rawModeData": "{\n  \"giftCardCodes\": [\n    \"27A7E93329D08A16\", \"test\"\n  ],\n  \"watcherId\": 1\n}"
+		},
+		{
 			"id": "b6cb48d3-2ef4-f8e1-8398-5fc8fc2449d1",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/notes/rma/BR10002.1",
@@ -2971,6 +3320,34 @@
 			"rawModeData": "{\n    \"orderRefNum\": \"BR10001\",\n    \"rmaType\": \"standard\"\n}"
 		},
 		{
+			"id": "c16bebf6-8281-6586-15df-bef70fc2d9e0",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/gift-cards/27A7E93329D08A16/assignees",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "POST",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Assign",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1456176749412,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"username": "admin@admin.com",
+				"password": "password",
+				"saveToRequest": true,
+				"id": "basic",
+				"timestamp": 1449091654128
+			},
+			"folder": "36059bc1-c1ca-aba5-1436-a26d9e65da15",
+			"rawModeData": "{\n  \"assignees\": [\n    1, 2\n  ]\n}"
+		},
+		{
 			"id": "c350daad-7a11-5577-64b7-6825f99bbf40",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/save-for-later/1",
@@ -3102,6 +3479,34 @@
 			"rawModeData": "{\n    \"name\": \"John Smith\",\n    \"regionId\": 1,\n    \"address1\": \"Donkey Street\",\n    \"city\": \"Seattle\",\n    \"zip\": \"55555\"\n}"
 		},
 		{
+			"id": "cdc5d374-5ad8-f2fc-63af-97a2a63bd5da",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/customers/1/watchers",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "POST",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Watch",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1456176869827,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"username": "admin@admin.com",
+				"password": "password",
+				"saveToRequest": true,
+				"id": "basic",
+				"timestamp": 1449091654128
+			},
+			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5",
+			"rawModeData": "{\n  \"watchers\": [\n    1, 2\n  ]\n}"
+		},
+		{
 			"id": "d2dcf752-eb3e-4cae-c77c-b460f821d5cd",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/customers/1",
@@ -3183,6 +3588,33 @@
 			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5"
 		},
 		{
+			"id": "dedb7095-29ba-2017-79c6-5fe8559423ff",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/customers/1/assignees/1",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "DELETE",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "params",
+			"name": "Unassign",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1456172320575,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"username": "admin@admin.com",
+				"password": "password",
+				"saveToRequest": true,
+				"id": "basic",
+				"timestamp": 1449091654128
+			},
+			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5"
+		},
+		{
 			"id": "df18a0b8-9c70-0457-d26c-f399bba1e832",
 			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
 			"url": "http://localhost:9090/v1/customers/1/addresses",
@@ -3208,6 +3640,34 @@
 				"timestamp": 1449091654128
 			},
 			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5"
+		},
+		{
+			"id": "e23f5273-8008-4a1e-ca86-4f931ae16bc9",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/gift-cards/27A7E93329D08A16/watchers",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "POST",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Watch",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1456176948071,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"username": "admin@admin.com",
+				"password": "password",
+				"saveToRequest": true,
+				"id": "basic",
+				"timestamp": 1449091654128
+			},
+			"folder": "36059bc1-c1ca-aba5-1436-a26d9e65da15",
+			"rawModeData": "{\n  \"watchers\": [\n    1, 2\n  ]\n}"
 		},
 		{
 			"id": "e26bc17a-bcb6-0f6e-e92f-1070f047ad07",

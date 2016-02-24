@@ -1,24 +1,24 @@
-package services
+package services.customers
 
 import scala.concurrent.ExecutionContext
 
 import cats.data.Validated.{Invalid, Valid}
 import cats.implicits._
+import models.activity.ActivityContext
+import models.customer.Customers.scope._
 import models.customer.{Customer, Customers}
-import Customers.scope._
 import models.order.Orders
 import models.{StoreAdmin, javaTimeSlickMapper}
 import payloads.{ActivateCustomerPayload, CreateCustomerPayload, CustomerSearchForNewOrder, UpdateCustomerPayload}
-import responses.CustomerResponse.{build, Root}
+import responses.CustomerResponse.{Root, build}
 import responses.TheResponse
+import services._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.DbResult
 import utils.Slick.implicits._
-
-import models.activity.ActivityContext
 
 object CustomerManager {
 
