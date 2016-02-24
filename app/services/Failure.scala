@@ -8,6 +8,7 @@ import models.payment.creditcard.CreditCard
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
 import models.rma.Rma
+import responses.BatchMetadata
 import services.Util.searchTerm
 import utils.friendlyClassName
 
@@ -15,7 +16,7 @@ sealed trait Failure {
   def description: String
 }
 
-final case class NotFoundFailure404(message: String, key: Option[String] = None) extends Failure {
+final case class NotFoundFailure404(message: String) extends Failure {
   override def description  = message
 }
 
@@ -25,7 +26,7 @@ object NotFoundFailure404 {
   }
 }
 
-final case class NotFoundFailure400(message: String, key: Option[String] = None) extends Failure {
+final case class NotFoundFailure400(message: String) extends Failure {
   override def description  = message
 }
 
@@ -338,13 +339,8 @@ object Util {
     case _ ⇒ "id"
   }
 
-  def diffToFlatMap[A, B](requested: Seq[A], available: Seq[A], modelType: B): Map[String, String] =
+  def diffToBatchErrors[A, B](requested: Seq[A], available: Seq[A], modelType: B): BatchMetadata.ErrorMessages =
     requested.diff(available).map(id ⇒ (id.toString, NotFoundFailure404(modelType, id).description)).toMap
-
-  def liftFromFlatMap(input: Map[String, String]): Option[List[String]] = {
-    val errors = input.values.toList
-    if (errors.nonEmpty) Some(errors) else None
-  }
 
   /* Diff lists of model identifiers to produce a list of failures for absent models */
   def diffToFailures[A, B](requested: Seq[A], available: Seq[A], modelType: B): Option[Failures] =

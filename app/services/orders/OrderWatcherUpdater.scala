@@ -3,6 +3,7 @@ package services.orders
 import models.order._
 import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
 import responses.{TheResponse, BatchMetadata}
+import responses.BatchMetadata.flattenErrors
 import payloads.OrderBulkWatchersPayload
 import responses.TheResponse
 import responses.order.FullOrder
@@ -62,9 +63,9 @@ object OrderWatcherUpdater {
     _              ← * <~ NotificationManager.subscribe(adminIds = Seq(watcher.id), dimension = Dimension.order,
                             reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber))
     // Prepare response
-    batchFailures  = diffToFlatMap(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
+    batchFailures  = diffToBatchErrors(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
     batchMetadata  = BatchMetadata.build(List((friendlyClassName(Order), orderRefNums, batchFailures)))
-  } yield response.copy(errors = liftFromFlatMap(batchFailures), batch = Some(batchMetadata))).runTxn()
+  } yield response.copy(errors = flattenErrors(batchFailures), batch = Some(batchMetadata))).runTxn()
 
   def unwatchBulk(admin: StoreAdmin, payload: OrderBulkWatchersPayload)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
@@ -78,7 +79,7 @@ object OrderWatcherUpdater {
     _              ← * <~ NotificationManager.unsubscribe(adminIds = Seq(watcher.id), dimension = Dimension.order,
                             reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber))
     // Prepare response
-    batchFailures  = diffToFlatMap(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
+    batchFailures  = diffToBatchErrors(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
     batchMetadata  = BatchMetadata.build(List((friendlyClassName(Order), orderRefNums, batchFailures)))
-  } yield response.copy(errors = liftFromFlatMap(batchFailures), batch = Some(batchMetadata))).runTxn()
+  } yield response.copy(errors = flattenErrors(batchFailures), batch = Some(batchMetadata))).runTxn()
 }

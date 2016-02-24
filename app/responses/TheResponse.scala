@@ -40,34 +40,36 @@ final case class SortingMetadata(sortBy: Option[String] = None)
 
 final case class BatchMetadata(success: BatchSuccess, failures: BatchFailures) {
 
-  def flatten(): Option[List[String]] = {
+  def flatten: Option[List[String]] = {
     val errors = failures.values.flatMap(_.values)
-    if (errors.nonEmpty) {
-      Some(errors.toList)
-    } else {
-      None
-    }
+    if (errors.nonEmpty) Some(errors.toList) else None
   }
 }
 
 object BatchMetadata {
   type ClassName      = String
+  type EntityType     = String
   type SuccessIds     = Seq[String]
   type ErrorMessages  = Map[String, String]
 
   type RawMetadata    = (ClassName, SuccessIds, ErrorMessages)
-  type BatchSuccess   = Map[String, SuccessIds]
-  type BatchFailures  = Map[String, ErrorMessages]
+  type BatchSuccess   = Map[EntityType, SuccessIds]
+  type BatchFailures  = Map[EntityType, ErrorMessages]
 
   def build(input: List[RawMetadata]): BatchMetadata = {
-    val success = input.foldLeft(Map[String, Seq[String]]()) { case (acc, (typeName, identifiers, _)) ⇒
+    val success = input.foldLeft(Map[EntityType, SuccessIds]()) { case (acc, (typeName, identifiers, _)) ⇒
       acc.updated(typeName, identifiers)
     }
 
-    val failures = input.foldLeft(Map[String, Map[String, String]]()) { case (acc, (typeName, _, errors)) ⇒
+    val failures = input.foldLeft(Map[EntityType, ErrorMessages]()) { case (acc, (typeName, _, errors)) ⇒
       acc.updated(typeName, errors)
     }
 
     BatchMetadata(success = success, failures = failures)
+  }
+
+  def flattenErrors(input: ErrorMessages): Option[List[String]] = {
+    val errors = input.values.toList
+    if (errors.nonEmpty) Some(errors) else None
   }
 }
