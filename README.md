@@ -2,9 +2,9 @@
 
 ### Dependencies
 
-- [Ansible](http://docs.ansible.com/ansible/intro_installation.html#installation)
-- [ansible-lint](https://github.com/willthames/ansible-lint#setup)
-- [Go 1.5](https://golang.org/doc/install)
+- [Ansible](http://docs.ansible.com/ansible/intro_installation.html#installation) (1.9.x)
+- [ansible-lint](https://github.com/willthames/ansible-lint#setup) (2.2.x)
+- [Go](https://golang.org/doc/install) (1.5)
 
 ### Setup
 
@@ -20,16 +20,6 @@
     $ cd ../prov-shit
     $ make build
     ```
-
-### Update Green River assembly
-
-Run:
-
-    $ tools/update_greenriver.sh
-
-or:
-
-    $ MACHINE=backend PROVIDER=vmware_fusion tools/update_greenriver.sh
 
 ### Lint ansible scripts
 
@@ -77,3 +67,15 @@ Set the following environment variables.
 Then run
 
     $ vagrant up --provider=google
+    
+### Update Green River assembly
+
+You can pass green river `*.jar` file to VM without re-provisioning.
+
+Just run:
+
+    $ tools/update_greenriver.sh
+
+or:
+
+    $ MACHINE=backend PROVIDER=vmware_fusion tools/update_greenriver.sh    
