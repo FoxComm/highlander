@@ -1,9 +1,8 @@
 package utils.seeds
 
-import models.inventory.{InventorySummaries, InventorySummary, Warehouse, 
+import models.inventory.{Sku, InventorySummaries, InventorySummary, Warehouse,
   Warehouses} 
-import models.product.{ Sku, SimpleContext, SimpleProductData, Mvp, 
-  ProductContexts}
+import models.product.{SimpleContext, SimpleProductData, Mvp, ProductContexts}
 import utils.Money.Currency
 import utils.DbResultT
 import utils.DbResultT._

@@ -7,7 +7,7 @@ import models.inventory._
 import models.order.lineitems._
 import models.order.{Orders, Order}
 import models.StoreAdmins
-import models.product.{Skus, Mvp, ProductContext, ProductContexts, SimpleContext, SimpleProductData}
+import models.product.{Mvp, ProductContext, ProductContexts, SimpleContext, SimpleProductData}
 import payloads.{UpdateLineItemsPayload => Payload}
 import util.IntegrationTestBase
 import utils.DbResultT._

@@ -9,6 +9,7 @@ import utils.Money.Currency
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
 
 final case class OrderLineItemSku(id: Int = 0, skuId: Int, skuShadowId: Int)

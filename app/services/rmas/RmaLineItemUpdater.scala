@@ -1,7 +1,7 @@
 package services.rmas
 
-import models.inventory.{Sku, Skus}
-import models.product.{ProductContext, SkuShadows}
+import models.inventory.{Sku, Skus, SkuShadows}
+import models.product.{ProductContext}
 import models.order.lineitems.{OrderLineItemSkus, OrderLineItemGiftCards}
 import models.payment.giftcard.{GiftCards, GiftCard}
 import models.rma._

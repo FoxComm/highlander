@@ -7,7 +7,7 @@ import models.order.{OrderShippingAddresses, Orders}
 import models.order.lineitems._
 import models.rules.QueryStatement
 import models.{Addresses, Customers, OrderLineItem, OrderLineItemSkus, OrderLineItems, OrderShippingAddresses, Orders, ShippingMethods}
-import models.product.{Skus, Mvp, ProductContexts, SimpleContext, SimpleProductData}
+import models.product.{Mvp, ProductContexts, SimpleContext, SimpleProductData}
 
 import services.ShippingManager.getShippingMethodsForOrder
 

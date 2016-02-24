@@ -192,3 +192,6 @@ object RmaRoutes {
           }
         }
       }
+  }
+}
+

@@ -162,9 +162,9 @@ object Admin {
                 SaveForLaterManager.findAll(customerId, productContext.id)
               }
             } ~
-            (post & path(IntNumber / Segment) & pathEnd) { (customerId, skuCode, productContext.id) ⇒
+            (post & path(IntNumber / Segment) & pathEnd) { (customerId, skuCode) ⇒
               goodOrFailures {
-                SaveForLaterManager.saveForLater(customerId, skuCode)
+                SaveForLaterManager.saveForLater(customerId, skuCode, productContext.id)
               }
             } ~
             (delete & path(IntNumber) & pathEnd) { id ⇒

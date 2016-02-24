@@ -1,14 +1,35 @@
 package models.inventory
 
-import scala.concurrent.ExecutionContext
+import models.product.Products
 
-import monocle.macros.GenLens
-import slick.driver.PostgresDriver.api._
+
+import utils.ExPostgresDriver.api._
+import utils.JsonFormatters
 import utils.Slick.implicits._
 import utils.table.SearchByCode
+import utils.time.JavaTimeSlickMapper._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class Sku(id: Int = 0, code: String, name: Option[String] = None, isHazardous: Boolean = false, price: Int,
+import monocle.macros.GenLens
+import org.json4s.DefaultFormats
+import org.json4s.Extraction
+import org.json4s.JsonAST.JValue
+import org.json4s.JsonDSL._
+import org.json4s.jackson.Serialization.{write ⇒ render}
+
+import slick.ast.BaseTypedType
+import slick.jdbc.JdbcType
+
+import scala.concurrent.ExecutionContext
+
+import models.product.Aliases.Json
+
+final case class Sku(
+  id: Int = 0, 
+  code: String, 
+  productId: Int,
+  attributes: Json, 
+  isHazardous: Boolean = false,
   isActive: Boolean = true)
   extends ModelWithIdParameter[Sku]
 
@@ -20,12 +41,14 @@ object Sku {
 class Skus(tag: Tag) extends GenericTable.TableWithId[Sku](tag, "skus")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def code = column[String]("code")
-  def name = column[Option[String]]("name")
+  def productId = column[Int]("product_id")
+  def attributes = column[Json]("attributes")
   def isHazardous = column[Boolean]("is_hazardous")
-  def price = column[Int]("price")
   def isActive = column[Boolean]("is_active")
 
-  def * = (id, code, name, isHazardous, price, isActive) <> ((Sku.apply _).tupled, Sku.unapply)
+  def * = (id, code, productId, attributes, isHazardous, isActive) <> ((Sku.apply _).tupled, Sku.unapply)
+
+  def product = foreignKey(Products.tableName, productId, Products)(_.id)
 }
 
 object Skus extends TableQueryWithId[Sku, Skus](

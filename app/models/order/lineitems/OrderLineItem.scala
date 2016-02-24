@@ -1,9 +1,5 @@
 package models.order.lineitems
 
-import models.OrderLineItem.{Cart, State, GiftCardItem, SkuItem, OriginType}
-import models.product.Sku
-import utils._
-
 import cats.data.Xor
 import com.pellucid.sealerate
 import models._

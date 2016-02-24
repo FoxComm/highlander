@@ -2,14 +2,14 @@ package services
 
 import cats.implicits._
 import models.customer.Customers
-import models.inventory.Skus
+import models.inventory.{Skus, SkuShadows}
+import models.product.{Products, ProductShadows, ProductContexts, SimpleContext, Mvp}
 import models.order.lineitems.{OrderLineItems, OrderLineItem}
 import models.order._
 import models.payment.creditcard.CreditCards
 import models.payment.giftcard.{GiftCardManuals, GiftCardManual, GiftCards, GiftCard}
 import models.payment.storecredit.{StoreCreditManuals, StoreCreditManual, StoreCredits, StoreCredit}
 import models.{Reasons, StoreAdmins}
-import models.product.{Products, ProductShadows, Skus, SkuShadows, ProductContexts, SimpleContext, Mvp}
 import services.CartFailures._
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._

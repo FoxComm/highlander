@@ -1,5 +1,7 @@
 package models.product
 
+import models.inventory.{Skus, Sku, SkuShadow, SkuShadows}
+
 import Aliases.Json
 import utils.DbResultT
 import utils.DbResultT._
@@ -86,7 +88,7 @@ final case class SimpleSku(
   title: String,
   price: Int,
   currency: Currency,
-  skuType: Sku.Type,
+  isActive: Boolean,
   isHazardous: Boolean) {
 
     def create : Sku = 
@@ -108,7 +110,7 @@ final case class SimpleSku(
           }
         }"""),
       isHazardous = isHazardous,
-      `type` = skuType)
+      isActive = isActive)
 }
 
 final case class SimpleSkuShadow(
@@ -134,7 +136,6 @@ final case class SimpleProductData(
   description: String,
   image: String = SimpleProductDefaults.imageUrl,
   code: String,
-  skuType: Sku.Type = Sku.Sellable,
   price: Int,
   currency: Currency = Currency.USD,
   isActive: Boolean = true,
@@ -154,7 +155,7 @@ object Mvp {
     product ← * <~ Products.create(simpleProduct.create)
     simpleShadow ← * <~ SimpleProductShadow(contextId, product.id)
     productShadow ← * <~ ProductShadows.create(simpleShadow.create)
-    simpleSku ← * <~ SimpleSku(product.id, p.code, p.title, p.price, p.currency, p.skuType, p.isHazardous)
+    simpleSku ← * <~ SimpleSku(product.id, p.code, p.title, p.price, p.currency, p.isActive, p.isHazardous)
     sku ← * <~ Skus.create(simpleSku.create)
     simpleSkuShadow ← * <~ SimpleSkuShadow(contextId, sku.id)
     skuShadow ← * <~ SkuShadows.create(simpleSkuShadow.create)

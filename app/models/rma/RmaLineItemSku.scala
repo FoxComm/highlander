@@ -1,10 +1,18 @@
 package models.rma
 
-
 import models.inventory.{Skus, Sku, SkuShadows, SkuShadow}
-import models.javaTimeSlickMapper
+
 import monocle.macros.GenLens
-import slick.driver.PostgresDriver.api._
+import java.time.Instant
+
+import utils.ExPostgresDriver.api._
+import utils.Slick.implicits._
+import utils.time.JavaTimeSlickMapper._
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+
+import slick.ast.BaseTypedType
+import slick.jdbc.JdbcType
+
 
 final case class RmaLineItemSku(id: Int = 0, rmaId: Int, skuId: Int, skuShadowId: Int, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[RmaLineItemSku]

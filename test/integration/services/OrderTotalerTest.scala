@@ -2,10 +2,10 @@ package services
 
 import models.customer.Customers
 import models.inventory.Skus
+import models.product.{Mvp, ProductContexts, SimpleContext, SimpleProductData}
 import models.location.Addresses
 import models.order.{OrderShippingMethod, OrderShippingMethods, Orders}
 import models.order.lineitems._
-import models.product.{Mvp, ProductContexts, SimpleContext, SimpleProductData, Skus}
 import models.payment.giftcard.{GiftCardOrders, GiftCardOrder, GiftCards, GiftCard}
 import models.shipping.{ShippingMethod, ShippingMethods}
 import services.orders.OrderTotaler
