@@ -55,7 +55,7 @@ export default class Auth extends Component {
           </FormField>
           <FormField key="passwd" styleName="form-field">
             <TextInputWithLabel placeholder="PASSWORD"
-              label={<Link to="/login/restore">restore ?</Link>}
+              label={!password && <Link to="/login/restore">restore ?</Link>}
               value={password} onChange={this.onChangePassword} type="password"
             />
           </FormField>

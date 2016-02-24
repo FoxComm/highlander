@@ -14,7 +14,7 @@ export const TextInputWithLabel = cssModules(props => {
   return (
     <div styleName="block">
       <TextInput styleName="text-input" {...rest} />
-      <span styleName="label">{label}</span>
+      {label && <span styleName="label">{label}</span>}
     </div>
   );
 }, inputWithLabelStyles);
