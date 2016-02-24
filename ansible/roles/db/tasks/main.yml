@@ -28,7 +28,7 @@
   get_url: url={{avro_url}} dest="{{home}}/{{avro_name}}.tar.gz"
 
 - name: Unzip Avro
-  unarchive: src="{{home}}/{{avro_name}}.tar.gz" dest="{{home}}" copy=no
+  unarchive: src="{{home}}/{{avro_name}}.tar.gz" dest="{{home}}/" copy=no
 
 - name: Make Avro Build Dir
   file: path="{{avro_dir}}/build" state=directory
