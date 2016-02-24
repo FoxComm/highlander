@@ -7,7 +7,7 @@ import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import { getProductResponse } from './sample-products';
 
-type ProductDetailsState = {
+export type ProductDetailsState = {
   isFetching: boolean,
   product: ?ProductResponse,
 };
@@ -20,7 +20,7 @@ export function fetchProduct(id: number): ActionDispatch {
     dispatch(productRequestStart());
     const res = getProductResponse(id);
     dispatch(productRequestSuccess(res));
-  }
+  };
 }
 
 const initialState: ProductDetailsState = {

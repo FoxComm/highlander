@@ -18,6 +18,7 @@
 .*/node_modules/watchify/*
 .*/node_modules/y18n/*
 .*/test/fixtures/*
+.*/node_modules/react/.*
 
 [include]
 
@@ -25,3 +26,4 @@
 src/interfaces/
 
 [options]
+unsafe.enable_getters_and_setters=true

@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React from 'react'
+import React from 'react';
 
 type ProductProps = {
   children: Object

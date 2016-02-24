@@ -6,28 +6,33 @@ import _ from 'lodash';
 export type Product = {
   id: number,
   isActive: boolean,
-  attributes: Object,
+  attributes: { [key:string]: Attribute },
   variants: Object,
+};
+
+type Attribute = {
+  type: string,
+  'default': any,
 };
 
 export type ProductShadow = {
   id: number,
   productContextId: number,
   productId: number,
-  attributes: Object,
+  attributes: { [key:string]: string },
 };
 
 export type Sku = {
   id: number,
   sku: string,
-  attributes: Object,
+  attributes: { [key:string]: Attribute },
 };
 
 export type SkuShadow = {
   id: number,
   productContextId: number,
   skuId: number,
-  attributes: Object,
+  attributes: { [key:string]: string },
 }
 
 export type ProductResponse = {
@@ -52,7 +57,13 @@ export function getProductsResponse(): Array<ProductResponse> {
 
 export function getProductResponse(id: number): ProductResponse {
   const product = _.find(products, { id: id });
-  const shadows = _.find(productShadows, { productId: id });
+  const shadows = _.reduce(productShadows, (res, shadow) => {
+    if (shadow.id == id) {
+      res.push(shadow);
+    }
+
+    return res;
+  }, []);
 
   return {
     product,
@@ -72,7 +83,13 @@ export function getSkusResponse(): Array<SkuResponse> {
 
 export function getSkuResponse(code: string): SkuResponse {
   const sku = _.find(skus, { sku: code });
-  const shadows = _.find(skuShadows, { skuId: sku.id });
+  const shadows = _.reduce(skuShadows, (res, shadow) => {
+    if (shadow.skuId == sku.id) {
+      res.push(shadow);
+    }
+
+    return res;
+  }, []);
 
   return {
     sku,
