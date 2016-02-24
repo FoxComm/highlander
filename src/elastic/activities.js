@@ -87,7 +87,8 @@ export default function searchActivities(fromActivity = null, trailParams, days 
       if (result.length == 0) {
         hasMore = false;
       } else {
-        return fetch({...trailParams, fromId: _.last(result).id, query}, '_count')
+        const fromId = _.get(_.last(result), 'id');
+        return fetch({...trailParams, fromId, query}, '_count')
           .then(response => hasMore = response.count > 0);
       }
     })
