@@ -8,6 +8,7 @@ import addresses from './addresses';
 import contacts from './contacts';
 import transactions from './transactions';
 import creditCards from './credit-cards';
+import storeCreditBulk from './store-credit-bulk';
 import storeCredits from './store-credits';
 import storeCreditTransactions from './store-credit-transactions';
 import newStoreCredit from './new-store-credit';
@@ -25,6 +26,7 @@ const customerReducer = combineReducers({
   addressesDetails,
   addresses,
   creditCards,
+  storeCreditBulk,
   storeCreditTotals,
   storeCredits,
   storeCreditStates,

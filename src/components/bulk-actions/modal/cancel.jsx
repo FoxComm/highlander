@@ -18,7 +18,8 @@ export default class CancelModal extends React.Component {
 
   static propTypes = {
     entity: PropTypes.string.isRequired,
-    count: PropTypes.number,
+    count: PropTypes.number.isRequired,
+    label: PropTypes.string,
     onCancel: PropTypes.func.isRequired,
     onConfirm: PropTypes.func.isRequired,
   };
@@ -28,17 +29,21 @@ export default class CancelModal extends React.Component {
   };
 
   render() {
-    const {entity, count, onCancel, onConfirm} = this.props;
+    const {entity, count, label: rawLabel, onCancel, onConfirm} = this.props;
 
     const actionBlock = <i onClick={onCancel} className="fc-btn-close icon-close" title="Close" />;
     const entityForm = numberize(entity, count);
+
+    const label = rawLabel
+      ? rawLabel
+      : <span>Are you sure you want to cancel <b>{count} {numberize(entity, count)}</b>?</span>;
 
     return (
       <ContentBox title={`Cancel ${_.capitalize(entityForm)}?`}
                   className="fc-bulk-action-modal"
                   actionBlock={actionBlock}>
-        <div className='fc-modal-body'>
-          Are you sure you want to cancel <b>{count} {entityForm}</b>?
+        <div className="fc-modal-body">
+          {label}
           <CancelReason reasonType={ReasonType.CANCELLATION}
                         className="fc-modal-cancel-reason"
                         value={this.state.reason}
