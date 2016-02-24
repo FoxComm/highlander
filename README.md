@@ -2,9 +2,9 @@
 
 ### Dependencies
 
-- [Ansible](http://docs.ansible.com/ansible/intro_installation.html#installation)
-- [ansible-lint](https://github.com/willthames/ansible-lint#setup)
-- [Go 1.5](https://golang.org/doc/install)
+- [Ansible](http://docs.ansible.com/ansible/intro_installation.html#installation) (1.9.x)
+- [ansible-lint](https://github.com/willthames/ansible-lint#setup) (2.2.x)
+- [Go](https://golang.org/doc/install) (1.5)
 
 ### Setup
 
