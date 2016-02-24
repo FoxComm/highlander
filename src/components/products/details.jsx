@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React from 'react';
+import React, { Component } from 'react';
 
 type ProductParams = {
   productId: number
@@ -12,8 +12,8 @@ type DetailsProps = {
   params: ProductParams
 };
 
-const ProductDetails = (props: DetailsProps) => {
-  return <div>Details for product {props.params.productId}</div>;
-};
-
-export default ProductDetails;
+export default class ProductDetails extends Component {
+  render() {
+    return <div>Details for product {this.props.params.productId}</div>;
+  }
+}

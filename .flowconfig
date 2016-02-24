@@ -1,9 +1,27 @@
 [ignore]
-.*/node_modules/.*
-.*\.json
+.*/node_modules/binary-extensions/*
+.*/node_modules/browser-pack/*
+.*/node_modules/builtin-modules/*
+.*/node_modules/builtins/*
+.*/node_modules/fbjs/*
+.*/node_modules/fsevents/*
+.*/node_modules/iconv-lite/*
+.*/node_modules/is-my-json-valid/*
+.*/node_modules/json5/*
+.*/node_modules/jsonparse/*
+.*/node_modules/nock/*
+.*/node_modules/resolve/*
+.*/node_modules/spdx-exceptions/*
+.*/node_modules/spdx-license-ids/*
+.*/node_modules/tr46/*
+.*/node_modules/ua-parser-js/*
+.*/node_modules/watchify/*
+.*/node_modules/y18n/*
+.*/test/fixtures/*
 
 [include]
 
 [libs]
+src/interfaces/
 
 [options]

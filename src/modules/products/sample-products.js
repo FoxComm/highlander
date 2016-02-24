@@ -1,4 +1,86 @@
-const products = [
+/**
+ * @flow
+ */
+import _ from 'lodash';
+
+export type Product = {
+  id: number,
+  isActive: boolean,
+  attributes: Object,
+  variants: Object,
+};
+
+export type ProductShadow = {
+  id: number,
+  productContextId: number,
+  productId: number,
+  attributes: Object,
+};
+
+export type Sku = {
+  id: number,
+  sku: string,
+  attributes: Object,
+};
+
+export type SkuShadow = {
+  id: number,
+  productContextId: number,
+  skuId: number,
+  attributes: Object,
+}
+
+export type ProductResponse = {
+  product: Product,
+  shadows: Array<ProductShadow>,
+};
+
+export type SkuResponse = {
+  sku: Sku,
+  shadows: Array<SkuShadow>,
+};
+
+export function getProductsResponse(): Array<ProductResponse> {
+  return products.map(product => {
+    const shadows = _.find(productShadows, { productId: product.id });
+    return {
+      product,
+      shadows,
+    };
+  });
+}
+
+export function getProductResponse(id: number): ProductResponse {
+  const product = _.find(products, { id: id });
+  const shadows = _.find(productShadows, { productId: id });
+
+  return {
+    product,
+    shadows,
+  };
+}
+
+export function getSkusResponse(): Array<SkuResponse> {
+  return skus.map(sku => {
+    const shadows = _.find(skuShadows, { skuId: sku.id });
+    return {
+      sku,
+      shadows,
+    };
+  });
+}
+
+export function getSkuResponse(code: string): SkuResponse {
+  const sku = _.find(skus, { sku: code });
+  const shadows = _.find(skuShadows, { skuId: sku.id });
+
+  return {
+    sku,
+    shadows,
+  };
+}
+
+const products: Array<Product> = [
   {
     id: 1,
     isActive: true,
@@ -49,7 +131,7 @@ const products = [
   },
 ];
 
-const productShadows = [
+const productShadows: Array<ProductShadow> = [
   {
     id: 1,
     productContextId: 1,
@@ -72,8 +154,9 @@ const productShadows = [
   },
 ];
 
-const skus = [
+const skus: Array<Sku> = [
   {
+    id: 1,
     sku: 'SCALA-MUG-BLK',
     attributes: {
       title: {
@@ -90,6 +173,7 @@ const skus = [
     },
   },
   {
+    id: 2,
     sku: 'SCALA-MUG-RED',
     attributes: {
       title: {
@@ -106,6 +190,7 @@ const skus = [
     },
   },
   {
+    id: 3,
     sku: 'SCALA-MUG-BLU',
     attributes: {
       title: {
@@ -123,7 +208,7 @@ const skus = [
   },
 ];
 
-const skuShadows = [
+const skuShadows: Array<SkuShadow> = [
   {
     id: 1,
     productContextId: 1,
