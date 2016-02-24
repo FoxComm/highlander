@@ -408,7 +408,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         // Create
         val payload = RmaSkuLineItemsPayload(sku = sku.sku, quantity = 1, reasonId = rmaReason.id,
           isReturnItem = true, inventoryDisposition = RmaLineItem.Putaway)
-        val updatedRma = RmaLineItemUpdater.addSkuLineItem(rma.referenceNumber, payload).futureValue.rightVal
+        val updatedRma = RmaLineItemUpdater.addSkuLineItem(rma.referenceNumber, payload, productContext).futureValue.rightVal
         val lineItemId = updatedRma.lineItems.skus.headOption.value.lineItemId
 
         // Delete
@@ -567,7 +567,7 @@ class RmaIntegrationTest extends IntegrationTestBase
   }
 
   trait LineItemFixture extends Fixture {
-    val (rmaReason, sku, giftCard, shipment) = (for {
+    val (productContext, rmaReason, sku, giftCard, shipment) = (for {
       rmaReason ← * <~ RmaReasons.create(Factories.rmaReasons.head)
       productContext ← * <~ ProductContexts.create(SimpleContext.create)
       product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
@@ -588,6 +588,6 @@ class RmaIntegrationTest extends IntegrationTestBase
       orderShippingMethod ← * <~ OrderShippingMethods.create(
         OrderShippingMethod(orderId = order.id, shippingMethodId = shippingMethod.id))
       shipment ← * <~ Shipments.create(Factories.shipment)
-    } yield (rmaReason, sku, giftCard, shipment)).runTxn().futureValue.rightVal
+    } yield (productContext, rmaReason, sku, giftCard, shipment)).runTxn().futureValue.rightVal
   }
 }

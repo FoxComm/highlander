@@ -1,6 +1,7 @@
 package services.orders
 
 import cats.implicits._
+import models.product.ProductContext
 import models.{Customer, Customers, Order, Orders, StoreAdmin}
 import payloads.CreateOrder
 import responses.FullOrder
@@ -14,7 +15,7 @@ import scala.concurrent.ExecutionContext
 import models.activity.ActivityContext
 
 object OrderCreator {
-  def createCart(admin: StoreAdmin, payload: CreateOrder)
+  def createCart(admin: StoreAdmin, payload: CreateOrder, productContext: ProductContext)
     (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[Root] = {
 
     def existingCustomerOrNewGuest: Result[Root] = (payload.customerId, payload.email) match {
@@ -25,12 +26,12 @@ object OrderCreator {
 
     def createCartForCustomer(customerId: Int): Result[Root] = (for {
         customer  ← * <~ Customers.mustFindById400(customerId)
-        fullOrder ← * <~ OrderQueries.findOrCreateCartByCustomerInner(customer, Some(admin))
+        fullOrder ← * <~ OrderQueries.findOrCreateCartByCustomerInner(customer, productContext, Some(admin))
       } yield fullOrder).runTxn()
 
     def createCartAndGuest(email: String): Result[Root] = (for {
       guest ← * <~ Customers.create(Customer.buildGuest(email = email))
-      cart  ← * <~ Orders.create(Order.buildCart(guest.id))
+      cart  ← * <~ Orders.create(Order.buildCart(guest.id, productContext.id))
       _     ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest))
     } yield root(cart, guest)).runTxn()
 

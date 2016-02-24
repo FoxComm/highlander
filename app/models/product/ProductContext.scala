@@ -52,6 +52,6 @@ object ProductContexts extends TableQueryWithId[ProductContext, ProductContexts]
 
   def filterByName(name: String): QuerySeq = 
     filter(_.name === name)
-  def filterByContext(key: String, value: String): QuerySeq = 
+  def filterByContextAttribute(key: String, value: String): QuerySeq = 
     filter(_.context+>>(key) === value)
 }

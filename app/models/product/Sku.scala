@@ -51,7 +51,7 @@ class Skus(tag: Tag) extends GenericTable.TableWithId[Sku](tag, "skus")  {
   def productId = column[Int]("product_id")
   def attributes = column[Json]("attributes")
   def isHazardous = column[Boolean]("is_hazardous")
-  def isActive = column[Boolean]("is_hazardous")
+  def isActive = column[Boolean]("is_active")
   def `type` = column[Sku.Type]("type")
 
   def * = (id, sku, productId, attributes, isHazardous, isActive, `type`) <> ((Sku.apply _).tupled, Sku.unapply)

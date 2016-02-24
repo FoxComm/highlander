@@ -9,6 +9,10 @@ import utils.flyway.newFlyway
 import org.scalatest.{BeforeAndAfterAll, Outcome, Suite, SuiteMixin}
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
 import java.sql.Connection
+import util.SlickSupport.implicits._
+
+import models.product.{SimpleContext, ProductContexts}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
   import DbTestSupport._
@@ -28,7 +32,14 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
 
       migrated = true
     }
+
+    setupProductContext()
   }
+
+  private def setupProductContext() {
+    ProductContexts.create(SimpleContext.create).futureValue
+  }
+
 
   def isTableEmpty(table: String)(implicit conn: Connection): Boolean = {
     val stmt = conn.createStatement()
@@ -58,6 +69,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
     if (tables.nonEmpty) {
       conn.createStatement().execute(s"truncate ${tables.mkString(", ")} restart identity cascade;")
     }
+    setupProductContext()
     conn.close()
 
     super.withFixture(test)

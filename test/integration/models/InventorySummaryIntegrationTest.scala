@@ -19,7 +19,7 @@ class InventorySummaryIntegrationTest extends IntegrationTestBase {
         productContext ← * <~ ProductContexts.create(SimpleContext.create)
         warehouse ← * <~ Warehouses.create(Factories.warehouse)
         product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head.copy(price = 5))
-        order     ← * <~ Orders.create(Order(id = 0, customerId = 1))
+        order     ← * <~ Orders.create(Order(id = 0, customerId = 1, productContextId = productContext.id))
       } yield (warehouse, product, order)).runTxn().futureValue.rightVal
 
       def adjustment(warehouseId: Int, skuId: Int, orderId: Int, reserved: Int = 0) =

@@ -14,9 +14,11 @@ import slick.driver.PostgresDriver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object SimpleContext { 
-  val variant =  "default"
+  val name =  "default"
+  val variant = name
   def create: ProductContext = 
     ProductContext(
+      id = 1,
       name = SimpleContext.variant,
       context = parse(s"""
       {
@@ -80,6 +82,7 @@ final case class SimpleProductShadow(
 final case class SimpleSku(
   productId: Int,
   sku: String,
+  title: String,
   price: Int,
   currency: Currency,
   skuType: Sku.Type,
@@ -91,6 +94,10 @@ final case class SimpleSku(
         productId = productId,
         attributes = parse(s"""
         {
+          "title" : {
+            "type" : "string",
+            "${SimpleContext.variant}" : "$title"
+          },
           "price" : {
             "type" : "price",
             "${SimpleContext.variant}" : {
@@ -113,6 +120,7 @@ final case class SimpleSkuShadow(
         skuId = skuId,
         attributes = parse(s"""
         {
+          "title" : "${SimpleContext.variant}",
           "price" : "${SimpleContext.variant}"
         }""")) }
 
@@ -131,6 +139,12 @@ final case class SimpleProductData(
   isActive: Boolean = true,
   isHazardous: Boolean = false)
 
+final case class SimpleProductTuple(
+  product: Product,
+  productShadow: ProductShadow,
+  sku: Sku,
+  skuShadow: SkuShadow)
+
 object Mvp { 
 
   def insertProduct(contextId: Int, p: SimpleProductData)(implicit db: Database): 
@@ -139,7 +153,7 @@ object Mvp {
     product ← * <~ Products.create(simpleProduct.create)
     simpleShadow ← * <~ SimpleProductShadow(contextId, product.id)
     productShadow ← * <~ ProductShadows.create(simpleShadow.create)
-    simpleSku ← * <~ SimpleSku(product.id, p.sku, p.price, p.currency, p.skuType, p.isHazardous)
+    simpleSku ← * <~ SimpleSku(product.id, p.sku, p.title, p.price, p.currency, p.skuType, p.isHazardous)
     sku ← * <~ Skus.create(simpleSku.create)
     simpleSkuShadow ← * <~ SimpleSkuShadow(contextId, sku.id)
     skuShadow ← * <~ SkuShadows.create(simpleSkuShadow.create)
@@ -155,6 +169,14 @@ object Mvp {
     skuShadow ← * <~ SkuShadows.mustFindById404(product.skuShadowId)
     p ← * <~ price(sku, skuShadow).getOrElse((0, Currency.USD))
   } yield p._1
+
+  def getProductTuple(d: SimpleProductData)(implicit db: Database): 
+    DbResultT[SimpleProductTuple] = for {
+      product ← * <~ Products.mustFindById404(d.productId)
+      productShadow ← * <~ ProductShadows.mustFindById404(d.productShadowId)
+      sku ← * <~ Skus.mustFindById404(d.skuId)
+      skuShadow ← * <~ SkuShadows.mustFindById404(d.skuShadowId)
+    } yield (SimpleProductTuple(product, productShadow, sku, skuShadow))
 
   def insertProducts(ps : Seq[SimpleProductData], contextId: Int)(implicit db: Database) : 
   DbResultT[Seq[SimpleProductData]] = for {
@@ -175,6 +197,8 @@ object Mvp {
       case _ ⇒ None
     }
   }
+  def priceAsInt(s: Sku, ss: SkuShadow) : Int = 
+    price(s, ss).getOrElse((0, Currency.USD))._1
 
   def updatePrice(s: Sku, ss: SkuShadow, price: Int) : Json = {
     ss.attributes \ "price" match {
@@ -185,7 +209,7 @@ object Mvp {
           "price" : {
             "type" : "price",
             "${key}" : {
-              "value" : $price,
+              "value" : $price
             }
           }
         }
@@ -194,13 +218,21 @@ object Mvp {
     }
   }
 
-  def name(p: Product, ps: ProductShadow) : Option[String] = {
-    ps.attributes \ "name" match {
-      case JString(key) ⇒  p.attributes \ "name" \ key match { 
+  def nameFromJson(form: Json, shadow: Json) : Option[String] = {
+    form \ "title" match {
+      case JString(key) ⇒  shadow \ "title" \ key match { 
         case JString(name) ⇒ Some(name)
         case _ ⇒ None
       }
       case _ ⇒ None
     }
+  }
+
+  def name(p: Product, ps: ProductShadow) : Option[String] = {
+    nameFromJson(p.attributes, ps.attributes)
+  }
+
+  def name(s: Sku, ss: SkuShadow) : Option[String] = {
+    nameFromJson(s.attributes, ss.attributes)
   }
 }

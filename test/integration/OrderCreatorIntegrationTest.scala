@@ -1,6 +1,7 @@
 import akka.http.scaladsl.model.StatusCodes
 import models.activity.ActivityContext
 import models.{StoreAdmins, Order, Customer, Customers}
+import models.product.{ProductContexts, SimpleContext}
 import payloads.CreateOrder
 import responses.FullOrder.Root
 import services.orders.OrderCreator
@@ -43,7 +44,7 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
 
       "returns current cart if customer already has one" in new Fixture {
         val payload = CreateOrder(customerId = customer.id.some)
-        OrderCreator.createCart(storeAdmin, payload).futureValue
+        OrderCreator.createCart(storeAdmin, payload, productContext).futureValue
         val response = POST(s"v1/orders", payload)
 
         response.status must ===(StatusCodes.OK)
@@ -77,10 +78,11 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
   }
 
   trait Fixture {
-    val (storeAdmin, customer) = (for {
+    val (productContext, storeAdmin, customer) = (for {
+      productContext ← * <~ ProductContexts.create(SimpleContext.create)
       customer   ← * <~ Customers.create(Factories.customer)
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (storeAdmin, customer)).runTxn().futureValue.rightVal
+    } yield (productContext, storeAdmin, customer)).runTxn().futureValue.rightVal
   }
 }
 

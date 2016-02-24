@@ -17,7 +17,7 @@ class InventoryAdjustmentIntegrationTest extends IntegrationTestBase {
     productContext ← * <~ ProductContexts.create(SimpleContext.create)
     warehouse   ← * <~ Warehouses.create(Factories.warehouse)
     product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head.copy(price = 5))
-    order       ← * <~ Orders.create(Order(id = 0, customerId = 1))
+    order       ← * <~ Orders.create(Order(id = 0, customerId = 1, productContextId = productContext.id))
     lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
   } yield (warehouse, product, lineItemSku, order)).runTxn().futureValue.rightVal
 

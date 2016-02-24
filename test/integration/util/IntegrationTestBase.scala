@@ -7,6 +7,8 @@ import akka.util.Timeout
 import org.scalatest.concurrent.AbstractPatienceConfiguration
 import org.scalatest.time.{Millisecond, Seconds, Span}
 
+import models.product.{ProductContexts, SimpleContext}
+
 trait IntegrationTestBase extends TestBase
   with AbstractPatienceConfiguration
   with DbTestSupport {

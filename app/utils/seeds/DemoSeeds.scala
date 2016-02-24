@@ -43,10 +43,10 @@ trait DemoSeedHelpers {
     Customer(email = email, password = randomString(10).some, name = name.some, 
       location ="Seattle,WA".some)
 
-  def createShippedOrder(customerId: Customer#Id, skuIds: Seq[Sku#Id], 
+  def createShippedOrder(customerId: Customer#Id, productContextId: Int, skuIds: Seq[Sku#Id], 
     shipMethod: ShippingMethod#Id)(implicit db: Database): DbResultT[Order] = for {
     order ← * <~ Orders.create(Order(state = Shipped,
-      customerId = customerId, placedAt = time.yesterday.toInstant.some))
+      customerId = customerId, productContextId = productContextId, placedAt = time.yesterday.toInstant.some))
     _     ← * <~ addSkusToOrder(skuIds, order.id, OrderLineItem.Shipped)
     cc    ← * <~ getCc(customerId) // TODO: auth
     op    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
@@ -173,7 +173,7 @@ trait DemoScenario3 extends DemoSeedHelpers {
     productData ← * <~ Mvp.insertProducts(products3, productContext.id)
     skuIds ← * <~ productData.map(_.skuId)
     inventory ← * <~ createInventory(skuIds)
-    orders ← * <~ customerIds.map { id ⇒ createShippedOrder(id, skuIds, shippingMethod.id)}
+    orders ← * <~ customerIds.map { id ⇒ createShippedOrder(id, productContext.id, skuIds, shippingMethod.id)}
   } yield {}
 }
 
@@ -198,8 +198,10 @@ trait DemoScenario6 extends DemoSeedHelpers {
   def customer6 = generateCustomer("Joe Carson", "carson19@yahoo.com")
 
   def createScenario6(implicit db: Database): DbResultT[Unit] = for {
+    productContext ← * <~ ProductContexts.create(SimpleContext.create)
     customer ← * <~ Customers.create(customer6)
-    order ← * <~ Orders.create(Order(state = Shipped, customerId = customer.id, referenceNumber = orderReferenceNum))
+    order ← * <~ Orders.create(Order(state = Shipped, customerId = customer.id, 
+      productContextId = productContext.id, referenceNumber = orderReferenceNum))
     orig  ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
     _  ← * <~ GiftCards.createAll(
       (1 to 23).map { _ ⇒ 

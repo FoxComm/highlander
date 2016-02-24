@@ -3,6 +3,7 @@
 create table order_line_item_skus (
     id integer primary key,
     sku_id integer not null unique references skus(id) on update restrict on delete restrict,
+    sku_shadow_id integer not null unique references sku_shadows(id) on update restrict on delete restrict,
     foreign key (id) references order_line_item_origins(id) on update restrict on delete restrict
 );
 

@@ -130,7 +130,7 @@ object FullOrder {
     val skuList = lineItems.map { 
       case data ⇒ { 
         val price = Mvp.price(data.sku, data.skuShadow).getOrElse((0, Currency.USD))
-        val name = Mvp.name(data.product, data.productShadow).getOrElse("")
+        val name = Mvp.name(data.sku, data.skuShadow).getOrElse("")
         DisplayLineItem(sku = data.sku.sku, state = data.lineItem.state, name = name, price = price._1, totalPrice = price._1)
       }
     }
@@ -181,7 +181,11 @@ object FullOrder {
 
     for {
       customer    ← Customers.findById(order.customerId).extract.one
-      lineItems   ← OrderLineItemSkus.findLineItemsByOrder(order).sortBy(_._3.sku).result
+      lineItemTup ← OrderLineItemSkus.findLineItemsByOrder(order).result
+      lineItems =  lineItemTup.map { 
+        case (sku, skuShadow, lineItem) ⇒ 
+          OrderLineItemProductData(sku, skuShadow, lineItem)
+      }
       giftCards   ← OrderLineItemGiftCards.findLineItemsByOrder(order).result
       shipMethod  ← models.ShippingMethods.forOrder(order).one
       shipAddress ← Addresses.forOrderId(order.id)
@@ -195,10 +199,7 @@ object FullOrder {
       lockedBy    ← currentLock(order)
     } yield (
       customer, 
-      lineItems.map { 
-        case (product, productShadow, sku, skuShadow, lineItem) ⇒ 
-          OrderLineItemProductData(product, productShadow, sku, skuShadow, lineItem)
-      },
+      lineItems,
       shipMethod, 
       shipAddress, 
       payments, 

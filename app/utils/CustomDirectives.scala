@@ -1,21 +1,24 @@
 package utils
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.{MalformedRequestContentRejection, UnsupportedRequestContentTypeRejection,
 RequestEntityExpectedRejection, Directive1, StandardRoute, ValidationRejection}
 import akka.http.scaladsl.unmarshalling.{Unmarshaller, FromRequestUnmarshaller}
+import slick.driver.PostgresDriver.api._
 
 import services.Result
 import utils.Http._
 
 import models.{Customer, StoreAdmin}
+import models.product.{SimpleContext, ProductContext, ProductContexts}
 import models.activity.ActivityContext
 
 object CustomDirectives {
 
   val DefaultPageSize = 50
+  val DefaultContextName = SimpleContext.name
 
   final case class Sort(sortColumn: String, asc: Boolean = true)
   final case class SortAndPage(
@@ -61,6 +64,19 @@ object CustomDirectives {
         ActivityContext(userId = 0, userType = "guest", transactionId = generateUuid)
     }
   }
+
+  /**
+   * At the moment we support one context. The input to this function will
+   * and it will become a combination of of things which will then search
+   * for the correct context.
+   */
+  def determineProductContext(implicit db: Database, ec: ExecutionContext) : Directive1[ProductContext] = {
+    onSuccess(db.run(ProductContexts.filterByName(DefaultContextName).result.headOption).map {
+      case Some(c) ⇒  c
+      case None ⇒ throw new Exception("Unable to find default context. Is the DB seeded?")
+    })
+  }
+
 
   def sortAndPage: Directive1[SortAndPage] =
     parameters(('from.as[Int].?, 'size.as[Int].?, 'sortBy.as[String].?)).as(SortAndPage)

@@ -12,7 +12,7 @@ import models.{Addresses, CreditCards, Customer, GiftCard, GiftCardManual,
 import GeneratorUtils.randomString
 import models.GiftCard.buildAppeasement
 import models.Order.{ManualHold, Cart, Shipped}
-import models.product.{SimpleProductData, Mvp}
+import models.product.{ProductContext, SimpleProductData, Mvp}
 
 import payloads.GiftCardCreateByCsr
 
@@ -35,7 +35,7 @@ import slick.driver.PostgresDriver.api._
 trait OrderGenerator extends ShipmentSeeds {
 
   def orderGenerators()(implicit db: Database) = 
-    List[(Int, Seq[SimpleProductData]) ⇒  DbResultT[Order]](
+    List[(Int, ProductContext, Seq[SimpleProductData]) ⇒  DbResultT[Order]](
       generateOrder1, generateOrder2, generateOrder3, generateOrder4, generateOrder5) 
 
   def nextBalance = 1 + Random.nextInt(8000)
@@ -44,15 +44,15 @@ trait OrderGenerator extends ShipmentSeeds {
     base.bothify("????####-##")
   }
 
-  def generateOrder(customerId: Int, products: Seq[SimpleProductData]) (implicit db: Database) : DbResultT[Order] = {
+  def generateOrder(customerId: Int, productContext: ProductContext, products: Seq[SimpleProductData]) (implicit db: Database) : DbResultT[Order] = {
     val genFunctions = orderGenerators
     val genIdx = Random.nextInt(orderGenerators.length)
     val genFun = genFunctions(genIdx)
-    genFun(customerId, products)
+    genFun(customerId, productContext, products)
   }
 
-  def generateOrder1(customerId: Int, products: Seq[SimpleProductData])(implicit db: Database): DbResultT[Order] = for {
-    order ← * <~ Orders.create(Order(state = ManualHold, customerId = customerId, referenceNumber = orderReferenceNum))
+  def generateOrder1(customerId: Customer#Id, productContext: ProductContext, products: Seq[SimpleProductData])(implicit db: Database): DbResultT[Order] = for {
+    order ← * <~ Orders.create(Order(state = ManualHold, customerId = customerId, productContextId = productContext.id, referenceNumber = orderReferenceNum))
     orig  ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
     gc    ← * <~ GiftCards.create(GiftCard.buildLineItem(balance = nextBalance, originId = orig.id, currency = Currency.USD))
     liGc  ← * <~ OrderLineItemGiftCards.create(OrderLineItemGiftCard(giftCardId = gc.id, orderId = order.id))
@@ -63,8 +63,8 @@ trait OrderGenerator extends ShipmentSeeds {
     _     ← * <~ OrderTotaler.saveTotals(order)
   } yield order
 
-  def generateOrder2(customerId: Customer#Id, products: Seq[SimpleProductData])(implicit db: Database): DbResultT[Order] = for {
-    order  ← * <~ Orders.create(Order(state = ManualHold, customerId = customerId, referenceNumber = orderReferenceNum))
+  def generateOrder2(customerId: Customer#Id, productContext: ProductContext, products: Seq[SimpleProductData])(implicit db: Database): DbResultT[Order] = for {
+    order  ← * <~ Orders.create(Order(state = ManualHold, customerId = customerId, productContextId = productContext.id, referenceNumber = orderReferenceNum))
     _      ← * <~ addProductsToOrder(products, order.id, OrderLineItem.Pending)
     origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = 1, reasonId = 1))
     totals ← * <~ total(products)
@@ -76,12 +76,12 @@ trait OrderGenerator extends ShipmentSeeds {
     _     ← * <~ OrderTotaler.saveTotals(order)
   } yield order
 
-  def generateOrder3(customerId: Customer#Id, products: Seq[SimpleProductData])(implicit db: Database): DbResultT[Order] = {
+  def generateOrder3(customerId: Customer#Id, productContext: ProductContext, products: Seq[SimpleProductData])(implicit db: Database): DbResultT[Order] = {
     val balance1 = nextBalance
     val balance2 = nextBalance
 
     for {
-      order  ← * <~ Orders.create(Order(state = Cart, customerId = customerId, referenceNumber = orderReferenceNum))
+      order  ← * <~ Orders.create(Order(state = Cart, customerId = customerId, productContextId = productContext.id, referenceNumber = orderReferenceNum))
       _      ← * <~ addProductsToOrder(products, orderId = order.id, OrderLineItem.Cart)
       origin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = 1, reasonId = 1))
       totals ← * <~ total(products)
@@ -99,8 +99,8 @@ trait OrderGenerator extends ShipmentSeeds {
     } yield order
   }
 
-  def generateOrder4(customerId: Customer#Id, products: Seq[SimpleProductData])(implicit db: Database): DbResultT[Order] = for {
-    order ← * <~ Orders.create(Order(state = Cart, customerId = customerId, referenceNumber = orderReferenceNum))
+  def generateOrder4(customerId: Customer#Id, productContext: ProductContext, products: Seq[SimpleProductData])(implicit db: Database): DbResultT[Order] = for {
+    order ← * <~ Orders.create(Order(state = Cart, customerId = customerId, productContextId = productContext.id, referenceNumber = orderReferenceNum))
     _     ← * <~ addProductsToOrder(products, order.id, OrderLineItem.Cart)
     cc    ← * <~ getCc(customerId)
     _     ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
@@ -109,13 +109,14 @@ trait OrderGenerator extends ShipmentSeeds {
     _     ← * <~ OrderTotaler.saveTotals(order)
   } yield order
 
-  def generateOrder5(customerId: Customer#Id, products: Seq[SimpleProductData])
+  def generateOrder5(customerId: Customer#Id, productContext: ProductContext, products: Seq[SimpleProductData])
   (implicit db: Database): DbResultT[Order] = { 
     for {
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
       shipMethodId ← * <~ shipMethodIds(Random.nextInt(shipMethodIds.length))
-      order ← * <~ Orders.create(Order(state = Shipped,
-        customerId = customerId, placedAt = Some(time.yesterday.toInstant), referenceNumber = orderReferenceNum))
+      order ← * <~ Orders.create(Order(state = Shipped, customerId = customerId, 
+        productContextId = productContext.id, placedAt = Some(time.yesterday.toInstant), 
+        referenceNumber = orderReferenceNum))
       _     ← * <~ addProductsToOrder(products, order.id, OrderLineItem.Shipped)
       cc    ← * <~ getCc(customerId) // TODO: auth
       op    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
@@ -128,6 +129,7 @@ trait OrderGenerator extends ShipmentSeeds {
     } yield order
   }
 
+  //TODO: Fix line item skus. bug if two or more contexts.
   def addProductsToOrder(products: Seq[SimpleProductData], orderId: Order#Id, state: OrderLineItem.State)(implicit db: Database): 
   DbResultT[Unit] = for {
     liSkus ← * <~ OrderLineItemSkus.filter(_.id.inSet(products.map(_.skuId))).result

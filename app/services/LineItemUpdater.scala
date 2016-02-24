@@ -102,7 +102,7 @@ object LineItemUpdater {
     _     ← * <~ order.mustBeCart
     // load old line items for activity trail
     li    ← * <~ OrderLineItemSkus.findLineItemsByOrder(order).result
-    lineItems = li.foldLeft(Map[String, Int]()) { case (acc, (product, productShadow, sku, skuShadow, _)) ⇒
+    lineItems = li.foldLeft(Map[String, Int]()) { case (acc, (sku, skuShadow, _)) ⇒
       val quantity = acc.getOrElse(sku.sku, 0)
       acc.updated(sku.sku, quantity + 1)
     }

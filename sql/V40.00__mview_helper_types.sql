@@ -76,6 +76,11 @@ create table export_skus (
     price   integer
 );
 
+create table export_sku_price (
+    price   integer,
+    currency  text
+);
+
 create table export_assignments (
     reference_number    text,
     assigned_at         text

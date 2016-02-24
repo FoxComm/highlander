@@ -26,19 +26,16 @@ object SaveForLaterResponse {
 
   def forSkuId(skuId: Int, contextId: Int)(implicit ec: ExecutionContext, db: Database): DbResultT[Root] = for {
     sku ← * <~ Skus.mustFindById404(skuId)
-    product ← * <~ Products.mustFindById404(sku.productId)
-    productShadow ← * <~ ProductShadows.filter(_.productId === sku.productId).filter(_.productContextId === contextId).one
-      .mustFindOr(NotFoundFailure404(s"Unable to find product with id ${sku.productId} for context $contextId"))
     skuShadow  ← * <~ SkuShadows.filter(_.skuId === sku.id).filter(_.productContextId === contextId).one
       .mustFindOr(NotFoundFailure404(s"Unable to find sku with id ${sku.id} for context $contextId"))
     sfl ← * <~ SaveForLaters.filter(_.skuId === skuId).one
       .mustFindOr(NotFoundFailure404(s"Save for later entry for sku with id=$skuId not found"))
-  } yield build(sfl, sku, skuShadow, product, productShadow)
+  } yield build(sfl, sku, skuShadow)
 
-  def build(sfl: SaveForLater, sku: Sku, skuShadow: SkuShadow, product: Product, productShadow: ProductShadow): Root = { 
+  def build(sfl: SaveForLater, sku: Sku, skuShadow: SkuShadow): Root = { 
 
     val price = Mvp.price(sku, skuShadow).getOrElse((0, Currency.USD))
-    val name = Mvp.name(product, productShadow)
+    val name = Mvp.name(sku, skuShadow)
 
     Root(
       id = sfl.id,

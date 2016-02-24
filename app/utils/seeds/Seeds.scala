@@ -5,6 +5,7 @@ import java.time.{Instant, ZoneId}
 import cats.data.Xor
 import models.Reason._
 import models.{CreditCardCharge, OrderPayment, OrderShippingAddress, Reason, Reasons}
+import models.product.{ProductContexts, SimpleContext}
 import org.postgresql.ds.PGSimpleDataSource
 import services.{Failures, FailuresOps}
 import slick.driver.PostgresDriver
@@ -58,7 +59,7 @@ object Seeds {
 
   def createRankingSeeds()(implicit db: Database) {
     Console.err.println(s"Inserting ranking seeds")
-    Await.result(db.run(RankingSeedsGenerator.insertRankingSeeds(1700).transactionally), 30.seconds)
+    Await.result(RankingSeedsGenerator.insertRankingSeeds(1700).runTxn(), 120.seconds)
   }
 
   def createRandomSeeds()(implicit db: Database) {
@@ -82,6 +83,7 @@ object Seeds {
   val today = Instant.now().atZone(ZoneId.of("UTC"))
 
   def createAll()(implicit db: Database): DbResultT[Unit] = for {
+    productContext ← * <~ ProductContexts.create(SimpleContext.create) 
     admin ← * <~ Factories.createStoreAdmins
     customers ← * <~ Factories.createCustomers
     _ ← * <~ Factories.createAddresses(customers)
@@ -92,7 +94,7 @@ object Seeds {
     _ ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = admin)))
     _ ← * <~ Factories.createGiftCards
     _ ← * <~ Factories.createStoreCredits(admin, customers._1, customers._3)
-    orders ← * <~ Factories.createOrders(customers, products, shipMethods)
+    orders ← * <~ Factories.createOrders(customers, products, shipMethods, productContext)
     _ ← * <~ Factories.createRmas
   } yield {}
 

@@ -2,7 +2,7 @@ package services
 
 import models.{Addresses, Customers, GiftCard, GiftCardOrder, GiftCardOrders, GiftCards, OrderLineItem,
 OrderLineItemGiftCard, OrderLineItemGiftCards, OrderLineItemSku, OrderLineItemSkus, OrderLineItems, Orders}
-import models.product.Skus
+import models.product.{Mvp, ProductContexts, SimpleContext, SimpleProductData, Skus}
 import services.orders.OrderTotaler
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -25,22 +25,22 @@ class OrderTotalerTest extends IntegrationTestBase {
       "includes both SKU line items and purchased gift cards" in new AllLineItemsFixture {
         val subTotal = OrderTotaler.subTotal(order).run().futureValue
 
-        subTotal must === (sku.price + giftCard.originalBalance)
+        subTotal must === (skuPrice + giftCard.originalBalance)
       }
 
       "uses SKU line items only if order purchases no gift cards" in new SkuLineItemsFixture {
         val subTotal = OrderTotaler.subTotal(order).run().futureValue
 
-        subTotal must === (sku.price)
+        subTotal must === (skuPrice)
       }
     }
 
     "taxes" - {
       "are hardcoded to 5%" in new SkuLineItemsFixture {
         val totals = OrderTotaler.totals(order).run().futureValue
-        val taxes = (sku.price * 0.05).toInt
+        val taxes = (skuPrice * 0.05).toInt
 
-        totals.subTotal === sku.price
+        totals.subTotal === skuPrice
         totals.shipping === 0
         totals.taxes === taxes
         totals.adjustments === 0
@@ -70,10 +70,13 @@ class OrderTotalerTest extends IntegrationTestBase {
   }
 
   trait SkuLineItemsFixture extends Fixture {
-    val sku = (for {
-      sku ← * <~ Skus.create(Factories.skus.head)
-      _   ← * <~ OrderLineItems.create(OrderLineItem.buildSku(order, sku))
-    } yield sku).runTxn().futureValue.rightVal
+    val (context, product, productShadow, sku, skuShadow, skuPrice) = (for {
+      context ← * <~ ProductContexts.create(SimpleContext.create)
+      simpleProduct ← * <~ Mvp.insertProduct(context.id, Factories.products.head)
+      tup ← * <~ Mvp.getProductTuple(simpleProduct)
+      _   ← * <~ OrderLineItems.create(OrderLineItem.buildSku(order, tup.sku))
+      skuPrice ← * <~ Mvp.priceAsInt(tup.sku, tup.skuShadow)
+    } yield (context, tup.product, tup.productShadow, tup.sku, tup.skuShadow, skuPrice)).runTxn().futureValue.rightVal
   }
 
   trait AllLineItemsFixture extends SkuLineItemsFixture {

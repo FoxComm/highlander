@@ -34,7 +34,7 @@ final case class SkuShadow(
   extends ModelWithIdParameter[SkuShadow]
   with Validation[SkuShadow]
 
-class SkuShadows(tag: Tag) extends GenericTable.TableWithId[SkuShadow](tag, "product_shadows")  {
+class SkuShadows(tag: Tag) extends GenericTable.TableWithId[SkuShadow](tag, "sku_shadows")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def productContextId = column[Int]("product_context_id")
   def skuId = column[Int]("sku_id")
