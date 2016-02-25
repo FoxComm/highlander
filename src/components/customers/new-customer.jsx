@@ -25,8 +25,9 @@ export default class NewCustomer extends React.Component {
   };
 
   static propTypes = {
-    createCustomer: PropTypes.func,
-    changeFormData: PropTypes.func,
+    createCustomer: PropTypes.func.isRequired,
+    changeFormData: PropTypes.func.isRequired,
+    resetForm: PropTypes.func.isRequired,
     name: PropTypes.string,
     email: PropTypes.string,
     id: PropTypes.number
@@ -46,6 +47,7 @@ export default class NewCustomer extends React.Component {
   shouldComponentUpdate(nextProps) {
     if (nextProps.id !== undefined && nextProps.id !== null) {
       transitionTo(this.context.history, 'customer', {customerId: nextProps.id});
+      this.props.resetForm();
       return false;
     }
     return true;

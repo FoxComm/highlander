@@ -6,6 +6,7 @@ import { assoc } from 'sprout-data';
 export const changeFormData = createAction('CUSTOMER_NEW_CHANGE_FORM', (name, value) => [name, value]);
 export const submitCustomer = createAction('CUSTOMER_SUMBIT');
 export const openCustomerDetails = createAction('CUSTOMER_OPEN_DETAILS');
+export const resetForm = createAction('CUSTOMER_RESET_FORM');
 const failNewCustomer = createAction('CUSTOMER_NEW_FAIL', (err, source) => [err, source]);
 
 export function createCustomer() {
@@ -44,6 +45,9 @@ const reducer = createReducer({
       id: payload.id,
       isFetching: false
     };
+  },
+  [resetForm]: (state) => {
+    return initialState;
   },
   [failNewCustomer]: (state, [err, source]) => {
     console.error(err);
