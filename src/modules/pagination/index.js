@@ -3,7 +3,7 @@ import _ from 'lodash';
 import makePagination from './base';
 import reduceReducers from 'reduce-reducers';
 import { apiStaticUrl, apiDynamicUrl } from './fetchers';
-import { appendUrlArgs } from '../../lib/api';
+import { appendQueryString } from '../../lib/api';
 
 export function addPaginationParams(url, searchState) {
   let uriGetParams = [];
@@ -18,7 +18,7 @@ export function addPaginationParams(url, searchState) {
   }
 
   if (uriGetParams.length) {
-    return appendUrlArgs(url, uriGetParams);
+    return appendQueryString(url, uriGetParams.join('&'));
   }
 
   return url;
