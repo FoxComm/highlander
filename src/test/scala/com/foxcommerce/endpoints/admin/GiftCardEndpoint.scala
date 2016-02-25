@@ -23,6 +23,29 @@ object GiftCardEndpoint {
     .check(jsonPath("$[0].giftCard.currentBalance").ofType[Long].is(payload.balance))
     .check(jsonPath("$[0].giftCard.availableBalance").ofType[Long].is(payload.balance))
 
+  def bulkCreate(): HttpRequestBuilder = http("Bulk Create 20 Gift Cards")
+    .post("/v1/gift-cards")
+    .basicAuth("${email}", "${password}")
+    .body(StringBody("""{"balance": 10, "reasonId": 1, "quantity": 20}"""))
+    .check(status.is(200))
+    .check(jsonPath("$..giftCard[?(@.state == 'active')]").count.is(20))
+    .check(jsonPath("$..giftCard.code").findAll.saveAs("gcCodesHeap"))
+
+  def bulkWatch(): HttpRequestBuilder = http("Watch ${gcPortionCount}")
+      .post("/v1/gift-cards/watchers")
+      .basicAuth("${email}", "${password}")
+      .body(StringBody("""{"giftCardCodes": [${gcCodesPortion}], "watcherId": 1}"""))
+      .check(status.is(200))
+      .check(jsonPath("$.errors").count.is(0))
+
+  def bulkUnwatch(): HttpRequestBuilder = http("Unwatch")
+      .post("/v1/gift-cards/watchers/delete")
+      .basicAuth("${email}", "${password}")
+      .body(StringBody("""{"giftCardCodes": [${gcCodesPortion}], "watcherId": 1}"""))
+      .check(status.is(200))
+      .check(jsonPath("$.errors").count.is(0))
+      .silent
+
   def cancel(): HttpRequestBuilder = http("Cancel Gift Card")
     .patch("/v1/gift-cards/${giftCardCode}")
     .basicAuth("${email}", "${password}")
