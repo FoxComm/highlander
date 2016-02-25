@@ -15,7 +15,7 @@ import utils.Money._
 import utils.{Apis, StripeApi}
 
 // TODO(yax): do not default apiKey, it should come from store
-final case class Stripe(apiKey: String = "sk_test_eyVBk2Nd9bYbwl01yFsfdVLZ")
+final case class Stripe(apiKey: String = "sk_test_uvaf3GCFsjCsvvKO7FsQhNRm")
   (implicit apis: Apis, ec: ExecutionContext) {
 
   val api: StripeApi = apis.stripe
