@@ -2,9 +2,12 @@ package models.auth
 
 import scala.concurrent.{Future, ExecutionContext}
 
-import akka.http.scaladsl.server.Directive1
+import akka.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsRejected, CredentialsMissing}
+import akka.http.scaladsl.server.{AuthenticationFailedRejection, Directive1}
+import akka.http.scaladsl.server.directives.AuthenticationDirective
 import com.softwaremill.session.{InMemoryRefreshTokenStorage, SessionManager, JwtSessionEncoder,
 JValueSessionSerializer, SessionConfig}
+import akka.http.scaladsl.model.headers.GenericHttpCredentials
 import com.softwaremill.session.SessionDirectives._
 import com.softwaremill.session.SessionOptions._
 import models.StoreAdmin
@@ -20,6 +23,7 @@ object Session {
 
   val adminSession = new Session[AdminToken, StoreAdmin]
   val customerSession = new Session[CustomerToken, Customer]
+  import services.Authenticator.AsyncAuthenticator
 
   def requireAdminAuth: Directive1[StoreAdmin] = {
     extractExecutionContext.flatMap { implicit ec ⇒
@@ -39,6 +43,20 @@ object Session {
       })
     }
   }
+
+  def requireJwtAuth[T](header: String, auth: AsyncAuthenticator[T]): AuthenticationDirective[T] = {
+    optionalHeaderValueByName(header).map(_.map { token ⇒
+        GenericHttpCredentials(token, "")
+      }).flatMap { optCreds ⇒
+        onSuccess(auth(optCreds)).flatMap {
+          case Right(user) ⇒ provide(user)
+          case Left(challenge) ⇒
+            val cause = if (optCreds.isEmpty) CredentialsMissing else CredentialsRejected
+            reject(AuthenticationFailedRejection(cause, challenge)): Directive1[T]
+        }
+      }
+  }
+
 
   def setTokenSession(token: Token) = {
     extractExecutionContext.flatMap { implicit ec ⇒

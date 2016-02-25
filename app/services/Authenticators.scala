@@ -1,11 +1,12 @@
 package services
 
-import scala.concurrent.{ExecutionContext, Future}
-import akka.http.scaladsl.model.headers.{BasicHttpCredentials, OAuth2BearerToken}
-import akka.http.scaladsl.server.directives.{AuthenticationDirective, AuthenticationResult}
+import scala.concurrent.Future
+import akka.http.scaladsl.model.headers.{GenericHttpCredentials, OAuth2BearerToken, BasicHttpCredentials,
+HttpCredentials}
+import akka.http.scaladsl.server.directives.{AuthenticationResult, AuthenticationDirective}
 import akka.http.scaladsl.server.Directives.extractExecutionContext
-import akka.http.scaladsl.server.directives.SecurityDirectives.{AuthenticationResult, authenticateOrRejectWithChallenge, challengeFor}
-import akka.http.scaladsl.model.headers.HttpCredentials
+import akka.http.scaladsl.server.directives.SecurityDirectives.{AuthenticationResult, challengeFor,
+  authenticateOrRejectWithChallenge}
 import models.customer.{Customer, Customers}
 import cats.data.Xor
 import models.{StoreAdmin, StoreAdmins}
@@ -14,7 +15,7 @@ import utils.Slick.implicits._
 import utils.Passwords.checkPassword
 import utils.aliases._
 import models.auth.Identity
-import models.auth.{AdminToken, CustomerToken, Token}
+import models.auth._
 import payloads.LoginPayload
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -29,16 +30,14 @@ object Authenticator {
   type EmailFinder[M] = String ⇒ DBIO[Option[M]]
   type AsyncAuthenticator[M] = (Option[HttpCredentials]) ⇒ Future[AuthenticationResult[M]]
 
-  final case class Credentials(identifier: String, secret: String)
-
   def customer(credentials: Option[HttpCredentials])
-    (implicit ec: EC, db: DB): Future[AuthenticationResult[Customer]] = {
-    auth[Customer, EmailFinder[Customer]]("private customer routes")(credentials, Customers.findByEmail, _.hashedPassword)
+              (implicit ec: EC, db: DB): Future[AuthenticationResult[Customer]] = {
+    authCheck[Customer, EmailFinder[Customer]]("private customer routes")(credentials, Customers.findByEmail, _.hashedPassword)
   }
 
   def storeAdmin(credentials: Option[HttpCredentials])
-    (implicit ec: EC, db: DB): Future[AuthenticationResult[StoreAdmin]] = {
-    auth[StoreAdmin, EmailFinder[StoreAdmin]]("admin")(credentials, StoreAdmins.findByEmail, _.hashedPassword)
+              (implicit ec: EC, db: DB): Future[AuthenticationResult[StoreAdmin]] = {
+    authCheck[StoreAdmin, EmailFinder[StoreAdmin]]("admin")(credentials, StoreAdmins.findByEmail, _.hashedPassword)
   }
 
   def requireAuth[M](auth: AsyncAuthenticator[M]): AuthenticationDirective[M] = {
@@ -47,11 +46,14 @@ object Authenticator {
     }
   }
 
-  private[this] def auth[M, F <: EmailFinder[M]](realm: String)
+  private[this] def authCheck[M, F <: EmailFinder[M]](realm: String)
     (credentials: Option[HttpCredentials], finder: F, getHashedPassword: M ⇒ Option[String])
    (implicit ec: EC, db: DB): Future[AuthenticationResult[M]] = {
     (for {
-      userCredentials ← * <~ credentials.flatMap(extractCredentials).toXor(LoginFailed.single)
+      userCredentials ← * <~ credentials.flatMap {
+        case BasicHttpCredentials(username, secret) ⇒ Some(SecretCredentials(username, secret))
+        case _ ⇒ None
+      }.toXor(LoginFailed.single)
       user ← * <~ finder(userCredentials.identifier).mustFindOr(LoginFailed)
       validated ← * <~ validatePassword(user, getHashedPassword(user), userCredentials.secret)
     } yield validated).runTxn().map {
@@ -61,13 +63,15 @@ object Authenticator {
   }
 
   private def extractCredentials(cred: HttpCredentials): Option[Credentials] = cred match {
-    case BasicHttpCredentials(username, secret) ⇒ Some(Credentials(username, secret))
-    case OAuth2BearerToken(token) ⇒ Some(Credentials(token, token))
+    case BasicHttpCredentials(username, secret) ⇒ Some(SecretCredentials(username, secret))
+    case OAuth2BearerToken(token) ⇒ Some(OauthCredentials(token))
+    // assume it's JWT, also it's not a typo - token contained in scheme for GenericHttpCredentials
+    case GenericHttpCredentials(scheme, token, params) ⇒ Some(JWTCredentials(scheme))
     case _ ⇒ None
   }
 
   def authenticate(payload: LoginPayload)
-    (implicit ec: ExecutionContext, db: Database): Result[Token] = {
+    (implicit ec: EC, db: DB): Result[Token] = {
 
     def auth[M, F <: EmailFinder[M], T](finder: F, getHashedPassword: M ⇒ Option[String], builder: M ⇒ T): Result[T] = {
       (for {
