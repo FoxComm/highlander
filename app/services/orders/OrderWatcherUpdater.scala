@@ -2,7 +2,7 @@ package services.orders
 
 import models.order._
 import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
-import responses.{TheResponse, BatchMetadata, BatchMetadataSource}
+import responses.{BatchMetadata, BatchMetadataSource}
 import responses.BatchMetadata.flattenErrors
 import payloads.OrderBulkWatchersPayload
 import responses.TheResponse
@@ -17,7 +17,6 @@ import utils.Slick.implicits._
 
 import scala.concurrent.ExecutionContext
 import models.activity.{Dimension, ActivityContext}
-import utils._
 
 object OrderWatcherUpdater {
 

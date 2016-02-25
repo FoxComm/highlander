@@ -18,7 +18,6 @@ import utils.Slick.implicits._
 import utils.Slick.{DbResult, _}
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.friendlyClassName
 
 object OrderStateUpdater {
 

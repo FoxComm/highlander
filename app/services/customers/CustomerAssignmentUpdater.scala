@@ -3,8 +3,9 @@ package services.customers
 import models.customer._
 import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
 import payloads.CustomerBulkAssignmentPayload
-import responses.{CustomerResponse, TheResponse}
+import responses.{CustomerResponse, TheResponse, BatchMetadata, BatchMetadataSource}
 import responses.CustomerResponse.Root
+import responses.BatchMetadata.flattenErrors
 import services.Util._
 import services.{NotificationManager, LogActivity, CustomerAssigneeNotFound, Result}
 import slick.driver.PostgresDriver.api._
@@ -51,21 +52,25 @@ object CustomerAssignmentUpdater {
 
   def assignBulk(admin: StoreAdmin, payload: CustomerBulkAssignmentPayload)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkCustomerUpdateResponse] = (for {
+
     // TODO: transfer sorting-paging metadata
     customers       ← * <~ Customers.filter(_.id.inSetBind(payload.customerIds)).result.toXor
     assignee        ← * <~ StoreAdmins.mustFindById400(payload.assigneeId)
     newAssignments  = for (c ← customers) yield CustomerAssignment(customerId = c.id, assigneeId = assignee.id)
     _               ← * <~ CustomerAssignments.createAll(newAssignments)
     response        ← * <~ CustomerQueries.findAll
-    notFound        = diffToFlatFailures(payload.customerIds, customers.map(_.id), Customer)
     success         = customers.filter(c ⇒ newAssignments.map(_.customerId).contains(c.id)).map(_.id)
     _               ← * <~ LogActivity.bulkAssignedToCustomers(admin, assignee, success)
     _               ← * <~ NotificationManager.subscribe(adminIds = Seq(assignee.id), dimension = Dimension.customer,
       reason = NotificationSubscription.Assigned, objectIds = customers.map(_.id.toString)).value
-  } yield response.copy(errors = notFound)).runTxn()
+    // Prepare batch response
+    batchFailures  = diffToBatchErrors(payload.customerIds, customers.map(_.id), Customer)
+    batchMetadata  = BatchMetadata(BatchMetadataSource(Customer, success.map(_.toString), batchFailures))
+  } yield response.copy(errors = flattenErrors(batchFailures), batch = Some(batchMetadata))).runTxn()
 
   def unassignBulk(admin: StoreAdmin, payload: CustomerBulkAssignmentPayload)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkCustomerUpdateResponse] = (for {
+
     // TODO: transfer sorting-paging metadata
     customers ← * <~ Customers.filter(_.id.inSetBind(payload.customerIds)).result
     assignee  ← * <~ StoreAdmins.mustFindById400(payload.assigneeId)
@@ -77,5 +82,8 @@ object CustomerAssignmentUpdater {
     _         ← * <~ LogActivity.bulkUnassignedFromCustomers(admin, assignee, success)
     _         ← * <~ NotificationManager.unsubscribe(adminIds = Seq(assignee.id), dimension = Dimension.customer,
       reason = NotificationSubscription.Assigned, objectIds = customers.map(_.id.toString)).value
-  } yield response.copy(errors = notFound)).runTxn()
+    // Prepare batch response
+    batchFailures  = diffToBatchErrors(payload.customerIds, customers.map(_.id), Customer)
+    batchMetadata  = BatchMetadata(BatchMetadataSource(Customer, success.map(_.toString), batchFailures))
+  } yield response.copy(errors = flattenErrors(batchFailures), batch = Some(batchMetadata))).runTxn()
 }

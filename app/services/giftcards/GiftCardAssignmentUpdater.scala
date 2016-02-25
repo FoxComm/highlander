@@ -3,8 +3,9 @@ package services.giftcards
 import models.payment.giftcard._
 import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
 import payloads.GiftCardBulkAssignmentPayload
-import responses.{GiftCardResponse, TheResponse}
+import responses.{GiftCardResponse, TheResponse, BatchMetadata, BatchMetadataSource}
 import responses.GiftCardResponse.Root
+import responses.BatchMetadata.flattenErrors
 import services.Util._
 import services.{NotificationManager, LogActivity, GiftCardAssigneeNotFound, Result}
 import slick.driver.PostgresDriver.api._
@@ -59,12 +60,14 @@ object GiftCardAssignmentUpdater {
     newAssignments  = for (gc ← giftCards) yield GiftCardAssignment(giftCardId = gc.id, assigneeId = assignee.id)
     _               ← * <~ GiftCardAssignments.createAll(newAssignments)
     response        ← * <~ GiftCardQueries.findAll
-    notFound        = diffToFlatFailures(payload.giftCardCodes, giftCards.map(_.code), GiftCard)
     success         = giftCards.filter(gc ⇒ newAssignments.map(_.giftCardId).contains(gc.id)).map(_.code)
     _               ← * <~ LogActivity.bulkAssignedToGiftCards(admin, assignee, success)
     _               ← * <~ NotificationManager.subscribe(adminIds = Seq(assignee.id), dimension = Dimension.giftCard,
       reason = NotificationSubscription.Assigned, objectIds = giftCards.map(_.code)).value
-  } yield response.copy(errors = notFound)).runTxn()
+    // Prepare batch response
+    batchFailures  = diffToBatchErrors(payload.giftCardCodes, giftCards.map(_.code), GiftCard)
+    batchMetadata  = BatchMetadata(BatchMetadataSource(GiftCard, success, batchFailures))
+  } yield response.copy(errors = flattenErrors(batchFailures), batch = Some(batchMetadata))).runTxn()
 
   def unassignBulk(admin: StoreAdmin, payload: GiftCardBulkAssignmentPayload)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkGiftCardUpdateResponse] = (for {
@@ -75,10 +78,12 @@ object GiftCardAssignmentUpdater {
     _         ← * <~ GiftCardAssignments.filter(_.assigneeId === payload.assigneeId)
       .filter(_.giftCardId.inSetBind(giftCards.map(_.id))).delete
     response  ← * <~ GiftCardQueries.findAll
-    notFound  = diffToFlatFailures(payload.giftCardCodes, giftCards.map(_.code), GiftCard)
     success   = giftCards.filter(gc ⇒ payload.giftCardCodes.contains(gc.code)).map(_.code)
     _         ← * <~ LogActivity.bulkUnassignedFromGiftCards(admin, assignee, success)
     _         ← * <~ NotificationManager.unsubscribe(adminIds = Seq(assignee.id), dimension = Dimension.giftCard,
       reason = NotificationSubscription.Assigned, objectIds = giftCards.map(_.code)).value
-  } yield response.copy(errors = notFound)).runTxn()
+    // Prepare batch response
+    batchFailures  = diffToBatchErrors(payload.giftCardCodes, giftCards.map(_.code), GiftCard)
+    batchMetadata  = BatchMetadata(BatchMetadataSource(GiftCard, success, batchFailures))
+  } yield response.copy(errors = flattenErrors(batchFailures), batch = Some(batchMetadata))).runTxn()
 }
