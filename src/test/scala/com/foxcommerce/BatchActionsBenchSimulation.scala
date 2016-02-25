@@ -27,7 +27,7 @@ class BatchActionsBenchSimulation extends Simulation {
   // Prepare scenario
   val benchScenario = scenario("Batch Actions Benchmark Scenario")
     .feed(jsonFile("data/admins.json").random)
-    .repeat(350) { // 350 * 20 === 7000
+    .repeat(25) { // 25 * 20 === 500
       exec(GiftCardEndpoint.bulkCreate()).exec(session ⇒ appendCodes(session))
     }
     .exec(session ⇒ {
@@ -67,12 +67,12 @@ class BatchActionsBenchSimulation extends Simulation {
     .exec(GiftCardEndpoint.bulkUnwatch())
     .exitHereIfFailed
     // Benchmark 500 items processing
-  /*
     .exec(session ⇒ takeCodesPortion(session, 500))
     .exec(GiftCardEndpoint.bulkWatch())
     .exitHereIfFailed
     .exec(GiftCardEndpoint.bulkUnwatch())
     .exitHereIfFailed
+  /*
     // Benchmark 1000 items processing
     .exec(session ⇒ takeCodesPortion(session, 1000))
     .exec(GiftCardEndpoint.bulkWatch())
