@@ -16,7 +16,7 @@ type FormData = {
 };
 
 type RestoreState = {
-  sent: boolean
+  emailSent: boolean;
 };
 
 /* ::`*/
@@ -33,37 +33,41 @@ export default class RestorePassword extends Component {
     handleSubmit: PropTypes.func.isRequired,
     resetForm: PropTypes.func.isRequired,
     submitting: PropTypes.bool.isRequired,
+    error: PropTypes.string,
   };
 
   state: RestoreState = {
-    sent: false,
+    emailSent: false,
   };
 
   @autobind
-  onChangeEmail({target}: SEvent<HTMLInputElement>) {
-    this.setState({
-      email: target.value,
+  handleSubmit(data: FormData): Promise {
+    if (data.email.endsWith('.com')) {
+      this.setState({
+        emailSent: true,
+      });
+      return Promise.resolve({error: null});
+    }
+
+    return Promise.reject({
+      email: 'A user with this email does not exist.',
+      _error: `Oops! We don’t have a user with that email. Please check your entry and try again.`,
     });
   }
 
-  @autobind
-  handleSubmit(data: FormData) {
-    if (data.email.endsWith('.com')) {
-      this.setState({
-        sent: true,
-      });
-    } else {
-      return Promise.reject({
-        email: 'A user with this email does not exist.',
-      });
-    }
-  }
-
   get topMessage(): Element {
-    const { sent } = this.state;
-    const { fields: {email}} = this.props;
+    const { emailSent } = this.state;
+    const { fields: {email}, error } = this.props;
 
-    if (sent) {
+    if (error) {
+      return (
+        <div styleName="top-message-error">
+          {error}
+        </div>
+      );
+    }
+
+    if (emailSent) {
       return (
         <div styleName="top-message-success">
           An email was successfully sent to <strong>{email.value}</strong> with reset instructions!
@@ -79,10 +83,10 @@ export default class RestorePassword extends Component {
   }
 
   get emailField(): ?Element {
-    const { sent } = this.state;
+    const { emailSent } = this.state;
     const { fields: {email}} = this.props;
 
-    if (sent) return null;
+    if (emailSent) return null;
 
     return (
       <FormField key="email" styleName="form-field" {...email}>
