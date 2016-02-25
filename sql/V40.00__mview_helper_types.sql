@@ -25,10 +25,11 @@ create table export_customers (
 );
 
 create table export_line_items (
-    state   text,
-    sku     text,
-    name    text,
-    price   integer
+    reference_number    text,
+    state               text,
+    sku                 text,
+    name                text,
+    price               integer
 );
 
 create table export_orders (
