@@ -34,27 +34,24 @@ export default class Customer extends React.Component {
   }
 
   get page() {
+    const {details, params} = this.props;
+
     return (
       <div className="fc-customer">
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
-            <TitleBlock customer={this.props.details} />
+            <TitleBlock customer={details} />
           </div>
         </div>
         <LocalNav gutter={true}>
-          <a href="">Insights</a>
-          <IndexLink to="customer-details" params={this.props.params}>Details</IndexLink>
-          <NavDropdown title="Transaction">
-            <Link to="customer-transactions" params={this.props.params}>Orders</Link>
-            <Link to="customer-returns" params={this.props.params}>Returns</Link>
-            <Link to="customer-cart" params={this.props.params}>Cart</Link>
-          </NavDropdown>
+          <IndexLink to="customer-details" params={params}>Details</IndexLink>
+          <Link to="customer-cart" params={params}>Cart</Link>
+          <Link to="customer-transactions" params={params}>Orders</Link>
           <a href="">Items</a>
-          <Link to="customer-storecredits" params={this.props.params}>Store Credit</Link>
+          <Link to="customer-storecredits" params={params}>Store Credit</Link>
           <a href="">Notifications</a>
-          <a href="">Reviews</a>
-          <Link to="customer-notes" params={this.props.params}>Notes</Link>
-          <Link to="customer-activity-trail" params={this.props.params}>Activity Trail</Link>
+          <Link to="customer-notes" params={params}>Notes</Link>
+          <Link to="customer-activity-trail" params={params}>Activity Trail</Link>
         </LocalNav>
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
