@@ -26,11 +26,11 @@ trait ProductGenerator {
 
   def generateProduct: SimpleProductData = {
     val base = new Base{}
-    val sku = base.letterify("???-???") 
+    val code = base.letterify("???-???") 
     val title = nameGenerator.generate(Math.max(5, Random.nextInt(20))).mkString("")
-    Console.err.println(s"product: ${sku} ${title}")
+    Console.err.println(s"product: ${code} ${title}")
     SimpleProductData(
-      sku = sku, 
+      code = code, 
       title = title,
       description = title,
       price = Random.nextInt(10000))

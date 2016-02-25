@@ -109,7 +109,7 @@ trait OrderGenerator extends ShipmentSeeds {
       _      ← * <~ addProductsToOrder(products, orderId = order.id, OrderLineItem.Cart)
       cc     ← * <~ getCc(customerId)
       gc     ← * <~ GiftCards.mustFindById404(giftCard.id)
-      totals = total(products)
+      totals ← * <~ total(products)
       deductFromGc = deductAmount(gc.availableBalance, totals)
       _    ← * <~ generateOrderPayments(order, cc, gc, deductFromGc)
       gcPayments ← * <~ OrderPayments.findAllGiftCardsByOrderId(order.id).result
@@ -135,7 +135,7 @@ trait OrderGenerator extends ShipmentSeeds {
   (implicit db: Database): DbResultT[Order] = { 
     for {
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
-      shipMethodId ← * <~ shipMethodIds(Random.nextInt(shipMethodIds.length))
+      shipMethod ← * <~ getShipMethod(Random.nextInt(shipMethodIds.length))
       order ← * <~ Orders.create(Order(state = Shipped, customerId = customerId, 
         productContextId = productContext.id, placedAt = Some(time.yesterday.toInstant), 
         referenceNumber = orderReferenceNum))
@@ -156,13 +156,12 @@ trait OrderGenerator extends ShipmentSeeds {
     for {
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
       shipMethod ← * <~ getShipMethod(Random.nextInt(shipMethodIds.length))
-      shipMethodId ← * <~ shipMethod.id
       order ← * <~ Orders.create(Order(state = Shipped, customerId = customerId, 
         productContextId = productContext.id, placedAt = Some(time.yesterday.toInstant), 
         referenceNumber = orderReferenceNum))
       _     ← * <~ addProductsToOrder(products, order.id, OrderLineItem.Shipped)
       gc     ← * <~ GiftCards.mustFindById404(giftCard.id)
-      totals = total(products)
+      totals  ← * <~ total(products)
       deductFromGc = deductAmount(gc.availableBalance, totals)
       cc    ← * <~ getCc(customerId) // TODO: auth
       _    ← * <~ generateOrderPayments(order, cc, gc, deductFromGc)

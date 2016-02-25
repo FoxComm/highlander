@@ -43,7 +43,7 @@ trait DemoSeedHelpers {
       location = "Seattle,WA".some)
 
   def createShippedOrder(customerId: Customer#Id, productContextId: Int, skuIds: Seq[Sku#Id], 
-    shipMethod: ShippingMethod#Id)(implicit db: Database): DbResultT[Order] = for {
+    shipMethod: ShippingMethod)(implicit db: Database): DbResultT[Order] = for {
     order ← * <~ Orders.create(Order(state = Shipped,
       customerId = customerId, productContextId = productContextId, placedAt = time.yesterday.toInstant.some))
     _     ← * <~ addSkusToOrder(skuIds, order.id, OrderLineItem.Shipped)
@@ -78,7 +78,7 @@ trait DemoSeedHelpers {
   } yield addressIds
 
   def createInventory(skuIds: Seq[Int]): Seq[InventorySummary] = 
-    skuIds.map { skuId ⇒ InventorySummary.buildNew(warehouse.id, skuId = skuId, onHand = 100) } 
+    skuIds.map { skuId ⇒ InventorySummary.build(warehouseId = warehouse.id, skuId = skuId, onHand = 100) } 
 }
 
 /**
@@ -172,7 +172,7 @@ trait DemoScenario3 extends DemoSeedHelpers {
     productData ← * <~ Mvp.insertProducts(products3, productContext.id)
     skuIds ← * <~ productData.map(_.skuId)
     inventory ← * <~ createInventory(skuIds)
-    orders ← * <~ customerIds.map { id ⇒ createShippedOrder(id, productContext.id, skuIds, shippingMethod.id)}
+    orders ← * <~ customerIds.map { id ⇒ createShippedOrder(id, productContext.id, skuIds, shippingMethod)}
   } yield {}
 }
 

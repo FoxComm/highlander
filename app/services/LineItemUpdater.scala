@@ -2,7 +2,7 @@ package services
 
 
 import models.inventory.{Skus, Sku}
-import models.activity.ActivityContext
+import models.activity.{Activity, ActivityContext}
 import models.order.lineitems._
 import OrderLineItems.scope._
 import models.customer.Customer
@@ -105,7 +105,7 @@ object LineItemUpdater {
     // load old line items for activity trail
     li    ← * <~ OrderLineItemSkus.findLineItemsByOrder(order).result
     lineItems = li.foldLeft(Map[String, Int]()) { case (acc, (sku, skuShadow, _)) ⇒
-      val quantity = acc.getOrElse(sku.sku, 0)
+      val quantity = acc.getOrElse(sku.code, 0)
       acc.updated(sku.code, quantity + 1)
     }
     // update quantities

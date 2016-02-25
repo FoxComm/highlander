@@ -86,7 +86,7 @@ object CustomerRoutes {
           (get & path("cart")) {
             determineProductContext(db, ec) { productContext ⇒ 
               goodOrFailures {
-                OrderQueries.findOrCreateCartByCustomerId(customerId, Some(admin))
+                OrderQueries.findOrCreateCartByCustomerId(customerId, productContext, Some(admin))
               }
             }
           } ~

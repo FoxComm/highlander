@@ -28,7 +28,7 @@ class LineItemUpdaterTest extends IntegrationTestBase {
   def createProducts(num: Int): DbResultT[(ProductContext, Seq[SimpleProductData])] = for {
     productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
     products ← * <~ Mvp.insertProducts((1 to num).map { i ⇒
-      Factories.products.head.copy(sku = i.toString, price = 5)
+      Factories.products.head.copy(code = i.toString, price = 5)
     }, productContext.id)
   } yield (productContext, products)
 

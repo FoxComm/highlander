@@ -30,7 +30,7 @@ object RmaLineItemUpdater {
       rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
       reason    ← * <~ RmaReasons.filter(_.id === payload.reasonId)
         .one.mustFindOr(NotFoundFailure400(RmaReason, payload.reasonId))
-      sku       ← * <~ Skus.filter(_.sku === payload.sku)
+      sku       ← * <~ Skus.filter(_.code === payload.sku)
         .one.mustFindOr(SkuNotFoundInOrder(payload.sku, rma.orderRefNum))
       skuShadow ← * <~ SkuShadows.filter(_.skuId === sku.id).filter(_.productContextId === productContext.id)
         .one.mustFindOr(SkuNotFoundInOrder(payload.sku, rma.orderRefNum))

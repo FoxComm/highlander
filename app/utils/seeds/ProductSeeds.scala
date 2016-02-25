@@ -26,12 +26,12 @@ trait ProductSeeds {
     }
 
   def products: Seq[SimpleProductData] = Seq(
-    SimpleProductData(sku = "SKU-YAX", title = "Flonkey", description = "Best in Class Flonkey", price = 3300),
-    SimpleProductData(sku = "SKU-BRO", title = "Bronkey", description = "Bronze Bronkey", price = 15300),
-    SimpleProductData(sku = "SKU-ABC", title = "Shark", description = "Dangerious Shark Pets", price = 4500, skuType = Sku.Preorder),
-    SimpleProductData(sku = "SKU-SHH", title = "Sharkling", description = "Smaller Shark", price = 1500, skuType = Sku.Preorder),
-    SimpleProductData(sku = "SKU-ZYA", title = "Dolphin", description = "A Dog named Dolphin", price = 8800, skuType = Sku.Backorder),
-    SimpleProductData(sku = "SKU-MRP", title = "Morphin", description = "Power Ranger", price = 7700),
+    SimpleProductData(code = "SKU-YAX", title = "Flonkey", description = "Best in Class Flonkey", price = 3300),
+    SimpleProductData(code = "SKU-BRO", title = "Bronkey", description = "Bronze Bronkey", price = 15300),
+    SimpleProductData(code = "SKU-ABC", title = "Shark", description = "Dangerious Shark Pets", price = 4500),
+    SimpleProductData(code = "SKU-SHH", title = "Sharkling", description = "Smaller Shark", price = 1500),
+    SimpleProductData(code = "SKU-ZYA", title = "Dolphin", description = "A Dog named Dolphin", price = 8800),
+    SimpleProductData(code = "SKU-MRP", title = "Morphin", description = "Power Ranger", price = 7700),
     // Why beetle? Cuz it's probably a bug. FIXME: add validation!!!
-    SimpleProductData(sku = "SKU-TRL", title = "Beetle", description = "Music Album", price = -100, skuType = Sku.NonSellable, isActive = false))
+    SimpleProductData(code = "SKU-TRL", title = "Beetle", description = "Music Album", price = -100, isActive = false))
 }

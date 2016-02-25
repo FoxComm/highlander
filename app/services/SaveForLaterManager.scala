@@ -28,7 +28,7 @@ object SaveForLaterManager {
   def saveForLater(customerId: Int, skuCode: String, productContextId: Int)
     (implicit db: Database, ec: ExecutionContext): Result[SavedForLater] = (for {
     customer ← * <~ Customers.mustFindById404(customerId)
-    sku ← * <~ Skus.mustFindByIdCode(skuId)
+    sku ← * <~ Skus.mustFindByCode(skuCode)
     product ← * <~ Products.mustFindById404(sku.productId)
     skuShadow ← * <~ SkuShadows.filter(_.skuId === sku.id).filter(_.productContextId === productContextId).one
                 .mustFindOr(SkuNotFoundForContext(sku.id, productContextId))

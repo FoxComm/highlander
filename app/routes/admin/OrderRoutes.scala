@@ -38,7 +38,7 @@ object OrderRoutes {
           (post & pathEnd & entity(as[CreateOrder])) { payload ⇒
             determineProductContext(db, ec) { productContext ⇒ 
               goodOrFailures {
-                OrderCreator.createCart(admin, payload)
+                OrderCreator.createCart(admin, payload, productContext)
               }
             }
           } ~
