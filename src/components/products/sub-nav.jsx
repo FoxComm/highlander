@@ -14,7 +14,10 @@ import type { DetailsParams } from './types';
 
 export default class SubNav extends Component<void, DetailsParams, void> {
   render() {
-    const params = { productId: this.props.productId };
+    const params = { 
+      productId: this.props.productId,
+      product: this.props.product,
+    };
 
     return (
       <LocalNav>

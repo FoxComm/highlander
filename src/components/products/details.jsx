@@ -3,7 +3,7 @@
  */
 
 // libs
-import React, { Component, Element } from 'react';
+import React, { Component, Element, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { dispatch } from 'redux';
@@ -13,90 +13,72 @@ import _ from 'lodash';
 import { getProductAttributes } from '../../paragons/product';
 
 // actions
-import * as Actions from '../../modules/products/details';
+import * as DetailsActions from '../../modules/products/details';
 
 // components
 import ContentBox from '../content-box/content-box';
 
 // types
+import type { DetailsParams } from './types';
 import type { ProductAttribute, ProductAttributes } from '../../paragons/product';
 import type { ProductDetailsState } from '../../modules/products/details';
 
-
 type DetailsProps = {
-  actions: DetailsActions,
-  params: { productId: string, product: Object },
-  products: ProductDetailsState,
+  details: ProductDetailsState,
+  params: DetailsParams,
 };
 
-type DetailsState = {
-  products: ProductDetailsState,
-};
-
-type DetailsActions = {
-  fetchProduct: (id: number) => void,
-};
-
-type DetailsDispatch = {
-  actions: DetailsActions,
-};
-
-function mapStateToProps(state: Object, props: DetailsProps): DetailsState {
-  return {
-    products: state.products.details,
-  };    
-}
-
-function mapDispatchToProps(dispatch: dispatch, props: DetailsProps): DetailsDispatch {
-  return {
-    actions: bindActionCreators(Actions, dispatch),
+export class ProductDetails extends Component<void, DetailsProps, void> {
+  static propTypes = {
+    details: PropTypes.shape({
+      product: PropTypes.object,
+    }),
   };
-}
-
-class ProductDetails extends Component {
-  props: DetailsProps;
-
-  componentDidMount() {
-    this.props.actions.fetchProduct(this.productId);
-  }
-
-  get productId(): number {
-    return parseInt(this.props.params.productId);
-  }
 
   get productAttributes(): ProductAttributes {
-    if (this.props.products.product) {
-      return getProductAttributes(1, this.props.products.product);
+    if (this.props.details.product) {
+      return getProductAttributes(1, this.props.details.product);
     } else {
       return {};
     }
   }
 
-  renderAttributes(p: ProductAttributes): Element {
-    const attributes = _.map(p, (attr, key) => {
-      return (
-        <div>
-          <span>{key}</span>
-          <span>{attr.value}</span>
-        </div>
-      );
+  get renderedAttributes(): Element {
+    const attributes = _.map(this.productAttributes, attribute => {
+      return this.renderAttribute(attribute);
     });
 
+    return <div className="fc-product-details__attributes">{attributes}</div>;
+  }
+
+  renderAttribute(attribute: ProductAttribute): Element {
     return (
-      <div>
-        {attributes}
+      <div className="fc-product-details__attribute">
+        <div className="fc-product-details__label">
+          {attribute.label}
+        </div>
+        <div className="fc-product-details__value">
+          {attribute.value}
+        </div>
       </div>
     );
   }
 
   render() {
     return (
-      <div>
-        Details for product {this.props.params.productId}
-        {this.renderAttributes(this.productAttributes)}
+      <div className="fc-grid">
+        <div className="fc-col-md-2-3">
+          <ContentBox title="General" />
+          {this.renderedAttributes}
+        </div>
       </div>
     );
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProductDetails);
+type DetailsState = { details: ProductDetailsState };
+function mapStateToProps(state: Object): DetailsState {
+  return { pdetails: state.products.details };
+}
+
+export default connect(mapStateToProps, DetailsActions)(ProductDetails);

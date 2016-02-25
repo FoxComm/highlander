@@ -6,7 +6,7 @@ import _ from 'lodash';
 
 import type { Attribute, ProductShadow, ProductResponse } from '../modules/products/sample-products';
 
-export type ProductAttribute = { type: string, value: any };
+export type ProductAttribute = { label: string, type: string, value: any };
 export type ProductAttributes = { [key:string]: ProductAttribute };
 
 export function getProductTitle(contextId: number, resp: ProductResponse): string {
@@ -39,7 +39,7 @@ function getBakedAttribute(key: string,
   const shadowVal = _.get(shadow, ['attributes', key]);
 
   if (attribute && shadowVal) {
-    return { type: attribute.type, value: attribute[shadowVal] };
+    return { label: key, type: attribute.type, value: attribute[shadowVal] };
   } else {
     return null;
   }
