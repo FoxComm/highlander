@@ -15,7 +15,7 @@ create index order_line_items_order_and_origin_idx on order_line_items (order_id
 create function set_oli_refnum() returns trigger as $$
 begin
     if length(new.reference_number) = 0 then
-        new.reference_number = uuid_in(md5(random()::text || now()::text)::cstring);
+        new.reference_number = md5(random()::text || clock_timestamp()::text)::uuid::text;
     end if;
     return new;
 end;

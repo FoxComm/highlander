@@ -16,7 +16,7 @@ create index rma_line_items_rma_id_and_origin_idx on rma_line_items (rma_id, ori
 create function set_rli_refnum() returns trigger as $$
 begin
     if length(new.reference_number) = 0 then
-        new.reference_number = uuid_in(md5(random()::text || now()::text)::cstring);
+        new.reference_number = md5(random()::text || clock_timestamp()::text)::uuid::text;
     end if;
     return new;
 end;
