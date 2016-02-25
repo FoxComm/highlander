@@ -2,7 +2,7 @@ import fetch from 'isomorphic-fetch';
 
 const isServer = typeof self === 'undefined';
 
-export function appendUrlArgs(url, queryString) {
+export function appendQueryString(url, queryString) {
   if (!queryString) {
     return url;
   }
@@ -55,7 +55,7 @@ export function request(method, uri, data) {
     if (method.toUpperCase() === 'GET') {
       const queryString = serialize(data);
       if (queryString) {
-        uri = appendUrlArgs(uri, queryString);
+        uri = appendQueryString(uri, queryString);
       }
     } else {
       options.body = isFormData ? data : JSON.stringify(data);
