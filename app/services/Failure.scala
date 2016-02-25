@@ -8,6 +8,7 @@ import models.payment.creditcard.CreditCard
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
 import models.rma.Rma
+import responses.BatchMetadata
 import services.Util.searchTerm
 import utils.friendlyClassName
 
@@ -337,6 +338,9 @@ object Util {
     case Dimension | _: Dimension ⇒ "name"
     case _ ⇒ "id"
   }
+
+  def diffToBatchErrors[A, B](requested: Seq[A], available: Seq[A], modelType: B): BatchMetadata.FailureData =
+    requested.diff(available).map(id ⇒ (id.toString, NotFoundFailure404(modelType, id).description)).toMap
 
   /* Diff lists of model identifiers to produce a list of failures for absent models */
   def diffToFailures[A, B](requested: Seq[A], available: Seq[A], modelType: B): Option[Failures] =

@@ -3,7 +3,8 @@ package services.orders
 import models.order._
 import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
 import payloads.OrderBulkAssignmentPayload
-import responses.TheResponse
+import responses.{BatchMetadataSource, BatchMetadata, TheResponse}
+import responses.BatchMetadata.flattenErrors
 import responses.order.FullOrder
 import services.Util._
 import services.{NotificationManager, LogActivity, OrderAssigneeNotFound, Result}
@@ -51,31 +52,37 @@ object OrderAssignmentUpdater {
 
   def assignBulk(admin: StoreAdmin, payload: OrderBulkAssignmentPayload)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
+
     // TODO: transfer sorting-paging metadata
     orders          ← * <~ Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result.toXor
     assignee        ← * <~ StoreAdmins.mustFindById400(payload.assigneeId)
     newAssignments  = for (o ← orders) yield OrderAssignment(orderId = o.id, assigneeId = assignee.id)
     _               ← * <~ OrderAssignments.createAll(newAssignments)
     response        ← * <~ OrderQueries.findAll
-    ordersNotFound  = diffToFlatFailures(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
-    orderRefNums    = orders.filter(o ⇒ newAssignments.map(_.orderId).contains(o.id)).map(_.referenceNumber)
-    _               ← * <~ LogActivity.bulkAssignedToOrders(admin, assignee, orderRefNums)
+    refNums         = orders.filter(o ⇒ newAssignments.map(_.orderId).contains(o.id)).map(_.referenceNumber)
+    _               ← * <~ LogActivity.bulkAssignedToOrders(admin, assignee, refNums)
     _               ← * <~ NotificationManager.subscribe(adminIds = Seq(assignee.id), dimension = Dimension.order,
       reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber)).value
-  } yield response.copy(errors = ordersNotFound)).runTxn()
+    // Prepare batch response
+    batchFailures     = diffToBatchErrors(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
+    batchMetadata     = BatchMetadata(BatchMetadataSource(Order, refNums, batchFailures))
+  } yield response.copy(errors = flattenErrors(batchFailures), batch = Some(batchMetadata))).runTxn()
 
   def unassignBulk(admin: StoreAdmin, payload: OrderBulkAssignmentPayload)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
+
     // TODO: transfer sorting-paging metadata
     orders    ← * <~ Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
     assignee  ← * <~ StoreAdmins.mustFindById400(payload.assigneeId)
     _         ← * <~ OrderAssignments.filter(_.assigneeId === payload.assigneeId)
                                      .filter(_.orderId.inSetBind(orders.map(_.id))).delete
     response  ← * <~ OrderQueries.findAll
-    ordersNotFound = diffToFlatFailures(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
     refNums   = orders.filter(o ⇒ payload.referenceNumbers.contains(o.refNum)).map(_.referenceNumber)
     _         ← * <~ LogActivity.bulkUnassignedFromOrders(admin, assignee, refNums)
     _         ← * <~ NotificationManager.unsubscribe(adminIds = Seq(assignee.id), dimension = Dimension.order,
       reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber)).value
-  } yield response.copy(errors = ordersNotFound)).runTxn()
+    // Prepare batch response
+    batchFailures  = diffToBatchErrors(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
+    batchMetadata  = BatchMetadata(BatchMetadataSource(Order, refNums, batchFailures))
+  } yield response.copy(errors = flattenErrors(batchFailures), batch = Some(batchMetadata))).runTxn()
 }

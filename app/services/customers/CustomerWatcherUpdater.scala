@@ -3,8 +3,9 @@ package services.customers
 import models.customer._
 import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
 import payloads.CustomerBulkWatchersPayload
-import responses.{CustomerResponse, TheResponse}
+import responses.{CustomerResponse, TheResponse, BatchMetadata, BatchMetadataSource}
 import responses.CustomerResponse.Root
+import responses.BatchMetadata.flattenErrors
 import services.Util._
 import services.{NotificationManager, LogActivity, CustomerWatcherNotFound, Result}
 import slick.driver.PostgresDriver.api._
@@ -51,31 +52,37 @@ object CustomerWatcherUpdater {
 
   def watchBulk(admin: StoreAdmin, payload: CustomerBulkWatchersPayload)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkCustomerUpdateResponse] = (for {
+
     // TODO: transfer sorting-paging metadata
     customers   ← * <~ Customers.filter(_.id.inSetBind(payload.customerIds)).result.toXor
     assignee    ← * <~ StoreAdmins.mustFindById400(payload.watcherId)
     newWatchers = for (c ← customers) yield CustomerWatcher(customerId = c.id, watcherId = assignee.id)
     _           ← * <~ CustomerWatchers.createAll(newWatchers)
     response    ← * <~ CustomerQueries.findAll
-    notFound    = diffToFlatFailures(payload.customerIds, customers.map(_.id), Customer)
     success     = customers.filter(c ⇒ newWatchers.map(_.customerId).contains(c.id)).map(_.id)
     _           ← * <~ LogActivity.bulkAssignedToCustomers(admin, assignee, success)
     _           ← * <~ NotificationManager.subscribe(adminIds = Seq(assignee.id), dimension = Dimension.customer,
       reason = NotificationSubscription.Watching, objectIds = customers.map(_.id.toString)).value
-  } yield response.copy(errors = notFound)).runTxn()
+    // Prepare batch response
+    batchFailures  = diffToBatchErrors(payload.customerIds, customers.map(_.id), Customer)
+    batchMetadata  = BatchMetadata(BatchMetadataSource(Customer, success.map(_.toString), batchFailures))
+  } yield response.copy(errors = flattenErrors(batchFailures), batch = Some(batchMetadata))).runTxn()
 
   def unwatchBulk(admin: StoreAdmin, payload: CustomerBulkWatchersPayload)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkCustomerUpdateResponse] = (for {
+
     // TODO: transfer sorting-paging metadata
     customers ← * <~ Customers.filter(_.id.inSetBind(payload.customerIds)).result
     assignee  ← * <~ StoreAdmins.mustFindById400(payload.watcherId)
     _         ← * <~ CustomerWatchers.filter(_.watcherId === payload.watcherId)
       .filter(_.customerId.inSetBind(customers.map(_.id))).delete
     response  ← * <~ CustomerQueries.findAll
-    notFound  = diffToFlatFailures(payload.customerIds, customers.map(_.id), Customer)
     success   = customers.filter(c ⇒ payload.customerIds.contains(c.id)).map(_.id)
     _         ← * <~ LogActivity.bulkUnassignedFromCustomers(admin, assignee, success)
     _         ← * <~ NotificationManager.unsubscribe(adminIds = Seq(assignee.id), dimension = Dimension.customer,
       reason = NotificationSubscription.Watching, objectIds = customers.map(_.id.toString)).value
-  } yield response.copy(errors = notFound)).runTxn()
+    // Prepare batch response
+    batchFailures  = diffToBatchErrors(payload.customerIds, customers.map(_.id), Customer)
+    batchMetadata  = BatchMetadata(BatchMetadataSource(Customer, success.map(_.toString), batchFailures))
+  } yield response.copy(errors = flattenErrors(batchFailures), batch = Some(batchMetadata))).runTxn()
 }
