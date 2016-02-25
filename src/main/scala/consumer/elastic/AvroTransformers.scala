@@ -201,6 +201,7 @@ object AvroTransformers {
         // Line items
         field("lineItemCount", IntegerType),
         field("lineItems").nested (
+          field("referenceNumber", StringType) analyzer "autocomplete",
           field("state", StringType) index "not_analyzed",
           field("sku", StringType) analyzer "autocomplete",
           field("name", StringType) analyzer "autocomplete",
