@@ -34,7 +34,13 @@ export function makeFetchAction(fetcher, actions, findSearchState) {
 
       fetchPromise = fetcher.apply({searchState, getState, dispatch}, args)
         .then(
-          result => dispatch(actions.searchSuccess(result)),
+          result => {
+            if (_.isEmpty(result.error)) {
+              return dispatch(actions.searchSuccess(result));
+            } else {
+              return dispatch(actions.searchFailure(result));
+            }
+          },
           err => dispatch(actions.searchFailure(err))
         );
     }
