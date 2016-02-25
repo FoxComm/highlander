@@ -8,7 +8,7 @@ import models.order.{Orders, Order}
 import Order.{Canceled, _}
 import models.StoreAdmin
 import responses.order.FullOrder
-import responses.BatchMetadata
+import responses.{BatchMetadataSource, BatchMetadata}
 import services.{Result, StateTransitionNotAllowed, NotFoundFailure400, LockedFailure}
 import services.LogActivity.{orderStateChanged, orderBulkStateChanged}
 import slick.driver.PostgresDriver.api._
@@ -67,9 +67,7 @@ object OrderStateUpdater {
         val locked = lockedOrders.map { o ⇒ (o.refNum, LockedFailure(Order, o.refNum).description) }
 
         val batchFailures = (invalid ++ notFound ++ locked).toMap
-        val buildInput = List((friendlyClassName(Order), possibleRefNums, batchFailures))
-
-        DbResult.good(BatchMetadata.build(buildInput))
+        DbResult.good(BatchMetadata(BatchMetadataSource(Order, possibleRefNums, batchFailures)))
       }
     }
   }

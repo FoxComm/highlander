@@ -2,7 +2,7 @@ package services.orders
 
 import models.order._
 import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
-import responses.{TheResponse, BatchMetadata}
+import responses.{TheResponse, BatchMetadata, BatchMetadataSource}
 import responses.BatchMetadata.flattenErrors
 import payloads.OrderBulkWatchersPayload
 import responses.TheResponse
@@ -40,6 +40,7 @@ object OrderWatcherUpdater {
 
   def unwatch(admin: StoreAdmin, refNum: String, assigneeId: Int)(implicit db: Database, ec: ExecutionContext,
     ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
+
     order           ← * <~ Orders.mustFindByRefNum(refNum)
     watcher         ← * <~ StoreAdmins.mustFindById404(assigneeId)
     assignment      ← * <~ OrderWatchers.byWatcher(watcher).one.mustFindOr(OrderWatcherNotFound(refNum, assigneeId))
@@ -52,6 +53,7 @@ object OrderWatcherUpdater {
 
   def watchBulk(admin: StoreAdmin, payload: OrderBulkWatchersPayload)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
+
     // TODO: transfer sorting-paging metadata
     orders         ← * <~ Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
     watcher        ← * <~ StoreAdmins.mustFindById400(payload.watcherId)
@@ -62,13 +64,14 @@ object OrderWatcherUpdater {
     _              ← * <~ LogActivity.bulkAddedWatcherToOrders(admin, watcher, orderRefNums)
     _              ← * <~ NotificationManager.subscribe(adminIds = Seq(watcher.id), dimension = Dimension.order,
                             reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber))
-    // Prepare response
+    // Prepare batch response
     batchFailures  = diffToBatchErrors(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
-    batchMetadata  = BatchMetadata.build(List((friendlyClassName(Order), orderRefNums, batchFailures)))
+    batchMetadata  = BatchMetadata(BatchMetadataSource(Order, orderRefNums, batchFailures))
   } yield response.copy(errors = flattenErrors(batchFailures), batch = Some(batchMetadata))).runTxn()
 
   def unwatchBulk(admin: StoreAdmin, payload: OrderBulkWatchersPayload)(implicit ec: ExecutionContext, db: Database,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
+
     // TODO: transfer sorting-paging metadata
     orders         ← * <~ Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
     watcher        ← * <~ StoreAdmins.mustFindById400(payload.watcherId)
@@ -78,8 +81,8 @@ object OrderWatcherUpdater {
     _              ← * <~ LogActivity.bulkRemovedWatcherFromOrders(admin, watcher, orderRefNums)
     _              ← * <~ NotificationManager.unsubscribe(adminIds = Seq(watcher.id), dimension = Dimension.order,
                             reason = NotificationSubscription.Watching, objectIds = orders.map(_.referenceNumber))
-    // Prepare response
+    // Prepare batch response
     batchFailures  = diffToBatchErrors(payload.referenceNumbers, orders.map(_.referenceNumber), Order)
-    batchMetadata  = BatchMetadata.build(List((friendlyClassName(Order), orderRefNums, batchFailures)))
+    batchMetadata  = BatchMetadata(BatchMetadataSource(Order, orderRefNums, batchFailures))
   } yield response.copy(errors = flattenErrors(batchFailures), batch = Some(batchMetadata))).runTxn()
 }

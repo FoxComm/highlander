@@ -17,7 +17,7 @@ sealed trait Failure {
 }
 
 final case class NotFoundFailure404(message: String) extends Failure {
-  override def description  = message
+  override def description = message
 }
 
 object NotFoundFailure404 {
@@ -27,7 +27,7 @@ object NotFoundFailure404 {
 }
 
 final case class NotFoundFailure400(message: String) extends Failure {
-  override def description  = message
+  override def description = message
 }
 
 object NotFoundFailure400 {
@@ -339,7 +339,7 @@ object Util {
     case _ ⇒ "id"
   }
 
-  def diffToBatchErrors[A, B](requested: Seq[A], available: Seq[A], modelType: B): BatchMetadata.ErrorMessages =
+  def diffToBatchErrors[A, B](requested: Seq[A], available: Seq[A], modelType: B): BatchMetadata.FailureData =
     requested.diff(available).map(id ⇒ (id.toString, NotFoundFailure404(modelType, id).description)).toMap
 
   /* Diff lists of model identifiers to produce a list of failures for absent models */

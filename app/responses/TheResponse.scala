@@ -1,7 +1,8 @@
 package responses
 
-import responses.BatchMetadata.{BatchFailures, BatchSuccess}
+import responses.BatchMetadata.{BatchFailures, BatchSuccess, SuccessData, FailureData}
 import services.Failures
+import utils.friendlyClassName
 
 final case class TheResponse[A](
   result     : A,
@@ -47,29 +48,38 @@ final case class BatchMetadata(success: BatchSuccess, failures: BatchFailures) {
 }
 
 object BatchMetadata {
-  type ClassName      = String
-  type EntityType     = String
-  type SuccessIds     = Seq[String]
-  type ErrorMessages  = Map[String, String]
+  type EntityType   = String
+  type SuccessData  = Seq[String]
+  type FailureData  = Map[String, String]
 
-  type RawMetadata    = (ClassName, SuccessIds, ErrorMessages)
-  type BatchSuccess   = Map[EntityType, SuccessIds]
-  type BatchFailures  = Map[EntityType, ErrorMessages]
+  type BatchSuccess   = Map[EntityType, SuccessData]
+  type BatchFailures  = Map[EntityType, FailureData]
 
-  def build(input: List[RawMetadata]): BatchMetadata = {
-    val success = input.foldLeft(Map[EntityType, SuccessIds]()) { case (acc, (typeName, identifiers, _)) ⇒
-      acc.updated(typeName, identifiers)
+  def apply(input: BatchMetadataSource): BatchMetadata = buildInner(Seq(input))
+  def apply(input: Seq[BatchMetadataSource]): BatchMetadata = buildInner(input)
+
+  private def buildInner(input: Seq[BatchMetadataSource]): BatchMetadata = {
+    val success = input.foldLeft(Map[EntityType, SuccessData]()) { case (acc, src) ⇒
+      acc.updated(src.className, src.success)
     }
 
-    val failures = input.foldLeft(Map[EntityType, ErrorMessages]()) { case (acc, (typeName, _, errors)) ⇒
-      acc.updated(typeName, errors)
+    val failures = input.foldLeft(Map[EntityType, FailureData]()) { case (acc, src) ⇒
+      acc.updated(src.className, src.failures)
     }
 
     BatchMetadata(success = success, failures = failures)
   }
 
-  def flattenErrors(input: ErrorMessages): Option[List[String]] = {
+  def flattenErrors(input: FailureData): Option[List[String]] = {
     val errors = input.values.toList
     if (errors.nonEmpty) Some(errors) else None
+  }
+}
+
+final case class BatchMetadataSource(className: String, success: SuccessData, failures: FailureData)
+
+object BatchMetadataSource {
+  def apply[A](model: A, success: SuccessData, failures: FailureData): BatchMetadataSource = {
+    BatchMetadataSource(friendlyClassName(model), success, failures)
   }
 }
