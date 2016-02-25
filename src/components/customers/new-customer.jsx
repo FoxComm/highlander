@@ -36,7 +36,7 @@ export default class NewCustomer extends React.Component {
   @autobind
   submitForm(event) {
     event.preventDefault();
-    this.props.createCustomer();
+    this.props.createCustomer(this.context.history);
   }
 
   @autobind
@@ -44,13 +44,8 @@ export default class NewCustomer extends React.Component {
     this.props.changeFormData(target.name, target.value);
   }
 
-  shouldComponentUpdate(nextProps) {
-    if (nextProps.id !== undefined && nextProps.id !== null) {
-      transitionTo(this.context.history, 'customer', {customerId: nextProps.id});
-      this.props.resetForm();
-      return false;
-    }
-    return true;
+  componentDidMount() {
+    this.props.resetForm();
   }
 
   render () {
