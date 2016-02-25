@@ -2,22 +2,30 @@
  * @flow
  */
 
+// libs
 import React, { Component, Element } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { dispatch } from 'redux';
 import _ from 'lodash';
 
+// helpers
 import { getProductAttributes } from '../../paragons/product';
 
+// actions
 import * as Actions from '../../modules/products/details';
 
+// components
+import ContentBox from '../content-box/content-box';
+
+// types
 import type { ProductAttribute, ProductAttributes } from '../../paragons/product';
 import type { ProductDetailsState } from '../../modules/products/details';
 
+
 type DetailsProps = {
   actions: DetailsActions,
-  params: { productId: string },
+  params: { productId: string, product: Object },
   products: ProductDetailsState,
 };
 

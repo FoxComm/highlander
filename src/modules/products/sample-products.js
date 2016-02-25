@@ -10,7 +10,7 @@ export type Product = {
   variants: Object,
 };
 
-type Attribute = {
+export type Attribute = {
   type: string,
   'default': any,
 };
