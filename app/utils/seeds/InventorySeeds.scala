@@ -13,8 +13,8 @@ trait InventorySeeds extends InventoryGenerator {
 
   def createInventory: DbResultT[Skus] = for {
     skuIds ← * <~ Skus.createAllReturningIds(skus)
-    _ ← * <~ Warehouses.createAll(warehouses)
-    _ ← * <~ InventorySummaries.createAll(inventorySummaries)
+    warehouseIds ← * <~ Warehouses.createAllReturningIds(warehouses)
+    _ ← * <~ generateInventories(skuIds, warehouseIds)
   } yield skuIds.seq.zip(skus).map { case (id, sku) ⇒ sku.copy(id = id) }.toList match {
       case s1 :: s2 :: s3 :: s4 :: s5 :: s6 :: s7 :: Nil ⇒ (s1, s2, s3, s4, s5, s6, s7)
       case other ⇒ ???
@@ -29,6 +29,4 @@ trait InventorySeeds extends InventoryGenerator {
     Sku(code = "SKU-MRP", name = Some("Morphin"), price = 7700),
     // Why beetle? Cuz it's probably a bug. FIXME: add validation!!!
     Sku(code = "SKU-TRL", name = Some("Beetle"), price = -100, isHazardous = true, isActive = false))
-
-  def inventorySummaries: Seq[InventorySummary] = generateInventorySummaries(Seq(1))
 }

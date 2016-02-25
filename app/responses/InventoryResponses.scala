@@ -1,6 +1,8 @@
 package responses
 
 import models.inventory._
+import models.inventory.summary.InventorySummary.AllSummaries
+import models.inventory.summary._
 
 object InventoryResponses {
 
@@ -8,10 +10,13 @@ object InventoryResponses {
 
   object SkuCounts {
 
-    def build(summary: InventorySummary, price: Int): SkuCounts = {
-      val afs = summary.availableForSale
-      SkuCounts(onHand = summary.onHand, onHold = summary.onHold, reserved = summary.reserved, safetyStock = summary
-        .safetyStock, afs = afs, afsCost = afs * price)
+    def build[A <: InventorySummaryBase[A]](summary: A, price: Int): SkuCounts = summary match {
+      case sellable: SellableInventorySummary ⇒
+        SkuCounts(onHand = sellable.onHand, onHold = sellable.onHold, reserved = sellable.reserved, safetyStock =
+          Some(sellable.safetyStock), afs = sellable.availableForSale, afsCost = sellable.availableForSaleCost(price))
+      case _ ⇒
+        SkuCounts(onHand = summary.onHand, onHold = summary.onHold, reserved = summary.reserved, safetyStock =
+          None, afs = summary.availableForSale, afsCost = summary.availableForSaleCost(price))
     }
   }
 
@@ -19,15 +24,19 @@ object InventoryResponses {
 
     final case class Root(skuType: SkuType, counts: SkuCounts)
 
-    def build(summaries: Seq[InventorySummary], warehouse: Warehouse, price: Int): Seq[Root] =
-      summaries.map(summary ⇒ Root(skuType = summary.skuType, SkuCounts.build(summary, price)))
+    def build(summaries: AllSummaries, price: Int): Seq[Root] = Seq(
+      Root(Sellable, SkuCounts.build(summaries._1, price)),
+      Root(Backorder, SkuCounts.build(summaries._2, price)),
+      Root(Preorder, SkuCounts.build(summaries._3, price)),
+      Root(NonSellable, SkuCounts.build(summaries._4, price))
+    )
   }
 
-  object SkuSummaryResponse {
+  object SellableSkuSummaryResponse {
 
     final case class Root(warehouse: Warehouse, counts: SkuCounts)
 
-    def build(summary: InventorySummary, warehouse: Warehouse, price: Int): Root =
+    def build(summary: SellableInventorySummary, warehouse: Warehouse, price: Int): Root =
       Root(warehouse = warehouse, counts = SkuCounts.build(summary, price))
   }
 }
