@@ -67,6 +67,7 @@ class BatchActionsBenchSimulation extends Simulation {
     .exec(GiftCardEndpoint.bulkUnwatch())
     .exitHereIfFailed
     // Benchmark 500 items processing
+  /*
     .exec(session ⇒ takeCodesPortion(session, 500))
     .exec(GiftCardEndpoint.bulkWatch())
     .exitHereIfFailed
@@ -114,6 +115,7 @@ class BatchActionsBenchSimulation extends Simulation {
     .exitHereIfFailed
     .exec(GiftCardEndpoint.bulkUnwatch())
     .exitHereIfFailed
+  */
 
   setUp(
     benchScenario.inject(atOnceUsers(1)).protocols(conf.httpConf)
