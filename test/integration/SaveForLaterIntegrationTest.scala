@@ -30,9 +30,7 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
       emptyResponse.as[SavedForLater].result mustBe empty
       
 
-      SaveForLaters.create(SaveForLater(customerId = customer.id, 
-        skuId = product.skuId, productId = product.productId, 
-        productShadowId = product.productShadowId, 
+      SaveForLaters.create(SaveForLater(customerId = customer.id, skuId = product.skuId, 
         skuShadowId = product.skuShadowId)).run().futureValue.rightVal
       val notEmptyResponse = GET(s"v1/save-for-later/${customer.id}")
       notEmptyResponse.status must === (StatusCodes.OK)
