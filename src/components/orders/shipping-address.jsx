@@ -32,7 +32,7 @@ export default class OrderShippingAddress extends Component {
       return (
         <ChooseShippingAddress
           order={this.props.order}
-          selectedAddress={thing,is.props.order.shippingAddress} />
+          selectedAddress={this.props.order.shippingAddress} />
       );
     } else {
       const address = this.props.order.shippingAddress;
