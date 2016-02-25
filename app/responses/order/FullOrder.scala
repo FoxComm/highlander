@@ -56,6 +56,7 @@ object FullOrder {
 
   final case class DisplayLineItem(
     imagePath: String = "http://lorempixel.com/75/75/fashion",
+    referenceNumber: String = "",
     name: String = "donkey product",
     sku: String,
     price: Int = 33,
@@ -135,8 +136,8 @@ object FullOrder {
     val paymentMethods: Seq[Payments] = creditCardPmt ++ giftCardPmts ++ storeCreditPmts
 
     val skuList = skus.map { case (sku, li) ⇒
-      DisplayLineItem(sku = sku.code, state = li.state, name = sku.name.getOrElse("donkey product"),
-        price = sku.price, totalPrice = sku.price)
+      DisplayLineItem(sku = sku.code, referenceNumber = li.referenceNumber, state = li.state, 
+        name = sku.name.getOrElse("donkey product"), price = sku.price, totalPrice = sku.price)
     }
     val gcList = giftCards.map { case (gc, li) ⇒ GiftCardResponse.build(gc) }
 

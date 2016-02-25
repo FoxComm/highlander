@@ -1,5 +1,6 @@
 create table rma_line_items (
     id serial primary key,
+    reference_number generic_string not null unique,
     rma_id integer not null references rmas(id) on update restrict on delete restrict,
     reason_id integer not null references rma_reasons(id) on update restrict on delete restrict,
     quantity integer not null,
@@ -10,4 +11,19 @@ create table rma_line_items (
     created_at timestamp without time zone default (now() at time zone 'utc')
 );
 
-create index rma_line_items_rma_id_and_origin_idx on rma_line_items (rma_id, origin_id)
+create index rma_line_items_rma_id_and_origin_idx on rma_line_items (rma_id, origin_id);
+
+create function set_rli_refnum() returns trigger as $$
+begin
+    if length(new.reference_number) = 0 then
+        new.reference_number = md5(random()::text || clock_timestamp()::text)::uuid::text;
+    end if;
+    return new;
+end;
+$$ language plpgsql;
+
+create trigger set_rli_refnum_trg
+    before insert
+    on rma_line_items
+    for each row
+    execute procedure set_rli_refnum();	

@@ -13,8 +13,9 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils._
 
-final case class OrderLineItem(id: Int = 0, orderId: Int, originId: Int,
-  originType: OriginType = OrderLineItem.SkuItem, state: State = Cart)
+final case class OrderLineItem(id: Int = 0, referenceNumber: String = "", 
+  orderId: Int, originId: Int, originType: OriginType = OrderLineItem.SkuItem, 
+  state: State = Cart)
   extends ModelWithIdParameter[OrderLineItem]
   with FSM[OrderLineItem.State, OrderLineItem] {
 
@@ -81,11 +82,13 @@ object OrderLineItem {
 
 class OrderLineItems(tag: Tag) extends GenericTable.TableWithId[OrderLineItem](tag, "order_line_items")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def referenceNumber = column[String]("reference_number")
   def orderId = column[Int]("order_id")
   def originId = column[Int]("origin_id")
   def originType = column[OrderLineItem.OriginType]("origin_type")
   def state = column[OrderLineItem.State]("state")
-  def * = (id, orderId, originId, originType, state) <> ((OrderLineItem.apply _).tupled, OrderLineItem.unapply)
+  def * = (id, referenceNumber, orderId, originId, originType, state) <> 
+    ((OrderLineItem.apply _).tupled, OrderLineItem.unapply)
 
   def skuLineItems = foreignKey(OrderLineItemSkus.tableName, originId, OrderLineItemSkus)(_.id)
 }
