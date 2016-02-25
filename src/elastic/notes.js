@@ -22,6 +22,14 @@ export default function processQuery({entityType, entityId}, query) {
       return addNativeFilters(query, [
         dsl.nestedTermFilter('giftCard.code', entityId),
       ]);
+    case 'inventory-item':
+      return addNativeFilters(query, [
+        dsl.nestedTermFilter('inventoryItem.code', entityId),
+      ]);
+    default:
+      return addNativeFilters(query, [
+        dsl.nestedTermFilter(`${entityType}.id`, entityId),
+      ]);
   }
 
   return query;

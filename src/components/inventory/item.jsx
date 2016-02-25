@@ -10,7 +10,7 @@ import { PageTitle } from '../section-title';
 
 const InventoryItem = props => {
 
-  const content = React.cloneElement(props.children, {entity: haveType(props.params, 'inventoryItem') });
+  const content = React.cloneElement(props.children, {entity: haveType(props.params, 'inventory-item') });
 
   return (
     <div className="fc-inventory-item">
