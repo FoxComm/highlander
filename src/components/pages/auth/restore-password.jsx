@@ -5,6 +5,8 @@ import cssModules from 'react-css-modules';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
 import {reduxForm} from 'redux-form';
+import { connect } from 'react-redux';
+import { routeActions } from 'react-router-redux';
 
 import { TextInput } from '../../common/inputs';
 import { FormField } from '../../forms';
@@ -20,6 +22,7 @@ type RestoreState = {
 };
 
 /* ::`*/
+@connect()
 @reduxForm({
   form: 'restore-password',
   fields: ['email'],
@@ -34,6 +37,7 @@ export default class RestorePassword extends Component {
     resetForm: PropTypes.func.isRequired,
     submitting: PropTypes.bool.isRequired,
     error: PropTypes.string,
+    dispatch: PropTypes.func,
   };
 
   state: RestoreState = {
@@ -95,6 +99,35 @@ export default class RestorePassword extends Component {
     );
   }
 
+  @autobind
+  gotoLogin() {
+    this.props.dispatch(routeActions.push('/login'));
+  }
+
+  get primaryButton(): Element {
+    const { emailSent } = this.state;
+
+    if (emailSent) {
+      return (
+        <Button styleName="primary-button" onClick={this.gotoLogin}>BACK TO LOG IN</Button>
+      );
+    }
+
+    return <Button styleName="primary-button" type="submit">SUBMIT</Button>;
+  }
+
+  get switchStage(): Element {
+    const { emailSent } = this.state;
+
+    if (!emailSent) {
+      return (
+        <div styleName="switch-stage">
+          <Link to="/login">BACK TO LOG IN</Link>
+        </div>
+      );
+    }
+  }
+
   render(): Element {
     const {handleSubmit} = this.props;
 
@@ -104,11 +137,9 @@ export default class RestorePassword extends Component {
         {this.topMessage}
         <form onSubmit={handleSubmit(this.handleSubmit)}>
           {this.emailField}
-          <Button styleName="primary-button">SUBMIT</Button>
+          {this.primaryButton}
         </form>
-        <div styleName="switch-stage">
-          <Link to="/login">BACK TO LOG IN</Link>
-        </div>
+        {this.switchStage}
       </div>
     );
   }
