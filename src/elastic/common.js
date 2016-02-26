@@ -26,6 +26,10 @@ import * as dsl from './dsl';
 export function toQuery(filters, options = {}) {
   const { phrase, atLeastOne = false, sortBy } = options;
 
+  if (_.isEmpty(filters) && _.isEmpty(phrase)) {
+    return {};
+  }
+
   let es = _.reduce(filters, (res, searchTerm) => {
     if (searchTerm.value.type == 'string') {
       res.queries.push(dsl.matchQuery(searchTerm.term, searchTerm.value.value));
@@ -44,30 +48,26 @@ export function toQuery(filters, options = {}) {
     }));
   }
 
-  const qwery = {
-    filtered: {
-      query: dsl.combinedQuery(es.queries),
-      [atLeastOne ? 'should' : 'filter']: convertFilters(es.filters),
-    }
-  };
+  let qwery = null;
+  if (_.isEmpty(es.queries) && !_.isEmpty(es.filters)) {
+    qwery = {
+      bool: {
+        [atLeastOne ? 'should' : 'filter']: convertFilters(es.filters),
+      },
+    };
+  } else if (_.isEmpty(es.filters) && !_.isEmpty(es.queries)) {
+    qwery = dsl.combinedQuery(es.queries);
+  } else {
+    qwery = {
+      filtered: {
+        query: dsl.combinedQuery(es.queries),
+        [atLeastOne ? 'should' : 'filter']: convertFilters(es.filters),
+      }
+    };
+  }
 
-  const boolQuery = {
-    bool: {
-      must: _.isEmpty(phrase) ? void 0 : dsl.matchQuery('_all', {
-        query: phrase,
-        type: 'phrase_prefix',
-        max_expansions: 10,
-      }),
-      [atLeastOne ? 'should' : 'filter']: convertFilters(filters),
-    },
-  };
-
-  // return dsl.query(boolQuery, {
-  //   sort: sortBy ? convertSorting(sortBy) : void 0
-  // });
-  return dsl.query(qwery, {
-    sort: sortBy ? convertSorting(sortBy) : void 0
-  });
+  const sortParam = sortBy ? { sort: convertSorting(sortBy) } : null;
+  return dsl.query(qwery, { ...sortParam });
 }
 
 export function addNativeFilters(req, filters) {
