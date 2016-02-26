@@ -161,7 +161,7 @@ class AddressesIntegrationTest extends IntegrationTestBase
     }
 
     "deleted address should be visible to StoreAdmin" in new DeletedAddressFixture {
-      val response = GET(s"v1/customers/${authedCustomer.id}/addresses//${address.id}")
+      val response = GET(s"v1/customers/${customer.id}/addresses/${address.id}")
       response.status must === (StatusCodes.OK)
     }
 
