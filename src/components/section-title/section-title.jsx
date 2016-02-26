@@ -7,7 +7,7 @@ import Title from './title';
 
 /**
  * SectionTitle simple header with this structure -> [<Title>, <Actions>]
- * Section title is intendent for secondary titles (for example Notes for some gift card)
+ * Section title is intended for secondary titles (for example Notes for some gift card)
  */
 const SectionTitle = props => {
   return (
@@ -32,7 +32,7 @@ SectionTitle.propTypes = {
   onAddClick: PropTypes.func,
   children: PropTypes.node,
   className: PropTypes.string,
-  titleTag: Title.propTypes.title,
+  titleTag: Title.propTypes.tag
 };
 
 export default SectionTitle;

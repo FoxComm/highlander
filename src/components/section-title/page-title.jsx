@@ -1,4 +1,3 @@
-
 import React, { PropTypes } from 'react';
 import SectionTitle from './section-title';
 
@@ -16,7 +15,7 @@ const PageTitle = props => {
 PageTitle.propTypes = {
   ...SectionTitle.propTypes,
   pageContext: PropTypes.bool,
-  children: PropTypes.node,
+  children: PropTypes.node
 };
 
 
