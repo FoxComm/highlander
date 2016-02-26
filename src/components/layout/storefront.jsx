@@ -6,6 +6,7 @@ import styles from './storefront.css';
 
 import Icon from '../common/icon';
 import { Link } from 'react-router';
+import Categories from '../categories/categories';
 
 const StoreFront = props => {
   return (
@@ -19,6 +20,9 @@ const StoreFront = props => {
           <Link to="/login">LOG IN</Link>
           <Icon name="fc-cart" />
         </div>
+      </div>
+      <div styleName="categories">
+        <Categories />
       </div>
       {props.children}
       <div styleName="footer">
