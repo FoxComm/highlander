@@ -2,6 +2,7 @@
 package utils.seeds
 
 import models.customer.{Customers, Customer}
+import models.inventory.summary.InventorySummary
 import models.location.{Addresses, Address}
 import models.order.lineitems._
 import models.order._
@@ -16,11 +17,13 @@ import Order.Shipped
 import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
 import services.orders.OrderTotaler
 
-import utils.seeds.generators.GeneratorUtils.randomString
+import utils.seeds.generators.InventoryGenerator
 import utils.Money.Currency
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
+import utils.Passwords.hashPassword
+import utils.seeds.generators.GeneratorUtils.randomString
 
 import cats.implicits._
 import faker._;
@@ -33,13 +36,12 @@ import utils.time
  * https://docs.google.com/document/d/1NW9v81xtMFXkvGVg8_4uzhmRVZzG2CiL8w4zefGCeV4/edit#
  */
 
-trait DemoSeedHelpers { 
+trait DemoSeedHelpers extends InventoryGenerator { 
 
-  def warehouse: Warehouse = Warehouse.buildDefault()
-  def warehouses: Seq[Warehouse] = Seq(warehouse)
+  val hashedPassword = hashPassword(randomString(10))
 
   def generateCustomer(name: String, email: String): Customer =
-    Customer.build(email = email, password = randomString(10).some, name = name.some,
+    Customer(email = email, hashedPassword = hashedPassword.some, name = name.some,
       location = "Seattle,WA".some)
 
   def createShippedOrder(customerId: Customer#Id, productContextId: Int, skuIds: Seq[Sku#Id], 
@@ -76,9 +78,6 @@ trait DemoSeedHelpers {
   def createAddresses(customers: Seq[Customer#Id], address: Address): DbResultT[Seq[Int]] = for {
     addressIds ← * <~ Addresses.createAllReturningIds(customers.map{ id ⇒ address.copy(customerId = id)})
   } yield addressIds
-
-  def createInventory(skuIds: Seq[Int]): Seq[InventorySummary] = 
-    skuIds.map { skuId ⇒ InventorySummary.build(warehouseId = warehouse.id, skuId = skuId, onHand = 100) } 
 }
 
 /**
@@ -125,8 +124,7 @@ trait DemoScenario2 extends DemoSeedHelpers {
     customerIds ← * <~ Customers.createAllReturningIds(customers2)
     addressIds ← * <~ createAddresses(customerIds, address2)
     productData ← * <~ Mvp.insertProducts(products2, productContext.id)
-    skuIds ← * <~ productData.map(_.skuId)
-    inventory ← * <~ createInventory(skuIds)
+    inventory ← * <~ generateInventories(products2, warehouseIds)
   } yield {}
 
 }
@@ -170,8 +168,8 @@ trait DemoScenario3 extends DemoSeedHelpers {
     customerIds ← * <~ Customers.createAllReturningIds(customers3)
     addressIds ← * <~ createAddresses(customerIds, address3)
     productData ← * <~ Mvp.insertProducts(products3, productContext.id)
+    inventory ← * <~ generateInventories(products3, warehouseIds)
     skuIds ← * <~ productData.map(_.skuId)
-    inventory ← * <~ createInventory(skuIds)
     orders ← * <~ customerIds.map { id ⇒ createShippedOrder(id, productContext.id, skuIds, shippingMethod)}
   } yield {}
 }

@@ -58,6 +58,7 @@ object FullOrder {
 
   final case class DisplayLineItem(
     imagePath: String = "http://lorempixel.com/75/75/fashion",
+    referenceNumber: String = "",
     name: String = "donkey product",
     sku: String,
     price: Int = 33,
@@ -138,9 +139,10 @@ object FullOrder {
 
     val skuList = lineItems.map { 
       case data ⇒ { 
-        val price = Mvp.price(data.sku, data.skuShadow).getOrElse((0, Currency.USD))
+        val price = Mvp.priceAsInt(data.sku, data.skuShadow)
         val name = Mvp.name(data.sku, data.skuShadow).getOrElse("")
-        DisplayLineItem(sku = data.sku.code, state = data.lineItem.state, name = name, price = price._1, totalPrice = price._1)
+        DisplayLineItem(sku = data.sku.code, referenceNumber = data.lineItem.referenceNumber,
+          state = data.lineItem.state, name = name, price = price, totalPrice = price)
       }
     }
     val gcList = giftCards.map { case (gc, li) ⇒ GiftCardResponse.build(gc) }

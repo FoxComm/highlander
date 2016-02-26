@@ -8,6 +8,7 @@ import models.payment.creditcard.CreditCard
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
 import models.rma.Rma
+import responses.BatchMetadata
 import services.Util.searchTerm
 import utils.friendlyClassName
 
@@ -260,6 +261,10 @@ final case class CustomerHasInsufficientStoreCredit(id: Int, has: Int, want: Int
   override def description = s"customer with id=$id has storeCredit=$has less than requestedAmount=$want"
 }
 
+final case class ShippingMethodIsNotFound(shippingMethodId: Int) extends Failure {
+  override def description = s"Shipping method $shippingMethodId can't be found"
+}
+
 final case class ShippingMethodIsNotActive(shippingMethodId: Int) extends Failure {
   override def description = s"Shipping method $shippingMethodId can't be added because it's not active"
 }
@@ -286,6 +291,10 @@ final case class SkuNotFoundForContext(skuId: Int, productContextId: Int) extend
 
 final case class ProductNotFoundForContext(productId: Int, productContextId: Int) extends Failure {
   override def description = s"Product with id=$productId with product context $productContextId cannot be found"
+}
+
+final case class InventorySummaryNotFound(skuId: Int, warehouseId: Int) extends Failure {
+  override def description = s"Summary for sku with id=${skuId} in warehouse with id=${warehouseId} not found"
 }
 
 object CreditCardFailure {
@@ -345,6 +354,9 @@ object Util {
     case Dimension | _: Dimension ⇒ "name"
     case _ ⇒ "id"
   }
+
+  def diffToBatchErrors[A, B](requested: Seq[A], available: Seq[A], modelType: B): BatchMetadata.FailureData =
+    requested.diff(available).map(id ⇒ (id.toString, NotFoundFailure404(modelType, id).description)).toMap
 
   /* Diff lists of model identifiers to produce a list of failures for absent models */
   def diffToFailures[A, B](requested: Seq[A], available: Seq[A], modelType: B): Option[Failures] =

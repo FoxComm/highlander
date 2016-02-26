@@ -2,7 +2,6 @@ package utils.seeds.generators
 
 
 import GeneratorUtils.randomString
-import models.inventory.{InventorySummary, InventorySummaries, Warehouse, Warehouses}
 import models.product.{SimpleProductData, Mvp, ProductContexts, SimpleContext}
 import scala.util.Random
 import utils.DbResultT._

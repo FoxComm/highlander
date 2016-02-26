@@ -13,7 +13,7 @@ import models.payment.giftcard._
 import models.payment.storecredit._
 import models.shipping.{ShippingMethods, Shipment, Shipments}
 import models.{Note, Notes}
-import services.{ShippingMethodIsNotActive, CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
+import services.{ShippingMethodIsNotFound, CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT
@@ -144,7 +144,7 @@ trait OrderSeeds {
 
   private def getShipMethod(shipMethodId: Int)(implicit db: Database) =
     ShippingMethods.findActiveById(shipMethodId).one
-      .mustFindOr(ShippingMethodIsNotActive(shipMethodId))
+      .mustFindOr(ShippingMethodIsNotFound(shipMethodId))
 
   def order = 
     Order(customerId = 0, referenceNumber = "ABCD1234-11", state = ManualHold, productContextId = 1)

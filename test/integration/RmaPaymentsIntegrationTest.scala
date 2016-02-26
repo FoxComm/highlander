@@ -21,6 +21,8 @@ class RmaPaymentsIntegrationTest extends IntegrationTestBase
   import Extensions._
 
   "gift cards" - {
+    pending
+
     "POST /v1/rmas/:ref/payment-methods/gift-cards" - {
       "successfully creates gift card as payment method" in new Fixture {
         val payload = payloads.RmaPaymentPayload(amount = 10)
@@ -70,6 +72,8 @@ class RmaPaymentsIntegrationTest extends IntegrationTestBase
   }
 
   "store credit" - {
+    pending
+
     "POST /v1/rmas/:ref/payment-methods/store-credit" - {
       "successfully creates store credit as payment method" in new Fixture {
         val payload = payloads.RmaPaymentPayload(amount = 75)
@@ -120,6 +124,8 @@ class RmaPaymentsIntegrationTest extends IntegrationTestBase
   }
 
   "credit cards" - {
+    pending
+    
     "POST /v1/rmas/:ref/payment-methods/credit-cards" - {
       "succeeds" in new Fixture {
         val payload = payloads.RmaPaymentPayload(amount = 50)

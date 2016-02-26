@@ -96,7 +96,7 @@ object Seeds {
     _ ← * <~ Factories.createAddresses(customers)
     _ ← * <~ Factories.createCreditCards(customers)
     products ← * <~ Factories.createProducts
-    skus ← * <~ Factories.createInventory
+    skus ← * <~ Factories.createInventory(Seq(products._1, products._2, products._3, products._4, products._5, products._6, products._7))
     shipMethods ← * <~ Factories.createShipmentRules
     _ ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = admin)))
     _ ← * <~ Factories.createGiftCards

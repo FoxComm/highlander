@@ -3,8 +3,9 @@ package services.giftcards
 import models.payment.giftcard._
 import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
 import payloads.GiftCardBulkWatchersPayload
-import responses.{GiftCardResponse, TheResponse}
+import responses.{GiftCardResponse, TheResponse, BatchMetadata, BatchMetadataSource}
 import responses.GiftCardResponse.Root
+import responses.BatchMetadata.flattenErrors
 import services.Util._
 import services.{NotificationManager, LogActivity, GiftCardWatcherNotFound, Result}
 import slick.driver.PostgresDriver.api._
@@ -64,7 +65,10 @@ object GiftCardWatcherUpdater {
     _               ← * <~ LogActivity.bulkAddedWatcherToGiftCards(admin, storeAdmin, success)
     _               ← * <~ NotificationManager.subscribe(adminIds = Seq(storeAdmin.id), dimension = Dimension.giftCard,
       reason = NotificationSubscription.Watching, objectIds = giftCards.map(_.code)).value
-  } yield response.copy(errors = notFound)).runTxn()
+    // Prepare batch response
+    batchFailures  = diffToBatchErrors(payload.giftCardCodes, giftCards.map(_.code), GiftCard)
+    batchMetadata  = BatchMetadata(BatchMetadataSource(GiftCard, success, batchFailures))
+  } yield response.copy(errors = flattenErrors(batchFailures), batch = Some(batchMetadata))).runTxn()
 
   def unwatchBulk(admin: StoreAdmin, payload: GiftCardBulkWatchersPayload)
     (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage, ac: ActivityContext): 
@@ -81,5 +85,8 @@ object GiftCardWatcherUpdater {
     _           ← * <~ LogActivity.bulkRemovedWatcherFromGiftCards(admin, storeAdmin, success)
     _           ← * <~ NotificationManager.unsubscribe(adminIds = Seq(storeAdmin.id), dimension = Dimension.giftCard,
       reason = NotificationSubscription.Watching, objectIds = giftCards.map(_.code)).value
-  } yield response.copy(errors = notFound)).runTxn()
+    // Prepare batch response
+    batchFailures  = diffToBatchErrors(payload.giftCardCodes, giftCards.map(_.code), GiftCard)
+    batchMetadata  = BatchMetadata(BatchMetadataSource(GiftCard, success, batchFailures))
+  } yield response.copy(errors = flattenErrors(batchFailures), batch = Some(batchMetadata))).runTxn()
 }

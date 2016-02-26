@@ -34,6 +34,8 @@ class RmaIntegrationTest extends IntegrationTestBase
   with AutomaticAuth {
 
   "RMAs" - {
+    pending
+
     "GET /v1/rmas" - {
       "should return list of RMAs" in new Fixture {
         val response = GET(s"v1/rmas")
@@ -367,6 +369,8 @@ class RmaIntegrationTest extends IntegrationTestBase
   }
 
   "RMA Line Items" - {
+    pending
+
     // SKU Line Items
     "POST /v1/rmas/:refNum/line-items/skus" - {
       "successfully adds SKU line item" in new LineItemFixture {

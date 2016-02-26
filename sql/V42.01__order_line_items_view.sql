@@ -6,7 +6,9 @@ select
     then
         '[]'
     else
-        json_agg((oli.state, 
+        json_agg((
+                oli.reference_number,
+                oli.state, 
                 sku.code, 
                 sku.attributes->'title'->>(sku_shadow.attributes->>'title'), 
                 sku.attributes->'price'->(sku_shadow.attributes->>'price')->>'value')::export_line_items)

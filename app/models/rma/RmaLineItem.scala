@@ -12,9 +12,9 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class RmaLineItem(id: Int = 0, rmaId: Int, reasonId: Int, originId: Int, originType: OriginType,
-  quantity: Int = 1, isReturnItem: Boolean = false, inventoryDisposition: InventoryDisposition = Putaway,
-  createdAt: Instant = Instant.now)
+final case class RmaLineItem(id: Int = 0, referenceNumber: String = "", rmaId: Int, reasonId: Int, 
+  originId: Int, originType: OriginType, quantity: Int = 1, isReturnItem: Boolean = false, 
+  inventoryDisposition: InventoryDisposition = Putaway, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[RmaLineItem] {
 
 }
@@ -76,6 +76,7 @@ object RmaLineItem {
 
 class RmaLineItems(tag: Tag) extends GenericTable.TableWithId[RmaLineItem](tag, "rma_line_items") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def referenceNumber = column[String]("reference_number")
   def rmaId = column[Int]("rma_id")
   def reasonId = column[Int]("reason_id")
   def originId = column[Int]("origin_id")
@@ -85,7 +86,7 @@ class RmaLineItems(tag: Tag) extends GenericTable.TableWithId[RmaLineItem](tag, 
   def inventoryDisposition = column[InventoryDisposition]("inventory_disposition")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, rmaId, reasonId, originId, originType, quantity, isReturnItem,
+  def * = (id, referenceNumber, rmaId, reasonId, originId, originType, quantity, isReturnItem,
     inventoryDisposition, createdAt) <> ((RmaLineItem.apply _).tupled, RmaLineItem.unapply)
 
   def skuLineItems = foreignKey(RmaLineItemSkus.tableName, originId, RmaLineItemSkus)(_.id)

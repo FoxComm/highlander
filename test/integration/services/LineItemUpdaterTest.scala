@@ -39,20 +39,6 @@ class LineItemUpdaterTest extends IntegrationTestBase {
   def createDefaultWarehouse() : Warehouse =
     Warehouses.create(Factories.warehouse).run().futureValue.rightVal
 
-  def createInventory(warehouseId: Int, skuId: Int, onHand: Int = 100): Unit = {
-    val summary = InventorySummary(
-      id = 0,
-      warehouseId = warehouseId,
-      skuId = skuId,
-      onHand = onHand,
-      onHold = 0,
-      reserved = 0,
-      safetyStock = None,
-      updatedAt = Instant.now())
-
-    InventorySummaries.create(summary).run().futureValue.rightVal
-  }
-
   "LineItemUpdater" - {
 
     "Adds line items when the sku doesn't exist in order" in new Fixture {
