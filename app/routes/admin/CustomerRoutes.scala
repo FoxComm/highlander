@@ -7,6 +7,7 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
 import models.customer.Customers
+import models.traits.Originator
 import payloads._
 import services.customers._
 import services.{AddressManager, CreditCardManager, CustomerCreditConverter, StoreCreditAdjustmentsService,
@@ -135,12 +136,12 @@ object CustomerRoutes {
           pathPrefix("addresses") {
             (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
               goodOrFailures {
-                AddressManager.findAllVisibleByCustomer(customerId)
+                AddressManager.findAllByCustomer(Originator(admin), customerId)
               }
             } ~
             (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
               goodOrFailures {
-                AddressManager.create(payload, customerId, Some(admin))
+                AddressManager.create(Originator(admin), payload, customerId)
               }
             } ~
             (post & path(IntNumber / "default") & pathEnd) { id ⇒
@@ -150,12 +151,12 @@ object CustomerRoutes {
             } ~
             (get & path(IntNumber) & pathEnd) { id ⇒
               goodOrFailures {
-                AddressManager.get(customerId, id)
+                AddressManager.get(Originator(admin), customerId, id)
               }
             } ~
             (delete & path(IntNumber) & pathEnd) { id ⇒
               nothingOrFailures {
-                AddressManager.remove(customerId, id, Some(admin))
+                AddressManager.remove(Originator(admin), customerId, id)
               }
             } ~
             (delete & path("default") & pathEnd) {
@@ -166,15 +167,7 @@ object CustomerRoutes {
             (patch & path(IntNumber) & pathEnd & entity(as[CreateAddressPayload])) { (addressId, payload) ⇒
               activityContext(admin) { implicit ac ⇒
                 goodOrFailures {
-                  AddressManager.edit(addressId, customerId, payload, Some(admin))
-                }
-              }
-            } ~
-            (get & path("display") & pathEnd) {
-              complete {
-                Customers.findById(customerId).result.headOption.run().flatMap {
-                  case None ⇒ Future.successful(notFoundResponse)
-                  case Some(customer) ⇒ AddressManager.getDisplayAddress(customer).map(renderOrBadRequest(_))
+                  AddressManager.edit(Originator(admin), addressId, customerId, payload)
                 }
               }
             }
