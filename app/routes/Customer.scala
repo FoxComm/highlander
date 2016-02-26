@@ -152,7 +152,7 @@ object Customer {
           pathPrefix("addresses") {
             (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
               goodOrFailures {
-                AddressManager.findAllByCustomer(customer.id)
+                AddressManager.findAllByCustomer(Originator(customer), customer.id)
               }
             } ~
             (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
@@ -169,7 +169,7 @@ object Customer {
           pathPrefix("addresses" / IntNumber) { addressId ⇒
             (get & pathEnd) {
               goodOrFailures {
-                AddressManager.get(addressId, customer.id)
+                AddressManager.get(Originator(customer), addressId, customer.id)
               }
             } ~
             (post & path("default") & pathEnd) {

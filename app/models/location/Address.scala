@@ -103,12 +103,8 @@ object Addresses extends TableQueryWithId[Address, Addresses](
       }
     }
 
-
   def findAllByCustomerId(customerId: Int): QuerySeq = filter(_.customerId === customerId)
 
-  /**
-   * Return all addresses except the deleted ones.
-   */
   def findAllActiveByCustomerId(customerId: Int): QuerySeq = findAllByCustomerId(customerId).filter(_.deletedAt.isEmpty)
 
   def findAllByCustomerIdWithRegions(customerId: Int): Query[(Addresses, Regions), (Address, Region), Seq] = for {
@@ -122,11 +118,11 @@ object Addresses extends TableQueryWithId[Address, Addresses](
   def findShippingDefaultByCustomerId(customerId: Int): QuerySeq =
    filter(_.customerId === customerId).filter(_.isDefaultShipping === true)
 
-  def findById(customerId: Int, addressId: Int): QuerySeq =
+  def findByIdAndCustomer(customerId: Int, addressId: Int): QuerySeq =
    findById(addressId).extract.filter(_.customerId === customerId)
 
-  def findActiveByIdAndCustomer(addressId: Int, customerId: Int): DBIO[Option[Address]] =
-    findById(addressId).extract.filter(_.customerId === customerId).filter(_.deletedAt.isEmpty).result.headOption
+  def findActiveByIdAndCustomer(addressId: Int, customerId: Int): QuerySeq =
+    findById(addressId).extract.filter(_.customerId === customerId).filter(_.deletedAt.isEmpty)
 
   object scope {
     implicit class AddressesQuerySeqConversions(q: QuerySeq) {
