@@ -98,6 +98,7 @@ function createFilter(filter) {
     case 'term':
       return rangeToFilter(term, operator, value);
     case 'string':
+    case 'string-term':
       return rangeToFilter(term, operator, value.toLowerCase());
     case 'date':
       return dateRangeFilter(term, operator, value);
