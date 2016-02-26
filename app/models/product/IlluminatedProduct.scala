@@ -68,7 +68,3 @@ object IlluminatedProduct {
   }
 }
 
-
-
-
-

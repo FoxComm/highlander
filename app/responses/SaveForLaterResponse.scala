@@ -42,8 +42,6 @@ object SaveForLaterResponse {
     val price = Mvp.priceAsInt(sku, skuShadow)
     val name = Mvp.name(sku, skuShadow)
 
-    Console.err.println(s"NAME : ${name} price ${price}")
-
     Root(
       id = sfl.id,
       name = name,

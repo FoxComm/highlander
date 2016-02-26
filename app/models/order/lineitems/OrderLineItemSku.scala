@@ -47,11 +47,9 @@ object OrderLineItemSkus extends TableQueryWithId[OrderLineItemSku, OrderLineIte
     skuLis  ← lis.skuLineItems
   } yield skuLis
 
-  def findLineItemsByOrder(order: Order): 
-  Query[
-  (Skus, SkuShadows, OrderLineItems), 
-  (Sku, SkuShadow, OrderLineItem), 
-  Seq] = for {
+  type FindLineItemResult = (Sku, SkuShadow, OrderLineItem)
+
+  def findLineItemsByOrder(order: Order): Query[ (Skus, SkuShadows, OrderLineItems), FindLineItemResult, Seq] = for {
     lis     ← OrderLineItems.filter(_.orderId === order.id)
     skuLis  ← lis.skuLineItems
     skuShadow ← SkuShadows if skuShadow.id === skuLis.skuShadowId
