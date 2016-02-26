@@ -170,14 +170,6 @@ object CustomerRoutes {
                   AddressManager.edit(Originator(admin), addressId, customerId, payload)
                 }
               }
-            } ~
-            (get & path("display") & pathEnd) {
-              complete {
-                Customers.findById(customerId).result.headOption.run().flatMap {
-                  case None ⇒ Future.successful(notFoundResponse)
-                  case Some(customer) ⇒ AddressManager.getDisplayAddress(customer).map(renderOrBadRequest(_))
-                }
-              }
             }
           } ~
           pathPrefix("payment-methods" / "credit-cards") {

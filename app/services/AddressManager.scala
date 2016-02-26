@@ -88,34 +88,6 @@ object AddressManager {
     Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false).run()
       .flatMap(Result.good)
 
-  def getDisplayAddress(customer: Customer)
-    (implicit ec: ExecutionContext, db: Database): Future[Option[Root]] = {
-
-    defaultShipping(customer.id).run().flatMap {
-      case Some((address, region)) ⇒
-        Future.successful(Response.build(address, region).some)
-      case None ⇒
-        lastShippedTo(customer.id).run().map {
-          case Some((ship, region)) ⇒ Response.buildOneShipping(ship, region, isDefault = false).some
-          case None ⇒ None
-        }
-    }
-  }
-
-  def defaultShipping(customerId: Int): DBIO[Option[(Address, Region)]] = (for {
-    address ← Addresses.findShippingDefaultByCustomerId(customerId)
-    region  ← Regions if region.id === address.regionId
-  } yield (address, region)).one
-
-  def lastShippedTo(customerId: Int)
-    (implicit db: Database, ec: ExecutionContext): DBIO[Option[(OrderShippingAddress, Region)]] = (for {
-    order ← Orders.findByCustomerId(customerId)
-      .filter(_.state =!= (Order.Cart: Order.State))
-      .sortBy(_.id.desc)
-    shipping ← OrderShippingAddresses if shipping.orderId === order.id
-    region   ← Regions if region.id === shipping.regionId
-  } yield (shipping, region)).take(1).one
-
   private def findByOriginator(originator: Originator, customerId: Int, addressId: Int)
     (implicit db: Database, ec: ExecutionContext) = originator match {
     case AdminOriginator(_) ⇒
