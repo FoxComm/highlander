@@ -1,4 +1,3 @@
-
 //libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
@@ -8,8 +7,6 @@ import { autobind } from 'core-decorators';
 
 // components
 import { SectionTitle } from '../section-title';
-import TabListView from '../tabs/tabs';
-import TabView from '../tabs/tab';
 import { Link, IndexLink } from '../link';
 import ExpandableTable from '../table/expandable-table';
 import InventoryWarehouseRow from './inventory-warehouse-row';
@@ -22,23 +19,23 @@ const mapStateToProps = (state, props) => ({
   tableState: _.get(state, ['inventory', 'warehouses', props.params.sku], {})
 });
 
-@connect(mapStateToProps, {...WarehousesActions})
+@connect(mapStateToProps, { ...WarehousesActions })
 export default class InventoryItemDetails extends React.Component {
 
   static propTypes = {
-    params: PropTypes.object.isRequired,
+    params:       PropTypes.object.isRequired,
     fetchSummary: PropTypes.func.isRequired,
     fetchDetails: PropTypes.func.isRequired,
-  }
+  };
 
   componentDidMount() {
     this.props.fetchSummary(this.props.params.sku);
   }
 
   componentWillReceiveProps(nextProps) {
-    const namespace = ['tableState', 'summary', 'results', 'rows'];
+    const namespace     = ['tableState', 'summary', 'results', 'rows'];
     const oldWarehouses = _.get(this.props, namespace, []);
-    const warehouses = _.get(nextProps, namespace, []);
+    const warehouses    = _.get(nextProps, namespace, []);
     if (!_.isEqual(oldWarehouses, warehouses)) {
       _.each(warehouses, (wh) => {
         this.props.fetchDetails(this.props.params.sku, wh.id);
@@ -48,25 +45,25 @@ export default class InventoryItemDetails extends React.Component {
 
   get tableColumns() {
     return [
-      {field: 'name', text: 'Warehouse'},
-      {field: 'onHand', text: 'On Hand'},
-      {field: 'onHold', text: 'Hold'},
-      {field: 'reserved', text: 'Reserved'},
-      {field: 'safetyStock', text: 'Safety Stock'},
-      {field: 'afs', text: 'AFS'},
-      {field: 'afsCost', text: 'AFS Cost Value', type: 'currency'},
+      { field: 'name', text: 'Warehouse' },
+      { field: 'onHand', text: 'On Hand' },
+      { field: 'onHold', text: 'Hold' },
+      { field: 'reserved', text: 'Reserved' },
+      { field: 'safetyStock', text: 'Safety Stock' },
+      { field: 'afs', text: 'AFS' },
+      { field: 'afsCost', text: 'AFS Cost Value', type: 'currency' },
     ];
   }
 
   get drawerColumns() {
     return [
-      {field: 'skuType', text: 'Type'},
-      {field: 'onHand', text: 'On Hand'},
-      {field: 'onHold', text: 'Hold'},
-      {field: 'reserved', text: 'Reserved'},
-      {field: 'safetyStock', text: 'Safety Stock'},
-      {field: 'afs', text: 'AFS'},
-      {field: 'afsCost', text: 'AFS Cost Value', type: 'currency'},
+      { field: 'skuType', text: 'Type' },
+      { field: 'onHand', text: 'On Hand' },
+      { field: 'onHold', text: 'Hold' },
+      { field: 'reserved', text: 'Reserved' },
+      { field: 'safetyStock', text: 'Safety Stock' },
+      { field: 'afs', text: 'AFS' },
+      { field: 'afsCost', text: 'AFS Cost Value', type: 'currency' },
     ];
   }
 
@@ -79,7 +76,7 @@ export default class InventoryItemDetails extends React.Component {
         row={row}
         drawerData={params.drawerData}
         drawerColumns={params.drawerColumns}
-        params={params} />
+        params={params}/>
     );
   }
 
@@ -91,7 +88,7 @@ export default class InventoryItemDetails extends React.Component {
         key={key}
         warehouse={row}
         columns={columns}
-        params={params} />
+        params={params}/>
     );
   }
 
@@ -105,47 +102,22 @@ export default class InventoryItemDetails extends React.Component {
 
   render() {
     const params = {
-      drawerData: this.drawerData,
+      drawerData:    this.drawerData,
       drawerColumns: this.drawerColumns,
     };
     return (
-      <div className="fc-inventory-item-details">
-        <div className="fc-inventory-item-details__summary">
-          <div className="fc-grid">
-            <div className="fc-col-md-1-1">
-              <SectionTitle title="Inventory" />
-            </div>
-          </div>
-          <TabListView>
-            <TabView draggable={false} selected={true} >
-              <IndexLink to="inventory-item-details"
-                         params={this.props.params}
-                         className="fc-inventory-item-details__tab-link">
-                Inventory
-              </IndexLink>
-            </TabView>
-            <TabView draggable={false} selected={false} >
-              <Link to="inventory-item-transactions"
-                    params={this.props.params}
-                    className="fc-inventory-item-details__tab-link">
-                Transactions
-              </Link>
-            </TabView>
-          </TabListView>
-        </div>
-        <div className="fc-grid">
-          <div className="fc-col-md-1-1">
-            <ExpandableTable
-              columns={this.tableColumns}
-              data={this.summaryData}
-              renderRow={this.renderRow}
-              renderDrawer={this.renderDrawer}
-              params={params}
-              entity={haveType(this.props.params, 'inventoryItem')}
-              idField="id"
-              emptyMessage="No warehouse data found."
-              className="fc-inventory-item-details__warehouses-table"/>
-          </div>
+      <div className="fc-grid">
+        <div className="fc-col-md-1-1">
+          <ExpandableTable
+            columns={this.tableColumns}
+            data={this.summaryData}
+            renderRow={this.renderRow}
+            renderDrawer={this.renderDrawer}
+            params={params}
+            entity={haveType(this.props.params, 'inventoryItem')}
+            idField="id"
+            emptyMessage="No warehouse data found."
+            className="fc-inventory-item-details__warehouses-table"/>
         </div>
       </div>
     );

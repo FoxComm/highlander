@@ -31,7 +31,7 @@ export function createRouteLookupByName(route, prefix = route.props.path) {
   React.Children.forEach(route.props.children, (child) => {
     const path = child.type == IndexRoute ? '' : child.props.path || '';
 
-    lookup = {...lookup, ...createRouteLookupByName(child, prefix + (prefix.slice(-1) === '/' ? '' : '/') + path)};
+    lookup = { ...lookup, ...createRouteLookupByName(child, prefix + (prefix.slice(-1) === '/' ? '' : '/') + path) };
   });
 
   if ((route.type == Route || route.type == IndexRoute) && route.props.name) {
@@ -42,9 +42,13 @@ export function createRouteLookupByName(route, prefix = route.props.path) {
 }
 
 export function addRouteLookupForHistory(createHistory, routes) {
-  return function(...args) {
-    const history = createHistory(...args);
+  return function (...args) {
+    const history             = createHistory(...args);
     history.routeLookupByName = createRouteLookupByName(routes);
     return history;
   };
+}
+
+export function isActiveRoute(history, routeName, params = {}) {
+  return history.isActive(interpolateRoute(history, routeName, params))
 }
