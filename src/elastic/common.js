@@ -26,6 +26,31 @@ import * as dsl from './dsl';
 export function toQuery(filters, options = {}) {
   const { phrase, atLeastOne = false, sortBy } = options;
 
+  let es = _.reduce(filters, (res, searchTerm) => {
+    if (searchTerm.value.type == 'string') {
+      res.queries.push(dsl.matchQuery(searchTerm.term, searchTerm.value.value));
+    } else {
+      res.filters.push(searchTerm);
+    }
+
+    return res;
+  }, { queries: [], filters: [] });
+
+  if (!_.isEmpty(phrase)) {
+    es.queries.push(dsl.matchQuery('_all', {
+      query: phrase,
+      type: 'phrase_prefix',
+      max_expansions: 10,
+    }));
+  }
+
+  const qwery = {
+    filtered: {
+      query: dsl.combinedQuery(es.queries),
+      [atLeastOne ? 'should' : 'filter']: convertFilters(es.filters),
+    }
+  };
+
   const boolQuery = {
     bool: {
       must: _.isEmpty(phrase) ? void 0 : dsl.matchQuery('_all', {
@@ -37,7 +62,10 @@ export function toQuery(filters, options = {}) {
     },
   };
 
-  return dsl.query(boolQuery, {
+  // return dsl.query(boolQuery, {
+  //   sort: sortBy ? convertSorting(sortBy) : void 0
+  // });
+  return dsl.query(qwery, {
     sort: sortBy ? convertSorting(sortBy) : void 0
   });
 }

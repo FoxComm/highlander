@@ -4,10 +4,6 @@ const searchTerms = [
     type: 'object',
     options: [
       {
-        title: 'ID',
-        type: 'string',
-        term: 'id'
-      }, {
         title: 'Reference Number',
         type: 'string',
         term: 'referenceNumber'
