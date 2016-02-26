@@ -37,7 +37,7 @@ import InventoryList from './components/inventory/list';
 import InventoryItem from './components/inventory/item';
 import InventoryItemDetailsBase from './components/inventory/item-details-base';
 import InventoryItemDetails from './components/inventory/item-details';
-import InventoryItemTransactions from './components/inventory/item-transactions.jsx';
+import InventoryItemTransactions from './components/inventory/item-transactions';
 
 import StyleGuide from './components/style-guide/style-guide';
 import StyleGuideGrid from './components/style-guide/style-guide-grid';

@@ -50,5 +50,5 @@ export function addRouteLookupForHistory(createHistory, routes) {
 }
 
 export function isActiveRoute(history, routeName, params = {}) {
-  return history.isActive(interpolateRoute(history, routeName, params))
+  return history.isActive(interpolateRoute(history, routeName, params));
 }
