@@ -12,6 +12,7 @@ select row_number() over (order by (code, sku_type)) as id, code, product, on_ha
     skus as sku
     inner join inventory_summaries as summary on (summary.sku_id = sku.id)
     inner join warehouses as warehouse on (summary.warehouse_id = warehouse.id)
+    inner join products as product on (sku.product_id = product.id)
   ) as details
 join
   (select
@@ -56,7 +57,6 @@ join
     nonsellable_inventory_summaries as non inner join inventory_summaries as summary on non.id = summary.nonsellable_id
   ) as summaries
 on details.summary_id = summaries.summary_id
-inner join products as product on (sku.product_id = product.id)
 order by (code, sku_type);
 
 create unique index inventory_search_view_idx on inventory_search_view (product, sku_type);
