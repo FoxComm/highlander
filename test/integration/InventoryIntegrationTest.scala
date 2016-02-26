@@ -3,7 +3,7 @@ import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import cats.implicits._
-import models.inventory.{InventorySummaries ⇒ Summaries, InventorySummary ⇒ Summary, _}
+import models.inventory._
 import responses.InventoryResponses._
 import services.NotFoundFailure404
 import util.IntegrationTestBase
@@ -11,12 +11,13 @@ import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import utils.seeds.Seeds.Factories
+import utils.seeds.generators.InventoryGenerator
 
 class InventoryIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
   "GET /v1/inventory/skus/:code/:warehouseId" - {
     "returns SKU summary" in new Fixture {
-      val response = GET(s"v1/inventory/skus/${sku.code}/${warehouse.id}")
+      val response = GET(s"v1/inventory/skus/${sku.code}/${warehouse1.id}")
       response.status must ===(StatusCodes.OK)
       val skuResponse = response.as[Seq[SkuDetailsResponse.Root]]
 
@@ -24,16 +25,16 @@ class InventoryIntegrationTest extends IntegrationTestBase with HttpSupport with
       skuResponse must contain allOf(
         // sellable
         SkuDetailsResponse.Root(Sellable, SkuCounts(sellable.onHand, sellable.onHold, sellable.reserved, sellable
-          .safetyStock, sellable.availableForSale, sellable.availableForSale * sku.price)),
+          .safetyStock.some, sellable.availableForSale, sellable.availableForSale * sku.price)),
         // backorder
-        SkuDetailsResponse.Root(Backorder, SkuCounts(backorder.onHand, backorder.onHold, backorder.reserved, backorder
-          .safetyStock, backorder.availableForSale, backorder.availableForSale * sku.price)),
+        SkuDetailsResponse.Root(Backorder, SkuCounts(backorder.onHand, backorder.onHold, backorder.reserved, None,
+          backorder.availableForSale, backorder.availableForSale * sku.price)),
         // preorder
-        SkuDetailsResponse.Root(Preorder, SkuCounts(preorder.onHand, preorder.onHold, preorder.reserved, preorder
-          .safetyStock, preorder.availableForSale, preorder.availableForSale * sku.price)),
+        SkuDetailsResponse.Root(Preorder, SkuCounts(preorder.onHand, preorder.onHold, preorder.reserved, None, preorder
+          .availableForSale, preorder.availableForSale * sku.price)),
         // nonsellable
         SkuDetailsResponse.Root(NonSellable, SkuCounts(nonsellable.onHand, nonsellable.onHold, nonsellable.reserved,
-          nonsellable.safetyStock, nonsellable.availableForSale, nonsellable.availableForSale * sku.price))
+          None, nonsellable.availableForSale, nonsellable.availableForSale * sku.price))
         )
     }
 
@@ -55,13 +56,13 @@ class InventoryIntegrationTest extends IntegrationTestBase with HttpSupport with
     "returns SKU summary across multiple warehouses" in new SummaryFixture {
       val response = GET(s"v1/inventory/skus/${sku.code}/summary")
       response.status must ===(StatusCodes.OK)
-      val summaries = response.as[Seq[SkuSummaryResponse.Root]]
+      val summaries = response.as[Seq[SellableSkuSummaryResponse.Root]]
       summaries must have size 2
       summaries must contain allOf(
-        SkuSummaryResponse.Root(warehouse, SkuCounts(sellable.onHand, sellable.onHold, sellable.reserved, sellable
-          .safetyStock, sellable.availableForSale, sellable.availableForSale * sku.price)),
-        SkuSummaryResponse.Root(warehouse2, SkuCounts(sellable2.onHand, sellable2.onHold, sellable2.reserved, sellable2
-          .safetyStock, sellable2.availableForSale, sellable2.availableForSale * sku.price))
+        SellableSkuSummaryResponse.Root(warehouse1, SkuCounts(sellable.onHand, sellable.onHold, sellable.reserved,
+          sellable.safetyStock.some, sellable.availableForSale, sellable.availableForSale * sku.price)),
+        SellableSkuSummaryResponse.Root(warehouse2, SkuCounts(sellable2.onHand, sellable2.onHold, sellable2.reserved,
+          sellable2.safetyStock.some, sellable2.availableForSale, sellable2.availableForSale * sku.price))
         )
     }
 
@@ -72,25 +73,20 @@ class InventoryIntegrationTest extends IntegrationTestBase with HttpSupport with
     }
   }
 
-  trait Fixture {
-    val (sku, warehouse, sellable, backorder, preorder, nonsellable) = (for {
-      sku         ← * <~ Skus.create(Factories.skus.head)
-      warehouse   ← * <~ Warehouses.create(Warehouse(name = "first"))
-      sellable    ← * <~ Summaries.create(Summary.build(warehouse.id, sku.id, 100, 30, 20, 10.some, Sellable))
-      backorder   ← * <~ Summaries.create(Summary.build(warehouse.id, sku.id, 101, 31, 21, None, Backorder))
-      preorder    ← * <~ Summaries.create(Summary.build(warehouse.id, sku.id, 102, 32, 22, None, Preorder))
-      nonsellable ← * <~ Summaries.create(Summary.build(warehouse.id, sku.id, 103, 33, 23, None, NonSellable))
-    } yield (sku, warehouse, sellable, backorder, preorder, nonsellable)).run().futureValue.rightVal
+  trait Fixture extends InventoryGenerator {
+    val (sku, warehouse1, sellable, backorder, preorder, nonsellable) = (for {
+      sku        ← * <~ Skus.create(Factories.skus.head)
+      warehouse1 ← * <~ Warehouses.create(Warehouse(name = "first"))
+      summaries  ← * <~ generateInventory(sku.id, warehouse1.id)
+      (sellable, backorder, preorder, nonsellable) = summaries
+    } yield (sku, warehouse1, sellable, backorder, preorder, nonsellable)).run().futureValue.rightVal
   }
 
   trait SummaryFixture extends Fixture {
     val (warehouse2, sellable2) = (for {
       warehouse2 ← * <~ Warehouses.create(Warehouse(name = "second"))
-      sellable2  ← * <~ Summaries.create(Summary.build(warehouse2.id, sku.id, 1100, 130, 120, 110.some, Sellable))
-      _          ← * <~ Summaries.create(Summary.build(warehouse2.id, sku.id, 1101, 131, 121, None, Backorder))
-      _          ← * <~ Summaries.create(Summary.build(warehouse2.id, sku.id, 1102, 132, 122, None, Preorder))
-      _          ← * <~ Summaries.create(Summary.build(warehouse2.id, sku.id, 1103, 133, 123, None, NonSellable))
+      summaries  ← * <~ generateInventory(sku.id, warehouse2.id)
       _          ← * <~ Warehouses.create(Warehouse(name = "empty"))
-    } yield (warehouse2, sellable2)).run().futureValue.rightVal
+    } yield (warehouse2, summaries._1)).run().futureValue.rightVal
   }
 }

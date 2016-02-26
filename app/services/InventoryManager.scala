@@ -3,6 +3,7 @@ package services
 import scala.concurrent.ExecutionContext
 
 import models.inventory._
+import models.inventory.summary.InventorySummaries
 import responses.InventoryResponses._
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
@@ -15,15 +16,16 @@ object InventoryManager {
   def getSkuDetails(skuCode: String, warehouseId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Seq[SkuDetailsResponse.Root]] = (for {
     sku       ← * <~ Skus.mustFindByCode(skuCode)
-    warehouse ← * <~ Warehouses.mustFindById404(warehouseId)
-    summaries ← * <~ InventorySummaries.findBySkuIdInWarehouse(warehouseId = warehouseId, id = sku.id).result.toXor
-  } yield SkuDetailsResponse.build(summaries, warehouse, sku.price)).run()
+    _         ← * <~ Warehouses.mustFindById404(warehouseId)
+    summaries ← * <~ InventorySummaries.findBySkuIdInWarehouse(warehouseId = warehouseId, skuId = sku.id).one
+                                       .mustFindOr(InventorySummaryNotFound(sku.id, warehouseId))
+  } yield SkuDetailsResponse.build(summaries, sku.price)).run()
 
   // Summary for sellable SKU across all warehouses
   def getSkuSummary(skuCode: String)
-    (implicit ec: ExecutionContext, db: Database): Result[Seq[SkuSummaryResponse.Root]] = (for {
+    (implicit ec: ExecutionContext, db: Database): Result[Seq[SellableSkuSummaryResponse.Root]] = (for {
     sku       ← * <~ Skus.mustFindByCode(skuCode)
     summaries ← * <~ InventorySummaries.findSellableBySkuId(sku.id).result.toXor
-  } yield summaries.map { case (summary, warehouse) ⇒ SkuSummaryResponse.build(summary, warehouse, sku.price) }).run()
+  } yield summaries.map { case (summary, warehouse) ⇒ SellableSkuSummaryResponse.build(summary, warehouse, sku.price) }).run()
 
 }
