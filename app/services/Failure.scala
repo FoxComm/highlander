@@ -261,6 +261,10 @@ final case class CustomerHasInsufficientStoreCredit(id: Int, has: Int, want: Int
   override def description = s"customer with id=$id has storeCredit=$has less than requestedAmount=$want"
 }
 
+final case class ShippingMethodIsNotFound(shippingMethodId: Int) extends Failure {
+  override def description = s"Shipping method $shippingMethodId can't be found"
+}
+
 final case class ShippingMethodIsNotActive(shippingMethodId: Int) extends Failure {
   override def description = s"Shipping method $shippingMethodId can't be added because it's not active"
 }
