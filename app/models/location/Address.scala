@@ -116,13 +116,13 @@ object Addresses extends TableQueryWithId[Address, Addresses](
   } yield (addresses, regions)
 
   def findShippingDefaultByCustomerId(customerId: Int): QuerySeq =
-   filter(_.customerId === customerId).filter(_.isDefaultShipping === true)
+    filter(_.customerId === customerId).filter(_.isDefaultShipping === true)
 
-  def findByIdAndCustomer(customerId: Int, addressId: Int): QuerySeq =
-   findById(addressId).extract.filter(_.customerId === customerId)
+  def findByIdAndCustomer(addressId: Int, customerId: Int): QuerySeq =
+    findById(addressId).extract.filter(_.customerId === customerId)
 
   def findActiveByIdAndCustomer(addressId: Int, customerId: Int): QuerySeq =
-    findById(addressId).extract.filter(_.customerId === customerId).filter(_.deletedAt.isEmpty)
+    findByIdAndCustomer(addressId, customerId).filter(_.deletedAt.isEmpty)
 
   object scope {
     implicit class AddressesQuerySeqConversions(q: QuerySeq) {
