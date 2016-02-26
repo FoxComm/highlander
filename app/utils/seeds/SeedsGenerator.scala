@@ -30,8 +30,8 @@ object RankingSeedsGenerator {
     password = Some(randomString(10)), name = Some(randomString(10)))
 
   def generateOrder(state: Order.State, customerId: Int, productContext: ProductContext): Order = {
-    Order(customerId = customerId, 
-      referenceNumber = randomString(8) + "-17", 
+    Order(customerId = customerId,
+      referenceNumber = randomString(8) + "-17",
       state = state, productContextId = productContext.id)
   }
 
@@ -104,13 +104,13 @@ object RankingSeedsGenerator {
   def randomString(len: Int) = Random.alphanumeric.take(len).mkString.toLowerCase
 }
 
-object SeedsGenerator extends CustomerGenerator with AddressGenerator 
-  with CreditCardGenerator with OrderGenerator with ProductGenerator 
-  with InventoryGenerator with GiftCardGenerator {
+object SeedsGenerator extends CustomerGenerator with AddressGenerator
+  with CreditCardGenerator with OrderGenerator with InventoryGenerator with InventorySummaryGenerator
+  with GiftCardGenerator with ProductGenerator {
 
-  def generateAddresses(customers: Seq[Customer]): Seq[Address] = { 
-    customers.flatMap { c ⇒ 
-        generateAddress(customer = c, isDefault = true) +: 
+  def generateAddresses(customers: Seq[Customer]): Seq[Address] = {
+    customers.flatMap { c ⇒
+        generateAddress(customer = c, isDefault = true) +:
         ((0 to Random.nextInt(2)) map { i ⇒
           generateAddress(customer = c, isDefault = false)
         })
@@ -141,11 +141,10 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
       appeasements  ← * <~ DbResultT.sequence((1 to appeasementCount).map { i ⇒ generateGiftCardAppeasement})
       giftCards  ← * <~  orderedGcs ++ appeasements
       _ ← * <~ DbResultT.sequence(
-        randomSubset(customerIds, customerIds.length).map{ 
+        randomSubset(customerIds, customerIds.length).map{
           id ⇒ generateOrders(id, productContext, products, pickOne(giftCards))
         })
     } yield {}
   }
 
 }
-

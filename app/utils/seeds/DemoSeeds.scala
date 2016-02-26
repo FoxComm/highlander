@@ -2,7 +2,6 @@
 package utils.seeds
 
 import models.customer.{Customers, Customer}
-import models.inventory.summary.InventorySummary
 import models.location.{Addresses, Address}
 import models.order.lineitems._
 import models.order._
@@ -17,7 +16,7 @@ import Order.Shipped
 import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
 import services.orders.OrderTotaler
 
-import utils.seeds.generators.InventoryGenerator
+import utils.seeds.generators.{InventorySummaryGenerator, InventoryGenerator}
 import utils.Money.Currency
 import utils.DbResultT
 import utils.DbResultT._
@@ -37,7 +36,7 @@ import utils.time
  * https://docs.google.com/document/d/1NW9v81xtMFXkvGVg8_4uzhmRVZzG2CiL8w4zefGCeV4/edit#
  */
 
-trait DemoSeedHelpers extends CreditCardSeeds with InventoryGenerator { 
+trait DemoSeedHelpers extends CreditCardSeeds with InventoryGenerator with InventorySummaryGenerator {
 
   val hashedPassword = hashPassword(randomString(10))
 

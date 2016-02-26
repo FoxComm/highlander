@@ -1,8 +1,6 @@
 package utils.seeds
 
 import models.product.{SimpleContext, SimpleProductData, Mvp, ProductContexts}
-import utils.Money.Currency
-import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 
