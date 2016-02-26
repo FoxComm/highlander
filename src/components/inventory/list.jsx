@@ -27,7 +27,7 @@ const InventoryList = props => {
   const tableColumns = [
     {field: 'product', text: 'Product'},
     {field: 'productActive', text: 'Product State'},
-    {field: 'sku', text: 'SKU'},
+    {field: 'code', text: 'SKU'},
     {field: 'skuActive', text: 'SKU State'},
     {field: 'skuType', text: 'SKU Type', type: 'state', model: 'sku'},
     {field: 'warehouse', text: 'Warehouse'},
