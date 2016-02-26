@@ -281,6 +281,10 @@ final case class AlreadySavedForLater(customerId: Int, skuId: Int) extends Failu
   override def description = s"Customer with id=$customerId already has SKU with id=$skuId saved for later"
 }
 
+final case class InventorySummaryNotFound(skuId: Int, warehouseId: Int) extends Failure {
+  override def description = s"Summary for sku with id=${skuId} in warehouse with id=${warehouseId} not found"
+}
+
 object CreditCardFailure {
   final case class StripeFailure(exception: StripeException) extends Failure {
     override def description = exception.getMessage

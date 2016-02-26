@@ -2,6 +2,7 @@ package utils.seeds
 
 import scala.util.Random
 
+import cats.implicits._
 import models.customer.{CustomerDynamicGroup, Customers, Customer}
 import models.inventory.Skus
 import models.location.{Addresses, Address}
@@ -14,12 +15,10 @@ import utils.ModelWithIdParameter
 import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import cats.implicits._
 import Seeds.Factories
 
 import slick.driver.PostgresDriver.api._
 import scala.concurrent.ExecutionContext
-import scala.concurrent.ExecutionContext.Implicits.global
 import faker.Faker
 import org.json4s.JObject
 
@@ -99,8 +98,6 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
   with CreditCardGenerator with OrderGenerator with InventoryGenerator 
   with GiftCardGenerator {
 
-  import org.json4s.JObject
-
   def generateAddresses(customerIds: Seq[Int]): Seq[Address] = { 
     customerIds.flatMap { id ⇒ 
         generateAddress(customerId = id, isDefault = true) +: 
@@ -120,9 +117,11 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
 
     for {
       shipMethods ← * <~ getShipmentRules
-      _ ← * <~  generateWarehouses
-      skuIds ← * <~  generateInventory(makeSkus(productCount))
-      skus  ← * <~ Skus.filter(_.id.inSet(skuIds)).result
+      warehouseIds ← * <~ generateWarehouses
+      unsavedSkus = makeSkus(productCount)
+      skuIds ← * <~ Skus.createAllReturningIds(unsavedSkus)
+      skus = skuIds.zip(unsavedSkus).map { case (id, s) ⇒ s.copy(id = id) }
+      _ ← * <~ generateInventories(skuIds, warehouseIds)
       customerIds ← * <~ Customers.createAllReturningIds(generateCustomers(customersCount, location))
       customers  ← * <~ Customers.filter(_.id.inSet(customerIds)).result
       _ ← * <~ Addresses.createAll(generateAddresses(customerIds))

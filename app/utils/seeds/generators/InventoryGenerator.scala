@@ -1,15 +1,17 @@
 package utils.seeds.generators
 
 import scala.concurrent.ExecutionContext.Implicits.global
-
-import models.inventory._
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import scala.io.Source
 import scala.util.Random.nextInt
 
-import scala.io.Source
+import faker._
+import models.inventory._
+import models.inventory.summary.InventorySummary.AllSummaries
+import models.inventory.summary._
 import org.conbere.markov.MarkovChain
-import faker._;
+import utils.DbResultT
+import utils.DbResultT._
+import utils.DbResultT.implicits._
 
 trait InventoryGenerator {
 
@@ -22,15 +24,6 @@ trait InventoryGenerator {
     .map(_.grouped(2)) //group characters in line into sets of 2
     .foldLeft(new MarkovChain[String](start, stop))((acc, wordChunks) =>
         acc.insert(wordChunks.map(_.toLowerCase).toList))
-
-  def generateInventorySummary(skuId: Int): Seq[InventorySummary] =
-    Seq(Backorder, NonSellable, Preorder, Sellable).map { typed ⇒
-      InventorySummary.build(warehouseId = warehouse.id, skuId = skuId, skuType = typed, onHand = nextInt(500) + 50,
-        onHold = nextInt(50), reserved = nextInt(100), safetyStock = Some(nextInt(20)))
-    }
-
-  def generateInventorySummaries(skuIds: Seq[Int]): Seq[InventorySummary] =
-    skuIds.flatMap(generateInventorySummary)
 
   def generateSku: Sku = {
     val base = new Base{}
@@ -45,12 +38,29 @@ trait InventoryGenerator {
   }
 
   def generateWarehouses = for {
-    _ ← * <~ Warehouses.createAll(warehouses)
-  } yield {}
+    warehouseIds ← * <~ Warehouses.createAllReturningIds(warehouses)
+  } yield warehouseIds
 
-  def generateInventory(skus: Seq[Sku])  = for {
-    skuIds ← * <~ Skus.createAllReturningIds(skus)
-    _ ← * <~ InventorySummaries.createAll(generateInventorySummaries(skuIds))
-  } yield skuIds
+  def generateInventory(skuId: Int, warehouseId: Int): DbResultT[AllSummaries] = for {
+    sellable ← * <~ SellableInventorySummaries.create(SellableInventorySummary(onHand = onHandRandom, onHold =
+      onHoldRandom, reserved = reservedRandom, safetyStock = nextInt(20)))
+    preorder ← * <~ PreorderInventorySummaries.create(PreorderInventorySummary(onHand = onHandRandom, onHold =
+      onHoldRandom, reserved = reservedRandom))
+    backorder ← * <~ BackorderInventorySummaries.create(BackorderInventorySummary(onHand = onHandRandom, onHold =
+      onHoldRandom, reserved = reservedRandom))
+    nonsellable ← * <~ NonSellableInventorySummaries.create(NonSellableInventorySummary(onHand = onHandRandom, onHold =
+      onHoldRandom, reserved = reservedRandom))
+    summary ← * <~ InventorySummaries.create(InventorySummary(skuId = skuId, warehouseId = warehouseId, sellableId =
+      sellable.id, preorderId = preorder.id, backorderId = backorder.id, nonSellableId = nonsellable.id))
+  } yield (sellable, preorder, backorder, nonsellable)
 
+  def generateInventories(skuIds: Seq[Int], warehouseIds: Seq[Int]): DbResultT[Seq[AllSummaries]] =
+    DbResultT.sequence(for {
+      skuId ← skuIds
+      warehouseId ← warehouseIds
+    } yield generateInventory(skuId, warehouseId))
+
+  private def onHandRandom = nextInt(1000)
+  private def onHoldRandom = nextInt(50)
+  private def reservedRandom = nextInt(100)
 }

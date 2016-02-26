@@ -2,6 +2,7 @@
 package utils.seeds
 
 import models.customer.{Customers, Customer}
+import models.inventory.summary.InventorySummary
 import models.location.{Addresses, Address}
 import models.order.lineitems._
 import models.order._
@@ -107,10 +108,7 @@ trait DemoScenario2 extends DemoSeedHelpers {
     Sku(code = "SKU-CLK", name = "Clarks Women's Aria Pump Flat".some, price = 7900),
     Sku(code = "SKU-ADS", name = "adidas Performance Women's Galactic Elite Running Shoe".some, price = 4900))
 
-  def inventorySummaries(skus: Seq[Sku]): Seq[InventorySummary] = 
-    skus.map { sku ⇒ InventorySummary.build(warehouse.id, skuId = sku.id, onHand = 100) }
-
-  def address2 = Address(customerId = 0, regionId = 4177, name = "Home", 
+  def address2 = Address(customerId = 0, regionId = 4177, name = "Home",
     address1 = "555 E Lake Union St.", address2 = None, city = "Seattle", 
     zip = "12345", isDefaultShipping = true, phoneNumber = "2025550113".some)
 
