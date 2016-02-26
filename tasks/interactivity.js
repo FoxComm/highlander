@@ -6,9 +6,9 @@ function listen(cb) {
   process.stdin.setEncoding('utf8');
   process.stdin.setRawMode(true);
 
-  console.log(`Press ${chalk.white.bold('j')} to clean caches and re-run ${chalk.green('browserify')} task.`);
-  console.log(`Press ${chalk.white.bold('c')} to re-run ${chalk.green('css')} task.`);
-  console.log(`Press ${chalk.white.bold('s')} to re-run ${chalk.green('server')}.`);
+  console.log(`Press ${chalk.white.bold('j')} to clean caches and re-run ${chalk.green('browserify')} task.`); // eslint-disable-line no-console-log/no-console-log
+  console.log(`Press ${chalk.white.bold('c')} to re-run ${chalk.green('css')} task.`); // eslint-disable-line no-console-log/no-console-log
+  console.log(`Press ${chalk.white.bold('s')} to re-run ${chalk.green('server')}.`); // eslint-disable-line no-console-log/no-console-log
 
   process.stdin.on('data', function(chunk) {
     switch (chunk) {

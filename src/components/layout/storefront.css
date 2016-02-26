@@ -28,6 +28,7 @@
 }
 
 .categories {
+  margin-top: 40px;
 }
 
 @media (--medium-viewport) {

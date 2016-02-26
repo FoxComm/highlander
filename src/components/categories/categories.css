@@ -1,11 +1,18 @@
 
-@import "variables.css";
 @import "colors.css";
 
-.categories {
-
+.list {
+  display: flex;
+  justify-content: center;
 }
 
-.categoryItem {
+.item {
+  margin: 0 30px;
+  font-size: 15px;
+  line-height: 18px;
+}
 
+.item-link {
+  color: var(--blackish);
+  text-decoration: none;
 }
