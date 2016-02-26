@@ -7,6 +7,7 @@ install:
 build:
 	mkdir -p $(BUILD_DIR)
 	./node_modules/.bin/aglio -i ./docs/admin.apib -o $(BUILD_DIR)/admin.html -t slate --theme-full-width -w
+	./node_modules/.bin/aglio -i ./docs/customer.apib -o $(BUILD_DIR)/customer.html -t slate --theme-full-width -w
 	./node_modules/.bin/aglio -i ./docs/public.apib -o $(BUILD_DIR)/public.html -t slate --theme-full-width -w
 
 watch_public:
