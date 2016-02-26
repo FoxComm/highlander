@@ -1,6 +1,7 @@
 import React from 'react';
 import { Route, IndexRoute } from 'react-router';
 import Site from './components/layout/site';
+import StoreFront from './components/layout/storefront';
 import Home from './components/pages/home';
 import Auth from './components/pages/auth/auth';
 import Login from './components/pages/auth/login';
@@ -11,8 +12,10 @@ import Grid from './components/pages/grid';
 
 const routes = (
   <Route path="/" component={Site}>
-    <IndexRoute component={Home} />
-    <Route path="" component={Auth}>
+    <Route component={StoreFront}>
+      <IndexRoute component={Home} />
+    </Route>
+    <Route component={Auth}>
       <Route path="/login" component={Login} />
       <Route path="/signup" component={SignUp} />
       <Route path="/password/restore" component={RestorePassword} />

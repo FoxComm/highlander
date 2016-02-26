@@ -1,0 +1,41 @@
+
+@import "media-queries.css";
+
+.storefront {
+  lost-column: 9/11;
+  lost-offset: -1/11;
+  margin: 45px 0;
+}
+
+.head {
+  display: flex;
+}
+
+.search {
+  flex-grow: 1;
+}
+
+.logo {
+
+}
+
+.tools {
+  flex-grow: 1;
+  text-align: right;
+}
+
+.footer {
+}
+
+@media (--medium-viewport) {
+  .storefront {
+    margin: 10px 0;
+  }
+}
+
+
+@media (--small-viewport) {
+  .storefront {
+    margin: 10px 0;
+  }
+}

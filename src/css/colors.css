@@ -7,3 +7,7 @@
   --redish: #f65554;
   --greenish: #49C699;
 }
+
+:root {
+  --color-error: var(--redish);
+}
