@@ -27,9 +27,13 @@ class BatchActionsBenchSimulation extends Simulation {
   // Prepare scenario
   val benchScenario = scenario("Batch Actions Benchmark Scenario")
     .feed(jsonFile("data/admins.json").random)
-    .repeat(1) { // 1 * 20 === 20
+  /*
+    .repeat(350) { // 350 * 20 === 7000
       exec(GiftCardEndpoint.bulkCreate()).exec(session ⇒ appendCodes(session))
     }
+  */
+    .exec(GiftCardEndpoint.bulkCreate())
+    .exec(session ⇒ appendCodes(session))
     .exec(session ⇒ {
       val count = session("giftCardCodes").as[Vector[String]].size
       println(s"Succesfully generated $count gift cards during simulation")
