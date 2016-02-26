@@ -70,6 +70,11 @@
   color: var(--greenish);
 }
 
+.top-message-error {
+  composes: top-message;
+  color: var(--redish);
+}
+
 @media (--small-viewport) {
   .auth-block {
     lost-column: 1/1;

@@ -6,7 +6,7 @@ import styles from './auth.css';
 import { autobind } from 'core-decorators';
 
 import { TextInput, TextInputWithLabel } from '../../common/inputs';
-import { Form, FormField } from '../../forms';
+import { FormField } from '../../forms';
 import Button from '../../common/buttons';
 import WrapToLines from '../../common/wrap-to-lines';
 import { Link } from 'react-router';
@@ -57,7 +57,7 @@ export default class Auth extends Component {
         <div styleName="title">SIGN UP</div>
         <Button icon="fc-google" styleName="google-login">SIGN UP WITH GOOGLE</Button>
         <WrapToLines styleName="divider">or</WrapToLines>
-        <Form>
+        <form>
           <FormField key="email" styleName="form-field">
             <TextInput placeholder="EMAIL" value={email} type="email" onChange={this.onChangeEmail} />
           </FormField>
@@ -70,7 +70,7 @@ export default class Auth extends Component {
             <TextInput placeholder="FIRST & LAST NAME" value={username} onChange={this.onChangeUsername} />
           </FormField>
           <Button styleName="primary-button">SIGN UP</Button>
-        </Form>
+        </form>
         <div styleName="switch-stage">
           Already have an account? <Link to="/login">Log In</Link>
         </div>

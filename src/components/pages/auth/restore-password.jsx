@@ -1,52 +1,80 @@
 /* @flow */
 
-import React, { Component, Element } from 'react';
+import React, { Component, Element, PropTypes } from 'react';
 import cssModules from 'react-css-modules';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
+import {reduxForm} from 'redux-form';
+import { connect } from 'react-redux';
+import { routeActions } from 'react-router-redux';
 
 import { TextInput } from '../../common/inputs';
-import { Form, FormField } from '../../forms';
+import { FormField } from '../../forms';
 import Button from '../../common/buttons';
 import { Link } from 'react-router';
 
+type FormData = {
+  email: string;
+};
 
 type RestoreState = {
-  email: string,
-  sent: boolean
+  emailSent: boolean;
 };
 
 /* ::`*/
+@connect()
+@reduxForm({
+  form: 'restore-password',
+  fields: ['email'],
+})
 @cssModules(styles)
 /* ::`*/
 export default class RestorePassword extends Component {
 
+  static propTypes = {
+    fields: PropTypes.object.isRequired,
+    handleSubmit: PropTypes.func.isRequired,
+    resetForm: PropTypes.func.isRequired,
+    submitting: PropTypes.bool.isRequired,
+    error: PropTypes.string,
+    dispatch: PropTypes.func,
+  };
+
   state: RestoreState = {
-    email: '',
-    sent: false,
+    emailSent: false,
   };
 
   @autobind
-  onChangeEmail({target}: SEvent<HTMLInputElement>) {
-    this.setState({
-      email: target.value,
-    });
-  }
+  handleSubmit(data: FormData): Promise {
+    if (data.email.endsWith('.com')) {
+      this.setState({
+        emailSent: true,
+      });
+      return Promise.resolve({error: null});
+    }
 
-  @autobind
-  handleSubmit() {
-    this.setState({
-      sent: true,
+    return Promise.reject({
+      email: 'A user with this email does not exist.',
+      _error: `Oops! We don’t have a user with that email. Please check your entry and try again.`,
     });
   }
 
   get topMessage(): Element {
-    const { sent, email } = this.state;
+    const { emailSent } = this.state;
+    const { fields: {email}, error } = this.props;
 
-    if (sent) {
+    if (error) {
+      return (
+        <div styleName="top-message-error">
+          {error}
+        </div>
+      );
+    }
+
+    if (emailSent) {
       return (
         <div styleName="top-message-success">
-          An email was successfully sent to <strong>{email}</strong> with reset instructions!
+          An email was successfully sent to <strong>{email.value}</strong> with reset instructions!
         </div>
       );
     }
@@ -59,29 +87,59 @@ export default class RestorePassword extends Component {
   }
 
   get emailField(): ?Element {
-    const { sent, email } = this.state;
+    const { emailSent } = this.state;
+    const { fields: {email}} = this.props;
 
-    if (sent) return null;
+    if (emailSent) return null;
 
     return (
-      <FormField key="email" styleName="form-field">
-        <TextInput placeholder="EMAIL" required value={email} type="email" onChange={this.onChangeEmail} />
+      <FormField key="email" styleName="form-field" {...email}>
+        <TextInput placeholder="EMAIL" required type="email" {...email} />
       </FormField>
     );
   }
 
+  @autobind
+  gotoLogin() {
+    this.props.dispatch(routeActions.push('/login'));
+  }
+
+  get primaryButton(): Element {
+    const { emailSent } = this.state;
+
+    if (emailSent) {
+      return (
+        <Button styleName="primary-button" onClick={this.gotoLogin}>BACK TO LOG IN</Button>
+      );
+    }
+
+    return <Button styleName="primary-button" type="submit">SUBMIT</Button>;
+  }
+
+  get switchStage(): Element {
+    const { emailSent } = this.state;
+
+    if (!emailSent) {
+      return (
+        <div styleName="switch-stage">
+          <Link to="/login">BACK TO LOG IN</Link>
+        </div>
+      );
+    }
+  }
+
   render(): Element {
+    const {handleSubmit} = this.props;
+
     return (
       <div>
         <div styleName="title">FORGOT PASSWORD</div>
         {this.topMessage}
-        <Form onSubmit={this.handleSubmit}>
+        <form onSubmit={handleSubmit(this.handleSubmit)}>
           {this.emailField}
-          <Button styleName="primary-button">SUBMIT</Button>
-        </Form>
-        <div styleName="switch-stage">
-          <Link to="/login">BACK TO LOG IN</Link>
-        </div>
+          {this.primaryButton}
+        </form>
+        {this.switchStage}
       </div>
     );
   }
