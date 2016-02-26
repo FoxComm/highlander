@@ -19,11 +19,11 @@ const mapStateToProps = (state, props) => ({
   tableState: _.get(state, ['inventory', 'warehouses', props.params.sku], {})
 });
 
-@connect(mapStateToProps, { ...WarehousesActions })
+@connect(mapStateToProps, {...WarehousesActions})
 export default class InventoryItemDetails extends React.Component {
 
   static propTypes = {
-    params:       PropTypes.object.isRequired,
+    params: PropTypes.object.isRequired,
     fetchSummary: PropTypes.func.isRequired,
     fetchDetails: PropTypes.func.isRequired,
   };
@@ -33,9 +33,9 @@ export default class InventoryItemDetails extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const namespace     = ['tableState', 'summary', 'results', 'rows'];
+    const namespace = ['tableState', 'summary', 'results', 'rows'];
     const oldWarehouses = _.get(this.props, namespace, []);
-    const warehouses    = _.get(nextProps, namespace, []);
+    const warehouses = _.get(nextProps, namespace, []);
     if (!_.isEqual(oldWarehouses, warehouses)) {
       _.each(warehouses, (wh) => {
         this.props.fetchDetails(this.props.params.sku, wh.id);
@@ -45,25 +45,25 @@ export default class InventoryItemDetails extends React.Component {
 
   get tableColumns() {
     return [
-      { field: 'name', text: 'Warehouse' },
-      { field: 'onHand', text: 'On Hand' },
-      { field: 'onHold', text: 'Hold' },
-      { field: 'reserved', text: 'Reserved' },
-      { field: 'safetyStock', text: 'Safety Stock' },
-      { field: 'afs', text: 'AFS' },
-      { field: 'afsCost', text: 'AFS Cost Value', type: 'currency' },
+      {field: 'name', text: 'Warehouse'},
+      {field: 'onHand', text: 'On Hand'},
+      {field: 'onHold', text: 'Hold'},
+      {field: 'reserved', text: 'Reserved'},
+      {field: 'safetyStock', text: 'Safety Stock'},
+      {field: 'afs', text: 'AFS'},
+      {field: 'afsCost', text: 'AFS Cost Value', type: 'currency'},
     ];
   }
 
   get drawerColumns() {
     return [
-      { field: 'skuType', text: 'Type' },
-      { field: 'onHand', text: 'On Hand' },
-      { field: 'onHold', text: 'Hold' },
-      { field: 'reserved', text: 'Reserved' },
-      { field: 'safetyStock', text: 'Safety Stock' },
-      { field: 'afs', text: 'AFS' },
-      { field: 'afsCost', text: 'AFS Cost Value', type: 'currency' },
+      {field: 'skuType', text: 'Type'},
+      {field: 'onHand', text: 'On Hand'},
+      {field: 'onHold', text: 'Hold'},
+      {field: 'reserved', text: 'Reserved'},
+      {field: 'safetyStock', text: 'Safety Stock'},
+      {field: 'afs', text: 'AFS'},
+      {field: 'afsCost', text: 'AFS Cost Value', type: 'currency'},
     ];
   }
 
@@ -102,7 +102,7 @@ export default class InventoryItemDetails extends React.Component {
 
   render() {
     const params = {
-      drawerData:    this.drawerData,
+      drawerData: this.drawerData,
       drawerColumns: this.drawerColumns,
     };
     return (

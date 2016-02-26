@@ -1,6 +1,5 @@
 //libs
 import React, { PropTypes } from 'react';
-import { Route } from 'react-router';
 
 // components
 import { SectionTitle } from '../section-title';
