@@ -152,12 +152,12 @@ object Customer {
           pathPrefix("addresses") {
             (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
               goodOrFailures {
-                AddressManager.findAllVisibleByCustomer(customer.id)
+                AddressManager.findAllByCustomer(customer.id)
               }
             } ~
             (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
               goodOrFailures {
-                AddressManager.create(payload, customer.id)
+                AddressManager.create(Originator(customer), payload, customer.id)
               }
             } ~
             (delete & path("default") & pathEnd) {
@@ -169,7 +169,7 @@ object Customer {
           pathPrefix("addresses" / IntNumber) { addressId ⇒
             (get & pathEnd) {
               goodOrFailures {
-                AddressManager.getByIdAndCustomer(addressId, customer)
+                AddressManager.get(addressId, customer.id)
               }
             } ~
             (post & path("default") & pathEnd) {
@@ -179,12 +179,12 @@ object Customer {
             } ~
             (patch & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
               goodOrFailures {
-                AddressManager.edit(addressId, customer.id, payload)
+                AddressManager.edit(Originator(customer), addressId, customer.id, payload)
               }
             } ~
             (delete & pathEnd) {
               nothingOrFailures {
-                AddressManager.remove(customer.id, addressId)
+                AddressManager.remove(Originator(customer), customer.id, addressId)
               }
             }
           } ~
