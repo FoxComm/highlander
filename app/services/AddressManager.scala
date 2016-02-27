@@ -34,9 +34,9 @@ object AddressManager {
     Addresses.sortedAndPagedWithRegions(query).result.map(Response.buildMulti).toTheResponse.run()
   }
 
-  def get(originator: Originator, customerId: Int, addressId: Int)
+  def get(originator: Originator, addressId: Int, customerId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
-    address ← * <~ findByOriginator(originator, customerId, addressId)
+    address ← * <~ findByOriginator(originator, addressId, customerId)
     region  ← * <~ Regions.findOneById(address.regionId).safeGet.toXor
   } yield Response.build(address, region)).run()
 
@@ -61,7 +61,7 @@ object AddressManager {
     _           ← * <~ LogActivity.addressUpdated(originator, customer, address, region, oldAddress, oldRegion)
   } yield Response.build(address, region)).runTxn()
 
-  def remove(originator: Originator, customerId: Int, addressId: Int)
+  def remove(originator: Originator, addressId: Int, customerId: Int)
     (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Unit] = (for {
 
     customer    ← * <~ Customers.mustFindById404(customerId)
@@ -72,7 +72,7 @@ object AddressManager {
     _           ← * <~ LogActivity.addressDeleted(originator, customer, address, region)
   } yield {}).runTxn()
 
-  def setDefaultShippingAddress(customerId: Int, addressId: Int)
+  def setDefaultShippingAddress(addressId: Int, customerId: Int)
     (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
     customer    ← * <~ Customers.mustFindById404(customerId)
     _           ← * <~ Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false)
@@ -88,7 +88,7 @@ object AddressManager {
     Addresses.findShippingDefaultByCustomerId(customerId).map(_.isDefaultShipping).update(false).run()
       .flatMap(Result.good)
 
-  private def findByOriginator(originator: Originator, customerId: Int, addressId: Int)
+  private def findByOriginator(originator: Originator, addressId: Int, customerId: Int)
     (implicit db: Database, ec: ExecutionContext) = originator match {
     case AdminOriginator(_) ⇒
       Addresses.findByIdAndCustomer(addressId, customerId).one.mustFindOr(addressNotFound(addressId))

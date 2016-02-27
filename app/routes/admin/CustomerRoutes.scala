@@ -144,19 +144,19 @@ object CustomerRoutes {
                 AddressManager.create(Originator(admin), payload, customerId)
               }
             } ~
-            (post & path(IntNumber / "default") & pathEnd) { id ⇒
+            (post & path(IntNumber / "default") & pathEnd) { addressId ⇒
               goodOrFailures {
-                AddressManager.setDefaultShippingAddress(customerId, id)
+                AddressManager.setDefaultShippingAddress(addressId, customerId)
               }
             } ~
-            (get & path(IntNumber) & pathEnd) { id ⇒
+            (get & path(IntNumber) & pathEnd) { addressId ⇒
               goodOrFailures {
-                AddressManager.get(Originator(admin), customerId, id)
+                AddressManager.get(Originator(admin), addressId, customerId)
               }
             } ~
-            (delete & path(IntNumber) & pathEnd) { id ⇒
+            (delete & path(IntNumber) & pathEnd) { addressId ⇒
               nothingOrFailures {
-                AddressManager.remove(Originator(admin), customerId, id)
+                AddressManager.remove(Originator(admin), addressId, customerId)
               }
             } ~
             (delete & path("default") & pathEnd) {
