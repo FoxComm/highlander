@@ -37,7 +37,7 @@ gulp.task('default', ['build']);
 
 function handleErrors(err) {
   if (err) {
-    // console.error(err);
+    console.error(err);
   }
   exitStatus = 1;
   $.util.beep();
