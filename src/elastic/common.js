@@ -31,7 +31,7 @@ export function toQuery(filters, options = {}) {
   }
 
   let es = _.reduce(filters, (res, searchTerm) => {
-    if (searchTerm.value.type == 'string') {
+    if (searchTerm.value.type == 'string' && !isNestedFilter(searchTerm)) {
       res.queries.push(dsl.matchQuery(searchTerm.term, searchTerm.value.value));
     } else {
       res.filters.push(searchTerm);
@@ -98,6 +98,7 @@ function createFilter(filter) {
     case 'term':
       return rangeToFilter(term, operator, value);
     case 'string':
+      return dsl.matchQuery(term, value);
     case 'string-term':
       return rangeToFilter(term, operator, value.toLowerCase());
     case 'date':

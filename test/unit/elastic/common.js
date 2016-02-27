@@ -135,5 +135,59 @@ describe('elastic.common', () => {
 
       expect(query).to.eql(finalQuery);
     });
+
+    it('should create a search with a nested filter', () => {
+      const terms = [{
+        term: 'orders.referenceNumber',
+        operator: 'eq',
+        value: { type: 'string-term', value: 'BR10007' },
+      }];
+
+      const query = toQuery(terms);
+
+      const expectedFilter = {
+        filter: [{
+          nested: {
+            path: 'orders',
+            query: {
+              bool: {
+                filter: {
+                  term: { 'orders.referenceNumber': 'br10007' },
+                },
+              },
+            },
+          },
+        }],
+      };
+
+      expect(query).to.eql(composeQuery(expectedFilter));
+    });
+
+    it('should create a search with a nested query', () => {
+      const terms = [{
+        term: 'customer.name',
+        operator: 'eq',
+        value: { type: 'string', value: 'Adil Wali' },
+      }];
+
+      const query = toQuery(terms);
+
+      const expectedQuery = {
+        filter: [{
+          nested: {
+            path: 'customer',
+            query: {
+              bool: {
+                filter: {
+                  match: { 'customer.name': 'Adil Wali' },
+                },
+              },
+            },
+          },
+        }],
+      };
+
+      expect(query).to.eql(composeQuery(expectedQuery));
+    });
   });
 });
