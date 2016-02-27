@@ -174,7 +174,7 @@ object Customer {
             } ~
             (post & path("default") & pathEnd) {
               goodOrFailures {
-                AddressManager.setDefaultShippingAddress(customer.id, addressId)
+                AddressManager.setDefaultShippingAddress(addressId, customer.id)
               }
             } ~
             (patch & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
@@ -184,7 +184,7 @@ object Customer {
             } ~
             (delete & pathEnd) {
               nothingOrFailures {
-                AddressManager.remove(Originator(customer), customer.id, addressId)
+                AddressManager.remove(Originator(customer), addressId, customer.id)
               }
             }
           } ~
