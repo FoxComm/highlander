@@ -205,8 +205,7 @@ export default class LiveSearch extends React.Component {
   }
 
   formatPill(pill, idx, props) {
-    const display = pill.phrase ? pill.phrase : pill.display;
-    const icon = pill.phrase ? 'icon-search' : 'icon-filter';
+    const icon = pill.term === '_all' ? 'icon-search' : 'icon-filter';
 
     return (
       <div
@@ -214,7 +213,7 @@ export default class LiveSearch extends React.Component {
         key={`pill-${idx}`}
         onClick={() => props.onPillClick(pill, idx)}>
         <i className={icon} />
-        {display}
+        {pill.display}
         <a onClick={() => props.onPillClose(pill, idx)}
           className="fc-pilled-input__pill-close">
           &times;
@@ -414,11 +413,6 @@ export default class LiveSearch extends React.Component {
       '_no-gutter': this.props.noGutter
     });
 
-    let pills = [...this.state.pills];
-    if (this.currentSearch.phrase) {
-      pills.push({ phrase: this.currentSearch.phrase });
-    }
-
     return (
       <div className="fc-live-search">
         {this.header}
@@ -431,7 +425,7 @@ export default class LiveSearch extends React.Component {
                 onPillClose={(pill, idx) => this.deleteFilter(idx)}
                 onPillClick={(pill, idx) => this.deleteFilter(idx)}
                 formatPill={this.formatPill}
-                pills={pills}>
+                pills={this.state.pills}>
                 <MaskedInput
                   className="fc-pilled-input__input-field _no-fc-behavior"
                   mask={this.state.inputMask}

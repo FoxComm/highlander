@@ -12,7 +12,6 @@ const emptyState = {
   isEditable: true,
   isUpdating: false,
   options: [],
-  phrase: null,
   results: void 0,
   query: [],
   searchValue: '',
@@ -228,8 +227,17 @@ function _submitFilters(state, filters) {
 }
 
 function _submitPhrase(state, phrase) {
+  const filter = {
+    display: phrase,
+    term: '_all',
+    operator: 'eq',
+    value: { type: 'string', value: phrase },
+  };
+
+  const query = [...state.savedSearches[state.selectedSearch].query, filter];
+
   return assoc(state,
-    ['savedSearches', state.selectedSearch, 'phrase'], phrase,
+    ['savedSearches', state.selectedSearch, 'query'], query,
     ['savedSearches', state.selectedSearch, 'isDirty'], true
   );
 }
