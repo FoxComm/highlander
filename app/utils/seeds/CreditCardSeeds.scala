@@ -9,6 +9,8 @@ import Seeds.today
 
 trait CreditCardSeeds {
 
+  val gatewayCustomerId = "cus_7yTU0ENGfk0pxN" //Id for adil@adil.com in test stripe account.
+
   def createCreditCards(customers: CustomerSeeds#Customers): DbResultT[Unit] = for {
     _ ← * <~ CreditCards.createAll(Seq(
       creditCard1.copy(customerId = customers._1),
@@ -19,7 +21,7 @@ trait CreditCardSeeds {
   } yield {}
 
   def creditCard1 = {
-    CreditCard(customerId = 0, gatewayCustomerId = "cus_6uzC8j5doSTWth", gatewayCardId = "", holderName = "Yax",
+    CreditCard(customerId = 0, gatewayCustomerId = gatewayCustomerId, gatewayCardId = "", holderName = "Yax",
       lastFour = "4242", expMonth = today.getMonthValue, expYear = today.getYear + 2, isDefault = true,
       regionId = 4129, addressName = "Old Jeff", address1 = "95 W. 5th Ave.", address2 = Some("Apt. 437"),
       city = "San Mateo", zip = "94402", brand = "Visa")
@@ -28,28 +30,28 @@ trait CreditCardSeeds {
   def creditCard = creditCard1
 
   def creditCard2 = {
-    CreditCard(customerId = 0, gatewayCustomerId = "cus_7yTU0ENGfk0pxN", gatewayCardId = "", holderName = "Yax",
+    CreditCard(customerId = 0, gatewayCustomerId = gatewayCustomerId, gatewayCardId = "", holderName = "Yax",
       lastFour = "8752", expMonth = 4, expYear = today.getYear + 4, isDefault = false,
       regionId = 4141, addressName = "West Ave", address1 = "3590 West Avenue", address2 = None,
       city = "Indianapolis", zip = "46201", brand = "Visa")
   }
 
   def creditCard3 = {
-    CreditCard(customerId = 0, gatewayCustomerId = "cus_7yTU0ENGfk0pxN", gatewayCardId = "", holderName = "Adil",
+    CreditCard(customerId = 0, gatewayCustomerId = gatewayCustomerId, gatewayCardId = "", holderName = "Adil",
       lastFour = "3436", expMonth = 7, expYear = today.getYear + 3, isDefault = true,
       regionId = 4164, addressName = "Haymond Rocks", address1 = "3564 Haymond Rocks Road", address2 = None,
       city = "Grants Pass", zip = "97526", brand = "Visa")
   }
 
   def creditCard4 = {
-    CreditCard(customerId = 0, gatewayCustomerId = "cus_7yTU0ENGfk0pxN", gatewayCardId = "", holderName = "John",
+    CreditCard(customerId = 0, gatewayCustomerId = gatewayCustomerId, gatewayCardId = "", holderName = "John",
       lastFour = "3436", expMonth = 3, expYear = today.getYear + 3, isDefault = true,
       regionId = 551, addressName = "Bright Quay", address1 = "1851 Bright Quay", address2 = None,
       city = "Tonganoxie", zip = "S0R-9U4", brand = "Visa")
   }
 
   def creditCard5 = {
-    CreditCard(customerId = 0, gatewayCustomerId = "cus_7yTU0ENGfk0pxN", gatewayCardId = "", holderName = "František",
+    CreditCard(customerId = 0, gatewayCustomerId = gatewayCustomerId, gatewayCardId = "", holderName = "František",
       lastFour = "1258", expMonth = 11, expYear = today.getYear + 1, isDefault = true, regionId = 787, brand = "Visa",
       addressName = "Výchozí", address1 = "Rvačov 829", address2 = None, city = "Rvačov 829", zip = "413 01")
   }

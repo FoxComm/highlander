@@ -18,6 +18,7 @@ import services.orders.OrderTotaler
 
 import utils.seeds.generators.GeneratorUtils.randomString
 import utils.Money.Currency
+import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
@@ -33,7 +34,7 @@ import utils.time
  * https://docs.google.com/document/d/1NW9v81xtMFXkvGVg8_4uzhmRVZzG2CiL8w4zefGCeV4/edit#
  */
 
-trait DemoSeedHelpers { 
+trait DemoSeedHelpers extends CreditCardSeeds { 
 
   def warehouse: Warehouse = Warehouse.buildDefault()
   def warehouses: Seq[Warehouse] = Seq(warehouse)
@@ -47,7 +48,7 @@ trait DemoSeedHelpers {
     order ← * <~ Orders.create(Order(state = Shipped,
       customerId = customerId, placedAt = time.yesterday.toInstant.some))
     _     ← * <~ addSkusToOrder(skuIds, order.id, OrderLineItem.Shipped)
-    cc    ← * <~ getCc(customerId) // TODO: auth
+    cc    ← * <~ CreditCards.create(creditCard1.copy(customerId = customerId))
     op    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
     addr  ← * <~ getDefaultAddress(customerId)
     shipA ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
@@ -158,7 +159,7 @@ trait DemoScenario3 extends DemoSeedHelpers {
     customerIds ← * <~ Customers.createAllReturningIds(customers3)
     addressIds ← * <~ createAddresses(customerIds, address3)
     skuIds ← * <~ Skus.createAllReturningIds(skus3)
-    orders ← * <~ customerIds.map { id ⇒ createShippedOrder(id, skuIds, shippingMethod)}
+    orders ← * <~ DbResultT.sequence(customerIds.map { id ⇒ createShippedOrder(id, skuIds, shippingMethod)})
   } yield {}
 }
 

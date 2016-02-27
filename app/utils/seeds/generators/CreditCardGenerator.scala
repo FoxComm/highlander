@@ -18,9 +18,9 @@ trait CreditCardGenerator extends AddressGenerator {
   def generateCreditCard(customerId: Int) = {
     val base = new Base{}
     val address = generateAddress(customerId, false)
-    val gateway = randomString(10)
-    val gatewayCardId = randomString(10)
-    CreditCard(customerId = customerId, gatewayCustomerId = gateway, gatewayCardId = gatewayCardId, holderName = Name.name,
+    val gatewayCustomerId = "cus_7yTU0ENGfk0pxN" //Id for adil@adil.com in test stripe account.
+    val gatewayCardId = ""
+    CreditCard(customerId = customerId, gatewayCustomerId = gatewayCustomerId, gatewayCardId = gatewayCardId, holderName = Name.name,
       lastFour = base.numerify("####"), expMonth = today.getMonthValue, expYear = today.getYear + 2, isDefault = true,
       regionId = 4129, addressName = address.name, address1 = address.address1, address2 = address.address2,
       city = address.city, zip = address.zip, brand = "Visa")
