@@ -12,6 +12,7 @@ const emptyState = {
   isEditable: true,
   isUpdating: false,
   options: [],
+  phrase: null,
   results: void 0,
   query: [],
   searchValue: '',
@@ -36,6 +37,7 @@ export default function makeSearches(namespace, fetch, searchTerms, scope, optio
 
   const selectSavedSearch = createNsAction(namespace, 'SELECT_SAVED_SEARCH');
   const submitFilters = createNsAction(namespace, 'SUBMIT_FILTERS');
+  const submitPhrase = createNsAction(namespace, 'SUBMIT_PHRASE');
   const fetchSearchesStart = createNsAction(namespace, 'FETCH_SEARCHES_START');
   const fetchSearchesSuccess = createNsAction(namespace, 'FETCH_SEARCHES_SUCCESS');
   const fetchSearchesFailure = createNsAction(namespace, 'FETCH_SEARCHES_FAILURE');
@@ -48,6 +50,13 @@ export default function makeSearches(namespace, fetch, searchTerms, scope, optio
       if (!initial || !skipInitialFetch) {
         dispatch(fetch());
       }
+    };
+  };
+
+  const addSearchPhrase = phrase => {
+    return dispatch => {
+      dispatch(submitPhrase(phrase));
+      dispatch(fetch());
     };
   };
 
@@ -143,6 +152,7 @@ export default function makeSearches(namespace, fetch, searchTerms, scope, optio
     [saveSearchFailure]: (state, err) => _saveSearchFailure(state, err),
     [selectSavedSearch]: (state, idx) => _selectSavedSearch(state, idx),
     [submitFilters]: (state, filters) => _submitFilters(state, filters),
+    [submitPhrase]: (state, phrase) => _submitPhrase(state, phrase),
     [fetchSearchesStart]: (state) => _fetchSearchesStart(state),
     [fetchSearchesSuccess]: (state, searches) => _fetchSearchesSuccess(state, searches),
     [fetchSearchesFailure]: (state, err) => _fetchSearchesFailure(state, err),
@@ -159,6 +169,7 @@ export default function makeSearches(namespace, fetch, searchTerms, scope, optio
     reducer,
     actions: {
       addSearchFilters,
+      addSearchPhrase,
       fetch,
       fetchSearches,
       saveSearch,
@@ -212,6 +223,13 @@ function _selectSavedSearch(state, idx) {
 function _submitFilters(state, filters) {
   return assoc(state,
     ['savedSearches', state.selectedSearch, 'query'], filters,
+    ['savedSearches', state.selectedSearch, 'isDirty'], true
+  );
+}
+
+function _submitPhrase(state, phrase) {
+  return assoc(state,
+    ['savedSearches', state.selectedSearch, 'phrase'], phrase,
     ['savedSearches', state.selectedSearch, 'isDirty'], true
   );
 }

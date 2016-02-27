@@ -54,6 +54,7 @@ export default class LiveSearch extends React.Component {
     selectSavedSearch: PropTypes.func.isRequired,
     searches: PropTypes.object,
     singleSearch: PropTypes.bool,
+    submitPhrase: PropTypes.func.isRequired,
     submitFilters: PropTypes.func.isRequired,
     updateSearch: PropTypes.func.isRequired,
     noGutter: PropTypes.bool,
@@ -204,13 +205,16 @@ export default class LiveSearch extends React.Component {
   }
 
   formatPill(pill, idx, props) {
+    const display = pill.phrase ? pill.phrase : pill.display;
+    const icon = pill.phrase ? 'icon-search' : 'icon-filter';
+
     return (
       <div
         className="fc-pilled-input__pill"
         key={`pill-${idx}`}
         onClick={() => props.onPillClick(pill, idx)}>
-        <i className='icon-filter' />
-        {pill.display}
+        <i className={icon} />
+        {display}
         <a onClick={() => props.onPillClose(pill, idx)}
           className="fc-pilled-input__pill-close">
           &times;
@@ -320,7 +324,10 @@ export default class LiveSearch extends React.Component {
       case 13:
         // Enter
         event.preventDefault();
-        if (this.state.selectionIndex < this.state.searchOptions.length) {
+        if (this.state.searchOptions.length != 1 && this.state.selectionIndex == -1) {
+          this.props.submitPhrase(this.state.searchDisplay);
+          console.log('This might be a good time for a full-text search');
+        } else if (this.state.selectionIndex < this.state.searchOptions.length) {
           this.submitFilter(this.state.searchDisplay, true);
         } else if (this.state.selectionIndex != -1) {
           this.goBack();
@@ -406,6 +413,12 @@ export default class LiveSearch extends React.Component {
     const tableClass = classNames('fc-col-md-1-1', 'fc-live-search__table', {
       '_no-gutter': this.props.noGutter
     });
+
+    let pills = [...this.state.pills];
+    if (this.currentSearch.phrase) {
+      pills.push({ phrase: this.currentSearch.phrase });
+    }
+
     return (
       <div className="fc-live-search">
         {this.header}
@@ -418,7 +431,7 @@ export default class LiveSearch extends React.Component {
                 onPillClose={(pill, idx) => this.deleteFilter(idx)}
                 onPillClick={(pill, idx) => this.deleteFilter(idx)}
                 formatPill={this.formatPill}
-                pills={this.state.pills}>
+                pills={pills}>
                 <MaskedInput
                   className="fc-pilled-input__input-field _no-fc-behavior"
                   mask={this.state.inputMask}
