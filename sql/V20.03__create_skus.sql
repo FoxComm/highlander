@@ -1,6 +1,6 @@
 create table skus (
     id serial primary key,
-    product_id integer not null unique references products(id) on update restrict on delete restrict,
+    product_id integer not null references products(id) on update restrict on delete restrict,
     code generic_string,
     type generic_string,
     attributes jsonb,
