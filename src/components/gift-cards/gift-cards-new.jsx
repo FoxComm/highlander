@@ -98,7 +98,7 @@ export default class NewGiftCard extends React.Component {
 
   @autobind
   onChangeAmount(newVal) {
-    this.props.changeFormData('balance', newVal);
+    this.props.changeFormData('balance', Number(newVal));
   }
 
   changeCustomerMessage(event) {
