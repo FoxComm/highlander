@@ -36,23 +36,6 @@ export function nestedQuery(path, query) {
   };
 }
 
-export function combinedQuery(queries) {
-  return {
-    bool: {
-      must: queries,
-    },
-  };
-}
-
-export function queryWithFilters(query, filters, atLeastOne = false) {
-  return {
-    filtered: {
-      query: query,
-      [atLeastOne ? 'should' : 'filter']: filters,
-    }
-  };
-}
-
 export function nestedTermFilter(term, value) {
   const path = term.slice(0, term.lastIndexOf('.'));
 

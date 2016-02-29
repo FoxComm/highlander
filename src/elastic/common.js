@@ -32,7 +32,13 @@ export function toQuery(filters, options = {}) {
 
   let es = _.reduce(filters, (res, searchTerm) => {
     if (searchTerm.value.type == 'string' && !isNestedFilter(searchTerm)) {
-      res.queries.push(dsl.matchQuery(searchTerm.term, searchTerm.value.value));
+      const matchQuery = dsl.matchQuery(searchTerm.term, {
+        query: searchTerm.value.value,
+        type: 'phrase_prefix',
+        max_expansions: 3,
+      });
+
+      res.queries.push(matchQuery);
     } else {
       res.filters.push(searchTerm);
     }
@@ -48,23 +54,12 @@ export function toQuery(filters, options = {}) {
     }));
   }
 
-  let qwery = null;
-  if (_.isEmpty(es.queries) && !_.isEmpty(es.filters)) {
-    qwery = {
-      bool: {
-        [atLeastOne ? 'should' : 'filter']: convertFilters(es.filters),
-      },
-    };
-  } else if (_.isEmpty(es.filters) && !_.isEmpty(es.queries)) {
-    qwery = dsl.combinedQuery(es.queries);
-  } else {
-    qwery = {
-      filtered: {
-        query: dsl.combinedQuery(es.queries),
-        [atLeastOne ? 'should' : 'filter']: convertFilters(es.filters),
-      }
-    };
-  }
+  const qwery = {
+    bool: {
+      [atLeastOne ? 'should' : 'filter']: _.isEmpty(es.filters) ? void 0 : convertFilters(es.filters),
+      'must': _.isEmpty(es.queries) ? void 0 : es.queries,
+    },
+  };
 
   const sortParam = sortBy ? { sort: convertSorting(sortBy) } : null;
   return dsl.query(qwery, { ...sortParam });

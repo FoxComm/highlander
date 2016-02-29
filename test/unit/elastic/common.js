@@ -4,12 +4,39 @@ import nock from 'nock';
 
 const { toQuery } = importSource('elastic/common.js');
 
-const baseQuery = {
-  query: { bool: {} },
+const baseSearch = {
+  query: { 
+    bool: {
+      filter: void 0,
+      must: void 0,
+    },
+  },
 };
 
-function composeQuery(query) {
-  return assoc(baseQuery, ['query', 'bool'], query);
+function addQuery(searchTerm, search = baseSearch) {
+  const query = {
+    match: {
+      [searchTerm.term]: {
+        max_expansions: 3,
+        query: searchTerm.value.value,
+        type: 'phrase_prefix',
+      },
+    },
+  };
+
+  const currentQueries = search.query.bool.must || [];
+  return assoc(search, ['query', 'bool', 'must'], [...currentQueries, query]);
+}
+
+function addFilter(searchTerm, search = baseSearch) {
+  const filter = {
+    term: {
+      [searchTerm.term]: searchTerm.value.value,
+    },
+  };
+
+  const currentFilters = search.query.bool.filter || [];
+  return assoc(search, ['query', 'bool', 'filter'], [...currentFilters, filter]);
 }
 
 describe('elastic.common', () => {
@@ -27,15 +54,8 @@ describe('elastic.common', () => {
       }];
 
       const query = toQuery(terms);
-      const expectedQuery = {
-        must: [{
-          match: {
-            name: 'Fox',
-          },
-        }],
-      };
-
-      expect(query).to.eql(composeQuery(expectedQuery));
+      const expectedQuery = addQuery(terms[0]);
+      expect(query).to.eql(expectedQuery);
     });
 
     it('should create a query with a single non-string term', () => {
@@ -46,93 +66,52 @@ describe('elastic.common', () => {
       }];
 
       const query = toQuery(terms);
-      const expectedQuery = {
-        filter: [{
-          term: { amount: 1000 },
-        }],
-      };
-
-      expect(query).to.eql(composeQuery(expectedQuery));
+      const expectedQuery = addFilter(terms[0]);
+      expect(query).to.eql(expectedQuery);
     });
 
     it('should create a query with a string and non-string term', () => {
-      const terms = [
-        {
-          term: 'name',
-          operator: 'eq',
-          value: { type: 'string', value: 'Fox' },
-        }, {
-          term: 'amount',
-          operator: 'eq',
-          value: { type: 'number', value: 1000 },
-        }
-      ];
+      const stringTerm = {
+        term: 'name',
+        operator: 'eq',
+        value: { type: 'string', value: 'Fox' },
+      };
 
+      const nonStringTerm = {
+        term: 'amount',
+        operator: 'eq',
+        value: { type: 'number', value: 1000 },
+      };
+
+      const terms = [stringTerm, nonStringTerm];
       const query = toQuery(terms);
 
-      const expectedQuery = {
-        must: [{
-          match: { name: 'Fox' },
-        }],
-      };
-
-      const expectedFilter = {
-        filter: [{
-          term: { amount: 1000 },
-        }],
-      };
-
-      const finalQuery = {
-        query: {
-          filtered: {
-            ...composeQuery(expectedQuery),
-            ...expectedFilter,
-          },
-        },
-      };
+      const expectedQuery = addQuery(stringTerm);
+      const finalQuery = addFilter(nonStringTerm, expectedQuery);
 
       expect(query).to.eql(finalQuery);
     });
 
     it('should create a search with multiple terms and a sort order', () => {
-      const terms = [
-        {
-          term: 'name',
-          operator: 'eq',
-          value: { type: 'string', value: 'Fox' },
-        }, {
-          term: 'amount',
-          operator: 'eq',
-          value: { type: 'number', value: 1000 },
-        }
-      ];
+      const stringTerm = {
+        term: 'name',
+        operator: 'eq',
+        value: { type: 'string', value: 'Fox' },
+      };
 
+      const nonStringTerm = {
+        term: 'amount',
+        operator: 'eq',
+        value: { type: 'number', value: 1000 },
+      };
+
+      const terms = [stringTerm, nonStringTerm];
       const query = toQuery(terms, { sortBy: 'name' });
 
-      const expectedQuery = {
-        must: [{
-          match: { name: 'Fox' },
-        }],
-      };
+      const expectedQuery = addQuery(stringTerm);
+      const expectedFilter = addFilter(nonStringTerm, expectedQuery);
 
-      const expectedFilter = {
-        filter: [{
-          term: { amount: 1000 },
-        }],
-      };
-
-      const finalQuery = {
-        query: {
-          filtered: {
-            ...composeQuery(expectedQuery),
-            ...expectedFilter,
-          },
-        },
-        sort: [{
-          name: { order: 'asc' },
-        }],
-      };
-
+      const finalQuery = assoc(expectedFilter, 'sort', [{ name: { order: 'asc' } }]);
       expect(query).to.eql(finalQuery);
     });
 
@@ -146,48 +125,58 @@ describe('elastic.common', () => {
       const query = toQuery(terms);
 
       const expectedFilter = {
-        filter: [{
-          nested: {
-            path: 'orders',
-            query: {
-              bool: {
-                filter: {
-                  term: { 'orders.referenceNumber': 'br10007' },
+        query: {
+          bool: {
+            must: void 0,
+            filter: [{
+              nested: {
+                path: 'orders',
+                query: {
+                  bool: {
+                    filter: {
+                      term: { 'orders.referenceNumber': 'br10007' },
+                    },
+                  },
                 },
               },
-            },
+            }],
           },
-        }],
+        },
       };
 
-      expect(query).to.eql(composeQuery(expectedFilter));
+      expect(query).to.eql(expectedFilter);
     });
 
     it('should create a search with a nested query', () => {
       const terms = [{
         term: 'customer.name',
         operator: 'eq',
-        value: { type: 'string', value: 'Adil Wali' },
+        value: { type: 'string', value: 'adil wali' },
       }];
 
       const query = toQuery(terms);
 
       const expectedQuery = {
-        filter: [{
-          nested: {
-            path: 'customer',
-            query: {
-              bool: {
-                filter: {
-                  match: { 'customer.name': 'Adil Wali' },
+        query: {
+          bool: {
+            must: void 0,
+            filter: [{
+              nested: {
+                path: 'customer',
+                query: {
+                  bool: {
+                    filter: {
+                      match: { 'customer.name': 'adil wali' },
+                    },
+                  },
                 },
               },
-            },
+            }],
           },
-        }],
+        },
       };
 
-      expect(query).to.eql(composeQuery(expectedQuery));
+      expect(query).to.eql(expectedQuery);
     });
   });
 });
