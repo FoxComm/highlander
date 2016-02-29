@@ -1,13 +1,13 @@
-import React from 'react';
-import { Link } from '../link';
+import React, { PropTypes } from 'react';
+import { IndexLink } from '../link';
 
-export default class Home extends React.Component {
-  render() {
-    return (
-      <div>
-        <div><Link to='home' className="logo" /></div>
-        <div>This is home</div>
-      </div>
-    );
-  }
-}
+const Home = props => {
+  return (
+    <div>
+      <div><IndexLink to='home' className="logo" /></div>
+      <div>This is home</div>
+    </div>
+  );
+};
+
+export default Home;
