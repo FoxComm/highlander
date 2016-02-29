@@ -325,7 +325,6 @@ export default class LiveSearch extends React.Component {
         event.preventDefault();
         if (this.state.searchOptions.length != 1 && this.state.selectionIndex == -1) {
           this.props.submitPhrase(this.state.searchDisplay);
-          console.log('This might be a good time for a full-text search');
         } else if (this.state.selectionIndex < this.state.searchOptions.length) {
           this.submitFilter(this.state.searchDisplay, true);
         } else if (this.state.selectionIndex != -1) {

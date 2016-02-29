@@ -35,8 +35,9 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
   function fetcher() {
     const {searchState, getState} = this;
 
-    const searchTerms = _.get(getSelectedSearch(getState()), 'query', []);
-    const phrase = _.get(getSelectedSearch(getState()), 'phrase');
+    const selectedSearchState = getSelectedSearch(getState());
+    const searchTerms = _.get(selectedSearchState, 'query', []);
+    const phrase = _.get(selectedSearchState, 'phrase');
     const extraFilters = _.get(getState(), [...ns, 'extraFilters'], extraFilters);
     const jsonQuery = toQuery(searchTerms, {
       sortBy: searchState.sortBy,
