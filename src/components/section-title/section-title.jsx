@@ -32,7 +32,7 @@ SectionTitle.propTypes = {
   onAddClick: PropTypes.func,
   children: PropTypes.node,
   className: PropTypes.string,
-  titleTag: Title.propTypes.tag
+  titleTag: Title.propTypes.tag,
 };
 
 export default SectionTitle;

@@ -15,7 +15,7 @@ const PageTitle = props => {
 PageTitle.propTypes = {
   ...SectionTitle.propTypes,
   pageContext: PropTypes.bool,
-  children: PropTypes.node
+  children: PropTypes.node,
 };
 
 

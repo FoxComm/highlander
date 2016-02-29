@@ -11,11 +11,11 @@ const Title = props => {
 Title.propTypes = {
   title: PropTypes.node,
   subtitle: PropTypes.node,
-  tag: PropTypes.oneOf([React.DOM.h1, React.DOM.h2])
+  tag: PropTypes.oneOf([React.DOM.h1, React.DOM.h2]),
 };
 
 Title.defaultProps = {
-  tag: React.DOM.h2
+  tag: React.DOM.h2,
 };
 
 export default Title;
