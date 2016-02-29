@@ -1,20 +1,37 @@
-import React, { PropTypes } from 'react';
-import { Link, IndexLink } from '../link';
+//libs
 import _ from 'lodash';
+import React, { PropTypes } from 'react';
+import ReactDOM from 'react-dom';
 import flatMap from 'lodash.flatmap';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
 
-const NavDropdown = props => {
-  return (
-    <li className={`fc-tabbed-nav-parent fc-tabbed-nav-item ${props.className || ''}`}>
-      <a>{props.title}</a>
-      <ul className="fc-tabbed-nav-dropdown">
-        {React.Children.map(props.children, item => <li>{item}</li>)}
-      </ul>
-    </li>
-  );
-};
+//helpers
+import { addResizeListener, removeResizeListener } from '../../lib/resize';
+//components
+import { Link, IndexLink } from '../link';
+
+
+class NavDropdown extends React.Component {
+  render() {
+    const {title, className, children}=this.props;
+    const cls = classNames(
+      'fc-tabbed-nav-parent',
+      'fc-tabbed-nav-item',
+      className
+    );
+
+    return (
+      <li className={cls}>
+        <a>{title}</a>
+        <ul className="fc-tabbed-nav-dropdown">
+          {React.Children.map(children, item => <li>{item}</li>)}
+        </ul>
+      </li>
+    );
+  }
+}
 
 NavDropdown.propTypes = {
   title: PropTypes.string.isRequired,
@@ -22,21 +39,100 @@ NavDropdown.propTypes = {
   className: PropTypes.string
 };
 
+
 @connect(state => ({router: state.router}))
 class LocalNav extends React.Component {
   static propTypes = {
     router: PropTypes.shape({
       routes: PropTypes.array
     }),
-    children: PropTypes.node
+    children: PropTypes.node,
+    gutter: PropTypes.bool,
   };
 
-  @autobind
-  compileLinks(item) {
-    let children = item.props.children;
-    if (!_.isArray(children)) children = [children];
+  static defaultProps = {
+    gutter: false
+  };
 
-    return flatMap(children, child => {
+  state = {
+    //index of children, from with the automatic collapse starts
+    collapseFrom: null,
+  };
+
+  componentDidMount() {
+    addResizeListener(this.handleResize);
+    this.handleResize();
+  }
+
+  componentWillUnmount() {
+    removeResizeListener(this.handleResize);
+  }
+
+  @autobind
+  handleResize() {
+    this.collapsing = false;
+    this.forceUpdate();
+  }
+
+  componentDidUpdate() {
+    const refs = Object.values(this.refs);
+
+    if (!global.document || refs.length < 2) {
+      return;
+    }
+
+    const {collapsing} = this;
+
+    if (refs.length > 1 && this.hasOverflow) {
+      this.collapse();
+    } else if (!collapsing && this.isCollapsed) {
+      this.expand();
+    }
+  }
+
+  get hasOverflow() {
+    const refs = Object.values(this.refs);
+    let mostLeft = this.refs[0].getBoundingClientRect().left;
+
+    return Boolean(_.find(refs, (ref) => {
+      const left = ref instanceof Element
+        ? ref.getBoundingClientRect().left
+        : ReactDOM.findDOMNode(ref).getBoundingClientRect().left;
+
+      //if referenced node is visible (not in collapsed menu)
+      if (ref.offsetParent !== null && left < mostLeft) {
+        return true;
+      }
+      mostLeft = left;
+    }));
+  }
+
+  get isCollapsed() {
+    return this.state.collapseFrom !== null;
+  }
+
+  collapse() {
+    this.collapsing = true;
+    const refs = Object.values(this.refs);
+    const {collapseFrom} = this.state;
+
+    this.setState({
+      collapseFrom: collapseFrom === null ? refs.length - 2 : collapseFrom - 1
+    });
+  }
+
+  expand() {
+    const total = React.Children.count(this.props.children);
+    const {collapseFrom} = this.state;
+
+    this.setState({
+      collapseFrom: total - collapseFrom <= 2 ? null : collapseFrom + 1
+    });
+  }
+
+  @autobind
+  compileLinks({props}) {
+    return flatMap(React.Children.toArray(props.children), child => {
       if (child.type === Link || child.type === IndexLink) {
         return child;
       }
@@ -49,47 +145,72 @@ class LocalNav extends React.Component {
 
   @autobind
   hasActiveLink(item) {
+    const {routes} = this.props.router;
     const linkList = this.compileLinks(item);
     const linkNames = _.pluck(linkList, ['props', 'to']);
 
-    const currentRoute = this.props.router.routes[this.props.router.routes.length - 1];
+    const currentRoute = routes[routes.length - 1];
+
     return _.includes(linkNames, currentRoute.name);
   }
 
   @autobind
-  renderItem(item) {
-    if (item.type === NavDropdown) {
-      const isActive = this.hasActiveLink(item);
-      const dropdownItem = React.cloneElement(item, {
-        className: isActive ? 'fc-tabbed-nav-selected' : ''
-      });
-      return dropdownItem;
-    } else {
-      return <li className="fc-tabbed-nav-item">{item}</li>;
+  renderItem(item, index) {
+    if (item.type !== NavDropdown) {
+      return <li ref={index} className="fc-tabbed-nav-item">{item}</li>;
     }
+
+    const isActive = this.hasActiveLink(item);
+
+    return React.cloneElement(item, {
+      ref: index,
+      className: classNames(item.props.className, {'fc-tabbed-nav-selected': isActive})
+    });
+  }
+
+  get flatItems() {
+    const {collapseFrom} = this.state;
+
+    let children = React.Children.toArray(this.props.children);
+    if (collapseFrom !== null) {
+      children = children.slice(0, collapseFrom);
+    }
+
+    return children.map(this.renderItem);
+  }
+
+  get collapsedItems() {
+    const {collapseFrom} = this.state;
+
+    if (collapseFrom === null) {
+      return null;
+    }
+
+    const children = React.Children.toArray(this.props.children).slice(collapseFrom);
+
+    return (
+      <NavDropdown ref={collapseFrom} title="More">
+        {children}
+      </NavDropdown>
+    );
   }
 
   render() {
+    const {gutter} = this.props;
+    const className = classNames('fc-grid', {'fc-grid-gutter': gutter});
+
     return (
-      <div className={`fc-grid ${this.props.gutter ? 'fc-grid-gutter' : ''}`}>
+      <div className={className}>
         <div className="fc-col-md-1-1">
           <ul className="fc-tabbed-nav">
-            {React.Children.map(this.props.children, this.renderItem)}
+            {this.flatItems}
+            {this.collapsedItems}
           </ul>
         </div>
       </div>
     );
   }
 }
-
-LocalNav.propTypes = {
-  children: PropTypes.node,
-  gutter: PropTypes.bool
-};
-
-LocalNav.defaultProps = {
-  gutter: false
-};
 
 export {
   LocalNav as default,
