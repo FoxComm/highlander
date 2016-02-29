@@ -15,13 +15,13 @@ const resize = (event)=> {
   if (global.requestAnimationFrame) {
     global.requestAnimationFrame(notify(event));
   } else {
-    setTimeout(notify(event), 66);
+    global.setTimeout(notify(event), 66);
   }
 };
 
 export const addResizeListener = (callback) => {
   if (!callbacks.length) {
-    window.addEventListener('resize', resize);
+    global.addEventListener('resize', resize);
   }
   callbacks.push(callback);
 };
@@ -29,6 +29,6 @@ export const addResizeListener = (callback) => {
 export const removeResizeListener = (callback)=> {
   callbacks.splice(callbacks.indexOf(callback), 1);
   if (!callbacks.length) {
-    window.removeEventListener('resize', resize);
+    global.removeEventListener('resize', resize);
   }
 };

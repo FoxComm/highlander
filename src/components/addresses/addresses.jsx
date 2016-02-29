@@ -10,7 +10,7 @@ import ConfirmationDialog from '../modal/confirmation-dialog';
  * Address list. Requires actions which interface described in customers/address-details and address modules.
  */
 const Addresses = props => {
-  const content = props.addresses.length ? renderContent(props) : renderEmpty();
+  const content = props.isAdding || props.addresses.length ? renderContent(props) : renderEmpty();
 
   return (
     <div>
@@ -69,13 +69,14 @@ export function createAddressBox(address, idx, props) {
   const chooseAction = props.chooseAction ? () => props.chooseAction(address.id) : null;
 
   return (
-    <AddressBox key={`address-${idx}`}
-                address={address}
-                chosen={props.selectedAddressId == address.id}
-                editAction={() => props.startEditingAddress(address.id)}
-                toggleDefaultAction={() => props.setAddressDefault(props.customerId, address.id, !address.isDefault)}
-                chooseAction={chooseAction}
-                deleteAction={() => props.startDeletingAddress(address.id)}
+    <AddressBox
+      key={`address-${idx}`}
+      address={address}
+      chosen={props.selectedAddressId == address.id}
+      editAction={() => props.startEditingAddress(address.id)}
+      toggleDefaultAction={() => props.setAddressDefault(props.customerId, address.id, !address.isDefault)}
+      chooseAction={chooseAction}
+      deleteAction={() => props.startDeletingAddress(address.id)}
     />
   );
 }

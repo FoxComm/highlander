@@ -115,24 +115,26 @@ export default class CustomerCreditCards extends React.Component {
     let box = null;
     if (card.id === this.props.editingId) {
       box = (
-        <CustomerCreditCardForm key={ key }
-                                card={ card }
-                                form={ this.props.editingCreditCard }
-                                customerId={ this.props.customerId }
-                                addresses={ this.props.addresses }
-                                onCancel={ this.onEditCancel }
-                                onChange={ this.onEditFormChange }
-                                onSubmit={ this.onEditFormSubmit }
-                                isNew={ false } />
+        <CustomerCreditCardForm
+          key={ key }
+          card={ card }
+          form={ this.props.editingCreditCard }
+          customerId={ this.props.customerId }
+          addresses={ this.props.addresses }
+          onCancel={ this.onEditCancel }
+          onChange={ this.onEditFormChange }
+          onSubmit={ this.onEditFormSubmit }
+          isNew={ false } />
       );
     } else {
       box = (
-        <CreditCardBox key={ key }
-                       card={ card }
-                       customerId={ this.props.customerId }
-                       onDeleteClick={ () => this.onDeleteClick(card.id) }
-                       onEditClick={ () => this.onEditClick(card.id) }
-                       onDefaultToggle={ () => this.props.toggleDefault(card.id) } />
+        <CreditCardBox
+          key={ key }
+          card={ card }
+          customerId={ this.props.customerId }
+          onDeleteClick={ () => this.onDeleteClick(card.id) }
+          onEditClick={ () => this.onEditClick(card.id) }
+          onDefaultToggle={ () => this.props.toggleDefault(card.id) } />
       );
     }
     return box;
@@ -153,14 +155,18 @@ export default class CustomerCreditCards extends React.Component {
                   className="fc-customer-credit-cards"
                   actionBlock={ this.actionBlock }>
         <ul className="fc-float-list">
-          {(cards && cards.length ? cards.map(this.createCardBox) : this.emptyText)}
-          {(props.newCreditCard && <CustomerCreditCardForm customerId={ props.customerId }
-                                                           form={ props.newCreditCard }
-                                                           addresses={ props.addresses }
-                                                           onCancel={ this.onAddingCancel }
-                                                           onSubmit={ this.onSubmitNewForm }
-                                                           onChange={ this.onChangeNewFormValue }
-                                                           isNew={ true } />)}
+          {props.newCreditCard || (cards && cards.length)
+            ? cards.map(this.createCardBox)
+            : this.emptyText}
+          {props.newCreditCard ?
+            <CustomerCreditCardForm
+              customerId={ props.customerId }
+              form={ props.newCreditCard }
+              addresses={ props.addresses }
+              onCancel={ this.onAddingCancel }
+              onSubmit={ this.onSubmitNewForm }
+              onChange={ this.onChangeNewFormValue }
+              isNew={ true } /> : null}
         </ul>
         <ConfirmationDialog
           isVisible={ this.showConfirm }
