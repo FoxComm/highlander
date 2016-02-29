@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, IndexRoute } from 'react-router';
+import { Route, IndexRoute, IndexRedirect } from 'react-router';
 import Site from './components/site/site';
 import Home from './components/home/home';
 import Rmas from './components/rmas/rmas';
@@ -48,6 +48,7 @@ import AllNotificationItems from './components/activity-notifications/all';
 const routes = (
   <Route path="/" component={Site}>
     <IndexRoute name="home" component={Home}/>
+    <IndexRedirect from="/" to="/orders/" />
     <Route name='rmas-base' path='returns'>
       <IndexRoute name='rmas' component={Rmas}/>
       <Route name='rma' path=':rma' component={Rma}>
