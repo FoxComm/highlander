@@ -2,5 +2,5 @@ phoenix_server: 127.0.0.1:9090
 search_server: 127.0.0.1:9300
 search_server_http: 127.0.0.1:9200
 ashes_server: "{{hostvars[groups['demo2-ashes'][0]]['ansible_eth0']['ipv4']['address'] }}"
-seeds_cmd: utils.seeds.Seeds demo 80
+seeds_cmd: utils.seeds.Seeds demo 40
 es_heap_size: 5g
