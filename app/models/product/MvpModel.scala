@@ -23,7 +23,7 @@ object SimpleContext {
     ProductContext(
       id = id,
       name = SimpleContext.variant,
-      context = parse(s"""
+      attributes = parse(s"""
       {
         "modality" : "desktop",
         "language" : "EN"

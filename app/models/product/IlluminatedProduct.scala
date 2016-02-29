@@ -19,6 +19,8 @@ import scala.concurrent.ExecutionContext
 
 import Aliases.Json
 
+final case class IlluminatedContext(name: String, attributes: Json)
+
 /**
  * An IlluminatedProduct is what you get when you combine the product shadow and
  * the product. 
@@ -26,9 +28,9 @@ import Aliases.Json
 final case class IlluminatedProduct(
   productId: Int = 0, 
   shadowId: Int = 0, 
-  context: Json,
+  context: IlluminatedContext,
   attributes: Json, 
-  isActive: Boolean = true)
+  variants: Json)
 
 object IlluminatedProduct { 
 
@@ -37,14 +39,13 @@ object IlluminatedProduct {
     product: Product, 
     shadow: ProductShadow) : IlluminatedProduct = { 
 
-    val context = productContext.context
     val attributes = projectAttributes(product.attributes, shadow.attributes)
     IlluminatedProduct(
       productId = product.id, 
       shadowId = shadow.id,
-      context = context,
+      context = IlluminatedContext(name = productContext.name, attributes = productContext.attributes),
       attributes = attributes,
-      isActive = product.isActive)
+      variants = findVariants(product.variants, productContext.name))
   }
 
   def findAttribute(attr: String, key: String, product: JObject) : JField = {
@@ -64,6 +65,12 @@ object IlluminatedProduct {
         case _ ⇒ JNothing
       }
       case _ ⇒  JNothing
+    }
+  }
+
+  def findVariants(variants: Json, context: String) : JField = {
+    variants \ context match {
+      case v ⇒  (context, v)
     }
   }
 }

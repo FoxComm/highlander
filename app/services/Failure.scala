@@ -293,6 +293,10 @@ final case class ProductNotFoundForContext(productId: Int, productContextId: Int
   override def description = s"Product with id=$productId with product context $productContextId cannot be found"
 }
 
+final case class ProductContextNotFound(name: String) extends Failure {
+  override def description = s"Product Context with name $name cannot be found"
+}
+
 final case class InventorySummaryNotFound(skuId: Int, warehouseId: Int) extends Failure {
   override def description = s"Summary for sku with id=${skuId} in warehouse with id=${warehouseId} not found"
 }
