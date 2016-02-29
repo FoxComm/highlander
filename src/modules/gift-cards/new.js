@@ -15,8 +15,6 @@ const setSuggestedCustomers = _createAction('SET_SUGGESTED_CUSTOMERS');
 const setError = _createAction('ERROR');
 const setTypes = _createAction('SET_TYPES');
 
-const balanceToText = balance => (balance / 100).toFixed(2);
-const textToBalance = value => value * 100;
 
 export function suggestCustomers(term) {
   return dispatch => {
@@ -34,7 +32,6 @@ const initialState = {
   users: [],
   balance: 100,
   quantity: 1,
-  balanceText: balanceToText(100),
   originType: 'Appeasement',
   sendToCustomer: false,
   emailCSV: false,
@@ -54,18 +51,6 @@ export function fetchTypes() {
 
 const reducer = createReducer({
   [changeFormData]: (state, {name, value}) => {
-    if (name === 'balanceText') {
-      return assoc(state,
-        'balance', balanceToText(value),
-        'balanceText', value
-      );
-    }
-    if (name === 'balance') {
-      return assoc(state,
-        'balanceText', balanceToText(value),
-        'balance', value
-      );
-    }
     return assoc(state, name, value);
   },
   [setSuggestedCustomers]: (state, customers) => {

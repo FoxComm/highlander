@@ -19,6 +19,7 @@ import { Form, FormField } from '../forms';
 import ChooseCustomers from './choose-customers';
 import PilledInput from '../pilled-search/pilled-input';
 import SaveCancel from '../common/save-cancel';
+import CurrencyInput from '../forms/currency-input';
 
 // redux
 import * as GiftCardNewActions from '../../modules/gift-cards/new';
@@ -93,6 +94,11 @@ export default class NewGiftCard extends React.Component {
     const value = target.type === 'checkbox' ? target.checked : target.value;
 
     this.props.changeFormData(target.name, value);
+  }
+
+  @autobind
+  onChangeAmount(newVal) {
+    this.props.changeFormData('balance', newVal);
   }
 
   changeCustomerMessage(event) {
@@ -198,7 +204,6 @@ export default class NewGiftCard extends React.Component {
       changeFormData,
       types,
       balance,
-      balanceText,
       sendToCustomer,
       customers,
       balances
@@ -228,14 +233,11 @@ export default class NewGiftCard extends React.Component {
           </div>
           <fieldset className="fc-new-gift-card__fieldset fc-new-gift-card__amount">
             <label className="fc-new-gift-card__label" htmlFor="value">Value</label>
-            <PrependInput
-              icon="usd"
+            <CurrencyInput
               inputClass="_no-counters"
               inputName="balance"
-              inputNamePretty="balanceText"
-              inputType="number"
               value={balance}
-              inputValuePretty={balanceText}
+              onChange={this.onChangeAmount}
               step="0.01"
               min="1" />
             <div className="fc-new-gift-card__balances">
