@@ -98,11 +98,11 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
   with CreditCardGenerator with OrderGenerator with InventoryGenerator 
   with GiftCardGenerator {
 
-  def generateAddresses(customerIds: Seq[Int]): Seq[Address] = { 
-    customerIds.flatMap { id ⇒ 
-        generateAddress(customerId = id, isDefault = true) +: 
+  def generateAddresses(customers: Seq[Customer]): Seq[Address] = { 
+    customers.flatMap { c ⇒ 
+        generateAddress(customer = c, isDefault = true) +: 
         ((0 to (Random.nextInt(2))) map { i ⇒ 
-          generateAddress(customerId = id, isDefault = false)
+          generateAddress(customer = c, isDefault = false)
         })
     }
   }
@@ -124,8 +124,8 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
       _ ← * <~ generateInventories(skuIds, warehouseIds)
       customerIds ← * <~ Customers.createAllReturningIds(generateCustomers(customersCount, location))
       customers  ← * <~ Customers.filter(_.id.inSet(customerIds)).result
-      _ ← * <~ Addresses.createAll(generateAddresses(customerIds))
-      _ ← * <~ CreditCards.createAll(generateCreditCards(customerIds))
+      _ ← * <~ Addresses.createAll(generateAddresses(customers))
+      _ ← * <~ CreditCards.createAll(generateCreditCards(customers))
       orderedGcs ← * <~ DbResultT.sequence(randomSubset(customerIds).map { id ⇒ generateGiftCardPurchase(id)})
       appeasementCount = Math.max(productCount / 8, Random.nextInt(productCount))
       appeasements  ← * <~ DbResultT.sequence((1 to appeasementCount).map { i ⇒ generateGiftCardAppeasement})
