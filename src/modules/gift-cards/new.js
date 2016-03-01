@@ -51,7 +51,13 @@ export function fetchTypes() {
 
 const reducer = createReducer({
   [changeFormData]: (state, {name, value}) => {
-    return assoc(state, name, value);
+    const newState = assoc(state, name, value);
+    switch(name) {
+      case 'sendToCustomer':
+        return assoc(newState, 'quantity', newState.customers.length);
+      default:
+        return newState;
+    }
   },
   [setSuggestedCustomers]: (state, customers) => {
     return {
@@ -60,15 +66,19 @@ const reducer = createReducer({
     };
   },
   [addCustomers]: (state, customers) => {
+    const newCustomers = _.uniq([...state.customers, ...customers], customer => customer.id);
     return {
       ...state,
-      customers: _.uniq([...state.customers, ...customers], customer => customer.id)
+      customers: newCustomers,
+      quantity: state.sendToCustomer ? newCustomers.length : state.quantity
     };
   },
   [removeCustomer]: (state, id) => {
+    const newCustomers = _.reject(state.customers, customer => customer.id == id);
     return {
       ...state,
-      customers: _.reject(state.customers, customer => customer.id == id)
+      customers: newCustomers,
+      quantity: state.sendToCustomer ? newCustomers.length : state.quantity
     };
   },
   [changeQuantity]: (state, amount) => {
