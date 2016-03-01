@@ -8,40 +8,43 @@ import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
-import payloads.{CreateProductForm, UpdateProductForm, CreateProductShadow, UpdateProductShadow}
+import payloads.{CreateProductForm, UpdateProductForm, CreateProductShadow, 
+  UpdateProductShadow, CreateProductContext, UpdateProductContext}
+
+import utils.aliases._
 
 
 object ProductManager {
 
   // Detailed info for SKU of each type in given warehouse
   def getForm(id: Int)
-    (implicit ec: ExecutionContext, db: Database): Result[ProductFormResponse.Root] = (for {
+    (implicit ec: EC, db: DB): Result[ProductFormResponse.Root] = (for {
     form       ← * <~ Products.mustFindById404(id)
   } yield ProductFormResponse.build(form)).run()
 
   def createForm(payload: CreateProductForm)
-    (implicit ec: ExecutionContext, db: Database): Result[ProductFormResponse.Root] = (for {
+    (implicit ec: EC, db: DB): Result[ProductFormResponse.Root] = (for {
     form       ← * <~ Products.create(
       Product(attributes = payload.attributes, variants = payload.variants, 
         isActive = false))
   } yield ProductFormResponse.build(form)).run()
 
   def updateForm(id: Int, payload: UpdateProductForm)
-    (implicit ec: ExecutionContext, db: Database): Result[ProductFormResponse.Root] = (for {
+    (implicit ec: EC, db: DB): Result[ProductFormResponse.Root] = (for {
     form       ← * <~ Products.mustFindById404(id)
     form       ← * <~ Products.update(form, form.copy(attributes = payload.attributes,
       variants = payload.variants, isActive = payload.isActive))
   } yield ProductFormResponse.build(form)).run()
 
   def getShadow(id: Int, productContextName: String)
-    (implicit ec: ExecutionContext, db: Database): Result[ProductShadowResponse.Root] = (for {
+    (implicit ec: EC, db: DB): Result[ProductShadowResponse.Root] = (for {
     productContext ← * <~ ProductContexts.filterByName(productContextName).one.
       mustFindOr(ProductContextNotFound(productContextName))
     shadow       ← * <~ ProductShadows.mustFindById404(id)
   } yield ProductShadowResponse.build(shadow, productContext)).run()
 
   def createShadow(payload: CreateProductShadow, productContextName: String)
-    (implicit ec: ExecutionContext, db: Database): Result[ProductShadowResponse.Root] = (for {
+    (implicit ec: EC, db: DB): Result[ProductShadowResponse.Root] = (for {
     productContext ← * <~ ProductContexts.filterByName(productContextName).one.
       mustFindOr(ProductContextNotFound(productContextName))
     form       ← * <~ Products.mustFindById404(payload.productId)
@@ -51,7 +54,7 @@ object ProductManager {
   } yield ProductShadowResponse.build(shadow, productContext)).run()
     
   def updateShadow(id: Int, payload: UpdateProductShadow, productContextName: String)
-    (implicit ec: ExecutionContext, db: Database): Result[ProductShadowResponse.Root] = (for {
+    (implicit ec: EC, db: DB): Result[ProductShadowResponse.Root] = (for {
     productContext ← * <~ ProductContexts.filterByName(productContextName).one.
       mustFindOr(ProductContextNotFound(productContextName))
     form       ← * <~ Products.mustFindById404(payload.productId)
@@ -64,7 +67,7 @@ object ProductManager {
   } yield ProductShadowResponse.build(shadow, productContext)).run()
     
   def getIlluminatedProduct(id: Int, productContextName: String)
-    (implicit ec: ExecutionContext, db: Database): Result[IlluminatedProductResponse.Root] = (for {
+    (implicit ec: EC, db: DB): Result[IlluminatedProductResponse.Root] = (for {
     productContext ← * <~ ProductContexts.filterByName(productContextName).one.
       mustFindOr(ProductContextNotFound(productContextName))
     form       ← * <~ Products.mustFindById404(id)
@@ -72,5 +75,25 @@ object ProductManager {
       filter(_.productContextId === productContext.id).one.
         mustFindOr(ProductNotFoundForContext(form.id, productContext.id)) 
   } yield IlluminatedProductResponse.build(IlluminatedProduct.illuminate(productContext, form, shadow))).run()
+
+  def getContextByName(name: String) 
+    (implicit ec: EC, db: DB): Result[ProductContextResponse.Root] = (for {
+    productContext ← * <~ ProductContexts.filterByName(name).one.
+      mustFindOr(ProductContextNotFound(name))
+  } yield ProductContextResponse.build(productContext)).run()
+
+  def createContext(payload: CreateProductContext) 
+    (implicit ec: EC, db: DB): Result[ProductContextResponse.Root] = (for {
+    productContext ← * <~ ProductContexts.create(ProductContext(
+      name = payload.name, attributes = payload.attributes))
+  } yield ProductContextResponse.build(productContext)).run()
+
+  def updateContextByName(name: String, payload: UpdateProductContext) 
+    (implicit ec: EC, db: DB): Result[ProductContextResponse.Root] = (for {
+    productContext ← * <~ ProductContexts.filterByName(name).one.
+      mustFindOr(ProductContextNotFound(name))
+    productContext  ← * <~ ProductContexts.update(productContext, 
+      productContext.copy(name = payload.name, attributes = payload.attributes))
+  } yield ProductContextResponse.build(productContext)).run()
 
 }

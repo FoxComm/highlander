@@ -13,7 +13,16 @@ import java.time.Instant
 
 object ProductResponses {
 
-  final case class Context(name: String, attributes: Json)
+  object ProductContextResponse { 
+
+    final case class Root(name: String, attributes: Json)
+
+    def build(c: ProductContext) : Root = 
+      Root(name = c.name, attributes = c.attributes)
+
+    def build(c: IlluminatedContext) : Root = 
+      Root(name = c.name, attributes = c.attributes)
+  }
 
   object ProductFormResponse {
 
@@ -28,21 +37,21 @@ object ProductResponses {
   object ProductShadowResponse {
 
 
-    final case class Root(id: Int, context: Context, attributes: Json, 
+    final case class Root(id: Int, context: ProductContextResponse.Root, attributes: Json, 
       createdAt: Instant)
 
     def build(p: ProductShadow, c: ProductContext): Root = 
       Root(id = p.id, attributes = p.attributes, 
-        context = Context(name = c.name, attributes = c.attributes),
+        context = ProductContextResponse.build(c),
         createdAt = p.createdAt)
   }
 
   object IlluminatedProductResponse {
 
-    final case class Root(id: Int, context: Context, attributes: Json, variants: Json)
+    final case class Root(id: Int, context: ProductContextResponse.Root, attributes: Json, variants: Json)
 
     def build(p: IlluminatedProduct): Root = 
       Root(id = p.productId, attributes = p.attributes, variants = p.variants,
-        context = Context(name = p.context.name, attributes = p.context.attributes))
+        context = ProductContextResponse.build(p.context))
   }
 }
