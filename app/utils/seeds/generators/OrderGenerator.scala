@@ -85,6 +85,9 @@ trait OrderGenerator extends ShipmentSeeds {
     cc     ← * <~ getCc(customerId) 
     op     ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
     addr   ← * <~ getDefaultAddress(customerId)
+    shipMethodIds ← * <~ ShippingMethods.map(_.id).result
+    shipMethod     ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
+    shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(order = order, method = shipMethod))
     _      ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
     _      ← * <~ OrderTotaler.saveTotals(order)
   } yield order
@@ -98,6 +101,9 @@ trait OrderGenerator extends ShipmentSeeds {
     op     ← * <~ OrderPayments.create(OrderPayment.build(sc).copy(orderId = order.id, amount = totals.some))
     _      ← * <~ StoreCredits.capture(sc, op.id.some, totals) 
     addr   ← * <~ getDefaultAddress(customerId)
+    shipMethodIds ← * <~ ShippingMethods.map(_.id).result
+    shipMethod     ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
+    shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(order = order, method = shipMethod))
     _      ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
     _      ← * <~ OrderTotaler.saveTotals(order)
   } yield order
@@ -108,6 +114,9 @@ trait OrderGenerator extends ShipmentSeeds {
     cc    ← * <~ getCc(customerId) 
     op    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
     addr  ← * <~ getDefaultAddress(customerId)
+    shipMethodIds ← * <~ ShippingMethods.map(_.id).result
+    shipMethod     ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
+    shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(order = order, method = shipMethod))
     _     ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
     _     ← * <~ OrderTotaler.saveTotals(order)
   } yield order
@@ -121,6 +130,9 @@ trait OrderGenerator extends ShipmentSeeds {
     cc    ← * <~ getCc(customerId) 
     op    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
     addr  ← * <~ getDefaultAddress(customerId)
+    shipMethodIds ← * <~ ShippingMethods.map(_.id).result
+    shipMethod     ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))
+    shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(order = order, method = shipMethod))
     _     ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
     _     ← * <~ OrderTotaler.saveTotals(order)
   } yield order

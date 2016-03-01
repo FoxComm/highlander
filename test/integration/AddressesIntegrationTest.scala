@@ -1,12 +1,14 @@
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
+import java.time.Instant
 
 import models.customer.{Customers, Customer}
-import models.location.{Addresses, Regions}
+import models.location.{Address, Addresses, Regions}
 import models.order.{OrderShippingAddresses, Orders}
+import services.NotFoundFailure404
 import util.IntegrationTestBase
 import util.SlickSupport.implicits._
 import utils.DbResultT
-import utils.seeds.{Seeds, RankingSeedsGenerator}
+import utils.seeds.Seeds
 import Seeds.Factories
 import utils.Slick.implicits._
 import utils.DbResultT._
@@ -158,36 +160,27 @@ class AddressesIntegrationTest extends IntegrationTestBase
       deletedAddress.deletedAt mustBe defined
     }
 
-    "fails deleting using wrong address id" in new AddressFixture {
-      val wrongAddressId = 47423987
+    "deleted address should be visible to StoreAdmin" in new DeletedAddressFixture {
+      val response = GET(s"v1/customers/${customer.id}/addresses/${address.id}")
+      response.status must === (StatusCodes.OK)
+    }
 
-      val response = DELETE(s"v1/customers/${customer.id}/addresses/$wrongAddressId")
+    "deleted address should be invisible to Customer" in new DeletedAddressFixture {
+      val response = GET(s"v1/my/addresses/${address.id}")
       response.status must === (StatusCodes.NotFound)
+      response.error must === (NotFoundFailure404(Address, address.id).description)
+    }
+
+    "fails deleting using wrong address id" in new AddressFixture {
+      val response = DELETE(s"v1/customers/${customer.id}/addresses/65536")
+      response.status must === (StatusCodes.NotFound)
+      response.error must === (NotFoundFailure404(Address, 65536).description)
     }
 
     "fails deleting using wrong customer id" in new AddressFixture {
-      val wrongCustomerId = 44443
-      val response = DELETE(s"v1/customers/$wrongCustomerId/addresses/${address.id}")
+      val response = DELETE(s"v1/customers/65536/addresses/${address.id}")
       response.status must === (StatusCodes.NotFound)
-    }
-  }
-
-  "GET /v1/customers/:customerId/addresses/display" - {
-    "display address" - {
-      "succeeds when there is a default shipping address" in new AddressFixture {
-        val response = GET(s"v1/customers/${customer.id}/addresses/display")
-        response.status must === (StatusCodes.OK)
-      }
-
-      "succeeds when there is no default shipping address but a previous order" in new NoDefaultAddressFixture {
-        val response = GET(s"v1/customers/${customer.id}/addresses/display")
-        response.status must === (StatusCodes.OK)
-      }
-
-      "fails when there are no orders or default shipping addresses" in new CustomerFixture {
-        val response = GET(s"v1/customers/${customer.id}/addresses/display")
-        response.status must === (StatusCodes.BadRequest)
-      }
+      response.error must === (NotFoundFailure404(Customer, 65536).description)
     }
   }
 
@@ -198,6 +191,14 @@ class AddressesIntegrationTest extends IntegrationTestBase
   trait AddressFixture extends CustomerFixture {
     val address = Addresses.create(Factories.address.copy(customerId = customer.id,
       isDefaultShipping = true)).futureValue.rightVal
+  }
+
+  trait DeletedAddressFixture {
+    val (customer,address) = (for {
+      customer  ← * <~ Customers.create(authedCustomer)
+      address   ← * <~ Addresses.create(Factories.address.copy(customerId = authedCustomer.id,
+        isDefaultShipping = false, deletedAt = Some(Instant.now)))
+    } yield (customer, address)).runTxn().futureValue.rightVal
   }
 
   trait ShippingAddressFixture extends AddressFixture {

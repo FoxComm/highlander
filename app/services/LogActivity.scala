@@ -31,8 +31,8 @@ import services.activity.SharedSearchTailored._
 import services.activity.StoreCreditTailored._
 import services.activity.WatchersTailored._
 
-import StoreAdminResponse.{build ⇒ buildAdmin}
-import CustomerResponse.{build ⇒ buildCustomer}
+import StoreAdminResponse.{build ⇒ buildAdmin, Root ⇒ AdminResponse}
+import CustomerResponse.{build ⇒ buildCustomer, Root ⇒ CustomerResponse}
 import CreditCardsResponse.{buildSimple ⇒ buildCc}
 import GiftCardResponse.{buildForList ⇒ buildGc}
 
@@ -50,7 +50,7 @@ object LogActivity {
   }
 
   /* Order Assignments */
-  def assignedToOrder(admin: StoreAdmin, order: FullOrder.Root, assignees: Seq[StoreAdminResponse.Root])
+  def assignedToOrder(admin: StoreAdmin, order: FullOrder.Root, assignees: Seq[AdminResponse])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
     Activities.log(AssignedToOrder(buildAdmin(admin), order, assignees))
   }
@@ -71,7 +71,7 @@ object LogActivity {
   }
 
   /* Customer Assignments */
-  def assignedToCustomer(admin: StoreAdmin, customer: Customer, assignees: Seq[StoreAdminResponse.Root])
+  def assignedToCustomer(admin: StoreAdmin, customer: Customer, assignees: Seq[AdminResponse])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
     Activities.log(AssignedToCustomer(buildAdmin(admin), buildCustomer(customer), assignees))
   }
@@ -92,7 +92,7 @@ object LogActivity {
   }
 
   /* Gift Card Assignments */
-  def assignedToGiftCard(admin: StoreAdmin, gc: GiftCard, assignees: Seq[StoreAdminResponse.Root])
+  def assignedToGiftCard(admin: StoreAdmin, gc: GiftCard, assignees: Seq[AdminResponse])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
     Activities.log(AssignedToGiftCard(buildAdmin(admin), buildGc(gc), assignees))
   }
@@ -113,7 +113,7 @@ object LogActivity {
   }
 
   /* Order Watchers */
-  def addedWatchersToOrder(admin: StoreAdmin, order: FullOrder.Root, watchers: Seq[StoreAdminResponse.Root])
+  def addedWatchersToOrder(admin: StoreAdmin, order: FullOrder.Root, watchers: Seq[AdminResponse])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
     Activities.log(AddedWatchersToOrder(buildAdmin(admin), order, watchers))
   }
@@ -134,7 +134,7 @@ object LogActivity {
   }
 
   /* Customer Watchers */
-  def addedWatchersToCustomer(admin: StoreAdmin, customer: Customer, watchers: Seq[StoreAdminResponse.Root])
+  def addedWatchersToCustomer(admin: StoreAdmin, customer: Customer, watchers: Seq[AdminResponse])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
     Activities.log(AddedWatchersToCustomer(buildAdmin(admin), buildCustomer(customer), watchers))
   }
@@ -155,7 +155,7 @@ object LogActivity {
   }
 
   /* Gift Card Watchers */
-  def addedWatchersToGiftCard(admin: StoreAdmin, gc: GiftCard, watchers: Seq[StoreAdminResponse.Root])
+  def addedWatchersToGiftCard(admin: StoreAdmin, gc: GiftCard, watchers: Seq[AdminResponse])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
     Activities.log(AddedWatchersToGiftCard(buildAdmin(admin), buildGc(gc), watchers))
   }
@@ -176,7 +176,7 @@ object LogActivity {
   }
 
   /* Customers */
-  def customerCreated(customer: CustomerResponse.Root, admin: Option[StoreAdmin])
+  def customerCreated(customer: CustomerResponse, admin: Option[StoreAdmin])
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = admin match {
       case Some(a) ⇒
         Activities.log(CustomerCreated(buildAdmin(a), customer))
@@ -184,7 +184,7 @@ object LogActivity {
         Activities.log(CustomerRegistered(customer))
     }
 
-  def customerActivated(customer: CustomerResponse.Root, admin: StoreAdmin)
+  def customerActivated(customer: CustomerResponse, admin: StoreAdmin)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(CustomerActivated(buildAdmin(admin), customer))
 
@@ -219,19 +219,21 @@ object LogActivity {
   }
 
   /* Customer Addresses */
-  def addressCreated(admin: Option[StoreAdmin], customer: Customer, address: Address, region: Region)
+  def addressCreated(originator: Originator, customer: Customer, address: Address, region: Region)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] = {
-    Activities.log(CustomerAddressCreated(buildCustomer(customer), Addresses.build(address, region), admin.map(buildAdmin)))
+    Activities.log(CustomerAddressCreated(buildCustomer(customer), Addresses.build(address, region), 
+      buildOriginator(originator)))
   }
 
-  def addressUpdated(admin: Option[StoreAdmin], customer: Customer, newAddress: Address, newRegion: Region,
+  def addressUpdated(originator: Originator, customer: Customer, newAddress: Address, newRegion: Region,
     oldAddress: Address, oldRegion: Region)(implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(CustomerAddressUpdated(buildCustomer(customer), Addresses.build(newAddress, newRegion),
-      Addresses.build(oldAddress, oldRegion), admin.map(buildAdmin)))
+      Addresses.build(oldAddress, oldRegion), buildOriginator(originator)))
 
-  def addressDeleted(admin: Option[StoreAdmin], customer: Customer, address: Address, region: Region)
+  def addressDeleted(originator: Originator, customer: Customer, address: Address, region: Region)
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(CustomerAddressDeleted(buildCustomer(customer), Addresses.build(address, region), admin.map(buildAdmin)))
+    Activities.log(CustomerAddressDeleted(buildCustomer(customer), Addresses.build(address, region),
+      buildOriginator(originator)))
 
   /* Customer Credit Cards */
   def ccCreated(customer: Customer, cc: CreditCard, admin: Option[StoreAdmin])
@@ -373,9 +375,10 @@ object LogActivity {
     (implicit ec: ExecutionContext, ac: ActivityContext): DbResult[Activity] =
     Activities.log(OrderShippingMethodRemoved(order, shippingMethod, buildOriginator(originator)))
 
+  /* Helpers */
   private def buildOriginator(originator: Originator)
-    (implicit ec: ExecutionContext, ac: ActivityContext): Option[StoreAdminResponse.Root] = originator match {
+    (implicit ec: ExecutionContext, ac: ActivityContext): Option[AdminResponse] = originator match {
     case AdminOriginator(admin)   ⇒ Some(buildAdmin(admin))
-    case CustomerOriginator(_)    ⇒ None // We don't need customer, he's already in FullOrder.Root
+    case CustomerOriginator(_)    ⇒ None // We don't need customer, he's already in FullOrder.Root / Customer object
   }
 }

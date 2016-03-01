@@ -25,18 +25,12 @@ final case class IlluminatedContext(name: String, attributes: Json)
  * An IlluminatedProduct is what you get when you combine the product shadow and
  * the product. 
  */
-final case class IlluminatedProduct(
-  productId: Int = 0, 
-  shadowId: Int = 0, 
-  context: IlluminatedContext,
-  attributes: Json, 
-  variants: Json)
+final case class IlluminatedProduct(productId: Int = 0, shadowId: Int = 0, 
+  context: IlluminatedContext, attributes: Json, variants: Json)
 
 object IlluminatedProduct { 
 
-  def illuminate(
-    productContext: ProductContext, 
-    product: Product, 
+  def illuminate(productContext: ProductContext, product: Product, 
     shadow: ProductShadow) : IlluminatedProduct = { 
 
     val attributes = projectAttributes(product.attributes, shadow.attributes)

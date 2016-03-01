@@ -29,12 +29,8 @@ import models.product.Aliases.Json
  * The SkuShadow, when applied to a Sku is what is displayed on the 
  * storefront.
  */
-final case class SkuShadow(
-  id: Int = 0, 
-  productContextId: Int, 
-  skuId: Int, 
-  attributes: Json, 
-  createdAt: Instant = Instant.now)
+final case class SkuShadow(id: Int = 0, productContextId: Int, skuId: Int, 
+  attributes: Json, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[SkuShadow]
   with Validation[SkuShadow]
 

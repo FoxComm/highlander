@@ -26,12 +26,8 @@ import Aliases.Json
  * The ProductShadow, when applied to a Product is what is displayed on the 
  * storefront.
  */
-final case class ProductShadow(
-  id: Int = 0, 
-  productContextId: Int, 
-  productId: Int, 
-  attributes: Json, 
-  createdAt: Instant = Instant.now)
+final case class ProductShadow(id: Int = 0, productContextId: Int, productId: Int, 
+  attributes: Json, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[ProductShadow]
   with Validation[ProductShadow]
 
