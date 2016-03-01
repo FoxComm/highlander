@@ -11,7 +11,7 @@ import createStore from '../../lib/store-creator';
 import { initialState, reducers } from '../bulk';
 
 const getSuccesses = (referenceNumbers, bulkStatus) => {
-  const orderFailures = _.get(bulkStatus, 'failures.order');
+  const orderFailures = _.get(bulkStatus, 'failures.order', {});
 
   return referenceNumbers
     .filter(referenceNumber => !(referenceNumber in orderFailures))
