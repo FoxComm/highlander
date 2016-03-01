@@ -14,11 +14,6 @@ const mochaOpts = {
   ]
 };
 
-function onError(err) {
-  console.log(err.toString());
-  process.exit(1);
-}
-
 module.exports = function(gulp, opts, $) {
   const specs = path.join(opts.testDir, '/specs/**/*.js');
   const acceptance = path.join(opts.testDir, '/acceptance/**/*.jsx');
