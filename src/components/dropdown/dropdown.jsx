@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
@@ -11,6 +12,7 @@ class Dropdown extends React.Component {
     super(...args);
     this.state = {
       open: !!this.props.open,
+      dropup: false,
       selectedValue: '',
     };
   }
@@ -34,6 +36,21 @@ class Dropdown extends React.Component {
     this.setState({
       open: !this.state.open
     });
+  }
+
+  componentDidUpdate() {
+    const {open} = this.state;
+    const dropdown = ReactDOM.findDOMNode(this.refs.items);
+    const {left, bottom} = dropdown.getBoundingClientRect();
+
+    const dropup = document.elementFromPoint(left, bottom) !== dropdown;
+
+    if (open && dropup && !this.state.dropup) {
+      this.setState({dropup: true});
+    }
+    if (!open && this.state.dropup) {
+      this.setState({dropup: false});
+    }
   }
 
   @autobind
@@ -98,11 +115,16 @@ class Dropdown extends React.Component {
 
   render() {
     const {primary, editable, items, children} = this.props;
+    const {open, dropup} = this.state;
     const className = classNames(this.props.className, {
       'fc-dropdown': true,
       '_primary': primary,
       '_editable': editable,
-      '_open': this.state.open
+      '_open': open
+    });
+    const itemsClassName = classNames('fc-dropdown__items', {
+      '_dropup': dropup,
+      '_dropdown': !dropup,
     });
 
     return (
@@ -111,7 +133,7 @@ class Dropdown extends React.Component {
           {this.dropdownButton}
           {this.input}
         </div>
-        <ul className="fc-dropdown__items">
+        <ul ref="items" className={itemsClassName}>
           {items && _.map(items, ([value, title]) => (
             <DropdownItem value={value} key={value} onSelect={this.handleItemClick}>
               {title}
