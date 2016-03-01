@@ -14,7 +14,7 @@ const { reducer, actions } = makeLiveSearch(
 
 export function createGiftCard() {
   return (dispatch, getState) => {
-    const addingData = get(getState(), ['giftCards', 'adding']);
+    const addingData = get(getState(), ['giftCards', 'adding', 'giftCard']);
 
     const quantity = addingData.sendToCustomer ? addingData.customers.length : addingData.quantity;
 

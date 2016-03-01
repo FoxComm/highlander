@@ -72,17 +72,18 @@ export function saveGiftCardStatus(id) {
 const initialState = {};
 
 const reducer = createReducer({
-  [requestGiftCard]: (entries, id) => {
+  [requestGiftCard]: (state, id) => {
     return {
-      ...entries,
+      ...state,
       [id]: {
-        ...entries[id],
+        ...state[id],
         isFetching: true,
         didInvalidate: false,
         err: null,
         nextState: null,
         confirmationShown: false,
         reasonId: null,
+        card: null,
       }
     };
   },
