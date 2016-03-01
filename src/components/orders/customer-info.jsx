@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { Link } from '../link';
 
-import TextFit from '../text-fit/text-fit.jsx';
+import TextFit from '../text-fit/text-fit';
 
 export default class CustomerInfo extends React.Component {
   ensureNotEmpty(val) {
@@ -70,10 +70,10 @@ export default class CustomerInfo extends React.Component {
             {avatar}
           </div>
           <div className="fc-customer-info-name">
-            <TextFit content={this.customerLink(customer.name)} fontSize={3} maxFontSize={3}/>
+            <TextFit fontSize={3} maxFontSize={3}>{this.customerLink(customer.name)}</TextFit>
           </div>
           <div className="fc-customer-info-email">
-            <TextFit content={this.customerLink(customer.email)} fontSize={1.7}/>
+            <TextFit fontSize={1.7}>{this.customerLink(customer.email)}</TextFit>
           </div>
         </div>
         <article className="fc-customer-info-body">

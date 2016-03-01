@@ -1,5 +1,5 @@
 /** Libs */
-import cx from 'classnames';
+import classNames from 'classnames';
 import React, {PropTypes, Component} from 'react';
 import ReactDOM from 'react-dom';
 
@@ -17,9 +17,8 @@ function getPropertyValue(element, property) {
 /**
  * TODO: reset font-size on window resize
  */
-class TextFit extends Component {
+export default class TextFit extends Component {
   static propTypes = {
-    content: PropTypes.string.isRequired,
     fontSize: PropTypes.number,
     minFontSize: PropTypes.number,
     maxFontSize: PropTypes.number,
@@ -39,7 +38,7 @@ class TextFit extends Component {
     fontSize: this.props.fontSize,
   };
 
-  _setFontSize() {
+  setFontSize() {
     const span = ReactDOM.findDOMNode(this);
     const parent = span.parentNode;
 
@@ -49,13 +48,11 @@ class TextFit extends Component {
     const width = span.offsetWidth;
     const parentWidth = parent.offsetWidth - parentPaddingLeft - parentPaddingRight;
 
-    console.log(this.props.content, width, parentWidth);
-
     if (width > parentWidth) {
       let fitFontSize = parentWidth / width * this.props.fontSize;
 
-      fitFontSize = fitFontSize > this.props.maxFontSize ? this.props.maxFontSize : fitFontSize;
-      fitFontSize = fitFontSize < this.props.minFontSize ? this.props.minFontSize : fitFontSize;
+      fitFontSize = Math.min(fitFontSize, this.props.maxFontSize);
+      fitFontSize = Math.max(fitFontSize, this.props.minFontSize);
 
       this.setState({
         fontSize: fitFontSize
@@ -64,7 +61,7 @@ class TextFit extends Component {
   }
 
   componentDidMount() {
-    this._setFontSize();
+    this.setFontSize();
   };
 
   render() {
@@ -72,12 +69,10 @@ class TextFit extends Component {
       fontSize: this.state.fontSize + this.props.units,
     };
 
-    const cls = cx('fc-text-fit', this.props.className);
+    const cls = classNames('fc-text-fit', this.props.className);
 
     return (
-      <span className={cls} style={style}>{this.props.content}</span>
+      <span className={cls} style={style}>{this.props.children}</span>
     );
   }
 }
-
-export default TextFit;
