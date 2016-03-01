@@ -32,22 +32,19 @@ export function startFetchingNotifications() {
 export function markAsReadAndClose() {
   return (dispatch, getState) => {
 
+    dispatch(toggleNotifications());
+
     const adminId = 1;
     const activities = _.get(getState(), ['activityNotifications', 'notifications'], []);
     const activityId = _.get(_.last(activities), 'id');
-    const dispatchToggle = () => dispatch(toggleNotifications());
-
-    let willFinished = Promise.resolve();
 
     if (!_.isEmpty(activities) && _.isNumber(activityId)) {
-      willFinished = Api.post(`/public/notifications/${adminId}/last-seen/${activityId}`, {}).then(
+      Api.post(`/public/notifications/${adminId}/last-seen/${activityId}`, {}).then(
         () => {
           dispatch(markNotificationsAsRead());
         }
       );
     }
-
-    willFinished.then(dispatchToggle, dispatchToggle);
   };
 }
 
