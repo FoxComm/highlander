@@ -66,6 +66,9 @@ export function toQuery(filters, options = {}) {
 }
 
 export function addNativeFilters(req, filters) {
+  if (!req.query) {
+    req.query = {bool: {filter: []}};
+  }
   req.query.bool.filter = [
     ...(req.query.bool.filter || []),
     ...filters
