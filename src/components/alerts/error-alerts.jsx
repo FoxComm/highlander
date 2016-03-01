@@ -36,7 +36,7 @@ const ErrorAlerts = props => {
 
 ErrorAlerts.propTypes = {
   errors: PropTypes.array,
-  error: PropTypes.object,
+  error: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
   closeAction: PropTypes.func
 };
 

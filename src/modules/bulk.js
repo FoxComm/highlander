@@ -23,6 +23,18 @@ export const reducers = {
       errors: _.isEmpty(errors) ? null : errors,
     };
   },
+  bulkError: (state, error) => {
+    return {
+      ...state,
+      error: error
+    };
+  },
+  clearError: state => {
+    return {
+      ...state,
+      error: null
+    };
+  },
   setMessages: (state, messages) => {
     return {
       ...state,
