@@ -135,7 +135,7 @@ object AvroTransformers {
         field("orderCount", IntegerType),
         field("orders").nested(
           field("customerId", IntegerType),
-          field("referenceNumber", StringType) analyzer "autocomplete",
+          field("referenceNumber", StringType) index "not_analyzed",
           field("state", StringType) index "not_analyzed",
           field("createdAt", DateType) format dateFormat,
           field("placedAt", DateType) format dateFormat,
@@ -177,7 +177,7 @@ object AvroTransformers {
       esMapping("orders_search_view").fields(
         // Order
         field("id", IntegerType),
-        field("referenceNumber", StringType) analyzer "autocomplete",
+        field("referenceNumber", StringType) index "not_analyzed",
         field("state", StringType) index "not_analyzed",
         field("createdAt", DateType) format dateFormat,
         field("placedAt", DateType) format dateFormat,
@@ -201,7 +201,7 @@ object AvroTransformers {
         // Line items
         field("lineItemCount", IntegerType),
         field("lineItems").nested (
-          field("referenceNumber", StringType) analyzer "autocomplete",
+          field("referenceNumber", StringType) index "not_analyzed",
           field("state", StringType) index "not_analyzed",
           field("sku", StringType) analyzer "autocomplete",
           field("name", StringType) analyzer "autocomplete",
@@ -241,7 +241,7 @@ object AvroTransformers {
         // RMAs
         field("rmaCount", IntegerType),
         field("rmas").nested (
-          field("referenceNumber", StringType) analyzer "autocomplete",
+          field("referenceNumber", StringType) index "not_analyzed",
           field("state", StringType) index "not_analyzed",
           field("rmaType", StringType) index "not_analyzed",
           field("placedAt", DateType) format dateFormat
@@ -266,7 +266,7 @@ object AvroTransformers {
         // Assignments
         field("assignmentsCount", IntegerType),
         field("assignments").nested (
-          field("referenceNumber", StringType) analyzer "autocomplete",
+          field("referenceNumber", StringType) index "not_analyzed",
           field("assignedAt", DateType) format dateFormat
         )
       )
@@ -299,7 +299,7 @@ object AvroTransformers {
         field("country", StringType) analyzer "autocomplete",
         field("continent", StringType) analyzer "autocomplete",
         // Order and Customer
-        field("orderReferenceNumber", StringType) analyzer "autocomplete",
+        field("orderReferenceNumber", StringType) index "not_analyzed",
         field("customerId", IntegerType)
       )
 
@@ -323,7 +323,7 @@ object AvroTransformers {
         ),
         field("order").nested(
           field("customerId", IntegerType),
-          field("referenceNumber", StringType) analyzer "autocomplete",
+          field("referenceNumber", StringType) index "not_analyzed",
           field("state", StringType) index "not_analyzed",
           field("createdAt", DateType) format dateFormat,
           field("placedAt", DateType) format dateFormat,
@@ -368,7 +368,7 @@ object AvroTransformers {
         field("storeCreditCreatedAt", DateType) format dateFormat,
         // Order Payment
         field("orderPayment").nested (
-          field("orderReferenceNumber", StringType) analyzer "autocomplete",
+          field("orderReferenceNumber", StringType) index "not_analyzed",
           field("orderCreatedAt", DateType) format dateFormat,
           field("orderPaymentCreatedAt", DateType) format dateFormat
         ),
@@ -400,7 +400,7 @@ object AvroTransformers {
         field("giftCardCreatedAt", DateType) format dateFormat,
         // Order Payment
         field("orderPayment").nested (
-          field("orderReferenceNumber", StringType) analyzer "autocomplete",
+          field("orderReferenceNumber", StringType) index "not_analyzed",
           field("orderCreatedAt", DateType) format dateFormat,
           field("orderPaymentCreatedAt", DateType) format dateFormat
         ),
