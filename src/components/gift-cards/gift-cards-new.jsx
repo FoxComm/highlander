@@ -86,7 +86,14 @@ export default class NewGiftCard extends React.Component {
   submitForm(event) {
     event.preventDefault();
     this.props.createGiftCard()
-      .then(() => transitionTo(this.context.history, 'gift-cards'));
+      .then(resp => {
+        if (_.isArray(resp)) {
+          // TODO: show only created items
+          transitionTo(this.context.history, 'gift-cards');
+        } else {
+          transitionTo(this.context.history, 'giftcard', { giftCard: resp.code });
+        }
+      });
   }
 
   @autobind
