@@ -1,11 +1,10 @@
 package utils
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.language.implicitConversions
-
-import cats.data.Xor
-import services.{Failure, Failures, DatabaseFailure, CustomerEmailNotUnique, Result}
 import scala.util.matching.Regex
+
+import services.{DatabaseFailure, Failure, Result}
+import utils.aliases.EC
 
 object jdbc {
 
@@ -16,9 +15,9 @@ object jdbc {
     NotUnique → """ERROR: duplicate key value violates unique constraint""".r
   )
 
+  // TODO (FailureSwap, Failure)*
   @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.IsInstanceOf", "org.brianmckenna.wartremover.warts.AsInstanceOf"))
-  def swapDatabaseFailure[A](result: Result[A])(failed: (FailureSwap, Failure)) // TODO (FailureSwap, Failure)*
-    (implicit ec: ExecutionContext): Result[A] = {
+  def swapDatabaseFailure[A](result: Result[A])(failed: (FailureSwap, Failure))(implicit ec: EC): Result[A] = {
     result.map(_.leftMap { currentFailures ⇒ (currentFailures.head, failed) match {
         case (dbFailure: DatabaseFailure, (symbol, replacement)) ⇒
           constraints.get(symbol).map { regex ⇒

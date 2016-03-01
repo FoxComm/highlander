@@ -2,13 +2,12 @@ package models.customer
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import models.{StoreAdmin, StoreAdmins, javaTimeSlickMapper}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.aliases._
 
 final case class CustomerAssignment(id: Int = 0, customerId: Int, assigneeId: Int, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[CustomerAssignment]
@@ -32,7 +31,7 @@ object CustomerAssignments extends TableQueryWithId[CustomerAssignment, Customer
 
   def byAssignee(admin: StoreAdmin): QuerySeq = filter(_.assigneeId === admin.id)
 
-  def assignedTo(admin: StoreAdmin)(implicit ec: ExecutionContext): Customers.QuerySeq = {
+  def assignedTo(admin: StoreAdmin)(implicit ec: EC): Customers.QuerySeq = {
     for {
       assignees ← byAssignee(admin).map(_.customerId)
       customers ← Customers.filter(_.id === assignees)
@@ -41,7 +40,7 @@ object CustomerAssignments extends TableQueryWithId[CustomerAssignment, Customer
 
   def byCustomer(customer: Customer): QuerySeq = filter(_.customerId === customer.id)
 
-  def assigneesFor(customer: Customer)(implicit ec: ExecutionContext): StoreAdmins.QuerySeq = {
+  def assigneesFor(customer: Customer)(implicit ec: EC): StoreAdmins.QuerySeq = {
     for {
       assignees ← byCustomer(customer).map(_.assigneeId)
       admins    ← StoreAdmins.filter(_.id === assignees)

@@ -1,17 +1,14 @@
 package concepts.inventory
 
 import services.Result
-import cats.data.Xor
-import scala.concurrent.{ExecutionContext, Future}
-import com.pellucid.sealerate
-import utils.ADT
+import utils.aliases.EC
 
 object Identifiable {
     type Id = Int
     type SkuId = Int
 }
-import Identifiable.Id
-import Identifiable.SkuId
+
+import Identifiable.{Id, SkuId}
 
 trait Identifiable { 
     def id() : Id
@@ -24,6 +21,7 @@ trait HasSkuId {
 object SingularUnit {
     type UnitType = String
 }
+
 import SingularUnit.UnitType
 
 trait SingularUnit {
@@ -33,6 +31,7 @@ trait SingularUnit {
 object Locatable {
     type Location = String
 }
+
 import Locatable.Location
 
 trait Locatable {
@@ -43,6 +42,7 @@ object HasShippingRestrictions {
     type ShippingRestriction = String
     type ShippingRestrictions = Seq[ShippingRestriction]
 }
+
 import HasShippingRestrictions.ShippingRestrictions
 
 trait HasShippingRestrictions { 
@@ -66,23 +66,23 @@ trait NonSellable extends Identifiable with HasSkuId with SingularUnit {
 }
 
 trait Handy { 
-    def findOnHandById(id: Id)(implicit ec: ExecutionContext) : Result[OnHand]
-    def findOnHandBySkuId(id: SkuId)(implicit ec: ExecutionContext) : Result[OnHand]
+    def findOnHandById(id: Id)(implicit ec: EC) : Result[OnHand]
+    def findOnHandBySkuId(id: SkuId)(implicit ec: EC) : Result[OnHand]
 }
 
 trait Holdables {
-    def findHoldableById(id: Id)(implicit ec: ExecutionContext) : Result[Holdable]
-    def findHoldableBySkuId(id: SkuId)(implicit ec: ExecutionContext) : Result[Holdable]
+    def findHoldableById(id: Id)(implicit ec: EC) : Result[Holdable]
+    def findHoldableBySkuId(id: SkuId)(implicit ec: EC) : Result[Holdable]
 }
 
 trait Reservables { 
-    def findReservableById(id: Id)(implicit ec: ExecutionContext) : Result[Reservable]
-    def findReservableBySkuId(id: SkuId)(implicit ec: ExecutionContext) : Result[Reservable]
+    def findReservableById(id: Id)(implicit ec: EC) : Result[Reservable]
+    def findReservableBySkuId(id: SkuId)(implicit ec: EC) : Result[Reservable]
 }
 
 trait NonSellables { 
-    def findNonSellableById(id: Id)(implicit ec: ExecutionContext) : Result[NonSellable]
-    def findNonSellableBySkuId(id: SkuId)(implicit ec: ExecutionContext) : Result[NonSellable]
+    def findNonSellableById(id: Id)(implicit ec: EC) : Result[NonSellable]
+    def findNonSellableBySkuId(id: SkuId)(implicit ec: EC) : Result[NonSellable]
 }
 
 object Adjustments {
@@ -111,8 +111,8 @@ trait InventoryItems extends
   Reservables with
   Holdables with
   NonSellables { 
-    def findInventoryItemById(id: Id)(implicit ec: ExecutionContext) : Result[InventoryItem]
-    def findInventoryItemBySkuId(id: SkuId)(implicit ec: ExecutionContext) : Result[InventoryItem]
+    def findInventoryItemById(id: Id)(implicit ec: EC) : Result[InventoryItem]
+    def findInventoryItemBySkuId(id: SkuId)(implicit ec: EC) : Result[InventoryItem]
 }
 
 trait Warehouse extends
@@ -121,11 +121,11 @@ trait Warehouse extends
     HasShippingRestrictions with
     InventoryItems {
 
-      def apply(adjustments: Adjustments.Ledger)(implicit ec: ExecutionContext) : Result[Unit]
+      def apply(adjustments: Adjustments.Ledger)(implicit ec: EC) : Result[Unit]
 
     }
 
 trait WarehouseManagementSystem extends Identifiable { 
-    def warehouses()(implicit ec: ExecutionContext) : Result[Seq[Warehouse]]
-    def update(w: Warehouse)(implicit ec: ExecutionContext): Result[Unit]
+    def warehouses()(implicit ec: EC) : Result[Seq[Warehouse]]
+    def update(w: Warehouse)(implicit ec: EC): Result[Unit]
 }

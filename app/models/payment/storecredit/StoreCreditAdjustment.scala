@@ -2,8 +2,6 @@ package models.payment.storecredit
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import cats.data.Xor
 import com.pellucid.sealerate
 import models.javaTimeSlickMapper
@@ -18,6 +16,7 @@ import slick.lifted.ColumnOrdered
 import utils.CustomDirectives.SortAndPage
 import utils.Slick.implicits._
 import utils.{ADT, CustomDirectives, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.aliases._
 
 final case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, orderPaymentId: Option[Int],
   storeAdminId: Option[Int] = None, debit: Int, availableBalance: Int, state: State = Auth, createdAt: Instant = Instant.now())
@@ -51,8 +50,7 @@ object StoreCreditAdjustment {
 }
 
 class StoreCreditAdjustments(tag: Tag)
-  extends GenericTable.TableWithId[StoreCreditAdjustment](tag, "store_credit_adjustments")
-   {
+  extends GenericTable.TableWithId[StoreCreditAdjustment](tag, "store_credit_adjustments") {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def storeCreditId = column[Int]("store_credit_id")
@@ -91,11 +89,11 @@ object StoreCreditAdjustments
   }
 
   def sortedAndPaged(query: QuerySeq)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata = {
+    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata = {
     query.withMetadata.sortAndPageIfNeeded { (s, adj) ⇒ matchSortColumn(s, adj) }
   }
 
-  def queryAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+  def queryAll(implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata =
     sortedAndPaged(this)
 
   def filterByStoreCreditId(id: Int): QuerySeq = filter(_.storeCreditId === id)

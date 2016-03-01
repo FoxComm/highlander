@@ -2,14 +2,13 @@ package models.sharedsearch
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import models.order.Orders
 import models.{StoreAdmin, StoreAdmins, javaTimeSlickMapper}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.aliases._
 
 final case class SharedSearchAssociation(id: Int = 0, sharedSearchId: Int, storeAdminId: Int,
   createdAt: Instant = Instant.now)
@@ -40,7 +39,7 @@ object SharedSearchAssociations extends TableQueryWithId[SharedSearchAssociation
 
   def byStoreAdmin(admin: StoreAdmin): QuerySeq = filter(_.storeAdminId === admin.id)
 
-  def associatedWith(admin: StoreAdmin, scope: Option[String])(implicit ec: ExecutionContext): SharedSearches.QuerySeq = {
+  def associatedWith(admin: StoreAdmin, scope: Option[String])(implicit ec: EC): SharedSearches.QuerySeq = {
     for {
       associations ← byStoreAdmin(admin).map(_.sharedSearchId)
       searches     ← scope.flatMap(SharedSearch.Scope.read) match {
@@ -52,7 +51,7 @@ object SharedSearchAssociations extends TableQueryWithId[SharedSearchAssociation
 
   def bySharedSearch(search: SharedSearch): QuerySeq = filter(_.sharedSearchId === search.id)
 
-  def associatedAdmins(search: SharedSearch)(implicit ec: ExecutionContext): StoreAdmins.QuerySeq = {
+  def associatedAdmins(search: SharedSearch)(implicit ec: EC): StoreAdmins.QuerySeq = {
     for {
       associations ← bySharedSearch(search).map(_.storeAdminId)
       admins       ← StoreAdmins.filter(_.id === associations)

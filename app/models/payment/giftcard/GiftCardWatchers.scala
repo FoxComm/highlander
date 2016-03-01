@@ -2,13 +2,12 @@ package models.payment.giftcard
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import models.{StoreAdmin, StoreAdmins, javaTimeSlickMapper}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.aliases._
 
 final case class GiftCardWatcher(id: Int = 0, giftCardId: Int, watcherId: Int, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[GiftCardWatcher]
@@ -32,7 +31,7 @@ object GiftCardWatchers extends TableQueryWithId[GiftCardWatcher, GiftCardWatche
 
   def byWatcher(admin: StoreAdmin): QuerySeq = filter(_.watcherId === admin.id)
 
-  def watchingTo(admin: StoreAdmin)(implicit ec: ExecutionContext): GiftCards.QuerySeq = {
+  def watchingTo(admin: StoreAdmin)(implicit ec: EC): GiftCards.QuerySeq = {
     for {
       watchers  ← byWatcher(admin).map(_.giftCardId)
       giftCards ← GiftCards.filter(_.id === watchers)
@@ -41,7 +40,7 @@ object GiftCardWatchers extends TableQueryWithId[GiftCardWatcher, GiftCardWatche
 
   def byGiftCard(order: GiftCard): QuerySeq = filter(_.giftCardId === order.id)
 
-  def watchersFor(order: GiftCard)(implicit ec: ExecutionContext): StoreAdmins.QuerySeq = {
+  def watchersFor(order: GiftCard)(implicit ec: EC): StoreAdmins.QuerySeq = {
     for {
       watchers ← byGiftCard(order).map(_.watcherId)
       admins   ← StoreAdmins.filter(_.id === watchers)

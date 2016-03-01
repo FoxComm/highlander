@@ -1,5 +1,6 @@
 package services.orders
 
+import models.activity.ActivityContext
 import cats.implicits._
 import models.product.ProductContext
 import models.customer.{Customers, Customer}
@@ -13,13 +14,12 @@ import services.{LogActivity, NotFoundFailure400, Result, ResultT}
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-
-import scala.concurrent.ExecutionContext
-import models.activity.ActivityContext
+import models.activity.{Dimension, ActivityContext}
+import utils.aliases._
 
 object OrderCreator {
   def createCart(admin: StoreAdmin, payload: CreateOrder, productContext: ProductContext)
-    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[Root] = {
+    (implicit db: DB, ec: EC, ac: ActivityContext): Result[Root] = {
 
     def existingCustomerOrNewGuest: Result[Root] = (payload.customerId, payload.email) match {
       case (Some(customerId), _)  ⇒ createCartForCustomer(customerId)

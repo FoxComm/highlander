@@ -1,23 +1,20 @@
 package services.activity
 
-import scala.concurrent.ExecutionContext
-
 import models.activity.Aliases.Json
 import models.activity._
 import payloads.{AppendActivity, CreateTrail}
 import responses.{ActivityConnectionResponse, FullActivityConnectionResponse}
 import services.Result
-import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
+import utils.aliases._
 
 object TrailManager {
 
     val autoDescription = "Automatically Generated"
 
-    def createTrail(payload: CreateTrail)
-    (implicit ec: ExecutionContext, db: Database): Result[Int] =
+    def createTrail(payload: CreateTrail)(implicit ec: EC, db: DB): Result[Int] =
       (for {
         trail ← * <~ Trails.create(
           Trail(
@@ -32,11 +29,11 @@ object TrailManager {
      * The idea here is to lazily create resources to save space and query time.
      */
     def appendActivityByObjectId(dimensionName: String, objectId: String, payload: AppendActivity)
-      (implicit context: ActivityContext, ec: ExecutionContext, db: Database): Result[ActivityConnectionResponse.Root] =
+      (implicit context: ActivityContext, ec: EC, db: DB): Result[ActivityConnectionResponse.Root] =
       appendActivityByObjectIdInner(dimensionName, objectId, payload).runTxn()
 
     private [services] def appendActivityByObjectIdInner(dimensionName: String, objectId: String, payload: AppendActivity,
-      newTrailData: Option[Json] = None)(implicit context: ActivityContext, ec: ExecutionContext, db: Database):
+      newTrailData: Option[Json] = None)(implicit context: ActivityContext, ec: EC, db: DB):
       DbResultT[ActivityConnectionResponse.Root] = for {
 
         //find or create the dimension
@@ -67,8 +64,7 @@ object TrailManager {
         _ ← * <~ updateTail(maybeOldTailId, newTail.id)
       } yield ActivityConnectionResponse.build(objectId, dimension, newTail)
 
-    private def updateTail(maybeOldTailId: Option[Int], newTailId: Int)
-    (implicit ec: ExecutionContext, db: Database) : DbResultT[Unit] = {
+    private def updateTail(maybeOldTailId: Option[Int], newTailId: Int)(implicit ec: EC, db: DB) : DbResultT[Unit] = {
       maybeOldTailId match {
         case Some(oldTailId) ⇒
           for {
@@ -79,8 +75,7 @@ object TrailManager {
       }
     }
 
-    def findConnection(connectionId: Int)
-    (implicit ec: ExecutionContext, db: Database) : Result[FullActivityConnectionResponse.Root] = {
+    def findConnection(connectionId: Int)(implicit ec: EC, db: DB) : Result[FullActivityConnectionResponse.Root] = {
       (for {
         connection ← * <~ Connections.mustFindById404(connectionId)
         trail ← * <~ Trails.mustFindById404(connection.trailId)

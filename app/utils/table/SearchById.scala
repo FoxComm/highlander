@@ -1,12 +1,11 @@
 package utils.table
 
-import scala.concurrent.ExecutionContext
-
 import services.{Failure, NotFoundFailure400, NotFoundFailure404}
 import slick.driver.PostgresDriver.api._
 import utils.Slick._
 import utils.Strings._
 import utils.{GenericTable, ModelWithIdParameter}
+import utils.aliases._
 
 trait SearchById[M <: ModelWithIdParameter[M], T <: GenericTable.TableWithId[M]] {
 
@@ -22,13 +21,13 @@ trait SearchById[M <: ModelWithIdParameter[M], T <: GenericTable.TableWithId[M]]
   protected def notFound400K[K](searchKey: K) =
     NotFoundFailure400(s"${tableName.tableNameToCamel} with $primarySearchTerm=$searchKey not found")
 
-  def mustFindById404(id: M#Id)(implicit ec: ExecutionContext, db: Database): DbResult[M] = mustFindById(id)
+  def mustFindById404(id: M#Id)(implicit ec: EC, db: DB): DbResult[M] = mustFindById(id)
 
-  def mustFindById400(id: M#Id)(implicit ec: ExecutionContext, db: Database): DbResult[M] =
+  def mustFindById400(id: M#Id)(implicit ec: EC, db: DB): DbResult[M] =
     mustFindById(id, notFound400K)
 
   private def mustFindById(id: M#Id, notFoundFailure: M#Id ⇒ Failure = notFound404K)
-    (implicit ec: ExecutionContext, db: Database): DbResult[M] = {
+    (implicit ec: EC, db: DB): DbResult[M] = {
 
     this.findOneById(id).flatMap {
       case Some(model)  ⇒ DbResult.good(model)
@@ -44,7 +43,7 @@ trait SearchByRefNum[M <: ModelWithIdParameter[M], T <: GenericTable.TableWithId
   def findOneByRefNum(refNum: String): DBIO[Option[M]]
 
   def mustFindByRefNum(refNum: String, notFoundFailure: String ⇒ Failure = notFound404K)
-    (implicit ec: ExecutionContext, db: Database): DbResult[M] = {
+    (implicit ec: EC, db: DB): DbResult[M] = {
     findOneByRefNum(refNum).flatMap {
       case Some(model) ⇒ DbResult.good(model)
       case None ⇒ DbResult.failure(notFoundFailure(refNum))
@@ -59,7 +58,7 @@ trait SearchByCode[M <: ModelWithIdParameter[M], T <: GenericTable.TableWithId[M
   def findOneByCode(code: String): DBIO[Option[M]]
 
   def mustFindByCode(code: String, notFoundFailure: String ⇒ Failure = notFound404K)
-    (implicit ec: ExecutionContext, db: Database): DbResult[M] = {
+    (implicit ec: EC, db: DB): DbResult[M] = {
     findOneByCode(code).flatMap {
       case Some(model) ⇒ DbResult.good(model)
       case None ⇒ DbResult.failure(notFoundFailure(code))

@@ -2,14 +2,11 @@ package responses
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
-import models.{StoreAdmins, StoreAdmin}
-import models.customer.{CustomerRank, Customer, CustomerWatcher, CustomerWatchers, CustomerAssignment,
-CustomerAssignments}
+import models.customer._
 import models.location.Region
-
+import models.{StoreAdmin, StoreAdmins}
 import slick.driver.PostgresDriver.api._
+import utils.aliases._
 
 object CustomerResponse {
   final case class Root(
@@ -80,7 +77,7 @@ object CustomerResponse {
     isBlacklisted = customer.isBlacklisted
   )
 
-  def fromCustomer(customer: Customer)(implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
+  def fromCustomer(customer: Customer)(implicit ec: EC, db: DB): DBIO[Root] = {
     fetchDetails(customer).map {
       case (assignees, watchers) ⇒
         build(
@@ -91,7 +88,7 @@ object CustomerResponse {
     }
   }
 
-  private def fetchDetails(customer: Customer)(implicit ec: ExecutionContext, db: Database) = {
+  private def fetchDetails(customer: Customer)(implicit ec: EC, db: DB) = {
     for {
       assignments ← CustomerAssignments.filter(_.customerId === customer.id).result
       admins      ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result

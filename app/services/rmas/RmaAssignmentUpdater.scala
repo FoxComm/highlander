@@ -1,7 +1,5 @@
 package services.rmas
 
-import scala.concurrent.ExecutionContext
-
 import models.rma.{RmaAssignments, RmaAssignment, Rmas, Rma}
 import models.{StoreAdmin, StoreAdmins}
 import responses.{RmaResponse, TheResponse}
@@ -12,11 +10,12 @@ import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
+import utils.aliases._
 
 object RmaAssignmentUpdater {
 
   def assign(refNum: String, requestedAssigneeIds: Seq[Int])
-    (implicit db: Database, ec: ExecutionContext): Result[TheResponse[RmaResponse.Root]] = (for {
+    (implicit ec: EC, db: DB): Result[TheResponse[RmaResponse.Root]] = (for {
     rma          ← * <~ Rmas.mustFindByRefNum(refNum)
     realAdminIds ← * <~ StoreAdmins.filter(_.id.inSetBind(requestedAssigneeIds)).map(_.id).result
     assigned     ← * <~ RmaAssignments.assigneesFor(rma).toXor
@@ -29,7 +28,7 @@ object RmaAssignmentUpdater {
   } yield TheResponse.build(fullRma, errors = notFoundAdmins)).runTxn()
 
   def unassign(admin: StoreAdmin, refNum: String, assigneeId: Int)
-    (implicit db: Database, ec: ExecutionContext): Result[TheResponse[RmaResponse.Root]] = (for {
+    (implicit ec: EC, db: DB): Result[TheResponse[RmaResponse.Root]] = (for {
     rma             ← * <~ Rmas.mustFindByRefNum(refNum)
     assignee        ← * <~ StoreAdmins.mustFindById404(assigneeId)
     assignment      ← * <~ RmaAssignments.byAssignee(assignee).one.mustFindOr(RmaAssigneeNotFound(refNum, assigneeId))
@@ -37,7 +36,7 @@ object RmaAssignmentUpdater {
     fullRma         ← * <~ RmaResponse.fromRma(rma).toXor
   } yield TheResponse.build(fullRma)).runTxn()
 
-  def assignBulk(payload: payloads.RmaBulkAssigneesPayload)(implicit ec: ExecutionContext, db: Database,
+  def assignBulk(payload: payloads.RmaBulkAssigneesPayload)(implicit ec: EC, db: DB,
     sortAndPage: SortAndPage): Result[BulkRmaUpdateResponse] = (for {
     rmas     ← * <~ Rmas.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result.toXor
     admin    ← * <~ StoreAdmins.mustFindById400(payload.assigneeId)
@@ -46,7 +45,7 @@ object RmaAssignmentUpdater {
     rmasNotFound = diffToFlatFailures(payload.referenceNumbers, rmas.map(_.referenceNumber), Rma)
   } yield response.copy(errors = rmasNotFound)).runTxn()
 
-  def unassignBulk(payload: payloads.RmaBulkAssigneesPayload)(implicit ec: ExecutionContext, db: Database,
+  def unassignBulk(payload: payloads.RmaBulkAssigneesPayload)(implicit ec: EC, db: DB,
     sortAndPage: SortAndPage): Result[BulkRmaUpdateResponse] = (for {
     rmas ← * <~ Rmas.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result.toXor
     _    ← * <~ StoreAdmins.mustFindById400(payload.assigneeId)

@@ -1,7 +1,5 @@
 package services.orders
 
-import scala.concurrent.ExecutionContext
-
 import cats.implicits._
 import models.order._
 import models.shipping.{Shipments, ShippingMethods}
@@ -15,13 +13,14 @@ import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
+import utils.aliases._
 
 import models.activity.ActivityContext
 
 object OrderShippingMethodUpdater {
 
   def updateShippingMethod(originator: Originator, payload: UpdateShippingMethod, refNum: Option[String] = None)
-    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
     order           ← * <~ getCartByOriginator(originator, refNum)
     _               ← * <~ order.mustBeCart
     oldShipMethod   ← * <~ ShippingMethods.forOrder(order).one.toXor
@@ -41,7 +40,7 @@ object OrderShippingMethodUpdater {
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runTxn()
 
   def deleteShippingMethod(originator: Originator, refNum: Option[String] = None)
-    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
     order       ← * <~ getCartByOriginator(originator, refNum)
     _           ← * <~ order.mustBeCart
     shipMethod  ← * <~ ShippingMethods.forOrder(order).one.mustFindOr(NoShipMethod(order.refNum))

@@ -1,16 +1,16 @@
 package responses
 
 import java.time.Instant
-import scala.concurrent.ExecutionContext
 
 import cats.implicits._
 import models.customer.Customer
 import models.location.{Address, Region}
-import models.order.{OrderShippingAddresses, OrderShippingAddress}
+import models.order.{OrderShippingAddress, OrderShippingAddresses}
 import models.payment.creditcard.CreditCard
 import services.NotFoundFailure404
 import utils.Slick.DbResult
 import slick.driver.PostgresDriver.api._
+import utils.aliases.EC
 
 object Addresses {
   final case class Root(id: Int, customer: Option[Customer] = None, region: Region, name: String, address1: String,
@@ -39,7 +39,7 @@ object Addresses {
       city = address.city, zip = address.zip, isDefault = Some(isDefault), phoneNumber = address.phoneNumber, deletedAt = None)
   }
 
-  def forOrderId(orderId: Int)(implicit ec: ExecutionContext): DbResult[Root] = {
+  def forOrderId(orderId: Int)(implicit ec: EC): DbResult[Root] = {
     val fullAddressDetails = for {
       shipAddress ← OrderShippingAddresses.findByOrderId(orderId)
       region ← shipAddress.region

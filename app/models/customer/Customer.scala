@@ -2,8 +2,6 @@ package models.customer
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import cats.data.ValidatedNel
 import cats.implicits._
 import models.javaTimeSlickMapper
@@ -18,6 +16,7 @@ import utils.Litterbox._
 import utils.Passwords._
 import utils.Slick.DbResult
 import utils.Slick.implicits._
+import utils.aliases.EC
 import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
 
 final case class Customer(id: Int = 0, email: String, hashedPassword: Option[String] = None,
@@ -129,13 +128,13 @@ object Customers extends TableQueryWithId[Customer, Customers](
     }
   }
 
-  def activeCustomerByEmail(email: String)(implicit ec: ExecutionContext): QuerySeq =
+  def activeCustomerByEmail(email: String)(implicit ec: EC): QuerySeq =
     filter(c ⇒ c.email === email && !c.isBlacklisted && !c.isDisabled && !c.isGuest)
 
-  def createEmailMustBeUnique(email: String)(implicit ec: ExecutionContext): DbResult[Unit] =
+  def createEmailMustBeUnique(email: String)(implicit ec: EC): DbResult[Unit] =
     activeCustomerByEmail(email).one.mustNotFindOr(CustomerEmailNotUnique)
 
-  def updateEmailMustBeUnique(email: String, customerId: Int)(implicit ec: ExecutionContext): DbResult[Unit] =
+  def updateEmailMustBeUnique(email: String, customerId: Int)(implicit ec: EC): DbResult[Unit] =
     activeCustomerByEmail(email).filterNot(_.id === customerId).one.mustNotFindOr(CustomerEmailNotUnique)
 
 }

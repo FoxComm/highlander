@@ -1,20 +1,21 @@
 package utils
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.{MalformedRequestContentRejection, UnsupportedRequestContentTypeRejection,
-RequestEntityExpectedRejection, Directive1, StandardRoute, ValidationRejection}
-import akka.http.scaladsl.unmarshalling.{Unmarshaller, FromRequestUnmarshaller}
-import slick.driver.PostgresDriver.api._
+import akka.http.scaladsl.server._
+import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
 
 import models.StoreAdmin
 import models.customer.Customer
 import models.product.{SimpleContext, ProductContext, ProductContexts}
 import services.Result
 import utils.Http._
-
+import models.StoreAdmin
 import models.activity.ActivityContext
+
+import slick.driver.PostgresDriver.api._
+import utils.aliases._
 
 object CustomDirectives {
 
@@ -71,7 +72,7 @@ object CustomDirectives {
    * and it will become a combination of of things which will then search
    * for the correct context.
    */
-  def determineProductContext(implicit db: Database, ec: ExecutionContext) : Directive1[ProductContext] = {
+  def determineProductContext(implicit db: DB, ec: EC) : Directive1[ProductContext] = {
     onSuccess(db.run(ProductContexts.filterByName(DefaultContextName).result.headOption).map {
       case Some(c) ⇒  c
       case None ⇒ throw new Exception("Unable to find default context. Is the DB seeded?")
@@ -82,16 +83,16 @@ object CustomDirectives {
   def sortAndPage: Directive1[SortAndPage] =
     parameters(('from.as[Int].?, 'size.as[Int].?, 'sortBy.as[String].?)).as(SortAndPage)
 
-  def good[A <: AnyRef](a: Future[A])(implicit ec: ExecutionContext): StandardRoute =
+  def good[A <: AnyRef](a: Future[A])(implicit ec: EC): StandardRoute =
     complete(a.map(render(_)))
 
   def good[A <: AnyRef](a: A): StandardRoute =
     complete(render(a))
 
-  def goodOrFailures[A <: AnyRef](a: Result[A])(implicit ec: ExecutionContext): StandardRoute =
+  def goodOrFailures[A <: AnyRef](a: Result[A])(implicit ec: EC): StandardRoute =
     complete(a.map(renderGoodOrFailures))
 
-  def nothingOrFailures(a: Result[_])(implicit ec: ExecutionContext): StandardRoute =
+  def nothingOrFailures(a: Result[_])(implicit ec: EC): StandardRoute =
     complete(a.map(renderNothingOrFailures))
 
   def entityOr[T](um: FromRequestUnmarshaller[T], failure: services.Failure): Directive1[T] =

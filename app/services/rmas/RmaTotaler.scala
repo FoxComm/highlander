@@ -1,14 +1,13 @@
 package services.rmas
 
-import cats.syntax.order
+import cats.implicits._
 import models.rma.Rma
 import slick.driver.PostgresDriver.api._
-import scala.concurrent.ExecutionContext
-import cats.implicits._
 import utils.Slick.implicits._
+import utils.aliases._
 
 object RmaTotaler {
-  def subTotal(rma: Rma)(implicit ec: ExecutionContext): DBIO[Option[Int]] =
+  def subTotal(rma: Rma)(implicit ec: EC): DBIO[Option[Int]] =
     sql"""select count(*), sum(coalesce(gc.original_balance, 0)) + sum(coalesce(cast(skus.attributes->'price'->(sku_shadows.attributes->>'price')->>'value' as integer), 0)) as sum
        |	from rma_line_items rli
        |	left outer join rma_line_item_skus sli on (sli.id = rli.id)

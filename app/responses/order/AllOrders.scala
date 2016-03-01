@@ -2,12 +2,13 @@ package responses.order
 
 import java.time.Instant
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 import models.customer.Customer
 import models.order.Order
 import models.payment.creditcard.CreditCardCharge
 import responses.ResponseItem
+import utils.aliases._
 
 object AllOrders {
   type Response = Future[Seq[Root]]
@@ -23,8 +24,7 @@ object AllOrders {
     remorsePeriodEnd: Option[Instant] = None,
     total: Int) extends ResponseItem with OrderResponseBase
 
-  def build(order: Order, customer: Customer, paymentState: CreditCardCharge.State)
-    (implicit ec: ExecutionContext): Root = Root(
+  def build(order: Order, customer: Customer, paymentState: CreditCardCharge.State)(implicit ec: EC): Root = Root(
       referenceNumber = order.referenceNumber,
       name = customer.name,
       email = customer.email,

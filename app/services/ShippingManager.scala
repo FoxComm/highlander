@@ -12,6 +12,7 @@ import utils.DbResultT.implicits._
 import utils.JsonFormatters
 import utils.Slick.DbResult
 import utils.Slick.implicits._
+import utils.aliases._
 
 import scala.concurrent.ExecutionContext
 import slick.driver.PostgresDriver.api._
@@ -23,7 +24,7 @@ object ShippingManager {
     shippingAddress: Option[OrderShippingAddress] = None, shippingRegion: Option[Region] = None, skus: Seq[Sku])
 
   def getShippingMethodsForOrder(refNum: String, customer: Option[Customer] = None)
-    (implicit db: Database, ec: ExecutionContext): Result[Seq[responses.ShippingMethods.Root]] = (for {
+    (implicit ec: EC, db: DB): Result[Seq[responses.ShippingMethods.Root]] = (for {
     order       ← * <~ findByRefNumAndOptionalCustomer(refNum, customer)
     shipMethods ← * <~ ShippingMethods.findActive.result.toXor
     shipData    ← * <~ getShippingData(order).toXor
@@ -35,13 +36,13 @@ object ShippingManager {
   } yield response).run()
 
   private def findByRefNumAndOptionalCustomer(refNum: String, customer: Option[Customer] = None)
-    (implicit db: Database, ec: ExecutionContext): DbResult[Order] = customer match {
+    (implicit ec: EC, db: DB): DbResult[Order] = customer match {
     case Some(c)  ⇒ Orders.findOneByRefNumAndCustomer(refNum, c).one.mustFindOr(NotFoundFailure404(Orders, refNum))
     case _        ⇒ Orders.mustFindByRefNum(refNum)
   }
 
   def evaluateShippingMethodForOrder(shippingMethod: ShippingMethod, order: Order)
-    (implicit db: Database, ec: ExecutionContext): DbResult[Unit] = {
+    (implicit ec: EC, db: DB): DbResult[Unit] = {
     getShippingData(order).flatMap { shippingData ⇒
       val failure = ShippingMethodNotApplicableToOrder(shippingMethod.id, order.refNum)
       if (QueryStatement.evaluate(shippingMethod.conditions, shippingData, evaluateCondition)) {
@@ -53,21 +54,19 @@ object ShippingManager {
     }
   }
 
-  private def getShippingData(order: Order)(implicit db: Database, ec: ExecutionContext): DBIO[ShippingData] = {
-    for {
-      orderShippingAddress ← OrderShippingAddresses.findByOrderIdWithRegions(order.id).result.headOption
-      skus ← (for {
-        liSku ← OrderLineItemSkus.findByOrderId(order.id)
-        skus ← Skus if skus.id === liSku.skuId
-      } yield skus).result
-    } yield ShippingData(
-      order = order,
-      orderTotal = order.grandTotal,
-      orderSubTotal = order.subTotal,
-      shippingAddress = orderShippingAddress.map(_._1),
-      shippingRegion = orderShippingAddress.map(_._2),
-      skus = skus)
-  }
+  private def getShippingData(order: Order)(implicit ec: EC, db: DB): DBIO[ShippingData] = for {
+    orderShippingAddress ← OrderShippingAddresses.findByOrderIdWithRegions(order.id).result.headOption
+    skus ← (for {
+      liSku ← OrderLineItemSkus.findByOrderId(order.id)
+      skus ← Skus if skus.id === liSku.skuId
+    } yield skus).result
+  } yield ShippingData(
+    order = order,
+    orderTotal = order.grandTotal,
+    orderSubTotal = order.subTotal,
+    shippingAddress = orderShippingAddress.map(_._1),
+    shippingRegion = orderShippingAddress.map(_._2),
+    skus = skus)
 
   private def evaluateCondition(cond: Condition, shippingData: ShippingData): Boolean = {
     cond.rootObject match {

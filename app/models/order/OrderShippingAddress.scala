@@ -2,8 +2,6 @@ package models.order
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import models.javaTimeSlickMapper
 import models.location.{Address, Addresses, Region, Regions}
 import models.traits.Addressable
@@ -13,6 +11,7 @@ import slick.driver.PostgresDriver.api._
 import utils.GenericTable.TableWithId
 import utils.Slick._
 import utils.{ModelWithIdParameter, TableQueryWithId}
+import utils.aliases._
 
 final case class OrderShippingAddress(id: Int = 0, orderId: Int = 0, regionId: Int, name: String,
   address1: String, address2: Option[String], city: String, zip: String, phoneNumber: Option[String],
@@ -74,7 +73,7 @@ object OrderShippingAddresses extends TableQueryWithId[OrderShippingAddress, Ord
 
   import scope._
 
-  def copyFromAddress(address: Address, orderId: Int)(implicit ec: ExecutionContext): DbResult[OrderShippingAddress] =
+  def copyFromAddress(address: Address, orderId: Int)(implicit ec: EC): DbResult[OrderShippingAddress] =
     create(OrderShippingAddress.buildFromAddress(address).copy(orderId = orderId))
 
   def findByOrderId(orderId: Int): QuerySeq =

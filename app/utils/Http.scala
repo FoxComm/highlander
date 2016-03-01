@@ -1,6 +1,6 @@
 package utils
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, ResponseEntity, StatusCode}
 
@@ -9,6 +9,7 @@ import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import org.json4s.{Formats, jackson}
 import services.{Failures, NotFoundFailure404}
+import utils.aliases._
 
 object Http {
   import utils.JsonFormatters._
@@ -20,27 +21,24 @@ object Http {
   val noContentResponse:  HttpResponse  = HttpResponse(NoContent)
   val badRequestResponse: HttpResponse  = HttpResponse(BadRequest)
 
-
-
-  def renderGoodOrFailures[G <: AnyRef](or: Failures Xor G)
-                                       (implicit ec: ExecutionContext): HttpResponse =
+  def renderGoodOrFailures[G <: AnyRef](or: Failures Xor G)(implicit ec: EC): HttpResponse =
     or.fold(renderFailure(_), render(_))
 
-  def renderNothingOrFailures(or: Failures Xor _)(implicit ec: ExecutionContext): HttpResponse =
+  def renderNothingOrFailures(or: Failures Xor _)(implicit ec: EC): HttpResponse =
     or.fold(renderFailure(_), _ ⇒ noContentResponse)
 
   def renderOrNotFound[A <: AnyRef](resource: Future[Option[A]],
-    onFound: (A ⇒ HttpResponse) = (r: A) ⇒ render(r))(implicit ec: ExecutionContext) = {
+    onFound: (A ⇒ HttpResponse) = (r: A) ⇒ render(r))(implicit ec: EC) = {
     resource.map {
       case Some(r) ⇒ onFound(r)
       case None ⇒ notFoundResponse
     }
   }
 
-  def renderOrNotFound[A <: AnyRef](resource: Option[A])(implicit ec: ExecutionContext): HttpResponse =
+  def renderOrNotFound[A <: AnyRef](resource: Option[A])(implicit ec: EC): HttpResponse =
     resource.fold(notFoundResponse)(render(_))
 
-  def renderOrBadRequest[A <: AnyRef](resource: Option[A])(implicit ec: ExecutionContext): HttpResponse =
+  def renderOrBadRequest[A <: AnyRef](resource: Option[A])(implicit ec: EC): HttpResponse =
     resource.fold(badRequestResponse)(render(_))
 
   def renderNotFoundFailure(f: NotFoundFailure404): HttpResponse =

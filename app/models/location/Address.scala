@@ -2,8 +2,6 @@ package models.location
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import cats.data.Xor
 import cats.data.Xor.{left, right}
 import models.javaTimeSlickMapper
@@ -17,6 +15,7 @@ import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.GenericTable.TableWithId
 import utils.Slick.implicits._
+import utils.aliases._
 import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
 
 final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: String,
@@ -80,7 +79,7 @@ object Addresses extends TableQueryWithId[Address, Addresses](
   import scope._
 
   def sortedAndPagedWithRegions(query: Query[(Addresses, Regions), (Address, Region), Seq])
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage):
+    (implicit ec: EC, db: DB, sortAndPage: SortAndPage):
     QueryWithMetadata[(Addresses, Regions), (Address, Region), Seq] =
 
     query.withMetadata.sortAndPageIfNeeded { case (s, (address, region)) ⇒

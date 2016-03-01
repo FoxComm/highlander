@@ -1,18 +1,9 @@
 package responses
 
 import java.time.Instant
-import scala.concurrent.ExecutionContext
 
-import models.activity.Activity
-import models.activity.ActivityContext
-import models.activity.Aliases.ActivityType
-import models.activity.Aliases.Json
-
-import services.NotFoundFailure404
-import utils.Slick.DbResult
-import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
-
+import models.activity.{Activity, ActivityContext}
+import models.activity.Aliases.{ActivityType, Json}
 
 object ActivityResponse {
   final case class Root(

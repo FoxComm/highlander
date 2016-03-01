@@ -199,7 +199,8 @@ trait DemoScenario6 extends DemoSeedHelpers {
     productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
     customer ← * <~ Customers.create(customer6)
     order ← * <~ Orders.create(Order(state = Shipped, customerId = customer.id, 
-      productContextId = productContext.id, referenceNumber = orderReferenceNum))
+      productContextId = productContext.id, referenceNumber = orderReferenceNum,
+      placedAt = time.yesterday.toInstant.some))
     orig  ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
     _  ← * <~ GiftCards.createAll(
       (1 to 23).map { _ ⇒ 
