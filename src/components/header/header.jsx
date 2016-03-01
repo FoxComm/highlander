@@ -8,7 +8,7 @@ import NotificationBlock from '../activity-notifications/notification-block';
 import Initials from '../users/initials';
 import Breadcrumb from './breadcrumb';
 
-const currentUser = {name: 'Frankly Admin', email: 'admin@admin.com'};
+export const currentUser = {id: 1, name: 'Frankly Admin', email: 'admin@admin.com'};
 
 const Header = props => {
   const name = currentUser.name.split(' ')[0];

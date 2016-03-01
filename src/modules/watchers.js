@@ -31,6 +31,19 @@ const addWatchers = (entityType, fetchEntity) => (actions, entityId) => (dispatc
   );
 };
 
+const watch = (entityType, fetchEntity) => (actions, entityId, group, id) => (dispatch, getState) => {
+  const data = {
+    [group]: [id]
+  };
+
+  Api.post(`/${entityType}/${entityId}/${group}`, data).then(
+    () => {
+      dispatch(fetchEntity(entityId));
+    },
+    (error) => dispatch(actions.failWatchersAction(error))
+  );
+};
+
 const removeWatcher = (entityType, fetchEntity) => (actions, entityId, group, id) => (dispatch) => {
   Api.delete(`/${entityType}/${entityId}/${group}/${id}`).then(
     () => dispatch(fetchEntity(entityId)),
@@ -127,6 +140,7 @@ export default (entityType, {fetchEntity}) => createStore({
   entity: 'watchers',
   scope: entityType,
   actions: {
+    watch: watch(entityType, fetchEntity),
     suggestWatchers: suggestWatchers(entityType),
     addWatchers: addWatchers(entityType, fetchEntity),
     removeWatcher: removeWatcher(entityType, fetchEntity),
