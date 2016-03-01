@@ -1,13 +1,16 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
+
+import * as CustomerCreditCardActions from '../../modules/customers/credit-cards';
+
 import ContentBox from '../content-box/content-box';
+import EmptyText from '../content-box/empty-text';
 import CreditCardBox from '../credit-cards/card-box';
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import CustomerCreditCardForm from './credit-card-form';
 import { AddButton } from '../common/buttons';
-import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
-import * as CustomerCreditCardActions from '../../modules/customers/credit-cards';
 
 function mapDispatchToProps(dispatch, props) {
   return _.transform(CustomerCreditCardActions, (result, action, key) => {
@@ -112,45 +115,58 @@ export default class CustomerCreditCards extends React.Component {
     let box = null;
     if (card.id === this.props.editingId) {
       box = (
-        <CustomerCreditCardForm key={ key }
-                        card={ card }
-                        form={ this.props.editingCreditCard }
-                        customerId={ this.props.customerId }
-                        addresses={ this.props.addresses }
-                        onCancel={ this.onEditCancel }
-                        onChange={ this.onEditFormChange }
-                        onSubmit={ this.onEditFormSubmit }
-                        isNew={ false } />
+        <CustomerCreditCardForm
+          key={ key }
+          card={ card }
+          form={ this.props.editingCreditCard }
+          customerId={ this.props.customerId }
+          addresses={ this.props.addresses }
+          onCancel={ this.onEditCancel }
+          onChange={ this.onEditFormChange }
+          onSubmit={ this.onEditFormSubmit }
+          isNew={ false } />
       );
     } else {
       box = (
-        <CreditCardBox key={ key }
-                       card={ card }
-                       customerId={ this.props.customerId }
-                       onDeleteClick={ () => this.onDeleteClick(card.id) }
-                       onEditClick={ () => this.onEditClick(card.id) }
-                       onDefaultToggle={ () => this.props.toggleDefault(card.id) } />
+        <CreditCardBox
+          key={ key }
+          card={ card }
+          customerId={ this.props.customerId }
+          onDeleteClick={ () => this.onDeleteClick(card.id) }
+          onEditClick={ () => this.onEditClick(card.id) }
+          onDefaultToggle={ () => this.props.toggleDefault(card.id) } />
       );
     }
     return box;
   }
 
+  get emptyText() {
+    return <EmptyText label="No saved credit cards." />;
+  }
+
   ////
   // Rendering
   render() {
+    const {props} = this;
+    const {cards} = props;
+
     return (
       <ContentBox title="Credit Cards"
                   className="fc-customer-credit-cards"
                   actionBlock={ this.actionBlock }>
         <ul className="fc-float-list">
-          {(this.props.cards && this.props.cards.map(this.createCardBox))}
-          {(this.props.newCreditCard && <CustomerCreditCardForm customerId={ this.props.customerId }
-                                                          form={ this.props.newCreditCard }
-                                                          addresses={ this.props.addresses }
-                                                          onCancel={ this.onAddingCancel }
-                                                          onSubmit={ this.onSubmitNewForm }
-                                                          onChange={ this.onChangeNewFormValue }
-                                                          isNew={ true } />)}
+          {props.newCreditCard || (cards && cards.length)
+            ? cards.map(this.createCardBox)
+            : this.emptyText}
+          {props.newCreditCard ?
+            <CustomerCreditCardForm
+              customerId={ props.customerId }
+              form={ props.newCreditCard }
+              addresses={ props.addresses }
+              onCancel={ this.onAddingCancel }
+              onSubmit={ this.onSubmitNewForm }
+              onChange={ this.onChangeNewFormValue }
+              isNew={ true } /> : null}
         </ul>
         <ConfirmationDialog
           isVisible={ this.showConfirm }
