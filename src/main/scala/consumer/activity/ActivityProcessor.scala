@@ -130,9 +130,9 @@ class ActivityProcessor(conn : PhoenixConnectionInfo, connectors: Seq[ActivityCo
       data = JNothing)
 
     val notification = render(body)
-    Console.err.println(s"POST notifications, $notification")
+    Console.err.println(s"POST public/notifications, $notification")
 
-    phoenix.post("notifications", notification).map { response ⇒
+    phoenix.post("public/notifications", notification).map { response ⇒
       if (response.status != StatusCodes.OK) {
         throw new FailedToConnectNotification(conn.activityId, conn.dimension, conn.objectId, response)
       }
