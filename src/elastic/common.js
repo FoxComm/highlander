@@ -61,8 +61,8 @@ export function toQuery(filters, options = {}) {
         ...es.queries,
         ...(_.isEmpty(es.filters) ? void 0 : convertFilters(es.filters)) || []
       ] : void 0,
-      filter: atLeastOne ? void 0 :  _.isEmpty(es.filters) ? void 0 : convertFilters(es.filters)
-      must: atLeastOne ? void 0 : _.isEmpty(es.queries) ? void 0 : es.queries,
+      filter: atLeastOne || _.isEmpty(es.filters) ? void 0 : convertFilters(es.filters),
+      must: atLeastOne || _.isEmpty(es.queries) ? void 0 : es.queries,
     }
   };
 
