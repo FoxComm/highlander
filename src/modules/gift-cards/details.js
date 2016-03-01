@@ -73,7 +73,6 @@ const initialState = {};
 
 const reducer = createReducer({
   [requestGiftCard]: (state, id) => {
-    console.log('id = ', id);
     return {
       ...state,
       [id]: {
