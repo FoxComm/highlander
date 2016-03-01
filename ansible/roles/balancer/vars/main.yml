@@ -1,0 +1,2 @@
+ashes_home_dir: "{{home}}/ashes"
+nginx_root_dor: "{{ashes_home_dir}}/public"

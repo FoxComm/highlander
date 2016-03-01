@@ -19,7 +19,7 @@ server {
   listen 80 default_server;
   listen [::]:80 default_server;
 
-  index index.html index.htm index.nginx-debian.html;
+  index index.html;
 
   server_name _;
 
@@ -151,6 +151,11 @@ server {
 
   #Finally proxy to ashes
   location / {
+      root {{nginx_root_dor}};
+      try_files $uri @ashes;
+  }
+  
+  location @ashes {
       proxy_pass http://ashes/;
   }
 
