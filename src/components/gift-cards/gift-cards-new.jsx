@@ -190,6 +190,7 @@ export default class NewGiftCard extends React.Component {
         <Counter
           id="quantity"
           value={this.props.quantity}
+          disabled={this.props.sendToCustomer}
           increaseAction={event => changeQuantity(event, 1)}
           decreaseAction={event => changeQuantity(event, -1)}
           onChange={({target}) => this.props.changeQuantity(target.value)}
