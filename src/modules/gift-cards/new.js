@@ -2,8 +2,10 @@
 
 import _ from 'lodash';
 import Api from '../../lib/api';
+import { combineReducers } from 'redux';
 import { createAction, createReducer } from 'redux-act';
 import { assoc } from 'sprout-data';
+
 
 const _createAction = (desc, ...args) => createAction(`GIFT_CARDS_NEW_${desc}`, ...args);
 
@@ -12,24 +14,44 @@ export const addCustomers = _createAction('ADD_CUSTOMERS');
 export const removeCustomer = _createAction('REMOVE_CUSTOMER');
 export const changeQuantity = _createAction('CHANGE_QUANTITY');
 export const resetForm = _createAction('RESET_FORM');
-const setSuggestedCustomers = _createAction('SET_SUGGESTED_CUSTOMERS');
 const setError = _createAction('ERROR');
 const setTypes = _createAction('SET_TYPES');
 
+import makeQuickSearch from '../quick-search';
 
-export function suggestCustomers(term) {
-  return dispatch => {
-    return Api.get(`/customers/searchForNewOrder`, {term})
-      .then(
-        response => dispatch(setSuggestedCustomers(response.result)),
-        err => dispatch(setSuggestedCustomers([]))
-      );
-  };
+const emptyFilters = [];
+const emptyPhrase = '';
+const quickSearch = makeQuickSearch(
+  'giftCards.adding.suggestedCustomers',
+  'customers_search_view/_search',
+  emptyFilters,
+  emptyPhrase
+);
+
+export function suggestCustomers(phrase) {
+  const filters = [{
+      term: 'name',
+      operator: 'eq',
+      value: {
+        type: 'string-term',
+        value: phrase,
+      },
+    },
+    {
+      term: 'email',
+      operator: 'eq',
+      value: {
+        type: 'string-term',
+        value: phrase,
+      },
+    },
+  ];
+
+  return quickSearch.actions.fetch('', filters, {atLeastOne: true});
 }
 
 const initialState = {
   customers: [],
-  suggestedCustomers: [],
   users: [],
   balance: 100,
   quantity: 1,
@@ -50,7 +72,7 @@ export function fetchTypes() {
   };
 }
 
-const reducer = createReducer({
+const giftCardReducer = createReducer({
   [changeFormData]: (state, {name, value}) => {
     const newState = assoc(state, name, value);
     switch(name) {
@@ -59,12 +81,6 @@ const reducer = createReducer({
       default:
         return newState;
     }
-  },
-  [setSuggestedCustomers]: (state, customers) => {
-    return {
-      ...state,
-      suggestedCustomers: customers
-    };
   },
   [addCustomers]: (state, customers) => {
     const newCustomers = _.uniq([...state.customers, ...customers], customer => customer.id);
@@ -114,5 +130,11 @@ const reducer = createReducer({
     };
   },
 }, initialState);
+
+
+const reducer = combineReducers({
+  giftCard: giftCardReducer,
+  suggestedCustomers: quickSearch.reducer
+});
 
 export default reducer;

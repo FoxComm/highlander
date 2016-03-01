@@ -36,7 +36,8 @@ const subTypes = createSelector(
 );
 
 @connect(state => ({
-  ...state.giftCards.adding,
+  ...state.giftCards.adding.giftCard,
+  suggestedCustomers: state.giftCards.adding.suggestedCustomers,
   subTypes: subTypes(state)
 }), {
   ...GiftCardNewActions,
@@ -58,7 +59,7 @@ export default class NewGiftCard extends React.Component {
     sendToCustomer: PropTypes.bool,
     subTypes: PropTypes.array,
     suggestCustomers: PropTypes.func,
-    suggestedCustomers: PropTypes.array,
+    suggestedCustomers: PropTypes.object,
     types: PropTypes.array,
     changeQuantity: PropTypes.func,
     quantity: PropTypes.number,
@@ -82,6 +83,10 @@ export default class NewGiftCard extends React.Component {
   componentDidMount() {
     this.props.resetForm();
     this.props.fetchTypes();
+  }
+
+  get suggestedCustomers() {
+    return _.get(this.props, 'suggestedCustomers.results.rows', []);
   }
 
   @autobind
@@ -134,7 +139,7 @@ export default class NewGiftCard extends React.Component {
   get chooseCustomersMenu() {
     return (
       <ChooseCustomers
-        items={this.props.suggestedCustomers}
+        items={this.suggestedCustomers}
         onAddCustomers={(customers) => {
           this.props.addCustomers(_.values(customers));
           this.setState({
@@ -174,6 +179,7 @@ export default class NewGiftCard extends React.Component {
             inputElement={this.chooseCustomersInput}
             minQueryLength={2}
             label="Choose customers:"
+            placeholder="Customer name or email..."
             name="customerQuery" />
           <FormField className="fc-new-gift-card__message-to-customers"
                      label="Write a message for customers" optional
