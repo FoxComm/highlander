@@ -18,7 +18,7 @@ import {PanelList, PanelListItem} from '../panel/panel-list';
 import { Dropdown, DropdownItem } from '../dropdown';
 import LocalNav from '../local-nav/local-nav';
 import ConfirmationDialog from '../modal/confirmation-dialog';
-import { formattedStatus } from '../common/state';
+import State, { formattedStatus } from '../common/state';
 
 // redux
 import * as GiftCardActions from '../../modules/gift-cards/details';
@@ -124,8 +124,10 @@ export default class GiftCard extends React.Component {
       availableTransitions = onHoldStateTransitions;
     }
 
-    if (state === 'canceled') {
-      return <span>Canceled</span>;
+    if (state === 'canceled' ||
+        state === 'fullyRedeemed' ||
+        state === 'cart') {
+      return <State value={state} model={"giftCard"} />;
     } else {
       return (
         <Dropdown
