@@ -14,7 +14,7 @@ import { getStore } from '../../lib/store-creator';
 // components
 import SuccessNotification from '../bulk-actions/success-notification';
 import ErrorNotification from '../bulk-actions/error-notification';
-
+import ErrorAlerts from '../alerts/error-alerts';
 
 const mapStateToProps = (state, {storePath}) => {
   return {
@@ -31,8 +31,8 @@ const mapDispatchToProps = (dispatch, {module}) => {
 };
 
 const BulkMessages = ({bulk, bulkActions, entity, renderDetail}) => {
-  const {successes, errors, messages} = bulk;
-  const {clearSuccesses, clearErrors} = bulkActions;
+  const {successes, errors, messages, error} = bulk;
+  const {clearSuccesses, clearErrors, clearError} = bulkActions;
 
   const notifications = [];
 
@@ -55,6 +55,12 @@ const BulkMessages = ({bulk, bulkActions, entity, renderDetail}) => {
                          onHide={clearErrors}>
         {_.map(errors, renderDetail)}
       </ErrorNotification>
+    );
+  }
+
+  if (error) {
+    notifications.push(
+      <ErrorAlerts key="general-error" error={error} closeAction={clearError} />
     );
   }
 

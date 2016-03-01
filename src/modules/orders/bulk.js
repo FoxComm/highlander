@@ -10,19 +10,11 @@ import createStore from '../../lib/store-creator';
 // data
 import { initialState, reducers } from '../bulk';
 
-// TODO remove when https://github.com/FoxComm/phoenix-scala/issues/763 closed
-const parseErrors = (errors) => {
-  const referenceNumberPattern = /\w{2}\d{5}/;
+const getSuccesses = (referenceNumbers, bulkStatus) => {
+  const orderFailures = _.get(bulkStatus, 'failures.order', {});
 
-  return _.transform(errors, (result, value) => {
-    const referenceNumber = referenceNumberPattern.exec(value)[0];
-    result[referenceNumber] = [value];
-  }, {});
-};
-
-const getSuccesses = (referenceNumbers, errors = {}) => {
   return referenceNumbers
-    .filter(referenceNumber => !(referenceNumber in errors))
+    .filter(referenceNumber => !(referenceNumber in orderFailures))
     .reduce((result, referenceNumber) => {
       return {
         ...result,
@@ -40,13 +32,12 @@ const cancelOrders = (actions, referenceNumbers, reasonId) =>
         state: 'canceled',
       })
       .then(
-        ({errors = []}) => {
-          errors = parseErrors(errors);
-          dispatch(actions.bulkDone(getSuccesses(referenceNumbers, errors), errors));
+        ({batch}) => {
+          const errors = _.get(batch, 'failures.order');
+          dispatch(actions.bulkDone(getSuccesses(referenceNumbers, batch), errors));
         },
         error => {
-          // TODO handle when https://github.com/FoxComm/Ashes/issues/466 closed
-          console.error(error);
+          dispatch(actions.bulkError(error));
         }
       );
   };
@@ -59,13 +50,12 @@ const changeOrdersState = (actions, referenceNumbers, state) =>
         state,
       })
       .then(
-        ({errors = []}) => {
-          errors = parseErrors(errors);
-          dispatch(actions.bulkDone(getSuccesses(referenceNumbers, errors), errors));
+        ({batch}) => {
+          const errors = _.get(batch, 'failures.order');
+          dispatch(actions.bulkDone(getSuccesses(referenceNumbers, batch), errors));
         },
         error => {
-          // TODO handle when https://github.com/FoxComm/Ashes/issues/466 closed
-          console.error(error);
+          dispatch(actions.bulkError(error));
         }
       );
   };
@@ -84,13 +74,12 @@ const toggleWatchOrders = isDirectAction =>
           [`${groupMember}Id`]: watchers[0],
         })
         .then(
-          ({errors = []}) => {
-            errors = parseErrors(errors);
-            dispatch(actions.bulkDone(getSuccesses(referenceNumbers, errors), errors));
+          ({batch}) => {
+            const errors = _.get(batch, 'failures.order');
+            dispatch(actions.bulkDone(getSuccesses(referenceNumbers, batch), errors));
           },
           error => {
-            // TODO handle when https://github.com/FoxComm/Ashes/issues/466 closed
-            console.error(error);
+            dispatch(actions.bulkError(error));
           }
         );
     };
