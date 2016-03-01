@@ -18,7 +18,6 @@ module.exports = function(gulp, opts, $) {
   const specs = path.join(opts.testDir, '/specs/**/*.js');
   const acceptance = path.join(opts.testDir, '/acceptance/**/*.jsx');
 
-
   gulp.task('mocha.main', function() {
     const setup = path.join(opts.testDir, '/acceptance/_setup.js');
 

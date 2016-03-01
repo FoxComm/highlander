@@ -1,5 +1,4 @@
 import makeQuickSearch from '../quick-search';
-import { toQuery } from '../../elastic/common';
 
 const emptyFilters = [];
 const emptyPhrase = '';

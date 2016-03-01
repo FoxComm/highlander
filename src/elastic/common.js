@@ -26,20 +26,43 @@ import * as dsl from './dsl';
 export function toQuery(filters, options = {}) {
   const { phrase, atLeastOne = false, sortBy } = options;
 
-  const boolQuery = {
-    bool: {
-      must: _.isEmpty(phrase) ? void 0 : dsl.matchQuery('_all', {
-        query: phrase,
+  if (_.isEmpty(filters) && _.isEmpty(phrase)) {
+    return {};
+  }
+
+  let es = _.reduce(filters, (res, searchTerm) => {
+    if (searchTerm.value.type == 'string' && !isNestedFilter(searchTerm)) {
+      const matchQuery = dsl.matchQuery(searchTerm.term, {
+        query: searchTerm.value.value,
         type: 'phrase_prefix',
-        max_expansions: 10,
-      }),
-      [atLeastOne ? 'should' : 'filter']: convertFilters(filters),
+        max_expansions: 3,
+      });
+
+      res.queries.push(matchQuery);
+    } else {
+      res.filters.push(searchTerm);
+    }
+
+    return res;
+  }, { queries: [], filters: [] });
+
+  if (!_.isEmpty(phrase)) {
+    es.queries.push(dsl.matchQuery('_all', {
+      query: phrase,
+      type: 'phrase_prefix',
+      max_expansions: 10,
+    }));
+  }
+
+  const qwery = {
+    bool: {
+      [atLeastOne ? 'should' : 'filter']: _.isEmpty(es.filters) ? void 0 : convertFilters(es.filters),
+      'must': _.isEmpty(es.queries) ? void 0 : es.queries,
     },
   };
 
-  return dsl.query(boolQuery, {
-    sort: sortBy ? convertSorting(sortBy) : void 0
-  });
+  const sortParam = sortBy ? { sort: convertSorting(sortBy) } : null;
+  return dsl.query(qwery, { ...sortParam });
 }
 
 export function addNativeFilters(req, filters) {
@@ -70,6 +93,8 @@ function createFilter(filter) {
     case 'term':
       return rangeToFilter(term, operator, value);
     case 'string':
+      return dsl.matchQuery(term, value);
+    case 'string-term':
       return rangeToFilter(term, operator, value.toLowerCase());
     case 'date':
       return dateRangeFilter(term, operator, value);
@@ -103,7 +128,7 @@ export function convertFilters(filters) {
 }
 
 function dateRangeFilter(field, operator, value) {
-  const formattedDate = moment(value, 'MM/DD/YYYY').format('YYYY-MM-DD HH:mm:ss');
+  const formattedDate = moment(value, 'MM/DD/YYYY').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
   const esDate = `${formattedDate}||/d`;
 
   switch(operator) {
