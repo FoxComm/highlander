@@ -1,7 +1,5 @@
 package services
 
-import scala.concurrent.ExecutionContext
-
 import models.order._
 import models.order.lineitems.OrderLineItems
 import models.payment.giftcard.{GiftCardAdjustments, GiftCards}
@@ -10,6 +8,7 @@ import services.CartFailures._
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 import utils.Slick.{DbResult, lift}
+import utils.aliases._
 
 trait CartValidation {
   def validate(isCheckout: Boolean = false): DbResult[CartValidatorResponse]
@@ -21,8 +20,7 @@ final case class CartValidatorResponse(
   alerts:   Option[Failures] = None,
   warnings: Option[Failures] = None)
 
-final case class CartValidator(cart: Order)(implicit db: Database, ec: ExecutionContext)
-  extends CartValidation {
+final case class CartValidator(cart: Order)(implicit ec: EC, db: DB) extends CartValidation {
 
   def validate(isCheckout: Boolean = false): DbResult[CartValidatorResponse] = {
     val response = CartValidatorResponse()
@@ -46,22 +44,20 @@ final case class CartValidator(cart: Order)(implicit db: Database, ec: Execution
     }
   }
 
-  private def validShipMethod(response: CartValidatorResponse): DBIO[CartValidatorResponse] = {
-    (for {
-      osm ← OrderShippingMethods.findByOrderId(cart.id)
-      sm  ← osm.shippingMethod
-    } yield (osm, sm)).one.flatMap {
-      case Some((osm, sm)) ⇒
-        ShippingManager.evaluateShippingMethodForOrder(sm, cart).map { res ⇒
-          res.fold(
-            _ ⇒ warning(response, InvalidShippingMethod(cart.refNum)), // FIXME validator warning and actual failure differ
-            _ ⇒ response
-          )
-        }
+  private def validShipMethod(response: CartValidatorResponse): DBIO[CartValidatorResponse] = (for {
+    osm ← OrderShippingMethods.findByOrderId(cart.id)
+    sm ← osm.shippingMethod
+  } yield (osm, sm)).one.flatMap {
+    case Some((osm, sm)) ⇒
+      ShippingManager.evaluateShippingMethodForOrder(sm, cart).map {
+        _.fold(
+          _ ⇒ warning(response, InvalidShippingMethod(cart.refNum)), // FIXME validator warning and actual failure differ
+          _ ⇒ response
+        )
+      }
 
-      case None ⇒
-        lift(warning(response, NoShipMethod(cart.refNum)))
-    }
+    case None ⇒
+      lift(warning(response, NoShipMethod(cart.refNum)))
   }
 
   private def sufficientPayments(response: CartValidatorResponse, isCheckout: Boolean): DBIO[CartValidatorResponse] = {

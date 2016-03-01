@@ -2,13 +2,12 @@ package models.payment.giftcard
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import models.{StoreAdmin, StoreAdmins, javaTimeSlickMapper}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.aliases._
 
 final case class GiftCardAssignment(id: Int = 0, giftCardId: Int, assigneeId: Int, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[GiftCardAssignment]
@@ -32,7 +31,7 @@ object GiftCardAssignments extends TableQueryWithId[GiftCardAssignment, GiftCard
 
   def byAssignee(admin: StoreAdmin): QuerySeq = filter(_.assigneeId === admin.id)
 
-  def assignedTo(admin: StoreAdmin)(implicit ec: ExecutionContext): GiftCards.QuerySeq = {
+  def assignedTo(admin: StoreAdmin)(implicit ec: EC): GiftCards.QuerySeq = {
     for {
       assignees ← byAssignee(admin).map(_.giftCardId)
       giftCards ← GiftCards.filter(_.id === assignees)
@@ -41,7 +40,7 @@ object GiftCardAssignments extends TableQueryWithId[GiftCardAssignment, GiftCard
 
   def byGiftCard(customer: GiftCard): QuerySeq = filter(_.giftCardId === customer.id)
 
-  def assigneesFor(customer: GiftCard)(implicit ec: ExecutionContext): StoreAdmins.QuerySeq = {
+  def assigneesFor(customer: GiftCard)(implicit ec: EC): StoreAdmins.QuerySeq = {
     for {
       assignees ← byGiftCard(customer).map(_.assigneeId)
       admins    ← StoreAdmins.filter(_.id === assignees)

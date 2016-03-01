@@ -1,7 +1,5 @@
 package services
 
-import scala.concurrent.ExecutionContext
-
 import models.inventory._
 import models.inventory.summary.InventorySummaries
 import models.product.{ProductContext, Mvp}
@@ -10,12 +8,13 @@ import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
+import utils.aliases._
 
 object InventoryManager {
 
   // Detailed info for SKU of each type in given warehouse
   def getSkuDetails(skuCode: String, warehouseId: Int, productContext: ProductContext)
-    (implicit ec: ExecutionContext, db: Database): Result[Seq[SkuDetailsResponse.Root]] = (for {
+    (implicit ec: EC, db: DB): Result[Seq[SkuDetailsResponse.Root]] = (for {
     sku       ← * <~ Skus.mustFindByCode(skuCode)
     skuShadow ← * <~ SkuShadows.filter(_.skuId === sku.id).filter(_.productContextId === productContext.id)
       .one.mustFindOr(SkuNotFoundForContext(sku.id, productContext.id))
@@ -26,7 +25,7 @@ object InventoryManager {
 
   // Summary for sellable SKU across all warehouses
   def getSkuSummary(skuCode: String, productContext: ProductContext)
-    (implicit ec: ExecutionContext, db: Database): Result[Seq[SellableSkuSummaryResponse.Root]] = (for {
+    (implicit ec: EC, db: DB): Result[Seq[SellableSkuSummaryResponse.Root]] = (for {
     sku       ← * <~ Skus.mustFindByCode(skuCode)
     skuShadow ← * <~ SkuShadows.filter(_.skuId === sku.id).filter(_.productContextId === productContext.id)
       .one.mustFindOr(SkuNotFoundForContext(sku.id, productContext.id))

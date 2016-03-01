@@ -1,7 +1,5 @@
 package models.order.lineitems
 
-import scala.concurrent.ExecutionContext
-
 import models.inventory.{Skus, Sku, SkuShadow, SkuShadows}
 import models.order.Order
 import models.product.{Product, Products, ProductShadow, ProductShadows}
@@ -9,8 +7,8 @@ import utils.Money.Currency
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
-
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.aliases._
 
 final case class OrderLineItemSku(id: Int = 0, skuId: Int, skuShadowId: Int)
   extends ModelWithIdParameter[OrderLineItemSku]
@@ -39,7 +37,7 @@ object OrderLineItemSkus extends TableQueryWithId[OrderLineItemSku, OrderLineIte
     filter(_.skuId === id).one
 
   // we can safeGet here since we generate these records upon creation of the `skus` record via trigger
-  def safeFindBySkuId(id: Int)(implicit ec: ExecutionContext): DBIO[OrderLineItemSku] =
+  def safeFindBySkuId(id: Int)(implicit ec: EC): DBIO[OrderLineItemSku] =
     filter(_.skuId === id).one.safeGet
 
   def findByOrderId(orderId: Rep[Int]): QuerySeq = for {

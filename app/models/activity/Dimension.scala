@@ -1,7 +1,5 @@
 package models.activity
 
-import scala.concurrent.ExecutionContext
-
 import cats.data.ValidatedNel
 import monocle.macros.GenLens
 import services.Failure
@@ -10,6 +8,7 @@ import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.Validation._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.aliases._
 
 /**
  * An activity dimension has a set of activity trails. It is used as a logical grouping
@@ -52,7 +51,7 @@ object Dimensions extends TableQueryWithId[Dimension, Dimensions](
 
     def findByName(name: String) : QuerySeq = filter(_.name === name) 
 
-  def findOrCreateByName(name: String)(implicit ec: ExecutionContext): DbResult[Dimension] =
+  def findOrCreateByName(name: String)(implicit ec: EC): DbResult[Dimension] =
     findByName(name).one.flatMap {
       case Some(dimension) ⇒ DbResult.good(dimension)
       case None ⇒ create(Dimension(name = name, description = name.capitalize))

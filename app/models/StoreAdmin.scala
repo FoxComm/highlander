@@ -1,7 +1,5 @@
 package models
 
-import scala.concurrent.ExecutionContext
-
 import cats.data.ValidatedNel
 import cats.implicits._
 import models.order.OrderAssignments
@@ -10,10 +8,10 @@ import utils.Litterbox._
 import utils.Passwords.hashPassword
 import utils.Validation
 import utils.Slick.implicits._
-
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.aliases._
 
 final case class StoreAdmin(id: Int = 0, email: String, hashedPassword: String, name: String,
   department: Option[String] = None)
@@ -53,7 +51,7 @@ object StoreAdmins extends TableQueryWithId[StoreAdmin, StoreAdmins](
   idLens = GenLens[StoreAdmin](_.id)
 )(new StoreAdmins(_)){
 
-  def findByEmail(email: String)(implicit ec: ExecutionContext, db: Database): DBIO[Option[StoreAdmin]] = {
+  def findByEmail(email: String)(implicit ec: EC, db: DB): DBIO[Option[StoreAdmin]] = {
     filter(_.email === email).one
   }
 }

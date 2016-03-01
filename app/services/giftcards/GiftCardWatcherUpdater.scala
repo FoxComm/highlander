@@ -1,5 +1,6 @@
 package services.giftcards
 
+import models.activity.{Dimension, ActivityContext}
 import models.payment.giftcard._
 import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
 import payloads.GiftCardBulkWatchersPayload
@@ -13,14 +14,12 @@ import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
-
-import scala.concurrent.ExecutionContext
-import models.activity.{Dimension, ActivityContext}
+import utils.aliases._
 
 object GiftCardWatcherUpdater {
 
   def watch(admin: StoreAdmin, code: String, requestedAssigneeIds: Seq[Int])
-    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[TheResponse[Root]] = (for {
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[Root]] = (for {
 
     giftCard        ← * <~ GiftCards.mustFindByCode(code)
     adminIds        ← * <~ StoreAdmins.filter(_.id.inSetBind(requestedAssigneeIds)).map(_.id).result
@@ -38,7 +37,7 @@ object GiftCardWatcherUpdater {
   } yield TheResponse.build(response, errors = notFoundAdmins)).runTxn()
 
   def unwatch(admin: StoreAdmin, code: String, assigneeId: Int)
-    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[Root] = (for {
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Root] = (for {
 
     giftCard        ← * <~ GiftCards.mustFindByCode(code)
     storeAdmin      ← * <~ StoreAdmins.mustFindById404(assigneeId)
@@ -51,7 +50,7 @@ object GiftCardWatcherUpdater {
       dimension = Dimension.giftCard, reason = NotificationSubscription.Assigned, objectIds = Seq(code))
   } yield response).runTxn()
 
-  def watchBulk(admin: StoreAdmin, payload: GiftCardBulkWatchersPayload)(implicit ec: ExecutionContext, db: Database,
+  def watchBulk(admin: StoreAdmin, payload: GiftCardBulkWatchersPayload)(implicit ec: EC, db: DB,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkGiftCardUpdateResponse] = (for {
     
     // TODO: transfer sorting-paging metadata
@@ -71,7 +70,7 @@ object GiftCardWatcherUpdater {
   } yield response.copy(errors = flattenErrors(batchFailures), batch = Some(batchMetadata))).runTxn()
 
   def unwatchBulk(admin: StoreAdmin, payload: GiftCardBulkWatchersPayload)
-    (implicit ec: ExecutionContext, db: Database, sortAndPage: SortAndPage, ac: ActivityContext): 
+    (implicit ec: EC, db: DB, sortAndPage: SortAndPage, ac: ActivityContext):
     Result[BulkGiftCardUpdateResponse] = (for {
     
     // TODO: transfer sorting-paging metadata

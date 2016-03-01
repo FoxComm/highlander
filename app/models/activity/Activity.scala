@@ -1,9 +1,6 @@
-
 package models.activity
 
 import java.time.Instant
-
-import scala.concurrent.ExecutionContext
 
 import monocle.macros.GenLens
 
@@ -20,6 +17,7 @@ import utils.ExPostgresDriver.api._
 import utils.JsonFormatters
 import utils.time.JavaTimeSlickMapper._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.aliases._
 
 import org.json4s.DefaultFormats
 import org.json4s.jackson.Serialization.{write ⇒ render}
@@ -85,7 +83,7 @@ object Activities extends TableQueryWithId[Activity, Activities](
 
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def log(a: OpaqueActivity)(implicit context: ActivityContext, ec: ExecutionContext): DbResult[Activity] = {
+  def log(a: OpaqueActivity)(implicit context: ActivityContext, ec: EC): DbResult[Activity] = {
     create(Activity(
       activityType = a.activityType,
       data = a.data,

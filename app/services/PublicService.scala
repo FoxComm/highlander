@@ -1,7 +1,7 @@
 package services
 
 import scala.collection.immutable.Seq
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 import models.location._
 import Country._
@@ -11,22 +11,23 @@ import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
+import utils.aliases._
 
 object PublicService {
 
-  def findCountry(countryId: Int)(implicit ec: ExecutionContext, db: Database): Result[CountryWithRegions] = (for {
+  def findCountry(countryId: Int)(implicit ec: EC, db: DB): Result[CountryWithRegions] = (for {
     country ← * <~ Countries.mustFindById404(countryId)
     regions ← * <~ Regions.filter(_.countryId === country.id).result.toXor
   } yield CountryWithRegions(country, sortRegions(regions.to[Seq]))).run()
 
-  def listCountries(implicit ec: ExecutionContext, db: Database): Future[Seq[Country]] =
+  def listCountries(implicit ec: EC, db: DB): Future[Seq[Country]] =
     db.run(Countries.result).map { countries ⇒
       val usa = countries.filter(_.id == unitedStatesId)
       val othersSorted = countries.filterNot(_.id == unitedStatesId).sortBy(_.name)
       (usa ++ othersSorted).to[Seq]
     }
 
-  def listRegions(implicit ec: ExecutionContext, db: Database): Future[Seq[Region]] =
+  def listRegions(implicit ec: EC, db: DB): Future[Seq[Region]] =
     db.run(Regions.result.map(rs ⇒ sortRegions(rs.to[Seq])))
 
   private def sortRegions(regions: Seq[Region]): Seq[Region] = {

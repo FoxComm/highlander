@@ -1,18 +1,18 @@
 package services
 
-import akka.http.scaladsl.model.headers.{OAuth2BearerToken, BasicHttpCredentials}
-import akka.http.scaladsl.server.directives.{AuthenticationResult, AuthenticationDirective}
+import scala.concurrent.Future
+import akka.http.scaladsl.model.headers.{BasicHttpCredentials, OAuth2BearerToken}
+import akka.http.scaladsl.server.directives.{AuthenticationDirective, AuthenticationResult}
 import akka.http.scaladsl.server.Directives.extractExecutionContext
-import akka.http.scaladsl.server.directives.SecurityDirectives.{AuthenticationResult, challengeFor,
-  authenticateOrRejectWithChallenge}
+import akka.http.scaladsl.server.directives.SecurityDirectives.{AuthenticationResult, authenticateOrRejectWithChallenge, challengeFor}
 import akka.http.scaladsl.model.headers.HttpCredentials
-import models.customer.{Customers, Customer}
+
+import models.customer.{Customer, Customers}
 import models.{StoreAdmin, StoreAdmins}
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 import utils.Passwords.checkPassword
-
-import scala.concurrent.{ExecutionContext, Future}
+import utils.aliases._
 
 // TODO: Implement real session-based authentication with JWT
 // TODO: Probably abstract this out so that we use one for both AdminUsers and Customers
@@ -27,13 +27,11 @@ object Authenticator {
 
   final case class Credentials(identifier: String, secret: String)
 
-  def customer(credentials: Option[HttpCredentials])
-              (implicit ec: ExecutionContext, db: Database): Future[AuthenticationResult[Customer]] = {
+  def customer(credentials: Option[HttpCredentials])(implicit ec: EC, db: DB): Future[AuthenticationResult[Customer]] = {
     auth[Customer, EmailFinder[Customer]]("private customer routes")(credentials, Customers.findByEmail, _.hashedPassword)
   }
 
-  def storeAdmin(credentials: Option[HttpCredentials])
-              (implicit ec: ExecutionContext, db: Database): Future[AuthenticationResult[StoreAdmin]] = {
+  def storeAdmin(credentials: Option[HttpCredentials])(implicit ec: EC, db: DB): Future[AuthenticationResult[StoreAdmin]] = {
     auth[StoreAdmin, EmailFinder[StoreAdmin]]("admin")(credentials, StoreAdmins.findByEmail, m ⇒ Some(m.hashedPassword))
   }
 
@@ -51,7 +49,7 @@ object Authenticator {
 
   private[this] def auth[M, F <: EmailFinder[M]](realm: String)
     (credentials: Option[HttpCredentials], finder: F, getHashedPassword: M ⇒ Option[String])
-   (implicit ec: ExecutionContext, db: Database): Future[AuthenticationResult[M]] = {
+   (implicit ec: EC, db: DB): Future[AuthenticationResult[M]] = {
     credentials.flatMap(extractCredentials) match {
       case Some(p) ⇒
         finder(p.identifier).run().map { optModel ⇒

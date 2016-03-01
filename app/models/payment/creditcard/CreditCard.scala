@@ -2,8 +2,6 @@ package models.payment.creditcard
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
 import models.javaTimeSlickMapper
@@ -21,6 +19,7 @@ import utils.CustomDirectives.SortAndPage
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils._
+import utils.aliases._
 
 final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerId: Int, gatewayCustomerId: String,
   gatewayCardId: String, holderName: String, lastFour: String, expMonth: Int, expYear: Int,
@@ -104,7 +103,7 @@ object CreditCards extends TableQueryWithId[CreditCard, CreditCards](
 )(new CreditCards(_)) {
 
   def sortedAndPaged(query: QuerySeq)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata = {
+    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata = {
 
     val sortedQuery = sortAndPage.sort match {
       case Some(s) if s.sortColumn == "expDate" ⇒ query.withMetadata.sortBy { creditCard ⇒
@@ -146,11 +145,11 @@ object CreditCards extends TableQueryWithId[CreditCard, CreditCards](
     findInWalletByCustomerId(customerId).filter(_.isDefault === true)
 
   def findByIdAndCustomerId(id: Int, customerId: Int)
-    (implicit ec: ExecutionContext): Query[CreditCards, CreditCard, Seq] =
+    (implicit ec: EC): Query[CreditCards, CreditCard, Seq] =
     filter(_.customerId === customerId).filter(_.id === id)
 
   def mustFindByIdAndCustomer(id: Int, customerId: Int)
-    (implicit ec: ExecutionContext): DbResult[CreditCard] = {
+    (implicit ec: EC): DbResult[CreditCard] = {
     filter(cc ⇒ cc.id === id && cc.customerId === customerId).one.flatMap {
       case Some(cc) ⇒ DbResult.good(cc)
       case None     ⇒ DbResult.failure(NotFoundFailure404(CreditCard, id))

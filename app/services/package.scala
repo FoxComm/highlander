@@ -1,7 +1,8 @@
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 import cats.data.{NonEmptyList, Xor, XorT}
 import cats.implicits._
+import utils.aliases._
 
 package object services {
   type Failures = NonEmptyList[Failure]
@@ -24,7 +25,7 @@ package object services {
   type Result[A] = Future[Failures Xor A]
 
   object Result {
-    def fromFuture[A](value: Future[A])(implicit ec: ExecutionContext): services.Result[A] = value.flatMap(good)
+    def fromFuture[A](value: Future[A])(implicit ec: EC): services.Result[A] = value.flatMap(good)
 
     val unit = right(())
 
@@ -43,16 +44,17 @@ package object services {
   type ResultT[A] = XorT[Future, Failures, A]
 
   object ResultT {
-    def apply[A](xor: Result[A])
-      (implicit ec: ExecutionContext): ResultT[A] = XorT[Future, Failures, A](xor)
+    def apply[A](xor: Result[A])(implicit ec: EC): ResultT[A] = XorT[Future, Failures, A](xor)
 
-    def fromXor[A](xor: Failures Xor A)
-      (implicit ec: ExecutionContext): ResultT[A] = xor.fold(leftAsync, rightAsync)
+    def fromXor[A](xor: Failures Xor A)(implicit ec: EC): ResultT[A] = xor.fold(leftAsync, rightAsync)
 
-    def rightAsync[A](value: A)(implicit ec: ExecutionContext):     ResultT[A] = XorT.right(Future.successful(value))
-    def right[A](value: Future[A])(implicit ec: ExecutionContext):  ResultT[A] = XorT.right(value)
+    def rightAsync[A](value: A)(implicit ec: EC): ResultT[A] = XorT.right(Future.successful(value))
 
-    def left[A](f: Future[Failures])(implicit ec: ExecutionContext):  ResultT[A] = XorT.left(f)
-    def leftAsync[A](f: Failures)(implicit ec: ExecutionContext):     ResultT[A] = XorT.left(Future.successful(f))
+    def right[A](value: Future[A])(implicit ec: EC): ResultT[A] = XorT.right(value)
+
+    def left[A](f: Future[Failures])(implicit ec: EC): ResultT[A] = XorT.left(f)
+
+    def leftAsync[A](f: Failures)(implicit ec: EC): ResultT[A] = XorT.left(Future.successful(f))
   }
+
 }

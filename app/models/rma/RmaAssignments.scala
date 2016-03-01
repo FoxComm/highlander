@@ -2,13 +2,12 @@ package models.rma
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import models.{StoreAdmin, StoreAdmins, javaTimeSlickMapper}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.aliases._
 
 final case class RmaAssignment(id: Int = 0, rmaId: Int, assigneeId: Int, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[RmaAssignment]
@@ -34,7 +33,7 @@ object RmaAssignments extends TableQueryWithId[RmaAssignment, RmaAssignments](
 
   def byAssignee(admin: StoreAdmin): QuerySeq = filter(_.assigneeId === admin.id)
 
-  def assignedTo(admin: StoreAdmin)(implicit ec: ExecutionContext): DBIO[Seq[Rma]] = {
+  def assignedTo(admin: StoreAdmin)(implicit ec: EC): DBIO[Seq[Rma]] = {
     for {
       rmasAssignees ← byAssignee(admin).result
       rmaIds = rmasAssignees.map(_.rmaId)
@@ -44,7 +43,7 @@ object RmaAssignments extends TableQueryWithId[RmaAssignment, RmaAssignments](
 
   def byRma(rma: Rma): QuerySeq = filter(_.rmaId === rma.id)
 
-  def assigneesFor(rma: Rma)(implicit ec: ExecutionContext): DBIO[Seq[StoreAdmin]] = {
+  def assigneesFor(rma: Rma)(implicit ec: EC): DBIO[Seq[StoreAdmin]] = {
     for {
       rmasAssignees ← byRma(rma).result
       adminIds = rmasAssignees.map(_.assigneeId)

@@ -2,6 +2,8 @@ package services
 
 import java.time.Instant
 
+import scala.concurrent.Future
+
 import cats.data.Xor
 import cats.implicits._
 import models.order._
@@ -11,21 +13,20 @@ import Orders.scope._
 import models.activity.ActivityContext
 import models.customer._
 import models.location._
-import models.payment.creditcard.{CreditCards, CreditCard}
+import models.payment.creditcard.{CreditCard, CreditCards}
 import models.stripe._
 import models.StoreAdmin
 import payloads.{CreateAddressPayload, CreateCreditCard, EditCreditCard}
 import slick.driver.PostgresDriver.api._
-import utils.{DbResultT, Apis}
+import utils.{Apis, DbResultT}
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.DbResult
 import utils.Slick.implicits._
-
-import scala.concurrent.{ExecutionContext, Future}
+import utils.aliases._
 
 object CreditCardManager {
-  private def gateway(implicit ec: ExecutionContext, apis: Apis): Stripe = Stripe()
+  private def gateway(implicit ec: EC, apis: Apis): Stripe = Stripe()
 
   type Root = responses.CreditCardsResponse.Root
 
@@ -36,7 +37,7 @@ object CreditCardManager {
     records.map((buildResponse _).tupled)
 
   def createCardThroughGateway(customerId: Int, payload: CreateCreditCard, admin: Option[StoreAdmin] = None)
-    (implicit ec: ExecutionContext, db: Database, apis: Apis, ac: ActivityContext): Result[Root] = {
+    (implicit ec: EC, db: DB, apis: Apis, ac: ActivityContext): Result[Root] = {
 
     def createCard(customer: Customer, sCustomer: StripeCustomer, sCard: StripeCard, address: Address) = for {
       _       ← * <~ (if (address.isNew) Addresses.create(address.copy(customerId = customerId)) else DbResult.unit)
@@ -65,7 +66,7 @@ object CreditCardManager {
   }
 
   def toggleCreditCardDefault(customerId: Int, cardId: Int, isDefault: Boolean)
-    (implicit ec: ExecutionContext, db: Database): Result[Root] = (for {
+    (implicit ec: EC, db: DB): Result[Root] = (for {
 
     _       ← * <~ CreditCards.findDefaultByCustomerId(customerId).map(_.isDefault).update(false)
     cc      ← * <~ CreditCards.mustFindByIdAndCustomer(cardId, customerId)
@@ -76,7 +77,7 @@ object CreditCardManager {
   } yield buildResponse(default, region)).runTxn()
 
   def deleteCreditCard(customerId: Int, id: Int, admin: Option[StoreAdmin] = None)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[Unit] = {
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Unit] = {
 
     (for {
       customer  ← * <~ Customers.mustFindById404(customerId)
@@ -88,7 +89,7 @@ object CreditCardManager {
   }
 
   def editCreditCard(customerId: Int, id: Int, payload: EditCreditCard, admin: Option[StoreAdmin] = None)
-    (implicit ec: ExecutionContext, db: Database, apis: Apis, ac: ActivityContext): Result[Root] = {
+    (implicit ec: EC, db: DB, apis: Apis, ac: ActivityContext): Result[Root] = {
 
     def update(customer: Customer, cc: CreditCard) = {
       val updated = cc.copy(
@@ -139,14 +140,12 @@ object CreditCardManager {
     } yield payment).runTxn()
   }
 
-  def creditCardsInWalletFor(customerId: Int)
-    (implicit ec: ExecutionContext, db: Database): Future[Seq[Root]] = (for {
+  def creditCardsInWalletFor(customerId: Int)(implicit ec: EC, db: DB): Future[Seq[Root]] = (for {
     cc      ← CreditCards.findInWalletByCustomerId(customerId)
     region  ← cc.region
   } yield (cc, region)).result.map(buildResponses).run()
 
-  def getByIdAndCustomer(creditCardId: Int, customer: Customer)
-    (implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
+  def getByIdAndCustomer(creditCardId: Int, customer: Customer)(implicit ec: EC, db: DB): Result[Root] = (for {
     cc      ← * <~ CreditCards.findByIdAndCustomerId(creditCardId, customer.id)
                               .one
                               .mustFindOr(NotFoundFailure404(CreditCard, creditCardId))

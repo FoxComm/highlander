@@ -2,12 +2,11 @@ package responses
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import models.{StoreAdmin, StoreAdmins}
-import models.payment.giftcard.{GiftCard, GiftCardAssignments, GiftCardAssignment, GiftCardWatchers, GiftCardWatcher}
+import models.payment.giftcard._
 import slick.driver.PostgresDriver.api._
 import utils.Money._
+import utils.aliases._
 
 object GiftCardResponse {
   final val mockMessage = "Not implemented yet"
@@ -90,7 +89,7 @@ object GiftCardResponse {
       canceledReason = gc.canceledReason,
       message = mockMessage)
 
-  def fromGiftCard(gc: GiftCard)(implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
+  def fromGiftCard(gc: GiftCard)(implicit ec: EC, db: DB): DBIO[Root] = {
     fetchDetails(gc).map {
       case (assignees, watchers) ⇒
         build(
@@ -103,7 +102,7 @@ object GiftCardResponse {
     }
   }
 
-  private def fetchDetails(gc: GiftCard)(implicit ec: ExecutionContext, db: Database) = {
+  private def fetchDetails(gc: GiftCard)(implicit ec: EC, db: DB) = {
     for {
       assignments ← GiftCardAssignments.filter(_.giftCardId === gc.id).result
       admins      ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result

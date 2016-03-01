@@ -1,14 +1,11 @@
 package services
 
-import scala.concurrent.ExecutionContext
-
 import models.inventory.{StockItem, StockItems}
-import slick.driver.PostgresDriver.api._
+import utils.aliases._
 
 object CreatesStockItems {
   /** This is just for demonstration purposes! */
-  def apply(productId: Int, onHold: Int, onHand: Int)
-           (implicit ec: ExecutionContext, db: Database): Result[StockItem] = {
+  def apply(productId: Int, onHold: Int, onHand: Int)(implicit ec: EC, db: DB): Result[StockItem] = {
     /** We’ll use real validations here soon */
     if (onHand < 0) {
       Result.failure(GeneralFailure(s"On hand must be >= 0"))

@@ -2,8 +2,6 @@ package responses
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import models.inventory.{Skus, Sku, SkuShadow, SkuShadows}
 import models.product.{Product, Products, ProductShadow, ProductShadows, Mvp}
 import models.{SaveForLater, SaveForLaters}
@@ -12,9 +10,8 @@ import utils.DbResultT.implicits._
 import utils.DbResultT.{DbResultT, _}
 import utils.Slick.implicits._
 import utils.Money.Currency
+import utils.aliases._
 
-import java.time.Instant
-import scala.concurrent.ExecutionContext
 import slick.driver.PostgresDriver.api._
 
 object SaveForLaterResponse {
@@ -29,7 +26,7 @@ object SaveForLaterResponse {
     favorite: Boolean = false
   )
 
-  def forSkuId(skuId: Int, contextId: Int)(implicit ec: ExecutionContext, db: Database): DbResultT[Root] = for {
+  def forSkuId(skuId: Int, contextId: Int)(implicit ec: EC, db: DB): DbResultT[Root] = for {
     sku ← * <~ Skus.mustFindById404(skuId)
     skuShadow  ← * <~ SkuShadows.filter(_.skuId === sku.id).filter(_.productContextId === contextId).one
       .mustFindOr(NotFoundFailure404(s"Unable to find sku with id ${sku.id} for context $contextId"))

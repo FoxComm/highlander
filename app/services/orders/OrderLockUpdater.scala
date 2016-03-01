@@ -6,17 +6,14 @@ import models.order._
 import models.StoreAdmin
 import responses.order.FullOrder
 import services.Result
-import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
-
-import scala.concurrent.ExecutionContext
+import utils.aliases._
 
 object OrderLockUpdater {
 
-  def lock(refNum: String, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database): Result[FullOrder.Root] = (for {
+  def lock(refNum: String, admin: StoreAdmin)(implicit ec: EC, db: DB): Result[FullOrder.Root] = (for {
     order ← * <~ Orders.mustFindByRefNum(refNum)
     _     ← * <~ order.mustNotBeLocked
     _     ← * <~ Orders.update(order, order.copy(isLocked = true))
@@ -24,7 +21,7 @@ object OrderLockUpdater {
     resp  ← * <~ FullOrder.refreshAndFullOrder(order).toXor
   } yield resp).runTxn()
 
-  def unlock(refNum: String)(implicit db: Database, ec: ExecutionContext): Result[FullOrder.Root] = {
+  def unlock(refNum: String)(implicit ec: EC, db: DB): Result[FullOrder.Root] = {
     def increaseRemorse(order: Order)(duration: Duration) = order.remorsePeriodEnd.map(_.plus(duration))
     (for {
       order    ← * <~ Orders.mustFindByRefNum(refNum)

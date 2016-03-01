@@ -2,8 +2,6 @@ package models.sharedsearch
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import com.pellucid.sealerate
 import models.{StoreAdmin, javaTimeSlickMapper}
 import models.sharedsearch.SharedSearch._
@@ -16,6 +14,7 @@ import utils.Slick._
 import utils.Slick.implicits._
 import utils.table.SearchByCode
 import utils.{ADT, GenericTable, JsonFormatters, ModelWithIdParameter, TableQueryWithId}
+import utils.aliases._
 
 final case class SharedSearch(id: Int = 0, code: String = "", title: String, query: JValue,
   scope: Scope = CustomersScope, storeAdminId: Int, createdAt: Instant = Instant.now, deletedAt: Option[Instant] = None)
@@ -76,7 +75,7 @@ object SharedSearches extends TableQueryWithId[SharedSearch, SharedSearches](
   }
 
   override def create[R](search: SharedSearch, returning: Returning[R], action: R ⇒ SharedSearch ⇒ SharedSearch)
-    (implicit ec: ExecutionContext): DbResult[SharedSearch] = super.create(search, returningIdAndCode, returningAction)
+    (implicit ec: EC): DbResult[SharedSearch] = super.create(search, returningIdAndCode, returningAction)
 
   def findOneByCode(code: String): DBIO[Option[SharedSearch]] =
     filter(_.code === code).one

@@ -2,7 +2,7 @@ package services.actors
 
 import java.time.Instant
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.util.Success
 import akka.actor.{Actor, ActorLogging}
 
@@ -10,17 +10,18 @@ import models.order.Order._
 import models.order.{Order, Orders}
 import slick.driver.PostgresDriver.api._
 import utils.time.JavaTimeSlickMapper._
+import utils.aliases._
 
 case object Tick
 
 final case class RemorseTimerResponse(updatedQuantity: Future[Int])
 
-class RemorseTimer(implicit ec: ExecutionContext, db: Database) extends Actor {
+class RemorseTimer(implicit ec: EC, db: DB) extends Actor {
   override def receive = {
     case Tick ⇒ sender() ! tick
   }
 
-  private def tick(implicit ec: ExecutionContext, db: Database): RemorseTimerResponse = {
+  private def tick(implicit ec: EC, db: DB): RemorseTimerResponse = {
     val advance = Orders
       .filter(_.state === (RemorseHold: State))
       .filterNot(_.isLocked)
@@ -36,7 +37,7 @@ class RemorseTimer(implicit ec: ExecutionContext, db: Database) extends Actor {
 Dummy actor RemorseTimer can talk to.
 RemorseTimer replies with (currently empty) future, so this may be extended to log remorse timer activity or something.
  */
-class RemorseTimerMate(implicit ec: ExecutionContext) extends Actor with ActorLogging {
+class RemorseTimerMate(implicit ec: EC) extends Actor with ActorLogging {
 
   override def receive = {
     case response: RemorseTimerResponse ⇒ response.updatedQuantity.onComplete {
