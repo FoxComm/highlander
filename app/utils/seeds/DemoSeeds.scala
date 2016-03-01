@@ -185,7 +185,8 @@ trait DemoScenario6 extends DemoSeedHelpers {
 
   def createScenario6(implicit db: Database): DbResultT[Unit] = for {
     customer ← * <~ Customers.create(customer6)
-    order ← * <~ Orders.create(Order(state = Shipped, customerId = customer.id, referenceNumber = orderReferenceNum))
+    order ← * <~ Orders.create(Order(state = Shipped, customerId = customer.id, 
+      referenceNumber = orderReferenceNum, placedAt = Some(time.yesterday.toInstant)))
     orig  ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
     _  ← * <~ GiftCards.createAll(
       (1 to 23).map { _ ⇒ 
