@@ -8,17 +8,13 @@ import models.StoreAdmin
 import payloads._
 import services.GroupManager
 import services.Authenticator.{AsyncAuthenticator, requireAdminAuth}
-import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._
-import utils.Slick.implicits._
-
-import scala.concurrent.ExecutionContext
+import utils.aliases._
 
 object CustomerGroupsRoutes {
-  def routes(implicit ec: ExecutionContext, db: Database,
-    mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
+  def routes(implicit ec: EC, db: DB, mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
     requireAdminAuth(storeAdminAuth) { admin ⇒
       activityContext(admin) { implicit ac ⇒

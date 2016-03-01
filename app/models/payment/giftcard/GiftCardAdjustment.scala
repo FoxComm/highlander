@@ -2,8 +2,6 @@ package models.payment.giftcard
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import cats.data.Xor
 import com.pellucid.sealerate
 import models.order.{OrderPayments, OrderPayment}
@@ -18,6 +16,7 @@ import slick.lifted.ColumnOrdered
 import utils.CustomDirectives.SortAndPage
 import utils.Slick.implicits._
 import utils.{ADT, CustomDirectives, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.aliases._
 
 final case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId: Option[Int],
   storeAdminId: Option[Int] = None, credit: Int, debit: Int, availableBalance: Int, state: State = Auth, 
@@ -96,8 +95,7 @@ object GiftCardAdjustments extends TableQueryWithId[GiftCardAdjustment, GiftCard
     }
   }
 
-  def sortedAndPaged(query: QuerySeq)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+  def sortedAndPaged(query: QuerySeq)(implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata =
     query.withMetadata.sortAndPageIfNeeded { (s, adj) ⇒ matchSortColumn(s, adj) }
 
   def filterByGiftCardId(id: Int): QuerySeq = filter(_.giftCardId === id)

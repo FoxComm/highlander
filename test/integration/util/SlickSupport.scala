@@ -1,9 +1,8 @@
 package util
 
-import scala.concurrent.{ExecutionContext, Future}
-import org.scalatest.concurrent.AbstractPatienceConfiguration
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Query
+import utils.aliases._
 
 object SlickSupport {
   object implicits {
@@ -11,14 +10,14 @@ object SlickSupport {
       extends AnyVal {
 
       // allows us to do Model.someQuery.futureValue vs Model.someQuery.result.run().futureValue
-      def futureValue(implicit db: Database, ec: ExecutionContext): C[U] = {
+      def futureValue(implicit ec: EC, db: DB): C[U] = {
         import org.scalatest.concurrent.ScalaFutures._
         db.run(query.result).futureValue
       }
     }
 
     implicit class EnrichedDBIO[R](val dbio: DBIO[R]) extends AnyVal {
-      def futureValue(implicit db: Database, ec: ExecutionContext): R = {
+      def futureValue(implicit ec: EC, db: DB): R = {
         import org.scalatest.concurrent.ScalaFutures._
         db.run(dbio).futureValue
       }

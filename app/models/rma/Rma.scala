@@ -2,8 +2,6 @@ package models.rma
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import cats.data.Validated._
 import cats.data._
 import com.pellucid.sealerate
@@ -22,6 +20,7 @@ import utils.Slick.implicits._
 import utils.Validation._
 import utils.table.SearchByRefNum
 import utils.{ADT, FSM, GenericTable, ModelWithLockParameter, TableQueryWithLock}
+import utils.aliases._
 
 final case class Rma(id: Int = 0, referenceNumber: String = "", orderId: Int, orderRefNum: String,
   rmaType: RmaType = Standard, state: State = Pending, isLocked: Boolean = false,
@@ -125,7 +124,7 @@ object Rmas extends TableQueryWithLock[Rma, Rmas](
   }
 
   override def create[R](rma: Rma, returning: Returning[R], action: R ⇒ Rma ⇒ Rma)
-    (implicit ec: ExecutionContext): DbResult[Rma] = super.create(rma, returningIdAndReferenceNumber, returningAction)
+    (implicit ec: EC): DbResult[Rma] = super.create(rma, returningIdAndReferenceNumber, returningAction)
 
   def findByRefNum(refNum: String): QuerySeq = filter(_.referenceNumber === refNum)
 

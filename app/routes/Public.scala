@@ -1,7 +1,5 @@
 package routes
 
-import scala.concurrent.ExecutionContext
-
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
@@ -14,9 +12,10 @@ import slick.driver.PostgresDriver.api._
 import services.{ReasonService, StoreCreditService}
 import services.PublicService._
 import utils.CustomDirectives._
+import utils.aliases._
 
 object Public {
-  def routes(implicit ec: ExecutionContext, db: Database, mat: Materializer) = {
+  def routes(implicit ec: EC, db: DB, mat: Materializer) = {
     import Json4sSupport._
     import utils.Http._
 

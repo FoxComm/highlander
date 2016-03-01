@@ -12,16 +12,15 @@ import utils.Slick._
 import utils.Slick.implicits._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-
-import scala.concurrent.ExecutionContext
+import utils.aliases._
 
 object RmaQueries {
 
-  def findAll(query: Rmas.QuerySeq)(implicit ec: ExecutionContext, db: Database,
+  def findAll(query: Rmas.QuerySeq)(implicit ec: EC, db: DB,
     sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[BulkRmaUpdateResponse] =
     findAllDbio(query).run()
 
-  def findAllDbio(query: Rmas.QuerySeq)(implicit ec: ExecutionContext, db: Database,
+  def findAllDbio(query: Rmas.QuerySeq)(implicit ec: EC, db: DB,
     sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[BulkRmaUpdateResponse] = {
 
     val rmasAndCustomers = query.join(Customers).on(_.customerId === _.id)

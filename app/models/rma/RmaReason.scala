@@ -2,8 +2,6 @@ package models.rma
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import com.pellucid.sealerate
 import models.javaTimeSlickMapper
 import models.rma.Rma._
@@ -15,6 +13,7 @@ import slick.jdbc.JdbcType
 import utils.CustomDirectives.SortAndPage
 import utils.Slick.implicits._
 import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.aliases._
 
 final case class RmaReason(id: Int = 0, name: String, reasonType: ReasonType = BaseReason, rmaType: RmaType = Standard,
   createdAt: Instant = Instant.now, deletedAt: Option[Instant] = None)
@@ -50,7 +49,7 @@ object RmaReasons extends TableQueryWithId[RmaReason, RmaReasons](
 )(new RmaReasons(_)) {
 
   def sortedAndPaged(query: QuerySeq)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata = {
+    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata = {
     val sortedQuery = query.withMetadata.sortAndPageIfNeeded { case (s, reason) ⇒
       s.sortColumn match {
         case "id"           ⇒ if (s.asc) reason.id.asc           else reason.id.desc
@@ -66,6 +65,6 @@ object RmaReasons extends TableQueryWithId[RmaReason, RmaReasons](
     sortedQuery.paged
   }
 
-  def queryAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+  def queryAll(implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata =
     this.sortedAndPaged(this)
 }

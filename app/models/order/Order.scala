@@ -2,8 +2,6 @@ package models.order
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import cats.data.Validated.valid
 import cats.data.Xor.{left, right}
 import cats.data.{ValidatedNel, Xor}
@@ -24,6 +22,7 @@ import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.table.SearchByRefNum
 import utils.{ADT, FSM, GenericTable, ModelWithLockParameter, TableQueryWithLock, Validation}
+import utils.aliases._
 
 final case class Order(
   id: Int = 0, referenceNumber: String = "", customerId: Int,
@@ -140,7 +139,7 @@ object Orders extends TableQueryWithLock[Order, Orders](
   }
 
   override def create[R](order: Order, returning: Returning[R], action: R ⇒ Order ⇒ Order)
-    (implicit ec: ExecutionContext): DbResult[Order] = super.create(order, returningIdAndReferenceNumber, returningAction)
+    (implicit ec: EC): DbResult[Order] = super.create(order, returningIdAndReferenceNumber, returningAction)
 
   def findByCustomer(cust: Customer): QuerySeq =
     findByCustomerId(cust.id)

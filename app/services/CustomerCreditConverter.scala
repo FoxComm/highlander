@@ -11,13 +11,12 @@ import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
-
-import scala.concurrent.ExecutionContext
+import utils.aliases._
 
 object CustomerCreditConverter {
 
   def toStoreCredit(giftCardCode: String, customerId: Int, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[StoreCreditResponse.Root] = (for {
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[StoreCreditResponse.Root] = (for {
 
     giftCard ← * <~ GiftCards.mustFindByCode(giftCardCode)
     _ ← * <~ (if (!giftCard.isActive) DbResult.failure(GiftCardConvertFailure(giftCard)) else DbResult.unit)
@@ -37,7 +36,7 @@ object CustomerCreditConverter {
   } yield StoreCreditResponse.build(storeCredit)).runTxn()
 
   def toGiftCard(storeCreditId: Int, customerId: Int, admin: StoreAdmin)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[GiftCardResponse.Root] = (for {
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[GiftCardResponse.Root] = (for {
 
     credit ← * <~ StoreCredits.mustFindById404(storeCreditId)
     _ ← * <~ (if (!credit.isActive) DbResult.failure(StoreCreditConvertFailure(credit)) else DbResult.unit)

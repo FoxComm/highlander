@@ -1,8 +1,6 @@
 package services.orders
 
-import scala.concurrent.ExecutionContext
-
-import models.location.{Address, Addresses, Regions, Region}
+import models.location._
 import Addresses.scope._
 import models.order._
 import models.StoreAdmin
@@ -18,23 +16,22 @@ import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.DbResult
 import utils.Slick.implicits._
+import utils.aliases._
 
 import models.activity.ActivityContext
 
 object OrderShippingAddressUpdater {
 
-  def mustFindAddressWithRegion(id: Int)
-    (implicit ec: ExecutionContext): DbResult[(Address, Region)] = {
+  def mustFindAddressWithRegion(id: Int)(implicit ec: EC): DbResult[(Address, Region)] = {
     val justOne = Addresses.findById(id).extract.withRegions.one
     justOne.mustFindOr(NotFoundFailure404(Address, id))
   }
 
-  def mustFindShipAddressForOrder(order: Order)(implicit ec: ExecutionContext): DbResult[OrderShippingAddress] =
+  def mustFindShipAddressForOrder(order: Order)(implicit ec: EC): DbResult[OrderShippingAddress] =
     OrderShippingAddresses.findByOrderId(order.id).one.mustFindOr(NoShipAddress(order.refNum))
 
-  def createShippingAddressFromAddressId(originator: Originator, addressId: Int,
-    refNum: Option[String] = None)(implicit db: Database, ec: ExecutionContext, ac: ActivityContext):
-    Result[TheResponse[FullOrder.Root]] = (for {
+  def createShippingAddressFromAddressId(originator: Originator, addressId: Int, refNum: Option[String] = None)
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
 
     order         ← * <~ getCartByOriginator(originator, refNum)
     _             ← * <~ order.mustBeCart
@@ -50,7 +47,7 @@ object OrderShippingAddressUpdater {
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runTxn()
 
   def createShippingAddressFromPayload(originator: Originator, payload: CreateAddressPayload,
-    refNum: Option[String] = None)(implicit db: Database, ec: ExecutionContext, ac: ActivityContext):
+    refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: ActivityContext):
     Result[TheResponse[FullOrder.Root]] = (for {
 
     order       ← * <~ getCartByOriginator(originator, refNum)
@@ -65,7 +62,7 @@ object OrderShippingAddressUpdater {
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runTxn()
 
   def updateShippingAddressFromPayload(originator: Originator, payload: UpdateAddressPayload,
-    refNum: Option[String] = None)(implicit db: Database, ec: ExecutionContext, ac: ActivityContext):
+    refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: ActivityContext):
     Result[TheResponse[FullOrder.Root]] = (for {
 
     order       ← * <~ getCartByOriginator(originator, refNum)
@@ -80,7 +77,7 @@ object OrderShippingAddressUpdater {
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runTxn()
 
   def removeShippingAddress(originator: Originator, refNum: Option[String] = None)
-    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
 
     order       ← * <~ getCartByOriginator(originator, refNum)
     _           ← * <~ order.mustBeCart

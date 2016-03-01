@@ -2,8 +2,6 @@ package models.payment.storecredit
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import cats.data.Validated._
 import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
@@ -26,6 +24,7 @@ import utils.Slick.implicits._
 import utils.Litterbox._
 import utils.Validation._
 import utils.{Validation, _}
+import utils.aliases._
 
 final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: OriginType = CsrAppeasement,
   subTypeId: Option[Int] = None, currency: Currency = Currency.USD, originalBalance: Int, currentBalance: Int = 0,
@@ -151,7 +150,7 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
   )(new StoreCredits(_)){
 
   def sortedAndPaged(query: QuerySeq)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata =
     query.withMetadata.sortAndPageIfNeeded { case (s, storeCredit) ⇒
       s.sortColumn match {
         case "id"               ⇒ if (s.asc) storeCredit.id.asc               else storeCredit.id.desc
@@ -170,43 +169,41 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
       }
     }
 
-  def queryByCustomer(customerId: Int)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+  def queryByCustomer(customerId: Int)(implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata =
     sortedAndPaged(findAllByCustomerId(customerId))
 
   def auth(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0)
-    (implicit ec: ExecutionContext): DbResult[StoreCreditAdjustment] =
+    (implicit ec: EC): DbResult[StoreCreditAdjustment] =
     debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, state = Adj.Auth)
 
-  def authOrderPayment(storeCredit: StoreCredit, pmt: OrderPayment)
-    (implicit ec: ExecutionContext): DbResult[StoreCreditAdjustment] =
+  def authOrderPayment(storeCredit: StoreCredit, pmt: OrderPayment)(implicit ec: EC): DbResult[StoreCreditAdjustment] =
     auth(storeCredit = storeCredit, orderPaymentId = pmt.id.some, amount = pmt.amount.getOrElse(0))
 
   def capture(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0)
-    (implicit ec: ExecutionContext): DbResult[StoreCreditAdjustment] =
+    (implicit ec: EC): DbResult[StoreCreditAdjustment] =
     debit(storeCredit = storeCredit, orderPaymentId = orderPaymentId, amount = amount, state = Adj.Capture)
 
-  def cancelByCsr(storeCredit: StoreCredit, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DbResult[StoreCreditAdjustment] = {
+  def cancelByCsr(storeCredit: StoreCredit, storeAdmin: StoreAdmin)(implicit ec: EC): DbResult[StoreCreditAdjustment] = {
     val adjustment = Adj(storeCreditId = storeCredit.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
       debit = storeCredit.availableBalance, availableBalance = 0, state = Adj.CancellationCapture)
     Adjs.create(adjustment)
   }
 
-  def redeemToGiftCard(storeCredit: StoreCredit, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DbResult[StoreCreditAdjustment] = {
+  def redeemToGiftCard(storeCredit: StoreCredit, storeAdmin: StoreAdmin)(implicit ec: EC): DbResult[StoreCreditAdjustment] = {
     val adjustment = Adj(storeCreditId = storeCredit.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
       debit = storeCredit.availableBalance, availableBalance = 0, state = Adj.Capture)
     Adjs.create(adjustment)
   }
 
-  def findActiveById(id: Int)(implicit ec: ExecutionContext): QuerySeq = filter(_.id === id)
+  def findActiveById(id: Int)(implicit ec: EC): QuerySeq = filter(_.id === id)
 
-  def findAllByCustomerId(customerId: Int)(implicit ec: ExecutionContext): QuerySeq =
+  def findAllByCustomerId(customerId: Int)(implicit ec: EC): QuerySeq =
     filter(_.customerId === customerId)
 
   def findAllActiveByCustomerId(customerId: Int): QuerySeq =
     filter(_.customerId === customerId).filter(_.state === (Active: State)).filter(_.availableBalance > 0)
 
-  def findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: ExecutionContext): DBIO[Option[StoreCredit]] =
+  def findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: EC): DBIO[Option[StoreCredit]] =
     filter(_.customerId === customerId).filter(_.id === id).one
 
   type ReturningIdAndBalances = (Int, Int, Int)
@@ -220,12 +217,12 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
   }
 
   override def create[R](sc: StoreCredit, returning: Returning[R], action: R ⇒ StoreCredit ⇒ StoreCredit)
-    (implicit ec: ExecutionContext): DbResult[StoreCredit] =
+    (implicit ec: EC): DbResult[StoreCredit] =
     super.create(sc, returningIdAndBalances, returningAction)
 
   private def debit(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0,
     state: StoreCreditAdjustment.State = Adj.Auth)
-    (implicit ec: ExecutionContext): DbResult[StoreCreditAdjustment] = {
+    (implicit ec: EC): DbResult[StoreCreditAdjustment] = {
     val adjustment = Adj(storeCreditId = storeCredit.id, orderPaymentId = orderPaymentId,
       debit = amount, availableBalance = storeCredit.availableBalance, state = state)
     Adjs.create(adjustment)

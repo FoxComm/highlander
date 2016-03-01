@@ -1,7 +1,5 @@
 package services.giftcards
 
-import scala.concurrent.ExecutionContext
-
 import models.payment.giftcard.GiftCards
 import models.{javaTimeSlickMapper, currencyColumnTypeMapper}
 import responses.TheResponse
@@ -13,10 +11,11 @@ import utils.Slick._
 import utils.Slick.implicits._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
+import utils.aliases._
 
 object GiftCardQueries {
 
-  def findAllByQuery(query: GiftCards.QuerySeq = GiftCards)(implicit ec: ExecutionContext, db: Database,
+  def findAllByQuery(query: GiftCards.QuerySeq = GiftCards)(implicit ec: EC, db: DB,
     sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[RootSimple]]] = {
 
     val sortedQuery = query.withMetadata.sortAndPageIfNeeded { case (s, giftCard) ⇒
@@ -42,7 +41,7 @@ object GiftCardQueries {
     sortedQuery.result.map(_.map(buildForList)).toTheResponse
   }
 
-  def findAll(implicit ec: ExecutionContext, db: Database,
+  def findAll(implicit ec: EC, db: DB,
     sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[RootSimple]]] =
     findAllByQuery(GiftCards)
 }

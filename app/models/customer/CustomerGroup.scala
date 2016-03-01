@@ -2,8 +2,6 @@ package models.customer
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import models.javaTimeSlickMapper
 import monocle.macros.GenLens
 import org.json4s.JsonAST.{JValue ⇒ Json}
@@ -12,6 +10,7 @@ import utils.CustomDirectives.SortAndPage
 import utils.ExPostgresDriver.api._
 import utils.Slick.implicits._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.aliases._
 
 final case class CustomerDynamicGroup(id: Int = 0,
   createdBy: Int,
@@ -54,8 +53,7 @@ object CustomerDynamicGroups extends TableQueryWithId[CustomerDynamicGroup, Cust
 )(new CustomerDynamicGroups(_)) {
 
   def sortedAndPaged(query: CustomerDynamicGroups.QuerySeq)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage):
-    CustomerDynamicGroups.QuerySeqWithMetadata  =
+    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): CustomerDynamicGroups.QuerySeqWithMetadata  =
       query.withMetadata.sortAndPageIfNeeded { case (s, group) ⇒
       s.sortColumn match {
         case "id"                  ⇒ if (s.asc) group.id.asc                 else group.id.desc

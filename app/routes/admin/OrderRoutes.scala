@@ -18,14 +18,13 @@ import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives._
 import utils.Http._
 import utils.Apis
+import utils.aliases._
 
 import scala.collection.immutable.Seq
-import scala.concurrent.ExecutionContext
 
 object OrderRoutes {
 
-  def routes(implicit ec: ExecutionContext, db: Database,
-    mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
+  def routes(implicit ec: EC, db: DB, mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
     requireAdminAuth(storeAdminAuth) { admin ⇒
       activityContext(admin) { implicit ac ⇒

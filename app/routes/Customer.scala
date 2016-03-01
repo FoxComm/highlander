@@ -10,7 +10,7 @@ import models.inventory.Sku.skuCodeRegex
 import models.traits.Originator
 import payloads._
 import services.customers.CustomerManager
-import services.orders.{OrderShippingAddressUpdater, OrderShippingMethodUpdater, OrderPaymentUpdater, OrderQueries}
+import services.orders._
 import services.{SaveForLaterManager, StoreCreditAdjustmentsService, ShippingManager, Checkout,
 CreditCardManager, AddressManager, LineItemUpdater, StoreCreditService}
 import services.Authenticator.{AsyncAuthenticator, requireCustomerAuth}
@@ -19,11 +19,10 @@ import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._
 import utils.Slick.implicits._
-
-import scala.concurrent.ExecutionContext
+import utils.aliases._
 
 object Customer {
-  def routes(implicit ec: ExecutionContext, db: Database,
+  def routes(implicit ec: EC, db: DB,
     mat: Materializer, customerAuth: AsyncAuthenticator[models.customer.Customer], apis: Apis) = {
 
     pathPrefix("my") {

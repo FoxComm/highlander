@@ -5,8 +5,7 @@ import services.RmaFailures._
 import services.{Failure, Failures}
 import slick.driver.PostgresDriver.api._
 import utils.Slick._
-
-import scala.concurrent.ExecutionContext
+import utils.aliases._
 
 trait RmaValidation {
   def validate: DbResult[RmaValidatorResponse]
@@ -16,7 +15,7 @@ final case class RmaValidatorResponse(
   alerts:   Option[Failures] = None,
   warnings: Option[Failures] = None)
 
-final case class RmaValidator(rma: Rma)(implicit db: Database, ec: ExecutionContext) extends RmaValidation {
+final case class RmaValidator(rma: Rma)(implicit ec: EC, db: DB) extends RmaValidation {
 
   def validate: DbResult[RmaValidatorResponse] = {
     val response = RmaValidatorResponse()

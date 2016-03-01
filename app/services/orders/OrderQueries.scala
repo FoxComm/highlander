@@ -1,7 +1,5 @@
 package services.orders
 
-import scala.concurrent.ExecutionContext
-
 import models.activity.ActivityContext
 import models.customer.{Customers, Customer}
 import models.order._
@@ -21,10 +19,11 @@ import utils.Slick._
 import utils.Slick.implicits._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
+import utils.aliases._
 
 object OrderQueries {
 
-  def findAllByQuery(query: Orders.QuerySeq = Orders)(implicit ec: ExecutionContext, db: Database,
+  def findAllByQuery(query: Orders.QuerySeq = Orders)(implicit ec: EC, db: DB,
     sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[AllOrders.Root]]] = {
 
     val ordersAndCustomers = query.join(Customers).on(_.customerId === _.id)
@@ -64,27 +63,26 @@ object OrderQueries {
     }).toTheResponse
   }
 
-  def findAll(implicit ec: ExecutionContext, db: Database,
+  def findAll(implicit ec: EC, db: DB,
     sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[AllOrders.Root]]] =
     findAllByQuery(Orders)
 
-  def list(implicit ec: ExecutionContext, db: Database,
+  def list(implicit ec: EC, db: DB,
     sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[TheResponse[Seq[AllOrders.Root]]] =
     findAllByQuery(Orders).run()
 
-  def listByCustomer(customer: Customer)(implicit ec: ExecutionContext, db: Database,
+  def listByCustomer(customer: Customer)(implicit ec: EC, db: DB,
     sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[TheResponse[Seq[AllOrders.Root]]] =
     findAllByQuery(Orders.filter(_.customerId === customer.id)).run()
 
-  def findOne(refNum: String)
-    (implicit ec: ExecutionContext, db: Database): Result[TheResponse[FullOrder.Root]] = (for {
+  def findOne(refNum: String)(implicit ec: EC, db: DB): Result[TheResponse[FullOrder.Root]] = (for {
     order     ← * <~ Orders.mustFindByRefNum(refNum)
     validated ← * <~ CartValidator(order).validate()
     response  ← * <~ FullOrder.fromOrder(order).toXor
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).run()
 
   def findOneByCustomer(refNum: String, customer: Customer)
-    (implicit ec: ExecutionContext, db: Database): Result[TheResponse[FullOrder.Root]] = (for {
+    (implicit ec: EC, db: DB): Result[TheResponse[FullOrder.Root]] = (for {
     order     ← * <~ Orders.findOneByRefNumAndCustomer(refNum, customer)
                            .one
                            .mustFindOr(NotFoundFailure404(Orders, refNum))
@@ -93,17 +91,17 @@ object OrderQueries {
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).run()
 
   def findOrCreateCartByCustomer(customer: Customer, admin: Option[StoreAdmin] = None)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[FullOrder.Root] =
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[FullOrder.Root] =
     findOrCreateCartByCustomerInner(customer, admin).runTxn()
 
   def findOrCreateCartByCustomerId(customerId: Int, admin: Option[StoreAdmin] = None)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[FullOrder.Root] = (for {
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[FullOrder.Root] = (for {
     customer  ← * <~ Customers.mustFindById404(customerId)
     fullOrder ← * <~ findOrCreateCartByCustomerInner(customer, admin)
   } yield fullOrder).runTxn()
 
   def findOrCreateCartByCustomerInner(customer: Customer, admin: Option[StoreAdmin])
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): DbResultT[FullOrder.Root] = for {
+    (implicit ec: EC, db: DB, ac: ActivityContext): DbResultT[FullOrder.Root] = for {
     result                  ← * <~ Orders.findActiveOrderByCustomer(customer).one
       .findOrCreateExtended(Orders.create(Order.buildCart(customer.id)))
     (order, foundOrCreated) = result
@@ -112,12 +110,12 @@ object OrderQueries {
   } yield fullOrder
 
   private def logCartCreation(foundOrCreated: FoundOrCreated, order: FullOrder.Root, admin: Option[StoreAdmin])
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext) = foundOrCreated match {
+    (implicit ec: EC, db: DB, ac: ActivityContext) = foundOrCreated match {
     case Created ⇒ LogActivity.cartCreated(admin, order)
     case Found   ⇒ DbResult.unit
   }
 
-  def getPaymentState(orderId: Int)(implicit ec: ExecutionContext): DBIO[CreditCardCharge.State] = for {
+  def getPaymentState(orderId: Int)(implicit ec: EC): DBIO[CreditCardCharge.State] = for {
     payments ← OrderPayments.findAllByOrderId(orderId).result
     authorized ← DBIO.sequence(payments.map(payment ⇒ payment.paymentMethodType match {
       case PaymentMethod.CreditCard ⇒

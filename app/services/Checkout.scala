@@ -2,8 +2,6 @@ package services
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import cats.implicits._
 import models.order.lineitems.OrderLineItemGiftCards
 import models.order._
@@ -22,17 +20,16 @@ import utils.Litterbox._
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.{Apis, DbResultT}
+import utils.aliases._
 
 object Checkout {
 
-  def fromCart(refNum: String)
-    (implicit db: Database, ec: ExecutionContext, apis: Apis, ac: ActivityContext): Result[FullOrder.Root] = (for {
+  def fromCart(refNum: String)(implicit ec: EC, db: DB, apis: Apis, ac: ActivityContext): Result[FullOrder.Root] = (for {
     cart  ← * <~ Orders.mustFindByRefNum(refNum)
     order ← * <~ Checkout(cart, CartValidator(cart)).checkout
   } yield order).runTxn()
 
-  def fromCustomerCart(customer: Customer)
-    (implicit db: Database, ec: ExecutionContext, apis: Apis, ac: ActivityContext): Result[FullOrder.Root] = (for {
+  def fromCustomerCart(customer: Customer)(implicit ec: EC, db: DB, apis: Apis, ac: ActivityContext): Result[FullOrder.Root] = (for {
     cart  ← * <~ Orders.findActiveOrderByCustomer(customer).one.mustFindOr(CustomerHasNoActiveOrder(customer.id))
     order ← * <~ Checkout(cart, CartValidator(cart)).checkout
   } yield order).runTxn()
@@ -46,8 +43,7 @@ object Checkout {
   5) Transition order to Remorse Hold**
   6) Create new cart for customer
  */
-final case class Checkout(cart: Order, cartValidator: CartValidation)
-  (implicit db: Database, ec: ExecutionContext, apis: Apis, ac: ActivityContext) {
+final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit ec: EC, db: DB, apis: Apis, ac: ActivityContext) {
 
   def checkout: DbResultT[FullOrder.Root] = for {
       _         ← * <~ cart.mustBeCart
@@ -67,27 +63,25 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)
 
   private def activePromos: DbResult[Unit] = DbResult.unit
 
-  private def authPayments(customer: Customer): DbResult[Unit] = {
-    (for {
-      // Authorize GC payments
-      gcPayments    ← OrderPayments.findAllGiftCardsByOrderId(cart.id).result
-      giftCards     ← authInternalPaymentMethod(gcPayments)(GiftCards.authOrderPayment)
-      // Authorize SC payments
-      scPayments    ← OrderPayments.findAllStoreCreditsByOrderId(cart.id).result
-      storeCredits  ← authInternalPaymentMethod(scPayments)(StoreCredits.authOrderPayment)
-      // Log activities
-      gcCodes       = gcPayments.map { case (_, gc) ⇒ gc.code }.distinct
-      scIds         = scPayments.map { case (_, sc) ⇒ sc.id }.distinct
-      gcAdjs        = giftCards.getOrElse(List.empty).foldLeft(0)(_ + _.getAmount.abs)
-      scAdjs        = storeCredits.getOrElse(List.empty).foldLeft(0)(_ + _.getAmount.abs)
-      _             ← if (gcAdjs > 0) LogActivity.gcFundsAuthorized(customer, cart, gcCodes, gcAdjs) else DbResult.unit
-      _             ← if (scAdjs > 0) LogActivity.scFundsAuthorized(customer, cart, scIds, scAdjs) else DbResult.unit
-      // Authorize funds on credit card
-      ccs           ← authCreditCard(orderTotal = cart.grandTotal, internalPaymentTotal = gcAdjs + scAdjs)
-    } yield (giftCards, storeCredits)).map { case (gc, sc) ⇒
-      // not-so-easy-way to combine error messages from both Xors
-      gc.map(_ ⇒ {}).combine(sc.map(_ ⇒ {}))
-    }
+  private def authPayments(customer: Customer): DbResult[Unit] = (for {
+    // Authorize GC payments
+    gcPayments    ← OrderPayments.findAllGiftCardsByOrderId(cart.id).result
+    giftCards     ← authInternalPaymentMethod(gcPayments)(GiftCards.authOrderPayment)
+    // Authorize SC payments
+    scPayments    ← OrderPayments.findAllStoreCreditsByOrderId(cart.id).result
+    storeCredits  ← authInternalPaymentMethod(scPayments)(StoreCredits.authOrderPayment)
+    // Log activities
+    gcCodes       = gcPayments.map { case (_, gc) ⇒ gc.code }.distinct
+    scIds         = scPayments.map { case (_, sc) ⇒ sc.id }.distinct
+    gcAdjs        = giftCards.getOrElse(List.empty).foldLeft(0)(_ + _.getAmount.abs)
+    scAdjs        = storeCredits.getOrElse(List.empty).foldLeft(0)(_ + _.getAmount.abs)
+    _             ← if (gcAdjs > 0) LogActivity.gcFundsAuthorized(customer, cart, gcCodes, gcAdjs) else DbResult.unit
+    _             ← if (scAdjs > 0) LogActivity.scFundsAuthorized(customer, cart, scIds, scAdjs) else DbResult.unit
+    // Authorize funds on credit card
+    ccs           ← authCreditCard(orderTotal = cart.grandTotal, internalPaymentTotal = gcAdjs + scAdjs)
+  } yield (giftCards, storeCredits)).map { case (gc, sc) ⇒
+    // not-so-easy-way to combine error messages from both Xors
+    gc.map(_ ⇒ {}).combine(sc.map(_ ⇒ {}))
   }
 
   private def authInternalPaymentMethod[M, Adj](results: Seq[(OrderPayment, M)])

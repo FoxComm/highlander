@@ -10,28 +10,25 @@ import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
-
-import scala.concurrent.ExecutionContext
+import utils.aliases._
 
 object GroupManager {
 
-  def findAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = {
+  def findAll(implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = {
     CustomerDynamicGroups.sortedAndPaged(CustomerDynamicGroups.query).result.map(groups ⇒
       groups.map(build)
     ).toTheResponse.run()
   }
 
-  def getById(groupId: Int)(implicit  db: Database, ec: ExecutionContext): Result[Root] = (for {
+  def getById(groupId: Int)(implicit ec: EC, db: DB): Result[Root] = (for {
     group ← * <~ CustomerDynamicGroups.mustFindById404(groupId)
   } yield build(group)).run()
 
-  def create(payload: CustomerDynamicGroupPayload, admin: StoreAdmin)
-    (implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
+  def create(payload: CustomerDynamicGroupPayload, admin: StoreAdmin)(implicit ec: EC, db: DB): Result[Root] = (for {
       group ← * <~ CustomerDynamicGroups.create(CustomerDynamicGroup.fromPayloadAndAdmin(payload, admin.id))
     } yield build(group)).runTxn()
 
-  def update(groupId: Int, payload: CustomerDynamicGroupPayload)
-    (implicit db: Database, ec: ExecutionContext): Result[Root] = (for {
+  def update(groupId: Int, payload: CustomerDynamicGroupPayload)(implicit ec: EC, db: DB): Result[Root] = (for {
     group ← * <~ CustomerDynamicGroups.mustFindById404(groupId)
     groupEdited ← * <~ CustomerDynamicGroups.update(group,
       CustomerDynamicGroup.fromPayloadAndAdmin(payload, group.createdBy).copy(id = groupId))
