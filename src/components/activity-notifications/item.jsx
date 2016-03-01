@@ -39,7 +39,6 @@ export default class NotificationItem extends React.Component {
   }
 
   render() {
-    const origin = _.get(this.props, ['item', 'data', 'admin']);
     const isRead = _.get(this.props, ['item', 'isRead']);
     const classes = classNames('fc-activity-notification-item', {
       '_not-read': !isRead
@@ -49,9 +48,7 @@ export default class NotificationItem extends React.Component {
 
     if (!desc) return null;
 
-    const args = [activity.data, activity];
-
-    const title = desc.title(...args);
+    const title = desc.title(activity.data, activity);
 
     return (
       <div className={ classes }>

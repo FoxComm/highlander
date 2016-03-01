@@ -8,15 +8,16 @@ import { joinEntities } from '../base/utils';
 // components
 import OrderTarget from '../base/order-target';
 import OrderLink from '../base/order-link';
+import Title from '../base/title';
 
 const representatives = {
   [types.ORDER_STATE_CHANGED]: {
-    title: data => {
+    title: (data, activity) => {
       return (
-        <span>
+        <Title activity={activity}>
           <strong>changed the order state</strong> to {data.order.stateTitle}
-          &nbsp;on <OrderTarget order={data.order}/>.
-        </span>
+          &nbsp;on <OrderTarget order={data.order}/>
+        </Title>
       );
     },
     details: data => {
@@ -27,11 +28,11 @@ const representatives = {
     }
   },
   [types.CART_CREATED]: {
-    title: data => {
+    title: (data, activity) => {
       return (
-        <span>
-          <strong>created new</strong> <OrderTarget order={data.order}/>.
-        </span>
+        <Title activity={activity}>
+          <strong>created new</strong> <OrderTarget order={data.order}/>
+        </Title>
       );
     },
   },
@@ -49,11 +50,11 @@ const representatives = {
     },
   },
   [types.ORDER_REMORSE_PERIOD_INCREASED]: {
-    title: data => {
+    title: (data, activity) => {
       return (
-        <span>
-          <strong>increased remorse period for</strong> <OrderTarget order={data.order}/>.
-        </span>
+        <Title activity={activity}>
+          <strong>increased remorse period</strong> for <OrderTarget order={data.order}/>
+        </Title>
       );
     }
   },

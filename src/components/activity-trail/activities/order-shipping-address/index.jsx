@@ -3,6 +3,7 @@ import React from 'react';
 import types from '../base/types';
 
 import OrderTarget from '../base/order-target';
+import Title from '../base/title';
 import AddressDetails from '../../../addresses/address-details';
 
 function omitAddressName(address) {
@@ -14,11 +15,11 @@ function omitAddressName(address) {
 
 const representatives = {
   [types.ORDER_SHIPPING_ADDRESS_UPDATED]: {
-    title: data => {
+    title: (data, activity) => {
       return (
-        <span>
-          <strong>edited a shipping address</strong> on <OrderTarget order={data.order} />.
-        </span>
+        <Title activity={activity}>
+          <strong>edited a shipping address</strong> on <OrderTarget order={data.order} />
+        </Title>
       );
     },
     details: data => {
@@ -29,11 +30,11 @@ const representatives = {
     }
   },
   [types.ORDER_SHIPPING_ADDRESS_ADDED]: {
-    title: data => {
+    title: (data, activity) => {
       return (
-        <span>
-          <strong>added the shipping address</strong> on <OrderTarget order={data.order} />.
-        </span>
+        <Title activity={activity}>
+          <strong>added the shipping address</strong> to <OrderTarget order={data.order} />
+        </Title>
       );
     },
     details: data => {
@@ -44,11 +45,11 @@ const representatives = {
     }
   },
   [types.ORDER_SHIPPING_ADDRESS_REMOVED]: {
-    title: data => {
+    title: (data, activity) => {
       return (
-        <span>
-          <strong>removed the shipping address</strong> on <OrderTarget order={data.order} />.
-        </span>
+        <Title activity={activity}>
+          <strong>removed the shipping address</strong> from <OrderTarget order={data.order} />
+        </Title>
       );
     },
     details: data => {
