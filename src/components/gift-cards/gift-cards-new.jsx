@@ -239,8 +239,8 @@ export default class NewGiftCard extends React.Component {
               inputName="balance"
               value={balance}
               onChange={this.onChangeAmount}
-              step="0.01"
-              min="1" />
+              step={0.01}
+              min={1} />
             <div className="fc-new-gift-card__balances">
               {
                 balances.map((balance, idx) => {
