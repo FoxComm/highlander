@@ -14,7 +14,12 @@ const AuthorIcon = props => {
 
   switch (userType) {
     case 'admin':
-      return <UserInitials name={activity.data.admin.name} />;
+      const adminName = _.get(activity, ['data', 'admin', 'name']);
+      if (!_.isEmpty(adminName)) {
+        return <UserInitials name={adminName} />;
+      } else {
+        return <div className="fc-activity__system-icon"></div>;
+      }
     case 'customer':
       return (
         <div className="fc-activity__customer-icon">

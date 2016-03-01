@@ -13,7 +13,12 @@ const AuthorTitle = props => {
 
   switch (userType) {
     case 'admin':
-      return <span>{activity.data.admin.name}</span>;
+      const adminName = _.get(activity, ['data', 'admin', 'name']);
+      if (!_.isEmpty(adminName)) {
+        return <span>{adminName}</span>;
+      } else {
+        return <span>Unrecognised Admin</span>;
+      }
     case 'customer':
       if (activity.data.customer) {
         return <CustomerLink customer={activity.data.customer} />;
