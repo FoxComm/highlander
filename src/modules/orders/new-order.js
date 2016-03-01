@@ -31,7 +31,7 @@ function suggestCustomers(phrase, guest = false) {
       term: 'name',
       operator: 'eq',
       value: {
-        type: 'string-term',
+        type: 'string',
         value: phrase,
       },
     },
@@ -39,7 +39,7 @@ function suggestCustomers(phrase, guest = false) {
       term: 'email',
       operator: 'eq',
       value: {
-        type: 'string-term',
+        type: 'string',
         value: phrase,
       },
     }
