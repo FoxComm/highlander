@@ -34,11 +34,6 @@ const cancelOrders = (actions, referenceNumbers, reasonId) =>
       .then(
         ({batch}) => {
           const errors = _.get(batch, 'failures.order');
-
-          dispatch(actions.setMessages({
-            success: 'successfully canceled',
-            error: 'could not be canceled',
-          }));
           dispatch(actions.bulkDone(getSuccesses(referenceNumbers, batch), errors));
         },
         error => {
@@ -57,11 +52,6 @@ const changeOrdersState = (actions, referenceNumbers, state) =>
       .then(
         ({batch}) => {
           const errors = _.get(batch, 'failures.order');
-
-          dispatch(actions.setMessages({
-            success: 'successfully changed',
-            error: 'could not be changed',
-          }));
           dispatch(actions.bulkDone(getSuccesses(referenceNumbers, batch), errors));
         },
         error => {
@@ -86,11 +76,6 @@ const toggleWatchOrders = isDirectAction =>
         .then(
           ({batch}) => {
             const errors = _.get(batch, 'failures.order');
-
-            dispatch(actions.setMessages({
-              success: 'successfully watched',
-              error: 'could not be watched',
-            }));
             dispatch(actions.bulkDone(getSuccesses(referenceNumbers, batch), errors));
           },
           error => {
