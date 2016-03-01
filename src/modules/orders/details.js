@@ -11,6 +11,10 @@ export const orderRequest = createAction('ORDER_REQUEST');
 export const cartRequest = createAction('CART_REQUEST');
 export const orderSuccess = createAction('ORDER_SUCCESS');
 export const orderFailed = createAction('ORDER_FAILED', (err, source) => [err, source]);
+// it's for optimistic update
+// TODO: research for general approach ?
+export const optimisticSetShippingMethod = createAction('ORDER_LUCKY_SET_SHIPPING_METHOD');
+export const optimisticRevertShippingMethod = createAction('ORDER_REVERT_SHIPPING_METHOD');
 
 const checkoutRequest = createAction('ORDER_CHECKOUT_REQUEST');
 const checkoutSuccess = createAction('ORDER_CHECKOUT_SUCCESS');
@@ -156,6 +160,28 @@ const reducer = createReducer({
         warnings: warnings,
         ...status
       }
+    };
+  },
+  [optimisticSetShippingMethod]: (state, shippingMethod) => {
+    const newOrder = assoc(state.currentOrder,
+      '_shippingMethod', state.currentOrder._shippingMethod || state.currentOrder.shippingMethod,
+      'shippingMethod', shippingMethod
+    );
+
+    return {
+      ...state,
+      currentOrder: new OrderParagon(newOrder)
+    };
+  },
+  [optimisticRevertShippingMethod]: state => {
+    const newOrder = assoc(state.currentOrder,
+      'shippingMethod', state.currentOrder._shippingMethod,
+      '_shippingMethod', null
+    );
+
+    return {
+      ...state,
+      currentOrder: new OrderParagon(newOrder)
     };
   },
   [orderFailed]: (state, [err, source]) => {

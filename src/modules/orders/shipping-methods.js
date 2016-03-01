@@ -1,6 +1,6 @@
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
-import { orderSuccess } from './details.js';
+import { orderSuccess, optimisticSetShippingMethod, optimisticRevertShippingMethod } from './details.js';
 
 const _createAction = (description, ...args) => {
   return createAction('ORDER_SHIPPING_METHOD_' + description, ...args);
@@ -31,18 +31,32 @@ export function fetchShippingMethods(order) {
   };
 }
 
+
+// assume we have one scope for updating shipping method
+let updateShippingMethodRequest;
+
 export function updateShippingMethod(order, shippingMethod) {
   return dispatch => {
+    if (updateShippingMethodRequest) {
+      updateShippingMethodRequest.cancel();
+    }
+
     dispatch(orderShippingMethodUpdate());
+    dispatch(optimisticSetShippingMethod(shippingMethod));
     const payload = { shippingMethodId: shippingMethod.id };
-    return Api.patch(`/orders/${order.referenceNumber}/shipping-method`, payload)
+    updateShippingMethodRequest = Api.patch(`/orders/${order.referenceNumber}/shipping-method`, payload)
       .then(
         order => {
           dispatch(orderShippingMethodUpdateSuccess());
           dispatch(orderSuccess(order));
         },
-        err => dispatch(orderShippingMethodUpdateFailed(err))
+        err => {
+          dispatch(optimisticRevertShippingMethod());
+          dispatch(orderShippingMethodUpdateFailed(err));
+        }
       );
+
+    return updateShippingMethodRequest;
   };
 }
 

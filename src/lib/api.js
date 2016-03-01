@@ -1,4 +1,5 @@
-import fetch from 'isomorphic-fetch';
+
+import fetch from './fetch';
 
 const isServer = typeof self === 'undefined';
 
