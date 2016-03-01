@@ -75,7 +75,8 @@ trait OrderGenerator extends ShipmentSeeds {
   }
 
   def manualHoldOrder(customerId: Customer#Id, skus: Seq[Sku], giftCard: GiftCard)(implicit db: Database): DbResultT[Order] = for {
-    order  ← * <~ Orders.create(Order(state = ManualHold, customerId = customerId, referenceNumber = orderReferenceNum))
+    order  ← * <~ Orders.create(Order(state = ManualHold, customerId = customerId, 
+        referenceNumber = orderReferenceNum, placedAt = Some(time.yesterday.toInstant)))
     _      ← * <~ addSkusToOrder(skus.map(_.id), order.id, OrderLineItem.Pending)
     origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = 1, reasonId = 1))
     totals = total(skus)
@@ -90,7 +91,8 @@ trait OrderGenerator extends ShipmentSeeds {
   } yield order
 
   def manualHoldStoreCreditOrder(customerId: Customer#Id, skus: Seq[Sku], giftCard: GiftCard)(implicit db: Database): DbResultT[Order] = for {
-    order  ← * <~ Orders.create(Order(state = ManualHold, customerId = customerId, referenceNumber = orderReferenceNum))
+    order  ← * <~ Orders.create(Order(state = ManualHold, customerId = customerId, 
+        referenceNumber = orderReferenceNum, placedAt = Some(time.yesterday.toInstant)))
     _      ← * <~ addSkusToOrder(skus.map(_.id), order.id, OrderLineItem.Pending)
     origin ← * <~ StoreCreditManuals.create(StoreCreditManual(adminId = 1, reasonId = 1))
     totals = total(skus)
@@ -106,7 +108,8 @@ trait OrderGenerator extends ShipmentSeeds {
   } yield order
 
   def fraudHoldOrder(customerId: Customer#Id, skus: Seq[Sku], giftCard: GiftCard)(implicit db: Database): DbResultT[Order] = for {
-    order  ← * <~ Orders.create(Order(state = FraudHold, customerId = customerId, referenceNumber = orderReferenceNum))
+    order  ← * <~ Orders.create(Order(state = FraudHold, customerId = customerId, 
+        referenceNumber = orderReferenceNum, placedAt = Some(time.yesterday.toInstant)))
     _      ← * <~ addSkusToOrder(skus.map(_.id), order.id, OrderLineItem.Pending)
     totals = total(skus)
     cc    ← * <~ getCc(customerId) 
@@ -123,7 +126,9 @@ trait OrderGenerator extends ShipmentSeeds {
     randomHour     ← * <~ 1 + Random.nextInt(48)
     randomSeconds  ← * <~ randomHour * 3600
     order          ← * <~ Orders.create(Order(state = RemorseHold, customerId = customerId, 
-      referenceNumber = orderReferenceNum, remorsePeriodEnd = Instant.now.plusSeconds(randomSeconds.toLong).some))
+      referenceNumber = orderReferenceNum, 
+      remorsePeriodEnd = Instant.now.plusSeconds(randomSeconds.toLong).some,
+      placedAt = Some(time.yesterday.toInstant)))
     _     ← * <~ addSkusToOrder(skus.map(_.id), order.id, OrderLineItem.Pending)
     cc    ← * <~ getCc(customerId) 
     op    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
