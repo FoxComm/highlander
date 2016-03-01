@@ -81,7 +81,8 @@ object Addresses extends TableQueryWithId[Address, Addresses](
 
   def sortedAndPagedWithRegions(query: Query[(Addresses, Regions), (Address, Region), Seq])
     (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage):
-  QueryWithMetadata[(Addresses, Regions), (Address, Region), Seq] =
+    QueryWithMetadata[(Addresses, Regions), (Address, Region), Seq] =
+
     query.withMetadata.sortAndPageIfNeeded { case (s, (address, region)) ⇒
       s.sortColumn match {
         case "id"                  ⇒ if(s.asc) address.id.asc                 else address.id.desc
@@ -102,32 +103,26 @@ object Addresses extends TableQueryWithId[Address, Addresses](
       }
     }
 
+  def findAllByCustomerId(customerId: Int): QuerySeq = filter(_.customerId === customerId)
 
-  def findAllByCustomerId(customerId: Int): QuerySeq =
-    filter(_.customerId === customerId)
-
-  /**
-   * Return all addresses except the deleted ones.
-   */
-  def findAllVisibleByCustomerId(customerId: Int): QuerySeq =
-    findAllByCustomerId(customerId).filter(_.deletedAt.isEmpty)
+  def findAllActiveByCustomerId(customerId: Int): QuerySeq = findAllByCustomerId(customerId).filter(_.deletedAt.isEmpty)
 
   def findAllByCustomerIdWithRegions(customerId: Int): Query[(Addresses, Regions), (Address, Region), Seq] = for {
     (addresses, regions) ← findAllByCustomerId(customerId).withRegions
   } yield (addresses, regions)
 
-  def findAllVisibleByCustomerIdWithRegions(customerId: Int): Query[(Addresses, Regions), (Address, Region), Seq] = for {
-    (addresses, regions) ← findAllVisibleByCustomerId(customerId).withRegions
+  def findAllActiveByCustomerIdWithRegions(customerId: Int): Query[(Addresses, Regions), (Address, Region), Seq] = for {
+    (addresses, regions) ← findAllActiveByCustomerId(customerId).withRegions
   } yield (addresses, regions)
 
   def findShippingDefaultByCustomerId(customerId: Int): QuerySeq =
-   filter(_.customerId === customerId).filter(_.isDefaultShipping === true)
+    filter(_.customerId === customerId).filter(_.isDefaultShipping === true)
 
-  def findById(customerId: Int, addressId: Int): QuerySeq =
-   findById(addressId).extract.filter(_.customerId === customerId)
+  def findByIdAndCustomer(addressId: Int, customerId: Int): QuerySeq =
+    findById(addressId).extract.filter(_.customerId === customerId)
 
-  def findVisibleByIdAndCustomer(addressId: Int, customerId: Int): DBIO[Option[Address]] =
-    findById(addressId).extract.filter(_.customerId === customerId).filter(_.deletedAt.isEmpty).result.headOption
+  def findActiveByIdAndCustomer(addressId: Int, customerId: Int): QuerySeq =
+    findByIdAndCustomer(addressId, customerId).filter(_.deletedAt.isEmpty)
 
   object scope {
     implicit class AddressesQuerySeqConversions(q: QuerySeq) {

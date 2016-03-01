@@ -5,6 +5,7 @@ import java.time.{Instant, ZoneId}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import models.payment.creditcard.CreditCard
+import models.customer.Customer
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import GeneratorUtils.randomString
@@ -15,17 +16,17 @@ trait CreditCardGenerator extends AddressGenerator {
 
   val today = Instant.now().atZone(ZoneId.of("UTC"))
 
-  def generateCreditCard(customerId: Int) = {
+  def generateCreditCard(customer: Customer) = {
     val base = new Base{}
-    val address = generateAddress(customerId, false)
-    val gateway = randomString(10)
-    val gatewayCardId = randomString(10)
-    CreditCard(customerId = customerId, gatewayCustomerId = gateway, gatewayCardId = gatewayCardId, holderName = Name.name,
+    val address = generateAddress(customer, false)
+    val gatewayCustomerId = "cus_7yTU0ENGfk0pxN" //Id for adil@adil.com in test stripe account.
+    val gatewayCardId = ""
+    CreditCard(customerId = customer.id, gatewayCustomerId = gatewayCustomerId, gatewayCardId = gatewayCardId, holderName = customer.name.getOrElse(Name.name),
       lastFour = base.numerify("####"), expMonth = today.getMonthValue, expYear = today.getYear + 2, isDefault = true,
       regionId = 4129, addressName = address.name, address1 = address.address1, address2 = address.address2,
       city = address.city, zip = address.zip, brand = "Visa")
   }
 
-  def generateCreditCards(customerIds: Seq[Int]) : Seq[CreditCard] =
-    customerIds map generateCreditCard
+  def generateCreditCards(customers: Seq[Customer]) : Seq[CreditCard] =
+    customers map generateCreditCard
 }

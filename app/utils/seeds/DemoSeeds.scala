@@ -19,6 +19,7 @@ import services.orders.OrderTotaler
 
 import utils.seeds.generators.InventoryGenerator
 import utils.Money.Currency
+import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
@@ -36,7 +37,7 @@ import utils.time
  * https://docs.google.com/document/d/1NW9v81xtMFXkvGVg8_4uzhmRVZzG2CiL8w4zefGCeV4/edit#
  */
 
-trait DemoSeedHelpers extends InventoryGenerator { 
+trait DemoSeedHelpers extends CreditCardSeeds with InventoryGenerator { 
 
   val hashedPassword = hashPassword(randomString(10))
 
@@ -49,7 +50,7 @@ trait DemoSeedHelpers extends InventoryGenerator {
     order ← * <~ Orders.create(Order(state = Shipped,
       customerId = customerId, productContextId = productContextId, placedAt = time.yesterday.toInstant.some))
     _     ← * <~ addSkusToOrder(skuIds, order.id, OrderLineItem.Shipped)
-    cc    ← * <~ getCc(customerId) // TODO: auth
+    cc    ← * <~ CreditCards.create(creditCard1.copy(customerId = customerId))
     op    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
     addr  ← * <~ getDefaultAddress(customerId)
     shipA ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
@@ -170,7 +171,7 @@ trait DemoScenario3 extends DemoSeedHelpers {
     productData ← * <~ Mvp.insertProducts(products3, productContext.id)
     inventory ← * <~ generateInventories(products3, warehouseIds)
     skuIds ← * <~ productData.map(_.skuId)
-    orders ← * <~ customerIds.map { id ⇒ createShippedOrder(id, productContext.id, skuIds, shippingMethod)}
+    orders ← * <~ DbResultT.sequence(customerIds.map { id ⇒ createShippedOrder(id, productContext.id, skuIds, shippingMethod)})
   } yield {}
 }
 
