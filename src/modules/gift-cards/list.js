@@ -26,7 +26,8 @@ export function createGiftCard() {
 
     return Api.post('/gift-cards', postData)
       .then(
-        () => {
+        r => {
+          console.log('r = ', r);
           dispatch(actions.fetch());
         },
         err => console.error(err)

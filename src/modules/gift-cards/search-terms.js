@@ -1,7 +1,7 @@
 const searchTerms = [
   {
     title: 'Gift Card : Number',
-    type: 'term',
+    type: 'string',
     term: 'code'
   },
   {
