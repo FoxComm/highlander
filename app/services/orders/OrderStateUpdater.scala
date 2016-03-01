@@ -6,8 +6,8 @@ import models.order.{Orders, Order}
 
 import Order.{Canceled, _}
 import models.StoreAdmin
-import responses.order.{AllOrders, FullOrder}
-import responses.{BatchMetadataSource, BatchMetadata, TheResponse}
+import responses.order.FullOrder
+import responses.{BatchMetadataSource, BatchMetadata}
 import services.{Result, StateTransitionNotAllowed, NotFoundFailure400, LockedFailure}
 import services.LogActivity.{orderStateChanged, orderBulkStateChanged}
 import slick.driver.PostgresDriver.api._
