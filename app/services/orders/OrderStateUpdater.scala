@@ -37,7 +37,7 @@ object OrderStateUpdater {
     (implicit ec: EC, db: DB, sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
     // Turn failures into errors
     batchMetadata ← * <~ updateStatesDbio(admin, refNumbers, newState, skipActivity)
-    response      = BulkOrderUpdateResponse.build(value = Seq())
+    response      = TheResponse.build(value = Seq.empty[AllOrders.Root])
   } yield response.copy(errors = batchMetadata.flatten, batch = Some(batchMetadata))).runTxn()
 
   private def updateStatesDbio(admin: StoreAdmin, refNumbers: Seq[String], newState: Order.State, skipActivity: Boolean = false)
