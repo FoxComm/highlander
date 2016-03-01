@@ -215,7 +215,7 @@ export default class GiftCard extends React.Component {
     const card = this.props.card;
 
     if (!card) {
-        return <div className="fc-gift-card-detail"><WaitAnimation/></div>;
+      return <div className="fc-gift-card-detail"><WaitAnimation/></div>;
     }
 
     return (
