@@ -6,7 +6,6 @@ import ShallowTestUtils from 'react-shallow-testutils';
 
 import activities from '../../fixtures/activity-notifications';
 
-
 describe('NotificationItem', function () {
   const NotificationItem = requireComponent('activity-notifications/item');
 
@@ -23,7 +22,7 @@ describe('NotificationItem', function () {
 
     _.each(activities, activity => {
 
-      it(`should be rendered when activity is ${activity.activityType}`, function *() {
+      it(`should be rendered when activity is ${activity.kind}`, function *() {
         notificationItem = shallowRender(
           <NotificationItem item={activity} />
         );
