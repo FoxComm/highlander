@@ -128,7 +128,7 @@ export function convertFilters(filters) {
 }
 
 function dateRangeFilter(field, operator, value) {
-  const formattedDate = moment(value, 'MM/DD/YYYY').format('YYYY-MM-DD HH:mm:ss');
+  const formattedDate = moment(value, 'MM/DD/YYYY').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
   const esDate = `${formattedDate}||/d`;
 
   switch(operator) {
