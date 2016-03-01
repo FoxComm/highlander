@@ -65,7 +65,9 @@
         .font-spec(14px, 600, 19px);
         margin-bottom: pxtorem(10px);
       }
-      dd { .font-spec(22px, 600, 30px); }
+      dd {
+        .font-spec(22px, 600, 30px);
+      }
     }
 
     dl:first-child {
@@ -103,6 +105,11 @@
 
   .fc-customer-info-avatar {
     background-color: @color-white;
+  }
+
+  .fc-customer-info-name,
+  .fc-customer-info-email {
+    .padding(0 10px);
   }
 
   &.fc-cart {
