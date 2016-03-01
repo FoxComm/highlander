@@ -5,13 +5,16 @@ import scala.concurrent.ExecutionContext
 import models.product._
 import responses.ProductResponses._
 import slick.driver.PostgresDriver.api._
+import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import payloads.{CreateProductForm, UpdateProductForm, CreateProductShadow, 
   UpdateProductShadow, CreateProductContext, UpdateProductContext}
 
+import ProductFailure._
 import utils.aliases._
+import cats.data.NonEmptyList
 
 
 object ProductManager {
@@ -51,6 +54,7 @@ object ProductManager {
     shadow       ← * <~ ProductShadows.create(ProductShadow(
       productContextId = productContext.id, productId = form.id,
       attributes = payload.attributes))
+    _    ← * <~ validateShadow(productContext, form, shadow)
   } yield ProductShadowResponse.build(shadow, productContext)).run()
     
   def updateShadow(id: Int, payload: UpdateProductShadow, productContextName: String)
@@ -64,6 +68,7 @@ object ProductManager {
     shadow       ← * <~ ProductShadows.update(shadow, shadow.copy(
       productId = payload.productId,
       attributes = payload.attributes))
+    _    ← * <~ validateShadow(productContext, form, shadow)
   } yield ProductShadowResponse.build(shadow, productContext)).run()
     
   def getIlluminatedProduct(id: Int, productContextName: String)
@@ -95,5 +100,12 @@ object ProductManager {
     productContext  ← * <~ ProductContexts.update(productContext, 
       productContext.copy(name = payload.name, attributes = payload.attributes))
   } yield ProductContextResponse.build(productContext)).run()
+
+  private def validateShadow(context: ProductContext, form: Product, shadow: ProductShadow) 
+  (implicit ec: EC, db: DB) : DbResultT[Unit] = 
+    ProductValidator.validate(context, form, shadow) match {
+      case Nil ⇒ DbResultT.pure(Unit)
+      case head ::tail ⇒ DbResultT.leftLift(NonEmptyList(head, tail))
+    }
 
 }

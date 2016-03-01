@@ -285,16 +285,39 @@ final case class AlreadySavedForLater(customerId: Int, skuId: Int) extends Failu
   override def description = s"Customer with id=$customerId already has SKU with id=$skuId saved for later"
 }
 
-final case class SkuNotFoundForContext(skuId: Int, productContextId: Int) extends Failure {
-  override def description = s"Sku with id=$skuId with product context $productContextId cannot be found"
-}
+object ProductFailure { 
 
-final case class ProductNotFoundForContext(productId: Int, productContextId: Int) extends Failure {
-  override def description = s"Product with id=$productId with product context $productContextId cannot be found"
-}
+  final case class SkuNotFoundForContext(skuId: Int, productContextId: Int) extends Failure {
+    override def description = s"Sku with id=$skuId with product context $productContextId cannot be found"
+  }
 
-final case class ProductContextNotFound(name: String) extends Failure {
-  override def description = s"Product Context with name $name cannot be found"
+  final case class ProductNotFoundForContext(productId: Int, productContextId: Int) extends Failure {
+    override def description = s"Product with id=$productId with product context $productContextId cannot be found"
+  }
+
+  final case class ProductContextNotFound(name: String) extends Failure {
+    override def description = s"Product Context with name $name cannot be found"
+  }
+
+  final case class ProductShadowHasInvalidAttribute(key: String, value: String) extends Failure {
+    override def description = s"Product shadow has an invalid attribute $key with value $value"
+  }
+
+  final case class ProductShadowAttributeNotAString(key: String) extends Failure {
+    override def description = s"Product shadow attribute $key must be a string"
+  }
+
+  final case class ProductAttributesAreEmpty() extends Failure {
+    override def description = s"Product attributes are empty"
+  }
+  final case class ProductShadowAttributesAreEmpty() extends Failure {
+    override def description = s"Product shadow attributes are empty"
+  }
+
+  final case class NoVariantForContext(context: String) extends Failure {
+    override def description = s"No variant context $context"
+  }
+
 }
 
 final case class InventorySummaryNotFound(skuId: Int, warehouseId: Int) extends Failure {

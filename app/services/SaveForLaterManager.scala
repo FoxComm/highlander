@@ -13,6 +13,8 @@ import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.aliases._
 
+import ProductFailure._
+
 import cats.data.Xor
 import scala.concurrent.ExecutionContext
 import slick.driver.PostgresDriver.api._
