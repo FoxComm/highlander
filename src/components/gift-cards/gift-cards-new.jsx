@@ -82,7 +82,9 @@ export default class NewGiftCard extends React.Component {
 
   componentDidMount() {
     this.props.resetForm();
-    this.props.fetchTypes();
+    if (_.isEmpty(this.props.types)) {
+      this.props.fetchTypes();
+    }
   }
 
   get suggestedCustomers() {
