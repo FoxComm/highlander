@@ -12,6 +12,7 @@ import GiftCardCode from './gift-card-code';
 import { DateTime } from '../common/datetime';
 import Currency from '../common/currency';
 import { PrimaryButton } from '../common/buttons';
+import WaitAnimation from '../common/wait-animation';
 import { PageTitle } from '../section-title';
 import Panel from '../panel/panel';
 import {PanelList, PanelListItem} from '../panel/panel-list';
@@ -59,6 +60,7 @@ export default class GiftCard extends React.Component {
     changeGiftCardStatus: PropTypes.func.isRequired,
     saveGiftCardStatus: PropTypes.func.isRequired,
     fetchReasons: PropTypes.func.isRequired,
+    isFetching: PropTypes.bool,
     changeCancellationReason: PropTypes.func.isRequired,
     params: PropTypes.shape({
       giftCard: PropTypes.string.isRequired
@@ -73,7 +75,9 @@ export default class GiftCard extends React.Component {
     const { giftCard } = this.props.params;
 
     this.props.fetchGiftCardIfNeeded(giftCard);
-    this.props.fetchReasons(this.reasonType);
+    if (_.isEmpty(this.props.reasons)) {
+      this.props.fetchReasons(this.reasonType);
+    }
   }
 
   @autobind
@@ -211,7 +215,7 @@ export default class GiftCard extends React.Component {
     const card = this.props.card;
 
     if (!card) {
-      return <div className="fc-gift-card-detail"></div>;
+        return <div className="fc-gift-card-detail"><WaitAnimation/></div>;
     }
 
     return (
