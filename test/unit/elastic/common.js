@@ -5,7 +5,7 @@ import nock from 'nock';
 const { toQuery } = importSource('elastic/common.js');
 
 const baseSearch = {
-  query: { 
+  query: {
     bool: {
       filter: void 0,
       must: void 0,
@@ -39,11 +39,15 @@ function addFilter(searchTerm, search = baseSearch) {
   return assoc(search, ['query', 'bool', 'filter'], [...currentFilters, filter]);
 }
 
+function omitUndefinedFields(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
 describe('elastic.common', () => {
   describe('#toQuery', () => {
     it('should create a query with no parameters', () => {
       const query = toQuery();
-      expect(query).to.eql({});
+      expect(omitUndefinedFields(query)).to.eql(omitUndefinedFields({}));
     });
 
     it('should create a query with a single string term', () => {
@@ -55,7 +59,7 @@ describe('elastic.common', () => {
 
       const query = toQuery(terms);
       const expectedQuery = addQuery(terms[0]);
-      expect(query).to.eql(expectedQuery);
+      expect(omitUndefinedFields(query)).to.eql(omitUndefinedFields(expectedQuery));
     });
 
     it('should create a query with a single non-string term', () => {
@@ -67,7 +71,7 @@ describe('elastic.common', () => {
 
       const query = toQuery(terms);
       const expectedQuery = addFilter(terms[0]);
-      expect(query).to.eql(expectedQuery);
+      expect(omitUndefinedFields(query)).to.eql(omitUndefinedFields(expectedQuery));
     });
 
     it('should create a query with a string and non-string term', () => {
@@ -89,7 +93,7 @@ describe('elastic.common', () => {
       const expectedQuery = addQuery(stringTerm);
       const finalQuery = addFilter(nonStringTerm, expectedQuery);
 
-      expect(query).to.eql(finalQuery);
+      expect(omitUndefinedFields(query)).to.eql(omitUndefinedFields(finalQuery));
     });
 
     it('should create a search with multiple terms and a sort order', () => {
@@ -112,7 +116,7 @@ describe('elastic.common', () => {
       const expectedFilter = addFilter(nonStringTerm, expectedQuery);
 
       const finalQuery = assoc(expectedFilter, 'sort', [{ name: { order: 'asc' } }]);
-      expect(query).to.eql(finalQuery);
+      expect(omitUndefinedFields(query)).to.eql(omitUndefinedFields(finalQuery));
     });
 
     it('should create a search with a nested filter', () => {
@@ -144,7 +148,7 @@ describe('elastic.common', () => {
         },
       };
 
-      expect(query).to.eql(expectedFilter);
+      expect(omitUndefinedFields(query)).to.eql(omitUndefinedFields(expectedFilter));
     });
 
     it('should create a search with a nested query', () => {
@@ -176,7 +180,7 @@ describe('elastic.common', () => {
         },
       };
 
-      expect(query).to.eql(expectedQuery);
+      expect(omitUndefinedFields(query)).to.eql(omitUndefinedFields(expectedQuery));
     });
   });
 });

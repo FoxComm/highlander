@@ -33,7 +33,7 @@ export function suggestCustomers(phrase) {
       term: 'name',
       operator: 'eq',
       value: {
-        type: 'string-term',
+        type: 'string',
         value: phrase,
       },
     },
@@ -41,7 +41,7 @@ export function suggestCustomers(phrase) {
       term: 'email',
       operator: 'eq',
       value: {
-        type: 'string-term',
+        type: 'string',
         value: phrase,
       },
     },
