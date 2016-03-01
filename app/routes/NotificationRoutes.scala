@@ -1,6 +1,5 @@
 package routes
 
-import scala.concurrent.ExecutionContext
 import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
@@ -13,10 +12,11 @@ import services.NotificationManager
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives._
 import utils.Http._
+import utils.aliases._
 
 object NotificationRoutes {
 
-  def routes(implicit ec: ExecutionContext, db: Database, mat: Materializer, system: ActorSystem) = {
+  def routes(implicit ec: EC, db: DB, mat: Materializer, system: ActorSystem) = {
 
     activityContext() { implicit ac ⇒
       pathPrefix("public") {

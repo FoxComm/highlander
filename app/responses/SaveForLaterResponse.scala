@@ -2,8 +2,6 @@ package responses
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import models.inventory.{Skus, Sku}
 import models.{SaveForLater, SaveForLaters}
 import services.NotFoundFailure404
@@ -11,6 +9,7 @@ import slick.driver.PostgresDriver.api._
 import utils.DbResultT.implicits._
 import utils.DbResultT.{DbResultT, _}
 import utils.Slick.implicits._
+import utils.aliases._
 
 object SaveForLaterResponse {
 
@@ -24,7 +23,7 @@ object SaveForLaterResponse {
     favorite: Boolean = false
   )
 
-  def forSkuId(skuId: Int)(implicit ec: ExecutionContext, db: Database): DbResultT[Root] = for {
+  def forSkuId(skuId: Int)(implicit ec: EC, db: DB): DbResultT[Root] = for {
     sku ← * <~ Skus.mustFindById404(skuId)
     sfl ← * <~ SaveForLaters.filter(_.skuId === skuId).one
                  .mustFindOr(NotFoundFailure404(s"Save for later entry for sku with id=$skuId not found"))

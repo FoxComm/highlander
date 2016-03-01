@@ -8,19 +8,17 @@ import RmaPayments.scope._
 import models.StoreAdmin
 import payloads.RmaPaymentPayload
 import responses.RmaResponse
+import responses.RmaResponse.Root
 import services.Result
 import services.rmas.Helpers._
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Slick._
 import utils.Slick.implicits._
-
-import scala.concurrent.ExecutionContext
+import utils.aliases._
 
 object RmaPaymentUpdater {
-  def addCreditCard(refNum: String, payload: RmaPaymentPayload)
-    (implicit ec: ExecutionContext, db: Database): Result[RmaResponse.Root] = (for {
+  def addCreditCard(refNum: String, payload: RmaPaymentPayload)(implicit ec: EC, db: DB): Result[Root] = (for {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
       payment   ← * <~ mustFindCcPaymentsByOrderId(rma.orderId)
@@ -32,7 +30,7 @@ object RmaPaymentUpdater {
     } yield response).runTxn()
 
   def addGiftCard(admin: StoreAdmin, refNum: String, payload: RmaPaymentPayload)
-    (implicit ec: ExecutionContext, db: Database): Result[RmaResponse.Root] = (for {
+    (implicit ec: EC, db: DB): Result[Root] = (for {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
       deleteAll ← * <~ deleteGc(rma.id).toXor
@@ -45,7 +43,7 @@ object RmaPaymentUpdater {
     } yield response).runTxn()
 
   def addStoreCredit(admin: StoreAdmin, refNum: String, payload: RmaPaymentPayload)
-    (implicit ec: ExecutionContext, db: Database): Result[RmaResponse.Root] = (for {
+    (implicit ec: EC, db: DB): Result[Root] = (for {
       _         ← * <~ payload.validate
       rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
       deleteAll ← * <~ deleteGc(rma.id).toXor
@@ -59,34 +57,34 @@ object RmaPaymentUpdater {
       response  ← * <~ RmaResponse.fromRma(rma).toXor
     } yield response).runTxn()
 
-  def deleteCreditCard(refNum: String)(implicit ec: ExecutionContext, db: Database): Result[RmaResponse.Root] = (for {
+  def deleteCreditCard(refNum: String)(implicit ec: EC, db: DB): Result[Root] = (for {
     rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
     deleteAll ← * <~ deleteCc(rma.id).toXor
     updated   ← * <~ Rmas.refresh(rma).toXor
     response  ← * <~ RmaResponse.fromRma(rma).toXor
   } yield response).runTxn()
 
-  def deleteGiftCard(refNum: String)(implicit ec: ExecutionContext, db: Database): Result[RmaResponse.Root] = (for {
+  def deleteGiftCard(refNum: String)(implicit ec: EC, db: DB): Result[Root] = (for {
     rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
     deleteAll ← * <~ deleteGc(rma.id).toXor
     updated   ← * <~ Rmas.refresh(rma).toXor
     response  ← * <~ RmaResponse.fromRma(rma).toXor
   } yield response).runTxn()
 
-  def deleteStoreCredit(refNum: String)(implicit ec: ExecutionContext, db: Database): Result[RmaResponse.Root] = (for {
+  def deleteStoreCredit(refNum: String)(implicit ec: EC, db: DB): Result[Root] = (for {
     rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
     deleteAll ← * <~ deleteSc(rma.id).toXor
     updated   ← * <~ Rmas.refresh(rma).toXor
     response  ← * <~ RmaResponse.fromRma(rma).toXor
   } yield response).runTxn()
 
-  private def deleteCc(rmaId: Int)(implicit ec: ExecutionContext, db: Database) = {
+  private def deleteCc(rmaId: Int)(implicit ec: EC, db: DB) = {
     RmaPayments.filter(_.rmaId === rmaId).creditCards.result.flatMap { seq ⇒
       DBIO.sequence(seq.map { pmt ⇒ RmaPayments.filter(_.id === pmt.id).delete })
     }
   }
 
-  private def deleteGc(rmaId: Int)(implicit ec: ExecutionContext, db: Database) = {
+  private def deleteGc(rmaId: Int)(implicit ec: EC, db: DB) = {
     val query = RmaPayments.filter(_.rmaId === rmaId).giftCards
       .join(GiftCards).on(_.paymentMethodId === _.id)
       .join(GiftCardRefunds).on(_._2.originId === _.id)
@@ -105,7 +103,7 @@ object RmaPaymentUpdater {
     }
   }
 
-  private def deleteSc(rmaId: Int)(implicit ec: ExecutionContext, db: Database) = {
+  private def deleteSc(rmaId: Int)(implicit ec: EC, db: DB) = {
     val query = RmaPayments.filter(_.rmaId === rmaId).storeCredits
       .join(StoreCredits).on(_.paymentMethodId === _.id)
       .join(StoreCreditRefunds).on(_._2.originId === _.id)

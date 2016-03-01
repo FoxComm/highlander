@@ -2,12 +2,13 @@ package responses
 
 import java.time.Instant
 
+import scala.concurrent.Future
+
 import models.customer.Customer
-import models.rma.{RmaAssignments, Rma}
+import models.rma.{Rma, RmaAssignments}
 import models.{StoreAdmin, StoreAdmins}
 import slick.driver.PostgresDriver.api._
-
-import scala.concurrent.{ExecutionContext, Future}
+import utils.aliases._
 
 object AllRmas {
   type Response = Future[Seq[Root]]
@@ -29,7 +30,7 @@ object AllRmas {
   ) extends ResponseItem
 
   def fromRma(rma: Rma, customer: Customer, admin: Option[StoreAdmin] = None)
-    (implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
+    (implicit ec: EC, db: DB): DBIO[Root] = {
     fetchAssignees(rma).map { case (assignees) ⇒
       build(
         rma = rma,
@@ -57,7 +58,7 @@ object AllRmas {
     )
   }
 
-  private def fetchAssignees(rma: Rma)(implicit ec: ExecutionContext, db: Database) = {
+  private def fetchAssignees(rma: Rma)(implicit ec: EC, db: DB) = {
     for {
       assignments ← RmaAssignments.filter(_.rmaId === rma.id).result
       admins ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result

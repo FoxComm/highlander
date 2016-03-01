@@ -1,6 +1,5 @@
 package services
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.DurationInt
 import akka.actor.{ActorSystem, Props}
 import akka.stream.actor.ActorPublisher
@@ -22,12 +21,12 @@ import utils.DbResultT.implicits._
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.{DbResultT, JsonFormatters}
+import utils.aliases._
 
 object NotificationManager {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def streamByAdminId(id: StoreAdmin#Id)
-    (implicit ec: ExecutionContext, db: Database, system: ActorSystem): Source[ServerSentEvent, Unit] = {
+  def streamByAdminId(id: StoreAdmin#Id)(implicit ec: EC, db: DB, system: ActorSystem): Source[ServerSentEvent, Unit] = {
     val dataPublisherRef = system.actorOf(Props(new NotificationPublisher(id)))
     val dataPublisher = ActorPublisher[String](dataPublisherRef)
     dataPublisherRef ! id
@@ -37,7 +36,7 @@ object NotificationManager {
       .via(WithHeartbeats(30.seconds))
   }
 
-  def createNotification(payload: CreateNotification)(implicit ac: ActivityContext, ec: ExecutionContext, db: Database):
+  def createNotification(payload: CreateNotification)(implicit ac: ActivityContext, ec: EC, db: DB):
   Result[Seq[ActivityConnectionResponse.Root]] = (for {
     sourceDimensionId ← * <~ dimensionIdByName(payload.sourceDimension)
     activity ← * <~ Activities.mustFindById400(payload.activityId)
@@ -52,8 +51,7 @@ object NotificationManager {
     }).toXor
   } yield response).runTxn()
 
-  def updateLastSeen(adminId: Int, activityId: Int)(implicit ec: ExecutionContext, db: Database):
-  Result[LastSeenActivityResponse] = (for {
+  def updateLastSeen(adminId: Int, activityId: Int)(implicit ec: EC, db: DB): Result[LastSeenActivityResponse] = (for {
     _ ← * <~ StoreAdmins.mustFindById404(adminId)
     _ ← * <~ Activities.mustFindById404(activityId)
     trail ← * <~ Trails.findNotificationByAdminId(adminId).one.mustFindOr(NotificationTrailNotFound400(adminId))
@@ -61,7 +59,7 @@ object NotificationManager {
   } yield LastSeenActivityResponse(trailId = trail.id, lastSeenActivityId = activityId)).runTxn()
 
   def subscribe(adminIds: Seq[Int], objectIds: Seq[String], reason: Sub.Reason, dimension: String)
-    (implicit ec: ExecutionContext, db: Database): DbResultT[TheResponse[Option[Int]]] = for {
+    (implicit ec: EC, db: DB): DbResultT[TheResponse[Option[Int]]] = for {
     dimension     ← * <~ Dimensions.findOrCreateByName(dimension)
     realAdmins    ← * <~ StoreAdmins.filter(_.id.inSet(adminIds)).map(_.id).result.toXor
     requestedSubs = for (adminId ← realAdmins; objectId ← objectIds) yield (adminId, objectId)
@@ -79,7 +77,7 @@ object NotificationManager {
   } yield TheResponse.build(value = newSubsQty, warnings = warnings)
 
   def unsubscribe(adminIds: Seq[Int], objectIds: Seq[String], reason: Sub.Reason, dimension: String)
-    (implicit ec: ExecutionContext, db: Database): DbResultT[Unit] = for {
+    (implicit ec: EC, db: DB): DbResultT[Unit] = for {
     d ← * <~ Dimensions.findByName(dimension).one.toXor
     _ ← * <~ d.fold(DbResult.unit) { dimension ⇒
       Subs
@@ -91,6 +89,6 @@ object NotificationManager {
     }
   } yield {}
 
-  private def dimensionIdByName(name: String)(implicit ec: ExecutionContext) =
+  private def dimensionIdByName(name: String)(implicit ec: EC) =
     Dimensions.findByName(name).map(_.id).one.mustFindOr(NotFoundFailure400(Dimension, name))
 }

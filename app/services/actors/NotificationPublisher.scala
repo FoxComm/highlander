@@ -1,6 +1,5 @@
 package services.actors
 
-import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 import akka.actor.ActorLogging
 import akka.stream.actor.ActorPublisher
@@ -15,8 +14,9 @@ import org.json4s.jackson.Serialization.write
 import utils.ExPostgresDriver.api._
 import utils.JsonFormatters
 import utils.Slick.implicits._
+import utils.aliases._
 
-class NotificationPublisher(adminId: Int)(implicit ec: ExecutionContext, db: Database)
+class NotificationPublisher(adminId: Int)(implicit ec: EC, db: DB)
   extends ActorPublisher[String] with ActorLogging {
 
   implicit val formats = JsonFormatters.phoenixFormats

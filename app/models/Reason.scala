@@ -1,7 +1,5 @@
 package models
 
-import scala.concurrent.ExecutionContext
-
 import cats.data.ValidatedNel
 import cats.implicits._
 import com.pellucid.sealerate
@@ -12,6 +10,7 @@ import slick.jdbc.JdbcType
 import utils.CustomDirectives.SortAndPage
 import utils.Litterbox._
 import utils.{ADT, Validation, GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.aliases._
 
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
@@ -66,7 +65,7 @@ object Reasons extends TableQueryWithId[Reason, Reasons](
 )(new Reasons(_)) {
 
   def sortedAndPaged(query: QuerySeq)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata = {
+    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata = {
     val sortedQuery = query.withMetadata.sortAndPageIfNeeded { case (s, reason) ⇒
       s.sortColumn match {
         case "id"           ⇒ if (s.asc) reason.id.asc           else reason.id.desc
@@ -81,6 +80,6 @@ object Reasons extends TableQueryWithId[Reason, Reasons](
     sortedQuery.paged
   }
 
-  def queryAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+  def queryAll(implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata =
     this.sortedAndPaged(this)
 }

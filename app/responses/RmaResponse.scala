@@ -10,16 +10,15 @@ import models.payment.giftcard.GiftCard
 import models.rma._
 import models.shipping.Shipment
 import models.StoreAdmins
-import responses.CustomerResponse.{Root => Customer}
-import responses.StoreAdminResponse.{Root => StoreAdmin}
+import responses.CustomerResponse.{Root ⇒ Customer}
+import responses.StoreAdminResponse.{Root ⇒ StoreAdmin}
 import responses.order.FullOrder
 import services.rmas.RmaTotaler
 import slick.driver.PostgresDriver.api._
 import utils.Money._
 import utils.Slick._
 import utils.Slick.implicits._
-
-import scala.concurrent.ExecutionContext
+import utils.aliases._
 
 object RmaResponse {
   final case class RmaTotals(subTotal: Int, shipping: Int, taxes: Int, total: Int) extends ResponseItem
@@ -110,7 +109,7 @@ object RmaResponse {
     RmaTotals(finalSubtotal, finalTaxes, finalShipping, grandTotal)
   }
 
-  def fromRma(rma: Rma)(implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
+  def fromRma(rma: Rma)(implicit ec: EC, db: DB): DBIO[Root] = {
     fetchRmaDetails(rma).map {
       case (_, customer, storeAdmin, assignments, payments, skus, giftCards, shipments, subtotal) ⇒
         build(
@@ -125,7 +124,7 @@ object RmaResponse {
     }
   }
 
-  def fromRmaExpanded(rma: Rma)(implicit ec: ExecutionContext, db: Database): DBIO[RootExpanded] = {
+  def fromRmaExpanded(rma: Rma)(implicit ec: EC, db: DB): DBIO[RootExpanded] = {
     fetchRmaDetails(rma = rma, withOrder = true).map {
       case (order, customer, storeAdmin, assignments, payments, skus, giftCards, shipments, subtotal) ⇒
         buildExpanded(
@@ -182,7 +181,7 @@ object RmaResponse {
       totals = totals)
   }
 
-  private def fetchRmaDetails(rma: Rma, withOrder: Boolean = false)(implicit ec: ExecutionContext, db: Database) = {
+  private def fetchRmaDetails(rma: Rma, withOrder: Boolean = false)(implicit ec: EC, db: DB) = {
     val orderQ = for {
       order     ← Orders.findById(rma.orderId).extract.one
       fullOrder ← order.map(o ⇒ FullOrder.fromOrder(o).map(Some(_))).getOrElse(lift(None))

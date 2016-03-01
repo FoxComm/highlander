@@ -10,6 +10,7 @@ import models.order._
 import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCards, CreditCard}
 import utils.seeds.generators._
+import utils.aliases._
 
 import utils.ModelWithIdParameter
 import utils.DbResultT
@@ -18,7 +19,6 @@ import utils.DbResultT.implicits._
 import Seeds.Factories
 
 import slick.driver.PostgresDriver.api._
-import scala.concurrent.ExecutionContext
 import faker.Faker
 import org.json4s.JObject
 
@@ -111,7 +111,7 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
 
   def pickOne[T](vals: Seq[T]) : T = vals(Random.nextInt(vals.length))
 
-  def insertRandomizedSeeds(customersCount: Int, productCount: Int)(implicit db: Database, ec: ExecutionContext) = {
+  def insertRandomizedSeeds(customersCount: Int, productCount: Int)(implicit ec: EC, db: DB) = {
     Faker.locale("en")
     val location = "Random"
 

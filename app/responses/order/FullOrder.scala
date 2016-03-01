@@ -2,8 +2,10 @@ package responses.order
 
 import java.time.Instant
 
+import scala.concurrent.Future
+
 import cats.implicits._
-import models.customer.{Customers, Customer}
+import models.customer.{Customer, Customers}
 import models.inventory.Sku
 import models.location.Region
 import models.order._
@@ -13,13 +15,12 @@ import models.payment.creditcard._
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
 import models.shipping.ShippingMethod
-import models.{shipping, StoreAdmin, StoreAdmins}
+import models.{StoreAdmin, StoreAdmins, shipping}
 import responses._
 import services.orders.OrderQueries
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
-
-import scala.concurrent.{ExecutionContext, Future}
+import utils.aliases._
 
 object FullOrder {
   type Response = Future[Root]
@@ -79,10 +80,10 @@ object FullOrder {
       createdAt: Instant, `type`: Type = StoreCredit) extends Payments
   }
 
-  def refreshAndFullOrder(order: Order)(implicit ec: ExecutionContext, db: Database): DBIO[FullOrder.Root] =
+  def refreshAndFullOrder(order: Order)(implicit ec: EC, db: DB): DBIO[FullOrder.Root] =
     Orders.refresh(order).flatMap(fromOrder)
 
-  def fromOrder(order: Order)(implicit ec: ExecutionContext, db: Database): DBIO[Root] = {
+  def fromOrder(order: Order)(implicit ec: EC, db: DB): DBIO[Root] = {
     fetchOrderDetails(order).map {
       case (customer, skus, shipMethod, shipAddress, ccPmt, gcPmts, scPmts, assignees, gcs, totals, lockedBy, payState, watchers) ⇒
       build(
@@ -175,7 +176,7 @@ object FullOrder {
     Totals(subTotal = order.subTotal, shipping = order.shippingTotal, adjustments = order.adjustmentsTotal,
     taxes = order.taxesTotal, total = order.grandTotal)
 
-  private def fetchOrderDetails(order: Order)(implicit ec: ExecutionContext, db: Database) = {
+  private def fetchOrderDetails(order: Order)(implicit ec: EC, db: DB) = {
     val ccPaymentQ = for {
       payment     ← OrderPayments.findAllByOrderId(order.id)
       creditCard  ← CreditCards.filter(_.id === payment.paymentMethodId)

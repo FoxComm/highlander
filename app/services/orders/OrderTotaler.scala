@@ -2,13 +2,13 @@ package services.orders
 
 import models.order.{Orders, Order, OrderShippingMethods}
 import slick.driver.PostgresDriver.api._
-import scala.concurrent.ExecutionContext
 import cats.implicits._
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import services.Result
+import utils.aliases._
 
 // TODO: Use utils.Money
 object OrderTotaler {
@@ -26,7 +26,7 @@ object OrderTotaler {
     def empty: Totals = Totals(0,0,0,0,0)
   }
 
-  def subTotal(order: Order)(implicit ec: ExecutionContext): DBIO[Int] =
+  def subTotal(order: Order)(implicit ec: EC): DBIO[Int] =
     sql"""select count(*), sum(coalesce(gc.original_balance, 0)) + sum(coalesce(skus.price, 0)) as sum
          |	from order_line_items oli
          |	left outer join order_line_item_skus sli on (sli.id = oli.origin_id)
@@ -40,21 +40,21 @@ object OrderTotaler {
       case _ ⇒ 0
     }
 
-  def shippingTotal(order: Order)(implicit ec: ExecutionContext, db: Database): DbResult[Int] = (for {
+  def shippingTotal(order: Order)(implicit ec: EC, db: DB): DbResult[Int] = (for {
     orderShippingMethods ← * <~ OrderShippingMethods.findByOrderId(order.id).result.toXor
     sum = orderShippingMethods.foldLeft(0)(_ + _.price)
   } yield sum).value
 
-  def adjustmentsTotal(order: Order)(implicit ec: ExecutionContext): DBIO[Int] =
+  def adjustmentsTotal(order: Order)(implicit ec: EC): DBIO[Int] =
     DBIO.successful(0)
 
-  def totals(order: Order)(implicit ec: ExecutionContext, db: Database): DbResult[Totals] = (for {
+  def totals(order: Order)(implicit ec: EC, db: DB): DbResult[Totals] = (for {
     sub   ← * <~ subTotal(order).toXor
     ship  ← * <~ shippingTotal(order)
     adj   ← * <~ adjustmentsTotal(order).toXor
   } yield Totals.build(subTotal = sub, shipping = ship, adjustments = adj)).value
 
-  def saveTotals(order: Order)(implicit ec: ExecutionContext, db: Database): DbResult[Order] = (for {
+  def saveTotals(order: Order)(implicit ec: EC, db: DB): DbResult[Order] = (for {
     t           ← * <~ totals(order)
     withTotals  = order.copy(subTotal = t.subTotal, shippingTotal = t.shipping,
       adjustmentsTotal = t.adjustments, taxesTotal = t.taxes, grandTotal = t.total)

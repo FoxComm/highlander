@@ -1,18 +1,17 @@
 package utils
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.util.{Failure, Success}
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.{MalformedRequestContentRejection, UnsupportedRequestContentTypeRejection,
-RequestEntityExpectedRejection, Directive1, StandardRoute, ValidationRejection}
-import akka.http.scaladsl.unmarshalling.{Unmarshaller, FromRequestUnmarshaller}
+import akka.http.scaladsl.server._
+import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
 
 import models.customer.Customer
 import services.Result
 import utils.Http._
-
 import models.StoreAdmin
 import models.activity.ActivityContext
+import utils.aliases.EC
 
 object CustomDirectives {
 
@@ -66,16 +65,16 @@ object CustomDirectives {
   def sortAndPage: Directive1[SortAndPage] =
     parameters(('from.as[Int].?, 'size.as[Int].?, 'sortBy.as[String].?)).as(SortAndPage)
 
-  def good[A <: AnyRef](a: Future[A])(implicit ec: ExecutionContext): StandardRoute =
+  def good[A <: AnyRef](a: Future[A])(implicit ec: EC): StandardRoute =
     complete(a.map(render(_)))
 
   def good[A <: AnyRef](a: A): StandardRoute =
     complete(render(a))
 
-  def goodOrFailures[A <: AnyRef](a: Result[A])(implicit ec: ExecutionContext): StandardRoute =
+  def goodOrFailures[A <: AnyRef](a: Result[A])(implicit ec: EC): StandardRoute =
     complete(a.map(renderGoodOrFailures))
 
-  def nothingOrFailures(a: Result[_])(implicit ec: ExecutionContext): StandardRoute =
+  def nothingOrFailures(a: Result[_])(implicit ec: EC): StandardRoute =
     complete(a.map(renderNothingOrFailures))
 
   def entityOr[T](um: FromRequestUnmarshaller[T], failure: services.Failure): Directive1[T] =

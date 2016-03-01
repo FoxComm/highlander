@@ -1,7 +1,5 @@
 package services
 
-import scala.concurrent.ExecutionContext
-
 import models.Reason.ReasonType
 import models.rma.{RmaReasons, RmaReason}
 import models.{Reasons, Reason}
@@ -10,16 +8,17 @@ import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.Slick.implicits._
 import utils.DbResultT.implicits._
+import utils.aliases._
 
 object ReasonService {
 
-  def listReasons(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[TheResponse[Seq[Reason]]] = {
+  def listReasons(implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[Seq[Reason]]] = {
     Reasons.queryAll.result.toTheResponse.run()
   }
 
   // FIXME: ugly `_ <: Seq` should be just `Seq`
   def listReasonsByType(reasonType: String)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[TheResponse[_ <: Seq[Reason]]] = {
+    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[_ <: Seq[Reason]]] = {
 
     val toAdt = ReasonType.read(reasonType)
 
@@ -33,7 +32,7 @@ object ReasonService {
     rwm.toTheResponse.run()
   }
 
-  def listRmaReasons(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[TheResponse[Seq[RmaReason]]] = {
+  def listRmaReasons(implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[Seq[RmaReason]]] = {
     RmaReasons.queryAll.result.toTheResponse.run()
   }
 }

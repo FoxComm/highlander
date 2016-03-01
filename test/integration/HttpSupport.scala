@@ -5,9 +5,9 @@ import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import akka.stream.testkit.TestSubscriber.Probe
 import akka.stream.testkit.scaladsl.TestSink
+
 import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
 import de.heikoseeberger.akkasse.ServerSentEvent
-
 import scala.collection.immutable
 import scala.concurrent.Await.result
 import scala.concurrent.{Await, ExecutionContext}
@@ -29,16 +29,17 @@ import org.json4s.Formats
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{MustMatchers, Args, Status, Suite, SuiteMixin}
+import org.scalatest.{Args, MustMatchers, Status, Suite, SuiteMixin}
 import responses.TheResponse
 import server.Service
 import services.Authenticator
 import util.DbTestSupport
-import utils.{StripeApi, Apis, JsonFormatters}
+import utils.{Apis, JsonFormatters, StripeApi}
 import concurrent.ExecutionContext.Implicits.global
 
 import cats.std.future._
 import cats.syntax.flatMap._
+import utils.aliases.EC
 
 // TODO: Move away from root package when `Service' moverd
 trait HttpSupport
@@ -194,7 +195,7 @@ trait HttpSupport
     port
   }
 
-  def parseErrors(response: HttpResponse)(implicit ec: ExecutionContext): List[String] =
+  def parseErrors(response: HttpResponse)(implicit ec: EC): List[String] =
     response.errors
 
   private def dispatchRequest(req: HttpRequest): HttpResponse = {
@@ -236,7 +237,7 @@ object Extensions {
   implicit class RichHttpResponse(val res: HttpResponse) extends AnyVal {
     import org.json4s.jackson.JsonMethods._
 
-    def bodyText(implicit ec: ExecutionContext, mat: Materializer): String =
+    def bodyText(implicit ec: EC, mat: Materializer): String =
       result(res.entity.toStrict(1.second).map(_.data.utf8String), 1.second)
 
     def as[A <: AnyRef](implicit fm: Formats, mf: scala.reflect.Manifest[A], mat: Materializer): A =

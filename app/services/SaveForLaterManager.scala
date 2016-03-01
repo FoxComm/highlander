@@ -1,7 +1,5 @@
 package services
 
-import scala.concurrent.ExecutionContext
-
 import cats.data.Xor
 import models.customer.{Customers, Customer}
 import models.inventory.Skus
@@ -12,18 +10,18 @@ import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.DbResult
 import utils.Slick.implicits._
+import utils.aliases._
 
 object SaveForLaterManager {
 
   type SavedForLater = TheResponse[Seq[SaveForLaterResponse.Root]]
 
-  def findAll(customerId: Int)(implicit db: Database, ec: ExecutionContext): Result[SavedForLater] = (for {
+  def findAll(customerId: Int)(implicit ec: EC, db: DB): Result[SavedForLater] = (for {
     customer ← * <~ Customers.mustFindById404(customerId)
     response ← * <~ findAllDbio(customer).toXor
   } yield response).run()
 
-  def saveForLater(customerId: Int, skuCode: String)
-    (implicit db: Database, ec: ExecutionContext): Result[SavedForLater] = (for {
+  def saveForLater(customerId: Int, skuCode: String)(implicit ec: EC, db: DB): Result[SavedForLater] = (for {
     customer ← * <~ Customers.mustFindById404(customerId)
     sku ← * <~ Skus.mustFindByCode(skuCode)
     _   ← * <~ SaveForLaters.find(customerId = customer.id, skuId = sku.id).one
@@ -32,10 +30,10 @@ object SaveForLaterManager {
     response ← * <~ findAllDbio(customer).toXor
   } yield response).runTxn()
 
-  def deleteSaveForLater(id: Int)(implicit db: Database, ec: ExecutionContext): Result[Unit] =
+  def deleteSaveForLater(id: Int)(implicit ec: EC, db: DB): Result[Unit] =
     SaveForLaters.deleteById(id, DbResult.unit, i ⇒ NotFoundFailure404(SaveForLater, i)).run()
 
-  private def findAllDbio(customer: Customer)(implicit ec: ExecutionContext, db: Database): DBIO[SavedForLater] = for {
+  private def findAllDbio(customer: Customer)(implicit ec: EC, db: DB): DBIO[SavedForLater] = for {
     sfls ← SaveForLaters.filter(_.customerId === customer.id).result
     xors ← DBIO.sequence(sfls.map(_.skuId).map(skuId ⇒ SaveForLaterResponse.forSkuId(skuId).value))
 

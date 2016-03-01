@@ -2,13 +2,12 @@ package models.order
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import models.{StoreAdmin, StoreAdmins, javaTimeSlickMapper}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.aliases._
 
 final case class OrderAssignment(id: Int = 0, orderId: Int, assigneeId: Int, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[OrderAssignment]
@@ -32,7 +31,7 @@ object OrderAssignments extends TableQueryWithId[OrderAssignment, OrderAssignmen
 
   def byAssignee(admin: StoreAdmin): QuerySeq = filter(_.assigneeId === admin.id)
 
-  def assignedTo(admin: StoreAdmin)(implicit ec: ExecutionContext): Orders.QuerySeq = {
+  def assignedTo(admin: StoreAdmin)(implicit ec: EC): Orders.QuerySeq = {
     for {
       ordersAssignees ← byAssignee(admin).map(_.orderId)
       orders          ← Orders.filter(_.id === ordersAssignees)
@@ -41,7 +40,7 @@ object OrderAssignments extends TableQueryWithId[OrderAssignment, OrderAssignmen
 
   def byOrder(order: Order): QuerySeq = filter(_.orderId === order.id)
 
-  def assigneesFor(order: Order)(implicit ec: ExecutionContext): StoreAdmins.QuerySeq = {
+  def assigneesFor(order: Order)(implicit ec: EC): StoreAdmins.QuerySeq = {
     for {
       ordersAssignees ← byOrder(order).map(_.assigneeId)
       admins          ← StoreAdmins.filter(_.id === ordersAssignees)

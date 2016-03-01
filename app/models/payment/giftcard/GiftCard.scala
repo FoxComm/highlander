@@ -2,8 +2,6 @@ package models.payment.giftcard
 
 import java.time.Instant
 
-import scala.concurrent.ExecutionContext
-
 import cats.data.Validated._
 import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
@@ -28,6 +26,7 @@ import utils.Slick.implicits._
 import utils.Validation._
 import utils._
 import utils.table.SearchByCode
+import utils.aliases._
 
 final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase,
   code: String = "", subTypeId: Option[Int] = None, currency: Currency = Currency.USD, state: State = GiftCard.Active,
@@ -199,7 +198,7 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
   import GiftCard._
 
   def sortedAndPaged(query: QuerySeq)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata = {
+    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata = {
     query.withMetadata.sortAndPageIfNeeded { (s, giftCard) ⇒
       s.sortColumn match {
         case "id"               ⇒ if (s.asc) giftCard.id.asc               else giftCard.id.desc
@@ -221,32 +220,32 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
     }
   }
 
-  def queryAll(implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+  def queryAll(implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata =
     sortedAndPaged(this)
 
   def queryByCode(code: String)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata =
     sortedAndPaged(findByCode(code))
 
   def auth(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)
-    (implicit ec: ExecutionContext): DbResult[GiftCardAdjustment] =
+    (implicit ec: EC): DbResult[GiftCardAdjustment] =
     adjust(giftCard, orderPaymentId, debit = debit, credit = credit, state = Adj.Auth)
 
   def authOrderPayment(giftCard: GiftCard, pmt: OrderPayment)
-    (implicit ec: ExecutionContext): DbResult[GiftCardAdjustment] =
+    (implicit ec: EC): DbResult[GiftCardAdjustment] =
     auth(giftCard = giftCard, orderPaymentId = pmt.id.some, debit = pmt.amount.getOrElse(0))
 
   def capture(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)
-    (implicit ec: ExecutionContext): DbResult[GiftCardAdjustment] =
+    (implicit ec: EC): DbResult[GiftCardAdjustment] =
     adjust(giftCard, orderPaymentId, debit = debit, credit = credit, state = Adj.Capture)
 
-  def cancelByCsr(giftCard: GiftCard, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DbResult[GiftCardAdjustment] = {
+  def cancelByCsr(giftCard: GiftCard, storeAdmin: StoreAdmin)(implicit ec: EC): DbResult[GiftCardAdjustment] = {
     val adjustment = Adj(giftCardId = giftCard.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
       debit = giftCard.availableBalance, credit = 0, availableBalance = 0, state = Adj.CancellationCapture)
     Adjs.create(adjustment)
   }
 
-  def redeemToStoreCredit(giftCard: GiftCard, storeAdmin: StoreAdmin)(implicit ec: ExecutionContext): DbResult[GiftCardAdjustment] = {
+  def redeemToStoreCredit(giftCard: GiftCard, storeAdmin: StoreAdmin)(implicit ec: EC): DbResult[GiftCardAdjustment] = {
     val adjustment = Adj(giftCardId = giftCard.id, orderPaymentId = None, storeAdminId = storeAdmin.id.some,
       debit = giftCard.availableBalance, credit = 0, availableBalance = 0, state = Adj.Capture)
     Adjs.create(adjustment)
@@ -272,11 +271,11 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
   }
 
   override def create[R](gc: GiftCard, returning: Returning[R], action: R ⇒ GiftCard ⇒ GiftCard)
-    (implicit ec: ExecutionContext): DbResult[GiftCard] = super.create(gc, returningIdCodeAndBalance, returningAction)
+    (implicit ec: EC): DbResult[GiftCard] = super.create(gc, returningIdCodeAndBalance, returningAction)
 
   private def adjust(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0,
     state: GiftCardAdjustment.State = Adj.Auth)
-    (implicit ec: ExecutionContext): DbResult[GiftCardAdjustment] = {
+    (implicit ec: EC): DbResult[GiftCardAdjustment] = {
     val balance = giftCard.availableBalance - debit + credit
     val adjustment = Adj(giftCardId = giftCard.id, orderPaymentId = orderPaymentId,
       debit = debit, credit = credit, availableBalance = balance, state = state)

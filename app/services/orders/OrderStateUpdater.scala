@@ -1,6 +1,5 @@
 package services.orders
 
-import scala.concurrent.ExecutionContext
 import models.activity.ActivityContext
 import models.order.lineitems.{OrderLineItems, OrderLineItem}
 import models.order.{Orders, Order}
@@ -18,11 +17,12 @@ import utils.Slick.implicits._
 import utils.Slick.{DbResult, _}
 import utils.DbResultT._
 import utils.DbResultT.implicits._
+import utils.aliases._
 
 object OrderStateUpdater {
 
   def updateState(admin: StoreAdmin, refNum: String, newState: Order.State)
-    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[FullOrder.Root] = (for {
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[FullOrder.Root] = (for {
 
     order     ← * <~ Orders.mustFindByRefNum(refNum)
     _         ← * <~ order.transitionState(newState)
@@ -34,14 +34,14 @@ object OrderStateUpdater {
 
   // TODO: transfer sorting-paging metadata
   def updateStates(admin: StoreAdmin, refNumbers: Seq[String], newState: Order.State, skipActivity: Boolean = false)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
+    (implicit ec: EC, db: DB, sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
     // Turn failures into errors
     batchMetadata ← * <~ updateStatesDbio(admin, refNumbers, newState, skipActivity)
     response      ← * <~ OrderQueries.findAll
   } yield response.copy(errors = batchMetadata.flatten, batch = Some(batchMetadata))).runTxn()
 
   private def updateStatesDbio(admin: StoreAdmin, refNumbers: Seq[String], newState: Order.State, skipActivity: Boolean = false)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage,
+    (implicit ec: EC, db: DB, sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage,
       ac: ActivityContext): DbResult[BatchMetadata] = {
 
     val query = Orders.filter(_.referenceNumber.inSet(refNumbers)).result
@@ -72,7 +72,7 @@ object OrderStateUpdater {
   }
 
   private def updateQueriesWrapper(admin: StoreAdmin, orderIds: Seq[Int], orderRefNums: Seq[String], newState: State,
-    skipActivity: Boolean = false)(implicit db: Database, ec: ExecutionContext, ac: ActivityContext) = {
+    skipActivity: Boolean = false)(implicit ec: EC, db: DB, ac: ActivityContext) = {
 
     if (skipActivity)
         updateQueries(admin, orderIds, orderRefNums, newState)
@@ -82,7 +82,7 @@ object OrderStateUpdater {
   }
 
   private def updateQueries(admin: StoreAdmin, orderIds: Seq[Int], orderRefNums: Seq[String], newState: State)
-    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext) = newState match {
+    (implicit ec: EC, db: DB, ac: ActivityContext) = newState match {
       case Canceled ⇒
         cancelOrders(orderIds)
       case _ ⇒

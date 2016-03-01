@@ -1,7 +1,5 @@
 package services.customers
 
-import scala.concurrent.ExecutionContext
-
 import models.customer.Customers
 import models.javaTimeSlickMapper
 import responses.TheResponse
@@ -9,14 +7,13 @@ import responses.CustomerResponse.{RootSimple, buildForList}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
-import utils.Slick._
 import utils.Slick.implicits._
 import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.aliases._
 
 object CustomerQueries {
 
-  def findAllByQuery(query: Customers.QuerySeq = Customers)(implicit ec: ExecutionContext, db: Database,
+  def findAllByQuery(query: Customers.QuerySeq = Customers)(implicit ec: EC, db: DB,
     sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[RootSimple]]] = {
 
     val sortedQuery = query.withMetadata.sortAndPageIfNeeded { case (s, customer) ⇒
@@ -41,7 +38,7 @@ object CustomerQueries {
     sortedQuery.result.map(_.map(buildForList)).toTheResponse
   }
 
-  def findAll(implicit ec: ExecutionContext, db: Database,
+  def findAll(implicit ec: EC, db: DB,
     sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[RootSimple]]] =
     findAllByQuery(Customers)
 }

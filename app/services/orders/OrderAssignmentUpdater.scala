@@ -1,5 +1,6 @@
 package services.orders
 
+import models.activity.{Dimension, ActivityContext}
 import models.order._
 import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
 import payloads.OrderBulkAssignmentPayload
@@ -13,14 +14,12 @@ import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
-
-import scala.concurrent.ExecutionContext
-import models.activity.{Dimension, ActivityContext}
+import utils.aliases._
 
 object OrderAssignmentUpdater {
 
   def assign(admin: StoreAdmin, refNum: String, requestedAssigneeIds: Seq[Int])
-    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
 
     order           ← * <~ Orders.mustFindByRefNum(refNum)
     adminIds        ← * <~ StoreAdmins.filter(_.id.inSetBind(requestedAssigneeIds)).map(_.id).result
@@ -38,7 +37,7 @@ object OrderAssignmentUpdater {
   } yield TheResponse.build(fullOrder, errors = notFoundAdmins)).runTxn()
 
   def unassign(admin: StoreAdmin, refNum: String, assigneeId: Int)
-    (implicit db: Database, ec: ExecutionContext, ac: ActivityContext): Result[FullOrder.Root] = (for {
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[FullOrder.Root] = (for {
 
     order           ← * <~ Orders.mustFindByRefNum(refNum)
     assignee        ← * <~ StoreAdmins.mustFindById404(assigneeId)
@@ -50,7 +49,7 @@ object OrderAssignmentUpdater {
       reason = NotificationSubscription.Assigned, objectIds = Seq(order.referenceNumber))
   } yield fullOrder).runTxn()
 
-  def assignBulk(admin: StoreAdmin, payload: OrderBulkAssignmentPayload)(implicit ec: ExecutionContext, db: Database,
+  def assignBulk(admin: StoreAdmin, payload: OrderBulkAssignmentPayload)(implicit ec: EC, db: DB,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
 
     // TODO: transfer sorting-paging metadata
@@ -68,7 +67,7 @@ object OrderAssignmentUpdater {
     batchMetadata     = BatchMetadata(BatchMetadataSource(Order, refNums, batchFailures))
   } yield response.copy(errors = flattenErrors(batchFailures), batch = Some(batchMetadata))).runTxn()
 
-  def unassignBulk(admin: StoreAdmin, payload: OrderBulkAssignmentPayload)(implicit ec: ExecutionContext, db: Database,
+  def unassignBulk(admin: StoreAdmin, payload: OrderBulkAssignmentPayload)(implicit ec: EC, db: DB,
     sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
 
     // TODO: transfer sorting-paging metadata

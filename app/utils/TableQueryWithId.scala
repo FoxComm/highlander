@@ -1,7 +1,5 @@
 package utils
 
-import scala.concurrent.ExecutionContext
-
 import cats.data.Validated.Valid
 import cats.data.{ValidatedNel, Xor}
 import monocle.Lens
@@ -14,6 +12,7 @@ import utils.Slick.implicits._
 import utils.Slick.{DbResult, _}
 import utils.Strings._
 import utils.table.SearchById
+import utils.aliases._
 
 trait ModelWithIdParameter[T <: ModelWithIdParameter[T]] extends Validation[T] { self: T ⇒
   type Id = Int
@@ -81,27 +80,27 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
   val returningId: Returning[M#Id] = this.returning(map(_.id))
   def returningIdAction(id: M#Id)(model: M): M = idLens.set(id)(model)
 
-  def createAll(values: Iterable[M])(implicit ec: ExecutionContext): DbResult[Option[Int]] = wrapDbResult((for {
+  def createAll(values: Iterable[M])(implicit ec: EC): DbResult[Option[Int]] = wrapDbResult((for {
     saveUs ← * <~ beforeSaveBatch(values)
     result ← * <~ (this ++= saveUs).toXor
   } yield result).value)
 
   def createAllReturningIds[R](values: Seq[M], returning: Returning[R] = returningId)
-    (implicit ec: ExecutionContext): DbResult[Seq[R]] = wrapDbResult((for {
+    (implicit ec: EC): DbResult[Seq[R]] = wrapDbResult((for {
     saveUs ← * <~ beforeSaveBatch(values)
     result ← * <~ (returning ++= saveUs).toXor
   } yield result).value)
 
-  private def beforeSaveBatch(values: Iterable[M])(implicit ec: ExecutionContext): DbResultT[Iterable[M]] =
+  private def beforeSaveBatch(values: Iterable[M])(implicit ec: EC): DbResultT[Iterable[M]] =
     DbResultT.sequence(values.map(beforeSave).map(DbResultT.fromXor))
 
   def create[R](model: M, returning: Returning[R] = returningId, action: R ⇒ M ⇒ M = returningIdAction _)
-  (implicit ec: ExecutionContext): DbResult[M] =
+  (implicit ec: EC): DbResult[M] =
     beforeSave(model).fold(DbResult.failures, { good ⇒
       wrapDbio((returning += good).map(ret ⇒ action(ret)(good)))
     })
 
-  def update(oldModel: M, newModel: M)(implicit ec: ExecutionContext, db: Database): DbResult[M] = {
+  def update(oldModel: M, newModel: M)(implicit ec: EC, db: DB): DbResult[M] = {
     val mightUpdate = for {
       checked ← beforeSave(newModel)
       updateable ← oldModel.updateTo(checked)
@@ -116,7 +115,7 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
       .toXor
 
   def deleteById[A](id: M#Id, onSuccess: ⇒ DbResult[A], onFailure: M#Id ⇒ Failure)
-    (implicit ec: ExecutionContext): DbResult[A] = {
+    (implicit ec: EC): DbResult[A] = {
     val deleteResult = findById(id).delete.flatMap {
       case 0 ⇒ DbResult.failure(onFailure(id))
       case _ ⇒ onSuccess
@@ -124,7 +123,7 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
     wrapDbResult(deleteResult)
   }
 
-  def refresh(model: M)(implicit ec: ExecutionContext): DBIO[M] =
+  def refresh(model: M)(implicit ec: EC): DBIO[M] =
     findOneById(model.id).safeGet
 
   type QuerySeq = Query[T, M, Seq]
@@ -132,7 +131,7 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
 
   implicit class TableQueryWrappers(q: QuerySeq) {
 
-    def deleteAll[A](onSuccess: ⇒ DbResult[A], onFailure: ⇒ DbResult[A])(implicit ec: ExecutionContext): DbResult[A] = {
+    def deleteAll[A](onSuccess: ⇒ DbResult[A], onFailure: ⇒ DbResult[A])(implicit ec: EC): DbResult[A] = {
       q.delete.flatMap {
         case 0 ⇒ onFailure
         case _ ⇒ onSuccess
@@ -142,7 +141,7 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
 }
 
 object ExceptionWrapper {
-  def wrapDbio[A](dbio: DBIO[A])(implicit ec: ExecutionContext): DbResult[A] = {
+  def wrapDbio[A](dbio: DBIO[A])(implicit ec: EC): DbResult[A] = {
     import scala.util.{Failure, Success}
 
     import services.DatabaseFailure
@@ -153,7 +152,7 @@ object ExceptionWrapper {
     }
   }
 
-  def wrapDbResult[A](dbresult: DbResult[A])(implicit ec: ExecutionContext): DbResult[A] = {
+  def wrapDbResult[A](dbresult: DbResult[A])(implicit ec: EC): DbResult[A] = {
     import scala.util.{Failure, Success}
 
     dbresult.asTry.flatMap {

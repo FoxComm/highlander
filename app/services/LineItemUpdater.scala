@@ -1,7 +1,5 @@
 package services
 
-import scala.concurrent.ExecutionContext
-
 import models.inventory.{Skus, Sku}
 import models.order.lineitems._
 import OrderLineItems.scope._
@@ -20,12 +18,13 @@ import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
+import utils.aliases._
 
 import models.activity.{Activity, ActivityContext}
 
 object LineItemUpdater {
   def addGiftCard(admin: StoreAdmin, refNum: String, payload: AddGiftCardLineItem)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
     p      ← * <~ payload.validate
     order  ← * <~ Orders.mustFindByRefNum(refNum)
     _      ← * <~ order.mustBeCart
@@ -41,7 +40,7 @@ object LineItemUpdater {
   } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def editGiftCard(admin: StoreAdmin, refNum: String, code: String, payload: AddGiftCardLineItem)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
     _        ← * <~ payload.validate
     giftCard ← * <~ GiftCards.mustFindByCode(code)
     _        ← * <~ giftCard.mustBeCart
@@ -56,7 +55,7 @@ object LineItemUpdater {
   } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def deleteGiftCard(admin: StoreAdmin, refNum: String, code: String)
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
     gc    ← * <~ GiftCards.mustFindByCode(code)
     _     ← * <~ gc.mustBeCart
     order ← * <~ Orders.mustFindByRefNum(refNum)
@@ -73,7 +72,7 @@ object LineItemUpdater {
   } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def updateQuantitiesOnOrder(admin: StoreAdmin, refNum: String, payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = {
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = {
 
     val finder = Orders.mustFindByRefNum(refNum)
     val logActivity = (order: FullOrder.Root, oldQtys: Map[String, Int]) ⇒
@@ -83,7 +82,7 @@ object LineItemUpdater {
   }
 
   def updateQuantitiesOnCustomersOrder(customer: Customer, payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = {
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = {
 
     val finder = Orders.findActiveOrderByCustomer(customer)
       .one
@@ -98,7 +97,7 @@ object LineItemUpdater {
   private def runUpdates(finder: DbResult[Order],
     logAct: (FullOrder.Root, Map[String, Int]) ⇒ DbResult[Activity],
     payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: ExecutionContext, db: Database, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
 
     order ← * <~ finder
     _     ← * <~ order.mustBeCart
@@ -117,9 +116,7 @@ object LineItemUpdater {
     _     ← * <~ logAct(res, lineItems)
   } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
-  private def qtyAvailableForSkus(skus: Seq[String])
-    (implicit ec: ExecutionContext, db: Database): DBIO[Map[Sku, Int]] = {
-
+  private def qtyAvailableForSkus(skus: Seq[String])(implicit ec: EC, db: DB): DBIO[Map[Sku, Int]] = {
     // TODO: inventory... 'nuff said. (aka FIXME)
     // Skus.qtyAvailableForSkus(updateQuantities.keys.toSeq).flatMap { availableQuantities ⇒
     (for {
@@ -135,7 +132,7 @@ object LineItemUpdater {
   }
 
   private def updateQuantities(order: Order, payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: ExecutionContext, db: Database): DbResult[Seq[OrderLineItem]] = {
+    (implicit ec: EC, db: DB): DbResult[Seq[OrderLineItem]] = {
 
     val updateQuantities = foldQuantityPayload(payload)
 

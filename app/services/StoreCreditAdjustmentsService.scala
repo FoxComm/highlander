@@ -11,13 +11,11 @@ import utils.CustomDirectives.SortAndPage
 import utils.Slick.implicits._
 import utils.DbResultT.implicits._
 import utils.DbResultT._
-
-import scala.concurrent.ExecutionContext
+import utils.aliases._
 
 object StoreCreditAdjustmentsService {
 
-  def forStoreCredit(id: Int)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = (for {
+  def forStoreCredit(id: Int)(implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = (for {
     storeCredit ← * <~ StoreCredits.mustFindById404(id)
     query = StoreCreditAdjustments.filterByStoreCreditId(storeCredit.id)
       .joinLeft(OrderPayments).on(_.orderPaymentId === _.id)
@@ -33,8 +31,7 @@ object StoreCreditAdjustmentsService {
     }).toTheResponse
   } yield response).run()
 
-  def forCustomer(customerId: Int)
-    (implicit db: Database, ec: ExecutionContext, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = (for {
+  def forCustomer(customerId: Int)(implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] = (for {
     _ ← * <~ Customers.mustFindById404(customerId)
 
     query = StoreCreditAdjustments
