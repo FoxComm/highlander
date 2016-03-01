@@ -11,6 +11,7 @@ export const changeFormData = _createAction('CHANGE_FORM', (name, value) => ({na
 export const addCustomers = _createAction('ADD_CUSTOMERS');
 export const removeCustomer = _createAction('REMOVE_CUSTOMER');
 export const changeQuantity = _createAction('CHANGE_QUANTITY');
+export const resetForm = _createAction('RESET_FORM');
 const setSuggestedCustomers = _createAction('SET_SUGGESTED_CUSTOMERS');
 const setError = _createAction('ERROR');
 const setTypes = _createAction('SET_TYPES');
@@ -105,7 +106,13 @@ const reducer = createReducer({
     console.error(err);
 
     return state;
-  }
+  },
+  [resetForm]: (state) => {
+    return {
+      ...initialState,
+      types: state.types,
+    };
+  },
 }, initialState);
 
 export default reducer;

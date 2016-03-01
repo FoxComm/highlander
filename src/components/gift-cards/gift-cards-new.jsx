@@ -51,6 +51,7 @@ export default class NewGiftCard extends React.Component {
     balanceText: PropTypes.string,
     changeFormData: PropTypes.func.isRequired,
     createGiftCard: PropTypes.func.isRequired,
+    resetForm: PropTypes.func.isRequired,
     customers: PropTypes.array,
     emailCSV: PropTypes.bool,
     removeCustomer: PropTypes.func,
@@ -79,6 +80,7 @@ export default class NewGiftCard extends React.Component {
   }
 
   componentDidMount() {
+    this.props.resetForm();
     this.props.fetchTypes();
   }
 
