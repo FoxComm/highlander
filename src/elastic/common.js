@@ -54,11 +54,16 @@ export function toQuery(filters, options = {}) {
     }));
   }
 
+
   const qwery = {
     bool: {
-      [atLeastOne ? 'should' : 'filter']: _.isEmpty(es.filters) ? void 0 : convertFilters(es.filters),
-      'must': _.isEmpty(es.queries) ? void 0 : es.queries,
-    },
+      should: atLeastOne ? [
+        ...es.queries,
+        ...(_.isEmpty(es.filters) ? void 0 : convertFilters(es.filters)) || []
+      ] : void 0,
+      filter: atLeastOne ? void 0 :  _.isEmpty(es.filters) ? void 0 : convertFilters(es.filters)
+      must: atLeastOne ? void 0 : _.isEmpty(es.queries) ? void 0 : es.queries,
+    }
   };
 
   const sortParam = sortBy ? { sort: convertSorting(sortBy) } : null;
