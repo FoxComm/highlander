@@ -29,12 +29,8 @@ import Aliases.Json
  * A Product is composed of two parts. The Product Form and the Product Shadow.
  * Below describes the product form.
  */
-final case class Product(
-  id: Int = 0, 
-  attributes: Json, 
-  variants: Json, 
-  isActive: Boolean = true, 
-  createdAt: Instant = Instant.now)
+final case class Product(id: Int = 0, attributes: Json, variants: Json, 
+  isActive: Boolean = true, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[Product]
   with Validation[Product]
 

@@ -23,13 +23,8 @@ import scala.concurrent.ExecutionContext
 
 import models.product.Aliases.Json
 
-final case class Sku(
-  id: Int = 0, 
-  code: String, 
-  productId: Int,
-  attributes: Json, 
-  isHazardous: Boolean = false,
-  isActive: Boolean = true)
+final case class Sku(id: Int = 0, code: String, productId: Int, attributes: Json, 
+  isHazardous: Boolean = false, isActive: Boolean = true)
   extends ModelWithIdParameter[Sku]
 
 object Sku {

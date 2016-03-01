@@ -23,18 +23,12 @@ import Aliases.Json
  * An IlluminatedProduct is what you get when you combine the product shadow and
  * the product. 
  */
-final case class IlluminatedProduct(
-  productId: Int = 0, 
-  shadowId: Int = 0, 
-  context: Json,
-  attributes: Json, 
-  isActive: Boolean = true)
+final case class IlluminatedProduct(productId: Int = 0, shadowId: Int = 0, 
+  context: Json, attributes: Json, isActive: Boolean = true)
 
 object IlluminatedProduct { 
 
-  def illuminate(
-    productContext: ProductContext, 
-    product: Product, 
+  def illuminate(productContext: ProductContext, product: Product, 
     shadow: ProductShadow) : IlluminatedProduct = { 
 
     val context = productContext.context

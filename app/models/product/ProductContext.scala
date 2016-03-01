@@ -27,10 +27,7 @@ import Aliases.Json
  * The context will be matched against a user context so that the storefront displays
  * the appropriate product information.
  */
-final case class ProductContext(
-  id: Int = 0, 
-  name: String,
-  context: Json, 
+final case class ProductContext(id: Int = 0, name: String, context: Json, 
   createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[ProductContext]
   with Validation[ProductContext]

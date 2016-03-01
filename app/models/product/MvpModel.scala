@@ -35,12 +35,8 @@ object SimpleProductDefaults {
   val imageUrl = "http://lorempixel.com/75/75/fashion/"
 }
 
-final case class SimpleProduct(
-  title: String,
-  description: String,
-  image: String,
-  code: String,
-  isActive: Boolean) {
+final case class SimpleProduct(title: String, description: String, image: String,
+  code: String, isActive: Boolean) {
 
     def create : Product = 
       Product(
@@ -66,9 +62,7 @@ final case class SimpleProduct(
         isActive = isActive)
 }
 
-final case class SimpleProductShadow(
-  productContextId: Int,
-  productId: Int) { 
+final case class SimpleProductShadow(productContextId: Int, productId: Int) { 
 
     def create : ProductShadow = 
       ProductShadow(
@@ -82,14 +76,8 @@ final case class SimpleProductShadow(
         }"""))
 }
 
-final case class SimpleSku(
-  productId: Int,
-  code: String,
-  title: String,
-  price: Int,
-  currency: Currency,
-  isActive: Boolean,
-  isHazardous: Boolean) {
+final case class SimpleSku(productId: Int, code: String, title: String, price: Int,
+  currency: Currency, isActive: Boolean, isHazardous: Boolean) {
 
     def create : Sku = 
       Sku(
@@ -113,9 +101,7 @@ final case class SimpleSku(
       isActive = isActive)
 }
 
-final case class SimpleSkuShadow(
-  productContextId: Int,
-  skuId: Int) { 
+final case class SimpleSkuShadow(productContextId: Int, skuId: Int) { 
 
     def create : SkuShadow = 
       SkuShadow(
@@ -127,25 +113,13 @@ final case class SimpleSkuShadow(
           "price" : "${SimpleContext.variant}"
         }""")) }
 
-final case class SimpleProductData(
-  productId : Int = 0,
-  productShadowId: Int = 0,
-  skuId: Int = 0,
-  skuShadowId: Int = 0,
-  title: String,
-  description: String,
-  image: String = SimpleProductDefaults.imageUrl,
-  code: String,
-  price: Int,
-  currency: Currency = Currency.USD,
-  isActive: Boolean = true,
-  isHazardous: Boolean = false)
+final case class SimpleProductData(productId : Int = 0, productShadowId: Int = 0,
+  skuId: Int = 0, skuShadowId: Int = 0, title: String, description: String,
+  image: String = SimpleProductDefaults.imageUrl, code: String, price: Int,
+  currency: Currency = Currency.USD, isActive: Boolean = true, isHazardous: Boolean = false)
 
-final case class SimpleProductTuple(
-  product: Product,
-  productShadow: ProductShadow,
-  sku: Sku,
-  skuShadow: SkuShadow)
+final case class SimpleProductTuple(product: Product, productShadow: ProductShadow,
+  sku: Sku, skuShadow: SkuShadow)
 
 object Mvp { 
 
