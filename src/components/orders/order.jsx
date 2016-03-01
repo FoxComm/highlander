@@ -134,6 +134,12 @@ export default class Order extends React.Component {
   get orderStateDropdown() {
     const order = this.order;
 
+    if (order.orderState === 'canceled' ||
+        order.orderState === 'fulfillmentStarted' ||
+        order.orderState === 'shipped') {
+      return <State value={order.shippingState} model={"order"} />;
+    }
+
     const visibleAndSortedOrderStates = [
       'remorseHold',
       'manualHold',
