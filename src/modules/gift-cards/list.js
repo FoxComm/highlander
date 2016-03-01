@@ -16,20 +16,28 @@ export function createGiftCard() {
   return (dispatch, getState) => {
     const addingData = get(getState(), ['giftCards', 'adding']);
 
+    const quantity = addingData.sendToCustomer ? addingData.customers.length : addingData.quantity;
+
     const postData = {
       balance: addingData.balance,
       subTypeId: addingData.subTypeId,
-      quantity: addingData.sendToCustomer ? addingData.customers.length : addingData.quantity,
       reasonId: 1, // @TODO: there only reason for now
       currency: 'USD'
     };
+    if (quantity > 1) {
+      postData.quantity = quantity;
+    }
 
     return Api.post('/gift-cards', postData)
       .then(
-        () => {
+        response => {
           dispatch(actions.fetch());
+          return response;
         },
-        err => console.error(err)
+        err => {
+          console.error(err);
+          return err;
+        }
       );
   };
 }

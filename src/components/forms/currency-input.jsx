@@ -108,7 +108,6 @@ export default class CurrencyInput extends React.Component {
     return (
       <PrependInput inputName="currencyInput"
                     icon="usd"
-                    ref="input"
                     onChange={this.onChange}
                     onFocus={this.onInputFocus}
                     onBlur={this.onInputBlur}

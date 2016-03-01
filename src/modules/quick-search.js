@@ -22,11 +22,12 @@ export default function makeQuickSearch(namespace, searchUrl, searchFilters, phr
   const initialState = {
     ...emptyState,
     filters,
-    phrase
+    phrase,
   };
 
-  function fetcher(phrase, queryFilters = filters) {
-    const esQuery = toQuery(queryFilters, {phrase});
+  function fetcher(phrase, queryFilters = filters, options = {}) {
+    options.phrase = phrase;
+    const esQuery = toQuery(queryFilters, options);
     return post(addPaginationParams(url, this.searchState), esQuery);
   }
 

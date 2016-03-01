@@ -1,5 +1,6 @@
-
 import fetch from './fetch';
+import _ from 'lodash';
+
 
 const isServer = typeof self === 'undefined';
 

@@ -198,7 +198,7 @@ export default class GiftCard extends React.Component {
     return (
       <ConfirmationDialog
           isVisible={shouldDisplay}
-          header="Cancel Store Credit?"
+          header="Cancel Gift Card?"
           body={body}
           cancel="Cancel"
           confirm="Yes, Cancel"
