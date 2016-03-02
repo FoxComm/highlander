@@ -34,7 +34,7 @@ object AvroTransformers {
   final case class Sku()(implicit ec: ExecutionContext) extends AvroTransformer {
     def mapping() = esMapping("skus").fields(
         field("id", IntegerType),
-        field("sku", StringType).analyzer("autocomplete"),
+        field("sku", StringType) index "not_analyzed",
         field("name", StringType).analyzer("autocomplete"),
         field("is_hazardous", BooleanType),
         field("price", IntegerType)
@@ -148,7 +148,7 @@ object AvroTransformers {
         // Purchased items
         field("purchasedItemCount", IntegerType),
         field("purchasedItems").nested (
-          field("sku", StringType) analyzer "autocomplete",
+          field("sku", StringType) index "not_analyzed",
           field("name", StringType) analyzer "autocomplete",
           field("price", IntegerType)
         ),
@@ -163,7 +163,7 @@ object AvroTransformers {
         // Saved for later
         field("savedForLaterCount", IntegerType),
         field("savedForLater").nested (
-          field("sku", StringType) analyzer "autocomplete",
+          field("sku", StringType) index "not_analyzed",
           field("name", StringType) analyzer "autocomplete",
           field("price", IntegerType)
         )
@@ -203,7 +203,7 @@ object AvroTransformers {
         field("lineItems").nested (
           field("referenceNumber", StringType) index "not_analyzed",
           field("state", StringType) index "not_analyzed",
-          field("sku", StringType) analyzer "autocomplete",
+          field("sku", StringType) index "not_analyzed",
           field("name", StringType) analyzer "autocomplete",
           field("price", IntegerType)
         ),
@@ -421,7 +421,7 @@ object AvroTransformers {
         field("id", IntegerType),
         field("product", StringType) analyzer "autocomplete",
         field("productActive", BooleanType),
-        field("sku", StringType) analyzer "autocomplete",
+        field("sku", StringType) index "not_analyzed",
         field("skuActive", BooleanType),
         field("skuType", StringType) analyzer "autocomplete",
         field("warehouse", StringType) analyzer "autocomplete",
