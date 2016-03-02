@@ -76,8 +76,6 @@ class ActivityProcessor(conn : PhoenixConnectionInfo, connectors: Seq[ActivityCo
     val activityJsonFields = List("id", "activityType", "data", "context", "createdAt")
     val phoenix = Phoenix(conn)
 
-    def beforeAction(){}
-
     def process(offset: Long, topic: String, inputJson: String): Future[Unit] = {
 
       val activityJson = AvroJsonHelper.transformJson(inputJson, activityJsonFields)

@@ -50,7 +50,7 @@ class ElasticSearchProcessor(
   val client = ElasticClient.transport(settings, ElasticsearchClientUri(uri))
 
 
-  def beforeAction(): Unit = {
+  def createMappings(): Unit = {
     removeIndex()
     createIndex()
   }

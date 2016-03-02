@@ -20,9 +20,8 @@ import org.apache.kafka.clients.consumer.CommitFailedException
 
 import scala.language.postfixOps
 
-case class StartFromBeginning[A, B](consumer: KafkaConsumer[A, B]) extends ConsumerRebalanceListener {
-
-  def commitSync() { 
+private object Sync {
+  def commit[A, B](consumer: KafkaConsumer[A, B]) : Unit = {
     try {
       consumer.commitSync()
     } catch {
@@ -30,12 +29,15 @@ case class StartFromBeginning[A, B](consumer: KafkaConsumer[A, B]) extends Consu
       case e: KafkaException ⇒ Console.err.println(s"Unexpectedly to commit: $e")
     }
   }
+}
 
-  def onPartitionsRevoked(partitions: Collection[TopicPartition]) {
-    commitSync()
+private case class StartFromBeginning[A, B](consumer: KafkaConsumer[A, B]) extends ConsumerRebalanceListener {
+
+  def onPartitionsRevoked(partitions: Collection[TopicPartition]) : Unit = {
+    Sync.commit(consumer)
   }
 
-  def onPartitionsAssigned(partitions: Collection[TopicPartition]) {
+  def onPartitionsAssigned(partitions: Collection[TopicPartition]) : Unit = {
     partitions.foreach { p ⇒ 
       println(s"Consuming from beggining for topic ${p.topic} using partition ${p.partition}")
       consumer.seekToBeginning(p)
@@ -43,6 +45,25 @@ case class StartFromBeginning[A, B](consumer: KafkaConsumer[A, B]) extends Consu
   }
 }
 
+private case class StartFromLastCommit[A, B](consumer: KafkaConsumer[A, B]) extends ConsumerRebalanceListener {
+
+  def onPartitionsRevoked(partitions: Collection[TopicPartition]) : Unit = {
+    Sync.commit(consumer)
+  }
+
+  def onPartitionsAssigned(partitions: Collection[TopicPartition]) : Unit = {
+    partitions.foreach { p ⇒ 
+      val offsetMetadata = consumer.committed(p)
+      if(offsetMetadata == null) {
+        println(s"No offset commited. Consuming from beggining for topic ${p.topic} using partition ${p.partition}")
+        consumer.seekToBeginning(p)
+      } else  {
+        println(s"Consuming from offset ${offsetMetadata.offset} for topic ${p.topic} using partition ${p.partition}")
+        consumer.seek(p, offsetMetadata.offset)
+      }
+    }
+  }
+}
 
 /**
  * Consumer using Kafka's new 0.9.0.0 consumer API
@@ -64,11 +85,10 @@ class MultiTopicConsumer(
   props.put("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer")
   props.put("enable.auto.commit", "false") //don't commit offset automatically
 
-
   val consumer = new RawConsumer(props)
   subscribe(topics, startFromBeginning)
 
-  def readForever(): Unit = {
+  def readForever() : Unit = {
     while (true) {
       val records = consumer.poll(timeout)
 
@@ -82,29 +102,19 @@ class MultiTopicConsumer(
         }
 
         Await.result(f, 120 seconds)
-        commitSync()
-
+        Sync.commit(consumer)
         Console.err.println(s"Offset ${r.offset} for ${r.topic} synced ")
       }
     }
   }
 
-  def commitSync() { 
-    try {
-      consumer.commitSync()
-    } catch {
-      case e: CommitFailedException ⇒ Console.err.println(s"Failed to commit: $e")
-      case e: KafkaException ⇒ Console.err.println(s"Unexpectedly to commit: $e")
-    }
-  }
-
-  def subscribe(topics: Seq[String], startFromBeginning: Boolean) {
+  def subscribe(topics: Seq[String], startFromBeginning: Boolean) : Unit = {
     println(s"Subscribing to topics: ${topics}")
     if(startFromBeginning) {
       println(s"Consuming from beggining...")
       consumer.subscribe(topics.toList, StartFromBeginning(consumer))
     } else {
-      consumer.subscribe(topics.toList)
+      consumer.subscribe(topics.toList, StartFromLastCommit(consumer))
     }
   }
 }

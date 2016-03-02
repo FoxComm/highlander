@@ -77,7 +77,8 @@ final case class MainConfig(
     phoenixUri             : String,
     phoenixUser            : String,
     maxConnections         : Int,
-    startFromBeginning : Boolean)
+    startFromBeginning     : Boolean,
+    doSetup                : Boolean)
 
 object MainConfig {
   val environmentProperty = "env"
@@ -87,7 +88,7 @@ object MainConfig {
 
     val conf = ConfigFactory.load()
     val env = sys.props.getOrElse(environmentProperty, defaultEnvironment)
-    println(s"Initializing consumers in $env environment...")
+    println(s"Initializing Using $env Environment...")
 
     MainConfig(
       activityTopic         = conf.getString(s"$env.activity.kafka.topic"),
@@ -102,8 +103,9 @@ object MainConfig {
       phoenixPass           = conf.getString(s"$env.activity.phoenix.pass"),
       phoenixUri            = conf.getString(s"$env.activity.phoenix.url"),
       phoenixUser           = conf.getString(s"$env.activity.phoenix.user"),
-      maxConnections       =  conf.getInt(s"$env.max.connections"),
-      startFromBeginning    = conf.getBoolean(s"$env.consume.restart"))
+      maxConnections        = conf.getInt(s"$env.max.connections"),
+      startFromBeginning    = conf.getBoolean(s"$env.consume.restart"),
+      doSetup               = conf.getBoolean(s"$env.elastic.setup"))
   }
 }
 
@@ -111,11 +113,46 @@ object Main {
 
   implicit val system = ActorSystem("system")
   implicit val materializer = ActorMaterializer()
-
+  
   def main(args: Array[String]): Unit = {
-    // Load configuration parameters & environment
 
     val conf = MainConfig.loadFromConfig
+
+    if(conf.doSetup) setup(conf) else process(conf)
+    System.exit(0);
+  }
+
+  private def topicsPlusActivity(conf: MainConfig) = conf.kafkaTopics :+ conf.connectionTopic
+
+  private def transformers(conf: MainConfig, phoenix: PhoenixConnectionInfo)
+  (implicit ec: ExecutionContext, cp: ConnectionPoolSettings) = 
+    Map(
+    "skus"                              → AvroTransformers.Sku(),
+    "customers_search_view"             → AvroTransformers.CustomersSearchView(),
+    "orders_search_view"                → AvroTransformers.OrdersSearchView(),
+    "store_admins_search_view"          → AvroTransformers.StoreAdminsSearchView(),
+    "gift_cards_search_view"            → AvroTransformers.GiftCardsSearchView(),
+    "gift_card_transactions_view"       → AvroTransformers.GiftCardTransactionsView(),
+    "store_credits_search_view"         → AvroTransformers.StoreCreditsSearchView(),
+    "store_credit_transactions_view"    → AvroTransformers.StoreCreditTransactionsView(),
+    "failed_authorizations_search_view" → AvroTransformers.FailedAuthorizationsSearchView(),
+    "notes_search_view"                 → AvroTransformers.NotesSearchView(),
+    "inventory_search_view"             → AvroTransformers.InventorySearchView(),
+    conf.connectionTopic                → ActivityConnectionTransformer(phoenix))
+
+  private def phoenixConnection(conf: MainConfig) = 
+    PhoenixConnectionInfo( uri = conf.phoenixUri, user = conf.phoenixUser,
+      pass = conf.phoenixPass)
+
+  private def setup(conf: MainConfig) : Unit = { 
+
+    val threadPool = java.util.concurrent.Executors.newCachedThreadPool()
+    implicit val ec = ExecutionContext.fromExecutor(threadPool)
+
+    require(conf.doSetup == true)
+    Console.err.println(s"Running Setup...")
+
+    val phoenix = phoenixConnection(conf)
 
     implicit val connectionPoolSettings =
       ConnectionPoolSettings.create(system).copy(
@@ -123,81 +160,83 @@ object Main {
         maxOpenRequests = conf.maxConnections,
         maxRetries      = 1)
 
+    val esProcessor = new ElasticSearchProcessor(
+      uri = conf.elasticSearchUrl,
+      cluster = conf.elasticSearchCluster,
+      indexName = conf.elasticSearchIndex,
+      topics = topicsPlusActivity(conf),
+      jsonTransformers = transformers(conf, phoenix))
+
+    //Create ES mappings
+    esProcessor.createMappings()
+
+    Console.err.println(s"Done Running Setup...")
+  }
+
+  private def process(conf: MainConfig) : Unit = {
+    require(conf.doSetup == false)
+
     val threadPool = java.util.concurrent.Executors.newCachedThreadPool()
     implicit val ec = ExecutionContext.fromExecutor(threadPool)
+
+    Console.err.println(s"Running Green River...")
+
+    implicit val connectionPoolSettings =
+      ConnectionPoolSettings.create(system).copy(
+        maxConnections  = conf.maxConnections,
+        maxOpenRequests = conf.maxConnections,
+        maxRetries      = 1)
 
     Console.err.println(s"ES: ${conf.elasticSearchUrl}")
     Console.err.println(s"Kafka: ${conf.kafkaBroker}")
     Console.err.println(s"Schema Registry: ${conf.avroSchemaRegistryUrl}")
     Console.err.println(s"Phoenix: ${conf.phoenixUri}")
 
-    val phoenix = PhoenixConnectionInfo(
-      uri = conf.phoenixUri,
-      user = conf.phoenixUser,
-      pass = conf.phoenixPass)
+    val phoenix = phoenixConnection(conf)
 
     val activityWork = Future {
-      val activityConnectors = Seq(AdminConnector(), CustomerConnector(), OrderConnector(), GiftCardConnector(),
-        SharedSearchConnector(), StoreCreditConnector())
+        val activityConnectors = Seq(AdminConnector(), CustomerConnector(), 
+          OrderConnector(), GiftCardConnector(), SharedSearchConnector(), StoreCreditConnector())
 
-      val activityProcessor = new ActivityProcessor(phoenix, activityConnectors)
+        val activityProcessor = new ActivityProcessor(phoenix, activityConnectors)
 
-      val avroProcessor = new AvroProcessor(
-        schemaRegistryUrl = conf.avroSchemaRegistryUrl,
-        processor = activityProcessor)
+        val avroProcessor = new AvroProcessor(
+          schemaRegistryUrl = conf.avroSchemaRegistryUrl,
+          processor = activityProcessor)
 
-      val consumer = new MultiTopicConsumer(
-        topics = Seq(conf.activityTopic),
-        broker = conf.kafkaBroker,
-        groupId = s"${conf.kafkaGroupId}_activity",
-        processor = avroProcessor,
-        startFromBeginning = conf.startFromBeginning)
+        val consumer = new MultiTopicConsumer(
+          topics = Seq(conf.activityTopic),
+          broker = conf.kafkaBroker,
+          groupId = s"${conf.kafkaGroupId}_activity",
+          processor = avroProcessor,
+          startFromBeginning = conf.startFromBeginning)
 
-      // Start consuming & processing
-      println(s"Reading activities from broker ${conf.kafkaBroker}")
+        // Start consuming & processing
+        println(s"Reading activities from broker ${conf.kafkaBroker}")
 
-      consumer.readForever()
+        consumer.readForever()
     }
 
     val trailWork = Future {
-      val transformers = Map(
-        "skus"                              → AvroTransformers.Sku(),
-        "customers_search_view"             → AvroTransformers.CustomersSearchView(),
-        "orders_search_view"                → AvroTransformers.OrdersSearchView(),
-        "store_admins_search_view"          → AvroTransformers.StoreAdminsSearchView(),
-        "gift_cards_search_view"            → AvroTransformers.GiftCardsSearchView(),
-        "gift_card_transactions_view"       → AvroTransformers.GiftCardTransactionsView(),
-        "store_credits_search_view"         → AvroTransformers.StoreCreditsSearchView(),
-        "store_credit_transactions_view"    → AvroTransformers.StoreCreditTransactionsView(),
-        "failed_authorizations_search_view" → AvroTransformers.FailedAuthorizationsSearchView(),
-        "notes_search_view"                 → AvroTransformers.NotesSearchView(),
-        "inventory_search_view"             → AvroTransformers.InventorySearchView(),
-        conf.connectionTopic                → ActivityConnectionTransformer(phoenix))
-
-      val topicsPlusActivity = conf.kafkaTopics :+ conf.connectionTopic
 
       // Init processors & consumer
       val esProcessor = new ElasticSearchProcessor(
         uri = conf.elasticSearchUrl,
         cluster = conf.elasticSearchCluster,
         indexName = conf.elasticSearchIndex,
-        topics = topicsPlusActivity,
-        jsonTransformers = transformers)
+        topics = topicsPlusActivity(conf),
+        jsonTransformers = transformers(conf, phoenix))
 
       val avroProcessor = new AvroProcessor(
         schemaRegistryUrl = conf.avroSchemaRegistryUrl,
         processor = esProcessor)
 
       val consumer = new MultiTopicConsumer(
-        topics = topicsPlusActivity,
+        topics = topicsPlusActivity(conf),
         broker = conf.kafkaBroker,
         groupId = s"${conf.kafkaGroupId}_trail",
         processor = avroProcessor,
         startFromBeginning = conf.startFromBeginning)
-
-      // Execture beforeAction
-      println("Executing pre-consuming actions...")
-      esProcessor.beforeAction()
 
       // Start consuming & processing
       println(s"Reading from broker ${conf.kafkaBroker}")
@@ -221,5 +260,7 @@ object Main {
     //This is a hedonist bot.
     Await.ready(activityWork, Duration.Inf)
     Await.ready(trailWork, Duration.Inf)
+
   }
+
 }
