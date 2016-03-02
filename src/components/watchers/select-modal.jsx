@@ -56,10 +56,10 @@ function renderTitle(group, {entityType}) {
   const entity = numberize(entityType, 1);
   switch (group) {
     case 'watchers':
-      return `Watch ${entity}?`;
+      return `Watch ${entity}`;
     case 'assignees':
     default:
-      return `Assign ${entity}?`;
+      return `Assign ${entity}`;
   }
 }
 
