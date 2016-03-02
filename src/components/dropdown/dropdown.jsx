@@ -40,17 +40,25 @@ class Dropdown extends React.Component {
 
   componentDidUpdate() {
     const {open} = this.state;
-    const dropdown = ReactDOM.findDOMNode(this.refs.items);
-    const {left, bottom} = dropdown.getBoundingClientRect();
 
-    const dropup = document.elementFromPoint(left, bottom) !== dropdown;
-
-    if (open && dropup && !this.state.dropup) {
+    if (open && !this.isDownVisible && !this.state.dropup) {
       this.setState({dropup: true});
     }
     if (!open && this.state.dropup) {
       this.setState({dropup: false});
     }
+  }
+
+  get isDownVisible() {
+    const dropdown = ReactDOM.findDOMNode(this.refs.items);
+    const {left, right, bottom} = dropdown.getBoundingClientRect();
+
+    const leftBottomElement = document.elementFromPoint(left + 1, bottom - 1);
+    const rightBottomElement = document.elementFromPoint(right - 1, bottom - 1);
+
+    const items = [dropdown, dropdown.lastChild];
+
+    return items.includes(leftBottomElement) && items.includes(rightBottomElement);
   }
 
   @autobind
@@ -93,11 +101,12 @@ class Dropdown extends React.Component {
   }
 
   get dropdownButton() {
+    const className = this.state.open ? 'icon-chevron-up' : 'icon-chevron-down';
     return (
       <div className="fc-dropdown__button"
            disabled={this.props.disabled}
            onClick={this.handleToggleClick}>
-        <i className="icon-chevron-down"></i>
+        <i className={className}></i>
       </div>
     );
   }
