@@ -14,6 +14,7 @@ import * as DetailsActions from '../../modules/products/details';
 
 // components
 import ContentBox from '../content-box/content-box';
+import InlineField from '../inline-field/inline-field';
 
 // types
 import type { DetailsParams } from './types';
@@ -47,19 +48,16 @@ export class ProductDetails extends Component<void, DetailsProps, void> {
     ];
 
     const generalAttrs: Array<Element> = _(attributes).omit(notGeneralKeys).map((attr, key) => {
-      return (
-        <div className="fc-product-details__attribute">
-          <div className="fc-product-details__label">
-            {key}
-          </div>
-          <div className="fc-product-details__value">
-            {attr}
-          </div>
-        </div>
-      );
+      return <InlineField label={key} value={attr} />;
     }).value();
 
-    return <ContentBox title="General" viewContent={generalAttrs} />;
+    return (
+      <ContentBox title="General" indentContent={false}>
+        <div className="fc-product-details__attributes">
+          {generalAttrs}
+        </div>
+      </ContentBox>
+    );
   }
 
   render() {
