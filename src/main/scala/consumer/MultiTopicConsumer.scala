@@ -30,6 +30,26 @@ case class StartFromBeginning[A, B](consumer: KafkaConsumer[A, B]) extends Consu
   }
 }
 
+case class StartFromLastCommit[A, B](consumer: KafkaConsumer[A, B]) extends ConsumerRebalanceListener {
+
+  def onPartitionsRevoked(partitions: Collection[TopicPartition]) {
+    consumer.commitSync()
+  }
+
+  def onPartitionsAssigned(partitions: Collection[TopicPartition]) {
+    partitions.foreach { p ⇒ 
+      val offsetMetadata = consumer.committed(p)
+      if(offsetMetadata == null) {
+        println(s"No offset commited. Consuming from beggining for topic ${p.topic} using partition ${p.partition}")
+        consumer.seekToBeginning(p)
+      } else  {
+        println(s"Consuming from offset ${offsetMetadata.offset} for topic ${p.topic} using partition ${p.partition}")
+        consumer.seek(p, offsetMetadata.offset)
+      }
+    }
+  }
+}
+
 
 /**
  * Consumer using Kafka's new 0.9.0.0 consumer API
@@ -50,7 +70,6 @@ class MultiTopicConsumer(
   props.put("key.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer")
   props.put("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer")
   props.put("enable.auto.commit", "false") //don't commit offset automatically
-
 
   val consumer = new RawConsumer(props)
   subscribe(topics, startFromBeginning)
@@ -82,7 +101,7 @@ class MultiTopicConsumer(
       println(s"Consuming from beggining...")
       consumer.subscribe(topics.toList, StartFromBeginning(consumer))
     } else {
-      consumer.subscribe(topics.toList)
+      consumer.subscribe(topics.toList, StartFromLastCommit(consumer))
     }
   }
 }

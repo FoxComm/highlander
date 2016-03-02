@@ -7,7 +7,6 @@ import scala.concurrent.Future
  * A processor that expects json.
  */
 trait JsonProcessor {
-  def beforeAction()
   def process(offset: Long, topic: String, json: String) : Future[Unit]
 }
 
