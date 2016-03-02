@@ -22,8 +22,17 @@ import scala.language.postfixOps
 
 case class StartFromBeginning[A, B](consumer: KafkaConsumer[A, B]) extends ConsumerRebalanceListener {
 
+  def commitSync() { 
+    try {
+      consumer.commitSync()
+    } catch {
+      case e: CommitFailedException ⇒ Console.err.println(s"Failed to commit: $e")
+      case e: KafkaException ⇒ Console.err.println(s"Unexpectedly to commit: $e")
+    }
+  }
+
   def onPartitionsRevoked(partitions: Collection[TopicPartition]) {
-    consumer.commitSync()
+    commitSync()
   }
 
   def onPartitionsAssigned(partitions: Collection[TopicPartition]) {
