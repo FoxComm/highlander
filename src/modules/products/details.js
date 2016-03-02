@@ -4,10 +4,17 @@
 import Api from '../../lib/api';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
+import _ from 'lodash';
 
 export type Context = {
   name: string,
   attributes: { [key:string]: string },
+};
+
+export type Error = {
+  status: number,
+  statusText: string,
+  messages: Array<string>,
 };
 
 export type Product = {
@@ -18,7 +25,7 @@ export type Product = {
 };
 
 export type ProductDetailsState = {
-  err: ?Object,
+  err: ?Error,
   isFetching: boolean,
   product: ?Product,
 };
@@ -74,9 +81,15 @@ const reducer = createReducer({
     };
   },
   [setError]: (state: ProductDetailsState, err: Object) => {
+    const error: Error = {
+      status: _.get(err, 'response.status'),
+      statusText: _.get(err, 'response.statusText', ''),
+      messages: _.get(err, 'responseJson.error', []),
+    };
+
     return {
       ...state,
-      err: err,
+      err: error,
     };
   },
 }, initialState);

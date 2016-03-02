@@ -48,20 +48,33 @@ export class ProductPage extends Component<void, Props, void> {
   }
 
   render(): Element {
-    const { isFetching, product } = this.props.products;
+    const { isFetching, product, err } = this.props.products;
     const productTitle: string = _.get(product, 'attributes.title', '');
 
-    if (isFetching) {
-      return <WaitAnimation />;
+    const showWaiting = isFetching || (!product && !err);
+    const showError = !showWaiting && !product && err
+
+    let content = null;
+
+    if (showWaiting) {
+      content = <WaitAnimation />;
+    } else if (showError) {
+      content = <div>{_.get(err, 'status')}</div>;
+    } else {
+      content = (
+        <div>
+          <PageTitle title={productTitle} />
+          <div>
+            <SubNav productId={this.productId} product={this.product} />
+            {this.props.children}
+          </div>
+        </div>
+      );
     }
 
     return (
       <div className="fc-product">
-        <PageTitle title={productTitle} />
-        <div>
-          <SubNav productId={this.productId} product={this.product} />
-          {this.props.children}
-        </div>
+        {content}
       </div>
     );
   }
