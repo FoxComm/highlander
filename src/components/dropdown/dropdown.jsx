@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
@@ -11,6 +12,7 @@ class Dropdown extends React.Component {
     super(...args);
     this.state = {
       open: !!this.props.open,
+      dropup: false,
       selectedValue: '',
     };
   }
@@ -34,6 +36,29 @@ class Dropdown extends React.Component {
     this.setState({
       open: !this.state.open
     });
+  }
+
+  componentDidUpdate() {
+    const {open} = this.state;
+
+    if (open && !this.isDownVisible && !this.state.dropup) {
+      this.setState({dropup: true});
+    }
+    if (!open && this.state.dropup) {
+      this.setState({dropup: false});
+    }
+  }
+
+  get isDownVisible() {
+    const dropdown = ReactDOM.findDOMNode(this.refs.items);
+    const {left, right, bottom} = dropdown.getBoundingClientRect();
+
+    const leftBottomElement = document.elementFromPoint(left + 1, bottom - 1);
+    const rightBottomElement = document.elementFromPoint(right - 1, bottom - 1);
+
+    const items = [dropdown, dropdown.lastChild];
+
+    return items.includes(leftBottomElement) && items.includes(rightBottomElement);
   }
 
   @autobind
@@ -76,11 +101,12 @@ class Dropdown extends React.Component {
   }
 
   get dropdownButton() {
+    const className = this.state.open ? 'icon-chevron-up' : 'icon-chevron-down';
     return (
       <div className="fc-dropdown__button"
            disabled={this.props.disabled}
            onClick={this.handleToggleClick}>
-        <i className="icon-chevron-down"></i>
+        <i className={className}></i>
       </div>
     );
   }
@@ -98,11 +124,16 @@ class Dropdown extends React.Component {
 
   render() {
     const {primary, editable, items, children} = this.props;
+    const {open, dropup} = this.state;
     const className = classNames(this.props.className, {
       'fc-dropdown': true,
       '_primary': primary,
       '_editable': editable,
-      '_open': this.state.open
+      '_open': open
+    });
+    const itemsClassName = classNames('fc-dropdown__items', {
+      '_dropup': dropup,
+      '_dropdown': !dropup,
     });
 
     return (
@@ -111,7 +142,7 @@ class Dropdown extends React.Component {
           {this.dropdownButton}
           {this.input}
         </div>
-        <ul className="fc-dropdown__items">
+        <ul ref="items" className={itemsClassName}>
           {items && _.map(items, ([value, title]) => (
             <DropdownItem value={value} key={value} onSelect={this.handleItemClick}>
               {title}
