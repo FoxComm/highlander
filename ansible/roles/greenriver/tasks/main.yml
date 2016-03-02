@@ -4,9 +4,17 @@
   copy: src={{greenriver_jar_src}} dest={{greenriver_jar}} mode="u+x,g+x,o+x"
   sudo: true
 
+- name: Copy Mapping Command
+  template: src=create_es_mappings.sh dest=/usr/local/bin/create_es_mappings.sh mode="u+x,g+x,o+x"
+  sudo: true
+
 - name: Copy Service
   template: src=greenriver.service dest="{{dest_services}}/greenriver.service"
   sudo: true
+
+- name: Create ES Mappings
+  sudo: yes
+  command: /usr/local/bin/create_es_mappings.sh
 
 - name: Reload Systemd for Greenriver
   sudo: yes

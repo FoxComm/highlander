@@ -7,7 +7,7 @@ greenriver_version: 1.0
 greenriver_env: localhost
 greenriver_jar_src: ../../green-river/target/{{scala_version}}/green-river-assembly-{{greenriver_version}}.jar
 greenriver_jar: /usr/local/bin/green-river.jar
-greenriver_restart: "true"
+greenriver_restart: "false"
 
 phoenix_version: 1.0
 phoenix_env: staging
