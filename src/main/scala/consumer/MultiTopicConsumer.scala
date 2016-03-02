@@ -13,13 +13,26 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener
 import org.apache.kafka.common.TopicPartition
+import org.apache.kafka.common.KafkaException
+import org.apache.kafka.clients.consumer.CommitFailedException 
+
+
 
 import scala.language.postfixOps
 
 case class StartFromBeginning[A, B](consumer: KafkaConsumer[A, B]) extends ConsumerRebalanceListener {
 
+  def commitSync() { 
+    try {
+      consumer.commitSync()
+    } catch {
+      case e: CommitFailedException ⇒ Console.err.println(s"Failed to commit: $e")
+      case e: KafkaException ⇒ Console.err.println(s"Unexpectedly to commit: $e")
+    }
+  }
+
   def onPartitionsRevoked(partitions: Collection[TopicPartition]) {
-    consumer.commitSync()
+    commitSync()
   }
 
   def onPartitionsAssigned(partitions: Collection[TopicPartition]) {
@@ -88,10 +101,19 @@ class MultiTopicConsumer(
         }
 
         Await.result(f, 120 seconds)
-        consumer.commitSync()
+        commitSync()
 
         Console.err.println(s"Offset ${r.offset} for ${r.topic} synced ")
       }
+    }
+  }
+
+  def commitSync() { 
+    try {
+      consumer.commitSync()
+    } catch {
+      case e: CommitFailedException ⇒ Console.err.println(s"Failed to commit: $e")
+      case e: KafkaException ⇒ Console.err.println(s"Unexpectedly to commit: $e")
     }
   }
 
