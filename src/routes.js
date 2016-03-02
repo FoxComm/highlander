@@ -124,7 +124,7 @@ const routes = (
         <Route name='inventory-activity-trail' path='activity-trail' dimension="inventory"
                component={ActivityTrailPage}/>
       </Route>
-      <Route name='inventory-item-base' path=':sku' component={InventoryItem}>
+      <Route name='inventory-item-base' path=':code' component={InventoryItem}>
         <IndexRoute name='inventory-item-details' component={InventoryItemDetails}/>
         <Route name='inventory-item-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
         <Route name='inventory-item-notes' path='notes' component={Notes} />
