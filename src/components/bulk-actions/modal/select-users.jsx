@@ -28,7 +28,7 @@ const SelectUsersModal = ({module, action, entity, count, label, maxUsers, onCan
   const entityForm = numberize(entity, count);
 
   return (
-    <ContentBox title={`${actionForm} ${_.capitalize(entityForm)}?`}
+    <ContentBox title={`${actionForm} ${_.capitalize(entityForm)}`}
                 className="fc-bulk-action-modal"
                 actionBlock={actionBlock}>
       <div className='fc-modal-body'>

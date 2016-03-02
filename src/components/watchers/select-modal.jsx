@@ -53,7 +53,7 @@ function SelectWatcherModal(props) {
 }
 
 function renderTitle(group, {entityType}) {
-  const entity = numberize(entityType, 1);
+  const entity = _.capitalize(numberize(entityType, 1));
   switch (group) {
     case 'watchers':
       return `Watch ${entity}`;
