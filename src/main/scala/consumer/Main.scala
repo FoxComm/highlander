@@ -122,9 +122,9 @@ object Main {
     System.exit(0);
   }
 
-  def topicsPlusActivity(conf: MainConfig) = conf.kafkaTopics :+ conf.connectionTopic
+  private def topicsPlusActivity(conf: MainConfig) = conf.kafkaTopics :+ conf.connectionTopic
 
-  def transformers(conf: MainConfig, phoenix: PhoenixConnectionInfo)
+  private def transformers(conf: MainConfig, phoenix: PhoenixConnectionInfo)
   (implicit ec: ExecutionContext, cp: ConnectionPoolSettings) = 
     Map(
     "skus"                              → AvroTransformers.Sku(),
@@ -140,11 +140,11 @@ object Main {
     "inventory_search_view"             → AvroTransformers.InventorySearchView(),
     conf.connectionTopic                → ActivityConnectionTransformer(phoenix))
 
-  def phoenixConnection(conf: MainConfig) = 
+  private def phoenixConnection(conf: MainConfig) = 
     PhoenixConnectionInfo( uri = conf.phoenixUri, user = conf.phoenixUser,
       pass = conf.phoenixPass)
 
-  def setup(conf: MainConfig) { 
+  private def setup(conf: MainConfig) : Unit = { 
 
     val threadPool = java.util.concurrent.Executors.newCachedThreadPool()
     implicit val ec = ExecutionContext.fromExecutor(threadPool)
@@ -173,7 +173,7 @@ object Main {
     Console.err.println(s"Done Running Setup...")
   }
 
-  def process(conf: MainConfig) {
+  private def process(conf: MainConfig) : Unit = {
     require(conf.doSetup == false)
 
     val threadPool = java.util.concurrent.Executors.newCachedThreadPool()

@@ -20,8 +20,8 @@ import org.apache.kafka.clients.consumer.CommitFailedException
 
 import scala.language.postfixOps
 
-object Sync {
-  def commit[A, B](consumer: KafkaConsumer[A, B]) {
+private object Sync {
+  def commit[A, B](consumer: KafkaConsumer[A, B]) : Unit = {
     try {
       consumer.commitSync()
     } catch {
@@ -31,13 +31,13 @@ object Sync {
   }
 }
 
-case class StartFromBeginning[A, B](consumer: KafkaConsumer[A, B]) extends ConsumerRebalanceListener {
+private case class StartFromBeginning[A, B](consumer: KafkaConsumer[A, B]) extends ConsumerRebalanceListener {
 
-  def onPartitionsRevoked(partitions: Collection[TopicPartition]) {
+  def onPartitionsRevoked(partitions: Collection[TopicPartition]) : Unit = {
     Sync.commit(consumer)
   }
 
-  def onPartitionsAssigned(partitions: Collection[TopicPartition]) {
+  def onPartitionsAssigned(partitions: Collection[TopicPartition]) : Unit = {
     partitions.foreach { p ⇒ 
       println(s"Consuming from beggining for topic ${p.topic} using partition ${p.partition}")
       consumer.seekToBeginning(p)
@@ -45,13 +45,13 @@ case class StartFromBeginning[A, B](consumer: KafkaConsumer[A, B]) extends Consu
   }
 }
 
-case class StartFromLastCommit[A, B](consumer: KafkaConsumer[A, B]) extends ConsumerRebalanceListener {
+private case class StartFromLastCommit[A, B](consumer: KafkaConsumer[A, B]) extends ConsumerRebalanceListener {
 
-  def onPartitionsRevoked(partitions: Collection[TopicPartition]) {
+  def onPartitionsRevoked(partitions: Collection[TopicPartition]) : Unit = {
     Sync.commit(consumer)
   }
 
-  def onPartitionsAssigned(partitions: Collection[TopicPartition]) {
+  def onPartitionsAssigned(partitions: Collection[TopicPartition]) : Unit = {
     partitions.foreach { p ⇒ 
       val offsetMetadata = consumer.committed(p)
       if(offsetMetadata == null) {
@@ -64,7 +64,6 @@ case class StartFromLastCommit[A, B](consumer: KafkaConsumer[A, B]) extends Cons
     }
   }
 }
-
 
 /**
  * Consumer using Kafka's new 0.9.0.0 consumer API
@@ -89,7 +88,7 @@ class MultiTopicConsumer(
   val consumer = new RawConsumer(props)
   subscribe(topics, startFromBeginning)
 
-  def readForever(): Unit = {
+  def readForever() : Unit = {
     while (true) {
       val records = consumer.poll(timeout)
 
@@ -109,7 +108,7 @@ class MultiTopicConsumer(
     }
   }
 
-  def subscribe(topics: Seq[String], startFromBeginning: Boolean) {
+  def subscribe(topics: Seq[String], startFromBeginning: Boolean) : Unit = {
     println(s"Subscribing to topics: ${topics}")
     if(startFromBeginning) {
       println(s"Consuming from beggining...")
