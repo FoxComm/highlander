@@ -10,7 +10,7 @@ import { PageTitle } from '../section-title';
 
 const InventoryItem = props => {
 
-  const content = React.cloneElement(props.children, {entity: haveType(props.params, 'inventoryItem') });
+  const content = React.cloneElement(props.children, {entity: haveType(props.params, 'inventory-item') });
 
   return (
     <div className="fc-inventory-item">
@@ -23,7 +23,7 @@ const InventoryItem = props => {
         <LocalNav gutter={true}>
           <a href="">General</a>
           <IndexLink to="inventory-item-details" params={props.params}>Inventory</IndexLink>
-          <a href="">Notes</a>
+          <Link to="inventory-item-notes" params={props.params}>Notes</Link>
           <Link to="inventory-item-activity-trail" params={props.params}>Activity Trail</Link>
         </LocalNav>
       </div>
