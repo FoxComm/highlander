@@ -1,6 +1,5 @@
 phoenix_server: "{{hostvars[groups['usertest1-backend'][0]]['ansible_eth0']['ipv4']['address'] }}:9090"
-search_server:  "{{hostvars[groups['usertest1-backend'][0]]['ansible_eth0']['ipv4']['address'] }}:9300"
-search_server_http:  "{{hostvars[groups['usertest1-backend'][0]]['ansible_eth0']['ipv4']['address'] }}:9200"
+search_host:  "{{hostvars[groups['usertest1-backend'][0]]['ansible_eth0']['ipv4']['address'] }}"
 ashes_server: 127.0.0.1:4000
 demo_user: test
 demo_pass: Qq5FnurT
