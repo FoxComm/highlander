@@ -100,8 +100,8 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
 
       allOrders must contain allOf(
         ("foo", FulfillmentStarted),
-        ("bar", RemorseHold),
-        ("baz", ManualHold))
+        ("bar", RemorseHold)
+        )
 
       all.errors.value must contain allOf(
         LockedFailure(Order, "bar").description,
@@ -124,7 +124,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
 
     "bulk update states with paging and sorting" in new StateUpdateFixture {
       val responseJson = PATCH(
-        "v1/orders?size=2&from=2&sortBy=referenceNumber",
+        "v1/orders?size=2&from=1&sortBy=referenceNumber",
         BulkUpdateOrdersPayload(Seq("foo", "bar", "nonExistent"), FulfillmentStarted)
       )
 
@@ -134,7 +134,8 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
 
       allOrders must contain theSameElementsInOrderAs Seq(
-        ("foo", FulfillmentStarted))
+        ("foo", FulfillmentStarted)
+      )
 
       all.errors.value must contain allOf(
         LockedFailure(Order, "bar").description,
