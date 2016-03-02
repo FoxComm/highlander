@@ -60,9 +60,9 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
     }
 
     "streams error and closes stream if admin not found" in {
-      val message = s"Error! Store admin with id=666 not found"
+      val message = s"Error! Store admin with id=66666 not found"
 
-      sseProbe("v1/public/notifications/666")
+      sseProbe("v1/public/notifications/66666")
         .request(2)
         .expectNext(message)
         .expectComplete()
