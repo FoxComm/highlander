@@ -1,9 +1,9 @@
 /**
  * @flow
  */
-import type { ProductResponse } from '../../modules/products/sample-products';
+import type { Product } from '../../modules/products/details';
 
 export type DetailsParams = {
   productId: number,
-  product: ?ProductResponse,
+  product: ?Product,
 };

@@ -8,9 +8,6 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 
-// helpers
-import { getProductTitle } from '../../paragons/product';
-
 // actions
 import * as ProductActions from '../../modules/products/details';
 
@@ -20,11 +17,10 @@ import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
 
 // types
-import type { ProductDetailsState } from '../../modules/products/details';
-import type { ProductResponse } from '../../modules/products/sample-products';
+import type { Product, ProductDetailsState } from '../../modules/products/details';
 
 type Actions = {
-  fetchProduct: (id: number) => void,
+  fetchProduct: (id: number, context: ?string) => void,
 };
 
 type Params = {
@@ -38,7 +34,7 @@ type Props = {
   products: ProductDetailsState,
 };
 
-export class Product extends Component<void, Props, void> {
+export class ProductPage extends Component<void, Props, void> {
   componentDidMount() {
     this.props.actions.fetchProduct(this.productId);
   }
@@ -47,13 +43,13 @@ export class Product extends Component<void, Props, void> {
     return parseInt(this.props.params.productId);
   }
 
-  get product(): ?ProductResponse {
+  get product(): ?Product {
     return this.props.products.product;
   }
 
   render(): Element {
     const { isFetching, product } = this.props.products;
-    const productTitle = product ? getProductTitle(1, product) : '';
+    const productTitle: string = _.get(product, 'attributes.title', '');
 
     if (isFetching) {
       return <WaitAnimation />;
@@ -68,7 +64,7 @@ export class Product extends Component<void, Props, void> {
         </div>
       </div>
     );
-  } 
+  }
 }
 
 function mapStateToProps(state) {
@@ -80,4 +76,4 @@ function mapDispatchToProps(dispatch) {
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(Product);
+export default connect(mapStateToProps, mapDispatchToProps)(ProductPage);

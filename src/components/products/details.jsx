@@ -9,9 +9,6 @@ import { connect } from 'react-redux';
 import { dispatch } from 'redux';
 import _ from 'lodash';
 
-// helpers
-import { getProductAttributes } from '../../paragons/product';
-
 // actions
 import * as DetailsActions from '../../modules/products/details';
 
@@ -20,80 +17,49 @@ import ContentBox from '../content-box/content-box';
 
 // types
 import type { DetailsParams } from './types';
-import type { ProductAttribute, ProductAttributes } from '../../paragons/product';
-import type { ProductDetailsState } from '../../modules/products/details';
+import type { Product, ProductDetailsState } from '../../modules/products/details';
 
 type DetailsProps = {
   details: ProductDetailsState,
   params: DetailsParams,
 };
 
-type ProductState = {
-  illuminatedProduct: ProductAttributes,
-  generalAttributes: ProductAttributes,
-  pricingAttributes: ProductAttributes,
-  seoAttributes: ProductAttributes,
-};
+type ProductAttributes = { [key:string]: any };
 
 const miscAttributeKeys = ['images'];
 const pricingAttributeKeys = ['price', 'retailPrice', 'salePrice'];
 const seoAttributeKeys = ['url', 'metaTitle', 'metaDescription'];
 
-function getReactStateFromProps(props: DetailsProps): ProductState {
-  const illuminatedProduct = props.details.product
-    ? getProductAttributes(1, props.details.product)
-    : {};
-
-  const generalAttributes = _.omit(illuminatedProduct, [
-    ...miscAttributeKeys,
-    ...pricingAttributeKeys,
-    ...seoAttributeKeys
-  ]);
-  const pricingAttributes = _.pick(illuminatedProduct, pricingAttributeKeys);
-  const seoAttributes = _.pick(illuminatedProduct, seoAttributeKeys);
-
-  return {
-    illuminatedProduct,
-    generalAttributes,
-    pricingAttributes,
-    seoAttributes,
-  };
-}
-
-export class ProductDetails extends Component<void, DetailsProps, ProductState> {
+export class ProductDetails extends Component<void, DetailsProps, void> {
   static propTypes = {
     details: PropTypes.shape({
       product: PropTypes.object,
     }),
   };
 
-  state: ProductState;
-
-  constructor(props: DetailsProps) {
-    super(props);
-    this.state = getReactStateFromProps(props);
-  }
-
-  componentWillReceiveProps(nextProps: DetailsProps) {
-    this.setState(getReactStateFromProps(nextProps));
-  }
-
-  renderAttribute(attribute: ProductAttribute): Element {
-    return (
-      <div className="fc-product-details__attribute">
-        <div className="fc-product-details__label">
-          {attribute.label}
-        </div>
-        <div className="fc-product-details__value">
-          {attribute.value}
-        </div>
-      </div>
-    );
-  }
-
   get generalContentBox(): Element {
-    const attrs = _.map(this.state.generalAttributes, a => this.renderAttribute(a));
-    return <ContentBox title="General" viewContent={attrs} />;
+    const attributes: ProductAttributes = _.get(this.props, 'details.product.attributes', {});
+
+    const notGeneralKeys = [
+      ...miscAttributeKeys,
+      ...pricingAttributeKeys,
+      ...seoAttributeKeys
+    ];
+
+    const generalAttrs: Array<Element> = _(attributes).omit(notGeneralKeys).map((attr, key) => {
+      return (
+        <div className="fc-product-details__attribute">
+          <div className="fc-product-details__label">
+            {key}
+          </div>
+          <div className="fc-product-details__value">
+            {attr}
+          </div>
+        </div>
+      );
+    }).value();
+
+    return <ContentBox title="General" viewContent={generalAttrs} />;
   }
 
   render() {
