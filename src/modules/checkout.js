@@ -1,5 +1,5 @@
 
-import {createAction, createReducer} from 'redux-act';
+import {createReducer} from 'redux-act';
 
 const initialState = {
 };
@@ -7,5 +7,3 @@ const initialState = {
 const reducer = createReducer(void 0, initialState);
 
 export default reducer;
-
-

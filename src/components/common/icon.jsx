@@ -1,7 +1,7 @@
 /* @flow */
 
 import classNames from 'classnames';
-import React, { PropTypes } from 'react';
+import React from 'react';
 import type { HTMLElement } from '../../types';
 
 function wrapSpinner(svg: HTMLElement, className: string) {

@@ -15,6 +15,16 @@ function affectsServer(task) {
 module.exports = function(gulp) {
   let node = null;
 
+  function killServer(cb) {
+    if (node) {
+      node.once('close', cb);
+      node.kill();
+      node = null;
+    } else {
+      cb();
+    }
+  }
+
   let affectTasksRunning = 0;
 
   function checkForPause(e) {
@@ -34,16 +44,6 @@ module.exports = function(gulp) {
           runSequence('server.invalidate');
         });
       }
-    }
-  }
-
-  function killServer(cb) {
-    if (node) {
-      node.once('close', cb);
-      node.kill();
-      node = null;
-    } else {
-      cb();
     }
   }
 
