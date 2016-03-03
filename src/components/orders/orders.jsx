@@ -100,13 +100,13 @@ export default class Orders extends React.Component {
       let label = null;
 
       if (isDirectAction && group === 'assignees') {
-        label = <span>Assign <strong>{count}</strong> {numberize('orders', count)} to</span>;
+        label = 'Assign';
       } else if (!isDirectAction && group === 'assignees') {
-        label = <span>Unassign <strong>{count}</strong> {numberize('orders', count)} from</span>;
+        label = 'Unassign';
       } else if (isDirectAction && group === 'watchers') {
-        label = <span>Watchers for <strong>{count}</strong> {numberize('orders', count)}</span>;
+        label = 'Watchers for';
       } else if (!isDirectAction && group === 'watchers') {
-        label = <span>Remove watchers for <strong>{count}</strong> {numberize('orders', count)}</span>;
+        label = 'Remove watchers for';
       }
 
       const bulkAction = isDirectAction ? bulkActions.watchOrders : bulkActions.unwatchOrders;
@@ -115,7 +115,7 @@ export default class Orders extends React.Component {
         <SelectUsersModal
           action={action}
           count={count}
-          label={label}
+          labelPrefix={label}
           maxUsers={1}
           onConfirm={() => bulkAction(group, toggledIds, this.props.selectedWatchers)} />
       );

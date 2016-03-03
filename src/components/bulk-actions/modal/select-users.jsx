@@ -22,10 +22,21 @@ const mapStateToProps = (state, {storePath, module}) => {
   };
 };
 
-const SelectUsersModal = ({module, action, entity, count, label, maxUsers, onCancel, onConfirm, selected}) => {
+const SelectUsersModal = (params) => {
+  const { module,
+          action,
+          entity,
+          count,
+          labelPrefix,
+          maxUsers,
+          onCancel,
+          onConfirm,
+          selected } = params;
+
   const actionBlock = <i onClick={onCancel} className="fc-btn-close icon-close" title="Close" />;
   const actionForm = _.capitalize(action);
   const entityForm = numberize(entity, count);
+  const label = <span>{labelPrefix} <strong>{count}</strong> {entityForm}</span>;
 
   return (
     <ContentBox title={`${actionForm} ${_.capitalize(entityForm)}`}
@@ -59,7 +70,7 @@ SelectUsersModal.propTypes = {
   action: PropTypes.string.isRequired,
   entity: PropTypes.string.isRequired,
   count: PropTypes.number.isRequired,
-  label: PropTypes.oneOfType([
+  labelPrefix: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.node,
   ]).isRequired,
