@@ -127,7 +127,7 @@ object Main {
   private def transformers(conf: MainConfig, phoenix: PhoenixConnectionInfo)
   (implicit ec: ExecutionContext, cp: ConnectionPoolSettings) = 
     Map(
-    "skus"                              → AvroTransformers.Sku(),
+    "sku_search_view"                   → AvroTransformers.SkuSearchView(),
     "customers_search_view"             → AvroTransformers.CustomersSearchView(),
     "orders_search_view"                → AvroTransformers.OrdersSearchView(),
     "store_admins_search_view"          → AvroTransformers.StoreAdminsSearchView(),
