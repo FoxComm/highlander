@@ -2,9 +2,9 @@ package models.activity
 
 import java.time.Instant
 
+import models.Aliases
 import monocle.macros.GenLens
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
-import org.json4s.JsonAST.JValue
 import utils.ExPostgresDriver.api._
 import utils.time.JavaTimeSlickMapper._
 

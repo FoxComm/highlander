@@ -1,27 +1,12 @@
 package models.inventory
 
+import models.Aliases.Json
 import models.product.Products
-
+import monocle.macros.GenLens
 import utils.ExPostgresDriver.api._
-import utils.JsonFormatters
 import utils.Slick.implicits._
 import utils.table.SearchByCode
-import utils.time.JavaTimeSlickMapper._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
-
-import monocle.macros.GenLens
-import org.json4s.DefaultFormats
-import org.json4s.Extraction
-import org.json4s.JsonAST.JValue
-import org.json4s.JsonDSL._
-import org.json4s.jackson.Serialization.{write ⇒ render}
-
-import slick.ast.BaseTypedType
-import slick.jdbc.JdbcType
-
-import scala.concurrent.ExecutionContext
-
-import models.product.Aliases.Json
 
 final case class Sku(id: Int = 0, code: String, productId: Int, attributes: Json, 
   isHazardous: Boolean = false, isActive: Boolean = true)
