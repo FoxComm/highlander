@@ -31,11 +31,12 @@ object AvroTransformers {
       field("currency", StringType).analyzer("autocomplete")
     )
 
-  final case class Sku()(implicit ec: ExecutionContext) extends AvroTransformer {
-    def mapping() = esMapping("skus").fields(
+  final case class SkuSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
+    def mapping() = esMapping("sku_search_view").fields(
         field("id", IntegerType),
-        field("sku", StringType) index "not_analyzed",
-        field("name", StringType).analyzer("autocomplete"),
+        field("context", StringType) index "not_analyzed",
+        field("code", StringType) index "not_analyzed",
+        field("title", StringType).analyzer("autocomplete"),
         field("is_hazardous", BooleanType),
         field("price", IntegerType)
       )
