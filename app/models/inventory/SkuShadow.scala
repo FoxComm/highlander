@@ -44,4 +44,6 @@ object SkuShadows extends TableQueryWithId[SkuShadow, SkuShadows](
     filter(_.skuId === skuId)
   def filterByAttributes(key: String, value: String): QuerySeq = 
     filter(_.attributes+>>(key) === value)
+  def filterBySkuAndContext(skuId: Int, productContextId: Int): QuerySeq = 
+    filter(_.skuId === skuId).filter(_.productContextId === productContextId)
 }

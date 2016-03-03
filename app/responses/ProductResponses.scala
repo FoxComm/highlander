@@ -1,5 +1,7 @@
 package responses
 
+import SkuResponses._
+import models.inventory._
 import models.product._
 import models.Aliases.Json
 
@@ -53,5 +55,29 @@ object ProductResponses {
     def build(p: IlluminatedProduct): Root = 
       Root(id = p.productId, attributes = p.attributes, variants = p.variants,
         context = ProductContextResponse.build(p.context))
+  }
+
+  object FullProductFormResponse { 
+
+    final case class Root(
+      product: ProductFormResponse.Root,
+      skus: Seq[SkuFormResponse.Root])
+
+    def build(product: Product, skus: Seq[Sku]) : Root = 
+      Root(
+        product = ProductFormResponse.build(product),
+        skus = skus.map { s ⇒ SkuFormResponse.build(s) })
+  }
+
+  object FullProductShadowResponse { 
+
+    final case class Root(
+      product: ProductShadowResponse.Root,
+      skus: Seq[SkuShadowLiteResponse.Root])
+
+    def build(context: ProductContext, product: ProductShadow, skus: Seq[(Sku, SkuShadow)]) : Root = 
+      Root(
+        product = ProductShadowResponse.build(product, context),
+        skus = skus.map { case (s, ss) ⇒  SkuShadowLiteResponse.build(s, ss) })
   }
 }

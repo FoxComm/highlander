@@ -1,5 +1,6 @@
 package models.product
 
+import utils.IlluminateAlgorithm
 import models.Aliases.Json
 import org.json4s.JsonDSL._
 import org.json4s.JsonAST.{JString, JObject, JField, JNothing}
@@ -17,34 +18,12 @@ object IlluminatedProduct {
 
   def illuminate(productContext: ProductContext, product: Product, 
     shadow: ProductShadow) : IlluminatedProduct = { 
-
-    val attributes = projectAttributes(product.attributes, shadow.attributes)
     IlluminatedProduct(
       productId = product.id, 
       shadowId = shadow.id,
-      context = IlluminatedContext(name = productContext.name, attributes = productContext.attributes),
-      attributes = attributes,
+      context = IlluminatedContext(productContext.name, productContext.attributes),
+      attributes = IlluminateAlgorithm.projectAttributes(product.attributes, shadow.attributes),
       variants = findVariants(product.variants, productContext.name))
-  }
-
-  def findAttribute(attr: String, key: String, product: JObject) : JField = {
-    product \ attr \ key match {
-      case v ⇒  (attr, v)
-    }
-  }
-
-  def projectAttributes(product: Json, shadow: Json) : Json = {
-    shadow match {
-      case JObject(s) ⇒  product match {
-        case JObject(p) ⇒ 
-          s.obj.map {
-            case (attr, JString(key)) ⇒  findAttribute(attr, key, p)
-            case (attr, _) ⇒  (attr, JNothing)
-          }
-        case _ ⇒ JNothing
-      }
-      case _ ⇒  JNothing
-    }
   }
 
   def findVariants(variants: Json, context: String) : JField = {

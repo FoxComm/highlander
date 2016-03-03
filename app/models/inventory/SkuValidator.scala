@@ -1,5 +1,5 @@
 
-package models.product
+package models.inventory
 
 import utils.ExPostgresDriver.api._
 import utils.JsonFormatters
@@ -24,22 +24,13 @@ import scala.concurrent.ExecutionContext
 import models.Aliases.Json
 
 /**
- * An ProductValidator checks to make sure a product shadow is valid
+ * An SkuValidator checks to make sure a sku shadow is valid
  */
-object ProductValidator { 
+object SkuValidator { 
 
-  def validate( productContext: ProductContext, product: Product, 
-    shadow: ProductShadow) : Seq[Failure] = { 
-
-    IlluminateAlgorithm.validateAttributes(product.attributes, shadow.attributes) ++ 
-    validateVariants(product.variants, productContext.name)
+  def validate(sku: Sku, shadow: SkuShadow) : Seq[Failure] = { 
+    IlluminateAlgorithm.validateAttributes(sku.attributes, shadow.attributes) 
   }
 
-  def validateVariants(variants: Json, context: String) : Seq[Failure] = {
-    variants \ context match {
-      case JNothing ⇒  Seq(NoVariantForContext(context))
-      case v ⇒  Seq.empty
-    }
-  }
 }
 

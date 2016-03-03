@@ -3,7 +3,7 @@ package services
 import cats.data.Xor
 import models.customer.{Customers, Customer}
 import models.inventory.{Skus, SkuShadows}
-import models.product.{Products, ProductShadows}
+import models.product.{Products, ProductShadows, ProductContext}
 import models.{SaveForLater, SaveForLaters}
 import responses.{SaveForLaterResponse, TheResponse}
 
@@ -28,17 +28,17 @@ object SaveForLaterManager {
     response ← * <~ findAllDbio(customer, productContextId).toXor
   } yield response).run()
 
-  def saveForLater(customerId: Int, skuCode: String, productContextId: Int)
+  def saveForLater(customerId: Int, skuCode: String, productContext: ProductContext)
     (implicit db: DB, ec: EC): Result[SavedForLater] = (for {
     customer ← * <~ Customers.mustFindById404(customerId)
     sku ← * <~ Skus.mustFindByCode(skuCode)
-    skuShadow ← * <~ SkuShadows.filter(_.skuId === sku.id).filter(_.productContextId === productContextId).one
-                .mustFindOr(SkuNotFoundForContext(sku.id, productContextId))
+    skuShadow ← * <~ SkuShadows.filter(_.skuId === sku.id).filter(_.productContextId === productContext.id).one
+                .mustFindOr(SkuNotFoundForContext(sku.code, productContext.name))
     _   ← * <~ SaveForLaters.find(customerId = customer.id, skuId = sku.id).one
                  .mustNotFindOr(AlreadySavedForLater(customerId = customer.id, skuId = sku.id))
     _   ← * <~ SaveForLaters.create(SaveForLater(customerId = customer.id, 
                 skuId = sku.id, skuShadowId = skuShadow.id))
-    response ← * <~ findAllDbio(customer, productContextId).toXor
+    response ← * <~ findAllDbio(customer, productContext.id).toXor
   } yield response).runTxn()
 
   def deleteSaveForLater(id: Int)(implicit ec: EC, db: DB): Result[Unit] =

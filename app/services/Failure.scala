@@ -287,8 +287,12 @@ final case class AlreadySavedForLater(customerId: Int, skuId: Int) extends Failu
 
 object ProductFailure { 
 
-  final case class SkuNotFoundForContext(skuId: Int, productContextId: Int) extends Failure {
-    override def description = s"Sku with id=$skuId with product context $productContextId cannot be found"
+  final case class SkuNotFound(code: String) extends Failure {
+    override def description = s"Sku with code $code cannot be found"
+  }
+
+  final case class SkuNotFoundForContext(code: String, productContext: String) extends Failure {
+    override def description = s"Sku $code with product context $productContext cannot be found"
   }
 
   final case class ProductNotFoundForContext(productId: Int, productContextId: Int) extends Failure {
@@ -316,6 +320,24 @@ object ProductFailure {
 
   final case class NoVariantForContext(context: String) extends Failure {
     override def description = s"No variant context $context"
+  }
+
+}
+
+object IlluminateFailure { 
+
+  final case class ShadowHasInvalidAttribute(key: String, value: String) extends Failure {
+    override def description = s"Shadow has an invalid attribute $key with value $value"
+  }
+  final case class ShadowAttributeNotAString(key: String) extends Failure {
+    override def description = s"Shadow attribute $key must be a string"
+  }
+
+  final case class AttributesAreEmpty() extends Failure {
+    override def description = s"Form attributes are empty"
+  }
+  final case class ShadowAttributesAreEmpty() extends Failure {
+    override def description = s"Shadow attributes are empty"
   }
 
 }

@@ -252,7 +252,7 @@ object Customer {
               } ~
               (post & path(skuCodeRegex) & pathEnd) { code ⇒
                 goodOrFailures {
-                  SaveForLaterManager.saveForLater(customer.id, code, productContext.id)
+                  SaveForLaterManager.saveForLater(customer.id, code, productContext)
                 }
               } ~
               (delete & path(IntNumber) & pathEnd) { id ⇒
