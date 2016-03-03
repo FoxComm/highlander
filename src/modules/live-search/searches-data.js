@@ -10,7 +10,7 @@ import { addPaginationParams } from '../pagination';
 // module is responsible for data in search tab
 
 export default function makeDataInSearches(namespace, esUrl, options = {}) {
-  const { extraFilters = null, processQuery = _.identity } = options;
+  const { extraFilters = null, processQuery = _.identity, initialState = {} } = options;
 
   const setExtraFilters = createNsAction(namespace, 'SET_EXTRA_FILTERS');
   const ns = namespace.split(/\./);
@@ -30,10 +30,10 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
     return _.get(state, resultPath);
   };
 
-  const {reducer, ...actions} = makePagination(namespace);
+  const { reducer, ...actions } = makePagination(namespace, null, null, initialState);
 
   function fetcher() {
-    const {searchState, getState} = this;
+    const { searchState, getState } = this;
 
     const selectedSearchState = getSelectedSearch(getState());
     const searchTerms = _.get(selectedSearchState, 'query', []);
@@ -48,7 +48,7 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
       addNativeFilters(jsonQuery, extraFilters);
     }
 
-    return post(addPaginationParams(esUrl, searchState), processQuery(jsonQuery, {searchState, getState}));
+    return post(addPaginationParams(esUrl, searchState), processQuery(jsonQuery, { searchState, getState }));
   }
 
   const fetch = makeFetchAction(fetcher, actions, state => getSelectedSearch(state).results);

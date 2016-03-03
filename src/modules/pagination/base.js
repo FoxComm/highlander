@@ -12,11 +12,12 @@ export const DEFAULT_PAGE_SIZES = [
   ['100', 'View 100'],
 ];
 
-const initialState = {
+const INITIAL_STATE = {
   // isFetching = null, - fetching wasn't started yet
   // isFetching = true, - fetching was started
   // isFetching = false, - fetching was finished
   isFetching: null,
+  failed: false,
   rows: [],
   total: 0,
   from: 0,
@@ -49,7 +50,16 @@ export function makeFetchAction(fetcher, actions, findSearchState) {
   };
 }
 
-function makePagination(namespace, fetcher = null, findSearchInState = state => _.get(state, namespace)) {
+function makePagination(namespace, fetcher = null, findSearchInState = null, initialState = {}) {
+
+  initialState = {
+    ...INITIAL_STATE,
+    ...initialState
+  };
+
+  if (!findSearchInState) {
+    findSearchInState = state => _.get(state, namespace);
+  }
 
   const _createAction = (...args) => {
     return createNsAction(namespace, ...args);
@@ -78,12 +88,14 @@ function makePagination(namespace, fetcher = null, findSearchInState = state => 
     [searchStart]: state => {
       return {
         ...state,
+        failed: false,
         isFetching: true
       };
     },
     [searchSuccess]: (state, response) => {
       return {
         ...state,
+        failed: false,
         isFetching: false,
         rows: _.get(response, 'result', response),
         total: _.get(response, ['pagination', 'total'], response.length)
@@ -94,6 +106,7 @@ function makePagination(namespace, fetcher = null, findSearchInState = state => 
 
       return {
         ...state,
+        failed: true,
         isFetching: false
       };
     },

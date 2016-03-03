@@ -1,13 +1,13 @@
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import flatMap from 'lodash.flatmap';
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 
 import TableRow from './row';
 import TableCell from './cell';
 import WaitAnimation from '../common/wait-animation';
 
-export default class TableBody extends React.Component {
+export default class TableBody extends Component {
 
   static propTypes = {
     columns: PropTypes.array.isRequired,
@@ -20,7 +20,10 @@ export default class TableBody extends React.Component {
     processRows: PropTypes.func,
     detectNewRows: PropTypes.bool,
     emptyMessage: PropTypes.string,
+    errorMessage: PropTypes.string,
     isLoading: PropTypes.bool,
+    failed: PropTypes.bool,
+    showLoadingOnMount: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -28,7 +31,10 @@ export default class TableBody extends React.Component {
     processRows: _.identity,
     detectNewRows: false,
     emptyMessage: '',
+    errorMessage: '',
     isLoading: false,
+    failed: false,
+    showLoadingOnMount: true,
   };
 
   constructor(props, context) {
@@ -69,12 +75,12 @@ export default class TableBody extends React.Component {
     }
   }
 
-  get emptyMessage() {
+  message(message) {
     return (
       <tr>
         <td colSpan={this.props.columns.length}>
           <div className="fc-content-box__empty-row">
-            {this.props.emptyMessage}
+            {message}
           </div>
         </td>
       </tr>
@@ -94,10 +100,14 @@ export default class TableBody extends React.Component {
   }
 
   get tableRows() {
-    if (this.props.isLoading) {
+    const showLoading = this.props.showLoadingOnMount && this.props.isLoading === null || this.props.isLoading;
+
+    if (showLoading) {
       return this.loadingAnimation;
+    } else if (this.props.failed && this.props.errorMessage) {
+      return this.message(this.props.errorMessage);
     } else if (_.isEmpty(this.props.rows) && this.props.emptyMessage) {
-      return this.emptyMessage;
+      return this.message(this.props.emptyMessage);
     }
 
     const renderRow = this.props.renderRow || this.defaultRenderRow;

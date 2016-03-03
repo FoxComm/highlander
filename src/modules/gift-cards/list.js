@@ -9,7 +9,10 @@ const { reducer, actions } = makeLiveSearch(
   'giftCards.list',
   searchTerms,
   'gift_cards_search_view/_search',
-  'giftCardsScope'
+  'giftCardsScope',
+  {
+    initialState: { sortBy: '-createdAt' }
+  }
 );
 
 export function createGiftCard() {

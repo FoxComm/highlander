@@ -21,12 +21,12 @@ import * as dsl from './dsl';
  * @param {String} [options.phrase] - Adds Phrase prefix
  * @param {Boolean} [options.atLeastOne=false] - if is set to true only one matched filter is enough to success query
  * @param {String} [options.sortBy] - sorting field, can be `-field` for desc order or `field` for asc order
- * @returns The ElasticSearch query.
+ * @returns {Object} The ElasticSearch query.
  */
 export function toQuery(filters, options = {}) {
-  const { phrase, atLeastOne = false, sortBy } = options;
+  const { phrase, atLeastOne = false, sortBy = '' } = options;
 
-  if (_.isEmpty(filters) && _.isEmpty(phrase)) {
+  if (_.isEmpty(filters) && _.isEmpty(phrase) && _.isEmpty(sortBy)) {
     return {};
   }
 
@@ -72,7 +72,7 @@ export function toQuery(filters, options = {}) {
 
 export function addNativeFilters(req, filters) {
   if (!req.query) {
-    req.query = {bool: {filter: []}};
+    req.query = { bool: { filter: [] } };
   }
   req.query.bool.filter = [
     ...(req.query.bool.filter || []),
@@ -90,7 +90,7 @@ export function addFilters(req, filters) {
 function createFilter(filter) {
   const { term, operator, value: { type, value } } = filter;
 
-  switch(type) {
+  switch (type) {
     case 'bool':
       return dsl.termFilter(term, value);
     case 'bool_inverted':
@@ -122,7 +122,7 @@ function createNestedFilter(filter) {
   const query = createFilter(filter);
 
   return dsl.nestedQuery(path, {
-    bool: {filter: query}
+    bool: { filter: query }
   });
 }
 
@@ -139,14 +139,14 @@ function dateRangeFilter(field, operator, value) {
   const formattedDate = moment(value, 'MM/DD/YYYY').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
   const esDate = `${formattedDate}||/d`;
 
-  switch(operator) {
+  switch (operator) {
     case 'eq':
       return dsl.rangeFilter(field, {
         'gte': esDate,
         'lte': `${esDate}+1d`,
       });
     case 'neq':
-      return {bool: {must_not: dateRangeFilter(field, 'eq', value)}};
+      return { bool: { must_not: dateRangeFilter(field, 'eq', value) } };
     case 'lt':
     case 'gte':
       return rangeToFilter(field, operator, esDate);
@@ -175,6 +175,18 @@ export function rangeToFilter(field, operator, value) {
 
 export function convertSorting(sortBy) {
   const field = sortBy.replace('-', '');
+  const [parent, child] = field.split('.');
 
-  return [dsl.sortByField(field, sortBy.charAt(0) == '-' ? 'desc': 'asc')];
+  let order = {
+    order: sortBy.charAt(0) == '-' ? 'desc' : 'asc'
+  };
+
+  if (child) {
+    order = {
+      ...order,
+      nested_path: parent
+    };
+  }
+
+  return [dsl.sortByField(field, order)];
 }

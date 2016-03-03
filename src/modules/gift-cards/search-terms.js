@@ -41,7 +41,12 @@ const searchTerms = [
       { display: 'Fully Redeemed', value: 'fullyRedeemed' },
       { display: 'Canceled', value: 'canceled' }
     ]
-  }
+  },
+  {
+    title: 'Gift Card : Date/Time Issued',
+    type: 'date',
+    term: 'createdAt'
+  },
 ];
 
 export default searchTerms;

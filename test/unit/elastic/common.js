@@ -182,5 +182,25 @@ describe('elastic.common', () => {
 
       expect(omitUndefinedFields(query)).to.eql(omitUndefinedFields(expectedQuery));
     });
+
+    it('should create a serach with nested sort', () => {
+      const sortBy = '-customer.name';
+
+      const query = toQuery([], { sortBy });
+
+      const expectedQuery = {
+        query: {
+          bool: {}
+        },
+        sort: [{
+          'customer.name': {
+            order: 'desc',
+            nested_path: 'customer'
+          }
+        }]
+      };
+
+      expect(omitUndefinedFields(query)).to.eql(omitUndefinedFields(expectedQuery));
+    });
   });
 });
