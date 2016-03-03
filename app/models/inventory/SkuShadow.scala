@@ -1,28 +1,14 @@
 package models.inventory
 
-import models.product.ProductContexts
+import java.time.Instant
 
+import models.Aliases.Json
+import models.product.ProductContexts
+import monocle.macros.GenLens
 import utils.ExPostgresDriver.api._
 import utils.JsonFormatters
-import utils.Slick.DbResult
-import utils.Slick.implicits._
 import utils.time.JavaTimeSlickMapper._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
-
-import java.time.Instant
-import scala.concurrent.ExecutionContext
-import monocle.macros.GenLens
-
-import org.json4s.DefaultFormats
-import org.json4s.Extraction
-import org.json4s.JsonAST.JValue
-import org.json4s.JsonDSL._
-import org.json4s.jackson.Serialization.{write ⇒ render}
-
-import slick.ast.BaseTypedType
-import slick.jdbc.JdbcType
-
-import models.product.Aliases.Json
 
 /**
  * A SkuShadow is what you get when a context illuminates a Sku.

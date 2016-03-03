@@ -2,6 +2,7 @@ package models.activity
 
 import java.time.Instant
 
+import models.Aliases
 import monocle.macros.GenLens
 
 import org.json4s.Extraction
@@ -22,10 +23,7 @@ import utils.aliases._
 import org.json4s.DefaultFormats
 import org.json4s.jackson.Serialization.{write ⇒ render}
 
-object Aliases {
-  type ActivityType = String
-  type Json = JValue
-}
+
 
 import Aliases.ActivityType
 import Aliases.Json

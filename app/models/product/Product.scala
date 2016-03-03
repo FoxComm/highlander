@@ -1,29 +1,14 @@
-
 package models.product
 
 import utils.ExPostgresDriver.api._
 import utils.JsonFormatters
-import utils.Slick.DbResult
-import utils.Slick.implicits._
 import utils.time.JavaTimeSlickMapper._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
 import java.time.Instant
 import monocle.macros.GenLens
-import org.json4s.DefaultFormats
-import org.json4s.Extraction
 import org.json4s.JsonAST.JValue
-import org.json4s.JsonDSL._
-import org.json4s.jackson.Serialization.{write ⇒ render}
-import scala.concurrent.ExecutionContext
-import slick.ast.BaseTypedType
-import slick.jdbc.JdbcType
-
-object Aliases {
-  type Json = JValue
-}
-
-import Aliases.Json
+import models.Aliases.Json
 
 /**
  * A Product is composed of two parts. The Product Form and the Product Shadow.

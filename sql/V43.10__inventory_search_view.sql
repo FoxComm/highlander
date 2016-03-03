@@ -1,7 +1,7 @@
 create materialized view inventory_search_view as
 select row_number() over (order by (code, sku_type)) as id, code, product, on_hand, on_hold, reserved, safety_stock, afs, sku_type from
   (select distinct on (sku.code)
-    product.attributes->'default'->>'title' as product,
+    product.attributes->'title'->>'default' as product,
     -- TODO: replace with product.is_active
     sku.is_active as product_active,
     sku.code,
@@ -59,4 +59,4 @@ join
 on details.summary_id = summaries.summary_id
 order by (code, sku_type);
 
-create unique index inventory_search_view_idx on inventory_search_view (product, sku_type);
+create unique index inventory_search_view_idx on inventory_search_view (code, sku_type);

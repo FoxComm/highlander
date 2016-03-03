@@ -1,25 +1,13 @@
-
 package models.product
 
+import java.time.Instant
+
+import models.Aliases.Json
+import monocle.macros.GenLens
 import utils.ExPostgresDriver.api._
 import utils.JsonFormatters
-import utils.Slick.DbResult
-import utils.Slick.implicits._
 import utils.time.JavaTimeSlickMapper._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
-
-import java.time.Instant
-import monocle.macros.GenLens
-import org.json4s.DefaultFormats
-import org.json4s.Extraction
-import org.json4s.JsonAST.JValue
-import org.json4s.JsonDSL._
-import org.json4s.jackson.Serialization.{write ⇒ render}
-import scala.concurrent.ExecutionContext
-import slick.ast.BaseTypedType
-import slick.jdbc.JdbcType
-
-import Aliases.Json
 
 /**
  * A ProductShadow is what you get when a context illuminates a Product.

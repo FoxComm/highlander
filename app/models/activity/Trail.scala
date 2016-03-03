@@ -2,7 +2,7 @@ package models.activity
 
 import java.time.Instant
 
-import models.activity.Aliases.Json
+import models.Aliases.Json
 import monocle.macros.GenLens
 import utils.ExPostgresDriver.api._
 import utils.time.JavaTimeSlickMapper._

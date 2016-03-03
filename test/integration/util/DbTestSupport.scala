@@ -4,14 +4,15 @@ import javax.sql.DataSource
 
 import scala.annotation.tailrec
 
-import org.flywaydb.core.Flyway
+import cats.data.Xor
 import utils.flyway.newFlyway
 import org.scalatest.{BeforeAndAfterAll, Outcome, Suite, SuiteMixin}
+import services.Failures
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
 import java.sql.Connection
 import util.SlickSupport.implicits._
 
-import models.product.{SimpleContext, ProductContexts}
+import models.product.{SimpleContext, ProductContext, ProductContexts}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
@@ -36,14 +37,13 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
     setupProductContext()
   }
 
-  private def setupProductContext() {
+  private def setupProductContext(): Failures Xor ProductContext = {
     ProductContexts.create(SimpleContext.create).futureValue
   }
 
-
   def isTableEmpty(table: String)(implicit conn: Connection): Boolean = {
     val stmt = conn.createStatement()
-    val rs = stmt.executeQuery(s"select true from ${table} limit 1")
+    val rs = stmt.executeQuery(s"select true from $table limit 1")
     !rs.isBeforeFirst
   }
 

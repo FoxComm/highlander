@@ -2,7 +2,8 @@ package responses
 
 import java.time.Instant
 
-import models.activity.Aliases._
+import models.Aliases
+import Aliases._
 import models.activity._
 
 object ActivityConnectionResponse {
