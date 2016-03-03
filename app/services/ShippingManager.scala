@@ -7,13 +7,15 @@ import models.order.lineitems.OrderLineItemSkus
 import models.order._
 import models.shipping.{ShippingMethod, ShippingMethods}
 import models.rules.{Condition, QueryStatement}
-import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.JsonFormatters
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.aliases._
+
+import scala.concurrent.ExecutionContext
+import slick.driver.PostgresDriver.api._
 
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats

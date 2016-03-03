@@ -35,8 +35,10 @@ object OrderRoutes {
             }
           } ~
           (post & pathEnd & entity(as[CreateOrder])) { payload ⇒
-            goodOrFailures {
-              OrderCreator.createCart(admin, payload)
+            determineProductContext(db, ec) { productContext ⇒ 
+              goodOrFailures {
+                OrderCreator.createCart(admin, payload, productContext)
+              }
             }
           } ~
           (patch & pathEnd & sortAndPage) { implicit sortAndPage ⇒

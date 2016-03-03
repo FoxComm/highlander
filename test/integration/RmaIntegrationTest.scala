@@ -11,6 +11,7 @@ import models.rma._
 import Rma.{Canceled, Processing}
 import models.shipping.{Shipments, ShippingMethods}
 import models.{Reasons, StoreAdmin, StoreAdmins}
+import models.product.{Mvp, ProductContexts, SimpleContext}
 import org.json4s.jackson.JsonMethods._
 import payloads.{RmaAssigneesPayload, RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCustomerPayload,
 RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload}
@@ -415,7 +416,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         // Create
         val payload = RmaSkuLineItemsPayload(sku = sku.code, quantity = 1, reasonId = rmaReason.id,
           isReturnItem = true, inventoryDisposition = RmaLineItem.Putaway)
-        val updatedRma = RmaLineItemUpdater.addSkuLineItem(rma.referenceNumber, payload).futureValue.rightVal
+        val updatedRma = RmaLineItemUpdater.addSkuLineItem(rma.referenceNumber, payload, productContext).futureValue.rightVal
         val lineItemId = updatedRma.lineItems.skus.headOption.value.lineItemId
 
         // Delete
@@ -574,9 +575,11 @@ class RmaIntegrationTest extends IntegrationTestBase
   }
 
   trait LineItemFixture extends Fixture {
-    val (rmaReason, sku, giftCard, shipment) = (for {
+    val (productContext, rmaReason, sku, giftCard, shipment) = (for {
       rmaReason ← * <~ RmaReasons.create(Factories.rmaReasons.head)
-      sku ← * <~ Skus.create(Factories.skus.head)
+      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+      product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
+      sku ← * <~ Skus.mustFindById404(product.skuId)
       _ ← * <~ Factories.addSkusToOrder(Seq(sku.id), order.id, OrderLineItem.Cart)
 
       gcReason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
@@ -593,6 +596,6 @@ class RmaIntegrationTest extends IntegrationTestBase
       orderShippingMethod ← * <~ OrderShippingMethods.create(
         OrderShippingMethod.build(order = order, method = shippingMethod))
       shipment ← * <~ Shipments.create(Factories.shipment)
-    } yield (rmaReason, sku, giftCard, shipment)).runTxn().futureValue.rightVal
+    } yield (productContext, rmaReason, sku, giftCard, shipment)).runTxn().futureValue.rightVal
   }
 }

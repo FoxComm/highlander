@@ -88,6 +88,8 @@ class RmaLineItems(tag: Tag) extends GenericTable.TableWithId[RmaLineItem](tag, 
 
   def * = (id, referenceNumber, rmaId, reasonId, originId, originType, quantity, isReturnItem,
     inventoryDisposition, createdAt) <> ((RmaLineItem.apply _).tupled, RmaLineItem.unapply)
+
+  def skuLineItems = foreignKey(RmaLineItemSkus.tableName, originId, RmaLineItemSkus)(_.id)
 }
 
 object RmaLineItems extends TableQueryWithId[RmaLineItem, RmaLineItems](

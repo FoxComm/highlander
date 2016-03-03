@@ -1,23 +1,31 @@
 package models.order.lineitems
 
-import models.inventory.{Skus, Sku}
+import models.inventory.{Skus, Sku, SkuShadow, SkuShadows}
 import models.order.Order
+import models.product.{Product, Products, ProductShadow, ProductShadows}
+import utils.Money.Currency
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.aliases._
 
-final case class OrderLineItemSku(id: Int = 0, skuId: Int)
+final case class OrderLineItemSku(id: Int = 0, skuId: Int, skuShadowId: Int)
   extends ModelWithIdParameter[OrderLineItemSku]
+
+final case class OrderLineItemProductData(
+  sku: Sku, 
+  skuShadow: SkuShadow, 
+  lineItem: OrderLineItem)
 
 object OrderLineItemSku {}
 
 class OrderLineItemSkus(tag: Tag) extends GenericTable.TableWithId[OrderLineItemSku](tag, "order_line_item_skus")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def skuId = column[Int]("sku_id")
+  def skuShadowId = column[Int]("sku_shadow_id")
 
-  def * = (id, skuId) <> ((OrderLineItemSku.apply _).tupled, OrderLineItemSku.unapply)
+  def * = (id, skuId, skuShadowId) <> ((OrderLineItemSku.apply _).tupled, OrderLineItemSku.unapply)
   def sku = foreignKey(Skus.tableName, skuId, Skus)(_.id)
 }
 
@@ -37,11 +45,14 @@ object OrderLineItemSkus extends TableQueryWithId[OrderLineItemSku, OrderLineIte
     skuLis  ← lis.skuLineItems
   } yield skuLis
 
-  def findLineItemsByOrder(order: Order): Query[(Skus, OrderLineItems), (Sku, OrderLineItem), Seq] = for {
+  type FindLineItemResult = (Sku, SkuShadow, OrderLineItem)
+
+  def findLineItemsByOrder(order: Order): Query[ (Skus, SkuShadows, OrderLineItems), FindLineItemResult, Seq] = for {
     lis     ← OrderLineItems.filter(_.orderId === order.id)
     skuLis  ← lis.skuLineItems
-    sku     ← Skus if sku.id === skuLis.skuId
-  } yield (sku, lis)
+    skuShadow ← SkuShadows if skuShadow.id === skuLis.skuShadowId
+    sku     ← skuShadow.sku
+  } yield (sku, skuShadow, lis)
 
   object scope {
     implicit class OrderLineItemSkusQuerySeqConversions(q: QuerySeq) {

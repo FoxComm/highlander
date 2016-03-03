@@ -1,6 +1,7 @@
 package services.activity
 
-import models.activity.Aliases.Json
+import models.Aliases
+import Aliases.Json
 import models.activity._
 import payloads.{AppendActivity, CreateTrail}
 import responses.{ActivityConnectionResponse, FullActivityConnectionResponse}

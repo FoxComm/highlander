@@ -23,8 +23,8 @@ trait RmaSeeds {
   def rma = Rma(orderId = 1, orderRefNum = "", rmaType = Rma.Standard, state = Rma.Pending, customerId = 1)
 
   def rmaLineItemSkus = Seq(
-    RmaLineItemSku(id = 0, rmaId = 1, skuId = 1),
-    RmaLineItemSku(id = 0, rmaId = 1, skuId = 2)
+    RmaLineItemSku(id = 0, rmaId = 1, skuId = 1, skuShadowId = 1),
+    RmaLineItemSku(id = 0, rmaId = 1, skuId = 2, skuShadowId = 2)
   )
 
   def rmaLineItems = Seq(

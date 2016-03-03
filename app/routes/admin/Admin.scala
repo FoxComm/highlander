@@ -154,19 +154,21 @@ object Admin {
           }
         } ~
         pathPrefix("save-for-later") {
-          (get & path(IntNumber) & pathEnd) { customerId ⇒
-            goodOrFailures {
-              SaveForLaterManager.findAll(customerId)
-            }
-          } ~
-          (post & path(IntNumber / Segment) & pathEnd) { (customerId, skuCode) ⇒
-            goodOrFailures {
-              SaveForLaterManager.saveForLater(customerId, skuCode)
-            }
-          } ~
-          (delete & path(IntNumber) & pathEnd) { id ⇒
-            nothingOrFailures {
-              SaveForLaterManager.deleteSaveForLater(id)
+          determineProductContext(db, ec) { productContext ⇒ 
+            (get & path(IntNumber) & pathEnd) { customerId ⇒
+              goodOrFailures {
+                SaveForLaterManager.findAll(customerId, productContext.id)
+              }
+            } ~
+            (post & path(IntNumber / Segment) & pathEnd) { (customerId, skuCode) ⇒
+              goodOrFailures {
+                SaveForLaterManager.saveForLater(customerId, skuCode, productContext.id)
+              }
+            } ~
+            (delete & path(IntNumber) & pathEnd) { id ⇒
+              nothingOrFailures {
+                SaveForLaterManager.deleteSaveForLater(id)
+              }
             }
           }
         } ~

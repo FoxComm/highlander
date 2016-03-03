@@ -3,7 +3,8 @@ package responses
 import java.time.Instant
 
 import models.customer.Customers
-import models.inventory.Sku
+import models.inventory.{Sku, SkuShadow}
+import models.product.Mvp
 import models.order.Orders
 import models.payment.PaymentMethod
 import models.payment.giftcard.GiftCard
@@ -14,10 +15,10 @@ import responses.CustomerResponse.{Root ⇒ Customer}
 import responses.StoreAdminResponse.{Root ⇒ StoreAdmin}
 import responses.order.FullOrder
 import services.rmas.RmaTotaler
-import slick.driver.PostgresDriver.api._
 import utils.Money._
 import utils.Slick._
 import utils.Slick.implicits._
+import slick.driver.PostgresDriver.api._
 import utils.aliases._
 
 object RmaResponse {
@@ -90,10 +91,10 @@ object RmaResponse {
       paymentMethodType = pmt.paymentMethodType
     )
 
-  def buildLineItems(skus: Seq[(Sku, RmaLineItem)], giftCards: Seq[(GiftCard, RmaLineItem)],
+  def buildLineItems(skus: Seq[(Sku, SkuShadow, RmaLineItem)], giftCards: Seq[(GiftCard, RmaLineItem)],
     shipments: Seq[(Shipment, RmaLineItem)]): LineItems = {
     LineItems(
-      skus = skus.map { case (sku, li) ⇒ LineItemSku(lineItemId = li.id, sku = DisplaySku(sku = sku.code)) },
+      skus = skus.map { case (sku, skuShadow, li) ⇒ LineItemSku(lineItemId = li.id, sku = DisplaySku(sku = sku.code,  price = Mvp.priceAsInt(sku, skuShadow))) },
       giftCards = giftCards.map { case (gc, li) ⇒
         LineItemGiftCard(lineItemId = li.id, giftCard = GiftCardResponse.build(gc)) },
       shippingCosts = shipments.map { case (shipment, li) ⇒
@@ -111,14 +112,14 @@ object RmaResponse {
 
   def fromRma(rma: Rma)(implicit ec: EC, db: DB): DBIO[Root] = {
     fetchRmaDetails(rma).map {
-      case (_, customer, storeAdmin, assignments, payments, skus, giftCards, shipments, subtotal) ⇒
+      case (_, customer, storeAdmin, assignments, payments, lineItemData, giftCards, shipments, subtotal) ⇒
         build(
           rma = rma,
           customer = customer.map(CustomerResponse.build(_)),
           storeAdmin = storeAdmin.map(StoreAdminResponse.build),
           payments = payments.map(buildPayment),
           assignees = assignments.map((AssignmentResponse.buildForRma _).tupled),
-          lineItems = buildLineItems(skus, giftCards, shipments),
+          lineItems = buildLineItems(lineItemData, giftCards, shipments),
           totals = Some(buildTotals(subtotal, None, shipments))
         )
     }
@@ -126,7 +127,7 @@ object RmaResponse {
 
   def fromRmaExpanded(rma: Rma)(implicit ec: EC, db: DB): DBIO[RootExpanded] = {
     fetchRmaDetails(rma = rma, withOrder = true).map {
-      case (order, customer, storeAdmin, assignments, payments, skus, giftCards, shipments, subtotal) ⇒
+      case (order, customer, storeAdmin, assignments, payments, lineItemData, giftCards, shipments, subtotal) ⇒
         buildExpanded(
           rma = rma,
           order = order,
@@ -134,7 +135,7 @@ object RmaResponse {
           storeAdmin = storeAdmin.map(StoreAdminResponse.build),
           payments = payments.map(buildPayment),
           assignees = assignments.map((AssignmentResponse.buildForRma _).tupled),
-          lineItems = buildLineItems(skus, giftCards, shipments),
+          lineItems = buildLineItems(lineItemData, giftCards, shipments),
           totals = Some(buildTotals(subtotal, None, shipments))
         )
     }
@@ -201,11 +202,11 @@ object RmaResponse {
       // Payment methods
       payments    ← RmaPayments.filter(_.rmaId === rma.id).result
       // Line items of each subtype
-      skus        ← RmaLineItemSkus.findLineItemsByRma(rma).result
+      lineItems        ← RmaLineItemSkus.findLineItemsByRma(rma).result
       giftCards   ← RmaLineItemGiftCards.findLineItemsByRma(rma).result
       shipments   ← RmaLineItemShippingCosts.findLineItemsByRma(rma).result
       // Subtotal
       subtotal    ← RmaTotaler.subTotal(rma)
-    } yield (fullOrder, customer, storeAdmin, assignments.zip(admins), payments, skus, giftCards, shipments, subtotal)
+    } yield (fullOrder, customer, storeAdmin, assignments.zip(admins), payments, lineItems, giftCards, shipments, subtotal)
   }
 }

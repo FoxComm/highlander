@@ -16,17 +16,19 @@ object InventoryRoutes {
 
     requireAdminAuth(storeAdminAuth) { admin ⇒
       activityContext(admin) { implicit ac ⇒
+        determineProductContext(db, ec) { productContext ⇒ 
 
-        pathPrefix("inventory") {
-          pathPrefix("skus" / Segment) { skuCode ⇒
-            (get & path(IntNumber) & pathEnd) { warehouseId ⇒
-              goodOrFailures {
-                InventoryManager.getSkuDetails(skuCode, warehouseId)
-              }
-            } ~
-            (get & pathPrefix("summary") & pathEnd) {
-              goodOrFailures {
-                InventoryManager.getSkuSummary(skuCode)
+          pathPrefix("inventory") {
+            pathPrefix("skus" / Segment) { skuCode ⇒
+              (get & path(IntNumber) & pathEnd) { warehouseId ⇒
+                goodOrFailures {
+                  InventoryManager.getSkuDetails(skuCode, warehouseId, productContext)
+                }
+              } ~
+              (get & pathPrefix("summary") & pathEnd) {
+                goodOrFailures {
+                  InventoryManager.getSkuSummary(skuCode, productContext)
+                }
               }
             }
           }

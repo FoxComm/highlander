@@ -7,6 +7,7 @@ import models.inventory._
 import models.order.lineitems._
 import models.order.{Orders, Order}
 import models.StoreAdmins
+import models.product.{Mvp, ProductContext, ProductContexts, SimpleContext, SimpleProductData}
 import payloads.{UpdateLineItemsPayload => Payload}
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -24,11 +25,12 @@ class LineItemUpdaterTest extends IntegrationTestBase {
   val lineItems = TableQuery[OrderLineItems]
   val lineItemSkus = TableQuery[OrderLineItemSkus]
 
-  def createSkus(num: Int): Unit = {
-    Skus.createAllReturningIds((1 to num).map { i ⇒
-      Factories.skus.head.copy(code = i.toString, price = 5)
-    }).run().futureValue.rightVal
-  }
+  def createProducts(num: Int): DbResultT[(ProductContext, Seq[SimpleProductData])] = for {
+    productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+    products ← * <~ Mvp.insertProducts((1 to num).map { i ⇒
+      Factories.products.head.copy(code = i.toString, price = 5)
+    }, productContext.id)
+  } yield (productContext, products)
 
   def createLineItems(items: Seq[OrderLineItem]): Unit = {
     OrderLineItems.createAll(items).run().futureValue.rightVal
@@ -40,10 +42,11 @@ class LineItemUpdaterTest extends IntegrationTestBase {
   "LineItemUpdater" - {
 
     "Adds line items when the sku doesn't exist in order" in new Fixture {
-      val order = Orders.create(Order(customerId = 1)).run().futureValue.rightVal
+      val (productContext, products) = createProducts(2).run().futureValue.rightVal
+      val order = Orders.create(Order(customerId = 1, productContextId = productContext.id)).run().futureValue.rightVal
       //      val warehouse = createDefaultWarehouse()
       //      createDefaultWarehouse()
-      createSkus(2)
+      
       //      createInventory(warehouse.id, 1, 100)
       //      createInventory(warehouse.id, 2, 100)
 
@@ -64,9 +67,9 @@ class LineItemUpdaterTest extends IntegrationTestBase {
     }
 
     "Updates line items when the Sku already is in order" in new Fixture {
-      val order = Orders.create(Order(customerId = 1)).run().futureValue.rightVal
+      val (productContext, products) = createProducts(3).run().futureValue.rightVal
+      val order = Orders.create(Order(customerId = 1, productContextId = productContext.id)).run().futureValue.rightVal
       //      val warehouse = createDefaultWarehouse()
-      createSkus(3)
       //      createInventory(warehouse.id, 1, 100)
       //      createInventory(warehouse.id, 2, 100)
       //      createInventory(warehouse.id, 3, 100)

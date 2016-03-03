@@ -3,6 +3,7 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.StatusCodes.OK
 
 import Extensions._
+import models.product.{Mvp, ProductContexts, SimpleContext}
 import models.customer.Customers
 import models.inventory.Skus
 import models.location.Addresses
@@ -69,13 +70,15 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
   }
 
   trait Fixture {
-    val (customer, address, shipMethod, sku, reason) = (for {
+    val (customer, address, shipMethod, product, sku, reason) = (for {
+      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
       customer   ← * <~ Customers.create(Factories.customer)
       address    ← * <~ Addresses.create(Factories.usAddress1.copy(customerId = customer.id))
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
-      sku        ← * <~ Skus.create(Factories.skus.head)
+      product    ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
+      sku        ← * <~ Skus.mustFindById404(product.skuId)
       admin      ← * <~ StoreAdmins.create(Factories.storeAdmin)
       reason     ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-    } yield (customer, address, shipMethod, sku, reason)).run().futureValue.rightVal
+    } yield (customer, address, shipMethod, product, sku, reason)).run().futureValue.rightVal
   }
 }

@@ -1,7 +1,7 @@
 create materialized view inventory_search_view as
 select row_number() over (order by (code, sku_type)) as id, code, product, on_hand, on_hold, reserved, safety_stock, afs, sku_type from
   (select distinct on (sku.code)
-    sku.name as product,
+    product.attributes->'title'->>'default' as product,
     -- TODO: replace with product.is_active
     sku.is_active as product_active,
     sku.code,
@@ -12,6 +12,7 @@ select row_number() over (order by (code, sku_type)) as id, code, product, on_ha
     skus as sku
     inner join inventory_summaries as summary on (summary.sku_id = sku.id)
     inner join warehouses as warehouse on (summary.warehouse_id = warehouse.id)
+    inner join products as product on (sku.product_id = product.id)
   ) as details
 join
   (select

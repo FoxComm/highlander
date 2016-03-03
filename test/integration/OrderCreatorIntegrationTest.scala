@@ -3,6 +3,7 @@ import models.activity.ActivityContext
 import models.customer.{Customers, Customer}
 import models.StoreAdmins
 import models.order.Order
+import models.product.{ProductContexts, SimpleContext}
 import payloads.CreateOrder
 import responses.order.FullOrder
 import FullOrder.Root
@@ -46,7 +47,7 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
 
       "returns current cart if customer already has one" in new Fixture {
         val payload = CreateOrder(customerId = customer.id.some)
-        OrderCreator.createCart(storeAdmin, payload).futureValue
+        OrderCreator.createCart(storeAdmin, payload, productContext).futureValue
         val response = POST(s"v1/orders", payload)
 
         response.status must ===(StatusCodes.OK)
@@ -80,10 +81,11 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
   }
 
   trait Fixture {
-    val (storeAdmin, customer) = (for {
+    val (productContext, storeAdmin, customer) = (for {
+      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
       customer   ← * <~ Customers.create(Factories.customer)
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
-    } yield (storeAdmin, customer)).runTxn().futureValue.rightVal
+    } yield (productContext, storeAdmin, customer)).runTxn().futureValue.rightVal
   }
 }
 

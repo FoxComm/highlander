@@ -4,6 +4,7 @@ import java.time.{Instant, ZoneId}
 
 import cats.data.Xor
 import models.Reason._
+import models.product.{ProductContexts, SimpleContext}
 import models.order.{OrderShippingAddress, OrderPayment}
 import models.payment.creditcard.CreditCardCharge
 import models.{Reason, Reasons}
@@ -60,7 +61,7 @@ object Seeds {
 
   def createRankingSeeds()(implicit db: Database) {
     Console.err.println(s"Inserting ranking seeds")
-    Await.result(db.run(RankingSeedsGenerator.insertRankingSeeds(1700).transactionally), 30.seconds)
+    Await.result(RankingSeedsGenerator.insertRankingSeeds(1700).runTxn(), 120.seconds)
   }
 
   def createRandomSeeds(scale: Int)(implicit db: Database) {
@@ -87,21 +88,23 @@ object Seeds {
   val today = Instant.now().atZone(ZoneId.of("UTC"))
 
   def createAll()(implicit db: Database): DbResultT[Unit] = for {
+    productContext ← * <~ ProductContexts.create(SimpleContext.create) 
     admin ← * <~ Factories.createStoreAdmins
     customers ← * <~ Factories.createCustomers
     _ ← * <~ Factories.createAddresses(customers)
     _ ← * <~ Factories.createCreditCards(customers)
-    skus ← * <~ Factories.createInventory
+    products ← * <~ Factories.createProducts
+    skus ← * <~ Factories.createInventory(Seq(products._1, products._2, products._3, products._4, products._5, products._6, products._7))
     shipMethods ← * <~ Factories.createShipmentRules
     _ ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = admin)))
     _ ← * <~ Factories.createGiftCards
     _ ← * <~ Factories.createStoreCredits(admin, customers._1, customers._3)
-    orders ← * <~ Factories.createOrders(customers, skus, shipMethods)
+    orders ← * <~ Factories.createOrders(customers, products, shipMethods, productContext)
     _ ← * <~ Factories.createRmas
   } yield {}
 
-  object Factories extends CustomerSeeds with GiftCardSeeds with StoreCreditSeeds with RmaSeeds with InventorySeeds
-  with ShipmentSeeds with OrderSeeds with StoreAdminSeeds with AddressSeeds with CreditCardSeeds
+  object Factories extends CustomerSeeds with GiftCardSeeds with StoreCreditSeeds with RmaSeeds with ProductSeeds 
+  with InventorySeeds with ShipmentSeeds with OrderSeeds with StoreAdminSeeds with AddressSeeds with CreditCardSeeds
   with CustomersGroupSeeds {
 
     implicit val formats = JsonFormatters.phoenixFormats

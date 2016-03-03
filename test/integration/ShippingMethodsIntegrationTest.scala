@@ -6,6 +6,7 @@ import models.location.Addresses
 import models.order.{OrderShippingAddresses, Orders}
 import models.order.lineitems._
 import models.rules.QueryStatement
+import models.product.{Mvp, ProductContexts, SimpleContext, SimpleProductData}
 import models.shipping.ShippingMethods
 import models.{shipping, StoreAdmins}
 import org.json4s.jackson.JsonMethods._
@@ -117,8 +118,10 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
 
       "Shipping method is returned, but disabled with a hazardous SKU" in new ShipToCaliforniaButNotHazardous {
         (for {
-          hazSku      ← * <~ Skus.create(Sku(code = "HAZ-SKU", name = Some("fox"), price = 56, isHazardous = true))
-          lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(hazSku.id).toXor
+          productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+          product     ← * <~ Mvp.insertProduct(productContext.id, SimpleProductData(
+            code = "HAZ-SKU", title = "fox", description = "fox", price = 56, isHazardous = true))
+          lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
           lineItem    ← * <~ OrderLineItems.create(OrderLineItem(orderId = order.id, originId = lineItemSku.id))
         } yield lineItem).runTxn().futureValue.rightVal
 
@@ -150,10 +153,11 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
     val washingtonId = 4177
 
     val (address, orderShippingAddress) = (for {
+      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
       address     ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, regionId = californiaId))
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
-      sku         ← * <~ Skus.create(Factories.skus.head.copy(name = Some("Donkey"), price = 27))
-      lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(sku.id).toXor
+      product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head.copy(title = "Donkey", price = 27))
+      lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
       lineItems   ← * <~ OrderLineItems.create(OrderLineItem(orderId = order.id, originId = lineItemSku.id))
       _           ← * <~ OrderTotaler.saveTotals(order)
     } yield (address, shipAddress)).runTxn().futureValue.rightVal

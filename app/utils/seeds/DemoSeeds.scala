@@ -11,22 +11,25 @@ import models.payment.giftcard._
 import models.shipping._
 
 import models.inventory._
+import models.product.{SimpleProductData, Mvp, ProductContexts, SimpleContext}
 import Order.Shipped
 
 import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
 import services.orders.OrderTotaler
 
-import utils.seeds.generators.GeneratorUtils.randomString
+import utils.seeds.generators.InventoryGenerator
 import utils.Money.Currency
 import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
+import utils.Passwords.hashPassword
+import utils.seeds.generators.GeneratorUtils.randomString
 
+import cats.implicits._
+import faker._;
 import scala.concurrent.ExecutionContext.Implicits.global
 import slick.driver.PostgresDriver.api._
-import faker._
-import cats.implicits._
 import utils.time
 
 /**
@@ -34,19 +37,18 @@ import utils.time
  * https://docs.google.com/document/d/1NW9v81xtMFXkvGVg8_4uzhmRVZzG2CiL8w4zefGCeV4/edit#
  */
 
-trait DemoSeedHelpers extends CreditCardSeeds { 
+trait DemoSeedHelpers extends CreditCardSeeds with InventoryGenerator { 
 
-  def warehouse: Warehouse = Warehouse.buildDefault()
-  def warehouses: Seq[Warehouse] = Seq(warehouse)
+  val hashedPassword = hashPassword(randomString(10))
 
   def generateCustomer(name: String, email: String): Customer =
-    Customer.build(email = email, password = randomString(10).some, name = name.some,
+    Customer(email = email, hashedPassword = hashedPassword.some, name = name.some,
       location = "Seattle,WA".some)
 
-  def createShippedOrder(customerId: Customer#Id, skuIds: Seq[Sku#Id], 
+  def createShippedOrder(customerId: Customer#Id, productContextId: Int, skuIds: Seq[Sku#Id], 
     shipMethod: ShippingMethod)(implicit db: Database): DbResultT[Order] = for {
     order ← * <~ Orders.create(Order(state = Shipped,
-      customerId = customerId, placedAt = time.yesterday.toInstant.some))
+      customerId = customerId, productContextId = productContextId, placedAt = time.yesterday.toInstant.some))
     _     ← * <~ addSkusToOrder(skuIds, order.id, OrderLineItem.Shipped)
     cc    ← * <~ CreditCards.create(creditCard1.copy(customerId = customerId))
     op    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
@@ -77,7 +79,6 @@ trait DemoSeedHelpers extends CreditCardSeeds {
   def createAddresses(customers: Seq[Customer#Id], address: Address): DbResultT[Seq[Int]] = for {
     addressIds ← * <~ Addresses.createAllReturningIds(customers.map{ id ⇒ address.copy(customerId = id)})
   } yield addressIds
-
 }
 
 /**
@@ -102,22 +103,29 @@ trait DemoScenario2 extends DemoSeedHelpers {
     generateCustomer("Susan Dole", "susan.dole@yahoo.com"))
 
 
-  def skus2: Seq[Sku] = Seq(
-    Sku(code = "SKU-ALG", name = "Alegria Women's Vanessa Sandal".some, price = 3500),
-    Sku(code = "SKU-NIK", name = "Nike Men's Donwshifter 6 Running Shoe".some, price = 2500),
-    Sku(code = "SKU-BAL", name = "New Balance Men's M520V2 Running Shoe".some, price = 2800),
-    Sku(code = "SKU-CLK", name = "Clarks Women's Aria Pump Flat".some, price = 7900),
-    Sku(code = "SKU-ADS", name = "adidas Performance Women's Galactic Elite Running Shoe".some, price = 4900))
+  def products2: Seq[SimpleProductData] = Seq(
+    SimpleProductData(code = "SKU-ALG", title = "Alegria Women's Vanessa Sandal",
+      description = "Alegria Women's Vanessa Sandal", price = 3500),
+    SimpleProductData(code = "SKU-NIK", title = "Nike Men's Donwshifter 6 Running Shoe",
+      description = "Nike Men's Donwshifter 6 Running Shoe", price = 2500),
+    SimpleProductData(code = "SKU-BAL", title = "New Balance Men's M520V2 Running Shoe",
+      description = "New Balance Men's M520V2 Running Shoe", price = 2800),
+    SimpleProductData(code = "SKU-CLK", title = "Clarks Women's Aria Pump Flat",
+      description = "Clarks Women's Aria Pump Flat", price = 7900),
+    SimpleProductData(code = "SKU-ADS", title = "adidas Performance Women's Galactic Elite Running Shoe",
+      description = "adidas Performance Women's Galactic Elite Running Shoe", price = 4900))
 
-  def address2 = Address(customerId = 0, regionId = 4177, name = "Home",
+  def address2 = Address(customerId = 0, regionId = 4177, name = "Home", 
     address1 = "555 E Lake Union St.", address2 = None, city = "Seattle", 
     zip = "12345", isDefaultShipping = true, phoneNumber = "2025550113".some)
 
   def createScenario2(implicit db: Database) = for { 
+    productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
     warehouseIds ← * <~ Warehouses.createAllReturningIds(warehouses)
     customerIds ← * <~ Customers.createAllReturningIds(customers2)
     addressIds ← * <~ createAddresses(customerIds, address2)
-    skuIds ← * <~ Skus.createAllReturningIds(skus2)
+    productData ← * <~ Mvp.insertProducts(products2, productContext.id)
+    inventory ← * <~ generateInventories(products2, warehouseIds)
   } yield {}
 
 }
@@ -146,20 +154,24 @@ trait DemoScenario3 extends DemoSeedHelpers {
     generateCustomer("Susan Cage", "susan@compuglobal.com"),
     generateCustomer("John Dole", "john.dole@yahoo.com"))
 
-  def skus3: Seq[Sku] = Seq(Sku(code = "SKU-CLK2", name = "Clarks Women's Aria Pump Flat".some, price = 7900))
+  def products3: Seq[SimpleProductData] = Seq(SimpleProductData(code = "SKU-CLK2", 
+    title = "Clarks Women's Aria Pump Flat", description = "Clarks Women's Aria Pump Flat", price = 7900))
 
   def address3 = Address(customerId = 0, regionId = 4177, name = "Home", 
     address1 = "555 E Lake Union St.", address2 = None, city = "Seattle", 
     zip = "12345", isDefaultShipping = true, phoneNumber = "2025550113".some)
 
   def createScenario3(implicit db: Database) = for { 
+    productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
     shippingMethod  ← * <~ ShippingMethods.filter(_.adminDisplayName === "UPS 2-day").one.mustFindOr(
       NotFoundFailure404("Unable to find 2-day shipping method"))
     warehouseIds ← * <~ Warehouses.createAllReturningIds(warehouses)
     customerIds ← * <~ Customers.createAllReturningIds(customers3)
     addressIds ← * <~ createAddresses(customerIds, address3)
-    skuIds ← * <~ Skus.createAllReturningIds(skus3)
-    orders ← * <~ DbResultT.sequence(customerIds.map { id ⇒ createShippedOrder(id, skuIds, shippingMethod)})
+    productData ← * <~ Mvp.insertProducts(products3, productContext.id)
+    inventory ← * <~ generateInventories(products3, warehouseIds)
+    skuIds ← * <~ productData.map(_.skuId)
+    orders ← * <~ DbResultT.sequence(customerIds.map { id ⇒ createShippedOrder(id, productContext.id, skuIds, shippingMethod)})
   } yield {}
 }
 
@@ -184,9 +196,11 @@ trait DemoScenario6 extends DemoSeedHelpers {
   def customer6 = generateCustomer("Joe Carson", "carson19@yahoo.com")
 
   def createScenario6(implicit db: Database): DbResultT[Unit] = for {
+    productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
     customer ← * <~ Customers.create(customer6)
     order ← * <~ Orders.create(Order(state = Shipped, customerId = customer.id, 
-      referenceNumber = orderReferenceNum, placedAt = Some(time.yesterday.toInstant)))
+      productContextId = productContext.id, referenceNumber = orderReferenceNum,
+      placedAt = time.yesterday.toInstant.some))
     orig  ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
     _  ← * <~ GiftCards.createAll(
       (1 to 23).map { _ ⇒ 

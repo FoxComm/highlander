@@ -29,88 +29,90 @@ object Customer {
       requireCustomerAuth(customerAuth) { customer ⇒
         activityContext(customer) { implicit ac ⇒
           pathPrefix("cart") {
-            (get & pathEnd) {
-              goodOrFailures {
-                OrderQueries.findOrCreateCartByCustomer(customer)
-              }
-            } ~
-            (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
-              goodOrFailures {
-                LineItemUpdater.updateQuantitiesOnCustomersOrder(customer, reqItems)
-              }
-            } ~
-            (post & path("checkout") & pathEnd) {
-              goodOrFailures {
-                Checkout.fromCustomerCart(customer)
-              }
-            } ~
-            pathPrefix("payment-methods" / "credit-cards") {
-              (post & pathEnd & entity(as[CreditCardPayment])) { payload ⇒
+            determineProductContext(db, ec) { productContext ⇒ 
+              (get & pathEnd) {
                 goodOrFailures {
-                  OrderPaymentUpdater.addCreditCard(Originator(customer), payload.creditCardId)
+                  OrderQueries.findOrCreateCartByCustomer(customer, productContext)
                 }
               } ~
-              (delete & pathEnd) {
+              (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
                 goodOrFailures {
-                  OrderPaymentUpdater.deleteCreditCard(Originator(customer))
-                }
-              }
-            } ~
-            pathPrefix("payment-methods" / "gift-cards") {
-              (post & pathEnd & entity(as[GiftCardPayment])) { payload ⇒
-                goodOrFailures {
-                  OrderPaymentUpdater.addGiftCard(Originator(customer), payload)
+                  LineItemUpdater.updateQuantitiesOnCustomersOrder(customer, reqItems)
                 }
               } ~
-              (delete & path(GiftCard.giftCardCodeRegex) & pathEnd) { code ⇒
+              (post & path("checkout") & pathEnd) {
                 goodOrFailures {
-                  OrderPaymentUpdater.deleteGiftCard(Originator(customer), code)
-                }
-              }
-            } ~
-            pathPrefix("payment-methods" / "store-credit") {
-              (post & pathEnd & entity(as[StoreCreditPayment])) { payload ⇒
-                goodOrFailures {
-                  OrderPaymentUpdater.addStoreCredit(Originator(customer), payload)
+                  Checkout.fromCustomerCart(customer)
                 }
               } ~
-              (delete & pathEnd) {
-                goodOrFailures {
-                  OrderPaymentUpdater.deleteStoreCredit(Originator(customer))
-                }
-              }
-            } ~
-            pathPrefix("shipping-address") {
-              (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
-                goodOrFailures {
-                  OrderShippingAddressUpdater.createShippingAddressFromPayload(Originator(customer), payload)
-                }
-              } ~
-              (patch & path(IntNumber) & pathEnd) { addressId ⇒
-                goodOrFailures {
-                  OrderShippingAddressUpdater.createShippingAddressFromAddressId(Originator(customer), addressId)
+              pathPrefix("payment-methods" / "credit-cards") {
+                (post & pathEnd & entity(as[CreditCardPayment])) { payload ⇒
+                  goodOrFailures {
+                    OrderPaymentUpdater.addCreditCard(Originator(customer), payload.creditCardId)
+                  }
+                } ~
+                (delete & pathEnd) {
+                  goodOrFailures {
+                    OrderPaymentUpdater.deleteCreditCard(Originator(customer))
+                  }
                 }
               } ~
-              (patch & pathEnd & entity(as[UpdateAddressPayload])) { payload ⇒
-                goodOrFailures {
-                  OrderShippingAddressUpdater.updateShippingAddressFromPayload(Originator(customer), payload)
+              pathPrefix("payment-methods" / "gift-cards") {
+                (post & pathEnd & entity(as[GiftCardPayment])) { payload ⇒
+                  goodOrFailures {
+                    OrderPaymentUpdater.addGiftCard(Originator(customer), payload)
+                  }
+                } ~
+                (delete & path(GiftCard.giftCardCodeRegex) & pathEnd) { code ⇒
+                  goodOrFailures {
+                    OrderPaymentUpdater.deleteGiftCard(Originator(customer), code)
+                  }
                 }
               } ~
-              (delete & pathEnd) {
-                goodOrFailures {
-                  OrderShippingAddressUpdater.removeShippingAddress(Originator(customer))
-                }
-              }
-            } ~
-            pathPrefix("shipping-method") {
-              (patch & pathEnd & entity(as[UpdateShippingMethod])) { payload ⇒
-                goodOrFailures {
-                  OrderShippingMethodUpdater.updateShippingMethod(Originator(customer), payload)
+              pathPrefix("payment-methods" / "store-credit") {
+                (post & pathEnd & entity(as[StoreCreditPayment])) { payload ⇒
+                  goodOrFailures {
+                    OrderPaymentUpdater.addStoreCredit(Originator(customer), payload)
+                  }
+                } ~
+                (delete & pathEnd) {
+                  goodOrFailures {
+                    OrderPaymentUpdater.deleteStoreCredit(Originator(customer))
+                  }
                 }
               } ~
-              (delete & pathEnd) {
-                goodOrFailures {
-                  OrderShippingMethodUpdater.deleteShippingMethod(Originator(customer))
+              pathPrefix("shipping-address") {
+                (post & pathEnd & entity(as[CreateAddressPayload])) { payload ⇒
+                  goodOrFailures {
+                    OrderShippingAddressUpdater.createShippingAddressFromPayload(Originator(customer), payload)
+                  }
+                } ~
+                (patch & path(IntNumber) & pathEnd) { addressId ⇒
+                  goodOrFailures {
+                    OrderShippingAddressUpdater.createShippingAddressFromAddressId(Originator(customer), addressId)
+                  }
+                } ~
+                (patch & pathEnd & entity(as[UpdateAddressPayload])) { payload ⇒
+                  goodOrFailures {
+                    OrderShippingAddressUpdater.updateShippingAddressFromPayload(Originator(customer), payload)
+                  }
+                } ~
+                (delete & pathEnd) {
+                  goodOrFailures {
+                    OrderShippingAddressUpdater.removeShippingAddress(Originator(customer))
+                  }
+                }
+              } ~
+              pathPrefix("shipping-method") {
+                (patch & pathEnd & entity(as[UpdateShippingMethod])) { payload ⇒
+                  goodOrFailures {
+                    OrderShippingMethodUpdater.updateShippingMethod(Originator(customer), payload)
+                  }
+                } ~
+                (delete & pathEnd) {
+                  goodOrFailures {
+                    OrderShippingMethodUpdater.deleteShippingMethod(Originator(customer))
+                  }
                 }
               }
             }
@@ -242,19 +244,21 @@ object Customer {
             }
           } ~
           pathPrefix("save-for-later") {
-            (get & pathEnd) {
-              goodOrFailures {
-                SaveForLaterManager.findAll(customer.id)
-              }
-            } ~
-            (post & path(skuCodeRegex) & pathEnd) { code ⇒
-              goodOrFailures {
-                SaveForLaterManager.saveForLater(customer.id, code)
-              }
-            } ~
-            (delete & path(IntNumber) & pathEnd) { id ⇒
-              nothingOrFailures {
-                SaveForLaterManager.deleteSaveForLater(id)
+            determineProductContext(db, ec) { productContext ⇒ 
+              (get & pathEnd) {
+                goodOrFailures {
+                  SaveForLaterManager.findAll(customer.id, productContext.id)
+                }
+              } ~
+              (post & path(skuCodeRegex) & pathEnd) { code ⇒
+                goodOrFailures {
+                  SaveForLaterManager.saveForLater(customer.id, code, productContext.id)
+                }
+              } ~
+              (delete & path(IntNumber) & pathEnd) { id ⇒
+                nothingOrFailures {
+                  SaveForLaterManager.deleteSaveForLater(id)
+                }
               }
             }
           } ~
@@ -266,4 +270,5 @@ object Customer {
     }
   }
 }
+
 

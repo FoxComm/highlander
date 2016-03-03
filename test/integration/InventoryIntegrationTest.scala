@@ -4,6 +4,7 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import cats.implicits._
 import models.inventory._
+import models.product.{ProductContexts, Mvp, SimpleContext}
 import responses.InventoryResponses._
 import services.NotFoundFailure404
 import util.IntegrationTestBase
@@ -25,16 +26,16 @@ class InventoryIntegrationTest extends IntegrationTestBase with HttpSupport with
       skuResponse must contain allOf(
         // sellable
         SkuDetailsResponse.Root(Sellable, SkuCounts(sellable.onHand, sellable.onHold, sellable.reserved, sellable
-          .safetyStock.some, sellable.availableForSale, sellable.availableForSale * sku.price)),
+          .safetyStock.some, sellable.availableForSale, sellable.availableForSale * Mvp.priceAsInt(sku, skuShadow))),
         // backorder
         SkuDetailsResponse.Root(Backorder, SkuCounts(backorder.onHand, backorder.onHold, backorder.reserved, None,
-          backorder.availableForSale, backorder.availableForSale * sku.price)),
+          backorder.availableForSale, backorder.availableForSale * Mvp.priceAsInt(sku, skuShadow))),
         // preorder
         SkuDetailsResponse.Root(Preorder, SkuCounts(preorder.onHand, preorder.onHold, preorder.reserved, None, preorder
-          .availableForSale, preorder.availableForSale * sku.price)),
+          .availableForSale, preorder.availableForSale * Mvp.priceAsInt(sku, skuShadow))),
         // nonsellable
         SkuDetailsResponse.Root(NonSellable, SkuCounts(nonsellable.onHand, nonsellable.onHold, nonsellable.reserved,
-          None, nonsellable.availableForSale, nonsellable.availableForSale * sku.price))
+          None, nonsellable.availableForSale, nonsellable.availableForSale * Mvp.priceAsInt(sku, skuShadow)))
         )
     }
 
@@ -45,8 +46,9 @@ class InventoryIntegrationTest extends IntegrationTestBase with HttpSupport with
     }
 
     "errors on wrong warehouse id" in {
-      val sku = Skus.create(Factories.skus.head).run().futureValue.rightVal
-      val response = GET(s"v1/inventory/skus/${sku.code}/666")
+      val productContext = ProductContexts.mustFindById404(SimpleContext.id).run().futureValue.rightVal
+      val product = Mvp.insertProduct(productContext.id, Factories.products.head).run().futureValue.rightVal
+      val response = GET(s"v1/inventory/skus/${product.code}/666")
       response.status must ===(StatusCodes.NotFound)
       response.error must ===(NotFoundFailure404(Warehouse, 666).description)
     }
@@ -60,9 +62,9 @@ class InventoryIntegrationTest extends IntegrationTestBase with HttpSupport with
       summaries must have size 2
       summaries must contain allOf(
         SellableSkuSummaryResponse.Root(warehouse1, SkuCounts(sellable.onHand, sellable.onHold, sellable.reserved,
-          sellable.safetyStock.some, sellable.availableForSale, sellable.availableForSale * sku.price)),
+          sellable.safetyStock.some, sellable.availableForSale, sellable.availableForSale * Mvp.priceAsInt(sku, skuShadow))),
         SellableSkuSummaryResponse.Root(warehouse2, SkuCounts(sellable2.onHand, sellable2.onHold, sellable2.reserved,
-          sellable2.safetyStock.some, sellable2.availableForSale, sellable2.availableForSale * sku.price))
+          sellable2.safetyStock.some, sellable2.availableForSale, sellable2.availableForSale * Mvp.priceAsInt(sku, skuShadow)))
         )
     }
 
@@ -74,12 +76,15 @@ class InventoryIntegrationTest extends IntegrationTestBase with HttpSupport with
   }
 
   trait Fixture extends InventoryGenerator {
-    val (sku, warehouse1, sellable, backorder, preorder, nonsellable) = (for {
-      sku        ← * <~ Skus.create(Factories.skus.head)
+    val (productContext, product, sku, skuShadow, warehouse1, sellable, backorder, preorder, nonsellable) = (for {
+      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+      product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
+      sku         ← * <~ Skus.mustFindById404(product.skuId)
+      skuShadow   ← * <~ SkuShadows.mustFindById404(product.skuShadowId)
       warehouse1 ← * <~ Warehouses.create(Warehouse(name = "first"))
       summaries  ← * <~ generateInventory(sku.id, warehouse1.id)
       (sellable, backorder, preorder, nonsellable) = summaries
-    } yield (sku, warehouse1, sellable, backorder, preorder, nonsellable)).run().futureValue.rightVal
+    } yield (productContext, product, sku, skuShadow, warehouse1, sellable, backorder, preorder, nonsellable)).run().futureValue.rightVal
   }
 
   trait SummaryFixture extends Fixture {

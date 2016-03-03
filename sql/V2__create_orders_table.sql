@@ -2,6 +2,7 @@ create table orders (
     id bigint primary key,
     reference_number reference_number not null unique,
     customer_id integer,
+    product_context_id integer,
     state generic_string not null,
     is_locked boolean default false,
     created_at timestamp without time zone default (now() at time zone 'utc'),

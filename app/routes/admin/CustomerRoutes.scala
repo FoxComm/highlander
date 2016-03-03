@@ -83,8 +83,10 @@ object CustomerRoutes {
             }
           } ~
           (get & path("cart")) {
-            goodOrFailures {
-              OrderQueries.findOrCreateCartByCustomerId(customerId, Some(admin))
+            determineProductContext(db, ec) { productContext ⇒ 
+              goodOrFailures {
+                OrderQueries.findOrCreateCartByCustomerId(customerId, productContext, Some(admin))
+              }
             }
           } ~
           (patch & pathEnd & entity(as[UpdateCustomerPayload])) { payload ⇒
@@ -231,3 +233,4 @@ object CustomerRoutes {
     }
   }
 }
+

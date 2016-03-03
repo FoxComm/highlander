@@ -1,6 +1,7 @@
 package services
 
 import models.inventory.{Skus, Sku}
+import models.activity.{Activity, ActivityContext}
 import models.order.lineitems._
 import OrderLineItems.scope._
 import models.customer.Customer
@@ -13,14 +14,14 @@ import FullOrder.refreshAndFullOrder
 import responses.TheResponse
 import services.CartFailures.CustomerHasNoActiveOrder
 import services.orders.OrderTotaler
-import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
 import utils.aliases._
 
-import models.activity.{Activity, ActivityContext}
+import scala.concurrent.ExecutionContext
+import slick.driver.PostgresDriver.api._
 
 object LineItemUpdater {
   def addGiftCard(admin: StoreAdmin, refNum: String, payload: AddGiftCardLineItem)
@@ -103,7 +104,7 @@ object LineItemUpdater {
     _     ← * <~ order.mustBeCart
     // load old line items for activity trail
     li    ← * <~ OrderLineItemSkus.findLineItemsByOrder(order).result
-    lineItems = li.foldLeft(Map[String, Int]()) { case (acc, (sku, _)) ⇒
+    lineItems = li.foldLeft(Map[String, Int]()) { case (acc, (sku, skuShadow, _)) ⇒
       val quantity = acc.getOrElse(sku.code, 0)
       acc.updated(sku.code, quantity + 1)
     }
