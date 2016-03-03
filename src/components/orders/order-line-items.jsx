@@ -134,7 +134,6 @@ class RenderEditContent extends React.Component {
         <TableView columns={ editModeColumns }
                    data={{rows: lineItemsStatus.items}}
                    renderRow={ renderRow }
-                   showEmptyMessage={true}
                    emptyMessage="No items yet."/>
         <ConfirmationDialog
           isVisible={lineItemsStatus.isDeleting}

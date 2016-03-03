@@ -17,6 +17,7 @@ const initialState = {
   // isFetching = true, - fetching was started
   // isFetching = false, - fetching was finished
   isFetching: null,
+  failed: false,
   rows: [],
   total: 0,
   from: 0,
@@ -78,12 +79,14 @@ function makePagination(namespace, fetcher = null, findSearchInState = state => 
     [searchStart]: state => {
       return {
         ...state,
+        failed: false,
         isFetching: true
       };
     },
     [searchSuccess]: (state, response) => {
       return {
         ...state,
+        failed: false,
         isFetching: false,
         rows: _.get(response, 'result', response),
         total: _.get(response, ['pagination', 'total'], response.length)
@@ -94,6 +97,7 @@ function makePagination(namespace, fetcher = null, findSearchInState = state => 
 
       return {
         ...state,
+        failed: true,
         isFetching: false
       };
     },

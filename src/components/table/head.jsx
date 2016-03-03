@@ -29,8 +29,8 @@ class TableHead extends React.Component {
     const className = classNames(column.className, {
       'fc-table-th': true,
       'sorting': sortable && setState,
-      'sorting-desc': sortable && `${field}` === sortBy,
-      'sorting-asc': sortable && `-${field}` === sortBy
+      'sorting-asc': sortable && `${field}` === sortBy,
+      'sorting-desc': sortable && `-${field}` === sortBy
     });
 
     let contents = null;
