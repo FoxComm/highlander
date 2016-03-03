@@ -15,8 +15,9 @@
   flex-grow: 1;
 }
 
-.logo {
-
+.hamburger {
+  flex-grow: 1;
+  display: none;
 }
 
 .tools {
@@ -27,12 +28,20 @@
 .footer {
 }
 
+.login {
+}
+
+.logo {
+}
+
 .categories {
   margin-top: 40px;
 }
 
 @media (--medium-viewport) {
   .storefront {
+    lost-column: 1/1;
+    lost-offset: 0;
     margin: 10px 0;
   }
 }
@@ -40,6 +49,24 @@
 
 @media (--small-viewport) {
   .storefront {
+    lost-column: 1/1;
+    lost-offset: 0;
     margin: 10px 0;
+  }
+
+  .login {
+    display: none;
+  }
+
+  .categories {
+    display: none;
+  }
+
+  .search {
+    display: none;
+  }
+
+  .hamburger {
+    display: block;
   }
 }
