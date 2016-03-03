@@ -59,4 +59,4 @@ join
 on details.summary_id = summaries.summary_id
 order by (code, sku_type);
 
-create unique index inventory_search_view_idx on inventory_search_view (product, sku_type);
+create unique index inventory_search_view_idx on inventory_search_view (code, sku_type);
