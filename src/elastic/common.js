@@ -175,6 +175,18 @@ export function rangeToFilter(field, operator, value) {
 
 export function convertSorting(sortBy) {
   const field = sortBy.replace('-', '');
+  const [parent, child] = field.split('.');
 
-  return [dsl.sortByField(field, sortBy.charAt(0) == '-' ? 'desc' : 'asc')];
+  let order = {
+    order: sortBy.charAt(0) == '-' ? 'desc' : 'asc'
+  };
+
+  if (child) {
+    order = {
+      ...order,
+      nested_path: parent
+    };
+  }
+
+  return [dsl.sortByField(field, order)];
 }

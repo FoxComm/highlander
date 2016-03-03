@@ -1,6 +1,5 @@
-
 export function query(query, rest = {}) {
-  return {query, ...rest};
+  return { query, ...rest };
 }
 
 export function termFilter(field, value) {
@@ -48,8 +47,8 @@ export function nestedMatchFilter(term, value) {
   return nestedQuery(path, matchQuery(term, value));
 }
 
-export function sortByField(field, order = 'asc') {
+export function sortByField(field, order = { order: 'asc' }) {
   return {
-    [field]: {order}
+    [field]: order
   };
 }
