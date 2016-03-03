@@ -8,8 +8,8 @@ export default class SkuResult extends React.Component {
     return (
       <div className="fc-grid">
         <div className="fc-col-md-2-12"><img src={imagePath} /></div>
-        <div className="fc-col-md-4-12">{model.name}</div>
-        <div className="fc-col-md-3-12"><strong>Sku</strong><br />{model.code}</div>
+        <div className="fc-col-md-4-12">{model.title}</div>
+        <div className="fc-col-md-3-12"><strong>SKU</strong><br />{model.code}</div>
         <div className="fc-col-md-3-12"><strong>Price</strong><br /><Currency value={model.price}/></div>
       </div>
     );
