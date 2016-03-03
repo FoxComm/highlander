@@ -18,7 +18,7 @@ trait ProductGenerator {
 
   val stop = "\u0002"
   val start = "\u0003"
-  def nameGenerator = Source.fromURL(getClass.getResource("/product_titles.txt"), "UTF-8").getLines
+  val nameGenerator = Source.fromURL(getClass.getResource("/product_titles.txt"), "UTF-8").getLines
     .map(_.grouped(2)) //group characters in line into sets of 2
     .foldLeft(new MarkovChain[String](start, stop))((acc, wordChunks) => 
         acc.insert(wordChunks.map(_.toLowerCase).toList))
