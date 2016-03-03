@@ -96,6 +96,7 @@ function renderFooter({onCancel, onConfirm, selected, group}) {
 
 SelectWatcherModal.propTypes = {
   storePath: PropTypes.string,
+  group: PropTypes.string,
   entity: PropTypes.shape({
     entityType: PropTypes.string.isRequired,
     entityId: PropTypes.string.isRequired,
