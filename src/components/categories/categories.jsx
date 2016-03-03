@@ -5,15 +5,10 @@ import _ from 'lodash';
 import styles from './categories.css';
 import cssModules from 'react-css-modules';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 
 import * as actions from '../../modules/categories';
 
 const getState = state => ({ list: state.categories.list });
-
-const mapDispatchToProps = dispatch => {
-  return bindActionCreators(actions, dispatch);
-};
 
 class Categories extends React.Component {
 
@@ -44,4 +39,4 @@ class Categories extends React.Component {
   }
 }
 
-export default connect(getState, mapDispatchToProps)(cssModules(Categories, styles));
+export default connect(getState, {...actions})(cssModules(Categories, styles));
