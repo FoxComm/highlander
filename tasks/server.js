@@ -2,6 +2,7 @@
 
 /* eslint camelcase: 0 */
 
+const _ = require('lodash');
 const child_process = require('child_process');
 const runSequence = require('run-sequence');
 
@@ -19,9 +20,7 @@ module.exports = function(gulp) {
   function checkForPause(e) {
     if (e.task in affectsServerTasks) {
       affectTasksRunning++;
-      process.nextTick(function() {
-        runSequence('server.stop');
-      });
+      killServer(_.noop);
     }
   }
 
@@ -38,7 +37,7 @@ module.exports = function(gulp) {
     }
   }
 
-  gulp.task('server.stop', function(cb) {
+  function killServer(cb) {
     if (node) {
       node.once('close', cb);
       node.kill();
@@ -46,7 +45,9 @@ module.exports = function(gulp) {
     } else {
       cb();
     }
-  });
+  }
+
+  gulp.task('server.stop', killServer);
 
   gulp.task('server.invalidate', function(cb) {
     if (node) {
@@ -84,9 +85,12 @@ module.exports = function(gulp) {
     gulp.watch(['server/**.*.js', 'src/server.jsx'], ['server.restart']);
   });
 
-  process.on('exit', function() {
+  function silentlyKill() {
     if (node) node.kill();
-  });
+  }
+
+  process.on('exit', silentlyKill);
+  process.on('uncaughtException', silentlyKill);
 };
 
 module.exports.affectsServer = affectsServer;
