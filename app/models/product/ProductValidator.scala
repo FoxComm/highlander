@@ -20,7 +20,7 @@ import org.json4s.JsonAST.{JValue, JString, JObject, JField, JNothing}
 import org.json4s.jackson.Serialization.{write ⇒ render}
 import scala.concurrent.ExecutionContext
 
-import Aliases.Json
+import models.Aliases.Json
 
 /**
  * An ProductValidator checks to make sure a product shadow is valid

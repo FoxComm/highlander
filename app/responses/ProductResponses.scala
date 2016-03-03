@@ -1,7 +1,7 @@
 package responses
 
 import models.product._
-import models.product.Aliases.Json
+import models.Aliases.Json
 
 import org.json4s.DefaultFormats
 import org.json4s.Extraction

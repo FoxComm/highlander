@@ -1,6 +1,6 @@
 package payloads
 
-import models.activity.Aliases.Json
+import models.Aliases.Json
 
 final case class CreateProductForm(id: Int, attributes: Json, variants: Json)
 final case class CreateProductShadow(productId: Int, attributes: Json)
