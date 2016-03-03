@@ -9,22 +9,39 @@
 
 .head {
   display: flex;
+  align-items: center;
 }
 
 .search {
   flex-grow: 1;
 }
 
-.logo {
+.hamburger {
+  flex-grow: 1;
+  display: none;
+}
 
+.search, .hamburger, .cart, .head-icon {
+  width: 20px;
+  height: 20px;
 }
 
 .tools {
   flex-grow: 1;
   text-align: right;
+  display: flex;
+}
+
+.login {
+  flex-grow: 1;
 }
 
 .footer {
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
 }
 
 .categories {
@@ -33,6 +50,8 @@
 
 @media (--medium-viewport) {
   .storefront {
+    lost-column: 1/1;
+    lost-offset: 0;
     margin: 10px 0;
   }
 }
@@ -40,6 +59,24 @@
 
 @media (--small-viewport) {
   .storefront {
+    lost-column: 1/1;
+    lost-offset: 0;
     margin: 10px 0;
+  }
+
+  .login-link {
+    display: none;
+  }
+
+  .categories {
+    display: none;
+  }
+
+  .search {
+    display: none;
+  }
+
+  .hamburger {
+    display: block;
   }
 }

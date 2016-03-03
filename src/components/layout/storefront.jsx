@@ -13,12 +13,19 @@ const StoreFront = props => {
     <div styleName="storefront">
       <div styleName="head">
         <div styleName="search">
-          <Icon name="fc-magnifying-glass" />
+          <Icon name="fc-magnifying-glass" styleName="head-icon"/>
+        </div>
+        <div styleName="hamburger">
+          <Icon name="fc-hamburger" styleName="head-icon"/>
         </div>
         <Icon styleName="logo" name="fc-some_brand_logo" />
         <div styleName="tools">
-          <Link to="/login">LOG IN</Link>
-          <Icon name="fc-cart" />
+          <div styleName="login">
+            <Link to="/login" styleName="login-link">LOG IN</Link>
+          </div>
+          <div styleName="cart">
+            <Icon name="fc-cart" styleName="head-icon"/>
+          </div>
         </div>
       </div>
       <div styleName="categories">
