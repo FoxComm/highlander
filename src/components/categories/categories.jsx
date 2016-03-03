@@ -6,6 +6,7 @@ import styles from './categories.css';
 import cssModules from 'react-css-modules';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+
 import * as actions from '../../modules/categories';
 
 const getState = state => ({ list: state.categories.list });
@@ -21,15 +22,11 @@ class Categories extends React.Component {
     fetchCategories: PropTypes.func.isRequired,
   };
 
-  static defaultProps = {
-    list: [],
-  };
-
   componentDidMount() {
     this.props.fetchCategories();
   }
 
-  render() {
+  render(): Element {
     const categoryItems = _.map(this.props.list, (item) => {
       const key = `category-${item.replace(/\s/g, '-')}`;
       return (

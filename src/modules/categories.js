@@ -1,3 +1,4 @@
+/* @flow */
 
 import { createAction, createReducer } from 'redux-act';
 
@@ -5,7 +6,7 @@ const categoriesFetchStated = createAction('CATEGORIES_FETCH_STARTED');
 const categoriesFetchSucceded = createAction('CATEGORIES_FETCH_SUCCEDED');
 const categoriesFetchFailed = createAction('CATEGORIES_FETCH_FAILED');
 
-export function fetchCategories() {
+export function fetchCategories(): Function {
   return dispatch => {
     dispatch(categoriesFetchStated());
 
@@ -14,7 +15,15 @@ export function fetchCategories() {
   };
 }
 
-const initialState = {};
+type FormData = {
+  isFetching: boolean;
+  list: Array<string>;
+}
+
+const initialState: FormData = {
+  isFetching: false,
+  list: [],
+};
 
 const reducer = createReducer({
   [categoriesFetchStated]: state => {
