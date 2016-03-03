@@ -6,36 +6,35 @@ import types, { derivedTypes } from '../base/types';
 // components
 import OrderTarget from '../base/order-target';
 import GiftCardLink from '../base/gift-card-link';
-import CustomerLink from '../base/customer-link';
+import Title from '../base/title';
 
 const orderLineItemsChangedDesc = {
-  title: (data, {kind, context}) => {
-    const title = kind == derivedTypes.ORDER_LINE_ITEMS_ADDED_SKU ? 'added' : 'removed';
-    const targetSense = context.userType == 'admin' ?
-      <span> for customer <CustomerLink customer={data.order.customer} /></span> : null;
+  title: (data, activity) => {
+    const title = activity.kind == derivedTypes.ORDER_LINE_ITEMS_ADDED_SKU ? 'added' : 'removed';
 
     return (
-      <span>
-        <strong>{title} {data.difference} of {data.skuName}</strong> on <OrderTarget order={data.order} />{targetSense}.
-      </span>
+      <Title activity={activity}>
+        <strong>{title} {data.difference} of {data.skuName}</strong> on <OrderTarget order={data.order} />
+      </Title>
     );
   },
 };
 
 const actionTitleByType = {
-  [types.ORDER_LINE_ITEMS_ADDED_GIFT_CARD]: 'added',
-  [types.ORDER_LINE_ITEMS_DELETED_GIFT_CARD]: 'deleted',
-  [types.ORDER_LINE_ITEMS_UPDATED_GIFT_CARD]: 'updated',
+  [types.ORDER_LINE_ITEMS_ADDED_GIFT_CARD]: ['added', 'to'],
+  [types.ORDER_LINE_ITEMS_DELETED_GIFT_CARD]: ['deleted', 'from'],
+  [types.ORDER_LINE_ITEMS_UPDATED_GIFT_CARD]: ['updated', 'on'],
 };
 
 const orderLineItemsGcDesc = {
-  title: (data, {kind}) => {
-    const actionTitle = actionTitleByType[kind];
+  title: (data, activity) => {
+    const [actionTitle, pretext] = actionTitleByType[activity.kind];
 
     return (
-      <span>
-        <strong>{actionTitle} gift card</strong> <GiftCardLink {...data.gc} /> to <OrderTarget order={data.order} />.
-      </span>
+      <Title activity={activity}>
+        <strong>{actionTitle} gift card</strong>
+        &nbsp;<GiftCardLink {...data.gc} /> {pretext} <OrderTarget order={data.order} />
+      </Title>
     );
   },
 };

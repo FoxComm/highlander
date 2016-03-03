@@ -2,14 +2,15 @@
 import React from 'react';
 import types from '../base/types';
 import OrderTarget from '../base/order-target';
+import Title from '../base/title';
 
 const representatives = {
   [types.ORDER_NOTE_CREATED]: {
-    title: data => {
+    title: (data, activity) => {
       return (
-        <span>
-          <strong>added a note</strong> on <OrderTarget order={data.order}/>.
-        </span>
+        <Title activity={activity}>
+          <strong>added a note</strong> to <OrderTarget order={data.order}/>
+        </Title>
       );
     },
     details: data => {
@@ -20,11 +21,11 @@ const representatives = {
     },
   },
   [types.ORDER_NOTE_UPDATED]: {
-    title: data => {
+    title: (data, activity) => {
       return (
-        <span>
-          <strong>changed a note</strong> on <OrderTarget order={data.order}/>.
-        </span>
+        <Title activity={activity}>
+          <strong>changed a note</strong> on <OrderTarget order={data.order}/>
+        </Title>
       );
     },
     details: data => {
@@ -35,11 +36,11 @@ const representatives = {
     },
   },
   [types.ORDER_NOTE_DELETED]: {
-    title: data => {
+    title: (data, activity) => {
       return (
-        <span>
-          <strong>removed a note</strong> from <OrderTarget order={data.order}/>.
-        </span>
+        <Title activity={activity}>
+          <strong>removed a note</strong> from <OrderTarget order={data.order}/>
+        </Title>
       );
     },
     details: data => {

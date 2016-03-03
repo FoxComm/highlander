@@ -8,6 +8,7 @@ import { joinEntities } from '../base/utils';
 import OrderTarget from '../base/order-target';
 import OrderLink from '../base/order-link';
 import Person from '../base/person';
+import Title from '../base/title';
 
 const bulkEventsToOrders = {
   title: (data, {kind}) => {
@@ -25,24 +26,24 @@ const bulkEventsToOrders = {
 
 const representatives = {
   [types.ADDED_WATCHERS_TO_ORDER]: {
-    title: data => {
+    title: (data, activity) => {
       const persons = data.watchers.map((person, idx) => <Person key={idx} {...person} />);
 
       return (
-        <span>
-          <strong>added watchers</strong> {joinEntities(persons)} to <OrderTarget order={data.order} />.
-        </span>
+        <Title activity={activity}>
+          <strong>added watchers</strong> {joinEntities(persons)} to <OrderTarget order={data.order} />
+        </Title>
       );
     },
   },
   [types.BULK_ADDED_WATCHER_TO_ORDERS]: bulkEventsToOrders,
   [types.BULK_REMOVED_WATCHER_FROM_ORDERS]: bulkEventsToOrders,
   [types.REMOVED_WATCHER_FROM_ORDER]: {
-    title: data => {
+    title: (data, activity) => {
       return (
-        <span>
-          <strong>removed watcher</strong> <Person {...data.watcher} /> from <OrderTarget order={data.order} />.
-        </span>
+        <Title activity={activity}>
+          <strong>removed watcher</strong> <Person {...data.watcher} /> from <OrderTarget order={data.order} />
+        </Title>
       );
     }
   },

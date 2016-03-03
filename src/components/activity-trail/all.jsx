@@ -362,7 +362,7 @@ activities = [...activities,
     createdAt,
     data: {
       newState: 'fraudHold',
-      orders: [
+      orderRefNums: [
         'BR10004',
         'BR10003',
         'BR10001',

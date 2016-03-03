@@ -3,15 +3,16 @@ import types from '../base/types';
 
 import CustomerLink from '../base/customer-link';
 import PaymentMethod from '../../../payment/payment-method';
+import Title from '../base/title';
 
 
 const representatives = {
   [types.CREDIT_CARD_ADDED]: {
-    title: data => {
+    title: (data, activity) => {
       return (
-        <span>
-          <strong>created a credit card</strong> for customer <CustomerLink customer={data.customer} />.
-        </span>
+        <Title activity={activity}>
+          <strong>created a credit card</strong>
+        </Title>
       );
     },
     details: data => {
@@ -22,11 +23,11 @@ const representatives = {
     }
   },
   [types.CREDIT_CARD_REMOVED]: {
-    title: data => {
+    title: (data, activity) => {
       return (
-        <span>
-          <strong>removed a credit card</strong> for customer <CustomerLink customer={data.customer} />.
-        </span>
+        <Title activity={activity}>
+          <strong>removed a credit card</strong>
+        </Title>
       );
     },
     details: data => {
@@ -37,11 +38,11 @@ const representatives = {
     }
   },
   [types.CREDIT_CARD_UPDATED]: {
-    title: data => {
+    title: (data, activity) => {
       return (
-        <span>
-          <strong>changed a credit card</strong> for customer <CustomerLink customer={data.customer} />.
-        </span>
+        <Title activity={activity}>
+          <strong>changed a credit card</strong>
+        </Title>
       );
     },
     details: data => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import types from '../base/types';
 
-import CustomerLink from '../base/customer-link';
+import Title from '../base/title';
 import AddressDetails from '../../../addresses/address-details';
 
 function omitAddressName(address) {
@@ -13,14 +13,11 @@ function omitAddressName(address) {
 
 const representatives = {
   [types.CUSTOMER_ADDRESS_CREATED]: {
-    title: (data, {context}) => {
-      const targetSense = context.userType == 'admin' ?
-        <span> for customer <CustomerLink customer={data.customer} /></span> : null;
-
+    title: (data, activity) => {
       return (
-        <span>
-          <strong>created a new address</strong>{targetSense}.
-        </span>
+        <Title activity={activity}>
+          <strong>created a new address</strong>
+        </Title>
       );
     },
     details: data => {
@@ -31,11 +28,11 @@ const representatives = {
     },
   },
   [types.CUSTOMER_ADDRESS_UPDATED]: {
-    title: data => {
+    title: (data, activity) => {
       return (
-        <span>
-        <strong>edited an address</strong> for <CustomerLink customer={data.customer} />.
-      </span>
+        <Title activity={activity}>
+          <strong>edited an address</strong>
+        </Title>
       );
     },
     details: data => {
@@ -46,11 +43,11 @@ const representatives = {
     },
   },
   [types.CUSTOMER_ADDRESS_DELETED]: {
-    title: data => {
+    title: (data, activity) => {
       return (
-        <span>
-          <strong>removed an address</strong> on customer <CustomerLink customer={data.customer} />.
-        </span>
+        <Title activity={activity}>
+          <strong>removed an address</strong>
+        </Title>
       );
     },
     details: data => {

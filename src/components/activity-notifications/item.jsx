@@ -18,7 +18,7 @@ import { processActivity } from '../../modules/activity-trail';
 export default class NotificationItem extends React.Component {
 
   get typeIcon() {
-    const type = _.get(this.props, ['item', 'activityType']);
+    const type = _.get(this.props, ['item', 'kind']);
     if (!_.isEmpty(type)) {
       if (type.indexOf('order') >= 0) {
         return <i className="icon icon-orders"></i>;
@@ -39,19 +39,16 @@ export default class NotificationItem extends React.Component {
   }
 
   render() {
-    const origin = _.get(this.props, ['item', 'data', 'admin']);
     const isRead = _.get(this.props, ['item', 'isRead']);
     const classes = classNames('fc-activity-notification-item', {
       '_not-read': !isRead
     });
     const activity = processActivity(this.props.item);
-    const desc = representatives[activity.activityType];
+    const desc = representatives[activity.kind];
 
     if (!desc) return null;
 
-    const args = [activity.data, activity];
-
-    const title = desc.title(...args);
+    const title = desc.title(activity.data, activity);
 
     return (
       <div className={ classes }>
