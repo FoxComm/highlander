@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 import cssModules from 'react-css-modules';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
@@ -10,6 +10,8 @@ import { FormField } from '../../forms';
 import Button from '../../common/buttons';
 import WrapToLines from '../../common/wrap-to-lines';
 import { Link } from 'react-router';
+
+import type { HTMLElement } from '../../../types';
 
 type AuthState = {
   email: string,
@@ -49,7 +51,7 @@ export default class Auth extends Component {
     });
   }
 
-  render(): Element {
+  render(): HTMLElement {
     const { email, password, username } = this.state;
 
     return (

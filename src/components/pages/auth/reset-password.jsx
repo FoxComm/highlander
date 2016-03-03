@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react';
 import cssModules from 'react-css-modules';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
@@ -11,6 +11,8 @@ import { routeActions } from 'react-router-redux';
 import { TextInput } from '../../common/inputs';
 import { FormField } from '../../forms';
 import Button from '../../common/buttons';
+
+import type { HTMLElement } from '../../../types';
 
 type ResetState = {
   isReseted: boolean;
@@ -74,7 +76,7 @@ export default class RestorePassword extends Component {
     return Promise.resolve({_error: null});
   }
 
-  get topMessage(): Element {
+  get topMessage(): HTMLElement {
     const { isReseted } = this.state;
     const { error } = this.props;
 
@@ -101,7 +103,7 @@ export default class RestorePassword extends Component {
     );
   }
 
-  get passwordFields(): ?Array<Element> {
+  get passwordFields(): ?HTMLElement[] {
     const { isReseted } = this.state;
     const { fields: {passwd1, passwd2}} = this.props;
 
@@ -122,7 +124,7 @@ export default class RestorePassword extends Component {
     this.props.dispatch(routeActions.push('/login'));
   }
 
-  get primaryButton(): Element {
+  get primaryButton(): HTMLElement {
     const { isReseted } = this.state;
 
     if (isReseted) {
@@ -134,7 +136,7 @@ export default class RestorePassword extends Component {
     return <Button styleName="primary-button" type="submit">RESET PASSWORD</Button>;
   }
 
-  render(): Element {
+  render(): HTMLElement {
     const { handleSubmit } = this.props;
 
     return (

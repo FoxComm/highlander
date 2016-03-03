@@ -2,21 +2,22 @@
 
 import React, { PropTypes } from 'react';
 import cssModules from 'react-css-modules';
-import styles from './auth.css';
+import styles from './checkout.css';
 
 import Icon from '../../common/icon';
+import Shipping from './shipping';
 
-const Auth = props => {
+const Checkout = props => {
   return (
-    <div styleName="auth-block">
+    <div styleName="checkout">
       <Icon styleName="logo" name="fc-some_brand_logo" />
-      {props.children}
+      <Shipping isEditing={false}/>
     </div>
   );
 };
 
-Auth.propTypes = {
+Checkout.propTypes = {
   children: PropTypes.node,
 };
 
-export default cssModules(Auth, styles);
+export default cssModules(Checkout, styles);

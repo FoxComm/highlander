@@ -1,0 +1,28 @@
+
+@import "media-queries.css";
+
+.checkout {
+  text-align: center;
+  margin-top: 45px;
+
+  lost-column: 9/11;
+  lost-offset: -1/11;
+}
+
+.logo {
+  width: 45px;
+  height: 45px;
+  margin: 0 auto;
+  margin-bottom: 40px;
+}
+
+@media (--medium-viewport) {
+  .checkout {
+    margin-top: 10px;
+  }
+
+  .logo {
+    width: 40px;
+    height: 40px;
+  }
+}

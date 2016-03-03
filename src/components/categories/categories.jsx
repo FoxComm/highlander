@@ -5,6 +5,7 @@ import _ from 'lodash';
 import styles from './categories.css';
 import cssModules from 'react-css-modules';
 import { connect } from 'react-redux';
+import type { HTMLElement } from '../../types';
 
 import * as actions from '../../modules/categories';
 
@@ -21,7 +22,7 @@ class Categories extends React.Component {
     this.props.fetchCategories();
   }
 
-  render(): Element {
+  render(): HTMLElement {
     const categoryItems = _.map(this.props.list, (item) => {
       const key = `category-${item.replace(/\s/g, '-')}`;
       return (

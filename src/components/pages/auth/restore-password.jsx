@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react';
 import cssModules from 'react-css-modules';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
@@ -12,6 +12,8 @@ import { TextInput } from '../../common/inputs';
 import { FormField } from '../../forms';
 import Button from '../../common/buttons';
 import { Link } from 'react-router';
+
+import type { HTMLElement } from '../../../types';
 
 type FormData = {
   email: string;
@@ -59,7 +61,7 @@ export default class RestorePassword extends Component {
     });
   }
 
-  get topMessage(): Element {
+  get topMessage(): HTMLElement {
     const { emailSent } = this.state;
     const { fields: {email}, error } = this.props;
 
@@ -86,7 +88,7 @@ export default class RestorePassword extends Component {
     );
   }
 
-  get emailField(): ?Element {
+  get emailField(): ?HTMLElement {
     const { emailSent } = this.state;
     const { fields: {email}} = this.props;
 
@@ -104,7 +106,7 @@ export default class RestorePassword extends Component {
     this.props.dispatch(routeActions.push('/login'));
   }
 
-  get primaryButton(): Element {
+  get primaryButton(): HTMLElement {
     const { emailSent } = this.state;
 
     if (emailSent) {
@@ -116,7 +118,7 @@ export default class RestorePassword extends Component {
     return <Button styleName="primary-button" type="submit">SUBMIT</Button>;
   }
 
-  get switchStage(): Element {
+  get switchStage(): ?HTMLElement {
     const { emailSent } = this.state;
 
     if (!emailSent) {
@@ -128,7 +130,7 @@ export default class RestorePassword extends Component {
     }
   }
 
-  render(): Element {
+  render(): HTMLElement {
     const {handleSubmit} = this.props;
 
     return (

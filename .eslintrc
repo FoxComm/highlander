@@ -23,7 +23,8 @@
         "ignorePattern": "^\\s*var\\s.+=\\s*require\\s*\\("
       }
     ],
-    "arrow-body-style": 0
+    "arrow-body-style": 0,
+    "react/prop-types": 0
   },
   "parser": "babel-eslint",
 }

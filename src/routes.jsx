@@ -8,6 +8,8 @@ import Login from './components/pages/auth/login';
 import SignUp from './components/pages/auth/signup';
 import RestorePassword from './components/pages/auth/restore-password';
 import ResetPassword from './components/pages/auth/reset-password';
+
+import Checkout from './components/pages/checkout/checkout';
 import Grid from './components/pages/grid';
 
 const routes = (
@@ -21,6 +23,7 @@ const routes = (
       <Route path="/password/restore" component={RestorePassword} />
       <Route path="/password/reset" component={ResetPassword} />
     </Route>
+    <Route path="/checkout" component={Checkout} />
     <Route path="/grid" component={Grid} />
   </Route>
 );

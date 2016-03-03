@@ -10,4 +10,5 @@
 
 :root {
   --color-error: var(--redish);
+  --color-panels-bg: #F4F4F4;
 }
