@@ -1,13 +1,15 @@
 {
   "extends": "airbnb",
   "plugins": [
-    "flow-vars"
+    "flow-vars",
+    "no-console-log",
   ],
   "rules": {
     "flow-vars/define-flow-type": 1,
     "flow-vars/use-flow-type": 1,
-    "eqeqeq": 0,
+    "no-console-log/no-console-log": 1,
     "no-console": 0,
+    "eqeqeq": 0,
     "strict": 0,
     "space-before-function-paren": 0,
     "func-names": 0,
@@ -23,5 +25,5 @@
     ],
     "arrow-body-style": 0
   },
-  "parser": "babel-eslint"
+  "parser": "babel-eslint",
 }

@@ -16,6 +16,6 @@ export default class App extends KoaApp {
     const port = process.env.LISTEN_PORT ? Number(process.env.LISTEN_PORT) : 4040;
 
     this.listen(port);
-    console.log(`Listening on port ${port}`);
+    console.info(`Listening on port ${port}`);
   }
 }
