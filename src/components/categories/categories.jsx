@@ -39,4 +39,4 @@ class Categories extends React.Component {
   }
 }
 
-export default connect(getState, {...actions})(cssModules(Categories, styles));
+export default connect(getState, actions)(cssModules(Categories, styles));
