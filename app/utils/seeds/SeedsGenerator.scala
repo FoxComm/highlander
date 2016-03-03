@@ -62,12 +62,12 @@ object RankingSeedsGenerator {
       generateOrderPayment(o.id, pm, Random.nextInt(20000) + 100)
     }
 
-    val insertCustomers = Customers.createAll((1 to customersCount).map { i ⇒
+    def insertCustomers() = Customers.createAll((1 to customersCount).map { i ⇒
       val s = randomString(15)
       Customer.build(name = s.some, email = s"$s-$i@email.com", password = s.some, location = location.some)
     })
 
-    val insertOrders = for { 
+    def insertOrders() = for {
       productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
       customers ← * <~ Customers.filter(_.location === location).result
       newCreditCards ← * <~  customers.map { c ⇒
@@ -78,7 +78,7 @@ object RankingSeedsGenerator {
       _  ← * <~  Orders.createAll(orders)
     } yield {}
 
-    val insertPayments = {
+    def insertPayments() = {
       val action = (for {
         (o, cc) ← Orders.join(CreditCards).on(_.customerId === _.customerId)
       } yield (o, cc)).result
@@ -89,9 +89,9 @@ object RankingSeedsGenerator {
     }
 
     for {
-      _  ← * <~  insertCustomers
-      _  ← * <~  insertOrders
-      _  ← * <~  insertPayments
+      _ ← * <~ insertCustomers
+      _ ← * <~ insertOrders
+      _ ← * <~ insertPayments
     } yield {}
   }
 
@@ -111,7 +111,7 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
   def generateAddresses(customers: Seq[Customer]): Seq[Address] = { 
     customers.flatMap { c ⇒ 
         generateAddress(customer = c, isDefault = true) +: 
-        ((0 to (Random.nextInt(2))) map { i ⇒ 
+        ((0 to Random.nextInt(2)) map { i ⇒
           generateAddress(customer = c, isDefault = false)
         })
     }

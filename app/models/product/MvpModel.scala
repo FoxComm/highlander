@@ -1,8 +1,7 @@
 package models.product
 
 import models.inventory.{Skus, Sku, SkuShadow, SkuShadows}
-
-import Aliases.Json
+import models.Aliases.Json
 import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -125,37 +124,35 @@ object Mvp {
 
   def insertProduct(contextId: Int, p: SimpleProductData)(implicit db: Database): 
   DbResultT[SimpleProductData] = for {
-    simpleProduct ← * <~ SimpleProduct(p.title, p.description, p.image, p.code, p.isActive)
-    product ← * <~ Products.create(simpleProduct.create)
-    simpleShadow ← * <~ SimpleProductShadow(contextId, product.id)
-    productShadow ← * <~ ProductShadows.create(simpleShadow.create)
-    simpleSku ← * <~ SimpleSku(product.id, p.code, p.title, p.price, p.currency, p.isActive, p.isHazardous)
-    sku ← * <~ Skus.create(simpleSku.create)
+    simpleProduct   ← * <~ SimpleProduct(p.title, p.description, p.image, p.code, p.isActive)
+    product         ← * <~ Products.create(simpleProduct.create)
+    simpleShadow    ← * <~ SimpleProductShadow(contextId, product.id)
+    productShadow   ← * <~ ProductShadows.create(simpleShadow.create)
+    simpleSku       ← * <~ SimpleSku(product.id, p.code, p.title, p.price, p.currency, p.isActive, p.isHazardous)
+    sku             ← * <~ Skus.create(simpleSku.create)
     simpleSkuShadow ← * <~ SimpleSkuShadow(contextId, sku.id)
-    skuShadow ← * <~ SkuShadows.create(simpleSkuShadow.create)
+    skuShadow       ← * <~ SkuShadows.create(simpleSkuShadow.create)
   } yield p.copy(
     productId = product.id,
     productShadowId = productShadow.id,
     skuId = sku.id,
     skuShadowId = skuShadow.id)
 
-  def getPrice(product: SimpleProductData)(implicit db: Database): 
-  DbResultT[Int] = for {
-    sku ← * <~ Skus.mustFindById404(product.skuId)
+  def getPrice(product: SimpleProductData)(implicit db: Database): DbResultT[Int] = for {
+    sku       ← * <~ Skus.mustFindById404(product.skuId)
     skuShadow ← * <~ SkuShadows.mustFindById404(product.skuShadowId)
-    p ← * <~ price(sku, skuShadow).getOrElse((0, Currency.USD))
+    p         ← * <~ price(sku, skuShadow).getOrElse((0, Currency.USD))
   } yield p._1
 
-  def getProductTuple(d: SimpleProductData)(implicit db: Database): 
-    DbResultT[SimpleProductTuple] = for {
-      product ← * <~ Products.mustFindById404(d.productId)
+  def getProductTuple(d: SimpleProductData)(implicit db: Database): DbResultT[SimpleProductTuple] = for {
+      product       ← * <~ Products.mustFindById404(d.productId)
       productShadow ← * <~ ProductShadows.mustFindById404(d.productShadowId)
-      sku ← * <~ Skus.mustFindById404(d.skuId)
-      skuShadow ← * <~ SkuShadows.mustFindById404(d.skuShadowId)
-    } yield (SimpleProductTuple(product, productShadow, sku, skuShadow))
+      sku           ← * <~ Skus.mustFindById404(d.skuId)
+      skuShadow     ← * <~ SkuShadows.mustFindById404(d.skuShadowId)
+    } yield SimpleProductTuple(product, productShadow, sku, skuShadow)
 
-  def insertProducts(ps : Seq[SimpleProductData], contextId: Int)(implicit db: Database) : 
-  DbResultT[Seq[SimpleProductData]] = for {
+  def insertProducts(ps : Seq[SimpleProductData], contextId: Int)
+    (implicit db: Database): DbResultT[Seq[SimpleProductData]] = for {
     results ← * <~ DbResultT.sequence(ps.map { p ⇒ insertProduct(contextId, p) } )
   } yield results
 
