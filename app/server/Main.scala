@@ -58,8 +58,9 @@ class Service(
   implicit val db:   Database = dbOverride.getOrElse(Database.forConfig("db", config))
   implicit val apis: Apis     = apisOverride.getOrElse(Apis(new WiredStripeApi))
 
-  implicit val storeAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.jwtStoreAdmin
-  implicit val customerAuth: AsyncAuthenticator[Customer] = Authenticator.jwtCustomer
+  implicit val storeAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.forAdminFromConfig
+  implicit val customerAuth: AsyncAuthenticator[Customer] = Authenticator.forCustomerFromConfig
+
 
   val defaultRoutes = {
     pathPrefix("v1") {

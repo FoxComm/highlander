@@ -20,6 +20,7 @@ import utils.DbResultT.implicits._
 import utils.Passwords.checkPassword
 import utils.Slick.implicits._
 import utils.aliases._
+import utils.Config.config
 
 // TODO: Implement real session-based authentication with JWT
 // TODO: Probably abstract this out so that we use one for both AdminUsers and Customers
@@ -31,6 +32,22 @@ object Authenticator {
   type EmailFinder[M] = String ⇒ DBIO[Option[M]]
   type TokenToModel[M] = Token ⇒ Failures Xor DBIO[Option[M]]
   type AsyncAuthenticator[M] = (Option[HttpCredentials]) ⇒ Future[AuthenticationResult[M]]
+
+  def forAdminFromConfig(implicit ec: EC, db: DB): AsyncAuthenticator[StoreAdmin] = {
+    config.getString("auth.method") match {
+      case "basic" ⇒ basicStoreAdmin
+      case "jwt" ⇒ jwtStoreAdmin
+      case method ⇒ throw new RuntimeException(s"unknown auth method $method")
+    }
+  }
+
+  def forCustomerFromConfig(implicit ec: EC, db: DB): AsyncAuthenticator[Customer] = {
+    config.getString("auth.method") match {
+      case "basic" ⇒ basicCustomer
+      case "jwt" ⇒ jwtCustomer
+      case method ⇒ throw new RuntimeException(s"unknown auth method $method")
+    }
+  }
 
   def basicCustomer(credentials: Option[HttpCredentials])
               (implicit ec: EC, db: DB): Future[AuthenticationResult[Customer]] = {
