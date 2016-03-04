@@ -2,26 +2,55 @@
 
 import React from 'react';
 import type { HTMLElement } from '../../types';
+import { connect } from 'react-redux';
+import classNames from 'classnames';
 import cssModules from 'react-css-modules';
 import styles from './sidebar.css';
 
-import Icon from '../common/icon';
+// import Icon from '../common/icon';
 
-// type SidebarProps = {
+import * as actions from '../../modules/sidebar';
 
-// };
+type SidebarProps = {
+  isVisible: boolean;
+  toggleSidebar: Function;
+};
 
-const Sidebar = () : HTMLElement => {
+const getState = state => ({ ...state.sidebar });
+
+const Sidebar = (props : SidebarProps) : HTMLElement => {
+  const sidebarClass = classNames({
+    'sidebar-hidden': !props.isVisible,
+    'sidebar-shown': props.isVisible,
+  });
   return (
-    <div styleName="sidebar">
-      <div styleName="overlay"></div>
+    <div styleName={sidebarClass}>
+      <div styleName="overlay" onClick={props.toggleSidebar}></div>
       <div styleName="container">
         <div styleName="controls">
-          <Icon name="fc-close" />
+          <div styleName="controls-close">
+            <a styleName="close-icon" onClick={props.toggleSidebar}>
+              X {/* <Icon name="fc-close"/> */}
+            </a>
+          </div>
+          <div styleName="controls-categories">
+            <div styleName="item">
+              <a href="#" styleName="item-link">ALL</a>
+            </div>
+            <div styleName="item">
+              <a href="#" styleName="item-link">EYEGLASSES</a>
+            </div>
+            <div styleName="item">
+              <a href="#" styleName="item-link">SUNGLASSES</a>
+            </div>
+            <div styleName="item">
+              <a href="#" styleName="item-link">READERS</a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default cssModules(Sidebar, styles);
+export default connect(getState, actions)(cssModules(Sidebar, styles));

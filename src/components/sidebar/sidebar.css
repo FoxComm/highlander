@@ -1,7 +1,11 @@
 
 @import "colors.css";
 
-.sidebar {
+.sidebar-hidden {
+  display: none;
+}
+
+.sidebar-shown {
   display: block;
   position: fixed;
 }
@@ -15,13 +19,40 @@
   background: var(--light-grayish);
 }
 
-.overlay {}
-.controls {}
+.container {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 280px;
+  position: fixed;
+  background: var(--blackish);
+  color: var(--whitish);
+}
 
-@media (--small-viewport) {
+.controls {
+  margin-left: 20px;
+  margin-top: 20px;
+  color: var(--whitish);
+}
 
+.controls-close {
 
-  .container {}
+}
 
-  .controls {}
+.close-icon {
+  color: var(--whitish);
+  text-decoration: none;
+}
+
+.controls-categories {
+  margin-left: 20px;
+}
+
+.item {
+  margin-top: 32px;
+}
+
+.item-link {
+  color: var(--whitish);
+  text-decoration: none;
 }

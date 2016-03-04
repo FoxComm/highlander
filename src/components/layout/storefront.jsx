@@ -1,6 +1,7 @@
 /* @flow */
 
-import React, { PropTypes } from 'react';
+import React from 'react';
+import type { HTMLElement } from '../../types';
 import cssModules from 'react-css-modules';
 import styles from './storefront.css';
 
@@ -8,15 +9,22 @@ import Icon from '../common/icon';
 import { Link } from 'react-router';
 import Categories from '../categories/categories';
 import Sidebar from '../sidebar/sidebar';
+import { connect } from 'react-redux';
+import { toggleSidebar } from '../../modules/sidebar';
 
-const StoreFront = props => {
+type StoreFrontProps = {
+  children: HTMLElement;
+  toggleSidebar: Function;
+}
+
+const StoreFront = (props : StoreFrontProps) : HTMLElement => {
   return (
     <div styleName="storefront">
       <div styleName="head">
         <div styleName="search">
           <Icon name="fc-magnifying-glass" styleName="head-icon"/>
         </div>
-        <div styleName="hamburger">
+        <div styleName="hamburger" onClick={props.toggleSidebar}>
           <Icon name="fc-hamburger" styleName="head-icon"/>
         </div>
         <Icon styleName="logo" name="fc-some_brand_logo" />
@@ -43,8 +51,4 @@ const StoreFront = props => {
   );
 };
 
-StoreFront.propTypes = {
-  children: PropTypes.node.isRequired,
-};
-
-export default cssModules(StoreFront, styles);
+export default connect(null, {toggleSidebar})(cssModules(StoreFront, styles));
