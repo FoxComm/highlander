@@ -56,9 +56,7 @@ sealed trait Token extends Product {
   val email: String
   val scopes: Seq[String]
 
-  def encode: String = {
-    Token.encode(this)
-  }
+  def encode: String = Token.encode(this)
 }
 
 object Token {
@@ -149,8 +147,6 @@ final case class CustomerToken(id: Int,
   ) extends Token
 
 object CustomerToken {
-  def fromCustomer(customer: Customer): CustomerToken = {
-    CustomerToken(id = customer.id, name = customer.name, email = customer.email,
-      scopes = Array[String]())
-  }
+  def fromCustomer(customer: Customer): CustomerToken =
+    CustomerToken(id = customer.id, name = customer.name, email = customer.email, scopes = Array[String]())
 }

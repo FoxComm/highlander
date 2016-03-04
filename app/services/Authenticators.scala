@@ -62,7 +62,8 @@ object Authenticator {
   def requireAuth[T](auth: AsyncAuthenticator[T]): AuthenticationDirective[T] = {
     extractCredentials.flatMap { optCreds ⇒
       onSuccess(auth(optCreds)).flatMap {
-        case Right(user) ⇒ provide(user)
+        case Right(user) ⇒
+          provide(user)
         case Left(challenge) ⇒
           val cause = if (optCreds.isEmpty) CredentialsMissing else CredentialsRejected
           reject(AuthenticationFailedRejection(cause, challenge)): Directive1[T]
@@ -85,26 +86,24 @@ object Authenticator {
   }
 
   private[this] def jwtAuth[M, F <: TokenToModel[M]](realm: String)
-      (credentials: Option[HttpCredentials], userFromToken: F)
-    (implicit ec: EC, db: Database): Future[AuthenticationResult[M]] = {
-    (for {
-      jwtCredentials ← * <~ Credentials.mustJwtOr(credentials, LoginFailed.single)
-      token ← * <~ validateTokenCredentials(jwtCredentials)
-      userDbio ← * <~ userFromToken(token)
-      user ← * <~ userDbio.mustFindOr(LoginFailed)
+    (credentials: Option[HttpCredentials], userFromToken: F)
+    (implicit ec: EC, db: Database): Future[AuthenticationResult[M]] = (for {
+      jwtCredentials ← * <~ Credentials.mustVerifyJWTCredentials(credentials, LoginFailed.single)
+      token          ← * <~ validateTokenCredentials(jwtCredentials)
+      userDbio       ← * <~ userFromToken(token)
+      user           ← * <~ userDbio.mustFindOr(LoginFailed)
     } yield user).run().map {
       case Xor.Right(entity) ⇒ AuthenticationResult.success(entity)
       case Xor.Left(_) ⇒ AuthenticationResult.failWithChallenge(challengeFor(realm))
     }
-  }
 
   private[this] def basicAuth[M, F <: EmailFinder[M]](realm: String)
     (credentials: Option[HttpCredentials], finder: F, getHashedPassword: M ⇒ Option[String])
    (implicit ec: EC, db: DB): Future[AuthenticationResult[M]] = {
     (for {
-      userCredentials ← * <~ Credentials.mustBasicOr(credentials, LoginFailed.single)
-      user ← * <~ finder(userCredentials.identifier).mustFindOr(LoginFailed)
-      validated ← * <~ validatePassword(user, getHashedPassword(user), userCredentials.secret)
+      userCredentials ← * <~ Credentials.mustVerifyBasicCredentials(credentials, LoginFailed.single)
+      user            ← * <~ finder(userCredentials.identifier).mustFindOr(LoginFailed)
+      validated       ← * <~ validatePassword(user, getHashedPassword(user), userCredentials.secret)
     } yield validated).run().map {
       case Xor.Right(entity) ⇒ AuthenticationResult.success(entity)
       case Xor.Left(_) ⇒ AuthenticationResult.failWithChallenge(challengeFor(realm))
@@ -117,9 +116,9 @@ object Authenticator {
     def auth[M, F <: EmailFinder[M], T](finder: F, getHashedPassword: M ⇒ Option[String], tokenFromModel: M ⇒ T):
       Result[T] = {
       (for {
-        userInstance ← * <~ finder(payload.email).mustFindOr(LoginFailed)
+        userInstance  ← * <~ finder(payload.email).mustFindOr(LoginFailed)
         validatedUser ← * <~ validatePassword(userInstance, getHashedPassword(userInstance), payload.password)
-        checkedToken ← * <~ tokenFromModel(validatedUser)
+        checkedToken  ← * <~ tokenFromModel(validatedUser)
       } yield checkedToken).run()
     }
 

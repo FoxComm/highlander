@@ -37,7 +37,7 @@ object DbResultT {
         dbResultT.value.run()
     }
 
-    final implicit class EnrichedOption[A](val option: Option[A]) {
+    final implicit class EnrichedOption[A](val option: Option[A]) extends AnyVal {
       def toXor[F](or: F): F Xor A =
         option.fold { Xor.left[F, A](or) } (Xor.right[F,A])
     }

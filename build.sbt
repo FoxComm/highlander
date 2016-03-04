@@ -104,8 +104,6 @@ lazy val phoenixScala = (project in file(".")).
         "com.typesafe.akka"          %% "akka-stream"            % akkaV,
         "com.typesafe.akka"          %% "akka-http-core"         % akkaV,
         "de.heikoseeberger"          %% "akka-sse"               % "1.6.3",
-        // Auth
-        "org.bitbucket.b_c"    % "jose4j"                       % "0.4.4",
         // JSON
         "org.json4s"                 %% "json4s-core"            % json4sV,
         "org.json4s"                 %% "json4s-jackson"         % json4sV,
@@ -121,6 +119,9 @@ lazy val phoenixScala = (project in file(".")).
         // Validations
         "com.wix"                    %% "accord-core"            % "0.5",
         "org.scalactic"              %% "scalactic"              % "2.2.6",
+        // Auth
+        "org.bitbucket.b_c"          %  "jose4j"                  % "0.4.4",
+        "com.lambdaworks"            %  "scrypt"                 % "1.4.0",
         // Logging
         "ch.qos.logback"             %  "logback-core"           % logbackV,
         "ch.qos.logback"             %  "logback-classic"        % logbackV,
@@ -130,7 +131,6 @@ lazy val phoenixScala = (project in file(".")).
         "org.slf4j"                  %  "slf4j-api"              % "1.7.16",
         "org.joda"                   %  "joda-money"             % "0.11",
         "com.pellucid"               %% "sealerate"              % "0.0.3",
-        "com.lambdaworks"            %  "scrypt"                 % "1.4.0",
         "com.github.julien-truffaut" %% "monocle-core"           % monocleV,
         "com.github.julien-truffaut" %% "monocle-generic"        % monocleV,
         "com.github.julien-truffaut" %% "monocle-macro"          % monocleV,
