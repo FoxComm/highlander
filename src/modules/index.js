@@ -16,6 +16,7 @@ import activityTrail from './activity-trail';
 import siteMenu from './site-menu';
 import inventory from './inventory';
 import expandableTables from './expandable-tables';
+import products from './products';
 
 const rootReducer = combineReducers({
   router: routerStateReducer,
@@ -35,6 +36,7 @@ const rootReducer = combineReducers({
   siteMenu,
   inventory,
   expandableTables,
+  products,
 });
 
 export default rootReducer;
