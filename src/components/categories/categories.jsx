@@ -7,6 +7,8 @@ import cssModules from 'react-css-modules';
 import { connect } from 'react-redux';
 import type { HTMLElement } from '../../types';
 
+import { Link } from 'react-router';
+
 import * as actions from '../../modules/categories';
 
 const getState = state => ({ list: state.categories.list });
@@ -24,16 +26,20 @@ class Categories extends React.Component {
 
   render(): HTMLElement {
     const categoryItems = _.map(this.props.list, (item) => {
-      const key = `category-${item.name.replace(/\s/g, '-')}`;
+      const dashedName = item.name.replace(/\s/g, '-');
+      const key = `category-${dashedName}`;
       return (
         <div styleName="item" key={key}>
-          <a href="#" styleName="item-link">{item.name.toUpperCase()}</a>
+          <Link to={`/${dashedName}`} styleName="item-link">
+            {item.name.toUpperCase()}
+          </Link>
         </div>
       );
     });
 
     return (
       <div styleName="list">
+        <Link to="/" styleName="item-link">ALL</Link>
         {categoryItems}
       </div>
     );

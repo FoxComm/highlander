@@ -11,7 +11,6 @@ export function fetchCategories(): Function {
     dispatch(categoriesFetchStated());
 
     const result = [
-      {id: 1, name: 'all'},
       {id: 2, name: 'eyeglasses'},
       {id: 3, name: 'sunglasses'},
       {id: 4, name: 'readers'},
