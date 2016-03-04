@@ -12,6 +12,7 @@ import org.json4s.JsonDSL._
 import org.json4s.jackson.Serialization.{write ⇒ render}
 
 import java.time.Instant
+import cats.implicits._
 
 object SkuResponses {
 
@@ -57,11 +58,14 @@ object SkuResponses {
 
   object IlluminatedSkuResponse {
 
-    final case class Root(code: String, context: ProductContextResponse.Root, 
+    final case class Root(code: String, context: Option[ProductContextResponse.Root], 
       attributes: Json)
+
 
     def build(s: IlluminatedSku): Root = 
       Root(code = s.code, attributes = s.attributes, 
-        context = ProductContextResponse.build(s.context))
+        context = ProductContextResponse.build(s.context).some)
+    def buildLite(s: IlluminatedSku): Root = 
+      Root(code = s.code, attributes = s.attributes, context = None)
   }
 }

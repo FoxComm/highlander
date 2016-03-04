@@ -11,7 +11,7 @@ final case class IlluminatedContext(name: String, attributes: Json)
  * An IlluminatedProduct is what you get when you combine the product shadow and
  * the product. 
  */
-final case class IlluminatedProduct(productId: Int = 0, shadowId: Int = 0, 
+final case class IlluminatedProduct(productId: Int = 0,
   context: IlluminatedContext, attributes: Json, variants: Json)
 
 object IlluminatedProduct { 
@@ -20,7 +20,6 @@ object IlluminatedProduct {
     shadow: ProductShadow) : IlluminatedProduct = { 
     IlluminatedProduct(
       productId = product.id, 
-      shadowId = shadow.id,
       context = IlluminatedContext(productContext.name, productContext.attributes),
       attributes = IlluminateAlgorithm.projectAttributes(product.attributes, shadow.attributes),
       variants = findVariants(product.variants, productContext.name))

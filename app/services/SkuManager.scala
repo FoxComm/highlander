@@ -81,7 +81,7 @@ object SkuManager {
       one.mustFindOr(SkuNotFoundForContext(code, productContext.name))
   } yield IlluminatedSkuResponse.build(IlluminatedSku.illuminate(productContext, form, shadow))).run()
 
-  private def validateShadow(form: Sku, shadow: SkuShadow) 
+  def validateShadow(form: Sku, shadow: SkuShadow) 
   (implicit ec: EC, db: DB) : DbResultT[Unit] = 
     SkuValidator.validate(form, shadow) match {
       case Nil ⇒ DbResultT.pure(Unit)

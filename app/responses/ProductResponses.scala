@@ -12,6 +12,7 @@ import org.json4s.JsonDSL._
 import org.json4s.jackson.Serialization.{write ⇒ render}
 
 import java.time.Instant
+import cats.implicits._
 
 object ProductResponses {
 
@@ -38,23 +39,26 @@ object ProductResponses {
 
   object ProductShadowResponse {
 
-
-    final case class Root(id: Int, context: ProductContextResponse.Root, attributes: Json, 
-      createdAt: Instant)
+    final case class Root(id: Int, productId: Int, context: ProductContextResponse.Root, 
+      attributes: Json, createdAt: Instant)
 
     def build(p: ProductShadow, c: ProductContext): Root = 
-      Root(id = p.id, attributes = p.attributes, 
+      Root(id = p.id, productId = p.productId, 
+        attributes = p.attributes, 
         context = ProductContextResponse.build(c),
         createdAt = p.createdAt)
   }
 
   object IlluminatedProductResponse {
 
-    final case class Root(id: Int, context: ProductContextResponse.Root, attributes: Json, variants: Json)
+    final case class Root(id: Int, context: Option[ProductContextResponse.Root], attributes: Json, variants: Json)
 
     def build(p: IlluminatedProduct): Root = 
       Root(id = p.productId, attributes = p.attributes, variants = p.variants,
-        context = ProductContextResponse.build(p.context))
+        context = ProductContextResponse.build(p.context).some)
+    def buildLite(p: IlluminatedProduct): Root = 
+      Root(id = p.productId, attributes = p.attributes, variants = p.variants,
+        context = None)
   }
 
   object FullProductFormResponse { 
@@ -80,4 +84,30 @@ object ProductResponses {
         product = ProductShadowResponse.build(product, context),
         skus = skus.map { case (s, ss) ⇒  SkuShadowLiteResponse.build(s, ss) })
   }
+
+  object FullIlluminatedProductResponse { 
+
+    final case class Root(
+      product: IlluminatedProductResponse.Root,
+      skus: Seq[IlluminatedSkuResponse.Root])
+
+    def build(product: IlluminatedProduct, skus: Seq[IlluminatedSku]) : Root = 
+      Root(
+        product = IlluminatedProductResponse.build(product),
+        skus = skus.map { s ⇒  IlluminatedSkuResponse.build(s) })
+  }
+
+  object IlluminatedFullProductResponse {
+
+    final case class Root(id: Int, context: ProductContextResponse.Root, product: IlluminatedProductResponse.Root, 
+      skus: Seq[IlluminatedSkuResponse.Root])
+
+    def build(p: IlluminatedProduct, skus: Seq[IlluminatedSku]): Root = 
+      Root(
+        id = p.productId, 
+        product = IlluminatedProductResponse.buildLite(p),
+        context = ProductContextResponse.build(p.context),
+        skus = skus.map{ s ⇒ IlluminatedSkuResponse.buildLite(s)})
+  }
+
 }

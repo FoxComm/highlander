@@ -15,7 +15,9 @@ import utils.Http._
 import utils.CustomDirectives._
 
 import payloads.{CreateProductForm, UpdateProductForm, CreateProductShadow, 
-  UpdateProductShadow, CreateProductContext, UpdateProductContext}
+  UpdateProductShadow, CreateProductContext, UpdateProductContext,
+  CreateFullProductForm, UpdateFullProductForm, CreateFullProductShadow, 
+  UpdateFullProductShadow}
 
 
 object ProductRoutes {
@@ -28,6 +30,53 @@ object ProductRoutes {
         activityContext(admin) { implicit ac ⇒
 
           pathPrefix("products") {
+            pathPrefix("full") {
+              pathPrefix("forms" / IntNumber) { id ⇒
+                (get & pathEnd) {
+                  goodOrFailures {
+                    ProductManager.getFullForm(id)
+                  }
+                } ~ 
+                (patch & pathEnd & entity(as[UpdateFullProductForm])) { payload ⇒
+                  goodOrFailures {
+                    ProductManager.updateFullForm(id, payload)
+                  }
+                } 
+              } ~
+              pathPrefix("forms") { 
+                (post & pathEnd & entity(as[CreateFullProductForm])) { payload ⇒
+                  goodOrFailures {
+                    ProductManager.createFullForm(payload)
+                  }
+                } 
+              } ~
+              pathPrefix("shadows" / Segment / IntNumber) { (context, id)  ⇒
+                (get & pathEnd) {
+                  goodOrFailures {
+                    ProductManager.getFullShadow(id, context)
+                  }
+                } ~ 
+                (patch & pathEnd & entity(as[UpdateFullProductShadow])) { payload ⇒
+                  goodOrFailures {
+                    ProductManager.updateFullShadow(id, payload, context)
+                  }
+                } 
+              } ~
+              pathPrefix("shadows" / Segment) { (context)  ⇒
+                (post & pathEnd & entity(as[CreateFullProductShadow])) { payload ⇒
+                  goodOrFailures {
+                    ProductManager.createFullShadow(payload, context)
+                  }
+                } 
+              } ~ 
+              pathPrefix("illuminated" / Segment / IntNumber) { (context, id) ⇒
+                (get & pathEnd) {
+                  goodOrFailures {
+                    ProductManager.getIlluminatedFullProduct(id, context)
+                  }
+                }
+              } 
+            } ~
             pathPrefix("forms" / IntNumber) { id ⇒
               (get & pathEnd) {
                 goodOrFailures {
