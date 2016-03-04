@@ -10,14 +10,24 @@ export function fetchCategories(): Function {
   return dispatch => {
     dispatch(categoriesFetchStated());
 
-    const result = ['all', 'eyeglasses', 'sunglasses', 'readers'];
+    const result = [
+      {id: 1, name: 'all'},
+      {id: 2, name: 'eyeglasses'},
+      {id: 3, name: 'sunglasses'},
+      {id: 4, name: 'readers'},
+    ];
     return dispatch(categoriesFetchSucceded(result));
   };
 }
 
+type Category = {
+  id: number;
+  name: string;
+}
+
 type FormData = {
   isFetching: boolean;
-  list: Array<string>;
+  list: Array<Category>;
 }
 
 const initialState: FormData = {

@@ -24,10 +24,10 @@ class Categories extends React.Component {
 
   render(): HTMLElement {
     const categoryItems = _.map(this.props.list, (item) => {
-      const key = `category-${item.replace(/\s/g, '-')}`;
+      const key = `category-${item.name.replace(/\s/g, '-')}`;
       return (
         <div styleName="item" key={key}>
-          <a href="#" styleName="item-link">{item.toUpperCase()}</a>
+          <a href="#" styleName="item-link">{item.name.toUpperCase()}</a>
         </div>
       );
     });
