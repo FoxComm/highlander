@@ -16,6 +16,7 @@ import org.json4s.jackson.JsonMethods._
 import org.json4s.{Extraction, _}
 import services.{Failures, LoginFailed}
 import utils.Config.config
+import utils.Config.RichConfig
 import utils.caseClassToMap
 
 
@@ -64,6 +65,8 @@ object Token {
   implicit val formats = DefaultFormats
   import collection.JavaConversions.seqAsJavaList
 
+  val tokenTTL = config.getOptInt("auth.tokenTTL").getOrElse(5)
+
   private def getJWTClaims(token: Token): JwtClaims = {
     val claims = new JwtClaims
 
@@ -75,7 +78,7 @@ object Token {
       }
     }
 
-    claims.setExpirationTimeMinutesInTheFuture(150)
+    claims.setExpirationTimeMinutesInTheFuture(tokenTTL.toFloat)
     claims.setIssuer("FC")
     claims
   }

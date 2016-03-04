@@ -19,6 +19,9 @@ object Config {
 
     def getOptBool = getOptionalSetting[Boolean](underlying.getBoolean)(_)
     def getOptString = getOptionalSetting[String](underlying.getString)(_)
+    def getOptInt = getOptionalSetting[Int](underlying.getInt)(_)
+    def getOptLong = getOptionalSetting[Long](underlying.getLong)(_)
+    def getOptDouble = getOptionalSetting[Double](underlying.getDouble)(_)
   }
 
   sealed trait Environment
