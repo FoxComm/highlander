@@ -11,4 +11,4 @@ create table skus (
 );
 
 create unique index sku_idx on skus (id);
-create unique index sku_codex on skus (code);
+create index sku_codex on skus (code);

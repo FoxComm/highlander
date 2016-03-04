@@ -13,7 +13,7 @@ import utils.Slick.implicits._
 import payloads.{CreateProductForm, UpdateProductForm, CreateProductShadow, 
   UpdateProductShadow, CreateProductContext, UpdateProductContext,
   CreateFullProductForm, UpdateFullProductForm, CreateFullProductShadow, 
-  UpdateFullProductShadow, CreateSkuForm, UpdateFullSkuForm, CreateSkuShadow, 
+  UpdateFullProductShadow, CreateFullSkuForm, UpdateFullSkuForm, CreateSkuShadow, 
   UpdateFullSkuShadow, CreateFullProduct, UpdateFullProduct}
 
 import ProductFailure._
@@ -132,7 +132,7 @@ object ProductManager {
     productForm ← * <~ Products.create(
       Product(attributes = payload.form.product.attributes, variants = payload.form.product.variants, 
         isActive = false))
-    skuForms  ← * <~ DbResultT.sequence(payload.form.skus.map { s ⇒ createSkuForm(s)})
+    skuForms  ← * <~ DbResultT.sequence(payload.form.skus.map { s ⇒ createSkuForm(productForm.id, s)})
     productShadow ← * <~ ProductShadows.create(ProductShadow(
       productContextId = productContext.id, productId = productForm.id,
       attributes = payload.shadow.product.attributes))
@@ -192,9 +192,9 @@ object ProductManager {
       case head ::tail ⇒ DbResultT.leftLift(NonEmptyList(head, tail))
     }
 
-  private def createSkuForm(payload: CreateSkuForm)(implicit ec: EC, db: DB) = for {
+  private def createSkuForm(productId: Int, payload: CreateFullSkuForm)(implicit ec: EC, db: DB) = for {
     skuForm ← * <~ Skus.create(
-      Sku(code = payload.code, productId = payload.productId, 
+      Sku(code = payload.code, productId = productId, 
         attributes = payload.attributes, isActive = payload.isActive, 
         isHazardous = payload.isHazardous))
   } yield skuForm

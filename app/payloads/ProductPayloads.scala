@@ -9,7 +9,7 @@ final case class UpdateProductForm(attributes: Json, variants: Json, isActive: B
 final case class UpdateProductShadow(attributes: Json)
 final case class UpdateProductContext(name: String, attributes: Json)
 
-final case class CreateFullProductForm(product: CreateProductForm, skus:  Seq[CreateSkuForm])
+final case class CreateFullProductForm(product: CreateProductForm, skus:  Seq[CreateFullSkuForm])
 final case class UpdateFullProductForm(product: UpdateProductForm, skus:  Seq[UpdateFullSkuForm])
 final case class CreateFullProductShadow(product: CreateProductShadow, skus:  Seq[CreateSkuShadow])
 final case class UpdateFullProductShadow(product: UpdateProductShadow, skus:  Seq[UpdateFullSkuShadow])
