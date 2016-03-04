@@ -54,6 +54,7 @@ export default class LiveSearch extends React.Component {
     selectSavedSearch: PropTypes.func.isRequired,
     searches: PropTypes.object,
     singleSearch: PropTypes.bool,
+    submitPhrase: PropTypes.func.isRequired,
     submitFilters: PropTypes.func.isRequired,
     updateSearch: PropTypes.func.isRequired,
     noGutter: PropTypes.bool,
@@ -204,12 +205,14 @@ export default class LiveSearch extends React.Component {
   }
 
   formatPill(pill, idx, props) {
+    const icon = pill.term === '_all' ? 'icon-search' : 'icon-filter';
+
     return (
       <div
         className="fc-pilled-input__pill"
         key={`pill-${idx}`}
         onClick={() => props.onPillClick(pill, idx)}>
-        <i className='icon-filter' />
+        <i className={icon} />
         {pill.display}
         <a onClick={() => props.onPillClose(pill, idx)}
           className="fc-pilled-input__pill-close">
@@ -320,7 +323,9 @@ export default class LiveSearch extends React.Component {
       case 13:
         // Enter
         event.preventDefault();
-        if (this.state.selectionIndex < this.state.searchOptions.length) {
+        if (this.state.searchOptions.length != 1 && this.state.selectionIndex == -1) {
+          this.props.submitPhrase(this.state.searchDisplay);
+        } else if (this.state.selectionIndex < this.state.searchOptions.length) {
           this.submitFilter(this.state.searchDisplay, true);
         } else if (this.state.selectionIndex != -1) {
           this.goBack();
@@ -406,6 +411,7 @@ export default class LiveSearch extends React.Component {
     const tableClass = classNames('fc-col-md-1-1', 'fc-live-search__table', {
       '_no-gutter': this.props.noGutter
     });
+
     return (
       <div className="fc-live-search">
         {this.header}

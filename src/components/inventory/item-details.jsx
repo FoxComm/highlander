@@ -16,7 +16,7 @@ import WarehouseDrawer from './inventory-warehouse-drawer';
 import * as WarehousesActions from '../../modules/inventory/warehouses';
 
 const mapStateToProps = (state, props) => ({
-  tableState: _.get(state, ['inventory', 'warehouses', props.params.sku], {})
+  tableState: _.get(state, ['inventory', 'warehouses', props.params.code], {})
 });
 
 @connect(mapStateToProps, {...WarehousesActions})
@@ -29,7 +29,7 @@ export default class InventoryItemDetails extends React.Component {
   };
 
   componentDidMount() {
-    this.props.fetchSummary(this.props.params.sku);
+    this.props.fetchSummary(this.props.params.code);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -38,7 +38,7 @@ export default class InventoryItemDetails extends React.Component {
     const warehouses = _.get(nextProps, namespace, []);
     if (!_.isEqual(oldWarehouses, warehouses)) {
       _.each(warehouses, (wh) => {
-        this.props.fetchDetails(this.props.params.sku, wh.id);
+        this.props.fetchDetails(this.props.params.code, wh.id);
       });
     }
   }

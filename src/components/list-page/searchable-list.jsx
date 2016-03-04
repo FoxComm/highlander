@@ -8,6 +8,7 @@ export default class SearchableList extends React.Component {
 
   static propTypes = {
     emptyResultMessage: PropTypes.string,
+    errorMessage: PropTypes.string,
     list: PropTypes.object,
     renderRow: PropTypes.func.isRequired,
     tableColumns: PropTypes.array.isRequired,
@@ -19,6 +20,7 @@ export default class SearchableList extends React.Component {
       saveSearch: PropTypes.func.isRequired,
       selectSearch: PropTypes.func.isRequired,
       submitFilters: PropTypes.func.isRequired,
+      submitPhrase: PropTypes.func.isRequired,
       updateSearch: PropTypes.func.isRequired
     }).isRequired,
     searchOptions: PropTypes.shape({
@@ -32,6 +34,7 @@ export default class SearchableList extends React.Component {
 
   static defaultProps = {
     emptyResultMessage: 'No results found.',
+    errorMessage: 'An error occurred. Try again later.',
     searchOptions: {
       singleSearch: false,
     },
@@ -58,9 +61,10 @@ export default class SearchableList extends React.Component {
           setState={props.searchActions.updateStateAndFetch}
           bulkActions={props.bulkActions}
           predicate={props.predicate}
-          showEmptyMessage={true}
           isLoading={results.isFetching}
-          emptyMessage={props.emptyResultMessage} />
+          failed={results.failed}
+          emptyMessage={props.emptyResultMessage}
+          errorMessage={props.errorMessage} />
       </LiveSearchAdapter>
     );
   };

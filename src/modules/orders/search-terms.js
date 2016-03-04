@@ -4,12 +4,8 @@ const searchTerms = [
     type: 'object',
     options: [
       {
-        title: 'ID',
-        type: 'string',
-        term: 'id'
-      }, {
         title: 'Reference Number',
-        type: 'string',
+        type: 'string-term',
         term: 'referenceNumber'
       }, {
         title: 'State',
@@ -168,7 +164,7 @@ const searchTerms = [
         term: 'lineItems.name'
       }, {
         title: 'Product SKU',
-        type: 'string',
+        type: 'string-term',
         term: 'lineItems.sku'
       }
     ]

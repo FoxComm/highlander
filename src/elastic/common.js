@@ -21,28 +21,59 @@ import * as dsl from './dsl';
  * @param {String} [options.phrase] - Adds Phrase prefix
  * @param {Boolean} [options.atLeastOne=false] - if is set to true only one matched filter is enough to success query
  * @param {String} [options.sortBy] - sorting field, can be `-field` for desc order or `field` for asc order
- * @returns The ElasticSearch query.
+ * @returns {Object} The ElasticSearch query.
  */
 export function toQuery(filters, options = {}) {
-  const { phrase, atLeastOne = false, sortBy } = options;
+  const { phrase, atLeastOne = false, sortBy = '' } = options;
 
-  const boolQuery = {
-    bool: {
-      must: _.isEmpty(phrase) ? void 0 : dsl.matchQuery('_all', {
-        query: phrase,
+  if (_.isEmpty(filters) && _.isEmpty(phrase) && _.isEmpty(sortBy)) {
+    return {};
+  }
+
+  let es = _.reduce(filters, (res, searchTerm) => {
+    if (searchTerm.value.type == 'string' && !isNestedFilter(searchTerm)) {
+      const matchQuery = dsl.matchQuery(searchTerm.term, {
+        query: searchTerm.value.value,
         type: 'phrase_prefix',
-        max_expansions: 10,
-      }),
-      [atLeastOne ? 'should' : 'filter']: convertFilters(filters),
-    },
+        max_expansions: 3,
+      });
+
+      res.queries.push(matchQuery);
+    } else {
+      res.filters.push(searchTerm);
+    }
+
+    return res;
+  }, { queries: [], filters: [] });
+
+  if (!_.isEmpty(phrase)) {
+    es.queries.push(dsl.matchQuery('_all', {
+      query: phrase,
+      type: 'phrase_prefix',
+      max_expansions: 10,
+    }));
+  }
+
+
+  const qwery = {
+    bool: {
+      should: atLeastOne ? [
+        ...es.queries,
+        ...(_.isEmpty(es.filters) ? void 0 : convertFilters(es.filters)) || []
+      ] : void 0,
+      filter: atLeastOne || _.isEmpty(es.filters) ? void 0 : convertFilters(es.filters),
+      must: atLeastOne || _.isEmpty(es.queries) ? void 0 : es.queries,
+    }
   };
 
-  return dsl.query(boolQuery, {
-    sort: sortBy ? convertSorting(sortBy) : void 0
-  });
+  const sortParam = sortBy ? { sort: convertSorting(sortBy) } : null;
+  return dsl.query(qwery, { ...sortParam });
 }
 
 export function addNativeFilters(req, filters) {
+  if (!req.query) {
+    req.query = { bool: { filter: [] } };
+  }
   req.query.bool.filter = [
     ...(req.query.bool.filter || []),
     ...filters
@@ -59,7 +90,7 @@ export function addFilters(req, filters) {
 function createFilter(filter) {
   const { term, operator, value: { type, value } } = filter;
 
-  switch(type) {
+  switch (type) {
     case 'bool':
       return dsl.termFilter(term, value);
     case 'bool_inverted':
@@ -70,6 +101,8 @@ function createFilter(filter) {
     case 'term':
       return rangeToFilter(term, operator, value);
     case 'string':
+      return dsl.matchQuery(term, value);
+    case 'string-term':
       return rangeToFilter(term, operator, value.toLowerCase());
     case 'date':
       return dateRangeFilter(term, operator, value);
@@ -89,7 +122,7 @@ function createNestedFilter(filter) {
   const query = createFilter(filter);
 
   return dsl.nestedQuery(path, {
-    bool: {filter: query}
+    bool: { filter: query }
   });
 }
 
@@ -103,17 +136,17 @@ export function convertFilters(filters) {
 }
 
 function dateRangeFilter(field, operator, value) {
-  const formattedDate = moment(value, 'MM/DD/YYYY').format('YYYY-MM-DD HH:mm:ss');
+  const formattedDate = moment(value, 'MM/DD/YYYY').format('YYYY-MM-DDTHH:mm:ss.SSSZ');
   const esDate = `${formattedDate}||/d`;
 
-  switch(operator) {
+  switch (operator) {
     case 'eq':
       return dsl.rangeFilter(field, {
         'gte': esDate,
         'lte': `${esDate}+1d`,
       });
     case 'neq':
-      return {bool: {must_not: dateRangeFilter(field, 'eq', value)}};
+      return { bool: { must_not: dateRangeFilter(field, 'eq', value) } };
     case 'lt':
     case 'gte':
       return rangeToFilter(field, operator, esDate);
@@ -142,6 +175,18 @@ export function rangeToFilter(field, operator, value) {
 
 export function convertSorting(sortBy) {
   const field = sortBy.replace('-', '');
+  const [parent, child] = field.split('.');
 
-  return [dsl.sortByField(field, sortBy.charAt(0) == '-' ? 'desc': 'asc')];
+  let order = {
+    order: sortBy.charAt(0) == '-' ? 'desc' : 'asc'
+  };
+
+  if (child) {
+    order = {
+      ...order,
+      nested_path: parent
+    };
+  }
+
+  return [dsl.sortByField(field, order)];
 }

@@ -1,6 +1,8 @@
 import React, { PropTypes } from 'react';
 import { Link } from '../link';
 
+import TextFit from '../text-fit/text-fit';
+
 export default class CustomerInfo extends React.Component {
   ensureNotEmpty(val) {
     return val || <span>&nbsp;</span>;
@@ -51,7 +53,7 @@ export default class CustomerInfo extends React.Component {
     let avatar = null;
 
     if (customer.avatarUrl) {
-      avatar = <img src={customer.avatarUrl} />;
+      avatar = <img src={customer.avatarUrl}/>;
     } else {
       avatar = <i className="icon-customer"></i>;
     }
@@ -68,10 +70,10 @@ export default class CustomerInfo extends React.Component {
             {avatar}
           </div>
           <div className="fc-customer-info-name">
-            {this.customerLink(customer.name)}
+            <TextFit fontSize={3} maxFontSize={3}>{this.customerLink(customer.name)}</TextFit>
           </div>
           <div className="fc-customer-info-email">
-            {this.customerLink(customer.email)}
+            <TextFit fontSize={1.7}>{this.customerLink(customer.email)}</TextFit>
           </div>
         </div>
         <article className="fc-customer-info-body">

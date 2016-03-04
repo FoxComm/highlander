@@ -18,6 +18,8 @@ import UserInitials from '../users/initials';
 import { Button } from '../common/buttons';
 import SelectWatcherModal from './select-modal';
 
+//TODO remove with auth
+import {currentUser} from '../header/header';
 
 const maxDisplayed = 7;
 
@@ -26,6 +28,7 @@ const mapDispatchToProps = (dispatch, {entity: {entityType, entityId}}) => {
   const {actions} = getStore('watchers', entityType);
 
   return {
+    watch: (group, id)=>dispatch(actions.watch(entityId, group, id)),
     showSelectModal: (group) => dispatch(actions.showSelectModal(entityId, group)),
     hideSelectModal: () => dispatch(actions.hideSelectModal(entityId)),
     toggleListModal: (group) => dispatch(actions.toggleListModal(entityId, group)),
@@ -43,7 +46,9 @@ const Watchers = (props) => {
             Assignees
           </div>
           <div className="fc-watchers__controls">
-            <a className="fc-watchers__link" href="#">take it</a>
+            <a className="fc-watchers__link"
+               href="#"
+               onClick={()=>props.watch(groups.assignees, currentUser.id)}>take it</a>
           </div>
         </div>
         <div className="fc-watchers__users-row fc-watchers__assignees">
@@ -54,7 +59,9 @@ const Watchers = (props) => {
             Watchers
           </div>
           <div className="fc-watchers__controls">
-            <a className="fc-watchers__link" href="#">watch</a>
+            <a className="fc-watchers__link"
+               href="#"
+               onClick={()=>props.watch(groups.watchers, currentUser.id)}>watch</a>
           </div>
         </div>
         <div className="fc-watchers__users-row fc-watchers__watchers">

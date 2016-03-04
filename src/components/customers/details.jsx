@@ -55,11 +55,6 @@ export default class CustomerDetails extends React.Component {
           </div>
         </div>
         <div className="fc-grid fc-grid-gutter">
-          <div className="fc-col-md-1-1">
-            <CustomerGroups />
-          </div>
-        </div>
-        <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-2">
             <CustomerNotificationSettings />
           </div>

@@ -12,6 +12,7 @@ const LiveSearchAdapter = props => {
       saveSearch={searchActions.saveSearch}
       selectSavedSearch={searchActions.selectSearch}
       submitFilters={searchActions.addSearchFilters}
+      submitPhrase={searchActions.addSearchPhrase}
       deleteSearch={searchActions.deleteSearch}
       updateSearch={searchActions.updateSearch}
     >
@@ -26,6 +27,7 @@ LiveSearchAdapter.propTypes = {
     saveSearch: PropTypes.func,
     selectSearch: PropTypes.func,
     addSearchFilters: PropTypes.func,
+    addSearchPhrase: PropTypes.func,
     deleteSearch: PropTypes.func,
     updateSearch: PropTypes.func
   }),

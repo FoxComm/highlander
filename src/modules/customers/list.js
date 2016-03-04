@@ -5,7 +5,10 @@ const { reducer, actions } = makeLiveSearch(
   'customers.list',
   searchTerms,
   'customers_search_view/_search',
-  'customersScope'
+  'customersScope',
+  {
+    initialState: { sortBy: '-joinedAt' }
+  }
 );
 
 export {

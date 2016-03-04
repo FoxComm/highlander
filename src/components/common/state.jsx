@@ -46,7 +46,7 @@ export const states = {
     backorder: 'Backorder',
     sellable: 'Sellable',
     preorder: 'Preorder',
-    nonSellable: 'Non-sellable',
+    nonsellable: 'Non-sellable',
   }
 };
 

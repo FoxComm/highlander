@@ -7,19 +7,20 @@ import classNames from 'classnames';
 import { IncrementButton, DecrementButton } from '../common/buttons';
 
 const Counter = props => {
-  const {decreaseAction, increaseAction, ...rest} = props;
+  const {decreaseAction, increaseAction, disabled, ...rest} = props;
 
   return (
     <div className="fc-input-group fc-counter">
       <div className="fc-input-prepend">
-        <DecrementButton onClick={decreaseAction} className="fc-btn-counter" />
+        <DecrementButton disabled={disabled} onClick={decreaseAction} className="fc-btn-counter" />
       </div>
       <input
         type="number"
-        className={classNames('fc-counter__input', props.className)}
+        className={classNames('fc-counter__input', props.className, {disabled})}
+        disabled={disabled}
         {...rest} />
       <div className="fc-input-append">
-        <IncrementButton onClick={increaseAction} className="fc-btn-counter" />
+        <IncrementButton disabled={disabled} onClick={increaseAction} className="fc-btn-counter" />
       </div>
     </div>
   );

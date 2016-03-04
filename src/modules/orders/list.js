@@ -5,7 +5,10 @@ const { reducer, actions } = makeLiveSearch(
   'orders.list',
   searchTerms,
   'orders_search_view/_search',
-  'ordersScope'
+  'ordersScope',
+  {
+    initialState: { sortBy: '-placedAt' }
+  }
 );
 
 export {

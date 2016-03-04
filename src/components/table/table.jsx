@@ -22,8 +22,11 @@ Table.propTypes = {
   predicate: PropTypes.func,
   processRows: PropTypes.func,
   detectNewRows: PropTypes.bool,
+  isLoading: PropTypes.bool,
+  failed: PropTypes.bool,
   emptyMessage: PropTypes.string,
-  className: PropTypes.string
+  errorMessage: PropTypes.string,
+  className: PropTypes.string,
 };
 
 Table.defaultProps = {

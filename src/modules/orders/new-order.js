@@ -15,16 +15,37 @@ const quickSearch = makeQuickSearch(
 );
 
 function suggestCustomers(phrase, guest = false) {
-  const guestFilters = guest ? [{
-    term: 'isGuest',
-    operator: 'eq',
-    value: {
-      type: 'bool',
-      value: true,
-    },
-  }] : [];
+  if (guest) {
+    const guestFilters = [{
+      term: 'isGuest',
+      operator: 'eq',
+      value: {
+        type: 'bool',
+        value: true,
+      },
+    }];
+    return quickSearch.actions.fetch(phrase, guestFilters);
+  }
 
-  return quickSearch.actions.fetch(phrase, guestFilters);
+  const filters = [{
+      term: 'name',
+      operator: 'eq',
+      value: {
+        type: 'string',
+        value: phrase,
+      },
+    },
+    {
+      term: 'email',
+      operator: 'eq',
+      value: {
+        type: 'string',
+        value: phrase,
+      },
+    }
+  ];
+
+  return quickSearch.actions.fetch('', filters, {atLeastOne: true});
 }
 
 const createOrderStart = createAction('NEW_ORDER_CREATE_ORDER_START');
