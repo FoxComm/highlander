@@ -18,6 +18,7 @@ import InlineField from '../inline-field/inline-field';
 
 // types
 import type { DetailsParams } from './types';
+import { FormField } from '../forms';
 import type { Product, ProductDetailsState } from '../../modules/products/details';
 
 type DetailsProps = {
@@ -48,7 +49,7 @@ export class ProductDetails extends Component<void, DetailsProps, void> {
     ];
 
     const generalAttrs: Array<Element> = _(attributes).omit(notGeneralKeys).map((attr, key) => {
-      return <InlineField label={key} value={attr} />;
+      return this.renderField(key, attr);
     }).value();
 
     return (
@@ -57,6 +58,17 @@ export class ProductDetails extends Component<void, DetailsProps, void> {
           {generalAttrs}
         </div>
       </ContentBox>
+    );
+  }
+
+  renderField(label: string, value: string) {
+    return (
+      <FormField label={label} labelClassName="fc-product-details__field-label">
+        <input
+          className="fc-product-details__field-value"
+          type="text"
+          defaultValue={value} />
+      </FormField>
     );
   }
 
