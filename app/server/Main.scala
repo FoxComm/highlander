@@ -29,6 +29,7 @@ object Main extends App {
   implicit val env = utils.Config.environment
   val service = new Service()
   service.bind()
+  utils.Config.ensureRequiredSettingsIsSet(service.config)
   service.setupRemorseTimers
 }
 

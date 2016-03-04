@@ -45,13 +45,12 @@ object Config {
     val envConfig = cfg.getConfig(s"env." ++ env.show)
     val config = ConfigFactory.systemProperties.withFallback(envConfig.withFallback(cfg))
 
-    ensureRequiredSettingsIsSet(config)
     config
   }
 
   lazy val config = loadWithEnv()
 
-  private def ensureRequiredSettingsIsSet(config: TypesafeConfig) = {
+  def ensureRequiredSettingsIsSet(config: TypesafeConfig) = {
     for {
       stringKey ← Seq("auth.privateKey", "auth.publicKey", "auth.keyAlgorithm")
     } yield config.getString(stringKey)
