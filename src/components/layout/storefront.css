@@ -87,4 +87,8 @@
   .hamburger {
     display: block;
   }
+
+  .mobile-sidebar {
+    display: block;
+  }
 }

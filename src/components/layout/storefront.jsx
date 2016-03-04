@@ -7,6 +7,7 @@ import styles from './storefront.css';
 import Icon from '../common/icon';
 import { Link } from 'react-router';
 import Categories from '../categories/categories';
+import Sidebar from '../sidebar/sidebar';
 
 const StoreFront = props => {
   return (
@@ -36,8 +37,7 @@ const StoreFront = props => {
         Here will be footer
       </div>
       <div styleName="mobile-sidebar">
-        <div styleName="overlay"></div>
-        <Categories />
+        <Sidebar />
       </div>
     </div>
   );
