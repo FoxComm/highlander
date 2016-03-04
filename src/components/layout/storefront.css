@@ -48,6 +48,12 @@
   margin-top: 40px;
 }
 
+.mobile-sidebar {
+}
+
+.overlay {
+}
+
 @media (--medium-viewport) {
   .storefront {
     lost-column: 1/1;

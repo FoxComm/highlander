@@ -35,6 +35,10 @@ const StoreFront = props => {
       <div styleName="footer">
         Here will be footer
       </div>
+      <div styleName="mobile-sidebar">
+        <div styleName="overlay"></div>
+        <Categories />
+      </div>
     </div>
   );
 };
