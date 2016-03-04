@@ -76,6 +76,8 @@ export default class InventoryItemDetails extends React.Component {
         row={row}
         drawerData={params.drawerData}
         drawerColumns={params.drawerColumns}
+        isLoading={_.get(this.props, ['tableState', 'details', 'isFetching'], true)}
+        failed={_.get(this.props, ['tableState', 'details', 'failed'])}
         params={params}/>
     );
   }
@@ -105,6 +107,10 @@ export default class InventoryItemDetails extends React.Component {
       drawerData: this.drawerData,
       drawerColumns: this.drawerColumns,
     };
+
+    const isFetching = _.get(this.props, ['tableState', 'summary', 'isFetching'], true);
+    const failed = _.get(this.props, ['tableState', 'summary', 'failed']);
+
     return (
       <div className="fc-grid">
         <div className="fc-col-md-1-1">
@@ -116,6 +122,8 @@ export default class InventoryItemDetails extends React.Component {
             params={params}
             entity={haveType(this.props.params, 'inventoryItem')}
             idField="id"
+            isLoading={isFetching}
+            failed={failed}
             emptyMessage="No warehouse data found."
             className="fc-inventory-item-details__warehouses-table"/>
         </div>

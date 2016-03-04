@@ -42,8 +42,10 @@ ExpandableRow.propTypes = {
   columns: PropTypes.array.isRequired,
   row: PropTypes.object.isRequired,
   setCellContents: PropTypes.func.isRequired,
-  params: PropTypes.object,
-  toggleDrawerState: PropTypes.func.isRequired,
+  params: PropTypes.shape({
+    toggleDrawerState: PropTypes.func.isRequired,
+    isOpen: PropTypes.bool,
+  }),
   isOpen: PropTypes.bool,
 };
 

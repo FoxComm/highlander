@@ -13,6 +13,7 @@ const WarehouseDrawer = props => {
     <Drawer {...props} >
       <div>
         <Table
+          {...props}
           className="fc-inventory-item-details__warehouse-details-table"
           columns={drawerColumns}
           data={drawerData(row.id)}
@@ -26,6 +27,8 @@ WarehouseDrawer.propTypes = {
   row: PropTypes.object.isRequired,
   drawerColumns: PropTypes.array.isRequired,
   drawerData: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool,
+  failed: PropTypes.bool,
 };
 
 export default WarehouseDrawer;
