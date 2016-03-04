@@ -42,7 +42,7 @@ export default class TextFit extends Component {
     fontSize: this.props.fontSize,
   };
 
-  componentDidMount() {
+  componentWillMount() {
     addResizeListener(this.setFontSize);
   }
 
