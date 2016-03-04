@@ -11,13 +11,14 @@ type EditableProps = {
   isEditing: boolean;
   viewContent: ?HTMLElement|string;
   editContent: ?HTMLElement|string;
+  editAction: () => any,
   title: string;
 };
 
 const EditableBlock = (props: EditableProps) => {
   const content = props.isEditing ? props.editContent : props.viewContent;
 
-  const editLink = props.isEditing ? <div styleName="edit">EDIT</div> : null;
+  const editLink = !props.isEditing ? <div onClick={props.editAction} styleName="edit">EDIT</div> : null;
 
   return (
     <div styleName="editable-block">

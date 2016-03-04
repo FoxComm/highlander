@@ -11,6 +11,8 @@ import Button from '../../common/buttons';
 import WrapToLines from '../../common/wrap-to-lines';
 import { Link } from 'react-router';
 
+import type { SEvent } from '../../../../interfaces/global';
+
 import type { HTMLElement } from '../../../types';
 
 
