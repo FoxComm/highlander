@@ -2,8 +2,7 @@
 import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
-import { haveType } from '../state-helpers';
-import { get, assoc } from 'sprout-data';
+import { assoc } from 'sprout-data';
 import { orderLineItemsFetchSuccess } from './line-items';
 import OrderParagon from '../../paragons/order';
 
@@ -107,6 +106,7 @@ function parseMessages(messages, state) {
 const initialState = {
   isCheckingOut: false,
   isFetching: false,
+  failed: null,
   currentOrder: {},
   validations: {
     errors: [],
@@ -154,6 +154,7 @@ const reducer = createReducer({
     return {
       ...state,
       isFetching: false,
+      failed: null,
       currentOrder: new OrderParagon(order),
       validations: {
         errors: errors,
@@ -190,6 +191,7 @@ const reducer = createReducer({
 
       return {
         ...state,
+        failed: true,
         isFetching: false
       };
     }

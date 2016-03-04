@@ -91,7 +91,7 @@ export class OrderLineItems extends React.Component {
       );
     }
 
-    const LineItemsContentBox = props.readOnly || !props.isCart 
+    const LineItemsContentBox = props.readOnly || !props.isCart
       ? ContentBox
       : EditableContentBox;
 
@@ -155,7 +155,7 @@ class RenderEditFooter extends React.Component {
     order: PropTypes.object,
     lineItems: PropTypes.object,
     skuSearch: PropTypes.object,
-    suggestSkus: PropTypes.array,
+    suggestSkus: PropTypes.func,
   };
 
   componentDidMount() {

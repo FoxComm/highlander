@@ -15,7 +15,7 @@ import { Link, IndexLink } from '../link';
 
 class NavDropdown extends React.Component {
   render() {
-    const {title, className, children}=this.props;
+    const { title, className, children } = this.props;
     const cls = classNames(
       'fc-tabbed-nav-parent',
       'fc-tabbed-nav-item',
@@ -40,7 +40,7 @@ NavDropdown.propTypes = {
 };
 
 
-@connect(state => ({router: state.router}))
+@connect(state => ({ router: state.router }))
 class LocalNav extends React.Component {
   static propTypes = {
     router: PropTypes.shape({
@@ -81,7 +81,7 @@ class LocalNav extends React.Component {
       return;
     }
 
-    const {collapsing} = this;
+    const { collapsing } = this;
 
     if (refs.length > 1 && this.hasOverflow) {
       this.collapse();
@@ -114,7 +114,7 @@ class LocalNav extends React.Component {
   collapse() {
     this.collapsing = true;
     const refs = Object.values(this.refs);
-    const {collapseFrom} = this.state;
+    const { collapseFrom } = this.state;
 
     this.setState({
       collapseFrom: collapseFrom === null ? refs.length - 2 : collapseFrom - 1
@@ -123,7 +123,7 @@ class LocalNav extends React.Component {
 
   expand() {
     const total = React.Children.count(this.props.children);
-    const {collapseFrom} = this.state;
+    const { collapseFrom } = this.state;
 
     this.setState({
       collapseFrom: total - collapseFrom <= 2 ? null : collapseFrom + 1
@@ -131,7 +131,7 @@ class LocalNav extends React.Component {
   }
 
   @autobind
-  compileLinks({props}) {
+  compileLinks({ props }) {
     return flatMap(React.Children.toArray(props.children), child => {
       if (child.type === Link || child.type === IndexLink) {
         return child;
@@ -145,7 +145,7 @@ class LocalNav extends React.Component {
 
   @autobind
   hasActiveLink(item) {
-    const {routes} = this.props.router;
+    const { routes } = this.props.router;
     const linkList = this.compileLinks(item);
     const linkNames = _.pluck(linkList, ['props', 'to']);
 
@@ -157,19 +157,21 @@ class LocalNav extends React.Component {
   @autobind
   renderItem(item, index) {
     if (item.type !== NavDropdown) {
-      return <li ref={index} className="fc-tabbed-nav-item">{item}</li>;
+      const key = `local-nav-item-${item.key ? item.key : index}`;
+
+      return <li ref={index} className="fc-tabbed-nav-item" key={key}>{item}</li>;
     }
 
     const isActive = this.hasActiveLink(item);
 
     return React.cloneElement(item, {
       ref: index,
-      className: classNames(item.props.className, {'fc-tabbed-nav-selected': isActive})
+      className: classNames(item.props.className, { 'fc-tabbed-nav-selected': isActive })
     });
   }
 
   get flatItems() {
-    const {collapseFrom} = this.state;
+    const { collapseFrom } = this.state;
 
     let children = React.Children.toArray(this.props.children);
     if (collapseFrom !== null) {
@@ -180,7 +182,7 @@ class LocalNav extends React.Component {
   }
 
   get collapsedItems() {
-    const {collapseFrom} = this.state;
+    const { collapseFrom } = this.state;
 
     if (collapseFrom === null) {
       return null;
@@ -196,8 +198,8 @@ class LocalNav extends React.Component {
   }
 
   render() {
-    const {gutter} = this.props;
-    const className = classNames('fc-grid', {'fc-grid-gutter': gutter});
+    const { gutter } = this.props;
+    const className = classNames('fc-grid', { 'fc-grid-gutter': gutter });
 
     return (
       <div className={className}>
