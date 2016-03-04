@@ -1,7 +1,13 @@
+/* @flow */
 
 import React from 'react';
+import type { HTMLElement } from '../../types';
 
-const Home = props => {
+type HomeParams = {
+  params: Object;
+}
+
+const Home = (props: HomeParams) : HTMLElement => {
   return (
     <div>
       <h2>Storefront Demo</h2>
