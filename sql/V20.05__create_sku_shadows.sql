@@ -9,6 +9,11 @@ create table sku_shadows(
     foreign key (product_context_id) references product_contexts(id) on update restrict on delete restrict
 );
 
+create unique index sku_shadows_idx on sku_shadows (id);
+create index sku_shadows_sku_idx on sku_shadows (sku_id);
+create index sku_shadows_sku_id_context_idx on sku_shadows (sku_id, product_context_id);
+create index sku_shadows_sku_product_idx on sku_shadows (product_context_id);
+
 create function create_order_line_item_skus_mapping() returns trigger as $$
 begin
     insert into order_line_item_skus (sku_shadow_id, sku_id) values (new.id, new.sku_id);

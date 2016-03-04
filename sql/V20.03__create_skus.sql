@@ -9,3 +9,6 @@ create table skus (
 
     foreign key (product_id) references products(id) on update restrict on delete restrict
 );
+
+create unique index sku_idx on skus (id);
+create unique index sku_codex on skus (code);
