@@ -26,11 +26,16 @@ type DetailsProps = {
   params: DetailsParams,
 };
 
+type PriceAttribute = {
+  currency: string,
+  price: number,
+};
+
 type ProductAttributes = { [key:string]: any };
 
 const miscAttributeKeys = ['images'];
-const pricingAttributeKeys = ['price', 'retailPrice', 'salePrice'];
-const seoAttributeKeys = ['url', 'metaTitle', 'metaDescription'];
+const pricingAttributeKeys = ['retailPrice', 'salePrice'];
+const seoAttributeKeys = ['URL', 'metaTitle', 'metaDescription'];
 
 export class ProductDetails extends Component<void, DetailsProps, void> {
   static propTypes = {
@@ -52,18 +57,57 @@ export class ProductDetails extends Component<void, DetailsProps, void> {
       return this.renderField(key, attr);
     }).value();
 
+    return <ContentBox title="General">{generalAttrs}</ContentBox>;
+  }
+
+  get pricingContentBox(): Element {
+    const attributes: Array<Element> = _.map(pricingAttributeKeys, key => {
+      const val = _.get(this.props, ['details.product.attributes', key, 'value']);
+      return this.renderField(key, val);
+    });
+
+    return <ContentBox title="Pricing">{attributes}</ContentBox>;
+  }
+
+  get seoContentBox(): Element {
+    const attributes: Array<Element> = _.map(seoAttributeKeys, key => {
+      const val = _.get(this.props, ['details.product.attributes', key]);
+      return this.renderField(key, val);
+    });
+
+    return <ContentBox title="SEO">{attributes}</ContentBox>;
+  }
+
+  get skusContentBox(): Element {
     return (
-      <ContentBox title="General" indentContent={false}>
-        <div className="fc-product-details__attributes">
-          {generalAttrs}
+      <ContentBox title="SKUs" indentContent={false}>
+        <div className="fc-content-box__empty-text">
+          This product does not have SKUs.
+        </div>
+      </ContentBox>
+    );
+  }
+
+  get variantContentBox(): Element {
+    return (
+      <ContentBox title="Variants" indentContent={false}>
+        <div className="fc-content-box__empty-text">
+          This product does not have variants.
         </div>
       </ContentBox>
     );
   }
 
   renderField(label: string, value: string) {
+    const formattedLbl = _.snakeCase(label).split('_').reduce((res, val) => {
+      return `${res} ${_.capitalize(val)}`;
+    });
+
     return (
-      <FormField label={label} labelClassName="fc-product-details__field-label">
+      <FormField
+        className="fc-product-details__field"
+        label={formattedLbl}
+        labelClassName="fc-product-details__field-label">
         <input
           className="fc-product-details__field-value"
           type="text"
@@ -74,9 +118,13 @@ export class ProductDetails extends Component<void, DetailsProps, void> {
 
   render() {
     return (
-      <div className="fc-grid">
+      <div className="fc-product-details fc-grid">
         <div className="fc-col-md-2-3">
           {this.generalContentBox}
+          {this.pricingContentBox}
+          {this.variantContentBox}
+          {this.skusContentBox}
+          {this.seoContentBox}
         </div>
       </div>
     );

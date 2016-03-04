@@ -1,12 +1,18 @@
 .fc-product-details {
-  &__attributes {
-    .padding(10px 0);
+  .fc-content-box {
+    .margin-bottom(20px);
+  }
+
+  &__field {
+    .margin-bottom(20px);
+
+    display: flex;
+    flex-direction: column;
   }
 
   &__field-label {
     .font-spec(16px, 600, 24px);
     .margin-bottom(10px);
-    .margin-left(20px);
     color: @color-decor1;
     text-transform: capitalize;
   }
