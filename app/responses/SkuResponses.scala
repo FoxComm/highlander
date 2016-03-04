@@ -29,7 +29,7 @@ object SkuResponses {
         isHazardous = sku.isHazardous, isActive = sku.isActive)
   }
 
-  object SkuShadowLiteResponse { 
+  object SkuShadowResponse { 
 
     final case class Root(
       code: String,
@@ -40,20 +40,6 @@ object SkuResponses {
     def build(sku: Sku, skuShadow: SkuShadow) : Root =
       Root(code = sku.code, attributes = skuShadow.attributes, 
         isHazardous = sku.isHazardous, isActive = sku.isActive)
-  }
-
-  object SkuShadowResponse { 
-
-    final case class Root(
-      code: String,
-      context: ProductContextResponse.Root,
-      attributes: Json,
-      isHazardous: Boolean,
-      isActive: Boolean)
-
-    def build(sku: Sku, skuShadow: SkuShadow, context: ProductContext) : Root =
-      Root(code = sku.code, attributes = skuShadow.attributes, isHazardous = sku.isHazardous,
-        isActive = sku.isActive, context = ProductContextResponse.build(context))
   }
 
   object IlluminatedSkuResponse {

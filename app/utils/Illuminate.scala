@@ -7,13 +7,12 @@ import org.json4s.JsonAST.{JValue, JString, JObject, JField, JNothing}
 
 object IlluminateAlgorithm { 
 
-
   def projectAttributes(form: JValue, shadow: JValue) : JValue = {
     shadow match {
       case JObject(s) ⇒  form match {
         case JObject(f) ⇒ 
           s.obj.map {
-            case (attr, JString(key)) ⇒  findAttribute(attr, key, f)
+            case (attr, JString(key)) ⇒  (attr, findAttribute(attr, key, f))
             case (attr, _) ⇒  (attr, JNothing)
           }
         case _ ⇒ JNothing
@@ -36,10 +35,10 @@ object IlluminateAlgorithm {
     }
   }
 
-  private def findAttribute(attr: String, key: String, form: JObject) : JField = {
-    form \ attr \ key match {
-      case v ⇒  (attr, v)
-    }
+  private def findAttribute(attr: String, key: String, form: JObject) : JValue = {
+    val t = form \ attr \ "type"
+    val v = form \ attr \ key 
+    ("t" → t) ~ ("v" → v)
   }
 
   private def validateAttribute(attr: String, key: String, form: JObject) : Seq[Failure] = {

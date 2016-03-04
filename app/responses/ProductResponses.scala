@@ -39,13 +39,11 @@ object ProductResponses {
 
   object ProductShadowResponse {
 
-    final case class Root(id: Int, productId: Int, context: ProductContextResponse.Root, 
-      attributes: Json, createdAt: Instant)
+    final case class Root(id: Int, productId: Int, attributes: Json, createdAt: Instant)
 
-    def build(p: ProductShadow, c: ProductContext): Root = 
+    def build(p: ProductShadow): Root = 
       Root(id = p.id, productId = p.productId, 
         attributes = p.attributes, 
-        context = ProductContextResponse.build(c),
         createdAt = p.createdAt)
   }
 
@@ -77,12 +75,24 @@ object ProductResponses {
 
     final case class Root(
       product: ProductShadowResponse.Root,
-      skus: Seq[SkuShadowLiteResponse.Root])
+      skus: Seq[SkuShadowResponse.Root])
 
-    def build(context: ProductContext, product: ProductShadow, skus: Seq[(Sku, SkuShadow)]) : Root = 
+    def build(product: ProductShadow, skus: Seq[(Sku, SkuShadow)]) : Root = 
       Root(
-        product = ProductShadowResponse.build(product, context),
-        skus = skus.map { case (s, ss) ⇒  SkuShadowLiteResponse.build(s, ss) })
+        product = ProductShadowResponse.build(product),
+        skus = skus.map { case (s, ss) ⇒  SkuShadowResponse.build(s, ss) })
+  }
+
+  object FullProductResponse { 
+    final case class Root(form: FullProductFormResponse.Root, shadow: FullProductShadowResponse.Root)
+
+    def build(
+      productForm: Product, 
+      productShadow: ProductShadow,
+      skus: Seq[(Sku, SkuShadow)]): Root =
+        Root(
+          form = FullProductFormResponse.build(productForm, skus.map(_._1)),
+          shadow = FullProductShadowResponse.build(productShadow, skus))
   }
 
   object FullIlluminatedProductResponse { 
