@@ -49,9 +49,11 @@
 }
 
 .mobile-sidebar {
+  display: none;
 }
 
 .overlay {
+  display: none;
 }
 
 @media (--medium-viewport) {
