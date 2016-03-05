@@ -1,5 +1,6 @@
 package util
 
+import java.util.Locale
 import javax.sql.DataSource
 
 import scala.annotation.tailrec
@@ -27,16 +28,16 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
 
   override protected def beforeAll(): Unit = {
     if (!migrated) {
+      Locale.setDefault(Locale.US)
       val db4fly = Database.forConfig("db", TestBase.config)
       val flyway = newFlyway(jdbcDataSourceFromSlickDB(db4fly))
 
       flyway.clean()
       flyway.migrate()
 
-      migrated = true
       db4fly.close()
+      migrated = true
     }
-
     setupProductContext()
   }
 
