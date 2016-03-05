@@ -15,11 +15,15 @@ import * as DetailsActions from '../../modules/products/details';
 // components
 import ContentBox from '../content-box/content-box';
 import InlineField from '../inline-field/inline-field';
+import SkuList from './sku-list';
+
+// helpers
+import Product from '../../paragons/product';
 
 // types
 import type { DetailsParams } from './types';
 import { FormField } from '../forms';
-import type { Product, ProductDetailsState } from '../../modules/products/details';
+import type { ProductAttribute, ProductDetailsState } from '../../modules/products/details';
 
 type DetailsProps = {
   details: ProductDetailsState,
@@ -31,7 +35,7 @@ type PriceAttribute = {
   price: number,
 };
 
-type ProductAttributes = { [key:string]: any };
+type ProductAttributes = { [key:string]: ProductAttribute };
 
 const miscAttributeKeys = ['images'];
 const pricingAttributeKeys = ['retailPrice', 'salePrice'];
@@ -44,37 +48,35 @@ export class ProductDetails extends Component<void, DetailsProps, void> {
     }),
   };
 
-  get generalContentBox(): Element {
-    const attributes: ProductAttributes = _.get(this.props, 'details.product.attributes', {});
+  get attributes(): ProductAttributes {
+    return _.get(this.props, 'details.product.productAttributes', {});
+  }
 
+  get generalContentBox(): Element {
     const notGeneralKeys = [
       ...miscAttributeKeys,
       ...pricingAttributeKeys,
       ...seoAttributeKeys
     ];
 
-    const generalAttrs: Array<Element> = _(attributes).omit(notGeneralKeys).map((attr, key) => {
-      return this.renderField(key, attr);
-    }).value();
-
-    return <ContentBox title="General">{generalAttrs}</ContentBox>;
+    const attributes = this.renderAttributes(_.omit(this.attributes, notGeneralKeys));
+    return <ContentBox title="General">{attributes}</ContentBox>;
   }
 
   get pricingContentBox(): Element {
-    const attributes: Array<Element> = _.map(pricingAttributeKeys, key => {
-      const val = _.get(this.props, ['details.product.attributes', key, 'value']);
-      return this.renderField(key, val);
+    const attributes = pricingAttributeKeys.map(key => {
+      const attribute = this.attributes[key] || { label: key, type: 'price', value: null };
+      return this.renderAttribute(attribute);
     });
 
     return <ContentBox title="Pricing">{attributes}</ContentBox>;
   }
 
   get seoContentBox(): Element {
-    const attributes: Array<Element> = _.map(seoAttributeKeys, key => {
-      const val = _.get(this.props, ['details.product.attributes', key]);
-      return this.renderField(key, val);
+    const attributes = seoAttributeKeys.map(key => {
+      const attribute = this.attributes[key] || { label: key, type: 'string', value: null };
+      return this.renderAttribute(attribute);
     });
-
     return <ContentBox title="SEO">{attributes}</ContentBox>;
   }
 
@@ -98,7 +100,12 @@ export class ProductDetails extends Component<void, DetailsProps, void> {
     );
   }
 
-  renderField(label: string, value: string) {
+  renderAttributes(attributes: ProductAttributes): Array<Element> {
+    return _.map(attributes, attr => this.renderAttribute(attr));
+  }
+
+  renderAttribute(attribute: ProductAttribute): Element {
+    const { label, type, value } = attribute;
     const formattedLbl = _.snakeCase(label).split('_').reduce((res, val) => {
       return `${res} ${_.capitalize(val)}`;
     });
