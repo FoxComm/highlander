@@ -1,7 +1,11 @@
 /** Libs */
+import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import React, {PropTypes, Component} from 'react';
 import ReactDOM from 'react-dom';
+
+/** helpers */
+import {addResizeListener, removeResizeListener} from '../../lib/resize';
 
 function getPropertyValue(element, property) {
   let val;
@@ -38,6 +42,15 @@ export default class TextFit extends Component {
     fontSize: this.props.fontSize,
   };
 
+  componentWillMount() {
+    addResizeListener(this.setFontSize);
+  }
+
+  componentWillUnmount() {
+    removeResizeListener(this.setFontSize);
+  }
+
+  @autobind
   setFontSize() {
     const span = ReactDOM.findDOMNode(this);
     const parent = span.parentNode;
