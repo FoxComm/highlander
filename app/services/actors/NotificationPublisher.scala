@@ -5,8 +5,8 @@ import akka.actor.ActorLogging
 import akka.stream.actor.ActorPublisher
 import akka.stream.actor.ActorPublisherMessage.Cancel
 
+import com.github.mauricio.async.db.Configuration
 import com.github.mauricio.async.db.postgresql.PostgreSQLConnection
-import com.github.mauricio.async.db.postgresql.util.URLParser
 import models.Notification._
 import models.activity._
 import models.{NotificationTrailMetadata, StoreAdmins}
@@ -15,6 +15,7 @@ import utils.ExPostgresDriver.api._
 import utils.JsonFormatters
 import utils.Slick.implicits._
 import utils.aliases._
+import org.postgresql.Driver
 
 class NotificationPublisher(adminId: Int)(implicit ec: EC, db: DB)
   extends ActorPublisher[String] with ActorLogging {
@@ -56,9 +57,22 @@ class NotificationPublisher(adminId: Int)(implicit ec: EC, db: DB)
     super.postStop()
   }
 
+  private def parseUrl(url: String): Configuration = {
+    import scala.collection.JavaConverters._
+
+    val emptyProps = new java.util.Properties
+    val props = Driver.parseURL(url, emptyProps).asScala.toMap
+
+    Configuration(username = props("user"),
+      host = props("PGHOST"), port = props("PGPORT").toInt,
+      password = Some(props.getOrElse("password", "")),
+      database = Some(props("PGDBNAME"))
+    )
+  }
+
   private def createConnection() = {
     val config = utils.Config.loadWithEnv()
-    val configuration = URLParser.parse(config.getString("db.url"))
+    val configuration = parseUrl(config.getString("db.url"))
     new PostgreSQLConnection(configuration)
   }
 
