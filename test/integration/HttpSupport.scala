@@ -78,24 +78,24 @@ trait HttpSupport
       system = ActorSystem("system", actorSystemConfig)
       materializer = ActorMaterializer()
 
-      service = makeService
+      akkaConfigured = true
+    }
 
-      serverBinding = service.bind(ConfigFactory.parseString(
+    service = makeService
+
+    serverBinding = service.bind(ConfigFactory.parseString(
         s"""
            |http.interface = 127.0.0.1
            |http.port      = ${getFreePort}
         """.stripMargin)).futureValue
-
-      akkaConfigured = true
-    }
   }
 
+
   override def afterAll: Unit = {
-//    Await.result(for {
-//      _ ← Http().shutdownAllConnectionPools()
-//      _ ← service.close()
-//      _ ← system.terminate()
-//    } yield {}, 1.minute)
+    Await.result(for {
+      _ ← Http().shutdownAllConnectionPools()
+      _ ← service.close()
+    } yield {}, 1.minute)
   }
 
   private def actorSystemConfig = ConfigFactory.parseString(
