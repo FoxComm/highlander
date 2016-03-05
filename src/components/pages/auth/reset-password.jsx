@@ -8,11 +8,11 @@ import { reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { routeActions } from 'react-router-redux';
 
-import { TextInput } from '../../common/inputs';
-import { FormField } from '../../forms';
-import Button from '../../common/buttons';
+import { TextInput } from 'ui/inputs';
+import { FormField } from 'ui/forms';
+import Button from 'ui/buttons';
 
-import type { HTMLElement } from '../../../types';
+import type { HTMLElement } from 'types';
 
 type ResetState = {
   isReseted: boolean;

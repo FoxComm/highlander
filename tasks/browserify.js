@@ -16,21 +16,28 @@ module.exports = function(gulp, $, opts) {
 
   let bundler = null;
 
+  const pleaseDontIgnoreNestedNodeModules = {
+    global: true,
+    ignore: new RegExp(path.join(process.cwd(), 'node_modules')),
+  };
+
   function getBundler() {
     if (bundler) return bundler;
 
     bundler = browserify(Object.assign({
       entries: ['src/client.jsx'],
-      transform: ['babelify'],
+      transform: [
+        ['babelify', pleaseDontIgnoreNestedNodeModules]
+      ],
       standalone: 'App',
       extensions: ['.jsx'],
       debug: !production,
     }, watchify.args));
-    bundler.plugin(require('css-modulesify'), {
+    bundler.plugin(require('css-modulesify'), Object.assign({
       output: path.resolve('build/bundle.css'),
       use: plugins,
       jsonOutput: 'build/css-modules.json',
-    });
+    }, pleaseDontIgnoreNestedNodeModules));
     if (!production && opts.devMode) {
       bundler.plugin('livereactload');
     }

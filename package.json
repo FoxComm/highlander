@@ -76,6 +76,7 @@
     "lodash": "^4.3.0",
     "lodash.flatmap": "^4.2.0",
     "react": "^0.14.7",
+    "react-autocomplete": "^0.2.0",
     "react-css-modules": "^3.7.4",
     "react-dom": "^0.14.7",
     "react-redux": "^4.4.0",

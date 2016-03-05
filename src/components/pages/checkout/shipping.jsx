@@ -6,10 +6,12 @@ import cssModules from 'react-css-modules';
 import styles from './checkout.css';
 import { reduxForm } from 'redux-form';
 
-import Button from '../../common/buttons';
-import { TextInput } from '../../common/inputs';
-import EditableBlock from '../../editable-block';
-import { FormField } from '../../forms';
+import Button from 'ui/buttons';
+import { TextInput } from 'ui/inputs';
+import EditableBlock from 'ui/editable-block';
+import { FormField } from 'ui/forms';
+
+import Select from 'ui/select';
 
 type ShippingProps = {
   isEditing: boolean;
@@ -54,7 +56,7 @@ class EditShipping extends Component {
         </FormField>
         <div styleName="union-fields">
           <FormField styleName="checkout-field" {...country}>
-            <TextInput placeholder="COUNTRY" {...country} />
+            <Select placeholder="COUNTRY" {...country} />
           </FormField>
           <FormField styleName="checkout-field" {...zip}>
             <TextInput placeholder="ZIP" {...zip} />

@@ -5,7 +5,7 @@ import type { HTMLElement } from '../../types';
 import cssModules from 'react-css-modules';
 import styles from './storefront.css';
 
-import Icon from '../common/icon';
+import Icon from 'ui/icon';
 import { Link } from 'react-router';
 import Categories from '../categories/categories';
 import Sidebar from '../sidebar/sidebar';

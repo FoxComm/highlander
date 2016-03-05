@@ -50,7 +50,7 @@ For **icons** svg icons is used. Just place svg icon to `src/images/svg` folder 
 automatically. Name for each icon in a sprite will be `fc-<file-name-lowecased>` Usage:
 
 ```jsx
-import Icon from '../common/icon';
+import Icon from 'ui/icon';
 
 const icon = <Icon name="fc-google" />;
 

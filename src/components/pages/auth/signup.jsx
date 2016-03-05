@@ -5,13 +5,13 @@ import cssModules from 'react-css-modules';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
 
-import { TextInput, TextInputWithLabel } from '../../common/inputs';
-import { FormField } from '../../forms';
-import Button from '../../common/buttons';
-import WrapToLines from '../../common/wrap-to-lines';
+import { TextInput, TextInputWithLabel } from 'ui/inputs';
+import { FormField } from 'ui/forms';
+import Button from 'ui/buttons';
+import WrapToLines from 'ui/wrap-to-lines';
 import { Link } from 'react-router';
 
-import type { HTMLElement } from '../../../types';
+import type { HTMLElement } from 'types';
 
 type AuthState = {
   email: string,

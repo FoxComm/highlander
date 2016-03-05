@@ -9,11 +9,11 @@ import cssModules from 'react-css-modules';
 import styles from './checkout.css';
 import { connect } from 'react-redux';
 
-import Icon from '../../common/icon';
+import Icon from 'ui/icon';
 import Shipping from './shipping';
 
-import * as actions from '../../../modules/checkout';
-import type { CheckoutState, EditStage } from '../../../modules/checkout';
+import * as actions from 'modules/checkout';
+import type { CheckoutState, EditStage } from 'modules/checkout';
 
 type CheckoutProps = CheckoutState & {
   setEditStage: (stage: EditStage) => Object;
