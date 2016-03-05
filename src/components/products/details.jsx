@@ -21,9 +21,13 @@ import SkuList from './sku-list';
 import Product from '../../paragons/product';
 
 // types
-import type { DetailsParams } from './types';
 import { FormField } from '../forms';
 import type { ProductAttribute, ProductDetailsState } from '../../modules/products/details';
+
+type DetailsParams = {
+  productId: number,
+  product: Product,
+};
 
 type DetailsProps = {
   details: ProductDetailsState,

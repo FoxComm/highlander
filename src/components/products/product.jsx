@@ -16,8 +16,11 @@ import { PageTitle } from '../section-title';
 import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
 
+// helpers
+import Product from '../../paragons/product';
+
 // types
-import type { Product, ProductDetailsState } from '../../modules/products/details';
+import type { ProductDetailsState } from '../../modules/products/details';
 
 type Actions = {
   fetchProduct: (id: number, context: ?string) => void,
@@ -52,7 +55,7 @@ export class ProductPage extends Component<void, Props, void> {
     const productTitle: string = _.get(product, 'attributes.title', '');
 
     const showWaiting = isFetching || (!product && !err);
-    const showError = !showWaiting && !product && err
+    const showError = !showWaiting && !product && err;
 
     let content = null;
 

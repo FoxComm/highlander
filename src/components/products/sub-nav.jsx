@@ -9,12 +9,17 @@ import React, { Component } from 'react';
 import { Link, IndexLink } from '../link';
 import LocalNav from '../local-nav/local-nav';
 
-// types
-import type { DetailsParams } from './types';
+// helpers
+import Product from '../../paragons/product';
 
-export default class SubNav extends Component<void, DetailsParams, void> {
+type Props = {
+  productId: number,
+  product: ?Product,
+};
+
+export default class SubNav extends Component<void, Props, void> {
   render() {
-    const params = { 
+    const params = {
       productId: this.props.productId,
       product: this.props.product,
     };
