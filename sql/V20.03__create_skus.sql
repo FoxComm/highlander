@@ -4,8 +4,7 @@ create table skus (
     code generic_string,
     type generic_string,
     attributes jsonb,
-    is_hazardous bool,
-    is_active bool,
+    created_at timestamp without time zone default (now() at time zone 'utc'),
 
     foreign key (product_id) references products(id) on update restrict on delete restrict
 );

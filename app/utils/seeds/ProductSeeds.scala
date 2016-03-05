@@ -31,5 +31,5 @@ trait ProductSeeds {
     SimpleProductData(code = "SKU-ZYA", title = "Dolphin", description = "A Dog named Dolphin", price = 8800),
     SimpleProductData(code = "SKU-MRP", title = "Morphin", description = "Power Ranger", price = 7700),
     // Why beetle? Cuz it's probably a bug. FIXME: add validation!!!
-    SimpleProductData(code = "SKU-TRL", title = "Beetle", description = "Music Album", price = -100, isActive = false))
+    SimpleProductData(code = "SKU-TRL", title = "Beetle", description = "Music Album", price = -100))
 }

@@ -13,6 +13,8 @@ import org.json4s.jackson.JsonMethods._
 import slick.driver.PostgresDriver.api._
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import cats.implicits._
+import java.time.Instant
 
 object SimpleContext { 
   val name =  "default"
@@ -35,7 +37,7 @@ object SimpleProductDefaults {
 }
 
 final case class SimpleProduct(title: String, description: String, image: String,
-  code: String, isActive: Boolean) {
+  code: String) {
 
     def create : Product = 
       Product(
@@ -43,22 +45,21 @@ final case class SimpleProduct(title: String, description: String, image: String
         {
           "title" : {
             "type" : "string",
-            "${SimpleContext.variant}" : "$title"
+            "${SimpleContext.name}" : "$title"
           },
           "description" : {
             "type" : "string",
-            "${SimpleContext.variant}" : "$description"
+            "${SimpleContext.name}" : "$description"
           },
           "images" : {
             "type" : "images",
-            "${SimpleContext.variant}" : ["$image"]
+            "${SimpleContext.name}" : ["$image"]
           }
         }"""),
         variants = parse(s"""
         {
           "${SimpleContext.variant}" : "$code"
-        }"""),
-        isActive = isActive)
+        }"""))
 }
 
 final case class SimpleProductShadow(productContextId: Int, productId: Int) { 
@@ -72,11 +73,13 @@ final case class SimpleProductShadow(productContextId: Int, productId: Int) {
           "title" : "${SimpleContext.variant}",
           "description" : "${SimpleContext.variant}",
           "images" : "${SimpleContext.variant}"
-        }"""))
+        }"""),
+        activeFrom = Instant.now.some,
+        variants = SimpleContext.variant)
 }
 
-final case class SimpleSku(productId: Int, code: String, title: String, price: Int,
-  currency: Currency, isActive: Boolean, isHazardous: Boolean) {
+final case class SimpleSku(productId: Int, code: String, title: String, 
+  price: Int, currency: Currency) {
 
     def create : Sku = 
       Sku(
@@ -95,9 +98,7 @@ final case class SimpleSku(productId: Int, code: String, title: String, price: I
               "currency" : "${currency.getCode}"
             }
           }
-        }"""),
-      isHazardous = isHazardous,
-      isActive = isActive)
+        }"""))
 }
 
 final case class SimpleSkuShadow(productContextId: Int, skuId: Int) { 
@@ -110,12 +111,14 @@ final case class SimpleSkuShadow(productContextId: Int, skuId: Int) {
         {
           "title" : "${SimpleContext.variant}",
           "price" : "${SimpleContext.variant}"
-        }""")) }
+        }"""),
+      activeFrom = Instant.now.some) 
+}
 
 final case class SimpleProductData(productId : Int = 0, productShadowId: Int = 0,
   skuId: Int = 0, skuShadowId: Int = 0, title: String, description: String,
   image: String = SimpleProductDefaults.imageUrl, code: String, price: Int,
-  currency: Currency = Currency.USD, isActive: Boolean = true, isHazardous: Boolean = false)
+  currency: Currency = Currency.USD)
 
 final case class SimpleProductTuple(product: Product, productShadow: ProductShadow,
   sku: Sku, skuShadow: SkuShadow)
@@ -124,11 +127,11 @@ object Mvp {
 
   def insertProduct(contextId: Int, p: SimpleProductData)(implicit db: Database): 
   DbResultT[SimpleProductData] = for {
-    simpleProduct   ← * <~ SimpleProduct(p.title, p.description, p.image, p.code, p.isActive)
+    simpleProduct   ← * <~ SimpleProduct(p.title, p.description, p.image, p.code)
     product         ← * <~ Products.create(simpleProduct.create)
     simpleShadow    ← * <~ SimpleProductShadow(contextId, product.id)
     productShadow   ← * <~ ProductShadows.create(simpleShadow.create)
-    simpleSku       ← * <~ SimpleSku(product.id, p.code, p.title, p.price, p.currency, p.isActive, p.isHazardous)
+    simpleSku       ← * <~ SimpleSku(product.id, p.code, p.title, p.price, p.currency)
     sku             ← * <~ Skus.create(simpleSku.create)
     simpleSkuShadow ← * <~ SimpleSkuShadow(contextId, sku.id)
     skuShadow       ← * <~ SkuShadows.create(simpleSkuShadow.create)

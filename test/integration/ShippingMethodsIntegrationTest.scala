@@ -115,26 +115,6 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
         methodResponse.price must ===(shippingMethod.price)
         methodResponse.isEnabled must ===(true)
       }
-
-      "Shipping method is returned, but disabled with a hazardous SKU" in new ShipToCaliforniaButNotHazardous {
-        (for {
-          productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
-          product     ← * <~ Mvp.insertProduct(productContext.id, SimpleProductData(
-            code = "HAZ-SKU", title = "fox", description = "fox", price = 56, isHazardous = true))
-          lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
-          lineItem    ← * <~ OrderLineItems.create(OrderLineItem(orderId = order.id, originId = lineItemSku.id))
-        } yield lineItem).runTxn().futureValue.rightVal
-
-        val response = GET(s"v1/shipping-methods/${order.referenceNumber}")
-        response.status must ===(StatusCodes.OK)
-
-        val methodResponse = response.as[Seq[responses.ShippingMethods.Root]].head
-        methodResponse.id must ===(shippingMethod.id)
-        methodResponse.name must ===(shippingMethod.adminDisplayName)
-        methodResponse.price must ===(shippingMethod.price)
-        methodResponse.isEnabled must ===(false)
-      }
-
     }
   }
 

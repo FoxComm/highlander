@@ -28,17 +28,14 @@ object SkuManager {
 
   def createForm(payload: CreateSkuForm)
     (implicit ec: EC, db: DB): Result[SkuFormResponse.Root] = (for {
-    form       ← * <~ Skus.create(
-      Sku(code = payload.code, productId = payload.productId, 
-        attributes = payload.attributes, isActive = payload.isActive, 
-        isHazardous = payload.isHazardous))
+    form       ← * <~ Skus.create(Sku(code = payload.code, 
+      productId = payload.productId, attributes = payload.attributes))
   } yield SkuFormResponse.build(form)).runTxn()
 
   def updateForm(code: String, payload: UpdateSkuForm)
     (implicit ec: EC, db: DB): Result[SkuFormResponse.Root] = (for {
     form       ← * <~ Skus.findOneByCode(code).mustFindOr(SkuNotFound(code))
-    form       ← * <~ Skus.update(form, form.copy(attributes = payload.attributes,
-      isActive = payload.isActive, isHazardous = payload.isHazardous))
+    form       ← * <~ Skus.update(form, form.copy(attributes = payload.attributes))
   } yield SkuFormResponse.build(form)).runTxn()
 
   def getShadow(code: String, productContextName: String)
@@ -55,9 +52,9 @@ object SkuManager {
     productContext ← * <~ ProductContexts.filterByName(productContextName).one.
       mustFindOr(ProductContextNotFound(productContextName))
     form       ← * <~ Skus.findOneByCode(payload.code).mustFindOr(SkuNotFound(payload.code))
-    shadow       ← * <~ SkuShadows.create(
-      SkuShadow(skuId = form.id, productContextId = productContext.id,
-      attributes = payload.attributes))
+    shadow       ← * <~ SkuShadows.create(SkuShadow(skuId = form.id, 
+      productContextId = productContext.id, attributes = payload.attributes,
+      activeFrom = payload.activeFrom, activeTo = payload.activeTo))
     _    ← * <~ validateShadow(form, shadow)
   } yield SkuShadowResponse.build(form, shadow)).runTxn()
     
@@ -68,7 +65,9 @@ object SkuManager {
     form       ← * <~ Skus.findOneByCode(code).mustFindOr(SkuNotFound(code))
     shadow     ← * <~ SkuShadows.filterBySkuAndContext(form.id, productContext.id).
       one.mustFindOr(SkuNotFoundForContext(code, productContext.name))
-    shadow     ← * <~ SkuShadows.update(shadow, shadow.copy(attributes = payload.attributes))
+    shadow     ← * <~ SkuShadows.update(shadow, shadow.copy(
+      attributes = payload.attributes, activeFrom = payload.activeFrom, 
+      activeTo = payload.activeTo))
     _    ← * <~ validateShadow(form, shadow)
   } yield SkuShadowResponse.build(form, shadow)).runTxn()
     

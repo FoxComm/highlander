@@ -21,37 +21,34 @@ object SkuResponses {
     final case class Root(
       code: String,
       attributes: Json,
-      isHazardous: Boolean,
-      isActive: Boolean)
+      createdAt: Instant)
 
     def build(sku: Sku) : Root =
-      Root(code = sku.code, attributes = sku.attributes, 
-        isHazardous = sku.isHazardous, isActive = sku.isActive)
+      Root(code = sku.code, attributes = sku.attributes, createdAt = sku.createdAt)
   }
 
   object SkuShadowResponse { 
 
-    final case class Root(
-      code: String,
-      attributes: Json,
-      isHazardous: Boolean,
-      isActive: Boolean)
+    final case class Root(code: String, attributes: Json, activeFrom: Option[Instant], 
+      activeTo: Option[Instant], createdAt: Instant)
 
     def build(sku: Sku, skuShadow: SkuShadow) : Root =
       Root(code = sku.code, attributes = skuShadow.attributes, 
-        isHazardous = sku.isHazardous, isActive = sku.isActive)
+        activeFrom = skuShadow.activeFrom, activeTo = skuShadow.activeTo,
+        createdAt = skuShadow.createdAt)
   }
 
   object IlluminatedSkuResponse {
 
     final case class Root(code: String, context: Option[ProductContextResponse.Root], 
-      attributes: Json)
-
+      attributes: Json, activeFrom: Option[Instant], activeTo: Option[Instant])
 
     def build(s: IlluminatedSku): Root = 
       Root(code = s.code, attributes = s.attributes, 
-        context = ProductContextResponse.build(s.context).some)
+        context = ProductContextResponse.build(s.context).some,
+        activeFrom = s.activeFrom, activeTo = s.activeTo)
     def buildLite(s: IlluminatedSku): Root = 
-      Root(code = s.code, attributes = s.attributes, context = None)
+      Root(code = s.code, attributes = s.attributes, context = None,
+        activeFrom = s.activeFrom, activeTo = s.activeTo)
   }
 }

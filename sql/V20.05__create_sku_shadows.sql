@@ -3,6 +3,8 @@ create table sku_shadows(
     product_context_id integer references product_contexts(id) on update restrict on delete restrict,
     sku_id integer not null references skus(id) on update restrict on delete restrict,
     attributes jsonb,
+    active_from timestamp without time zone null,
+    active_to timestamp without time zone null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
 
     foreign key (sku_id) references skus(id) on update restrict on delete restrict,

@@ -7,9 +7,11 @@ import utils.ExPostgresDriver.api._
 import utils.Slick.implicits._
 import utils.table.SearchByCode
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.time.JavaTimeSlickMapper._
+import java.time.Instant
 
-final case class Sku(id: Int = 0, code: String, productId: Int, attributes: Json, 
-  isHazardous: Boolean = false, isActive: Boolean = true)
+final case class Sku(id: Int = 0, code: String, productId: Int, attributes: Json,
+  createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[Sku]
 
 object Sku {
@@ -22,10 +24,9 @@ class Skus(tag: Tag) extends GenericTable.TableWithId[Sku](tag, "skus")  {
   def code = column[String]("code")
   def productId = column[Int]("product_id")
   def attributes = column[Json]("attributes")
-  def isHazardous = column[Boolean]("is_hazardous")
-  def isActive = column[Boolean]("is_active")
+  def createdAt = column[Instant]("created_at")
 
-  def * = (id, code, productId, attributes, isHazardous, isActive) <> ((Sku.apply _).tupled, Sku.unapply)
+  def * = (id, code, productId, attributes, createdAt) <> ((Sku.apply _).tupled, Sku.unapply)
 
   def product = foreignKey(Products.tableName, productId, Products)(_.id)
 }
