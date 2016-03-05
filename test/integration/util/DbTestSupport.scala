@@ -13,6 +13,7 @@ import slick.jdbc.hikaricp.HikariCPJdbcDataSource
 import slick.driver.PostgresDriver.api.Database
 import java.sql.Connection
 import util.SlickSupport.implicits._
+import slick.jdbc.DriverDataSource
 
 import models.product.{SimpleContext, ProductContext, ProductContexts}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -29,13 +30,13 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
   override protected def beforeAll(): Unit = {
     if (!migrated) {
       Locale.setDefault(Locale.US)
-      val db4fly = Database.forConfig("db", TestBase.config)
-      val flyway = newFlyway(jdbcDataSourceFromSlickDB(db4fly))
+      val ds = new DriverDataSource(TestBase.config.getString("db.url"))
+      val flyway = newFlyway(ds)
 
       flyway.clean()
       flyway.migrate()
 
-      db4fly.close()
+      ds.close()
       migrated = true
     }
     setupProductContext()
