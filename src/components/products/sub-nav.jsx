@@ -9,12 +9,12 @@ import React, { Component } from 'react';
 import { Link, IndexLink } from '../link';
 import LocalNav from '../local-nav/local-nav';
 
-// helpers
-import Product from '../../paragons/product';
+// types
+import type { FullProduct } from '../../modules/products/details';
 
 type Props = {
   productId: number,
-  product: ?Product,
+  product: ?FullProduct,
 };
 
 export default class SubNav extends Component<void, Props, void> {

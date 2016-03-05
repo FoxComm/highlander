@@ -17,10 +17,10 @@ import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
 
 // helpers
-import Product from '../../paragons/product';
+import { getProductAttributes } from '../../paragons/product';
 
 // types
-import type { ProductDetailsState } from '../../modules/products/details';
+import type { FullProduct, ProductDetailsState } from '../../modules/products/details';
 
 type Actions = {
   fetchProduct: (id: number, context: ?string) => void,
@@ -46,13 +46,14 @@ export class ProductPage extends Component<void, Props, void> {
     return parseInt(this.props.params.productId);
   }
 
-  get product(): ?Product {
+  get product(): ?FullProduct {
     return this.props.products.product;
   }
 
   render(): Element {
     const { isFetching, product, err } = this.props.products;
-    const productTitle: string = _.get(product, 'attributes.title', '');
+    const attributes = product ? getProductAttributes(product) : {};
+    const productTitle: string = _.get(product, 'title', '');
 
     const showWaiting = isFetching || (!product && !err);
     const showError = !showWaiting && !product && err;

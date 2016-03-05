@@ -4,7 +4,7 @@
 
 import _ from 'lodash';
 
-import type { ProductAttribute, ProductForm, ProductShadow } from '../modules/products/details';
+import type { FullProduct, ProductAttribute, ProductForm, ProductShadow } from '../modules/products/details';
 
 type Attribute = {
   label: string,
@@ -12,30 +12,26 @@ type Attribute = {
   value: string,
 };
 
-function getProductAttributes(form: ProductForm, shadow: ProductShadow): { [key:string]: Attribute } {
-  const attributes: { [key:string]: Attribute } = _.reduce(shadow.attributes, (res, attribute, key) => {
-    const attr: ?ProductAttribute = _.get(form, ['attributes', key]);
+type Attributes = { [key:string]: Attribute };
 
-    if (!attr) {
-      throw new Error(`Attribute ${key} not found in product from id=${form.id}`);
-    }
+export function getProductAttributes(product: FullProduct): Attributes {
+  const form: ?ProductForm = _.get(product, 'form.product');
+  const shadow: ?ProductShadow = _.get(product, 'form.shadow');
+
+  if (!form) throw new Error('Product form not found in FullProduct response.');
+  if (!shadow) throw new Error('Product shadow not found in FullProduct response.');
+
+  const attributes: Attributes = _.reduce(shadow.attributes, (res, attrValue, key) => {
+    const productAttribute = form.attributes[key];
 
     res[key] = {
       label: key,
-      type: attr.type,
-      value: attr[attribute],
+      type: productAttribute.type,
+      value: productAttribute[attrValue],
     };
 
     return res;
   }, {});
 
   return attributes;
-}
-
-export default class Product {
-  productAttributes: { [key:string]: Attribute };
-
-  constructor(form: ProductForm, shadow: ProductShadow) {
-    this.productAttributes = getProductAttributes(form, shadow);
-  }
 }

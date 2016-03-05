@@ -18,15 +18,15 @@ import InlineField from '../inline-field/inline-field';
 import SkuList from './sku-list';
 
 // helpers
-import Product from '../../paragons/product';
+import { getProductAttributes } from '../../paragons/product';
 
 // types
 import { FormField } from '../forms';
-import type { ProductAttribute, ProductDetailsState } from '../../modules/products/details';
+import type { FullProduct, ProductAttribute, ProductDetailsState } from '../../modules/products/details';
 
 type DetailsParams = {
   productId: number,
-  product: Product,
+  product: FullProduct,
 };
 
 type DetailsProps = {
@@ -52,8 +52,13 @@ export class ProductDetails extends Component<void, DetailsProps, void> {
     }),
   };
 
+  get fullProduct(): ?FullProduct {
+    return _.get(this.props, 'details.product');
+  }
+
   get attributes(): ProductAttributes {
-    return _.get(this.props, 'details.product.productAttributes', {});
+    const fullProduct = this.fullProduct;
+    return fullProduct ? getProductAttributes(fullProduct) : {};
   }
 
   get generalContentBox(): Element {
