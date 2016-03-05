@@ -1,12 +1,14 @@
 
 import ListPage from './list-page';
 import ListPageContainer from './list-page-container';
-import SearchableList from './searchable-list';
+import SearchList from './search-list';
+import SelectableSearchList from './selectable-search-list';
 import makeTotalCounter from './total-counter';
 
 export {
   ListPage,
   ListPageContainer,
-  SearchableList,
+  SearchList,
+  SelectableSearchList,
   makeTotalCounter,
 };

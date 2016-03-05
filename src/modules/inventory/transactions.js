@@ -2,41 +2,17 @@ import makeLiveSearch from '../live-search';
 
 const searchTerms = [
   {
-    title: 'Product',
+    title: 'Transaction',
     type: 'object',
     options: [
       {
-        title: 'ID',
-        type: 'string',
-        term: 'id'
+        title: 'Date/Time',
+        type: 'date',
+        term: 'placedAt'
       }, {
-        title: 'Name',
-        type: 'string',
-        term: 'product'
-      }, {
-        title: 'SKU',
-        type: 'string',
-        term: 'sku'
-      }, {
-        title: 'Product State',
+        title: 'Type',
         type: 'enum',
-        term: 'productActive',
-        suggestions: [
-          { display: 'Active', value: 'true' },
-          { display: 'Inactive', value: 'false' },
-        ]
-      }, {
-        title: 'SKU State',
-        type: 'enum',
-        term: 'skuActive',
-        suggestions: [
-          { display: 'Active', value: 'true' },
-          { display: 'Inactive', value: 'false' },
-        ]
-      }, {
-        title: 'SKU Type',
-        type: 'enum',
-        term: 'skuType',
+        term: 'type',
         suggestions: [
           { display: 'Backorder', value: 'backorder' },
           { display: 'Sellable', value: 'sellable' },
@@ -44,25 +20,40 @@ const searchTerms = [
           { display: 'Non-sellable', value: 'nonSellable' },
         ]
       }, {
-        title: 'On Hand',
-        type: 'number',
-        term: 'onHand'
+        title: 'State',
+        type: 'enum',
+        term: 'state',
+        suggestions: [
+          { display: 'On Hand', value: 'hand' },
+          { display: 'Hold', value: 'hold' },
+          { display: 'Reserved', value: 'reserved' }
+        ]
       }, {
-        title: 'On Hold',
+        title: 'Previous',
         type: 'number',
-        term: 'onHold'
+        term: 'previous'
       }, {
-        title: 'Reserved',
+        title: 'New',
         type: 'number',
-        term: 'reserved'
+        term: 'new'
       }, {
-        title: 'Safety Stock',
+        title: 'Change',
         type: 'number',
-        term: 'safetyStock'
+        term: 'change'
       }, {
-        title: 'AFS',
+        title: 'New AFS',
         type: 'number',
         term: 'afs'
+      }
+    ]
+  }, {
+    title: 'Warehouse',
+    type: 'object',
+    options: [
+      {
+        title: 'Name',
+        type: 'string',
+        term: 'warehouse.name'
       }
     ]
   }
@@ -71,7 +62,7 @@ const searchTerms = [
 const { reducer, actions } = makeLiveSearch(
   'inventory.transactions',
   searchTerms,
-  'inventory_search_view/_search',
+  'transactions_search_view/_search',
   'inventoryScope'
 );
 

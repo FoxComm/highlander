@@ -17,7 +17,7 @@ import { numberize } from '../../lib/text-utils';
 // components
 import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
-import { SearchableList } from '../list-page';
+import { SelectableSearchList } from '../list-page';
 import OrderRow from './order-row';
 import { ChangeStateModal, CancelModal, SelectUsersModal } from '../bulk-actions/modal';
 import { Link } from '../link';
@@ -183,8 +183,8 @@ export default class Orders extends React.Component {
           module="orders"
           entity="order"
           actions={this.bulkActions}>
-          <SearchableList
-            emptyResultMessage="No orders found."
+          <SelectableSearchList
+            emptyMessage="No orders found."
             list={list}
             renderRow={this.renderRow}
             tableColumns={Orders.tableColumns}

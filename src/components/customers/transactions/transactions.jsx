@@ -61,7 +61,7 @@ export default class CustomerTransactions extends React.Component {
       <div className="fc-customer-transactions">
         <ListPage
           addTitle="Order"
-          emptyResultMessage="No orders found."
+          emptyMessage="No orders found."
           list={this.props.list}
           renderRow={renderRow}
           tableColumns={tableColumns}

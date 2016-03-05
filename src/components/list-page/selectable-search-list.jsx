@@ -4,10 +4,10 @@ import React, { PropTypes } from 'react';
 import LiveSearchAdapter from '../live-search/live-search-adapter';
 import MultiSelectTable from '../table/multi-select-table';
 
-export default class SearchableList extends React.Component {
+export default class SelectableSearchList extends React.Component {
 
   static propTypes = {
-    emptyResultMessage: PropTypes.string,
+    emptyMessage: PropTypes.string,
     errorMessage: PropTypes.string,
     list: PropTypes.object,
     renderRow: PropTypes.func.isRequired,
@@ -33,7 +33,7 @@ export default class SearchableList extends React.Component {
   };
 
   static defaultProps = {
-    emptyResultMessage: 'No results found.',
+    emptyMessage: 'No results found.',
     errorMessage: 'An error occurred. Try again later.',
     searchOptions: {
       singleSearch: false,
@@ -63,7 +63,7 @@ export default class SearchableList extends React.Component {
           predicate={props.predicate}
           isLoading={results.isFetching}
           failed={results.failed}
-          emptyMessage={props.emptyResultMessage}
+          emptyMessage={props.emptyMessage}
           errorMessage={props.errorMessage} />
       </LiveSearchAdapter>
     );

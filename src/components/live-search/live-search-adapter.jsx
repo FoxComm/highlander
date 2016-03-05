@@ -31,6 +31,7 @@ LiveSearchAdapter.propTypes = {
     deleteSearch: PropTypes.func,
     updateSearch: PropTypes.func
   }),
+  singleSearch: PropTypes.bool,
   searches: PropTypes.object,
 };
 
