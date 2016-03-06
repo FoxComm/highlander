@@ -156,9 +156,10 @@ class LocalNav extends React.Component {
 
   @autobind
   renderItem(item, index) {
+    // Index based keys aren't great, but in this case we don't have better
+    // information and these won't get reordered - so it's fine.
+    const key = `local-nav-item-${item.key ? item.key : index}`;
     if (item.type !== NavDropdown) {
-      const key = `local-nav-item-${item.key ? item.key : index}`;
-
       return <li ref={index} className="fc-tabbed-nav-item" key={key}>{item}</li>;
     }
 
@@ -166,7 +167,8 @@ class LocalNav extends React.Component {
 
     return React.cloneElement(item, {
       ref: index,
-      className: classNames(item.props.className, { 'fc-tabbed-nav-selected': isActive })
+      className: classNames(item.props.className, { 'fc-tabbed-nav-selected': isActive }),
+      key: key,
     });
   }
 

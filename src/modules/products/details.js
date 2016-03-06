@@ -97,7 +97,15 @@ export function fetchProduct(id: number, context: string = defaultContext): Acti
 export function updateProduct(product: FullProduct, context: string = defaultContext): ActionDispatch {
   return dispatch => {
     dispatch(productUpdateStart());
-    dispatch(productUpdateSuccess());
+    const productId = product.form.product.id;
+    return Api.patch(`/products/full/${context}/${productId}`, product)
+      .then(
+        (product: FullProduct) => dispatch(productUpdateSuccess(product)),
+        (err: Object) => {
+          dispatch(productUpdateFailure());
+          dispatch(setError(err));
+        }
+      );
   };
 }
 

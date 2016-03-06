@@ -13,6 +13,7 @@ import * as ProductActions from '../../modules/products/details';
 
 // components
 import { PageTitle } from '../section-title';
+import { PrimaryButton } from '../common/buttons';
 import FoxyForm from '../forms/foxy-form';
 import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
@@ -49,7 +50,7 @@ export class ProductPage extends Component<void, Props, void> {
     }),
 
     params: PropTypes.shape({
-      productId: PropTypes.number.isRequired,
+      productId: PropTypes.string.isRequired,
     }),
 
     products: PropTypes.shape({
@@ -71,14 +72,21 @@ export class ProductPage extends Component<void, Props, void> {
     return this.props.products.product;
   }
 
-  handleSubmit(product: { [key:string]: any }) {
-    
+  handleSubmit(productValues: { [key:string]: string }) {
+    const product = this.product;
+    if (product) {
+      const updatedProduct = _.reduce(productValues, (res, val, key) => {
+        return setProductAttribute(res, key, val);
+      }, product);
+
+      this.props.actions.updateProduct(updatedProduct);
+    }
   }
 
   render(): Element {
     const { isFetching, product, err } = this.props.products;
     const attributes = product ? getProductAttributes(product) : {};
-    const productTitle: string = _.get(product, 'title', '');
+    const productTitle: string = _.get(attributes, 'title.value', '');
 
     const showWaiting = isFetching || (!product && !err);
     const showError = !showWaiting && !product && err;
@@ -93,7 +101,7 @@ export class ProductPage extends Component<void, Props, void> {
       content = (
         <FoxyForm onSubmit={this.handleSubmit.bind(this)}>
           <PageTitle title={productTitle}>
-            <button type="submit">Save</button>
+            <PrimaryButton type="submit">Save</PrimaryButton>
           </PageTitle>
           <div>
             <SubNav productId={this.productId} product={this.product} />

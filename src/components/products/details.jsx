@@ -133,7 +133,8 @@ export class ProductDetails extends Component<void, DetailsProps, void> {
       <FormField
         className="fc-product-details__field"
         label={formattedLbl}
-        labelClassName="fc-product-details__field-label">
+        labelClassName="fc-product-details__field-label"
+        key={`product-page-field-${label}`}>
         <input
           className="fc-product-details__field-value"
           type="text"
