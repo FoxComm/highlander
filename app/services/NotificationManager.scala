@@ -13,7 +13,7 @@ import models.{NotificationTrailMetadata, StoreAdmin, StoreAdmins, NotificationS
 import org.json4s.Extraction.decompose
 import org.json4s.jackson.Serialization.write
 import payloads.{AppendActivity, CreateNotification}
-import responses.{ActivityConnectionResponse, LastSeenActivityResponse, TheResponse}
+import responses.{ActivityConnectionResponse, ActivityResponse, LastSeenActivityResponse, TheResponse}
 import services.activity.TrailManager
 import services.actors.NotificationPublisher
 import slick.driver.PostgresDriver.api._
@@ -49,7 +49,7 @@ object NotificationManager {
       TrailManager.appendActivityByObjectIdInner(Dimension.notification, adminId.toString, appendActivity, newTrailData)
     })
     _ ← * <~ DBIO.sequence(adminIds.map { adminId ⇒
-      sqlu"NOTIFY #${notificationChannel(adminId)}, '#${write(activity)}'"
+      sqlu"NOTIFY #${notificationChannel(adminId)}, '#${write(ActivityResponse.build(activity))}'"
     }).toXor
   } yield response).runTxn()
 
