@@ -111,6 +111,8 @@ trait HttpSupport
 
   def overrideCustomerAuth: AsyncAuthenticator[Customer] = Authenticator.customer
 
+  implicit val env = utils.Config.Test
+
   private def makeService: Service = new Service(
     dbOverride = Some(db),
     systemOverride = Some(system),

@@ -28,7 +28,7 @@ object NotificationManager {
   implicit val formats = JsonFormatters.phoenixFormats
 
   def streamByAdminId(id: StoreAdmin#Id)
-    (implicit ec: EC, db: DB, system: ActorSystem): Source[ServerSentEvent, NotUsed] = {
+    (implicit ec: EC, db: DB, system: ActorSystem, env: utils.Config.Environment): Source[ServerSentEvent, NotUsed] = {
     val dataPublisherRef = system.actorOf(Props(new NotificationPublisher(id)))
     val dataPublisher = ActorPublisher[String](dataPublisherRef)
     dataPublisherRef ! id

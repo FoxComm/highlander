@@ -17,7 +17,7 @@ import utils.Slick.implicits._
 import utils.aliases._
 import org.postgresql.Driver
 
-class NotificationPublisher(adminId: Int)(implicit ec: EC, db: DB)
+class NotificationPublisher(adminId: Int)(implicit ec: EC, db: DB, env: utils.Config.Environment)
   extends ActorPublisher[String] with ActorLogging {
 
   implicit val formats = JsonFormatters.phoenixFormats
