@@ -1,5 +1,6 @@
 package util
 
+import java.util.Locale
 import javax.sql.DataSource
 
 import scala.annotation.tailrec
@@ -9,8 +10,10 @@ import utils.flyway.newFlyway
 import org.scalatest.{BeforeAndAfterAll, Outcome, Suite, SuiteMixin}
 import services.Failures
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
+import slick.driver.PostgresDriver.api.Database
 import java.sql.Connection
 import util.SlickSupport.implicits._
+import slick.jdbc.DriverDataSource
 
 import models.product.{SimpleContext, ProductContext, ProductContexts}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -26,14 +29,16 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
 
   override protected def beforeAll(): Unit = {
     if (!migrated) {
-      val flyway = newFlyway(jdbcDataSourceFromSlickDB(db))
+      Locale.setDefault(Locale.US)
+      val ds = new DriverDataSource(TestBase.config.getString("db.url"))
+      val flyway = newFlyway(ds)
 
       flyway.clean()
       flyway.migrate()
 
+      ds.close()
       migrated = true
     }
-
     setupProductContext()
   }
 
@@ -81,7 +86,6 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
 }
 
 object DbTestSupport {
-  import slick.driver.PostgresDriver.api.Database
 
   @volatile var migrated = false
 
