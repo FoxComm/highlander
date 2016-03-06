@@ -3,7 +3,7 @@
  */
 
 // libs
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 
 // components
 import { Link, IndexLink } from '../link';
@@ -18,6 +18,11 @@ type Props = {
 };
 
 export default class SubNav extends Component<void, Props, void> {
+  static propTypes = {
+    productId: PropTypes.number.isRequired,
+    product: PropTypes.object,
+  };
+  
   render() {
     const params = {
       productId: this.props.productId,

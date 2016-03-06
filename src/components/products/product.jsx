@@ -3,7 +3,7 @@
  */
 
 // libs
-import React, { Component, Element } from 'react';
+import React, { Component, Element, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
@@ -13,17 +13,19 @@ import * as ProductActions from '../../modules/products/details';
 
 // components
 import { PageTitle } from '../section-title';
+import FoxyForm from '../forms/foxy-form';
 import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
 
 // helpers
-import { getProductAttributes } from '../../paragons/product';
+import { getProductAttributes, setProductAttribute } from '../../paragons/product';
 
 // types
 import type { FullProduct, ProductDetailsState } from '../../modules/products/details';
 
 type Actions = {
   fetchProduct: (id: number, context: ?string) => void,
+  updateProduct: (product: FullProduct, context: ?string) => void,
 };
 
 type Params = {
@@ -38,6 +40,25 @@ type Props = {
 };
 
 export class ProductPage extends Component<void, Props, void> {
+  static propTypes = {
+    children: PropTypes.node,
+
+    actions: PropTypes.shape({
+      fetchProduct: PropTypes.func.isRequired,
+      updateProduct: PropTypes.func.isRequired,
+    }),
+
+    params: PropTypes.shape({
+      productId: PropTypes.number.isRequired,
+    }),
+
+    products: PropTypes.shape({
+      err: PropTypes.object,
+      isFetching: PropTypes.bool,
+      product: PropTypes.object,
+    }),
+  };
+
   componentDidMount() {
     this.props.actions.fetchProduct(this.productId);
   }
@@ -48,6 +69,10 @@ export class ProductPage extends Component<void, Props, void> {
 
   get product(): ?FullProduct {
     return this.props.products.product;
+  }
+
+  handleSubmit(product: { [key:string]: any }) {
+    
   }
 
   render(): Element {
@@ -66,13 +91,15 @@ export class ProductPage extends Component<void, Props, void> {
       content = <div>{_.get(err, 'status')}</div>;
     } else {
       content = (
-        <div>
-          <PageTitle title={productTitle} />
+        <FoxyForm onSubmit={this.handleSubmit.bind(this)}>
+          <PageTitle title={productTitle}>
+            <button type="submit">Save</button>
+          </PageTitle>
           <div>
             <SubNav productId={this.productId} product={this.product} />
             {this.props.children}
           </div>
-        </div>
+        </FoxyForm>
       );
     }
 

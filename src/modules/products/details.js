@@ -4,6 +4,7 @@
 import Api from '../../lib/api';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
+import { configureProduct } from '../../paragons/product';
 import _ from 'lodash';
 
 export type Error = {
@@ -121,7 +122,7 @@ const reducer = createReducer({
       ...state,
       err: null,
       isFetching: false,
-      product: response,
+      product: configureProduct(response),
     };
   },
   [productRequestFailure]: (state: ProductDetailsState) => {

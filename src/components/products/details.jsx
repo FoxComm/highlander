@@ -41,9 +41,10 @@ type PriceAttribute = {
 
 type ProductAttributes = { [key:string]: ProductAttribute };
 
+const reqGeneralKeys = ['title', 'description'];
 const miscAttributeKeys = ['images'];
 const pricingAttributeKeys = ['retailPrice', 'salePrice'];
-const seoAttributeKeys = ['URL', 'metaTitle', 'metaDescription'];
+const seoAttributeKeys = ['url', 'metaTitle', 'metaDescription'];
 
 export class ProductDetails extends Component<void, DetailsProps, void> {
   static propTypes = {
@@ -62,20 +63,28 @@ export class ProductDetails extends Component<void, DetailsProps, void> {
   }
 
   get generalContentBox(): Element {
-    const notGeneralKeys = [
+    const customKeys = [
+      ...reqGeneralKeys,
       ...miscAttributeKeys,
       ...pricingAttributeKeys,
       ...seoAttributeKeys
     ];
 
-    const attributes = this.renderAttributes(_.omit(this.attributes, notGeneralKeys));
+    const { title, description } = this.attributes;
+    const customAttrs = _.omit(this.attributes, customKeys);
+    const generalAttrs = {
+      title: title,
+      description: description,
+      ...customAttrs,
+    };
+
+    const attributes = this.renderAttributes(generalAttrs);
     return <ContentBox title="General">{attributes}</ContentBox>;
   }
 
   get pricingContentBox(): Element {
     const attributes = pricingAttributeKeys.map(key => {
-      const attribute = this.attributes[key] || { label: key, type: 'price', value: null };
-      return this.renderAttribute(attribute);
+      return this.renderAttribute(this.attributes[key]);
     });
 
     return <ContentBox title="Pricing">{attributes}</ContentBox>;
@@ -83,8 +92,7 @@ export class ProductDetails extends Component<void, DetailsProps, void> {
 
   get seoContentBox(): Element {
     const attributes = seoAttributeKeys.map(key => {
-      const attribute = this.attributes[key] || { label: key, type: 'string', value: null };
-      return this.renderAttribute(attribute);
+      return this.renderAttribute(this.attributes[key]);
     });
     return <ContentBox title="SEO">{attributes}</ContentBox>;
   }
@@ -119,6 +127,8 @@ export class ProductDetails extends Component<void, DetailsProps, void> {
       return `${res} ${_.capitalize(val)}`;
     });
 
+    const defaultValue = type == 'price' ? value.value : value;
+
     return (
       <FormField
         className="fc-product-details__field"
@@ -127,7 +137,8 @@ export class ProductDetails extends Component<void, DetailsProps, void> {
         <input
           className="fc-product-details__field-value"
           type="text"
-          defaultValue={value} />
+          name={label}
+          defaultValue={defaultValue} />
       </FormField>
     );
   }
