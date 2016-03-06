@@ -54,7 +54,8 @@ class CheckoutTest
       val mockValidator = mock[CartValidation]
       when(mockValidator.validate(isCheckout = true)).thenReturn(DbResult.failures(failure))
 
-      val result = Checkout(Factories.cart.copy(customerId = customer.id), mockValidator).checkout.run().futureValue.leftVal
+      val cart = Orders.create(Factories.cart).run().futureValue.rightVal
+      val result = Checkout(cart.copy(customerId = customer.id), mockValidator).checkout.run().futureValue.leftVal
       result must === (failure)
     }
 
