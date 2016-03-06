@@ -22,7 +22,7 @@ object Config {
     case _                    ⇒ Development
   }
 
-  def loadWithEnv(env: Environment = environment, cfg: TypesafeConfig = ConfigFactory.load): TypesafeConfig = {
+  def loadWithEnv(cfg: TypesafeConfig = ConfigFactory.load)(implicit env: Environment = environment): TypesafeConfig = {
     val envConfig = cfg.getConfig(s"env." ++ env.show)
     ConfigFactory.systemProperties.withFallback(envConfig.withFallback(cfg))
   }

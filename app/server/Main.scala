@@ -24,6 +24,7 @@ import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContextExecutor, Future}
 
 object Main extends App {
+  implicit val env = utils.Config.environment
   val service = new Service()
   service.bind()
   service.setupRemorseTimers
@@ -33,8 +34,7 @@ class Service(
   systemOverride: Option[ActorSystem]  = None,
   dbOverride:     Option[Database]     = None,
   apisOverride:   Option[Apis]         = None,
-  addRoutes:      immutable.Seq[Route] = immutable.Seq.empty
-) {
+  addRoutes:      immutable.Seq[Route] = immutable.Seq.empty)(implicit val env: utils.Config.Environment) {
 
   import utils.JsonFormatters._
 
