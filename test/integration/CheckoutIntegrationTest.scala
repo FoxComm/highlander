@@ -5,7 +5,9 @@ import akka.http.scaladsl.model.StatusCodes.OK
 import Extensions._
 import models.product.{Mvp, ProductContexts, SimpleContext}
 import models.customer.Customers
-import models.inventory.Skus
+import models.inventory._
+import models.inventory.summary.SellableInventorySummaries
+import models.inventory.adjustment.SellableInventoryAdjustments
 import models.location.Addresses
 import models.order.{Orders, Order}
 import models.shipping.ShippingMethods
@@ -16,10 +18,12 @@ import FullOrder.Root
 import responses.GiftCardResponse
 import services.CartFailures.CustomerHasNoActiveOrder
 import services.NotFoundFailure404
+import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
+import utils.seeds.generators.InventorySummaryGenerator
 import utils.seeds.Seeds.Factories
 
 class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
@@ -32,7 +36,7 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       createCart.status must === (OK)
       val refNum = createCart.as[FullOrder.Root].referenceNumber
       // Add line items
-      POST(s"v1/orders/$refNum/line-items", Seq(UpdateLineItemsPayload(sku.code, 1))).status must === (OK)
+      POST(s"v1/orders/$refNum/line-items", Seq(UpdateLineItemsPayload(sku.code, 2))).status must === (OK)
       // Set address
       PATCH(s"v1/orders/$refNum/shipping-address/${address.id}").status must === (OK)
       // Set shipping method
@@ -50,6 +54,19 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       checkout.status must === (OK)
       checkout.as[Root].orderState must === (Order.RemorseHold)
       Orders.findOneByRefNum(refNum).run().futureValue.value.placedAt.value
+
+      // Must adjust inventory on order placement
+      val summary = SellableInventorySummaries.findOneById(sellableSummary.id).run().futureValue.value
+      summary.onHand must === (sellableSummary.onHand)
+      summary.onHold must === (sellableSummary.onHold + 2)
+      summary.reserved must === (sellableSummary.reserved)
+      summary.safetyStock must === (sellableSummary.safetyStock)
+
+      val adjustments = SellableInventoryAdjustments.findBySummaryId(sellableSummary.id).result.run().futureValue
+      adjustments.map(_.onHandChange).sum must === (0)
+      adjustments.map(_.onHoldChange).sum must === (2)
+      adjustments.map(_.reservedChange).sum must === (0)
+      adjustments.map(_.safetyStockChange).sum must === (0)
     }
 
     "errors 404 if no cart found by reference number" in {
@@ -69,16 +86,18 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
     }
   }
 
-  trait Fixture {
-    val (customer, address, shipMethod, product, sku, reason) = (for {
-      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+  trait Fixture extends InventorySummaryGenerator {
+    val (customer, address, shipMethod, product, sku, reason, sellableSummary) = (for {
+      productCtx ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
       customer   ← * <~ Customers.create(Factories.customer)
       address    ← * <~ Addresses.create(Factories.usAddress1.copy(customerId = customer.id))
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
-      product    ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
+      product    ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
       sku        ← * <~ Skus.mustFindById404(product.skuId)
       admin      ← * <~ StoreAdmins.create(Factories.storeAdmin)
       reason     ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = admin.id))
-    } yield (customer, address, shipMethod, product, sku, reason)).run().futureValue.rightVal
+      warehouse  ← * <~ Warehouses.create(Factories.warehouse)
+      inventory  ← * <~ generateInventory(sku.id, warehouse.id)
+    } yield (customer, address, shipMethod, product, sku, reason, inventory._1)).run().futureValue.rightVal
   }
 }

@@ -1,5 +1,7 @@
 package models.inventory.summary
 
+import java.time.Instant
+import models.javaTimeSlickMapper
 import models.inventory.{Skus, Warehouses}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
@@ -7,7 +9,7 @@ import slick.lifted.Tag
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
 final case class InventorySummary(id: Int = 0, skuId: Int, warehouseId: Int, sellableId: Int, backorderId: Int,
-  preorderId: Int, nonSellableId: Int) extends ModelWithIdParameter[InventorySummary]
+  preorderId: Int, nonSellableId: Int, createdAt: Instant = Instant.now) extends ModelWithIdParameter[InventorySummary]
 
 object InventorySummary {
   type AllSummaries = (SellableInventorySummary,PreorderInventorySummary, BackorderInventorySummary,
@@ -22,8 +24,9 @@ class InventorySummaries(tag: Tag) extends GenericTable.TableWithId[InventorySum
   def backorderId = column[Int]("backorder_id")
   def preorderId = column[Int]("preorder_id")
   def nonSellableId = column[Int]("nonsellable_id")
+  def createdAt = column[Instant]("created_at")
 
-  def * = (id, skuId, warehouseId, sellableId, backorderId, preorderId, nonSellableId) <>
+  def * = (id, skuId, warehouseId, sellableId, backorderId, preorderId, nonSellableId, createdAt) <>
     ((InventorySummary.apply _).tupled, InventorySummary.unapply)
 
   def sku = foreignKey(Skus.tableName, skuId, Skus)(_.id)
@@ -53,4 +56,9 @@ object InventorySummaries extends TableQueryWithId[InventorySummary, InventorySu
       .join(NonSellableInventorySummaries).on(_._1._1._1.nonSellableId === _.id)
   if (summary.skuId === skuId && summary.warehouseId === warehouseId)
   } yield (sellable, preorder, backorder, nonsellable)
+
+  def findSellableBySkuIdInWarehouse(skuId: Int, warehouseId: Int): SellableInventorySummaries.QuerySeq = for {
+    sellable ← SellableInventorySummaries
+    invSums ← InventorySummaries.filter(_.sellableId === sellable.id)
+  } yield sellable
 }
