@@ -8,15 +8,22 @@ export function isAuthenticated() {
   if (isServerSide()) return null;
 
   const token = localStorage.getItem('jwt');
-  return !!token;
+  if (!token) return false;
+
+  const user = localStorage.getItem("user");
+  if (new Date() > new Date(user.exp*1000)) {
+    return false;
+  }
+
+  return true;
 }
 
 export function currentUser() {
   if (isServerSide()) return null;
 
-  const token = localStorage.getItem('user');
-  if (token) {
-    return JSON.parse(token);
+  const user = localStorage.getItem('user');
+  if (user) {
+    return JSON.parse(user);
   }
 }
 
