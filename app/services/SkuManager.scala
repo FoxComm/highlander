@@ -24,7 +24,7 @@ object SkuManager {
     (implicit ec: EC, db: DB): Result[SkuFormResponse.Root] = (for {
     form       ← * <~ Skus.findOneByCode(code).mustFindOr(SkuNotFound(code))
 
-  } yield SkuFormResponse.build(form)).runTxn()
+  } yield SkuFormResponse.build(form)).run()
 
   def createForm(payload: CreateSkuForm)
     (implicit ec: EC, db: DB): Result[SkuFormResponse.Root] = (for {
@@ -45,7 +45,7 @@ object SkuManager {
     form       ← * <~ Skus.findOneByCode(code).mustFindOr(SkuNotFound(code))
     shadow     ← * <~ SkuShadows.filterBySkuAndContext(form.id, productContext.id).
       one.mustFindOr(SkuNotFoundForContext(code, productContext.name))
-  } yield SkuShadowResponse.build(form, shadow)).runTxn()
+  } yield SkuShadowResponse.build(form, shadow)).run()
 
   def createShadow(payload: CreateSkuShadow, productContextName: String)
     (implicit ec: EC, db: DB): Result[SkuShadowResponse.Root] = (for {
@@ -78,7 +78,7 @@ object SkuManager {
     form       ← * <~ Skus.findOneByCode(code).mustFindOr(SkuNotFound(code))
     shadow     ← * <~ SkuShadows.filterBySkuAndContext(form.id, productContext.id).
       one.mustFindOr(SkuNotFoundForContext(code, productContext.name))
-  } yield IlluminatedSkuResponse.build(IlluminatedSku.illuminate(productContext, form, shadow))).runTxn()
+  } yield IlluminatedSkuResponse.build(IlluminatedSku.illuminate(productContext, form, shadow))).run()
 
   def validateShadow(form: Sku, shadow: SkuShadow) 
   (implicit ec: EC, db: DB) : DbResultT[Unit] = 

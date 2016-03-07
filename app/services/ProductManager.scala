@@ -27,7 +27,7 @@ object ProductManager {
   def getForm(id: Int)
     (implicit ec: EC, db: DB): Result[ProductFormResponse.Root] = (for {
     form       ← * <~ Products.mustFindById404(id)
-  } yield ProductFormResponse.build(form)).runTxn()
+  } yield ProductFormResponse.build(form)).run()
 
   def createForm(payload: CreateProductForm)
     (implicit ec: EC, db: DB): Result[ProductFormResponse.Root] = (for {
@@ -48,7 +48,7 @@ object ProductManager {
       mustFindOr(ProductContextNotFound(productContextName))
     shadow  ← * <~ ProductShadows.filter(_.productId === productId).one.
       mustFindOr(ProductNotFoundForContext(productId, productContext.id))
-  } yield ProductShadowResponse.build(shadow)).runTxn()
+  } yield ProductShadowResponse.build(shadow)).run()
 
   def createShadow(productId: Int, payload: CreateProductShadow, productContextName: String)
     (implicit ec: EC, db: DB): Result[ProductShadowResponse.Root] = (for {
@@ -85,13 +85,13 @@ object ProductManager {
     shadow       ← * <~ ProductShadows.filter(_.productId === form.id).
       filter(_.productContextId === productContext.id).one.
         mustFindOr(ProductNotFoundForContext(form.id, productContext.id)) 
-  } yield IlluminatedProductResponse.build(IlluminatedProduct.illuminate(productContext, form, shadow))).runTxn()
+  } yield IlluminatedProductResponse.build(IlluminatedProduct.illuminate(productContext, form, shadow))).run()
 
   def getContextByName(name: String) 
     (implicit ec: EC, db: DB): Result[ProductContextResponse.Root] = (for {
     productContext ← * <~ ProductContexts.filterByName(name).one.
       mustFindOr(ProductContextNotFound(name))
-  } yield ProductContextResponse.build(productContext)).runTxn()
+  } yield ProductContextResponse.build(productContext)).run()
 
   def createContext(payload: CreateProductContext) 
     (implicit ec: EC, db: DB): Result[ProductContextResponse.Root] = (for {
@@ -123,7 +123,7 @@ object ProductManager {
     skus ← * <~ Skus.filter(_.id.inSet(skuIdsFromShadows)).result
     skuShadowPair = skus zip skuShadows
 
-  } yield FullProductResponse.build(productForm, productShadow, skuShadowPair)).runTxn()
+  } yield FullProductResponse.build(productForm, productShadow, skuShadowPair)).run()
 
   def createFullProduct(payload: CreateFullProduct, productContextName: String)
     (implicit ec: EC, db: DB): Result[FullProductResponse.Root] = (for {
@@ -187,7 +187,7 @@ object ProductManager {
     IlluminatedProduct.illuminate(productContext, productForm, productShadow),
     skuShadowPair.map { 
       case (s, ss) ⇒ IlluminatedSku.illuminate(productContext, s, ss)
-    })).runTxn()
+    })).run()
 
   private def validateShadow(context: ProductContext, form: Product, shadow: ProductShadow) 
   (implicit ec: EC, db: DB) : DbResultT[Unit] = 
