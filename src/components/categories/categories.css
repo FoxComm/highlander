@@ -16,6 +16,7 @@
 .item-link {
   color: var(--blackish);
   text-decoration: none;
+  cursor: pointer;
 }
 
 @media (--small-viewport) {

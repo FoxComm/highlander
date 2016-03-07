@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import cssModules from 'react-css-modules';
 import styles from './sidebar.css';
 
-// import Icon from '../common/icon';
+import Icon from '../common/icon';
 import Categories from '../categories/categories';
 
 import * as actions from '../../modules/sidebar';
@@ -35,8 +35,8 @@ const Sidebar = (props : SidebarProps) : HTMLElement => {
       <div styleName="container">
         <div styleName="controls">
           <div styleName="controls-close">
-            <a styleName="close-icon" onClick={props.toggleSidebar}>
-              X {/* <Icon name="fc-close"/> */}
+            <a styleName="close-button" onClick={props.toggleSidebar}>
+              <Icon name="fc-close" className="close-icon"/>
             </a>
           </div>
           <div styleName="controls-categories">

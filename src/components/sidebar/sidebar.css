@@ -39,9 +39,13 @@
 
 }
 
-.close-icon {
+.close-button {
   color: var(--whitish);
   text-decoration: none;
+}
+
+.close-button {
+  stroke: var(--whitish);
 }
 
 .controls-categories {
