@@ -107,9 +107,9 @@ trait HttpSupport
 
   def makeApis: Option[Apis] = Some(Apis(mock[StripeApi]))
 
-  def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.storeAdmin
+  def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.basicStoreAdmin
 
-  def overrideCustomerAuth: AsyncAuthenticator[Customer] = Authenticator.customer
+  def overrideCustomerAuth: AsyncAuthenticator[Customer] = Authenticator.basicCustomer
 
   implicit val env = utils.Config.Test
 

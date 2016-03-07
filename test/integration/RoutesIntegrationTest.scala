@@ -12,7 +12,7 @@ import services.Authenticator.AsyncAuthenticator
 class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase
   with HttpSupport {
 
-  val authedStoreAdmin = StoreAdmin.build(id = 1, email = "donkey@donkey.com", password = "donkeyPass",
+  val authedStoreAdmin = StoreAdmin.build(id = 1, email = "donkey@donkey.com", password = Some("donkeyPass"),
     name = "Mister Donkey")
 
   override def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] = (UserCredentials) ⇒ {

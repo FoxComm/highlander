@@ -9,7 +9,6 @@ import de.heikoseeberger.akkasse.EventStreamMarshalling._
 
 import payloads._
 import services.NotificationManager
-import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives._
 import utils.Http._
 import utils.aliases._

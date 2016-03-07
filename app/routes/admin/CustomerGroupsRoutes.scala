@@ -7,16 +7,17 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
 import payloads._
 import services.GroupManager
-import services.Authenticator.{AsyncAuthenticator, requireAdminAuth}
+import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._
 import utils.aliases._
 
+
 object CustomerGroupsRoutes {
   def routes(implicit ec: EC, db: DB, mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
-    requireAdminAuth(storeAdminAuth) { admin ⇒
+    requireAuth(storeAdminAuth) { admin ⇒
       activityContext(admin) { implicit ac ⇒
         pathPrefix("groups") {
           (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒

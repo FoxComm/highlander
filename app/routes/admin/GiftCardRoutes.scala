@@ -9,8 +9,7 @@ import models.payment.giftcard.GiftCard.giftCardCodeRegex
 import payloads._
 import services.giftcards._
 import services.CustomerCreditConverter
-import services.Authenticator.{AsyncAuthenticator, requireAdminAuth}
-import slick.driver.PostgresDriver.api._
+import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._
@@ -20,7 +19,7 @@ object GiftCardRoutes {
 
   def routes(implicit ec: EC, db: DB, mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
-    requireAdminAuth(storeAdminAuth) { admin ⇒
+    requireAuth(storeAdminAuth) { admin ⇒
       activityContext(admin) { implicit ac ⇒
         pathPrefix("gift-cards") {
           (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
