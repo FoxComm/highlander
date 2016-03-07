@@ -1,7 +1,8 @@
 package services
 
 import scala.concurrent.Future
-import akka.http.scaladsl.model.headers.{HttpCredentials, RawHeader}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
+import akka.http.scaladsl.model.headers.{HttpChallenge, HttpCredentials, RawHeader}
 import akka.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
@@ -71,8 +72,12 @@ object Authenticator {
     }
   }
 
-  def setJwtHeader(t: Token): Directive0 = {
-    respondWithHeader(RawHeader("JWT", t.encode))
+  def responseWithToken(token: Token): Route = {
+    val claims = Token.getJWTClaims(token)
+
+    respondWithHeader(RawHeader("JWT", Token.encodeJWTClaims(claims))) {
+      complete(HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, claims.toJson)))
+    }
   }
 
   def jwtCustomer(credentials: Option[HttpCredentials])
@@ -94,7 +99,9 @@ object Authenticator {
       user           ← * <~ userDbio.mustFindOr(LoginFailed)
     } yield user).run().map {
       case Xor.Right(entity) ⇒ AuthenticationResult.success(entity)
-      case Xor.Left(_) ⇒ AuthenticationResult.failWithChallenge(challengeFor(realm))
+      case Xor.Left(_) ⇒ AuthenticationResult.failWithChallenge(HttpChallenge(scheme = "Bearer",
+        realm = realm,
+        params = Map.empty))
     }
 
   private[this] def basicAuth[M, F <: EmailFinder[M]](realm: String)
@@ -113,7 +120,8 @@ object Authenticator {
   def authenticate(payload: LoginPayload)
     (implicit ec: EC, db: DB): Result[Token] = {
 
-    def auth[M, F <: EmailFinder[M], T](finder: F, getHashedPassword: M ⇒ Option[String], tokenFromModel: M ⇒ T):
+    def auth[M, F <: EmailFinder[M], T <: Token](finder: F, getHashedPassword: M ⇒ Option[String], tokenFromModel: M ⇒
+      T):
       Result[T] = {
       (for {
         userInstance  ← * <~ finder(payload.email).mustFindOr(LoginFailed)

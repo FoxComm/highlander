@@ -1,11 +1,13 @@
 package routes
 
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
 import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import akka.stream.Materializer
 import services.Authenticator
 import utils.Http._
 import utils.aliases._
+import models.auth.Token
 
 object AuthRoutes {
 
@@ -17,9 +19,7 @@ object AuthRoutes {
           result.fold({ f ⇒
             complete(renderFailure(f))
           }, { token ⇒
-            Authenticator.setJwtHeader(token) {
-              complete(render(token))
-            }
+            Authenticator.responseWithToken(token)
           })
         }
       }

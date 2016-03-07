@@ -63,7 +63,7 @@ object Token {
 
   val tokenTTL = config.getOptInt("auth.tokenTTL").getOrElse(5)
 
-  private def getJWTClaims(token: Token): JwtClaims = {
+  def getJWTClaims(token: Token): JwtClaims = {
     val claims = new JwtClaims
 
     for ((field, value) ← caseClassToMap(token)) {
@@ -81,7 +81,10 @@ object Token {
 
   def encode(token: Token): String = {
     val claims = Token.getJWTClaims(token)
+    encodeJWTClaims(claims)
+  }
 
+  def encodeJWTClaims(claims: JwtClaims): String = {
     val jws = new JsonWebSignature
     jws.setPayload(claims.toJson)
     jws.setKey(Keys.authPrivateKey)
