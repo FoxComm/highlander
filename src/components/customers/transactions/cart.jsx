@@ -1,4 +1,4 @@
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { transitionTo } from '../../../route-helpers';
@@ -10,8 +10,8 @@ import { PrimaryButton } from '../../common/buttons';
 import OrderShippingAddress from '../../orders/shipping-address';
 import OrderShippingMethod from '../../orders/order-shipping-method';
 import Payments from '../../orders/payments';
+import WaitAnimation from '../../common/wait-animation';
 
-import { haveType } from '../../../modules/state-helpers';
 import * as orderActions from '../../../modules/orders/details';
 import * as paymentMethodActions from '../../../modules/orders/payment-methods';
 
@@ -23,15 +23,18 @@ const mapStateToProps = (state) => {
     shippingMethods: state.orders.shippingMethods,
     skusActions: state.skusActions,
     payments: state.orders.paymentMethods,
+    isFetching: state.orders.details.isFetching,
+    failed: state.orders.details.failed,
   };
 };
 
 const mapDispatchToProps = {
   ...orderActions,
-  ...paymentMethodActions};
+  ...paymentMethodActions
+};
 
 @connect(mapStateToProps, mapDispatchToProps)
-export default class CustomerCart extends React.Component {
+export default class CustomerCart extends Component {
 
   static contextTypes = {
     history: PropTypes.object.isRequired
@@ -48,48 +51,75 @@ export default class CustomerCart extends React.Component {
   @autobind
   editCart() {
     if (this.order) {
-      transitionTo(this.context.history, 'order', {order: this.order.referenceNumber});
+      transitionTo(this.context.history, 'order', { order: this.order.referenceNumber });
     }
   }
 
   render() {
-    const props = this.props;
+    let content;
 
-    if (_.isEmpty(props.order.currentOrder)) {
-      return <div className="fc-order-details"></div>;
+    if (this.props.failed) {
+      content = this.errorMessage;
+    } else if (this.props.isFetching) {
+      content = this.waitAnimation;
+    } else if (_.isEmpty(this.props.order.currentOrder)) {
+      content = this.emptyMessage;
     } else {
-      const order = props.order.currentOrder;
+      content = this.content;
+    }
 
-      const {
-        itemsStatus,
-        shippingAddressStatus,
-        shippingMethodStatus,
-        paymentMethodStatus
-        } = props.order.validations;
+    return (
+      <div className="fc-customer-cart">
+        {content}
+      </div>
+    );
+  }
 
-      return (
-        <div className="fc-customer-cart">
-          <div className="_header">
-            <div className="fc-subtitle">Cart {order.referenceNumber}</div>
-            <div className="fc-customer-cart__edit-btn">
-              <PrimaryButton onClick={this.editCart}>Edit Cart</PrimaryButton>
-            </div>
+  get waitAnimation() {
+    return <WaitAnimation/>;
+  }
+
+  get errorMessage() {
+    return <div className="fc-customer__empty-messages">An error occurred. Try again later.</div>;
+  }
+
+  get emptyMessage() {
+    return <div className="fc-customer__empty-messages">No current order found for customer.</div>;
+  }
+
+  get content() {
+    const props = this.props;
+    const order = props.order.currentOrder;
+
+    const {
+      itemsStatus,
+      shippingAddressStatus,
+      shippingMethodStatus,
+      paymentMethodStatus
+    } = props.order.validations;
+
+    return (
+      <div>
+        <div className="_header">
+          <div className="fc-subtitle">Cart {order.referenceNumber}</div>
+          <div className="fc-customer-cart__edit-btn">
+            <PrimaryButton onClick={this.editCart}>Edit Cart</PrimaryButton>
           </div>
-          <div className="fc-order-details">
-            <div className="fc-order-details-body">
-              <div className="fc-order-details-main">
-                <OrderLineItems readOnly={true} isCart={false} status={itemsStatus} {...props} />
-                <OrderShippingAddress readOnly={true} isCart={false} status={shippingAddressStatus} order={order}/>
-                <OrderShippingMethod readOnly={true} isCart={false} status={shippingMethodStatus} {...props} />
-                <Payments readOnly={true} isCart={false} status={paymentMethodStatus} {...props} />
-              </div>
-              <div className="fc-order-details-aside">
-                <TotalsSummary entity={order} title={order.title}/>
-              </div>
+        </div>
+        <div className="fc-order-details">
+          <div className="fc-order-details-body">
+            <div className="fc-order-details-main">
+              <OrderLineItems readOnly={true} isCart={false} status={itemsStatus} {...props} />
+              <OrderShippingAddress readOnly={true} isCart={false} status={shippingAddressStatus} order={order}/>
+              <OrderShippingMethod readOnly={true} isCart={false} status={shippingMethodStatus} {...props} />
+              <Payments readOnly={true} isCart={false} status={paymentMethodStatus} {...props} />
+            </div>
+            <div className="fc-order-details-aside">
+              <TotalsSummary entity={order} title={order.title}/>
             </div>
           </div>
         </div>
-      );
-    }
+      </div>
+    );
   }
 }

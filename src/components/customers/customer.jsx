@@ -1,14 +1,15 @@
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import { Link, IndexLink } from '../link';
 import TitleBlock from './title-block';
 import { connect } from 'react-redux';
 import * as CustomersActions from '../../modules/customers/details';
 import LocalNav, { NavDropdown } from '../local-nav/local-nav';
+import WaitAnimation from '../common/wait-animation';
 
 @connect((state, props) => ({
   ...state.customers.details[props.params.customerId]
 }), CustomersActions)
-export default class Customer extends React.Component {
+export default class Customer extends Component {
 
   static propTypes = {
     params: PropTypes.shape({
@@ -16,7 +17,8 @@ export default class Customer extends React.Component {
     }).isRequired,
     details: PropTypes.object,
     fetchCustomer: PropTypes.func,
-    children: PropTypes.node
+    children: PropTypes.node,
+    failed: PropTypes.bool,
   };
 
   componentDidMount() {
@@ -33,14 +35,40 @@ export default class Customer extends React.Component {
     });
   }
 
-  get page() {
-    const {details, params} = this.props;
+  render() {
+    let content;
+
+    if (this.props.failed) {
+      content = this.errorMessage;
+    } else if (this.props.isFetching || !this.props.details) {
+      content = this.waitAnimation;
+    } else {
+      content = this.content;
+    }
 
     return (
       <div className="fc-customer">
+        {content}
+      </div>
+    );
+  }
+
+  get waitAnimation() {
+    return <WaitAnimation/>;
+  }
+
+  get errorMessage() {
+    return <div className="fc-customer__empty-messages">An error occurred. Try again later.</div>;
+  }
+
+  get content() {
+    const { details, params } = this.props;
+
+    return (
+      <div>
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
-            <TitleBlock customer={details} />
+            <TitleBlock customer={details}/>
           </div>
         </div>
         <LocalNav gutter={true}>
@@ -60,9 +88,5 @@ export default class Customer extends React.Component {
         </div>
       </div>
     );
-  }
-
-  render() {
-    return (this.props.details ? this.page : null);
   }
 }
