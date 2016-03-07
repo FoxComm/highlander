@@ -5,6 +5,10 @@
 
 @import "media-queries.css";
 
+:global(.icon) {
+  stroke: currentColor;
+}
+
 @media (--small-viewport) {
   :global(.icon) {
     width: 16px;
