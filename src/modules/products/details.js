@@ -4,7 +4,7 @@
 import Api from '../../lib/api';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
-import { configureProduct } from '../../paragons/product';
+import { addProductAttribute, configureProduct } from '../../paragons/product';
 import _ from 'lodash';
 
 export type Error = {
@@ -77,6 +77,8 @@ const productRequestFailure = createAction('PRODUCTS_REQUEST_FAILURE');
 const productUpdateStart = createAction('PRODUCTS_UPDATE_START');
 const productUpdateSuccess = createAction('PRODUCTS_UPDATE_SUCCESS');
 const productUpdateFailure = createAction('PRODUCTS_UPDATE_FAILURE');
+
+export const productAddAttribute = createAction('PRODUCTS_ADD_ATTRIBUTE', (label, type) => [label, type]);
 
 const setError = createAction('PRODUCTS_SET_ERROR');
 
@@ -158,6 +160,16 @@ const reducer = createReducer({
       ...state,
       isUpdating: false,
     };
+  },
+  [productAddAttribute]: (state: ProductDetailsState, [label, type]) => {
+    if (state.product) {
+      return {
+        ...state,
+        product: addProductAttribute(state.product, label, type, defaultContext),
+      };
+    } else {
+      return state;
+    }
   },
   [setError]: (state: ProductDetailsState, err: Object) => {
     const error: Error = {

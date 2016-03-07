@@ -17,6 +17,7 @@ import * as DetailsActions from '../../modules/products/details';
 import { FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
 import CurrencyInput from '../forms/currency-input';
+import CustomProperty from './custom-property';
 import InlineField from '../inline-field/inline-field';
 import SkuList from './sku-list';
 
@@ -34,6 +35,7 @@ type DetailsParams = {
 type DetailsProps = {
   details: ProductDetailsState,
   params: DetailsParams,
+  productAddAttribute: (label: string, type: string) => void,
 };
 
 type PriceAttribute = {
@@ -43,12 +45,21 @@ type PriceAttribute = {
 
 type ProductAttributes = { [key:string]: ProductAttribute };
 
+type State = { isAddingProperty: boolean };
+
 const reqGeneralKeys = ['title', 'description'];
 const miscAttributeKeys = ['images'];
 const pricingAttributeKeys = ['retailPrice', 'salePrice'];
 const seoAttributeKeys = ['url', 'metaTitle', 'metaDescription'];
 
-export class ProductDetails extends Component<void, DetailsProps, void> {
+export class ProductDetails extends Component<void, DetailsProps, State> {
+  state: State;
+
+  constructor(...args: Array<any>) {
+    super(...args);
+    this.state = { isAddingProperty: false };
+  }
+
   static propTypes = {
     details: PropTypes.shape({
       product: PropTypes.object,
@@ -81,7 +92,18 @@ export class ProductDetails extends Component<void, DetailsProps, void> {
     };
 
     const attributes = this.renderAttributes(generalAttrs);
-    return <ContentBox title="General">{attributes}</ContentBox>;
+    return (
+      <ContentBox title="General">
+        {attributes}
+        <div className="fc-product-details__add-custom-property">
+          Custom Property 
+          <a className="fc-product-details__add-custom-property-icon"
+             onClick={this.handleAddProperty}>
+            <i className="icon-add" />
+          </a>
+        </div>
+      </ContentBox>
+    );
   }
 
   get pricingContentBox(): Element {
@@ -117,6 +139,17 @@ export class ProductDetails extends Component<void, DetailsProps, void> {
         </div>
       </ContentBox>
     );
+  }
+
+  get customPropertyForm(): ?Element {
+    if (this.state.isAddingProperty) {
+      return (
+        <CustomProperty
+          isVisible={true} 
+          onSave={this.handleCreateProperty}
+          onCancel={() => this.setState({ isAddingProperty: false })} />
+      );
+    }
   }
 
   renderAttributes(attributes: ProductAttributes): Array<Element> {
@@ -160,8 +193,21 @@ export class ProductDetails extends Component<void, DetailsProps, void> {
   }
 
   @autobind
+  handleAddProperty() {
+    this.setState({ isAddingProperty: true });
+  }
+
+
+  @autobind
   handleAttributeChange(label: string, value: string) {
     this.setState({ [label]: value });
+  }
+
+  @autobind
+  handleCreateProperty(property: { fieldLabel: string, propertyType: string }) {
+    this.setState({
+      isAddingProperty: false,
+    }, () => this.props.productAddAttribute(property.fieldLabel, property.propertyType));
   }
 
   render() {
@@ -174,6 +220,7 @@ export class ProductDetails extends Component<void, DetailsProps, void> {
           {this.skusContentBox}
           {this.seoContentBox}
         </div>
+        {this.customPropertyForm}
       </div>
     );
   }
