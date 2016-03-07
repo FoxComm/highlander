@@ -4,6 +4,7 @@
 
 import _ from 'lodash';
 import { assoc } from 'sprout-data';
+import { stringToCurrency } from '../lib/format-currency';
 
 import type { FullProduct, ProductAttribute, ProductForm, ProductShadow } from '../modules/products/details';
 
@@ -106,7 +107,8 @@ export function setProductAttribute(product: FullProduct, label: string, value: 
 
   switch (attribute.type) {
     case 'price':
-      return assoc(product, [...path, 'default', 'value'], value);
+      const price: number = stringToCurrency(value);
+      return assoc(product, [...path, 'default', 'value'], price);
     default:
       return assoc(product, [...path, 'default'], value);
   }

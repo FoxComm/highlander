@@ -79,6 +79,7 @@ export class ProductPage extends Component<void, Props, void> {
         return setProductAttribute(res, key, val);
       }, product);
 
+      console.log(updatedProduct);
       this.props.actions.updateProduct(updatedProduct);
     }
   }

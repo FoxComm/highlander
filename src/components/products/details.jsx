@@ -4,6 +4,7 @@
 
 // libs
 import React, { Component, Element, PropTypes } from 'react';
+import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { dispatch } from 'redux';
@@ -13,7 +14,9 @@ import _ from 'lodash';
 import * as DetailsActions from '../../modules/products/details';
 
 // components
+import { FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
+import CurrencyInput from '../forms/currency-input';
 import InlineField from '../inline-field/inline-field';
 import SkuList from './sku-list';
 
@@ -21,7 +24,6 @@ import SkuList from './sku-list';
 import { getProductAttributes } from '../../paragons/product';
 
 // types
-import { FormField } from '../forms';
 import type { FullProduct, ProductAttribute, ProductDetailsState } from '../../modules/products/details';
 
 type DetailsParams = {
@@ -127,21 +129,39 @@ export class ProductDetails extends Component<void, DetailsProps, void> {
       return `${res} ${_.capitalize(val)}`;
     });
 
-    const defaultValue = type == 'price' ? value.value : value;
-
     return (
       <FormField
         className="fc-product-details__field"
         label={formattedLbl}
         labelClassName="fc-product-details__field-label"
         key={`product-page-field-${label}`}>
-        <input
-          className="fc-product-details__field-value"
-          type="text"
-          name={label}
-          defaultValue={defaultValue} />
+        {this.renderAttributeField(attribute)}
       </FormField>
     );
+  }
+
+  renderAttributeField(attribute: ProductAttribute): Element {
+    const { label, type, value } = attribute;
+    const inputClass = 'fc-product-details__field-value';
+
+    switch (type) {
+      case 'price':
+        const priceValue = _.get(this.state, label, value.value);
+        return (
+          <CurrencyInput
+            className={inputClass}
+            inputName={label}
+            value={priceValue}
+            onChange={(value) => this.handleAttributeChange(label, value)} />
+        );
+      default:
+        return <input className={inputClass} type="text" name={label} defaultValue={value} />;
+    }
+  }
+
+  @autobind
+  handleAttributeChange(label: string, value: string) {
+    this.setState({ [label]: value });
   }
 
   render() {
