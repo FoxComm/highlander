@@ -11,6 +11,7 @@ import models.Notification._
 import models.activity._
 import models.{NotificationTrailMetadata, StoreAdmins}
 import org.json4s.jackson.Serialization.write
+import responses.ActivityResponse
 import utils.ExPostgresDriver.api._
 import utils.JsonFormatters
 import utils.Slick.implicits._
@@ -87,7 +88,7 @@ class NotificationPublisher(adminId: Int)(implicit ec: EC, db: DB, env: utils.Co
       }).getOrElse(-1)
     } yield activities.filter(_.id > lastSeenId)
 
-    fetchUnreadActivities.run().foreach(_.foreach(json ⇒ push(write(json))))
+    fetchUnreadActivities.run().foreach(_.foreach(activity ⇒ push(write(ActivityResponse.build(activity)))))
   }
 
   private def push(message: String) =
