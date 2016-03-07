@@ -3,7 +3,7 @@ package utils
 import cats.data.Validated.Valid
 import cats.data.{ValidatedNel, Xor}
 import monocle.Lens
-import services.{DatabaseFailure, Failure, Failures}
+import services.{DatabaseFailure, Failure, Failures, GeneralFailure}
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
@@ -31,6 +31,9 @@ trait ModelWithIdParameter[T <: ModelWithIdParameter[T]] extends Validation[T] {
 
   // Read-only lens that returns String representation of primary search key value
   def primarySearchKeyLens: Lens[T, String] = Lens[T, String](_.id.toString)(_ ⇒ _ ⇒ this)
+
+  def mustBeCreated: Failures Xor T =
+    if (id == 0) Xor.Left(GeneralFailure("Refusing to update unsaved model").single) else Xor.right(this)
 }
 
 trait ModelWithLockParameter[T <: ModelWithLockParameter[T]] extends ModelWithIdParameter[T] { self: T ⇒
@@ -100,13 +103,12 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
       wrapDbio((returning += good).map(ret ⇒ action(ret)(good)))
     })
 
-  def update(oldModel: M, newModel: M)(implicit ec: EC, db: DB): DbResult[M] = {
-    val mightUpdate = for {
-      checked ← beforeSave(newModel)
-      updateable ← oldModel.updateTo(checked)
-    } yield this.findById(updateable.id).update(updateable)
-    mightUpdate.fold(DbResult.failures, good ⇒ wrapDbio(good >> lift(newModel)))
-  }
+  def update(oldModel: M, newModel: M)(implicit ec: EC, db: DB): DbResult[M] = (for {
+    _        ← * <~ oldModel.mustBeCreated
+    prepared ← * <~ beforeSave(newModel)
+    _        ← * <~ oldModel.updateTo(prepared)
+    _        ← * <~ wrapDbio(this.findById(oldModel.id).update(prepared))
+  } yield newModel).value
 
   private def beforeSave(model: M): Failures Xor M =
     model

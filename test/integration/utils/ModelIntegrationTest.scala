@@ -93,6 +93,10 @@ class ModelIntegrationTest extends IntegrationTestBase {
       updateFailure must === (StateTransitionNotAllowed(order.state, Order.Cart, order.refNum).single)
       Orders.result.run().futureValue.headOption.value must === (order)
     }
+
+    "won't update unsaved model" in {
+      Orders.update(Factories.order, Factories.order).run().futureValue mustBe 'left
+    }
   }
 
   "Model save" - {
@@ -103,9 +107,8 @@ class ModelIntegrationTest extends IntegrationTestBase {
     }
 
     "updates old model" in {
-      val orig = Factories.customer
-      val id = Customers.create(orig).run().futureValue.rightVal.id
-      val copy = orig.copy(id = id, name = Some("Derp"))
+      val orig = Customers.create(Factories.customer).run().futureValue.rightVal
+      val copy = orig.copy(name = Some("Derp"))
       Customers.update(orig, copy).run().futureValue mustBe 'right
       Customers.result.run().futureValue must === (Seq(copy))
     }
