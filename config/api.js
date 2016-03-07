@@ -20,7 +20,6 @@ module.exports = function(env) {
   function auth() {
     const auth = {
       header: 'JWT',
-      secret: 'adfm103ka09jsgo;sihd985ht209j;aoshg;osznfb;kzjdfhg0923jrt0wiejfaskfpaefmos%*rng3',
       loginUri: '/login',
     };
 
