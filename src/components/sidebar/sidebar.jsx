@@ -8,6 +8,7 @@ import cssModules from 'react-css-modules';
 import styles from './sidebar.css';
 
 // import Icon from '../common/icon';
+import Categories from '../categories/categories';
 
 import * as actions from '../../modules/sidebar';
 
@@ -23,6 +24,11 @@ const Sidebar = (props : SidebarProps) : HTMLElement => {
     'sidebar-hidden': !props.isVisible,
     'sidebar-shown': props.isVisible,
   });
+
+  const changeCategoryCallback = () => {
+    props.toggleSidebar();
+  };
+
   return (
     <div styleName={sidebarClass}>
       <div styleName="overlay" onClick={props.toggleSidebar}></div>
@@ -34,18 +40,7 @@ const Sidebar = (props : SidebarProps) : HTMLElement => {
             </a>
           </div>
           <div styleName="controls-categories">
-            <div styleName="item">
-              <a href="#" styleName="item-link">ALL</a>
-            </div>
-            <div styleName="item">
-              <a href="#" styleName="item-link">EYEGLASSES</a>
-            </div>
-            <div styleName="item">
-              <a href="#" styleName="item-link">SUNGLASSES</a>
-            </div>
-            <div styleName="item">
-              <a href="#" styleName="item-link">READERS</a>
-            </div>
+            <Categories onClick={changeCategoryCallback} />
           </div>
         </div>
       </div>

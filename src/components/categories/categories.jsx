@@ -6,10 +6,15 @@ import styles from './categories.css';
 import cssModules from 'react-css-modules';
 import { connect } from 'react-redux';
 import type { HTMLElement } from '../../types';
-
-import { Link } from 'react-router';
+import { autobind } from 'core-decorators';
+import { browserHistory } from 'react-router';
 
 import * as actions from '../../modules/categories';
+
+type Category = {
+  name: string;
+  id: number;
+};
 
 const getState = state => ({ list: state.categories.list });
 
@@ -18,10 +23,26 @@ class Categories extends React.Component {
   static propTypes = {
     list: PropTypes.array,
     fetchCategories: PropTypes.func.isRequired,
+    onClick: PropTypes.func,
+  };
+
+  static defaultProps = {
+    onClick: _.noop,
   };
 
   componentDidMount() {
     this.props.fetchCategories();
+  }
+
+  @autobind
+  onClick(category : ?Category) {
+    this.props.onClick(category);
+    if (category == undefined) {
+      browserHistory.push('/');
+    } else {
+      const dashedName = category.name.replace(/\s/g, '-');
+      browserHistory.push(`/${dashedName}`);
+    }
   }
 
   render(): HTMLElement {
@@ -30,16 +51,18 @@ class Categories extends React.Component {
       const key = `category-${dashedName}`;
       return (
         <div styleName="item" key={key}>
-          <Link to={`/${dashedName}`} styleName="item-link">
+          <a onClick={() => this.onClick(item)} styleName="item-link">
             {item.name.toUpperCase()}
-          </Link>
+          </a>
         </div>
       );
     });
 
     return (
       <div styleName="list">
-        <Link to="/" styleName="item-link">ALL</Link>
+        <div styleName="item" key="category-all">
+          <a onClick={() => this.onClick()} styleName="item-link">ALL</a>
+        </div>
         {categoryItems}
       </div>
     );

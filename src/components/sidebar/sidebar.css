@@ -47,12 +47,3 @@
 .controls-categories {
   margin-left: 20px;
 }
-
-.item {
-  margin-top: 32px;
-}
-
-.item-link {
-  color: var(--whitish);
-  text-decoration: none;
-}

@@ -1,5 +1,6 @@
 
 @import "colors.css";
+@import "variables.css";
 
 .list {
   display: flex;
@@ -15,4 +16,20 @@
 .item-link {
   color: var(--blackish);
   text-decoration: none;
+}
+
+@media (--small-viewport) {
+  .list {
+    display: block;
+  }
+
+  .item {
+    margin: 32px 0 0 0;
+  }
+
+  .item-link {
+    color: var(--whitish);
+    text-decoration: none;
+    margin: 0;
+  }
 }
