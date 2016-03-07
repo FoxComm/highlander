@@ -1,5 +1,7 @@
 import fetch from './fetch';
 import _ from 'lodash';
+import app from '../app';
+import { pushState} from 'redux-router';
 
 
 const isServer = typeof self === 'undefined';
@@ -73,6 +75,9 @@ export function request(method, uri, data) {
 
   return fetch(uri, options)
     .then(response => {
+      if (response.status == 401) {
+        app.store.dispatch(pushState(null, '/login/' , ''));
+      }
       if (response.status < 200 || response.status >= 300) {
         error = new Error(response.statusText);
         error.response = response;

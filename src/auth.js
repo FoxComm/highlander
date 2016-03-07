@@ -7,7 +7,8 @@ function isServerSide() {
 export function isAuthenticated() {
   if (isServerSide()) return null;
 
-  return !!localStorage.getItem('jwt');
+  const token = localStorage.getItem('jwt');
+  return !!token;
 }
 
 export function currentUser() {
