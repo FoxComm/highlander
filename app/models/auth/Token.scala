@@ -69,6 +69,7 @@ object Token {
     for ((field, value) ← caseClassToMap(token)) {
       value match {
         case value: Seq[_] ⇒ claims.setStringListClaim(field, value.asInstanceOf[Seq[String]].toList)
+        case Some(someVal) ⇒ claims.setClaim(field, someVal)
         case None ⇒ claims
         case _ ⇒ claims.setClaim(field, value)
       }
