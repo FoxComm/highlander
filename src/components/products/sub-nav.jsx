@@ -33,7 +33,7 @@ export default class SubNav extends Component<void, Props, void> {
       <LocalNav>
         <IndexLink to="product-details" param={params}>Details</IndexLink>
         <a href="">Notes</a>
-        <a href="">ActivityTrail</a>
+        <a href="">Activity Trail</a>
       </LocalNav>
     );
   }
