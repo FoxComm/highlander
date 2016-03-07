@@ -47,7 +47,7 @@ const validate = values => {
 })
 @cssModules(styles)
 /* ::`*/
-export default class RestorePassword extends Component {
+export default class ResetPassword extends Component {
 
   static propTypes = {
     fields: PropTypes.object.isRequired,

@@ -1,0 +1,53 @@
+
+@import "colors.css";
+
+.sidebar-hidden {
+  display: none;
+}
+
+.sidebar-shown {
+  display: block;
+  position: fixed;
+}
+
+.overlay {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: fixed;
+  background: var(--light-grayish);
+}
+
+.container {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 280px;
+  position: fixed;
+  background: var(--blackish);
+  color: var(--whitish);
+}
+
+.controls {
+  margin-left: 20px;
+  margin-top: 20px;
+  color: var(--whitish);
+}
+
+.controls-close {
+
+}
+
+.close-button {
+  color: var(--whitish);
+  text-decoration: none;
+}
+
+.close-button {
+  stroke: var(--whitish);
+}
+
+.controls-categories {
+  margin-left: 20px;
+}

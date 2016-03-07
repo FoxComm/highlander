@@ -48,6 +48,14 @@
   margin-top: 40px;
 }
 
+.mobile-sidebar {
+  display: none;
+}
+
+.overlay {
+  display: none;
+}
+
 @media (--medium-viewport) {
   .storefront {
     lost-column: 1/1;
@@ -77,6 +85,10 @@
   }
 
   .hamburger {
+    display: block;
+  }
+
+  .mobile-sidebar {
     display: block;
   }
 }

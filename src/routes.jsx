@@ -16,6 +16,7 @@ const routes = (
   <Route path="/" component={Site}>
     <Route component={StoreFront}>
       <IndexRoute component={Home} />
+      <Route name="category" path=":categoryName" component={Home} />
     </Route>
     <Route component={Auth}>
       <Route path="/login" component={Login} />
