@@ -76,5 +76,5 @@ module.exports = function(app) {
     }, config.layout.pageConstants);
 
     this.body = layout(layoutData);
-  }
+  };
 };

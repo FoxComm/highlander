@@ -3,7 +3,7 @@ import _ from 'lodash';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import { PrimaryButton, Button } from '../common/buttons';
-import WaitAnimation from '../common/wait-animation.jsx'
+import WaitAnimation from '../common/wait-animation.jsx';
 
 import { transitionTo } from '../../route-helpers';
 import Api from '../../lib/api';
@@ -18,7 +18,7 @@ export default class Login extends React.Component {
     this.state = {
       email: '',
       password: '',
-    }
+    };
   }
 
   static contextTypes = {
