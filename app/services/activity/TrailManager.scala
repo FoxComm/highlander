@@ -24,7 +24,6 @@ object TrailManager {
           data = payload.data))
       } yield trail.id).runTxn()
 
-
     /**
      * The append function will create a dimension and trail if they don't exist.
      * The idea here is to lazily create resources to save space and query time.
@@ -82,7 +81,7 @@ object TrailManager {
         trail ← * <~ Trails.mustFindById404(connection.trailId)
         dimension ← * <~ Dimensions.mustFindById404(trail.dimensionId)
         activity ← * <~ Activities.mustFindById404(connection.activityId)
-      } yield (FullActivityConnectionResponse.build(trail.objectId, dimension, connection, activity))).runTxn()
+      } yield (FullActivityConnectionResponse.build(trail.objectId, dimension, connection, activity))).run()
     }
 
 }

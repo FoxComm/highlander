@@ -115,9 +115,8 @@ object ProductManager {
     productForm ← * <~ Products.mustFindById404(productId)
     productShadow  ← * <~ ProductShadows.filter(_.productId === productId).one.
       mustFindOr(ProductNotFoundForContext(productId, productContext.id))
-    skus ← * <~ Skus.filter(_.productId === productId).result
-    skuIds ← * <~ skus.map(_.id)
-    skuShadows ← * <~ SkuShadows.filter(_.skuId.inSet(skuIds)).
+    skuTuple ← * <~ getSkus(productId)
+    skuShadows ← * <~ SkuShadows.filter(_.skuId.inSet(skuTuple._1)).
       filter(_.productContextId === productContext.id).result
     skuIdsFromShadows ← * <~ skuShadows.map(_.skuId)
     skus ← * <~ Skus.filter(_.id.inSet(skuIdsFromShadows)).result
@@ -175,9 +174,8 @@ object ProductManager {
     productShadow ← * <~ ProductShadows.filter(_.productId === productForm.id).
       filter(_.productContextId === productContext.id).one.
         mustFindOr(ProductNotFoundForContext(productForm.id, productContext.id)) 
-    skus ← * <~ Skus.filter(_.productId === productId).result
-    skuIds ← * <~ skus.map(_.id)
-    skuShadows ← * <~ SkuShadows.filter(_.skuId.inSet(skuIds)).
+    skuTuple ← * <~ getSkus(productId)
+    skuShadows ← * <~ SkuShadows.filter(_.skuId.inSet(skuTuple._1)).
       filter(_.productContextId === productContext.id).result
     skuIdsFromShadows ← * <~ skuShadows.map(_.skuId)
     skus ← * <~ Skus.filter(_.id.inSet(skuIdsFromShadows)).result
@@ -196,9 +194,12 @@ object ProductManager {
       case head ::tail ⇒ DbResultT.leftLift(NonEmptyList(head, tail))
     }
 
-  private def createSkuForm(productId: Int, payload: CreateFullSkuForm)(implicit ec: EC, db: DB) = for {
-    skuForm ← * <~ Skus.create(Sku(code = payload.code, productId = productId, 
-        attributes = payload.attributes))
+  private def createSkuForm(productId: Int, payload: CreateFullSkuForm)
+  (implicit ec: EC, db: DB) = for {
+    skuForm ← * <~ Skus.create(Sku(code = payload.code, 
+      attributes = payload.attributes))
+    link ← * <~ SkuProductLinks.create(SkuProductLink(
+      skuId = skuForm.id, productId = productId))
   } yield skuForm
 
   private def updateSkuForm(payload: UpdateFullSkuForm)(implicit ec: EC, db: DB)  = for {
@@ -225,4 +226,11 @@ object ProductManager {
       activeFrom = payload.activeFrom, activeTo = payload.activeTo))
     _    ← * <~ SkuManager.validateShadow(skuForm, skuShadow)
   } yield (skuForm, skuShadow)
+
+  private def getSkus(productId: Int)(implicit ec: EC, db: DB) : DbResultT[(Seq[Int], Seq[Sku])]= for {
+    skuLinks ← * <~ SkuProductLinks.filter(_.productId === productId).result
+    skuIds ← * <~ skuLinks.map(_.skuId)
+    skus ← * <~ Skus.filter(_.id.inSet(skuIds)).result
+  } yield (skuIds, skus)
+
 }

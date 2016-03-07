@@ -28,8 +28,9 @@ object SkuManager {
 
   def createForm(payload: CreateSkuForm)
     (implicit ec: EC, db: DB): Result[SkuFormResponse.Root] = (for {
-    form       ← * <~ Skus.create(Sku(code = payload.code, 
-      productId = payload.productId, attributes = payload.attributes))
+    form       ← * <~ Skus.create(Sku(code = payload.code, attributes = payload.attributes))
+    link ← * <~ SkuProductLinks.create(SkuProductLink(skuId = form.id, 
+      productId = payload.productId))
   } yield SkuFormResponse.build(form)).runTxn()
 
   def updateForm(code: String, payload: UpdateSkuForm)

@@ -1,6 +1,6 @@
 package models.product
 
-import models.inventory.{Skus, Sku, SkuShadow, SkuShadows}
+import models.inventory._
 import models.Aliases.Json
 import utils.DbResultT
 import utils.DbResultT._
@@ -78,13 +78,12 @@ final case class SimpleProductShadow(productContextId: Int, productId: Int) {
         variants = SimpleContext.variant)
 }
 
-final case class SimpleSku(productId: Int, code: String, title: String, 
+final case class SimpleSku(code: String, title: String, 
   price: Int, currency: Currency) {
 
     def create : Sku = 
       Sku(
         code = code,
-        productId = productId,
         attributes = parse(s"""
         {
           "title" : {
@@ -131,8 +130,10 @@ object Mvp {
     product         ← * <~ Products.create(simpleProduct.create)
     simpleShadow    ← * <~ SimpleProductShadow(contextId, product.id)
     productShadow   ← * <~ ProductShadows.create(simpleShadow.create)
-    simpleSku       ← * <~ SimpleSku(product.id, p.code, p.title, p.price, p.currency)
+    simpleSku       ← * <~ SimpleSku(p.code, p.title, p.price, p.currency)
     sku             ← * <~ Skus.create(simpleSku.create)
+    link            ← * <~ SkuProductLinks.create(SkuProductLink(
+      skuId = sku.id, productId = product.id))
     simpleSkuShadow ← * <~ SimpleSkuShadow(contextId, sku.id)
     skuShadow       ← * <~ SkuShadows.create(simpleSkuShadow.create)
   } yield p.copy(

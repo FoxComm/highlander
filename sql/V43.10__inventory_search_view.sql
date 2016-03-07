@@ -10,7 +10,8 @@ select row_number() over (order by (code, sku_type)) as id, code, product, on_ha
     skus as sku
     inner join inventory_summaries as summary on (summary.sku_id = sku.id)
     inner join warehouses as warehouse on (summary.warehouse_id = warehouse.id)
-    inner join products as product on (sku.product_id = product.id)
+    inner join sku_product_links as product_link on (product_link.sku_id = sku.id)
+    inner join products as product on (product.id = product_link.product_id)
   ) as details
 join
   (select
