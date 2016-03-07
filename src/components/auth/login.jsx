@@ -73,7 +73,7 @@ export default class Login extends React.Component {
   render() {
     return (
       <Form className="fc-grid fc-login fc-form-vertical">
-        <img className="fc-login__logo" src="https://s3-us-west-2.amazonaws.com/fc-ashes/images/fc-logo-nav.svg"/>
+        <img className="fc-login__logo" src="/images/fc-logo-v.svg"/>
         <div className="fc-login__title">Sign In</div>
         <Button className="fc-login__google-btn" icon="google">Sign In with Google</Button>
         <div className="fc-login__or">or</div>
