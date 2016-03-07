@@ -27,7 +27,7 @@ module.exports = function(gulp, $, opts) {
     bundler = browserify(Object.assign({
       entries: ['src/client.jsx'],
       transform: [
-        ['babelify', pleaseDontIgnoreNestedNodeModules]
+        ['babelify', pleaseDontIgnoreNestedNodeModules],
       ],
       standalone: 'App',
       extensions: ['.jsx'],

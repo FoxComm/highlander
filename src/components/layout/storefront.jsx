@@ -1,7 +1,7 @@
 /* @flow */
 
 import React from 'react';
-import type { HTMLElement } from '../../types';
+import type { HTMLElement } from 'types';
 import cssModules from 'react-css-modules';
 import styles from './storefront.css';
 
@@ -10,7 +10,7 @@ import { Link } from 'react-router';
 import Categories from '../categories/categories';
 import Sidebar from '../sidebar/sidebar';
 import { connect } from 'react-redux';
-import { toggleSidebar } from '../../modules/sidebar';
+import { toggleSidebar } from 'modules/sidebar';
 
 type StoreFrontProps = {
   children: HTMLElement;

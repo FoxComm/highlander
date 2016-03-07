@@ -1,16 +1,16 @@
 /* @flow */
 
 import React from 'react';
-import type { HTMLElement } from '../../types';
+import type { HTMLElement } from 'types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import cssModules from 'react-css-modules';
 import styles from './sidebar.css';
 
-import Icon from '../common/icon';
+import Icon from 'ui/icon';
 import Categories from '../categories/categories';
 
-import * as actions from '../../modules/sidebar';
+import * as actions from 'modules/sidebar';
 
 type SidebarProps = {
   isVisible: boolean;
