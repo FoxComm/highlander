@@ -28,19 +28,20 @@ export default class Login extends React.Component {
   @autobind
   submitLogin () {
     const context = this.context;
+    const payload = _.pick(this.state, 'email', 'password');
+    payload['kind'] = 'admin';
 
     const headers = {'Content-Type': 'application/json;charset=UTF-8'};
-    fetch(Api.apiURI('/login'), {
+    fetch(Api.apiURI('/public/login'), {
       method: 'POST',
-      body: JSON.stringify(_.pick(this.state, 'email', 'password')),
+      body: JSON.stringify(payload),
       headers,
     }).then(response => {
       localStorage.setItem('jwt', response.headers.get('jwt'));
-      localStorage.setItem('refresh-token', response.headers.get('set-refresh-token'));
       response.json().then(token => {
         localStorage.setItem('user', JSON.stringify(token));
+        transitionTo(context.history, 'home');
       });
-      transitionTo(context.history, 'home');
     }, e => {
       console.log('login failed', e);
     });

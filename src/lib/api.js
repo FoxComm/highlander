@@ -14,10 +14,15 @@ export function appendQueryString(url, queryString) {
 }
 
 export function addAuthHeaders(headers) {
-  const token = localStorage.getItem('token');
-  const demoToken = process.env.DEMO_AUTH_TOKEN;
+  const token = localStorage.getItem('jwt');
 
-  headers['Authorization'] = demoToken ? `Basic ${demoToken}` : `Bearer ${token}`;
+  if (isServer) {
+    const demoToken = process.env.DEMO_AUTH_TOKEN;
+    if (demoToken) headers['Authorization'] = `Basic ${demoToken}`;
+    return;
+  }
+
+  if (token) headers['Authorization'] = token;
 }
 
 function serialize(data) {
