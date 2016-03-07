@@ -66,6 +66,9 @@ class Service(
   val defaultRoutes = {
     pathPrefix("v1") {
       logRequestResult("auth-routes")(routes.AuthRoutes.routes) ~
+      logRequestResult("public-routes")(routes.Public.routes) ~
+      logRequestResult("notification-routes")(routes.NotificationRoutes.routes) ~
+      logRequestResult("customer-routes")(routes.Customer.routes) ~
       logRequestResult("admin-routes")(routes.admin.Admin.routes) ~
       logRequestResult("admin-order-routes")(routes.admin.OrderRoutes.routes) ~
       logRequestResult("admin-customer-routes")(routes.admin.CustomerRoutes.routes) ~
@@ -73,10 +76,7 @@ class Service(
       logRequestResult("admin-giftcard-routes")(routes.admin.GiftCardRoutes.routes) ~
       logRequestResult("admin-rma-routes")(routes.admin.RmaRoutes.routes) ~
       logRequestResult("admin-activity-routes")(routes.admin.Activity.routes) ~
-      logRequestResult("admin-inventory-routes")(routes.admin.InventoryRoutes.routes) ~
-      logRequestResult("customer-routes")(routes.Customer.routes) ~
-      logRequestResult("notification-routes")(routes.NotificationRoutes.routes) ~
-      logRequestResult("public-routes")(routes.Public.routes)
+      logRequestResult("admin-inventory-routes")(routes.admin.InventoryRoutes.routes)
     }
   }
 
