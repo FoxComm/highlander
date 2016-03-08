@@ -1,4 +1,4 @@
-import types from './types';
+import types from '../../paragons/customer-groups/types';
 import {
   equal,
   notEqual,
@@ -8,7 +8,7 @@ import {
   notMatch,
   greater,
   less,
-} from './operators';
+} from './../../paragons/customer-groups/operators';
 
 const criterions = [
   {
@@ -132,11 +132,9 @@ const criterions = [
     input: {
       type: 'dateRange'
     },
-    field: 'billingAddresses.zip',
-    label: 'Billing Zip',
+    field: 'joinedAt',
+    label: 'Date Joined',
   },
 ];
-
-global.criterions = criterions;
 
 export default criterions;

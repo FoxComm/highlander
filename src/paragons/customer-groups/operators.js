@@ -13,6 +13,8 @@ const operators = {
   or: '$or',
 };
 
+export default operators;
+
 export const negateOperators = {
   notEqual: operators.equal,
   notOneOf: operators.oneOf,
@@ -24,8 +26,6 @@ export const booleanOperators = {
   not: 'must_not',
   or: 'should',
 };
-export default operators;
-
 
 export const operatorsMap = {
   equal: (fieldName, data) => ({
@@ -66,6 +66,25 @@ export const operatorsMap = {
     },
   }),
 };
+
+export const getQuery = (field, operator, value) => {
+  const query = field.type.getQuery(field, operator, value);
+
+  if (isDirect(field)) {
+    return query;
+  }
+
+  const fieldName = field.field;
+
+  return {
+    nested: {
+      path: fieldName.slice(0, fieldName.lastIndexOf('.')),
+      query: query,
+    },
+  };
+};
+
+const isDirect = ({field}) => field.indexOf('.') === -1;
 
 //negate operators return the same as their positive analogs
 operatorsMap.notEqual = operatorsMap.equal;

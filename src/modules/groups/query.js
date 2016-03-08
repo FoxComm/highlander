@@ -1,37 +1,28 @@
 import _ from 'lodash';
-import operators, { booleanOperators, negateOperators } from './operators';
-
-//internal structure:
-const query = {
-  name: {
-    contains: 'Anika'
-  },
-  revenue: {
-    greater: 5,
-    less: 10
-  },
-  $or: {}
-};
-
+import operators, {
+  booleanOperators,
+  negateOperators,
+  getQuery
+} from '../../paragons/customer-groups/operators';
 
 const buildQuery = (schema, query) => {
   return {
     filter: {
       bool: buildQueryBranch(schema, query),
-    }
-  }
+    },
+  };
 };
 
 const buildQueryBranch = (schema, query) => {
   const branch = {};
 
   //build or criterion
-  if (operators.or in query) {
-    const innerBranch = buildQueryBranch(schema, query[operators.or]);
-    if (_.size(innerBranch)) {
-      branch[booleanOperators.or] = {
-        bool: innerBranch,
-      };
+  if (operators.or in query && _.size(query[operators.or])) {
+    const clauses = branch[booleanOperators.or] = [];
+    for (const clause of query[operators.or]) {
+      clauses.push({
+        bool: buildQueryBranch(schema, clause),
+      });
     }
   }
 
@@ -56,7 +47,7 @@ const getQueryBranchFields = (schema, fields) => {
 
     const clauses = fields[fieldName];
     for (const operator in clauses) {
-      const fieldQuery = field.type.getQuery(field, operator, clauses[operator]);
+      const fieldQuery = getQuery(field, operator, clauses[operator]);
 
       if (operator in negateOperators) {
         negativeClauses.push(fieldQuery);
@@ -86,8 +77,5 @@ const getFieldSchema = (schema, fieldName) => {
 
   return fieldSchema;
 };
-
-global.query = query;
-global.buildQuery = buildQuery;
 
 export default buildQuery;
