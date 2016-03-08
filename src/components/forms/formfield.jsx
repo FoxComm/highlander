@@ -201,8 +201,9 @@ export default class FormField extends React.Component {
     if (this.props.label) {
       const optionalMark = 'optional' in this.props ? <span className="fc-form-field-optional">(optional)</span> : null;
       const className = classNames('fc-form-field-label', this.props.labelClassName);
+      const key = `fc-form-field-label-${this.props.label}`;
       return (
-        <label className={className} htmlFor={this.state.targetId}>
+        <label className={className} htmlFor={this.state.targetId} key={key}>
           {this.props.label}
           {optionalMark}
           <div className="fc-right">
@@ -215,9 +216,13 @@ export default class FormField extends React.Component {
 
   render() {
     const className = classNames('fc-form-field', this.props.className);
+    const children = React.cloneElement(this.props.children, {
+      key: `fc-form-field-children-${this.props.label}`,
+    });
+
     const content = this.props.labelAfterInput
-      ? [this.props.children, this.label]
-      : [this.label, this.props.children];
+      ? [children, this.label]
+      : [this.label, children];
 
     return (
       <div className={className}>

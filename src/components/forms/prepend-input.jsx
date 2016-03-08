@@ -8,7 +8,7 @@ const PrependInput = props => {
   } = props;
 
   const vInputClass = classNames('fc-prepend-input__input-field', inputClass);
-  const vInputName = inputNamePretty ? inputNamePretty : `${inputName}Pretty`;
+  const vInputName = inputNamePretty || inputName;
   const vInputValue = inputValuePretty || value;
 
   const visibleInput = (
