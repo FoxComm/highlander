@@ -64,7 +64,7 @@ export default class SearchOperator {
   toFilter(search) {
     return {
       ...this._searchTerm.toFilter(search),
-      selectedOperator: this._operator.operator
+      operator: this._operator.operator
     };
   }
 }

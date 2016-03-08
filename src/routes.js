@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, IndexRoute } from 'react-router';
+import { Route, IndexRoute, IndexRedirect } from 'react-router';
 import Site from './components/site/site';
 import Home from './components/home/home';
 import Rmas from './components/rmas/rmas';
@@ -10,6 +10,7 @@ import OrdersListPage from './components/orders/list-page';
 import Orders from './components/orders/orders';
 import Order from './components/orders/order';
 import OrderDetails from './components/orders/details';
+import NewOrder from './components/orders/new-order';
 import Customers from './components/customers/customers';
 import CustomersListPage from './components/customers/list-page';
 import NewCustomer from './components/customers/new-customer';
@@ -29,6 +30,15 @@ import GiftCardTransactions from './components/gift-cards/transactions';
 import StoreCredits from './components/customers/store-credits/store-credits';
 import StoreCreditsTransactions from './components/customers/store-credits/transactions';
 import NewStoreCredit from './components/customers/store-credits/new-store-credit';
+import CustomerTransactions from './components/customers/transactions/transactions';
+import CustomerCart from './components/customers/transactions/cart';
+import InventoryListPage from './components/inventory/list-page';
+import InventoryList from './components/inventory/list';
+import InventoryItem from './components/inventory/item';
+import InventoryItemDetails from './components/inventory/item-details';
+import Products from './components/products/products';
+import Product from './components/products/product';
+import ProductDetails from './components/products/details';
 
 import StyleGuide from './components/style-guide/style-guide';
 import StyleGuideGrid from './components/style-guide/style-guide-grid';
@@ -41,6 +51,7 @@ import AllNotificationItems from './components/activity-notifications/all';
 const routes = (
   <Route path="/" component={Site}>
     <IndexRoute name="home" component={Home}/>
+    <IndexRedirect from="/" to="/orders/" />
     <Route name='rmas-base' path='returns'>
       <IndexRoute name='rmas' component={Rmas}/>
       <Route name='rma' path=':rma' component={Rma}>
@@ -51,6 +62,7 @@ const routes = (
       </Route>
     </Route>
     <Route name='orders-base' path="orders">
+      <Route name='new-order' path="new" component={NewOrder}/>
       <Route name='orders-list-pages' component={OrdersListPage}>
         <IndexRoute name='orders' component={Orders}/>
         <Route name='orders-activity-trail' path='activity-trail' dimension="order"
@@ -80,7 +92,9 @@ const routes = (
       <Route name='customers-new' path='new' component={NewCustomer} />
       <Route name='customer' path=':customerId' component={Customer}>
         <IndexRoute name='customer-details' component={CustomerDetails}/>
-        <Route name='customer-returns' path='returns' component={RmaChildList}/>
+        <Route title='Transactions' name='customer-transactions' path='transactions' component={CustomerTransactions}/>
+        <Route title='Returns' name='customer-returns' path='returns' component={RmaChildList}/>
+        <Route title='Cart' name='customer-cart' path='cart' component={CustomerCart}/>
         <Route name='customer-notes' path='notes' component={Notes} />
         <Route name='customer-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
         <Route name='customer-storecredits-base' path='storecredit'>
@@ -94,6 +108,14 @@ const routes = (
              path=':customerId/storecredits/new'
              component={NewStoreCredit} />
     </Route>
+    <Route name='products-base' path='products'>
+      <Route name='products-list-pages'>
+        <IndexRoute name='products' component={Products} />
+      </Route>
+      <Route name='product' path=':productId' component={Product}>
+        <IndexRoute name='product-details' component={ProductDetails} />
+      </Route>
+    </Route>
     <Route name='gift-cards-base' path='gift-cards'>
       <Route name='gift-cards-list-page' component={GiftCardsListPage}>
         <IndexRoute name='gift-cards' component={GiftCards}/>
@@ -105,6 +127,18 @@ const routes = (
         <IndexRoute name='gift-card-transactions' component={GiftCardTransactions} />
         <Route name='gift-card-notes' path='notes' component={Notes} />
         <Route name='gift-card-activity-trail' path='activity-trail' component={ActivityTrailPage} />
+      </Route>
+    </Route>
+    <Route name='inventory-base' path='inventory'>
+      <Route name='inventory-list-page' component={InventoryListPage}>
+        <IndexRoute name='inventory' component={InventoryList}/>
+        <Route name='inventory-activity-trail' path='activity-trail' dimension="inventory"
+               component={ActivityTrailPage}/>
+      </Route>
+      <Route name='inventory-item-base' path=':code' component={InventoryItem}>
+        <IndexRoute name='inventory-item-details' component={InventoryItemDetails}/>
+        <Route name='inventory-item-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
+        <Route name='inventory-item-notes' path='notes' component={Notes} />
       </Route>
     </Route>
     <Route name='style-guide' path='style-guide' component={StyleGuide}>

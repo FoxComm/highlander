@@ -2,25 +2,54 @@
 import _ from 'lodash';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
-import { haveType } from '../state-helpers';
-import { get, assoc } from 'sprout-data';
+import { assoc } from 'sprout-data';
 import { orderLineItemsFetchSuccess } from './line-items';
 import OrderParagon from '../../paragons/order';
 
 export const orderRequest = createAction('ORDER_REQUEST');
+export const cartRequest = createAction('CART_REQUEST');
 export const orderSuccess = createAction('ORDER_SUCCESS');
 export const orderFailed = createAction('ORDER_FAILED', (err, source) => [err, source]);
+// it's for optimistic update
+// TODO: research for general approach ?
+export const optimisticSetShippingMethod = createAction('ORDER_LUCKY_SET_SHIPPING_METHOD');
+export const optimisticRevertShippingMethod = createAction('ORDER_REVERT_SHIPPING_METHOD');
 
-export function fetchOrder(refNum) {
+const checkoutRequest = createAction('ORDER_CHECKOUT_REQUEST');
+const checkoutSuccess = createAction('ORDER_CHECKOUT_SUCCESS');
+const checkoutFailure = createAction('ORDER_CHECKOUT_FAILURE');
+
+
+function baseFetchOrder(url, actionBefore) {
   return dispatch => {
-    dispatch(orderRequest(refNum));
-    return Api.get(`/orders/${refNum}`)
-      .then(
-        order => {
+    dispatch(actionBefore);
+    return Api.get(url)
+      .then(order => {
           dispatch(orderSuccess(order));
           dispatch(orderLineItemsFetchSuccess(order));
         },
-        err => dispatch(orderFailed(err, fetchOrder))
+        err => dispatch(orderFailed(err, baseFetchOrder)));
+  };
+}
+
+export function fetchOrder(refNum) {
+  return baseFetchOrder(`/orders/${refNum}`, orderRequest(refNum));
+}
+
+export function fetchCustomerCart(customerId) {
+  return baseFetchOrder(`/customers/${customerId}/cart`, cartRequest(customerId));
+}
+
+export function checkout(refNum) {
+  return dispatch => {
+    dispatch(checkoutRequest());
+    return Api.post(`/orders/${refNum}/checkout`)
+      .then(
+        order => {
+          dispatch(orderSuccess(order));
+          dispatch(checkoutSuccess());
+        },
+        err => dispatch(checkoutFailed(err))
       );
   };
 }
@@ -75,7 +104,9 @@ function parseMessages(messages, state) {
 
 
 const initialState = {
+  isCheckingOut: false,
   isFetching: false,
+  failed: null,
   currentOrder: {},
   validations: {
     errors: [],
@@ -89,6 +120,12 @@ const initialState = {
 
 const reducer = createReducer({
   [orderRequest]: (state) => {
+    return {
+      ...state,
+      isFetching: true
+    };
+  },
+  [cartRequest]: (state) => {
     return {
       ...state,
       isFetching: true
@@ -117,6 +154,7 @@ const reducer = createReducer({
     return {
       ...state,
       isFetching: false,
+      failed: null,
       currentOrder: new OrderParagon(order),
       validations: {
         errors: errors,
@@ -125,18 +163,51 @@ const reducer = createReducer({
       }
     };
   },
+  [optimisticSetShippingMethod]: (state, shippingMethod) => {
+    const newOrder = assoc(state.currentOrder,
+      '_shippingMethod', state.currentOrder._shippingMethod || state.currentOrder.shippingMethod,
+      'shippingMethod', shippingMethod
+    );
+
+    return {
+      ...state,
+      currentOrder: new OrderParagon(newOrder)
+    };
+  },
+  [optimisticRevertShippingMethod]: state => {
+    const newOrder = assoc(state.currentOrder,
+      'shippingMethod', state.currentOrder._shippingMethod,
+      '_shippingMethod', null
+    );
+
+    return {
+      ...state,
+      currentOrder: new OrderParagon(newOrder)
+    };
+  },
   [orderFailed]: (state, [err, source]) => {
-    if (source === fetchOrder) {
+    if (source === baseFetchOrder) {
       console.error(err);
 
       return {
         ...state,
+        failed: true,
         isFetching: false
       };
     }
 
     return state;
-  }
+  },
+  [checkoutRequest]: (state) => {
+    return { ...state, isCheckingOut: true };
+  },
+  [checkoutSuccess]: (state) => {
+    return { ...state, isCheckingOut: false };
+  },
+  [checkoutFailure]: (state, err) => {
+    console.error(err);
+    return { ...state, isCheckingOut: false };
+  },
 }, initialState);
 
 export default reducer;

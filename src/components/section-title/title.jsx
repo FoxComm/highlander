@@ -1,20 +1,21 @@
 import React, { PropTypes } from 'react';
-import SubTitle from './subtitle';
+import createFragment from 'react-addons-create-fragment';
 
 const Title = props => {
-  const titleClass = props.isPrimary ? 'fc-section-title-primary' : 'fc-section-title-secondary';
-  return (
-    <h1 className={ titleClass } >
-      { props.title }
-      { SubTitle(props) }
-    </h1>
-  );
+  return props.tag({className: 'fc-section-title__title'}, createFragment({
+    title: props.title,
+    subtitle: props.subtitle && <span className="fc-section-title__subtitle fc-light">&nbsp;{props.subtitle}</span>
+  }));
 };
 
 Title.propTypes = {
-  title: PropTypes.string,
+  title: PropTypes.node,
   subtitle: PropTypes.node,
-  isPrimary: PropTypes.bool
+  tag: PropTypes.oneOf([React.DOM.h1, React.DOM.h2]),
+};
+
+Title.defaultProps = {
+  tag: React.DOM.h2,
 };
 
 export default Title;

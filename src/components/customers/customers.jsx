@@ -15,9 +15,14 @@ const mapDispatchToProps = dispatch => {
 
 const Customers = props => {
 
-  const renderRow = (row, index, columns) => {
+  const renderRow = (row, index, columns, params) => {
     const key = `customer-${row.id}`;
-    return <CustomerRow customer={row} columns={columns} key={key} />;
+    return (
+      <CustomerRow key={key}
+                   customer={row}
+                   columns={columns}
+                   params={params} />
+    );
   };
 
   const tableColumns = [
@@ -38,6 +43,11 @@ const Customers = props => {
       tableColumns={tableColumns}
       searchActions={props.actions} />
   );
+};
+
+Customers.propTypes = {
+  list: PropTypes.object.isRequired,
+  actions: PropTypes.object.isRequired,
 };
 
 export default connect(getState, mapDispatchToProps)(Customers);

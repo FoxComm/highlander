@@ -1,5 +1,6 @@
 
 import _ from 'lodash';
+import flatMap from 'lodash.flatmap';
 import Api from '../lib/api';
 import {createAction, createReducer} from 'redux-act';
 import { update, assoc } from 'sprout-data';
@@ -12,8 +13,6 @@ const startFetching = createAction('ACTIVITY_TRAIL_START_FETCHING');
 const receivedActivities = createAction('ACTIVITY_TRAIL_RECEIVED');
 const fetchFailed = createAction('ACTIVITY_TRAIL_FETCH_FAILED');
 export const resetActivities = createAction('ACTIVITY_TRAIL_RESET');
-
-const flatMap = _.compose(_.flatten, _.map);
 
 export function processActivity(activity) {
   if (activity.data.order) {
@@ -51,20 +50,6 @@ export function processActivities(activities) {
         }];
       });
 
-      _.each(oldQuantities, (quantity, skuName) => {
-        if (skuName in newQuantities) return;
-
-        newActivities = [...newActivities, {
-          ...activity,
-          kind: derivedTypes.ORDER_LINE_ITEMS_REMOVED_SKU,
-          data: {
-            ...restData,
-            skuName,
-            difference: quantity,
-          }
-        }];
-      });
-
       return newActivities;
     }
 
@@ -80,9 +65,11 @@ export function fetchActivityTrail({dimension, objectId = null}, from) {
       objectId
     }).then(
       response => {
+        // nginx sends empty object instead of empty array
+        const result = _.isEmpty(response.result) ? [] : response.result;
         dispatch(receivedActivities(
           {
-            activities: processActivities(response.result.map(({activity}) => processActivity(activity))),
+            activities: processActivities(result.map(({activity}) => processActivity(activity))),
             hasMore: response.hasMore
           }
         ));

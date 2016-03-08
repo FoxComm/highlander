@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 
 // components
 import { Link } from '../link';
-import SectionTitle from '../section-title/section-title';
+import { PageTitle } from '../section-title';
 import LocalNav from '../local-nav/local-nav';
 import { TabListView, TabView } from '../tabs';
 import TableView from '../table/tableview';
@@ -40,7 +40,7 @@ export default class Rmas extends React.Component {
       {field: 'createdAt', text: 'Date', type: 'date'},
       {field: 'orderRefNum', text: 'Order', model: 'order', type: 'id'},
       {field: 'email', text: 'Email'},
-      {field: 'status', text: 'Return Status', type: 'rmaStatus'},
+      {field: 'state', text: 'Return State', type: 'rmaStatus'},
       {field: 'returnTotal', text: 'Total', type: 'currency'}
     ]
   };
@@ -53,7 +53,7 @@ export default class Rmas extends React.Component {
     return (
       <div className="fc-list-page">
         <div className="fc-list-page-header">
-          <SectionTitle title="Returns" subtitle={this.props.rmas.total} />
+          <PageTitle title="Returns" subtitle={this.props.rmas.total} />
           <LocalNav>
             <a href="">Lists</a>
             <a href="">Returns</a>
@@ -68,7 +68,7 @@ export default class Rmas extends React.Component {
             <TableView
                 data={this.props.rmas}
                 columns={this.props.tableColumns}
-                setState={this.props.fetchRmas}
+                setState={this.props.updateStateAndFetch}
                 renderRow={renderRow}
             />
           </div>

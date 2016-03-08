@@ -34,7 +34,7 @@ export default class CustomerDetails extends React.Component {
     const addresses = this.props.addresses;
     return (
       <div className="fc-customer-details">
-        <SectionSubtitle title="Details" />
+        <SectionSubtitle>Details</SectionSubtitle>
         <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-2">
             <CustomerContacts customerId={ customer.id } />
@@ -52,11 +52,6 @@ export default class CustomerDetails extends React.Component {
         <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-1">
             <CustomerCreditCards customerId={ customer.id } addresses={ addresses } />
-          </div>
-        </div>
-        <div className="fc-grid fc-grid-gutter">
-          <div className="fc-col-md-1-1">
-            <CustomerGroups />
           </div>
         </div>
         <div className="fc-grid fc-grid-gutter">

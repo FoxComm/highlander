@@ -6,17 +6,18 @@ import { stateTitles as orderStateTitles } from '../../paragons/order';
 export const states = {
   order: orderStateTitles,
   payment: {
-    cart: 'Cart'
+    cart: 'Cart',
+    auth: 'Auth',
+    failedAuth: 'Failed Auth',
+    expiredAuth: 'Expired Auth',
+    canceledAuth: 'Canceled Auth',
+    partialCapture: 'Partial Capture',
+    failedCapture: 'Failed Capture',
+    fullCapture: 'Full Capture',
   },
   shipment: {
-    cart: 'Cart',
+    ...orderStateTitles,
     ordered: 'Ordered',
-    manualHold: 'Manual Hold',
-    remorseHold: 'Remorse Hold',
-    fraudHold: 'Fraud Hold',
-    fulfillmentStarted: 'Fulfillment Started',
-    partiallyShipped: 'Partially Shipped',
-    shipped: 'Shipped'
   },
   rma: {
     pending: 'Pending'
@@ -24,27 +25,49 @@ export const states = {
   storeCreditTransaction: {
     capture: 'Captured',
     onHold: 'On Hold',
-    active: 'Active'
+    active: 'Active',
+    canceled: 'Canceled',
   },
   giftCard: {
-    csrAppeasement: 'Appeasement',
-    customerPurchase: 'Customer Purchase',
-    fromStoreCredit: 'From Store Credit',
-    rmaProcess: 'RMA Process',
     cart: 'Cart',
     active: 'Active',
+    onHold: 'On Hold',
     fullyRedeemed: 'Fully Redeemed',
-    canceled: 'Canceled'
+    canceled: 'Canceled',
+  },
+  storeCredit: {
+    cart: 'Cart',
+    active: 'Active',
+    onHold: 'On Hold',
+    fullyRedeemed: 'Fully Redeemed',
+    canceled: 'Canceled',
+  },
+  sku: {
+    backorder: 'Backorder',
+    sellable: 'Sellable',
+    preorder: 'Preorder',
+    nonsellable: 'Non-sellable',
   }
 };
 
 const State = (props) => {
-  return <span className="fc-status">{get(states, [props.model, props.value], '[Invalid]')}</span>;
+  return <span className="fc-model-state">{get(states, [props.model, props.value], '[Invalid]')}</span>;
 };
 
 State.propTypes = {
   value: PropTypes.string.isRequired,
   model: PropTypes.string.isRequired,
 };
+
+export function formattedStatus(status) {
+  switch (status) {
+    case 'onHold':
+      return 'On Hold';
+    case 'active':
+      return 'Active';
+    default:
+      return status;
+  }
+}
 
 export default State;

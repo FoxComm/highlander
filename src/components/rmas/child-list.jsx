@@ -6,22 +6,16 @@ import { renderRow } from './helpers';
 import TableView from '../table/tableview';
 import { get } from 'sprout-data';
 
-function mapStateToProps(state, {entity}) {
-  const rmaData = get(state.rmas.list, [entity.entityType, entity.entityId], {rows: []});
-
-  return {
-    'rmas': rmaData
-  };
-}
-
-
-@connect(mapStateToProps, rmaActions)
+@connect(state => ({rmas: state.rmas.list}), rmaActions)
 export default class RmaChildList extends React.Component {
   static propTypes = {
     tableColumns: PropTypes.array,
     fetchRmas: PropTypes.func.isRequired,
-    entity: PropTypes.object,
-    rmas: PropTypes.object.isRequired
+    entity: PropTypes.object.isRequired,
+    rmas: PropTypes.shape({
+      rows: PropTypes.array.isRequired,
+      total: PropTypes.number
+    }).isRequired,
   };
 
   static defaultProps = {
@@ -30,7 +24,7 @@ export default class RmaChildList extends React.Component {
       {field: 'createdAt', text: 'Date', type: 'date'},
       {field: 'orderId', text: 'Order', model: 'order', type: 'id'},
       {field: 'email', text: 'Email'},
-      {field: 'status', text: 'Return Status', type: 'rmaStatus'},
+      {field: 'state', text: 'Return State', type: 'rmaStatus'},
       {field: 'returnTotal', text: 'Total', type: 'currency'}
     ]
   };
@@ -44,7 +38,7 @@ export default class RmaChildList extends React.Component {
       <TableView
           data={this.props.rmas}
           columns={this.props.tableColumns}
-          setState={(data, params) => this.props.fetchRmas(params)}
+          setState={this.props.updateStateAndFetch}
           renderRow={renderRow}
       />
     );

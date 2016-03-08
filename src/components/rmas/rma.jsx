@@ -1,15 +1,17 @@
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
+
 import { IndexLink, Link } from '../link';
 import Notes from '../notes/notes';
 import Viewers from '../viewers/viewers';
-import { connect } from 'react-redux';
-import * as rmaActions from '../../modules/rmas/details';
-import SectionTitle from '../section-title/section-title';
+import { PageTitle } from '../section-title';
 import { PrimaryButton } from '../common/buttons';
 import LocalNav from '../local-nav/local-nav';
 import { PanelList, PanelListItem } from '../panel/panel-list';
 import ContentBox from '../content-box/content-box';
 import State from '../common/state';
+
+import * as rmaActions from '../../modules/rmas/details';
 
 @connect((state, props) => ({
   rma: state.rmas.details
@@ -90,14 +92,14 @@ export default class Rma extends React.Component {
     return (
       <div>
         {this.viewers}
-        <SectionTitle title={`Return ${rma.referenceNumber}`} subtitle={this.orderSubtitle}>
+        <PageTitle title={`Return ${rma.referenceNumber}`} subtitle={this.orderSubtitle}>
           <PrimaryButton onClick={this.cancelReturn}>Cancel Return</PrimaryButton>
-        </SectionTitle>
+        </PageTitle>
         <div className="fc-grid fc-grid-match">
           <div className="fc-col-md-3-4">
             <PanelList>
               <PanelListItem title="Return State">
-                <State value={this.rma.status} model="rma"/>
+                <State value={this.rma.state} model="rma"/>
               </PanelListItem>
               <PanelListItem title="Return Type">
                 {rma.rmaType}

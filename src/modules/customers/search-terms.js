@@ -31,12 +31,12 @@ const searchTerms = [
     options: [
       {
         title: 'Reference Number',
-        type: 'string',
+        type: 'string-term',
         term: 'orders.referenceNumber'
       }, {
         title: 'State',
         type: 'enum',
-        term: 'orders.status',
+        term: 'orders.state',
         suggestions: [
           { display: 'Cart', value: 'cart' },
           { display: 'Remorse Hold', value: 'remorseHold' },

@@ -2,7 +2,7 @@
   .margin-bottom(20px);
 
   .fc-pilled-input__pill {
-    .icon-filter {
+    .icon-filter, .icon-search {
       .margin-right(10px);
     }
   }
@@ -29,5 +29,17 @@
 
   &__share-button {
     .margin-bottom(10px);
+  }
+
+  &__table {
+    width: 100%;
+
+    .fc-tableview {
+      //overflow-x: hidden;
+    }
+
+    &._no-gutter {
+      padding-left: 0;
+    }
   }
 }

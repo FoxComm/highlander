@@ -22,7 +22,7 @@ export default class EditableTabView extends React.Component {
   componentWillReceiveProps(nextProps) {
     this.setState(EditableTabView.updateState(this.state, nextProps));
   }
-  
+
   componentWillUnmount() {
     document.removeEventListener('click', this.onDocumentClick);
   }
@@ -37,6 +37,7 @@ export default class EditableTabView extends React.Component {
     onEditNameComplete: PropTypes.func,
     onCopySearchComplete: PropTypes.func,
     onDeleteSearchComplete: PropTypes.func,
+    completeEdit: PropTypes.func,
   };
 
   static defaultProps = {
@@ -48,6 +49,7 @@ export default class EditableTabView extends React.Component {
     onEditNameComplete: _.noop,
     onCopySearchComplete: _.noop,
     onDeleteSearchComplete: _.noop,
+    completeEdit: _.noop,
   };
 
   static updateState(currentState, props) {
@@ -80,7 +82,7 @@ export default class EditableTabView extends React.Component {
   get editNameAction() {
     return () => {
       this.setState({
-        isEditing: false 
+        isEditing: false
       }, () => this.props.onEditNameComplete(this.state.editValue));
     };
   }
@@ -107,7 +109,7 @@ export default class EditableTabView extends React.Component {
           </MenuItem>
         );
       });
-          
+
       return <Menu>{options}</Menu>;
     }
   }
@@ -122,7 +124,7 @@ export default class EditableTabView extends React.Component {
     }
   }
 
-  
+
   @autobind
   startEdit(event) {
     event.preventDefault();
@@ -177,7 +179,7 @@ export default class EditableTabView extends React.Component {
   @autobind
   blur() {
     this.setState({
-      isEditing: false 
+      isEditing: false
     }, () => this.props.onEditNameComplete(this.state.editValue));
   }
 

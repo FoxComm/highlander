@@ -9,7 +9,7 @@ import Row from './row';
 const CreditCard = props => {
   const card = props.paymentMethod;
   const brand = card.brand.toLowerCase();
-  const icon = static_url(`images/payments/payment_${brand}.png`);
+  const icon = static_url(`images/payments/payment_${brand}.svg`);
 
   const deletePayment = () => {
     props.deleteOrderCreditCardPayment(props.order.currentOrder.refNum);

@@ -1,37 +1,36 @@
+
+// libs
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
-import Dropdown from '../dropdown/dropdown';
-import DropdownItem from '../dropdown/dropdownItem';
+import { connect } from 'react-redux';
+import classNames from 'classnames';
+
+import { allowedStateTransitions } from '../../paragons/order';
+
+// components
+import { Dropdown, DropdownItem } from '../dropdown';
 import Viewers from '../viewers/viewers';
 import ConfirmModal from '../modal/confirm';
 import RemorseTimer from './remorseTimer';
-import { connect } from 'react-redux';
 import { DateTime } from '../common/datetime';
 import { PanelList, PanelListItem } from '../panel/panel-list';
-import SectionTitle from '../section-title/section-title';
-import * as lineItemActions from '../../modules/orders/line-items';
-import * as skuSearchActions from '../../modules/orders/sku-search';
-import * as orderActions from '../../modules/orders/details';
-import * as shippingMethodActions from '../../modules/orders/shipping-methods';
-import * as skusActions from '../../modules/skus';
+import { PageTitle } from '../section-title';
 import SubNav from './sub-nav';
-import classNames from 'classnames';
 import State, { states } from '../common/state';
-import * as paymentMethodActions from '../../modules/orders/payment-methods';
+import ConfirmationDialog from '../modal/confirmation-dialog';
+import WaitAnimation from '../common/wait-animation';
+
+// redux
+import * as orderActions from '../../modules/orders/details';
 
 const mapStateToProps = (state) => {
   return {
     order: state.orders.details,
-    lineItems: state.orders.lineItems,
-    skuSearch: state.orders.skuSearch,
-    shippingMethods: state.orders.shippingMethods,
-    skusActions: state.skusActions,
-    payments: state.orders.paymentMethods
   };
 };
 
-const mapDispatchToProps = {...orderActions, ...lineItemActions, ...skuSearchActions, ...shippingMethodActions, ...skusActions, ...paymentMethodActions};
+const mapDispatchToProps = {...orderActions};
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class Order extends React.Component {
@@ -39,8 +38,6 @@ export default class Order extends React.Component {
     params: PropTypes.shape({
       order: PropTypes.string.isRequired
     }).isRequired,
-    lineItems: PropTypes.object,
-    skuSearch: PropTypes.object,
     order: PropTypes.shape({
       currentOrder: PropTypes.object
     }),
@@ -49,6 +46,17 @@ export default class Order extends React.Component {
     fetchOrder: PropTypes.func,
     increaseRemorsePeriod: PropTypes.func
   };
+
+  constructor(...args) {
+    super(...args);
+    this.state = {
+      newOrderState: null,
+    };
+  }
+
+  componentDidMount() {
+    this.props.fetchOrder(this.orderRefNum);
+  }
 
   get changeOptions() {
     return {
@@ -101,6 +109,65 @@ export default class Order extends React.Component {
     return <SubNav order={this.order} />;
   }
 
+  @autobind
+  onStateChange(value) {
+    this.setState({
+      newOrderState: value,
+    });
+  }
+
+  @autobind
+  confirmStateChange() {
+    this.setState({
+      newOrderState: null
+    });
+    this.props.updateOrder(this.orderRefNum, {state: this.state.newOrderState});
+  }
+
+  @autobind
+  cancelStateChange() {
+    this.setState({
+      newOrderState: null
+    });
+  }
+
+  get orderStateDropdown() {
+    const order = this.order;
+
+    if (order.orderState === 'canceled' ||
+        order.orderState === 'fulfillmentStarted' ||
+        order.orderState === 'shipped') {
+      return <State value={order.shippingState} model={"order"} />;
+    }
+
+    const visibleAndSortedOrderStates = [
+      'remorseHold',
+      'manualHold',
+      'manualHold',
+      'fulfillmentStarted',
+      'canceled',
+    ].filter(state => {
+      return order.orderState in allowedStateTransitions &&
+        allowedStateTransitions[order.orderState].indexOf(state) != -1;
+    });
+
+    return (
+      <Dropdown
+        name="orderState"
+        items={_.map(visibleAndSortedOrderStates, state => [state, states.order[state]])}
+        placeholder={'Order state'}
+        value={order.orderState}
+        onChange={this.onStateChange}
+        renderNullTitle={(value, placeholder) => {
+          if (value in states.order) {
+            return states.order[value];
+          }
+          return placeholder;
+        }}
+      />
+    );
+  }
+
   get statusHeader() {
     const order = this.order;
 
@@ -108,24 +175,12 @@ export default class Order extends React.Component {
       return;
     }
 
-    const orderStates = states.order;
-
-    const orderState = (
-      <Dropdown
-        name="orderState"
-        items={_.map(orderStates, (title, state) => [state, title])}
-        placeholder={'Order state'}
-        value={order.orderState}
-        onChange={this.onStateChange}
-      />
-    );
-
     return (
       <div className="fc-grid fc-grid-gutter">
         <div className="fc-col-md-1-1">
           <PanelList>
             <PanelListItem title="Order State">
-              {orderState}
+              {this.orderStateDropdown}
             </PanelListItem>
             <PanelListItem title="Shipment State">
               <State value={order.shippingState} model={"shipment"} />
@@ -145,33 +200,36 @@ export default class Order extends React.Component {
     );
   }
 
-  @autobind
-  onStateChange(value) {
-    this.props.updateOrder(this.orderRefNum, {state: value});
-  }
-
-  componentDidMount() {
-    this.props.fetchOrder(this.orderRefNum);
-  }
-
   render() {
     const order = this.order;
     const className = classNames('fc-order', {'fc-cart': order.isCart});
 
-    if (_.isEmpty(order)) {
+    if (this.props.order.isFetching) {
+      return <div className={className}><WaitAnimation /></div>;
+    }
+    else if (_.isEmpty(order)) {
       return <div className={className}></div>;
     }
 
     return (
       <div className={className}>
-        <SectionTitle title={`${order.title} ${this.orderRefNum}`}>
+        <PageTitle title={`${order.title} ${this.orderRefNum}`}>
           {this.remorseTimer}
-        </SectionTitle>
+        </PageTitle>
         {this.statusHeader}
         <div>
           {this.subNav}
           {this.details}
         </div>
+        <ConfirmationDialog
+          isVisible={this.state.newOrderState != null}
+          header="Change Order State ?"
+          body={`Are you sure you want to change order state to ${states.order[this.state.newOrderState]} ?`}
+          cancel="Cancel"
+          confirm="Yes, Change"
+          cancelAction={this.cancelStateChange}
+          confirmAction={this.confirmStateChange}
+          />
       </div>
     );
   }

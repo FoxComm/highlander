@@ -1,36 +1,23 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
 import DropdownItem from './dropdownItem';
 
-export default class Dropdown extends React.Component {
-
-  static itemsType = PropTypes.arrayOf(PropTypes.array);
-
-  static propTypes = {
-    name: PropTypes.string,
-    className: PropTypes.string,
-    value: PropTypes.string,
-    editable: PropTypes.bool,
-    primary: PropTypes.bool,
-    open: PropTypes.bool,
-    placeholder: PropTypes.string,
-    onChange: PropTypes.func,
-    items: Dropdown.itemsType,
-    children: PropTypes.node,
-  };
+class Dropdown extends React.Component {
 
   constructor(...args) {
     super(...args);
     this.state = {
       open: !!this.props.open,
+      dropup: false,
       selectedValue: '',
     };
   }
 
-  findTitleByValue(value, props) {
+  findTitleByValue(value, props = this.props) {
     if (props.items) {
       const item = _.find(props.items, item => item[0] == value);
       return item && item[1];
@@ -43,27 +30,83 @@ export default class Dropdown extends React.Component {
   @autobind
   handleToggleClick(event) {
     event.preventDefault();
+    if (this.props.disabled) {
+      return;
+    }
     this.setState({
       open: !this.state.open
     });
   }
 
+  componentDidUpdate() {
+    const {open} = this.state;
+
+    if (open && !this.isDownVisible && !this.state.dropup) {
+      this.setState({dropup: true});
+    }
+    if (!open && this.state.dropup) {
+      this.setState({dropup: false});
+    }
+  }
+
+  get isDownVisible() {
+    const dropdown = ReactDOM.findDOMNode(this.refs.items);
+    const {left, right, bottom} = dropdown.getBoundingClientRect();
+
+    const leftBottomElement = document.elementFromPoint(left + 1, bottom - 1);
+    const rightBottomElement = document.elementFromPoint(right - 1, bottom - 1);
+
+    const items = [dropdown, dropdown.lastChild];
+
+    return items.includes(leftBottomElement) && items.includes(rightBottomElement);
+  }
+
   @autobind
   handleItemClick(value, title) {
-    this.setState({
-      open: false,
-      selectedValue: value
-    }, () => {
+    const state = {open: false};
+    if (this.props.changeable) {
+      state.selectedValue = value;
+    }
+
+    this.setState(state, () => {
       if (this.props.onChange) {
         this.props.onChange(value, title);
       }
     });
   }
 
-  get dropdownButton() {
+  get input() {
+    const {editable, disabled, placeholder, name, value, renderNullTitle} = this.props;
+    const actualValue = this.state.selectedValue || value;
+    const title = this.findTitleByValue(actualValue) || renderNullTitle(value, placeholder);
+
+    if (editable) {
+      return (
+        <div className="fc-dropdown__value">
+          <input name={name}
+                 placeholder={placeholder}
+                 disabled={disabled}
+                 defaultValue={title}
+                 key={actualValue} />
+        </div>
+      );
+    }
+
     return (
-      <div className="fc-dropdown__button" onClick={this.handleToggleClick}>
-        <i className="icon-chevron-down"></i>
+      <div className="fc-dropdown__value" onClick={this.handleToggleClick}>
+        {title}
+        <input name={name} type="hidden" value={actualValue} readOnly />
+      </div>
+    );
+  }
+
+  get dropdownButton() {
+    const className = this.state.open ? 'icon-chevron-up' : 'icon-chevron-down';
+    return (
+      <div className="fc-dropdown__button"
+           disabled={this.props.disabled}
+           onClick={this.handleToggleClick}>
+        <i className={className}></i>
       </div>
     );
   }
@@ -80,39 +123,31 @@ export default class Dropdown extends React.Component {
   }
 
   render() {
-    const classnames = classNames(this.props.className, {
+    const {primary, editable, items, children} = this.props;
+    const {open, dropup} = this.state;
+    const className = classNames(this.props.className, {
       'fc-dropdown': true,
-      '_primary': this.props.primary,
-      '_editable': this.props.editable,
-      '_open': this.state.open
+      '_primary': primary,
+      '_editable': editable,
+      '_open': open
     });
-    const value = this.state.selectedValue || this.props.value;
-    const title = this.findTitleByValue(value, this.props);
+    const itemsClassName = classNames('fc-dropdown__items', {
+      '_dropup': dropup,
+      '_dropdown': !dropup,
+    });
 
     return (
-      <div className={classnames} onBlur={this.onBlur} tabIndex="0">
-        {this.props.editable && (
-          <div className="fc-dropdown__controls">
-            {this.dropdownButton}
-            <div className="fc-dropdown__value">
-              <input placeholder={this.props.placeholder} defaultValue={title} key={value}/>
-            </div>
-          </div>
-        ) || (
-          <div className="fc-dropdown__controls" onClick={this.handleToggleClick}>
-            {this.dropdownButton}
-            <div className="fc-dropdown__value">
-              {title || this.props.placeholder}
-              <input name={this.props.name} type="hidden" value={value}/>
-            </div>
-          </div>
-        )}
-        <ul className="fc-dropdown__items">
-          {this.props.items && _.map(this.props.items, ([value, title]) => (
+      <div className={className} onBlur={this.onBlur} tabIndex="0">
+        <div className="fc-dropdown__controls" onClick={editable ? this.handleToggleClick : null}>
+          {this.dropdownButton}
+          {this.input}
+        </div>
+        <ul ref="items" className={itemsClassName}>
+          {items && _.map(items, ([value, title]) => (
             <DropdownItem value={value} key={value} onSelect={this.handleItemClick}>
               {title}
             </DropdownItem>
-          )) || React.Children.map(this.props.children, item => (
+          )) || React.Children.map(children, item => (
               React.cloneElement(item, {
                 onSelect: this.handleItemClick,
               })
@@ -123,3 +158,34 @@ export default class Dropdown extends React.Component {
     );
   }
 }
+
+Dropdown.itemsType = PropTypes.arrayOf(PropTypes.array);
+
+Dropdown.propTypes = {
+  name: PropTypes.string,
+  className: PropTypes.string,
+  value: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.number,
+  ]),
+  disabled: PropTypes.bool,
+  editable: PropTypes.bool,
+  changeable: PropTypes.bool,
+  primary: PropTypes.bool,
+  open: PropTypes.bool,
+  placeholder: PropTypes.string,
+  onChange: PropTypes.func,
+  items: Dropdown.itemsType,
+  children: PropTypes.node,
+  renderNullTitle: PropTypes.func,
+};
+
+Dropdown.defaultProps = {
+  renderNullTitle: (value, placeholder) => {
+    return placeholder;
+  },
+  changeable: true,
+  disabled: false,
+};
+
+export default Dropdown;

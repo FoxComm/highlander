@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import EditableContentBox from '../content-box/editable-content-box';
+import ContentBox from '../content-box/content-box';
 import TableView from '../table/tableview';
 import ShippingMethodRow from './shipping-method-row';
 
@@ -70,8 +71,10 @@ const ShippingMethod = props => {
       />
   );
 
+  const ShippingMethodContentBox = props.readOnly ? ContentBox : EditableContentBox;
+
   return (
-    <EditableContentBox
+    <ShippingMethodContentBox
       className='fc-shipping-methods'
       title={props.title}
       isEditing={props.isEditing}
@@ -79,6 +82,7 @@ const ShippingMethod = props => {
       doneAction={props.doneAction}
       viewContent={viewContent(props)}
       editContent={editContent}
+      indentContent={false}
       />
   );
 };
@@ -95,11 +99,13 @@ ShippingMethod.propTypes = {
   shippingMethods: PropTypes.array.isRequired,
   currentOrder: PropTypes.object,
   updateAction: PropTypes.func,
-  title: PropTypes.node
+  title: PropTypes.node,
+  readOnly: PropTypes.bool,
 };
 
 ShippingMethod.defaultProps = {
-  title: 'Shipping Method'
+  title: 'Shipping Method',
+  readOnly: false,
 };
 
 export default ShippingMethod;

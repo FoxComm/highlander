@@ -1,7 +1,7 @@
 
 import { injectTimeMarks } from '../../../src/components/activity-trail/activity-trail';
 
-describe('Activity Trail', function() {
+describe('Activity Trail component', function() {
   context('#injectTimeMarks', function() {
     before(() => {
       TimeShift.setTime(new Date('2015-12-08T12:43:10.319Z').getTime());

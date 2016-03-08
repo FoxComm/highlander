@@ -1,14 +1,35 @@
 import _ from 'lodash';
 
+export const states = {
+  cart: 'cart',
+  remorseHold: 'remorseHold',
+  manualHold: 'manualHold',
+  fraudHold: 'fraudHold',
+  fulfillmentStarted: 'fulfillmentStarted',
+  canceled: 'canceled',
+  partiallyShipped: 'partiallyShipped',
+  shipped: 'shipped',
+};
+
 export const stateTitles = {
-  cart: 'Cart',
-  remorseHold: 'Remorse Hold',
-  manualHold: 'Manual Hold',
-  fraudHold: 'Fraud Hold',
-  fulfillmentStarted: 'Fulfillment Started',
-  canceled: 'Canceled',
-  partiallyShipped: 'Partially Shipped',
-  shipped: 'Shipped',
+  [states.cart]: 'Cart',
+  [states.remorseHold]: 'Remorse Hold',
+  [states.manualHold]: 'Manual Hold',
+  [states.fraudHold]: 'Fraud Hold',
+  [states.fulfillmentStarted]: 'Fulfillment Started',
+  [states.canceled]: 'Canceled',
+  [states.partiallyShipped]: 'Partially Shipped',
+  [states.shipped]: 'Shipped',
+};
+
+// this map taken from scala code
+
+export const allowedStateTransitions = {
+  [states.cart]: [states.fraudHold, states.remorseHold, states.canceled, states.fulfillmentStarted],
+  [states.fraudHold]: [states.manualHold, states.remorseHold, states.fulfillmentStarted, states.canceled],
+  [states.remorseHold]: [states.fraudHold, states.manualHold, states.fulfillmentStarted, states.canceled],
+  [states.manualHold]: [states.fraudHold, states.remorseHold, states.fulfillmentStarted, states.canceled],
+  [states.fulfillmentStarted]: [states.shipped, states.canceled],
 };
 
 export default class Order {
@@ -25,11 +46,11 @@ export default class Order {
   }
 
   get isCart() {
-    return this.orderState === 'cart';
+    return this.orderState === states.cart;
   }
 
   get isRemorseHold() {
-    return this.orderState === 'remorseHold';
+    return this.orderState === states.remorseHold;
   }
 
   get isNew() {

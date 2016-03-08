@@ -1,5 +1,6 @@
 import React, { PropTypes } from 'react';
 import ItemCardContainer from './item-card-container';
+import { Button } from '../common/buttons';
 import { Checkbox } from '../checkbox/checkbox';
 
 export default class EditableItemCardContainer extends React.Component {
@@ -11,6 +12,7 @@ export default class EditableItemCardContainer extends React.Component {
     checkboxChangeHandler: PropTypes.func,
     deleteHandler: PropTypes.func,
     editHandler: PropTypes.func,
+    chooseHandler: PropTypes.func,
     children: PropTypes.node
   };
 
@@ -48,6 +50,12 @@ export default class EditableItemCardContainer extends React.Component {
     return deleteButton;
   }
 
+  get chooseButton() {
+    if (this.props.chooseHandler) {
+      return <Button onClick={this.props.chooseHandler}>Choose</Button>;
+    }
+  }
+
   get buttons() {
     return (
       <div>
@@ -61,7 +69,8 @@ export default class EditableItemCardContainer extends React.Component {
     return (
       <ItemCardContainer className={ this.props.className }
                          leftControls={ this.isDefault }
-                         rightControls={ this.buttons }>
+                         rightControls={ this.buttons }
+                         chooseControl={ this.chooseButton }>
         { this.props.children }
       </ItemCardContainer>
     );

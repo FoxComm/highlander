@@ -11,7 +11,7 @@ import MultiSelectRow from '../table/multi-select-row';
 
 const compileShippingStatus = order => {
   if (order.state == 'canceled') {
-    return 'Canceled';
+    return 'canceled';
   }
 
   let canceledItemCount = 0;
@@ -22,7 +22,7 @@ const compileShippingStatus = order => {
   let deliveredItemCount = 0;
 
   _.forEach(order.shipments, shipment => {
-    switch(shipment.status) {
+    switch(shipment.state) {
       case 'canceled':
         canceledItemCount += 1;
         break;
@@ -76,7 +76,7 @@ const setCellContents = (order, field) => {
     case 'state':
     case 'grandTotal':
       return _.get(order, field);
-    case 'shipping.status':
+    case 'shipping.state':
       return compileShippingStatus(order);
     default:
       return null;
@@ -85,7 +85,7 @@ const setCellContents = (order, field) => {
 
 
 const OrderRow = (props, context) => {
-  const { order, columns } = props;
+  const { order, columns, params } = props;
   const key = `order-${order.referenceNumber}`;
   const clickAction = () => {
     transitionTo(context.history, 'order', { order: order.referenceNumber });
@@ -97,13 +97,15 @@ const OrderRow = (props, context) => {
       columns={columns}
       onClick={clickAction}
       row={order}
-      setCellContents={setCellContents} />
+      setCellContents={setCellContents}
+      params={params} />
   );
 };
 
 OrderRow.propTypes = {
-  order: PropTypes.object,
-  columns: PropTypes.array
+  order: PropTypes.object.isRequired,
+  columns: PropTypes.array,
+  params: PropTypes.object.isRequired,
 };
 
 OrderRow.contextTypes = {

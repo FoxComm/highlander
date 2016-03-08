@@ -1,0 +1,57 @@
+.fc-order-create {
+  &__customer-form-panel {
+    border: 1px solid @color-decor9;
+    box-shadow: 0px 1px 2px 0px rgba(0,0,0,0.30);
+    border-radius: 3px;
+  }
+
+  &__customer-form-subtitle {
+    .margin-bottom(48px);
+
+    > h2 {
+      .font-spec(18px, 600, 24px);
+      margin-bottom: 0;
+    }
+  }
+
+  &__customer-form {
+    .margin-bottom(20px);
+
+    .fc-grid {
+      align-items: flex-end;
+    }
+  }
+
+  &__customer-search {
+    .fc-form-field-label span {
+      .font-spec(14px, 600, 194x);
+      .margin-bottom(15px);
+      display: block;
+    }
+  }
+
+  &__guest-checkout {
+    display: flex;
+    align-items: center;
+
+    .fc-form-field-label {
+      .font-spec(14px, 600, 19px);
+      color: @color-decor59;
+      .padding-left(10px);
+    }
+  }
+
+  &__submit {
+    font-family: "fontello", "Open Sans", sans-serif;
+  }
+
+  .fc-typeahead input[type="text"] {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .fc-alert.is-alert-error {
+    margin-top: 0;
+    .margin-bottom(20px);
+  }
+}

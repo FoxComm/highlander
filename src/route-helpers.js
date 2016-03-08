@@ -12,7 +12,7 @@ export function interpolateRoute(history, name, params = {}) {
 
   return _.reduce(params, (path, paramV, paramK) => {
     if (path.indexOf(`:${paramK}`) === -1) {
-      console.warn(`Route param ${paramK} not found in route name ${name}.`);
+      return path;
     }
 
     return path.replace(`:${paramK}`, paramV);

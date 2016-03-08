@@ -1,5 +1,5 @@
 .fc-customer {
-   width: 100%;
+  width: 100%;
 
   .fc-customer-title-block {
     .margin(40px 0);
@@ -41,15 +41,6 @@
   .fc-customer-info-fields {
     width: 45%;
     float: left;
-  }
-
-  dt {
-    .font-spec(16px, 600, 24px);
-  }
-
-  dd {
-    .font-spec(13px, 19px);
-    -webkit-margin-start: 0;
   }
 
   .fc-float-list {
@@ -118,9 +109,19 @@
   }
 
   .fc-customer-details {
+
+    dt {
+      .font-spec(16px, @semibold, 24px);
+    }
+
+    dd {
+      .font-spec(13px, 19px);
+      -webkit-margin-start: 0;
+    }
+
     > .fc-grid {
-     padding-right: 0;
-     margin-left: -1.85%;
+      padding-right: 0;
+      margin-left: -1.85%;
     }
     h2 {
       margin-top: 0;
@@ -145,5 +146,33 @@
     > .fc-save-cancel {
       .margin-top(30px);
     }
+  }
+
+  .fc-customer-transactions .fc-list-page {
+    background-color: @color-default-bg;
+  }
+  .fc-customer-transactions {
+    margin-left: -@gutter;
+  }
+
+  &-cart {
+    ._header {
+      display: flex;
+      flex-wrap: nowrap;
+      .margin-top(15px);
+      .margin-bottom(25px);
+    }
+
+    &__edit-btn {
+      margin-left: auto;
+    }
+  }
+
+  .fc-customer__empty-messages {
+    line-height: 5.2rem;
+    .font-spec(2rem, @normal, 5.2rem);
+    color: @color-text-gray;
+    text-align: center;
+    .padding(20px);
   }
 }

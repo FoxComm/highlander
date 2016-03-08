@@ -1,6 +1,99 @@
-import fetch from 'isomorphic-fetch';
+import fetch from './fetch';
+import _ from 'lodash';
+
 
 const isServer = typeof self === 'undefined';
+
+export function appendQueryString(url, queryString) {
+  if (!queryString) {
+    return url;
+  }
+  const joinWith = url.indexOf('?') != -1 ? '&' : '?';
+
+  return `${url}${joinWith}${queryString}`;
+}
+
+export function addAuthHeaders(headers) {
+  const token = localStorage.getItem('token');
+  const demoToken = process.env.DEMO_AUTH_TOKEN;
+
+  headers['Authorization'] = demoToken ? `Basic ${demoToken}` : `Bearer ${token}`;
+}
+
+function serialize(data) {
+  if (data.toJSON) data = data.toJSON();
+
+  const params = [];
+  for (let param in data) {
+    if (data.hasOwnProperty(param)) {
+      const value = data[param];
+      if (value != null) {
+        const asString = _.isObject(value) ? JSON.stringify(value) : value;
+        params.push(encodeURIComponent(param) + '=' + encodeURIComponent(asString));
+      }
+    }
+  }
+  return params.join('&');
+}
+
+
+export function request(method, uri, data) {
+  const isFormData = !isServer && data instanceof FormData;
+
+  const headers = {};
+
+  addAuthHeaders(headers);
+
+  if (!isFormData) {
+    headers['Content-Type'] = 'application/json;charset=UTF-8';
+  }
+
+  const options = {
+    method,
+    headers
+  };
+
+  if (data) {
+    if (method.toUpperCase() === 'GET') {
+      const queryString = serialize(data);
+      if (queryString) {
+        uri = appendQueryString(uri, queryString);
+      }
+    } else {
+      options.body = isFormData ? data : JSON.stringify(data);
+    }
+  }
+
+  let error = null;
+
+  return fetch(uri, options)
+    .then(response => {
+      if (response.status < 200 || response.status >= 300) {
+        error = new Error(response.statusText);
+        error.response = response;
+      }
+
+      return response;
+    })
+    .then(response => response.text())
+    .then(responseText => {
+      let json = null;
+      if (responseText) {
+        try {
+          json = JSON.parse(responseText);
+        } catch (ex) {
+          // invalid json
+        }
+      }
+
+      if (error) {
+        error.responseJson = json;
+        throw error;
+      }
+
+      return json;
+    });
+}
 
 export default class Api {
   static apiURI(uri) {
@@ -12,72 +105,8 @@ export default class Api {
     return uri;
   }
 
-  static serialize = function(data) {
-    const params = [];
-    for (let param in data) {
-      if (data.hasOwnProperty(param)) {
-        const value = data[param];
-        if (value != null) {
-          params.push(encodeURIComponent(param) + '=' + encodeURIComponent(value));
-        }
-      }
-    }
-    return params.join('&');
-  };
-
   static request(method, uri, data) {
-    uri = this.apiURI(uri);
-
-    const isFormData = !isServer && data instanceof FormData;
-    const token = localStorage.getItem('token');
-
-    const headers = {};
-
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-    if (!isFormData) {
-      headers['Content-Type'] = 'application/json;charset=UTF-8';
-    }
-
-    const options = {
-      method,
-      headers
-    };
-
-    if (data) {
-      if (method.toUpperCase() === 'GET') {
-        const queryString = this.serialize(data);
-        if (queryString) {
-          uri += `?${queryString}`;
-        }
-      } else {
-        options.body = isFormData ? data : JSON.stringify(data);
-      }
-    }
-
-    let error = null;
-
-    return fetch(uri, options)
-      .then(response => {
-        if (response.status < 200 || response.status >= 300) {
-          error = new Error(response.statusText);
-          error.response = response;
-        }
-
-        return response;
-      })
-      .then(response => response.text())
-      .then(responseText => {
-        const json = responseText ? JSON.parse(responseText) : null;
-
-        if (error) {
-          error.responseJson = json;
-          throw error;
-        }
-
-        return json;
-      });
+    return request(method, this.apiURI(uri), data);
   }
 
   static submitForm(form) {
@@ -107,3 +136,5 @@ export default class Api {
     return this.request('PATCH', ...args);
   }
 }
+
+

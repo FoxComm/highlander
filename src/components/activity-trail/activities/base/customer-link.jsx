@@ -17,4 +17,10 @@ CustomerLink.propTypes = {
   }),
 };
 
+export function eventTarget(context, customer) {
+  if (context.userType == 'admin') {
+    return <span> for customer <CustomerLink customer={customer} /></span>;
+  }
+}
+
 export default CustomerLink;

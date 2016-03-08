@@ -8,15 +8,16 @@ import { joinEntities } from '../base/utils';
 // components
 import OrderTarget from '../base/order-target';
 import OrderLink from '../base/order-link';
+import Title from '../base/title';
 
 const representatives = {
   [types.ORDER_STATE_CHANGED]: {
-    title: data => {
+    title: (data, activity) => {
       return (
-        <span>
+        <Title activity={activity}>
           <strong>changed the order state</strong> to {data.order.stateTitle}
-          &nbsp;on <OrderTarget order={data.order}/>.
-        </span>
+          &nbsp;on <OrderTarget order={data.order}/>
+        </Title>
       );
     },
     details: data => {
@@ -27,17 +28,19 @@ const representatives = {
     }
   },
   [types.CART_CREATED]: {
-    title: data => {
+    title: (data, activity) => {
       return (
-        <span>
-          <strong>created new</strong> <OrderTarget order={data.order}/>.
-        </span>
+        <Title activity={activity}>
+          <strong>created new</strong> <OrderTarget order={data.order}/>
+        </Title>
       );
     },
   },
   [types.ORDER_BULK_STATE_CHANGED]: {
     title: data => {
-      const orders = data.orderRefNums.map(ref => <OrderLink key={ref} order={{title: 'Order', referenceNumber: ref}} />);
+      const orders = data.orderRefNums.map(ref => {
+        return <OrderLink key={ref} order={{title: 'Order', referenceNumber: ref}} />;
+      });
 
       return (
         <span>
@@ -45,6 +48,15 @@ const representatives = {
         </span>
       );
     },
+  },
+  [types.ORDER_REMORSE_PERIOD_INCREASED]: {
+    title: (data, activity) => {
+      return (
+        <Title activity={activity}>
+          <strong>increased remorse period</strong> for <OrderTarget order={data.order}/>
+        </Title>
+      );
+    }
   },
 };
 

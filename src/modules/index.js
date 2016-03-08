@@ -6,7 +6,6 @@ import groups from './groups';
 import orders from './orders';
 import rmas from './rmas';
 import notes from './notes';
-import skus from './skus';
 import countries from './countries';
 import regions from './regions';
 import addressForm from './address-form';
@@ -14,8 +13,10 @@ import reasons from './reasons';
 import activityNotifications from './activity-notifications';
 import storeCreditTypes from './store-credit-types';
 import activityTrail from './activity-trail';
-import watchers from './watchers';
 import siteMenu from './site-menu';
+import inventory from './inventory';
+import expandableTables from './expandable-tables';
+import products from './products';
 
 const rootReducer = combineReducers({
   router: routerStateReducer,
@@ -24,7 +25,6 @@ const rootReducer = combineReducers({
   orders,
   rmas,
   notes,
-  skus,
   countries,
   regions,
   addressForm,
@@ -33,8 +33,10 @@ const rootReducer = combineReducers({
   groups,
   activityNotifications,
   activityTrail,
-  watchers,
   siteMenu,
+  inventory,
+  expandableTables,
+  products,
 });
 
 export default rootReducer;

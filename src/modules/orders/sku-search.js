@@ -1,12 +1,11 @@
 import makeQuickSearch from '../quick-search';
-import { toQuery } from '../../elastic/common';
 
 const emptyFilters = [];
-const emptyPhrase = "";
-const { reducer, actions } = makeQuickSearch('order_sku', 'skus/_search', emptyFilters, emptyPhrase);
+const emptyPhrase = '';
+const { reducer, actions } = makeQuickSearch('orders.skuSearch', 'sku_search_view/_search', emptyFilters, emptyPhrase);
 
 const suggestSkus = (phrase) => {
-  return actions.doSearch(phrase);
+  return actions.fetch(phrase);
 };
 
 export {

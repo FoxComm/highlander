@@ -29,7 +29,7 @@ const setCellContents = (customer, field) => {
 };
 
 const CustomerRow = (props, context) => {
-  const { customer, columns } = props;
+  const { customer, columns, params } = props;
   const key = `customer-${customer.id}`;
   const clickAction = () => {
     transitionTo(context.history, 'customer', { customerId: customer.id });
@@ -41,13 +41,15 @@ const CustomerRow = (props, context) => {
       columns={columns}
       onClick={clickAction}
       row={customer}
-      setCellContents={setCellContents} />
+      setCellContents={setCellContents}
+      params={params} />
   );
 };
 
 CustomerRow.propTypes = {
   customer: PropTypes.object,
-  columns: PropTypes.array
+  columns: PropTypes.array,
+  params: PropTypes.object,
 };
 
 CustomerRow.contextTypes = {

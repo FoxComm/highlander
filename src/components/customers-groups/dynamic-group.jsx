@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import SectionTitle from '../section-title/section-title';
 import FormField from '../forms/formfield';
 import Form from '../forms/form.jsx';
 import Dropdown from '../dropdown/dropdown';
@@ -15,7 +14,6 @@ import { transitionTo } from '../../route-helpers';
 
 import * as GroupBuilderActions from '../../modules/groups/builder';
 
-
 @connect(state => state.groups.builder, GroupBuilderActions)
 export default class DynamicGroup extends React.Component {
 
@@ -30,6 +28,7 @@ export default class DynamicGroup extends React.Component {
     matchCriteria: PropTypes.string.isRequired,
     changeMatchCriteria: PropTypes.func.isRequired,
     searchResultsLength: PropTypes.number,
+    id: PropTypes.number,
   };
 
   static contextTypes = {

@@ -10,7 +10,7 @@ const GiftCard = props => {
 
   const orderRefNum = props.order.currentOrder.referenceNumber;
   const futureBalance = availableBalance - amount;
-  const icon = static_url('images/payments/payment_gift_card.png');
+  const icon = static_url('images/payments/payment_gift_card.svg');
 
   const deletePayment = () => {
     props.deleteOrderGiftCardPayment(orderRefNum, code);

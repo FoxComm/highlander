@@ -20,12 +20,11 @@
 
 .fc-table {
   display: table;
-  table-layout: fixed;
+  table-layout: auto;
   width: 100%;
   border: 1px solid @color-border-td;
 
   thead {
-
 
     th {
       position: relative;
@@ -36,6 +35,7 @@
       .height(62px);
       .border(1px, solid, @color-th-border);
       user-select: none;
+      background-clip: padding-box;
 
       &:last-child {
         border-right: none;
@@ -67,8 +67,14 @@
         content: '\25bc';
       }
 
+      &.__select-column {
+        .width(80px);
+        text-align: center;
+      }
+
       &.__toggle-columns {
         .font-spec(18px, 400, 18px);
+        .width(70px);
       }
     }
   }
@@ -103,23 +109,61 @@
       .font-spec(13px, 18px);
       color: @color-decor1;
       vertical-align: middle;
+      background-clip: padding-box;
+
+      &._no-results {
+        font-weight: @semibold;
+        font-size: 18px;
+        line-height: 24px;
+        color: @color-decor8;
+        padding-top: 40px;
+        padding-bottom: 40px;
+      }
     }
   }
 }
 
-.fc-table-header {
+.fc-table__header {
+  display: flex;
   .margin-bottom(20px);
 }
-.fc-table-footer {
+
+.fc-table__table {
+  width: 100%;
+  // TODO: This is causing some rendering issues in things like the
+  // EditableContentBox. Come back with a fix.
+  // overflow-x: auto;
+}
+
+.fc-table__footer {
+  display: flex;
   .margin-top(20px);
+}
+
+.fc-table__flex-separator {
+  flex: 1;
+}
+
+.fc-table-actions {
+  .line-height(40px);
+
+  &__dropdown {
+    .width(100px);
+  }
+
+  &__selected {
+    .padding-left(10px);
+  }
+}
+
+.fc-table-pagesize {
+  .width(100px);
 }
 
 .fc-table-paginator {
   display: flex;
   float: right;
   line-height: pxtorem(40px);
-  align-items: baseline;
-
 
   &__current-page, &__total-pages {
     .margin(0 10px);
@@ -131,6 +175,11 @@
 
   &__current-page-field {
     .width(50px);
+  }
+
+  // somehow it fixes funky scrollbar for table
+  > .fc-btn > i {
+    vertical-align: top;
   }
 
   .fc-form-field input.fc-table-paginator__current-page-field._disabled {

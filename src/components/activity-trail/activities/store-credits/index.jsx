@@ -4,40 +4,39 @@ import React from 'react';
 import types from '../base/types';
 
 // components
-import GiftCardLink from '../base/gift-card-link';;
+import GiftCardLink from '../base/gift-card-link';
 import OrderTarget from '../base/order-target';
-import CustomerLink from '../base/customer-link';
 import Currency from '../../../common/currency';
+import Title from '../base/title';
 
 const representatives = {
   [types.STORE_CREDIT_CREATED]: {
-    title: data => {
+    title: (data, activity) => {
       return (
-        <span>
+        <Title activity={activity}>
           <strong>created store credit</strong> with amount
           &nbsp;<Currency value={data.storeCredit.availableBalance} currency={data.storeCredit.currency} />
-          &nbsp; for customer <CustomerLink customer={data.customer} />.
-        </span>
+        </Title>
       );
     },
   },
-  // todo: do we have previous status and customer ?
+  // todo: do we have previous state and customer ?
   [types.STORE_CREDIT_STATE_CHANGED]: {
-    title: data => {
+    title: (data, activity) => {
       return (
-        <span>
-          <strong>changed the state for store credit</strong> to {data.storeCredit.status}.
-        </span>
+        <Title activity={activity}>
+          <strong>changed the state for store credit</strong> to {data.storeCredit.state}
+        </Title>
       );
     }
   },
   [types.STORE_CREDIT_CONVERTED_TO_GIFT_CARD]: {
-    title: data => {
+    title: (data, activity) => {
       return (
-        <span>
+        <Title activity={activity}>
           <strong>converted store credit</strong> to gift card <GiftCardLink {...data.giftCard} />
           &nbsp;with amount <Currency value={data.giftCard.availableBalance} currency={data.giftCard.currency} />.
-        </span>
+        </Title>
       );
     },
   },

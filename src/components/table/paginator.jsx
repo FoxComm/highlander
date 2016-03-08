@@ -115,10 +115,13 @@ class TablePaginator extends React.Component {
   }
 
   render() {
-    const currentPage = this.props.size !== 0 ? Math.ceil(this.props.from / this.props.size + 1) : 1;
-    const pageCount = this.props.size !== 0 ? Math.ceil(this.props.total / this.props.size) : 1;
+    const { size, from, total } = this.props;
+    const currentPage = (size !== 0 ? Math.ceil(from / size + 1) : 1) || 1;
+    const pageCount = (size !== 0 ? Math.ceil(total / size) : 1) || 1;
+
     const leftButtonClass = classnames({'_hidden': currentPage <= 1});
     const rightButtonClass = classnames({'_hidden': currentPage >= pageCount});
+
     return (
       <div className="fc-table-paginator">
         <LeftButton className={leftButtonClass} onClick={this.onPrevPageClick}/>

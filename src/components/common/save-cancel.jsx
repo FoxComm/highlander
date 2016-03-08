@@ -17,14 +17,16 @@ import { PrimaryButton } from './buttons';
 const SaveCancel = props => {
   const {
     className,
+    cancelTabIndex,
     cancelTo,
     cancelParams,
     onCancel,
+    saveTabIndex,
     cancelText,
     cancelDisabled,
     onSave,
     saveText,
-    saveDisabled
+    saveDisabled,
   } = props;
 
   const cancelClassName = 'fc-save-cancel__cancel';
@@ -34,18 +36,22 @@ const SaveCancel = props => {
     ? <Link to={cancelTo}
             className={classNames('fc-btn-link', cancelClassName)}
             params={cancelParams}
+            tabIndex={cancelTabIndex}
             disabled={cancelDisabled}>{cancelText}</Link>
     : <a onClick={onCancel}
          className={classNames('fc-btn-link', cancelClassName)}
          href="javascript:void(0)"
+         tabIndex={saveTabIndex}
          disabled={cancelDisabled}>{cancelText}</a>;
 
   const saveControl = onSave
     ? <PrimaryButton onClick={onSave}
                      className={saveClassName}
+                     tabIndex={cancelTabIndex}
                      disabled={saveDisabled}>{saveText}</PrimaryButton>
     : <PrimaryButton type="submit"
                      className={saveClassName}
+                     tabIndex={saveTabIndex}
                      disabled={saveDisabled}>{saveText}</PrimaryButton>;
 
   return (
@@ -58,18 +64,22 @@ const SaveCancel = props => {
 
 SaveCancel.propTypes = {
   className: PropTypes.string,
+  cancelTabIndex: PropTypes.string,
   cancelTo: PropTypes.string,
   cancelParams: PropTypes.object,
   onCancel: PropTypes.func,
-  cancelText: PropTypes.string.isRequired,
+  saveTabIndex: PropTypes.string,
+  cancelText: PropTypes.string,
   cancelDisabled: PropTypes.bool,
   onSave: PropTypes.func,
-  saveText: PropTypes.string.isRequired,
+  saveText: PropTypes.string,
   saveDisabled: PropTypes.bool,
 };
 
 SaveCancel.defaultProps = {
+  cancelTabIndex: "0",
   cancelText: 'Cancel',
+  saveTabIndex: "1",
   saveText: 'Save',
 };
 

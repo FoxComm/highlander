@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import NewGroupBase from './new-group-base.jsx';
+import NewGroupBase from './new-group-base';
 
 export default class ManualGroup extends React.Component {
   render () {

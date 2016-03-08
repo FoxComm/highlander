@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+import classnames from 'classnames';
 import _ from 'lodash';
 
 import Alert from '../alerts/alert';
@@ -10,8 +11,12 @@ const formatMessage = message => {
     return 'No shipping address applied.';
   } else if (message.indexOf('invalid shipping method') != -1) {
     return 'Shipping method is not valid.';
+  } else if (message.indexOf('has no shipping method') != -1 ) {
+    return 'No shipping method applied.';
   } else if (message.indexOf('no payment method') != -1) {
     return 'No payment method applied.';
+  } else if (message.indexOf('insufficient funds') != -1) {
+    return 'Insufficient funds.';
   }
 
   return message;
@@ -28,8 +33,12 @@ const Messages = props => {
     return <Alert type={Alert.WARNING}>{formatMessage(w)}</Alert>;
   });
 
+  const className = classnames('fc-order-messages', {
+    '_empty': errorAlerts.length + warningAlerts.length == 0
+  });
+
   return (
-    <div className="fc-order-messages">
+    <div className={className}>
       {errorAlerts}
       {warningAlerts}
     </div>

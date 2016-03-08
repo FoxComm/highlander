@@ -10,7 +10,7 @@ export function fetchScTypes() {
   return dispatch => {
     dispatch(scTypeRequested());
 
-    return Api.get('/store-credits/types')
+    return Api.get('/public/store-credits/types')
       .then(
         json => dispatch(scTypeReceived(json)),
         err => dispatch(scTypeFailed(err))

@@ -1,22 +1,14 @@
 
 import React, { PropTypes } from 'react';
-import _ from 'lodash';
 
-import LiveSearch from '../live-search/live-search';
+import LiveSearchAdapter from '../live-search/live-search-adapter';
 import MultiSelectTable from '../table/multi-select-table';
 
 export default class SearchableList extends React.Component {
 
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      sortOrder: 'asc',
-      sortBy: null,
-    };
-  }
-
   static propTypes = {
     emptyResultMessage: PropTypes.string,
+    errorMessage: PropTypes.string,
     list: PropTypes.object,
     renderRow: PropTypes.func.isRequired,
     tableColumns: PropTypes.array.isRequired,
@@ -28,68 +20,52 @@ export default class SearchableList extends React.Component {
       saveSearch: PropTypes.func.isRequired,
       selectSearch: PropTypes.func.isRequired,
       submitFilters: PropTypes.func.isRequired,
-      updateSearch: PropTypes.func.isRequired
+      updateSearch: PropTypes.func.isRequired,
+      updateStateAndFetch: PropTypes.func.isRequired,
     }).isRequired,
     searchOptions: PropTypes.shape({
       singleSearch: PropTypes.bool,
-      initialFilters: PropTypes.array,
     }),
-    title: PropTypes.string.isRequired
+    processRows: PropTypes.func,
+    noGutter: PropTypes.bool,
+    bulkActions: PropTypes.arrayOf(PropTypes.array),
+    predicate: PropTypes.func,
   };
 
   static defaultProps = {
     emptyResultMessage: 'No results found.',
+    errorMessage: 'An error occurred. Try again later.',
     searchOptions: {
       singleSearch: false,
-      initialFilters: [],
     },
+    noGutter: false
   };
 
   render() {
     const props = this.props;
 
-    const selectedSearch = props.list.selectedSearch;
-    const results = props.list.savedSearches[selectedSearch].results;
-
-    const filter = searchTerms => props.searchActions.addSearchFilters(searchTerms);
-    const selectSearch = idx => props.searchActions.selectSearch(idx);
-
-    const setState = params => {
-      if (params.sortBy) {
-        const sort = {};
-        const newState = {sortBy: params.sortBy};
-
-        let sortOrder = this.state.sortOrder;
-
-        if (params.sortBy == this.state.sortBy) {
-          sortOrder = newState['sortOrder'] = sortOrder == 'asc' ? 'desc' : 'asc';
-        }
-
-        sort[params.sortBy] = {order: sortOrder};
-        props.searchActions.fetch({sort: [sort]});
-        this.setState(newState);
-      }
-    };
+    const results = props.list.currentSearch().results;
 
     return (
-      <LiveSearch
-        fetchSearches={props.searchActions.fetchSearches}
-        saveSearch={props.searchActions.saveSearch}
+      <LiveSearchAdapter
         {...props.searchOptions}
-        selectSavedSearch={selectSearch}
-        submitFilters={filter}
+        searchActions={props.searchActions}
         searches={props.list}
-        deleteSearch={props.searchActions.deleteSearch}
-        updateSearch={props.searchActions.updateSearch}
-      >
+        noGutter={props.noGutter}
+        >
         <MultiSelectTable
           columns={props.tableColumns}
           data={results}
           renderRow={props.renderRow}
-          setState={setState}
-          showEmptyMessage={true}
-          emptyMessage={props.emptyResultMessage} />
-      </LiveSearch>
+          processRows={props.processRows}
+          setState={props.searchActions.updateStateAndFetch}
+          bulkActions={props.bulkActions}
+          predicate={props.predicate}
+          isLoading={results.isFetching}
+          failed={results.failed}
+          emptyMessage={props.emptyResultMessage}
+          errorMessage={props.errorMessage} />
+      </LiveSearchAdapter>
     );
   };
 }

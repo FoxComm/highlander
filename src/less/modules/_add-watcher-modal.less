@@ -1,4 +1,5 @@
 .fc-add-watcher-modal {
+  .width(640px);
 
   .fc-title {
     .font-spec(18px, @semibold, 24px);
@@ -10,15 +11,28 @@
     margin-bottom: 15px;
   }
 
-  .fc-typeahead__items > li {
-    padding: 0;
+  .fc-typeahead__items {
+    .width(600px);
+
+    & > li {
+      padding: 0;
+    }
   }
 
   .fc-typeahead__menu {
     box-shadow: 0 2px 4px 0 @color-decor51;
   }
 
+  .fc-pilled-input__input-container {
+    .width(600px);
+  }
+
+  .fc-pilled-input__input-container input.fc-pilled-input__input-field {
+    width: inherit;
+  }
+
   &__content {
+    .width(600px);
     .font-spec(15px, @normal, 18px);
     color: @color-decor1;
     text-align: left;

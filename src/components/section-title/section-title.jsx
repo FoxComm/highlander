@@ -1,16 +1,19 @@
 
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
+
 import { PrimaryButton } from '../common/buttons';
 import Title from './title';
 
+/**
+ * SectionTitle simple header with this structure -> [<Title>, <Actions>]
+ * Section title is intended for secondary titles (for example Notes for some gift card)
+ */
 const SectionTitle = props => {
   return (
-    <div className={ classNames('fc-grid fc-section-title', props.className) }>
-      <div className="fc-col-md-2-3">
-        <Title title={ props.title } subtitle={ props.subtitle } isPrimary={ props.isPrimary } />
-      </div>
-      <div className="fc-col-md-1-3 fc-section-title-actions">
+    <div className={ classNames('fc-section-title', props.className) }>
+      <Title title={ props.title } subtitle={ props.subtitle } tag={props.titleTag}/>
+      <div className="fc-section-title__actions">
         {props.onAddClick && (
           <PrimaryButton icon="add" onClick={props.onAddClick}>
             {props.addTitle}
@@ -29,11 +32,7 @@ SectionTitle.propTypes = {
   onAddClick: PropTypes.func,
   children: PropTypes.node,
   className: PropTypes.string,
-  isPrimary: PropTypes.bool
-};
-
-SectionTitle.defaultProps = {
-  isPrimary: true
+  titleTag: Title.propTypes.tag,
 };
 
 export default SectionTitle;

@@ -51,6 +51,9 @@
 #input-styles {
   .base() {
     background-color: @color-white;
+    &.disabled {
+      background-color: @color-decor9;
+    }
     box-shadow: inset 1px 1px 1px 0 rgba(0,0,0,0.1);
     .border-radius(3px);
     .padding(0 10px);
@@ -209,5 +212,10 @@
     color: @color-decor22;
     .font-spec(13px);
     .padding-top(8px);
+  }
+
+  &-label {
+    .font-spec(16px);
+    font-weight: 600;
   }
 }

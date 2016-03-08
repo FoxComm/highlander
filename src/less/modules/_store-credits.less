@@ -4,8 +4,30 @@
     background: @color-white;
   }
 
+  .initials {
+    color: @color-white;
+    .margin-right(5px);
+  }
+
+  & &__list {
+    padding-right: 0;
+    margin: 0;
+  }
+
   .fc-list-page-header {
     .margin(0 -(@gutter));
+  }
+
+  .fc-live-search {
+    margin-bottom: 0;
+  }
+
+  .fc-live-search__search-control {
+    .margin-top(30px);
+  }
+
+  &-summary {
+    margin-bottom: @gutter;
   }
 
   &-summary-balance {
@@ -31,8 +53,12 @@
     .margin-bottom(30px);
   }
 
-  .fc-store-credit-new-status {
+  .fc-store-credit-new-state {
     .padding-left(5px);
+  }
+
+  &__status-dropdown {
+    .min-width(100px);
   }
 }
 

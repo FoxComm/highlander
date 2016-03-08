@@ -5,8 +5,8 @@ import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_SIZES } from '../../modules/pagination/
 
 class TablePaginator extends React.Component {
   static propTypes = {
-    value: PropTypes.string,
-    setState: PropTypes.func.isRequired
+    value: PropTypes.number,
+    setState: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -22,11 +22,10 @@ class TablePaginator extends React.Component {
 
   render() {
     return (
-      <Dropdown
-        onChange={this.onPageSizeChange}
-        items={DEFAULT_PAGE_SIZES}
-        value={this.props.value}
-        />
+      <Dropdown className="fc-table-pagesize"
+                onChange={this.onPageSizeChange}
+                items={DEFAULT_PAGE_SIZES}
+                value={this.props.value} />
     );
   }
 }

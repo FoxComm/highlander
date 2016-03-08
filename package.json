@@ -15,7 +15,8 @@
     "start": "node --harmony boot.js",
     "stop": "kill -USR2 $(ps aux | grep '[m]-ashes' | awk '{print $2}')",
     "build": "./node_modules/.bin/gulp",
-    "dev": "./node_modules/.bin/gulp dev"
+    "dev": "./node_modules/.bin/gulp dev",
+    "flow": "flow check"
   },
   "repository": {
     "type": "git",
@@ -84,7 +85,12 @@
       "react/jsx-uses-vars": 1,
       "react/no-did-mount-set-state": 1,
       "react/no-did-update-set-state": 1,
-      "react/no-multi-comp": 1,
+      "react/no-multi-comp": [
+        1,
+        {
+          "ignoreStateless": true
+        }
+      ],
       "react/prop-types": 1,
       "react/react-in-jsx-scope": 1,
       "react/self-closing-comp": 1,
@@ -100,7 +106,6 @@
     "co-body": "^4.0.0",
     "core-decorators": "^0.8.0",
     "currency-symbol-map": "^2.1.0",
-    "elastic.js": "^1.2.0",
     "event-source-polyfill": "0.0.6",
     "fleck": "^0.5.1",
     "history": "^1.17.0",
@@ -120,13 +125,14 @@
     "less-plugin-group-css-media-queries": "^1.0.1",
     "less-plugin-npm-import": "^2.1.0",
     "lodash": "^3.10.1",
+    "lodash.flatmap": "^4.1.0",
     "moment": "^2.10.3",
     "normalize.css": "^3.0.3",
     "react": "^0.14.0",
     "react-addons-create-fragment": "^0.14.0-rc1",
     "react-dom": "^0.14.0-rc1",
     "react-input-mask": "anru/react-input-mask#a7b8dc04debe9e8dfe7eee3ad31facb79b7c1826",
-    "react-redux": "^3.1.0",
+    "react-redux": "^4.4.0",
     "react-router": "^1.0.3",
     "reduce-reducers": "^0.1.1",
     "redux": "^3.0.2",
@@ -147,6 +153,7 @@
     "browserify": "^11.0.1",
     "chai": "^3.0.0",
     "co-mocha": "^1.1.2",
+    "envify" : "^3.4.0",
     "eslint": "^1.10.1",
     "eslint-plugin-react": "^3.10.0",
     "gulp": "^3.9.0",

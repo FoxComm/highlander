@@ -1,20 +1,36 @@
 import _ from 'lodash';
 import Api from '../lib/api';
+import reduceReducers from 'reduce-reducers';
 import { createAction, createReducer } from 'redux-act';
 import { assoc, dissoc, update, get } from 'sprout-data';
 import { updateItems } from './state-helpers';
+import makeLiveSearch from './live-search';
+import processQuery from '../elastic/notes';
 
-import makePagination from './pagination/structured-store';
+function geCurrentEntity(state) {
+  return _.get(state, 'notes.currentEntity');
+}
 
-const dataPath = ({entityType, entityId}) => [entityType, entityId];
+const {reducer, actions} = makeLiveSearch(
+  'notes.list',
+  [],
+  'notes_search_view/_search',
+  null, {
+    processQuery: (query, {getState}) => {
+      const currentEntity = geCurrentEntity(getState());
 
-const { makeActions, makeReducer } = makePagination('NOTES', dataPath);
+      return processQuery(currentEntity, query);
+    },
+    skipInitialFetch: true
+  }
+);
 
-const notesFailed = createAction('NOTES_FAILED', (entity, err) => [entity, err]);
-export const startDeletingNote = createAction('NOTES_START_DELETING', (entity, id) => [entity, id]);
-export const stopDeletingNote = createAction('NOTES_STOP_DELETING', (entity, id) => [entity, id]);
+const notesFailed = createAction('NOTES_FAILED');
+export const setCurrentEntity = createAction('NOTES_SET_CURRENT_ENTITY');
+export const startDeletingNote = createAction('NOTES_START_DELETING');
+export const stopDeletingNote = createAction('NOTES_STOP_DELETING');
 export const startAddingNote = createAction('NOTES_START_ADDING');
-export const startEditingNote = createAction('NOTES_START_EDITING', (entity, id) => [entity, id]);
+export const startEditingNote = createAction('NOTES_START_EDITING');
 export const stopAddingOrEditingNote = createAction('NOTES_STOP_EDITING_OR_ADDING');
 
 export const notesUri = (entity, noteId) => {
@@ -25,43 +41,41 @@ export const notesUri = (entity, noteId) => {
   return uri;
 };
 
-const {
-    fetch,
-    actionAddEntity,
-    actionRemoveEntity,
-    actionReceived,
-    actionUpdateItems,
-  } = makeActions(notesUri);
+export function createNote(data) {
+  return (dispatch, getState) => {
+    const entity = geCurrentEntity(getState());
 
-export function createNote(entity, data) {
-  return dispatch => {
-    dispatch(stopAddingOrEditingNote(entity));
+    dispatch(stopAddingOrEditingNote());
     Api.post(notesUri(entity), data)
       .then(
-        json => dispatch(actionAddEntity(entity, json)),
-        err => dispatch(notesFailed(entity, err))
+        json => dispatch(actions.addEntity(json)),
+        err => dispatch(notesFailed(err))
       );
   };
 }
 
-export function editNote(entity, id, data) {
-  return dispatch => {
-    dispatch(stopAddingOrEditingNote(entity));
+export function editNote(id, data) {
+  return (dispatch, getState) => {
+    const entity = geCurrentEntity(getState());
+
+    dispatch(stopAddingOrEditingNote());
     Api.patch(notesUri(entity, id), data)
       .then(
-        json => dispatch(actionUpdateItems(entity, [json])),
-        err => dispatch(notesFailed(entity, err))
+        json => dispatch(actions.updateItems([json])),
+        err => dispatch(notesFailed(err))
       );
   };
 }
 
-export function deleteNote(entity, id) {
-  return dispatch => {
-    dispatch(stopDeletingNote(entity, id));
+export function deleteNote(id) {
+  return (dispatch, getState) => {
+    const entity = geCurrentEntity(getState());
+
+    dispatch(stopDeletingNote(id));
     Api.delete(notesUri(entity, id))
       .then(
-        json => dispatch(actionRemoveEntity(entity, {id})),
-        err => dispatch(notesFailed(entity, err))
+        json => dispatch(actions.removeEntity({id})),
+        err => dispatch(notesFailed(err))
       );
   };
 }
@@ -69,39 +83,42 @@ export function deleteNote(entity, id) {
 const initialState = {};
 
 const notesReducer = createReducer({
-  [actionReceived]: (state, [{entityType, entityId}, notes]) => {
-    return assoc(state, [entityType, entityId, 'wasReceived'], true);
+  [setCurrentEntity]: (state, entity) => {
+    return assoc(state, 'currentEntity', entity);
   },
-  [notesFailed]: (state, [{entityType, entityId}, error]) => {
+  [actions.searchSuccess]: state => {
+    return assoc(state, 'wasReceived', true);
+  },
+  [notesFailed]: (state, error) => {
     console.error(error);
 
-    return assoc(state, [entityType, entityId], {
-      error
-    });
+    return assoc(state, 'error', error);
   },
-  [startDeletingNote]: (state, [{entityType, entityId}, id]) => {
-    return assoc(state, [entityType, entityId, 'noteIdToDelete'], id);
+  [startDeletingNote]: (state, id) => {
+    return assoc(state, 'noteIdToDelete', id);
   },
-  [stopDeletingNote]: (state, [{entityType, entityId}]) => {
-    return dissoc(state, [entityType, entityId, 'noteIdToDelete']);
+  [stopDeletingNote]: state => {
+    return dissoc(state, 'noteIdToDelete');
   },
-  [startAddingNote]: (state, {entityType, entityId}) => {
+  [startAddingNote]: state => {
     // -1 means that we adding note
-    return assoc(state, [entityType, entityId, 'editingNoteId'], -1);
+    return assoc(state, 'editingNoteId', -1);
   },
-  [startEditingNote]: (state, [{entityType, entityId}, id]) => {
-    return assoc(state, [entityType, entityId, 'editingNoteId'], id);
+  [startEditingNote]: (state, id) => {
+    return assoc(state, 'editingNoteId', id);
   },
-  [stopAddingOrEditingNote]: (state, {entityType, entityId}) => {
-    return dissoc(state, [entityType, entityId, 'editingNoteId']);
-  }
+  [stopAddingOrEditingNote]: state => {
+    return dissoc(state, 'editingNoteId');
+  },
 }, initialState);
 
-const reducer = makeReducer(notesReducer);
+const reduceInList = (state, action) => {
+  return update(state, 'list', reducer, action);
+};
 
-const fetchNotes = (entity, params = {}) => fetch(entity, params);
+const finalReducer = reduceReducers(notesReducer, reduceInList);
 
 export {
-  reducer as default,
-  fetchNotes
+  finalReducer as default,
+  actions
 };

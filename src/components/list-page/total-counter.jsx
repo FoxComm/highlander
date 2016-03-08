@@ -5,13 +5,17 @@ import { connect } from 'react-redux';
 
 class TotalCounter extends React.Component {
   static propTypes = {
-    isFetching: PropTypes.oneOf([null, true, false]).isRequired,
+    isFetching: PropTypes.oneOf([null, true, false]),
     entitiesCount: PropTypes.number.isRequired,
     fetch: PropTypes.func.isRequired,
   };
 
-  constructor(...args) {
-    super(...args);
+  static defaultProps = {
+    isFetching: null,
+  };
+
+  constructor(props, ...args) {
+    super(props, ...args);
 
     this.state = {
       showCounterForFetching: false,
@@ -50,7 +54,7 @@ function makePropsMapper(getLSState) {
 
     return {
       entitiesCount: _.get(savedSearches, [selectedSearch, 'results', 'total']),
-      isFetching: _.get(savedSearches, [selectedSearch, 'isFetching']),
+      isFetching: _.get(savedSearches, [selectedSearch, 'results', 'isFetching']),
     };
   };
 }

@@ -9,7 +9,6 @@ import Link from '../link/link';
 import { DateTime } from '../common/datetime';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
-import SectionTitle from '../section-title/section-title';
 import LocalNav from '../local-nav/local-nav';
 import Currency from '../common/currency';
 import PilledInput from '../pilled-search/pilled-input';
@@ -44,7 +43,7 @@ export default class Groups extends React.Component {
   };
 
   componentDidMount() {
-    this.props.fetch(this.props.groups);
+    this.props.fetch();
   }
 
   @autobind
@@ -71,7 +70,7 @@ export default class Groups extends React.Component {
       <div className="fc-grid fc-groups-components">
         <div className="fc-col-md-1-1 _group-header _group-component">
           <h2 className="_group-title">Customers Groups</h2>
-          <PrimaryButton icon="add" onClick={this.onAddGroup}></PrimaryButton>
+          <PrimaryButton icon="add" onClick={this.onAddGroup} />
         </div>
         <div className="fc-col-md-1-1 _group-component">
           <PilledInput placeholder="Add filter or keyword search"/>
@@ -81,7 +80,7 @@ export default class Groups extends React.Component {
               columns={this.props.tableColumns}
               data={this.props.groups}
               renderRow={renderRow}
-              setState={this.props.fetch}
+              setState={this.props.updateStateAndFetch}
             />
         </div>
       </div>

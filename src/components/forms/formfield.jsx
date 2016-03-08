@@ -22,6 +22,7 @@ export default class FormField extends React.Component {
     target: PropTypes.string,
     getTargetValue: PropTypes.func,
     className: PropTypes.string,
+    labelAfterInput: PropTypes.bool,
   };
 
   static contextTypes = {
@@ -31,13 +32,15 @@ export default class FormField extends React.Component {
   static defaultProps = {
     target: 'input,textarea,select',
     getTargetValue: node => node.type == 'checkbox' ? node.checked : node.value,
+    labelAfterInput: false,
   };
 
   constructor(...args) {
     super(...args);
 
     this.state = {
-      targetId: ''
+      targetId: '',
+      errors: [],
     };
   }
 
@@ -71,12 +74,20 @@ export default class FormField extends React.Component {
     }
   }
 
+  get hasError() {
+    return this.state.errors.length !== 0;
+  }
+
+  errorsAsPlainText() {
+    return this.state.errors.join('\n');
+  }
+
   @autobind
   @debounce(200)
   autoValidate() {
     // validate only if field has error message
     // so we don't produce error if user start typing for example
-    if (this.state.errorMessage) {
+    if (this.hasError) {
       this.validate();
     }
   }
@@ -101,7 +112,7 @@ export default class FormField extends React.Component {
     if (!targetNode) return;
 
     if (targetNode.setCustomValidity) {
-      targetNode.setCustomValidity(this.state.errorMessage || '');
+      targetNode.setCustomValidity(this.errorsAsPlainText());
     }
     this.updateInputState(false);
     this.toggleBindToTarget(true);
@@ -110,7 +121,7 @@ export default class FormField extends React.Component {
   updateInputState(checkNativeValidity) {
     const inputNode = this.findTargetNode();
 
-    let isError = !!this.state.errorMessage;
+    let isError = this.hasError;
 
     if (checkNativeValidity && !isError) {
       isError = !inputNode.validity.valid;
@@ -203,10 +214,14 @@ export default class FormField extends React.Component {
   }
 
   render() {
+    const className = classNames('fc-form-field', this.props.className);
+    const content = this.props.labelAfterInput
+      ? [this.props.children, this.label]
+      : [this.label, this.props.children];
+
     return (
-      <div className={ classNames('fc-form-field', this.props.className) }>
-        {this.label}
-        {this.props.children}
+      <div className={className}>
+        {content}
         {this.errorMessages}
       </div>
     );

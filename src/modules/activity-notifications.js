@@ -10,7 +10,7 @@ export const toggleNotifications = createAction('NOTIFICATIONS_TOGGLE');
 
 export function startFetchingNotifications() {
   return (dispatch) => {
-    const eventSource = new EventSource('/sse/v1/notifications/1', {withCredentials: true});
+    const eventSource = new EventSource('/sse/v1/public/notifications/1', {withCredentials: true});
 
     eventSource.onmessage = function(e) {
       if (!_.isEmpty(e.data)) {
@@ -32,22 +32,19 @@ export function startFetchingNotifications() {
 export function markAsReadAndClose() {
   return (dispatch, getState) => {
 
+    dispatch(toggleNotifications());
+
     const adminId = 1;
     const activities = _.get(getState(), ['activityNotifications', 'notifications'], []);
     const activityId = _.get(_.last(activities), 'id');
-    const dispatchToggle = () => dispatch(toggleNotifications());
-
-    let willFinished = Promise.resolve();
 
     if (!_.isEmpty(activities) && _.isNumber(activityId)) {
-      willFinished = Api.post(`/notifications/${adminId}/last-seen/${activityId}`, {}).then(
+      Api.post(`/public/notifications/${adminId}/last-seen/${activityId}`, {}).then(
         () => {
           dispatch(markNotificationsAsRead());
         }
       );
     }
-
-    willFinished.then(dispatchToggle, dispatchToggle);
   };
 }
 
@@ -60,7 +57,7 @@ export function markAsRead() {
       const activityId = _.get(_.head(activities), 'id');
 
       if (_.isNumber(activityId)) {
-        Api.post(`/notifications/${adminId}/last-seen/${activityId}`, {}).then(
+        Api.post(`/public/notifications/${adminId}/last-seen/${activityId}`, {}).then(
           () => dispatch(markNotificationsAsRead()),
           () => dispatch(toggleNotifications())
         );

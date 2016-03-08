@@ -1,0 +1,56 @@
+.fc-new-order-payment {
+  .margin(20px);
+
+  &__form {
+    .margin-bottom(25px);
+  }
+
+  &__form-controls {
+    .margin-top(25px);
+  }
+
+  &__form-title {
+    .font-spec(22px, 600, 30px);
+    .margin-top(15px);
+    .margin-bottom(35px);
+  }
+
+  &__payment-type {
+    .margin-bottom(15px);
+  }
+
+  &__payment-type-label {
+    .font-spec(16px, 600, 22px);
+    .margin-bottom(15px);
+    color: @color-decor1;
+    display: block;
+  }
+
+  .fc-address-select {
+    &-list {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    &-item {
+      .height(278px);
+      .width(406px);
+      .margin-bottom(10px);
+      .margin-right(10px);
+      background: @color-decor11;
+      border: 1px solid @color-decor40;
+      display: flex;
+      flex-direction: column;
+    }
+
+    &-item-info {
+      flex-grow: 1;
+    }
+
+    &-item-controlls {
+      .fc-btn {
+        .width(140px);
+      }
+    }
+  }
+}

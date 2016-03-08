@@ -5,6 +5,8 @@ import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
 import classNames from 'classnames';
 
+import PrependInput from './prepend-input';
+
 export default class CurrencyInput extends React.Component {
 
   static propTypes = {
@@ -49,7 +51,7 @@ export default class CurrencyInput extends React.Component {
       editing: value
     });
 
-    this.fireOnChange(this.refs.input.value);
+    this.fireOnChange(value);
   }
 
   get value() {
@@ -104,14 +106,12 @@ export default class CurrencyInput extends React.Component {
     });
 
     return (
-      <div className={classnames}>
-        <div className="fc-input-prepend"><i className="icon-usd"/></div>
-        <input className='fc-input__input' ref='input' onChange={this.onChange} type="text"
-               onFocus={this.onInputFocus}
-               onBlur={this.onInputBlur}
-               {...this.valueProps}
-        />
-      </div>
+      <PrependInput inputName="currencyInput"
+                    icon="usd"
+                    onChange={this.onChange}
+                    onFocus={this.onInputFocus}
+                    onBlur={this.onInputBlur}
+                    {...this.valueProps} />
     );
   }
 }

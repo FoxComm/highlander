@@ -18,10 +18,7 @@ import { Button } from '../common/buttons';
 import SearchTerm, { getInputMask } from '../../paragons/search-term';
 
 function currentSearch(props) {
-  return _.chain(props)
-    .get(['searches', 'savedSearches', props.searches.selectedSearch], [])
-    .defaults({searchValue: '', currentOptions: [], searches: []})
-    .value();
+  return props.searches.currentSearch() || {};
 }
 
 /**
@@ -35,11 +32,7 @@ export default class LiveSearch extends React.Component {
 
     const search = currentSearch(props);
 
-    if (!_.isEmpty(props.initialFilters) && _.isEmpty(search.searches)) {
-      search.searches = props.initialFilters;
-    }
-
-    const {searchValue, currentOptions, searches: pills} = search;
+    const {searchValue = '', query: pills} = search;
     const options = _.get(props, ['searches', 'searchOptions'], []);
 
     this.state = {
@@ -64,14 +57,16 @@ export default class LiveSearch extends React.Component {
     selectSavedSearch: PropTypes.func.isRequired,
     searches: PropTypes.object,
     singleSearch: PropTypes.bool,
-    initialFilters: PropTypes.array,
+    submitPhrase: PropTypes.func.isRequired,
     submitFilters: PropTypes.func.isRequired,
-    updateSearch: PropTypes.func.isRequired
+    updateSearch: PropTypes.func.isRequired,
+    noGutter: PropTypes.bool,
+    fetchSearches: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
     singleSearch: false,
-    initialFilters: [],
+    noGutter: false,
   };
 
   get currentSearch() {
@@ -181,7 +176,7 @@ export default class LiveSearch extends React.Component {
           onSaveUpdateComplete={saveSearch}
           onEditNameComplete={editName}
           onCopySearchComplete={copySearch}
-          onDeleteSearchComplete={deleteSearch} /> 
+          onDeleteSearchComplete={deleteSearch} />
       );
     });
 
@@ -213,14 +208,14 @@ export default class LiveSearch extends React.Component {
   }
 
   formatPill(pill, idx, props) {
-    if (pill.hidden) return;
+    const icon = pill.term === '_all' ? 'icon-search' : 'icon-filter';
 
     return (
       <div
         className="fc-pilled-input__pill"
         key={`pill-${idx}`}
         onClick={() => props.onPillClick(pill, idx)}>
-        <i className='icon-filter' />
+        <i className={icon} />
         {pill.display}
         <a onClick={() => props.onPillClose(pill, idx)}
           className="fc-pilled-input__pill-close">
@@ -231,7 +226,7 @@ export default class LiveSearch extends React.Component {
   }
 
   componentDidMount() {
-    this.props.submitFilters(this.currentSearch.query);
+    this.props.submitFilters(this.currentSearch.query, true);
     this.props.fetchSearches();
   }
 
@@ -331,7 +326,9 @@ export default class LiveSearch extends React.Component {
       case 13:
         // Enter
         event.preventDefault();
-        if (this.state.selectionIndex < this.state.searchOptions.length) {
+        if (this.state.searchOptions.length != 1 && this.state.selectionIndex == -1) {
+          this.props.submitPhrase(this.state.searchDisplay);
+        } else if (this.state.selectionIndex < this.state.searchOptions.length) {
           this.submitFilter(this.state.searchDisplay, true);
         } else if (this.state.selectionIndex != -1) {
           this.goBack();
@@ -401,7 +398,6 @@ export default class LiveSearch extends React.Component {
 
     // Third, update the state.
     this.setState({
-      ...this.state,
       inputMask: inputMask,
       searchOptions: options,
       searchDisplay: newSearchTerm,
@@ -424,23 +420,30 @@ export default class LiveSearch extends React.Component {
   get shareSearch() {
     return (
       <div className="fc-col-md-1-1">
-        <Button 
-          className="fc-live-search__share-button fc-right" 
+        <Button
+          className="fc-live-search__share-button fc-right"
           onClick={this.openShareSearch}
           icon="external-link-2" />
-        <ShareSearch 
+        <ShareSearch
           closeAction={this.closeShareSearch}
-          isVisible={this.state.isShareVisible} 
+          isVisible={this.state.isShareVisible}
           title={this.currentSearch.title} />
       </div>
     );
   }
 
   render() {
+    const gridClass = classNames('fc-grid', 'fc-list-page-content', {
+      'fc-grid-no-gutter': this.props.noGutter
+    });
+    const tableClass = classNames('fc-col-md-1-1', 'fc-live-search__table', {
+      '_no-gutter': this.props.noGutter
+    });
+
     return (
       <div className="fc-live-search">
         {this.header}
-        <div className="fc-grid fc-list-page-content">
+        <div className={gridClass}>
           {this.shareSearch}
           <div className="fc-col-md-1-1 fc-live-search__search-control">
             <form>
@@ -467,7 +470,9 @@ export default class LiveSearch extends React.Component {
               {this.state.optionsVisible && this.searchOptions}
             </div>
           </div>
-          <div className="fc-col-md-1-1">
+        </div>
+        <div className={gridClass}>
+          <div className={tableClass} >
             {this.props.children}
           </div>
         </div>

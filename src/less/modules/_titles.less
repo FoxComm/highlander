@@ -1,0 +1,31 @@
+@subtitle-font-size: 26px;
+@subtitle-line-length: 37px;
+
+.fc-section-title {
+  display: flex;
+  align-items: center;
+
+  .margin-bottom(@gutter);
+
+  &._page-context {
+    .margin(40px @gutter 40px @gutter);
+  }
+
+  &__title {
+    flex-grow: 1;
+    margin: 0;
+  }
+
+  &__subtitle {
+    color: @color-subtitle;
+    font-weight: @normal;
+  }
+
+  &__actions {
+    text-align: right;
+  }
+}
+
+.fc-subtitle {
+  .font-spec(@subtitle-font-size, @semibold, @subtitle-line-length);
+}

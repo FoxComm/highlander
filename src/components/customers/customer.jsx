@@ -1,14 +1,15 @@
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import { Link, IndexLink } from '../link';
 import TitleBlock from './title-block';
 import { connect } from 'react-redux';
 import * as CustomersActions from '../../modules/customers/details';
 import LocalNav, { NavDropdown } from '../local-nav/local-nav';
+import WaitAnimation from '../common/wait-animation';
 
 @connect((state, props) => ({
   ...state.customers.details[props.params.customerId]
 }), CustomersActions)
-export default class Customer extends React.Component {
+export default class Customer extends Component {
 
   static propTypes = {
     params: PropTypes.shape({
@@ -16,7 +17,8 @@ export default class Customer extends React.Component {
     }).isRequired,
     details: PropTypes.object,
     fetchCustomer: PropTypes.func,
-    children: PropTypes.node
+    children: PropTypes.node,
+    failed: PropTypes.bool,
   };
 
   componentDidMount() {
@@ -33,26 +35,51 @@ export default class Customer extends React.Component {
     });
   }
 
-  get page() {
+  render() {
+    let content;
+
+    if (this.props.failed) {
+      content = this.errorMessage;
+    } else if (this.props.isFetching || !this.props.details) {
+      content = this.waitAnimation;
+    } else {
+      content = this.content;
+    }
+
     return (
       <div className="fc-customer">
+        {content}
+      </div>
+    );
+  }
+
+  get waitAnimation() {
+    return <WaitAnimation/>;
+  }
+
+  get errorMessage() {
+    return <div className="fc-customer__empty-messages">An error occurred. Try again later.</div>;
+  }
+
+  get content() {
+    const { details, params } = this.props;
+
+    return (
+      <div>
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
-            <TitleBlock customer={this.props.details} />
+            <TitleBlock customer={details}/>
           </div>
         </div>
         <LocalNav gutter={true}>
-          <a href="">Insights</a>
-          <IndexLink to="customer-details" params={this.props.params}>Details</IndexLink>
-          <NavDropdown title="Transaction">
-            <Link to="customer-returns" params={this.props.params}>Returns</Link>
-          </NavDropdown>
+          <IndexLink to="customer-details" params={params}>Details</IndexLink>
+          <Link to="customer-cart" params={params}>Cart</Link>
+          <Link to="customer-transactions" params={params}>Orders</Link>
           <a href="">Items</a>
-          <Link to="customer-storecredits" params={this.props.params}>Store Credit</Link>
+          <Link to="customer-storecredits" params={params}>Store Credit</Link>
           <a href="">Notifications</a>
-          <a href="">Reviews</a>
-          <Link to="customer-notes" params={this.props.params}>Notes</Link>
-          <Link to="customer-activity-trail" params={this.props.params}>Activity Trail</Link>
+          <Link to="customer-notes" params={params}>Notes</Link>
+          <Link to="customer-activity-trail" params={params}>Activity Trail</Link>
         </LocalNav>
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
@@ -61,9 +88,5 @@ export default class Customer extends React.Component {
         </div>
       </div>
     );
-  }
-
-  render() {
-    return (this.props.details ? this.page : null);
   }
 }

@@ -1,17 +1,31 @@
+
+// libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { createSelector } from 'reselect';
-import TableView from '../table/tableview';
-import * as GiftCardsTransactionActions from '../../modules/gift-cards/transactions';
-
 import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
+import { bindActionCreators } from 'redux';
 
-@connect(state => state.giftCards, GiftCardsTransactionActions)
+// components
+import { SearchableList } from '../list-page';
+import GiftCardTransactionRow from './gift-card-transaction-row';
+
+// redux
+import { actions } from '../../modules/gift-cards/transactions';
+
+const mapDispatchToProps = dispatch => {
+  return { actions: bindActionCreators(actions, dispatch) };
+};
+
+@connect((state, props) => ({
+  list: state.giftCards.transactions,
+  giftCard: state.giftCards.details[props.params.giftCard],
+}), mapDispatchToProps)
 export default class GiftCardTransactions extends React.Component {
   static propTypes = {
     fetch: PropTypes.func,
     initialFetch: PropTypes.func,
-    actionReset: PropTypes.func,
     setGiftCard: PropTypes.func,
     tableColumns: PropTypes.array,
     params: PropTypes.shape({
@@ -23,31 +37,42 @@ export default class GiftCardTransactions extends React.Component {
   static defaultProps = {
     tableColumns: [
       {field: 'createdAt', text: 'Date/Time', type: 'date'},
-      {field: 'orderRef', text: 'Transaction', type: 'link', model: 'order', id: 'orderRef'},
-      {field: 'amount', text: 'Amount', type: 'transaction'},
+      {field: 'orderPayment', text: 'Order', type: 'id', model: 'order', id: 'orderRef'},
+      {field: 'debit', text: 'Amount', type: 'transaction'},
       {field: 'state', text: 'Payment State'},
       {field: 'availableBalance', text: 'Available Balance', type: 'currency'}
     ]
   };
 
-  get giftCard() {
-    return this.props.params.giftCard;
+  componentDidMount() {
+    this.props.actions.setExtraFilters([
+      {term: {code: this.props.params.giftCard}}
+    ]);
+    this.props.actions.fetch();
   }
 
-  componentDidMount() {
-    this.props.actionReset(); // clean state from previous values
-    this.props.initialFetch(this.giftCard);
+  @autobind
+  renderRow(row, index, columns, params) {
+    const key = `gift-card-${index}`;
+    return (
+      <GiftCardTransactionRow key={key}
+                              giftCard={row}
+                              columns={columns}
+                              params={params} />
+    );
   }
 
   render() {
     return (
-      <div>
-        <TableView
-          columns={this.props.tableColumns}
-          data={this.props.transactions}
-          setState={fetchParams => this.props.fetch(this.giftCard, fetchParams)}
-          paginator={true}
-          />
+      <div className="fc-gift-card-transactions">
+        <SearchableList
+          emptyResultMessage="No transactions found."
+          noGutter={true}
+          list={this.props.list}
+          renderRow={this.renderRow}
+          tableColumns={this.props.tableColumns}
+          searchActions={this.props.actions}
+          searchOptions={{singleSearch: true}} />
       </div>
     );
   }

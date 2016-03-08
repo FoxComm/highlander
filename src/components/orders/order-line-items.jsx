@@ -3,8 +3,12 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import React, { PropTypes } from 'react';
 
+import * as lineItemActions from '../../modules/orders/line-items';
+import * as skuSearchActions from '../../modules/orders/sku-search';
+
 import ConfirmationDialog from '../modal/confirmation-dialog';
 import EditableContentBox from '../content-box/editable-content-box';
+import ContentBox from '../content-box/content-box';
 import OrderLineItem from './order-line-item';
 import PanelHeader from './panel-header';
 import SkuResult from './sku-result';
@@ -30,38 +34,84 @@ const editModeColumns = [
   {field: 'delete', text: '', component: 'DeleteLineItem'}
 ];
 
-const OrderLineItems = props => {
-  const title = <PanelHeader isCart={props.isCart} status={props.status} text="Items" />;
-  const viewContent = (
-    <TableView columns={viewModeColumns} data={{rows: props.lineItems.items}} />
-  );
-
-  return (
-    <EditableContentBox
-      className='fc-line-items'
-      title={title}
-      isEditing={props.lineItems.isEditing}
-      editAction={props.orderLineItemsStartEdit}
-      doneAction={props.orderLineItemsCancelEdit}
-      editContent={<RenderEditContent {...props} />}
-      editFooter={<RenderEditFooter {...props} />}
-      viewContent={viewContent} />
-  );
+const mapStateToProps = state => {
+  return {
+    lineItems: state.orders.lineItems,
+    skuSearch: state.orders.skuSearch,
+  };
 };
 
-OrderLineItems.propTypes = {
-  isCart: PropTypes.bool,
-  order: PropTypes.object,
-  lineItems: PropTypes.object,
-  orderLineItemsStartEdit: PropTypes.func,
-  orderLineItemsCancelEdit: PropTypes.func,
-  status: PropTypes.string
+const mapDispatchToProps = {
+  ...lineItemActions,
+  ...skuSearchActions,
 };
 
-OrderLineItems.defaultProps = {
-  isCart: false,
-  status: ''
-};
+export class OrderLineItems extends React.Component {
+  static propTypes = {
+    isCart: PropTypes.bool,
+    order: PropTypes.object,
+    lineItems: PropTypes.object,
+    orderLineItemsStartEdit: PropTypes.func,
+    orderLineItemsCancelEdit: PropTypes.func,
+    status: PropTypes.string,
+    readOnly: PropTypes.bool,
+  };
+
+  static defaultProps = {
+    isCart: false,
+    status: '',
+    readOnly: false,
+  };
+
+  render() {
+    const props = this.props;
+
+    const title = (
+      <PanelHeader
+        isCart={props.isCart}
+        status={props.status}
+        text="Items" />
+    );
+
+    const items = _.get(props, 'lineItems.items', []);
+
+    let viewContent = null;
+    if (items.length > 0) {
+      viewContent = (
+        <TableView
+          columns={viewModeColumns}
+          emptyMessage="No items yet."
+          data={{rows: props.lineItems.items}} />
+      );
+    } else {
+      viewContent = (
+        <div className='fc-content-box__empty-text'>
+          No items yet.
+        </div>
+      );
+    }
+
+    const LineItemsContentBox = props.readOnly || !props.isCart
+      ? ContentBox
+      : EditableContentBox;
+
+    const isCheckingOut = _.get(props, 'order.isCheckingOut', false);
+    const editAction = isCheckingOut ? null : props.orderLineItemsStartEdit;
+
+    return (
+      <LineItemsContentBox
+        className='fc-line-items'
+        title={title}
+        isEditing={props.lineItems.isEditing}
+        editAction={editAction}
+        doneAction={props.orderLineItemsCancelEdit}
+        editContent={<RenderEditContent {...props} />}
+        editFooter={<RenderEditFooter {...props} />}
+        indentContent={false}
+        viewContent={viewContent} />
+    );
+  }
+}
 
 class RenderEditContent extends React.Component {
 
@@ -83,13 +133,14 @@ class RenderEditContent extends React.Component {
       <div>
         <TableView columns={ editModeColumns }
                    data={{rows: lineItemsStatus.items}}
-                   renderRow={ renderRow } />
+                   renderRow={ renderRow }
+                   emptyMessage="No items yet."/>
         <ConfirmationDialog
           isVisible={lineItemsStatus.isDeleting}
-          header='Confirm'
-          body='Are you sure you want to delete this item?'
-          cancel='Cancel'
-          confirm='Yes, Delete'
+          header="Confirm"
+          body="Are you sure you want to delete this item?"
+          cancel="Cancel"
+          confirm="Yes, Delete"
           cancelAction={() => props.orderLineItemsCancelDelete(lineItemsStatus.skuToDelete)}
           confirmAction={() => props.deleteLineItem(order, lineItemsStatus.skuToDelete)} />
       </div>
@@ -103,14 +154,15 @@ class RenderEditFooter extends React.Component {
     updateLineItemCount: PropTypes.func,
     order: PropTypes.object,
     lineItems: PropTypes.object,
-    skuSearch: PropTypes.object
+    skuSearch: PropTypes.object,
+    suggestSkus: PropTypes.func,
   };
 
   componentDidMount() {
   }
 
   @autobind
-  currentQuantityForSku(sku) { 
+  currentQuantityForSku(sku) {
     let skus = _.get(this.props, 'lineItems.items', []);
     let matched = skus.find((o) => { return o.sku === sku;});
     return _.isEmpty(matched) ? 0 : matched.quantity;
@@ -119,15 +171,14 @@ class RenderEditFooter extends React.Component {
   @autobind
   skuSelected(item) {
     const order = this.props.order.currentOrder;
-    const newQuantity = this.currentQuantityForSku(item.sku) + 1;
-    this.props.updateLineItemCount(order, item.sku, newQuantity);
+    const newQuantity = this.currentQuantityForSku(item.code) + 1;
+    this.props.updateLineItemCount(order, item.code, newQuantity);
   }
 
   render() {
-    const suggestedSkus = _.get(this.props, 'skuSearch.result.rows', []);
-    const isFetching = _.get(this.props, 'skuSearch.isFetching', false);
-    const orderSkus = _.get(this.props, 'lineItems.items', []);
-    const query = _.get(this.props, 'skuSearch.phrase', "");
+    const suggestedSkus = _.get(this.props, 'skuSearch.results.rows', []);
+    const isFetching = _.get(this.props, 'skuSearch.results.isFetching', false);
+    const query = _.get(this.props, 'skuSearch.phrase', '');
     return (
       <div className="fc-line-items-add">
         <div className="fc-line-items-add-label">
@@ -145,4 +196,4 @@ class RenderEditFooter extends React.Component {
   }
 };
 
-export default OrderLineItems;
+export default connect(mapStateToProps, mapDispatchToProps)(OrderLineItems);

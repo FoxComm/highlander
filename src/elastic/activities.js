@@ -1,62 +1,65 @@
 
 import _ from 'lodash';
 import { get, post } from '../lib/search';
-import ejs from 'elastic.js';
 import moment from 'moment';
+import * as dsl from './dsl';
 
 const sortBy = [
-  ejs.Sort('createdAt').desc(),
-  ejs.Sort('activity.createdAt').desc()
+  dsl.sortByField('createdAt', 'desc'),
+  dsl.sortByField('activity.createdAt', 'desc'),
 ];
 
 function buildRequest({fromId = null, untilDate = null, query = null, dimension = 'admin', objectId = null} = {}) {
-  function buildFilter(filter) {
-    filter = filter.must(ejs.TermQuery('dimension', dimension));
-    if (objectId != null) {
-      filter = filter.must(ejs.TermQuery('objectId', objectId));
-    }
-    if (fromId != null) {
-      filter = filter.must(ejs.RangeQuery('id').lt(fromId));
-    }
-    if (untilDate) {
-      filter = filter.must(ejs.RangeQuery('createdAt').gt(untilDate));
-    }
-    return filter;
+  const filter = [
+    dsl.termFilter('dimension', dimension)
+  ];
+  if (objectId != null) {
+    filter.push(dsl.termFilter('objectId', objectId));
+  }
+  if (fromId != null) {
+    filter.push(dsl.rangeFilter('id', {lt: fromId}));
+  }
+  if (untilDate) {
+    filter.push(dsl.rangeFilter('createdAt', {gt: untilDate}));
   }
 
-  const filter = buildFilter(ejs.BoolQuery());
-
-  return ejs.Request().query(filter);
+  return dsl.query({
+    bool: {filter}
+  });
 }
 
-export function fetch(queryParams, type = '_search') {
+export function fetch(queryParams, forCount = false) {
   let q = buildRequest(queryParams);
-  if (type == '_search') {
-    q = q.sort(sortBy);
+  if (!forCount) {
+    q.sort = sortBy;
+  } else {
+    q.size = 0;
   }
 
-  return post(`activity_connections/${type}`, q);
+  return post(`activity_connections/_search`, q);
 }
 
 export default function searchActivities(fromActivity = null, trailParams, days = 2, query = null) {
 
   function queryFirstActivity() {
-    return buildRequest(trailParams)
-      .sort(sortBy)
-      .size(1);
+    return {
+      ...buildRequest(trailParams),
+      sort: sortBy,
+      size: 1,
+    };
   }
 
   let promise,
     hasMore;
 
   if (fromActivity == null) {
-    const now = moment();
+    const now = moment.utc();
 
     promise = post('activity_connections/_search', queryFirstActivity())
       .then(response => {
         const result = response.result;
         if (result.length) {
-          const firstActivityDate = moment(result[0].createdAt);
+          const firstActivityDate = moment.utc(result[0].createdAt);
 
           // if we have activities in last 2 days - fetch activities for last 2 days
           // if not - fetch activities for last 2 days from latest activity
@@ -64,14 +67,14 @@ export default function searchActivities(fromActivity = null, trailParams, days 
           const markerDate = now.diff(firstActivityDate, 'days', true) > days ? firstActivityDate : now;
           const untilDate = markerDate.endOf('day').subtract(days, 'days');
 
-          return fetch({untilDate, query});
+          return fetch({...trailParams, untilDate, query});
         }
 
         return response;
       });
   } else {
-    const untilDate = moment(fromActivity.createdAt).startOf('day').subtract(days, 'days');
-    promise = fetch({fromId: fromActivity.id, untilDate, query});
+    const untilDate = moment.utc(fromActivity.createdAt).startOf('day').subtract(days, 'days');
+    promise = fetch({...trailParams, fromId: fromActivity.id, untilDate, query});
   }
 
   let response;
@@ -84,7 +87,8 @@ export default function searchActivities(fromActivity = null, trailParams, days 
       if (result.length == 0) {
         hasMore = false;
       } else {
-        return fetch({fromId: _.last(result).id, query}, '_count')
+        const fromId = _.get(_.last(result), 'id');
+        return fetch({...trailParams, fromId, query}, '_count')
           .then(response => hasMore = response.count > 0);
       }
     })

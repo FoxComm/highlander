@@ -6,7 +6,7 @@
 
 * node
 
->=5.1.0 is required version for Ashes.
+5.1.0 or above is required version for Ashes.
 To install this or anothers versions of node you can use [nvm](https://github.com/creationix/nvm) or [n](https://github.com/tj/n) node version manager.
 
 If using nvm, run the following to install the version listed in `.nvmrc`. For example, if using node `v5.1.0`, follow these commands:
@@ -15,6 +15,12 @@ If using nvm, run the following to install the version listed in `.nvmrc`. For e
 nvm install 5.1.0
 nvm use 5.1.0
 ```
+
+### Install Flow
+
+We're using [Flow](https://flowtype.org) to gradually implement type checking in Ashes. Currently, only PIM modules are typed.
+
+Install Flow per the instructions on the website.
 
 ### Install npm modules
 

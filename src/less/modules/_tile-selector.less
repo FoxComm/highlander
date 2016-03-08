@@ -1,0 +1,39 @@
+.fc-tile-selector {
+  &__items {
+    .margin-left(-15px);
+    display: flex;
+    align-items: stretch;
+    flex-wrap: wrap;
+    max-height: 435px;
+    overflow: auto;
+  }
+
+  &__item {
+    display: flex;
+    align-items: stretch;
+  }
+
+  &__header {
+    .padding-bottom(10px);
+    .margin-bottom(20px);
+
+    border-bottom: 2px solid @color-decor7;
+    display: flex;
+    align-items: center;
+  }
+
+  &__title {
+    flex-grow: 1;
+    .font-spec(16px, 700, 24px);
+  }
+
+  &__empty-message {
+    .font-spec(18px, 400, 104px);
+    .margin-left(15px);
+    .padding-left(20px);
+    background: @color-decor12;
+    border: 1px solid @color-decor7;
+    color: @color-decor8;
+    width: 100%;
+  }
+}

@@ -1,7 +1,7 @@
 import React from 'react';
 
 describe('Order line items', function() {
-  const LineItems = requireComponent('orders/order-line-items.jsx');
+  const { OrderLineItems } = requireComponent('orders/order-line-items.jsx');
   const ConfirmationDialog = requireComponent('modal/confirmation-dialog.jsx');
 
   const defaultProps = {
@@ -15,12 +15,13 @@ describe('Order line items', function() {
     },
     orderLineItemsStartEdit: f => f,
     orderLineItemsCancelEdit: f => f,
-    fetchSkus: () => []
+    fetchSkus: () => [],
+    isCart: true,    
   };
 
   it('should render ConfirmationDialog if isDeleting is truly', function *() {
     const { container } = yield renderIntoDocument(
-      <div><LineItems {...defaultProps} /></div>
+      <div><OrderLineItems {...defaultProps} /></div>
     );
 
     expect(container.querySelector('.fc-modal')).to.not.equal(null);

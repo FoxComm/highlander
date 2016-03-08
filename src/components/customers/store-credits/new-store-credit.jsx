@@ -11,7 +11,7 @@ import { codeToName } from '../../../lib/language-utils';
 import { transitionTo } from '../../../route-helpers';
 
 // components
-import SectionTitle from '../../section-title/section-title';
+import { PageTitle } from '../../section-title';
 import FormField from '../../forms/formfield';
 import Form from '../../forms/form';
 import { Link } from '../../link';
@@ -291,7 +291,7 @@ export default class NewStoreCredit extends React.Component {
 
     return (
       <div className="fc-store-credits-new">
-        <SectionTitle title="Issue New Store Credit" subtitle={this.customerName}/>
+        <PageTitle title="Issue New Store Credit" subtitle={this.customerName}/>
         {form}
       </div>
     );

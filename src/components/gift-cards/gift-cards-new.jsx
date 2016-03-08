@@ -19,6 +19,7 @@ import { Form, FormField } from '../forms';
 import ChooseCustomers from './choose-customers';
 import PilledInput from '../pilled-search/pilled-input';
 import SaveCancel from '../common/save-cancel';
+import CurrencyInput from '../forms/currency-input';
 
 // redux
 import * as GiftCardNewActions from '../../modules/gift-cards/new';
@@ -35,7 +36,8 @@ const subTypes = createSelector(
 );
 
 @connect(state => ({
-  ...state.giftCards.adding,
+  ...state.giftCards.adding.giftCard,
+  suggestedCustomers: state.giftCards.adding.suggestedCustomers,
   subTypes: subTypes(state)
 }), {
   ...GiftCardNewActions,
@@ -50,16 +52,19 @@ export default class NewGiftCard extends React.Component {
     balanceText: PropTypes.string,
     changeFormData: PropTypes.func.isRequired,
     createGiftCard: PropTypes.func.isRequired,
+    resetForm: PropTypes.func.isRequired,
     customers: PropTypes.array,
     emailCSV: PropTypes.bool,
     removeCustomer: PropTypes.func,
     sendToCustomer: PropTypes.bool,
     subTypes: PropTypes.array,
     suggestCustomers: PropTypes.func,
-    suggestedCustomers: PropTypes.array,
+    suggestedCustomers: PropTypes.object,
     types: PropTypes.array,
     changeQuantity: PropTypes.func,
-    quantity: PropTypes.number
+    quantity: PropTypes.number,
+    originType: PropTypes.string,
+    balances: PropTypes.array,
   };
 
   static contextTypes = {
@@ -76,14 +81,28 @@ export default class NewGiftCard extends React.Component {
   }
 
   componentDidMount() {
-    this.props.fetchTypes();
+    this.props.resetForm();
+    if (_.isEmpty(this.props.types)) {
+      this.props.fetchTypes();
+    }
+  }
+
+  get suggestedCustomers() {
+    return _.get(this.props, 'suggestedCustomers.results.rows', []);
   }
 
   @autobind
   submitForm(event) {
     event.preventDefault();
     this.props.createGiftCard()
-      .then(() => transitionTo(this.context.history, 'gift-cards'));
+      .then(resp => {
+        if (_.isArray(resp)) {
+          // TODO: show only created items
+          transitionTo(this.context.history, 'gift-cards');
+        } else {
+          transitionTo(this.context.history, 'giftcard', { giftCard: resp.code });
+        }
+      });
   }
 
   @autobind
@@ -91,6 +110,11 @@ export default class NewGiftCard extends React.Component {
     const value = target.type === 'checkbox' ? target.checked : target.value;
 
     this.props.changeFormData(target.name, value);
+  }
+
+  @autobind
+  onChangeAmount(newVal) {
+    this.props.changeFormData('balance', Number(newVal));
   }
 
   changeCustomerMessage(event) {
@@ -117,7 +141,7 @@ export default class NewGiftCard extends React.Component {
   get chooseCustomersMenu() {
     return (
       <ChooseCustomers
-        items={this.props.suggestedCustomers}
+        items={this.suggestedCustomers}
         onAddCustomers={(customers) => {
           this.props.addCustomers(_.values(customers));
           this.setState({
@@ -157,6 +181,7 @@ export default class NewGiftCard extends React.Component {
             inputElement={this.chooseCustomersInput}
             minQueryLength={2}
             label="Choose customers:"
+            placeholder="Customer name or email..."
             name="customerQuery" />
           <FormField className="fc-new-gift-card__message-to-customers"
                      label="Write a message for customers" optional
@@ -182,6 +207,7 @@ export default class NewGiftCard extends React.Component {
         <Counter
           id="quantity"
           value={this.props.quantity}
+          disabled={this.props.sendToCustomer}
           increaseAction={event => changeQuantity(event, 1)}
           decreaseAction={event => changeQuantity(event, -1)}
           onChange={({target}) => this.props.changeQuantity(target.value)}
@@ -196,7 +222,6 @@ export default class NewGiftCard extends React.Component {
       changeFormData,
       types,
       balance,
-      balanceText,
       sendToCustomer,
       customers,
       balances
@@ -226,16 +251,13 @@ export default class NewGiftCard extends React.Component {
           </div>
           <fieldset className="fc-new-gift-card__fieldset fc-new-gift-card__amount">
             <label className="fc-new-gift-card__label" htmlFor="value">Value</label>
-            <PrependInput
-              icon="usd"
+            <CurrencyInput
               inputClass="_no-counters"
               inputName="balance"
-              inputNamePretty="balanceText"
-              inputType="number"
-              inputValue={balance}
-              inputValuePretty={balanceText}
-              step="0.01"
-              min="1" />
+              value={balance}
+              onChange={this.onChangeAmount}
+              step={0.01}
+              min={1} />
             <div className="fc-new-gift-card__balances">
               {
                 balances.map((balance, idx) => {

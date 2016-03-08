@@ -1,97 +1,82 @@
 import _ from 'lodash';
-import nock from 'nock';
 
-const { default: reducer, ...actions } = importSource('modules/watchers.js', [
-  'toggleWatchers',
-  'showAddingModal',
-  'closeAddingModal',
-  'itemSelected',
-  'itemDeleted',
-  'setSuggestedWathcers',
-  'setWatchers',
-  'setAssignees',
-  'assignWatchers'
-]);
+const makeWatchers = importSource('modules/watchers.js');
 
-describe('watchers module', function() {
+const entityType = 'orders';
+const entityId = 'BR0001';
 
-  context('reducers', function() {
+const { actions, reducer } = makeWatchers(entityType, {});
+
+
+describe('watchers module', function () {
+
+  context('reducers', function () {
 
     const initialState = {};
-    const entity = {entityType: 'order', enitityId: 'ABC123-13'};
     const group = 'watchers';
 
-    const fakeAssignees = [
-      {name: 'Jeff Mataya', email: 'jeff@foxcommerce.com'},
-      {name: 'Eugene Sypachev', email: 'eugene@foxcommerce.com'}
+    const users = [
+      {id: 1, name: 'Jeff Mataya', email: 'jeff@foxcommerce.com'},
+      {id: 2, name: 'Donkey Donkey', email: 'eugene@foxcommerce.com'},
+      {id: 3, name: 'Eugene Donkey', email: 'eugene@foxcommerce.com'}
     ];
 
-    const fakeWatchers = [
-      {name: 'Jeff Mataya', email: 'jeff@foxcommerce.com'},
-      {name: 'Donkey Donkey', email: 'eugene@foxcommerce.com'},
-      {name: 'Eugene Donkey', email: 'eugene@foxcommerce.com'}
-    ];
-
-    it('setWatchers should insert watchers array into state', function() {
-      const newState = reducer(initialState, actions.setWatchers(entity, fakeWatchers));
-      const watchers = _.get(newState, [entity.entityType, entity.entityId, 'watchers', 'entries']);
-      expect(watchers).to.deep.equal(fakeWatchers);
+    it('toggleListModal should toggle list modal visibility for specified group', function () {
+      const newState = reducer(initialState, actions.toggleListModal(entityId, group));
+      expect(newState[entityId][group].listModalDisplayed).to.equal(true);
+      const lastState = reducer(newState, actions.toggleListModal(entityId, group));
+      expect(lastState[entityId][group].listModalDisplayed).to.equal(false);
     });
 
-    it('setAssignees should insert assignees array into state', function() {
-      const newState = reducer(initialState, actions.setAssignees(entity, fakeAssignees));
-      const assignees = _.get(newState, [entity.entityType, entity.entityId, 'assignees', 'entries']);
-      expect(assignees).to.deep.equal(fakeAssignees);
+    it('showSelectModal should set group and update flag', function () {
+      const {selectModal} = reducer(initialState, actions.showSelectModal(entityId, group))[entityId];
+      expect(selectModal.group).to.equal(group);
+      expect(selectModal.displayed).to.equal(true);
     });
 
-    it('toggleWatchers should change state of displayed flag for a group', function() {
-      const newState = reducer(initialState, actions.toggleWatchers(entity, group));
-      const newValue = _.get(newState, [entity.entityType, entity.entityId, group, 'displayed']);
-      expect(newValue).to.be.equal(true);
-      const updatedTwiceState = reducer(newState, actions.toggleWatchers(entity, group));
-      const updatedTwiceValue = _.get(updatedTwiceState, [entity.entityType, entity.entityId, group, 'displayed']);
-      expect(updatedTwiceValue).to.be.equal(false);
+    it('hideSelectModal should reset group and update flag', function () {
+      const newState = reducer(initialState, actions.showSelectModal(entityId, group));
+      const {selectModal} = reducer(newState, actions.hideSelectModal(entityId))[entityId];
+      expect(selectModal.group).to.equal(null);
+      expect(selectModal.displayed).to.equal(false);
     });
 
-    it('showAddingModal should update flag and set group', function() {
-      const newState = reducer(initialState, actions.showAddingModal(entity, group));
-      const flag = _.get(newState, [entity.entityType, entity.entityId, 'modalDisplayed']);
-      const groupSet = _.get(newState, [entity.entityType, entity.entityId, 'modalGroup']);
-      expect(flag).to.be.equal(true);
-      expect(groupSet).to.be.equal(group);
+    it('selectItem should add item to selected items array', function () {
+      const itemOne = users[0];
+      const itemTwo = users[1];
+
+      const stateOne = reducer(initialState, actions.selectItem(entityId, itemOne));
+      expect(stateOne[entityId].selectModal.selected).to.deep.equal([itemOne]);
+
+      const stateTwo = reducer(stateOne, actions.selectItem(entityId, itemTwo));
+      expect(stateTwo[entityId].selectModal.selected).to.deep.equal([itemOne, itemTwo]);
     });
 
-    it('closeAddingModal should update flag and reset group', function() {
-      const newState = reducer(initialState, actions.closeAddingModal(entity, group));
-      const flag = _.get(newState, [entity.entityType, entity.entityId, 'modalDisplayed']);
-      const groupSet = _.get(newState, [entity.entityType, entity.entityId, 'modalGroup']);
-      expect(flag).to.be.equal(false);
-      expect(groupSet).to.be.equal(null);
+    it('deselectItem should remove item from selected items array', function () {
+      const itemOne = users[0];
+      const itemTwo = users[1];
+      const stateOne = reducer(initialState, actions.selectItem(entityId, itemOne));
+      const stateTwo = reducer(stateOne, actions.selectItem(entityId, itemTwo));
+      expect(stateTwo[entityId].selectModal.selected).to.deep.equal([itemOne, itemTwo]);
+
+      const stateThree = reducer(stateTwo, actions.deselectItem(entityId, 0));
+      expect(stateThree[entityId].selectModal.selected).to.deep.equal([itemTwo]);
+
+      const stateFour = reducer(stateThree, actions.deselectItem(entityId, 0));
+      expect(stateFour[entityId].selectModal.selected).to.deep.equal([]);
     });
 
-    it('setSuggestedWathcers should set array of suggested watchers in state', function() {
-      const newState = reducer(initialState, actions.setSuggestedWathcers(entity, fakeWatchers));
-      const watchers = _.get(newState, [entity.entityType, entity.entityId, 'suggestedWatchers']);
-      expect(watchers).to.deep.equal(fakeWatchers);
+    it('clearSelected should remove all selected items', function () {
+      const itemOne = users[0];
+      const itemTwo = users[1];
+      const stateOne = reducer(initialState, actions.selectItem(entityId, itemOne));
+      const stateTwo = reducer(stateOne, actions.selectItem(entityId, itemTwo));
+      expect(stateTwo[entityId].selectModal.selected).to.deep.equal([itemOne, itemTwo]);
+
+      const stateThree = reducer(stateTwo, actions.clearSelected(entityId));
+      expect(stateThree[entityId].selectModal.selected).to.deep.equal([]);
     });
 
-    it('assignWatchers should reset state of modal', function() {
-      const newState = reducer(initialState, actions.assignWatchers(entity, 'watchers', []));
-      const modalGroup = _.get(newState, [entity.entityType, entity.entityId, 'modalGroup']);
-      const selectedItems = _.get(newState, [entity.entityType, entity.entityId, 'selectedItems']);
-      expect(modalGroup).to.be.equal(null);
-      expect(selectedItems).to.deep.equal([]);
-    });
-
-    it('itemSelected should add item to selected items array', function() {
-      const item = {name: 'Donkey', email: 'donkey@foxcommerce.com'};
-      const newState = reducer(initialState, actions.itemSelected(entity, item));
-      const selected = _.get(newState, [entity.entityType, entity.entityId, 'selectedItems']);
-      expect(selected).to.deep.equal([item]);
-      const newState2 = reducer(newState, actions.itemSelected(entity, item));
-      const selected2 = _.get(newState2, [entity.entityType, entity.entityId, 'selectedItems']);
-      expect(selected2).to.deep.equal([item, item]);
-    });
   });
 
 });

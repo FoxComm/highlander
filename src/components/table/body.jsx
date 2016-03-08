@@ -1,28 +1,40 @@
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
-import React, { PropTypes } from 'react';
+import flatMap from 'lodash.flatmap';
+import React, { PropTypes, Component } from 'react';
+
 import TableRow from './row';
 import TableCell from './cell';
+import WaitAnimation from '../common/wait-animation';
 
-export default class TableBody extends React.Component {
+export default class TableBody extends Component {
 
   static propTypes = {
     columns: PropTypes.array.isRequired,
-    rows: PropTypes.array.isRequired,
+    rows: PropTypes.oneOfType([
+      PropTypes.array,
+      PropTypes.object,
+    ]).isRequired,
     renderRow: PropTypes.func,
     predicate: PropTypes.func,
     processRows: PropTypes.func,
     detectNewRows: PropTypes.bool,
-    showEmptyMessage: PropTypes.bool,
-    emptyMessage: PropTypes.string
+    emptyMessage: PropTypes.string,
+    errorMessage: PropTypes.string,
+    isLoading: PropTypes.bool,
+    failed: PropTypes.bool,
+    showLoadingOnMount: PropTypes.bool,
   };
 
   static defaultProps = {
     predicate: entity => entity.id,
     processRows: _.identity,
     detectNewRows: false,
-    showEmptyMessage: false,
-    emptyMessage: ''
+    emptyMessage: '',
+    errorMessage: '',
+    isLoading: false,
+    failed: false,
+    showLoadingOnMount: true,
   };
 
   constructor(props, context) {
@@ -63,20 +75,44 @@ export default class TableBody extends React.Component {
     }
   }
 
+  message(message) {
+    return (
+      <tr>
+        <td colSpan={this.props.columns.length}>
+          <div className="fc-content-box__empty-row">
+            {message}
+          </div>
+        </td>
+      </tr>
+    );
+  }
+
+  get loadingAnimation() {
+    return (
+      <tr>
+        <td colSpan={this.props.columns.length}>
+          <div className="fc-content-box__empty-row">
+            <WaitAnimation />
+          </div>
+        </td>
+      </tr>
+    );
+  }
+
   get tableRows() {
-    if (_.isEmpty(this.props.rows) && this.props.showEmptyMessage) {
-      return (
-        <tr>
-          <td colSpan={this.props.columns.length}>
-            {this.props.emptyMessage}
-          </td>
-        </tr>
-      );
+    const showLoading = this.props.showLoadingOnMount && this.props.isLoading === null || this.props.isLoading;
+
+    if (showLoading) {
+      return this.loadingAnimation;
+    } else if (this.props.failed && this.props.errorMessage) {
+      return this.message(this.props.errorMessage);
+    } else if (_.isEmpty(this.props.rows) && this.props.emptyMessage) {
+      return this.message(this.props.emptyMessage);
     }
 
     const renderRow = this.props.renderRow || this.defaultRenderRow;
 
-    return _.flatten(this.props.rows.map((row, index) => {
+    return flatMap(this.props.rows, ((row, index) => {
       const isNew = this.props.detectNewRows &&
                     this.props.predicate &&
                     (this.state.newIds.indexOf(String(this.props.predicate(row))) != -1);
@@ -88,7 +124,7 @@ export default class TableBody extends React.Component {
   render() {
     return (
       <tbody className="fc-table-tbody">
-        {this.props.processRows(this.tableRows)}
+        {this.props.processRows(this.tableRows, this.props.columns)}
       </tbody>
     );
   }

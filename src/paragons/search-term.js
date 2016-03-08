@@ -1,9 +1,8 @@
 import _ from 'lodash';
+import flatMap from 'lodash.flatmap';
 import SearchOperator from './search-operator';
 import SearchSuggestion from './search-suggestion';
 import { stringToCurrency } from '../lib/format-currency';
-
-const flatMap = _.compose(_.flatten, _.map);
 
 const operators = {
   currency: [
@@ -36,6 +35,9 @@ const operators = {
   string: [
     { operator: 'eq', display: ':' }
   ],
+  'string-term': [
+    { operator: 'eq', display: ':' }
+  ]
 };
 
 const boolSuggestions = [
@@ -179,7 +181,7 @@ export default class SearchTerm {
   /**
    * Checks to see if the search term can currently be selected.
    * @param {string} search The search term that's being searched.
-   * @return {bool} True if it can be selected, false otherwise.
+   * @return {Boolean} True if it can be selected, false otherwise.
    */
   selectTerm(search) {
     // Eliminate a hanging colon, we don't want to think an empty string
@@ -207,8 +209,8 @@ export default class SearchTerm {
   toFilter(search) {
     return {
       display: search,
-      selectedTerm: this._term,
-      selectedOperator: _.get(operators, [this._type, 0, 'operator'], ''),
+      term: this._term,
+      operator: _.get(operators, [this._type, 0, 'operator'], ''),
       value: {
         type: this._type,
         value: getValue(search, this._type)

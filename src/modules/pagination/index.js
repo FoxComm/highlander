@@ -1,15 +1,36 @@
 
 import _ from 'lodash';
-import flatStore from './flat-store';
-import flatStoreDynamicUrl from './flat-store-dynamic-url';
+import makePagination from './base';
+import reduceReducers from 'reduce-reducers';
+import { apiStaticUrl, apiDynamicUrl } from './fetchers';
+import { appendQueryString } from '../../lib/api';
 
-export default function(url, namespace, reducer) {
-  const makePagination = _.isString(url) ? flatStore : flatStoreDynamicUrl;
+export function addPaginationParams(url, searchState) {
+  let uriGetParams = [];
 
-  const {makeActions, makeReducer} = makePagination(namespace);
+  if (searchState.from || searchState.size) {
+    if (searchState.from) {
+      uriGetParams = [`from=${searchState.from}`];
+    }
+    if (searchState.size) {
+      uriGetParams = [...uriGetParams, `size=${searchState.size}`];
+    }
+  }
+
+  if (uriGetParams.length) {
+    return appendQueryString(url, uriGetParams.join('&'));
+  }
+
+  return url;
+}
+
+export default function(url, namespace, moduleReducer) {
+  const fetcher = _.isString(url) ? apiStaticUrl(url) : apiDynamicUrl(url);
+
+  const {reducer, ...rest} = makePagination(namespace, fetcher);
 
   return {
-    reducer: makeReducer(reducer),
-    ...makeActions(url),
+    reducer: moduleReducer ? reduceReducers(reducer, moduleReducer) : reducer,
+    ...rest
   };
 }

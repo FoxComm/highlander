@@ -2,39 +2,45 @@
 import _ from 'lodash';
 import { get } from 'sprout-data';
 import Api from '../../lib/api';
-import makePagination from '../pagination';
 import makeLiveSearch from '../live-search';
 import searchTerms from './search-terms';
 
-
-const { actionAddEntities } = makePagination('/gift-cards', 'GIFT_CARDS');
-
 const { reducer, actions } = makeLiveSearch(
-  'giftCards', 
-  searchTerms, 
+  'giftCards.list',
+  searchTerms,
   'gift_cards_search_view/_search',
-  'giftCardsScope'
+  'giftCardsScope',
+  {
+    initialState: { sortBy: '-createdAt' }
+  }
 );
 
 export function createGiftCard() {
   return (dispatch, getState) => {
-    const addingData = get(getState(), ['giftCards', 'adding']);
+    const addingData = get(getState(), ['giftCards', 'adding', 'giftCard']);
+
+    const quantity = addingData.sendToCustomer ? addingData.customers.length : addingData.quantity;
 
     const postData = {
       balance: addingData.balance,
       subTypeId: addingData.subTypeId,
-      quantity: addingData.sendToCustomer ? addingData.customers.length : addingData.quantity,
       reasonId: 1, // @TODO: there only reason for now
       currency: 'USD'
     };
+    if (quantity > 1) {
+      postData.quantity = quantity;
+    }
 
     return Api.post('/gift-cards', postData)
       .then(
-        results => {
-          const giftCards = _.filter(results, {success: true}).map(entry => entry.giftCard);
-          dispatch(actionAddEntities(giftCards));
+        response => {
+          dispatch(actions.fetch());
+          return response;
         },
-        err => console.error(err)
+        err => {
+          console.error(err);
+          return err;
+        }
       );
   };
 }

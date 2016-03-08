@@ -6,6 +6,7 @@ export function entityId(entity, type=entity.entityType) {
     case 'order':
       return entity.referenceNumber;
     case 'gift-card':
+    case 'inventory-item':
       return entity.code;
     default:
       return entity.id;
