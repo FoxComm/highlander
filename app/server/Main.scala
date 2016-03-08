@@ -19,8 +19,7 @@ import models.customer.Customer
 import org.json4s.jackson.Serialization
 import org.json4s.{Formats, jackson}
 import services.Authenticator
-import services.Authenticator.AsyncAuthenticator
-import services.Authenticator.requireAuth
+import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import services.actors._
 import slick.driver.PostgresDriver.api._
 import utils.{Apis, CustomHandlers, WiredStripeApi}
