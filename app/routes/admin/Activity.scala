@@ -16,32 +16,30 @@ import utils.aliases._
 
 object Activity {
 
-  def routes(implicit ec: EC, db: DB, mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
+  def routes(implicit ec: EC, db: DB, mat: Materializer, admin: StoreAdmin, apis: Apis) = {
 
-    requireAuth(storeAdminAuth) { admin ⇒
-      activityContext(admin) { implicit ac ⇒
-        pathPrefix("activities") {
-          pathPrefix(IntNumber) { activityId ⇒
-            (get & pathEnd) {
-              goodOrFailures {
-                ActivityManager.findById(activityId)
-              }
-            }
-          }
-        } ~
-        pathPrefix("connections" / IntNumber) { connectionId ⇒
+    activityContext(admin) { implicit ac ⇒
+      pathPrefix("activities") {
+        pathPrefix(IntNumber) { activityId ⇒
           (get & pathEnd) {
             goodOrFailures {
-              TrailManager.findConnection(connectionId)
+              ActivityManager.findById(activityId)
             }
           }
-        } ~
-        pathPrefix("trails" / Segment / Segment) { (dimension, objectId) ⇒
-          (post & pathEnd) {
-            entity(as[AppendActivity]) { payload ⇒
-              goodOrFailures {
-                TrailManager.appendActivityByObjectId(dimension, objectId, payload)
-              }
+        }
+      } ~
+      pathPrefix("connections" / IntNumber) { connectionId ⇒
+        (get & pathEnd) {
+          goodOrFailures {
+            TrailManager.findConnection(connectionId)
+          }
+        }
+      } ~
+      pathPrefix("trails" / Segment / Segment) { (dimension, objectId) ⇒
+        (post & pathEnd) {
+          entity(as[AppendActivity]) { payload ⇒
+            goodOrFailures {
+              TrailManager.appendActivityByObjectId(dimension, objectId, payload)
             }
           }
         }
