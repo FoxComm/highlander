@@ -5,7 +5,7 @@ import { syncHistory } from 'react-router-redux';
 import applyMiddleware from 'redux-wait';
 import logger from 'redux-diff-logger';
 import thunk from 'redux-thunk';
-import rootReducer from './modules';
+import rootReducer from 'modules/index';
 
 const isServer = typeof self == 'undefined';
 
@@ -24,7 +24,7 @@ export default function makeStore(history, initialState = void 0) {
 
   if (module.onReload) {
     module.onReload(() => {
-      const nextReducer = require('./modules');
+      const nextReducer = require('modules');
       store.replaceReducer(nextReducer.default || nextReducer);
 
       return true;

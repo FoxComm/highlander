@@ -2,7 +2,6 @@
 @import "media-queries.css";
 
 .checkout {
-  text-align: center;
   margin-top: 45px;
 
   lost-column: 9/11;
@@ -14,6 +13,36 @@
   height: 45px;
   margin: 0 auto;
   margin-bottom: 40px;
+}
+
+.union-fields {
+  display: flex;
+
+  & > div {
+    flex-grow: 1;
+  }
+}
+
+.checkout-form {
+  & > .union-fields {
+    margin: 10px 0;
+
+    & > .checkout-field {
+      margin: 0;
+
+      &:first-child {
+        margin-right: 10px;
+      }
+    }
+  }
+}
+
+.checkout-field {
+  margin: 10px 0;
+
+  & > input:matches([type=text], [type=password]) {
+    width: 100%;
+  }
 }
 
 @media (--medium-viewport) {

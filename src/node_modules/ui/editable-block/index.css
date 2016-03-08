@@ -14,11 +14,13 @@
   font-size: 22px;
   line-height: 27px;
   flex-grow: 1;
+  text-align: left;
 }
 
 .edit {
   color: #9E9E9E;
   text-align: right;
+  cursor: pointer;
 }
 
 .content {}

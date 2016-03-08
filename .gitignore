@@ -6,7 +6,7 @@ logs
 .idea
 .iml
 
-node_modules
+/node_modules
 
 # Users Environment Variables & settings
 .lock-wscript

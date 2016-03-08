@@ -4,7 +4,7 @@ import React, { PropTypes } from 'react';
 import cssModules from 'react-css-modules';
 import styles from './auth.css';
 
-import Icon from '../../common/icon';
+import Icon from 'ui/icon';
 
 const Auth = props => {
   return (

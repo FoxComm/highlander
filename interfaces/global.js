@@ -18,3 +18,4 @@ declare class SEvent<TargetType: HTMLElement> {
   timeStamp: number;
   type: string;
 }
+

@@ -27,7 +27,7 @@
 }
 
 .google-login {
-  composes: button from "../../common/css/buttons.css";
+  composes: button from "ui/css/buttons.css";
   background-color: var(--redish);
   border: 1px solid color(var(--redish) blackness(+20%));
   margin-bottom: calc(46px - var(--dividerMargin));
@@ -35,7 +35,7 @@
 }
 
 .divider {
-  composes: block from "../../common/css/wrap-to-lines.css";
+  composes: block from "ui/css/wrap-to-lines.css";
   margin-bottom: calc(30px - var(--dividerMargin));
 }
 
@@ -49,7 +49,7 @@
 }
 
 .primary-button {
-  composes: button from "../../common/css/buttons.css";
+  composes: button from "ui/css/buttons.css";
   width: 100%;
 }
 
@@ -101,7 +101,7 @@
   }
 
   .divider {
-    composes: block from "../../common/css/wrap-to-lines.css";
+    composes: block from "ui/css/wrap-to-lines.css";
     margin-bottom: calc(20px - var(--dividerMargin));
   }
 

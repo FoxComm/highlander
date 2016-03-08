@@ -9,6 +9,11 @@ To install this or anothers versions of node you can use [n](https://github.com/
 
 If using n, run the following command to install latest version of node:
 
+### Install Flow
+
+We're using [Flow](https://flowtype.org) to perform type checks and `babel-plugin-typecheck` for same thing at runtime.
+Install Flow per the instructions on the website. Checkout required version in .flowconfig file.
+
 ```
 [sudo] n latest
 ```
@@ -50,7 +55,7 @@ For **icons** svg icons is used. Just place svg icon to `src/images/svg` folder 
 automatically. Name for each icon in a sprite will be `fc-<file-name-lowecased>` Usage:
 
 ```jsx
-import Icon from '../common/icon';
+import Icon from 'ui/icon';
 
 const icon = <Icon name="fc-google" />;
 

@@ -1,7 +1,7 @@
 /* @flow */
 
 import React from 'react';
-import type { HTMLElement } from '../../types';
+import type { HTMLElement } from 'types';
 
 type HomeParams = {
   params: Object;
