@@ -18,23 +18,18 @@ import faker._;
 
 trait GiftCardGenerator {
 
-  def giftCardOrderReferenceNum = {
-    val base = new Base{}
-    base.bothify("????####-##")
-  }
-
-  def nextGcBalance = {
-    val prices = Seq(1000, 2500, 3000, 5000, 7500, 10000, 15000, 20000) 
+ def nextGcBalance = {
+    val prices = Seq(1000, 2500, 3000, 5000, 7500, 10000, 15000, 20000)
     prices(Random.nextInt(prices.length))
   }
 
-  def generateGiftCardAppeasement(implicit db: Database) : DbResultT[GiftCard] = for { 
+  def generateGiftCardAppeasement(implicit db: Database) : DbResultT[GiftCard] = for {
     origin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = 1, reasonId = 1))
     gc    ← * <~ GiftCards.create(GiftCard.buildAppeasement(GiftCardCreateByCsr(balance = nextGcBalance, reasonId = 1), originId = origin.id))
   } yield gc
 
-  def generateGiftCardPurchase(customerId: Int, productContext: ProductContext)(implicit db: Database) : DbResultT[GiftCard] = for { 
-    order ← * <~ Orders.create(Order(state = Order.ManualHold, customerId = customerId, productContextId = productContext.id, referenceNumber = giftCardOrderReferenceNum))
+  def generateGiftCardPurchase(customerId: Int, productContext: ProductContext)(implicit db: Database) : DbResultT[GiftCard] = for {
+    order ← * <~ Orders.create(Order(state = Order.ManualHold, customerId = customerId, productContextId = productContext.id))
     orig  ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
     gc    ← * <~ GiftCards.create(GiftCard.buildLineItem(balance = nextGcBalance, originId = orig.id, currency = Currency.USD))
   } yield gc
