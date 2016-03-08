@@ -1,13 +1,13 @@
 upstream search {
-  server {{ search_server_http }};
+  server {{ search_server_http }} fail_timeout=30s;
 }
 
 upstream phoenix {
-  server {{ phoenix_server }};
+  server {{ phoenix_server }} fail_timeout=30s;
 }
 
 upstream ashes {
-    server {{ ashes_server }};
+    server {{ ashes_server }} fail_timeout=15s;
 }
 
 server {
