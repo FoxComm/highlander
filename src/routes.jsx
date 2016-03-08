@@ -14,10 +14,6 @@ import Grid from './components/pages/grid';
 
 const routes = (
   <Route path="/" component={Site}>
-    <Route component={StoreFront}>
-      <IndexRoute component={Home} />
-      <Route name="category" path=":categoryName" component={Home} />
-    </Route>
     <Route component={Auth}>
       <Route path="/login" component={Login} />
       <Route path="/signup" component={SignUp} />
@@ -26,6 +22,10 @@ const routes = (
     </Route>
     <Route path="/checkout" component={Checkout} />
     <Route path="/grid" component={Grid} />
+    <Route component={StoreFront}>
+      <IndexRoute component={Home} />
+      <Route name="category" path=":categoryName" component={Home} />
+    </Route>
   </Route>
 );
 

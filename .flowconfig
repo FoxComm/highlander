@@ -2,6 +2,7 @@
 .*/public/.*
 .*/node_modules/babel-.*
 .*/node_modules/fbjs/.*
+.*/node_modules/y18n/.*
 
 [include]
 src
@@ -17,7 +18,8 @@ module.name_mapper='.+css$' -> 'CSSModule'
 strip_root=true
 module.system=haste
 unsafe.enable_getters_and_setters=true
+suppress_comment=\\(.\\|\n\\)*\\$FlowFixMe
 
 
 [version]
-0.21.0
+0.22.1

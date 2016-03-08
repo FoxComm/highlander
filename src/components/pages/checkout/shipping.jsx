@@ -23,9 +23,9 @@ const ViewShipping = () => {
 };
 
 type EditShippinProps = {
-  continueAction: () => any;
-  handleSubmit: () => any;
-  fields: Object;
+  continueAction?: Function;
+  handleSubmit?: Function;
+  fields?: Object;
 }
 
 /* ::`*/
@@ -41,6 +41,7 @@ class EditShipping extends Component {
   render() {
     const props: EditShippinProps = this.props;
     const { handleSubmit } = props;
+    // $FlowFixMe: decorators are not supported
     const { fields: {name, address1, address2, country, zip, city, state, phone}} = props;
 
     return (

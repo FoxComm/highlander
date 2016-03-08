@@ -1,11 +1,11 @@
 /* @flow */
 
 import React, { PropTypes } from 'react';
+import type { HTMLElement } from 'types';
 import _ from 'lodash';
 import styles from './categories.css';
 import cssModules from 'react-css-modules';
 import { connect } from 'react-redux';
-import type { HTMLElement } from 'types';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'react-router';
 
