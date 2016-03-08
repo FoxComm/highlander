@@ -55,13 +55,13 @@ object Seeds {
   }
 
   def createDemoSeeds()(implicit db: Database) {
-    val result = Await.result(DemoSeeds.insertDemoSeeds.runTxn(), 120.seconds)
+    val result = Await.result(DemoSeeds.insertDemoSeeds.runTxn(), 240.seconds)
     validateResults("demo", result)
   }
 
   def createRankingSeeds()(implicit db: Database) {
     Console.err.println(s"Inserting ranking seeds")
-    Await.result(RankingSeedsGenerator.insertRankingSeeds(1700).runTxn(), 120.seconds)
+    Await.result(RankingSeedsGenerator.insertRankingSeeds(1700).runTxn(), 240.seconds)
   }
 
   def createRandomSeeds(scale: Int)(implicit db: Database) {

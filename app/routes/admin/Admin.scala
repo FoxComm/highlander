@@ -162,7 +162,7 @@ object Admin {
             } ~
             (post & path(IntNumber / Segment) & pathEnd) { (customerId, skuCode) ⇒
               goodOrFailures {
-                SaveForLaterManager.saveForLater(customerId, skuCode, productContext.id)
+                SaveForLaterManager.saveForLater(customerId, skuCode, productContext)
               }
             } ~
             (delete & path(IntNumber) & pathEnd) { id ⇒

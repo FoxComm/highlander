@@ -289,12 +289,61 @@ final case class AlreadySavedForLater(customerId: Int, skuId: Int) extends Failu
   override def description = s"Customer with id=$customerId already has SKU with id=$skuId saved for later"
 }
 
-final case class SkuNotFoundForContext(skuId: Int, productContextId: Int) extends Failure {
-  override def description = s"Sku with id=$skuId with product context $productContextId cannot be found"
+object ProductFailure { 
+
+  final case class SkuNotFound(code: String) extends Failure {
+    override def description = s"Sku with code $code cannot be found"
+  }
+
+  final case class SkuNotFoundForContext(code: String, productContext: String) extends Failure {
+    override def description = s"Sku $code with product context $productContext cannot be found"
+  }
+
+  final case class ProductNotFoundForContext(productId: Int, productContextId: Int) extends Failure {
+    override def description = s"Product with id=$productId with product context $productContextId cannot be found"
+  }
+
+  final case class ProductContextNotFound(name: String) extends Failure {
+    override def description = s"Product Context with name $name cannot be found"
+  }
+
+  final case class ProductShadowHasInvalidAttribute(key: String, value: String) extends Failure {
+    override def description = s"Product shadow has an invalid attribute $key with value $value"
+  }
+
+  final case class ProductShadowAttributeNotAString(key: String) extends Failure {
+    override def description = s"Product shadow attribute $key must be a string"
+  }
+
+  final case class ProductAttributesAreEmpty() extends Failure {
+    override def description = s"Product attributes are empty"
+  }
+  final case class ProductShadowAttributesAreEmpty() extends Failure {
+    override def description = s"Product shadow attributes are empty"
+  }
+
+  final case class NoVariantForContext(context: String) extends Failure {
+    override def description = s"No variant context $context"
+  }
+
 }
 
-final case class ProductNotFoundForContext(productId: Int, productContextId: Int) extends Failure {
-  override def description = s"Product with id=$productId with product context $productContextId cannot be found"
+object IlluminateFailure { 
+
+  final case class ShadowHasInvalidAttribute(key: String, value: String) extends Failure {
+    override def description = s"Shadow has an invalid attribute $key with value $value"
+  }
+  final case class ShadowAttributeNotAString(key: String) extends Failure {
+    override def description = s"Shadow attribute $key must be a string"
+  }
+
+  final case class AttributesAreEmpty() extends Failure {
+    override def description = s"Form attributes are empty"
+  }
+  final case class ShadowAttributesAreEmpty() extends Failure {
+    override def description = s"Shadow attributes are empty"
+  }
+
 }
 
 final case class InventorySummaryNotFound(skuId: Int, warehouseId: Int) extends Failure {

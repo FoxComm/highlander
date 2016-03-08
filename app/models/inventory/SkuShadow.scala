@@ -16,7 +16,8 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
  * storefront.
  */
 final case class SkuShadow(id: Int = 0, productContextId: Int, skuId: Int, 
-  attributes: Json, createdAt: Instant = Instant.now)
+  attributes: Json, activeFrom: Option[Instant] = None, activeTo: Option[Instant] = None, 
+  createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[SkuShadow]
   with Validation[SkuShadow]
 
@@ -25,9 +26,11 @@ class SkuShadows(tag: Tag) extends GenericTable.TableWithId[SkuShadow](tag, "sku
   def productContextId = column[Int]("product_context_id")
   def skuId = column[Int]("sku_id")
   def attributes = column[Json]("attributes")
+  def activeFrom = column[Option[Instant]]("active_from")
+  def activeTo = column[Option[Instant]]("active_to")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, productContextId, skuId, attributes, createdAt) <> ((SkuShadow.apply _).tupled, SkuShadow.unapply)
+  def * = (id, productContextId, skuId, attributes, activeFrom, activeTo, createdAt) <> ((SkuShadow.apply _).tupled, SkuShadow.unapply)
 
   def productContext = foreignKey(ProductContexts.tableName, productContextId, ProductContexts)(_.id)
   def sku = foreignKey(Skus.tableName, skuId, Skus)(_.id)
@@ -44,4 +47,6 @@ object SkuShadows extends TableQueryWithId[SkuShadow, SkuShadows](
     filter(_.skuId === skuId)
   def filterByAttributes(key: String, value: String): QuerySeq = 
     filter(_.attributes+>>(key) === value)
+  def filterBySkuAndContext(skuId: Int, productContextId: Int): QuerySeq = 
+    filter(_.skuId === skuId).filter(_.productContextId === productContextId)
 }

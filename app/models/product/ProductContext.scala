@@ -16,7 +16,7 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
  * The context will be matched against a user context so that the storefront displays
  * the appropriate product information.
  */
-final case class ProductContext(id: Int = 0, name: String, context: Json, 
+final case class ProductContext(id: Int = 0, name: String, attributes: Json, 
   createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[ProductContext]
   with Validation[ProductContext]
@@ -24,10 +24,10 @@ final case class ProductContext(id: Int = 0, name: String, context: Json,
 class ProductContexts(tag: Tag) extends GenericTable.TableWithId[ProductContext](tag, "product_contexts")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
-  def context = column[Json]("context")
+  def attributes = column[Json]("attributes")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, name, context, createdAt) <> ((ProductContext.apply _).tupled, ProductContext.unapply)
+  def * = (id, name, attributes, createdAt) <> ((ProductContext.apply _).tupled, ProductContext.unapply)
 
 }
 
@@ -39,5 +39,5 @@ object ProductContexts extends TableQueryWithId[ProductContext, ProductContexts]
   def filterByName(name: String): QuerySeq = 
     filter(_.name === name)
   def filterByContextAttribute(key: String, value: String): QuerySeq = 
-    filter(_.context+>>(key) === value)
+    filter(_.attributes+>>(key) === value)
 }

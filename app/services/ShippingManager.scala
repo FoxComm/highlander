@@ -80,7 +80,6 @@ object ShippingManager {
     condition.field match {
       case "subtotal" ⇒ Condition.matches(shippingData.orderSubTotal, condition)
       case "grandtotal" ⇒ Condition.matches(shippingData.orderTotal, condition)
-      case "skus.isHazardous" ⇒ shippingData.skus.exists(sku ⇒ Condition.matches(sku.isHazardous, condition))
       case _ ⇒ false
     }
   }
