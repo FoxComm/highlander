@@ -11,7 +11,7 @@ trait AutomaticAuth extends SuiteMixin
   with ScalaFutures
   with HttpSupport { this: Suite with PatienceConfiguration with DbTestSupport ⇒
 
-  val authedStoreAdmin = StoreAdmin.build(id = 1, email = "donkey@donkey.com", password = "donkeyPass",
+  val authedStoreAdmin = StoreAdmin.build(id = 1, email = "donkey@donkey.com", password = Some("donkeyPass"),
           name = "Mister Donkey")
 
   val authedCustomer = Customer.build(id = 1, email = "donkey@donkey.com", password = Some("donkeyPass"),

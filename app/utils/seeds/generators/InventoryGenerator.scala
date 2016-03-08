@@ -1,10 +1,8 @@
 package utils.seeds.generators
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.io.Source
 import scala.util.Random.nextInt
 
-import faker._
 import models.product.SimpleProductData
 import models.inventory.{Warehouses, Warehouse}
 import models.inventory.summary.InventorySummary.AllSummaries
@@ -16,11 +14,15 @@ import utils.DbResultT.implicits._
 trait InventoryGenerator {
 
   def warehouse: Warehouse = Warehouse.buildDefault()
+
   def warehouses: Seq[Warehouse] = Seq(warehouse)
 
   def generateWarehouses = for {
     warehouseIds ← * <~ Warehouses.createAllReturningIds(warehouses)
   } yield warehouseIds
+}
+
+trait InventorySummaryGenerator {
 
   def generateInventory(skuId: Int, warehouseId: Int): DbResultT[AllSummaries] = for {
     sellable ← * <~ SellableInventorySummaries.create(SellableInventorySummary(onHand = onHandRandom, onHold =

@@ -1,18 +1,19 @@
 package services
 
 import scala.concurrent.duration.DurationInt
+import akka.NotUsed
 import akka.actor.{ActorSystem, Props}
 import akka.stream.actor.ActorPublisher
 import akka.stream.scaladsl.Source
 
-import de.heikoseeberger.akkasse.{ServerSentEvent, WithHeartbeats}
+import de.heikoseeberger.akkasse.ServerSentEvent
 import models.Notification._
 import models.activity._
-import models.{NotificationSubscription ⇒ Sub, NotificationSubscriptions ⇒ Subs, NotificationTrailMetadata, StoreAdmin, StoreAdmins}
+import models.{NotificationTrailMetadata, StoreAdmin, StoreAdmins, NotificationSubscription ⇒ Sub, NotificationSubscriptions ⇒ Subs}
 import org.json4s.Extraction.decompose
 import org.json4s.jackson.Serialization.write
 import payloads.{AppendActivity, CreateNotification}
-import responses.{ActivityConnectionResponse, LastSeenActivityResponse, TheResponse}
+import responses.{ActivityConnectionResponse, ActivityResponse, LastSeenActivityResponse, TheResponse}
 import services.activity.TrailManager
 import services.actors.NotificationPublisher
 import slick.driver.PostgresDriver.api._
@@ -26,14 +27,15 @@ import utils.aliases._
 object NotificationManager {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def streamByAdminId(id: StoreAdmin#Id)(implicit ec: EC, db: DB, system: ActorSystem): Source[ServerSentEvent, Unit] = {
+  def streamByAdminId(id: StoreAdmin#Id)
+    (implicit ec: EC, db: DB, system: ActorSystem, env: utils.Config.Environment): Source[ServerSentEvent, NotUsed] = {
     val dataPublisherRef = system.actorOf(Props(new NotificationPublisher(id)))
     val dataPublisher = ActorPublisher[String](dataPublisherRef)
     dataPublisherRef ! id
 
     Source.fromPublisher(dataPublisher)
       .map(ServerSentEvent(_))
-      .via(WithHeartbeats(30.seconds))
+      .keepAlive(30.seconds, () ⇒ ServerSentEvent.heartbeat)
   }
 
   def createNotification(payload: CreateNotification)(implicit ac: ActivityContext, ec: EC, db: DB):
@@ -47,7 +49,7 @@ object NotificationManager {
       TrailManager.appendActivityByObjectIdInner(Dimension.notification, adminId.toString, appendActivity, newTrailData)
     })
     _ ← * <~ DBIO.sequence(adminIds.map { adminId ⇒
-      sqlu"NOTIFY #${notificationChannel(adminId)}, '#${write(activity)}'"
+      sqlu"NOTIFY #${notificationChannel(adminId)}, '#${write(ActivityResponse.build(activity))}'"
     }).toXor
   } yield response).runTxn()
 

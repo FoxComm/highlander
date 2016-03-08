@@ -31,5 +31,6 @@ trait TestBase extends FreeSpecLike
 }
 
 object TestBase {
-  def config = utils.Config.loadWithEnv(env = Test)
+  implicit val env = Test
+  def config = utils.Config.loadWithEnv()
 }

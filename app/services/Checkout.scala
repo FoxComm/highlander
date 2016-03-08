@@ -12,6 +12,7 @@ import models.payment.creditcard.{CreditCardCharges, CreditCardCharge}
 import models.payment.giftcard.{GiftCards, GiftCard}
 import models.payment.storecredit.StoreCredits
 import responses.order.FullOrder
+import services.inventory.InventoryAdjustmentManager
 import services.CartFailures.CustomerHasNoActiveOrder
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
@@ -55,6 +56,7 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit e
       _         ← * <~ createNewCart
       valid     ← * <~ cartValidator.validate(isCheckout = true)
       updated   ← * <~ Orders.refresh(cart).toXor
+      _         ← * <~ InventoryAdjustmentManager.orderPlaced(cart)
       fullOrder ← * <~ FullOrder.fromOrder(updated).toXor
       response  ← * <~ valid.warnings.fold(DbResult.good(fullOrder))(DbResult.failures)
     } yield response

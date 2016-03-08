@@ -12,7 +12,7 @@ import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import utils.seeds.Seeds.Factories
-import utils.seeds.generators.InventoryGenerator
+import utils.seeds.generators._
 
 class InventoryIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
@@ -75,7 +75,7 @@ class InventoryIntegrationTest extends IntegrationTestBase with HttpSupport with
     }
   }
 
-  trait Fixture extends InventoryGenerator {
+  trait Fixture extends InventorySummaryGenerator {
     val (productContext, product, sku, skuShadow, warehouse1, sellable, backorder, preorder, nonsellable) = (for {
       productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
       product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)

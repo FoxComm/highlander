@@ -11,6 +11,7 @@ import models.rma.{RmaReason, RmaLineItem, Rma}
 import models.rules.{Condition, QueryStatement}
 import models.sharedsearch.SharedSearch
 import models.shipping.Shipment
+import models.auth.Identity.IdentityKind
 import models.Reason
 import org.json4s.jackson
 import responses.CountryWithRegions
@@ -41,6 +42,7 @@ object JsonFormatters {
     Condition.Operator.jsonFormat +
     PaymentMethod.Type.jsonFormat +
     SkuType.jsonFormat +
-    SharedSearch.Scope.jsonFormat
+    SharedSearch.Scope.jsonFormat +
+    IdentityKind.jsonFormat
 }
 

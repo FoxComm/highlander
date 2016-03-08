@@ -15,7 +15,7 @@ class JsonExceptionHandlerIntegrationTest extends IntegrationTestBase with HttpS
   override protected def additionalRoutes = immutable.Seq(
     path("testThrowAnExcepton") {
       complete(throw new Exception(exceptionText))
-    } ~
+    },
     path("testThrowAnIllegalRequestException") {
       complete(throw new IllegalRequestException(new ErrorInfo(illegalRequestExceptionText), StatusCodes.custom(400, "test")
         .asInstanceOf[ClientError]))

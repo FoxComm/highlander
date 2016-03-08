@@ -24,6 +24,8 @@ lazy val fcSlickPG      = RootProject(uri("git://github.com/FoxComm/slick-pg.git
 
 lazy val testWartWarnings = Seq(Wart.OptionPartial)
 
+lazy val slickV = "3.1.1"
+
 lazy val phoenixScala = (project in file(".")).
   settings(commonSettings).
   configs(IT).
@@ -78,68 +80,69 @@ lazy val phoenixScala = (project in file(".")).
     /** Work around SBT warning for multiple dependencies */
     dependencyOverrides ++= Set(
       "org.scala-lang"         % "scala-library"              % scalaVersion.value,
-      "com.typesafe.slick"     %% "slick"                     % "3.1.0",
-      "com.typesafe.slick"     %% "slick-hikaricp"            % "3.1.0"
+      "com.typesafe.slick"     %% "slick"                     % slickV,
+      "com.typesafe.slick"     %% "slick-hikaricp"            % slickV
     ),
     ivyScala            := ivyScala.value.map(_.copy(overrideScalaVersion = true)),
     resolvers ++= Seq(
       "hseeberger bintray" at "http://dl.bintray.com/hseeberger/maven",
       "pellucid bintray"   at "http://dl.bintray.com/pellucid/maven",
-      "justwrote" at "http://repo.justwrote.it/releases/"
+      "justwrote"          at "http://repo.justwrote.it/releases/"
     ),
     libraryDependencies ++= {
       val akkaV      = "2.4.2"
-      val akkaHttpV  = "2.0.3"
-      val scalaTestV = "2.2.5"
-      val monocleV   = "1.1.1"
-      val json4sVersion = "3.3.0"
+      val scalaTestV = "2.2.6"
+      val monocleV   = "1.2.0"
+      val json4sV    = "3.3.0"
+      val logbackV   = "1.1.5"
 
       Seq(
         // Akka
-        "com.typesafe.akka"    %% "akka-slf4j"               % akkaV,
-        "com.typesafe.akka"    %% "akka-actor"               % akkaV,
-        "com.typesafe.akka"    %% "akka-agent"               % akkaV,
-        "com.typesafe.akka"    %% "akka-stream-experimental" % akkaHttpV,
-        "com.typesafe.akka"    %% "akka-http-experimental"   % akkaHttpV,
-        "de.heikoseeberger"    %% "akka-sse"                 % "1.4.2",
+        "com.typesafe.akka"          %% "akka-slf4j"             % akkaV,
+        "com.typesafe.akka"          %% "akka-actor"             % akkaV,
+        "com.typesafe.akka"          %% "akka-agent"             % akkaV,
+        "com.typesafe.akka"          %% "akka-stream"            % akkaV,
+        "com.typesafe.akka"          %% "akka-http-core"         % akkaV,
+        "de.heikoseeberger"          %% "akka-sse"               % "1.6.3",
         // JSON
-        "org.json4s"           %% "json4s-core"              % json4sVersion,
-        "org.json4s"           %% "json4s-jackson"           % json4sVersion,
-        "org.json4s"           %% "json4s-ext"               % json4sVersion,
-        "de.heikoseeberger"    %% "akka-http-json4s"         % "1.4.2",
+        "org.json4s"                 %% "json4s-core"            % json4sV,
+        "org.json4s"                 %% "json4s-jackson"         % json4sV,
+        "org.json4s"                 %% "json4s-ext"             % json4sV,
+        "de.heikoseeberger"          %% "akka-http-json4s"       % "1.5.2",
         // Database
-        "com.typesafe.slick"   %% "slick"                    % "3.1.0",
-        "com.typesafe.slick"   %% "slick-hikaricp"           % "3.1.0",
-        "com.zaxxer"           %  "HikariCP"                 % "2.4.1" % "provided",
-        "org.postgresql"       %  "postgresql"               % "9.4-1205-jdbc42",
-        "org.flywaydb"         %  "flyway-core"              % "3.2.1",
-        "com.github.mauricio"  %% "postgresql-async"         % "0.2.18",
+        "com.typesafe.slick"         %% "slick"                  % slickV,
+        "com.typesafe.slick"         %% "slick-hikaricp"         % slickV,
+        "com.zaxxer"                 %  "HikariCP"               % "2.4.3"    % "provided",
+        "org.postgresql"             %  "postgresql"             % "9.4.1208",
+        "org.flywaydb"               %  "flyway-core"            % "3.2.1",
+        "com.github.mauricio"        %% "postgresql-async"       % "0.2.18",
         // Validations
-        "com.wix"              %% "accord-core"              % "0.5",
-        "org.scalactic"        %% "scalactic"                % "2.2.5",
+        "com.wix"                    %% "accord-core"            % "0.5",
+        "org.scalactic"              %% "scalactic"              % "2.2.6",
+        // Auth
+        "org.bitbucket.b_c"          %  "jose4j"                  % "0.4.4",
+        "com.lambdaworks"            %  "scrypt"                 % "1.4.0",
         // Logging
-        "ch.qos.logback"       %  "logback-core"              % "1.1.3",
-        "ch.qos.logback"       %  "logback-classic"           % "1.1.3",
+        "ch.qos.logback"             %  "logback-core"           % logbackV,
+        "ch.qos.logback"             %  "logback-classic"        % logbackV,
         // Other
-        ("org.spire-math"       %% "cats"                      % "0.3.0").excludeAll(noScalaCheckPlease),
-        "com.stripe"           %  "stripe-java"               % "1.38.0",
-        "org.slf4j"            %  "slf4j-api"                 % "1.7.12",
-        "org.joda"             %  "joda-money"                % "0.10.0",
-        "com.pellucid"         %% "sealerate"                 % "0.0.3",
-        "com.lambdaworks"          % "scrypt"                % "1.4.0",
-        "com.github.julien-truffaut" %% "monocle-core"        % monocleV,
-        "com.github.julien-truffaut" %% "monocle-generic"     % monocleV,
-        "com.github.julien-truffaut" %% "monocle-macro"       % monocleV,
-        "it.justwrote" %% "scala-faker" % "0.3",
-        "io.backchat.inflector" %% "scala-inflector"          % "1.3.5",
+       ("org.spire-math"             %% "cats"                   % "0.3.0").excludeAll(noScalaCheckPlease),
+        "com.stripe"                 %  "stripe-java"            % "1.45.0",
+        "org.slf4j"                  %  "slf4j-api"              % "1.7.16",
+        "org.joda"                   %  "joda-money"             % "0.11",
+        "com.pellucid"               %% "sealerate"              % "0.0.3",
+        "com.github.julien-truffaut" %% "monocle-core"           % monocleV,
+        "com.github.julien-truffaut" %% "monocle-generic"        % monocleV,
+        "com.github.julien-truffaut" %% "monocle-macro"          % monocleV,
+        "it.justwrote"               %% "scala-faker"            % "0.3",
+        "io.backchat.inflector"      %% "scala-inflector"        % "1.3.5",
         // Testing
-        "org.conbere"          % "markov_2.10"              % "0.2.0",
-        "com.typesafe.akka"    %% "akka-testkit"              % akkaV      % "test",
-        "com.typesafe.akka"    %% "akka-stream-testkit-experimental" % akkaHttpV % "test",
-        "org.scalatest"        %% "scalatest"                 % scalaTestV % "test",
-        "org.scalacheck"       %% "scalacheck"                % "1.12.5"   % "test",
-        "org.mockito"          %  "mockito-core"              % "1.10.19"  % "test")
-
+        "org.conbere"                %  "markov_2.10"            % "0.2.0",
+        "com.typesafe.akka"          %% "akka-testkit"           % akkaV      % "test",
+        "com.typesafe.akka"          %% "akka-stream-testkit"    % akkaV      % "test",
+        "org.scalatest"              %% "scalatest"              % scalaTestV % "test",
+        "org.scalacheck"             %% "scalacheck"             % "1.13.0"   % "test",
+        "org.mockito"                %  "mockito-core"           % "1.10.19"  % "test")
     },
     scalaSource in Compile <<= (baseDirectory in Compile)(_ / "app"),
     scalaSource in Test <<= (baseDirectory in Test)(_ / "test" / "unit"),

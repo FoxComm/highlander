@@ -17,6 +17,8 @@ class Warehouses(tag: Tag)
 
 object Warehouse {
   def buildDefault(): Warehouse = Warehouse( id = 1, name = "default")
+
+  val HARDCODED_WAREHOUSE_ID = 1
 }
 
 object Warehouses extends TableQueryWithId[Warehouse, Warehouses](idLens = GenLens[Warehouse](_.id)

@@ -9,14 +9,14 @@ import de.heikoseeberger.akkasse.EventStreamMarshalling._
 
 import payloads._
 import services.NotificationManager
-import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives._
 import utils.Http._
 import utils.aliases._
+import utils.Config.Environment
 
 object NotificationRoutes {
 
-  def routes(implicit ec: EC, db: DB, mat: Materializer, system: ActorSystem) = {
+  def routes(implicit ec: EC, db: DB, mat: Materializer, system: ActorSystem, env: Environment) = {
 
     activityContext() { implicit ac ⇒
       pathPrefix("public") {

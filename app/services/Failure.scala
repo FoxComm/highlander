@@ -204,6 +204,10 @@ final case class RmaAssigneeNotFound(refNum: String, assigneeId: Int) extends Fa
   override def description = s"storeAdmin with id=$assigneeId is not assigned to RMA with refNum=$refNum"
 }
 
+case object LoginFailed extends Failure {
+  override def description = s"Email or password invalid"
+}
+
 case object SharedSearchInvalidQueryFailure extends Failure {
   override def description = s"Invalid JSON provided for shared search query"
 }

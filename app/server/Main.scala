@@ -1,5 +1,8 @@
 package server
 
+import scala.collection.immutable
+import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContextExecutor, Future}
 import akka.actor.{ActorSystem, Cancellable, Props}
 import akka.agent.Agent
 import akka.event.Logging
@@ -8,8 +11,10 @@ import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route}
 import akka.stream.ActorMaterializer
+
 import com.typesafe.config.Config
 import models.StoreAdmin
+import models.auth.Keys
 import models.customer.Customer
 import org.json4s.jackson.Serialization
 import org.json4s.{Formats, jackson}
@@ -19,13 +24,12 @@ import services.actors._
 import slick.driver.PostgresDriver.api._
 import utils.{Apis, CustomHandlers, WiredStripeApi}
 
-import scala.collection.immutable
-import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContextExecutor, Future}
 
 object Main extends App {
+  implicit val env = utils.Config.environment
   val service = new Service()
   service.bind()
+  utils.Config.ensureRequiredSettingsIsSet(service.config)
   service.setupRemorseTimers
 }
 
@@ -33,8 +37,7 @@ class Service(
   systemOverride: Option[ActorSystem]  = None,
   dbOverride:     Option[Database]     = None,
   apisOverride:   Option[Apis]         = None,
-  addRoutes:      immutable.Seq[Route] = immutable.Seq.empty
-) {
+  addRoutes:      immutable.Seq[Route] = immutable.Seq.empty)(implicit val env: utils.Config.Environment) {
 
   import utils.JsonFormatters._
 
@@ -56,11 +59,16 @@ class Service(
   implicit val db:   Database = dbOverride.getOrElse(Database.forConfig("db", config))
   implicit val apis: Apis     = apisOverride.getOrElse(Apis(new WiredStripeApi))
 
-  implicit val storeAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.storeAdmin
-  implicit val customerAuth: AsyncAuthenticator[Customer] = Authenticator.customer
+  implicit val storeAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.forAdminFromConfig
+  implicit val customerAuth: AsyncAuthenticator[Customer] = Authenticator.forCustomerFromConfig
+
 
   val defaultRoutes = {
     pathPrefix("v1") {
+      logRequestResult("auth-routes")(routes.AuthRoutes.routes) ~
+      logRequestResult("public-routes")(routes.Public.routes) ~
+      logRequestResult("notification-routes")(routes.NotificationRoutes.routes) ~
+      logRequestResult("customer-routes")(routes.Customer.routes) ~
       logRequestResult("admin-routes")(routes.admin.Admin.routes) ~
       logRequestResult("admin-order-routes")(routes.admin.OrderRoutes.routes) ~
       logRequestResult("admin-customer-routes")(routes.admin.CustomerRoutes.routes) ~
@@ -70,10 +78,7 @@ class Service(
       logRequestResult("admin-activity-routes")(routes.admin.Activity.routes) ~
       logRequestResult("admin-inventory-routes")(routes.admin.InventoryRoutes.routes) ~
       logRequestResult("admin-product-routes")(routes.admin.ProductRoutes.routes) ~
-      logRequestResult("admin-sku-routes")(routes.admin.SkuRoutes.routes) ~
-      logRequestResult("customer-routes")(routes.Customer.routes) ~
-      logRequestResult("notification-routes")(routes.NotificationRoutes.routes) ~
-      logRequestResult("public-routes")(routes.Public.routes)
+      logRequestResult("admin-sku-routes")(routes.admin.SkuRoutes.routes)
     }
   }
 
@@ -101,4 +106,5 @@ class Service(
     val remorseTimerBuddy = system.actorOf(Props(new RemorseTimerMate()), "remorse-timer-mate")
     system.scheduler.schedule(Duration.Zero, 1.minute, remorseTimer, Tick)(executionContext, remorseTimerBuddy)
   }
+
 }

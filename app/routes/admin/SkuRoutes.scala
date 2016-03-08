@@ -7,7 +7,7 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
 import models.StoreAdmin
 import services.SkuManager
-import services.Authenticator.{AsyncAuthenticator, requireAdminAuth}
+import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 import utils.Apis
@@ -22,7 +22,7 @@ object SkuRoutes {
   def routes(implicit ec: ExecutionContext, db: Database,
     mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
 
-      requireAdminAuth(storeAdminAuth) { admin ⇒
+      requireAuth(storeAdminAuth) { admin ⇒
 
         activityContext(admin) { implicit ac ⇒
 
