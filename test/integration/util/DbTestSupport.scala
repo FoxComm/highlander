@@ -16,7 +16,10 @@ import util.SlickSupport.implicits._
 import slick.jdbc.DriverDataSource
 
 import models.product.{SimpleContext, ProductContext, ProductContexts}
+
+import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
   import DbTestSupport._
@@ -43,7 +46,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
   }
 
   private def setupProductContext(): Failures Xor ProductContext = {
-    ProductContexts.create(SimpleContext.create).futureValue
+    Await.result(db.run(ProductContexts.create(SimpleContext.create)), 30.seconds)
   }
 
   def isTableEmpty(table: String)(implicit conn: Connection): Boolean = {
