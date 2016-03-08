@@ -25,7 +25,7 @@ import SkuList from './sku-list';
 import { getProductAttributes } from '../../paragons/product';
 
 // types
-import type { 
+import type {
   FullProduct,
   Attribute,
   Attributes,
@@ -105,7 +105,7 @@ export class ProductDetails extends Component<void, DetailsProps, State> {
       <ContentBox title="General">
         {attributes}
         <div className="fc-product-details__add-custom-property">
-          Custom Property 
+          Custom Property
           <a className="fc-product-details__add-custom-property-icon"
              onClick={this.handleAddProperty}>
             <i className="icon-add" />
@@ -132,7 +132,7 @@ export class ProductDetails extends Component<void, DetailsProps, State> {
 
   get skusContentBox(): Element {
     return (
-      <ContentBox title="SKUs" indentContent={false}>
+      <ContentBox title="SKUs">
         <SkuList fullProduct={this.fullProduct} />
       </ContentBox>
     );
@@ -152,7 +152,7 @@ export class ProductDetails extends Component<void, DetailsProps, State> {
     if (this.state.isAddingProperty) {
       return (
         <CustomProperty
-          isVisible={true} 
+          isVisible={true}
           onSave={this.handleCreateProperty}
           onCancel={() => this.setState({ isAddingProperty: false })} />
       );

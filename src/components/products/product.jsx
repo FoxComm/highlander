@@ -73,6 +73,7 @@ export class ProductPage extends Component<void, Props, void> {
   }
 
   handleSubmit(productValues: { [key:string]: string }) {
+    console.log(productValues);
     const product = this.product;
     if (product) {
       const updatedProduct = _.reduce(productValues, (res, val, key) => {

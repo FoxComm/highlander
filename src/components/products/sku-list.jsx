@@ -8,6 +8,7 @@ import { getIlluminatedSkus } from '../../paragons/product';
 import _ from 'lodash';
 
 // components
+import EditableSkuRow from './editable-sku-row';
 import MultiSelectTable from '../table/multi-select-table';
 
 import type { FullProduct } from '../../modules/products/details';
@@ -40,10 +41,17 @@ export default class SkuList extends Component<void, Props, void> {
   }
 
   skuContent(skus: Array<IlluminatedSku>): Element {
+    const renderRow = (row, index, columns, params) => {
+      const key = `sku-${row.code}`;
+      return <EditableSkuRow columns={columns} sku={row} params={params} />;
+    };
+
     return (
-      <div className="fc-content-box__empty-text">
-        SKUs.
-      </div>
+      <MultiSelectTable
+        columns={SkuList.tableColumns}
+        data={{ rows: this.illuminatedSkus }}
+        renderRow={renderRow}
+        emptyMessage="No SKUs motherfucker." />
     );
   }
 
