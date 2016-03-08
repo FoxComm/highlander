@@ -124,7 +124,7 @@ trait DemoScenario2 extends DemoSeedHelpers {
     customerIds ← * <~ Customers.createAllReturningIds(customers2)
     addressIds ← * <~ createAddresses(customerIds, address2)
     productData ← * <~ Mvp.insertProducts(products2, productContext.id)
-    inventory ← * <~ generateInventories(products2, warehouseIds)
+    inventory ← * <~ generateInventories(productData, warehouseIds)
   } yield {}
 
 }
@@ -168,7 +168,7 @@ trait DemoScenario3 extends DemoSeedHelpers {
     customerIds ← * <~ Customers.createAllReturningIds(customers3)
     addressIds ← * <~ createAddresses(customerIds, address3)
     productData ← * <~ Mvp.insertProducts(products3, productContext.id)
-    inventory ← * <~ generateInventories(products3, warehouseIds)
+    inventory ← * <~ generateInventories(productData, warehouseIds)
     skuIds ← * <~ productData.map(_.skuId)
     orders ← * <~ DbResultT.sequence(customerIds.map { id ⇒ createShippedOrder(id, productContext.id, skuIds, shippingMethod)})
   } yield {}
