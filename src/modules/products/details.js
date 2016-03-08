@@ -28,7 +28,6 @@ export type FullProduct = {
 export type ProductForm = {
   id: number,
   createdAt: string,
-  isActive: boolean,
   attributes: { [key:string]: ProductAttribute },
   variants: { [key:string]: Object },
 };
