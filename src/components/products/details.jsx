@@ -25,7 +25,18 @@ import SkuList from './sku-list';
 import { getProductAttributes } from '../../paragons/product';
 
 // types
-import type { FullProduct, ProductAttribute, ProductDetailsState } from '../../modules/products/details';
+import type { 
+  FullProduct,
+  Attribute,
+  Attributes,
+  ProductDetailsState
+} from '../../modules/products/details';
+
+import type {
+  IlluminatedAttribute,
+  IlluminatedAttributes,
+  IlluminatedSku,
+} from '../../paragons/product';
 
 type DetailsParams = {
   productId: number,
@@ -42,8 +53,6 @@ type PriceAttribute = {
   currency: string,
   price: number,
 };
-
-type ProductAttributes = { [key:string]: ProductAttribute };
 
 type State = { isAddingProperty: boolean };
 
@@ -70,7 +79,7 @@ export class ProductDetails extends Component<void, DetailsProps, State> {
     return _.get(this.props, 'details.product');
   }
 
-  get attributes(): ProductAttributes {
+  get attributes(): IlluminatedAttributes {
     const fullProduct = this.fullProduct;
     return fullProduct ? getProductAttributes(fullProduct) : {};
   }
@@ -124,9 +133,7 @@ export class ProductDetails extends Component<void, DetailsProps, State> {
   get skusContentBox(): Element {
     return (
       <ContentBox title="SKUs" indentContent={false}>
-        <div className="fc-content-box__empty-text">
-          This product does not have SKUs.
-        </div>
+        <SkuList fullProduct={this.fullProduct} />
       </ContentBox>
     );
   }
@@ -152,11 +159,11 @@ export class ProductDetails extends Component<void, DetailsProps, State> {
     }
   }
 
-  renderAttributes(attributes: ProductAttributes): Array<Element> {
+  renderAttributes(attributes: IlluminatedAttributes): Array<Element> {
     return _.map(attributes, attr => this.renderAttribute(attr));
   }
 
-  renderAttribute(attribute: ProductAttribute): Element {
+  renderAttribute(attribute: IlluminatedAttribute): Element {
     const { label, type, value } = attribute;
     const formattedLbl = _.snakeCase(label).split('_').reduce((res, val) => {
       return `${res} ${_.capitalize(val)}`;
@@ -173,7 +180,7 @@ export class ProductDetails extends Component<void, DetailsProps, State> {
     );
   }
 
-  renderAttributeField(attribute: ProductAttribute): Element {
+  renderAttributeField(attribute: Attribute): Element {
     const { label, type, value } = attribute;
     const inputClass = 'fc-product-details__field-value';
 

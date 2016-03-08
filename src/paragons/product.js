@@ -6,15 +6,29 @@ import _ from 'lodash';
 import { assoc } from 'sprout-data';
 import { stringToCurrency } from '../lib/format-currency';
 
-import type { FullProduct, ProductAttribute, ProductForm, ProductShadow } from '../modules/products/details';
+import type {
+  FullProduct,
+  Attribute,
+  Attributes,
+  ProductForm,
+  ProductShadow,
+  ShadowAttributes,
+  SkuForm,
+  SkuShadow,
+} from '../modules/products/details';
 
-type Attribute = {
+export type IlluminatedAttribute = {
   label: string,
   type: string,
   value: string,
 };
 
-type Attributes = { [key:string]: Attribute };
+export type IlluminatedAttributes = { [key:string]: Attribute };
+
+export type IlluminatedSku = {
+  code: string,
+  attributes: IlluminatedAttributes,
+};
 
 function getProductForm(product: FullProduct): ProductForm {
   const form: ?ProductForm = _.get(product, 'form.product');
@@ -28,30 +42,66 @@ function getProductShadow(product: FullProduct): ProductShadow {
   return shadow;
 }
 
+function getSkuForm(code: string, product: FullProduct): SkuForm {
+  const forms: Array<SkuForm> = _.get(product, 'form.skus', []);
+  const form: ?SkuForm = _.find(forms, { code: code });
+
+  if (!form) {
+    throw new Error(`SKU form for code ${code} not found in FullProduct response.`);
+  }
+
+  return form;
+}
+
+function getSkuShadow(code: string, product: FullProduct): SkuShadow {
+  const shadows: Array<SkuShadow> = _.get(product, 'shadow.skus', []);
+  const shadow: ?SkuShadow = _.find(shadows, { code: code });
+
+  if (!shadow) {
+    throw new Error(`SKU shadow for code ${code} not found in FullProduct response.`);
+  }
+
+  return shadow;
+}
+
 /**
  * Extracts all of the attributes from a FullProduct by combining the ProductForm
  * and ProductShadow. This is essentially the client-side view of the illuminated
  * product.
  * @param {FullProduct} product The full product response from Phoenix.
- * @return {Attributes} Illuminated list of attributes.
+ * @return {IlluminatedAttributes} Illuminated list of attributes.
  */
-export function getProductAttributes(product: FullProduct): Attributes {
+export function getProductAttributes(product: FullProduct): IlluminatedAttributes {
   const form = getProductForm(product);
   const shadow = getProductShadow(product);
+  return getAttributes(form.attributes, shadow.attributes);
+}
 
-  const attributes: Attributes = _.reduce(shadow.attributes, (res, attrValue, key) => {
-    const productAttribute = form.attributes[key];
+function getAttributes(formAttrs: Attributes, shadowAttrs: ShadowAttributes): IlluminatedAttributes {
+  const illuminated: IlluminatedAttributes = _.reduce(shadowAttrs, (res, formKey, label) => {
+    const attribute = formAttrs[label];
 
-    res[key] = {
-      label: key,
-      type: productAttribute.type,
-      value: productAttribute[attrValue],
+    res[label] = {
+      label: label,
+      type: attribute.type,
+      value: attribute[formKey],
     };
 
     return res;
   }, {});
 
-  return attributes;
+  return illuminated;
+}
+
+export function getIlluminatedSkus(product: FullProduct): Array<IlluminatedSku> {
+  return _.map(product.form.skus, (form: SkuForm) => {
+    const shadow = getSkuShadow(form.code, product);
+
+    return {
+      code: form.code,
+      attributes: getAttributes(form.attributes, shadow.attributes),
+    };
+  });
 }
 
 /**
@@ -95,6 +145,16 @@ export function addProductAttribute(product: FullProduct,
     ['shadow', 'product', 'attributes'], { ...newShadowAttr, ...shadowAttrs }
   );
 }
+
+//export function addSkuAttribute(product: FullProduct,
+                                //sku: string,
+                                //label: string,
+                                //context: string = 'default'): FullProduct {
+
+
+//}
+
+
 
 
 export function setProductAttribute(product: FullProduct, label: string, value: string): FullProduct {

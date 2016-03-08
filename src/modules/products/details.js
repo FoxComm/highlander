@@ -28,21 +28,23 @@ export type FullProduct = {
 export type ProductForm = {
   id: number,
   createdAt: string,
-  attributes: { [key:string]: ProductAttribute },
+  attributes: Attributes,
   variants: { [key:string]: Object },
 };
 
-export type ProductAttribute = {
+export type Attribute = {
   type: string,
   [key:string]: any,
 };
+
+export type Attributes = { [key:string]: Attribute };
 
 export type ShadowAttributes = { [key:string]: string };
 
 export type SkuForm = {
   code: string,
   isActive: boolean,
-  attributes: { [key:string]: Object },
+  attributes: Attributes,
 };
 
 export type ProductShadow = {
