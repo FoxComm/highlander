@@ -15,13 +15,14 @@ export type Error = {
 
 export type FullProduct = {
   id: number,
-  form: Form,
-  shadow: Shadow,
-};
-
-type Form = {
-  product: ProductForm,
-  skus: Array<SkuForm>,
+  form: { 
+    product: ProductForm,
+    skus: Array<SkuForm>,
+  },
+  shadow: {
+    product: ProductShadow,
+    skus: Array<SkuShadow>,
+  },
 };
 
 export type ProductForm = {
@@ -37,28 +38,27 @@ export type ProductAttribute = {
   [key:string]: any,
 };
 
-type SkuForm = {
+export type ShadowAttributes = { [key:string]: string };
+
+export type SkuForm = {
   code: string,
   isActive: boolean,
   attributes: { [key:string]: Object },
 };
 
-type Shadow = {
-  product: ProductShadow,
-  skus: Array<SkuShadow>,
-};
-
 export type ProductShadow = {
   id: number,
   productId: number,
-  attributes: { [key:string]: string },
+  attributes: ShadowAttributes,
+  variants: string,
   createdAt: string,
+  activeFrom: string,
+  activeTo: string,
 };
 
-type SkuShadow = {
+export type SkuShadow = {
   code: string,
-  attributes: { [key:string]: string },
-  isActive: boolean,
+  attributes: ShadowAttributes,
 };
 
 export type ProductDetailsState = {
