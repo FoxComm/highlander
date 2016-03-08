@@ -43,7 +43,7 @@ object AssignmentsTailored {
     assignees: Seq[StoreAdminResponse.Root])
     extends ActivityBase[AssignedToGiftCard]
 
-  final case class UnassignedFromGiftCard(admin: StoreAdminResponse.Root, customer: GiftCardResponse.RootSimple,
+  final case class UnassignedFromGiftCard(admin: StoreAdminResponse.Root, giftCard: GiftCardResponse.RootSimple,
     assignee: StoreAdminResponse.Root)
     extends ActivityBase[UnassignedFromGiftCard]
 
