@@ -15,32 +15,30 @@ import utils.aliases._
 
 
 object CustomerGroupsRoutes {
-  def routes(implicit ec: EC, db: DB, mat: Materializer, storeAdminAuth: AsyncAuthenticator[StoreAdmin], apis: Apis) = {
+  def routes(implicit ec: EC, db: DB, mat: Materializer, admin: StoreAdmin, apis: Apis) = {
 
-    requireAuth(storeAdminAuth) { admin ⇒
-      activityContext(admin) { implicit ac ⇒
-        pathPrefix("groups") {
-          (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            goodOrFailures {
-              GroupManager.findAll
-            }
-          } ~
-          (post & pathEnd & entity(as[CustomerDynamicGroupPayload])) { payload ⇒
-            goodOrFailures {
-              GroupManager.create(payload, admin)
-            }
+    activityContext(admin) { implicit ac ⇒
+      pathPrefix("groups") {
+        (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+          goodOrFailures {
+            GroupManager.findAll
           }
         } ~
-        pathPrefix("groups" / IntNumber) { groupId ⇒
-          (get & pathEnd) {
-            goodOrFailures {
-              GroupManager.getById(groupId)
-            }
-          } ~
-          (patch & pathEnd & entity(as[CustomerDynamicGroupPayload])) { payload ⇒
-            goodOrFailures {
-              GroupManager.update(groupId, payload)
-            }
+        (post & pathEnd & entity(as[CustomerDynamicGroupPayload])) { payload ⇒
+          goodOrFailures {
+            GroupManager.create(payload, admin)
+          }
+        }
+      } ~
+      pathPrefix("groups" / IntNumber) { groupId ⇒
+        (get & pathEnd) {
+          goodOrFailures {
+            GroupManager.getById(groupId)
+          }
+        } ~
+        (patch & pathEnd & entity(as[CustomerDynamicGroupPayload])) { payload ⇒
+          goodOrFailures {
+            GroupManager.update(groupId, payload)
           }
         }
       }

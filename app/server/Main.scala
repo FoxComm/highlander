@@ -20,6 +20,7 @@ import org.json4s.jackson.Serialization
 import org.json4s.{Formats, jackson}
 import services.Authenticator
 import services.Authenticator.AsyncAuthenticator
+import services.Authenticator.requireAuth
 import services.actors._
 import slick.driver.PostgresDriver.api._
 import utils.{Apis, CustomHandlers, WiredStripeApi}
@@ -59,7 +60,7 @@ class Service(
   implicit val db:   Database = dbOverride.getOrElse(Database.forConfig("db", config))
   implicit val apis: Apis     = apisOverride.getOrElse(Apis(new WiredStripeApi))
 
-  implicit val storeAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.forAdminFromConfig
+  val storeAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.forAdminFromConfig
   implicit val customerAuth: AsyncAuthenticator[Customer] = Authenticator.forCustomerFromConfig
 
 
@@ -69,16 +70,18 @@ class Service(
       logRequestResult("public-routes")(routes.Public.routes) ~
       logRequestResult("notification-routes")(routes.NotificationRoutes.routes) ~
       logRequestResult("customer-routes")(routes.Customer.routes) ~
-      logRequestResult("admin-routes")(routes.admin.Admin.routes) ~
-      logRequestResult("admin-order-routes")(routes.admin.OrderRoutes.routes) ~
-      logRequestResult("admin-customer-routes")(routes.admin.CustomerRoutes.routes) ~
-      logRequestResult("admin-customer-groups-routes")(routes.admin.CustomerGroupsRoutes.routes) ~
-      logRequestResult("admin-giftcard-routes")(routes.admin.GiftCardRoutes.routes) ~
-      logRequestResult("admin-rma-routes")(routes.admin.RmaRoutes.routes) ~
-      logRequestResult("admin-activity-routes")(routes.admin.Activity.routes) ~
-      logRequestResult("admin-inventory-routes")(routes.admin.InventoryRoutes.routes) ~
-      logRequestResult("admin-product-routes")(routes.admin.ProductRoutes.routes) ~
-      logRequestResult("admin-sku-routes")(routes.admin.SkuRoutes.routes)
+      requireAuth(storeAdminAuth) { implicit admin ⇒
+        logRequestResult("admin-routes")(routes.admin.Admin.routes) ~
+        logRequestResult("admin-order-routes")(routes.admin.OrderRoutes.routes) ~
+        logRequestResult("admin-customer-routes")(routes.admin.CustomerRoutes.routes) ~
+        logRequestResult("admin-customer-groups-routes")(routes.admin.CustomerGroupsRoutes.routes) ~
+        logRequestResult("admin-giftcard-routes")(routes.admin.GiftCardRoutes.routes) ~
+        logRequestResult("admin-rma-routes")(routes.admin.RmaRoutes.routes) ~
+        logRequestResult("admin-activity-routes")(routes.admin.Activity.routes) ~
+        logRequestResult("admin-inventory-routes")(routes.admin.InventoryRoutes.routes) ~
+        logRequestResult("admin-product-routes")(routes.admin.ProductRoutes.routes) ~
+        logRequestResult("admin-sku-routes")(routes.admin.SkuRoutes.routes)
+      }
     }
   }
 
