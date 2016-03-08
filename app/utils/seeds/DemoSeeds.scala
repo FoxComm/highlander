@@ -32,7 +32,7 @@ import slick.driver.PostgresDriver.api._
 import utils.time
 
 /**
- * The scenarios below are outlined here. 
+ * The scenarios below are outlined here.
  * https://docs.google.com/document/d/1NW9v81xtMFXkvGVg8_4uzhmRVZzG2CiL8w4zefGCeV4/edit#
  */
 
@@ -44,7 +44,7 @@ trait DemoSeedHelpers extends CreditCardSeeds with InventoryGenerator with Inven
     Customer(email = email, hashedPassword = hashedPassword.some, name = name.some,
       location = "Seattle,WA".some)
 
-  def createShippedOrder(customerId: Customer#Id, productContextId: Int, skuIds: Seq[Sku#Id], 
+  def createShippedOrder(customerId: Customer#Id, productContextId: Int, skuIds: Seq[Sku#Id],
     shipMethod: ShippingMethod)(implicit db: Database): DbResultT[Order] = for {
     order ← * <~ Orders.create(Order(state = Shipped,
       customerId = customerId, productContextId = productContextId, placedAt = time.yesterday.toInstant.some))
@@ -59,7 +59,7 @@ trait DemoSeedHelpers extends CreditCardSeeds with InventoryGenerator with Inven
                       shippingAddressId = shipA.id.some))
   } yield order
 
-  private def addSkusToOrder(skuIds: Seq[Sku#Id], orderId: Order#Id, state: OrderLineItem.State): DbResultT[Unit] = 
+  private def addSkusToOrder(skuIds: Seq[Sku#Id], orderId: Order#Id, state: OrderLineItem.State): DbResultT[Unit] =
     for {
       liSkus ← * <~ OrderLineItemSkus.filter(_.skuId.inSet(skuIds)).result
       _ ← * <~ OrderLineItems.createAll(liSkus.seq.map { liSku ⇒
@@ -84,12 +84,12 @@ trait DemoSeedHelpers extends CreditCardSeeds with InventoryGenerator with Inven
  * This demo seed is for the following Scenario. There are 5 Customers + 5 shoes
  * for 5 different users to test.
  *
- *  A customer calls in explaining they are just dying to get a particular pair 
- *  of shoes, but they’ve had an issue trying to add this pair of shoes to their 
+ *  A customer calls in explaining they are just dying to get a particular pair
+ *  of shoes, but they’ve had an issue trying to add this pair of shoes to their
  *  shopping cart.
  *
- *  Once you’ve successfully added the pair of shoes to the customer’s cart, 
- *  the customer would like you to just go ahead and place their order. Add the 
+ *  Once you’ve successfully added the pair of shoes to the customer’s cart,
+ *  the customer would like you to just go ahead and place their order. Add the
  *  customer’s information to the cart and place their order!
  */
 trait DemoScenario2 extends DemoSeedHelpers {
@@ -114,11 +114,11 @@ trait DemoScenario2 extends DemoSeedHelpers {
     SimpleProductData(code = "SKU-ADS", title = "adidas Performance Women's Galactic Elite Running Shoe",
       description = "adidas Performance Women's Galactic Elite Running Shoe", price = 4900))
 
-  def address2 = Address(customerId = 0, regionId = 4177, name = "Home", 
-    address1 = "555 E Lake Union St.", address2 = None, city = "Seattle", 
+  def address2 = Address(customerId = 0, regionId = 4177, name = "Home",
+    address1 = "555 E Lake Union St.", address2 = None, city = "Seattle",
     zip = "12345", isDefaultShipping = true, phoneNumber = "2025550113".some)
 
-  def createScenario2(implicit db: Database) = for { 
+  def createScenario2(implicit db: Database) = for {
     productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
     warehouseIds ← * <~ Warehouses.createAllReturningIds(warehouses)
     customerIds ← * <~ Customers.createAllReturningIds(customers2)
@@ -134,14 +134,14 @@ trait DemoScenario2 extends DemoSeedHelpers {
  * This demo seed is for the following Scenario. There are 5 Customers + 5 shoes
  * for 5 different users to test.
  *
- * You’re still a Customer Service Employee at Tappos (you’re just loving 
- * helping all these people!). 
+ * You’re still a Customer Service Employee at Tappos (you’re just loving
+ * helping all these people!).
  *
- * This time a customer calls in complaining that they paid for 2-day shipping, 
- * but their order took 4 days to arrive. Tappos prides itself in its fast 
- * shipping and never wants their customers to have a bad experience! If an 
- * order ever arrives late, Tappos always refunds their customers the cost of 
- * shipping by issuing them Store Credit. 
+ * This time a customer calls in complaining that they paid for 2-day shipping,
+ * but their order took 4 days to arrive. Tappos prides itself in its fast
+ * shipping and never wants their customers to have a bad experience! If an
+ * order ever arrives late, Tappos always refunds their customers the cost of
+ * shipping by issuing them Store Credit.
  */
 
 trait DemoScenario3 extends DemoSeedHelpers {
@@ -153,14 +153,14 @@ trait DemoScenario3 extends DemoSeedHelpers {
     generateCustomer("Susan Cage", "susan@compuglobal.com"),
     generateCustomer("John Dole", "john.dole@yahoo.com"))
 
-  def products3: Seq[SimpleProductData] = Seq(SimpleProductData(code = "SKU-CLK2", 
+  def products3: Seq[SimpleProductData] = Seq(SimpleProductData(code = "SKU-CLK2",
     title = "Clarks Women's Aria Pump Flat", description = "Clarks Women's Aria Pump Flat", price = 7900))
 
-  def address3 = Address(customerId = 0, regionId = 4177, name = "Home", 
-    address1 = "555 E Lake Union St.", address2 = None, city = "Seattle", 
+  def address3 = Address(customerId = 0, regionId = 4177, name = "Home",
+    address1 = "555 E Lake Union St.", address2 = None, city = "Seattle",
     zip = "12345", isDefaultShipping = true, phoneNumber = "2025550113".some)
 
-  def createScenario3(implicit db: Database) = for { 
+  def createScenario3(implicit db: Database) = for {
     productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
     shippingMethod  ← * <~ ShippingMethods.filter(_.adminDisplayName === "UPS 2-day").one.mustFindOr(
       NotFoundFailure404("Unable to find 2-day shipping method"))
@@ -179,31 +179,25 @@ trait DemoScenario3 extends DemoSeedHelpers {
  * This demo seed is for the following Scenario. There are 5 Customers + 5 shoes
  * for 5 different users to test.
  *
- * Image you are a Customer Service employee at a large online shoe 
- * retailer - Tappos.  Your boss needs help with some end-of-year accounting. 
- * She needs to know how many $50 gift cards Tappos issued in the month of December.  
+ * Image you are a Customer Service employee at a large online shoe
+ * retailer - Tappos.  Your boss needs help with some end-of-year accounting.
+ * She needs to know how many $50 gift cards Tappos issued in the month of December.
  *
  */
 
 trait DemoScenario6 extends DemoSeedHelpers {
-
-  def orderReferenceNum = {
-    val base = new Base{}
-    base.bothify("????####-##")
-  }
 
   def customer6 = generateCustomer("Joe Carson", "carson19@yahoo.com")
 
   def createScenario6(implicit db: Database): DbResultT[Unit] = for {
     productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
     customer ← * <~ Customers.create(customer6)
-    order ← * <~ Orders.create(Order(state = Shipped, customerId = customer.id, 
-      productContextId = productContext.id, referenceNumber = orderReferenceNum,
-      placedAt = time.yesterday.toInstant.some))
+    order ← * <~ Orders.create(Order(state = Shipped, customerId = customer.id,
+      productContextId = productContext.id, placedAt = time.yesterday.toInstant.some))
     orig  ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
     _  ← * <~ GiftCards.createAll(
-      (1 to 23).map { _ ⇒ 
-        GiftCard.buildLineItem(balance = 50000, originId = orig.id, 
+      (1 to 23).map { _ ⇒
+        GiftCard.buildLineItem(balance = 50000, originId = orig.id,
           currency = Currency.USD)
       })
   } yield {}
