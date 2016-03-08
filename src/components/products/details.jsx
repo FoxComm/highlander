@@ -47,6 +47,9 @@ type DetailsProps = {
   details: ProductDetailsState,
   params: DetailsParams,
   productAddAttribute: (label: string, type: string) => void,
+
+  onUpdateProduct: (key: string, value: string) => void,
+  updatedProduct: { [key:string]: string },
 };
 
 type PriceAttribute = {
@@ -186,16 +189,24 @@ export class ProductDetails extends Component<void, DetailsProps, State> {
 
     switch (type) {
       case 'price':
-        const priceValue = _.get(this.state, label, value.value);
+        const priceValue = _.get(this.props, ['updatedProduct', label], value.value);
         return (
           <CurrencyInput
             className={inputClass}
             inputName={label}
             value={priceValue}
-            onChange={(value) => this.handleAttributeChange(label, value)} />
+            onChange={(value) => this.props.onUpdateProduct(label, value)} />
         );
       default:
-        return <input className={inputClass} type="text" name={label} defaultValue={value} />;
+        const val = _.get(this.props, ['updatedProduct', label], value);
+        return (
+          <input
+            className={inputClass}
+            type="text"
+            name={label}
+            value={val}
+            onChange={({target}) => this.props.onUpdateProduct(label, target.value)} />
+        );
     }
   }
 

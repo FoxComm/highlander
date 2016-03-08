@@ -4,6 +4,8 @@
 
 // libs
 import React, { Component, Element, PropTypes } from 'react';
+import { assoc } from 'sprout-data';
+import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import _ from 'lodash';
@@ -14,7 +16,7 @@ import * as ProductActions from '../../modules/products/details';
 // components
 import { PageTitle } from '../section-title';
 import { PrimaryButton } from '../common/buttons';
-import FoxyForm from '../forms/foxy-form';
+import { Form } from '../forms';
 import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
 
@@ -40,7 +42,11 @@ type Props = {
   products: ProductDetailsState,
 };
 
-export class ProductPage extends Component<void, Props, void> {
+type State = {
+  product: { [key:string]: string },
+};
+
+export class ProductPage extends Component<void, Props, State> {
   static propTypes = {
     children: PropTypes.node,
 
@@ -60,6 +66,13 @@ export class ProductPage extends Component<void, Props, void> {
     }),
   };
 
+  state: State;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = { product: {} };
+  }
+
   componentDidMount() {
     this.props.actions.fetchProduct(this.productId);
   }
@@ -72,11 +85,23 @@ export class ProductPage extends Component<void, Props, void> {
     return this.props.products.product;
   }
 
-  handleSubmit(productValues: { [key:string]: string }) {
-    console.log(productValues);
+  get children(): Element {
+    return React.cloneElement(this.props.children, {
+      onUpdateProduct: this.handleUpdateProduct,
+      updatedProduct: this.state.product,
+    });
+  }
+
+  @autobind
+  handleUpdateProduct(key: string, value: string) {
+    this.setState(assoc(this.state, ['product', key], value));
+  }
+
+  @autobind
+  handleSubmit() {
     const product = this.product;
     if (product) {
-      const updatedProduct = _.reduce(productValues, (res, val, key) => {
+      const updatedProduct = _.reduce(this.state.product, (res, val, key) => {
         return setProductAttribute(res, key, val);
       }, product);
 
@@ -100,15 +125,15 @@ export class ProductPage extends Component<void, Props, void> {
       content = <div>{_.get(err, 'status')}</div>;
     } else {
       content = (
-        <FoxyForm onSubmit={this.handleSubmit.bind(this)}>
+        <Form onSubmit={this.handleSubmit}>
           <PageTitle title={productTitle}>
             <PrimaryButton type="submit">Save</PrimaryButton>
           </PageTitle>
           <div>
             <SubNav productId={this.productId} product={this.product} />
-            {this.props.children}
+            {this.children}
           </div>
-        </FoxyForm>
+        </Form>
       );
     }
 
