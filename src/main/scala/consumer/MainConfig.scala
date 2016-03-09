@@ -21,7 +21,7 @@ object MainConfig {
   def loadFromConfig(): MainConfig = {
     val conf = ConfigFactory.load()
     val env = sys.props.getOrElse(environmentProperty, defaultEnvironment)
-    Console.out.println(s"Initializing Using $env Environment...")
+    Console.out.println(s"""Loading config for "$env" environment...""")
 
     MainConfig(
       activityTopic         = conf.getString(s"$env.activity.kafka.topic"),

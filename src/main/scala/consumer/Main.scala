@@ -69,7 +69,9 @@ object Main {
     implicit val ec = ExecutionContext.fromExecutor(threadPool)
 
     require(conf.doSetup)
-    Console.out.println(s"Running Setup...")
+    Console.out.println(s"Running Elasticsearch setup...")
+    Console.out.println(s"Host: ${conf.elasticSearchUrl}")
+    Console.out.println(s"Cluster: ${conf.elasticSearchCluster}")
 
     implicit val connectionPoolSettings =
       ConnectionPoolSettings.create(system).copy(
@@ -86,7 +88,7 @@ object Main {
 
     // Create ES mappings
     esProcessor.createMappings()
-    Console.out.println(s"Done running setup...")
+    Console.out.println(s"Done")
   }
 
   private def process(conf: MainConfig): Unit = {
@@ -101,7 +103,7 @@ object Main {
         maxOpenRequests = conf.maxConnections,
         maxRetries      = 1)
 
-    Console.out.println(s"Running Green River...")
+    Console.out.println(s"Running Green River in $...")
     Console.out.println(s"ES: ${conf.elasticSearchUrl}")
     Console.out.println(s"Kafka: ${conf.kafkaBroker}")
     Console.out.println(s"Schema Registry: ${conf.avroSchemaRegistryUrl}")

@@ -85,10 +85,13 @@ class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, to
       client.execute {
         create index indexName mappings (jsonMappings: _*) analysis customAnalyzer
       }.await
-      
+
     } catch {
       case e: RemoteTransportException ⇒
         Console.err.println(s"Error connecting to ES: $e")
+        System.exit(1)
+      case NonFatal(e) ⇒
+        Console.err.println(s"Error creating index, carry on... $e")
         System.exit(1)
     }
   }
