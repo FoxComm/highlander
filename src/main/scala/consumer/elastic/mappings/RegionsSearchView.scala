@@ -18,7 +18,7 @@ final case class RegionsSearchView()(implicit ec: EC) extends AvroTransformer {
       field("alpha2", StringType) index "not_analyzed",
       field("alpha3", StringType) index "not_analyzed",
       field("code", StringType) index "not_analyzed",
-      field("continent", StringType) index "not_analyzed",
+      field("continent", StringType).analyzer("autocomplete"),
       field("currency", StringType) index "not_analyzed",
       field("languages", StringType) index "not_analyzed",
       field("uses_postal_code", BooleanType),
