@@ -63,4 +63,6 @@ refresh materialized view concurrently notes_search_view;
 refresh materialized view concurrently inventory_search_view;
 refresh materialized view concurrently sku_search_view;
 
-
+-- locations
+refresh materialized view concurrently regions_search_view;
+refresh materialized view concurrently countries_search_view;
