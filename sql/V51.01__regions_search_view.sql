@@ -12,7 +12,6 @@ select
 		c.code,
 		c.continent,
 		c.currency,
-		c.languages,
 		c.uses_postal_code,
 		c.is_billable,
 		c.is_shippable
