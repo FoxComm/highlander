@@ -15,7 +15,7 @@ select
 		c.uses_postal_code,
 		c.is_billable,
 		c.is_shippable
-	)::countries) as country
+	)::export_countries) as country
 from regions as r
 inner join countries as c on (r.country_id = c.id);
 
