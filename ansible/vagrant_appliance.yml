@@ -16,4 +16,5 @@
     - greenriver
     - node
     - ashes
+    - firebird
     - { role: balancer, sudo: yes }
