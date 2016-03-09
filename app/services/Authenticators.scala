@@ -2,9 +2,10 @@ package services
 
 import scala.concurrent.Future
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
-import akka.http.scaladsl.model.headers.{HttpChallenge, HttpCredentials, RawHeader}
+import akka.http.scaladsl.model.headers.{HttpCookie, HttpChallenge, HttpCredentials, RawHeader}
 import akka.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.directives.CookieDirectives.setCookie
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.RespondWithDirectives.respondWithHeader
 import akka.http.scaladsl.server.directives.SecurityDirectives.{AuthenticationResult, challengeFor, extractCredentials}
@@ -22,6 +23,7 @@ import utils.Passwords.checkPassword
 import utils.Slick.implicits._
 import utils.aliases._
 import utils.Config.config
+import utils.Config.RichConfig
 
 // TODO: Implement real session-based authentication with JWT
 // TODO: Probably abstract this out so that we use one for both AdminUsers and Customers
@@ -74,9 +76,20 @@ object Authenticator {
 
   def responseWithToken(token: Token): Route = {
     val claims = Token.getJWTClaims(token)
+    val siteClaims = Token.getJWTClaims(token)
+    claims.setSubject("API")
+    siteClaims.setSubject("site")
 
-    respondWithHeader(RawHeader("JWT", Token.encodeJWTClaims(claims))) {
-      complete(HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, claims.toJson)))
+    respondWithHeader(RawHeader("JWT", Token.encodeJWTClaims(claims))).& (
+      setCookie(HttpCookie(
+        name = "JWT",
+        value = Token.encodeJWTClaims(siteClaims),
+        secure = config.getOptBool("auth.cookieSecure").getOrElse(true),
+        httpOnly = true,
+        path = Some("/"),
+        domain = config.getOptString("auth.cookieDomain")
+      ))) {
+        complete(HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, claims.toJson)))
     }
   }
 

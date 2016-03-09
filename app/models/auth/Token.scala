@@ -98,6 +98,7 @@ object Token {
       .setRequireExpirationTime()
       .setAllowedClockSkewInSeconds(30)
       .setExpectedIssuer("FC")
+      .setExpectedSubject("API")
       .setVerificationKey(Keys.authPublicKey)
       .build()
 
