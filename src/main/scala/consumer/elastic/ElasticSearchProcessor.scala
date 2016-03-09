@@ -54,12 +54,17 @@ class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, to
 
   private def removeIndex() { 
     try {
-      Console.out.println(s"Deleting index $indexName...")
+      Console.out.println(s"""Deleting index "$indexName"...""")
       client.execute(deleteIndex(indexName)).await
     } catch {
-      case e: RemoteTransportException ⇒ Console.err.println(s"Index already deleted")
-      case e: NoNodeAvailableException ⇒ Console.err.println(s"Error communicating with Elasticsearch")
-      case NonFatal(e) ⇒ Console.err.println(s"Error deleting index, carry on... $e")
+      case e: RemoteTransportException ⇒
+        Console.err.println(s"Index already deleted")
+      case e: NoNodeAvailableException ⇒
+        Console.err.println(s"Error communicating with Elasticsearch: $e")
+        System.exit(1)
+      case NonFatal(e) ⇒
+        Console.err.println(s"Error deleting index, carry on... $e")
+        System.exit(1)
     }
   }
 
@@ -80,11 +85,11 @@ class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, to
       client.execute {
         create index indexName mappings (jsonMappings: _*) analysis customAnalyzer
       }.await
+      
     } catch {
-      case e: RemoteTransportException ⇒  {
+      case e: RemoteTransportException ⇒
         Console.err.println(s"Error connecting to ES: $e")
-        throw e
-      }
+        System.exit(1)
     }
   }
 
