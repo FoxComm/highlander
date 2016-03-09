@@ -1,11 +1,12 @@
 package consumer.activity
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
+import consumer.aliases._
 import consumer.utils.JsonTransformers.extractStringSeq
 import org.json4s.JsonAST.{JInt, JNothing}
 
-final case class SharedSearchConnector()(implicit ec: ExecutionContext) extends ActivityConnector {
+final case class SharedSearchConnector()(implicit ec: EC) extends ActivityConnector {
   val whitelist = Seq("associated_with_search", "unassociated_from_search")
 
   def process(offset: Long, activity: Activity): Future[Seq[Connection]] = Future {

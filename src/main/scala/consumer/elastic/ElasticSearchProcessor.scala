@@ -4,8 +4,8 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
-import com.sksamuel.elastic4s.analyzers.{EdgeNGramTokenFilter, LowercaseTokenFilter, StandardTokenizer, CustomAnalyzerDefinition}
-import com.sksamuel.elastic4s.mappings.MappingDefinition
+import com.sksamuel.elastic4s.analyzers.{EdgeNGramTokenFilter, LowercaseTokenFilter, StandardTokenizer,
+CustomAnalyzerDefinition}
 import com.sksamuel.elastic4s.ElasticDsl._
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.client.transport.NoNodeAvailableException
@@ -20,16 +20,6 @@ import consumer.PassthroughSource
 import scala.util.control.NonFatal
 
 /**
- * Json transformer has two parts, the ES mapping definition and 
- * a function that takes json and transforms it to another json 
- * before it is saved to ES
- */
-trait JsonTransformer { 
-  def mapping() : MappingDefinition
-  def transform(json: String) : Future[String]
-}
-
-/**
  * This is a JsonProcessor which processes json and indexs it into elastic search.
  * It calls a json transform function before sending it to elastic search.
  *
@@ -37,18 +27,11 @@ trait JsonTransformer {
  * id and uses it as the _id in elasticsearch for that item. This is important so that
  * we don't duplicate entries in ES.
  */
-class ElasticSearchProcessor(
-  uri: String, 
-  cluster: String, 
-  indexName: String, 
-  topics: Seq[String],
-  jsonTransformers: Map[String, JsonTransformer])
-(implicit ec: ExecutionContext)
-  extends JsonProcessor {
+class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, topics: Seq[String],
+  jsonTransformers: Map[String, JsonTransformer])(implicit ec: ExecutionContext) extends JsonProcessor {
 
   val settings = Settings.settingsBuilder().put("cluster.name", cluster).build()
   val client = ElasticClient.transport(settings, ElasticsearchClientUri(uri))
-
 
   def createMappings(): Unit = {
     removeIndex()
@@ -56,7 +39,7 @@ class ElasticSearchProcessor(
   }
 
   def process(offset: Long, topic: String, inputJson: String): Future[Unit] = {
-    //find json transformer
+    // Find json transformer
     jsonTransformers get topic match {
       case Some(t) ⇒
         t.transform(inputJson).map{
@@ -64,14 +47,14 @@ class ElasticSearchProcessor(
             save(outJson, topic)
         }
       case None ⇒ 
-        println(s"Skipping information from topic $topic")      
+        Console.out.println(s"Skipping information from topic $topic")
         Future {()}
     }
   }
 
   private def removeIndex() { 
     try {
-      println(s"Deleting index $indexName...")
+      Console.out.println(s"Deleting index $indexName...")
       client.execute(deleteIndex(indexName)).await
     } catch {
       case e: RemoteTransportException ⇒ Console.err.println(s"Index already deleted")
@@ -81,7 +64,7 @@ class ElasticSearchProcessor(
   }
 
   private def createIndex() {
-    println("Creating index and type mappings...")
+    Console.out.println("Creating index and type mappings...")
     try {
       //define mappings an analyzer
       val jsonMappings = jsonTransformers.mapValues(_.mapping()).values.toSeq
@@ -108,8 +91,8 @@ class ElasticSearchProcessor(
   private def save(document: String, topic: String): Future[Unit] = {
     // See if it has an id and use that as _id in elasticsearch.
     parse(document) \ "id" match {
-      case JInt(jid) ⇒ {
-        println(s"Indexing document with ID $jid from topic $topic...\r\n$document")
+      case JInt(jid) ⇒
+        Console.out.println(s"Indexing document with ID $jid from topic $topic...\r\n$document")
 
         val req = client.execute {
           index into indexName / topic id jid doc PassthroughSource(document)
@@ -118,12 +101,11 @@ class ElasticSearchProcessor(
         req onFailure {
           case NonFatal(e) ⇒ Console.err.println(s"Error while indexing: $e")
         }
+
         req.map{ r ⇒ ()}
-      }
       case _ ⇒
-        println(s"Skipping unidentified document from topic $topic...\r\n$document")
+        Console.out.println(s"Skipping unidentified document from topic $topic...\r\n$document")
         Future { () }
     }
   }
-
 }
