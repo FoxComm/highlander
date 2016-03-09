@@ -1,5 +1,7 @@
 # Firebird
 
+[![Build status](https://badge.buildkite.com/1238dff6913c220ef0612d9a9f4b0c5198a8dd270d260f8ff2.svg)](https://buildkite.com/foxcommerce/firebird)
+
 ### Prerequisites
 
 * node
