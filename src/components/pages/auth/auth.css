@@ -75,6 +75,14 @@
   color: var(--redish);
 }
 
+.restore-link {
+  color: var(--greyish);
+}
+
+.signup-link {
+  color: var(--blackish);
+}
+
 @media (--small-viewport) {
   .auth-block {
     lost-column: 1/1;
