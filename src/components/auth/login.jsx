@@ -9,8 +9,11 @@ import { transitionTo } from '../../route-helpers';
 import Api from '../../lib/api';
 import { autobind } from 'core-decorators';
 import fetch from 'isomorphic-fetch';
+import { connect } from 'react-redux';
 
+import * as userActions from '../../modules/user';
 
+@connect(null, userActions)
 export default class Login extends React.Component {
 
   constructor(...args) {
@@ -20,6 +23,10 @@ export default class Login extends React.Component {
       password: '',
     };
   }
+
+  static propTypes = {
+    setUser: PropTypes.func.isRequired,
+  };
 
   static contextTypes = {
     history: PropTypes.object.isRequired
@@ -32,6 +39,8 @@ export default class Login extends React.Component {
     payload['kind'] = 'admin';
 
     const headers = {'Content-Type': 'application/json;charset=UTF-8'};
+    const setUser = this.props.setUser;
+
     fetch(Api.apiURI('/public/login'), {
       method: 'POST',
       body: JSON.stringify(payload),
@@ -42,6 +51,7 @@ export default class Login extends React.Component {
           localStorage.setItem('jwt', response.headers.get('jwt'));
           response.json().then(token => {
             localStorage.setItem('user', JSON.stringify(token));
+            setUser(token);
             transitionTo(context.history, 'home');
           });
         }

@@ -19,8 +19,7 @@ import siteMenu from './site-menu';
 import inventory from './inventory';
 import expandableTables from './expandable-tables';
 import products from './products';
-
-import { createReducer } from 'redux-act';
+import user from './user';
 
 const rootReducer = combineReducers({
   router: routerStateReducer,
@@ -29,7 +28,7 @@ const rootReducer = combineReducers({
   orders,
   rmas,
   notes,
-  user: createReducer({}, {}),
+  user,
   countries,
   regions,
   addressForm,
