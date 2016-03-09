@@ -14,31 +14,37 @@ import ListItem from '../../products/list-item';
 
 const mockedData = [
   {
+    id: 1,
     name: 'Donkey',
     imageUrl: 'http://lorempixel.com/75/75/fashion/',
     price: '50$',
   },
   {
+    id: 2,
     name: 'Donkey',
     imageUrl: 'http://lorempixel.com/75/75/fashion/',
     price: '50$',
   },
   {
+    id: 3,
     name: 'Donkey',
     imageUrl: 'http://lorempixel.com/75/75/fashion/',
     price: '50$',
   },
   {
+    id: 4,
     name: 'Donkey',
     imageUrl: 'http://lorempixel.com/75/75/fashion/',
     price: '50$',
   },
   {
+    id: 5,
     name: 'Donkey',
     imageUrl: 'http://lorempixel.com/75/75/fashion/',
     price: '50$',
   },
   {
+    id: 6,
     name: 'Donkey',
     imageUrl: 'http://lorempixel.com/75/75/fashion/',
     price: '50$',
@@ -46,7 +52,7 @@ const mockedData = [
 ];
 
 const ProductList = (): HTMLElement => {
-  const items = _.map(mockedData, (item) => <ListItem {...item} />);
+  const items = _.map(mockedData, (item) => <ListItem {...item} key={`product-${item.id}`} />);
   return (
     <div styleName="catalog">
       {items}

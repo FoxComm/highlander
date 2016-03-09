@@ -17,7 +17,7 @@ const ListItem = (): HTMLElement => {
   return (
     <div styleName="list-item">
       <div styleName="preview">
-        <img src={imageUrl} />
+        <img src={imageUrl} styleName="preview-image" />
       </div>
       <div styleName="name">
         {name}
