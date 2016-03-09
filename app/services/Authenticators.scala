@@ -6,6 +6,7 @@ import akka.http.scaladsl.model.headers.{HttpCookie, HttpChallenge, HttpCredenti
 import akka.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.directives.CookieDirectives.setCookie
+import akka.http.scaladsl.model.DateTime
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.RespondWithDirectives.respondWithHeader
 import akka.http.scaladsl.server.directives.SecurityDirectives.{AuthenticationResult, challengeFor, extractCredentials}
@@ -86,6 +87,9 @@ object Authenticator {
         value = Token.encodeJWTClaims(siteClaims),
         secure = config.getOptBool("auth.cookieSecure").getOrElse(true),
         httpOnly = true,
+        expires = config.getOptLong("auth.cookieTTL").map { ttl ⇒
+          DateTime.now  + ttl*1000
+        },
         path = Some("/"),
         domain = config.getOptString("auth.cookieDomain")
       ))) {
