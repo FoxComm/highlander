@@ -25,7 +25,18 @@ import SkuList from './sku-list';
 import { getProductAttributes } from '../../paragons/product';
 
 // types
-import type { FullProduct, ProductAttribute, ProductDetailsState } from '../../modules/products/details';
+import type {
+  FullProduct,
+  Attribute,
+  Attributes,
+  ProductDetailsState
+} from '../../modules/products/details';
+
+import type {
+  IlluminatedAttribute,
+  IlluminatedAttributes,
+  IlluminatedSku,
+} from '../../paragons/product';
 
 type DetailsParams = {
   productId: number,
@@ -36,14 +47,16 @@ type DetailsProps = {
   details: ProductDetailsState,
   params: DetailsParams,
   productAddAttribute: (label: string, type: string) => void,
+
+  onUpdateProduct: (key: string, value: string) => void,
+  onUpdateSku: (code: string, key: string, value: string) => void,
+  updatedProduct: { [key:string]: string },
 };
 
 type PriceAttribute = {
   currency: string,
   price: number,
 };
-
-type ProductAttributes = { [key:string]: ProductAttribute };
 
 type State = { isAddingProperty: boolean };
 
@@ -70,7 +83,7 @@ export class ProductDetails extends Component<void, DetailsProps, State> {
     return _.get(this.props, 'details.product');
   }
 
-  get attributes(): ProductAttributes {
+  get attributes(): IlluminatedAttributes {
     const fullProduct = this.fullProduct;
     return fullProduct ? getProductAttributes(fullProduct) : {};
   }
@@ -96,7 +109,7 @@ export class ProductDetails extends Component<void, DetailsProps, State> {
       <ContentBox title="General">
         {attributes}
         <div className="fc-product-details__add-custom-property">
-          Custom Property 
+          Custom Property
           <a className="fc-product-details__add-custom-property-icon"
              onClick={this.handleAddProperty}>
             <i className="icon-add" />
@@ -123,10 +136,10 @@ export class ProductDetails extends Component<void, DetailsProps, State> {
 
   get skusContentBox(): Element {
     return (
-      <ContentBox title="SKUs" indentContent={false}>
-        <div className="fc-content-box__empty-text">
-          This product does not have SKUs.
-        </div>
+      <ContentBox title="SKUs">
+        <SkuList
+          fullProduct={this.fullProduct}
+          updateField={this.props.onUpdateSku} />
       </ContentBox>
     );
   }
@@ -145,18 +158,18 @@ export class ProductDetails extends Component<void, DetailsProps, State> {
     if (this.state.isAddingProperty) {
       return (
         <CustomProperty
-          isVisible={true} 
+          isVisible={true}
           onSave={this.handleCreateProperty}
           onCancel={() => this.setState({ isAddingProperty: false })} />
       );
     }
   }
 
-  renderAttributes(attributes: ProductAttributes): Array<Element> {
+  renderAttributes(attributes: IlluminatedAttributes): Array<Element> {
     return _.map(attributes, attr => this.renderAttribute(attr));
   }
 
-  renderAttribute(attribute: ProductAttribute): Element {
+  renderAttribute(attribute: IlluminatedAttribute): Element {
     const { label, type, value } = attribute;
     const formattedLbl = _.snakeCase(label).split('_').reduce((res, val) => {
       return `${res} ${_.capitalize(val)}`;
@@ -173,34 +186,36 @@ export class ProductDetails extends Component<void, DetailsProps, State> {
     );
   }
 
-  renderAttributeField(attribute: ProductAttribute): Element {
+  renderAttributeField(attribute: Attribute): Element {
     const { label, type, value } = attribute;
     const inputClass = 'fc-product-details__field-value';
 
     switch (type) {
       case 'price':
-        const priceValue = _.get(this.state, label, value.value);
+        const priceValue = _.get(this.props, ['updatedProduct', label], value.value);
         return (
           <CurrencyInput
             className={inputClass}
             inputName={label}
             value={priceValue}
-            onChange={(value) => this.handleAttributeChange(label, value)} />
+            onChange={(value) => this.props.onUpdateProduct(label, value)} />
         );
       default:
-        return <input className={inputClass} type="text" name={label} defaultValue={value} />;
+        const val = _.get(this.props, ['updatedProduct', label], value);
+        return (
+          <input
+            className={inputClass}
+            type="text"
+            name={label}
+            value={val}
+            onChange={({target}) => this.props.onUpdateProduct(label, target.value)} />
+        );
     }
   }
 
   @autobind
   handleAddProperty() {
     this.setState({ isAddingProperty: true });
-  }
-
-
-  @autobind
-  handleAttributeChange(label: string, value: string) {
-    this.setState({ [label]: value });
   }
 
   @autobind
