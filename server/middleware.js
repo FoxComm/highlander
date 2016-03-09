@@ -11,6 +11,8 @@ module.exports = function(app) {
   const template = path.join(__dirname, './views/layout.tmpl');
   const layout = _.template(fs.readFileSync(template, 'utf8'));
 
+  const cert = fs.readFileSync(config.api.auth.publicCert);
+
   // lets do renderReact property is lazy
   Object.defineProperty(app, 'renderReact', {
     get: function() {
@@ -20,15 +22,13 @@ module.exports = function(app) {
     }
   });
 
-  function getToken(request) {
-    const token = request.get(config.api.auth.header);
+  function getToken(ctx) {
+    const token = ctx.cookies.get(config.api.auth.cookieName);
     if (!token) {
-      console.log('token not found!');
       return null;
     }
     try {
-      console.log('verify token');
-      return jwt.verify(token, config.api.auth.secret);
+      return jwt.verify(token, cert, {issuer: "FC", subject: "site", algorithms: ['RS256', 'RS384', 'RS512']});
     }
     catch(err) {
       console.error("Can't decode token: ", err);
@@ -36,9 +36,9 @@ module.exports = function(app) {
   }
 
   app.requireAdmin = function *(next) {
-    const token = getToken(this.request);
-    if (!token || !token.admin) {
-      if (!this.request.url.match(config.api.auth.loginUri)) {
+    if (!this.request.url.match(config.api.auth.loginUri)) {
+      const token = getToken(this);
+      if (!token || !token.admin) {
         this.redirect(config.api.auth.loginUri);
       }
     }

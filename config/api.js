@@ -20,7 +20,9 @@ module.exports = function(env) {
   function auth() {
     const auth = {
       header: 'JWT',
+      cookieName: 'JWT',
       loginUri: '/login',
+      publicCert: '/tmp/public_key.pem'
     };
 
     return auth;

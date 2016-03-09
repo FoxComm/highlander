@@ -7,6 +7,7 @@ module.exports = function(app) {
     .get('/:path*', app.renderReact, app.renderLayout);
 
   app
+    .use(app.requireAdmin)
     .use(router.routes())
     .use(router.allowedMethods());
 };
