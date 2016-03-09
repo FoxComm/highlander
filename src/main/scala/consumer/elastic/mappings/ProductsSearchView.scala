@@ -16,5 +16,5 @@ final case class ProductsSearchView()(implicit ec: EC) extends AvroTransformer {
     field("description", StringType).analyzer("autocomplete")
   )
 
-  def nestedFields() = List("images")
+  override def nestedFields() = List("images")
 }
