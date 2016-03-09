@@ -3,7 +3,7 @@
  */
 
 import _ from 'lodash';
-import { assoc } from 'sprout-data';
+import { assoc, merge } from 'sprout-data';
 import { stringToCurrency } from '../lib/format-currency';
 
 import type {
@@ -121,17 +121,25 @@ export function configureProduct(product: FullProduct): FullProduct {
     metaDescription: 'string',
   };
 
+  const defaultSkuAttrs = {
+    price: 'price',
+    upc: 'string',
+  };
+
   const newProduct: FullProduct = _.reduce(defaultAttrs, (res, val, key) => {
     return addProductAttribute(res, key, val);
   }, product);
 
-  return newProduct;
+  const newProdWithSku: FullProduct = _.reduce(defaultSkuAttrs, (res, val, key) => {
+    return addSkuAttribute(res, key, val);
+  }, newProduct);
+
+  return newProdWithSku;
 }
 
 export function addProductAttribute(product: FullProduct,
                                     label: string,
-                                    type: string,
-                                    context: string = 'default'): FullProduct {
+                                    type: string): FullProduct {
 
   const formValue = type == 'price' ? { currency: 'USD', value: null } : null;
   const newFormAttr = { [label]: { type: type, default: formValue } };
@@ -145,16 +153,6 @@ export function addProductAttribute(product: FullProduct,
     ['shadow', 'product', 'attributes'], { ...newShadowAttr, ...shadowAttrs }
   );
 }
-
-//export function addSkuAttribute(product: FullProduct,
-                                //sku: string,
-                                //label: string,
-                                //context: string = 'default'): FullProduct {
-
-
-//}
-
-
 
 
 export function setProductAttribute(product: FullProduct,
@@ -206,4 +204,33 @@ export function setSkuAttribute(product: FullProduct,
   }
 
   return assoc(product, ['form', 'skus'], [...product.form.skus, updatedSku]);
+}
+
+export function addSkuAttribute(product: FullProduct,
+                                label: string,
+                                type: string,
+                                code: ?string = null): FullProduct {
+
+  // If no code is specified, add to all.
+  const skuForms = code ? [_.find(product.form.skus, { code: code })] : product.form.skus;
+  const newProduct = _.reduce(skuForms, (res, skuForm) => {
+    const skuShadow = getSkuShadow(skuForm.code, res);
+
+    const formValue = type == 'price' ? { currency: 'USD', value: null } : null;
+    const newFormAttr = { [label]: { type: type, default: formValue } };
+    const newShadowAttr = { [label]: 'default' };
+
+    const formAttrs = _.get(skuForm, 'attributes', {});
+    const shadowAttrs = _.get(skuShadow, 'attributes', {});
+
+    const newSkuForm = assoc(skuForm, 'attributes', { ...newFormAttr, ...formAttrs });
+    const newSkuShadow = assoc(skuShadow, 'attributes', { ...newShadowAttr, ...shadowAttrs });
+
+    return assoc(res,
+      ['form', 'skus'], merge(res.form.skus, [newSkuForm]),
+      ['shadow', 'skus'], merge(res.shadow.skus, [newSkuShadow])
+    );
+  }, product);
+
+  return newProduct;
 }
