@@ -1,16 +1,29 @@
 
 @import "media-queries.css";
+@import "variables.css";
+
+.container {
+  width: 100%;
+  height: 100%;
+}
+
+.content-container {
+  margin-top: 45px;
+  margin-left: var(--grid-margin);
+  margin-right: var(--grid-margin);
+}
 
 .storefront {
   lost-column: 9/11;
   lost-offset: -1/11;
-  margin: 45px 0;
 }
 
 .head {
   display: flex;
   align-items: center;
 }
+
+.footer {}
 
 .search {
   flex-grow: 1;
@@ -58,18 +71,29 @@
 
 @media (--medium-viewport) {
   .storefront {
-    lost-column: 1/1;
+    lost-column: 1;
     lost-offset: 0;
-    margin: 10px 0;
+  }
+
+  .content-container {
+    margin-top: 10px;
+    margin-left: var(--grid-margin);
+    margin-right: var(--grid-margin);
   }
 }
 
 
 @media (--small-viewport) {
   .storefront {
-    lost-column: 1/1;
+    lost-column: 1;
     lost-offset: 0;
-    margin: 10px 0;
+
+  }
+
+  .content-container {
+    margin-top: 10px;
+    margin-left: var(--grid-margin);
+    margin-right: var(--grid-margin);
   }
 
   .login-link {

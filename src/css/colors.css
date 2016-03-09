@@ -7,6 +7,7 @@
   --redish: #f65554;
   --greenish: #49C699;
   --light-grayish: rgba(0, 0, 0, 0.3);
+  --dark-grayish: #616161;
 }
 
 :root {
