@@ -103,7 +103,7 @@ object Main {
         maxOpenRequests = conf.maxConnections,
         maxRetries      = 1)
 
-    Console.out.println(s"Running Green River in $...")
+    Console.out.println(s"Running Green River...")
     Console.out.println(s"ES: ${conf.elasticSearchUrl}")
     Console.out.println(s"Kafka: ${conf.kafkaBroker}")
     Console.out.println(s"Schema Registry: ${conf.avroSchemaRegistryUrl}")
