@@ -24,7 +24,6 @@ type Props = {
 
 export default class SkuList extends Component<void, Props, void> {
   static tableColumns = [
-    { field: 'image', text: 'Image' },
     { field: 'price', text: 'Price' },
     { field: 'sku', text: 'SKU' },
     { field: 'upc', text: 'UPC' },
@@ -62,7 +61,8 @@ export default class SkuList extends Component<void, Props, void> {
         columns={SkuList.tableColumns}
         data={{ rows: this.illuminatedSkus }}
         renderRow={renderRow}
-        emptyMessage="No SKUs motherfucker." />
+        emptyMessage="This product does not have any SKUs."
+        toggleColumnPresent={false} />
     );
   }
 
