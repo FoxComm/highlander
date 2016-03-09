@@ -8,9 +8,9 @@
     - common
     - scala
     - kafka
+    - elasticsearch
     - db
     - phoenix
-    - elasticsearch
     - { role: rsyslog, sudo: yes }
     - { role: kibana, sudo: yes }
     - greenriver
