@@ -47,6 +47,7 @@ object Workers {
   def topicTransformers(conf: MainConfig, connectionInfo: PhoenixConnectionInfo)
     (implicit ec: EC, ac: AS, mat: AM, cp: CP) = Map(
     "countries_search_view"             → CountriesSearchView(),
+    "customer_items_view"               → CustomerItemsView(),
     "customers_search_view"             → CustomersSearchView(),
     "failed_authorizations_search_view" → FailedAuthorizationsSearchView(),
     "inventory_search_view"             → InventorySearchView(),
