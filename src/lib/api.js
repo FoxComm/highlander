@@ -1,7 +1,5 @@
 import fetch from './fetch';
 import _ from 'lodash';
-import app from '../app';
-import { pushState} from 'redux-router';
 
 
 const isServer = typeof self === 'undefined';
@@ -44,7 +42,7 @@ function serialize(data) {
 }
 
 
-export function request(method, uri, data) {
+export function request(method, uri, data, options = {}) {
   const isFormData = !isServer && data instanceof FormData;
 
   const headers = {};
@@ -55,10 +53,8 @@ export function request(method, uri, data) {
     headers['Content-Type'] = 'application/json;charset=UTF-8';
   }
 
-  const options = {
-    method,
-    headers
-  };
+  options.headers = options.headers ? Object.assign(headers, options.headers) : headers;
+  options.method = method;
 
   if (data) {
     if (method.toUpperCase() === 'GET') {
@@ -73,10 +69,14 @@ export function request(method, uri, data) {
 
   let error = null;
 
+  const unauthorizedHandler = options.unauthorizedHandler ? options.unauthorizedHandler : () => {
+    window.location.href = "/login";
+  };
+
   return fetch(uri, options)
     .then(response => {
       if (response.status == 401) {
-        app.store.dispatch(pushState(null, '/login/' , ''));
+        unauthorizedHandler(response);
       }
       if (response.status < 200 || response.status >= 300) {
         error = new Error(response.statusText);
@@ -115,8 +115,8 @@ export default class Api {
     return uri;
   }
 
-  static request(method, uri, data) {
-    return request(method, this.apiURI(uri), data);
+  static request(method, uri, data, options = {}) {
+    return request(method, this.apiURI(uri), data, options);
   }
 
   static submitForm(form) {

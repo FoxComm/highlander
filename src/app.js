@@ -23,7 +23,6 @@ const app = {
   start() {
     const initialState = {};
     const store = configureStore(reduxReactRouter, routes, createHistory, initialState);
-    this.store = store;
 
     render(
       <Provider store={store} key="provider">

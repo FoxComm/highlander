@@ -38,12 +38,14 @@ export default class Login extends React.Component {
       credentials: "same-origin",
       headers,
     }).then(response => {
-      localStorage.setItem('jwt', response.headers.get('jwt'));
-      response.json().then(token => {
-        localStorage.setItem('user', JSON.stringify(token));
-        transitionTo(context.history, 'home');
-      });
-    }, e => {
+        if (response.status == 200) {
+          localStorage.setItem('jwt', response.headers.get('jwt'));
+          response.json().then(token => {
+            localStorage.setItem('user', JSON.stringify(token));
+            transitionTo(context.history, 'home');
+          });
+        }
+      }, e => {
       console.log('login failed', e);
     });
   }
