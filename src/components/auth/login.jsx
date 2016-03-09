@@ -35,6 +35,7 @@ export default class Login extends React.Component {
     fetch(Api.apiURI('/public/login'), {
       method: 'POST',
       body: JSON.stringify(payload),
+      credentials: "same-origin",
       headers,
     }).then(response => {
       localStorage.setItem('jwt', response.headers.get('jwt'));
