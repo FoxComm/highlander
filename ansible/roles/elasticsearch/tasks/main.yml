@@ -24,7 +24,7 @@
   sudo: true
 
 - name: Create Elasticsearch subdirectories
-  file: path={{es_path}}/{{item}} owner={{ansible_ssh_user}} state=directory
+  file: path={{es_path}}/{{item}} owner={{ansible_ssh_user}} state=directory mode="u=rwx,g=rwx,o=r"
   sudo: true
   with_items:
     - data
@@ -41,5 +41,5 @@
   command: systemctl daemon-reload
 
 - name: Setup Service
-  service: name=elasticsearch state=restarted enabled=yes sleep=5
+  service: name=elasticsearch state=restarted enabled=yes sleep=20
   sudo: true
