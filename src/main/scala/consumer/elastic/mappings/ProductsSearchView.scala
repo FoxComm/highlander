@@ -7,12 +7,14 @@ import com.sksamuel.elastic4s.mappings.FieldType._
 import consumer.aliases._
 import consumer.elastic.AvroTransformer
 
-final case class SkuSearchView()(implicit ec: EC) extends AvroTransformer {
-  def mapping() = esMapping("sku_search_view").fields(
+final case class ProductsSearchView()(implicit ec: EC) extends AvroTransformer {
+  def mapping() = esMapping("products_search_view").fields(
     field("id", IntegerType),
-    field("code", StringType) index "not_analyzed",    
     field("context", StringType) index "not_analyzed",
     field("title", StringType).analyzer("autocomplete"),
-    field("price", IntegerType)
+    field("images", StringType) index "not_analyzed",
+    field("description", StringType).analyzer("autocomplete")
   )
+
+  def nestedFields() = List("images")
 }

@@ -16,7 +16,6 @@ final case class CountriesSearchView()(implicit ec: EC) extends AvroTransformer 
     field("code", StringType) index "not_analyzed",
     field("continent", StringType).analyzer("autocomplete"),
     field("currency", StringType) index "not_analyzed",
-    field("languages", StringType) index "not_analyzed",
     field("uses_postal_code", BooleanType),
     field("is_billable", BooleanType),
     field("is_shippable", BooleanType)
