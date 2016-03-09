@@ -66,3 +66,7 @@ refresh materialized view concurrently sku_search_view;
 -- locations
 refresh materialized view concurrently regions_search_view;
 refresh materialized view concurrently countries_search_view;
+
+-- pim
+refresh materialized view concurrently customer_purchased_items_view;
+refresh materialized view concurrently customer_save_for_later_view;
