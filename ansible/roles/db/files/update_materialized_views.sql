@@ -70,3 +70,5 @@ refresh materialized view concurrently countries_search_view;
 -- pim
 refresh materialized view concurrently customer_purchased_items_view;
 refresh materialized view concurrently customer_save_for_later_view;
+alter sequence customer_all_items restart 1;
+refresh materialized view concurrently customer_all_items_view;
