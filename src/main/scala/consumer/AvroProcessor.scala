@@ -1,9 +1,9 @@
 package consumer
 
+import consumer.aliases._
 import consumer.utils.JsonTransformers
 import java.io.ByteArrayOutputStream
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
@@ -26,7 +26,7 @@ import scala.util.control.NonFatal
  * It then converts the avro to json and gives whatever json processor you give it that
  * json to work with.
  */
-class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implicit ec: ExecutionContext) 
+class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implicit ec: EC)
   extends AbstractKafkaAvroDeserializer
   with MessageProcessor {
 
@@ -48,7 +48,8 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
       f onFailure { 
         case NonFatal(e) ⇒ Future{Console.err.println(s"Error processing avro message $e")}
       }
-      return f
+
+      f
     } catch {
       case e: SerializationException ⇒ Future{Console.err.println(s"Error serializing avro message $e")}
       case NonFatal(e) ⇒ Future{Console.err.println(s"Error processing avro message $e")}

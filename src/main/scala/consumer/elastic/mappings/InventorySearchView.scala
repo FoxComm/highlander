@@ -1,14 +1,13 @@
 package consumer.elastic.mappings
 
-import scala.concurrent.ExecutionContext
-
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.ElasticDsl.{mapping ⇒ esMapping}
 import com.sksamuel.elastic4s.mappings.FieldType._
 
+import consumer.aliases._
 import consumer.elastic.AvroTransformer
 
-final case class InventorySearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
+final case class InventorySearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("inventory_search_view").fields(
     field("id", IntegerType),
     field("product", StringType) analyzer "autocomplete",

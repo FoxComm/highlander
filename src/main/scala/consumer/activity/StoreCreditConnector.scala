@@ -1,12 +1,13 @@
 package consumer.activity
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
+import consumer.aliases._
 import consumer.utils.JsonTransformers.extractBigIntSeq
 
 import org.json4s.JsonAST.{JInt, JNothing}
 
-final case class StoreCreditConnector()(implicit ec: ExecutionContext) extends ActivityConnector {
+final case class StoreCreditConnector()(implicit ec: EC) extends ActivityConnector {
   val dimension = "store_credit"
 
   def process(offset: Long, activity: Activity): Future[Seq[Connection]] = Future {

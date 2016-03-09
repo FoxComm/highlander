@@ -1,7 +1,21 @@
 package consumer
 
+import akka.actor.ActorSystem
+import akka.http.ConnectionPoolSettings
+import akka.stream.Materializer
+
 import com.sksamuel.elastic4s.source.DocumentSource
 import scala.concurrent.Future
+
+/**
+  * Aliases
+  */
+object aliases {
+  type AM = Materializer
+  type AS = ActorSystem
+  type CP = ConnectionPoolSettings
+  type EC = scala.concurrent.ExecutionContext
+}
 
 /**
  * A processor that expects json.

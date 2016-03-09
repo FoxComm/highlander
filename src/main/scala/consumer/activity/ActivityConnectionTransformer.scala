@@ -4,53 +4,50 @@ import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.ElasticDsl.{mapping ⇒ esMapping}
 import com.sksamuel.elastic4s.mappings.FieldType._
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.language.postfixOps
-
-import akka.actor.ActorSystem
-import akka.http.ConnectionPoolSettings
-import akka.stream.Materializer
 
 import org.json4s.JsonAST.JInt
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.DefaultFormats
 
+import consumer.aliases._
 import consumer.elastic.JsonTransformer
-import consumer.elastic.AvroTransformers
+import consumer.elastic.MappingHelpers._
 
 import consumer.utils.PhoenixConnectionInfo
 import consumer.utils.Phoenix
 import consumer.utils.HttpResponseExtensions._
 
 final case class ActivityConnectionTransformer(conn: PhoenixConnectionInfo)
-  (implicit ec:ExecutionContext, mat: Materializer, ac: ActorSystem, cp: ConnectionPoolSettings) extends JsonTransformer {
+  (implicit ec: EC, mat: AM, ac: AS, cp: CP) extends JsonTransformer {
 
   implicit val formats: DefaultFormats.type = DefaultFormats
 
   val phoenix = Phoenix(conn)
 
-  def mapping = esMapping("activity_connections").fields(
-        field("id", IntegerType),
-        field("dimensionId", IntegerType),
-        field("objectId", StringType).index("not_analyzed"),
-        field("trailId", IntegerType),
-        field("activity").nested(
-          field("id", IntegerType),
-          field("createdAt", DateType).format(AvroTransformers.dateFormat),
-          field("kind", StringType).index("not_analyzed"),
-          field("context").nested(
-            field("transactionId", StringType).index("not_analyzed"),
-            field("userId", IntegerType),
-            field("userType", StringType).index("not_analyzed")
-            ),
-          field("data", ObjectType)
-          ),
-        field("previousId", IntegerType),
-        field("nextId", IntegerType),
-        field("data", ObjectType),
-        field("connectedBy", ObjectType),
-        field("createdAt", DateType).format(AvroTransformers.dateFormat))
+  def mapping() = esMapping("activity_connections").fields(
+    field("id", IntegerType),
+    field("dimensionId", IntegerType),
+    field("objectId", StringType).index("not_analyzed"),
+    field("trailId", IntegerType),
+    field("activity").nested(
+      field("id", IntegerType),
+      field("createdAt", DateType).format(dateFormat),
+      field("kind", StringType).index("not_analyzed"),
+      field("context").nested(
+        field("transactionId", StringType).index("not_analyzed"),
+        field("userId", IntegerType),
+        field("userType", StringType).index("not_analyzed")
+      ),
+      field("data", ObjectType)
+    ),
+    field("previousId", IntegerType),
+    field("nextId", IntegerType),
+    field("data", ObjectType),
+    field("connectedBy", ObjectType),
+    field("createdAt", DateType).format(dateFormat)
+  )
 
   def transform(json: String) : Future[String] = {
 

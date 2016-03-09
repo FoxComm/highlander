@@ -1,15 +1,14 @@
 package consumer.elastic.mappings
 
-import scala.concurrent.ExecutionContext
-
 import com.sksamuel.elastic4s.ElasticDsl._
 import com.sksamuel.elastic4s.ElasticDsl.{mapping ⇒ esMapping}
 import com.sksamuel.elastic4s.mappings.FieldType._
 
+import consumer.aliases._
 import consumer.elastic.AvroTransformer
 import consumer.elastic.MappingHelpers._
 
-final case class StoreCreditsSearchView()(implicit ec: ExecutionContext) extends AvroTransformer {
+final case class StoreCreditsSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("store_credits_search_view").fields(
     field("id", IntegerType),
     field("customerId", IntegerType),

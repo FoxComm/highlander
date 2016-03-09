@@ -4,7 +4,8 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
-import com.sksamuel.elastic4s.analyzers.{EdgeNGramTokenFilter, LowercaseTokenFilter, StandardTokenizer, CustomAnalyzerDefinition}
+import com.sksamuel.elastic4s.analyzers.{EdgeNGramTokenFilter, LowercaseTokenFilter, StandardTokenizer,
+CustomAnalyzerDefinition}
 import com.sksamuel.elastic4s.ElasticDsl._
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.client.transport.NoNodeAvailableException
@@ -46,14 +47,14 @@ class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, to
             save(outJson, topic)
         }
       case None ⇒ 
-        println(s"Skipping information from topic $topic")      
+        Console.out.println(s"Skipping information from topic $topic")
         Future {()}
     }
   }
 
   private def removeIndex() { 
     try {
-      println(s"Deleting index $indexName...")
+      Console.out.println(s"Deleting index $indexName...")
       client.execute(deleteIndex(indexName)).await
     } catch {
       case e: RemoteTransportException ⇒ Console.err.println(s"Index already deleted")
@@ -63,7 +64,7 @@ class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, to
   }
 
   private def createIndex() {
-    println("Creating index and type mappings...")
+    Console.out.println("Creating index and type mappings...")
     try {
       //define mappings an analyzer
       val jsonMappings = jsonTransformers.mapValues(_.mapping()).values.toSeq
@@ -90,8 +91,8 @@ class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, to
   private def save(document: String, topic: String): Future[Unit] = {
     // See if it has an id and use that as _id in elasticsearch.
     parse(document) \ "id" match {
-      case JInt(jid) ⇒ {
-        println(s"Indexing document with ID $jid from topic $topic...\r\n$document")
+      case JInt(jid) ⇒
+        Console.out.println(s"Indexing document with ID $jid from topic $topic...\r\n$document")
 
         val req = client.execute {
           index into indexName / topic id jid doc PassthroughSource(document)
@@ -100,10 +101,10 @@ class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, to
         req onFailure {
           case NonFatal(e) ⇒ Console.err.println(s"Error while indexing: $e")
         }
+
         req.map{ r ⇒ ()}
-      }
       case _ ⇒
-        println(s"Skipping unidentified document from topic $topic...\r\n$document")
+        Console.out.println(s"Skipping unidentified document from topic $topic...\r\n$document")
         Future { () }
     }
   }

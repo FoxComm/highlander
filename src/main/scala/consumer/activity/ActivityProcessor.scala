@@ -17,6 +17,7 @@ import akka.stream.Materializer
 import consumer.JsonProcessor
 import consumer.AvroJsonHelper
 
+import consumer.aliases._
 import consumer.utils.PhoenixConnectionInfo
 import consumer.utils.Phoenix
 import consumer.utils.HttpResponseExtensions._
@@ -67,9 +68,8 @@ final case class FailedToConnectNotification(
  * This is a JsonProcessor which listens to the activity stream and processes the activity
  * using a sequence of activity connectors
  */
-class ActivityProcessor(conn : PhoenixConnectionInfo, connectors: Seq[ActivityConnector])
-(implicit ec: ExecutionContext, ac: ActorSystem, mat: Materializer, cp: ConnectionPoolSettings)
-  extends JsonProcessor {
+class ActivityProcessor(conn: PhoenixConnectionInfo, connectors: Seq[ActivityConnector])
+  (implicit ec: EC, ac: AS, mat: AM, cp: CP) extends JsonProcessor {
 
     implicit val formats: DefaultFormats.type = DefaultFormats
 

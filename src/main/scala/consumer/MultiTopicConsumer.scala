@@ -3,20 +3,15 @@ package consumer
 import java.util.Properties
 import java.util.Collection
 import scala.collection.JavaConversions._
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-
+import consumer.aliases._
 import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.apache.kafka.clients.consumer.ConsumerRebalanceListener
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.KafkaException
 import org.apache.kafka.clients.consumer.CommitFailedException 
-
-
 
 import scala.language.postfixOps
 
@@ -39,7 +34,7 @@ private case class StartFromBeginning[A, B](consumer: KafkaConsumer[A, B]) exten
 
   def onPartitionsAssigned(partitions: Collection[TopicPartition]) : Unit = {
     partitions.foreach { p ⇒ 
-      println(s"Consuming from beggining for topic ${p.topic} using partition ${p.partition}")
+      Console.out.println(s"Consuming from beggining for topic ${p.topic} using partition ${p.partition}")
       consumer.seekToBeginning(p)
     }
   }
@@ -55,10 +50,10 @@ private case class StartFromLastCommit[A, B](consumer: KafkaConsumer[A, B]) exte
     partitions.foreach { p ⇒ 
       val offsetMetadata = consumer.committed(p)
       if(offsetMetadata == null) {
-        println(s"No offset commited. Consuming from beggining for topic ${p.topic} using partition ${p.partition}")
+        Console.out.println(s"No offset commited. Consuming from beggining for topic ${p.topic} using partition ${p.partition}")
         consumer.seekToBeginning(p)
       } else  {
-        println(s"Consuming from offset ${offsetMetadata.offset} for topic ${p.topic} using partition ${p.partition}")
+        Console.out.println(s"Consuming from offset ${offsetMetadata.offset} for topic ${p.topic} using partition ${p.partition}")
         consumer.seek(p, offsetMetadata.offset)
       }
     }
@@ -74,7 +69,7 @@ class MultiTopicConsumer(
   broker: String, 
   processor: MessageProcessor,
   startFromBeginning: Boolean = false,
-  timeout: Long = 100)(implicit ec: ExecutionContext) {
+  timeout: Long = 100)(implicit ec: EC) {
 
   type RawConsumer = KafkaConsumer[Array[Byte], Array[Byte]]
 
@@ -103,15 +98,15 @@ class MultiTopicConsumer(
 
         Await.result(f, 120 seconds)
         Sync.commit(consumer)
-        Console.err.println(s"Offset ${r.offset} for ${r.topic} synced ")
+        Console.err.println(s"Offset ${r.offset} for ${r.topic} synced")
       }
     }
   }
 
   def subscribe(topics: Seq[String], startFromBeginning: Boolean) : Unit = {
-    println(s"Subscribing to topics: ${topics}")
-    if(startFromBeginning) {
-      println(s"Consuming from beggining...")
+    Console.out.println(s"Subscribing to topics: $topics")
+    if (startFromBeginning) {
+      Console.out.println(s"Consuming from beggining...")
       consumer.subscribe(topics.toList, StartFromBeginning(consumer))
     } else {
       consumer.subscribe(topics.toList, StartFromLastCommit(consumer))

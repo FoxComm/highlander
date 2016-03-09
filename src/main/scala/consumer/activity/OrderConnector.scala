@@ -1,12 +1,13 @@
 package consumer.activity
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
+import consumer.aliases._
 import consumer.utils.JsonTransformers.extractStringSeq
 
 import org.json4s.JsonAST.{JString, JNothing}
 
-final case class OrderConnector()(implicit ec: ExecutionContext) extends ActivityConnector {
+final case class OrderConnector()(implicit ec: EC) extends ActivityConnector {
   val dimension = "order"
 
   def process(offset: Long, activity: Activity): Future[Seq[Connection]] = Future {

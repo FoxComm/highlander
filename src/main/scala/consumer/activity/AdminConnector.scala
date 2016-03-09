@@ -1,11 +1,12 @@
 package consumer.activity
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
+import consumer.aliases._
 import consumer.utils.JsonTransformers.extractStringSeq
 import org.json4s.JsonAST.{JInt, JNothing}
 
-final case class AdminConnector()(implicit ec: ExecutionContext) extends ActivityConnector {
+final case class AdminConnector()(implicit ec: EC) extends ActivityConnector {
   val dimension = "admin"
 
   def process(offset: Long, activity: Activity): Future[Seq[Connection]] = Future {
