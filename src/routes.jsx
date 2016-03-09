@@ -2,12 +2,12 @@ import React from 'react';
 import { Route, IndexRoute } from 'react-router';
 import Site from './components/layout/site';
 import StoreFront from './components/layout/storefront';
-import Home from './components/pages/home';
 import Auth from './components/pages/auth/auth';
 import Login from './components/pages/auth/login';
 import SignUp from './components/pages/auth/signup';
 import RestorePassword from './components/pages/auth/restore-password';
 import ResetPassword from './components/pages/auth/reset-password';
+import ProductList from './components/pages/catalog/product-list';
 
 import Checkout from './components/pages/checkout/checkout';
 import Grid from './components/pages/grid';
@@ -23,8 +23,8 @@ const routes = (
     <Route path="/checkout" component={Checkout} />
     <Route path="/grid" component={Grid} />
     <Route component={StoreFront}>
-      <IndexRoute component={Home} />
-      <Route name="category" path=":categoryName" component={Home} />
+      <IndexRoute component={ProductList} />
+      <Route name="category" path=":categoryName" component={ProductList} />
     </Route>
   </Route>
 );
