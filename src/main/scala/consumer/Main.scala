@@ -69,7 +69,7 @@ object Main {
     implicit val ec = ExecutionContext.fromExecutor(threadPool)
 
     require(conf.doSetup)
-    Console.err.println(s"Running Setup...")
+    Console.out.println(s"Running Setup...")
 
     implicit val connectionPoolSettings =
       ConnectionPoolSettings.create(system).copy(
