@@ -72,7 +72,7 @@ export default class Login extends React.Component {
 
   @autobind
   onForgotClick() {
-    console.log('oops');
+    console.log('todo: restore password');
   }
 
   get passwordLabel() {

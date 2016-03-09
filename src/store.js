@@ -3,8 +3,8 @@ import thunk from 'redux-thunk';
 import rootReducer from './modules';
 
 function useLogger() {
-  // only at development mode and in browser
-  return process.env.NODE_ENV === `development` && typeof window !== 'undefined';
+  // only at browser
+  return typeof window !== 'undefined';
 }
 
 export default function configureStore(reduxReactRouter, routes, createHistory, initialState) {

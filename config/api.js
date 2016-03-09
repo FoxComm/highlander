@@ -18,14 +18,13 @@ module.exports = function(env) {
   }
 
   function auth() {
-    const auth = {
+    return {
       header: 'JWT',
       cookieName: 'JWT',
       loginUri: '/login',
       publicCert: '/tmp/public_key.pem'
     };
 
-    return auth;
   }
 
   return {
