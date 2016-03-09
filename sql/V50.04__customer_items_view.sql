@@ -19,5 +19,4 @@ select
 from customer_purchased_items_view as t1
 full outer join customer_save_for_later_view as t2 ON t1.id = t2.id;
 
-
 create unique index customer_items_view_idx on customer_items_view (id);
