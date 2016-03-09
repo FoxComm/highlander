@@ -2,8 +2,7 @@
 // libs
 import React, {PropTypes} from 'react';
 import { inflect } from 'fleck';
-
-import * as auth from '../../auth';
+import { connect } from 'react-redux';
 
 // components
 import NotificationBlock from '../activity-notifications/notification-block';
@@ -11,7 +10,7 @@ import DetailedInitials from '../users/detailed-initials';
 import Breadcrumb from './breadcrumb';
 
 const Header = props => {
-  const currentUser = auth.cachedCurrentUser();
+  const currentUser = props.user;
 
   const name = currentUser ? currentUser.name.split(' ')[0] : '';
   return (
@@ -32,4 +31,4 @@ Header.propTypes = {
   params: PropTypes.object
 };
 
-export default Header;
+export default connect((state) => ({user: state.user}))(Header);

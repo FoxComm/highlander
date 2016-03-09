@@ -22,6 +22,13 @@ const app = {
 
   start() {
     const initialState = {};
+    const user = localStorage.getItem("user");
+    if (user) {
+      try {
+        initialState['user'] = JSON.parse(user);
+      } catch(e) {
+      }
+    }
     const store = configureStore(reduxReactRouter, routes, createHistory, initialState);
 
     render(
@@ -34,6 +41,10 @@ const app = {
 
   * renderReact(next) {
     const initialState = {};
+    if (this.state.token) {
+      initialState['user'] = this.state.token;
+    }
+
     const store = configureStore(serverReduxReactRouter, routes, createMemoryHistory, initialState);
 
     let [redirectLocation, routerState] = yield match.bind(null, store, this.path);

@@ -41,6 +41,7 @@ module.exports = function(app) {
       if (!token || !token.admin) {
         this.redirect(config.api.auth.loginUri);
       }
+      this.state.token = token;
     }
 
     yield next;
