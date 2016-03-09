@@ -46,11 +46,13 @@ object Workers {
 
   def topicTransformers(conf: MainConfig, connectionInfo: PhoenixConnectionInfo)
     (implicit ec: EC, ac: AS, mat: AM, cp: CP) = Map(
+    "countries_search_view"             → CountriesSearchView(),
     "customers_search_view"             → CustomersSearchView(),
     "failed_authorizations_search_view" → FailedAuthorizationsSearchView(),
     "inventory_search_view"             → InventorySearchView(),
     "notes_search_view"                 → NotesSearchView(),
     "orders_search_view"                → OrdersSearchView(),
+    "regions_search_view"               → RegionsSearchView(),
     "sku_search_view"                   → SkuSearchView(),
     "gift_card_transactions_view"       → GiftCardTransactionsSearchView(),
     "gift_cards_search_view"            → GiftCardsSearchView(),
