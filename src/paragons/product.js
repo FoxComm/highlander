@@ -157,7 +157,14 @@ export function addProductAttribute(product: FullProduct,
 
 
 
-export function setProductAttribute(product: FullProduct, label: string, value: string): FullProduct {
+export function setProductAttribute(product: FullProduct,
+                                    label: string,
+                                    value: any): FullProduct {
+
+  if (label == 'skus') {
+    return setSkuAttribute(product, value.code, value.label, value.value);
+  }
+
   const path = ['form', 'product', 'attributes', label];
   const attribute = _.get(product, path);
 
@@ -172,4 +179,31 @@ export function setProductAttribute(product: FullProduct, label: string, value: 
     default:
       return assoc(product, [...path, 'default'], value);
   }
+}
+
+export function setSkuAttribute(product: FullProduct,
+                                code: string,
+                                label: string,
+                                value: string): FullProduct {
+
+  const form = getSkuForm(code, product);
+  const path = ['attributes', label];
+  const attribute = _.get(form, path);
+
+  if (!attribute) {
+    throw new Error(`Attribute ${label} for SKU ${code} not found.`);
+  }
+
+  let updatedSku = null;
+
+  switch (attribute.type) {
+    case 'price':
+      updatedSku = assoc(form, [...path, 'default', 'value'], value);
+      break;
+    default:
+      updatedSku = assoc(form, [...path, 'default'], value);
+      break;
+  }
+
+  return assoc(product, ['form', 'skus'], [...product.form.skus, updatedSku]);
 }

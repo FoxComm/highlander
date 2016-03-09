@@ -43,7 +43,10 @@ type Props = {
 };
 
 type State = {
-  product: { [key:string]: string },
+  product: { 
+    [key:string]: string,
+    skus: { [key:string]: Object },
+  },
 };
 
 export class ProductPage extends Component<void, Props, State> {
@@ -70,7 +73,11 @@ export class ProductPage extends Component<void, Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = { product: {} };
+    this.state = { 
+      product: {
+        skus: {},
+      }
+    };
   }
 
   componentDidMount() {
@@ -88,6 +95,7 @@ export class ProductPage extends Component<void, Props, State> {
   get children(): Element {
     return React.cloneElement(this.props.children, {
       onUpdateProduct: this.handleUpdateProduct,
+      onUpdateSku: this.handleUpdateSku,
       updatedProduct: this.state.product,
     });
   }
@@ -95,6 +103,18 @@ export class ProductPage extends Component<void, Props, State> {
   @autobind
   handleUpdateProduct(key: string, value: string) {
     this.setState(assoc(this.state, ['product', key], value));
+  }
+
+  @autobind
+  handleUpdateSku(code: string, key: string, value: string) {
+    const updateValue = {
+      code: code,
+      label: key,
+      value: value,
+    };
+
+    const newState = assoc(this.state, ['product', 'skus'], updateValue);
+    this.setState(newState);
   }
 
   @autobind

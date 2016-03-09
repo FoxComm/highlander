@@ -49,6 +49,7 @@ type DetailsProps = {
   productAddAttribute: (label: string, type: string) => void,
 
   onUpdateProduct: (key: string, value: string) => void,
+  onUpdateSku: (code: string, key: string, value: string) => void,
   updatedProduct: { [key:string]: string },
 };
 
@@ -136,7 +137,9 @@ export class ProductDetails extends Component<void, DetailsProps, State> {
   get skusContentBox(): Element {
     return (
       <ContentBox title="SKUs">
-        <SkuList fullProduct={this.fullProduct} />
+        <SkuList
+          fullProduct={this.fullProduct}
+          updateField={this.props.onUpdateSku} />
       </ContentBox>
     );
   }
@@ -213,12 +216,6 @@ export class ProductDetails extends Component<void, DetailsProps, State> {
   @autobind
   handleAddProperty() {
     this.setState({ isAddingProperty: true });
-  }
-
-
-  @autobind
-  handleAttributeChange(label: string, value: string) {
-    this.setState({ [label]: value });
   }
 
   @autobind

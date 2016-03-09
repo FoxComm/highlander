@@ -4,6 +4,7 @@
 
 // libs
 import React, { Component, Element } from 'react';
+import { autobind } from 'core-decorators';
 import { getIlluminatedSkus } from '../../paragons/product';
 import _ from 'lodash';
 
@@ -14,14 +15,17 @@ import MultiSelectTable from '../table/multi-select-table';
 import type { FullProduct } from '../../modules/products/details';
 import type { IlluminatedSku } from '../../paragons/product';
 
+type UpdateFn = (code: string, field: string, value: string) => void;
+
 type Props = {
   fullProduct: ?FullProduct,
+  updateField: UpdateFn,
 };
 
 export default class SkuList extends Component<void, Props, void> {
   static tableColumns = [
     { field: 'image', text: 'Image' },
-    { field: 'price', text: 'Price', type: 'currency' },
+    { field: 'price', text: 'Price' },
     { field: 'sku', text: 'SKU' },
     { field: 'upc', text: 'UPC' },
   ];
@@ -43,7 +47,14 @@ export default class SkuList extends Component<void, Props, void> {
   skuContent(skus: Array<IlluminatedSku>): Element {
     const renderRow = (row, index, columns, params) => {
       const key = `sku-${row.code}`;
-      return <EditableSkuRow columns={columns} sku={row} params={params} />;
+      return (
+        <EditableSkuRow
+          columns={columns}
+          isNew={false}
+          sku={row}
+          params={params}
+          updateField={this.props.updateField} />
+      );
     };
 
     return (
