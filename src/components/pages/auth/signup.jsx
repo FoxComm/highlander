@@ -60,6 +60,9 @@ export default class Auth extends Component {
         <Button icon="fc-google" styleName="google-login">SIGN UP WITH GOOGLE</Button>
         <WrapToLines styleName="divider">or</WrapToLines>
         <form>
+          <FormField key="username" styleName="form-field">
+            <TextInput placeholder="FIRST & LAST NAME" value={username} onChange={this.onChangeUsername} />
+          </FormField>
           <FormField key="email" styleName="form-field">
             <TextInput placeholder="EMAIL" value={email} type="email" onChange={this.onChangeEmail} />
           </FormField>
@@ -67,9 +70,6 @@ export default class Auth extends Component {
             <TextInputWithLabel placeholder="CREATE PASSWORD"
               value={password} onChange={this.onChangePassword} type="password"
             />
-          </FormField>
-          <FormField key="username" styleName="form-field">
-            <TextInput placeholder="FIRST & LAST NAME" value={username} onChange={this.onChangeUsername} />
           </FormField>
           <Button styleName="primary-button">SIGN UP</Button>
         </form>

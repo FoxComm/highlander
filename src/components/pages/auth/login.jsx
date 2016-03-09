@@ -11,7 +11,7 @@ import Button from 'ui/buttons';
 import WrapToLines from 'ui/wrap-to-lines';
 import { Link } from 'react-router';
 
-import type { HTMLElement, Event } from 'types';
+import type { HTMLElement } from 'types';
 
 
 type AuthState = {
@@ -30,14 +30,14 @@ export default class Auth extends Component {
   };
 
   @autobind
-  onChangeEmail({target}: Event) {
+  onChangeEmail({target}: any) {
     this.setState({
       email: target.value,
     });
   }
 
   @autobind
-  onChangePassword({target}: Event) {
+  onChangePassword({target}: any) {
     this.setState({
       password: target.value,
     });
@@ -57,14 +57,14 @@ export default class Auth extends Component {
           </FormField>
           <FormField key="passwd" styleName="form-field">
             <TextInputWithLabel placeholder="PASSWORD"
-              label={!password && <Link to="/password/restore">restore ?</Link>}
+              label={!password && <Link className={styles['restore-link']} to="/password/restore">forgot ?</Link>}
               value={password} onChange={this.onChangePassword} type="password"
             />
           </FormField>
           <Button styleName="primary-button">LOG IN</Button>
         </form>
         <div styleName="switch-stage">
-          Don’t have an account? <Link to="/signup">Sign Up</Link>
+          Don’t have an account? <Link styleName="signup-link" to="/signup">Sign Up</Link>
         </div>
       </div>
     );
