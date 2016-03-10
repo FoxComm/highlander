@@ -34,6 +34,8 @@ object Note {
   case object GiftCard extends ReferenceType
   case object Customer extends ReferenceType
   case object Rma extends ReferenceType
+  case object Sku extends ReferenceType
+  case object Product extends ReferenceType
 
   object ReferenceType extends ADT[ReferenceType] {
     def types = sealerate.values[ReferenceType]
@@ -68,25 +70,11 @@ object Notes extends TableQueryWithId[Note, Notes](
   idLens = GenLens[Note](_.id)
 )(new Notes(_)) {
 
-  def filterByOrderId(id: Int): QuerySeq =
-    filterByType(Note.Order).filter(_.referenceId === id)
-
-  def filterByGiftCardId(id: Int): QuerySeq =
-    filterByType(Note.GiftCard).filter(_.referenceId === id)
-
-  def filterByCustomerId(id: Int): QuerySeq =
-    filterByType(Note.Customer).filter(_.referenceId === id)
-
-  def filterByRmaId(id: Int): QuerySeq =
-    filterByType(Note.Rma).filter(_.referenceId === id)
-
   def filterByIdAndAdminId(id: Int, adminId: Int): QuerySeq =
     filter(_.id === id).filter(_.storeAdminId === adminId)
 
   def findOneByIdAndAdminId(id: Int, adminId: Int): DBIO[Option[Note]] =
     filter(_.id === id).filter(_.storeAdminId === adminId).one
-
-  private [this] def filterByType(referenceType: Note.ReferenceType) = filter(_.referenceType === referenceType)
 
   object scope {
     implicit class NotesQuerySeqConversions(q: QuerySeq) {
