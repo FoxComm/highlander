@@ -22,7 +22,7 @@ class AvroJsonHelperTest extends FlatSpec with Matchers {
 
     result contains "grand_total"       shouldBe false
     result contains "grandTotal"        shouldBe true
-    
+
     result contains """["BR10005","BR10006"]""" shouldBe true
   } 
 }
