@@ -81,6 +81,15 @@
 			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0"
 		},
 		{
+			"id": "70282de9-bd5d-649c-b3ea-abd024df26ad",
+			"name": "Products",
+			"description": "",
+			"order": [
+				"cf84ed00-c649-d8f6-42a5-7c969933f695"
+			],
+			"owner": "131444"
+		},
+		{
 			"id": "7786e2f5-6428-ba00-678d-115d2941c4b5",
 			"name": "Save For Later",
 			"description": "",
@@ -969,6 +978,33 @@
 				"timestamp": 1449091654128
 			},
 			"folder": "74c23220-db7a-843b-03b7-ac99759676b9"
+		},
+		{
+			"id": "cf84ed00-c649-d8f6-42a5-7c969933f695",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic eWF4QHlheC5jb206cGFzc3dvcmQ=\n",
+			"url": "http://localhost:9090/v1/my/products/1/baked",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "GET",
+			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
+			"data": [],
+			"dataMode": "params",
+			"name": "View Illuminated Product",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1457620071184,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"username": "yax@yax.com",
+				"password": "password",
+				"saveToRequest": true,
+				"id": "basic",
+				"timestamp": 1449091654128
+			},
+			"folder": "70282de9-bd5d-649c-b3ea-abd024df26ad"
 		},
 		{
 			"id": "d3929e1c-e96f-78c8-9bbf-674c1e4fc1f4",
