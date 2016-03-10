@@ -61,11 +61,11 @@ trait NoteManager[K, T <: ModelWithIdParameter[T]] {
   } yield AdminNotes.build(newNote, author)
 
   private def deleteInner(entity: T, noteId: Int, admin: StoreAdmin)
-    (implicit ec: EC, db: DB, ac: ActivityContext): DbResultT[Unit] = (for {
+    (implicit ec: EC, db: DB, ac: ActivityContext): DbResultT[Unit] = for {
     note   ← * <~ Notes.mustFindById404(noteId)
     _      ← * <~ Notes.update(note, note.copy(deletedAt = Some(Instant.now), deletedBy = Some(admin.id)))
     _      ← * <~ LogActivity.noteDeleted(admin, entity, note)
-  } yield {}).runTxn()
+  } yield ()
 
   private def forModel[M <: ModelWithIdParameter[M]](finder: Notes.QuerySeq)
     (implicit ec: EC, db: DB, ac: ActivityContext): DbResult[Seq[Root]] = {
