@@ -26,6 +26,7 @@ import services.activity.AssignmentsTailored._
 import services.activity.CustomerTailored._
 import services.activity.GiftCardTailored._
 import services.activity.OrderTailored._
+import services.activity.NotesTailored._
 import services.activity.SharedSearchTailored._
 import services.activity.StoreCreditTailored._
 import services.activity.WatchersTailored._
@@ -36,6 +37,19 @@ import CreditCardsResponse.{buildSimple ⇒ buildCc}
 import GiftCardResponse.{buildForList ⇒ buildGc}
 
 object LogActivity {
+
+  /* Notes */
+  def noteCreated[T](admin: StoreAdmin, entity: T, note: Note)
+    (implicit ec: EC, ac: ActivityContext): DbResult[Activity] =
+    Activities.log(NoteCreated[T](buildAdmin(admin), entity, note))
+
+  def noteUpdated[T](admin: StoreAdmin, entity: T, oldNote: Note, note: Note)
+    (implicit ec: EC, ac: ActivityContext): DbResult[Activity] =
+    Activities.log(NoteUpdated[T](buildAdmin(admin), entity, oldNote, note))
+
+  def noteDeleted[T](admin: StoreAdmin, entity: T, note: Note)
+    (implicit ec: EC, ac: ActivityContext): DbResult[Activity] =
+    Activities.log(NoteDeleted[T](buildAdmin(admin), entity, note))
 
   /* Shared Search Associations */
   def associatedWithSearch(admin: StoreAdmin, search: SharedSearch, associates: Seq[StoreAdmin])
@@ -300,19 +314,6 @@ object LogActivity {
   def orderRemorsePeriodIncreased(admin: StoreAdmin, order: FullOrder.Root, oldPeriodEnd: Option[Instant])
     (implicit ec: EC, ac: ActivityContext): DbResult[Activity] =
     Activities.log(OrderRemorsePeriodIncreased(buildAdmin(admin), order, oldPeriodEnd))
-
-  /* Order Notes */
-  def orderNoteCreated(admin: StoreAdmin, order: Order, note: Note)
-    (implicit ec: EC, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderNoteCreated(buildAdmin(admin), order, note))
-
-  def orderNoteUpdated(admin: StoreAdmin, order: Order, oldNote: Note, note: Note)
-    (implicit ec: EC, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderNoteUpdated(buildAdmin(admin), order, oldNote, note))
-
-  def orderNoteDeleted(admin: StoreAdmin, order: Order, note: Note)
-    (implicit ec: EC, ac: ActivityContext): DbResult[Activity] =
-    Activities.log(OrderNoteDeleted(buildAdmin(admin), order, note))
 
   /* Order Line Items */
   def orderLineItemsAddedGc(admin: StoreAdmin, order: FullOrder.Root, gc: GiftCard)
