@@ -5,15 +5,15 @@ import type { HTMLElement } from 'types';
 import cssModules from 'react-css-modules';
 import styles from './list-item.css';
 
-// type Product {
-//   id: number;
-//   attributes: Object;
-// };
+type Product = {
+  id: number;
+  name: string;
+  price: string;
+  imageUrl: string;
+}
 
-const ListItem = (): HTMLElement => {
-  const price = '$50';
-  const name = 'lorem ipsum';
-  const imageUrl = 'http://lorempixel.com/75/75/fashion/';
+const ListItem = (props: Product): HTMLElement => {
+  const {name, price, imageUrl} = props;
   return (
     <div styleName="list-item">
       <div styleName="preview">
