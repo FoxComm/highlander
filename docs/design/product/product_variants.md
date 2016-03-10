@@ -10,6 +10,41 @@ fundamental merchandising question: what SKUs should be displayed together?
 This document will attempt to describe the problems that merchandisers face
 when linking SKUs and hopefully a data model that will solve those problems.
 
+## Relevant Documents
+
+- [Product Design Document](https://github.com/FoxComm/phoenix-scala/blob/master/docs/design/product/product_model.pdf)
+- [Product Variants Mockups](https://www.dropbox.com/s/mvout93fx0nzjh3/Product_Variants.pdf?dl=0)
+
+## Requirements
+
+### I. Allow an admin to add SKUs to a product
+
+In the most basic operation, a user will use variants as a way to relate
+multiple SKUs to each other. That workflow may look a bit like this in the
+example of a t-shirt that comes in three colors.
+
+1. User opens the new product form;
+2. User sets basic attributes of a t-shirt (such as name, description, etc.);
+3. User create a variant called _color_;
+4. User sets the possible values of _color_ as _green_, _black_, and _grey_;
+5. User create (or associates) a SKU with the _green_, _black_, and _grey_
+   values.
+
+One this product is published to the storefront, a user will be able to see a
+single page that displays each of the t-shirts. A customer will be able to
+select which t-shirt to add to cart by toggling the _color_ that they desire.
+
+### II. Reuse variants from existing products
+
+While the workflow above works well enough to create an individual PDP, it gets
+cumbersome to repeat. Therefore, we want to provide two shortcuts (both of which
+are illustrated in the Product Variants Mockups).
+
+1. Instead of creating a new variant, a user can select from existing variants;
+2. If an existing variant is selected, the values that have been used previously
+   (_green_, _black_, _grey_ in the above example) can be optionally reused on
+  the new product.
+
 ## The Models
 
 ### Variant
@@ -232,7 +267,7 @@ A common use case is size and color. So, let's use that as the example.
                 sku: "GREEN-LARGE",
               },
             },
-          },
+         },
         },
       },
     },
@@ -245,3 +280,4 @@ A common use case is size and color. So, let's use that as the example.
 1. What do we want the final output in a product to look like?
 2. Can we get away with not making the `Variant` context-dependent? Would like
    to access context through the product or SKU, if possible.
+3. What about versioning?
