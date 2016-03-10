@@ -16,9 +16,6 @@ select distinct on (c.id)
     -- Orders
     o.count as order_count,
     o.orders,
-    -- Purchased items
-    i.count as purchased_item_count,
-    i.items as purchased_items,
     -- Addresses
     csa.count as shipping_addresses_count,
     csa.addresses as shipping_addresses,
@@ -26,17 +23,12 @@ select distinct on (c.id)
     cba.addresses as billing_addresses,
     -- Store credits
     sc.count as store_credit_count,
-    sc.total as store_credit_total,
-    -- Save for later
-    sfl.count as save_for_later_count,
-    sfl.items as save_for_later
+    sc.total as store_credit_total
 from customers as c
 inner join customer_orders_view as o on (c.id = o.customer_id)
-inner join customer_purchased_items_view as i on (c.id = i.customer_id)
 inner join customer_shipping_addresses_view as csa on (c.id = csa.customer_id)
 inner join customer_billing_addresses_view as cba on (c.id = cba.customer_id)
 inner join customer_store_credit_view as sc on (c.id = sc.customer_id)
-inner join customer_save_for_later_view as sfl on (c.id = sfl.customer_id)
 left join customers_ranking as rank on (c.id = rank.id)
 order by c.id;
 

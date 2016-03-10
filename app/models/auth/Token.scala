@@ -19,11 +19,10 @@ import utils.Config.config
 import utils.Config.RichConfig
 import utils.caseClassToMap
 
-
 object Keys {
 
   def loadPrivateKey: PrivateKey = {
-    val fileName = config.getString("auth.privateKey")
+    val fileName = config.getOptString("auth.privateKey").getOrElse("")
     val is = new FileInputStream(fileName)
     val keyBytes = Array.ofDim[Byte](is.available)
     is.read(keyBytes)
@@ -34,7 +33,7 @@ object Keys {
   }
 
   def loadPublicKey: PublicKey = {
-    val fileName = config.getString("auth.publicKey")
+    val fileName = config.getOptString("auth.publicKey").getOrElse("")
     val is = new FileInputStream(fileName)
     val keyBytes = Array.ofDim[Byte](is.available)
     is.read(keyBytes)
@@ -47,7 +46,6 @@ object Keys {
   val authPrivateKey = loadPrivateKey
   val authPublicKey = loadPublicKey
 }
-
 
 sealed trait Token extends Product {
   val id: Int
@@ -91,7 +89,6 @@ object Token {
     jws.getCompactSerialization
   }
 
-
   def fromString(rawToken: String): Failures Xor Token = {
     val builder = new JwtConsumerBuilder()
       .setRequireExpirationTime()
@@ -103,7 +100,7 @@ object Token {
     Try {
       val jwtClaims = builder.processToClaims(rawToken)
       val jValue = parse(jwtClaims.toJson)
-      (jValue \ "admin") match {
+      jValue \ "admin" match {
         case JBool(isAdmin) ⇒ if (isAdmin)
           Extraction.extract[AdminToken](jValue)
         else
@@ -113,13 +110,11 @@ object Token {
     } match {
       case Success(token) ⇒ Xor.right(token)
       // TODO: handle failures
-      case Failure(e) ⇒ {
+      case Failure(e) ⇒
         System.err.println(e.getMessage)
         Xor.left(LoginFailed.single)
-      }
     }
   }
-
 }
 
 final case class AdminToken(id: Int,
@@ -137,7 +132,6 @@ object AdminToken {
       department = admin.department)
   }
 }
-
 
 final case class CustomerToken(id: Int,
   admin: Boolean = false,

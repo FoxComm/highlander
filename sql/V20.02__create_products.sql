@@ -1,5 +1,4 @@
-
-create table products(
+create table products (
     id serial primary key,
     attributes jsonb,
     variants jsonb,

@@ -11,7 +11,7 @@ import models.traits.Originator
 import payloads._
 import services.customers.CustomerManager
 import services.orders._
-import services.{SaveForLaterManager, StoreCreditAdjustmentsService, ShippingManager, Checkout,
+import services.{ProductManager, SaveForLaterManager, StoreCreditAdjustmentsService, ShippingManager, Checkout,
 CreditCardManager, AddressManager, LineItemUpdater, StoreCreditService}
 import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import utils.Apis
@@ -20,7 +20,6 @@ import utils.Http._
 import utils.Slick.implicits._
 import utils.aliases._
 
-
 object Customer {
   def routes(implicit ec: EC, db: DB,
     mat: Materializer, customerAuth: AsyncAuthenticator[models.customer.Customer], apis: Apis) = {
@@ -28,6 +27,15 @@ object Customer {
     pathPrefix("my") {
       requireAuth(customerAuth) { customer ⇒
         activityContext(customer) { implicit ac ⇒
+          pathPrefix("products" / IntNumber / "baked") { productId ⇒
+            determineProductContext(db, ec) { productContext ⇒
+              (get & pathEnd) {
+                goodOrFailures {
+                  ProductManager.getIlluminatedFullProduct(productId, productContext.name)
+                }
+              }
+            }
+          } ~
           pathPrefix("cart") {
             determineProductContext(db, ec) { productContext ⇒ 
               (get & pathEnd) {
