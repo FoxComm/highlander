@@ -34,6 +34,8 @@ object Note {
   case object GiftCard extends ReferenceType
   case object Customer extends ReferenceType
   case object Rma extends ReferenceType
+  case object Sku extends ReferenceType
+  case object Product extends ReferenceType
 
   object ReferenceType extends ADT[ReferenceType] {
     def types = sealerate.values[ReferenceType]
