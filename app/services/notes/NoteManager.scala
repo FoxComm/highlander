@@ -4,6 +4,7 @@ import java.time.Instant
 
 import models.activity.ActivityContext
 import models.{Notes, StoreAdmin, Note}
+import models.Notes.scope._
 import responses.AdminNotes
 import responses.AdminNotes.Root
 import services._
@@ -46,7 +47,7 @@ trait NoteManager[K, T <: ModelWithIdParameter[T]] {
 
   // Inner methods
   private def entityQuerySeq(entityId: Int)(implicit ec: EC, db: DB, ac: ActivityContext): Notes.QuerySeq =
-    Notes.filter(_.referenceType === noteType()).filter(_.referenceId === entityId)
+    Notes.filter(_.referenceType === noteType()).filter(_.referenceId === entityId).notDeleted
 
   private def createInner(entity: T, refId: Int, refType: Note.ReferenceType, author: StoreAdmin,
     payload: payloads.CreateNote)(implicit ec: EC, db: DB, ac: ActivityContext): DbResultT[Note] = for {
