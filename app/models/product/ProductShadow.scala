@@ -14,7 +14,7 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
  * The ProductShadow, when applied to a Product is what is displayed on the 
  * storefront.
  */
-final case class ProductShadow(id: Int = 0, productContextId: Int, productId: Int, 
+final case class ProductShadow(id: Int = 0, productId: Int, 
   attributes: Json, variants: String, activeFrom: Option[Instant] = None, 
   activeTo: Option[Instant] = None,
   createdAt: Instant = Instant.now)
@@ -23,7 +23,6 @@ final case class ProductShadow(id: Int = 0, productContextId: Int, productId: In
 
 class ProductShadows(tag: Tag) extends GenericTable.TableWithId[ProductShadow](tag, "product_shadows")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def productContextId = column[Int]("product_context_id")
   def productId = column[Int]("product_id")
   def attributes = column[Json]("attributes")
   def variants = column[String]("variants")
@@ -31,9 +30,8 @@ class ProductShadows(tag: Tag) extends GenericTable.TableWithId[ProductShadow](t
   def activeTo = column[Option[Instant]]("active_to")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, productContextId, productId, attributes, variants, activeFrom, activeTo, createdAt) <> ((ProductShadow.apply _).tupled, ProductShadow.unapply)
+  def * = (id, productId, attributes, variants, activeFrom, activeTo, createdAt) <> ((ProductShadow.apply _).tupled, ProductShadow.unapply)
 
-  def productContext = foreignKey(ProductContexts.tableName, productContextId, ProductContexts)(_.id)
   def product = foreignKey(Products.tableName, productId, Products)(_.id)
 }
 
@@ -42,8 +40,6 @@ object ProductShadows extends TableQueryWithId[ProductShadow, ProductShadows](
 
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def filterByContext(productContextId: Int): QuerySeq = 
-    filter(_.productContextId === productContextId)
   def filterByProduct(productId: Int): QuerySeq = 
     filter(_.productId === productId)
   def filterByAttributes(key: String, value: String): QuerySeq = 

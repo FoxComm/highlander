@@ -62,11 +62,10 @@ final case class SimpleProduct(title: String, description: String, image: String
         }"""))
 }
 
-final case class SimpleProductShadow(productContextId: Int, productId: Int) { 
+final case class SimpleProductShadow(productId: Int) { 
 
     def create : ProductShadow = 
       ProductShadow(
-        productContextId = productContextId,
         productId = productId,
         attributes = parse(s"""
         {
@@ -128,8 +127,13 @@ object Mvp {
   DbResultT[SimpleProductData] = for {
     simpleProduct   ← * <~ SimpleProduct(p.title, p.description, p.image, p.code)
     product         ← * <~ Products.create(simpleProduct.create)
-    simpleShadow    ← * <~ SimpleProductShadow(contextId, product.id)
+    simpleShadow    ← * <~ SimpleProductShadow(product.id)
     productShadow   ← * <~ ProductShadows.create(simpleShadow.create)
+    productCommit   ← * <~ ProductCommits.create(
+      ProductCommit(productId = product.id, shadowId = productShadow.id))
+    productHead   ← * <~ ProductHeads.create(
+      ProductHead(contextId = contextId, productId = product.id, 
+        shadowId = productShadow.id, commitId = productCommit.id))
     simpleSku       ← * <~ SimpleSku(p.code, p.title, p.price, p.currency)
     sku             ← * <~ Skus.create(simpleSku.create)
     link            ← * <~ SkuProductLinks.create(SkuProductLink(
