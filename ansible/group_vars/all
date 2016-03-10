@@ -1,6 +1,8 @@
 home: /home/{{ user }}
 dest_services: /etc/systemd/system
 usr_local: /usr/local/
+public_keys_dest_dir: /etc/keys
+private_keys_dest_dir: /etc/keys
 db_connection_string: "postgresql://localhost/phoenix_development?user={{user}}"
 
 greenriver_version: 1.0
