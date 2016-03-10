@@ -1,6 +1,5 @@
 package services.orders
 
-import models.activity.ActivityContext
 import cats.implicits._
 import models.product.ProductContext
 import models.customer.{Customers, Customer}
@@ -19,7 +18,7 @@ import utils.aliases._
 
 object OrderCreator {
   def createCart(admin: StoreAdmin, payload: CreateOrder, productContext: ProductContext)
-    (implicit db: DB, ec: EC, ac: ActivityContext): Result[Root] = {
+    (implicit db: DB, ec: EC, ac: AC): Result[Root] = {
 
     def existingCustomerOrNewGuest: Result[Root] = (payload.customerId, payload.email) match {
       case (Some(customerId), _)  ⇒ createCartForCustomer(customerId)

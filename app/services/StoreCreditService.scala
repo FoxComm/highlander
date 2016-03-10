@@ -20,7 +20,6 @@ import utils.Slick.implicits._
 import utils.DbResultT.implicits._
 import utils.DbResultT._
 import utils.aliases._
-import models.activity.ActivityContext
 
 object StoreCreditService {
   type QuerySeq = StoreCredits.QuerySeq
@@ -57,7 +56,7 @@ object StoreCreditService {
   }
 
   def createManual(admin: StoreAdmin, customerId: Int, payload: payloads.CreateManualStoreCredit)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
     customer ← * <~ Customers.mustFindById404(customerId)
     _ ← * <~ Reasons.findById(payload.reasonId).extract.one.mustFindOr(NotFoundFailure400(Reason, payload.reasonId))
     // Check subtype only if id is present in payload; discard actual model
@@ -83,7 +82,7 @@ object StoreCreditService {
   } yield StoreCreditResponse.build(storeCredit)).run()
 
   def bulkUpdateStateByCsr(payload: StoreCreditBulkUpdateStateByCsr, admin: StoreAdmin)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Seq[ItemResult]] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[Seq[ItemResult]] = (for {
     _        ← ResultT.fromXor(payload.validate.toXor)
     response ← ResultT.right(Future.sequence(payload.ids.map { id ⇒
                  val itemPayload = StoreCreditUpdateStateByCsr(payload.state, payload.reasonId)
@@ -92,7 +91,7 @@ object StoreCreditService {
   } yield response).value
 
   def updateStateByCsr(id: Int, payload: StoreCreditUpdateStateByCsr, admin: StoreAdmin)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
     _           ← * <~ payload.validate
     storeCredit ← * <~ StoreCredits.mustFindById404(id)
     updated     ← * <~ cancelOrUpdate(storeCredit, payload.state, payload.reasonId, admin)

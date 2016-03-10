@@ -18,8 +18,6 @@ import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import utils.aliases._
 
-import models.activity.ActivityContext
-
 object AddressManager {
 
   def findAllByCustomer(originator: Originator, customerId: Int)
@@ -40,7 +38,7 @@ object AddressManager {
   } yield Response.build(address, region)).run()
 
   def create(originator: Originator, payload: CreateAddressPayload, customerId: Int)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
 
     customer  ← * <~ Customers.mustFindById404(customerId)
     address   ← * <~ Addresses.create(Address.fromPayload(payload).copy(customerId = customerId))
@@ -49,7 +47,7 @@ object AddressManager {
   } yield Response.build(address, region)).runTxn()
 
   def edit(originator: Originator, addressId: Int, customerId: Int, payload: CreateAddressPayload)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
 
     customer    ← * <~ Customers.mustFindById404(customerId)
     oldAddress  ← * <~ Addresses.findActiveByIdAndCustomer(addressId, customerId).one.mustFindOr(addressNotFound(addressId))
@@ -61,7 +59,7 @@ object AddressManager {
   } yield Response.build(address, region)).runTxn()
 
   def remove(originator: Originator, addressId: Int, customerId: Int)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Unit] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[Unit] = (for {
 
     customer    ← * <~ Customers.mustFindById404(customerId)
     address     ← * <~ Addresses.findActiveByIdAndCustomer(addressId, customerId).one.mustFindOr(addressNotFound(addressId))

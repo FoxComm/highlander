@@ -2,7 +2,6 @@ package services
 
 import java.time.Instant
 
-import models.activity.ActivityContext
 import models.sharedsearch._
 import models.{StoreAdmins, StoreAdmin}
 import payloads.SharedSearchPayload
@@ -46,7 +45,7 @@ object SharedSearchService {
   } yield ()).runTxn()
 
   def associate(admin: StoreAdmin, code: String, requestedAssigneeIds: Seq[Int])
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[SharedSearch]] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[SharedSearch]] = (for {
 
     search          ← * <~ mustFindActiveByCode(code)
     adminIds        ← * <~ StoreAdmins.filter(_.id.inSetBind(requestedAssigneeIds)).map(_.id).result
@@ -60,7 +59,7 @@ object SharedSearchService {
   } yield TheResponse.build(search, errors = notFoundAdmins)).runTxn()
 
   def unassociate(admin: StoreAdmin, code: String, assigneeId: Int)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[SharedSearch] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[SharedSearch] = (for {
 
     search     ← * <~ mustFindActiveByCode(code)
     associate  ← * <~ StoreAdmins.mustFindById404(assigneeId)

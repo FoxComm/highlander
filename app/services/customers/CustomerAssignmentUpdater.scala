@@ -15,12 +15,12 @@ import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import utils.aliases._
 
-import models.activity.{Dimension, ActivityContext}
+import models.activity.Dimension
 
 object CustomerAssignmentUpdater {
 
   def assign(admin: StoreAdmin, customerId: Int, requestedAssigneeIds: Seq[Int])
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[Root]] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[Root]] = (for {
 
     customer        ← * <~ Customers.mustFindById404(customerId)
     adminIds        ← * <~ StoreAdmins.filter(_.id.inSetBind(requestedAssigneeIds)).map(_.id).result
@@ -38,7 +38,7 @@ object CustomerAssignmentUpdater {
   } yield TheResponse.build(response, errors = notFoundAdmins)).runTxn()
 
   def unassign(admin: StoreAdmin, customerId: Int, assigneeId: Int)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
 
     customer        ← * <~ Customers.mustFindById404(customerId)
     assignee        ← * <~ StoreAdmins.mustFindById404(assigneeId)
@@ -51,7 +51,7 @@ object CustomerAssignmentUpdater {
   } yield response).runTxn()
 
   def assignBulk(admin: StoreAdmin, payload: CustomerBulkAssignmentPayload)(implicit ec: EC, db: DB,
-    sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkCustomerUpdateResponse] = (for {
+    sortAndPage: SortAndPage, ac: AC): Result[BulkCustomerUpdateResponse] = (for {
 
     // TODO: transfer sorting-paging metadata
     customers       ← * <~ Customers.filter(_.id.inSetBind(payload.customerIds)).result.toXor
@@ -69,7 +69,7 @@ object CustomerAssignmentUpdater {
   } yield response.copy(errors = flattenErrors(batchFailures), batch = Some(batchMetadata))).runTxn()
 
   def unassignBulk(admin: StoreAdmin, payload: CustomerBulkAssignmentPayload)(implicit ec: EC, db: DB,
-    sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkCustomerUpdateResponse] = (for {
+    sortAndPage: SortAndPage, ac: AC): Result[BulkCustomerUpdateResponse] = (for {
 
     // TODO: transfer sorting-paging metadata
     customers ← * <~ Customers.filter(_.id.inSetBind(payload.customerIds)).result

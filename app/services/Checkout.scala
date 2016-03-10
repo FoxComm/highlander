@@ -6,7 +6,6 @@ import cats.implicits._
 import models.order.lineitems.OrderLineItemGiftCards
 import models.order._
 import Order.RemorseHold
-import models.activity.ActivityContext
 import models.customer.{Customers, Customer}
 import models.payment.creditcard.{CreditCardCharges, CreditCardCharge}
 import models.payment.giftcard.{GiftCards, GiftCard}
@@ -25,12 +24,12 @@ import utils.aliases._
 
 object Checkout {
 
-  def fromCart(refNum: String)(implicit ec: EC, db: DB, apis: Apis, ac: ActivityContext): Result[FullOrder.Root] = (for {
+  def fromCart(refNum: String)(implicit ec: EC, db: DB, apis: Apis, ac: AC): Result[FullOrder.Root] = (for {
     cart  ← * <~ Orders.mustFindByRefNum(refNum)
     order ← * <~ Checkout(cart, CartValidator(cart)).checkout
   } yield order).runTxn()
 
-  def fromCustomerCart(customer: Customer)(implicit ec: EC, db: DB, apis: Apis, ac: ActivityContext): Result[FullOrder.Root] = (for {
+  def fromCustomerCart(customer: Customer)(implicit ec: EC, db: DB, apis: Apis, ac: AC): Result[FullOrder.Root] = (for {
     cart  ← * <~ Orders.findActiveOrderByCustomer(customer).one.mustFindOr(CustomerHasNoActiveOrder(customer.id))
     order ← * <~ Checkout(cart, CartValidator(cart)).checkout
   } yield order).runTxn()
@@ -44,7 +43,7 @@ object Checkout {
   5) Transition order to Remorse Hold**
   6) Create new cart for customer
  */
-final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit ec: EC, db: DB, apis: Apis, ac: ActivityContext) {
+final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit ec: EC, db: DB, apis: Apis, ac: AC) {
 
   def checkout: DbResultT[FullOrder.Root] = for {
       _         ← * <~ cart.mustBeCart

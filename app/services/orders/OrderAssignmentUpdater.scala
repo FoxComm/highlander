@@ -1,6 +1,6 @@
 package services.orders
 
-import models.activity.{Dimension, ActivityContext}
+import models.activity.Dimension
 import models.order._
 import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
 import payloads.OrderBulkAssignmentPayload
@@ -19,7 +19,7 @@ import utils.aliases._
 object OrderAssignmentUpdater {
 
   def assign(admin: StoreAdmin, refNum: String, requestedAssigneeIds: Seq[Int])
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = (for {
 
     order           ← * <~ Orders.mustFindByRefNum(refNum)
     adminIds        ← * <~ StoreAdmins.filter(_.id.inSetBind(requestedAssigneeIds)).map(_.id).result
@@ -37,7 +37,7 @@ object OrderAssignmentUpdater {
   } yield TheResponse.build(fullOrder, errors = notFoundAdmins)).runTxn()
 
   def unassign(admin: StoreAdmin, refNum: String, assigneeId: Int)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[FullOrder.Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[FullOrder.Root] = (for {
 
     order           ← * <~ Orders.mustFindByRefNum(refNum)
     assignee        ← * <~ StoreAdmins.mustFindById404(assigneeId)
@@ -50,7 +50,7 @@ object OrderAssignmentUpdater {
   } yield fullOrder).runTxn()
 
   def assignBulk(admin: StoreAdmin, payload: OrderBulkAssignmentPayload)(implicit ec: EC, db: DB,
-    sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
+    sortAndPage: SortAndPage, ac: AC): Result[BulkOrderUpdateResponse] = (for {
 
     // TODO: transfer sorting-paging metadata
     orders          ← * <~ Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result.toXor
@@ -68,7 +68,7 @@ object OrderAssignmentUpdater {
   } yield response.copy(errors = flattenErrors(batchFailures), batch = Some(batchMetadata))).runTxn()
 
   def unassignBulk(admin: StoreAdmin, payload: OrderBulkAssignmentPayload)(implicit ec: EC, db: DB,
-    sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
+    sortAndPage: SortAndPage, ac: AC): Result[BulkOrderUpdateResponse] = (for {
 
     // TODO: transfer sorting-paging metadata
     orders    ← * <~ Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result

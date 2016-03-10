@@ -10,7 +10,6 @@ import models.order._
 import OrderPayments.scope._
 import models.order._
 import Orders.scope._
-import models.activity.ActivityContext
 import models.customer._
 import models.location._
 import models.payment.creditcard.{CreditCard, CreditCards}
@@ -37,7 +36,7 @@ object CreditCardManager {
     records.map((buildResponse _).tupled)
 
   def createCardThroughGateway(customerId: Int, payload: CreateCreditCard, admin: Option[StoreAdmin] = None)
-    (implicit ec: EC, db: DB, apis: Apis, ac: ActivityContext): Result[Root] = {
+    (implicit ec: EC, db: DB, apis: Apis, ac: AC): Result[Root] = {
 
     def createCard(customer: Customer, sCustomer: StripeCustomer, sCard: StripeCard, address: Address) = for {
       _       ← * <~ (if (address.isNew) Addresses.create(address.copy(customerId = customerId)) else DbResult.unit)
@@ -77,7 +76,7 @@ object CreditCardManager {
   } yield buildResponse(default, region)).runTxn()
 
   def deleteCreditCard(customerId: Int, id: Int, admin: Option[StoreAdmin] = None)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Unit] = {
+    (implicit ec: EC, db: DB, ac: AC): Result[Unit] = {
 
     (for {
       customer  ← * <~ Customers.mustFindById404(customerId)
@@ -89,7 +88,7 @@ object CreditCardManager {
   }
 
   def editCreditCard(customerId: Int, id: Int, payload: EditCreditCard, admin: Option[StoreAdmin] = None)
-    (implicit ec: EC, db: DB, apis: Apis, ac: ActivityContext): Result[Root] = {
+    (implicit ec: EC, db: DB, apis: Apis, ac: AC): Result[Root] = {
 
     def update(customer: Customer, cc: CreditCard) = {
       val updated = cc.copy(

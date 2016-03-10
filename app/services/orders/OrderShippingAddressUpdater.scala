@@ -18,8 +18,6 @@ import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.aliases._
 
-import models.activity.ActivityContext
-
 object OrderShippingAddressUpdater {
 
   def mustFindAddressWithRegion(id: Int)(implicit ec: EC): DbResult[(Address, Region)] = {
@@ -31,7 +29,7 @@ object OrderShippingAddressUpdater {
     OrderShippingAddresses.findByOrderId(order.id).one.mustFindOr(NoShipAddress(order.refNum))
 
   def createShippingAddressFromAddressId(originator: Originator, addressId: Int, refNum: Option[String] = None)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = (for {
 
     order         ← * <~ getCartByOriginator(originator, refNum)
     _             ← * <~ order.mustBeCart
@@ -47,7 +45,7 @@ object OrderShippingAddressUpdater {
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runTxn()
 
   def createShippingAddressFromPayload(originator: Originator, payload: CreateAddressPayload,
-    refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: ActivityContext):
+    refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC):
     Result[TheResponse[FullOrder.Root]] = (for {
 
     order       ← * <~ getCartByOriginator(originator, refNum)
@@ -62,7 +60,7 @@ object OrderShippingAddressUpdater {
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runTxn()
 
   def updateShippingAddressFromPayload(originator: Originator, payload: UpdateAddressPayload,
-    refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: ActivityContext):
+    refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC):
     Result[TheResponse[FullOrder.Root]] = (for {
 
     order       ← * <~ getCartByOriginator(originator, refNum)
@@ -77,7 +75,7 @@ object OrderShippingAddressUpdater {
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).runTxn()
 
   def removeShippingAddress(originator: Originator, refNum: Option[String] = None)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = (for {
 
     order       ← * <~ getCartByOriginator(originator, refNum)
     _           ← * <~ order.mustBeCart

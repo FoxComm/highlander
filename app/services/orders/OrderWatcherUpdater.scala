@@ -1,6 +1,6 @@
 package services.orders
 
-import models.activity.{Dimension, ActivityContext}
+import models.activity.Dimension
 import models.order._
 import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
 import responses.{BatchMetadata, BatchMetadataSource}
@@ -19,8 +19,8 @@ import utils.aliases._
 
 object OrderWatcherUpdater {
 
-  def watch(admin: StoreAdmin, refNum: String, requestedWatcherIds: Seq[Int])(implicit ec: EC, db: DB,
-    ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
+  def watch(admin: StoreAdmin, refNum: String, requestedWatcherIds: Seq[Int])
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = (for {
 
     order           ← * <~ Orders.mustFindByRefNum(refNum)
     adminIds        ← * <~ StoreAdmins.filter(_.id.inSetBind(requestedWatcherIds)).map(_.id).result
@@ -36,8 +36,8 @@ object OrderWatcherUpdater {
       reason = NotificationSubscription.Assigned, objectIds = Seq(order.referenceNumber))
   } yield TheResponse.build(fullOrder, errors = notFoundAdmins)).runTxn()
 
-  def unwatch(admin: StoreAdmin, refNum: String, assigneeId: Int)(implicit ec: EC, db: DB,
-    ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
+  def unwatch(admin: StoreAdmin, refNum: String, assigneeId: Int)
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = (for {
 
     order           ← * <~ Orders.mustFindByRefNum(refNum)
     watcher         ← * <~ StoreAdmins.mustFindById404(assigneeId)
@@ -50,7 +50,7 @@ object OrderWatcherUpdater {
   } yield TheResponse.build(fullOrder)).runTxn()
 
   def watchBulk(admin: StoreAdmin, payload: OrderBulkWatchersPayload)(implicit ec: EC, db: DB,
-    sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
+    sortAndPage: SortAndPage, ac: AC): Result[BulkOrderUpdateResponse] = (for {
 
     // TODO: transfer sorting-paging metadata
     orders         ← * <~ Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result
@@ -68,7 +68,7 @@ object OrderWatcherUpdater {
   } yield response.copy(errors = flattenErrors(batchFailures), batch = Some(batchMetadata))).runTxn()
 
   def unwatchBulk(admin: StoreAdmin, payload: OrderBulkWatchersPayload)(implicit ec: EC, db: DB,
-    sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
+    sortAndPage: SortAndPage, ac: AC): Result[BulkOrderUpdateResponse] = (for {
 
     // TODO: transfer sorting-paging metadata
     orders         ← * <~ Orders.filter(_.referenceNumber.inSetBind(payload.referenceNumbers)).result

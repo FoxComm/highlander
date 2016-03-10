@@ -1,6 +1,5 @@
 package services.orders
 
-import models.activity.ActivityContext
 import models.order._
 import models.traits.Originator
 import OrderPayments.scope._
@@ -25,7 +24,7 @@ import utils.aliases._
 object OrderPaymentUpdater {
 
   def addGiftCard(originator: Originator, payload: GiftCardPayment, refNum: Option[String] = None)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = (for {
     order ← * <~ getCartByOriginator(originator, refNum)
     _     ← * <~ order.mustBeCart
     gc    ← * <~ GiftCards.mustFindByCode(payload.code, c ⇒ NotFoundFailure400(GiftCard, c))
@@ -41,7 +40,7 @@ object OrderPaymentUpdater {
   } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def addStoreCredit(originator: Originator, payload: StoreCreditPayment, refNum: Option[String] = None)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = {
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = {
     (for {
       order        ← * <~ getCartByOriginator(originator, refNum)
       _            ← * <~ order.mustBeCart
@@ -64,7 +63,7 @@ object OrderPaymentUpdater {
   }
 
   def addCreditCard(originator: Originator, id: Int, refNum: Option[String] = None)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = (for {
     order   ← * <~ getCartByOriginator(originator, refNum)
     _       ← * <~ order.mustBeCart
     cc      ← * <~ CreditCards.mustFindById400(id)
@@ -78,15 +77,15 @@ object OrderPaymentUpdater {
   } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def deleteCreditCard(originator: Originator, refNum: Option[String] = None)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] =
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
     deleteCreditCardOrStoreCredit(originator, refNum, PaymentMethod.CreditCard)
 
   def deleteStoreCredit(originator: Originator, refNum: Option[String] = None)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] =
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] =
     deleteCreditCardOrStoreCredit(originator, refNum, PaymentMethod.StoreCredit)
 
   private def deleteCreditCardOrStoreCredit(originator: Originator, refNum: Option[String],
-    pmt: PaymentMethod.Type)(implicit ec: EC, db: DB, ac: ActivityContext):
+    pmt: PaymentMethod.Type)(implicit ec: EC, db: DB, ac: AC):
     Result[TheResponse[FullOrder.Root]] = (for {
 
     order ← * <~ getCartByOriginator(originator, refNum)
@@ -101,7 +100,7 @@ object OrderPaymentUpdater {
   } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def deleteGiftCard(originator: Originator, code: String, refNum: Option[String] = None)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = (for {
     order     ← * <~ getCartByOriginator(originator, refNum)
     _         ← * <~ order.mustBeCart
     giftCard  ← * <~ GiftCards.mustFindByCode(code)
