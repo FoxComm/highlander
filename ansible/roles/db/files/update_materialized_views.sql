@@ -61,6 +61,16 @@ refresh materialized view concurrently notes_search_view;
 
 -- inventory
 refresh materialized view concurrently inventory_search_view;
+refresh materialized view concurrently product_sku_links_view;
+refresh materialized view concurrently products_search_view;
 refresh materialized view concurrently sku_search_view;
 
+-- locations
+refresh materialized view concurrently regions_search_view;
+refresh materialized view concurrently countries_search_view;
 
+-- pim
+refresh materialized view concurrently customer_purchased_items_view;
+refresh materialized view concurrently customer_save_for_later_view;
+alter sequence customer_items_view_seq restart 1;
+refresh materialized view concurrently customer_items_view;
