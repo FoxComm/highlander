@@ -9,7 +9,7 @@ import utils.aliases._
 
 object RmaNoteManager extends NoteManager[String, Rma] {
 
-  def noteType(): Note.ReferenceType = Note.Order
+  def noteType(): Note.ReferenceType = Note.Rma
 
   def fetchEntity(refNum: String)(implicit ec: EC, db: DB, ac: ActivityContext): DbResult[Rma] =
     Rmas.mustFindByRefNum(refNum)
