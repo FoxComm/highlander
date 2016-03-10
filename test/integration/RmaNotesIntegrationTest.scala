@@ -8,7 +8,8 @@ import models.order.{Orders, Order}
 import models.rma.{Rmas, Rma}
 import models.{Notes, _}
 import responses.AdminNotes
-import services.{NotFoundFailure404, NoteManager}
+import services.NotFoundFailure404
+import services.notes.RmaNoteManager
 import util.IntegrationTestBase
 import utils.seeds.Seeds
 import Seeds.Factories
@@ -52,7 +53,7 @@ class RmaNotesIntegrationTest extends IntegrationTestBase with HttpSupport with 
 
       "can be listed" in new Fixture {
         List("abc", "123", "xyz").map { body ⇒
-          NoteManager.createRmaNote(rma.refNum, admin, payloads.CreateNote(body = body)).futureValue
+          RmaNoteManager.createRmaNote(rma.refNum, admin, payloads.CreateNote(body = body)).futureValue
         }
 
         val response = GET(s"v1/notes/rma/${rma.refNum}")
@@ -67,7 +68,7 @@ class RmaNotesIntegrationTest extends IntegrationTestBase with HttpSupport with 
     "PATCH /v1/notes/rma/:code/:noteId" - {
 
       "can update the body text" in new Fixture {
-        val rootNote = rightValue(NoteManager.createRmaNote(rma.refNum, admin,
+        val rootNote = rightValue(RmaNoteManager.createRmaNote(rma.refNum, admin,
           payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue)
 
         val response = PATCH(s"v1/notes/rma/${rma.refNum}/${rootNote.id}", payloads.UpdateNote(body = "donkey"))

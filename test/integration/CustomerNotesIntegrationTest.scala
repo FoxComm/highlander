@@ -6,7 +6,8 @@ import Extensions._
 import models.customer.{Customers, Customer}
 import models.{Notes, _}
 import responses.AdminNotes
-import services.{NotFoundFailure404, NoteManager}
+import services.NotFoundFailure404
+import services.notes.CustomerNoteManager
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -49,7 +50,7 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
 
     "can be listed" in new Fixture {
       List("abc", "123", "xyz").map { body ⇒
-        NoteManager.createCustomerNote(customer.id, admin, payloads.CreateNote(body = body)).futureValue
+        CustomerNoteManager.createCustomerNote(customer.id, admin, payloads.CreateNote(body = body)).futureValue
       }
 
       val response = GET(s"v1/notes/customer/${customer.id}")
@@ -64,7 +65,7 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
   "PATCH /v1/notes/customer/:customerId/:noteId" - {
 
     "can update the body text" in new Fixture {
-      val rootNote = rightValue(NoteManager.createCustomerNote(customer.id, admin,
+      val rootNote = rightValue(CustomerNoteManager.createCustomerNote(customer.id, admin,
         payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue)
 
       val response = PATCH(s"v1/notes/customer/${customer.id}/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
