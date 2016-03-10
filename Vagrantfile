@@ -40,7 +40,7 @@ def expose_ashes(config)
 end
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/vivid64"
+  config.vm.box = "ubuntu/wily64"
 
   config.vm.provider :virtualbox do |vb|
     vb.cpus = $vb_cpu
