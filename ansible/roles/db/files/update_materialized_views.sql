@@ -56,6 +56,8 @@ refresh materialized view concurrently failed_authorizations_search_view;
 refresh materialized view concurrently notes_orders_view;
 refresh materialized view concurrently notes_customers_view;
 refresh materialized view concurrently notes_gift_cards_view;
+refresh materialized view concurrently notes_skus_view;
+refresh materialized view concurrently notes_products_view;
 refresh materialized view concurrently notes_admins_view;
 refresh materialized view concurrently notes_search_view;
 
