@@ -151,7 +151,7 @@ object Admin {
             }
           }
         } ~
-        pathPrefix("skus" / Sku.skuCodeRegex) { code ⇒
+        pathPrefix("sku" / Sku.skuCodeRegex) { code ⇒
           (get & pathEnd) {
             goodOrFailures {
               SkuNoteManager.list(code)
@@ -175,7 +175,7 @@ object Admin {
             }
           }
         } ~
-        pathPrefix("products" / IntNumber) { productId ⇒
+        pathPrefix("product" / IntNumber) { productId ⇒
           (get & pathEnd) {
             goodOrFailures {
               ProductNoteManager.list(productId)
