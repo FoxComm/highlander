@@ -3,9 +3,12 @@
 
 .checkout {
   margin-top: 45px;
+  width: 100%;
+}
 
-  lost-column: 9/11;
+.shipping {
   lost-offset: -1/11;
+  lost-column: 5/11;
 }
 
 .logo {

@@ -6,7 +6,6 @@ import React, { Component } from 'react';
 import cssModules from 'react-css-modules';
 import styles from './checkout.css';
 import { reduxForm } from 'redux-form';
-import { connect } from 'react-redux';
 
 import Button from 'ui/buttons';
 import { TextInput } from 'ui/inputs';
@@ -14,8 +13,6 @@ import EditableBlock from 'ui/editable-block';
 import { FormField } from 'ui/forms';
 
 import Autocomplete from 'ui/autocomplete';
-
-import selectableList from 'selectors/countries';
 
 type ShippingProps = {
   isEditing: boolean;
@@ -32,20 +29,32 @@ type EditShippinProps = {
   fields?: Object;
 }
 
+const DEFAULT_COUNTRY = 'USA';
+
+function mapStateToProps(state) {
+  const currentCountry = _.get(state.form, 'checkout-shipping.country.value');
+
+  const countries = state.countries.list;
+  const selectedCountry = _.find(countries, {alpha3: _.get(currentCountry, 'alpha3', DEFAULT_COUNTRY)});
+  const countryDetails = state.countries.details[selectedCountry && selectedCountry.id] || {
+    regions: [],
+  };
+
+  return {
+    countries: state.countries.list,
+    selectedCountry: countryDetails,
+    initialValues: {
+      country: selectedCountry,
+      state: countryDetails.regions[0] || {},
+    },
+  };
+}
+
 /* ::`*/
-@connect(state => ({
-  countries: selectableList(state),
-}))
 @reduxForm({
   form: 'checkout-shipping',
   fields: ['name', 'address1', 'address2', 'country', 'zip', 'city', 'state', 'phone'],
-},
-  () => ({ // mapStateToProps
-    initialValues: {
-      country: 'USA',
-    },
-  })
-)
+}, mapStateToProps)
 @cssModules(styles)
 /* ::`*/
 class EditShipping extends Component {
@@ -55,8 +64,10 @@ class EditShipping extends Component {
     // $FlowFixMe: decorators are not supported
     const { fields: {country}, countries} = this.props;
 
-    const item = _.find(countries, {id: country.value});
-    return item && item.value;
+    if (country.value) {
+      const item = _.find(countries, {alpha3: country.value.alpha3});
+      return item && item.name;
+    }
   }
 
   render() {
@@ -65,7 +76,7 @@ class EditShipping extends Component {
     // $FlowFixMe: decorators are not supported
     const { fields: {name, address1, address2, country, zip, city, state, phone}} = props;
     // $FlowFixMe: decorators are not supported
-    const { countries } = props;
+    const { countries, selectedCountry } = props;
 
     return (
       <form onSubmit={handleSubmit} styleName="checkout-form">
@@ -84,9 +95,10 @@ class EditShipping extends Component {
               inputProps={{
                 placeholder: 'COUNTRY',
               }}
+              getItemValue={item => item.name}
               items={countries}
-              onSelect={item => country.onChange(item.id)}
-              initialValue={this.initialCountryValue}
+              onSelect={item => country.onChange(item)}
+              selectedItem={country.value}
             />
           </FormField>
           <FormField styleName="checkout-field" field={zip}>
@@ -98,7 +110,15 @@ class EditShipping extends Component {
             <TextInput placeholder="CITY" {...city} />
           </FormField>
           <FormField styleName="checkout-field" field={state}>
-            <TextInput placeholder="STATE" {...state} />
+            <Autocomplete
+              inputProps={{
+                placeholder: 'STATE',
+              }}
+              getItemValue={item => item.name}
+              items={selectedCountry.regions}
+              onSelect={item => state.onChange(item)}
+              selectedItem={state.value}
+            />
           </FormField>
         </div>
         <FormField styleName="checkout-field" field={phone}>
@@ -114,6 +134,7 @@ class EditShipping extends Component {
 const Shipping = (props: ShippingProps) => {
   return (
     <EditableBlock
+      styleName="shipping"
       title="SHIPPING"
       isEditing={props.isEditing}
       editAction={props.editAction}
