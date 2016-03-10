@@ -1,6 +1,6 @@
 lazy val commonSettings = Seq(
   version       := "1.0",
-  scalaVersion  := "2.11.7",
+  scalaVersion  := "2.11.8",
   updateOptions := updateOptions.value.withCachedResolution(true),
   scalacOptions ++= List(
     "-encoding", "UTF-8",
@@ -19,8 +19,6 @@ lazy val commonSettings = Seq(
   )
 )
 
-/** Work arounds to use json4s-3.3.0 **/
-lazy val fcSlickPG      = RootProject(uri("git://github.com/FoxComm/slick-pg.git#patch/json4s-3.3.0"))
 
 lazy val testWartWarnings = Seq(Wart.OptionPartial)
 
@@ -29,7 +27,6 @@ lazy val slickV = "3.1.1"
 lazy val phoenixScala = (project in file(".")).
   settings(commonSettings).
   configs(IT).
-  dependsOn(fcSlickPG).
   settings(inConfig(IT)(Defaults.testSettings)).
   settings(inConfig(Test)(wartremoverWarnings ++= testWartWarnings)).
   settings(inConfig(IT)(wartremoverWarnings ++= testWartWarnings)).
@@ -95,6 +92,7 @@ lazy val phoenixScala = (project in file(".")).
       val monocleV   = "1.2.0"
       val json4sV    = "3.3.0"
       val logbackV   = "1.1.5"
+      val skickPgV    = "0.12.0"
 
       Seq(
         // Akka
@@ -112,6 +110,8 @@ lazy val phoenixScala = (project in file(".")).
         // Database
         "com.typesafe.slick"         %% "slick"                  % slickV,
         "com.typesafe.slick"         %% "slick-hikaricp"         % slickV,
+        "com.github.tminglei"        %% "slick-pg"               % skickPgV,
+        "com.github.tminglei"        %% "slick-pg_json4s"        % skickPgV,
         "com.zaxxer"                 %  "HikariCP"               % "2.4.3"    % "provided",
         "org.postgresql"             %  "postgresql"             % "9.4.1208",
         "org.flywaydb"               %  "flyway-core"            % "3.2.1",
