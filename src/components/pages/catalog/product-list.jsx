@@ -21,13 +21,15 @@ type ProductListParams = {
   fetchProducts: Function;
 }
 
-const getState = state => ({ list: state.products.list });
+const getState = state => ({...state.products});
 
 class ProductList extends Component {
 
-  componentDidMount() {
-    const categoryId = this.categoryId(this.props.params);
-    this.props.fetchProducts(categoryId);
+  componentWillMount() {
+    if (!this.props.isFetching && !this.props.fetched) {
+      const categoryId = this.categoryId(this.props.params);
+      this.props.fetchProducts(categoryId);
+    }
   }
 
   componentWillReceiveProps(nextProps: ProductListParams) {

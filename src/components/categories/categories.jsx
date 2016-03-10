@@ -15,7 +15,7 @@ type Category = {
   id: number;
 };
 
-const getState = state => ({ list: state.categories.list });
+const getState = state => ({...state.categories});
 
 class Categories extends React.Component {
 
@@ -29,8 +29,10 @@ class Categories extends React.Component {
     onClick: _.noop,
   };
 
-  componentDidMount() {
-    this.props.fetchCategories();
+  componentWillMount() {
+    if (!this.props.isFetching && !this.props.fetched) {
+      this.props.fetchCategories();
+    }
   }
 
   @autobind
