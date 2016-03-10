@@ -4,7 +4,6 @@ import details from './details';
 import bulk from './bulk';
 import watchers from './watchers';
 import list from './list';
-import adminSearch from './admin-search';
 import newOrder from './new-order';
 import skuSearch from './sku-search';
 import shippingMethods from './shipping-methods';
@@ -17,7 +16,6 @@ const orderReducer = combineReducers({
   bulk,
   watchers,
   list,
-  adminSearch,
   skuSearch,
   shippingMethods,
   shippingAddresses,

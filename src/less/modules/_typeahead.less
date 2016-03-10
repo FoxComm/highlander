@@ -1,6 +1,20 @@
 .fc-typeahead {
   position: relative;
 
+  &.fc-typeahead_state_loading {
+    &::after {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      right: 7px;
+      height: 100%;
+      width: 100%;
+      background: url('/images/ripple.svg') right center no-repeat;
+      background-size: auto 80%;
+    }
+  }
+
   input[type=text] {
     .width(700px);
     max-width: 95%;
@@ -41,11 +55,11 @@
     }
     position: absolute;
     top: 100%;
+    width: 100%;
     z-index: 999;
   }
 
   &__items {
-    .width(700px);
     .max-height(200px);
     overflow-y: scroll;
     overflow-x: hidden;
@@ -63,7 +77,7 @@
         border-bottom: none;
       }
 
-      &:hover {
+      &.fc-typeahead__item:hover {
         background-color: @color-tr-even-bg;
         cursor: pointer;
       }
@@ -71,6 +85,12 @@
       .fc-grid {
         line-height: pxtorem(20px);
       }
+    }
+  }
+
+  .fc-typeahead__need-more-characters {
+    .fc-alert {
+      .margin-top(0);
     }
   }
 }

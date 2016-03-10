@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
-import UserInitials from '../users/initials';
+import DetailedInitials from '../users/detailed-initials';
 import ViewerStore from '../../stores/viewers';
 
 const updateTime = 60000;
@@ -68,7 +68,7 @@ export default class Viewers extends React.Component {
       'fc-viewers-item': true,
       'is-locker': viewer.isLocker
     });
-    return <li className={classnames} key={viewer.id}><UserInitials {...viewer}/></li>;
+    return <li className={classnames} key={viewer.id}><DetailedInitials {...viewer}/></li>;
   }
 
   render() {

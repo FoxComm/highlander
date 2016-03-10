@@ -3,9 +3,6 @@
 import React, { PropTypes } from 'react';
 import { get } from 'sprout-data';
 
-// components
-import Initials from '../users/initials';
-
 const OriginType = (props) => {
   const type = get(props, ['value', 'originType']);
   let formattedType = null;

@@ -14,18 +14,18 @@ import { getStore } from '../../lib/store-creator';
 // components
 import Panel from '../panel/panel';
 import { AddButton } from '../common/buttons';
-import UserInitials from '../users/initials';
+import DetailedInitials from '../users/detailed-initials';
 import { Button } from '../common/buttons';
 import SelectWatcherModal from './select-modal';
 
 //TODO remove with auth
-import {currentUser} from '../header/header';
+import { currentUser } from '../header/header';
 
 const maxDisplayed = 7;
 
 
-const mapDispatchToProps = (dispatch, {entity: {entityType, entityId}}) => {
-  const {actions} = getStore('watchers', entityType);
+const mapDispatchToProps = (dispatch, { entity: { entityType, entityId } }) => {
+  const { actions } = getStore('watchers', entityType);
 
   return {
     watch: (group, id)=>dispatch(actions.watch(entityId, group, id)),
@@ -71,7 +71,7 @@ const Watchers = (props) => {
       <SelectWatcherModal
         entity={props.entity}
         onCancel={props.hideSelectModal}
-        onConfirm={props.addWatchers} />
+        onConfirm={props.addWatchers}/>
     </Panel>
   );
 };
@@ -82,7 +82,7 @@ const renderGroup = (props, group) => {
   return (
     <div className={classNames('fc-watchers__users-row', `fc-watchers__${group}-row`)}>
       <AddButton className="fc-watchers__add-button"
-                 onClick={() => props.showSelectModal(group)} />
+                 onClick={() => props.showSelectModal(group)}/>
       {renderRow(props, group, users)}
     </div>
   );
@@ -117,18 +117,18 @@ const renderRow = (props, group, users) => {
 };
 
 const renderHiddenRow = (props, group, cells) => {
-  const {toggleListModal} = props;
+  const { toggleListModal } = props;
   const active = _.get(props.data, [group, 'listModalDisplayed'], false);
 
-  const hiddenBlockClass = classNames('fc-watchers__rest-block', {'_shown': active});
-  const hiddenBlockOverlayClass = classNames('fc-watchers__rest-block-overlay', {'_shown': active});
-  const buttonClass = classNames('fc-watchers__toggle-watchers-btn', {'_active': active});
+  const hiddenBlockClass = classNames('fc-watchers__rest-block', { '_shown': active });
+  const hiddenBlockOverlayClass = classNames('fc-watchers__rest-block-overlay', { '_shown': active });
+  const buttonClass = classNames('fc-watchers__toggle-watchers-btn', { '_active': active });
 
   return (
     <div className="fc-watchers__rest-cell">
       <Button icon="ellipsis"
               className={buttonClass}
-              onClick={() => toggleListModal(group)} />
+              onClick={() => toggleListModal(group)}/>
       <div className={hiddenBlockOverlayClass}
            onClick={() => toggleListModal(group)}></div>
       <div className={hiddenBlockClass}>
@@ -141,21 +141,18 @@ const renderHiddenRow = (props, group, cells) => {
 };
 
 const renderCell = (group, user, removeWatcher, hidden = false) => {
-  const {id, name, firstName, lastName, email} = user;
+  const { id, name } = user;
   const key = hidden ? `cell-hidden-${group}-${name}` : `cell-${group}-${name}`;
 
   const actionBlock = (
-    <Button icon="close" onClick={() => removeWatcher(id)} />
+    <Button icon="close" onClick={() => removeWatcher(id)}/>
   );
 
   return (
     <div className="fc-watchers__cell" key={key}>
-      <UserInitials name={name}
-                    firstName={firstName}
-                    lastName={lastName}
-                    email={email}
-                    actionBlock={actionBlock}
-                    showTooltipOnClick={true} />
+      <DetailedInitials {...user}
+        actionBlock={actionBlock}
+        showTooltipOnClick={true}/>
     </div>
   );
 };

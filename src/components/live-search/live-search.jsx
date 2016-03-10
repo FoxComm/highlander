@@ -17,6 +17,8 @@ import { Button } from '../common/buttons';
 
 import SearchTerm, { getInputMask } from '../../paragons/search-term';
 
+const SEARCH_ALL = 'All';
+
 function currentSearch(props) {
   return props.searches.currentSearch() || {};
 }
@@ -186,7 +188,7 @@ export default class LiveSearch extends React.Component {
   get searchButton() {
     if (this.props.singleSearch) return;
 
-    const shouldSaveNew = this.currentSearch.title === 'All';
+    const shouldSaveNew = this.currentSearch.title === SEARCH_ALL;
     const buttonContents = `${shouldSaveNew ? 'Save' : 'Update'} Search`;
     const clickAction = (event) => {
       event.preventDefault();
@@ -423,6 +425,7 @@ export default class LiveSearch extends React.Component {
         <Button
           className="fc-live-search__share-button fc-right"
           onClick={this.openShareSearch}
+          disabled={this.currentSearch.title === SEARCH_ALL}
           icon="external-link-2" />
         <ShareSearch
           closeAction={this.closeShareSearch}
