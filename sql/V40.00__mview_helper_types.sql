@@ -113,6 +113,21 @@ create table export_reasons (
     body        text
 );
 
+create table export_skus_raw (
+    id          integer,
+    sku         text,
+    type        text,
+    attributes  jsonb,
+    created_at  text
+);
+
+create table export_products_raw (
+    id          integer,
+    attributes  jsonb,
+    variants    jsonb,
+    created_at  text
+);
+
 create table export_countries (
     id                  integer,
     name                text,
@@ -124,4 +139,4 @@ create table export_countries (
     uses_postal_code    boolean,
     is_billable         boolean,
     is_shippable        boolean
-)
+);
