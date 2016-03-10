@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import cssModules from 'react-css-modules';
 import styles from './checkout.css';
 import { reduxForm } from 'redux-form';
+import { connect } from 'react-redux';
 
 import Button from 'ui/buttons';
 import { TextInput } from 'ui/inputs';
@@ -13,6 +14,8 @@ import EditableBlock from 'ui/editable-block';
 import { FormField } from 'ui/forms';
 
 import Autocomplete from 'ui/autocomplete';
+
+import selectableList from 'selectors/countries';
 
 type ShippingProps = {
   isEditing: boolean;
@@ -29,16 +32,20 @@ type EditShippinProps = {
   fields?: Object;
 }
 
-const mockCountries = [
-  {value: 'UNITED STATES', id: 'USA'},
-  {value: 'CANADA', id: 'CAN'},
-];
-
 /* ::`*/
+@connect(state => ({
+  countries: selectableList(state),
+}))
 @reduxForm({
   form: 'checkout-shipping',
   fields: ['name', 'address1', 'address2', 'country', 'zip', 'city', 'state', 'phone'],
-})
+},
+  () => ({ // mapStateToProps
+    initialValues: {
+      country: 'USA',
+    },
+  })
+)
 @cssModules(styles)
 /* ::`*/
 class EditShipping extends Component {
@@ -46,9 +53,9 @@ class EditShipping extends Component {
 
   get initialCountryValue() {
     // $FlowFixMe: decorators are not supported
-    const { fields: {country}} = this.props;
+    const { fields: {country}, countries} = this.props;
 
-    const item = _.find(mockCountries, {id: country.value});
+    const item = _.find(countries, {id: country.value});
     return item && item.value;
   }
 
@@ -57,6 +64,8 @@ class EditShipping extends Component {
     const { handleSubmit } = props;
     // $FlowFixMe: decorators are not supported
     const { fields: {name, address1, address2, country, zip, city, state, phone}} = props;
+    // $FlowFixMe: decorators are not supported
+    const { countries } = props;
 
     return (
       <form onSubmit={handleSubmit} styleName="checkout-form">
@@ -75,7 +84,7 @@ class EditShipping extends Component {
               inputProps={{
                 placeholder: 'COUNTRY',
               }}
-              items={mockCountries}
+              items={countries}
               onSelect={item => country.onChange(item.id)}
               initialValue={this.initialCountryValue}
             />

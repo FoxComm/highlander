@@ -89,6 +89,7 @@
     "redux-form": "^4.2.0",
     "redux-thunk": "^1.0.3",
     "redux-wait": "0.0.3",
+    "reselect": "^2.1.0",
     "sprout-data": "^0.2.3"
   }
 }
