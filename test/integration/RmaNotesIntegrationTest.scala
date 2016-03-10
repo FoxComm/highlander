@@ -3,6 +3,7 @@ import java.time.Instant
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import models.activity.ActivityContext
 import models.customer.Customers
 import models.order.{Orders, Order}
 import models.rma.{Rmas, Rma}
@@ -18,6 +19,8 @@ import utils.time.RichInstant
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class RmaNotesIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+
+  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
 
   "RMA Notes" - {
     pending
@@ -53,7 +56,7 @@ class RmaNotesIntegrationTest extends IntegrationTestBase with HttpSupport with 
 
       "can be listed" in new Fixture {
         List("abc", "123", "xyz").map { body ⇒
-          RmaNoteManager.createRmaNote(rma.refNum, admin, payloads.CreateNote(body = body)).futureValue
+          RmaNoteManager.create(rma.refNum, admin, payloads.CreateNote(body = body)).futureValue
         }
 
         val response = GET(s"v1/notes/rma/${rma.refNum}")
@@ -68,7 +71,7 @@ class RmaNotesIntegrationTest extends IntegrationTestBase with HttpSupport with 
     "PATCH /v1/notes/rma/:code/:noteId" - {
 
       "can update the body text" in new Fixture {
-        val rootNote = rightValue(RmaNoteManager.createRmaNote(rma.refNum, admin,
+        val rootNote = rightValue(RmaNoteManager.create(rma.refNum, admin,
           payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue)
 
         val response = PATCH(s"v1/notes/rma/${rma.refNum}/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
@@ -90,10 +93,10 @@ class RmaNotesIntegrationTest extends IntegrationTestBase with HttpSupport with 
         response.bodyText mustBe empty
 
         val updatedNote = Notes.findOneById(note.id).run().futureValue.value
-        updatedNote.deletedBy.value === (1)
+        updatedNote.deletedBy.value === 1
 
         withClue(updatedNote.deletedAt.value → Instant.now) {
-          updatedNote.deletedAt.value.isBeforeNow === (true)
+          updatedNote.deletedAt.value.isBeforeNow === true
         }
 
         // Deleted note should not be returned

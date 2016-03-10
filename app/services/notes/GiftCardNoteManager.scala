@@ -4,6 +4,7 @@ import models.Notes.scope._
 import models.payment.giftcard.GiftCards
 import models.{Note, Notes, StoreAdmin}
 import models.activity.ActivityContext
+import responses.AdminNotes
 import responses.AdminNotes.Root
 import services._
 import utils.DbResultT._
@@ -12,23 +13,27 @@ import utils.aliases._
 
 object GiftCardNoteManager {
 
-  def createGiftCardNote(code: String, author: StoreAdmin, payload: payloads.CreateNote)
-    (implicit ec: EC, db: DB): Result[Root] = (for {
+  def create(code: String, author: StoreAdmin, payload: payloads.CreateNote)
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Root] = (for {
+    giftCard  ← * <~ GiftCards.mustFindByCode(code)
+    note      ← * <~ createModelNote(giftCard.id, Note.GiftCard, author, payload)
+    _         ← * <~ LogActivity.noteCreated(author, giftCard, note)
+  } yield AdminNotes.build(note, author)).runTxn()
+
+  def update(code: String, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Root] = (for {
     giftCard ← * <~ GiftCards.mustFindByCode(code)
-    response ← * <~ createModelNote(giftCard.id, Note.GiftCard, author, payload)
-  } yield response).runTxn()
+    note     ← * <~ updateNote(giftCard, noteId, author, payload)
+  } yield note).runTxn()
 
-  def updateGiftCardNote(code: String, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
-    (implicit ec: EC, db: DB): Result[Root] = (for {
-    _        ← * <~ GiftCards.mustFindByCode(code)
-    response ← * <~ updateNote(noteId, author, payload)
-  } yield response).runTxn()
-
-  def deleteGiftCardNote(noteId: Int, author: StoreAdmin)(implicit ec: EC, db: DB, ac: ActivityContext): Result[Unit] =
-    deleteNote(noteId, author)
-
-  def forGiftCard(code: String)(implicit ec: EC, db: DB): Result[Seq[Root]] = (for {
+  def delete(code: String, noteId: Int, author: StoreAdmin)
+    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Unit] = (for {
     giftCard ← * <~ GiftCards.mustFindByCode(code)
-    response ← * <~ forModel(Notes.filterByGiftCardId(giftCard.id).notDeleted)
-  } yield response).run()
+    _        ← * <~ deleteNote(giftCard, noteId, author)
+  } yield ()).runTxn()
+
+  def list(code: String)(implicit ec: EC, db: DB): Result[Seq[Root]] = (for {
+    giftCard  ← * <~ GiftCards.mustFindByCode(code)
+    note      ← * <~ forModel(Notes.filterByGiftCardId(giftCard.id).notDeleted)
+  } yield note).run()
 }

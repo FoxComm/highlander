@@ -3,6 +3,7 @@ import java.time.Instant
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import models.activity.ActivityContext
 import models.customer.{Customers, Customer}
 import models.{Notes, _}
 import responses.AdminNotes
@@ -18,6 +19,8 @@ import utils.time.RichInstant
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+
+  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
 
   "POST /v1/notes/customer/:customerId" - {
     "can be created by an admin for a customer" in new Fixture {
@@ -50,7 +53,7 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
 
     "can be listed" in new Fixture {
       List("abc", "123", "xyz").map { body ⇒
-        CustomerNoteManager.createCustomerNote(customer.id, admin, payloads.CreateNote(body = body)).futureValue
+        CustomerNoteManager.create(customer.id, admin, payloads.CreateNote(body = body)).futureValue
       }
 
       val response = GET(s"v1/notes/customer/${customer.id}")
@@ -65,7 +68,7 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
   "PATCH /v1/notes/customer/:customerId/:noteId" - {
 
     "can update the body text" in new Fixture {
-      val rootNote = rightValue(CustomerNoteManager.createCustomerNote(customer.id, admin,
+      val rootNote = rightValue(CustomerNoteManager.create(customer.id, admin,
         payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue)
 
       val response = PATCH(s"v1/notes/customer/${customer.id}/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
@@ -87,10 +90,10 @@ class CustomerNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
       response.bodyText mustBe empty
 
       val updatedNote = Notes.findOneById(note.id).run().futureValue.value
-      updatedNote.deletedBy.value === (1)
+      updatedNote.deletedBy.value === 1
 
       withClue(updatedNote.deletedAt.value → Instant.now) {
-        updatedNote.deletedAt.value.isBeforeNow === (true)
+        updatedNote.deletedAt.value.isBeforeNow === true
       }
 
       // Deleted note should not be returned

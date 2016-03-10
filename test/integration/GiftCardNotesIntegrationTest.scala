@@ -3,6 +3,7 @@ import java.time.Instant
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import models.activity.ActivityContext
 import models.payment.giftcard._
 import models.{Notes, _}
 import responses.AdminNotes
@@ -16,6 +17,8 @@ import utils.time.RichInstant
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
+
+  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
 
   "POST /v1/notes/gift-card/:code" - {
     "can be created by an admin for a gift card" in new Fixture {
@@ -48,7 +51,7 @@ class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
 
     "can be listed" in new Fixture {
       List("abc", "123", "xyz").map { body ⇒
-        GiftCardNoteManager.createGiftCardNote(giftCard.code, admin, payloads.CreateNote(body = body)).futureValue
+        GiftCardNoteManager.create(giftCard.code, admin, payloads.CreateNote(body = body)).futureValue
       }
 
       val response = GET(s"v1/notes/gift-card/${giftCard.code}")
@@ -63,7 +66,7 @@ class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
   "PATCH /v1/notes/gift-card/:code/:noteId" - {
 
     "can update the body text" in new Fixture {
-      val rootNote = rightValue(GiftCardNoteManager.createGiftCardNote(giftCard.code, admin,
+      val rootNote = rightValue(GiftCardNoteManager.create(giftCard.code, admin,
         payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue)
 
       val response = PATCH(s"v1/notes/gift-card/${giftCard.code}/${rootNote.id}", payloads.UpdateNote(body = "donkey"))
@@ -85,10 +88,10 @@ class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport 
       response.bodyText mustBe empty
 
       val updatedNote = Notes.findOneById(note.id).run().futureValue.value
-      updatedNote.deletedBy.value === (1)
+      updatedNote.deletedBy.value === 1
 
       withClue(updatedNote.deletedAt.value → Instant.now) {
-        updatedNote.deletedAt.value.isBeforeNow === (true)
+        updatedNote.deletedAt.value.isBeforeNow === true
       }
 
       // Deleted note should not be returned

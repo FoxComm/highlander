@@ -59,69 +59,69 @@ object Admin {
         pathPrefix("order" / orderRefNumRegex) { refNum ⇒
           (get & pathEnd) {
             goodOrFailures {
-              OrderNoteManager.forOrder(refNum)
+              OrderNoteManager.list(refNum)
             }
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
             goodOrFailures {
-              OrderNoteManager.createOrderNote(refNum, admin, payload)
+              OrderNoteManager.create(refNum, admin, payload)
             }
           } ~
           (patch & path(IntNumber) & pathEnd & entity(as[UpdateNote])) { (noteId, payload) ⇒
             goodOrFailures {
-              OrderNoteManager.updateOrderNote(refNum, noteId, admin, payload)
+              OrderNoteManager.update(refNum, noteId, admin, payload)
             }
           } ~
           (delete & path(IntNumber)) { noteId ⇒
-            complete {
-              OrderNoteManager.deleteOrderNote(refNum, noteId, admin).map(renderNothingOrFailures)
+            nothingOrFailures {
+              OrderNoteManager.delete(refNum, noteId, admin)
             }
           }
         } ~
         pathPrefix("gift-card" / GiftCard.giftCardCodeRegex) { code ⇒
           (get & pathEnd) {
             goodOrFailures {
-              GiftCardNoteManager.forGiftCard(code)
+              GiftCardNoteManager.list(code)
             }
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
             goodOrFailures {
-              GiftCardNoteManager.createGiftCardNote(code, admin, payload)
+              GiftCardNoteManager.create(code, admin, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
               goodOrFailures {
-                GiftCardNoteManager.updateGiftCardNote(code, noteId, admin, payload)
-              }
-            } ~
-            (delete & pathEnd) {
-              complete {
-                GiftCardNoteManager.deleteGiftCardNote(noteId, admin).map(renderNothingOrFailures)
-              }
-            }
-          }
-        } ~
-        pathPrefix("customer" / IntNumber) { id ⇒
-          (get & pathEnd) {
-            goodOrFailures {
-              CustomerNoteManager.forCustomer(id)
-            }
-          } ~
-          (post & pathEnd & entity(as[CreateNote])) { payload ⇒
-            goodOrFailures {
-              CustomerNoteManager.createCustomerNote(id, admin, payload)
-            }
-          } ~
-          path(IntNumber) { noteId ⇒
-            (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
-              goodOrFailures {
-                CustomerNoteManager.updateCustomerNote(id, noteId, admin, payload)
+                GiftCardNoteManager.update(code, noteId, admin, payload)
               }
             } ~
             (delete & pathEnd) {
               nothingOrFailures {
-                CustomerNoteManager.deleteCustomerNote(noteId, admin)
+                GiftCardNoteManager.delete(code, noteId, admin)
+              }
+            }
+          }
+        } ~
+        pathPrefix("customer" / IntNumber) { customerId ⇒
+          (get & pathEnd) {
+            goodOrFailures {
+              CustomerNoteManager.list(customerId)
+            }
+          } ~
+          (post & pathEnd & entity(as[CreateNote])) { payload ⇒
+            goodOrFailures {
+              CustomerNoteManager.create(customerId, admin, payload)
+            }
+          } ~
+          path(IntNumber) { noteId ⇒
+            (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
+              goodOrFailures {
+                CustomerNoteManager.update(customerId, noteId, admin, payload)
+              }
+            } ~
+            (delete & pathEnd) {
+              nothingOrFailures {
+                CustomerNoteManager.delete(customerId, noteId, admin)
               }
             }
           }
@@ -129,23 +129,23 @@ object Admin {
         pathPrefix("rma" / Rma.rmaRefNumRegex) { refNum ⇒
           (get & pathEnd) {
             goodOrFailures {
-              RmaNoteManager.forRma(refNum)
+              RmaNoteManager.list(refNum)
             }
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
             goodOrFailures {
-              RmaNoteManager.createRmaNote(refNum, admin, payload)
+              RmaNoteManager.create(refNum, admin, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
               goodOrFailures {
-                RmaNoteManager.updateRmaNote(refNum, noteId, admin, payload)
+                RmaNoteManager.update(refNum, noteId, admin, payload)
               }
             } ~
             (delete & pathEnd) {
               nothingOrFailures {
-                RmaNoteManager.deleteRmaNote(noteId, admin)
+                RmaNoteManager.delete(refNum, noteId, admin)
               }
             }
           }
