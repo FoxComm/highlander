@@ -36,6 +36,13 @@ object NotFoundFailure400 {
   }
 }
 
+object AssigneeNotFound {
+  def apply[A](a: A, searchKey: Any, assigneeId: Int): NotFoundFailure400 = {
+    NotFoundFailure400(s"storeAdmin with id=$assigneeId is not assigned to ${friendlyClassName(a)} " +
+      s"with ${searchTerm(a)}=$searchKey")
+  }
+}
+
 final case class DatabaseFailure(message: String) extends Failure {
   override def description = message
 }

@@ -75,7 +75,8 @@ object Assignments extends TableQueryWithId[Assignment, Assignments](
     } yield records
   }
 
-  def byEntity[T <: ModelWithIdParameter[T]](model: T): QuerySeq = filter(_.referenceId === model.id)
+  def byEntityAndAdmin[T <: ModelWithIdParameter[T]](model: T, refType: ReferenceType, admin: StoreAdmin): QuerySeq =
+    filter(_.referenceType === refType).filter(_.referenceId === model.id).filter(_.storeAdminId === admin.id)
 
   def assigneesFor[T](entity: T)(implicit ec: EC): StoreAdmins.QuerySeq = {
     for {
