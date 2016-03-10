@@ -73,6 +73,25 @@ trait AssignmentsManager[K, T <: ModelWithIdParameter[T]] {
     batchMetadata  = BatchMetadata(BatchMetadataSource(Customer, success.map(_.toString), batchFailures))
   } yield ()).runTxn()
 
+  def unassignBulk(admin: StoreAdmin, payload: BulkAssignmentPayload)
+    (implicit ec: EC, db: DB, ac: AC, sortAndPage: SortAndPage): Result[Unit] = (for {
+
+    admin    ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
+    entities ← * <~ fetchMulti(payload.entityIds)
+    _        ← * <~ Assignments.filter(_.storeAdminId === payload.storeAdminId)
+      .filter(_.referenceType === referenceType()).filter(_.referenceId.inSetBind(entities.map(_.id))).delete
+
+    // TODO - .findAll generalized
+    success   = entities.filter(c ⇒ payload.entityIds.contains(c.id)).map(_.id)
+
+    // TODO - LogActivity + notifications generalization
+    // ...
+
+    // Prepare batch response + proper class names
+    batchFailures  = diffToBatchErrors(payload.entityIds, entities.map(_.id), Customer)
+    batchMetadata  = BatchMetadata(BatchMetadataSource(Customer, success.map(_.toString), batchFailures))
+  } yield ()).runTxn()
+
   // Helpers
   private def byEntityAndAdmin(entity: T, admin: StoreAdmin): Assignments.QuerySeq =
     Assignments.byEntityAndAdmin(entity, referenceType(), admin)
