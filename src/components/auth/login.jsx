@@ -24,8 +24,8 @@ export default class Login extends React.Component {
     };
   }
 
-  static propTypes = {
-    setUser: PropTypes.func.isRequired,
+  props = {
+    setUser: (user: userActions.TUser) => ({type: String, payload: Object}),
   };
 
   static contextTypes = {
@@ -49,7 +49,7 @@ export default class Login extends React.Component {
     }).then(response => {
         if (response.status == 200) {
           localStorage.setItem('jwt', response.headers.get('jwt'));
-          response.json().then(token => {
+          response.json().then((token: userActions.TUser) => {
             localStorage.setItem('user', JSON.stringify(token));
             setUser(token);
             transitionTo(context.history, 'home');

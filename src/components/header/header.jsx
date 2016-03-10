@@ -10,9 +10,10 @@ import NotificationBlock from '../activity-notifications/notification-block';
 import DetailedInitials from '../users/detailed-initials';
 import Breadcrumb from './breadcrumb';
 
-const Header = props => {
-  const user = props.user;
+import { TUser } from '../../modules/user';
 
+const Header = props => {
+  const user: TUser = props.user;
 
   const name = (_.isEmpty(user) || user.name == null) ? '' : user.name.split(' ')[0];
   return (
