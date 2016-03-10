@@ -130,7 +130,7 @@ const criterions = [
   {
     type: types.date,
     input: {
-      type: 'dateRange'
+      type: 'date'
     },
     field: 'joinedAt',
     label: 'Date Joined',

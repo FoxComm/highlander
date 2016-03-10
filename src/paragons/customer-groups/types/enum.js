@@ -10,10 +10,10 @@ const type = {
     [ops.oneOf]: 'is one of',
     [ops.notOneOf]: 'is not one of',
   },
-  getQuery: (field, operator, value) => {
-    validateOperatorAppliance(operator, type, field);
+  getQuery: (criterion, operator, value) => {
+    validateOperatorAppliance(operator, type, criterion);
 
-    return operatorsMap[operator](field.field, value);
+    return operatorsMap[operator](criterion.field, value);
   },
 };
 

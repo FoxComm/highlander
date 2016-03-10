@@ -43,11 +43,11 @@ const getQueryBranchFields = (schema, fields) => {
   const negativeClauses = [];
 
   for (const fieldName in fields) {
-    const field = getFieldSchema(schema, fieldName);
+    const criterion = getCriterionSchema(schema, fieldName);
 
     const clauses = fields[fieldName];
     for (const operator in clauses) {
-      const fieldQuery = getQuery(field, operator, clauses[operator]);
+      const fieldQuery = getQuery(criterion, operator, clauses[operator]);
 
       if (operator in negateOperators) {
         negativeClauses.push(fieldQuery);
@@ -68,14 +68,14 @@ const getQueryBranchFields = (schema, fields) => {
   return result;
 };
 
-const getFieldSchema = (schema, fieldName) => {
-  const fieldSchema = _.find(schema, ({field}) => field === fieldName);
+const getCriterionSchema = (schema, fieldName) => {
+  const criterionSchema = _.find(schema, ({field}) => field === fieldName);
 
-  if (!fieldSchema) {
+  if (!criterionSchema) {
     throw new TypeError(`No schema found for field "${fieldName}"`);
   }
 
-  return fieldSchema;
+  return criterionSchema;
 };
 
 export default buildQuery;

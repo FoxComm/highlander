@@ -67,14 +67,13 @@ export const operatorsMap = {
   }),
 };
 
-export const getQuery = (field, operator, value) => {
-  const query = field.type.getQuery(field, operator, value);
+export const getQuery = (criterion, operator, value) => {
+  const query = criterion.type.getQuery(criterion, operator, value);
+  const fieldName = criterion.field;
 
-  if (isDirect(field)) {
+  if (isDirect(fieldName)) {
     return query;
   }
-
-  const fieldName = field.field;
 
   return {
     nested: {
@@ -84,7 +83,7 @@ export const getQuery = (field, operator, value) => {
   };
 };
 
-const isDirect = ({field}) => field.indexOf('.') === -1;
+const isDirect = (field) => field.indexOf('.') === -1;
 
 //negate operators return the same as their positive analogs
 operatorsMap.notEqual = operatorsMap.equal;

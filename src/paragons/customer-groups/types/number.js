@@ -13,10 +13,10 @@ const type = {
     [ops.less]: 'is less than',
     [ops.between]: 'is between',
   },
-  getQuery: (field, operator, value) => {
-    validateOperatorAppliance(operator, type, field);
+  getQuery: (criterion, operator, value) => {
+    validateOperatorAppliance(operator, type, criterion);
 
-    return operatorsMap[operator](field.field, value);
+    return operatorsMap[operator](criterion.field, value);
   },
 };
 

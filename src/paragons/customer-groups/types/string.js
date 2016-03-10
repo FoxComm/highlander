@@ -12,10 +12,10 @@ const type = {
     [ops.contains]: 'contains',
     [ops.notContains]: 'does not contain',
   },
-  getQuery: (field, operator, value) => {
-    validateOperatorAppliance(operator, type, field);
+  getQuery: (criterion, operator, value) => {
+    validateOperatorAppliance(operator, type, criterion);
 
-    return operatorsMap[operator](field.field, value);
+    return operatorsMap[operator](criterion.field, value);
   },
 };
 

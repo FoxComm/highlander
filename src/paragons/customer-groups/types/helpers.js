@@ -1,9 +1,9 @@
-export const validateOperatorAppliance = (operator, type, field) => {
+export const validateOperatorAppliance = (operator, type, criterion) => {
   if (!(operator in type.operators)) {
-    throw new TypeError(`Operator ${operator} is not applicable for field "${field.label}" of type "${type.name}"`);
+    throw new TypeError(`Operator ${operator} is not applicable for field "${criterion.label}" of type "${type.name}"`);
   }
 
-  if (field.operators && !(operator in field.operators)) {
-    throw new TypeError(`Operator ${operator} is not applicable for field "${field.label}"`);
+  if (criterion.operators && !(operator in criterion.operators)) {
+    throw new TypeError(`Operator ${operator} is not applicable for field "${criterion.label}"`);
   }
 };
