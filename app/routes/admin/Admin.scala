@@ -6,6 +6,7 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
 import models.order.Order
 import Order.orderRefNumRegex
+import models.inventory.Sku
 import models.payment.giftcard.GiftCard
 import models.rma.Rma
 import models.StoreAdmin
@@ -146,6 +147,54 @@ object Admin {
             (delete & pathEnd) {
               nothingOrFailures {
                 RmaNoteManager.delete(refNum, noteId, admin)
+              }
+            }
+          }
+        } ~
+        pathPrefix("skus" / Sku.skuCodeRegex) { code ⇒
+          (get & pathEnd) {
+            goodOrFailures {
+              SkuNoteManager.list(code)
+            }
+          } ~
+          (post & pathEnd & entity(as[CreateNote])) { payload ⇒
+            goodOrFailures {
+              SkuNoteManager.create(code, admin, payload)
+            }
+          } ~
+          path(IntNumber) { noteId ⇒
+            (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
+              goodOrFailures {
+                SkuNoteManager.update(code, noteId, admin, payload)
+              }
+            } ~
+            (delete & pathEnd) {
+              nothingOrFailures {
+                SkuNoteManager.delete(code, noteId, admin)
+              }
+            }
+          }
+        } ~
+        pathPrefix("products" / IntNumber) { productId ⇒
+          (get & pathEnd) {
+            goodOrFailures {
+              ProductNoteManager.list(productId)
+            }
+          } ~
+          (post & pathEnd & entity(as[CreateNote])) { payload ⇒
+            goodOrFailures {
+              ProductNoteManager.create(productId, admin, payload)
+            }
+          } ~
+          path(IntNumber) { noteId ⇒
+            (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
+              goodOrFailures {
+                ProductNoteManager.update(productId, noteId, admin, payload)
+              }
+            } ~
+            (delete & pathEnd) {
+              nothingOrFailures {
+                ProductNoteManager.delete(productId, noteId, admin)
               }
             }
           }

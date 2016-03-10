@@ -19,7 +19,6 @@ trait NoteManager[K, T <: ModelWithIdParameter[T]] {
   // Define this methods in inherit object
   def noteType(): Note.ReferenceType
   def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: ActivityContext): DbResult[T]
-  def entityQuerySeq(entityId: Int)(implicit ec: EC, db: DB, ac: ActivityContext): Notes.QuerySeq
 
   // Use this methods wherever you want
   def list(key: K)(implicit ec: EC, db: DB, ac: ActivityContext): Result[Seq[Root]] = (for {
@@ -46,6 +45,9 @@ trait NoteManager[K, T <: ModelWithIdParameter[T]] {
   } yield ()).runTxn()
 
   // Inner methods
+  private def entityQuerySeq(entityId: Int)(implicit ec: EC, db: DB, ac: ActivityContext): Notes.QuerySeq =
+    Notes.filter(_.referenceType === noteType()).filter(_.referenceId === entityId)
+
   private def createInner(entity: T, refId: Int, refType: Note.ReferenceType, author: StoreAdmin,
     payload: payloads.CreateNote)(implicit ec: EC, db: DB, ac: ActivityContext): DbResultT[Note] = for {
     note   ← * <~ Notes.create(Note(storeAdminId = author.id, referenceId = refId, referenceType = refType,
