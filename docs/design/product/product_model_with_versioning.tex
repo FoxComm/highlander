@@ -60,7 +60,7 @@ The Product Form is composed of named attributes. Each attribute has a type, and
 a set of versions. A shadow points to specific versions of attributes on a form. 
 
 We can represent versioning a product as a log of product shadows. Here we introduce
-the concept of a product change, which points to a shadow. Since a shadow is a
+the concept of a product commit, which points to a shadow. Since a shadow is a
 "snapshot" of a product form, we can represent all history to changes of a product
 within a specific context over time.
 
@@ -75,9 +75,9 @@ within a specific context over time.
     }
     {
         rank=same;
-        Change1 [label="Change 1"]
-        Change2 [label="Change 2"]
-        Change3 [label="Change 3"]
+        Commit1 [label="Commit 1"]
+        Commit2 [label="Commit 2"]
+        Commit3 [label="Commit 3"]
     }
     {
         rank=same;
@@ -91,12 +91,12 @@ within a specific context over time.
     Context -> Head2 [label="Has"];
     Context -> Head3 [label="Has"];
 
-    Head3 -> Change3 [label="Points to"];
-    Change1 -> Change2[dir="back"];
-    Change2 -> Change3[dir="back"];
-    Change1 -> Shadow1;
-    Change2 -> Shadow2;
-    Change3 -> Shadow3;
+    Head3 -> Commit3 [label="Points to"];
+    Commit1 -> Commit2[dir="back"];
+    Commit2 -> Commit3[dir="back"];
+    Commit1 -> Shadow1;
+    Commit2 -> Shadow2;
+    Commit3 -> Shadow3;
     Shadow1 -> Form 
     Shadow2 -> Form 
     Shadow3 -> Form [label="Snapshot of"]
@@ -152,18 +152,18 @@ product form. If we use the git revision control system as an analogy, the produ
 shadow is similar a git tree object and the product form is a collection of 
 attributes, where each attribute has a set of versions of that attribute.
 
-\section{The Product Change Object}
+\section{The Product Commit Object}
 
 Since each shadow is a "snapshot" of a form, an ordered list of shadows that 
 point to the same form could represent a history of changes of that product.
 
 \begin{lstlisting}
-    //Change Object
+    //Commit Object
     {
         id: 3,
         shadowId: 5,
         productId: 4,
-        previousChangeId: 2,
+        previousCommitId: 2,
         reasonId: 10
     }
 \end{lstlisting}
@@ -171,7 +171,7 @@ point to the same form could represent a history of changes of that product.
 \subsection{Keeping Track of the Latest Shadow in a Context}
 
 To keep track of the set of latest shadows, we need another object that simply
-points to the latest change. We will call the Head Object
+points to the latest commit. We will call the Head Object
 
 \begin{lstlisting}
     //Head Object
@@ -180,7 +180,7 @@ points to the latest change. We will call the Head Object
         contextId: 1,
         shadowId: 5,
         productId: 4,
-        changeId: 3
+        commitId: 3
     }
 \end{lstlisting}
 
@@ -197,13 +197,13 @@ There are some pros and cons to this design.
         compress well.
     \item The Shadow is decoupled from the context. We can share a shadow into
         a context by creating a Head Object.
-    \item The change log is tree. We can write merge algorithms later if we wanted
+    \item The commit log is a tree. We can write merge algorithms later if we wanted
         to.
     \item We can use contexts the same way people uses branches in git. An admin
-        can have their own context where they stage changes. Once they are approved
-        The head object in the stores context can point to the correct change.
+        can have their own context where they stage commits. Once they are approved
+        The head object in the stores context can point to the correct commit.
     \item We can have contexts based on events. For example a context to stage
-        changes for Easter and migrate the store to easter mode, then migrate
+        commits for Easter and migrate the store to easter mode, then migrate
         back to normal mode trivially.
     \item Using contexts and head objects, we can trivially snapshot the store
         or provide custom catalogs. 
@@ -211,7 +211,7 @@ There are some pros and cons to this design.
 
 \subsection{Cons}
 \begin{itemize}
-    \item PIM UI, which is shadow aware now, will need to be change aware.
+    \item PIM UI, which is shadow aware now, will need to be commit aware.
     \item Is a full git type system in the DB a good idea? Could a form get too big?
     \item The type of attribute is on the attribute and not the version. This means
         shadows cannot change attribute type. Should we move type to be on the version?
