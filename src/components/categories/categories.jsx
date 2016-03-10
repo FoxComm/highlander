@@ -41,7 +41,7 @@ class Categories extends React.Component {
       browserHistory.push('/');
     } else {
       const dashedName = category.name.replace(/\s/g, '-');
-      browserHistory.push(`/${dashedName}`);
+      browserHistory.push(`/${category.id}-${dashedName}`);
     }
   }
 
