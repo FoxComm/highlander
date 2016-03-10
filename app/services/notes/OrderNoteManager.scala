@@ -16,8 +16,7 @@ object OrderNoteManager {
   def create(refNum: String, author: StoreAdmin, payload: payloads.CreateNote)
     (implicit ec: EC, db: DB, ac: ActivityContext): Result[Root] = (for {
     order ← * <~ Orders.mustFindByRefNum(refNum)
-    note  ← * <~ createModelNote(order.id, Note.Order, author, payload)
-    _     ← * <~ LogActivity.noteCreated(author, order, note)
+    note  ← * <~ createNote(order, order.id, Note.Order, author, payload)
   } yield AdminNotes.build(note, author)).runTxn()
 
   def update(refNum: String, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)

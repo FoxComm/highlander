@@ -20,10 +20,11 @@ package object notes {
     DbResult.fromDbio(query.result.map(_.map { case (note, author) ⇒ AdminNotes.build(note, author) }))
   }
 
-  def createModelNote(refId: Int, refType: Note.ReferenceType, author: StoreAdmin,
-    payload: payloads.CreateNote)(implicit ec: EC, db: DB): DbResultT[Note] = for {
+  def createNote[T](entity: T, refId: Int, refType: Note.ReferenceType, author: StoreAdmin,
+    payload: payloads.CreateNote)(implicit ec: EC, db: DB, ac: ActivityContext): DbResultT[Note] = for {
     note ← * <~ Notes.create(Note(storeAdminId = author.id, referenceId = refId, referenceType = refType,
       body = payload.body))
+    _    ← * <~ LogActivity.noteCreated(author, entity, note)
   } yield note
 
   def updateNote[T](entity: T, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)

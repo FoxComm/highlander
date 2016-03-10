@@ -16,8 +16,7 @@ object GiftCardNoteManager {
   def create(code: String, author: StoreAdmin, payload: payloads.CreateNote)
     (implicit ec: EC, db: DB, ac: ActivityContext): Result[Root] = (for {
     giftCard  ← * <~ GiftCards.mustFindByCode(code)
-    note      ← * <~ createModelNote(giftCard.id, Note.GiftCard, author, payload)
-    _         ← * <~ LogActivity.noteCreated(author, giftCard, note)
+    note      ← * <~ createNote(giftCard, giftCard.id, Note.GiftCard, author, payload)
   } yield AdminNotes.build(note, author)).runTxn()
 
   def update(code: String, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)

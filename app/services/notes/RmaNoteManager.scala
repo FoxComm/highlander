@@ -16,8 +16,7 @@ object RmaNoteManager {
   def create(refNum: String, author: StoreAdmin, payload: payloads.CreateNote)
     (implicit ec: EC, db: DB, ac: ActivityContext): Result[Root] = (for {
     rma   ← * <~ Rmas.mustFindByRefNum(refNum)
-    note  ← * <~ createModelNote(rma.id, Note.Rma, author, payload)
-    _     ← * <~ LogActivity.noteCreated(author, rma, note)
+    note  ← * <~ createNote(rma, rma.id, Note.Rma, author, payload)
   } yield AdminNotes.build(note, author)).runTxn()
 
   def update(refNum: String, noteId: Int, author: StoreAdmin, payload: payloads.UpdateNote)
