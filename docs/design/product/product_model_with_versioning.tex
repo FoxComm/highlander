@@ -134,23 +134,25 @@ first x values of the hash. Lets say we take the first 7.
     //New Model Product 
     {
         id: 3,
-        name: { 
-            type: "string": 
-            "d5ae001": "Red Shoe", 
-            "2981c9f": "Big Red Shoe", 
-        },
+        "d5ae001": "Red Shoe", 
+        "2981c9f": "Big Red Shoe", 
     }
-    //New Shadow
+    //New Product Shadow
     {
         productId: 3,
-        name : "2981c9f"
+        name : {type:"string", ref: "2981c9f"}
     }
 \end{lstlisting}
 
 Notice here, all a shadow is is a pointer to versions of attributes in the
-product form. If we use the git revision control system as an analogy, the product 
+product form. Each attribute in the shadow has metadata about the type and a 
+reference to the attribute data from the form. The idea here is that the data
+should out weigh the metadata by a lot. 
+
+If we use the git revision control system as an analogy, the product 
 shadow is similar a git tree object and the product form is a collection of 
 attributes, where each attribute has a set of versions of that attribute.
+
 
 \section{The Product Commit Object}
 
@@ -213,8 +215,8 @@ There are some pros and cons to this design.
 \begin{itemize}
     \item PIM UI, which is shadow aware now, will need to be commit aware.
     \item Is a full git type system in the DB a good idea? Could a form get too big?
-    \item The type of attribute is on the attribute and not the version. This means
-        shadows cannot change attribute type. Should we move type to be on the version?
+    \item Product form makes no sense without a shadow, since all the metadata is
+        on the shadow. The form becomes a collection or attribute data for a product.
 \end{itemize}
 \end{document}
 
