@@ -1,6 +1,7 @@
 
 /* @flow */
 
+import _ from 'lodash';
 import React, { Component } from 'react';
 import cssModules from 'react-css-modules';
 import styles from './checkout.css';
@@ -11,7 +12,7 @@ import { TextInput } from 'ui/inputs';
 import EditableBlock from 'ui/editable-block';
 import { FormField } from 'ui/forms';
 
-import Select from 'ui/select';
+import Autocomplete from 'ui/autocomplete';
 
 type ShippingProps = {
   isEditing: boolean;
@@ -28,6 +29,11 @@ type EditShippinProps = {
   fields?: Object;
 }
 
+const mockCountries = [
+  {value: 'UNITED STATES', id: 'USA'},
+  {value: 'CANADA', id: 'CAN'},
+];
+
 /* ::`*/
 @reduxForm({
   form: 'checkout-shipping',
@@ -38,6 +44,14 @@ type EditShippinProps = {
 class EditShipping extends Component {
   props: EditShippinProps;
 
+  get initialCountryValue() {
+    // $FlowFixMe: decorators are not supported
+    const { fields: {country}} = this.props;
+
+    const item = _.find(mockCountries, {id: country.value});
+    return item && item.value;
+  }
+
   render() {
     const props: EditShippinProps = this.props;
     const { handleSubmit } = props;
@@ -46,32 +60,39 @@ class EditShipping extends Component {
 
     return (
       <form onSubmit={handleSubmit} styleName="checkout-form">
-        <FormField styleName="checkout-field" {...name}>
+        <FormField styleName="checkout-field" field={name}>
           <TextInput placeholder="FIRST & LAST NAME" {...name} />
         </FormField>
-        <FormField styleName="checkout-field" {...address1}>
+        <FormField styleName="checkout-field" field={address1}>
           <TextInput placeholder="STREET ADDRESS 1" {...address1} />
         </FormField>
-        <FormField styleName="checkout-field" {...address2}>
+        <FormField styleName="checkout-field" field={address2}>
           <TextInput placeholder="STREET ADDRESS 2 (optional)" {...address2} />
         </FormField>
         <div styleName="union-fields">
-          <FormField styleName="checkout-field" {...country}>
-            <Select placeholder="COUNTRY" {...country} />
+          <FormField styleName="checkout-field" field={country}>
+            <Autocomplete
+              inputProps={{
+                placeholder: 'COUNTRY',
+              }}
+              items={mockCountries}
+              onSelect={item => country.onChange(item.id)}
+              initialValue={this.initialCountryValue}
+            />
           </FormField>
-          <FormField styleName="checkout-field" {...zip}>
+          <FormField styleName="checkout-field" field={zip}>
             <TextInput placeholder="ZIP" {...zip} />
           </FormField>
         </div>
         <div styleName="union-fields">
-          <FormField styleName="checkout-field" {...city}>
+          <FormField styleName="checkout-field" field={city}>
             <TextInput placeholder="CITY" {...city} />
           </FormField>
-          <FormField styleName="checkout-field" {...state}>
+          <FormField styleName="checkout-field" field={state}>
             <TextInput placeholder="STATE" {...state} />
           </FormField>
         </div>
-        <FormField styleName="checkout-field" {...phone}>
+        <FormField styleName="checkout-field" field={phone}>
           <TextInput placeholder="PHONE" {...phone} />
         </FormField>
         <Button onClick={props.continueAction}>CONTINUE</Button>

@@ -95,7 +95,7 @@ export default class RestorePassword extends Component {
     if (emailSent) return null;
 
     return (
-      <FormField key="email" styleName="form-field" {...email}>
+      <FormField key="email" styleName="form-field" field={email}>
         <TextInput placeholder="EMAIL" required type="email" {...email} />
       </FormField>
     );

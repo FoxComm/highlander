@@ -110,10 +110,10 @@ export default class ResetPassword extends Component {
     if (isReseted) return null;
 
     return [
-      <FormField key="passwd1" styleName="form-field" {...passwd1}>
+      <FormField key="passwd1" styleName="form-field" field={passwd1}>
         <TextInput placeholder="NEW PASSWORD" required type="password" minLength="8" {...passwd1} />
       </FormField>,
-      <FormField key="passwd2" styleName="form-field" {...passwd2}>
+      <FormField key="passwd2" styleName="form-field" field={passwd2}>
         <TextInput placeholder="CONFIRM PASSWORD" required type="password" minLength="8" {...passwd2} />
       </FormField>,
     ];
