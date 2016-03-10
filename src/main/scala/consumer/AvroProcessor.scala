@@ -68,7 +68,7 @@ object AvroJsonHelper {
     compact(render(filteredJson))
   }
 
-  private def convertType(typeName: String,  value: JValue) : JValue = 
+  private def convertType(typeName: String,  value: JValue): JValue = 
     typeName match {
       case "com.martinkl.bottledwater.datatypes.DateTime" ⇒ JsonTransformers.dateTimeToDateString(value)
       case _ ⇒ value

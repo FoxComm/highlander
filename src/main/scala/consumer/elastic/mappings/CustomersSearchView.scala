@@ -36,13 +36,6 @@ final case class CustomersSearchView()(implicit ec: EC) extends AvroTransformer 
       field("taxesTotal", IntegerType),
       field("grandTotal", IntegerType)
     ),
-    // Purchased items
-    field("purchasedItemCount", IntegerType),
-    field("purchasedItems").nested (
-      field("sku", StringType) index "not_analyzed",
-      field("name", StringType) analyzer "autocomplete",
-      field("price", IntegerType)
-    ),
     // Addresses
     field("shippingAddressesCount", IntegerType),
     address("shippingAddresses"),
@@ -50,21 +43,12 @@ final case class CustomersSearchView()(implicit ec: EC) extends AvroTransformer 
     address("billingAddresses"),
     // Store credits
     field("storeCreditTotal", IntegerType),
-    field("storeCreditCount", IntegerType),
-    // Saved for later
-    field("savedForLaterCount", IntegerType),
-    field("savedForLater").nested (
-      field("sku", StringType) index "not_analyzed",
-      field("name", StringType) analyzer "autocomplete",
-      field("price", IntegerType)
-    )
+    field("storeCreditCount", IntegerType)
   )
 
   override def nestedFields() = List(
     "orders",
-    "purchased_items",
     "shipping_addresses",
-    "billing_addresses",
-    "save_for_later"
+    "billing_addresses"
   )
 }
