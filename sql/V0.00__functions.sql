@@ -38,6 +38,10 @@ create domain email text check (length(value) <= 254);
 create domain generic_string text check (length(value) <= 255);
 create domain reference_number text check (length(value) <= 20);
 
+-- Assignments
+create domain assignment_type text check (value in ('assignee', 'watcher'));
+create domain assignment_ref_type text check (value in ('order', 'giftCard', 'customer', 'rma', 'product', 'sku'));
+
 -- Notes
 create domain note_reference_type text check (value in ('order', 'giftCard', 'customer', 'rma', 'product', 'sku'));
 create domain note_body text check (length(value) > 0 and length(value) <= 1000);
