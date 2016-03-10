@@ -101,9 +101,23 @@
   }
 }
 
+.fc-btn_state_loading {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMAF/VASP8AAABBSURBVHheZckxFYAgFADA8zkwYgMr2MBKNpBoRCHCHxl4YADnsxymy/DoQmyh7aGmUHJwBnfjraxiW+yTNMj9xx9ZVxpfjbpEWgAAAABJRU5ErkJggg==);
+  animation: caramel .5s linear infinite
+}
 
 .fc-btn-link,
 .fc-btn-link:visited {
   color: @color-decor1;
   text-decoration: underline;
+}
+
+@keyframes caramel {
+  from {
+    background-position: 0 0
+  }
+
+  to {
+    background-position: 20px 0
+  }
 }
