@@ -46,8 +46,22 @@ final case class NotesSearchView()(implicit ec: EC) extends AvroTransformer {
       field("originType", StringType) index "not_analyzed",
       field("currency", StringType) index "not_analyzed",
       field("createdAt", DateType) format dateFormat
-    )
+    ),
+    field("sku").nested (
+      field("id", IntegerType),
+      field("sku", StringType) index "not_analyzed",
+      field("type", ObjectType),
+      field("attributes", ObjectType),
+      field("createdAt", DateType) format dateFormat
+    ),
+    field("product").nested (
+      field("id", IntegerType),
+      field("attributes", ObjectType),
+      field("variants", ObjectType),
+      field("createdAt", DateType) format dateFormat
+    )        
   )
 
-  override def nestedFields() = List("author", "order", "customer", "gift_card")
+  override def nestedFields() = List("author", "order", "customer", "gift_card", 
+    "product", "sku")
 }
