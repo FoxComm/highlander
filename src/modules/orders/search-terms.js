@@ -5,7 +5,7 @@ const searchTerms = [
     options: [
       {
         title: 'Reference Number',
-        type: 'string-term',
+        type: 'term',
         term: 'referenceNumber'
       }, {
         title: 'State',

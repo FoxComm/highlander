@@ -37,7 +37,10 @@ const operators = {
   ],
   'string-term': [
     { operator: 'eq', display: ':' }
-  ]
+  ],
+  'term': [
+    { operator: 'eq', display: ':' }
+  ],
 };
 
 const boolSuggestions = [
