@@ -88,24 +88,24 @@ object GiftCardRoutes {
         } ~
         pathPrefix("assignees") {
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            nothingOrFailures {
+            goodOrFailures {
               GiftCardAssignmentsManager.assign(code, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            nothingOrFailures {
+            goodOrFailures {
               GiftCardAssignmentsManager.unassign(code, assigneeId, admin)
             }
           }
         } ~
         pathPrefix("watchers") {
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            nothingOrFailures {
+            goodOrFailures {
               GiftCardWatchersManager.assign(code, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            nothingOrFailures {
+            goodOrFailures {
               GiftCardWatchersManager.unassign(code, assigneeId, admin)
             }
           }

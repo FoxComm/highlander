@@ -178,24 +178,24 @@ object RmaRoutes {
           } ~
           pathPrefix("assignees") {
             (post & entity(as[AssignmentPayload])) { payload ⇒
-              nothingOrFailures {
+              goodOrFailures {
                 RmaAssignmentsManager.assign(refNum, payload, admin)
               }
             } ~
             (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-              nothingOrFailures {
+              goodOrFailures {
                 RmaAssignmentsManager.unassign(refNum, assigneeId, admin)
               }
             }
           } ~
           pathPrefix("watchers") {
             (post & entity(as[AssignmentPayload])) { payload ⇒
-              nothingOrFailures {
+              goodOrFailures {
                 RmaWatchersManager.assign(refNum, payload, admin)
               }
             } ~
             (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-              nothingOrFailures {
+              goodOrFailures {
                 RmaWatchersManager.unassign(refNum, assigneeId, admin)
               }
             }

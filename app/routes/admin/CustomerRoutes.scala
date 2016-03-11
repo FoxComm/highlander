@@ -109,24 +109,24 @@ object CustomerRoutes {
         } ~
         pathPrefix("assignees") {
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            nothingOrFailures {
+            goodOrFailures {
               CustomerAssignmentsManager.assign(customerId, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            nothingOrFailures {
+            goodOrFailures {
               CustomerAssignmentsManager.unassign(customerId, assigneeId, admin)
             }
           }
         } ~
         pathPrefix("watchers") {
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            nothingOrFailures {
+            goodOrFailures {
               CustomerWatchersManager.assign(customerId, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            nothingOrFailures {
+            goodOrFailures {
               CustomerWatchersManager.unassign(customerId, assigneeId, admin)
             }
           }

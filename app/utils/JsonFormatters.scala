@@ -12,7 +12,7 @@ import models.rules.{Condition, QueryStatement}
 import models.sharedsearch.SharedSearch
 import models.shipping.Shipment
 import models.auth.Identity.IdentityKind
-import models.Reason
+import models.{Assignment, Reason}
 import org.json4s.jackson
 import responses.CountryWithRegions
 
@@ -22,6 +22,8 @@ object JsonFormatters {
   val DefaultFormats = org.json4s.DefaultFormats + time.JavaTimeJson4sSerializer.jsonFormat + Money.jsonFormat
 
   val phoenixFormats = DefaultFormats +
+    Assignment.AssignmentType.jsonFormat +
+    Assignment.ReferenceType.jsonFormat +
     Order.State.jsonFormat +
     OrderLineItem.State.jsonFormat +
     Shipment.State.jsonFormat +

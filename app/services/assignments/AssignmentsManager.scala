@@ -3,13 +3,14 @@ package services.assignments
 import models.Assignment._
 import models.{StoreAdmins, StoreAdmin, Assignment, Assignments, NotificationSubscription}
 import payloads.{AssignmentPayload, BulkAssignmentPayload}
-import responses.{StoreAdminResponse, ResponseItem, BatchMetadataSource, BatchMetadata, TheResponse}
+import responses.{StoreAdminResponse, ResponseItem, BatchMetadataSource, BatchMetadata, AssignmentResponse, TheResponse}
+import responses.AssignmentResponse.{build ⇒ buildAssignment, Root ⇒ Root}
 import responses.StoreAdminResponse.{build ⇒ buildAdmin}
 import services.Util._
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
-import utils.{TableQueryWithId, ModelWithIdParameter}
+import utils.{ModelWithIdParameter, TableQueryWithId}
 import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
@@ -35,7 +36,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
 
   // Use this methods wherever you want
   def assign(key: K, payload: AssignmentPayload, originator: StoreAdmin)
-    (implicit ec: EC, db: DB, ac: AC): Result[Unit] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[Seq[Root]]] = (for {
     // Validation + assign
     entity         ← * <~ fetchEntity(key)
     admins         ← * <~ StoreAdmins.filter(_.id.inSetBind(payload.assignees)).result
@@ -44,30 +45,32 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     newAssigneeIds = adminIds.diff(assignees.map(_.id))
     _              ← * <~ Assignments.createAll(build(entity, newAssigneeIds))
     assignedAdmins = admins.filter(a ⇒ newAssigneeIds.contains(a.id)).map(buildAdmin)
-    // TODO Prepare response
-    // ...
-    notFoundAdmins  = diffToFailures(payload.assignees, adminIds, StoreAdmin)
+    // Response builder
+    assignments    ← * <~ fetchAssignments(entity).toXor
+    response       = assignments.map((buildAssignment _).tupled)
+    notFoundAdmins = diffToFailures(payload.assignees, adminIds, StoreAdmin)
     // Activity log + notifications subscription
     _         ← * <~ LogActivity.assigned(originator, entity, assignedAdmins)
     _         ← * <~ NotificationManager.subscribe(adminIds = assignedAdmins.map(_.id), dimension = notifyDimension(),
       reason = notifyReason(), objectIds = Seq(key.toString))
-  } yield ()).runTxn()
+  } yield TheResponse.build(response, errors = notFoundAdmins)).runTxn()
 
   def unassign(key: K, assigneeId: Int, originator: StoreAdmin)
-    (implicit ec: EC, db: DB, ac: AC): Result[Unit] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[Seq[Root]] = (for {
     // Validation + unassign
     entity     ← * <~ fetchEntity(key)
     admin      ← * <~ StoreAdmins.mustFindById404(assigneeId)
     querySeq   = Assignments.byEntityAndAdmin(assignmentType(), entity, referenceType(), admin)
     assignment ← * <~ querySeq.one.mustFindOr(AssigneeNotFound(entity, key, assigneeId))
     _          ← * <~ querySeq.delete
-    // TODO - Prepare response
-    // ...
+    // Response builder
+    assignments    ← * <~ fetchAssignments(entity).toXor
+    response       = assignments.map((buildAssignment _).tupled)
     // Activity log + notifications subscription
     _         ← * <~ LogActivity.unassigned(originator, entity, admin)
     _         ← * <~ NotificationManager.unsubscribe(adminIds = Seq(assigneeId), dimension = notifyDimension(),
       reason = notifyReason(), objectIds = Seq(key.toString))
-  } yield ()).runTxn()
+  } yield response).runTxn()
 
   /*
   def assignBulk(admin: StoreAdmin, payload: BulkAssignmentPayload)
@@ -110,6 +113,13 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   */
 
   // Helpers
+  private def fetchAssignments(entity: M)(implicit ec: EC, db: DB) = {
+    for {
+      assignments ← Assignments.byEntity(assignmentType(), entity, referenceType()).result
+      admins      ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.storeAdminId))).result
+    } yield assignments.zip(admins)
+  }
+
   private def build(entity: M, newAssigneeIds: Seq[Int]): Seq[Assignment] =
     newAssigneeIds.map(adminId ⇒ Assignment(assignmentType = assignmentType(),
       storeAdminId = adminId, referenceType = referenceType(), referenceId = entity.id))

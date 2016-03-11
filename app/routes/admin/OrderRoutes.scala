@@ -166,24 +166,24 @@ object OrderRoutes {
         } ~
         pathPrefix("assignees") {
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            nothingOrFailures {
+            goodOrFailures {
               OrderAssignmentsManager.assign(refNum, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            nothingOrFailures {
+            goodOrFailures {
               OrderAssignmentsManager.unassign(refNum, assigneeId, admin)
             }
           }
         } ~
         pathPrefix("watchers") {
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            nothingOrFailures {
+            goodOrFailures {
               OrderWatchersManager.assign(refNum, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            nothingOrFailures {
+            goodOrFailures {
               OrderWatchersManager.unassign(refNum, assigneeId, admin)
             }
           }
