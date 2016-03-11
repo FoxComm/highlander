@@ -22,7 +22,7 @@ module.exports = function(env) {
       header: 'JWT',
       cookieName: 'JWT',
       loginUri: '/login',
-      publicCert: '/tmp/public_key.pem'
+      publicKey: env.public_key,
     };
 
   }

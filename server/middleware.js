@@ -11,7 +11,13 @@ module.exports = function(app) {
   const template = path.join(__dirname, './views/layout.tmpl');
   const layout = _.template(fs.readFileSync(template, 'utf8'));
 
-  const cert = fs.readFileSync(config.api.auth.publicCert);
+  try {
+    const cert = fs.readFileSync(config.api.auth.publicKey);
+  }
+  catch (err) {
+    console.error(err);
+    throw `Can't load public key ${config.api.auth.publicKey}, exit`;
+  }
 
   // lets do renderReact property is lazy
   Object.defineProperty(app, 'renderReact', {
