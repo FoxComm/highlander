@@ -30,14 +30,14 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     (implicit ec: EC, db: DB, ac: AC): Result[Unit] = (for {
     // Validate existence and create assignments
     entity    ← * <~ fetchEntity(key)
-    adminIds  ← * <~ StoreAdmins.filter(_.id.inSetBind(payload.assigneeIds)).map(_.id).result
-    assignees ← * <~ Assignments.assigneesFor(entity, referenceType()).result.toXor
+    adminIds  ← * <~ StoreAdmins.filter(_.id.inSetBind(payload.assignees)).map(_.id).result
+    assignees ← * <~ Assignments.assigneesFor(entity, referenceType(), assignmentType()).result.toXor
     _         ← * <~ Assignments.createAll(buildNew(entity, adminIds, assignees))
 
     // TODO - TheResponse alternative with embedded assignments
     // ...
 
-    notFoundAdmins  = diffToFailures(payload.assigneeIds, adminIds, StoreAdmin)
+    notFoundAdmins  = diffToFailures(payload.assignees, adminIds, StoreAdmin)
 
     // TODO - LogActivity + notifications generalization
     // ...
