@@ -3,8 +3,8 @@
  */
 
 import makeLiveSearch from '../live-search';
+import searchTerms from './search-terms';
 
-const searchTerms = [];
 const { reducer, actions } = makeLiveSearch(
   'products.list',
   searchTerms,
