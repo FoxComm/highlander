@@ -19,3 +19,9 @@ declare class SEvent<TargetType: HTMLElement> {
   type: string;
 }
 
+type Thenable = {
+ then: (onSuccess: Function, onFailure: Function) => any;
+}
+
+declare function makeXhr(url: string): XMLHttpRequest & Thenable;
+

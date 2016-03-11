@@ -73,6 +73,7 @@
     "dom-scroll-into-view": "^1.1.0",
     "koa": "^1.1.2",
     "koa-favicon": "^1.2.0",
+    "koa-router": "^5.4.0",
     "koa-static": "^2.0.0",
     "lodash": "^4.3.0",
     "lodash.flatmap": "^4.2.0",
@@ -90,6 +91,7 @@
     "redux-thunk": "^1.0.3",
     "redux-wait": "0.0.3",
     "reselect": "^2.1.0",
-    "sprout-data": "^0.2.3"
+    "sprout-data": "^0.2.3",
+    "zipcodes": "^2.0.0"
   }
 }

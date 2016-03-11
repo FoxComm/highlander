@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import cssModules from 'react-css-modules';
 import styles from './checkout.css';
 import { reduxForm } from 'redux-form';
+import { autobind, debounce } from 'core-decorators';
 
 import Button from 'ui/buttons';
 import { TextInput } from 'ui/inputs';
@@ -59,6 +60,7 @@ function mapStateToProps(state) {
 /* ::`*/
 class EditShipping extends Component {
   props: EditShippinProps;
+  lookupXhr: ?XMLHttpRequest;
 
   get initialCountryValue() {
     // $FlowFixMe: decorators are not supported
@@ -68,6 +70,43 @@ class EditShipping extends Component {
       const item = _.find(countries, {alpha3: country.value.alpha3});
       return item && item.name;
     }
+  }
+
+  @debounce(200)
+  tryAutopopulateFromZip() {
+    // $FlowFixMe: decorators are not supported
+    const { fields: {zip, city, state }, selectedCountry } = this.props;
+
+    if (zip.value && selectedCountry.alpha3 == 'USA') {
+      if (this.lookupXhr) {
+        this.lookupXhr.abort();
+        this.lookupXhr = null;
+      }
+
+      this.lookupXhr = makeXhr(`/lookup-zip/usa/${zip.value}`).then(
+        result => {
+          city.onChange(result.city);
+          const currentState = _.find(selectedCountry.regions, region => {
+            return region.name.toLowerCase() == result.state.toLowerCase();
+          });
+          if (currentState) {
+            state.onChange(currentState);
+          }
+        },
+        err => {
+          console.error(err);
+        }
+      );
+    }
+  }
+
+  @autobind
+  handleZipChange(event) {
+    // $FlowFixMe: decorators are not supported
+    const { fields: {zip } } = this.props;
+
+    zip.onChange(event);
+    this.tryAutopopulateFromZip();
   }
 
   render() {
@@ -102,7 +141,7 @@ class EditShipping extends Component {
             />
           </FormField>
           <FormField styleName="checkout-field" field={zip}>
-            <TextInput placeholder="ZIP" {...zip} />
+            <TextInput placeholder="ZIP" {...zip} onChange={this.handleZipChange} />
           </FormField>
         </div>
         <div styleName="union-fields">
