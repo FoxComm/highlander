@@ -1,7 +1,7 @@
 package services.assignments
 
 import models.{StoreAdmins, StoreAdmin, Assignment, Assignments}
-import responses.{BatchMetadataSource, BatchMetadata, TheResponse}
+import responses.{ResponseItem, BatchMetadataSource, BatchMetadata, TheResponse}
 import services.Util._
 import services._
 import slick.driver.PostgresDriver.api._
@@ -17,6 +17,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M], T <: TableQueryWithId[
   // Define this methods in inherit object
   def modelInstance(): ModelWithIdParameter[M]
   def tableInstance(): TableQueryWithId[M, T]
+  def responseBuilder(): M ⇒ ResponseItem
 
   def assignmentType(): Assignment.AssignmentType
   def referenceType(): Assignment.ReferenceType
