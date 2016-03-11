@@ -4,7 +4,12 @@
 import Api from '../../lib/api';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
-import { addProductAttribute, configureProduct } from '../../paragons/product';
+import {
+  addProductAttribute,
+  configureProduct,
+  createEmptyProduct,
+} from '../../paragons/product';
+
 import _ from 'lodash';
 
 export type Error = {
@@ -14,7 +19,7 @@ export type Error = {
 };
 
 export type FullProduct = {
-  id: number,
+  id: ?number,
   form: { 
     product: ProductForm,
     skus: Array<SkuForm>,
@@ -26,8 +31,8 @@ export type FullProduct = {
 };
 
 export type ProductForm = {
-  id: number,
-  createdAt: string,
+  id: ?number,
+  createdAt: ?string,
   attributes: Attributes,
   variants: { [key:string]: Variant },
 };
@@ -42,24 +47,26 @@ export type Attributes = { [key:string]: Attribute };
 export type ShadowAttributes = { [key:string]: string };
 
 export type SkuForm = {
-  code: string,
-  isActive: boolean,
+  code: ?string,
   attributes: Attributes,
 };
 
 export type ProductShadow = {
-  id: number,
-  productId: number,
+  id: ?number,
+  productId: ?number,
   attributes: ShadowAttributes,
-  variants: string,
-  createdAt: string,
-  activeFrom: string,
-  activeTo: string,
+  variants: ?string,
+  createdAt: ?string,
+  activeFrom: ?string,
+  activeTo: ?string,
 };
 
 export type SkuShadow = {
   code: string,
   attributes: ShadowAttributes,
+  activeFrom: ?string,
+  activeTo: ?string,
+  createdAt: ?string,
 };
 
 export type Variant = {
@@ -82,6 +89,8 @@ export type ProductDetailsState = {
 };
 
 const defaultContext = 'default';
+
+const productNew = createAction('PRODUCTS_NEW');
 
 const productRequestStart = createAction('PRODUCTS_REQUEST_START');
 const productRequestSuccess = createAction('PRODUCTS_REQUEST_SUCCESS');
@@ -133,6 +142,12 @@ const initialState: ProductDetailsState = {
 };
 
 const reducer = createReducer({
+  [productNew]: (state: ProductDetailsState) => {
+    return {
+      ...initialState,
+      product: createEmptyProduct(),
+    };
+  },
   [productRequestStart]: (state: ProductDetailsState) => {
     return {
       ...state,

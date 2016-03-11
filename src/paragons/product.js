@@ -95,13 +95,46 @@ function getAttributes(formAttrs: Attributes, shadowAttrs: ShadowAttributes): Il
 
 export function getIlluminatedSkus(product: FullProduct): Array<IlluminatedSku> {
   return _.map(product.form.skus, (form: SkuForm) => {
-    const shadow = getSkuShadow(form.code, product);
+    if (form.code) {
+      const shadow = getSkuShadow(form.code, product);
 
-    return {
-      code: form.code,
-      attributes: getAttributes(form.attributes, shadow.attributes),
-    };
+      return {
+        code: form.code,
+        attributes: getAttributes(form.attributes, shadow.attributes),
+      };
+    }
   });
+}
+
+export function createEmptyProduct(): FullProduct {
+  const product = {
+    id: null,
+    form: {
+      product: {
+        id: null,
+        attributes: {},
+        variants: {},
+        activeFrom: null,
+        activeTo: null,
+        createdAt: null,
+      },
+      skus: [],
+    },
+    shadow: {
+      product: {
+        id: null,
+        productId: null,
+        attributes: {},
+        variants: null,
+        activeFrom: null,
+        activeTo: null,
+        createdAt: null,
+      },
+      skus: [],
+    },
+  };
+
+  return product;
 }
 
 /**
