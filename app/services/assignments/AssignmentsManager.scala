@@ -1,5 +1,6 @@
 package services.assignments
 
+import models.Assignment._
 import models.{StoreAdmins, StoreAdmin, Assignment, Assignments}
 import payloads.{AssignmentPayload, BulkAssignmentPayload}
 import responses.{ResponseItem, BatchMetadataSource, BatchMetadata, TheResponse}
@@ -18,9 +19,8 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   //def modelInstance(): ModelWithIdParameter[M]
   //def tableInstance(): TableQueryWithId[M, T]
   //def responseBuilder(): M ⇒ ResponseItem
-
-  def assignmentType(): Assignment.AssignmentType
-  def referenceType(): Assignment.ReferenceType
+  def assignmentType(): AssignmentType
+  def referenceType(): ReferenceType
 
   def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: AC): DbResult[M]
   //def fetchMulti(keys: Seq[K])(implicit ec: EC, db: DB, ac: AC): DbResult[Seq[M]]
@@ -28,10 +28,10 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   // Use this methods wherever you want
   def assign(key: K, payload: AssignmentPayload, originator: StoreAdmin)
     (implicit ec: EC, db: DB, ac: AC): Result[Unit] = (for {
-    // Validate existence and create assignments
+
     entity    ← * <~ fetchEntity(key)
     adminIds  ← * <~ StoreAdmins.filter(_.id.inSetBind(payload.assignees)).map(_.id).result
-    assignees ← * <~ Assignments.assigneesFor(entity, referenceType(), assignmentType()).result.toXor
+    assignees ← * <~ Assignments.assigneesFor(assignmentType(), entity, referenceType()).result.toXor
     _         ← * <~ Assignments.createAll(buildNew(entity, adminIds, assignees))
 
     // TODO - TheResponse alternative with embedded assignments
@@ -48,8 +48,9 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
 
     entity     ← * <~ fetchEntity(key)
     admin      ← * <~ StoreAdmins.mustFindById404(assigneeId)
-    assignment ← * <~ byEntityAndAdmin(entity, admin).one.mustFindOr(AssigneeNotFound(entity, key, assigneeId))
-    _          ← * <~ byEntityAndAdmin(entity, admin).delete
+    querySeq   = Assignments.byEntityAndAdmin(assignmentType(), entity, referenceType(), admin)
+    assignment ← * <~ querySeq.one.mustFindOr(AssigneeNotFound(entity, key, assigneeId))
+    _          ← * <~ querySeq.delete
 
     // TODO - LogActivity + notifications generalization
     // ...
@@ -96,16 +97,13 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   */
 
   // Helpers
-  private def byEntityAndAdmin(entity: M, admin: StoreAdmin): Assignments.QuerySeq =
-    Assignments.byEntityAndAdmin(entity, referenceType(), admin)
-
   private def buildNew(entity: M, adminIds: Seq[Int], assignees: Seq[StoreAdmin]): Seq[Assignment] =
-    adminIds.diff(assignees.map(_.id)).map(adminId ⇒ Assignment(assignmentType = assignmentType(),
-      storeAdminId = adminId, referenceType = referenceType(), referenceId = entity.id))
+    adminIds.diff(assignees.map(_.id)).map(adminId ⇒ Assignment(assignmentType = assignmentType(), storeAdminId = adminId,
+      referenceType = referenceType(), referenceId = entity.id))
 
   private def buildNewMulti(entities: Seq[M], storeAdminId: Int): Seq[Assignment] =
-    for (e ← entities) yield Assignment(assignmentType = assignmentType(),
-      storeAdminId = storeAdminId, referenceType = referenceType(), referenceId = e.id)
+    for (e ← entities) yield Assignment(assignmentType = assignmentType(), storeAdminId = storeAdminId,
+      referenceType = referenceType(), referenceId = e.id)
 
   private def filterSuccess(entities: Seq[M], newEntries: Seq[Assignment]): Seq[M#Id] =
     entities.filter(e ⇒ newEntries.map(_.referenceId).contains(e.id)).map(_.id)
