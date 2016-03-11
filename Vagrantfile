@@ -12,6 +12,21 @@ $ashes_ip = "192.168.10.112"
 
 require CONFIG if File.readable?(CONFIG)
 
+def tune_vm(config, opts = {})
+  cpus = opts[:cpus]
+  memory = opts[:memory]
+
+  config.vm.provider :virtualbox do |vb|
+    vb.cpus = cpus if cpus
+    vb.memory = memory if memory
+  end
+
+  config.vm.provider :vmware_fusion do |v, override|
+    v.vmx["memsize"] = memory if memory
+    v.vmx["numvcpus"] = cpus if cpus
+  end
+end
+
 def expose_backend_ports(config)
     # Kafka
     config.vm.network :forwarded_port, guest: 9092, host: 9092, auto_correct: true
@@ -42,15 +57,10 @@ end
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/wily64"
 
-  config.vm.provider :virtualbox do |vb|
-    vb.cpus = $vb_cpu
-    vb.memory = $vb_memory
-  end
+  tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
   config.vm.provider :vmware_fusion do |v, override|
     override.vm.box= "boxcutter/ubuntu1504"
-    v.vmx["memsize"] = $vb_memory
-    v.vmx["numvcpus"] = $vb_cpu
   end
 
   config.vm.provider :google do |g, override|
@@ -118,6 +128,7 @@ Vagrant.configure("2") do |config|
 
       app.vm.network :private_network, ip: $ashes_ip
       expose_ashes(app)
+      tune_vm(config, cpus: $ashes_cpu, memory: $ashes_memory)
 
       app.vm.provision "ansible" do |ansible|
           ansible.verbose = "vv"
