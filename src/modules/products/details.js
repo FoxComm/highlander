@@ -29,7 +29,7 @@ export type ProductForm = {
   id: number,
   createdAt: string,
   attributes: Attributes,
-  variants: { [key:string]: Object },
+  variants: { [key:string]: Variant },
 };
 
 export type Attribute = {
@@ -60,6 +60,18 @@ export type ProductShadow = {
 export type SkuShadow = {
   code: string,
   attributes: ShadowAttributes,
+};
+
+export type Variant = {
+  name: string,
+  type: string,
+  values: { [key:string]: VariantValue },
+};
+
+export type VariantValue = {
+  id: number,
+  swatch: ?string,
+  image: ?string,
 };
 
 export type ProductDetailsState = {

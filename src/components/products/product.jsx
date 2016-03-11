@@ -24,7 +24,11 @@ import WaitAnimation from '../common/wait-animation';
 import { getProductAttributes, setProductAttribute } from '../../paragons/product';
 
 // types
-import type { FullProduct, ProductDetailsState } from '../../modules/products/details';
+import type {
+  FullProduct,
+  ProductDetailsState,
+  Variant,
+} from '../../modules/products/details';
 
 type Actions = {
   fetchProduct: (id: number, context: ?string) => void,
@@ -46,6 +50,7 @@ type State = {
   product: { 
     [key:string]: string,
     skus: { [key:string]: Object },
+    variants: { [key:string]: Variant },
   },
 };
 
@@ -76,6 +81,13 @@ export class ProductPage extends Component<void, Props, State> {
     this.state = { 
       product: {
         skus: {},
+        variants: {
+          color: {
+            name: 'Color',
+            type: 'color',
+            values: {},
+          },
+        },
       }
     };
   }
@@ -96,6 +108,7 @@ export class ProductPage extends Component<void, Props, State> {
     return React.cloneElement(this.props.children, {
       onUpdateProduct: this.handleUpdateProduct,
       onUpdateSku: this.handleUpdateSku,
+      onUpdateVariant: this.handleUpdateVariant,
       updatedProduct: this.state.product,
     });
   }
@@ -115,6 +128,11 @@ export class ProductPage extends Component<void, Props, State> {
 
     const newState = assoc(this.state, ['product', 'skus'], updateValue);
     this.setState(newState);
+  }
+
+  @autobind
+  handleUpdateVariant(key: string, variant: Variant) {
+    this.setState(assoc(this.state, ['product', 'variants', key], variant));
   }
 
   @autobind

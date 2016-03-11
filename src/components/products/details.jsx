@@ -20,6 +20,7 @@ import CurrencyInput from '../forms/currency-input';
 import CustomProperty from './custom-property';
 import InlineField from '../inline-field/inline-field';
 import SkuList from './sku-list';
+import VariantList from './variant-list';
 
 // helpers
 import { getProductAttributes } from '../../paragons/product';
@@ -29,7 +30,8 @@ import type {
   FullProduct,
   Attribute,
   Attributes,
-  ProductDetailsState
+  ProductDetailsState,
+  Variant,
 } from '../../modules/products/details';
 
 import type {
@@ -43,13 +45,14 @@ type DetailsParams = {
   product: FullProduct,
 };
 
-type DetailsProps = {
+type Props = {
   details: ProductDetailsState,
   params: DetailsParams,
   productAddAttribute: (label: string, type: string) => void,
 
   onUpdateProduct: (key: string, value: string) => void,
   onUpdateSku: (code: string, key: string, value: string) => void,
+  onUpdateVariant: (key: string, variant: Variant) => void,
   updatedProduct: { [key:string]: string },
 };
 
@@ -65,7 +68,7 @@ const miscAttributeKeys = ['images'];
 const pricingAttributeKeys = ['retailPrice', 'salePrice'];
 const seoAttributeKeys = ['url', 'metaTitle', 'metaDescription'];
 
-export class ProductDetails extends Component<void, DetailsProps, State> {
+export class ProductDetails extends Component<void, Props, State> {
   state: State;
 
   constructor(...args: Array<any>) {
@@ -145,13 +148,36 @@ export class ProductDetails extends Component<void, DetailsProps, State> {
   }
 
   get variantContentBox(): Element {
-    return (
-      <ContentBox title="Variants" indentContent={false}>
-        <div className="fc-content-box__empty-text">
-          This product does not have variants.
-        </div>
-      </ContentBox>
-    );
+    const variants = {
+      color: {
+        name: 'Color',
+        type: 'color',
+        values: {
+          red: {
+            id: 3452365363,
+            swatch: "e8242b",
+          },
+          green: {
+            id: 7432985798,
+            swatch: "00ff00",
+          },
+        },
+      },
+      size: {
+        name: 'Size',
+        type: 'size',
+        values: {
+          'S/M': {
+            id: 6734269823,
+          },
+          'L/XL': {
+            id: 5423453263,
+          },
+        },
+      },
+    };
+
+    return <VariantList variants={variants} />;
   }
 
   get customPropertyForm(): ?Element {
