@@ -8,7 +8,7 @@ import CurrencyInput from '../forms/currency-input';
 import DatePicker from '../datepicker/datepicker';
 import SelectVertical from './select-vertical';
 import FormField from '../forms/formfield';
-import * as GroupBuilderActions from '../../modules/groups/builder';
+import * as GroupBuilderActions from '../../modules/customer-groups/group';
 
 function mapDispatchToProps(dispatch, props) {
   return _.transform(GroupBuilderActions, (result, action, key) => {

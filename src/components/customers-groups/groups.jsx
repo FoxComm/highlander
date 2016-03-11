@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
-import * as actions from '../../modules/groups/list';
+import * as actions from '../../modules/customer-groups/list';
 
 import { transitionTo } from '../../route-helpers';
 import TableView from '../table/tableview';
@@ -14,7 +14,7 @@ import { DateTime } from '../common/datetime';
 import { PrimaryButton } from '../common/buttons';
 
 
-const mapStateToProps = state => ({list: state.groups.list});
+const mapStateToProps = state => ({list: state.customerGroups.list});
 const mapDispatchToProps = dispatch => ({actions: bindActionCreators(actions, dispatch)});
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -45,7 +45,7 @@ export default class Groups extends Component {
 
   @autobind
   handleAddGroup() {
-    transitionTo(this.context.history, 'groups-new-dynamic');
+    transitionTo(this.context.history, 'new-dynamic-group');
   }
 
   renderRow(row, index) {
@@ -67,7 +67,7 @@ export default class Groups extends Component {
     const {list, actions: {updateStateAndFetch}} = this.props;
 
     return (
-      <div className="fc-grid fc-groups-components">
+      <div className="fc-grid fc-customer-groups-components">
         <div className="fc-col-md-1-1 _group-header _group-component">
           <h2 className="_group-title">Customers Groups</h2>
           <PrimaryButton icon="add" onClick={this.handleAddGroup} />

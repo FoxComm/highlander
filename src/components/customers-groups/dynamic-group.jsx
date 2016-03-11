@@ -12,7 +12,7 @@ import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import { transitionTo } from '../../route-helpers';
 
-import * as GroupBuilderActions from '../../modules/groups/builder';
+import * as GroupBuilderActions from '../../modules/customer-groups/group';
 
 @connect(state => state.groups.builder, GroupBuilderActions)
 export default class DynamicGroup extends React.Component {
