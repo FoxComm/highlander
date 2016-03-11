@@ -1,3 +1,6 @@
 .vagrant
 bin/
 vagrant.local.rb
+.vault_pass
+ansible/*.retry
+*.pyc

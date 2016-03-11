@@ -27,6 +27,8 @@
 
 ### Vagrant
 
+#### First of all you need to create `.vault_pass` file with vault password
+
 #### If you want to run an appliance with the backend and ashes all on one machine.
 
     $ vagrant up
