@@ -88,6 +88,12 @@ object Assignments extends TableQueryWithId[Assignment, Assignments](
       filter(_.referenceId === model.id).
       filter(_.storeAdminId === admin.id)
 
+  def byEntitySeqAndAdmin[T <: ModelWithIdParameter[T]](assignType: AssignmentType, models: Seq[T],
+    refType: ReferenceType, admin: StoreAdmin): QuerySeq = filter(_.assignmentType === assignType).
+    filter(_.referenceType === refType).
+    filter(_.referenceId.inSetBind(models.map(_.id))).
+    filter(_.storeAdminId === admin.id)
+
   def assigneesFor[T <: ModelWithIdParameter[T]](assignType: AssignmentType, entity: T, refType: ReferenceType)
     (implicit ec: EC): StoreAdmins.QuerySeq = for {
       assignees ← byEntity(assignType, entity, refType).map(_.storeAdminId)

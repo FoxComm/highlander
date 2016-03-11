@@ -43,39 +43,39 @@ object OrderRoutes {
               OrderStateUpdater.updateStates(admin, payload.referenceNumbers, payload.state)
             }
           }
-        } /* ~
+        } ~
         pathPrefix("assignees") {
           (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[OrderBulkAssignmentPayload]) { payload ⇒
+            entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               goodOrFailures {
-                OrderAssignmentUpdater.assignBulk(admin, payload)
+                OrderAssignmentsManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[OrderBulkAssignmentPayload]) { payload ⇒
+            entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               goodOrFailures {
-                OrderAssignmentUpdater.unassignBulk(admin, payload)
+                OrderAssignmentsManager.unassignBulk(admin, payload)
               }
             }
           }
         } ~
         pathPrefix("watchers") {
           (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[OrderBulkWatchersPayload]) { payload ⇒
+            entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               goodOrFailures {
-                OrderWatcherUpdater.watchBulk(admin, payload)
+                OrderWatchersManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[OrderBulkWatchersPayload]) { payload ⇒
+            entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               goodOrFailures {
-                OrderWatcherUpdater.unwatchBulk(admin, payload)
+                OrderWatchersManager.unassignBulk(admin, payload)
               }
             }
           }
-        } */
+        }
       } ~
       pathPrefix("orders" / orderRefNumRegex) { refNum ⇒
         (get & pathEnd) {
