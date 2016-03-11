@@ -4,6 +4,7 @@ import models.Assignment._
 import models.{StoreAdmins, StoreAdmin, Assignment, Assignments, NotificationSubscription}
 import payloads.{AssignmentPayload, BulkAssignmentPayload}
 import responses.{StoreAdminResponse, ResponseItem, BatchMetadataSource, BatchMetadata, TheResponse}
+import responses.StoreAdminResponse.{build ⇒ buildAdmin}
 import services.Util._
 import services._
 import slick.driver.PostgresDriver.api._
@@ -19,7 +20,6 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   //def modelInstance(): ModelWithIdParameter[M]
   //def tableInstance(): TableQueryWithId[M, T]
   //def responseBuilder(): M ⇒ ResponseItem
-  val assignedAdmins: Seq[StoreAdminResponse.Root] = Seq.empty
 
   def assignmentType(): AssignmentType
   def referenceType(): ReferenceType
@@ -37,10 +37,13 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   def assign(key: K, payload: AssignmentPayload, originator: StoreAdmin)
     (implicit ec: EC, db: DB, ac: AC): Result[Unit] = (for {
     // Validation + assign
-    entity    ← * <~ fetchEntity(key)
-    adminIds  ← * <~ StoreAdmins.filter(_.id.inSetBind(payload.assignees)).map(_.id).result
-    assignees ← * <~ Assignments.assigneesFor(assignmentType(), entity, referenceType()).result.toXor
-    _         ← * <~ Assignments.createAll(buildNew(entity, adminIds, assignees))
+    entity         ← * <~ fetchEntity(key)
+    admins         ← * <~ StoreAdmins.filter(_.id.inSetBind(payload.assignees)).result
+    adminIds       = admins.map(_.id)
+    assignees      ← * <~ Assignments.assigneesFor(assignmentType(), entity, referenceType()).result.toXor
+    newAssigneeIds = adminIds.diff(assignees.map(_.id))
+    _              ← * <~ Assignments.createAll(build(entity, newAssigneeIds))
+    assignedAdmins = admins.filter(a ⇒ newAssigneeIds.contains(a.id)).map(buildAdmin)
     // TODO Prepare response
     // ...
     notFoundAdmins  = diffToFailures(payload.assignees, adminIds, StoreAdmin)
@@ -107,11 +110,11 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   */
 
   // Helpers
-  private def buildNew(entity: M, adminIds: Seq[Int], assignees: Seq[StoreAdmin]): Seq[Assignment] =
-    adminIds.diff(assignees.map(_.id)).map(adminId ⇒ Assignment(assignmentType = assignmentType(), storeAdminId = adminId,
-      referenceType = referenceType(), referenceId = entity.id))
+  private def build(entity: M, newAssigneeIds: Seq[Int]): Seq[Assignment] =
+    newAssigneeIds.map(adminId ⇒ Assignment(assignmentType = assignmentType(),
+      storeAdminId = adminId, referenceType = referenceType(), referenceId = entity.id))
 
-  private def buildNewMulti(entities: Seq[M], storeAdminId: Int): Seq[Assignment] =
+  private def buildMulti(entities: Seq[M], storeAdminId: Int): Seq[Assignment] =
     for (e ← entities) yield Assignment(assignmentType = assignmentType(), storeAdminId = storeAdminId,
       referenceType = referenceType(), referenceId = e.id)
 
