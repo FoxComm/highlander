@@ -43,11 +43,3 @@ final case class CustomerSearchForNewOrder(term: String)
   def validate: ValidatedNel[Failure, CustomerSearchForNewOrder] =
     greaterThan(term.length, 1, "term size").map { case _ ⇒ this }
 }
-
-final case class CustomerAssignmentPayload(assignees: Seq[Int])
-
-final case class CustomerBulkAssignmentPayload(customerIds: Seq[Int], assigneeId: Int)
-
-final case class CustomerWatchersPayload(watchers: Seq[Int])
-
-final case class CustomerBulkWatchersPayload(customerIds: Seq[Int], watcherId: Int)

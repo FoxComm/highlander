@@ -18,11 +18,11 @@ trait AssignmentsManager[K, T <: ModelWithIdParameter[T]] {
   // Define this methods in inherit object
   def assignmentType(): Assignment.AssignmentType
   def referenceType(): Assignment.ReferenceType
-
   def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: AC): DbResult[T]
   def fetchMulti(keys: Seq[K])(implicit ec: EC, db: DB, ac: AC): DbResult[Seq[T]]
 
-  final case class BulkAssignmentPayload(entityIds: Seq[K], storeAdminId: Int)
+  final case class AssignmentPayload(assignees: Seq[Int])
+  final case class BulkAssignmentPayload(entityIds: Seq[K], assigneeId: Int)
 
   // Use this methods wherever you want
   def assign(key: K, assigneeIds: Seq[Int], originator: StoreAdmin)

@@ -25,11 +25,3 @@ final case class CreateOrder(customerId: Option[Int] = None, email: Option[Strin
     ).map { case _ ⇒ this }
   }
 }
-
-final case class OrderAssignmentPayload(assignees: Seq[Int])
-
-final case class OrderBulkAssignmentPayload(referenceNumbers: Seq[String], assigneeId: Int)
-
-final case class OrderWatchersPayload(watchers: Seq[Int])
-
-final case class OrderBulkWatchersPayload(referenceNumbers: Seq[String], watcherId: Int)
