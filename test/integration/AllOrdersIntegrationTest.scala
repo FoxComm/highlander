@@ -9,9 +9,10 @@ import models.customer.Customers
 import models.payment.creditcard.CreditCardCharge
 import models.{StoreAdmin, StoreAdmins}
 import payloads.{OrderBulkAssignmentPayload, BulkUpdateOrdersPayload, OrderBulkWatchersPayload}
+import responses.BatchResponse
 import responses.order._
 import responses.StoreAdminResponse
-import services.orders.{BulkOrderUpdateResponse, OrderQueries}
+import services.orders.{OrderQueries}
 import services.{LockedFailure, NotFoundFailure404, StateTransitionNotAllowed}
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -95,7 +96,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
 
       response.status must === (StatusCodes.OK)
 
-      val all = response.as[BulkOrderUpdateResponse]
+      val all = response.as[BatchResponse[AllOrders.Root]]
       val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
 
       allOrders must contain allOf(
@@ -114,7 +115,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       val response = PATCH("v1/orders", BulkUpdateOrdersPayload(Seq(order.refNum), Cart))
 
       response.status must === (StatusCodes.OK)
-      val all = response.as[BulkOrderUpdateResponse]
+      val all = response.as[BatchResponse[AllOrders.Root]]
       val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
 
       allOrders must === (Seq((order.refNum, order.state)))
@@ -130,7 +131,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
 
       responseJson.status must === (StatusCodes.OK)
 
-      val all = responseJson.as[BulkOrderUpdateResponse]
+      val all = responseJson.as[BatchResponse[AllOrders.Root]]
       val allOrders = all.result.map(o ⇒ (o.referenceNumber, o.orderState))
 
       allOrders must contain theSameElementsInOrderAs Seq(
@@ -147,7 +148,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
     "assigns successfully ignoring duplicates" in new BulkAssignmentFixture {
       val assignResponse1 = POST(s"v1/orders/assignees", OrderBulkAssignmentPayload(Seq(orderRef1), adminId))
       assignResponse1.status must === (StatusCodes.OK)
-      val responseObj1 = assignResponse1.as[BulkOrderUpdateResponse]
+      val responseObj1 = assignResponse1.as[BatchResponse[AllOrders.Root]]
       responseObj1.result.map(_.referenceNumber) contains allOf("foo", "bar")
       responseObj1.errors mustBe empty
 
@@ -158,7 +159,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       // Don't complain about duplicates
       val assignResponse2 = POST(s"v1/orders/assignees", OrderBulkAssignmentPayload(Seq(orderRef1, orderRef2), adminId))
       assignResponse2.status must === (StatusCodes.OK)
-      val responseObj2 = assignResponse2.as[BulkOrderUpdateResponse]
+      val responseObj2 = assignResponse2.as[BatchResponse[AllOrders.Root]]
       responseObj2.result.map(_.referenceNumber) contains allOf("foo", "bar")
       responseObj2.errors mustBe empty
 
@@ -175,7 +176,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       val assignResponse1 = POST(s"v1/orders/assignees?size=1&from=1&sortBy=referenceNumber",
         OrderBulkAssignmentPayload(Seq(orderRef1), adminId))
       assignResponse1.status must === (StatusCodes.OK)
-      val responseObj1 = assignResponse1.as[BulkOrderUpdateResponse]
+      val responseObj1 = assignResponse1.as[BatchResponse[AllOrders.Root]]
       responseObj1.result.map(_.referenceNumber) must contain theSameElementsInOrderAs Seq("foo")
       responseObj1.errors mustBe empty
     }
@@ -183,7 +184,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
     "warns when order to assign not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/orders/assignees", OrderBulkAssignmentPayload(Seq(orderRef1, "NOPE"), adminId))
       response.status must === (StatusCodes.OK)
-      val responseObj = response.as[BulkOrderUpdateResponse]
+      val responseObj = response.as[BatchResponse[AllOrders.Root]]
       responseObj.result must === (getAllOrders)
       responseObj.errors.value.head must === (NotFoundFailure404(Order, "NOPE").description)
     }
@@ -226,7 +227,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
         OrderBulkAssignmentPayload(Seq(orderRef1), adminId))
       unassign.status must === (StatusCodes.OK)
 
-      val responseObj = unassign.as[BulkOrderUpdateResponse]
+      val responseObj = unassign.as[BatchResponse[AllOrders.Root]]
       responseObj.result.map(_.referenceNumber) must contain theSameElementsInOrderAs Seq("foo")
       responseObj.errors mustBe empty
     }
@@ -234,7 +235,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
     "warns when order to unassign not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/orders/assignees/delete", OrderBulkAssignmentPayload(Seq(orderRef1, "NOPE"), adminId))
       response.status must === (StatusCodes.OK)
-      val responseObj = response.as[BulkOrderUpdateResponse]
+      val responseObj = response.as[BatchResponse[AllOrders.Root]]
       responseObj.result must === (getAllOrders)
       responseObj.errors.value.head must === (NotFoundFailure404(Order, "NOPE").description)
     }
@@ -250,7 +251,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
     "adds successfully ignoring duplicates" in new BulkAssignmentFixture {
       val watcherResponse1 = POST(s"v1/orders/watchers", OrderBulkWatchersPayload(Seq(orderRef1), adminId))
       watcherResponse1.status must === (StatusCodes.OK)
-      val responseObj1 = watcherResponse1.as[BulkOrderUpdateResponse]
+      val responseObj1 = watcherResponse1.as[BatchResponse[AllOrders.Root]]
       responseObj1.result.map(_.referenceNumber) contains allOf("foo", "bar")
       responseObj1.errors mustBe empty
 
@@ -261,7 +262,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       // Don't complain about duplicates
       val watcherResponse2 = POST(s"v1/orders/watchers", OrderBulkWatchersPayload(Seq(orderRef1, orderRef2), adminId))
       watcherResponse2.status must === (StatusCodes.OK)
-      val responseObj2 = watcherResponse2.as[BulkOrderUpdateResponse]
+      val responseObj2 = watcherResponse2.as[BatchResponse[AllOrders.Root]]
       responseObj2.result.map(_.referenceNumber) contains allOf("foo", "bar")
       responseObj2.errors mustBe empty
 
@@ -278,7 +279,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
       val watcherResponse1 = POST(s"v1/orders/watchers?size=1&from=1&sortBy=referenceNumber",
         OrderBulkWatchersPayload(Seq(orderRef1), adminId))
       watcherResponse1.status must === (StatusCodes.OK)
-      val responseObj1 = watcherResponse1.as[BulkOrderUpdateResponse]
+      val responseObj1 = watcherResponse1.as[BatchResponse[AllOrders.Root]]
       responseObj1.result.map(_.referenceNumber) must contain theSameElementsInOrderAs Seq("foo")
       responseObj1.errors mustBe empty
     }
@@ -286,7 +287,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
     "warns when order to assign not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/orders/watchers", OrderBulkWatchersPayload(Seq(orderRef1, "NOPE"), adminId))
       response.status must === (StatusCodes.OK)
-      val responseObj = response.as[BulkOrderUpdateResponse]
+      val responseObj = response.as[BatchResponse[AllOrders.Root]]
       responseObj.result must === (getAllOrders)
       responseObj.errors.value.head must === (NotFoundFailure404(Order, "NOPE").description)
     }
@@ -329,7 +330,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
         OrderBulkWatchersPayload(Seq(orderRef1), adminId))
       unwatch.status must === (StatusCodes.OK)
 
-      val responseObj = unwatch.as[BulkOrderUpdateResponse]
+      val responseObj = unwatch.as[BatchResponse[AllOrders.Root]]
       responseObj.result.map(_.referenceNumber) must contain theSameElementsInOrderAs Seq("foo")
       responseObj.errors mustBe empty
     }
@@ -337,7 +338,7 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
     "warns when order to unwatch not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/orders/watchers/delete", OrderBulkWatchersPayload(Seq(orderRef1, "NOPE"), adminId))
       response.status must === (StatusCodes.OK)
-      val responseObj = response.as[BulkOrderUpdateResponse]
+      val responseObj = response.as[BatchResponse[AllOrders.Root]]
       responseObj.result must === (getAllOrders)
       responseObj.errors.value.head must === (NotFoundFailure404(Order, "NOPE").description)
     }

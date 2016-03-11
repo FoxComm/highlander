@@ -16,6 +16,8 @@ import utils.aliases._
 
 object RmaQueries {
 
+  type BulkRmaUpdateResponse = TheResponse[Seq[AllRmas.Root]]
+
   def findAll(query: Rmas.QuerySeq)(implicit ec: EC, db: DB,
     sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[BulkRmaUpdateResponse] =
     findAllDbio(query).run()

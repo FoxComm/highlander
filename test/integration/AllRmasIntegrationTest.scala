@@ -8,7 +8,7 @@ import models.order.{Orders, Order}
 import models.rma.{Rmas, Rma}
 import models.{StoreAdmins, StoreAdmin}
 import payloads.RmaBulkAssigneesPayload
-import responses.{AllRmas, RmaResponse, StoreAdminResponse}
+import responses.{AllRmas, RmaResponse, StoreAdminResponse, BatchResponse}
 import services.NotFoundFailure404
 import services.rmas._
 import util.IntegrationTestBase
@@ -73,7 +73,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
     "assigns successfully ignoring duplicates" in new BulkAssignmentFixture {
       val assignResponse1 = POST(s"v1/rmas/assignees", RmaBulkAssigneesPayload(Seq(rmaRef1), adminId))
       assignResponse1.status must === (StatusCodes.OK)
-      val responseObj1 = assignResponse1.as[BulkRmaUpdateResponse]
+      val responseObj1 = assignResponse1.as[BatchResponse[AllRmas.Root]]
       responseObj1.result.map(_.referenceNumber) contains allOf("foo", "bar")
       responseObj1.errors mustBe empty
 
@@ -84,7 +84,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       // Don't complain about duplicates
       val assignResponse2 = POST(s"v1/rmas/assignees", RmaBulkAssigneesPayload(Seq(rmaRef1, rmaRef2), adminId))
       assignResponse2.status must === (StatusCodes.OK)
-      val responseObj2 = assignResponse2.as[BulkRmaUpdateResponse]
+      val responseObj2 = assignResponse2.as[BatchResponse[AllRmas.Root]]
       responseObj2.result.map(_.referenceNumber) contains allOf("foo", "bar")
       responseObj2.errors mustBe empty
 
@@ -101,7 +101,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
       val assignResponse1 = POST(s"v1/rmas/assignees?size=1&from=1&sortBy=referenceNumber",
         RmaBulkAssigneesPayload(Seq(rmaRef1), adminId))
       assignResponse1.status must === (StatusCodes.OK)
-      val responseObj1 = assignResponse1.as[BulkRmaUpdateResponse]
+      val responseObj1 = assignResponse1.as[BatchResponse[AllRmas.Root]]
       responseObj1.result.map(_.referenceNumber) must contain theSameElementsInOrderAs Seq("foo")
       responseObj1.errors mustBe empty
     }
@@ -109,7 +109,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
     "errors when RMA to assign not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/rmas/assignees", RmaBulkAssigneesPayload(Seq(rmaRef1, "NOPE"), adminId))
       response.status must === (StatusCodes.OK)
-      val responseObj = response.as[BulkRmaUpdateResponse]
+      val responseObj = response.as[BatchResponse[AllRmas.Root]]
       responseObj.result must === (getAllRmas)
       responseObj.errors.value.head must === (NotFoundFailure404(Rma, "NOPE").description)
     }
@@ -152,7 +152,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
         RmaBulkAssigneesPayload(Seq(rmaRef1), adminId))
       unassign.status must === (StatusCodes.OK)
 
-      val responseObj = unassign.as[BulkRmaUpdateResponse]
+      val responseObj = unassign.as[BatchResponse[AllRmas.Root]]
       responseObj.result.map(_.referenceNumber) must contain theSameElementsInOrderAs Seq("foo")
       responseObj.errors mustBe empty
     }
@@ -160,7 +160,7 @@ class AllRmasIntegrationTest extends IntegrationTestBase
     "errors when RMA to unassign not found" in new BulkAssignmentFixture {
       val response = POST(s"v1/rmas/assignees/delete", RmaBulkAssigneesPayload(Seq(rmaRef1, "NOPE"), adminId))
       response.status must === (StatusCodes.OK)
-      val responseObj = response.as[BulkRmaUpdateResponse]
+      val responseObj = response.as[BatchResponse[AllRmas.Root]]
       responseObj.result must === (getAllRmas)
       responseObj.errors.value.head must === (NotFoundFailure404(Rma, "NOPE").description)
     }
