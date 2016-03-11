@@ -155,22 +155,21 @@ server {
 
   # Proxy to ashes
   location /admin/ {
-      root {{ashes_root_dir}};
-      try_files $uri @ashes;
-  }
-
-  location @ashes {
-      proxy_pass http://ashes;
+      alias /Users/eugene/Development/FoxCommerce/ashes/public;
+      proxy_pass http://ashes/;
   }
 
   # Proxy to firebird
   location / {
-      root {{firebird_root_dir}};
-      try_files $uri @firebird;
-  }
+      # Rewrite static content urls for ashes
+      rewrite /admin.css /admin/admin.css;
+      rewrite /admin.js /admin/admin.js;
+      rewrite /fonts/fontello(.*) /admin/fonts/fontello$1;
+      rewrite /images(.*) /admin/images$1;
 
-  location @firebird {
-      proxy_pass http://firebird;
+      # Finally proxy to firebird
+      root {{firebird_root_dir}};
+      proxy_pass http://firebird/;
   }
 
   # Error pages
