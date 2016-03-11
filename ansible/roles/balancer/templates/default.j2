@@ -155,7 +155,7 @@ server {
 
   # Proxy to ashes
   location /admin/ {
-      alias /Users/eugene/Development/FoxCommerce/ashes/public;
+      alias {{ashes_root_dir}};
       proxy_pass http://ashes/;
   }
 
