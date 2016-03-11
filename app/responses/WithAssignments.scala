@@ -12,9 +12,9 @@ trait WithAssignments[T <: ResponseItem] {
   type TableTuple = (Assignments#TableElementType, StoreAdmins#TableElementType)
   type DBIOActionTupleSeq = DBIOAction[Seq[TableTuple], NoStream, Effect.Read with Effect.Read]
 
-  final case class Root(entity: T, assignments: Seq[AssignmentResponse])
+  //final case class Root(entity: T, assignments: Seq[AssignmentResponse])
 
-  final case class AssignmentResponse(assignee: StoreAdminResponse.Root, createdAt: Instant)
+  //final case class AssignmentResponse(assignee: StoreAdminResponse.Root, createdAt: Instant)
 
   def withAssignments(referenceType: Assignment.ReferenceType, referenceId: Int)
     (implicit ec: EC, db: DB): DBIOActionTupleSeq = for {
