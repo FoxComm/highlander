@@ -3,7 +3,7 @@ import { combineReducers } from 'redux';
 
 import giftCards from './gift-cards';
 import customers from './customers';
-import groups from './groups';
+import customerGroups from './customer-groups';
 import orders from './orders';
 import rmas from './rmas';
 import notes from './notes';
@@ -33,7 +33,7 @@ const rootReducer = combineReducers({
   addressForm,
   reasons,
   storeCreditTypes,
-  groups,
+  customerGroups,
   activityNotifications,
   activityTrail,
   siteMenu,

@@ -1,10 +1,10 @@
 import { combineReducers } from 'redux';
-import builder from './builder';
+import group from './group';
 import list from './list';
 
 
 const groupReducer = combineReducers({
-  builder,
+  group,
   list,
 });
 
