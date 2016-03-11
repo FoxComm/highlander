@@ -94,7 +94,9 @@ object RmaResponse {
   def buildLineItems(skus: Seq[(Sku, SkuShadow, RmaLineItem)], giftCards: Seq[(GiftCard, RmaLineItem)],
     shipments: Seq[(Shipment, RmaLineItem)]): LineItems = {
     LineItems(
-      skus = skus.map { case (sku, skuShadow, li) ⇒ LineItemSku(lineItemId = li.id, sku = DisplaySku(sku = sku.code,  price = Mvp.priceAsInt(sku, skuShadow))) },
+      skus = skus.map { case (sku, skuShadow, li) ⇒ LineItemSku(lineItemId = li.id,
+        sku = DisplaySku(sku = sku.code, price = Mvp.priceAsInt(sku, skuShadow)))
+      },
       giftCards = giftCards.map { case (gc, li) ⇒
         LineItemGiftCard(lineItemId = li.id, giftCard = GiftCardResponse.build(gc)) },
       shippingCosts = shipments.map { case (shipment, li) ⇒
@@ -112,13 +114,12 @@ object RmaResponse {
 
   def fromRma(rma: Rma)(implicit ec: EC, db: DB): DBIO[Root] = {
     fetchRmaDetails(rma).map {
-      case (_, customer, storeAdmin, assignments, payments, lineItemData, giftCards, shipments, subtotal) ⇒
+      case (_, customer, storeAdmin, payments, lineItemData, giftCards, shipments, subtotal) ⇒
         build(
           rma = rma,
           customer = customer.map(CustomerResponse.build(_)),
           storeAdmin = storeAdmin.map(StoreAdminResponse.build),
           payments = payments.map(buildPayment),
-          assignees = assignments.map((AssignmentResponse.buildForRma _).tupled),
           lineItems = buildLineItems(lineItemData, giftCards, shipments),
           totals = Some(buildTotals(subtotal, None, shipments))
         )
@@ -127,14 +128,13 @@ object RmaResponse {
 
   def fromRmaExpanded(rma: Rma)(implicit ec: EC, db: DB): DBIO[RootExpanded] = {
     fetchRmaDetails(rma = rma, withOrder = true).map {
-      case (order, customer, storeAdmin, assignments, payments, lineItemData, giftCards, shipments, subtotal) ⇒
+      case (order, customer, storeAdmin, payments, lineItemData, giftCards, shipments, subtotal) ⇒
         buildExpanded(
           rma = rma,
           order = order,
           customer = customer.map(CustomerResponse.build(_)),
           storeAdmin = storeAdmin.map(StoreAdminResponse.build),
           payments = payments.map(buildPayment),
-          assignees = assignments.map((AssignmentResponse.buildForRma _).tupled),
           lineItems = buildLineItems(lineItemData, giftCards, shipments),
           totals = Some(buildTotals(subtotal, None, shipments))
         )
@@ -143,44 +143,42 @@ object RmaResponse {
 
   def build(rma: Rma, customer: Option[Customer] = None, storeAdmin: Option[StoreAdmin] = None,
     lineItems: LineItems = LineItems(), payments: Seq[DisplayPayment] = Seq.empty,
-    assignees: Seq[AssignmentResponse.Root] = Seq.empty, totals: Option[RmaTotals] = None): Root = {
-    Root(id = rma.id,
-      referenceNumber = rma.refNum,
-      orderRefNum = rma.orderRefNum,
-      rmaType = rma.rmaType,
-      state = rma.state,
-      customer = customer,
-      storeAdmin = storeAdmin,
-      payments = payments,
-      lineItems = lineItems,
-      assignees = assignees,
-      messageToCustomer = rma.messageToCustomer,
-      canceledReason = rma.canceledReason,
-      createdAt = rma.createdAt,
-      updatedAt = rma.updatedAt,
-      totals = totals)
-  }
+    assignees: Seq[AssignmentResponse.Root] = Seq.empty, totals: Option[RmaTotals] = None): Root = Root(id = rma.id,
+    referenceNumber = rma.refNum,
+    orderRefNum = rma.orderRefNum,
+    rmaType = rma.rmaType,
+    state = rma.state,
+    customer = customer,
+    storeAdmin = storeAdmin,
+    payments = payments,
+    lineItems = lineItems,
+    assignees = assignees,
+    messageToCustomer = rma.messageToCustomer,
+    canceledReason = rma.canceledReason,
+    createdAt = rma.createdAt,
+    updatedAt = rma.updatedAt,
+    totals = totals
+  )
 
   def buildExpanded(rma: Rma, order: Option[FullOrder.Root] = None, customer: Option[Customer] = None,
     lineItems: LineItems = LineItems(), storeAdmin: Option[StoreAdmin] = None,
     payments: Seq[DisplayPayment] = Seq.empty, assignees: Seq[AssignmentResponse.Root] = Seq.empty,
-    totals: Option[RmaTotals] = None): RootExpanded = {
-    RootExpanded(id = rma.id,
-      referenceNumber = rma.refNum,
-      order = order,
-      rmaType = rma.rmaType,
-      state = rma.state,
-      customer = customer,
-      storeAdmin = storeAdmin,
-      payments = payments,
-      lineItems = lineItems,
-      assignees = assignees,
-      messageToCustomer = rma.messageToCustomer,
-      canceledReason = rma.canceledReason,
-      createdAt = rma.createdAt,
-      updatedAt = rma.updatedAt,
-      totals = totals)
-  }
+    totals: Option[RmaTotals] = None): RootExpanded = RootExpanded(id = rma.id,
+    referenceNumber = rma.refNum,
+    order = order,
+    rmaType = rma.rmaType,
+    state = rma.state,
+    customer = customer,
+    storeAdmin = storeAdmin,
+    payments = payments,
+    lineItems = lineItems,
+    assignees = assignees,
+    messageToCustomer = rma.messageToCustomer,
+    canceledReason = rma.canceledReason,
+    createdAt = rma.createdAt,
+    updatedAt = rma.updatedAt,
+    totals = totals
+  )
 
   private def fetchRmaDetails(rma: Rma, withOrder: Boolean = false)(implicit ec: EC, db: DB) = {
     val orderQ = for {
@@ -196,17 +194,14 @@ object RmaResponse {
       // Either customer or storeAdmin as creator
       customer    ← Customers.findById(rma.customerId).extract.one
       storeAdmin  ← rma.storeAdminId.map(id ⇒ StoreAdmins.findById(id).extract.one).getOrElse(lift(None))
-      // Assignments and related store admins
-      assignments ← RmaAssignments.filter(_.rmaId === rma.id).result
-      admins      ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result
       // Payment methods
       payments    ← RmaPayments.filter(_.rmaId === rma.id).result
       // Line items of each subtype
-      lineItems        ← RmaLineItemSkus.findLineItemsByRma(rma).result
+      lineItems   ← RmaLineItemSkus.findLineItemsByRma(rma).result
       giftCards   ← RmaLineItemGiftCards.findLineItemsByRma(rma).result
       shipments   ← RmaLineItemShippingCosts.findLineItemsByRma(rma).result
       // Subtotal
       subtotal    ← RmaTotaler.subTotal(rma)
-    } yield (fullOrder, customer, storeAdmin, assignments.zip(admins), payments, lineItems, giftCards, shipments, subtotal)
+    } yield (fullOrder, customer, storeAdmin, payments, lineItems, giftCards, shipments, subtotal)
   }
 }

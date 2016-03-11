@@ -1,14 +1,11 @@
 package responses.order
 
 import java.time.Instant
-
-import utils.Money.Currency
 import scala.concurrent.Future
 
 import cats.implicits._
 import models.customer.{Customers, Customer}
-import models.inventory.{Sku, SkuShadow}
-import models.product.{Product, ProductShadow, Mvp}
+import models.product.Mvp
 import models.location.Region
 import models.order._
 import models.order.lineitems._
@@ -17,13 +14,12 @@ import models.payment.creditcard._
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
 import models.shipping.ShippingMethod
-import models.{StoreAdmin, StoreAdmins, shipping}
+import models.{StoreAdmin, shipping}
 import responses._
 import services.orders.OrderQueries
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 import utils.aliases._
-
 
 object FullOrder {
   type Response = Future[Root]
@@ -52,8 +48,6 @@ object FullOrder {
     customer: Option[CustomerResponse.Root] = None,
     shippingMethod: Option[ShippingMethods.Root] = None,
     shippingAddress: Option[Addresses.Root] = None,
-    assignees: Seq[AssignmentResponse.Root] = Seq.empty,
-    watchers: Seq[WatcherResponse.Root] = Seq.empty,
     remorsePeriodEnd: Option[Instant] = None,
     paymentMethods: Seq[Payments] = Seq.empty,
     lockedBy: Option[StoreAdmin]) extends ResponseItem with OrderResponseBase
@@ -88,7 +82,7 @@ object FullOrder {
 
   def fromOrder(order: Order)(implicit ec: EC, db: DB): DBIO[Root] = {
     fetchOrderDetails(order).map {
-      case (customer, lineItems, shipMethod, shipAddress, ccPmt, gcPmts, scPmts, assignees, gcs, totals, lockedBy, payState, watchers) ⇒
+      case (customer, lineItems, shipMethod, shipAddress, ccPmt, gcPmts, scPmts, gcs, totals, lockedBy, payState) ⇒
       build(
         order = order,
         customer = customer,
@@ -96,8 +90,6 @@ object FullOrder {
         giftCards = gcs,
         shippingAddress = shipAddress.toOption,
         shippingMethod = shipMethod,
-        assignments = assignees,
-        watchers = watchers,
         ccPmt = ccPmt,
         gcPmts = gcPmts,
         scPmts = scPmts,
@@ -113,12 +105,10 @@ object FullOrder {
     shippingAddress: Option[Addresses.Root] = None,
     ccPmt: Option[CcPayment] = None, gcPmts: Seq[(OrderPayment, GiftCard)] = Seq.empty,
     scPmts: Seq[(OrderPayment, StoreCredit)] = Seq.empty,
-    assignments: Seq[(OrderAssignment, StoreAdmin)] = Seq.empty,
     giftCards: Seq[(GiftCard, OrderLineItemGiftCard)] = Seq.empty,
     totals: Option[Totals] = None,
     lockedBy: Option[StoreAdmin] = None,
-    paymentState: CreditCardCharge.State = CreditCardCharge.Cart,
-    watchers: Seq[(OrderWatcher, StoreAdmin)] = Seq.empty): Root = {
+    paymentState: CreditCardCharge.State = CreditCardCharge.Cart): Root = {
 
     val creditCardPmt = ccPmt.map { case (pmt, cc, region) ⇒
       val payment = Payments.CreditCardPayment(id = cc.id, customerId = cc.customerId, holderName = cc.holderName,
@@ -160,8 +150,6 @@ object FullOrder {
       shippingAddress = shippingAddress,
       totals = totals.getOrElse(Totals.empty),
       shippingMethod = shippingMethod.map(ShippingMethods.build(_)),
-      assignees = assignments.map((AssignmentResponse.build _).tupled),
-      watchers = watchers.map((WatcherResponse.build _).tupled),
       remorsePeriodEnd = order.getRemorsePeriodEnd,
       paymentMethods = paymentMethods,
       lockedBy = none
@@ -203,10 +191,6 @@ object FullOrder {
       payments    ← ccPaymentQ.one
       gcPayments  ← OrderPayments.findAllGiftCardsByOrderId(order.id).result
       scPayments  ← OrderPayments.findAllStoreCreditsByOrderId(order.id).result
-      assignments ← OrderAssignments.filter(_.orderId === order.id).result
-      admins      ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.assigneeId))).result
-      watchlist   ← OrderWatchers.filter(_.orderId === order.id).result
-      watchers    ← StoreAdmins.filter(_.id.inSetBind(watchlist.map(_.watcherId))).result
       lockedBy    ← currentLock(order)
       payState    ← OrderQueries.getPaymentState(order.id)
     } yield (
@@ -216,12 +200,10 @@ object FullOrder {
       shipAddress, 
       payments, 
       gcPayments, 
-      scPayments, 
-      assignments.zip(admins),
+      scPayments,
       giftCards, 
       Some(totals(order)), 
       lockedBy, 
-      payState,
-      watchlist.zip(watchers))
+      payState)
   }
 }
