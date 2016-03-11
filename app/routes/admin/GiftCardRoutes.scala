@@ -7,9 +7,10 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
 import models.payment.giftcard.GiftCard.giftCardCodeRegex
 import payloads._
+import payloads.{AssignmentPayload, BulkAssignmentPayload}
+import services.assignments.{GiftCardAssignmentsManager, GiftCardWatchersManager}
 import services.giftcards._
 import services.CustomerCreditConverter
-import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._
@@ -40,7 +41,7 @@ object GiftCardRoutes {
           goodOrFailures {
             GiftCardService.createByAdmin(admin, payload)
           }
-        } ~
+        } /* ~
         pathPrefix("assignees") {
           (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
             entity(as[GiftCardBulkAssignmentPayload]) { payload ⇒
@@ -72,7 +73,7 @@ object GiftCardRoutes {
               }
             }
           }
-        }
+        } */
       } ~
       pathPrefix("gift-cards" / giftCardCodeRegex) { code ⇒
         (get & pathEnd) {
@@ -86,26 +87,26 @@ object GiftCardRoutes {
           }
         } ~
         pathPrefix("assignees") {
-          (post & pathEnd & entity(as[GiftCardAssignmentPayload])) { payload ⇒
-            goodOrFailures {
-              GiftCardAssignmentUpdater.assign(admin, code, payload.assignees)
+          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
+            nothingOrFailures {
+              GiftCardAssignmentsManager.assign(code, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
-              GiftCardAssignmentUpdater.unassign(admin, code, assigneeId)
+            nothingOrFailures {
+              GiftCardAssignmentsManager.unassign(code, assigneeId, admin)
             }
           }
         } ~
         pathPrefix("watchers") {
-          (post & pathEnd & entity(as[GiftCardWatchersPayload])) { payload ⇒
-            goodOrFailures {
-              GiftCardWatcherUpdater.watch(admin, code, payload.watchers)
+          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
+            nothingOrFailures {
+              GiftCardWatchersManager.assign(code, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
-              GiftCardWatcherUpdater.unwatch(admin, code, assigneeId)
+            nothingOrFailures {
+              GiftCardWatchersManager.unassign(code, assigneeId, admin)
             }
           }
         } ~

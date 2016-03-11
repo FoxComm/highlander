@@ -68,19 +68,24 @@ object Assignments extends TableQueryWithId[Assignment, Assignments](
 
   def byStoreAdmin(admin: StoreAdmin): QuerySeq = filter(_.storeAdminId === admin.id)
 
-  def assignedTo(admin: StoreAdmin, table: TableQueryWithId)(implicit ec: EC): QuerySeq = {
+  /*
+  def assignedTo[M, T](admin: StoreAdmin, table: TableQueryWithId[M, T])(implicit ec: EC): QuerySeq = {
     for {
       assignees ← byStoreAdmin(admin).map(_.referenceId)
       records   ← table.filter(_.id === assignees)
     } yield records
   }
+  */
+
+  def byEntity[T <: ModelWithIdParameter[T]](model: T, refType: ReferenceType): QuerySeq =
+    filter(_.referenceType === refType).filter(_.referenceId === model.id)
 
   def byEntityAndAdmin[T <: ModelWithIdParameter[T]](model: T, refType: ReferenceType, admin: StoreAdmin): QuerySeq =
     filter(_.referenceType === refType).filter(_.referenceId === model.id).filter(_.storeAdminId === admin.id)
 
-  def assigneesFor[T](entity: T)(implicit ec: EC): StoreAdmins.QuerySeq = {
+  def assigneesFor[T <: ModelWithIdParameter[T]](entity: T, refType: ReferenceType)(implicit ec: EC): StoreAdmins.QuerySeq = {
     for {
-      assignees ← byEntity(entity).map(_.storeAdminId)
+      assignees ← byEntity(entity, refType).map(_.storeAdminId)
       admins    ← StoreAdmins.filter(_.id === assignees)
     } yield admins
   }

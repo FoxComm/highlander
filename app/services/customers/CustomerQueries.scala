@@ -1,5 +1,8 @@
 package services.customers
 
+object CustomerQueries
+
+/*
 import models.customer.Customers
 import models.javaTimeSlickMapper
 import responses.TheResponse
@@ -42,3 +45,4 @@ object CustomerQueries {
     sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[RootSimple]]] =
     findAllByQuery(Customers)
 }
+*/

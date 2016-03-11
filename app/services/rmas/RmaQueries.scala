@@ -1,9 +1,12 @@
 package services.rmas
 
+object RmaQueries
+
+/*
 import models.customer.Customers
-import models.rma.{RmaAssignments, Rmas}
+import models.rma.Rmas
 import models.{StoreAdmins, javaTimeSlickMapper}
-import responses.{PaginationMetadata, SortingMetadata, TheResponse, AllRmas, AssignmentResponse}
+import responses.{PaginationMetadata, SortingMetadata, TheResponse, AllRmas}
 import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
@@ -57,6 +60,8 @@ object RmaQueries {
       }
     }
 
+    sortedQuery.result
+
     sortedQuery.result.flatMap(xor ⇒ xorMapDbio(xor) { results ⇒
       val rmaIds = results.map { case ((rma, customer), admin) ⇒ rma.id }
 
@@ -75,3 +80,4 @@ object RmaQueries {
     }).toTheResponse
   }
 }
+*/

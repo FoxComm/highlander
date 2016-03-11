@@ -3,7 +3,6 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-
 import models.order.Order
 import models.payment.giftcard.GiftCard
 import GiftCard.giftCardCodeRegex
@@ -11,17 +10,14 @@ import Order.orderRefNumRegex
 import models.StoreAdmin
 import models.traits.Originator
 import payloads._
+import payloads.{AssignmentPayload, BulkAssignmentPayload}
+import services.assignments.{OrderAssignmentsManager, OrderWatchersManager}
 import services.orders._
 import services.{Checkout, LineItemUpdater}
-import services.Authenticator.{AsyncAuthenticator, requireAuth}
-import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives._
 import utils.Http._
 import utils.Apis
 import utils.aliases._
-
-import scala.collection.immutable.Seq
-
 
 object OrderRoutes {
 
@@ -47,7 +43,7 @@ object OrderRoutes {
               OrderStateUpdater.updateStates(admin, payload.referenceNumbers, payload.state)
             }
           }
-        } ~
+        } /* ~
         pathPrefix("assignees") {
           (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
             entity(as[OrderBulkAssignmentPayload]) { payload ⇒
@@ -79,7 +75,7 @@ object OrderRoutes {
               }
             }
           }
-        }
+        } */
       } ~
       pathPrefix("orders" / orderRefNumRegex) { refNum ⇒
         (get & pathEnd) {
@@ -169,26 +165,26 @@ object OrderRoutes {
           }
         } ~
         pathPrefix("assignees") {
-          (post & pathEnd & entity(as[OrderAssignmentPayload])) { payload ⇒
-            goodOrFailures {
-              OrderAssignmentUpdater.assign(admin, refNum, payload.assignees)
+          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
+            nothingOrFailures {
+              OrderAssignmentsManager.assign(refNum, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
-              OrderAssignmentUpdater.unassign(admin, refNum, assigneeId)
+            nothingOrFailures {
+              OrderAssignmentsManager.unassign(refNum, assigneeId, admin)
             }
           }
         } ~
         pathPrefix("watchers") {
-          (post & pathEnd & entity(as[OrderWatchersPayload])) { payload ⇒
-            goodOrFailures {
-              OrderWatcherUpdater.watch(admin, refNum, payload.watchers)
+          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
+            nothingOrFailures {
+              OrderWatchersManager.assign(refNum, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
-              OrderWatcherUpdater.unwatch(admin, refNum, assigneeId)
+            nothingOrFailures {
+              OrderWatchersManager.unassign(refNum, assigneeId, admin)
             }
           }
         } ~

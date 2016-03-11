@@ -66,6 +66,7 @@ object RmaService {
     response ← * <~ fromRmaExpanded(rma).toXor
   } yield response).run()
 
+  /*
   def findByOrderRef(refNum: String)
     (implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[BatchResponse[AllRmas.Root]] = (for {
     order ← * <~ Orders.mustFindByRefNum(refNum)
@@ -77,4 +78,5 @@ object RmaService {
     _    ← * <~ Customers.mustFindById404(customerId)
     rmas ← * <~ RmaQueries.findAllDbio(Rmas.findByCustomerId(customerId))
   } yield rmas).run()
+  */
 }

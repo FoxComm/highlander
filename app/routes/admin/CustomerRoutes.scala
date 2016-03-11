@@ -4,13 +4,13 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
-import models.customer.Customers
 import models.traits.Originator
 import payloads._
 import services.customers._
+import payloads.{AssignmentPayload, BulkAssignmentPayload}
+import services.assignments.{CustomerAssignmentsManager, CustomerWatchersManager}
 import services.{AddressManager, CreditCardManager, CustomerCreditConverter, StoreCreditAdjustmentsService,
 StoreCreditService}
-import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import services.orders.OrderQueries
 import utils.Apis
 import utils.CustomDirectives._
@@ -40,7 +40,7 @@ object CustomerRoutes {
           goodOrFailures {
             CustomerManager.create(payload, Some(admin))
           }
-        } ~
+        } /* ~
         pathPrefix("assignees") {
           (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
             entity(as[CustomerBulkAssignmentPayload]) { payload ⇒
@@ -72,7 +72,7 @@ object CustomerRoutes {
               }
             }
           }
-        }
+        } */
       } ~
       pathPrefix("customers" / IntNumber) { customerId ⇒
         (get & pathEnd) {
@@ -108,26 +108,26 @@ object CustomerRoutes {
           }
         } ~
         pathPrefix("assignees") {
-          (post & pathEnd & entity(as[CustomerAssignmentPayload])) { payload ⇒
-            goodOrFailures {
-              CustomerAssignmentUpdater.assign(admin, customerId, payload.assignees)
+          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
+            nothingOrFailures {
+              CustomerAssignmentsManager.assign(customerId, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
-              CustomerAssignmentUpdater.unassign(admin, customerId, assigneeId)
+            nothingOrFailures {
+              CustomerAssignmentsManager.unassign(customerId, assigneeId, admin)
             }
           }
         } ~
         pathPrefix("watchers") {
-          (post & pathEnd & entity(as[CustomerWatchersPayload])) { payload ⇒
-            goodOrFailures {
-              CustomerWatcherUpdater.watch(admin, customerId, payload.watchers)
+          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
+            nothingOrFailures {
+              CustomerWatchersManager.assign(customerId, payload, admin)
             }
           } ~
           (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
-              CustomerWatcherUpdater.unwatch(admin, customerId, assigneeId)
+            nothingOrFailures {
+              CustomerWatchersManager.unassign(customerId, assigneeId, admin)
             }
           }
         } ~

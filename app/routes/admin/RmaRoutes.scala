@@ -6,15 +6,16 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.order.Order
 import models.rma.{Rmas, Rma}
 import models.StoreAdmin
-import payloads.{RmaAssigneesPayload, RmaBulkAssigneesPayload, RmaCreatePayload, RmaGiftCardLineItemsPayload,
-RmaMessageToCustomerPayload, RmaPaymentPayload, RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload, RmaUpdateStatePayload}
+import payloads.{AssignmentPayload, BulkAssignmentPayload}
+import services.assignments.{RmaAssignmentsManager, RmaWatchersManager}
+import payloads.{RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCustomerPayload, RmaPaymentPayload,
+RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload, RmaUpdateStatePayload}
 import services.rmas._
 import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._
 import utils.aliases._
-
 
 object RmaRoutes {
 
@@ -24,6 +25,7 @@ object RmaRoutes {
       determineProductContext(db, ec) { productContext ⇒ 
 
         pathPrefix("rmas") {
+          /*
           (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
             goodOrFailures {
               RmaQueries.findAll(Rmas)
@@ -43,11 +45,12 @@ object RmaRoutes {
               }
             }
           } ~
+          */
           (post & pathEnd & entity(as[RmaCreatePayload])) { payload ⇒
             goodOrFailures {
               RmaService.createByAdmin(admin, payload)
             }
-          } ~
+          } /* ~
           pathPrefix("assignees") {
             (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
               entity(as[RmaBulkAssigneesPayload]) { payload ⇒
@@ -63,7 +66,7 @@ object RmaRoutes {
                 }
               }
             }
-          }
+          } */
         } ~
         pathPrefix("rmas" / Rma.rmaRefNumRegex) { refNum ⇒
           (get & pathEnd) {
@@ -174,14 +177,26 @@ object RmaRoutes {
             }
           } ~
           pathPrefix("assignees") {
-            (post & entity(as[RmaAssigneesPayload])) { payload ⇒
-              goodOrFailures {
-                RmaAssignmentUpdater.assign(refNum, payload.assignees)
+            (post & entity(as[AssignmentPayload])) { payload ⇒
+              nothingOrFailures {
+                RmaAssignmentsManager.assign(refNum, payload, admin)
               }
             } ~
             (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-              goodOrFailures {
-                RmaAssignmentUpdater.unassign(admin, refNum, assigneeId)
+              nothingOrFailures {
+                RmaAssignmentsManager.unassign(refNum, assigneeId, admin)
+              }
+            }
+          } ~
+          pathPrefix("watchers") {
+            (post & entity(as[AssignmentPayload])) { payload ⇒
+              nothingOrFailures {
+                RmaWatchersManager.assign(refNum, payload, admin)
+              }
+            } ~
+            (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
+              nothingOrFailures {
+                RmaWatchersManager.unassign(refNum, assigneeId, admin)
               }
             }
           }

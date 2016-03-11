@@ -1,11 +1,11 @@
 package services.assignments
 
 import models.{StoreAdmins, StoreAdmin, Assignment, Assignments}
+import payloads.{AssignmentPayload, BulkAssignmentPayload}
 import responses.{ResponseItem, BatchMetadataSource, BatchMetadata, TheResponse}
 import services.Util._
 import services._
 import slick.driver.PostgresDriver.api._
-import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
 import utils.{TableQueryWithId, ModelWithIdParameter}
 import utils.DbResultT.implicits._
@@ -13,36 +13,31 @@ import utils.Slick._
 import utils.Slick.implicits._
 import utils.aliases._
 
-trait AssignmentsManager[K, M <: ModelWithIdParameter[M], T <: TableQueryWithId[M, T]] {
+trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   // Define this methods in inherit object
-  def modelInstance(): ModelWithIdParameter[M]
-  def tableInstance(): TableQueryWithId[M, T]
-  def responseBuilder(): M ⇒ ResponseItem
+  //def modelInstance(): ModelWithIdParameter[M]
+  //def tableInstance(): TableQueryWithId[M, T]
+  //def responseBuilder(): M ⇒ ResponseItem
 
   def assignmentType(): Assignment.AssignmentType
   def referenceType(): Assignment.ReferenceType
 
   def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: AC): DbResult[M]
-  def fetchMulti(keys: Seq[K])(implicit ec: EC, db: DB, ac: AC): DbResult[Seq[M]]
-
-  final case class AssignmentPayload(assignees: Seq[Int])
-  final case class BulkAssignmentPayload(entityIds: Seq[K], assigneeId: Int)
+  //def fetchMulti(keys: Seq[K])(implicit ec: EC, db: DB, ac: AC): DbResult[Seq[M]]
 
   // Use this methods wherever you want
-  def assign(key: K, assigneeIds: Seq[Int], originator: StoreAdmin)
+  def assign(key: K, payload: AssignmentPayload, originator: StoreAdmin)
     (implicit ec: EC, db: DB, ac: AC): Result[Unit] = (for {
     // Validate existence and create assignments
     entity    ← * <~ fetchEntity(key)
-    adminIds  ← * <~ StoreAdmins.filter(_.id.inSetBind(assigneeIds)).map(_.id).result
-    assignees ← * <~ Assignments.assigneesFor(entity).result.toXor
+    adminIds  ← * <~ StoreAdmins.filter(_.id.inSetBind(payload.assigneeIds)).map(_.id).result
+    assignees ← * <~ Assignments.assigneesFor(entity, referenceType()).result.toXor
     _         ← * <~ Assignments.createAll(buildNew(entity, adminIds, assignees))
-    // Refresh entity
-    newEntity ← * <~ tableInstance().refresh(entity).toXor
 
     // TODO - TheResponse alternative with embedded assignments
     // ...
 
-    notFoundAdmins  = diffToFailures(assigneeIds, adminIds, StoreAdmin)
+    notFoundAdmins  = diffToFailures(payload.assigneeIds, adminIds, StoreAdmin)
 
     // TODO - LogActivity + notifications generalization
     // ...
@@ -60,6 +55,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M], T <: TableQueryWithId[
     // ...
   } yield ()).runTxn()
 
+  /*
   def assignBulk(admin: StoreAdmin, payload: BulkAssignmentPayload)
     (implicit ec: EC, db: DB, ac: AC, sortAndPage: SortAndPage): Result[Unit] = (for {
 
@@ -97,6 +93,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M], T <: TableQueryWithId[
     batchFailures  = diffToBatchErrors(payload.entityIds, entities.map(_.id), modelInstance())
     batchMetadata  = BatchMetadata(BatchMetadataSource(modelInstance(), success.map(_.toString), batchFailures))
   } yield ()).runTxn()
+  */
 
   // Helpers
   private def byEntityAndAdmin(entity: M, admin: StoreAdmin): Assignments.QuerySeq =
