@@ -36,6 +36,7 @@ import InventoryListPage from './components/inventory/list-page';
 import InventoryList from './components/inventory/list';
 import InventoryItem from './components/inventory/item';
 import InventoryItemDetails from './components/inventory/item-details';
+import ProductsListPage from './components/products/list-page';
 import Products from './components/products/products';
 import Product from './components/products/product';
 import ProductDetails from './components/products/details';
@@ -109,7 +110,7 @@ const routes = (
              component={NewStoreCredit} />
     </Route>
     <Route name='products-base' path='products'>
-      <Route name='products-list-pages'>
+      <Route name='products-list-pages' component={ProductsListPage}>
         <IndexRoute name='products' component={Products} />
       </Route>
       <Route name='product' path=':productId' component={Product}>
