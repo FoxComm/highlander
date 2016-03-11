@@ -36,6 +36,27 @@ import CreditCardsResponse.{buildSimple ⇒ buildCc}
 
 object LogActivity {
 
+  /* Assignments */
+  def assigned[T](admin: StoreAdmin, entity: T, assignees: Seq[AdminResponse])
+    (implicit ec: EC, ac: AC): DbResult[Activity] = {
+    Activities.log(Assigned[T](buildAdmin(admin), entity, assignees))
+  }
+
+  def unassigned[T](admin: StoreAdmin, entity: T, assignee: StoreAdmin)
+    (implicit ec: EC, ac: AC): DbResult[Activity] = {
+    Activities.log(Unassigned[T](buildAdmin(admin), entity, buildAdmin(assignee)))
+  }
+
+  def bulkAssigned[T](admin: StoreAdmin, assignee: StoreAdmin, entityIds: Seq[T])
+    (implicit ec: EC, ac: AC): DbResult[Activity] = {
+    Activities.log(BulkAssigned[T](buildAdmin(admin), buildAdmin(assignee), entityIds))
+  }
+
+  def bulkUnassigned[T](admin: StoreAdmin, assignee: StoreAdmin, entityIds: Seq[T])
+    (implicit ec: EC, ac: AC): DbResult[Activity] = {
+    Activities.log(BulkUnassigned[T](buildAdmin(admin), buildAdmin(assignee), entityIds))
+  }
+
   /* Notes */
   def noteCreated[T](admin: StoreAdmin, entity: T, note: Note)
     (implicit ec: EC, ac: AC): DbResult[Activity] =
@@ -58,27 +79,6 @@ object LogActivity {
   def unassociatedFromSearch(admin: StoreAdmin, search: SharedSearch, associate: StoreAdmin)
     (implicit ec: EC, ac: AC): DbResult[Activity] = {
     Activities.log(UnassociatedFromSearch(buildAdmin(admin), search, buildAdmin(associate)))
-  }
-
-  /* Order Assignments */
-  def assignedToOrder(admin: StoreAdmin, order: FullOrder.Root, assignees: Seq[AdminResponse])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(AssignedToOrder(buildAdmin(admin), order, assignees))
-  }
-
-  def unassignedFromOrder(admin: StoreAdmin, order: FullOrder.Root, assignee: StoreAdmin)
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(UnassignedFromOrder(buildAdmin(admin), order, buildAdmin(assignee)))
-  }
-
-  def bulkAssignedToOrders(admin: StoreAdmin, assignee: StoreAdmin, orderRefNums: Seq[String])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(BulkAssignedToOrders(buildAdmin(admin), buildAdmin(assignee), orderRefNums))
-  }
-
-  def bulkUnassignedFromOrders(admin: StoreAdmin, assignee: StoreAdmin, orderRefNums: Seq[String])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(BulkUnassignedFromOrders(buildAdmin(admin), buildAdmin(assignee), orderRefNums))
   }
 
   /* Customers */

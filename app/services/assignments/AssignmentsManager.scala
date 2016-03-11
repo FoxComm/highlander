@@ -1,9 +1,9 @@
 package services.assignments
 
 import models.Assignment._
-import models.{StoreAdmins, StoreAdmin, Assignment, Assignments}
+import models.{StoreAdmins, StoreAdmin, Assignment, Assignments, NotificationSubscription}
 import payloads.{AssignmentPayload, BulkAssignmentPayload}
-import responses.{ResponseItem, BatchMetadataSource, BatchMetadata, TheResponse}
+import responses.{StoreAdminResponse, ResponseItem, BatchMetadataSource, BatchMetadata, TheResponse}
 import services.Util._
 import services._
 import slick.driver.PostgresDriver.api._
@@ -19,8 +19,16 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   //def modelInstance(): ModelWithIdParameter[M]
   //def tableInstance(): TableQueryWithId[M, T]
   //def responseBuilder(): M ⇒ ResponseItem
+  val assignedAdmins: Seq[StoreAdminResponse.Root] = Seq.empty
+
   def assignmentType(): AssignmentType
   def referenceType(): ReferenceType
+  def notifyDimension(): String
+
+  private def notifyReason(): NotificationSubscription.Reason = assignmentType() match {
+    case Assignee ⇒ NotificationSubscription.Assigned
+    case Watcher  ⇒ NotificationSubscription.Watching
+  }
 
   def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: AC): DbResult[M]
   //def fetchMulti(keys: Seq[K])(implicit ec: EC, db: DB, ac: AC): DbResult[Seq[M]]
@@ -28,32 +36,34 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   // Use this methods wherever you want
   def assign(key: K, payload: AssignmentPayload, originator: StoreAdmin)
     (implicit ec: EC, db: DB, ac: AC): Result[Unit] = (for {
-
+    // Validation + assign
     entity    ← * <~ fetchEntity(key)
     adminIds  ← * <~ StoreAdmins.filter(_.id.inSetBind(payload.assignees)).map(_.id).result
     assignees ← * <~ Assignments.assigneesFor(assignmentType(), entity, referenceType()).result.toXor
     _         ← * <~ Assignments.createAll(buildNew(entity, adminIds, assignees))
-
-    // TODO - TheResponse alternative with embedded assignments
+    // TODO Prepare response
     // ...
-
     notFoundAdmins  = diffToFailures(payload.assignees, adminIds, StoreAdmin)
-
-    // TODO - LogActivity + notifications generalization
-    // ...
+    // Activity log + notifications subscription
+    _         ← * <~ LogActivity.assigned(originator, entity, assignedAdmins)
+    _         ← * <~ NotificationManager.subscribe(adminIds = assignedAdmins.map(_.id), dimension = notifyDimension(),
+      reason = notifyReason(), objectIds = Seq(key.toString))
   } yield ()).runTxn()
 
   def unassign(key: K, assigneeId: Int, originator: StoreAdmin)
     (implicit ec: EC, db: DB, ac: AC): Result[Unit] = (for {
-
+    // Validation + unassign
     entity     ← * <~ fetchEntity(key)
     admin      ← * <~ StoreAdmins.mustFindById404(assigneeId)
     querySeq   = Assignments.byEntityAndAdmin(assignmentType(), entity, referenceType(), admin)
     assignment ← * <~ querySeq.one.mustFindOr(AssigneeNotFound(entity, key, assigneeId))
     _          ← * <~ querySeq.delete
-
-    // TODO - LogActivity + notifications generalization
+    // TODO - Prepare response
     // ...
+    // Activity log + notifications subscription
+    _         ← * <~ LogActivity.unassigned(originator, entity, admin)
+    _         ← * <~ NotificationManager.unsubscribe(adminIds = Seq(assigneeId), dimension = notifyDimension(),
+      reason = notifyReason(), objectIds = Seq(key.toString))
   } yield ()).runTxn()
 
   /*

@@ -1,23 +1,18 @@
 package services.activity
 
-import responses.StoreAdminResponse
-import responses.order.FullOrder
+import responses.StoreAdminResponse.{Root ⇒ AdminRoot}
 
 object AssignmentsTailored {
-  /* Orders */
-  final case class AssignedToOrder(admin: StoreAdminResponse.Root, order: FullOrder.Root,
-    assignees: Seq[StoreAdminResponse.Root])
-    extends ActivityBase[AssignedToOrder]
 
-  final case class UnassignedFromOrder(admin: StoreAdminResponse.Root, order: FullOrder.Root,
-    assignee: StoreAdminResponse.Root)
-    extends ActivityBase[UnassignedFromOrder]
+  final case class Assigned[T](admin: AdminRoot, entity: T, assignees: Seq[AdminRoot])
+    extends ActivityBase[Assigned[T]]
 
-  final case class BulkAssignedToOrders(admin: StoreAdminResponse.Root, assignee: StoreAdminResponse.Root,
-    orderRefNums: Seq[String])
-    extends ActivityBase[BulkAssignedToOrders]
+  final case class Unassigned[T](admin: AdminRoot, entity: T, assignee: AdminRoot)
+    extends ActivityBase[Unassigned[T]]
 
-  final case class BulkUnassignedFromOrders(admin: StoreAdminResponse.Root, assignee: StoreAdminResponse.Root,
-    orderRefNums: Seq[String])
-    extends ActivityBase[BulkUnassignedFromOrders]
+  final case class BulkAssigned[K](admin: AdminRoot, assignee: AdminRoot, entityIds: Seq[K])
+    extends ActivityBase[BulkAssigned[K]]
+
+  final case class BulkUnassigned[K](admin: AdminRoot, assignee: AdminRoot, entityIds: Seq[K])
+    extends ActivityBase[BulkUnassigned[K]]
 }

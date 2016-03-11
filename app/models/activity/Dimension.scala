@@ -36,6 +36,7 @@ object Dimension {
   val admin         = "admin"
   val notification  = "notification"
   val giftCard      = "giftCard"
+  val rma           = "rma"
 }
 
 class Dimensions(tag: Tag) extends GenericTable.TableWithId[Dimension](tag, "activity_dimensions")  {
