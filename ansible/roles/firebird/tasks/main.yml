@@ -12,7 +12,7 @@
     recursive: true
     rsync_opts:
         - "--no-motd"
-        - "--exclude=node_modules"
+        - "--exclude=./node_modules"
 
 - name: Install local gulp
   shell: npm install gulp
