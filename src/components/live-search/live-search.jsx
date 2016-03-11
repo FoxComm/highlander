@@ -48,7 +48,7 @@ export default class LiveSearch extends React.Component {
       searchPrepend: '',
       searchOptions: options,
       searchValue: searchValue,
-      selectionIndex: -1
+      selectionIndex: -1,
     };
   }
 
@@ -64,6 +64,14 @@ export default class LiveSearch extends React.Component {
     updateSearch: PropTypes.func.isRequired,
     noGutter: PropTypes.bool,
     fetchSearches: PropTypes.func.isRequired,
+
+    suggestAssociations: PropTypes.func,
+    fetchAssociations: PropTypes.func,
+    associateSearch: PropTypes.func,
+    dissociateSearch: PropTypes.func,
+    selectItem: PropTypes.func,
+    deselectItem: PropTypes.func,
+    setTerm: PropTypes.func,
   };
 
   static defaultProps = {
@@ -431,7 +439,16 @@ export default class LiveSearch extends React.Component {
           onClick={this.openShareSearch}
           disabled={this.currentSearch.title === SEARCH_ALL}
           icon="external-link-2"/>
+
         <ShareSearch
+          search={this.currentSearch}
+          fetchAssociations={this.props.fetchAssociations}
+          suggestAssociations={this.props.suggestAssociations}
+          associateSearch={this.props.associateSearch}
+          dissociateSearch={this.props.dissociateSearch}
+          selectItem={this.props.selectItem}
+          deselectItem={this.props.deselectItem}
+          setTerm={this.props.setTerm}
           closeAction={this.closeShareSearch}
           isVisible={this.state.isShareVisible}
           title={this.currentSearch.title}/>

@@ -4,17 +4,18 @@ import classNames from 'classnames';
 import _ from 'lodash';
 
 const Button = (props = {}) => {
-  const {icon, inline, docked, children, ...restProps} = props;
+  const {icon, inline, docked, children, isLoading, ...restProps} = props;
   const className = classNames(
     'fc-btn',
     {'_docked-left': docked && docked === 'left'},
     {'_docked-right': docked && docked === 'right'},
+    {'fc-btn_state_loading': isLoading},
     props.className,
   );
 
   return (
     <button {...restProps} className={className}>
-      {icon && <i className={`icon-${icon}`}></i>}
+      {icon && <i className={`icon-${icon}`}/>}
       {children}
     </button>
   );
@@ -28,6 +29,7 @@ Button.propTypes = {
   ]),
   icon: PropTypes.string,
   children: PropTypes.node,
+  isLoading: PropTypes.bool,
   inline: PropTypes.bool,
 };
 

@@ -1,9 +1,11 @@
 import _ from 'lodash';
 import { createReducer } from 'redux-act';
+import reduceReducers from 'reduce-reducers';
 import { assoc } from 'sprout-data';
 import Api from '../../lib/api';
 import SearchTerm from '../../paragons/search-term';
 import { createNsAction } from './../utils';
+import makeAssociations from './searches-associations';
 
 const emptyState = {
   isDirty: false,
@@ -15,7 +17,7 @@ const emptyState = {
   results: void 0,
   query: [],
   searchValue: '',
-  selectedIndex: -1
+  selectedIndex: -1,
 };
 
 // module is responsible for search tabs
@@ -145,7 +147,7 @@ export default function makeSearches(namespace, fetch, searchTerms, scope, optio
     }
   }, searchTerms);
 
-  const reducer = createReducer({
+  const searchesReducer = createReducer({
     [saveSearchStart]: (state) => _saveSearchStart(state),
     [saveSearchSuccess]: (state, payload) => _saveSearchSuccess(state, payload),
     [saveSearchFailure]: (state, err) => _saveSearchFailure(state, err),
@@ -164,6 +166,11 @@ export default function makeSearches(namespace, fetch, searchTerms, scope, optio
     [setSearchTerms]: (state, searchTerms) => _setSearchTerms(state, searchTerms),
   }, initialState);
 
+  /** generate reducer and actions for user associations management */
+  const associations = makeAssociations(namespace);
+
+  const reducer = reduceReducers(searchesReducer, associations.reducer);
+
   return {
     reducer,
     actions: {
@@ -178,6 +185,7 @@ export default function makeSearches(namespace, fetch, searchTerms, scope, optio
       updateSearch,
       deleteSearch,
       setSearchTerms,
+      ...associations.actions
     }
   };
 }
@@ -194,7 +202,7 @@ function _saveSearchStart(state) {
 
 function _saveSearchSuccess(state, payload) {
   const search = { ...emptyState, ...payload };
-  const searches = [ ...state.savedSearches, search ];
+  const searches = [...state.savedSearches, search];
 
   return assoc(state,
     ['savedSearches'], searches,
