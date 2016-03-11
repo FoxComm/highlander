@@ -6,6 +6,7 @@ StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=ashes
 Environment=NODE_ENV=production
+Environment=PHOENIX_PUBLIC_KEY={{ public_keys_dest_dir }}/public_key.pem
 
 [Install]
 WantedBy=multi-user.target
