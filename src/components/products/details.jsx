@@ -53,6 +53,7 @@ export class ProductDetails extends Component<void, Props, void> {
     products: PropTypes.shape({
       err: PropTypes.object,
       isFetching: PropTypes.bool,
+      isUpdating: PropTypes.bool,
       product: PropTypes.object,
     }),
   };
@@ -66,7 +67,7 @@ export class ProductDetails extends Component<void, Props, void> {
   }
 
   render(): Element {
-    const { isFetching, product, err } = this.props.products;
+    const { isFetching, isUpdating, product, err } = this.props.products;
     const attributes = product ? getProductAttributes(product) : {};
     const productTitle: string = _.get(attributes, 'title.value', '');
 
@@ -82,6 +83,7 @@ export class ProductDetails extends Component<void, Props, void> {
     } else if (product) {
       content = (
         <ProductForm
+          isUpdating={isFetching || isUpdating}
           product={product}
           productId={this.productId}
           title={productTitle}

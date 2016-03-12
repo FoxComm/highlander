@@ -56,12 +56,14 @@ export class NewProduct extends Component<void, Props, void> {
   }
 
   render(): Element {
+    const { isFetching, isUpdating, product } = this.props.products;
     let content = null;
 
-    if (this.props.products.product) {
+    if (product) {
       content = (
         <ProductForm
-          product={this.props.products.product}
+          isUpdating={isFetching || isUpdating}
+          product={product}
           productId="new"
           title="New Product"
           onAddAttribute={this.props.actions.productAddAttribute}

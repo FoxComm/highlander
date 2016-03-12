@@ -43,6 +43,7 @@ import type {
 } from '../../paragons/product';
 
 type Props = {
+  isUpdating: bool,
   product: FullProduct,
   productId: string,
   title: string,
@@ -268,11 +269,22 @@ export default class ProductForm extends Component<void, Props, State> {
     }
   }
 
+  get saveButton(): Element {
+    const disabled = this.props.isUpdating;
+    const wait = disabled ? <WaitAnimation /> : null;
+
+    return (
+      <PrimaryButton type="submit" disabled={disabled}>
+        Save Draft {wait}
+      </PrimaryButton>
+    );
+  }
+
   render(): Element {
     return (
       <Form onSubmit={this.handleSubmit}>
         <PageTitle title={this.props.title}>
-          <PrimaryButton type="submit">Save</PrimaryButton>
+          {this.saveButton}
         </PageTitle>
         <div>
           <SubNav productId={this.props.productId} product={this.props.product} />

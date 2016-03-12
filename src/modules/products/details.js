@@ -120,7 +120,7 @@ export function fetchProduct(id: string, context: string = defaultContext): Acti
           }
         );
     };
-  }
+  };
 }
 
 export function createProduct(product: FullProduct, context: string = defaultContext): ActionDispatch {
