@@ -27,8 +27,9 @@ export type IlluminatedAttribute = {
 export type IlluminatedAttributes = { [key:string]: Attribute };
 
 export type IlluminatedSku = {
-  code: ?string,
+  code: string,
   attributes: IlluminatedAttributes,
+  createdAt: ?string,
 };
 
 function getProductForm(product: FullProduct): ProductForm {
@@ -102,6 +103,7 @@ export function getIlluminatedSkus(product: FullProduct): Array<IlluminatedSku> 
       return {
         code: form.code,
         attributes: getAttributes(form.attributes, shadow.attributes),
+        createdAt: form.createdAt,
       };
     }
   });
@@ -114,40 +116,53 @@ export function createEmptyProduct(): FullProduct {
       product: {
         id: null,
         attributes: {},
-        variants: {
-          default: 'new',
-        },
+        variants: {},
         activeFrom: null,
         activeTo: null,
         createdAt: null,
       },
-      skus: [{
-        code: 'new',
-        attributes: {},
-        createdAt: null,
-      }],
+      skus: [],
     },
     shadow: {
       product: {
         id: null,
         productId: null,
         attributes: {},
-        variants: 'default',
+        variants: null,
         activeFrom: null,
         activeTo: null,
         createdAt: null,
       },
-      skus: [{
-        code: 'new',
-        attributes: {},
-        activeFrom: null,
-        activeTo: null,
-        createdAt: null,
-      }],
+      skus: [],
     },
   };
 
-  return configureProduct(product);
+  return configureProduct(addEmptySku(product));
+}
+
+export function addEmptySku(product: FullProduct): FullProduct {
+  const pseudoRandomCode: string = Math.random().toString(36).substring(7);
+
+  const emptySkuForm: SkuForm = {
+    code: pseudoRandomCode,
+    attributes: {},
+    createdAt: null,
+  };
+
+  const emptySkuShadow: SkuShadow = {
+    code: pseudoRandomCode,
+    attributes: {},
+    activeFrom: null,
+    activeTo: null,
+    createdAt: null,
+  };
+
+  return assoc(product,
+    ['form', 'product', 'variants', 'default'], pseudoRandomCode,
+    ['shadow', 'product', 'variants'], 'default',
+    ['form', 'skus'], [...product.form.skus, emptySkuForm],
+    ['shadow', 'skus'], [...product.shadow.skus, emptySkuShadow]
+  );
 }
 
 /**

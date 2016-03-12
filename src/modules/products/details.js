@@ -4,6 +4,7 @@
 import Api from '../../lib/api';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
+import { pushState } from 'redux-router';
 import {
   addProductAttribute,
   configureProduct,
@@ -49,6 +50,7 @@ export type ShadowAttributes = { [key:string]: string };
 export type SkuForm = {
   code: ?string,
   attributes: Attributes,
+  createdAt: ?string,
 };
 
 export type ProductShadow = {
@@ -126,7 +128,10 @@ export function createProduct(product: FullProduct, context: string = defaultCon
     dispatch(productUpdateStart());
     return Api.post(`/products/full/${context}`, product)
       .then(
-        (product: FullProduct) => dispatch(productUpdateSuccess(product)),
+        (product: FullProduct) => {
+          dispatch(productUpdateSuccess(product));
+          dispatch(pushState(null, `/products/${product.form.product.id}`, ''));
+        },
         (err: Object) => {
           dispatch(productUpdateFailure());
           dispatch(setError(err));

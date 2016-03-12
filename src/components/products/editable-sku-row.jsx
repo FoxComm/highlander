@@ -58,7 +58,7 @@ export default class EditableSkuRow extends Component<void, Props, State> {
   }
 
   skuCell(sku: IlluminatedSku): Element {
-    if (this.props.sku.code && this.props.sku.code != 'new') {
+    if (this.props.sku.code && this.props.sku.createdAt) {
       return <div>{this.props.sku.code}</div>;
     } else {
       const value = this.state.sku.code;
