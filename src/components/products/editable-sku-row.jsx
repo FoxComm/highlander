@@ -64,7 +64,7 @@ export default class EditableSkuRow extends Component<void, Props, State> {
       const value = this.state.sku.code;
       return (
         <FormField>
-          <input type="text" value={value} onChange={this.handleUpdateCode} />
+          <input type="text" value={value} onChange={this.handleUpdateCode} required />
         </FormField>
       );
     }

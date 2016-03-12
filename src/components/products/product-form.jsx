@@ -62,6 +62,8 @@ const defaultKeys = {
   seo: ['url', 'metaTitle', 'metaDescription'],
 };
 
+const requiredAttributes = ['title'];
+
 /**
  * ProductForm is dumb component that implements the logic needed for creating
  * or updating a product.
@@ -84,7 +86,7 @@ export default class ProductForm extends Component<void, Props, State> {
     const customAttrs = _.omit(attributes, customKeys);
     const generalAttrs = { title, description, ...customAttrs };
 
-    const renderedAttributes = this.renderAttributes(generalAttrs);
+    const renderedAttributes = _.map(generalAttrs, attr => this.renderAttribute(attr));
 
     return (
       <ContentBox title="General">
@@ -225,18 +227,20 @@ export default class ProductForm extends Component<void, Props, State> {
       return `${res} ${_.capitalize(val)}`;
     });
 
+    const required = _.indexOf(requiredAttributes, label) != -1;
+
     return (
       <FormField
         className="fc-product-details__field"
         label={formattedLbl}
         labelClassName="fc-product-details__field-label"
         key={`product-page-field-${label}`}>
-        {this.renderAttributeField(attribute)}
+        {this.renderAttributeField(attribute, required)}
       </FormField>
     );
   }
 
-  renderAttributeField(attribute: Attribute): Element {
+  renderAttributeField(attribute: Attribute, required: bool): Element {
     const { label, type, value } = attribute;
     const inputClass = 'fc-product-details__field-value';
 
@@ -258,6 +262,7 @@ export default class ProductForm extends Component<void, Props, State> {
             type="text"
             name={label}
             value={val}
+            required={required}
             onChange={({target}) => this.handleUpdateProduct(label, target.value)} />
         );
     }
