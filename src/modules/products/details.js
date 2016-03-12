@@ -62,7 +62,7 @@ export type ProductShadow = {
 };
 
 export type SkuShadow = {
-  code: string,
+  code: ?string,
   attributes: ShadowAttributes,
   activeFrom: ?string,
   activeTo: ?string,
@@ -90,8 +90,6 @@ export type ProductDetailsState = {
 
 const defaultContext = 'default';
 
-const productNew = createAction('PRODUCTS_NEW');
-
 const productRequestStart = createAction('PRODUCTS_REQUEST_START');
 const productRequestSuccess = createAction('PRODUCTS_REQUEST_SUCCESS');
 const productRequestFailure = createAction('PRODUCTS_REQUEST_FAILURE');
@@ -101,6 +99,7 @@ const productUpdateSuccess = createAction('PRODUCTS_UPDATE_SUCCESS');
 const productUpdateFailure = createAction('PRODUCTS_UPDATE_FAILURE');
 
 export const productAddAttribute = createAction('PRODUCTS_ADD_ATTRIBUTE', (label, type) => [label, type]);
+export const productNew = createAction('PRODUCTS_NEW');
 
 const setError = createAction('PRODUCTS_SET_ERROR');
 

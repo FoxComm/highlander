@@ -17,6 +17,7 @@ import CurrencyInput from '../forms/currency-input';
 import CustomProperty from './custom-property';
 import SkuList from './sku-list';
 import SubNav from './sub-nav';
+import VariantList from './variant-list';
 import WaitAnimation from '../common/wait-animation';
 
 // helpers
@@ -32,6 +33,7 @@ import type {
   Attribute,
   Attributes,
   ProductDetailsState
+  Variant,
 } from '../../modules/products/details';
 
 import type {
@@ -126,13 +128,42 @@ export default class ProductForm extends Component<void, Props, State> {
   }
 
   get variantContentBox(): Element {
-    return (
-      <ContentBox title="Variants" indentContent={false}>
-        <div className="fc-content-box__empty-text">
-          This product does not have variants.
-        </div>
-      </ContentBox>
-    );
+    const variants = {
+      color: {
+        name: 'Color',
+        type: 'color',
+        values: {
+          red: {
+            id: 3452365363,
+            swatch: "e8242b",
+            image: null,
+          },
+          green: {
+            id: 7432985798,
+            swatch: "00ff00",
+            image: null,
+          },
+        },
+      },
+      size: {
+        name: 'Size',
+        type: 'size',
+        values: {
+          'S/M': {
+            id: 6734269823,
+            swatch: null,
+            image: null,
+          },
+          'L/XL': {
+            id: 5423453263,
+            swatch: null,
+            image: null,
+          },
+        },
+      },
+    };
+
+    return <VariantList variants={variants} />;
   }
 
   get customPropertyForm(): ?Element {
@@ -220,7 +251,7 @@ export default class ProductForm extends Component<void, Props, State> {
             onChange={(value) => this.handleUpdateProduct(label, value)} />
         );
       default:
-        const val = _.get(this.props, ['product', label], value);
+        const val = _.get(this.state, ['product', label], value);
         return (
           <input
             className={inputClass}

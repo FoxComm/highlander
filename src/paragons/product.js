@@ -27,7 +27,7 @@ export type IlluminatedAttribute = {
 export type IlluminatedAttributes = { [key:string]: Attribute };
 
 export type IlluminatedSku = {
-  code: string,
+  code: ?string,
   attributes: IlluminatedAttributes,
 };
 
@@ -119,7 +119,11 @@ export function createEmptyProduct(): FullProduct {
         activeTo: null,
         createdAt: null,
       },
-      skus: [],
+      skus: [{
+        code: 'new',
+        attributes: {},
+        createdAt: null,
+      }],
     },
     shadow: {
       product: {
@@ -131,7 +135,13 @@ export function createEmptyProduct(): FullProduct {
         activeTo: null,
         createdAt: null,
       },
-      skus: [],
+      skus: [{
+        code: 'new',
+        attributes: {},
+        activeFrom: null,
+        activeTo: null,
+        createdAt: null,
+      }],
     },
   };
 

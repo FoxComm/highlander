@@ -4,278 +4,104 @@
 
 // libs
 import React, { Component, Element, PropTypes } from 'react';
+import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { dispatch } from 'redux';
 import _ from 'lodash';
 
 // actions
-import * as DetailsActions from '../../modules/products/details';
+import * as ProductActions from '../../modules/products/details';
 
 // components
-import { FormField } from '../forms';
-import ContentBox from '../content-box/content-box';
-import CurrencyInput from '../forms/currency-input';
-import CustomProperty from './custom-property';
-import InlineField from '../inline-field/inline-field';
-import SkuList from './sku-list';
-import VariantList from './variant-list';
+import ProductForm from './product-form';
+import WaitAnimation from '../common/wait-animation';
 
 // helpers
-import { getProductAttributes } from '../../paragons/product';
+import { getProductAttributes, setProductAttribute } from '../../paragons/product';
 
 // types
-import type {
-  FullProduct,
-  Attribute,
-  Attributes,
-  ProductDetailsState,
-  Variant,
-} from '../../modules/products/details';
+import type { FullProduct, ProductDetailsState } from '../../modules/products/details';
 
-import type {
-  IlluminatedAttribute,
-  IlluminatedAttributes,
-  IlluminatedSku,
-} from '../../paragons/product';
+type Actions = {
+  fetchProduct: (id: string, context: ?string) => void,
+  productAddAttribute: (field: string, type: string) => void,
+  updateProduct: (product: FullProduct, context: ?string) => void,
+};
 
-type DetailsParams = {
-  productId: number,
-  product: FullProduct,
+type Params = {
+  productId: string,
 };
 
 type Props = {
-  details: ProductDetailsState,
-  params: DetailsParams,
-  productAddAttribute: (label: string, type: string) => void,
-
-  onUpdateProduct: (key: string, value: string) => void,
-  onUpdateSku: (code: string, key: string, value: string) => void,
-  onUpdateVariant: (key: string, variant: Variant) => void,
-  updatedProduct: { [key:string]: string },
+  actions: Actions,
+  params: Params,
+  products: ProductDetailsState,
 };
 
-type PriceAttribute = {
-  currency: string,
-  price: number,
-};
-
-type State = { isAddingProperty: boolean };
-
-const reqGeneralKeys = ['title', 'description'];
-const miscAttributeKeys = ['images'];
-const pricingAttributeKeys = ['retailPrice', 'salePrice'];
-const seoAttributeKeys = ['url', 'metaTitle', 'metaDescription'];
-
-export class ProductDetails extends Component<void, Props, State> {
-  state: State;
-
-  constructor(...args: Array<any>) {
-    super(...args);
-    this.state = { isAddingProperty: false };
-  }
-
+export class ProductDetails extends Component<void, Props, void> {
   static propTypes = {
-    details: PropTypes.shape({
+    actions: PropTypes.shape({
+      fetchProduct: PropTypes.func.isRequired,
+      productAddAttribute: PropTypes.func.isRequired,
+      updateProduct: PropTypes.func.isRequired,
+    }),
+
+    params: PropTypes.shape({
+      productId: PropTypes.string.isRequired,
+    }),
+
+    products: PropTypes.shape({
+      err: PropTypes.object,
+      isFetching: PropTypes.bool,
       product: PropTypes.object,
     }),
   };
 
-  get fullProduct(): ?FullProduct {
-    return _.get(this.props, 'details.product');
+  componentDidMount() {
+    this.props.actions.fetchProduct(this.productId);
   }
 
-  get attributes(): IlluminatedAttributes {
-    const fullProduct = this.fullProduct;
-    return fullProduct ? getProductAttributes(fullProduct) : {};
+  get productId(): string{
+    return this.props.params.productId;
   }
 
-  get generalContentBox(): Element {
-    const customKeys = [
-      ...reqGeneralKeys,
-      ...miscAttributeKeys,
-      ...pricingAttributeKeys,
-      ...seoAttributeKeys
-    ];
+  render(): Element {
+    const { isFetching, product, err } = this.props.products;
+    const attributes = product ? getProductAttributes(product) : {};
+    const productTitle: string = _.get(attributes, 'title.value', '');
 
-    const { title, description } = this.attributes;
-    const customAttrs = _.omit(this.attributes, customKeys);
-    const generalAttrs = {
-      title: title,
-      description: description,
-      ...customAttrs,
-    };
+    const showWaiting = isFetching || (!product && !err);
+    const showError = !showWaiting && !product && err;
 
-    const attributes = this.renderAttributes(generalAttrs);
-    return (
-      <ContentBox title="General">
-        {attributes}
-        <div className="fc-product-details__add-custom-property">
-          Custom Property
-          <a className="fc-product-details__add-custom-property-icon"
-             onClick={this.handleAddProperty}>
-            <i className="icon-add" />
-          </a>
-        </div>
-      </ContentBox>
-    );
-  }
+    let content = null;
 
-  get pricingContentBox(): Element {
-    const attributes = pricingAttributeKeys.map(key => {
-      return this.renderAttribute(this.attributes[key]);
-    });
-
-    return <ContentBox title="Pricing">{attributes}</ContentBox>;
-  }
-
-  get seoContentBox(): Element {
-    const attributes = seoAttributeKeys.map(key => {
-      return this.renderAttribute(this.attributes[key]);
-    });
-    return <ContentBox title="SEO">{attributes}</ContentBox>;
-  }
-
-  get skusContentBox(): Element {
-    return (
-      <ContentBox title="SKUs">
-        <SkuList
-          fullProduct={this.fullProduct}
-          updateField={this.props.onUpdateSku} />
-      </ContentBox>
-    );
-  }
-
-  get variantContentBox(): Element {
-    const variants = {
-      color: {
-        name: 'Color',
-        type: 'color',
-        values: {
-          red: {
-            id: 3452365363,
-            swatch: "e8242b",
-            image: null,
-          },
-          green: {
-            id: 7432985798,
-            swatch: "00ff00",
-            image: null,
-          },
-        },
-      },
-      size: {
-        name: 'Size',
-        type: 'size',
-        values: {
-          'S/M': {
-            id: 6734269823,
-            swatch: null,
-            image: null,
-          },
-          'L/XL': {
-            id: 5423453263,
-            swatch: null,
-            image: null,
-          },
-        },
-      },
-    };
-
-    return <VariantList variants={variants} />;
-  }
-
-  get customPropertyForm(): ?Element {
-    if (this.state.isAddingProperty) {
-      return (
-        <CustomProperty
-          isVisible={true}
-          onSave={this.handleCreateProperty}
-          onCancel={() => this.setState({ isAddingProperty: false })} />
+    if (showWaiting) {
+      content = <WaitAnimation />;
+    } else if (showError) {
+      content = <div>{_.get(err, 'status')}</div>;
+    } else if (product) {
+      content = (
+        <ProductForm
+          product={product}
+          productId={this.productId}
+          title={productTitle}
+          onAddAttribute={this.props.actions.productAddAttribute}
+          onSubmit={this.props.actions.updateProduct} />
       );
     }
-  }
 
-  renderAttributes(attributes: IlluminatedAttributes): Array<Element> {
-    return _.map(attributes, attr => this.renderAttribute(attr));
-  }
-
-  renderAttribute(attribute: IlluminatedAttribute): Element {
-    const { label, type, value } = attribute;
-    const formattedLbl = _.snakeCase(label).split('_').reduce((res, val) => {
-      return `${res} ${_.capitalize(val)}`;
-    });
-
-    return (
-      <FormField
-        className="fc-product-details__field"
-        label={formattedLbl}
-        labelClassName="fc-product-details__field-label"
-        key={`product-page-field-${label}`}>
-        {this.renderAttributeField(attribute)}
-      </FormField>
-    );
-  }
-
-  renderAttributeField(attribute: Attribute): Element {
-    const { label, type, value } = attribute;
-    const inputClass = 'fc-product-details__field-value';
-
-    switch (type) {
-      case 'price':
-        const priceValue = _.get(this.props, ['updatedProduct', label], value.value);
-        return (
-          <CurrencyInput
-            className={inputClass}
-            inputName={label}
-            value={priceValue}
-            onChange={(value) => this.props.onUpdateProduct(label, value)} />
-        );
-      default:
-        const val = _.get(this.props, ['updatedProduct', label], value);
-        return (
-          <input
-            className={inputClass}
-            type="text"
-            name={label}
-            value={val}
-            onChange={({target}) => this.props.onUpdateProduct(label, target.value)} />
-        );
-    }
-  }
-
-  @autobind
-  handleAddProperty() {
-    this.setState({ isAddingProperty: true });
-  }
-
-  @autobind
-  handleCreateProperty(property: { fieldLabel: string, propertyType: string }) {
-    this.setState({
-      isAddingProperty: false,
-    }, () => this.props.productAddAttribute(property.fieldLabel, property.propertyType));
-  }
-
-  render() {
-    return (
-      <div className="fc-product-details fc-grid">
-        <div className="fc-col-md-2-3">
-          {this.generalContentBox}
-          {this.pricingContentBox}
-          {this.variantContentBox}
-          {this.skusContentBox}
-          {this.seoContentBox}
-        </div>
-        {this.customPropertyForm}
-      </div>
-    );
+    return <div className="fc-product">{content}</div>;
   }
 }
 
-type DetailsState = { details: ProductDetailsState };
-function mapStateToProps(state: Object): DetailsState {
-  return { details: state.products.details };
+function mapStateToProps(state) {
+  return { products: state.products.details };
 }
 
-export default connect(mapStateToProps, DetailsActions)(ProductDetails);
+function mapDispatchToProps(dispatch) {
+  return { actions: bindActionCreators(ProductActions, dispatch) };
+}
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProductDetails);
