@@ -57,7 +57,7 @@ object ObjectUtils {
               case JString(s) ⇒ s
               case _ ⇒  key
             }
-            (key, ( "type" → t) ~ ( "ref" → keyMap.getOrElse(ref, key))) 
+            (key, ( "type" → t) ~ ( "ref" → keyMap.getOrElse(ref, ref))) 
           }
         }
       }

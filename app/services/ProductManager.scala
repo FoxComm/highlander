@@ -108,8 +108,9 @@ object ProductManager {
       payload.shadow.product.attributes)
     productForm   = updatedFormShadow._1
     productShadow = updatedFormShadow._2
-    productCommit  ← * <~ ObjectCommits.create(ObjectCommit(formId = productForm.id, 
-      shadowId = productShadow.id))
+    previousCommit ← * <~ ObjectCommits.mustFindById404(product.commitId)
+    productCommit  ← * <~ ObjectCommits.update(ObjectCommit(formId = productForm.id, 
+      shadowId = productShadow.id, previousId = oldCommit.id.some))
     product     ← * <~ Products.update(product, product.copy(
       shadowId = productShadow.id, commitId = productCommit.id))
     skuData ← * <~ updateSkuData(context, productShadow.id, 
