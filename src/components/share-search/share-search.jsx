@@ -1,9 +1,6 @@
 /** Libs */
 import _ from 'lodash';
-import { autobind } from 'core-decorators';
 import React, { Component, PropTypes } from 'react';
-
-/** Redux */
 
 /** Component */
 import wrapModal from '../modal/wrapper';
@@ -14,6 +11,7 @@ import WaitAnimation from '../common/wait-animation';
 import PilledInput from '../pilled-search/pilled-input';
 import Typeahead from '../typeahead/typeahead';
 import TypeaheadItem from '../watcher-typeahed/watcher-typeahead-item';
+import Alert from '../alerts/alert';
 
 @wrapModal
 export default class ShareSearch extends Component {
@@ -36,8 +34,30 @@ export default class ShareSearch extends Component {
     maxUsers: 3,
   };
 
+  state = {
+    firstLoad: true,
+    numberUpdatedUsers: false,
+    failed: false
+  };
+
   componentWillMount() {
     this.props.fetchAssociations(this.props.search);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const numberUpdatedUsers = nextProps.search.associations.length - this.props.search.associations.length;
+
+    const state = this.state;
+
+    if (numberUpdatedUsers && !state.firstLoad) {
+      state.numberUpdatedUsers = numberUpdatedUsers;
+    }
+
+    if (this.props.search.isFetchingAssociations && !nextProps.search.isFetchingAssociations) {
+      state.firstLoad = false;
+    }
+
+    this.setState(state);
   }
 
   get closeAction() {
@@ -50,6 +70,27 @@ export default class ShareSearch extends Component {
 
   get title() {
     return <span>Share Search: <strong>{this.props.title}</strong></span>;
+  }
+
+  get alert() {
+    const { numberUpdatedUsers, failed } = this.state;
+    if (numberUpdatedUsers || failed) {
+      let label = '';
+      if (failed) {
+        label = `Failed updating data.`;
+      } else if (numberUpdatedUsers > 0) {
+        label = `Search was successfully shared with ${Math.abs(numberUpdatedUsers)} users.`;
+      } else {
+        label = `Search was successfully unshared from ${Math.abs(numberUpdatedUsers)} users.`;
+      }
+
+      return (
+        <Alert type={numberUpdatedUsers ? Alert.SUCCESS : Alert.ERROR}
+               closeAction={this.setState.bind(this, {numberUpdatedUsers: 0})}>
+          <span>{label}</span>
+        </Alert>
+      );
+    }
   }
 
   get associationsList() {
@@ -84,12 +125,14 @@ export default class ShareSearch extends Component {
   }
 
   render() {
-    const { isFetchingSuggestions = false, isUpdatingAssociations = false, suggested = [] } = this.props.search;
+    const search = this.props.search;
+    const { isFetchingSuggestions = false, isUpdatingAssociations = false, suggested = [] } = search;
 
     return (
       <div className="fc-share-search">
         <div className="fc-modal-container">
           <ContentBox title={this.title} actionBlock={this.closeAction}>
+            {this.alert}
             <div className="fc-share-search-typeahead__label">
               <label>Invite Users</label>
             </div>
@@ -109,8 +152,8 @@ export default class ShareSearch extends Component {
             <div className="fc-share-search__controls">
               <PrimaryButton className="fc-align-right"
                              isLoading={isUpdatingAssociations}
-                             onClick={this.props.associateSearch.bind(null, this.props.search, this.props.search.selected)}
-                             disabled={!this.props.search.selected}>
+                             onClick={this.props.associateSearch.bind(null, search, search.selected)}
+                             disabled={!search.selected}>
                 Share
               </PrimaryButton>
             </div>

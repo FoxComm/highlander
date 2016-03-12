@@ -18,6 +18,7 @@ const emptyState = {
   query: [],
   searchValue: '',
   selectedIndex: -1,
+  associations: []
 };
 
 // module is responsible for search tabs
