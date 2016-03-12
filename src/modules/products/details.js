@@ -121,6 +121,20 @@ export function fetchProduct(id: string, context: string = defaultContext): Acti
   }
 }
 
+export function createProduct(product: FullProduct, context: string = defaultContext): ActionDispatch {
+  return dispatch => {
+    dispatch(productUpdateStart());
+    return Api.post(`/products/full/${context}`, product)
+      .then(
+        (product: FullProduct) => dispatch(productUpdateSuccess(product)),
+        (err: Object) => {
+          dispatch(productUpdateFailure());
+          dispatch(setError(err));
+        }
+      );
+  };
+}
+
 export function updateProduct(product: FullProduct, context: string = defaultContext): ActionDispatch {
   return dispatch => {
     dispatch(productUpdateStart());

@@ -28,7 +28,7 @@ import type {
 type Actions = {
   productAddAttribute: (field: string, type: string) => void,
   productNew: () => void,
-  updateProduct: (product: FullProduct, context: ?string) => void,
+  createProduct: (product: FullProduct, context: ?string) => void,
 };
 
 type Props = {
@@ -41,7 +41,7 @@ export class NewProduct extends Component<void, Props, void> {
     actions: PropTypes.shape({
       productAddAttribute: PropTypes.func.isRequired,
       productNew: PropTypes.func.isRequired,
-      updateProduct: PropTypes.func.isRequired,
+      createProduct: PropTypes.func.isRequired,
     }),
 
     products: PropTypes.shape({
@@ -65,7 +65,7 @@ export class NewProduct extends Component<void, Props, void> {
           productId="new"
           title="New Product"
           onAddAttribute={this.props.actions.productAddAttribute}
-          onSubmit={this.props.actions.updateProduct} />
+          onSubmit={this.props.actions.createProduct} />
       );
     }
     return <div className="fc-product">{content}</div>;
