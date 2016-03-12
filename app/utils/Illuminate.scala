@@ -12,8 +12,14 @@ object IlluminateAlgorithm {
       case JObject(s) ⇒  form match {
         case JObject(f) ⇒ 
           s.obj.map {
-            case (attr, JString(key)) ⇒  (attr, findAttribute(attr, key, f))
-            case (attr, _) ⇒  (attr, JNothing)
+            case (attr, link) ⇒  {
+              val t = link \ "type" 
+              val ref = link \ "ref" 
+              ref match {
+                case JString(key) ⇒  (attr, (("t" → t) ~ ("v" → (form \ key))))
+                case _ ⇒ (attr, JNothing)
+              }
+            }
           }
         case _ ⇒ JNothing
       }
@@ -26,8 +32,13 @@ object IlluminateAlgorithm {
       case JObject(s) ⇒  form match {
         case JObject(f) ⇒ 
           s.obj.flatMap {
-            case (attr, JString(key)) ⇒  validateAttribute(attr, key, f)
-            case (attr, _) ⇒  Seq(ShadowAttributeNotAString(attr))
+            case (attr, link) ⇒  {
+              val ref = link \ "ref" 
+              ref match {
+                case JString(key) ⇒ validateAttribute(attr, key, form)
+                case _ ⇒ Seq(ShadowAttributeMissingRef(attr))
+              }
+            }
           }
         case _ ⇒ Seq(AttributesAreEmpty())
       }
@@ -35,14 +46,8 @@ object IlluminateAlgorithm {
     }
   }
 
-  private def findAttribute(attr: String, key: String, form: JObject) : JValue = {
-    val t = form \ attr \ "type"
-    val v = form \ attr \ key 
-    ("t" → t) ~ ("v" → v)
-  }
-
-  private def validateAttribute(attr: String, key: String, form: JObject) : Seq[Failure] = {
-    form \ attr \ key match {
+  private def validateAttribute(attr: String, key: String, form: JValue) : Seq[Failure] = {
+    form \ key match {
       case JNothing ⇒  Seq(ShadowHasInvalidAttribute(attr, key))
       case v ⇒  Seq.empty
     }

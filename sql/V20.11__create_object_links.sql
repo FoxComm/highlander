@@ -7,5 +7,5 @@ create table object_links(
     foreign key (right_id) references object_shadows(id) on update restrict on delete restrict
 );
 
-create unique index object_link_left_idx on object_links (left_id);
-create unique index object_link_right_idx on object_links (right_id);
+create index object_link_left_idx on object_links (left_id);
+create index object_link_right_idx on object_links (right_id);

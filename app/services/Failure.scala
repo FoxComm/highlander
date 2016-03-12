@@ -349,8 +349,8 @@ object IlluminateFailure {
   final case class ShadowHasInvalidAttribute(key: String, value: String) extends Failure {
     override def description = s"Shadow has an invalid attribute $key with value $value"
   }
-  final case class ShadowAttributeNotAString(key: String) extends Failure {
-    override def description = s"Shadow attribute $key must be a string"
+  final case class ShadowAttributeMissingRef(key: String) extends Failure {
+    override def description = s"Shadow attribute $key is missing 'ref'"
   }
 
   final case class AttributesAreEmpty() extends Failure {

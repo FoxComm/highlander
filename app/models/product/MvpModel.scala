@@ -60,8 +60,8 @@ final case class SimpleProductShadow(formId: Int, p: SimpleProduct) {
         {
           "title" : {"type": "string", "ref":"title"},
           "description" : {"type": "string", "ref": "description"},
-          "images" : {"type": "images": "ref":"images"},
-          "variants" : {"type":"variants", "ref":"variants"}
+          "images" : {"type": "images", "ref":"images"},
+          "variants" : {"type": "variants", "ref":"variants"}
         }"""), 
       p.keyMap)
 
@@ -91,8 +91,8 @@ final case class SimpleSkuShadow(formId: Int, s: SimpleSku) {
     val shadow = ObjectUtils.newShadow(parse(
       s"""
         {
-          "title" : {type: "string", "ref": "title"},
-          "price" : {type: "price", "ref": "price"}
+          "title" : {"type": "string", "ref": "title"},
+          "price" : {"type": "price", "ref": "price"}
         }"""), 
       s.keyMap) 
 
@@ -128,7 +128,7 @@ object Mvp {
     link            ← * <~ ObjectLinks.create(ObjectLink(
       leftId = productShadow.id, rightId = skuShadow.id))
     skuCommit       ← * <~ ObjectCommits.create(
-      ObjectCommit(formId = productForm.id, shadowId = productShadow.id))
+      ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
     sku   ← * <~ Skus.create(Sku(contextId = contextId, code = p.code, 
       formId = skuForm.id, shadowId = skuShadow.id, commitId = skuCommit.id))
   } yield p.copy(productId = product.id, skuId = sku.id)

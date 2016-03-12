@@ -11,8 +11,9 @@ object ObjectUtils {
 
 
   def key(content: JValue) : String = {
+    val KEY_LENGTH = 5
     val md = java.security.MessageDigest.getInstance("SHA-1");
-    md.digest(compact(render(content)).getBytes).slice(0, 7).toString
+    md.digest(compact(render(content)).getBytes).slice(0, KEY_LENGTH).map("%02x".format(_)).mkString
   }
 
   def key(content: String) : String = key(JString(content)) 
@@ -47,7 +48,7 @@ object ObjectUtils {
     (keyMap, oldForm merge newForm)
   }
 
-  def newShadow(oldShadow: JValue, keyMap: KeyMap) : JValue = {
+  def newShadow(oldShadow: JValue, keyMap: KeyMap) : JValue = 
     oldShadow match { 
       case JObject(o) ⇒ {
         o.obj.map { 
@@ -63,6 +64,5 @@ object ObjectUtils {
       }
       case _ ⇒ JNothing
     }
-  }
 }
 
