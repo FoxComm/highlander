@@ -32,7 +32,7 @@ import type {
   FullProduct,
   Attribute,
   Attributes,
-  ProductDetailsState
+  ProductDetailsState,
   Variant,
 } from '../../modules/products/details';
 
@@ -274,7 +274,10 @@ export default class ProductForm extends Component<void, Props, State> {
     const wait = disabled ? <WaitAnimation /> : null;
 
     return (
-      <PrimaryButton type="submit" disabled={disabled}>
+      <PrimaryButton 
+        className="fc-product-details__save-button" 
+        type="submit" 
+        disabled={disabled}>
         Save Draft {wait}
       </PrimaryButton>
     );
