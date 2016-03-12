@@ -88,7 +88,7 @@ object Authenticator {
         secure = config.getOptBool("auth.cookieSecure").getOrElse(true),
         httpOnly = true,
         expires = config.getOptLong("auth.cookieTTL").map { ttl ⇒
-          DateTime.now  + ttl*1000
+          DateTime.now + ttl*1000
         },
         path = Some("/"),
         domain = config.getOptString("auth.cookieDomain")
