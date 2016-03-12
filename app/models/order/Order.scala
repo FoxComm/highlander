@@ -25,7 +25,7 @@ import utils.{ADT, FSM, GenericTable, ModelWithLockParameter, TableQueryWithLock
 import utils.aliases._
 
 final case class Order(
-  id: Int = 0, referenceNumber: String = "", customerId: Int, productContextId: Int,
+  id: Int = 0, referenceNumber: String = "", customerId: Int, contextId: Int,
   state: State = Cart, isLocked: Boolean = false, placedAt: Option[Instant] = None,
   remorsePeriodEnd: Option[Instant] = None, rmaCount: Int = 0, currency: Currency = Currency.USD,
   subTotal: Int = 0, shippingTotal: Int = 0, adjustmentsTotal: Int = 0, taxesTotal: Int = 0, grandTotal: Int = 0)
@@ -95,7 +95,7 @@ object Order {
 
   implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
 
-  def buildCart(customerId: Int, productContextId: Int): Order = Order(customerId = customerId, productContextId = productContextId, state = Order.Cart)
+  def buildCart(customerId: Int, contextId: Int): Order = Order(customerId = customerId, contextId = contextId, state = Order.Cart)
 
   val orderRefNumRegex = """([a-zA-Z0-9-_]*)""".r
 }
@@ -105,7 +105,7 @@ class Orders(tag: Tag) extends GenericTable.TableWithLock[Order](tag, "orders") 
   // TODO: Find a way to deal with guest checkouts...
   def referenceNumber = column[String]("reference_number") //we should generate this based on certain rules; nullable until then
   def customerId = column[Int]("customer_id")
-  def productContextId = column[Int]("product_context_id")
+  def contextId = column[Int]("context_id")
   def state = column[Order.State]("state")
   def isLocked = column[Boolean]("is_locked")
   def placedAt = column[Option[Instant]]("placed_at")
@@ -119,7 +119,7 @@ class Orders(tag: Tag) extends GenericTable.TableWithLock[Order](tag, "orders") 
   def taxesTotal = column[Int]("taxes_total")
   def grandTotal = column[Int]("grand_total")
 
-  def * = (id, referenceNumber, customerId, productContextId, state, isLocked, placedAt, remorsePeriodEnd,
+  def * = (id, referenceNumber, customerId, contextId, state, isLocked, placedAt, remorsePeriodEnd,
     rmaCount, currency, subTotal, shippingTotal, adjustmentsTotal,
     taxesTotal, grandTotal) <>((Order.apply _).tupled, Order.unapply)
 

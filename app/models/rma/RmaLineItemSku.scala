@@ -1,6 +1,7 @@
 package models.rma
 
-import models.inventory.{Skus, Sku, SkuShadows, SkuShadow}
+import models.inventory.{Skus, Sku}
+import models.objects._
 
 import monocle.macros.GenLens
 import java.time.Instant
@@ -28,6 +29,7 @@ class RmaLineItemSkus(tag: Tag) extends GenericTable.TableWithId[RmaLineItemSku]
 
   def * = (id, rmaId, skuId, skuShadowId, createdAt) <> ((RmaLineItemSku.apply _).tupled, RmaLineItemSku.unapply)
   def sku = foreignKey(Skus.tableName, skuId, Skus)(_.id)
+  def shadow = foreignKey(ObjectShadows.tableName, skuShadowId, ObjectShadows)(_.id)
 }
 
 object RmaLineItemSkus extends TableQueryWithId[RmaLineItemSku, RmaLineItemSkus](
@@ -37,11 +39,13 @@ object RmaLineItemSkus extends TableQueryWithId[RmaLineItemSku, RmaLineItemSkus]
   def findByRmaId(rmaId: Rep[Int]): QuerySeq =
     filter(_.rmaId === rmaId)
 
-  def findLineItemsByRma(rma: Rma): Query[(Skus, SkuShadows, RmaLineItems), (Sku, SkuShadow, RmaLineItem), Seq] = for {
+  def findLineItemsByRma(rma: Rma): Query[(Skus, ObjectForms, ObjectShadows, RmaLineItems), 
+  (Sku, ObjectForm, ObjectShadow, RmaLineItem), Seq] = for {
     li ← RmaLineItems.filter(_.rmaId === rma.id)
     liSku ← li.skuLineItems
-    skuShadow ← SkuShadows if skuShadow.id === liSku.skuShadowId
-    sku ← skuShadow.sku
-  } yield (sku, skuShadow, li)
+    sku ← liSku.sku
+    shadow ← liSku.shadow
+    form ← ObjectForms if form.id === sku.formId
+  } yield (sku, form, shadow, li)
 
 }

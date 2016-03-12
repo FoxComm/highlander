@@ -119,6 +119,10 @@ object RmaFailures {
   final case class SkuNotFoundInOrder(sku: String, refNum: String) extends Failure {
     override def description = s"line item with sku=$sku not found in order with referenceNumber=$refNum"
   }
+
+  final case class SkuNotFoundInContext(sku: String, context: String) extends Failure {
+    override def description = s"line item with sku=$sku not found in context with $context"
+  }
 }
 
 object CartFailures {
@@ -291,6 +295,14 @@ final case class AlreadySavedForLater(customerId: Int, skuId: Int) extends Failu
 
 object ProductFailure { 
 
+  final case class SkuFormsAndShadowsNotSameSize() extends Failure {
+    override def description = s"The lists of sku forms and shadows are not the same size in the payload"
+  }
+
+  final case class SkuShadowNotFoundInPayload(code: String) extends Failure {
+    override def description = s"Sku shadow with code $code cannot be found in the payload"
+  }
+
   final case class SkuNotFound(code: String) extends Failure {
     override def description = s"Sku with code $code cannot be found"
   }
@@ -299,11 +311,15 @@ object ProductFailure {
     override def description = s"Sku $code with product context $productContext cannot be found"
   }
 
+  final case class ProductFormNotFound(formId: Int) extends Failure {
+    override def description = s"Product form with id=$formId cannot be found"
+  }
+
   final case class ProductNotFoundForContext(productId: Int, productContextId: Int) extends Failure {
     override def description = s"Product with id=$productId with product context $productContextId cannot be found"
   }
 
-  final case class ProductContextNotFound(name: String) extends Failure {
+  final case class ObjectContextNotFound(name: String) extends Failure {
     override def description = s"Product Context with name $name cannot be found"
   }
 

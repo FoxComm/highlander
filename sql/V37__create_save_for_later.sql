@@ -2,7 +2,6 @@ create table save_for_later (
     id serial primary key,
     customer_id integer not null references customers(id) on update restrict on delete restrict,
     sku_id integer not null references skus(id) on update restrict on delete restrict,
-    sku_shadow_id integer not null references sku_shadows(id) on update restrict on delete restrict,
     created_at timestamp without time zone default (now() at time zone 'utc')
 );
 

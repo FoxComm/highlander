@@ -1,6 +1,6 @@
 create table sku_shadows(
     id serial primary key,
-    product_context_id integer references product_contexts(id) on update restrict on delete restrict,
+    context_id integer references object_contexts(id) on update restrict on delete restrict,
     sku_id integer not null references skus(id) on update restrict on delete restrict,
     attributes jsonb,
     active_from timestamp without time zone null,
@@ -8,13 +8,13 @@ create table sku_shadows(
     created_at timestamp without time zone default (now() at time zone 'utc'),
 
     foreign key (sku_id) references skus(id) on update restrict on delete restrict,
-    foreign key (product_context_id) references product_contexts(id) on update restrict on delete restrict
+    foreign key (context_id) references object_contexts(id) on update restrict on delete restrict
 );
 
 create unique index sku_shadows_idx on sku_shadows (id);
 create index sku_shadows_sku_idx on sku_shadows (sku_id);
-create index sku_shadows_sku_id_context_idx on sku_shadows (sku_id, product_context_id);
-create index sku_shadows_sku_product_idx on sku_shadows (product_context_id);
+create index sku_shadows_sku_id_context_idx on sku_shadows (sku_id, context_id);
+create index sku_shadows_sku_product_idx on sku_shadows (context_id);
 
 create function create_order_line_item_skus_mapping() returns trigger as $$
 begin

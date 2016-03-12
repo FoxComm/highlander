@@ -7,10 +7,9 @@ import scala.concurrent.Future
 
 import cats.implicits._
 import models.customer.{Customers, Customer}
-import models.inventory.{Sku, SkuShadow}
-import models.product.{Product, ProductShadow, Mvp}
 import models.location.Region
 import models.order._
+import models.product.Mvp
 import models.order.lineitems._
 import models.payment.PaymentMethod
 import models.payment.creditcard._
@@ -141,8 +140,8 @@ object FullOrder {
 
     val skuList = lineItems.map { 
       case data ⇒ { 
-        val price = Mvp.priceAsInt(data.sku, data.skuShadow)
-        val name = Mvp.name(data.sku, data.skuShadow).getOrElse("")
+        val price = Mvp.priceAsInt(data.skuForm, data.skuShadow)
+        val name = Mvp.name(data.skuForm, data.skuShadow).getOrElse("")
         DisplayLineItem(sku = data.sku.code, referenceNumber = data.lineItem.referenceNumber,
           state = data.lineItem.state, name = name, price = price, totalPrice = price)
       }
@@ -194,8 +193,8 @@ object FullOrder {
       customer    ← Customers.findById(order.customerId).extract.one
       lineItemTup ← OrderLineItemSkus.findLineItemsByOrder(order).result
       lineItems =  lineItemTup.map { 
-        case (sku, skuShadow, lineItem) ⇒ 
-          OrderLineItemProductData(sku, skuShadow, lineItem)
+        case (sku, skuForm, skuShadow, lineItem) ⇒ 
+          OrderLineItemProductData(sku, skuForm, skuShadow, lineItem)
       }
       giftCards   ← OrderLineItemGiftCards.findLineItemsByOrder(order).result
       shipMethod  ← shipping.ShippingMethods.forOrder(order).one

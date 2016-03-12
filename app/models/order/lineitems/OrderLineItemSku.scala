@@ -1,8 +1,9 @@
 package models.order.lineitems
 
-import models.inventory.{Skus, Sku, SkuShadow, SkuShadows}
+import models.inventory.{Skus, Sku}
 import models.order.Order
-import models.product.{Product, Products, ProductShadow, ProductShadows}
+import models.product.{Product, Products}
+import models.objects._
 import utils.Money.Currency
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
@@ -15,7 +16,8 @@ final case class OrderLineItemSku(id: Int = 0, skuId: Int, skuShadowId: Int)
 
 final case class OrderLineItemProductData(
   sku: Sku, 
-  skuShadow: SkuShadow, 
+  skuForm: ObjectForm, 
+  skuShadow: ObjectShadow, 
   lineItem: OrderLineItem)
 
 object OrderLineItemSku {}
@@ -26,7 +28,9 @@ class OrderLineItemSkus(tag: Tag) extends GenericTable.TableWithId[OrderLineItem
   def skuShadowId = column[Int]("sku_shadow_id")
 
   def * = (id, skuId, skuShadowId) <> ((OrderLineItemSku.apply _).tupled, OrderLineItemSku.unapply)
+
   def sku = foreignKey(Skus.tableName, skuId, Skus)(_.id)
+  def shadow = foreignKey(ObjectShadows.tableName, skuShadowId, ObjectShadows)(_.id)
 }
 
 object OrderLineItemSkus extends TableQueryWithId[OrderLineItemSku, OrderLineItemSkus](
@@ -45,14 +49,15 @@ object OrderLineItemSkus extends TableQueryWithId[OrderLineItemSku, OrderLineIte
     skuLis  ← lis.skuLineItems
   } yield skuLis
 
-  type FindLineItemResult = (Sku, SkuShadow, OrderLineItem)
+  type FindLineItemResult = (Sku, ObjectForm, ObjectShadow, OrderLineItem)
 
-  def findLineItemsByOrder(order: Order): Query[ (Skus, SkuShadows, OrderLineItems), FindLineItemResult, Seq] = for {
+  def findLineItemsByOrder(order: Order): Query[ (Skus, ObjectForms, ObjectShadows, OrderLineItems), FindLineItemResult, Seq] = for {
     lis     ← OrderLineItems.filter(_.orderId === order.id)
     skuLis  ← lis.skuLineItems
-    skuShadow ← SkuShadows if skuShadow.id === skuLis.skuShadowId
-    sku     ← skuShadow.sku
-  } yield (sku, skuShadow, lis)
+    sku     ← skuLis.sku
+    form ← ObjectForms if form.id === sku.formId
+    shadow     ← skuLis.shadow
+  } yield (sku, form, shadow, lis)
 
   object scope {
     implicit class OrderLineItemSkusQuerySeqConversions(q: QuerySeq) {

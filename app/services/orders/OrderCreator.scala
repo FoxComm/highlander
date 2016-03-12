@@ -2,7 +2,7 @@ package services.orders
 
 import models.activity.ActivityContext
 import cats.implicits._
-import models.product.ProductContext
+import models.objects.ObjectContext
 import models.customer.{Customers, Customer}
 import models.order.{Orders, Order}
 import models.StoreAdmin
@@ -18,7 +18,7 @@ import models.activity.{Dimension, ActivityContext}
 import utils.aliases._
 
 object OrderCreator {
-  def createCart(admin: StoreAdmin, payload: CreateOrder, productContext: ProductContext)
+  def createCart(admin: StoreAdmin, payload: CreateOrder, context: ObjectContext)
     (implicit db: DB, ec: EC, ac: ActivityContext): Result[Root] = {
 
     def existingCustomerOrNewGuest: Result[Root] = (payload.customerId, payload.email) match {
@@ -29,12 +29,12 @@ object OrderCreator {
 
     def createCartForCustomer(customerId: Int): Result[Root] = (for {
         customer  ← * <~ Customers.mustFindById400(customerId)
-        fullOrder ← * <~ OrderQueries.findOrCreateCartByCustomerInner(customer, productContext, Some(admin))
+        fullOrder ← * <~ OrderQueries.findOrCreateCartByCustomerInner(customer, context, Some(admin))
       } yield fullOrder).runTxn()
 
     def createCartAndGuest(email: String): Result[Root] = (for {
       guest ← * <~ Customers.create(Customer.buildGuest(email = email))
-      cart  ← * <~ Orders.create(Order.buildCart(guest.id, productContext.id))
+      cart  ← * <~ Orders.create(Order.buildCart(guest.id, context.id))
       _     ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest))
     } yield root(cart, guest)).runTxn()
 

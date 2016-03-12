@@ -1,6 +1,8 @@
 
 package models.product
 
+import models.objects._
+
 import utils.ExPostgresDriver.api._
 import utils.JsonFormatters
 import utils.Slick.DbResult
@@ -28,18 +30,9 @@ import models.Aliases.Json
  */
 object ProductValidator { 
 
-  def validate( productContext: ProductContext, product: Product, 
-    shadow: ProductShadow) : Seq[Failure] = { 
+  def validate(product: Product, form: ObjectForm, shadow: ObjectShadow) : Seq[Failure] = { 
 
-    IlluminateAlgorithm.validateAttributes(product.attributes, shadow.attributes) ++ 
-    validateVariants(product.variants, productContext.name)
-  }
-
-  def validateVariants(variants: Json, context: String) : Seq[Failure] = {
-    variants \ context match {
-      case JNothing ⇒  Seq(NoVariantForContext(context))
-      case v ⇒  Seq.empty
-    }
+    IlluminateAlgorithm.validateAttributes(form.attributes, shadow.attributes)
   }
 }
 

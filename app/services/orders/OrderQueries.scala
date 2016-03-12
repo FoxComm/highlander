@@ -8,7 +8,7 @@ import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.{StoreAdmin, javaTimeSlickMapper}
-import models.product.ProductContext
+import models.objects.ObjectContext
 import responses.TheResponse
 import responses.order._
 import services.{Result, CartValidator, LogActivity}
@@ -91,20 +91,20 @@ object OrderQueries {
     response  ← * <~ FullOrder.fromOrder(order).toXor
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).run()
 
-  def findOrCreateCartByCustomer(customer: Customer, productContext: ProductContext, admin: Option[StoreAdmin] = None)
+  def findOrCreateCartByCustomer(customer: Customer, context: ObjectContext, admin: Option[StoreAdmin] = None)
     (implicit ec: EC, db: DB, ac: ActivityContext): Result[FullOrder.Root] =
-    findOrCreateCartByCustomerInner(customer, productContext, admin).runTxn()
+    findOrCreateCartByCustomerInner(customer, context, admin).runTxn()
 
-  def findOrCreateCartByCustomerId(customerId: Int, productContext: ProductContext, admin: Option[StoreAdmin] = None)
+  def findOrCreateCartByCustomerId(customerId: Int, context: ObjectContext, admin: Option[StoreAdmin] = None)
     (implicit ec: EC, db: DB, ac: ActivityContext): Result[FullOrder.Root] = (for {
     customer  ← * <~ Customers.mustFindById404(customerId)
-    fullOrder ← * <~ findOrCreateCartByCustomerInner(customer, productContext, admin)
+    fullOrder ← * <~ findOrCreateCartByCustomerInner(customer, context, admin)
   } yield fullOrder).runTxn()
 
-  def findOrCreateCartByCustomerInner(customer: Customer, productContext: ProductContext, admin: Option[StoreAdmin])
+  def findOrCreateCartByCustomerInner(customer: Customer, context: ObjectContext, admin: Option[StoreAdmin])
     (implicit ec: EC, db: DB, ac: ActivityContext): DbResultT[FullOrder.Root] = for {
     result                  ← * <~ Orders.findActiveOrderByCustomer(customer).one
-      .findOrCreateExtended(Orders.create(Order.buildCart(customer.id, productContext.id)))
+      .findOrCreateExtended(Orders.create(Order.buildCart(customer.id, context.id)))
     (order, foundOrCreated) = result
     fullOrder               ← * <~ FullOrder.fromOrder(order).toXor
     _                       ← * <~ logCartCreation(foundOrCreated, fullOrder, admin)

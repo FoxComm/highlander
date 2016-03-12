@@ -1,6 +1,7 @@
 
 package models.inventory
 
+import models.objects._
 import utils.ExPostgresDriver.api._
 import utils.JsonFormatters
 import utils.Slick.DbResult
@@ -28,8 +29,8 @@ import models.Aliases.Json
  */
 object SkuValidator { 
 
-  def validate(sku: Sku, shadow: SkuShadow) : Seq[Failure] = { 
-    IlluminateAlgorithm.validateAttributes(sku.attributes, shadow.attributes) 
+  def validate(form: ObjectForm, shadow: ObjectShadow) : Seq[Failure] = { 
+    IlluminateAlgorithm.validateAttributes(form.attributes, shadow.attributes) 
   }
 
 }

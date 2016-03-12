@@ -9,7 +9,8 @@ import models.location.{Addresses, Address}
 import models.order._
 import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCards, CreditCard}
-import models.product.{ProductContext, ProductContexts, SimpleContext}
+import models.product.SimpleContext
+import models.objects.{ObjectContext, ObjectContexts}
 import utils.seeds.generators._
 import utils.aliases._
 
@@ -29,10 +30,10 @@ object RankingSeedsGenerator {
   def generateCustomer: Customer = Customer.build(email = s"${randomString(10)}@email.com",
     password = Some(randomString(10)), name = Some(randomString(10)))
 
-  def generateOrder(state: Order.State, customerId: Int, productContext: ProductContext): Order = {
+  def generateOrder(state: Order.State, customerId: Int, context: ObjectContext): Order = {
     Order(customerId = customerId,
       referenceNumber = randomString(8) + "-17",
-      state = state, productContextId = productContext.id)
+      state = state, contextId = context.id)
   }
 
   def generateOrderPayment[A <: PaymentMethod with ModelWithIdParameter[A]](orderId: Int,
@@ -54,8 +55,8 @@ object RankingSeedsGenerator {
 
     val location = "Arkham"
 
-    def makeOrders(c: Customer, productContext: ProductContext) = {
-      (1 to 5 + Random.nextInt(20)).map { i ⇒ generateOrder(Order.Shipped, c.id, productContext) }
+    def makeOrders(c: Customer, context: ObjectContext) = {
+      (1 to 5 + Random.nextInt(20)).map { i ⇒ generateOrder(Order.Shipped, c.id, context) }
     }
 
     def makePayment(o: Order, pm: CreditCard) = {
@@ -68,13 +69,13 @@ object RankingSeedsGenerator {
     })
 
     def insertOrders() = for {
-      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+      context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       customers ← * <~ Customers.filter(_.location === location).result
       newCreditCards ← * <~  customers.map { c ⇒
         Factories.creditCard.copy(customerId = c.id, holderName = c.name.getOrElse(""))
       }
       _ ← * <~ CreditCards.createAll(newCreditCards)
-      orders ← * <~ customers.flatMap{c ⇒ makeOrders(c, productContext)}
+      orders ← * <~ customers.flatMap{c ⇒ makeOrders(c, context)}
       _  ← * <~  Orders.createAll(orders)
     } yield {}
 
@@ -126,7 +127,7 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
     val location = "Random"
 
     for {
-      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+      context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       shipMethods ← * <~ getShipmentRules
       warehouseIds ← * <~ generateWarehouses
       unsavedProducts = makeProducts(productCount)
@@ -136,13 +137,13 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
       customers  ← * <~ Customers.filter(_.id.inSet(customerIds)).result
       _ ← * <~ Addresses.createAll(generateAddresses(customers))
       _ ← * <~ CreditCards.createAll(generateCreditCards(customers))
-      orderedGcs ← * <~ DbResultT.sequence(randomSubset(customerIds).map { id ⇒ generateGiftCardPurchase(id, productContext)})
+      orderedGcs ← * <~ DbResultT.sequence(randomSubset(customerIds).map { id ⇒ generateGiftCardPurchase(id, context)})
       appeasementCount = Math.max(productCount / 8, Random.nextInt(productCount))
       appeasements  ← * <~ DbResultT.sequence((1 to appeasementCount).map { i ⇒ generateGiftCardAppeasement})
       giftCards  ← * <~  orderedGcs ++ appeasements
       _ ← * <~ DbResultT.sequence(
         randomSubset(customerIds, customerIds.length).map{
-          id ⇒ generateOrders(id, productContext, products, pickOne(giftCards))
+          id ⇒ generateOrders(id, context, products, pickOne(giftCards))
         })
     } yield {}
   }

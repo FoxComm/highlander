@@ -29,7 +29,7 @@ object Customer {
       requireAuth(customerAuth) { customer ⇒
         activityContext(customer) { implicit ac ⇒
           pathPrefix("cart") {
-            determineProductContext(db, ec) { productContext ⇒ 
+            determineObjectContext(db, ec) { productContext ⇒ 
               (get & pathEnd) {
                 goodOrFailures {
                   OrderQueries.findOrCreateCartByCustomer(customer, productContext)
@@ -244,7 +244,7 @@ object Customer {
             }
           } ~
           pathPrefix("save-for-later") {
-            determineProductContext(db, ec) { productContext ⇒ 
+            determineObjectContext(db, ec) { productContext ⇒ 
               (get & pathEnd) {
                 goodOrFailures {
                   SaveForLaterManager.findAll(customer.id, productContext.id)

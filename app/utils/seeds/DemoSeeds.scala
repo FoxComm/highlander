@@ -10,7 +10,8 @@ import models.payment.giftcard._
 import models.shipping._
 
 import models.inventory._
-import models.product.{SimpleProductData, Mvp, ProductContexts, SimpleContext}
+import models.product.{SimpleProductData, Mvp, SimpleContext}
+import models.objects.ObjectContexts
 import Order.Shipped
 
 import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
@@ -44,10 +45,10 @@ trait DemoSeedHelpers extends CreditCardSeeds with InventoryGenerator with Inven
     Customer(email = email, hashedPassword = hashedPassword.some, name = name.some,
       location = "Seattle,WA".some)
 
-  def createShippedOrder(customerId: Customer#Id, productContextId: Int, skuIds: Seq[Sku#Id],
+  def createShippedOrder(customerId: Customer#Id, contextId: Int, skuIds: Seq[Sku#Id],
     shipMethod: ShippingMethod)(implicit db: Database): DbResultT[Order] = for {
     order ← * <~ Orders.create(Order(state = Shipped,
-      customerId = customerId, productContextId = productContextId, placedAt = time.yesterday.toInstant.some))
+      customerId = customerId, contextId = contextId, placedAt = time.yesterday.toInstant.some))
     _     ← * <~ addSkusToOrder(skuIds, order.id, OrderLineItem.Shipped)
     cc    ← * <~ CreditCards.create(creditCard1.copy(customerId = customerId))
     op    ← * <~ OrderPayments.create(OrderPayment.build(cc).copy(orderId = order.id, amount = none))
@@ -119,11 +120,11 @@ trait DemoScenario2 extends DemoSeedHelpers {
     zip = "12345", isDefaultShipping = true, phoneNumber = "2025550113".some)
 
   def createScenario2(implicit db: Database) = for {
-    productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+    context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
     warehouseIds ← * <~ Warehouses.createAllReturningIds(warehouses)
     customerIds ← * <~ Customers.createAllReturningIds(customers2)
     addressIds ← * <~ createAddresses(customerIds, address2)
-    productData ← * <~ Mvp.insertProducts(products2, productContext.id)
+    productData ← * <~ Mvp.insertProducts(products2, context.id)
     inventory ← * <~ generateInventories(productData, warehouseIds)
   } yield {}
 
@@ -161,16 +162,16 @@ trait DemoScenario3 extends DemoSeedHelpers {
     zip = "12345", isDefaultShipping = true, phoneNumber = "2025550113".some)
 
   def createScenario3(implicit db: Database) = for {
-    productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+    context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
     shippingMethod  ← * <~ ShippingMethods.filter(_.adminDisplayName === "UPS 2-day").one.mustFindOr(
       NotFoundFailure404("Unable to find 2-day shipping method"))
     warehouseIds ← * <~ Warehouses.createAllReturningIds(warehouses)
     customerIds ← * <~ Customers.createAllReturningIds(customers3)
     addressIds ← * <~ createAddresses(customerIds, address3)
-    productData ← * <~ Mvp.insertProducts(products3, productContext.id)
+    productData ← * <~ Mvp.insertProducts(products3, context.id)
     inventory ← * <~ generateInventories(productData, warehouseIds)
     skuIds ← * <~ productData.map(_.skuId)
-    orders ← * <~ DbResultT.sequence(customerIds.map { id ⇒ createShippedOrder(id, productContext.id, skuIds, shippingMethod)})
+    orders ← * <~ DbResultT.sequence(customerIds.map { id ⇒ createShippedOrder(id, context.id, skuIds, shippingMethod)})
   } yield {}
 }
 
@@ -190,10 +191,10 @@ trait DemoScenario6 extends DemoSeedHelpers {
   def customer6 = generateCustomer("Joe Carson", "carson19@yahoo.com")
 
   def createScenario6(implicit db: Database): DbResultT[Unit] = for {
-    productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+    context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
     customer ← * <~ Customers.create(customer6)
     order ← * <~ Orders.create(Order(state = Shipped, customerId = customer.id,
-      productContextId = productContext.id, placedAt = time.yesterday.toInstant.some))
+      contextId = context.id, placedAt = time.yesterday.toInstant.some))
     orig  ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
     _  ← * <~ GiftCards.createAll(
       (1 to 23).map { _ ⇒

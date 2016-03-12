@@ -4,7 +4,8 @@ import java.time.{Instant, ZoneId}
 
 import cats.data.Xor
 import models.Reason._
-import models.product.{ProductContexts, SimpleContext}
+import models.product.SimpleContext
+import models.objects.ObjectContexts
 import models.order.{OrderShippingAddress, OrderPayment}
 import models.payment.creditcard.CreditCardCharge
 import models.{Reason, Reasons}
@@ -88,7 +89,7 @@ object Seeds {
   val today = Instant.now().atZone(ZoneId.of("UTC"))
 
   def createAll()(implicit db: Database): DbResultT[Unit] = for {
-    productContext ← * <~ ProductContexts.create(SimpleContext.create) 
+    context ← * <~ ObjectContexts.create(SimpleContext.create) 
     admin ← * <~ Factories.createStoreAdmins
     customers ← * <~ Factories.createCustomers
     _ ← * <~ Factories.createAddresses(customers)
@@ -99,7 +100,7 @@ object Seeds {
     _ ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = admin)))
     _ ← * <~ Factories.createGiftCards
     _ ← * <~ Factories.createStoreCredits(admin, customers._1, customers._3)
-    orders ← * <~ Factories.createOrders(customers, products, shipMethods, productContext)
+    orders ← * <~ Factories.createOrders(customers, products, shipMethods, context)
     _ ← * <~ Factories.createRmas
   } yield {}
 

@@ -137,5 +137,5 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit e
   } yield remorseHold).value
 
   private def createNewCart: DbResult[Order] =
-    Orders.create(Order.buildCart(cart.customerId, cart.productContextId))
+    Orders.create(Order.buildCart(cart.customerId, cart.contextId))
 }

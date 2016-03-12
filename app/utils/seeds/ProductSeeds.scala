@@ -1,6 +1,7 @@
 package utils.seeds
 
-import models.product.{SimpleContext, SimpleProductData, Mvp, ProductContexts}
+import models.product.{SimpleContext, SimpleProductData, Mvp}
+import models.objects.ObjectContexts
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 
@@ -13,8 +14,8 @@ trait ProductSeeds {
     SimpleProductData, SimpleProductData, SimpleProductData, SimpleProductData)
 
   def createProducts(implicit db: Database) : DbResultT[SeedProducts] = for {
-    productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
-    ps ← * <~ Mvp.insertProducts(products, productContext.id)
+    context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
+    ps ← * <~ Mvp.insertProducts(products, context.id)
     } yield ps match {
       case p1 :: p2 :: s3 :: p4 :: p5 :: p6 :: p7 :: Nil ⇒ 
         ( p1, p2, s3, p4, p5, p6, p7)
