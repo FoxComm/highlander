@@ -104,18 +104,22 @@ export const productAddAttribute = createAction('PRODUCTS_ADD_ATTRIBUTE', (label
 
 const setError = createAction('PRODUCTS_SET_ERROR');
 
-export function fetchProduct(id: number, context: string = defaultContext): ActionDispatch {
+export function fetchProduct(id: string, context: string = defaultContext): ActionDispatch {
   return dispatch => {
-    dispatch(productRequestStart());
-    return Api.get(`/products/full/${context}/${id}`)
-      .then(
-        (product: FullProduct) => dispatch(productRequestSuccess(product)),
-        (err: Object) => {
-          dispatch(productRequestFailure());
-          dispatch(setError(err));
-        }
-      );
-  };
+    if (id.toLowerCase() == 'new') {
+      dispatch(productNew());
+    } else {
+      dispatch(productRequestStart());
+      return Api.get(`/products/full/${context}/${id}`)
+        .then(
+          (product: FullProduct) => dispatch(productRequestSuccess(product)),
+          (err: Object) => {
+            dispatch(productRequestFailure());
+            dispatch(setError(err));
+          }
+        );
+    };
+  }
 }
 
 export function updateProduct(product: FullProduct, context: string = defaultContext): ActionDispatch {

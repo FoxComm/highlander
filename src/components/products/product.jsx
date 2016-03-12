@@ -17,6 +17,7 @@ import * as ProductActions from '../../modules/products/details';
 import { PageTitle } from '../section-title';
 import { PrimaryButton } from '../common/buttons';
 import { Form } from '../forms';
+import ProductForm from './product-form';
 import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
 
@@ -31,7 +32,8 @@ import type {
 } from '../../modules/products/details';
 
 type Actions = {
-  fetchProduct: (id: number, context: ?string) => void,
+  fetchProduct: (id: string, context: ?string) => void,
+  productAddAttribute: (field: string, type: string) => void,
   updateProduct: (product: FullProduct, context: ?string) => void,
 };
 
@@ -41,25 +43,15 @@ type Params = {
 
 type Props = {
   actions: Actions,
-  children: Object,
   params: Params,
   products: ProductDetailsState,
 };
 
-type State = {
-  product: { 
-    [key:string]: string,
-    skus: { [key:string]: Object },
-    variants: { [key:string]: Variant },
-  },
-};
-
-export class ProductPage extends Component<void, Props, State> {
+export class ProductPage extends Component<void, Props, void> {
   static propTypes = {
-    children: PropTypes.node,
-
     actions: PropTypes.shape({
       fetchProduct: PropTypes.func.isRequired,
+      productAddAttribute: PropTypes.func.isRequired,
       updateProduct: PropTypes.func.isRequired,
     }),
 
@@ -74,77 +66,12 @@ export class ProductPage extends Component<void, Props, State> {
     }),
   };
 
-  state: State;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = { 
-      product: {
-        skus: {},
-        variants: {
-          color: {
-            name: 'Color',
-            type: 'color',
-            values: {},
-          },
-        },
-      }
-    };
-  }
-
   componentDidMount() {
     this.props.actions.fetchProduct(this.productId);
   }
 
-  get productId(): number {
-    return parseInt(this.props.params.productId);
-  }
-
-  get product(): ?FullProduct {
-    return this.props.products.product;
-  }
-
-  get children(): Element {
-    return React.cloneElement(this.props.children, {
-      onUpdateProduct: this.handleUpdateProduct,
-      onUpdateSku: this.handleUpdateSku,
-      onUpdateVariant: this.handleUpdateVariant,
-      updatedProduct: this.state.product,
-    });
-  }
-
-  @autobind
-  handleUpdateProduct(key: string, value: string) {
-    this.setState(assoc(this.state, ['product', key], value));
-  }
-
-  @autobind
-  handleUpdateSku(code: string, key: string, value: string) {
-    const updateValue = {
-      code: code,
-      label: key,
-      value: value,
-    };
-
-    const newState = assoc(this.state, ['product', 'skus'], updateValue);
-    this.setState(newState);
-  }
-
-  @autobind
-  handleUpdateVariant(key: string, variant: Variant) {
-    this.setState(assoc(this.state, ['product', 'variants', key], variant));
-  }
-
-  @autobind
-  handleSubmit() {
-    const product = this.product;
-    if (product) {
-      const updatedProduct = _.reduce(this.state.product, (res, val, key) => {
-        return setProductAttribute(res, key, val);
-      }, product);
-
-      this.props.actions.updateProduct(updatedProduct);
-    }
+  get productId(): string{
+    return this.props.params.productId;
   }
 
   render(): Element {
@@ -161,25 +88,18 @@ export class ProductPage extends Component<void, Props, State> {
       content = <WaitAnimation />;
     } else if (showError) {
       content = <div>{_.get(err, 'status')}</div>;
-    } else {
+    } else if (product) {
       content = (
-        <Form onSubmit={this.handleSubmit}>
-          <PageTitle title={productTitle}>
-            <PrimaryButton type="submit">Save</PrimaryButton>
-          </PageTitle>
-          <div>
-            <SubNav productId={this.productId} product={this.product} />
-            {this.children}
-          </div>
-        </Form>
+        <ProductForm
+          product={product}
+          productId={this.productId}
+          title={productTitle}
+          onAddAttribute={this.props.actions.productAddAttribute}
+          onSubmit={this.props.actions.updateProduct} />
       );
     }
 
-    return (
-      <div className="fc-product">
-        {content}
-      </div>
-    );
+    return <div className="fc-product">{content}</div>;
   }
 }
 

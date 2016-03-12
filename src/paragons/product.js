@@ -1,4 +1,5 @@
 /**
+ *
  * @flow
  */
 
@@ -134,7 +135,7 @@ export function createEmptyProduct(): FullProduct {
     },
   };
 
-  return product;
+  return configureProduct(product);
 }
 
 /**

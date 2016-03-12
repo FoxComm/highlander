@@ -156,10 +156,12 @@ export class ProductDetails extends Component<void, Props, State> {
           red: {
             id: 3452365363,
             swatch: "e8242b",
+            image: null,
           },
           green: {
             id: 7432985798,
             swatch: "00ff00",
+            image: null,
           },
         },
       },
@@ -169,9 +171,13 @@ export class ProductDetails extends Component<void, Props, State> {
         values: {
           'S/M': {
             id: 6734269823,
+            swatch: null,
+            image: null,
           },
           'L/XL': {
             id: 5423453263,
+            swatch: null,
+            image: null,
           },
         },
       },
