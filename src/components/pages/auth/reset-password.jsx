@@ -4,47 +4,23 @@ import React, { Component, PropTypes } from 'react';
 import cssModules from 'react-css-modules';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
-import { reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { routeActions } from 'react-router-redux';
 
 import { TextInput } from 'ui/inputs';
-import { FormField } from 'ui/forms';
+import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
 
 import type { HTMLElement } from 'types';
 
 type ResetState = {
   isReseted: boolean;
-};
-
-type FormData = {
   passwd1: string;
   passwd2: string;
-}
-
-const validate = values => {
-  const errors = {};
-  if (!values.passwd1) {
-    errors.passwd1 = 'Required';
-  } else if (values.passwd1.length < 8) {
-    errors.passwd1 = 'Must be 8 characters or more';
-  }
-  if (!values.passwd2) {
-    errors.passwd2 = 'Required';
-  } else if (values.passwd2.length < 8) {
-    errors.passwd2 = 'Must be 8 characters or more';
-  }
-  return errors;
 };
 
 /* ::`*/
 @connect()
-@reduxForm({
-  form: 'reset-password',
-  validate,
-  fields: ['passwd1', 'passwd2'],
-})
 @cssModules(styles)
 /* ::`*/
 export default class ResetPassword extends Component {
@@ -60,25 +36,28 @@ export default class ResetPassword extends Component {
 
   state: ResetState = {
     isReseted: false,
+    passwd1: '',
+    passwd2: '',
   };
 
   @autobind
-  handleSubmit(data: FormData): Promise {
-    if (data.passwd1 != data.passwd2) {
-      return Promise.reject({
-        _error: 'Passwords must match',
+  handleSubmit(): ?Promise {
+    const { passwd1, passwd2 } = this.state;
+
+    if (passwd1 != passwd2) {
+      this.setState({
+        error: 'Passwords must match',
+      });
+    } else {
+      this.setState({
+        isReseted: true,
+        error: null,
       });
     }
-    this.setState({
-      isReseted: true,
-    });
-
-    return Promise.resolve({_error: null});
   }
 
   get topMessage(): HTMLElement {
-    const { isReseted } = this.state;
-    const { error } = this.props;
+    const { isReseted, error } = this.state;
 
     if (error) {
       return (
@@ -103,18 +82,36 @@ export default class ResetPassword extends Component {
     );
   }
 
+  @autobind
+  updateForm({target}) {
+    this.setState({
+      [target.name]: target.value,
+    });
+  }
+
   get passwordFields(): ?HTMLElement[] {
-    const { isReseted } = this.state;
-    const { fields: {passwd1, passwd2}} = this.props;
+    const { isReseted, passwd1, passwd2, error } = this.state;
 
     if (isReseted) return null;
 
     return [
-      <FormField key="passwd1" styleName="form-field" field={passwd1}>
-        <TextInput placeholder="NEW PASSWORD" required type="password" minLength="8" {...passwd1} />
+      <FormField key="passwd1" styleName="form-field" error={!!error}>
+        <TextInput
+          placeholder="NEW PASSWORD"
+          required
+          type="password"
+          minLength="8"
+          value={passwd1}
+          name="passwd1"
+          onChange={this.updateForm}
+        />
       </FormField>,
-      <FormField key="passwd2" styleName="form-field" field={passwd2}>
-        <TextInput placeholder="CONFIRM PASSWORD" required type="password" minLength="8" {...passwd2} />
+      <FormField key="passwd2" styleName="form-field" error={!!error}>
+        <TextInput placeholder="CONFIRM PASSWORD" required type="password" minLength="8"
+          value={passwd2}
+          name="passwd2"
+          onChange={this.updateForm}
+        />
       </FormField>,
     ];
   }
@@ -137,16 +134,14 @@ export default class ResetPassword extends Component {
   }
 
   render(): HTMLElement {
-    const { handleSubmit } = this.props;
-
     return (
       <div>
         <div styleName="title">RESET PASSWORD</div>
         {this.topMessage}
-        <form onSubmit={handleSubmit(this.handleSubmit)}>
+        <Form onSubmit={this.handleSubmit}>
           {this.passwordFields}
           {this.primaryButton}
-        </form>
+        </Form>
       </div>
     );
   }

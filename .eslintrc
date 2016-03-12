@@ -29,7 +29,8 @@
       {
         "allowArrowFunctions": true
       }
-    ]
+    ],
+    "react/sort-comp": 0
   },
   "globals": {
     "makeXhr": false

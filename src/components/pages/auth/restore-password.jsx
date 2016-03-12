@@ -4,31 +4,24 @@ import React, { Component, PropTypes } from 'react';
 import cssModules from 'react-css-modules';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
-import {reduxForm} from 'redux-form';
 import { connect } from 'react-redux';
 import { routeActions } from 'react-router-redux';
 
 import { TextInput } from 'ui/inputs';
-import { FormField } from 'ui/forms';
+import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
 import { Link } from 'react-router';
 
 import type { HTMLElement } from 'types';
 
-type FormData = {
-  email: string;
-};
-
 type RestoreState = {
   emailSent: boolean;
+  error: ?string;
+  email: string;
 };
 
 /* ::`*/
 @connect()
-@reduxForm({
-  form: 'restore-password',
-  fields: ['email'],
-})
 @cssModules(styles)
 /* ::`*/
 export default class RestorePassword extends Component {
@@ -44,26 +37,32 @@ export default class RestorePassword extends Component {
 
   state: RestoreState = {
     emailSent: false,
+    error: null,
+    email: '',
   };
 
   @autobind
-  handleSubmit(data: FormData): Promise {
-    if (data.email.endsWith('.com')) {
+  handleSubmit(): ?Promise {
+    const { email } = this.state;
+
+    if (email.endsWith('.com')) {
       this.setState({
         emailSent: true,
+        error: null,
       });
-      return Promise.resolve({error: null});
-    }
+    } else {
+      this.setState({
+        error: `Oops! We don’t have a user with that email. Please check your entry and try again.`,
+      });
 
-    return Promise.reject({
-      email: 'A user with this email does not exist.',
-      _error: `Oops! We don’t have a user with that email. Please check your entry and try again.`,
-    });
+      return Promise.reject({
+        email: 'A user with this email does not exist.',
+      });
+    }
   }
 
   get topMessage(): HTMLElement {
-    const { emailSent } = this.state;
-    const { fields: {email}, error } = this.props;
+    const { emailSent, error, email } = this.state;
 
     if (error) {
       return (
@@ -76,7 +75,7 @@ export default class RestorePassword extends Component {
     if (emailSent) {
       return (
         <div styleName="top-message-success">
-          An email was successfully sent to <strong>{email.value}</strong> with reset instructions!
+          An email was successfully sent to <strong>{email}</strong> with reset instructions!
         </div>
       );
     }
@@ -88,15 +87,21 @@ export default class RestorePassword extends Component {
     );
   }
 
+  @autobind
+  changeEmail({target}) {
+    this.setState({
+      email: target.value,
+    });
+  }
+
   get emailField(): ?HTMLElement {
-    const { emailSent } = this.state;
-    const { fields: {email}} = this.props;
+    const { emailSent, email } = this.state;
 
     if (emailSent) return null;
 
     return (
-      <FormField key="email" styleName="form-field" field={email}>
-        <TextInput placeholder="EMAIL" required type="email" {...email} />
+      <FormField name="email" key="email" styleName="form-field">
+        <TextInput placeholder="EMAIL" required type="email" value={email} onChange={this.changeEmail} />
       </FormField>
     );
   }
@@ -131,16 +136,14 @@ export default class RestorePassword extends Component {
   }
 
   render(): HTMLElement {
-    const {handleSubmit} = this.props;
-
     return (
       <div>
         <div styleName="title">FORGOT PASSWORD</div>
         {this.topMessage}
-        <form onSubmit={handleSubmit(this.handleSubmit)}>
+        <Form onSubmit={this.handleSubmit}>
           {this.emailField}
           {this.primaryButton}
-        </form>
+        </Form>
         {this.switchStage}
       </div>
     );

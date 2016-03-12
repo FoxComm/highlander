@@ -5,8 +5,8 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import cssModules from 'react-css-modules';
 import styles from './checkout.css';
-import { reduxForm } from 'redux-form';
 import { autobind, debounce } from 'core-decorators';
+import { connect } from 'react-redux';
 
 import Button from 'ui/buttons';
 import { TextInput } from 'ui/inputs';
@@ -18,22 +18,53 @@ import Autocomplete from 'ui/autocomplete';
 type ShippingProps = {
   isEditing: boolean;
   editAction: () => any;
+  continueAction: Function;
 };
 
-const ViewShipping = () => {
-  return <span>view content</span>;
+type FieldValue = {
+  value: any;
+}
+
+type ViewProps = {
+  name: FieldValue;
+  address1: FieldValue;
+  address2: FieldValue;
+  country: FieldValue;
+  zip: FieldValue;
+  city: FieldValue;
+  state: FieldValue;
+  phone: FieldValue;
+}
+
+let ViewShipping = (props: any) => {
+  return <span>v</span>;
+
+  const values = _.transform(props, (result, {value}, key) => {
+    result[key] = value;
+  });
+
+  return (
+    <ul>
+      <li><strong>{values.name}</strong></li>
+      <li>{values.address1}</li>
+      {values.address2 && <li>{values.address2}</li>}
+      <li>{values.city}, {values.state} {values.zip}</li>
+      <li>{values.country.name}</li>
+      {values.phone && <li>{values.phone}</li>}
+    </ul>
+  );
 };
+ViewShipping = connect(state => (state.form['checkout-shipping'] || {}))(ViewShipping);
 
 type EditShippinProps = {
   continueAction?: Function;
   handleSubmit?: Function;
-  fields?: Object;
 }
 
 const DEFAULT_COUNTRY = 'USA';
 
 function mapStateToProps(state) {
-  const currentCountry = _.get(state.form, 'checkout-shipping.country.value');
+  const currentCountry = {alpha3: DEFAULT_COUNTRY};
 
   const countries = state.countries.list;
   const selectedCountry = _.find(countries, {alpha3: _.get(currentCountry, 'alpha3', DEFAULT_COUNTRY)});
@@ -51,11 +82,13 @@ function mapStateToProps(state) {
   };
 }
 
+const validate = values => {
+  const errors = {};
+  return errors;
+};
+
 /* ::`*/
-@reduxForm({
-  form: 'checkout-shipping',
-  fields: ['name', 'address1', 'address2', 'country', 'zip', 'city', 'state', 'phone'],
-}, mapStateToProps)
+@connect(mapStateToProps)
 @cssModules(styles)
 /* ::`*/
 class EditShipping extends Component {
@@ -63,8 +96,7 @@ class EditShipping extends Component {
   lookupXhr: ?XMLHttpRequest;
 
   get initialCountryValue() {
-    // $FlowFixMe: decorators are not supported
-    const { fields: {country}, countries} = this.props;
+    return '';
 
     if (country.value) {
       const item = _.find(countries, {alpha3: country.value.alpha3});
@@ -74,8 +106,9 @@ class EditShipping extends Component {
 
   @debounce(200)
   tryAutopopulateFromZip() {
+    return false;
     // $FlowFixMe: decorators are not supported
-    const { fields: {zip, city, state }, selectedCountry } = this.props;
+    const { selectedCountry } = this.props;
 
     if (zip.value && selectedCountry.alpha3 == 'USA') {
       if (this.lookupXhr) {
@@ -102,66 +135,58 @@ class EditShipping extends Component {
 
   @autobind
   handleZipChange(event) {
-    // $FlowFixMe: decorators are not supported
-    const { fields: {zip } } = this.props;
-
-    zip.onChange(event);
     this.tryAutopopulateFromZip();
   }
 
   render() {
     const props: EditShippinProps = this.props;
-    const { handleSubmit } = props;
     // $FlowFixMe: decorators are not supported
-    const { fields: {name, address1, address2, country, zip, city, state, phone}} = props;
     // $FlowFixMe: decorators are not supported
     const { countries, selectedCountry } = props;
 
     return (
-      <form onSubmit={handleSubmit} styleName="checkout-form">
-        <FormField styleName="checkout-field" field={name}>
-          <TextInput placeholder="FIRST & LAST NAME" {...name} />
+      <form styleName="checkout-form">
+        <FormField styleName="checkout-field">
+          <TextInput placeholder="FIRST & LAST NAME" />
         </FormField>
-        <FormField styleName="checkout-field" field={address1}>
-          <TextInput placeholder="STREET ADDRESS 1" {...address1} />
+        <FormField styleName="checkout-field">
+          <TextInput placeholder="STREET ADDRESS 1" />
         </FormField>
-        <FormField styleName="checkout-field" field={address2}>
-          <TextInput placeholder="STREET ADDRESS 2 (optional)" {...address2} />
+        <FormField styleName="checkout-field">
+          <TextInput placeholder="STREET ADDRESS 2 (optional)" />
         </FormField>
         <div styleName="union-fields">
-          <FormField styleName="checkout-field" field={country}>
+          <FormField styleName="checkout-field">
             <Autocomplete
               inputProps={{
                 placeholder: 'COUNTRY',
               }}
               getItemValue={item => item.name}
               items={countries}
-              onSelect={item => country.onChange(item)}
-              selectedItem={country.value}
+              onSelect={item => console.log(item)}
             />
           </FormField>
-          <FormField styleName="checkout-field" field={zip}>
-            <TextInput placeholder="ZIP" {...zip} onChange={this.handleZipChange} />
+          <FormField styleName="checkout-field">
+            <TextInput placeholder="ZIP" onChange={this.handleZipChange} />
           </FormField>
         </div>
         <div styleName="union-fields">
-          <FormField styleName="checkout-field" field={city}>
-            <TextInput placeholder="CITY" {...city} />
+          <FormField styleName="checkout-field">
+            <TextInput placeholder="CITY" />
           </FormField>
-          <FormField styleName="checkout-field" field={state}>
+          <FormField styleName="checkout-field">
             <Autocomplete
               inputProps={{
                 placeholder: 'STATE',
               }}
               getItemValue={item => item.name}
               items={selectedCountry.regions}
-              onSelect={item => state.onChange(item)}
-              selectedItem={state.value}
+              onSelect={item => console.log(item)}
             />
           </FormField>
         </div>
-        <FormField styleName="checkout-field" field={phone}>
-          <TextInput placeholder="PHONE" {...phone} />
+        <FormField styleName="checkout-field">
+          <TextInput placeholder="PHONE" />
         </FormField>
         <Button onClick={props.continueAction}>CONTINUE</Button>
       </form>
