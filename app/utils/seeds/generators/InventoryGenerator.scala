@@ -3,10 +3,9 @@ package utils.seeds.generators
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random.nextInt
 
-import models.inventory.adjustment.InventoryAdjustment.WmsOverride
-import models.inventory.adjustment.SellableInventoryAdjustment
+import models.inventory.InventoryAdjustment.WmsOverride
 import models.product.SimpleProductData
-import models.inventory.{Warehouse, Warehouses}
+import models.inventory._
 import models.inventory.summary.InventorySummary.AllSummaries
 import models.inventory.summary._
 import services.inventory.InventoryAdjustmentManager
@@ -14,6 +13,7 @@ import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.aliases.DB
+import Rnd._
 
 trait InventoryGenerator {
 
@@ -27,7 +27,6 @@ trait InventoryGenerator {
 }
 
 trait InventorySummaryGenerator {
-  import Rnd._
 
   def generateInventory(skuId: Int, warehouseId: Int): DbResultT[AllSummaries] = for {
     sellable ← * <~ SellableInventorySummaries.create(SellableInventorySummary(onHand = onHandRandom, onHold =
@@ -53,19 +52,18 @@ trait InventorySummaryGenerator {
 }
 
 trait InventoryAdjustmentsGenerator {
-  import Rnd._
 
-  def generateWmsAdjustment(skuId: Int, warehouseId: Int)(implicit db: DB): DbResultT[Seq[SellableInventoryAdjustment]] =
+  def generateWmsAdjustments(skuId: Int, warehouseId: Int)(implicit db: DB): DbResultT[Seq[Int]] =
     DbResultT.sequence((1 to 10).map { _ ⇒
-      val wmsOverride = WmsOverride(skuId, warehouseId, onHandRandom, onHoldRandom, reservedRandom)
+      val wmsOverride = WmsOverride(skuId, warehouseId, onHandRandom / 2, onHoldRandom / 2, reservedRandom / 2)
       InventoryAdjustmentManager.wmsOverride(wmsOverride)
-    })
+    }).map(_.flatten)
 
-  def generateWmsAdjustments(skuIds: Seq[Int], warehouseIds: Seq[Int])(implicit db: DB): DbResultT[Seq[SellableInventoryAdjustment]] =
+  def generateWmsAdjustmentsSeq(skuIds: Seq[Int], warehouseIds: Seq[Int])(implicit db: DB): DbResultT[Seq[Int]] =
     DbResultT.sequence(for {
       skuId ← skuIds
       warehouseId ← warehouseIds
-    } yield generateWmsAdjustment(skuId, warehouseId)).map(_.flatten)
+    } yield generateWmsAdjustments(skuId, warehouseId)).map(_.flatten)
 }
 
 private object Rnd {

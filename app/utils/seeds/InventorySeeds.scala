@@ -15,7 +15,7 @@ trait InventorySeeds extends InventoryGenerator with InventorySummaryGenerator w
     warehouseIds ← * <~ Warehouses.createAllReturningIds(warehouses)
     skuIds = products.map(_.skuId)
     _ ← * <~ generateInventoriesForSkus(skuIds, warehouseIds)
-    _ ← * <~ generateWmsAdjustments(skuIds, warehouseIds)
+    _ ← * <~ generateWmsAdjustmentsSeq(skuIds, warehouseIds)
   } yield {}
 
 }
