@@ -4,7 +4,6 @@
 
 // libs
 import React, { Component, Element, PropTypes } from 'react';
-import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';

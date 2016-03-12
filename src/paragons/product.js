@@ -114,7 +114,9 @@ export function createEmptyProduct(): FullProduct {
       product: {
         id: null,
         attributes: {},
-        variants: {},
+        variants: {
+          default: 'new',
+        },
         activeFrom: null,
         activeTo: null,
         createdAt: null,
@@ -130,7 +132,7 @@ export function createEmptyProduct(): FullProduct {
         id: null,
         productId: null,
         attributes: {},
-        variants: null,
+        variants: 'default',
         activeFrom: null,
         activeTo: null,
         createdAt: null,
