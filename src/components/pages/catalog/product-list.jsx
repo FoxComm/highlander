@@ -18,7 +18,7 @@ type Params = {
 type ProductListParams = {
   params: Params;
   list: Array<Product>;
-  fetchProducts: Function;
+  fetch: Function;
 }
 
 const getState = state => ({...state.products});
@@ -28,7 +28,7 @@ class ProductList extends Component {
   componentWillMount() {
     if (!this.props.isFetching && !this.props.fetched) {
       const categoryId = this.categoryId(this.props.params);
-      this.props.fetchProducts(categoryId);
+      this.props.fetch(categoryId);
     }
   }
 
@@ -36,7 +36,7 @@ class ProductList extends Component {
     const categoryId = this.categoryId(this.props.params);
     const nextId = this.categoryId(nextProps.params);
     if (categoryId !== nextId) {
-      this.props.fetchProducts(nextId);
+      this.props.fetch(nextId);
     }
   }
 

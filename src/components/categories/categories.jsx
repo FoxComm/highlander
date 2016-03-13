@@ -21,7 +21,7 @@ class Categories extends React.Component {
 
   static propTypes = {
     list: PropTypes.array,
-    fetchCategories: PropTypes.func.isRequired,
+    fetch: PropTypes.func.isRequired,
     onClick: PropTypes.func,
   };
 
@@ -31,7 +31,7 @@ class Categories extends React.Component {
 
   componentWillMount() {
     if (!this.props.isFetching && !this.props.fetched) {
-      this.props.fetchCategories();
+      this.props.fetch();
     }
   }
 
