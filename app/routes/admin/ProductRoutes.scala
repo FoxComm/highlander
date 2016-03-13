@@ -36,6 +36,13 @@ object ProductRoutes {
                 }
               }
             } ~ 
+            pathPrefix(Segment / IntNumber / "baked" / IntNumber) { (context, productId, commitId) ⇒
+              (get & pathEnd) {
+                goodOrFailures {
+                  ProductManager.getIlluminatedFullProductAtCommit(productId, context, commitId)
+                }
+              }
+            } ~ 
             pathPrefix(Segment / IntNumber) { (context, productId)  ⇒
               (get & pathEnd) {
                 goodOrFailures {

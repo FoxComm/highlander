@@ -34,6 +34,8 @@ object ObjectLinks extends TableQueryWithId[ObjectLink, ObjectLinks](
   idLens = GenLens[ObjectLink](_.id)
   )(new ObjectLinks(_)) {
 
+  def findByLeftRight(leftId: Int, rightId: Int): QuerySeq = 
+    filter(_.leftId === leftId).filter(_.rightId === rightId)
   def findByLeft(leftId: Int): QuerySeq = 
     filter(_.leftId === leftId)
   def findByRight(rightId: Int): QuerySeq = 

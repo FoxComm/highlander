@@ -295,6 +295,10 @@ final case class AlreadySavedForLater(customerId: Int, skuId: Int) extends Failu
 
 object ProductFailure { 
 
+  final case class ObjectLinkCannotBeFound(leftId: Int, rightId: Int) extends Failure {
+    override def description = s"Object link ($leftId, $rightId) cannot be found"
+  }
+
   final case class SkuFormsAndShadowsNotSameSize() extends Failure {
     override def description = s"The lists of sku forms and shadows are not the same size in the payload"
   }
@@ -317,6 +321,10 @@ object ProductFailure {
 
   final case class ProductNotFoundForContext(productId: Int, productContextId: Int) extends Failure {
     override def description = s"Product with id=$productId with product context $productContextId cannot be found"
+  }
+
+  final case class ProductNotFoundAtCommit(productId: Int, commitId: Int) extends Failure {
+    override def description = s"Product with id=$productId at commit $commitId cannot be found"
   }
 
   final case class ObjectContextNotFound(name: String) extends Failure {

@@ -105,6 +105,9 @@ object ProductManager {
     product       ← * <~ Products.filter(_.contextId === context.id).
       filter(_.formId === productId).one.mustFindOr(
         ProductNotFoundForContext(productId, context.id)) 
+    product       ← * <~ Products.filter(_.contextId === context.id).
+      filter(_.formId === productId).one.mustFindOr(
+        ProductNotFoundForContext(productId, context.id)) 
     updatedFormShadow ← * <~ updateObjectFormAndShadow(product.formId, 
       product.shadowId, payload.form.product.attributes, 
       payload.shadow.product.attributes)
@@ -128,6 +131,27 @@ object ProductManager {
       
     productForm   ← * <~ ObjectForms.mustFindById404(product.formId)
     productShadow  ← * <~ ObjectShadows.mustFindById404(product.shadowId)
+    skuData ← * <~ getSkuData(productShadow.id)
+
+  } yield IlluminatedFullProductResponse.build(
+    IlluminatedProduct.illuminate(context, product, productForm, productShadow),
+    skuData.map { 
+      case (s, f, sh) ⇒ IlluminatedSku.illuminate(context, s, f, sh)
+    })).run()
+
+  def getIlluminatedFullProductAtCommit(productId: Int, contextName: String, commitId: Int)
+    (implicit ec: EC, db: DB): Result[IlluminatedFullProductResponse.Root] = (for {
+
+    context ← * <~ ObjectContexts.filterByName(contextName).one.
+      mustFindOr(ObjectContextNotFound(contextName))
+    product       ← * <~ Products.filter(_.contextId === context.id).
+      filter(_.formId === productId).one.mustFindOr(
+        ProductNotFoundForContext(productId, context.id)) 
+    commit       ← * <~ ObjectCommits.filter(_.id === commitId).
+      filter(_.formId === productId).one.mustFindOr(
+        ProductNotFoundAtCommit(productId, commitId)) 
+    productForm   ← * <~ ObjectForms.mustFindById404(commit.formId)
+    productShadow  ← * <~ ObjectShadows.mustFindById404(commit.shadowId)
     skuData ← * <~ getSkuData(productShadow.id)
 
   } yield IlluminatedFullProductResponse.build(
@@ -218,14 +242,14 @@ object ProductManager {
   private def getSkuData(productShadowId: Int)(implicit ec: EC, db: DB) : 
     DbResultT[Seq[(Sku, ObjectForm, ObjectShadow)]] = for {
 
-    skuLinks     ← * <~ ObjectLinks.filter(_.leftId === productShadowId).result
-    skuShadowIds ← * <~ skuLinks.map(_.rightId)
-    skuShadows   ← * <~ ObjectShadows.filter(_.id.inSet(skuShadowIds)).result
-    skuFormIds   ← * <~ skuShadows.map(_.formId)
-    skuForms     ← * <~ ObjectForms.filter(_.id.inSet(skuFormIds)).result
-    skus         ← * <~ Skus.filter(_.formId.inSet(skuFormIds)).result
+    links     ← * <~ ObjectLinks.filter(_.leftId === productShadowId).result
+    shadowIds ← * <~ links.map(_.rightId)
+    shadows   ← * <~ ObjectShadows.filter(_.id.inSet(shadowIds)).result
+    formIds   ← * <~ shadows.map(_.formId)
+    forms     ← * <~ ObjectForms.filter(_.id.inSet(formIds)).result
+    skus      ← * <~ Skus.filter(_.formId.inSet(formIds)).result
 
-  } yield (skus.zip(skuForms.zip(skuShadows))).map{ case (a, b) ⇒ (a, b._1, b._2)}
+  } yield (skus.zip(forms.zip(shadows))).map{ case (a, b) ⇒ (a, b._1, b._2)}
 
   private def createSkuData(context: ObjectContext, productShadowId: Int, 
     formPayloads: Seq[CreateFullSkuForm], shadowPayloads: Seq[CreateSkuShadow])
@@ -260,16 +284,28 @@ object ProductManager {
       updatedFormShadow  ← * <~ updateObjectFormAndShadow(
         sku.formId, sku.shadowId, formPayload.attributes, shadowPayload.attributes)
       (form, shadow, skuChanged) = updatedFormShadow
-      _ ← * <~ createLink(productShadowId, shadow.id, productChanged || skuChanged)
+      _ ← * <~ updateLink(productShadowId, sku.shadowId, shadow.id, productChanged, skuChanged)
       sku  ← * <~ commitSku(sku, form, shadow, skuChanged)
     } yield (sku, form, shadow, skuChanged)
   }
 
-  private def createLink(productShadowId: Int, skuShadowId: Int, create: Boolean)
+  private def updateLink(productShadowId: Int, oldSkuShadowId: Int, skuShadowId: Int,
+    productChanged: Boolean, skuChanged: Boolean)
   (implicit ec: EC, db: DB): DbResultT[Unit] = 
-  if(create) for {
+    //Create a new link a product changes.
+    if(productChanged) 
+      for {
       _ ← * <~ ObjectLinks.create(ObjectLink(leftId = productShadowId, rightId = skuShadowId)) 
-  } yield Unit 
+    } yield Unit 
+    //If the product didn't change but the sku changed, update the link
+    //This is because we never want two skus of the same type pointing to 
+    //the same sku shadow.
+    else if(skuChanged) for {
+      link ← * <~ ObjectLinks.findByLeftRight(productShadowId, oldSkuShadowId).one.mustFindOr(
+        ObjectLinkCannotBeFound(productShadowId, oldSkuShadowId))
+      _ ← * <~ ObjectLinks.update(link, link.copy(leftId = productShadowId, rightId = skuShadowId)) 
+    } yield Unit 
+    //otherwise nothing changed so do nothing.
   else DbResultT.pure(Unit)
 
   private def groupSkuFormsAndShadows(forms: Seq[CreateFullSkuForm], shadows: Seq[CreateSkuShadow]) = {
