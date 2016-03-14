@@ -4,5 +4,5 @@ ashes_server: 127.0.0.1:4000
 demo_user: test
 demo_pass: Qq5FnurT
 demo_domain: usertest1.foxcommerce.com
-ashes_server_name: admin.usertest1.foxcommerce.com
-firebird_server_name: usertest1.foxcommerce.com
+ashes_server_name: "admin.{{demo_domain}}"
+firebird_server_name: {{demo_domain}}
