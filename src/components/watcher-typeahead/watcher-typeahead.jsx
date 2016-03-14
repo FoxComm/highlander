@@ -15,8 +15,8 @@ import PilledInput from '../pilled-search/pilled-input';
 import WatcherTypeaheadItem from './watcher-typeahead-item';
 
 
-const mapStateToProps = (state, { storePath, entity, filedName = 'watchers' }) => {
-  const path = getStorePath(storePath, entity, filedName, 'selectModal');
+const mapStateToProps = (state, { storePath, entity, fieldName = 'watchers' }) => {
+  const path = getStorePath(storePath, entity, fieldName, 'selectModal');
 
   const {
     term = null,
@@ -28,8 +28,8 @@ const mapStateToProps = (state, { storePath, entity, filedName = 'watchers' }) =
   return { term, suggested, selected, isFetching };
 };
 
-const mapDispatchToProps = (dispatch, { entity: { entityType, entityId }, filedName = 'watchers' }) => {
-  const { actions } = getStore(filedName, entityType);
+const mapDispatchToProps = (dispatch, { entity: { entityType, entityId }, fieldName = 'watchers' }) => {
+  const { actions } = getStore(fieldName, entityType);
 
   return {
     setTerm: term => dispatch(actions.setTerm(entityId, term)),

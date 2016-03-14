@@ -9,7 +9,7 @@ const Button = (props = {}) => {
     'fc-btn',
     {'_docked-left': docked && docked === 'left'},
     {'_docked-right': docked && docked === 'right'},
-    {'fc-btn_state_loading': isLoading},
+    {'_loading': isLoading},
     props.className,
   );
 

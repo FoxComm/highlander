@@ -41,8 +41,11 @@
   .min-height(74px);
   .font-spec(13px);
 
-  &.fc-share-search__associations_state_loading {
-
+  .fc-share-search__associations-list {
+    a._disabled {
+      color: #ccc;
+      cursor: default;
+    }
   }
 
   p {
@@ -62,9 +65,13 @@
     height: 38px;
     border-top: 1px solid #d9d9d9;
 
-    span:first-child {
+    .fc-share-search__associations-owner {
       flex-grow: 1;
+      .margin-left(10px);
+      color: #bdc3c6;
+      .font-spec(13px, bold);
     }
+
     span:last-child {
       .margin-left(10px);
       .font-spec(24px, 40px);

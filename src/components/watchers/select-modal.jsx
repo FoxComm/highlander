@@ -11,7 +11,7 @@ import { numberize } from '../../lib/text-utils';
 import { ModalContainer } from '../modal/base';
 import ContentBox from '../content-box/content-box';
 import SaveCancel from '../common/save-cancel';
-import WatcherTypeahead from '../watcher-typeahed/watcher-typeahead';
+import WatcherTypeahead from '../watcher-typeahead/watcher-typeahead';
 
 
 function mapStateToProps(state, { storePath, entity }) {

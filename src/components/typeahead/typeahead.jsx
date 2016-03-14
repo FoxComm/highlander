@@ -195,7 +195,7 @@ export default class Typeahead extends React.Component {
 
   render() {
     const elementClass = classNames('fc-typeahead', {
-      'fc-typeahead_state_loading': this.props.isFetching
+      '_loading': this.props.isFetching
     }, this.props.className);
 
     const menuClass = classNames('fc-typeahead__menu', {

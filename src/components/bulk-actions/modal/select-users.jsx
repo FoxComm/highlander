@@ -10,7 +10,7 @@ import { getStorePath } from '../../../lib/store-utils';
 // components
 import modal from '../../modal/wrapper';
 import ContentBox from '../../content-box/content-box';
-import WatcherTypeahead from '../../watcher-typeahed/watcher-typeahead';
+import WatcherTypeahead from '../../watcher-typeahead/watcher-typeahead';
 import SaveCancel from '../../common/save-cancel';
 
 

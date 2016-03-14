@@ -10,7 +10,7 @@ import { PrimaryButton } from '../common/buttons';
 import WaitAnimation from '../common/wait-animation';
 import PilledInput from '../pilled-search/pilled-input';
 import Typeahead from '../typeahead/typeahead';
-import TypeaheadItem from '../watcher-typeahed/watcher-typeahead-item';
+import TypeaheadItem from '../watcher-typeahead/watcher-typeahead-item';
 import Alert from '../alerts/alert';
 
 @wrapModal
@@ -47,7 +47,7 @@ export default class ShareSearch extends Component {
   componentWillReceiveProps(nextProps) {
     const numberUpdatedUsers = nextProps.search.associations.length - this.props.search.associations.length;
 
-    const state = this.state;
+    const state = { ...this.state };
 
     if (numberUpdatedUsers && !state.firstLoad) {
       state.numberUpdatedUsers = numberUpdatedUsers;
@@ -86,7 +86,7 @@ export default class ShareSearch extends Component {
 
       return (
         <Alert type={numberUpdatedUsers ? Alert.SUCCESS : Alert.ERROR}
-               closeAction={this.setState.bind(this, {numberUpdatedUsers: 0})}>
+               closeAction={this.setState.bind(this, {numberUpdatedUsers: 0}, null)}>
           <span>{label}</span>
         </Alert>
       );
@@ -94,7 +94,7 @@ export default class ShareSearch extends Component {
   }
 
   get associationsList() {
-    const { isFetchingAssociations = false, associations = [] } = this.props.search;
+    const { isFetchingAssociations = false, associations = [], storeAdminId } = this.props.search;
 
     if (isFetchingAssociations) {
       return <WaitAnimation/>;
@@ -105,14 +105,19 @@ export default class ShareSearch extends Component {
     return (
       <div>
         <p>Shared with <strong>{associationsNumber}</strong> users:</p>
-        <ul>
+        <ul className="fc-share-search__associations-list">
           {associations.map(item => {
+            const isOwner = !storeAdminId || storeAdminId === item.id;
+            const closeHandler = isOwner ? _.noop : this.props.dissociateSearch.bind(null, this.props.search, item.id);
+            const closeButtonClass = isOwner ? '_disabled' : '';
+
             return (
               <li key={item.id}>
                 <span>{item.name}</span>
+                <span className="fc-share-search__associations-owner">{isOwner ? 'Owner' : ''}</span>
                 <span>{item.email}</span>
                 <span>
-                  <a onClick={this.props.dissociateSearch.bind(null, this.props.search, item.id)}>
+                  <a className={closeButtonClass} onClick={closeHandler}>
                     &times;
                   </a>
                 </span>

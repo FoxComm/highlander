@@ -211,7 +211,7 @@ export default class LiveSearch extends React.Component {
     };
 
     const buttonClass = classNames('fc-btn', {
-      'fc-btn_state_loading': this.props.searches.isSavingSearch || currentSearch(this.props).isUpdating
+      '_loading': this.props.searches.isSavingSearch || currentSearch(this.props).isUpdating
     });
 
     return (
@@ -423,12 +423,12 @@ export default class LiveSearch extends React.Component {
 
   @autobind
   openShareSearch() {
-    this.setState({ ...this.state, isShareVisible: true });
+    this.setState({ isShareVisible: true });
   }
 
   @autobind
   closeShareSearch() {
-    this.setState({ ...this.state, isShareVisible: false });
+    this.setState({ isShareVisible: false });
   }
 
   get shareSearch() {
