@@ -5,9 +5,9 @@ import akka.http.scaladsl.model.StatusCodes.OK
 import Extensions._
 import models.product.{Mvp, ProductContexts, SimpleContext}
 import models.customer.Customers
+import models.inventory.InventoryAdjustment._
 import models.inventory._
 import models.inventory.summary.SellableInventorySummaries
-import models.inventory.adjustment.SellableInventoryAdjustments
 import models.location.Addresses
 import models.order.{Orders, Order}
 import models.shipping.ShippingMethods
@@ -62,11 +62,14 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       summary.reserved must === (sellableSummary.reserved)
       summary.safetyStock must === (sellableSummary.safetyStock)
 
-      val adjustments = SellableInventoryAdjustments.findBySummaryId(sellableSummary.id).result.run().futureValue
-      adjustments.map(_.onHandChange).sum must === (0)
-      adjustments.map(_.onHoldChange).sum must === (2)
-      adjustments.map(_.reservedChange).sum must === (0)
-      adjustments.map(_.safetyStockChange).sum must === (0)
+      val adjustments = InventoryAdjustments.findSellableBySummaryId(sellableSummary.id).result.run().futureValue
+      adjustments must have size 1
+      adjustments.filterNot(_.state == OnHold) mustBe empty
+      val onHoldAdj = adjustments.headOption.value
+      onHoldAdj.state must === (OnHold)
+      onHoldAdj.change must === (2)
+      onHoldAdj.newAfs must === (sellableSummary.availableForSale - 2)
+      onHoldAdj.newQuantity must === (sellableSummary.onHold + 2)
     }
 
     "errors 404 if no cart found by reference number" in {

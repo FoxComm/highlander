@@ -1,25 +1,24 @@
 package services
 
-import models.product.{SimpleContext, ProductContexts}
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import models.StoreAdmins
 import models.activity.ActivityContext
-import models.inventory.adjustment.InventoryAdjustment._
-import models.inventory.adjustment.SellableInventoryAdjustments
-import models.order._
-import models.inventory.summary._
+import models.inventory.InventoryAdjustment._
 import models.inventory._
+import models.inventory.summary._
+import models.order._
+import models.product.{ProductContexts, SimpleContext}
 import payloads.UpdateLineItemsPayload
 import services.inventory.InventoryAdjustmentManager
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
+import utils.Slick.implicits._
 import utils.seeds.ProductSeeds
 import utils.seeds.Seeds.Factories
 import utils.seeds.generators._
-import utils.Slick.implicits._
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class InventoryManagerIntegrationTest extends IntegrationTestBase {
 
@@ -35,11 +34,14 @@ class InventoryManagerIntegrationTest extends IntegrationTestBase {
       summary.reserved must === (sellable.reserved)
       summary.safetyStock must === (sellable.safetyStock)
 
-      val adjustments = SellableInventoryAdjustments.findBySummaryId(sellable.id).result.run().futureValue
-      adjustments.map(_.onHandChange).sum must === (0)
-      adjustments.map(_.onHoldChange).sum must === (2)
-      adjustments.map(_.reservedChange).sum must === (0)
-      adjustments.map(_.safetyStockChange).sum must === (0)
+      val adjustments = InventoryAdjustments.findSellableBySummaryId(sellable.id).result.run().futureValue
+      adjustments must have size 1
+      adjustments.filterNot(_.state == OnHold) mustBe empty
+      val onHoldAdj = adjustments.headOption.value
+      onHoldAdj.state must === (OnHold)
+      onHoldAdj.change must === (2)
+      onHoldAdj.newAfs must === (sellable.availableForSale - 2)
+      onHoldAdj.newQuantity must === (sellable.onHold + 2)
     }
 
     "adjusts inventory on order propagation to WMS" in new Fixture {
@@ -52,11 +54,13 @@ class InventoryManagerIntegrationTest extends IntegrationTestBase {
       summary.reserved must === (sellable.reserved + 10)
       summary.safetyStock must === (sellable.safetyStock)
 
-      val adjustment = SellableInventoryAdjustments.findBySummaryId(sellable.id).one.run().futureValue.value
-      adjustment.onHandChange must === (0)
-      adjustment.onHoldChange must === (-10)
-      adjustment.reservedChange must === (10)
-      adjustment.safetyStockChange must === (0)
+      val adjustments = InventoryAdjustments.findSellableBySummaryId(sellable.id).result.run().futureValue.value
+      adjustments must have size 2
+      val afs1 = sellable.availableForSale + 10
+      val afs2 = afs1 - 10
+      adjustments.map(adj ⇒ (adj.state, adj.change, adj.newAfs, adj.newQuantity)) must contain allOf (
+        (OnHold, -10, afs1, sellable.onHold - 10),
+        (Reserved, 10, afs2, sellable.reserved + 10))
     }
 
     "adjusts inventory on WMS override" in new Fixture {
@@ -76,11 +80,30 @@ class InventoryManagerIntegrationTest extends IntegrationTestBase {
       summary.reserved must === (newReserved)
       summary.safetyStock must === (sellable.safetyStock)
 
-      val adjustment = SellableInventoryAdjustments.findBySummaryId(sellable.id).one.run().futureValue.value
-      adjustment.onHandChange must === (111)
-      adjustment.onHoldChange must === (222)
-      adjustment.reservedChange must === (333)
-      adjustment.safetyStockChange must === (0)
+      val adjustments = InventoryAdjustments.findSellableBySummaryId(sellable.id).result.run().futureValue.value
+      adjustments must have size 3
+      val afs1 = sellable.availableForSale + 111
+      val afs2 = afs1 - 222
+      val afs3 = afs2 - 333
+      adjustments.map(adj ⇒ (adj.state, adj.change, adj.newAfs, adj.newQuantity)) must contain allOf (
+        (OnHand, 111, afs1, sellable.onHand + 111),
+        (OnHold, 222, afs2, sellable.onHold + 222),
+        (Reserved, 333, afs3, sellable.reserved + 333))
+    }
+
+    "does not create adjustment for zero change" in new Fixture {
+      val event = WmsOverride(skuId = product.skuId, warehouseId = warehouse.id,
+        onHand = sellable.onHand, onHold = sellable.onHold, reserved = sellable.reserved)
+      InventoryAdjustmentManager.wmsOverride(event).run().futureValue.rightVal
+
+      val summary = SellableInventorySummaries.findOneById(sellable.id).run().futureValue.value
+      summary.onHand must === (sellable.onHand)
+      summary.onHold must === (sellable.onHold)
+      summary.reserved must === (sellable.reserved)
+      summary.safetyStock must === (sellable.safetyStock)
+
+      val adjustments = InventoryAdjustments.findSellableBySummaryId(sellable.id).result.run().futureValue.value
+      adjustments mustBe empty
     }
   }
 
