@@ -1,6 +1,4 @@
 
-/* @flow */
-
 import _ from 'lodash';
 import React, { Component } from 'react';
 import cssModules from 'react-css-modules';
@@ -11,63 +9,40 @@ import { connect } from 'react-redux';
 import Button from 'ui/buttons';
 import { TextInput } from 'ui/inputs';
 import EditableBlock from 'ui/editable-block';
-import { FormField } from 'ui/forms';
-
+import { FormField, Form } from 'ui/forms';
 import Autocomplete from 'ui/autocomplete';
 
-type ShippingProps = {
-  isEditing: boolean;
-  editAction: () => any;
-  continueAction: Function;
-};
+import * as checkoutActions from 'modules/checkout';
 
-type FieldValue = {
-  value: any;
-}
-
-type ViewProps = {
-  name: FieldValue;
-  address1: FieldValue;
-  address2: FieldValue;
-  country: FieldValue;
-  zip: FieldValue;
-  city: FieldValue;
-  state: FieldValue;
-  phone: FieldValue;
-}
-
-let ViewShipping = (props: any) => {
-  return <span>v</span>;
-
-  const values = _.transform(props, (result, {value}, key) => {
-    result[key] = value;
-  });
-
+let ViewShipping = (props: Object) => {
   return (
     <ul>
-      <li><strong>{values.name}</strong></li>
-      <li>{values.address1}</li>
-      {values.address2 && <li>{values.address2}</li>}
-      <li>{values.city}, {values.state} {values.zip}</li>
-      <li>{values.country.name}</li>
-      {values.phone && <li>{values.phone}</li>}
+      <li><strong>{props.name}</strong></li>
+      <li>{props.address1}</li>
+      {props.address2 && <li>{props.address2}</li>}
+      <li>{props.city}, {props.state.name} {props.zip}</li>
+      <li>{props.country.name}</li>
+      {props.phone && <li>{props.phone}</li>}
     </ul>
   );
 };
-ViewShipping = connect(state => (state.form['checkout-shipping'] || {}))(ViewShipping);
+ViewShipping = connect(state => (state.checkout.shippingData))(ViewShipping);
 
-type EditShippinProps = {
+type EditShippingProps = {
+  isEditing: boolean;
+  editAction?: Function;
   continueAction?: Function;
   handleSubmit?: Function;
+  setShippingData: Function;
+  selectedCountry: Object;
+  state: Object;
 }
 
-const DEFAULT_COUNTRY = 'USA';
-
 function mapStateToProps(state) {
-  const currentCountry = {alpha3: DEFAULT_COUNTRY};
+  const { shippingData } = state.checkout;
 
   const countries = state.countries.list;
-  const selectedCountry = _.find(countries, {alpha3: _.get(currentCountry, 'alpha3', DEFAULT_COUNTRY)});
+  const selectedCountry = _.find(countries, {alpha3: _.get(shippingData.country, 'alpha3', 'USA')});
   const countryDetails = state.countries.details[selectedCountry && selectedCountry.id] || {
     regions: [],
   };
@@ -75,55 +50,38 @@ function mapStateToProps(state) {
   return {
     countries: state.countries.list,
     selectedCountry: countryDetails,
-    initialValues: {
-      country: selectedCountry,
-      state: countryDetails.regions[0] || {},
-    },
+    state: _.get(shippingData, 'state', countryDetails.regions[0]) || {},
+    data: shippingData,
   };
 }
 
-const validate = values => {
-  const errors = {};
-  return errors;
-};
-
 /* ::`*/
-@connect(mapStateToProps)
+@connect(mapStateToProps, checkoutActions)
 @cssModules(styles)
 /* ::`*/
 class EditShipping extends Component {
-  props: EditShippinProps;
+  props: EditShippingProps;
   lookupXhr: ?XMLHttpRequest;
 
-  get initialCountryValue() {
-    return '';
-
-    if (country.value) {
-      const item = _.find(countries, {alpha3: country.value.alpha3});
-      return item && item.name;
-    }
-  }
-
   @debounce(200)
-  tryAutopopulateFromZip() {
-    return false;
+  tryAutopopulateFromZip(zip) {
     // $FlowFixMe: decorators are not supported
-    const { selectedCountry } = this.props;
+    const { selectedCountry, setShippingData } = this.props;
 
-    if (zip.value && selectedCountry.alpha3 == 'USA') {
+    if (zip && selectedCountry.alpha3 == 'USA') {
       if (this.lookupXhr) {
         this.lookupXhr.abort();
         this.lookupXhr = null;
       }
 
-      this.lookupXhr = makeXhr(`/lookup-zip/usa/${zip.value}`).then(
+      this.lookupXhr = makeXhr(`/lookup-zip/usa/${zip}`).then(
         result => {
-          city.onChange(result.city);
+          setShippingData('city', result.city);
           const currentState = _.find(selectedCountry.regions, region => {
             return region.name.toLowerCase() == result.state.toLowerCase();
           });
           if (currentState) {
-            state.onChange(currentState);
+            setShippingData('state', currentState);
           }
         },
         err => {
@@ -134,26 +92,57 @@ class EditShipping extends Component {
   }
 
   @autobind
-  handleZipChange(event) {
-    this.tryAutopopulateFromZip();
+  handleZipChange({target}) {
+    this.props.setShippingData('zip', target.value);
+
+    this.tryAutopopulateFromZip(target.value);
+  }
+
+  @autobind
+  changeFormData({target}) {
+    this.props.setShippingData(target.name, target.value);
+  }
+
+  @autobind
+  changeCountry(item) {
+    this.props.setShippingData('country', item);
+  }
+
+  @autobind
+  changeState(item) {
+    this.props.setShippingData('state', item);
+  }
+
+  @autobind
+  handleSubmit() {
+    this.changeCountry(this.props.selectedCountry);
+    this.changeState(this.props.state);
+
+    this.props.continueAction();
   }
 
   render() {
-    const props: EditShippinProps = this.props;
-    // $FlowFixMe: decorators are not supported
-    // $FlowFixMe: decorators are not supported
-    const { countries, selectedCountry } = props;
+    const props: EditShippingProps = this.props;
+    const { countries, selectedCountry, data } = props;
 
     return (
-      <form styleName="checkout-form">
+      <Form onSubmit={this.handleSubmit} styleName="checkout-form">
         <FormField styleName="checkout-field">
-          <TextInput placeholder="FIRST & LAST NAME" />
+          <TextInput required
+            name="name" placeholder="FIRST & LAST NAME" value={data.name} onChange={this.changeFormData}
+          />
         </FormField>
         <FormField styleName="checkout-field">
-          <TextInput placeholder="STREET ADDRESS 1" />
+          <TextInput
+            required
+            name="address1" placeholder="STREET ADDRESS 1" value={data.address1} onChange={this.changeFormData}
+          />
         </FormField>
         <FormField styleName="checkout-field">
-          <TextInput placeholder="STREET ADDRESS 2 (optional)" />
+          <TextInput
+            name="address2" placeholder="STREET ADDRESS 2 (optional)" value={data.address2}
+            onChange={this.changeFormData}
+          />
         </FormField>
         <div styleName="union-fields">
           <FormField styleName="checkout-field">
@@ -163,16 +152,17 @@ class EditShipping extends Component {
               }}
               getItemValue={item => item.name}
               items={countries}
-              onSelect={item => console.log(item)}
+              onSelect={this.changeCountry}
+              selectedItem={selectedCountry}
             />
           </FormField>
-          <FormField styleName="checkout-field">
-            <TextInput placeholder="ZIP" onChange={this.handleZipChange} />
+          <FormField required styleName="checkout-field">
+            <TextInput required placeholder="ZIP" onChange={this.handleZipChange} value={data.zip} />
           </FormField>
         </div>
         <div styleName="union-fields">
           <FormField styleName="checkout-field">
-            <TextInput placeholder="CITY" />
+            <TextInput required name="city" placeholder="CITY" onChange={this.changeFormData} value={data.city} />
           </FormField>
           <FormField styleName="checkout-field">
             <Autocomplete
@@ -181,21 +171,22 @@ class EditShipping extends Component {
               }}
               getItemValue={item => item.name}
               items={selectedCountry.regions}
-              onSelect={item => console.log(item)}
+              onSelect={this.changeState}
+              selectedItem={props.state}
             />
           </FormField>
         </div>
         <FormField styleName="checkout-field">
-          <TextInput placeholder="PHONE" />
+          <TextInput name="phone" placeholder="PHONE" onChange={this.changeFormData} value={data.phone} />
         </FormField>
-        <Button onClick={props.continueAction}>CONTINUE</Button>
-      </form>
+        <Button type="submit">CONTINUE</Button>
+      </Form>
     );
   }
 }
 
 
-const Shipping = (props: ShippingProps) => {
+const Shipping = (props: EditShippingProps) => {
   return (
     <EditableBlock
       styleName="shipping"

@@ -17,6 +17,7 @@ type ResetState = {
   isReseted: boolean;
   passwd1: string;
   passwd2: string;
+  error: ?string;
 };
 
 /* ::`*/
@@ -30,7 +31,6 @@ export default class ResetPassword extends Component {
     handleSubmit: PropTypes.func.isRequired,
     resetForm: PropTypes.func.isRequired,
     submitting: PropTypes.bool.isRequired,
-    error: PropTypes.string,
     dispatch: PropTypes.func.isRequired,
   };
 
@@ -38,6 +38,7 @@ export default class ResetPassword extends Component {
     isReseted: false,
     passwd1: '',
     passwd2: '',
+    error: null,
   };
 
   @autobind
@@ -83,7 +84,7 @@ export default class ResetPassword extends Component {
   }
 
   @autobind
-  updateForm({target}) {
+  updateForm({target}: any) {
     this.setState({
       [target.name]: target.value,
     });

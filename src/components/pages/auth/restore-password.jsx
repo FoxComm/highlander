@@ -88,7 +88,7 @@ export default class RestorePassword extends Component {
   }
 
   @autobind
-  changeEmail({target}) {
+  changeEmail({target}: any) {
     this.setState({
       email: target.value,
     });
