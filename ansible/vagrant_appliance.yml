@@ -4,6 +4,8 @@
   hosts: all
   vars:
     user: vagrant
+    ashes_server_name: admin.foxcommerce.local
+    firebird_server_name: foxcommerce.local
   roles:
     - common
     - scala
@@ -16,4 +18,5 @@
     - greenriver
     - node
     - ashes
+    - firebird
     - { role: balancer, sudo: yes }

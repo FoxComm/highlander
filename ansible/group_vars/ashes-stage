@@ -1,3 +1,6 @@
 phoenix_server: "{{hostvars[groups['greenriver-stage'][0]]['ansible_eth0']['ipv4']['address'] }}:9090"
 search_host:  "{{hostvars[groups['greenriver-stage'][0]]['ansible_eth0']['ipv4']['address'] }}"
 ashes_server: 127.0.0.1:4000
+firebird_server: 127.0.0.1:4040
+ashes_server_name: admin.staging.foxcommerce.com
+firebird_server_name: staging.foxcommerce.com

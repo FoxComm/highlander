@@ -1,0 +1,9 @@
+#!/bin/bash
+
+export PHOENIX_URL=http://{{ phoenix_server }}
+export NODE_ENV={{firebird_env}}
+export DEMO_USER={{demo_user}}
+export DEMO_PASS={{demo_pass}}
+
+cd {{ firebird_install_dir }}
+gulp server

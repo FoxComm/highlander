@@ -1,27 +1,15 @@
-upstream search {
-  server {{ search_server_http }} fail_timeout=30s;
-}
-
-upstream phoenix {
-  server {{ phoenix_server }} fail_timeout=30s;
-}
-
-upstream ashes {
-    server {{ ashes_server }} fail_timeout=15s;
-}
-
 server {
   # TODO(jpfuentes2): enable me when we have nginx + lua + HTTP2
   # listen 443 ssl http2 default_server;
   #ssl_certificate    server.crt;
   #ssl_certificate_key server.key;
 
-  listen 80 default_server;
-  listen [::]:80 default_server;
+  listen 80;
+  listen [::]:80;
 
   index index.html;
 
-  server_name _;
+  server_name {{ashes_server_name}};
 
   error_page 500 @500;
   error_page 502 @502;
@@ -115,8 +103,8 @@ server {
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
       break;
-  }  
-  
+  }
+
   location /api/v1/my/ {
       proxy_pass http://phoenix/v1/my/;
       proxy_pass_header Authorization;
@@ -149,14 +137,10 @@ server {
       proxy_cache off;
   }
 
-  #Finally proxy to ashes
+  # Proxy to ashes
   location / {
-      root {{nginx_root_dor}};
-      try_files $uri @ashes;
-  }
-  
-  location @ashes {
-      proxy_pass http://ashes;
+      alias {{ashes_root_dir}};
+      proxy_pass http://ashes/;
   }
 
   # Error pages

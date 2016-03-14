@@ -1,0 +1,10 @@
+[Service]
+WorkingDirectory={{ firebird_install_dir }}
+ExecStart=/bin/bash ./run_firebird.sh
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=firebird
+
+[Install]
+WantedBy=multi-user.target

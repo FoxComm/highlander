@@ -9,12 +9,19 @@
 - name: Setup Demo Password
   htpasswd: path=/etc/nginx/passwdfile name={{demo_user}} password={{demo_pass}} owner=root group=www-data mode=0640
 
-- name: Add Auth to Nginx
+- name: Add Auth to Nginx for Ashes
   lineinfile:
-      dest: /etc/nginx/sites-available/default
+      dest: /etc/nginx/sites-available/ashes
       regexp:  "auth_basic"
-      insertafter: "server_name _;"
-      line: "auth_basic \"Restricted\"; auth_basic_user_file /etc/nginx/passwdfile; server_name {{demo_domain}};"
+      insertafter: "index index.html;"
+      line: "auth_basic \"Restricted\"; auth_basic_user_file /etc/nginx/passwdfile;"
+
+- name: Add Auth to Nginx for Firebird
+  lineinfile:
+      dest: /etc/nginx/sites-available/firebird
+      regexp:  "auth_basic"
+      insertafter: "index index.html;"
+      line: "auth_basic \"Restricted\"; auth_basic_user_file /etc/nginx/passwdfile;"
 
 - name: Restart Nginx
   service: name=nginx state=restarted

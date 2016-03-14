@@ -130,6 +130,7 @@ Vagrant.configure("2") do |config|
       expose_ashes(app)
       tune_vm(config, cpus: $ashes_cpu, memory: $ashes_memory)
 
+
       app.vm.provision "ansible" do |ansible|
           ansible.verbose = "vv"
           ansible.playbook = "ansible/vagrant_ashes.yml"

@@ -1,2 +1,4 @@
 ashes_home_dir: "{{home}}/ashes"
-nginx_root_dor: "{{ashes_home_dir}}/public"
+ashes_root_dir: "{{ashes_home_dir}}/public"
+firebird_home_dir: "{{home}}/firebird"
+firebird_root_dir: "{{firebird_home_dir}}/public"
