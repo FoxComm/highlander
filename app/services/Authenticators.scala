@@ -75,7 +75,7 @@ object Authenticator {
     }
   }
 
-  private def respondWithToken(token: Token)(implicit ec: EC, db: DB): Failures Xor Route = {
+  private def respondWithToken(token: Token): Failures Xor Route = {
     val apiClaims = Token.getJWTClaims(token)
     val siteClaims = Token.getJWTClaims(token)
     apiClaims.setSubject("API")
