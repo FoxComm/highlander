@@ -1,5 +1,6 @@
 
 @import "colors.css";
+@import "media-queries.css";
 
 .container {
   width: 100%;
@@ -15,6 +16,14 @@
   color: var(--star-dustish);
   line-height: 15px;
   text-decoration: none;
+}
+
+.mobile-links {
+  display: none;
+}
+
+.desktop-links {
+  display: block;
 }
 
 .breadcrumb {
@@ -59,13 +68,60 @@
 
 .counter {
   margin-top: 10px;
+  width: 240px;
 }
 
 .add-to-cart {
   margin-top: 20px;
   width: 240px;
+  height: 60px;
 }
 
 .description {
   margin-bottom: 30px;
+}
+
+@media (--small-viewport) {
+  .container {
+    margin-bottom: 80px;
+    margin-top: 40px;
+  }
+
+  .mobile-links {
+    display: block;
+  }
+
+  .desktop-links {
+    display: none;
+  }
+
+  .details {
+    display: block;
+  }
+
+  .info {
+    width: 100%;
+  }
+
+  .images {
+    width: 100%;
+  }
+
+  .name {
+    font-size: 40px;
+    line-height: 60px;
+  }
+
+  .price {
+    font-size: 20px;
+    line-height: 24px;
+  }
+
+  .counter {
+    width: 100%;
+  }
+
+  .add-to-cart {
+    width: 100%;
+  }
 }

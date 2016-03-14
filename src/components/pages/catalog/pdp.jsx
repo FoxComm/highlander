@@ -80,11 +80,14 @@ class Pdp extends Component {
     return (
       <div styleName="container">
         <div styleName="links">
-          <div>
+          <div styleName="desktop-links">
             <Link to="/" styleName="breadcrumb">SHOP</Link> / LOREM IPSUM
           </div>
+          <div styleName="mobile-links">
+            <Link to="/" styleName="breadcrumb">&lt; BACK </Link>
+          </div>
           <div>
-            NEXT >
+            NEXT &gt;
           </div>
         </div>
         <div styleName="details">
