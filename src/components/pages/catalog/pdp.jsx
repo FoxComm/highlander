@@ -8,6 +8,7 @@ import styles from './pdp.css';
 import Button from 'ui/buttons';
 import Counter from 'ui/forms/counter';
 import Currency from 'ui/currency';
+import { Link } from 'react-router';
 
 const data = {
   id: 1,
@@ -80,7 +81,7 @@ class Pdp extends Component {
       <div styleName="container">
         <div styleName="links">
           <div>
-            SHOP / LOREM IPSUM
+            <Link to="/" styleName="breadcrumb">SHOP</Link> / LOREM IPSUM
           </div>
           <div>
             NEXT >
