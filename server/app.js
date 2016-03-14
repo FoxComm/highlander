@@ -2,14 +2,17 @@
 import KoaApp from 'koa';
 import serve from 'koa-static';
 import renderReact from '../src/server';
+import zipcodes from './routes/zipcodes';
 
 export default class App extends KoaApp {
 
   constructor(...args) {
     super(...args);
 
-    this.use(serve('public'));
-    this.use(renderReact);
+    this.use(serve('public'))
+      .use(zipcodes.routes())
+      .use(zipcodes.allowedMethods())
+      .use(renderReact);
   }
 
   start() {

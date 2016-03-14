@@ -70,13 +70,14 @@
   "dependencies": {
     "classnames": "^2.2.3",
     "core-decorators": "^0.11.0",
+    "dom-scroll-into-view": "^1.1.0",
     "koa": "^1.1.2",
     "koa-favicon": "^1.2.0",
+    "koa-router": "^5.4.0",
     "koa-static": "^2.0.0",
     "lodash": "^4.3.0",
     "lodash.flatmap": "^4.2.0",
     "react": "^0.14.7",
-    "react-autocomplete": "^0.2.0",
     "react-css-modules": "^3.7.5",
     "react-dom": "^0.14.7",
     "react-redux": "^4.4.0",
@@ -86,9 +87,10 @@
     "redux": "^3.3.1",
     "redux-act": "^0.3.0",
     "redux-diff-logger": "0.0.9",
-    "redux-form": "^4.2.0",
     "redux-thunk": "^1.0.3",
     "redux-wait": "0.0.3",
-    "sprout-data": "^0.2.3"
+    "reselect": "^2.1.0",
+    "sprout-data": "^0.2.3",
+    "zipcodes": "^2.0.0"
   }
 }

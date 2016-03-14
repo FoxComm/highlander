@@ -2,7 +2,7 @@
   "extends": "airbnb",
   "plugins": [
     "flow-vars",
-    "no-console-log",
+    "no-console-log"
   ],
   "rules": {
     "flow-vars/define-flow-type": 1,
@@ -27,9 +27,13 @@
     "react/prop-types": 0,
     "react/jsx-no-bind": [2,
       {
-        "allowArrowFunctions": true,
+        "allowArrowFunctions": true
       }
-    ]
+    ],
+    "react/sort-comp": 0
   },
-  "parser": "babel-eslint",
+  "globals": {
+    "makeXhr": false
+  },
+  "parser": "babel-eslint"
 }
