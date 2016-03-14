@@ -8,13 +8,16 @@ import {
   notMatch,
   greater,
   less,
+  between,
 } from './../../paragons/customer-groups/operators';
 
 const criterions = [
   {
     type: types.string,
     input: {
-      type: 'plain'
+      default: 'text',
+      [oneOf]: 'textOneOf',
+      [notOneOf]: 'textOneOf',
     },
     field: 'name',
     label: 'Name',
@@ -22,7 +25,9 @@ const criterions = [
   {
     type: types.string,
     input: {
-      type: 'plain'
+      default: 'text',
+      [oneOf]: 'textOneOf',
+      [notOneOf]: 'textOneOf',
     },
     field: 'email',
     label: 'Email',
@@ -30,7 +35,10 @@ const criterions = [
   {
     type: types.number,
     input: {
-      type: 'currency'
+      default: 'currency',
+      [oneOf]: 'currencyOneOf',
+      [notOneOf]: 'currencyOneOf',
+      [between]: 'currencyRange',
     },
     field: 'revenue',
     label: 'Total Sales',
@@ -38,8 +46,12 @@ const criterions = [
   {
     type: types.enum,
     input: {
-      type: 'dropdown',
+      default: 'dropdown',
     },
+    operators: [
+      equal,
+      notEqual,
+    ],
     field: 'isDisabled',
     label: 'Account Activitity Status',
     choices: [
@@ -50,8 +62,12 @@ const criterions = [
   {
     type: types.enum,
     input: {
-      type: 'dropdown',
+      default: 'dropdown',
     },
+    operators: [
+      equal,
+      notEqual,
+    ],
     field: 'isBlacklisted',
     label: 'Account Blacklist Status',
     choices: [
@@ -62,8 +78,14 @@ const criterions = [
   {
     type: types.string,
     input: {
-      type: 'stateLookup',
-      storePath: 'groups.shippingState',
+      default: 'text',
+      [equal]: 'stateLookup',
+      [notEqual]: 'stateLookup',
+      [oneOf]: 'stateLookupOneOf',
+      [notOneOf]: 'stateLookupOneOf',
+      config: {
+        storePath: 'groups.shippingState',
+      },
     },
     field: 'shippingAddresses.region',
     label: 'Shipping State',
@@ -71,8 +93,14 @@ const criterions = [
   {
     type: types.string,
     input: {
-      type: 'stateLookup',
-      storePath: 'groups.billingState',
+      default: 'text',
+      [equal]: 'stateLookup',
+      [notEqual]: 'stateLookup',
+      [oneOf]: 'stateLookupOneOf',
+      [notOneOf]: 'stateLookupOneOf',
+      config: {
+        storePath: 'groups.billingState',
+      },
     },
     field: 'billingAddresses.region',
     label: 'Billing State',
@@ -80,8 +108,14 @@ const criterions = [
   {
     type: types.string,
     input: {
-      type: 'cityLookup',
-      storePath: 'groups.shippingCity',
+      default: 'text',
+      [equal]: 'cityLookup',
+      [notEqual]: 'cityLookup',
+      [oneOf]: 'cityLookupOneOf',
+      [notOneOf]: 'cityLookupOneOf',
+      config: {
+        storePath: 'groups.shippingCity',
+      },
     },
     field: 'shippingAddresses.city',
     label: 'Shipping City',
@@ -89,40 +123,50 @@ const criterions = [
   {
     type: types.string,
     input: {
-      type: 'cityLookup',
-      storePath: 'groups.billingCity',
+      default: 'text',
+      [equal]: 'cityLookup',
+      [notEqual]: 'cityLookup',
+      [oneOf]: 'cityLookupOneOf',
+      [notOneOf]: 'cityLookupOneOf',
+      config: {
+        storePath: 'groups.billingCity',
+      },
     },
     field: 'billingAddresses.city',
     label: 'Billing City',
   },
   {
     type: types.number,
-    operators: {
+    operators: [
       equal,
       notEqual,
       oneOf,
       notOneOf,
       match,
       notMatch,
-    },
+    ],
     input: {
-      type: 'plain'
+      default: 'number',
+      [oneOf]: 'numberOneOf',
+      [notOneOf]: 'numberOneOf',
     },
     field: 'shippingAddresses.zip',
     label: 'Shipping Zip',
   },
   {
     type: types.number,
-    operators: {
+    operators: [
       equal,
       notEqual,
       oneOf,
       notOneOf,
       match,
       notMatch,
-    },
+    ],
     input: {
-      type: 'plain'
+      default: 'number',
+      [oneOf]: 'numberOneOf',
+      [notOneOf]: 'numberOneOf',
     },
     field: 'billingAddresses.zip',
     label: 'Billing Zip',
@@ -130,7 +174,10 @@ const criterions = [
   {
     type: types.date,
     input: {
-      type: 'date'
+      default: 'date',
+      [oneOf]: 'dateOneOf',
+      [notOneOf]: 'dateOneOf',
+      [between]: 'dateRange',
     },
     field: 'joinedAt',
     label: 'Date Joined',
