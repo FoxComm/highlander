@@ -131,41 +131,7 @@ export default class ProductForm extends Component<void, Props, State> {
   }
 
   get variantContentBox(): Element {
-    const variants = {
-      color: {
-        name: 'Color',
-        type: 'color',
-        values: {
-          red: {
-            id: 3452365363,
-            swatch: "e8242b",
-            image: null,
-          },
-          green: {
-            id: 7432985798,
-            swatch: "00ff00",
-            image: null,
-          },
-        },
-      },
-      size: {
-        name: 'Size',
-        type: 'size',
-        values: {
-          'S/M': {
-            id: 6734269823,
-            swatch: null,
-            image: null,
-          },
-          'L/XL': {
-            id: 5423453263,
-            swatch: null,
-            image: null,
-          },
-        },
-      },
-    };
-
+    const variants = _.get(this.props, 'product.form.product.variants.default', {});
     return <VariantList variants={variants} />;
   }
 

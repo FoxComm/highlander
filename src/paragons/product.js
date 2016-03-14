@@ -16,6 +16,7 @@ import type {
   ShadowAttributes,
   SkuForm,
   SkuShadow,
+  Variant,
 } from '../modules/products/details';
 
 export type IlluminatedAttribute = {
@@ -163,6 +164,19 @@ export function addEmptySku(product: FullProduct): FullProduct {
     ['form', 'skus'], [...product.form.skus, emptySkuForm],
     ['shadow', 'skus'], [...product.shadow.skus, emptySkuShadow]
   );
+}
+
+export function addNewVariant(product: FullProduct, variant: Variant): FullProduct {
+  const variantName = variant.name;
+  if (!variantName) throw new Error('Variant must have a name');
+
+  const currentVariants: { [key:string]: Variant } = _.get(product, 'form.product.variants.default', {});
+  const newVariants = {
+    ...currentVariants,
+    [variantName]: variant,
+  };
+
+  return assoc(product, ['form', 'product', 'variants', 'default'], newVariants);
 }
 
 /**
