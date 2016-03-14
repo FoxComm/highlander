@@ -30,6 +30,7 @@ ViewShipping = connect(state => (state.checkout.shippingData))(ViewShipping);
 
 type ShippingProps = {
   isEditing: boolean;
+  collapsed: boolean;
   editAction: Function;
 }
 
@@ -183,7 +184,7 @@ class EditShipping extends Component {
             name="phone" type="tel" placeholder="PHONE" onChange={this.changeFormData} value={data.phone}
           />
         </FormField>
-        <Button type="submit">CONTINUE</Button>
+        <Button styleName="checkout-submit" type="submit">CONTINUE</Button>
       </Form>
     );
   }
@@ -193,9 +194,10 @@ class EditShipping extends Component {
 const Shipping = (props: ShippingProps) => {
   return (
     <EditableBlock
-      styleName="shipping"
+      styleName="checkout-block"
       title="SHIPPING"
       isEditing={props.isEditing}
+      collapsed={props.collapsed}
       editAction={props.editAction}
       viewContent={<ViewShipping />}
       editContent={<EditShipping {...props} />}

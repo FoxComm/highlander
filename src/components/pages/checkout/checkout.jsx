@@ -11,8 +11,10 @@ import { connect } from 'react-redux';
 
 import Icon from 'ui/icon';
 import Shipping from './shipping';
+import Delivery from './delivery';
 
 import * as actions from 'modules/checkout';
+import { EditStages } from 'modules/checkout';
 import type { CheckoutState, EditStage } from 'modules/checkout';
 
 type CheckoutProps = CheckoutState & {
@@ -21,21 +23,34 @@ type CheckoutProps = CheckoutState & {
 
 const Checkout = (props: CheckoutProps) => {
   const setShippingStage = () => {
-    props.setEditStage('shipping');
+    props.setEditStage(EditStages.shipping);
   };
 
   const setDeliveryStage = () => {
-    props.setEditStage('delivery');
+    props.setEditStage(EditStages.delivery);
   };
+
+  const setBillingState = () => {
+    props.setEditStage(EditStages.billing);
+  }
 
   return (
     <div styleName="checkout">
       <Icon styleName="logo" name="fc-some_brand_logo" />
-      <Shipping
-        isEditing={props.editStage == 'shipping'}
-        editAction={setShippingStage}
-        continueAction={setDeliveryStage}
-      />
+      <div styleName="left-forms">
+        <Shipping
+          isEditing={props.editStage == EditStages.shipping}
+          collapsed={props.editStage < EditStages.shipping}
+          editAction={setShippingStage}
+          continueAction={setDeliveryStage}
+        />
+        <Delivery
+          isEditing={props.editStage == EditStages.delivery}
+          collapsed={props.editStage < EditStages.delivery}
+          editAction={setDeliveryStage}
+          continueAction={setBillingState}
+        />
+      </div>
     </div>
   );
 };
