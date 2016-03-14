@@ -7,7 +7,7 @@ import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 
 //data
-import criterions from '../../modules/customer-groups/criterions';
+import criterions from '../../paragons/customer-groups/criterions';
 import { actions } from '../../modules/customer-groups/group';
 import operators from '../../paragons/customer-groups/operators';
 

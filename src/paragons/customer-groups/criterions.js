@@ -9,7 +9,7 @@ import {
   greater,
   less,
   between,
-} from './../../paragons/customer-groups/operators';
+} from './operators';
 
 const criterions = [
   {
@@ -46,7 +46,13 @@ const criterions = [
   {
     type: types.enum,
     input: {
-      default: 'dropdown',
+      default: 'choice',
+      config: {
+        choices: [
+          [false, 'active'],
+          [true, 'inactive'],
+        ],
+      }
     },
     operators: [
       equal,
@@ -54,15 +60,17 @@ const criterions = [
     ],
     field: 'isDisabled',
     label: 'Account Activitity Status',
-    choices: [
-      [false, 'active'],
-      [true, 'inactive'],
-    ],
   },
   {
     type: types.enum,
     input: {
-      default: 'dropdown',
+      default: 'choice',
+      config: {
+        choices: [
+          [true, 'on blacklist'],
+          [false, 'not on blacklist'],
+        ],
+      }
     },
     operators: [
       equal,
@@ -70,10 +78,6 @@ const criterions = [
     ],
     field: 'isBlacklisted',
     label: 'Account Blacklist Status',
-    choices: [
-      [true, 'on blacklist'],
-      [false, 'not on blacklist'],
-    ],
   },
   {
     type: types.string,

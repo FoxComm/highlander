@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 
 //data
-import criterions from '../../modules/customer-groups/criterions';
+import criterions from '../../paragons/customer-groups/criterions';
 
 //components
 import Criterion from './criterion';

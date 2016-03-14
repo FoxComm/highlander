@@ -5,7 +5,7 @@ import { assoc } from 'sprout-data';
 // helpers
 import Api from '../../lib/api';
 import createStore from '../../lib/store-creator';
-import criterions from './criterions';
+import criterions from './../../paragons/customer-groups/criterions';
 import buildQuery from './query';
 
 const initialState = {
