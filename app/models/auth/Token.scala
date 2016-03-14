@@ -14,14 +14,16 @@ import org.jose4j.jwt.JwtClaims
 import org.jose4j.jwt.consumer.{InvalidJwtException, JwtConsumerBuilder}
 import org.json4s.jackson.JsonMethods._
 import org.json4s.{Extraction, _}
-import services.{Failures, LoginFailed}
-import utils.Config.config
-import utils.Config.RichConfig
+import services.{Failures, GeneralFailure, LoginFailed}
+import utils.Config.{RichConfig, config}
+import utils.DbResultT.implicits._
 import utils.caseClassToMap
 
 object Keys {
 
-  def loadPrivateKey: PrivateKey = {
+  final case class KeyLoadException(cause: Throwable) extends Exception
+
+  def loadPrivateKey: Try[PrivateKey] = Try {
     val fileName = config.getOptString("auth.privateKey").getOrElse("")
     val is = new FileInputStream(fileName)
     val keyBytes = Array.ofDim[Byte](is.available)
@@ -32,7 +34,7 @@ object Keys {
     KeyFactory.getInstance("RSA").generatePrivate(spec)
   }
 
-  def loadPublicKey: PublicKey = {
+  def loadPublicKey: Try[PublicKey] = Try {
     val fileName = config.getOptString("auth.publicKey").getOrElse("")
     val is = new FileInputStream(fileName)
     val keyBytes = Array.ofDim[Byte](is.available)
@@ -41,10 +43,14 @@ object Keys {
 
     val spec = new X509EncodedKeySpec(keyBytes)
     KeyFactory.getInstance("RSA").generatePublic(spec)
+  }.recover {
+    case e ⇒ throw new KeyLoadException(e)
   }
 
-  val authPrivateKey = loadPrivateKey
-  val authPublicKey = loadPublicKey
+  private[auth] lazy val authPrivateKey: Failures Xor PrivateKey =
+    loadPrivateKey.toOption.toXor(GeneralFailure("Server error: can't load key").single)
+  private[auth] lazy val authPublicKey: Failures Xor PublicKey =
+    loadPublicKey.toOption.toXor(GeneralFailure("Server error: can't load key").single)
 }
 
 sealed trait Token extends Product {
@@ -54,7 +60,7 @@ sealed trait Token extends Product {
   val email: String
   val scopes: Seq[String]
 
-  def encode: String = Token.encode(this)
+  def encode: Failures Xor String = Token.encode(this)
 }
 
 object Token {
@@ -80,46 +86,53 @@ object Token {
     claims
   }
 
-  def encode(token: Token): String = {
+  def encode(token: Token): Failures Xor String = {
     val claims = Token.getJWTClaims(token)
     encodeJWTClaims(claims)
   }
 
-  def encodeJWTClaims(claims: JwtClaims): String = {
-    val jws = new JsonWebSignature
-    jws.setPayload(claims.toJson)
-    jws.setKey(Keys.authPrivateKey)
-    jws.setAlgorithmHeaderValue(config.getString("auth.keyAlgorithm"))
-    jws.getCompactSerialization
+  def encodeJWTClaims(claims: JwtClaims): Failures Xor String = {
+    Keys.authPrivateKey.map { privateKey ⇒
+      val jws = new JsonWebSignature
+      jws.setPayload(claims.toJson)
+      jws.setKey(privateKey)
+      jws.setAlgorithmHeaderValue(config.getString("auth.keyAlgorithm"))
+      jws.getCompactSerialization
+    }
   }
 
   def fromString(rawToken: String): Failures Xor Token = {
-    val builder = new JwtConsumerBuilder()
-      .setRequireExpirationTime()
-      .setAllowedClockSkewInSeconds(30)
-      .setExpectedIssuer("FC")
-      .setExpectedSubject("API")
-      .setVerificationKey(Keys.authPublicKey)
-      .build()
+    Keys.authPublicKey.flatMap { publicKey ⇒
 
-    Try {
-      val jwtClaims = builder.processToClaims(rawToken)
-      val jValue = parse(jwtClaims.toJson)
-      jValue \ "admin" match {
-        case JBool(isAdmin) ⇒ if (isAdmin)
-          Extraction.extract[AdminToken](jValue)
-        else
-          Extraction.extract[CustomerToken](jValue)
-        case _ ⇒ throw new InvalidJwtException("missing claim")
+      val builder = new JwtConsumerBuilder()
+        .setRequireExpirationTime()
+        .setAllowedClockSkewInSeconds(30)
+        .setExpectedIssuer("FC")
+        .setExpectedSubject("API")
+        .setVerificationKey(publicKey)
+        .build()
+
+      Try {
+        val jwtClaims = builder.processToClaims(rawToken)
+        val jValue = parse(jwtClaims.toJson)
+        jValue \ "admin" match {
+          case JBool(isAdmin) ⇒ if (isAdmin)
+            Extraction.extract[AdminToken](jValue)
+          else
+            Extraction.extract[CustomerToken](jValue)
+          case _ ⇒ throw new InvalidJwtException("missing claim")
+        }
+      } match {
+        case Success(token) ⇒ Xor.right(token)
+        // TODO: handle failures
+        case Failure(e) ⇒
+          System.err.println(e.getMessage)
+          Xor.left(LoginFailed.single)
       }
-    } match {
-      case Success(token) ⇒ Xor.right(token)
-      // TODO: handle failures
-      case Failure(e) ⇒
-        System.err.println(e.getMessage)
-        Xor.left(LoginFailed.single)
+
     }
   }
+
 }
 
 final case class AdminToken(id: Int,

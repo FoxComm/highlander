@@ -75,16 +75,19 @@ object Authenticator {
     }
   }
 
-  def responseWithToken(token: Token): Route = {
-    val claims = Token.getJWTClaims(token)
+  private def respondWithToken(token: Token)(implicit ec: EC, db: DB): Failures Xor Route = {
+    val apiClaims = Token.getJWTClaims(token)
     val siteClaims = Token.getJWTClaims(token)
-    claims.setSubject("API")
+    apiClaims.setSubject("API")
     siteClaims.setSubject("site")
 
-    respondWithHeader(RawHeader("JWT", Token.encodeJWTClaims(claims))).& (
+    for {
+      apiTokenEncoded ← Token.encodeJWTClaims(apiClaims)
+      siteTokenEncoded ← Token.encodeJWTClaims(siteClaims)
+    } yield respondWithHeader(RawHeader("JWT", apiTokenEncoded)).& (
       setCookie(HttpCookie(
         name = "JWT",
-        value = Token.encodeJWTClaims(siteClaims),
+        value = siteTokenEncoded,
         secure = config.getOptBool("auth.cookieSecure").getOrElse(true),
         httpOnly = true,
         expires = config.getOptLong("auth.cookieTTL").map { ttl ⇒
@@ -93,7 +96,7 @@ object Authenticator {
         path = Some("/"),
         domain = config.getOptString("auth.cookieDomain")
       ))) {
-        complete(HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, claims.toJson)))
+      complete(HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, apiClaims.toJson)))
     }
   }
 
@@ -135,7 +138,7 @@ object Authenticator {
   }
 
   def authenticate(payload: LoginPayload)
-    (implicit ec: EC, db: DB): Result[Token] = {
+    (implicit ec: EC, db: DB): Result[Route] = {
 
     def auth[M, F <: EmailFinder[M], T <: Token]
       (finder: F, getHashedPassword: M ⇒ Option[String], tokenFromModel: M ⇒ T): Result[T] = (for {
@@ -144,7 +147,7 @@ object Authenticator {
         checkedToken  ← * <~ tokenFromModel(validatedUser)
       } yield checkedToken).run()
 
-    payload.kind match {
+    val tokenResult = payload.kind match {
       case Identity.Admin ⇒
         auth[StoreAdmin, EmailFinder[StoreAdmin], AdminToken](StoreAdmins.findByEmail,
           _.hashedPassword, AdminToken.fromAdmin)
@@ -152,6 +155,10 @@ object Authenticator {
         auth[Customer, EmailFinder[Customer], CustomerToken](Customers.findByEmail,
           _.hashedPassword, CustomerToken.fromCustomer)
     }
+
+    tokenResult.map(_.flatMap { token ⇒
+      respondWithToken(token)
+    })
   }
 
   private def validatePassword[M](model: M, hashedPassword: Option[String], password: String): Failures Xor M = {

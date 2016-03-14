@@ -3,6 +3,7 @@ package server
 import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContextExecutor, Future}
+import scala.util.Try
 import akka.actor.{ActorSystem, Cancellable, Props}
 import akka.agent.Agent
 import akka.event.Logging
@@ -28,8 +29,8 @@ import utils.{Apis, CustomHandlers, WiredStripeApi}
 object Main extends App {
   implicit val env = utils.Config.environment
   val service = new Service()
+  service.performSelfCheck
   service.bind()
-  utils.Config.ensureRequiredSettingsIsSet(service.config)
   service.setupRemorseTimers
 }
 
@@ -107,6 +108,12 @@ class Service(
     val remorseTimer = system.actorOf(Props(new RemorseTimer()), "remorse-timer")
     val remorseTimerBuddy = system.actorOf(Props(new RemorseTimerMate()), "remorse-timer-mate")
     system.scheduler.schedule(Duration.Zero, 1.minute, remorseTimer, Tick)(executionContext, remorseTimerBuddy)
+  }
+
+  def performSelfCheck(): Unit = {
+    import models.auth.Keys
+    assert(Keys.loadPrivateKey.isSuccess, "Can't load private key")
+    assert(Keys.loadPublicKey.isSuccess, "Can't load public key")
   }
 
 }

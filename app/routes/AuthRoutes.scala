@@ -16,14 +16,10 @@ object AuthRoutes {
     pathPrefix("public") {
       (post & path("login") & entity(as[payloads.LoginPayload])) { payload ⇒
         onSuccess(Authenticator.authenticate(payload)) { result ⇒
-          result.fold({ f ⇒
-            complete(renderFailure(f))
-          }, { token ⇒
-            Authenticator.responseWithToken(token)
-          })
+          result.fold({ f ⇒ complete(renderFailure(f)) }, identity)
         }
       }
     }
-  }
 
+  }
 }
