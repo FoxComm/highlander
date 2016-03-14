@@ -28,4 +28,5 @@ src/interfaces/
 [options]
 unsafe.enable_getters_and_setters=true
 esproposal.class_static_fields=enable
+esproposal.class_instance_fields=enable
 esproposal.decorators=ignore

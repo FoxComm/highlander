@@ -1,3 +1,4 @@
+/** @flow */
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import Form from '../forms/form';
@@ -13,20 +14,28 @@ import { connect } from 'react-redux';
 
 import * as userActions from '../../modules/user';
 
+
+type TState = {
+  email: string;
+  password: string;
+}
+
+type LoginProps = {
+  setUser: (user: userActions.TUser) => ({type: string, payload: Object});
+}
+
+/* ::`*/
 @connect(null, userActions)
+/* ::`*/
 export default class Login extends React.Component {
 
-  constructor(...args) {
-    super(...args);
-    this.state = {
+
+  state: TState = {
       email: '',
       password: '',
-    };
-  }
-
-  props = {
-    setUser: (user: userActions.TUser) => ({type: String, payload: Object}),
   };
+
+  static props: LoginProps;
 
   static contextTypes = {
     history: PropTypes.object.isRequired
@@ -49,7 +58,7 @@ export default class Login extends React.Component {
     }).then(response => {
         if (response.status == 200) {
           localStorage.setItem('jwt', response.headers.get('jwt'));
-          response.json().then((token: userActions.TUser) => {
+          response.json().then((token: string) => {
             localStorage.setItem('user', JSON.stringify(token));
             setUser(token);
             transitionTo(context.history, 'home');
@@ -61,13 +70,17 @@ export default class Login extends React.Component {
   }
 
   @autobind
-  onEmailChange({target}) {
-    this.setState({email: target.value});
+  onEmailChange({target}: SyntheticInputEvent) {
+    if (target instanceof HTMLInputElement) {
+      this.setState({email: target.value});
+    }
   }
 
   @autobind
-  onPasswordChange({target}) {
-    this.setState({password: target.value});
+  onPasswordChange({target}: SyntheticInputEvent) {
+    if (target instanceof HTMLInputElement){
+      this.setState({password: target.value});
+    }
   }
 
   @autobind
