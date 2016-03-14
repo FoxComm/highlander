@@ -2,6 +2,7 @@
 import KoaApp from 'koa';
 import serve from 'koa-static';
 import renderReact from '../src/server';
+import { makeProxy } from './routes/api';
 import zipcodes from './routes/zipcodes';
 
 export default class App extends KoaApp {
@@ -10,6 +11,7 @@ export default class App extends KoaApp {
     super(...args);
 
     this.use(serve('public'))
+      .use(makeProxy())
       .use(zipcodes.routes())
       .use(zipcodes.allowedMethods())
       .use(renderReact);
