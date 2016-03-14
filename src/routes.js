@@ -89,11 +89,13 @@ const routes = (
         <IndexRoute name='customers' component={Customers}/>
         <Route name='customers-activity-trail' path='activity-trail' dimension="customer"
                component={ActivityTrailPage}/>
-        <Route name='groups-base' path='groups'>
-          <IndexRoute name='groups' component={Groups}/>
-          <Route name='new-dynamic-group' path='new-dynamic' component={NewDynamicGroup} />
-          <Route name='group' path=':groupId' component={Group} />
+      </Route>
+      <Route name='groups-base' path='groups'>
+        <Route name='customer-groups' component={CustomersListPage}>
+          <IndexRoute name='groups' component={Groups} />
         </Route>
+        <Route name='new-dynamic-group' path='new-dynamic' component={NewDynamicGroup} />
+        <Route name='group' path=':groupId' component={Group} />
       </Route>
       <Route name='customers-new' path='new' component={NewCustomer} />
       <Route name='customer' path=':customerId' component={Customer}>
