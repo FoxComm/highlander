@@ -137,15 +137,12 @@ object Authenticator {
   def authenticate(payload: LoginPayload)
     (implicit ec: EC, db: DB): Result[Token] = {
 
-    def auth[M, F <: EmailFinder[M], T <: Token](finder: F, getHashedPassword: M ⇒ Option[String], tokenFromModel: M ⇒
-      T):
-      Result[T] = {
-      (for {
+    def auth[M, F <: EmailFinder[M], T <: Token]
+      (finder: F, getHashedPassword: M ⇒ Option[String], tokenFromModel: M ⇒ T): Result[T] = (for {
         userInstance  ← * <~ finder(payload.email).mustFindOr(LoginFailed)
         validatedUser ← * <~ validatePassword(userInstance, getHashedPassword(userInstance), payload.password)
         checkedToken  ← * <~ tokenFromModel(validatedUser)
       } yield checkedToken).run()
-    }
 
     payload.kind match {
       case Identity.Admin ⇒
