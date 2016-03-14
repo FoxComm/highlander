@@ -5,9 +5,15 @@ import { autobind } from 'core-decorators';
 //data
 import criterions from '../../paragons/customer-groups/criterions';
 
+//helpers
+import { prefix } from '../../lib/text-utils';
+
 //components
 import Criterion from './criterion';
 import { AddButton } from '../common/buttons';
+
+
+const prefixed = prefix('fc-customer-group-builder__');
 
 export default class QueryBuilder extends React.Component {
 
@@ -68,11 +74,11 @@ export default class QueryBuilder extends React.Component {
   render() {
     const {conditions} = this.props;
     return (
-      <div className='fc-group-builder'>
-        <div className='fc-grid fc-group-builder-criterions'>
+      <div>
+        <div className={prefixed('criterions')}>
           {conditions.map(this.renderCriterion)}
         </div>
-        <div className='fc-group-builder-add-criterion' onClick={this.addCondition}>
+        <div className={prefixed('add-criterion')} onClick={this.addCondition}>
           <AddButton type="button" onClick={this.addCondition} /><span>Add criteria</span>
         </div>
       </div>

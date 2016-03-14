@@ -7,20 +7,21 @@ import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 
 //data
-import criterions from '../../paragons/customer-groups/criterions';
 import { actions } from '../../modules/customer-groups/group';
-import operators from '../../paragons/customer-groups/operators';
+
+//helpers
+import { prefix } from '../../lib/text-utils';
 
 //components
 import NewGroupBase from './new-group';
 import DynamicGroupEditor from './dynamic-group-editor';
 import Form from '../forms/form';
-import FormField from '../forms/formfield';
-import Dropdown from '../dropdown/dropdown';
 import { PrimaryButton, Button } from '../common/buttons';
 import { Link } from '../link';
 import { transitionTo } from '../../route-helpers';
 
+
+const prefixed = prefix('fc-customer-group-dynamic-edit__');
 
 const mapStateToProps = state => ({group: state.customerGroups.group});
 const mapDispatchToProps = dispatch => ({actions: bindActionCreators(actions, dispatch)});
@@ -67,8 +68,8 @@ export default class NewDynamicGroup extends React.Component {
                     }}>
         <Form onSubmit={() => props.actions.saveGroup()}>
           <DynamicGroupEditor />
-          <div className='fc-customer-group-new__form-submits'>
-            <Link to='customer-groups'>Cancel</Link>
+          <div className={prefixed('form-submits')}>
+            <Link to="customer-groups">Cancel</Link>
             <PrimaryButton type="submit">Save Dynamic Group</PrimaryButton>
           </div>
         </Form>

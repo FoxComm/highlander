@@ -8,6 +8,9 @@ import { autobind } from 'core-decorators';
 //data
 import operators from '../../paragons/customer-groups/operators';
 
+//helpers
+import { prefix } from '../../lib/text-utils';
+
 //components
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
@@ -19,6 +22,8 @@ import { transitionTo } from '../../route-helpers';
 
 import { actions } from '../../modules/customer-groups/group';
 
+
+const prefixed = prefix('fc-customer-group-dynamic-edit__');
 
 const mapStateToProps = state => ({group: state.customerGroups.group});
 const mapDispatchToProps = dispatch => ({actions: bindActionCreators(actions, dispatch)});
@@ -46,13 +51,13 @@ export default class DynamicGroupEditor extends React.Component {
     const {group: {name}, actions: {setName}} = this.props;
 
     return (
-      <FormField label='Group Name'
-                 labelClassName='fc-customer-group-new__title fc-customer-group-new__name'>
-        <input id='nameField'
-               className='fc-customer-group-new__form-name'
-               name='Name'
-               maxLength='255'
-               type='text'
+      <FormField label="Group Name"
+                 labelClassName={classNames(prefixed('title'), prefixed('name'))}>
+        <input id="nameField"
+               className={prefixed('form-name')}
+               name="Name"
+               maxLength="255"
+               type="text"
                required
                onChange={({target}) => setName(target.value)}
                value={name} />
@@ -66,17 +71,17 @@ export default class DynamicGroupEditor extends React.Component {
     const value = mainCondition ? mainCondition : operators.and;
 
     return (
-      <div className='fc-customer-group-new__match-div'>
-        <span className='fc-customer-group-new__match-span'>Customers match</span>
-            <span className='fc-customer-group-new__match-dropdown'>
-              <Dropdown name='matchCriteria'
+      <div className={prefixed('match-div')}>
+        <span className={prefixed('match-span')}>Customers match</span>
+            <span className={prefixed('match-dropdown')}>
+              <Dropdown name="matchCriteria"
                         value={value}
                         onChange={setMainCondition}>
                 <DropdownItem value={operators.and} key={operators.and}>all</DropdownItem>
                 <DropdownItem value={operators.or} key={operators.or}>any</DropdownItem>
               </Dropdown>
             </span>
-        <span className='fc-customer-group-new__match-span'>of the following criteria:</span>
+        <span className={prefixed('form-name')}>of the following criteria:</span>
       </div>
     );
   }

@@ -1,25 +1,21 @@
-.fc-group-builder {
+.fc-customer-group-builder {
 
-  &-criterions {
+  &__criterions {
     flex-direction: column;
   }
   @critertion-margin: 2rem;
 
-  &-criterion {
+  &__criterion {
     display: flex;
     align-items: flex-start;
     flex-wrap: nowrap;
     .margin-bottom(@critertion-margin);
-    .fc-group-builder-crit-op, .fc-group-builder-crit-term {
-      .margin-right(3rem);
-    }
-    .fc-group-builder-remove-crit {
-      margin-left: auto;
-      //margin-right: auto;
-    }
+  }
+  &__criterion-field, &__criterion-operator {
+    .margin-right(3rem);
   }
 
-  &-add-criterion {
+  &__add-criterion {
     .font-spec(16px, 22px);
     .margin-top(20px);
     > * {
@@ -30,12 +26,13 @@
     }
   }
 
-  &-add-criterion {
+  &__add-criterion {
     display: inline-block;
     cursor: pointer;
   }
 
-  &-remove-crit {
+  &__remove-criterion {
+    margin-left: auto;
     .font-spec(18px);
     cursor: pointer;
 
