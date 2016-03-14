@@ -8,6 +8,7 @@ import models.Reason.reasonTypeRegex
 import payloads._
 import services.customers.CustomerManager
 import services.giftcards.GiftCardService
+import services.ProductManager
 import services.{ReasonService, StoreCreditService}
 import services.PublicService._
 import utils.CustomDirectives._
@@ -25,6 +26,17 @@ object Public {
             goodOrFailures {
               CustomerManager.create(regRequest)
             }
+          }
+        } ~
+        pathPrefix("products") {
+          determineProductContext(db, ec) { productContext ⇒ 
+            pathPrefix(IntNumber) { productId ⇒
+              (get & pathEnd) {
+                goodOrFailures {
+                  ProductManager.getIlluminatedFullProductByContext(productId, productContext)
+                }
+              }
+            }  
           }
         } ~
         pathPrefix("regions") {
