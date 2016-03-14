@@ -13,13 +13,20 @@ export type LoginPayload = {
   kind: string,
 };
 
+export type UserState = {
+  err: ?String,
+  current: ?TUser,
+  isFetching: boolean,
+};
 
 export const setUser = createAction('USER_SET');
 const authenticationStart = createAction('USER_AUTH_START');
 
 
 export function authenticate(payload: LoginPayload): ActionDispatch {
+
   const headers = {'Content-Type': 'application/json;charset=UTF-8'};
+
   return dispatch => {
     dispatch(authenticationStart());
     return fetch(Api.apiURI('/public/login'), {
@@ -39,17 +46,17 @@ export function authenticate(payload: LoginPayload): ActionDispatch {
   };
 }
 
-const initialState = {};
+const initialState = {isFetching: false};
 
 const reducer = createReducer({
-  [setUser]: (state, user: TUser) => {
+  [setUser]: (state: UserState, user: TUser) => {
     return {
       ...state,
       current: user,
       isFetching: false,
     };
   },
-  [authenticationStart]: (state: any) => {
+  [authenticationStart]: (state: UserState) => {
     return {
       ...state,
       err: null,
