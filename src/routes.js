@@ -32,6 +32,7 @@ import StoreCreditsTransactions from './components/customers/store-credits/trans
 import NewStoreCredit from './components/customers/store-credits/new-store-credit';
 import CustomerTransactions from './components/customers/transactions/transactions';
 import CustomerCart from './components/customers/transactions/cart';
+import CustomerItems from './components/customers/transactions/items';
 import InventoryListPage from './components/inventory/list-page';
 import InventoryList from './components/inventory/list';
 import InventoryItem from './components/inventory/item';
@@ -96,6 +97,7 @@ const routes = (
         <Route title='Transactions' name='customer-transactions' path='transactions' component={CustomerTransactions}/>
         <Route title='Returns' name='customer-returns' path='returns' component={RmaChildList}/>
         <Route title='Cart' name='customer-cart' path='cart' component={CustomerCart}/>
+        <Route title='Items' name='customer-items' path='items' component={CustomerItems}/>
         <Route name='customer-notes' path='notes' component={Notes} />
         <Route name='customer-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
         <Route name='customer-storecredits-base' path='storecredit'>

@@ -75,7 +75,7 @@ export default class Customer extends Component {
           <IndexLink to="customer-details" params={params}>Details</IndexLink>
           <Link to="customer-cart" params={params}>Cart</Link>
           <Link to="customer-transactions" params={params}>Orders</Link>
-          <a href="">Items</a>
+          <Link to="customer-items" params={params}>Items</Link>
           <Link to="customer-storecredits" params={params}>Store Credit</Link>
           <a href="">Notifications</a>
           <Link to="customer-notes" params={params}>Notes</Link>
