@@ -12,13 +12,13 @@ migrate:
 migrate-info:
 	${FLYWAY} info
 
-resetdb: clean
-	dropdb --host ${PG_HOST} --user ${PG_USER} --if-exists phoenix_development
-	dropdb --host ${PG_HOST} --user ${PG_USER} --if-exists phoenix_test
-	dropuser --host ${PG_HOST} --user ${PG_USER} --if-exists phoenix
-	createuser --host ${PG_HOST} --user ${PG_USER} -s phoenix
-	createdb --host ${PG_HOST} --user ${PG_USER} phoenix_development
-	createdb --host ${PG_HOST} --user ${PG_USER} phoenix_test
+resetdb:
+	dropdb --host localhost --if-exists phoenix_development
+	dropdb --host localhost --if-exists phoenix_test
+	dropuser --host localhost --if-exists phoenix
+	createuser --host localhost -s phoenix
+	createdb --host localhost phoenix_development
+	createdb --host localhost phoenix_test
 	@make migrate
 
 .PHONY: configure clean migrate setup

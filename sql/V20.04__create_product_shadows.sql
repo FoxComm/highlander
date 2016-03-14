@@ -4,6 +4,7 @@ create table product_shadows (
     product_id integer not null references products(id) on update restrict on delete restrict,
     attributes jsonb,
     variants generic_string,
+    skus generic_string,
     active_from timestamp without time zone null,
     active_to timestamp without time zone null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
