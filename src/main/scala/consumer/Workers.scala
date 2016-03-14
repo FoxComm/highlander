@@ -51,6 +51,7 @@ object Workers {
     "customers_search_view"             → CustomersSearchView(),
     "failed_authorizations_search_view" → FailedAuthorizationsSearchView(),
     "inventory_search_view"             → InventorySearchView(),
+    "inventory_transactions_search_view" → InventoryTransactionSearchView(),
     "notes_search_view"                 → NotesSearchView(),
     "orders_search_view"                → OrdersSearchView(),
     "products_search_view"              → ProductsSearchView(),
