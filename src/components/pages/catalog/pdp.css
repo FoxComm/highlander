@@ -1,0 +1,52 @@
+
+@import "colors.css";
+
+.container {
+  width: 100%;
+  margin-top: 80px;
+  margin-bottom: 112px;
+}
+
+.links {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.details {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 22px;
+}
+
+.images {
+  width: 48%;
+}
+
+.info {
+  width: 48%;
+}
+
+.preview-image {
+  width: 100%;
+  height: auto;
+}
+
+.name {
+  font-size: 50px;
+  color: var(--blackish);
+  line-height: 60px;
+}
+
+.price {
+  margin-top: 30px;
+  margin-bottom: 22px;
+}
+
+.add-to-cart {
+  margin-top: 10px;
+}
+
+.description {
+  margin-bottom: 30px;
+}
