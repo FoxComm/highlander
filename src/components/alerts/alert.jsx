@@ -14,7 +14,7 @@ const Alert = props => {
 
   let closeButton = null;
   if (props.closeAction) {
-    closeButton = <i onClick={props.closeAction} className="fc-btn-close icon-close" title="Close"></i>;
+    closeButton = <span onClick={props.closeAction} className="fc-btn-close" title="Close">&times;</span>;
   }
 
   return (
