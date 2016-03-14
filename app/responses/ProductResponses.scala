@@ -29,38 +29,38 @@ object ProductResponses {
 
   object ProductFormResponse {
 
-    final case class Root(id: Int, attributes: Json, variants: Json, 
-      createdAt: Instant)
+    final case class Root(id: Int, attributes: Json, variants: Json,
+      skus: Json, createdAt: Instant)
 
     def build(p: Product): Root = 
       Root(id = p.id, attributes = p.attributes, variants = p.variants, 
-        createdAt = p.createdAt)
+        skus = p.skus, createdAt = p.createdAt)
   }
 
   object ProductShadowResponse {
 
     final case class Root(id: Int, productId: Int, attributes: Json, variants: String,
-      activeFrom: Option[Instant], activeTo: Option[Instant], createdAt: Instant)
+      skus: String, activeFrom: Option[Instant], activeTo: Option[Instant], createdAt: Instant)
 
     def build(p: ProductShadow): Root = 
       Root(id = p.id, productId = p.productId, attributes = p.attributes, 
-        variants = p.variants, activeFrom = p.activeFrom, activeTo = p.activeTo, 
-        createdAt = p.createdAt)
+        variants = p.variants, skus = p.skus, activeFrom = p.activeFrom, 
+        activeTo = p.activeTo, createdAt = p.createdAt)
   }
 
   object IlluminatedProductResponse {
 
     final case class Root(id: Int, context: Option[ProductContextResponse.Root], 
-      attributes: Json, variants: Json, activeFrom: Option[Instant], 
+      attributes: Json, variants: Json, skus: Json, activeFrom: Option[Instant], 
       activeTo: Option[Instant])
 
     def build(p: IlluminatedProduct): Root = 
       Root(id = p.productId, attributes = p.attributes, variants = p.variants,
-        context = ProductContextResponse.build(p.context).some,
+        skus = p.skus, context = ProductContextResponse.build(p.context).some,
         activeFrom = p.activeFrom, activeTo = p.activeTo)
     def buildLite(p: IlluminatedProduct): Root = 
       Root(id = p.productId, attributes = p.attributes, variants = p.variants,
-        context = None, activeFrom = p.activeFrom, activeTo = p.activeTo)
+        skus = p.skus, context = None, activeFrom = p.activeFrom, activeTo = p.activeTo)
   }
 
   object FullProductFormResponse { 

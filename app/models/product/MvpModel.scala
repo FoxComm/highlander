@@ -58,7 +58,13 @@ final case class SimpleProduct(title: String, description: String, image: String
         }"""),
         variants = parse(s"""
         {
-          "${SimpleContext.variant}" : "$code"
+          "${SimpleContext.variant}" : {}
+        }"""),
+        skus = parse(s"""
+        {
+          "${SimpleContext.variant}": {
+            "$code": {}
+          }
         }"""))
 }
 
@@ -75,7 +81,8 @@ final case class SimpleProductShadow(productContextId: Int, productId: Int) {
           "images" : "${SimpleContext.variant}"
         }"""),
         activeFrom = Instant.now.some,
-        variants = SimpleContext.variant)
+        variants = SimpleContext.variant,
+        skus = SimpleContext.variant)
 }
 
 final case class SimpleSku(code: String, title: String, 

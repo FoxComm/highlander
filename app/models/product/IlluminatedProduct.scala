@@ -14,7 +14,7 @@ final case class IlluminatedContext(name: String, attributes: Json)
  */
 final case class IlluminatedProduct(productId: Int = 0,
   context: IlluminatedContext, attributes: Json, variants: Json,
-  activeFrom: Option[Instant], activeTo: Option[Instant])
+  skus: Json, activeFrom: Option[Instant], activeTo: Option[Instant])
 
 object IlluminatedProduct { 
 
@@ -24,12 +24,13 @@ object IlluminatedProduct {
       productId = product.id, 
       context = IlluminatedContext(productContext.name, productContext.attributes),
       attributes = IlluminateAlgorithm.projectAttributes(product.attributes, shadow.attributes),
-      variants = findVariants(product.variants, shadow.variants),
+      variants = findShadowValue(product.variants, shadow.variants),
+      skus = findShadowValue(product.skus, shadow.skus),
       activeFrom = shadow.activeFrom, activeTo = shadow.activeTo)
   }
 
-  def findVariants(variants: Json, key: String) : JField = {
-    variants \ key match {
+  def findShadowValue(form: Json, key: String) : JField = {
+    form \ key match {
       case v ⇒  (key, v)
     }
   }

@@ -14,7 +14,7 @@ import models.Aliases.Json
  * A Product is composed of two parts. The Product Form and the Product Shadow.
  * Below describes the product form.
  */
-final case class Product(id: Int = 0, attributes: Json, variants: Json, createdAt: Instant = Instant.now)
+final case class Product(id: Int = 0, attributes: Json, variants: Json, skus: Json, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[Product]
   with Validation[Product]
 
@@ -22,10 +22,10 @@ class Products(tag: Tag) extends GenericTable.TableWithId[Product](tag, "product
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def attributes = column[Json]("attributes")
   def variants = column[Json]("variants")
+  def skus = column[Json]("skus")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, attributes, variants, createdAt) <> ((Product.apply _).tupled, Product.unapply)
-
+  def * = (id, attributes, variants, skus, createdAt) <> ((Product.apply _).tupled, Product.unapply)
 }
 
 object Products extends TableQueryWithId[Product, Products](
