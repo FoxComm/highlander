@@ -1,6 +1,5 @@
 package services
 
-import models.activity.ActivityContext
 import models.traits.{Originator, CustomerOriginator, AdminOriginator}
 import models.order.{Order, Orders}
 import responses.TheResponse
@@ -14,7 +13,7 @@ package object orders {
   type BulkOrderUpdateResponse = TheResponse[Seq[AllOrders.Root]]
 
   def getCartByOriginator(originer: Originator, refNum: Option[String])
-    (implicit ec: EC, db: DB, ac: ActivityContext): DbResult[Order] = (originer, refNum) match {
+    (implicit ec: EC, db: DB, ac: AC): DbResult[Order] = (originer, refNum) match {
     case (CustomerOriginator(customer), _) ⇒
       Orders.findActiveOrderByCustomer(customer).one.mustFindOr(CustomerHasNoActiveOrder(customer.id))
     case (AdminOriginator(_), Some(ref)) ⇒

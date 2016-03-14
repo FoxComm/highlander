@@ -1,6 +1,5 @@
 package services.orders
 
-import models.activity.ActivityContext
 import models.customer.{Customers, Customer}
 import models.order._
 import models.payment.PaymentMethod
@@ -92,17 +91,17 @@ object OrderQueries {
   } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)).run()
 
   def findOrCreateCartByCustomer(customer: Customer, context: ObjectContext, admin: Option[StoreAdmin] = None)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[FullOrder.Root] =
+    (implicit ec: EC, db: DB, ac: AC): Result[FullOrder.Root] =
     findOrCreateCartByCustomerInner(customer, context, admin).runTxn()
 
   def findOrCreateCartByCustomerId(customerId: Int, context: ObjectContext, admin: Option[StoreAdmin] = None)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[FullOrder.Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[FullOrder.Root] = (for {
     customer  ← * <~ Customers.mustFindById404(customerId)
     fullOrder ← * <~ findOrCreateCartByCustomerInner(customer, context, admin)
   } yield fullOrder).runTxn()
 
   def findOrCreateCartByCustomerInner(customer: Customer, context: ObjectContext, admin: Option[StoreAdmin])
-    (implicit ec: EC, db: DB, ac: ActivityContext): DbResultT[FullOrder.Root] = for {
+    (implicit ec: EC, db: DB, ac: AC): DbResultT[FullOrder.Root] = for {
     result                  ← * <~ Orders.findActiveOrderByCustomer(customer).one
       .findOrCreateExtended(Orders.create(Order.buildCart(customer.id, context.id)))
     (order, foundOrCreated) = result
@@ -111,7 +110,7 @@ object OrderQueries {
   } yield fullOrder
 
   private def logCartCreation(foundOrCreated: FoundOrCreated, order: FullOrder.Root, admin: Option[StoreAdmin])
-    (implicit ec: EC, db: DB, ac: ActivityContext) = foundOrCreated match {
+    (implicit ec: EC, db: DB, ac: AC) = foundOrCreated match {
     case Created ⇒ LogActivity.cartCreated(admin, order)
     case Found   ⇒ DbResult.unit
   }

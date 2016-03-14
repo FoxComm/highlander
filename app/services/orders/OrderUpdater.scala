@@ -1,6 +1,5 @@
 package services.orders
 
-import models.activity.ActivityContext
 import models.StoreAdmin
 import models.order.Orders
 import responses.order.FullOrder
@@ -14,7 +13,7 @@ import utils.aliases._
 object OrderUpdater {
 
   def increaseRemorsePeriod(refNum: String, admin: StoreAdmin)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[FullOrder.Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[FullOrder.Root] = (for {
     order     ← * <~ Orders.mustFindByRefNum(refNum)
     isRemorse ← * <~ order.mustBeRemorseHold
     updated   ← * <~ Orders.update(order, order.copy(remorsePeriodEnd = order.remorsePeriodEnd.map(_.plusMinutes(15))))

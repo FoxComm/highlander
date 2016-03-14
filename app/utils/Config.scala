@@ -1,10 +1,8 @@
 package utils
 
-
 import cats.Show
 import cats.implicits._
 import com.typesafe.config.{Config ⇒ TypesafeConfig, ConfigFactory}
-
 
 object Config {
 
@@ -51,6 +49,6 @@ object Config {
   def ensureRequiredSettingsIsSet(config: TypesafeConfig) = {
     for {
       stringKey ← Seq("auth.privateKey", "auth.publicKey", "auth.keyAlgorithm")
-    } yield config.getString(stringKey)
+    } yield config.getOptString(stringKey).getOrElse("")
   }
 }

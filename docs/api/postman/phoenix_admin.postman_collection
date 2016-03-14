@@ -149,6 +149,15 @@
 			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183"
 		},
 		{
+			"id": "041062c5-1892-a44c-dc3d-f1642d8f03d6",
+			"name": "Products",
+			"description": "",
+			"order": [
+				"b3d64f20-7139-5e47-bd43-4abece833d43"
+			],
+			"owner": "131444"
+		},
+		{
 			"id": "e0576961-0b66-e6d2-9d5e-91e4334380ed",
 			"name": "RMAs",
 			"description": "",
@@ -3129,6 +3138,33 @@
 			},
 			"folder": "8dd279dd-e395-8cc4-1534-9b12b3915029",
 			"isFromCollection": true
+		},
+		{
+			"id": "b3d64f20-7139-5e47-bd43-4abece833d43",
+			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"url": "http://localhost:9090/v1/products/default/1/baked",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "GET",
+			"collectionId": "7c349f5d-0a21-8c06-d15d-8a7b5c735183",
+			"data": [],
+			"dataMode": "params",
+			"name": "View Illuminated Product",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1457620109614,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "basicAuth",
+			"helperAttributes": {
+				"username": "admin@admin.com",
+				"password": "password",
+				"saveToRequest": true,
+				"id": "basic",
+				"timestamp": 1449091654128
+			},
+			"folder": "041062c5-1892-a44c-dc3d-f1642d8f03d6"
 		},
 		{
 			"id": "b6087b12-ffd0-ed3b-57ba-cf303ec23c5c",

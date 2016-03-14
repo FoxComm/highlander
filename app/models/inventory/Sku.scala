@@ -8,6 +8,8 @@ import utils.ExPostgresDriver.api._
 import utils.JsonFormatters
 import utils.time.JavaTimeSlickMapper._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.table.SearchByCode
+import utils.Slick.implicits._
 
 import java.time.Instant
 
@@ -17,8 +19,10 @@ object Sku {
 }
 
 /**
- * A Sku is a pointer to a commit of a sku. A ObjectContext is a
- * collection of Skus.
+ * A Sku represents the latest version of Stock Keeping Unit. 
+ * This data structure stores a pointer to a commit of a version of a sku in 
+ * the object context referenced. The same Sku can have a different version
+ * in a different context.
  */
 final case class Sku(id: Int = 0, code: String, contextId: Int, shadowId: Int, formId: Int, 
   commitId: Int, updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now)
@@ -45,7 +49,8 @@ class Skus(tag: Tag) extends GenericTable.TableWithId[Sku](tag, "skus")  {
 }
 
 object Skus extends TableQueryWithId[Sku, Skus](
-  idLens = GenLens[Sku](_.id))(new Skus(_)) {
+  idLens = GenLens[Sku](_.id))(new Skus(_))
+  with SearchByCode[Sku, Skus] {
 
   implicit val formats = JsonFormatters.phoenixFormats
 
@@ -55,4 +60,6 @@ object Skus extends TableQueryWithId[Sku, Skus](
     filter(_.contextId === contextId).filter(_.code === code)
   def filterByCode(code: String): QuerySeq = 
     filter(_.code === code)
+  def findOneByCode(code: String): DBIO[Option[Sku]] = 
+    filter(_.code === code).one
 }

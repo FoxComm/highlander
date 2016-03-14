@@ -3,7 +3,6 @@ package services.giftcards
 import scala.concurrent.Future
 
 import cats.implicits._
-import models.activity.ActivityContext
 import models.customer.Customers
 import models.payment.giftcard.GiftCard.Canceled
 import models.payment.giftcard.GiftCardSubtypes.scope._
@@ -60,7 +59,7 @@ object GiftCardService {
   }
 
   def createByAdmin(admin: StoreAdmin, payload: payloads.GiftCardCreateByCsr)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
     _        ← * <~ payload.validate
     _        ← * <~ Reasons.mustFindById400(payload.reasonId)
     // If `subTypeId` is absent, don't query. Check for model existence otherwise.
@@ -76,7 +75,7 @@ object GiftCardService {
   } yield build(gc = giftCard, admin = adminResp)).runTxn()
 
   def createBulkByAdmin(admin: StoreAdmin, payload: payloads.GiftCardBulkCreateByCsr)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Seq[ItemResult]] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[Seq[ItemResult]] = (for {
     _        ← ResultT.fromXor(payload.validate.toXor)
     gcCreatePayload = GiftCardCreateByCsr(balance = payload.balance, reasonId = payload.reasonId, currency = payload.currency)
     response ← ResultT.right(Future.sequence((1 to payload.quantity).map { num ⇒
@@ -85,7 +84,7 @@ object GiftCardService {
   } yield response).value
 
   def bulkUpdateStateByCsr(payload: payloads.GiftCardBulkUpdateStateByCsr, admin: StoreAdmin)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Seq[ItemResult]] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[Seq[ItemResult]] = (for {
     _        ← ResultT.fromXor(payload.validate.toXor)
     response ← ResultT.right(Future.sequence(payload.codes.map { code ⇒
                  val itemPayload = GiftCardUpdateStateByCsr(payload.state, payload.reasonId)
@@ -94,7 +93,7 @@ object GiftCardService {
   } yield response).value
 
   def updateStateByCsr(code: String, payload: payloads.GiftCardUpdateStateByCsr, admin: StoreAdmin)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
     _        ← * <~ payload.validate
     _        ← * <~ payload.reasonId.map(id ⇒ Reasons.mustFindById400(id)).getOrElse(DbResult.unit)
     giftCard ← * <~ GiftCards.mustFindByCode(code)

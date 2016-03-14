@@ -16,8 +16,11 @@ object Product {
 }
 
 /**
- * A Product is a pointer to a commit of a product. A ObjectContext is a
- * collection of Products.
+ * A Product represents something sellable in our system and has a set of 
+ * skus related to it. This data structure is a pointer to a specific version
+ * of a product in the object context referenced. The product may have a different
+ * version in a different context. A product is represented in the object form
+ * and shadow system where it has attributes controlled by the customer.
  */
 final case class Product(id: Int = 0, contextId: Int, shadowId: Int, formId: Int, 
   commitId: Int, updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now)

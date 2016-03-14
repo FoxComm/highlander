@@ -112,3 +112,29 @@ create table export_reasons (
     reason_type text,
     body        text
 );
+
+create table export_skus_raw (
+    id          integer,
+    sku         text,
+    attributes  jsonb,
+    created_at  text
+);
+
+create table export_products_raw (
+    id          integer,
+    attributes  jsonb,
+    created_at  text
+);
+
+create table export_countries (
+    id                  integer,
+    name                text,
+    alpha2              character(2),
+    alpha3              character(3),
+    code                character(3),
+    continent           text,
+    currency            currency,
+    uses_postal_code    boolean,
+    is_billable         boolean,
+    is_shippable        boolean
+);

@@ -1,6 +1,5 @@
 package services
 
-import models.activity.ActivityContext
 import models.customer.Customers
 import models.payment.giftcard._
 import models.payment.storecredit._
@@ -16,7 +15,7 @@ import utils.aliases._
 object CustomerCreditConverter {
 
   def toStoreCredit(giftCardCode: String, customerId: Int, admin: StoreAdmin)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[StoreCreditResponse.Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[StoreCreditResponse.Root] = (for {
 
     giftCard ← * <~ GiftCards.mustFindByCode(giftCardCode)
     _ ← * <~ (if (!giftCard.isActive) DbResult.failure(GiftCardConvertFailure(giftCard)) else DbResult.unit)
@@ -36,7 +35,7 @@ object CustomerCreditConverter {
   } yield StoreCreditResponse.build(storeCredit)).runTxn()
 
   def toGiftCard(storeCreditId: Int, customerId: Int, admin: StoreAdmin)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[GiftCardResponse.Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[GiftCardResponse.Root] = (for {
 
     credit ← * <~ StoreCredits.mustFindById404(storeCreditId)
     _ ← * <~ (if (!credit.isActive) DbResult.failure(StoreCreditConvertFailure(credit)) else DbResult.unit)

@@ -1,6 +1,6 @@
 package services.giftcards
 
-import models.activity.{Dimension, ActivityContext}
+import models.activity.Dimension
 import models.payment.giftcard._
 import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
 import payloads.GiftCardBulkWatchersPayload
@@ -19,7 +19,7 @@ import utils.aliases._
 object GiftCardWatcherUpdater {
 
   def watch(admin: StoreAdmin, code: String, requestedAssigneeIds: Seq[Int])
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[Root]] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[Root]] = (for {
 
     giftCard        ← * <~ GiftCards.mustFindByCode(code)
     adminIds        ← * <~ StoreAdmins.filter(_.id.inSetBind(requestedAssigneeIds)).map(_.id).result
@@ -37,7 +37,7 @@ object GiftCardWatcherUpdater {
   } yield TheResponse.build(response, errors = notFoundAdmins)).runTxn()
 
   def unwatch(admin: StoreAdmin, code: String, assigneeId: Int)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
 
     giftCard        ← * <~ GiftCards.mustFindByCode(code)
     storeAdmin      ← * <~ StoreAdmins.mustFindById404(assigneeId)
@@ -51,7 +51,7 @@ object GiftCardWatcherUpdater {
   } yield response).runTxn()
 
   def watchBulk(admin: StoreAdmin, payload: GiftCardBulkWatchersPayload)(implicit ec: EC, db: DB,
-    sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkGiftCardUpdateResponse] = (for {
+    sortAndPage: SortAndPage, ac: AC): Result[BulkGiftCardUpdateResponse] = (for {
     
     // TODO: transfer sorting-paging metadata
     giftCards       ← * <~ GiftCards.filter(_.code.inSetBind(payload.giftCardCodes)).result.toXor
@@ -70,7 +70,7 @@ object GiftCardWatcherUpdater {
   } yield response.copy(errors = flattenErrors(batchFailures), batch = Some(batchMetadata))).runTxn()
 
   def unwatchBulk(admin: StoreAdmin, payload: GiftCardBulkWatchersPayload)
-    (implicit ec: EC, db: DB, sortAndPage: SortAndPage, ac: ActivityContext):
+    (implicit ec: EC, db: DB, sortAndPage: SortAndPage, ac: AC):
     Result[BulkGiftCardUpdateResponse] = (for {
     
     // TODO: transfer sorting-paging metadata

@@ -7,7 +7,8 @@ import models.customer.Customers
 import models.order.{Orders, Order}
 import models.{Notes, _}
 import responses.AdminNotes
-import services.{NotFoundFailure404, NoteManager}
+import services.NotFoundFailure404
+import services.notes.OrderNoteManager
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -51,7 +52,7 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
   "GET /v1/notes/order/:refNum" - {
     "can be listed" in new Fixture {
       List("abc", "123", "xyz").map { body ⇒
-        NoteManager.createOrderNote(order.refNum, storeAdmin, payloads.CreateNote(body = body)).futureValue
+        OrderNoteManager.create(order.refNum, storeAdmin, payloads.CreateNote(body = body)).futureValue
       }
 
       val response = GET(s"v1/notes/order/${order.referenceNumber}")
@@ -66,7 +67,7 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
 
   "PATCH /v1/notes/order/:refNum/:noteId" - {
     "can update the body text" in new Fixture {
-      val rootNote = NoteManager.createOrderNote(order.refNum, storeAdmin,
+      val rootNote = OrderNoteManager.create(order.refNum, storeAdmin,
         payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue.rightVal
 
       val response = PATCH(s"v1/notes/order/${order.referenceNumber}/${rootNote.id}",
@@ -80,7 +81,7 @@ class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport wit
 
   "DELETE /v1/notes/order/:refNum/:noteId" - {
     "can soft delete note" in new Fixture {
-      val note = rightValue(NoteManager.createOrderNote(order.refNum, storeAdmin,
+      val note = rightValue(OrderNoteManager.create(order.refNum, storeAdmin,
         payloads.CreateNote(body = "Hello, FoxCommerce!")).futureValue)
 
       val response = DELETE(s"v1/notes/order/${order.referenceNumber}/${note.id}")

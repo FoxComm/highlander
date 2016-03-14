@@ -1,13 +1,12 @@
 package services.orders
 
-import models.activity.ActivityContext
 import models.order.lineitems.{OrderLineItems, OrderLineItem}
 import models.order.{Orders, Order}
 
 import Order.{Canceled, _}
 import models.StoreAdmin
-import responses.order.{AllOrders, FullOrder}
-import responses.{BatchMetadataSource, BatchMetadata, TheResponse}
+import responses.order.FullOrder
+import responses.{BatchMetadataSource, BatchMetadata}
 import services.{Result, StateTransitionNotAllowed, NotFoundFailure400, LockedFailure}
 import services.LogActivity.{orderStateChanged, orderBulkStateChanged}
 import slick.driver.PostgresDriver.api._
@@ -22,7 +21,7 @@ import utils.aliases._
 object OrderStateUpdater {
 
   def updateState(admin: StoreAdmin, refNum: String, newState: Order.State)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[FullOrder.Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[FullOrder.Root] = (for {
 
     order     ← * <~ Orders.mustFindByRefNum(refNum)
     _         ← * <~ order.transitionState(newState)
@@ -34,15 +33,14 @@ object OrderStateUpdater {
 
   // TODO: transfer sorting-paging metadata
   def updateStates(admin: StoreAdmin, refNumbers: Seq[String], newState: Order.State, skipActivity: Boolean = false)
-    (implicit ec: EC, db: DB, sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkOrderUpdateResponse] = (for {
+    (implicit ec: EC, db: DB, sortAndPage: SortAndPage, ac: AC): Result[BulkOrderUpdateResponse] = (for {
     // Turn failures into errors
     batchMetadata ← * <~ updateStatesDbio(admin, refNumbers, newState, skipActivity)
     response      ← * <~ OrderQueries.findAllByQuery(Orders.filter(_.referenceNumber.inSetBind(refNumbers)))
   } yield response.copy(errors = batchMetadata.flatten, batch = Some(batchMetadata))).runTxn()
 
   private def updateStatesDbio(admin: StoreAdmin, refNumbers: Seq[String], newState: Order.State, skipActivity: Boolean = false)
-    (implicit ec: EC, db: DB, sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage,
-      ac: ActivityContext): DbResult[BatchMetadata] = {
+    (implicit ec: EC, db: DB, ac: AC, sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResult[BatchMetadata] = {
 
     val query = Orders.filter(_.referenceNumber.inSet(refNumbers)).result
     appendForUpdate(query).flatMap { orders ⇒
@@ -72,7 +70,7 @@ object OrderStateUpdater {
   }
 
   private def updateQueriesWrapper(admin: StoreAdmin, orderIds: Seq[Int], orderRefNums: Seq[String], newState: State,
-    skipActivity: Boolean = false)(implicit ec: EC, db: DB, ac: ActivityContext) = {
+    skipActivity: Boolean = false)(implicit ec: EC, db: DB, ac: AC) = {
 
     if (skipActivity)
         updateQueries(admin, orderIds, orderRefNums, newState)
@@ -82,7 +80,7 @@ object OrderStateUpdater {
   }
 
   private def updateQueries(admin: StoreAdmin, orderIds: Seq[Int], orderRefNums: Seq[String], newState: State)
-    (implicit ec: EC, db: DB, ac: ActivityContext) = newState match {
+    (implicit ec: EC, db: DB, ac: AC) = newState match {
       case Canceled ⇒
         cancelOrders(orderIds)
       case _ ⇒

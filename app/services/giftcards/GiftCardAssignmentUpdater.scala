@@ -1,6 +1,6 @@
 package services.giftcards
 
-import models.activity.{Dimension, ActivityContext}
+import models.activity.Dimension
 import models.payment.giftcard._
 import models.{NotificationSubscription, StoreAdmin, StoreAdmins}
 import payloads.GiftCardBulkAssignmentPayload
@@ -19,7 +19,7 @@ import utils.aliases._
 object GiftCardAssignmentUpdater {
 
   def assign(admin: StoreAdmin, code: String, requestedAssigneeIds: Seq[Int])
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[Root]] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[Root]] = (for {
 
     giftCard        ← * <~ GiftCards.mustFindByCode(code)
     adminIds        ← * <~ StoreAdmins.filter(_.id.inSetBind(requestedAssigneeIds)).map(_.id).result
@@ -37,7 +37,7 @@ object GiftCardAssignmentUpdater {
   } yield TheResponse.build(response, errors = notFoundAdmins)).runTxn()
 
   def unassign(admin: StoreAdmin, code: String, assigneeId: Int)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
 
     giftCard        ← * <~ GiftCards.mustFindByCode(code)
     assignee        ← * <~ StoreAdmins.mustFindById404(assigneeId)
@@ -51,7 +51,7 @@ object GiftCardAssignmentUpdater {
   } yield response).runTxn()
 
   def assignBulk(admin: StoreAdmin, payload: GiftCardBulkAssignmentPayload)(implicit ec: EC, db: DB,
-    sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkGiftCardUpdateResponse] = (for {
+    sortAndPage: SortAndPage, ac: AC): Result[BulkGiftCardUpdateResponse] = (for {
 
     // TODO: transfer sorting-paging metadata
     giftCards       ← * <~ GiftCards.filter(_.code.inSetBind(payload.giftCardCodes)).result.toXor
@@ -69,7 +69,7 @@ object GiftCardAssignmentUpdater {
   } yield response.copy(errors = flattenErrors(batchFailures), batch = Some(batchMetadata))).runTxn()
 
   def unassignBulk(admin: StoreAdmin, payload: GiftCardBulkAssignmentPayload)(implicit ec: EC, db: DB,
-    sortAndPage: SortAndPage, ac: ActivityContext): Result[BulkGiftCardUpdateResponse] = (for {
+    sortAndPage: SortAndPage, ac: AC): Result[BulkGiftCardUpdateResponse] = (for {
 
     // TODO: transfer sorting-paging metadata
     giftCards ← * <~ GiftCards.filter(_.code.inSetBind(payload.giftCardCodes)).result

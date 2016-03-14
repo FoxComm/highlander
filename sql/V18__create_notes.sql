@@ -1,10 +1,8 @@
-create domain note_body text check (length(value) > 0 and length(value) <= 1000);
-
 create table notes (
     id serial primary key,
     store_admin_id integer not null,
     reference_id integer not null,
-    reference_type generic_string not null,
+    reference_type note_reference_type not null,
     body note_body not null,
     priority generic_string not null default 'default',
     created_at timestamp without time zone default (now() at time zone 'utc'),

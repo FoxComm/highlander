@@ -2,7 +2,6 @@ package services.customers
 
 import cats.data.Validated.{Invalid, Valid}
 import cats.implicits._
-import models.activity.ActivityContext
 import models.customer.Customers.scope._
 import models.customer.{Customer, Customers}
 import models.order.Orders
@@ -22,7 +21,7 @@ import utils.aliases._
 object CustomerManager {
 
   def toggleDisabled(customerId: Int, disabled: Boolean, admin: StoreAdmin)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
       customer  ← * <~ Customers.mustFindById404(customerId)
       updated   ← * <~ Customers.update(customer, customer.copy(isDisabled = disabled, disabledBy = Some(admin.id)))
       _         ← * <~ LogActivity.customerDisabled(disabled, customer, admin)
@@ -30,7 +29,7 @@ object CustomerManager {
 
   // TODO: add blacklistedReason later
   def toggleBlacklisted(customerId: Int, blacklisted: Boolean, admin: StoreAdmin)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
       customer  ← * <~ Customers.mustFindById404(customerId)
       updated   ← * <~ Customers.update(customer, customer.copy(isBlacklisted = blacklisted,
         blacklistedBy = Some(admin.id)))
@@ -108,7 +107,7 @@ object CustomerManager {
   }
 
   def create(payload: CreateCustomerPayload, admin: Option[StoreAdmin] = None)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
     customer ← * <~ Customer.buildFromPayload(payload).validate
     _        ← * <~ (if (!payload.isGuest.getOrElse(false)) Customers.createEmailMustBeUnique(customer.email) else DbResult.unit)
     updated  ← * <~ Customers.create(customer)
@@ -117,7 +116,7 @@ object CustomerManager {
   } yield response).runTxn()
 
   def update(customerId: Int, payload: UpdateCustomerPayload, admin: Option[StoreAdmin] = None)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
     _        ← * <~ payload.validate.toXor
     customer ← * <~ Customers.mustFindById404(customerId)
     _        ← * <~ payload.email.map(Customers.updateEmailMustBeUnique(_, customerId)).getOrElse(DbResult.unit)
@@ -129,7 +128,7 @@ object CustomerManager {
   } yield build(updated)).runTxn()
 
   def activate(customerId: Int, payload: ActivateCustomerPayload, admin: StoreAdmin)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
     _        ← * <~ payload.validate
     customer ← * <~ Customers.mustFindById404(customerId)
     _        ← * <~ Customers.updateEmailMustBeUnique(customer.email, customer.id)

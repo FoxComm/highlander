@@ -1,7 +1,7 @@
 package services
 
 import models.inventory.{Skus, Sku}
-import models.activity.{Activity, ActivityContext}
+import models.activity.Activity
 import models.order.lineitems._
 import OrderLineItems.scope._
 import models.customer.Customer
@@ -25,7 +25,7 @@ import slick.driver.PostgresDriver.api._
 
 object LineItemUpdater {
   def addGiftCard(admin: StoreAdmin, refNum: String, payload: AddGiftCardLineItem)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = (for {
     p      ← * <~ payload.validate
     order  ← * <~ Orders.mustFindByRefNum(refNum)
     _      ← * <~ order.mustBeCart
@@ -41,7 +41,7 @@ object LineItemUpdater {
   } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def editGiftCard(admin: StoreAdmin, refNum: String, code: String, payload: AddGiftCardLineItem)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = (for {
     _        ← * <~ payload.validate
     giftCard ← * <~ GiftCards.mustFindByCode(code)
     _        ← * <~ giftCard.mustBeCart
@@ -56,7 +56,7 @@ object LineItemUpdater {
   } yield TheResponse.build(result, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def deleteGiftCard(admin: StoreAdmin, refNum: String, code: String)
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = (for {
     gc    ← * <~ GiftCards.mustFindByCode(code)
     _     ← * <~ gc.mustBeCart
     order ← * <~ Orders.mustFindByRefNum(refNum)
@@ -73,7 +73,7 @@ object LineItemUpdater {
   } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
   def updateQuantitiesOnOrder(admin: StoreAdmin, refNum: String, payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = {
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = {
 
     val finder = Orders.mustFindByRefNum(refNum)
     val logActivity = (order: FullOrder.Root, oldQtys: Map[String, Int]) ⇒
@@ -83,7 +83,7 @@ object LineItemUpdater {
   }
 
   def updateQuantitiesOnCustomersOrder(customer: Customer, payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = {
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = {
 
     val finder = Orders.findActiveOrderByCustomer(customer)
       .one
@@ -98,7 +98,7 @@ object LineItemUpdater {
   private def runUpdates(finder: DbResult[Order],
     logAct: (FullOrder.Root, Map[String, Int]) ⇒ DbResult[Activity],
     payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: EC, db: DB, ac: ActivityContext): Result[TheResponse[FullOrder.Root]] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = (for {
 
     order ← * <~ finder
     _     ← * <~ order.mustBeCart

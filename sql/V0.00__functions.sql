@@ -28,12 +28,19 @@ $$ language plpgsql;
 -- ISO4217 declares currency as alphanumeric-3
 create domain currency character(3) not null;
 
+-- Region abbreviation
+create domain region_abbr text check (length(value) <= 10);
+
 -- RFC2821 + Errata 1690 limits max email size to 254 chars
 create domain email text check (length(value) <= 254);
 
 -- Using text instead of character varying is more efficient
 create domain generic_string text check (length(value) <= 255);
 create domain reference_number text check (length(value) <= 20);
+
+-- Notes
+create domain note_reference_type text check (value in ('order', 'giftCard', 'customer', 'rma', 'product', 'sku'));
+create domain note_body text check (length(value) > 0 and length(value) <= 1000);
 
 -- Generic phone number
 create domain phone_number text check (length(value) <= 15);
