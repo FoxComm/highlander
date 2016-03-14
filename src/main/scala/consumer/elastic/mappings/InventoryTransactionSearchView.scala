@@ -16,7 +16,7 @@ final case class InventoryTransactionSearchView()(implicit ec: EC) extends AvroT
     field("newQuantity", IntegerType),
     field("change", IntegerType),
     field("newAfs", IntegerType),
-    field("skuType", StringType),
-    field("state", StringType)
+    field("skuType", StringType) index "not_analyzed",
+    field("state", StringType) index "not_analyzed"
   )
 }
