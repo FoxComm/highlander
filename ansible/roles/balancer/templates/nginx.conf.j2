@@ -117,4 +117,20 @@ http {
 
   log_format phoenixformat '[$time_local] "$request" $status $request_length $bytes_sent $request_time_ms $uuid';
   access_log /var/log/nginx/access.log phoenixformat;
+
+  upstream search {
+    server {{ search_server_http }} fail_timeout=30s;
+  }
+
+  upstream phoenix {
+    server {{ phoenix_server }} fail_timeout=30s;
+  }
+
+  upstream ashes {
+      server {{ ashes_server }} fail_timeout=15s;
+  }
+
+  upstream firebird {
+      server {{ firebird_server }} fail_timeout=15s;
+  }
 }

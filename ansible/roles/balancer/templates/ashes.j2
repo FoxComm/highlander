@@ -1,31 +1,15 @@
-upstream search {
-  server {{ search_server_http }} fail_timeout=30s;
-}
-
-upstream phoenix {
-  server {{ phoenix_server }} fail_timeout=30s;
-}
-
-upstream ashes {
-    server {{ ashes_server }} fail_timeout=15s;
-}
-
-upstream firebird {
-    server {{ firebird_server }} fail_timeout=15s;
-}
-
 server {
   # TODO(jpfuentes2): enable me when we have nginx + lua + HTTP2
   # listen 443 ssl http2 default_server;
   #ssl_certificate    server.crt;
   #ssl_certificate_key server.key;
 
-  listen 80 default_server;
-  listen [::]:80 default_server;
+  listen 80;
+  listen [::]:80;
 
   index index.html;
 
-  server_name _;
+  server_name {{ashes_server_name}};
 
   error_page 500 @500;
   error_page 502 @502;
@@ -154,22 +138,9 @@ server {
   }
 
   # Proxy to ashes
-  location /admin/ {
+  location / {
       alias {{ashes_root_dir}};
       proxy_pass http://ashes/;
-  }
-
-  # Proxy to firebird
-  location / {
-      # Rewrite static content urls for ashes
-      rewrite /admin.css /admin/admin.css;
-      rewrite /admin.js /admin/admin.js;
-      rewrite /fonts/fontello(.*) /admin/fonts/fontello$1;
-      rewrite /images(.*) /admin/images$1;
-
-      # Finally proxy to firebird
-      root {{firebird_root_dir}};
-      proxy_pass http://firebird/;
   }
 
   # Error pages

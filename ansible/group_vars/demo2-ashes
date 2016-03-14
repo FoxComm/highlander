@@ -4,3 +4,5 @@ ashes_server: 127.0.0.1:4000
 demo_user: demo
 demo_pass: Xv6yEcAzXv6yEcAz
 demo_domain: demo2.foxcommerce.com
+ashes_server_name: admin.demo2.foxcommerce.com
+firebird_server_name: demo2.foxcommerce.com

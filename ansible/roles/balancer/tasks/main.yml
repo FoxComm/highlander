@@ -26,8 +26,15 @@
   sudo: yes
   command: systemctl daemon-reload
 
-- name: Install default hosts
-  template: src=default.j2 dest=/etc/nginx/sites-available/default
+- name: Remove default config
+  sudo: yes
+  file: path=/etc/nginx/sites-available/default state=absent
+
+- name: Install Ashes hosts
+  template: src=ashes.j2 dest=/etc/nginx/sites-available/ashes
+
+- name: Install Firebird hosts
+  template: src=firebird.j2 dest=/etc/nginx/sites-available/firebird
 
 - name: Restart Nginx
   service: name=nginx state=restarted
