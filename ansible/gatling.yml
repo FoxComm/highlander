@@ -32,6 +32,7 @@
     - { role: rsyslog, sudo: yes }
     - node
     - ashes
+    - firebird
     - { role: balancer, sudo: yes }
 
 - name: Provision Gatling Gun
