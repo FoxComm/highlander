@@ -72,8 +72,8 @@ export type SkuShadow = {
 };
 
 export type Variant = {
-  name: string,
-  type: string,
+  name: ?string,
+  type: ?string,
   values: { [key:string]: VariantValue },
 };
 
