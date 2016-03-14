@@ -10,7 +10,7 @@ import NotificationBlock from '../activity-notifications/notification-block';
 import DetailedInitials from '../users/detailed-initials';
 import Breadcrumb from './breadcrumb';
 
-import { TUser } from '../../modules/user';
+import type { TUser } from '../../modules/user';
 
 const Header = props => {
   const user: TUser = props.user;
@@ -34,4 +34,4 @@ Header.propTypes = {
   params: PropTypes.object
 };
 
-export default connect((state) => ({user: state.user}))(Header);
+export default connect((state) => ({user: state.user.current}))(Header);

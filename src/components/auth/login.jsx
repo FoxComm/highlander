@@ -7,21 +7,26 @@ import { PrimaryButton, Button } from '../common/buttons';
 import WaitAnimation from '../common/wait-animation';
 
 import { transitionTo } from '../../route-helpers';
-import Api from '../../lib/api';
 import { autobind } from 'core-decorators';
-import fetch from 'isomorphic-fetch';
 import { connect } from 'react-redux';
 
 import * as userActions from '../../modules/user';
+
+// types
+import type {
+  LoginPayload,
+  TUser,
+} from '../../modules/user';
 
 
 type TState = {
   email: string;
   password: string;
-}
+};
 
 type LoginProps = {
-  setUser: (user: userActions.TUser) => ({type: string, payload: Object});
+  current: TUser,
+  authenticate: (payload: LoginPayload) => Promise,
 }
 
 /* ::`*/
@@ -47,25 +52,8 @@ export default class Login extends React.Component {
     const payload = _.pick(this.state, 'email', 'password');
     payload['kind'] = 'admin';
 
-    const headers = {'Content-Type': 'application/json;charset=UTF-8'};
-    const setUser = this.props.setUser;
-
-    fetch(Api.apiURI('/public/login'), {
-      method: 'POST',
-      body: JSON.stringify(payload),
-      credentials: "same-origin",
-      headers,
-    }).then(response => {
-        if (response.status == 200) {
-          localStorage.setItem('jwt', response.headers.get('jwt'));
-          response.json().then((token: string) => {
-            localStorage.setItem('user', JSON.stringify(token));
-            setUser(token);
-            transitionTo(context.history, 'home');
-          });
-        }
-      }, e => {
-      console.log('login failed', e);
+    this.props.authenticate(payload).then(() => {
+      transitionTo(context.history, 'home');
     });
   }
 
