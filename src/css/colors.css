@@ -8,10 +8,11 @@
   --greenish: #49C699;
   --light-grayish: rgba(0, 0, 0, 0.3);
   --dark-grayish: #616161;
+  --white-smokish: #F4F4F4;
 }
 
 :root {
   --color-error: var(--redish);
-  --color-panels-bg: #F4F4F4;
+  --color-panels-bg: var(--white-smokish);
   --color-text-grey: var(--greyish);
 }

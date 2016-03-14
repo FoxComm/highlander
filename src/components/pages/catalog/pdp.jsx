@@ -41,7 +41,7 @@ class Pdp extends Component {
             </div>
             <div>
               <label>QUANTITY</label>
-              <div>
+              <div styleName="counter">
                 <Counter />
               </div>
             </div>

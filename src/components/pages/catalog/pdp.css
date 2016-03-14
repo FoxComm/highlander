@@ -43,8 +43,13 @@
   margin-bottom: 22px;
 }
 
-.add-to-cart {
+.counter {
   margin-top: 10px;
+}
+
+.add-to-cart {
+  margin-top: 20px;
+  width: 240px;
 }
 
 .description {
