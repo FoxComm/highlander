@@ -28,6 +28,16 @@ const mapDispatchToProps = dispatch => ({actions: bindActionCreators(actions, di
 @connect(mapStateToProps, mapDispatchToProps)
 export default class NewDynamicGroup extends React.Component {
 
+  static props = {
+    group: PropTypes.shape({
+      id: PropTypes.number,
+    }),
+    actions: PropTypes.shape({
+      reset: PropTypes.func.isRequired,
+      saveGroup: PropTypes.func.isRequired,
+    }).isRequired,
+  };
+
   static contextTypes = {
     history: PropTypes.object.isRequired
   };
@@ -49,14 +59,6 @@ export default class NewDynamicGroup extends React.Component {
   render() {
     const {props} = this;
 
-    if (console.debug) {
-      console.group('new dynamic group render');
-      for (const name in props) {
-        console.debug(name, props[name]);
-      }
-      console.groupEnd();
-    }
-
     return (
       <NewGroupBase title="New Dynamic Customer Group"
                     alternative={{
@@ -66,7 +68,7 @@ export default class NewDynamicGroup extends React.Component {
         <Form onSubmit={() => props.actions.saveGroup()}>
           <DynamicGroupEditor />
           <div className='fc-customer-group-new__form-submits'>
-            <Link to='customers'>Cancel</Link>
+            <Link to='customer-groups'>Cancel</Link>
             <PrimaryButton type="submit">Save Dynamic Group</PrimaryButton>
           </div>
         </Form>

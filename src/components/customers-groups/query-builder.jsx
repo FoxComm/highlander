@@ -1,62 +1,79 @@
+//libs
 import React, { PropTypes } from 'react';
-import _ from 'lodash';
-// components
-import { AddButton } from '../common/buttons';
-import Criterion from './criterion';
-import Currency from '../common/currency';
-// stuff
 import { autobind } from 'core-decorators';
-import { assoc, dissoc, get } from 'sprout-data';
+
+//data
+import criterions from '../../modules/customer-groups/criterions';
+
+//components
+import Criterion from './criterion';
+import { AddButton } from '../common/buttons';
 
 export default class QueryBuilder extends React.Component {
 
-  static propTypes = {
-    termOptions: PropTypes.object.isRequired, // {value -> title} for terms
-    criterions: PropTypes.object.isRequired,
-    initBuilder: PropTypes.func.isRequired,
-    addCriterion: PropTypes.func.isRequired
-  };
-
-  componentDidMount() {
-    this.props.initBuilder();
-  }
-
-  get criterions() {
-    const props = this.props;
-
-    const selectedValues = _.pluck(_.values(props.criterions), 'term');
-    const availableValues = _.difference(_.keys(props.termOptions), selectedValues);
-    const items = availableValues.map(term => [term, props.termOptions[term]]);
-
-    function buildCriterion(key) {
-      const selectedVal = get(props.criterions, [key, 'term']);
-      let curItems = items;
-      if (selectedVal) {
-        curItems = [...items, [selectedVal, props.termOptions[selectedVal]]];
-      }
-
-      return <Criterion key={key} id={key} terms={curItems} term={selectedVal}/>;
-    }
-
-    return (
-      <div className='fc-grid fc-group-builder-criterions'>
-        {_.keys(this.props.criterions).map(buildCriterion)}
-      </div>
-    );
+  static props = {
+    conditions: PropTypes.arrayOf(PropTypes.object).isRequired,
+    setConditions: PropTypes.func.isRequired,
   };
 
   @autobind
-  addCriterion(e) {
-    e.preventDefault();
-    this.props.addCriterion();
+  renderCriterion([field, operator, value], index) {
+    const {conditions, setConditions} = this.props;
+
+    const updateCondition = (value) => {
+      setConditions([
+        ...conditions.slice(0, index),
+        value,
+        ...conditions.slice(index + 1),
+      ]);
+    };
+    const changeField = (field) => {
+      updateCondition([field, operator, value]);
+    };
+    const changeOperator = (operator) => {
+      updateCondition([field, operator, value]);
+    };
+    const changeValue = (value) => {
+      updateCondition([field, operator, value]);
+    };
+    const remove = () => {
+      setConditions([
+        ...conditions.slice(0, index),
+        ...conditions.slice(index + 1),
+      ]);
+    };
+
+    return (
+      <Criterion key={index}
+                 field={field}
+                 operator={operator}
+                 value={value}
+                 changeField={changeField}
+                 changeOperator={changeOperator}
+                 changeValue={changeValue}
+                 remove={remove} />
+    );
   }
 
-  render () {
+  @autobind
+  addCondition(event) {
+    const {conditions, setConditions} = this.props;
+    event.stopPropagation();
+    setConditions([
+      ...conditions,
+      [null, null, null]
+    ]);
+  }
+
+  render() {
+    const {conditions} = this.props;
     return (
       <div className='fc-group-builder'>
-        {this.criterions}
-        <div className='fc-group-builder-add-criterion' onClick={this.addCriterion}>
-          <AddButton/><span>Add criteria</span>
+        <div className='fc-grid fc-group-builder-criterions'>
+          {conditions.map(this.renderCriterion)}
+        </div>
+        <div className='fc-group-builder-add-criterion' onClick={this.addCondition}>
+          <AddButton type="button" onClick={this.addCondition} /><span>Add criteria</span>
         </div>
       </div>
     );

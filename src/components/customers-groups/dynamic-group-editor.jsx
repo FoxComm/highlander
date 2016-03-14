@@ -3,18 +3,17 @@ import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 
 //data
-import criterions from '../../modules/customer-groups/criterions';
 import operators from '../../paragons/customer-groups/operators';
 
 //components
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
-import Dropdown from '../dropdown/dropdown';
+import { Dropdown, DropdownItem } from '../dropdown';
 import { PrimaryButton, Button } from '../common/buttons';
+import QueryBuilder from './query-builder';
 import { Link } from '../link';
 import { transitionTo } from '../../route-helpers';
 
@@ -26,6 +25,22 @@ const mapDispatchToProps = dispatch => ({actions: bindActionCreators(actions, di
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class DynamicGroupEditor extends React.Component {
+
+  static props = {
+    group: PropTypes.shape({
+      id: PropTypes.number,
+      name: PropTypes.string,
+      mainCondition: PropTypes.oneOf([
+        operators.and,
+        operators.or,
+      ]),
+      conditions: PropTypes.arrayOf(PropTypes.array).isRequired,
+    }),
+    actions: PropTypes.shape({
+      setName: PropTypes.func.isRequired,
+      setNQuery: PropTypes.func.isRequired,
+    }).isRequired,
+  };
 
   get nameField() {
     const {group: {name}, actions: {setName}} = this.props;
@@ -46,56 +61,35 @@ export default class DynamicGroupEditor extends React.Component {
   }
 
   get mainCondition() {
-    const {query} = this.props.group;
+    const {group: {mainCondition}, actions: {setMainCondition}} = this.props;
 
-    const mainConditionItems = [
-      [operators.and, 'all'],
-      [operators.or, 'any'],
-    ];
-
-    const value = operators.or in query ? operators.or : operators.and;
+    const value = mainCondition ? mainCondition : operators.and;
 
     return (
       <div className='fc-customer-group-new__match-div'>
         <span className='fc-customer-group-new__match-span'>Customers match</span>
             <span className='fc-customer-group-new__match-dropdown'>
-              <Dropdown
-                name='matchCriteria'
-                items={mainConditionItems}
-                value={value}
-                onChange={this.setMainCondition}
-              />
+              <Dropdown name='matchCriteria'
+                        value={value}
+                        onChange={setMainCondition}>
+                <DropdownItem value={operators.and} key={operators.and}>all</DropdownItem>
+                <DropdownItem value={operators.or} key={operators.or}>any</DropdownItem>
+              </Dropdown>
             </span>
         <span className='fc-customer-group-new__match-span'>of the following criteria:</span>
       </div>
     );
   }
 
-  @autobind
-  setMainCondition(value) {
-    const {group: {query}, actions: {setQuery}} = this.props;
-
-    //wrap with or
-    if (value === operators.or) {
-      setQuery({
-        [operators.or]: [query]
-      });
-    }
-
-    //extract from or
-    if (value === operators.and) {
-      setQuery(query[operators.or][0]);
-    }
-  }
-
   render() {
-    const {props} = this;
+    const {group, actions} = this.props;
 
     return (
       <div>
         {this.nameField}
         {this.mainCondition}
-        Query builder here
+        <QueryBuilder conditions={group.conditions}
+                      setConditions={actions.setConditions} />
       </div>
     );
   }

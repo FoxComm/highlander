@@ -12,8 +12,8 @@ const initialState = {
   id: null,
   type: null,
   name: null,
-  query: {},
-  customersCount: 0,
+  mainCondition: null,
+  conditions: [],
 };
 
 const fetchGroup = (actions, id) => dispatch => {
@@ -26,14 +26,21 @@ const fetchGroup = (actions, id) => dispatch => {
 
 const saveGroup = actions => (dispatch, getState) => {
   const state = getState();
+  const getValue = (name) => _.get(state, ['customerGroups', 'group', name]);
 
-  const id = _.get(state, 'customerGroups.group.id');
-  const name = _.get(state, 'customerGroups.group.name');
-  const query = _.get(state, 'customerGroups.group.query');
+  const id = getValue('id');
+  const name = getValue('name');
+  const mainCondition = getValue('mainCondition');
+  const conditions = getValue('conditions');
 
+  //TODO build query from conditions
+  const query = {};
   const data = {
     name,
-    clientState: query,
+    clientState: {
+      mainCondition,
+      conditions,
+    },
     elasticRequest: buildQuery(criterions, query),
   };
 
@@ -56,23 +63,24 @@ const reducers = {
   reset: () => {
     return initialState;
   },
-  setData: (state, {id, type, name, clientState}) => {
+  setData: (state, {id, type, name, clientState: {mainCondition, conditions}}) => {
     return {
       ...state,
       id,
       type,
       name,
-      query: clientState,
+      mainCondition,
+      conditions,
     };
   },
   setName: (state, name) => {
     return assoc(state, 'name', name);
   },
-  setQuery: (state, query) => {
-    return assoc(state, 'query', query);
+  setMainCondition: (state, condition) => {
+    return assoc(state, 'mainCondition', condition);
   },
-  setCustomersCount: (state, customersCount) => {
-    return assoc(state, 'customersCount', customersCount);
+  setConditions: (state, conditions) => {
+    return assoc(state, 'conditions', conditions);
   },
 };
 
