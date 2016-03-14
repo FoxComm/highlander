@@ -44,6 +44,9 @@
 .price {
   margin-top: 30px;
   margin-bottom: 22px;
+  font-size: 20px;
+  color: var(--blackish);
+  line-height: 24px;
 }
 
 .counter {

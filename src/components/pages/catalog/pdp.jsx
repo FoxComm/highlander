@@ -1,15 +1,81 @@
 /* @flow */
 
+import _ from 'lodash';
 import React, { Component } from 'react';
 import cssModules from 'react-css-modules';
 import styles from './pdp.css';
 
 import Button from 'ui/buttons';
 import Counter from 'ui/forms/counter';
+import Currency from 'ui/currency';
+
+const data = {
+  id: 1,
+  context: {
+    name: 'default',
+    attributes: {
+      language: 'EN',
+      modality: 'desktop',
+    },
+  },
+  product: {
+    id: 1,
+    attributes: {
+      title: {
+        t: 'string',
+        v: 'Flonkey',
+      },
+      images: {
+        t: 'images',
+        v: [
+          'http://lorempixel.com/75/75/fashion/',
+        ],
+      },
+      description: {
+        t: 'string',
+        v: 'Best in Class Flonkey',
+      },
+    },
+    variants: {
+      default: {},
+    },
+    skus: {
+      default: {
+        'SKU-YAX': {},
+      },
+    },
+    activeFrom: '2016-03-14T18:18:47.187Z',
+  },
+  skus: [
+    {
+      code: 'SKU-YAX',
+      attributes: {
+        price: {
+          t: 'price',
+          v: {
+            value: 3300,
+            currency: 'USD',
+          },
+        },
+        title: {
+          t: 'string',
+          v: 'Flonkey',
+        },
+      },
+      activeFrom: '2016-03-14T18:18:47.231Z',
+    },
+  ],
+};
 
 class Pdp extends Component {
   render() {
-    const imageUrl = 'https://placehold.it/500x500';
+    const product = data;
+    const title = _.get(product, ['product', 'attributes', 'title', 'v'], '');
+    const description = _.get(product, ['product', 'attributes', 'description', 'v'], '');
+    const price = _.get(product, ['skus', 0, 'attributes', 'price', 'v', 'value'], 0);
+    const currency = _.get(product, ['skus', 0, 'attributes', 'price', 'v', 'currency'], 'USD');
+    const imageUrls = _.get(product, ['product', 'attributes', 'images', 'v'], []);
+    const images = _.map(imageUrls, (url) => <img src={url} styleName="preview-image" />);
     return (
       <div styleName="container">
         <div styleName="links">
@@ -22,22 +88,15 @@ class Pdp extends Component {
         </div>
         <div styleName="details">
           <div styleName="images">
-            <img src={imageUrl} styleName="preview-image" />
-            <img src={imageUrl} styleName="preview-image" />
-            <img src={imageUrl} styleName="preview-image" />
-            <img src={imageUrl} styleName="preview-image" />
+            {images}
           </div>
           <div styleName="info">
-            <h1 styleName="name">LOREM IPSUM</h1>
+            <h1 styleName="name">{title}</h1>
             <div styleName="price">
-              $75
+              <Currency value={price} currency={currency} />
             </div>
             <div styleName="description">
-              Nullam quis risus eget urna mollis ornare vel eu leo.
-              Nulla vitae elit libero, a pharetra augue. Vivamus sagittis
-              lacus vel augue laoreet rutrum faucibus dolor auctor.
-              Cum sociis natoque penatibus et magnis dis parturient montes,
-              nascetur ridiculus mus.
+              {description}
             </div>
             <div>
               <label>QUANTITY</label>
