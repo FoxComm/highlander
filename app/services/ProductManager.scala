@@ -167,11 +167,22 @@ object ProductManager {
 
   } yield FullProductResponse.build(productForm, productShadow, skuShadowPair)).runTxn()
 
-  def getIlluminatedFullProduct(productId: Int, productContextName: String)
+  def getIlluminatedFullProductByContextName(productId: Int, productContextName: String)
     (implicit ec: EC, db: DB): Result[IlluminatedFullProductResponse.Root] = (for {
       
     productContext ← * <~ ProductContexts.filterByName(productContextName).one.
       mustFindOr(ProductContextNotFound(productContextName))
+    result   ← * <~ getIlluminatedFullProductInner(productId, productContext)
+
+  } yield result).run()
+
+  def getIlluminatedFullProductByContext(productId: Int, productContext: ProductContext)
+    (implicit ec: EC, db: DB): Result[IlluminatedFullProductResponse.Root] = (for {
+    result   ← * <~ getIlluminatedFullProductInner(productId, productContext)
+    } yield result).run()
+
+  private def getIlluminatedFullProductInner(productId: Int, productContext: ProductContext)
+    (implicit ec: EC, db: DB): DbResultT[IlluminatedFullProductResponse.Root] = for {
     productForm   ← * <~ Products.mustFindById404(productId)
     productShadow ← * <~ ProductShadows.filter(_.productId === productForm.id).
       filter(_.productContextId === productContext.id).one.
@@ -187,7 +198,7 @@ object ProductManager {
     IlluminatedProduct.illuminate(productContext, productForm, productShadow),
     skuShadowPair.map { 
       case (s, ss) ⇒ IlluminatedSku.illuminate(productContext, s, ss)
-    })).run()
+    })
 
   private def validateShadow(context: ProductContext, form: Product, shadow: ProductShadow) 
   (implicit ec: EC, db: DB) : DbResultT[Unit] = 
