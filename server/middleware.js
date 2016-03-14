@@ -6,18 +6,21 @@ const jwt = require('jsonwebtoken');
 const htmlescape = require('htmlescape');
 const errors = require('./errors');
 
-module.exports = function(app) {
-  const config = app.config;
-  const template = path.join(__dirname, './views/layout.tmpl');
-  const layout = _.template(fs.readFileSync(template, 'utf8'));
-
+function loadPublicKey(config) {
   try {
-    const cert = fs.readFileSync(config.api.auth.publicKey);
+    return fs.readFileSync(config.api.auth.publicKey);
   }
   catch (err) {
     console.error(err);
     throw `Can't load public key ${config.api.auth.publicKey}, exit`;
   }
+}
+
+module.exports = function(app) {
+  const config = app.config;
+  const template = path.join(__dirname, './views/layout.tmpl');
+  const layout = _.template(fs.readFileSync(template, 'utf8'));
+
 
   // lets do renderReact property is lazy
   Object.defineProperty(app, 'renderReact', {
@@ -28,13 +31,15 @@ module.exports = function(app) {
     }
   });
 
+  const publicKey = loadPublicKey(config);
+
   function getToken(ctx) {
     const token = ctx.cookies.get(config.api.auth.cookieName);
     if (!token) {
       return null;
     }
     try {
-      return jwt.verify(token, cert, {issuer: "FC", subject: "site", algorithms: ['RS256', 'RS384', 'RS512']});
+      return jwt.verify(token, publicKey, {issuer: "FC", subject: "site", algorithms: ['RS256', 'RS384', 'RS512']});
     }
     catch(err) {
       console.error("Can't decode token: ", err);
