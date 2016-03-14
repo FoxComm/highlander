@@ -70,6 +70,7 @@
   "dependencies": {
     "classnames": "^2.2.3",
     "core-decorators": "^0.11.0",
+    "currency-symbol-map": "^2.2.0",
     "dom-scroll-into-view": "^1.1.0",
     "koa": "^1.1.2",
     "koa-favicon": "^1.2.0",
