@@ -10,6 +10,8 @@ TimeoutStartSec=5m
 RestartSec=5
 Environment=PHOENIX_PUBLIC_KEY={{ public_keys_dest_dir }}/public_key.der
 Environment=PHOENIX_PRIVATE_KEY={{ private_keys_dest_dir }}/private_key.der
+# remove this ASAP when https will be available
+Environment=PHOENIX_COOKIE_SECURE=off
 
 [Install]
 WantedBy=multi-user.target
