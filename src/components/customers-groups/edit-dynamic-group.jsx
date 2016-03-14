@@ -29,7 +29,7 @@ const mapDispatchToProps = dispatch => ({actions: bindActionCreators(actions, di
 @connect(mapStateToProps, mapDispatchToProps)
 export default class NewDynamicGroup extends React.Component {
 
-  static props = {
+  static propTypes = {
     group: PropTypes.shape({
       id: PropTypes.number,
     }),

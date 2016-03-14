@@ -31,7 +31,7 @@ const mapDispatchToProps = dispatch => ({actions: bindActionCreators(actions, di
 @connect(mapStateToProps, mapDispatchToProps)
 export default class DynamicGroupEditor extends React.Component {
 
-  static props = {
+  static propTypes = {
     group: PropTypes.shape({
       id: PropTypes.number,
       name: PropTypes.string,
@@ -43,7 +43,8 @@ export default class DynamicGroupEditor extends React.Component {
     }),
     actions: PropTypes.shape({
       setName: PropTypes.func.isRequired,
-      setNQuery: PropTypes.func.isRequired,
+      setMainCondition: PropTypes.func.isRequired,
+      setConditions: PropTypes.func.isRequired,
     }).isRequired,
   };
 

@@ -17,8 +17,8 @@ const prefixed = prefix('fc-customer-group-builder__');
 
 export default class QueryBuilder extends React.Component {
 
-  static props = {
-    conditions: PropTypes.arrayOf(PropTypes.object).isRequired,
+  static propTypes = {
+    conditions: PropTypes.arrayOf(PropTypes.array).isRequired,
     setConditions: PropTypes.func.isRequired,
   };
 

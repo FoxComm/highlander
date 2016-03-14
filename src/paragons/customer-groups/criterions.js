@@ -1,23 +1,15 @@
-import types from '../../paragons/customer-groups/types';
-import {
-  equal,
-  notEqual,
-  oneOf,
-  notOneOf,
-  match,
-  notMatch,
-  greater,
-  less,
-  between,
-} from './operators';
+import types from './types';
+import ops from './operators';
+import inputs from '../../components/customers-groups/inputs';
+
 
 const criterions = [
   {
     type: types.string,
     input: {
-      default: 'text',
-      [oneOf]: 'textOneOf',
-      [notOneOf]: 'textOneOf',
+      default: inputs.plain,
+      [ops.oneOf]: inputs.oneOf(inputs.plain),
+      [ops.notOneOf]: inputs.oneOf(inputs.plain),
     },
     field: 'name',
     label: 'Name',
@@ -25,9 +17,9 @@ const criterions = [
   {
     type: types.string,
     input: {
-      default: 'text',
-      [oneOf]: 'textOneOf',
-      [notOneOf]: 'textOneOf',
+      default: inputs.plain,
+      [ops.oneOf]: inputs.plain,
+      [ops.notOneOf]: inputs.plain,
     },
     field: 'email',
     label: 'Email',
@@ -36,9 +28,9 @@ const criterions = [
     type: types.number,
     input: {
       default: 'currency',
-      [oneOf]: 'currencyOneOf',
-      [notOneOf]: 'currencyOneOf',
-      [between]: 'currencyRange',
+      [ops.oneOf]: 'currencyOneOf',
+      [ops.notOneOf]: 'currencyOneOf',
+      [ops.between]: 'currencyRange',
     },
     field: 'revenue',
     label: 'Total Sales',
@@ -55,8 +47,8 @@ const criterions = [
       }
     },
     operators: [
-      equal,
-      notEqual,
+      ops.equal,
+      ops.notEqual,
     ],
     field: 'isDisabled',
     label: 'Account Activitity Status',
@@ -73,8 +65,8 @@ const criterions = [
       }
     },
     operators: [
-      equal,
-      notEqual,
+      ops.equal,
+      ops.notEqual,
     ],
     field: 'isBlacklisted',
     label: 'Account Blacklist Status',
@@ -83,10 +75,10 @@ const criterions = [
     type: types.string,
     input: {
       default: 'text',
-      [equal]: 'stateLookup',
-      [notEqual]: 'stateLookup',
-      [oneOf]: 'stateLookupOneOf',
-      [notOneOf]: 'stateLookupOneOf',
+      [ops.equal]: 'stateLookup',
+      [ops.notEqual]: 'stateLookup',
+      [ops.oneOf]: 'stateLookupOneOf',
+      [ops.notOneOf]: 'stateLookupOneOf',
       config: {
         storePath: 'groups.shippingState',
       },
@@ -98,10 +90,10 @@ const criterions = [
     type: types.string,
     input: {
       default: 'text',
-      [equal]: 'stateLookup',
-      [notEqual]: 'stateLookup',
-      [oneOf]: 'stateLookupOneOf',
-      [notOneOf]: 'stateLookupOneOf',
+      [ops.equal]: 'stateLookup',
+      [ops.notEqual]: 'stateLookup',
+      [ops.oneOf]: 'stateLookupOneOf',
+      [ops.notOneOf]: 'stateLookupOneOf',
       config: {
         storePath: 'groups.billingState',
       },
@@ -113,10 +105,10 @@ const criterions = [
     type: types.string,
     input: {
       default: 'text',
-      [equal]: 'cityLookup',
-      [notEqual]: 'cityLookup',
-      [oneOf]: 'cityLookupOneOf',
-      [notOneOf]: 'cityLookupOneOf',
+      [ops.equal]: 'cityLookup',
+      [ops.notEqual]: 'cityLookup',
+      [ops.oneOf]: 'cityLookupOneOf',
+      [ops.notOneOf]: 'cityLookupOneOf',
       config: {
         storePath: 'groups.shippingCity',
       },
@@ -128,10 +120,10 @@ const criterions = [
     type: types.string,
     input: {
       default: 'text',
-      [equal]: 'cityLookup',
-      [notEqual]: 'cityLookup',
-      [oneOf]: 'cityLookupOneOf',
-      [notOneOf]: 'cityLookupOneOf',
+      [ops.equal]: 'cityLookup',
+      [ops.notEqual]: 'cityLookup',
+      [ops.oneOf]: 'cityLookupOneOf',
+      [ops.notOneOf]: 'cityLookupOneOf',
       config: {
         storePath: 'groups.billingCity',
       },
@@ -142,17 +134,17 @@ const criterions = [
   {
     type: types.number,
     operators: [
-      equal,
-      notEqual,
-      oneOf,
-      notOneOf,
-      match,
-      notMatch,
+      ops.equal,
+      ops.notEqual,
+      ops.oneOf,
+      ops.notOneOf,
+      ops.match,
+      ops.notMatch,
     ],
     input: {
       default: 'number',
-      [oneOf]: 'numberOneOf',
-      [notOneOf]: 'numberOneOf',
+      [ops.oneOf]: 'numberOneOf',
+      [ops.notOneOf]: 'numberOneOf',
     },
     field: 'shippingAddresses.zip',
     label: 'Shipping Zip',
@@ -160,17 +152,17 @@ const criterions = [
   {
     type: types.number,
     operators: [
-      equal,
-      notEqual,
-      oneOf,
-      notOneOf,
-      match,
-      notMatch,
+      ops.equal,
+      ops.notEqual,
+      ops.oneOf,
+      ops.notOneOf,
+      ops.match,
+      ops.notMatch,
     ],
     input: {
       default: 'number',
-      [oneOf]: 'numberOneOf',
-      [notOneOf]: 'numberOneOf',
+      [ops.oneOf]: 'numberOneOf',
+      [ops.notOneOf]: 'numberOneOf',
     },
     field: 'billingAddresses.zip',
     label: 'Billing Zip',
@@ -179,9 +171,9 @@ const criterions = [
     type: types.date,
     input: {
       default: 'date',
-      [oneOf]: 'dateOneOf',
-      [notOneOf]: 'dateOneOf',
-      [between]: 'dateRange',
+      [ops.oneOf]: 'dateOneOf',
+      [ops.notOneOf]: 'dateOneOf',
+      [ops.between]: 'dateRange',
     },
     field: 'joinedAt',
     label: 'Date Joined',
