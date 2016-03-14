@@ -54,6 +54,8 @@ export default class Login extends React.Component {
 
     this.props.authenticate(payload).then(() => {
       transitionTo(context.history, 'home');
+    }).catch(err => {
+      console.error(err);
     });
   }
 
