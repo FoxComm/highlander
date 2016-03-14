@@ -40,7 +40,6 @@ action(type="omelasticsearch"
     searchIndex="logstash-index"
     dynSearchIndex="on"
     server="{{search_host}}"
-    errorfile="/var/log/rsyslog-omelasticsearch-errors"
     bulkmode="on"                   # send logs in batches
     queue.dequeuebatchsize="1000"   # of up to 1000
     queue.type="linkedlist"
