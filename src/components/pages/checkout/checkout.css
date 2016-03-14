@@ -43,7 +43,7 @@
 .checkout-field {
   margin: 10px 0;
 
-  & input:matches([type=text], [type=password]) {
+  & input:matches([type=text], [type=password], [type=number], [type=tel]) {
     width: 100%;
   }
 }

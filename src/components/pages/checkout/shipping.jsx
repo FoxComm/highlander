@@ -28,11 +28,13 @@ let ViewShipping = (props: Object) => {
 };
 ViewShipping = connect(state => (state.checkout.shippingData))(ViewShipping);
 
-type EditShippingProps = {
+type ShippingProps = {
   isEditing: boolean;
-  editAction?: Function;
+  editAction: Function;
+}
+
+type EditShippingProps = {
   continueAction?: Function;
-  handleSubmit?: Function;
   setShippingData: Function;
   selectedCountry: Object;
   state: Object;
@@ -156,7 +158,7 @@ class EditShipping extends Component {
               selectedItem={selectedCountry}
             />
           </FormField>
-          <FormField required styleName="checkout-field">
+          <FormField styleName="checkout-field" validator="zipCode">
             <TextInput required placeholder="ZIP" onChange={this.handleZipChange} value={data.zip} />
           </FormField>
         </div>
@@ -176,8 +178,10 @@ class EditShipping extends Component {
             />
           </FormField>
         </div>
-        <FormField styleName="checkout-field">
-          <TextInput name="phone" placeholder="PHONE" onChange={this.changeFormData} value={data.phone} />
+        <FormField label="Phone Number" styleName="checkout-field" validator="phoneNumber">
+          <TextInput required
+            name="phone" type="tel" placeholder="PHONE" onChange={this.changeFormData} value={data.phone}
+          />
         </FormField>
         <Button type="submit">CONTINUE</Button>
       </Form>
@@ -186,7 +190,7 @@ class EditShipping extends Component {
 }
 
 
-const Shipping = (props: EditShippingProps) => {
+const Shipping = (props: ShippingProps) => {
   return (
     <EditableBlock
       styleName="shipping"
