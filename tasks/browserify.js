@@ -48,7 +48,8 @@ module.exports = function(gulp, $, opts) {
       debug: !production,
     }, watchify.args)).transform(envify({
       DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN,
-    }));
+    }), { global: true });
+
     bundler.plugin(require('css-modulesify'), Object.assign({
       output: path.resolve('build/bundle.css'),
       use: plugins,
