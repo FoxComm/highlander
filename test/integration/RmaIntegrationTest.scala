@@ -17,8 +17,8 @@ import payloads.{RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCust
 RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload, AssignmentPayload, BulkAssignmentPayload}
 import responses.{TheResponse, AllRmas, RmaLockResponse, RmaResponse, StoreAdminResponse}
 import services.rmas.{RmaLineItemUpdater, RmaLockUpdater}
-import services.{RmaAssigneeNotFound, GeneralFailure, InvalidCancellationReasonFailure, LockedFailure,
-NotFoundFailure400, NotFoundFailure404, NotLockedFailure}
+import services.{GeneralFailure, InvalidCancellationReasonFailure, LockedFailure, NotFoundFailure400,
+NotFoundFailure404, NotLockedFailure}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
