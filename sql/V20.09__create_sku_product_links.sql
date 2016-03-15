@@ -7,5 +7,5 @@ create table sku_product_links(
     foreign key (product_id) references products(id) on update restrict on delete restrict
 );
 
-create unique index sku_product_sku_idx on sku_product_links (sku_id);
-create unique index sku_product_product_idx on sku_product_links (product_id);
+create index sku_product_sku_idx on sku_product_links (sku_id);
+create index sku_product_product_idx on sku_product_links (product_id);
