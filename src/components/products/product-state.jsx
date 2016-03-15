@@ -15,6 +15,7 @@ import type { FullProduct } from '../../modules/products/details';
 
 type Props = {
   product: FullProduct,
+  onSetActive: (activeFrom: ?string, activeTo: ?string) => void,
 };
 
 type State = {
@@ -35,9 +36,17 @@ export default class ProductState extends Component<void, Props, State> {
 
     this.state = {
       activeState,
-      showActiveFromPicker: false,
-      showActiveToPicker: false,
+      showActiveFromPicker: !_.isEmpty(activeFrom),
+      showActiveToPicker: !_.isEmpty(activeTo),
     };
+  }
+
+  get activeFrom(): ?string {
+    return this.props.product.shadow.product.activeFrom;
+  }
+
+  get activeTo(): ?string {
+    return this.props.product.shadow.product.activeTo;
   }
 
   get activeFromPicker(): ?Element {
@@ -50,7 +59,10 @@ export default class ProductState extends Component<void, Props, State> {
           <div className="fc-product-state__picker-label">
             Start
           </div>
-          <DateTimePicker onCancel={this.handleCancelFrom} />
+          <DateTimePicker 
+            dateTime={this.activeFrom}
+            onSetDate={(v) => console.log(v)}
+            onCancel={this.handleCancelFrom} />
         </div>
       );
     }
@@ -59,7 +71,12 @@ export default class ProductState extends Component<void, Props, State> {
   get activeToPicker(): ?Element {
     if (this.state.showActiveFromPicker) {
       const picker = this.state.showActiveToPicker
-        ? <DateTimePicker onCancel={this.handleCancelTo} />
+        ? (
+          <DateTimePicker
+            dateTime={this.activeTo}
+            onSetDate={(v) => console.log(v)}
+            onCancel={this.handleCancelTo} />
+        )
         : <a onClick={this.handleShowActiveTo}><i className="icon-add" /></a>;
 
       return (
@@ -78,9 +95,9 @@ export default class ProductState extends Component<void, Props, State> {
 
     if (!activeFrom) {
       return false;
-    } else if (now.diff(activeFrom) < 0) {
+    } else if (now.diff(activeFrom) > 0) {
       return false;
-    } else if (!activeTo && now.diff(activeTo) > 0) {
+    } else if (activeTo && now.diff(activeTo) < 0) {
       return false;
     }
 
@@ -89,7 +106,12 @@ export default class ProductState extends Component<void, Props, State> {
 
   @autobind
   handleActiveChange(value: string) {
-    this.setState({ activeState: value });
+    const now = moment().utc().format('YYYY-MM-DDTHH:mm:ss.SSS');
+    const action = value == 'active'
+      ? () => this.props.onSetActive(now, null)
+      : () => this.props.onSetActive(null, null);
+
+    this.setState({ activeState: value }, action);
   }
 
   @autobind

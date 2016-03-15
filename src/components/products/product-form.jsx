@@ -251,7 +251,11 @@ export default class ProductForm extends Component<void, Props, State> {
   }
 
   get productState(): Element {
-    return <ProductState product={this.props.product} />;
+    return (
+      <ProductState 
+        onSetActive={(x, y) => console.log(x, y)}
+        product={this.props.product} />
+    );
   }
 
   render(): Element {
@@ -263,14 +267,14 @@ export default class ProductForm extends Component<void, Props, State> {
         <div>
           <SubNav productId={this.props.productId} product={this.props.product} />
           <div className="fc-product-details fc-grid">
-            <div className="fc-col-md-2-3">
+            <div className="fc-col-md-3-5">
               {this.generalContentBox}
               {this.pricingContentBox}
               {this.variantContentBox}
               {this.skusContentBox}
               {this.seoContentBox}
             </div>
-            <div className="fc-col-md-1-3">
+            <div className="fc-col-md-2-5">
               {this.productState}
             </div>
             {this.customPropertyForm}

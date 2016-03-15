@@ -17,6 +17,7 @@ const suppressClick = event => {
 export default class DatePicker extends React.Component {
   static propTypes = {
     className: PropTypes.string,
+    date: PropTypes.string,
     onClick: PropTypes.func,
     showInput: PropTypes.bool,
     showPicker: PropTypes.bool,
@@ -25,6 +26,7 @@ export default class DatePicker extends React.Component {
   };
 
   static defaultProps = {
+    date: null,
     onClick: _.noop,
     showInput: true,
     showPicker: false,
@@ -39,7 +41,7 @@ export default class DatePicker extends React.Component {
     // because this is how it will appear in the UI. For our purposes, turn it
     // into a 0-based index as that's how JS expects it.
     this.state = {
-      selectedDate: null,
+      selectedDate: this.props.date,
       showPicker: props.showPicker,
       month: props.month - 1,
       year: props.year
@@ -134,7 +136,8 @@ export default class DatePicker extends React.Component {
 
     this.setState({
       ...this.state,
-      selectedDate: date
+      selectedDate: date,
+      showPicker: false,
     });
   }
 
