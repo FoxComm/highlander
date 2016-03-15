@@ -5,10 +5,9 @@ import React, { PropTypes } from 'react';
 import CurrencyInput from '../../forms/currency-input';
 
 
-const Input = ({criterion, value, prefixed, changeValue}) => {
+const Input = ({value, changeValue}) => {
   return (
-    <CurrencyInput inputName={criterion.field}
-                   onChange={changeValue}
+    <CurrencyInput onChange={changeValue}
                    value={value} />
   );
 };

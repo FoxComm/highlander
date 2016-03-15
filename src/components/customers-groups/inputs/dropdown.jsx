@@ -5,10 +5,9 @@ import React, { PropTypes } from 'react';
 import Dropdown from '../../dropdown/dropdown';
 
 
-const Input = ({criterion, value, prefixed, changeValue}) => {
+const Input = ({criterion, value, changeValue}) => {
   return (
-    <Dropdown name={criterion.field}
-              value={value}
+    <Dropdown value={value}
               items={criterion.input.config.choices}
               onChange={changeValue} />
   );

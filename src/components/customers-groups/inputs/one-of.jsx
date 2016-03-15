@@ -8,7 +8,7 @@ import { Button } from '../../common/buttons';
 
 
 const Input = Widget => ({criterion, value, prefixed, changeValue}) => {
-  const values = _.isEmpty(value) ? [null] : value;
+  const values = value || [null];
   return (
     <div className={classNames('fc-grid', prefixed('vertical-select'))}>
       {values.map((item, index) => renderItem({
@@ -52,7 +52,7 @@ const renderItem = ({Widget, criterion, values, index, prefixed, changeValue}) =
         {Widget({criterion, value: values[index], prefixed, changeValue: change})}
       </div>
       {renderNodeOrAdd(prefixed, index < values.length - 1, add)}
-      <i className={classNames(prefixed('vertical-select__remove'), 'icon-close')} onClick={remove} />
+      <i className={classNames(prefixed('vertical-select__remove'), 'icon-close')} onClick={remove}/>
     </div>
   );
 };
@@ -62,7 +62,7 @@ const renderNodeOrAdd = (prefixed, isNode, add) => {
     return <div className={prefixed('vertical-select__or')}>or</div>;
   }
 
-  return <Button className={classNames(prefixed('vertical-select__add'), 'icon-add')} onClick={add} />;
+  return <Button className={classNames(prefixed('vertical-select__add'), 'icon-add')} onClick={add}/>;
 };
 
 Input.propTypes = {

@@ -34,10 +34,10 @@ export default class QueryBuilder extends React.Component {
       ]);
     };
     const changeField = (field) => {
-      updateCondition([field, operator, value]);
+      updateCondition([field, null, null]);
     };
     const changeOperator = (operator) => {
-      updateCondition([field, operator, value]);
+      updateCondition([field, operator, null]);
     };
     const changeValue = (value) => {
       updateCondition([field, operator, value]);

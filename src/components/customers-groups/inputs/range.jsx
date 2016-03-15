@@ -17,7 +17,7 @@ const Input = Widget => ({criterion, value, prefixed, changeValue}) => {
   return (
     <div className={prefixed('range')}>
       {Widget({criterion, value: values[0], prefixed, changeValue: change(0)})}
-      <span className={classNames(prefixed('range__separator'), 'icon-minus', 'fc-align-center')} />
+      <span className={classNames(prefixed('range__separator'), 'icon-minus', 'fc-align-center')}/>
       {Widget({criterion, value: values[1], prefixed, changeValue: change(1)})}
     </div>
   );

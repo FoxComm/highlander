@@ -5,10 +5,8 @@ import React, { PropTypes } from 'react';
 import DatePicker from '../../datepicker/datepicker';
 
 
-const Input = ({criterion, value, prefixed, changeValue}) => {
-  return (
-    <DatePicker onClick={changeValue} />
-  );
+const Input = ({value, changeValue}) => {
+  return <DatePicker date={value} onClick={changeValue}/>;
 };
 
 Input.propTypes = {
