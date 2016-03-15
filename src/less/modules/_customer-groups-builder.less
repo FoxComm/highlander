@@ -166,9 +166,12 @@
       }
     }
 
+    &__field {
+      .width(@field-width);
+    }
+
     .fc-prepend-input, .fc-append-input {
       .width(@field-width);
-      .height(@field-height);
       &__input-field {
         .width(@field-width - 36);
       }
@@ -177,7 +180,34 @@
     .fc-dropdown {
       .width(@field-width);
       .max-width(@field-width);
+    }
+  }
+
+  &__range {
+    .width(330px);
+    @field-width: 150px;
+
+    > * {
+      .inline-block();
+    }
+
+    &__separator {
+      .width(30px);
       .height(@field-height);
+      line-height: @field-height;
+      color: @color-decor7;
+    }
+
+    .fc-prepend-input, .fc-append-input {
+      .width(@field-width);
+      &__input-field {
+        .width(@field-width - 36);
+      }
+    }
+
+    .fc-dropdown {
+      .width(@field-width);
+      .max-width(@field-width);
     }
   }
 }
