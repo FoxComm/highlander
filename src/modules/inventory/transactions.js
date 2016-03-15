@@ -8,15 +8,23 @@ const searchTerms = [
       {
         title: 'Date/Time',
         type: 'date',
-        term: 'placedAt'
+        term: 'createdAt'
+      }, {
+        title: 'Event',
+        type: 'string',
+        term: 'event'
+      }, {
+        title: 'Warehouse',
+        type: 'string',
+        term: 'warehouse'
       }, {
         title: 'Type',
         type: 'enum',
-        term: 'type',
+        term: 'skuType',
         suggestions: [
           { display: 'Backorder', value: 'backorder' },
-          { display: 'Sellable', value: 'sellable' },
           { display: 'Preorder', value: 'preorder' },
+          { display: 'Sellable', value: 'sellable' },
           { display: 'Non-sellable', value: 'nonSellable' },
         ]
       }, {
@@ -24,18 +32,18 @@ const searchTerms = [
         type: 'enum',
         term: 'state',
         suggestions: [
-          { display: 'On Hand', value: 'hand' },
-          { display: 'Hold', value: 'hold' },
+          { display: 'On Hand', value: 'onHand' },
+          { display: 'On Hold', value: 'onHold' },
           { display: 'Reserved', value: 'reserved' }
         ]
       }, {
         title: 'Previous',
         type: 'number',
-        term: 'previous'
+        term: 'previousQuantity'
       }, {
         title: 'New',
         type: 'number',
-        term: 'new'
+        term: 'newQuantity'
       }, {
         title: 'Change',
         type: 'number',
@@ -43,17 +51,7 @@ const searchTerms = [
       }, {
         title: 'New AFS',
         type: 'number',
-        term: 'afs'
-      }
-    ]
-  }, {
-    title: 'Warehouse',
-    type: 'object',
-    options: [
-      {
-        title: 'Name',
-        type: 'string',
-        term: 'warehouse.name'
+        term: 'newAfs'
       }
     ]
   }
@@ -62,7 +60,7 @@ const searchTerms = [
 const { reducer, actions } = makeLiveSearch(
   'inventory.transactions',
   searchTerms,
-  'transactions_search_view/_search',
+  'inventory_transactions_search_view/_search',
   'inventoryScope'
 );
 
