@@ -12,6 +12,7 @@ Environment=PHOENIX_PUBLIC_KEY={{ public_keys_dest_dir }}/public_key.der
 Environment=PHOENIX_PRIVATE_KEY={{ private_keys_dest_dir }}/private_key.der
 # remove this ASAP when https will be available
 Environment=PHOENIX_COOKIE_SECURE=off
+Environment=PHOENIX_AUTH_METHOD=jwt
 
 [Install]
 WantedBy=multi-user.target
