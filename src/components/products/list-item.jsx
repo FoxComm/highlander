@@ -3,6 +3,7 @@
 import React from 'react';
 import type { HTMLElement } from 'types';
 import styles from './list-item.css';
+import { browserHistory } from 'react-router';
 
 type Product = {
   id: number;
@@ -12,9 +13,12 @@ type Product = {
 }
 
 const ListItem = (props: Product): HTMLElement => {
-  const {name, price, imageUrl} = props;
+  const {id, name, price, imageUrl} = props;
+
+  const click = () => browserHistory.push(`/products/${id}`);
+
   return (
-    <div styleName="list-item">
+    <div styleName="list-item" onClick={click}>
       <div styleName="preview">
         <img src={imageUrl} styleName="preview-image" />
       </div>
