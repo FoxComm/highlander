@@ -20,7 +20,7 @@ object AuthEndpoint {
 
   def loginAsIntruder(): HttpRequestBuilder = http("Login as Intruder")
     .post("/v1/public/login")
-    .body(ELFileBody("request-bodies/login_as_customer.json"))
+    .body(ELFileBody("request-bodies/login_as_intruder.json"))
     .check(status.is(200))
     .check(header("JWT").saveAs("jwtTokenIntruder"))
 }
