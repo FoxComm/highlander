@@ -118,8 +118,6 @@ export function createEmptyProduct(): FullProduct {
         id: null,
         attributes: {},
         variants: {},
-        activeFrom: null,
-        activeTo: null,
         createdAt: null,
       },
       skus: [],
@@ -130,8 +128,6 @@ export function createEmptyProduct(): FullProduct {
         productId: null,
         attributes: {},
         variants: null,
-        activeFrom: null,
-        activeTo: null,
         createdAt: null,
       },
       skus: [],
@@ -153,8 +149,6 @@ export function addEmptySku(product: FullProduct): FullProduct {
   const emptySkuShadow: SkuShadow = {
     code: pseudoRandomCode,
     attributes: {},
-    activeFrom: null,
-    activeTo: null,
     createdAt: null,
   };
 

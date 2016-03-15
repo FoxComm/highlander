@@ -1,0 +1,47 @@
+.fc-product-state {
+  .padding(20px);
+  background: @color-decor12;
+  border: 1px solid @color-decor9;
+  border-radius: 3px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
+  
+  &__header {
+    .font-spec(16px, 600, 24px);
+    .margin-bottom(20px);
+    display: flex;
+  }
+
+  &__text {
+    flex-grow: 1;
+  }
+
+  &__icon {
+    align-self: flex-end;
+  }
+
+  &__active-state {
+    .margin-bottom(20px);
+    max-width: 100%;
+  }
+
+  &__picker-header {
+    .font-spec(16px, 600, 24px);
+    .margin-bottom(20px);
+    color: #bfbfbf;
+  }
+
+  &__picker-fields {
+    display: flex;
+    .font-spec(14px, 600, 18px);
+  }
+
+  &__picker-label {
+    .font-spec(14px, 600, 21px);
+    .margin-bottom(10px);
+  }
+
+  &__picker-hour, &__picker-minute, &__picker-ampm {
+    .margin-left(10px);
+    .max-width(45px);
+  }
+}
