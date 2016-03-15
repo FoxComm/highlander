@@ -59,15 +59,15 @@ export type ProductShadow = {
   attributes: ShadowAttributes,
   variants: ?string,
   createdAt: ?string,
-  activeFrom: ?string,
-  activeTo: ?string,
+  activeFrom?: string,
+  activeTo?: string,
 };
 
 export type SkuShadow = {
   code: ?string,
   attributes: ShadowAttributes,
-  activeFrom: ?string,
-  activeTo: ?string,
+  activeFrom?: string,
+  activeTo?: string,
   createdAt: ?string,
 };
 

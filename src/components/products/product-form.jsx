@@ -15,6 +15,7 @@ import { Form, FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
 import CurrencyInput from '../forms/currency-input';
 import CustomProperty from './custom-property';
+import ProductState from './product-state';
 import SkuList from './sku-list';
 import SubNav from './sub-nav';
 import VariantList from './variant-list';
@@ -131,8 +132,7 @@ export default class ProductForm extends Component<void, Props, State> {
   }
 
   get variantContentBox(): Element {
-    const variants = _.get(this.props, 'product.form.product.variants.default', {});
-    return <VariantList variants={variants} />;
+    return <VariantList variants={{}} />;
   }
 
   get customPropertyForm(): ?Element {
@@ -249,6 +249,14 @@ export default class ProductForm extends Component<void, Props, State> {
     );
   }
 
+  get productState(): Element {
+    return (
+      <ProductState 
+        onSetActive={(x, y) => console.log(x, y)}
+        product={this.props.product} />
+    );
+  }
+
   render(): Element {
     return (
       <Form onSubmit={this.handleSubmit}>
@@ -258,12 +266,15 @@ export default class ProductForm extends Component<void, Props, State> {
         <div>
           <SubNav productId={this.props.productId} product={this.props.product} />
           <div className="fc-product-details fc-grid">
-            <div className="fc-col-md-2-3">
+            <div className="fc-col-md-3-5">
               {this.generalContentBox}
               {this.pricingContentBox}
               {this.variantContentBox}
               {this.skusContentBox}
               {this.seoContentBox}
+            </div>
+            <div className="fc-col-md-2-5">
+              {this.productState}
             </div>
             {this.customPropertyForm}
           </div>

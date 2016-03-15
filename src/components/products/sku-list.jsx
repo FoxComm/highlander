@@ -26,7 +26,6 @@ export default class SkuList extends Component<void, Props, void> {
   static tableColumns = [
     { field: 'price', text: 'Price' },
     { field: 'sku', text: 'SKU' },
-    { field: 'upc', text: 'UPC' },
   ];
 
   get illuminatedSkus(): Array<IlluminatedSku> {

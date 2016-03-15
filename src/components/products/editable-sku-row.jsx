@@ -85,7 +85,8 @@ export default class EditableSkuRow extends Component<void, Props, State> {
   }
 
   @autobind
-  handleUpdateCode(value: string) {
+  handleUpdateCode({ target }: Object) {
+    const value = target.value;
     this.setState(
       assoc(this.state, ['sku', 'code'], value),
       () => this.props.updateField(this.code, 'code', value)
