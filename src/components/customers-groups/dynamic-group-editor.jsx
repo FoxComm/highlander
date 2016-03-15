@@ -63,7 +63,7 @@ export default class DynamicGroupEditor extends React.Component {
                onChange={({target}) => setName(target.value)}
                value={name} />
       </FormField>
-    )
+    );
   }
 
   get mainCondition() {
