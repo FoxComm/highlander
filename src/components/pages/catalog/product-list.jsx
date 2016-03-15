@@ -26,10 +26,8 @@ const getState = state => ({...state.products});
 class ProductList extends Component {
 
   componentWillMount() {
-    if (!this.props.isFetching && !this.props.fetched) {
-      const categoryId = this.categoryId(this.props.params);
-      this.props.fetch(categoryId);
-    }
+    const categoryId = this.categoryId(this.props.params);
+    this.props.fetch(categoryId);
   }
 
   componentWillReceiveProps(nextProps: ProductListParams) {
@@ -41,7 +39,8 @@ class ProductList extends Component {
   }
 
   categoryId(params: Params): ?number {
-    return params.categoryName ? parseInt(params.categoryName, 10) : null;
+    const id = params.categoryName ? parseInt(params.categoryName, 10) : null;
+    return isNaN(id) ? null : id;
   }
 
   render(): HTMLElement {

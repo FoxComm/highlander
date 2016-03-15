@@ -30,9 +30,7 @@ class Categories extends React.Component {
   };
 
   componentWillMount() {
-    if (!this.props.isFetching && !this.props.fetched) {
-      this.props.fetch();
-    }
+    this.props.fetch();
   }
 
   @autobind
