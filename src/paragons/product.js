@@ -1,4 +1,5 @@
 /**
+ *
  * @flow
  */
 
@@ -15,6 +16,7 @@ import type {
   ShadowAttributes,
   SkuForm,
   SkuShadow,
+  Variant,
 } from '../modules/products/details';
 
 export type IlluminatedAttribute = {
@@ -28,6 +30,7 @@ export type IlluminatedAttributes = { [key:string]: Attribute };
 export type IlluminatedSku = {
   code: string,
   attributes: IlluminatedAttributes,
+  createdAt: ?string,
 };
 
 function getProductForm(product: FullProduct): ProductForm {
@@ -95,13 +98,85 @@ function getAttributes(formAttrs: Attributes, shadowAttrs: ShadowAttributes): Il
 
 export function getIlluminatedSkus(product: FullProduct): Array<IlluminatedSku> {
   return _.map(product.form.skus, (form: SkuForm) => {
-    const shadow = getSkuShadow(form.code, product);
+    if (form.code) {
+      const shadow = getSkuShadow(form.code, product);
 
-    return {
-      code: form.code,
-      attributes: getAttributes(form.attributes, shadow.attributes),
-    };
+      return {
+        code: form.code,
+        attributes: getAttributes(form.attributes, shadow.attributes),
+        createdAt: form.createdAt,
+      };
+    }
   });
+}
+
+export function createEmptyProduct(): FullProduct {
+  const product = {
+    id: null,
+    form: {
+      product: {
+        id: null,
+        attributes: {},
+        variants: {},
+        activeFrom: null,
+        activeTo: null,
+        createdAt: null,
+      },
+      skus: [],
+    },
+    shadow: {
+      product: {
+        id: null,
+        productId: null,
+        attributes: {},
+        variants: null,
+        activeFrom: null,
+        activeTo: null,
+        createdAt: null,
+      },
+      skus: [],
+    },
+  };
+
+  return configureProduct(addEmptySku(product));
+}
+
+export function addEmptySku(product: FullProduct): FullProduct {
+  const pseudoRandomCode: string = Math.random().toString(36).substring(7);
+
+  const emptySkuForm: SkuForm = {
+    code: pseudoRandomCode,
+    attributes: {},
+    createdAt: null,
+  };
+
+  const emptySkuShadow: SkuShadow = {
+    code: pseudoRandomCode,
+    attributes: {},
+    activeFrom: null,
+    activeTo: null,
+    createdAt: null,
+  };
+
+  return assoc(product,
+    ['form', 'product', 'variants', 'default'], pseudoRandomCode,
+    ['shadow', 'product', 'variants'], 'default',
+    ['form', 'skus'], [...product.form.skus, emptySkuForm],
+    ['shadow', 'skus'], [...product.shadow.skus, emptySkuShadow]
+  );
+}
+
+export function addNewVariant(product: FullProduct, variant: Variant): FullProduct {
+  const variantName = variant.name;
+  if (!variantName) throw new Error('Variant must have a name');
+
+  const currentVariants: { [key:string]: Variant } = _.get(product, 'form.product.variants.default', {});
+  const newVariants = {
+    ...currentVariants,
+    [variantName]: variant,
+  };
+
+  return assoc(product, ['form', 'product', 'variants', 'default'], newVariants);
 }
 
 /**

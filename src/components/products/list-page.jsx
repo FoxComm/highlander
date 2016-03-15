@@ -3,8 +3,8 @@
  */
 
 // libs
-import React, { Component, Element } from 'react';
-import _ from 'lodash';
+import React, { Component, Element, PropTypes } from 'react';
+import { transitionTo } from '../../route-helpers';
 
 // components
 import { ListPageContainer, makeTotalCounter } from '../list-page';
@@ -16,8 +16,9 @@ type Props = {
   children: any,
 };
 
-const ProductsListPage = (props: Props) => {
+const ProductsListPage = (props: Props, context: Object) => {
   const TotalCounter = makeTotalCounter(state => state.products.list, actions);
+  const addAction = () => transitionTo(context.history, 'new-product');
   const navLinks = [
     { title: 'Lists', to: 'products' },
     { title: 'Insights', to: '' },
@@ -29,11 +30,19 @@ const ProductsListPage = (props: Props) => {
       title="Products"
       subtitle={<TotalCounter />}
       addTitle="Product"
-      handleAddAction={_.noop}
+      handleAddAction={addAction}
       navLinks={navLinks}>
       {props.children}
     </ListPageContainer>
   );
+};
+
+ProductsListPage.propTypes = {
+  children: PropTypes.node,
+};
+
+ProductsListPage.contextTypes = {
+  history: PropTypes.object.isRequired,
 };
 
 export default ProductsListPage;

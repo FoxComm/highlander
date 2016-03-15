@@ -4,7 +4,13 @@
 import Api from '../../lib/api';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
-import { addProductAttribute, configureProduct } from '../../paragons/product';
+import { pushState } from 'redux-router';
+import {
+  addProductAttribute,
+  configureProduct,
+  createEmptyProduct,
+} from '../../paragons/product';
+
 import _ from 'lodash';
 
 export type Error = {
@@ -14,7 +20,7 @@ export type Error = {
 };
 
 export type FullProduct = {
-  id: number,
+  id: ?number,
   form: { 
     product: ProductForm,
     skus: Array<SkuForm>,
@@ -26,10 +32,10 @@ export type FullProduct = {
 };
 
 export type ProductForm = {
-  id: number,
-  createdAt: string,
+  id: ?number,
+  createdAt: ?string,
   attributes: Attributes,
-  variants: { [key:string]: Object },
+  variants: { [key:string]: Variant },
 };
 
 export type Attribute = {
@@ -42,24 +48,39 @@ export type Attributes = { [key:string]: Attribute };
 export type ShadowAttributes = { [key:string]: string };
 
 export type SkuForm = {
-  code: string,
-  isActive: boolean,
+  code: ?string,
   attributes: Attributes,
+  createdAt: ?string,
 };
 
 export type ProductShadow = {
-  id: number,
-  productId: number,
+  id: ?number,
+  productId: ?number,
   attributes: ShadowAttributes,
-  variants: string,
-  createdAt: string,
-  activeFrom: string,
-  activeTo: string,
+  variants: ?string,
+  createdAt: ?string,
+  activeFrom: ?string,
+  activeTo: ?string,
 };
 
 export type SkuShadow = {
-  code: string,
+  code: ?string,
   attributes: ShadowAttributes,
+  activeFrom: ?string,
+  activeTo: ?string,
+  createdAt: ?string,
+};
+
+export type Variant = {
+  name: ?string,
+  type: ?string,
+  values: { [key:string]: VariantValue },
+};
+
+export type VariantValue = {
+  id: number,
+  swatch: ?string,
+  image: ?string,
 };
 
 export type ProductDetailsState = {
@@ -80,17 +101,39 @@ const productUpdateSuccess = createAction('PRODUCTS_UPDATE_SUCCESS');
 const productUpdateFailure = createAction('PRODUCTS_UPDATE_FAILURE');
 
 export const productAddAttribute = createAction('PRODUCTS_ADD_ATTRIBUTE', (label, type) => [label, type]);
+export const productNew = createAction('PRODUCTS_NEW');
 
 const setError = createAction('PRODUCTS_SET_ERROR');
 
-export function fetchProduct(id: number, context: string = defaultContext): ActionDispatch {
+export function fetchProduct(id: string, context: string = defaultContext): ActionDispatch {
   return dispatch => {
-    dispatch(productRequestStart());
-    return Api.get(`/products/full/${context}/${id}`)
+    if (id.toLowerCase() == 'new') {
+      dispatch(productNew());
+    } else {
+      dispatch(productRequestStart());
+      return Api.get(`/products/full/${context}/${id}`)
+        .then(
+          (product: FullProduct) => dispatch(productRequestSuccess(product)),
+          (err: Object) => {
+            dispatch(productRequestFailure());
+            dispatch(setError(err));
+          }
+        );
+    };
+  };
+}
+
+export function createProduct(product: FullProduct, context: string = defaultContext): ActionDispatch {
+  return dispatch => {
+    dispatch(productUpdateStart());
+    return Api.post(`/products/full/${context}`, product)
       .then(
-        (product: FullProduct) => dispatch(productRequestSuccess(product)),
+        (product: FullProduct) => {
+          dispatch(productUpdateSuccess(product));
+          dispatch(pushState(null, `/products/${product.form.product.id}`, ''));
+        },
         (err: Object) => {
-          dispatch(productRequestFailure());
+          dispatch(productUpdateFailure());
           dispatch(setError(err));
         }
       );
@@ -121,6 +164,12 @@ const initialState: ProductDetailsState = {
 };
 
 const reducer = createReducer({
+  [productNew]: (state: ProductDetailsState) => {
+    return {
+      ...initialState,
+      product: createEmptyProduct(),
+    };
+  },
   [productRequestStart]: (state: ProductDetailsState) => {
     return {
       ...state,

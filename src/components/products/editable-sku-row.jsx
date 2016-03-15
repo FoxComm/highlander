@@ -20,7 +20,6 @@ type Column = {
 
 type Props = {
   columns: Array<Column>,
-  isNew: boolean,
   sku: IlluminatedSku,
   params: Object,
   updateField: (code: string, field: string, value: string) => void,
@@ -46,7 +45,7 @@ export default class EditableSkuRow extends Component<void, Props, State> {
 
   @autobind
   upcCell(sku: IlluminatedSku): Element {
-    const value = this.state.sku.upc ||_.get(sku, 'attributes.upc.value');
+    const value = this.state.sku.upc || _.get(sku, 'attributes.upc.value');
     return (
       <FormField>
         <input type="text" value={value} onChange={this.handleUpdateUpc} />
@@ -54,9 +53,20 @@ export default class EditableSkuRow extends Component<void, Props, State> {
     );
   }
 
-  get skuCell(): ?Element {
-    if (!this.props.isNew) {
+  get code(): string {
+    return this.props.sku.code || 'new';
+  }
+
+  skuCell(sku: IlluminatedSku): Element {
+    if (this.props.sku.code && this.props.sku.createdAt) {
       return <div>{this.props.sku.code}</div>;
+    } else {
+      const value = this.state.sku.code;
+      return (
+        <FormField>
+          <input type="text" value={value} onChange={this.handleUpdateCode} required />
+        </FormField>
+      );
     }
   }
 
@@ -64,7 +74,7 @@ export default class EditableSkuRow extends Component<void, Props, State> {
   setCellContents(sku: IlluminatedSku, field: string): any {
     switch(field) {
       case 'sku':
-        return this.skuCell;
+        return this.skuCell(sku);
       case 'price':
         return this.priceCell(sku);
       case 'upc':
@@ -75,10 +85,18 @@ export default class EditableSkuRow extends Component<void, Props, State> {
   }
 
   @autobind
+  handleUpdateCode(value: string) {
+    this.setState(
+      assoc(this.state, ['sku', 'code'], value),
+      () => this.props.updateField(this.code, 'code', value)
+    );
+  }
+
+  @autobind
   handleUpdatePrice(value: string) {
     this.setState(
       assoc(this.state, ['sku', 'price'], value),
-      () => this.props.updateField(this.props.sku.code, 'price', value)
+      () => this.props.updateField(this.code, 'price', value)
     );
   }
 
@@ -88,7 +106,7 @@ export default class EditableSkuRow extends Component<void, Props, State> {
 
     this.setState(
       assoc(this.state, ['sku', 'upc'], value),
-      () => this.props.updateField(this.props.sku.code, 'upc', value)
+      () => this.props.updateField(this.code, 'upc', value)
     );
   }
 
