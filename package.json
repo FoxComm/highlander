@@ -15,7 +15,8 @@
     "start": "node --harmony boot.js",
     "stop": "kill -USR2 $(ps aux | grep '[m]-ashes' | awk '{print $2}')",
     "build": "./node_modules/.bin/gulp",
-    "dev": "./node_modules/.bin/gulp dev"
+    "dev": "./node_modules/.bin/gulp dev",
+    "flow": "flow check"
   },
   "repository": {
     "type": "git",
@@ -152,7 +153,7 @@
     "browserify": "^11.0.1",
     "chai": "^3.0.0",
     "co-mocha": "^1.1.2",
-    "envify" : "^3.4.0",
+    "envify": "^3.4.0",
     "eslint": "^1.10.1",
     "eslint-plugin-react": "^3.10.0",
     "gulp": "^3.9.0",
@@ -169,6 +170,7 @@
     "gulp-uglify": "^1.2.0",
     "gulp-util": "^3.0.6",
     "jsdom": "^6.5.1",
+    "jsonwebtoken": "^5.5.4",
     "koa-logger": "^1.2.2",
     "less-plugin-functions": "0.0.2",
     "localStorage": "^1.0.3",

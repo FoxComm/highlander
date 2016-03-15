@@ -2,24 +2,28 @@
 // libs
 import React, {PropTypes} from 'react';
 import { inflect } from 'fleck';
+import { connect } from 'react-redux';
+import _ from 'lodash';
 
 // components
 import NotificationBlock from '../activity-notifications/notification-block';
-import Initials from '../users/initials';
+import DetailedInitials from '../users/detailed-initials';
 import Breadcrumb from './breadcrumb';
 
-export const currentUser = {id: 1, name: 'Frankly Admin', email: 'admin@admin.com'};
+import type { TUser } from '../../modules/user';
 
 const Header = props => {
-  const name = currentUser.name.split(' ')[0];
+  const user: TUser = props.user;
+
+  const name = (_.isEmpty(user) || user.name == null) ? '' : user.name.split(' ')[0];
   return (
     <header role='banner' className="fc-header">
       <Breadcrumb routes={props.routes} params={props.params}/>
       <div className="sub-nav">
         <NotificationBlock />
-        <div className="fc-header__initials"><Initials {...currentUser} /></div>
+        <div className="fc-header__initials"><DetailedInitials {...user} /></div>
           <div className="fc-header__name">{name}</div>
-          <div className="sort"><i className="icon-chevron-down"></i></div>
+          <div className="sort"><i className="icon-chevron-down"/></div>
       </div>
     </header>
   );
@@ -30,4 +34,4 @@ Header.propTypes = {
   params: PropTypes.object
 };
 
-export default Header;
+export default connect((state) => ({user: state.user.current}))(Header);

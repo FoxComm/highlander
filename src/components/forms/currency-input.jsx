@@ -17,7 +17,8 @@ export default class CurrencyInput extends React.Component {
     currency: PropTypes.string,
     fractionBase: PropTypes.number,
     defaultValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    className: PropTypes.string
+    className: PropTypes.string,
+    inputName: PropTypes.string,
   };
 
   static defaultProps = {
@@ -25,7 +26,8 @@ export default class CurrencyInput extends React.Component {
     min: 0,
     step: 1,
     fractionBase: 2,
-    currency: 'USD'
+    currency: 'USD',
+    inputName: 'currencyInput',
   };
 
   constructor(props, ...args) {
@@ -106,7 +108,7 @@ export default class CurrencyInput extends React.Component {
     });
 
     return (
-      <PrependInput inputName="currencyInput"
+      <PrependInput inputName={this.props.inputName}
                     icon="usd"
                     onChange={this.onChange}
                     onFocus={this.onInputFocus}

@@ -4,7 +4,7 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
 // components
-import UserInitials from '../../../users/initials';
+import DetailedInitials from '../../../users/detailed-initials';
 
 
 const AuthorIcon = props => {
@@ -16,7 +16,7 @@ const AuthorIcon = props => {
     case 'admin':
       const adminName = _.get(activity, ['data', 'admin', 'name']);
       if (!_.isEmpty(adminName)) {
-        return <UserInitials name={adminName} />;
+        return <DetailedInitials name={adminName} />;
       } else {
         return <div className="fc-activity__system-icon"></div>;
       }

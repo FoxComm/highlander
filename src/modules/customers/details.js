@@ -80,12 +80,12 @@ const reducer = createReducer({
   [requestCustomer]: (entries, id) => {
     return assoc(entries,
       [id, 'isFetching'], true,
-      [id, 'err'], null
+      [id, 'failed'], null
     );
   },
   [receiveCustomer]: (state, [id, details]) => {
     return assoc(state,
-      [id, 'err'], null,
+      [id, 'failed'], null,
       [id, 'isFetching'], false,
       [id, 'details'], haveType(details, 'customer')
     );
@@ -94,14 +94,14 @@ const reducer = createReducer({
     console.error(err);
 
     return assoc(state,
-      [id, 'err'], err,
+      [id, 'failed'], true,
       [id, 'isFetching'], false
     );
   },
   [updateCustomer]: (state, [id, details]) => {
     return assoc(state,
       [id, 'details'], details,
-      [id, 'err'], null
+      [id, 'failed'], null
     );
   },
   [submitToggleDisableStatus]: (state, id) => {

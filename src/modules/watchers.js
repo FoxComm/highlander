@@ -1,6 +1,6 @@
 // libs
 import _ from 'lodash';
-import { assoc } from 'sprout-data';
+import { get, assoc } from 'sprout-data';
 
 // data
 import { searchAdmins } from '../elastic/store-admins';
@@ -8,7 +8,6 @@ import { searchAdmins } from '../elastic/store-admins';
 // helpers
 import Api from '../lib/api';
 import createStore from '../lib/store-creator';
-
 
 const addWatchers = (entityType, fetchEntity) => (actions, entityId) => (dispatch, getState) => {
   const state = getState();
@@ -55,8 +54,9 @@ const suggestWatchers = entityType => (actions, entityId) => (dispatch, getState
   const state = getState();
   const term = _.get(state, [entityType, 'watchers', entityId, 'selectModal', 'term']);
 
+  dispatch(actions.suggestWatchersStart(entityId));
   searchAdmins(term).then(
-    ({result}) => dispatch(actions.setSuggested(entityId, _.isEmpty(result) ? [] : result)),
+    ({ result }) => dispatch(actions.setSuggested(entityId, _.isEmpty(result) ? [] : result)),
     () => dispatch(actions.setSuggested(entityId, []))
   );
 };
@@ -77,6 +77,9 @@ const suggestWatchers = entityType => (actions, entityId) => (dispatch, getState
  * }
  */
 const reducers = {
+  suggestWatchersStart: (state, entityId) => {
+    return assoc(state, [entityId, 'selectModal', 'isFetching'], true);
+  },
   toggleListModal: (state, [entityId, group]) => {
     const path = [entityId, group, 'listModalDisplayed'];
     const oldValue = _.get(state, path, false);
@@ -104,7 +107,7 @@ const reducers = {
 
     const items = _.get(state, path, []);
 
-    if (_.findIndex(items, ({id}) => id === item.id) < 0) {
+    if (_.findIndex(items, ({ id }) => id === item.id) < 0) {
       return assoc(state, path, [...items, item]);
     }
 
@@ -127,7 +130,12 @@ const reducers = {
     return assoc(state, [entityId, 'selectModal', 'term'], term);
   },
   setSuggested: (state, [entityId, payload]) => {
-    return assoc(state, [entityId, 'selectModal', 'suggested'], payload);
+    const path = [entityId, 'selectModal'];
+
+    return assoc(state,
+      [...path, 'isFetching'], false,
+      [...path, 'suggested'], payload
+    );
   },
   failWatchersAction: (state, [entityId, error]) => {
     console.error(error);
@@ -136,7 +144,7 @@ const reducers = {
   },
 };
 
-export default (entityType, {fetchEntity}) => createStore({
+export default (entityType, { fetchEntity }) => createStore({
   entity: 'watchers',
   scope: entityType,
   actions: {

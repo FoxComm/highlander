@@ -20,8 +20,15 @@ export default class SelectableSearchList extends React.Component {
       saveSearch: PropTypes.func.isRequired,
       selectSearch: PropTypes.func.isRequired,
       submitFilters: PropTypes.func.isRequired,
-      submitPhrase: PropTypes.func.isRequired,
-      updateSearch: PropTypes.func.isRequired
+      updateSearch: PropTypes.func.isRequired,
+      updateStateAndFetch: PropTypes.func.isRequired,
+      suggestAssociations: PropTypes.func.isRequired,
+      fetchAssociations: PropTypes.func.isRequired,
+      associateSearch: PropTypes.func.isRequired,
+      dissociateSearch: PropTypes.func.isRequired,
+      selectItem: PropTypes.func.isRequired,
+      deselectItem: PropTypes.func.isRequired,
+      setTerm: PropTypes.func.isRequired,
     }).isRequired,
     searchOptions: PropTypes.shape({
       singleSearch: PropTypes.bool,

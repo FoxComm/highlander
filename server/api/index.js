@@ -9,13 +9,10 @@ function toBase64(str) {
 module.exports = function(app) {
   const config = app.config.api;
   const matchUriRegexp = new RegExp(`^/api/${config.version}/`);
-  const basicAuthHeader = toBase64(config.auth.user + ':' + (config.auth.password || ''));
 
   app.use(function *apiHandler(next) {
     if (this.request.url.match(matchUriRegexp)) {
-
       this.request.headers['Accept'] = 'application/json';
-      this.request.headers['Authorization'] = 'Basic ' + basicAuthHeader;
 
       yield app.jsonError.call(this, next);
     } else {

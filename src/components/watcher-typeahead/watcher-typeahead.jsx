@@ -12,23 +12,24 @@ import { getStorePath } from '../../lib/store-utils';
 // components
 import Typeahead from '../typeahead/typeahead';
 import PilledInput from '../pilled-search/pilled-input';
-import UserInitials from '../users/initials';
+import WatcherTypeaheadItem from './watcher-typeahead-item';
 
 
-const mapStateToProps = (state, {storePath, entity}) => {
-  const path = getStorePath(storePath, entity, 'watchers', 'selectModal');
+const mapStateToProps = (state, { storePath, entity, fieldName = 'watchers' }) => {
+  const path = getStorePath(storePath, entity, fieldName, 'selectModal');
 
   const {
     term = null,
     suggested = [],
-    selected = []
+    selected = [],
+    isFetching
   } = _.get(state, path, {});
 
-  return {term, suggested, selected};
+  return { term, suggested, selected, isFetching };
 };
 
-const mapDispatchToProps = (dispatch, {entity: {entityType, entityId}}) => {
-  const {actions} = getStore('watchers', entityType);
+const mapDispatchToProps = (dispatch, { entity: { entityType, entityId }, fieldName = 'watchers' }) => {
+  const { actions } = getStore(fieldName, entityType);
 
   return {
     setTerm: term => dispatch(actions.setTerm(entityId, term)),
@@ -38,52 +39,39 @@ const mapDispatchToProps = (dispatch, {entity: {entityType, entityId}}) => {
   };
 };
 
+/**
+ * Typeahead component for watchers search/select
+ *
+ * Used for assignment users for entities(watch orders, share searches, etc.)
+ */
 const WatcherTypeahead = (props) => {
-  const {className, label, suggested, suggestWatchers} = props;
+  const { className, label, suggested, suggestWatchers, hideOnBlur, isFetching } = props;
 
   return (
-    <div className={classNames('fc-field-watcher-typeahead', className)}>
-      <div className="fc-field-watcher-typeahead__label">
+    <div className={classNames('fc-watcher-typeahead', className)}>
+      <div className="fc-watcher-typeahead__label">
         <label>
           {label}
         </label>
       </div>
       <Typeahead
         className="_no-search-icon"
-        isFetching={false}
+        isFetching={isFetching}
         fetchItems={suggestWatchers}
         minQueryLength={2}
-        component={TypeaheadItem}
+        component={WatcherTypeaheadItem}
         items={suggested}
         name="watchersSelect"
         placeholder="Name or email..."
         inputElement={renderPilledInput(props)}
-        onItemSelected={(item) => selectItem(props,item)} />
-    </div>
-  );
-};
-
-const TypeaheadItem = (props) => {
-  const item = props.model;
-  const name = getUsername(item);
-
-  return (
-    <div className="fc-field-watcher-typeahead__item">
-      <div className="fc-field-watcher-typeahead__item-icon">
-        <UserInitials name={name} email={item.email} />
-      </div>
-      <div className="fc-field-watcher-typeahead__item-name">
-        {name}
-      </div>
-      <div className="fc-field-watcher-typeahead__item-email">
-        {item.email}
-      </div>
+        hideOnBlur={hideOnBlur}
+        onItemSelected={(item, event) => selectItem(props,item, event)}/>
     </div>
   );
 };
 
 const renderPilledInput = (props) => {
-  const {term, setTerm, selected, maxUsers, onDeselectItem} = props;
+  const { term, setTerm, selected, maxUsers, onDeselectItem } = props;
   const pills = selected.map(getUsername);
 
   return (
@@ -95,24 +83,26 @@ const renderPilledInput = (props) => {
       onChange={({target}) => setTerm(target.value)}
       pills={pills}
       icon={null}
-      onPillClose={(name,index) => onDeselectItem(index)} />
+      onPillClose={(name,index) => onDeselectItem(index)}/>
   );
 };
 
-const selectItem = ({setTerm, selected, onSelectItem}, item) => {
-  if (_.findIndex(selected, ({id}) => id === item.id) < 0) {
+const selectItem = ({ setTerm, selected, onSelectItem }, item, event) => {
+  if (_.findIndex(selected, ({ id }) => id === item.id) < 0) {
     setTerm('');
     onSelectItem(item);
+  } else {
+    event.preventHiding();
   }
 };
 
 const getUsername = (user) => {
-  return user.name
-    ? user.name
-    : `${user.firstName} ${user.lastName}`;
+  return user.name ? user.name : `${user.firstName} ${user.lastName}`;
 };
 
-
+/**
+ * WatcherTypeahead component expected props types
+ */
 WatcherTypeahead.propTypes = {
   storePath: PropTypes.string,
   entity: PropTypes.shape({
@@ -122,6 +112,7 @@ WatcherTypeahead.propTypes = {
   className: PropTypes.string,
   label: PropTypes.string,
   maxUsers: PropTypes.number,
+  hideOnBlur: PropTypes.bool,
 
   //connected
   term: PropTypes.string,
@@ -133,8 +124,12 @@ WatcherTypeahead.propTypes = {
   onDeselectItem: PropTypes.func.isRequired,
 };
 
+/**
+ * WatcherTypeahead component default props values
+ */
 WatcherTypeahead.defaultProps = {
   storePath: '',
+  hideOnBlur: false
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(WatcherTypeahead);

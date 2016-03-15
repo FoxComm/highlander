@@ -14,10 +14,15 @@ export function appendQueryString(url, queryString) {
 }
 
 export function addAuthHeaders(headers) {
-  const token = localStorage.getItem('token');
-  const demoToken = process.env.DEMO_AUTH_TOKEN;
+  const token = localStorage.getItem('jwt');
 
-  headers['Authorization'] = demoToken ? `Basic ${demoToken}` : `Bearer ${token}`;
+  if (isServer) {
+    const demoToken = process.env.DEMO_AUTH_TOKEN;
+    if (demoToken) headers['Authorization'] = `Basic ${demoToken}`;
+    return;
+  }
+
+  if (token) headers['Authorization'] = token;
 }
 
 function serialize(data) {
@@ -37,7 +42,7 @@ function serialize(data) {
 }
 
 
-export function request(method, uri, data) {
+export function request(method, uri, data, options = {}) {
   const isFormData = !isServer && data instanceof FormData;
 
   const headers = {};
@@ -48,10 +53,8 @@ export function request(method, uri, data) {
     headers['Content-Type'] = 'application/json;charset=UTF-8';
   }
 
-  const options = {
-    method,
-    headers
-  };
+  options.headers = options.headers ? Object.assign(headers, options.headers) : headers;
+  options.method = method;
 
   if (data) {
     if (method.toUpperCase() === 'GET') {
@@ -66,8 +69,15 @@ export function request(method, uri, data) {
 
   let error = null;
 
+  const unauthorizedHandler = options.unauthorizedHandler ? options.unauthorizedHandler : () => {
+    window.location.href = "/login";
+  };
+
   return fetch(uri, options)
     .then(response => {
+      if (response.status == 401) {
+        unauthorizedHandler(response);
+      }
       if (response.status < 200 || response.status >= 300) {
         error = new Error(response.statusText);
         error.response = response;
@@ -105,8 +115,8 @@ export default class Api {
     return uri;
   }
 
-  static request(method, uri, data) {
-    return request(method, this.apiURI(uri), data);
+  static request(method, uri, data, options = {}) {
+    return request(method, this.apiURI(uri), data, options);
   }
 
   static submitForm(form) {

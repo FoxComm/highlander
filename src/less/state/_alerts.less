@@ -2,15 +2,16 @@
   &.is-alert-error,
   &.is-alert-warning,
   &.is-alert-success {
-    .font-spec(13px, 18px);
+    .font-spec(13px, 36px);
     color: @color-decor1;
-    .padding(6px);
+    .padding(0 10px);
     .border-radius(3px);
     position: relative;
 
-    > .icon-error {
+    > i {
       .margin-right(5px);
-      .font-spec(20px, 20px);
+      .font-spec(22px, 36px);
+      vertical-align: sub;
     }
   }
 
@@ -19,7 +20,7 @@
   }
 
   .fc-btn-close {
-    .font-spec(20px, 20px);
+    .font-spec(30px, 20px);
     position: absolute;
     .top(7px);
     .right(7px);
