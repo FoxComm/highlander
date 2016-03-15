@@ -32,7 +32,7 @@ object Config {
     def show(e: Environment) = friendlyClassName(e).toLowerCase
   }
 
-  def environment: Environment = sys.env.get("PHOENIX_ENV") match {
+  def environment: Environment = sys.props.get("phoenix.env").orElse(sys.env.get("PHOENIX_ENV")) match {
     case Some("test")         ⇒ Test
     case Some("staging")      ⇒ Staging
     case Some("production")   ⇒ Production
@@ -45,10 +45,4 @@ object Config {
   }
 
   lazy val config = loadWithEnv()
-
-  def ensureRequiredSettingsIsSet(config: TypesafeConfig) = {
-    for {
-      stringKey ← Seq("auth.privateKey", "auth.publicKey", "auth.keyAlgorithm")
-    } yield config.getOptString(stringKey).getOrElse("")
-  }
 }

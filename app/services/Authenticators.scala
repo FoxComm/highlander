@@ -1,9 +1,12 @@
 package services
 
 import scala.concurrent.Future
-import akka.http.scaladsl.model.headers.{HttpCredentials, RawHeader}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
+import akka.http.scaladsl.model.headers.{HttpCookie, HttpChallenge, HttpCredentials, RawHeader}
 import akka.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.directives.CookieDirectives.setCookie
+import akka.http.scaladsl.model.DateTime
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.RespondWithDirectives.respondWithHeader
 import akka.http.scaladsl.server.directives.SecurityDirectives.{AuthenticationResult, challengeFor, extractCredentials}
@@ -21,6 +24,7 @@ import utils.Passwords.checkPassword
 import utils.Slick.implicits._
 import utils.aliases._
 import utils.Config.config
+import utils.Config.RichConfig
 
 // TODO: Implement real session-based authentication with JWT
 // TODO: Probably abstract this out so that we use one for both AdminUsers and Customers
@@ -71,8 +75,29 @@ object Authenticator {
     }
   }
 
-  def setJwtHeader(t: Token): Directive0 = {
-    respondWithHeader(RawHeader("JWT", t.encode))
+  private def respondWithToken(token: Token): Failures Xor Route = {
+    val apiClaims = Token.getJWTClaims(token)
+    val siteClaims = Token.getJWTClaims(token)
+    apiClaims.setSubject("API")
+    siteClaims.setSubject("site")
+
+    for {
+      apiTokenEncoded ← Token.encodeJWTClaims(apiClaims)
+      siteTokenEncoded ← Token.encodeJWTClaims(siteClaims)
+    } yield respondWithHeader(RawHeader("JWT", apiTokenEncoded)).& (
+      setCookie(HttpCookie(
+        name = "JWT",
+        value = siteTokenEncoded,
+        secure = config.getOptBool("auth.cookieSecure").getOrElse(true),
+        httpOnly = true,
+        expires = config.getOptLong("auth.cookieTTL").map { ttl ⇒
+          DateTime.now + ttl*1000
+        },
+        path = Some("/"),
+        domain = config.getOptString("auth.cookieDomain")
+      ))) {
+      complete(HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, apiClaims.toJson)))
+    }
   }
 
   def jwtCustomer(credentials: Option[HttpCredentials])
@@ -94,7 +119,9 @@ object Authenticator {
       user           ← * <~ userDbio.mustFindOr(LoginFailed)
     } yield user).run().map {
       case Xor.Right(entity) ⇒ AuthenticationResult.success(entity)
-      case Xor.Left(_) ⇒ AuthenticationResult.failWithChallenge(challengeFor(realm))
+      case Xor.Left(_) ⇒ AuthenticationResult.failWithChallenge(HttpChallenge(scheme = "Bearer",
+        realm = realm,
+        params = Map.empty))
     }
 
   private[this] def basicAuth[M, F <: EmailFinder[M]](realm: String)
@@ -111,18 +138,16 @@ object Authenticator {
   }
 
   def authenticate(payload: LoginPayload)
-    (implicit ec: EC, db: DB): Result[Token] = {
+    (implicit ec: EC, db: DB): Result[Route] = {
 
-    def auth[M, F <: EmailFinder[M], T](finder: F, getHashedPassword: M ⇒ Option[String], tokenFromModel: M ⇒ T):
-      Result[T] = {
-      (for {
+    def auth[M, F <: EmailFinder[M], T <: Token]
+      (finder: F, getHashedPassword: M ⇒ Option[String], tokenFromModel: M ⇒ T): Result[T] = (for {
         userInstance  ← * <~ finder(payload.email).mustFindOr(LoginFailed)
         validatedUser ← * <~ validatePassword(userInstance, getHashedPassword(userInstance), payload.password)
         checkedToken  ← * <~ tokenFromModel(validatedUser)
       } yield checkedToken).run()
-    }
 
-    payload.kind match {
+    val tokenResult = payload.kind match {
       case Identity.Admin ⇒
         auth[StoreAdmin, EmailFinder[StoreAdmin], AdminToken](StoreAdmins.findByEmail,
           _.hashedPassword, AdminToken.fromAdmin)
@@ -130,6 +155,10 @@ object Authenticator {
         auth[Customer, EmailFinder[Customer], CustomerToken](Customers.findByEmail,
           _.hashedPassword, CustomerToken.fromCustomer)
     }
+
+    tokenResult.map(_.flatMap { token ⇒
+      respondWithToken(token)
+    })
   }
 
   private def validatePassword[M](model: M, hashedPassword: Option[String], password: String): Failures Xor M = {
