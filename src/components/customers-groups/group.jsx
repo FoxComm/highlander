@@ -24,14 +24,6 @@ export default class Group extends React.Component {
   render() {
     const {props} = this;
 
-    if (console.debug) {
-      console.group('group render');
-      for (const name in props) {
-        console.debug(name, props[name]);
-      }
-      console.groupEnd();
-    }
-
     return (
       <div>
         Group details
