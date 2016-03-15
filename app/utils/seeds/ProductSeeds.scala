@@ -23,12 +23,19 @@ trait ProductSeeds extends  {
     }
 
   def products: Seq[SimpleProductData] = Seq(
-    SimpleProductData(code = "SKU-YAX", title = "Flonkey", description = "Best in Class Flonkey", price = 3300, image = ProductGenerator.randomImage),
-    SimpleProductData(code = "SKU-BRO", title = "Bronkey", description = "Bronze Bronkey", price = 15300, image = ProductGenerator.randomImage),
-    SimpleProductData(code = "SKU-ABC", title = "Shark", description = "Dangerious Shark Pets", price = 4500, image = ProductGenerator.randomImage),
-    SimpleProductData(code = "SKU-SHH", title = "Sharkling", description = "Smaller Shark", price = 1500, image = ProductGenerator.randomImage),
-    SimpleProductData(code = "SKU-ZYA", title = "Dolphin", description = "A Dog named Dolphin", price = 8800, image = ProductGenerator.randomImage),
-    SimpleProductData(code = "SKU-MRP", title = "Morphin", description = "Power Ranger", price = 7700, image = ProductGenerator.randomImage),
-    // Why beetle? Cuz it's probably a bug. FIXME: add validation!!!
-    SimpleProductData(code = "SKU-TRL", title = "Beetle", description = "Music Album", price = -100, image = ProductGenerator.randomImage))
+    SimpleProductData(code = "SKU-YAX", title = "Donkey", description = "A styled fit for the donkey life.", price = 3300, 
+      image = "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Granger_Three_Quarter.jpg"),
+    SimpleProductData(code = "SKU-BRO", title = "Shark", description = "Sharks come with balanced framing.", price = 15300, 
+      image = "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Festival_Three_Quarter.jpg" ),
+    SimpleProductData(code = "SKU-ABC", title = "Sharkling", description = "Designed for the beach.", price = 4500, 
+      image =  "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Gold_Blue_Three_Quarter.jpg"),
+    SimpleProductData(code = "SKU-SHH", title = "Duck", description = "The yellow trim accentuates deep pond style.", price = 1500, 
+      image = "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Emma_Top_Front.jpg"),
+    SimpleProductData(code = "SKU-ZYA", title = "Duckling", description = "A fit for a smaller face.", price = 8800, 
+      image ="https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Marley_Top_Front.jpg"),
+    SimpleProductData(code = "SKU-MRP", title = "Chicken", description = "Cross the road in these with confidence.", price = 7700, 
+      image ="https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Round_Readers_Top_Front.jpg"),
+    // Why beetle? Cuz it"s probably a bug. FIXME: add validation!!!
+    SimpleProductData(code = "SKU-TRL", title = "Fox", description = "Stylish fit, stylish finish.", price = -100, 
+      image ="https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Quay_Side.jpg"))
 }
