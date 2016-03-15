@@ -41,39 +41,39 @@ object GiftCardRoutes {
           goodOrFailures {
             GiftCardService.createByAdmin(admin, payload)
           }
-        } /* ~
+        } ~
         pathPrefix("assignees") {
           (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[GiftCardBulkAssignmentPayload]) { payload ⇒
+            entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               goodOrFailures {
-                GiftCardAssignmentUpdater.assignBulk(admin, payload)
+                GiftCardAssignmentsManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[GiftCardBulkAssignmentPayload]) { payload ⇒
+            entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               goodOrFailures {
-                GiftCardAssignmentUpdater.unassignBulk(admin, payload)
+                GiftCardAssignmentsManager.unassignBulk(admin, payload)
               }
             }
           }
         } ~
         pathPrefix("watchers") {
           (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[GiftCardBulkWatchersPayload]) { payload ⇒
+            entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               goodOrFailures {
-                GiftCardWatcherUpdater.watchBulk(admin, payload)
+                GiftCardWatchersManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[GiftCardBulkWatchersPayload]) { payload ⇒
+            entity(as[BulkAssignmentPayload[String]]) { payload ⇒
               goodOrFailures {
-                GiftCardWatcherUpdater.unwatchBulk(admin, payload)
+                GiftCardWatchersManager.unassignBulk(admin, payload)
               }
             }
           }
-        } */
+        }
       } ~
       pathPrefix("gift-cards" / giftCardCodeRegex) { code ⇒
         (get & pathEnd) {

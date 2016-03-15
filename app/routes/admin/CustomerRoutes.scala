@@ -40,39 +40,39 @@ object CustomerRoutes {
           goodOrFailures {
             CustomerManager.create(payload, Some(admin))
           }
-        } /* ~
+        } ~
         pathPrefix("assignees") {
           (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[CustomerBulkAssignmentPayload]) { payload ⇒
+            entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
               goodOrFailures {
-                CustomerAssignmentUpdater.assignBulk(admin, payload)
+                CustomerAssignmentsManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[CustomerBulkAssignmentPayload]) { payload ⇒
+            entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
               goodOrFailures {
-                CustomerAssignmentUpdater.unassignBulk(admin, payload)
+                CustomerAssignmentsManager.unassignBulk(admin, payload)
               }
             }
           }
         } ~
         pathPrefix("watchers") {
           (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[CustomerBulkWatchersPayload]) { payload ⇒
+            entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
               goodOrFailures {
-                CustomerWatcherUpdater.watchBulk(admin, payload)
+                CustomerWatchersManager.assignBulk(admin, payload)
               }
             }
           } ~
           (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[CustomerBulkWatchersPayload]) { payload ⇒
+            entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
               goodOrFailures {
-                CustomerWatcherUpdater.unwatchBulk(admin, payload)
+                CustomerWatchersManager.unassignBulk(admin, payload)
               }
             }
           }
-        } */
+        }
       } ~
       pathPrefix("customers" / IntNumber) { customerId ⇒
         (get & pathEnd) {

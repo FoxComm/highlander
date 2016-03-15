@@ -11,7 +11,6 @@ import services.assignments.{RmaAssignmentsManager, RmaWatchersManager}
 import payloads.{RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCustomerPayload, RmaPaymentPayload,
 RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload, RmaUpdateStatePayload}
 import services.rmas._
-import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._
@@ -25,7 +24,6 @@ object RmaRoutes {
       determineProductContext(db, ec) { productContext ⇒ 
 
         pathPrefix("rmas") {
-          /*
           (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
             goodOrFailures {
               RmaQueries.findAll(Rmas)
@@ -45,28 +43,43 @@ object RmaRoutes {
               }
             }
           } ~
-          */
           (post & pathEnd & entity(as[RmaCreatePayload])) { payload ⇒
             goodOrFailures {
               RmaService.createByAdmin(admin, payload)
             }
-          } /* ~
+          } ~
           pathPrefix("assignees") {
             (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              entity(as[RmaBulkAssigneesPayload]) { payload ⇒
+              entity(as[BulkAssignmentPayload[String]]) { payload ⇒
                 goodOrFailures {
-                  RmaAssignmentUpdater.assignBulk(payload)
+                  RmaAssignmentsManager.assignBulk(admin, payload)
                 }
               }
             } ~
             (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              entity(as[RmaBulkAssigneesPayload]) { payload ⇒
+              entity(as[BulkAssignmentPayload[String]]) { payload ⇒
                 goodOrFailures {
-                  RmaAssignmentUpdater.unassignBulk(payload)
+                  RmaAssignmentsManager.unassignBulk(admin, payload)
                 }
               }
             }
-          } */
+          } ~
+          pathPrefix("watchers") {
+            (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+              entity(as[BulkAssignmentPayload[String]]) { payload ⇒
+                goodOrFailures {
+                  RmaWatchersManager.assignBulk(admin, payload)
+                }
+              }
+            } ~
+            (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
+              entity(as[BulkAssignmentPayload[String]]) { payload ⇒
+                goodOrFailures {
+                  RmaWatchersManager.unassignBulk(admin, payload)
+                }
+              }
+            }
+          }
         } ~
         pathPrefix("rmas" / Rma.rmaRefNumRegex) { refNum ⇒
           (get & pathEnd) {

@@ -12,7 +12,7 @@ import services.Util._
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
-import utils.{ModelWithIdParameter, TableQueryWithId}
+import utils.ModelWithIdParameter
 import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
@@ -53,8 +53,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     notFoundAdmins = diffToFailures(payload.assignees, adminIds, StoreAdmin)
     // Activity log + notifications subscription
     _         ← * <~ LogActivity.assigned(originator, entity, assignedAdmins)
-    _         ← * <~ NotificationManager.subscribe(adminIds = assignedAdmins.map(_.id), dimension = notifyDimension(),
-      reason = notifyReason(), objectIds = Seq(key.toString))
+    _         ← * <~ subscribe(adminIds = assignedAdmins.map(_.id), objectIds = Seq(key.toString))
   } yield TheResponse.build(response, errors = notFoundAdmins)).runTxn()
 
   def unassign(key: K, assigneeId: Int, originator: StoreAdmin)
@@ -70,11 +69,10 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     response       = assignments.map((buildAssignment _).tupled)
     // Activity log + notifications subscription
     _         ← * <~ LogActivity.unassigned(originator, entity, admin)
-    _         ← * <~ NotificationManager.unsubscribe(adminIds = Seq(assigneeId), dimension = notifyDimension(),
-      reason = notifyReason(), objectIds = Seq(key.toString))
+    _         ← * <~ unsubscribe(adminIds = Seq(assigneeId), objectIds = Seq(key.toString))
   } yield response).runTxn()
 
-  def assignBulk(admin: StoreAdmin, payload: BulkAssignmentPayload[K])
+  def assignBulk(originator: StoreAdmin, payload: BulkAssignmentPayload[K])
     (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[Seq[M]]] = (for {
     // Validation + assign
     admin          ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
@@ -86,37 +84,42 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     newEntries     = buildSeq(entities.filter(e ⇒ newAssignedIds.contains(e.id)), payload.storeAdminId)
     _              ← * <~ Assignments.createAll(newEntries)
     success        = filterSuccess(entities, newEntries)
-    // TODO - LogActivity + notifications generalization
-    // ...
+    // LogActivity + notifications
+    _              ← * <~ LogActivity.bulkAssigned(originator, admin, newAssignedIds)
+    _              ← * <~ subscribe(Seq(admin.id), newAssignedIds.map(_.toString))
     // Batch response builder
-    entityName    = entities.headOption.getOrElse(Some)
-    batchFailures = diffToBatchErrors(payload.entityIds, newEntries.map(_.referenceId), entityName)
-    batchMetadata = BatchMetadata(BatchMetadataSource(entityName, success.map(_.toString), batchFailures))
+    entityName     = entities.headOption.getOrElse(Some)
+    batchFailures  = diffToBatchErrors(payload.entityIds, newEntries.map(_.referenceId), entityName)
+    batchMetadata  = BatchMetadata(BatchMetadataSource(entityName, success.map(_.toString), batchFailures))
   } yield TheResponse(entities, errors = flattenErrors(batchFailures), batch = batchMetadata.some)).runTxn()
 
-  def unassignBulk(admin: StoreAdmin, payload: BulkAssignmentPayload[K])
+  def unassignBulk(originator: StoreAdmin, payload: BulkAssignmentPayload[K])
     (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[Seq[M]]] = (for {
     // Validation + unassign
     admin         ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
     entities      ← * <~ fetchSequence(payload.entityIds)
     _             ← * <~ Assignments.byEntitySeqAndAdmin(assignmentType(), entities, referenceType(), admin).delete
     success       = entities.filter(c ⇒ payload.entityIds.contains(c.id)).map(_.id)
-    // TODO - LogActivity + notifications generalization
-    // ...
+    successIds    = success.map(_.toString)
+    // LogActivity + notifications
+    _              ← * <~ LogActivity.bulkUnassigned(originator, admin, successIds)
+    _              ← * <~ unsubscribe(Seq(admin.id), successIds)
     // Batch response builder
     entityName    = entities.headOption.getOrElse(Some)
     batchFailures = diffToBatchErrors(payload.entityIds, entities.map(_.id), entityName)
-    batchMetadata = BatchMetadata(BatchMetadataSource(entityName, success.map(_.toString), batchFailures))
+    batchMetadata = BatchMetadata(BatchMetadataSource(entityName, successIds, batchFailures))
   } yield TheResponse(entities, errors = flattenErrors(batchFailures), batch = batchMetadata.some)).runTxn()
 
-  // Helpers
-  private def fetchAssignments(entity: M)(implicit ec: EC, db: DB) = {
-    for {
-      assignments ← Assignments.byEntity(assignmentType(), entity, referenceType()).result
-      admins      ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.storeAdminId))).result
-    } yield assignments.zip(admins)
-  }
+  // Notifications
+  private def subscribe(adminIds: Seq[Int], objectIds: Seq[String])(implicit ec: EC, db: DB) =
+    NotificationManager.subscribe(adminIds = adminIds, dimension = notifyDimension(), reason = notifyReason(),
+      objectIds = objectIds)
 
+  private def unsubscribe(adminIds: Seq[Int], objectIds: Seq[String])(implicit ec: EC, db: DB) =
+    NotificationManager.unsubscribe(adminIds = adminIds, dimension = notifyDimension(), reason = notifyReason(),
+      objectIds = objectIds)
+
+  // Helpers
   private def build(entity: M, newAssigneeIds: Seq[Int]): Seq[Assignment] =
     newAssigneeIds.map(adminId ⇒ Assignment(assignmentType = assignmentType(),
       storeAdminId = adminId, referenceType = referenceType(), referenceId = entity.id))
@@ -124,6 +127,11 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   private def buildSeq(entities: Seq[M], storeAdminId: Int): Seq[Assignment] =
     for (e ← entities) yield Assignment(assignmentType = assignmentType(), storeAdminId = storeAdminId,
       referenceType = referenceType(), referenceId = e.id)
+
+  private def fetchAssignments(entity: M)(implicit ec: EC, db: DB) = for {
+    assignments ← Assignments.byEntity(assignmentType(), entity, referenceType()).result
+    admins      ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.storeAdminId))).result
+  } yield assignments.zip(admins)
 
   private def filterSuccess(entities: Seq[M], newEntries: Seq[Assignment]): Seq[M#Id] =
     entities.filter(e ⇒ newEntries.map(_.referenceId).contains(e.id)).map(_.id)
