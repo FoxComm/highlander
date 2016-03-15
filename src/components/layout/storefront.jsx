@@ -2,7 +2,6 @@
 
 import React from 'react';
 import type { HTMLElement } from 'types';
-import cssModules from 'react-css-modules';
 import styles from './storefront.css';
 import { connect } from 'react-redux';
 import { toggleSidebar } from 'modules/sidebar';
@@ -57,4 +56,4 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
   );
 };
 
-export default connect(null, {toggleSidebar})(cssModules(StoreFront, styles));
+export default connect(null, {toggleSidebar})(StoreFront);

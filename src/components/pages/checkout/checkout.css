@@ -6,9 +6,14 @@
   width: 100%;
 }
 
-.shipping {
+.left-forms {
   lost-offset: -1/11;
   lost-column: 5/11;
+}
+
+.checkout-block {
+  width: 100%;
+  margin-bottom: 20px;
 }
 
 .logo {
@@ -27,6 +32,7 @@
 }
 
 .checkout-form {
+  margin-top: 25px;
   & > .union-fields {
     margin: 10px 0;
 
@@ -43,9 +49,16 @@
 .checkout-field {
   margin: 10px 0;
 
-  & input:matches([type=text], [type=password]) {
+  & input:matches([type=text], [type=password], [type=number], [type=tel]) {
     width: 100%;
   }
+}
+
+.checkout-submit {
+  composes: button from "ui/css/buttons.css";
+  display: block;
+  margin: 20px auto 0;
+  width: 50%;
 }
 
 @media (--medium-viewport) {

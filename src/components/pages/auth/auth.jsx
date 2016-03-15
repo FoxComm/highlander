@@ -1,12 +1,16 @@
 /* @flow */
 
-import React, { PropTypes } from 'react';
-import cssModules from 'react-css-modules';
+import React from 'react';
 import styles from './auth.css';
+import type { HTMLElement } from 'types';
 
 import Icon from 'ui/icon';
 
-const Auth = props => {
+type AuthProps = {
+  children: HTMLElement;
+}
+
+const Auth = (props: AuthProps) => {
   return (
     <div styleName="auth-block">
       <Icon styleName="logo" name="fc-some_brand_logo" />
@@ -15,8 +19,4 @@ const Auth = props => {
   );
 };
 
-Auth.propTypes = {
-  children: PropTypes.node,
-};
-
-export default cssModules(Auth, styles);
+export default Auth;

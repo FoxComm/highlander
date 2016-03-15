@@ -2,7 +2,6 @@
 
 import React from 'react';
 import styles from './footer.css';
-import cssModules from 'react-css-modules';
 import type { HTMLElement } from 'types';
 
 import Icon from 'ui/icon';
@@ -25,4 +24,4 @@ const Footer = () : HTMLElement => {
   );
 };
 
-export default cssModules(Footer, styles);
+export default Footer;

@@ -2,7 +2,6 @@
 
 import _ from 'lodash';
 import React, { Component } from 'react';
-import cssModules from 'react-css-modules';
 import styles from './pdp.css';
 import { connect } from 'react-redux';
 
@@ -55,7 +54,7 @@ class Pdp extends Component<void, Props, void> {
             <Link to="/" styleName="breadcrumb">SHOP</Link> / LOREM IPSUM
           </div>
           <div styleName="mobile-links">
-            <Link to="/" styleName="breadcrumb">&lt; BACK </Link>
+            <Link to="/" styleName="breadcrumb">&lt; BACK</Link>
           </div>
           <div>
             NEXT &gt;
@@ -89,4 +88,4 @@ class Pdp extends Component<void, Props, void> {
   }
 }
 
-export default connect(getState, actions)(cssModules(Pdp, styles));
+export default connect(getState, actions)(Pdp);

@@ -1,7 +1,6 @@
 
 import _ from 'lodash';
 import React, { Component } from 'react';
-import cssModules from 'react-css-modules';
 import styles from './checkout.css';
 import { autobind, debounce } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -28,11 +27,14 @@ let ViewShipping = (props: Object) => {
 };
 ViewShipping = connect(state => (state.checkout.shippingData))(ViewShipping);
 
-type EditShippingProps = {
+type ShippingProps = {
   isEditing: boolean;
-  editAction?: Function;
+  collapsed: boolean;
+  editAction: Function;
+}
+
+type EditShippingProps = {
   continueAction?: Function;
-  handleSubmit?: Function;
   setShippingData: Function;
   selectedCountry: Object;
   state: Object;
@@ -57,7 +59,6 @@ function mapStateToProps(state) {
 
 /* ::`*/
 @connect(mapStateToProps, checkoutActions)
-@cssModules(styles)
 /* ::`*/
 class EditShipping extends Component {
   props: EditShippingProps;
@@ -156,7 +157,7 @@ class EditShipping extends Component {
               selectedItem={selectedCountry}
             />
           </FormField>
-          <FormField required styleName="checkout-field">
+          <FormField styleName="checkout-field" validator="zipCode">
             <TextInput required placeholder="ZIP" onChange={this.handleZipChange} value={data.zip} />
           </FormField>
         </div>
@@ -176,27 +177,31 @@ class EditShipping extends Component {
             />
           </FormField>
         </div>
-        <FormField styleName="checkout-field">
-          <TextInput name="phone" placeholder="PHONE" onChange={this.changeFormData} value={data.phone} />
+        <FormField label="Phone Number" styleName="checkout-field" validator="phoneNumber">
+          <TextInput required
+            name="phone" type="tel" placeholder="PHONE" onChange={this.changeFormData} value={data.phone}
+          />
         </FormField>
-        <Button type="submit">CONTINUE</Button>
+        <Button styleName="checkout-submit" type="submit">CONTINUE</Button>
       </Form>
     );
   }
 }
 
+const TestView = props => {
+  return props.isEditing ? <EditShipping {...props} /> : <ViewShipping />;
+};
 
-const Shipping = (props: EditShippingProps) => {
+const Shipping = (props: ShippingProps) => {
   return (
     <EditableBlock
-      styleName="shipping"
       title="SHIPPING"
       isEditing={props.isEditing}
+      collapsed={props.collapsed}
       editAction={props.editAction}
-      viewContent={<ViewShipping />}
-      editContent={<EditShipping {...props} />}
+      contentView={TestView}
     />
   );
 };
 
-export default cssModules(Shipping, styles);
+export default Shipping;
