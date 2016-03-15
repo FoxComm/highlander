@@ -23,4 +23,4 @@ inner join skus as s on oli_skus.sku_id = s.id
 inner join object_forms as f on f.id = s.form_id
 inner join object_shadows as sh on sh.id = s.shadow_id;
 
-create unique index customer_purchased_items_view_idx on customer_purchased_items_view (id, customer_id);
+create unique index customer_purchased_items_view_idx on customer_purchased_items_view (id, customer_id, reference_number);

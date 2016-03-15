@@ -3,42 +3,34 @@ package utils.seeds.generators
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.customer.Customer
-import models.inventory.Sku
 import models.location.Addresses
 import models.order.lineitems._
 import models.order._
 import models.payment.creditcard.{CreditCard, CreditCards}
 import models.payment.giftcard._
 import models.payment.storecredit._
-import models.shipping.{Shipments, ShippingMethods, Shipment}
-import models.{Note, Notes}
+import models.shipping.{Shipment, Shipments, ShippingMethods}
+import models.Note
 import models.product.{SimpleProductData, Mvp}
 import models.objects.ObjectContext
-import GiftCard.buildAppeasement
-import payloads.GiftCardCreateByCsr
-import Order.{ManualHold, RemorseHold, FraudHold, Cart, Shipped}
-import utils.seeds.ShipmentSeeds
-
-import utils.Money.Currency
-import services.{ShippingMethodIsNotFound, CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
+import Order.{Cart, FraudHold, ManualHold, RemorseHold, Shipped}
+import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, ShippingMethodIsNotFound}
 import services.orders.OrderTotaler
-import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
-import utils.Slick.DbResult
 import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import utils.Money.Currency
 import utils.Slick.implicits._
 import utils.seeds.ShipmentSeeds
 import utils.time
 import utils.aliases._
-
 import java.time.Instant
-import faker._;
+
+import faker._
 import scala.util.Random
+
 import slick.driver.PostgresDriver.api._
 import cats.implicits._
+import services.inventory.InventoryAdjustmentManager
 
 trait OrderGenerator extends ShipmentSeeds {
 
@@ -89,6 +81,7 @@ trait OrderGenerator extends ShipmentSeeds {
     shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(order = order, method = shipMethod))
     _      ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
     _      ← * <~ OrderTotaler.saveTotals(order)
+    _      ← * <~ InventoryAdjustmentManager.orderPlaced(order)
   } yield order
 
   def manualHoldStoreCreditOrder(customerId: Customer#Id, context: ObjectContext, products: Seq[SimpleProductData], giftCard: GiftCard)(implicit db: DB): DbResultT[Order] = for {
@@ -106,6 +99,7 @@ trait OrderGenerator extends ShipmentSeeds {
     shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(order = order, method = shipMethod))
     _      ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
     _      ← * <~ OrderTotaler.saveTotals(order)
+    _      ← * <~ InventoryAdjustmentManager.orderPlaced(order)
   } yield order
 
   def fraudHoldOrder(customerId: Customer#Id, context: ObjectContext, products: Seq[SimpleProductData], giftCard: GiftCard)(implicit db: DB): DbResultT[Order] = for {
@@ -120,6 +114,7 @@ trait OrderGenerator extends ShipmentSeeds {
     shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(order = order, method = shipMethod))
     _     ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
     _     ← * <~ OrderTotaler.saveTotals(order)
+    _     ← * <~ InventoryAdjustmentManager.orderPlaced(order)
   } yield order
 
   def remorseHold(customerId: Customer#Id, context: ObjectContext, products: Seq[SimpleProductData], giftCard: GiftCard)(implicit db: DB): DbResultT[Order] = for {
@@ -137,6 +132,7 @@ trait OrderGenerator extends ShipmentSeeds {
     shipM ← * <~ OrderShippingMethods.create(OrderShippingMethod.build(order = order, method = shipMethod))
     _     ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
     _     ← * <~ OrderTotaler.saveTotals(order)
+    _     ← * <~ InventoryAdjustmentManager.orderPlaced(order)
   } yield order
 
   def cartOrderUsingGiftCard(customerId: Customer#Id, context: ObjectContext, products: Seq[SimpleProductData], giftCard: GiftCard)(implicit db: DB): DbResultT[Order] = {
@@ -185,6 +181,7 @@ trait OrderGenerator extends ShipmentSeeds {
       _     ← * <~ OrderTotaler.saveTotals(order)
       _     ← * <~ Shipments.create(Shipment(orderId = order.id, orderShippingMethodId = shipM.id.some,
         shippingAddressId = shipA.id.some))
+      _    ← * <~ InventoryAdjustmentManager.orderPlaced(order)
     } yield order
   }
 
@@ -209,6 +206,7 @@ trait OrderGenerator extends ShipmentSeeds {
       _     ← * <~ OrderTotaler.saveTotals(order)
       _     ← * <~ Shipments.create(Shipment(orderId = order.id, orderShippingMethodId = shipM.id.some,
         shippingAddressId = shipA.id.some))
+      _    ← * <~ InventoryAdjustmentManager.orderPlaced(order)
     } yield order
   }
 

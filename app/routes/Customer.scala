@@ -31,7 +31,7 @@ object Customer {
             determineObjectContext(db, ec) { productContext ⇒
               (get & pathEnd) {
                 goodOrFailures {
-                  ProductManager.getIlluminatedFullProduct(productId, productContext.name)
+                  ProductManager.getIlluminatedFullProductByContext(productId, productContext)
                 }
               }
             }

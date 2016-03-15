@@ -120,11 +120,21 @@ object ProductManager {
   } yield FullProductResponse.build(product, productForm, productShadow, skuData)).runTxn()
 
 
-  def getIlluminatedFullProduct(productId: Int, contextName: String)
+  def getIlluminatedFullProductByContextName(productId: Int, contextName: String)
     (implicit ec: EC, db: DB): Result[IlluminatedFullProductResponse.Root] = (for {
-
     context ← * <~ ObjectContexts.filterByName(contextName).one.
       mustFindOr(ObjectContextNotFound(contextName))
+    result ← * <~ getIlluminatedFullProductInner(productId, context)
+  } yield result).run()
+
+  def getIlluminatedFullProductByContext(productId: Int, context: ObjectContext)
+    (implicit ec: EC, db: DB): Result[IlluminatedFullProductResponse.Root] = (for {
+    result ← * <~ getIlluminatedFullProductInner(productId, context)
+  } yield result).run()
+
+  def getIlluminatedFullProductInner(productId: Int, context: ObjectContext)
+    (implicit ec: EC, db: DB): DbResultT[IlluminatedFullProductResponse.Root] = for {
+
     product       ← * <~ Products.filter(_.contextId === context.id).
       filter(_.formId === productId).one.mustFindOr(
         ProductNotFoundForContext(productId, context.id)) 
@@ -137,7 +147,7 @@ object ProductManager {
     IlluminatedProduct.illuminate(context, product, productForm, productShadow),
     skuData.map { 
       case (s, f, sh) ⇒ IlluminatedSku.illuminate(context, s, f, sh)
-    })).run()
+    })
 
   def getIlluminatedFullProductAtCommit(productId: Int, contextName: String, commitId: Int)
     (implicit ec: EC, db: DB): Result[IlluminatedFullProductResponse.Root] = (for {

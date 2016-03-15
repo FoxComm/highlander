@@ -12,9 +12,9 @@ import models.location.Addresses
 import models.payment.creditcard.CreditCards
 import models.payment.giftcard._
 import models.payment.storecredit._
-import models.shipping.{ShippingMethods, Shipment, Shipments}
+import models.shipping.{Shipment, Shipments, ShippingMethods}
 import models.{Note, Notes}
-import services.{ShippingMethodIsNotFound, CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
+import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404, ShippingMethodIsNotFound}
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT
@@ -23,8 +23,9 @@ import utils.DbResultT.{DbResultT, _}
 import utils.Money.Currency
 import utils.Slick.implicits._
 import utils.time
-
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import services.inventory.InventoryAdjustmentManager
 
 trait OrderSeeds {
 
@@ -49,6 +50,7 @@ trait OrderSeeds {
     _     ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
     _     ← * <~ Notes.createAll(orderNotes.map(_.copy(referenceId = order.id)))
     _     ← * <~ OrderTotaler.saveTotals(order)
+    _     ← * <~ InventoryAdjustmentManager.orderPlaced(order)
   } yield order
 
   def createOrder2(customerId: Customer#Id, context: ObjectContext, products: Seq[SimpleProductData])(implicit db: Database): DbResultT[Order] = for {
@@ -61,7 +63,8 @@ trait OrderSeeds {
     _      ← * <~ StoreCredits.capture(sc, op.id.some, totals) // or auth?
     addr   ← * <~ getDefaultAddress(customerId)
     _      ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))
-    _     ← * <~ OrderTotaler.saveTotals(order)
+    _      ← * <~ OrderTotaler.saveTotals(order)
+    _      ← * <~ InventoryAdjustmentManager.orderPlaced(order)
   } yield order
 
   def createOrder3(customerId: Customer#Id, context: ObjectContext, products: Seq[SimpleProductData])(implicit db: Database): DbResultT[Order] = {
@@ -111,6 +114,7 @@ trait OrderSeeds {
     _     ← * <~ OrderTotaler.saveTotals(order)
     _     ← * <~ Shipments.create(Shipment(orderId = order.id, orderShippingMethodId = shipM.id.some,
                       shippingAddressId = shipA.id.some))
+    _     ← * <~ InventoryAdjustmentManager.orderPlaced(order)
   } yield order
 
   def addSkusToOrder(skuIds: Seq[Int], orderId: Order#Id, state: OrderLineItem.State): DbResultT[Unit] = for {

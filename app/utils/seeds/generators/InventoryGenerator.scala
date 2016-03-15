@@ -3,13 +3,17 @@ package utils.seeds.generators
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random.nextInt
 
+import models.inventory.InventoryAdjustment.WmsOverride
 import models.product.SimpleProductData
-import models.inventory.{Warehouses, Warehouse}
+import models.inventory._
 import models.inventory.summary.InventorySummary.AllSummaries
 import models.inventory.summary._
+import services.inventory.InventoryAdjustmentManager
 import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
+import utils.aliases.DB
+import Rnd._
 
 trait InventoryGenerator {
 
@@ -37,15 +41,33 @@ trait InventorySummaryGenerator {
       sellable.id, preorderId = preorder.id, backorderId = backorder.id, nonSellableId = nonsellable.id))
   } yield (sellable, preorder, backorder, nonsellable)
 
-  def generateInventories(products: Seq[SimpleProductData], warehouseIds: Seq[Int]): DbResultT[Seq[AllSummaries]] = {
-    val skuIds = products.map(_.skuId)
+  def generateInventories(products: Seq[SimpleProductData], warehouseIds: Seq[Int]): DbResultT[Seq[AllSummaries]] =
+    generateInventoriesForSkus(products.map(_.skuId), warehouseIds)
+
+  def generateInventoriesForSkus(skuIds: Seq[Int], warehouseIds: Seq[Int]): DbResultT[Seq[AllSummaries]] =
     DbResultT.sequence(for {
-      skuId ←  skuIds
+      skuId ← skuIds
       warehouseId ← warehouseIds
     } yield generateInventory(skuId, warehouseId))
-  }
+}
 
-  private def onHandRandom = nextInt(1000)
-  private def onHoldRandom = nextInt(50)
-  private def reservedRandom = nextInt(100)
+trait InventoryAdjustmentsGenerator {
+
+  def generateWmsAdjustments(skuId: Int, warehouseId: Int)(implicit db: DB): DbResultT[Seq[Int]] =
+    DbResultT.sequence((1 to 10).map { _ ⇒
+      val wmsOverride = WmsOverride(skuId, warehouseId, onHandRandom / 2, onHoldRandom / 2, reservedRandom / 2)
+      InventoryAdjustmentManager.wmsOverride(wmsOverride)
+    }).map(_.flatten)
+
+  def generateWmsAdjustmentsSeq(skuIds: Seq[Int], warehouseIds: Seq[Int])(implicit db: DB): DbResultT[Seq[Int]] =
+    DbResultT.sequence(for {
+      skuId ← skuIds
+      warehouseId ← warehouseIds
+    } yield generateWmsAdjustments(skuId, warehouseId)).map(_.flatten)
+}
+
+private object Rnd {
+  def onHandRandom = nextInt(1000)
+  def onHoldRandom = nextInt(50)
+  def reservedRandom = nextInt(100)
 }

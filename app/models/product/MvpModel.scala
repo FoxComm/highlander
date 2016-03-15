@@ -47,7 +47,8 @@ final case class SimpleProduct(title: String, description: String, image: String
       "title" : "$title",
       "description" : "$description",
       "images" : ["$image"],
-      "variants" : "$code"
+      "variants" : {},
+      "skus" : {"$code" : {}}
     }"""))
 
     def create : ObjectForm = ObjectForm(kind = Product.kind, attributes = form)
@@ -58,10 +59,11 @@ final case class SimpleProductShadow(formId: Int, p: SimpleProduct) {
     val shadow = ObjectUtils.newShadow(parse(
       s"""
         {
-          "title" : {"type": "string", "ref":"title"},
+          "title" : {"type": "string", "ref": "title"},
           "description" : {"type": "string", "ref": "description"},
-          "images" : {"type": "images", "ref":"images"},
-          "variants" : {"type": "variants", "ref":"variants"}
+          "images" : {"type": "images", "ref": "images"},
+          "variants" : {"type": "variants", "ref": "variants"},
+          "skus" : {"type": "skus", "ref": "skus"}
         }"""), 
       p.keyMap)
 

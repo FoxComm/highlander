@@ -32,7 +32,7 @@ object ProductRoutes {
             pathPrefix(Segment / IntNumber / "baked") { (context, productId) ⇒
               (get & pathEnd) {
                 goodOrFailures {
-                  ProductManager.getIlluminatedFullProduct(productId, context)
+                  ProductManager.getIlluminatedFullProductByContextName(productId, context)
                 }
               }
             } ~ 

@@ -17,7 +17,7 @@ import Order.Shipped
 import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
 import services.orders.OrderTotaler
 
-import utils.seeds.generators.{InventorySummaryGenerator, InventoryGenerator}
+import utils.seeds.generators.{InventorySummaryGenerator, InventoryGenerator, ProductGenerator}
 import utils.Money.Currency
 import utils.DbResultT
 import utils.DbResultT._
@@ -105,15 +105,15 @@ trait DemoScenario2 extends DemoSeedHelpers {
 
   def products2: Seq[SimpleProductData] = Seq(
     SimpleProductData(code = "SKU-ALG", title = "Alegria Women's Vanessa Sandal",
-      description = "Alegria Women's Vanessa Sandal", price = 3500),
+      description = "Alegria Women's Vanessa Sandal", price = 3500, image = ProductGenerator.randomImage),
     SimpleProductData(code = "SKU-NIK", title = "Nike Men's Donwshifter 6 Running Shoe",
-      description = "Nike Men's Donwshifter 6 Running Shoe", price = 2500),
+      description = "Nike Men's Donwshifter 6 Running Shoe", price = 2500, image = ProductGenerator.randomImage),
     SimpleProductData(code = "SKU-BAL", title = "New Balance Men's M520V2 Running Shoe",
-      description = "New Balance Men's M520V2 Running Shoe", price = 2800),
+      description = "New Balance Men's M520V2 Running Shoe", price = 2800, image = ProductGenerator.randomImage),
     SimpleProductData(code = "SKU-CLK", title = "Clarks Women's Aria Pump Flat",
-      description = "Clarks Women's Aria Pump Flat", price = 7900),
+      description = "Clarks Women's Aria Pump Flat", price = 7900, image = ProductGenerator.randomImage),
     SimpleProductData(code = "SKU-ADS", title = "adidas Performance Women's Galactic Elite Running Shoe",
-      description = "adidas Performance Women's Galactic Elite Running Shoe", price = 4900))
+      description = "adidas Performance Women's Galactic Elite Running Shoe", price = 4900, image = ProductGenerator.randomImage))
 
   def address2 = Address(customerId = 0, regionId = 4177, name = "Home",
     address1 = "555 E Lake Union St.", address2 = None, city = "Seattle",
@@ -155,7 +155,8 @@ trait DemoScenario3 extends DemoSeedHelpers {
     generateCustomer("John Dole", "john.dole@yahoo.com"))
 
   def products3: Seq[SimpleProductData] = Seq(SimpleProductData(code = "SKU-CLK2",
-    title = "Clarks Women's Aria Pump Flat", description = "Clarks Women's Aria Pump Flat", price = 7900))
+    title = "Clarks Women's Aria Pump Flat", description = "Clarks Women's Aria Pump Flat", price = 7900, 
+    image = ProductGenerator.randomImage))
 
   def address3 = Address(customerId = 0, regionId = 4177, name = "Home",
     address1 = "555 E Lake Union St.", address2 = None, city = "Seattle",
