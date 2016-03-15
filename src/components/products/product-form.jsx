@@ -263,7 +263,7 @@ export default class ProductForm extends Component<void, Props, State> {
         <div>
           <SubNav productId={this.props.productId} product={this.props.product} />
           <div className="fc-product-details fc-grid">
-            <div className="fc-col-md-3-5">
+            <div className="fc-col-md-2-3">
               {this.generalContentBox}
               {this.pricingContentBox}
               {this.variantContentBox}

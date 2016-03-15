@@ -8,6 +8,7 @@ import moment from 'moment';
 import _ from 'lodash';
 
 import { Dropdown, DropdownItem } from '../dropdown';
+import DateTimePicker from '../date-time-picker/date-time-picker';
 import TextInput from '../forms/text-input';
 
 import type { FullProduct } from '../../modules/products/details';
@@ -34,7 +35,7 @@ export default class ProductState extends Component<void, Props, State> {
 
     this.state = {
       activeState,
-      showActiveFromPicker: true,
+      showActiveFromPicker: false,
       showActiveToPicker: false,
     };
   }
@@ -49,26 +50,24 @@ export default class ProductState extends Component<void, Props, State> {
           <div className="fc-product-state__picker-label">
             Start
           </div>
-          <div className="fc-product-state__picker-fields">
-            <TextInput
-              className="fc-product-state__picker-date"
-              placeholder="mm/dd/yy"
-              value=""
-              onChange={_.noop} />
-            <TextInput
-              className="fc-product-state__picker-hour"
-              value="12"
-              onChange={_.noop} />
-            <div className="fc-product-state__picker-separator">:</div>
-            <TextInput
-              className="fc-product-state__picker-minute"
-              value="00"
-              onChange={_.noop} />
-            <TextInput
-              className="fc-product-state__picker-ampm"
-              value="am"
-              onChange={_.noop} />
+          <DateTimePicker onCancel={this.handleCancelFrom} />
+        </div>
+      );
+    }
+  }
+
+  get activeToPicker(): ?Element {
+    if (this.state.showActiveFromPicker) {
+      const picker = this.state.showActiveToPicker
+        ? <DateTimePicker onCancel={this.handleCancelTo} />
+        : <a onClick={this.handleShowActiveTo}><i className="icon-add" /></a>;
+
+      return (
+        <div className="fc-product-state__picker _end">
+          <div className="fc-product-state__picker-label">
+            End 
           </div>
+          {picker}
         </div>
       );
     }
@@ -93,6 +92,60 @@ export default class ProductState extends Component<void, Props, State> {
     this.setState({ activeState: value });
   }
 
+  @autobind
+  handleCancelFrom() {
+    this.setState({
+      showActiveFromPicker: false,
+      showActiveToPicker: false,
+    });
+  }
+
+  @autobind
+  handleCancelTo() {
+    this.setState({
+      showActiveToPicker: false,
+    });
+  }
+
+  @autobind
+  handleShowActiveTo() {
+    this.setState({
+      showActiveFromPicker: true,
+      showActiveToPicker: true,
+    });
+  }
+
+
+  get activeDropdown(): Element {
+    const isDisabled = this.state.showActiveFromPicker;
+    return (
+      <Dropdown
+        className="fc-product-state__active-state"
+        disabled={isDisabled}
+        value={this.state.activeState}
+        onChange={this.handleActiveChange}>
+        <DropdownItem value="active">Active</DropdownItem>
+        <DropdownItem value="inactive">Inactive</DropdownItem>
+      </Dropdown>
+    );
+  }
+
+  @autobind
+  handleClickCalendar() {
+    this.setState({
+      showActiveFromPicker: true,
+      showActiveToPicker: false,
+    });
+  }
+
+  @autobind
+  handleClickCloseFrom() {
+    this.setState({
+      showActiveFromPicker: false,
+      showActiveToPicker: false,
+    });
+  }
+
   render(): Element {
     return (
       <div className="fc-product-state">
@@ -101,17 +154,12 @@ export default class ProductState extends Component<void, Props, State> {
             State
           </div>
           <div className="fc-product-state__icon">
-            <a onClick={_.noop}><i className="icon-calendar" /></a>
+            <a onClick={this.handleClickCalendar}><i className="icon-calendar" /></a>
           </div>
         </div>
-        <Dropdown
-          className="fc-product-state__active-state"
-          value={this.state.activeState}
-          onChange={this.handleActiveChange}>
-          <DropdownItem value="active">Active</DropdownItem>
-          <DropdownItem value="inactive">Inactive</DropdownItem>
-        </Dropdown>
+        {this.activeDropdown}
         {this.activeFromPicker}
+        {this.activeToPicker}
       </div>
     );
   }
