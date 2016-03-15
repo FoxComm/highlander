@@ -19,7 +19,7 @@ type Params = {
 };
 
 type Props = {
-  fetchProduct: (id: number) => void,
+  fetch: (id: number) => any,
   params: Params,
   product: ProductResponse,
 };
@@ -27,8 +27,8 @@ type Props = {
 const getState = state => ({ product: state.productDetails.product });
 
 class Pdp extends Component<void, Props, void> {
-  componentDidMount() {
-    this.props.fetchProduct(this.productId);
+  componentWillMount() {
+    this.props.fetch(this.productId);
   }
 
   get productId(): number {
