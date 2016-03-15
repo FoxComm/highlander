@@ -13,11 +13,27 @@ import { Link } from 'react-router';
 
 import * as actions from 'modules/product-details';
 
+import type { ProductResponse } from 'modules/product-details';
+
+type Params = {
+  productId: string,
+};
+
+type Props = {
+  fetchProduct: (id: number) => void,
+  params: Params,
+  product: ProductResponse,
+};
+
 const getState = state => ({ product: state.productDetails.product });
 
-class Pdp extends Component {
+class Pdp extends Component<void, Props, void> {
   componentDidMount() {
-    this.props.fetchProduct(1);
+    this.props.fetchProduct(this.productId);
+  }
+
+  get productId(): number {
+    return parseInt(this.props.params.productId, 10);
   }
 
   render() {
