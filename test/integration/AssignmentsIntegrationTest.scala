@@ -20,6 +20,7 @@ class AssignmentsIntegrationTest extends IntegrationTestBase
   with AutomaticAuth {
 
   "POST /v1/orders/:refNum/assignees" - {
+    pending
 
     "can be assigned to order" in new Fixture {
       val response = POST(s"v1/orders/${order.referenceNumber}/assignees", AssignmentPayload(Seq(storeAdmin.id)))
@@ -90,6 +91,7 @@ class AssignmentsIntegrationTest extends IntegrationTestBase
   }
 
   "DELETE /v1/orders/:refNum/assignees/:assigneeId/delete" - {
+    pending
 
     "can be unassigned from order" in new AssignmentFixture {
       val response = DELETE(s"v1/orders/${order.referenceNumber}/assignees/${storeAdmin.id}")
@@ -124,6 +126,7 @@ class AssignmentsIntegrationTest extends IntegrationTestBase
   }
 
   "POST /v1/orders/:refNum/watchers" - {
+    pending
 
     "can be added to order" in new Fixture {
       val response = POST(s"v1/orders/${order.referenceNumber}/watchers", AssignmentPayload(Seq(storeAdmin.id)))
@@ -194,6 +197,7 @@ class AssignmentsIntegrationTest extends IntegrationTestBase
   }
 
   "DELETE /v1/orders/:refNum/watchers/:watcherId/delete" - {
+    pending
 
     "can be removed from order watchers" in new WatcherFixture {
       val response = DELETE(s"v1/orders/${order.referenceNumber}/watchers/${storeAdmin.id}")
@@ -228,6 +232,8 @@ class AssignmentsIntegrationTest extends IntegrationTestBase
   }
 
   "POST /v1/orders/assignees" - {
+    pending
+
     "assigns successfully ignoring duplicates" in new BulkAssignmentFixture {
       val assignResponse1 = POST(s"v1/orders/assignees", BulkAssignmentPayload[String](Seq(orderRef1), adminId))
       assignResponse1.status must === (StatusCodes.OK)
@@ -286,6 +292,8 @@ class AssignmentsIntegrationTest extends IntegrationTestBase
   }
 
   "POST /v1/orders/assignees/delete" - {
+    pending
+
     "unassigns successfully ignoring wrong attempts" in new BulkAssignmentFixture {
       // Should pass
       val unassign1 = POST(s"v1/orders/assignees/delete", BulkAssignmentPayload[String](Seq(orderRef1), adminId))
@@ -340,6 +348,8 @@ class AssignmentsIntegrationTest extends IntegrationTestBase
   }
 
   "POST /v1/orders/watchers" - {
+    pending
+
     "adds successfully ignoring duplicates" in new BulkAssignmentFixture {
       val watcherResponse1 = POST(s"v1/orders/watchers", BulkAssignmentPayload[String](Seq(orderRef1), adminId))
       watcherResponse1.status must === (StatusCodes.OK)
@@ -398,6 +408,8 @@ class AssignmentsIntegrationTest extends IntegrationTestBase
   }
 
   "POST /v1/orders/watchers/delete" - {
+    pending
+
     "unwatches successfully ignoring wrong attempts" in new BulkAssignmentFixture {
       // Should pass
       val unwatch1 = POST(s"v1/orders/watchers/delete", BulkAssignmentPayload[String](Seq(orderRef1), adminId))

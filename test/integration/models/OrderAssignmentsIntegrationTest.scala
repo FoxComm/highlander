@@ -14,6 +14,7 @@ class OrderAssignmentsIntegrationTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 
   "order assignees" - {
+    pending
 
     "finds all admins assigned to order" in new Fixture {
       assign(admin1, order3)
