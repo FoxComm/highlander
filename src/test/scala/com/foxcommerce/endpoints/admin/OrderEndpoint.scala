@@ -10,7 +10,7 @@ object OrderEndpoint {
 
   def create(order: OrderFixture): HttpRequestBuilder = http("Create Order")
     .post("/v1/orders")
-    .basicAuth("${email}", "${password}")
+    .header("Authorization", "${jwtTokenAdmin}")
     .body(StringBody("""{"customerId": ${customerId}}"""))
     .check(status.is(200))
     .check(jsonPath("$.id").ofType[Long].saveAs("orderId"))
@@ -21,7 +21,7 @@ object OrderEndpoint {
 
   def cancel(): HttpRequestBuilder = http("Cancel Order")
     .patch("/v1/orders/${orderRefNum}")
-    .basicAuth("${email}", "${password}")
+    .header("Authorization", "${jwtTokenAdmin}")
     .body(StringBody("""{"state": "canceled"}"""))
     .check(status.is(200))
     .check(jsonPath("$.orderState").ofType[String].is("canceled"))
@@ -29,7 +29,7 @@ object OrderEndpoint {
   def addShippingAddress(order: OrderFixture): HttpRequestBuilder = {
     http("Add Order Shipping Address")
       .post("/v1/orders/${orderRefNum}/shipping-address")
-      .basicAuth("${email}", "${password}")
+      .header("Authorization", "${jwtTokenAdmin}")
       .body(StringBody(Utils.addressPayloadBody(order.shippingAddress)))
       .check(status.is(200))
       .check(jsonPath("$.result.shippingAddress.name").ofType[String].is(order.shippingAddress.name))
@@ -42,7 +42,7 @@ object OrderEndpoint {
 
   def updateShippingAddress(order: OrderFixture): HttpRequestBuilder = http("Update Order Shipping Address")
     .patch("/v1/orders/${orderRefNum}/shipping-address")
-    .basicAuth("${email}", "${password}")
+    .header("Authorization", "${jwtTokenAdmin}")
     .body(StringBody(Utils.addressPayloadBody(order.shippingAddress)))
     .check(status.is(200))
     .check(jsonPath("$.result.shippingAddress.name").ofType[String].is(order.shippingAddress.name))
@@ -54,7 +54,7 @@ object OrderEndpoint {
 
   def assign(storeAdminId: Int): HttpRequestBuilder = http("Assign Store Admin To Order")
     .post("/v1/orders/${orderRefNum}/assignees")
-    .basicAuth("${email}", "${password}")
+    .header("Authorization", "${jwtTokenAdmin}")
     .body(StringBody("""{"assignees": [%d]}""".format(storeAdminId)))
     .check(status.is(200))
     .check(jsonPath("$.result.assignees[0].assignee.id").ofType[Int].is(storeAdminId))

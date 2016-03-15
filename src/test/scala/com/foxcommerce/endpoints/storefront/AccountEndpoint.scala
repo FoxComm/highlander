@@ -8,7 +8,7 @@ object AccountEndpoint {
 
   def get(): HttpRequestBuilder = http("Get My Account")
     .get("/v1/my/account")
-    .basicAuth("${email}", "${password}")
+    .header("Authorization", "${jwtTokenCustomer}")
     .check(status.is(200))
     .check(jsonPath("$.id").ofType[Long].saveAs("accountId"))
     .check(jsonPath("$.email").ofType[String].is("${email}"))

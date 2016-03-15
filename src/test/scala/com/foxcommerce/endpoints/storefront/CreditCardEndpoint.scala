@@ -9,7 +9,7 @@ object CreditCardEndpoint {
 
   def create(card: CreditCardFixture, address: AddressFixture): HttpRequestBuilder = http("Create My Credit Card")
     .post("/v1/my/payment-methods/credit-cards")
-    .basicAuth("${email}", "${password}")
+    .header("Authorization", "${jwtTokenCustomer}")
     .body(ELFileBody("request-bodies/credit_card.json"))
     .check(status.is(200))
     .check(jsonPath("$.id").ofType[Long].saveAs("creditCardId"))
@@ -27,7 +27,7 @@ object CreditCardEndpoint {
 
   def update(card: CreditCardFixture, address: AddressFixture): HttpRequestBuilder = http("Update My Credit Card")
     .patch("/v1/my/payment-methods/credit-cards/${creditCardId}")
-    .basicAuth("${email}", "${password}")
+    .header("Authorization", "${jwtTokenCustomer}")
     .body(StringBody("""{"holderName": "%s"}""".format(card.holderName)))
     .check(status.is(200))
     .check(jsonPath("$.id").ofType[Long].saveAs("creditCardId"))
@@ -46,7 +46,7 @@ object CreditCardEndpoint {
   def setAsDefault(card: CreditCardFixture, address: AddressFixture): HttpRequestBuilder =
     http("Set My Credit Card As Default")
       .post("/v1/my/payment-methods/credit-cards/${creditCardId}/default")
-      .basicAuth("${email}", "${password}")
+      .header("Authorization", "${jwtTokenCustomer}")
       .body(StringBody("""{"isDefault": true}"""))
       .check(status.is(200))
       .check(jsonPath("$.id").ofType[Long].is("${creditCardId}"))
@@ -65,7 +65,7 @@ object CreditCardEndpoint {
   def get(card: CreditCardFixture, address: AddressFixture): HttpRequestBuilder =
     http("Get My Credit Card")
       .get("/v1/my/payment-methods/credit-cards/${creditCardId}")
-      .basicAuth("${email}", "${password}")
+      .header("Authorization", "${jwtTokenCustomer}")
       .check(status.is(200))
       .check(jsonPath("$.id").ofType[Long].is("${creditCardId}"))
       .check(jsonPath("$.customerId").ofType[Long].is("${accountId}"))
@@ -82,6 +82,6 @@ object CreditCardEndpoint {
 
   def delete(): HttpRequestBuilder = http("Delete My Credit Card")
     .delete("/v1/my/payment-methods/credit-cards/${creditCardId}")
-    .basicAuth("${email}", "${password}")
+    .header("Authorization", "${jwtTokenCustomer}")
     .check(status.is(204))
 }

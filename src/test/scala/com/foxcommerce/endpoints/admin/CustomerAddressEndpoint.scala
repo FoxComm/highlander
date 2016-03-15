@@ -10,7 +10,7 @@ object CustomerAddressEndpoint {
 
   def create(address: AddressFixture): HttpRequestBuilder = http("Create Customer Address")
     .post("/v1/customers/${customerId}/addresses")
-    .basicAuth("${email}", "${password}")
+    .header("Authorization", "${jwtTokenAdmin}")
     .body(StringBody(Utils.addressPayloadBody(address)))
     .check(status.is(200))
     .check(jsonPath("$.id").ofType[Long].saveAs("customerAddressId"))
@@ -23,7 +23,7 @@ object CustomerAddressEndpoint {
 
   def update(address: AddressFixture): HttpRequestBuilder = http("Update Customer Address")
     .patch("/v1/customers/${customerId}/addresses/${customerAddressId}")
-    .basicAuth("${email}", "${password}")
+    .header("Authorization", "${jwtTokenAdmin}")
     .body(StringBody(Utils.addressPayloadBody(address)))
     .check(status.is(200))
     .check(jsonPath("$.id").ofType[Long].saveAs("customerAddressId"))
