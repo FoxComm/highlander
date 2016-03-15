@@ -18,28 +18,29 @@ type Params = {
 type ProductListParams = {
   params: Params;
   list: Array<Product>;
-  fetchProducts: Function;
+  fetch: Function;
 }
 
-const getState = state => ({ list: state.products.list });
+const getState = state => ({...state.products});
 
 class ProductList extends Component {
 
-  componentDidMount() {
+  componentWillMount() {
     const categoryId = this.categoryId(this.props.params);
-    this.props.fetchProducts(categoryId);
+    this.props.fetch(categoryId);
   }
 
   componentWillReceiveProps(nextProps: ProductListParams) {
     const categoryId = this.categoryId(this.props.params);
     const nextId = this.categoryId(nextProps.params);
     if (categoryId !== nextId) {
-      this.props.fetchProducts(nextId);
+      this.props.fetch(nextId);
     }
   }
 
   categoryId(params: Params): ?number {
-    return params.categoryName ? parseInt(params.categoryName, 10) : null;
+    const id = params.categoryName ? parseInt(params.categoryName, 10) : null;
+    return isNaN(id) ? null : id;
   }
 
   render(): HTMLElement {

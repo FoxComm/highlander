@@ -15,13 +15,13 @@ type Category = {
   id: number;
 };
 
-const getState = state => ({ list: state.categories.list });
+const getState = state => ({...state.categories});
 
 class Categories extends React.Component {
 
   static propTypes = {
     list: PropTypes.array,
-    fetchCategories: PropTypes.func.isRequired,
+    fetch: PropTypes.func.isRequired,
     onClick: PropTypes.func,
   };
 
@@ -29,8 +29,8 @@ class Categories extends React.Component {
     onClick: _.noop,
   };
 
-  componentDidMount() {
-    this.props.fetchCategories();
+  componentWillMount() {
+    this.props.fetch();
   }
 
   @autobind
