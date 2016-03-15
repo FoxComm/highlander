@@ -2,12 +2,11 @@
 import React, { PropTypes } from 'react';
 
 
-const Input = ({criterion, value, prefixed, changeValue}) => {
+const Input = type => ({criterion, value, prefixed, changeValue}) => {
   return (
     <input className={prefixed('field')}
            name={criterion.field}
-           maxLength='255'
-           type='text'
+           type={type}
            onChange={({target}) => changeValue(target.value)}
            value={value} />
   );

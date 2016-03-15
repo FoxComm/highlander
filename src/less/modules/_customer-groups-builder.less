@@ -55,7 +55,7 @@
     }
   }
 
-  @field-width: 278px;
+  @field-width: 330px;
   @field-height: 40px;
   &__field {
     background: @color-white;
@@ -64,13 +64,31 @@
     .width(@field-width);
     .height(@field-height);
     .border-radius(3px);
-    //.margin-right(2rem);
     .padding(0 1rem);
     .highlight-border-behaviour();
     box-shadow: inset 1px 1px 1px 0 rgba(0, 0, 0, 0.1);
   }
 
+  .fc-datepicker {
+    margin-bottom: 0;
+  }
+
+  .fc-prepend-input, .fc-append-input {
+    .width(@field-width);
+    .height(@field-height);
+    &__input-field {
+      .width(@field-width - 36);
+    }
+  }
+
+  .fc-dropdown {
+    .width(@field-width);
+    .max-width(@field-width);
+    .height(@field-height);
+  }
+
   &__vertical-select {
+    @field-width: 278px;
     flex-direction: column;
     @line-width: 34px;
     @line-height: 28px;
@@ -87,20 +105,6 @@
         .margin-bottom(@b-size + (@line-height - @field-height/2) + @critertion-margin);
       }
     }
-
-    //@line : 2px solid #ced2d5;
-    //&__binder {
-    //  width: 34px;
-    //  height: 68px;
-    //  position: absolute;
-    //  top: 18px;
-    //  right: 37px;
-    //  border-top: @line;
-    //  border-right: @line;
-    //  &:last-child {
-    //    height: 68px;
-    //  }
-    //}
 
     &__item {
       position: relative;
@@ -160,6 +164,20 @@
       &:hover {
         color: @color-decor22;
       }
+    }
+
+    .fc-prepend-input, .fc-append-input {
+      .width(@field-width);
+      .height(@field-height);
+      &__input-field {
+        .width(@field-width - 36);
+      }
+    }
+
+    .fc-dropdown {
+      .width(@field-width);
+      .max-width(@field-width);
+      .height(@field-height);
     }
   }
 }

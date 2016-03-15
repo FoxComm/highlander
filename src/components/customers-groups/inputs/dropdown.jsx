@@ -2,12 +2,15 @@
 import React, { PropTypes } from 'react';
 
 //components
-import DatePicker from '../../datepicker/datepicker';
+import Dropdown from '../../dropdown/dropdown';
 
 
 const Input = ({criterion, value, prefixed, changeValue}) => {
   return (
-    <DatePicker onClick={changeValue} />
+    <Dropdown name={criterion.field}
+              value={value}
+              items={criterion.input.config.choices}
+              onChange={changeValue} />
   );
 };
 

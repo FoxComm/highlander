@@ -1,4 +1,5 @@
 //libs
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 
@@ -7,7 +8,7 @@ import { Button } from '../../common/buttons';
 
 
 const Input = Widget => ({criterion, value, prefixed, changeValue}) => {
-  const values = value || [null];
+  const values = _.isEmpty(value) ? [null] : value;
   return (
     <div className={classNames('fc-grid', prefixed('vertical-select'))}>
       {values.map((item, index) => renderItem({

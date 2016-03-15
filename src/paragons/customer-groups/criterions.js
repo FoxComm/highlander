@@ -7,9 +7,9 @@ const criterions = [
   {
     type: types.string,
     input: {
-      default: inputs.plain,
-      [ops.oneOf]: inputs.oneOf(inputs.plain),
-      [ops.notOneOf]: inputs.oneOf(inputs.plain),
+      default: inputs.plain('text'),
+      [ops.oneOf]: inputs.oneOf(inputs.plain('text')),
+      [ops.notOneOf]: inputs.oneOf(inputs.plain('text')),
     },
     field: 'name',
     label: 'Name',
@@ -17,9 +17,9 @@ const criterions = [
   {
     type: types.string,
     input: {
-      default: inputs.plain,
-      [ops.oneOf]: inputs.plain,
-      [ops.notOneOf]: inputs.plain,
+      default: inputs.plain('text'),
+      [ops.oneOf]: inputs.oneOf(inputs.plain('text')),
+      [ops.notOneOf]: inputs.oneOf(inputs.plain('text')),
     },
     field: 'email',
     label: 'Email',
@@ -27,10 +27,10 @@ const criterions = [
   {
     type: types.number,
     input: {
-      default: 'currency',
-      [ops.oneOf]: 'currencyOneOf',
-      [ops.notOneOf]: 'currencyOneOf',
-      [ops.between]: 'currencyRange',
+      default: inputs.currency,
+      [ops.oneOf]: inputs.oneOf(inputs.currency),
+      [ops.notOneOf]: inputs.oneOf(inputs.currency),
+      [ops.between]: inputs.range(inputs.currency),
     },
     field: 'revenue',
     label: 'Total Sales',
@@ -38,7 +38,7 @@ const criterions = [
   {
     type: types.enum,
     input: {
-      default: 'choice',
+      default: inputs.dropdown,
       config: {
         choices: [
           [false, 'active'],
@@ -56,7 +56,7 @@ const criterions = [
   {
     type: types.enum,
     input: {
-      default: 'choice',
+      default: inputs.dropdown,
       config: {
         choices: [
           [true, 'on blacklist'],
@@ -74,11 +74,11 @@ const criterions = [
   {
     type: types.string,
     input: {
-      default: 'text',
-      [ops.equal]: 'stateLookup',
-      [ops.notEqual]: 'stateLookup',
-      [ops.oneOf]: 'stateLookupOneOf',
-      [ops.notOneOf]: 'stateLookupOneOf',
+      default: inputs.plain('text'),
+      [ops.equal]: inputs.lookup('state'),
+      [ops.notEqual]: inputs.lookup('state'),
+      [ops.oneOf]: inputs.oneOf(inputs.lookup('state')),
+      [ops.notOneOf]: inputs.oneOf(inputs.lookup('state')),
       config: {
         storePath: 'groups.shippingState',
       },
@@ -89,11 +89,11 @@ const criterions = [
   {
     type: types.string,
     input: {
-      default: 'text',
-      [ops.equal]: 'stateLookup',
-      [ops.notEqual]: 'stateLookup',
-      [ops.oneOf]: 'stateLookupOneOf',
-      [ops.notOneOf]: 'stateLookupOneOf',
+      default: inputs.plain('text'),
+      [ops.equal]: inputs.lookup('state'),
+      [ops.notEqual]: inputs.lookup('state'),
+      [ops.oneOf]: inputs.oneOf(inputs.lookup('state')),
+      [ops.notOneOf]: inputs.oneOf(inputs.lookup('state')),
       config: {
         storePath: 'groups.billingState',
       },
@@ -104,11 +104,11 @@ const criterions = [
   {
     type: types.string,
     input: {
-      default: 'text',
-      [ops.equal]: 'cityLookup',
-      [ops.notEqual]: 'cityLookup',
-      [ops.oneOf]: 'cityLookupOneOf',
-      [ops.notOneOf]: 'cityLookupOneOf',
+      default: inputs.plain('text'),
+      [ops.equal]: inputs.lookup('city'),
+      [ops.notEqual]: inputs.lookup('city'),
+      [ops.oneOf]: inputs.oneOf(inputs.lookup('city')),
+      [ops.notOneOf]: inputs.oneOf(inputs.lookup('city')),
       config: {
         storePath: 'groups.shippingCity',
       },
@@ -119,11 +119,11 @@ const criterions = [
   {
     type: types.string,
     input: {
-      default: 'text',
-      [ops.equal]: 'cityLookup',
-      [ops.notEqual]: 'cityLookup',
-      [ops.oneOf]: 'cityLookupOneOf',
-      [ops.notOneOf]: 'cityLookupOneOf',
+      default: inputs.plain('text'),
+      [ops.equal]: inputs.lookup('city'),
+      [ops.notEqual]: inputs.lookup('city'),
+      [ops.oneOf]: inputs.oneOf(inputs.lookup('city')),
+      [ops.notOneOf]: inputs.oneOf(inputs.lookup('city')),
       config: {
         storePath: 'groups.billingCity',
       },
@@ -142,9 +142,9 @@ const criterions = [
       ops.notMatch,
     ],
     input: {
-      default: 'number',
-      [ops.oneOf]: 'numberOneOf',
-      [ops.notOneOf]: 'numberOneOf',
+      default: inputs.plain('number'),
+      [ops.oneOf]: inputs.oneOf(inputs.plain('number')),
+      [ops.notOneOf]: inputs.oneOf(inputs.plain('number')),
     },
     field: 'shippingAddresses.zip',
     label: 'Shipping Zip',
@@ -160,9 +160,9 @@ const criterions = [
       ops.notMatch,
     ],
     input: {
-      default: 'number',
-      [ops.oneOf]: 'numberOneOf',
-      [ops.notOneOf]: 'numberOneOf',
+      default: inputs.plain('number'),
+      [ops.oneOf]: inputs.oneOf(inputs.plain('number')),
+      [ops.notOneOf]: inputs.oneOf(inputs.plain('number')),
     },
     field: 'billingAddresses.zip',
     label: 'Billing Zip',
@@ -170,10 +170,10 @@ const criterions = [
   {
     type: types.date,
     input: {
-      default: 'date',
-      [ops.oneOf]: 'dateOneOf',
-      [ops.notOneOf]: 'dateOneOf',
-      [ops.between]: 'dateRange',
+      default: inputs.date,
+      [ops.oneOf]: inputs.oneOf(inputs.date),
+      [ops.notOneOf]: inputs.oneOf(inputs.date),
+      [ops.between]: inputs.range(inputs.date),
     },
     field: 'joinedAt',
     label: 'Date Joined',
