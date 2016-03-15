@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import { createStore } from 'redux';
 import { syncHistory } from 'react-router-redux';
-import applyMiddleware from 'redux-wait';
+import applyMiddleware from 'redux-isomorphic-render';
 import logger from 'redux-diff-logger';
 import thunk from 'redux-thunk';
 import rootReducer from 'modules/index';
