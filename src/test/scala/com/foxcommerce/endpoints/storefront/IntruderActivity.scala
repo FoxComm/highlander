@@ -46,11 +46,10 @@ object IntruderActivity {
       .header("Authorization", "${jwtTokenIntruder}")
       .check(status.is(200))
 
-    def shippingAddressAdd(): HttpRequestBuilder =
-      http("Attempt To Use Another Customer's Address As Shipping Address")
-        .patch("/v1/my/cart/shipping-address/${customerAddressId}")
-        .header("Authorization", "${jwtTokenIntruder}")
-        .check(status.is(404))
+    def shippingAddressAdd(): HttpRequestBuilder = http("Attempt To Use Another Customer's Address As Shipping Address")
+      .patch("/v1/my/cart/shipping-address/${customerAddressId}")
+      .header("Authorization", "${jwtTokenIntruder}")
+      .check(status.is(404))
   }
 
   object CreditCard {
@@ -60,12 +59,11 @@ object IntruderActivity {
       .header("Authorization", "${jwtTokenIntruder}")
       .check(status.is(404))
 
-    def create(): HttpRequestBuilder =
-      http("Attempt to Create Credit Card with Another Customer's Address")
-        .post("/v1/my/payment-methods/credit-cards")
-        .header("Authorization", "${jwtTokenIntruder}")
-        .body(ELFileBody("request-bodies/credit_card.json"))
-        .check(status.is(404))
+    def create(): HttpRequestBuilder = http("Attempt to Create Credit Card with Another Customer's Address")
+      .post("/v1/my/payment-methods/credit-cards")
+      .header("Authorization", "${jwtTokenIntruder}")
+      .body(ELFileBody("request-bodies/credit_card.json"))
+      .check(status.is(404))
 
     def update(address: AddressFixture): HttpRequestBuilder = http("Attempt to Update Another Customer's Credit Card")
       .patch("/v1/my/payment-methods/credit-cards/${creditCardId}")
