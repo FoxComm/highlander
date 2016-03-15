@@ -96,9 +96,8 @@ export default class VariantList extends Component<void, Props, State> {
   }
 
   render(): Element {
-    const { variants } = this.props;
-    const content = _.isEmpty(variants) ? this.emptyContent : this.variantList;
-
+    const variants = this.variantList;
+    const content = _.isEmpty(variants) ? this.emptyContent : variants;
     return (
       <ContentBox title="Variants" actionBlock={this.actions}>
         {content}
