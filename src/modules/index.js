@@ -1,5 +1,6 @@
 import { routerStateReducer } from 'redux-router';
 import { combineReducers } from 'redux';
+
 import giftCards from './gift-cards';
 import customers from './customers';
 import groups from './groups';
@@ -17,6 +18,7 @@ import siteMenu from './site-menu';
 import inventory from './inventory';
 import expandableTables from './expandable-tables';
 import products from './products';
+import user from './user';
 
 const rootReducer = combineReducers({
   router: routerStateReducer,
@@ -25,6 +27,7 @@ const rootReducer = combineReducers({
   orders,
   rmas,
   notes,
+  user,
   countries,
   regions,
   addressForm,

@@ -48,9 +48,12 @@ import StyleGuideContainers from './components/style-guide/style-guide-container
 
 import AllActivities from './components/activity-trail/all';
 import AllNotificationItems from './components/activity-notifications/all';
+import Login from './components/auth/login';
 
 const routes = (
-  <Route path="/" component={Site}>
+  <Route path="/">
+    <Route name="login" path="login" component={Login}/>
+    <Route component={Site}>
     <IndexRoute name="home" component={Home}/>
     <IndexRedirect from="/" to="/orders/" />
     <Route name='rmas-base' path='returns'>
@@ -101,8 +104,8 @@ const routes = (
         <Route name='customer-storecredits-base' path='storecredit'>
           <IndexRoute name='customer-storecredits' component={StoreCredits}/>
           <Route name='customer-storecredit-transactions'
-                path='transactions'
-                component={StoreCreditsTransactions} />
+                 path='transactions'
+                 component={StoreCreditsTransactions} />
         </Route>
       </Route>
       <Route name='customer-storecredits-new'
@@ -150,6 +153,7 @@ const routes = (
       <Route name='test-activities' path='activities' component={AllActivities} />
       <Route name='test-notifications' path='notifications' component={AllNotificationItems} />
     </Route>
+  </Route>
   </Route>
 );
 

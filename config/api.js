@@ -18,12 +18,13 @@ module.exports = function(env) {
   }
 
   function auth() {
-    switch(env.environment) {
-      case 'staging':
-        return {user: 'admin@admin.com', password: 'password' };
-      default:
-        return {user: 'admin@admin.com', password: 'password'};
-    }
+    return {
+      header: 'JWT',
+      cookieName: 'JWT',
+      loginUri: '/login',
+      publicKey: env.public_key,
+    };
+
   }
 
   return {
