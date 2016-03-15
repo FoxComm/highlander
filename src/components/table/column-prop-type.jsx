@@ -12,7 +12,8 @@ const columnType = PropTypes.shape({
     'date',
     'datetime',
     'time',
-    'raw'
+    'change',
+    'raw',
   ]),
   text: PropTypes.string,
   colSpan: PropTypes.number
