@@ -153,6 +153,10 @@ export function addEmptySku(product: FullProduct): FullProduct {
   };
 
   return assoc(product,
+    ['form', 'product', 'variants', 'default'], pseudoRandomCode,
+    ['shadow', 'product', 'variants'], 'default',
+    ['form', 'product', 'skus', 'default', pseudoRandomCode], {},
+    ['shadow', 'product', 'skus'], 'default',
     ['form', 'skus'], [...product.form.skus, emptySkuForm],
     ['shadow', 'skus'], [...product.shadow.skus, emptySkuShadow]
   );

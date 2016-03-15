@@ -39,7 +39,7 @@ export default class DateTimePicker extends Component<void, Props, void> {
 
   get renderedHour(): string {
     if (this.hour > 12) {
-      return `${this.hour - 12}`
+      return `${this.hour - 12}`;
     } else if (this.hour == 0) {
       return '12';
     } else {

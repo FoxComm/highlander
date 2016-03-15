@@ -132,8 +132,7 @@ export default class ProductForm extends Component<void, Props, State> {
   }
 
   get variantContentBox(): Element {
-    const variants = _.get(this.props, 'product.form.product.variants.default', {});
-    return <VariantList variants={variants} />;
+    return <VariantList variants={{}} />;
   }
 
   get customPropertyForm(): ?Element {
