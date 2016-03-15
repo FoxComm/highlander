@@ -1,7 +1,6 @@
 
 import _ from 'lodash';
 import React, { Component } from 'react';
-import cssModules from 'react-css-modules';
 import styles from './checkout.css';
 import { autobind, debounce } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -60,7 +59,6 @@ function mapStateToProps(state) {
 
 /* ::`*/
 @connect(mapStateToProps, checkoutActions)
-@cssModules(styles)
 /* ::`*/
 class EditShipping extends Component {
   props: EditShippingProps;
@@ -190,19 +188,20 @@ class EditShipping extends Component {
   }
 }
 
+const TestView = props => {
+  return props.isEditing ? <EditShipping {...props} /> : <ViewShipping />;
+};
 
 const Shipping = (props: ShippingProps) => {
   return (
     <EditableBlock
-      styleName="checkout-block"
       title="SHIPPING"
       isEditing={props.isEditing}
       collapsed={props.collapsed}
       editAction={props.editAction}
-      viewContent={<ViewShipping />}
-      editContent={<EditShipping {...props} />}
+      contentView={TestView}
     />
   );
 };
 
-export default cssModules(Shipping, styles);
+export default Shipping;

@@ -4,7 +4,6 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import type { HTMLElement } from 'types';
 import type { Product } from 'modules/products';
-import cssModules from 'react-css-modules';
 import styles from './product-list.css';
 import { connect } from 'react-redux';
 
@@ -53,4 +52,4 @@ class ProductList extends Component {
   }
 }
 
-export default connect(getState, actions)(cssModules(ProductList, styles));
+export default connect(getState, actions)(ProductList);

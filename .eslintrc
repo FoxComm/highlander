@@ -30,7 +30,8 @@
         "allowArrowFunctions": true
       }
     ],
-    "react/sort-comp": 0
+    "react/sort-comp": 0,
+    "no-unused-vars": [2, { "varsIgnorePattern": "^styles$" }]
   },
   "globals": {
     "makeXhr": false

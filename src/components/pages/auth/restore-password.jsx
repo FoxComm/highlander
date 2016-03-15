@@ -1,7 +1,6 @@
 /* @flow */
 
 import React, { Component, PropTypes } from 'react';
-import cssModules from 'react-css-modules';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -22,7 +21,6 @@ type RestoreState = {
 
 /* ::`*/
 @connect()
-@cssModules(styles)
 /* ::`*/
 export default class RestorePassword extends Component {
 

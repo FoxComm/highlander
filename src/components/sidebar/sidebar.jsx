@@ -4,7 +4,6 @@ import React from 'react';
 import type { HTMLElement } from 'types';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import cssModules from 'react-css-modules';
 import styles from './sidebar.css';
 
 import Icon from 'ui/icon';
@@ -48,4 +47,4 @@ const Sidebar = (props : SidebarProps) : HTMLElement => {
   );
 };
 
-export default connect(getState, actions)(cssModules(Sidebar, styles));
+export default connect(getState, actions)(Sidebar);

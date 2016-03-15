@@ -1,7 +1,6 @@
 /* @flow */
 
 import React, { Component } from 'react';
-import cssModules from 'react-css-modules';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
 
@@ -19,9 +18,6 @@ type AuthState = {
   username: string
 };
 
-/* ::`*/
-@cssModules(styles)
-/* ::`*/
 export default class Auth extends Component {
 
   state: AuthState = {

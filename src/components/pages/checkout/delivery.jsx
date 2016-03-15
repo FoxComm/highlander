@@ -1,7 +1,8 @@
 
+/* eslint-disable */
+
 import _ from 'lodash';
 import React, { Component } from 'react';
-import cssModules from 'react-css-modules';
 import styles from './checkout.css';
 import { autobind, debounce } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -20,9 +21,6 @@ const ViewDelivery = props => {
   );
 };
 
-/* ::`*/
-@cssModules(styles)
-/* ::`*/
 class EditDelivery extends Component {
 
   @autobind
@@ -40,6 +38,7 @@ class EditDelivery extends Component {
 }
 
 const Delivery = props => {
+  return <div></div>;
   return (
     <EditableBlock
       styleName="checkout-block"
@@ -53,4 +52,6 @@ const Delivery = props => {
   );
 };
 
-export default cssModules(Delivery, styles);
+export default Delivery;
+
+/* eslint-enable */

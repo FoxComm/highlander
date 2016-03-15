@@ -1,7 +1,6 @@
 /* @flow */
 
 import React, { Component } from 'react';
-import cssModules from 'react-css-modules';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
 
@@ -19,9 +18,6 @@ type AuthState = {
   password: string,
 };
 
-/* ::`*/
-@cssModules(styles)
-/* ::`*/
 export default class Auth extends Component {
 
   state: AuthState = {
@@ -57,7 +53,7 @@ export default class Auth extends Component {
           </FormField>
           <FormField key="passwd" styleName="form-field">
             <TextInputWithLabel placeholder="PASSWORD"
-              label={!password && <Link className={styles['restore-link']} to="/password/restore">forgot ?</Link>}
+              label={!password && <Link styleName="restore-link" to="/password/restore">forgot ?</Link>}
               value={password} onChange={this.onChangePassword} type="password"
             />
           </FormField>

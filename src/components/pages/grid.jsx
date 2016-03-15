@@ -1,6 +1,5 @@
 
 import React from 'react';
-import cssModules from 'react-css-modules';
 import styles from './css/grid.css';
 
 const Grid = () => {
@@ -32,4 +31,4 @@ const Grid = () => {
   );
 };
 
-export default cssModules(Grid, styles);
+export default Grid;

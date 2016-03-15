@@ -2,7 +2,6 @@
 
 import React from 'react';
 import type { HTMLElement } from 'types';
-import cssModules from 'react-css-modules';
 import styles from './list-item.css';
 
 type Product = {
@@ -29,4 +28,4 @@ const ListItem = (props: Product): HTMLElement => {
   );
 };
 
-export default cssModules(ListItem, styles);
+export default ListItem;

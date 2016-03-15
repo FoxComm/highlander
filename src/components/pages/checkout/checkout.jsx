@@ -5,7 +5,6 @@
  */
 
 import React, { PropTypes } from 'react';
-import cssModules from 'react-css-modules';
 import styles from './checkout.css';
 import { connect } from 'react-redux';
 
@@ -32,7 +31,7 @@ const Checkout = (props: CheckoutProps) => {
 
   const setBillingState = () => {
     props.setEditStage(EditStages.billing);
-  }
+  };
 
   return (
     <div styleName="checkout">
@@ -59,4 +58,4 @@ Checkout.propTypes = {
   children: PropTypes.node,
 };
 
-export default connect(state => state.checkout, actions)(cssModules(Checkout, styles));
+export default connect(state => state.checkout, actions)(Checkout);
