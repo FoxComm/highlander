@@ -163,20 +163,6 @@
 - Include OrderStatePayload
 + reasonId: 1 (optional, number) - Cancellation reason.
 
-### OrderAssignPayload
-+ assignees (required, array[number]) - StoreAdmin IDs.
-
-### OrderBulkAssignPayload
-+ referenceNumbers: `ABC-123` (required, array[string]) - Order reference numbers.
-+ assigneeId: 1 (required, number) - StoreAdmin ID.
-
-### OrderWatchPayload
-+ watchers (required, array[number]) - StoreAdmin IDs.
-
-### OrderBulkWatchPayload
-+ referenceNumbers: `ABC-123` (required, array[string]) - Order reference numbers.
-+ watcherId: 1 (required, number) - StoreAdmin ID.
-
 ### OrderList
 + result (required, array[ListOrder]) - The resulting list of ListOrder-s.
 + Include ResultMetadata
