@@ -32,6 +32,7 @@
     "chalk": "^1.1.1",
     "css-modulesify": "^0.21.0",
     "dot": "^1.0.3",
+    "envify": "^3.4.0",
     "eslint": "^1.10.3",
     "eslint-config-airbnb": "^5.0.0",
     "eslint-plugin-flow-vars": "^0.1.3",
