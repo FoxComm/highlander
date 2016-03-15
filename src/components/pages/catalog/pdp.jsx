@@ -46,7 +46,7 @@ class Pdp extends Component<void, Props, void> {
     const price = _.get(product, ['skus', 0, 'attributes', 'price', 'v', 'value'], 0);
     const currency = _.get(product, ['skus', 0, 'attributes', 'price', 'v', 'currency'], 'USD');
     const imageUrls = _.get(product, ['product', 'attributes', 'images', 'v'], []);
-    const images = _.map(imageUrls, (url) => <img src={url} styleName="preview-image" />);
+    const images = _.map(imageUrls, (url, idx) => <img src={url} styleName="preview-image" key={idx} />);
     return (
       <div styleName="container">
         <div styleName="links">
