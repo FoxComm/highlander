@@ -17,12 +17,10 @@ const suppressClick = event => {
 export default class DatePicker extends React.Component {
   static propTypes = {
     className: PropTypes.string,
-    date: PropTypes.string,
+    date: PropTypes.object,
     onClick: PropTypes.func,
     showInput: PropTypes.bool,
     showPicker: PropTypes.bool,
-    month: PropTypes.number,
-    year: PropTypes.number
   };
 
   static defaultProps = {
@@ -30,48 +28,47 @@ export default class DatePicker extends React.Component {
     onClick: _.noop,
     showInput: true,
     showPicker: false,
-    month: new Date().getMonth() + 1,
-    year: new Date().getFullYear()
   };
 
   constructor(props, context) {
     super(props, context);
 
-    // Assume that the month coming from the called is an index based on 1,
-    // because this is how it will appear in the UI. For our purposes, turn it
-    // into a 0-based index as that's how JS expects it.
+    const date = props.date || new Date();
     this.state = {
-      selectedDate: this.props.date,
+      selectedDate: props.date,
       showPicker: props.showPicker,
-      month: props.month - 1,
-      year: props.year
+      month: date.getMonth(),
+      year: date.getFullYear(),
     };
   }
 
   get inputBox() {
-    if (this.props.showInput) {
-      const date = this.state.selectedDate || '';
-      const prettyDate = this.state.selectedDate
-        ? this.state.selectedDate.toLocaleString('en-us', {
-          month: '2-digit',
-          day: '2-digit',
-          year: 'numeric',
-        }) : '';
-
-      return (
-        <div className="fc-datepicker__control">
-          <AppendInput
-            icon="calendar"
-            inputName="someDate"
-            inputValue={date}
-            inputValuePretty={prettyDate}
-            onBlur={this.blurred}
-            onFocus={this.focused}
-            placeholder="mm/dd/yyyy" />
-          {this.state.showPicker && <div className="fc-datepicker__arrow-up"></div>}
-        </div>
-      );
+    if (!this.props.showInput) {
+      return null;
     }
+
+    const {selectedDate, showPicker} = this.state;
+    const value = selectedDate ? selectedDate.toString() : '';
+    const prettyDate = selectedDate
+      ? selectedDate.toLocaleString('en-us', {
+      month: '2-digit',
+      day: '2-digit',
+      year: 'numeric',
+    }) : '';
+
+    return (
+      <div className="fc-datepicker__control">
+        <AppendInput
+          icon="calendar"
+          inputName="someDate"
+          inputValue={value}
+          inputValuePretty={prettyDate}
+          onBlur={this.blurred}
+          onFocus={this.focused}
+          placeholder="mm/dd/yyyy" />
+        {showPicker && <div className="fc-datepicker__arrow-up"></div>}
+      </div>
+    );
   }
 
   get picker() {
