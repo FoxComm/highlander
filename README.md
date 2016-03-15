@@ -27,9 +27,23 @@ npm install
 ```
 
 ### Run the dev server
-```
-npm run dev
-```
+
+1. Select your API backend.
+
+    By default, we'll try to hit your local Phoenix installation at `http://localhost:9090`.
+    If you want to run against another backend set: `PHOENIX_URL`.
+
+    For example, to hit staging:
+
+    ```
+    export PHOENIX_URL=http://10.240.0.8:9090
+    ```
+
+2. Run the local development server
+
+    ```
+    npm run dev
+    ```
 
 ### Push hooks
 

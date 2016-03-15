@@ -24,7 +24,7 @@ const routes = (
     <Route path="/checkout" component={Checkout} />
     <Route path="/grid" component={Grid} />
     <Route component={StoreFront}>
-      <Route name="product" path="/product" component={Pdp} />
+      <Route name="product" path="/products/:productId" component={Pdp} />
       <IndexRoute component={ProductList} />
       <Route name="category" path=":categoryName" component={ProductList} />
     </Route>
