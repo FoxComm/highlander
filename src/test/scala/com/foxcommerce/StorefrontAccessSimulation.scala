@@ -1,6 +1,7 @@
 package com.foxcommerce
 
 import com.foxcommerce.common._
+import com.foxcommerce.endpoints.AuthEndpoint
 import com.foxcommerce.endpoints.storefront._
 import com.foxcommerce.fixtures._
 import io.gatling.core.Predef._
@@ -31,7 +32,13 @@ class StorefrontAccessSimulation extends Simulation {
         .set("intruderEmail", Utils.randomEmail("intruder"))
         .set("intruderPassword", Utils.randomString())
     })
+    // Login + registration
+    .exec(AuthEndpoint.loginAsCustomer())
+    .exitHereIfFailed
     .exec(IntruderActivity.register())
+    .exec(AuthEndpoint.loginAsIntruder())
+    .exitHereIfFailed
+    // Touch
     .exec(IntruderActivity.Cart.touch())
     .exec(AccountEndpoint.get())
     .exitHereIfFailed

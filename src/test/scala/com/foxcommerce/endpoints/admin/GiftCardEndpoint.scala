@@ -12,7 +12,7 @@ object GiftCardEndpoint {
 
   def create(payload: GiftCardFixture): HttpRequestBuilder = http("Create Gift Card")
     .post("/v1/gift-cards")
-    .basicAuth("${email}", "${password}")
+    .header("Authorization", "${jwtTokenAdmin}")
     .body(StringBody("""{"balance": %d, "reasonId": %d, "quantity": 1}""".format(payload.balance, payload.reasonId)))
     .check(status.is(200))
     .check(jsonPath("$[0].giftCard.id").ofType[Long].saveAs("giftCardId"))
@@ -25,7 +25,7 @@ object GiftCardEndpoint {
 
   def bulkCreate(): HttpRequestBuilder = http("Bulk Create 20 Gift Cards")
     .post("/v1/gift-cards")
-    .basicAuth("${email}", "${password}")
+    .header("Authorization", "${jwtTokenAdmin}")
     .body(StringBody("""{"balance": 10, "reasonId": 1, "quantity": 20}"""))
     .check(status.is(200))
     .check(jsonPath("$..giftCard[?(@.state == 'active')]").count.is(20))
@@ -33,14 +33,14 @@ object GiftCardEndpoint {
 
   def bulkWatch(): HttpRequestBuilder = http("Watch ${gcPortionCount}")
       .post("/v1/gift-cards/watchers")
-      .basicAuth("${email}", "${password}")
+      .header("Authorization", "${jwtTokenAdmin}")
       .body(StringBody("""{"giftCardCodes": [${gcCodesPortion}], "watcherId": 1}"""))
       .check(status.is(200))
       .check(jsonPath("$.errors").count.is(0))
 
   def bulkUnwatch(): HttpRequestBuilder = http("Unwatch")
       .post("/v1/gift-cards/watchers/delete")
-      .basicAuth("${email}", "${password}")
+      .header("Authorization", "${jwtTokenAdmin}")
       .body(StringBody("""{"giftCardCodes": [${gcCodesPortion}], "watcherId": 1}"""))
       .check(status.is(200))
       .check(jsonPath("$.errors").count.is(0))
@@ -48,7 +48,7 @@ object GiftCardEndpoint {
 
   def cancel(): HttpRequestBuilder = http("Cancel Gift Card")
     .patch("/v1/gift-cards/${giftCardCode}")
-    .basicAuth("${email}", "${password}")
+    .header("Authorization", "${jwtTokenAdmin}")
     .body(StringBody("""{"state": "canceled", "reasonId": %d}""".format(cancellationReasonId)))
     .check(status.is(200))
     .check(jsonPath("$.state").ofType[String].is("canceled"))

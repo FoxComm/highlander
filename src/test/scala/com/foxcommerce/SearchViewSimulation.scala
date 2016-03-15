@@ -1,6 +1,7 @@
 package com.foxcommerce
 
 import com.foxcommerce.common._
+import com.foxcommerce.endpoints.AuthEndpoint
 import com.foxcommerce.endpoints.admin._
 import com.foxcommerce.fixtures._
 import io.gatling.core.Predef._
@@ -38,6 +39,8 @@ class SearchViewSimulation extends Simulation {
       session
         .set("customerEmail", Utils.randomEmail(baseCustomer.emailPrefix))
     })
+    // Login
+    .exec(AuthEndpoint.loginAsAdmin())
     // Create objects
     .exec(CustomerEndpoint.create(baseCustomer))
     .exec(CustomerAddressEndpoint.create(baseAddress))
