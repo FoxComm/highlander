@@ -10,8 +10,6 @@ import Order.orderRefNumRegex
 import models.StoreAdmin
 import models.traits.Originator
 import payloads._
-import payloads.{AssignmentPayload, BulkAssignmentPayload}
-import services.assignments.{OrderAssignmentsManager, OrderWatchersManager}
 import services.orders._
 import services.{Checkout, LineItemUpdater}
 import utils.CustomDirectives._
@@ -41,38 +39,6 @@ object OrderRoutes {
           entity(as[BulkUpdateOrdersPayload]) { payload ⇒
             goodOrFailures {
               OrderStateUpdater.updateStates(admin, payload.referenceNumbers, payload.state)
-            }
-          }
-        } ~
-        pathPrefix("assignees") {
-          (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
-                OrderAssignmentsManager.assignBulk(admin, payload)
-              }
-            }
-          } ~
-          (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
-                OrderAssignmentsManager.unassignBulk(admin, payload)
-              }
-            }
-          }
-        } ~
-        pathPrefix("watchers") {
-          (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
-                OrderWatchersManager.assignBulk(admin, payload)
-              }
-            }
-          } ~
-          (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
-                OrderWatchersManager.unassignBulk(admin, payload)
-              }
             }
           }
         }
@@ -161,30 +127,6 @@ object OrderRoutes {
           (delete & pathEnd) {
             goodOrFailures {
               OrderPaymentUpdater.deleteStoreCredit(Originator(admin), Some(refNum))
-            }
-          }
-        } ~
-        pathPrefix("assignees") {
-          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
-              OrderAssignmentsManager.assign(refNum, payload, admin)
-            }
-          } ~
-          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
-              OrderAssignmentsManager.unassign(refNum, assigneeId, admin)
-            }
-          }
-        } ~
-        pathPrefix("watchers") {
-          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
-              OrderWatchersManager.assign(refNum, payload, admin)
-            }
-          } ~
-          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
-              OrderWatchersManager.unassign(refNum, assigneeId, admin)
             }
           }
         } ~

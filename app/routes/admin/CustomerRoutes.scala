@@ -40,38 +40,6 @@ object CustomerRoutes {
           goodOrFailures {
             CustomerManager.create(payload, Some(admin))
           }
-        } ~
-        pathPrefix("assignees") {
-          (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
-              goodOrFailures {
-                CustomerAssignmentsManager.assignBulk(admin, payload)
-              }
-            }
-          } ~
-          (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
-              goodOrFailures {
-                CustomerAssignmentsManager.unassignBulk(admin, payload)
-              }
-            }
-          }
-        } ~
-        pathPrefix("watchers") {
-          (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
-              goodOrFailures {
-                CustomerWatchersManager.assignBulk(admin, payload)
-              }
-            }
-          } ~
-          (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
-              goodOrFailures {
-                CustomerWatchersManager.unassignBulk(admin, payload)
-              }
-            }
-          }
         }
       } ~
       pathPrefix("customers" / IntNumber) { customerId ⇒
@@ -105,30 +73,6 @@ object CustomerRoutes {
         (post & path("blacklist") & pathEnd & entity(as[payloads.ToggleCustomerBlacklisted])) { payload ⇒
           goodOrFailures {
             CustomerManager.toggleBlacklisted(customerId, payload.blacklisted, admin)
-          }
-        } ~
-        pathPrefix("assignees") {
-          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
-              CustomerAssignmentsManager.assign(customerId, payload, admin)
-            }
-          } ~
-          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
-              CustomerAssignmentsManager.unassign(customerId, assigneeId, admin)
-            }
-          }
-        } ~
-        pathPrefix("watchers") {
-          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
-              CustomerWatchersManager.assign(customerId, payload, admin)
-            }
-          } ~
-          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
-              CustomerWatchersManager.unassign(customerId, assigneeId, admin)
-            }
           }
         } ~
         pathPrefix("addresses") {
@@ -230,4 +174,3 @@ object CustomerRoutes {
     }
   }
 }
-

@@ -3,12 +3,9 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-
 import models.StoreAdmin
 import models.payment.giftcard.GiftCard.giftCardCodeRegex
 import payloads._
-import payloads.{AssignmentPayload, BulkAssignmentPayload}
-import services.assignments.{GiftCardAssignmentsManager, GiftCardWatchersManager}
 import services.giftcards._
 import services.CustomerCreditConverter
 import utils.Apis
@@ -41,38 +38,6 @@ object GiftCardRoutes {
           goodOrFailures {
             GiftCardService.createByAdmin(admin, payload)
           }
-        } ~
-        pathPrefix("assignees") {
-          (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
-                GiftCardAssignmentsManager.assignBulk(admin, payload)
-              }
-            }
-          } ~
-          (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
-                GiftCardAssignmentsManager.unassignBulk(admin, payload)
-              }
-            }
-          }
-        } ~
-        pathPrefix("watchers") {
-          (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
-                GiftCardWatchersManager.assignBulk(admin, payload)
-              }
-            }
-          } ~
-          (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-              goodOrFailures {
-                GiftCardWatchersManager.unassignBulk(admin, payload)
-              }
-            }
-          }
         }
       } ~
       pathPrefix("gift-cards" / giftCardCodeRegex) { code ⇒
@@ -84,30 +49,6 @@ object GiftCardRoutes {
         (patch & pathEnd & entity(as[GiftCardUpdateStateByCsr])) { payload ⇒
           goodOrFailures {
             GiftCardService.updateStateByCsr(code, payload, admin)
-          }
-        } ~
-        pathPrefix("assignees") {
-          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
-              GiftCardAssignmentsManager.assign(code, payload, admin)
-            }
-          } ~
-          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
-              GiftCardAssignmentsManager.unassign(code, assigneeId, admin)
-            }
-          }
-        } ~
-        pathPrefix("watchers") {
-          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
-            goodOrFailures {
-              GiftCardWatchersManager.assign(code, payload, admin)
-            }
-          } ~
-          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
-              GiftCardWatchersManager.unassign(code, assigneeId, admin)
-            }
           }
         } ~
         path("transactions") {

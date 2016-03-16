@@ -6,8 +6,6 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.order.Order
 import models.rma.{Rmas, Rma}
 import models.StoreAdmin
-import payloads.{AssignmentPayload, BulkAssignmentPayload}
-import services.assignments.{RmaAssignmentsManager, RmaWatchersManager}
 import payloads.{RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCustomerPayload, RmaPaymentPayload,
 RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload, RmaUpdateStatePayload}
 import services.rmas._
@@ -46,38 +44,6 @@ object RmaRoutes {
           (post & pathEnd & entity(as[RmaCreatePayload])) { payload ⇒
             goodOrFailures {
               RmaService.createByAdmin(admin, payload)
-            }
-          } ~
-          pathPrefix("assignees") {
-            (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-                goodOrFailures {
-                  RmaAssignmentsManager.assignBulk(admin, payload)
-                }
-              }
-            } ~
-            (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-                goodOrFailures {
-                  RmaAssignmentsManager.unassignBulk(admin, payload)
-                }
-              }
-            }
-          } ~
-          pathPrefix("watchers") {
-            (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-                goodOrFailures {
-                  RmaWatchersManager.assignBulk(admin, payload)
-                }
-              }
-            } ~
-            (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-              entity(as[BulkAssignmentPayload[String]]) { payload ⇒
-                goodOrFailures {
-                  RmaWatchersManager.unassignBulk(admin, payload)
-                }
-              }
             }
           }
         } ~
@@ -186,30 +152,6 @@ object RmaRoutes {
             (delete & pathEnd) {
               goodOrFailures {
                 RmaPaymentUpdater.deleteStoreCredit(refNum)
-              }
-            }
-          } ~
-          pathPrefix("assignees") {
-            (post & entity(as[AssignmentPayload])) { payload ⇒
-              goodOrFailures {
-                RmaAssignmentsManager.assign(refNum, payload, admin)
-              }
-            } ~
-            (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-              goodOrFailures {
-                RmaAssignmentsManager.unassign(refNum, assigneeId, admin)
-              }
-            }
-          } ~
-          pathPrefix("watchers") {
-            (post & entity(as[AssignmentPayload])) { payload ⇒
-              goodOrFailures {
-                RmaWatchersManager.assign(refNum, payload, admin)
-              }
-            } ~
-            (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-              goodOrFailures {
-                RmaWatchersManager.unassign(refNum, assigneeId, admin)
               }
             }
           }

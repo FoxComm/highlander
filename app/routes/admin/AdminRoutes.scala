@@ -20,7 +20,7 @@ import utils.CustomDirectives._
 import utils.Http._
 import utils.aliases._
 
-object Admin {
+object AdminRoutes {
 
   def routes(implicit ec: EC, db: DB, mat: Materializer, admin: StoreAdmin, apis: Apis) = {
 

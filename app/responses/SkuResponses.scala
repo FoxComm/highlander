@@ -21,7 +21,7 @@ object SkuResponses {
     final case class Root(
       code: String,
       attributes: Json,
-      createdAt: Instant)
+      createdAt: Instant) extends ResponseItem
 
     def build(sku: Sku) : Root =
       Root(code = sku.code, attributes = sku.attributes, createdAt = sku.createdAt)
@@ -30,7 +30,7 @@ object SkuResponses {
   object SkuShadowResponse { 
 
     final case class Root(code: String, attributes: Json, activeFrom: Option[Instant], 
-      activeTo: Option[Instant], createdAt: Instant)
+      activeTo: Option[Instant], createdAt: Instant) extends ResponseItem
 
     def build(sku: Sku, skuShadow: SkuShadow) : Root =
       Root(code = sku.code, attributes = skuShadow.attributes, 
@@ -41,7 +41,7 @@ object SkuResponses {
   object IlluminatedSkuResponse {
 
     final case class Root(code: String, context: Option[ProductContextResponse.Root], 
-      attributes: Json, activeFrom: Option[Instant], activeTo: Option[Instant])
+      attributes: Json, activeFrom: Option[Instant], activeTo: Option[Instant]) extends ResponseItem
 
     def build(s: IlluminatedSku): Root = 
       Root(code = s.code, attributes = s.attributes, 

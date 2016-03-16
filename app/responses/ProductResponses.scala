@@ -44,14 +44,14 @@ object ProductResponses {
 
     def build(p: ProductShadow): Root = 
       Root(id = p.id, productId = p.productId, attributes = p.attributes, 
-        variants = p.variants, skus = p.skus, activeFrom = p.activeFrom, 
+        variants = p.variants, skus = p.skus, activeFrom = p.activeFrom,
         activeTo = p.activeTo, createdAt = p.createdAt)
   }
 
   object IlluminatedProductResponse {
 
     final case class Root(id: Int, context: Option[ProductContextResponse.Root], 
-      attributes: Json, variants: Json, skus: Json, activeFrom: Option[Instant], 
+      attributes: Json, variants: Json, skus: Json, activeFrom: Option[Instant],
       activeTo: Option[Instant])
 
     def build(p: IlluminatedProduct): Root = 
