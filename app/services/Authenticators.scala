@@ -76,7 +76,7 @@ object Authenticator {
     }
   }
 
-  private def respondWithToken(token: Token): Failures Xor Route = {
+  def respondWithToken(token: Token): Failures Xor Route = {
     val apiClaims = Token.getJWTClaims(token)
     val siteClaims = Token.getJWTClaims(token)
     apiClaims.setSubject("API")

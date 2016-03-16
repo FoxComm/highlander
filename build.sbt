@@ -103,7 +103,8 @@ lazy val phoenixScala = (project in file(".")).
         "com.typesafe.akka"          %% "akka-http-core"         % akkaV,
         "de.heikoseeberger"          %% "akka-sse"               % "1.6.3",
         // http
-        "net.databinder.dispatch"    %% "dispatch-core"          % "0.11.2",
+        "net.databinder.dispatch"    %% "dispatch-core"          % "0.11.3",
+        "net.databinder.dispatch"    %% "dispatch-json4s-native" % "0.11.3",
         // JSON
         "org.json4s"                 %% "json4s-core"            % json4sV,
         "org.json4s"                 %% "json4s-jackson"         % json4sV,
