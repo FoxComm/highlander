@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 import Icon from 'ui/icon';
 import Shipping from './shipping';
 import Delivery from './delivery';
+import Billing from './billing';
 
 import * as actions from 'modules/checkout';
 import { EditStages } from 'modules/checkout';
@@ -33,6 +34,10 @@ const Checkout = (props: CheckoutProps) => {
     props.setEditStage(EditStages.billing);
   };
 
+  const placeOrder = () => {
+    console.info('TODO: place order');
+  };
+
   return (
     <div styleName="checkout">
       <Icon styleName="logo" name="fc-some_brand_logo" />
@@ -48,6 +53,12 @@ const Checkout = (props: CheckoutProps) => {
           collapsed={props.editStage < EditStages.delivery}
           editAction={setDeliveryStage}
           continueAction={setBillingState}
+        />
+        <Billing
+          isEditing={props.editStage == EditStages.billing}
+          collapsed={props.editStage < EditStages.billing}
+          editAction={setBillingState}
+          continueAction={placeOrder}
         />
       </div>
     </div>

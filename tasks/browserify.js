@@ -48,6 +48,8 @@ module.exports = function(gulp, $, opts) {
       extensions: ['.jsx'],
       debug: !production,
     }, watchify.args)).transform(envify({
+      _: 'purge',
+      NODE_ENV: process.env.NODE_ENV || 'development',
       DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN,
     }), pleaseDontIgnoreNestedNodeModules);
 
