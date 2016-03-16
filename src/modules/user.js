@@ -54,6 +54,14 @@ export function authenticate(payload: LoginPayload): ActionDispatch {
   };
 }
 
+export function googleSignin(): ActionDispatch {
+  return dispatch => {
+    Api.get('/public/signin/google').then(urlInfo => {
+      window.location.href = urlInfo.url;
+    });
+  }
+}
+
 const initialState = {isFetching: false};
 
 const reducer = createReducer({

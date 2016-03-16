@@ -78,6 +78,11 @@ export default class Login extends React.Component {
     console.log('todo: restore password');
   }
 
+  @autobind
+  onGoogleSignIn() {
+    this.props.googleSignin();
+  }
+
   get passwordLabel() {
     return (
       <div className="fc-login__password-label">
@@ -92,7 +97,7 @@ export default class Login extends React.Component {
       <Form className="fc-grid fc-login fc-form-vertical">
         <img className="fc-login__logo" src="/images/fc-logo-v.svg"/>
         <div className="fc-login__title">Sign In</div>
-        <Button className="fc-login__google-btn" icon="google">Sign In with Google</Button>
+        <Button className="fc-login__google-btn" icon="google" onClick={this.onGoogleSignIn}>Sign In with Google</Button>
         <div className="fc-login__or">or</div>
         <div className="fc-login__or-cont"></div>
         <FormField className="fc-login__email" label="Email">
