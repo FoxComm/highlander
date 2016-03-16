@@ -327,7 +327,7 @@
 	"requests": [
 		{
 			"id": "0135224e-5aa6-3596-9500-2bf0e1508544",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/shipping-methods/BR10002",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -342,19 +342,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "ff488287-463d-001f-9aa5-90ee84cfd2d1"
 		},
 		{
 			"id": "0227bdf5-9ddd-7738-b57e-90f0190ebfe4",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/line-items/shipping-costs",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -369,21 +363,15 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed",
 			"isFromCollection": true,
 			"rawModeData": "{\n    \"reasonId\": 1\n}"
 		},
 		{
 			"id": "04bc980f-71bf-43e7-768d-914423d5cb7d",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/activate",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -398,20 +386,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5",
 			"rawModeData": "{\n  \"name\": \"John Smith\"\n}"
 		},
 		{
 			"id": "06e6ebf3-d64f-f0db-9b0f-fcb53e6e2cca",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10002",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -426,21 +408,15 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "ff488287-463d-001f-9aa5-90ee84cfd2d1",
 			"isFromCollection": true,
 			"collectionRequestId": "06e6ebf3-d64f-f0db-9b0f-fcb53e6e2cca"
 		},
 		{
 			"id": "07359708-176b-7b87-0473-7d66c70d3815",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10004/payment-methods/credit-cards",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -455,21 +431,15 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "8dd279dd-e395-8cc4-1534-9b12b3915029",
 			"isFromCollection": true,
 			"rawModeData": "{\n    \"creditCardId\": 1\n}"
 		},
 		{
 			"id": "08312fd7-5aa3-9133-6ed9-1f30a51f75e6",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/payment-methods/credit-cards",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -484,20 +454,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed",
 			"rawModeData": "{\n    \"amount\": 10\n}"
 		},
 		{
 			"id": "0b630f41-5710-cd12-21af-8b9df4ba2a54",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/assignees",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -506,7 +470,7 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -522,7 +486,7 @@
 		},
 		{
 			"id": "0dc9f1cc-b172-ad81-043f-3cce75af7bec",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/payment-methods/credit-cards/2",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -537,19 +501,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "5403bda1-244f-b0eb-cb60-53ec54f274ae"
 		},
 		{
 			"id": "0ffd4063-c0f0-98d6-6508-c37c0313b9f2",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/notes/order/BR10001/9",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -564,19 +522,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "9e9937bd-ccd8-2425-de41-4fdf88f77a1b"
 		},
 		{
 			"id": "101f7f80-cd6f-c2c5-c72a-45a127f95626",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/payment-methods/store-credit/transactions",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -591,19 +543,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "520f1dbb-27bb-8555-bf79-bd75faf34020"
 		},
 		{
 			"id": "115fa00c-11ef-3aba-1cdb-5842004c00f0",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/addresses/1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -618,20 +564,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "80e95b04-08ca-3f0d-226a-2880b9450801",
 			"rawModeData": "{\n    \"name\": \"John Smith\",\n    \"regionId\": 1,\n    \"address1\": \"Donkey Street\",\n    \"city\": \"Seattle\",\n    \"zip\": \"55555\"\n}"
 		},
 		{
 			"id": "12d44240-fcae-38fd-f03a-2499d1d57197",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/assignees",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -646,21 +586,15 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "fa047179-eb2b-9348-50d5-9ed46487ed4b",
 			"isFromCollection": true,
 			"rawModeData": "{\n  \"assignees\": [\n    1, 2\n  ]\n}"
 		},
 		{
 			"id": "18b7ff72-f8ff-d50b-4536-0fcb8a497752",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/assignees",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -675,20 +609,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "06814bb5-a1f9-156d-4f65-761dbeb76b85",
 			"rawModeData": "{\n  \"assignees\": [\n    1, 2\n  ]\n}"
 		},
 		{
 			"id": "1aa03328-f283-145c-2a40-ad1a88cb78d9",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/gift-cards/CAEEA1B595517BB",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -703,19 +631,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "36059bc1-c1ca-aba5-1436-a26d9e65da15"
 		},
 		{
 			"id": "1afdec6e-b2b0-28ab-6ca3-4b3a4ccfafa4",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/disable",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -730,20 +652,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5",
 			"rawModeData": "{\n  \"disabled\": true\n}"
 		},
 		{
 			"id": "1b42ca3e-e223-f4ad-ae8c-8b78ed95fa64",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/addresses/1/default",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -758,19 +674,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "80e95b04-08ca-3f0d-226a-2880b9450801"
 		},
 		{
 			"id": "1eff1106-fd1b-2848-4492-6dd168abd9b0",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10004/shipping-address",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -785,21 +695,15 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "8dd279dd-e395-8cc4-1534-9b12b3915029",
 			"isFromCollection": true,
 			"rawModeData": "{\n    \"name\": \"John Smith\",\n    \"regionId\": 1,\n    \"address1\": \"Donkey Street\",\n    \"city\": \"Seattle\",\n    \"zip\": \"55555\"\n}"
 		},
 		{
 			"id": "20ff2399-2ad2-dc07-80c9-88e6da42fa05",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10004/shipping-method",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -814,21 +718,15 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "8dd279dd-e395-8cc4-1534-9b12b3915029",
 			"isFromCollection": true,
 			"rawModeData": "{\n    \"shippingMethodId\": 1\n}"
 		},
 		{
 			"id": "21875813-1363-7ec5-5bfb-4aba113a577b",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10002",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -837,14 +735,8 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1455120206702,
 			"name": "Update State",
 			"description": "",
@@ -855,7 +747,7 @@
 		},
 		{
 			"id": "232c3937-a94f-69af-71c6-2427520f6664",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/payment-methods/store-credit",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -870,19 +762,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "520f1dbb-27bb-8555-bf79-bd75faf34020"
 		},
 		{
 			"id": "265b8d89-516b-64ea-6ef2-f3bf149765f1",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/assignees/1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -897,19 +783,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "fa047179-eb2b-9348-50d5-9ed46487ed4b"
 		},
 		{
 			"id": "28cc6043-ba03-d9c5-a3d2-0c2582f819e7",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/payment-methods/credit-cards/2/default",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -924,20 +804,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "5403bda1-244f-b0eb-cb60-53ec54f274ae",
 			"rawModeData": "{\n    \"isDefault\": true\n}"
 		},
 		{
 			"id": "29553fb4-a2b7-0628-c1f4-1089c63a0d78",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10001/assignees/1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -952,19 +826,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "80db7bcd-5df2-5da6-8731-9f9f5e51671c"
 		},
 		{
 			"id": "2b5fb8dd-e8e4-9cd3-54bc-fbed25255935",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/save-for-later/1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -979,19 +847,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "41f01898-3374-da9c-a52f-1056b6664852"
 		},
 		{
 			"id": "2c332f5e-1a8d-039e-c932-207a87c68403",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/notes/gift-card/CAEEA1B595517BB",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -1000,14 +862,8 @@
 			"dataMode": "params",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1449775975282,
 			"name": "List Gift Card Notes",
 			"description": "",
@@ -1017,7 +873,7 @@
 		},
 		{
 			"id": "305400fb-1b26-0e99-2336-e9388fbf3e3b",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/shared-search/2b89d1a282d0b5af",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -1038,7 +894,7 @@
 		},
 		{
 			"id": "30595710-d62d-6d49-264a-cddded7eb8c6",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10004/shipping-method",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1053,20 +909,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "8dd279dd-e395-8cc4-1534-9b12b3915029",
 			"isFromCollection": true
 		},
 		{
 			"id": "307e8247-71d9-6515-4c58-f99fd152a1e8",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/line-items/skus/1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1081,20 +931,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed",
 			"isFromCollection": true
 		},
 		{
 			"id": "322e2d6c-1a36-13b3-7020-f32b5d52c822",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/payment-methods/store-credits",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1109,21 +953,15 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed",
 			"isFromCollection": true,
 			"rawModeData": "{\n    \"amount\": 10\n}"
 		},
 		{
 			"id": "3297290f-cc5d-4941-7827-5ee99f2c8704",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/customer/1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1138,19 +976,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed"
 		},
 		{
 			"id": "37d4fe19-1419-bea6-54db-8c8d09ee7eef",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10001/increase-remorse-period",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1165,20 +997,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "8dd279dd-e395-8cc4-1534-9b12b3915029",
 			"isFromCollection": true
 		},
 		{
 			"id": "385dda66-cb55-d89b-ac8a-1ae3cf028641",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/gift-cards/7C0103EB46E4A14/transactions",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1193,19 +1019,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "36059bc1-c1ca-aba5-1436-a26d9e65da15"
 		},
 		{
 			"id": "3901cc7f-a840-03c2-d7a6-0e5c8edc8e7b",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/assignees",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -1214,7 +1034,7 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -1230,7 +1050,7 @@
 		},
 		{
 			"id": "3b46c89f-bea0-dff1-53ff-0f2e30e0446d",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -1239,14 +1059,8 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1455120191615,
 			"name": "Update State",
 			"description": "",
@@ -1256,7 +1070,7 @@
 		},
 		{
 			"id": "3d0e3998-601c-03e0-04b1-6b1f829ce480",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/save-for-later/1/SKU-YAX",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -1265,14 +1079,8 @@
 			"dataMode": "params",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1455632488277,
 			"name": "Save",
 			"description": "",
@@ -1281,7 +1089,7 @@
 		},
 		{
 			"id": "3f1ac05f-342e-7a47-f478-e60114e2f85e",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/watchers",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -1290,7 +1098,7 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -1306,7 +1114,7 @@
 		},
 		{
 			"id": "40fb906e-3524-d534-e2f6-045bff8bd0ec",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/notes/order/BR10001/1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1321,20 +1129,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "9e9937bd-ccd8-2425-de41-4fdf88f77a1b",
 			"rawModeData": "{\n    \"body\": \"Lorem ipsum\"\n}"
 		},
 		{
 			"id": "41f03313-364e-b791-953e-47249287f394",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10001/watchers/1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1349,19 +1151,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "80db7bcd-5df2-5da6-8731-9f9f5e51671c"
 		},
 		{
 			"id": "42483dc3-ee06-fb91-ffc9-2393c189a8a7",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -1370,14 +1166,8 @@
 			"dataMode": "params",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1449781524473,
 			"name": "View",
 			"description": "",
@@ -1387,7 +1177,7 @@
 		},
 		{
 			"id": "45e0d38a-808a-fcac-9477-85d341195926",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/gift-cards/27A7E93329D08A16/watchers/1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1402,19 +1192,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "458fb0bf-cb39-aab9-7234-6aeb2401016f"
 		},
 		{
 			"id": "4758cce0-5be0-f29d-46bc-0f87a978a5d5",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/addresses",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1429,20 +1213,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "80e95b04-08ca-3f0d-226a-2880b9450801",
 			"rawModeData": "{\n    \"name\": \"John Smith\",\n    \"regionId\": 1,\n    \"address1\": \"Donkey Street\",\n    \"city\": \"Seattle\",\n    \"zip\": \"55555\"\n}"
 		},
 		{
 			"id": "47826b01-541a-5c9c-8a2b-39f4c4db880b",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10004/gift-cards/270EFF8E89108FB",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1457,21 +1235,15 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "8dd279dd-e395-8cc4-1534-9b12b3915029",
 			"isFromCollection": true,
 			"rawModeData": "{\n    \"balance\": 15\n}"
 		},
 		{
 			"id": "4938cdba-5610-9379-8bab-ee0cb7949b15",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/payment-methods/store-credits",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1486,20 +1258,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed",
 			"isFromCollection": true
 		},
 		{
 			"id": "4ae088fc-d8e1-dc5d-59a0-7f6013e820bb",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/notes/gift-card/CAEEA1B595517BB/10",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -1508,14 +1274,8 @@
 			"dataMode": "params",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1449776003111,
 			"name": "Delete Gift Card Note",
 			"description": "",
@@ -1525,7 +1285,7 @@
 		},
 		{
 			"id": "4ca7cb39-fd94-a580-62c3-ef525c672019",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/store-credits/8",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1540,19 +1300,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "9caee848-aa0a-0c33-5eb2-5fd7126f6010"
 		},
 		{
 			"id": "4d75cef8-4b11-8ea3-f0b1-b61456cfc1d7",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/watchers",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1567,7 +1321,7 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -1579,7 +1333,7 @@
 		},
 		{
 			"id": "5127b78e-c957-7fe1-b012-b6eac4fcbe9a",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/expanded",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1594,19 +1348,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed"
 		},
 		{
 			"id": "529c4648-f9aa-d661-e85d-80f0470d390f",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -1615,14 +1363,8 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1452632231782,
 			"name": "Update",
 			"description": "",
@@ -1632,7 +1374,7 @@
 		},
 		{
 			"id": "52eef521-70fe-4494-0eae-f5a2dba5c279",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/payment-methods/store-credit",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1647,20 +1389,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "520f1dbb-27bb-8555-bf79-bd75faf34020",
 			"rawModeData": "{\n    \"amount\": 10,\n    \"reasonId\": 1\n}"
 		},
 		{
 			"id": "53bb3988-ff79-ebd1-c016-ce54d4f057e3",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/store-credits/8",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -1669,14 +1405,8 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1455120167746,
 			"name": "Update State",
 			"description": "",
@@ -1686,7 +1416,7 @@
 		},
 		{
 			"id": "5491a0b5-da3c-df95-88d9-34bc7c04850c",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/assignees",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -1695,7 +1425,7 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -1711,7 +1441,7 @@
 		},
 		{
 			"id": "5591931f-c8dc-9f01-cfb0-895ef387b3cc",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/payment-methods/credit-cards",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1726,19 +1456,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed"
 		},
 		{
 			"id": "57009066-07c3-cf84-44da-6ac344bbc7b9",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/gift-cards/7C0103EB46E4A14",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -1747,14 +1471,8 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1455119884670,
 			"name": "Update State",
 			"description": "",
@@ -1764,7 +1482,7 @@
 		},
 		{
 			"id": "59034d1a-55a9-19d4-28a9-b5b9b6adfe54",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/message",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1779,20 +1497,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed",
 			"rawModeData": "{\n    \"message\": \"Lorem ipsum\"\n}"
 		},
 		{
 			"id": "59fcb1b9-0c3f-adf7-4d80-7cdce3daa605",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10004/payment-methods/credit-cards",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1807,20 +1519,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "8dd279dd-e395-8cc4-1534-9b12b3915029",
 			"isFromCollection": true
 		},
 		{
 			"id": "5e46715a-41ce-1f4a-d718-d9be32cc1d26",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/watchers/1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1835,7 +1541,7 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -1846,7 +1552,7 @@
 		},
 		{
 			"id": "60cd9a8b-89f2-9c80-7c25-928f7002cf97",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/watchers",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1861,7 +1567,7 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -1873,7 +1579,7 @@
 		},
 		{
 			"id": "62a27232-afd0-ee01-839a-c66f5382213c",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/gift-cards/assignees",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -1882,7 +1588,7 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -1898,7 +1604,7 @@
 		},
 		{
 			"id": "630fa01d-38ed-e17e-3969-c187a1cdeeea",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/watchers/delete",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -1907,7 +1613,7 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -1923,7 +1629,7 @@
 		},
 		{
 			"id": "6448fdff-f928-4510-516c-976895163d1b",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/assignees/delete",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -1932,7 +1638,7 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -1948,7 +1654,7 @@
 		},
 		{
 			"id": "6599ae10-46d3-508d-3e12-ade56779bbd5",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/payment-methods/gift-cards",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1963,20 +1669,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed",
 			"isFromCollection": true
 		},
 		{
 			"id": "6693832f-546a-65a3-5543-10c0c9f5c9e1",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/notes/order/BR10001",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -1991,19 +1691,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "9e9937bd-ccd8-2425-de41-4fdf88f77a1b"
 		},
 		{
 			"id": "68e0717f-9b6c-6fa1-27f0-e7d62cf02ee8",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/blacklist",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2018,20 +1712,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5",
 			"rawModeData": "{\n  \"blacklisted\": true\n}"
 		},
 		{
 			"id": "6951a776-55ad-4c68-5c42-c5616f0f08bf",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/notes/customer/1",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -2040,14 +1728,8 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1449776048680,
 			"name": "Create Gift Card Note",
 			"description": "",
@@ -2058,7 +1740,7 @@
 		},
 		{
 			"id": "6a63e704-78fc-23d6-0b3d-8c121ed31733",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/notes/customer/1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2073,19 +1755,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "5ca4512c-90c9-59e5-ebd1-7e8e18444809"
 		},
 		{
 			"id": "6a99ad6a-9cdf-9187-9d2a-2c15da4326ea",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/line-items/shipping-costs/1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2100,20 +1776,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed",
 			"isFromCollection": true
 		},
 		{
 			"id": "6b6cbc0d-7923-d2c6-d667-843e01a09722",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/addresses/default",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2128,19 +1798,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "80e95b04-08ca-3f0d-226a-2880b9450801"
 		},
 		{
 			"id": "6c8240e6-e4ae-e89e-66cd-7a154f4e891a",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/watchers",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -2149,7 +1813,7 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -2165,7 +1829,7 @@
 		},
 		{
 			"id": "6dea1e85-b095-29a2-9763-4130cc467335",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/gift-cards/watchers",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -2174,7 +1838,7 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -2190,7 +1854,7 @@
 		},
 		{
 			"id": "6f4a14ec-a406-2455-07a6-b75379c41ca7",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/lock",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2205,19 +1869,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed"
 		},
 		{
 			"id": "7259be36-9ea9-96f2-33a2-a523953e4212",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/blacklist",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2232,21 +1890,15 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5",
 			"isFromCollection": true,
 			"rawModeData": "{\n  \"blacklisted\": false\n}"
 		},
 		{
 			"id": "73077d32-9721-189f-37e6-ef9a1f8c1813",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/notes/customer/1/11",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -2255,14 +1907,8 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1449776063059,
 			"name": "Edit Customer Note",
 			"description": "",
@@ -2273,7 +1919,7 @@
 		},
 		{
 			"id": "7353575d-17b0-65a9-eb22-7093d1dae6a4",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10004/gift-cards/270EFF8E89108FB",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2288,20 +1934,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "8dd279dd-e395-8cc4-1534-9b12b3915029",
 			"isFromCollection": true
 		},
 		{
 			"id": "752f4d8e-4741-7944-c6d2-fb98e202ee13",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2316,19 +1956,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5"
 		},
 		{
 			"id": "766b3e64-c1f5-00d9-dfcc-c6b6c08f6218",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/assignees/delete",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -2337,7 +1971,7 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -2353,7 +1987,7 @@
 		},
 		{
 			"id": "7899d204-76e5-ee2d-c60b-5c4059fcaba9",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/lock",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2368,19 +2002,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed"
 		},
 		{
 			"id": "78cb7b67-517d-53a9-3f09-a2e2da737c39",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2395,21 +2023,15 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "8dd279dd-e395-8cc4-1534-9b12b3915029",
 			"isFromCollection": true,
 			"rawModeData": "{\n    \"customerId\": 2\n}"
 		},
 		{
 			"id": "79f18a62-63a8-e842-f3c6-22f9600f6a11",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/disable",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2424,20 +2046,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5",
 			"rawModeData": "{\n  \"disabled\": false\n}"
 		},
 		{
 			"id": "7a66b2c6-16c0-77af-4d74-20c507f5724a",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/gift-cards",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -2446,14 +2062,8 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1455119892511,
 			"name": "Bulk Update State",
 			"description": "",
@@ -2463,7 +2073,7 @@
 		},
 		{
 			"id": "7c3d47c0-76ae-a681-f214-aa665e6d8fb7",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/addresses/1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2478,19 +2088,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "80e95b04-08ca-3f0d-226a-2880b9450801"
 		},
 		{
 			"id": "7c8dff16-901c-dfcc-b07f-36f11aead612",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/gift-cards/27A7E93329D08A16/assignees/1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2505,19 +2109,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "458fb0bf-cb39-aab9-7234-6aeb2401016f"
 		},
 		{
 			"id": "7dc4b5d9-9bd7-f269-09fd-bb67b30163fc",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/shared-search/29e920c48be656c3/associate",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2539,7 +2137,7 @@
 		},
 		{
 			"id": "851c09a2-943b-d600-1cc7-0262da0799a9",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/line-items/gift-cards",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2554,21 +2152,15 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed",
 			"isFromCollection": true,
 			"rawModeData": "{\n    \"code\": \"5B96C1E1BBDA4D1\",\n    \"reasonId\": 1\n}"
 		},
 		{
 			"id": "88699112-6743-d8b3-2b52-44da3d97d3d3",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/unlock",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2583,19 +2175,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed"
 		},
 		{
 			"id": "8a231f40-1381-b007-925f-0f3fef57a593",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/notes/order/BR10001",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2610,20 +2196,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "9e9937bd-ccd8-2425-de41-4fdf88f77a1b",
 			"rawModeData": "{\n    \"body\": \"Lorem ipsum\"\n}"
 		},
 		{
 			"id": "8bf94750-aae2-4cba-02ef-b1cebb521a26",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/shared-search/2b89d1a282d0b5af",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2644,7 +2224,7 @@
 		},
 		{
 			"id": "8d8296e6-1c2b-3799-3be7-5f5ba5fe1892",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/gift-cards/assignees/delete",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -2653,7 +2233,7 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -2669,7 +2249,7 @@
 		},
 		{
 			"id": "8da385e4-06ef-7988-6a58-e33ffc535c2e",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2684,19 +2264,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed"
 		},
 		{
 			"id": "8e923400-d66b-23e3-0155-e333757e0ea5",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/watchers/1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2711,19 +2285,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "06814bb5-a1f9-156d-4f65-761dbeb76b85"
 		},
 		{
 			"id": "8fffdccd-15b3-81a9-f296-641fc20f97fd",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2738,19 +2306,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "ff488287-463d-001f-9aa5-90ee84cfd2d1"
 		},
 		{
 			"id": "92d82f6f-e418-9f5c-e048-3ac7e936095f",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10004/payment-methods/store-credit",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2765,21 +2327,15 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "8dd279dd-e395-8cc4-1534-9b12b3915029",
 			"isFromCollection": true,
 			"rawModeData": "{\n    \"amount\": 10\n}"
 		},
 		{
 			"id": "938778ac-0a7e-1757-d445-1a1113b4b684",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/notes/rma/BR10002.1/13",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2794,20 +2350,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "732de53d-284f-3efe-1371-a6b56deddd49",
 			"rawModeData": "{\n    \"body\": \"Lorem ipsum\"\n}"
 		},
 		{
 			"id": "93b52f40-f623-6209-d995-56fe110065ef",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/notes/gift-card/CAEEA1B595517BB",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -2816,14 +2366,8 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1449775981713,
 			"name": "Create Customer Note",
 			"description": "",
@@ -2834,7 +2378,7 @@
 		},
 		{
 			"id": "95db83d6-532e-7609-44c0-2af99fe83182",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/notes/gift-card/CAEEA1B595517BB/10",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -2843,14 +2387,8 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1449775995210,
 			"name": "Edit Gift Card Note",
 			"description": "",
@@ -2861,7 +2399,7 @@
 		},
 		{
 			"id": "98336fec-c947-054c-4608-48e503aa231a",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/notes/rma/BR10002.1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2876,20 +2414,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "732de53d-284f-3efe-1371-a6b56deddd49",
 			"rawModeData": "{\n    \"body\": \"Lorem ipsum\"\n}"
 		},
 		{
 			"id": "988e858f-a76a-104a-69db-62953725eb05",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/line-items/gift-cards/3",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2904,20 +2436,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed",
 			"isFromCollection": true
 		},
 		{
 			"id": "9d50913f-ce59-2833-70af-504160eed058",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/gift-cards",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2932,20 +2458,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "36059bc1-c1ca-aba5-1436-a26d9e65da15",
 			"rawModeData": "{\n  \"balance\": 10,\n  \"quantity\": 1,\n  \"reasonId\": 1\n}"
 		},
 		{
 			"id": "a13b8e1e-713f-0a2b-3fa2-a668023184d6",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -2954,14 +2474,8 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1455120214959,
 			"name": "Bulk Update State",
 			"description": "",
@@ -2972,7 +2486,7 @@
 		},
 		{
 			"id": "a40d187d-e0d8-b38c-ac03-ecafbc8459d5",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10001/lock",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -2987,20 +2501,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "ff488287-463d-001f-9aa5-90ee84cfd2d1",
 			"isFromCollection": true
 		},
 		{
 			"id": "a51a4d0d-d702-040e-cd2b-eb97bd534c7a",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/notes/customer/1/11",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -3009,14 +2517,8 @@
 			"dataMode": "params",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1449776102559,
 			"name": "Delete Customer Note",
 			"description": "",
@@ -3026,7 +2528,7 @@
 		},
 		{
 			"id": "a5ba5286-472c-b39c-e89c-cc71fe8ce066",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10004/gift-cards",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -3041,21 +2543,15 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "8dd279dd-e395-8cc4-1534-9b12b3915029",
 			"isFromCollection": true,
 			"rawModeData": "{\n    \"balance\": 10\n}"
 		},
 		{
 			"id": "a791de49-a777-bc49-0b70-bded6cfbaa1a",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/payment-methods/credit-cards/1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -3070,20 +2566,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "5403bda1-244f-b0eb-cb60-53ec54f274ae",
 			"rawModeData": "{\n    \"holderName\": \"John Smith\"\n}"
 		},
 		{
 			"id": "ace23a89-cc6e-fb5e-eea1-d455bc2c1d52",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/payment-methods/gift-cards",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -3098,21 +2588,15 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed",
 			"isFromCollection": true,
 			"rawModeData": "{\n    \"amount\": 10\n}"
 		},
 		{
 			"id": "ae251f85-190f-e71e-89c8-2385c70e65c9",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -3121,14 +2605,8 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1452631925493,
 			"name": "Create",
 			"description": "",
@@ -3138,7 +2616,7 @@
 		},
 		{
 			"id": "aee1cf9d-5392-0dda-a6aa-1cdb75f46ec8",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/store-credits/8/transactions",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -3153,19 +2631,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "9caee848-aa0a-0c33-5eb2-5fd7126f6010"
 		},
 		{
 			"id": "b07a69bd-4dc3-d8e1-cc12-d766a9f813d2",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10004/line-items",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -3180,14 +2652,8 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"isFromCollection": true,
 			"rawModeData": "[{\n    \"sku\": \"SKU-YAX\",\n    \"quantity\": 2\n}]",
 			"collectionRequestId": "b07a69bd-4dc3-d8e1-cc12-d766a9f813d2",
@@ -3195,7 +2661,7 @@
 		},
 		{
 			"id": "b0a4e2c9-98f6-3c18-8c65-01ee0ee4be80",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/gift-cards/7C0103EB46E4A14/convert/1",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -3204,14 +2670,8 @@
 			"dataMode": "params",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1449778328943,
 			"name": "Convert To Store Credit",
 			"description": "",
@@ -3221,7 +2681,7 @@
 		},
 		{
 			"id": "b1fefed6-34eb-4516-c203-424b339a5a69",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10004/payment-methods/gift-cards",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -3230,14 +2690,8 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1449847311250,
 			"name": "Add Gift Card Payment",
 			"description": "",
@@ -3248,7 +2702,7 @@
 		},
 		{
 			"id": "b219868e-d603-ec4e-1864-13fb3e90475f",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10004/payment-methods/gift-cards/64FB6048AA36C86",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -3263,20 +2717,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "8dd279dd-e395-8cc4-1534-9b12b3915029",
 			"isFromCollection": true
 		},
 		{
 			"id": "b3d64f20-7139-5e47-bd43-4abece833d43",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/products/default/1/baked",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -3291,19 +2739,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "041062c5-1892-a44c-dc3d-f1642d8f03d6"
 		},
 		{
 			"id": "b5e14ef3-1941-f00f-5c37-5fa8ddf7d077",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/assignees/delete",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -3312,7 +2754,7 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -3329,7 +2771,7 @@
 		},
 		{
 			"id": "b6087b12-ffd0-ed3b-57ba-cf303ec23c5c",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10001/watchers",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -3338,7 +2780,7 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -3354,7 +2796,7 @@
 		},
 		{
 			"id": "b6614c93-b9bb-6e38-b0c4-1358b07147e5",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/gift-cards/watchers/delete",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -3363,7 +2805,7 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -3379,7 +2821,7 @@
 		},
 		{
 			"id": "b6cb48d3-2ef4-f8e1-8398-5fc8fc2449d1",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/notes/rma/BR10002.1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -3394,19 +2836,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "732de53d-284f-3efe-1371-a6b56deddd49"
 		},
 		{
 			"id": "ba2a82e0-af77-1323-fb50-e1a3cb2dd969",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/addresses/1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -3421,19 +2857,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "80e95b04-08ca-3f0d-226a-2880b9450801"
 		},
 		{
 			"id": "ba41ee5d-0d33-df7e-7fc5-022259c3e460",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/payment-methods/credit-cards",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -3442,14 +2872,8 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1452634846907,
 			"name": "Create Credit Card",
 			"description": "",
@@ -3460,7 +2884,7 @@
 		},
 		{
 			"id": "bc57f8e1-aa7e-fa9c-85ef-2ba4bd518acf",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/store-credits",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -3469,14 +2893,8 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1455120174864,
 			"name": "Bulk Update State",
 			"description": "",
@@ -3486,7 +2904,7 @@
 		},
 		{
 			"id": "bf0451dc-8915-bb8b-bd70-39b8512e85a5",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -3495,14 +2913,8 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1449842043014,
 			"name": "Create",
 			"description": "",
@@ -3513,7 +2925,7 @@
 		},
 		{
 			"id": "c16bebf6-8281-6586-15df-bef70fc2d9e0",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/gift-cards/B21C90C2E8C37B69/assignees",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -3522,7 +2934,7 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -3538,7 +2950,7 @@
 		},
 		{
 			"id": "c350daad-7a11-5577-64b7-6825f99bbf40",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/save-for-later/1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -3553,19 +2965,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "41f01898-3374-da9c-a52f-1056b6664852"
 		},
 		{
 			"id": "c66bbfdd-158c-bef1-f77b-2d6149c456b4",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/payment-methods/credit-cards",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -3580,19 +2986,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "5403bda1-244f-b0eb-cb60-53ec54f274ae"
 		},
 		{
 			"id": "c79b60e0-172a-8ab3-9149-8986e38c33fd",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/shared-search",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -3613,7 +3013,7 @@
 		},
 		{
 			"id": "ca6a2861-175e-c980-9b6d-ce45aa68e16f",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10004/shipping-address",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -3628,19 +3028,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "8dd279dd-e395-8cc4-1534-9b12b3915029"
 		},
 		{
 			"id": "cc9e30b3-1735-842c-d94a-be28e0f76872",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10004/shipping-address",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -3655,21 +3049,15 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "8dd279dd-e395-8cc4-1534-9b12b3915029",
 			"isFromCollection": true,
 			"rawModeData": "{\n    \"name\": \"John Smith\",\n    \"regionId\": 1,\n    \"address1\": \"Donkey Street\",\n    \"city\": \"Seattle\",\n    \"zip\": \"55555\"\n}"
 		},
 		{
 			"id": "cdc5d374-5ad8-f2fc-63af-97a2a63bd5da",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/watchers",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -3678,7 +3066,7 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -3694,7 +3082,7 @@
 		},
 		{
 			"id": "d2dcf752-eb3e-4cae-c77c-b460f821d5cd",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -3709,19 +3097,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "94fd4974-70d5-cdbb-a764-7d91c85b1ba5"
 		},
 		{
 			"id": "d3dd7e27-190b-e76f-d295-79b1e9fdda30",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10001/unlock",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -3736,20 +3118,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "ff488287-463d-001f-9aa5-90ee84cfd2d1",
 			"isFromCollection": true
 		},
 		{
 			"id": "dcfe81ae-8990-9f8d-426e-cb2993e41bdc",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/payment-methods/store-credit/8/convert",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -3758,14 +3134,8 @@
 			"dataMode": "params",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"time": 1449778371917,
 			"name": "Convert Store Credit To Gift Card",
 			"description": "",
@@ -3775,7 +3145,7 @@
 		},
 		{
 			"id": "dedb7095-29ba-2017-79c6-5fe8559423ff",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/assignees/1",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -3790,19 +3160,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "06814bb5-a1f9-156d-4f65-761dbeb76b85"
 		},
 		{
 			"id": "df18a0b8-9c70-0457-d26c-f399bba1e832",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/addresses",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -3817,19 +3181,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "80e95b04-08ca-3f0d-226a-2880b9450801"
 		},
 		{
 			"id": "e23f5273-8008-4a1e-ca86-4f931ae16bc9",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/gift-cards/B21C90C2E8C37B69/watchers",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -3838,7 +3196,7 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -3854,7 +3212,7 @@
 		},
 		{
 			"id": "e26bc17a-bcb6-0f6e-e92f-1070f047ad07",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10001/assignees",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -3869,21 +3227,15 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "80db7bcd-5df2-5da6-8731-9f9f5e51671c",
 			"isFromCollection": true,
 			"rawModeData": "{\n  \"assignees\": [\n    1, 2\n  ]\n}"
 		},
 		{
 			"id": "e3d421e9-86cc-bcfc-415d-b7f4d4d35745",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/BR10001.1/line-items/skus",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -3898,20 +3250,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed",
 			"rawModeData": "{\n    \"sku\": \"SKU-YAX\",\n    \"reasonId\": 1,\n    \"quantity\": 1,\n    \"isReturnItem\": true,\n    \"inventoryDisposition\": \"putaway\"\n}"
 		},
 		{
 			"id": "e49c0a91-6f33-bcd2-acd3-289c4a948ec4",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10004/shipping-address/2",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -3926,19 +3272,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "8dd279dd-e395-8cc4-1534-9b12b3915029"
 		},
 		{
 			"id": "e76d61c1-0699-c6a3-edda-06511e3ef461",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10004/payment-methods/store-credit",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -3953,20 +3293,14 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "8dd279dd-e395-8cc4-1534-9b12b3915029",
 			"isFromCollection": true
 		},
 		{
 			"id": "e7c86a07-b8c6-a63f-dbe7-d4fe35a3d8a3",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/assignees/delete",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -3975,7 +3309,7 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -3991,7 +3325,7 @@
 		},
 		{
 			"id": "ec79c855-9394-18b5-4460-a80c8ff7945d",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/shared-search/2b89d1a282d0b5af",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -4012,7 +3346,7 @@
 		},
 		{
 			"id": "f098fc04-a3e8-2305-973e-fa46d7afcc0c",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/rmas/order/BR10001",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -4027,19 +3361,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "e0576961-0b66-e6d2-9d5e-91e4334380ed"
 		},
 		{
 			"id": "f22b0517-bc82-8d42-f238-8aec7c0b74f2",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/customers/1/payment-methods/store-credit/totals",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -4054,19 +3382,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "520f1dbb-27bb-8555-bf79-bd75faf34020"
 		},
 		{
 			"id": "f265cbc7-3c31-7b1e-2b73-3f4933528aa5",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/watchers/delete",
 			"preRequestScript": "",
 			"pathVariables": {},
@@ -4075,7 +3397,7 @@
 			"dataMode": "raw",
 			"version": 2,
 			"tests": "",
-			"currentHelper": "basicAuth",
+			"currentHelper": "normal",
 			"helperAttributes": {
 				"id": "basic",
 				"username": "admin@admin.com",
@@ -4091,7 +3413,7 @@
 		},
 		{
 			"id": "f2d5c332-ce4a-157f-2f53-0d945a9de132",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/notes/rma/BR10002.1/13",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -4106,19 +3428,13 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "732de53d-284f-3efe-1371-a6b56deddd49"
 		},
 		{
 			"id": "f3fcac06-f74a-8451-44d6-c5296ef2ce39",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/orders/BR10002/checkout",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -4133,21 +3449,15 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "8dd279dd-e395-8cc4-1534-9b12b3915029",
 			"isFromCollection": true,
 			"collectionRequestId": "f3fcac06-f74a-8451-44d6-c5296ef2ce39"
 		},
 		{
 			"id": "fa02116e-d60c-45f3-bb4d-9c54579f4b54",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/shared-search/29e920c48be656c3/associate/2",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -4168,7 +3478,7 @@
 		},
 		{
 			"id": "fddabd4a-d7a2-27af-2285-3e115acd2329",
-			"headers": "Content-Type: application/json\nAccept: application/json\nAuthorization: Basic YWRtaW5AYWRtaW4uY29tOnBhc3N3b3Jk\n",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/gift-cards",
 			"pathVariables": {},
 			"preRequestScript": "",
@@ -4183,14 +3493,8 @@
 			"version": 2,
 			"responses": [],
 			"tests": "",
-			"currentHelper": "basicAuth",
-			"helperAttributes": {
-				"username": "admin@admin.com",
-				"password": "password",
-				"saveToRequest": true,
-				"id": "basic",
-				"timestamp": 1449091654128
-			},
+			"currentHelper": "normal",
+			"helperAttributes": {},
 			"folder": "36059bc1-c1ca-aba5-1436-a26d9e65da15"
 		}
 	]

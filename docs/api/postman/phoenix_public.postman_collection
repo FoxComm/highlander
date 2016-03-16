@@ -3,6 +3,7 @@
 	"name": "Phoenix Public",
 	"description": "",
 	"order": [
+		"cb5252e9-1c72-9bcb-b576-d05ef3e7e490",
 		"18ff7e0f-4b52-ebea-6f44-a81fd5ee2e84",
 		"75982126-c2ae-43e2-2cab-06275b0c68d9",
 		"4f936ff6-7598-361d-4ed0-cc432c7823c2",
@@ -152,6 +153,27 @@
 			"description": "",
 			"collectionId": "b7a0ebbb-9ede-383e-4a59-57b7cf161795",
 			"responses": []
+		},
+		{
+			"id": "cb5252e9-1c72-9bcb-b576-d05ef3e7e490",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
+			"url": "http://localhost:9090/v1/public/login",
+			"pathVariables": {},
+			"preRequestScript": "",
+			"method": "POST",
+			"collectionId": "b7a0ebbb-9ede-383e-4a59-57b7cf161795",
+			"data": [],
+			"dataMode": "raw",
+			"name": "Login",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1458153862638,
+			"version": 2,
+			"responses": [],
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"rawModeData": "{\n    \"email\": \"admin@admin.com\",\n    \"password\": \"password\",\n    \"kind\": \"admin\"\n}"
 		},
 		{
 			"id": "d580964a-fe84-63a7-675e-f100ada7953d",
