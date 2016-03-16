@@ -18,7 +18,7 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
 
   val authUri = fullUri("public/login")
 
-  val authBodyTemplate = """{"email": "%s", "password": "%s"}"""
+  val authBodyTemplate = """{"email": "%s", "password": "%s", "kind": "admin"}"""
 
   val jwtHeaderName = "JWT"
 
@@ -63,7 +63,7 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
         ContentTypes.`application/json`,
         ByteString(body)
       )).addHeader(RawHeader(authHeaderName, token))
-    
+
     Console.out.println(s"JWT Token: $token")
     Http().singleRequest(request, cp)
   }
