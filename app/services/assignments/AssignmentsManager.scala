@@ -87,7 +87,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     result         = entities.map(buildResponse)
     entityName     = entities.headOption.getOrElse(Some)
     batchFailures  = diffToBatchErrors(payload.entityIds, newEntries.map(_.referenceId), entityName)
-    batchMetadata  = BatchMetadata(BatchMetadataSource(entityName, success.map(_.toString), batchFailures))
+    batchMetadata  = BatchMetadata(BatchMetadataSource(entityName, success, batchFailures))
   } yield TheResponse(result, errors = flattenErrors(batchFailures), batch = batchMetadata.some)).runTxn()
 
   def unassignBulk(originator: StoreAdmin, payload: BulkAssignmentPayload[K])
@@ -96,16 +96,15 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     admin         ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
     entities      ← * <~ fetchSequence(payload.entityIds)
     _             ← * <~ Assignments.byEntitySeqAndAdmin(assignmentType(), entities, referenceType(), admin).delete
-    success       = entities.filter(c ⇒ payload.entityIds.contains(c.id)).map(_.id)
-    successIds    = success.map(_.toString)
+    success       = entities.filter(c ⇒ payload.entityIds.contains(c.id)).map(m ⇒ m.primarySearchKeyLens.get(m))
     // LogActivity + notifications
-    _              ← * <~ LogActivity.bulkUnassigned(originator, admin, successIds)
-    _              ← * <~ unsubscribe(Seq(admin.id), successIds)
+    _              ← * <~ LogActivity.bulkUnassigned(originator, admin, success)
+    _              ← * <~ unsubscribe(Seq(admin.id), success)
     // Batch response builder
     result        = entities.map(buildResponse)
     entityName    = entities.headOption.getOrElse(Some)
     batchFailures = diffToBatchErrors(payload.entityIds, entities.map(_.id), entityName)
-    batchMetadata = BatchMetadata(BatchMetadataSource(entityName, successIds, batchFailures))
+    batchMetadata = BatchMetadata(BatchMetadataSource(entityName, success, batchFailures))
   } yield TheResponse(result, errors = flattenErrors(batchFailures), batch = batchMetadata.some)).runTxn()
 
   // Notifications
@@ -131,6 +130,6 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     admins      ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.storeAdminId))).result
   } yield assignments.zip(admins)
 
-  private def filterSuccess(entities: Seq[M], newEntries: Seq[Assignment]): Seq[M#Id] =
-    entities.filter(e ⇒ newEntries.map(_.referenceId).contains(e.id)).map(_.id)
+  private def filterSuccess(entities: Seq[M], newEntries: Seq[Assignment]): Seq[String] =
+    entities.filter(e ⇒ newEntries.map(_.referenceId).contains(e.id)).map(m ⇒ m.primarySearchKeyLens.get(m))
 }

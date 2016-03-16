@@ -42,6 +42,9 @@ select distinct on (o.id)
     osa.addresses as shipping_addresses,
     oba.count as billing_addresses_count,
     oba.addresses as billing_addresses,
+    -- Assignments
+    a.count as assignment_count,
+    a.assignees as assignees,
     -- RMAs
     rma.count as rma_count,
     rma.rmas as rmas
@@ -56,6 +59,7 @@ inner join order_store_credit_payments_view as scp on (o.id = scp.order_id)
 inner join order_shipments_view as s on (o.id = s.order_id)
 inner join order_shipping_addresses_view as osa on (o.id = osa.order_id)
 inner join order_billing_addresses_view as oba on (o.id = oba.order_id)
+inner join order_assignments_view as a on (o.id = a.order_id)
 inner join order_rmas_view as rma on (o.id = rma.order_id)
 order by o.id;
 
