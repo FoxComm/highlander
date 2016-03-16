@@ -11,9 +11,11 @@ import EditableBlock from 'ui/editable-block';
 import { FormField, Form } from 'ui/forms';
 import Autocomplete from 'ui/autocomplete';
 
+import type { CheckoutBlockProps } from './types';
+import type { Address } from 'types/address';
 import * as checkoutActions from 'modules/checkout';
 
-let ViewShipping = (props: Object) => {
+let ViewShipping = (props: Address) => {
   return (
     <ul>
       <li><strong>{props.name}</strong></li>
@@ -26,12 +28,6 @@ let ViewShipping = (props: Object) => {
   );
 };
 ViewShipping = connect(state => (state.checkout.shippingData))(ViewShipping);
-
-type ShippingProps = {
-  isEditing: boolean;
-  collapsed: boolean;
-  editAction: Function;
-}
 
 type EditShippingProps = {
   continueAction?: Function;
@@ -128,25 +124,25 @@ class EditShipping extends Component {
 
     return (
       <Form onSubmit={this.handleSubmit} styleName="checkout-form">
-        <FormField styleName="checkout-field">
+        <FormField styleName="text-field">
           <TextInput required
             name="name" placeholder="FIRST & LAST NAME" value={data.name} onChange={this.changeFormData}
           />
         </FormField>
-        <FormField styleName="checkout-field">
+        <FormField styleName="text-field">
           <TextInput
             required
             name="address1" placeholder="STREET ADDRESS 1" value={data.address1} onChange={this.changeFormData}
           />
         </FormField>
-        <FormField styleName="checkout-field">
+        <FormField styleName="text-field">
           <TextInput
             name="address2" placeholder="STREET ADDRESS 2 (optional)" value={data.address2}
             onChange={this.changeFormData}
           />
         </FormField>
         <div styleName="union-fields">
-          <FormField styleName="checkout-field">
+          <FormField styleName="text-field">
             <Autocomplete
               inputProps={{
                 placeholder: 'COUNTRY',
@@ -157,15 +153,15 @@ class EditShipping extends Component {
               selectedItem={selectedCountry}
             />
           </FormField>
-          <FormField styleName="checkout-field" validator="zipCode">
+          <FormField styleName="text-field" validator="zipCode">
             <TextInput required placeholder="ZIP" onChange={this.handleZipChange} value={data.zip} />
           </FormField>
         </div>
         <div styleName="union-fields">
-          <FormField styleName="checkout-field">
+          <FormField styleName="text-field">
             <TextInput required name="city" placeholder="CITY" onChange={this.changeFormData} value={data.city} />
           </FormField>
-          <FormField styleName="checkout-field">
+          <FormField styleName="text-field">
             <Autocomplete
               inputProps={{
                 placeholder: 'STATE',
@@ -177,7 +173,7 @@ class EditShipping extends Component {
             />
           </FormField>
         </div>
-        <FormField label="Phone Number" styleName="checkout-field" validator="phoneNumber">
+        <FormField label="Phone Number" styleName="text-field" validator="phoneNumber">
           <TextInput required
             name="phone" type="tel" placeholder="PHONE" onChange={this.changeFormData} value={data.phone}
           />
@@ -188,18 +184,21 @@ class EditShipping extends Component {
   }
 }
 
-const TestView = props => {
-  return props.isEditing ? <EditShipping {...props} /> : <ViewShipping />;
-};
+const Shipping = (props: CheckoutBlockProps) => {
+  const shippingContent = (
+    <div styleName="checkout-block-content">
+      {props.isEditing ? <EditShipping {...props} /> : <ViewShipping />}
+    </div>
+  );
 
-const Shipping = (props: ShippingProps) => {
   return (
     <EditableBlock
+      styleName="checkout-block"
       title="SHIPPING"
       isEditing={props.isEditing}
       collapsed={props.collapsed}
       editAction={props.editAction}
-      contentView={TestView}
+      content={shippingContent}
     />
   );
 };

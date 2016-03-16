@@ -12,8 +12,14 @@
 }
 
 .checkout-block {
+  composes: editable-block from "ui/editable-block/editable-block.css";
   width: 100%;
   margin-bottom: 20px;
+  padding-bottom: 30px;
+}
+
+.checkout-block-content {
+  margin-top: 25px;
 }
 
 .logo {
@@ -32,11 +38,10 @@
 }
 
 .checkout-form {
-  margin-top: 25px;
   & > .union-fields {
     margin: 10px 0;
 
-    & > .checkout-field {
+    & > .text-field {
       margin: 0;
 
       &:first-child {
@@ -46,11 +51,20 @@
   }
 }
 
-.checkout-field {
+.text-field {
   margin: 10px 0;
 
   & input:matches([type=text], [type=password], [type=number], [type=tel]) {
     width: 100%;
+  }
+}
+
+.shipping-method {
+  margin: 20px 0;
+  display: flex;
+
+  & > div:first-child {
+    flex-grow: 1;
   }
 }
 
