@@ -86,7 +86,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     // Batch response builder
     result         = entities.map(buildResponse)
     entityName     = entities.headOption.getOrElse(Some)
-    batchFailures  = diffToBatchErrors(payload.entityIds, newEntries.map(_.referenceId), entityName)
+    batchFailures  = diffToBatchErrors(payload.entityIds, success, entityName)
     batchMetadata  = BatchMetadata(BatchMetadataSource(entityName, success, batchFailures))
   } yield TheResponse(result, errors = flattenErrors(batchFailures), batch = batchMetadata.some)).runTxn()
 
