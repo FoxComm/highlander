@@ -14,6 +14,7 @@ import storeCreditTransactions from './store-credit-transactions';
 import newStoreCredit from './new-store-credit';
 import storeCreditTotals from './store-credit-totals';
 import storeCreditStates from './store-credit-states';
+import items from './items';
 import reduceReducers from 'reduce-reducers';
 
 const details = reduceReducers(_details, contacts);
@@ -31,7 +32,8 @@ const customerReducer = combineReducers({
   storeCredits,
   storeCreditStates,
   storeCreditTransactions,
-  newStoreCredit
+  newStoreCredit,
+  items
 });
 
 export default customerReducer;

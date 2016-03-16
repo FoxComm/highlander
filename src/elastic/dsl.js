@@ -2,6 +2,12 @@ export function query(query, rest = {}) {
   return { query, ...rest };
 }
 
+export function existsFilter(field, operator) {
+  return {
+    [operator]: { field }
+  };
+}
+
 export function termFilter(field, value) {
   return {
     term: {
