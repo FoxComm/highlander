@@ -1,5 +1,6 @@
 package services.rmas
 
+import cats.implicits._
 import models.customer.Customers
 import models.rma.Rmas
 import models.{StoreAdmins, javaTimeSlickMapper}
@@ -56,7 +57,7 @@ object RmaQueries {
     }
 
     sortedQuery.result.map(_.map { case ((rma, customer), admin) ⇒
-      AllRmas.build(rma, customer, admin)
+      AllRmas.build(rma, customer.some, admin)
     }).toTheResponse
   }
 }

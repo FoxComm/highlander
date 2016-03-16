@@ -7,5 +7,5 @@ trait OrderResponseBase {
   def referenceNumber: String
   def orderState: Order.State
   def shippingState: Option[Order.State]
-  def paymentState: CreditCardCharge.State
+  def paymentState: Option[CreditCardCharge.State]
 }

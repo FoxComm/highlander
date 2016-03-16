@@ -22,11 +22,11 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   // Define this methods in inherit object
   //def modelInstance(): ModelWithIdParameter[M]
   //def tableInstance(): TableQueryWithId[M, T]
-  //def responseBuilder(): M ⇒ ResponseItem
 
   def assignmentType(): AssignmentType
   def referenceType(): ReferenceType
   def notifyDimension(): String
+  def buildResponse(model: M): ResponseItem
 
   private def notifyReason(): NotificationSubscription.Reason = assignmentType() match {
     case Assignee ⇒ NotificationSubscription.Assigned
@@ -73,7 +73,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   } yield response).runTxn()
 
   def assignBulk(originator: StoreAdmin, payload: BulkAssignmentPayload[K])
-    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[Seq[M]]] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[Seq[ResponseItem]]] = (for {
     // Validation + assign
     admin          ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
     entities       ← * <~ fetchSequence(payload.entityIds)
@@ -88,13 +88,14 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     _              ← * <~ LogActivity.bulkAssigned(originator, admin, newAssignedIds)
     _              ← * <~ subscribe(Seq(admin.id), newAssignedIds.map(_.toString))
     // Batch response builder
+    result         = entities.map(buildResponse)
     entityName     = entities.headOption.getOrElse(Some)
     batchFailures  = diffToBatchErrors(payload.entityIds, newEntries.map(_.referenceId), entityName)
     batchMetadata  = BatchMetadata(BatchMetadataSource(entityName, success.map(_.toString), batchFailures))
-  } yield TheResponse(entities, errors = flattenErrors(batchFailures), batch = batchMetadata.some)).runTxn()
+  } yield TheResponse(result, errors = flattenErrors(batchFailures), batch = batchMetadata.some)).runTxn()
 
   def unassignBulk(originator: StoreAdmin, payload: BulkAssignmentPayload[K])
-    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[Seq[M]]] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[Seq[ResponseItem]]] = (for {
     // Validation + unassign
     admin         ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
     entities      ← * <~ fetchSequence(payload.entityIds)
@@ -105,10 +106,11 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     _              ← * <~ LogActivity.bulkUnassigned(originator, admin, successIds)
     _              ← * <~ unsubscribe(Seq(admin.id), successIds)
     // Batch response builder
+    result        = entities.map(buildResponse)
     entityName    = entities.headOption.getOrElse(Some)
     batchFailures = diffToBatchErrors(payload.entityIds, entities.map(_.id), entityName)
     batchMetadata = BatchMetadata(BatchMetadataSource(entityName, successIds, batchFailures))
-  } yield TheResponse(entities, errors = flattenErrors(batchFailures), batch = batchMetadata.some)).runTxn()
+  } yield TheResponse(result, errors = flattenErrors(batchFailures), batch = batchMetadata.some)).runTxn()
 
   // Notifications
   private def subscribe(adminIds: Seq[Int], objectIds: Seq[String])(implicit ec: EC, db: DB) =

@@ -1,5 +1,6 @@
 package services.orders
 
+import cats.implicits._
 import models.customer.{Customers, Customer}
 import models.order._
 import models.payment.PaymentMethod
@@ -57,7 +58,7 @@ object OrderQueries {
       DBIO.sequence(results.map {
         case (order, customer) ⇒
           OrderQueries.getPaymentState(order.id).map { paymentState ⇒
-            AllOrders.build(order, customer, paymentState)
+            AllOrders.build(order, customer.some, paymentState.some)
           }
       })
     }).toTheResponse

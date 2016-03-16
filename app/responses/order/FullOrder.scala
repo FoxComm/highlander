@@ -41,7 +41,7 @@ object FullOrder {
     referenceNumber: String,
     orderState: Order.State,
     shippingState: Option[Order.State] = None,
-    paymentState: CreditCardCharge.State,
+    paymentState: Option[CreditCardCharge.State] = None,
     lineItems: LineItems,
     fraudScore: Int,
     totals: Totals,
@@ -108,7 +108,7 @@ object FullOrder {
     giftCards: Seq[(GiftCard, OrderLineItemGiftCard)] = Seq.empty,
     totals: Option[Totals] = None,
     lockedBy: Option[StoreAdmin] = None,
-    paymentState: CreditCardCharge.State = CreditCardCharge.Cart): Root = {
+    paymentState: Option[CreditCardCharge.State] = None): Root = {
 
     val creditCardPmt = ccPmt.map { case (pmt, cc, region) ⇒
       val payment = Payments.CreditCardPayment(id = cc.id, customerId = cc.customerId, holderName = cc.holderName,
@@ -130,12 +130,11 @@ object FullOrder {
     val paymentMethods: Seq[Payments] = creditCardPmt ++ giftCardPmts ++ storeCreditPmts
 
     val skuList = lineItems.map { 
-      case data ⇒ { 
+      case data ⇒
         val price = Mvp.priceAsInt(data.sku, data.skuShadow)
         val name = Mvp.name(data.sku, data.skuShadow).getOrElse("")
         DisplayLineItem(sku = data.sku.code, referenceNumber = data.lineItem.referenceNumber,
           state = data.lineItem.state, name = name, price = price, totalPrice = price)
-      }
     }
     val gcList = giftCards.map { case (gc, li) ⇒ GiftCardResponse.build(gc) }
 
@@ -202,8 +201,8 @@ object FullOrder {
       gcPayments, 
       scPayments,
       giftCards, 
-      Some(totals(order)), 
+      totals(order).some,
       lockedBy, 
-      payState)
+      payState.some)
   }
 }
