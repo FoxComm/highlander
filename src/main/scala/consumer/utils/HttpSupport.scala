@@ -45,12 +45,12 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
         ByteString(authBodyTemplate.format(conn.user, conn.pass))
       ))
 
+    Console.out.println(s"Request URI: ${request.getUri()}")
     Http().singleRequest(request, cp)
   }
 
   private def getInner(suffix: String, token: String): Future[HttpResponse] = {
     val request = HttpRequest(HttpMethods.GET, fullUri(suffix)).addHeader(RawHeader(authHeaderName, token))
-    Console.out.println(s"Request URI: ${request.getUri()}")
     Console.out.println(s"JWT Token: $token")
     Http().singleRequest(request, cp)
   }
@@ -63,8 +63,7 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
         ContentTypes.`application/json`,
         ByteString(body)
       )).addHeader(RawHeader(authHeaderName, token))
-
-    Console.out.println(s"Request URI: ${request.getUri()}")
+    
     Console.out.println(s"JWT Token: $token")
     Http().singleRequest(request, cp)
   }
