@@ -11,6 +11,7 @@
     delete: true
     recursive: true
     rsync_opts:
+        - "--quiet"
         - "--no-motd"
         - "--exclude=./node_modules"
 
