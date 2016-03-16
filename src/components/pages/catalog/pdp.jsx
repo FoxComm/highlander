@@ -62,7 +62,7 @@ class Pdp extends Component<void, Props, void> {
         </div>
         <div styleName="details">
           <div styleName="images">
-            <Gallery images={['https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Emma_Top_Front.jpg', 'https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Granger_Three_Quarter.jpg', 'https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Marley_Top_Front.jpg']} />
+            <Gallery images={imageUrls} />
           </div>
           <div styleName="info">
             <h1 styleName="name">{title}</h1>
