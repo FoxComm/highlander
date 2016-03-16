@@ -12,11 +12,21 @@ import Currency from 'ui/currency';
 
 import * as checkoutActions from 'modules/checkout';
 
-const ViewDelivery = () => {
+const shippingMethodCost = cost => {
+  return cost == 0
+    ? <div styleName="delivery-cost">FREE</div>
+    : <Currency styleName="delivery-cost" value={cost}/>;
+};
+
+let ViewDelivery = (props) => {
   return (
-    <div>view delivery</div>
+    <div styleName="shipping-method">
+      <div>{props.shippingMethod.name}</div>
+      {shippingMethodCost(props.shippingMethod.price)}
+    </div>
   );
 };
+ViewDelivery = connect(state => state.checkout)(ViewDelivery);
 
 /* ;;`*/
 @connect(state => state.checkout, checkoutActions)
@@ -29,20 +39,25 @@ class EditDelivery extends Component {
 
   @autobind
   handleSubmit() {
-
+    this.props.continueAction();
   }
 
   get shippingMethods() {
-    const { shippingMethods } = this.props;
+    const { shippingMethods, shippingMethod: selectedMethod, selectShippingMethod } = this.props;
 
     return shippingMethods.map(shippingMethod => {
-      const cost = shippingMethod.price == 0
-        ? <div styleName="delivery-cost">FREE</div>
-        : <Currency styleName="delivery-cost" value={shippingMethod.price}/>;
+      const cost = shippingMethodCost(shippingMethod.price);
 
       return (
         <div key={shippingMethod.id} styleName="shipping-method">
-          <Checkbox name="delivery" id={shippingMethod.id}>{shippingMethod.name}</Checkbox>
+          <Checkbox
+            name="delivery"
+            checked={selectedMethod && selectedMethod.id == shippingMethod.id}
+            onChange={() => selectShippingMethod(shippingMethod)}
+            id={`delivery${shippingMethod.id}`}
+          >
+            {shippingMethod.name}
+          </Checkbox>
           {cost}
         </div>
       );
