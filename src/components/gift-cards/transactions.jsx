@@ -8,7 +8,7 @@ import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 
 // components
-import { SearchableList } from '../list-page';
+import { SelectableSearchList } from '../list-page';
 import GiftCardTransactionRow from './gift-card-transaction-row';
 
 // redux
@@ -65,8 +65,8 @@ export default class GiftCardTransactions extends React.Component {
   render() {
     return (
       <div className="fc-gift-card-transactions">
-        <SearchableList
-          emptyResultMessage="No transactions found."
+        <SelectableSearchList
+          emptyMessage="No transactions found."
           noGutter={true}
           list={this.props.list}
           renderRow={this.renderRow}

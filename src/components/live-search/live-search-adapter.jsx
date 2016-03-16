@@ -45,6 +45,7 @@ LiveSearchAdapter.propTypes = {
     deselectItem: PropTypes.func,
     setTerm: PropTypes.func,
   }),
+  singleSearch: PropTypes.bool,
   searches: PropTypes.object,
 };
 

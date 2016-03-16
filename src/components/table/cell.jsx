@@ -8,6 +8,7 @@ import { Moment, Date, DateTime, Time } from '../common/datetime';
 import Currency from '../common/currency';
 import State from '../common/state';
 import OriginType from '../common/origin-type';
+import Change from '../common/change';
 import Link from '../link/link';
 
 
@@ -32,6 +33,8 @@ function getCell(column, children) {
       return <DateTime value={children} />;
     case 'time':
       return <Time value={children} />;
+    case 'change':
+      return <Change value={children} />;
     default:
       return children;
   }

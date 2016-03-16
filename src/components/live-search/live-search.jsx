@@ -432,6 +432,10 @@ export default class LiveSearch extends React.Component {
   }
 
   get shareSearch() {
+    if (this.props.singleSearch) {
+      return null;
+    }
+
     return (
       <div className="fc-col-md-1-1">
         <Button

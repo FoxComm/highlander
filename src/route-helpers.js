@@ -42,9 +42,13 @@ export function createRouteLookupByName(route, prefix = route.props.path) {
 }
 
 export function addRouteLookupForHistory(createHistory, routes) {
-  return function(...args) {
+  return function (...args) {
     const history = createHistory(...args);
     history.routeLookupByName = createRouteLookupByName(routes);
     return history;
   };
+}
+
+export function isActiveRoute(history, routeName, params = {}) {
+  return history.isActive(interpolateRoute(history, routeName, params));
 }

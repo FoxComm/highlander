@@ -76,6 +76,7 @@ const reducer = createReducer({
     const tableData = convertToTableData(data);
     return assoc(state,
       [sku, 'summary', 'isFetching'], false,
+      [sku, 'summary', 'failed'], false,
       [sku, 'summary', 'results'], tableData
     );
   },
@@ -87,19 +88,22 @@ const reducer = createReducer({
     const tableData = convertToTableData(data);
     return assoc(state,
       [sku, 'details', 'isFetching'], false,
+      [sku, 'details', 'failed'], false,
       [sku, warehouseId, 'results'], tableData
     );
   },
   [warehousesFetchSummaryFailed]: (state, [sku, err]) => {
     console.error(err);
     return assoc(state,
-      [sku, 'summary', 'isFetching'], false
+      [sku, 'summary', 'isFetching'], false,
+      [sku, 'summary', 'failed'], true
     );
   },
   [warehousesFetchDetailsFailed]: (state, [sku, err]) => {
     console.error(err);
     return assoc(state,
-      [sku, 'details', 'isFetching'], false
+      [sku, 'details', 'isFetching'], false,
+      [sku, 'details', 'failed'], true
     );
   },
 }, initialState);

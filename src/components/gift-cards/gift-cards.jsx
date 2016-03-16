@@ -15,7 +15,7 @@ import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
 import GiftCardRow from './gift-card-row';
 import { ChangeStateModal, CancelModal } from '../bulk-actions/modal';
-import { SearchableList } from '../list-page';
+import { SelectableSearchList } from '../list-page';
 import { Link } from '../link';
 
 
@@ -123,8 +123,8 @@ export default class GiftCards extends React.Component {
           module="giftCards"
           entity="gift card"
           actions={this.bulkActions}>
-          <SearchableList
-            emptyResultMessage="No gift cards found."
+          <SelectableSearchList
+            emptyMessage="No gift cards found."
             list={list}
             renderRow={this.renderRow}
             tableColumns={GiftCards.tableColumns}

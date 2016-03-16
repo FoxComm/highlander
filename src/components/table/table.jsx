@@ -36,7 +36,9 @@ Table.defaultProps = {
     from: 0,
     size: 0,
     total: 0
-  }
+  },
+  errorMessage: 'An error occurred. Try again later.',
+  emptyMessage: 'No data found.',
 };
 
 export default Table;

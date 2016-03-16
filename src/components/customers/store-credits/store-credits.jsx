@@ -21,7 +21,7 @@ import SearchBar from '../../search-bar/search-bar';
 import Dropdown from '../../dropdown/dropdown';
 import ConfirmationDialog from '../../modal/confirmation-dialog';
 import { Checkbox } from '../../checkbox/checkbox';
-import SearchableList from '../../list-page/searchable-list';
+import SelectableSearchList from '../../list-page/selectable-search-list';
 import StoreCreditRow from './storecredit-row';
 
 // data
@@ -305,9 +305,9 @@ export default class StoreCredits extends React.Component {
             module="customers.store-credits"
             entity="store credit"
             actions={this.bulkActions}>
-            <SearchableList
+            <SelectableSearchList
               title="Store Credits"
-              emptyResultMessage="No store credits found."
+              emptyMessage="No store credits found."
               list={this.props.list}
               renderRow={this.renderRow}
               tableColumns={this.props.tableColumns}

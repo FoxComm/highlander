@@ -1,4 +1,5 @@
 import React, { PropTypes } from 'react';
+
 import { IndexLink } from '../link';
 
 const Home = props => {

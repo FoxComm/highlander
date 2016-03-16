@@ -47,6 +47,11 @@ export const states = {
     sellable: 'Sellable',
     preorder: 'Preorder',
     nonsellable: 'Non-sellable',
+  },
+  skuState: {
+    onHand: 'Hand',
+    onHold: 'Hold',
+    reserved: 'Reserved',
   }
 };
 
