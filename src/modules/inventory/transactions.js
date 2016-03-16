@@ -61,7 +61,8 @@ const { reducer, actions } = makeLiveSearch(
   'inventory.transactions',
   searchTerms,
   'inventory_transactions_search_view/_search',
-  'inventoryScope'
+  'inventoryScope',
+  { skipInitialFetch: true }
 );
 
 export {

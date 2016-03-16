@@ -1,8 +1,9 @@
 /** Libs */
 import { get, isString, capitalize } from 'lodash';
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import * as dsl from '../../elastic/dsl';
 
 /** Components */
 import { SearchList } from '../list-page';
@@ -30,19 +31,31 @@ const renderRow = (row) => {
 };
 
 /** InventoryItemTransactions Component */
-const InventoryItemTransactions = props => {
-  return (
-    <SearchList
-      emptyMessage="No transaction units found."
-      list={props.list}
-      renderRow={renderRow}
-      tableColumns={tableColumns}
-      searchOptions={{singleSearch: true}}
-      searchActions={props.actions}
-      setState={props.actions.updateStateAndFetch}
-      className="fc-inventory-item-details__transactions-table"/>
-  );
-};
+class InventoryItemTransactions extends Component {
+
+  componentDidMount() {
+    this.props.actions.setExtraFilters([
+      dsl.termFilter('skuCode', this.props.params.code)
+    ]);
+
+    this.props.actions.fetch();
+  }
+
+  render() {
+    return (
+      <SearchList
+        emptyMessage="No transaction units found."
+        list={this.props.list}
+        renderRow={renderRow}
+        tableColumns={tableColumns}
+        searchOptions={{singleSearch: true}}
+        searchActions={this.props.actions}
+        setState={this.props.actions.updateStateAndFetch}
+        className="fc-inventory-item-details__transactions-table"/>
+    );
+  }
+}
+
 
 function mapState(state) {
   return {
