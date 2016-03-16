@@ -4,7 +4,7 @@ import cats.implicits._
 import models.Assignment._
 import models.{StoreAdmins, StoreAdmin, Assignment, Assignments, NotificationSubscription}
 import payloads.{AssignmentPayload, BulkAssignmentPayload}
-import responses.{StoreAdminResponse, ResponseItem, BatchMetadataSource, BatchMetadata, AssignmentResponse, TheResponse}
+import responses.{ResponseItem, BatchMetadataSource, BatchMetadata, TheResponse}
 import responses.AssignmentResponse.{build ⇒ buildAssignment, Root ⇒ Root}
 import responses.StoreAdminResponse.{build ⇒ buildAdmin}
 import responses.BatchMetadata._
@@ -50,7 +50,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     response       = assignments.map((buildAssignment _).tupled)
     notFoundAdmins = diffToFailures(payload.assignees, adminIds, StoreAdmin)
     // Activity log + notifications subscription
-    _         ← * <~ LogActivity.assigned(originator, entity, assignedAdmins)
+    _         ← * <~ LogActivity.assigned(originator, entity, assignedAdmins, assignmentType(), referenceType())
     _         ← * <~ subscribe(adminIds = assignedAdmins.map(_.id), objectIds = Seq(key.toString))
   } yield TheResponse.build(response, errors = notFoundAdmins)).runTxn()
 
@@ -66,7 +66,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     assignments    ← * <~ fetchAssignments(entity).toXor
     response       = assignments.map((buildAssignment _).tupled)
     // Activity log + notifications subscription
-    _         ← * <~ LogActivity.unassigned(originator, entity, admin)
+    _         ← * <~ LogActivity.unassigned(originator, entity, admin, assignmentType(), referenceType())
     _         ← * <~ unsubscribe(adminIds = Seq(assigneeId), objectIds = Seq(key.toString))
   } yield response).runTxn()
 
@@ -81,8 +81,8 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     _              ← * <~ Assignments.createAll(newEntries)
     success        = filterSuccess(entities, newEntries)
     // LogActivity + notifications
-    _              ← * <~ LogActivity.bulkAssigned(originator, admin, newAssignedIds)
-    _              ← * <~ subscribe(Seq(admin.id), newAssignedIds.map(_.toString))
+    _              ← * <~ logBulkAssign(originator, admin, success)
+    _              ← * <~ subscribe(Seq(admin.id), success)
     // Batch response builder
     result         = entities.map(buildResponse)
     entityName     = entities.headOption.getOrElse(Some)
@@ -95,26 +95,52 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     // Validation + unassign
     admin         ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
     entities      ← * <~ fetchSequence(payload.entityIds)
-    _             ← * <~ Assignments.byEntitySeqAndAdmin(assignmentType(), entities, referenceType(), admin).delete
-    success       = entities.filter(c ⇒ payload.entityIds.contains(c.id)).map(m ⇒ m.primarySearchKeyLens.get(m))
+    querySeq      = Assignments.byEntitySeqAndAdmin(assignmentType(), entities, referenceType(), admin)
+    assignments   ← * <~ querySeq.result.toXor
+    _             ← * <~ querySeq.delete
+    success       = filterSuccess(entities, assignments)
     // LogActivity + notifications
-    _              ← * <~ LogActivity.bulkUnassigned(originator, admin, success)
+    _              ← * <~ logBulkUnassign(originator, admin, success)
     _              ← * <~ unsubscribe(Seq(admin.id), success)
     // Batch response builder
     result        = entities.map(buildResponse)
     entityName    = entities.headOption.getOrElse(Some)
-    batchFailures = diffToBatchErrors(payload.entityIds, entities.map(_.id), entityName)
+    batchFailures = diffToBatchErrors(payload.entityIds, success, entityName)
     batchMetadata = BatchMetadata(BatchMetadataSource(entityName, success, batchFailures))
   } yield TheResponse(result, errors = flattenErrors(batchFailures), batch = batchMetadata.some)).runTxn()
 
+  // Activities
+  private def logBulkAssign(originator: StoreAdmin, admin: StoreAdmin, keys: Seq[String])
+    (implicit ec: EC, db: DB, ac: AC) = {
+    if (keys.nonEmpty)
+      LogActivity.bulkAssigned(originator, admin, keys, assignmentType(), referenceType())
+    else
+      DbResult.unit
+  }
+
+  private def logBulkUnassign(originator: StoreAdmin, admin: StoreAdmin, keys: Seq[String])
+    (implicit ec: EC, db: DB, ac: AC) = {
+    if (keys.nonEmpty)
+      LogActivity.bulkUnassigned(originator, admin, keys, assignmentType(), referenceType())
+    else
+      DbResult.unit
+  }
+
   // Notifications
-  private def subscribe(adminIds: Seq[Int], objectIds: Seq[String])(implicit ec: EC, db: DB) =
-    NotificationManager.subscribe(adminIds = adminIds, dimension = notifyDimension(), reason = notifyReason(),
-      objectIds = objectIds)
+  private def subscribe(adminIds: Seq[Int], objectIds: Seq[String])(implicit ec: EC, db: DB) = {
+    if (objectIds.nonEmpty)
+      NotificationManager.subscribe(adminIds = adminIds, dimension = notifyDimension(), reason = notifyReason(),
+        objectIds = objectIds)
+    else
+      DbResult.unit
+  }
 
   private def unsubscribe(adminIds: Seq[Int], objectIds: Seq[String])(implicit ec: EC, db: DB) =
-    NotificationManager.unsubscribe(adminIds = adminIds, dimension = notifyDimension(), reason = notifyReason(),
-      objectIds = objectIds)
+    if (objectIds.nonEmpty)
+      NotificationManager.unsubscribe(adminIds = adminIds, dimension = notifyDimension(), reason = notifyReason(),
+        objectIds = objectIds)
+    else
+      DbResult.unit
 
   // Helpers
   private def build(entity: M, newAssigneeIds: Seq[Int]): Seq[Assignment] =

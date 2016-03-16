@@ -2,6 +2,7 @@ package services
 
 import java.time.Instant
 
+import models.Assignment._
 import models.customer.Customer
 import models.location.{Address, Region}
 import models.order.Order
@@ -37,24 +38,24 @@ import CreditCardsResponse.{buildSimple ⇒ buildCc}
 object LogActivity {
 
   /* Assignments */
-  def assigned[T](admin: StoreAdmin, entity: T, assignees: Seq[AdminResponse])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(Assigned[T](buildAdmin(admin), entity, assignees))
+  def assigned[T](admin: StoreAdmin, entity: T, assignees: Seq[AdminResponse], assignType: AssignmentType,
+    refType: ReferenceType)(implicit ec: EC, ac: AC): DbResult[Activity] = {
+    Activities.log(Assigned[T](buildAdmin(admin), entity, assignees, assignType, refType))
   }
 
-  def unassigned[T](admin: StoreAdmin, entity: T, assignee: StoreAdmin)
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(Unassigned[T](buildAdmin(admin), entity, buildAdmin(assignee)))
+  def unassigned[T](admin: StoreAdmin, entity: T, assignee: StoreAdmin, assignType: AssignmentType,
+    refType: ReferenceType)(implicit ec: EC, ac: AC): DbResult[Activity] = {
+    Activities.log(Unassigned[T](buildAdmin(admin), entity, buildAdmin(assignee), assignType, refType))
   }
 
-  def bulkAssigned[T](admin: StoreAdmin, assignee: StoreAdmin, entityIds: Seq[T])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(BulkAssigned[T](buildAdmin(admin), buildAdmin(assignee), entityIds))
+  def bulkAssigned[T](admin: StoreAdmin, assignee: StoreAdmin, entityIds: Seq[T], assignType: AssignmentType,
+    refType: ReferenceType)(implicit ec: EC, ac: AC): DbResult[Activity] = {
+    Activities.log(BulkAssigned[T](buildAdmin(admin), buildAdmin(assignee), entityIds, assignType, refType))
   }
 
-  def bulkUnassigned[T](admin: StoreAdmin, assignee: StoreAdmin, entityIds: Seq[T])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(BulkUnassigned[T](buildAdmin(admin), buildAdmin(assignee), entityIds))
+  def bulkUnassigned[T](admin: StoreAdmin, assignee: StoreAdmin, entityIds: Seq[T], assignType: AssignmentType,
+    refType: ReferenceType)(implicit ec: EC, ac: AC): DbResult[Activity] = {
+    Activities.log(BulkUnassigned[T](buildAdmin(admin), buildAdmin(assignee), entityIds, assignType, refType))
   }
 
   /* Notes */
