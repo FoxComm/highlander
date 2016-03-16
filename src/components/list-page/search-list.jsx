@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react';
 import LiveSearchAdapter from '../live-search/live-search-adapter';
 import TableView from '../table/tableview.jsx';
 
-export default class SelectableSearchList extends React.Component {
+export default class SearchList extends React.Component {
 
   static propTypes = {
     emptyMessage: PropTypes.string,
@@ -13,13 +13,13 @@ export default class SelectableSearchList extends React.Component {
     tableColumns: PropTypes.array.isRequired,
     searchActions: PropTypes.shape({
       addSearchFilters: PropTypes.func.isRequired,
+      addSearchPhrase: PropTypes.func.isRequired,
       deleteSearch: PropTypes.func.isRequired,
       fetch: PropTypes.func.isRequired,
       fetchSearches: PropTypes.func.isRequired,
       saveSearch: PropTypes.func.isRequired,
       selectSearch: PropTypes.func.isRequired,
       submitFilters: PropTypes.func.isRequired,
-      submitPhrase: PropTypes.func.isRequired,
       updateSearch: PropTypes.func.isRequired
     }).isRequired,
     searchOptions: PropTypes.shape({

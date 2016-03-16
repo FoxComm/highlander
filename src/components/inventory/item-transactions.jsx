@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 import * as dsl from '../../elastic/dsl';
 
 /** Components */
-import { SearchList } from '../list-page';
+import SearchList from '../list-page/search-list';
 import InventoryItemTransactionsRow from './item-transactions-row';
 
 /** Redux */
@@ -35,7 +35,7 @@ class InventoryItemTransactions extends Component {
 
   componentDidMount() {
     this.props.actions.setExtraFilters([
-      dsl.termFilter('skuCode', this.props.params.code)
+      dsl.termFilter('sku', this.props.params.code)
     ]);
 
     this.props.actions.fetch();
