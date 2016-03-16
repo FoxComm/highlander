@@ -3,7 +3,7 @@ package consumer.utils
 import scala.concurrent.Future
 
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.headers.{RawHeader, Authorization, BasicHttpCredentials}
+import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest, HttpResponse}
 import akka.util.ByteString
 
