@@ -47,11 +47,6 @@
   width: 48%;
 }
 
-.preview-image {
-  width: 100%;
-  height: auto;
-}
-
 .name {
   font-size: 50px;
   color: var(--blackish);

@@ -9,6 +9,7 @@ import Button from 'ui/buttons';
 import Counter from 'ui/forms/counter';
 import Currency from 'ui/currency';
 import { Link } from 'react-router';
+import Gallery from 'ui/gallery/gallery';
 
 import * as actions from 'modules/product-details';
 
@@ -46,7 +47,6 @@ class Pdp extends Component<void, Props, void> {
     const price = _.get(product, ['skus', 0, 'attributes', 'price', 'v', 'value'], 0);
     const currency = _.get(product, ['skus', 0, 'attributes', 'price', 'v', 'currency'], 'USD');
     const imageUrls = _.get(product, ['product', 'attributes', 'images', 'v'], []);
-    const images = _.map(imageUrls, (url, idx) => <img src={url} styleName="preview-image" key={idx} />);
     return (
       <div styleName="container">
         <div styleName="links">
@@ -62,7 +62,7 @@ class Pdp extends Component<void, Props, void> {
         </div>
         <div styleName="details">
           <div styleName="images">
-            {images}
+            <Gallery images={[...imageUrls, ...imageUrls, ...imageUrls]} />
           </div>
           <div styleName="info">
             <h1 styleName="name">{title}</h1>
