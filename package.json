@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint --ext .js --ext .jsx .",
-    "flow": "flow",
+    "flow": "flow check",
     "dev": "gulp dev",
     "test": "mocha"
   },

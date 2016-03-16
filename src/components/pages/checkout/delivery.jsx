@@ -10,6 +10,7 @@ import EditableBlock from 'ui/editable-block';
 import { Form } from 'ui/forms';
 import Currency from 'ui/currency';
 
+import type { CheckoutBlockProps } from './types';
 import * as checkoutActions from 'modules/checkout';
 
 const shippingMethodCost = cost => {
@@ -19,18 +20,20 @@ const shippingMethodCost = cost => {
 };
 
 let ViewDelivery = (props) => {
+  const { selectedShippingMethod: shippingMethod } = props;
+
   return (
     <div styleName="shipping-method">
-      <div>{props.shippingMethod.name}</div>
-      {shippingMethodCost(props.shippingMethod.price)}
+      <div>{shippingMethod.name}</div>
+      {shippingMethodCost(shippingMethod.price)}
     </div>
   );
 };
 ViewDelivery = connect(state => state.checkout)(ViewDelivery);
 
-/* ;;`*/
+/* ::`*/
 @connect(state => state.checkout, checkoutActions)
-/* ;;`*/
+/* ::`*/
 class EditDelivery extends Component {
 
   componentWillMount() {
@@ -43,7 +46,7 @@ class EditDelivery extends Component {
   }
 
   get shippingMethods() {
-    const { shippingMethods, shippingMethod: selectedMethod, selectShippingMethod } = this.props;
+    const { shippingMethods, selectedShippingMethod: selectedMethod, selectShippingMethod } = this.props;
 
     return shippingMethods.map(shippingMethod => {
       const cost = shippingMethodCost(shippingMethod.price);
@@ -74,7 +77,7 @@ class EditDelivery extends Component {
   }
 }
 
-const Delivery = props => {
+const Delivery = (props: CheckoutBlockProps) => {
   const deliveryContent = (
     <div styleName="checkout-block-content">
       {props.isEditing ? <EditDelivery {...props} /> : <ViewDelivery />}

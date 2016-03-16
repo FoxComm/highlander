@@ -11,9 +11,11 @@ import EditableBlock from 'ui/editable-block';
 import { FormField, Form } from 'ui/forms';
 import Autocomplete from 'ui/autocomplete';
 
+import type { CheckoutBlockProps } from './types';
+import type { Address } from 'types/address';
 import * as checkoutActions from 'modules/checkout';
 
-let ViewShipping = (props: Object) => {
+let ViewShipping = (props: Address) => {
   return (
     <ul>
       <li><strong>{props.name}</strong></li>
@@ -26,12 +28,6 @@ let ViewShipping = (props: Object) => {
   );
 };
 ViewShipping = connect(state => (state.checkout.shippingData))(ViewShipping);
-
-type ShippingProps = {
-  isEditing: boolean;
-  collapsed: boolean;
-  editAction: Function;
-}
 
 type EditShippingProps = {
   continueAction?: Function;
@@ -188,7 +184,7 @@ class EditShipping extends Component {
   }
 }
 
-const Shipping = (props: ShippingProps) => {
+const Shipping = (props: CheckoutBlockProps) => {
   const shippingContent = (
     <div styleName="checkout-block-content">
       {props.isEditing ? <EditShipping {...props} /> : <ViewShipping />}
