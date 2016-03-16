@@ -2,7 +2,6 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
 
 // helpers
 import { getStorePath } from '../../lib/store-utils';
@@ -11,11 +10,11 @@ import { numberize } from '../../lib/text-utils';
 // components
 import { ModalContainer } from '../modal/base';
 import ContentBox from '../content-box/content-box';
-import { WatcherTypeahead } from '../fields';
 import SaveCancel from '../common/save-cancel';
+import WatcherTypeahead from '../watcher-typeahead/watcher-typeahead';
 
 
-function mapStateToProps(state, {storePath, entity}) {
+function mapStateToProps(state, { storePath, entity }) {
   const path = getStorePath(storePath, entity, 'watchers', 'selectModal');
 
   const {
@@ -32,7 +31,7 @@ function mapStateToProps(state, {storePath, entity}) {
 }
 
 function SelectWatcherModal(props) {
-  const {isVisible, storePath, entity, group} = props;
+  const { isVisible, storePath, entity, group } = props;
 
   return (
     <ModalContainer isVisible={isVisible}>
@@ -45,14 +44,15 @@ function SelectWatcherModal(props) {
           <WatcherTypeahead
             storePath={storePath}
             entity={entity}
-            label={renderText(group, entity)} />
+            hideOnBlur={true}
+            label={renderText(group, entity)}/>
         </div>
       </ContentBox>
     </ModalContainer>
   );
 }
 
-function renderTitle(group, {entityType}) {
+function renderTitle(group, { entityType }) {
   const entity = _.capitalize(numberize(entityType, 1));
   switch (group) {
     case 'watchers':
@@ -63,7 +63,7 @@ function renderTitle(group, {entityType}) {
   }
 }
 
-function renderText(group, {entityType}) {
+function renderText(group, { entityType }) {
   const entity = numberize(entityType, 1);
   switch (group) {
     case 'watchers':
@@ -74,7 +74,7 @@ function renderText(group, {entityType}) {
   }
 }
 
-function renderActionBlock({onCancel}) {
+function renderActionBlock({ onCancel }) {
   return (
     <a className='fc-modal-close' onClick={onCancel}>
       <i className='icon-close'></i>
@@ -82,7 +82,7 @@ function renderActionBlock({onCancel}) {
   );
 }
 
-function renderFooter({onCancel, onConfirm, selected, group}) {
+function renderFooter({ onCancel, onConfirm, selected, group }) {
   const saveLabel = group === 'watchers' ? 'Watch' : 'Assign';
   return (
     <SaveCancel
@@ -90,7 +90,7 @@ function renderFooter({onCancel, onConfirm, selected, group}) {
       onCancel={onCancel}
       onSave={onConfirm}
       saveDisabled={!selected.length}
-      saveText={saveLabel} />
+      saveText={saveLabel}/>
   );
 }
 

@@ -4,10 +4,12 @@ import { renderToString } from 'react-dom/server';
 import { reduxReactRouter, ReduxRouter } from 'redux-router';
 import {reduxReactRouter as serverReduxReactRouter, match as _match} from 'redux-router/server';
 import { createHistory as _createHistory, createMemoryHistory as _createMemoryHistory } from 'history';
+
 import routes from './routes';
 import { Provider } from 'react-redux';
 import configureStore from './store';
 import { addRouteLookupForHistory } from './route-helpers';
+
 
 const createHistory = addRouteLookupForHistory(_createHistory, routes);
 const createMemoryHistory = addRouteLookupForHistory(_createMemoryHistory, routes);
@@ -20,6 +22,13 @@ const app = {
 
   start() {
     const initialState = {};
+    const user = localStorage.getItem("user");
+    if (user) {
+      try {
+        initialState['user'] = {current: JSON.parse(user), isFetching: false};
+      } catch(e) {
+      }
+    }
     const store = configureStore(reduxReactRouter, routes, createHistory, initialState);
 
     render(
@@ -32,6 +41,10 @@ const app = {
 
   * renderReact(next) {
     const initialState = {};
+    if (this.state.token) {
+      initialState['user'] = {current: this.state.token, isFetching: false};
+    }
+
     const store = configureStore(serverReduxReactRouter, routes, createMemoryHistory, initialState);
 
     let [redirectLocation, routerState] = yield match.bind(null, store, this.path);

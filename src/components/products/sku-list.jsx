@@ -26,7 +26,6 @@ export default class SkuList extends Component<void, Props, void> {
   static tableColumns = [
     { field: 'price', text: 'Price' },
     { field: 'sku', text: 'SKU' },
-    { field: 'upc', text: 'UPC' },
   ];
 
   get illuminatedSkus(): Array<IlluminatedSku> {
@@ -45,11 +44,12 @@ export default class SkuList extends Component<void, Props, void> {
 
   skuContent(skus: Array<IlluminatedSku>): Element {
     const renderRow = (row, index, columns, params) => {
-      const key = `sku-${row.code}`;
+      const code = row.code || `new-${index}`;
+      const key = `sku-${code}`;
+
       return (
         <EditableSkuRow
           columns={columns}
-          isNew={false}
           sku={row}
           params={params}
           updateField={this.props.updateField} />

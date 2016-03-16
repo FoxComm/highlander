@@ -13,13 +13,13 @@ import LocalNav from '../local-nav/local-nav';
 import type { FullProduct } from '../../modules/products/details';
 
 type Props = {
-  productId: number,
+  productId: string,
   product: ?FullProduct,
 };
 
 export default class SubNav extends Component<void, Props, void> {
   static propTypes = {
-    productId: PropTypes.number.isRequired,
+    productId: PropTypes.string.isRequired,
     product: PropTypes.object,
   };
   

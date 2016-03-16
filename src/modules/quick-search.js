@@ -16,6 +16,16 @@ const emptyState = {
   phrase: '',
 };
 
+/**
+ * Generate reducer and actions for quick search module
+ *
+ * @param {String} namespace
+ * @param {String} searchUrl
+ * @param {Array} searchFilters
+ * @param {String} phrase
+ *
+ * @returns {{reducer: (state, action): state, actions}}
+ */
 export default function makeQuickSearch(namespace, searchUrl, searchFilters, phrase) {
   const url = searchUrl;
   const filters = searchFilters.map(st => new SearchTerm(st));

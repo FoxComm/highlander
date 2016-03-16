@@ -39,8 +39,8 @@ import InventoryItem from './components/inventory/item';
 import InventoryItemDetails from './components/inventory/item-details';
 import ProductsListPage from './components/products/list-page';
 import Products from './components/products/products';
-import Product from './components/products/product';
 import ProductDetails from './components/products/details';
+import NewProduct from './components/products/new-product';
 
 import StyleGuide from './components/style-guide/style-guide';
 import StyleGuideGrid from './components/style-guide/style-guide-grid';
@@ -49,9 +49,12 @@ import StyleGuideContainers from './components/style-guide/style-guide-container
 
 import AllActivities from './components/activity-trail/all';
 import AllNotificationItems from './components/activity-notifications/all';
+import Login from './components/auth/login';
 
 const routes = (
-  <Route path="/" component={Site}>
+  <Route path="/">
+    <Route name="login" path="login" component={Login}/>
+    <Route component={Site}>
     <IndexRoute name="home" component={Home}/>
     <IndexRedirect from="/" to="/orders/" />
     <Route name='rmas-base' path='returns'>
@@ -103,8 +106,8 @@ const routes = (
         <Route name='customer-storecredits-base' path='storecredit'>
           <IndexRoute name='customer-storecredits' component={StoreCredits}/>
           <Route name='customer-storecredit-transactions'
-                path='transactions'
-                component={StoreCreditsTransactions} />
+                 path='transactions'
+                 component={StoreCreditsTransactions} />
         </Route>
       </Route>
       <Route name='customer-storecredits-new'
@@ -115,9 +118,8 @@ const routes = (
       <Route name='products-list-pages' component={ProductsListPage}>
         <IndexRoute name='products' component={Products} />
       </Route>
-      <Route name='product' path=':productId' component={Product}>
-        <IndexRoute name='product-details' component={ProductDetails} />
-      </Route>
+      <Route name='new-product' path='new' component={NewProduct} />
+      <Route name='product-details' path=':productId' component={ProductDetails} />
     </Route>
     <Route name='gift-cards-base' path='gift-cards'>
       <Route name='gift-cards-list-page' component={GiftCardsListPage}>
@@ -153,6 +155,7 @@ const routes = (
       <Route name='test-activities' path='activities' component={AllActivities} />
       <Route name='test-notifications' path='notifications' component={AllNotificationItems} />
     </Route>
+  </Route>
   </Route>
 );
 

@@ -5,7 +5,7 @@ import React, { PropTypes } from 'react';
 
 // components
 import MultiSelectRow from '../../table/multi-select-row';
-import Initials from '../../users/initials';
+import DetailedInitials from '../../users/detailed-initials';
 import OriginType from '../../common/origin-type';
 import State from '../../common/state';
 import Dropdown from '../../dropdown/dropdown';
@@ -57,7 +57,7 @@ const setCellContents = (sc, field) => {
     if (_.isEmpty(admin)) return null;
 
     return (
-      <div><Initials name={admin.name} email={admin.email} />{admin.name}</div>
+      <div><DetailedInitials {...admin} />{admin.name}</div>
     );
   }
 

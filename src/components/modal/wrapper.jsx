@@ -1,6 +1,4 @@
-
-import { autobind } from 'core-decorators';
-import React, { PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { ModalContainer } from './base';
 
 /**
@@ -12,7 +10,7 @@ import { ModalContainer } from './base';
  * @returns {ModalWrapper}
  */
 export default function wrapModal(Modal) {
-  class ModalWrapper extends React.Component {
+  class ModalWrapper extends Component {
 
     static propTypes = {
       children: PropTypes.node,
