@@ -1,17 +1,15 @@
 
-/* eslint-disable */
-
 import _ from 'lodash';
 import React, { Component } from 'react';
 import styles from './checkout.css';
-import { autobind, debounce } from 'core-decorators';
+import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
 import Button from 'ui/buttons';
-import { TextInput } from 'ui/inputs';
+import Checkbox from 'ui/checkbox';
 import EditableBlock from 'ui/editable-block';
 import { FormField, Form } from 'ui/forms';
-import Autocomplete from 'ui/autocomplete';
+import Currency from 'ui/currency';
 
 import * as checkoutActions from 'modules/checkout';
 
@@ -31,6 +29,18 @@ class EditDelivery extends Component {
   render() {
     return (
       <Form onSubmit={this.handleSubmit}>
+        <div styleName="shipping-method">
+          <Checkbox name="delivery" id="d1">7-10 DAY STANDARD</Checkbox>
+          <div styleName="delivery-cost">FREE</div>
+        </div>
+        <div styleName="shipping-method">
+          <Checkbox name="delivery" id="d2">2 DAY AIR</Checkbox>
+          <Currency styleName="delivery-cost" value="1000"/>
+        </div>
+        <div styleName="shipping-method">
+          <Checkbox name="delivery" id="d3">Overnight</Checkbox>
+          <Currency styleName="delivery-cost" value="4000"/>
+        </div>
         <Button styleName="checkout-submit" type="submit">CONTINUE</Button>
       </Form>
     );
@@ -38,7 +48,12 @@ class EditDelivery extends Component {
 }
 
 const Delivery = props => {
-  return <div></div>;
+  const deliveryContent = (
+    <div styleName="checkout-block-content">
+      {props.isEditing ? <EditDelivery {...props} /> : <ViewDelivery />}
+    </div>
+  );
+
   return (
     <EditableBlock
       styleName="checkout-block"
@@ -46,12 +61,9 @@ const Delivery = props => {
       isEditing={props.isEditing}
       collapsed={props.collapsed}
       editAction={props.editAction}
-      viewContent={<ViewDelivery />}
-      editContent={<EditDelivery {...props} />}
+      content={deliveryContent}
     />
   );
 };
 
 export default Delivery;
-
-/* eslint-enable */
