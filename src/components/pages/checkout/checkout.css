@@ -16,6 +16,10 @@
   margin-bottom: 20px;
 }
 
+.checkout-block-content {
+  margin-top: 25px;
+}
+
 .logo {
   width: 45px;
   height: 45px;
@@ -32,7 +36,6 @@
 }
 
 .checkout-form {
-  margin-top: 25px;
   & > .union-fields {
     margin: 10px 0;
 

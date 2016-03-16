@@ -188,18 +188,20 @@ class EditShipping extends Component {
   }
 }
 
-const TestView = props => {
-  return props.isEditing ? <EditShipping {...props} /> : <ViewShipping />;
-};
-
 const Shipping = (props: ShippingProps) => {
+  const shippingContent = (
+    <div styleName="checkout-block-content">
+      {props.isEditing ? <EditShipping {...props} /> : <ViewShipping />}
+    </div>
+  );
+
   return (
     <EditableBlock
       title="SHIPPING"
       isEditing={props.isEditing}
       collapsed={props.collapsed}
       editAction={props.editAction}
-      contentView={TestView}
+      content={shippingContent}
     />
   );
 };
