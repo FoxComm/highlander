@@ -7,8 +7,6 @@ import models.StoreAdmin
 import models.traits.Originator
 import payloads._
 import services.customers._
-import payloads.{AssignmentPayload, BulkAssignmentPayload}
-import services.assignments.{CustomerAssignmentsManager, CustomerWatchersManager}
 import services.{AddressManager, CreditCardManager, CustomerCreditConverter, StoreCreditAdjustmentsService,
 StoreCreditService}
 import services.orders.OrderQueries
