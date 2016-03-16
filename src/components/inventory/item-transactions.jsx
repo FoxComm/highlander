@@ -13,7 +13,7 @@ import InventoryItemTransactionsRow from './item-transactions-row';
 import { actions } from '../../modules/inventory/transactions';
 
 const tableColumns = [
-  { field: 'createdAt', text: 'Date/time', type: 'datetime' },
+  { field: 'createdAt', text: 'Date/Time', type: 'datetime' },
   { field: 'event', text: 'Event' },
   { field: 'warehouse', text: 'Warehouse' },
   { field: 'skuType', text: 'Type', type: 'state', model: 'sku' },
