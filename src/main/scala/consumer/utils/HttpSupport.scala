@@ -50,6 +50,7 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
 
   private def getInner(suffix: String, token: String): Future[HttpResponse] = {
     val request = HttpRequest(HttpMethods.GET, fullUri(suffix)).addHeader(RawHeader(authHeaderName, token))
+    Console.out.println(s"Request URI: ${request.getUri()}")
     Console.out.println(s"JWT Token: $token")
     Http().singleRequest(request, cp)
   }
@@ -63,18 +64,15 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
         ByteString(body)
       )).addHeader(RawHeader(authHeaderName, token))
 
+    Console.out.println(s"Request URI: ${request.getUri()}")
     Console.out.println(s"JWT Token: $token")
     Http().singleRequest(request, cp)
   }
 
   private def fullUri(suffix: String) = s"${conn.uri}/$suffix"
 
-  private def extractJwtToken(response: HttpResponse): String = {
-    val body = response.entity.toStrict(5 seconds).map(_.data.decodeString("UTF-8"))
-    Console.out.println(s"Auth response body: $body")
+  private def extractJwtToken(response: HttpResponse): String =
     response.headers.find(_.name() == jwtHeaderName).map(_.value()).getOrElse("")
-  }
-
 }
 
 /**
