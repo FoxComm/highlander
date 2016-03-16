@@ -3,7 +3,6 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-
 import models.order.Order
 import models.payment.giftcard.GiftCard
 import GiftCard.giftCardCodeRegex
@@ -13,15 +12,10 @@ import models.traits.Originator
 import payloads._
 import services.orders._
 import services.{Checkout, LineItemUpdater}
-import services.Authenticator.{AsyncAuthenticator, requireAuth}
-import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives._
 import utils.Http._
 import utils.Apis
 import utils.aliases._
-
-import scala.collection.immutable.Seq
-
 
 object OrderRoutes {
 
@@ -45,38 +39,6 @@ object OrderRoutes {
           entity(as[BulkUpdateOrdersPayload]) { payload ⇒
             goodOrFailures {
               OrderStateUpdater.updateStates(admin, payload.referenceNumbers, payload.state)
-            }
-          }
-        } ~
-        pathPrefix("assignees") {
-          (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[OrderBulkAssignmentPayload]) { payload ⇒
-              goodOrFailures {
-                OrderAssignmentUpdater.assignBulk(admin, payload)
-              }
-            }
-          } ~
-          (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[OrderBulkAssignmentPayload]) { payload ⇒
-              goodOrFailures {
-                OrderAssignmentUpdater.unassignBulk(admin, payload)
-              }
-            }
-          }
-        } ~
-        pathPrefix("watchers") {
-          (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[OrderBulkWatchersPayload]) { payload ⇒
-              goodOrFailures {
-                OrderWatcherUpdater.watchBulk(admin, payload)
-              }
-            }
-          } ~
-          (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[OrderBulkWatchersPayload]) { payload ⇒
-              goodOrFailures {
-                OrderWatcherUpdater.unwatchBulk(admin, payload)
-              }
             }
           }
         }
@@ -165,30 +127,6 @@ object OrderRoutes {
           (delete & pathEnd) {
             goodOrFailures {
               OrderPaymentUpdater.deleteStoreCredit(Originator(admin), Some(refNum))
-            }
-          }
-        } ~
-        pathPrefix("assignees") {
-          (post & pathEnd & entity(as[OrderAssignmentPayload])) { payload ⇒
-            goodOrFailures {
-              OrderAssignmentUpdater.assign(admin, refNum, payload.assignees)
-            }
-          } ~
-          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
-              OrderAssignmentUpdater.unassign(admin, refNum, assigneeId)
-            }
-          }
-        } ~
-        pathPrefix("watchers") {
-          (post & pathEnd & entity(as[OrderWatchersPayload])) { payload ⇒
-            goodOrFailures {
-              OrderWatcherUpdater.watch(admin, refNum, payload.watchers)
-            }
-          } ~
-          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
-              OrderWatcherUpdater.unwatch(admin, refNum, assigneeId)
             }
           }
         } ~

@@ -53,11 +53,3 @@ final case class GiftCardBulkUpdateStateByCsr(codes: Seq[String], state: GiftCar
       ).map { case _ ⇒ this }
   }
 }
-
-final case class GiftCardAssignmentPayload(assignees: Seq[Int])
-
-final case class GiftCardBulkAssignmentPayload(giftCardCodes: Seq[String], assigneeId: Int)
-
-final case class GiftCardWatchersPayload(watchers: Seq[Int])
-
-final case class GiftCardBulkWatchersPayload(giftCardCodes: Seq[String], watcherId: Int)

@@ -3,7 +3,6 @@ package services
 import models.order._
 import models.rma.{Rmas, Rma}
 import OrderPayments.scope._
-import responses.{AllRmas, TheResponse}
 import utils.Slick.implicits._
 import utils.Slick.DbResult
 import utils.aliases._
@@ -19,6 +18,4 @@ package object rmas {
       OrderPayments.findAllByOrderId(orderId).creditCards
         .one.mustFindOr(OrderPaymentNotFoundFailure(Order))
   }
-
-  type BulkRmaUpdateResponse = TheResponse[Seq[AllRmas.Root]]
 }

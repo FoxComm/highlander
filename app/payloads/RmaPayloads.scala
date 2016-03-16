@@ -53,12 +53,6 @@ final case class RmaCcPaymentPayload(amount: Int) extends Validation[RmaCcPaymen
   }
 }
 
-/* Assignees */
-
-final case class RmaAssigneesPayload(assignees: Seq[Int])
-
-final case class RmaBulkAssigneesPayload(referenceNumbers: Seq[String], assigneeId: Int)
-
 /* Misc */
 
 final case class RmaMessageToCustomerPayload(message: String) extends Validation[RmaMessageToCustomerPayload] {

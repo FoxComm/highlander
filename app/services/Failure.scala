@@ -36,6 +36,13 @@ object NotFoundFailure400 {
   }
 }
 
+object AssigneeNotFound {
+  def apply[A](a: A, searchKey: Any, assigneeId: Int): NotFoundFailure400 = {
+    NotFoundFailure400(s"storeAdmin with id=$assigneeId is not assigned to ${friendlyClassName(a)} " +
+      s"with ${searchTerm(a)}=$searchKey")
+  }
+}
+
 final case class DatabaseFailure(message: String) extends Failure {
   override def description = message
 }
@@ -171,37 +178,8 @@ final case class StoreCreditConvertFailure(sc: StoreCredit) extends Failure {
   override def description = s"cannot convert a store credit with state '${sc.state}'"
 }
 
-final case class OrderAssigneeNotFound(refNum: String, assigneeId: Int) extends Failure {
-  override def description = s"storeAdmin with id=$assigneeId is not assigned to order with refNum=$refNum"
-}
-
-final case class CustomerAssigneeNotFound(customerId: Int, assigneeId: Int) extends Failure {
-  override def description = s"storeAdmin with id=$assigneeId is not assigned to customer with id=$customerId"
-}
-
-final case class GiftCardAssigneeNotFound(code: String, assigneeId: Int) extends Failure {
-  override def description = s"storeAdmin with id=$assigneeId is not assigned to giftCard with code=$code"
-}
-
 final case class SharedSearchAssociationNotFound(code: String, associateId: Int) extends Failure {
   override def description = s"sharedSearch with code=$code is not associated to storeAdmin with id=$associateId"
-}
-
-final case class OrderWatcherNotFound(refNum: String, assigneeId: Int) extends Failure {
-  override def description = s"storeAdmin with id=$assigneeId is not watching order with refNum=$refNum"
-}
-
-final case class CustomerWatcherNotFound(customerId: Int, assigneeId: Int) extends Failure {
-  override def description = s"storeAdmin with id=$assigneeId is not watching to customer with id=$customerId"
-}
-
-final case class GiftCardWatcherNotFound(code: String, assigneeId: Int) extends Failure {
-  override def description = s"storeAdmin with id=$assigneeId is not watching to giftCard with code=$code"
-}
-
-
-final case class RmaAssigneeNotFound(refNum: String, assigneeId: Int) extends Failure {
-  override def description = s"storeAdmin with id=$assigneeId is not assigned to RMA with refNum=$refNum"
 }
 
 case object LoginFailed extends Failure {

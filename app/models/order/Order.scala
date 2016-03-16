@@ -122,8 +122,6 @@ class Orders(tag: Tag) extends GenericTable.TableWithLock[Order](tag, "orders") 
   def * = (id, referenceNumber, customerId, productContextId, state, isLocked, placedAt, remorsePeriodEnd,
     rmaCount, currency, subTotal, shippingTotal, adjustmentsTotal,
     taxesTotal, grandTotal) <>((Order.apply _).tupled, Order.unapply)
-
-  def assignees = OrderAssignments.filter(_.orderId === id).flatMap(_.assignee)
 }
 
 object Orders extends TableQueryWithLock[Order, Orders](

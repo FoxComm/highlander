@@ -2,6 +2,7 @@ package services
 
 import java.time.Instant
 
+import models.Assignment._
 import models.customer.Customer
 import models.location.{Address, Region}
 import models.order.Order
@@ -12,7 +13,7 @@ import models.payment.storecredit.StoreCredit
 import models.sharedsearch.SharedSearch
 import models.shipping.ShippingMethod
 import models.{StoreAdmin, Note}
-import models.activity.{Activity, Activities, ActivityContext}
+import models.activity.{Activity, Activities}
 import models.traits.{AdminOriginator, CustomerOriginator, Originator}
 import payloads.UpdateLineItemsPayload
 import responses.order.FullOrder
@@ -29,14 +30,33 @@ import services.activity.OrderTailored._
 import services.activity.NotesTailored._
 import services.activity.SharedSearchTailored._
 import services.activity.StoreCreditTailored._
-import services.activity.WatchersTailored._
 
 import StoreAdminResponse.{build ⇒ buildAdmin, Root ⇒ AdminResponse}
 import CustomerResponse.{build ⇒ buildCustomer, Root ⇒ CustomerResponse}
 import CreditCardsResponse.{buildSimple ⇒ buildCc}
-import GiftCardResponse.{buildForList ⇒ buildGc}
 
 object LogActivity {
+
+  /* Assignments */
+  def assigned[T](admin: StoreAdmin, entity: T, assignees: Seq[AdminResponse], assignType: AssignmentType,
+    refType: ReferenceType)(implicit ec: EC, ac: AC): DbResult[Activity] = {
+    Activities.log(Assigned[T](buildAdmin(admin), entity, assignees, assignType, refType))
+  }
+
+  def unassigned[T](admin: StoreAdmin, entity: T, assignee: StoreAdmin, assignType: AssignmentType,
+    refType: ReferenceType)(implicit ec: EC, ac: AC): DbResult[Activity] = {
+    Activities.log(Unassigned[T](buildAdmin(admin), entity, buildAdmin(assignee), assignType, refType))
+  }
+
+  def bulkAssigned[T](admin: StoreAdmin, assignee: StoreAdmin, entityIds: Seq[T], assignType: AssignmentType,
+    refType: ReferenceType)(implicit ec: EC, ac: AC): DbResult[Activity] = {
+    Activities.log(BulkAssigned[T](buildAdmin(admin), buildAdmin(assignee), entityIds, assignType, refType))
+  }
+
+  def bulkUnassigned[T](admin: StoreAdmin, assignee: StoreAdmin, entityIds: Seq[T], assignType: AssignmentType,
+    refType: ReferenceType)(implicit ec: EC, ac: AC): DbResult[Activity] = {
+    Activities.log(BulkUnassigned[T](buildAdmin(admin), buildAdmin(assignee), entityIds, assignType, refType))
+  }
 
   /* Notes */
   def noteCreated[T](admin: StoreAdmin, entity: T, note: Note)
@@ -60,132 +80,6 @@ object LogActivity {
   def unassociatedFromSearch(admin: StoreAdmin, search: SharedSearch, associate: StoreAdmin)
     (implicit ec: EC, ac: AC): DbResult[Activity] = {
     Activities.log(UnassociatedFromSearch(buildAdmin(admin), search, buildAdmin(associate)))
-  }
-
-  /* Order Assignments */
-  def assignedToOrder(admin: StoreAdmin, order: FullOrder.Root, assignees: Seq[AdminResponse])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(AssignedToOrder(buildAdmin(admin), order, assignees))
-  }
-
-  def unassignedFromOrder(admin: StoreAdmin, order: FullOrder.Root, assignee: StoreAdmin)
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(UnassignedFromOrder(buildAdmin(admin), order, buildAdmin(assignee)))
-  }
-
-  def bulkAssignedToOrders(admin: StoreAdmin, assignee: StoreAdmin, orderRefNums: Seq[String])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(BulkAssignedToOrders(buildAdmin(admin), buildAdmin(assignee), orderRefNums))
-  }
-
-  def bulkUnassignedFromOrders(admin: StoreAdmin, assignee: StoreAdmin, orderRefNums: Seq[String])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(BulkUnassignedFromOrders(buildAdmin(admin), buildAdmin(assignee), orderRefNums))
-  }
-
-  /* Customer Assignments */
-  def assignedToCustomer(admin: StoreAdmin, customer: Customer, assignees: Seq[AdminResponse])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(AssignedToCustomer(buildAdmin(admin), buildCustomer(customer), assignees))
-  }
-
-  def unassignedFromCustomer(admin: StoreAdmin, customer: Customer, assignee: StoreAdmin)
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(UnassignedFromCustomer(buildAdmin(admin), buildCustomer(customer), buildAdmin(assignee)))
-  }
-
-  def bulkAssignedToCustomers(admin: StoreAdmin, assignee: StoreAdmin, customerIds: Seq[Int])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(BulkAssignedToCustomers(buildAdmin(admin), buildAdmin(assignee), customerIds))
-  }
-
-  def bulkUnassignedFromCustomers(admin: StoreAdmin, assignee: StoreAdmin, customerIds: Seq[Int])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(BulkUnassignedFromCustomers(buildAdmin(admin), buildAdmin(assignee), customerIds))
-  }
-
-  /* Gift Card Assignments */
-  def assignedToGiftCard(admin: StoreAdmin, gc: GiftCard, assignees: Seq[AdminResponse])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(AssignedToGiftCard(buildAdmin(admin), buildGc(gc), assignees))
-  }
-
-  def unassignedFromGiftCard(admin: StoreAdmin, gc: GiftCard, assignee: StoreAdmin)
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(UnassignedFromGiftCard(buildAdmin(admin), buildGc(gc), buildAdmin(assignee)))
-  }
-
-  def bulkAssignedToGiftCards(admin: StoreAdmin, assignee: StoreAdmin, giftCardCodes: Seq[String])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(BulkAssignedToGiftCards(buildAdmin(admin), buildAdmin(assignee), giftCardCodes))
-  }
-
-  def bulkUnassignedFromGiftCards(admin: StoreAdmin, assignee: StoreAdmin, giftCardCodes: Seq[String])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(BulkUnassignedFromGiftCards(buildAdmin(admin), buildAdmin(assignee), giftCardCodes))
-  }
-
-  /* Order Watchers */
-  def addedWatchersToOrder(admin: StoreAdmin, order: FullOrder.Root, watchers: Seq[AdminResponse])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(AddedWatchersToOrder(buildAdmin(admin), order, watchers))
-  }
-
-  def removedWatcherFromOrder(admin: StoreAdmin, order: FullOrder.Root, watcher: StoreAdmin)
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(RemovedWatcherFromOrder(buildAdmin(admin), order, buildAdmin(watcher)))
-  }
-
-  def bulkAddedWatcherToOrders(admin: StoreAdmin, assignee: StoreAdmin, orderRefNums: Seq[String])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(BulkAddedWatcherToOrders(buildAdmin(admin), buildAdmin(assignee), orderRefNums))
-  }
-
-  def bulkRemovedWatcherFromOrders(admin: StoreAdmin, assignee: StoreAdmin, orderRefNums: Seq[String])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(BulkRemovedWatcherFromOrders(buildAdmin(admin), buildAdmin(assignee), orderRefNums))
-  }
-
-  /* Customer Watchers */
-  def addedWatchersToCustomer(admin: StoreAdmin, customer: Customer, watchers: Seq[AdminResponse])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(AddedWatchersToCustomer(buildAdmin(admin), buildCustomer(customer), watchers))
-  }
-
-  def removedWatcherFromCustomer(admin: StoreAdmin, customer: Customer, watcher: StoreAdmin)
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(RemovedWatcherFromCustomer(buildAdmin(admin), buildCustomer(customer), buildAdmin(watcher)))
-  }
-
-  def bulkAddedWatcherToCustomers(admin: StoreAdmin, assignee: StoreAdmin, customerIds: Seq[Int])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(BulkAddedWatcherToCustomers(buildAdmin(admin), buildAdmin(assignee), customerIds))
-  }
-
-  def bulkRemovedWatcherFromCustomers(admin: StoreAdmin, assignee: StoreAdmin, customerIds: Seq[Int])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(BulkRemovedWatcherFromCustomers(buildAdmin(admin), buildAdmin(assignee), customerIds))
-  }
-
-  /* Gift Card Watchers */
-  def addedWatchersToGiftCard(admin: StoreAdmin, gc: GiftCard, watchers: Seq[AdminResponse])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(AddedWatchersToGiftCard(buildAdmin(admin), buildGc(gc), watchers))
-  }
-
-  def removedWatcherFromGiftCard(admin: StoreAdmin, gc: GiftCard, watcher: StoreAdmin)
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(RemovedWatcherFromGiftCard(buildAdmin(admin), buildGc(gc), buildAdmin(watcher)))
-  }
-
-  def bulkAddedWatcherToGiftCards(admin: StoreAdmin, assignee: StoreAdmin, giftCardCodes: Seq[String])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(BulkAddedWatcherToGiftCards(buildAdmin(admin), buildAdmin(assignee), giftCardCodes))
-  }
-
-  def bulkRemovedWatcherFromGiftCards(admin: StoreAdmin, assignee: StoreAdmin, giftCardCodes: Seq[String])
-    (implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(BulkRemovedWatcherFromGiftCards(buildAdmin(admin), buildAdmin(assignee), giftCardCodes))
   }
 
   /* Customers */

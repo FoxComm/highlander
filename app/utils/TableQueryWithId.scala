@@ -21,6 +21,8 @@ trait ModelWithIdParameter[T <: ModelWithIdParameter[T]] extends Validation[T] {
 
   def isNew: Boolean = id == 0
 
+  def searchKey(): Option[String] = None
+
   def modelName: String = getClass.getCanonicalName.lowerCaseFirstLetter
 
   def validate: ValidatedNel[Failure, T] = Valid(this)

@@ -13,12 +13,12 @@ import models.shipping.{Shipments, ShippingMethods}
 import models.{Reasons, StoreAdmin, StoreAdmins}
 import models.product.{Mvp, ProductContexts, SimpleContext}
 import org.json4s.jackson.JsonMethods._
-import payloads.{RmaAssigneesPayload, RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCustomerPayload,
-RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload}
+import payloads.{RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCustomerPayload,
+RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload, AssignmentPayload, BulkAssignmentPayload}
 import responses.{TheResponse, AllRmas, RmaLockResponse, RmaResponse, StoreAdminResponse}
 import services.rmas.{RmaLineItemUpdater, RmaLockUpdater}
-import services.{RmaAssigneeNotFound, GeneralFailure, InvalidCancellationReasonFailure, LockedFailure,
-NotFoundFailure400, NotFoundFailure404, NotLockedFailure}
+import services.{GeneralFailure, InvalidCancellationReasonFailure, LockedFailure, NotFoundFailure400,
+NotFoundFailure404, NotLockedFailure}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -283,89 +283,6 @@ class RmaIntegrationTest extends IntegrationTestBase
 
       }
     }
-
-    "POST /v1/rmas/:refNum/assignees" - {
-      "can be assigned to RMA" in new Fixture {
-        val response = POST(s"v1/rmas/${rma.referenceNumber}/assignees", RmaAssigneesPayload(Seq(storeAdmin.id)))
-        response.status must === (StatusCodes.OK)
-
-        val fullRmaWithWarnings = response.withResultTypeOf[RmaResponse.Root]
-        fullRmaWithWarnings.result.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(storeAdmin)))
-        fullRmaWithWarnings.warnings mustBe empty
-      }
-
-      "can be assigned to locked RMA" in new Fixture {
-        Rmas.findByRefNum(rma.referenceNumber).map(_.isLocked).update(true).run().futureValue
-        val response = POST(s"v1/rmas/${rma.referenceNumber}/assignees", RmaAssigneesPayload(Seq(storeAdmin.id)))
-        response.status must === (StatusCodes.OK)
-      }
-
-      "404 if RMA is not found" in new Fixture {
-        val response = POST(s"v1/rmas/NOPE/assignees", RmaAssigneesPayload(Seq(storeAdmin.id)))
-        response.status must === (StatusCodes.NotFound)
-      }
-
-      "warning if assignee is not found" in new Fixture {
-        val response = POST(s"v1/rmas/${rma.referenceNumber}/assignees", RmaAssigneesPayload(Seq(1, 999)))
-        response.status must === (StatusCodes.OK)
-
-        val fullRmaWithWarnings = response.withResultTypeOf[RmaResponse.Root]
-        fullRmaWithWarnings.result.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(storeAdmin)))
-        fullRmaWithWarnings.errors.value must === (Seq(NotFoundFailure404(StoreAdmin, 999).description))
-      }
-
-      "can be viewed with RMA" in new Fixture {
-        val response1 = GET(s"v1/rmas/${rma.referenceNumber}")
-        response1.status must === (StatusCodes.OK)
-        val responseOrder1 = response1.as[RmaResponse.Root]
-        responseOrder1.assignees mustBe empty
-
-        POST(s"v1/rmas/${rma.referenceNumber}/assignees", RmaAssigneesPayload(Seq(storeAdmin.id)))
-        val response2 = GET(s"v1/rmas/${rma.referenceNumber}")
-        response2.status must === (StatusCodes.OK)
-
-        val responseRma2 = parse(response2.bodyText).extract[RmaResponse.Root]
-        responseRma2.assignees.map(_.assignee) must === (Seq(StoreAdminResponse.build(storeAdmin)))
-      }
-
-      "do not create duplicate records" in new Fixture {
-        POST(s"v1/rmas/${rma.referenceNumber}/assignees", RmaAssigneesPayload(Seq(storeAdmin.id)))
-        POST(s"v1/rmas/${rma.referenceNumber}/assignees", RmaAssigneesPayload(Seq(storeAdmin.id)))
-
-        RmaAssignments.byRma(rma).result.run().futureValue.size mustBe 1
-      }
-    }
-
-    "DELETE /v1/rmas/:refNum/assignees/:assigneeId/delete" - {
-
-      "can be unassigned from RMA" in new AssignmentFixture {
-        val response = DELETE(s"v1/rmas/${rma.referenceNumber}/assignees/${storeAdmin.id}")
-        response.status must === (StatusCodes.OK)
-
-        val root = response.ignoreFailuresAndGiveMe[RmaResponse.Root]
-        root.assignees.filter(_.assignee.id == storeAdmin.id) mustBe empty
-
-        RmaAssignments.byRma(rma).result.run().futureValue mustBe empty
-      }
-
-      "400 if assignee is not found" in new AssignmentFixture {
-        val response = DELETE(s"v1/rmas/${rma.referenceNumber}/assignees/${secondAdmin.id}")
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (RmaAssigneeNotFound(rma.referenceNumber, secondAdmin.id).description)
-      }
-
-      "404 if RMA is not found" in new AssignmentFixture {
-        val response = DELETE(s"v1/rmas/NOPE/assignees/${storeAdmin.id}")
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Rma, "NOPE").description)
-      }
-
-      "404 if storeAdmin is not found" in new AssignmentFixture {
-        val response = DELETE(s"v1/rmas/${rma.referenceNumber}/assignees/555")
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(StoreAdmin, 555).description)
-      }
-    }
   }
 
   "RMA Line Items" - {
@@ -565,13 +482,6 @@ class RmaIntegrationTest extends IntegrationTestBase
         customerId = customer.id))
       reason ← * <~ Reasons.create(Factories.reason.copy(storeAdminId = storeAdmin.id))
     } yield (storeAdmin, customer, order, rma, reason)).runTxn().futureValue.rightVal
-  }
-
-  trait AssignmentFixture extends Fixture {
-    val (assignee, secondAdmin) = (for {
-      assignee    ← * <~ RmaAssignments.create(RmaAssignment(rmaId = rma.id, assigneeId = storeAdmin.id))
-      secondAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
-    } yield (assignee, secondAdmin)).runTxn().futureValue.rightVal
   }
 
   trait LineItemFixture extends Fixture {

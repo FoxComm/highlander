@@ -7,7 +7,7 @@ import Rma.Canceled
 import models.{Reason, Reasons, StoreAdmin}
 import payloads.{RmaCreatePayload, RmaMessageToCustomerPayload, RmaUpdateStatePayload}
 import responses.RmaResponse._
-import responses.{RmaResponse, CustomerResponse, StoreAdminResponse}
+import responses.{AllRmas, RmaResponse, CustomerResponse, StoreAdminResponse, BatchResponse}
 import services.rmas.Helpers._
 import services.{InvalidCancellationReasonFailure, Result}
 import utils.CustomDirectives.SortAndPage
@@ -67,12 +67,13 @@ object RmaService {
   } yield response).run()
 
   def findByOrderRef(refNum: String)
-    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[BulkRmaUpdateResponse] = (for {
+    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[BatchResponse[AllRmas.Root]] = (for {
     order ← * <~ Orders.mustFindByRefNum(refNum)
     rmas  ← * <~ RmaQueries.findAllDbio(Rmas.findByOrderRefNum(refNum))
   } yield rmas).run()
 
-  def findByCustomerId(customerId: Int)(implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[BulkRmaUpdateResponse] = (for {
+  def findByCustomerId(customerId: Int)
+    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[BatchResponse[AllRmas.Root]] = (for {
     _    ← * <~ Customers.mustFindById404(customerId)
     rmas ← * <~ RmaQueries.findAllDbio(Rmas.findByCustomerId(customerId))
   } yield rmas).run()

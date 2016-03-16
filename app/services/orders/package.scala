@@ -2,16 +2,13 @@ package services
 
 import models.traits.{Originator, CustomerOriginator, AdminOriginator}
 import models.order.{Order, Orders}
-import responses.TheResponse
-import responses.order.AllOrders
+
 import services.CartFailures.CustomerHasNoActiveOrder
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.aliases._
 
 package object orders {
-  type BulkOrderUpdateResponse = TheResponse[Seq[AllOrders.Root]]
-
   def getCartByOriginator(originer: Originator, refNum: Option[String])
     (implicit ec: EC, db: DB, ac: AC): DbResult[Order] = (originer, refNum) match {
     case (CustomerOriginator(customer), _) ⇒

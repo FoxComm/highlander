@@ -5,7 +5,8 @@ import models.order.{Orders, Order}
 
 import Order.{Canceled, _}
 import models.StoreAdmin
-import responses.order.FullOrder
+import responses.BatchResponse
+import responses.order.{AllOrders, FullOrder}
 import responses.{BatchMetadataSource, BatchMetadata}
 import services.{Result, StateTransitionNotAllowed, NotFoundFailure400, LockedFailure}
 import services.LogActivity.{orderStateChanged, orderBulkStateChanged}
@@ -33,7 +34,7 @@ object OrderStateUpdater {
 
   // TODO: transfer sorting-paging metadata
   def updateStates(admin: StoreAdmin, refNumbers: Seq[String], newState: Order.State, skipActivity: Boolean = false)
-    (implicit ec: EC, db: DB, sortAndPage: SortAndPage, ac: AC): Result[BulkOrderUpdateResponse] = (for {
+    (implicit ec: EC, db: DB, sortAndPage: SortAndPage, ac: AC): Result[BatchResponse[AllOrders.Root]] = (for {
     // Turn failures into errors
     batchMetadata ← * <~ updateStatesDbio(admin, refNumbers, newState, skipActivity)
     response      ← * <~ OrderQueries.findAllByQuery(Orders.filter(_.referenceNumber.inSetBind(refNumbers)))

@@ -1,29 +1,14 @@
 package responses
 
 import java.time.Instant
-
-import models.customer.CustomerAssignment
-import models.order.OrderAssignment
-import models.rma.RmaAssignment
-import models.payment.giftcard.GiftCardAssignment
-import models.StoreAdmin
+import models.{Assignment, StoreAdmin}
+import responses.StoreAdminResponse.{build ⇒ buildAdmin}
 
 object AssignmentResponse {
 
-  final case class Root(
-    assignee: StoreAdminResponse.Root,
-    createdAt: Instant
-  ) extends ResponseItem
+  final case class Root(assignee: StoreAdminResponse.Root, assignmentType: Assignment.AssignmentType,
+    createdAt: Instant) extends ResponseItem
 
-  def build(assignment: OrderAssignment, admin: StoreAdmin): Root =
-    Root(StoreAdminResponse.build(admin), assignment.createdAt)
-
-  def buildForRma(assignment: RmaAssignment, admin: StoreAdmin): Root =
-    Root(StoreAdminResponse.build(admin), assignment.createdAt)
-
-  def buildForCustomer(assignment: CustomerAssignment, admin: StoreAdmin): Root =
-    Root(StoreAdminResponse.build(admin), assignment.createdAt)
-
-  def buildForGiftCard(assignment: GiftCardAssignment, admin: StoreAdmin): Root =
-    Root(StoreAdminResponse.build(admin), assignment.createdAt)
+  def build(assignment: Assignment, admin: StoreAdmin): Root = Root(assignee = buildAdmin(admin),
+    assignmentType = assignment.assignmentType, createdAt = assignment.createdAt)
 }

@@ -4,13 +4,11 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
-import models.customer.Customers
 import models.traits.Originator
 import payloads._
 import services.customers._
 import services.{AddressManager, CreditCardManager, CustomerCreditConverter, StoreCreditAdjustmentsService,
 StoreCreditService}
-import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import services.orders.OrderQueries
 import utils.Apis
 import utils.CustomDirectives._
@@ -39,38 +37,6 @@ object CustomerRoutes {
         (post & pathEnd & entity(as[payloads.CreateCustomerPayload])) { payload ⇒
           goodOrFailures {
             CustomerManager.create(payload, Some(admin))
-          }
-        } ~
-        pathPrefix("assignees") {
-          (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[CustomerBulkAssignmentPayload]) { payload ⇒
-              goodOrFailures {
-                CustomerAssignmentUpdater.assignBulk(admin, payload)
-              }
-            }
-          } ~
-          (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[CustomerBulkAssignmentPayload]) { payload ⇒
-              goodOrFailures {
-                CustomerAssignmentUpdater.unassignBulk(admin, payload)
-              }
-            }
-          }
-        } ~
-        pathPrefix("watchers") {
-          (post & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[CustomerBulkWatchersPayload]) { payload ⇒
-              goodOrFailures {
-                CustomerWatcherUpdater.watchBulk(admin, payload)
-              }
-            }
-          } ~
-          (post & path("delete") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-            entity(as[CustomerBulkWatchersPayload]) { payload ⇒
-              goodOrFailures {
-                CustomerWatcherUpdater.unwatchBulk(admin, payload)
-              }
-            }
           }
         }
       } ~
@@ -105,30 +71,6 @@ object CustomerRoutes {
         (post & path("blacklist") & pathEnd & entity(as[payloads.ToggleCustomerBlacklisted])) { payload ⇒
           goodOrFailures {
             CustomerManager.toggleBlacklisted(customerId, payload.blacklisted, admin)
-          }
-        } ~
-        pathPrefix("assignees") {
-          (post & pathEnd & entity(as[CustomerAssignmentPayload])) { payload ⇒
-            goodOrFailures {
-              CustomerAssignmentUpdater.assign(admin, customerId, payload.assignees)
-            }
-          } ~
-          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
-              CustomerAssignmentUpdater.unassign(admin, customerId, assigneeId)
-            }
-          }
-        } ~
-        pathPrefix("watchers") {
-          (post & pathEnd & entity(as[CustomerWatchersPayload])) { payload ⇒
-            goodOrFailures {
-              CustomerWatcherUpdater.watch(admin, customerId, payload.watchers)
-            }
-          } ~
-          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
-            goodOrFailures {
-              CustomerWatcherUpdater.unwatch(admin, customerId, assigneeId)
-            }
           }
         } ~
         pathPrefix("addresses") {
@@ -230,4 +172,3 @@ object CustomerRoutes {
     }
   }
 }
-

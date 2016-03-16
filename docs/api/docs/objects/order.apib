@@ -81,8 +81,6 @@
 + totals (required, Totals) - Order totals.
 + shippingMethod (optional, ShippingMethod) - Shipping method.
 + shippingAddress (optional, OrderShippingAddress) - Shipping address.
-+ assignees (required, array[Assignee]) - Order assignees.
-+ watchers (required, array[Watcher]) - Order watchers.
 + remorsePeriodEnd: `2015-09-10T14:55:50Z` (optional, string) - Remorse period end.
 + paymentMethods (optional, array[DisplayPayment]) - Order payment.
 + lockedBy (optional, StoreAdminResponse) - Currently locked by.
@@ -164,20 +162,6 @@
 + referenceNumbers: `ABC-123` (required, array[string]) - Order reference numbers.
 - Include OrderStatePayload
 + reasonId: 1 (optional, number) - Cancellation reason.
-
-### OrderAssignPayload
-+ assignees (required, array[number]) - StoreAdmin IDs.
-
-### OrderBulkAssignPayload
-+ referenceNumbers: `ABC-123` (required, array[string]) - Order reference numbers.
-+ assigneeId: 1 (required, number) - StoreAdmin ID.
-
-### OrderWatchPayload
-+ watchers (required, array[number]) - StoreAdmin IDs.
-
-### OrderBulkWatchPayload
-+ referenceNumbers: `ABC-123` (required, array[string]) - Order reference numbers.
-+ watcherId: 1 (required, number) - StoreAdmin ID.
 
 ### OrderList
 + result (required, array[ListOrder]) - The resulting list of ListOrder-s.

@@ -2,6 +2,7 @@ import scala.concurrent.Future
 
 import cats.data.{NonEmptyList, Xor, XorT}
 import cats.implicits._
+import responses.TheResponse
 import utils.aliases._
 
 package object services {
