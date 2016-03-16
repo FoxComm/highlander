@@ -1,5 +1,6 @@
 import java.time.Instant
 
+import cats.implicits._
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
 import akka.pattern.ask
@@ -49,7 +50,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         response.status must === (StatusCodes.OK)
         val fullOrder = response.ignoreFailuresAndGiveMe[FullOrder.Root]
 
-        fullOrder.paymentState must === (CreditCardCharge.Cart)
+        fullOrder.paymentState must === (CreditCardCharge.Cart.some)
       }
 
       "displays 'auth' payment state" in new PaymentStateFixture {
@@ -60,7 +61,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         response.status must === (StatusCodes.OK)
         val fullOrder = response.ignoreFailuresAndGiveMe[FullOrder.Root]
 
-        fullOrder.paymentState must === (CreditCardCharge.Auth)
+        fullOrder.paymentState must === (CreditCardCharge.Auth.some)
       }
     }
   }

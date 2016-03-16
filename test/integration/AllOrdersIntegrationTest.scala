@@ -3,6 +3,7 @@ import java.time.Instant
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
 import cats.data.Xor
+import cats.implicits._
 import models.order.{Orders, Order}
 import Order._
 import models.customer.Customers
@@ -75,11 +76,11 @@ class AllOrdersIntegrationTest extends IntegrationTestBase
 
       val expected = AllOrders.Root(
         referenceNumber = "ABCD1234-11",
-        name = Some("Yax Fuentes"),
-        email = "yax@yax.com",
+        name = "Yax Fuentes".some,
+        email = "yax@yax.com".some,
         orderState = Order.ManualHold,
-        paymentState = CreditCardCharge.Cart,
-        shippingState = Some(Order.ManualHold),
+        paymentState = CreditCardCharge.Cart.some,
+        shippingState = Order.ManualHold.some,
         placedAt = None,
         total = 0,
         remorsePeriodEnd = None)

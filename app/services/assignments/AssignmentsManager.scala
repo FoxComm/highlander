@@ -20,21 +20,19 @@ import utils.aliases._
 
 trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   // Define this methods in inherit object
-  //def modelInstance(): ModelWithIdParameter[M]
-  //def tableInstance(): TableQueryWithId[M, T]
-
   def assignmentType(): AssignmentType
   def referenceType(): ReferenceType
   def notifyDimension(): String
   def buildResponse(model: M): ResponseItem
 
+  def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: AC): DbResult[M]
+  def fetchSequence(keys: Seq[K])(implicit ec: EC, db: DB, ac: AC): DbResult[Seq[M]]
+
+  // Add additional ADT members here if necessary
   private def notifyReason(): NotificationSubscription.Reason = assignmentType() match {
     case Assignee ⇒ NotificationSubscription.Assigned
     case Watcher  ⇒ NotificationSubscription.Watching
   }
-
-  def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: AC): DbResult[M]
-  def fetchSequence(keys: Seq[K])(implicit ec: EC, db: DB, ac: AC): DbResult[Seq[M]]
 
   // Use this methods wherever you want
   def assign(key: K, payload: AssignmentPayload, originator: StoreAdmin)
@@ -77,9 +75,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     // Validation + assign
     admin          ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
     entities       ← * <~ fetchSequence(payload.entityIds)
-    assignments    ← * <~ Assignments.filter(_.referenceType === referenceType())
-      .filter(_.assignmentType === assignmentType())
-      .filter(_.storeAdminId === payload.storeAdminId).result.toXor
+    assignments    ← * <~ Assignments.byAdmin(assignmentType(), referenceType(), admin).result.toXor
     newAssignedIds = entities.map(_.id).diff(assignments.map(_.referenceId))
     newEntries     = buildSeq(entities.filter(e ⇒ newAssignedIds.contains(e.id)), payload.storeAdminId)
     _              ← * <~ Assignments.createAll(newEntries)

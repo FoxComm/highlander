@@ -66,21 +66,19 @@ object Assignments extends TableQueryWithId[Assignment, Assignments](
   def byType(assignType: AssignmentType, refType: ReferenceType): QuerySeq =
     filter(_.assignmentType === assignType).filter(_.referenceType === refType)
 
+  def byAdmin[T <: ModelWithIdParameter[T]](assignType: AssignmentType, refType: ReferenceType, admin: StoreAdmin): QuerySeq =
+    byType(assignType, refType).filter(_.storeAdminId === admin.id)
+
   def byEntity[T <: ModelWithIdParameter[T]](assignType: AssignmentType, model: T,
-    refType: ReferenceType): QuerySeq =
-      byType(assignType, refType).
-        filter(_.referenceId === model.id)
+    refType: ReferenceType): QuerySeq = byType(assignType, refType).filter(_.referenceId === model.id)
 
   def byEntityAndAdmin[T <: ModelWithIdParameter[T]]
     (assignType: AssignmentType, model: T, refType: ReferenceType, admin: StoreAdmin): QuerySeq =
-    byEntity(assignType, model, refType).
-      filter(_.storeAdminId === admin.id)
+    byEntity(assignType, model, refType).filter(_.storeAdminId === admin.id)
 
   def byEntitySeqAndAdmin[T <: ModelWithIdParameter[T]](assignType: AssignmentType, models: Seq[T],
     refType: ReferenceType, admin: StoreAdmin): QuerySeq =
-    byType(assignType, refType).
-      filter(_.referenceId.inSetBind(models.map(_.id))).
-      filter(_.storeAdminId === admin.id)
+    byType(assignType, refType).filter(_.referenceId.inSetBind(models.map(_.id))).filter(_.storeAdminId === admin.id)
 
   def assigneesFor[T <: ModelWithIdParameter[T]](assignType: AssignmentType, entity: T, refType: ReferenceType)
     (implicit ec: EC): StoreAdmins.QuerySeq = for {
