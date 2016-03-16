@@ -30,6 +30,7 @@ module.exports = function(gulp, $, opts) {
 
   let bundler = null;
 
+  // please use this options for every transform since we have nested node_modules in project
   const pleaseDontIgnoreNestedNodeModules = {
     global: true,
     ignore: new RegExp(path.join(process.cwd(), 'node_modules')),
@@ -48,7 +49,7 @@ module.exports = function(gulp, $, opts) {
       debug: !production,
     }, watchify.args)).transform(envify({
       DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN,
-    }), { global: true });
+    }), pleaseDontIgnoreNestedNodeModules);
 
     bundler.plugin(require('css-modulesify'), Object.assign({
       output: path.resolve('build/bundle.css'),
