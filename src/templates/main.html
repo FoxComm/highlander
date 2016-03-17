@@ -5,6 +5,15 @@
     <title>StoreFront</title>
     <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" href="/app.css" />
+    <script type="text/javascript">
+      if (!window.Intl) {
+        var head = document.getElementsByTagName("head")[0];
+        var s = document.createElement("script");
+        s.type = "text/javascript";
+        s.src = "https://cdn.polyfill.io/v2/polyfill.min.js?features=Intl.~locale.en";
+        head.appendChild(s);
+      }
+    </script>
   </head>
   <body>
     {{#def.fcSprite}}
