@@ -22,9 +22,9 @@ function mapStateToProps(state) {
   };
 }
 
-const months = _.range(1, 12, 1).map(x => x.toString());
+const months = _.range(1, 13, 1).map(x => _.padStart(x.toString(), 2, '0'));
 const currentYear = new Date().getFullYear();
-const years = _.range(currentYear, currentYear + 18, 1).map(x => x.toString());
+const years = _.range(currentYear, currentYear + 10, 1).map(x => x.toString());
 
 /* ::`*/
 @connect(mapStateToProps, checkoutActions)
@@ -86,7 +86,9 @@ class EditBilling extends Component {
             <Autocomplete
               inputProps={{
                 placeholder: 'MONTH',
+                type: 'text',
               }}
+              compareValues={(value1, value2) => Number(value1) == Number(value2)}
               getItemValue={item => item}
               items={months}
               onSelect={this.changeMonth}
@@ -97,7 +99,9 @@ class EditBilling extends Component {
             <Autocomplete
               inputProps={{
                 placeholder: 'YEAR',
+                type: 'number',
               }}
+              allowCustomValues={true}
               getItemValue={item => item}
               items={years}
               onSelect={this.changeYear}
