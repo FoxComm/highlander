@@ -5,7 +5,7 @@ import java.time.Instant
 import cats.data.ValidatedNel
 import cats.implicits._
 import com.pellucid.sealerate
-import models.inventory.InventoryAdjustment.State
+import models.inventory.InventoryAdjustment._
 import models.javaTimeSlickMapper
 import monocle.macros.GenLens
 import org.json4s.JsonAST.JValue
@@ -25,7 +25,13 @@ final case class InventoryAdjustment(id: Int = 0, summaryId: Int, change: Int, n
   override def validate: ValidatedNel[Failure, InventoryAdjustment] =
     (validExpr(change != 0, "Changed quantity")
       |@| greaterThanOrEqual(newAfs, 0, "New AFS quantity")
+      |@| validExpr(safetyStockSellableOnly, "Only sellable SKUs can have safety stock adjustments")
       ).map { case _ ⇒ this }
+
+  private def safetyStockSellableOnly = state match {
+    case SafetyStock ⇒ skuType == Sellable
+    case _           ⇒ true
+  }
 }
 
 object InventoryAdjustment {
@@ -49,7 +55,8 @@ object InventoryAdjustment {
   case object OnHand extends State
   case object OnHold extends State
   case object Reserved extends State
-  // TODO: safety stock
+
+  case object SafetyStock extends State
 
   object State extends ADT[State] {
     def types = sealerate.values[State]
