@@ -7,7 +7,7 @@ create table inventory_adjustments (
     new_afs int not null default 0,
     state generic_string not null,
     sku_type generic_string not null,
-    created_at timestamp without time zone default (now() at time zone 'utc')
+    created_at timestamp without time zone default (now() at time zone 'utc'),
+    constraint valid_state check (state in ('onHand', 'onHold', 'reserved', 'safetyStock')),
+    constraint valid_sku_type check (sku_type in ('sellable', 'preorder', 'backorder', 'nonSellable'))
 );
-
--- TODO: validation for 'state' and 'sku_type'
