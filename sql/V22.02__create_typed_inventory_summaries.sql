@@ -1,37 +1,37 @@
 create table sellable_inventory_summaries (
   id serial primary key,
-  on_hand integer not null default 0,
-  on_hold integer not null default 0,
-  reserved integer not null default 0,
-  safety_stock integer not null default 0,
-  available_for_sale integer not null default 0,
+  on_hand integer not null default 0 check (on_hand >= 0),
+  on_hold integer not null default 0 check (on_hold >= 0),
+  reserved integer not null default 0 check (reserved >= 0),
+  safety_stock integer not null default 0 check (safety_stock >= 0),
+  available_for_sale integer not null default 0 check (available_for_sale >= 0),
   updated_at timestamp without time zone default (now() at time zone 'utc')
 );
 
 create table preorder_inventory_summaries (
   id serial primary key,
-  on_hand integer not null default 0,
-  on_hold integer not null default 0,
-  reserved integer not null default 0,
-  available_for_sale integer not null default 0,
+  on_hand integer not null default 0 check (on_hand >= 0),
+  on_hold integer not null default 0 check (on_hold >= 0),
+  reserved integer not null default 0 check (reserved >= 0),
+  available_for_sale integer not null default 0 check (available_for_sale >= 0),
   updated_at timestamp without time zone default (now() at time zone 'utc')
 );
 
 create table backorder_inventory_summaries (
   id serial primary key,
-  on_hand integer not null default 0,
-  on_hold integer not null default 0,
-  reserved integer not null default 0,
-  available_for_sale integer not null default 0,
+  on_hand integer not null default 0 check (on_hand >= 0),
+  on_hold integer not null default 0 check (on_hold >= 0),
+  reserved integer not null default 0 check (reserved >= 0),
+  available_for_sale integer not null default 0 check (available_for_sale >= 0),
   updated_at timestamp without time zone default (now() at time zone 'utc')
 );
 
 create table nonsellable_inventory_summaries (
   id serial primary key,
-  on_hand integer not null default 0,
-  on_hold integer not null default 0,
-  reserved integer not null default 0,
-  available_for_sale integer not null default 0,
+  on_hand integer not null default 0 check (on_hand >= 0),
+  on_hold integer not null default 0 check (on_hold >= 0),
+  reserved integer not null default 0 check (reserved >= 0),
+  available_for_sale integer not null default 0 check (available_for_sale >= 0),
   updated_at timestamp without time zone default (now() at time zone 'utc')
 );
 

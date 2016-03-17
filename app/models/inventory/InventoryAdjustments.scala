@@ -2,21 +2,30 @@ package models.inventory
 
 import java.time.Instant
 
+import cats.data.ValidatedNel
+import cats.implicits._
 import com.pellucid.sealerate
 import models.inventory.InventoryAdjustment.State
 import models.javaTimeSlickMapper
 import monocle.macros.GenLens
 import org.json4s.JsonAST.JValue
+import services.Failure
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.lifted.Tag
 import utils.ExPostgresDriver.api._
-import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
 final case class InventoryAdjustment(id: Int = 0, summaryId: Int, change: Int, newQuantity: Int,
   newAfs: Int, state: State, skuType: SkuType, metadata: JValue, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[InventoryAdjustment] {
 
+  import Validation._
+
+  override def validate: ValidatedNel[Failure, InventoryAdjustment] =
+    (validExpr(change != 0, "Changed quantity")
+      |@| greaterThanOrEqual(newAfs, 0, "New AFS quantity")
+      ).map { case _ ⇒ this }
 }
 
 object InventoryAdjustment {

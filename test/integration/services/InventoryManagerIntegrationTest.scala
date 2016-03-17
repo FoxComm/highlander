@@ -63,9 +63,9 @@ class InventoryManagerIntegrationTest extends IntegrationTestBase {
     }
 
     "adjusts inventory on WMS override" in new Fixture {
-      val newOnHand = sellable.onHand + 111
-      val newOnHold = sellable.onHold + 222
-      val newReserved = sellable.reserved + 333
+      val newOnHand = sellable.onHand + 11
+      val newOnHold = sellable.onHold + 22
+      val newReserved = sellable.reserved + 33
 
       val event = WmsOverride(skuId = product.skuId, warehouseId = warehouse.id,
         onHand = newOnHand,
@@ -81,13 +81,13 @@ class InventoryManagerIntegrationTest extends IntegrationTestBase {
 
       val adjustments = InventoryAdjustments.findSellableBySummaryId(sellable.id).result.run().futureValue.value
       adjustments must have size 3
-      val afs1 = sellable.availableForSale + 111
-      val afs2 = afs1 - 222
-      val afs3 = afs2 - 333
+      val afs1 = sellable.availableForSale + 11
+      val afs2 = afs1 - 22
+      val afs3 = afs2 - 33
       adjustments.map(adj ⇒ (adj.state, adj.change, adj.newAfs, adj.newQuantity)) must contain allOf (
-        (OnHand, 111, afs1, sellable.onHand + 111),
-        (OnHold, 222, afs2, sellable.onHold + 222),
-        (Reserved, 333, afs3, sellable.reserved + 333))
+        (OnHand, 11, afs1, sellable.onHand + 11),
+        (OnHold, 22, afs2, sellable.onHold + 22),
+        (Reserved, 33, afs3, sellable.reserved + 33))
     }
 
     "does not create adjustment for zero change" in new Fixture {
