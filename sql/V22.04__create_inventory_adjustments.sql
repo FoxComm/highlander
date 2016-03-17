@@ -8,6 +8,7 @@ create table inventory_adjustments (
     state generic_string not null,
     sku_type generic_string not null,
     created_at timestamp without time zone default (now() at time zone 'utc'),
+    constraint nonzero_change check (change != 0),
     constraint valid_state check (state in ('onHand', 'onHold', 'reserved', 'safetyStock')),
     constraint valid_sku_type check (sku_type in ('sellable', 'preorder', 'backorder', 'nonSellable'))
 );
