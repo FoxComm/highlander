@@ -11,7 +11,7 @@ import { connect } from 'react-redux';
 import { actions } from '../../modules/products/list';
 
 // components
-import { SearchableList } from '../list-page';
+import SelectableSearchList from '../list-page/selectable-search-list';
 import ProductRow from './product-row';
 
 type Column = {
@@ -48,7 +48,7 @@ export class Products extends Component<void, Props, void> {
 
     return (
       <div>
-        <SearchableList
+        <SelectableSearchList
           emptyResultMessage="No products found."
           list={list}
           renderRow={this.renderRow}
