@@ -28,18 +28,21 @@ export default class Lookup extends Component {
       label: PropTypes.string,
     })),
     value: PropTypes.any,
-    showMenu: PropTypes.bool,
     inputComponent: PropTypes.func,
     itemComponent: PropTypes.func,
     minQueryLength: PropTypes.number,
     onSelect: PropTypes.func.isRequired,
+    showMenu: PropTypes.bool,
+    onToggleMenu: PropTypes.func,
     className: PropTypes.string,
+    inputClassName: PropTypes.string,
     notFound: PropTypes.string,
   };
 
   static defaultProps = {
     data: [],
     showMenu: false,
+    onToggleMenu: _.noop,
     inputComponent: LookupInput,
     itemComponent: LookupItem,
     minQueryLength: 1,
@@ -58,7 +61,7 @@ export default class Lookup extends Component {
   componentWillReceiveProps({data, value, showMenu}) {
     const query = this.getQuery(data, value);
 
-    if (query != this.state.query) {
+    if (query && query !== this.state.query) {
       this.setQuery(query);
     }
 
@@ -75,18 +78,16 @@ export default class Lookup extends Component {
 
   @autobind
   setQuery(query) {
-    this.setState({
-      query,
-    });
+    if (this.state.query !== query) {
+      this.setState({query});
+    }
   }
 
   showMenu(showMenu) {
-    this.setState({showMenu});
-  }
-
-  @autobind
-  onBlur(event) {
-    this.showMenu(false);
+    if (this.state.showMenu !== showMenu) {
+      this.setState({showMenu});
+      this.props.onToggleMenu(showMenu);
+    }
   }
 
   @autobind
@@ -94,6 +95,11 @@ export default class Lookup extends Component {
     if (this.state.query.length >= this.props.minQueryLength) {
       this.showMenu(true);
     }
+  }
+
+  @autobind
+  onBlur(event) {
+    this.showMenu(false);
   }
 
   @autobind
@@ -124,6 +130,7 @@ export default class Lookup extends Component {
 
     return React.createElement(props.inputComponent, {
       value: this.state.query,
+      className: props.inputClassName,
       onBlur: this.onBlur,
       onFocus: this.onFocus,
       onChange: value=> {
@@ -173,5 +180,3 @@ export default class Lookup extends Component {
     );
   }
 };
-
-export default Lookup;

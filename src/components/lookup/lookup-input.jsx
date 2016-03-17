@@ -1,22 +1,23 @@
 //libs
 import React, { PropTypes } from 'react';
+import classNames from 'classnames';
 
 // helpers
 import { prefix } from '../../lib/text-utils';
 
+//components
+import TextInput from '../../components/forms/text-input';
 
 const prefixed = prefix('fc-lookup__');
 
 /**
  * Lookup item default component
  */
-const LookupInput = props => {
+const LookupInput = ({className, ...rest}) => {
   return (
-    <input {...props}
-      onChange={({target}) => props.onChange(target.value)}
-      value={props.value}
-      className={prefixed('input')}
-      autofocus={true} />
+    <TextInput className={classNames(prefixed('input'), className)}
+               autofocus={true}
+               {...rest} />
   );
 };
 
