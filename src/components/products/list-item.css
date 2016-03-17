@@ -34,7 +34,7 @@
 
 .price {
   margin-top: 10px;
-  font-family: 'Lato-Light';
+  font-weight: 300;
 }
 
 @media (--medium-viewport) {
