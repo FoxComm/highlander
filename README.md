@@ -54,21 +54,34 @@ export BACKEND_HOST=10.240.0.8
 
 #### If you want to run in GCE
 
+Install the GCE vagrant provider
+
+    $ vagrant plugin install vagrant-google
+
 Add the following vagrant box.
 
     $ vagrant box add gce https://github.com/mitchellh/vagrant-google/raw/master/google.box
 
 Set the following environment variables.
 
-    GOOGLE_SSH_USERNAME
-    GOOGLE_SSH_KEY
+    $ export GOOGLE_SSH_USERNAME=ubuntu
+    $ export GOOGLE_SSH_KEY=~/.ssh/google_compute_engine # Or the location of your key
+    $ export GOOGLE_CLIENT_EMAIL=<Your FoxCommerce email>
 
-    GOOGLE_CLIENT_EMAIL
-    GOOGLE_JSON_KEY_LOCATION
+Download a JSON key for our GCE environment. You can follow 
+[Google's instructions for generating a private key](https://cloud.google.com/storage/docs/authentication#generating-a-private-key).
+
+Make sure to generate a JSON key.
+
+Once downloaded, set the location.
+
+    $ export GOOGLE_JSON_KEY_LOCATION=<Location of downloaded JSON key>
 
 Then run
 
     $ vagrant up --provider=google
+
+Test machines are created without a public facing IP address, so you'll need to use the VPN to access it.
     
 ### Update Green River assembly
 
