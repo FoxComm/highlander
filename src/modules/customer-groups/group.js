@@ -6,6 +6,7 @@ import { assoc } from 'sprout-data';
 import Api from '../../lib/api';
 import createStore from '../../lib/store-creator';
 import criterions from './../../paragons/customer-groups/criterions';
+import queryAdapter from './query-adapter';
 import buildQuery from './query';
 
 const initialState = {
@@ -33,8 +34,7 @@ const saveGroup = actions => (dispatch, getState) => {
   const mainCondition = getValue('mainCondition');
   const conditions = getValue('conditions');
 
-  //TODO build query from conditions
-  const query = {};
+  const query = queryAdapter(mainCondition, conditions);
   const data = {
     name,
     clientState: {

@@ -48,6 +48,14 @@ export default class DynamicGroupEditor extends React.Component {
     }).isRequired,
   };
 
+  componentDidMount() {
+    const {group, actions} = this.props;
+
+    if (!group.mainCondition) {
+      actions.setMainCondition(operators.and);
+    }
+  }
+
   get nameField() {
     const {group: {name}, actions: {setName}} = this.props;
 
@@ -69,14 +77,12 @@ export default class DynamicGroupEditor extends React.Component {
   get mainCondition() {
     const {group: {mainCondition}, actions: {setMainCondition}} = this.props;
 
-    const value = mainCondition ? mainCondition : operators.and;
-
     return (
       <div className={prefixed('match-div')}>
         <span className={prefixed('match-span')}>Customers match</span>
             <span className={prefixed('match-dropdown')}>
               <Dropdown name="matchCriteria"
-                        value={value}
+                        value={mainCondition}
                         onChange={setMainCondition}>
                 <DropdownItem value={operators.and} key={operators.and}>all</DropdownItem>
                 <DropdownItem value={operators.or} key={operators.or}>any</DropdownItem>
