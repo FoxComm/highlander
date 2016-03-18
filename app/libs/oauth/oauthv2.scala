@@ -23,13 +23,13 @@ trait OauthClientOptions {
 }
 
 
-trait Oauth { this: OauthProvider with OauthClientOptions ⇒
+class Oauth[A <: OauthClientOptions](oauthOptions: A) { this: OauthProvider ⇒
 
   implicit val formats = DefaultFormats
 
   val authorizationParams = Map(
-    "client_id" → clientId,
-    "redirect_uri" → redirectUri,
+    "client_id" → oauthOptions.clientId,
+    "redirect_uri" → oauthOptions.redirectUri,
     "response_type" → "code"
   )
 
@@ -38,7 +38,7 @@ trait Oauth { this: OauthProvider with OauthClientOptions ⇒
     // TODO: add state
     request(oauthAuthorizationUrl)
       .<<?(authorizationParams + ("scope" → scope.mkString(" ")))
-      .<<?(buildExtraAuthParams)
+      .<<?(oauthOptions.buildExtraAuthParams)
       .url
   }
 
@@ -46,10 +46,10 @@ trait Oauth { this: OauthProvider with OauthClientOptions ⇒
     val req = request(oauthAccessTokenUrl)
       .POST
       .<<(Map(
-          "client_id" → clientId,
-          "client_secret" → clientSecret,
+          "client_id" → oauthOptions.clientId,
+          "client_secret" → oauthOptions.clientSecret,
           "code" → code,
-          "redirect_uri" → redirectUri,
+          "redirect_uri" → oauthOptions.redirectUri,
           "grant_type" → "authorization_code"))
 
     Http(req OK as.json4s.Json).map(_.extract[AccessTokenResponse])

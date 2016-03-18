@@ -1,9 +1,13 @@
 package libs.oauth
 
 
-trait GoogleOauthOptions extends OauthClientOptions {
-  val accessType: String = "offline"
-  val hostedDomain: Option[String] = None
+final case class GoogleOauthOptions(
+  clientId: String,
+  clientSecret: String,
+  redirectUri: String,
+  accessType: String = "offlien",
+  hostedDomain: Option[String] = None
+) extends OauthClientOptions {
 
   override def buildExtraAuthParams: Map[String, String] = {
     Map.empty[String, String]

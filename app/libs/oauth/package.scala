@@ -2,10 +2,12 @@ package libs
 
 import scala.concurrent.Future
 import cats.data.{Xor, XorT}
+import cats.implicits._
+import utils.aliases._
 
 package object oauth {
 
-  private[oauth] def xorTryFuture[A](f: ⇒ Future[A]): XorT[Future, Throwable, A] = {
+  private[oauth] def xorTryFuture[A](f: ⇒ Future[A])(implicit ec: EC): XorT[Future, Throwable, A] = {
     Xor.catchNonFatal(f).leftMap(Future.successful)
       .fold(XorT.left[Future, Throwable, A], XorT.right[Future, Throwable, A])
   }

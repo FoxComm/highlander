@@ -8,12 +8,13 @@ import services.Authenticator
 import services.GeneralFailure
 import utils.Http._
 import utils.aliases._
-import utils.Config.config
+import utils.Config.{config, RichConfig}
+import models.auth.Identity
 
 import OauthResponse._
 import cats.data.Xor
 
-import libs.oauth.{Oauth, GoogleProvider, OauthClientCredentials}
+import libs.oauth.{Oauth, GoogleProvider, GoogleOauthOptions}
 
 // TODO: move it outside
 object OauthResponse {
@@ -39,13 +40,21 @@ object AuthRoutes {
       OauthCallbackResponse(code = params.get("code"), error = params.get("error"))
     }
 
-  trait GoogleOauthCredentials extends OauthClientCredentials {
-    val clientId = config.getString("oauth.google.client_id")
-    val clientSecret = config.getString("oauth.google.client_secret")
-    val redirectUri = config.getString("oauth.google.redirect_uri")
+  def getGoogleOauthOptions(kind: Identity.IdentityKind): GoogleOauthOptions = {
+    val kindStr = kind.toString.toLowerCase
+
+    GoogleOauthOptions(
+      clientId = config.getString(s"oauth.$kindStr.google.client_id"),
+      clientSecret = config.getString(s"oauth.$kindStr.google.client_secret"),
+      redirectUri = config.getString(s"oauth.$kindStr.google.redirect_uri"),
+      hostedDomain = config.getOptString(s"oauth.google.$kindStr.hosted_domain"))
   }
 
-  case object GoogleOauth extends Oauth with GoogleProvider with GoogleOauthCredentials
+  val customerOauthOptions = getGoogleOauthOptions(Identity.Customer)
+  val adminOauthOptions = getGoogleOauthOptions(Identity.Admin)
+
+  val customerGoogleOauth = new Oauth(customerOauthOptions) with GoogleProvider
+  val adminGoogleOauth = new Oauth(adminOauthOptions) with GoogleProvider
 
   def routes(implicit ec: EC, db: DB, mat: Materializer) = {
 
@@ -67,12 +76,13 @@ object AuthRoutes {
               4. respondWithToken
                */
               // FIXME: handle errors
-              onSuccess(for {
-                accessTokenResp ← GoogleOauth.accessToken(code)
-                email ← GoogleOauth.userEmail(accessTokenResp.access_token)
-              } yield email) { email ⇒
-                complete(email)
-              }
+              complete(code)
+//              onSuccess(for {
+//                accessTokenResp ← GoogleOauth.accessToken(code)
+//                email ← GoogleOauth.userEmail(accessTokenResp.access_token)
+//              } yield email) { email ⇒
+//                complete(email)
+//              }
 
 
             }
@@ -80,9 +90,9 @@ object AuthRoutes {
         }
       } ~
       pathPrefix("signin") {
-        (get & path("google")) {
-          val uri = GoogleOauth.authorizationUri(scopes = Array("email"))
-          complete(Map("url" → uri))
+        (get & path("google/admin")) {
+          val url = adminGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))
+          complete(Map("url" → url))
         }
       }
     }
