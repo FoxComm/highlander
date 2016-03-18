@@ -12,6 +12,7 @@ import { Link } from 'react-router';
 import Categories from '../categories/categories';
 import Sidebar from '../sidebar/sidebar';
 import Footer from '../footer/footer';
+import Cart from '../cart/cart';
 
 
 type StoreFrontProps = {
@@ -59,6 +60,9 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
       </div>
       <div styleName="mobile-sidebar">
         <Sidebar />
+      </div>
+      <div>
+        <Cart />
       </div>
     </div>
   );

@@ -1,2 +1,15 @@
 
+@import "colors.css";
+
 .cart {}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: var(--light-grayish);
+}
+
+.cart-box {}
