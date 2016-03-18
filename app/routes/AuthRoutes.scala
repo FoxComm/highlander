@@ -6,13 +6,15 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import akka.stream.Materializer
 import services.Authenticator
 import services.GeneralFailure
+import scala.concurrent.Future
 import utils.Http._
 import utils.aliases._
 import utils.Config.{config, RichConfig}
 import models.auth.Identity
+import cats.data.{XorT, Xor}
+import cats.implicits._
 
 import OauthResponse._
-import cats.data.Xor
 
 import libs.oauth.{Oauth, GoogleProvider, GoogleOauthOptions}
 
@@ -23,11 +25,11 @@ object OauthResponse {
     code: Option[String] = None,
     error: Option[String] = None)
 
-  def parseOauthResponse(resp: OauthCallbackResponse): Xor[String, String] = {
+  def parseOauthResponse(resp: OauthCallbackResponse): Xor[Throwable, String] = {
     if (resp.error.isEmpty && resp.code.nonEmpty) {
       Xor.right(resp.code.getOrElse(""))
     } else {
-      Xor.left(resp.error.getOrElse("Unexpected error"))
+      Xor.left(new Throwable(resp.error.getOrElse("Unexpected error")))
     }
   }
 }
@@ -65,29 +67,27 @@ object AuthRoutes {
         }
       } ~
       pathPrefix("oauth2callback") {
-        (get & path("google") & oauthResponse) { oauthResponse ⇒
-          parseOauthResponse(oauthResponse).fold(
-            { err ⇒ complete(renderFailure(GeneralFailure(err).single)) },
-            { code ⇒
-              /*
-              1. Exchange code to access token - Done
-              2. Get user email - Done
-              3. FindOrCreate<StoreAdmin|Customer> <- ??
-              4. respondWithToken
-               */
-              // FIXME: handle errors
-              complete(code)
-//              onSuccess(for {
-//                accessTokenResp ← GoogleOauth.accessToken(code)
-//                email ← GoogleOauth.userEmail(accessTokenResp.access_token)
-//              } yield email) { email ⇒
-//                complete(email)
-//              }
+        (get & path("google/admin") & oauthResponse) { oauthResponse ⇒
+            /*
+            1. Exchange code to access token - Done
+            2. Get user email - Done
+            3. FindOrCreate<StoreAdmin|Customer> <- ??
+            4. respondWithToken
+             */
+            // FIXME: handle errors
 
+            val result = for {
+              code ← XorT.fromXor[Future](parseOauthResponse(oauthResponse))
+              accessTokenResp ← adminGoogleOauth.accessToken(code)
+              email ← adminGoogleOauth.userEmail(accessTokenResp.access_token)
+            } yield email
 
-            }
-          )
-        }
+            onSuccess(result.fold(
+              { err ⇒ complete(renderFailure(GeneralFailure(err.toString).single)) },
+              { email ⇒ complete(email) }
+            ))(identity)
+
+          }
       } ~
       pathPrefix("signin") {
         (get & path("google/admin")) {
