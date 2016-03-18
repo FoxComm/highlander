@@ -76,7 +76,7 @@ Vagrant.configure("2") do |config|
     g.image = "ubuntu-1504-vivid-v20151120"
     g.disk_size = 20
     g.zone = "us-central1-a"
-    g.tags = ['vagrant']
+    g.tags = ['no-ip', 'vagrant']
   end
 
   config.vm.define :appliance, primary: true do |app|

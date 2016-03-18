@@ -71,11 +71,11 @@ Set the following environment variables.
 Download a JSON key for our GCE environment. You can follow 
 [Google's instructions for generating a private key](https://cloud.google.com/storage/docs/authentication#generating-a-private-key).
 
-Make sure to generate a JSON key.
+Make sure to generate a JSON key. And save it with the name `foxcomm-staging.json` in the root directory of this project.
 
 Once downloaded, set the location.
 
-    $ export GOOGLE_JSON_KEY_LOCATION=<Location of downloaded JSON key>
+    $ export GOOGLE_JSON_KEY_LOCATION=`pwd`/foxcomm-staging.json
 
 Then run
 
