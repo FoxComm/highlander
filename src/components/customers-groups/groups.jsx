@@ -1,11 +1,16 @@
+//libs
 import React, { Component, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
+//data
 import * as actions from '../../modules/customer-groups/list';
 
+//helpers
 import { transitionTo } from '../../route-helpers';
+
+//components
 import TableView from '../table/tableview';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';

@@ -1,13 +1,20 @@
 //libs
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
+
+//components
+import { LookupDropdown } from '../../lookup';
 
 
-const Input = type => ({criterion, value, prefixed, changeValue}) => {
+const Input = ({data, value, prefixed, changeValue}) => {
+
   return (
-    <input className={prefixed('field')}
-           type={type}
-           onChange={({target}) => changeValue(target.value)}
-           value={value} />
+    <LookupDropdown className={prefixed('lookup')}
+                    data={data}
+                    value={value ? _.find(data, ({label}) => label === value).id : null}
+                    minQueryLength={3}
+                    onSelect={({label}) => changeValue(label)} />
   );
 };
 
@@ -15,9 +22,15 @@ Input.propTypes = {
   criterion: PropTypes.shape({
     field: PropTypes.string.isRequired,
   }).isRequired,
+  data: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.any,
+    label: PropTypes.string,
+  })),
   prefixed: PropTypes.func.isRequired,
   value: PropTypes.any,
   changeValue: PropTypes.func.isRequired,
 };
 
-export default Input;
+export default type => connect(state => ({
+  data: _.chain(state.regions).values().map(({id,name}) => ({id, label: name})).value(),
+}))(Input);

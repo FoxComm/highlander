@@ -8,6 +8,7 @@ import { autobind } from 'core-decorators';
 
 //data
 import { actions } from '../../modules/customer-groups/group';
+import { fetchRegions } from '../../modules/regions';
 
 //helpers
 import { prefix } from '../../lib/text-utils';
@@ -24,7 +25,10 @@ import { transitionTo } from '../../route-helpers';
 const prefixed = prefix('fc-customer-group-dynamic-edit__');
 
 const mapStateToProps = state => ({group: state.customerGroups.group});
-const mapDispatchToProps = dispatch => ({actions: bindActionCreators(actions, dispatch)});
+const mapDispatchToProps = dispatch => ({
+  actions: bindActionCreators(actions, dispatch),
+  fetchRegions: () => dispatch(fetchRegions()),
+});
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class NewDynamicGroup extends React.Component {
@@ -45,6 +49,10 @@ export default class NewDynamicGroup extends React.Component {
 
   componentWillMount() {
     this.props.actions.reset();
+  }
+
+  componentDidMount() {
+    this.props.fetchRegions();
   }
 
   componentDidUpdate() {

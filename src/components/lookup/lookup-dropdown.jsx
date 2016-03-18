@@ -52,7 +52,7 @@ export default class LookupDropdown extends Component {
     const {className, ...rest} = this.props;
 
     return (
-      <div className={className}>
+      <div className={classNames(prefixed('dropdown'), className)}>
         <Lookup inputClassName="fc-dock fc-dock-left"
                 showMenu={this.state.showMenu}
                 onToggleMenu={showMenu => this.setState({showMenu})}

@@ -69,6 +69,11 @@
     box-shadow: inset 1px 1px 1px 0 rgba(0, 0, 0, 0.1);
   }
 
+  &__lookup {
+    .width(@field-width);
+    .height(@field-height);
+  }
+
   .fc-datepicker {
     margin-bottom: 0;
   }
@@ -167,6 +172,10 @@
     }
 
     .fc-customer-group-builder__field {
+      .width(@field-width);
+    }
+
+    .fc-customer-group-builder__lookup {
       .width(@field-width);
     }
 

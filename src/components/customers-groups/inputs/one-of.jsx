@@ -49,7 +49,7 @@ const renderItem = ({Widget, criterion, values, index, prefixed, changeValue}) =
   return (
     <div className={prefixed('vertical-select__container')} key={index}>
       <div className={prefixed('vertical-select__item')}>
-        {Widget({criterion, value: values[index], prefixed, changeValue: change})}
+        {React.createElement(Widget, ({criterion, value: values[index], prefixed, changeValue: change}))}
       </div>
       {renderNodeOrAdd(prefixed, index < values.length - 1, add)}
       <i className={classNames(prefixed('vertical-select__remove'), 'icon-close')} onClick={remove}/>
