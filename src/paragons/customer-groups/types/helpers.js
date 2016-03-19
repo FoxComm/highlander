@@ -3,7 +3,7 @@ export const validateOperatorAppliance = (operator, type, criterion) => {
     throw new TypeError(`Operator ${operator} is not applicable for field "${criterion.label}" of type "${type.name}"`);
   }
 
-  if (criterion.operators && !(operator in criterion.operators)) {
+  if (criterion.operators && !(criterion.operators.includes(operator))) {
     throw new TypeError(`Operator ${operator} is not applicable for field "${criterion.label}"`);
   }
 };
