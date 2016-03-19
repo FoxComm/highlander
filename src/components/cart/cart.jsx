@@ -10,6 +10,12 @@ const Cart = () => {
       <div styleName="overlay">
       </div>
       <div styleName="cart-box">
+        <div styleName="cart-header">
+        </div>
+        <div styleName="cart-content">
+        </div>
+        <div styleName="cart-footer">
+        </div>
       </div>
     </div>
   );

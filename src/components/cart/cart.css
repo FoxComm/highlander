@@ -12,4 +12,31 @@
   background: var(--light-grayish);
 }
 
-.cart-box {}
+.cart-box {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  background: var(--whitish);
+  lost-column: 4/11;
+}
+
+.cart-header {
+  background: var(--blackish);
+  color: var(--whitish);
+  width: 100%;
+  height: 60px;
+  position: absolute;
+  top: 0;
+}
+
+.cart-content {}
+
+.cart-footer {
+  background: var(--blackish);
+  color: var(--whitish);
+  width: 100%;
+  height: 60px;
+  position: absolute;
+  bottom: 0;
+}
