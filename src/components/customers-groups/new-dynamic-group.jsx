@@ -56,8 +56,8 @@ export default class NewDynamicGroup extends React.Component {
   }
 
   componentDidUpdate() {
-    const {id} = this.props.group;
-    if (id) {
+    const {id, saved} = this.props.group;
+    if (saved) {
       transitionTo(this.context.history, 'group', {groupId: id});
       return false;
     }

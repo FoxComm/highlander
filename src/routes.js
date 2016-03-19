@@ -17,6 +17,7 @@ import NewCustomer from './components/customers/new-customer';
 import Groups from './components/customers-groups/groups';
 import Group from './components/customers-groups/group';
 import NewDynamicGroup from './components/customers-groups/new-dynamic-group';
+import EditDynamicGroup from './components/customers-groups/edit-dynamic-group';
 import Customer from './components/customers/customer';
 import CustomerDetails from './components/customers/details';
 import Notes from './components/notes/notes';
@@ -95,6 +96,7 @@ const routes = (
           <IndexRoute name='groups' component={Groups} />
         </Route>
         <Route name='new-dynamic-group' path='new-dynamic' component={NewDynamicGroup} />
+        <Route name='edit-dynamic-group' path='edit-dynamic/:groupId' component={EditDynamicGroup} />
         <Route name='group' path=':groupId' component={Group} />
       </Route>
       <Route name='customers-new' path='new' component={NewCustomer} />

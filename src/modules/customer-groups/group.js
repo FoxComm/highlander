@@ -15,6 +15,7 @@ const initialState = {
   name: null,
   mainCondition: null,
   conditions: [],
+  saved: false,
 };
 
 const fetchGroup = (actions, id) => dispatch => {
@@ -55,6 +56,7 @@ const saveGroup = actions => (dispatch, getState) => {
   request.then(
     (data) => {
       dispatch(actions.setData(data));
+      dispatch(actions.setSaved());
     }
   );
 };
@@ -71,16 +73,32 @@ const reducers = {
       name,
       mainCondition,
       conditions,
+      saved: false,
     };
   },
   setName: (state, name) => {
-    return assoc(state, 'name', name);
+    return {
+      ...state,
+      name,
+    };
   },
-  setMainCondition: (state, condition) => {
-    return assoc(state, 'mainCondition', condition);
+  setMainCondition: (state, mainCondition) => {
+    return {
+      ...state,
+      mainCondition,
+    };
   },
   setConditions: (state, conditions) => {
-    return assoc(state, 'conditions', conditions);
+    return {
+      ...state,
+      conditions,
+    };
+  },
+  setSaved: (state) => {
+    return {
+      ...state,
+      saved: true,
+    };
   },
 };
 
