@@ -8,11 +8,12 @@ import { LookupDropdown } from '../../lookup';
 
 
 const Input = ({data, value, prefixed, changeValue}) => {
+  const item = _.find(data, ({label}) => label === value);
 
   return (
     <LookupDropdown className={prefixed('lookup')}
                     data={data}
-                    value={value ? _.find(data, ({label}) => label === value).id : null}
+                    value={value && item ? item.id : null}
                     minQueryLength={3}
                     onSelect={({label}) => changeValue(label)} />
   );

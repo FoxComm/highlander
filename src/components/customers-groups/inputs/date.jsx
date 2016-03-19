@@ -6,7 +6,7 @@ import DatePicker from '../../datepicker/datepicker';
 
 
 const Input = ({value, changeValue}) => {
-  return <DatePicker date={value} onClick={changeValue}/>;
+  return <DatePicker date={new Date(value)} onClick={(value) => changeValue(value.toString())}/>;
 };
 
 Input.propTypes = {
