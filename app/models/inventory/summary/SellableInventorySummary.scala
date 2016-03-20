@@ -1,14 +1,26 @@
 package models.inventory.summary
 
 import java.time.Instant
+
+import cats.data.ValidatedNel
+import cats.implicits._
 import models.javaTimeSlickMapper
 import monocle.macros.GenLens
+import services.Failure
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
+import utils.Validation
 
 final case class SellableInventorySummary(id: Int = 0, onHand: Int, onHold: Int, reserved: Int,
   availableForSale: Int = 0, safetyStock: Int, updatedAt: Instant = Instant.now)
-  extends InventorySummaryBase[SellableInventorySummary]
+  extends InventorySummaryBase[SellableInventorySummary] {
+
+  import Validation._
+
+  override def validate: ValidatedNel[Failure, SellableInventorySummary] =
+    (greaterThanOrEqual(safetyStock, 0, "Safety stock quantity")
+      |@| super.validate).map { case _ ⇒ this }
+  }
 
 class SellableInventorySummaries(tag: Tag)
   extends InventorySummariesTableBase[SellableInventorySummary](tag, "sellable_inventory_summaries") {

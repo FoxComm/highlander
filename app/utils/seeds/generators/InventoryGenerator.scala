@@ -54,7 +54,7 @@ trait InventorySummaryGenerator {
 trait InventoryAdjustmentsGenerator {
 
   def generateWmsAdjustments(skuId: Int, warehouseId: Int)(implicit db: DB): DbResultT[Seq[Int]] =
-    DbResultT.sequence((1 to 10).map { _ ⇒
+    DbResultT.sequence((1 to nextInt(10)).map { _ ⇒
       val wmsOverride = WmsOverride(skuId, warehouseId, onHandRandom / 2, onHoldRandom / 2, reservedRandom / 2)
       InventoryAdjustmentManager.wmsOverride(wmsOverride)
     }).map(_.flatten)
@@ -67,7 +67,7 @@ trait InventoryAdjustmentsGenerator {
 }
 
 private object Rnd {
-  def onHandRandom = nextInt(1000)
+  def onHandRandom = nextInt(1000) + 300
   def onHoldRandom = nextInt(50)
   def reservedRandom = nextInt(100)
 }
