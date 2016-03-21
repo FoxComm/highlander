@@ -22,6 +22,8 @@ const shippingMethodCost = cost => {
 let ViewDelivery = (props) => {
   const { selectedShippingMethod: shippingMethod } = props;
 
+  if (!shippingMethod) return <div></div>;
+
   return (
     <div styleName="shipping-method">
       <div>{shippingMethod.name}</div>
