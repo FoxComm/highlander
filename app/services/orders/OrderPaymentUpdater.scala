@@ -31,6 +31,7 @@ object OrderPaymentUpdater {
     order ← * <~ getCartByOriginator(originator, refNum)
     _     ← * <~ order.mustBeCart
     gc    ← * <~ GiftCards.mustFindByCode(payload.code, c ⇒ NotFoundFailure400(GiftCard, c))
+    _     ← * <~ gc.mustNotBeCart
     _     ← * <~ gc.mustBeActive
     _     ← * <~ GiftCardAdjustments.lastAuthByGiftCardId(gc.id).one.mustNotFindOr(OpenTransactionsFailure)
     _     ← * <~ OrderPayments.giftCards.filter(_.paymentMethodId === gc.id)
