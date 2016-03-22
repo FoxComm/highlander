@@ -13,21 +13,24 @@ function setCellContents(order, field) {
 
   switch (field) {
     case 'savedForLaterAt':
-      return !!value ? 'faved' : 'not faved';
+      return !!value ? <i className="icon-heart"/> : null;
     case 'image':
-      // TODO: fix image
       return 'https://placeholdit.imgix.net/~text?txtsize=8&txt=IMAGE&w=50&h=50';
     default:
       return get(order, field);
   }
 }
 
-/** CustomerItemsRow Component */
+/**
+ * CustomerItemsRow Component
+ * 
+ * TODO: Fix image url when it is added to ES result
+ * TODO: Fix link to product-details page after productId would be added ES result
+ */
 const CustomerItemsRow = (props, context) => {
   const { item, columns, params } = props;
 
   const clickAction = () => {
-    // TODO: fix link to product-details page after productId would be set to ES result
     transitionTo(context.history, 'products');
   };
 

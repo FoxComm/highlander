@@ -23,7 +23,11 @@ const tableColumns = [
 ];
 
 
-/** CustomerItems Component */
+/**
+ * CustomerItems Component
+ * 
+ * TODO: Add actions droprown when it's defined
+ */
 class CustomerItems extends Component {
 
   componentDidMount() {
