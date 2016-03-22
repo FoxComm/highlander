@@ -71,4 +71,3 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
 };
 
 export default connect(getState, {toggleSidebar, toggleCart})(StoreFront);
-
