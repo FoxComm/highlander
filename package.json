@@ -85,7 +85,7 @@
     "react": "^0.14.7",
     "react-dom": "^0.14.7",
     "react-gestures": "^0.1.8",
-    "react-maskedinput": "^3.1.1",
+    "react-input-mask": "github:anru/react-input-mask#fix/initial-value",
     "react-redux": "^4.4.0",
     "react-router": "^2.0.0",
     "react-router-redux": "^3.0.0",

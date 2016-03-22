@@ -14,7 +14,7 @@ import Button from 'ui/buttons';
 import Checkbox from 'ui/checkbox';
 import EditableBlock from 'ui/editable-block';
 import Autocomplete from 'ui/autocomplete';
-import MaskedInput from 'react-maskedinput';
+import InputMask from 'react-input-mask';
 import EditAddress from './edit-address';
 
 import type { CheckoutBlockProps } from './types';
@@ -80,6 +80,31 @@ class EditBilling extends Component {
     return <EditAddress addressKind={AddressKind.billing} {...this.props} />;
   }
 
+  get cardMask() {
+    const { cardNumber } = this.props.data;
+
+    if (/^3[47]/.test(cardNumber)) {
+      // american express
+      return '9999 999999 99999';
+    } else if (/^30[0-5]/.test(cardNumber) || /^3[68]/.test(cardNumber)) {
+      // diners club
+      return '9999 999999 9999';
+    }
+
+    return '9999 9999 9999 9999';
+  }
+
+  @autobind
+  validateCardNumber() {
+    const cardMask = this.cardMask.replace(/[^\d]/g, '');
+    const { cardNumber } = this.props.data;
+
+    if (cardMask.length != cardNumber.length) {
+      return 'Please enter a valid credit card number';
+    }
+    return null;
+  }
+
   render() {
     const props = this.props;
     const { data } = props;
@@ -92,13 +117,13 @@ class EditBilling extends Component {
           />
         </FormField>
         <div styleName="union-fields">
-          <FormField styleName="text-field" validator="cardNumber">
-            <MaskedInput
+          <FormField styleName="text-field" validator={this.validateCardNumber}>
+            <InputMask
               required
               className={textStyles['text-input']}
-              placeholderChar=" "
+              maskChar=" "
               type="text"
-              mask="1111 1111 1111 1111"
+              mask={this.cardMask}
               name="cardNumber"
               placeholder="CARD NUMBER"
               size="20"
