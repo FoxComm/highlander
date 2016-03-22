@@ -1,8 +1,10 @@
-/* @flow */
+/* @flow weak */
 
 import React, { Component } from 'react';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
+import { browserHistory } from 'react-router';
 
 import { TextInput, TextInputWithLabel } from 'ui/inputs';
 import { FormField } from 'ui/forms';
@@ -10,7 +12,10 @@ import Button from 'ui/buttons';
 import WrapToLines from 'ui/wrap-to-lines';
 import { Link } from 'react-router';
 
+import * as actions from 'modules/auth';
+
 import type { HTMLElement } from 'types';
+import type { SignUpPayload } from 'modules/auth';
 
 type AuthState = {
   email: string,
@@ -18,6 +23,9 @@ type AuthState = {
   username: string
 };
 
+/* :: */
+@connect(null, actions)
+/* :: */
 export default class Auth extends Component {
 
   state: AuthState = {
@@ -27,23 +35,34 @@ export default class Auth extends Component {
   };
 
   @autobind
-  onChangeEmail({target}: SEvent<HTMLInputElement>) {
+  onChangeEmail({target}: any) {
     this.setState({
       email: target.value,
     });
   }
 
   @autobind
-  onChangePassword({target}: SEvent<HTMLInputElement>) {
+  onChangePassword({target}: any) {
     this.setState({
       password: target.value,
     });
   }
 
   @autobind
-  onChangeUsername({target}: SEvent<HTMLInputElement>) {
+  onChangeUsername({target}: any) {
     this.setState({
       username: target.value,
+    });
+  }
+
+  @autobind
+  submitUser() {
+    const {email, password, username: name} = this.state;
+    const paylaod: SignUpPayload = {email, password, name};
+    this.props.signUp(paylaod).then(() => {
+      browserHistory.push('/login');
+    }).catch(err => {
+      console.error(err);
     });
   }
 
@@ -67,7 +86,7 @@ export default class Auth extends Component {
               value={password} onChange={this.onChangePassword} type="password"
             />
           </FormField>
-          <Button styleName="primary-button">SIGN UP</Button>
+          <Button styleName="primary-button" onClick={this.submitUser}>SIGN UP</Button>
         </form>
         <div styleName="switch-stage">
           Already have an account? <Link to="/login">Log In</Link>
