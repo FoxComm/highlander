@@ -2,9 +2,8 @@ package models
 
 import cats.data.{NonEmptyList => NEL}
 import models.payment.storecredit.StoreCredit
-import services.GeneralFailure
+import failures.GeneralFailure
 import util.TestBase
-import utils.seeds.Seeds
 import utils.seeds.Seeds.Factories
 
 class StoreCreditTest extends TestBase {

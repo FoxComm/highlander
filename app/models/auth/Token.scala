@@ -7,6 +7,7 @@ import java.security.{KeyFactory, PrivateKey, PublicKey}
 import scala.util.{Failure, Success, Try}
 
 import cats.data.Xor
+import failures.{Failures, GeneralFailure, LoginFailed}
 import models.StoreAdmin
 import models.customer.Customer
 import org.jose4j.jws.JsonWebSignature
@@ -14,7 +15,6 @@ import org.jose4j.jwt.JwtClaims
 import org.jose4j.jwt.consumer.{InvalidJwtException, JwtConsumerBuilder}
 import org.json4s.jackson.JsonMethods._
 import org.json4s.{Extraction, _}
-import services.{Failures, GeneralFailure, LoginFailed}
 import utils.Config.{RichConfig, config}
 import utils.DbResultT.implicits._
 import utils.caseClassToMap

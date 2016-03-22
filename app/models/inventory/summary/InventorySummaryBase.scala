@@ -4,9 +4,9 @@ import java.time.Instant
 
 import cats.data.ValidatedNel
 import cats.implicits._
+import failures.Failure
 import models.javaTimeSlickMapper
 import monocle.Lens
-import services.Failure
 import slick.driver.PostgresDriver.api._
 import slick.lifted.{Query, Tag}
 import utils.Slick.DbResult

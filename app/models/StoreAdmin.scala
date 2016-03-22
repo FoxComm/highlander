@@ -2,7 +2,7 @@ package models
 
 import cats.data.ValidatedNel
 import cats.implicits._
-import services.Failure
+import failures.Failure
 import utils.Litterbox._
 import utils.Passwords.hashPassword
 import utils.Validation

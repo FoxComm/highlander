@@ -7,7 +7,7 @@ import cats.implicits._
 import utils.Litterbox._
 import com.pellucid.sealerate
 import monocle.macros.GenLens
-import services.Failure
+import failures.Failure
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType

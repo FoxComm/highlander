@@ -7,7 +7,7 @@ import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import com.wix.accord
 import com.wix.accord.RuleViolation
 import com.wix.accord.combinators._
-import services.{Failure, GeneralFailure}
+import failures.{Failure, GeneralFailure}
 
 import scala.util.matching.Regex
 

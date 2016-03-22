@@ -2,7 +2,6 @@ package payloads
 
 import java.time.ZonedDateTime
 
-import services.{Failure, GeneralFailure}
 import util.TestBase
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import utils.seeds.Seeds
@@ -10,6 +9,7 @@ import Seeds.Factories
 import util.CustomMatchers._
 import cats.data.NonEmptyList
 import cats.implicits._
+import failures.GeneralFailure
 
 class PaymentPayloadsTest extends TestBase {
   val today = ZonedDateTime.now()

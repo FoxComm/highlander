@@ -1,23 +1,23 @@
 package services.rmas
 
-import models.inventory.{Sku, Skus, SkuShadows}
-import models.product.{ProductContext}
-import models.order.lineitems.{OrderLineItemSkus, OrderLineItemGiftCards}
-import models.payment.giftcard.{GiftCards, GiftCard}
+import failures.{NotFoundFailure400, NotFoundFailure404, ShipmentNotFoundFailure}
+import failures.OrderFailures.SkuNotFoundInOrder
+import models.inventory.{Sku, SkuShadows, Skus}
+import models.product.ProductContext
+import models.order.lineitems.{OrderLineItemGiftCards, OrderLineItemSkus}
+import models.payment.giftcard.{GiftCard, GiftCards}
 import models.rma._
 import models.shipping.Shipments
 import payloads.{RmaGiftCardLineItemsPayload, RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload}
 import responses.RmaResponse
 import responses.RmaResponse.Root
-import services.RmaFailures.SkuNotFoundInOrder
+import services.Result
 import services.rmas.Helpers._
-import services.{NotFoundFailure400, NotFoundFailure404, Result, ShipmentNotFoundFailure}
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
 import utils.aliases._
-
 import slick.driver.PostgresDriver.api._
 
 object RmaLineItemUpdater {

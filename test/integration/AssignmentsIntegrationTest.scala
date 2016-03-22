@@ -1,19 +1,20 @@
 import akka.http.scaladsl.model.StatusCodes
+
 import Extensions._
-import models.{Assignment, Assignments, StoreAdmins, StoreAdmin}
+import models.{Assignment, Assignments, StoreAdmin, StoreAdmins}
 import models.customer.Customers
-import models.order.{Orders, Order}
+import models.order.{Order, Orders}
 import payloads.{AssignmentPayload, BulkAssignmentPayload}
 import responses.BatchResponse
 import responses.order.AllOrders
-import services.NotFoundFailure404
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import utils.seeds.Seeds.Factories
-
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import failures.NotFoundFailure404
 
 class AssignmentsIntegrationTest extends IntegrationTestBase
   with HttpSupport

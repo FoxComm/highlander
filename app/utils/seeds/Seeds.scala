@@ -9,7 +9,7 @@ import models.order.{OrderShippingAddress, OrderPayment}
 import models.payment.creditcard.CreditCardCharge
 import models.{Reason, Reasons}
 import org.postgresql.ds.PGSimpleDataSource
-import services.{Failures, FailuresOps}
+import failures.{Failures, FailuresOps}
 import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._

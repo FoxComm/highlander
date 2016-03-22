@@ -1,24 +1,25 @@
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
+
 import models.order.{OrderPayments, Orders}
 import models.payment.storecredit._
 import StoreCredit._
-import models.customer.{Customers, Customer}
+import models.customer.{Customer, Customers}
 import models.payment.{PaymentMethod, giftcard}
 import models.payment.giftcard.GiftCard
 import models.{Reason, Reasons, StoreAdmins}
 import org.scalatest.BeforeAndAfterEach
 import responses.{GiftCardResponse, StoreCreditAdjustmentsResponse, StoreCreditResponse, StoreCreditSubTypesResponse}
-import services.{NotFoundFailure400, EmptyCancellationReasonFailure, NotFoundFailure404, OpenTransactionsFailure,
-StoreCreditConvertFailure}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import utils.seeds.Seeds.Factories
-
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import failures.StoreCreditFailures.StoreCreditConvertFailure
+import failures._
 
 class StoreCreditIntegrationTest extends IntegrationTestBase
   with HttpSupport

@@ -2,26 +2,10 @@ import scala.concurrent.Future
 
 import cats.data.{NonEmptyList, Xor, XorT}
 import cats.implicits._
-import responses.TheResponse
+import failures.{Failure, Failures}
 import utils.aliases._
 
 package object services {
-  type Failures = NonEmptyList[Failure]
-
-  def Failures(failures: Failure*): Option[Failures] = failures.toList match {
-    case Nil          ⇒ None
-    case head :: tail ⇒ Some(NonEmptyList(head, tail))
-  }
-
-  implicit class FailureOps(val underlying: Failure) extends AnyVal {
-    def single: Failures = NonEmptyList(underlying)
-  }
-
-  implicit class FailuresOps(val underlying: Failures) extends AnyVal {
-    def toList: List[Failure] = underlying.unwrap
-
-    def flatten: List[String] = toList.map(_.description)
-  }
 
   type Result[A] = Future[Failures Xor A]
 

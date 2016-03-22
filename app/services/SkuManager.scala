@@ -1,28 +1,24 @@
 package services
 
-import scala.concurrent.ExecutionContext
-
 import models.inventory._
 import models.product.ProductContexts
 import responses.SkuResponses._
-import slick.driver.PostgresDriver.api._
 import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
-import payloads.{CreateSkuForm, UpdateSkuForm, CreateSkuShadow, UpdateSkuShadow}
-
-import ProductFailure._
+import payloads.{CreateSkuForm, CreateSkuShadow, UpdateSkuForm, UpdateSkuShadow}
 import utils.aliases._
 import cats.data.NonEmptyList
-
+import failures.NotFoundFailure404
+import failures.ProductFailures._
 
 object SkuManager {
 
   // Detailed info for SKU of each type in given warehouse
   def getForm(code: String)
     (implicit ec: EC, db: DB): Result[SkuFormResponse.Root] = (for {
-    form       ← * <~ Skus.findOneByCode(code).mustFindOr(SkuNotFound(code))
+    form       ← * <~ Skus.findOneByCode(code).mustFindOr(NotFoundFailure404(code))
 
   } yield SkuFormResponse.build(form)).run()
 
@@ -35,7 +31,7 @@ object SkuManager {
 
   def updateForm(code: String, payload: UpdateSkuForm)
     (implicit ec: EC, db: DB): Result[SkuFormResponse.Root] = (for {
-    form       ← * <~ Skus.findOneByCode(code).mustFindOr(SkuNotFound(code))
+    form       ← * <~ Skus.findOneByCode(code).mustFindOr(NotFoundFailure404(code))
     form       ← * <~ Skus.update(form, form.copy(attributes = payload.attributes))
   } yield SkuFormResponse.build(form)).runTxn()
 
@@ -43,7 +39,7 @@ object SkuManager {
     (implicit ec: EC, db: DB): Result[SkuShadowResponse.Root] = (for {
     productContext ← * <~ ProductContexts.filterByName(productContextName).one.
       mustFindOr(ProductContextNotFound(productContextName))
-    form       ← * <~ Skus.findOneByCode(code).mustFindOr(SkuNotFound(code))
+    form       ← * <~ Skus.findOneByCode(code).mustFindOr(NotFoundFailure404(code))
     shadow     ← * <~ SkuShadows.filterBySkuAndContext(form.id, productContext.id).
       one.mustFindOr(SkuNotFoundForContext(code, productContext.name))
   } yield SkuShadowResponse.build(form, shadow)).run()
@@ -52,7 +48,7 @@ object SkuManager {
     (implicit ec: EC, db: DB): Result[SkuShadowResponse.Root] = (for {
     productContext ← * <~ ProductContexts.filterByName(productContextName).one.
       mustFindOr(ProductContextNotFound(productContextName))
-    form       ← * <~ Skus.findOneByCode(payload.code).mustFindOr(SkuNotFound(payload.code))
+    form       ← * <~ Skus.findOneByCode(payload.code).mustFindOr(NotFoundFailure404(payload.code))
     shadow       ← * <~ SkuShadows.create(SkuShadow(skuId = form.id, 
       productContextId = productContext.id, attributes = payload.attributes,
       activeFrom = payload.activeFrom, activeTo = payload.activeTo))
@@ -63,7 +59,7 @@ object SkuManager {
     (implicit ec: EC, db: DB): Result[SkuShadowResponse.Root] = (for {
     productContext ← * <~ ProductContexts.filterByName(productContextName).one.
       mustFindOr(ProductContextNotFound(productContextName))
-    form       ← * <~ Skus.findOneByCode(code).mustFindOr(SkuNotFound(code))
+    form       ← * <~ Skus.findOneByCode(code).mustFindOr(NotFoundFailure404(code))
     shadow     ← * <~ SkuShadows.filterBySkuAndContext(form.id, productContext.id).
       one.mustFindOr(SkuNotFoundForContext(code, productContext.name))
     shadow     ← * <~ SkuShadows.update(shadow, shadow.copy(
@@ -76,7 +72,7 @@ object SkuManager {
     (implicit ec: EC, db: DB): Result[IlluminatedSkuResponse.Root] = (for {
     productContext ← * <~ ProductContexts.filterByName(productContextName).one.
       mustFindOr(ProductContextNotFound(productContextName))
-    form       ← * <~ Skus.findOneByCode(code).mustFindOr(SkuNotFound(code))
+    form       ← * <~ Skus.findOneByCode(code).mustFindOr(NotFoundFailure404(code))
     shadow     ← * <~ SkuShadows.filterBySkuAndContext(form.id, productContext.id).
       one.mustFindOr(SkuNotFoundForContext(code, productContext.name))
   } yield IlluminatedSkuResponse.build(IlluminatedSku.illuminate(productContext, form, shadow))).run()

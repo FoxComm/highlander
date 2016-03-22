@@ -2,7 +2,8 @@ package services.notes
 
 import java.time.Instant
 
-import models.{Notes, StoreAdmin, Note}
+import failures.NotFoundFailure404
+import models.{Note, Notes, StoreAdmin}
 import models.Notes.scope._
 import responses.AdminNotes
 import responses.AdminNotes.Root

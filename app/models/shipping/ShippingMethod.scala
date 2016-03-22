@@ -1,10 +1,11 @@
 package models.shipping
 
 import cats.data.Xor
-import models.order.{OrderShippingMethods, Order}
+import failures.Failures
+import failures.ShippingMethodFailures.ShippingMethodIsNotActive
+import models.order.{Order, OrderShippingMethods}
 import models.rules.QueryStatement
 import monocle.macros.GenLens
-import services.{Failures, ShippingMethodIsNotActive}
 import utils.ExPostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 

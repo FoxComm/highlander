@@ -4,6 +4,8 @@ import java.time.Instant
 
 import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
+import failures.CreditCardFailures.CannotUseInactiveCreditCard
+import failures.{Failure, Failures, NotFoundFailure404}
 import models.javaTimeSlickMapper
 import models.customer.Customers
 import models.location._
@@ -13,7 +15,6 @@ import models.stripe._
 import monocle.Lens
 import monocle.macros.GenLens
 import payloads.CreateCreditCard
-import services.{CannotUseInactiveCreditCard, Failure, Failures, NotFoundFailure404}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.Slick.DbResult
@@ -138,18 +139,16 @@ object CreditCards extends TableQueryWithId[CreditCard, CreditCards](
     sortedQuery.paged
   }
 
-  def findInWalletByCustomerId(customerId: Int)(implicit db: Database): Query[CreditCards, CreditCard, Seq] =
+  def findInWalletByCustomerId(customerId: Int)(implicit db: Database): QuerySeq =
     filter(_.customerId === customerId).filter(_.inWallet === true)
 
-  def findDefaultByCustomerId(customerId: Int)(implicit db: Database): Query[CreditCards, CreditCard, Seq] =
+  def findDefaultByCustomerId(customerId: Int)(implicit db: Database): QuerySeq =
     findInWalletByCustomerId(customerId).filter(_.isDefault === true)
 
-  def findByIdAndCustomerId(id: Int, customerId: Int)
-    (implicit ec: EC): Query[CreditCards, CreditCard, Seq] =
+  def findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: EC): QuerySeq =
     filter(_.customerId === customerId).filter(_.id === id)
 
-  def mustFindByIdAndCustomer(id: Int, customerId: Int)
-    (implicit ec: EC): DbResult[CreditCard] = {
+  def mustFindByIdAndCustomer(id: Int, customerId: Int)(implicit ec: EC): DbResult[CreditCard] = {
     filter(cc ⇒ cc.id === id && cc.customerId === customerId).one.flatMap {
       case Some(cc) ⇒ DbResult.good(cc)
       case None     ⇒ DbResult.failure(NotFoundFailure404(CreditCard, id))

@@ -1,7 +1,7 @@
 package payloads
 
 import cats.data._
-import services.Failure
+import failures.Failure
 import utils.Validation
 import Validation._
 import utils.Litterbox._

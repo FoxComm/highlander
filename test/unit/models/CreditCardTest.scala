@@ -5,10 +5,9 @@ import java.time.ZonedDateTime
 import cats.data._
 import models.location.Address
 import org.scalatest.prop.TableDrivenPropertyChecks._
-import services.{Failure, GeneralFailure}
+import failures.{Failure, GeneralFailure}
 import util.CustomMatchers._
 import util.TestBase
-import utils.seeds.Seeds
 import utils.seeds.Seeds.Factories
 
 class CreditCardTest extends TestBase {

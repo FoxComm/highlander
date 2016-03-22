@@ -1,5 +1,6 @@
 package services
 
+import failures.GeneralFailure
 import models.inventory.{StockItem, StockItems}
 import utils.aliases._
 

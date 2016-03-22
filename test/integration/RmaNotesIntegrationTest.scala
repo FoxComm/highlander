@@ -5,11 +5,10 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import models.activity.ActivityContext
 import models.customer.Customers
-import models.order.{Orders, Order}
-import models.rma.{Rmas, Rma}
+import models.order.{Order, Orders}
+import models.rma.{Rma, Rmas}
 import models.{Notes, _}
 import responses.AdminNotes
-import services.NotFoundFailure404
 import services.notes.RmaNoteManager
 import util.IntegrationTestBase
 import utils.seeds.Seeds
@@ -17,6 +16,8 @@ import Seeds.Factories
 import utils.Slick.implicits._
 import utils.time.RichInstant
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import failures.NotFoundFailure404
 
 class RmaNotesIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 

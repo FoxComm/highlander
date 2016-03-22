@@ -6,13 +6,14 @@ import cats.implicits._
 import models.order.lineitems.OrderLineItemGiftCards
 import models.order._
 import Order.RemorseHold
-import models.customer.{Customers, Customer}
-import models.payment.creditcard.{CreditCardCharges, CreditCardCharge}
-import models.payment.giftcard.{GiftCards, GiftCard}
+import failures.CartFailures.CustomerHasNoActiveOrder
+import failures.GeneralFailure
+import models.customer.{Customer, Customers}
+import models.payment.creditcard.{CreditCardCharge, CreditCardCharges}
+import models.payment.giftcard.{GiftCard, GiftCards}
 import models.payment.storecredit.StoreCredits
 import responses.order.FullOrder
 import services.inventory.InventoryAdjustmentManager
-import services.CartFailures.CustomerHasNoActiveOrder
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._

@@ -1,7 +1,7 @@
 package responses
 
 import cats.data.Xor
-import services.Failures
+import failures.Failures
 import scala.collection.immutable.Seq
 
 object StoreCreditBulkResponse {

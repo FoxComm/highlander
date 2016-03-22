@@ -3,7 +3,7 @@ package models.auth
 import akka.http.scaladsl.model.headers.{BasicHttpCredentials, GenericHttpCredentials, HttpCredentials}
 
 import cats.data.Xor
-import services.Failures
+import failures.Failures
 import utils.DbResultT.implicits._
 
 sealed trait Credentials {

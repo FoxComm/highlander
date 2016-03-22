@@ -3,7 +3,7 @@ package payloads
 import cats.data.ValidatedNel
 import cats.data.Validated.valid
 import cats.implicits._
-import services.Failure
+import failures.Failure
 import utils.Litterbox._
 import utils.Money.Currency
 import utils._

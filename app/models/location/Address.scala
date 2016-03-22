@@ -10,7 +10,7 @@ import models.payment.creditcard.CreditCard
 import models.traits.Addressable
 import monocle.macros.GenLens
 import payloads.CreateAddressPayload
-import services.{Failures, NotFoundFailure404}
+import failures.{Failures, NotFoundFailure404}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.GenericTable.TableWithId

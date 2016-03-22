@@ -5,11 +5,11 @@ import java.time.Instant
 import cats.data.ValidatedNel
 import cats.implicits._
 import com.pellucid.sealerate
+import failures.Failure
 import models.inventory.InventoryAdjustment._
 import models.javaTimeSlickMapper
 import monocle.macros.GenLens
 import org.json4s.JsonAST.JValue
-import services.Failure
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.lifted.Tag

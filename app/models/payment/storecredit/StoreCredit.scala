@@ -13,7 +13,7 @@ import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit._
 import models.payment.storecredit.{StoreCreditAdjustment ⇒ Adj, StoreCreditAdjustments ⇒ Adjs}
 import monocle.macros.GenLens
-import services.{Failure, Failures, GeneralFailure}
+import failures.{Failure, Failures, GeneralFailure}
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType

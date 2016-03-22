@@ -1,24 +1,23 @@
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import akka.http.scaladsl.model.StatusCodes
+
 import Extensions._
-import models.customer.{Customers, Customer}
-import models.inventory.{Skus, Sku}
+import models.customer.{Customer, Customers}
+import models.inventory.{Sku, Skus}
 import models.{SaveForLater, SaveForLaters, _}
 import models.product.{Mvp, ProductContexts, SimpleContext}
 import responses.SaveForLaterResponse
 import services.SaveForLaterManager.SavedForLater
-import services.{AlreadySavedForLater, NotFoundFailure404}
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.seeds.Seeds
 import Seeds.Factories
+import failures.{AlreadySavedForLater, NotFoundFailure404}
 import utils.Slick.implicits._
 import slick.driver.PostgresDriver.api._
 import org.json4s.DefaultFormats
-
-import org.json4s.JsonAST.{JValue, JString, JObject, JField, JNothing}
+import org.json4s.JsonAST.{JField, JNothing, JObject, JString, JValue}
 import org.json4s.jackson.Serialization.{write ⇒ render}
 
 class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {

@@ -4,7 +4,7 @@ import cats.data.ValidatedNel
 import cats.implicits._
 import com.pellucid.sealerate
 import models.Reason.{General, ReasonType}
-import services.Failure
+import failures.Failure
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import utils.CustomDirectives.SortAndPage

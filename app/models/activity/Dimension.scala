@@ -2,7 +2,7 @@ package models.activity
 
 import cats.data.ValidatedNel
 import monocle.macros.GenLens
-import services.Failure
+import failures.Failure
 import utils.ExPostgresDriver.api._
 import utils.Slick.DbResult
 import utils.Slick.implicits._

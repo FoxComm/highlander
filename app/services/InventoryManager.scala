@@ -1,8 +1,10 @@
 package services
 
+import failures.InventoryFailures.InventorySummaryNotFound
+import failures.ProductFailures.SkuNotFoundForContext
 import models.inventory._
 import models.inventory.summary.InventorySummaries
-import models.product.{ProductContext, Mvp}
+import models.product.{Mvp, ProductContext}
 import responses.InventoryResponses._
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
@@ -17,7 +19,7 @@ object InventoryManager {
     (implicit ec: EC, db: DB): Result[Seq[SkuDetailsResponse.Root]] = (for {
     sku       ← * <~ Skus.mustFindByCode(skuCode)
     skuShadow ← * <~ SkuShadows.filter(_.skuId === sku.id).filter(_.productContextId === productContext.id)
-      .one.mustFindOr(ProductFailure.SkuNotFoundForContext(sku.code, productContext.name))
+      .one.mustFindOr(SkuNotFoundForContext(sku.code, productContext.name))
     warehouse ← * <~ Warehouses.mustFindById404(warehouseId)
     summaries ← * <~ InventorySummaries.findBySkuIdInWarehouse(warehouseId = warehouseId, skuId = sku.id).one
                                        .mustFindOr(InventorySummaryNotFound(sku.id, warehouseId))
@@ -28,7 +30,7 @@ object InventoryManager {
     (implicit ec: EC, db: DB): Result[Seq[SellableSkuSummaryResponse.Root]] = (for {
     sku       ← * <~ Skus.mustFindByCode(skuCode)
     skuShadow ← * <~ SkuShadows.filter(_.skuId === sku.id).filter(_.productContextId === productContext.id)
-      .one.mustFindOr(ProductFailure.SkuNotFoundForContext(sku.code, productContext.name))
+      .one.mustFindOr(SkuNotFoundForContext(sku.code, productContext.name))
     summaries ← * <~ InventorySummaries.findSellableBySkuId(sku.id).result.toXor
   } yield summaries.map { case (summary, warehouse) ⇒ SellableSkuSummaryResponse.build(summary, warehouse, Mvp.priceAsInt(sku, skuShadow)) }).run()
 

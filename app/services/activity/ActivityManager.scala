@@ -2,7 +2,8 @@ package services.activity
 
 import models.activity.{Activities, Activity}
 import responses.ActivityResponse
-import services._
+import failures.NotFoundFailure404
+import services.Result
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.aliases._

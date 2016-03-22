@@ -1,18 +1,19 @@
 import akka.http.scaladsl.model.StatusCodes
+
 import models.customer.Customers
 import models.location.Addresses
 import models.order.{OrderPayments, Orders}
 import models.payment.creditcard.CreditCards
-import models.rma.{Rmas, Rma}
+import models.rma.{Rma, Rmas}
 import models.StoreAdmins
 import responses.RmaResponse.Root
-import services.{GeneralFailure, NotFoundFailure404}
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.seeds.Seeds.Factories
-
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import failures.NotFoundFailure404
 
 class RmaPaymentsIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -38,7 +39,7 @@ class RmaPaymentsIntegrationTest extends IntegrationTestBase
         val payload = payloads.RmaPaymentPayload(amount = -10)
         val response = POST(s"v1/rmas/${rma.referenceNumber}/payment-methods/gift-cards", payload)
         response.status must ===(StatusCodes.BadRequest)
-        response.error must === (GeneralFailure("Amount got -10, expected more than 0").description)
+        response.error must === ("Amount got -10, expected more than 0")
       }
 
       "fails if the RMA is not found" in new Fixture {
@@ -89,7 +90,7 @@ class RmaPaymentsIntegrationTest extends IntegrationTestBase
         val payload = payloads.RmaPaymentPayload(amount = -10)
         val response = POST(s"v1/rmas/${rma.referenceNumber}/payment-methods/store-credit", payload)
         response.status must ===(StatusCodes.BadRequest)
-        response.error must === (GeneralFailure("Amount got -10, expected more than 0").description)
+        response.error must === ("Amount got -10, expected more than 0")
       }
 
       "fails if the RMA is not found" in new Fixture {
@@ -141,7 +142,7 @@ class RmaPaymentsIntegrationTest extends IntegrationTestBase
         val payload = payloads.RmaCcPaymentPayload(amount = -10)
         val response = POST(s"v1/rmas/${rma.referenceNumber}/payment-methods/credit-cards", payload)
         response.status must ===(StatusCodes.BadRequest)
-        response.error must === (GeneralFailure("Amount got -10, expected more than 0").description)
+        response.error must === ("Amount got -10, expected more than 0")
       }
 
       "fails if the RMA is not found" in new Fixture {

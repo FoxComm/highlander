@@ -2,6 +2,8 @@ package services.orders
 
 import models.location._
 import Addresses.scope._
+import failures.CartFailures.NoShipAddress
+import failures.NotFoundFailure404
 import models.order._
 import models.StoreAdmin
 import models.traits.Originator
@@ -9,8 +11,7 @@ import payloads.{CreateAddressPayload, UpdateAddressPayload}
 import responses.TheResponse
 import responses.Addresses.buildOneShipping
 import responses.order.FullOrder
-import services.CartFailures.NoShipAddress
-import services.{LogActivity, CartValidator, NotFoundFailure404, Result}
+import services.{CartValidator, LogActivity, Result}
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._

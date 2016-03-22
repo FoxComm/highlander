@@ -2,9 +2,10 @@ import java.time.Instant
 
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
+
 import cats.data.Xor
 import cats.implicits._
-import models.order.{Orders, Order}
+import models.order.{Order, Orders}
 import Order._
 import models.customer.Customers
 import models.payment.creditcard.CreditCardCharge
@@ -12,7 +13,6 @@ import payloads.BulkUpdateOrdersPayload
 import responses.BatchResponse
 import responses.order._
 import services.orders.OrderQueries
-import services.{LockedFailure, NotFoundFailure404, StateTransitionNotAllowed}
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -20,8 +20,10 @@ import utils.Slick.implicits._
 import utils.seeds.Seeds.Factories
 import utils.seeds.RankingSeedsGenerator
 import utils.time._
-
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import failures.LockFailures.LockedFailure
+import failures.{NotFoundFailure404, StateTransitionNotAllowed}
 
 class AllOrdersIntegrationTest extends IntegrationTestBase
   with HttpSupport

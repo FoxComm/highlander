@@ -2,17 +2,16 @@ import java.time.ZonedDateTime
 
 import akka.http.scaladsl.model.StatusCodes
 
-import models.customer.{Customers, Customer}
-import models.location.{Addresses, Address}
+import failures.CreditCardFailures.InvalidCvc
+import failures.NotFoundFailure404
+import models.customer.{Customer, Customers}
+import models.location.{Address, Addresses}
 import models.payment.creditcard.CreditCards
 import payloads.CreateAddressPayload
-import services.NotFoundFailure404
-import services.CreditCardFailure.InvalidCvc
-import util.{StripeSupport, IntegrationTestBase}
-import utils.seeds.Seeds
-import Seeds.Factories
+import util.{IntegrationTestBase, StripeSupport}
 import utils.Slick.implicits._
 import cats.implicits._
+import utils.seeds.Seeds.Factories
 
 class CreditCardManagerIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -21,7 +20,6 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
   import concurrent.ExecutionContext.Implicits.global
 
   import Extensions._
-  import org.json4s.jackson.JsonMethods._
   import slick.driver.PostgresDriver.api._
   import util.SlickSupport.implicits._
 

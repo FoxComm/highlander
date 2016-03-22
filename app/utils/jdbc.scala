@@ -3,7 +3,8 @@ package utils
 import scala.language.implicitConversions
 import scala.util.matching.Regex
 
-import services.{DatabaseFailure, Failure, Result}
+import failures.{DatabaseFailure, Failure}
+import services.Result
 import utils.aliases.EC
 
 object jdbc {

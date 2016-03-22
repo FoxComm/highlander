@@ -6,6 +6,7 @@ import cats.implicits._
 import models.payment.storecredit._
 import StoreCredit.Canceled
 import StoreCreditSubtypes.scope._
+import failures.{NotFoundFailure400, NotFoundFailure404, OpenTransactionsFailure}
 import models.customer.{Customer, Customers}
 import models.{Reason, Reasons, StoreAdmin}
 import payloads.{StoreCreditBulkUpdateStateByCsr, StoreCreditUpdateStateByCsr}

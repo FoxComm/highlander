@@ -4,6 +4,7 @@ import akka.stream.scaladsl.Source
 
 import Extensions._
 import cats.implicits._
+import failures._
 import models.NotificationSubscription._
 import models.activity._
 import models.customer.Customers
@@ -12,9 +13,9 @@ import org.json4s.JsonAST.JString
 import org.json4s.jackson.Serialization.write
 import payloads.{AppendActivity, CreateNotification, UpdateCustomerPayload}
 import responses.ActivityConnectionResponse.Root
-import responses.{LastSeenActivityResponse, ActivityResponse}
+import responses.{ActivityResponse, LastSeenActivityResponse}
 import services.NotificationManager.unsubscribe
-import services.{NotFoundFailure400, NotFoundFailure404, NotificationManager, NotificationTrailNotFound400}
+import services.NotificationManager
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._

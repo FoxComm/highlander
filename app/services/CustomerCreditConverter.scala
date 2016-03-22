@@ -1,5 +1,8 @@
 package services
 
+import failures.GiftCardFailures.GiftCardConvertFailure
+import failures.OpenTransactionsFailure
+import failures.StoreCreditFailures.StoreCreditConvertFailure
 import models.customer.Customers
 import models.payment.giftcard._
 import models.payment.storecredit._

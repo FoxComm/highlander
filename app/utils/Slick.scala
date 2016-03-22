@@ -5,7 +5,7 @@ import scala.util.matching.Regex
 
 import cats.data.Xor
 import responses.{PaginationMetadata, SortingMetadata, TheResponse}
-import services.{Failure, Failures, Result}
+import services.Result
 import slick.ast._
 import slick.driver.PostgresDriver._
 import slick.driver.PostgresDriver.api._
@@ -17,6 +17,7 @@ import slick.util.SQLBuilder
 import utils.CustomDirectives.{Sort, SortAndPage}
 import utils.DbResultT.{DbResultT, _}
 import DbResultT.implicits._
+import failures.{Failure, Failures}
 import utils.ExceptionWrapper._
 import utils.aliases._
 
