@@ -59,31 +59,20 @@ object AuthRoutes {
       pathPrefix("oauth2callback") {
         (get & pathPrefix("google") & path("admin") & oauthResponse) { oauthResponse ⇒
 
-            // FIXME: handle errors
-
-//            val result = for {
-//              code ← XorT.fromXor[Future](parseOauthResponse(oauthResponse))
-//              accessTokenResp ← adminGoogleOauth.accessToken(code)
-//              email ← adminGoogleOauth.userEmail(accessTokenResp.access_token)
-//            } yield email
-//
-//            onSuccess(result.fold(
-//              { err ⇒ complete(renderFailure(GeneralFailure(err.toString).single)) },
-//              { email ⇒ complete(email) }
-//            ))(identity)
           onSuccess(oauthCallback(adminGoogleOauth, oauthResponse,
             StoreAdmins.findByEmail _,
-            (email: String) ⇒ StoreAdmins.create(StoreAdmin(email = email, name = "Xx")),
+            (email: String) ⇒ StoreAdmins.create(StoreAdmin(email = email, name = "Xx Xxx")),
             AdminToken.fromAdmin
           )) { t ⇒
-            onSuccess(t.run()) { x ⇒ complete(renderGoodOrFailures(x)) }
+            onSuccess(t.run()) { x ⇒
+              x.flatMap(Authenticator.respondWithToken).fold( { f ⇒ complete(renderFailure(f)) }, identity)
+            }
           }
 
           }
       } ~
       pathPrefix("signin") {
         (pathPrefix("google") & get & path("admin")) {
-          System.err.println("HELLLOOOO")
           val url = adminGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))
           complete(Map("url" → url))
         }
