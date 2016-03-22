@@ -4,6 +4,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import styles from './pdp.css';
 import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
 
 import Button from 'ui/buttons';
 import Counter from 'ui/forms/counter';
@@ -25,15 +26,37 @@ type Props = {
   product: ProductResponse,
 };
 
+type State = {
+  quantity: number;
+}
+
 const getState = state => ({ product: state.productDetails.product });
 
-class Pdp extends Component<void, Props, void> {
+class Pdp extends Component {
+  state: State;
+  props: Props;
+
+  constructor(...args) {
+    super(...args);
+    this.state = {
+      quantity: 1,
+    };
+  }
+
   componentWillMount() {
     this.props.fetch(this.productId);
   }
 
   get productId(): number {
     return parseInt(this.props.params.productId, 10);
+  }
+
+  @autobind
+  onQuantityChange(value) {
+    const newValue = this.state.quantity + value;
+    if (newValue > 0) {
+      this.setState({quantity: newValue});
+    }
   }
 
   render() {
@@ -75,7 +98,11 @@ class Pdp extends Component<void, Props, void> {
             <div>
               <label>QUANTITY</label>
               <div styleName="counter">
-                <Counter />
+                <Counter
+                  value={this.state.quantity}
+                  decreaseAction={() => this.onQuantityChange(-1)}
+                  increaseAction={() => this.onQuantityChange(1)}
+                />
               </div>
             </div>
             <div styleName="add-to-cart">
