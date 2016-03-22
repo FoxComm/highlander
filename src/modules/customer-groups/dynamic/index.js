@@ -1,11 +1,11 @@
 import { combineReducers } from 'redux';
 import group from './group';
-//import list from './list';
+import list from './list';
 
 
 const reducer = combineReducers({
   group,
-  //list,
+  list,
 });
 
 export default reducer;

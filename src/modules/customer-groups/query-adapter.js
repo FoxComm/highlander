@@ -2,41 +2,30 @@
 import _ from 'lodash';
 
 //data
+import { Query, ConditionAnd, ConditionOr, Field } from './query';
 import operators from '../../paragons/customer-groups/operators';
 
 
-const queryAdapter = (mainCondition, conditions) => {
-  const clauses = buildFieldClauses(conditions);
+const queryAdapter = (criterions, mainCondition, conditions) => {
+  const query = new Query(criterions);
+  const main = query.main = mainCondition === operators.and ? query.and() : query.or();
 
-  if (mainCondition === operators.and) {
-    return clauses;
-  }
-
-  return buildOr(clauses);
-};
-
-const buildFieldClauses = conditions => {
-  let clauses = {};
-
+  let fields = {};
   for (let i = 0; i < conditions.length; i++) {
-    const [field, operator, value] = conditions[i];
-    let clause = clauses[field] || (clauses[field] = {});
-    clause[operator] = value;
+    const [name, operator, value] = conditions[i];
+
+    let field;
+    if (fields[name]) {
+      field = fields[name];
+    } else {
+      field = fields[name] = query.field(name);
+      main.add(field);
+    }
+
+    field.add(operator, value);
   }
 
-  return clauses;
-};
-
-const buildOr = clauses => {
-  let choices = [];
-
-  for (const field in clauses) {
-    choices.push({[field]: clauses[field]});
-  }
-
-  return {
-    [operators.or]: choices,
-  };
+  return query;
 };
 
 export default queryAdapter;

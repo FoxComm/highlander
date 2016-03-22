@@ -8,7 +8,7 @@ import * as search from '../../../lib/search';
 import createStore from '../../../lib/store-creator';
 import criterions from './../../../paragons/customer-groups/criterions';
 import queryAdapter from './../query-adapter';
-import buildQuery from './../query';
+
 
 const initialState = {
   id: null,
@@ -16,6 +16,7 @@ const initialState = {
   name: null,
   mainCondition: null,
   conditions: [],
+  filterTerm: null,
   saved: false,
 };
 
@@ -27,7 +28,6 @@ const fetchGroup = (actions, id) => dispatch => {
   );
 };
 
-
 const saveGroup = actions => (dispatch, getState) => {
   const state = getState();
   const getValue = (name) => _.get(state, ['customerGroups', 'dynamic', 'group', name]);
@@ -37,14 +37,14 @@ const saveGroup = actions => (dispatch, getState) => {
   const mainCondition = getValue('mainCondition');
   const conditions = getValue('conditions');
 
-  const query = queryAdapter(mainCondition, conditions);
+  const query = queryAdapter(criterions, mainCondition, conditions);
   const data = {
     name,
     clientState: {
       mainCondition,
       conditions,
     },
-    elasticRequest: buildQuery(criterions, query),
+    elasticRequest: query.toRequest(),
   };
 
   //create or update
@@ -94,6 +94,12 @@ const reducers = {
     return {
       ...state,
       conditions,
+    };
+  },
+  setFilterTerm: (state, filterTerm) => {
+    return {
+      ...state,
+      filterTerm,
     };
   },
   setSaved: (state) => {

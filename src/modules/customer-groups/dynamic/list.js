@@ -2,58 +2,64 @@
 import _ from 'lodash';
 import { createReducer } from 'redux-act';
 
-//helpers
-import { post } from '../../../lib/search';
-import { createNsAction } from './../../utils';
-import { toQuery, addNativeFilters } from '../../../elastic/common';
-
+//data
+import criterions from '../../../paragons/customer-groups/criterions';
+import operators from '../../../paragons/customer-groups/operators';
+import queryAdapter from '../query-adapter';
 import makePagination, { makeFetchAction } from '../../pagination/base';
 import { addPaginationParams } from '../../pagination';
+import { ConditionAnd, ConditionOr, Field } from '../query';
+
+//helpers
+import * as search from '../../../lib/search';
 
 
-const getState = state => {
-  const selectedSearch = _.get(state, 'customerGroups');
-  const resultPath = [...ns, 'savedSearches', selectedSearch];
+const getStateBranch = state => _.get(state, 'customerGroups.dynamic');
 
-  return _.get(state, 'customerGroups');
-};
-
-const { reducer, ...actions } = makePagination(namespace, null, null, initialState);
+let { reducer, ...actions } = makePagination('customer-groups-dynamic', null, null, {});
 
 function fetcher() {
   const { searchState, getState } = this;
 
-  const selectedSearchState = getSelectedSearch(getState());
-  const searchTerms = _.get(selectedSearchState, 'query', []);
-  const phrase = _.get(selectedSearchState, 'phrase');
-  const extraFilters = _.get(getState(), [...ns, 'extraFilters'], extraFilters);
-  const jsonQuery = toQuery(searchTerms, {
-    sortBy: searchState.sortBy,
-    phrase: phrase,
-  });
+  const {mainCondition, conditions, filterTerm} = getStateBranch(getState()).group;
 
-  if (extraFilters) {
-    addNativeFilters(jsonQuery, extraFilters);
+  const query = queryAdapter(criterions, mainCondition, conditions);
+
+  if (filterTerm) {
+    let condition;
+    if (query.main instanceof ConditionAnd) {
+      condition = query.main;
+    } else {
+      condition = query.and();
+      condition.add(query.main);
+      query.main = condition;
+    }
+
+    condition.add(
+      query.or().set([
+        query.field('name').add(operators.contains, filterTerm),
+        query.field('email').add(operators.contains, filterTerm)
+      ])
+    )
   }
 
-  return post(addPaginationParams(esUrl, searchState), processQuery(jsonQuery, {searchState, getState}));
+  const request = query.toRequest();
+
+  console.debug('searching', request, searchState);
+  return search.post(addPaginationParams('customers_search_view/_search', searchState), request);
 }
 
-const fetch = makeFetchAction(fetcher, actions, state => getSelectedSearch(state).results);
+actions.fetch = makeFetchAction(fetcher, actions, state => getStateBranch(state).list);
 
 // for overriding updateStateAndFetch in pagination actions
-const updateStateAndFetch = (newState, ...args) => {
+actions.updateStateAndFetch = (newState, ...args) => {
   return dispatch => {
     dispatch(actions.updateState(newState));
-    dispatch(fetch(...args));
+    dispatch(actions.fetch(...args));
   };
 };
 
-const {reducer, fetch, addEntity, updateStateAndFetch} = makePagination('/groups', 'customerGroups.list');
-
 export {
   reducer as default,
-  fetch,
-  addEntity as addGroup,
-  updateStateAndFetch
+  actions
 };
