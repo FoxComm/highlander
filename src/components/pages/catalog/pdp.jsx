@@ -13,17 +13,19 @@ import { Link } from 'react-router';
 import Gallery from 'ui/gallery/gallery';
 
 import * as actions from 'modules/product-details';
+import { addToCart } from 'modules/cart';
 
 import type { ProductResponse } from 'modules/product-details';
 
 type Params = {
-  productId: string,
+  productId: string;
 };
 
 type Props = {
-  fetch: (id: number) => any,
-  params: Params,
-  product: ProductResponse,
+  fetch: (id: number) => any;
+  params: Params;
+  product: ProductResponse;
+  addToCart: Function;
 };
 
 type State = {
@@ -51,12 +53,23 @@ class Pdp extends Component {
     return parseInt(this.props.params.productId, 10);
   }
 
+  get firstSqu(): string {
+    return _.get(this.props, ['product', 'skus', 0, 'code']);
+  }
+
   @autobind
   onQuantityChange(value) {
     const newValue = this.state.quantity + value;
     if (newValue > 0) {
       this.setState({quantity: newValue});
     }
+  }
+
+  @autobind
+  addToCart() {
+    const quantity = this.state.quantity;
+    const skuId = this.firstSqu;
+    this.props.addToCart(skuId, quantity);
   }
 
   render() {
@@ -106,7 +119,7 @@ class Pdp extends Component {
               </div>
             </div>
             <div styleName="add-to-cart">
-              <Button>ADD TO CART</Button>
+              <Button onClick={this.addToCart}>ADD TO CART</Button>
             </div>
           </div>
         </div>
@@ -115,4 +128,4 @@ class Pdp extends Component {
   }
 }
 
-export default connect(getState, actions)(Pdp);
+export default connect(getState, {...actions, addToCart})(Pdp);
