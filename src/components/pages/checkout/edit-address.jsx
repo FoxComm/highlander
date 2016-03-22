@@ -45,7 +45,7 @@ export default class EditAddress extends Component {
   props: EditShippingProps;
   lookupXhr: ?XMLHttpRequest;
 
-  componentWillMount() {
+  componentDidMount() {
     const { initAddressData, addressKind } = this.props;
     initAddressData(addressKind);
   }

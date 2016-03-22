@@ -15,13 +15,16 @@ import Checkbox from 'ui/checkbox';
 import EditableBlock from 'ui/editable-block';
 import Autocomplete from 'ui/autocomplete';
 import MaskedInput from 'react-maskedinput';
+import EditAddress from './edit-address';
 
 import type { CheckoutBlockProps } from './types';
 import * as checkoutActions from 'modules/checkout';
+import { AddressKind } from 'modules/checkout';
 
 function mapStateToProps(state) {
   return {
     data: state.checkout.billingData,
+    billingAddressIsSame: state.checkout.billingAddressIsSame,
   };
 }
 
@@ -67,9 +70,20 @@ class EditBilling extends Component {
     this.props.setBillingData('year', year);
   }
 
+  get billingAddress() {
+    const { billingAddressIsSame } = this.props;
+
+    if (billingAddressIsSame) {
+      return null;
+    }
+
+    return <EditAddress addressKind={AddressKind.billing} {...this.props} />;
+  }
+
   render() {
     const props = this.props;
     const { data } = props;
+
     return (
       <Form onSubmit={this.handleSubmit} styleName="checkout-form">
         <FormField styleName="text-field">
@@ -133,11 +147,12 @@ class EditBilling extends Component {
         </div>
         <Checkbox
           id="billingAddressIsSame"
-          checked={data.billingAddressIsSame}
+          checked={props.billingAddressIsSame}
           onChange={props.toggleSeparateBillingAddress}
         >
           Billing address is same as shipping
         </Checkbox>
+        {this.billingAddress}
         <Button styleName="checkout-submit" type="submit">PLACE ORDER</Button>
       </Form>
     );
