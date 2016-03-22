@@ -123,13 +123,14 @@ class Dropdown extends React.Component {
   }
 
   render() {
-    const {primary, editable, items, children} = this.props;
+    const {primary, editable, items, children, disabled} = this.props;
     const {open, dropup} = this.state;
     const className = classNames(this.props.className, {
       'fc-dropdown': true,
       '_primary': primary,
       '_editable': editable,
-      '_open': open
+      '_open': open,
+      '_disabled': disabled
     });
     const itemsClassName = classNames('fc-dropdown__items', {
       '_dropup': dropup,
