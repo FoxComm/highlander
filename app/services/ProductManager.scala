@@ -105,9 +105,6 @@ object ProductManager {
     product       ← * <~ Products.filter(_.contextId === context.id).
       filter(_.formId === productId).one.mustFindOr(
         ProductNotFoundForContext(productId, context.id)) 
-    product       ← * <~ Products.filter(_.contextId === context.id).
-      filter(_.formId === productId).one.mustFindOr(
-        ProductNotFoundForContext(productId, context.id)) 
     updatedFormShadow ← * <~ updateObjectFormAndShadow(product.formId, 
       product.shadowId, payload.form.product.attributes, 
       payload.shadow.product.attributes)
@@ -195,9 +192,8 @@ object ProductManager {
 
   private def commit(previousCommitId: Int, formId: Int, shadowId: Int)
     (implicit ec: EC, db: DB): DbResultT[ObjectCommit] = for {
-        previousCommit ← * <~ ObjectCommits.mustFindById404(previousCommitId)
         newCommit  ← * <~ ObjectCommits.create(ObjectCommit(formId = formId, 
-          shadowId = shadowId, previousId = previousCommit.id.some))
+          shadowId = shadowId, previousId = previousCommitId.some))
     } yield newCommit
 
   private def failIfErrors(errors: Seq[Failure])
@@ -338,7 +334,7 @@ object ProductManager {
     oldShadow   ← * <~ ObjectShadows.mustFindById404(shadowId)
     newFormPair ← * <~ ObjectUtils.updateForm(oldForm.attributes, updatedForm)
     (keyMap, newFormAttributes) = newFormPair
-    newShadowAttributes ← * <~ ObjectUtils.newShadow(oldShadow.attributes, keyMap)
+    newShadowAttributes ← * <~ ObjectUtils.newShadow(updatedShadow, keyMap)
     result ← * <~ createIfDifferent(oldForm, oldShadow, newFormAttributes, newShadowAttributes)
   } yield result
 
