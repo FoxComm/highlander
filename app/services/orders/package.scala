@@ -1,9 +1,9 @@
 package services
 
-import models.traits.{Originator, CustomerOriginator, AdminOriginator}
+import failures.CartFailures.CustomerHasNoActiveOrder
+import failures.OrderFailures.EmptyRefNumFailure
+import models.traits.{AdminOriginator, CustomerOriginator, Originator}
 import models.order.{Order, Orders}
-
-import services.CartFailures.CustomerHasNoActiveOrder
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.aliases._

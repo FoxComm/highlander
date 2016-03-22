@@ -9,15 +9,15 @@ import models.inventory.InventoryAdjustment._
 import models.inventory._
 import models.inventory.summary.SellableInventorySummaries
 import models.location.Addresses
-import models.order.{Orders, Order}
+import models.order.{Order, Orders}
 import models.shipping.ShippingMethods
 import models.{Reasons, StoreAdmins}
 import payloads.{CreateOrder, GiftCardCreateByCsr, GiftCardPayment, UpdateLineItemsPayload, UpdateShippingMethod}
 import responses.order.FullOrder
 import FullOrder.Root
+import failures.CartFailures.CustomerHasNoActiveOrder
+import failures.NotFoundFailure404
 import responses.GiftCardResponse
-import services.CartFailures.CustomerHasNoActiveOrder
-import services.NotFoundFailure404
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._

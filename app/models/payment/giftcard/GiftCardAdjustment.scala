@@ -8,7 +8,7 @@ import models.order.{OrderPayments, OrderPayment}
 import models.javaTimeSlickMapper
 import models.payment.giftcard.GiftCardAdjustment._
 import monocle.macros.GenLens
-import services.Failures
+import failures.Failures
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType

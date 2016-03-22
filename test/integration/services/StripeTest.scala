@@ -2,7 +2,7 @@ package services
 
 import java.time.{ZoneId, Instant}
 
-import services.CreditCardFailure.{IncorrectCvc, CardDeclined}
+import failures.CreditCardFailures.{IncorrectCvc, CardDeclined}
 import util.{StripeSupport, IntegrationTestBase}
 import utils.seeds.Seeds
 import utils.{WiredStripeApi, Apis}

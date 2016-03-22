@@ -2,15 +2,14 @@ package services
 
 import cats.implicits._
 import models.customer.Customers
-import models.inventory.{Skus, SkuShadows}
-import models.product.{Products, ProductShadows, ProductContexts, SimpleContext, Mvp}
-import models.order.lineitems.{OrderLineItems, OrderLineItem}
+import models.inventory.{SkuShadows, Skus}
+import models.product.{Mvp, ProductContexts, ProductShadows, Products, SimpleContext}
+import models.order.lineitems.{OrderLineItem, OrderLineItems}
 import models.order._
 import models.payment.creditcard.CreditCards
-import models.payment.giftcard.{GiftCardManuals, GiftCardManual, GiftCards, GiftCard}
-import models.payment.storecredit.{StoreCreditManuals, StoreCreditManual, StoreCredits, StoreCredit}
+import models.payment.giftcard.{GiftCard, GiftCardManual, GiftCardManuals, GiftCards}
+import models.payment.storecredit.{StoreCredit, StoreCreditManual, StoreCreditManuals, StoreCredits}
 import models.{Reasons, StoreAdmins}
-import services.CartFailures._
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
@@ -20,6 +19,7 @@ import utils.DbResultT.implicits._
 import utils.seeds.Seeds
 import utils.Money.Currency
 import Seeds.Factories
+import failures.CartFailures._
 import utils.Slick.implicits._
 
 class CartValidatorTest extends IntegrationTestBase {

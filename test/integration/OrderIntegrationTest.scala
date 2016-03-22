@@ -5,11 +5,12 @@ import Extensions._
 import akka.http.scaladsl.model.StatusCodes
 import akka.pattern.ask
 import akka.testkit.TestActorRef
+
 import models.order._
 import Order._
 import models.{Assignment, Assignments}
 import models.customer.Customers
-import models.location.{Addresses, Address, Regions}
+import models.location.{Address, Addresses, Regions}
 import models.order.lineitems._
 import models.payment.creditcard._
 import models.rules.QueryStatement
@@ -20,10 +21,8 @@ import org.json4s.jackson.JsonMethods._
 import payloads.{AssignmentPayload, UpdateLineItemsPayload, UpdateOrderPayload}
 import responses.StoreAdminResponse
 import responses.order.FullOrder
-import services.CartFailures._
-import services.actors.{Tick, RemorseTimer}
+import services.actors.{RemorseTimer, Tick}
 import services.orders.OrderTotaler
-import services.{LockedFailure, NotFoundFailure404, NotLockedFailure, StateTransitionNotAllowed}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -31,8 +30,11 @@ import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import utils.seeds.Seeds.Factories
 import utils.time._
-
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import failures.CartFailures._
+import failures.LockFailures._
+import failures.{NotFoundFailure404, StateTransitionNotAllowed}
 
 class OrderIntegrationTest extends IntegrationTestBase
   with HttpSupport

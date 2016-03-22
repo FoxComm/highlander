@@ -1,4 +1,5 @@
 import akka.http.scaladsl.model.StatusCodes
+
 import cats.implicits._
 import com.stripe.exception.CardException
 import models.order._
@@ -6,23 +7,21 @@ import OrderPayments.scope._
 import models.activity.ActivityContext
 import models.customer._
 import models.location.{Addresses, Regions}
-import models.order.{Orders, Order}
+import models.order.{Order, Orders}
 import models.payment.PaymentMethod
-import models.payment.creditcard.{CreditCards, CreditCard}
-import models.rma.{Rmas, Rma}
+import models.payment.creditcard.{CreditCard, CreditCards}
+import models.rma.{Rma, Rmas}
 import models.stripe._
 import models.StoreAdmins
 import models.traits.Originator
 import org.mockito.Mockito.{reset, when}
-import org.mockito.{Matchers => m}
+import org.mockito.{Matchers ⇒ m}
 import org.scalatest.mock.MockitoSugar
 import payloads.CreateAddressPayload
-import responses.CreditCardsResponse.{Root => CardResponse}
+import responses.CreditCardsResponse.{Root ⇒ CardResponse}
 import responses.CustomerResponse
 import responses.order.FullOrder
-import services.CreditCardFailure.StripeFailure
 import services.orders.OrderPaymentUpdater
-import services.{CannotUseInactiveCreditCard, CreditCardManager, CustomerEmailNotUnique, GeneralFailure, NotFoundFailure404, Result}
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -35,8 +34,12 @@ import utils.{Apis, StripeApi}
 import Extensions._
 import slick.driver.PostgresDriver.api._
 import util.SlickSupport.implicits._
-
 import concurrent.ExecutionContext.Implicits.global
+
+import failures.CreditCardFailures.{CannotUseInactiveCreditCard, StripeFailure}
+import failures.CustomerFailures._
+import failures.{GeneralFailure, NotFoundFailure404}
+import services.{CreditCardManager, Result}
 
 class CustomerIntegrationTest extends IntegrationTestBase
   with HttpSupport

@@ -2,18 +2,18 @@ package routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
+import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.order.Order
 import Order.orderRefNumRegex
+import failures.SharedSearchFailures.SharedSearchInvalidQueryFailure
 import models.inventory.Sku
 import models.payment.giftcard.GiftCard
 import models.rma.Rma
 import models.StoreAdmin
 import models.sharedsearch.SharedSearch
 import payloads._
-import services.{SaveForLaterManager, SharedSearchService, ShippingManager, StoreCreditAdjustmentsService,
-StoreCreditService, SharedSearchInvalidQueryFailure}
+import services.{SaveForLaterManager, SharedSearchService, ShippingManager, StoreCreditAdjustmentsService, StoreCreditService}
 import services.notes._
 import utils.Apis
 import utils.CustomDirectives._

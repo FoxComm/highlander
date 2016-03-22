@@ -1,7 +1,7 @@
 package responses
 
 import cats.data.Xor
-import services.Failures
+import failures.Failures
 
 object GiftCardBulkResponse {
   final case class ItemResult(

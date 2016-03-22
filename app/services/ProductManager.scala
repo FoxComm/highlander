@@ -1,7 +1,5 @@
 package services
 
-import scala.concurrent.ExecutionContext
-
 import models.inventory._
 import models.product._
 import responses.ProductResponses._
@@ -10,16 +8,13 @@ import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
-import payloads.{CreateProductForm, UpdateProductForm, CreateProductShadow, 
-  UpdateProductShadow, CreateProductContext, UpdateProductContext,
-  CreateFullProductForm, UpdateFullProductForm, CreateFullProductShadow, 
-  UpdateFullProductShadow, CreateFullSkuForm, UpdateFullSkuForm, CreateSkuShadow, 
-  UpdateFullSkuShadow, CreateFullProduct, UpdateFullProduct}
-
-import ProductFailure._
+import payloads.{CreateFullProduct, CreateFullSkuForm, CreateProductContext, CreateProductForm, CreateProductShadow,
+CreateSkuShadow, UpdateFullProduct, UpdateFullProductForm, UpdateFullProductShadow, UpdateFullSkuForm,
+UpdateFullSkuShadow, UpdateProductContext, UpdateProductForm, UpdateProductShadow}
 import utils.aliases._
 import cats.data.NonEmptyList
-
+import failures.NotFoundFailure400
+import failures.ProductFailures._
 
 object ProductManager {
 
@@ -216,13 +211,13 @@ object ProductManager {
   } yield skuForm
 
   private def updateSkuForm(payload: UpdateFullSkuForm)(implicit ec: EC, db: DB)  = for {
-    skuForm ← * <~ Skus.findOneByCode(payload.code).mustFindOr(SkuNotFound(payload.code))
+    skuForm ← * <~ Skus.findOneByCode(payload.code).mustFindOr(NotFoundFailure400(Sku, payload.code))
     skuForm ← * <~ Skus.update(skuForm, skuForm.copy(attributes = payload.attributes)) 
   } yield skuForm
 
   private def createSkuShadow(payload: CreateSkuShadow, productContext: ProductContext)
   (implicit ec: EC, db: DB) = for {
-    skuForm    ← * <~ Skus.findOneByCode(payload.code).mustFindOr(SkuNotFound(payload.code))
+    skuForm    ← * <~ Skus.findOneByCode(payload.code).mustFindOr(NotFoundFailure400(Sku, payload.code))
     skuShadow  ← * <~ SkuShadows.create(
       SkuShadow(skuId = skuForm.id, productContextId = productContext.id,
       attributes = payload.attributes, activeFrom = payload.activeFrom, 
@@ -232,7 +227,7 @@ object ProductManager {
     
   private def updateSkuShadow(payload: UpdateFullSkuShadow, productContext: ProductContext)
   (implicit ec: EC, db: DB) = for {
-    skuForm    ← * <~ Skus.findOneByCode(payload.code).mustFindOr(SkuNotFound(payload.code))
+    skuForm    ← * <~ Skus.findOneByCode(payload.code).mustFindOr(NotFoundFailure400(Sku, payload.code))
     skuShadow  ← * <~ SkuShadows.filterBySkuAndContext(skuForm.id, productContext.id).
       one.mustFindOr(SkuNotFoundForContext(payload.code, productContext.name))
     skuShadow  ← * <~ SkuShadows.update(skuShadow, skuShadow.copy(attributes = payload.attributes,

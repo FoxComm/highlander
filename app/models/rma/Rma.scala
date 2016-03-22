@@ -11,7 +11,7 @@ import models.traits.Lockable
 import models.{StoreAdmin, javaTimeSlickMapper}
 import monocle.Lens
 import monocle.macros.GenLens
-import services.Failure
+import failures.Failure
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType

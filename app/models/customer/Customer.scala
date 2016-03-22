@@ -4,12 +4,13 @@ import java.time.Instant
 
 import cats.data.ValidatedNel
 import cats.implicits._
+import failures.CustomerFailures.CustomerEmailNotUnique
+import failures.Failure
 import models.javaTimeSlickMapper
 import models.location._
 import models.payment.creditcard.CreditCards
 import monocle.macros.GenLens
 import payloads.CreateCustomerPayload
-import services.{CustomerEmailNotUnique, Failure}
 import slick.driver.PostgresDriver.api._
 import utils.GenericTable.TableWithId
 import utils.Litterbox._

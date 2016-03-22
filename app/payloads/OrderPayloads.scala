@@ -5,7 +5,7 @@ import cats.implicits._
 import models.order.Order
 import utils.Litterbox._
 import Order.State
-import services.{GeneralFailure, Failure}
+import failures.Failure
 import utils.Validation
 
 final case class UpdateOrderPayload(state: State)

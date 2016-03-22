@@ -5,7 +5,7 @@ import cats.implicits._
 import models.rma.{RmaLineItem, Rma}
 import RmaLineItem.InventoryDisposition
 import models.rma.Rma
-import services.Failure
+import failures.Failure
 import utils.Litterbox._
 import utils.Money.Currency
 import utils.Validation

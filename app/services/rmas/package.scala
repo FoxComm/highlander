@@ -1,8 +1,10 @@
 package services
 
 import models.order._
-import models.rma.{Rmas, Rma}
+import models.rma.{Rma, Rmas}
 import OrderPayments.scope._
+import failures.NotFoundFailure404
+import failures.OrderFailures.OrderPaymentNotFoundFailure
 import utils.Slick.implicits._
 import utils.Slick.DbResult
 import utils.aliases._

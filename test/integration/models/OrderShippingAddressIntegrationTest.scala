@@ -1,13 +1,11 @@
 package models
 
-import cats.data.Xor
-import com.wix.accord.{Failure ⇒ ValidationFailure, Success ⇒ ValidationSuccess}
 import models.customer.Customers
 import models.order.{OrderShippingAddresses, Orders}
-import services.GeneralFailure
 import util.IntegrationTestBase
 import utils.seeds.Seeds
 import Seeds.Factories
+import failures.GeneralFailure
 import utils.jdbc._
 import utils.Slick.implicits._
 

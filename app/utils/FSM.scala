@@ -2,7 +2,7 @@ package utils
 
 import cats.data.Xor
 import monocle.Lens
-import services.{Failures, StateTransitionNotAllowed}
+import failures.{Failures, StateTransitionNotAllowed}
 
 trait FSM[S, M <: FSM[S, M]] { self: M ⇒
   /* this is a def because a val confuses jackson somehow for json rendering

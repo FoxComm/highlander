@@ -3,7 +3,7 @@ package util
 import cats.data._
 import cats.implicits._
 import org.scalatest.matchers._
-import services.{Failure, GeneralFailure}
+import failures.{Failure, GeneralFailure}
 
 object CustomMatchers {
   // Same as `include`, used for Failure inner Strings

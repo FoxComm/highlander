@@ -5,11 +5,11 @@ import java.time.Instant
 import models.inventory.{InventoryAdjustment ⇒ Adj, InventoryAdjustments ⇒ Adjs, _}
 import models.inventory.Warehouse.HARDCODED_WAREHOUSE_ID
 import Adj._
+import failures.InventoryFailures.InventorySummaryNotFound
 import models.inventory.summary._
 import models.order.Order
 import models.order.lineitems.OrderLineItemSkus
 import org.json4s.Extraction.{decompose ⇒ toJson}
-import services.InventorySummaryNotFound
 import utils.Slick.DbResult
 import utils.DbResultT
 import utils.DbResultT._

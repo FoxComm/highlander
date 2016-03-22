@@ -1,22 +1,18 @@
 
 package utils.seeds
 
-import models.customer.{Customers, Customer}
-import models.location.{Addresses, Address}
+import models.customer.{Customer, Customers}
+import models.location.{Address, Addresses}
 import models.order.lineitems._
 import models.order._
 import models.payment.creditcard.CreditCards
 import models.payment.giftcard._
 import models.shipping._
-
 import models.inventory._
-import models.product.{SimpleProductData, Mvp, ProductContexts, SimpleContext}
+import models.product.{Mvp, ProductContexts, SimpleContext, SimpleProductData}
 import Order.Shipped
-
-import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404}
 import services.orders.OrderTotaler
-
-import utils.seeds.generators.{InventorySummaryGenerator, InventoryGenerator, ProductGenerator}
+import utils.seeds.generators.{InventoryGenerator, InventorySummaryGenerator, ProductGenerator}
 import utils.Money.Currency
 import utils.DbResultT
 import utils.DbResultT._
@@ -24,10 +20,13 @@ import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import utils.Passwords.hashPassword
 import utils.seeds.generators.GeneratorUtils.randomString
-
 import cats.implicits._
-import faker._;
+import faker._
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import failures.CreditCardFailures.CustomerHasNoCreditCard
+import failures.CustomerFailures.CustomerHasNoDefaultAddress
+import failures.NotFoundFailure404
 import slick.driver.PostgresDriver.api._
 import utils.time
 

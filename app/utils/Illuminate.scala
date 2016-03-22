@@ -1,7 +1,7 @@
 package utils
 
-import services.Failure
-import services.IlluminateFailure._
+import failures.Failure
+import failures.IlluminateFailures._
 import org.json4s.JsonDSL._
 import org.json4s.JsonAST.{JValue, JString, JObject, JField, JNothing}
 
@@ -29,9 +29,9 @@ object IlluminateAlgorithm {
             case (attr, JString(key)) ⇒  validateAttribute(attr, key, f)
             case (attr, _) ⇒  Seq(ShadowAttributeNotAString(attr))
           }
-        case _ ⇒ Seq(AttributesAreEmpty())
+        case _ ⇒ Seq(AttributesAreEmpty)
       }
-      case _ ⇒  Seq(ShadowAttributesAreEmpty())
+      case _ ⇒  Seq(ShadowAttributesAreEmpty)
     }
   }
 

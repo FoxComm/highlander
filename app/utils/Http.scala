@@ -3,12 +3,12 @@ package utils
 import scala.concurrent.Future
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, ResponseEntity, StatusCode}
-
+import cats.implicits._
 import cats.data.Xor
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import org.json4s.{Formats, jackson}
-import services.{Failures, NotFoundFailure404}
+import failures.{Failures, NotFoundFailure404}
 import utils.aliases._
 
 object Http {
@@ -48,9 +48,6 @@ object Http {
     HttpResponse(statusCode, entity = jsonEntity(resource))
 
   def renderFailure(failures: Failures, statusCode: ClientError = BadRequest): HttpResponse = {
-    import services.NotFoundFailure404
-    import cats.implicits._
-
     val failuresList = failures.unwrap
     val notFound = failuresList.collectFirst { case f: NotFoundFailure404 ⇒ f }
     notFound.fold(HttpResponse(statusCode, entity = jsonEntity("errors" → failuresList.map(_.description)))) { nf ⇒

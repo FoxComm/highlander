@@ -1,13 +1,15 @@
-import models.customer.{Customers, Customer}
-import services.DatabaseFailure
+import models.customer.{Customer, Customers}
 import util.IntegrationTestBase
 import utils.seeds.Seeds
 import Seeds.Factories
 import utils.Slick.implicits._
-import utils.DbResultT, DbResultT.implicits._
+import utils.DbResultT
+import DbResultT.implicits._
 import utils.DbResultT._
 import slick.driver.PostgresDriver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import failures.DatabaseFailure
 
 class DbResultSequenceIntegrationTest extends IntegrationTestBase {
 

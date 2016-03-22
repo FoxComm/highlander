@@ -11,9 +11,12 @@ import models.payment.storecredit._
 import payloads.{GiftCardPayment, StoreCreditPayment}
 import responses.order.FullOrder
 import FullOrder.refreshAndFullOrder
+import failures.GiftCardFailures.GiftCardPaymentAlreadyAdded
+import failures.NotFoundFailure400
+import failures.OrderFailures.OrderPaymentNotFoundFailure
+import failures.StoreCreditFailures.CustomerHasInsufficientStoreCredit
 import responses.TheResponse
-import services.{LogActivity, CartValidator, CustomerHasInsufficientStoreCredit, NotFoundFailure400,
-OrderPaymentNotFoundFailure, GiftCardPaymentAlreadyAdded, Result}
+import services.{CartValidator, LogActivity, Result}
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._

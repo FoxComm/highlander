@@ -1,15 +1,16 @@
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
-import models.rma.{RmaReasons, RmaReason}
+
+import models.rma.{RmaReason, RmaReasons}
 import models.{Reason, Reasons, StoreAdmins}
-import services.InvalidReasonTypeFailure
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Strings._
 import utils.seeds.Seeds.Factories
-
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import failures.InvalidReasonTypeFailure
 
 class ReasonsIntegrationTest extends IntegrationTestBase
 with HttpSupport

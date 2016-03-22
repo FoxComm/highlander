@@ -13,7 +13,6 @@ import models.shipping.{Shipment, Shipments, ShippingMethods}
 import models.Note
 import models.product.{Mvp, ProductContext, SimpleProductData}
 import Order.{Cart, FraudHold, ManualHold, RemorseHold, Shipped}
-import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, ShippingMethodIsNotFound}
 import services.orders.OrderTotaler
 import utils.DbResultT
 import utils.DbResultT._
@@ -29,6 +28,9 @@ import scala.util.Random
 
 import slick.driver.PostgresDriver.api._
 import cats.implicits._
+import failures.CreditCardFailures.CustomerHasNoCreditCard
+import failures.CustomerFailures.CustomerHasNoDefaultAddress
+import failures.ShippingMethodFailures.ShippingMethodIsNotFound
 import services.inventory.InventoryAdjustmentManager
 
 trait OrderGenerator extends ShipmentSeeds {

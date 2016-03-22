@@ -2,23 +2,20 @@ import java.time.Instant
 
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
-import models.customer.{Customers, Customer}
+
+import models.customer.{Customer, Customers}
 import models.inventory.Skus
 import models.order.lineitems._
 import models.order._
-import models.payment.giftcard.{GiftCardManuals, GiftCardManual, GiftCards, GiftCard}
+import models.payment.giftcard.{GiftCard, GiftCardManual, GiftCardManuals, GiftCards}
 import models.rma._
 import Rma.{Canceled, Processing}
 import models.shipping.{Shipments, ShippingMethods}
-import models.{Reasons, StoreAdmin, StoreAdmins}
+import models.{Reasons, StoreAdmins}
 import models.product.{Mvp, ProductContexts, SimpleContext}
-import org.json4s.jackson.JsonMethods._
-import payloads.{RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCustomerPayload,
-RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload, AssignmentPayload, BulkAssignmentPayload}
-import responses.{TheResponse, AllRmas, RmaLockResponse, RmaResponse, StoreAdminResponse}
+import payloads.{RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCustomerPayload, RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload}
+import responses.{AllRmas, RmaLockResponse, RmaResponse}
 import services.rmas.{RmaLineItemUpdater, RmaLockUpdater}
-import services.{GeneralFailure, InvalidCancellationReasonFailure, LockedFailure, NotFoundFailure400,
-NotFoundFailure404, NotLockedFailure}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -26,8 +23,10 @@ import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import utils.seeds.Seeds.Factories
 import utils.time._
-
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import failures.LockFailures.{LockedFailure, NotLockedFailure}
+import failures.{InvalidCancellationReasonFailure, NotFoundFailure400, NotFoundFailure404}
 
 class RmaIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -178,7 +177,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/rmas/99/message", payload)
 
         response.status must === (StatusCodes.BadRequest)
-        response.error must === (GeneralFailure("Message length got 3000, expected 1000 or less").description)
+        response.error must === ("Message length got 3000, expected 1000 or less")
       }
     }
 
@@ -324,7 +323,7 @@ class RmaIntegrationTest extends IntegrationTestBase
         val response = POST(s"v1/rmas/${rma.referenceNumber}/line-items/skus", payload)
 
         response.status must === (StatusCodes.BadRequest)
-        response.error must === (GeneralFailure("Quantity got 0, expected more than 0").description)
+        response.error must === ("Quantity got 0, expected more than 0")
       }
     }
 

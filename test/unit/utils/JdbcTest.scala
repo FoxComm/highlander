@@ -1,12 +1,9 @@
 package utils
 
-import scala.concurrent.Future
-
-import services.{GeneralFailure, DatabaseFailure, Result}
+import failures.{DatabaseFailure, GeneralFailure}
+import services.Result
 import util.TestBase
 import utils.jdbc._
-import org.postgresql.util.PSQLException
-import org.postgresql.util.PSQLState
 
 class JdbcTest extends TestBase {
   import scala.concurrent.ExecutionContext.Implicits.global

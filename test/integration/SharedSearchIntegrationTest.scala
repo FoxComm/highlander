@@ -1,13 +1,14 @@
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import akka.http.scaladsl.model.StatusCodes
+
 import Extensions._
-import models.sharedsearch.{SharedSearchAssociations, SharedSearches, SharedSearchAssociation, SharedSearch}
+import models.sharedsearch.{SharedSearch, SharedSearchAssociation, SharedSearchAssociations, SharedSearches}
 import models.{StoreAdmin, StoreAdmins}
 import SharedSearchAssociation.{build ⇒ buildAssociation}
 import SharedSearch.{CustomersScope, OrdersScope, StoreAdminsScope}
-import payloads.{SharedSearchPayload, SharedSearchAssociationPayload}
-import services.{GeneralFailure, SharedSearchAssociationNotFound, NotFoundFailure404, SharedSearchInvalidQueryFailure}
+import failures.NotFoundFailure404
+import failures.SharedSearchFailures._
+import payloads.{SharedSearchAssociationPayload, SharedSearchPayload}
 import responses.StoreAdminResponse.{Root ⇒ AdminRoot, build ⇒ buildAdmin}
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -15,7 +16,6 @@ import utils.DbResultT.implicits._
 import utils.seeds.Seeds.Factories
 import utils.Slick.implicits._
 import slick.driver.PostgresDriver.api._
-
 import org.json4s.jackson.JsonMethods._
 
 class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {

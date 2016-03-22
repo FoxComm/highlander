@@ -1,6 +1,6 @@
 package utils.table
 
-import services.{Failure, NotFoundFailure400, NotFoundFailure404}
+import failures.{Failure, NotFoundFailure400, NotFoundFailure404}
 import slick.driver.PostgresDriver.api._
 import utils.Slick._
 import utils.Strings._

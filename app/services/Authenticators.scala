@@ -2,7 +2,7 @@ package services
 
 import scala.concurrent.Future
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
-import akka.http.scaladsl.model.headers.{HttpCookie, HttpChallenge, HttpCredentials, RawHeader}
+import akka.http.scaladsl.model.headers.{HttpChallenge, HttpCookie, HttpCredentials, RawHeader}
 import akka.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.directives.CookieDirectives.setCookie
@@ -13,6 +13,7 @@ import akka.http.scaladsl.server.directives.SecurityDirectives.{AuthenticationRe
 import akka.http.scaladsl.server.directives.{AuthenticationDirective, AuthenticationResult}
 
 import cats.data.Xor
+import failures.{Failures, LoginFailed}
 import models.auth.{Identity, _}
 import models.customer.{Customer, Customers}
 import models.{StoreAdmin, StoreAdmins}

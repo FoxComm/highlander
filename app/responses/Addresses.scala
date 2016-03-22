@@ -3,11 +3,11 @@ package responses
 import java.time.Instant
 
 import cats.implicits._
+import failures.NotFoundFailure404
 import models.customer.Customer
 import models.location.{Address, Region}
 import models.order.{OrderShippingAddress, OrderShippingAddresses}
 import models.payment.creditcard.CreditCard
-import services.NotFoundFailure404
 import utils.Slick.DbResult
 import slick.driver.PostgresDriver.api._
 import utils.aliases.EC

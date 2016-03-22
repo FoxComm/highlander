@@ -1,6 +1,7 @@
 import akka.http.scaladsl.model.StatusCodes
+
 import models.activity.ActivityContext
-import models.customer.{Customers, Customer}
+import models.customer.{Customer, Customers}
 import models.StoreAdmins
 import models.order.Order
 import models.product.{ProductContexts, SimpleContext}
@@ -8,13 +9,13 @@ import payloads.CreateOrder
 import responses.order.FullOrder
 import FullOrder.Root
 import services.orders.OrderCreator
-import services.NotFoundFailure400
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.seeds.Seeds
 import Seeds.Factories
 import cats.implicits._
+import failures.NotFoundFailure400
 
 class OrderCreatorIntegrationTest extends IntegrationTestBase
   with HttpSupport

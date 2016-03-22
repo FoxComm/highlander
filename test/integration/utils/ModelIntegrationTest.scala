@@ -3,7 +3,7 @@ package utils
 import models.customer.{Customers, Customer}
 import models.location.Addresses
 import models.order.{Orders, Order}
-import services.{DatabaseFailure, GeneralFailure, StateTransitionNotAllowed}
+import failures.{DatabaseFailure, GeneralFailure, StateTransitionNotAllowed}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._

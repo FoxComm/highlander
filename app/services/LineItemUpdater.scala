@@ -1,6 +1,6 @@
 package services
 
-import models.inventory.{Skus, Sku}
+import models.inventory.{Sku, Skus}
 import models.activity.Activity
 import models.order.lineitems._
 import OrderLineItems.scope._
@@ -12,7 +12,6 @@ import payloads.{AddGiftCardLineItem, UpdateLineItemsPayload}
 import responses.order.FullOrder
 import FullOrder.refreshAndFullOrder
 import responses.TheResponse
-import services.CartFailures.CustomerHasNoActiveOrder
 import services.orders.OrderTotaler
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -20,7 +19,7 @@ import utils.Slick._
 import utils.Slick.implicits._
 import utils.aliases._
 
-import scala.concurrent.ExecutionContext
+import failures.CartFailures.CustomerHasNoActiveOrder
 import slick.driver.PostgresDriver.api._
 
 object LineItemUpdater {

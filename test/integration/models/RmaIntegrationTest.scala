@@ -2,15 +2,13 @@ package models
 
 import java.time.Instant
 
+import failures.DatabaseFailure
 import models.customer.Customers
-import models.order.{Orders, Order}
-import models.rma.{Rmas, Rma}
-import slick.driver.PostgresDriver.api._
-import services.DatabaseFailure
+import models.order.{Order, Orders}
+import models.rma.{Rma, Rmas}
 import util.IntegrationTestBase
-import utils.seeds.Seeds
-import Seeds.Factories
 import utils.Slick.implicits._
+import utils.seeds.Seeds.Factories
 import utils.time._
 
 class RmaIntegrationTest extends IntegrationTestBase {

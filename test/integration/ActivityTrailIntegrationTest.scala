@@ -1,18 +1,12 @@
 import akka.http.scaladsl.model.StatusCodes
+
 import cats.implicits._
 import models.StoreAdmins
-import models.activity.Activities
-import models.activity.ActivityContext
-import models.activity.Trails
-import models.activity.Dimensions
-import models.activity.Connections
-import models.activity.Connection
-import models.activity.OpaqueActivity
+import models.activity._
 import models.customer.Customers
 import org.scalatest.mock.MockitoSugar
 import payloads.AppendActivity
 import responses.ActivityConnectionResponse
-import services.NotFoundFailure404
 import services.activity.CustomerTailored.CustomerUpdated
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -20,10 +14,8 @@ import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import utils.seeds.Seeds.Factories
 import slick.driver.PostgresDriver.api._
-
 import org.json4s.DefaultFormats
 import org.json4s.Extraction
-
 import concurrent.ExecutionContext.Implicits.global
 
 import org.scalacheck.Prop.forAll
@@ -32,6 +24,7 @@ import org.scalacheck.Gen
 import scala.language.implicitConversions
 
 import Extensions._
+import failures.NotFoundFailure404
 
 final case class DumbActivity(
   randomWord: String,

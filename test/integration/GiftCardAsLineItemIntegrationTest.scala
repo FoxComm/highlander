@@ -1,12 +1,14 @@
 import akka.http.scaladsl.model.StatusCodes
+
+import failures.CartFailures.OrderMustBeCart
+import failures.GiftCardFailures.GiftCardMustBeCart
+import failures.{GeneralFailure, NotFoundFailure404}
 import models.customer.Customers
 import models.order.lineitems._
-import models.order.{Orders, Order}
+import models.order.{Order, Orders}
 import models.payment.giftcard._
 import org.scalatest.BeforeAndAfterEach
 import responses.order.FullOrder
-import services.CartFailures.OrderMustBeCart
-import services.{GeneralFailure, GiftCardMustBeCart, NotFoundFailure404}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._

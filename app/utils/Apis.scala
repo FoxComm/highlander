@@ -7,12 +7,13 @@ import scala.concurrent.{ExecutionContext, Future, blocking}
 
 import cats.data.Xor
 import cats.implicits._
-import com.stripe.model.{ExternalAccount, Customer ⇒ StripeCustomer, Charge ⇒ StripeCharge} // Stupid `static`s
-import com.stripe.exception.{StripeException, CardException}
+import com.stripe.model.{ExternalAccount, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
+import com.stripe.exception.{CardException, StripeException}
 import com.stripe.net.RequestOptions
+import failures.CreditCardFailures._
+import failures.{Failure, Failures, GeneralFailure}
 import models.stripe._
-import services.CreditCardFailure.StripeFailure
-import services.{ResultT, CreditCardFailure, Failure, Failures, GeneralFailure, Result}
+import services.{Result, ResultT}
 
 final case class Apis(stripe: StripeApi)
 
@@ -36,17 +37,17 @@ trait StripeApi {
 
 object StripeApi {
   val cardExceptionMap: Map[String, Failure] = Map(
-    "invalid_number"        → CreditCardFailure.InvalidNumber,
-    "invalid_expiry_month"  → CreditCardFailure.MonthExpirationInvalid,
-    "invalid_expiry_year"   → CreditCardFailure.YearExpirationInvalid,
-    "invalid_cvc"           → CreditCardFailure.InvalidCvc,
-    "incorrect_number"      → CreditCardFailure.IncorrectNumber,
-    "expired_card"          → CreditCardFailure.ExpiredCard,
-    "incorrect_cvc"         → CreditCardFailure.IncorrectCvc,
-    "incorrect_zip"         → CreditCardFailure.IncorrectZip,
-    "card_declined"         → CreditCardFailure.CardDeclined,
-    "missing"               → CreditCardFailure.Missing,
-    "processing_error"      → CreditCardFailure.ProcessingError
+    "invalid_number"        → InvalidNumber,
+    "invalid_expiry_month"  → MonthExpirationInvalid,
+    "invalid_expiry_year"   → YearExpirationInvalid,
+    "invalid_cvc"           → InvalidCvc,
+    "incorrect_number"      → IncorrectNumber,
+    "expired_card"          → ExpiredCard,
+    "incorrect_cvc"         → IncorrectCvc,
+    "incorrect_zip"         → IncorrectZip,
+    "card_declined"         → CardDeclined,
+    "missing"               → Missing,
+    "processing_error"      → ProcessingError
   )
 }
 
