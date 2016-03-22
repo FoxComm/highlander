@@ -59,28 +59,23 @@ function payloadReducer(...args) {
  * @param {Object}  [initialState]  initial state for reducer, passed as is
  */
 export default function createStore({entity, scope = '', actions, reducers, initialState = {}}) {
-  const simpleActions = {};
+  const allActions = {};
   const reducersMap = {};
 
   _.each(reducers, (handler, name) => {
     //create action with entity prefix and default creator
-    const simpleAction = simpleActions[name] = createAction(getActionDescription(entity, scope, name), payloadReducer);
+    const action = allActions[name] = createAction(getActionDescription(entity, scope, name), payloadReducer);
 
     //add it to reducersMap
-    reducersMap[simpleAction] = handler;
+    reducersMap[action] = handler;
   });
 
-  const asyncActions = {};
-
   _.each(actions, (handler, name) => {
-    asyncActions[name] = (...args) => handler(simpleActions, ...args);
+    allActions[name] = (...args) => handler(allActions, ...args);
   });
 
   return saveStore(entity, scope, {
-    actions: {
-      ...simpleActions,
-      ...asyncActions,
-    },
+    actions: allActions,
     reducer: createReducer(reducersMap, initialState),
   });
 }

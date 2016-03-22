@@ -80,14 +80,14 @@ export default class DynamicGroupEditor extends React.Component {
     return (
       <div className={prefixed('match-div')}>
         <span className={prefixed('match-span')}>Customers match</span>
-            <span className={prefixed('match-dropdown')}>
-              <Dropdown name="matchCriteria"
-                        value={mainCondition}
-                        onChange={setMainCondition}>
-                <DropdownItem value={operators.and} key={operators.and}>all</DropdownItem>
-                <DropdownItem value={operators.or} key={operators.or}>any</DropdownItem>
-              </Dropdown>
-            </span>
+        <span className={prefixed('match-dropdown')}>
+          <Dropdown name="matchCriteria"
+                    value={mainCondition}
+                    onChange={value => setMainCondition(value)}>
+            <DropdownItem value={operators.and} key={operators.and}>all</DropdownItem>
+            <DropdownItem value={operators.or} key={operators.or}>any</DropdownItem>
+          </Dropdown>
+        </span>
         <span className={prefixed('form-name')}>of the following criteria:</span>
       </div>
     );
