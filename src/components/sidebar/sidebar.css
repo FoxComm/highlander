@@ -1,4 +1,3 @@
-
 @import "colors.css";
 
 .sidebar-hidden {
@@ -30,13 +29,8 @@
 }
 
 .controls {
-  margin-left: 20px;
-  margin-top: 20px;
+  margin: 20px 10px;
   color: var(--whitish);
-}
-
-.controls-close {
-
 }
 
 .close-button {
@@ -49,5 +43,9 @@
 }
 
 .controls-categories {
-  margin-left: 20px;
+  margin-left: 40px;
+}
+
+.controls-search {
+  margin-top: 32px;
 }

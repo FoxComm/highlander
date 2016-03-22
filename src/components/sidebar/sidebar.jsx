@@ -8,6 +8,7 @@ import styles from './sidebar.css';
 
 import Icon from 'ui/icon';
 import Categories from '../categories/categories';
+import Search from '../search/search';
 
 import * as actions from 'modules/sidebar';
 
@@ -37,6 +38,9 @@ const Sidebar = (props : SidebarProps) : HTMLElement => {
             <a styleName="close-button" onClick={props.toggleSidebar}>
               <Icon name="fc-close" className="close-icon"/>
             </a>
+          </div>
+          <div styleName="controls-search">
+            <Search onSearch={props.toggleSidebar}/>
           </div>
           <div styleName="controls-categories">
             <Categories onClick={changeCategoryCallback} />
