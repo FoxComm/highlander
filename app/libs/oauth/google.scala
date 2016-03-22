@@ -5,7 +5,7 @@ final case class GoogleOauthOptions(
   clientId: String,
   clientSecret: String,
   redirectUri: String,
-  accessType: String = "offlien",
+  accessType: String = "offline",
   hostedDomain: Option[String] = None
 ) extends OauthClientOptions {
 

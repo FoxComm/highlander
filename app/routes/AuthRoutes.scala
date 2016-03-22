@@ -2,37 +2,27 @@ package routes
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
+
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import akka.stream.Materializer
+
 import services.Authenticator
 import services.GeneralFailure
 import scala.concurrent.Future
+
 import utils.Http._
 import utils.aliases._
-import utils.Config.{config, RichConfig}
-import models.auth.Identity
-import cats.data.{XorT, Xor}
+import utils.Config.{RichConfig, config}
+import models.auth.{AdminToken, Identity}
+import models.{StoreAdmin, StoreAdmins}
+import utils.Slick.implicits._
+import cats.data.{Xor, XorT}
 import cats.implicits._
+import services.OauthService._
+import utils.DbResultT._
+import utils.DbResultT.implicits._
+import libs.oauth.{GoogleOauthOptions, GoogleProvider, Oauth}
 
-import OauthResponse._
-
-import libs.oauth.{Oauth, GoogleProvider, GoogleOauthOptions}
-
-// TODO: move it outside
-object OauthResponse {
-
-  final case class OauthCallbackResponse(
-    code: Option[String] = None,
-    error: Option[String] = None)
-
-  def parseOauthResponse(resp: OauthCallbackResponse): Xor[Throwable, String] = {
-    if (resp.error.isEmpty && resp.code.nonEmpty) {
-      Xor.right(resp.code.getOrElse(""))
-    } else {
-      Xor.left(new Throwable(resp.error.getOrElse("Unexpected error")))
-    }
-  }
-}
 
 
 object AuthRoutes {
@@ -67,30 +57,33 @@ object AuthRoutes {
         }
       } ~
       pathPrefix("oauth2callback") {
-        (get & path("google/admin") & oauthResponse) { oauthResponse ⇒
-            /*
-            1. Exchange code to access token - Done
-            2. Get user email - Done
-            3. FindOrCreate<StoreAdmin|Customer> <- ??
-            4. respondWithToken
-             */
+        (get & pathPrefix("google") & path("admin") & oauthResponse) { oauthResponse ⇒
+
             // FIXME: handle errors
 
-            val result = for {
-              code ← XorT.fromXor[Future](parseOauthResponse(oauthResponse))
-              accessTokenResp ← adminGoogleOauth.accessToken(code)
-              email ← adminGoogleOauth.userEmail(accessTokenResp.access_token)
-            } yield email
-
-            onSuccess(result.fold(
-              { err ⇒ complete(renderFailure(GeneralFailure(err.toString).single)) },
-              { email ⇒ complete(email) }
-            ))(identity)
+//            val result = for {
+//              code ← XorT.fromXor[Future](parseOauthResponse(oauthResponse))
+//              accessTokenResp ← adminGoogleOauth.accessToken(code)
+//              email ← adminGoogleOauth.userEmail(accessTokenResp.access_token)
+//            } yield email
+//
+//            onSuccess(result.fold(
+//              { err ⇒ complete(renderFailure(GeneralFailure(err.toString).single)) },
+//              { email ⇒ complete(email) }
+//            ))(identity)
+          onSuccess(oauthCallback(adminGoogleOauth, oauthResponse,
+            StoreAdmins.findByEmail _,
+            (email: String) ⇒ StoreAdmins.create(StoreAdmin(email = email, name = "Xx")),
+            AdminToken.fromAdmin
+          )) { t ⇒
+            onSuccess(t.run()) { x ⇒ complete(renderGoodOrFailures(x)) }
+          }
 
           }
       } ~
       pathPrefix("signin") {
-        (get & path("google/admin")) {
+        (pathPrefix("google") & get & path("admin")) {
+          System.err.println("HELLLOOOO")
           val url = adminGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))
           complete(Map("url" → url))
         }

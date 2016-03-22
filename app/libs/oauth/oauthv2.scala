@@ -23,7 +23,7 @@ trait OauthClientOptions {
 }
 
 
-class Oauth[A <: OauthClientOptions](oauthOptions: A) { this: OauthProvider ⇒
+class Oauth(oauthOptions: OauthClientOptions) { this: OauthProvider ⇒
 
   implicit val formats = DefaultFormats
 
