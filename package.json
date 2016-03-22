@@ -107,6 +107,8 @@
     "core-decorators": "^0.8.0",
     "currency-symbol-map": "^2.1.0",
     "draft-js": "^0.2.2",
+    "draft-js-export-html": "^0.1.9",
+    "draft-js-import-html": "^0.1.4",
     "event-source-polyfill": "0.0.6",
     "fleck": "^0.5.1",
     "history": "^1.17.0",

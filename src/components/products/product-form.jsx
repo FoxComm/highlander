@@ -196,43 +196,47 @@ export default class ProductForm extends Component<void, Props, State> {
     });
 
     const required = _.indexOf(requiredAttributes, label) != -1;
-    return (
-      <FormField
-        className="fc-product-details__field"
-        label={formattedLbl}
-        labelClassName="fc-product-details__field-label"
-        key={`product-page-field-${label}`}>
-        {this.renderAttributeField(attribute, required)}
-      </FormField>
-    ); 
-  }
-
-  renderAttributeField(attribute: Attribute, required: bool): Element {
-    const { label, type, value } = attribute;
     const inputClass = 'fc-product-details__field-value';
 
     switch (type) {
       case 'price':
-        const priceValue = _.get(this.state, ['product', label], value.value);
+        const priceValue = _.get(this.state, ['product', label, 'value'], value);
         return (
-          <CurrencyInput
-            className={inputClass}
-            inputName={label}
-            value={priceValue}
-            onChange={(value) => this.handleUpdateProduct(label, value)} />
+          <FormField
+            className="fc-product-details__field"
+            label={formattedLbl}
+            labelClassName="fc-product-details__field-label"
+            key={`product-page-field-${label}`}>
+            <CurrencyInput
+              className={inputClass}
+              inputName={label}
+              value={priceValue}
+              onChange={(value) => this.handleUpdateProduct(label, value)} />
+          </FormField>
         );
       case 'richText':
-        return <RichTextEditor />;
+        const rtVal = _.get(this.state, ['product', label], value);
+        return (
+          <RichTextEditor
+            value={rtVal}
+            onChange={(value) => this.handleUpdateProduct(label, value)} />
+        );
       default:
         const val = _.get(this.state, ['product', label], value);
         return (
-          <input
-            className={inputClass}
-            type="text"
-            name={label}
-            value={val}
-            required={required}
-            onChange={({target}) => this.handleUpdateProduct(label, target.value)} />
+          <FormField
+            className="fc-product-details__field"
+            label={formattedLbl}
+            labelClassName="fc-product-details__field-label"
+            key={`product-page-field-${label}`}>
+            <input
+              className={inputClass}
+              type="text"
+              name={label}
+              value={val}
+              required={required}
+              onChange={({target}) => this.handleUpdateProduct(label, target.value)} />
+          </FormField>
         );
     }
   }

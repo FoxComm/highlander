@@ -4,12 +4,13 @@
 
 // libs
 import React, { Component, Element, PropTypes } from 'react';
+import { stateToHTML } from 'draft-js-export-html';
 import { autobind } from 'core-decorators';
 
 // components
-import { Editor, EditorState, RichUtils } from 'draft-js';
+import { ContentState, Editor, EditorState, RichUtils } from 'draft-js';
 
-type Props = {};
+type Props = { onChange: (content: string) => void, value: string };
 type State = { editorState: Object };
 
 export default class RichTextEditor extends Component<void, Props, State> {
@@ -22,7 +23,12 @@ export default class RichTextEditor extends Component<void, Props, State> {
 
   @autobind
   handleChange(editorState: Object) {
-    this.setState({ editorState });
+    const contentState: ContentState = editorState.getCurrentContent();
+    const rawHTML: string = stateToHTML(contentState);
+
+    this.setState({
+      editorState,
+    }, () => this.props.onChange(rawHTML));
   }
 
   @autobind
