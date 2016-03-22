@@ -24,11 +24,9 @@
 }
 
 .search {
-  flex-grow: 1;
 }
 
 .hamburger {
-  flex-grow: 1;
   display: none;
 }
 
@@ -37,14 +35,25 @@
   height: 20px;
 }
 
+.search, .hamburger, .tools {
+  width: 40%;
+}
+
 .tools {
-  flex-grow: 1;
-  text-align: right;
   display: flex;
+  justify-content: flex-end;
+}
+
+.cart {
+  /*margin-left: 25px;*/
+}
+
+.logo {
+  flex: 1;
 }
 
 .login {
-  flex-grow: 1;
+  margin-right: 25px;
 }
 
 :global(.icon).logo {

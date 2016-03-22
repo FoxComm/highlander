@@ -1,14 +1,5 @@
 @import "colors.css";
 
-.sidebar-hidden {
-  transform: translateX(-100%);
-}
-
-.sidebar-shown {
-  display: block;
-  position: fixed;
-}
-
 .overlay {
   top: 0;
   bottom: 0;
