@@ -118,7 +118,7 @@ class EditBilling extends Component {
           </FormField>
         </div>
         <div styleName="union-fields">
-          <FormField required styleName="text-field">
+          <FormField required styleName="text-field" getTargetValue={() => data.month}>
             <Autocomplete
               inputProps={{
                 placeholder: 'MONTH',
@@ -131,7 +131,7 @@ class EditBilling extends Component {
               selectedItem={data.month}
             />
           </FormField>
-          <FormField required styleName="text-field">
+          <FormField required styleName="text-field" getTargetValue={() => data.year}>
             <Autocomplete
               inputProps={{
                 placeholder: 'YEAR',
