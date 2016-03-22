@@ -108,6 +108,18 @@ object GiftCard {
       originalBalance = payload.balance, currency = payload.currency)
   }
 
+  def build(balance: Int, originId: Int, currency: Currency): GiftCard = {
+    GiftCard(
+      originId = originId,
+      originType = GiftCard.CustomerPurchase,
+      state = GiftCard.Active,
+      currency = currency,
+      originalBalance = balance,
+      availableBalance = balance,
+      currentBalance = balance
+    )
+  }
+
   def buildAppeasement(payload: payloads.GiftCardCreateByCsr, originId: Int): GiftCard = {
     GiftCard(
       originId = originId,
