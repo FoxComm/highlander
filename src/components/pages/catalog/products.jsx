@@ -17,10 +17,18 @@ type Params = {
 type ProductListParams = {
   params: Params;
   list: Array<Product>;
+  isLoading: boolean;
   fetch: Function;
 }
 
-const getState = state => ({ ...state.products });
+const getState = state => {
+  const async = state.asyncActions.products;
+
+  return {
+    ...state.products,
+    isLoading: !!async ? async.inProgress : true,
+  };
+};
 
 class Products extends Component {
 

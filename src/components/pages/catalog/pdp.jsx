@@ -10,6 +10,7 @@ import Counter from 'ui/forms/counter';
 import Currency from 'ui/currency';
 import { Link } from 'react-router';
 import Gallery from 'ui/gallery/gallery';
+import Loader from 'ui/loader';
 
 import * as actions from 'modules/product-details';
 
@@ -25,7 +26,14 @@ type Props = {
   product: ProductResponse,
 };
 
-const getState = state => ({ product: state.productDetails.product });
+const getState = state => {
+  const async = state.asyncActions.pdp;
+
+  return {
+    product: state.productDetails.product,
+    isLoading: !!async ? async.inProgress : true,
+  };
+};
 
 class Pdp extends Component<void, Props, void> {
   componentWillMount() {
@@ -37,10 +45,11 @@ class Pdp extends Component<void, Props, void> {
   }
 
   render() {
-    const { product } = this.props;
-    if (!product) {
-      return <div></div>;
+    if (this.props.isLoading) {
+      return <Loader/>;
     }
+
+    const { product } = this.props;
 
     const title = _.get(product, ['product', 'attributes', 'title', 'v'], '');
     const description = _.get(product, ['product', 'attributes', 'description', 'v'], '');
