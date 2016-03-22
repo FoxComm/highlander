@@ -1,32 +1,30 @@
 //libs
 import React, { PropTypes } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 
 //data
-import { actions } from '../../modules/customer-groups/group';
+import operators from '../../paragons/customer-groups/operators';
 
 
-const mapStateToProps = state => ({group: state.customerGroups.group});
-const mapDispatchToProps = dispatch => ({actions: bindActionCreators(actions, dispatch)});
+export default class DynamicGroup extends React.Component {
 
-@connect(mapStateToProps, mapDispatchToProps)
-export default class Group extends React.Component {
-
-  componentDidMount() {
-    const {params: {groupId}, actions: {fetchGroup}} = this.props;
-
-    if (groupId) {
-      fetchGroup(groupId);
-    }
-  }
+  static propTypes = {
+    group: PropTypes.shape({
+      id: PropTypes.number,
+      name: PropTypes.string,
+      mainCondition: PropTypes.oneOf([
+        operators.and,
+        operators.or,
+      ]),
+      conditions: PropTypes.arrayOf(PropTypes.array),
+    }),
+  };
 
   render() {
-    const {props} = this;
+    const {group} = this.props;
 
     return (
       <div>
-        Group details
+        Dynamic Group `{group.name}` details
       </div>
     );
   }

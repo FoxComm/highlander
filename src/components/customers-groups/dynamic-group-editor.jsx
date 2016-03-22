@@ -20,12 +20,12 @@ import QueryBuilder from './query-builder';
 import { Link } from '../link';
 import { transitionTo } from '../../route-helpers';
 
-import { actions } from '../../modules/customer-groups/group';
+import { actions } from '../../modules/customer-groups/dynamic/group';
 
 
 const prefixed = prefix('fc-customer-group-dynamic-edit__');
 
-const mapStateToProps = state => ({group: state.customerGroups.group});
+const mapStateToProps = state => ({group: state.customerGroups.dynamic.group});
 const mapDispatchToProps = dispatch => ({actions: bindActionCreators(actions, dispatch)});
 
 @connect(mapStateToProps, mapDispatchToProps)

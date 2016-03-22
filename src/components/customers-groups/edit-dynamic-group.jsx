@@ -7,7 +7,7 @@ import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 
 //data
-import { actions } from '../../modules/customer-groups/group';
+import { actions } from '../../modules/customer-groups/dynamic/group';
 import { fetchRegions } from '../../modules/regions';
 
 //helpers
@@ -24,7 +24,7 @@ import { transitionTo } from '../../route-helpers';
 
 const prefixed = prefix('fc-customer-group-dynamic-edit__');
 
-const mapStateToProps = state => ({group: state.customerGroups.group});
+const mapStateToProps = state => ({group: state.customerGroups.dynamic.group});
 const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators(actions, dispatch),
   fetchRegions: () => dispatch(fetchRegions()),

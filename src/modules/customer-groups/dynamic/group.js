@@ -3,11 +3,12 @@ import _ from 'lodash';
 import { assoc } from 'sprout-data';
 
 // helpers
-import Api from '../../lib/api';
-import createStore from '../../lib/store-creator';
-import criterions from './../../paragons/customer-groups/criterions';
-import queryAdapter from './query-adapter';
-import buildQuery from './query';
+import Api from '../../../lib/api';
+import * as search from '../../../lib/search';
+import createStore from '../../../lib/store-creator';
+import criterions from './../../../paragons/customer-groups/criterions';
+import queryAdapter from './../query-adapter';
+import buildQuery from './../query';
 
 const initialState = {
   id: null,
@@ -19,16 +20,17 @@ const initialState = {
 };
 
 const fetchGroup = (actions, id) => dispatch => {
-  Api.get(`/groups/${id}`).then(
+  return Api.get(`/groups/${id}`).then(
     (data) => {
       dispatch(actions.setData(data));
     }
   );
 };
 
+
 const saveGroup = actions => (dispatch, getState) => {
   const state = getState();
-  const getValue = (name) => _.get(state, ['customerGroups', 'group', name]);
+  const getValue = (name) => _.get(state, ['customerGroups', 'dynamic', 'group', name]);
 
   const id = getValue('id');
   const name = getValue('name');
@@ -53,7 +55,7 @@ const saveGroup = actions => (dispatch, getState) => {
     request = Api.post('/groups', data);
   }
 
-  request.then(
+  return request.then(
     (data) => {
       dispatch(actions.setData(data));
       dispatch(actions.setSaved());

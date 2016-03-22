@@ -1,11 +1,11 @@
 import { combineReducers } from 'redux';
-import dynamic from './dynamic';
-import list from './list';
+import group from './group';
+//import list from './list';
 
 
 const reducer = combineReducers({
-  dynamic,
-  list,
+  group,
+  //list,
 });
 
 export default reducer;
