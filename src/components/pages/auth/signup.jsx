@@ -23,9 +23,9 @@ type AuthState = {
   username: string
 };
 
-/* :: */
+/* ::`*/
 @connect(null, actions)
-/* :: */
+/* ::`*/
 export default class Auth extends Component {
 
   state: AuthState = {

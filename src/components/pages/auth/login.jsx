@@ -22,9 +22,9 @@ type AuthState = {
   password: string,
 };
 
-/* :: */
+/* ::`*/
 @connect(null, actions)
-/* :: */
+/* ::`*/
 export default class Auth extends Component {
 
   state: AuthState = {
