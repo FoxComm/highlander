@@ -1,7 +1,13 @@
 
 @import "colors.css";
 
-.cart {}
+.cart-shown {
+  display: block;
+}
+
+.cart-hidden {
+  display: none;
+}
 
 .overlay {
   position: fixed;

@@ -6,6 +6,7 @@ import type { HTMLElement } from 'types';
 import styles from './storefront.css';
 import { connect } from 'react-redux';
 import { toggleSidebar } from 'modules/sidebar';
+import { toggleCart } from 'modules/cart';
 
 import Icon from 'ui/icon';
 import { Link } from 'react-router';
@@ -18,6 +19,7 @@ import Cart from '../cart/cart';
 type StoreFrontProps = {
   children: HTMLElement;
   toggleSidebar: Function;
+  toggleCart: Function;
 }
 
 const getState = state => ({ auth: state.auth });
@@ -44,7 +46,7 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
               <div styleName="login">
                 {sessionLink}
               </div>
-              <div styleName="cart">
+              <div styleName="cart" onClick={props.toggleCart}>
                 <Icon name="fc-cart" styleName="head-icon"/>
               </div>
             </div>
@@ -68,4 +70,5 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
   );
 };
 
-export default connect(getState, {toggleSidebar})(StoreFront);
+export default connect(getState, {toggleSidebar, toggleCart})(StoreFront);
+
