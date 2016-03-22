@@ -16,6 +16,7 @@ import ContentBox from '../content-box/content-box';
 import CurrencyInput from '../forms/currency-input';
 import CustomProperty from './custom-property';
 import ProductState from './product-state';
+import RichTextEditor from '../rich-text-editor/rich-text-editor';
 import SkuList from './sku-list';
 import SubNav from './sub-nav';
 import VariantList from './variant-list';
@@ -195,7 +196,6 @@ export default class ProductForm extends Component<void, Props, State> {
     });
 
     const required = _.indexOf(requiredAttributes, label) != -1;
-
     return (
       <FormField
         className="fc-product-details__field"
@@ -204,7 +204,7 @@ export default class ProductForm extends Component<void, Props, State> {
         key={`product-page-field-${label}`}>
         {this.renderAttributeField(attribute, required)}
       </FormField>
-    );
+    ); 
   }
 
   renderAttributeField(attribute: Attribute, required: bool): Element {
@@ -221,6 +221,8 @@ export default class ProductForm extends Component<void, Props, State> {
             value={priceValue}
             onChange={(value) => this.handleUpdateProduct(label, value)} />
         );
+      case 'richText':
+        return <RichTextEditor />;
       default:
         const val = _.get(this.state, ['product', label], value);
         return (
