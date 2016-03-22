@@ -1,13 +1,12 @@
 /* @flow */
 
 import React, { Component } from 'react';
-import _ from 'lodash';
 import type { HTMLElement } from 'types';
 import type { Product } from 'modules/products';
-import styles from './product-list.css';
+import styles from './product.css';
 import { connect } from 'react-redux';
 
-import ListItem from '../../products/list-item';
+import ProductsList from '../../products-list/products-list';
 
 import * as actions from 'modules/products';
 
@@ -21,9 +20,9 @@ type ProductListParams = {
   fetch: Function;
 }
 
-const getState = state => ({...state.products});
+const getState = state => ({ ...state.products });
 
-class ProductList extends Component {
+class Products extends Component {
 
   componentWillMount() {
     const categoryId = this.categoryId(this.props.params);
@@ -44,13 +43,8 @@ class ProductList extends Component {
   }
 
   render(): HTMLElement {
-    const items = _.map(this.props.list, (item) => <ListItem {...item} key={`product-${item.id}`} />);
-    return (
-      <div styleName="catalog">
-        {items}
-      </div>
-    );
+    return <ProductsList list={this.props.list}/>;
   }
 }
 
-export default connect(getState, actions)(ProductList);
+export default connect(getState, actions)(Products);

@@ -11,10 +11,12 @@ import Categories from '../categories/categories';
 import Search from '../search/search';
 
 import * as actions from 'modules/sidebar';
+import { actions as searchActions } from 'modules/search';
 
 type SidebarProps = {
   isVisible: boolean;
   toggleSidebar: Function;
+  setTerm: Function;
 };
 
 const getState = state => ({ ...state.sidebar });
@@ -26,6 +28,7 @@ const Sidebar = (props : SidebarProps) : HTMLElement => {
   });
 
   const changeCategoryCallback = () => {
+    props.setTerm('');
     props.toggleSidebar();
   };
 
@@ -51,4 +54,4 @@ const Sidebar = (props : SidebarProps) : HTMLElement => {
   );
 };
 
-export default connect(getState, actions)(Sidebar);
+export default connect(getState, {...actions, ...searchActions})(Sidebar);

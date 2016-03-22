@@ -20,44 +20,62 @@ type SearchProps = {
   toggleSidebar: Function,
   onSearch: Function,
   setTerm: Function,
-  fetch: Function
+  fetch: Function,
 }
 
-function mapState({ search }: Object): any {
+type SearchState = {
+  term: string;
+}
+
+function mapState({ search }: Object):any {
   return {
     ...search,
   };
 }
 
-function mapDispatch(dispatch:Function): any {
+function mapDispatch(dispatch:Function):any {
   return {
-    ...bindActionCreators(actions, dispatch),
-    toggleSidebar,
+    ...bindActionCreators({ ...actions, toggleSidebar }, dispatch),
   };
 }
 
 class Search extends Component {
-  props: SearchProps;
+  props:SearchProps;
+  state:SearchState = {
+    term: '',
+  };
 
-  @autobind
-  onChange({ target }: any): void {
-    this.props.setTerm(target.value);
+  componentWillReceiveProps(nextProps) {
+    this.setState({ term: nextProps.term });
   }
 
   @autobind
-  onSearch(): void {
-    if (this.props.term.length) {
-      this.props.fetch(this.props.term);
+  onChange({ target }: any):void {
+    this.setState({ term: target.value });
+  }
+
+  @autobind
+  onSearch():void {
+    const { term } = this.state;
+
+    if (term.length) {
+      this.props.setTerm(term);
       this.props.toggleSidebar();
 
-      browserHistory.push(`/search/${this.props.term}`);
+      browserHistory.push(`/search/${term}`);
     }
   }
 
   render():HTMLElement {
     return (
       <div styleName="search">
-        <input styleName="search-input" type="text" autoComplete="off" onChange={this.onChange} placeholder="Search"/>
+        <input value={this.state.term}
+          onChange={this.onChange}
+          styleName="search-input"
+          autoComplete="off"
+          placeholder="Search"
+          ref="input"
+        />
 
         <Icon styleName="head-icon" name="fc-magnifying-glass" onClick={this.onSearch}/>
       </div>

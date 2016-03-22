@@ -20,6 +20,7 @@
 .head {
   display: flex;
   align-items: center;
+  margin-bottom: 40px;
 }
 
 .search {
@@ -46,7 +47,7 @@
   flex-grow: 1;
 }
 
-.logo {
+:global(.icon).logo {
   width: 57px;
   height: 57px;
 }

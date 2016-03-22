@@ -1,7 +1,7 @@
 @import "colors.css";
 
 .sidebar-hidden {
-  display: none;
+  transform: translateX(-100%);
 }
 
 .sidebar-shown {
@@ -16,6 +16,9 @@
   right: 0;
   position: fixed;
   background: var(--light-grayish);
+  opacity: 0;
+  transition: opacity .1s;
+  transform: translateX(-100%);
 }
 
 .container {
@@ -26,6 +29,17 @@
   position: fixed;
   background: var(--blackish);
   color: var(--whitish);
+  transform: translateX(-100%);
+  transition: transform .1s;
+}
+
+.sidebar-shown .overlay {
+  opacity:1;
+  transform: translateX(0);
+}
+
+.sidebar-shown .container {
+  transform: translateX(0);
 }
 
 .controls {
@@ -36,6 +50,7 @@
 .close-button {
   color: var(--whitish);
   text-decoration: none;
+  margin-left: 10px;
 }
 
 .close-button {
@@ -47,5 +62,5 @@
 }
 
 .controls-search {
-  margin-top: 32px;
+  margin-top: 16px;
 }
