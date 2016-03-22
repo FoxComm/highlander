@@ -31,6 +31,6 @@ trait GiftCardGenerator {
   def generateGiftCardPurchase(customerId: Int, productContext: ProductContext)(implicit db: Database) : DbResultT[GiftCard] = for {
     order ← * <~ Orders.create(Order(state = Order.ManualHold, customerId = customerId, productContextId = productContext.id))
     orig  ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
-    gc    ← * <~ GiftCards.create(GiftCard.buildLineItem(balance = nextGcBalance, originId = orig.id, currency = Currency.USD))
+    gc    ← * <~ GiftCards.create(GiftCard.build(balance = nextGcBalance, originId = orig.id, currency = Currency.USD))
   } yield gc
 }
