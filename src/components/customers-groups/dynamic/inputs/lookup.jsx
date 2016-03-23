@@ -7,19 +7,7 @@ import { connect } from 'react-redux';
 import { LookupDropdown } from '../../../lookup';
 
 
-const Input = ({data, value, prefixed, changeValue}) => {
-  const item = _.find(data, ({label}) => label === value);
-
-  return (
-    <LookupDropdown className={prefixed('lookup')}
-                    data={data}
-                    value={value && item ? item.id : null}
-                    minQueryLength={3}
-                    onSelect={({label}) => changeValue(label)} />
-  );
-};
-
-Input.propTypes = {
+const propTypes = {
   criterion: PropTypes.shape({
     field: PropTypes.string.isRequired,
   }).isRequired,
@@ -32,6 +20,36 @@ Input.propTypes = {
   changeValue: PropTypes.func.isRequired,
 };
 
-export default type => connect(state => ({
-  data: _.chain(state.regions).values().map(({id,name}) => ({id, label: name})).value(),
-}))(Input);
+const Input = ({data, value, prefixed, changeValue}) => {
+  const item = _.find(data, ({label}) => label === value);
+
+  return (
+    <LookupDropdown className={prefixed('lookup')}
+                    data={data}
+                    value={value && item ? item.id : null}
+                    minQueryLength={3}
+                    onSelect={({label}) => changeValue(label)} />
+  );
+};
+Input.propTypes = propTypes;
+
+const Label = ({value, prefixed}) => {
+  return (
+    <div className={prefixed('')}>
+      {value}
+    </div>
+  );
+};
+Label.propTypes = propTypes;
+
+
+const connected = getState => connect(state => ({
+  data: _.chain(getState(state)).values().map(({id,name}) => ({id, label: name})).value(),
+}));
+
+export default function(type) {
+  return {
+    Input: connected(state => state.regions)(Input),
+    Label: connected(state => state.regions)(Label)
+  }
+}

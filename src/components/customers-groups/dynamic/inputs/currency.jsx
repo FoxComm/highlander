@@ -5,14 +5,7 @@ import React, { PropTypes } from 'react';
 import CurrencyInput from '../../../forms/currency-input';
 
 
-const Input = ({value, changeValue}) => {
-  return (
-    <CurrencyInput onChange={changeValue}
-                   value={value} />
-  );
-};
-
-Input.propTypes = {
+const propTypes = {
   criterion: PropTypes.shape({
     field: PropTypes.string.isRequired,
   }).isRequired,
@@ -21,4 +14,24 @@ Input.propTypes = {
   changeValue: PropTypes.func.isRequired,
 };
 
-export default Input;
+const Input = ({value, changeValue}) => {
+  return (
+    <CurrencyInput onChange={changeValue}
+                   value={value} />
+  );
+};
+Input.propTypes = propTypes;
+
+const Label = ({value, prefixed}) => {
+  return (
+    <div className={prefixed('')}>
+      $ {formatCurrency(value, {bigNumber: true, fractionBase: 2})}
+    </div>
+  );
+};
+Label.propTypes = propTypes;
+
+export default {
+  Input,
+  Label,
+};

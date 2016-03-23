@@ -53,9 +53,9 @@ const renderOperator = (criterion, operator, changeOperator) => {
 };
 
 const renderValue = (criterion, operator, value, changeValue) => {
-  const input = operator in criterion.input ? criterion.input[operator] : criterion.input.default;
+  const {Input} = operator in criterion.input ? criterion.input[operator] : criterion.input.default;
 
-  return React.createElement(input, {
+  return React.createElement(Input, {
     criterion,
     value,
     changeValue,
