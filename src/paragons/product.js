@@ -156,8 +156,8 @@ export function addEmptySku(product: FullProduct): FullProduct {
     createdAt: null,
   };
 
-  const variantKey = _.get('shadow.product.attributes.variants.ref')
-  const skusKey = _.get('shadow.product.attributes.skus.ref')
+  const variantKey = _.get('shadow.product.attributes.variants.ref');
+  const skusKey = _.get('shadow.product.attributes.skus.ref');
 
   return assoc(product,
     ['form', 'product', 'attributes', variantKey], pseudoRandomCode,
@@ -173,7 +173,7 @@ export function addNewVariant(product: FullProduct, variant: Variant): FullProdu
   const variantName = variant.name;
   if (!variantName) throw new Error('Variant must have a name');
 
-  const variantKey = _.get('shadow.product.attributes.variants.ref')
+  const variantKey = _.get('shadow.product.attributes.variants.ref');
   const currentVariants: { [key:string]: Variant } = _.get(product, 'form.product.attributes.'+variantKey, {});
   const newVariants = {
     ...currentVariants,
@@ -192,9 +192,7 @@ export function copyShadowAttributes(form, shadow) {
 
   //update shadow
   //TODO: Finish
-  shadow = _.transform(shadow, (result, value, key) => {
-    value.ref = key
-  }, {});
+  shadow = _.transform(shadow, (result, value, key) => { value.ref = key; }, {});
 }
 
 /**
