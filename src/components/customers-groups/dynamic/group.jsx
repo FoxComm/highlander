@@ -8,6 +8,11 @@ import operators from '../../../paragons/customer-groups/operators';
 import { actions as groupActions } from '../../../modules/customer-groups/dynamic/group';
 import { actions as listActions } from '../../../modules/customer-groups/dynamic/list';
 
+//helpers
+import { prefix } from '../../../lib/text-utils';
+
+
+const prefixed = prefix('fc-customer-group-dynamic');
 
 const mapStateToProps = state => ({list: state.customerGroups.dynamic.list});
 const mapDispatchToProps = dispatch => ({
@@ -43,8 +48,19 @@ export default class DynamicGroup extends Component {
     const {list, group} = this.props;
 
     return (
-      <div>
-        Dynamic Group `{group.name}` details
+      <div className={prefixed('')}>
+        <div className="fc-grid">
+          <header className="fc-col-md-1-1">
+            <h1 className="fc-title">
+              {group.name}
+            </h1>
+          </header>
+          <article className="fc-col-md-1-1">
+            <div>
+              Dynamic Group `{group.name}` details
+            </div>
+          </article>
+        </div>
       </div>
     );
   }

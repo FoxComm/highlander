@@ -6,14 +6,8 @@ import { bindActionCreators } from 'redux';
 //data
 import { actions } from '../../modules/customer-groups/dynamic/group';
 
-//helpers
-import { prefix } from '../../lib/text-utils';
-
 //components
 import DynamicGroup from './dynamic/group';
-
-
-const prefixed = prefix('fc-customer-group');
 
 const mapStateToProps = state => ({group: state.customerGroups.dynamic.group});
 const mapDispatchToProps = dispatch => ({actions: bindActionCreators(actions, dispatch)});
@@ -36,24 +30,9 @@ export default class Group extends React.Component {
       return null;
     }
 
-    const view = group.type === 'dynamic'
+    return group.type === 'dynamic'
       ? <DynamicGroup group={group} />
       //since we do not have manual groups yet
       : null;
-
-    return (
-      <div className={prefixed()}>
-        <div className="fc-grid">
-          <header className="fc-col-md-1-1">
-            <h1 className="fc-title">
-              {group.name}
-            </h1>
-          </header>
-          <article className="fc-col-md-1-1">
-            {view}
-          </article>
-        </div>
-      </div>
-    );
   };
 }
