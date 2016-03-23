@@ -50,14 +50,14 @@ export default class Groups extends Component {
 
   @autobind
   handleAddGroup() {
-    transitionTo(this.context.history, 'new-dynamic-group');
+    transitionTo(this.context.history, 'new-dynamic-customer-group');
   }
 
   renderRow(row, index) {
     return (
       <TableRow key={`${index}`}>
         <TableCell>
-          <Link to={'group'} params={{groupId: row.id}}>
+          <Link to={'customer-group'} params={{groupId: row.id}}>
             {row.name}
           </Link>
         </TableCell>

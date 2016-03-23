@@ -2,6 +2,7 @@
 import React, { PropTypes, Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { autobind } from 'core-decorators';
 
 //data
 import operators from '../../../paragons/customer-groups/operators';
@@ -9,7 +10,11 @@ import { actions as groupActions } from '../../../modules/customer-groups/dynami
 import { actions as listActions } from '../../../modules/customer-groups/dynamic/list';
 
 //helpers
+import { transitionTo } from '../../../route-helpers';
 import { prefix } from '../../../lib/text-utils';
+
+//components
+import { PrimaryButton } from '../../common/buttons';
 
 
 const prefixed = prefix('fc-customer-group-dynamic');
@@ -36,12 +41,21 @@ export default class DynamicGroup extends Component {
     }),
   };
 
+  static contextTypes = {
+    history: PropTypes.object.isRequired,
+  };
+
   componentDidMount() {
     this.props.listActions.fetch();
     setTimeout(()=> {
       this.props.groupActions.setFilterTerm('very');
       this.props.listActions.fetch();
     }, 1000);
+  }
+
+  @autobind
+  edit() {
+    transitionTo(this.context.history, 'edit-dynamic-customer-group', {groupId: this.props.group.id});
   }
 
   render() {
@@ -53,7 +67,9 @@ export default class DynamicGroup extends Component {
           <header className="fc-col-md-1-1">
             <h1 className="fc-title">
               {group.name}
+              <span className={prefixed('__count')}>{list.total}</span>
             </h1>
+            <PrimaryButton onClick={this.edit}>Edit Group</PrimaryButton>
           </header>
           <article className="fc-col-md-1-1">
             <div>

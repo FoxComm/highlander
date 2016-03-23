@@ -95,9 +95,9 @@ const routes = (
         <Route name='customer-groups' component={CustomersListPage}>
           <IndexRoute name='groups' component={Groups} />
         </Route>
-        <Route name='new-dynamic-group' path='new-dynamic' component={NewDynamicGroup} />
-        <Route name='edit-dynamic-group' path='edit-dynamic/:groupId' component={EditDynamicGroup} />
-        <Route name='group' path=':groupId' component={Group} />
+        <Route name='new-dynamic-customer-group' path='new-dynamic' component={NewDynamicGroup} />
+        <Route name='edit-dynamic-customer-group' path='edit-dynamic/:groupId' component={EditDynamicGroup} />
+        <Route title='Group' name='customer-group' path=':groupId' component={Group} />
       </Route>
       <Route name='customers-new' path='new' component={NewCustomer} />
       <Route name='customer' path=':customerId' component={Customer}>

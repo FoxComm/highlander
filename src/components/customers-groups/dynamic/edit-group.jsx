@@ -71,14 +71,14 @@ export default class EditDynamicGroup extends React.Component {
   }
 
   render() {
-    const {props} = this;
+    const {group, actions} = this.props;
 
     return (
       <NewGroupBase title="Edit Dynamic Customer Group">
-        <Form onSubmit={() => props.actions.saveGroup()}>
+        <Form onSubmit={() => actions.saveGroup()}>
           <DynamicGroupEditor />
           <div className={prefixed('form-submits')}>
-            <Link to="customer-groups">Cancel</Link>
+            <Link to="customer-group" params={{groupId: group.id}}>Cancel</Link>
             <PrimaryButton type="submit">Save Dynamic Group</PrimaryButton>
           </div>
         </Form>

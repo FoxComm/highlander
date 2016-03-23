@@ -18,7 +18,6 @@ import { Dropdown, DropdownItem } from '../../dropdown';
 import { PrimaryButton, Button } from '../../common/buttons';
 import QueryBuilder from './query-builder';
 import { Link } from '../../link';
-import { transitionTo } from '../../../route-helpers';
 
 import { actions } from '../../../modules/customer-groups/dynamic/group';
 
