@@ -1,7 +1,8 @@
 package services.assignments
 
 import cats.implicits._
-import failures.{AlreadyAssignedFailure, AssigneeNotFound, Failure, NotFoundFailure404}
+import com.pellucid.sealerate
+import failures.{AlreadyAssignedFailure, AssigneeNotFound, Failure, NotAssignedFailure, NotFoundFailure404}
 import failures.Util._
 import models.Assignment._
 import models.{Assignment, Assignments, NotificationSubscription, StoreAdmin, StoreAdmins}
@@ -13,7 +14,7 @@ import responses.BatchMetadata._
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
-import utils.ModelWithIdParameter
+import utils.{ADT, ModelWithIdParameter}
 import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
@@ -26,6 +27,14 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   def notifyDimension(): String
   def buildResponse(model: M): ResponseItem
 
+  sealed trait ActionType
+  case object Assigning extends ActionType
+  case object Unassigning extends ActionType
+
+  object Reason extends ADT[ActionType] {
+    def types = sealerate.values[ActionType]
+  }
+
   def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: AC): DbResult[M]
   def fetchSequence(keys: Seq[K])(implicit ec: EC, db: DB, ac: AC): DbResult[Seq[M]]
 
@@ -37,10 +46,9 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
 
   // Use this methods wherever you want
   def list(key: K)(implicit ec: EC, db: DB, ac: AC): Result[Seq[Root]] = (for {
-    entity    ← * <~ fetchEntity(key)
-    // Response builder
-    assignments    ← * <~ fetchAssignments(entity).toXor
-    response       = assignments.map((buildAssignment _).tupled)
+    entity      ← * <~ fetchEntity(key)
+    assignments ← * <~ fetchAssignments(entity).toXor
+    response    = assignments.map((buildAssignment _).tupled)
   } yield response).run()
 
   def assign(key: K, payload: AssignmentPayload, originator: StoreAdmin)
@@ -95,8 +103,8 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     result         = entities.map(buildResponse)
     entityName     = entities.headOption.getOrElse(Some)
     requestedIds   = payload.entityIds.map(_.toString)
-    alreadyAssignedIds = assignments.map(_.referenceId.toString)
-    batchFailures  = diffToBatchErrors(requestedIds, success, alreadyAssignedIds, entityName, payload.storeAdminId)
+    referenceIds   = assignments.map(_.referenceId.toString)
+    batchFailures  = getFailureData(requestedIds, success, referenceIds, entityName, payload.storeAdminId, Assigning)
     batchMetadata  = BatchMetadata(BatchMetadataSource(entityName, success, batchFailures))
   } yield TheResponse(result, errors = flattenErrors(batchFailures), batch = batchMetadata.some)).runTxn()
 
@@ -116,8 +124,8 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     result        = entities.map(buildResponse)
     entityName    = entities.headOption.getOrElse(Some)
     requestedIds  = payload.entityIds.map(_.toString)
-    alreadyAssignedIds = assignments.map(_.referenceId.toString)
-    batchFailures = diffToBatchErrors(requestedIds, success, alreadyAssignedIds, entityName, payload.storeAdminId)
+    referenceIds  = assignments.map(_.referenceId.toString)
+    batchFailures = getFailureData(requestedIds, success, referenceIds, entityName, payload.storeAdminId, Unassigning)
     batchMetadata = BatchMetadata(BatchMetadataSource(entityName, success, batchFailures))
   } yield TheResponse(result, errors = flattenErrors(batchFailures), batch = batchMetadata.some)).runTxn()
 
@@ -171,14 +179,22 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   private def filterSuccess(entities: Seq[M], newEntries: Seq[Assignment]): Seq[String] =
     entities.filter(e ⇒ newEntries.map(_.referenceId).contains(e.id)).map(m ⇒ m.primarySearchKeyLens.get(m))
 
-  private def diffToBatchErrors[B](requested: Seq[String], available: Seq[String], alreadyAssignedIds: Seq[String],
-    modelType: B, storeAdminId: Int): BatchMetadata.FailureData = requested.diff(available).map { id ⇒
-      (id.toString, matchFailure(id, alreadyAssignedIds, modelType, storeAdminId).description)
-    }.toMap
+  private def getFailureData[B](requested: Seq[String], available: Seq[String], referenceIds: Seq[String],
+    modelType: B, storeAdminId: Int, actionType: ActionType): BatchMetadata.FailureData = {
 
-  private def matchFailure[B](id: String, alreadyAssignedIds: Seq[String], modelType: B, storeAdminId: Int): Failure = {
-    if (alreadyAssignedIds.contains(id)) {
-      AlreadyAssignedFailure(modelType, id, storeAdminId)
+    requested.diff(available).map { id ⇒
+      val failure = matchFailure(id, alreadyAssignedIds, modelType, storeAdminId, actionType)
+      (id.toString, failure.description)
+    }.toMap
+  }
+
+  private def matchFailure[B](id: String, referenceIds: Seq[String], modelType: B, storeAdminId: Int,
+    actionType: ActionType): Failure = {
+    if (referenceIds.contains(id)) {
+      actionType match {
+        case Assigning   ⇒ AlreadyAssignedFailure(modelType, id, storeAdminId)
+        case Unassigning ⇒ NotAssignedFailure(modelType, id, storeAdminId)
+      }
     } else {
       NotFoundFailure404(modelType, id)
     }
