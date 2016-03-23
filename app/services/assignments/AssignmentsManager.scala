@@ -36,6 +36,13 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   }
 
   // Use this methods wherever you want
+  def list(key: K)(implicit ec: EC, db: DB, ac: AC): Result[Seq[Root]] = (for {
+    entity    ← * <~ fetchEntity(key)
+    // Response builder
+    assignments    ← * <~ fetchAssignments(entity).toXor
+    response       = assignments.map((buildAssignment _).tupled)
+  } yield response).run()
+
   def assign(key: K, payload: AssignmentPayload, originator: StoreAdmin)
     (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[Seq[Root]]] = (for {
     // Validation + assign
