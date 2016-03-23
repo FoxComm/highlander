@@ -1,4 +1,4 @@
-/* @flow weak */
+
 
 import React, { Component } from 'react';
 import styles from './auth.css';
@@ -47,10 +47,13 @@ export default class Auth extends Component {
   }
 
   @autobind
-  authenticate() {
+  authenticate(e: any) {
+    e.preventDefault();
+    e.stopPropagation();
     const { email, password } = this.state;
     const kind = 'customer';
     this.props.authenticate({email, password, kind}).then(() => {
+      console.log('authed');
       browserHistory.push('/');
     }).catch(err => {
       console.error(err);
@@ -63,7 +66,7 @@ export default class Auth extends Component {
     return (
       <div>
         <div styleName="title">LOG IN</div>
-        <Button icon="fc-google" styleName="google-login">LOG IN WITH GOOGLE</Button>
+        <Button icon="fc-google" type="button" styleName="google-login">LOG IN WITH GOOGLE</Button>
         <WrapToLines styleName="divider">or</WrapToLines>
         <form>
           <FormField key="email" styleName="form-field">

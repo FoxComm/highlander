@@ -56,7 +56,9 @@ export default class Auth extends Component {
   }
 
   @autobind
-  submitUser() {
+  submitUser(e: any) {
+    e.preventDefault();
+    e.stopPropagation();
     const {email, password, username: name} = this.state;
     const paylaod: SignUpPayload = {email, password, name};
     this.props.signUp(paylaod).then(() => {
@@ -72,7 +74,7 @@ export default class Auth extends Component {
     return (
       <div>
         <div styleName="title">SIGN UP</div>
-        <Button icon="fc-google" styleName="google-login">SIGN UP WITH GOOGLE</Button>
+        <Button icon="fc-google" type="button" styleName="google-login">SIGN UP WITH GOOGLE</Button>
         <WrapToLines styleName="divider">or</WrapToLines>
         <form>
           <FormField key="username" styleName="form-field">
