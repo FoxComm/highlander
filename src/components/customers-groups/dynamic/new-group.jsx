@@ -7,19 +7,19 @@ import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 
 //data
-import { actions } from '../../modules/customer-groups/dynamic/group';
-import { fetchRegions } from '../../modules/regions';
+import { actions } from '../../../modules/customer-groups/dynamic/group';
+import { fetchRegions } from '../../../modules/regions';
 
 //helpers
-import { prefix } from '../../lib/text-utils';
+import { prefix } from '../../../lib/text-utils';
 
 //components
-import NewGroupBase from './new-group';
-import DynamicGroupEditor from './dynamic-group-editor';
-import Form from '../forms/form';
-import { PrimaryButton, Button } from '../common/buttons';
-import { Link } from '../link';
-import { transitionTo } from '../../route-helpers';
+import NewGroupBase from './../new-group';
+import DynamicGroupEditor from './group-editor';
+import Form from '../../forms/form';
+import { PrimaryButton, Button } from '../../common/buttons';
+import { Link } from '../../link';
+import { transitionTo } from '../../../route-helpers';
 
 
 const prefixed = prefix('fc-customer-group-dynamic-edit__');
@@ -31,12 +31,9 @@ const mapDispatchToProps = dispatch => ({
 });
 
 @connect(mapStateToProps, mapDispatchToProps)
-export default class EditDynamicGroup extends React.Component {
+export default class NewDynamicGroup extends React.Component {
 
   static propTypes = {
-    params: PropTypes.shape({
-      groupId: PropTypes.string,
-    }),
     group: PropTypes.shape({
       id: PropTypes.number,
     }),
@@ -55,9 +52,7 @@ export default class EditDynamicGroup extends React.Component {
   }
 
   componentDidMount() {
-    const {params, actions, fetchRegions} = this.props;
-    actions.fetchGroup(params.groupId);
-    fetchRegions();
+    this.props.fetchRegions();
   }
 
   componentDidUpdate() {
@@ -74,7 +69,11 @@ export default class EditDynamicGroup extends React.Component {
     const {props} = this;
 
     return (
-      <NewGroupBase title="Edit Dynamic Customer Group">
+      <NewGroupBase title="New Dynamic Customer Group"
+                    alternative={{
+                      id: 'new-manual-group',
+                      title: 'manual group',
+                    }}>
         <Form onSubmit={() => props.actions.saveGroup()}>
           <DynamicGroupEditor />
           <div className={prefixed('form-submits')}>

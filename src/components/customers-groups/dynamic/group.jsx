@@ -4,9 +4,9 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 //data
-import operators from '../../paragons/customer-groups/operators';
-import { actions as groupActions } from '../../modules/customer-groups/dynamic/group';
-import { actions as listActions } from '../../modules/customer-groups/dynamic/list';
+import operators from '../../../paragons/customer-groups/operators';
+import { actions as groupActions } from '../../../modules/customer-groups/dynamic/group';
+import { actions as listActions } from '../../../modules/customer-groups/dynamic/list';
 
 
 const mapStateToProps = state => ({list: state.customerGroups.dynamic.list});

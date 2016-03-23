@@ -2,7 +2,7 @@
 import React, { PropTypes } from 'react';
 
 //components
-import Dropdown from '../../dropdown/dropdown';
+import Dropdown from '../../../dropdown/dropdown';
 
 
 const Input = ({criterion, value, changeValue}) => {

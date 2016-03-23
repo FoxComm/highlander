@@ -1,13 +1,15 @@
 //libs
-import moment from 'moment';
 import React, { PropTypes } from 'react';
 
 //components
-import DatePicker from '../../datepicker/datepicker';
+import CurrencyInput from '../../../forms/currency-input';
+
 
 const Input = ({value, changeValue}) => {
-  return <DatePicker date={new Date(value)}
-                     onClick={(value) => changeValue(moment(value).format('YYYY-MM-DDTHH:mm:ss.SSSZ'))} />;
+  return (
+    <CurrencyInput onChange={changeValue}
+                   value={value} />
+  );
 };
 
 Input.propTypes = {

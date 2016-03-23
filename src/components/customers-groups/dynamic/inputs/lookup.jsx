@@ -4,7 +4,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 
 //components
-import { LookupDropdown } from '../../lookup';
+import { LookupDropdown } from '../../../lookup';
 
 
 const Input = ({data, value, prefixed, changeValue}) => {

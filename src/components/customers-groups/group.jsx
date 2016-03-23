@@ -10,7 +10,7 @@ import { actions } from '../../modules/customer-groups/dynamic/group';
 import { prefix } from '../../lib/text-utils';
 
 //components
-import DynamicGroup from './dynamic-group';
+import DynamicGroup from './dynamic/group';
 
 
 const prefixed = prefix('fc-customer-group');

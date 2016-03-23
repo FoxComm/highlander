@@ -4,7 +4,7 @@ import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 
 //components
-import { Button } from '../../common/buttons';
+import { Button } from '../../../common/buttons';
 
 
 const Input = Widget => ({criterion, value, prefixed, changeValue}) => {

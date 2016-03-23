@@ -6,21 +6,21 @@ import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
 //data
-import operators from '../../paragons/customer-groups/operators';
+import operators from '../../../paragons/customer-groups/operators';
 
 //helpers
-import { prefix } from '../../lib/text-utils';
+import { prefix } from '../../../lib/text-utils';
 
 //components
-import Form from '../forms/form';
-import FormField from '../forms/formfield';
-import { Dropdown, DropdownItem } from '../dropdown';
-import { PrimaryButton, Button } from '../common/buttons';
+import Form from '../../forms/form';
+import FormField from '../../forms/formfield';
+import { Dropdown, DropdownItem } from '../../dropdown';
+import { PrimaryButton, Button } from '../../common/buttons';
 import QueryBuilder from './query-builder';
-import { Link } from '../link';
-import { transitionTo } from '../../route-helpers';
+import { Link } from '../../link';
+import { transitionTo } from '../../../route-helpers';
 
-import { actions } from '../../modules/customer-groups/dynamic/group';
+import { actions } from '../../../modules/customer-groups/dynamic/group';
 
 
 const prefixed = prefix('fc-customer-group-dynamic-edit__');

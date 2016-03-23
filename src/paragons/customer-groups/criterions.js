@@ -1,6 +1,6 @@
 import types from './types';
 import ops from './operators';
-import inputs from '../../components/customers-groups/inputs';
+import inputs from '../../components/customers-groups/dynamic/inputs';
 
 
 const criterions = [
