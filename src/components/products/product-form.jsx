@@ -218,6 +218,7 @@ export default class ProductForm extends Component<void, Props, State> {
         const rtVal = _.get(this.state, ['product', label], value);
         return (
           <RichTextEditor
+            label={formattedLbl}
             value={rtVal}
             onChange={(value) => this.handleUpdateProduct(label, value)} />
         );
