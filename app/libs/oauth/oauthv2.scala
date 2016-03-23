@@ -7,11 +7,13 @@ import dispatch.{Http, as, url ⇒ request}
 import org.json4s.{DefaultFormats, _}
 import utils.aliases._
 
+final case class UserInfo(name: String, email: String)
 
 trait OauthProvider {
   val oauthAuthorizationUrl: String
   val oauthAccessTokenUrl: String
-  val oauthInfoUrl: String
+
+  def userInfo(accessToken: String)(implicit ec: EC): XorT[Future, Throwable, UserInfo]
 }
 
 trait OauthClientOptions {
@@ -22,10 +24,7 @@ trait OauthClientOptions {
   def buildExtraAuthParams: Map[String, String] = Map.empty
 }
 
-
-class Oauth(oauthOptions: OauthClientOptions) { this: OauthProvider ⇒
-
-  implicit val formats = DefaultFormats
+abstract class Oauth(oauthOptions: OauthClientOptions) extends OauthProvider {
 
   val authorizationParams = Map(
     "client_id" → oauthOptions.clientId,
@@ -53,12 +52,6 @@ class Oauth(oauthOptions: OauthClientOptions) { this: OauthProvider ⇒
           "grant_type" → "authorization_code"))
 
     Http(req OK as.json4s.Json).map(_.extract[AccessTokenResponse])
-  }
-
-  // FIXME: google specific?
-  def userEmail(accessToken: String)(implicit ec: EC): XorT[Future, Throwable, String] = xorTryFuture {
-    val req = request(oauthInfoUrl).GET.addHeader("Authorization", s"Bearer ${accessToken}")
-    Http(req OK as.json4s.Json).map(_.extract[EntitywithEmail].email)
   }
 
 }

@@ -4,7 +4,7 @@ import scala.concurrent.Future
 
 import cats.data.{Xor, XorT}
 import cats.implicits._
-import libs.oauth.Oauth
+import libs.oauth.{Oauth, OauthProvider, UserInfo}
 import models.auth.Token
 import slick.dbio.DBIO
 import utils.DbResultT._
@@ -17,7 +17,7 @@ import utils.DbResultT
 object OauthService {
 
   type EmailFinder[M] = String ⇒ DBIO[Option[M]]
-  type EmailCreate[M] = String ⇒ DbResult[M]
+  type UserCreator[M] = UserInfo ⇒ DbResult[M]
 
   final case class OauthCallbackResponse(
     code: Option[String] = None,
@@ -40,24 +40,23 @@ object OauthService {
     3. FindOrCreate<StoreAdmin|Customer> <- ??
     4. respondWithToken
   */
-  def oauthCallback[O <: Oauth, M, F <: EmailFinder[M], C <: EmailCreate[M]]
-  (oauth: O, oauthResponse: OauthCallbackResponse, findByEmail: F, createByEmail: C, createToken: M ⇒ Token)
+  def oauthCallback[O <: Oauth, M, F <: EmailFinder[M], C <: UserCreator[M]]
+  (oauth: O, oauthResponse: OauthCallbackResponse, findByEmail: F, createByUserInfo: C, createToken: M ⇒ Token)
     (implicit ec: EC) = {
 
-    val tokenFromEmail = (email: String) ⇒ for {
-      result ← * <~ findByEmail(email).findOrCreateExtended(createByEmail(email))
+    val tokenFromUserInfo = (info: UserInfo) ⇒ for {
+      result ← * <~ findByEmail(info.email).findOrCreateExtended(createByUserInfo(info))
       (user, foundOrCreated) = result
       token = createToken(user)
     } yield token
 
-    val emailX = for {
+    val infoX = for {
       code ← XorT.fromXor[Future](parseOauthResponse(oauthResponse))
       accessTokenResp ← oauth.accessToken(code)
-      email ← oauth.userEmail(accessTokenResp.access_token)
-    } yield email
+      info ← oauth.userInfo(accessTokenResp.access_token)
+    } yield info
 
-    emailX.fold({ t ⇒ DbResultT.leftLift(GeneralFailure(t.toString).single) }, tokenFromEmail)
-
+    infoX.fold({ t ⇒ DbResultT.leftLift(GeneralFailure(t.toString).single) }, tokenFromUserInfo)
   }
 
 }

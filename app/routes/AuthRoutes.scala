@@ -16,14 +16,13 @@ import utils.Config.{RichConfig, config}
 import models.auth.{AdminToken, Identity}
 import models.{StoreAdmin, StoreAdmins}
 import utils.Slick.implicits._
-import cats.data.{Xor, XorT}
 import cats.implicits._
 import services.OauthService._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import libs.oauth.{GoogleOauthOptions, GoogleProvider, Oauth}
+import libs.oauth.{GoogleOauthOptions, GoogleProvider, Oauth, OauthClientOptions, UserInfo}
 
-
+class GoogleOauth(options: GoogleOauthOptions) extends Oauth(options) with GoogleProvider
 
 object AuthRoutes {
 
@@ -45,8 +44,8 @@ object AuthRoutes {
   val customerOauthOptions = getGoogleOauthOptions(Identity.Customer)
   val adminOauthOptions = getGoogleOauthOptions(Identity.Admin)
 
-  val customerGoogleOauth = new Oauth(customerOauthOptions) with GoogleProvider
-  val adminGoogleOauth = new Oauth(adminOauthOptions) with GoogleProvider
+  val customerGoogleOauth = new GoogleOauth(customerOauthOptions)
+  val adminGoogleOauth = new GoogleOauth(adminOauthOptions)
 
   def routes(implicit ec: EC, db: DB, mat: Materializer) = {
 
@@ -61,7 +60,7 @@ object AuthRoutes {
 
           onSuccess(oauthCallback(adminGoogleOauth, oauthResponse,
             StoreAdmins.findByEmail _,
-            (email: String) ⇒ StoreAdmins.create(StoreAdmin(email = email, name = "Xx Xxx")),
+            (userInfo: UserInfo) ⇒ StoreAdmins.create(StoreAdmin(email = userInfo.email, name = userInfo.name)),
             AdminToken.fromAdmin
           )) { t ⇒
             onSuccess(t.run()) { x ⇒
@@ -69,7 +68,7 @@ object AuthRoutes {
             }
           }
 
-          }
+        }
       } ~
       pathPrefix("signin") {
         (pathPrefix("google") & get & path("admin")) {
