@@ -176,12 +176,35 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   private def extractPrimaryKeys(entities: Seq[M]): Seq[String] =
     entities.map(m ⇒ m.primarySearchKeyLens.get(m))
 
-  private def notFoundEntities(entities: Seq[M], payload: BulkAssignmentPayload[K]): Seq[M] = {
+  private def notFoundEntities(entities: Seq[M], payload: BulkAssignmentPayload[K]): Seq[K] = {
     payload.entityIds.diff(extractPrimaryKeys(entities))
   }
 
-  private def skippedEntities(entities: Seq[M], assignments: Seq[Assignment]): Seq[M] = {
+  // Check diff() method properly!
+  private def skippedEntities(entities: Seq[M], assignments: Seq[Assignment], actionType: ActionType): Seq[M] = {
+    val entityIds    = entities.map(_.id)
+    val referenceIds = assignments.map(_.referenceId)
 
+    actionType match {
+      case Assigning ⇒
+        val alreadyAssignedIds = referenceIds.diff(entityIds)
+        entities.filter(e ⇒ alreadyAssignedIds.contains(e.id))
+      case Unassigning ⇒
+        val alreadyUnassignedIds = entityIds.diff(referenceIds)
+        entities.filter(e ⇒ alreadyUnassignedIds.contains(e.id))
+    }
+  }
+
+  private def succeedEntities(entities: Seq[M], assignments: Seq[Assignment], actionType: ActionType): Seq[M] = {
+    val entityIds    = entities.map(_.id)
+    val referenceIds = assignments.map(_.referenceId)
+
+    actionType match {
+      case Assigning ⇒
+        val successIds = assignments.map(_.referenceId)
+      case Unassigning ⇒
+
+    }
   }
 
   private def filterSuccess(entities: Seq[M], newEntries: Seq[Assignment]): Seq[String] =
