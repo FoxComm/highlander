@@ -3,7 +3,7 @@ package utils
 import cats.data.Xor
 import monocle.macros.GenLens
 import org.scalatest.prop.TableDrivenPropertyChecks._
-import services.Failures
+import failures.Failures
 import util.TestBase
 
 class FSMTest extends TestBase {

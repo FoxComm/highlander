@@ -8,7 +8,7 @@ import models.payment.giftcard.{GiftCard, GiftCards}
 import models.payment.storecredit.{StoreCredit, StoreCredits}
 import models.stripe._
 import monocle.macros.GenLens
-import services.Failure
+import failures.Failure
 import slick.driver.PostgresDriver.api._
 import utils.Money._
 import utils.Validation._

@@ -3,6 +3,7 @@ package services.giftcards
 import scala.concurrent.Future
 
 import cats.implicits._
+import failures.{NotFoundFailure400, OpenTransactionsFailure}
 import models.customer.Customers
 import models.payment.giftcard.GiftCard.Canceled
 import models.payment.giftcard.GiftCardSubtypes.scope._
@@ -110,6 +111,6 @@ object GiftCardService {
       _   ← * <~ GiftCards.cancelByCsr(giftCard, admin)
     } yield upd
 
-    case newState ⇒ DbResultT(GiftCards.update(giftCard, giftCard.copy(state = newState)))
+    case other ⇒ DbResultT(GiftCards.update(giftCard, giftCard.copy(state = other)))
   }
 }

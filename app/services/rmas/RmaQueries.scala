@@ -1,9 +1,10 @@
 package services.rmas
 
+import cats.implicits._
 import models.customer.Customers
-import models.rma.{RmaAssignments, Rmas}
+import models.rma.Rmas
 import models.{StoreAdmins, javaTimeSlickMapper}
-import responses.{PaginationMetadata, SortingMetadata, TheResponse, AllRmas, AssignmentResponse}
+import responses.{TheResponse, AllRmas}
 import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
@@ -17,11 +18,11 @@ import utils.aliases._
 object RmaQueries {
 
   def findAll(query: Rmas.QuerySeq)(implicit ec: EC, db: DB,
-    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[BulkRmaUpdateResponse] =
+    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[TheResponse[Seq[AllRmas.Root]]] =
     findAllDbio(query).run()
 
   def findAllDbio(query: Rmas.QuerySeq)(implicit ec: EC, db: DB,
-    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[BulkRmaUpdateResponse] = {
+    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[AllRmas.Root]]] = {
 
     val rmasAndCustomers = query.join(Customers).on(_.customerId === _.id)
 
@@ -55,21 +56,8 @@ object RmaQueries {
       }
     }
 
-    sortedQuery.result.flatMap(xor ⇒ xorMapDbio(xor) { results ⇒
-      val rmaIds = results.map { case ((rma, customer), admin) ⇒ rma.id }
-
-      val dbio = for {
-        liftResults ← lift(results)
-        assignments ← RmaAssignments.filter(_.rmaId.inSet(rmaIds)).result
-        admins ← StoreAdmins.filter(_.id.inSet(assignments.map(_.assigneeId))).result
-      } yield (liftResults, assignments.zip(admins))
-
-      dbio.map { case (liftResults, assignees) ⇒
-        liftResults.map { case ((rma, customer), admin) ⇒
-          val currentAssignees = assignees.filter(_._1.rmaId == rma.id).map((AssignmentResponse.buildForRma _).tupled)
-          AllRmas.build(rma, customer, admin, currentAssignees)
-        }
-      }
+    sortedQuery.result.map(_.map { case ((rma, customer), admin) ⇒
+      AllRmas.build(rma, customer.some, admin)
     }).toTheResponse
   }
 }

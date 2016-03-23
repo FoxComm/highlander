@@ -1,4 +1,5 @@
 package responses
 
 trait ResponseItem {
+
 }

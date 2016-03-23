@@ -7,6 +7,7 @@ import akka.stream.actor.ActorPublisher
 import akka.stream.scaladsl.Source
 
 import de.heikoseeberger.akkasse.ServerSentEvent
+import failures._
 import models.Notification._
 import models.activity._
 import models.{NotificationTrailMetadata, StoreAdmin, StoreAdmins, NotificationSubscription ⇒ Sub, NotificationSubscriptions ⇒ Subs}

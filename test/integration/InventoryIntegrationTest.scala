@@ -3,10 +3,10 @@ import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
 import cats.implicits._
+import failures.NotFoundFailure404
 import models.inventory._
-import models.product.{ProductContexts, Mvp, SimpleContext}
+import models.product.{Mvp, ProductContexts, SimpleContext}
 import responses.InventoryResponses._
-import services.NotFoundFailure404
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._

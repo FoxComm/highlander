@@ -5,7 +5,7 @@ import cats.implicits._
 import models.rma.{RmaLineItem, Rma}
 import RmaLineItem.InventoryDisposition
 import models.rma.Rma
-import services.Failure
+import failures.Failure
 import utils.Litterbox._
 import utils.Money.Currency
 import utils.Validation
@@ -52,12 +52,6 @@ final case class RmaCcPaymentPayload(amount: Int) extends Validation[RmaCcPaymen
     greaterThan(amount, 0, "Amount").map { case _ ⇒ this }
   }
 }
-
-/* Assignees */
-
-final case class RmaAssigneesPayload(assignees: Seq[Int])
-
-final case class RmaBulkAssigneesPayload(referenceNumbers: Seq[String], assigneeId: Int)
 
 /* Misc */
 

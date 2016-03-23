@@ -1,30 +1,22 @@
 import akka.http.scaladsl.model.StatusCodes
-import cats.implicits._
-import models.activity.ActivityContext
-import models.customer.{CustomerDynamicGroups, CustomerDynamicGroup}
+
+import Extensions._
+import failures.NotFoundFailure404
 import models.StoreAdmins
-import org.mockito.Mockito.{reset, when}
-import org.mockito.{Matchers => m}
+import models.customer.{CustomerDynamicGroup, CustomerDynamicGroups}
+import org.json4s.JObject
+import org.mockito.{Matchers ⇒ m}
 import org.scalatest.mock.MockitoSugar
 import payloads.CustomerDynamicGroupPayload
-import responses.CreditCardsResponse.{Root => CardResponse}
+import responses.CreditCardsResponse.{Root ⇒ CardResponse}
 import responses.DynamicGroupResponse
-import services.CreditCardFailure.StripeFailure
-import services.orders.OrderPaymentUpdater
-import services.{CannotUseInactiveCreditCard, CreditCardManager, CustomerEmailNotUnique, GeneralFailure, NotFoundFailure404, Result}
+import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
-import utils.jdbc._
-import utils.seeds.Seeds.Factories
 import utils.seeds.RankingSeedsGenerator.generateGroup
-import Extensions._
-import slick.driver.PostgresDriver.api._
-import util.SlickSupport.implicits._
-import org.json4s.JObject
-
-import concurrent.ExecutionContext.Implicits.global
+import utils.seeds.Seeds.Factories
 
 class CustomerGroupIntegrationTest extends IntegrationTestBase
   with HttpSupport

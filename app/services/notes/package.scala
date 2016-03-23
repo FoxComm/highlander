@@ -2,7 +2,8 @@ package services
 
 import java.time.Instant
 
-import models.{Notes, StoreAdmin, Note}
+import failures.NotFoundFailure404
+import models.{Note, Notes, StoreAdmin}
 import responses.AdminNotes
 import responses.AdminNotes.Root
 import slick.driver.PostgresDriver.api._

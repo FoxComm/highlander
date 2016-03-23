@@ -5,7 +5,7 @@ import cats.data.ValidatedNel
 import cats.implicits._
 import models.location.{Address, Region}
 import monocle.Lens
-import services.Failure
+import failures.Failure
 import utils.Litterbox._
 import utils.Validation
 

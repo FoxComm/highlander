@@ -13,15 +13,16 @@ import models.payment.storecredit._
 import models.{Reasons, StoreAdmins}
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
-import services.CartFailures._
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT.implicits._
 import utils.DbResultT._
 import utils.seeds.Seeds
-import utils.{StripeApi, Apis}
+import utils.{Apis, StripeApi}
 import utils.Money.Currency
 import Seeds.Factories
+import failures.CartFailures._
+import failures.GeneralFailure
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 

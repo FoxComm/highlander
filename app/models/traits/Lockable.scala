@@ -2,8 +2,9 @@ package models.traits
 
 import cats.data.Xor
 import cats.data.Xor._
+import failures.Failures
+import failures.LockFailures._
 import monocle._
-import services.{LockedFailure, NotLockedFailure, Failures}
 
 trait Lockable[A] { self: A ⇒
 

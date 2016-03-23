@@ -6,14 +6,14 @@ import cats.data.Validated.valid
 import cats.data.Xor.{left, right}
 import cats.data.{ValidatedNel, Xor}
 import com.pellucid.sealerate
-import models.{javaTimeSlickMapper, currencyColumnTypeMapper}
+import failures.CartFailures.OrderMustBeCart
+import failures.{Failure, Failures, GeneralFailure}
+import models.{currencyColumnTypeMapper, javaTimeSlickMapper}
 import models.customer.Customer
 import models.order.Order._
 import models.traits.Lockable
 import monocle.Lens
 import monocle.macros.GenLens
-import services.CartFailures.OrderMustBeCart
-import services.{Failure, Failures, GeneralFailure}
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
@@ -122,8 +122,6 @@ class Orders(tag: Tag) extends GenericTable.TableWithLock[Order](tag, "orders") 
   def * = (id, referenceNumber, customerId, contextId, state, isLocked, placedAt, remorsePeriodEnd,
     rmaCount, currency, subTotal, shippingTotal, adjustmentsTotal,
     taxesTotal, grandTotal) <>((Order.apply _).tupled, Order.unapply)
-
-  def assignees = OrderAssignments.filter(_.orderId === id).flatMap(_.assignee)
 }
 
 object Orders extends TableQueryWithLock[Order, Orders](

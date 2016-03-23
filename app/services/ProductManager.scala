@@ -1,7 +1,5 @@
 package services
 
-import scala.concurrent.ExecutionContext
-
 import models.inventory._
 import models.product._
 import models.objects._
@@ -20,13 +18,11 @@ import payloads.{CreateProductForm, UpdateProductForm, CreateProductShadow,
 import org.json4s.JsonAST.{JValue, JString, JObject, JField, JNothing}
 import org.json4s.jackson.JsonMethods._
 
-import ProductFailure._
 import utils.aliases._
 import utils.IlluminateAlgorithm
 import cats.data.NonEmptyList
-import cats.implicits._
-
-import java.time.Instant
+import failures.NotFoundFailure400
+import failures.ProductFailures._
 
 object ProductManager {
 
@@ -351,6 +347,4 @@ object ProductManager {
       } yield (form, shadow, true)
      else DbResultT.pure((oldForm, oldShadow, false))
   }
-
-
 }

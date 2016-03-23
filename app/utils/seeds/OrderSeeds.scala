@@ -14,7 +14,6 @@ import models.payment.giftcard._
 import models.payment.storecredit._
 import models.shipping.{Shipment, Shipments, ShippingMethods}
 import models.{Note, Notes}
-import services.{CustomerHasNoCreditCard, CustomerHasNoDefaultAddress, NotFoundFailure404, ShippingMethodIsNotFound}
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT
@@ -25,6 +24,9 @@ import utils.Slick.implicits._
 import utils.time
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import failures.CreditCardFailures.CustomerHasNoCreditCard
+import failures.CustomerFailures.CustomerHasNoDefaultAddress
+import failures.ShippingMethodFailures.ShippingMethodIsNotFound
 import services.inventory.InventoryAdjustmentManager
 
 trait OrderSeeds {

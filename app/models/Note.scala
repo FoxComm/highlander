@@ -7,7 +7,7 @@ import cats.implicits._
 import utils.Litterbox._
 import com.pellucid.sealerate
 import monocle.macros.GenLens
-import services.Failure
+import failures.Failure
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
@@ -72,9 +72,6 @@ object Notes extends TableQueryWithId[Note, Notes](
 
   def filterByIdAndAdminId(id: Int, adminId: Int): QuerySeq =
     filter(_.id === id).filter(_.storeAdminId === adminId)
-
-  def findOneByIdAndAdminId(id: Int, adminId: Int): DBIO[Option[Note]] =
-    filter(_.id === id).filter(_.storeAdminId === adminId).one
 
   object scope {
     implicit class NotesQuerySeqConversions(q: QuerySeq) {

@@ -1,17 +1,16 @@
 import Extensions._
 import akka.http.scaladsl.model.StatusCodes
+
 import models.order.{OrderPayments, Orders}
 import models.payment.giftcard._
 import GiftCard._
-import models.customer.{Customers, Customer}
+import models.customer.{Customer, Customers}
 import models.payment.{PaymentMethod, storecredit}
 import models.payment.storecredit.StoreCredit
 import models.{Reason, Reasons, StoreAdmins}
 import org.joda.money.CurrencyUnit
 import org.scalatest.BeforeAndAfterEach
 import responses.{GiftCardAdjustmentsResponse, GiftCardBulkResponse, GiftCardResponse, StoreCreditResponse}
-import services.{NotFoundFailure400, EmptyCancellationReasonFailure, GeneralFailure, GiftCardConvertFailure,
-NotFoundFailure404, OpenTransactionsFailure}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
@@ -19,10 +18,12 @@ import utils.DbResultT.implicits._
 import utils.Money._
 import utils.Slick.implicits._
 import utils.seeds.Seeds.Factories
-
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
+
+import failures.GiftCardFailures.GiftCardConvertFailure
+import failures._
 
 class GiftCardIntegrationTest extends IntegrationTestBase
   with HttpSupport

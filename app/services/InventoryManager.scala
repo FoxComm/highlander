@@ -1,5 +1,7 @@
 package services
 
+import failures.InventoryFailures.InventorySummaryNotFound
+import failures.ProductFailures.SkuNotFoundForContext
 import models.objects._
 import models.inventory._
 import models.inventory.summary.InventorySummaries
@@ -17,7 +19,7 @@ object InventoryManager {
   def getSkuDetails(skuCode: String, warehouseId: Int, context: ObjectContext)
     (implicit ec: EC, db: DB): Result[Seq[SkuDetailsResponse.Root]] = (for {
     sku       ← * <~ Skus.filterByContextAndCode(context.id, skuCode)
-      .one.mustFindOr(ProductFailure.SkuNotFoundForContext(skuCode, context.name))
+      .one.mustFindOr(SkuNotFoundForContext(skuCode, context.name))
     skuForm ← * <~ ObjectForms.mustFindById404(sku.formId)
     skuShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
     warehouse ← * <~ Warehouses.mustFindById404(warehouseId)
@@ -29,7 +31,7 @@ object InventoryManager {
   def getSkuSummary(skuCode: String, context: ObjectContext)
     (implicit ec: EC, db: DB): Result[Seq[SellableSkuSummaryResponse.Root]] = (for {
     sku       ← * <~ Skus.filterByContextAndCode(context.id, skuCode)
-      .one.mustFindOr(ProductFailure.SkuNotFoundForContext(skuCode, context.name))
+      .one.mustFindOr(SkuNotFoundForContext(skuCode, context.name))
     skuForm ← * <~ ObjectForms.mustFindById404(sku.formId)
     skuShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
     summaries ← * <~ InventorySummaries.findSellableBySkuId(sku.id).result.toXor

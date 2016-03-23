@@ -2,10 +2,11 @@ package util
 
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{Tag, OptionValues, FreeSpecLike, FreeSpec, MustMatchers}
-import services.Failures
+import org.scalatest.{FreeSpecLike, MustMatchers, OptionValues, Tag}
+import failures.Failures
 import utils.Config._
 import cats.data.Xor
+import failures.Failures
 
 trait TestBase extends FreeSpecLike
   with MustMatchers

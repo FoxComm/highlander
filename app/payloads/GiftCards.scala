@@ -3,7 +3,7 @@ package payloads
 import cats.data._
 import cats.implicits._
 import models.payment.giftcard.GiftCard
-import services.Failure
+import failures.Failure
 import utils.Litterbox._
 import utils.Money._
 import utils.Validation
@@ -53,11 +53,3 @@ final case class GiftCardBulkUpdateStateByCsr(codes: Seq[String], state: GiftCar
       ).map { case _ ⇒ this }
   }
 }
-
-final case class GiftCardAssignmentPayload(assignees: Seq[Int])
-
-final case class GiftCardBulkAssignmentPayload(giftCardCodes: Seq[String], assigneeId: Int)
-
-final case class GiftCardWatchersPayload(watchers: Seq[Int])
-
-final case class GiftCardBulkWatchersPayload(giftCardCodes: Seq[String], watcherId: Int)

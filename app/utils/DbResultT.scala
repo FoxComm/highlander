@@ -4,7 +4,8 @@ import scala.collection.generic.CanBuildFrom
 
 import cats.data.{Validated, Xor, XorT}
 import cats.{Applicative, Functor, Monad}
-import services.{Failures, Result}
+import failures.Failures
+import services.Result
 import slick.driver.PostgresDriver.api._
 import slick.profile.SqlAction
 import utils.Slick.implicits._

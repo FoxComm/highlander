@@ -1,8 +1,9 @@
 package services
 
+import failures.InvalidReasonTypeFailure
 import models.Reason.ReasonType
-import models.rma.{RmaReasons, RmaReason}
-import models.{Reasons, Reason}
+import models.rma.{RmaReason, RmaReasons}
+import models.{Reason, Reasons}
 import responses.TheResponse
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage

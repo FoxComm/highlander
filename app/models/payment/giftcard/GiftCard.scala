@@ -6,16 +6,16 @@ import cats.data.Validated._
 import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
 import com.pellucid.sealerate
+import failures.GiftCardFailures._
+import failures.{EmptyCancellationReasonFailure, Failure, Failures, GeneralFailure}
 import models.order.OrderPayment
 import models.payment.PaymentMethod
-import models.{StoreAdmin, javaTimeSlickMapper, currencyColumnTypeMapper}
+import models.{StoreAdmin, currencyColumnTypeMapper, javaTimeSlickMapper}
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
 import monocle.Lens
 import monocle.macros.GenLens
 import payloads.AddGiftCardLineItem
-import services.{EmptyCancellationReasonFailure, Failure, Failures, GeneralFailure, GiftCardIsInactive,
-GiftCardMustBeCart, GiftCardMustNotBeCart, GiftCardNotEnoughBalance}
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
@@ -106,6 +106,18 @@ object GiftCard {
   def update(giftCard: GiftCard, payload: AddGiftCardLineItem): GiftCard = {
     giftCard.copy(availableBalance = payload.balance, currentBalance = payload.balance,
       originalBalance = payload.balance, currency = payload.currency)
+  }
+
+  def build(balance: Int, originId: Int, currency: Currency): GiftCard = {
+    GiftCard(
+      originId = originId,
+      originType = GiftCard.CustomerPurchase,
+      state = GiftCard.Active,
+      currency = currency,
+      originalBalance = balance,
+      availableBalance = balance,
+      currentBalance = balance
+    )
   }
 
   def buildAppeasement(payload: payloads.GiftCardCreateByCsr, originId: Int): GiftCard = {

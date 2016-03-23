@@ -236,38 +236,3 @@ Expanded view with embedded Order + warnings and includes.
 
 + Response 200 (application/json)
     + Attributes (Rma)
-
-## Assignees [/v1/rmas/{refNum}/assignees]
-
-+ Parameters
-    + refNum: `ABC-123.1` (required, string) - RMA reference number
-
-### Assign [POST]
-
-+ Request (application/json)
-    + Attributes (RmaAssignPayload)
-+ Response 200 (application/json)
-    + Attributes (Rma)
-
-### Unassign [DELETE /v1/rmas/{refNum}/assignees/{assigneeId}]
-
-+ Parameters
-    + refNum: `ABC-123` (required, string) - RMA reference number
-    + assigneeId: 1 (required, number) - Store admin ID.
-+ Request (application/json)
-+ Response 200 (application/json)
-    + Attributes (Rma)
-
-### Bulk Assign [POST /v1/rmas/assignees]
-
-+ Request (application/json)
-    + Attributes (RmaBulkAssignPayload)
-+ Response 200 (application/json)
-    + Attributes (Rmas)
-
-### Bulk Unassign [POST /v1/rmas/assignees/delete]
-
-+ Request (application/json)
-    + Attributes (RmaBulkAssignPayload)
-+ Response 200 (application/json)
-    + Attributes (Rmas)

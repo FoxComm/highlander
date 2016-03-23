@@ -2,6 +2,7 @@ package services.customers
 
 import cats.data.Validated.{Invalid, Valid}
 import cats.implicits._
+import failures.NotFoundFailure404
 import models.customer.Customers.scope._
 import models.customer.{Customer, Customers}
 import models.order.Orders

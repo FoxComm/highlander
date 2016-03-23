@@ -2,10 +2,8 @@ package routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
-
 import models.StoreAdmin
 import services.InventoryManager
-import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import utils.Apis
 import utils.CustomDirectives._
 import utils.aliases._

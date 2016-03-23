@@ -2,17 +2,15 @@ package responses
 
 import java.time.Instant
 
+import failures.NotFoundFailure404
 import models.inventory.{Skus, Sku}
 import models.product.{Product, Products, Mvp}
 import models.objects._
 import models.{SaveForLater, SaveForLaters}
-import services.NotFoundFailure404
 import utils.DbResultT.implicits._
 import utils.DbResultT.{DbResultT, _}
 import utils.Slick.implicits._
-import utils.Money.Currency
 import utils.aliases._
-
 import slick.driver.PostgresDriver.api._
 
 object SaveForLaterResponse {

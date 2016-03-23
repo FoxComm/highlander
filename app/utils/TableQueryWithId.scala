@@ -3,7 +3,7 @@ package utils
 import cats.data.Validated.Valid
 import cats.data.{ValidatedNel, Xor}
 import monocle.Lens
-import services.{DatabaseFailure, Failure, Failures, GeneralFailure}
+import failures.{DatabaseFailure, Failure, Failures, GeneralFailure}
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
@@ -20,6 +20,8 @@ trait ModelWithIdParameter[T <: ModelWithIdParameter[T]] extends Validation[T] {
   def id: Id
 
   def isNew: Boolean = id == 0
+
+  def searchKey(): Option[String] = None
 
   def modelName: String = getClass.getCanonicalName.lowerCaseFirstLetter
 
@@ -145,8 +147,6 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
 object ExceptionWrapper {
   def wrapDbio[A](dbio: DBIO[A])(implicit ec: EC): DbResult[A] = {
     import scala.util.{Failure, Success}
-
-    import services.DatabaseFailure
 
     dbio.asTry.flatMap {
       case Success(value) ⇒ DbResult.good(value)

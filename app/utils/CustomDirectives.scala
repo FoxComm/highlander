@@ -96,7 +96,7 @@ object CustomDirectives {
   def nothingOrFailures(a: Result[_])(implicit ec: EC): StandardRoute =
     complete(a.map(renderNothingOrFailures))
 
-  def entityOr[T](um: FromRequestUnmarshaller[T], failure: services.Failure): Directive1[T] =
+  def entityOr[T](um: FromRequestUnmarshaller[T], failure: failures.Failure): Directive1[T] =
     extractRequestContext.flatMap[Tuple1[T]] { ctx ⇒
       import ctx.executionContext
       import ctx.materializer

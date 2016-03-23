@@ -1,6 +1,7 @@
 package services
 
 import cats.data.Xor
+import failures.GeneralFailure
 import models.inventory.StockItems
 import org.scalatest.Inside
 import util.IntegrationTestBase

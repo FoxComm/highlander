@@ -1,7 +1,7 @@
 package services
 
 import models.customer.Customer
-import models.inventory.{Skus, Sku}
+import models.inventory.{Sku, Skus}
 import models.location.Region
 import models.order.lineitems.OrderLineItemSkus
 import models.order._
@@ -13,8 +13,10 @@ import utils.JsonFormatters
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.aliases._
-
 import scala.concurrent.ExecutionContext
+
+import failures.NotFoundFailure404
+import failures.ShippingMethodFailures.ShippingMethodNotApplicableToOrder
 import slick.driver.PostgresDriver.api._
 
 object ShippingManager {

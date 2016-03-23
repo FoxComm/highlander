@@ -22,8 +22,6 @@
 
 ## FullCustomer
 - Include CustomerResponse
-+ assignees (required, array[Assignee]) - Customer assignees.
-+ watchers (required, array[Watcher]) - Customer watchers.
 
 ## CustomerCreatePayload
 + email: `user@example.org` (required, string) - Customer email.
@@ -52,17 +50,3 @@
 ## CustomerBaseList
 + result     (required, array[CustomerBase])
 - Include ResultMetadata
-
-### CustomerAssignPayload
-+ assignees (required, array[number]) - StoreAdmin IDs.
-
-### CustomerBulkAssignPayload
-+ customerIds: 1 (required, array[number]) - Target customer IDs.
-+ assigneeId: 1 (required, number) - StoreAdmin ID.
-
-### CustomerWatchPayload
-+ watchers (required, array[number]) - StoreAdmin IDs.
-
-### CustomerBulkWatchPayload
-+ customerIds: 1 (required, array[number]) - Target customer IDs.
-+ watcherId: 1 (required, number) - StoreAdmin ID.

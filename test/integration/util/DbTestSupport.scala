@@ -8,7 +8,7 @@ import scala.annotation.tailrec
 import cats.data.Xor
 import utils.flyway.newFlyway
 import org.scalatest.{BeforeAndAfterAll, Outcome, Suite, SuiteMixin}
-import services.Failures
+import failures.Failures
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
 import slick.driver.PostgresDriver.api.Database
 import java.sql.Connection

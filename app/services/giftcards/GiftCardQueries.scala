@@ -1,5 +1,8 @@
 package services.giftcards
 
+object GiftCardQueries
+
+/*
 import models.payment.giftcard.GiftCards
 import models.{javaTimeSlickMapper, currencyColumnTypeMapper}
 import responses.TheResponse
@@ -45,3 +48,4 @@ object GiftCardQueries {
     sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[RootSimple]]] =
     findAllByQuery(GiftCards)
 }
+*/

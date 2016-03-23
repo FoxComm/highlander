@@ -1,15 +1,22 @@
 package models.inventory.summary
 
 import java.time.Instant
+
+import cats.data.ValidatedNel
+import cats.implicits._
+import failures.Failure
 import models.javaTimeSlickMapper
 import monocle.Lens
 import slick.driver.PostgresDriver.api._
 import slick.lifted.{Query, Tag}
 import utils.Slick.DbResult
 import utils.aliases.EC
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
-trait InventorySummaryBase[A <: ModelWithIdParameter[A]] extends ModelWithIdParameter[A] { self: A ⇒
+trait InventorySummaryBase[A <: ModelWithIdParameter[A]]
+  extends ModelWithIdParameter[A]
+  with Validation[A] { self: A ⇒
+
   def onHand: Int
   def onHold: Int
   def reserved: Int
@@ -17,6 +24,14 @@ trait InventorySummaryBase[A <: ModelWithIdParameter[A]] extends ModelWithIdPara
   def updatedAt: Instant
 
   def availableForSaleCost(price: Int): Int = availableForSale * price
+
+  import Validation._
+
+  override def validate: ValidatedNel[Failure, A] =
+    (greaterThanOrEqual(onHand, 0, "On hand quantity")
+      |@| greaterThanOrEqual(onHold, 0, "On hold quantity")
+      |@| greaterThanOrEqual(reserved, 0, "Reserved quantity")
+      ).map { case _ ⇒ this }
 }
 
 abstract class InventorySummariesTableBase[A <: InventorySummaryBase[A]](tag: Tag, tableName: String)

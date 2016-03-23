@@ -6,6 +6,7 @@ import cats.data.Xor
 import cats.data.Xor.{left, right}
 import cats.implicits._
 import com.stripe.model.ExternalAccount
+import failures.{CreditCardFailures, Failures}
 import models.location.Address
 import models.payment.creditcard.CreditCard
 import models.stripe._
@@ -110,7 +111,7 @@ final case class Stripe(apiKey: String = "sk_test_uvaf3GCFsjCsvvKO7FsQhNRm")(imp
   private def cvcCheck(card: StripeCard): Failures Xor StripeCard = {
     card.getCvcCheck.some.getOrElse("").toLowerCase match {
       case "pass" ⇒ right(card)
-      case _      ⇒ left(CreditCardFailure.InvalidCvc.single)
+      case _      ⇒ left(CreditCardFailures.InvalidCvc.single)
     }
   }
 }

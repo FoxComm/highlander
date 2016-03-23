@@ -11,9 +11,12 @@ import models.payment.storecredit._
 import payloads.{GiftCardPayment, StoreCreditPayment}
 import responses.order.FullOrder
 import FullOrder.refreshAndFullOrder
+import failures.GiftCardFailures.GiftCardPaymentAlreadyAdded
+import failures.{NotFoundFailure400, OpenTransactionsFailure}
+import failures.OrderFailures.OrderPaymentNotFoundFailure
+import failures.StoreCreditFailures.CustomerHasInsufficientStoreCredit
 import responses.TheResponse
-import services.{LogActivity, CartValidator, CustomerHasInsufficientStoreCredit, NotFoundFailure400,
-OrderPaymentNotFoundFailure, GiftCardPaymentAlreadyAdded, Result}
+import services.{CartValidator, LogActivity, Result}
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -28,10 +31,12 @@ object OrderPaymentUpdater {
     order ← * <~ getCartByOriginator(originator, refNum)
     _     ← * <~ order.mustBeCart
     gc    ← * <~ GiftCards.mustFindByCode(payload.code, c ⇒ NotFoundFailure400(GiftCard, c))
-    _     ← * <~ OrderPayments.giftCards.filter(_.paymentMethodId === gc.id)
-                                        .one.mustNotFindOr(GiftCardPaymentAlreadyAdded(order.refNum, payload.code))
     _     ← * <~ gc.mustNotBeCart
     _     ← * <~ gc.mustBeActive
+    _     ← * <~ GiftCardAdjustments.lastAuthByGiftCardId(gc.id).one.mustNotFindOr(OpenTransactionsFailure)
+    _     ← * <~ OrderPayments.giftCards.filter(_.paymentMethodId === gc.id)
+                                        .filter(_.orderId === order.id)
+                                        .one.mustNotFindOr(GiftCardPaymentAlreadyAdded(order.refNum, payload.code))
     _     ← * <~ gc.mustHaveEnoughBalance(payload.amount)
     _     ← * <~ OrderPayments.create(OrderPayment.build(gc).copy(orderId = order.id, amount = Some(payload.amount)))
     resp  ← * <~ refreshAndFullOrder(order).toXor

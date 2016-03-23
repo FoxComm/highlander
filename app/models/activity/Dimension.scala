@@ -2,7 +2,7 @@ package models.activity
 
 import cats.data.ValidatedNel
 import monocle.macros.GenLens
-import services.Failure
+import failures.Failure
 import utils.ExPostgresDriver.api._
 import utils.Slick.DbResult
 import utils.Slick.implicits._
@@ -36,6 +36,9 @@ object Dimension {
   val admin         = "admin"
   val notification  = "notification"
   val giftCard      = "giftCard"
+  val rma           = "rma"
+  val product       = "product"
+  val sku           = "sku"
 }
 
 class Dimensions(tag: Tag) extends GenericTable.TableWithId[Dimension](tag, "activity_dimensions")  {

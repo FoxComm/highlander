@@ -1,14 +1,16 @@
 package services.orders
 
-import models.order.lineitems.{OrderLineItems, OrderLineItem}
-import models.order.{Orders, Order}
-
+import models.order.lineitems.{OrderLineItem, OrderLineItems}
+import models.order.{Order, Orders}
 import Order.{Canceled, _}
+import failures.LockFailures.LockedFailure
+import failures.{NotFoundFailure400, StateTransitionNotAllowed}
 import models.StoreAdmin
-import responses.order.FullOrder
-import responses.{BatchMetadataSource, BatchMetadata}
-import services.{Result, StateTransitionNotAllowed, NotFoundFailure400, LockedFailure}
-import services.LogActivity.{orderStateChanged, orderBulkStateChanged}
+import responses.BatchResponse
+import responses.order.{AllOrders, FullOrder}
+import responses.{BatchMetadata, BatchMetadataSource}
+import services.Result
+import services.LogActivity.{orderBulkStateChanged, orderStateChanged}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
@@ -33,7 +35,7 @@ object OrderStateUpdater {
 
   // TODO: transfer sorting-paging metadata
   def updateStates(admin: StoreAdmin, refNumbers: Seq[String], newState: Order.State, skipActivity: Boolean = false)
-    (implicit ec: EC, db: DB, sortAndPage: SortAndPage, ac: AC): Result[BulkOrderUpdateResponse] = (for {
+    (implicit ec: EC, db: DB, sortAndPage: SortAndPage, ac: AC): Result[BatchResponse[AllOrders.Root]] = (for {
     // Turn failures into errors
     batchMetadata ← * <~ updateStatesDbio(admin, refNumbers, newState, skipActivity)
     response      ← * <~ OrderQueries.findAllByQuery(Orders.filter(_.referenceNumber.inSetBind(refNumbers)))

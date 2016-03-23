@@ -5,12 +5,13 @@ import java.time.Instant
 import cats.implicits._
 import models.order._
 import Order._
+import failures.NotFoundFailure404
 import models.customer._
 import models.location._
-import models.traits.{CustomerOriginator, AdminOriginator, Originator}
+import models.traits.{AdminOriginator, CustomerOriginator, Originator}
 import payloads.CreateAddressPayload
 import responses.Addresses._
-import responses.{Addresses ⇒ Response, TheResponse}
+import responses.{TheResponse, Addresses ⇒ Response}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._

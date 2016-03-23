@@ -2,14 +2,15 @@ package services.rmas
 
 import models.customer.Customers
 import models.order.Orders
-import models.rma.{Rmas, Rma}
+import models.rma.{Rma, Rmas}
 import Rma.Canceled
+import failures.InvalidCancellationReasonFailure
 import models.{Reason, Reasons, StoreAdmin}
 import payloads.{RmaCreatePayload, RmaMessageToCustomerPayload, RmaUpdateStatePayload}
 import responses.RmaResponse._
-import responses.{RmaResponse, CustomerResponse, StoreAdminResponse}
+import responses.{AllRmas, BatchResponse, CustomerResponse, RmaResponse, StoreAdminResponse}
 import services.rmas.Helpers._
-import services.{InvalidCancellationReasonFailure, Result}
+import services.Result
 import utils.CustomDirectives.SortAndPage
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -67,12 +68,13 @@ object RmaService {
   } yield response).run()
 
   def findByOrderRef(refNum: String)
-    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[BulkRmaUpdateResponse] = (for {
+    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[BatchResponse[AllRmas.Root]] = (for {
     order ← * <~ Orders.mustFindByRefNum(refNum)
     rmas  ← * <~ RmaQueries.findAllDbio(Rmas.findByOrderRefNum(refNum))
   } yield rmas).run()
 
-  def findByCustomerId(customerId: Int)(implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[BulkRmaUpdateResponse] = (for {
+  def findByCustomerId(customerId: Int)
+    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[BatchResponse[AllRmas.Root]] = (for {
     _    ← * <~ Customers.mustFindById404(customerId)
     rmas ← * <~ RmaQueries.findAllDbio(Rmas.findByCustomerId(customerId))
   } yield rmas).run()

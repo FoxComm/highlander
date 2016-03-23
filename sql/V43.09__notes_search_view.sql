@@ -12,7 +12,7 @@ select distinct on (n.id)
     orders.order,
     customers.customer,
     gift_cards.gift_card,
-    skus.sku,
+    skus.sku as sku_item,
     products.product
 from notes as n
 inner join notes_admins_view as admins on (n.id = admins.id)

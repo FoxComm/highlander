@@ -9,11 +9,9 @@ import payloads.CreateOrder
 import responses.order.FullOrder
 import FullOrder.Root
 import responses.order.FullOrder
-import services.{LogActivity, NotFoundFailure400, Result, ResultT}
-import slick.driver.PostgresDriver.api._
+import services.{LogActivity, Result, ResultT}
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import models.activity.{Dimension, ActivityContext}
 import utils.aliases._
 
 object OrderCreator {

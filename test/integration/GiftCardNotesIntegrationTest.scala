@@ -7,7 +7,6 @@ import models.activity.ActivityContext
 import models.payment.giftcard._
 import models.{Notes, _}
 import responses.AdminNotes
-import services.NotFoundFailure404
 import services.notes.GiftCardNoteManager
 import util.IntegrationTestBase
 import utils.seeds.Seeds
@@ -15,6 +14,8 @@ import Seeds.Factories
 import utils.Slick.implicits._
 import utils.time.RichInstant
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import failures.NotFoundFailure404
 
 class GiftCardNotesIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 

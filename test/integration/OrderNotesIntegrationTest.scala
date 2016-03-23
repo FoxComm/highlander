@@ -4,16 +4,16 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import models.activity.ActivityContext
 import models.customer.Customers
-import models.order.{Orders, Order}
+import models.order.{Order, Orders}
 import models.{Notes, _}
 import responses.AdminNotes
-import services.NotFoundFailure404
 import services.notes.OrderNoteManager
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.seeds.Seeds
 import Seeds.Factories
+import failures.NotFoundFailure404
 import utils.Slick.implicits._
 import utils.time._
 

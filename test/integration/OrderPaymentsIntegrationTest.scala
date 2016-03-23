@@ -8,23 +8,25 @@ import models.activity.ActivityContext
 import models.customer.Customers
 import models.location.Addresses
 import models.payment.PaymentMethod
-import models.payment.creditcard.{CreditCards, CreditCard}
-import models.payment.giftcard.{GiftCardManuals, GiftCardManual, GiftCards, GiftCard}
-import models.payment.storecredit.{StoreCreditManuals, StoreCreditManual, StoreCredits, StoreCredit}
-import models.{StoreAdmins, Reasons}
+import models.payment.creditcard.{CreditCard, CreditCards}
+import models.payment.giftcard._
+import models.payment.storecredit._
+import models.{Reasons, StoreAdmins}
 import OrderPayments.scope._
-import services.{GiftCardMustNotBeCart, OrderPaymentNotFoundFailure, CannotUseInactiveCreditCard,
-CustomerHasInsufficientStoreCredit, CreditCardManager, GiftCardIsInactive, GiftCardNotEnoughBalance,
-NotFoundFailure404, GiftCardPaymentAlreadyAdded}
-import services.CartFailures.OrderMustBeCart
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.seeds.Seeds
 import Seeds.Factories
+import failures.CartFailures.OrderMustBeCart
+import failures.CreditCardFailures.CannotUseInactiveCreditCard
+import failures.GiftCardFailures._
+import failures.NotFoundFailure404
+import failures.OrderFailures.OrderPaymentNotFoundFailure
+import failures.StoreCreditFailures.CustomerHasInsufficientStoreCredit
+import services.CreditCardManager
 import utils.Slick.implicits._
-
 import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
 class OrderPaymentsIntegrationTest extends IntegrationTestBase

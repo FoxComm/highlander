@@ -1,21 +1,17 @@
 package services
 
-import scala.concurrent.ExecutionContext
-
 import models.objects._
 import models.inventory._
 import responses.SkuResponses._
-import slick.driver.PostgresDriver.api._
 import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
-import payloads.{CreateSkuForm, UpdateSkuForm, CreateSkuShadow, UpdateSkuShadow}
-
-import ProductFailure._
+import payloads.{CreateSkuForm, CreateSkuShadow, UpdateSkuForm, UpdateSkuShadow}
 import utils.aliases._
 import cats.data.NonEmptyList
-
+import failures.NotFoundFailure404
+import failures.ProductFailures._
 
 object SkuManager {
 

@@ -3,7 +3,7 @@ package models
 import cats.data.NonEmptyList
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
-import services.GeneralFailure
+import failures.GeneralFailure
 import util.TestBase
 import utils.seeds.Seeds.Factories
 

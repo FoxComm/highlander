@@ -1,14 +1,14 @@
 package services.orders
 
 import cats.implicits._
+import failures.CartFailures.NoShipMethod
 import models.order._
 import models.shipping.{Shipments, ShippingMethods}
 import models.traits.Originator
 import payloads.UpdateShippingMethod
 import responses.TheResponse
 import responses.order.FullOrder
-import services.{LogActivity, CartValidator, Result, ShippingManager}
-import services.CartFailures.NoShipMethod
+import services.{CartValidator, LogActivity, Result, ShippingManager}
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._

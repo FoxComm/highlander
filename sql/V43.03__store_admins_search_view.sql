@@ -5,12 +5,8 @@ select distinct on (s.id)
     s.email as email,
     s.name as name,
     s.department as department,
-    to_char(s.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
-    -- Assignments
-    a.count as assignments_count,
-    a.assignments as assignments
+    to_char(s.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at
 from store_admins as s
-inner join store_admin_assignments_view as a on (s.id = a.store_admin_id)
 order by s.id;
 
 create unique index store_admins_search_view_idx on store_admins_search_view (id);
