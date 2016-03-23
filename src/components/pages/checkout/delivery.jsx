@@ -44,7 +44,10 @@ class EditDelivery extends Component {
 
   @autobind
   handleSubmit() {
-    this.props.continueAction();
+    const { selectedShippingMethod: selectedMethod } = this.props;
+    if (selectedMethod) {
+      this.props.continueAction();
+    }
   }
 
   get shippingMethods() {
