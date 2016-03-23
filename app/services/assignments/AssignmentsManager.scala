@@ -185,14 +185,12 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   }
 
   private def matchFailure[B](id: String, referenceIds: Seq[String], modelType: B, storeAdminId: Int,
-    actionType: ActionType): Failure = {
-    if (referenceIds.contains(id)) {
-      actionType match {
-        case Assigning   ⇒ AlreadyAssignedFailure(modelType, id, storeAdminId)
-        case Unassigning ⇒ NotAssignedFailure(modelType, id, storeAdminId)
-      }
-    } else {
+    actionType: ActionType): Failure = actionType match {
+    case Assigning if referenceIds.contains(id) ⇒
+      AlreadyAssignedFailure(modelType, id, storeAdminId)
+    case Unassigning ⇒
+      NotAssignedFailure(modelType, id, storeAdminId)
+    case _ ⇒
       NotFoundFailure404(modelType, id)
-    }
   }
 }
