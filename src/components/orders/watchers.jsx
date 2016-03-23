@@ -15,9 +15,10 @@ import Watchers from '../watchers/watchers';
 
 const getGroupData = (group, watchers, order) => {
   const entityForm = singularize(group);
+  const orderGroup = _.get(order, 'group', []);
 
   return {
-    entries: order[group].map(user => user[entityForm]),
+    entries: orderGroup.map(user => user[entityForm]),
     listModalDisplayed: _.get(watchers, [order.referenceNumber, group, 'listModalDisplayed'], false),
   };
 };
