@@ -53,7 +53,6 @@ export default class Auth extends Component {
     const { email, password } = this.state;
     const kind = 'customer';
     this.props.authenticate({email, password, kind}).then(() => {
-      console.log('authed');
       browserHistory.push('/');
     }).catch(err => {
       console.error(err);
