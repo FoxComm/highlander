@@ -94,3 +94,14 @@ final case class AlreadySavedForLater(customerId: Int, skuId: Int) extends Failu
 final case class ShipmentNotFoundFailure(orderRefNum: String) extends Failure {
   override def description = s"No shipments found for order with refNum=$orderRefNum"
 }
+
+final case class AlreadyAssignedFailure(message: String) extends Failure {
+  override def description = message
+}
+
+object AlreadyAssignedFailure {
+  def apply[A](a: A, searchKey: Any, storeAdminId: Int): AlreadyAssignedFailure = {
+    val msg = s"storeAdmin with id=$storeAdminId is already assigned to ${friendlyClassName(a)} with ${searchTerm(a)}=$searchKey"
+    AlreadyAssignedFailure(msg)
+  }
+}
