@@ -173,7 +173,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
 
   private def diffToBatchErrors[B](requested: Seq[String], available: Seq[String], alreadyAssignedIds: Seq[String],
     modelType: B, storeAdminId: Int): BatchMetadata.FailureData = requested.diff(available).map { id ⇒
-      (id.toString, matchFailure(id, alreadyAssignedIds, modelType, storeAdminId).description))
+      (id.toString, matchFailure(id, alreadyAssignedIds, modelType, storeAdminId).description)
     }.toMap
 
   private def matchFailure[B](id: String, alreadyAssignedIds: Seq[String], modelType: B, storeAdminId: Int): Failure = {
