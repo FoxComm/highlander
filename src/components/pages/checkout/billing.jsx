@@ -7,6 +7,7 @@ import styles from './checkout.css';
 import textStyles from 'ui/css/input.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
+import { detectCardType, cardMask } from 'lib/payment-cards';
 
 import { Form, FormField } from 'ui/forms';
 import { TextInput } from 'ui/inputs';
@@ -16,10 +17,38 @@ import EditableBlock from 'ui/editable-block';
 import Autocomplete from 'ui/autocomplete';
 import InputMask from 'react-input-mask';
 import EditAddress from './edit-address';
+import Icon from 'ui/icon';
+import ViewAddress from './view-address';
 
 import type { CheckoutBlockProps } from './types';
 import * as checkoutActions from 'modules/checkout';
 import { AddressKind } from 'modules/checkout';
+import type { BillingData } from 'modules/checkout';
+
+let ViewBilling = (props) => {
+  const billingData: BillingData = props.billingData;
+
+  const paymentType = detectCardType(billingData.cardNumber);
+
+  const lastFour = billingData.cardNumber && billingData.cardNumber.slice(-4);
+  const lastTwoYear = billingData.year && billingData.year.slice(-2);
+  const monthYear = billingData.month || billingData.year ? <span>{billingData.month}/{lastTwoYear}</span> : null;
+  const addressInfo = !_.isEmpty(props.billingAddress)
+    ? <ViewAddress styleName="billing-address" {...props.billingAddress}/>
+    : null;
+
+  return (
+    <div>
+      {paymentType && <Icon styleName="payment-icon" name={`fc-payment-${paymentType}`} />}
+      <div styleName="payment-card-info">
+        <span styleName="payment-last-four">{lastFour}</span>
+        {monthYear}
+      </div>
+      {addressInfo}
+    </div>
+  );
+};
+ViewBilling = connect(state => state.checkout)(ViewBilling);
 
 function mapStateToProps(state) {
   return {
@@ -83,23 +112,15 @@ class EditBilling extends Component {
   get cardMask() {
     const { cardNumber } = this.props.data;
 
-    if (/^3[47]/.test(cardNumber)) {
-      // american express
-      return '9999 999999 99999';
-    } else if (/^30[0-5]/.test(cardNumber) || /^3[68]/.test(cardNumber)) {
-      // diners club
-      return '9999 999999 9999';
-    }
-
-    return '9999 9999 9999 9999';
+    return cardMask(detectCardType(cardNumber));
   }
 
   @autobind
   validateCardNumber() {
-    const cardMask = this.cardMask.replace(/[^\d]/g, '');
+    const mask = this.cardMask.replace(/[^\d]/g, '');
     const { cardNumber } = this.props.data;
 
-    if (cardMask.length != cardNumber.length) {
+    if (mask.length != cardNumber.length) {
       return 'Please enter a valid credit card number';
     }
     return null;
@@ -185,9 +206,13 @@ class EditBilling extends Component {
 }
 
 const Billing = (props: CheckoutBlockProps) => {
+  const content = props.isEditing
+    ? <EditBilling {...props} />
+    : <ViewBilling />;
+
   const deliveryContent = (
     <div styleName="checkout-block-content">
-      <EditBilling {...props} />
+      {content}
     </div>
   );
 

@@ -4,7 +4,8 @@
  * Page prototype https://invis.io/EB67L16VZ
  */
 
-import React, { PropTypes } from 'react';
+import _ from 'lodash';
+import React from 'react';
 import styles from './checkout.css';
 import { connect } from 'react-redux';
 
@@ -19,6 +20,22 @@ import type { CheckoutState, EditStage } from 'modules/checkout';
 
 type CheckoutProps = CheckoutState & {
   setEditStage: (stage: EditStage) => Object;
+}
+
+function isDeliveryDurty(state) {
+  return !!state.checkout.selectedShippingMethod;
+}
+
+function isBillingDurty(state) {
+  return !_.isEmpty(state.checkout.billingData) || !_.isEmpty(state.checkout.billingAddress);
+}
+
+function mapStateToProps(state) {
+  return {
+    ...state.checkout,
+    isBillingDurty: isBillingDurty(state),
+    isDeliveryDurty: isDeliveryDurty(state),
+  };
 }
 
 const Checkout = (props: CheckoutProps) => {
@@ -50,23 +67,20 @@ const Checkout = (props: CheckoutProps) => {
         />
         <Delivery
           isEditing={props.editStage == EditStages.delivery}
-          collapsed={props.editStage < EditStages.delivery}
+          collapsed={!props.isDeliveryDurty && props.editStage < EditStages.delivery}
           editAction={setDeliveryStage}
           continueAction={setBillingState}
         />
         <Billing
           isEditing={props.editStage == EditStages.billing}
-          collapsed={props.editStage < EditStages.billing}
+          collapsed={!props.isBillingDurty && props.editStage < EditStages.billing}
           editAction={setBillingState}
           continueAction={placeOrder}
         />
       </div>
+
     </div>
   );
 };
 
-Checkout.propTypes = {
-  children: PropTypes.node,
-};
-
-export default connect(state => state.checkout, actions)(Checkout);
+export default connect(mapStateToProps, actions)(Checkout);

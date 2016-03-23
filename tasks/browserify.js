@@ -58,9 +58,6 @@ module.exports = function(gulp, $, opts) {
       use: plugins,
       jsonOutput: 'build/css-modules.json',
     }, pleaseDontIgnoreNestedNodeModules));
-    if (!production && opts.devMode) {
-      bundler.plugin('livereactload');
-    }
 
     if (opts.devMode) {
       let watchifyOpts = {

@@ -7,24 +7,12 @@ import EditableBlock from 'ui/editable-block';
 import EditAddress from './edit-address';
 import { Form } from 'ui/forms';
 import Button from 'ui/buttons';
+import ViewAddress from './view-address';
 
 import type { CheckoutBlockProps } from './types';
-import type { Address } from 'types/address';
 import { AddressKind } from 'modules/checkout';
 
-let ViewShipping = (props: Address) => {
-  return (
-    <ul>
-      <li><strong>{props.name}</strong></li>
-      <li>{props.address1}</li>
-      {props.address2 && <li>{props.address2}</li>}
-      <li>{props.city}, {props.state.name} {props.zip}</li>
-      <li>{props.country.name}</li>
-      {props.phone && <li>{props.phone}</li>}
-    </ul>
-  );
-};
-ViewShipping = connect(state => (state.checkout.shippingAddress))(ViewShipping);
+const ViewShipping = connect(state => (state.checkout.shippingAddress))(ViewAddress);
 
 const EditShipping = props => {
   return (
