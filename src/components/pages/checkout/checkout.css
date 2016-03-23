@@ -101,6 +101,27 @@
   margin-top: 1em;
 }
 
+.gift-card-content {
+  composes: checkout-block-content;
+  display: flex;
+}
+
+.gift-card-code {
+  composes: text-input from "ui/css/input.css";
+  flex-grow: 1;
+  border: 0;
+}
+
+.gift-card-submit {
+  composes: button from "ui/css/buttons.css";
+  width: auto;
+  background: #FFFFFF;
+  border: 1px solid #363636;
+  font-size: 14px;
+  color: #363636;
+  line-height: 17px;
+}
+
 @media (--medium-viewport) {
   .checkout {
     margin-top: 10px;

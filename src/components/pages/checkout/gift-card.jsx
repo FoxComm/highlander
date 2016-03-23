@@ -5,6 +5,7 @@ import styles from './checkout.css';
 
 import EditableBlock from 'ui/editable-block';
 import { TextInput } from 'ui/inputs';
+import Button from 'ui/buttons';
 
 class EditGiftCard extends Component {
 
@@ -21,8 +22,9 @@ class EditGiftCard extends Component {
 
   render() {
     return (
-      <div styleName="checkout-block-content">
-        <TextInput placeholder="CODE" value={this.state.code} onChange={this.changeCode} />
+      <div styleName="gift-card-content">
+        <TextInput styleName="gift-card-code" placeholder="CODE" value={this.state.code} onChange={this.changeCode} />
+        <Button styleName="gift-card-submit">REDEEM</Button>
       </div>
     );
   }
