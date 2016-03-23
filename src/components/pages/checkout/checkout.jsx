@@ -13,6 +13,7 @@ import Icon from 'ui/icon';
 import Shipping from './shipping';
 import Delivery from './delivery';
 import Billing from './billing';
+import OrderSummary from './order-summary';
 
 import * as actions from 'modules/checkout';
 import { EditStages } from 'modules/checkout';
@@ -58,27 +59,31 @@ const Checkout = (props: CheckoutProps) => {
   return (
     <div styleName="checkout">
       <Icon styleName="logo" name="fc-some_brand_logo" />
-      <div styleName="left-forms">
-        <Shipping
-          isEditing={props.editStage == EditStages.shipping}
-          collapsed={props.editStage < EditStages.shipping}
-          editAction={setShippingStage}
-          continueAction={setDeliveryStage}
-        />
-        <Delivery
-          isEditing={props.editStage == EditStages.delivery}
-          collapsed={!props.isDeliveryDurty && props.editStage < EditStages.delivery}
-          editAction={setDeliveryStage}
-          continueAction={setBillingState}
-        />
-        <Billing
-          isEditing={props.editStage == EditStages.billing}
-          collapsed={!props.isBillingDurty && props.editStage < EditStages.billing}
-          editAction={setBillingState}
-          continueAction={placeOrder}
-        />
+      <div styleName="checkout-content">
+        <div styleName="left-forms">
+          <Shipping
+            isEditing={props.editStage == EditStages.shipping}
+            collapsed={props.editStage < EditStages.shipping}
+            editAction={setShippingStage}
+            continueAction={setDeliveryStage}
+          />
+          <Delivery
+            isEditing={props.editStage == EditStages.delivery}
+            collapsed={!props.isDeliveryDurty && props.editStage < EditStages.delivery}
+            editAction={setDeliveryStage}
+            continueAction={setBillingState}
+          />
+          <Billing
+            isEditing={props.editStage == EditStages.billing}
+            collapsed={!props.isBillingDurty && props.editStage < EditStages.billing}
+            editAction={setBillingState}
+            continueAction={placeOrder}
+          />
+        </div>
+        <div styleName="right-forms">
+          <OrderSummary />
+        </div>
       </div>
-
     </div>
   );
 };

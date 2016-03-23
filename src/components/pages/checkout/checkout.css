@@ -6,9 +6,17 @@
   width: 100%;
 }
 
+.checkout-content {
+  display: flex;
+}
+
 .left-forms {
   lost-offset: -1/11;
   lost-column: 5/11;
+}
+
+.right-forms {
+  lost-column: 4/11;
 }
 
 .checkout-block {
@@ -23,10 +31,10 @@
 }
 
 .logo {
+  display: block;
   width: 45px;
   height: 45px;
-  margin: 0 auto;
-  margin-bottom: 40px;
+  margin: 0 auto 40px;
 }
 
 .union-fields {
