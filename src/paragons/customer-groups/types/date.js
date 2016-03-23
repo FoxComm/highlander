@@ -1,4 +1,3 @@
-import { validateOperatorAppliance } from './helpers';
 import ops, { operatorsMap } from '../operators';
 
 
@@ -10,11 +9,6 @@ const type = {
     [ops.less]: 'is before',
     [ops.greater]: 'is after',
     [ops.between]: 'is between',
-  },
-  getQuery: (criterion, operator, value) => {
-    validateOperatorAppliance(operator, type, criterion);
-
-    return operatorsMap[operator](criterion.field, value);
   },
 };
 
