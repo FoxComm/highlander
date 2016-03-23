@@ -250,10 +250,10 @@ object ProductManager {
 
     links     ← * <~ ObjectLinks.filter(_.leftId === productShadowId).result
     shadowIds ← * <~ links.map(_.rightId)
-    shadows   ← * <~ ObjectShadows.filter(_.id.inSet(shadowIds)).result
+    shadows   ← * <~ ObjectShadows.filter(_.id.inSet(shadowIds)).sortBy(_.formId).result
     formIds   ← * <~ shadows.map(_.formId)
-    forms     ← * <~ ObjectForms.filter(_.id.inSet(formIds)).result
-    skus      ← * <~ Skus.filter(_.formId.inSet(formIds)).result
+    forms     ← * <~ ObjectForms.filter(_.id.inSet(formIds)).sortBy(_.id).result
+    skus      ← * <~ Skus.filter(_.formId.inSet(formIds)).sortBy(_.formId).result
 
   } yield (skus.zip(forms.zip(shadows))).map{ case (a, b) ⇒ (a, b._1, b._2)}
 
