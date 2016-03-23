@@ -14,7 +14,7 @@ import responses.BatchMetadata._
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
-import utils.{ADT, ModelWithIdParameter}
+import utils.ModelWithIdParameter
 import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
@@ -30,10 +30,6 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   sealed trait ActionType
   case object Assigning extends ActionType
   case object Unassigning extends ActionType
-
-  object Reason extends ADT[ActionType] {
-    def types = sealerate.values[ActionType]
-  }
 
   def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: AC): DbResult[M]
   def fetchSequence(keys: Seq[K])(implicit ec: EC, db: DB, ac: AC): DbResult[Seq[M]]
