@@ -21,6 +21,20 @@ type Props = {
 
 type State = { editorState: Object };
 
+const headerStyles = [
+  { label: 'H1', style: 'header-one' },
+  { label: 'H2', style: 'header-two' },
+  { label: 'H3', style: 'header-three' },
+  { label: 'H4', style: 'header-four' },
+  { label: 'H5', style: 'header-five' },
+  { label: 'H6', style: 'header-six' },
+];
+
+const listStyles = [
+  { label: 'UL', style: 'unordered-list-item' },
+  { label: 'OL', style: 'ordered-list-item' },
+];
+
 const inlineStyles = [
   { label: 'B', style: 'BOLD' },
   { label: 'I', style: 'ITALIC' },
@@ -46,9 +60,63 @@ export default class RichTextEditor extends Component<void, Props, State> {
     this.state = { editorState };
   }
 
-  get styleButtons(): Array<Element> {
+  get headerButtons(): Element {
+    const { editorState } = this.state;
+    const selection = editorState.getSelection();
+    const blockType = editorState
+      .getCurrentContent()
+      .getBlockForKey(selection.getStartKey())
+      .getType();
+
+    const buttons = headerStyles.map(type => {
+      const className = classNames('fc-rich-text-editor__command-button', {
+        '_active': type.style === blockType,
+      });
+
+      return (
+        <button
+          className={className}
+          onClick={(e) => this.handleHeaderClick(type.style, e)}
+          onMouseDown={stopPropagation}
+          onMouseUp={stopPropagation}>
+          {type.label}
+        </button>
+      );
+    });
+
+    return <div className="fc-rich-text-editor__command-set">{buttons}</div>;
+  }
+
+  get listButtons(): Element {
+    const { editorState } = this.state;
+    const selection = editorState.getSelection();
+    const blockType = editorState
+      .getCurrentContent()
+      .getBlockForKey(selection.getStartKey())
+      .getType();
+
+    const buttons = listStyles.map(type => {
+      const className = classNames('fc-rich-text-editor__command-button', {
+        '_active': type.style === blockType,
+      });
+
+      return (
+        <button
+          className={className}
+          onClick={(e) => this.handleHeaderClick(type.style, e)}
+          onMouseDown={stopPropagation}
+          onMouseUp={stopPropagation}>
+          {type.label}
+        </button>
+      );
+    });
+
+    return <div className="fc-rich-text-editor__command-set">{buttons}</div>;
+  }
+
+  get styleButtons(): Element {
     const currentStyle = this.state.editorState.getCurrentInlineStyle();
-    return inlineStyles.map(type => {
+    const buttons = inlineStyles.map(type => {
       const className = classNames('fc-rich-text-editor__command-button', {
         '_active': currentStyle.has(type.style)
       });
@@ -63,6 +131,14 @@ export default class RichTextEditor extends Component<void, Props, State> {
         </button>
       );
     });
+
+    return <div className="fc-rich-text-editor__command-set">{buttons}</div>;
+  }
+
+  @autobind
+  handleHeaderClick(blockType: string, event: Object) {
+    stopPropagation(event);
+    this.handleChange(RichUtils.toggleBlockType(this.state.editorState, blockType));
   }
 
   @autobind
@@ -73,12 +149,14 @@ export default class RichTextEditor extends Component<void, Props, State> {
 
   @autobind
   handleChange(editorState: Object) {
-    const contentState: ContentState = editorState.getCurrentContent();
-    const rawHTML: string = stateToHTML(contentState);
+    this.setState({ editorState });
+  }
 
-    this.setState({
-      editorState,
-    }, () => this.props.onChange(rawHTML));
+  @autobind
+  handleBlur() {
+    const contentState: ContentState = this.state.editorState.getCurrentContent();
+    const rawHTML: string = stateToHTML(contentState);
+    this.props.onChange(rawHTML);
   }
 
   @autobind
@@ -98,12 +176,16 @@ export default class RichTextEditor extends Component<void, Props, State> {
       <div className="fc-rich-text-editor">
         {this.props.label && <div className="fc-rich-text-editor__label">{this.props.label}</div>}
         <div className="fc-rich-text-editor__command-bar">
+          {this.headerButtons}
           {this.styleButtons}        
+          {this.listButtons}
         </div>
         <div className="fc-rich-text-editor__content">
-          <Editor editorState={editorState}
-                  handleKeyCommand={this.handleKeyCommand}
-                  onChange={this.handleChange} />
+          <Editor
+            editorState={editorState}
+            handleKeyCommand={this.handleKeyCommand}
+            onBlur={this.handleBlur}
+            onChange={this.handleChange} />
         </div>
       </div>
     );

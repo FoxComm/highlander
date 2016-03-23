@@ -7,25 +7,29 @@
     border-left: 1px solid #d9d9d9;
     border-right: 1px solid #d9d9d9;
     display: flex;
+  }
 
-    .fc-rich-text-editor__command-button {
-      .border-radius(3px);
-      .font-spec(18px, 400, 18px);
-      .margin-left(4px);
-      .height(34px);
-      .width(34px);
-      background: transparent;
-      border: none;
+  &__command-set {
+    .margin-right(10px);
+  }
+  
+  &__command-button {
+    .border-radius(3px);
+    .font-spec(18px, 400, 18px);
+    .margin-left(4px);
+    .height(34px);
+    .width(34px);
+    background: transparent;
+    border: none;
 
-      &._active {
-        border: 1px solid #d9d9d9;
-        box-shadow: inset 1px 1px 1px 0 rgba(0,0,0,0.1);
-        font-weight: 600;
-      }
+    &._active {
+      border: 1px solid #d9d9d9;
+      box-shadow: inset 1px 1px 1px 0 rgba(0,0,0,0.1);
+      font-weight: 600;
+    }
 
-      &:hover {
-        border: 1px solid #d9d9d9;
-      }
+    &:hover {
+      border: 1px solid #d9d9d9;
     }
   }
 
