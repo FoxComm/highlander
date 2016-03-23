@@ -15,7 +15,8 @@ import java.sql.Connection
 import util.SlickSupport.implicits._
 import slick.jdbc.DriverDataSource
 
-import models.product.{SimpleContext, ProductContext, ProductContexts}
+import models.product.SimpleContext
+import models.objects.{ObjectContext, ObjectContexts}
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -42,11 +43,11 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
       ds.close()
       migrated = true
     }
-    setupProductContext()
+    setupObjectContext()
   }
 
-  private def setupProductContext(): Failures Xor ProductContext = {
-    Await.result(db.run(ProductContexts.create(SimpleContext.create)), 30.seconds)
+  private def setupObjectContext(): Failures Xor ObjectContext = {
+    Await.result(db.run(ObjectContexts.create(SimpleContext.create)), 60.seconds)
   }
 
   def isTableEmpty(table: String)(implicit conn: Connection): Boolean = {
@@ -77,7 +78,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
     if (tables.nonEmpty) {
       conn.createStatement().execute(s"truncate ${tables.mkString(", ")} restart identity cascade;")
     }
-    setupProductContext()
+    setupObjectContext()
     conn.close()
 
     super.withFixture(test)

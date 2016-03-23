@@ -2,7 +2,8 @@ package services
 
 import models.customer.Customers
 import models.inventory.Skus
-import models.product.{Mvp, ProductContexts, SimpleContext, SimpleProductData}
+import models.product.{Mvp, SimpleContext, SimpleProductData}
+import models.objects._
 import models.location.Addresses
 import models.order.{OrderShippingMethod, OrderShippingMethods, Orders}
 import models.order.lineitems._
@@ -83,11 +84,11 @@ class OrderTotalerTest extends IntegrationTestBase {
 
   trait SkuLineItemsFixture extends Fixture {
     val (productContext, product, productShadow, sku, skuShadow, skuPrice) = (for {
-      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+      productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       simpleProduct ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
       tup ← * <~ Mvp.getProductTuple(simpleProduct)
       _   ← * <~ OrderLineItems.create(OrderLineItem.buildSku(order, tup.sku))
-      skuPrice ← * <~ Mvp.priceAsInt(tup.sku, tup.skuShadow)
+      skuPrice ← * <~ Mvp.priceAsInt(tup.skuForm, tup.skuShadow)
     } yield (productContext, tup.product, tup.productShadow, tup.sku, tup.skuShadow, skuPrice)).runTxn().futureValue.rightVal
   }
 

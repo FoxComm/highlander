@@ -5,7 +5,8 @@ import Extensions._
 import models.customer.{Customer, Customers}
 import models.inventory.{Sku, Skus}
 import models.{SaveForLater, SaveForLaters, _}
-import models.product.{Mvp, ProductContexts, SimpleContext}
+import models.product.{Mvp, SimpleContext}
+import models.objects._
 import responses.SaveForLaterResponse
 import services.SaveForLaterManager.SavedForLater
 import util.IntegrationTestBase
@@ -29,8 +30,7 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
       emptyResponse.as[SavedForLater].result mustBe empty
       
 
-      SaveForLaters.create(SaveForLater(customerId = customer.id, skuId = product.skuId, 
-        skuShadowId = product.skuShadowId)).run().futureValue.rightVal
+      SaveForLaters.create(SaveForLater(customerId = customer.id, skuId = product.skuId)).run().futureValue.rightVal
       val notEmptyResponse = GET(s"v1/save-for-later/${customer.id}")
       notEmptyResponse.status must === (StatusCodes.OK)
       notEmptyResponse.as[SavedForLater].result must === (roots)
@@ -97,7 +97,7 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
 
   trait Fixture {
     val (customer, product, productContext) = (for {
-      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.create.id)
+      productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.create.id)
       customer ← * <~ Customers.create(Factories.customer)
       product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
     } yield (customer, product, productContext)).runTxn().futureValue.rightVal

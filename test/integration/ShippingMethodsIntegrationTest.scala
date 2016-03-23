@@ -6,7 +6,8 @@ import models.location.Addresses
 import models.order.{OrderShippingAddresses, Orders}
 import models.order.lineitems._
 import models.rules.QueryStatement
-import models.product.{Mvp, ProductContexts, SimpleContext, SimpleProductData}
+import models.product.{Mvp, SimpleContext, SimpleProductData}
+import models.objects._
 import models.shipping.ShippingMethods
 import models.{shipping, StoreAdmins}
 import org.json4s.jackson.JsonMethods._
@@ -133,7 +134,7 @@ class ShippingMethodsIntegrationTest extends IntegrationTestBase with HttpSuppor
     val washingtonId = 4177
 
     val (address, orderShippingAddress) = (for {
-      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+      productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       address     ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, regionId = californiaId))
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address, orderId = order.id)
       product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head.copy(title = "Donkey", price = 27))

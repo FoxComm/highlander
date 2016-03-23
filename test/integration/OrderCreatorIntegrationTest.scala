@@ -4,7 +4,8 @@ import models.activity.ActivityContext
 import models.customer.{Customer, Customers}
 import models.StoreAdmins
 import models.order.Order
-import models.product.{ProductContexts, SimpleContext}
+import models.product.SimpleContext
+import models.objects._
 import payloads.CreateOrder
 import responses.order.FullOrder
 import FullOrder.Root
@@ -83,7 +84,7 @@ class OrderCreatorIntegrationTest extends IntegrationTestBase
 
   trait Fixture {
     val (productContext, storeAdmin, customer) = (for {
-      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+      productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       customer   ← * <~ Customers.create(Factories.customer)
       storeAdmin ← * <~ StoreAdmins.create(authedStoreAdmin)
     } yield (productContext, storeAdmin, customer)).runTxn().futureValue.rightVal
