@@ -1,5 +1,6 @@
 /* @flow */
 
+import _ from 'lodash';
 import React from 'react';
 import type { HTMLElement } from 'types';
 import styles from './storefront.css';
@@ -18,7 +19,14 @@ type StoreFrontProps = {
   toggleSidebar: Function;
 }
 
+const getState = state => ({ auth: state.auth });
+
 const StoreFront = (props : StoreFrontProps) : HTMLElement => {
+  const user = _.get(props, ['auth', 'current'], null);
+  const sessionLink = _.isEmpty(user) ?
+    <Link to="/login" styleName="login-link">LOG IN</Link> :
+    `HI, ${user.name.toUpperCase()}`;
+
   return (
     <div styleName="container">
       <div styleName="content-container">
@@ -33,7 +41,7 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
             <Icon styleName="logo" name="fc-some_brand_logo" />
             <div styleName="tools">
               <div styleName="login">
-                <Link to="/login" styleName="login-link">LOG IN</Link>
+                {sessionLink}
               </div>
               <div styleName="cart">
                 <Icon name="fc-cart" styleName="head-icon"/>
@@ -56,4 +64,4 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
   );
 };
 
-export default connect(null, {toggleSidebar})(StoreFront);
+export default connect(getState, {toggleSidebar})(StoreFront);
