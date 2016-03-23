@@ -21,8 +21,12 @@ import org.json4s.jackson.JsonMethods._
 import utils.aliases._
 import utils.IlluminateAlgorithm
 import cats.data.NonEmptyList
+import cats.implicits. _
+import failures.Failure
 import failures.NotFoundFailure400
 import failures.ProductFailures._
+import failures.ObjectFailures._
+import java.time.Instant
 
 object ProductManager {
 
@@ -203,14 +207,14 @@ object ProductManager {
   private def validateSkuPayload(skuGroup : Seq[(CreateFullSkuForm, CreateSkuShadow)]) 
   (implicit ec: EC, db: DB) : DbResultT[Unit] =
     failIfErrors(skuGroup.flatMap { case (f, s) ⇒ 
-      if(f.code === s.code) Seq.empty
+      if(f.code == s.code) Seq.empty
       else Seq(SkuShadowNotFoundInPayload(f.code))
     })
 
   private def validateSkuPayload2(skuGroup : Seq[(UpdateFullSkuForm, UpdateFullSkuShadow)]) 
   (implicit ec: EC, db: DB) : DbResultT[Unit] =
     failIfErrors(skuGroup.flatMap { case (f, s) ⇒ 
-      if(f.code === s.code) Seq.empty
+      if(f.code == s.code) Seq.empty
       else Seq(SkuShadowNotFoundInPayload(f.code))
     })
 

@@ -12,7 +12,7 @@ import utils.IlluminateAlgorithm
 import utils.Slick.implicits._
 import payloads.{CreateObjectContext, UpdateObjectContext}
 
-import ProductFailure._
+import failures.ObjectFailures._
 import utils.aliases._
 import cats.data.NonEmptyList
 import cats.implicits._

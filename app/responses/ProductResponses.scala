@@ -28,6 +28,14 @@ object ProductResponses {
       Root(name = c.name, attributes = c.attributes)
   }
 
+  object ProductHeadResponse {
+
+    final case class Root(id: Int) extends ResponseItem
+
+    //Product here is a placeholder for future. Using only form
+    def build(p: Product): Root = Root(id = p.formId)
+  }
+
   object ProductFormResponse {
 
     final case class Root(id: Int, attributes: Json, createdAt: Instant)

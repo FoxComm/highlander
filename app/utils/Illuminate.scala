@@ -1,7 +1,7 @@
 package utils
 
 import failures.Failure
-import failures.IlluminateFailures._
+import failures.ObjectFailures._
 import org.json4s.JsonDSL._
 import org.json4s.JsonAST.{JValue, JString, JObject, JField, JNothing}
 
@@ -40,9 +40,9 @@ object IlluminateAlgorithm {
               }
             }
           }
-        case _ ⇒ Seq(AttributesAreEmpty)
+        case _ ⇒ Seq(AttributesAreEmpty())
       }
-      case _ ⇒  Seq(ShadowAttributesAreEmpty)
+      case _ ⇒  Seq(ShadowAttributesAreEmpty())
     }
   }
 

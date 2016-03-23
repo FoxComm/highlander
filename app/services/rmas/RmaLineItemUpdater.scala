@@ -6,7 +6,7 @@ import models.order.lineitems.{OrderLineItemSkus, OrderLineItemGiftCards}
 import models.payment.giftcard.{GiftCards, GiftCard}
 import failures.{NotFoundFailure400, NotFoundFailure404, ShipmentNotFoundFailure}
 import failures.OrderFailures.SkuNotFoundInOrder
-import failures.RmaFailures.SkuNotFoundInContext
+import failures.ProductFailures.SkuNotFoundForContext
 import models.rma._
 import models.shipping.Shipments
 import payloads.{RmaGiftCardLineItemsPayload, RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload}
@@ -32,7 +32,7 @@ object RmaLineItemUpdater {
       reason    ← * <~ RmaReasons.filter(_.id === payload.reasonId)
         .one.mustFindOr(NotFoundFailure400(RmaReason, payload.reasonId))
       sku       ← * <~ Skus.filterByContextAndCode(context.id, payload.sku)
-        .one.mustFindOr(SkuNotFoundInContext(payload.sku, context.name))
+        .one.mustFindOr(SkuNotFoundForContext(payload.sku, context.name))
       skuShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
       // Inserts
       origin    ← * <~ RmaLineItemSkus.create(RmaLineItemSku(rmaId = rma.id, skuId = sku.id, skuShadowId = skuShadow.id))

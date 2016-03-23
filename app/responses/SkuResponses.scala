@@ -16,6 +16,15 @@ import cats.implicits._
 
 object SkuResponses {
 
+  object SkuHeadResponse { 
+
+    final case class Root(code: String) 
+      extends ResponseItem
+
+    def build(sku: Sku) : Root =
+      Root(code = sku.code)
+  }
+
   object SkuFormResponse { 
 
     final case class Root(code: String, attributes: Json, createdAt: Instant) 

@@ -2,7 +2,7 @@ package services.assignments
 
 import models.Assignment
 import models.inventory.{Sku, Skus}
-import responses.SkuResponses.SkuFormResponse.{Root, build}
+import responses.SkuResponses.SkuHeadResponse.{Root, build}
 import slick.driver.PostgresDriver.api._
 import utils.Slick._
 import utils.Slick.implicits._

@@ -12,6 +12,7 @@ import utils.aliases._
 import cats.data.NonEmptyList
 import failures.NotFoundFailure404
 import failures.ProductFailures._
+import failures.ObjectFailures._
 
 object SkuManager {
 
