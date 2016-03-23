@@ -196,12 +196,12 @@ object AssignmentsRoutes {
         }
       } ~
       pathPrefix("orders"/ orderRefNumRegex) { refNum ⇒
-        (get & pathEnd) {
-          goodOrFailures {
-            OrderAssignmentsManager.list(refNum)
-          }
-        } ~         
         pathPrefix("assignees") {
+          (get & pathEnd) {
+            goodOrFailures {
+              OrderAssignmentsManager.list(refNum)
+            }
+          } ~
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             goodOrFailures {
               OrderAssignmentsManager.assign(refNum, payload, admin)
