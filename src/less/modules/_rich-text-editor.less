@@ -10,7 +10,7 @@
   }
 
   &__command-set {
-    .margin-right(10px);
+    .margin-right(20px);
   }
   
   &__command-button {
@@ -33,9 +33,36 @@
     }
   }
 
+  &__command-headers {
+    .margin-left(4px);
+
+    .fc-dropdown {
+      &__button, &__controls, &__value {
+        background: transparent;
+        border: none;
+      }
+
+      &__value {
+        .font-spec(18px);
+        .padding-right(0);
+      }
+    }
+  }
+
   &__content {
     #input-styles.base();
     .border-radius(0 0 3px 3px);
+    .min-height(120px);
     .padding(10px);
+  }
+
+  &__label {
+    font-weight: 600;
+    line-height: 2.4rem;
+    font-size: 16px;
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+    color: #484848;
+    text-transform: capitalize;
   }
 }

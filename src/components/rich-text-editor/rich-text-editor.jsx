@@ -12,6 +12,7 @@ import _ from 'lodash';
 
 // components
 import { ContentState, Editor, EditorState, RichUtils } from 'draft-js';
+import { Dropdown, DropdownItem } from '../dropdown';
 
 type Props = {
   label?: string,
@@ -68,23 +69,19 @@ export default class RichTextEditor extends Component<void, Props, State> {
       .getBlockForKey(selection.getStartKey())
       .getType();
 
-    const buttons = headerStyles.map(type => {
-      const className = classNames('fc-rich-text-editor__command-button', {
-        '_active': type.style === blockType,
-      });
+    const items = headerStyles.map(t => <DropdownItem value={t.style}>{t.label}</DropdownItem>);
 
-      return (
-        <button
-          className={className}
-          onClick={(e) => this.handleHeaderClick(type.style, e)}
-          onMouseDown={stopPropagation}
-          onMouseUp={stopPropagation}>
-          {type.label}
-        </button>
-      );
-    });
-
-    return <div className="fc-rich-text-editor__command-set">{buttons}</div>;
+    return (
+      <div className="fc-rich-text-editor__command-set">
+        <Dropdown 
+          className="fc-rich-text-editor__command-headers"
+          placeholder="A"
+          onChange={this.handleBlockTypeChange}
+          value={blockType}>
+          {items}
+        </Dropdown>
+      </div>
+    );
   }
 
   get listButtons(): Element {
@@ -103,7 +100,7 @@ export default class RichTextEditor extends Component<void, Props, State> {
       return (
         <button
           className={className}
-          onClick={(e) => this.handleHeaderClick(type.style, e)}
+          onClick={(e) => this.handleListTypeClick(type.style, e)}
           onMouseDown={stopPropagation}
           onMouseUp={stopPropagation}>
           {type.label}
@@ -136,9 +133,14 @@ export default class RichTextEditor extends Component<void, Props, State> {
   }
 
   @autobind
-  handleHeaderClick(blockType: string, event: Object) {
-    stopPropagation(event);
+  handleBlockTypeChange(blockType: string) {
     this.handleChange(RichUtils.toggleBlockType(this.state.editorState, blockType));
+  }
+
+  @autobind
+  handleListTypeClick(blockType: string, event: Object) {
+    stopPropagation(event);
+    this.handleBlockTypeChange(blockType);
   }
 
   @autobind
