@@ -85,44 +85,45 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   def assignBulk(originator: StoreAdmin, payload: BulkAssignmentPayload[K])
     (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[Seq[ResponseItem]]] = (for {
     // Validation + assign
-    admin          ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
-    entities       ← * <~ fetchSequence(payload.entityIds)
-    assignments    ← * <~ Assignments.byAdmin(assignmentType(), referenceType(), admin).result.toXor
-    newAssignedIds = entities.map(_.id).diff(assignments.map(_.referenceId))
-    newEntries     = buildSeq(entities.filter(e ⇒ newAssignedIds.contains(e.id)), payload.storeAdminId)
-    _              ← * <~ Assignments.createAll(newEntries)
-    success        = filterSuccess(entities, newEntries)
+    admin           ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
+    entities        ← * <~ fetchSequence(payload.entityIds)
+    assignments     ← * <~ Assignments.byAdmin(assignmentType(), referenceType(), admin).result.toXor
+    newAssignedIds  = entities.map(_.id).diff(assignments.map(_.referenceId))
+    succeedEntities = entities.filter(e ⇒ newAssignedIds.contains(e.id))
+    newEntries      = buildSeq(succeedEntities, payload.storeAdminId)
+    _               ← * <~ Assignments.createAll(newEntries)
+    succeedKeys     = extractPrimaryKeys(succeedEntities)
     // LogActivity + notifications
-    _              ← * <~ logBulkAssign(originator, admin, success)
-    _              ← * <~ subscribe(Seq(admin.id), success)
+    _               ← * <~ logBulkAssign(originator, admin, succeedKeys)
+    _               ← * <~ subscribe(Seq(admin.id), succeedKeys)
     // Batch response builder
-    result         = entities.map(buildResponse)
-    entityName     = entities.headOption.getOrElse(Some)
-    requestedIds   = payload.entityIds.map(_.toString)
-    referenceIds   = assignments.map(_.referenceId.toString)
-    batchFailures  = getFailureData(requestedIds, success, referenceIds, entityName, payload.storeAdminId, Assigning)
-    batchMetadata  = BatchMetadata(BatchMetadataSource(entityName, success, batchFailures))
+    result          = entities.map(buildResponse)
+    entityName      = entities.headOption.getOrElse(Some) // FIXME
+    requestedIds    = payload.entityIds.map(_.toString)
+    referenceIds    = extractPrimaryKeys(succeedEntities)
+    batchFailures   = getFailureData(requestedIds, succeedKeys, referenceIds, entityName, payload.storeAdminId, Assigning)
+    batchMetadata   = BatchMetadata(BatchMetadataSource(entityName, succeedKeys, batchFailures))
   } yield TheResponse(result, errors = flattenErrors(batchFailures), batch = batchMetadata.some)).runTxn()
 
   def unassignBulk(originator: StoreAdmin, payload: BulkAssignmentPayload[K])
     (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[Seq[ResponseItem]]] = (for {
     // Validation + unassign
-    admin         ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
-    entities      ← * <~ fetchSequence(payload.entityIds)
-    querySeq      = Assignments.byEntitySeqAndAdmin(assignmentType(), entities, referenceType(), admin)
-    assignments   ← * <~ querySeq.result.toXor
-    _             ← * <~ querySeq.delete
-    success       = filterSuccess(entities, assignments)
+    admin           ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
+    entities        ← * <~ fetchSequence(payload.entityIds)
+    querySeq        = Assignments.byEntitySeqAndAdmin(assignmentType(), entities, referenceType(), admin)
+    assignments     ← * <~ querySeq.result.toXor
+    _               ← * <~ querySeq.delete
+    success         = filterSuccess(entities, assignments)
     // LogActivity + notifications
-    _              ← * <~ logBulkUnassign(originator, admin, success)
-    _              ← * <~ unsubscribe(Seq(admin.id), success)
+    _               ← * <~ logBulkUnassign(originator, admin, success)
+    _               ← * <~ unsubscribe(Seq(admin.id), success)
     // Batch response builder
-    result        = entities.map(buildResponse)
-    entityName    = entities.headOption.getOrElse(Some)
-    requestedIds  = payload.entityIds.map(_.toString)
-    referenceIds  = assignments.map(_.referenceId.toString)
-    batchFailures = getFailureData(requestedIds, success, referenceIds, entityName, payload.storeAdminId, Unassigning)
-    batchMetadata = BatchMetadata(BatchMetadataSource(entityName, success, batchFailures))
+    result          = entities.map(buildResponse)
+    entityName      = entities.headOption.getOrElse(Some) // FIXME
+    requestedIds    = payload.entityIds.map(_.toString)
+    referenceIds    = extractPrimaryKeys(succeedEntities)
+    batchFailures   = getFailureData(requestedIds, success, referenceIds, entityName, payload.storeAdminId, Unassigning)
+    batchMetadata   = BatchMetadata(BatchMetadataSource(entityName, success, batchFailures))
   } yield TheResponse(result, errors = flattenErrors(batchFailures), batch = batchMetadata.some)).runTxn()
 
   // Activities
@@ -172,8 +173,19 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     admins      ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.storeAdminId))).result
   } yield assignments.zip(admins)
 
+  private def extractPrimaryKeys(entities: Seq[M]): Seq[String] =
+    entities.map(m ⇒ m.primarySearchKeyLens.get(m))
+
+  private def notFoundEntities(entities: Seq[M], payload: BulkAssignmentPayload[K]): Seq[M] = {
+    payload.entityIds.diff(extractPrimaryKeys(entities))
+  }
+
+  private def skippedEntities(entities: Seq[M], assignments: Seq[Assignment]): Seq[M] = {
+
+  }
+
   private def filterSuccess(entities: Seq[M], newEntries: Seq[Assignment]): Seq[String] =
-    entities.filter(e ⇒ newEntries.map(_.referenceId).contains(e.id)).map(m ⇒ m.primarySearchKeyLens.get(m))
+    extractPrimaryKeys(entities.filter(e ⇒ newEntries.map(_.referenceId).contains(e.id)))
 
   private def getFailureData[B](requested: Seq[String], available: Seq[String], referenceIds: Seq[String],
     modelType: B, storeAdminId: Int, actionType: ActionType): BatchMetadata.FailureData = {
