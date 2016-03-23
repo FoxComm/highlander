@@ -183,7 +183,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     modelType: B, storeAdminId: Int, actionType: ActionType): BatchMetadata.FailureData = {
 
     requested.diff(available).map { id ⇒
-      val failure = matchFailure(id, alreadyAssignedIds, modelType, storeAdminId, actionType)
+      val failure = matchFailure(id, referenceIds, modelType, storeAdminId, actionType)
       (id.toString, failure.description)
     }.toMap
   }
