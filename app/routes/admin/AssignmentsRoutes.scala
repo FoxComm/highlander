@@ -125,13 +125,13 @@ object AssignmentsRoutes {
           }
         }
       } ~
-      pathPrefix("gift-cards" / giftCardCodeRegex) { code ⇒
-        (get & pathEnd) {
-          goodOrFailures {
-            GiftCardAssignmentsManager.list(code)
-          }
-        } ~        
+      pathPrefix("gift-cards" / giftCardCodeRegex) { code ⇒       
         pathPrefix("assignees") {
+          (get & pathEnd) {
+            goodOrFailures {
+              GiftCardAssignmentsManager.list(code)
+            }
+          } ~           
           (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
             goodOrFailures {
               GiftCardAssignmentsManager.assign(code, payload, admin)
