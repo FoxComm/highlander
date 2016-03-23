@@ -38,7 +38,7 @@ object AssignmentsRoutes {
             }
           }
         } ~
-        pathPrefix("watchers") {          
+        pathPrefix("watchers") {
           (post & pathEnd) {
             entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
               goodOrFailures {
