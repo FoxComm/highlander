@@ -13,7 +13,7 @@ import { Link } from 'react-router';
 import Gallery from 'ui/gallery/gallery';
 
 import * as actions from 'modules/product-details';
-import { addToCart } from 'modules/cart';
+import { addLineItem } from 'modules/cart';
 
 import type { ProductResponse } from 'modules/product-details';
 
@@ -69,7 +69,7 @@ class Pdp extends Component {
   addToCart() {
     const quantity = this.state.quantity;
     const skuId = this.firstSqu;
-    this.props.addToCart(skuId, quantity);
+    this.props.addLineItem(skuId, quantity);
   }
 
   render() {
@@ -128,4 +128,4 @@ class Pdp extends Component {
   }
 }
 
-export default connect(getState, {...actions, addToCart})(Pdp);
+export default connect(getState, {...actions, addLineItem})(Pdp);
