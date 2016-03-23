@@ -14,6 +14,7 @@ import Shipping from './shipping';
 import Delivery from './delivery';
 import Billing from './billing';
 import OrderSummary from './order-summary';
+import GiftCard from './gift-card';
 
 import * as actions from 'modules/checkout';
 import { EditStages } from 'modules/checkout';
@@ -82,6 +83,7 @@ const Checkout = (props: CheckoutProps) => {
         </div>
         <div styleName="right-forms">
           <OrderSummary />
+          <GiftCard />
         </div>
       </div>
     </div>

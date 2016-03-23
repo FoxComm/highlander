@@ -1,5 +1,6 @@
 
 .order-summary {
+  composes: checkout-block from "./checkout.css";
   background: #FFFFFF;
   border: 3px solid #F4F4F4;
   padding: 25px 20px 30px 20px;
