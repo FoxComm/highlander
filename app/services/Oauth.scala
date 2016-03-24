@@ -5,6 +5,7 @@ import scala.concurrent.Future
 import cats.data.{Xor, XorT}
 import cats.implicits._
 import libs.oauth.{Oauth, OauthProvider, UserInfo}
+import failures.GeneralFailure
 import models.auth.Token
 import slick.dbio.DBIO
 import utils.DbResultT._

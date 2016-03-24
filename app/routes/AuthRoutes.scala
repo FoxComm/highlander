@@ -7,7 +7,7 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import akka.stream.Materializer
 
 import services.Authenticator
-import services.GeneralFailure
+import failures.GeneralFailure
 import scala.concurrent.Future
 
 import utils.Http._
