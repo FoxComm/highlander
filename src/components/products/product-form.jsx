@@ -15,6 +15,7 @@ import { Form, FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
 import CurrencyInput from '../forms/currency-input';
 import CustomProperty from './custom-property';
+import DatePicker from '../datepicker/datepicker';
 import ProductState from './product-state';
 import RichTextEditor from '../rich-text-editor/rich-text-editor';
 import SkuList from './sku-list';
@@ -211,6 +212,19 @@ export default class ProductForm extends Component<void, Props, State> {
             label={formattedLbl}
             value={rtVal}
             onChange={(value) => this.handleUpdateProduct(label, value)} />
+        );
+      case 'date':
+        const dateVal = _.get(this.state, ['product', label], value);
+        return (
+          <FormField
+            className="fc-product-details__field"
+            label={formattedLbl}
+            labelClassName="fc-product-details__field-label"
+            key={`product-page-field-${label}`}>
+            <DatePicker
+              date={new Date(dateVal)}
+              onChange={(value) => this.handleUpdateProduct(label, value)} />
+          </FormField>
         );
       default:
         const val = _.get(this.state, ['product', label], value);
