@@ -9,6 +9,7 @@ import classNames from 'classnames';
 
 import Currency from 'ui/currency';
 import LineItem from './line-item';
+import { Link } from 'react-router';
 
 import * as actions from 'modules/cart';
 
@@ -20,14 +21,16 @@ class Cart extends Component {
     this.props.fetch();
   }
 
+  get lineItems() {
+    return _.map(this.props.skus, sku => {
+      return <LineItem {...sku} deleteLineItem={this.props.deleteLineItem} key={sku.sku} />;
+    });
+  }
+
   render() {
     const cartClass = classNames({
       'cart-hidden': !this.props.isVisible,
       'cart-shown': this.props.isVisible,
-    });
-
-    const lineItems = _.map(this.props.skus, sku => {
-      return <LineItem {...sku} deleteLineItem={this.props.deleteLineItem} key={sku.sku} />;
     });
 
     return (
@@ -40,7 +43,7 @@ class Cart extends Component {
           </div>
           <div styleName="cart-content">
             <div styleName="line-items">
-              {lineItems}
+              {this.lineItems}
             </div>
             <div styleName="cart-subtotal">
               <div styleName="subtotal-title">
@@ -52,7 +55,7 @@ class Cart extends Component {
             </div>
           </div>
           <div styleName="cart-footer">
-            CHECKOUT
+            <Link to="/checkout" styleName="checkout-button">CHECKOUT</Link>
           </div>
         </div>
       </div>

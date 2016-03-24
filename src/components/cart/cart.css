@@ -44,6 +44,16 @@
   align-items: center;
 }
 
+.checkout-button {
+  display: flex;
+  color: var(--whitish);
+  text-decoration: none;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
 .cart-content {
   position: absolute;
   width: 100%;
