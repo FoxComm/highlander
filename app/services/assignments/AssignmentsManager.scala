@@ -1,8 +1,10 @@
 package services.assignments
 
+import scala.reflect.ClassTag
+import scala.reflect._
+
 import cats.implicits._
-import com.pellucid.sealerate
-import failures.{AlreadyAssignedFailure, AssigneeNotFound, Failure, NotAssignedFailure, NotFoundFailure404}
+import failures.{AlreadyAssignedFailure, AssigneeNotFound, NotAssignedFailure, NotFoundFailure404}
 import failures.Util._
 import models.Assignment._
 import models.{Assignment, Assignments, NotificationSubscription, StoreAdmin, StoreAdmins}
@@ -13,7 +15,6 @@ import responses.StoreAdminResponse.{build ⇒ buildAdmin}
 import responses.BatchMetadata._
 import services._
 import slick.driver.PostgresDriver.api._
-import utils.friendlyClassName
 import utils.DbResultT._
 import utils.ModelWithIdParameter
 import utils.DbResultT.implicits._
@@ -22,7 +23,7 @@ import utils.Slick.implicits._
 import utils.aliases._
 
 trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
-  val entityExample = new M
+  val entityExample = classTag[M].runtimeClass
 
   // Assign / unassign
   sealed trait ActionType
