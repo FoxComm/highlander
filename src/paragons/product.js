@@ -185,8 +185,6 @@ export function configureProduct(product: FullProduct): FullProduct {
   const defaultAttrs = {
     title: 'string',
     description: 'string',
-    retailPrice: 'price',
-    salePrice: 'price',
     url: 'string',
     metaTitle: 'string',
     metaDescription: 'string',

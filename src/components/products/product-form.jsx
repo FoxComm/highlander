@@ -61,7 +61,6 @@ type State = {
 const defaultKeys = {
   general: ['title', 'description'],
   misc: ['images'],
-  pricing: ['retailPrice', 'salePrice'],
   seo: ['url', 'metaTitle', 'metaDescription'],
 };
 
@@ -103,15 +102,6 @@ export default class ProductForm extends Component<void, Props, State> {
         </div>
       </ContentBox>
     );
-  }
-
-  get pricingContentBox(): Element {
-    const attributes = getProductAttributes(this.props.product);
-    const pricingAttributes = defaultKeys.pricing.map(key => {
-      return this.renderAttribute(attributes[key]);
-    });
-
-    return <ContentBox title="Pricing">{pricingAttributes}</ContentBox>;
   }
 
   get seoContentBox(): Element {
@@ -275,7 +265,6 @@ export default class ProductForm extends Component<void, Props, State> {
           <div className="fc-product-details fc-grid">
             <div className="fc-col-md-3-5">
               {this.generalContentBox}
-              {this.pricingContentBox}
               {this.variantContentBox}
               {this.skusContentBox}
               {this.seoContentBox}
