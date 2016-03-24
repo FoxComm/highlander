@@ -126,13 +126,13 @@ export function getIlluminatedSkus(product: FullProduct): Array<IlluminatedSku> 
 }
 
 export function getActiveFrom(product: FullProduct): string { 
-  const r = getAttribute(product.form.product.attributes, product.shadow.product.attributes, 'activeFrom')
-  return r.value
+  const r = getAttribute(product.form.product.attributes, product.shadow.product.attributes, 'activeFrom');
+  return _.get(r, 'value');
 }
 
 export function getActiveTo(product: FullProduct): string { 
-  const r = getAttribute(product.form.product.attributes, product.shadow.product.attributes, 'activeTo')
-  return r.value
+  const r = getAttribute(product.form.product.attributes, product.shadow.product.attributes, 'activeTo');
+  return _.get(r, 'value');
 }
 
 export function createEmptyProduct(): FullProduct {
