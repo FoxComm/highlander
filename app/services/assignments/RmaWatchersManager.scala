@@ -9,7 +9,6 @@ import utils.Slick.implicits._
 import utils.aliases._
 
 object RmaWatchersManager extends AssignmentsManager[String, Rma] {
-  val entityExample = Rma
 
   def assignmentType(): Assignment.AssignmentType = Assignment.Watcher
   def referenceType(): Assignment.ReferenceType = Assignment.Rma

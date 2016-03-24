@@ -9,7 +9,6 @@ import utils.Slick.implicits._
 import utils.aliases._
 
 object CustomerWatchersManager extends AssignmentsManager[Int, Customer] {
-  val entityExample = Customer
 
   def assignmentType(): Assignment.AssignmentType = Assignment.Watcher
   def referenceType(): Assignment.ReferenceType = Assignment.Customer

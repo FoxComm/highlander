@@ -22,7 +22,7 @@ import utils.Slick.implicits._
 import utils.aliases._
 
 trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
-  val entityExample: M
+  val entityExample = new M
 
   // Assign / unassign
   sealed trait ActionType

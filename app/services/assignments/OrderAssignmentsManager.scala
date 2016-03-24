@@ -9,7 +9,6 @@ import utils.Slick.implicits._
 import utils.aliases._
 
 object OrderAssignmentsManager extends AssignmentsManager[String, Order] {
-  val entityExample = Order
 
   def assignmentType(): Assignment.AssignmentType = Assignment.Assignee
   def referenceType(): Assignment.ReferenceType = Assignment.Order

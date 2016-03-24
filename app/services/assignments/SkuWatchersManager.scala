@@ -9,7 +9,6 @@ import utils.Slick.implicits._
 import utils.aliases._
 
 object SkuWatchersManager extends AssignmentsManager[String, Sku] {
-  val entityExample = Sku
 
   def assignmentType(): Assignment.AssignmentType = Assignment.Watcher
   def referenceType(): Assignment.ReferenceType = Assignment.Sku
