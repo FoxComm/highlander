@@ -13,6 +13,7 @@ import responses.StoreAdminResponse.{build ⇒ buildAdmin}
 import responses.BatchMetadata._
 import services._
 import slick.driver.PostgresDriver.api._
+import utils.friendlyClassName
 import utils.DbResultT._
 import utils.ModelWithIdParameter
 import utils.DbResultT.implicits._
@@ -21,24 +22,40 @@ import utils.Slick.implicits._
 import utils.aliases._
 
 trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
-  // Define this methods in inherit object
-  def assignmentType(): AssignmentType
-  def referenceType(): ReferenceType
-  def notifyDimension(): String
-  def buildResponse(model: M): ResponseItem
+  val entityExample: M
 
+  // Assign / unassign
   sealed trait ActionType
   case object Assigning extends ActionType
   case object Unassigning extends ActionType
 
-  def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: AC): DbResult[M]
-  def fetchSequence(keys: Seq[K])(implicit ec: EC, db: DB, ac: AC): DbResult[Seq[M]]
+  // For batch metadata
+  sealed trait GroupingType
+  case object Skipped extends GroupingType
+  case object Succeed extends GroupingType
 
   // Add additional ADT members here if necessary
   private def notifyReason(): NotificationSubscription.Reason = assignmentType() match {
     case Assignee ⇒ NotificationSubscription.Assigned
     case Watcher  ⇒ NotificationSubscription.Watching
   }
+
+  final case class EntityTrio(succeed: Seq[M], skipped: Seq[M], notFound: Seq[K])
+
+  // Database helpers
+  def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: AC): DbResult[M]
+  def fetchSequence(keys: Seq[K])(implicit ec: EC, db: DB, ac: AC): DbResult[Seq[M]]
+
+  private def fetchAssignments(entity: M)(implicit ec: EC, db: DB) = for {
+    assignments ← Assignments.byEntity(assignmentType(), entity, referenceType()).result
+    admins      ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.storeAdminId))).result
+  } yield assignments.zip(admins)
+
+  // Define this methods in inherit object
+  def assignmentType(): AssignmentType
+  def referenceType(): ReferenceType
+  def notifyDimension(): String
+  def buildResponse(model: M): ResponseItem
 
   // Use this methods wherever you want
   def list(key: K)(implicit ec: EC, db: DB, ac: AC): Result[Seq[Root]] = (for {
@@ -92,18 +109,16 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     succeedEntities = entities.filter(e ⇒ newAssignedIds.contains(e.id))
     newEntries      = buildSeq(succeedEntities, payload.storeAdminId)
     _               ← * <~ Assignments.createAll(newEntries)
-    succeedKeys     = extractPrimaryKeys(succeedEntities)
-    // LogActivity + notifications
-    _               ← * <~ logBulkAssign(originator, admin, succeedKeys)
-    _               ← * <~ subscribe(Seq(admin.id), succeedKeys)
     // Batch response builder
     result          = entities.map(buildResponse)
-    entityName      = entities.headOption.getOrElse(Some) // FIXME
-    requestedIds    = payload.entityIds.map(_.toString)
-    referenceIds    = extractPrimaryKeys(succeedEntities)
-    batchFailures   = getFailureData(requestedIds, succeedKeys, referenceIds, entityName, payload.storeAdminId, Assigning)
-    batchMetadata   = BatchMetadata(BatchMetadataSource(entityName, succeedKeys, batchFailures))
-  } yield TheResponse(result, errors = flattenErrors(batchFailures), batch = batchMetadata.some)).runTxn()
+    entityTrio      = groupEntities(entities, assignments, payload, Assigning)
+    successData     = getSuccessData(entityTrio)
+    failureData     = getFailureData(entityTrio, entities, payload.storeAdminId, Assigning)
+    batchMetadata   = BatchMetadata(BatchMetadataSource(entities, successData, failureData))
+    // LogActivity + notifications
+    _               ← * <~ logBulkAssign(originator, admin, successData)
+    _               ← * <~ subscribe(Seq(admin.id), successData)
+  } yield TheResponse(result, errors = flattenErrors(failureData), batch = batchMetadata.some)).runTxn()
 
   def unassignBulk(originator: StoreAdmin, payload: BulkAssignmentPayload[K])
     (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[Seq[ResponseItem]]] = (for {
@@ -113,18 +128,83 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     querySeq        = Assignments.byEntitySeqAndAdmin(assignmentType(), entities, referenceType(), admin)
     assignments     ← * <~ querySeq.result.toXor
     _               ← * <~ querySeq.delete
-    success         = filterSuccess(entities, assignments)
-    // LogActivity + notifications
-    _               ← * <~ logBulkUnassign(originator, admin, success)
-    _               ← * <~ unsubscribe(Seq(admin.id), success)
     // Batch response builder
     result          = entities.map(buildResponse)
-    entityName      = entities.headOption.getOrElse(Some) // FIXME
-    requestedIds    = payload.entityIds.map(_.toString)
-    referenceIds    = extractPrimaryKeys(succeedEntities)
-    batchFailures   = getFailureData(requestedIds, success, referenceIds, entityName, payload.storeAdminId, Unassigning)
-    batchMetadata   = BatchMetadata(BatchMetadataSource(entityName, success, batchFailures))
-  } yield TheResponse(result, errors = flattenErrors(batchFailures), batch = batchMetadata.some)).runTxn()
+    entityTrio      = groupEntities(entities, assignments, payload, Unassigning)
+    successData     = getSuccessData(entityTrio)
+    failureData     = getFailureData(entityTrio, entities, payload.storeAdminId, Unassigning)
+    batchMetadata   = BatchMetadata(BatchMetadataSource(entities, successData, failureData))
+    // LogActivity + notifications
+    _               ← * <~ logBulkUnassign(originator, admin, successData)
+    _               ← * <~ unsubscribe(Seq(admin.id), successData)
+  } yield TheResponse(result, errors = flattenErrors(failureData), batch = batchMetadata.some)).runTxn()
+
+  // Result builders
+  private def build(entity: M, newAssigneeIds: Seq[Int]): Seq[Assignment] =
+    newAssigneeIds.map(adminId ⇒ Assignment(assignmentType = assignmentType(),
+      storeAdminId = adminId, referenceType = referenceType(), referenceId = entity.id))
+
+  private def buildSeq(entities: Seq[M], storeAdminId: Int): Seq[Assignment] =
+    for (e ← entities) yield Assignment(assignmentType = assignmentType(), storeAdminId = storeAdminId,
+      referenceType = referenceType(), referenceId = e.id)
+
+  // Batch metadata builders
+  private def getSuccessData(trio: EntityTrio): SuccessData = searchKeys(trio.succeed)
+
+  private def getFailureData(trio: EntityTrio, entities: Seq[M], storeAdminId: Int,
+    actionType: ActionType): FailureData = {
+
+    val notFoundFailures = trio.notFound.map { key ⇒
+      (key.toString, NotFoundFailure404(entityExample, key).description)
+    }
+
+    val skippedFailures = trio.skipped.map { e ⇒
+      val searchKey = e.primarySearchKeyLens.get(e)
+      actionType match {
+        case Assigning ⇒
+          (searchKey, AlreadyAssignedFailure(entityExample, searchKey, storeAdminId).description)
+        case Unassigning ⇒
+          (searchKey, NotAssignedFailure(entityExample, searchKey, storeAdminId).description)
+      }
+    }
+
+    (notFoundFailures ++ skippedFailures).toMap
+  }
+
+  private def groupEntities(entities: Seq[M], assignments: Seq[Assignment], payload: BulkAssignmentPayload[K],
+    actionType: ActionType): EntityTrio = {
+
+    val succeed = groupInner(entities, assignments, actionType, Succeed)
+    val skipped = groupInner(entities, assignments, actionType, Skipped)
+    val notFound = payload.entityIds.diff(searchKeys(entities))
+
+    EntityTrio(succeed, skipped, notFound)
+  }
+
+  private def groupInner(entities: Seq[M], assignments: Seq[Assignment], actionType: ActionType,
+    groupType: GroupingType) = {
+
+    val requestedEntityIds = entities.map(_.id)
+    val assignedEntityIds  = assignments.map(_.referenceId)
+
+    (actionType, groupType) match {
+      case (Assigning, Succeed) ⇒
+        val successIds = requestedEntityIds.diff(assignedEntityIds)
+        entities.filter(e ⇒ successIds.contains(e.id))
+      case (Assigning, Skipped) ⇒
+        val successIds = requestedEntityIds.diff(assignedEntityIds)
+        entities.filterNot(e ⇒ successIds.contains(e.id))
+      case (Unassigning, Succeed) ⇒
+        val successIds = requestedEntityIds.intersect(assignedEntityIds)
+        entities.filter(e ⇒ successIds.contains(e.id))
+      case (Unassigning, Skipped) ⇒
+        val successIds = requestedEntityIds.intersect(assignedEntityIds)
+        entities.filter(e ⇒ successIds.contains(e.id))
+    }
+  }
+
+  private def searchKeys(entities: Seq[M]): Seq[String] = entities.map(searchKey)
+  private def searchKey(entity: M) = entity.primarySearchKeyLens.get(entity)
 
   // Activities
   private def logBulkAssign(originator: StoreAdmin, admin: StoreAdmin, keys: Seq[String])
@@ -158,76 +238,4 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
         objectIds = objectIds)
     else
       DbResult.unit
-
-  // Helpers
-  private def build(entity: M, newAssigneeIds: Seq[Int]): Seq[Assignment] =
-    newAssigneeIds.map(adminId ⇒ Assignment(assignmentType = assignmentType(),
-      storeAdminId = adminId, referenceType = referenceType(), referenceId = entity.id))
-
-  private def buildSeq(entities: Seq[M], storeAdminId: Int): Seq[Assignment] =
-    for (e ← entities) yield Assignment(assignmentType = assignmentType(), storeAdminId = storeAdminId,
-      referenceType = referenceType(), referenceId = e.id)
-
-  private def fetchAssignments(entity: M)(implicit ec: EC, db: DB) = for {
-    assignments ← Assignments.byEntity(assignmentType(), entity, referenceType()).result
-    admins      ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.storeAdminId))).result
-  } yield assignments.zip(admins)
-
-  private def extractPrimaryKeys(entities: Seq[M]): Seq[String] =
-    entities.map(m ⇒ m.primarySearchKeyLens.get(m))
-
-  private def notFoundEntities(entities: Seq[M], payload: BulkAssignmentPayload[K]): Seq[K] = {
-    payload.entityIds.diff(extractPrimaryKeys(entities))
-  }
-
-  // Check diff() method properly!
-  private def skippedEntities(entities: Seq[M], assignments: Seq[Assignment], actionType: ActionType): Seq[M] = {
-    val requestedEntityIds = entities.map(_.id)
-    val assignedEntityIds  = assignments.map(_.referenceId)
-
-    actionType match {
-      case Assigning ⇒
-        val alreadyAssignedIds = assignedEntityIds.diff(requestedEntityIds)
-        entities.filter(e ⇒ alreadyAssignedIds.contains(e.id))
-      case Unassigning ⇒
-        val alreadyUnassignedIds = requestedEntityIds.diff(assignedEntityIds)
-        entities.filter(e ⇒ alreadyUnassignedIds.contains(e.id))
-    }
-  }
-
-  private def succeedEntities(entities: Seq[M], assignments: Seq[Assignment], actionType: ActionType): Seq[M] = {
-    val requestedEntityIds = entities.map(_.id)
-    val assignedEntityIds  = assignments.map(_.referenceId)
-
-    actionType match {
-      case Assigning ⇒
-        val successIds = assignedEntityIds
-        entities.filter(e ⇒ successIds.contains(e.id))
-      case Unassigning ⇒
-        val successIds = assignedEntityIds
-        entities.filter(e ⇒ successIds.contains(e.id))
-    }
-  }
-
-  private def filterSuccess(entities: Seq[M], newEntries: Seq[Assignment]): Seq[String] =
-    extractPrimaryKeys(entities.filter(e ⇒ newEntries.map(_.referenceId).contains(e.id)))
-
-  private def getFailureData[B](requested: Seq[String], available: Seq[String], referenceIds: Seq[String],
-    modelType: B, storeAdminId: Int, actionType: ActionType): BatchMetadata.FailureData = {
-
-    requested.diff(available).map { id ⇒
-      val failure = matchFailure(id, referenceIds, modelType, storeAdminId, actionType)
-      (id.toString, failure.description)
-    }.toMap
-  }
-
-  private def matchFailure[B](id: String, referenceIds: Seq[String], modelType: B, storeAdminId: Int,
-    actionType: ActionType): Failure = actionType match {
-    case Assigning if referenceIds.contains(id) ⇒
-      AlreadyAssignedFailure(modelType, id, storeAdminId)
-    case Unassigning ⇒
-      NotAssignedFailure(modelType, id, storeAdminId)
-    case _ ⇒
-      NotFoundFailure404(modelType, id)
-  }
 }
