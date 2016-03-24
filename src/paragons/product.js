@@ -45,15 +45,15 @@ function getProductShadow(product: FullProduct): ProductShadow {
   return shadow;
 }
 
-function getSkuForm(code: string, product: FullProduct): SkuForm {
+function getSkuFormIndex(code: string, product: FullProduct): int {
   const forms: Array<SkuForm> = _.get(product, 'form.skus', []);
-  const form: ?SkuForm = _.find(forms, { code: code });
+  const index = _.findIndex(forms, { code: code });
 
-  if (!form) {
+  if (index == -1) {
     throw new Error(`SKU form for code ${code} not found in FullProduct response.`);
   }
 
-  return form;
+  return index;
 }
 
 function getSkuShadow(code: string, product: FullProduct): SkuShadow {
@@ -84,6 +84,8 @@ export function getAttribute(formAttrs: Attributes, shadowAttrs: ShadowAttribute
   label: string): IlluminatedAttribute {
 
   const shadow = shadowAttrs[label];
+  if(!shadow) return null;
+
   const attribute = formAttrs[shadow.ref];
 
   const res = {
@@ -314,7 +316,8 @@ export function setSkuAttribute(product: FullProduct,
                                 value: string): FullProduct {
 
   const shadow = getSkuShadow(code, product);
-  const form = getSkuForm(code, product);
+  const formIndex = getSkuFormIndex(code, product);
+  const form = product.form.skus[formIndex];
   const shadowPath = ['attributes', label];
   const shadowAttr = _.get(shadow, shadowPath);
   const path = ['attributes', shadowAttr.ref];
@@ -335,7 +338,8 @@ export function setSkuAttribute(product: FullProduct,
       break;
   }
 
-  return assoc(product, ['form', 'skus'], [...product.form.skus, updatedSku]);
+  product.form.skus[formIndex] = updatedSku; 
+  return product;
 }
 
 export function addSkuAttribute(product: FullProduct,
