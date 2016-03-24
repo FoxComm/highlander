@@ -1,8 +1,10 @@
 //libs
+import _ from 'lodash';
 import React, { PropTypes, Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { autobind } from 'core-decorators';
+import moment from 'moment';
 
 //data
 import operators from '../../../paragons/customer-groups/operators';
@@ -53,28 +55,45 @@ export default class DynamicGroup extends Component {
     }, 1000);
   }
 
+  get header() {
+    const {list, group} = this.props;
+
+    return (
+      <header className="fc-col-md-1-1">
+        <div className={prefixed('__title')}>
+          <h1 className="fc-title">
+            {group.name}
+            <span className={prefixed('__count')}>{list.total}</span>
+          </h1>
+          <PrimaryButton onClick={this.edit}>Edit Group</PrimaryButton>
+        </div>
+        <div className={prefixed('__about')}>
+          <div>
+            <span className={prefixed('__about__key')}>Type: </span>
+            <span className={prefixed('__about__value')}>{_.capitalize(group.type)}</span>
+          </div>
+          <div>
+            <span className={prefixed('__about__key')}>Created: </span>
+            <span className={prefixed('__about__value')}>{moment(group.createdAt).format('DD/MM/YYYY HH:mm')}</span>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
   @autobind
   edit() {
     transitionTo(this.context.history, 'edit-dynamic-customer-group', {groupId: this.props.group.id});
   }
 
   render() {
-    const {list, group} = this.props;
+    //const {list, group} = this.props;
 
     return (
       <div className={prefixed('')}>
         <div className="fc-grid">
-          <header className="fc-col-md-1-1">
-            <h1 className="fc-title">
-              {group.name}
-              <span className={prefixed('__count')}>{list.total}</span>
-            </h1>
-            <PrimaryButton onClick={this.edit}>Edit Group</PrimaryButton>
-          </header>
           <article className="fc-col-md-1-1">
-            <div>
-              Dynamic Group `{group.name}` details
-            </div>
+            {this.header}
           </article>
         </div>
       </div>

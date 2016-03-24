@@ -18,6 +18,8 @@ const initialState = {
   conditions: [],
   filterTerm: null,
   saved: false,
+  createdAt: null,
+  updatedAt: null,
 };
 
 const fetchGroup = (actions, id) => dispatch => {
@@ -67,11 +69,14 @@ const reducers = {
   reset: () => {
     return initialState;
   },
-  setData: (state, {id, type, name, clientState: {mainCondition, conditions}}) => {
+  setData: (state, {id, type, name, createdAt, updatedAt, clientState: {mainCondition, conditions}}) => {
     return {
       ...state,
       id,
       type,
+      name,
+      createdAt,
+      updatedAt,
       name,
       mainCondition,
       conditions,
