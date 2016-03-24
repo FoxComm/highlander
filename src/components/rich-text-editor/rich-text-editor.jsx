@@ -13,6 +13,7 @@ import _ from 'lodash';
 // components
 import { ContentBlock, ContentState, Editor, EditorState, RichUtils } from 'draft-js';
 import { Dropdown, DropdownItem } from '../dropdown';
+import StyleButton from './style-button';
 
 type Props = {
   label?: string,
@@ -21,6 +22,7 @@ type Props = {
 };
 
 type State = { editorState: Object };
+type Style = { label: string, style: string };
 
 const headerStyles = [
   { label: 'H1', style: 'header-one' },
@@ -92,44 +94,15 @@ export default class RichTextEditor extends Component<void, Props, State> {
       .getBlockForKey(selection.getStartKey())
       .getType();
 
-    const buttons = listStyles.map(type => {
-      const className = classNames('fc-rich-text-editor__command-button', {
-        '_active': type.style === blockType,
-      });
 
-      return (
-        <button
-          className={className}
-          onClick={(e) => this.handleListTypeClick(type.style, e)}
-          onMouseDown={stopPropagation}
-          onMouseUp={stopPropagation}>
-          <i className={type.label} />
-        </button>
-      );
-    });
-
-    return <div className="fc-rich-text-editor__command-set">{buttons}</div>;
+    const isActive = style => style == blockType;
+    return this.renderStyleButtons(listStyles, isActive, this.handleBlockTypeChange);
   }
 
   get styleButtons(): Element {
     const currentStyle = this.state.editorState.getCurrentInlineStyle();
-    const buttons = inlineStyles.map(type => {
-      const className = classNames('fc-rich-text-editor__command-button', {
-        '_active': currentStyle.has(type.style)
-      });
-
-      return (
-        <button
-          className={className}
-          onClick={(e) => this.handleStyleClick(type.style, e)}
-          onMouseDown={stopPropagation}
-          onMouseUp={stopPropagation}>
-          <i className={type.label} />
-        </button>
-      );
-    });
-
-    return <div className="fc-rich-text-editor__command-set">{buttons}</div>;
+    const isActive = style => currentStyle.has(style);
+    return this.renderStyleButtons(inlineStyles, isActive, this.handleStyleClick);
   }
 
   blockStyleFn(contentBlock: ContentBlock) {
@@ -148,14 +121,7 @@ export default class RichTextEditor extends Component<void, Props, State> {
   }
 
   @autobind
-  handleListTypeClick(blockType: string, event: Object) {
-    stopPropagation(event);
-    this.handleBlockTypeChange(blockType);
-  }
-
-  @autobind
-  handleStyleClick(style: string, event: Object) {
-    stopPropagation(event);
+  handleStyleClick(style: string) {
     this.handleChange(RichUtils.toggleInlineStyle(this.state.editorState, style));
   }
 
@@ -180,6 +146,22 @@ export default class RichTextEditor extends Component<void, Props, State> {
     }
 
     return false;
+  }
+
+  renderStyleButtons(styles: Array<Style>,
+                     isActive: (v: string) => boolean,
+                     onClick: (v: string) => void): Element {
+    const buttons = styles.map(type => {
+      return (
+        <StyleButton
+          isActive={isActive(type.style)}
+          labelIcon={type.label}
+          onClick={onClick}
+          style={type.style} />
+      );
+    });
+
+    return <div className="fc-rich-text-editor__command-set">{buttons}</div>;
   }
 
   render(): Element {
