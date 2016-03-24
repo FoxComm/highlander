@@ -4,7 +4,7 @@ import React from 'react';
 import type { HTMLElement } from 'types';
 import { connect } from 'react-redux';
 import { toggleSidebar } from 'modules/sidebar';
-import { toggleActive } from 'modules/search';
+import { toggleActive, resetTerm } from 'modules/search';
 import styles from './storefront.css';
 
 import Icon from 'ui/icon';
@@ -17,11 +17,21 @@ import Search from '../search/search';
 
 type StoreFrontProps = {
   children: HTMLElement;
+  isSearchActive: boolean;
   toggleSidebar: Function;
   toggleSearch: Function;
+  resetTerm: Function;
 }
 
 const StoreFront = (props : StoreFrontProps) : HTMLElement => {
+  const changeCategoryCallback = () => {
+    props.resetTerm();
+
+    if (props.isSearchActive) {
+      props.toggleSearch();
+    }
+  };
+
   return (
     <div styleName="container">
       <div styleName="content-container">
@@ -44,7 +54,7 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
             </div>
           </div>
           <div styleName="categories">
-            <Categories />
+            <Categories onClick={changeCategoryCallback} />
           </div>
           {props.children}
         </div>
@@ -59,4 +69,10 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
   );
 };
 
-export default connect(null, {toggleSidebar, toggleSearch: toggleActive})(StoreFront);
+function mapState(state: Object): Object {
+  return {
+    isSearchActive: state.search.isActive,
+  };
+}
+
+export default connect(mapState, { toggleSidebar, toggleSearch: toggleActive, resetTerm })(StoreFront);
