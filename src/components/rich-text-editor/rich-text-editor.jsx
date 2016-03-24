@@ -11,7 +11,7 @@ import { stateToHTML } from 'draft-js-export-html';
 import _ from 'lodash';
 
 // components
-import { ContentState, Editor, EditorState, RichUtils } from 'draft-js';
+import { ContentBlock, ContentState, Editor, EditorState, RichUtils } from 'draft-js';
 import { Dropdown, DropdownItem } from '../dropdown';
 
 type Props = {
@@ -132,6 +132,16 @@ export default class RichTextEditor extends Component<void, Props, State> {
     return <div className="fc-rich-text-editor__command-set">{buttons}</div>;
   }
 
+  blockStyleFn(contentBlock: ContentBlock) {
+    const type = contentBlock.getType();
+    switch (type) {
+      case 'ordered-list-item':
+        return 'fc-rich-text-editor__ol-block-style';
+      case 'unordered-list-item':
+        return 'fc-rich-text-editor__ul-block-style';
+    }
+  }
+
   @autobind
   handleBlockTypeChange(blockType: string) {
     this.handleChange(RichUtils.toggleBlockType(this.state.editorState, blockType));
@@ -185,6 +195,7 @@ export default class RichTextEditor extends Component<void, Props, State> {
         <div className="fc-rich-text-editor__content">
           <Editor
             editorState={editorState}
+            blockStyleFn={this.blockStyleFn}
             handleKeyCommand={this.handleKeyCommand}
             onBlur={this.handleBlur}
             onChange={this.handleChange} />

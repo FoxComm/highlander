@@ -57,12 +57,18 @@
   }
 
   &__label {
-    font-weight: 600;
-    line-height: 2.4rem;
-    font-size: 16px;
-    font-size: 1.6rem;
-    margin-bottom: 1rem;
+    .font-spec(16px, 600, 24px);
+    .margin-bottom(10px);
     color: #484848;
     text-transform: capitalize;
+  }
+
+  &__ol-block-style {
+    .margin-left(20px);
+  }
+
+  &__ul-block-style {
+    list-style-type: disc;
+    .margin-left(20px);
   }
 }
