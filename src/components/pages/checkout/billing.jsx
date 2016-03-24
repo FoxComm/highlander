@@ -7,7 +7,7 @@ import styles from './checkout.css';
 import textStyles from 'ui/css/input.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
-import { detectCardType, cardMask } from 'lib/payment-cards';
+import { detectCardType, cardMask, cvvLength} from 'lib/payment-cards';
 
 import { Form, FormField } from 'ui/forms';
 import { TextInput } from 'ui/inputs';
@@ -78,7 +78,7 @@ class EditBilling extends Component {
 
   @autobind
   changeCVV({target}) {
-    const value = target.value.replace(/[^\d]/g, '').substr(0, 3);
+    const value = target.value.replace(/[^\d]/g, '').substr(0, cvvLength(this.cardType));
     this.props.setBillingData('cvv', value);
   }
 
@@ -109,10 +109,13 @@ class EditBilling extends Component {
     return <EditAddress addressKind={AddressKind.BILLING} {...this.props} />;
   }
 
-  get cardMask() {
+  get cardType() {
     const { cardNumber } = this.props.data;
+    return detectCardType(cardNumber);
+  }
 
-    return cardMask(detectCardType(cardNumber));
+  get cardMask() {
+    return cardMask(this.cardType);
   }
 
   @autobind
@@ -124,6 +127,13 @@ class EditBilling extends Component {
       return 'Please enter a valid credit card number';
     }
     return null;
+  }
+
+  @autobind
+  validateCvvNumber() {
+    const { cvv } = this.props.data;
+
+    return cvv.length != cvvLength(this.cardType) ? `Please enter a valid cvv number` : null;
   }
 
   render() {
@@ -152,11 +162,11 @@ class EditBilling extends Component {
               onChange={this.changeCardNumber}
             />
           </FormField>
-          <FormField styleName="text-field" validator="cvv">
+          <FormField styleName="text-field" validator={this.validateCvvNumber}>
             <TextInput
               required
               type="number"
-              maxLength="3"
+              maxLength={cvvLength(this.cardType)}
               placeholder="CVV"
               onChange={this.changeCVV}
               value={data.cvv}
