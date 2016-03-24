@@ -4,6 +4,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import styles from './pdp.css';
 import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
 
 import Button from 'ui/buttons';
 import Counter from 'ui/forms/counter';
@@ -12,28 +13,60 @@ import { Link } from 'react-router';
 import Gallery from 'ui/gallery/gallery';
 
 import * as actions from 'modules/product-details';
+import { addLineItem } from 'modules/cart';
 
 import type { ProductResponse } from 'modules/product-details';
 
 type Params = {
-  productId: string,
+  productId: string;
 };
 
 type Props = {
-  fetch: (id: number) => any,
-  params: Params,
-  product: ProductResponse,
+  fetch: (id: number) => any;
+  params: Params;
+  product: ProductResponse;
+  addLineItem: Function;
 };
+
+type State = {
+  quantity: number;
+}
 
 const getState = state => ({ product: state.productDetails.product });
 
-class Pdp extends Component<void, Props, void> {
+class Pdp extends Component {
+  state: State;
+  props: Props;
+
+  state = {
+    quantity: 1,
+  };
+
   componentWillMount() {
     this.props.fetch(this.productId);
   }
 
   get productId(): number {
     return parseInt(this.props.params.productId, 10);
+  }
+
+  get firstSqu(): string {
+    return _.get(this.props, ['product', 'skus', 0, 'code']);
+  }
+
+  @autobind
+  onQuantityChange(value) {
+    const newValue = this.state.quantity + value;
+    if (newValue > 0) {
+      this.setState({quantity: newValue});
+    }
+  }
+
+  @autobind
+  addToCart() {
+    const quantity = this.state.quantity;
+    const skuId = this.firstSqu;
+    this.props.addLineItem(skuId, quantity);
   }
 
   render() {
@@ -75,11 +108,15 @@ class Pdp extends Component<void, Props, void> {
             <div>
               <label>QUANTITY</label>
               <div styleName="counter">
-                <Counter />
+                <Counter
+                  value={this.state.quantity}
+                  decreaseAction={() => this.onQuantityChange(-1)}
+                  increaseAction={() => this.onQuantityChange(1)}
+                />
               </div>
             </div>
             <div styleName="add-to-cart">
-              <Button>ADD TO CART</Button>
+              <Button onClick={this.addToCart}>ADD TO CART</Button>
             </div>
           </div>
         </div>
@@ -88,4 +125,4 @@ class Pdp extends Component<void, Props, void> {
   }
 }
 
-export default connect(getState, actions)(Pdp);
+export default connect(getState, {...actions, addLineItem})(Pdp);
