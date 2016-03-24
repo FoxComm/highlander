@@ -21,7 +21,7 @@ object ObjectUtils {
   }
 
   def attributes(values: Seq[JValue]) : JValue = 
-    JObject((values map attribute).toList)
+    JObject((values.map(attribute)).toList)
 
   type KeyMap = Map[String, String]
   def createForm(form: JValue) : (KeyMap, JValue) = {
@@ -33,8 +33,8 @@ object ObjectUtils {
             (Map(attr → k), (k, value))
           }
         }
-        val keyMap = m.map{_._1}.reduce(_++_)
-        val newForm = JObject(m.map{_._2}.toList)
+        val keyMap = m.map(_._1).reduce(_++_)
+        val newForm = JObject(m.map(_._2).toList)
         (keyMap, newForm) 
       }
       case _ ⇒  (Map(), JNothing)
