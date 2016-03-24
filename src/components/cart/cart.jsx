@@ -30,7 +30,7 @@ class Cart extends Component {
 
     return (
       <div styleName={cartClass}>
-        <div styleName="overlay">
+        <div styleName="overlay" onClick={this.props.toggleCart}>
         </div>
         <div styleName="cart-box">
           <div styleName="cart-header" onClick={this.props.toggleCart}>
