@@ -1,7 +1,6 @@
 /* @flow */
 
 import React, { Component } from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import type { HTMLElement } from 'types';
 import type { Product } from 'modules/products';
@@ -9,7 +8,7 @@ import styles from './search.css';
 
 import ProductsList from '../../products-list/products-list';
 
-import { actions } from 'modules/search';
+import { setTerm, fetch } from 'modules/search';
 
 type SearchParams = {
   term: string;
@@ -24,7 +23,7 @@ type SearchProps = {
 }
 
 class Search extends Component {
-  props:SearchProps;
+  props: SearchProps;
 
   componentWillMount() {
     if (this.props.term != this.props.params.term) {
@@ -34,13 +33,13 @@ class Search extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps:SearchProps) {
+  componentWillReceiveProps(nextProps: SearchProps) {
     if (this.props.term !== nextProps.term) {
       this.props.fetch(nextProps.term);
     }
   }
 
-  render():HTMLElement {
+  render(): HTMLElement {
     const { term, results } = this.props;
 
     return (
@@ -52,16 +51,10 @@ class Search extends Component {
   }
 }
 
-function mapState(state:any):Object {
+function mapState({ search }: any): Object {
   return {
-    ...state.search,
+    ...search,
   };
 }
 
-function mapDispatch(dispatch:Function) {
-  return {
-    ...bindActionCreators(actions, dispatch),
-  };
-}
-
-export default connect(mapState, mapDispatch)(Search);
+export default connect(mapState, { setTerm, fetch })(Search);

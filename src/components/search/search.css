@@ -1,19 +1,29 @@
 @import "colors.css";
+@import "media-queries";
 
-.search {
+.search,
+.search-expanded {
   position: relative;
 }
 
 .search-input {
-  background: var(--light-blackish);
-  width: 100%;
   border: none;
-  padding: 10px 0 10px 40px;
+  position: relative;
+  padding: 0;
+  background: var(--light-blackish);
   color: var(--lightes-blackish);
   text-transform: uppercase;
-  font-size: 15px;
-  line-height: 18px;
-  transition: color .1s;
+  font-size: 16px;
+  line-height: 46px;
+  z-index: 1;
+
+  width: 0;
+  transition: color .1s, width .1s, padding-left .1s;
+}
+
+.search-expanded .search-input {
+  width: 100%;
+  padding-left: 10px;
 }
 
 .search-input::-webkit-input-placeholder { /* WebKit, Blink, Edge */
@@ -22,12 +32,10 @@
 
 .search-input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
   color: var(--lightes-blackish);
-  opacity: 1;
 }
 
 .search-input::-moz-placeholder { /* Mozilla Firefox 19+ */
   color: var(--lightes-blackish);
-  opacity: 1;
 }
 
 .search-input:-ms-input-placeholder { /* Internet Explorer 10-11 */
@@ -42,13 +50,33 @@
   color: var(--whitish);
 }
 
-.head-icon {
+.head-icon,
+.close-icon {
   position: absolute;
-  top: 9px;
-  left: 10px;
+  top: 13px;
+  cursor: pointer;
 }
 
-.search-input + .head-icon :global(.icon__cnt) {
+.head-icon {
+  left: 0;
+  z-index: 0;
+}
+
+.close-icon {
+  right: 10px;
+  color: #fff;
+  z-index: 1;
+}
+
+.search .close-icon {
+  display: none;
+}
+
+.search-expanded .head-icon {
+  display: none;
+}
+
+.head-icon :global(.icon__cnt) {
   stroke: none;
   fill: var(--lightes-blackish);
   transition: fill .1s;
@@ -56,4 +84,26 @@
 
 .search-input:focus + .head-icon :global(.icon__cnt) {
   fill: var(--whitish);
+}
+
+@media (--small-viewport) {
+  .search-input,
+  .search-expanded .search-input {
+    font-size: 16px;
+    line-height: 38px;
+    padding-left: 40px;
+    width: 100%;
+  }
+
+  .search .head-icon,
+  .search-expanded .head-icon {
+    display: block;
+    top: 9px;
+    left: 10px;
+    z-index: 1;
+  }
+
+  .close-icon {
+    display: none;
+  }
 }

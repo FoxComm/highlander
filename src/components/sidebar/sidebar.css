@@ -25,7 +25,7 @@
 }
 
 .sidebar-shown .overlay {
-  opacity:1;
+  opacity: 1;
   transform: translateX(0);
 }
 

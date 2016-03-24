@@ -1,8 +1,8 @@
 /* flow */
 
 import React, { Component } from 'react';
+import classNames from 'classnames';
 import type { HTMLElement } from 'types';
-import { bindActionCreators } from 'redux';
 import { browserHistory } from 'react-router';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -11,37 +11,25 @@ import styles from './search.css';
 
 import Icon from 'ui/icon';
 
-import { actions } from 'modules/search';
-import { toggleSidebar } from 'modules/sidebar';
+import { setTerm, toggleActive } from 'modules/search';
 
 type SearchProps = {
+  isActive: boolean;
   term: string,
   results: Array<Product>,
   toggleSidebar: Function,
+  toggleActive: Function,
   onSearch: Function,
   setTerm: Function,
-  fetch: Function,
 }
 
 type SearchState = {
   term: string;
 }
 
-function mapState({ search }: Object):any {
-  return {
-    ...search,
-  };
-}
-
-function mapDispatch(dispatch:Function):any {
-  return {
-    ...bindActionCreators({ ...actions, toggleSidebar }, dispatch),
-  };
-}
-
 class Search extends Component {
-  props:SearchProps;
-  state:SearchState = {
+  props: SearchProps;
+  state: SearchState = {
     term: '',
   };
 
@@ -50,27 +38,61 @@ class Search extends Component {
   }
 
   @autobind
-  onChange({ target }: any):void {
-    this.setState({ term: target.value });
+  onKeyDown({ keyCode }: any): void {
+    if (keyCode === 13) {
+      this.search();
+      this.refs.input.blur();
+    }
+
+    if (keyCode === 27) {
+      this.props.toggleActive();
+      this.refs.input.blur();
+    }
   }
 
   @autobind
-  onSearch():void {
+  search(): void {
+    if (!this.props.isActive) {
+      return;
+    }
     const { term } = this.state;
 
     if (term.length) {
+      this.props.onSearch();
       this.props.setTerm(term);
-      this.props.toggleSidebar();
 
       browserHistory.push(`/search/${term}`);
     }
   }
 
-  render():HTMLElement {
+  @autobind
+  onSearch(): void {
+    if (!this.props.isActive) {
+      this.props.toggleActive();
+      this.refs.input.focus();
+
+      return;
+    }
+
+    this.search();
+  }
+
+  @autobind
+  onChange({ target }: any): void {
+    this.setState({ term: target.value });
+  }
+
+  render(): HTMLElement {
+    const cls = classNames({
+      search: !this.props.isActive,
+      'search-expanded': this.props.isActive,
+    });
+
     return (
-      <div styleName="search">
+      <div styleName={cls}>
         <input value={this.state.term}
           onChange={this.onChange}
+          onKeyDown={this.onKeyDown}
           styleName="search-input"
           autoComplete="off"
           placeholder="Search"
@@ -78,9 +100,17 @@ class Search extends Component {
         />
 
         <Icon styleName="head-icon" name="fc-magnifying-glass" onClick={this.onSearch}/>
+        <Icon styleName="close-icon" name="fc-close" onClick={this.props.toggleActive}/>
       </div>
     );
   }
 }
 
-export default connect(mapState, mapDispatch)(Search);
+function mapState({ search }: Object, { isActive }: ?Object): Object {
+  return {
+    ...search,
+    isActive: isActive || search.isActive,
+  };
+}
+
+export default connect(mapState, { setTerm, toggleActive })(Search);

@@ -2,20 +2,23 @@
 
 import React from 'react';
 import type { HTMLElement } from 'types';
-import styles from './storefront.css';
 import { connect } from 'react-redux';
 import { toggleSidebar } from 'modules/sidebar';
+import { toggleActive } from 'modules/search';
+import styles from './storefront.css';
 
 import Icon from 'ui/icon';
 import { Link } from 'react-router';
 import Categories from '../categories/categories';
 import Sidebar from '../sidebar/sidebar';
 import Footer from '../footer/footer';
+import Search from '../search/search';
 
 
 type StoreFrontProps = {
   children: HTMLElement;
   toggleSidebar: Function;
+  toggleSearch: Function;
 }
 
 const StoreFront = (props : StoreFrontProps) : HTMLElement => {
@@ -25,7 +28,7 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
         <div styleName="storefront">
           <div styleName="head">
             <div styleName="search">
-              <Icon name="fc-magnifying-glass" styleName="head-icon"/>
+              <Search onSearch={props.toggleSearch}/>
             </div>
             <div styleName="hamburger" onClick={props.toggleSidebar}>
               <Icon name="fc-hamburger" styleName="head-icon"/>
@@ -56,4 +59,4 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
   );
 };
 
-export default connect(null, {toggleSidebar})(StoreFront);
+export default connect(null, {toggleSidebar, toggleSearch: toggleActive})(StoreFront);

@@ -23,20 +23,16 @@
   margin-bottom: 40px;
 }
 
-.search {
-}
-
 .hamburger {
   display: none;
 }
 
 .search, .hamburger, .cart {
   width: 20px;
-  height: 20px;
 }
 
 .search, .hamburger, .tools {
-  width: 40%;
+  width: 30%;
 }
 
 .tools {
