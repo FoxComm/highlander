@@ -32,14 +32,14 @@ const headerStyles = [
 ];
 
 const listStyles = [
-  { label: 'UL', style: 'unordered-list-item' },
-  { label: 'OL', style: 'ordered-list-item' },
+  { label: 'icon-bullets', style: 'unordered-list-item' },
+  { label: 'icon-numbers', style: 'ordered-list-item' },
 ];
 
 const inlineStyles = [
-  { label: 'B', style: 'BOLD' },
-  { label: 'I', style: 'ITALIC' },
-  { label: 'U', style: 'UNDERLINE' },
+  { label: 'icon-bold', style: 'BOLD' },
+  { label: 'icon-italic', style: 'ITALIC' },
+  { label: 'icon-underline', style: 'UNDERLINE' },
 ];
 
 function stopPropagation(event: Object) {
@@ -75,7 +75,7 @@ export default class RichTextEditor extends Component<void, Props, State> {
       <div className="fc-rich-text-editor__command-set">
         <Dropdown 
           className="fc-rich-text-editor__command-headers"
-          placeholder="A"
+          placeholder={<i className="icon-size" />}
           onChange={this.handleBlockTypeChange}
           value={blockType}>
           {items}
@@ -103,7 +103,7 @@ export default class RichTextEditor extends Component<void, Props, State> {
           onClick={(e) => this.handleListTypeClick(type.style, e)}
           onMouseDown={stopPropagation}
           onMouseUp={stopPropagation}>
-          {type.label}
+          <i className={type.label} />
         </button>
       );
     });
@@ -124,7 +124,7 @@ export default class RichTextEditor extends Component<void, Props, State> {
           onClick={(e) => this.handleStyleClick(type.style, e)}
           onMouseDown={stopPropagation}
           onMouseUp={stopPropagation}>
-          {type.label}
+          <i className={type.label} />
         </button>
       );
     });

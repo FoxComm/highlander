@@ -43,8 +43,11 @@
       }
 
       &__value {
-        .font-spec(18px);
         .padding-right(0);
+
+        .icon-size {
+          .font-spec(18px);
+        }
       }
     }
   }
@@ -52,8 +55,12 @@
   &__content {
     #input-styles.base();
     .border-radius(0 0 3px 3px);
-    .min-height(120px);
     .padding(10px);
+    height: auto;
+
+    .public-DraftEditor-content {
+      .min-height(120px);
+    }
   }
 
   &__label {
