@@ -8,6 +8,11 @@ import Icon from 'ui/icon';
 import Currency from 'ui/currency';
 
 const LineItem = props => {
+  console.log(props);
+  const click = () => {
+    console.log('click');
+    props.deleteLineItem(props.sku);
+  };
   return (
     <div styleName="box">
       <div styleName="container">
@@ -26,7 +31,9 @@ const LineItem = props => {
           <Currency value={props.totalPrice}/>
         </div>
         <div styleName="controls">
-          <Icon name="fc-close" styleName="replace-icon"/>
+          <a styleName="close-button" onClick={click}>
+            <Icon name="fc-close" styleName="replace-icon" />
+          </a>
         </div>
       </div>
     </div>

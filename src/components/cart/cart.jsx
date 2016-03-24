@@ -26,7 +26,9 @@ class Cart extends Component {
       'cart-shown': this.props.isVisible,
     });
 
-    const lineItems = _.map(this.props.skus, sku => <LineItem {...sku} key={sku.sku} />);
+    const lineItems = _.map(this.props.skus, sku => {
+      return <LineItem {...sku} deleteLineItem={this.props.deleteLineItem} key={sku.sku} />;
+    });
 
     return (
       <div styleName={cartClass}>
