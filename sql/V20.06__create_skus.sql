@@ -20,8 +20,6 @@ end;
 $$ language plpgsql;
 
 create trigger create_order_line_item_skus_mapping
-    after update
-    on skus
-    for each row
+    after insert on skus for each row
     execute procedure create_order_line_item_skus_mapping();
 
