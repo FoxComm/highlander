@@ -57,7 +57,7 @@ type State = {
   product: { [key:string]: string },
 };
 
-const ommitKeys = {
+const omitKeys = {
   general: ['skus', 'variants'],
 };
 
@@ -87,7 +87,7 @@ export default class ProductForm extends Component<void, Props, State> {
 
   get generalContentBox(): Element {
     const customKeys: Array<string> = _.flatten(_.valuesIn(defaultKeys));
-    const hideKeys: Array<string> = _.flatten(_.valuesIn(ommitKeys));
+    const hideKeys: Array<string> = _.flatten(_.valuesIn(omitKeys));
     const attributes = getProductAttributes(this.props.product);
     const { title, description } = attributes;
     const customAttrs = _.omit(attributes, [...customKeys, ...hideKeys]);
