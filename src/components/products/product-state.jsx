@@ -13,6 +13,11 @@ import TextInput from '../forms/text-input';
 
 import type { FullProduct } from '../../modules/products/details';
 
+import {
+  getActiveFrom,
+  getActiveTo,
+} from '../../paragons/product';
+
 type Props = {
   product: FullProduct,
   onSetActive: (activeFrom: ?string, activeTo: ?string) => void,
@@ -30,23 +35,21 @@ export default class ProductState extends Component<void, Props, State> {
   constructor(props: Props) {
     super(props);
 
-    const productShadow = this.props.product.shadow.product;
-    const { activeFrom, activeTo } = productShadow;
-    const activeState = this.isActive(activeFrom, activeTo) ? 'active' : 'inactive';
+    const activeState = this.isActive(this.activeFrom, this.activeTo) ? 'active' : 'inactive';
 
     this.state = {
       activeState,
-      showActiveFromPicker: !_.isEmpty(activeFrom),
-      showActiveToPicker: !_.isEmpty(activeTo),
+      showActiveFromPicker: !_.isEmpty(this.activeFrom),
+      showActiveToPicker: !_.isEmpty(this.activeTo),
     };
   }
 
   get activeFrom(): ?string {
-    return this.props.product.shadow.product.activeFrom;
+    return getActiveFrom(this.props.product);
   }
 
   get activeTo(): ?string {
-    return this.props.product.shadow.product.activeTo;
+    return getActiveTo(this.props.product);
   }
 
   get activeFromPicker(): ?Element {

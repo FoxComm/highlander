@@ -42,7 +42,7 @@ export type Attribute = {
   [key:string]: any,
 };
 
-export type Attributes = { [key:string]: Attribute };
+export type Attributes = { [key:string]: any };
 
 export type ShadowAttributes = { 
   [key:string]: { type: string, ref: string},

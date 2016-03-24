@@ -80,6 +80,21 @@ export function getProductAttributes(product: FullProduct): IlluminatedAttribute
   return getAttributes(form.attributes, shadow.attributes);
 }
 
+export function getAttribute(formAttrs: Attributes, shadowAttrs: ShadowAttributes, 
+  label: string): IlluminatedAttribute {
+
+  const shadow = shadowAttrs[label];
+  const attribute = formAttrs[shadow.ref];
+
+  const res = {
+    label: label,
+    type: shadow.type,
+    value: attribute,
+  };
+
+  return res;
+}
+
 function getAttributes(formAttrs: Attributes, shadowAttrs: ShadowAttributes): IlluminatedAttributes {
   const illuminated: IlluminatedAttributes = _.reduce(shadowAttrs, (res, shadow, label) => {
     const attribute = formAttrs[shadow.ref];
@@ -108,6 +123,16 @@ export function getIlluminatedSkus(product: FullProduct): Array<IlluminatedSku> 
       };
     }
   });
+}
+
+export function getActiveFrom(product: FullProduct): string { 
+  const r = getAttribute(product.form.product.attributes, product.shadow.product.attributes, 'activeFrom')
+  return r.value
+}
+
+export function getActiveTo(product: FullProduct): string { 
+  const r = getAttribute(product.form.product.attributes, product.shadow.product.attributes, 'activeTo')
+  return r.value
 }
 
 export function createEmptyProduct(): FullProduct {
@@ -164,8 +189,8 @@ export function addEmptySku(product: FullProduct): FullProduct {
     ['shadow', 'product', 'attributs', 'variants'], {type: "variants", ref:variantKey},
     ['form', 'product', 'attributes', skusKey] , pseudoRandomCode, {},
     ['shadow', 'product', 'attributes', 'skus'], {type: "skus", ref: skusKey},
-    ['form', 'skus'], [...product.form.attributes.skus, emptySkuForm],
-    ['shadow', 'skus'], [...product.shadow.attributes.skus, emptySkuShadow]
+    ['form', 'skus'], [...product.form.skus, emptySkuForm],
+    ['shadow', 'skus'], [...product.shadow.skus, emptySkuShadow]
   );
 }
 
@@ -183,7 +208,7 @@ export function addNewVariant(product: FullProduct, variant: Variant): FullProdu
   return assoc(product, ['form', 'product', 'attributes', variantKey], newVariants);
 }
 
-export function copyShadowAttributes(form, shadow) {
+export function copyShadowAttributes(form: Attributes, shadow: Attributes) {
   //update form
   _.forEach(shadow,  (s, label) => {
       const attribute = form[s.ref];
@@ -191,7 +216,6 @@ export function copyShadowAttributes(form, shadow) {
    }); 
 
   //update shadow
-  //TODO: Finish
   shadow = _.transform(shadow, (result, value, key) => { value.ref = key; }, {});
 }
 
