@@ -26,7 +26,7 @@ class Cart extends Component {
       'cart-shown': this.props.isVisible,
     });
 
-    const lineItems = _.map(this.props.skus, (sku) => <LineItem {...sku} />);
+    const lineItems = _.map(this.props.skus, sku => <LineItem {...sku} key={sku.sku} />);
 
     return (
       <div styleName={cartClass}>

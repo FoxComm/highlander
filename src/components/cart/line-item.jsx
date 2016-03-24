@@ -1,7 +1,7 @@
 
-/* @flow */
+/* @flow weak */
 
-import React, { Component } from 'react';
+import React from 'react';
 import styles from './line-item.css';
 
 import Icon from 'ui/icon';
@@ -23,7 +23,7 @@ const LineItem = props => {
           </div>
         </div>
         <div styleName="price">
-          <Currency value={props.price}/>
+          <Currency value={props.totalPrice}/>
         </div>
         <div styleName="controls">
           <Icon name="fc-close" styleName="replace-icon"/>

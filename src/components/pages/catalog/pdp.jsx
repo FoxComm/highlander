@@ -25,7 +25,7 @@ type Props = {
   fetch: (id: number) => any;
   params: Params;
   product: ProductResponse;
-  addToCart: Function;
+  addLineItem: Function;
 };
 
 type State = {
