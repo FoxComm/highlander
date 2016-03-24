@@ -23,8 +23,6 @@ import utils.Slick.implicits._
 import utils.aliases._
 
 trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
-  val entityExample = classTag[M].runtimeClass
-
   // Assign / unassign
   sealed trait ActionType
   case object Assigning extends ActionType
@@ -41,7 +39,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     case Watcher  ⇒ NotificationSubscription.Watching
   }
 
-  final case class EntityTrio(succeed: Seq[M], skipped: Seq[M], notFound: Seq[String])
+  case class EntityTrio(succeed: Seq[M], skipped: Seq[M], notFound: Seq[String])
 
   // Database helpers
   def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: AC): DbResult[M]
@@ -154,6 +152,8 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
 
   private def getFailureData(trio: EntityTrio, entities: Seq[M], storeAdminId: Int,
     actionType: ActionType): FailureData = {
+
+    val entityExample = entities.head // FIXME
 
     val notFoundFailures = trio.notFound.map { key ⇒
       (key.toString, NotFoundFailure404(entityExample, key).description)
