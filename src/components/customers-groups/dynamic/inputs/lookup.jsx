@@ -17,7 +17,7 @@ const propTypes = {
   })),
   prefixed: PropTypes.func.isRequired,
   value: PropTypes.any,
-  changeValue: PropTypes.func.isRequired,
+  changeValue: PropTypes.func,
 };
 
 const Input = ({data, value, prefixed, changeValue}) => {
@@ -35,7 +35,7 @@ Input.propTypes = propTypes;
 
 const Label = ({value, prefixed}) => {
   return (
-    <div className={prefixed('')}>
+    <div className={prefixed('value')}>
       {value}
     </div>
   );
@@ -51,5 +51,5 @@ export default function(type) {
   return {
     Input: connected(state => state.regions)(Input),
     Label: connected(state => state.regions)(Label)
-  }
+  };
 }

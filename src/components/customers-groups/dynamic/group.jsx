@@ -19,6 +19,7 @@ import { prefix } from '../../../lib/text-utils';
 //components
 import ContentBox from '../../content-box/content-box';
 import { PrimaryButton } from '../../common/buttons';
+import Criterion from './criterion-view';
 
 
 const prefixed = prefix('fc-customer-group-dynamic');
@@ -49,6 +50,10 @@ export default class DynamicGroup extends Component {
     history: PropTypes.object.isRequired,
   };
 
+  state = {
+    criteriaOpen: true,
+  };
+
   componentDidMount() {
     this.props.listActions.fetch();
     setTimeout(()=> {
@@ -61,7 +66,7 @@ export default class DynamicGroup extends Component {
     const {list, group} = this.props;
 
     return (
-      <header className={classNames(prefixed('__header'), 'fc-col-md-1-1')}>
+      <header className={prefixed('__header')}>
         <div className={prefixed('__title')}>
           <h1 className="fc-title">
             {group.name}
@@ -71,11 +76,11 @@ export default class DynamicGroup extends Component {
         </div>
         <div className={prefixed('__about')}>
           <div>
-            <span className={prefixed('__about__key')}>Type:</span>
+            <span className={prefixed('__about__key')}>Type: </span>
             <span className={prefixed('__about__value')}>{_.capitalize(group.type)}</span>
           </div>
           <div>
-            <span className={prefixed('__about__key')}>Created:</span>
+            <span className={prefixed('__about__key')}>Created: </span>
             <span className={prefixed('__about__value')}>{moment(group.createdAt).format('DD/MM/YYYY HH:mm')}</span>
           </div>
         </div>
@@ -83,12 +88,39 @@ export default class DynamicGroup extends Component {
     );
   }
 
+  @autobind
+  renderCriterion([field, operator, value], index) {
+    return (
+      <Criterion key={index}
+                 field={field}
+                 operator={operator}
+                 value={value} />
+    );
+  }
+
   get criteria() {
+    const {mainCondition, conditions} = this.props.group;
+    const main = mainCondition === operators.and ? 'all' : 'any';
+
     return (
       <ContentBox title="Criteria"
-                  className={prefixed('__criteria')}>
-        criterions here
+                  className={prefixed('__criteria')}
+                  bodyClassName={classNames({'-open': this.state.criteriaOpen})}
+                  actionBlock={this.criteriaToggle}>
+        <span className={prefixed('__main')}>
+          Customers match <span className={prefixed('__inline-label')}>{main}</span> of the following criteria:
+        </span>
+        {conditions.map(this.renderCriterion)}
       </ContentBox>
+    );
+  }
+
+  get criteriaToggle() {
+    const {criteriaOpen} = this.state;
+    const icon = criteriaOpen ? 'icon-chevron-up' : 'icon-chevron-down';
+
+    return (
+      <i className={icon} onClick={() => this.setState({criteriaOpen: !criteriaOpen})} />
     );
   }
 

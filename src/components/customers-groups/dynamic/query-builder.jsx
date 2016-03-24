@@ -9,7 +9,7 @@ import criterions from '../../../paragons/customer-groups/criterions';
 import { prefix } from '../../../lib/text-utils';
 
 //components
-import Criterion from './criterion';
+import Criterion from './criterion-edit';
 import { AddButton } from '../../common/buttons';
 
 

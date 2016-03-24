@@ -1,4 +1,5 @@
 //libs
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
 //components
@@ -11,7 +12,7 @@ const propTypes = {
   }).isRequired,
   prefixed: PropTypes.func.isRequired,
   value: PropTypes.any,
-  changeValue: PropTypes.func.isRequired,
+  changeValue: PropTypes.func,
 };
 
 const Input = ({criterion, value, changeValue}) => {
@@ -23,10 +24,10 @@ const Input = ({criterion, value, changeValue}) => {
 };
 Input.propTypes = propTypes;
 
-const Label = ({value, prefixed}) => {
+const Label = ({criterion, value, prefixed}) => {
   return (
-    <div className={prefixed('')}>
-      {value}
+    <div className={prefixed('value')}>
+      {_.find(criterion.input.config.choices, item => item[0] === value)[1]}
     </div>
   );
 };

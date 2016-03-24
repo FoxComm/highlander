@@ -8,7 +8,7 @@ const propTypes = {
   }).isRequired,
   prefixed: PropTypes.func.isRequired,
   value: PropTypes.any,
-  changeValue: PropTypes.func.isRequired,
+  changeValue: PropTypes.func,
 };
 
 const Input = type => ({value, prefixed, changeValue}) => {
@@ -23,7 +23,7 @@ Input.propTypes = propTypes;
 
 const Label = type => ({value, prefixed}) => {
   return (
-    <div className={prefixed('')}>
+    <div className={prefixed('value')}>
       {value}
     </div>
   );

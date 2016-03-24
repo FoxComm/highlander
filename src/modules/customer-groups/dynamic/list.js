@@ -40,7 +40,7 @@ function fetcher() {
         query.field('name').add(operators.contains, filterTerm),
         query.field('email').add(operators.contains, filterTerm)
       ])
-    )
+    );
   }
 
   const request = query.toRequest();

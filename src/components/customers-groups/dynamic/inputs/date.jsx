@@ -12,7 +12,7 @@ const propTypes = {
   }).isRequired,
   prefixed: PropTypes.func.isRequired,
   value: PropTypes.any,
-  changeValue: PropTypes.func.isRequired,
+  changeValue: PropTypes.func,
 };
 
 const Input = ({value, changeValue}) => {
@@ -23,8 +23,8 @@ Input.propTypes = propTypes;
 
 const Label = ({value, prefixed}) => {
   return (
-    <div className={prefixed('')}>
-      {moment(value).format('MM-DD-YYYY')}
+    <div className={prefixed('value')}>
+      {moment(value).format('MM/DD/YYYY')}
     </div>
   );
 };

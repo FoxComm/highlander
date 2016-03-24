@@ -1,6 +1,9 @@
 //libs
 import React, { PropTypes } from 'react';
 
+//helpers
+import formatCurrency, { stringToCurrency } from '../../../../lib/format-currency';
+
 //components
 import CurrencyInput from '../../../forms/currency-input';
 
@@ -11,7 +14,7 @@ const propTypes = {
   }).isRequired,
   prefixed: PropTypes.func.isRequired,
   value: PropTypes.any,
-  changeValue: PropTypes.func.isRequired,
+  changeValue: PropTypes.func,
 };
 
 const Input = ({value, changeValue}) => {
@@ -24,8 +27,8 @@ Input.propTypes = propTypes;
 
 const Label = ({value, prefixed}) => {
   return (
-    <div className={prefixed('')}>
-      $ {formatCurrency(value, {bigNumber: true, fractionBase: 2})}
+    <div className={prefixed('value')}>
+      ${formatCurrency(value, {bigNumber: true, fractionBase: 2})}
     </div>
   );
 };

@@ -13,7 +13,7 @@ const propTypes = {
   }).isRequired,
   prefixed: PropTypes.func.isRequired,
   value: PropTypes.arrayOf(PropTypes.any),
-  changeValue: PropTypes.func.isRequired,
+  changeValue: PropTypes.func,
 };
 
 const Input = ({Input: Widget}) => ({criterion, value, prefixed, changeValue}) => {
