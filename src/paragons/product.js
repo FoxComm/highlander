@@ -191,7 +191,8 @@ export function configureProduct(product: FullProduct): FullProduct {
   };
 
   const defaultSkuAttrs = {
-    price: 'price',
+    retailPrice: 'price',
+    salePrice: 'price',
     upc: 'string',
   };
 
