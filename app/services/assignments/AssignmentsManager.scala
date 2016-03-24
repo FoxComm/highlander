@@ -182,28 +182,30 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
 
   // Check diff() method properly!
   private def skippedEntities(entities: Seq[M], assignments: Seq[Assignment], actionType: ActionType): Seq[M] = {
-    val entityIds    = entities.map(_.id)
-    val referenceIds = assignments.map(_.referenceId)
+    val requestedEntityIds = entities.map(_.id)
+    val assignedEntityIds  = assignments.map(_.referenceId)
 
     actionType match {
       case Assigning ⇒
-        val alreadyAssignedIds = referenceIds.diff(entityIds)
+        val alreadyAssignedIds = assignedEntityIds.diff(requestedEntityIds)
         entities.filter(e ⇒ alreadyAssignedIds.contains(e.id))
       case Unassigning ⇒
-        val alreadyUnassignedIds = entityIds.diff(referenceIds)
+        val alreadyUnassignedIds = requestedEntityIds.diff(assignedEntityIds)
         entities.filter(e ⇒ alreadyUnassignedIds.contains(e.id))
     }
   }
 
   private def succeedEntities(entities: Seq[M], assignments: Seq[Assignment], actionType: ActionType): Seq[M] = {
-    val entityIds    = entities.map(_.id)
-    val referenceIds = assignments.map(_.referenceId)
+    val requestedEntityIds = entities.map(_.id)
+    val assignedEntityIds  = assignments.map(_.referenceId)
 
     actionType match {
       case Assigning ⇒
-        val successIds = assignments.map(_.referenceId)
+        val successIds = assignedEntityIds
+        entities.filter(e ⇒ successIds.contains(e.id))
       case Unassigning ⇒
-
+        val successIds = assignedEntityIds
+        entities.filter(e ⇒ successIds.contains(e.id))
     }
   }
 
