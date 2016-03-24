@@ -1,4 +1,6 @@
 
+@import "colors.css";
+
 .order-summary {
   composes: checkout-block from "./checkout.css";
   background: #FFFFFF;
@@ -14,7 +16,7 @@
 
 .title {
   font-size: 22px;
-  color: #363636;
+  color: var(--blackish);
   line-height: 27px;
   margin-bottom: 25px;
 }
@@ -73,7 +75,7 @@
 .grand-total {
   composes: term-value-line from "ui/css/term-value-line.css";
   font-size: 18px;
-  color: #363636;
+  color: var(--blackish);
   line-height: 22px;
   padding-top: 30px;
 }

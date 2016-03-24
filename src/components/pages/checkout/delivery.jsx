@@ -91,11 +91,9 @@ const Delivery = (props: CheckoutBlockProps) => {
 
   return (
     <EditableBlock
+      {...props}
       styleName="checkout-block"
       title="DELIVERY"
-      isEditing={props.isEditing}
-      collapsed={props.collapsed}
-      editAction={props.editAction}
       content={deliveryContent}
     />
   );

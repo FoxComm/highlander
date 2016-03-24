@@ -42,15 +42,15 @@ function mapStateToProps(state) {
 
 const Checkout = (props: CheckoutProps) => {
   const setShippingStage = () => {
-    props.setEditStage(EditStages.shipping);
+    props.setEditStage(EditStages.SHIPPING);
   };
 
   const setDeliveryStage = () => {
-    props.setEditStage(EditStages.delivery);
+    props.setEditStage(EditStages.DELIVERY);
   };
 
   const setBillingState = () => {
-    props.setEditStage(EditStages.billing);
+    props.setEditStage(EditStages.BILLING);
   };
 
   const placeOrder = () => {
@@ -63,20 +63,22 @@ const Checkout = (props: CheckoutProps) => {
       <div styleName="checkout-content">
         <div styleName="left-forms">
           <Shipping
-            isEditing={props.editStage == EditStages.shipping}
-            collapsed={props.editStage < EditStages.shipping}
+            isEditing={props.editStage == EditStages.SHIPPING}
+            collapsed={props.editStage < EditStages.SHIPPING}
             editAction={setShippingStage}
             continueAction={setDeliveryStage}
           />
           <Delivery
-            isEditing={props.editStage == EditStages.delivery}
-            collapsed={!props.isDeliveryDurty && props.editStage < EditStages.delivery}
+            isEditing={props.editStage == EditStages.DELIVERY}
+            editAllowed={props.editStage >= EditStages.DELIVERY}
+            collapsed={!props.isDeliveryDurty && props.editStage < EditStages.DELIVERY}
             editAction={setDeliveryStage}
             continueAction={setBillingState}
           />
           <Billing
-            isEditing={props.editStage == EditStages.billing}
-            collapsed={!props.isBillingDurty && props.editStage < EditStages.billing}
+            isEditing={props.editStage == EditStages.BILLING}
+            editAllowed={props.editStage >= EditStages.BILLING}
+            collapsed={!props.isBillingDurty && props.editStage < EditStages.BILLING}
             editAction={setBillingState}
             continueAction={placeOrder}
           />

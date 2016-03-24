@@ -26,7 +26,7 @@ const EditShipping = props => {
 
 const Shipping = (props: CheckoutBlockProps) => {
   const content = props.isEditing
-    ? <EditShipping {...props} addressKind={AddressKind.shipping} />
+    ? <EditShipping {...props} addressKind={AddressKind.SHIPPING} />
     : <ViewShipping />;
 
   const shippingContent = (
@@ -37,11 +37,9 @@ const Shipping = (props: CheckoutBlockProps) => {
 
   return (
     <EditableBlock
+      {...props}
       styleName="checkout-block"
       title="SHIPPING"
-      isEditing={props.isEditing}
-      collapsed={props.collapsed}
-      editAction={props.editAction}
       content={shippingContent}
     />
   );

@@ -20,7 +20,7 @@ type EditShippingProps = {
 
 function mapStateToProps(state, props) {
   const { addressKind } = props;
-  const addressData = addressKind == AddressKind.shipping
+  const addressData = addressKind == AddressKind.SHIPPING
     ? state.checkout.shippingAddress
     : state.checkout.billingAddress;
 
@@ -40,7 +40,7 @@ function mapStateToProps(state, props) {
 
 /* ::`*/
 @connect(mapStateToProps, checkoutActions)
-  /* ::`*/
+/* ::`*/
 export default class EditAddress extends Component {
   props: EditShippingProps;
   lookupXhr: ?XMLHttpRequest;

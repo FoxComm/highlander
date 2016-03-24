@@ -106,7 +106,7 @@ class EditBilling extends Component {
       return null;
     }
 
-    return <EditAddress addressKind={AddressKind.billing} {...this.props} />;
+    return <EditAddress addressKind={AddressKind.BILLING} {...this.props} />;
   }
 
   get cardMask() {
@@ -218,11 +218,9 @@ const Billing = (props: CheckoutBlockProps) => {
 
   return (
     <EditableBlock
+      {...props}
       styleName="checkout-block"
       title="BILLING"
-      isEditing={props.isEditing}
-      collapsed={props.collapsed}
-      editAction={props.editAction}
       content={deliveryContent}
     />
   );

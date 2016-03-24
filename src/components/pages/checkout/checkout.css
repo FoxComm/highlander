@@ -1,5 +1,6 @@
 
 @import "media-queries.css";
+@import "colors.css";
 
 .checkout {
   margin-top: 45px;
@@ -116,9 +117,9 @@
   composes: button from "ui/css/buttons.css";
   width: auto;
   background: #FFFFFF;
-  border: 1px solid #363636;
+  border: 1px solid var(--blackish);
   font-size: 14px;
-  color: #363636;
+  color: var(--blackish);
   line-height: 17px;
 }
 
