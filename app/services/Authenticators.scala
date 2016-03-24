@@ -17,6 +17,7 @@ import failures.{Failures, LoginFailed}
 import models.auth.{Identity, _}
 import models.customer.{Customer, Customers}
 import models.{StoreAdmin, StoreAdmins}
+import org.jose4j.jwt.JwtClaims
 import payloads.LoginPayload
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
@@ -31,6 +32,10 @@ import utils.Config.RichConfig
 // TODO: Probably abstract this out so that we use one for both AdminUsers and Customers
 // TODO: Add Roles and Permissions.  Check those before taking on an action
 // TODO: Investigate 2-factor Authentication
+
+private final case class ApiTokens(api: JwtClaims, site: JwtClaims)
+private final case class ApiEncodedTokens(api: String, site: String)
+private final case class AuthPayload(tokens: ApiTokens, encodedTokens: ApiEncodedTokens)
 
 object Authenticator {
 
@@ -76,15 +81,22 @@ object Authenticator {
     }
   }
 
-  def respondWithToken(token: Token): Failures Xor Route = {
+  private def tokenToClaims(token: Token): ApiTokens = {
     val apiClaims = Token.getJWTClaims(token)
     val siteClaims = Token.getJWTClaims(token)
     apiClaims.setSubject("API")
     siteClaims.setSubject("site")
 
+    ApiTokens(apiClaims, siteClaims)
+  }
+
+
+  def authTokenBaseResponse(token: Token, response: AuthPayload ⇒ StandardRoute): Failures Xor Route = {
+    val claims = tokenToClaims(token)
+
     for {
-      apiTokenEncoded ← Token.encodeJWTClaims(apiClaims)
-      siteTokenEncoded ← Token.encodeJWTClaims(siteClaims)
+      apiTokenEncoded ← Token.encodeJWTClaims(claims.api)
+      siteTokenEncoded ← Token.encodeJWTClaims(claims.site)
     } yield respondWithHeader(RawHeader("JWT", apiTokenEncoded)).& (
       setCookie(HttpCookie(
         name = "JWT",
@@ -97,8 +109,27 @@ object Authenticator {
         path = Some("/"),
         domain = config.getOptString("auth.cookieDomain")
       ))) {
-      complete(HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, apiClaims.toJson)))
+      response(AuthPayload(
+        tokens = claims,
+        encodedTokens = ApiEncodedTokens(api = apiTokenEncoded, site = siteTokenEncoded)))
     }
+  }
+  def authTokenLoginResponse(token: Token): Failures Xor Route = {
+    authTokenBaseResponse(token, { payload ⇒
+      complete(HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, payload.tokens.api.toJson)))
+    })
+  }
+
+  def oauthTokenLoginResponse(token: Token): Failures Xor Route = {
+    authTokenBaseResponse(token, { payload ⇒
+      complete(HttpResponse(entity = HttpEntity(ContentTypes.`text/html(UTF-8)`,
+        s"""<script>
+          |localStorage.setItem('jwt', '${payload.encodedTokens.api}');
+          |localStorage.setItem('user', JSON.stringify(${payload.tokens.api.toJson}));
+          |window.location = "/";
+          |</script>
+          |""".stripMargin)))
+    })
   }
 
   def jwtCustomer(credentials: Option[HttpCredentials])
@@ -158,7 +189,7 @@ object Authenticator {
     }
 
     tokenResult.map(_.flatMap { token ⇒
-      respondWithToken(token)
+      authTokenLoginResponse(token)
     })
   }
 

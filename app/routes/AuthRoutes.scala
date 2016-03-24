@@ -20,7 +20,7 @@ import cats.implicits._
 import services.OauthService._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
-import libs.oauth.{GoogleOauthOptions, GoogleProvider, Oauth, OauthClientOptions, UserInfo}
+import libs.oauth.{GoogleOauthOptions, GoogleProvider, Oauth, UserInfo}
 
 class GoogleOauth(options: GoogleOauthOptions) extends Oauth(options) with GoogleProvider
 
@@ -64,7 +64,9 @@ object AuthRoutes {
             AdminToken.fromAdmin
           )) { t ⇒
             onSuccess(t.run()) { x ⇒
-              x.flatMap(Authenticator.respondWithToken).fold( { f ⇒ complete(renderFailure(f)) }, identity)
+              x.flatMap(Authenticator.oauthTokenLoginResponse).fold(
+                { f ⇒ complete(renderFailure(f)) },
+                identity _)
             }
           }
 
