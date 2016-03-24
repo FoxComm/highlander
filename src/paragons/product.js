@@ -45,7 +45,7 @@ function getProductShadow(product: FullProduct): ProductShadow {
   return shadow;
 }
 
-function getSkuFormIndex(code: string, product: FullProduct): int {
+function getSkuFormIndex(code: string, product: FullProduct): number {
   const forms: Array<SkuForm> = _.get(product, 'form.skus', []);
   const index = _.findIndex(forms, { code: code });
 
@@ -84,7 +84,7 @@ export function getAttribute(formAttrs: Attributes, shadowAttrs: ShadowAttribute
   label: string): IlluminatedAttribute {
 
   const shadow = shadowAttrs[label];
-  if(!shadow) return null;
+  if(!shadow) return shadow;
 
   const attribute = formAttrs[shadow.ref];
 
