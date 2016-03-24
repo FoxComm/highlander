@@ -13,7 +13,8 @@ object ProductFailures {
   object SkuShadowNotFoundInPayload { 
     def apply(code: String)  = NotFoundFailure404(s"Sku shadow with code $code not found in payload")
   }
-object SkuNotFoundForContext { def apply(code: String, productContext: String) =
+
+  object SkuNotFoundForContext { def apply(code: String, productContext: String) =
       NotFoundFailure404(s"Sku $code with product context $productContext cannot be found")
   }
 
