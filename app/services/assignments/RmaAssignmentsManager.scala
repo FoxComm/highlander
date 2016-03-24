@@ -9,7 +9,6 @@ import utils.Slick.implicits._
 import utils.aliases._
 
 object RmaAssignmentsManager extends AssignmentsManager[String, Rma] {
-  val entityExample = Rma
 
   def assignmentType(): Assignment.AssignmentType = Assignment.Assignee
   def referenceType(): Assignment.ReferenceType = Assignment.Rma
