@@ -2,7 +2,7 @@ package responses
 
 import responses.BatchMetadata.{BatchFailures, BatchSuccess, SuccessData, FailureData}
 import failures.Failures
-import utils._
+import utils.friendlyClassName
 
 final case class TheResponse[A](
   result     : A,

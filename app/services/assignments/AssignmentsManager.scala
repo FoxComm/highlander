@@ -40,7 +40,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     case Watcher  ⇒ NotificationSubscription.Watching
   }
 
-  final case class EntityTrio(succeed: Seq[M], skipped: Seq[M], notFound: Seq[K])
+  final case class EntityTrio(succeed: Seq[M], skipped: Seq[M], notFound: Seq[String])
 
   // Database helpers
   def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: AC): DbResult[M]
@@ -176,7 +176,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
 
     val succeed = groupInner(entities, assignments, actionType, Succeed)
     val skipped = groupInner(entities, assignments, actionType, Skipped)
-    val notFound = payload.entityIds.diff(searchKeys(entities))
+    val notFound = payload.entityIds.map(_.toString).diff(searchKeys(entities))
 
     EntityTrio(succeed, skipped, notFound)
   }
