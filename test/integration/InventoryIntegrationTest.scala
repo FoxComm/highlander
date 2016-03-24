@@ -4,6 +4,7 @@ import akka.http.scaladsl.model.StatusCodes
 import Extensions._
 import cats.implicits._
 import failures.NotFoundFailure404
+import failures.ProductFailures.SkuNotFoundForContext
 import models.inventory._
 import models.product.{Mvp, SimpleContext}
 import models.objects._
@@ -43,7 +44,7 @@ class InventoryIntegrationTest extends IntegrationTestBase with HttpSupport with
     "errors on wrong SKU code" in {
       val response = GET("v1/inventory/skus/NOPE/1")
       response.status must ===(StatusCodes.NotFound)
-      response.error must ===(NotFoundFailure404(Sku, "NOPE").description)
+      response.error must ===(SkuNotFoundForContext("NOPE", "default").description)
     }
 
     "errors on wrong warehouse id" in {
@@ -72,7 +73,7 @@ class InventoryIntegrationTest extends IntegrationTestBase with HttpSupport with
     "errors on wrong SKU code" in {
       val response = GET("v1/inventory/skus/NOPE/summary")
       response.status must ===(StatusCodes.NotFound)
-      response.error must ===(NotFoundFailure404(Sku, "NOPE").description)
+      response.error must ===(SkuNotFoundForContext("NOPE", "default").description)
     }
   }
 

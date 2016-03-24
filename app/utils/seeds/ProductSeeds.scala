@@ -12,14 +12,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 trait ProductSeeds extends  {
 
   type SeedProducts = (SimpleProductData, SimpleProductData, SimpleProductData, 
-    SimpleProductData, SimpleProductData, SimpleProductData, SimpleProductData, SimpleProductData)
+    SimpleProductData, SimpleProductData, SimpleProductData, SimpleProductData)
 
   def createProducts(implicit db: Database) : DbResultT[SeedProducts] = for {
     context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
     ps ← * <~ Mvp.insertProducts(products, context.id)
     } yield ps match {
-      case p1 :: p2 :: s3 :: p4 :: p5 :: p6 :: p7 :: p8 :: Nil ⇒ 
-        ( p1, p2, s3, p4, p5, p6, p7, p8)
+      case p1 :: p2 :: s3 :: p4 :: p5 :: p6 :: p7 :: Nil ⇒ 
+        ( p1, p2, s3, p4, p5, p6, p7)
       case other ⇒  ???
     }
 
@@ -38,7 +38,5 @@ trait ProductSeeds extends  {
       image ="https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Round_Readers_Top_Front.jpg"),
     // Why beetle? Cuz it"s probably a bug. FIXME: add validation!!!
     SimpleProductData(code = "SKU-TRL", title = "Fox", description = "Stylish fit, stylish finish.", price = -100, 
-      image ="https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Quay_Side.jpg"),
-    SimpleProductData(code = "SKU-TRL", title = "Free Fox", description = "Free stylish fox", price = 0, 
       image ="https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Quay_Side.jpg"))
 }

@@ -15,6 +15,7 @@ import utils.DbResultT.implicits._
 import utils.seeds.Seeds
 import Seeds.Factories
 import failures.{AlreadySavedForLater, NotFoundFailure404}
+import failures.ProductFailures.SkuNotFoundForContext
 import utils.Slick.implicits._
 import slick.driver.PostgresDriver.api._
 import org.json4s.DefaultFormats
@@ -76,7 +77,7 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
     "404 if sku is not found" in new Fixture {
       val response = POST(s"v1/save-for-later/${customer.id}/NOPE")
       response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(Sku, "NOPE").description)
+      response.error must === (SkuNotFoundForContext("NOPE", "default").description)
     }
   }
 

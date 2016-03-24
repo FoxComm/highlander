@@ -59,7 +59,7 @@ class CartValidatorTest extends IntegrationTestBase {
       }
 
       "if the cart has no credit card and insufficient GC/SC available balances" in new LineItemsFixture {
-        val skuPrice = Mvp.price(skuForm, skuShadow).getOrElse((0, Currency.USD))._1
+        val skuPrice = Mvp.priceAsInt(skuForm, skuShadow)
         val notEnoughFunds = skuPrice - 1
 
         (for {
@@ -87,7 +87,7 @@ class CartValidatorTest extends IntegrationTestBase {
         result.warnings.value.toList mustNot contain(InsufficientFunds(cart.refNum))
       }
 
-      "if the grandTotal == 0" in new LineItemsFixture {
+      "if the grandTotal == 0" in new LineItemsFixture0 {
         OrderTotaler.saveTotals(cart).run().futureValue.rightVal
 
         val result = CartValidator(refresh(cart)).validate().run().futureValue.rightVal
@@ -150,7 +150,24 @@ class CartValidatorTest extends IntegrationTestBase {
   trait LineItemsFixture extends Fixture {
     val (product, productForm, productShadow, sku, skuForm, skuShadow, items) = (for {
       context        ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      productData    ← * <~ Mvp.insertProduct(context.id, Factories.products(7))
+      productData    ← * <~ Mvp.insertProduct(context.id, Factories.products.head)
+      product        ← * <~ Products.mustFindById404(productData.productId)
+      productForm    ← * <~ ObjectForms.mustFindById404(product.formId)
+      productShadow  ← * <~ ObjectShadows.mustFindById404(product.shadowId)
+      sku            ← * <~ Skus.mustFindById404(productData.skuId)
+      skuForm        ← * <~ ObjectForms.mustFindById404(sku.formId)
+      skuShadow      ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+      items          ← * <~ OrderLineItems.create(OrderLineItem.buildSku(cart, sku))
+      _              ← * <~ OrderTotaler.saveTotals(cart)
+    } yield (product, productForm, productShadow, sku, skuForm, skuShadow, items)).runTxn().futureValue.rightVal
+
+    val grandTotal = refresh(cart).grandTotal
+  }
+
+  trait LineItemsFixture0 extends Fixture {
+    val (product, productForm, productShadow, sku, skuForm, skuShadow, items) = (for {
+      context        ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
+      productData    ← * <~ Mvp.insertProduct(context.id, Factories.products.head.copy(price = 0))
       product        ← * <~ Products.mustFindById404(productData.productId)
       productForm    ← * <~ ObjectForms.mustFindById404(product.formId)
       productShadow  ← * <~ ObjectShadows.mustFindById404(product.shadowId)

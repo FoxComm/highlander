@@ -139,8 +139,8 @@ object Mvp {
     sku       ← * <~ Skus.mustFindById404(product.skuId)
     form      ← * <~ ObjectForms.mustFindById404(sku.formId)
     shadow    ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
-    p         ← * <~ price(form, shadow).getOrElse((0, Currency.USD))
-  } yield p._1
+    p         ← * <~ priceAsInt(form, shadow)
+  } yield p
 
   def getProductTuple(d: SimpleProductData)(implicit db: Database): DbResultT[SimpleProductTuple] = for {
       product       ← * <~ Products.mustFindById404(d.productId)
@@ -166,10 +166,11 @@ object Mvp {
 
   def price(f: ObjectForm, s: ObjectShadow) : Option[(Int, Currency)] = {
     s.attributes \ "price" \ "ref" match {
-      case JString(key) ⇒  priceFromJson(s.attributes \ key)
+      case JString(key) ⇒  priceFromJson(f.attributes \ key)
       case _ ⇒ None
     }
   }
+
   def priceAsInt(f: ObjectForm, s: ObjectShadow) : Int = 
     price(f, s).getOrElse((0, Currency.USD))._1
 
