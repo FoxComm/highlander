@@ -8,9 +8,7 @@ import Icon from 'ui/icon';
 import Currency from 'ui/currency';
 
 const LineItem = props => {
-  console.log(props);
   const click = () => {
-    console.log('click');
     props.deleteLineItem(props.sku);
   };
   return (
