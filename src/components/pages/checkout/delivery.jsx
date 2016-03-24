@@ -22,6 +22,8 @@ const shippingMethodCost = cost => {
 let ViewDelivery = (props) => {
   const { selectedShippingMethod: shippingMethod } = props;
 
+  if (!shippingMethod) return <div></div>;
+
   return (
     <div styleName="shipping-method">
       <div>{shippingMethod.name}</div>
@@ -42,7 +44,10 @@ class EditDelivery extends Component {
 
   @autobind
   handleSubmit() {
-    this.props.continueAction();
+    const { selectedShippingMethod: selectedMethod } = this.props;
+    if (selectedMethod) {
+      this.props.continueAction();
+    }
   }
 
   get shippingMethods() {
@@ -86,11 +91,9 @@ const Delivery = (props: CheckoutBlockProps) => {
 
   return (
     <EditableBlock
+      {...props}
       styleName="checkout-block"
       title="DELIVERY"
-      isEditing={props.isEditing}
-      collapsed={props.collapsed}
-      editAction={props.editAction}
       content={deliveryContent}
     />
   );

@@ -31,7 +31,8 @@
       }
     ],
     "react/sort-comp": 0,
-    "no-unused-vars": [2, { "varsIgnorePattern": "^styles$" }]
+    "no-unused-vars": [2, { "varsIgnorePattern": "^styles$" }],
+    "consistent-return": 0
   },
   "globals": {
     "makeXhr": false

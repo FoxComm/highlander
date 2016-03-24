@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-transform-styles",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Transforms styleName's to className's",
   "main": "index.js",
   "scripts": {
