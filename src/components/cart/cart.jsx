@@ -1,12 +1,14 @@
 
 /* @flow */
 
+import _ from 'lodash';
 import React, { Component } from 'react';
 import styles from './cart.css';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 
 import Currency from 'ui/currency';
+import LineItem from './line-item';
 
 import * as actions from 'modules/cart';
 
@@ -24,6 +26,8 @@ class Cart extends Component {
       'cart-shown': this.props.isVisible,
     });
 
+    const lineItems = _.map(this.props.skus, (sku) => <LineItem {...sku} />);
+
     return (
       <div styleName={cartClass}>
         <div styleName="overlay">
@@ -33,6 +37,9 @@ class Cart extends Component {
               KEEP SHOPPING
           </div>
           <div styleName="cart-content">
+            <div styleName="line-items">
+              {lineItems}
+            </div>
             <div styleName="cart-subtotal">
               <div styleName="subtotal-title">
                 SUBTOTAL

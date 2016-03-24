@@ -1,0 +1,48 @@
+
+@import "colors.css";
+
+.box {
+
+}
+
+.container {
+  margin: 30px 20px;
+  display: flex;
+}
+
+.image {
+  width: 74px;
+  height: 74px;
+  margin-right: 15px;
+}
+
+.details {
+  flex-grow: 1;
+}
+
+.product-name {
+  font-size: 14px;
+  line-height: 17px;
+  font-weight: normal;
+}
+
+.quantity {
+  font-size: 14px;
+  line-height: 17px;
+  font-weight: 300;
+}
+
+.price {
+  width: 30%;
+  text-align: left;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 17px;
+}
+
+.controls {}
+
+.replace-icon {
+  width: 18px;
+  height: 18px;
+}
