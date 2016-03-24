@@ -202,7 +202,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
         entities.filter(e ⇒ successIds.contains(e.id))
       case (Unassigning, Skipped) ⇒
         val successIds = requestedEntityIds.intersect(assignedEntityIds)
-        entities.filter(e ⇒ successIds.contains(e.id))
+        entities.filterNot(e ⇒ successIds.contains(e.id))
     }
   }
 
