@@ -108,16 +108,11 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     succeedEntities = entities.filter(e ⇒ newAssignedIds.contains(e.id))
     newEntries      = buildSeq(succeedEntities, payload.storeAdminId)
     _               ← * <~ Assignments.createAll(newEntries)
-    // Batch response builder
-    result          = entities.map(buildResponse)
-    entityTrio      = groupEntities(entities, assignments, payload, Assigning)
-    successData     = getSuccessData(entityTrio)
-    failureData     = getFailureData(entityTrio, entities, payload.storeAdminId, Assigning)
-    batchMetadata   = BatchMetadata(BatchMetadataSource(entities, successData, failureData))
-    // LogActivity + notifications
+    // Response, log activity, notifications subscription
+    (successData, theResponse) = buildTheResponse(entities, assignments, payload, Assigning)
     _               ← * <~ logBulkAssign(originator, admin, successData)
     _               ← * <~ subscribe(Seq(admin.id), successData)
-  } yield TheResponse(result, errors = flattenErrors(failureData), batch = batchMetadata.some)).runTxn()
+  } yield theResponse).runTxn()
 
   def unassignBulk(originator: StoreAdmin, payload: BulkAssignmentPayload[K])
     (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[Seq[ResponseItem]]] = (for {
@@ -127,16 +122,23 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     querySeq        = Assignments.byEntitySeqAndAdmin(assignmentType(), entities, referenceType(), admin)
     assignments     ← * <~ querySeq.result.toXor
     _               ← * <~ querySeq.delete
-    // Batch response builder
-    result          = entities.map(buildResponse)
-    entityTrio      = groupEntities(entities, assignments, payload, Unassigning)
-    successData     = getSuccessData(entityTrio)
-    failureData     = getFailureData(entityTrio, entities, payload.storeAdminId, Unassigning)
-    batchMetadata   = BatchMetadata(BatchMetadataSource(entities, successData, failureData))
-    // LogActivity + notifications
+    // Response, log activity, notifications subscription
+    (successData, theResponse) = buildTheResponse(entities, assignments, payload, Unassigning)
     _               ← * <~ logBulkUnassign(originator, admin, successData)
     _               ← * <~ unsubscribe(Seq(admin.id), successData)
-  } yield TheResponse(result, errors = flattenErrors(failureData), batch = batchMetadata.some)).runTxn()
+  } yield theResponse).runTxn()
+
+  private def buildTheResponse(entities: Seq[M], assignments: Seq[Assignment], payload: BulkAssignmentPayload[K],
+    actionType: ActionType) = {
+
+    val result        = entities.map(buildResponse)
+    val entityTrio    = groupEntities(entities, assignments, payload, actionType)
+    val successData   = getSuccessData(entityTrio)
+    val failureData   = getFailureData(entityTrio, entities, payload.storeAdminId, actionType)
+    val batchMetadata = BatchMetadata(BatchMetadataSource(entities, successData, failureData))
+
+    (successData, TheResponse(result, errors = flattenErrors(failureData), batch = batchMetadata.some))
+  }
 
   // Result builders
   private def build(entity: M, newAssigneeIds: Seq[Int]): Seq[Assignment] =
