@@ -38,12 +38,9 @@ class Pdp extends Component {
   state: State;
   props: Props;
 
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      quantity: 1,
-    };
-  }
+  state = {
+    quantity: 1,
+  };
 
   componentWillMount() {
     this.props.fetch(this.productId);
