@@ -3,7 +3,6 @@ package failures
 import utils.friendlyClassName
 import Util._
 
-
 final case class AlreadyAssignedFailure(message: String) extends Failure {
   override def description = message
 }
