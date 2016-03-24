@@ -18,6 +18,8 @@ import { prefix } from '../../../lib/text-utils';
 
 //components
 import ContentBox from '../../content-box/content-box';
+import { PanelList, PanelListItem } from '../../panel/panel-list';
+import Currency from '../../common/currency';
 import { PrimaryButton } from '../../common/buttons';
 import Criterion from './criterion-view';
 
@@ -129,6 +131,28 @@ export default class DynamicGroup extends Component {
     transitionTo(this.context.history, 'edit-dynamic-customer-group', {groupId: this.props.group.id});
   }
 
+  get stats() {
+    return (
+      <PanelList className={prefixed('__stats')}>
+        <PanelListItem title="Total Orders">
+          132
+        </PanelListItem>
+        <PanelListItem title="Total Sales">
+          <Currency value={5786.57} />
+        </PanelListItem>
+        <PanelListItem title="Avg. Order Size">
+          2
+        </PanelListItem>
+        <PanelListItem title="Avg. Order Value">
+          <Currency value={75.34} />
+        </PanelListItem>
+        <PanelListItem title="Return Rate">
+          14%
+        </PanelListItem>
+      </PanelList>
+    );
+  }
+
   render() {
     //const {list, group} = this.props;
 
@@ -138,6 +162,7 @@ export default class DynamicGroup extends Component {
           <article className="fc-col-md-1-1">
             {this.header}
             {this.criteria}
+            {this.stats}
           </article>
         </div>
       </div>

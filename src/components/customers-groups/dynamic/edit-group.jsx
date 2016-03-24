@@ -63,7 +63,7 @@ export default class EditDynamicGroup extends React.Component {
   componentDidUpdate() {
     const {id, saved} = this.props.group;
     if (saved) {
-      transitionTo(this.context.history, 'group', {groupId: id});
+      transitionTo(this.context.history, 'customer-group', {groupId: id});
       return false;
     }
 

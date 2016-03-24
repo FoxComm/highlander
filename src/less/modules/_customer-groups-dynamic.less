@@ -1,6 +1,6 @@
 .fc-customer-group-dynamic {
   &__header {
-    .margin-bottom(20px);
+    .margin-bottom(40px);
   }
 
   &__title {
@@ -33,17 +33,25 @@
     }
   }
 
-  &__criteria > article {
-    display: none;
-    &.-open {
-      display: block;
+  &__criteria {
+    .margin-bottom(40px);
+
+    > article {
+      display: none;
+      &.-open {
+        display: block;
+      }
     }
+  }
+
+  &__stats {
+    .margin-bottom(40px);
   }
 
   &__main {
     .inline-block();
     .font-spec(14px, @semibold, 20px);
-    .margin-bottom(20px);
+    .margin-bottom(40px);
   }
 
   &__inline-label {
