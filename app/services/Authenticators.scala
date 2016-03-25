@@ -1,14 +1,14 @@
 package services
 
 import scala.concurrent.Future
-import akka.http.scaladsl.model.headers.{HttpChallenge, HttpCookie, HttpCredentials, RawHeader}
+import akka.http.scaladsl.model.headers.{GenericHttpCredentials, HttpChallenge, HttpCookie, HttpCredentials, RawHeader}
 import akka.http.scaladsl.model.{ContentTypes, DateTime, HttpEntity, HttpResponse, StatusCodes, Uri}
 import akka.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.CookieDirectives.setCookie
 import akka.http.scaladsl.server.directives.RespondWithDirectives.respondWithHeader
-import akka.http.scaladsl.server.directives.SecurityDirectives.{AuthenticationResult, challengeFor, extractCredentials}
+import akka.http.scaladsl.server.directives.SecurityDirectives.{AuthenticationResult, challengeFor}
 import akka.http.scaladsl.server.directives.{AuthenticationDirective, AuthenticationResult}
 
 import cats.data.Xor
@@ -25,6 +25,14 @@ import utils.DbResultT.implicits._
 import utils.Passwords.checkPassword
 import utils.Slick.implicits._
 import utils.aliases._
+
+
+sealed trait GetSessionTransport
+sealed trait SetSessionTransport extends GetSessionTransport
+case object CookieST extends SetSessionTransport
+case object HeaderST extends SetSessionTransport
+case object CookieOrHeaderST extends GetSessionTransport
+
 
 // TODO: Implement real session-based authentication with JWT
 // TODO: Probably abstract this out so that we use one for both AdminUsers and Customers
@@ -75,7 +83,13 @@ object Authenticator {
   }
 
   def requireAuth[T](auth: AsyncAuthenticator[T]): AuthenticationDirective[T] = {
-    extractCredentials.flatMap { optCreds ⇒
+    //optionalCookie("JWT")
+    //extractCredentials.flatMap { optCreds ⇒
+    optionalCookie("JWT").map { optCookie ⇒
+      optCookie.map { cookie ⇒
+        GenericHttpCredentials(scheme = cookie.value, params = Map.empty)
+      }
+    }.flatMap { optCreds ⇒
       onSuccess(auth(optCreds)).flatMap {
         case Right(user) ⇒
           provide(user)
