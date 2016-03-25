@@ -4,7 +4,7 @@ import scala.concurrent.Future
 
 import cats.data.{Xor, XorT}
 import cats.implicits._
-import libs.oauth.{Oauth, OauthProvider, UserInfo}
+import libs.oauth.{Oauth, UserInfo}
 import failures.GeneralFailure
 import models.auth.Token
 import slick.dbio.DBIO
@@ -30,20 +30,18 @@ object OauthService {
       Xor.right(resp.code.getOrElse(""))
     } else {
       Xor.left(new Throwable(resp.error.getOrElse("Unexpected error")))
-//      Xor.left(GeneralFailure(resp.error.getOrElse("Unexpected error")).single)
     }
   }
 
-
   /*
-    1. Exchange code to access token - Done
-    2. Get user email - Done
-    3. FindOrCreate<StoreAdmin|Customer> <- ??
+    1. Exchange code to access token
+    2. Get base user info email and name
+    3. FindOrCreate<UserModel>
     4. respondWithToken
   */
   def oauthCallback[O <: Oauth, M, F <: EmailFinder[M], C <: UserCreator[M]]
   (oauth: O, oauthResponse: OauthCallbackResponse, findByEmail: F, createByUserInfo: C, createToken: M ⇒ Token)
-    (implicit ec: EC) = {
+    (implicit ec: EC): Future[DbResultT[Token]] = {
 
     val tokenFromUserInfo = (info: UserInfo) ⇒ for {
       result ← * <~ findByEmail(info.email).findOrCreateExtended(createByUserInfo(info))

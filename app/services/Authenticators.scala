@@ -1,13 +1,12 @@
 package services
 
 import scala.concurrent.Future
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
 import akka.http.scaladsl.model.headers.{HttpChallenge, HttpCookie, HttpCredentials, RawHeader}
+import akka.http.scaladsl.model.{ContentTypes, DateTime, HttpEntity, HttpResponse, StatusCodes, Uri}
 import akka.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.directives.CookieDirectives.setCookie
-import akka.http.scaladsl.model.DateTime
 import akka.http.scaladsl.server._
+import akka.http.scaladsl.server.directives.CookieDirectives.setCookie
 import akka.http.scaladsl.server.directives.RespondWithDirectives.respondWithHeader
 import akka.http.scaladsl.server.directives.SecurityDirectives.{AuthenticationResult, challengeFor, extractCredentials}
 import akka.http.scaladsl.server.directives.{AuthenticationDirective, AuthenticationResult}
@@ -20,22 +19,28 @@ import models.{StoreAdmin, StoreAdmins}
 import org.jose4j.jwt.JwtClaims
 import payloads.LoginPayload
 import slick.driver.PostgresDriver.api._
+import utils.Config.{RichConfig, config}
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Passwords.checkPassword
 import utils.Slick.implicits._
 import utils.aliases._
-import utils.Config.config
-import utils.Config.RichConfig
 
 // TODO: Implement real session-based authentication with JWT
 // TODO: Probably abstract this out so that we use one for both AdminUsers and Customers
 // TODO: Add Roles and Permissions.  Check those before taking on an action
 // TODO: Investigate 2-factor Authentication
 
-private final case class ApiTokens(api: JwtClaims, site: JwtClaims)
-private final case class ApiEncodedTokens(api: String, site: String)
-private final case class AuthPayload(tokens: ApiTokens, encodedTokens: ApiEncodedTokens)
+final case class AuthPayload(claims: JwtClaims, jwt: String)
+
+object AuthPayload {
+  def apply(token: Token): Failures Xor AuthPayload = {
+    val claims = Token.getJWTClaims(token)
+    Token.encodeJWTClaims(claims).map { encoded ⇒
+      AuthPayload(claims = claims, jwt = encoded)
+    }
+  }
+}
 
 object Authenticator {
 
@@ -81,26 +86,14 @@ object Authenticator {
     }
   }
 
-  private def tokenToClaims(token: Token): ApiTokens = {
-    val apiClaims = Token.getJWTClaims(token)
-    val siteClaims = Token.getJWTClaims(token)
-    apiClaims.setSubject("API")
-    siteClaims.setSubject("site")
-
-    ApiTokens(apiClaims, siteClaims)
-  }
-
 
   def authTokenBaseResponse(token: Token, response: AuthPayload ⇒ StandardRoute): Failures Xor Route = {
-    val claims = tokenToClaims(token)
-
     for {
-      apiTokenEncoded ← Token.encodeJWTClaims(claims.api)
-      siteTokenEncoded ← Token.encodeJWTClaims(claims.site)
-    } yield respondWithHeader(RawHeader("JWT", apiTokenEncoded)).& (
+      authPayload ← AuthPayload(token)
+    } yield respondWithHeader(RawHeader("JWT", authPayload.jwt)).& (
       setCookie(HttpCookie(
         name = "JWT",
-        value = siteTokenEncoded,
+        value = authPayload.jwt,
         secure = config.getOptBool("auth.cookieSecure").getOrElse(true),
         httpOnly = true,
         expires = config.getOptLong("auth.cookieTTL").map { ttl ⇒
@@ -109,26 +102,18 @@ object Authenticator {
         path = Some("/"),
         domain = config.getOptString("auth.cookieDomain")
       ))) {
-      response(AuthPayload(
-        tokens = claims,
-        encodedTokens = ApiEncodedTokens(api = apiTokenEncoded, site = siteTokenEncoded)))
+      response(authPayload)
     }
   }
   def authTokenLoginResponse(token: Token): Failures Xor Route = {
     authTokenBaseResponse(token, { payload ⇒
-      complete(HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, payload.tokens.api.toJson)))
+      complete(HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, payload.claims.toJson)))
     })
   }
 
   def oauthTokenLoginResponse(token: Token): Failures Xor Route = {
     authTokenBaseResponse(token, { payload ⇒
-      complete(HttpResponse(entity = HttpEntity(ContentTypes.`text/html(UTF-8)`,
-        s"""<script>
-          |localStorage.setItem('jwt', '${payload.encodedTokens.api}');
-          |localStorage.setItem('user', JSON.stringify(${payload.tokens.api.toJson}));
-          |window.location = "/";
-          |</script>
-          |""".stripMargin)))
+      redirect(Uri./, StatusCodes.Found)
     })
   }
 

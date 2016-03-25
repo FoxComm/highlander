@@ -83,6 +83,7 @@ object Token {
 
     claims.setExpirationTimeMinutesInTheFuture(tokenTTL.toFloat)
     claims.setIssuer("FC")
+    claims.setSubject("API")
     claims
   }
 

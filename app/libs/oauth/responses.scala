@@ -7,8 +7,3 @@ final case class AccessTokenResponse(
   refresh_token: Option[String] = None,
   token_type: String = "Bearer"
 )
-
-// FIXME: move to proper place
-
-final case class EntitywithEmail(email: String)
-
