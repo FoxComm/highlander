@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom/server';
 import { match, RouterContext } from 'react-router';
 import createHistory from 'history/lib/createMemoryHistory';
 import { Provider } from 'react-redux';
-import jwtDecode from 'jwt-decode';
 
 import makeStore from './store';
 import routes from './routes';
@@ -13,17 +12,8 @@ import renderPage from '../build/main.html';
 export default function *renderReact() {
   const history = createHistory(this.path);
 
-  const jwt = this.cookies.get('JWT');
-  let initialState = void 0;
-
-  if (jwt) {
-    initialState = {
-      auth: {
-        jwt,
-        user: jwtDecode(jwt),
-      },
-    };
-  }
+  const auth = this.state.auth;
+  const initialState = auth ? {auth} : {};
 
   const store = makeStore(history, initialState);
 
