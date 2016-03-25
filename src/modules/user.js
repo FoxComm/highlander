@@ -56,7 +56,7 @@ export function authenticate(payload: LoginPayload): ActionDispatch {
 
 export function googleSignin(): ActionDispatch {
   return dispatch => {
-    Api.get('/public/signin/google').then(urlInfo => {
+    Api.get('/public/signin/google/admin').then(urlInfo => {
       window.location.href = urlInfo.url;
     });
   }
