@@ -12,6 +12,7 @@ import _ from 'lodash';
 import { PageTitle } from '../section-title';
 import { PrimaryButton } from '../common/buttons';
 import { Form, FormField } from '../forms';
+import { SliderCheckbox } from '../checkbox/checkbox';
 import ContentBox from '../content-box/content-box';
 import CurrencyInput from '../forms/currency-input';
 import CustomProperty from './custom-property';
@@ -225,6 +226,16 @@ export default class ProductForm extends Component<void, Props, State> {
               date={new Date(dateVal)}
               onChange={(value) => this.handleUpdateProduct(label, value)} />
           </FormField>
+        );
+      case 'bool':
+        const boolVal = _.get(this.state, ['product', label], value);
+        return (
+          <div className="fc-product-details_field">
+            <div className="fc-product-details__field-label">{formattedLbl}</div>
+            <SliderCheckbox
+              checked={boolVal}
+              onChange={() => this.handleUpdateProduct(label, !boolVal)} />
+          </div>
         );
       default:
         const val = _.get(this.state, ['product', label], value);
