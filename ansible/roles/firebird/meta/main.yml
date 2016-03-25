@@ -1,0 +1,3 @@
+---
+dependencies:
+  - { role: secret_keys, install_public_keys: true }
