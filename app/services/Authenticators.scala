@@ -27,13 +27,6 @@ import utils.Slick.implicits._
 import utils.aliases._
 
 
-sealed trait GetSessionTransport
-sealed trait SetSessionTransport extends GetSessionTransport
-case object CookieST extends SetSessionTransport
-case object HeaderST extends SetSessionTransport
-case object CookieOrHeaderST extends GetSessionTransport
-
-
 // TODO: Implement real session-based authentication with JWT
 // TODO: Probably abstract this out so that we use one for both AdminUsers and Customers
 // TODO: Add Roles and Permissions.  Check those before taking on an action
@@ -82,14 +75,24 @@ object Authenticator {
     basicAuth[StoreAdmin, EmailFinder[StoreAdmin]]("admin")(credentials, StoreAdmins.findByEmail, _.hashedPassword)
   }
 
+  private def readCookie() = {
+    optionalCookie("JWT").map(_.map { cookie ⇒
+      GenericHttpCredentials(scheme = cookie.value, params = Map.empty)
+    })
+  }
+
+  private def readHeader() = {
+    optionalHeaderValueByName("Authorization").map(_.map { header ⇒
+      GenericHttpCredentials(scheme = header, params = Map.empty)
+    })
+  }
+
+  private def readCookieOrHeader() = {
+    readCookie().flatMap(_.fold(readHeader())(v ⇒ provide(Some(v))))
+  }
+
   def requireAuth[T](auth: AsyncAuthenticator[T]): AuthenticationDirective[T] = {
-    //optionalCookie("JWT")
-    //extractCredentials.flatMap { optCreds ⇒
-    optionalCookie("JWT").map { optCookie ⇒
-      optCookie.map { cookie ⇒
-        GenericHttpCredentials(scheme = cookie.value, params = Map.empty)
-      }
-    }.flatMap { optCreds ⇒
+    readCookieOrHeader().flatMap { optCreds ⇒
       onSuccess(auth(optCreds)).flatMap {
         case Right(user) ⇒
           provide(user)
