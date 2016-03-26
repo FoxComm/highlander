@@ -1,6 +1,8 @@
-package services
+package services.auth
 
 import scala.concurrent.Future
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server._
 
 import cats.data.{Xor, XorT}
 import cats.implicits._
@@ -24,6 +26,10 @@ object OauthService {
     code: Option[String] = None,
     error: Option[String] = None)
 
+  def oauthResponse: Directive1[OauthCallbackResponse] =
+    parameterMap.map { params ⇒
+      OauthCallbackResponse(code = params.get("code"), error = params.get("error"))
+    }
 
   def parseOauthResponse(resp: OauthCallbackResponse): Xor[Throwable, String] = {
     if (resp.error.isEmpty && resp.code.nonEmpty) {
