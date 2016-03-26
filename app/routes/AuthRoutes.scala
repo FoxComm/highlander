@@ -14,8 +14,8 @@ import utils.aliases._
 
 object AuthRoutes {
 
-  val customerGoogleOauth = GoogleOauth(Identity.Customer.toString.toLowerCase)
-  val adminGoogleOauth = GoogleOauth(Identity.Admin.toString.toLowerCase)
+  lazy val customerGoogleOauth = GoogleOauth(Identity.Customer.toString.toLowerCase)
+  lazy val adminGoogleOauth = GoogleOauth(Identity.Admin.toString.toLowerCase)
 
   def routes(implicit ec: EC, db: DB, mat: Materializer) = {
 
