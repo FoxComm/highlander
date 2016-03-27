@@ -37,25 +37,6 @@
   border-bottom: 1px solid #E6E6E6;
 }
 
-.product-image {
-  width: 77px;
-}
-
-.product-image img {
-  width: 77px;
-  height: 77px;
-}
-
-.product-price {
-  text-align: right;
-  width: 55px;
-}
-
-.product-name {
-  text-transform: uppercase;
-  padding-left: 15px;
-}
-
 .price-summary {
   margin: 0;
   padding: 20px 0;

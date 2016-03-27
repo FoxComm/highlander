@@ -6,20 +6,7 @@ import { connect } from 'react-redux';
 
 import TermValueLine from 'ui/term-value-line';
 import Currency from 'ui/currency';
-
-const LineItemRow = props => {
-  console.log(props);
-  return (
-    <tr>
-      <td styleName="product-image">
-        <img src={props.imagePath} />
-      </td>
-      <td styleName="product-name">{props.name}</td>
-      <td styleName="product-qty">{props.quantity}</td>
-      <td styleName="product-price"><Currency value={props.totalPrice} /></td>
-    </tr>
-  );
-};
+import LineItemRow from './summary-line-item';
 
 const getState = state => ({ ...state.cart });
 
@@ -45,25 +32,25 @@ const OrderSummary = props => {
         <li>
           <TermValueLine>
             <span>SUBTOTAL</span>
-            <Currency value={props.subtotal} />
+            <Currency value={props.subTotal} />
           </TermValueLine>
         </li>
         <li>
           <TermValueLine>
             <span>SHIPPING</span>
-            $0.00
+            <Currency value={props.shipping} />
           </TermValueLine>
         </li>
         <li>
           <TermValueLine>
             <span>TAX</span>
-            $9.00
+            <Currency value={props.taxes} />
           </TermValueLine>
         </li>
       </ul>
       <TermValueLine styleName="grand-total">
         <span>GRAND TOTAL</span>
-        $159.00
+        <Currency value={props.total} />
       </TermValueLine>
     </div>
   );
