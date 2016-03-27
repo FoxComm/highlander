@@ -53,6 +53,7 @@ export function request(method, uri, data, options = {}) {
     headers['Content-Type'] = 'application/json;charset=UTF-8';
   }
 
+  options.credentials = "same-origin";
   options.headers = options.headers ? Object.assign(headers, options.headers) : headers;
   options.method = method;
 

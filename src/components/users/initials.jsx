@@ -16,7 +16,7 @@ function getInitials({ name, firstName = '', lastName = '' }) {
     if (name) {
       [firstName, lastName] = name.split(/\s+/);
     } else {
-      firstName = lastName = '?';
+      return null;
     }
   }
 

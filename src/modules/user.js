@@ -23,6 +23,31 @@ export const setUser = createAction('USER_SET');
 const authStart = createAction('USER_AUTH_START');
 const authError = createAction('USER_AUTH_ERROR');
 
+const requestMyInfoStart = createAction("USER_AUTH_INFO_START");
+const receiveMyInfoError = createAction("USER_AUTH_INFO_RECEIVE_ERROR");
+
+export function fetchUserInfo() {
+  return (dispatch, getState) => {
+    let user = getState().user.current;
+    if (user && user.name) return;
+
+    user = localStorage.getItem("user");
+    if (user) {
+      try {
+        dispatch(setUser(JSON.parse(user)));
+        return;
+      } catch(e) {
+      }
+    }
+
+    dispatch(requestMyInfoStart());
+    Api.get(`/admin/info`)
+      .then(
+        info => dispatch(setUser(info)),
+        err => dispatch(receiveMyInfoError(err))
+      );
+  };
+}
 
 export function authenticate(payload: LoginPayload): ActionDispatch {
 
@@ -62,10 +87,25 @@ export function googleSignin(): ActionDispatch {
   }
 }
 
-const initialState = {isFetching: false};
+const initialState = {
+  isFetching: false,
+};
 
 const reducer = createReducer({
+  [requestMyInfoStart]: (state) => {
+    return {...state,
+      err: null,
+      isFetching: true,
+    }
+  },
+  [receiveMyInfoError]: (state, err) => {
+    return {...state,
+      isFetching: false,
+      err: err,
+    }
+  },
   [setUser]: (state: UserState, user: TUser) => {
+    localStorage.setItem("user", JSON.stringify(user));
     return {
       ...state,
       current: user,
