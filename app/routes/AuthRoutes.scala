@@ -18,7 +18,6 @@ object AuthRoutes {
   lazy val adminGoogleOauth = GoogleOauth(Identity.Admin.toString.toLowerCase)
 
   def routes(implicit ec: EC, db: DB, mat: Materializer) = {
-
     pathPrefix("public") {
       (post & path("login") & entity(as[payloads.LoginPayload])) { payload ⇒
         onSuccess(Authenticator.authenticate(payload)) { result ⇒

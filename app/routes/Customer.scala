@@ -2,8 +2,9 @@ package routes
 
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
+import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import models.auth.CustomerToken
 import models.payment.giftcard.GiftCard
 import models.order.Order.orderRefNumRegex
 import models.inventory.Sku.skuCodeRegex
@@ -11,8 +12,7 @@ import models.traits.Originator
 import payloads._
 import services.customers.CustomerManager
 import services.orders._
-import services.{ProductManager, SaveForLaterManager, StoreCreditAdjustmentsService, ShippingManager, Checkout,
-CreditCardManager, AddressManager, LineItemUpdater, StoreCreditService}
+import services.{AddressManager, Checkout, CreditCardManager, LineItemUpdater, ProductManager, SaveForLaterManager, ShippingManager, StoreCreditAdjustmentsService, StoreCreditService}
 import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import utils.Apis
 import utils.CustomDirectives._
@@ -27,6 +27,9 @@ object Customer {
     pathPrefix("my") {
       requireAuth(customerAuth) { customer ⇒
         activityContext(customer) { implicit ac ⇒
+          path("info") {
+            complete(CustomerToken.fromCustomer(customer))
+          }
           pathPrefix("products" / IntNumber / "baked") { productId ⇒
             determineObjectContext(db, ec) { productContext ⇒
               (get & pathEnd) {

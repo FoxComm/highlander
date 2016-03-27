@@ -28,7 +28,6 @@ class GoogleOauth(options: GoogleOauthOptions) extends Oauth(options) with Googl
         }
       }
     }
-
 }
 
 object GoogleOauth {
