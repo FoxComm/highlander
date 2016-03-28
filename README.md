@@ -106,3 +106,37 @@ _Note:_ OpenJDK has been known to cause issues in Ubuntu with Scala. Make sure t
 - `sbt test`: run all of the unit and integration tests
 - `sbt '~test:compile`: re-compiles the application automatically on code changes
 
+
+### Auth
+
+For proper auth and outh work. some `ENV` keys should be setuped:
+
+#### Base auth
+
+```
+export PHOENIX_PUBLIC_KEY=/Users/narma/w/rsa/public_key.der
+export PHOENIX_PRIVATE_KEY=/Users/narma/w/rsa/private_key.der
+export PHOENIX_AUTH_METHOD=jwt
+export PHOENIX_COOKIE_SECURE=off
+```
+
+RSA keys for staging and instruction how-to generate own keys located here:
+https://github.com/FoxComm/prov-shit/blob/master/ansible/roles/secret_keys/README.md
+
+#### Google oauth
+
+For admin part:
+```
+export GOOGLE_OAUTH_ADMIN_CLIENT_ID=953682058057-cse9mkmr1ot9ps79o3qrut39kjrhd6da.apps.googleusercontent.com
+export GOOGLE_OAUTH_ADMIN_CLIENT_SECRET=RVMs--sfNa3H2AcK2hDeazRc
+export GOOGLE_OAUTH_ADMIN_REDIRECT_URI=http://localhost:1080/api/v1/public/oauth2callback/google/admin
+```
+
+For customer part:
+```
+export GOOGLE_OAUTH_CUSTOMER_CLIENT_ID=$GOOGLE_OAUTH_ADMIN_CLIENT_ID
+export GOOGLE_OAUTH_CUSTOMER_CLIENT_SECRET=$GOOGLE_OAUTH_ADMIN_CLIENT_SECRET
+export GOOGLE_OAUTH_CUSTOMER_REDIRECT_URI=$GOOGLE_OAUTH_ADMIN_REDIRECT_URI
+```
+
+That keys works only for localhost

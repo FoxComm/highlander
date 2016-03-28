@@ -11,6 +11,7 @@ import models.inventory.Sku
 import models.payment.giftcard.GiftCard
 import models.rma.Rma
 import models.StoreAdmin
+import models.auth.AdminToken
 import models.sharedsearch.SharedSearch
 import payloads._
 import services.{SaveForLaterManager, SharedSearchService, ShippingManager, StoreCreditAdjustmentsService, StoreCreditService}
@@ -25,6 +26,9 @@ object AdminRoutes {
   def routes(implicit ec: EC, db: DB, mat: Materializer, admin: StoreAdmin, apis: Apis) = {
 
     activityContext(admin) { implicit ac ⇒
+      (path("admin" / "info") & get) {
+        complete(AdminToken.fromAdmin(admin))
+      } ~
       pathPrefix("store-credits") {
         (patch & pathEnd & entity(as[StoreCreditBulkUpdateStateByCsr])) { payload ⇒
           goodOrFailures {
