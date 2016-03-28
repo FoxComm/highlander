@@ -163,7 +163,7 @@ export default class EditAddress extends Component {
         </div>
         <FormField label="Phone Number" styleName="text-field" validator="phoneNumber">
           <TextInput required
-            name="phone" type="tel" placeholder="PHONE" onChange={this.changeFormData} value={data.phone}
+            name="phoneNumber" type="tel" placeholder="PHONE" onChange={this.changeFormData} value={data.phoneNumber}
           />
         </FormField>
       </div>

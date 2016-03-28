@@ -16,7 +16,7 @@ const ViewAddress = (props: ViewAddressProps) => {
       {props.address2 && <li>{props.address2}</li>}
       <li>{props.city}, {props.state.name} {props.zip}</li>
       <li>{props.country.name}</li>
-      {props.phone && <li>{props.phone}</li>}
+      {props.phoneNumber && <li>{props.phoneNumber}</li>}
     </ul>
   );
 };

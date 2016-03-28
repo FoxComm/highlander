@@ -32,7 +32,7 @@ const OrderSummary = props => {
         <li>
           <TermValueLine>
             <span>SUBTOTAL</span>
-            <Currency value={props.subTotal} />
+            <Currency value={props.totals.subTotal} />
           </TermValueLine>
         </li>
         <li>
@@ -44,13 +44,13 @@ const OrderSummary = props => {
         <li>
           <TermValueLine>
             <span>TAX</span>
-            <Currency value={props.taxes} />
+            <Currency value={props.totals.taxes} />
           </TermValueLine>
         </li>
       </ul>
       <TermValueLine styleName="grand-total">
         <span>GRAND TOTAL</span>
-        <Currency value={props.total} />
+        <Currency value={props.totals.total} />
       </TermValueLine>
     </div>
   );
