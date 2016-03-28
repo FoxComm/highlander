@@ -27,10 +27,11 @@ type TState = {
 type LoginProps = {
   current: TUser,
   authenticate: (payload: LoginPayload) => Promise,
+  user: { isFetching: boolean },
 }
 
 /* ::`*/
-@connect(null, userActions)
+@connect((state) => ({ user: state.user }), userActions)
 /* ::`*/
 export default class Login extends React.Component {
 
@@ -106,7 +107,12 @@ export default class Login extends React.Component {
         <FormField className="fc-login__password" label={this.passwordLabel}>
           <input onChange={this.onPasswordChange} value={this.state.password} type="password" className="fc-input"/>
         </FormField>
-        <PrimaryButton className="fc-login__signin-btn" type="submit">Sign In</PrimaryButton>
+        <PrimaryButton
+          className="fc-login__signin-btn"
+          type="submit"
+          isLoading={this.props.user.isFetching}>
+          Sign In
+        </PrimaryButton>
         <div className="fc-login__copyright">© 2016 FoxCommerce. All rights reserved. Privacy Policy. Terms of Use.</div>
       </Form>
     );
