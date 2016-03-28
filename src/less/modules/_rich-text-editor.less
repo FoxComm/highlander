@@ -3,9 +3,9 @@
     .height(44px);
     align-items: center;
     background: #f7f7f7;
-    border-top: 1px solid #d9d9d9;
-    border-left: 1px solid #d9d9d9;
-    border-right: 1px solid #d9d9d9;
+    border-top: 1px solid @color-decor9;
+    border-left: 1px solid @color-decor9;
+    border-right: 1px solid @color-decor9;
     display: flex;
   }
 
@@ -23,13 +23,13 @@
     border: none;
 
     &._active {
-      border: 1px solid #d9d9d9;
+      border: 1px solid @color-decor9;
       box-shadow: inset 1px 1px 1px 0 rgba(0,0,0,0.1);
       font-weight: 600;
     }
 
     &:hover {
-      border: 1px solid #d9d9d9;
+      border: 1px solid @color-decor9;
     }
   }
 
@@ -66,7 +66,7 @@
   &__label {
     .font-spec(16px, 600, 24px);
     .margin-bottom(10px);
-    color: #484848;
+    color: @color-decor1;
     text-transform: capitalize;
   }
 
