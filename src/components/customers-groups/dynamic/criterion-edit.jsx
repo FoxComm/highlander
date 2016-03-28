@@ -29,14 +29,18 @@ const Criterion = ({field, operator, value, changeField, changeOperator, changeV
                 placeholder='- Select criteria -'
                 value={field}
                 onChange={changeField} />
-      {criterion ? renderOperator(criterion, operator, changeOperator) : null}
-      {criterion && operator ? renderValue(criterion, operator, value, changeValue) : null}
+      {renderOperator(criterion, operator, changeOperator)}
+      {renderValue(criterion, operator, value, changeValue)}
       <i onClick={remove} className={classNames(prefixed('remove-criterion'), 'icon-close')} />
     </div>
   );
 };
 
 const renderOperator = (criterion, operator, changeOperator) => {
+  if (!criterion) {
+    return null;
+  }
+
   const availableOperators = criterion.operators
     ? _.pick(criterion.type.operators, criterion.operators)
     : criterion.type.operators;
@@ -53,6 +57,10 @@ const renderOperator = (criterion, operator, changeOperator) => {
 };
 
 const renderValue = (criterion, operator, value, changeValue) => {
+  if (!criterion || !operator) {
+    return null;
+  }
+
   const {Input} = operator in criterion.input ? criterion.input[operator] : criterion.input.default;
 
   return React.createElement(Input, {

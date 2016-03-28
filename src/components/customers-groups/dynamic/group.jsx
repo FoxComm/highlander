@@ -125,7 +125,7 @@ export default class DynamicGroup extends Component {
     return (
       <ContentBox title="Criteria"
                   className={prefixed('criteria')}
-                  bodyClassName={classNames({'-open': this.state.criteriaOpen})}
+                  bodyClassName={classNames({'_open': this.state.criteriaOpen})}
                   actionBlock={this.criteriaToggle}>
         <span className={prefixed('main')}>
           Customers match <span className={prefixed('inline-label')}>{main}</span> of the following criteria:

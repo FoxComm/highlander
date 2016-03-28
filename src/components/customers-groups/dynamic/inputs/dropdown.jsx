@@ -25,9 +25,11 @@ const Input = ({criterion, value, changeValue}) => {
 Input.propTypes = propTypes;
 
 const Label = ({criterion, value, prefixed}) => {
+  const item = _.find(criterion.input.config.choices, item => item[0] === value);
+
   return (
     <div className={prefixed('value')}>
-      {_.find(criterion.input.config.choices, item => item[0] === value)[1]}
+      {item ? item[1]: null}
     </div>
   );
 };

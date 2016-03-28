@@ -28,8 +28,6 @@ const criterions = [
     type: types.number,
     input: {
       default: inputs.currency,
-      [ops.oneOf]: inputs.oneOf(inputs.currency),
-      [ops.notOneOf]: inputs.oneOf(inputs.currency),
       [ops.between]: inputs.range(inputs.currency),
     },
     field: 'revenue',
