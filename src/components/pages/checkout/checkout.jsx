@@ -16,12 +16,15 @@ import Billing from './billing';
 import OrderSummary from './order-summary';
 import GiftCard from './gift-card';
 
+import type { Promise as PromiseType } from 'types/promise';
+
 import * as actions from 'modules/checkout';
 import { EditStages } from 'modules/checkout';
 import type { CheckoutState, EditStage } from 'modules/checkout';
 
 type CheckoutProps = CheckoutState & {
   setEditStage: (stage: EditStage) => Object;
+  saveShippingAddress: () => PromiseType;
 }
 
 function isDeliveryDurty(state) {
@@ -46,7 +49,9 @@ const Checkout = (props: CheckoutProps) => {
   };
 
   const setDeliveryStage = () => {
-    props.setEditStage(EditStages.DELIVERY);
+    props.saveShippingAddress().then(() => {
+      props.setEditStage(EditStages.DELIVERY);
+    });
   };
 
   const setBillingState = () => {
