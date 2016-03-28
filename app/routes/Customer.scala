@@ -158,13 +158,6 @@ object Customer {
               }
             }
           } ~
-          pathPrefix("shipping-methods" / orderRefNumRegex) { refNum ⇒
-            (get & pathEnd) {
-              goodOrFailures {
-                ShippingManager.getShippingMethodsForOrder(refNum, Some(customer))
-              }
-            }
-          } ~
           pathPrefix("addresses") {
             (get & pathEnd & sortAndPage) { implicit sortAndPage ⇒
               goodOrFailures {
