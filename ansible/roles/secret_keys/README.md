@@ -1,4 +1,4 @@
-How-to generate RSA keys:
+## How-to generate RSA keys:
 
 
 ```bash
@@ -11,3 +11,7 @@ openssl rsa -in private_key.pem -pubout -outform PEM -out public_key.pem
 `.der` used at phoenix
 
 and `.pem` used at Ashes-server
+
+## Decrypt
+
+For encrypting/decrypting use `ansuble-vault` tool
