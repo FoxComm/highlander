@@ -41,7 +41,7 @@ object OauthService {
 
   /*
     1. Exchange code to access token
-    2. Get base user info email and name
+    2. Get base user info: email and name
     3. FindOrCreate<UserModel>
     4. respondWithToken
   */

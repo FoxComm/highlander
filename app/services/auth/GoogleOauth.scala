@@ -20,11 +20,12 @@ class GoogleOauth(options: GoogleOauthOptions) extends Oauth(options) with Googl
         StoreAdmins.findByEmail _,
         (userInfo: UserInfo) ⇒ StoreAdmins.create(StoreAdmin(email = userInfo.email, name = userInfo.name)),
         AdminToken.fromAdmin
-      )) { t ⇒
-        onSuccess(t.run()) { x ⇒
-          x.flatMap(Authenticator.oauthTokenLoginResponse).fold(
+      )) { dbioTokenOrFailures ⇒
+        onSuccess(dbioTokenOrFailures.run()) { tokenX ⇒
+          tokenX.flatMap(Authenticator.oauthTokenLoginResponse).fold(
             { f ⇒ complete(renderFailure(f)) },
-            identity _)
+            identity _
+          )
         }
       }
     }
