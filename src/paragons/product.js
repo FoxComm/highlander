@@ -185,15 +185,14 @@ export function configureProduct(product: FullProduct): FullProduct {
   const defaultAttrs = {
     title: 'string',
     description: 'string',
-    retailPrice: 'price',
-    salePrice: 'price',
     url: 'string',
     metaTitle: 'string',
     metaDescription: 'string',
   };
 
   const defaultSkuAttrs = {
-    price: 'price',
+    retailPrice: 'price',
+    salePrice: 'price',
     upc: 'string',
   };
 
@@ -254,6 +253,23 @@ export function setSkuAttribute(product: FullProduct,
                                 code: string,
                                 label: string,
                                 value: string): FullProduct {
+  const updateCode = sku => {
+    if (sku.code == code) {
+      return { ...sku, code: value };
+    }
+
+    return sku;
+  };
+
+  if (label == 'code') {
+    const newForms = product.form.skus.map(sku => updateCode(sku));
+    const newShadows = product.shadow.skus.map(sku => updateCode(sku));
+
+    return assoc(product,
+      ['form', 'skus'], newForms,
+      ['shadow', 'skus'], newShadows,
+    );
+  }
 
   const form = getSkuForm(code, product);
   const path = ['attributes', label];

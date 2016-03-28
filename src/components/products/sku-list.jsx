@@ -24,8 +24,9 @@ type Props = {
 
 export default class SkuList extends Component<void, Props, void> {
   static tableColumns = [
-    { field: 'price', text: 'Price' },
     { field: 'sku', text: 'SKU' },
+    { field: 'retailPrice', text: 'Retail Price' },
+    { field: 'salePrice', text: 'Sale Price' },
   ];
 
   get illuminatedSkus(): Array<IlluminatedSku> {
