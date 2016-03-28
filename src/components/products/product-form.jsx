@@ -3,7 +3,7 @@
  */
 
 // libs
-import React, { Component, Element } from 'react';
+import React, { Component, Element, PropTypes } from 'react';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
@@ -25,11 +25,7 @@ import VariantList from './variant-list';
 import WaitAnimation from '../common/wait-animation';
 
 // helpers
-import {
-  addProductAttribute,
-  getProductAttributes,
-  setProductAttribute,
-} from '../../paragons/product';
+import { getProductAttributes } from '../../paragons/product';
 
 // types
 import type {
@@ -47,17 +43,13 @@ import type {
 } from '../../paragons/product';
 
 type Props = {
-  isUpdating: bool,
   product: FullProduct,
-  productId: string,
-  title: string,
-  onAddAttribute: (field: string, type: string) => void,
-  onSubmit: (product: FullProduct) => void,
+  onSetProperty: (field: string, type: string, value: any) => void,
+  onSetSkuProperty: (code: string, field: string, type: string, value: any) => void,
 };
 
 type State = {
   isAddingProperty: bool,
-  product: { [key:string]: string },
 };
 
 const omitKeys = {
@@ -77,13 +69,18 @@ const requiredAttributes = ['title'];
  * or updating a product.
  */
 export default class ProductForm extends Component<void, Props, State> {
+  static propTypes = {
+    product: PropTypes.object.isRequired,
+    onSetProperty: PropTypes.func.isRequired,
+    onSetSkuProperty: PropTypes.func.isRequired,
+  };
+
   state: State;
 
   constructor(props: Props) {
     super(props);
     this.state = {
       isAddingProperty: false,
-      product: {},
     };
   }
 
@@ -125,7 +122,7 @@ export default class ProductForm extends Component<void, Props, State> {
       <ContentBox title="SKUs">
         <SkuList
           fullProduct={this.props.product}
-          updateField={this.handleUpdateSku} />
+          updateField={this.props.onSetSkuProperty} />
       </ContentBox>
     );
   }
@@ -152,35 +149,10 @@ export default class ProductForm extends Component<void, Props, State> {
 
   @autobind
   handleCreateProperty(property: { fieldLabel: string, propertyType: string }) {
+    const { fieldLabel, propertyType } = property;
     this.setState({
-      isAddingProperty: false,
-    }, () => this.props.onAddAttribute(property.fieldLabel, property.propertyType));
-  }
-
-  @autobind
-  handleSubmit() {
-    const product = _.reduce(this.state.product, (res, val, key) => {
-      return setProductAttribute(res, key, val);
-    }, this.props.product);
-
-    this.props.onSubmit(product);
-  }
-
-  @autobind
-  handleUpdateProduct(key: string, value: string) {
-    this.setState(assoc(this.state, ['product', key], value));
-  }
-
-  @autobind
-  handleUpdateSku(code: string, key: string, value: string) {
-    const updateValue = {
-      code: code,
-      label: key,
-      value: value,
-    };
-
-    const newState = assoc(this.state, ['product', 'skus'], updateValue);
-    this.setState(newState);
+      isAddingProperty: false
+    }, () => this.props.onSetProperty(fieldLabel, propertyType, ''));
   }
 
   renderAttributes(attributes: IlluminatedAttributes): Array<Element> {
@@ -188,6 +160,10 @@ export default class ProductForm extends Component<void, Props, State> {
   }
 
   renderAttribute(attribute: IlluminatedAttribute): Element {
+    if (!attribute) {
+      console.log('wtf');
+      return <div></div>;
+    }
     const { label, type, value } = attribute;
     const formattedLbl = _.snakeCase(label).split('_').reduce((res, val) => {
       return `${res} ${_.capitalize(val)}`;
@@ -198,7 +174,7 @@ export default class ProductForm extends Component<void, Props, State> {
 
     switch (type) {
       case 'price':
-        const priceValue = _.get(this.state, ['product', label, 'value'], value);
+        const priceValue = _.get(value, 'value', '');
         return (
           <FormField
             className="fc-product-details__field"
@@ -209,19 +185,17 @@ export default class ProductForm extends Component<void, Props, State> {
               className={inputClass}
               inputName={label}
               value={priceValue}
-              onChange={(value) => this.handleUpdateProduct(label, value)} />
+              onChange={(value) => this.props.onSetProperty(label, type, value)} />
           </FormField>
         );
       case 'richText':
-        const rtVal = _.get(this.state, ['product', label], value);
         return (
           <RichTextEditor
             label={formattedLbl}
-            value={rtVal}
-            onChange={(value) => this.handleUpdateProduct(label, value)} />
+            value={value}
+            onChange={(value) => this.props.onSetProperty(label, type, value)} />
         );
       case 'date':
-        const dateVal = _.get(this.state, ['product', label], value);
         return (
           <FormField
             className="fc-product-details__field"
@@ -229,22 +203,20 @@ export default class ProductForm extends Component<void, Props, State> {
             labelClassName="fc-product-details__field-label"
             key={`product-page-field-${label}`}>
             <DatePicker
-              date={new Date(dateVal)}
-              onChange={(value) => this.handleUpdateProduct(label, value)} />
+              date={new Date(value)}
+              onChange={(value) => this.props.onSetProperty(label, type, value)} />
           </FormField>
         );
       case 'bool':
-        const boolVal = _.get(this.state, ['product', label], value);
         return (
           <div className="fc-product-details_field">
             <div className="fc-product-details__field-label">{formattedLbl}</div>
             <SliderCheckbox
-              checked={boolVal}
-              onChange={() => this.handleUpdateProduct(label, !boolVal)} />
+              checked={value}
+              onChange={() => this.props.onSetProperty(label, type, !value)} />
           </div>
         );
       default:
-        const val = _.get(this.state, ['product', label], value);
         return (
           <FormField
             className="fc-product-details__field"
@@ -255,31 +227,17 @@ export default class ProductForm extends Component<void, Props, State> {
               className={inputClass}
               type="text"
               name={label}
-              value={val}
+              value={value}
               required={required}
-              onChange={({target}) => this.handleUpdateProduct(label, target.value)} />
+              onChange={({target}) => this.props.onSetProperty(label, type, target.value)} />
           </FormField>
         );
     }
   }
 
-  get saveButton(): Element {
-    const disabled = this.props.isUpdating;
-    const wait = disabled ? <WaitAnimation /> : null;
-
-    return (
-      <PrimaryButton 
-        className="fc-product-details__save-button" 
-        type="submit" 
-        disabled={disabled}>
-        Save Draft {wait}
-      </PrimaryButton>
-    );
-  }
-
   get productState(): Element {
     return (
-      <ProductState 
+      <ProductState
         onSetActive={(x, y) => console.log(x, y)}
         product={this.props.product} />
     );
@@ -287,26 +245,18 @@ export default class ProductForm extends Component<void, Props, State> {
 
   render(): Element {
     return (
-      <Form onSubmit={this.handleSubmit}>
-        <PageTitle title={this.props.title}>
-          {this.saveButton}
-        </PageTitle>
-        <div>
-          <SubNav productId={this.props.productId} product={this.props.product} />
-          <div className="fc-product-details fc-grid">
-            <div className="fc-col-md-3-5">
-              {this.generalContentBox}
-              {this.variantContentBox}
-              {this.skusContentBox}
-              {this.seoContentBox}
-            </div>
-            <div className="fc-col-md-2-5">
-              {this.productState}
-            </div>
-            {this.customPropertyForm}
-          </div>
+      <div className="fc-product-details fc-grid">
+        <div className="fc-col-md-3-5">
+          {this.generalContentBox}
+          {this.variantContentBox}
+          {this.skusContentBox}
+          {this.seoContentBox}
         </div>
-      </Form>
+        <div className="fc-col-md-2-5">
+          {this.productState}
+        </div>
+        {this.customPropertyForm}
+      </div>
     );
   }
 }

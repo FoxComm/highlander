@@ -6,9 +6,9 @@ import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import { pushState } from 'redux-router';
 import {
-  addProductAttribute,
   configureProduct,
   createEmptyProduct,
+  setProductAttribute,
 } from '../../paragons/product';
 
 import _ from 'lodash';
@@ -21,7 +21,7 @@ export type Error = {
 
 export type FullProduct = {
   id: ?number,
-  form: { 
+  form: {
     product: ProductForm,
     skus: Array<SkuForm>,
   },
@@ -211,7 +211,7 @@ const reducer = createReducer({
     if (state.product) {
       return {
         ...state,
-        product: addProductAttribute(state.product, label, type, defaultContext),
+        product: setProductAttribute(state.product, label, type, ''),
       };
     } else {
       return state;

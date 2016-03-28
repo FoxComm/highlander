@@ -270,7 +270,12 @@ export function configureProduct(product: FullProduct): FullProduct {
   };
 
   const newProduct: FullProduct = _.reduce(defaultAttrs, (res, val, key) => {
-    return addProductAttribute(res, key, val);
+    const formAttribute = _.get(res, ['form', 'product', 'attributes', key]);
+    if (formAttribute) {
+      return res;
+    }
+
+    return setProductAttribute(res, key, val, '');
   }, product);
 
   const newProdWithSku: FullProduct = _.reduce(defaultSkuAttrs, (res, val, key) => {
@@ -280,26 +285,9 @@ export function configureProduct(product: FullProduct): FullProduct {
   return newProdWithSku;
 }
 
-export function addProductAttribute(product: FullProduct,
-                                    label: string,
-                                    type: string): FullProduct {
-
-  const formValue = type == 'price' ? { currency: 'USD', value: null } : null;
-  const newFormAttr = { [label]: formValue };
-  const newShadowAttr = { [label]: {type: type, ref: label }};
-
-  const formAttrs = _.get(product, 'form.product.attributes', {});
-  const shadowAttrs = _.get(product, 'shadow.product.attributes', {});
-
-  return assoc(product,
-    ['form', 'product', 'attributes'], { ...newFormAttr, ...formAttrs },
-    ['shadow', 'product', 'attributes'], { ...newShadowAttr, ...shadowAttrs }
-  );
-}
-
-
 export function setProductAttribute(product: FullProduct,
                                     label: string,
+                                    type: string,
                                     value: any): FullProduct {
 
   if (label == 'skus') {

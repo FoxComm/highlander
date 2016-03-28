@@ -15,7 +15,7 @@ import MultiSelectTable from '../table/multi-select-table';
 import type { FullProduct } from '../../modules/products/details';
 import type { IlluminatedSku } from '../../paragons/product';
 
-type UpdateFn = (code: string, field: string, value: string) => void;
+type UpdateFn = (code: string, field: string, value: any) => void;
 
 type Props = {
   fullProduct: ?FullProduct,
