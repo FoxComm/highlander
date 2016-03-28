@@ -7,13 +7,14 @@ import models.order.lineitems.OrderLineItemSkus
 import models.order._
 import models.shipping.{ShippingMethod, ShippingMethods}
 import models.rules.{Condition, QueryStatement}
+import models.traits.Originator
+import orders.getCartByOriginator
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.JsonFormatters
 import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.aliases._
-import scala.concurrent.ExecutionContext
 
 import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotApplicableToOrder
@@ -24,6 +25,19 @@ object ShippingManager {
 
   final case class ShippingData(order: Order, orderTotal: Int, orderSubTotal: Int,
     shippingAddress: Option[OrderShippingAddress] = None, shippingRegion: Option[Region] = None, skus: Seq[Sku])
+
+  def getShippingMethodsForCart(originator: Originator)
+    (implicit ec: EC, db: DB, ac: AC): Result[Seq[responses.ShippingMethods.Root]] = (for {
+    order       ← * <~ getCartByOriginator(originator, None)
+    _           ← * <~ order.mustBeCart
+    shipMethods ← * <~ ShippingMethods.findActive.result.toXor
+    shipData    ← * <~ getShippingData(order).toXor
+    response    = shipMethods.collect {
+      case sm if QueryStatement.evaluate(sm.conditions, shipData, evaluateCondition) ⇒
+        val restricted = QueryStatement.evaluate(sm.restrictions, shipData, evaluateCondition)
+        responses.ShippingMethods.build(sm, !restricted)
+    }
+  } yield response).run()
 
   def getShippingMethodsForOrder(refNum: String, customer: Option[Customer] = None)
     (implicit ec: EC, db: DB): Result[Seq[responses.ShippingMethods.Root]] = (for {

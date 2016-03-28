@@ -40,7 +40,7 @@ object Customer {
             }
           } ~
           pathPrefix("cart") {
-            determineObjectContext(db, ec) { productContext ⇒ 
+            determineObjectContext(db, ec) { productContext ⇒
               (get & pathEnd) {
                 goodOrFailures {
                   OrderQueries.findOrCreateCartByCustomer(customer, productContext)
@@ -114,6 +114,13 @@ object Customer {
                   }
                 }
               } ~
+              pathPrefix("shipping-methods") {
+                (get & pathEnd) {
+                  goodOrFailures {
+                    ShippingManager.getShippingMethodsForCart(Originator(customer))
+                  }
+                }
+              } ~
               pathPrefix("shipping-method") {
                 (patch & pathEnd & entity(as[UpdateShippingMethod])) { payload ⇒
                   goodOrFailures {
@@ -151,13 +158,6 @@ object Customer {
             (get & pathEnd) {
               goodOrFailures {
                 OrderQueries.findOneByCustomer(refNum, customer)
-              }
-            }
-          } ~
-          pathPrefix("shipping-methods" / orderRefNumRegex) { refNum ⇒
-            (get & pathEnd) {
-              goodOrFailures {
-                ShippingManager.getShippingMethodsForOrder(refNum, Some(customer))
               }
             }
           } ~
@@ -255,7 +255,7 @@ object Customer {
             }
           } ~
           pathPrefix("save-for-later") {
-            determineObjectContext(db, ec) { productContext ⇒ 
+            determineObjectContext(db, ec) { productContext ⇒
               (get & pathEnd) {
                 goodOrFailures {
                   SaveForLaterManager.findAll(customer.id, productContext.id)
