@@ -11,7 +11,7 @@
   position: relative;
   padding: 0;
   background: var(--light-blackish);
-  color: var(--lightes-blackish);
+  color: var(--lightest-blackish);
   text-transform: uppercase;
   font-size: 16px;
   line-height: 46px;
@@ -27,23 +27,23 @@
 }
 
 .search-input::-webkit-input-placeholder { /* WebKit, Blink, Edge */
-  color: var(--lightes-blackish);
+  color: var(--lightest-blackish);
 }
 
 .search-input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-  color: var(--lightes-blackish);
+  color: var(--lightest-blackish);
 }
 
 .search-input::-moz-placeholder { /* Mozilla Firefox 19+ */
-  color: var(--lightes-blackish);
+  color: var(--lightest-blackish);
 }
 
 .search-input:-ms-input-placeholder { /* Internet Explorer 10-11 */
-  color: var(--lightes-blackish);
+  color: var(--lightest-blackish);
 }
 
 .search-input:placeholder-shown { /* Standard (https://drafts.csswg.org/selectors-4/#placeholder) */
-  color: var(--lightes-blackish);
+  color: var(--lightest-blackish);
 }
 
 .search-input:focus {
@@ -78,7 +78,7 @@
 
 .head-icon :global(.icon__cnt) {
   stroke: none;
-  fill: var(--lightes-blackish);
+  fill: var(--lightest-blackish);
   transition: fill .1s;
 }
 
