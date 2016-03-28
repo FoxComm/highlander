@@ -27,7 +27,7 @@ type Params = {
 type Props = {
   fetch: (id: number) => any;
   params: Params;
-  product: ?ProductResponse;
+  product: ProductResponse|null;
   addLineItem: Function;
   toggleCart: Function;
   resetProduct: Function;
