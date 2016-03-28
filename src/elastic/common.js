@@ -106,6 +106,8 @@ function createFilter(filter) {
       return rangeToFilter(term, operator, value.toLowerCase());
     case 'date':
       return dateRangeFilter(term, operator, value);
+    case 'exists':
+      return dsl.existsFilter(term, operator);
   }
 }
 

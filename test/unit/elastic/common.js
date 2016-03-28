@@ -202,5 +202,27 @@ describe('elastic.common', () => {
 
       expect(omitUndefinedFields(query)).to.eql(omitUndefinedFields(expectedQuery));
     });
+
+    it('should create a search with exists filter', () => {
+      const terms = [{
+        term: 'name',
+        operator: 'missing',
+        value: { type: 'exists' },
+      }];
+
+      const query = toQuery(terms);
+
+      const expectedQuery = {
+        query: {
+          bool: {
+            filter: [{
+              missing: { field: 'name' },
+            }],
+          },
+        },
+      };
+
+      expect(omitUndefinedFields(query)).to.eql(omitUndefinedFields(expectedQuery));
+    });
   });
 });

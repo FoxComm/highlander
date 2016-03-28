@@ -49,7 +49,7 @@ export class Products extends Component<void, Props, void> {
     return (
       <div>
         <SelectableSearchList
-          emptyResultMessage="No products found."
+          emptyMessage="No products found."
           list={list}
           renderRow={this.renderRow}
           tableColumns={Products.tableColumns}

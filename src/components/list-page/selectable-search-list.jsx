@@ -1,4 +1,3 @@
-
 import React, { PropTypes } from 'react';
 
 import LiveSearchAdapter from '../live-search/live-search-adapter';
@@ -37,6 +36,7 @@ export default class SelectableSearchList extends React.Component {
     noGutter: PropTypes.bool,
     bulkActions: PropTypes.arrayOf(PropTypes.array),
     predicate: PropTypes.func,
+    toggleColumnPresent: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -45,7 +45,8 @@ export default class SelectableSearchList extends React.Component {
     searchOptions: {
       singleSearch: false,
     },
-    noGutter: false
+    noGutter: false,
+    toggleColumnPresent: true
   };
 
   render() {
@@ -59,7 +60,7 @@ export default class SelectableSearchList extends React.Component {
         searchActions={props.searchActions}
         searches={props.list}
         noGutter={props.noGutter}
-        >
+      >
         <MultiSelectTable
           columns={props.tableColumns}
           data={results}
@@ -68,6 +69,7 @@ export default class SelectableSearchList extends React.Component {
           setState={props.searchActions.updateStateAndFetch}
           bulkActions={props.bulkActions}
           predicate={props.predicate}
+          toggleColumnPresent={props.toggleColumnPresent}
           isLoading={results.isFetching}
           failed={results.failed}
           emptyMessage={props.emptyMessage}
