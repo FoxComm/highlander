@@ -6,6 +6,6 @@ export function numberize(entity, count) {
 
 export function prefix(prefix) {
   return function (suffix) {
-    return prefix + suffix;
+    return suffix ? prefix + '__' + suffix : prefix;
   };
 }

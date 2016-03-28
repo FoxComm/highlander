@@ -15,7 +15,7 @@ import { prefix } from '../../../lib/text-utils';
 import { Dropdown, DropdownItem } from '../../dropdown';
 
 
-const prefixed = prefix('fc-customer-group-builder__');
+const prefixed = prefix('fc-customer-group-builder');
 
 const fields = criterions.map(({field,label}) => [field, label]);
 
@@ -59,7 +59,7 @@ const renderValue = (criterion, operator, value, changeValue) => {
     criterion,
     value,
     changeValue,
-    prefixed: prefix('fc-customer-group-builder__'),
+    prefixed: prefix('fc-customer-group-builder'),
   });
 };
 

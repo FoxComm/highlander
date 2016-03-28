@@ -74,11 +74,11 @@ export default class QueryBuilder extends React.Component {
   render() {
     const {conditions} = this.props;
     return (
-      <div className={prefixed('')}>
-        <div className={prefixed('__criterions')}>
+      <div className={prefixed()}>
+        <div className={prefixed('criterions')}>
           {conditions.map(this.renderCriterion)}
         </div>
-        <div className={prefixed('__add-criterion')} onClick={this.addCondition}>
+        <div className={prefixed('add-criterion')} onClick={this.addCondition}>
           <AddButton type="button" onClick={this.addCondition} /><span>Add criteria</span>
         </div>
       </div>

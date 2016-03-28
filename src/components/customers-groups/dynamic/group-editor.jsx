@@ -22,7 +22,7 @@ import { Link } from '../../link';
 import { actions } from '../../../modules/customer-groups/dynamic/group';
 
 
-const prefixed = prefix('fc-customer-group-dynamic-edit__');
+const prefixed = prefix('fc-customer-group-dynamic-edit');
 
 const mapStateToProps = state => ({group: state.customerGroups.dynamic.group});
 const mapDispatchToProps = dispatch => ({actions: bindActionCreators(actions, dispatch)});

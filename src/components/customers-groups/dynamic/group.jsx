@@ -3,7 +3,7 @@ import _ from 'lodash';
 import React, { PropTypes, Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { autobind } from 'core-decorators';
+import { autobind, debounce } from 'core-decorators';
 import moment from 'moment';
 import classNames from 'classnames';
 
@@ -20,8 +20,10 @@ import { prefix } from '../../../lib/text-utils';
 import ContentBox from '../../content-box/content-box';
 import { PanelList, PanelListItem } from '../../panel/panel-list';
 import Currency from '../../common/currency';
+import Form from '../../forms/form';
 import { PrimaryButton } from '../../common/buttons';
 import Criterion from './criterion-view';
+import PrependIconInput from '../../icon-input/prepend-icon-input';
 
 
 const prefixed = prefix('fc-customer-group-dynamic');
@@ -58,32 +60,28 @@ export default class DynamicGroup extends Component {
 
   componentDidMount() {
     this.props.listActions.fetch();
-    setTimeout(()=> {
-      this.props.groupActions.setFilterTerm('very');
-      this.props.listActions.fetch();
-    }, 1000);
   }
 
   get header() {
     const {list, group} = this.props;
 
     return (
-      <header className={prefixed('__header')}>
-        <div className={prefixed('__title')}>
+      <header className={prefixed('header')}>
+        <div className={prefixed('title')}>
           <h1 className="fc-title">
             {group.name}
-            <span className={prefixed('__count')}>{list.total}</span>
+            <span className={prefixed('count')}>{list.total}</span>
           </h1>
-          <PrimaryButton onClick={this.edit}>Edit Group</PrimaryButton>
+          <PrimaryButton onClick={this.goEdit}>Edit Group</PrimaryButton>
         </div>
-        <div className={prefixed('__about')}>
+        <div className={prefixed('about')}>
           <div>
-            <span className={prefixed('__about__key')}>Type: </span>
-            <span className={prefixed('__about__value')}>{_.capitalize(group.type)}</span>
+            <span className={prefixed('about__key')}>Type: </span>
+            <span className={prefixed('about__value')}>{_.capitalize(group.type)}</span>
           </div>
           <div>
-            <span className={prefixed('__about__key')}>Created: </span>
-            <span className={prefixed('__about__value')}>{moment(group.createdAt).format('DD/MM/YYYY HH:mm')}</span>
+            <span className={prefixed('about__key')}>Created: </span>
+            <span className={prefixed('about__value')}>{moment(group.createdAt).format('DD/MM/YYYY HH:mm')}</span>
           </div>
         </div>
       </header>
@@ -106,11 +104,11 @@ export default class DynamicGroup extends Component {
 
     return (
       <ContentBox title="Criteria"
-                  className={prefixed('__criteria')}
+                  className={prefixed('criteria')}
                   bodyClassName={classNames({'-open': this.state.criteriaOpen})}
                   actionBlock={this.criteriaToggle}>
-        <span className={prefixed('__main')}>
-          Customers match <span className={prefixed('__inline-label')}>{main}</span> of the following criteria:
+        <span className={prefixed('main')}>
+          Customers match <span className={prefixed('inline-label')}>{main}</span> of the following criteria:
         </span>
         {conditions.map(this.renderCriterion)}
       </ContentBox>
@@ -127,13 +125,13 @@ export default class DynamicGroup extends Component {
   }
 
   @autobind
-  edit() {
+  goEdit() {
     transitionTo(this.context.history, 'edit-dynamic-customer-group', {groupId: this.props.group.id});
   }
 
   get stats() {
     return (
-      <PanelList className={prefixed('__stats')}>
+      <PanelList className={prefixed('stats')}>
         <PanelListItem title="Total Orders">
           132
         </PanelListItem>
@@ -153,9 +151,28 @@ export default class DynamicGroup extends Component {
     );
   }
 
-  render() {
-    //const {list, group} = this.props;
+  @autobind
+  setFilterTerm({target}) {
+    this.props.groupActions.setFilterTerm(target.value);
+    this.updateSearch();
+  }
 
+  @debounce(200)
+  updateSearch() {
+    this.props.listActions.fetch();
+  }
+
+  get filter() {
+    return (
+      <PrependIconInput className={prefixed('filter')}>
+        <input type="text"
+               onChange={this.setFilterTerm}
+               value={this.props.group.filterTerm} />
+      </PrependIconInput>
+    );
+  }
+
+  render() {
     return (
       <div className={prefixed('')}>
         <div className="fc-grid">
@@ -163,6 +180,7 @@ export default class DynamicGroup extends Component {
             {this.header}
             {this.criteria}
             {this.stats}
+            {this.filter}
           </article>
         </div>
       </div>

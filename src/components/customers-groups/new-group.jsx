@@ -17,7 +17,7 @@ const NewGroupBase = ({title, alternative, children}) => {
           </h1>
           {alternative ? (
             <span>
-              or <Link className={prefixed('__or')} to={alternative.id}>
+              or <Link className={prefixed('or')} to={alternative.id}>
               create a {alternative.title}
             </Link>
             </span>

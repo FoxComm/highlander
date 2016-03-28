@@ -77,7 +77,6 @@ const reducers = {
       name,
       createdAt,
       updatedAt,
-      name,
       mainCondition,
       conditions,
       saved: false,

@@ -31,13 +31,13 @@ const Criterion = ({field, operator, value}) => {
   const valueLabel = React.createElement(Label, {
     criterion,
     value,
-    prefixed: prefix(prefixed('__')),
+    prefixed: prefix(prefixed()),
   });
 
   return (
-    <div className={classNames('fc-grid', prefixed(''))}>
-      <div className={prefixed('__field')}>{fieldLabel}</div>
-      <div className={prefixed('__operator')}>{operatorLabel}</div>
+    <div className={classNames('fc-grid', prefixed())}>
+      <div className={prefixed('field')}>{fieldLabel}</div>
+      <div className={prefixed('operator')}>{operatorLabel}</div>
       {valueLabel}
     </div>
   );
