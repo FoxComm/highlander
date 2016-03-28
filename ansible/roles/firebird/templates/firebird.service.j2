@@ -5,6 +5,7 @@ Restart=always
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=firebird
+Environment=PHOENIX_PUBLIC_KEY={{ public_keys_dest_dir }}/public_key.pem
 
 [Install]
 WantedBy=multi-user.target
