@@ -60,7 +60,7 @@ final case class SimpleProductShadow(formId: Int, p: SimpleProduct) {
       s"""
         {
           "title" : {"type": "string", "ref": "title"},
-          "description" : {"type": "string", "ref": "description"},
+          "description" : {"type": "richText", "ref": "description"},
           "images" : {"type": "images", "ref": "images"},
           "variants" : {"type": "variants", "ref": "variants"},
           "skus" : {"type": "skus", "ref": "skus"}
