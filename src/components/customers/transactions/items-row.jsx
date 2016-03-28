@@ -17,13 +17,13 @@ function setCellContents(order, field) {
     case 'image':
       return 'https://placeholdit.imgix.net/~text?txtsize=8&txt=IMAGE&w=50&h=50';
     default:
-      return get(order, field);
+      return value;
   }
 }
 
 /**
  * CustomerItemsRow Component
- * 
+ *
  * TODO: Fix image url when it is added to ES result
  * TODO: Fix link to product-details page after productId would be added ES result
  */
@@ -31,7 +31,7 @@ const CustomerItemsRow = (props, context) => {
   const { item, columns, params } = props;
 
   const clickAction = () => {
-    transitionTo(context.history, 'products');
+    transitionTo(context.history, 'inventory-item-details', { code: item.skuCode });
   };
 
   const key = `customer-items-${item.id}`;
