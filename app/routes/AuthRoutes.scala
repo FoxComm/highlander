@@ -6,16 +6,16 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.auth.Identity
 import services.Authenticator
-import services.auth.GoogleOauth
-import services.auth.OauthService._
+import services.auth.GoogleOauth.oauthServiceFromConfig
+import services.auth.OauthDirectives._
 import utils.Http._
 import utils.aliases._
 
 
 object AuthRoutes {
 
-  lazy val customerGoogleOauth = GoogleOauth(Identity.Customer.toString.toLowerCase)
-  lazy val adminGoogleOauth = GoogleOauth(Identity.Admin.toString.toLowerCase)
+  lazy val customerGoogleOauth = oauthServiceFromConfig(Identity.Customer)
+  lazy val adminGoogleOauth = oauthServiceFromConfig(Identity.Admin)
 
   def routes(implicit ec: EC, db: DB, mat: Materializer) = {
     pathPrefix("public") {
@@ -25,10 +25,10 @@ object AuthRoutes {
         }
       } ~
       (path("oauth2callback" / "google" / "admin") & get & oauthResponse) {
-        adminGoogleOauth.callback
+        adminGoogleOauth.akkaCallback
       } ~
       (path("oauth2callback" / "google" / "customer") & get & oauthResponse) {
-        customerGoogleOauth.callback
+        customerGoogleOauth.akkaCallback
       } ~
       (path("signin" / "google" / "admin") & get) {
         val url = adminGoogleOauth.authorizationUri(scope = Seq("openid", "email", "profile"))

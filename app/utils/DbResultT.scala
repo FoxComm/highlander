@@ -6,6 +6,7 @@ import cats.data.{Validated, Xor, XorT}
 import cats.{Applicative, Functor, Monad}
 import failures.Failures
 import services.Result
+import scala.concurrent.Future
 import slick.driver.PostgresDriver.api._
 import slick.profile.SqlAction
 import utils.Slick.implicits._
@@ -82,6 +83,9 @@ object DbResultT {
 
     def <~[A](v: Failures Xor A)(implicit ec: EC): DbResultT[A] =
       DbResultT.fromXor(v)
+
+    def <~[A](v: Future[Failures Xor A])(implicit ec: EC): DbResultT[A] =
+      DbResultT(DBIO.from(v))
 
     def <~[A](v: A)(implicit ec: EC): DbResultT[A] =
       DbResultT.pure(v)
