@@ -1,6 +1,6 @@
 create materialized view products_search_view as
 select
-    p.id, 
+    f.id, 
     context.name as context,
     f.attributes->>(s.attributes->'title'->>'ref') as title,
     f.attributes->(s.attributes->'images'->>'ref') as images,
