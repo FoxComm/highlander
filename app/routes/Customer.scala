@@ -29,7 +29,7 @@ object Customer {
         activityContext(customer) { implicit ac ⇒
           path("info") {
             complete(CustomerToken.fromCustomer(customer))
-          }
+          } ~
           pathPrefix("products" / IntNumber / "baked") { productId ⇒
             determineObjectContext(db, ec) { productContext ⇒
               (get & pathEnd) {
