@@ -37,7 +37,7 @@ object GoogleOauth {
       clientId = config.getString(s"oauth.$configPrefix.google.client_id"),
       clientSecret = config.getString(s"oauth.$configPrefix.google.client_secret"),
       redirectUri = config.getString(s"oauth.$configPrefix.google.redirect_uri"),
-      hostedDomain = config.getOptString(s"oauth.google.$configPrefix.hosted_domain"))
+      hostedDomain = config.getOptString(s"oauth.$configPrefix.google.hosted_domain"))
 
 
     new GoogleOauth(opts)
