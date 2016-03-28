@@ -84,7 +84,7 @@ export function googleSignin(): ActionDispatch {
     Api.get('/public/signin/google/admin').then(urlInfo => {
       window.location.href = urlInfo.url;
     });
-  }
+  };
 }
 
 const initialState = {
@@ -96,13 +96,13 @@ const reducer = createReducer({
     return {...state,
       err: null,
       isFetching: true,
-    }
+    };
   },
   [receiveMyInfoError]: (state, err) => {
     return {...state,
       isFetching: false,
       err: err,
-    }
+    };
   },
   [setUser]: (state: UserState, user: TUser) => {
     localStorage.setItem("user", JSON.stringify(user));
