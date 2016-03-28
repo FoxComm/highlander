@@ -6,6 +6,7 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import payloads._
 import models.StoreAdmin
+import services.ObjectManager
 import services.ProductManager
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
@@ -26,6 +27,13 @@ object ProductRoutes {
               (get & pathEnd) {
                 goodOrFailures {
                   ProductManager.getIlluminatedFullProductByContextName(productId, context)
+                }
+              }
+            } ~ 
+            pathPrefix(Segment / IntNumber / "baked" / IntNumber) { (context, productId, commitId) ⇒
+              (get & pathEnd) {
+                goodOrFailures {
+                  ProductManager.getIlluminatedFullProductAtCommit(productId, context, commitId)
                 }
               }
             } ~ 
@@ -54,19 +62,7 @@ object ProductRoutes {
               goodOrFailures {
                 ProductManager.getForm(productId)
               }
-            } ~ 
-            (patch & pathEnd & entity(as[UpdateProductForm])) { payload ⇒
-              goodOrFailures {
-                ProductManager.updateForm(productId, payload)
-              }
-            } 
-          } ~
-          pathPrefix("form") { 
-            (post & pathEnd & entity(as[CreateProductForm])) { payload ⇒
-              goodOrFailures {
-                ProductManager.createForm(payload)
-              }
-            } 
+            }
           } ~
           pathPrefix(Segment / IntNumber / "baked") { (context, productId) ⇒
             (get & pathEnd) {
@@ -80,36 +76,24 @@ object ProductRoutes {
               goodOrFailures {
                 ProductManager.getShadow(productId, context)
               }
-            } ~ 
-            (patch & pathEnd & entity(as[UpdateProductShadow])) { payload ⇒
-              goodOrFailures {
-                ProductManager.updateShadow(productId, payload, context)
-              }
-            } 
-          } ~
-          pathPrefix(Segment/ IntNumber / "shadow") { (context, productId)  ⇒
-            (post & pathEnd & entity(as[CreateProductShadow])) { payload ⇒
-              goodOrFailures {
-                ProductManager.createShadow(productId, payload, context)
-              }
-            } 
+            }
           } ~
           pathPrefix("contexts" / Segment) { name ⇒
             (get & pathEnd) {
               goodOrFailures {
-                ProductManager.getContextByName(name)
+                ObjectManager.getContextByName(name)
               }
             } ~ 
-            (patch & pathEnd & entity(as[UpdateProductContext])) { payload ⇒
+            (patch & pathEnd & entity(as[UpdateObjectContext])) { payload ⇒
               goodOrFailures {
-                ProductManager.updateContextByName(name, payload)
+                ObjectManager.updateContextByName(name, payload)
               }
             } 
           } ~
           pathPrefix("contexts") { 
-            (post & pathEnd & entity(as[CreateProductContext])) { payload ⇒
+            (post & pathEnd & entity(as[CreateObjectContext])) { payload ⇒
               goodOrFailures {
-                ProductManager.createContext(payload)
+                ObjectManager.createContext(payload)
               }
             } 
           }

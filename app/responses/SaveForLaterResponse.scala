@@ -3,8 +3,9 @@ package responses
 import java.time.Instant
 
 import failures.NotFoundFailure404
-import models.inventory.{Sku, SkuShadow, SkuShadows, Skus}
-import models.product.Mvp
+import models.inventory.{Skus, Sku}
+import models.product.{Product, Products, Mvp}
+import models.objects._
 import models.{SaveForLater, SaveForLaters}
 import utils.DbResultT.implicits._
 import utils.DbResultT.{DbResultT, _}
@@ -25,17 +26,17 @@ object SaveForLaterResponse {
   )
 
   def forSkuId(skuId: Int, contextId: Int)(implicit ec: EC, db: DB): DbResultT[Root] = for {
-    sku ← * <~ Skus.mustFindById404(skuId)
-    skuShadow  ← * <~ SkuShadows.filter(_.skuId === sku.id).filter(_.productContextId === contextId).one
-      .mustFindOr(NotFoundFailure404(s"Unable to find sku with id ${sku.id} for context $contextId"))
     sfl ← * <~ SaveForLaters.filter(_.skuId === skuId).one
       .mustFindOr(NotFoundFailure404(s"Save for later entry for sku with id=$skuId not found"))
-  } yield build(sfl, sku, skuShadow)
+    sku ← * <~ Skus.mustFindById404(skuId)
+    form  ← * <~ ObjectForms.mustFindById404(sku.formId)
+    shadow  ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+  } yield build(sfl, sku, form, shadow)
 
-  def build(sfl: SaveForLater, sku: Sku, skuShadow: SkuShadow): Root = { 
+  def build(sfl: SaveForLater, sku: Sku, form: ObjectForm, shadow: ObjectShadow): Root = { 
 
-    val price = Mvp.priceAsInt(sku, skuShadow)
-    val name = Mvp.name(sku, skuShadow)
+    val price = Mvp.priceAsInt(form, shadow)
+    val name = Mvp.name(form, shadow)
 
     Root(
       id = sfl.id,

@@ -3,7 +3,8 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.StatusCodes.OK
 
 import Extensions._
-import models.product.{Mvp, ProductContexts, SimpleContext}
+import models.product.{Mvp, SimpleContext}
+import models.objects._
 import models.customer.Customers
 import models.inventory.InventoryAdjustment._
 import models.inventory._
@@ -91,7 +92,7 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
 
   trait Fixture extends InventorySummaryGenerator {
     val (customer, address, shipMethod, product, sku, reason, sellableSummary) = (for {
-      productCtx ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+      productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       customer   ← * <~ Customers.create(Factories.customer)
       address    ← * <~ Addresses.create(Factories.usAddress1.copy(customerId = customer.id))
       shipMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)

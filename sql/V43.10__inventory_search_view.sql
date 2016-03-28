@@ -1,17 +1,19 @@
 create materialized view inventory_search_view as
 select row_number() over (order by (code, sku_type)) as id, code, product, on_hand, on_hold, reserved, safety_stock, afs, sku_type from
   (select distinct on (sku.code)
-    product.attributes->'title'->>'default' as product,
+    sku_form.attributes->>(sku_shadow.attributes->'title'->>'ref') as product,
     -- TODO: Add shadow active_to and active_from timestamps for display.
+    context.name as context,
     sku.code,
     warehouse.name as warehouse,
     summary.id as summary_id
   from
-    skus as sku
+    skus as sku 
     inner join inventory_summaries as summary on (summary.sku_id = sku.id)
     inner join warehouses as warehouse on (summary.warehouse_id = warehouse.id)
-    inner join sku_product_links as product_link on (product_link.sku_id = sku.id)
-    inner join products as product on (product.id = product_link.product_id)
+    inner join object_contexts as context on (context.id = sku.context_id)
+    inner join object_forms as sku_form on (sku_form.id = sku.form_id)
+    inner join object_shadows as sku_shadow on (sku_shadow.id = sku.shadow_id)
   ) as details
 join
   (select

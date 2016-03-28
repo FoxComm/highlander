@@ -8,7 +8,8 @@ import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
 
 import models.StoreAdmin
 import models.customer.Customer
-import models.product.{SimpleContext, ProductContext, ProductContexts}
+import models.product.SimpleContext
+import models.objects.{ObjectContext, ObjectContexts}
 import services.Result
 import utils.Http._
 import models.StoreAdmin
@@ -72,8 +73,8 @@ object CustomDirectives {
    * and it will become a combination of of things which will then search
    * for the correct context.
    */
-  def determineProductContext(implicit db: DB, ec: EC) : Directive1[ProductContext] = {
-    onSuccess(db.run(ProductContexts.filterByName(DefaultContextName).result.headOption).map {
+  def determineObjectContext(implicit db: DB, ec: EC) : Directive1[ObjectContext] = {
+    onSuccess(db.run(ObjectContexts.filterByName(DefaultContextName).result.headOption).map {
       case Some(c) ⇒  c
       case None ⇒ throw new Exception("Unable to find default context. Is the DB seeded?")
     })

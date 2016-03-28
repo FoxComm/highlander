@@ -1,7 +1,7 @@
 package services
 
+import models.objects._
 import models.inventory._
-import models.product.ProductContexts
 import responses.SkuResponses._
 import utils.DbResultT
 import utils.DbResultT._
@@ -12,72 +12,38 @@ import utils.aliases._
 import cats.data.NonEmptyList
 import failures.NotFoundFailure404
 import failures.ProductFailures._
+import failures.ObjectFailures._
 
 object SkuManager {
 
   // Detailed info for SKU of each type in given warehouse
   def getForm(code: String)
     (implicit ec: EC, db: DB): Result[SkuFormResponse.Root] = (for {
-    form       ← * <~ Skus.findOneByCode(code).mustFindOr(NotFoundFailure404(code))
+    sku   ← * <~ Skus.filterByCode(code).one.mustFindOr(SkuNotFound(code))
+    form  ← * <~ ObjectForms.mustFindById404(sku.formId)
+  } yield SkuFormResponse.build(sku, form)).run()
 
-  } yield SkuFormResponse.build(form)).run()
-
-  def createForm(payload: CreateSkuForm)
-    (implicit ec: EC, db: DB): Result[SkuFormResponse.Root] = (for {
-    form       ← * <~ Skus.create(Sku(code = payload.code, attributes = payload.attributes))
-    link ← * <~ SkuProductLinks.create(SkuProductLink(skuId = form.id, 
-      productId = payload.productId))
-  } yield SkuFormResponse.build(form)).runTxn()
-
-  def updateForm(code: String, payload: UpdateSkuForm)
-    (implicit ec: EC, db: DB): Result[SkuFormResponse.Root] = (for {
-    form       ← * <~ Skus.findOneByCode(code).mustFindOr(NotFoundFailure404(code))
-    form       ← * <~ Skus.update(form, form.copy(attributes = payload.attributes))
-  } yield SkuFormResponse.build(form)).runTxn()
-
-  def getShadow(code: String, productContextName: String)
+  def getShadow(code: String, contextName: String)
     (implicit ec: EC, db: DB): Result[SkuShadowResponse.Root] = (for {
-    productContext ← * <~ ProductContexts.filterByName(productContextName).one.
-      mustFindOr(ProductContextNotFound(productContextName))
-    form       ← * <~ Skus.findOneByCode(code).mustFindOr(NotFoundFailure404(code))
-    shadow     ← * <~ SkuShadows.filterBySkuAndContext(form.id, productContext.id).
-      one.mustFindOr(SkuNotFoundForContext(code, productContext.name))
-  } yield SkuShadowResponse.build(form, shadow)).run()
+    context ← * <~ ObjectContexts.filterByName(contextName).one.
+      mustFindOr(ObjectContextNotFound(contextName))
+    sku     ← * <~ Skus.filterByContextAndCode(context.id, code).one.
+      mustFindOr(SkuNotFound(code))
+    shadow  ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+  } yield SkuShadowResponse.build(sku, shadow)).run()
 
-  def createShadow(payload: CreateSkuShadow, productContextName: String)
-    (implicit ec: EC, db: DB): Result[SkuShadowResponse.Root] = (for {
-    productContext ← * <~ ProductContexts.filterByName(productContextName).one.
-      mustFindOr(ProductContextNotFound(productContextName))
-    form       ← * <~ Skus.findOneByCode(payload.code).mustFindOr(NotFoundFailure404(payload.code))
-    shadow       ← * <~ SkuShadows.create(SkuShadow(skuId = form.id, 
-      productContextId = productContext.id, attributes = payload.attributes,
-      activeFrom = payload.activeFrom, activeTo = payload.activeTo))
-    _    ← * <~ validateShadow(form, shadow)
-  } yield SkuShadowResponse.build(form, shadow)).runTxn()
-    
-  def updateShadow(code: String, payload: UpdateSkuShadow, productContextName: String)
-    (implicit ec: EC, db: DB): Result[SkuShadowResponse.Root] = (for {
-    productContext ← * <~ ProductContexts.filterByName(productContextName).one.
-      mustFindOr(ProductContextNotFound(productContextName))
-    form       ← * <~ Skus.findOneByCode(code).mustFindOr(NotFoundFailure404(code))
-    shadow     ← * <~ SkuShadows.filterBySkuAndContext(form.id, productContext.id).
-      one.mustFindOr(SkuNotFoundForContext(code, productContext.name))
-    shadow     ← * <~ SkuShadows.update(shadow, shadow.copy(
-      attributes = payload.attributes, activeFrom = payload.activeFrom, 
-      activeTo = payload.activeTo))
-    _    ← * <~ validateShadow(form, shadow)
-  } yield SkuShadowResponse.build(form, shadow)).runTxn()
-    
-  def getIlluminatedSku(code: String, productContextName: String)
+  def getIlluminatedSku(code: String, contextName: String)
     (implicit ec: EC, db: DB): Result[IlluminatedSkuResponse.Root] = (for {
-    productContext ← * <~ ProductContexts.filterByName(productContextName).one.
-      mustFindOr(ProductContextNotFound(productContextName))
-    form       ← * <~ Skus.findOneByCode(code).mustFindOr(NotFoundFailure404(code))
-    shadow     ← * <~ SkuShadows.filterBySkuAndContext(form.id, productContext.id).
-      one.mustFindOr(SkuNotFoundForContext(code, productContext.name))
-  } yield IlluminatedSkuResponse.build(IlluminatedSku.illuminate(productContext, form, shadow))).run()
+    context ← * <~ ObjectContexts.filterByName(contextName).one.
+      mustFindOr(ObjectContextNotFound(contextName))
+    sku     ← * <~ Skus.filterByContextAndCode(context.id, code).one.
+      mustFindOr(SkuNotFound(code))
+    form    ← * <~ ObjectForms.mustFindById404(sku.formId)
+    shadow  ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+  } yield IlluminatedSkuResponse.build(IlluminatedSku.illuminate(
+    context, sku, form, shadow))).run()
 
-  def validateShadow(form: Sku, shadow: SkuShadow) 
+  def validateShadow(form: ObjectForm, shadow: ObjectShadow) 
   (implicit ec: EC, db: DB) : DbResultT[Unit] = 
     SkuValidator.validate(form, shadow) match {
       case Nil ⇒ DbResultT.pure(Unit)

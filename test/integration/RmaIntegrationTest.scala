@@ -12,7 +12,8 @@ import models.rma._
 import Rma.{Canceled, Processing}
 import models.shipping.{Shipments, ShippingMethods}
 import models.{Reasons, StoreAdmins}
-import models.product.{Mvp, ProductContexts, SimpleContext}
+import models.product.{Mvp, SimpleContext}
+import models.objects._
 import payloads.{RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCustomerPayload, RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload}
 import responses.{AllRmas, RmaLockResponse, RmaResponse}
 import services.rmas.{RmaLineItemUpdater, RmaLockUpdater}
@@ -486,7 +487,7 @@ class RmaIntegrationTest extends IntegrationTestBase
   trait LineItemFixture extends Fixture {
     val (productContext, rmaReason, sku, giftCard, shipment) = (for {
       rmaReason ← * <~ RmaReasons.create(Factories.rmaReasons.head)
-      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+      productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
       sku ← * <~ Skus.mustFindById404(product.skuId)
       _ ← * <~ Factories.addSkusToOrder(Seq(sku.id), order.id, OrderLineItem.Cart)

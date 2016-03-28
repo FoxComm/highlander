@@ -16,7 +16,8 @@ import models.payment.creditcard._
 import models.rules.QueryStatement
 import models.shipping._
 import models.{StoreAdmin, StoreAdmins}
-import models.product.{Mvp, ProductContexts, SimpleContext}
+import models.product.{Mvp, SimpleContext}
+import models.objects._
 import org.json4s.jackson.JsonMethods._
 import payloads.{AssignmentPayload, UpdateLineItemsPayload, UpdateOrderPayload}
 import responses.StoreAdminResponse
@@ -639,7 +640,7 @@ class OrderIntegrationTest extends IntegrationTestBase
     val highSm = Factories.shippingMethods.head.copy(adminDisplayName = "High", conditions = Some(highConditions))
 
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = (for {
-      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+      productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head.copy(price = 100))
       lineItemSku ← * <~ OrderLineItemSkus.safeFindBySkuId(product.skuId).toXor
       lineItem    ← * <~ OrderLineItems.create(OrderLineItem(orderId = order.id, originId = lineItemSku.id,

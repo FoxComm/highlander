@@ -29,7 +29,7 @@ object Public {
           }
         } ~
         pathPrefix("products") {
-          determineProductContext(db, ec) { productContext ⇒ 
+          determineObjectContext(db, ec) { productContext ⇒ 
             pathPrefix(IntNumber) { productId ⇒
               (get & pathEnd) {
                 goodOrFailures {

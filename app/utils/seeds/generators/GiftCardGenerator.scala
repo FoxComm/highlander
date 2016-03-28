@@ -3,7 +3,7 @@ package utils.seeds.generators
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 import models.order.{Orders, Order}
-import models.product.{ProductContext}
+import models.objects.ObjectContext
 import models.payment.giftcard.{GiftCard, GiftCards, GiftCardOrders, GiftCardOrder,
   GiftCardManuals, GiftCardManual}
 import payloads.GiftCardCreateByCsr
@@ -28,8 +28,8 @@ trait GiftCardGenerator {
     gc    ← * <~ GiftCards.create(GiftCard.buildAppeasement(GiftCardCreateByCsr(balance = nextGcBalance, reasonId = 1), originId = origin.id))
   } yield gc
 
-  def generateGiftCardPurchase(customerId: Int, productContext: ProductContext)(implicit db: Database) : DbResultT[GiftCard] = for {
-    order ← * <~ Orders.create(Order(state = Order.ManualHold, customerId = customerId, productContextId = productContext.id))
+  def generateGiftCardPurchase(customerId: Int, context: ObjectContext)(implicit db: Database) : DbResultT[GiftCard] = for {
+    order ← * <~ Orders.create(Order(state = Order.ManualHold, customerId = customerId, contextId = context.id))
     orig  ← * <~ GiftCardOrders.create(GiftCardOrder(orderId = order.id))
     gc    ← * <~ GiftCards.create(GiftCard.build(balance = nextGcBalance, originId = orig.id, currency = Currency.USD))
   } yield gc

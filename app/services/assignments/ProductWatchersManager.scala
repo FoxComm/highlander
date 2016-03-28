@@ -2,7 +2,7 @@ package services.assignments
 
 import models.Assignment
 import models.product._
-import responses.ProductResponses.ProductFormResponse._
+import responses.ProductResponses.ProductHeadResponse._
 import slick.driver.PostgresDriver.api._
 import utils.Slick._
 import utils.Slick.implicits._

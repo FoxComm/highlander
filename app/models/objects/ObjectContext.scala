@@ -1,4 +1,4 @@
-package models.product
+package models.objects
 
 import java.time.Instant
 
@@ -10,29 +10,29 @@ import utils.time.JavaTimeSlickMapper._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
 /**
- * A ProductContext stores information to determine which product shadow to show.
- * Each product shadow is associated with a context where it makes sense to display it.
+ * A ObjectContext stores information to determine which object shadow to show.
+ * Each object shadow is associated with a context where it makes sense to display it.
  *
  * The context will be matched against a user context so that the storefront displays
- * the appropriate product information.
+ * the appropriate object information.
  */
-final case class ProductContext(id: Int = 0, name: String, attributes: Json, 
+final case class ObjectContext(id: Int = 0, name: String, attributes: Json, 
   createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[ProductContext]
-  with Validation[ProductContext]
+  extends ModelWithIdParameter[ObjectContext]
+  with Validation[ObjectContext]
 
-class ProductContexts(tag: Tag) extends GenericTable.TableWithId[ProductContext](tag, "product_contexts")  {
+class ObjectContexts(tag: Tag) extends GenericTable.TableWithId[ObjectContext](tag, "object_contexts")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
   def attributes = column[Json]("attributes")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, name, attributes, createdAt) <> ((ProductContext.apply _).tupled, ProductContext.unapply)
+  def * = (id, name, attributes, createdAt) <> ((ObjectContext.apply _).tupled, ObjectContext.unapply)
 
 }
 
-object ProductContexts extends TableQueryWithId[ProductContext, ProductContexts](
-  idLens = GenLens[ProductContext](_.id))(new ProductContexts(_)) {
+object ObjectContexts extends TableQueryWithId[ObjectContext, ObjectContexts](
+  idLens = GenLens[ObjectContext](_.id))(new ObjectContexts(_)) {
 
   implicit val formats = JsonFormatters.phoenixFormats
 

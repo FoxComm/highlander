@@ -2,6 +2,7 @@
 package models.inventory
 
 import failures.Failure
+import models.objects._
 import org.json4s.jackson.Serialization.{write ⇒ render}
 import utils.IlluminateAlgorithm
 
@@ -10,8 +11,8 @@ import utils.IlluminateAlgorithm
  */
 object SkuValidator { 
 
-  def validate(sku: Sku, shadow: SkuShadow) : Seq[Failure] = { 
-    IlluminateAlgorithm.validateAttributes(sku.attributes, shadow.attributes) 
+  def validate(form: ObjectForm, shadow: ObjectShadow) : Seq[Failure] = { 
+    IlluminateAlgorithm.validateAttributes(form.attributes, shadow.attributes) 
   }
 
 }

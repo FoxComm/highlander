@@ -13,7 +13,7 @@ object InventoryRoutes {
   def routes(implicit ec: EC, db: DB, mat: Materializer, admin: StoreAdmin, apis: Apis) = {
 
     activityContext(admin) { implicit ac ⇒
-      determineProductContext(db, ec) { productContext ⇒ 
+      determineObjectContext(db, ec) { productContext ⇒ 
 
         pathPrefix("inventory") {
           pathPrefix("skus" / Segment) { skuCode ⇒

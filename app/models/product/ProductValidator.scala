@@ -3,6 +3,7 @@ package models.product
 
 import failures.Failure
 import failures.ProductFailures.NoVariantForContext
+import models.objects._
 import models.Aliases.Json
 import org.json4s.JsonAST.JNothing
 import org.json4s.jackson.Serialization.{write ⇒ render}
@@ -13,18 +14,9 @@ import utils.IlluminateAlgorithm
  */
 object ProductValidator { 
 
-  def validate( productContext: ProductContext, product: Product, 
-    shadow: ProductShadow) : Seq[Failure] = { 
+  def validate(product: Product, form: ObjectForm, shadow: ObjectShadow) : Seq[Failure] = { 
 
-    IlluminateAlgorithm.validateAttributes(product.attributes, shadow.attributes) ++ 
-    validateVariants(product.variants, productContext.name)
-  }
-
-  def validateVariants(variants: Json, context: String) : Seq[Failure] = {
-    variants \ context match {
-      case JNothing ⇒  Seq(NoVariantForContext(context))
-      case v ⇒  Seq.empty
-    }
+    IlluminateAlgorithm.validateAttributes(form.attributes, shadow.attributes)
   }
 }
 

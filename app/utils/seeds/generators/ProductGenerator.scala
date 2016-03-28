@@ -2,7 +2,8 @@ package utils.seeds.generators
 
 
 import GeneratorUtils.randomString
-import models.product.{SimpleProductData, Mvp, ProductContexts, SimpleContext}
+import models.product.{SimpleProductData, Mvp, SimpleContext}
+import models.objects.ObjectContexts
 import scala.util.Random
 import utils.DbResultT._
 import utils.DbResultT.implicits._
@@ -96,8 +97,8 @@ trait ProductGenerator {
   }
 
   def generateProducts(data: Seq[SimpleProductData])(implicit db: Database) = for {
-    productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
-    products ← * <~ Mvp.insertProducts(data, productContext.id)
+    context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
+    products ← * <~ Mvp.insertProducts(data, context.id)
   } yield products
 
 }

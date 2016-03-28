@@ -1,11 +1,12 @@
 package services.rmas
 
+import models.inventory.{Sku, Skus}
+import models.objects.{ObjectContext, ObjectForms, ObjectShadows}
+import models.order.lineitems.{OrderLineItemSkus, OrderLineItemGiftCards}
+import models.payment.giftcard.{GiftCards, GiftCard}
 import failures.{NotFoundFailure400, NotFoundFailure404, ShipmentNotFoundFailure}
 import failures.OrderFailures.SkuNotFoundInOrder
-import models.inventory.{Sku, SkuShadows, Skus}
-import models.product.ProductContext
-import models.order.lineitems.{OrderLineItemGiftCards, OrderLineItemSkus}
-import models.payment.giftcard.{GiftCard, GiftCards}
+import failures.ProductFailures.SkuNotFoundForContext
 import models.rma._
 import models.shipping.Shipments
 import payloads.{RmaGiftCardLineItemsPayload, RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload}
@@ -23,17 +24,16 @@ import slick.driver.PostgresDriver.api._
 object RmaLineItemUpdater {
 
   // FIXME: Fetch reasons with `mustFindOneById`, cc @anna
-  def addSkuLineItem(refNum: String, payload: RmaSkuLineItemsPayload, productContext: ProductContext)
+  def addSkuLineItem(refNum: String, payload: RmaSkuLineItemsPayload, context: ObjectContext)
     (implicit ec: EC, db: DB): Result[Root] = (for {
       // Checks
       payload   ← * <~ payload.validate
       rma       ← * <~ mustFindPendingRmaByRefNum(refNum)
       reason    ← * <~ RmaReasons.filter(_.id === payload.reasonId)
         .one.mustFindOr(NotFoundFailure400(RmaReason, payload.reasonId))
-      sku       ← * <~ Skus.filter(_.code === payload.sku)
-        .one.mustFindOr(SkuNotFoundInOrder(payload.sku, rma.orderRefNum))
-      skuShadow ← * <~ SkuShadows.filter(_.skuId === sku.id).filter(_.productContextId === productContext.id)
-        .one.mustFindOr(SkuNotFoundInOrder(payload.sku, rma.orderRefNum))
+      sku       ← * <~ Skus.filterByContextAndCode(context.id, payload.sku)
+        .one.mustFindOr(SkuNotFoundForContext(payload.sku, context.name))
+      skuShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
       // Inserts
       origin    ← * <~ RmaLineItemSkus.create(RmaLineItemSku(rmaId = rma.id, skuId = sku.id, skuShadowId = skuShadow.id))
       li        ← * <~ RmaLineItems.create(RmaLineItem.buildSku(rma, reason, origin, payload))

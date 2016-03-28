@@ -2,8 +2,9 @@ package services
 
 import cats.implicits._
 import models.customer.Customers
-import models.inventory.{SkuShadows, Skus}
-import models.product.{Mvp, ProductContexts, ProductShadows, Products, SimpleContext}
+import models.inventory.Skus
+import models.product.{Mvp, Products, SimpleContext}
+import models.objects._
 import models.order.lineitems.{OrderLineItem, OrderLineItems}
 import models.order._
 import models.payment.creditcard.CreditCards
@@ -58,7 +59,7 @@ class CartValidatorTest extends IntegrationTestBase {
       }
 
       "if the cart has no credit card and insufficient GC/SC available balances" in new LineItemsFixture {
-        val skuPrice = Mvp.price(sku, skuShadow).getOrElse((0, Currency.USD))._1
+        val skuPrice = Mvp.priceAsInt(skuForm, skuShadow)
         val notEnoughFunds = skuPrice - 1
 
         (for {
@@ -86,8 +87,7 @@ class CartValidatorTest extends IntegrationTestBase {
         result.warnings.value.toList mustNot contain(InsufficientFunds(cart.refNum))
       }
 
-      "if the grandTotal == 0" in new LineItemsFixture {
-        Skus.findById(sku.id).extract.update(sku.copy(attributes = Mvp.updatePrice(sku, skuShadow, 0))).run().futureValue
+      "if the grandTotal == 0" in new LineItemsFixture0 {
         OrderTotaler.saveTotals(cart).run().futureValue.rightVal
 
         val result = CartValidator(refresh(cart)).validate().run().futureValue.rightVal
@@ -148,16 +148,35 @@ class CartValidatorTest extends IntegrationTestBase {
   }
 
   trait LineItemsFixture extends Fixture {
-    val (product, productShadow, sku, skuShadow, items) = (for {
-      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
-      productData    ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
+    val (product, productForm, productShadow, sku, skuForm, skuShadow, items) = (for {
+      context        ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
+      productData    ← * <~ Mvp.insertProduct(context.id, Factories.products.head)
       product        ← * <~ Products.mustFindById404(productData.productId)
-      productShadow  ← * <~ ProductShadows.mustFindById404(productData.productShadowId)
+      productForm    ← * <~ ObjectForms.mustFindById404(product.formId)
+      productShadow  ← * <~ ObjectShadows.mustFindById404(product.shadowId)
       sku            ← * <~ Skus.mustFindById404(productData.skuId)
-      skuShadow      ← * <~ SkuShadows.mustFindById404(productData.skuShadowId)
+      skuForm        ← * <~ ObjectForms.mustFindById404(sku.formId)
+      skuShadow      ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
       items          ← * <~ OrderLineItems.create(OrderLineItem.buildSku(cart, sku))
       _              ← * <~ OrderTotaler.saveTotals(cart)
-    } yield (product, productShadow, sku, skuShadow, items)).runTxn().futureValue.rightVal
+    } yield (product, productForm, productShadow, sku, skuForm, skuShadow, items)).runTxn().futureValue.rightVal
+
+    val grandTotal = refresh(cart).grandTotal
+  }
+
+  trait LineItemsFixture0 extends Fixture {
+    val (product, productForm, productShadow, sku, skuForm, skuShadow, items) = (for {
+      context        ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
+      productData    ← * <~ Mvp.insertProduct(context.id, Factories.products.head.copy(price = 0))
+      product        ← * <~ Products.mustFindById404(productData.productId)
+      productForm    ← * <~ ObjectForms.mustFindById404(product.formId)
+      productShadow  ← * <~ ObjectShadows.mustFindById404(product.shadowId)
+      sku            ← * <~ Skus.mustFindById404(productData.skuId)
+      skuForm        ← * <~ ObjectForms.mustFindById404(sku.formId)
+      skuShadow      ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+      items          ← * <~ OrderLineItems.create(OrderLineItem.buildSku(cart, sku))
+      _              ← * <~ OrderTotaler.saveTotals(cart)
+    } yield (product, productForm, productShadow, sku, skuForm, skuShadow, items)).runTxn().futureValue.rightVal
 
     val grandTotal = refresh(cart).grandTotal
   }

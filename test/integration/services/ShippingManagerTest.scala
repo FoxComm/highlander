@@ -6,7 +6,8 @@ import models.location.Addresses
 import models.order.{OrderShippingAddresses, Orders}
 import models.order.lineitems._
 import models.rules.QueryStatement
-import models.product.{Mvp, ProductContexts, SimpleContext, SimpleProductData}
+import models.product.{Mvp, SimpleContext, SimpleProductData}
+import models.objects._
 import models.shipping.ShippingMethods
 
 import services.ShippingManager.getShippingMethodsForOrder
@@ -137,7 +138,7 @@ class ShippingManagerTest extends IntegrationTestBase {
 
   trait Fixture {
     val (productContext, customer, order) = (for {
-      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+      productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       customer    ← * <~ Customers.create(Factories.customer)
       order       ← * <~ Orders.create(Factories.order.copy(customerId = customer.id))
       product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head.copy(title = "Donkey", price = 27))
@@ -248,7 +249,7 @@ val conditions = parse(
       """.stripMargin).extract[QueryStatement]
 
     val (shippingMethod, cheapOrder, expensiveOrder) = (for {
-      productContext ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+      productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       shippingMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head.copy(conditions = Some(conditions)))
       cheapOrder ← * <~ Orders.create(Factories.order.copy(customerId = customer.id, referenceNumber = "CS1234-AA"))
       cheapProduct ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head.copy(title = "Cheap Donkey", price = 10))

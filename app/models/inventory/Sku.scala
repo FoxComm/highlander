@@ -1,38 +1,65 @@
 package models.inventory
 
 import models.Aliases.Json
-import models.product.Products
+import models.objects._
+
 import monocle.macros.GenLens
 import utils.ExPostgresDriver.api._
-import utils.Slick.implicits._
-import utils.table.SearchByCode
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.JsonFormatters
 import utils.time.JavaTimeSlickMapper._
+import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.table.SearchByCode
+import utils.Slick.implicits._
+
 import java.time.Instant
 
-final case class Sku(id: Int = 0, code: String, attributes: Json, 
-  createdAt: Instant = Instant.now) extends ModelWithIdParameter[Sku]
-
 object Sku {
+  val kind = "sku"
   val skuCodeRegex = """([a-zA-Z0-9-_]*)""".r
 }
 
-// This table mostly acts a placeholder in our system.  We may or may not import skus from 'origin' into this.
+/**
+ * A Sku represents the latest version of Stock Keeping Unit. 
+ * This data structure stores a pointer to a commit of a version of a sku in 
+ * the object context referenced. The same Sku can have a different version
+ * in a different context.
+ */
+final case class Sku(id: Int = 0, code: String, contextId: Int, shadowId: Int, formId: Int, 
+  commitId: Int, updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now)
+  extends ModelWithIdParameter[Sku]
+  with Validation[Sku]
+
 class Skus(tag: Tag) extends GenericTable.TableWithId[Sku](tag, "skus")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def contextId = column[Int]("context_id")
   def code = column[String]("code")
-  def attributes = column[Json]("attributes")
+  def shadowId = column[Int]("shadow_id")
+  def formId = column[Int]("form_id")
+  def commitId = column[Int]("commit_id")
+  def updatedAt = column[Instant]("updated_at")
   def createdAt = column[Instant]("created_at")
 
-  def * = (id, code, attributes, createdAt) <> ((Sku.apply _).tupled, Sku.unapply)
+  def * = (id, code, contextId, shadowId, formId, commitId, updatedAt, createdAt) <> ((Sku.apply _).tupled, Sku.unapply)
+
+  def context = foreignKey(ObjectContexts.tableName, contextId, ObjectContexts)(_.id)
+  def shadow = foreignKey(ObjectShadows.tableName, shadowId, ObjectShadows)(_.id)
+  def form = foreignKey(ObjectForms.tableName, formId, ObjectForms)(_.id)
+  def commit = foreignKey(ObjectCommits.tableName, commitId, ObjectCommits)(_.id)
 
 }
 
 object Skus extends TableQueryWithId[Sku, Skus](
-  idLens = GenLens[Sku](_.id)
-  )(new Skus(_))
+  idLens = GenLens[Sku](_.id))(new Skus(_))
   with SearchByCode[Sku, Skus] {
 
-  def findOneByCode(code: String): DBIO[Option[Sku]] = filter(_.code === code).one
+  implicit val formats = JsonFormatters.phoenixFormats
 
+  def filterByContext(contextId: Int): QuerySeq = 
+    filter(_.contextId === contextId)
+  def filterByContextAndCode(contextId: Int, code: String): QuerySeq = 
+    filter(_.contextId === contextId).filter(_.code === code)
+  def filterByCode(code: String): QuerySeq = 
+    filter(_.code === code)
+  def findOneByCode(code: String): DBIO[Option[Sku]] = 
+    filter(_.code === code).one
 }

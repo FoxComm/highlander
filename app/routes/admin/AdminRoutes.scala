@@ -201,7 +201,7 @@ object AdminRoutes {
         }
       } ~
       pathPrefix("save-for-later") {
-        determineProductContext(db, ec) { productContext ⇒ 
+        determineObjectContext(db, ec) { productContext ⇒ 
           (get & path(IntNumber) & pathEnd) { customerId ⇒
             goodOrFailures {
               SaveForLaterManager.findAll(customerId, productContext.id)

@@ -8,7 +8,8 @@ import models.inventory.InventoryAdjustment._
 import models.inventory._
 import models.inventory.summary._
 import models.order._
-import models.product.{ProductContexts, SimpleContext}
+import models.product.SimpleContext
+import models.objects._
 import payloads.UpdateLineItemsPayload
 import services.inventory.InventoryAdjustmentManager
 import slick.driver.PostgresDriver.api._
@@ -108,7 +109,7 @@ class InventoryManagerIntegrationTest extends IntegrationTestBase {
 
   trait Fixture extends InventorySummaryGenerator with ProductSeeds {
     val (product, sellable, warehouse, admin, order) = (for {
-      productCtx ← * <~ ProductContexts.mustFindById404(SimpleContext.id)
+      productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       products   ← * <~ createProducts
       product    = products._1
       warehouse  ← * <~ Warehouses.create(Factories.warehouse)

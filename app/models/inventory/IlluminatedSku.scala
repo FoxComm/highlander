@@ -1,7 +1,7 @@
 package models.inventory
 
 import utils.IlluminateAlgorithm
-import models.product.{IlluminatedContext, ProductContext}
+import models.objects._
 import models.Aliases.Json
 import org.json4s.JsonDSL._
 import org.json4s.JsonAST.{JString, JObject, JField, JNothing}
@@ -13,16 +13,17 @@ import java.time.Instant
  * the sku. 
  */
 final case class IlluminatedSku(code: String, context: IlluminatedContext, 
-  attributes: Json, activeFrom: Option[Instant], activeTo: Option[Instant])
+  attributes: Json)
 
 object IlluminatedSku { 
 
-  def illuminate(productContext: ProductContext, sku: Sku, shadow: SkuShadow) : IlluminatedSku = { 
+  def illuminate(productContext: ObjectContext, sku: Sku, form: ObjectForm, 
+    shadow: ObjectShadow) : IlluminatedSku = { 
+
     IlluminatedSku(
       code = sku.code, 
       context = IlluminatedContext(productContext.name, productContext.attributes),
-      attributes = IlluminateAlgorithm.projectAttributes(sku.attributes, shadow.attributes),
-      activeFrom = shadow.activeFrom, activeTo = shadow.activeTo)
+      attributes = IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes))
   }
 }
 
