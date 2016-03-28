@@ -35,9 +35,6 @@ package object failures {
       case _ ⇒ "id"
     }
 
-    def diffToBatchErrors[A, B](requested: Seq[A], available: Seq[A], modelType: B): BatchMetadata.FailureData =
-      requested.diff(available).map(id ⇒ (id.toString, NotFoundFailure404(modelType, id).description)).toMap
-
     /* Diff lists of model identifiers to produce a list of failures for absent models */
     def diffToFailures[A, B](requested: Seq[A], available: Seq[A], modelType: B): Option[Failures] =
       Failures(requested.diff(available).map(NotFoundFailure404(modelType, _)): _*)

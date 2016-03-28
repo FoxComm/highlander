@@ -4,17 +4,17 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
-import models.inventory.Sku.skuCodeRegex
-import models.order.Order.orderRefNumRegex
-import models.rma.Rma.rmaRefNumRegex
-import models.payment.giftcard.GiftCard.giftCardCodeRegex
 import payloads.{AssignmentPayload, BulkAssignmentPayload}
 import services.assignments._
 import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._
-import utils.Slick.implicits._
 import utils.aliases._
+
+import models.inventory.Sku.skuCodeRegex
+import models.order.Order.orderRefNumRegex
+import models.rma.Rma.rmaRefNumRegex
+import models.payment.giftcard.GiftCard.giftCardCodeRegex
 
 object AssignmentsRoutes {
 
@@ -405,7 +405,7 @@ object AssignmentsRoutes {
           }
         }
       } ~
-      pathPrefix("skus"/ rmaRefNumRegex) { refNum ⇒
+      pathPrefix("skus"/ skuCodeRegex) { refNum ⇒
         pathPrefix("assignees") {
           (get & pathEnd) {
             goodOrFailures {
