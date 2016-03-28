@@ -1,10 +1,17 @@
 
+import _ from 'lodash';
 import React from 'react';
 import styles from './order-summary.css';
+import { connect } from 'react-redux';
 
 import TermValueLine from 'ui/term-value-line';
+import Currency from 'ui/currency';
+import LineItemRow from './summary-line-item';
 
-const OrderSummary = () => {
+const getState = state => ({ ...state.cart });
+
+const OrderSummary = props => {
+  const rows = _.map(props.skus, (item) => <LineItemRow {...item} key={item.sku} />);
   return (
     <div styleName="order-summary">
       <div styleName="title">ORDER SUMMARY</div>
@@ -18,64 +25,35 @@ const OrderSummary = () => {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td styleName="product-image">
-              <img src={`data:image/gif;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw
-                AAAC8IyPqcvt3wCcDkiLc7C0qwyGHhSWpjQu5yqmCYsapyuvUUlvONmOZtfzgFz
-                ByTB10QgxOR0TqBQejhRNzOfkVJ+5YiUqrXF5Y5lKh/DeuNcP5yLWGsEbtLiOSp
-a/TPg7JpJHxyendzWTBfX0cxOnKPjgBzi4diinWGdkF8kjdfnycQZXZeYGejmJl
-ZeGl9i2icVqaNVailT6F5iJ90m6mvuTS4OK05M0vDk0Q4XUtwvKOzrcd3iq9uis
-F81M1OIcR7lEewwcLp7tuNNkM3uNna3F2JQFo97Vriy/Xl4/f1cf5VWzXyym7PH
-hhx4dbgYKAAA7`}
-              />
-            </td>
-            <td styleName="product-name">LOREM ipsum</td>
-            <td styleName="product-qty">1</td>
-            <td styleName="product-price">$75.00</td>
-          </tr>
-          <tr>
-            <td styleName="product-image">
-              <img src={`data:image/gif;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAAAMAAw
-                AAAC8IyPqcvt3wCcDkiLc7C0qwyGHhSWpjQu5yqmCYsapyuvUUlvONmOZtfzgFz
-                ByTB10QgxOR0TqBQejhRNzOfkVJ+5YiUqrXF5Y5lKh/DeuNcP5yLWGsEbtLiOSp
-a/TPg7JpJHxyendzWTBfX0cxOnKPjgBzi4diinWGdkF8kjdfnycQZXZeYGejmJl
-ZeGl9i2icVqaNVailT6F5iJ90m6mvuTS4OK05M0vDk0Q4XUtwvKOzrcd3iq9uis
-F81M1OIcR7lEewwcLp7tuNNkM3uNna3F2JQFo97Vriy/Xl4/f1cf5VWzXyym7PH
-hhx4dbgYKAAA7`}
-              />
-            </td>
-            <td styleName="product-name">dfg ipsum</td>
-            <td styleName="product-qty">2</td>
-            <td styleName="product-price">$275.00</td>
-          </tr>
+          {rows}
         </tbody>
       </table>
       <ul styleName="price-summary">
         <li>
           <TermValueLine>
             <span>SUBTOTAL</span>
-            $150.00
+            <Currency value={props.subTotal} />
           </TermValueLine>
         </li>
         <li>
           <TermValueLine>
             <span>SHIPPING</span>
-            $0.00
+            <Currency value={props.shipping} />
           </TermValueLine>
         </li>
         <li>
           <TermValueLine>
             <span>TAX</span>
-            $9.00
+            <Currency value={props.taxes} />
           </TermValueLine>
         </li>
       </ul>
       <TermValueLine styleName="grand-total">
         <span>GRAND TOTAL</span>
-        $159.00
+        <Currency value={props.total} />
       </TermValueLine>
     </div>
   );
 };
 
-export default OrderSummary;
+export default connect(getState, {})(OrderSummary);
