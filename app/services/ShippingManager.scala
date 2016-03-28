@@ -16,7 +16,6 @@ import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.aliases._
 
-import scala.concurrent.ExecutionContext
 import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotApplicableToOrder
 import slick.driver.PostgresDriver.api._
@@ -30,6 +29,7 @@ object ShippingManager {
   def getShippingMethodsForCart(originator: Originator)
     (implicit ec: EC, db: DB, ac: AC): Result[Seq[responses.ShippingMethods.Root]] = (for {
     order       ← * <~ getCartByOriginator(originator, None)
+    _           ← * <~ order.mustBeCart
     shipMethods ← * <~ ShippingMethods.findActive.result.toXor
     shipData    ← * <~ getShippingData(order).toXor
     response    = shipMethods.collect {
