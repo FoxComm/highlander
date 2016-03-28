@@ -243,7 +243,7 @@ export function configureProduct(product: FullProduct): FullProduct {
 
   const defaultAttrs = {
     title: 'string',
-    description: 'string',
+    description: 'richText',
     url: 'string',
     metaTitle: 'string',
     metaDescription: 'string',
