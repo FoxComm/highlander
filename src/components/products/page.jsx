@@ -16,12 +16,14 @@ import * as ProductActions from '../../modules/products/details';
 import { Form } from '../forms';
 import { PageTitle } from '../section-title';
 import { PrimaryButton } from '../common/buttons';
+import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
 
 // helpers
 import {
   getProductAttributes,
   setProductAttribute,
+  setSkuAttribute,
 } from '../../paragons/product';
 
 // types
@@ -79,11 +81,16 @@ export class ProductPage extends Component<void, Props, State> {
   componentDidMount() {
     if (!this.isNew) {
       this.props.actions.fetchProduct(this.props.params.productId);
+    } else {
+      this.props.actions.productNew();
     }
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    this.setState({ product: nextProps.products.product });
+    const { isFetching, isUpdating } = nextProps.products;
+    if (!isFetching && !isUpdating) {
+      this.setState({ product: nextProps.products.product });
+    }
   }
 
   get isNew(): boolean {
@@ -112,17 +119,27 @@ export class ProductPage extends Component<void, Props, State> {
 
   @autobind
   handleSetSkuProperty(code: string, field: string, type: string, value: string) {
-    console.log('update sku not implemented');
+    const { product } = this.state;
+    if (product) {
+      this.setState({
+        product: setSkuAttribute(product, code, field, value),
+      })
+    }
   }
 
   @autobind
   handleSubmit() {
-    console.log('not implemented');
+    if (this.isNew) {
+      this.props.actions.createProduct(this.state.product);
+    } else {
+      this.props.actions.updateProduct(this.state.product);
+    }
   }
 
   render(): Element {
     const { product } = this.state;
-    if (!product) {
+    const { isFetching, isUpdating } = this.props.products;
+    if (!product || isFetching) {
       return <div className="fc-product-details"><WaitAnimation /></div>;
     }
 
@@ -132,12 +149,20 @@ export class ProductPage extends Component<void, Props, State> {
       product,
     });
 
+    const wait = isUpdating ? <WaitAnimation /> : null;
+
     return (
       <Form onSubmit={this.handleSubmit}>
         <PageTitle title={this.pageTitle}>
-          <PrimaryButton>Save Draft</PrimaryButton>
+          <PrimaryButton 
+            className="fc-product-details__save-button" 
+            type="submit" 
+            disabled={isUpdating}>
+            Save Draft {wait}
+          </PrimaryButton>
         </PageTitle>
         <div>
+          <SubNav productId={this.props.params.productId} product={product} />
           {children}
         </div>
       </Form>
