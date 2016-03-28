@@ -37,7 +37,7 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
     }
   };
 
-  const user = _.get(props, ['auth', 'current'], null);
+  const user = _.get(props, ['auth', 'user'], null);
   const sessionLink = _.isEmpty(user) ?
     <Link to="/login" styleName="login-link">LOG IN</Link> :
     `HI, ${user.name.toUpperCase()}`;

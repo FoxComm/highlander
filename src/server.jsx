@@ -4,13 +4,18 @@ import ReactDOM from 'react-dom/server';
 import { match, RouterContext } from 'react-router';
 import createHistory from 'history/lib/createMemoryHistory';
 import { Provider } from 'react-redux';
+
 import makeStore from './store';
 import routes from './routes';
 import renderPage from '../build/main.html';
 
 export default function *renderReact() {
   const history = createHistory(this.path);
-  const store = makeStore(history);
+
+  const auth = this.state.auth;
+  const initialState = auth ? {auth} : {};
+
+  const store = makeStore(history, initialState);
 
   const [redirectLocation, renderProps] = yield match.bind(null, {routes, location: this.path, history });
 
