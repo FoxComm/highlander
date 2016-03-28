@@ -1,4 +1,3 @@
-
 //libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
@@ -8,8 +7,6 @@ import { autobind } from 'core-decorators';
 
 // components
 import { SectionTitle } from '../section-title';
-import TabListView from '../tabs/tabs';
-import TabView from '../tabs/tab';
 import { Link, IndexLink } from '../link';
 import ExpandableTable from '../table/expandable-table';
 import InventoryWarehouseRow from './inventory-warehouse-row';
@@ -29,7 +26,7 @@ export default class InventoryItemDetails extends React.Component {
     params: PropTypes.object.isRequired,
     fetchSummary: PropTypes.func.isRequired,
     fetchDetails: PropTypes.func.isRequired,
-  }
+  };
 
   componentDidMount() {
     this.props.fetchSummary(this.props.params.code);
@@ -79,7 +76,9 @@ export default class InventoryItemDetails extends React.Component {
         row={row}
         drawerData={params.drawerData}
         drawerColumns={params.drawerColumns}
-        params={params} />
+        isLoading={_.get(this.props, ['tableState', 'details', 'isFetching'], true)}
+        failed={_.get(this.props, ['tableState', 'details', 'failed'])}
+        params={params}/>
     );
   }
 
@@ -91,7 +90,7 @@ export default class InventoryItemDetails extends React.Component {
         key={key}
         warehouse={row}
         columns={columns}
-        params={params} />
+        params={params}/>
     );
   }
 
@@ -108,44 +107,25 @@ export default class InventoryItemDetails extends React.Component {
       drawerData: this.drawerData,
       drawerColumns: this.drawerColumns,
     };
+
+    const isFetching = _.get(this.props, ['tableState', 'summary', 'isFetching'], true);
+    const failed = _.get(this.props, ['tableState', 'summary', 'failed']);
+
     return (
-      <div className="fc-inventory-item-details">
-        <div className="fc-inventory-item-details__summary">
-          <div className="fc-grid">
-            <div className="fc-col-md-1-1">
-              <SectionTitle title="Inventory" />
-            </div>
-          </div>
-          <TabListView>
-            <TabView draggable={false} selected={true} >
-              <IndexLink to="inventory-item-details"
-                         params={this.props.params}
-                         className="fc-inventory-item-details__tab-link">
-                Inventory
-              </IndexLink>
-            </TabView>
-            <TabView draggable={false} selected={false} >
-              <Link to="inventory-item-transactions"
-                    params={this.props.params}
-                    className="fc-inventory-item-details__tab-link">
-                Transactions
-              </Link>
-            </TabView>
-          </TabListView>
-        </div>
-        <div className="fc-grid">
-          <div className="fc-col-md-1-1">
-            <ExpandableTable
-              columns={this.tableColumns}
-              data={this.summaryData}
-              renderRow={this.renderRow}
-              renderDrawer={this.renderDrawer}
-              params={params}
-              entity={haveType(this.props.params, 'inventoryItem')}
-              idField="id"
-              emptyMessage="No warehouse data found."
-              className="fc-inventory-item-details__warehouses-table"/>
-          </div>
+      <div className="fc-grid">
+        <div className="fc-col-md-1-1">
+          <ExpandableTable
+            columns={this.tableColumns}
+            data={this.summaryData}
+            renderRow={this.renderRow}
+            renderDrawer={this.renderDrawer}
+            params={params}
+            entity={haveType(this.props.params, 'inventoryItem')}
+            idField="id"
+            isLoading={isFetching}
+            failed={failed}
+            emptyMessage="No warehouse data found."
+            className="fc-inventory-item-details__warehouses-table"/>
         </div>
       </div>
     );

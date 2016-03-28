@@ -16,7 +16,7 @@ const searchTerms = [
       }, {
         title: 'SKU',
         type: 'string',
-        term: 'sku'
+        term: 'code'
       }, {
         title: 'Product State',
         type: 'enum',

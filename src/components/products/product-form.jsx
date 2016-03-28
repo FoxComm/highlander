@@ -12,10 +12,13 @@ import _ from 'lodash';
 import { PageTitle } from '../section-title';
 import { PrimaryButton } from '../common/buttons';
 import { Form, FormField } from '../forms';
+import { SliderCheckbox } from '../checkbox/checkbox';
 import ContentBox from '../content-box/content-box';
 import CurrencyInput from '../forms/currency-input';
 import CustomProperty from './custom-property';
+import DatePicker from '../datepicker/datepicker';
 import ProductState from './product-state';
+import RichTextEditor from '../rich-text-editor/rich-text-editor';
 import SkuList from './sku-list';
 import SubNav from './sub-nav';
 import VariantList from './variant-list';
@@ -60,7 +63,6 @@ type State = {
 const defaultKeys = {
   general: ['title', 'description'],
   misc: ['images'],
-  pricing: ['retailPrice', 'salePrice'],
   seo: ['url', 'metaTitle', 'metaDescription'],
 };
 
@@ -102,15 +104,6 @@ export default class ProductForm extends Component<void, Props, State> {
         </div>
       </ContentBox>
     );
-  }
-
-  get pricingContentBox(): Element {
-    const attributes = getProductAttributes(this.props.product);
-    const pricingAttributes = defaultKeys.pricing.map(key => {
-      return this.renderAttribute(attributes[key]);
-    });
-
-    return <ContentBox title="Pricing">{pricingAttributes}</ContentBox>;
   }
 
   get seoContentBox(): Element {
@@ -195,42 +188,71 @@ export default class ProductForm extends Component<void, Props, State> {
     });
 
     const required = _.indexOf(requiredAttributes, label) != -1;
-
-    return (
-      <FormField
-        className="fc-product-details__field"
-        label={formattedLbl}
-        labelClassName="fc-product-details__field-label"
-        key={`product-page-field-${label}`}>
-        {this.renderAttributeField(attribute, required)}
-      </FormField>
-    );
-  }
-
-  renderAttributeField(attribute: Attribute, required: bool): Element {
-    const { label, type, value } = attribute;
     const inputClass = 'fc-product-details__field-value';
 
     switch (type) {
       case 'price':
-        const priceValue = _.get(this.state, ['product', label], value.value);
+        const priceValue = _.get(this.state, ['product', label, 'value'], value);
         return (
-          <CurrencyInput
-            className={inputClass}
-            inputName={label}
-            value={priceValue}
+          <FormField
+            className="fc-product-details__field"
+            label={formattedLbl}
+            labelClassName="fc-product-details__field-label"
+            key={`product-page-field-${label}`}>
+            <CurrencyInput
+              className={inputClass}
+              inputName={label}
+              value={priceValue}
+              onChange={(value) => this.handleUpdateProduct(label, value)} />
+          </FormField>
+        );
+      case 'richText':
+        const rtVal = _.get(this.state, ['product', label], value);
+        return (
+          <RichTextEditor
+            label={formattedLbl}
+            value={rtVal}
             onChange={(value) => this.handleUpdateProduct(label, value)} />
+        );
+      case 'date':
+        const dateVal = _.get(this.state, ['product', label], value);
+        return (
+          <FormField
+            className="fc-product-details__field"
+            label={formattedLbl}
+            labelClassName="fc-product-details__field-label"
+            key={`product-page-field-${label}`}>
+            <DatePicker
+              date={new Date(dateVal)}
+              onChange={(value) => this.handleUpdateProduct(label, value)} />
+          </FormField>
+        );
+      case 'bool':
+        const boolVal = _.get(this.state, ['product', label], value);
+        return (
+          <div className="fc-product-details_field">
+            <div className="fc-product-details__field-label">{formattedLbl}</div>
+            <SliderCheckbox
+              checked={boolVal}
+              onChange={() => this.handleUpdateProduct(label, !boolVal)} />
+          </div>
         );
       default:
         const val = _.get(this.state, ['product', label], value);
         return (
-          <input
-            className={inputClass}
-            type="text"
-            name={label}
-            value={val}
-            required={required}
-            onChange={({target}) => this.handleUpdateProduct(label, target.value)} />
+          <FormField
+            className="fc-product-details__field"
+            label={formattedLbl}
+            labelClassName="fc-product-details__field-label"
+            key={`product-page-field-${label}`}>
+            <input
+              className={inputClass}
+              type="text"
+              name={label}
+              value={val}
+              required={required}
+              onChange={({target}) => this.handleUpdateProduct(label, target.value)} />
+          </FormField>
         );
     }
   }
@@ -268,7 +290,6 @@ export default class ProductForm extends Component<void, Props, State> {
           <div className="fc-product-details fc-grid">
             <div className="fc-col-md-3-5">
               {this.generalContentBox}
-              {this.pricingContentBox}
               {this.variantContentBox}
               {this.skusContentBox}
               {this.seoContentBox}

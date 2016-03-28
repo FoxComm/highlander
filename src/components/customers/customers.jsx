@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 
 import CustomerRow from './customer-row';
-import { SearchableList } from '../list-page';
+import { SelectableSearchList } from '../list-page';
 
 const getState = state => ({ list: state.customers.list });
 
@@ -36,8 +36,8 @@ const Customers = props => {
   ];
 
   return (
-    <SearchableList
-      emptyResultMessage="No customers found."
+    <SelectableSearchList
+      emptyMessage="No customers found."
       list={props.list}
       renderRow={renderRow}
       tableColumns={tableColumns}

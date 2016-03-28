@@ -36,7 +36,9 @@ import CustomerItems from './components/customers/transactions/items';
 import InventoryListPage from './components/inventory/list-page';
 import InventoryList from './components/inventory/list';
 import InventoryItem from './components/inventory/item';
+import InventoryItemDetailsBase from './components/inventory/item-details-base';
 import InventoryItemDetails from './components/inventory/item-details';
+import InventoryItemTransactions from './components/inventory/item-transactions';
 import ProductsListPage from './components/products/list-page';
 import Products from './components/products/products';
 import ProductDetails from './components/products/details';
@@ -137,12 +139,14 @@ const routes = (
     <Route name='inventory-base' path='inventory'>
       <Route name='inventory-list-page' component={InventoryListPage}>
         <IndexRoute name='inventory' component={InventoryList}/>
-        <Route name='inventory-activity-trail' path='activity-trail' dimension="inventory"
-               component={ActivityTrailPage}/>
+        <Route name='inventory-activity-trail' path='activity-trail' dimension="inventory" component={ActivityTrailPage}/>
       </Route>
       <Route name='inventory-item-base' path=':code' component={InventoryItem}>
-        <IndexRoute name='inventory-item-details' component={InventoryItemDetails}/>
-        <Route name='inventory-item-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
+        <Route name='inventory-item-details-base' component={InventoryItemDetailsBase}>
+          <IndexRoute name='inventory-item-details' component={InventoryItemDetails} />
+          <Route title='Transactions' name='inventory-item-transactions' path='transactions' component={InventoryItemTransactions} />
+        </Route>
+        <Route name='inventory-item-activity-trail' path='activity-trail' component={ActivityTrailPage} />
         <Route name='inventory-item-notes' path='notes' component={Notes} />
       </Route>
     </Route>

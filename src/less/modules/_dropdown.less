@@ -73,6 +73,18 @@
   }
 
   // states
+  &._disabled {
+    .fc-dropdown__value {
+      background-color: @color-decor7;
+      color: @color-decor31;
+      cursor: default;
+    }
+
+    .fc-dropdown__button {
+      color: @color-decor31;
+      cursor: default;
+    }
+  }
   &._open {
     .fc-dropdown__items {
       display: inline-block;

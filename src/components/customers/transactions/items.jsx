@@ -49,7 +49,7 @@ class CustomerItems extends Component {
       <div className="fc-customer-items">
         <ListPage
           addTitle="Items"
-          emptyResultMessage="No purchased items found."
+          emptyMessage="No purchased items found."
           list={this.props.list}
           renderRow={this.renderRow}
           tableColumns={tableColumns}

@@ -53,11 +53,14 @@ ExpandableTable.propTypes = {
   }),
   renderRow: PropTypes.func.isRequired,
   renderDrawer: PropTypes.func.isRequired,
-  emptyMessage: PropTypes.string.isRequired,
+  emptyMessage: PropTypes.string,
+  errorMessage: PropTypes.string,
   className: PropTypes.string,
   params: PropTypes.object,
   tableState: PropTypes.object,
   idField: PropTypes.string.isRequired,
+  isLoading: PropTypes.bool,
+  failed: PropTypes.bool,
 };
 
 export default connect(mapStateToProps, {...ExtandableTableActions})(ExpandableTable);

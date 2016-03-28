@@ -28,9 +28,14 @@ Install Flow per the instructions on the website.
 npm install
 ```
 
+### Get certificate to communicate with Phoenix
+
+You can clone `prov-shit` repository and use `${PROV_SHIT_HOME}/ansible/roles/secret_keys/files/public_key.pem`. It is encrypted by ansible and you'll have to decrypt it.
+
 ### Run the dev server
+
 ```
-npm run dev
+PHOENIX_PUBLIC_KEY=${PATH_TO_KEY} npm run dev
 ```
 
 By default, gulp run tests before starting node-server, but you can define env variable ASHES_NO_TEST_FOR_DEV
@@ -43,11 +48,12 @@ or completely override watchify options via `.watchifyrc` file in project root.
 
 ### Pointing to Phoenix
 
-By default, Ashes looks locally for phoenix at `http://localhost:9090`. If you want to change
-which phoenix server Ashes uses, you can set the `PHOENIX_URL` environment variable.
+By default, Ashes looks locally for phoenix at `http://localhost:9090` and for ElasticSearch at `http://localhost:9200`. If you want to change
+which phoenix server or ES Ashes uses, you can set the `PHOENIX_URL` or `ELASTIC_URL` environment variable.
 
 ```
 export PHOENIX_URL=http://10.240.0.3:9090
+export ELASTIC_URL=http://10.240.0.3:9200
 npm run dev
 ```
 
@@ -70,7 +76,7 @@ If you prefer skip test run on each file change you can define env variable ASHE
 
 2. Make sure you have [phoenix-scala](https://github.com/FoxComm/phoenix-scala) and [green-river](https://github.com/FoxComm/green-river) checked out
 
-3. Checkout the [Provisioning Repository](https://github.com/FoxComm/prov-shit) at the same 
+3. Checkout the [Provisioning Repository](https://github.com/FoxComm/prov-shit) at the same
    directory level as ashes.
 
 

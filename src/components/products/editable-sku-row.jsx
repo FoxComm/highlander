@@ -38,9 +38,10 @@ export default class EditableSkuRow extends Component<void, Props, State> {
   }
 
   @autobind
-  priceCell(sku: IlluminatedSku): Element {
-    const value = this.state.sku.price || _.get(sku, 'attributes.price.value.value');
-    return <CurrencyInput value={value} onChange={this.handleUpdatePrice} />;
+  priceCell(sku: IlluminatedSku, field: string): Element {
+    const value = _.get(this.state.sku, field) || _.get(sku, ['attributes', field, 'value', 'value']);
+    const onChange = (value) => this.handleUpdatePrice(field, value);
+    return <CurrencyInput value={value} onChange={onChange} />;
   }
 
   @autobind
@@ -75,8 +76,9 @@ export default class EditableSkuRow extends Component<void, Props, State> {
     switch(field) {
       case 'sku':
         return this.skuCell(sku);
-      case 'price':
-        return this.priceCell(sku);
+      case 'retailPrice':
+      case 'salePrice':
+        return this.priceCell(sku, field);
       case 'upc':
         return this.upcCell(sku);
       default:
@@ -94,10 +96,10 @@ export default class EditableSkuRow extends Component<void, Props, State> {
   }
 
   @autobind
-  handleUpdatePrice(value: string) {
+  handleUpdatePrice(field: string, value: string) {
     this.setState(
-      assoc(this.state, ['sku', 'price'], value),
-      () => this.props.updateField(this.code, 'price', value)
+      assoc(this.state, ['sku', field], value),
+      () => this.props.updateField(this.code, field, value)
     );
   }
 

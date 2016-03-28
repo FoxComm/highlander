@@ -1,18 +1,18 @@
 import React, { PropTypes } from 'react';
 
 import ListPageContainer from './list-page-container';
-import SearchableList from './searchable-list';
+import SelectableSearchList from './selectable-search-list';
 
 const ListPage = props => {
   return (
     <ListPageContainer {...props}>
-      <SearchableList {...props} />
+      <SelectableSearchList {...props} />
     </ListPageContainer>
   );
 };
 
 ListPage.propTypes = {
-  ...SearchableList.propTypes,
+  ...SelectableSearchList.propTypes,
   ...ListPageContainer.propTypes,
 };
 

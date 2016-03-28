@@ -18,6 +18,7 @@ export default class DatePicker extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     date: PropTypes.object,
+    onChange: PropTypes.func,
     onClick: PropTypes.func,
     showInput: PropTypes.bool,
     showPicker: PropTypes.bool,
@@ -25,6 +26,7 @@ export default class DatePicker extends React.Component {
 
   static defaultProps = {
     date: null,
+    onChange: _.noop,
     onClick: _.noop,
     showInput: true,
     showPicker: false,
@@ -64,6 +66,7 @@ export default class DatePicker extends React.Component {
           inputValue={value}
           inputValuePretty={prettyDate}
           onBlur={this.blurred}
+          onChange={this.changed}
           onFocus={this.focused}
           placeholder="mm/dd/yyyy" />
         {showPicker && <div className="fc-datepicker__arrow-up"></div>}
@@ -93,6 +96,11 @@ export default class DatePicker extends React.Component {
       ...this.state,
       showPicker: false
     });
+  }
+
+  @autobind
+  changed({target}) {
+    this.props.onChange(target.value);
   }
 
   @autobind
@@ -129,13 +137,16 @@ export default class DatePicker extends React.Component {
 
   @autobind
   selectDate(date) {
-    this.props.onClick(date);
+    const action = () => {
+      this.props.onClick(date);
+      this.props.onChange(date);
+    };
 
     this.setState({
       ...this.state,
       selectedDate: date,
       showPicker: false,
-    });
+    }, action);
   }
 
   @autobind

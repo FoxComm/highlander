@@ -17,7 +17,7 @@ import Currency from '../../common/currency';
 import SearchBar from '../../search-bar/search-bar';
 import { Checkbox } from '../../checkbox/checkbox';
 import State from '../../common/state';
-import SearchableList from '../../list-page/searchable-list';
+import SelectableSearchList from '../../list-page/selectable-search-list';
 import StoreCreditTransactionRow from './transactions-row';
 
 // redux
@@ -115,9 +115,9 @@ export default class StoreCreditTransactions extends React.Component {
                  history={this.context.history}
                  transactionsSelected={true} />
         <div className="fc-list-page-content fc-store-credits__list">
-          <SearchableList
+          <SelectableSearchList
             title="Transactions"
-            emptyResultMessage="No transactions found."
+            emptyMessage="No transactions found."
             list={this.props.list}
             renderRow={this.renderRow}
             tableColumns={this.props.tableColumns}

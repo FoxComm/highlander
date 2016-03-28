@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 // component
-import { SearchableList } from '../list-page';
+import { SelectableSearchList } from '../list-page';
 import InventoryListRow from './inventory-list-row';
 
 // redux
@@ -39,8 +39,8 @@ const InventoryList = props => {
   ];
 
   return (
-    <SearchableList
-      emptyResultMessage="No inventory units found."
+    <SelectableSearchList
+      emptyMessage="No inventory units found."
       list={props.list}
       renderRow={renderRow}
       tableColumns={tableColumns}
