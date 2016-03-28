@@ -2,6 +2,7 @@
 import { createAction, createReducer } from 'redux-act';
 import fetch from 'isomorphic-fetch';
 import Api from '../lib/api';
+import _ from 'lodash';
 
 // types
 
@@ -54,6 +55,8 @@ export function authenticate(payload: LoginPayload): ActionDispatch {
   const headers = {'Content-Type': 'application/json;charset=UTF-8'};
 
   return dispatch => {
+    let hasError = false;
+
     dispatch(authStart());
     return fetch(Api.apiURI('/public/login'), {
       method: 'POST',
@@ -63,17 +66,21 @@ export function authenticate(payload: LoginPayload): ActionDispatch {
     }).then(response => {
       if (response.status == 200 && response.headers.get('jwt')) {
         localStorage.setItem('jwt', response.headers.get('jwt'));
-        return response.json();
+      } else {
+        hasError = true;
       }
-      throw new Error("Server error, try again later. Sorry for inconvenience :(");
+      return response.json();
     }).then((token: TUser) => {
-      if (token.email && token.name) {
+      if (token.email && token.name && !hasError) {
         localStorage.setItem('user', JSON.stringify(token));
         return dispatch(setUser(token));
       }
-      throw new Error("Server error, try again later. Sorry for inconvenience :(");
+
+      const errors = _.get(token, 'errors', ['Unexpected error, try again later']);
+      const message = _.reduce(errors, (res, err) => `${res} ${err}`, '').trim();
+      throw new Error(message);
     }).catch(reason => {
-      dispatch(authError(reason));
+      dispatch(authError(reason.message));
       throw new Error(reason);
     });
   };

@@ -1,6 +1,7 @@
 /** @flow */
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
+import Alert from '../alerts/alert';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
 import { PrimaryButton, Button } from '../common/buttons';
@@ -27,10 +28,11 @@ type TState = {
 type LoginProps = {
   current: TUser,
   authenticate: (payload: LoginPayload) => Promise,
+  user: { err: Object, isFetching: boolean },
 }
 
 /* ::`*/
-@connect(null, userActions)
+@connect((state) => ({ user: state.user }), userActions)
 /* ::`*/
 export default class Login extends React.Component {
 
@@ -54,8 +56,6 @@ export default class Login extends React.Component {
 
     this.props.authenticate(payload).then(() => {
       transitionTo(context.history, 'home');
-    }).catch(err => {
-      console.error(err);
     });
   }
 
@@ -92,21 +92,34 @@ export default class Login extends React.Component {
     );
   }
 
+  get errorMessage() {
+    const { err } = this.props.user;
+    if (err) {
+      return <Alert type="error">{err}</Alert>;
+    }
+  }
+
   render() {
     return (
-      <Form className="fc-grid fc-login fc-form-vertical">
+      <Form className="fc-grid fc-login fc-form-vertical" onSubmit={this.submitLogin}>
         <img className="fc-login__logo" src="/images/fc-logo-v.svg"/>
         <div className="fc-login__title">Sign In</div>
         <Button className="fc-login__google-btn" icon="google" onClick={this.onGoogleSignIn}>Sign In with Google</Button>
         <div className="fc-login__or">or</div>
         <div className="fc-login__or-cont"></div>
+        {this.errorMessage}
         <FormField className="fc-login__email" label="Email">
           <input onChange={this.onEmailChange} value={this.state.email} type="text" className="fc-input"/>
         </FormField>
         <FormField className="fc-login__password" label={this.passwordLabel}>
           <input onChange={this.onPasswordChange} value={this.state.password} type="password" className="fc-input"/>
         </FormField>
-        <PrimaryButton className="fc-login__signin-btn" onClick={this.submitLogin}>Sign In</PrimaryButton>
+        <PrimaryButton
+          className="fc-login__signin-btn"
+          type="submit"
+          isLoading={this.props.user.isFetching}>
+          Sign In
+        </PrimaryButton>
         <div className="fc-login__copyright">© 2016 FoxCommerce. All rights reserved. Privacy Policy. Terms of Use.</div>
       </Form>
     );
