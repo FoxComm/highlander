@@ -127,6 +127,7 @@ const routes = (
       <Route name='products-list-pages' component={ProductsListPage}>
         <IndexRoute name='products' component={Products} />
       </Route>
+      <Route name='new-product' path='new' component={ProductForm} />
       <Route name='product' path=':productId' component={ProductPage}>
         <IndexRoute name='product-details' component={ProductForm} />
         <Route name='product-images' title='Product Images' path='images' component={ProductImages} />
