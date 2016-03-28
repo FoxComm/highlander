@@ -22,13 +22,6 @@ const app = {
 
   start() {
     const initialState = {};
-    const user = localStorage.getItem("user");
-    if (user) {
-      try {
-        initialState['user'] = {current: JSON.parse(user), isFetching: false};
-      } catch(e) {
-      }
-    }
     const store = configureStore(reduxReactRouter, routes, createHistory, initialState);
 
     render(
@@ -41,10 +34,6 @@ const app = {
 
   * renderReact(next) {
     const initialState = {};
-    if (this.state.token) {
-      initialState['user'] = {current: this.state.token, isFetching: false};
-    }
-
     const store = configureStore(serverReduxReactRouter, routes, createMemoryHistory, initialState);
 
     let [redirectLocation, routerState] = yield match.bind(null, store, this.path);
