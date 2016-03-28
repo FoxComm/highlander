@@ -49,13 +49,11 @@ trait OauthService[M] { this: Oauth ⇒
     2. Get base user info: email and name
   */
   def fetchUserInfoFromCode(oauthResponse: OauthCallbackResponse)(implicit ec: EC): DbResultT[UserInfo] = {
-    val infoX = for {
+    for {
       code ← XorT.fromXor[DBIO](oauthResponse.getCode).leftMap(t ⇒ GeneralFailure(t.toString).single)
       accessTokenResp ← * <~ this.accessToken(code).leftMap(t ⇒ GeneralFailure(t.toString).single).value
       info ← * <~ this.userInfo(accessTokenResp.access_token).leftMap(t ⇒ GeneralFailure(t.toString).single).value
     } yield info
-
-    infoX.leftMap(t ⇒ GeneralFailure(t.toString).single)
   }
 
   def findOrCreateUserFromInfo(userInfo: UserInfo)(implicit ec: EC, db: DB): DbResultT[M] = for {
