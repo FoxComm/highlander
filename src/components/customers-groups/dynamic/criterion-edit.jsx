@@ -20,7 +20,7 @@ const prefixed = prefix('fc-customer-group-builder');
 const fields = criterions.map(({field,label}) => [field, label]);
 
 const Criterion = ({field, operator, value, changeField, changeOperator, changeValue, remove}) => {
-  const criterion = _.find(criterions, criterion => criterion.field === field);
+  const criterion = _.find(criterions, {field : field});
 
   return (
     <div className={classNames('fc-grid', prefixed('criterion'))}>

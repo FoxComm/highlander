@@ -8,7 +8,7 @@ import { prefix } from '../../lib/text-utils';
 //components
 import TextInput from '../../components/forms/text-input';
 
-const prefixed = prefix('fc-lookup__');
+const prefixed = prefix('fc-lookup');
 
 /**
  * Lookup item default component

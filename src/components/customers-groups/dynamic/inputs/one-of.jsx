@@ -3,6 +3,9 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 
+//helpers
+import { prefix } from '../../../../lib/text-utils';
+
 //components
 import { Button } from '../../../common/buttons';
 
@@ -18,13 +21,17 @@ const propTypes = {
 
 const Input = ({Input: Widget}) => ({criterion, value, prefixed, changeValue}) => {
   const values = value || [null];
+  const widgetPrefixed = prefixed;
+  prefixed = prefix(prefixed('vertical-select'));
+
   return (
-    <div className={classNames('fc-grid', prefixed('vertical-select'))}>
+    <div className={classNames('fc-grid', prefixed())}>
       {values.map((item, index) => renderInputItem({
         Widget,
         criterion,
         values,
         index,
+        widgetPrefixed,
         prefixed,
         changeValue,
       }))}
@@ -33,7 +40,7 @@ const Input = ({Input: Widget}) => ({criterion, value, prefixed, changeValue}) =
 };
 Input.propTypes = propTypes;
 
-const renderInputItem = ({Widget, criterion, values, index, prefixed, changeValue}) => {
+const renderInputItem = ({Widget, criterion, values, index, widgetPrefixed, prefixed, changeValue}) => {
   const value = values[index];
 
   const add = () => {
@@ -57,34 +64,43 @@ const renderInputItem = ({Widget, criterion, values, index, prefixed, changeValu
   };
 
   return (
-    <div className={prefixed('vertical-select__container')} key={index}>
-      <div className={prefixed('vertical-select__item')}>
-        {React.createElement(Widget, ({criterion, value: values[index], prefixed, changeValue: change}))}
+    <div className={prefixed('container')} key={index}>
+      <div className={prefixed('item')}>
+        {React.createElement(Widget, ({
+          criterion,
+          value: values[index],
+          prefixed: widgetPrefixed,
+          changeValue: change
+        }))}
       </div>
       {renderNodeOrAdd(prefixed, index < values.length - 1, add)}
-      <i className={classNames(prefixed('vertical-select__remove'), 'icon-close')} onClick={remove} />
+      <i className={classNames(prefixed('remove'), 'icon-close')} onClick={remove} />
     </div>
   );
 };
 
 const renderNodeOrAdd = (prefixed, isNode, add) => {
   if (isNode) {
-    return <div className={prefixed('vertical-select__or')}>or</div>;
+    return <div className={prefixed('or')}>or</div>;
   }
 
-  return <Button className={classNames(prefixed('vertical-select__add'), 'icon-add')} onClick={add} />;
+  return <Button className={classNames(prefixed('add'), 'icon-add')} onClick={add} />;
 };
 
 const Label = ({Label: Widget}) => ({criterion, value, prefixed, changeValue}) => {
   const values = value || [null];
+  const widgetPrefixed = prefixed;
+  prefixed = prefix(prefixed('vertical-select'));
+
   return (
-    <div className={classNames('fc-grid', prefixed('vertical-select'))}>
+    <div className={classNames('fc-grid', prefixed())}>
       {values.map((item, index) => renderLabelItem({
         Widget,
         criterion,
         values,
         index,
         prefixed,
+        widgetPrefixed,
         changeValue,
       }))}
     </div>
@@ -92,13 +108,17 @@ const Label = ({Label: Widget}) => ({criterion, value, prefixed, changeValue}) =
 };
 Label.propTypes = propTypes;
 
-const renderLabelItem = ({Widget, criterion, values, index, prefixed}) => {
+const renderLabelItem = ({Widget, criterion, values, index, widgetPrefixed, prefixed}) => {
   return (
-    <div className={prefixed('vertical-select__container')} key={index}>
-      <div className={prefixed('vertical-select__item')}>
-        {React.createElement(Widget, ({criterion, value: values[index], prefixed}))}
+    <div className={prefixed('container')} key={index}>
+      <div className={prefixed('item')}>
+        {React.createElement(Widget, ({
+          criterion,
+          value: values[index],
+          prefixed: widgetPrefixed
+        }))}
       </div>
-      {index < values.length - 1 ? <div className={prefixed('vertical-select__or')}>or</div> : null}
+      {index < values.length - 1 ? <div className={prefixed('or')}>or</div> : null}
     </div>
   );
 };

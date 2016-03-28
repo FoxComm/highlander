@@ -13,7 +13,7 @@ import LookupItem from './lookup-item';
 import LookupItems from './lookup-items';
 
 
-const prefixed = prefix('fc-lookup__');
+const prefixed = prefix('fc-lookup');
 
 /**
  * Simplistic lookup component, that is to be extended if needed

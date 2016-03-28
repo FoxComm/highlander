@@ -6,7 +6,7 @@ import React, { PropTypes } from 'react';
 import { prefix } from '../../lib/text-utils';
 
 
-const prefixed = prefix('fc-lookup__');
+const prefixed = prefix('fc-lookup');
 
 const LookupItems = props => {
   return (

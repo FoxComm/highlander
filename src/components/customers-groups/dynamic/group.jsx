@@ -224,7 +224,7 @@ export default class DynamicGroup extends Component {
 
   render() {
     return (
-      <div className={prefixed('')}>
+      <div className={prefixed()}>
         <div className="fc-grid">
           <article className="fc-col-md-1-1">
             {this.header}

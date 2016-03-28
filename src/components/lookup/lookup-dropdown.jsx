@@ -12,7 +12,7 @@ import Lookup from './lookup';
 import { DecrementButton, IncrementButton } from '../common/buttons';
 
 
-const prefixed = prefix('fc-lookup__');
+const prefixed = prefix('fc-lookup');
 
 /**
  * Simplistic lookup component, that is to be extended if needed

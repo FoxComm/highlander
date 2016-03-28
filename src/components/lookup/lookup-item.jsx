@@ -12,7 +12,7 @@ const prefixed = prefix('fc-lookup__item');
  */
 const LookupItem = ({model}) => {
   return (
-    <div className={prefixed('__label')}>
+    <div className={prefixed('label')}>
       {model.label}
     </div>
   );

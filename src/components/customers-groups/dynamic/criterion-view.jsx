@@ -31,7 +31,7 @@ const Criterion = ({field, operator, value}) => {
   const valueLabel = React.createElement(Label, {
     criterion,
     value,
-    prefixed: prefix(prefixed()),
+    prefixed,
   });
 
   return (
