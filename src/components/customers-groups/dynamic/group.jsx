@@ -24,6 +24,8 @@ import Form from '../../forms/form';
 import { PrimaryButton } from '../../common/buttons';
 import Criterion from './criterion-view';
 import PrependIconInput from '../../icon-input/prepend-icon-input';
+import MultiSelectTable from '../../table/multi-select-table';
+import MultiSelectRow from '../../table/multi-select-row';
 
 
 const prefixed = prefix('fc-customer-group-dynamic');
@@ -54,12 +56,23 @@ export default class DynamicGroup extends Component {
     history: PropTypes.object.isRequired,
   };
 
+  static tableColumns = [
+    {field: 'name', text: 'Name'},
+    {field: 'email', text: 'Email'},
+    {field: 'joinedAt', text: 'Date/Time Joined', type: 'datetime'}
+  ];
+
   state = {
     criteriaOpen: true,
   };
 
   componentDidMount() {
     this.props.listActions.fetch();
+  }
+
+  @autobind
+  goToEdit() {
+    transitionTo(this.context.history, 'edit-dynamic-customer-group', {groupId: this.props.group.id});
   }
 
   get header() {
@@ -72,7 +85,7 @@ export default class DynamicGroup extends Component {
             {group.name}
             <span className={prefixed('count')}>{list.total}</span>
           </h1>
-          <PrimaryButton onClick={this.goEdit}>Edit Group</PrimaryButton>
+          <PrimaryButton onClick={this.goToEdit}>Edit Group</PrimaryButton>
         </div>
         <div className={prefixed('about')}>
           <div>
@@ -124,10 +137,6 @@ export default class DynamicGroup extends Component {
     );
   }
 
-  @autobind
-  goEdit() {
-    transitionTo(this.context.history, 'edit-dynamic-customer-group', {groupId: this.props.group.id});
-  }
 
   get stats() {
     return (
@@ -172,6 +181,40 @@ export default class DynamicGroup extends Component {
     );
   }
 
+  goToCustomer(id) {
+    return () => {
+      transitionTo(this.context.history, 'customer', {customerId: id});
+    };
+  }
+
+  get renderRow() {
+    return (row, index, columns, params) => (
+      <MultiSelectRow
+        cellKeyPrefix={index}
+        columns={columns}
+        onClick={this.goToCustomer(row.id)}
+        row={row}
+        setCellContents={(customer, field) => _.get(customer, field)}
+        params={params} />
+    );
+  }
+
+  get table() {
+    const {list, listActions} = this.props;
+
+    return (
+      <MultiSelectTable
+        columns={DynamicGroup.tableColumns}
+        data={list}
+        renderRow={this.renderRow}
+        setState={listActions.updateStateAndFetch}
+        isLoading={list.isFetching}
+        failed={list.failed}
+        emptyMessage=""
+        errorMessage="" />
+    );
+  }
+
   render() {
     return (
       <div className={prefixed('')}>
@@ -181,6 +224,7 @@ export default class DynamicGroup extends Component {
             {this.criteria}
             {this.stats}
             {this.filter}
+            {this.table}
           </article>
         </div>
       </div>
