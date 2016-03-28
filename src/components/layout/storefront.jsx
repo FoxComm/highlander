@@ -1,10 +1,13 @@
 /* @flow */
 
+import _ from 'lodash';
 import React from 'react';
 import type { HTMLElement } from 'types';
 import { connect } from 'react-redux';
 import { toggleSidebar } from 'modules/sidebar';
 import { toggleActive, resetTerm } from 'modules/search';
+import { toggleCart } from 'modules/cart';
+
 import styles from './storefront.css';
 
 import Icon from 'ui/icon';
@@ -13,6 +16,7 @@ import Categories from '../categories/categories';
 import Sidebar from '../sidebar/sidebar';
 import Footer from '../footer/footer';
 import Search from '../search/search';
+import Cart from '../cart/cart';
 
 
 type StoreFrontProps = {
@@ -21,6 +25,7 @@ type StoreFrontProps = {
   toggleSidebar: Function;
   toggleSearch: Function;
   resetTerm: Function;
+  toggleCart: Function;
 }
 
 const StoreFront = (props : StoreFrontProps) : HTMLElement => {
@@ -31,6 +36,11 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
       props.toggleSearch();
     }
   };
+
+  const user = _.get(props, ['auth', 'current'], null);
+  const sessionLink = _.isEmpty(user) ?
+    <Link to="/login" styleName="login-link">LOG IN</Link> :
+    `HI, ${user.name.toUpperCase()}`;
 
   return (
     <div styleName="container">
@@ -46,9 +56,9 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
             <Icon styleName="logo" name="fc-some_brand_logo" />
             <div styleName="tools">
               <div styleName="login">
-                <Link to="/login" styleName="login-link">LOG IN</Link>
+                {sessionLink}
               </div>
-              <div styleName="cart">
+              <div styleName="cart" onClick={props.toggleCart}>
                 <Icon name="fc-cart" styleName="head-icon"/>
               </div>
             </div>
@@ -65,14 +75,16 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
       <div styleName="mobile-sidebar">
         <Sidebar />
       </div>
+      <div>
+        <Cart />
+      </div>
     </div>
   );
 };
 
-function mapState(state: Object): Object {
-  return {
-    isSearchActive: state.search.isActive,
-  };
-}
+const mapState = state => ({
+  auth: state.auth,
+  isSearchActive: state.search.isActive
+});
 
-export default connect(mapState, { toggleSidebar, toggleSearch: toggleActive, resetTerm })(StoreFront);
+export default connect(mapState, { toggleSidebar, toggleCart, toggleSearch: toggleActive, resetTerm })(StoreFront);

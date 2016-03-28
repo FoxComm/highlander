@@ -1,14 +1,23 @@
 
 @import "media-queries.css";
+@import "colors.css";
 
 .checkout {
   margin-top: 45px;
   width: 100%;
 }
 
+.checkout-content {
+  display: flex;
+}
+
 .left-forms {
   lost-offset: -1/11;
   lost-column: 5/11;
+}
+
+.right-forms {
+  lost-column: 4/11;
 }
 
 .checkout-block {
@@ -23,17 +32,17 @@
 }
 
 .logo {
+  display: block;
   width: 45px;
   height: 45px;
-  margin: 0 auto;
-  margin-bottom: 40px;
+  margin: 0 auto 40px;
 }
 
 .union-fields {
   display: flex;
 
   & > div {
-    flex-grow: 1;
+    width: 50%;
   }
 }
 
@@ -73,6 +82,45 @@
   display: block;
   margin: 20px auto 0;
   width: 50%;
+}
+
+.payment-icon {
+  vertical-align: middle;
+}
+
+.payment-card-info {
+  padding-left: 0.5em;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.payment-last-four {
+  margin-right: 0.7em;
+}
+
+.billing-address {
+  margin-top: 1em;
+}
+
+.gift-card-content {
+  composes: checkout-block-content;
+  display: flex;
+}
+
+.gift-card-code {
+  composes: text-input from "ui/css/input.css";
+  flex-grow: 1;
+  border: 0;
+}
+
+.gift-card-submit {
+  composes: button from "ui/css/buttons.css";
+  width: auto;
+  background: #FFFFFF;
+  border: 1px solid var(--blackish);
+  font-size: 14px;
+  color: var(--blackish);
+  line-height: 17px;
 }
 
 @media (--medium-viewport) {

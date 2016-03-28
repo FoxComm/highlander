@@ -48,6 +48,8 @@ module.exports = function(gulp, $, opts) {
       extensions: ['.jsx'],
       debug: !production,
     }, watchify.args)).transform(envify({
+      _: 'purge',
+      NODE_ENV: process.env.NODE_ENV || 'development',
       DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN,
     }), pleaseDontIgnoreNestedNodeModules);
 
@@ -56,9 +58,6 @@ module.exports = function(gulp, $, opts) {
       use: plugins,
       jsonOutput: 'build/css-modules.json',
     }, pleaseDontIgnoreNestedNodeModules));
-    if (!production && opts.devMode) {
-      bundler.plugin('livereactload');
-    }
 
     if (opts.devMode) {
       let watchifyOpts = {
