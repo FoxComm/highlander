@@ -94,7 +94,7 @@ export default class Login extends React.Component {
 
   render() {
     return (
-      <Form className="fc-grid fc-login fc-form-vertical">
+      <Form className="fc-grid fc-login fc-form-vertical" onSubmit={this.submitLogin}>
         <img className="fc-login__logo" src="/images/fc-logo-v.svg"/>
         <div className="fc-login__title">Sign In</div>
         <Button className="fc-login__google-btn" icon="google" onClick={this.onGoogleSignIn}>Sign In with Google</Button>
@@ -106,7 +106,7 @@ export default class Login extends React.Component {
         <FormField className="fc-login__password" label={this.passwordLabel}>
           <input onChange={this.onPasswordChange} value={this.state.password} type="password" className="fc-input"/>
         </FormField>
-        <PrimaryButton className="fc-login__signin-btn" onClick={this.submitLogin}>Sign In</PrimaryButton>
+        <PrimaryButton className="fc-login__signin-btn" type="submit">Sign In</PrimaryButton>
         <div className="fc-login__copyright">© 2016 FoxCommerce. All rights reserved. Privacy Policy. Terms of Use.</div>
       </Form>
     );
