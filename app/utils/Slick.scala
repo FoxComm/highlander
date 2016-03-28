@@ -3,7 +3,7 @@ package utils
 import scala.concurrent.Future
 import scala.util.matching.Regex
 
-import cats.data.Xor
+import cats.data.{Xor, XorT}
 import responses.{PaginationMetadata, SortingMetadata, TheResponse}
 import services.Result
 import slick.ast._

@@ -1,15 +1,14 @@
 package services
 
 import scala.concurrent.Future
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
-import akka.http.scaladsl.model.headers.{HttpChallenge, HttpCookie, HttpCredentials, RawHeader}
+import akka.http.scaladsl.model.headers.{GenericHttpCredentials, HttpChallenge, HttpCookie, HttpCredentials, RawHeader}
+import akka.http.scaladsl.model.{ContentTypes, DateTime, HttpEntity, HttpResponse, StatusCodes, Uri}
 import akka.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.directives.CookieDirectives.setCookie
-import akka.http.scaladsl.model.DateTime
 import akka.http.scaladsl.server._
+import akka.http.scaladsl.server.directives.CookieDirectives.setCookie
 import akka.http.scaladsl.server.directives.RespondWithDirectives.respondWithHeader
-import akka.http.scaladsl.server.directives.SecurityDirectives.{AuthenticationResult, challengeFor, extractCredentials}
+import akka.http.scaladsl.server.directives.SecurityDirectives.{AuthenticationResult, challengeFor}
 import akka.http.scaladsl.server.directives.{AuthenticationDirective, AuthenticationResult}
 
 import cats.data.Xor
@@ -17,20 +16,32 @@ import failures.{Failures, LoginFailed}
 import models.auth.{Identity, _}
 import models.customer.{Customer, Customers}
 import models.{StoreAdmin, StoreAdmins}
+import org.jose4j.jwt.JwtClaims
 import payloads.LoginPayload
 import slick.driver.PostgresDriver.api._
+import utils.Config.{RichConfig, config}
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Passwords.checkPassword
 import utils.Slick.implicits._
 import utils.aliases._
-import utils.Config.config
-import utils.Config.RichConfig
+
 
 // TODO: Implement real session-based authentication with JWT
 // TODO: Probably abstract this out so that we use one for both AdminUsers and Customers
 // TODO: Add Roles and Permissions.  Check those before taking on an action
 // TODO: Investigate 2-factor Authentication
+
+final case class AuthPayload(claims: JwtClaims, jwt: String)
+
+object AuthPayload {
+  def apply(token: Token): Failures Xor AuthPayload = {
+    val claims = Token.getJWTClaims(token)
+    Token.encodeJWTClaims(claims).map { encoded ⇒
+      AuthPayload(claims = claims, jwt = encoded)
+    }
+  }
+}
 
 object Authenticator {
 
@@ -64,8 +75,24 @@ object Authenticator {
     basicAuth[StoreAdmin, EmailFinder[StoreAdmin]]("admin")(credentials, StoreAdmins.findByEmail, _.hashedPassword)
   }
 
+  private def readCookie() = {
+    optionalCookie("JWT").map(_.map { cookie ⇒
+      GenericHttpCredentials(scheme = cookie.value, params = Map.empty)
+    })
+  }
+
+  private def readHeader() = {
+    optionalHeaderValueByName("Authorization").map(_.map { header ⇒
+      GenericHttpCredentials(scheme = header, params = Map.empty)
+    })
+  }
+
+  private def readCookieOrHeader() = {
+    readCookie().flatMap(_.fold(readHeader())(v ⇒ provide(Some(v))))
+  }
+
   def requireAuth[T](auth: AsyncAuthenticator[T]): AuthenticationDirective[T] = {
-    extractCredentials.flatMap { optCreds ⇒
+    readCookieOrHeader().flatMap { optCreds ⇒
       onSuccess(auth(optCreds)).flatMap {
         case Right(user) ⇒
           provide(user)
@@ -76,19 +103,14 @@ object Authenticator {
     }
   }
 
-  private def respondWithToken(token: Token): Failures Xor Route = {
-    val apiClaims = Token.getJWTClaims(token)
-    val siteClaims = Token.getJWTClaims(token)
-    apiClaims.setSubject("API")
-    siteClaims.setSubject("site")
 
+  def authTokenBaseResponse(token: Token, response: AuthPayload ⇒ StandardRoute): Failures Xor Route = {
     for {
-      apiTokenEncoded ← Token.encodeJWTClaims(apiClaims)
-      siteTokenEncoded ← Token.encodeJWTClaims(siteClaims)
-    } yield respondWithHeader(RawHeader("JWT", apiTokenEncoded)).& (
+      authPayload ← AuthPayload(token)
+    } yield respondWithHeader(RawHeader("JWT", authPayload.jwt)).& (
       setCookie(HttpCookie(
         name = "JWT",
-        value = siteTokenEncoded,
+        value = authPayload.jwt,
         secure = config.getOptBool("auth.cookieSecure").getOrElse(true),
         httpOnly = true,
         expires = config.getOptLong("auth.cookieTTL").map { ttl ⇒
@@ -97,8 +119,19 @@ object Authenticator {
         path = Some("/"),
         domain = config.getOptString("auth.cookieDomain")
       ))) {
-      complete(HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, apiClaims.toJson)))
+      response(authPayload)
     }
+  }
+  def authTokenLoginResponse(token: Token): Failures Xor Route = {
+    authTokenBaseResponse(token, { payload ⇒
+      complete(HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, payload.claims.toJson)))
+    })
+  }
+
+  def oauthTokenLoginResponse(token: Token): Failures Xor Route = {
+    authTokenBaseResponse(token, { payload ⇒
+      redirect(Uri./, StatusCodes.Found)
+    })
   }
 
   def jwtCustomer(credentials: Option[HttpCredentials])
@@ -158,7 +191,7 @@ object Authenticator {
     }
 
     tokenResult.map(_.flatMap { token ⇒
-      respondWithToken(token)
+      authTokenLoginResponse(token)
     })
   }
 

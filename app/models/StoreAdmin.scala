@@ -12,7 +12,7 @@ import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.aliases._
 
-final case class StoreAdmin(id: Int = 0, email: String, hashedPassword: Option[String], name: String,
+final case class StoreAdmin(id: Int = 0, name: String, email: String, hashedPassword: Option[String] = None,
   department: Option[String] = None)
   extends ModelWithIdParameter[StoreAdmin]
   with Validation[StoreAdmin] {
@@ -41,7 +41,7 @@ class StoreAdmins(tag: Tag) extends GenericTable.TableWithId[StoreAdmin](tag, "s
   def name = column[String]("name")
   def department = column[Option[String]]("department")
 
-  def * = (id, email, hashedPassword, name, department) <> ((StoreAdmin.apply _).tupled, StoreAdmin.unapply)
+  def * = (id, name, email, hashedPassword, department) <> ((StoreAdmin.apply _).tupled, StoreAdmin.unapply)
 }
 
 object StoreAdmins extends TableQueryWithId[StoreAdmin, StoreAdmins](

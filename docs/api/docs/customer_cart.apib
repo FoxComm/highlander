@@ -65,11 +65,16 @@ Place order from cart.
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
-## Shipping Method [/v1/my/cart/shipping-methods]
+## Shipping Method [/v1/my/cart/shipping-method]
 
 Shipping methods are used to describe the ways that the contents of a cart can
 transported to the customer. All actions that occur against this set of
 endpoints modify which shipping method is used by the cart.
+
+### List Shipping Methods [GET /v1/my/cart/shipping-methods]
+
++ Response 200 (application/json)
+    + Attributes (array[ShippingMethod])
 
 ### Update [PATCH]
 
@@ -113,4 +118,4 @@ Removes the shipping method from the cart.
 
 + Response 200 (application/json)
     + Attributes (FullOrder)
-        
+
