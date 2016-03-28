@@ -26,7 +26,7 @@ const authError = createAction('USER_AUTH_ERROR');
 const requestMyInfoStart = createAction("USER_AUTH_INFO_START");
 const receiveMyInfoError = createAction("USER_AUTH_INFO_RECEIVE_ERROR");
 
-export function fetchUserInfo() {
+export function fetchUserInfo(): ActionDispatch {
   return (dispatch, getState) => {
     let user = getState().user.current;
     if (user && user.name) return;
