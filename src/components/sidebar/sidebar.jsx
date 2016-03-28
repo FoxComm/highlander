@@ -8,17 +8,20 @@ import styles from './sidebar.css';
 
 import Icon from 'ui/icon';
 import Categories from '../categories/categories';
+import Search from '../search/search';
 
 import * as actions from 'modules/sidebar';
+import { resetTerm } from 'modules/search';
 
 type SidebarProps = {
   isVisible: boolean;
   toggleSidebar: Function;
+  resetTerm: Function;
 };
 
 const getState = state => ({ ...state.sidebar });
 
-const Sidebar = (props : SidebarProps) : HTMLElement => {
+const Sidebar = (props: SidebarProps): HTMLElement => {
   const sidebarClass = classNames({
     'sidebar-hidden': !props.isVisible,
     'sidebar-shown': props.isVisible,
@@ -26,6 +29,7 @@ const Sidebar = (props : SidebarProps) : HTMLElement => {
 
   const changeCategoryCallback = () => {
     props.toggleSidebar();
+    props.resetTerm();
   };
 
   return (
@@ -38,6 +42,9 @@ const Sidebar = (props : SidebarProps) : HTMLElement => {
               <Icon name="fc-close" className="close-icon"/>
             </a>
           </div>
+          <div styleName="controls-search">
+            <Search onSearch={props.toggleSidebar} isActive/>
+          </div>
           <div styleName="controls-categories">
             <Categories onClick={changeCategoryCallback} />
           </div>
@@ -47,4 +54,4 @@ const Sidebar = (props : SidebarProps) : HTMLElement => {
   );
 };
 
-export default connect(getState, actions)(Sidebar);
+export default connect(getState, {...actions, resetTerm})(Sidebar);

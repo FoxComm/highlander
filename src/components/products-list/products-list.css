@@ -6,17 +6,17 @@
   flex-direction: row;
   justify-content: space-between;
   flex-wrap: wrap;
-  margin: 80px 0;
+  margin: 60px 0;
 }
 
 @media (--medium-viewport) {
   .catalog {
-    margin: 40px 0 80px;
+    margin: 20px 0 80px;
   }
 }
 
 @media (--small-viewport) {
   .catalog {
-    margin: 40px 0 80px;
+    margin: 20px 0 80px;
   }
 }

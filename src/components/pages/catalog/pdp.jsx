@@ -11,6 +11,7 @@ import Counter from 'ui/forms/counter';
 import Currency from 'ui/currency';
 import { Link } from 'react-router';
 import Gallery from 'ui/gallery/gallery';
+import Loader from 'ui/loader';
 
 import * as actions from 'modules/product-details';
 import { addLineItem } from 'modules/cart';
@@ -26,19 +27,26 @@ type Props = {
   params: Params;
   product: ProductResponse;
   addLineItem: Function;
+  isLoading: boolean;
 };
 
 type State = {
   quantity: number;
 }
 
-const getState = state => ({ product: state.productDetails.product });
+const getState = state => {
+  const async = state.asyncActions.pdp;
+
+  return {
+    product: state.productDetails.product,
+    isLoading: !!async ? async.inProgress : true,
+  };
+};
 
 class Pdp extends Component {
-  state: State;
   props: Props;
 
-  state = {
+  state: State = {
     quantity: 1,
   };
 
@@ -70,10 +78,11 @@ class Pdp extends Component {
   }
 
   render() {
-    const { product } = this.props;
-    if (!product) {
-      return <div></div>;
+    if (this.props.isLoading) {
+      return <Loader/>;
     }
+
+    const { product } = this.props;
 
     const title = _.get(product, ['product', 'attributes', 'title', 'v'], '');
     const description = _.get(product, ['product', 'attributes', 'description', 'v'], '');

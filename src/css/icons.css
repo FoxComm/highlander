@@ -1,19 +1,14 @@
-
 /*
  This file only extends base class which defined in evil-icons node package
 */
-
-@import "media-queries.css";
 
 :global(.icon) {
   stroke: currentColor;
 }
 
-@media (--small-viewport) {
-  :global(.icon) {
-    width: 16px;
-    height: 16px;
-  }
+:global(.icon--s) {
+  width: 20px;
+  height: 20px;
 }
 
 :global(.icon--fc-payment-visa),

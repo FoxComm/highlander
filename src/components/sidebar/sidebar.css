@@ -1,14 +1,4 @@
-
 @import "colors.css";
-
-.sidebar-hidden {
-  display: none;
-}
-
-.sidebar-shown {
-  display: block;
-  position: fixed;
-}
 
 .overlay {
   top: 0;
@@ -17,6 +7,9 @@
   right: 0;
   position: fixed;
   background: var(--light-grayish);
+  opacity: 0;
+  transition: opacity .1s;
+  transform: translateX(-100%);
 }
 
 .container {
@@ -27,21 +20,28 @@
   position: fixed;
   background: var(--blackish);
   color: var(--whitish);
+  transform: translateX(-100%);
+  transition: transform .1s;
+}
+
+.sidebar-shown .overlay {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.sidebar-shown .container {
+  transform: translateX(0);
 }
 
 .controls {
-  margin-left: 20px;
-  margin-top: 20px;
+  margin: 20px 10px;
   color: var(--whitish);
-}
-
-.controls-close {
-
 }
 
 .close-button {
   color: var(--whitish);
   text-decoration: none;
+  margin-left: 10px;
 }
 
 .close-button {
@@ -49,5 +49,9 @@
 }
 
 .controls-categories {
-  margin-left: 20px;
+  margin-left: 40px;
+}
+
+.controls-search {
+  margin-top: 16px;
 }
