@@ -84,7 +84,7 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
 
 const mapState = state => ({
   auth: state.auth,
-  isSearchActive: state.search.isActive
+  isSearchActive: state.search.isActive,
 });
 
 export default connect(mapState, { toggleSidebar, toggleCart, toggleSearch: toggleActive, resetTerm })(StoreFront);
