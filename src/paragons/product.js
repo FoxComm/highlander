@@ -45,15 +45,15 @@ function getProductShadow(product: FullProduct): ProductShadow {
   return shadow;
 }
 
-function getSkuForm(code: string, product: FullProduct): SkuForm {
+function getSkuFormIndex(code: string, product: FullProduct): number {
   const forms: Array<SkuForm> = _.get(product, 'form.skus', []);
-  const form: ?SkuForm = _.find(forms, { code: code });
+  const index = _.findIndex(forms, { code: code });
 
-  if (!form) {
+  if (index == -1) {
     throw new Error(`SKU form for code ${code} not found in FullProduct response.`);
   }
 
-  return form;
+  return index;
 }
 
 function getSkuShadow(code: string, product: FullProduct): SkuShadow {
@@ -80,14 +80,31 @@ export function getProductAttributes(product: FullProduct): IlluminatedAttribute
   return getAttributes(form.attributes, shadow.attributes);
 }
 
+export function getAttribute(formAttrs: Attributes, shadowAttrs: ShadowAttributes, 
+  label: string): IlluminatedAttribute {
+
+  const shadow = shadowAttrs[label];
+  if(!shadow) return shadow;
+
+  const attribute = formAttrs[shadow.ref];
+
+  const res = {
+    label: label,
+    type: shadow.type,
+    value: attribute,
+  };
+
+  return res;
+}
+
 function getAttributes(formAttrs: Attributes, shadowAttrs: ShadowAttributes): IlluminatedAttributes {
-  const illuminated: IlluminatedAttributes = _.reduce(shadowAttrs, (res, formKey, label) => {
-    const attribute = formAttrs[label];
+  const illuminated: IlluminatedAttributes = _.reduce(shadowAttrs, (res, shadow, label) => {
+    const attribute = formAttrs[shadow.ref];
 
     res[label] = {
       label: label,
-      type: attribute.type,
-      value: attribute[formKey],
+      type: shadow.type,
+      value: attribute,
     };
 
     return res;
@@ -110,14 +127,26 @@ export function getIlluminatedSkus(product: FullProduct): Array<IlluminatedSku> 
   });
 }
 
+export function getActiveFrom(product: FullProduct): string { 
+  const r = getAttribute(product.form.product.attributes, product.shadow.product.attributes, 'activeFrom');
+  return _.get(r, 'value');
+}
+
+export function getActiveTo(product: FullProduct): string { 
+  const r = getAttribute(product.form.product.attributes, product.shadow.product.attributes, 'activeTo');
+  return _.get(r, 'value');
+}
+
 export function createEmptyProduct(): FullProduct {
   const product = {
     id: null,
     form: {
       product: {
         id: null,
-        attributes: {},
-        variants: {},
+        attributes: { 
+          variants: {}, 
+          skus: {}
+        },
         createdAt: null,
       },
       skus: [],
@@ -126,8 +155,10 @@ export function createEmptyProduct(): FullProduct {
       product: {
         id: null,
         productId: null,
-        attributes: {},
-        variants: null,
+        attributes: { 
+          variants: {type: "variants", ref: "variants" },
+          skus: {type: "skus", ref: "skus" },
+        },
         createdAt: null,
       },
       skus: [],
@@ -152,11 +183,14 @@ export function addEmptySku(product: FullProduct): FullProduct {
     createdAt: null,
   };
 
+  const variantKey = _.get('shadow.product.attributes.variants.ref');
+  const skusKey = _.get('shadow.product.attributes.skus.ref');
+
   return assoc(product,
-    ['form', 'product', 'variants', 'default'], pseudoRandomCode,
-    ['shadow', 'product', 'variants'], 'default',
-    ['form', 'product', 'skus', 'default', pseudoRandomCode], {},
-    ['shadow', 'product', 'skus'], 'default',
+    ['form', 'product', 'attributes', variantKey], pseudoRandomCode,
+    ['shadow', 'product', 'attributs', 'variants'], {type: "variants", ref:variantKey},
+    ['form', 'product', 'attributes', skusKey] , pseudoRandomCode, {},
+    ['shadow', 'product', 'attributes', 'skus'], {type: "skus", ref: skusKey},
     ['form', 'skus'], [...product.form.skus, emptySkuForm],
     ['shadow', 'skus'], [...product.shadow.skus, emptySkuShadow]
   );
@@ -166,13 +200,25 @@ export function addNewVariant(product: FullProduct, variant: Variant): FullProdu
   const variantName = variant.name;
   if (!variantName) throw new Error('Variant must have a name');
 
-  const currentVariants: { [key:string]: Variant } = _.get(product, 'form.product.variants.default', {});
+  const variantKey = _.get('shadow.product.attributes.variants.ref');
+  const currentVariants: { [key:string]: Variant } = _.get(product, 'form.product.attributes.'+variantKey, {});
   const newVariants = {
     ...currentVariants,
     [variantName]: variant,
   };
 
-  return assoc(product, ['form', 'product', 'variants', 'default'], newVariants);
+  return assoc(product, ['form', 'product', 'attributes', variantKey], newVariants);
+}
+
+export function copyShadowAttributes(form: Attributes, shadow: Attributes) {
+  //update form
+  _.forEach(shadow,  (s, label) => {
+      const attribute = form[s.ref];
+      form[label] = attribute;
+   }); 
+
+  //update shadow
+  shadow = _.transform(shadow, (result, value, key) => { value.ref = key; }, {});
 }
 
 /**
@@ -182,6 +228,19 @@ export function addNewVariant(product: FullProduct, variant: Variant): FullProdu
  * @return {FullProduct} Copy of the input that includes all default attributes.
  */
 export function configureProduct(product: FullProduct): FullProduct {
+
+  //copy product attributes
+  copyShadowAttributes(
+    product.form.product.attributes, 
+    product.shadow.product.attributes);
+
+  //copy sku attributes
+  for(var i = 0; i < product.form.skus.length; i++) {
+    copyShadowAttributes(
+      product.form.skus[i].attributes, 
+      product.shadow.skus[i].attributes);
+  }
+
   const defaultAttrs = {
     title: 'string',
     description: 'string',
@@ -212,8 +271,8 @@ export function addProductAttribute(product: FullProduct,
                                     type: string): FullProduct {
 
   const formValue = type == 'price' ? { currency: 'USD', value: null } : null;
-  const newFormAttr = { [label]: { type: type, default: formValue } };
-  const newShadowAttr = { [label]: 'default' };
+  const newFormAttr = { [label]: formValue };
+  const newShadowAttr = { [label]: {type: type, ref: label }};
 
   const formAttrs = _.get(product, 'form.product.attributes', {});
   const shadowAttrs = _.get(product, 'shadow.product.attributes', {});
@@ -233,19 +292,20 @@ export function setProductAttribute(product: FullProduct,
     return setSkuAttribute(product, value.code, value.label, value.value);
   }
 
-  const path = ['form', 'product', 'attributes', label];
+  const shadowPath = ['shadow', 'product', 'attributes', label];
+  const shadow = _.get(product, shadowPath);
+  const path = ['form', 'product', 'attributes', shadow.ref];
   const attribute = _.get(product, path);
 
   if (!attribute) {
     throw new Error(`Attribute=${label} for product id=${product.id} not found.`);
   }
 
-  switch (attribute.type) {
+  switch (shadow.type) {
     case 'price':
-      const price: number = stringToCurrency(value);
-      return assoc(product, [...path, 'default', 'value'], price);
+      return assoc(product, [...path, 'value'], value);
     default:
-      return assoc(product, [...path, 'default'], value);
+      return assoc(product, [...path], value);
   }
 }
 
@@ -271,8 +331,12 @@ export function setSkuAttribute(product: FullProduct,
     );
   }
 
-  const form = getSkuForm(code, product);
-  const path = ['attributes', label];
+  const shadow = getSkuShadow(code, product);
+  const formIndex = getSkuFormIndex(code, product);
+  const form = product.form.skus[formIndex];
+  const shadowPath = ['attributes', label];
+  const shadowAttr = _.get(shadow, shadowPath);
+  const path = ['attributes', shadowAttr.ref];
   const attribute = _.get(form, path);
 
   if (!attribute) {
@@ -281,16 +345,17 @@ export function setSkuAttribute(product: FullProduct,
 
   let updatedSku = null;
 
-  switch (attribute.type) {
+  switch (shadowAttr.type) {
     case 'price':
-      updatedSku = assoc(form, [...path, 'default', 'value'], value);
+      updatedSku = assoc(form, [...path, 'value'], value);
       break;
     default:
-      updatedSku = assoc(form, [...path, 'default'], value);
+      updatedSku = assoc(form, [...path], value);
       break;
   }
 
-  return assoc(product, ['form', 'skus'], [...product.form.skus, updatedSku]);
+  product.form.skus[formIndex] = updatedSku; 
+  return product;
 }
 
 export function addSkuAttribute(product: FullProduct,
@@ -304,8 +369,8 @@ export function addSkuAttribute(product: FullProduct,
     const skuShadow = getSkuShadow(skuForm.code, res);
 
     const formValue = type == 'price' ? { currency: 'USD', value: null } : null;
-    const newFormAttr = { [label]: { type: type, default: formValue } };
-    const newShadowAttr = { [label]: 'default' };
+    const newFormAttr = { [label]: formValue };
+    const newShadowAttr = { [label]: {type: type, ref: label }};
 
     const formAttrs = _.get(skuForm, 'attributes', {});
     const shadowAttrs = _.get(skuShadow, 'attributes', {});

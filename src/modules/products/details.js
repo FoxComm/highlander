@@ -35,7 +35,6 @@ export type ProductForm = {
   id: ?number,
   createdAt: ?string,
   attributes: Attributes,
-  variants: { [key:string]: Variant },
 };
 
 export type Attribute = {
@@ -43,9 +42,11 @@ export type Attribute = {
   [key:string]: any,
 };
 
-export type Attributes = { [key:string]: Attribute };
+export type Attributes = { [key:string]: any };
 
-export type ShadowAttributes = { [key:string]: string };
+export type ShadowAttributes = { 
+  [key:string]: { type: string, ref: string},
+};
 
 export type SkuForm = {
   code: ?string,
@@ -57,17 +58,12 @@ export type ProductShadow = {
   id: ?number,
   productId: ?number,
   attributes: ShadowAttributes,
-  variants: ?string,
   createdAt: ?string,
-  activeFrom?: string,
-  activeTo?: string,
 };
 
 export type SkuShadow = {
   code: ?string,
-  attributes: ShadowAttributes,
-  activeFrom?: string,
-  activeTo?: string,
+  attributes: Attributes,
   createdAt: ?string,
 };
 
@@ -202,7 +198,7 @@ const reducer = createReducer({
       ...state,
       err: null,
       isUpdating: false,
-      product: response,
+      product: configureProduct(response),
     };
   },
   [productUpdateFailure]: (state: ProductDetailsState) => {

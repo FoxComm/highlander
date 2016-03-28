@@ -17,7 +17,7 @@ import ProductForm from './product-form';
 import WaitAnimation from '../common/wait-animation';
 
 // helpers
-import { getProductAttributes, setProductAttribute } from '../../paragons/product';
+import { getProductAttributes, setProductAttribute} from '../../paragons/product';
 
 // types
 import type { FullProduct, ProductDetailsState } from '../../modules/products/details';
