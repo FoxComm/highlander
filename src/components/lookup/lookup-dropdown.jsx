@@ -1,6 +1,6 @@
 // libs
 import _ from 'lodash';
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
@@ -20,6 +20,10 @@ const prefixed = prefix('fc-lookup__');
  * Used for looking up in given
  */
 export default class LookupDropdown extends Component {
+
+  static propTypes = {
+    className: PropTypes.string,
+  };
 
   constructor(props, context) {
     super(props, context);

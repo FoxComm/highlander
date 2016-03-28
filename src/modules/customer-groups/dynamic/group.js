@@ -17,7 +17,7 @@ const initialState = {
   mainCondition: null,
   conditions: [],
   filterTerm: null,
-  saved: false,
+  isSaved: false,
   createdAt: null,
   updatedAt: null,
 };
@@ -60,7 +60,7 @@ const saveGroup = actions => (dispatch, getState) => {
   return request.then(
     (data) => {
       dispatch(actions.setData(data));
-      dispatch(actions.setSaved());
+      dispatch(actions.setIsSaved());
     }
   );
 };
@@ -79,7 +79,7 @@ const reducers = {
       updatedAt,
       mainCondition,
       conditions,
-      saved: false,
+      isSaved: false,
     };
   },
   setName: (state, name) => {
@@ -106,10 +106,10 @@ const reducers = {
       filterTerm,
     };
   },
-  setSaved: (state) => {
+  setIsSaved: (state) => {
     return {
       ...state,
-      saved: true,
+      isSaved: true,
     };
   },
 };

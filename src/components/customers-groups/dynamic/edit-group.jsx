@@ -39,11 +39,13 @@ export default class EditDynamicGroup extends React.Component {
     }),
     group: PropTypes.shape({
       id: PropTypes.number,
+      isSaved: PropTypes.bool,
     }),
     actions: PropTypes.shape({
       reset: PropTypes.func.isRequired,
       saveGroup: PropTypes.func.isRequired,
     }).isRequired,
+    fetchRegions: PropTypes.func.isRequired,
   };
 
   static contextTypes = {
@@ -61,8 +63,8 @@ export default class EditDynamicGroup extends React.Component {
   }
 
   componentDidUpdate() {
-    const {id, saved} = this.props.group;
-    if (saved) {
+    const {id, isSaved} = this.props.group;
+    if (isSaved) {
       transitionTo(this.context.history, 'customer-group', {groupId: id});
       return false;
     }

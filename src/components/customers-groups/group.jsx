@@ -15,6 +15,14 @@ const mapDispatchToProps = dispatch => ({actions: bindActionCreators(actions, di
 @connect(mapStateToProps, mapDispatchToProps)
 export default class Group extends React.Component {
 
+  static propTypes = {
+    params: PropTypes.shape({
+      groupId: PropTypes.string,
+    }).isRequired,
+    group: PropTypes.object,
+    actions: PropTypes.objectOf(PropTypes.func).isRequired,
+  };
+
   componentDidMount() {
     const {params: {groupId}, actions} = this.props;
 

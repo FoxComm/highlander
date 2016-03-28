@@ -16,8 +16,10 @@ const propTypes = {
 };
 
 const Input = ({value, changeValue}) => {
-  return <DatePicker date={new Date(value)}
-                     onClick={(value) => changeValue(moment(value).format('YYYY-MM-DDTHH:mm:ss.SSSZ'))} />;
+  return (
+    <DatePicker date={new Date(value)}
+                onClick={(value) => changeValue(moment(value).format('YYYY-MM-DDTHH:mm:ss.SSSZ'))} />
+  );
 };
 Input.propTypes = propTypes;
 

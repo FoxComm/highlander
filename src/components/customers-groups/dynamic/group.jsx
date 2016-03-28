@@ -49,7 +49,14 @@ export default class DynamicGroup extends Component {
         operators.or,
       ]),
       conditions: PropTypes.arrayOf(PropTypes.array),
+      filterTerm: PropTypes.string,
     }),
+    groupActions: PropTypes.shape({
+      setFilterTerm: PropTypes.func.isRequired,
+    }).isRequired,
+    listActions: PropTypes.shape({
+      fetch: PropTypes.func.isRequired,
+    }).isRequired,
   };
 
   static contextTypes = {
