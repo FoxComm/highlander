@@ -17,7 +17,6 @@ type SearchProps = {
   isActive: boolean;
   term: string,
   results: Array<Product>,
-  toggleSidebar: Function,
   toggleActive: Function,
   onSearch: Function,
   setTerm: Function,
