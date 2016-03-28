@@ -14,7 +14,7 @@ import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
 
 import * as actions from 'modules/product-details';
-import { addLineItem } from 'modules/cart';
+import { addLineItem, toggleCart } from 'modules/cart';
 
 import type { ProductResponse } from 'modules/product-details';
 
@@ -27,6 +27,7 @@ type Props = {
   params: Params;
   product: ProductResponse;
   addLineItem: Function;
+  toggleCart: Function;
   isLoading: boolean;
 };
 
@@ -74,7 +75,10 @@ class Pdp extends Component {
   addToCart() {
     const quantity = this.state.quantity;
     const skuId = this.firstSqu;
-    this.props.addLineItem(skuId, quantity);
+    this.props.addLineItem(skuId, quantity).then(() => {
+      this.props.toggleCart();
+      this.setState({quantity: 1});
+    });
   }
 
   render() {
@@ -134,4 +138,4 @@ class Pdp extends Component {
   }
 }
 
-export default connect(getState, {...actions, addLineItem})(Pdp);
+export default connect(getState, {...actions, addLineItem, toggleCart})(Pdp);
