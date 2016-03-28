@@ -1,18 +1,9 @@
 .fc-typeahead {
   position: relative;
 
-  &._loading {
-    &::after {
-      content: '';
-      display: block;
-      position: absolute;
-      top: 0;
-      right: 7px;
-      height: 100%;
-      width: 100%;
-      background: url('/images/ripple.svg') right center no-repeat;
+  &._loading input {
+      background: url('/images/ripple.svg') 99% center no-repeat;
       background-size: auto 80%;
-    }
   }
 
   input[type=text] {
