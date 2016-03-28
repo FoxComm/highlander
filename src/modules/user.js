@@ -58,7 +58,7 @@ export function authenticate(payload: LoginPayload): ActionDispatch {
     return fetch(Api.apiURI('/public/login'), {
       method: 'POST',
       body: JSON.stringify(payload),
-      credentials: "same-origin",
+      credentials: 'same-origin',
       headers,
     }).then(response => {
       if (response.status == 200 && response.headers.get('jwt')) {
