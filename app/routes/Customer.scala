@@ -37,7 +37,7 @@ object Customer {
             }
           } ~
           pathPrefix("cart") {
-            determineObjectContext(db, ec) { productContext ⇒ 
+            determineObjectContext(db, ec) { productContext ⇒
               (get & pathEnd) {
                 goodOrFailures {
                   OrderQueries.findOrCreateCartByCustomer(customer, productContext)
@@ -108,6 +108,13 @@ object Customer {
                 (delete & pathEnd) {
                   goodOrFailures {
                     OrderShippingAddressUpdater.removeShippingAddress(Originator(customer))
+                  }
+                }
+              } ~
+              pathPrefix("shipping-methods") {
+                (get & pathEnd) {
+                  goodOrFailures {
+                    ShippingManager.getShippingMethodsForCart(Originator(customer))
                   }
                 }
               } ~
@@ -252,7 +259,7 @@ object Customer {
             }
           } ~
           pathPrefix("save-for-later") {
-            determineObjectContext(db, ec) { productContext ⇒ 
+            determineObjectContext(db, ec) { productContext ⇒
               (get & pathEnd) {
                 goodOrFailures {
                   SaveForLaterManager.findAll(customer.id, productContext.id)
