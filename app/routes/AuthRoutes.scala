@@ -3,7 +3,9 @@ package routes
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 
+import cats.data.Xor
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import failures.GeneralFailure
 import models.auth.Identity
 import services.Authenticator
 import services.auth.GoogleOauth.oauthServiceFromConfig
@@ -20,8 +22,10 @@ object AuthRoutes {
   def routes(implicit ec: EC, db: DB, mat: Materializer) = {
     pathPrefix("public") {
       (post & path("login") & entity(as[payloads.LoginPayload])) { payload ⇒
-        onSuccess(Authenticator.authenticate(payload)) { result ⇒
-          result.fold({ f ⇒ complete(renderFailure(f)) }, identity)
+        onComplete(Authenticator.authenticate(payload)) { result ⇒
+          Xor.fromTry(result).leftMap(t ⇒ GeneralFailure(t.toString).single)
+            .flatMap(identity).fold({ f ⇒ complete(renderFailure(f))},
+            identity)
         }
       } ~
       (path("oauth2callback" / "google" / "admin") & get & oauthResponse) {

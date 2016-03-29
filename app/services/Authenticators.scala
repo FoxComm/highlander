@@ -12,7 +12,7 @@ import akka.http.scaladsl.server.directives.SecurityDirectives.{AuthenticationRe
 import akka.http.scaladsl.server.directives.{AuthenticationDirective, AuthenticationResult}
 
 import cats.data.Xor
-import failures.{Failures, LoginFailed}
+import failures.{AuthFailed, Failures, LoginFailed}
 import models.auth.{Identity, _}
 import models.customer.{Customer, Customers}
 import models.{StoreAdmin, StoreAdmins}
@@ -82,7 +82,7 @@ object Authenticator {
   }
 
   private def readHeader() = {
-    optionalHeaderValueByName("Authorization").map(_.map { header ⇒
+    optionalHeaderValueByName("JWT").map(_.map { header ⇒
       GenericHttpCredentials(scheme = header, params = Map.empty)
     })
   }
@@ -147,22 +147,22 @@ object Authenticator {
   private[this] def jwtAuth[M, F <: TokenToModel[M]](realm: String)
     (credentials: Option[HttpCredentials], userFromToken: F)
     (implicit ec: EC, db: Database): Future[AuthenticationResult[M]] = (for {
-      jwtCredentials ← * <~ Credentials.mustVerifyJWTCredentials(credentials, LoginFailed.single)
+      jwtCredentials ← * <~ Credentials.mustVerifyJWTCredentials(credentials, AuthFailed("missed credentials").single)
       token          ← * <~ validateTokenCredentials(jwtCredentials)
       userDbio       ← * <~ userFromToken(token)
       user           ← * <~ userDbio.mustFindOr(LoginFailed)
     } yield user).run().map {
       case Xor.Right(entity) ⇒ AuthenticationResult.success(entity)
-      case Xor.Left(_) ⇒ AuthenticationResult.failWithChallenge(HttpChallenge(scheme = "Bearer",
+      case Xor.Left(f) ⇒ AuthenticationResult.failWithChallenge(HttpChallenge(scheme = "Bearer",
         realm = realm,
-        params = Map.empty))
+        params = Map("error" → f.head.description)))
     }
 
   private[this] def basicAuth[M, F <: EmailFinder[M]](realm: String)
     (credentials: Option[HttpCredentials], finder: F, getHashedPassword: M ⇒ Option[String])
    (implicit ec: EC, db: DB): Future[AuthenticationResult[M]] = {
     (for {
-      userCredentials ← * <~ Credentials.mustVerifyBasicCredentials(credentials, LoginFailed.single)
+      userCredentials ← * <~ Credentials.mustVerifyBasicCredentials(credentials, AuthFailed("missed credentials").single)
       user            ← * <~ finder(userCredentials.identifier).mustFindOr(LoginFailed)
       validated       ← * <~ validatePassword(user, getHashedPassword(user), userCredentials.secret)
     } yield validated).run().map {
@@ -214,14 +214,14 @@ object Authenticator {
         hashedPassword = None,
         name = token.name.getOrElse(""),
         department = token.department))))
-      case _ ⇒ Xor.left(LoginFailed.single)
+      case _ ⇒ Xor.left(AuthFailed("invalid token").single)
     }
   }
 
   private def customerFromToken(token: Token): Failures Xor DBIO[Option[Customer]] = {
     token match {
       case token: CustomerToken ⇒ Xor.right(Customers.findOneById(token.id))
-      case _ ⇒ Xor.left(LoginFailed.single)
+      case _ ⇒ Xor.left(AuthFailed("invalid token").single)
     }
   }
 

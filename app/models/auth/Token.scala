@@ -7,7 +7,7 @@ import java.security.{KeyFactory, PrivateKey, PublicKey}
 import scala.util.{Failure, Success, Try}
 
 import cats.data.Xor
-import failures.{Failures, GeneralFailure, LoginFailed}
+import failures.{AuthFailed, Failures, GeneralFailure}
 import models.StoreAdmin
 import models.customer.Customer
 import org.jose4j.jws.JsonWebSignature
@@ -83,7 +83,11 @@ object Token {
 
     claims.setExpirationTimeMinutesInTheFuture(tokenTTL.toFloat)
     claims.setIssuer("FC")
-    claims.setSubject("API")
+    token match {
+      case _: AdminToken ⇒ claims.setAudience("admin")
+      case _: CustomerToken ⇒ claims.setAudience("customer")
+    }
+
     claims
   }
 
@@ -109,7 +113,7 @@ object Token {
         .setRequireExpirationTime()
         .setAllowedClockSkewInSeconds(30)
         .setExpectedIssuer("FC")
-        .setExpectedSubject("API")
+        .setExpectedAudience("admin", "customer")
         .setVerificationKey(publicKey)
         .build()
 
@@ -125,10 +129,9 @@ object Token {
         }
       } match {
         case Success(token) ⇒ Xor.right(token)
-        // TODO: handle failures
         case Failure(e) ⇒
           System.err.println(e.getMessage)
-          Xor.left(LoginFailed.single)
+          Xor.left(AuthFailed(e.getMessage).single)
       }
 
     }
