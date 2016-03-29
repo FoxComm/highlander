@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 
 //data
-import criterions from '../../../paragons/customer-groups/criterions';
+import criterions, { getCriterion, getOperators, getWidget } from '../../../paragons/customer-groups/criterions';
 
 //helpers
 import { prefix } from '../../../lib/text-utils';
@@ -19,6 +19,7 @@ export default class QueryBuilder extends React.Component {
 
   static propTypes = {
     conditions: PropTypes.arrayOf(PropTypes.array).isRequired,
+    isValid: PropTypes.bool,
     setConditions: PropTypes.func.isRequired,
   };
 
@@ -37,7 +38,10 @@ export default class QueryBuilder extends React.Component {
       updateCondition([field, null, null]);
     };
     const changeOperator = (operator) => {
-      updateCondition([field, operator, null]);
+      const criterion = getCriterion(field);
+      const {getDefault} = getWidget(criterion, operator);
+
+      updateCondition([field, operator, getDefault(criterion)]);
     };
     const changeValue = (value) => {
       updateCondition([field, operator, value]);
@@ -63,12 +67,15 @@ export default class QueryBuilder extends React.Component {
 
   @autobind
   addCondition(event) {
-    const {conditions, setConditions} = this.props;
+    const {conditions, isValid, setConditions} = this.props;
     event.stopPropagation();
-    setConditions([
-      ...conditions,
-      [null, null, null]
-    ]);
+
+    if (!conditions.length || isValid) {
+      setConditions([
+        ...conditions,
+        [null, null, null]
+      ]);
+    }
   }
 
   render() {
@@ -79,7 +86,8 @@ export default class QueryBuilder extends React.Component {
           {conditions.map(this.renderCriterion)}
         </div>
         <div className={prefixed('add-criterion')} onClick={this.addCondition}>
-          <AddButton type="button" onClick={this.addCondition} /><span>Add criteria</span>
+          <AddButton type="button" onClick={this.addCondition} />
+          <span>Add criteria</span>
         </div>
       </div>
     );

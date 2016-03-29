@@ -1,5 +1,11 @@
+//libs
+import _ from 'lodash';
+
+//paragons
 import types from './types';
 import ops from './operators';
+
+//components
 import widgets from '../../components/customers-groups/dynamic/widgets';
 
 
@@ -177,5 +183,11 @@ const criterions = [
     label: 'Date Joined',
   },
 ];
+
+export const getCriterion = field => _.find(criterions, {field: field});
+
+export const getOperators = ({operators, type}) => operators ? _.pick(type.operators, operators) : type.operators;
+
+export const getWidget = (criterion, operator) => _.get(criterion.widget, operator, criterion.widget.default);
 
 export default criterions;

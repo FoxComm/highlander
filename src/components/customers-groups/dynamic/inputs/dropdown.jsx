@@ -16,4 +16,8 @@ export const Input = ({criterion, value, changeValue}) => {
 };
 Input.propTypes = propTypes;
 
-export const getDefault = (criterion) => criterion.widget.config.choices[0][0];
+export const getDefault = criterion => criterion.widget.config.choices[0][0];
+
+export const isValid = (value, criterion) => (
+  Boolean(_.find(criterion.widget.config.choices, choice => choice[0] === value))
+);

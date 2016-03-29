@@ -1,4 +1,5 @@
 //libs
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 
@@ -78,4 +79,6 @@ const renderNodeOrAdd = (prefixed, isNode, add) => {
   return <Button className={classNames(prefixed('add'), 'icon-add')} onClick={add} />;
 };
 
-export const getDefault = Widget => criterion => Widget.getDefault(criterion);
+export const getDefault = Widget => criterion => [Widget.getDefault(criterion)];
+
+export const isValid = Widget => (value, criterion) => value.every(part => Widget.isValid(part, criterion));

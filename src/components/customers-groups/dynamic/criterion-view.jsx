@@ -6,7 +6,7 @@ import FormField from '../../forms/formfield';
 import classNames from 'classnames';
 
 //data
-import criterions from '../../../paragons/customer-groups/criterions';
+import { getCriterion, getOperators, getWidget } from '../../../paragons/customer-groups/criterions';
 
 //helpers
 import { prefix } from '../../../lib/text-utils';
@@ -18,13 +18,10 @@ import { Dropdown, DropdownItem } from '../../dropdown';
 const prefixed = prefix('fc-customer-group-dynamic__criterion');
 
 const Criterion = ({field, operator, value}) => {
-  const criterion = _.find(criterions, {field: field});
-  const {Label} = _.get(criterion.widget, operator, criterion.widget.default);
-
-  const availableOperators = criterion.operators
-    ? _.pick(criterion.type.operators, criterion.operators)
-    : criterion.type.operators;
-  const operatorLabel = availableOperators[operator];
+  const criterion = getCriterion(field);
+  const {Label} = getWidget(criterion, operator);
+  const operators = getOperators(criterion);
+  const operatorLabel = operators[operator];
 
   const valueLabel = React.createElement(Label, {
     criterion,

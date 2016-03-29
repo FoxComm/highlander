@@ -39,6 +39,7 @@ export default class DynamicGroupEditor extends React.Component {
         operators.or,
       ]),
       conditions: PropTypes.arrayOf(PropTypes.array).isRequired,
+      isValid: PropTypes.bool,
     }),
     actions: PropTypes.shape({
       setName: PropTypes.func.isRequired,
@@ -100,6 +101,7 @@ export default class DynamicGroupEditor extends React.Component {
         {this.nameField}
         {this.mainCondition}
         <QueryBuilder conditions={group.conditions}
+                      isValid={group.isValid}
                       setConditions={actions.setConditions} />
       </div>
     );

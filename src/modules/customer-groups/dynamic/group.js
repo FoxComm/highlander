@@ -6,7 +6,7 @@ import { assoc } from 'sprout-data';
 import Api from '../../../lib/api';
 import * as search from '../../../lib/search';
 import createStore from '../../../lib/store-creator';
-import criterions from './../../../paragons/customer-groups/criterions';
+import criterions, { getCriterion, getWidget } from './../../../paragons/customer-groups/criterions';
 import queryAdapter from './../query-adapter';
 
 
@@ -16,6 +16,7 @@ const initialState = {
   name: null,
   mainCondition: null,
   conditions: [],
+  isValid: false,
   filterTerm: null,
   isSaved: false,
   createdAt: null,
@@ -65,6 +66,19 @@ const saveGroup = actions => (dispatch, getState) => {
   );
 };
 
+const validateConditions = conditions => conditions.length && conditions.every(validateCondition);
+
+const validateCondition = ([field, operator, value]) => {
+  if (!field || !operator) {
+    return false;
+  }
+
+  const criterion = getCriterion(field);
+  const {isValid} = getWidget(criterion, operator);
+
+  return isValid(value, criterion);
+};
+
 const reducers = {
   reset: () => {
     return initialState;
@@ -79,6 +93,7 @@ const reducers = {
       updatedAt,
       mainCondition,
       conditions,
+      isValid: validateConditions(conditions),
       isSaved: false,
     };
   },
@@ -98,6 +113,7 @@ const reducers = {
     return {
       ...state,
       conditions,
+      isValid: validateConditions(conditions),
     };
   },
   setFilterTerm: (state, filterTerm) => {

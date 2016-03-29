@@ -6,7 +6,7 @@ import FormField from '../../forms/formfield';
 import classNames from 'classnames';
 
 //data
-import criterions from '../../../paragons/customer-groups/criterions';
+import criterions, { getCriterion, getOperators, getWidget } from '../../../paragons/customer-groups/criterions';
 
 //helpers
 import { prefix } from '../../../lib/text-utils';
@@ -20,7 +20,7 @@ const prefixed = prefix('fc-customer-group-builder');
 const fields = criterions.map(({field,label}) => [field, label]);
 
 const Criterion = ({field, operator, value, changeField, changeOperator, changeValue, remove}) => {
-  const criterion = _.find(criterions, {field : field});
+  const criterion = getCriterion(field);
 
   return (
     <div className={classNames('fc-grid', prefixed('criterion'))}>
@@ -41,11 +41,7 @@ const renderOperator = (criterion, operator, changeOperator) => {
     return null;
   }
 
-  const availableOperators = criterion.operators
-    ? _.pick(criterion.type.operators, criterion.operators)
-    : criterion.type.operators;
-
-  const operators = _.map(availableOperators, (label, operator) => [operator, label]);
+  const operators = _.map(getOperators(criterion), (label, operator) => [operator, label]);
 
   return (
     <Dropdown items={operators}
@@ -61,11 +57,11 @@ const renderValue = (criterion, operator, value, changeValue) => {
     return null;
   }
 
-  const {Input, getDefault} = _.get(criterion.widget, operator, criterion.widget.default);
+  const {Input, getDefault} = getWidget(criterion, operator);
 
   return React.createElement(Input, {
     criterion,
-    value: value === null ? getDefault(criterion) : value,
+    value,
     changeValue,
     prefixed: prefix('fc-customer-group-builder'),
   });

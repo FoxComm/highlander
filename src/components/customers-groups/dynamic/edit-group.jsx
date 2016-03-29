@@ -39,6 +39,7 @@ export default class EditDynamicGroup extends React.Component {
     }),
     group: PropTypes.shape({
       id: PropTypes.number,
+      isValid: PropTypes.bool,
       isSaved: PropTypes.bool,
     }),
     actions: PropTypes.shape({
@@ -81,7 +82,7 @@ export default class EditDynamicGroup extends React.Component {
           <DynamicGroupEditor />
           <div className={prefixed('form-submits')}>
             <Link to="customer-group" params={{groupId: group.id}}>Cancel</Link>
-            <PrimaryButton type="submit">Save Dynamic Group</PrimaryButton>
+            <PrimaryButton type="submit" disabled={!group.isValid}>Save Dynamic Group</PrimaryButton>
           </div>
         </Form>
       </NewGroupBase>

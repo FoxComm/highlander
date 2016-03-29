@@ -36,6 +36,7 @@ export default class NewDynamicGroup extends React.Component {
   static propTypes = {
     group: PropTypes.shape({
       id: PropTypes.number,
+      isValid: PropTypes.bool,
       isSaved: PropTypes.bool,
     }),
     actions: PropTypes.shape({
@@ -68,7 +69,7 @@ export default class NewDynamicGroup extends React.Component {
   }
 
   render() {
-    const {props} = this;
+    const {group, actions} = this.props;
 
     return (
       <NewGroupBase title="New Dynamic Customer Group"
@@ -76,11 +77,11 @@ export default class NewDynamicGroup extends React.Component {
                       id: 'new-manual-group',
                       title: 'manual group',
                     }}>
-        <Form onSubmit={() => props.actions.saveGroup()}>
+        <Form onSubmit={() => actions.saveGroup()}>
           <DynamicGroupEditor />
           <div className={prefixed('form-submits')}>
             <Link to="customer-groups">Cancel</Link>
-            <PrimaryButton type="submit">Save Dynamic Group</PrimaryButton>
+            <PrimaryButton type="submit" disabled={!group.isValid}>Save Dynamic Group</PrimaryButton>
           </div>
         </Form>
       </NewGroupBase>

@@ -1,4 +1,5 @@
 //libs
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
 //components
@@ -15,3 +16,5 @@ export const Input = ({value, changeValue}) => {
 Input.propTypes = propTypes;
 
 export const getDefault = () => 0;
+
+export const isValid = value => true;

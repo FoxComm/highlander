@@ -27,3 +27,5 @@ Input.propTypes = {
 };
 
 export const getDefault = () => '';
+
+export const isValid = value => Boolean(value);

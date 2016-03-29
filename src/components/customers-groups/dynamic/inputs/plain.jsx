@@ -23,3 +23,12 @@ export const getDefault = type => () => {
       return '';
   }
 };
+
+export const isValid = type => value => {
+  switch (type) {
+    case 'number':
+      return true;
+    default:
+      return Boolean(value);
+  }
+};
