@@ -9,6 +9,7 @@ import React, { Component } from 'react';
 import styles from './checkout.css';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+import { browserHistory } from 'react-router';
 
 import Icon from 'ui/icon';
 import Shipping from './shipping';
@@ -29,6 +30,8 @@ type CheckoutProps = CheckoutState & {
   saveShippingAddress: () => PromiseType;
   saveShippingMethod: () => PromiseType;
   fetchCart: () => PromiseType;
+  addCreditCard: () => PromiseType;
+  checkout: () => PromiseType;
 }
 
 function isDeliveryDurty(state) {
@@ -75,7 +78,13 @@ class Checkout extends Component {
 
   @autobind
   placeOrder() {
-    console.info('TODO: place order');
+    this.props.addCreditCard()
+      .then(() => {
+        return this.props.checkout();
+      })
+      .then(() => {
+        browserHistory.push('/checkout/done');
+      });
   }
 
   render() {
