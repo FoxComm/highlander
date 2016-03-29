@@ -36,7 +36,6 @@ export function fetchUserInfo(): ActionDispatch {
     if (user) {
       try {
         dispatch(setUser(JSON.parse(user)));
-        return;
       } catch(e) {
       }
     }
