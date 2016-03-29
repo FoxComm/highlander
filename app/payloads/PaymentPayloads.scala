@@ -10,7 +10,7 @@ import utils._
 
 final case class CreateCreditCard(holderName: String, number: String, cvv: String, expYear: Int,
   expMonth: Int, address: Option[CreateAddressPayload] = None, addressId: Option[Int] = None,
-  isDefault: Boolean = false) {
+  isDefault: Boolean = false, isShipping: Boolean = false) {
 
   def validate: ValidatedNel[Failure, CreateCreditCard] = {
     import Validation._
@@ -36,7 +36,8 @@ final case class PaymentMethodPayload(cardholderName: String, cardNumber: String
 final case class ToggleDefaultCreditCard(isDefault: Boolean)
 
 final case class EditCreditCard(holderName: Option[String] = None, expYear: Option[Int] = None,
-  expMonth: Option[Int] = None, addressId: Option[Int] = None, address: Option[CreateAddressPayload] = None) {
+  expMonth: Option[Int] = None, addressId: Option[Int] = None, address: Option[CreateAddressPayload] = None,
+  isShipping: Boolean = false) {
 
   def validate: ValidatedNel[Failure, EditCreditCard] = {
     import Validation._
