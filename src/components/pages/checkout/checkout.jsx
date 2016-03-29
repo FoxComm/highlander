@@ -5,9 +5,10 @@
  */
 
 import _ from 'lodash';
-import React from 'react';
+import React, { Component } from 'react';
 import styles from './checkout.css';
 import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
 
 import Icon from 'ui/icon';
 import Shipping from './shipping';
@@ -21,14 +22,17 @@ import type { Promise as PromiseType } from 'types/promise';
 import * as actions from 'modules/checkout';
 import { EditStages } from 'modules/checkout';
 import type { CheckoutState, EditStage } from 'modules/checkout';
+import { fetch as fetchCart } from 'modules/cart';
 
 type CheckoutProps = CheckoutState & {
   setEditStage: (stage: EditStage) => Object;
   saveShippingAddress: () => PromiseType;
+  saveShippingMethod: () => PromiseType;
+  fetchCart: () => PromiseType;
 }
 
 function isDeliveryDurty(state) {
-  return !!state.checkout.selectedShippingMethod;
+  return !!state.cart.shippingMethod;
 }
 
 function isBillingDurty(state) {
@@ -43,58 +47,74 @@ function mapStateToProps(state) {
   };
 }
 
-const Checkout = (props: CheckoutProps) => {
-  const setShippingStage = () => {
-    props.setEditStage(EditStages.SHIPPING);
-  };
+class Checkout extends Component {
+  props: CheckoutProps;
 
-  const setDeliveryStage = () => {
-    props.saveShippingAddress().then(() => {
-      props.setEditStage(EditStages.DELIVERY);
+  componentWillMount() {
+    this.props.fetchCart();
+  }
+
+  @autobind
+  setShippingStage() {
+    this.props.setEditStage(EditStages.SHIPPING);
+  }
+
+  @autobind
+  setDeliveryStage() {
+    this.props.saveShippingAddress().then(() => {
+      this.props.setEditStage(EditStages.DELIVERY);
     });
-  };
+  }
 
-  const setBillingState = () => {
-    props.setEditStage(EditStages.BILLING);
-  };
+  @autobind
+  setBillingState() {
+    this.props.saveShippingMethod().then(() => {
+      this.props.setEditStage(EditStages.BILLING);
+    });
+  }
 
-  const placeOrder = () => {
+  @autobind
+  placeOrder() {
     console.info('TODO: place order');
-  };
+  }
 
-  return (
-    <div styleName="checkout">
-      <Icon styleName="logo" name="fc-some_brand_logo" />
-      <div styleName="checkout-content">
-        <div styleName="left-forms">
-          <Shipping
-            isEditing={props.editStage == EditStages.SHIPPING}
-            collapsed={props.editStage < EditStages.SHIPPING}
-            editAction={setShippingStage}
-            continueAction={setDeliveryStage}
-          />
-          <Delivery
-            isEditing={props.editStage == EditStages.DELIVERY}
-            editAllowed={props.editStage >= EditStages.DELIVERY}
-            collapsed={!props.isDeliveryDurty && props.editStage < EditStages.DELIVERY}
-            editAction={setDeliveryStage}
-            continueAction={setBillingState}
-          />
-          <Billing
-            isEditing={props.editStage == EditStages.BILLING}
-            editAllowed={props.editStage >= EditStages.BILLING}
-            collapsed={!props.isBillingDurty && props.editStage < EditStages.BILLING}
-            editAction={setBillingState}
-            continueAction={placeOrder}
-          />
-        </div>
-        <div styleName="right-forms">
-          <OrderSummary />
-          <GiftCard />
+  render() {
+    const props = this.props;
+
+    return (
+      <div styleName="checkout">
+        <Icon styleName="logo" name="fc-some_brand_logo" />
+        <div styleName="checkout-content">
+          <div styleName="left-forms">
+            <Shipping
+              isEditing={props.editStage == EditStages.SHIPPING}
+              collapsed={props.editStage < EditStages.SHIPPING}
+              editAction={this.setShippingStage}
+              continueAction={this.setDeliveryStage}
+            />
+            <Delivery
+              isEditing={props.editStage == EditStages.DELIVERY}
+              editAllowed={props.editStage >= EditStages.DELIVERY}
+              collapsed={!props.isDeliveryDurty && props.editStage < EditStages.DELIVERY}
+              editAction={this.setDeliveryStage}
+              continueAction={this.setBillingState}
+            />
+            <Billing
+              isEditing={props.editStage == EditStages.BILLING}
+              editAllowed={props.editStage >= EditStages.BILLING}
+              collapsed={!props.isBillingDurty && props.editStage < EditStages.BILLING}
+              editAction={this.setBillingState}
+              continueAction={this.placeOrder}
+            />
+          </div>
+          <div styleName="right-forms">
+            <OrderSummary />
+            <GiftCard />
+          </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
+}
 
-export default connect(mapStateToProps, actions)(Checkout);
+export default connect(mapStateToProps, {...actions, fetchCart})(Checkout);

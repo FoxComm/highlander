@@ -38,7 +38,7 @@ const OrderSummary = props => {
         <li>
           <TermValueLine>
             <span>SHIPPING</span>
-            <Currency value={props.shipping} />
+            <Currency value={props.totals.shipping} />
           </TermValueLine>
         </li>
         <li>
