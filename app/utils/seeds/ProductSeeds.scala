@@ -36,7 +36,6 @@ trait ProductSeeds extends  {
       image ="https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Marley_Top_Front.jpg"),
     SimpleProductData(code = "SKU-MRP", title = "Chicken", description = "Cross the road in these with confidence.", price = 7700, 
       image ="https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Round_Readers_Top_Front.jpg"),
-    // Why beetle? Cuz it"s probably a bug. FIXME: add validation!!!
-    SimpleProductData(code = "SKU-TRL", title = "Fox", description = "Stylish fit, stylish finish.", price = -100, 
+    SimpleProductData(code = "SKU-TRL", title = "Fox", description = "Stylish fit, stylish finish.", price = 10000, 
       image ="https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Quay_Side.jpg"))
 }
