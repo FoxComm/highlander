@@ -33,24 +33,61 @@ trait Qualifier {
 ### Qualifier types
 
 ```scala
+sealed trait QualifierReferenceType
+case object SharedSearch extends QualifierReferenceType
+case object Product extends QualifierReferenceType
+case object Sku extends QualifierReferenceType
+
 sealed trait QualifierType
-case object OrderAnyQualifier extends QualifierType
-case class OrderTotalAmountQualifier(totalAmount: Int) extends QualifierType
+case object OrderAnyQualifier extends QualifierType // MVP
+case class OrderTotalAmountQualifier(totalAmount: Int) extends QualifierType // MVP
 case class OrderNumUnitsQualifier(numUnits: Int) extends QualifierType
-
-case class ItemsAnyQualifier(referenceId: Int, referenceType: PromotionType)
-  extends QualifierType
+case class ItemsAnyQualifier(referenceId: Int,
+  referenceType: QualifierReferenceType) extends QualifierType // MVP
 case class ItemsTotalAmount(totalAmount: Int, referenceId: Int,
-  referenceType: PromotionType) extends QualifierType
+  referenceType: QualifierReferenceType) extends QualifierType
 case class ItemsNumUnits(numUnits: Int, referenceId: Int,
-  referenceType: PromotionType) extends QualifierType
+  referenceType: QualifierReferenceType) extends QualifierType
 ```
-
-For 2-week MVP, it's necessary to implement logic only for:
-* `OrderAnyQualifier`
-* `OrderTotalAmountQualifier`
-* `ItemsAnyQualifier`
 
 ## Offers
 
 Offers define how price is substracted from order or line items.
+
+```scala
+trait Offer {
+  // TBD
+}
+```
+
+### Offer types
+
+```scala
+sealed trait OfferType
+case class OrderTotalPercentOff(discount: Int) extends OfferType // MVP
+case class OrderTotalAmountOff(amount: Int) extends OfferType
+case class ItemsSinglePercentOff(discount: Int, referenceId: Int,
+  referenceType: QualifierReferenceType) extends OfferType
+case class ItemsSingleAmountOff(amount: Int, referenceId: Int,
+  referenceType: QualifierReferenceType) extends OfferType
+case class ItemsSelectPercentOff(discount: Int, referenceId: Int,
+  referenceType: QualifierReferenceType) extends OfferType // MVP
+case class ItemsSelectAmountOff(amount: Int, referenceId: Int,
+  referenceType: QualifierReferenceType) extends OfferType
+case object FreeShipping extends OfferType // MVP
+case class DiscountedShippping(fixedPrice: Int) extends OfferType  
+```
+
+## Factories
+
+We will store qualifier's type and it's attributes in database somehow, so we'll
+need to define some kind of factory method:
+
+```scala
+object QualifierFactory {
+  def factory(qualifierType: QualifierType, attributes: Json): Qualifier = {
+    qualifierType match {
+      case OrderAnyQualifier => parse(attributes).extract[OrderAnyQualifier]
+    }
+  }
+}
