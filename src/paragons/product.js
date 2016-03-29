@@ -285,6 +285,23 @@ export function configureProduct(product: FullProduct): FullProduct {
   return newProdWithSku;
 }
 
+export function addProductAttribute(product: FullProduct,
+                                    label: string,
+                                    type: string): FullProduct {
+
+  const formValue = type == 'price' ? { currency: 'USD', value: null } : null;
+  const newFormAttr = { [label]: formValue };
+  const newShadowAttr = { [label]: {type: type, ref: label }};
+
+  const formAttrs = _.get(product, 'form.product.attributes', {});
+  const shadowAttrs = _.get(product, 'shadow.product.attributes', {});
+
+  return assoc(product,
+    ['form', 'product', 'attributes'], { ...newFormAttr, ...formAttrs },
+    ['shadow', 'product', 'attributes'], { ...newShadowAttr, ...shadowAttrs }
+  );
+}
+
 export function setProductAttribute(product: FullProduct,
                                     label: string,
                                     type: string,
@@ -297,8 +314,9 @@ export function setProductAttribute(product: FullProduct,
   const shadowPath = ['shadow', 'product', 'attributes', label];
 
   const shadow = _.get(product, shadowPath);
+
   if (!shadow) {
-    throw new Error(`Attribute=${label} for product id=${product.id} not found.`);
+    return addProductAttribute(product, label, type);
   }
 
   const path = ['form', 'product', 'attributes', shadow.ref];
