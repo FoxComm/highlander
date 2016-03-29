@@ -2,6 +2,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.StatusCodes.OK
 
+import cats.implicits._
 import Extensions._
 import models.product.{Mvp, SimpleContext}
 import models.objects._
@@ -48,7 +49,8 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
       val createGiftCard = POST("v1/gift-cards", GiftCardCreateByCsr(grandTotal, reason.id))
       createGiftCard.status must === (OK)
       val gcCode = createGiftCard.as[GiftCardResponse.Root].code
-      POST(s"v1/orders/$refNum/payment-methods/gift-cards", GiftCardPayment(gcCode, grandTotal)).status must === (OK)
+      val gcPayload = GiftCardPayment(gcCode, grandTotal.some)
+      POST(s"v1/orders/$refNum/payment-methods/gift-cards", gcPayload).status must === (OK)
 
       // Checkout!
       val checkout = POST(s"v1/orders/$refNum/checkout")

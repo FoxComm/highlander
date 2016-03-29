@@ -53,7 +53,7 @@ final case class EditCreditCard(holderName: Option[String] = None, expYear: Opti
   }
 }
 
-final case class GiftCardPayment(code: String, amount: Int)
+final case class GiftCardPayment(code: String, amount: Option[Int] = None)
 
 final case class StoreCreditPayment(amount: Int)
 
