@@ -106,6 +106,7 @@ class Pdp extends Component {
 
     const title = _.get(product, ['product', 'attributes', 'title', 'v'], '');
     const description = _.get(product, ['product', 'attributes', 'description', 'v'], '');
+    const descriptionMarkup = { __html: description };
     const salePrice = _.get(product, ['skus', 0, 'attributes', 'salePrice', 'v', 'value'], 0);
     const currency = _.get(product, ['skus', 0, 'attributes', 'salePrice', 'v', 'currency'], 'USD');
     const imageUrls = _.get(product, ['product', 'attributes', 'images', 'v'], []);
@@ -131,8 +132,7 @@ class Pdp extends Component {
             <div styleName="salePrice">
               <Currency value={salePrice} currency={currency} />
             </div>
-            <div styleName="description">
-              {description}
+            <div styleName="description" dangerouslySetInnerHTML={descriptionMarkup}>
             </div>
             <div>
               <label>QUANTITY</label>
