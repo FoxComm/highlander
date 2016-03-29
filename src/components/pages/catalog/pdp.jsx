@@ -90,8 +90,8 @@ class Pdp extends Component {
 
     const title = _.get(product, ['product', 'attributes', 'title', 'v'], '');
     const description = _.get(product, ['product', 'attributes', 'description', 'v'], '');
-    const price = _.get(product, ['skus', 0, 'attributes', 'price', 'v', 'value'], 0);
-    const currency = _.get(product, ['skus', 0, 'attributes', 'price', 'v', 'currency'], 'USD');
+    const salePrice = _.get(product, ['skus', 0, 'attributes', 'salePrice', 'v', 'value'], 0);
+    const currency = _.get(product, ['skus', 0, 'attributes', 'salePrice', 'v', 'currency'], 'USD');
     const imageUrls = _.get(product, ['product', 'attributes', 'images', 'v'], []);
     return (
       <div styleName="container">
@@ -112,8 +112,8 @@ class Pdp extends Component {
           </div>
           <div styleName="info">
             <h1 styleName="name">{title}</h1>
-            <div styleName="price">
-              <Currency value={price} currency={currency} />
+            <div styleName="salePrice">
+              <Currency value={salePrice} currency={currency} />
             </div>
             <div styleName="description">
               {description}
