@@ -23,7 +23,7 @@ import type { Promise as PromiseType } from 'types/promise';
 import * as actions from 'modules/checkout';
 import { EditStages } from 'modules/checkout';
 import type { CheckoutState, EditStage } from 'modules/checkout';
-import { fetch as fetchCart } from 'modules/cart';
+import { fetch as fetchCart, hideCart } from 'modules/cart';
 
 type CheckoutProps = CheckoutState & {
   setEditStage: (stage: EditStage) => Object;
@@ -32,6 +32,7 @@ type CheckoutProps = CheckoutState & {
   fetchCart: () => PromiseType;
   addCreditCard: () => PromiseType;
   checkout: () => PromiseType;
+  hideCart: () => PromiseType;
 }
 
 function isDeliveryDurty(state) {
@@ -54,6 +55,7 @@ class Checkout extends Component {
   props: CheckoutProps;
 
   componentWillMount() {
+    this.props.hideCart();
     this.props.fetchCart();
   }
 
@@ -126,4 +128,4 @@ class Checkout extends Component {
   }
 }
 
-export default connect(mapStateToProps, {...actions, fetchCart})(Checkout);
+export default connect(mapStateToProps, {...actions, fetchCart, hideCart})(Checkout);
