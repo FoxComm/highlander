@@ -139,8 +139,12 @@ server {
 
   # Proxy to ashes
   location / {
-      alias {{ashes_root_dir}};
-      proxy_pass http://ashes/;
+      root {{ashes_root_dir}};
+      try_files $uri @ashes;
+  }
+
+  location @ashes {
+      proxy_pass http://ashes;
   }
 
   # Error pages
