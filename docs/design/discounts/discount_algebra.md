@@ -9,8 +9,7 @@ Discounts system is based on a concept of `Promotion`, which is a combination of
 
 ## Basics
 
-Each promotion applies it's discounts either to an order or to it's specific
-line items:
+Each promotion applies it's discounts either to an order or to it's line items:
 
 ```scala
 sealed trait PromotionType
@@ -86,15 +85,17 @@ need to define some kind of factory method:
 
 ```scala
 object QualifierFactory {
-  def factory(qualifierType: String, attributes: String): Xor[Failure, Qualifier] = {
+  def factory(promoType: PromotionType, qualifierType: String,
+    attributes: String): Xor[Failure, Qualifier] = {
+
     val json = parse(attributes)
 
-    qualifierType match {
+    (promoType, qualifierType) match {
       // Handle extraction failure somehow...
-      case "orderAny" => Xor.Right(json.extract[OrderAnyQualifier])
-      case "itemsAny" => Xor.Right(json.extract[ItemsAnyQualifier])
+      case (OrderPromotion, "orderAny") => Xor.Right(json.extract[OrderAnyQualifier])
+      case (ItemsPromotion, "itemsAny") => Xor.Right(json.extract[ItemsAnyQualifier])
       // ...
-      case _          => Xor.Left(UnknownQualifierFailure(...))
+      case _ => Xor.Left(UnknownQualifierFailure(...))
     }
   }
 }
