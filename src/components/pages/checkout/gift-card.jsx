@@ -24,7 +24,9 @@ class EditGiftCard extends Component {
 
   @autobind
   onSave() {
-    this.props.saveGiftCard(this.state.code).catch(() => {
+    this.props.saveGiftCard(this.state.code).then(() => {
+      this.setState({code: ''});
+    }).catch(() => {
       this.setState({code: ''});
     });
   }

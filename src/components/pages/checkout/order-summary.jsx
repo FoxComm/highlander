@@ -12,6 +12,25 @@ const getState = state => ({ ...state.cart });
 
 const OrderSummary = props => {
   const rows = _.map(props.skus, (item) => <LineItemRow {...item} key={item.sku} />);
+
+  const renderGiftCard = (amount) => {
+    return (
+      <li>
+        <TermValueLine>
+          <span>GIFT CARD</span>
+          <span>- &nbsp;<Currency value={amount} /></span>
+        </TermValueLine>
+      </li>
+    );
+  };
+
+  const giftCardPresent = _.some(props.paymentMethods, {type: 'giftCard'});
+  const giftCardAmount = _.get(_.find(props.paymentMethods, {type: 'giftCard'}), 'amount', 0);
+  const giftCardBlock = giftCardPresent ? renderGiftCard(giftCardAmount) : null;
+
+  const grandTotal = giftCardPresent ? props.totals.total - giftCardAmount : props.totals.total;
+  const grandTotalResult = grandTotal > 0 ? grandTotal : 0;
+
   return (
     <div styleName="order-summary">
       <div styleName="title">ORDER SUMMARY</div>
@@ -47,10 +66,11 @@ const OrderSummary = props => {
             <Currency value={props.totals.taxes} />
           </TermValueLine>
         </li>
+        {giftCardBlock}
       </ul>
       <TermValueLine styleName="grand-total">
         <span>GRAND TOTAL</span>
-        <Currency value={props.totals.total} />
+        <Currency value={grandTotalResult} />
       </TermValueLine>
     </div>
   );
