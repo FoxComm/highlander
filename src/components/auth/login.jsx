@@ -101,27 +101,31 @@ export default class Login extends React.Component {
 
   render() {
     return (
-      <Form className="fc-grid fc-login fc-form-vertical" onSubmit={this.submitLogin}>
-        <img className="fc-login__logo" src="/images/fc-logo-v.svg"/>
-        <div className="fc-login__title">Sign In</div>
-        <Button className="fc-login__google-btn" icon="google" onClick={this.onGoogleSignIn}>Sign In with Google</Button>
-        <div className="fc-login__or">or</div>
-        <div className="fc-login__or-cont"></div>
-        {this.errorMessage}
-        <FormField className="fc-login__email" label="Email">
-          <input onChange={this.onEmailChange} value={this.state.email} type="text" className="fc-input"/>
-        </FormField>
-        <FormField className="fc-login__password" label={this.passwordLabel}>
-          <input onChange={this.onPasswordChange} value={this.state.password} type="password" className="fc-input"/>
-        </FormField>
-        <PrimaryButton
-          className="fc-login__signin-btn"
-          type="submit"
-          isLoading={this.props.user.isFetching}>
-          Sign In
-        </PrimaryButton>
-        <div className="fc-login__copyright">© 2016 FoxCommerce. All rights reserved. Privacy Policy. Terms of Use.</div>
-      </Form>
+      <div className="fc-login">
+        <Form className="fc-grid fc-login fc-form-vertical">
+          <img className="fc-login__logo" src="/images/fc-logo-v.svg"/>
+          <div className="fc-login__title">Sign In</div>
+          <Button className="fc-login__google-btn" icon="google" onClick={this.onGoogleSignIn}>Sign In with Google</Button>
+        </Form>
+        <Form className="fc-grid fc-login fc-login__email-password fc-form-vertical" onSubmit={this.submitLogin}>
+          <div className="fc-login__or">or</div>
+          <div className="fc-login__or-cont"></div>
+          {this.errorMessage}
+          <FormField className="fc-login__email" label="Email">
+            <input onChange={this.onEmailChange} value={this.state.email} type="text" className="fc-input"/>
+          </FormField>
+          <FormField className="fc-login__password" label={this.passwordLabel}>
+            <input onChange={this.onPasswordChange} value={this.state.password} type="password" className="fc-input"/>
+          </FormField>
+          <PrimaryButton
+            className="fc-login__signin-btn"
+            type="submit"
+            isLoading={this.props.user.isFetching}>
+            Sign In
+          </PrimaryButton>
+          <div className="fc-login__copyright">© 2016 FoxCommerce. All rights reserved. Privacy Policy. Terms of Use.</div>
+        </Form>
+      </div>
     );
   }
 }
