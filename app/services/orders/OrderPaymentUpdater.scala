@@ -1,5 +1,6 @@
 package services.orders
 
+import cats.implicits._
 import models.order._
 import models.traits.Originator
 import OrderPayments.scope._
@@ -28,21 +29,27 @@ object OrderPaymentUpdater {
 
   def addGiftCard(originator: Originator, payload: GiftCardPayment, refNum: Option[String] = None)
     (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = (for {
-    order ← * <~ getCartByOriginator(originator, refNum)
-    _     ← * <~ order.mustBeCart
-    gc    ← * <~ GiftCards.mustFindByCode(payload.code, c ⇒ NotFoundFailure400(GiftCard, c))
-    _     ← * <~ gc.mustNotBeCart
-    _     ← * <~ gc.mustBeActive
-    _     ← * <~ GiftCardAdjustments.lastAuthByGiftCardId(gc.id).one.mustNotFindOr(OpenTransactionsFailure)
-    _     ← * <~ OrderPayments.giftCards.filter(_.paymentMethodId === gc.id)
+    order  ← * <~ getCartByOriginator(originator, refNum)
+    _      ← * <~ order.mustBeCart
+    gc     ← * <~ GiftCards.mustFindByCode(payload.code, c ⇒ NotFoundFailure400(GiftCard, c))
+    _      ← * <~ gc.mustNotBeCart
+    _      ← * <~ gc.mustBeActive
+    _      ← * <~ GiftCardAdjustments.lastAuthByGiftCardId(gc.id).one.mustNotFindOr(OpenTransactionsFailure)
+    _      ← * <~ OrderPayments.giftCards.filter(_.paymentMethodId === gc.id)
                                         .filter(_.orderId === order.id)
                                         .one.mustNotFindOr(GiftCardPaymentAlreadyAdded(order.refNum, payload.code))
-    _     ← * <~ gc.mustHaveEnoughBalance(payload.amount)
-    _     ← * <~ OrderPayments.create(OrderPayment.build(gc).copy(orderId = order.id, amount = Some(payload.amount)))
-    resp  ← * <~ refreshAndFullOrder(order).toXor
-    valid ← * <~ CartValidator(order).validate()
-    _     ← * <~ LogActivity.orderPaymentMethodAddedGc(originator, resp, gc, payload.amount)
+    amount = selectGiftCardAmount(payload, gc)
+    _      ← * <~ gc.mustHaveEnoughBalance(amount)
+    _      ← * <~ OrderPayments.create(OrderPayment.build(gc).copy(orderId = order.id, amount = amount.some))
+    resp   ← * <~ refreshAndFullOrder(order).toXor
+    valid  ← * <~ CartValidator(order).validate()
+    _      ← * <~ LogActivity.orderPaymentMethodAddedGc(originator, resp, gc, amount)
   } yield TheResponse.build(resp, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
+
+  private def selectGiftCardAmount(payload: GiftCardPayment, gc: GiftCard): Int = payload.amount match {
+    case Some(amount) ⇒ amount
+    case _            ⇒ gc.availableBalance
+  }
 
   def addStoreCredit(originator: Originator, payload: StoreCreditPayment, refNum: Option[String] = None)
     (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = {
