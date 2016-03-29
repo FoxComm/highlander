@@ -140,7 +140,11 @@ server {
   # Proxy to firebird
   location / {
       root {{firebird_root_dir}};
-      proxy_pass http://firebird/;
+      try_files $uri @firebird;
+  }
+
+  location @firebird {
+      proxy_pass http://firebird;
   }
 
   # Error pages
