@@ -32,14 +32,15 @@ class StorefrontAccessSimulation extends Simulation {
         .set("intruderEmail", Utils.randomEmail("intruder"))
         .set("intruderPassword", Utils.randomString())
     })
-    // Login + registration
+    // Intruder Login + registration
+    .exec(IntruderActivity.register())
+    .exitHereIfFailed
+    .exec(AuthEndpoint.loginAsIntruder())
+    .exec(IntruderActivity.Cart.touch())
+    .exitHereIfFailed
+    //Customer Login and Account Info
     .exec(AuthEndpoint.loginAsCustomer())
     .exitHereIfFailed
-    .exec(IntruderActivity.register())
-    .exec(AuthEndpoint.loginAsIntruder())
-    .exitHereIfFailed
-    // Touch
-    .exec(IntruderActivity.Cart.touch())
     .exec(AccountEndpoint.get())
     .exitHereIfFailed
     // Customer Address Activity
