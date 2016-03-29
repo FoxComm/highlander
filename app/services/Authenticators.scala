@@ -48,12 +48,14 @@ object Authenticator {
   type TokenToModel[M] = Token ⇒ Failures Xor DBIO[Option[M]]
 
   trait AsyncAuthenticator[M] {
-
-    def readCredentials(): Directive1[Option[HttpCredentials]]
-    def checkAuth(creds: Option[HttpCredentials]): Future[AuthenticationResult[M]]
+    type C
+    def readCredentials(): Directive1[Option[C]]
+    def checkAuth(creds: Option[C]): Future[AuthenticationResult[M]]
   }
 
   trait BasicAuth[M] extends AsyncAuthenticator[M] {
+
+    type C = HttpCredentials
 
     val authHeader: String = "Authorization"
 
@@ -91,16 +93,18 @@ object Authenticator {
 
   trait JwtAuth[M] extends AsyncAuthenticator[M] {
 
+    type C = String
+
     val authHeader: String = "JWT"
 
-    def readCredentials(): Directive1[Option[HttpCredentials]] = {
+    def readCredentials(): Directive1[Option[String]] = {
       readCookieOrHeader(headerName = authHeader)
     }
 
     protected def jwtAuth[F <: TokenToModel[M]](realm: String)
-      (credentials: Option[HttpCredentials], userFromToken: F)
+      (credentials: Option[String], userFromToken: F)
       (implicit ec: EC, db: DB): Future[AuthenticationResult[M]] = (for {
-      jwtCredentials ← * <~ Credentials.mustVerifyJWTCredentials(credentials, AuthFailed("missed credentials").single)
+      jwtCredentials ← * <~ credentials.toXor(AuthFailed("missed credentials").single)
       token          ← * <~ validateTokenCredentials(jwtCredentials)
       userDbio       ← * <~ userFromToken(token)
       user           ← * <~ userDbio.mustFindOr(LoginFailed)
@@ -113,13 +117,13 @@ object Authenticator {
   }
 
   final case class jwtCustomer(implicit ec: EC, db: DB) extends JwtAuth[Customer] {
-    def checkAuth(credentials: Option[HttpCredentials]): Future[AuthenticationResult[Customer]] = {
+    def checkAuth(credentials: Option[String]): Future[AuthenticationResult[Customer]] = {
       jwtAuth[TokenToModel[Customer]]("private customer routes")(credentials, customerFromToken)
     }
   }
 
   final case class jwtStoreAdmin(implicit ec: EC, db: DB) extends JwtAuth[StoreAdmin] {
-    def checkAuth(credentials: Option[HttpCredentials]): Future[AuthenticationResult[StoreAdmin]] = {
+    def checkAuth(credentials: Option[String]): Future[AuthenticationResult[StoreAdmin]] = {
       jwtAuth[TokenToModel[StoreAdmin]]("admin")(credentials, adminFromToken)
     }
   }
@@ -140,21 +144,15 @@ object Authenticator {
     }
   }
 
-  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.AsInstanceOf"))
-  private def readCookie(): Directive1[Option[HttpCredentials]] = {
-    optionalCookie("JWT").map(_.map { cookie ⇒
-      GenericHttpCredentials(scheme = cookie.value, params = Map.empty)
-    }).map(_.map { x ⇒ x.asInstanceOf[HttpCredentials] })
+  private def readCookie(): Directive1[Option[String]] = {
+    optionalCookie("JWT").map(_.map(_.value))
   }
 
-  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.AsInstanceOf"))
-  private def readHeader(name: String): Directive1[Option[HttpCredentials]] = {
-    optionalHeaderValueByName(name).map(_.map { header ⇒
-      GenericHttpCredentials(scheme = header, params = Map.empty)
-    }).map(_.map  { x ⇒ x.asInstanceOf[HttpCredentials] })
+  private def readHeader(name: String): Directive1[Option[String]] = {
+    optionalHeaderValueByName(name)
   }
 
-  private def readCookieOrHeader(headerName: String): Directive1[Option[HttpCredentials]] = {
+  private def readCookieOrHeader(headerName: String): Directive1[Option[String]] = {
     readCookie().flatMap(_.fold(readHeader(headerName))(v ⇒ provide(Some(v))))
   }
 
@@ -232,8 +230,8 @@ object Authenticator {
       Xor.left(LoginFailed.single)
   }
 
-  private def validateTokenCredentials(token: JWTCredentials): Failures Xor Token = {
-    Token.fromString(token.secret)
+  private def validateTokenCredentials(token: String): Failures Xor Token = {
+    Token.fromString(token)
   }
 
   private def adminFromToken(token: Token): Failures Xor DBIO[Option[StoreAdmin]] = {
