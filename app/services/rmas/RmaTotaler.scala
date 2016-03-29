@@ -8,7 +8,7 @@ import utils.aliases._
 
 object RmaTotaler {
   def subTotal(rma: Rma)(implicit ec: EC): DBIO[Option[Int]] =
-    sql"""select count(*), sum(coalesce(gc.original_balance, 0)) + sum(coalesce(cast(sku_form.attributes->(sku_shadow.attributes->'price'->>'ref')->>'value' as integer), 0)) as sum
+    sql"""select count(*), sum(coalesce(gc.original_balance, 0)) + sum(coalesce(cast(sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value' as integer), 0)) as sum
        |	from rma_line_items rli
        |	left outer join rma_line_item_skus sli on (sli.id = rli.id)
        |	left outer join skus sku on (skus.id = sli.sku_id)

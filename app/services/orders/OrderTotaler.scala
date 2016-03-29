@@ -27,7 +27,7 @@ object OrderTotaler {
   }
 
   def subTotal(order: Order)(implicit ec: EC): DBIO[Int] =
-    sql"""select count(*), sum(coalesce(gc.original_balance, 0)) + sum(coalesce(cast(sku_form.attributes->(sku_shadow.attributes->'price'->>'ref')->>'value' as integer), 0)) as sum
+    sql"""select count(*), sum(coalesce(gc.original_balance, 0)) + sum(coalesce(cast(sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value' as integer), 0)) as sum
          |	from order_line_items oli
          |	left outer join order_line_item_skus sli on (sli.id = oli.origin_id)
          |	left outer join skus sku on (sku.id = sli.sku_id)
