@@ -136,7 +136,7 @@ For customer part:
 ```
 export GOOGLE_OAUTH_CUSTOMER_CLIENT_ID=$GOOGLE_OAUTH_ADMIN_CLIENT_ID
 export GOOGLE_OAUTH_CUSTOMER_CLIENT_SECRET=$GOOGLE_OAUTH_ADMIN_CLIENT_SECRET
-export GOOGLE_OAUTH_CUSTOMER_REDIRECT_URI=$GOOGLE_OAUTH_ADMIN_REDIRECT_URI
+export GOOGLE_OAUTH_CUSTOMER_REDIRECT_URI=http://localhost:1080/api/v1/public/oauth2callback/google/customer
 ```
 
-That keys works only for localhost
+These keys works only for `localhost` domain and ports `4000`, `1080`
