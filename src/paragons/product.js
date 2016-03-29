@@ -173,13 +173,27 @@ export function addEmptySku(product: FullProduct): FullProduct {
 
   const emptySkuForm: SkuForm = {
     code: pseudoRandomCode,
-    attributes: {},
+    attributes: {
+      title: "", 
+      retailPrice: {
+        value: 0,
+        currency: "USD"
+      },
+      salePrice: {
+        value: 0,
+        currency: "USD"
+      }
+    },
     createdAt: null,
   };
 
   const emptySkuShadow: SkuShadow = {
     code: pseudoRandomCode,
-    attributes: {},
+    attributes: {
+      title: {type: "string", ref: "title"},
+      retailPrice: {type: "price", ref: "retailPrice"},
+      salePrice: {type: "price", ref: "salePrice"}
+    },
     createdAt: null,
   };
 
@@ -188,11 +202,11 @@ export function addEmptySku(product: FullProduct): FullProduct {
 
   return assoc(product,
     ['form', 'product', 'attributes', variantKey], pseudoRandomCode,
-    ['shadow', 'product', 'attributs', 'variants'], {type: "variants", ref:variantKey},
+    ['shadow', 'product', 'attributes', 'variants'], {type: "variants", ref:variantKey},
     ['form', 'product', 'attributes', skusKey] , pseudoRandomCode, {},
     ['shadow', 'product', 'attributes', 'skus'], {type: "skus", ref: skusKey},
-    ['form', 'skus'], [...product.form.skus, emptySkuForm],
-    ['shadow', 'skus'], [...product.shadow.skus, emptySkuShadow]
+    ['form', 'skus'], product.form.skus.push(emptySkuForm),
+    ['shadow', 'skus'], product.shadow.skus.push(emptySkuShadow)
   );
 }
 
@@ -293,13 +307,14 @@ export function setProductAttribute(product: FullProduct,
   }
 
   const shadowPath = ['shadow', 'product', 'attributes', label];
-  const shadow = _.get(product, shadowPath);
-  const path = ['form', 'product', 'attributes', shadow.ref];
-  const attribute = _.get(product, path);
 
-  if (!attribute) {
+  const shadow = _.get(product, shadowPath);
+  if (!shadow) {
     throw new Error(`Attribute=${label} for product id=${product.id} not found.`);
   }
+
+  const path = ['form', 'product', 'attributes', shadow.ref];
+
 
   switch (shadow.type) {
     case 'price':
@@ -335,13 +350,14 @@ export function setSkuAttribute(product: FullProduct,
   const formIndex = getSkuFormIndex(code, product);
   const form = product.form.skus[formIndex];
   const shadowPath = ['attributes', label];
-  const shadowAttr = _.get(shadow, shadowPath);
-  const path = ['attributes', shadowAttr.ref];
-  const attribute = _.get(form, path);
 
-  if (!attribute) {
+  const shadowAttr = _.get(shadow, shadowPath);
+  if (!shadowAttr) {
     throw new Error(`Attribute ${label} for SKU ${code} not found.`);
   }
+
+  const path = ['attributes', shadowAttr.ref];
+
 
   let updatedSku = null;
 
