@@ -13,7 +13,7 @@ const getPublicKey = _.memoize(() => {
 
 export default function *verifyJwt(next) {
   const jwt = this.cookies.get('JWT');
-  const publicKey = getPublicKey(); // eslint-disable-line no-unused-vars
+  const publicKey = getPublicKey();
 
   let decodedToken;
 
