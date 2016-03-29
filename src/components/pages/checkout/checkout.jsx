@@ -55,8 +55,11 @@ class Checkout extends Component {
   props: CheckoutProps;
 
   componentWillMount() {
-    this.props.hideCart();
     this.props.fetchCart();
+  }
+
+  componentDidMount() {
+    this.props.hideCart();
   }
 
   @autobind
