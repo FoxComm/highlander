@@ -5,6 +5,8 @@ import type { HTMLElement } from 'types';
 import styles from './list-item.css';
 import { browserHistory } from 'react-router';
 
+import Currency from 'ui/currency';
+
 type Product = {
   id: number;
   name: string;
@@ -26,7 +28,7 @@ const ListItem = (props: Product): HTMLElement => {
         {name}
       </div>
       <div styleName="price">
-        {price}
+        <Currency value={price} />
       </div>
     </div>
   );
