@@ -50,7 +50,7 @@ class Cart extends Component {
                 SUBTOTAL
               </div>
               <div styleName="subtotal-price">
-                <Currency value={this.props.subTotal} />
+                <Currency value={this.props.totals.subTotal} />
               </div>
             </div>
           </div>

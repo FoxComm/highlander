@@ -72,6 +72,7 @@
 }
 
 .add-to-cart {
+  composes: button from "ui/css/buttons.css";
   margin-top: 20px;
   width: 240px;
   height: 60px;
