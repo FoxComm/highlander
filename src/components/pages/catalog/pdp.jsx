@@ -1,6 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
+import classNames from 'classnames';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
@@ -113,6 +114,10 @@ class Pdp extends Component {
     const currency = _.get(product, ['skus', 0, 'attributes', 'salePrice', 'v', 'currency'], 'USD');
     const imageUrls = _.get(product, ['product', 'attributes', 'images', 'v'], []);
 
+    const clsBtnAddToCart = classNames({
+      'add-to-cart': !isCartLoading,
+      'add-to-cart-loading': isCartLoading,
+    });
 
     return (
       <div styleName="container">
@@ -148,7 +153,7 @@ class Pdp extends Component {
                 />
               </div>
             </div>
-            <Button styleName="add-to-cart" loading={isCartLoading} onClick={this.addToCart}>ADD TO CART</Button>
+            <Button styleName={clsBtnAddToCart} loading={isCartLoading} onClick={this.addToCart}>ADD TO CART</Button>
           </div>
         </div>
       </div>
