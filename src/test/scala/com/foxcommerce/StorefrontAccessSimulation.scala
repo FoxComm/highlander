@@ -5,6 +5,7 @@ import com.foxcommerce.endpoints.AuthEndpoint
 import com.foxcommerce.endpoints.storefront._
 import com.foxcommerce.fixtures._
 import io.gatling.core.Predef._
+import io.gatling.http.Predef._
 
 class StorefrontAccessSimulation extends Simulation {
 
@@ -36,10 +37,12 @@ class StorefrontAccessSimulation extends Simulation {
     .exec(IntruderActivity.register())
     .exitHereIfFailed
     .exec(AuthEndpoint.loginAsIntruder())
+    .exec(flushCookieJar)
     .exec(IntruderActivity.Cart.touch())
     .exitHereIfFailed
     //Customer Login and Account Info
     .exec(AuthEndpoint.loginAsCustomer())
+    .exec(flushCookieJar)
     .exitHereIfFailed
     .exec(AccountEndpoint.get())
     .exitHereIfFailed
