@@ -22,7 +22,7 @@ const getBody = ({component, query, items, onSelect, notFound}) => {
   }
 
   return items.map((item, index) => (
-    <li className={prefixed('item')} onMouseDown={() => onSelect(item)} key={index}>
+    <li className={prefixed('item')} onMouseDown={() => onSelect(item)} key={`lookup-${index}`}>
       {React.createElement(component, {
         query,
         model: item
