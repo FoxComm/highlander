@@ -14,6 +14,15 @@ Environment=PHOENIX_PRIVATE_KEY={{ private_keys_dest_dir }}/private_key.der
 Environment=PHOENIX_COOKIE_SECURE=off
 Environment=PHOENIX_AUTH_METHOD=jwt
 
+Environment=GOOGLE_OAUTH_ADMIN_CLIENT_ID={{ google_oauth_admin_client_id }}
+Environment=GOOGLE_OAUTH_ADMIN_CLIENT_SECRET={{ google_oauth_admin_secret }}
+Environment=GOOGLE_OAUTH_ADMIN_REDIRECT_URI={{ google_oauth_admin_redirect_uri }}
+Environment=GOOGLE_OAUTH_ADMIN_HOSTED_DOMAIN={{ google_oauth_admin_hosted_domain }}
+
+Environment=GOOGLE_OAUTH_CUSTOMER_CLIENT_ID={{ google_oauth_frontend_client_id }}
+Environment=GOOGLE_OAUTH_CUSTOMER_CLIENT_SECRET={{ google_oauth_frontend_secret }}
+Environment=GOOGLE_OAUTH_CUSTOMER_REDIRECT_URI={{ google_oauth_frontend_redirect_uri }}
+
 [Install]
 WantedBy=multi-user.target
 
