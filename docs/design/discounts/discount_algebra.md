@@ -86,9 +86,15 @@ need to define some kind of factory method:
 
 ```scala
 object QualifierFactory {
-  def factory(qualifierType: String, attributes: Json): Qualifier = {
+  def factory(qualifierType: String, attributes: String): Xor[Failure, Qualifier] = {
+    val json = parse(attributes)
+
     qualifierType match {
-      case "any" => parse(attributes).extract[OrderAnyQualifier]
+      // Handle extraction failure somehow...
+      case "orderAny" => Xor.Right(json.extract[OrderAnyQualifier])
+      case "itemsAny" => Xor.Right(json.extract[ItemsAnyQualifier])
+      // ...
+      case _          => Xor.Left(UnknownQualifierFailure(...))
     }
   }
 }
