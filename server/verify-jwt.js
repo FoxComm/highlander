@@ -19,14 +19,11 @@ export default function *verifyJwt(next) {
 
   if (jwt) {
     try {
-      decodedToken = jsonwebtoken.decode(jwt);
-      /*
       decodedToken = jsonwebtoken.verify(jwt, publicKey, {
         issuer: 'FC',
-        subject: 'site',
+        subject: 'API',
         algorithms: ['RS256', 'RS384', 'RS512'],
       });
-      */
     } catch (err) {
       console.error("Can't decode token: ", err);
     }
