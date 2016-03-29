@@ -48,7 +48,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
         val payments = giftCardPayments(order)
         payments must have size 1
-        payments.head.amount must === (Some(payload.amount))
+        payments.head.amount must === (payload.amount)
       }
 
       "fails when adding same gift card twice" in new GiftCardFixture {
