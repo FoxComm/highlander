@@ -11,7 +11,8 @@ import { Form } from 'ui/forms';
 import Currency from 'ui/currency';
 
 import type { CheckoutBlockProps } from './types';
-import * as checkoutActions from 'modules/checkout';
+import * as cartActions from 'modules/cart';
+import { fetchShippingMethods } from 'modules/checkout';
 
 const shippingMethodCost = cost => {
   return cost == 0
@@ -20,7 +21,7 @@ const shippingMethodCost = cost => {
 };
 
 let ViewDelivery = (props) => {
-  const { selectedShippingMethod: shippingMethod } = props;
+  const { shippingMethod } = props;
 
   if (!shippingMethod) return <div></div>;
 
@@ -31,10 +32,17 @@ let ViewDelivery = (props) => {
     </div>
   );
 };
-ViewDelivery = connect(state => state.checkout)(ViewDelivery);
+ViewDelivery = connect(state => state.cart)(ViewDelivery);
+
+function mapStateToProps(state) {
+  return {
+    shippingMethods: state.checkout.shippingMethods,
+    selectedShippingMethod: state.cart.shippingMethod,
+  };
+}
 
 /* ::`*/
-@connect(state => state.checkout, checkoutActions)
+@connect(mapStateToProps, {...cartActions, fetchShippingMethods})
 /* ::`*/
 class EditDelivery extends Component {
 
