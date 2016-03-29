@@ -160,10 +160,6 @@ export default class ProductForm extends Component<void, Props, State> {
   }
 
   renderAttribute(attribute: IlluminatedAttribute): Element {
-    if (!attribute) {
-      console.log('wtf');
-      return <div></div>;
-    }
     const { label, type, value } = attribute;
     const formattedLbl = _.snakeCase(label).split('_').reduce((res, val) => {
       return `${res} ${_.capitalize(val)}`;

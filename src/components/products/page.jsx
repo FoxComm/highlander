@@ -31,7 +31,10 @@ import type { FullProduct } from '../../modules/products/details';
 
 type Props = {
   actions: {
+    createProduct: (product: FullProduct) => void,
     fetchProduct: (productId: string) => void,
+    productNew: () => void,
+    updateProduct: (product: FullProduct) => void,
   },
   children: any,
   params: { productId: string },
@@ -54,7 +57,10 @@ type State = {
 export class ProductPage extends Component<void, Props, State> {
   static propTypes = {
     actions: PropTypes.shape({
+      createProduct: PropTypes.func.isRequired,
       fetchProduct: PropTypes.func.isRequired,
+      productNew: PropTypes.func.isRequired,
+      updateProduct: PropTypes.func.isRequired,
     }).isRequired,
 
     children: PropTypes.node,
@@ -79,10 +85,10 @@ export class ProductPage extends Component<void, Props, State> {
   }
 
   componentDidMount() {
-    if (!this.isNew) {
-      this.props.actions.fetchProduct(this.props.params.productId);
-    } else {
+    if (this.isNew) {
       this.props.actions.productNew();
+    } if (!this.props.params.product) {
+      this.props.actions.fetchProduct(this.props.params.productId);
     }
   }
 
@@ -129,10 +135,12 @@ export class ProductPage extends Component<void, Props, State> {
 
   @autobind
   handleSubmit() {
-    if (this.isNew) {
-      this.props.actions.createProduct(this.state.product);
-    } else {
-      this.props.actions.updateProduct(this.state.product);
+    if (this.state.product) {
+      if (this.isNew) {
+        this.props.actions.createProduct(this.state.product);
+      } else {
+        this.props.actions.updateProduct(this.state.product);
+      }
     }
   }
 

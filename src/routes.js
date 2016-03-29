@@ -46,6 +46,7 @@ import NewProduct from './components/products/new-product';
 import Promotions from './components/promotions/promotions';
 import ProductPage from './components/products/page';
 import ProductForm from './components/products/product-form';
+import ProductImages from './components/products/images';
 
 import StyleGuide from './components/style-guide/style-guide';
 import StyleGuideGrid from './components/style-guide/style-guide-grid';
@@ -128,6 +129,7 @@ const routes = (
       </Route>
       <Route name='product' path=':productId' component={ProductPage}>
         <IndexRoute name='product-details' component={ProductForm} />
+        <Route name='product-images' title='Product Images' path='images' component={ProductImages} />
       </Route>
     </Route>
     <Route name='gift-cards-base' path='gift-cards'>
