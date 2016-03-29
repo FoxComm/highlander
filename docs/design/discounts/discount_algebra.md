@@ -26,7 +26,7 @@ Qualifier checks if order or item is applicable to it's promotion.
 trait Qualifier {
   // TBD - Define base methods
   val promotionType: PromotionType
-  val qualifierType: QualifierType
+  val qualifierType: String // FIXME
 }
 ```
 
@@ -38,16 +38,15 @@ case object SharedSearch extends QualifierReferenceType
 case object Product extends QualifierReferenceType
 case object Sku extends QualifierReferenceType
 
-sealed trait QualifierType
-case object OrderAnyQualifier extends QualifierType // MVP
-case class OrderTotalAmountQualifier(totalAmount: Int) extends QualifierType // MVP
-case class OrderNumUnitsQualifier(numUnits: Int) extends QualifierType
+case object OrderAnyQualifier extends Qualifier // MVP
+case class OrderTotalAmountQualifier(totalAmount: Int) extends Qualifier // MVP
+case class OrderNumUnitsQualifier(numUnits: Int) extends Qualifier
 case class ItemsAnyQualifier(referenceId: Int,
-  referenceType: QualifierReferenceType) extends QualifierType // MVP
+  referenceType: QualifierReferenceType) extends Qualifier // MVP
 case class ItemsTotalAmount(totalAmount: Int, referenceId: Int,
-  referenceType: QualifierReferenceType) extends QualifierType
+  referenceType: QualifierReferenceType) extends Qualifier
 case class ItemsNumUnits(numUnits: Int, referenceId: Int,
-  referenceType: QualifierReferenceType) extends QualifierType
+  referenceType: QualifierReferenceType) extends Qualifier
 ```
 
 ## Offers
@@ -63,19 +62,20 @@ trait Offer {
 ### Offer types
 
 ```scala
-sealed trait OfferType
-case class OrderTotalPercentOff(discount: Int) extends OfferType // MVP
-case class OrderTotalAmountOff(amount: Int) extends OfferType
+case class OrderTotalPercentOff(discount: Int) extends Offer // MVP
+case class OrderTotalAmountOff(amount: Int) extends Offer
+
 case class ItemsSinglePercentOff(discount: Int, referenceId: Int,
-  referenceType: QualifierReferenceType) extends OfferType
+  referenceType: QualifierReferenceType) extends Offer
 case class ItemsSingleAmountOff(amount: Int, referenceId: Int,
-  referenceType: QualifierReferenceType) extends OfferType
+  referenceType: QualifierReferenceType) extends Offer
 case class ItemsSelectPercentOff(discount: Int, referenceId: Int,
-  referenceType: QualifierReferenceType) extends OfferType // MVP
+  referenceType: QualifierReferenceType) extends Offer // MVP
 case class ItemsSelectAmountOff(amount: Int, referenceId: Int,
-  referenceType: QualifierReferenceType) extends OfferType
-case object FreeShipping extends OfferType // MVP
-case class DiscountedShippping(fixedPrice: Int) extends OfferType  
+  referenceType: QualifierReferenceType) extends Offer
+
+case object FreeShipping extends Offer // MVP
+case class DiscountedShippping(fixedPrice: Int) extends Offer  
 ```
 
 ## Factories
@@ -85,9 +85,9 @@ need to define some kind of factory method:
 
 ```scala
 object QualifierFactory {
-  def factory(qualifierType: QualifierType, attributes: Json): Qualifier = {
+  def factory(qualifierType: String, attributes: Json): Qualifier = {
     qualifierType match {
-      case OrderAnyQualifier => parse(attributes).extract[OrderAnyQualifier]
+      case "any" => parse(attributes).extract[OrderAnyQualifier]
     }
   }
 }
