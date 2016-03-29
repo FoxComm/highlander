@@ -2,7 +2,12 @@ phoenix_server: 127.0.0.1:9090
 ashes_server: "{{hostvars[groups['demo2-ashes'][0]]['ansible_eth0']['ipv4']['address'] }}"
 seeds_cmd: utils.seeds.Seeds demo 5
 es_heap_size: 5g
-google_oauth_client_id: 953682058057-o21m80u2d7raoq71fetp8u21k8306a7p.apps.googleusercontent.com
-google_oauth_secret: iOyw2XYv_UBfr3npQCobfuq_
-google_oauth_hosted_domain: foxcommerce.com
-google_oauth_redirect_uri: http://localhost:1080/api/v1/public/oauth2callback/google/admin
+
+google_oauth_admin_client_id: 953682058057-o21m80u2d7raoq71fetp8u21k8306a7p.apps.googleusercontent.com
+google_oauth_admin_secret: iOyw2XYv_UBfr3npQCobfuq_
+google_oauth_admin_hosted_domain: foxcommerce.com
+google_oauth_admin_redirect_uri: http://localhost:1080/api/v1/public/oauth2callback/google/admin
+
+google_oauth_frontend_client_id: 953682058057-o21m80u2d7raoq71fetp8u21k8306a7p.apps.googleusercontent.com
+google_oauth_frontend_secret: iOyw2XYv_UBfr3npQCobfuq_
+google_oauth_frontend_redirect_uri: http://localhost:1080/api/v1/public/oauth2callback/google/customer
