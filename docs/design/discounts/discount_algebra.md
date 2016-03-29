@@ -26,7 +26,7 @@ Qualifier checks if order or item is applicable to it's promotion.
 trait Qualifier {
   // TBD - Define base methods
   val promotionType: PromotionType
-  val qualifierType: String // FIXME
+  val qualifierType: String // FIXME with ADTs
 }
 ```
 
@@ -63,20 +63,20 @@ trait Offer {
 ### Offer types
 
 ```scala
-case class OrderTotalPercentOff(discount: Int) extends Offer // MVP
-case class OrderTotalAmountOff(amount: Int) extends Offer
+case class OrderPercentOffOffer(discount: Int) extends Offer // MVP
+case class OrderAmountOffOffer(amount: Int) extends Offer
 
-case class ItemsSinglePercentOff(discount: Int, referenceId: Int,
+case class ItemsSinglePercentOffOffer(discount: Int, referenceId: Int,
   referenceType: QualifierReferenceType) extends Offer
-case class ItemsSingleAmountOff(amount: Int, referenceId: Int,
+case class ItemsSingleAmountOffOffer(amount: Int, referenceId: Int,
   referenceType: QualifierReferenceType) extends Offer
-case class ItemsSelectPercentOff(discount: Int, referenceId: Int,
+case class ItemsSelectPercentOffOffer(discount: Int, referenceId: Int,
   referenceType: QualifierReferenceType) extends Offer // MVP
-case class ItemsSelectAmountOff(amount: Int, referenceId: Int,
+case class ItemsSelectAmountOffOffer(amount: Int, referenceId: Int,
   referenceType: QualifierReferenceType) extends Offer
 
-case object FreeShipping extends Offer // MVP
-case class DiscountedShippping(fixedPrice: Int) extends Offer  
+case object FreeShippingOffer extends Offer // MVP
+case class DiscountedShipppingOffer(fixedPrice: Int) extends Offer  
 ```
 
 ## Factories
@@ -98,3 +98,4 @@ object QualifierFactory {
     }
   }
 }
+```
