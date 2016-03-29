@@ -41,6 +41,7 @@ case object Sku extends QualifierReferenceType
 case object OrderAnyQualifier extends Qualifier // MVP
 case class OrderTotalAmountQualifier(totalAmount: Int) extends Qualifier // MVP
 case class OrderNumUnitsQualifier(numUnits: Int) extends Qualifier
+
 case class ItemsAnyQualifier(referenceId: Int,
   referenceType: QualifierReferenceType) extends Qualifier // MVP
 case class ItemsTotalAmount(totalAmount: Int, referenceId: Int,
