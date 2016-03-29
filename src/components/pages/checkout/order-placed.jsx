@@ -6,10 +6,10 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
 import Button from 'ui/buttons';
-import { resetCart } from 'modules/cart';
+import { fetch as fetchCart } from 'modules/cart';
 import { resetCheckout } from 'modules/checkout';
 
-@connect(state => state.cart, {resetCart, resetCheckout})
+@connect(state => state.cart, {fetchCart, resetCheckout})
 class OrderPlaced extends Component {
   @autobind
   toHome() {
@@ -17,7 +17,7 @@ class OrderPlaced extends Component {
   }
 
   componentWillUnmount() {
-    this.props.resetCart();
+    this.props.fetchCart();
     this.props.resetCheckout();
   }
 
