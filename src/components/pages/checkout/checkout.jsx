@@ -9,6 +9,7 @@ import React, { Component } from 'react';
 import styles from './checkout.css';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+import { browserHistory } from 'react-router';
 
 import Icon from 'ui/icon';
 import Shipping from './shipping';
@@ -22,13 +23,16 @@ import type { Promise as PromiseType } from 'types/promise';
 import * as actions from 'modules/checkout';
 import { EditStages } from 'modules/checkout';
 import type { CheckoutState, EditStage } from 'modules/checkout';
-import { fetch as fetchCart } from 'modules/cart';
+import { fetch as fetchCart, hideCart } from 'modules/cart';
 
 type CheckoutProps = CheckoutState & {
   setEditStage: (stage: EditStage) => Object;
   saveShippingAddress: () => PromiseType;
   saveShippingMethod: () => PromiseType;
   fetchCart: () => PromiseType;
+  addCreditCard: () => PromiseType;
+  checkout: () => PromiseType;
+  hideCart: () => PromiseType;
 }
 
 function isDeliveryDurty(state) {
@@ -51,6 +55,7 @@ class Checkout extends Component {
   props: CheckoutProps;
 
   componentWillMount() {
+    this.props.hideCart();
     this.props.fetchCart();
   }
 
@@ -75,7 +80,13 @@ class Checkout extends Component {
 
   @autobind
   placeOrder() {
-    console.info('TODO: place order');
+    this.props.addCreditCard()
+      .then(() => {
+        return this.props.checkout();
+      })
+      .then(() => {
+        browserHistory.push('/checkout/done');
+      });
   }
 
   render() {
@@ -117,4 +128,4 @@ class Checkout extends Component {
   }
 }
 
-export default connect(mapStateToProps, {...actions, fetchCart})(Checkout);
+export default connect(mapStateToProps, {...actions, fetchCart, hideCart})(Checkout);

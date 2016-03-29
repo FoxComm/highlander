@@ -31,8 +31,10 @@ let ViewBilling = (props) => {
   const paymentType = detectCardType(billingData.cardNumber);
 
   const lastFour = billingData.cardNumber && billingData.cardNumber.slice(-4);
-  const lastTwoYear = billingData.year && billingData.year.slice(-2);
-  const monthYear = billingData.month || billingData.year ? <span>{billingData.month}/{lastTwoYear}</span> : null;
+  const lastTwoYear = billingData.expYear && billingData.expYear.slice(-2);
+  const monthYear = billingData.expMonth || billingData.expYear
+    ? <span>{billingData.expMonth}/{lastTwoYear}</span>
+    : null;
   const addressInfo = !_.isEmpty(props.billingAddress)
     ? <ViewAddress styleName="billing-address" {...props.billingAddress}/>
     : null;
@@ -68,7 +70,7 @@ class EditBilling extends Component {
 
   @autobind
   handleSubmit() {
-
+    this.props.continueAction();
   }
 
   @autobind
@@ -91,12 +93,12 @@ class EditBilling extends Component {
 
   @autobind
   changeMonth(month) {
-    this.props.setBillingData('month', month);
+    this.props.setBillingData('expMonth', month);
   }
 
   @autobind
   changeYear(year) {
-    this.props.setBillingData('year', year);
+    this.props.setBillingData('expYear', year);
   }
 
   get billingAddress() {
@@ -144,7 +146,7 @@ class EditBilling extends Component {
       <Form onSubmit={this.handleSubmit} styleName="checkout-form">
         <FormField styleName="text-field">
           <TextInput required
-            name="cardName" placeholder="NAME ON CARD" value={data.cardName} onChange={this.changeFormData}
+            name="holderName" placeholder="NAME ON CARD" value={data.holderName} onChange={this.changeFormData}
           />
         </FormField>
         <div styleName="union-fields">
@@ -174,7 +176,7 @@ class EditBilling extends Component {
           </FormField>
         </div>
         <div styleName="union-fields">
-          <FormField required styleName="text-field" getTargetValue={() => data.month}>
+          <FormField required styleName="text-field" getTargetValue={() => data.expMonth}>
             <Autocomplete
               inputProps={{
                 placeholder: 'MONTH',
@@ -184,10 +186,10 @@ class EditBilling extends Component {
               getItemValue={item => item}
               items={months}
               onSelect={this.changeMonth}
-              selectedItem={data.month}
+              selectedItem={data.expMonth}
             />
           </FormField>
-          <FormField required styleName="text-field" getTargetValue={() => data.year}>
+          <FormField required styleName="text-field" getTargetValue={() => data.expYear}>
             <Autocomplete
               inputProps={{
                 placeholder: 'YEAR',
@@ -197,7 +199,7 @@ class EditBilling extends Component {
               getItemValue={item => item}
               items={years}
               onSelect={this.changeYear}
-              selectedItem={data.year}
+              selectedItem={data.expYear}
             />
           </FormField>
         </div>
