@@ -53,6 +53,11 @@
   width: 100%;
 }
 
+.primary-button-loading {
+  composes: button-loading from "ui/css/buttons.css";
+  width: 100%;
+}
+
 .switch-stage {
   margin-top: 19px;
   font-size: 15px;
