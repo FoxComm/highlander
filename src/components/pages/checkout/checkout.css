@@ -116,11 +116,12 @@
 .gift-card-submit {
   composes: button from "ui/css/buttons.css";
   width: auto;
-  background: #FFFFFF;
+  background: var(--whitish);
   border: 1px solid var(--blackish);
   font-size: 14px;
   color: var(--blackish);
   line-height: 17px;
+  text-transform: uppercase;
 }
 
 @media (--medium-viewport) {

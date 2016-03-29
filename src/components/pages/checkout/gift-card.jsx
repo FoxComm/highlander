@@ -34,7 +34,7 @@ class EditGiftCard extends Component {
       <div styleName="gift-card-content">
         <TextInput styleName="gift-card-code" placeholder="CODE" value={this.state.code} onChange={this.changeCode} />
         <Button styleName="gift-card-submit" onClick={this.onSave}>
-          REDEEM
+          redeem
         </Button>
       </div>
     );
@@ -42,14 +42,13 @@ class EditGiftCard extends Component {
 }
 
 const GiftCard = props => {
-  const saveFun = props.saveGiftCard;
   return (
     <EditableBlock
       styleName="checkout-block"
       title="GIFT CARD"
       isEditing
       collapsed={false}
-      content={<EditGiftCard saveGiftCard={saveFun} />}
+      content={<EditGiftCard saveGiftCard={props.saveGiftCard} />}
     />
   );
 };
