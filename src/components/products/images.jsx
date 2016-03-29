@@ -57,16 +57,16 @@ export default class ProductImages extends Component<void, Props, State> {
     super(props);
 
     const attributes = getProductAttributes(this.props.product);
-    const { images } = attributes;
-    const value = images.value.length > 0 ? images.value : [ null ];
+    const imageValue = _.get(attributes, 'images.value');
+    const value = imageValue || [ null ];
     this.state = { images: value };
   }
 
   componentWillReceiveProps(nextProps: Props) {
     const attributes = getProductAttributes(nextProps.product);
-    const { images } = attributes;
-    const value = images.value.length > 0 ? images.value : [ null ];
-    this.setState({ images: value });
+    const imageValue = _.get(attributes, 'images.value');
+    const value = imageValue || [ null ];
+    this.state = { images: value };
   }
 
 
@@ -83,7 +83,6 @@ export default class ProductImages extends Component<void, Props, State> {
               className="fc-product-details__field-value"
               type="text"
               value={val}
-              onBlur={this.handleBlur}
               onChange={(e) => this.handleUpdateImage(idx, e)} />
           </FormField>
           <i className="icon-close" onClick={() => this.handleRemoveImage(idx)} />
@@ -117,12 +116,12 @@ export default class ProductImages extends Component<void, Props, State> {
 
   @autobind
   handleRemoveImage(idx: number) {
-    this.setState({
-      images: [
-        ...this.state.images.slice(0, idx),
-        ...this.state.images.slice(idx + 1),
-      ],
-    })
+    const images = [
+      ...this.state.images.slice(0, idx),
+      ...this.state.images.slice(idx + 1),
+    ];
+
+    this.props.onSetProperty('images', 'images', images);
   }
 
   @autobind
@@ -133,7 +132,7 @@ export default class ProductImages extends Component<void, Props, State> {
       ...this.state.images.slice(idx + 1),
     ];
 
-    this.setState({ images: newImages });
+    this.props.onSetProperty('images', 'images', newImages);
   }
 
   render(): Element {

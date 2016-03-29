@@ -197,8 +197,8 @@ export function addEmptySku(product: FullProduct): FullProduct {
     createdAt: null,
   };
 
-  const variantKey = _.get('shadow.product.attributes.variants.ref');
-  const skusKey = _.get('shadow.product.attributes.skus.ref');
+  const variantKey = _.get(product, 'shadow.product.attributes.variants.ref');
+  const skusKey = _.get(product, 'shadow.product.attributes.skus.ref');
 
   return assoc(product,
     ['form', 'product', 'attributes', variantKey], pseudoRandomCode,

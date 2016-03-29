@@ -91,7 +91,7 @@ export default class EditableSkuRow extends Component<void, Props, State> {
     const value = target.value;
     this.setState(
       assoc(this.state, ['sku', 'code'], value),
-      () => this.props.updateField(this.code, 'code', value)
+      () => this.props.updateField(this.code, 'code', 'string', value)
     );
   }
 
@@ -99,7 +99,7 @@ export default class EditableSkuRow extends Component<void, Props, State> {
   handleUpdatePrice(field: string, value: string) {
     this.setState(
       assoc(this.state, ['sku', field], value),
-      () => this.props.updateField(this.code, field, value)
+      () => this.props.updateField(this.code, field, 'price', value)
     );
   }
 
@@ -109,7 +109,7 @@ export default class EditableSkuRow extends Component<void, Props, State> {
 
     this.setState(
       assoc(this.state, ['sku', 'upc'], value),
-      () => this.props.updateField(this.code, 'upc', value)
+      () => this.props.updateField(this.code, 'upc', 'string', value)
     );
   }
 
