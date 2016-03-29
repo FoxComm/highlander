@@ -60,7 +60,7 @@ case class ItemsNumUnits(numUnits: Int, referenceId: Int,
 Offers define how price is substracted from order or line items.
 
 ```scala
-trait Offer {
+trait Offer[T <: Offer[T]] {
   // TBD
 }
 ```
@@ -68,20 +68,28 @@ trait Offer {
 ### Offer types
 
 ```scala
-case class OrderPercentOffOffer(discount: Int) extends Offer // MVP
-case class OrderAmountOffOffer(amount: Int) extends Offer
+case class OrderPercentOffOffer(discount: Int)
+  extends Offer[OrderPercentOffOffer] // MVP
+case class OrderAmountOffOffer(amount: Int)
+  extends Offer[OrderPercentOffOffer]
 
 case class ItemsSinglePercentOffOffer(discount: Int, referenceId: Int,
-  referenceType: QualifierReferenceType) extends Offer
+  referenceType: QualifierReferenceType)
+  extends Offer[ItemsSinglePercentOffOffer]
 case class ItemsSingleAmountOffOffer(amount: Int, referenceId: Int,
-  referenceType: QualifierReferenceType) extends Offer
+  referenceType: QualifierReferenceType)
+  extends Offer[ItemsSingleAmountOffOffer]
 case class ItemsSelectPercentOffOffer(discount: Int, referenceId: Int,
-  referenceType: QualifierReferenceType) extends Offer // MVP
+  referenceType: QualifierReferenceType)
+  extends Offer[ItemsSelectPercentOffOffer] // MVP
 case class ItemsSelectAmountOffOffer(amount: Int, referenceId: Int,
-  referenceType: QualifierReferenceType) extends Offer
+  referenceType: QualifierReferenceType)
+  extends Offer[ItemsSelectAmountOffOffer]
 
-case object FreeShippingOffer extends Offer // MVP
-case class DiscountedShipppingOffer(fixedPrice: Int) extends Offer  
+case object FreeShippingOffer
+  extends Offer[FreeShippingOffer] // MVP
+case class DiscountedShipppingOffer(fixedPrice: Int)
+  extends Offer[DiscountedShipppingOffer]  
 ```
 
 ## Factories
@@ -98,7 +106,6 @@ object QualifierFactory {
     val json = parse(attributes)
 
     (promoType, qualifierType) match {
-      // Handle extraction failure somehow...
       case (OrderPromotion, "orderAny") => extract[OrderAnyQualifier](json)
       case (ItemsPromotion, "itemsAny") => extract[ItemsAnyQualifier](json)
       // ...
