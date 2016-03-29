@@ -11,7 +11,7 @@ select
                 oli.state, 
                 sku.code, 
                 sku_form.attributes->>(sku_shadow.attributes->'title'->>'ref'), 
-                sku_form.attributes->(sku_shadow.attributes->'price'->>'ref')->>'value')::export_line_items)
+                sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value')::export_line_items)
     end as items
 from orders as o
 left join order_line_items as oli on (o.id = oli.order_id)

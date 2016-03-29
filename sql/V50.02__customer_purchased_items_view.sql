@@ -13,7 +13,7 @@ select
     -- SKU
     s.code as sku_code,
     f.attributes->>(sh.attributes->'title'->>'ref') as sku_title,
-    f.attributes->(sh.attributes->'price'->>'ref')->>'value' as sku_price
+    f.attributes->(sh.attributes->'salePrice'->>'ref')->>'value' as sku_price
 from order_line_item_skus as oli_skus
 inner join order_line_item_origins as oli_origins on oli_origins.id = oli_skus.id
 inner join order_line_items as oli on oli.origin_id = oli_origins.id and oli.state = 'shipped'

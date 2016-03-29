@@ -78,7 +78,11 @@ final case class SimpleSku(code: String, title: String,
       s""" 
       {
         "title" : "$title",
-        "price" : {
+        "retailPrice" : {
+          "value" : ${price + 500},
+          "currency" : "${currency.getCode}" 
+        },
+        "salePrice" : {
           "value" : $price,
           "currency" : "${currency.getCode}" 
         }
@@ -94,7 +98,8 @@ final case class SimpleSkuShadow(formId: Int, s: SimpleSku) {
       s"""
         {
           "title" : {"type": "string", "ref": "title"},
-          "price" : {"type": "price", "ref": "price"}
+          "retailPrice" : {"type": "price", "ref": "retailPrice"},
+          "salePrice" : {"type": "price", "ref": "salePrice"}
         }"""), 
       s.keyMap) 
 
@@ -165,7 +170,7 @@ object Mvp {
   }
 
   def price(f: ObjectForm, s: ObjectShadow) : Option[(Int, Currency)] = {
-    s.attributes \ "price" \ "ref" match {
+    s.attributes \ "salePrice" \ "ref" match {
       case JString(key) ⇒  priceFromJson(f.attributes \ key)
       case _ ⇒ None
     }

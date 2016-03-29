@@ -8,7 +8,7 @@ select
     -- SKU
     s.code as sku_code,
     f.attributes->>(sh.attributes->'title'->>'ref') as sku_title,
-    f.attributes->(sh.attributes->'price'->>'ref')->>'value' as sku_price,
+    f.attributes->(sh.attributes->'salePrice'->>'ref')->>'value' as sku_price,
     -- Save for later
     to_char(later.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as saved_for_later_at
 from save_for_later as later
