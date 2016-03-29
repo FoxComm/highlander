@@ -3,10 +3,13 @@
 
 .container {
   width: 100%;
-  height: 100%;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
 }
 
 .content-container {
+  flex: 1;
   margin-top: 45px;
   margin-left: var(--grid-margin);
   margin-right: var(--grid-margin);
@@ -25,6 +28,10 @@
 
 .hamburger {
   display: none;
+}
+
+.cart {
+  cursor: pointer;
 }
 
 .search, .hamburger, .cart {

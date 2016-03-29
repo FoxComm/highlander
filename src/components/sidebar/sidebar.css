@@ -21,7 +21,7 @@
   background: var(--blackish);
   color: var(--whitish);
   transform: translateX(-100%);
-  transition: transform .1s;
+  transition: transform .2s;
 }
 
 .sidebar-shown .overlay {

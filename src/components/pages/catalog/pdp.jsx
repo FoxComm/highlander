@@ -2,9 +2,11 @@
 
 import _ from 'lodash';
 import React, { Component } from 'react';
-import styles from './pdp.css';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+import type { HTMLElement } from 'types';
+
+import styles from './pdp.css';
 
 import Button from 'ui/buttons';
 import Counter from 'ui/forms/counter';
@@ -25,10 +27,12 @@ type Params = {
 type Props = {
   fetch: (id: number) => any;
   params: Params;
-  product: ProductResponse;
+  product: ProductResponse|null;
   addLineItem: Function;
   toggleCart: Function;
+  resetProduct: Function;
   isLoading: boolean;
+  notFound: boolean;
 };
 
 type State = {
@@ -36,11 +40,12 @@ type State = {
 }
 
 const getState = state => {
-  const async = state.asyncActions.pdp;
+  const product = state.productDetails.product;
 
   return {
-    product: state.productDetails.product,
-    isLoading: !!async ? async.inProgress : true,
+    product,
+    notFound: !product && _.get(state.asyncActions, ['pdp', 'failed'], false),
+    isLoading: _.get(state.asyncActions, ['pdp', 'inProgress'], true),
   };
 };
 
@@ -52,7 +57,14 @@ class Pdp extends Component {
   };
 
   componentWillMount() {
-    this.props.fetch(this.productId);
+    /** prevent load on client on mount */
+    if (!this.props.product) {
+      this.props.fetch(this.productId);
+    }
+  }
+
+  componentWillUnmount() {
+    this.props.resetProduct();
   }
 
   get productId(): number {
@@ -64,7 +76,7 @@ class Pdp extends Component {
   }
 
   @autobind
-  onQuantityChange(value) {
+  onQuantityChange(value): void {
     const newValue = this.state.quantity + value;
     if (newValue > 0) {
       this.setState({quantity: newValue});
@@ -72,7 +84,7 @@ class Pdp extends Component {
   }
 
   @autobind
-  addToCart() {
+  addToCart(): void {
     const quantity = this.state.quantity;
     const skuId = this.firstSqu;
     this.props.addLineItem(skuId, quantity).then(() => {
@@ -81,9 +93,13 @@ class Pdp extends Component {
     });
   }
 
-  render() {
+  render(): HTMLElement {
     if (this.props.isLoading) {
       return <Loader/>;
+    }
+
+    if (this.props.notFound) {
+      return <p styleName="not-found">Product not found</p>;
     }
 
     const { product } = this.props;
