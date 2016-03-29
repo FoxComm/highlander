@@ -2,11 +2,15 @@
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 
+//helpers
+import { prefix } from '../../../../lib/text-utils';
+
 //components
 import propTypes from '../widgets/propTypes';
 
 
-export const Input = ({Input: Widget}) => ({criterion, value, prefixed, changeValue}) => {
+export const Input = ({Input: Widget}) => ({criterion, value, className, changeValue}) => {
+  const prefixed = prefix(prefix(className)('range'));
   const values = value || [null, null];
 
   const change = index=> (value) => {
@@ -18,10 +22,10 @@ export const Input = ({Input: Widget}) => ({criterion, value, prefixed, changeVa
   };
 
   return (
-    <div className={prefixed('range')}>
-      {Widget({criterion, value: values[0], prefixed, changeValue: change(0)})}
-      <span className={classNames(prefixed('range__separator'), 'icon-minus', 'fc-align-center')} />
-      {Widget({criterion, value: values[1], prefixed, changeValue: change(1)})}
+    <div className={prefixed()}>
+      {Widget({criterion, value: values[0], className, changeValue: change(0)})}
+      <span className={classNames(prefixed('separator'), 'icon-minus', 'fc-align-center')} />
+      {Widget({criterion, value: values[1], className, changeValue: change(1)})}
     </div>
   );
 };

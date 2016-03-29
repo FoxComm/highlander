@@ -63,7 +63,7 @@ const renderValue = (criterion, operator, value, changeValue) => {
     criterion,
     value,
     changeValue,
-    prefixed: prefix('fc-customer-group-builder'),
+    className: 'fc-customer-group-builder',
   });
 };
 

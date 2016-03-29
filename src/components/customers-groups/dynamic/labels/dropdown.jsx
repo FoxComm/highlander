@@ -2,12 +2,16 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
+//helpers
+import { prefix } from '../../../../lib/text-utils';
+
 //components
 import Dropdown from '../../../dropdown/dropdown';
 import propTypes from '../widgets/propTypes';
 
 
-export const Label = ({criterion, value, prefixed}) => {
+export const Label = ({criterion, value, className}) => {
+  const prefixed = prefix(className);
   const item = _.find(criterion.widget.config.choices, item => item[0] === value);
 
   return (

@@ -26,7 +26,7 @@ const Criterion = ({field, operator, value}) => {
   const valueLabel = React.createElement(Label, {
     criterion,
     value,
-    prefixed,
+    className: 'fc-customer-group-dynamic__criterion',
   });
 
   return (

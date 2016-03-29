@@ -9,10 +9,9 @@ import { prefix } from '../../../../lib/text-utils';
 import propTypes from '../widgets/propTypes';
 
 
-export const Label = ({Label: Widget}) => ({criterion, value, prefixed, changeValue}) => {
+export const Label = ({Label: Widget}) => ({criterion, value, className}) => {
   const values = value || [null];
-  const widgetPrefixed = prefixed;
-  prefixed = prefix(prefixed('vertical-select'));
+  const prefixed = prefix(prefix(className)('vertical-select'));
 
   return (
     <div className={classNames('fc-grid', prefixed())}>
@@ -21,23 +20,22 @@ export const Label = ({Label: Widget}) => ({criterion, value, prefixed, changeVa
         criterion,
         values,
         index,
+        className,
         prefixed,
-        widgetPrefixed,
-        changeValue,
       }))}
     </div>
   );
 };
 Label.propTypes = propTypes;
 
-const renderLabelItem = ({Widget, criterion, values, index, widgetPrefixed, prefixed}) => {
+const renderLabelItem = ({Widget, criterion, values, index, className, prefixed}) => {
   return (
     <div className={prefixed('container')} key={index}>
       <div className={prefixed('item')}>
         {React.createElement(Widget, ({
           criterion,
           value: values[index],
-          prefixed: widgetPrefixed
+          className,
         }))}
       </div>
       {index < values.length - 1 ? <div className={prefixed('or')}>or</div> : null}

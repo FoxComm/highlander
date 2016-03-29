@@ -11,10 +11,9 @@ import { Button } from '../../../common/buttons';
 import propTypes from '../widgets/propTypes';
 
 
-export const Input = ({Input: Widget}) => ({criterion, value, prefixed, changeValue}) => {
+export const Input = ({Input: Widget}) => ({criterion, value, className, changeValue}) => {
   const values = value || [null];
-  const widgetPrefixed = prefixed;
-  prefixed = prefix(prefixed('vertical-select'));
+  const prefixed = prefix(prefix(className)('vertical-select'));
 
   return (
     <div className={classNames('fc-grid', prefixed())}>
@@ -23,16 +22,16 @@ export const Input = ({Input: Widget}) => ({criterion, value, prefixed, changeVa
         criterion,
         values,
         index,
-        widgetPrefixed,
-        prefixed,
+        className,
         changeValue,
+        prefixed,
       }))}
     </div>
   );
 };
 Input.propTypes = propTypes;
 
-const renderInputItem = ({Widget, criterion, values, index, widgetPrefixed, prefixed, changeValue}) => {
+const renderInputItem = ({Widget, criterion, values, index, className, changeValue, prefixed}) => {
   const value = values[index];
 
   const add = () => {
@@ -61,8 +60,8 @@ const renderInputItem = ({Widget, criterion, values, index, widgetPrefixed, pref
         {React.createElement(Widget, ({
           criterion,
           value: values[index],
-          prefixed: widgetPrefixed,
-          changeValue: change
+          className,
+          changeValue: change,
         }))}
       </div>
       {renderNodeOrAdd(prefixed, index < values.length - 1, add)}

@@ -4,7 +4,7 @@ const propTypes = {
   criterion: PropTypes.shape({
     field: PropTypes.string.isRequired,
   }).isRequired,
-  prefixed: PropTypes.func.isRequired,
+  classname: PropTypes.string.isRequired,
   value: PropTypes.any,
   changeValue: PropTypes.func,
 };

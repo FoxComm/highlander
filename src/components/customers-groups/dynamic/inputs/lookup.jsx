@@ -2,12 +2,16 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
+//helpers
+import { prefix } from '../../../../lib/text-utils';
+
 //components
 import { LookupDropdown } from '../../../lookup';
 import propTypes from '../widgets/propTypes';
 
 
-export const Input = ({data, value, prefixed, changeValue}) => {
+export const Input = ({data, value, className, changeValue}) => {
+  const prefixed = prefix(className);
   const item = _.find(data, {label: value});
 
   return (
