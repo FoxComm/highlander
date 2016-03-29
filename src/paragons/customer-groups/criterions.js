@@ -1,42 +1,42 @@
 import types from './types';
 import ops from './operators';
-import inputs from '../../components/customers-groups/dynamic/inputs';
+import widgets from '../../components/customers-groups/dynamic/widgets';
 
 
 const criterions = [
   {
     type: types.string,
-    input: {
-      default: inputs.plain('text'),
-      [ops.oneOf]: inputs.oneOf(inputs.plain('text')),
-      [ops.notOneOf]: inputs.oneOf(inputs.plain('text')),
+    widget: {
+      default: widgets.plain('text'),
+      [ops.oneOf]: widgets.oneOf(widgets.plain('text')),
+      [ops.notOneOf]: widgets.oneOf(widgets.plain('text')),
     },
     field: 'name',
     label: 'Name',
   },
   {
     type: types.string,
-    input: {
-      default: inputs.plain('text'),
-      [ops.oneOf]: inputs.oneOf(inputs.plain('text')),
-      [ops.notOneOf]: inputs.oneOf(inputs.plain('text')),
+    widget: {
+      default: widgets.plain('text'),
+      [ops.oneOf]: widgets.oneOf(widgets.plain('text')),
+      [ops.notOneOf]: widgets.oneOf(widgets.plain('text')),
     },
     field: 'email',
     label: 'Email',
   },
   {
     type: types.number,
-    input: {
-      default: inputs.currency,
-      [ops.between]: inputs.range(inputs.currency),
+    widget: {
+      default: widgets.currency,
+      [ops.between]: widgets.range(widgets.currency),
     },
     field: 'revenue',
     label: 'Total Sales',
   },
   {
     type: types.enum,
-    input: {
-      default: inputs.dropdown,
+    widget: {
+      default: widgets.dropdown,
       config: {
         choices: [
           [false, 'active'],
@@ -53,8 +53,8 @@ const criterions = [
   },
   {
     type: types.enum,
-    input: {
-      default: inputs.dropdown,
+    widget: {
+      default: widgets.dropdown,
       config: {
         choices: [
           [true, 'on blacklist'],
@@ -71,12 +71,12 @@ const criterions = [
   },
   {
     type: types.string,
-    input: {
-      default: inputs.plain('text'),
-      [ops.equal]: inputs.lookup('state'),
-      [ops.notEqual]: inputs.lookup('state'),
-      [ops.oneOf]: inputs.oneOf(inputs.lookup('state')),
-      [ops.notOneOf]: inputs.oneOf(inputs.lookup('state')),
+    widget: {
+      default: widgets.plain('text'),
+      [ops.equal]: widgets.lookup('state'),
+      [ops.notEqual]: widgets.lookup('state'),
+      [ops.oneOf]: widgets.oneOf(widgets.lookup('state')),
+      [ops.notOneOf]: widgets.oneOf(widgets.lookup('state')),
       config: {
         storePath: 'groups.shippingState',
       },
@@ -86,12 +86,12 @@ const criterions = [
   },
   {
     type: types.string,
-    input: {
-      default: inputs.plain('text'),
-      [ops.equal]: inputs.lookup('state'),
-      [ops.notEqual]: inputs.lookup('state'),
-      [ops.oneOf]: inputs.oneOf(inputs.lookup('state')),
-      [ops.notOneOf]: inputs.oneOf(inputs.lookup('state')),
+    widget: {
+      default: widgets.plain('text'),
+      [ops.equal]: widgets.lookup('state'),
+      [ops.notEqual]: widgets.lookup('state'),
+      [ops.oneOf]: widgets.oneOf(widgets.lookup('state')),
+      [ops.notOneOf]: widgets.oneOf(widgets.lookup('state')),
       config: {
         storePath: 'groups.billingState',
       },
@@ -101,12 +101,12 @@ const criterions = [
   },
   {
     type: types.string,
-    input: {
-      default: inputs.plain('text'),
-      [ops.equal]: inputs.lookup('city'),
-      [ops.notEqual]: inputs.lookup('city'),
-      [ops.oneOf]: inputs.oneOf(inputs.lookup('city')),
-      [ops.notOneOf]: inputs.oneOf(inputs.lookup('city')),
+    widget: {
+      default: widgets.plain('text'),
+      [ops.equal]: widgets.lookup('city'),
+      [ops.notEqual]: widgets.lookup('city'),
+      [ops.oneOf]: widgets.oneOf(widgets.lookup('city')),
+      [ops.notOneOf]: widgets.oneOf(widgets.lookup('city')),
       config: {
         storePath: 'groups.shippingCity',
       },
@@ -116,12 +116,12 @@ const criterions = [
   },
   {
     type: types.string,
-    input: {
-      default: inputs.plain('text'),
-      [ops.equal]: inputs.lookup('city'),
-      [ops.notEqual]: inputs.lookup('city'),
-      [ops.oneOf]: inputs.oneOf(inputs.lookup('city')),
-      [ops.notOneOf]: inputs.oneOf(inputs.lookup('city')),
+    widget: {
+      default: widgets.plain('text'),
+      [ops.equal]: widgets.lookup('city'),
+      [ops.notEqual]: widgets.lookup('city'),
+      [ops.oneOf]: widgets.oneOf(widgets.lookup('city')),
+      [ops.notOneOf]: widgets.oneOf(widgets.lookup('city')),
       config: {
         storePath: 'groups.billingCity',
       },
@@ -139,10 +139,10 @@ const criterions = [
       ops.match,
       ops.notMatch,
     ],
-    input: {
-      default: inputs.plain('number'),
-      [ops.oneOf]: inputs.oneOf(inputs.plain('number')),
-      [ops.notOneOf]: inputs.oneOf(inputs.plain('number')),
+    widget: {
+      default: widgets.plain('number'),
+      [ops.oneOf]: widgets.oneOf(widgets.plain('number')),
+      [ops.notOneOf]: widgets.oneOf(widgets.plain('number')),
     },
     field: 'shippingAddresses.zip',
     label: 'Shipping Zip',
@@ -157,21 +157,21 @@ const criterions = [
       ops.match,
       ops.notMatch,
     ],
-    input: {
-      default: inputs.plain('number'),
-      [ops.oneOf]: inputs.oneOf(inputs.plain('number')),
-      [ops.notOneOf]: inputs.oneOf(inputs.plain('number')),
+    widget: {
+      default: widgets.plain('number'),
+      [ops.oneOf]: widgets.oneOf(widgets.plain('number')),
+      [ops.notOneOf]: widgets.oneOf(widgets.plain('number')),
     },
     field: 'billingAddresses.zip',
     label: 'Billing Zip',
   },
   {
     type: types.date,
-    input: {
-      default: inputs.date,
-      [ops.oneOf]: inputs.oneOf(inputs.date),
-      [ops.notOneOf]: inputs.oneOf(inputs.date),
-      [ops.between]: inputs.range(inputs.date),
+    widget: {
+      default: widgets.date,
+      [ops.oneOf]: widgets.oneOf(widgets.date),
+      [ops.notOneOf]: widgets.oneOf(widgets.date),
+      [ops.between]: widgets.range(widgets.date),
     },
     field: 'joinedAt',
     label: 'Date Joined',

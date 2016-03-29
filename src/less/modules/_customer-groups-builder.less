@@ -13,20 +13,22 @@
   }
 
   @criterion-width: 330px;
-  &__criterion-field {
+  &__field {
     .width(@criterion-width);
     .max-width(@criterion-width);
     .margin-right(2rem);
   }
 
   @operator-width: 206px;
-  &__criterion-operator {
+  &__operator {
     .width(@operator-width);
     .max-width(@operator-width);
     .margin-right(2rem);
   }
 
   &__add-criterion {
+    display: inline-block;
+    cursor: pointer;
     .font-spec(16px, 22px);
     .margin-top(20px);
     > * {
@@ -35,11 +37,6 @@
     span {
       .margin-left(1rem);
     }
-  }
-
-  &__add-criterion {
-    display: inline-block;
-    cursor: pointer;
   }
 
   &__remove-criterion {
@@ -55,14 +52,14 @@
     }
   }
 
-  @field-width: 330px;
-  @field-height: 40px;
-  &__field {
+  @value-width: 330px;
+  @value-height: 40px;
+  &__value {
     background: @color-white;
     .inline-block();
     box-sizing: border-box;
-    .width(@field-width);
-    .height(@field-height);
+    .width(@value-width);
+    .height(@value-height);
     .border-radius(3px);
     .padding(0 1rem);
     .highlight-border-behaviour();
@@ -70,8 +67,8 @@
   }
 
   &__lookup {
-    .width(@field-width);
-    .height(@field-height);
+    .width(@value-width);
+    .height(@value-height);
   }
 
   .fc-datepicker {
@@ -79,21 +76,21 @@
   }
 
   .fc-prepend-input, .fc-append-input {
-    .width(@field-width);
-    .height(@field-height);
+    .width(@value-width);
+    .height(@value-height);
     &__input-field {
-      .width(@field-width - 36);
+      .width(@value-width - 36);
     }
   }
 
   .fc-dropdown {
-    .width(@field-width);
-    .max-width(@field-width);
-    .height(@field-height);
+    .width(@value-width);
+    .max-width(@value-width);
+    .height(@value-height);
   }
 
   &__vertical-select {
-    @field-width: 278px;
+    @value-width: 278px;
     flex-direction: column;
     @line-width: 34px;
     @line-height: 28px;
@@ -104,17 +101,17 @@
       display: flex;
       align-items: flex-start;
       &:not(:first-child) {
-        .margin-top(@sep-line-height - @field-height - 2);
+        .margin-top(@sep-line-height - @value-height - 2);
       }
       &:last-child {
-        .margin-bottom(@b-size + (@line-height - @field-height/2) + @critertion-margin);
+        .margin-bottom(@b-size + (@line-height - @value-height/2) + @critertion-margin);
       }
     }
 
     &__item {
       position: relative;
-      .width(@field-width);
-      .max-width(@field-width);
+      .width(@value-width);
+      .max-width(@value-width);
 
       // lines
       &:after {
@@ -144,7 +141,7 @@
       .height(@b-size);
       .line-height(@b-size);
       .left(@line-width - @b-size/2 - 1);
-      .top(@line-height + @field-height/2 - 1);
+      .top(@line-height + @value-height/2 - 1);
       text-align: center;
       background: @color-decor7;
     }
@@ -164,7 +161,7 @@
     &__remove {
       display: block;
       .margin-left(@b-size/2 + 2rem);
-      .margin-top(@field-height/4 + 3);
+      .margin-top(@value-height/4 + 3);
       align-self: flex-start;
       cursor: pointer;
       &:hover {
@@ -173,29 +170,29 @@
     }
 
     .fc-customer-group-builder__field {
-      .width(@field-width);
+      .width(@value-width);
     }
 
     .fc-customer-group-builder__lookup {
-      .width(@field-width);
+      .width(@value-width);
     }
 
     .fc-prepend-input, .fc-append-input {
-      .width(@field-width);
+      .width(@value-width);
       &__input-field {
-        .width(@field-width - 36);
+        .width(@value-width - 36);
       }
     }
 
     .fc-dropdown {
-      .width(@field-width);
-      .max-width(@field-width);
+      .width(@value-width);
+      .max-width(@value-width);
     }
   }
 
   &__range {
     .width(330px);
-    @field-width: 150px;
+    @value-width: 150px;
 
     > * {
       .inline-block();
@@ -203,21 +200,21 @@
 
     &__separator {
       .width(30px);
-      .height(@field-height);
-      line-height: @field-height;
+      .height(@value-height);
+      line-height: @value-height;
       color: @color-decor7;
     }
 
     .fc-prepend-input, .fc-append-input {
-      .width(@field-width);
+      .width(@value-width);
       &__input-field {
-        .width(@field-width - 36);
+        .width(@value-width - 36);
       }
     }
 
     .fc-dropdown {
-      .width(@field-width);
-      .max-width(@field-width);
+      .width(@value-width);
+      .max-width(@value-width);
     }
   }
 }

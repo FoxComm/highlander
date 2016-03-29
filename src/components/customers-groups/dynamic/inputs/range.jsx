@@ -2,17 +2,11 @@
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 
+//components
+import propTypes from '../widgets/propTypes';
 
-const propTypes = {
-  criterion: PropTypes.shape({
-    field: PropTypes.string.isRequired,
-  }).isRequired,
-  prefixed: PropTypes.func.isRequired,
-  value: PropTypes.arrayOf(PropTypes.any),
-  changeValue: PropTypes.func,
-};
 
-const Input = ({Input: Widget}) => ({criterion, value, prefixed, changeValue}) => {
+export const Input = ({Input: Widget}) => ({criterion, value, prefixed, changeValue}) => {
   const values = value || [null, null];
 
   const change = index=> (value) => {
@@ -32,23 +26,3 @@ const Input = ({Input: Widget}) => ({criterion, value, prefixed, changeValue}) =
   );
 };
 Input.propTypes = propTypes;
-
-const Label = ({Label: Widget}) => ({criterion, value, prefixed}) => {
-  const values = value || [null, null];
-
-  return (
-    <div className={prefixed('range')}>
-      {Widget({criterion, value: values[0], prefixed})}
-      <span className={classNames(prefixed('range__separator'), 'icon-minus', 'fc-align-center')}/>
-      {Widget({criterion, value: values[1], prefixed})}
-    </div>
-  );
-};
-Label.propTypes = propTypes;
-
-export default function(Widget) {
-  return {
-    Input: Input(Widget),
-    Label: Label(Widget)
-  };
-}

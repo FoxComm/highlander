@@ -18,10 +18,8 @@ import { Dropdown, DropdownItem } from '../../dropdown';
 const prefixed = prefix('fc-customer-group-dynamic__criterion');
 
 const Criterion = ({field, operator, value}) => {
-  const criterion = _.find(criterions, criterion => criterion.field === field);
-  const {Label} = _.get(criterion.input, operator, criterion.input.default);
-
-  const fieldLabel = _.find(criterions, criterion => criterion.field === field).label;
+  const criterion = _.find(criterions, {field: field});
+  const {Label} = _.get(criterion.widget, operator, criterion.widget.default);
 
   const availableOperators = criterion.operators
     ? _.pick(criterion.type.operators, criterion.operators)
@@ -36,7 +34,7 @@ const Criterion = ({field, operator, value}) => {
 
   return (
     <div className={classNames('fc-grid', prefixed())}>
-      <div className={prefixed('field')}>{fieldLabel}</div>
+      <div className={prefixed('field')}>{criterion.label}</div>
       <div className={prefixed('operator')}>{operatorLabel}</div>
       {valueLabel}
     </div>

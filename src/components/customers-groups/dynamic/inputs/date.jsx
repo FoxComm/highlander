@@ -4,35 +4,13 @@ import React, { PropTypes } from 'react';
 
 //components
 import DatePicker from '../../../datepicker/datepicker';
+import propTypes from '../widgets/propTypes';
+import storedDateFormat from '../widgets/date';
 
-
-const propTypes = {
-  criterion: PropTypes.shape({
-    field: PropTypes.string.isRequired,
-  }).isRequired,
-  prefixed: PropTypes.func.isRequired,
-  value: PropTypes.any,
-  changeValue: PropTypes.func,
-};
-
-const Input = ({value, changeValue}) => {
+export const Input = ({value, changeValue}) => {
   return (
     <DatePicker date={new Date(value)}
-                onClick={(value) => changeValue(moment(value).format('YYYY-MM-DDTHH:mm:ss.SSSZ'))} />
+                onClick={(value) => changeValue(moment(value).format(storedDateFormat))} />
   );
 };
 Input.propTypes = propTypes;
-
-const Label = ({value, prefixed}) => {
-  return (
-    <div className={prefixed('value')}>
-      {moment(value).format('MM/DD/YYYY')}
-    </div>
-  );
-};
-Label.propTypes = propTypes;
-
-export default {
-  Input,
-  Label,
-};

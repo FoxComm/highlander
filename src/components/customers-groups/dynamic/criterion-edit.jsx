@@ -25,7 +25,7 @@ const Criterion = ({field, operator, value, changeField, changeOperator, changeV
   return (
     <div className={classNames('fc-grid', prefixed('criterion'))}>
       <Dropdown items={fields}
-                className={prefixed('criterion-field')}
+                className={prefixed('field')}
                 placeholder='- Select criteria -'
                 value={field}
                 onChange={changeField} />
@@ -49,7 +49,7 @@ const renderOperator = (criterion, operator, changeOperator) => {
 
   return (
     <Dropdown items={operators}
-              className={prefixed('criterion-operator')}
+              className={prefixed('operator')}
               placeholder='- Select operator -'
               value={operator}
               onChange={changeOperator} />
@@ -61,7 +61,7 @@ const renderValue = (criterion, operator, value, changeValue) => {
     return null;
   }
 
-  const {Input} = operator in criterion.input ? criterion.input[operator] : criterion.input.default;
+  const {Input} = _.get(criterion.widget, operator, criterion.widget.default);
 
   return React.createElement(Input, {
     criterion,

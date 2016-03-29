@@ -166,6 +166,7 @@ Dropdown.propTypes = {
   name: PropTypes.string,
   className: PropTypes.string,
   value: PropTypes.oneOfType([
+    PropTypes.bool,
     PropTypes.string,
     PropTypes.number,
   ]),
