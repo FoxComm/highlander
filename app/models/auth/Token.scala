@@ -106,19 +106,24 @@ object Token {
     }
   }
 
-  def fromString(rawToken: String): Failures Xor Token = {
+  def fromString(rawToken: String, kind: Identity.IdentityKind): Failures Xor Token = {
     Keys.authPublicKey.flatMap { publicKey ⇒
 
       val builder = new JwtConsumerBuilder()
         .setRequireExpirationTime()
         .setAllowedClockSkewInSeconds(30)
         .setExpectedIssuer("FC")
-        .setExpectedAudience("admin", "customer")
         .setVerificationKey(publicKey)
-        .build()
 
       Try {
-        val jwtClaims = builder.processToClaims(rawToken)
+        kind match {
+          case Identity.Customer ⇒ builder.setExpectedAudience("customer")
+          case Identity.Admin ⇒ builder.setExpectedAudience("admin")
+          case _ ⇒ throw new RuntimeException("unknown kind of identity")
+        }
+
+        val consumer = builder.build()
+        val jwtClaims = consumer.processToClaims(rawToken)
         val jValue = parse(jwtClaims.toJson)
         jValue \ "admin" match {
           case JBool(isAdmin) ⇒ if (isAdmin)

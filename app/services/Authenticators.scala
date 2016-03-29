@@ -101,11 +101,13 @@ object Authenticator {
       readCookieOrHeader(headerName = authHeader)
     }
 
+    def validateToken(token: String): Failures Xor Token
+
     protected def jwtAuth[F <: TokenToModel[M]](realm: String)
       (credentials: Option[String], userFromToken: F)
       (implicit ec: EC, db: DB): Future[AuthenticationResult[M]] = (for {
       jwtCredentials ← * <~ credentials.toXor(AuthFailed("missed credentials").single)
-      token          ← * <~ validateTokenCredentials(jwtCredentials)
+      token          ← * <~ validateToken(jwtCredentials)
       userDbio       ← * <~ userFromToken(token)
       user           ← * <~ userDbio.mustFindOr(LoginFailed)
     } yield user).run().map {
@@ -120,12 +122,16 @@ object Authenticator {
     def checkAuth(credentials: Option[String]): Future[AuthenticationResult[Customer]] = {
       jwtAuth[TokenToModel[Customer]]("private customer routes")(credentials, customerFromToken)
     }
+
+    def validateToken(token: String) = Token.fromString(token, Identity.Customer)
   }
 
   final case class jwtStoreAdmin(implicit ec: EC, db: DB) extends JwtAuth[StoreAdmin] {
     def checkAuth(credentials: Option[String]): Future[AuthenticationResult[StoreAdmin]] = {
       jwtAuth[TokenToModel[StoreAdmin]]("admin")(credentials, adminFromToken)
     }
+
+    def validateToken(token: String) = Token.fromString(token, Identity.Admin)
   }
 
   def forAdminFromConfig(implicit ec: EC, db: DB): AsyncAuthenticator[StoreAdmin] = {
@@ -228,10 +234,6 @@ object Authenticator {
       Xor.right(model)
     else
       Xor.left(LoginFailed.single)
-  }
-
-  private def validateTokenCredentials(token: String): Failures Xor Token = {
-    Token.fromString(token)
   }
 
   private def adminFromToken(token: Token): Failures Xor DBIO[Option[StoreAdmin]] = {
