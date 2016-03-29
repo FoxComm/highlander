@@ -61,11 +61,11 @@ const renderValue = (criterion, operator, value, changeValue) => {
     return null;
   }
 
-  const {Input} = _.get(criterion.widget, operator, criterion.widget.default);
+  const {Input, getDefault} = _.get(criterion.widget, operator, criterion.widget.default);
 
   return React.createElement(Input, {
     criterion,
-    value,
+    value: value === null ? getDefault(criterion) : value,
     changeValue,
     prefixed: prefix('fc-customer-group-builder'),
   });

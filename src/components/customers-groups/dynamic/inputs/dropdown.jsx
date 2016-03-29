@@ -15,3 +15,5 @@ export const Input = ({criterion, value, changeValue}) => {
   );
 };
 Input.propTypes = propTypes;
+
+export const getDefault = (criterion) => criterion.widget.config.choices[0][0];

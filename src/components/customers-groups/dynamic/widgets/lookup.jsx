@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 
 //components
-import { Input } from '../inputs/lookup';
+import { Input, getDefault } from '../inputs/lookup';
 import { Label } from '../labels/lookup';
 
 
@@ -14,6 +14,7 @@ const connected = getState => connect(state => ({
 export default function(type) {
   return {
     Input: connected(state => state.regions)(Input),
-    Label: connected(state => state.regions)(Label)
+    getDefault,
+    Label: connected(state => state.regions)(Label),
   };
 }

@@ -26,3 +26,5 @@ export const Input = ({Input: Widget}) => ({criterion, value, prefixed, changeVa
   );
 };
 Input.propTypes = propTypes;
+
+export const getDefault = Widget => criterion => [Widget.getDefault(criterion), Widget.getDefault(criterion)];

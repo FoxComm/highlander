@@ -25,3 +25,5 @@ Input.propTypes = {
     label: PropTypes.string,
   })),
 };
+
+export const getDefault = () => '';

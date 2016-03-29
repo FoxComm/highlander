@@ -13,3 +13,5 @@ export const Input = ({value, changeValue}) => {
   );
 };
 Input.propTypes = propTypes;
+
+export const getDefault = () => 0;

@@ -5,7 +5,7 @@ import React, { PropTypes } from 'react';
 //components
 import DatePicker from '../../../datepicker/datepicker';
 import propTypes from '../widgets/propTypes';
-import storedDateFormat from '../widgets/date';
+import { storedDateFormat } from '../widgets/date';
 
 export const Input = ({value, changeValue}) => {
   return (
@@ -14,3 +14,5 @@ export const Input = ({value, changeValue}) => {
   );
 };
 Input.propTypes = propTypes;
+
+export const getDefault = () => Date.now();

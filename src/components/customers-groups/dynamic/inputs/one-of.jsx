@@ -77,3 +77,5 @@ const renderNodeOrAdd = (prefixed, isNode, add) => {
 
   return <Button className={classNames(prefixed('add'), 'icon-add')} onClick={add} />;
 };
+
+export const getDefault = Widget => criterion => Widget.getDefault(criterion);

@@ -14,3 +14,12 @@ export const Input = type => ({value, prefixed, changeValue}) => {
   );
 };
 Input.propTypes = propTypes;
+
+export const getDefault = type => () => {
+  switch (type) {
+    case 'number':
+      return 0;
+    default:
+      return '';
+  }
+};
