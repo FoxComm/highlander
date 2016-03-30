@@ -83,7 +83,7 @@ class StorefrontAccessSimulation extends Simulation {
     // Cleanup
     .exec(AddressEndpoint.removeDefault())
     .exec(AddressEndpoint.delete())
-    .exec(CreditCardEndpoint.delete())
+    //.exec(CreditCardEndpoint.delete())
 
   setUp(
     storefrontScenario.inject(conf.defaultInjectionProfile).protocols(conf.httpConf)
