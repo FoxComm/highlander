@@ -7,7 +7,7 @@ import scala.concurrent.{ExecutionContext, Future, blocking}
 
 import cats.data.Xor
 import cats.implicits._
-import com.stripe.model.{ExternalAccount, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
+import com.stripe.model.{ExternalAccount, DeletedExternalAccount, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
 import com.stripe.exception.{CardException, StripeException}
 import com.stripe.net.RequestOptions
 import failures.CreditCardFailures._
@@ -33,6 +33,8 @@ trait StripeApi {
   def findDefaultCard(customer: StripeCustomer, secretKey: String): Result[StripeCard]
 
   def updateExternalAccount(card: ExternalAccount, options: Map[String, AnyRef], secretKey: String): Result[ExternalAccount]
+
+  def deleteExternalAccount(card: ExternalAccount, secretKey: String): Result[DeletedExternalAccount]
 }
 
 object StripeApi {
@@ -99,6 +101,9 @@ class WiredStripeApi extends StripeApi {
 
   def updateExternalAccount(card: ExternalAccount, options: Map[String, AnyRef], secretKey: String): Result[ExternalAccount] =
     inBlockingPool(secretKey)(requestOptions ⇒ card.update(options, requestOptions))
+
+  def deleteExternalAccount(card: ExternalAccount, secretKey: String): Result[DeletedExternalAccount] =
+    inBlockingPool(secretKey)(requestOptions ⇒ card.delete(requestOptions))
 
   // TODO: This needs a life-cycle hook so we can shut it down.
 

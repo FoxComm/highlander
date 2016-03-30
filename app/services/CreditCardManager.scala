@@ -89,6 +89,7 @@ object CreditCardManager {
       cc        ← * <~ CreditCards.mustFindByIdAndCustomer(id, customerId)
       region    ← * <~ Regions.findOneById(cc.regionId).safeGet.toXor
       update    ← * <~ CreditCards.update(cc, cc.copy(inWallet = false, deletedAt = Some(Instant.now())))
+      _         ← * <~ gateway.deleteCard(cc)
       _         ← * <~ LogActivity.ccDeleted(customer, cc, admin)
     } yield ()).runTxn()
   }
