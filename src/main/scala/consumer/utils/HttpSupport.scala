@@ -22,7 +22,7 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
 
   val jwtHeaderName = "JWT"
 
-  val authHeaderName = "Authorization"
+  val authHeaderName = "JWT"
 
   def get(suffix: String): Future[HttpResponse] = for {
     authResponse ← authenticate()
