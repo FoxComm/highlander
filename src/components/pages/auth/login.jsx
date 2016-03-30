@@ -11,7 +11,6 @@ import { FormField } from 'ui/forms';
 import Button from 'ui/buttons';
 import WrapToLines from 'ui/wrap-to-lines';
 import { Link } from 'react-router';
-import { phoenix } from 'lib/api';
 
 import * as actions from 'modules/auth';
 
@@ -60,22 +59,17 @@ export default class Auth extends Component {
     });
   }
 
-  @autobind
-  googleSignin() {
-    phoenix.get('/v1/public/signin/google/customer').then(urlInfo => {
-      window.location.href = urlInfo.url;
-    });
-  }
-
   render(): HTMLElement {
     const { password, email } = this.state;
 
     return (
       <div>
         <div styleName="title">LOG IN</div>
-        <Button icon="fc-google" onClick={this.googleSignin} type="button" styleName="google-login">
-          LOG IN WITH GOOGLE
-        </Button>
+        <form>
+          <Button icon="fc-google" onClick={this.props.googleSignin} type="button" styleName="google-login">
+            LOG IN WITH GOOGLE
+          </Button>
+        </form>
         <WrapToLines styleName="divider">or</WrapToLines>
         <form>
           <FormField key="email" styleName="form-field">
