@@ -6,9 +6,11 @@ import io.gatling.http.request.builder.HttpRequestBuilder
 
 object AccountEndpoint {
 
+  val header = "JWT"
+
   def get(): HttpRequestBuilder = http("Get My Account")
     .get("/v1/my/account")
-    .header("Authorization", "${jwtTokenCustomer}")
+    .header(header, "${jwtTokenCustomer}")
     .check(status.is(200))
     .check(jsonPath("$.id").ofType[Long].saveAs("accountId"))
     .check(jsonPath("$.email").ofType[String].is("${email}"))

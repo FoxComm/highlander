@@ -8,9 +8,11 @@ import io.gatling.http.request.builder.HttpRequestBuilder
 
 object CustomerAddressEndpoint {
 
+  val header = "JWT"
+
   def create(address: AddressFixture): HttpRequestBuilder = http("Create Customer Address")
     .post("/v1/customers/${customerId}/addresses")
-    .header("Authorization", "${jwtTokenAdmin}")
+    .header(header, "${jwtTokenAdmin}")
     .body(StringBody(Utils.addressPayloadBody(address)))
     .check(status.is(200))
     .check(jsonPath("$.id").ofType[Long].saveAs("customerAddressId"))
@@ -23,7 +25,7 @@ object CustomerAddressEndpoint {
 
   def update(address: AddressFixture): HttpRequestBuilder = http("Update Customer Address")
     .patch("/v1/customers/${customerId}/addresses/${customerAddressId}")
-    .header("Authorization", "${jwtTokenAdmin}")
+    .header(header, "${jwtTokenAdmin}")
     .body(StringBody(Utils.addressPayloadBody(address)))
     .check(status.is(200))
     .check(jsonPath("$.id").ofType[Long].saveAs("customerAddressId"))
