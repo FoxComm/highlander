@@ -6,7 +6,7 @@ import models.sharedsearch.{SharedSearch, SharedSearchAssociation, SharedSearchA
 import models.{StoreAdmin, StoreAdmins}
 import SharedSearchAssociation.{build ⇒ buildAssociation}
 import SharedSearch.{CustomersScope, OrdersScope, StoreAdminsScope}
-import failures.NotFoundFailure404
+import failures.{GeneralFailure, NotFoundFailure404}
 import failures.SharedSearchFailures._
 import payloads.{SharedSearchAssociationPayload, SharedSearchPayload}
 import responses.StoreAdminResponse.{Root ⇒ AdminRoot, build ⇒ buildAdmin}
@@ -21,13 +21,15 @@ import org.json4s.jackson.JsonMethods._
 class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
   "GET v1/shared-search" - {
-    "returns all searches when not scoped" in new SharedSearchFixture {
+    "return an error when not scoped" in new SharedSearchFixture {
       val response = GET(s"v1/shared-search")
-      response.status must === (StatusCodes.OK)
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (GeneralFailure("Scope must be specified").description)
+    }
 
-      val expectedResponse = Seq(customersSearch, ordersSearch, storeAdminsSearch)
-      val searchResponse = response.as[Seq[SharedSearch]]
-      searchResponse must === (expectedResponse)
+    "returns an error when given an invalid scope" in new SharedSearchFixture {
+      val response = GET(s"v1/shared-search?scope=arstScope")
+      response.status must === (StatusCodes.NotFound)
     }
 
     "returns only customers searches with the orders scope" in new SharedSearchFixture {
@@ -57,7 +59,7 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
     "returns associated scopes created by different admins" in new SharedSearchAssociationFixture {
       SharedSearchAssociations.create(buildAssociation(search, storeAdmin)).run().futureValue
 
-      val response = GET(s"v1/shared-search")
+      val response = GET(s"v1/shared-search?scope=customersScope")
       response.status must === (StatusCodes.OK)
 
       val expectedResponse = Seq(search)
