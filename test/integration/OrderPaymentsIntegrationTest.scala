@@ -27,6 +27,7 @@ import failures.NotFoundFailure404
 import failures.OrderFailures.OrderPaymentNotFoundFailure
 import failures.StoreCreditFailures.CustomerHasInsufficientStoreCredit
 import services.CreditCardManager
+import utils.{Apis, StripeApi}
 import utils.Slick.implicits._
 import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
@@ -36,6 +37,8 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
 
   import concurrent.ExecutionContext.Implicits.global
   import Extensions._
+
+  implicit val apis: Apis = Apis(mock[StripeApi])
 
   "gift cards" - {
     "POST /v1/orders/:ref/payment-methods/gift-cards" - {

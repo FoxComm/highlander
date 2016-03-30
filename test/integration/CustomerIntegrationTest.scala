@@ -48,6 +48,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
   with MockitoSugar {
 
   implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
+  implicit val apis: Apis = Apis(mock[StripeApi])
 
   // paging and sorting API
   val uriPrefix = "v1/customers"
