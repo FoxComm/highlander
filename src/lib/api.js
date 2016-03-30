@@ -22,7 +22,7 @@ export function addAuthHeaders(headers) {
     return;
   }
 
-  if (token) headers['Authorization'] = token;
+  if (token) headers['JWT'] = token;
 }
 
 function serialize(data) {
