@@ -65,7 +65,11 @@ export default class Auth extends Component {
     return (
       <div>
         <div styleName="title">LOG IN</div>
-        <Button icon="fc-google" type="button" styleName="google-login">LOG IN WITH GOOGLE</Button>
+        <form>
+          <Button icon="fc-google" onClick={this.props.googleSignin} type="button" styleName="google-login">
+            LOG IN WITH GOOGLE
+          </Button>
+        </form>
         <WrapToLines styleName="divider">or</WrapToLines>
         <form>
           <FormField key="email" styleName="form-field">

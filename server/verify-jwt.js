@@ -21,7 +21,7 @@ export default function *verifyJwt(next) {
     try {
       decodedToken = jsonwebtoken.verify(jwt, publicKey, {
         issuer: 'FC',
-        subject: 'API',
+        audience: 'customer',
         algorithms: ['RS256', 'RS384', 'RS512'],
       });
     } catch (err) {
