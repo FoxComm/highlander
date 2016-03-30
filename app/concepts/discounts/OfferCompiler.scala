@@ -12,12 +12,10 @@ final case class OfferCompiler(offerType: String, attributes: String) {
 
   implicit val formats: Formats = JsonFormatters.DefaultFormats
 
-  def compile(): Xor[Failure, Offer] = {
-    (OfferType.read(offerType), parseOpt(attributes)) match {
-      case (Some(q), Some(j)) ⇒ compileInner(q, j)
-      case (_, Some(j))       ⇒ Xor.Left(UnknownOfferFailure(offerType))
-      case (_, _)             ⇒ Xor.Left(OfferAttributesParseFailure(offerType, attributes))
-    }
+  def compile(): Xor[Failure, Offer] = (OfferType.read(offerType), parseOpt(attributes)) match {
+    case (Some(q), Some(j)) ⇒ compileInner(q, j)
+    case (_, Some(j))       ⇒ Xor.Left(UnknownOfferFailure(offerType))
+    case (_, _)             ⇒ Xor.Left(OfferAttributesParseFailure(offerType, attributes))
   }
 
   private def compileInner(offerAdt: OfferType, json: JValue): Xor[Failure, Offer] = offerAdt match {
