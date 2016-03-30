@@ -30,7 +30,6 @@ class EditGiftCard extends Component {
     this.props.saveGiftCard(this.state.code).then(() => {
       this.setState({code: ''});
     }).catch(() => {
-      console.log('in catch');
       this.setState({code: '', error: 'Please enter a valid gift card and try again.'});
     });
   }
