@@ -107,9 +107,14 @@
   display: flex;
 }
 
+.gift-card-code-field {
+  flex-grow: 1;
+}
+
 .gift-card-code {
   composes: text-input from "ui/css/input.css";
-  flex-grow: 1;
+  width: 100%;
+  height: 55px;
   border: 0;
 }
 
