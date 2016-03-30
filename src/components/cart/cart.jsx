@@ -6,10 +6,12 @@ import React, { Component } from 'react';
 import styles from './cart.css';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
+import { browserHistory } from 'react-router';
+import { autobind } from 'core-decorators';
 
 import Currency from 'ui/currency';
 import LineItem from './line-item';
-import { Link } from 'react-router';
+import Button from 'ui/buttons';
 
 import * as actions from 'modules/cart';
 
@@ -27,11 +29,18 @@ class Cart extends Component {
     });
   }
 
+  @autobind
+  onCheckout() {
+    browserHistory.push('/checkout');
+  }
+
   render() {
     const cartClass = classNames({
       'cart-hidden': !this.props.isVisible,
       'cart-shown': this.props.isVisible,
     });
+
+    const checkoutDisabled = _.size(this.props.skus) < 1;
 
     return (
       <div styleName={cartClass}>
@@ -55,7 +64,9 @@ class Cart extends Component {
             </div>
           </div>
           <div styleName="cart-footer">
-            <Link to="/checkout" styleName="checkout-button">CHECKOUT</Link>
+            <Button onClick={this.onCheckout} disabled={checkoutDisabled} styleName="checkout-button">
+              CHECKOUT
+            </Button>
           </div>
         </div>
       </div>

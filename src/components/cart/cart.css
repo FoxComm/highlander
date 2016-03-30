@@ -53,12 +53,21 @@
 
 .checkout-button {
   display: flex;
+  background: var(--blackish);
   color: var(--whitish);
   text-decoration: none;
   height: 100%;
   width: 100%;
+  font-size: 15px;
+  line-height: 17px;
   align-items: center;
   justify-content: center;
+  border: 0;
+  cursor: pointer;
+}
+
+.checkout-button:disabled {
+  background: var(--blackish);
 }
 
 .cart-content {
