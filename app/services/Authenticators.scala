@@ -12,7 +12,8 @@ import akka.http.scaladsl.server.directives.SecurityDirectives.{AuthenticationRe
 import akka.http.scaladsl.server.directives.{AuthenticationDirective, AuthenticationResult}
 
 import cats.data.Xor
-import failures.{AuthFailed, Failures, LoginFailed}
+import failures.Failures
+import failures.AuthFailures._
 import models.auth.{Identity, _}
 import models.customer.{Customer, Customers}
 import models.{StoreAdmin, StoreAdmins}
@@ -54,10 +55,7 @@ object Authenticator {
   }
 
   trait BasicAuth[M] extends AsyncAuthenticator[M] {
-
     type C = HttpCredentials
-
-    val authHeader: String = "Authorization"
 
     def readCredentials(): Directive1[Option[HttpCredentials]] = {
       extractCredentials
@@ -67,7 +65,7 @@ object Authenticator {
       (credentials: Option[HttpCredentials], finder: F, getHashedPassword: M ⇒ Option[String])
       (implicit ec: EC, db: DB): Future[AuthenticationResult[M]] = {
       (for {
-        userCredentials ← * <~ Credentials.mustVerifyBasicCredentials(credentials, AuthFailed("missed credentials").single)
+        userCredentials ← * <~ Credentials.mustVerifyBasicCredentials(credentials, AuthFailed("missing credentials").single)
         user            ← * <~ finder(userCredentials.identifier).mustFindOr(LoginFailed)
         validated       ← * <~ validatePassword(user, getHashedPassword(user), userCredentials.secret)
       } yield validated).run().map {
@@ -92,13 +90,10 @@ object Authenticator {
   }
 
   trait JwtAuth[M] extends AsyncAuthenticator[M] {
-
     type C = String
 
-    val authHeader: String = "JWT"
-
     def readCredentials(): Directive1[Option[String]] = {
-      readCookieOrHeader(headerName = authHeader)
+      readCookieOrHeader(headerName = "JWT")
     }
 
     def validateToken(token: String): Failures Xor Token
@@ -106,7 +101,7 @@ object Authenticator {
     protected def jwtAuth[F <: TokenToModel[M]](realm: String)
       (credentials: Option[String], userFromToken: F)
       (implicit ec: EC, db: DB): Future[AuthenticationResult[M]] = (for {
-      jwtCredentials ← * <~ credentials.toXor(AuthFailed("missed credentials").single)
+      jwtCredentials ← * <~ credentials.toXor(AuthFailed("missing credentials").single)
       token          ← * <~ validateToken(jwtCredentials)
       userDbio       ← * <~ userFromToken(token)
       user           ← * <~ userDbio.mustFindOr(LoginFailed)

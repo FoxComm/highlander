@@ -83,14 +83,6 @@ final case class InvalidFieldFailure(name: String) extends Failure {
   override def description = s"Invalid value for field '$name' provided"
 }
 
-case object LoginFailed extends Failure {
-  override def description = s"Email or password invalid"
-}
-
-final case class AuthFailed(reason: String) extends Failure {
-  override def description = reason
-}
-
 final case class AlreadySavedForLater(customerId: Int, skuId: Int) extends Failure {
   override def description = s"Customer with id=$customerId already has SKU with id=$skuId saved for later"
 }

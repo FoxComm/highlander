@@ -7,7 +7,8 @@ import java.security.{KeyFactory, PrivateKey, PublicKey}
 import scala.util.{Failure, Success, Try}
 
 import cats.data.Xor
-import failures.{AuthFailed, Failures, GeneralFailure}
+import failures.{Failures, GeneralFailure}
+import failures.AuthFailures._
 import models.StoreAdmin
 import models.customer.Customer
 import org.jose4j.jws.JsonWebSignature
