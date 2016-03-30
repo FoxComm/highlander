@@ -1,4 +1,3 @@
-import classNames from 'classnames';
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'react-router';
@@ -66,11 +65,6 @@ export default class Auth extends Component {
   render(): HTMLElement {
     const { password, email } = this.state;
 
-    const clsBtnLoading = classNames({
-      'primary-button': !this.props.isLoading,
-      'primary-button-loading': this.props.isLoading,
-    });
-
     return (
       <div>
         <div styleName="title">LOG IN</div>
@@ -90,7 +84,7 @@ export default class Auth extends Component {
               value={password} onChange={this.onChangePassword} type="password"
             />
           </FormField>
-          <Button styleName={clsBtnLoading} onClick={this.authenticate}>LOG IN</Button>
+          <Button styleName="primary-button" loading={this.props.isLoading} onClick={this.authenticate}>LOG IN</Button>
         </form>
         <div styleName="switch-stage">
           Don’t have an account? <Link styleName="signup-link" to="/signup">Sign Up</Link>

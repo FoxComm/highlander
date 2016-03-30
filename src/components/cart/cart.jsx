@@ -22,7 +22,7 @@ class Cart extends Component {
 
   componentWillMount() {
     /** prevent loading if no user logged in */
-    if (!!this.props.user) {
+    if (this.props.user) {
       this.props.fetch();
     }
   }
