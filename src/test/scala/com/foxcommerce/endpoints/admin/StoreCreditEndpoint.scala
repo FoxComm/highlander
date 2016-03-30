@@ -1,5 +1,6 @@
 package com.foxcommerce.endpoints.admin
 
+import com.foxcommerce.common.Config
 import com.foxcommerce.fixtures.StoreCreditFixture
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
@@ -12,7 +13,7 @@ object StoreCreditEndpoint {
 
   def create(payload: StoreCreditFixture): HttpRequestBuilder = http("Create Store Credit For Customer")
     .post("/v1/customers/${customerId}/payment-methods/store-credit")
-    .header("Authorization", "${jwtTokenAdmin}")
+    .header(Config.defaultJwtHeader, "${jwtTokenAdmin}")
     .body(StringBody("""{"amount": %d, "reasonId": %d}""".format(payload.amount, payload.reasonId)))
     .check(status.is(200))
     .check(jsonPath("$.id").ofType[Long].saveAs("storeCreditId"))
@@ -24,7 +25,7 @@ object StoreCreditEndpoint {
 
   def cancel(): HttpRequestBuilder = http("Cancel Store Credit")
     .patch("/v1/store-credits/${storeCreditId}")
-    .header("Authorization", "${jwtTokenAdmin}")
+    .header(Config.defaultJwtHeader, "${jwtTokenAdmin}")
     .body(StringBody("""{"state": "canceled", "reasonId": %d}""".format(cancellationReasonId)))
     .check(status.is(200))
     .check(jsonPath("$.state").ofType[String].is("canceled"))
