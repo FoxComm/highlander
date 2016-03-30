@@ -82,6 +82,13 @@ Then run
     $ vagrant up --provider=google
 
 Test machines are created without a public facing IP address, so you'll need to use the VPN to access it.
+
+Get the private IP address
+
+    $ vagrant ssh
+    $ ifconfig eth0
+    
+Edit your hosts file so that `foxcommerce.local` and `admin.foxcommerce.local` point to the new box using the private IP address you just retrieved.
     
 ### Update Green River assembly
 
