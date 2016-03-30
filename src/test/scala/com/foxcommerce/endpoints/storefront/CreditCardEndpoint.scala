@@ -1,5 +1,6 @@
 package com.foxcommerce.endpoints.storefront
 
+import com.foxcommerce.common.Config
 import com.foxcommerce.fixtures._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
@@ -7,11 +8,9 @@ import io.gatling.http.request.builder.HttpRequestBuilder
 
 object CreditCardEndpoint {
 
-  val header = "JWT"
-
   def create(card: CreditCardFixture, address: AddressFixture): HttpRequestBuilder = http("Create My Credit Card")
     .post("/v1/my/payment-methods/credit-cards")
-    .header(header, "${jwtTokenCustomer}")
+    .header(Config.defaultJwtHeader, "${jwtTokenCustomer}")
     .body(ELFileBody("request-bodies/credit_card.json"))
     .check(status.is(200))
     .check(jsonPath("$.id").ofType[Long].saveAs("creditCardId"))
@@ -29,7 +28,7 @@ object CreditCardEndpoint {
 
   def update(card: CreditCardFixture, address: AddressFixture): HttpRequestBuilder = http("Update My Credit Card")
     .patch("/v1/my/payment-methods/credit-cards/${creditCardId}")
-    .header(header, "${jwtTokenCustomer}")
+    .header(Config.defaultJwtHeader, "${jwtTokenCustomer}")
     .body(StringBody("""{"holderName": "%s"}""".format(card.holderName)))
     .check(status.is(200))
     .check(jsonPath("$.id").ofType[Long].saveAs("creditCardId"))
@@ -48,7 +47,7 @@ object CreditCardEndpoint {
   def setAsDefault(card: CreditCardFixture, address: AddressFixture): HttpRequestBuilder =
     http("Set My Credit Card As Default")
       .post("/v1/my/payment-methods/credit-cards/${creditCardId}/default")
-      .header(header, "${jwtTokenCustomer}")
+      .header(Config.defaultJwtHeader, "${jwtTokenCustomer}")
       .body(StringBody("""{"isDefault": true}"""))
       .check(status.is(200))
       .check(jsonPath("$.id").ofType[Long].is("${creditCardId}"))
@@ -67,7 +66,7 @@ object CreditCardEndpoint {
   def get(card: CreditCardFixture, address: AddressFixture): HttpRequestBuilder =
     http("Get My Credit Card")
       .get("/v1/my/payment-methods/credit-cards/${creditCardId}")
-      .header(header, "${jwtTokenCustomer}")
+      .header(Config.defaultJwtHeader, "${jwtTokenCustomer}")
       .check(status.is(200))
       .check(jsonPath("$.id").ofType[Long].is("${creditCardId}"))
       .check(jsonPath("$.customerId").ofType[Long].is("${accountId}"))

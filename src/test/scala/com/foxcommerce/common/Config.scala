@@ -25,6 +25,8 @@ final case class Config(environment: String, apiUrl: String, userAgent: String, 
 }
 
 object Config {
+  // Can override this in config later
+  val defaultJwtHeader   = "JWT"
   val defaultEnvironment = "vagrant"
   val defaultUsersCount  = 1
   val defaultPause       = 7
