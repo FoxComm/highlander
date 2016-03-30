@@ -12,8 +12,6 @@ final case class OfferCompiler(offerType: String, attributes: String) {
 
   implicit val formats: Formats = JsonFormatters.DefaultFormats
 
-  val dummyFailure = Xor.Left(GeneralFailure("I'm Dummy Failure!"))
-
   def compile(): Xor[Failure, Offer] = {
     (OfferType.read(offerType), parseOpt(attributes)) match {
       case (Some(q), Some(j)) ⇒ compileInner(q, j)
