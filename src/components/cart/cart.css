@@ -51,6 +51,15 @@
   align-items: center;
 }
 
+.left-icon {
+  margin: 0 15px;
+}
+
+.header-text {
+  flex-grow: 1;
+  margin-right: 50px; /* 15px paddings + 20px icon width */
+}
+
 .checkout-button {
   display: flex;
   background: var(--blackish);

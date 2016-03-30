@@ -12,6 +12,7 @@ import { autobind } from 'core-decorators';
 import Currency from 'ui/currency';
 import LineItem from './line-item';
 import Button from 'ui/buttons';
+import Icon from 'ui/icon';
 
 import * as actions from 'modules/cart';
 
@@ -48,7 +49,10 @@ class Cart extends Component {
         </div>
         <div styleName="cart-box">
           <div styleName="cart-header" onClick={this.props.toggleCart}>
+            <Icon name="fc-chevron-left" styleName="left-icon"/>
+            <div styleName="header-text">
               KEEP SHOPPING
+            </div>
           </div>
           <div styleName="cart-content">
             <div styleName="line-items">
