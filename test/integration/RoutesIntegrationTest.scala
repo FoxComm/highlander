@@ -15,13 +15,8 @@ class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase
   val authedStoreAdmin = StoreAdmin.build(id = 1, email = "donkey@donkey.com", password = Some("donkeyPass"),
     name = "Mister Donkey")
 
-  override def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] = (UserCredentials) ⇒ {
-    Future.successful(AuthenticationResult.success(authedStoreAdmin))
-  }
-
-  override def overrideCustomerAuth: AsyncAuthenticator[Customer] = (UserCredentials) ⇒ {
-    Future.successful(AuthenticationResult.failWithChallenge(challengeFor("test")))
-  }
+  override def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] = AuthAs(authedStoreAdmin)
+  override def overrideCustomerAuth: AsyncAuthenticator[Customer] = AuthFailWith[Customer](challengeFor("test"))
 
   "Requests with StoreAdmin only session (w/o customer)" - {
     "GET /v1/404alkjflskfdjg"  in {
@@ -39,13 +34,8 @@ class RoutesCustomerOnlyIntegrationTest extends IntegrationTestBase
 
   val uriPrefix = "v1/my"
 
-  override def overrideCustomerAuth: AsyncAuthenticator[Customer] = (UserCredentials) ⇒ {
-    Future.successful(AuthenticationResult.success(authedCustomer))
-  }
-
-  override def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] = (UserCredentials) ⇒ {
-    Future.successful(AuthenticationResult.failWithChallenge(challengeFor("test")))
-  }
+  override def overrideCustomerAuth: AsyncAuthenticator[Customer] = AuthAs(authedCustomer)
+  override def overrideStoreAdminAuth: AsyncAuthenticator[StoreAdmin] = AuthFailWith[StoreAdmin](challengeFor("test"))
 
   "Requests with Customer only session (w/o StoreAdmin)" - {
     s"GET ${uriPrefix}/404hello" in {
