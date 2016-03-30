@@ -6,6 +6,7 @@ import models.order.Order
 import models.payment.PaymentMethod
 import models.shipping.ShippingMethod
 import models.Note
+import models.customer.Customer
 import responses.order.FullOrder
 import responses.{Addresses, CreditCardsResponse, GiftCardResponse, StoreAdminResponse}
 
@@ -39,6 +40,10 @@ object OrderTailored {
   final case class OrderLineItemsUpdatedQuantities(order: FullOrder.Root, oldQuantities: Map[String, Int],
     newQuantities: Map[String, Int], admin: Option[StoreAdminResponse.Root])
     extends ActivityBase[OrderLineItemsUpdatedQuantities]
+
+  /* Order checkout & order payments */
+  final case class OrderCheckoutCompleted(order: FullOrder.Root, customer: Customer)
+    extends ActivityBase[OrderCheckoutCompleted]
 
   /* Order Shipping Methods */
   final case class OrderShippingMethodUpdated(order: FullOrder.Root, shippingMethod: Option[ShippingMethod],

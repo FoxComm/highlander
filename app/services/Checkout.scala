@@ -33,6 +33,7 @@ object Checkout {
   def fromCustomerCart(customer: Customer)(implicit ec: EC, db: DB, apis: Apis, ac: AC): Result[FullOrder.Root] = (for {
     cart  ← * <~ Orders.findActiveOrderByCustomer(customer).one.mustFindOr(CustomerHasNoActiveOrder(customer.id))
     order ← * <~ Checkout(cart, CartValidator(cart)).checkout
+    _     ← * <~ LogActivity.orderCheckoutCompleted(order, customer)
   } yield order).runTxn()
 }
 

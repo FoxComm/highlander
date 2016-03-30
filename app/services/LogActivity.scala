@@ -228,6 +228,11 @@ object LogActivity {
     admin: Option[StoreAdmin] = None)(implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(OrderLineItemsUpdatedQuantities(order, oldQtys, foldQuantityPayload(payload), admin.map(buildAdmin)))
 
+  /* Order checkout & payments */
+
+  def orderCheckoutCompleted(order: FullOrder.Root, customer: Customer)(implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(OrderCheckoutCompleted(order, customer))
+
   /* Order Payment Methods */
   def orderPaymentMethodAddedCc(originator: Originator, order: FullOrder.Root, cc: CreditCard, region: Region)
     (implicit ec: EC, ac: AC): DbResult[Activity] =
