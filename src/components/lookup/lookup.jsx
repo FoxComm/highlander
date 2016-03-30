@@ -1,11 +1,13 @@
 // libs
 import _ from 'lodash';
 import React, { Component, PropTypes } from 'react';
+import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
 // helpers
 import { prefix } from '../../lib/text-utils';
+import { isElementVisible } from '../../lib/dom-utils';
 
 // components
 import LookupInput from './lookup-input';
@@ -101,7 +103,24 @@ export default class Lookup extends Component {
     const index = activeIndex + delta;
 
     if (this.indexIsValid(index)) {
+      this.scrollTo(index, delta > 0 ? 'bottom' : 'top');
       this.setState({activeIndex: index});
+    }
+  }
+
+  scrollTo(index, direction) {
+    const component = ReactDOM.findDOMNode(this);
+
+    const menu = component.querySelector('.fc-lookup__menu');
+    const menuRect = menu.getBoundingClientRect();
+
+    const items = component.querySelector('.fc-lookup__items');
+
+    const item = component.querySelector(`.fc-lookup__item:nth-child(${index + 1})`);
+    const itemRect = item.getBoundingClientRect();
+
+    if (isElementVisible(items, menu) && !isElementVisible(item, items)) {
+      items.scrollTop += itemRect[direction] - menuRect[direction];
     }
   }
 
