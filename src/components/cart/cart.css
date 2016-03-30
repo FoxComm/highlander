@@ -1,5 +1,6 @@
 
 @import "colors.css";
+@import "media-queries.css";
 
 .overlay {
   position: fixed;
@@ -101,4 +102,10 @@
 
 .subtotal-price {
   margin-right: 20px;
+}
+
+@media (--medium-viewport) {
+  .cart-box {
+    lost-column: 7/11;
+  }
 }
