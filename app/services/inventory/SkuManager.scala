@@ -1,4 +1,6 @@
-package services
+package services.inventory
+
+import services.Result
 
 import models.objects._
 import models.inventory._

@@ -12,8 +12,10 @@ import models.traits.Originator
 import payloads._
 import services.customers.CustomerManager
 import services.orders._
-import services.{AddressManager, Checkout, CreditCardManager, LineItemUpdater, ProductManager, SaveForLaterManager, ShippingManager, StoreCreditAdjustmentsService, StoreCreditService}
+import services.{AddressManager, Checkout, CreditCardManager, LineItemUpdater,  
+  SaveForLaterManager, ShippingManager, StoreCreditAdjustmentsService, StoreCreditService}
 import services.Authenticator.{AsyncAuthenticator, requireAuth}
+import services.product.ProductManager
 import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._

@@ -1,6 +1,8 @@
-package services
+package services.objects
 
 import scala.concurrent.ExecutionContext
+
+import services._
 
 import models.objects._
 import responses.ObjectResponses._

@@ -6,8 +6,8 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import payloads._
 import models.StoreAdmin
-import services.ObjectManager
-import services.ProductManager
+import services.objects.ObjectManager
+import services.product.ProductManager
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 import utils.Apis

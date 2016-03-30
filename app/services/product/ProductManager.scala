@@ -1,4 +1,7 @@
-package services
+package services.product
+
+import services.Result
+import services.inventory.SkuManager
 
 import models.inventory._
 import models.product._
