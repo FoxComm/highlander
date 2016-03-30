@@ -30,7 +30,3 @@ final case class QualifierCompiler(qualifierType: String, attributes: String) {
     case None    => Xor.Left(QualifierAttributesExtractionFailure(qualifierType, attributes))
   }
 }
-
-object QualifierCompiler {
-  // Nothing here, yet
-}

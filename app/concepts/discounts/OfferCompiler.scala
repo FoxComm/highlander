@@ -34,7 +34,3 @@ final case class OfferCompiler(offerType: String, attributes: String) {
     case None    => Xor.Left(OfferAttributesExtractionFailure(offerType, attributes))
   }
 }
-
-object OfferCompiler {
-  // Nothing here, yet
-}
