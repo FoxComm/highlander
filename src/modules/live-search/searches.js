@@ -38,7 +38,7 @@ export default function makeSearches(namespace, fetch, searchTerms, scope, optio
   const deleteSearchFailure = createNsAction(namespace, 'DELETE_SEARCH_FAILURE', (idx, err) => [idx, err]);
 
   const selectSavedSearch = createNsAction(namespace, 'SELECT_SAVED_SEARCH');
-  const submitFilters = createNsAction(namespace, 'SUBMIT_FILTERS');
+  const submitFilters = createNsAction(namespace, 'SUBMIT_FILTERS', (filters, initial) => [filters, initial]);
   const submitPhrase = createNsAction(namespace, 'SUBMIT_PHRASE');
   const fetchSearchesStart = createNsAction(namespace, 'FETCH_SEARCHES_START');
   const fetchSearchesSuccess = createNsAction(namespace, 'FETCH_SEARCHES_SUCCESS');
@@ -48,7 +48,7 @@ export default function makeSearches(namespace, fetch, searchTerms, scope, optio
 
   const addSearchFilters = (filters, initial = false) => {
     return dispatch => {
-      dispatch(submitFilters(filters));
+      dispatch(submitFilters(filters, initial));
       if (!initial || !skipInitialFetch) {
         dispatch(fetch());
       }
@@ -153,7 +153,7 @@ export default function makeSearches(namespace, fetch, searchTerms, scope, optio
     [saveSearchSuccess]: (state, payload) => _saveSearchSuccess(state, payload),
     [saveSearchFailure]: (state, err) => _saveSearchFailure(state, err),
     [selectSavedSearch]: (state, idx) => _selectSavedSearch(state, idx),
-    [submitFilters]: (state, filters) => _submitFilters(state, filters),
+    [submitFilters]: (state, [filters, initial]) => _submitFilters(state, filters, initial),
     [submitPhrase]: (state, phrase) => _submitPhrase(state, phrase),
     [fetchSearchesStart]: (state) => _fetchSearchesStart(state),
     [fetchSearchesSuccess]: (state, searches) => _fetchSearchesSuccess(state, searches),
@@ -228,10 +228,15 @@ function _selectSavedSearch(state, idx) {
   return state;
 }
 
-function _submitFilters(state, filters) {
+function _submitFilters(state, filters, initial) {
+  const wasDirty = _.get(state, ['savedSearches', state.selectedSearch, 'isDirty'], true);
+
+  /** not mark search as dirty on initial filters set but left it dirty if it was marked before */
+  const isDirty = !initial || wasDirty;
+
   return assoc(state,
     ['savedSearches', state.selectedSearch, 'query'], filters,
-    ['savedSearches', state.selectedSearch, 'isDirty'], true
+    ['savedSearches', state.selectedSearch, 'isDirty'], isDirty
   );
 }
 
@@ -256,13 +261,34 @@ function _fetchSearchesStart(state) {
 }
 
 function _fetchSearchesSuccess(state, searches) {
-  const mappedSearches = searches.map(search => {
-    return { ...emptyState, ...search };
-  });
+  const mappedSearches = searches.map(search => ({ ...emptyState, ...search }));
+
+  let updatedSearches = state.savedSearches.map(oldSearch => {
+      /** left dirty searches untouched */
+      if (oldSearch.isDirty || oldSearch.id === void 0) {
+        return oldSearch;
+      }
+
+      for (const newSearch of mappedSearches) {
+        /** update old search with new one from the server */
+        if (newSearch.id === oldSearch.id) {
+          return newSearch;
+        }
+      }
+
+      /** old search not found in server response, delete it later */
+      return void 0;
+    })
+    .filter(search => search !== void 0);
+
+  const ids = updatedSearches.map(search => search.id);
+
+  /** completely new searches received from server */
+  const newSearches = mappedSearches.filter(search => ids.indexOf(search.id) === -1);
 
   return assoc(state,
     'fetchingSearches', false,
-    'savedSearches', [...state.savedSearches, ...mappedSearches]
+    'savedSearches', [...updatedSearches, ...newSearches]
   );
 }
 
