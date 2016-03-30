@@ -14,7 +14,7 @@ final case class OfferCompiler(offerType: String, attributes: String) {
 
   val dummyFailure = Xor.Left(GeneralFailure("I'm Dummy Failure!"))
 
-  def compile(offerType: String, attributes: String): Xor[Failure, Offer] = {
+  def compile(): Xor[Failure, Offer] = {
     (OfferType.read(offerType), parseOpt(attributes)) match {
       case (Some(q), Some(j)) ⇒ compileInner(q, j)
       case (_, Some(j))       ⇒ Xor.Left(UnknownOfferFailure(offerType))
@@ -26,7 +26,7 @@ final case class OfferCompiler(offerType: String, attributes: String) {
     case OrderPercentOff       ⇒ extract[OrderPercentOffer](json)
     case ItemsSelectPercentOff ⇒ extract[ItemsSelectPercentOffer](json)
     case FreeShipping          ⇒ Xor.Right(FreeShippingOffer)
-    case _                     ⇒ Xor.Left(NotImplementedOfferFailure(offerType))
+    case _                     ⇒ Xor.Left(OfferNotImplementedFailure(offerType))
   }
 
   private def extract[T <: Offer](json: JValue)(implicit m: Manifest[T]): Xor[Failure, Offer] = json.extractOpt[T] match {

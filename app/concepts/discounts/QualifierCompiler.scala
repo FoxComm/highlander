@@ -22,7 +22,7 @@ final case class QualifierCompiler(qualifierType: String, attributes: String) {
     case OrderAny         ⇒ Xor.Right(OrderAnyQualifier)
     case OrderTotalAmount ⇒ extract[OrderTotalAmountQualifier](json)
     case ItemsAny         ⇒ Xor.Right(ItemsAnyQualifier)
-    case _                ⇒ Xor.Left(NotImplementedQualifierFailure(qualifierType))
+    case _                ⇒ Xor.Left(QualifierNotImplementedFailure(qualifierType))
   }
 
   private def extract[T <: Qualifier](json: JValue)(implicit m: Manifest[T]): Xor[Failure, Qualifier] = json.extractOpt[T] match {

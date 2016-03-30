@@ -14,7 +14,7 @@ object DiscountCompilerFailures {
     override def description = s"unknown qualifier type $qualifierType"
   }
 
-  final case class NotImplementedQualifierFailure(qualifierType: String) extends Failure {
+  final case class QualifierNotImplementedFailure(qualifierType: String) extends Failure {
     override def description = s"qualifier not implemented for qualifier type $qualifierType"
   }
 
@@ -30,7 +30,7 @@ object DiscountCompilerFailures {
     override def description = s"unknown offer type $offerType"
   }
 
-  final case class NotImplementedOfferFailure(offerType: String) extends Failure {
+  final case class OfferNotImplementedFailure(offerType: String) extends Failure {
     override def description = s"offer not implemented for offer type $offerType"
   }
 }
