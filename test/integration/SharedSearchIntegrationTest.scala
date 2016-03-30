@@ -6,7 +6,7 @@ import models.sharedsearch.{SharedSearch, SharedSearchAssociation, SharedSearchA
 import models.{StoreAdmin, StoreAdmins}
 import SharedSearchAssociation.{build ⇒ buildAssociation}
 import models.sharedsearch.SharedSearch.{ProductsScope, GiftCardsScope, CustomersScope, OrdersScope, StoreAdminsScope}
-import failures.{GeneralFailure, NotFoundFailure404}
+import failures.NotFoundFailure404
 import failures.SharedSearchFailures._
 import payloads.{SharedSearchAssociationPayload, SharedSearchPayload}
 import responses.StoreAdminResponse.{Root ⇒ AdminRoot, build ⇒ buildAdmin}
@@ -24,7 +24,7 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
     "return an error when not scoped" in new SharedSearchFixture {
       val response = GET(s"v1/shared-search")
       response.status must === (StatusCodes.BadRequest)
-      response.error must === (GeneralFailure("Scope must be specified").description)
+      response.error must === (SharedSearchScopeNotFound.description)
     }
 
     "returns an error when given an invalid scope" in new SharedSearchFixture {

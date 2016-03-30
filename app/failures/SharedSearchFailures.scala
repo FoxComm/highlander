@@ -10,4 +10,7 @@ object SharedSearchFailures {
     override def description = s"Invalid JSON provided for shared search query"
   }
 
+  case object SharedSearchScopeNotFound extends Failure {
+    override def description = "SharedSearch requires a valid scope"
+  }
 }
