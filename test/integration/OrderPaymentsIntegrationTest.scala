@@ -13,6 +13,10 @@ import models.payment.creditcard.{CreditCard, CreditCards}
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.{Reasons, StoreAdmins}
+import models.stripe._
+import org.mockito.Mockito.{reset, when}
+import org.mockito.{Matchers ⇒ m}
+import org.scalatest.mock.MockitoSugar
 import OrderPayments.scope._
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
@@ -20,22 +24,31 @@ import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.seeds.Seeds
 import Seeds.Factories
+import com.stripe.model.{Card, Customer, DeletedExternalAccount}
 import failures.CartFailures.OrderMustBeCart
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures.GiftCardFailures._
 import failures.NotFoundFailure404
 import failures.OrderFailures.OrderPaymentNotFoundFailure
 import failures.StoreCreditFailures.CustomerHasInsufficientStoreCredit
-import services.CreditCardManager
+import org.mockito.Matchers
+import org.mockito.Mockito._
+import services.{CreditCardManager, Result}
+import utils.{Apis, StripeApi}
 import utils.Slick.implicits._
 import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
 class OrderPaymentsIntegrationTest extends IntegrationTestBase
   with HttpSupport
-  with AutomaticAuth {
+  with AutomaticAuth
+  with MockitoSugar {
 
   import concurrent.ExecutionContext.Implicits.global
   import Extensions._
+
+  private val stripeApi: StripeApi = mock[StripeApi]
+  implicit val apis: Apis = Apis(stripeApi)
+  implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
 
   "gift cards" - {
     "POST /v1/orders/:ref/payment-methods/gift-cards" - {
@@ -79,7 +92,7 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the giftCard does not have sufficient available balance" in new GiftCardFixture {
-        val requestedAmount = (giftCard.availableBalance + 1)
+        val requestedAmount = giftCard.availableBalance + 1
         val payload = payloads.GiftCardPayment(code = giftCard.code, amount = requestedAmount.some)
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/gift-cards", payload)
 
@@ -310,8 +323,18 @@ class OrderPaymentsIntegrationTest extends IntegrationTestBase
       }
 
       "fails if the creditCard is inActive" in new CreditCardFixture {
+        reset(stripeApi)
+
+        when(stripeApi.findCustomer(m.any(), m.any())).
+          thenReturn(Result.good(new StripeCustomer))
+
+        when(stripeApi.findDefaultCard(m.any(), m.any())).
+          thenReturn(Result.good(new StripeCard))
+
+        when(stripeApi.deleteExternalAccount(m.any(), m.any())).
+          thenReturn(Result.good(new DeletedExternalAccount))
+
         val payload = payloads.CreditCardPayment(creditCard.id)
-        implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
         CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(admin)).futureValue
         val response = POST(s"v1/orders/${order.referenceNumber}/payment-methods/credit-cards", payload)
 

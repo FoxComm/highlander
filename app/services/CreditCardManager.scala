@@ -82,13 +82,14 @@ object CreditCardManager {
   } yield buildResponse(default, region)).runTxn()
 
   def deleteCreditCard(customerId: Int, id: Int, admin: Option[StoreAdmin] = None)
-    (implicit ec: EC, db: DB, ac: AC): Result[Unit] = {
+    (implicit ec: EC, db: DB, apis: Apis, ac: AC): Result[Unit] = {
 
     (for {
       customer  ← * <~ Customers.mustFindById404(customerId)
       cc        ← * <~ CreditCards.mustFindByIdAndCustomer(id, customerId)
       region    ← * <~ Regions.findOneById(cc.regionId).safeGet.toXor
       update    ← * <~ CreditCards.update(cc, cc.copy(inWallet = false, deletedAt = Some(Instant.now())))
+      _         ← * <~ gateway.deleteCard(cc)
       _         ← * <~ LogActivity.ccDeleted(customer, cc, admin)
     } yield ()).runTxn()
   }

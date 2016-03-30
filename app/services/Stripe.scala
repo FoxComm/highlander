@@ -5,7 +5,7 @@ import scala.collection.JavaConversions.mapAsJavaMap
 import cats.data.Xor
 import cats.data.Xor.{left, right}
 import cats.implicits._
-import com.stripe.model.ExternalAccount
+import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
 import failures.{CreditCardFailures, Failures}
 import models.location.Address
 import models.payment.creditcard.CreditCard
@@ -99,6 +99,14 @@ final case class Stripe(apiKey: String = "sk_test_uvaf3GCFsjCsvvKO7FsQhNRm")(imp
       customer    ← ResultT(getCustomer(cc.gatewayCustomerId))
       stripeCard  ← ResultT(getCard(customer))
       updated     ← ResultT(update(stripeCard))
+    } yield updated).value
+  }
+
+  def deleteCard(cc: CreditCard): Result[DeletedExternalAccount] = {
+    (for {
+      customer    ← ResultT(getCustomer(cc.gatewayCustomerId))
+      stripeCard  ← ResultT(getCard(customer))
+      updated     ← ResultT(api.deleteExternalAccount(stripeCard, this.apiKey))
     } yield updated).value
   }
 
