@@ -78,11 +78,6 @@
   height: 60px;
 }
 
-.add-to-cart-loading {
-  composes: button-loading from "ui/css/buttons.css";
-  composes: add-to-cart;
-}
-
 .description {
   margin-bottom: 30px;
 }
