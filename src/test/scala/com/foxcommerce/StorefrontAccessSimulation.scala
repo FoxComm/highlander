@@ -59,7 +59,6 @@ class StorefrontAccessSimulation extends Simulation {
     .exec(IntruderActivity.Address.delete())
     .exec(IntruderActivity.Cart.shippingAddressAdd())
     // Customer Credit Card Activity
-    /*
     .exec(session ⇒ {
       session
         .set("ccHolderName", baseCreditCard.holderName)
@@ -79,11 +78,10 @@ class StorefrontAccessSimulation extends Simulation {
     .exec(IntruderActivity.CreditCard.update(address))
     .exec(IntruderActivity.CreditCard.setAsDefault())
     .exec(IntruderActivity.CreditCard.delete())
-    */
     // Cleanup
     .exec(AddressEndpoint.removeDefault())
     .exec(AddressEndpoint.delete())
-    //.exec(CreditCardEndpoint.delete())
+    .exec(CreditCardEndpoint.delete())
 
   setUp(
     storefrontScenario.inject(conf.defaultInjectionProfile).protocols(conf.httpConf)
