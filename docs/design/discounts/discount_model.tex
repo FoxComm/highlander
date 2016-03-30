@@ -38,11 +38,256 @@
 \maketitle
 \section{Purpose}
 
+Customers want to be able to discount products and run promotions to help drive
+sales. Promotions are a merchandising tool and having a flexible one allows the
+customer to be creative in their business.
+
 \section{Forces}
 
+\begin{itemize}
+    \item Provide flexibility without sacraficing integrity. 
+    \item This is a combinatorial problem.
+    \item Must only allow valid configurations.
+\end{itemize}
+
+\section{Architecture}
+
+\subsection{Parts}
+The discounting system has two parts. 
+
+\begin{enumerate}
+    \item Merchandising Part
+    \item Execution Part
+\end{enumerate}
+
+The merchandising part will use our Object System to store information that can
+change by context. The execution part will be composed of several pieces.
+
+\begin{itemize}
+    \item Qualifier and Offer Algebras
+    \item Algebra Compiler
+    \item Discount Executor
+    \item Promotion Matching
+\end{itemize}
+
+\subsection{Flow}
+
+\begin{enumerate}
+
+    \item The promotions/discounts are stored in our DB. 
+    \item Given an order, the system will find a promotion.
+    \item Take promotion and compile discounts.
+    \item Execute discounts on order to produce line item adjustments.
+\end{enumerate}
+
+\begin{figure}
+\caption{Flow}
+\digraph{Flow} {
+    node [shape=record];
+    Promotion [label="Promotion"];
+    Order[label="Order"];
+    Execution[label="Executor"];
+    Adjustments[label="Line Item Adjustments"];
+    Finder[label="Promotion Search"];
+
+    Order -> Finder [label="Input"];
+    Finder -> Promotion [label="Produces"];
+    Promotion -> Execution[label="Input"];
+    Order -> Execution[label="Input"];
+    Execution -> Adjustments[label="Produces"];
+}
+\end{figure}
+
+\begin{figure}
+\caption{Applying Discounts}
+\digraph{Apply} {
+    node [shape=record];
+    Discount [label="Discount"];
+    Qualifier [label="Qualifier"];
+    Offer[label="Offer"];
+    CompiledQualifier [label="Compiled Qualifier"];
+    CompiledOffer[label="Compiled Offer"];
+    Order[label="Order"];
+    Compiler[label="Compiler"];
+    Execution[label="Executor"];
+    Adjustments[label="Line Item Adjustments"];
+
+    Discount -> Qualifier [label="Has"];
+    Discount -> Offer [label="Has"];
+    Qualifier -> Compiler [label="Input"];
+    Compiler -> CompiledQualifier [label="Produces"];
+    Compiler -> CompiledOffer [label="Produces"];
+    Order -> Execution [label="Input"];
+    CompiledQualifier -> Execution [label="Input"];
+    CompiledOffer -> Execution [label="Input"];
+    Execution -> Adjustments [label="Produces"];
+}
+\end{figure}
+
+\section{Models}
+
+The central concept is the discount. The discounts are bundled in a promotion
+and a promotion can be made public via a coupon.
+
 \section{Discounts}
+
+Discounts have three parts.
+
+\begin{enumerate}
+    \item Merchandising part.
+    \item Qualifier part.
+    \item Offer part.
+\end{enumerate}
+
+\subsection{Merchandising Discounts}
+
+Each discount will have merchandising data attached to it that can be used for organizing
+and merchandising. For example, a title, a description, and tags. The merchandising
+information can change based on the context. 
+
+\subsection{Qualifying Discounts}
+
+A discount can only be used by a customer if they qualify for it. The qualification
+is going to be expressed as a predicate function which takes a customer/order
+bundle as a parameter.
+
+This predicate function will be expressed in a simple algebra which allows
+the user to configure the predicate function.
+
+\subsection{Offers}
+
+A discount also has an offer, which describes how the order changes. For example,
+"30% off the order" is an offer. 
+
+The offer will be expressed as a function that takes a customer/order bundle as a
+parameter and produces line item adjustments.
+
+This offer function will be expressed as a simple algebra which allows the user
+to configure the offer to their liking.
+
 \section{Promotions}
+
+Promotions are bundles of discounts and have two parts
+
+\begin{enumerate}
+    \item Merchandising part.
+    \item Discount bundle.
+\end{enumerate}
+\subsection{Merchandising Promotions}
+
+Promotions can have merchandising information such as title, description, images,
+and tags. This information is used for both display and organization. Merchandising
+information will change based on context.
+
+\subsection{Discount Bundle}
+
+The essence of the promotion is that it is composed of one or more discounts bundled
+together. This is a simple set of discount references.
+
 \section{Coupons}
 
+Coupons are a way to restrict access to a promotion that isn't available publicly. 
+Coupons have three parts.
 
+\begin{enumerate}
+    \item Coupon code.
+    \item Merchandising part.
+    \item Promotion.
+\end{enumerate}
+
+\subsection{Coupon code}
+
+The coupon code is a way to provide a handle to a hidden promotion. The code can
+be shared to a specific customer, or to many customers. The code is generated
+on demand when a coupon is created or copied. We may provide facilities to 
+bulk generate codes.
+
+\subsection{Merchandising a Coupon}
+
+Coupons may be displayed to a customer to entice them to use the code. For example
+The coupon may be sent via an email and have a title, description, and image.
+
+The merchandising information will change depending on context.
+
+\subsection{Promotion}
+
+The coupon finally points to a specific promotion.
+
+\section{Data Model}
+
+Here we will describe the data model of discounts, promotions, and coupons as
+they would appear to a client. The description is in JSON. 
+
+Since the discount, promotion, and coupon may change depending on context, 
+we will store the information in our existing Object storage system.
+This will give us the power of change  based on context but also versioning.
+
+\subsection{Discount}
+
+\begin{lstlisting}
+    //MVP Discount
+    {
+        title: { type: "string", ...  }
+        description: { type: "richText", ...  }
+        tags: { type: "tags" ...  }
+        qualifier: { type: "qualifier" ...  }
+        type: { type: "discountType" ...  }
+        offer: { type: "offer" ...  }
+    }
+\end{lstlisting}
+
+The qualifier and offer will be stored as a JSON Object which represents the AST
+of the respective algebra grammars.
+
+\subsection{Promotion}
+
+\begin{lstlisting}
+    //MVP Promotion
+    {
+        title: { type: "string", ref : "..."  }
+        description: { type: "richText", ref : "..."  }
+        tags: { type: "tags" ref : "..."  }
+        images: { type: "images" ref : "..."  }
+        activeFrom: { type: "date" ref : "..."  }
+        activeTo: { type: "date" ref : "..."  }
+        isPublic: { type: "bool" ref : "..."  }
+    }
+\end{lstlisting}
+
+The set of discounts will be stored using our ObjectLink system.
+
+\section{Coupon}
+
+\begin{lstlisting}
+    //MVP Promotion
+    {
+        code: { type: "string", ref : "..."  }
+        title: { type: "richText", ref : "..."  }
+        description: { type: "richText", ref : "..."  }
+        tags: { type: "tags" ref : "..."  }
+        images: { type: "images" ref : "..."  }
+        maxUses: { type: "number" ref : "..."  }
+        maxCustomerUses: { type: "number" ref : "..."  }
+    }
+\end{lstlisting}
+
+Additionally, the Coupon in a context will have the following stored
+
+\begin{lstlisting}
+    class CouponUsage(id: Int, couponId: Int, total: Int) 
+    class CouponCustomerUsage(id: Int, usageId: Int, 
+        customerId: Int, total: Int) 
+\end{lstlisting}
+
+This is to keep track of how many times it was used in total and by a specific
+customer.
+
+
+
+\section{Discussion}
+
+\begin{itemize}
+    \item Should the coupon merchandising information simply come from the promotion
+        instead of storing it at the coupon level?
+\end{itemize}
 \end{document}
