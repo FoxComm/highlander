@@ -83,6 +83,6 @@ object CreditCardEndpoint {
 
   def delete(): HttpRequestBuilder = http("Delete My Credit Card")
     .delete("/v1/my/payment-methods/credit-cards/${creditCardId}")
-    .header(header, "${jwtTokenCustomer}")
+    .header(Config.defaultJwtHeader, "${jwtTokenCustomer}")
     .check(status.is(204))
 }
