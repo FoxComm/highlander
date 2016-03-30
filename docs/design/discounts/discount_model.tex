@@ -115,6 +115,7 @@ change by context. The execution part will be composed of several pieces.
     Discount -> Qualifier [label="Has"];
     Discount -> Offer [label="Has"];
     Qualifier -> Compiler [label="Input"];
+    Offer -> Compiler [label="Input"];
     Compiler -> CompiledQualifier [label="Produces"];
     Compiler -> CompiledOffer [label="Produces"];
     Order -> Execution [label="Input"];
