@@ -28,6 +28,7 @@ object SharedSearch {
   case object OrdersScope extends Scope
   case object GiftCardsScope extends Scope
   case object ProductsScope extends Scope
+  case object InventoryScope extends Scope
   case object StoreAdminsScope extends Scope
 
   object Scope extends ADT[Scope] {

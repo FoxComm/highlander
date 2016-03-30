@@ -5,7 +5,8 @@ import Extensions._
 import models.sharedsearch.{SharedSearch, SharedSearchAssociation, SharedSearchAssociations, SharedSearches}
 import models.{StoreAdmin, StoreAdmins}
 import SharedSearchAssociation.{build ⇒ buildAssociation}
-import models.sharedsearch.SharedSearch.{ProductsScope, GiftCardsScope, CustomersScope, OrdersScope, StoreAdminsScope}
+import models.sharedsearch.SharedSearch.{InventoryScope, ProductsScope, GiftCardsScope, CustomersScope, OrdersScope,
+StoreAdminsScope}
 import failures.NotFoundFailure404
 import failures.SharedSearchFailures._
 import payloads.{SharedSearchAssociationPayload, SharedSearchPayload}
@@ -70,6 +71,14 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
 
       val searchResponse = response.as[Seq[SharedSearch]]
       searchResponse must === (Seq(productsSearch))
+    }
+
+    "returns only inventory searches with the inventory scope" in new SharedSearchFixture {
+      val response = GET(s"v1/shared-search?scope=inventoryScope")
+      response.status must === (StatusCodes.OK)
+
+      val searchResponse = response.as[Seq[SharedSearch]]
+      searchResponse must === (Seq(inventorySearch))
     }
 
     "returns associated scopes created by different admins" in new SharedSearchAssociationFixture {
@@ -294,8 +303,10 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
       scope = GiftCardsScope, storeAdminId = storeAdmin.id)
     val productScope = SharedSearch(title = "Some Product", query = parse("{}"),
       scope = ProductsScope, storeAdminId = storeAdmin.id)
+    val inventoryScope = SharedSearch(title = "Some Inventory", query = parse("{}"),
+      scope = InventoryScope, storeAdminId = storeAdmin.id)
 
-    val (customersSearch, ordersSearch, storeAdminsSearch, giftCardsSearch, productsSearch) = (for {
+    val (customersSearch, ordersSearch, storeAdminsSearch, giftCardsSearch, productsSearch, inventorySearch) = (for {
       customersSearch   ← * <~ SharedSearches.create(customerScope)
       _                 ← * <~ SharedSearchAssociations.create(buildAssociation(customersSearch, storeAdmin))
       ordersSearch      ← * <~ SharedSearches.create(orderScope)
@@ -306,7 +317,10 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
       _                 ← * <~ SharedSearchAssociations.create(buildAssociation(giftCardsSearch, storeAdmin))
       productsSearch    ← * <~ SharedSearches.create(productScope)
       _                 ← * <~ SharedSearchAssociations.create(buildAssociation(productsSearch, storeAdmin))
-    } yield (customersSearch, ordersSearch, storeAdminsSearch, giftCardsSearch, productsSearch)).runTxn().futureValue.rightVal
+      inventorySearch    ← * <~ SharedSearches.create(inventoryScope)
+      _                 ← * <~ SharedSearchAssociations.create(buildAssociation(inventorySearch, storeAdmin))
+    } yield (customersSearch, ordersSearch, storeAdminsSearch, giftCardsSearch, productsSearch, inventorySearch)
+      ).runTxn().futureValue.rightVal
   }
 
   trait SharedSearchAssociationFixture extends Fixture {
