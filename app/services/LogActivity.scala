@@ -230,8 +230,8 @@ object LogActivity {
 
   /* Order checkout & payments */
 
-  def orderCheckoutCompleted(order: FullOrder.Root, customer: Customer)(implicit ec: EC, ac: AC): DbResult[Activity] =
-    Activities.log(OrderCheckoutCompleted(order, customer))
+  def orderCheckoutCompleted(order: FullOrder.Root)(implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(OrderCheckoutCompleted(order))
 
   /* Order Payment Methods */
   def orderPaymentMethodAddedCc(originator: Originator, order: FullOrder.Root, cc: CreditCard, region: Region)

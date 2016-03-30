@@ -42,7 +42,7 @@ object OrderTailored {
     extends ActivityBase[OrderLineItemsUpdatedQuantities]
 
   /* Order checkout & order payments */
-  final case class OrderCheckoutCompleted(order: FullOrder.Root, customer: Customer)
+  final case class OrderCheckoutCompleted(order: FullOrder.Root)
     extends ActivityBase[OrderCheckoutCompleted]
 
   /* Order Shipping Methods */
