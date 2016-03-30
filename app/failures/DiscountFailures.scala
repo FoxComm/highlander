@@ -1,0 +1,42 @@
+package failures
+
+object DiscountFailures {
+
+  object DiscountNotFound { 
+    def apply(id: Int) = NotFoundFailure404(s"Discount $id not found")
+  }
+
+  final case class DiscountNotFoundAtCommit(id: Int, commit: Int) extends Failure {
+    override def description = s"Discount $id not with at commit $commit"
+  }
+
+  object DiscountShadowNotFoundInPayload { 
+    def apply(code: String)  = NotFoundFailure404(s"Discount shadow with code $code not found in payload")
+  }
+
+  object DiscountNotFoundForContext { 
+    def apply(discountId: Int, discountContextId: Int) =
+      NotFoundFailure404(s"Discount with id=$discountId with discount context $discountContextId cannot be found")
+  }
+
+  final case class DiscountShadowHasInvalidAttribute(key: String, value: String) extends Failure {
+    override def description = s"Discount shadow has an invalid attribute $key with value $value"
+  }
+
+  final case class DiscountShadowAttributeNotAString(key: String) extends Failure {
+    override def description = s"Discount shadow attribute $key must be a string"
+  }
+
+  final case object DiscountAttributesAreEmpty extends Failure {
+    override def description = s"Discount attributes are empty"
+  }
+
+  final case object DiscountShadowAttributesAreEmpty extends Failure {
+    override def description = s"Discount shadow attributes are empty"
+  }
+
+  object DiscountFormNotFound { 
+    def apply(id: Int) = NotFoundFailure404(s"Discount Form with id $id cannot be found")
+  }
+
+}

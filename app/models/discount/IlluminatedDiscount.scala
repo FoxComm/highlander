@@ -1,4 +1,4 @@
-package models.product
+package models.discount
 
 import models.objects._
 import utils.IlluminateAlgorithm
@@ -10,19 +10,19 @@ import org.json4s.JsonAST.{JString, JObject, JField, JNothing}
 import java.time.Instant
 
 /**
- * An IlluminatedProduct is what you get when you combine the product shadow and
+ * An IlluminatedDiscount is what you get when you combine the discount shadow and
  * the form. 
  */
-final case class IlluminatedProduct(id: Int, context: IlluminatedContext, 
+final case class IlluminatedDiscount(id: Int, context: IlluminatedContext, 
   attributes: Json)
 
-object IlluminatedProduct { 
+object IlluminatedDiscount { 
 
-  def illuminate(context: ObjectContext, product: Product, 
-    form: ObjectForm, shadow: ObjectShadow) : IlluminatedProduct = { 
+  def illuminate(context: ObjectContext, discount: Discount, 
+    form: ObjectForm, shadow: ObjectShadow) : IlluminatedDiscount = { 
 
-    IlluminatedProduct(
-      id = form.id,  //Products should have a code like skus.
+    IlluminatedDiscount(
+      id = form.id,  //Discounts should have a code like skus.
       context = IlluminatedContext(context.name, context.attributes),
       attributes = IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes))
   }
