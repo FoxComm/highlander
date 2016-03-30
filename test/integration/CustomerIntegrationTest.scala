@@ -36,6 +36,7 @@ import slick.driver.PostgresDriver.api._
 import util.SlickSupport.implicits._
 import concurrent.ExecutionContext.Implicits.global
 
+import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
 import failures.CreditCardFailures.{CannotUseInactiveCreditCard, StripeFailure}
 import failures.CustomerFailures._
 import failures.{GeneralFailure, NotFoundFailure404}
@@ -48,7 +49,6 @@ class CustomerIntegrationTest extends IntegrationTestBase
   with MockitoSugar {
 
   implicit val ac = ActivityContext(userId = 1, userType = "b", transactionId = "c")
-  implicit val apis: Apis = Apis(mock[StripeApi])
 
   // paging and sorting API
   val uriPrefix = "v1/customers"
@@ -72,6 +72,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
   override def makeApis: Option[Apis] = Some(Apis(stripeApi))
 
   private val stripeApi: StripeApi = mock[StripeApi]
+  implicit val apis: Apis = Apis(stripeApi)
 
   "Customer" - {
     "accounts are unique based on email, non-guest, and active" in {
@@ -418,6 +419,17 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
   "DELETE /v1/customers/:customerId/payment-methods/credit-cards/:creditCardId" - {
     "deletes successfully if the card exists" in new CreditCardFixture {
+      reset(stripeApi)
+
+      when(stripeApi.findCustomer(m.any(), m.any())).
+        thenReturn(Result.good(new StripeCustomer))
+
+      when(stripeApi.findDefaultCard(m.any(), m.any())).
+        thenReturn(Result.good(new StripeCard))
+
+      when(stripeApi.deleteExternalAccount(m.any(), m.any())).
+        thenReturn(Result.good(new DeletedExternalAccount))
+
       val response = DELETE(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}")
       val deleted = CreditCards.findOneById(creditCard.id).run().futureValue.value
 
@@ -546,7 +558,22 @@ class CustomerIntegrationTest extends IntegrationTestBase
     }
 
     "fails if the card is not inWallet" in new CreditCardFixture {
+      reset(stripeApi)
+
+      when(stripeApi.findCustomer(m.any(), m.any())).
+        thenReturn(Result.good(new StripeCustomer))
+
+      when(stripeApi.findDefaultCard(m.any(), m.any())).
+        thenReturn(Result.good(new StripeCard))
+
+      when(stripeApi.updateExternalAccount(m.any(), m.any(), m.any())).
+        thenReturn(Result.good(new ExternalAccount))
+
+      when(stripeApi.deleteExternalAccount(m.any(), m.any())).
+        thenReturn(Result.good(new DeletedExternalAccount))
+
       CreditCardManager.deleteCreditCard(customer.id, creditCard.id, Some(admin)).futureValue
+
       val payload = payloads.EditCreditCard
       val response = PATCH(s"$uriPrefix/${customer.id}/payment-methods/credit-cards/${creditCard.id}", payload)
 
@@ -590,7 +617,7 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
   "GET /v1/customers/searchForNewOrder?term=:term" - {
     "successfully search by term" in new Fixture {
-      val response = GET(s"${uriPrefix}/searchForNewOrder?term=${customer.email.drop(2)}")
+      val response = GET(s"$uriPrefix/searchForNewOrder?term=${customer.email.drop(2)}")
       response.status must === (StatusCodes.OK)
 
       response.ignoreFailuresAndGiveMe[Seq[CustomerResponse.Root]].size must === (1)
