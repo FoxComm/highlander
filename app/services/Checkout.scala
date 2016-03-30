@@ -115,6 +115,7 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit e
             // TODO: remove the blocking Await which causes us to change types (I knew it was coming anyways!)
             stripeCharge  ← * <~ scala.concurrent.Await.result(f, 5.seconds)
             ourCharge     = CreditCardCharge.authFromStripe(card, pmt, stripeCharge, cart.currency)
+            _             ← * <~ LogActivity.creditCardCharge(cart, ourCharge)
             created       ← * <~ CreditCardCharges.create(ourCharge)
           } yield created.some).value
 

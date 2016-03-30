@@ -7,7 +7,7 @@ import models.customer.Customer
 import models.location.{Address, Region}
 import models.order.Order
 import models.payment.PaymentMethod
-import models.payment.creditcard.CreditCard
+import models.payment.creditcard.{CreditCard, CreditCardCharge}
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
 import models.sharedsearch.SharedSearch
@@ -232,6 +232,16 @@ object LogActivity {
 
   def orderCheckoutCompleted(order: FullOrder.Root)(implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(OrderCheckoutCompleted(order))
+
+  def creditCardCharge(order: Order, charge: CreditCardCharge)(implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(CreditCardChargeCompleted(
+      customerId = order.customerId,
+      orderId = order.id,
+      orderNum = order.refNum,
+      cardId = charge.creditCardId,
+      amount = charge.amount,
+      currency = charge.currency
+    ))
 
   /* Order Payment Methods */
   def orderPaymentMethodAddedCc(originator: Originator, order: FullOrder.Root, cc: CreditCard, region: Region)
