@@ -103,7 +103,7 @@ object QualifierFactory {
   def factory(promoType: PromotionType, qualifierType: String,
     attributes: String): Xor[Failure, Qualifier] = {
 
-    val json = parse(attributes)
+    val json = parse(attributes) // TBD Handle failures here to!
 
     (promoType, qualifierType) match {
       case (OrderPromotion, "orderAny") => extract[OrderAnyQualifier](json)
