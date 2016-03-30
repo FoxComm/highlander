@@ -9,7 +9,7 @@ import { prefix } from '../../lib/text-utils';
 
 // components
 import Lookup from './lookup';
-import { DecrementButton, IncrementButton } from '../common/buttons';
+import { Button } from '../common/buttons';
 
 
 const prefixed = prefix('fc-lookup');
@@ -34,15 +34,24 @@ export default class LookupDropdown extends Component {
   }
 
   get button() {
-    const button = this.state.showMenu
-      ? <IncrementButton />
-      : <DecrementButton />;
+    const icon = this.state.showMenu ? 'chevron-up' : 'chevron-down';
 
-    return React.cloneElement(button, {
-      className: 'fc-dock fc-dock-right',
-      onClick: this.toggleMenu,
-      onBlur: this.toggleMenu,
-    });
+    return (
+      <div className="fc-btn fc-dock fc-dock-right"
+           onClick={this.toggleMenu}
+           onBlur={this.hideMenu}>
+        <i className={`icon-${icon}`} />
+      </div>
+    );
+  }
+
+  @autobind
+  hideMenu() {
+    if (this.state.showMenu) {
+      this.setState({
+        showMenu: false,
+      });
+    }
   }
 
   @autobind

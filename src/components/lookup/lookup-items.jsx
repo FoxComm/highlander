@@ -1,6 +1,7 @@
 // libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import classNames from 'classnames';
 
 // helpers
 import { prefix } from '../../lib/text-utils';
@@ -16,13 +17,15 @@ const LookupItems = props => {
   );
 };
 
-const getBody = ({component, query, items, onSelect, notFound}) => {
+const getBody = ({component, query, items, activeIndex, onSelect, notFound}) => {
   if (_.isEmpty(items)) {
     return <li className={prefixed('item-not-found')}>{notFound}</li>;
   }
 
   return items.map((item, index) => (
-    <li className={prefixed('item')} onMouseDown={() => onSelect(item)} key={`lookup-${index}`}>
+    <li key={`lookup-${index}`}
+        className={classNames(prefixed('item'), {'_active': index === activeIndex})}
+        onMouseDown={() => onSelect(index)}>
       {React.createElement(component, {
         query,
         model: item

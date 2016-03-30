@@ -23,29 +23,29 @@ const prefixed = prefix('fc-lookup');
 export default class Lookup extends Component {
 
   static propTypes = {
+    className: PropTypes.string,
+    inputClassName: PropTypes.string,
     data: PropTypes.arrayOf(PropTypes.shape({
       id: PropTypes.any,
       label: PropTypes.string,
     })),
     value: PropTypes.any,
+    minQueryLength: PropTypes.number,
     inputComponent: PropTypes.func,
     itemComponent: PropTypes.func,
-    minQueryLength: PropTypes.number,
     onSelect: PropTypes.func.isRequired,
-    showMenu: PropTypes.bool,
     onToggleMenu: PropTypes.func,
-    className: PropTypes.string,
-    inputClassName: PropTypes.string,
+    showMenu: PropTypes.bool,
     notFound: PropTypes.string,
   };
 
   static defaultProps = {
     data: [],
-    showMenu: false,
-    onToggleMenu: _.noop,
+    minQueryLength: 1,
     inputComponent: LookupInput,
     itemComponent: LookupItem,
-    minQueryLength: 1,
+    onToggleMenu: _.noop,
+    showMenu: false,
     notFound: 'No results found.',
   };
 
@@ -55,6 +55,7 @@ export default class Lookup extends Component {
     this.state = {
       query: this.getQuery(props.data, props.value),
       showMenu: false,
+      activeIndex: -1,
     };
   }
 
@@ -78,38 +79,81 @@ export default class Lookup extends Component {
 
   @autobind
   setQuery(query) {
-    if (this.state.query !== query) {
-      this.setState({query});
+    this.setState({query});
+  }
+
+  showMenu(show) {
+    const {activeIndex, showMenu} = this.state;
+    if (showMenu === show) {
+      return;
+    }
+
+    //if menu is hidden, activeIndex is reset
+    this.setState({
+      showMenu: show,
+      activeIndex: show ? activeIndex : -1
+    });
+    this.props.onToggleMenu(show);
+  }
+
+  changeActive(delta) {
+    const {activeIndex} = this.state;
+    const index = activeIndex + delta;
+
+    if (this.indexIsValid(index)) {
+      this.setState({activeIndex: index});
     }
   }
 
-  showMenu(showMenu) {
-    if (this.state.showMenu !== showMenu) {
-      this.setState({showMenu});
-      this.props.onToggleMenu(showMenu);
-    }
+  @autobind
+  select(index) {
+    this.props.onSelect(this.items[index]);
   }
 
   @autobind
   onFocus() {
-    if (this.state.query.length >= this.props.minQueryLength) {
+    if (this.isShowable) {
       this.showMenu(true);
     }
   }
 
   @autobind
-  onBlur(event) {
+  onBlur() {
     this.showMenu(false);
   }
 
   @autobind
-  onInputKeyUp({ key }) {
+  onInputKeyDown({key}) {
     if (key === 'Escape') {
       this.showMenu(false);
     }
-    if (key === 'ArrowDown') {
-      this.showMenu(true);
+
+    const {activeIndex, showMenu} = this.state;
+    if (showMenu) {
+      if (key === 'ArrowUp') {
+        this.changeActive(-1);
+      }
+      if (key === 'ArrowDown') {
+        this.changeActive(1);
+      }
+      if (key === 'Enter' && this.indexIsValid(activeIndex)) {
+        this.select(activeIndex);
+        this.showMenu(false);
+      }
+    } else {
+      if (key === 'ArrowDown') {
+        this.showMenu(true);
+        this.changeActive(1);
+      }
     }
+  }
+
+  indexIsValid(index) {
+    return 0 <= index && index <= this.items.length - 1;
+  }
+
+  get isShowable() {
+    return this.items.length && this.state.query.length >= this.props.minQueryLength;
   }
 
   get items() {
@@ -117,7 +161,7 @@ export default class Lookup extends Component {
     const {data} = this.props;
 
     if (!query) {
-      return data;
+      return [];
     }
 
     return data.filter(({label}) => {
@@ -137,33 +181,26 @@ export default class Lookup extends Component {
         this.setQuery(value);
         this.showMenu(true);
       },
-      onKeyUp: this.onInputKeyUp,
+      onKeyDown: this.onInputKeyDown,
     });
   }
 
   get menu() {
-    const {minQueryLength, itemComponent, onSelect, notFound} = this.props;
-    const {query} = this.state;
+    const {itemComponent, notFound} = this.props;
+    const {query, showMenu, activeIndex} = this.state;
 
-    if (query.length < minQueryLength) {
-      return null;
-    }
-
-    const items = this.items;
     const menuClass = classNames(prefixed('menu'), {
-      '_visible': items.length && this.state.showMenu,
+      '_visible': showMenu,
     });
-    const handleSelect = item => {
-      onSelect(item);
-      this.showMenu(false);
-    };
 
     return (
       <div className={menuClass}>
         <LookupItems component={itemComponent}
+                     ref="items"
                      query={query}
-                     items={items}
-                     onSelect={handleSelect}
+                     items={this.items}
+                     activeIndex={activeIndex}
+                     onSelect={this.select}
                      notFound={notFound} />
       </div>
     );
@@ -175,7 +212,7 @@ export default class Lookup extends Component {
     return (
       <div className={classNames('fc-lookup', className)}>
         {this.input}
-        {this.menu}
+        {this.isShowable ? this.menu : null}
       </div>
     );
   }

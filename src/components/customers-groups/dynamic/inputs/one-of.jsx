@@ -75,7 +75,7 @@ const renderNodeOrAdd = (prefixed, isNode, add) => {
     return <div className={prefixed('or')}>or</div>;
   }
 
-  return <Button className={classNames(prefixed('add'), 'icon-add')} onClick={add} />;
+  return <div className={classNames(prefixed('add'), 'icon-add')} onClick={add} />;
 };
 
 export const getDefault = Widget => criterion => [Widget.getDefault(criterion)];
