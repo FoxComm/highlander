@@ -20,7 +20,6 @@ import failures.ObjectFailures._
 
 object DiscountManager {
 
-  // Detailed info for SKU of each type in given warehouse
   def getForm(id: Int)
     (implicit ec: EC, db: DB): Result[DiscountFormResponse.Root] = (for {
     form  ← * <~ ObjectForms.mustFindById404(id)
