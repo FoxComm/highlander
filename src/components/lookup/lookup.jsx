@@ -142,7 +142,8 @@ export default class Lookup extends Component {
   }
 
   @autobind
-  onInputKeyDown({key}) {
+  onInputKeyDown(event) {
+    const {key} = event;
     if (key === 'Escape') {
       this.showMenu(false);
     }
@@ -156,6 +157,7 @@ export default class Lookup extends Component {
         this.changeActive(1);
       }
       if (key === 'Enter' && this.indexIsValid(activeIndex)) {
+        event.preventDefault();
         this.select(activeIndex);
         this.showMenu(false);
       }
@@ -215,7 +217,6 @@ export default class Lookup extends Component {
     return (
       <div className={menuClass}>
         <LookupItems component={itemComponent}
-                     ref="items"
                      query={query}
                      items={this.items}
                      activeIndex={activeIndex}
