@@ -147,7 +147,7 @@ class Pdp extends Component {
                 />
               </div>
             </div>
-            <Button styleName="add-to-cart" loading={isCartLoading} onClick={this.addToCart}>ADD TO CART</Button>
+            <Button styleName="add-to-cart" isLoading={isCartLoading} onClick={this.addToCart}>ADD TO CART</Button>
           </div>
         </div>
       </div>
