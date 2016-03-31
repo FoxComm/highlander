@@ -94,7 +94,6 @@
     "redux-act": "^0.3.0",
     "redux-diff-logger": "0.0.9",
     "redux-isomorphic-render": "^1.0.0",
-    "redux-thunk": "^1.0.3",
     "reselect": "^2.1.0",
     "sprout-data": "^0.2.3",
     "zipcodes": "^2.0.0"

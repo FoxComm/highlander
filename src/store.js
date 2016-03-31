@@ -5,10 +5,22 @@ import { syncHistory } from 'react-router-redux';
 // @TODO: drop redux-isomorphic-render from client bundle
 import { default as serverApplyMiddleware } from 'redux-isomorphic-render';
 import logger from 'redux-diff-logger';
-import thunk from 'redux-thunk';
 import rootReducer from 'modules/index';
 
 const isServer = typeof self == 'undefined';
+
+function thunkMiddleware({dispatch, getState}) {
+  return function (next) {
+    return function (action) {
+      if (typeof action === 'function') {
+        const jwt = _.get(getState(), 'auth.jwt');
+        return action(dispatch, getState, jwt);
+      }
+      return next(action);
+    };
+  };
+}
+
 
 export default function makeStore(history, initialState = void 0) {
   const reduxRouterMiddleware = syncHistory(history);
@@ -20,7 +32,7 @@ export default function makeStore(history, initialState = void 0) {
     _.flow(..._.compact([
       !isServer ? applyMiddleware(logger) : null,
       applyMiddleware(reduxRouterMiddleware),
-      applyMiddleware(thunk),
+      applyMiddleware(thunkMiddleware),
     ]))
   );
 
