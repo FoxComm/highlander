@@ -128,8 +128,13 @@ export class ProductPage extends Component<void, Props, State> {
     if (product) {
       this.setState({
         product: setSkuAttribute(product, code, field, value),
-      })
+      });
     }
+  }
+
+  @autobind
+  handleUpdateProduct(product: FullProduct) {
+    this.setState({ product });
   }
 
   @autobind
@@ -152,7 +157,7 @@ export class ProductPage extends Component<void, Props, State> {
 
     const children = React.cloneElement(this.props.children, {
       ...this.props.children.props,
-      onSetProperty: this.handleSetAttribute,
+      onUpdateProduct: this.handleUpdateProduct,
       onSetSkuProperty: this.handleSetSkuProperty,
       product,
       entity: { entityId: this.props.params.productId, entityType: 'product' },

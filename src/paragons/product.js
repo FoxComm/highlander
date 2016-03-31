@@ -1,5 +1,4 @@
 /**
- *
  * @flow
  */
 
@@ -97,7 +96,7 @@ export function getAttribute(formAttrs: Attributes, shadowAttrs: ShadowAttribute
   return res;
 }
 
-function getAttributes(formAttrs: Attributes, shadowAttrs: ShadowAttributes): IlluminatedAttributes {
+export function getAttributes(formAttrs: Attributes, shadowAttrs: ShadowAttributes): IlluminatedAttributes {
   const illuminated: IlluminatedAttributes = _.reduce(shadowAttrs, (res, shadow, label) => {
     const attribute = formAttrs[shadow.ref];
 
@@ -320,7 +319,6 @@ export function setProductAttribute(product: FullProduct,
   }
 
   const path = ['form', 'product', 'attributes', shadow.ref];
-
 
   switch (shadow.type) {
     case 'price':
