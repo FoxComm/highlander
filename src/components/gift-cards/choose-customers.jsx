@@ -52,7 +52,7 @@ export default class ChooseCustomers extends React.Component {
         <ul className="fc-choose-customers__list">
           {props.items.map(customer => {
             return (
-              <li className="fc-choose-customers__entry">
+              <li className="fc-choose-customers__entry" key={customer.id}>
                 <label>
                   <Checkbox
                     checked={this.state.selectedCustomers[customer.id]}

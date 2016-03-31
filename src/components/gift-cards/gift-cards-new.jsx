@@ -30,9 +30,9 @@ const typeTitles = {
 };
 
 const subTypes = createSelector(
-  ({giftCards: {adding}}) => adding.originType,
-  ({giftCards: {adding}}) => adding.types,
-  (originType, types=[]) => _.get(_.findWhere(types, {originType}), 'subTypes', [])
+  ({ giftCards: { adding } }) => adding.originType,
+  ({ giftCards: { adding } }) => adding.types,
+  (originType, types = []) => _.get(_.findWhere(types, { originType }), 'subTypes', [])
 );
 
 @connect(state => ({
@@ -106,7 +106,12 @@ export default class NewGiftCard extends React.Component {
   }
 
   @autobind
-  onChangeValue({target}) {
+  onChangeValue({ target }) {
+    /** skip balance field handling as it is handled by CurrencyInput change event */
+    if (target.name === 'balance') {
+      return;
+    }
+
     const value = target.type === 'checkbox' ? target.checked : target.value;
 
     this.props.changeFormData(target.name, value);
@@ -118,7 +123,7 @@ export default class NewGiftCard extends React.Component {
   }
 
   changeCustomerMessage(event) {
-    this.setState({customerMessageCount: event.target.value.length});
+    this.setState({ customerMessageCount: event.target.value.length });
   }
 
   get subTypes() {
@@ -147,12 +152,12 @@ export default class NewGiftCard extends React.Component {
           this.setState({
             customersQuery: ''
           });
-        }} />
+        }}/>
     );
   }
 
   get chooseCustomersInput() {
-    const {customers, removeCustomer} = this.props;
+    const { customers, removeCustomer } = this.props;
 
     return (
       <PilledInput
@@ -161,7 +166,7 @@ export default class NewGiftCard extends React.Component {
         onChange={e => this.setState({customersQuery: e.target.value})}
         pills={customers.map(customer => customer.name)}
         icon={null}
-        onPillClose={(name, idx) => removeCustomer(customers[idx].id)} />
+        onPillClose={(name, idx) => removeCustomer(customers[idx].id)}/>
     );
   }
 
@@ -182,13 +187,13 @@ export default class NewGiftCard extends React.Component {
             minQueryLength={2}
             label="Choose customers:"
             placeholder="Customer name or email..."
-            name="customerQuery" />
+            name="customerQuery"/>
           <FormField className="fc-new-gift-card__message-to-customers"
                      label="Write a message for customers" optional
                      labelAtRight={ labelAtRight }
                      labelClassName="fc-new-gift-card__label">
             <textarea className="fc-input" name="customerMessage"
-                      maxLength="1000" onChange={this.changeCustomerMessage.bind(this)} />
+                      maxLength="1000" onChange={this.changeCustomerMessage.bind(this)}/>
           </FormField>
         </div>
       );
@@ -211,7 +216,7 @@ export default class NewGiftCard extends React.Component {
           increaseAction={event => changeQuantity(event, 1)}
           decreaseAction={event => changeQuantity(event, -1)}
           onChange={({target}) => this.props.changeQuantity(target.value)}
-          min={1} />
+          min={1}/>
       </fieldset>
     );
   }
@@ -257,7 +262,7 @@ export default class NewGiftCard extends React.Component {
               value={balance}
               onChange={this.onChangeAmount}
               step={0.01}
-              min={1} />
+              min={1}/>
             <div className="fc-new-gift-card__balances">
               {
                 balances.map((balance, idx) => {
@@ -279,14 +284,14 @@ export default class NewGiftCard extends React.Component {
           {this.quantitySection}
           <fieldset className="fc-new-gift-card__fieldset">
             <label className="fc-new-gift-card__label">
-              <Checkbox id="sendToCustomer" name="sendToCustomer" checked={sendToCustomer} />
+              <Checkbox id="sendToCustomer" name="sendToCustomer" checked={sendToCustomer}/>
               Send gift card(s) to customer(s)
             </label>
             { this.customerListBlock }
           </fieldset>
           <SaveCancel cancelTo="gift-cards"
                       saveDisabled={sendToCustomer && customers.length === 0}
-                      saveText="Issue Gift Card" />
+                      saveText="Issue Gift Card"/>
         </Form>
       </div>
     );

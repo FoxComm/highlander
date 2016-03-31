@@ -103,8 +103,10 @@ export default class EditableTabView extends React.Component {
   get editMenu() {
     if (this.state.isEditingMenu) {
       const options = this.editMenuOptions.map((opt, idx) => {
+        const key = `${idx}-${_.kebabCase(opt.title)}`;
+
         return (
-          <MenuItem isFirst={idx == 0} clickAction={opt.action}>
+          <MenuItem isFirst={idx == 0} clickAction={opt.action} key={key}>
             {opt.title}
           </MenuItem>
         );
