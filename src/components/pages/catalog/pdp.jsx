@@ -5,6 +5,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import type { HTMLElement } from 'types';
+import { browserHistory } from 'react-router';
 
 import styles from './pdp.css';
 
@@ -32,6 +33,7 @@ type Props = {
   toggleCart: Function;
   resetProduct: Function;
   getNextId: Function;
+  getPreviousId: Function;
   isLoading: boolean;
   isCartLoading: boolean;
   notFound: boolean;
@@ -101,6 +103,26 @@ class Pdp extends Component {
     });
   }
 
+  get pathToNext(): string {
+    const nextId = this.props.getNextId(this.productId);
+    console.log('next: ' + nextId);
+    if (nextId == null) {
+      return '/';
+    } else {
+      return `/products/${nextId}`;
+    }
+  }
+
+  get pathToPrevious(): string {
+    const prevId = this.props.getPreviousId(this.productId);
+    console.log('next: ' + prevId);
+    if (prevId == null) {
+      return '/';
+    } else {
+      return `/products/${prevId}`;
+    }
+  }
+
   render(): HTMLElement {
     if (this.props.isLoading) {
       return <Loader/>;
@@ -118,7 +140,6 @@ class Pdp extends Component {
     const salePrice = _.get(product, ['skus', 0, 'attributes', 'salePrice', 'v', 'value'], 0);
     const currency = _.get(product, ['skus', 0, 'attributes', 'salePrice', 'v', 'currency'], 'USD');
     const imageUrls = _.get(product, ['product', 'attributes', 'images', 'v'], []);
-    const nextId = this.props.getNextId(this.productId);
 
     return (
       <div styleName="container">
@@ -129,10 +150,10 @@ class Pdp extends Component {
             <Link to={`/products/${this.productId}`} styleName="breadcrumb">{title.toUpperCase()}</Link>
           </div>
           <div styleName="mobile-links">
-            <Link to="/" styleName="breadcrumb">&lt; BACK</Link>
+            <Link to={this.pathToPrevious} styleName="breadcrumb">&lt; BACK</Link>
           </div>
           <div>
-            <Link to={`/products/${nextId}`} styleName="breadcrumb">NEXT &gt;</Link>
+            <Link to={this.pathToNext} styleName="breadcrumb">NEXT &gt;</Link>
           </div>
         </div>
         <div styleName="details">
