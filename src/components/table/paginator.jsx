@@ -1,15 +1,20 @@
-
-// libs
+//libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
-import classnames from 'classnames';
+import classNames from 'classnames';
+
+//helpers
+import { prefix } from '../../lib/text-utils';
 
 // components
 import { LeftButton, RightButton } from '../common/buttons';
-import { Dropdown } from '../dropdown';
+import { Lookup } from '../lookup';
 
-class TablePaginator extends React.Component {
+
+const prefixed = prefix('fc-table-paginator');
+
+export default class TablePaginator extends React.Component {
   static propTypes = {
     total: PropTypes.number.isRequired,
     from: PropTypes.number.isRequired,
@@ -19,123 +24,67 @@ class TablePaginator extends React.Component {
 
   constructor(props, ...args) {
     super(props, ...args);
-    const page = this.props.size !== 0 ? Math.ceil(this.props.from / this.props.size + 1) : 1;
+
     this.state = {
-      optionsDisplayed: false,
-      pageToDisplay: page
+      currentPage: this.getPage(props.from, props.size),
+      pagesCount: this.getPage(props.total, props.size),
     };
   }
 
-  componentWillReceiveProps(newProps) {
-    const page = this.props.size !== 0 ? Math.ceil(this.props.from / this.props.size + 1) : 1;
-    this.setState({pageToDisplay: page});
+  componentWillReceiveProps(props) {
+    this.setState({
+      currentPage: this.getPage(props.from, props.size),
+      pagesCount: this.getPage(props.total, props.size),
+    });
+  }
+
+  getPage(from, size) {
+    return Math.ceil(from / size + 1);
+  }
+
+  setPage(page) {
+    const {size, setState} = this.props;
+
+    setState({
+      from: (page - 1) * size,
+    });
   }
 
   @autobind
   onPrevPageClick() {
-    this.props.setState({
-      from: Math.max(0, Math.min(this.props.total - 1, this.props.from - this.props.size))
-    });
+    this.setPage(this.state.currentPage - 1);
   }
 
   @autobind
   onNextPageClick() {
-    this.props.setState({
-      from: Math.max(0, Math.min(this.props.total - 1, this.props.from + this.props.size))
-    });
+    this.setPage(this.state.currentPage + 1);
   }
 
   @autobind
-  openOptions() {
-    this.setState({optionsDisplayed: true});
-  }
-
-  @autobind
-  closeOptions(value) {
-    const from = Math.max(0, Math.min(this.props.total - 1, this.props.size * (value - 1)));
-    this.setState({optionsDisplayed: false}, () => this.props.setState({from: from}));
-  }
-
-  @autobind
-  closeOptionsWithoutChange() {
-    this.setState({optionsDisplayed: false});
-  }
-
-  @autobind
-  onValueSelect(value) {
-    const from = Math.max(0, Math.min(this.props.total - 1, this.props.size * (value - 1)));
-    this.setState({optionsDisplayed: false}, () => this.props.setState({from: from}));
-  }
-
-  @autobind
-  onPageChange(value) {
-    this.setState({pageToDisplay: value});
-  }
-
-  @autobind
-  currentPageSelector(pageCount) {
-    const pageSelectorClass = classnames('currentPage', {'_disabled': pageCount <= 1});
-    const disabledOption = pageCount <= 1 ? {disabled: true}: {};
-    const pages = _.range(1, pageCount + 1).map((item) => {
-      return (
-        <li className="fc-table-paginator__selector-option"
-            value={item}
-            key={item}
-            onClick={() => this.onValueSelect(item)} >
-          {item}
-        </li>
-      );
-    });
-    const inputClass = classnames('fc-table-paginator__current-page-field', '_no-counters', {
-      '_disabled': pageCount <= 1
-    });
-    const optionsClass = classnames('fc-table-paginator__current-page-selector', {
-      '_shown': this.state.optionsDisplayed
-    });
-    const overlayClass = classnames('fc-table-paginator__current-page-selector-overlay', {
-      '_shown': this.state.optionsDisplayed
-    });
-    return (
-      <div className="fc-form-field">
-        <input className={inputClass}
-               name="currentPage"
-               type="number"
-               value={this.state.pageToDisplay}
-               onFocus={this.openOptions}
-               onChange={({target}) => this.onPageChange(target.value)}
-               {...disabledOption} />
-        <div className={optionsClass} >
-          <ul>
-            {pages}
-          </ul>
-        </div>
-        <div className={overlayClass} onClick={this.closeOptionsWithoutChange}></div>
-      </div>
-    );
+  onSelect({id}) {
+    this.setPage(id);
   }
 
   render() {
-    const { size, from, total } = this.props;
-    const currentPage = (size !== 0 ? Math.ceil(from / size + 1) : 1) || 1;
-    const pageCount = (size !== 0 ? Math.ceil(total / size) : 1) || 1;
+    const { currentPage, pagesCount } = this.state;
 
-    const leftButtonClass = classnames({'_hidden': currentPage <= 1});
-    const rightButtonClass = classnames({'_hidden': currentPage >= pageCount});
+    const leftButtonClass = classNames({'_hidden': currentPage <= 1});
+    const rightButtonClass = classNames({'_hidden': currentPage >= pagesCount});
 
     return (
-      <div className="fc-table-paginator">
+      <div className={prefixed()}>
         <LeftButton className={leftButtonClass} onClick={this.onPrevPageClick}/>
-        <div className="fc-table-paginator__current-page">
-          {this.currentPageSelector(pageCount)}
-        </div>
-        <div className="fc-table-paginator__separator">of</div>
-        <div className="fc-table-paginator__total-pages">
-          {pageCount}
+        <Lookup className={prefixed('current-page')}
+                data={_.range(1, pagesCount + 1).map(page => ({id: page, label: String(page)}))}
+                value={currentPage}
+                minQueryLength={0}
+                onSelect={this.onSelect}/>
+        <div className={prefixed('separator')}>of</div>
+        <div className={prefixed('total-pages')}>
+          {pagesCount}
         </div>
         <RightButton className={rightButtonClass} onClick={this.onNextPageClick}/>
       </div>
     );
   }
 }
-
-export default TablePaginator;

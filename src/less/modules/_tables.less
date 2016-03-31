@@ -165,12 +165,16 @@
   float: right;
   line-height: pxtorem(40px);
 
-  &__current-page, &__total-pages {
+  &__current-page {
+    .width(70px);
     .margin(0 10px);
 
-    .fc-form-field {
-      .width(50px);
+    .fc-lookup__input {
+      .padding-left(20px);
     }
+  }
+  &__total-pages {
+    .margin(0 10px);
   }
 
   &__current-page-field {
