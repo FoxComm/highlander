@@ -5,7 +5,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import type { HTMLElement } from 'types';
-import { browserHistory } from 'react-router';
 
 import styles from './pdp.css';
 
@@ -17,6 +16,7 @@ import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
 
 import * as actions from 'modules/product-details';
+import { fetch as fetchProducts } from 'modules/products';
 import { addLineItem, toggleCart } from 'modules/cart';
 
 import type { ProductResponse } from 'modules/product-details';
@@ -34,6 +34,7 @@ type Props = {
   resetProduct: Function;
   getNextId: Function;
   getPreviousId: Function;
+  fetchProducts: Function;
   isLoading: boolean;
   isCartLoading: boolean;
   notFound: boolean;
@@ -62,7 +63,10 @@ class Pdp extends Component {
   };
 
   componentWillMount() {
-    this.props.fetch(this.productId);
+    this.props.fetchProducts();
+    if (!this.props.product) {
+      this.props.fetch(this.productId);
+    }
   }
 
   componentWillUnmount() {
@@ -105,22 +109,22 @@ class Pdp extends Component {
 
   get pathToNext(): string {
     const nextId = this.props.getNextId(this.productId);
-    console.log('next: ' + nextId);
+
     if (nextId == null) {
       return '/';
-    } else {
-      return `/products/${nextId}`;
     }
+
+    return `/products/${nextId}`;
   }
 
   get pathToPrevious(): string {
     const prevId = this.props.getPreviousId(this.productId);
-    console.log('next: ' + prevId);
+
     if (prevId == null) {
       return '/';
-    } else {
-      return `/products/${prevId}`;
     }
+
+    return `/products/${prevId}`;
   }
 
   render(): HTMLElement {
@@ -185,4 +189,4 @@ class Pdp extends Component {
   }
 }
 
-export default connect(getState, {...actions, addLineItem, toggleCart})(Pdp);
+export default connect(getState, {...actions, addLineItem, toggleCart, fetchProducts})(Pdp);
