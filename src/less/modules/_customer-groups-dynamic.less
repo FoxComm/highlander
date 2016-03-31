@@ -1,0 +1,197 @@
+.fc-customer-group-dynamic {
+  &__header {
+    .margin-bottom(40px);
+  }
+
+  &__title {
+    display: flex;
+
+    .fc-title {
+      .inline-block();
+      .font-spec(30px, @semibold, 33px);
+      flex-grow: 1;
+      .margin(30px 0 10px 0);
+    }
+
+    .fc-btn {
+      .margin(30px 0 10px 0);
+    }
+  }
+
+  &__count {
+    .inline-block();
+    .padding-left(15px);
+    color: @color-decor8;
+  }
+
+  &__about {
+    &__key {
+      .font-spec(14px, @semibold, 20px);
+    }
+    &__value {
+      .font-spec(14px, @normal, 20px);
+    }
+  }
+
+  &__criteria {
+    .margin-bottom(40px);
+
+    > article {
+      display: none;
+      &._open {
+        display: block;
+      }
+    }
+  }
+
+  &__stats {
+    .margin-bottom(40px);
+  }
+
+  &__main {
+    .inline-block();
+    .font-spec(14px, @semibold, 20px);
+    .margin-bottom(40px);
+  }
+
+  &__inline-label {
+    #inline-label-styles;
+  }
+
+  &__criterion {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+    .margin-bottom(@critertion-margin);
+
+    @critertion-margin: 20px;
+    @criterion-height: 40px;
+    @label-padding: 10px;
+
+    @field-width: 330px;
+    &__field {
+      .width(@field-width);
+      .max-width(@field-width);
+      .height(@criterion-height);
+      .margin-right(@critertion-margin);
+      .line-height(@criterion-height - 10);
+      #inline-label-styles;
+      .padding-left(@label-padding);
+    }
+
+    @operator-width: 206px;
+    &__operator {
+      .width(@operator-width);
+      .max-width(@operator-width);
+      .height(@criterion-height);
+      .margin-right(@critertion-margin);
+      .line-height(@criterion-height - 10);
+      #inline-label-styles;
+      .padding-left(@label-padding);
+    }
+
+    @value-width: 330px;
+    &__value {
+      .width(@value-width);
+      .max-width(@value-width);
+      .height(@criterion-height);
+      .line-height(@criterion-height - 10);
+      #inline-label-styles;
+      .padding-left(@label-padding);
+    }
+
+    &__vertical-select {
+      @value-width: 278px;
+      flex-direction: column;
+      @line-width: 34px;
+      @line-height: 28px;
+      @b-size: 34px;
+      @sep-line-height: 90px;
+
+      &__container {
+        display: flex;
+        align-items: flex-start;
+        &:not(:first-child) {
+          .margin-top(@sep-line-height - @criterion-height - 2);
+        }
+        &:last-child {
+          .margin-bottom(@sep-line-height - @criterion-height - 2);
+          .fc-customer-group-dynamic__criterion__vertical-select__item:after {
+            .height(0);
+          }
+        }
+        &:only-child {
+          .fc-customer-group-dynamic__criterion__vertical-select__item:after {
+            display: none;
+          }
+        }
+      }
+
+      &__item {
+        position: relative;
+        .width(@value-width);
+        .max-width(@value-width);
+
+        // lines
+        &:after {
+          content: "";
+          .height(@sep-line-height);
+          border-top: 2px solid @color-decor7;
+          border-right: 2px solid @color-decor7;
+          .width(@line-width);
+          position: absolute;
+          left: 100%;
+          top: 50%;
+        }
+      }
+
+      &__or {
+        display: block;
+        position: relative;
+        // circle
+        border-radius: 50%;
+        .width(@b-size);
+        .max-width(@b-size);
+        .font-spec(14px, @bold);
+        .height(@b-size);
+        .line-height(@b-size);
+        .left(@line-width - @b-size/2 - 1);
+        .top(@line-height + @criterion-height/2 - 1);
+        text-align: center;
+        background: @color-decor7;
+      }
+
+      .fc-customer-group-dynamic__criterion__value {
+        .width(@value-width);
+      }
+    }
+
+    &__range {
+      .width(@value-width);
+
+      @range-value-width: 150px;
+
+      > * {
+        .inline-block();
+      }
+
+      .fc-customer-group-dynamic__criterion__value {
+        .width(@range-value-width);
+      }
+
+      &__separator {
+        .width(30px);
+        .height(@criterion-height);
+        line-height: @criterion-height;
+        color: @color-decor7;
+      }
+    }
+  }
+
+  &__filter {
+    width: auto;
+    .border-radius(3px);
+    background-color: @color-white;
+    .margin-bottom(40px);
+  }
+}

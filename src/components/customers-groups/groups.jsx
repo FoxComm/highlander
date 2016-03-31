@@ -1,87 +1,89 @@
-import React, { PropTypes } from 'react';
-import { transitionTo } from '../../route-helpers';
-import { autobind } from 'core-decorators';
+//libs
+import React, { Component, PropTypes } from 'react';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
+
+//data
+import * as actions from '../../modules/customer-groups/list';
+
+//helpers
+import { transitionTo } from '../../route-helpers';
+
+//components
 import TableView from '../table/tableview';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
 import Link from '../link/link';
 import { DateTime } from '../common/datetime';
-import TabListView from '../tabs/tabs';
-import TabView from '../tabs/tab';
-import LocalNav from '../local-nav/local-nav';
-import Currency from '../common/currency';
-import PilledInput from '../pilled-search/pilled-input';
 import { PrimaryButton } from '../common/buttons';
-import * as groupsActions from '../../modules/groups/list';
 
 
-@connect(state => ({groups: state.groups.list}), groupsActions)
-export default class Groups extends React.Component {
+const mapStateToProps = state => ({list: state.customerGroups.list});
+const mapDispatchToProps = dispatch => ({actions: bindActionCreators(actions, dispatch)});
+
+@connect(mapStateToProps, mapDispatchToProps)
+export default class Groups extends Component {
 
   static propTypes = {
-    fetch: PropTypes.func.isRequired,
-    tableColumns: PropTypes.array,
-    groups: PropTypes.shape({
-      rows: PropTypes.array.isRequired,
-      total: PropTypes.number
+    actions: PropTypes.shape({
+      fetch: PropTypes.func.isRequired,
+      updateStateAndFetch: PropTypes.func.isRequired,
     }),
-  };
-
-  static defaultProps = {
-    tableColumns: [
-      {field: 'name', text: 'Group Name', model: 'group'},
-      {field: 'type', text: 'Type', model: 'group'},
-      {field: 'customersCount', text: 'Number in Group', model: 'group'},
-      {field: 'createdAt', text: 'Date/Time Created', type: 'date'},
-      {field: 'modifiedAt', text: 'Date/Time Last Modified', type: 'date'},
-    ]
+    list: PropTypes.object.isRequired,
   };
 
   static contextTypes = {
     history: PropTypes.object.isRequired
   };
 
+  static tableColumns = [
+    {field: 'name', type: 'id', text: 'Group Name', model: 'group'},
+    {field: 'type', text: 'Type'},
+    {field: 'createdAt', type: 'date', text: 'Date/Time Created'},
+    {field: 'modifiedAt', type: 'date', text: 'Date/Time Last Modified'},
+  ];
+
   componentDidMount() {
-    this.props.fetch();
+    this.props.actions.fetch();
   }
 
   @autobind
-  onAddGroup() {
-    transitionTo(this.context.history, 'groups-new-dynamic');
+  handleAddGroup() {
+    transitionTo(this.context.history, 'new-dynamic-customer-group');
   }
 
-  render() {
-    const renderRow = (row, index) => (
+  renderRow(row, index) {
+    return (
       <TableRow key={`${index}`}>
         <TableCell>
-          <Link to={'group'} params={{groupId: row.id}}>
+          <Link to={'customer-group'} params={{groupId: row.id}}>
             {row.name}
           </Link>
         </TableCell>
         <TableCell>{row.type}</TableCell>
-        <TableCell>{row.customersCount}</TableCell>
-        <TableCell><DateTime value={row.createdAt}/></TableCell>
-        <TableCell><DateTime value={row.modifiedAt}/></TableCell>
+        <TableCell><DateTime value={row.createdAt} /></TableCell>
+        <TableCell><DateTime value={row.modifiedAt} /></TableCell>
       </TableRow>
     );
+  }
+
+  render() {
+    const {list, actions: {updateStateAndFetch}} = this.props;
 
     return (
-      <div className="fc-grid fc-groups-components">
+      <div className="fc-grid fc-customer-groups-components">
         <div className="fc-col-md-1-1 _group-header _group-component">
           <h2 className="_group-title">Customers Groups</h2>
-          <PrimaryButton icon="add" onClick={this.onAddGroup} />
-        </div>
-        <div className="fc-col-md-1-1 _group-component">
-          <PilledInput placeholder="Add filter or keyword search"/>
+          <PrimaryButton icon="add" onClick={this.handleAddGroup} />
         </div>
         <div className="fc-col-md-1-1 _group-component">
           <TableView
-              columns={this.props.tableColumns}
-              data={this.props.groups}
-              renderRow={renderRow}
-              setState={this.props.updateStateAndFetch}
-            />
+            columns={Groups.tableColumns}
+            data={list}
+            renderRow={this.renderRow}
+            setState={updateStateAndFetch}
+          />
         </div>
       </div>
     );

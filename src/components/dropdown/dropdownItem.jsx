@@ -18,6 +18,7 @@ const DropdownItem = props => {
 DropdownItem.propTypes = {
   onSelect: PropTypes.func,
   value: PropTypes.oneOfType([
+    PropTypes.bool,
     PropTypes.string,
     PropTypes.number,
   ]),

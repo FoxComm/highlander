@@ -1,4 +1,3 @@
-
 export function isElementInViewport(el) {
   const rect = el.getBoundingClientRect();
 
@@ -8,4 +7,18 @@ export function isElementInViewport(el) {
     rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
     rect.right <= (window.innerWidth || document.documentElement.clientWidth)
   );
+}
+
+export function isElementVisible(element, ...ancestors) {
+  const elements = [element, ...ancestors];
+  const {left, right, top, bottom} = element.getBoundingClientRect();
+
+  const corners = [
+    document.elementFromPoint(left + 1, top + 1),
+    document.elementFromPoint(right - 1, top + 1),
+    document.elementFromPoint(right - 1, bottom - 1),
+    document.elementFromPoint(left + 1, bottom - 1),
+  ];
+
+  return corners.every(corner => elements.includes(corner));
 }

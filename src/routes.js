@@ -15,8 +15,9 @@ import Customers from './components/customers/customers';
 import CustomersListPage from './components/customers/list-page';
 import NewCustomer from './components/customers/new-customer';
 import Groups from './components/customers-groups/groups';
-import DynamicGroup from './components/customers-groups/dynamic-group';
-import ManualGroup from './components/customers-groups/manual-group';
+import Group from './components/customers-groups/group';
+import NewDynamicGroup from './components/customers-groups/dynamic/new-group';
+import EditDynamicGroup from './components/customers-groups/dynamic/edit-group';
 import Customer from './components/customers/customer';
 import CustomerDetails from './components/customers/details';
 import Notes from './components/notes/notes';
@@ -90,12 +91,14 @@ const routes = (
         <IndexRoute name='customers' component={Customers}/>
         <Route name='customers-activity-trail' path='activity-trail' dimension="customer"
                component={ActivityTrailPage}/>
-        <Route name='groups-base' path='groups'>
-          <IndexRoute name='groups' component={Groups}/>
-          <Route name='groups-new-dynamic' path='new-dynamic' component={DynamicGroup} />
-          <Route name='groups-new-manual' path='new-manual' component={ManualGroup} />
-          <Route name='group' path=':groupId' component={DynamicGroup} />
+      </Route>
+      <Route name='groups-base' path='groups'>
+        <Route name='customer-groups' component={CustomersListPage}>
+          <IndexRoute name='groups' component={Groups} />
         </Route>
+        <Route name='new-dynamic-customer-group' path='new-dynamic' component={NewDynamicGroup} />
+        <Route name='edit-dynamic-customer-group' path='edit-dynamic/:groupId' component={EditDynamicGroup} />
+        <Route title='Group' name='customer-group' path=':groupId' component={Group} />
       </Route>
       <Route name='customers-new' path='new' component={NewCustomer} />
       <Route name='customer' path=':customerId' component={Customer}>
