@@ -8,17 +8,20 @@ import { connect } from 'react-redux';
 import EditableBlock from 'ui/editable-block';
 import { TextInput } from 'ui/inputs';
 import Button from 'ui/buttons';
+import { FormField } from 'ui/forms';
 
 class EditGiftCard extends Component {
 
   state = {
     code: '',
+    error: false,
   };
 
   @autobind
   changeCode({target}) {
     this.setState({
       code: target.value,
+      error: false,
     });
   }
 
@@ -27,14 +30,16 @@ class EditGiftCard extends Component {
     this.props.saveGiftCard(this.state.code).then(() => {
       this.setState({code: ''});
     }).catch(() => {
-      this.setState({code: ''});
+      this.setState({code: '', error: 'Please enter a valid gift card and try again.'});
     });
   }
 
   render() {
     return (
       <div styleName="gift-card-content">
-        <TextInput styleName="gift-card-code" placeholder="CODE" value={this.state.code} onChange={this.changeCode} />
+        <FormField styleName="gift-card-code-field" error={this.state.error}>
+          <TextInput styleName="gift-card-code" placeholder="CODE" value={this.state.code} onChange={this.changeCode} />
+        </FormField>
         <Button styleName="gift-card-submit" onClick={this.onSave}>
           redeem
         </Button>
