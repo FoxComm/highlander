@@ -31,6 +31,7 @@ type Props = {
   addLineItem: Function;
   toggleCart: Function;
   resetProduct: Function;
+  getNextId: Function;
   isLoading: boolean;
   isCartLoading: boolean;
   notFound: boolean;
@@ -59,14 +60,19 @@ class Pdp extends Component {
   };
 
   componentWillMount() {
-    /** prevent load on client on mount */
-    if (!this.props.product) {
-      this.props.fetch(this.productId);
-    }
+    this.props.fetch(this.productId);
   }
 
   componentWillUnmount() {
     this.props.resetProduct();
+  }
+
+  componentWillUpdate(nextProps) {
+    const stringId = nextProps.params.productId;
+    const id = parseInt(stringId, 10);
+    if (this.productId !== id) {
+      this.props.fetch(id);
+    }
   }
 
   get productId(): number {
@@ -112,6 +118,7 @@ class Pdp extends Component {
     const salePrice = _.get(product, ['skus', 0, 'attributes', 'salePrice', 'v', 'value'], 0);
     const currency = _.get(product, ['skus', 0, 'attributes', 'salePrice', 'v', 'currency'], 'USD');
     const imageUrls = _.get(product, ['product', 'attributes', 'images', 'v'], []);
+    const nextId = this.props.getNextId(this.productId);
 
     return (
       <div styleName="container">
@@ -125,7 +132,7 @@ class Pdp extends Component {
             <Link to="/" styleName="breadcrumb">&lt; BACK</Link>
           </div>
           <div>
-            NEXT &gt;
+            <Link to={`/products/${nextId}`} styleName="breadcrumb">NEXT &gt;</Link>
           </div>
         </div>
         <div styleName="details">
