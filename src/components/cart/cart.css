@@ -1,5 +1,6 @@
 
 @import "colors.css";
+@import "media-queries.css";
 
 .overlay {
   position: fixed;
@@ -50,14 +51,32 @@
   align-items: center;
 }
 
+.left-icon {
+  margin: 0 15px;
+}
+
+.header-text {
+  flex-grow: 1;
+  margin-right: 50px; /* 15px paddings + 20px icon width */
+}
+
 .checkout-button {
   display: flex;
+  background: var(--blackish);
   color: var(--whitish);
   text-decoration: none;
   height: 100%;
   width: 100%;
+  font-size: 15px;
+  line-height: 17px;
   align-items: center;
   justify-content: center;
+  border: 0;
+  cursor: pointer;
+}
+
+.checkout-button:disabled {
+  background: var(--blackish);
 }
 
 .cart-content {
@@ -101,4 +120,10 @@
 
 .subtotal-price {
   margin-right: 20px;
+}
+
+@media (--medium-viewport) {
+  .cart-box {
+    lost-column: 7/11;
+  }
 }
