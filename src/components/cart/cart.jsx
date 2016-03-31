@@ -16,12 +16,15 @@ import Icon from 'ui/icon';
 
 import * as actions from 'modules/cart';
 
-const getState = state => ({ ...state.cart });
+const getState = state => ({ ...state.cart, ...state.auth });
 
 class Cart extends Component {
 
   componentWillMount() {
-    this.props.fetch();
+    /** prevent loading if no user logged in */
+    if (this.props.user) {
+      this.props.fetch();
+    }
   }
 
   get lineItems() {

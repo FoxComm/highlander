@@ -1,10 +1,9 @@
-
-
 import React, { Component } from 'react';
-import styles from './auth.css';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'react-router';
 import { connect } from 'react-redux';
+
+import styles from './auth.css';
 
 import { TextInput, TextInputWithLabel } from 'ui/inputs';
 import { FormField } from 'ui/forms';
@@ -22,8 +21,12 @@ type AuthState = {
   password: string,
 };
 
+const mapState = state => ({
+  isLoading: state.auth.isFetching,
+});
+
 /* ::`*/
-@connect(null, actions)
+@connect(mapState, actions)
 /* ::`*/
 export default class Auth extends Component {
 
@@ -61,12 +64,13 @@ export default class Auth extends Component {
 
   render(): HTMLElement {
     const { password, email } = this.state;
+    const props = this.props;
 
     return (
       <div>
         <div styleName="title">LOG IN</div>
         <form>
-          <Button icon="fc-google" onClick={this.props.googleSignin} type="button" styleName="google-login">
+          <Button icon="fc-google" onClick={props.googleSignin} type="button" styleName="google-login">
             LOG IN WITH GOOGLE
           </Button>
         </form>
@@ -81,7 +85,7 @@ export default class Auth extends Component {
               value={password} onChange={this.onChangePassword} type="password"
             />
           </FormField>
-          <Button styleName="primary-button" onClick={this.authenticate}>LOG IN</Button>
+          <Button styleName="primary-button" isLoading={props.isLoading} onClick={this.authenticate}>LOG IN</Button>
         </form>
         <div styleName="switch-stage">
           Don’t have an account? <Link styleName="signup-link" to="/signup">Sign Up</Link>

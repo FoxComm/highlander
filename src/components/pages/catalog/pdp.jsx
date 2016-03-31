@@ -32,6 +32,7 @@ type Props = {
   toggleCart: Function;
   resetProduct: Function;
   isLoading: boolean;
+  isCartLoading: boolean;
   notFound: boolean;
 };
 
@@ -46,6 +47,7 @@ const getState = state => {
     product,
     notFound: !product && _.get(state.asyncActions, ['pdp', 'failed'], false),
     isLoading: _.get(state.asyncActions, ['pdp', 'inProgress'], true),
+    isCartLoading: _.get(state.asyncActions, ['cartChange', 'inProgress'], false),
   };
 };
 
@@ -102,7 +104,7 @@ class Pdp extends Component {
       return <p styleName="not-found">Product not found</p>;
     }
 
-    const { product } = this.props;
+    const { product, isCartLoading } = this.props;
 
     const title = _.get(product, ['product', 'attributes', 'title', 'v'], '');
     const description = _.get(product, ['product', 'attributes', 'description', 'v'], '');
@@ -110,6 +112,7 @@ class Pdp extends Component {
     const salePrice = _.get(product, ['skus', 0, 'attributes', 'salePrice', 'v', 'value'], 0);
     const currency = _.get(product, ['skus', 0, 'attributes', 'salePrice', 'v', 'currency'], 'USD');
     const imageUrls = _.get(product, ['product', 'attributes', 'images', 'v'], []);
+
     return (
       <div styleName="container">
         <div styleName="links">
@@ -144,7 +147,7 @@ class Pdp extends Component {
                 />
               </div>
             </div>
-            <Button styleName="add-to-cart" onClick={this.addToCart}>ADD TO CART</Button>
+            <Button styleName="add-to-cart" isLoading={isCartLoading} onClick={this.addToCart}>ADD TO CART</Button>
           </div>
         </div>
       </div>
