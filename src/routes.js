@@ -130,6 +130,8 @@ const routes = (
       <Route name='product' path=':productId' component={ProductPage}>
         <IndexRoute name='product-details' component={ProductForm} />
         <Route name='product-images' title='Product Images' path='images' component={ProductImages} />
+        <Route name='product-notes' path='notes' component={Notes} />
+        <Route name='product-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
       </Route>
     </Route>
     <Route name='gift-cards-base' path='gift-cards'>

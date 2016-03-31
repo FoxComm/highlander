@@ -13,7 +13,6 @@ import _ from 'lodash';
 import * as ProductActions from '../../modules/products/details';
 
 // components
-import { Form } from '../forms';
 import { PageTitle } from '../section-title';
 import { PrimaryButton } from '../common/buttons';
 import SubNav from './sub-nav';
@@ -152,28 +151,29 @@ export class ProductPage extends Component<void, Props, State> {
     }
 
     const children = React.cloneElement(this.props.children, {
+      ...this.props.children.props,
       onSetProperty: this.handleSetAttribute,
       onSetSkuProperty: this.handleSetSkuProperty,
       product,
+      entity: { entityId: this.props.params.productId, entityType: 'product' },
     });
 
     const wait = isUpdating ? <WaitAnimation /> : null;
 
     return (
-      <Form onSubmit={this.handleSubmit}>
+      <div>
         <PageTitle title={this.pageTitle}>
           <PrimaryButton 
             className="fc-product-details__save-button" 
             type="submit" 
-            disabled={isUpdating}>
+            disabled={isUpdating}
+            onClick={this.handleSubmit}>
             Save Draft {wait}
           </PrimaryButton>
         </PageTitle>
-        <div>
-          <SubNav productId={this.props.params.productId} product={product} />
-          {children}
-        </div>
-      </Form>
+        <SubNav productId={this.props.params.productId} product={product} />
+        {children}
+      </div>
     );
   }
 }
