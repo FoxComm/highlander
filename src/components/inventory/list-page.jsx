@@ -14,7 +14,7 @@ const InventoryListPage = (props, context) => {
 
   const navLinks = [
     { title: 'Lists', to: 'inventory' },
-    { title: 'Insights', to: '' },
+    { title: 'Insights', to: 'home' },
     { title: 'Activity Trail', to: 'inventory-activity-trail' }
   ];
 

@@ -14,7 +14,8 @@ export default function configureStore(reduxReactRouter, routes, createHistory, 
   if (useLogger()) {
     const createLogger = require(`redux-logger`);
     const logger = applyMiddleware(createLogger({
-      logger: console
+      duration: true,
+      collapsed: true
     }));
     // logger should be latest always, except devTools()
     middlewares.push(logger);

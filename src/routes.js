@@ -55,10 +55,11 @@ import Login from './components/auth/login';
 
 const routes = (
   <Route path="/">
+    <IndexRedirect to="/orders/"/>
+
     <Route name="login" path="login" component={Login}/>
     <Route component={Site}>
     <IndexRoute name="home" component={Home}/>
-    <IndexRedirect from="/" to="/orders/" />
     <Route name='rmas-base' path='returns'>
       <IndexRoute name='rmas' component={Rmas}/>
       <Route name='rma' path=':rma' component={Rma}>

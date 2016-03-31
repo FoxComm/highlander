@@ -21,7 +21,7 @@ const InventoryList = props => {
 
   const renderRow = (row, index, columns, params) => {
     const key = `inventory-sku-${row.id}`;
-    return <InventoryListRow sku={row} columns={columns} params={params} />;
+    return <InventoryListRow sku={row} columns={columns} params={params} key={key} />;
   };
 
   const tableColumns = [

@@ -21,8 +21,8 @@ const ProductsListPage = (props: Props, context: Object) => {
   const addAction = () => transitionTo(context.history, 'new-product');
   const navLinks = [
     { title: 'Lists', to: 'products' },
-    { title: 'Insights', to: '' },
-    { title: 'Activity Trail', to: '' },
+    { title: 'Insights', to: 'home' },
+    { title: 'Activity Trail', to: 'home' },
   ];
 
   return (

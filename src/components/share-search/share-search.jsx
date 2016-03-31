@@ -97,7 +97,7 @@ export default class ShareSearch extends Component {
     const { isFetchingAssociations = false, associations = [], storeAdminId } = this.props.search;
 
     if (isFetchingAssociations) {
-      return <WaitAnimation/>;
+      return <WaitAnimation size="s"/>;
     }
 
     const associationsNumber = associations.length ? associations.length : '...';

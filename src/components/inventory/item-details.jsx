@@ -95,11 +95,11 @@ export default class InventoryItemDetails extends React.Component {
   }
 
   get summaryData() {
-    return _.get(this.props, ['tableState', 'summary', 'results'], {});
+    return _.get(this.props, ['tableState', 'summary', 'results'], {rows: []});
   }
 
   get drawerData() {
-    return warehouseId => _.get(this.props, ['tableState', warehouseId, 'results'], {});
+    return warehouseId => _.get(this.props, ['tableState', warehouseId, 'results'], {rows: []});
   }
 
   render() {

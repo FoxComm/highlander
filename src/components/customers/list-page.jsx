@@ -15,7 +15,7 @@ const CustomersListPage = (props, context) => {
   const navLinks = [
     { title: 'Lists', to: 'customers' },
     { title: 'Customer Groups', to: 'groups' },
-    { title: 'Insights', to: '' },
+    { title: 'Insights', to: 'home' },
     { title: 'Activity Trail', to: 'customers-activity-trail' }
   ];
 

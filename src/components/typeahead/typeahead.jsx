@@ -10,6 +10,7 @@ import TypeaheadItems from './items';
 import TypeaheadInput from './input';
 import { FormField } from '../forms';
 import Alert from '../alerts/alert';
+import WaitAnimation from '../common/wait-animation';
 
 export default class Typeahead extends React.Component {
 
@@ -193,21 +194,23 @@ export default class Typeahead extends React.Component {
     }
   }
 
+  get loader() {
+    return this.props.isFetching ? <WaitAnimation className="fc-typeahead__loader" size="s" /> : null;
+  }
+
   render() {
-    const elementClass = classNames('fc-typeahead', {
-      '_loading': this.props.isFetching
-    }, this.props.className);
+    const elementClass = classNames('fc-typeahead', this.props.className);
 
     const menuClass = classNames('fc-typeahead__menu', {
       '_visible': this.state.showMenu
     });
 
     return (
-      <div
-        className={ elementClass }>
+      <div className={elementClass}>
         <FormField className="fc-typeahead__input-group" label={this.props.label}>
           {this.inputContent}
         </FormField>
+        {this.loader}
         <div className={menuClass}>
           {this.menuContent}
         </div>
