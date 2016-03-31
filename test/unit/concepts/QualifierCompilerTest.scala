@@ -19,23 +19,23 @@ class QualifierCompilerTest extends TestBase {
     }
 
     "fails when incorrect type in attributes is passed" in new CaseClassInvalidTypeFixture {
-      leftValue(compiler.compile()) must === (QualifierAttributesExtractionFailure(qualifierType, attributes))
+      leftValue(compiler.compile()) must === (QualifierAttributesExtractionFailure(qualifierType, attributes).single)
     }
 
     "returns failure for unknown qualifier type" in new UnknownQualifierFixture {
-      leftValue(compiler.compile()) must === (UnknownQualifierFailure(qualifierType))
+      leftValue(compiler.compile()) must === (UnknownQualifierFailure(qualifierType).single)
     }
 
     "returns failure for invalid json attributes" in new InvalidJsonFixture {
-      leftValue(compiler.compile()) must === (QualifierAttributesParseFailure(qualifierType, attributes))
+      leftValue(compiler.compile()) must === (QualifierAttributesParseFailure(qualifierType, attributes).single)
     }
 
     "returns failure when attributes are not matched to case class" in new UnmatchedCaseClassFixture {
-      leftValue(compiler.compile()) must === (QualifierAttributesExtractionFailure(qualifierType, attributes))
+      leftValue(compiler.compile()) must === (QualifierAttributesExtractionFailure(qualifierType, attributes).single)
     }
 
     "returns failure when qualifier is not yet implemented" in new NotImplementedQualifierFixture {
-      leftValue(compiler.compile()) must === (QualifierNotImplementedFailure(qualifierType))
+      leftValue(compiler.compile()) must === (QualifierNotImplementedFailure(qualifierType).single)
     }
   }
 

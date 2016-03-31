@@ -19,23 +19,23 @@ class OfferCompilerTest extends TestBase {
     }
 
     "fails when incorrect type in attributes is passed" in new CaseClassInvalidTypeFixture {
-      leftValue(compiler.compile()) must === (OfferAttributesExtractionFailure(offerType, attributes))
+      leftValue(compiler.compile()) must === (OfferAttributesExtractionFailure(offerType, attributes).single)
     }
 
     "returns failure for unknown qualifier type" in new UnknownQualifierFixture {
-      leftValue(compiler.compile()) must === (UnknownOfferFailure(offerType))
+      leftValue(compiler.compile()) must === (UnknownOfferFailure(offerType).single)
     }
 
     "returns failure for invalid json attributes" in new InvalidJsonFixture {
-      leftValue(compiler.compile()) must === (OfferAttributesParseFailure(offerType, attributes))
+      leftValue(compiler.compile()) must === (OfferAttributesParseFailure(offerType, attributes).single)
     }
 
     "returns failure when attributes are not matched to case class" in new UnmatchedCaseClassFixture {
-      leftValue(compiler.compile()) must === (OfferAttributesExtractionFailure(offerType, attributes))
+      leftValue(compiler.compile()) must === (OfferAttributesExtractionFailure(offerType, attributes).single)
     }
 
     "returns failure when qualifier is not yet implemented" in new NotImplementedQualifierFixture {
-      leftValue(compiler.compile()) must === (OfferNotImplementedFailure(offerType))
+      leftValue(compiler.compile()) must === (OfferNotImplementedFailure(offerType).single)
     }
   }
 

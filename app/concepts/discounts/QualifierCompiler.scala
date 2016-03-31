@@ -12,21 +12,23 @@ final case class QualifierCompiler(qualifierType: String, attributes: String) {
 
   implicit val formats: Formats = JsonFormatters.DefaultFormats
 
-  def compile(): Xor[Failure, Qualifier] = (QualifierType.read(qualifierType), parseOpt(attributes)) match {
+  def compile(): Xor[Failures, Qualifier] = (QualifierType.read(qualifierType), parseOpt(attributes)) match {
     case (Some(q), Some(j)) ⇒ compileInner(q, j)
-    case (_, Some(j))       ⇒ Xor.Left(UnknownQualifierFailure(qualifierType))
-    case (_, _)             ⇒ Xor.Left(QualifierAttributesParseFailure(qualifierType, attributes))
+    case (_, Some(j))       ⇒ Xor.Left(UnknownQualifierFailure(qualifierType).single)
+    case (_, _)             ⇒ Xor.Left(QualifierAttributesParseFailure(qualifierType, attributes).single)
   }
 
-  private def compileInner(qualifierAdt: QualifierType, json: JValue): Xor[Failure, Qualifier] = qualifierAdt match {
+  private def compileInner(qualifierAdt: QualifierType, json: JValue): Xor[Failures, Qualifier] = qualifierAdt match {
     case OrderAny         ⇒ Xor.Right(OrderAnyQualifier)
     case OrderTotalAmount ⇒ extract[OrderTotalAmountQualifier](json)
     case ItemsAny         ⇒ Xor.Right(ItemsAnyQualifier)
-    case _                ⇒ Xor.Left(QualifierNotImplementedFailure(qualifierType))
+    case _                ⇒ Xor.Left(QualifierNotImplementedFailure(qualifierType).single)
   }
 
-  private def extract[T <: Qualifier](json: JValue)(implicit m: Manifest[T]): Xor[Failure, Qualifier] = json.extractOpt[T] match {
-    case Some(q) => Xor.Right(q)
-    case None    => Xor.Left(QualifierAttributesExtractionFailure(qualifierType, attributes))
+  private def extract[T <: Qualifier](json: JValue)(implicit m: Manifest[T]): Xor[Failures, Qualifier] = {
+    json.extractOpt[T] match {
+      case Some(q) ⇒ Xor.Right(q)
+      case None    ⇒ Xor.Left(QualifierAttributesExtractionFailure(qualifierType, attributes).single)
+    }
   }
 }

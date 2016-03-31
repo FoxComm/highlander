@@ -1,6 +1,17 @@
 package failures
 
+import concepts.discounts._
+import utils.friendlyClassName
+
 object DiscountCompilerFailures {
+
+  final case class QualifierRejectionFailure[T <: Qualifier](qualifier: T, refNum: String, reason: String) extends Failure {
+    override def description = s"qualifier ${friendlyClassName(qualifier)} rejected order with refNum=$refNum, reason: $reason"
+  }
+
+  final case class OfferRejectionFailure[T <: Offer](offer: T, refNum: String, reason: String) extends Failure {
+    override def description = s"offer ${friendlyClassName(offer)} rejected order with refNum=$refNum, reason: $reason"
+  }
 
   final case class QualifierAttributesParseFailure(qualifierType: String, json: String) extends Failure {
     override def description = s"failed to compile qualifier $qualifierType, invalid JSON provided: $json"
