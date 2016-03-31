@@ -3,7 +3,7 @@ package services
 import java.time.Instant
 
 import failures.NotFoundFailure404
-import failures.SharedSearchFailures.SharedSearchAssociationNotFound
+import failures.SharedSearchFailures.{SharedSearchScopeNotFound, SharedSearchAssociationNotFound}
 import failures.Util.diffToFailures
 import models.sharedsearch._
 import models.{StoreAdmin, StoreAdmins}
@@ -18,7 +18,9 @@ import utils.aliases._
 
 object SharedSearchService {
   def getAll(admin: StoreAdmin, rawScope: Option[String])(implicit ec: EC, db: DB): Result[Seq[SharedSearch]] = (for {
-    result ← * <~ SharedSearchAssociations.associatedWith(admin, rawScope).result.toXor
+    scope ← * <~ rawScope.toXor(SharedSearchScopeNotFound.single)
+    searchScope ← * <~ SharedSearch.Scope.read(scope).toXor(NotFoundFailure404(SharedSearch, scope).single)
+    result ← * <~ SharedSearchAssociations.associatedWith(admin, searchScope).result.toXor
   } yield result).run()
 
   def get(code: String)(implicit ec: EC, db: DB): Result[SharedSearch] =

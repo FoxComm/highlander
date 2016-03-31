@@ -5,7 +5,8 @@ import Extensions._
 import models.sharedsearch.{SharedSearch, SharedSearchAssociation, SharedSearchAssociations, SharedSearches}
 import models.{StoreAdmin, StoreAdmins}
 import SharedSearchAssociation.{build ⇒ buildAssociation}
-import SharedSearch.{CustomersScope, OrdersScope, StoreAdminsScope}
+import models.sharedsearch.SharedSearch.{InventoryScope, ProductsScope, GiftCardsScope, CustomersScope, OrdersScope,
+StoreAdminsScope}
 import failures.NotFoundFailure404
 import failures.SharedSearchFailures._
 import payloads.{SharedSearchAssociationPayload, SharedSearchPayload}
@@ -21,13 +22,15 @@ import org.json4s.jackson.JsonMethods._
 class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
   "GET v1/shared-search" - {
-    "returns all searches when not scoped" in new SharedSearchFixture {
+    "return an error when not scoped" in new SharedSearchFixture {
       val response = GET(s"v1/shared-search")
-      response.status must === (StatusCodes.OK)
+      response.status must === (StatusCodes.BadRequest)
+      response.error must === (SharedSearchScopeNotFound.description)
+    }
 
-      val expectedResponse = Seq(customersSearch, ordersSearch, storeAdminsSearch)
-      val searchResponse = response.as[Seq[SharedSearch]]
-      searchResponse must === (expectedResponse)
+    "returns an error when given an invalid scope" in new SharedSearchFixture {
+      val response = GET(s"v1/shared-search?scope=arstScope")
+      response.status must === (StatusCodes.NotFound)
     }
 
     "returns only customers searches with the orders scope" in new SharedSearchFixture {
@@ -54,10 +57,34 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
       searchResponse must === (Seq(storeAdminsSearch))
     }
 
+    "returns only giftCards searches with the giftCards scope" in new SharedSearchFixture {
+      val response = GET(s"v1/shared-search?scope=giftCardsScope")
+      response.status must === (StatusCodes.OK)
+
+      val searchResponse = response.as[Seq[SharedSearch]]
+      searchResponse must === (Seq(giftCardsSearch))
+    }
+
+    "returns only products searches with the products scope" in new SharedSearchFixture {
+      val response = GET(s"v1/shared-search?scope=productsScope")
+      response.status must === (StatusCodes.OK)
+
+      val searchResponse = response.as[Seq[SharedSearch]]
+      searchResponse must === (Seq(productsSearch))
+    }
+
+    "returns only inventory searches with the inventory scope" in new SharedSearchFixture {
+      val response = GET(s"v1/shared-search?scope=inventoryScope")
+      response.status must === (StatusCodes.OK)
+
+      val searchResponse = response.as[Seq[SharedSearch]]
+      searchResponse must === (Seq(inventorySearch))
+    }
+
     "returns associated scopes created by different admins" in new SharedSearchAssociationFixture {
       SharedSearchAssociations.create(buildAssociation(search, storeAdmin)).run().futureValue
 
-      val response = GET(s"v1/shared-search")
+      val response = GET(s"v1/shared-search?scope=customersScope")
       response.status must === (StatusCodes.OK)
 
       val expectedResponse = Seq(search)
@@ -272,15 +299,28 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
       scope = OrdersScope, storeAdminId = storeAdmin.id)
     val storeAdminScope = SharedSearch(title = "Some Store Admin", query = parse("{}"),
       scope = StoreAdminsScope, storeAdminId = storeAdmin.id)
+    val giftCardScope = SharedSearch(title = "Some Gift Card", query = parse("{}"),
+      scope = GiftCardsScope, storeAdminId = storeAdmin.id)
+    val productScope = SharedSearch(title = "Some Product", query = parse("{}"),
+      scope = ProductsScope, storeAdminId = storeAdmin.id)
+    val inventoryScope = SharedSearch(title = "Some Inventory", query = parse("{}"),
+      scope = InventoryScope, storeAdminId = storeAdmin.id)
 
-    val (customersSearch, ordersSearch, storeAdminsSearch) = (for {
+    val (customersSearch, ordersSearch, storeAdminsSearch, giftCardsSearch, productsSearch, inventorySearch) = (for {
       customersSearch   ← * <~ SharedSearches.create(customerScope)
       _                 ← * <~ SharedSearchAssociations.create(buildAssociation(customersSearch, storeAdmin))
       ordersSearch      ← * <~ SharedSearches.create(orderScope)
       _                 ← * <~ SharedSearchAssociations.create(buildAssociation(ordersSearch, storeAdmin))
       storeAdminsSearch ← * <~ SharedSearches.create(storeAdminScope)
       _                 ← * <~ SharedSearchAssociations.create(buildAssociation(storeAdminsSearch, storeAdmin))
-    } yield (customersSearch, ordersSearch, storeAdminsSearch)).runTxn().futureValue.rightVal
+      giftCardsSearch   ← * <~ SharedSearches.create(giftCardScope)
+      _                 ← * <~ SharedSearchAssociations.create(buildAssociation(giftCardsSearch, storeAdmin))
+      productsSearch    ← * <~ SharedSearches.create(productScope)
+      _                 ← * <~ SharedSearchAssociations.create(buildAssociation(productsSearch, storeAdmin))
+      inventorySearch    ← * <~ SharedSearches.create(inventoryScope)
+      _                 ← * <~ SharedSearchAssociations.create(buildAssociation(inventorySearch, storeAdmin))
+    } yield (customersSearch, ordersSearch, storeAdminsSearch, giftCardsSearch, productsSearch, inventorySearch)
+      ).runTxn().futureValue.rightVal
   }
 
   trait SharedSearchAssociationFixture extends Fixture {

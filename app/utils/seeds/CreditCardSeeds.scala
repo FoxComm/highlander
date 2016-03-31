@@ -1,15 +1,18 @@
 package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import utils.seeds.generators.CreditCardGenerator
 
 import models.payment.creditcard._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import Seeds.today
 
-trait CreditCardSeeds {
+import scala.util.Random
 
-  val gatewayCustomerId = "cus_7yTU0ENGfk0pxN" //Id for adil@adil.com in test stripe account.
+trait CreditCardSeeds extends CreditCardGenerator {
+
+  val gatewayCustomerId = randomCustomerGatewayId
 
   def createCreditCards(customers: CustomerSeeds#Customers): DbResultT[Unit] = for {
     _ ← * <~ CreditCards.createAll(Seq(
