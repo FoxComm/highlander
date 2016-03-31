@@ -39,15 +39,10 @@ object SharedSearchAssociations extends TableQueryWithId[SharedSearchAssociation
 
   def byStoreAdmin(admin: StoreAdmin): QuerySeq = filter(_.storeAdminId === admin.id)
 
-  def associatedWith(admin: StoreAdmin, scope: Option[String])(implicit ec: EC): SharedSearches.QuerySeq = {
-    for {
-      associations ← byStoreAdmin(admin).map(_.sharedSearchId)
-      searches     ← scope.flatMap(SharedSearch.Scope.read) match {
-        case Some(s) ⇒ SharedSearches.filter(_.id === associations).filter(_.scope === s)
-        case _       ⇒ SharedSearches.filter(_.id === associations)
-      }
-    } yield searches
-  }
+  def associatedWith(admin: StoreAdmin, scope: SharedSearch.Scope)(implicit ec: EC): SharedSearches.QuerySeq = for {
+    associations ← byStoreAdmin(admin).map(_.sharedSearchId)
+    searches    ← SharedSearches.filter(_.id === associations).filter(_.scope === scope)
+  } yield searches
 
   def bySharedSearch(search: SharedSearch): QuerySeq = filter(_.sharedSearchId === search.id)
 
