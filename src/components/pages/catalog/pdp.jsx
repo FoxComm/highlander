@@ -117,7 +117,9 @@ class Pdp extends Component {
       <div styleName="container">
         <div styleName="links">
           <div styleName="desktop-links">
-            <Link to="/" styleName="breadcrumb">SHOP</Link> / LOREM IPSUM
+            <Link to="/" styleName="breadcrumb">SHOP</Link>
+            &nbsp;/&nbsp;
+            <Link to={`/products/${this.productId}`} styleName="breadcrumb">{title.toUpperCase()}</Link>
           </div>
           <div styleName="mobile-links">
             <Link to="/" styleName="breadcrumb">&lt; BACK</Link>
