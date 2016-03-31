@@ -6,13 +6,14 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
 import models.StoreAdmin
-import services.discount.DiscountManager
+import payloads.{CreateDiscount, UpdateDiscount}
 import services.Authenticator.{AsyncAuthenticator, requireAuth}
+import services.discount.DiscountManager
 import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
 import utils.Apis
-import utils.Http._
 import utils.CustomDirectives._
+import utils.Http._
+import utils.Slick.implicits._
 
 object DiscountRoutes {
 
@@ -36,13 +37,30 @@ object DiscountRoutes {
               }
             }
           } ~
-          pathPrefix(Segment / IntNumber) { (context, id) ⇒
-            (get & pathEnd) {
+          pathPrefix(Segment) { (context)  ⇒
+            (post & pathEnd & entity(as[CreateDiscount])) { payload ⇒
               goodOrFailures {
-                DiscountManager.getIlluminatedDiscount(id, context)
+                DiscountManager.create(payload, context)
               }
+            } ~ 
+            pathPrefix(IntNumber) { id ⇒ 
+              (get & path("baked")) {
+                goodOrFailures {
+                  DiscountManager.getIlluminated(id, context)
+                }
+              } ~
+              (get & pathEnd) {
+                goodOrFailures {
+                  DiscountManager.get(id, context)
+                }
+              } ~
+              (patch & pathEnd & entity(as[UpdateDiscount])) { payload ⇒
+                goodOrFailures {
+                  DiscountManager.update(id, payload, context)
+                }
+              } 
             }
-          } 
+          }
         }
       }
   }

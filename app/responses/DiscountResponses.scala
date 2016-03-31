@@ -4,6 +4,8 @@ import models.objects._
 import models.discount._
 import models.Aliases.Json
 
+import responses.ObjectResponses.ObjectContextResponse
+
 import org.json4s.DefaultFormats
 import org.json4s.Extraction
 import org.json4s.JsonAST.JValue
@@ -32,11 +34,19 @@ object DiscountResponses {
         createdAt = s.createdAt)
   }
 
+  object DiscountResponse { 
+    final case class Root(form: DiscountFormResponse.Root, shadow: DiscountShadowResponse.Root)
+
+    def build(f: ObjectForm, s: ObjectShadow) : Root =
+      Root(form = DiscountFormResponse.build(f), shadow = DiscountShadowResponse.build(s))
+  }
+
   object IlluminatedDiscountResponse {
 
-    final case class Root(id: Int, attributes: Json)
+    final case class Root(id: Int, context: ObjectContextResponse.Root, attributes: Json)
 
     def build(s: IlluminatedDiscount): Root = 
-      Root(id = s.id, attributes = s.attributes)
+      Root(id = s.id, context = ObjectContextResponse.build(s.context), 
+        attributes = s.attributes)
   }
 }

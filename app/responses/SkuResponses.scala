@@ -1,6 +1,6 @@
 package responses
 
-import ProductResponses.ObjectContextResponse
+import responses.ObjectResponses.ObjectContextResponse
 import models.inventory._
 import models.objects._
 import models.Aliases.Json

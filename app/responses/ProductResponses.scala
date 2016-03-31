@@ -5,6 +5,7 @@ import models.inventory._
 import models.product._
 import models.objects._
 import models.Aliases.Json
+import responses.ObjectResponses.ObjectContextResponse
 
 import org.json4s.DefaultFormats
 import org.json4s.Extraction
@@ -16,17 +17,6 @@ import java.time.Instant
 import cats.implicits._
 
 object ProductResponses {
-
-  object ObjectContextResponse { 
-
-    final case class Root(name: String, attributes: Json) extends ResponseItem
-
-    def build(c: ObjectContext) : Root = 
-      Root(name = c.name, attributes = c.attributes)
-
-    def build(c: IlluminatedContext) : Root = 
-      Root(name = c.name, attributes = c.attributes)
-  }
 
   object ProductHeadResponse {
 

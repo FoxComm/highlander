@@ -22,7 +22,7 @@ object IlluminatedDiscount {
     form: ObjectForm, shadow: ObjectShadow) : IlluminatedDiscount = { 
 
     IlluminatedDiscount(
-      id = form.id,  //Discounts should have a code like skus.
+      id = form.id,  //Id points to form since that is constant across contexts
       context = IlluminatedContext(context.name, context.attributes),
       attributes = IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes))
   }

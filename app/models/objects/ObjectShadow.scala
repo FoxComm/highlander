@@ -14,7 +14,7 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
  * The ObjectShadow, when applied to a Object is what is displayed on the 
  * storefront.
  */
-final case class ObjectShadow(id: Int = 0, formId: Int, attributes: Json, createdAt: Instant = Instant.now)
+final case class ObjectShadow(id: Int = 0, formId: Int = 0, attributes: Json, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[ObjectShadow]
   with Validation[ObjectShadow]
 

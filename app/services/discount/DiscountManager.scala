@@ -10,7 +10,8 @@ import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import slick.driver.PostgresDriver.api._
-import payloads.{CreateDiscountForm, CreateDiscountShadow, UpdateDiscountForm, UpdateDiscountShadow}
+import payloads.{CreateDiscount, CreateDiscountForm, CreateDiscountShadow, 
+  UpdateDiscount, UpdateDiscountForm, UpdateDiscountShadow}
 import utils.aliases._
 import cats.data.NonEmptyList
 import failures.NotFoundFailure404
@@ -34,7 +35,44 @@ object DiscountManager {
     shadow  ← * <~ ObjectShadows.mustFindById404(discount.shadowId)
   } yield DiscountShadowResponse.build(shadow)).run()
 
-  def getIlluminatedDiscount(id: Int, contextName: String)
+  def get(discountId: Int, contextName: String)
+    (implicit ec: EC, db: DB): Result[DiscountResponse.Root] = (for {
+      context  ← * <~ ObjectContexts.filterByName(contextName).one.
+      mustFindOr(ObjectContextNotFound(contextName))
+      discount ← * <~ Discounts.filter(_.contextId === context.id).
+      filter(_.formId === discountId).one.mustFindOr(
+        DiscountNotFoundForContext(discountId, context.id)) 
+      form     ← * <~ ObjectForms.mustFindById404(discount.formId)
+      shadow   ← * <~ ObjectShadows.mustFindById404(discount.shadowId)
+  } yield DiscountResponse.build(form, shadow)).run()
+
+  def create(payload: CreateDiscount, contextName: String) 
+    (implicit ec: EC, db: DB): Result[DiscountResponse.Root] = (for {
+    context ← * <~ ObjectContexts.filterByName(contextName).one.
+      mustFindOr(ObjectContextNotFound(contextName))
+    form    ← * <~ ObjectForm(kind = Discount.kind, attributes = 
+      payload.form.attributes)
+    shadow  ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
+    ins     ← * <~ ObjectUtils.insert(form, shadow)
+    discount ← * <~ Discounts.create(Discount(contextId = context.id, 
+      formId = ins.form.id, shadowId = ins.shadow.id, commitId = ins.commit.id))
+  } yield DiscountResponse.build(form, shadow)).run()
+
+
+  def update(discountId: Int, payload: UpdateDiscount, contextName: String)
+    (implicit ec: EC, db: DB): Result[DiscountResponse.Root] = (for {
+    context ← * <~ ObjectContexts.filterByName(contextName).one.
+      mustFindOr(ObjectContextNotFound(contextName))
+    discount ← * <~ Discounts.filter(_.contextId === context.id).
+      filter(_.formId === discountId).one.mustFindOr(
+        DiscountNotFoundForContext(discountId, context.id)) 
+    updatedDiscount ← * <~ ObjectUtils.update(discount.formId, discount.shadowId, 
+      payload.form.attributes, payload.shadow.attributes)
+    commit ← * <~ ObjectUtils.commit(updatedDiscount)
+    discount ← * <~ updateHead(discount, updatedDiscount.shadow, commit)
+  } yield DiscountResponse.build(updatedDiscount.form, updatedDiscount.shadow)).run()
+
+  def getIlluminated(id: Int, contextName: String)
     (implicit ec: EC, db: DB): Result[IlluminatedDiscountResponse.Root] = (for {
     context ← * <~ ObjectContexts.filterByName(contextName).one.
       mustFindOr(ObjectContextNotFound(contextName))
@@ -45,11 +83,14 @@ object DiscountManager {
   } yield IlluminatedDiscountResponse.build(IlluminatedDiscount.illuminate(
     context, discount, form, shadow))).run()
 
-  def validateShadow(discount: Discount, form: ObjectForm, shadow: ObjectShadow) 
-  (implicit ec: EC, db: DB) : DbResultT[Unit] = 
-    DiscountValidator.validate(discount, form, shadow) match {
-      case Nil ⇒ DbResultT.pure(Unit)
-      case head ::tail ⇒ DbResultT.leftLift(NonEmptyList(head, tail))
-    }
-
+  private def updateHead(discount: Discount, shadow: ObjectShadow, 
+    maybeCommit: Option[ObjectCommit]) 
+    (implicit ec: EC, db: DB): DbResultT[Product] = 
+      maybeCommit match {
+        case Some(commit) ⇒  for { 
+          discount   ← * <~ Discounts.update(discount, discount.copy(
+            shadowId = shadow.id, commitId = commit.id))
+        } yield discount
+        case None ⇒ DbResultT.pure(discount)
+      }
 }
