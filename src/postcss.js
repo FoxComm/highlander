@@ -28,7 +28,7 @@ const plugins = [
   require('postcss-css-variables'),
   require('lost')({
     flexbox: 'flex',
-    gutter: '2.4%',
+    gutter: '1.85%',
   }),
   require('postcss-modules-values'),
   require('postcss-modules-extract-imports'),
