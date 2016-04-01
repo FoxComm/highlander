@@ -44,7 +44,7 @@
     flex: 1;
     .padding-left(@gutter);
     .module {
-      .padding(@gutter);
+      padding: @gutter;
     }
   }
 
@@ -53,7 +53,7 @@
     flex: 0 0 100%;
     .padding-left(@gutter);
     .module {
-      .padding(@gutter);
+      padding: @gutter;
     }
   }
 
@@ -88,8 +88,8 @@
   }
 
   &.fc-grid-gutter {
-    .margin-top(@gutter);
-    .margin-bottom(@gutter);
+    margin-top: @gutter;
+    margin-bottom: @gutter;
   }
 
   .generate-grid(sm, @grid-columns);

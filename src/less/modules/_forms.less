@@ -1,5 +1,5 @@
 .fc-input-group {
-  .height(40px);
+  height: 40px;
 
   &._focused > .fc-input-prepend {
     box-shadow: 2px 4px 6px rgba(0,0,0,0.4);
@@ -11,8 +11,8 @@
   }
 
   .fc-input-prepend, .fc-input-append {
-    .line-height(40px);
-    .width(36px);
+    line-height: 40px;
+    width: 36px;
     height: 100%;
     .inline-block();
     text-align: center;
@@ -21,7 +21,7 @@
     > button {
       background: @color-decor7;
       height: 100%;
-      .width(36px);
+      width: 36px;
       border: none;
       padding: 0;
     }
@@ -56,14 +56,14 @@
     }
     box-shadow: inset 1px 1px 1px 0 rgba(0,0,0,0.1);
     .border-radius(3px);
-    .padding(0 10px);
-    .height(40px);
+    padding: 0 10px;
+    height: 40px;
     .highlight-border-behaviour();
   }
 
   .textarea() {
-    .padding(10px);
-    .height(100px);
+    padding: 10px;
+    height: 100px;
   }
 }
 
@@ -108,15 +108,15 @@
 
 .fc-radio {
   input[type=radio]:not(old) {
-    .width(24px);
+    width: 24px;
     margin: 0;
     padding: 0;
     opacity: 0;
 
     + label {
       display: inline-block;
-      .margin-left(-24px);
-      .line-height(24px);
+      margin-left: -24px;
+      line-height: 24px;
       position: relative;
 
       &:before {
@@ -194,9 +194,9 @@
 .fc-form-vertical {
   label {
     display: block;
-    .margin-bottom(5px);
+    margin-bottom: 5px;
     &.checkbox {
-      .margin-bottom(0);
+      margin-bottom: 0;
     }
   }
 }

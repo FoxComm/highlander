@@ -1,6 +1,6 @@
 .fc-rich-text-editor {
   &__command-bar {
-    .height(44px);
+    height: 44px;
     align-items: center;
     background: #f7f7f7;
     border-top: 1px solid @color-decor9;
@@ -10,15 +10,15 @@
   }
 
   &__command-set {
-    .margin-right(20px);
+    margin-right: 20px;
   }
-  
+
   &__command-button {
     .border-radius(3px);
     .font-spec(18px, 400, 18px);
-    .margin-left(4px);
-    .height(34px);
-    .width(34px);
+    margin-left: 4px;
+    height: 34px;
+    width: 34px;
     background: transparent;
     border: none;
 
@@ -34,7 +34,7 @@
   }
 
   &__command-headers {
-    .margin-left(4px);
+    margin-left: 4px;
 
     .fc-dropdown {
       &__button, &__controls, &__value {
@@ -55,27 +55,27 @@
   &__content {
     #input-styles.base();
     .border-radius(0 0 3px 3px);
-    .padding(10px);
+    padding: 10px;
     height: auto;
 
     .public-DraftEditor-content {
-      .min-height(120px);
+      min-height: 120px;
     }
   }
 
   &__label {
     .font-spec(16px, 600, 24px);
-    .margin-bottom(10px);
+    margin-bottom: 10px;
     color: @color-decor1;
     text-transform: capitalize;
   }
 
   &__ol-block-style {
-    .margin-left(20px);
+    margin-left: 20px;
   }
 
   &__ul-block-style {
     list-style-type: disc;
-    .margin-left(20px);
+    margin-left: 20px;
   }
 }

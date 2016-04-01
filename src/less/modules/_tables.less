@@ -30,9 +30,9 @@
       position: relative;
       vertical-align: middle;
       .colors(@color-th-fg, @color-th-bg);
-      .padding(10px, 15px);
+      padding: 10px 15px;
       .font-spec(13px, 600, 18px);
-      .height(62px);
+      height: 62px;
       .border(1px, solid, @color-th-border);
       user-select: none;
       background-clip: padding-box;
@@ -53,7 +53,7 @@
       &.sorting-desc:after {
         position: absolute;
         top: 0;
-        right: pxtorem(10px);
+        right: 10px;
         color: @color-decor1;
         .font-spec(13px, 700, 62px);
         transform: scale(1, .5);
@@ -68,13 +68,13 @@
       }
 
       &.__select-column {
-        .width(80px);
+        width: 80px;
         text-align: center;
       }
 
       &.__toggle-columns {
         .font-spec(18px, 400, 18px);
-        .width(70px);
+        width: 70px;
       }
     }
   }
@@ -104,8 +104,8 @@
 
     td {
       display: table-cell;
-      .height(55px);
-      .padding(10px, 15px);
+      height: 55px;
+      padding: 10px 15px;
       .font-spec(13px, 18px);
       color: @color-decor1;
       vertical-align: middle;
@@ -125,7 +125,7 @@
 
 .fc-table__header {
   display: flex;
-  .margin-bottom(20px);
+  margin-bottom: 20px;
 }
 
 .fc-table__table {
@@ -137,7 +137,7 @@
 
 .fc-table__footer {
   display: flex;
-  .margin-top(20px);
+  margin-top: 20px;
 }
 
 .fc-table__flex-separator {
@@ -145,10 +145,10 @@
 }
 
 .fc-table-actions {
-  .line-height(40px);
+  line-height: 40px;
 
   &__dropdown {
-    .width(100px);
+    width: 100px;
   }
 
   &__selected {
@@ -157,28 +157,28 @@
 }
 
 .fc-table-pagesize {
-  .width(100px);
+  width: 100px;
 }
 
 .fc-table-paginator {
   display: flex;
   float: right;
-  line-height: pxtorem(40px);
+  line-height: 40px;
 
   &__current-page {
-    .width(70px);
-    .margin(0 10px);
+    width: 70px;
+    margin: 0 10px;
 
     .fc-lookup__input {
       .padding-left(20px);
     }
   }
   &__total-pages {
-    .margin(0 10px);
+    margin: 0 10px;
   }
 
   &__current-page-field {
-    .width(50px);
+    width: 50px;
   }
 
   // somehow it fixes funky scrollbar for table

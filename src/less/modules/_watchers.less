@@ -5,27 +5,29 @@
   }
 
   .initials {
-    width: pxtorem(28px);
-    height: pxtorem(28px);
+    width: 28px;
+    height: 28px;
     color: @color-white;
-    line-height: pxtorem(28px);
+    line-height: 28px;
   }
 
   &__container {
-    .margin(10px);
+    margin: 10px;
   }
 
   &__title-row {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    .margin-bottom(10px);
+    margin-bottom: 10px;
   }
 
   &__title {
     display: inline-block;
     color: @color-decor1;
-    .font-spec(14px, @semibold, 19px);
+    font-size: 14px;
+    font-weight: @semibold;
+    line-height: 19px;
   }
 
   &__controls {
@@ -33,15 +35,17 @@
   }
 
   &__link {
-    .font-spec(12px, @semibold, 17px);
+    font-size: 12px;
+    font-weight: @semibold;
+    line-height: 17px;
     text-decoration: underline;
     color: @color-decor15;
   }
 
   &__add-button {
-    width: pxtorem(28px);
-    height: pxtorem(28px);
-    .padding(0 10px);
+    width: 28px;
+    height: 28px;
+    padding: 0 10px;
     .colors(@color-decor7, @color-white);
     border: 2px dashed @color-decor7;
     border-radius: 3px;
@@ -61,9 +65,11 @@
   }
 
   &__empty-list {
-    .font-spec(14px, @semibold, 19px);
+    font-size: 14px;
+    font-weight: @semibold;
+    line-height: 19px;
     color: @color-decor7;
-    .margin-left(5px);
+    margin-left: 5px;
   }
 
   &__cell {

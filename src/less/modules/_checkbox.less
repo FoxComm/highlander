@@ -1,6 +1,6 @@
 .fc-slide-checkbox {
-  width: pxtorem(80px);
-  height: pxtorem(34px);
+  width: 80px;
+  height: 34px;
   position: relative;
 
 
@@ -11,15 +11,15 @@
     position: absolute;
     right: 0;
     top: 0;
-    width: pxtorem(80px);
-    height: pxtorem(34px);
+    width: 80px;
+    height: 34px;
     z-index: 0;
     font-weight: bold;
-    line-height: pxtorem(30px);
-    border-radius: pxtorem(50px);
+    line-height: 30px;
+    border-radius: 50px;
     text-align: right;
     top: -2px;
-    .padding(6px 10px);
+    padding: 6px 10px;
     .font-spec(16px, 500, 22px);
   }
 
@@ -30,26 +30,26 @@
     position: absolute;
     left: 0;
     top: 0;
-    width: pxtorem(80px);
-    height: pxtorem(34px);
+    width: 80px;
+    height: 34px;
     z-index: 0;
     font-weight: bold;
-    border-radius: pxtorem(50px);
+    border-radius: 50px;
     top: -2px;
-    .padding(6px 10px);
+    padding: 6px 10px;
     .font-spec(16px, 500, 22px);
   }
 
   & > label {
     display: block;
-    width: pxtorem(24px);
-    height: pxtorem(24px);
-    border-radius: pxtorem(50px);
+    width: 24px;
+    height: 24px;
+    border-radius: 50px;
     transition: all .4s ease;
     cursor: pointer;
     position: absolute;
-    top: pxtorem(3px);
-    left: pxtorem(3px);
+    top: 3px;
+    left: 3px;
     z-index: 1;
     background: @color-white;
   }
@@ -63,7 +63,7 @@
   }
 
   & > input[type=checkbox]:checked + label {
-    left: pxtorem(52px);
+    left: 52px;
     box-shadow: -2px 3px 4px 0px rgba(0,0,0,0.30);
   }
 
@@ -89,8 +89,8 @@
   display: inline-block;
 
   & input[type=checkbox] {
-    width: pxtorem(24px);
-    height: pxtorem(24px);
+    width: 24px;
+    height: 24px;
     margin: 0;
     padding: 0;
     font-size: 1rem;
@@ -99,15 +99,15 @@
 
   & input[type=checkbox] + label {
     display: inline-block;
-    margin-left: pxtorem(-24px);
+    margin-left: -24px;
   }
 
   & input[type=checkbox] + label > span {
     display: inline-block;
-    width: pxtorem(24px);
-    height: pxtorem(24px);
-    .margin(2.5px);
-    border-radius: pxtorem(3px);
+    width: 24px;
+    height: 24px;
+    margin: 2.5px;
+    border-radius: 3px;
     vertical-align: bottom;
     border: 2px solid @color-decor9;
     background: @color-white;

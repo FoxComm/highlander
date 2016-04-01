@@ -9,33 +9,33 @@
     display: flex;
     align-items: flex-start;
     flex-wrap: nowrap;
-    .margin-bottom(@critertion-margin);
+    margin-bottom: @critertion-margin;
   }
 
   @criterion-width: 330px;
   &__field {
-    .width(@criterion-width);
-    .max-width(@criterion-width);
-    .margin-right(2rem);
+    width: @criterion-width;
+    max-width: @criterion-width;
+    margin-right: 2rem;
   }
 
   @operator-width: 206px;
   &__operator {
-    .width(@operator-width);
-    .max-width(@operator-width);
-    .margin-right(2rem);
+    width: @operator-width;
+    max-width: @operator-width;
+    margin-right: 2rem;
   }
 
   &__add-criterion {
     display: inline-block;
     cursor: pointer;
     .font-spec(16px, 22px);
-    .margin-top(20px);
+    margin-top: 20px;
     > * {
       vertical-align: baseline;
     }
     span {
-      .margin-left(1rem);
+      margin-left: 1rem;
     }
   }
 
@@ -58,17 +58,17 @@
     background: @color-white;
     .inline-block();
     box-sizing: border-box;
-    .width(@value-width);
-    .height(@value-height);
+    width: @value-width;
+    height: @value-height;
     .border-radius(3px);
-    .padding(0 1rem);
+    padding: 0 1rem;
     .highlight-border-behaviour();
     box-shadow: inset 1px 1px 1px 0 rgba(0, 0, 0, 0.1);
   }
 
   &__lookup {
-    .width(@value-width);
-    .height(@value-height);
+    width: @value-width;
+    height: @value-height;
   }
 
   .fc-datepicker {
@@ -76,17 +76,17 @@
   }
 
   .fc-prepend-input, .fc-append-input {
-    .width(@value-width);
-    .height(@value-height);
+    width: @value-width;
+    height: @value-height;
     &__input-field {
-      .width(@value-width - 36);
+      width: @value-width - 36;
     }
   }
 
   .fc-dropdown {
-    .width(@value-width);
-    .max-width(@value-width);
-    .height(@value-height);
+    width: @value-width;
+    max-width: @value-width;
+    height: @value-height;
   }
 
   &__vertical-select {
@@ -101,28 +101,28 @@
       display: flex;
       align-items: flex-start;
       &:not(:first-child) {
-        .margin-top(@sep-line-height - @value-height - 2);
+        margin-top: @sep-line-height - @value-height - 2;
       }
       &:last-child {
         .margin-bottom(@b-size + (@line-height - @value-height/2) + @critertion-margin);
         .fc-customer-group-builder__vertical-select__item:after {
-          .height(@line-height);
+          height: @line-height;
         }
       }
     }
 
     &__item {
       position: relative;
-      .width(@value-width);
-      .max-width(@value-width);
+      width: @value-width;
+      max-width: @value-width;
 
       // lines
       &:after {
         content: "";
-        .height(@sep-line-height);
+        height: @sep-line-height;
         border-top: 2px solid @color-decor7;
         border-right: 2px solid @color-decor7;
-        .width(@line-width);
+        width: @line-width;
         position: absolute;
         left: 100%;
         top: 50%;
@@ -134,12 +134,12 @@
       position: relative;
       // circle
       border-radius: 50%;
-      .width(@b-size);
-      .min-width(@b-size);
-      .max-width(@b-size);
+      width: @b-size;
+      min-width: @b-size;
+      max-width: @b-size;
       font-size: 14px;
-      .height(@b-size);
-      .line-height(@b-size);
+      height: @b-size;
+      line-height: @b-size;
       .left(@line-width - @b-size/2 - 1);
       .top(@line-height + @value-height/2 - 1);
       text-align: center;
@@ -152,7 +152,7 @@
 
     &__add {
       padding: 0;
-      .line-height(@b-size);
+      line-height: @b-size;
       &:hover {
         background: @color-decor6;
       }
@@ -160,8 +160,8 @@
 
     &__remove {
       display: block;
-      .margin-left(@b-size/2 + 2rem);
-      .margin-top(@value-height/4 + 3);
+      margin-left: @b-size/2 + 2rem;
+      margin-top: @value-height/4 + 3;
       align-self: flex-start;
       cursor: pointer;
       &:hover {
@@ -170,28 +170,28 @@
     }
 
     .fc-customer-group-builder__value {
-      .width(@value-width);
+      width: @value-width;
     }
 
     .fc-customer-group-builder__lookup {
-      .width(@value-width);
+      width: @value-width;
     }
 
     .fc-prepend-input, .fc-append-input {
-      .width(@value-width);
+      width: @value-width;
       &__input-field {
-        .width(@value-width - 36);
+        width: @value-width - 36;
       }
     }
 
     .fc-dropdown {
-      .width(@value-width);
-      .max-width(@value-width);
+      width: @value-width;
+      max-width: @value-width;
     }
   }
 
   &__range {
-    .width(330px);
+    width: 330px;
     @value-width: 150px;
 
     > * {
@@ -199,22 +199,22 @@
     }
 
     &__separator {
-      .width(30px);
-      .height(@value-height);
+      width: 30px;
+      height: @value-height;
       line-height: @value-height;
       color: @color-decor7;
     }
 
     .fc-prepend-input, .fc-append-input {
-      .width(@value-width);
+      width: @value-width;
       &__input-field {
-        .width(@value-width - 36);
+        width: @value-width - 36;
       }
     }
 
     .fc-dropdown {
-      .width(@value-width);
-      .max-width(@value-width);
+      width: @value-width;
+      max-width: @value-width;
     }
   }
 }

@@ -2,7 +2,7 @@
   width: 100%;
 
   .fc-customer-title-block {
-    .margin(40px 0);
+    margin: 40px 0;
     background: @color-white;
 
     .fc-customer-info-avatar {
@@ -24,12 +24,12 @@
     }
 
     .fc-customer-name-block {
-      .margin-bottom(15px);
+      margin-bottom: 15px;
     }
 
     .fc-customer-info-fields li {
-      .margin-top(15px);
-      height: pxtorem(24px);
+      margin-top: 15px;
+      height: 24px;
     }
   }
 
@@ -48,9 +48,9 @@
   }
 
   .fc-address {
-    width: pxtorem(370px);
-    height: pxtorem(233px);
-    .margin(20px);
+    width: 370px;
+    height: 233px;
+    margin: 20px;
 
     &.is-editing {
       height: auto;
@@ -58,7 +58,7 @@
 
     &-new-title {
       .font-spec(18px, 700, 22px);
-      .margin-bottom(20px);
+      margin-bottom: 20px;
     }
   }
 
@@ -69,10 +69,10 @@
   }
 
   .fc-card-container {
-    width: pxtorem(370px);
-    height: pxtorem(368px);
-    .margin(20px);
-    .padding(20px 10px);
+    width: 370px;
+    height: 368px;
+    margin: 20px;
+    padding: 20px 10px;
   }
 
   .fc-card-container-content {
@@ -88,12 +88,12 @@
     }
   }
   .fc-customer-account-password {
-    .margin-bottom(@gutter);
+    margin-bottom: @gutter;
   }
 
   .fc-customer-notification-settings {
     .fc-customer-settings-title-row {
-      .padding(10px 0);
+      padding: 10px 0;
       border-bottom: 2px solid @color-text-gray;
     }
 
@@ -111,7 +111,9 @@
   .fc-customer-details {
 
     dt {
-      .font-spec(16px, @semibold, 24px);
+      font-size: 16px;
+      font-weight: @semibold;
+      line-height: 24px;
     }
 
     dd {
@@ -129,22 +131,26 @@
   }
 
   .fc-customer-notes {
-    .margin-bottom(20px);
+    margin-bottom: 20px;
   }
 
   &-contacts-form {
     dt {
-      .font-spec(16px, @semibold, 22px);
+      font-size: 16px;
+      font-weight: @semibold;
+      line-height: 22px;
     }
     .fc-form-field {
-      .margin-top(10px);
-      .font-spec(14px, @normal, 19px);
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: @normal;
+      line-height: 19px;
       input {
         width: 100%;
       }
     }
     > .fc-save-cancel {
-      .margin-top(30px);
+      margin-top: 30px;
     }
   }
 
@@ -167,8 +173,8 @@
     ._header {
       display: flex;
       flex-wrap: nowrap;
-      .margin-top(15px);
-      .margin-bottom(25px);
+      margin-top: 15px;
+      margin-bottom: 25px;
     }
 
     &__edit-btn {
@@ -181,6 +187,6 @@
     .font-spec(2rem, @normal, 5.2rem);
     color: @color-text-gray;
     text-align: center;
-    .padding(20px);
+    padding: 20px;
   }
 }

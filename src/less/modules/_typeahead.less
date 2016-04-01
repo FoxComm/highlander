@@ -5,11 +5,11 @@
     position: absolute;
     right: 7px;
     bottom: 0;
-    .margin(5px 0);
+    margin: 5px 0;
   }
 
   input[type=text] {
-    .width(700px);
+    width: 700px;
     max-width: 95%;
   }
 
@@ -33,7 +33,7 @@
   }
 
   &._no-search-icon &__input[type=text] {
-    padding-left: pxtorem(10px);
+    padding-left: 10px;
   }
 
   .fc-form-field-label {
@@ -53,7 +53,7 @@
   }
 
   &__items {
-    .max-height(200px);
+    max-height: 200px;
     overflow-y: scroll;
     overflow-x: hidden;
     background-color: @color-white;
@@ -63,7 +63,7 @@
     .font-spec(12px, 400, 60px);
 
     li {
-      .padding(15px);
+      padding: 15px;
       border-bottom: 1px solid @color-border;
 
       &:last-child {
@@ -76,14 +76,14 @@
       }
 
       .fc-grid {
-        line-height: pxtorem(20px);
+        line-height: 20px;
       }
     }
   }
 
   .fc-typeahead__need-more-characters {
     .fc-alert {
-      .margin-top(0);
+      margin-top: 0;
     }
   }
 }
