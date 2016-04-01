@@ -4,7 +4,7 @@
   .inline-block();
   position: relative;
   width: 100%;
-  max-width: pxtorem(200px);
+  max-width: 200px;
   text-align: left;
 
   &__controls {
@@ -14,8 +14,8 @@
   }
 
   &__value {
-    .height(@dropdown-height);
-    .padding(0, 10px);
+    height: @dropdown-height;
+    padding: 0 10px;
     .colors(@color-default-fg, @color-control-standard-bg);
     .font-spec(14px, 400, @dropdown-height);
     overflow: hidden;
@@ -60,10 +60,10 @@
   }
 
   &__item {
-    .height(44px);
+    height: 44px;
     .colors(@color-control-standard-fg, @color-white);
     .font-spec(14px, 400, 44px);
-    .padding(0, 20px);
+    padding: 0 20px;
     cursor: pointer;
     white-space: nowrap;
 
@@ -104,7 +104,7 @@
 
       input {
         .size(100%);
-        .padding(0, 10px);
+        padding: 0 10px;
         .colors(@color-control-standard-fg, @color-white);
         border: none;
       }

@@ -1,26 +1,4 @@
 
-.function {
-  .pxtorem(@val) when (length(@val) = 1) {
-    return: @val;
-  }
-
-  .pxtorem(@val) when (length(@val) = 1) and (ispixel(@val)) {
-    return: unit(unit(@val)/10, rem);
-  }
-
-  .pxtorem(@val) when (length(@val) = 2) {
-    return: pxtorem(extract(@val, 1)) pxtorem(extract(@val, 2));
-  }
-
-  .pxtorem(@val) when (length(@val) = 3) {
-    return: pxtorem(extract(@val, 1)) pxtorem(extract(@val, 2)) pxtorem(extract(@val, 3));
-  }
-
-  .pxtorem(@val) when (length(@val) = 4) {
-    return: pxtorem(extract(@val, 1)) pxtorem(extract(@val, 2)) pxtorem(extract(@val, 3)) pxtorem(extract(@val, 4));
-  }
-}
-
 // ===== Clearfix =====
 .clearfix() {
   zoom: 1;
@@ -46,8 +24,7 @@
 
 // ===== Font Values =====
 .font-spec(@size) {
-  font-size: unit(unit(@size), px);
-  font-size: pxtorem(@size);
+  font-size: @size;
 }
 
 .font-spec(@size, @weight) {
@@ -56,69 +33,69 @@
 }
 
 .font-spec(@size, @line-height) when (ispixel(@line-height)) {
-  .line-height(@line-height);
+  line-height: @line-height;
   .font-spec(@size);
 }
 
 .font-spec(@size, @weight, @lineHeight) {
   font-weight: @weight;
-  .line-height(@lineHeight);
+  line-height: @lineHeight;
   .font-spec(@size);
 }
 
 .font-spec(@size, @weight, @lineHeight, @letterSpacing) {
   letter-spacing: @letterSpacing;
   font-weight: @weight;
-  .line-height(@lineHeight);
+  line-height: @lineHeight;
   .font-spec(@size);
 }
 
 .line-height(@value) {
-  line-height: pxtorem(@value);
+  line-height: @value;
 }
 
 .text-indent(@value) {
-  text-indent: pxtorem(@value);
+  text-indent: @value;
 }
 
 
 // ===== Size Values =====
 
 .width(@value) {
-  width: pxtorem(@value);
+  width: @value;
 }
 
 
 .min-width(@value) {
-  min-width: pxtorem(@value);
+  min-width: @value;
 }
 
 .max-width(@value) {
-  max-width: pxtorem(@value);
+  max-width: @value;
 }
 
 .height(@value) {
-  height: pxtorem(@value);
+  height: @value;
 }
 
 
 .min-height(@value) {
-  min-height: pxtorem(@value);
+  min-height: @value;
 }
 
 
 .max-height(@value) {
-  max-height: pxtorem(@value);
+  max-height: @value;
 }
 
 .size(@square) {
-  .width(@square);
-  .height(@square);
+  width: @square;
+  height: @square;
 }
 
 .size(@width, @height) {
-  .width(@width);
-  .height(@height);
+  width: @width;
+  height: @height;
 }
 
 .circle(@size) {
@@ -129,68 +106,68 @@
 // ===== Mixin Values =====
 
 .margin(@args...) {
-  margin: pxtorem(@args);
+  margin: @args;
 }
 
 
 .margin-top(@value) {
-  margin-top: pxtorem(@value);
+  margin-top: @value;
 }
 
 
 .margin-right(@value) {
-  margin-right: pxtorem(@value);
+  margin-right: @value;
 }
 
 .margin-bottom(@value) {
-  margin-bottom: pxtorem(@value);
+  margin-bottom: @value;
 }
 
 .margin-left(@value) {
-  margin-left: pxtorem(@value);
+  margin-left: @value;
 }
 
 // ===== Padding Values =====
 .padding(@args...) {
-  padding: pxtorem(@args);
+  padding: @args;
 }
 
 .padding-top(@value) {
-  padding-top: pxtorem(@value);
+  padding-top: @value;
 }
 
 .padding-right(@value) {
-  padding-right: pxtorem(@value);
+  padding-right: @value;
 }
 
 .padding-bottom(@value) {
-  padding-bottom: pxtorem(@value);
+  padding-bottom: @value;
 }
 
 .padding-left(@value) {
-  padding-left: pxtorem(@value);
+  padding-left: @value;
 }
 
 
 // ===== Position Values =====
 .top(@value) {
-  top: pxtorem(@value);
+  top: @value;
 }
 
 .left(@value) {
-  left: pxtorem(@value);
+  left: @value;
 }
 
 .right(@value) {
-  right: pxtorem(@value);
+  right: @value;
 }
 
 .bottom(@value) {
-  bottom: pxtorem(@value);
+  bottom: @value;
 }
 
 .border-radius(@value) {
-  border-radius: pxtorem(@value);
+  border-radius: @value;
 }
 
 .inline-block(@valign: top) {
@@ -204,15 +181,15 @@
 }
 
 .border(@size, @type, @color) {
-  border: pxtorem(@size) @type @color;
+  border: @size @type @color;
 }
 
 .border-top(@size, @type, @color) {
-  border-top: pxtorem(@size) @type @color;
+  border-top: @size @type @color;
 }
 
 .box-shadow(@top, @right, @bottom, @left, @color) {
-  box-shadow: pxtorem(@top) pxtorem(@right) pxtorem(@bottom) pxtorem(@left) @color;
+  box-shadow: @top @right @bottom @left @color;
 }
 
 // ===== Styling =====

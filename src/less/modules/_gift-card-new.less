@@ -19,9 +19,9 @@
     cursor: pointer;
     background: @color-white;
     box-shadow: 0 0 0 2px @color-decor7, 0 0 0 2px @color-transparent;
-    .padding(8px 16px);
+    padding: 8px 16px;
     border-radius: 3px;
-    .margin-right(10px);
+    margin-right: 10px;
 
     &._selected {
       box-shadow: 0 0 0 4px @color-decor39;
@@ -30,8 +30,8 @@
 
   &__send-to-customers {
     background-color: @color-white;
-    .padding(15px);
-    .margin-top(10px);
+    padding: 15px;
+    margin-top: 10px;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.30);
     border: 1px solid @color-decor9;
     border-radius: 3px;
@@ -47,7 +47,7 @@
   }
 
   &__message-to-customers {
-    .margin-top(50px);
+    margin-top: 50px;
   }
 
   &__counter {
@@ -56,31 +56,35 @@
   }
 
   > form {
-    max-width: pxtorem(800px);
+    max-width: 800px;
   }
 
   &__fieldset {
-    .margin-bottom(40px);
+    margin-bottom: 40px;
   }
 
   &__balances {
-    .margin(20px 0 0 2px);
+    margin: 20px 0 0 2px;
   }
 
   &__amount input.fc-prepend-input__input-field {
-    .font-spec(20px, @semibold, 27px);
+    font-size: 20px;
+    font-weight: @semibold;
+    line-height: 27px;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-    .height(@amount-field-height);
+    height: @amount-field-height;
     text-align: right;
   }
 
   &__amount .fc-prepend-input__icon {
-    .font-spec(20px, @semibold, 42px);
-    .height(@amount-field-height);
+    font-size: 20px;
+    font-weight: @semibold;
+    line-height: 42px;
+    height: @amount-field-height;
   }
 
   &__amount .fc-prepend-input__icon {
-    .height(@amount-field-height);
+    height: @amount-field-height;
   }
 }

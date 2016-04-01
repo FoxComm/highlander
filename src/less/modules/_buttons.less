@@ -6,11 +6,11 @@
 
 .fc-btn {
   .colors(@color-control-standard-fg, @color-control-standard-bg);
-  .padding(0 20px);
-  .height(@button-height);
+  padding: 0 20px;
+  height: @button-height;
   .font-spec(@button-font-size, 600, 40px);
   border: none;
-  border-radius: pxtorem(3px);
+  border-radius: 3px;
   user-select: none;
   cursor: pointer;
   .inline-block();
@@ -70,9 +70,9 @@
   }
 
   &._small {
-    .padding(0 12px);
-    .height(@button-height-small);
-    .line-height(@button-height-small);
+    padding: 0 12px;
+    height: @button-height-small;
+    line-height: @button-height-small;
   }
 
   &._docked-left {
@@ -93,11 +93,11 @@
 
   &[class*=" icon-"] {
     padding: 0;
-    .width(@button-width);
+    width: @button-width;
   }
 
   i[class*="icon-"]:only-child {
-    .margin(0 -10px);
+    margin: 0 -10px;
   }
 
   i[class*="icon-"] {
@@ -105,7 +105,7 @@
   }
 
   i[class*="icon-"] + span {
-    .margin-left(5px);
+    margin-left: 5px;
   }
 
   &._loading {

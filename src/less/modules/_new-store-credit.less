@@ -2,38 +2,44 @@
 
 .fc-store-credit-form {
   &__input-group {
-    .margin-bottom(40px);
+    margin-bottom: 40px;
   }
 
   &__label {
-    .margin-bottom(15px);
+    margin-bottom: 15px;
     font-weight: @semibold;
   }
 
   &__controls {
-    .margin-top(50px);
+    margin-top: 50px;
   }
 
   &__gc-value {
-    .font-spec(32px, @semibold, 43px);
+    font-size: 32px;
+    font-weight: @semibold;
+    line-height: 43px;
     color: @color-decor8;
   }
 
   .fc-form-field input.fc-store-credit-form__amount-field {
-    .font-spec(20px, @semibold, 27px);
+    font-size: 20px;
+    font-weight: @semibold;
+    line-height: 27px;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-    .height(@amount-field-height);
+    height: @amount-field-height;
     text-align: right;
   }
 
   .fc-input-group &__amount-field-prepend {
-    .font-spec(20px, @semibold, 42px);
-    .height(@amount-field-height);
+    font-size: 20px;
+    font-weight: @semibold;
+    line-height: 42px;
+    height: @amount-field-height;
   }
 
   &__input-group-amount-field {
-    .height(@amount-field-height);
+    height: @amount-field-height;
   }
 
   &__controls {
@@ -41,7 +47,7 @@
   }
 
   &__input-group-amount {
-    .margin-bottom(20px);
+    margin-bottom: 20px;
   }
 
   &__balance-value {
@@ -49,9 +55,9 @@
     cursor: pointer;
     background: @color-white;
     box-shadow: 0 0 0 2px @color-decor7, 0 0 0 2px @color-transparent;
-    .padding(8px 16px);
+    padding: 8px 16px;
     border-radius: 3px;
-    .margin-right(10px);
+    margin-right: 10px;
 
     &._selected {
       box-shadow: 0 0 0 4px @color-decor39;
@@ -59,9 +65,9 @@
   }
 
   &__balances {
-    .margin(20px 0 55px 2px);
+    margin: 20px 0 55px 2px;
     a.btn {
-      .margin-right(10px);
+      margin-right: 10px;
       .padding-left(5px);
       .padding-right(5px);
     }

@@ -14,7 +14,9 @@
     .circle(@sidebar-control-size);
     .colors(@color-decor5, @color-decor13);
     box-shadow: 0px 2px 4px 0px @color-decor43;
-    .font-spec(12px, @normal, 12px);
+    font-size: 12px;
+    font-weight: @normal;
+    line-height: 12px;
     transition: all 250ms ease-in-out;
 
     > i {
@@ -31,12 +33,12 @@
   }
 
   &._open {
-    flex: 0 0 pxtorem(@sideber-open-width);
-    .width(@sideber-open-width);
+    flex: 0 0 @sideber-open-width;
+    width: @sideber-open-width;
 
     ~ header,
     ~ main {
-      .margin-left(@sideber-open-width);
+      margin-left: @sideber-open-width;
     }
   }
 
@@ -62,7 +64,7 @@
     }
 
     &__expand {
-      .width(30px);
+      width: 30px;
     }
 
     &__children {
@@ -76,8 +78,10 @@
     }
 
     &__sublink {
-      .font-spec(13px, @normal, 18px);
-      .margin-bottom(20px);
+      font-size: 13px;
+      font-weight: @normal;
+      line-height: 18px;
+      margin-bottom: 20px;
       .padding-left(70px);
     }
   }

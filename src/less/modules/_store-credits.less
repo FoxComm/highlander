@@ -6,7 +6,7 @@
 
   .initials {
     color: @color-white;
-    .margin-right(5px);
+    margin-right: 5px;
   }
 
   & &__list {
@@ -23,7 +23,7 @@
   }
 
   .fc-live-search__search-control {
-    .margin-top(30px);
+    margin-top: 30px;
   }
 
   &-summary {
@@ -31,13 +31,15 @@
   }
 
   &-summary-balance {
-    .margin(65px auto);
-    .font-spec(48px, @semibold, 65px);
+    margin: 65px auto;
+    font-size: 48px;
+    font-weight: @semibold;
+    line-height: 65px;
     color: @color-decor15;
   }
 
   .fc-store-credit-cancel-reason {
-    .margin(30px 0 50px 0);
+    margin: 30px 0 50px 0;
 
     &-asterisk {
       color: @color-decor22;
@@ -45,12 +47,12 @@
     }
 
     &-selector {
-      .margin-top(15px);
+      margin-top: 15px;
     }
   }
 
   .fc-store-credit-table-container {
-    .margin-bottom(30px);
+    margin-bottom: 30px;
   }
 
   .fc-store-credit-new-state {
@@ -58,7 +60,7 @@
   }
 
   &__status-dropdown {
-    .min-width(100px);
+    min-width: 100px;
   }
 }
 
@@ -66,13 +68,17 @@
   &__tab-link {
     width: 100%;
     height: 100%;
-    .margin-right(20px);
+    margin-right: 20px;
     .padding-top(20px);
-    .font-spec(14px, @normal, 14px);
+    font-size: 14px;
+    font-weight: @normal;
+    line-height: 14px;
     color: @color-decor1;
   }
 
   .fc-tab._selected &__tab-link {
-    .font-spec(14px, @semibold, 14px);
+    font-size: 14px;
+    font-weight: @semibold;
+    line-height: 14px;
   }
 }

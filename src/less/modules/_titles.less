@@ -5,10 +5,10 @@
   display: flex;
   align-items: center;
 
-  .margin-bottom(@gutter);
+  margin-bottom: @gutter;
 
   &._page-context {
-    .margin(40px @gutter 40px @gutter);
+    margin: 40px @gutter 40px @gutter;
   }
 
   &__title {
@@ -27,5 +27,7 @@
 }
 
 .fc-subtitle {
-  .font-spec(@subtitle-font-size, @semibold, @subtitle-line-length);
+  font-size: @subtitle-font-size;
+  font-weight: @semibold;
+  line-height: @subtitle-line-length;
 }
