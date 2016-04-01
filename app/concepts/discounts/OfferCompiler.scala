@@ -10,7 +10,7 @@ import utils.JsonFormatters
 
 final case class OfferCompiler(offerType: String, attributes: String) {
 
-  implicit val formats: Formats = JsonFormatters.DefaultFormats
+  implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   def compile(): Xor[Failures, Offer] = (OfferType.read(offerType), parseOpt(attributes)) match {
     case (Some(q), Some(j)) ⇒ compileInner(q, j)

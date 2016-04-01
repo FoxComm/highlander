@@ -1,5 +1,6 @@
 package utils
 
+import concepts.discounts._
 import models.inventory.SkuType
 import models.order.Order
 import models.order.lineitems.OrderLineItem
@@ -45,6 +46,8 @@ object JsonFormatters {
     PaymentMethod.Type.jsonFormat +
     SkuType.jsonFormat +
     SharedSearch.Scope.jsonFormat +
-    IdentityKind.jsonFormat
+    IdentityKind.jsonFormat +
+    OfferType.jsonFormat +
+    QualifierType.jsonFormat
 }
 

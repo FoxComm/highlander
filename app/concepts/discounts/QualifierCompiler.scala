@@ -10,7 +10,7 @@ import utils.JsonFormatters
 
 final case class QualifierCompiler(qualifierType: String, attributes: String) {
 
-  implicit val formats: Formats = JsonFormatters.DefaultFormats
+  implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   def compile(): Xor[Failures, Qualifier] = (QualifierType.read(qualifierType), parseOpt(attributes)) match {
     case (Some(q), Some(j)) ⇒ compileInner(q, j)

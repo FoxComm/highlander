@@ -1,6 +1,7 @@
 package concepts.discounts.offers
 
 import cats.data.Xor
+import Offer.AdjustmentResult
 import concepts.discounts._
 import failures.DiscountCompilerFailures._
 import models.order.Order

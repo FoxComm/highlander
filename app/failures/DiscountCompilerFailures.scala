@@ -1,6 +1,8 @@
 package failures
 
 import concepts.discounts._
+import concepts.discounts.offers.Offer
+import concepts.discounts.qualifiers.Qualifier
 import utils.friendlyClassName
 
 object DiscountCompilerFailures {
