@@ -1,13 +1,22 @@
-.fc-customer-groups-components {
-  & > ._group-component {
+.fc-customer-groups {
+  flex-grow: 1;
+  flex-direction: column;
+  background-color: @color-decor0;
+
+  &__header {
+    height: 40px;
+    display: flex;
+    margin-top: 10px;
+    align-items: center;
+
+    &__title {
+      flex-grow: 1;
+    }
+
+  }
+
+  &__table {
     margin-top: 20px;
   }
 
-  & ._group-title {
-    flex-grow: 1;
-  }
-
-  & ._group-header {
-    display: flex;
-  }
 }
