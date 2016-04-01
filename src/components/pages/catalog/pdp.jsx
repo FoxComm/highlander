@@ -16,6 +16,7 @@ import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
 
 import * as actions from 'modules/product-details';
+import { fetch as fetchProducts } from 'modules/products';
 import { addLineItem, toggleCart } from 'modules/cart';
 
 import type { ProductResponse } from 'modules/product-details';
@@ -31,6 +32,9 @@ type Props = {
   addLineItem: Function;
   toggleCart: Function;
   resetProduct: Function;
+  getNextId: Function;
+  getPreviousId: Function;
+  fetchProducts: Function;
   isLoading: boolean;
   isCartLoading: boolean;
   notFound: boolean;
@@ -59,7 +63,7 @@ class Pdp extends Component {
   };
 
   componentWillMount() {
-    /** prevent load on client on mount */
+    this.props.fetchProducts();
     if (!this.props.product) {
       this.props.fetch(this.productId);
     }
@@ -67,6 +71,14 @@ class Pdp extends Component {
 
   componentWillUnmount() {
     this.props.resetProduct();
+  }
+
+  componentWillUpdate(nextProps) {
+    const stringId = nextProps.params.productId;
+    const id = parseInt(stringId, 10);
+    if (this.productId !== id) {
+      this.props.fetch(id);
+    }
   }
 
   get productId(): number {
@@ -95,6 +107,26 @@ class Pdp extends Component {
     });
   }
 
+  get pathToNext(): string {
+    const nextId = this.props.getNextId(this.productId);
+
+    if (nextId == null) {
+      return '/';
+    }
+
+    return `/products/${nextId}`;
+  }
+
+  get pathToPrevious(): string {
+    const prevId = this.props.getPreviousId(this.productId);
+
+    if (prevId == null) {
+      return '/';
+    }
+
+    return `/products/${prevId}`;
+  }
+
   render(): HTMLElement {
     if (this.props.isLoading) {
       return <Loader/>;
@@ -117,13 +149,15 @@ class Pdp extends Component {
       <div styleName="container">
         <div styleName="links">
           <div styleName="desktop-links">
-            <Link to="/" styleName="breadcrumb">SHOP</Link> / LOREM IPSUM
+            <Link to="/" styleName="breadcrumb">SHOP</Link>
+            &nbsp;/&nbsp;
+            <Link to={`/products/${this.productId}`} styleName="breadcrumb">{title.toUpperCase()}</Link>
           </div>
           <div styleName="mobile-links">
-            <Link to="/" styleName="breadcrumb">&lt; BACK</Link>
+            <Link to={this.pathToPrevious} styleName="breadcrumb">&lt; BACK</Link>
           </div>
           <div>
-            NEXT &gt;
+            <Link to={this.pathToNext} styleName="breadcrumb">NEXT &gt;</Link>
           </div>
         </div>
         <div styleName="details">
@@ -155,4 +189,4 @@ class Pdp extends Component {
   }
 }
 
-export default connect(getState, {...actions, addLineItem, toggleCart})(Pdp);
+export default connect(getState, {...actions, addLineItem, toggleCart, fetchProducts})(Pdp);
