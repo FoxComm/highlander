@@ -2,7 +2,8 @@
 
 const path = require('path');
 const runSequence = require('run-sequence');
-require('babel/register');
+require('babel-register');
+require('babel-polyfill');
 
 const mochaOpts = {
   reporter: 'dot',

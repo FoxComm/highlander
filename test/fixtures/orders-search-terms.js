@@ -1,4 +1,4 @@
-const ordersSearchOptions = [
+module.exports = [
   {
     title: 'Order',
     type: 'object',
@@ -51,4 +51,3 @@ const ordersSearchOptions = [
   }
 ];
 
-export default ordersSearchOptions;

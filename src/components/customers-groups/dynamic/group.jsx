@@ -36,6 +36,12 @@ const mapDispatchToProps = dispatch => ({
   listActions: bindActionCreators(listActions, dispatch),
 });
 
+const tableColumns = [
+  {field: 'name', text: 'Name'},
+  {field: 'email', text: 'Email'},
+  {field: 'joinedAt', text: 'Date/Time Joined', type: 'datetime'}
+];
+
 @connect(mapStateToProps, mapDispatchToProps)
 export default class DynamicGroup extends Component {
 
@@ -62,12 +68,6 @@ export default class DynamicGroup extends Component {
   static contextTypes = {
     history: PropTypes.object.isRequired,
   };
-
-  static tableColumns = [
-    {field: 'name', text: 'Name'},
-    {field: 'email', text: 'Email'},
-    {field: 'joinedAt', text: 'Date/Time Joined', type: 'datetime'}
-  ];
 
   state = {
     criteriaOpen: true,
@@ -211,7 +211,7 @@ export default class DynamicGroup extends Component {
 
     return (
       <MultiSelectTable
-        columns={DynamicGroup.tableColumns}
+        columns={tableColumns}
         data={list}
         renderRow={this.renderRow}
         setState={listActions.updateStateAndFetch}

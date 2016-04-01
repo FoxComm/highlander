@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import nock from 'nock';
 
-const searchTermFunctions = importSource('paragons/search-term.js');
+const searchTermFunctions = requireSource('paragons/search-term.js');
 const SearchTerm = searchTermFunctions.default;
 
 describe('paragons.searchTerm', function() {

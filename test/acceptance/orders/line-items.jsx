@@ -1,7 +1,7 @@
 import React from 'react';
 
 describe('Order line items', function() {
-  const { OrderLineItems } = requireComponent('orders/order-line-items.jsx');
+  const { OrderLineItems } = requireComponent('orders/order-line-items.jsx', false);
   const ConfirmationDialog = requireComponent('modal/confirmation-dialog.jsx');
 
   const defaultProps = {

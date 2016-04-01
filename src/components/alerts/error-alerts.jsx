@@ -12,6 +12,7 @@ function parseError(err) {
 
 const ErrorAlerts = props => {
   const errors = props.errors || parseError(props.error);
+  const closeAction = props.closeAction ? () => props.closeAction(error, index) : null;
 
   if (errors && errors.length) {
     return (
@@ -22,7 +23,7 @@ const ErrorAlerts = props => {
             <Alert
               key={`error-${error}-${index}`}
               type={Alert.ERROR}
-              closeAction={props.closeAction && () => props.closeAction(error, index)}>
+              closeAction={closeAction}>
               {error}
             </Alert>
           );

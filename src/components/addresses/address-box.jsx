@@ -1,4 +1,5 @@
 
+import { noop } from 'lodash';
 import classNames from 'classnames';
 import React, { PropTypes } from 'react';
 import AddressDetails from './address-details';
@@ -33,7 +34,9 @@ export default class AddressBox extends React.Component {
   };
 
   static defaultProps = {
-    checkboxLabel: 'Default shipping address'
+    checkboxLabel: 'Default shipping address',
+    toggleDefaultAction: noop,
+    deleteAction: noop,
   };
 
   get chooseButton() {
@@ -85,10 +88,9 @@ export default class AddressBox extends React.Component {
       <EditableItemCardContainer className={ classNames('fc-address', props.className, {'is-active': props.chosen}) }
                                  checkboxLabel={ props.checkboxLabel }
                                  isDefault={ address.isDefault }
-                                 checkboxChangeHandler={props.toggleDefaultAction &&
-                                   () => props.toggleDefaultAction(address)}
+                                 checkboxChangeHandler={() => props.toggleDefaultAction(address)}
                                  editHandler={() => props.editAction(address) }
-                                 deleteHandler={ props.deleteAction && () => props.deleteAction(address) }>
+                                 deleteHandler={() => props.deleteAction(address) }>
         {this.content}
       </EditableItemCardContainer>
     );

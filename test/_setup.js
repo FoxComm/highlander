@@ -32,7 +32,10 @@ global.localStorage = require('localStorage');
 
 const modulesCache = {};
 
-global.importSource = function(sourcePath, actionsToExport = []) {
+global.importSource = function(sourcePath, actionsToExport) {
+  if (!actionsToExport) {
+    throw new Error('If you want just request some source without rewiring use requireSource instead');
+  }
   const finalPath = path.resolve(`./src/${sourcePath}`);
   if (!(finalPath in modulesCache)) {
     const importedModule = rewire(finalPath);
@@ -52,5 +55,9 @@ global.requireSource = function(sourcePath) {
   return require(finalPath);
 };
 
+
+global.importDefault = function(sourcePath) {
+  return requireSource(sourcePath).default;
+};
 
 global.phoenixUrl = 'https://api.foxcommerce/';

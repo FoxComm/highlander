@@ -1,6 +1,6 @@
 
 describe('Buttons', function() {
-  const Buttons = requireComponent('common/buttons.jsx');
+  const Buttons = requireComponent('common/buttons.jsx', false);
 
   it('should render Button', function() {
     const props = {

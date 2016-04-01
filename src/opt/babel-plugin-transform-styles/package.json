@@ -1,0 +1,11 @@
+{
+  "name": "babel-plugin-transform-styles",
+  "version": "2.0.0",
+  "description": "Transforms styleName's to className's",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
