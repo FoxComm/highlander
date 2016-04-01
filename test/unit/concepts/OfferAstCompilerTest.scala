@@ -17,8 +17,8 @@ class OfferAstCompilerTest extends TestBase {
       rightValue(compiler.compile()) must === (OrderPercentOffer(discount = 30))
     }
 
-    "fails when typo in configuration found" in new OrderTotalAmountTypoFixture {
-      leftValue(compiler.compile()) must === (OfferAttributesExtractionFailure(typeName, attributes).single)
+    "fails when typo in configuration found" in new OrderPercentOfferTypoFixture {
+      leftValue(compiler.compile()) must === (OfferAttributesExtractionFailure(OrderPercentOff).single)
     }
 
     "fails when invalid json provided" in new InvalidJsonFixture {
@@ -34,17 +34,18 @@ class OfferAstCompilerTest extends TestBase {
     (json, OfferAstCompiler(json))
 
   trait FreeShippingValidFixture {
-    val (json, compiler) = getTuple("""{"freeShipping": {}}""")
+    val typeName         = OfferType.show(FreeShipping)
+    val (json, compiler) = getTuple(s"""[{"offerType": "$typeName", "attributes": {}}]""")
   }
 
   trait OrderPercentOfferValidFixture {
-    val (json, compiler) = getTuple("""{"orderPercentOff": {"discount": 30}}""")
+    val typeName         = OfferType.show(OrderPercentOff)
+    val (json, compiler) = getTuple(s"""[{"offerType": "$typeName", "attributes": {"discount": 30}}]""")
   }
 
-  trait OrderTotalAmountTypoFixture {
-    val typeName          = "orderPercentOff"
-    val attributes        = """{"discounts":33}""" // compact()
-    val (json, compiler)  = getTuple(s"""{"$typeName": $attributes}""")
+  trait OrderPercentOfferTypoFixture {
+    val typeName          = OfferType.show(OrderPercentOff)
+    val (json, compiler)  = getTuple(s"""[{"offerType": "$typeName", "attributes": {"discounts": 30}}]""")
   }
 
   trait InvalidJsonFixture {
@@ -52,6 +53,6 @@ class OfferAstCompilerTest extends TestBase {
   }
 
   trait InvalidJsonFormatFixture {
-    val (json, compiler) = getTuple("""{"freeShipping": [1, 2, 3]}""")
+    val (json, compiler) = getTuple("""{"whateverNameHere": [1, 2, 3]}""")
   }
 }

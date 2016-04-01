@@ -1,54 +1,15 @@
 package failures
 
-import concepts.discounts._
+import concepts.discounts.{QualifierType, OfferType}
+import concepts.discounts.QualifierType.{show ⇒ show}
+import concepts.discounts.OfferType.{show ⇒ showOffer}
 import concepts.discounts.offers.Offer
 import concepts.discounts.qualifiers.Qualifier
 import utils.friendlyClassName
 
 object DiscountCompilerFailures {
 
-  final case class QualifierAttributesParseFailure(qualifierType: String, json: String) extends Failure {
-    override def description = s"failed to compile qualifier $qualifierType, invalid JSON provided: $json"
-  }
-
-  final case class QualifierAttributesExtractionFailure(qualifierType: String, json: String) extends Failure {
-    override def description = s"failed to compile qualifier $qualifierType, couldn't extract attributes from $json"
-  }
-
-  final case class UnknownQualifierFailure(qualifierType: String) extends Failure {
-    override def description = s"unknown qualifier type $qualifierType"
-  }
-
-  final case class QualifierNotImplementedFailure(qualifierType: String) extends Failure {
-    override def description = s"qualifier not implemented for qualifier type $qualifierType"
-  }
-
-  final case class OfferAttributesParseFailure(offerType: String, json: String) extends Failure {
-    override def description = s"failed to compile offer $offerType, invalid JSON provided: $json"
-  }
-
-  final case class OfferAttributesExtractionFailure(offerType: String, json: String) extends Failure {
-    override def description = s"failed to compile offer $offerType, couldn't extract attributes from $json"
-  }
-
-  final case class UnknownOfferFailure(offerType: String) extends Failure {
-    override def description = s"unknown offer type $offerType"
-  }
-
-  final case class OfferNotImplementedFailure(offerType: String) extends Failure {
-    override def description = s"offer not implemented for offer type $offerType"
-  }
-
-  /* Qualifier / Offer specific non-fatal rejections */
-  final case class QualifierRejectionFailure[T <: Qualifier](qualifier: T, refNum: String, reason: String) extends Failure {
-    override def description = s"qualifier ${friendlyClassName(qualifier)} rejected order with refNum=$refNum, reason: $reason"
-  }
-
-  final case class OfferRejectionFailure[T <: Offer](offer: T, refNum: String, reason: String) extends Failure {
-    override def description = s"offer ${friendlyClassName(offer)} rejected order with refNum=$refNum, reason: $reason"
-  }
-
-  /* AST parsing failures - for handling collections of qualifiers */
+  /* Qualifier AST compiler */
   final case class QualifierAstParseFailure(json: String) extends Failure {
     override def description = s"failed to compile qualifiers AST, invalid JSON provided: $json"
   }
@@ -61,6 +22,7 @@ object DiscountCompilerFailures {
     override def description = s"failed to compile qualifiers AST, no qualifiers found inside payload"
   }
 
+  /* Offer AST compiler */
   final case class OfferAstParseFailure(json: String) extends Failure {
     override def description = s"failed to compile offers AST, invalid JSON provided: $json"
   }
@@ -71,5 +33,32 @@ object DiscountCompilerFailures {
 
   case object OfferAstEmptyObjectFailure extends Failure {
     override def description = s"failed to compile offers AST, no offers found inside payload"
+  }
+
+  /* Qualifier Compiler */
+  final case class QualifierAttributesExtractionFailure(qualifierType: QualifierType) extends Failure {
+    override def description = s"failed to compile qualifier ${show(qualifierType)}, couldn't extract attributes"
+  }
+
+  final case class QualifierNotImplementedFailure(qualifierType: QualifierType) extends Failure {
+    override def description = s"qualifier not implemented for qualifier type ${show(qualifierType)}"
+  }
+
+  /* Offer Compiler */
+  final case class OfferAttributesExtractionFailure(offerType: OfferType) extends Failure {
+    override def description = s"failed to compile offer ${showOffer(offerType)}, couldn't extract attributes"
+  }
+
+  final case class OfferNotImplementedFailure(offerType: OfferType) extends Failure {
+    override def description = s"offer not implemented for offer type ${showOffer(offerType)}"
+  }
+
+  /* Rejections */
+  final case class QualifierRejectionFailure[T <: Qualifier](qualifier: T, refNum: String, reason: String) extends Failure {
+    override def description = s"qualifier ${friendlyClassName(qualifier)} rejected order with refNum=$refNum, reason: $reason"
+  }
+
+  final case class OfferRejectionFailure[T <: Offer](offer: T, refNum: String, reason: String) extends Failure {
+    override def description = s"offer ${friendlyClassName(offer)} rejected order with refNum=$refNum, reason: $reason"
   }
 }

@@ -1,6 +1,7 @@
 package concepts.discounts.qualifiers
 
 import cats.data.Xor
+import concepts.discounts.QualifierType
 import failures._
 import models.order.Order
 import models.order.lineitems.OrderLineItemProductData
@@ -15,5 +16,7 @@ trait Qualifier {
 
 object Qualifier {
 
-  type QualifierAstFormat = Map[String, JObject]
+  final case class QualifierFormat(qualifierType: QualifierType, attributes: JObject)
+  type QualifierAstFormat = Seq[QualifierFormat]
+
 }

@@ -1,7 +1,7 @@
 package concepts.discounts.offers
 
 import cats.data.Xor
-import concepts.discounts.LineItemAdjustment
+import concepts.discounts.{LineItemAdjustment, OfferType}
 import concepts.discounts.offers.Offer.AdjustmentResult
 import failures._
 import models.order.Order
@@ -17,6 +17,8 @@ trait Offer {
 
 object Offer {
 
+  final case class OfferFormat(offerType: OfferType, attributes: JObject)
+  type OfferAstFormat = Seq[OfferFormat]
+
   type AdjustmentResult = Xor[Failures, Seq[LineItemAdjustment]]
-  type OfferAstFormat = Map[String, JObject]
 }

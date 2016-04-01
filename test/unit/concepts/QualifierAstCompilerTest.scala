@@ -18,7 +18,7 @@ class QualifierAstCompilerTest extends TestBase {
     }
 
     "fails when typo in configuration found" in new OrderTotalAmountTypoFixture {
-      leftValue(compiler.compile()) must === (QualifierAttributesExtractionFailure(typeName, attributes).single)
+      leftValue(compiler.compile()) must === (QualifierAttributesExtractionFailure(OrderTotalAmount).single)
     }
 
     "fails when invalid json provided" in new InvalidJsonFixture {
@@ -34,17 +34,18 @@ class QualifierAstCompilerTest extends TestBase {
     (json, QualifierAstCompiler(json))
 
   trait OrderAnyValidFixture {
-    val (json, compiler) = getTuple("""{"orderAny": {}}""")
+    val typeName         = QualifierType.show(OrderAny)
+    val (json, compiler) = getTuple(s"""[{"qualifierType": "$typeName", "attributes": {}}]""")
   }
 
   trait OrderTotalAmountValidFixture {
-    val (json, compiler) = getTuple("""{"orderTotalAmount": {"totalAmount": 1}}""")
+    val typeName         = QualifierType.show(OrderTotalAmount)
+    val (json, compiler) = getTuple(s"""[{"qualifierType": "$typeName", "attributes": {"totalAmount": 1}}]""")
   }
 
   trait OrderTotalAmountTypoFixture {
-    val typeName          = "orderTotalAmount"
-    val attributes        = """{"totalAmounts":1}""" // compact()
-    val (json, compiler)  = getTuple(s"""{"$typeName": $attributes}""")
+    val typeName          = QualifierType.show(OrderTotalAmount)
+    val (json, compiler)  = getTuple(s"""[{"qualifierType": "$typeName", "attributes": {"totalAmounts": 1}}]""")
   }
 
   trait InvalidJsonFixture {
@@ -52,6 +53,6 @@ class QualifierAstCompilerTest extends TestBase {
   }
 
   trait InvalidJsonFormatFixture {
-    val (json, compiler) = getTuple("""{"orderAny": [1, 2, 3]}""")
+    val (json, compiler) = getTuple("""{"whateverNameHere": [1, 2, 3]}""")
   }
 }

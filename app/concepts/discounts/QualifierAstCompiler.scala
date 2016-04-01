@@ -1,7 +1,7 @@
 package concepts.discounts
 
 import cats.data.Xor
-import concepts.discounts.qualifiers.Qualifier.QualifierAstFormat
+import concepts.discounts.qualifiers.Qualifier._
 import qualifiers._
 import failures._
 import failures.DiscountCompilerFailures._
@@ -21,8 +21,8 @@ final case class QualifierAstCompiler(input: String) {
   private def compileInner(json: JValue): Xor[Failures, Qualifier] = json.extractOpt[QualifierAstFormat] match {
     // Extract first element, currently
     case Some(q) ⇒ q.headOption match {
-      case Some((qualifierType, attributes)) ⇒ QualifierCompiler(qualifierType, compact(attributes)).compile()
-      case _                                 ⇒ Xor.Left(QualifierAstEmptyObjectFailure.single)
+      case Some(QualifierFormat(qualifierType, attributes)) ⇒ QualifierCompiler(qualifierType, attributes).compile()
+      case _                                                ⇒ Xor.Left(QualifierAstEmptyObjectFailure.single)
     }
     case _       ⇒ Xor.Left(QualifierAstInvalidFormatFailure.single)
   }

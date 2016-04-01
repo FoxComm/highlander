@@ -23,6 +23,8 @@ object JsonFormatters {
   val DefaultFormats = org.json4s.DefaultFormats + time.JavaTimeJson4sSerializer.jsonFormat + Money.jsonFormat
 
   val phoenixFormats = DefaultFormats +
+    QualifierType.jsonFormat +
+    OfferType.jsonFormat +
     Assignment.AssignmentType.jsonFormat +
     Assignment.ReferenceType.jsonFormat +
     Order.State.jsonFormat +
@@ -46,8 +48,6 @@ object JsonFormatters {
     PaymentMethod.Type.jsonFormat +
     SkuType.jsonFormat +
     SharedSearch.Scope.jsonFormat +
-    IdentityKind.jsonFormat +
-    OfferType.jsonFormat +
-    QualifierType.jsonFormat
+    IdentityKind.jsonFormat
 }
 
