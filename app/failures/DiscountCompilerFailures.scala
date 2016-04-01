@@ -1,6 +1,6 @@
 package failures
 
-import concepts.discounts.offers.OfferType.{show ⇒ showOffer}
+import concepts.discounts.offers.OfferType
 import concepts.discounts.qualifiers.QualifierType.show
 import concepts.discounts.offers.{Offer, OfferType}
 import concepts.discounts.qualifiers.{Qualifier, QualifierType}
@@ -45,11 +45,11 @@ object DiscountCompilerFailures {
 
   /* Offer Compiler */
   final case class OfferAttributesExtractionFailure(offerType: OfferType) extends Failure {
-    override def description = s"failed to compile offer ${showOffer(offerType)}, couldn't extract attributes"
+    override def description = s"failed to compile offer ${OfferType.show(offerType)}, couldn't extract attributes"
   }
 
   final case class OfferNotImplementedFailure(offerType: OfferType) extends Failure {
-    override def description = s"offer not implemented for offer type ${showOffer(offerType)}"
+    override def description = s"offer not implemented for offer type ${OfferType.show(offerType)}"
   }
 
   /* Rejections */

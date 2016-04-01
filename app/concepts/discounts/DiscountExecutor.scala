@@ -1,15 +1,12 @@
 package concepts.discounts
 
-import cats.implicits._
 import concepts.discounts.qualifiers._
 import concepts.discounts.offers._
 import models.order.lineitems.{OrderLineItemProductData, OrderLineItemSkus}
-import models.order.{Order, OrderShippingMethods}
+import models.order.Order
 import models.shipping
-import models.shipping.ShippingMethod
 import services.Result
 import slick.driver.PostgresDriver.api._
-import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
