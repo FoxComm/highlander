@@ -6,8 +6,7 @@ import React, { Component, Element, PropTypes } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 
-import { getAttributes } from '../../paragons/product';
-import { setAttribute } from '../../paragons/form-shadow-object';
+import { illuminateAttributes, setAttribute } from '../../paragons/form-shadow-object';
 
 import { FormField } from '../forms';
 import { SliderCheckbox } from '../checkbox/checkbox';
@@ -17,15 +16,19 @@ import CustomProperty from '../products/custom-property';
 import DatePicker from '../datepicker/datepicker';
 import RichTextEditor from '../rich-text-editor/rich-text-editor';
 
-import type { Attributes, ShadowAttributes } from '../../modules/products/details';
-import type { IlluminatedAttribute, IlluminatedAttributes } from '../../paragons/product';
+import type { 
+  FormAttributes,
+  ShadowAttributes,
+  IlluminatedAttribute, 
+  IlluminatedAttributes 
+} from '../../paragons/form-shadow-object';
 
 type Props = {
   canAddProperty?: boolean,
   fieldsToRender: ?Array<string>,
-  form: Attributes,
+  form: FormAttributes,
   shadow: ShadowAttributes,
-  onChange: (form: Attributes, shadow: ShadowAttributes) => void,
+  onChange: (form: FormAttributes, shadow: ShadowAttributes) => void,
   title: string,
 };
 
@@ -189,7 +192,7 @@ export default class ObjectForm extends Component<void, Props, State> {
 
   render(): Element {
     const { fieldsToRender, form, shadow } = this.props;
-    const attributes: IlluminatedAttributes = getAttributes(form, shadow);
+    const attributes = illuminateAttributes(form, shadow);
     const toRender: IlluminatedAttributes = _.isEmpty(fieldsToRender)
       ? attributes
       : _.pick(attributes, fieldsToRender);

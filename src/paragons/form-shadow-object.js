@@ -4,21 +4,28 @@
 import _ from 'lodash';
 import { assoc } from 'sprout-data';
 
-type FormShadowObject = {
+export type FormShadowObject = {
   form: FormAttributes,
   shadow: ShadowAttributes,
 };
 
-type FormAttributes = { [key:string]: FormAttribute };
-type FormAttribute = {
+export type FormAttributes = { [key:string]: FormAttribute };
+export type FormAttribute = {
   type: string,
   [key:string]: any,
 };
 
-type ShadowAttributes = { [key:string]: ShadowAttribute };
-type ShadowAttribute = {
+export type ShadowAttributes = { [key:string]: ShadowAttribute };
+export type ShadowAttribute = {
   type: string,
   ref: string,
+};
+
+export type IlluminatedAttributes = { [key:string]: IlluminatedAttribute };
+export type IlluminatedAttribute = {
+  label: string,
+  type: string,
+  value: string,
 };
 
 function addAttribute(label: string,
@@ -46,9 +53,27 @@ export function setAttribute(label: string,
     return addAttribute(label, type, value, form, shadow);
   }
 
-  const newForm = type == 'price'
-    ? assoc(form, [shadowAttribute.ref, 'value'], value)
-    : assoc(form, shadowAttribute.ref, value);  
+  const formValue = type == 'price'
+    ? { currency: 'USD', value: value }
+    : value;
 
-  return { form: newForm, shadow: shadow };
+  const newForm = assoc(form, label, formValue);
+  const newShadow = assoc(shadow, [label, 'ref'], label);
+
+  return { form: newForm, shadow: newShadow };
+}
+
+export function illuminateAttributes(form: FormAttributes,
+                                     shadow: ShadowAttributes): IlluminatedAttributes {
+  return _.reduce(shadow, (res, shadow, label) => {
+    const attribute = form[shadow.ref];
+
+    res[label] = {
+      label: label,
+      type: shadow.type,
+      value: attribute,
+    };
+
+    return res;
+  }, {});
 }
