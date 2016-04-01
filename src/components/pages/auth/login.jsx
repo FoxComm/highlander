@@ -33,12 +33,14 @@ export default class Auth extends Component {
   state: AuthState = {
     email: '',
     password: '',
+    error: false,
   };
 
   @autobind
   onChangeEmail({target}: any) {
     this.setState({
       email: target.value,
+      error: false,
     });
   }
 
@@ -46,6 +48,7 @@ export default class Auth extends Component {
   onChangePassword({target}: any) {
     this.setState({
       password: target.value,
+      error: false,
     });
   }
 
@@ -57,8 +60,8 @@ export default class Auth extends Component {
     const kind = 'customer';
     this.props.authenticate({email, password, kind}).then(() => {
       browserHistory.push('/');
-    }).catch(err => {
-      console.error(err);
+    }).catch(() => {
+      this.setState({error: 'Email or password is invalid'});
     });
   }
 
@@ -76,10 +79,10 @@ export default class Auth extends Component {
         </form>
         <WrapToLines styleName="divider">or</WrapToLines>
         <form>
-          <FormField key="email" styleName="form-field">
+          <FormField key="email" styleName="form-field" error={this.state.error}>
             <TextInput placeholder="EMAIL" value={email} type="email" onChange={this.onChangeEmail} />
           </FormField>
-          <FormField key="passwd" styleName="form-field">
+          <FormField key="passwd" styleName="form-field" error={!!this.state.error}>
             <TextInputWithLabel placeholder="PASSWORD"
               label={!password && <Link styleName="restore-link" to="/password/restore">forgot ?</Link>}
               value={password} onChange={this.onChangePassword} type="password"
