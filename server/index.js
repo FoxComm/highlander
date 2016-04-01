@@ -1,5 +1,6 @@
 require('babel-register');
 require('babel-polyfill');
+require('../src/postcss').installHook();
 const koa = require('koa');
 const path = require('path');
 const co = require('co');

@@ -27,6 +27,7 @@ function setDemoAuthToken() {
 module.exports = function(gulp, opts, $) {
   let production = (process.env.NODE_ENV === 'production');
 
+  const plugins = require('../src/postcss').plugins;
   let bundler = null;
 
   function getBundler() {
@@ -44,6 +45,12 @@ module.exports = function(gulp, opts, $) {
     }).transform(envify({
       DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN
     }));
+
+    bundler.plugin(require('css-modulesify'), {
+      output: path.resolve('build/css_bundle.css'),
+      use: plugins,
+      jsonOutput: 'build/css-modules.json',
+    });
 
     if (opts.devMode) {
       let watchifyOpts = {

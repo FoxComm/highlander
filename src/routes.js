@@ -44,6 +44,7 @@ import ProductsListPage from './components/products/list-page';
 import Products from './components/products/products';
 import ProductDetails from './components/products/details';
 import NewProduct from './components/products/new-product';
+import Promotions from './components/promotions/promotions';
 
 import StyleGuide from './components/style-guide/style-guide';
 import StyleGuideGrid from './components/style-guide/style-guide-grid';
@@ -153,6 +154,9 @@ const routes = (
         <Route name='inventory-item-activity-trail' path='activity-trail' component={ActivityTrailPage} />
         <Route name='inventory-item-notes' path='notes' component={Notes} />
       </Route>
+    </Route>
+    <Route name='promotions-base' path='promotions'>
+      <IndexRoute name='promotions' component={Promotions} />
     </Route>
     <Route name='style-guide' path='style-guide' component={StyleGuide}>
       <IndexRoute name='style-guide-grid' component={StyleGuideGrid} />

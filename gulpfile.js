@@ -17,7 +17,9 @@ for (let task of fs.readdirSync(opts.taskDir)) {
   require(file)(gulp, opts, $);
 }
 
-gulp.task('build', ['less', 'browserify', 'imagemin']);
+gulp.task('build', function(cb) {
+  runSequence('imagemin', 'less', 'browserify', 'css', cb);
+});
 
 gulp.task('dev', function(cb) {
   opts.devMode = true;
