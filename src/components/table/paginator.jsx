@@ -39,7 +39,7 @@ export default class TablePaginator extends React.Component {
   }
 
   getPage(from, size) {
-    return Math.ceil(from / size + 1);
+    return Math.floor(from / size + 1);
   }
 
   setPage(page) {
