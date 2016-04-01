@@ -1,10 +1,9 @@
 package failures
 
-import concepts.discounts.{QualifierType, OfferType}
-import concepts.discounts.QualifierType.{show ⇒ show}
-import concepts.discounts.OfferType.{show ⇒ showOffer}
-import concepts.discounts.offers.Offer
-import concepts.discounts.qualifiers.Qualifier
+import concepts.discounts.offers.OfferType.{show ⇒ showOffer}
+import concepts.discounts.qualifiers.QualifierType.show
+import concepts.discounts.offers.{Offer, OfferType}
+import concepts.discounts.qualifiers.{Qualifier, QualifierType}
 import utils.friendlyClassName
 
 object DiscountCompilerFailures {

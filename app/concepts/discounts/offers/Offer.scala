@@ -1,7 +1,7 @@
 package concepts.discounts.offers
 
 import cats.data.Xor
-import concepts.discounts.{LineItemAdjustment, OfferType}
+import concepts.discounts.LineItemAdjustment
 import concepts.discounts.offers.Offer.AdjustmentResult
 import failures._
 import models.order.Order

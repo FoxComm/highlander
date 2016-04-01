@@ -1,4 +1,4 @@
-package concepts.discounts
+package concepts.discounts.qualifiers
 
 import com.pellucid.sealerate
 import utils.ADT

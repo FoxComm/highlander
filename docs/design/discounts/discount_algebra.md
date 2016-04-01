@@ -1,7 +1,7 @@
 # Discount Algebra
 
 For more details, please refer to the:
-* Code in `app/code/concepts/discounts`.
+* Code in `app/code/concepts/discounts`
 * Unit tests in `test/unit/concepts`
 
 ## Qualifier storage format

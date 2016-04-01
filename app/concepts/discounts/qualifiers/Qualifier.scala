@@ -1,7 +1,6 @@
 package concepts.discounts.qualifiers
 
 import cats.data.Xor
-import concepts.discounts.QualifierType
 import failures._
 import models.order.Order
 import models.order.lineitems.OrderLineItemProductData

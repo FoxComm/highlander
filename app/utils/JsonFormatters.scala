@@ -1,14 +1,16 @@
 package utils
 
 import concepts.discounts._
+import concepts.discounts.offers.OfferType
+import concepts.discounts.qualifiers.QualifierType
 import models.inventory.SkuType
 import models.order.Order
 import models.order.lineitems.OrderLineItem
 import models.payment.PaymentMethod
 import models.payment.creditcard.CreditCardCharge
-import models.payment.giftcard.{GiftCardAdjustment, GiftCard}
-import models.payment.storecredit.{StoreCreditAdjustment, StoreCredit}
-import models.rma.{RmaReason, RmaLineItem, Rma}
+import models.payment.giftcard.{GiftCard, GiftCardAdjustment}
+import models.payment.storecredit.{StoreCredit, StoreCreditAdjustment}
+import models.rma.{Rma, RmaLineItem, RmaReason}
 import models.rules.{Condition, QueryStatement}
 import models.sharedsearch.SharedSearch
 import models.shipping.Shipment
