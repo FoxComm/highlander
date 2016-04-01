@@ -23,11 +23,13 @@
     .colors(@color-decor1, @color-decor13);
     .clearfix;
     height: 70px;
-    width: 209px;
     padding: 11px 0 0 11px;
-    border-top: 1px solid @color-header-border;
-    border-left: 1px solid @color-header-border;
-    border-bottom: 1px solid @color-header-border;
+    border-right: 1px solid @color-header-border;
+
+    img {
+      .width(170px);
+      .max-width(170px);
+    }
   }
 
   nav ul {
@@ -42,6 +44,7 @@
       a {
         .clearfix;
         padding-right: 15px;
+        padding: 0 15px 0 6px;
         display: block;
         white-space: nowrap;
 
@@ -52,13 +55,13 @@
         }
 
         i {
-          .font-spec(28px, 65px);
+          .font-spec(20px, 60px);
           width: 69px;
           text-align: center;
         }
 
         span {
-          .font-spec(13px, 65px);
+          .font-spec(13px, 60px);
         }
       }
 

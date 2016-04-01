@@ -31,3 +31,14 @@
     -moz-appearance: textfield;
   }
 }
+
+.fc-transition-counter-appear,
+.fc-transition-counter-enter {
+  opacity: 0.01;
+}
+
+.fc-transition-counter-appear.fc-transition-counter-appear-active,
+.fc-transition-counter-enter.fc-transition-counter-enter-active {
+  opacity: 1;
+  transition: opacity .3s ease-in;
+}

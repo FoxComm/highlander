@@ -162,12 +162,20 @@ export default class LiveSearch extends React.Component {
   }
 
   get savedSearches() {
-    if (this.props.singleSearch) return;
+    if (this.props.singleSearch) {
+      return;
+    }
 
-    const tabs = _.map(this.props.searches.savedSearches, (search, idx) => {
-      const selected = idx === this.props.searches.selectedSearch;
+    const { searches } = this.props;
+
+    let isLoading = searches.fetchingSearches;
+
+    const tabs = _.map(searches.savedSearches, (search, idx) => {
+      const selected = idx === searches.selectedSearch;
       const isEditable = search.isEditable;
-      const isDirty = isEditable && this.props.searches.savedSearches[idx].isDirty;
+      const isDirty = isEditable && searches.savedSearches[idx].isDirty;
+
+      isLoading = isLoading || search.isUpdating || search.isSaving || search.isDeleting;
 
       const copySearch = () => {
         this.props.saveSearch({ ...search, title: `${search.title} - Copy` });
@@ -194,7 +202,7 @@ export default class LiveSearch extends React.Component {
       );
     });
 
-    return <TabListView>{tabs}</TabListView>;
+    return <TabListView isLoading={isLoading}>{tabs}</TabListView>;
   }
 
   get searchButton() {
