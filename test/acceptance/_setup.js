@@ -11,8 +11,9 @@ global.unexpected = global.unexpected.clone()
   .installPlugin(unexpectedReactShallow);
 
 
-global.requireComponent = function(componentPath) {
-  return require(path.resolve('src/components/' + componentPath));
+global.requireComponent = function(componentPath, returnDefault = true) {
+  const result = require(path.resolve('src/components/' + componentPath));
+  return returnDefault ? result.default : result;
 };
 
 global.shallowRender = function(element) {

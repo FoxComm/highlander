@@ -32,7 +32,7 @@ module.exports = function(gulp, opts, $) {
   function getBundler() {
     if (bundler) return bundler;
 
-    let entries = path.join(opts.srcDir, 'app.js');
+    let entries = path.join(opts.srcDir, 'client.js');
     bundler = browserify({
       entries: [entries],
       standalone: 'App',

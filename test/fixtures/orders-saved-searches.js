@@ -1,4 +1,4 @@
-const searches = [
+module.exports = [
   {
     name: 'Remorse Hold',
     searches: [
@@ -14,5 +14,3 @@ const searches = [
     ]
   }
 ];
-
-export default searches;

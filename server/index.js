@@ -1,4 +1,5 @@
-require('babel/register');
+require('babel-register');
+require('babel-polyfill');
 const koa = require('koa');
 const path = require('path');
 const co = require('co');

@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
 const jwt = require('jsonwebtoken');
+require('babel-polyfill');
 
 const htmlescape = require('htmlescape');
 const errors = require('./errors');
@@ -25,9 +26,7 @@ module.exports = function(app) {
   // lets do renderReact property is lazy
   Object.defineProperty(app, 'renderReact', {
     get: function() {
-      const App = require('../src/app');
-
-      return App.renderReact;
+      return require('../src/render').renderReact;
     }
   });
 

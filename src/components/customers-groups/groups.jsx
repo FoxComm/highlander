@@ -22,6 +22,13 @@ import { PrimaryButton } from '../common/buttons';
 const mapStateToProps = state => ({list: state.customerGroups.list});
 const mapDispatchToProps = dispatch => ({actions: bindActionCreators(actions, dispatch)});
 
+const tableColumns = [
+  {field: 'name', type: 'id', text: 'Group Name', model: 'group'},
+  {field: 'type', text: 'Type'},
+  {field: 'createdAt', type: 'date', text: 'Date/Time Created'},
+  {field: 'modifiedAt', type: 'date', text: 'Date/Time Last Modified'},
+];
+
 @connect(mapStateToProps, mapDispatchToProps)
 export default class Groups extends Component {
 
@@ -36,13 +43,6 @@ export default class Groups extends Component {
   static contextTypes = {
     history: PropTypes.object.isRequired
   };
-
-  static tableColumns = [
-    {field: 'name', type: 'id', text: 'Group Name', model: 'group'},
-    {field: 'type', text: 'Type'},
-    {field: 'createdAt', type: 'date', text: 'Date/Time Created'},
-    {field: 'modifiedAt', type: 'date', text: 'Date/Time Last Modified'},
-  ];
 
   componentDidMount() {
     this.props.actions.fetch();
@@ -79,7 +79,7 @@ export default class Groups extends Component {
         </div>
         <div className="fc-col-md-1-1 _group-component">
           <TableView
-            columns={Groups.tableColumns}
+            columns={tableColumns}
             data={list}
             renderRow={this.renderRow}
             setState={updateStateAndFetch}

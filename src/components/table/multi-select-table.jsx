@@ -30,6 +30,7 @@ export default class MultiSelectTable extends React.Component {
   static defaultProps = {
     toggleColumnPresent: true,
     predicate: entity => entity.id,
+    columns: [],
   };
 
   constructor(props, context) {

@@ -37,6 +37,16 @@ const mapDispatchToProps = dispatch => {
   };
 };
 
+const tableColumns = [
+  {field: 'referenceNumber', text: 'Order', model: 'order'},
+  {field: 'placedAt', text: 'Date/Time Placed', type: 'datetime'},
+  {field: 'customer.name', text: 'Name'},
+  {field: 'customer.email', text: 'Email'},
+  {field: 'state', text: 'Order State', type: 'state', model: 'order'},
+  {field: 'shipping.state', text: 'Shipment State', type: 'state', model: 'shipment'},
+  {field: 'grandTotal', text: 'Total', type: 'currency'}
+];
+
 @connect(mapStateToProps, mapDispatchToProps)
 export default class Orders extends React.Component {
   static propTypes = {
@@ -45,16 +55,6 @@ export default class Orders extends React.Component {
     actions: PropTypes.objectOf(PropTypes.func).isRequired,
     bulkActions: PropTypes.objectOf(PropTypes.func).isRequired,
   };
-
-  static tableColumns = [
-    {field: 'referenceNumber', text: 'Order', model: 'order'},
-    {field: 'placedAt', text: 'Date/Time Placed', type: 'datetime'},
-    {field: 'customer.name', text: 'Name'},
-    {field: 'customer.email', text: 'Email'},
-    {field: 'state', text: 'Order State', type: 'state', model: 'order'},
-    {field: 'shipping.state', text: 'Shipment State', type: 'state', model: 'shipment'},
-    {field: 'grandTotal', text: 'Total', type: 'currency'}
-  ];
 
   @autobind
   cancelOrders(allChecked, toggledIds) {
@@ -187,7 +187,7 @@ export default class Orders extends React.Component {
             emptyMessage="No orders found."
             list={list}
             renderRow={this.renderRow}
-            tableColumns={Orders.tableColumns}
+            tableColumns={tableColumns}
             searchActions={actions}
             predicate={({referenceNumber}) => referenceNumber} />
         </BulkActions>

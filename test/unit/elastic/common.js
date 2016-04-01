@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { assoc } from 'sprout-data';
 import nock from 'nock';
 
-const { toQuery } = importSource('elastic/common.js');
+const { toQuery } = requireSource('elastic/common.js');
 
 const baseSearch = {
   query: {

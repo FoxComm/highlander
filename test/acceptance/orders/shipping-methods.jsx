@@ -33,7 +33,7 @@ const getEditableMethodPrice = row => {
 };
 
 describe('Order Shipping Methods', function() {
-  const { OrderShippingMethod } = requireComponent('orders/order-shipping-method.jsx');
+  const { OrderShippingMethod } = requireComponent('orders/order-shipping-method.jsx', false);
 
   const defaultProps = {
     order: {

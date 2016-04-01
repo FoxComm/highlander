@@ -22,12 +22,13 @@ type Props = {
   updateField: UpdateFn,
 };
 
+const tableColumns = [
+  { field: 'sku', text: 'SKU' },
+  { field: 'retailPrice', text: 'Retail Price' },
+  { field: 'salePrice', text: 'Sale Price' },
+];
+
 export default class SkuList extends Component<void, Props, void> {
-  static tableColumns = [
-    { field: 'sku', text: 'SKU' },
-    { field: 'retailPrice', text: 'Retail Price' },
-    { field: 'salePrice', text: 'Sale Price' },
-  ];
 
   get illuminatedSkus(): Array<IlluminatedSku> {
     return this.props.fullProduct
@@ -59,7 +60,7 @@ export default class SkuList extends Component<void, Props, void> {
 
     return (
       <MultiSelectTable
-        columns={SkuList.tableColumns}
+        columns={tableColumns}
         data={{ rows: this.illuminatedSkus }}
         renderRow={renderRow}
         emptyMessage="This product does not have any SKUs."

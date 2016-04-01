@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-const makeWatchers = importSource('modules/watchers.js');
+const makeWatchers = importDefault('modules/watchers.js');
 
 const entityType = 'orders';
 const entityId = 'BR0001';

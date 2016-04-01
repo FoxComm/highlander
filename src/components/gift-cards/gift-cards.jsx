@@ -28,6 +28,16 @@ const mapDispatchToProps = dispatch => {
   };
 };
 
+const tableColumns = [
+  {field: 'code', text: 'Gift Card Number', model: 'giftcard'},
+  {field: 'originType', text: 'Type', model: 'giftCard'},
+  {field: 'originalBalance', text: 'Original Balance', type: 'currency'},
+  {field: 'currentBalance', text: 'Current Balance', type: 'currency'},
+  {field: 'availableBalance', text: 'Available Balance', type: 'currency'},
+  {field: 'state', text: 'State', type: 'state', model: 'giftCard'},
+  {field: 'createdAt', text: 'Date/Time Issued', type: 'date'}
+];
+
 @connect(mapStateToProps, mapDispatchToProps)
 export default class GiftCards extends React.Component {
   static propTypes = {
@@ -35,16 +45,6 @@ export default class GiftCards extends React.Component {
     actions: PropTypes.objectOf(PropTypes.func).isRequired,
     bulkActions: PropTypes.objectOf(PropTypes.func).isRequired,
   };
-
-  static tableColumns = [
-    {field: 'code', text: 'Gift Card Number', model: 'giftcard'},
-    {field: 'originType', text: 'Type', model: 'giftCard'},
-    {field: 'originalBalance', text: 'Original Balance', type: 'currency'},
-    {field: 'currentBalance', text: 'Current Balance', type: 'currency'},
-    {field: 'availableBalance', text: 'Available Balance', type: 'currency'},
-    {field: 'state', text: 'State', type: 'state', model: 'giftCard'},
-    {field: 'createdAt', text: 'Date/Time Issued', type: 'date'}
-  ];
 
   @autobind
   cancelGiftCards(allChecked, toggledIds) {
@@ -127,7 +127,7 @@ export default class GiftCards extends React.Component {
             emptyMessage="No gift cards found."
             list={list}
             renderRow={this.renderRow}
-            tableColumns={GiftCards.tableColumns}
+            tableColumns={tableColumns}
             searchActions={actions}
             predicate={({code}) => code} />
         </BulkActions>

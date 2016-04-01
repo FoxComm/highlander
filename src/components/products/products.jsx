@@ -31,12 +31,13 @@ type Product = {
   title: string,
 };
 
+const tableColumns: Array<Column> = [
+  { field: 'id', text: 'Product ID', type: null },
+  { field: 'image', text: 'Image', type: 'image' },
+  { field: 'title', text: 'Name', type: null },
+];
+
 export class Products extends Component<void, Props, void> {
-  static tableColumns: Array<Column> = [
-    { field: 'id', text: 'Product ID', type: null },
-    { field: 'image', text: 'Image', type: 'image' },
-    { field: 'title', text: 'Name', type: null },
-  ];
 
   renderRow(row: Product, index: number, columns: Array<Column>, params: Object) {
     const key = `products-${row.id}`;
@@ -52,7 +53,7 @@ export class Products extends Component<void, Props, void> {
           emptyMessage="No products found."
           list={list}
           renderRow={this.renderRow}
-          tableColumns={Products.tableColumns}
+          tableColumns={tableColumns}
           searchActions={actions}
           predicate={({id}) => id} />
       </div>
