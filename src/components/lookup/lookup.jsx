@@ -65,7 +65,7 @@ export default class Lookup extends Component {
     const query = this.getQuery(data, value);
 
     if (query && query !== this.state.query) {
-      this.setQuery(query);
+      this.setQuery(data, query);
     }
 
     if (showMenu != this.state.showMenu) {
@@ -80,8 +80,14 @@ export default class Lookup extends Component {
   }
 
   @autobind
-  setQuery(query) {
-    this.setState({query});
+  setQuery(data, query) {
+    const items = this.filter(data, query);
+    const index = items.indexOf(_.find(items, ({label}) => label === query));
+
+    this.setState({
+      query,
+      activeIndex: index >= 0 ? index : this.state.activeIndex,
+    });
   }
 
   showMenu(show) {
@@ -98,12 +104,9 @@ export default class Lookup extends Component {
     this.props.onToggleMenu(show);
   }
 
-  changeActive(delta) {
-    const {activeIndex} = this.state;
-    const index = activeIndex + delta;
-
+  setActive(index) {
     if (this.indexIsValid(index)) {
-      this.scrollTo(index, delta > 0 ? 'bottom' : 'top');
+      this.scrollTo(index, index - this.state.activeIndex > 0 ? 'bottom' : 'top');
       this.setState({activeIndex: index});
     }
   }
@@ -126,7 +129,10 @@ export default class Lookup extends Component {
 
   @autobind
   select(index) {
-    this.props.onSelect(this.items[index]);
+    if (this.indexIsValid(index)) {
+      this.props.onSelect(this.items[index]);
+      this.showMenu(false);
+    }
   }
 
   @autobind
@@ -151,20 +157,19 @@ export default class Lookup extends Component {
     const {activeIndex, showMenu} = this.state;
     if (showMenu) {
       if (key === 'ArrowUp') {
-        this.changeActive(-1);
+        this.setActive(activeIndex - 1);
       }
       if (key === 'ArrowDown') {
-        this.changeActive(1);
+        this.setActive(activeIndex + 1);
       }
-      if (key === 'Enter' && this.indexIsValid(activeIndex)) {
+      if (key === 'Enter') {
         event.preventDefault();
         this.select(activeIndex);
-        this.showMenu(false);
       }
     } else {
       if (key === 'ArrowDown') {
         this.showMenu(true);
-        this.changeActive(1);
+        this.setActive(activeIndex + 1);
       }
     }
   }
@@ -177,17 +182,17 @@ export default class Lookup extends Component {
     return this.items.length && this.state.query.length >= this.props.minQueryLength;
   }
 
-  get items() {
-    const {query} = this.state;
-    const {data} = this.props;
-
-    if (!query) {
-      return [];
-    }
-
+  filter(data, query) {
     return data.filter(({label}) => {
       return label.toLowerCase().includes(query.toLowerCase());
     });
+  }
+
+  get items() {
+    const {data} = this.props;
+    const {query} = this.state;
+
+    return query ? this.filter(data, query) : [];
   }
 
   get input() {
@@ -199,7 +204,7 @@ export default class Lookup extends Component {
       onBlur: this.onBlur,
       onFocus: this.onFocus,
       onChange: value=> {
-        this.setQuery(value);
+        this.setQuery(props.data, value);
         this.showMenu(true);
       },
       onKeyDown: this.onInputKeyDown,
@@ -221,7 +226,7 @@ export default class Lookup extends Component {
                      items={this.items}
                      activeIndex={activeIndex}
                      onSelect={this.select}
-                     notFound={notFound} />
+                     notFound={notFound}/>
       </div>
     );
   }
