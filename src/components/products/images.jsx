@@ -2,10 +2,6 @@
  * @flow
  */
 
-/**
- * @flow
- */
-
 // libs
 import React, { Component, Element, PropTypes } from 'react';
 import { assoc } from 'sprout-data';
