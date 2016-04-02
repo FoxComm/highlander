@@ -133,7 +133,7 @@ export default class ProductImages extends Component<void, Props, State> {
 
   render(): Element {
     return (
-      <div className="fc-product-details fc-grid">
+      <div className="fc-product-details fc-grid fc-grid-no-gutter">
         <div className="fc-col-md-1-1">
           {this.contentBox}
         </div>

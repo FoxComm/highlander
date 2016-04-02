@@ -92,7 +92,7 @@ export default class ProductForm extends Component<void, Props, State> {
       ['form', 'product', 'attributes'], form,
       ['shadow', 'product', 'attributes'], shadow
     );
-    
+
     this.props.onUpdateProduct(newProduct);
   }
 
@@ -114,7 +114,7 @@ export default class ProductForm extends Component<void, Props, State> {
     const shadowAttributes = this.props.product.shadow.product.attributes;
 
     return (
-      <div className="fc-product-details fc-grid">
+      <div className="fc-product-details fc-grid fc-grid-no-gutter">
         <div className="fc-col-md-3-5">
           <ObjectForm
             canAddProperty={true}

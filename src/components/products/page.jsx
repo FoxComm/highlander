@@ -168,16 +168,20 @@ export class ProductPage extends Component<void, Props, State> {
     return (
       <div>
         <PageTitle title={this.pageTitle}>
-          <PrimaryButton 
-            className="fc-product-details__save-button" 
-            type="submit" 
+          <PrimaryButton
+            className="fc-product-details__save-button"
+            type="submit"
             disabled={isUpdating}
             onClick={this.handleSubmit}>
             Save Draft {wait}
           </PrimaryButton>
         </PageTitle>
         <SubNav productId={this.props.params.productId} product={product} />
-        {children}
+        <div className="fc-grid">
+          <div className="fc-col-md-1-1">
+            {children}
+          </div>
+        </div>
       </div>
     );
   }
