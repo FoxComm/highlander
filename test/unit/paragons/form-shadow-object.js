@@ -73,4 +73,24 @@ describe('paragons.formShadowObject', () => {
       expect(update.shadow.vendor.ref).to.be.equal('vendor');
     });
   });
+
+  describe('illuminateAttributes', () => {
+    let illuminated = null;
+    beforeEach(() => {
+      illuminated = illuminateAttributes(form, shadow);
+    });
+
+    it('should render a string attribute', () => {
+      expect(illuminated.title.label).to.be.equal('title');
+      expect(illuminated.title.type).to.be.equal('string');
+      expect(illuminated.title.value).to.be.equal('Running Shoe');
+    });
+
+    it('should render a price attribute', () => {
+      expect(illuminated.price.label).to.be.equal('price');
+      expect(illuminated.price.type).to.be.equal('price');
+      expect(illuminated.price.value.currency).to.be.equal('USD');
+      expect(illuminated.price.value.value).to.be.equal(12900);
+    });
+  });
 });
