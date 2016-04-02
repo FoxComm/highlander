@@ -47,6 +47,8 @@ import ProductForm from './components/products/product-form';
 import ProductImages from './components/products/images';
 import PromotionsListPage from './components/promotions/list';
 import Promotions from './components/promotions/promotions';
+import Skus from './components/skus/skus';
+import SkusListPage from './components/skus/list-page';
 
 import StyleGuide from './components/style-guide/style-guide';
 import StyleGuideGrid from './components/style-guide/style-guide-grid';
@@ -133,6 +135,11 @@ const routes = (
         <Route name='product-images' title='Product Images' path='images' component={ProductImages} />
         <Route name='product-notes' path='notes' component={Notes} />
         <Route name='product-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
+      </Route>
+    </Route>
+    <Route name='skus-base' path='skus'>
+      <Route name='skus-list-pages' component={SkusListPage}>
+        <IndexRoute name='skus' component={Skus} />
       </Route>
     </Route>
     <Route name='gift-cards-base' path='gift-cards'>

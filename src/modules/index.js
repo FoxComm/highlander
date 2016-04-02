@@ -18,6 +18,7 @@ import siteMenu from './site-menu';
 import inventory from './inventory';
 import expandableTables from './expandable-tables';
 import products from './products';
+import skus from './skus';
 import user from './user';
 import promotions from './promotions';
 
@@ -42,6 +43,7 @@ const rootReducer = combineReducers({
   expandableTables,
   products,
   promotions,
+  skus,
 });
 
 export default rootReducer;

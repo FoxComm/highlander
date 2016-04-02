@@ -92,6 +92,23 @@ const Navigation = props => {
           </NavigationItem>
         </li>
         <li>
+          <NavigationItem to="skus"
+                          icon="icon-barcode"
+                          title="SKUs"
+                          isIndex={true}
+                          isExpandable={true}
+                          routes={props.routes}
+                          collapsed={props.collapsed}
+                          status={getMenuItemState(props, 'skus')}
+                          toggleMenuItem={props.toggleMenuItem}>
+            <IndexLink to="skus" className="fc-navigation-item__sublink">Lists</IndexLink>
+            <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Insights</a>
+            <Link to="orders-activity-trail" className="fc-navigation-item__sublink">
+              Activity Trail
+            </Link>
+          </NavigationItem>
+        </li>
+        <li>
           <NavigationItem to="inventory"
                           icon="icon-inventory"
                           title="Inventory"
