@@ -107,8 +107,8 @@ object ProductManager {
     updatedProduct ← * <~ ObjectUtils.update(product.formId, 
       product.shadowId, payload.form.product.attributes, 
       payload.shadow.product.attributes)
-    updatedSkuData ← * <~ updateSkuData(context, updatedProduct.shadow.id, 
-      payload.form.skus, payload.shadow.skus, updatedProduct.updated)
+    updatedSkuData ← * <~ updateSkuData(context, product.shadowId, 
+      updatedProduct.shadow.id, payload.form.skus, payload.shadow.skus)
     skusChanged ← * <~ anyChanged(updatedSkuData.map(_._4))
     skuData  ← * <~ updatedSkuData.map( t ⇒ (t._1, t._2, t._3))
     commit ← * <~ ObjectUtils.commit(updatedProduct.form, updatedProduct.shadow,
@@ -192,12 +192,6 @@ object ProductManager {
         case None ⇒ DbResultT.pure(sku)
       }
 
-  private def commit(previousCommitId: Int, formId: Int, shadowId: Int)
-    (implicit ec: EC, db: DB): DbResultT[ObjectCommit] = for {
-        newCommit  ← * <~ ObjectCommits.create(ObjectCommit(formId = formId, 
-          shadowId = shadowId, previousId = previousCommitId.some))
-    } yield newCommit
-
   private def validateSkuPayload(skuGroup : Seq[(CreateFullSkuForm, CreateSkuShadow)]) 
   (implicit ec: EC, db: DB) : DbResultT[Unit] =
     ObjectUtils.failIfErrors(skuGroup.flatMap { case (f, s) ⇒ 
@@ -258,19 +252,21 @@ object ProductManager {
     )
   } yield skuData
 
-  private def updateSkuData(context: ObjectContext, productShadowId: Int, 
-    formPayloads: Seq[UpdateFullSkuForm], shadowPayloads: Seq[UpdateFullSkuShadow], productChanged: Boolean)
+  private def updateSkuData(context: ObjectContext, oldProductShadowId: Int, productShadowId: Int, 
+    formPayloads: Seq[UpdateFullSkuForm], shadowPayloads: Seq[UpdateFullSkuShadow])
   (implicit ec: EC, db: DB) : DbResultT[Seq[(Sku, ObjectForm, ObjectShadow, Boolean)]] = for {
 
     skuGroup    ← * <~ groupSkuFormsAndShadows2(formPayloads, shadowPayloads)
     _            ← * <~ validateSkuPayload2(skuGroup) 
     skuData ← * <~ DbResultT.sequence( 
-      skuGroup map { case (f, sh) ⇒  updateSku(context, productShadowId, f, sh, productChanged)}
+      skuGroup map { 
+        case (f, sh) ⇒  updateSku(context, oldProductShadowId, productShadowId, f, sh)
+      }
     )
   } yield skuData
 
-  private def updateSku(context: ObjectContext, productShadowId: Int, 
-    formPayload: UpdateFullSkuForm, shadowPayload: UpdateFullSkuShadow, productChanged: Boolean)
+  private def updateSku(context: ObjectContext, oldProductShadowId: Int, productShadowId: Int, 
+    formPayload: UpdateFullSkuForm, shadowPayload: UpdateFullSkuShadow)
   (implicit ec: EC, db: DB): DbResultT[(Sku, ObjectForm, ObjectShadow, Boolean)] = {
     require(formPayload.code == shadowPayload.code)
     for {
@@ -279,31 +275,11 @@ object ProductManager {
         SkuNotFoundForContext(formPayload.code, context.name)) 
       updatedSku  ← * <~ ObjectUtils.update(
         sku.formId, sku.shadowId, formPayload.attributes, shadowPayload.attributes)
-      _ ← * <~ updateLink(productShadowId, sku.shadowId, updatedSku.shadow.id, 
-        productChanged, updatedSku.updated)
+      _ ← * <~ ObjectUtils.updateLink(oldProductShadowId, productShadowId, sku.shadowId, updatedSku.shadow.id)
       commit ← * <~ ObjectUtils.commit(updatedSku.form, updatedSku.shadow, updatedSku.updated)
       sku  ← * <~ updateSkuHead(sku, updatedSku.shadow, commit)
     } yield (sku, updatedSku.form, updatedSku.shadow, updatedSku.updated)
   }
-
-  private def updateLink(productShadowId: Int, oldSkuShadowId: Int, skuShadowId: Int,
-    productChanged: Boolean, skuChanged: Boolean)
-  (implicit ec: EC, db: DB): DbResultT[Unit] = 
-    //Create a new link a product changes.
-    if(productChanged) 
-      for {
-      _ ← * <~ ObjectLinks.create(ObjectLink(leftId = productShadowId, rightId = skuShadowId)) 
-    } yield Unit 
-    //If the product didn't change but the sku changed, update the link
-    //This is because we never want two skus of the same type pointing to 
-    //the same sku shadow.
-    else if(skuChanged) for {
-      link ← * <~ ObjectLinks.findByLeftRight(productShadowId, oldSkuShadowId).one.mustFindOr(
-        ObjectLinkCannotBeFound(productShadowId, oldSkuShadowId))
-      _ ← * <~ ObjectLinks.update(link, link.copy(leftId = productShadowId, rightId = skuShadowId)) 
-    } yield Unit 
-    //otherwise nothing changed so do nothing.
-  else DbResultT.pure(Unit)
 
   private def groupSkuFormsAndShadows(forms: Seq[CreateFullSkuForm], shadows: Seq[CreateSkuShadow]) = {
     val sortedForms = forms.sortBy(_.code)

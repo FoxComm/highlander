@@ -13,7 +13,9 @@ import utils.aliases._
 import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
+import utils.Slick.implicits._
 import failures.Failure
+import failures.ObjectFailures._
 import cats.data.NonEmptyList
 
 import cats.implicits._
@@ -164,6 +166,36 @@ object ObjectUtils {
       } yield commit.some
     else DbResultT.pure(None)
   }
+
+  def updateLink(oldLeftId: Int, leftId: Int, oldRightId: Int, rightId: Int)
+  (implicit ec: EC, db: DB): DbResultT[Unit] = 
+    //Create a new link a product changes.
+    if(oldLeftId != leftId) 
+      for {
+      _ ← * <~ ObjectLinks.create(ObjectLink(leftId = leftId, rightId = rightId)) 
+    } yield Unit 
+    //If the product didn't change but the sku changed, update the link
+    //This is because we never want two skus of the same type pointing to 
+    //the same sku shadow.
+    else if(oldRightId != rightId) for {
+      link ← * <~ ObjectLinks.findByLeftRight(leftId, oldRightId).one.mustFindOr(
+        ObjectLinkCannotBeFound(leftId, oldRightId))
+      _ ← * <~ ObjectLinks.update(link, link.copy(leftId = leftId, rightId = rightId)) 
+    } yield Unit 
+    //otherwise nothing changed so do nothing.
+  else DbResultT.pure(Unit)
+
+  final case class Child(form: ObjectForm, shadow: ObjectShadow)
+  def getChildren(leftId: Int)
+    (implicit ec: EC, db: DB): DbResultT[Seq[Child]] = for {
+      links   ← * <~ ObjectLinks.filter(_.leftId === leftId).result
+      shadowIds = links.map(_.rightId) 
+      shadows ← * <~ ObjectShadows.filter(_.id.inSet(shadowIds)).result
+      formIds = shadows.map(_.formId) 
+      forms   ← * <~ ObjectForms.filter(_.id.inSet(formIds)).result
+      pairs  ← * <~ forms.sortBy(_.id).zip(shadows.sortBy(_.formId))
+      result ← * <~ pairs.map { case (form, shadow) ⇒ Child(form, shadow)}
+  } yield result
 
   private def updateIfDifferent(oldForm: ObjectForm, oldShadow: ObjectShadow,
     newFormAttributes: JValue, newShadowAttributes: JValue, force: Boolean = false)

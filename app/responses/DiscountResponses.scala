@@ -27,10 +27,12 @@ object DiscountResponses {
 
   object DiscountShadowResponse {
 
-    final case class Root(id: Int, formId: Int, attributes: Json, createdAt: Instant)
+    final case class Root(id: Int, attributes: Json, createdAt: Instant)
 
+    //since shadow is always within some context, we will use the form id  for
+    //id here
     def build(s: ObjectShadow): Root = 
-      Root(id = s.id, formId = s.formId, attributes = s.attributes, 
+      Root(id = s.formId, attributes = s.attributes, 
         createdAt = s.createdAt)
   }
 
@@ -43,10 +45,12 @@ object DiscountResponses {
 
   object IlluminatedDiscountResponse {
 
-    final case class Root(id: Int, context: ObjectContextResponse.Root, attributes: Json)
+    final case class Root(id: Int, context: Option[ObjectContextResponse.Root], attributes: Json)
 
     def build(s: IlluminatedDiscount): Root = 
-      Root(id = s.id, context = ObjectContextResponse.build(s.context), 
-        attributes = s.attributes)
+      Root(id = s.id, context = s.context match { 
+        case Some(context) ⇒ ObjectContextResponse.build(context).some
+        case None ⇒ None
+      }, attributes = s.attributes)
   }
 }
