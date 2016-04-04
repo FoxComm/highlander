@@ -68,7 +68,7 @@ export default class ProductForm extends Component<void, Props, State> {
       ...defaultKeys.seo,
       ..._.flatten(_.valuesIn(omitKeys)),
     ];
-    const shadow = this.props.product.shadow.product.attributes;
+    const shadow = _.get(this.props, 'product.shadow.product.attributes', []);
     return _(shadow).omit(toOmit).keys().value();
   }
 
@@ -110,8 +110,8 @@ export default class ProductForm extends Component<void, Props, State> {
   }
 
   render(): Element {
-    const formAttributes = this.props.product.form.product.attributes;
-    const shadowAttributes = this.props.product.shadow.product.attributes;
+    const formAttributes = _.get(this.props, 'product.form.product.attributes', []);
+    const shadowAttributes = _.get(this.props, 'product.shadow.product.attributes', []);
 
     return (
       <div className="fc-product-details fc-grid fc-grid-no-gutter">
