@@ -1,5 +1,6 @@
 package routes
 
+import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 
@@ -22,6 +23,11 @@ object AuthRoutes {
       (post & path("login") & entity(as[payloads.LoginPayload])) { payload ⇒
         onSuccess(Authenticator.authenticate(payload)) { result ⇒
           result.fold({ f ⇒ complete(renderFailure(f)) }, identity)
+        }
+      } ~
+      (post & path("logout")) {
+        deleteCookie("JWT", path = "/") {
+          redirect(Uri("/"), StatusCodes.Found)
         }
       } ~
       (path("oauth2callback" / "google" / "admin") & get & oauthResponse) {
