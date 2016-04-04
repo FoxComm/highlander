@@ -18,21 +18,36 @@ import failures.ObjectFailures._
 
 object SkuManager {
 
+  def getIlluminatedFullSkuByContextName(code: String, contextName: String)
+    (implicit ec: EC, db: DB): Result[IlluminatedFullSkuResponse.Root] = (for {
+    context ← * <~ ObjectContexts.filterByName(contextName).one.
+      mustFindOr(ObjectContextNotFound(contextName))
+    form    ← * <~ getFormInner(code)
+    shadow  ← * <~ getShadowInner(code, contextName)
+  } yield IlluminatedFullSkuResponse.build(form, shadow, context)).run()
+
   // Detailed info for SKU of each type in given warehouse
   def getForm(code: String)
-    (implicit ec: EC, db: DB): Result[SkuFormResponse.Root] = (for {
-    sku   ← * <~ Skus.filterByCode(code).one.mustFindOr(SkuNotFound(code))
-    form  ← * <~ ObjectForms.mustFindById404(sku.formId)
-  } yield SkuFormResponse.build(sku, form)).run()
+    (implicit ec: EC, db: DB): Result[SkuFormResponse.Root] = getFormInner(code).run()
+
+  def getFormInner(code: String)
+    (implicit ec: EC, db: DB): DbResultT[SkuFormResponse.Root] = for {
+    sku  ← * <~ Skus.filterByCode(code).one.mustFindOr(SkuNotFound(code))
+    form ← * <~ ObjectForms.mustFindById404(sku.formId)
+  } yield SkuFormResponse.build(sku, form)
 
   def getShadow(code: String, contextName: String)
-    (implicit ec: EC, db: DB): Result[SkuShadowResponse.Root] = (for {
+    (implicit ec: EC, db: DB): Result[SkuShadowResponse.Root] =
+    getShadowInner(code, contextName).run()
+
+  def getShadowInner(code: String, contextName: String)
+    (implicit ec: EC, db: DB): DbResultT[SkuShadowResponse.Root] = for {
     context ← * <~ ObjectContexts.filterByName(contextName).one.
       mustFindOr(ObjectContextNotFound(contextName))
     sku     ← * <~ Skus.filterByContextAndCode(context.id, code).one.
       mustFindOr(SkuNotFound(code))
     shadow  ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
-  } yield SkuShadowResponse.build(sku, shadow)).run()
+  } yield SkuShadowResponse.build(sku, shadow)
 
   def getIlluminatedSku(code: String, contextName: String)
     (implicit ec: EC, db: DB): Result[IlluminatedSkuResponse.Root] = (for {

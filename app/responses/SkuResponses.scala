@@ -56,4 +56,17 @@ object SkuResponses {
     def buildLite(s: IlluminatedSku): Root = 
       Root(code = s.code, attributes = s.attributes, context = None)
   }
+
+  object IlluminatedFullSkuResponse {
+
+    final case class Root(code: String, context: ObjectContextResponse.Root,
+      form: SkuFormResponse.Root, shadow: SkuShadowResponse.Root)
+
+    def build(form: SkuFormResponse.Root, shadow: SkuShadowResponse.Root,
+      context: ObjectContext): Root =
+      Root(
+        code = shadow.code,
+        form = form, shadow = shadow,
+        context = ObjectContextResponse.build(context))
+  }
 }
