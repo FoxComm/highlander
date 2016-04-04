@@ -42,9 +42,10 @@ import InventoryItemDetails from './components/inventory/item-details';
 import InventoryItemTransactions from './components/inventory/item-transactions';
 import ProductsListPage from './components/products/list-page';
 import Products from './components/products/products';
-import ProductDetails from './components/products/details';
-import NewProduct from './components/products/new-product';
 import Promotions from './components/promotions/promotions';
+import ProductPage from './components/products/page';
+import ProductForm from './components/products/product-form';
+import ProductImages from './components/products/images';
 
 import StyleGuide from './components/style-guide/style-guide';
 import StyleGuideGrid from './components/style-guide/style-guide-grid';
@@ -125,8 +126,12 @@ const routes = (
       <Route name='products-list-pages' component={ProductsListPage}>
         <IndexRoute name='products' component={Products} />
       </Route>
-      <Route name='new-product' path='new' component={NewProduct} />
-      <Route name='product-details' path=':productId' component={ProductDetails} />
+      <Route name='product' path=':productId' component={ProductPage}>
+        <IndexRoute name='product-details' component={ProductForm} />
+        <Route name='product-images' title='Product Images' path='images' component={ProductImages} />
+        <Route name='product-notes' path='notes' component={Notes} />
+        <Route name='product-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
+      </Route>
     </Route>
     <Route name='gift-cards-base' path='gift-cards'>
       <Route name='gift-cards-list-page' component={GiftCardsListPage}>
@@ -144,12 +149,18 @@ const routes = (
     <Route name='inventory-base' path='inventory'>
       <Route name='inventory-list-page' component={InventoryListPage}>
         <IndexRoute name='inventory' component={InventoryList}/>
-        <Route name='inventory-activity-trail' path='activity-trail' dimension="inventory" component={ActivityTrailPage}/>
+        <Route name='inventory-activity-trail'
+               path='activity-trail'
+               dimension="inventory"
+               component={ActivityTrailPage}/>
       </Route>
       <Route name='inventory-item-base' path=':code' component={InventoryItem}>
         <Route name='inventory-item-details-base' component={InventoryItemDetailsBase}>
           <IndexRoute name='inventory-item-details' component={InventoryItemDetails} />
-          <Route title='Transactions' name='inventory-item-transactions' path='transactions' component={InventoryItemTransactions} />
+          <Route title='Transactions'
+                 name='inventory-item-transactions'
+                 path='transactions'
+                 component={InventoryItemTransactions} />
         </Route>
         <Route name='inventory-item-activity-trail' path='activity-trail' component={ActivityTrailPage} />
         <Route name='inventory-item-notes' path='notes' component={Notes} />

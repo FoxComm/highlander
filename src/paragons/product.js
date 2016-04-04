@@ -1,5 +1,4 @@
 /**
- *
  * @flow
  */
 
@@ -97,7 +96,7 @@ export function getAttribute(formAttrs: Attributes, shadowAttrs: ShadowAttribute
   return res;
 }
 
-function getAttributes(formAttrs: Attributes, shadowAttrs: ShadowAttributes): IlluminatedAttributes {
+export function getAttributes(formAttrs: Attributes, shadowAttrs: ShadowAttributes): IlluminatedAttributes {
   const illuminated: IlluminatedAttributes = _.reduce(shadowAttrs, (res, shadow, label) => {
     const attribute = formAttrs[shadow.ref];
 
@@ -197,8 +196,8 @@ export function addEmptySku(product: FullProduct): FullProduct {
     createdAt: null,
   };
 
-  const variantKey = _.get('shadow.product.attributes.variants.ref');
-  const skusKey = _.get('shadow.product.attributes.skus.ref');
+  const variantKey = _.get(product, 'shadow.product.attributes.variants.ref');
+  const skusKey = _.get(product, 'shadow.product.attributes.skus.ref');
 
   return assoc(product,
     ['form', 'product', 'attributes', variantKey], pseudoRandomCode,
@@ -270,7 +269,12 @@ export function configureProduct(product: FullProduct): FullProduct {
   };
 
   const newProduct: FullProduct = _.reduce(defaultAttrs, (res, val, key) => {
-    return addProductAttribute(res, key, val);
+    const formAttribute = _.get(res, ['form', 'product', 'attributes', key]);
+    if (formAttribute) {
+      return res;
+    }
+
+    return setProductAttribute(res, key, val, '');
   }, product);
 
   const newProdWithSku: FullProduct = _.reduce(defaultSkuAttrs, (res, val, key) => {
@@ -297,9 +301,9 @@ export function addProductAttribute(product: FullProduct,
   );
 }
 
-
 export function setProductAttribute(product: FullProduct,
                                     label: string,
+                                    type: string,
                                     value: any): FullProduct {
 
   if (label == 'skus') {
@@ -309,12 +313,12 @@ export function setProductAttribute(product: FullProduct,
   const shadowPath = ['shadow', 'product', 'attributes', label];
 
   const shadow = _.get(product, shadowPath);
+
   if (!shadow) {
-    throw new Error(`Attribute=${label} for product id=${product.id} not found.`);
+    return addProductAttribute(product, label, type);
   }
 
   const path = ['form', 'product', 'attributes', shadow.ref];
-
 
   switch (shadow.type) {
     case 'price':
