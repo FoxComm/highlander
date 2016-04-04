@@ -45,14 +45,15 @@ import Products from './components/products/products';
 import ProductPage from './components/products/page';
 import ProductForm from './components/products/product-form';
 import ProductImages from './components/products/images';
-import PromotionsListPage from './components/promotions/list';
-import Promotions from './components/promotions/promotions';
-import NewPromotion from './components/promotions/new';
 import Skus from './components/skus/skus';
 import SkusListPage from './components/skus/list-page';
 import SkuPage from './components/skus/page';
 import SkuDetails from './components/skus/details';
 import SkuImages from './components/skus/images';
+import PromotionsListPage from './components/promotions/list';
+import Promotions from './components/promotions/promotions';
+import PromotionPage from './components/promotions/page';
+import PromotionForm from './components/promotions/form';
 
 import StyleGuide from './components/style-guide/style-guide';
 import StyleGuideGrid from './components/style-guide/style-guide-grid';
@@ -189,7 +190,11 @@ const routes = (
       <Route name='promotions-list-page' component={PromotionsListPage} >
         <IndexRoute name='promotions' component={Promotions} />
       </Route>
-      <Route name='promotions-new' path='new' component={NewPromotion}/>
+      <Route name='promotion' path=':promotionId' component={PromotionPage}>
+        <IndexRoute name='promotion-details' component={PromotionForm} />
+        <Route name='promotion-notes' path='notes' component={Notes} />
+        <Route name='promotion-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
+      </Route>
     </Route>
     <Route name='style-guide' path='style-guide' component={StyleGuide}>
       <IndexRoute name='style-guide-grid' component={StyleGuideGrid} />
