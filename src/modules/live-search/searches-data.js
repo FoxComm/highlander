@@ -51,7 +51,10 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
     return post(addPaginationParams(esUrl, searchState), processQuery(jsonQuery, { searchState, getState }));
   }
 
-  const fetch = makeFetchAction(fetcher, actions, state => getSelectedSearch(state).results);
+  /** Suppress searchSuccess/searchFailure action if performed search not active(e.g., another search selected) */
+  const skipProcessingFetch = (getState, [idx = null]) => _.get(getState(), [...ns, 'fetchingSearchIdx'], null) !== idx;
+
+  const fetch = makeFetchAction(fetcher, actions, state => getSelectedSearch(state).results, skipProcessingFetch);
 
   // for overriding updateStateAndFetch in pagination actions
   const updateStateAndFetch = (newState, ...args) => {

@@ -24,7 +24,15 @@ const INITIAL_STATE = {
   size: DEFAULT_PAGE_SIZE
 };
 
-export function makeFetchAction(fetcher, actions, findSearchState) {
+/**
+ * @param {Function} fetcher Data fetch function
+ * @param {Object} actions Actions exposed on different search states
+ * @param {Function} findSearchState Function to find current search for process fetching
+ * @param {Function} skipProcessing Function indicating that dispatching subsequent fetch state actions should be suppressed
+ *
+ * @returns {function(): function()} Async action creator
+ */
+export function makeFetchAction(fetcher, actions, findSearchState, skipProcessing = () => false) {
   let fetchPromise;
 
   return (...args) => (dispatch, getState) => {
@@ -33,16 +41,26 @@ export function makeFetchAction(fetcher, actions, findSearchState) {
     if (!searchState.isFetching) {
       dispatch(actions.searchStart(...args));
 
-      fetchPromise = fetcher.apply({searchState, getState, dispatch}, args)
+      fetchPromise = fetcher.apply({ searchState, getState, dispatch }, args)
         .then(
           result => {
+            if (skipProcessing(getState, args)) {
+              return;
+            }
+
             if (_.isEmpty(result.error)) {
               return dispatch(actions.searchSuccess(result, ...args));
             } else {
               return dispatch(actions.searchFailure(result, ...args));
             }
           },
-          err => dispatch(actions.searchFailure(err))
+          err => {
+            if (skipProcessing(getState, args)) {
+              return;
+            }
+
+            dispatch(actions.searchFailure(err));
+          }
         );
     }
 
@@ -75,7 +93,7 @@ function makePagination(namespace, fetcher = null, findSearchInState = null, ini
   const resetSearch = _createAction('RESET_SEARCH');
   const updateItems = _createAction('UPDATE_ITEMS');
 
-  const fetch = makeFetchAction(fetcher, {searchStart, searchSuccess, searchFailure}, findSearchInState);
+  const fetch = makeFetchAction(fetcher, { searchStart, searchSuccess, searchFailure }, findSearchInState);
 
   const updateStateAndFetch = (newState, ...args) => {
     return dispatch => {

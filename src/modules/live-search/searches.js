@@ -139,6 +139,7 @@ export default function makeSearches(namespace, fetchActions, searchTerms, scope
 
   const initialState = _setSearchTerms({
     updateNum: 0,
+    fetchingSearchIdx: null,
     isSavingSearch: false,
     fetchingSearches: false,
     selectedSearch: 0,
@@ -156,6 +157,8 @@ export default function makeSearches(namespace, fetchActions, searchTerms, scope
 
   const searchesReducer = createReducer({
     [fetchActions.searchStart]: (state, [idx]) => _fetchSearchStart(state, idx),
+    [fetchActions.searchSuccess]: state => _fetchSearchEnd(state),
+    [fetchActions.searchFailure]: state => _fetchSearchEnd(state),
     [saveSearchStart]: (state) => _saveSearchStart(state),
     [saveSearchSuccess]: (state, payload) => _saveSearchSuccess(state, payload),
     [saveSearchFailure]: (state, err) => _saveSearchFailure(state, err),
@@ -198,7 +201,7 @@ export default function makeSearches(namespace, fetchActions, searchTerms, scope
   };
 }
 
-function _fetchSearchStart(state) {
+function _fetchSearchStart(state, idx) {
   /** reset isFetching for all searches on new search start */
   const mappedSearches = state.savedSearches.map((search, index) => {
     /** don't touch search if it's a selected search or its results are not initializes yet */
@@ -209,7 +212,14 @@ function _fetchSearchStart(state) {
     return assoc(search, ['results', 'isFetching'], false);
   });
 
-  return assoc(state, 'savedSearches', mappedSearches);
+  return assoc(state,
+    'fetchingSearchIdx', idx,
+    'savedSearches', mappedSearches
+  );
+}
+
+function _fetchSearchEnd(state) {
+  return assoc(state, 'fetchingSearchIdx', null);
 }
 
 function _setSearchTerms(state, searchTerms) {
