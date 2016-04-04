@@ -58,12 +58,7 @@ function renderFormField(label: string, input: Element): Element {
 }
 
 export default class ObjectForm extends Component<void, Props, State> {
-  state: State;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = { isAddingProperty: false };
-  }
+  state: State = { isAddingProperty: false };
 
   get addCustomProperty(): ?Element {
     if (this.props.canAddProperty) {

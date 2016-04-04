@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import nock from 'nock';
 
-const { setAttribute, illuminateAttributes } = importSource('paragons/form-shadow-object.js');
+const { setAttribute, illuminateAttributes } = requireSource('paragons/form-shadow-object.js');
 
 describe('paragons.formShadowObject', () => {
   const form = {
