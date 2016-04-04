@@ -9,7 +9,7 @@ create table skus(
     created_at timestamp without time zone default (now() at time zone 'utc')
 );
 
-create index skus_codex on skus (code);
+create index skus_codex on skus (lower(code));
 create index skus_context_idx on skus (context_id);
 
 create function create_order_line_item_skus_mapping() returns trigger as $$
