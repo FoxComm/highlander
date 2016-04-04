@@ -4,7 +4,7 @@ import ConditionOr from './query';
 import Field from './query';
 
 
-export default {
+export {
   Query,
   ConditionAnd,
   ConditionOr,
