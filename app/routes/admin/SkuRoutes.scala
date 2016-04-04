@@ -25,6 +25,15 @@ object SkuRoutes {
       activityContext(admin) { implicit ac ⇒
 
         pathPrefix("skus") {
+          pathPrefix("full") {
+            pathPrefix(Segment / Segment) { (context, code) ⇒
+              (get & pathEnd) {
+                goodOrFailures {
+                  SkuManager.getIlluminatedFullSkuByContextName(code, context)
+                }
+              }
+            }
+          } ~
           pathPrefix("forms" / Segment) { code ⇒
             (get & pathEnd) {
               goodOrFailures {
