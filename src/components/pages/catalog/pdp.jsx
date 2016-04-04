@@ -4,7 +4,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import type { HTMLElement } from 'types';
+import { browserHistory } from 'react-router';
 
 import styles from './pdp.css';
 
@@ -19,6 +19,7 @@ import * as actions from 'modules/product-details';
 import { fetch as fetchProducts } from 'modules/products';
 import { addLineItem, toggleCart } from 'modules/cart';
 
+import type { HTMLElement } from 'types';
 import type { ProductResponse } from 'modules/product-details';
 
 type Params = {
@@ -29,6 +30,7 @@ type Props = {
   fetch: (id: number) => any;
   params: Params;
   product: ProductResponse|null;
+  auth: any;
   addLineItem: Function;
   toggleCart: Function;
   resetProduct: Function;
@@ -49,6 +51,7 @@ const getState = state => {
 
   return {
     product,
+    auth: state.auth,
     notFound: !product && _.get(state.asyncActions, ['pdp', 'failed'], false),
     isLoading: _.get(state.asyncActions, ['pdp', 'inProgress'], true),
     isCartLoading: _.get(state.asyncActions, ['cartChange', 'inProgress'], false),
@@ -99,12 +102,17 @@ class Pdp extends Component {
 
   @autobind
   addToCart(): void {
-    const quantity = this.state.quantity;
-    const skuId = this.firstSqu;
-    this.props.addLineItem(skuId, quantity).then(() => {
-      this.props.toggleCart();
-      this.setState({quantity: 1});
-    });
+    const user = _.get(this.props, ['auth', 'user'], null);
+    if (!_.isEmpty(user)) {
+      const quantity = this.state.quantity;
+      const skuId = this.firstSqu;
+      this.props.addLineItem(skuId, quantity).then(() => {
+        this.props.toggleCart();
+        this.setState({quantity: 1});
+      });
+    } else {
+      browserHistory.push('/login');
+    }
   }
 
   get pathToNext(): string {
