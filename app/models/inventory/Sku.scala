@@ -57,9 +57,9 @@ object Skus extends TableQueryWithId[Sku, Skus](
   def filterByContext(contextId: Int): QuerySeq = 
     filter(_.contextId === contextId)
   def filterByContextAndCode(contextId: Int, code: String): QuerySeq = 
-    filter(_.contextId === contextId).filter(_.code === code)
+    filter(_.contextId === contextId).filter(_.code.toLowerCase === code.toLowerCase)
   def filterByCode(code: String): QuerySeq = 
-    filter(_.code === code)
+    filter(_.code.toLowerCase === code.toLowerCase)
   def findOneByCode(code: String): DBIO[Option[Sku]] = 
-    filter(_.code === code).one
+    filter(_.code.toLowerCase === code.toLowerCase).one
 }

@@ -284,8 +284,7 @@ object ProductManager {
   (implicit ec: EC, db: DB): DbResultT[(Sku, ObjectForm, ObjectShadow, Boolean)] = {
     require(formPayload.code == shadowPayload.code)
     for {
-      sku   ← * <~ Skus.filter(_.contextId === context.id).
-      filter(_.code === formPayload.code).one.mustFindOr(
+      sku   ← * <~ Skus.filterByContextAndCode(context.id, formPayload.code).one.mustFindOr(
         SkuNotFoundForContext(formPayload.code, context.name)) 
       updatedFormShadow  ← * <~ updateObjectFormAndShadow(
         sku.formId, sku.shadowId, formPayload.attributes, shadowPayload.attributes)
