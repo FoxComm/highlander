@@ -49,6 +49,9 @@ import PromotionsListPage from './components/promotions/list';
 import Promotions from './components/promotions/promotions';
 import Skus from './components/skus/skus';
 import SkusListPage from './components/skus/list-page';
+import SkuPage from './components/skus/page';
+import SkuDetails from './components/skus/details';
+import SkuImages from './components/skus/images';
 
 import StyleGuide from './components/style-guide/style-guide';
 import StyleGuideGrid from './components/style-guide/style-guide-grid';
@@ -132,14 +135,20 @@ const routes = (
       <Route name='new-product' path='new' component={ProductForm} />
       <Route name='product' path=':productId' component={ProductPage}>
         <IndexRoute name='product-details' component={ProductForm} />
-        <Route name='product-images' title='Product Images' path='images' component={ProductImages} />
-        <Route name='product-notes' path='notes' component={Notes} />
-        <Route name='product-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
+        <Route name='product-images' title='Images' path='images' component={ProductImages} />
+        <Route name='product-notes' title='Notes' path='notes' component={Notes} />
+        <Route name='product-activity-trail' title='Activity Trail' path='activity-trail' component={ActivityTrailPage}/>
       </Route>
     </Route>
-    <Route name='skus-base' path='skus'>
+    <Route name='skus-base' title='SKUs' path='skus'>
       <Route name='skus-list-pages' component={SkusListPage}>
         <IndexRoute name='skus' component={Skus} />
+      </Route>
+      <Route name='sku' path=':skuCode' component={SkuPage}>
+        <IndexRoute name='sku-details' component={SkuDetails} />
+        <Route name='sku-images' path='images' title='Images' component={SkuImages} />
+        <Route name='sku-notes' path='notes' title='Notes' component={Notes} />
+        <Route name='sku-activity-trail' path='activity-trail' title='Activity Trail' component={ActivityTrailPage} />
       </Route>
     </Route>
     <Route name='gift-cards-base' path='gift-cards'>
