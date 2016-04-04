@@ -64,7 +64,7 @@ object DiscountManager {
     ins     ← * <~ ObjectUtils.insert(form, shadow)
     discount ← * <~ Discounts.create(Discount(contextId = context.id, 
       formId = ins.form.id, shadowId = ins.shadow.id, commitId = ins.commit.id))
-  } yield CreateInternalResult(discount, ins.commit, form, shadow)
+  } yield CreateInternalResult(discount, ins.commit, ins.form, ins.shadow)
 
 
   def update(discountId: Int, payload: UpdateDiscount, contextName: String)

@@ -20,13 +20,16 @@ object Promotion {
  * ObjectLinks are used to connect a promotion to several discounts.
  */
 final case class Promotion(id: Int = 0, contextId: Int, shadowId: Int, formId: Int, 
-  commitId: Int, updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now)
+  commitId: Int, requireCoupon: Boolean = false, updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[Promotion]
   with Validation[Promotion]
 
 class Promotions(tag: Tag) extends ObjectHeads[Promotion](tag, "promotions") {
 
-  def * = (id, contextId, shadowId, formId, commitId, updatedAt, createdAt) <> ((Promotion.apply _).tupled, Promotion.unapply)
+
+  def requireCoupon = column[Boolean]("require_coupon")
+
+  def * = (id, contextId, shadowId, formId, commitId, requireCoupon, updatedAt, createdAt) <> ((Promotion.apply _).tupled, Promotion.unapply)
 
 }
 

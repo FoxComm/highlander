@@ -80,7 +80,8 @@ class Service(
         logRequestResult("admin-inventory-routes")(routes.admin.InventoryRoutes.routes) ~
         logRequestResult("admin-product-routes")(routes.admin.ProductRoutes.routes) ~
         logRequestResult("admin-sku-routes")(routes.admin.SkuRoutes.routes) ~
-        logRequestResult("admin-discount-routes")(routes.admin.DiscountRoutes.routes)
+        logRequestResult("admin-discount-routes")(routes.admin.DiscountRoutes.routes) ~
+        logRequestResult("admin-promotion-routes")(routes.admin.PromotionRoutes.routes)
       }
     }
   }

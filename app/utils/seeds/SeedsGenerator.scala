@@ -107,7 +107,7 @@ object RankingSeedsGenerator {
 
 object SeedsGenerator extends CustomerGenerator with AddressGenerator
   with CreditCardGenerator with OrderGenerator with InventoryGenerator with InventorySummaryGenerator
-  with GiftCardGenerator with ProductGenerator with DiscountGenerator {
+  with GiftCardGenerator with ProductGenerator with PromotionGenerator {
 
   def generateAddresses(customers: Seq[Customer]): Seq[Address] = {
     customers.flatMap { c ⇒
@@ -119,7 +119,7 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
   }
 
   def makeProducts(productCount: Int) = (1 to productCount).par.map { i ⇒  generateProduct }.toList
-  def makeDiscounts(discountCount: Int) = (1 to discountCount).par.map { i ⇒  generateDiscount }.toList
+  def makePromotions(promotionCount: Int) = (1 to promotionCount).par.map { i ⇒  generatePromotion }.toList
 
   def pickOne[T](vals: Seq[T]) : T = vals(Random.nextInt(vals.length))
 
@@ -142,8 +142,8 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
       appeasementCount = Math.max(productCount / 8, Random.nextInt(productCount))
       appeasements  ← * <~ DbResultT.sequence((1 to appeasementCount).map { i ⇒ generateGiftCardAppeasement})
       giftCards  ← * <~  orderedGcs ++ appeasements
-      unsavedDiscounts = makeDiscounts(5)
-      discounts ← * <~ generateDiscounts(unsavedDiscounts)
+      unsavedPromotions = makePromotions(5)
+      promotions ← * <~ generatePromotions(unsavedPromotions)
       _ ← * <~ DbResultT.sequence(
         randomSubset(customerIds, customerIds.length).map{
           id ⇒ generateOrders(id, context, products, pickOne(giftCards))

@@ -66,8 +66,8 @@ object PromotionManager {
     ins     ← * <~ ObjectUtils.insert(form, shadow)
     promotion ← * <~ Promotions.create(Promotion(contextId = context.id, 
       formId = ins.form.id, shadowId = ins.shadow.id, commitId = ins.commit.id))
-    discount ← * <~ createDiscounts(context, payload, shadow)
-  } yield PromotionResponse.build(form, shadow, discount.forms, discount.shadows)).run()
+    discount ← * <~ createDiscounts(context, payload, ins.shadow)
+  } yield PromotionResponse.build(form, shadow, discount.forms, discount.shadows)).runTxn()
 
   private final case class DiscountsCreateResult(forms: Seq[ObjectForm], shadows: Seq[ObjectShadow])
   private def createDiscounts(context: ObjectContext, payload: CreatePromotion, promotionShadow: ObjectShadow)
