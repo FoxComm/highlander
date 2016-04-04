@@ -41,6 +41,13 @@ type State = {
   images: Array<?String>,
 };
 
+function setImages(props: Props): State {
+  const attributes = getProductAttributes(props.product);
+  const imageValue = _.get(attributes, 'images.value');
+  const value = imageValue || [ null ];
+  return { images: value };
+}
+
 export default class ProductImages extends Component<void, Props, State> {
   static propTypes = {
     product: PropTypes.object.isRequired,
@@ -49,20 +56,13 @@ export default class ProductImages extends Component<void, Props, State> {
 
   state: State;
 
-  constructor(props: Props) {
-    super(props);
-
-    const attributes = getProductAttributes(this.props.product);
-    const imageValue = _.get(attributes, 'images.value');
-    const value = imageValue || [ null ];
-    this.state = { images: value };
+  constructor(props: Props, ...args: any) {
+    super(props, ...args);
+    this.state = setImages(this.props);
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const attributes = getProductAttributes(nextProps.product);
-    const imageValue = _.get(attributes, 'images.value');
-    const value = imageValue || [ null ];
-    this.state = { images: value };
+    this.state = setImages(nextProps);
   }
 
 
