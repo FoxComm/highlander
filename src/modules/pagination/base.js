@@ -37,9 +37,9 @@ export function makeFetchAction(fetcher, actions, findSearchState) {
         .then(
           result => {
             if (_.isEmpty(result.error)) {
-              return dispatch(actions.searchSuccess(result));
+              return dispatch(actions.searchSuccess(result, ...args));
             } else {
-              return dispatch(actions.searchFailure(result));
+              return dispatch(actions.searchFailure(result, ...args));
             }
           },
           err => dispatch(actions.searchFailure(err))
@@ -65,9 +65,9 @@ function makePagination(namespace, fetcher = null, findSearchInState = null, ini
     return createNsAction(namespace, ...args);
   };
 
-  const searchStart = _createAction('SEARCH_START', (...args) => [args]);
-  const searchSuccess = _createAction('SEARCH_SUCCESS');
-  const searchFailure = _createAction('SEARCH_FAILURE');
+  const searchStart = _createAction('SEARCH_START', (...args) => args);
+  const searchSuccess = _createAction('SEARCH_SUCCESS', (...args) => args);
+  const searchFailure = _createAction('SEARCH_FAILURE', (...args) => args);
   const updateState = _createAction('UPDATE_STATE');
   const addEntity = _createAction('ADD_ENTITY');
   const addEntities = _createAction('ADD_ENTITIES');
@@ -92,7 +92,7 @@ function makePagination(namespace, fetcher = null, findSearchInState = null, ini
         isFetching: true
       };
     },
-    [searchSuccess]: (state, response) => {
+    [searchSuccess]: (state, [response]) => {
       return {
         ...state,
         failed: false,
@@ -101,7 +101,7 @@ function makePagination(namespace, fetcher = null, findSearchInState = null, ini
         total: _.get(response, ['pagination', 'total'], response.length)
       };
     },
-    [searchFailure]: (state, err) => {
+    [searchFailure]: (state, [err]) => {
       console.error(err);
 
       return {
