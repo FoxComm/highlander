@@ -19,6 +19,7 @@ import inventory from './inventory';
 import expandableTables from './expandable-tables';
 import products from './products';
 import user from './user';
+import promotions from './promotions';
 
 const rootReducer = combineReducers({
   router: routerStateReducer,
@@ -40,6 +41,7 @@ const rootReducer = combineReducers({
   inventory,
   expandableTables,
   products,
+  promotions,
 });
 
 export default rootReducer;
