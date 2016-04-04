@@ -19,6 +19,7 @@ import org.json4s.JsonAST.{JValue, JString, JObject, JField, JNothing}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.io.Source
 import slick.driver.PostgresDriver.api._
+import java.time.Instant
 
 object SimplePromotion {
   type Percent = Int
@@ -36,6 +37,8 @@ final case class SimplePromotionForm(percentOff: Percent, totalAmount: Int) {
       "storefrontName" : "${percentOff}% over $totalAmount items",
       "description" : "${percentOff}% full order over $totalAmount items",
       "details" : "This offer applies only when you have a total amount over $totalAmount items",
+      "activeFrom" : "${Instant.now}",
+      "activeTo" : null,
       "tags" : []
       }
     }"""))
@@ -50,6 +53,8 @@ final case class SimplePromotionShadow(f: SimplePromotionForm) {
           "storefrontName" : {"type": "richText", "ref": "storefrontName"},
           "description" : {"type": "richText", "ref": "description"},
           "details" : {"type": "richText", "ref": "details"},
+          "activeFrom" : {"type": "date", "ref": "activeFrom"},
+          "activeTo" : {"type": "date", "ref": "activeTo"},
           "tags" : {"type": "tags", "ref": "tags"}
         }"""), 
       f.keyMap)
