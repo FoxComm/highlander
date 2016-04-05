@@ -25,10 +25,21 @@ import utils.aliases._
 object StoreCreditService {
   type QuerySeq = StoreCredits.QuerySeq
 
-  def getOriginTypes(implicit ec: EC, db: DB): Result[Seq[StoreCreditSubTypesResponse.Root]] =
+  def getOriginTypes(implicit ec: EC, db: DB): Result[Seq[StoreCreditSubTypesResponse.Root]] = {
+    val types = StoreCredit.OriginType.types.--(Seq(StoreCredit.Loyalty, StoreCredit.Custom))
     Result.fromFuture(StoreCreditSubtypes.result.map { subTypes ⇒
-      StoreCreditSubTypesResponse.build(StoreCredit.OriginType.types.toSeq, subTypes)
+      StoreCreditSubTypesResponse.build(types.toSeq, subTypes)
     }.run())
+  }
+
+  private def checkSubTypeExists(subTypeId: Option[Int],
+    originType: StoreCredit.OriginType)(implicit ec: EC): DbResult[Unit] = {
+    subTypeId.fold(DbResult.unit) { subtypeId ⇒
+      StoreCreditSubtypes.byOriginType(originType).filter(_.id === subtypeId).one.flatMap(_.fold {
+        DbResult.failure[Unit](NotFoundFailure400(StoreCreditSubtype, subtypeId))
+      } { _ ⇒ DbResult.unit })
+    }
+  }
 
   def findAllByCustomer(customerId: Int)(implicit ec: EC, db: DB, sp: SortAndPage): Result[TheResponse[WithTotals]] = (for {
 
@@ -61,15 +72,21 @@ object StoreCreditService {
     customer ← * <~ Customers.mustFindById404(customerId)
     _ ← * <~ Reasons.findById(payload.reasonId).extract.one.mustFindOr(NotFoundFailure400(Reason, payload.reasonId))
     // Check subtype only if id is present in payload; discard actual model
-    _ ← * <~ payload.subTypeId.fold(DbResult.unit) { subtypeId ⇒
-      StoreCreditSubtypes.csrAppeasements.filter(_.id === subtypeId).one.flatMap(_.fold {
-        DbResult.failure[Unit](NotFoundFailure400(StoreCreditSubtype, subtypeId))
-      } { _ ⇒ DbResult.unit })
-    }
+    _ ← * <~ checkSubTypeExists(payload.subTypeId, StoreCredit.CsrAppeasement)
     manual = StoreCreditManual(adminId = admin.id, reasonId = payload.reasonId, subReasonId = payload.subReasonId)
     origin ← * <~ StoreCreditManuals.create(manual)
     appeasement = StoreCredit.buildAppeasement(customerId = customer.id, originId = origin.id, payload = payload)
     storeCredit ← * <~ StoreCredits.create(appeasement)
+    _ ← * <~ LogActivity.scCreated(admin, customer, storeCredit)
+  } yield build(storeCredit)).runTxn
+
+  def createFromExtension(admin: StoreAdmin, customerId: Int, payload: payloads.CreateExtensionStoreCredit)
+    (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
+    customer ← * <~ Customers.mustFindById404(customerId)
+    // Check subtype only if id is present in payload; discard actual model
+    _ ← * <~ checkSubTypeExists(payload.subTypeId, StoreCredit.Custom)
+    customStoreCredit = StoreCredit.buildFromExtension(customerId = customer.id, payload = payload)
+    storeCredit ← * <~ StoreCredits.create(customStoreCredit)
     _ ← * <~ LogActivity.scCreated(admin, customer, storeCredit)
   } yield build(storeCredit)).runTxn
 

@@ -61,3 +61,6 @@ final case class CreditCardPayment(creditCardId: Int)
 
 final case class CreateManualStoreCredit(amount: Int, currency: Currency = Currency.USD,
   reasonId: Int, subReasonId: Option[Int] = None, subTypeId: Option[Int] = None)
+
+final case class CreateExtensionStoreCredit(amount: Int, currency: Currency = Currency.USD,
+  originId: Int, subTypeId: Option[Int] = None)

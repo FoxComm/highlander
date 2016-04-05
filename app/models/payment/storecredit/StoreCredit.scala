@@ -71,6 +71,8 @@ object StoreCredit {
   case object CsrAppeasement extends OriginType
   case object GiftCardTransfer extends OriginType
   case object RmaProcess extends OriginType
+  case object Loyalty extends OriginType
+  case object Custom extends OriginType
 
   object State extends ADT[State] {
     def types = sealerate.values[State]
@@ -96,6 +98,23 @@ object StoreCredit {
   def buildAppeasement(customerId: Int, originId: Int, payload: payloads.CreateManualStoreCredit): StoreCredit = {
     StoreCredit(customerId = customerId, originId = originId, originType = StoreCredit.CsrAppeasement,
       subTypeId = payload.subTypeId, currency = payload.currency, originalBalance = payload.amount)
+  }
+
+  def buildFromExtension(customerId: Int,
+    payload: payloads.CreateExtensionStoreCredit,
+    originType: StoreCredit.OriginType = StoreCredit.Custom): StoreCredit = {
+    StoreCredit(customerId = customerId,
+      originId = payload.originId,
+      originType = originType,
+      currency = payload.currency,
+      subTypeId = payload.subTypeId,
+      originalBalance = payload.amount)
+  }
+
+  def buildFromLoyalty(customerId: Int, payload: payloads.CreateExtensionStoreCredit): StoreCredit = {
+    buildFromExtension(customerId = customerId,
+      originType = StoreCredit.Loyalty,
+      payload = payload)
   }
 
   def buildRmaProcess(customerId: Int, originId: Int, currency: Currency): StoreCredit = {
