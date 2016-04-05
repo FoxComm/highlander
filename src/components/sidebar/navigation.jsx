@@ -137,6 +137,7 @@ const Navigation = props => {
                           status={getMenuItemState(props, 'orders')}
                           toggleMenuItem={props.toggleMenuItem} >
             <IndexLink to="promotions" className="fc-navigation-item__sublink">Lists</IndexLink>
+            <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Activity Trail</a>
             <a href="" className="fc-navigation-item__sublink" onClick={goNowhere}>Insights</a>
           </NavigationItem>
         </li>
