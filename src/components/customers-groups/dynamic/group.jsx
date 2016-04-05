@@ -8,7 +8,9 @@ import moment from 'moment';
 import classNames from 'classnames';
 
 //data
+import criterions from '../../../paragons/customer-groups/criterions';
 import operators from '../../../paragons/customer-groups/operators';
+import queryAdapter from '../../../modules/customer-groups/query-adapter';
 import { actions as groupActions } from '../../../modules/customer-groups/dynamic/group';
 import { actions as listActions } from '../../../modules/customer-groups/dynamic/list';
 
@@ -17,14 +19,13 @@ import { transitionTo } from '../../../route-helpers';
 import { prefix } from '../../../lib/text-utils';
 
 //components
+import { PrimaryButton } from '../../common/buttons';
 import ContentBox from '../../content-box/content-box';
 import { PanelList, PanelListItem } from '../../panel/panel-list';
 import Currency from '../../common/currency';
-import Form from '../../forms/form';
-import { PrimaryButton } from '../../common/buttons';
 import Criterion from './criterion-view';
 import PrependIconInput from '../../icon-input/prepend-icon-input';
-import MultiSelectTable from '../../table/multi-select-table';
+import { SelectableSearchList, makeTotalCounter } from '../../list-page';
 import MultiSelectRow from '../../table/multi-select-row';
 
 
@@ -41,6 +42,8 @@ const tableColumns = [
   {field: 'email', text: 'Email'},
   {field: 'joinedAt', text: 'Date/Time Joined', type: 'datetime'}
 ];
+
+const TotalCounter = makeTotalCounter(state => state.customerGroups.dynamic.list, listActions);
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class DynamicGroup extends Component {
@@ -74,7 +77,25 @@ export default class DynamicGroup extends Component {
   };
 
   componentDidMount() {
-    this.props.listActions.fetch();
+    this.setGroupQuery(this.props.group);
+  }
+
+  componentWillReceiveProps({group}) {
+    if (group !== this.props.group) {
+      this.setGroupQuery(group);
+    }
+  }
+
+  setGroupQuery({mainCondition, conditions}) {
+    const {listActions} = this.props;
+
+    listActions.resetSearch();
+
+    listActions.setExtraFilters([
+      queryAdapter(criterions, mainCondition, conditions).toRequest().filter,
+    ]);
+
+    listActions.fetch();
   }
 
   @autobind
@@ -83,24 +104,26 @@ export default class DynamicGroup extends Component {
   }
 
   get header() {
-    const {list, group} = this.props;
+    const {group} = this.props;
 
     return (
       <header className={prefixed('header')}>
         <div className={prefixed('title')}>
           <h1 className="fc-title">
-            {group.name}
-            <span className={prefixed('count')}>{list.total}</span>
+            {group.name}&nbsp;
+            <span className={prefixed('count')}>
+              <TotalCounter />
+            </span>
           </h1>
           <PrimaryButton onClick={this.goToEdit}>Edit Group</PrimaryButton>
         </div>
         <div className={prefixed('about')}>
           <div>
-            <span className={prefixed('about__key')}>Type: </span>
+            <span className={prefixed('about__key')}>Type:&nbsp;</span>
             <span className={prefixed('about__value')}>{_.capitalize(group.type)}</span>
           </div>
           <div>
-            <span className={prefixed('about__key')}>Created: </span>
+            <span className={prefixed('about__key')}>Created:&nbsp;</span>
             <span className={prefixed('about__value')}>{moment(group.createdAt).format('DD/MM/YYYY HH:mm')}</span>
           </div>
         </div>
@@ -128,7 +151,9 @@ export default class DynamicGroup extends Component {
                   bodyClassName={classNames({'_open': this.state.criteriaOpen})}
                   actionBlock={this.criteriaToggle}>
         <span className={prefixed('main')}>
-          Customers match <span className={prefixed('inline-label')}>{main}</span> of the following criteria:
+          Customers match
+          &nbsp;<span className={prefixed('inline-label')}>{main}</span>&nbsp;
+          of the following criteria:
         </span>
         {conditions.map(this.renderCriterion)}
       </ContentBox>
@@ -210,30 +235,27 @@ export default class DynamicGroup extends Component {
     const {list, listActions} = this.props;
 
     return (
-      <MultiSelectTable
-        columns={tableColumns}
-        data={list}
+      <SelectableSearchList
+        emptyMessage="No customer groups found."
+        list={list}
         renderRow={this.renderRow}
-        setState={listActions.updateStateAndFetch}
-        isLoading={list.isFetching}
-        failed={list.failed}
-        emptyMessage=""
-        errorMessage="" />
+        tableColumns={tableColumns}
+        searchActions={listActions}
+        searchOptions={{singleSearch: true}} />
     );
   }
 
   render() {
     return (
-      <div className={prefixed()}>
-        <div className="fc-grid">
+      <div className={classNames(prefixed(), 'fc-list-page')}>
+        <div className={classNames(prefixed('details'), 'fc-grid')}>
           <article className="fc-col-md-1-1">
             {this.header}
             {this.criteria}
             {this.stats}
-            {this.filter}
-            {this.table}
           </article>
         </div>
+        {this.table}
       </div>
     );
   }
