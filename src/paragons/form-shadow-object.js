@@ -5,8 +5,8 @@ import _ from 'lodash';
 import { assoc } from 'sprout-data';
 
 export type FormShadowObject = {
-  form: FormAttributes,
-  shadow: ShadowAttributes,
+  form: FormAttributes;
+  shadow: ShadowAttributes;
 };
 
 export function addAttribute(label: string,

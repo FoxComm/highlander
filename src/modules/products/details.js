@@ -39,13 +39,13 @@ export type ProductForm = {
 
 export type Attribute = {
   type: string,
-  [key:string]: any,
+  [key:string]: any;
 };
 
 export type Attributes = { [key:string]: any };
 
-export type ShadowAttributes = { 
-  [key:string]: { type: string, ref: string},
+export type ShadowAttributes = {
+  [key:string]: { type: string, ref: string};
 };
 
 export type SkuForm = {
@@ -115,7 +115,7 @@ export function fetchProduct(id: string, context: string = defaultContext): Acti
             dispatch(setError(err));
           }
         );
-    };
+    }
   };
 }
 

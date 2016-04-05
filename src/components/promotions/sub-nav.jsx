@@ -16,9 +16,9 @@ const SubNav = props => {
 
   return (
     <LocalNav>
-      <IndexLink to="promotions-details" params={params}>Details</IndexLink>
-      <Link to="promotions-notes" params={params}>Notes</Link>
-      <Link to="promotions-activity-trail" params={params}>Activity Trail</Link>
+      <IndexLink to="promotion-details" params={params}>Details</IndexLink>
+      <Link to="promotion-notes" params={params}>Notes</Link>
+      <Link to="promotion-activity-trail" params={params}>Activity Trail</Link>
     </LocalNav>
   );
 };
