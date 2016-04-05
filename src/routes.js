@@ -42,8 +42,6 @@ import InventoryItemDetails from './components/inventory/item-details';
 import InventoryItemTransactions from './components/inventory/item-transactions';
 import ProductsListPage from './components/products/list-page';
 import Products from './components/products/products';
-import ProductDetails from './components/products/details';
-import NewProduct from './components/products/new-product';
 import ProductPage from './components/products/page';
 import ProductForm from './components/products/product-form';
 import ProductImages from './components/products/images';
