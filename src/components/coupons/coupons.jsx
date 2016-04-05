@@ -11,16 +11,13 @@ import BulkMessages from '../bulk-actions/bulk-messages';
 import { SelectableSearchList } from '../list-page';
 
 // redux
-import { actions } from '../../modules/promotions/list';
-import { actions as bulkActions } from '../../modules/promotions/bulk';
-
-// styles
-import styles from './promotions.css';
+import { actions } from '../../modules/coupons/list';
+import { actions as bulkActions } from '../../modules/coupons/bulk';
 
 
 const mapStateToProps = (state) => {
   return {
-    list: state.promotions.list,
+    list: state.coupons.list,
   };
 };
 
@@ -32,10 +29,9 @@ const mapDispatchToProps = dispatch => {
 };
 
 const tableColumns = [
-  {field: 'id', text: 'Promotion ID'},
   {field: 'name', text: 'Name'},
   {field: 'storefrontName', text: 'Storefront Name'},
-  {field: 'applyType', text: 'Apply Type'},
+  {field: 'code', text: 'Code'},
   {field: 'totalSales', text: 'Total Uses'},
   {field: 'inCarts', text: 'Current Carts'},
   {field: 'createdAt', text: 'Date/Time Created', type: 'datetime'},
@@ -60,11 +56,11 @@ export default class Promotions extends Component {
   render() {
     const {list, actions} = this.props;
 
-    const entity = 'promotion';
+    const entity = 'coupon';
     const module = `${entity}s`;
 
     return (
-      <div styleName="promotions">
+      <div className="coupons">
         <BulkMessages
           storePath={`${module}.bulk`}
           module={module}
@@ -75,7 +71,7 @@ export default class Promotions extends Component {
           entity={entity}
           actions={this.bulkActions()}>
           <SelectableSearchList
-            emptyMessage="No promotions found."
+            emptyMessage="No coupons found."
             list={list}
             renderRow={this.renderRow}
             tableColumns={tableColumns}

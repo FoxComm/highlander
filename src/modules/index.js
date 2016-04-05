@@ -1,6 +1,7 @@
 import { routerStateReducer } from 'redux-router';
 import { combineReducers } from 'redux';
 
+import { reducer as asyncReducer } from './async-utils';
 import giftCards from './gift-cards';
 import customers from './customers';
 import customerGroups from './customer-groups';
@@ -21,7 +22,7 @@ import products from './products';
 import skus from './skus';
 import user from './user';
 import promotions from './promotions';
-import { reducer as asyncReducer } from './async-utils';
+import coupons from './coupons';
 
 const rootReducer = combineReducers({
   router: routerStateReducer,
@@ -44,8 +45,9 @@ const rootReducer = combineReducers({
   inventory,
   expandableTables,
   products,
-  promotions,
   skus,
+  promotions,
+  coupons,
 });
 
 export default rootReducer;

@@ -54,6 +54,8 @@ import PromotionsListPage from './components/promotions/list';
 import Promotions from './components/promotions/promotions';
 import PromotionPage from './components/promotions/page';
 import PromotionForm from './components/promotions/promotion-form';
+import CouponsListPage from './components/coupons/list';
+import Coupons from './components/coupons/coupons';
 
 import StyleGuide from './components/style-guide/style-guide';
 import StyleGuideGrid from './components/style-guide/style-guide-grid';
@@ -194,6 +196,11 @@ const routes = (
         <IndexRoute name='promotion-details' component={PromotionForm} />
         <Route name='promotion-notes' path='notes' component={Notes} />
         <Route name='promotion-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
+      </Route>
+    </Route>
+    <Route name='coupons-base' path='coupons'>
+      <Route name='coupons-list-page' component={CouponsListPage} >
+        <IndexRoute name='coupons' component={Coupons} />
       </Route>
     </Route>
     <Route name='style-guide' path='style-guide' component={StyleGuide}>
