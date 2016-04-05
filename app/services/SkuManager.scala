@@ -7,12 +7,16 @@ import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
-import payloads.{CreateSkuForm, CreateSkuShadow, UpdateSkuForm, UpdateSkuShadow}
+import payloads.{CreateFullSku, UpdateFullSku}
 import utils.aliases._
 import cats.data.NonEmptyList
 import failures.NotFoundFailure404
 import failures.ProductFailures._
 import failures.ObjectFailures._
+
+import cats.implicits._
+import org.json4s.JsonAST.JValue
+import java.time.Instant
 
 object SkuManager {
 
@@ -65,4 +69,79 @@ object SkuManager {
       case head ::tail ⇒ DbResultT.leftLift(NonEmptyList(head, tail))
     }
 
+  def createFullSku(payload: CreateFullSku, contextName: String)
+    (implicit ec: EC, db: DB): Result[IlluminatedFullSkuResponse.Root] = (for {
+    context   ← * <~ ObjectContexts.filterByName(contextName).one.
+      mustFindOr(ObjectContextNotFound(contextName))
+    skuForm   ← * <~ ObjectForms.create(ObjectForm(kind = Sku.kind, attributes = payload.form.attributes))
+    skuShadow ← * <~ ObjectShadows.create(ObjectShadow(formId = skuForm.id, attributes = payload.shadow.attributes))
+    skuCommit ← * <~ ObjectCommits.create(ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
+    _         ← * <~ validateShadow(form = skuForm, shadow = skuShadow)
+    sku       ← * <~ Skus.create(Sku(code = payload.form.code, contextId = context.id, formId = skuForm.id,
+      shadowId = skuShadow.id, commitId = skuCommit.id))
+    skuFormResponse   = SkuFormResponse.build(sku, skuForm)
+    skuShadowResponse = SkuShadowResponse.build(sku, skuShadow)
+  } yield IlluminatedFullSkuResponse.build(
+    form = skuFormResponse,
+    shadow = skuShadowResponse,
+    context = context)).runTxn()
+
+  def updateFullSku(code: String, payload: UpdateFullSku, contextName: String)
+    (implicit ec: EC, db: DB): Result[IlluminatedFullSkuResponse.Root] = (for {
+    context           ← * <~ ObjectContexts.filterByName(contextName).one.
+      mustFindOr(ObjectContextNotFound(contextName))
+    sku               ← * <~ Skus.filterByContextAndCode(context.id, code).one
+      .mustFindOr(SkuNotFoundForContext(code, contextName))
+    updatedFormShadow ← * <~ updateObjectFormAndShadow(sku.formId, sku.shadowId, payload.form.attributes, payload
+      .shadow.attributes)
+    (skuForm, skuShadow, skuChanged) = updatedFormShadow
+    sku               ← * <~ commitSku(sku, skuForm, skuShadow, skuChanged)
+    skuFormResponse   = SkuFormResponse.build(sku, skuForm)
+    skuShadowResponse = SkuShadowResponse.build(sku, skuShadow)
+  } yield IlluminatedFullSkuResponse.build(
+    form = skuFormResponse,
+    shadow = skuShadowResponse,
+    context = context)).runTxn()
+
+  private def updateObjectFormAndShadow(formId: Int, shadowId: Int,
+    updatedForm: JValue, updatedShadow: JValue)
+    (implicit ec: EC, db: DB): DbResultT[(ObjectForm, ObjectShadow, Boolean)] = for {
+
+    oldForm     ← * <~ ObjectForms.mustFindById404(formId)
+    oldShadow   ← * <~ ObjectShadows.mustFindById404(shadowId)
+    newFormPair ← * <~ ObjectUtils.updateForm(oldForm.attributes, updatedForm)
+    (keyMap, newFormAttributes) = newFormPair
+    newShadowAttributes ← * <~ ObjectUtils.newShadow(updatedShadow, keyMap)
+    result ← * <~ createIfDifferent(oldForm, oldShadow, newFormAttributes, newShadowAttributes)
+  } yield result
+
+  private def createIfDifferent(oldForm: ObjectForm, oldShadow: ObjectShadow,
+    newFormAttributes: JValue, newShadowAttributes: JValue)
+    (implicit ec: EC, db: DB): DbResultT[(ObjectForm, ObjectShadow, Boolean)] = {
+    if(oldShadow.attributes != newShadowAttributes)
+      for {
+        form   ← * <~ ObjectForms.update(oldForm, oldForm.copy(attributes =
+          newFormAttributes, updatedAt = Instant.now))
+        shadow ← * <~ ObjectShadows.create(ObjectShadow(formId = form.id,
+          attributes = newShadowAttributes))
+        _    ← * <~ validateShadow(form, shadow)
+      } yield (form, shadow, true)
+    else DbResultT.pure((oldForm, oldShadow, false))
+  }
+
+  private def commit(previousCommitId: Int, formId: Int, shadowId: Int)
+    (implicit ec: EC, db: DB): DbResultT[ObjectCommit] = for {
+    newCommit  ← * <~ ObjectCommits.create(ObjectCommit(formId = formId,
+      shadowId = shadowId, previousId = previousCommitId.some))
+  } yield newCommit
+
+  private def commitSku(sku: Sku, skuForm: ObjectForm,
+    skuShadow: ObjectShadow, shouldCommit: Boolean)
+    (implicit ec: EC, db: DB): DbResultT[Sku] =
+    if(shouldCommit) for {
+      newCommit  ← * <~ commit(sku.commitId, skuForm.id, skuShadow.id)
+      product     ← * <~ Skus.update(sku, sku.copy(
+        shadowId = skuShadow.id, commitId = newCommit.id))
+    } yield product
+    else DbResultT.pure(sku)
 }
