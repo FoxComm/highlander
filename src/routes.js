@@ -42,10 +42,11 @@ import InventoryItemDetails from './components/inventory/item-details';
 import InventoryItemTransactions from './components/inventory/item-transactions';
 import ProductsListPage from './components/products/list-page';
 import Products from './components/products/products';
-import Promotions from './components/promotions/promotions';
 import ProductPage from './components/products/page';
 import ProductForm from './components/products/product-form';
 import ProductImages from './components/products/images';
+import PromotionsListPage from './components/promotions/list';
+import Promotions from './components/promotions/promotions';
 
 import StyleGuide from './components/style-guide/style-guide';
 import StyleGuideGrid from './components/style-guide/style-guide-grid';
@@ -167,7 +168,9 @@ const routes = (
       </Route>
     </Route>
     <Route name='promotions-base' path='promotions'>
-      <IndexRoute name='promotions' component={Promotions} />
+      <Route name='promotions-list-page' component={PromotionsListPage} >
+        <IndexRoute name='promotions' component={Promotions} />
+      </Route>
     </Route>
     <Route name='style-guide' path='style-guide' component={StyleGuide}>
       <IndexRoute name='style-guide-grid' component={StyleGuideGrid} />
