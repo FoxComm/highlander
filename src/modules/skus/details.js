@@ -16,6 +16,9 @@ const requiredFields = {
   sku: 'string',
   upc: 'string',
   description: 'richText',
+  retailPrice: 'price',
+  salePrice: 'price',
+  unitCost: 'price',
 };
 
 const skuRequestStart = createAction('SKU_REQUEST_START');

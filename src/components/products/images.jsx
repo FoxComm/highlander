@@ -9,20 +9,8 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
 // components
-import { PageTitle } from '../section-title';
-import { PrimaryButton } from '../common/buttons';
-import { Form, FormField } from '../forms';
-import { SliderCheckbox } from '../checkbox/checkbox';
+import { FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
-import CurrencyInput from '../forms/currency-input';
-import CustomProperty from './custom-property';
-import DatePicker from '../datepicker/datepicker';
-import ProductState from './product-state';
-import RichTextEditor from '../rich-text-editor/rich-text-editor';
-import SkuList from './sku-list';
-import SubNav from './sub-nav';
-import VariantList from './variant-list';
-import WaitAnimation from '../common/wait-animation';
 
 // helpers
 import { getProductAttributes } from '../../paragons/product';
@@ -98,11 +86,6 @@ export default class ProductImages extends Component<void, Props, State> {
         </div>
       </ContentBox>
     );
-  }
-
-  @autobind
-  handleBlur() {
-    this.props.onSetProperty('images', 'images', this.state.images);
   }
 
   @autobind
