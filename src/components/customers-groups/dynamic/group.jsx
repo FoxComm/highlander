@@ -240,7 +240,8 @@ export default class DynamicGroup extends Component {
         list={list}
         renderRow={this.renderRow}
         tableColumns={tableColumns}
-        searchActions={listActions} />
+        searchActions={listActions}
+        searchOptions={{singleSearch: true}} />
     );
   }
 
