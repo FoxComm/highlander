@@ -203,6 +203,11 @@ const routes = (
         <IndexRoute name='coupons' component={Coupons} />
       </Route>
     </Route>
+    <Route name='coupons-base' path='coupons'>
+      <Route name='coupons-list-page' component={CouponsListPage} >
+        <IndexRoute name='coupons' component={Coupons} />
+      </Route>
+    </Route>
     <Route name='style-guide' path='style-guide' component={StyleGuide}>
       <IndexRoute name='style-guide-grid' component={StyleGuideGrid} />
       <Route name='style-guide-buttons' path='buttons' component={StyleGuideButtons} />
