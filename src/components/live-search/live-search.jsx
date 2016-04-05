@@ -176,7 +176,7 @@ export default class LiveSearch extends React.Component {
 
       return (
         <EditableTabView
-          key={`saved-search-${search.title}`}
+          key={`saved-search-${search.id}-${search.title}`}
           defaultValue={search.title}
           draggable={isEditable}
           isDirty={isDirty}

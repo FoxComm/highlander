@@ -24,6 +24,13 @@ const INITIAL_STATE = {
   size: DEFAULT_PAGE_SIZE
 };
 
+/**
+ * @param {Function} fetcher Data fetch function
+ * @param {Object} actions Actions exposed on different search states
+ * @param {Function} findSearchState Function to find current search for process fetching
+ *
+ * @returns {function(): function()} Async action creator
+ */
 export function makeFetchAction(fetcher, actions, findSearchState) {
   let fetchPromise;
 
@@ -33,7 +40,7 @@ export function makeFetchAction(fetcher, actions, findSearchState) {
     if (!searchState.isFetching) {
       dispatch(actions.searchStart(...args));
 
-      fetchPromise = fetcher.apply({searchState, getState, dispatch}, args)
+      fetchPromise = fetcher.apply({ searchState, getState, dispatch }, args)
         .then(
           result => {
             if (_.isEmpty(result.error)) {
@@ -65,7 +72,7 @@ function makePagination(namespace, fetcher = null, findSearchInState = null, ini
     return createNsAction(namespace, ...args);
   };
 
-  const searchStart = _createAction('SEARCH_START', (...args) => [args]);
+  const searchStart = _createAction('SEARCH_START', (...args) => args);
   const searchSuccess = _createAction('SEARCH_SUCCESS');
   const searchFailure = _createAction('SEARCH_FAILURE');
   const updateState = _createAction('UPDATE_STATE');
@@ -75,7 +82,7 @@ function makePagination(namespace, fetcher = null, findSearchInState = null, ini
   const resetSearch = _createAction('RESET_SEARCH');
   const updateItems = _createAction('UPDATE_ITEMS');
 
-  const fetch = makeFetchAction(fetcher, {searchStart, searchSuccess, searchFailure}, findSearchInState);
+  const fetch = makeFetchAction(fetcher, { searchStart, searchSuccess, searchFailure }, findSearchInState);
 
   const updateStateAndFetch = (newState, ...args) => {
     return dispatch => {

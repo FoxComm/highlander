@@ -17,13 +17,12 @@ const emptyState = {
   results: void 0,
   query: [],
   searchValue: '',
-  selectedIndex: -1,
   associations: []
 };
 
 // module is responsible for search tabs
 
-export default function makeSearches(namespace, fetch, searchTerms, scope, options = {}) {
+export default function makeSearches(namespace, fetchActions, searchTerms, scope, options = {}) {
   const { skipInitialFetch = false } = options;
 
   // Methods internal to the live search module
@@ -50,7 +49,7 @@ export default function makeSearches(namespace, fetch, searchTerms, scope, optio
     return dispatch => {
       dispatch(submitFilters(filters, initial));
       if (!initial || !skipInitialFetch) {
-        dispatch(fetch());
+        dispatch(fetchActions.fetch());
       }
     };
   };
@@ -58,7 +57,7 @@ export default function makeSearches(namespace, fetch, searchTerms, scope, optio
   const addSearchPhrase = phrase => {
     return dispatch => {
       dispatch(submitPhrase(phrase));
-      dispatch(fetch());
+      dispatch(fetchActions.fetch());
     };
   };
 
@@ -86,7 +85,7 @@ export default function makeSearches(namespace, fetch, searchTerms, scope, optio
         .then(
           search => {
             dispatch(saveSearchSuccess(search));
-            dispatch(fetch());
+            dispatch(fetchActions.fetch());
           },
           err => dispatch(saveSearchFailure(err))
         );
@@ -96,7 +95,7 @@ export default function makeSearches(namespace, fetch, searchTerms, scope, optio
   const selectSearch = idx => {
     return dispatch => {
       dispatch(selectSavedSearch(idx));
-      dispatch(fetch());
+      dispatch(fetchActions.fetch());
     };
   };
 
@@ -113,7 +112,7 @@ export default function makeSearches(namespace, fetch, searchTerms, scope, optio
         .then(
           search => {
             dispatch(updateSearchSuccess(idx, search));
-            dispatch(fetch());
+            dispatch(fetchActions.fetch());
           },
           err => dispatch(updateSearchFailure(idx, err))
         );
@@ -149,6 +148,7 @@ export default function makeSearches(namespace, fetch, searchTerms, scope, optio
   }, searchTerms);
 
   const searchesReducer = createReducer({
+    [fetchActions.searchStart]: (state) => _fetchSearchStart(state),
     [saveSearchStart]: (state) => _saveSearchStart(state),
     [saveSearchSuccess]: (state, payload) => _saveSearchSuccess(state, payload),
     [saveSearchFailure]: (state, err) => _saveSearchFailure(state, err),
@@ -177,7 +177,7 @@ export default function makeSearches(namespace, fetch, searchTerms, scope, optio
     actions: {
       addSearchFilters,
       addSearchPhrase,
-      fetch,
+      fetch: fetchActions.fetch,
       fetchSearches,
       saveSearch,
       selectSearch,
@@ -189,6 +189,20 @@ export default function makeSearches(namespace, fetch, searchTerms, scope, optio
       ...associations.actions
     }
   };
+}
+
+function _fetchSearchStart(state) {
+  /** reset isFetching for all searches on new search start */
+  const mappedSearches = state.savedSearches.map((search, index) => {
+    /** don't touch search if it's a selected search or its results are not initializes yet */
+    if (state.selectedSearch === index || !search.results) {
+      return search;
+    }
+
+    return assoc(search, ['results', 'isFetching'], false);
+  });
+
+  return assoc(state, 'savedSearches', mappedSearches);
 }
 
 function _setSearchTerms(state, searchTerms) {
