@@ -31,7 +31,16 @@ const mapDispatchToProps = dispatch => {
   };
 };
 
-const tableColumns = [];
+const tableColumns = [
+  {field: 'id', text: 'Promotion ID'},
+  {field: 'name', text: 'Name'},
+  {field: 'storefrontName', text: 'Storefront Name'},
+  {field: 'applyType', text: 'Apply Type'},
+  {field: 'totalSales', text: 'Total Sales'},
+  {field: 'inCarts', text: 'Current Carts'},
+  {field: 'createdAt', text: 'Date/Time Created', type: 'datetime'},
+  {field: 'state', text: 'State', type: 'state'},
+];
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class Promotions extends Component {
