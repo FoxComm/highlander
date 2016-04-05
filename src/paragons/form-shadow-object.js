@@ -9,30 +9,15 @@ export type FormShadowObject = {
   shadow: ShadowAttributes,
 };
 
-export type FormAttributes = { [key:string]: FormAttribute };
-export type FormAttribute = {
-  type: string,
-  [key:string]: any,
-};
+export function addAttribute(label: string,
+                             type: string,
+                             value: any,
+                             form: FormAttributes,
+                             shadow: ShadowAttributes): FormShadowObject {
+  if (shadow[label]) {
+    return { form, shadow };
+  }
 
-export type ShadowAttributes = { [key:string]: ShadowAttribute };
-export type ShadowAttribute = {
-  type: string,
-  ref: string,
-};
-
-export type IlluminatedAttributes = { [key:string]: IlluminatedAttribute };
-export type IlluminatedAttribute = {
-  label: string,
-  type: string,
-  value: string,
-};
-
-function addAttribute(label: string,
-                      type: string,
-                      value: any,
-                      form: FormAttributes,
-                      shadow: ShadowAttributes): FormShadowObject {
   const formValue = type == 'price' ? { currency: 'USD', value: value } : value;
   const newFormAttr = { [label]: formValue };
   const newShadowAttr = { [label]: { type: type, ref: label } };

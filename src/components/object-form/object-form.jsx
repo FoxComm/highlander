@@ -16,16 +16,9 @@ import CustomProperty from '../products/custom-property';
 import DatePicker from '../datepicker/datepicker';
 import RichTextEditor from '../rich-text-editor/rich-text-editor';
 
-import type { 
-  FormAttributes,
-  ShadowAttributes,
-  IlluminatedAttribute, 
-  IlluminatedAttributes 
-} from '../../paragons/form-shadow-object';
-
 type Props = {
   canAddProperty?: boolean,
-  fieldsToRender: ?Array<string>,
+  fieldsToRender?: Array<string>,
   form: FormAttributes,
   shadow: ShadowAttributes,
   onChange: (form: FormAttributes, shadow: ShadowAttributes) => void,

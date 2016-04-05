@@ -25,6 +25,7 @@ export default class SkuPage extends Component<void, Props, void> {
     const title = params.skuCode.toUpperCase();
     const children = React.cloneElement(this.props.children, {
       ...this.props.children.props,
+      code: params.skuCode,
       entity: { entityId: params.skuCode, entityType: 'sku' },
     });
 
