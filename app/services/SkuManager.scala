@@ -21,12 +21,12 @@ import java.time.Instant
 object SkuManager {
 
   def getIlluminatedFullSkuByContextName(code: String, contextName: String)
-    (implicit ec: EC, db: DB): Result[IlluminatedFullSkuResponse.Root] = (for {
+    (implicit ec: EC, db: DB): Result[FullSkuResponse.Root] = (for {
     context ← * <~ ObjectContexts.filterByName(contextName).one.
       mustFindOr(ObjectContextNotFound(contextName))
     form    ← * <~ getFormInner(code)
     shadow  ← * <~ getShadowInner(code, contextName)
-  } yield IlluminatedFullSkuResponse.build(form, shadow, context)).run()
+  } yield FullSkuResponse.build(form, shadow, context)).run()
 
   // Detailed info for SKU of each type in given warehouse
   def getForm(code: String)
@@ -70,7 +70,7 @@ object SkuManager {
     }
 
   def createFullSku(payload: CreateFullSku, contextName: String)
-    (implicit ec: EC, db: DB): Result[IlluminatedFullSkuResponse.Root] = (for {
+    (implicit ec: EC, db: DB): Result[FullSkuResponse.Root] = (for {
     context   ← * <~ ObjectContexts.filterByName(contextName).one.
       mustFindOr(ObjectContextNotFound(contextName))
     skuForm   ← * <~ ObjectForms.create(ObjectForm(kind = Sku.kind, attributes = payload.form.attributes))
@@ -81,13 +81,13 @@ object SkuManager {
       shadowId = skuShadow.id, commitId = skuCommit.id))
     skuFormResponse   = SkuFormResponse.build(sku, skuForm)
     skuShadowResponse = SkuShadowResponse.build(sku, skuShadow)
-  } yield IlluminatedFullSkuResponse.build(
+  } yield FullSkuResponse.build(
     form = skuFormResponse,
     shadow = skuShadowResponse,
     context = context)).runTxn()
 
   def updateFullSku(code: String, payload: UpdateFullSku, contextName: String)
-    (implicit ec: EC, db: DB): Result[IlluminatedFullSkuResponse.Root] = (for {
+    (implicit ec: EC, db: DB): Result[FullSkuResponse.Root] = (for {
     context           ← * <~ ObjectContexts.filterByName(contextName).one.
       mustFindOr(ObjectContextNotFound(contextName))
     sku               ← * <~ Skus.filterByContextAndCode(context.id, code).one
@@ -98,7 +98,7 @@ object SkuManager {
     sku               ← * <~ commitSku(sku, skuForm, skuShadow, skuChanged)
     skuFormResponse   = SkuFormResponse.build(sku, skuForm)
     skuShadowResponse = SkuShadowResponse.build(sku, skuShadow)
-  } yield IlluminatedFullSkuResponse.build(
+  } yield FullSkuResponse.build(
     form = skuFormResponse,
     shadow = skuShadowResponse,
     context = context)).runTxn()
