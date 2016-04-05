@@ -24,6 +24,9 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
     },
   });
 
+  /** Suppress searchSuccess/searchFailure action if performed search not active(e.g., another search selected) */
+  const skipProcessingFetch = (getState, idx) => _.get(getState(), [...ns, 'fetchingSearchIdx'], null) != idx;
+
   const getSelectedSearch = state => {
     const selectedSearch = _.get(state, [...ns, 'selectedSearch']);
     const resultPath = [...ns, 'savedSearches', selectedSearch];
@@ -35,6 +38,7 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
   function fetcher() {
     const { searchState, getState } = this;
 
+    const fetchingSearchIdx = _.get(getState(), [...ns, 'fetchingSearchIdx']);
     const selectedSearchState = getSelectedSearch(getState());
     const searchTerms = _.get(selectedSearchState, 'query', []);
     const phrase = _.get(selectedSearchState, 'phrase');
@@ -48,11 +52,17 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
       addNativeFilters(jsonQuery, extraFilters);
     }
 
-    return post(addPaginationParams(esUrl, searchState), processQuery(jsonQuery, { searchState, getState }));
-  }
+    const promise = post(addPaginationParams(esUrl, searchState), processQuery(jsonQuery, { searchState, getState }))
+      .then(response => {
+        if (skipProcessingFetch(getState, fetchingSearchIdx)) {
+          promise.cancel();
+        }
 
-  /** Suppress searchSuccess/searchFailure action if performed search not active(e.g., another search selected) */
-  const skipProcessingFetch = (getState, [idx = null]) => _.get(getState(), [...ns, 'fetchingSearchIdx'], null) !== idx;
+        return response;
+      });
+
+    return promise;
+  }
 
   const fetch = makeFetchAction(fetcher, actions, state => getSelectedSearch(state).results, skipProcessingFetch);
 

@@ -17,7 +17,6 @@ const emptyState = {
   results: void 0,
   query: [],
   searchValue: '',
-  selectedIndex: -1,
   associations: []
 };
 
