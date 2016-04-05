@@ -1,6 +1,6 @@
 /* @flow weak */
 
-import { each } from 'lodash';
+import { each, get } from 'lodash';
 import React, { Component } from 'react';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
@@ -69,7 +69,7 @@ export default class Auth extends Component {
     this.props.signUp(paylaod).then(() => {
       browserHistory.push('/login');
     }).catch(err => {
-      const errors = err.responseJson.errors;
+      const errors = get(err, ['responseJson', 'errors'], []);
       let emailError = false;
       let usernameError = false;
       each(errors, error => {
