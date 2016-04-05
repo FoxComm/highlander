@@ -148,7 +148,7 @@ export default function makeSearches(namespace, fetchActions, searchTerms, scope
   }, searchTerms);
 
   const searchesReducer = createReducer({
-    [fetchActions.searchStart]: (state, [idx]) => _fetchSearchStart(state, idx),
+    [fetchActions.searchStart]: (state) => _fetchSearchStart(state),
     [saveSearchStart]: (state) => _saveSearchStart(state),
     [saveSearchSuccess]: (state, payload) => _saveSearchSuccess(state, payload),
     [saveSearchFailure]: (state, err) => _saveSearchFailure(state, err),
@@ -203,10 +203,6 @@ function _fetchSearchStart(state) {
   });
 
   return assoc(state, 'savedSearches', mappedSearches);
-}
-
-function _fetchSearchEnd(state) {
-  return assoc(state, 'fetchingSearchIdx', null);
 }
 
 function _setSearchTerms(state, searchTerms) {
