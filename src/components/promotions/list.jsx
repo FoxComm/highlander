@@ -34,7 +34,7 @@ const PromotionsList = (props: PromotionsListProps, context: PromotionsListHisto
     <ListPageContainer
       title="Promotions"
       subtitle={<TotalCounter/>}
-      addTitle="New Promotion"
+      addTitle="Promotion"
       handleAddAction={addAction}
       navLinks={navLinks}>
       {props.children}
