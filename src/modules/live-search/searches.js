@@ -46,22 +46,18 @@ export default function makeSearches(namespace, fetchActions, searchTerms, scope
   const setSearchTerms = createNsAction(namespace, 'SET_SEARCH_TERMS');
 
   const addSearchFilters = (filters, initial = false) => {
-    return (dispatch, getState) => {
-      const selectedSearchIdx = _.get(getState(), `${namespace}.selectedSearch`);
-
+    return dispatch => {
       dispatch(submitFilters(filters, initial));
       if (!initial || !skipInitialFetch) {
-        dispatch(fetchActions.fetch(selectedSearchIdx));
+        dispatch(fetchActions.fetch());
       }
     };
   };
 
   const addSearchPhrase = phrase => {
-    return (dispatch, getState) => {
-      const selectedSearchIdx = _.get(getState(), `${namespace}.selectedSearch`);
-
+    return dispatch => {
       dispatch(submitPhrase(phrase));
-      dispatch(fetchActions.fetch(selectedSearchIdx));
+      dispatch(fetchActions.fetch());
     };
   };
 
@@ -83,15 +79,13 @@ export default function makeSearches(namespace, fetchActions, searchTerms, scope
       scope: scope
     };
 
-    return (dispatch, getState) => {
-      const searchIdx = _.findIndex(_.get(getState(), 'savedSearches'), s => s.id === search.id);
-
+    return dispatch => {
       dispatch(saveSearchStart());
       return Api.post('/shared-search', payload)
         .then(
           search => {
             dispatch(saveSearchSuccess(search));
-            dispatch(fetchActions.fetch(searchIdx));
+            dispatch(fetchActions.fetch());
           },
           err => dispatch(saveSearchFailure(err))
         );
@@ -101,7 +95,7 @@ export default function makeSearches(namespace, fetchActions, searchTerms, scope
   const selectSearch = idx => {
     return dispatch => {
       dispatch(selectSavedSearch(idx));
-      dispatch(fetchActions.fetch(idx));
+      dispatch(fetchActions.fetch());
     };
   };
 
@@ -118,7 +112,7 @@ export default function makeSearches(namespace, fetchActions, searchTerms, scope
         .then(
           search => {
             dispatch(updateSearchSuccess(idx, search));
-            dispatch(fetchActions.fetch(idx));
+            dispatch(fetchActions.fetch());
           },
           err => dispatch(updateSearchFailure(idx, err))
         );
@@ -138,7 +132,6 @@ export default function makeSearches(namespace, fetchActions, searchTerms, scope
 
   const initialState = _setSearchTerms({
     updateNum: 0,
-    fetchingSearchIdx: null,
     isSavingSearch: false,
     fetchingSearches: false,
     selectedSearch: 0,
@@ -156,8 +149,6 @@ export default function makeSearches(namespace, fetchActions, searchTerms, scope
 
   const searchesReducer = createReducer({
     [fetchActions.searchStart]: (state, [idx]) => _fetchSearchStart(state, idx),
-    [fetchActions.searchSuccess]: state => _fetchSearchEnd(state),
-    [fetchActions.searchFailure]: state => _fetchSearchEnd(state),
     [saveSearchStart]: (state) => _saveSearchStart(state),
     [saveSearchSuccess]: (state, payload) => _saveSearchSuccess(state, payload),
     [saveSearchFailure]: (state, err) => _saveSearchFailure(state, err),
@@ -200,7 +191,7 @@ export default function makeSearches(namespace, fetchActions, searchTerms, scope
   };
 }
 
-function _fetchSearchStart(state, idx) {
+function _fetchSearchStart(state) {
   /** reset isFetching for all searches on new search start */
   const mappedSearches = state.savedSearches.map((search, index) => {
     /** don't touch search if it's a selected search or its results are not initializes yet */
@@ -211,10 +202,7 @@ function _fetchSearchStart(state, idx) {
     return assoc(search, ['results', 'isFetching'], false);
   });
 
-  return assoc(state,
-    'fetchingSearchIdx', idx,
-    'savedSearches', mappedSearches
-  );
+  return assoc(state, 'savedSearches', mappedSearches);
 }
 
 function _fetchSearchEnd(state) {

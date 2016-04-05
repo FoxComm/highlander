@@ -25,7 +25,7 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
   });
 
   /** Suppress searchSuccess/searchFailure action if performed search not active(e.g., another search selected) */
-  const skipProcessingFetch = (getState, idx) => _.get(getState(), [...ns, 'fetchingSearchIdx'], null) != idx;
+  const skipProcessingFetch = (getState, idx) => _.get(getState(), [...ns, 'selectedSearch'], null) !== idx;
 
   const getSelectedSearch = state => {
     const selectedSearch = _.get(state, [...ns, 'selectedSearch']);
@@ -38,7 +38,7 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
   function fetcher() {
     const { searchState, getState } = this;
 
-    const fetchingSearchIdx = _.get(getState(), [...ns, 'fetchingSearchIdx']);
+    const fetchingSearchIdx = _.get(getState(), [...ns, 'selectedSearch']);
     const selectedSearchState = getSelectedSearch(getState());
     const searchTerms = _.get(selectedSearchState, 'query', []);
     const phrase = _.get(selectedSearchState, 'phrase');
@@ -64,7 +64,7 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
     return promise;
   }
 
-  const fetch = makeFetchAction(fetcher, actions, state => getSelectedSearch(state).results, skipProcessingFetch);
+  const fetch = makeFetchAction(fetcher, actions, state => getSelectedSearch(state).results);
 
   // for overriding updateStateAndFetch in pagination actions
   const updateStateAndFetch = (newState, ...args) => {
