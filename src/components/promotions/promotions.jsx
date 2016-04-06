@@ -1,6 +1,6 @@
 
 // libs
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -18,13 +18,13 @@ import { actions as bulkActions } from '../../modules/promotions/bulk';
 import styles from './promotions.css';
 
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state: Object) => {
   return {
     list: state.promotions.list,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: Function) => {
   return {
     actions: bindActionCreators(actions, dispatch),
     bulkActions: bindActionCreators(bulkActions, dispatch),
@@ -42,12 +42,14 @@ const tableColumns = [
   {field: 'state', text: 'State', type: 'state'},
 ];
 
+/* ::`*/
 @connect(mapStateToProps, mapDispatchToProps)
+/* ::`*/
 export default class Promotions extends Component {
 
   renderRow() {
-    return (row, index, columns, params) => {
-      const key = `coupon-${coupon.id}`;
+    return (row: Object, index: number, columns: Array<any>, params: Object) => {
+      const key = `promotion-${row.id}`;
 
       return (
         <PromotionRow
@@ -60,15 +62,15 @@ export default class Promotions extends Component {
     };
   }
 
-  bulkActions() {
+  bulkActions(): Array<any> {
     return [];
   }
 
-  renderDetail() {
+  renderDetail(): any {
     return null;
   }
 
-  render() {
+  render(): Element {
     const {list, actions} = this.props;
 
     const entity = 'promotion';

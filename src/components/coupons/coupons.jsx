@@ -1,6 +1,9 @@
+/**
+ * @flow
+ */
 
 // libs
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -16,20 +19,20 @@ import { actions } from '../../modules/coupons/list';
 import { actions as bulkActions } from '../../modules/coupons/bulk';
 
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state: Object) => {
   return {
     list: state.coupons.list,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch: Function) => {
   return {
     actions: bindActionCreators(actions, dispatch),
     bulkActions: bindActionCreators(bulkActions, dispatch),
   };
 };
 
-const tableColumns = [
+const tableColumns: Array<Object> = [
   {field: 'name', text: 'Name'},
   {field: 'storefrontName', text: 'Storefront Name'},
   {field: 'code', text: 'Code'},
@@ -39,12 +42,14 @@ const tableColumns = [
   {field: 'state', text: 'State', type: 'state'},
 ];
 
+/* ::`*/
 @connect(mapStateToProps, mapDispatchToProps)
+/* ::`*/
 export default class Promotions extends Component {
 
-  renderRow() {
-    return (row, index, columns, params) => {
-      const key = `coupon-${coupon.id}`;
+  renderRow(): Function {
+    return (row: Object, index: number, columns: Array<any>, params: Object) => {
+      const key = `coupon-${row.id}`;
 
       return (
         <CouponRow
@@ -57,15 +62,15 @@ export default class Promotions extends Component {
     };
   }
 
-  bulkActions() {
+  bulkActions(): Array<any> {
     return [];
   }
 
-  renderDetail() {
+  renderDetail(): any {
     return null;
   }
 
-  render() {
+  render(): Element {
     const {list, actions} = this.props;
 
     const entity = 'coupon';
