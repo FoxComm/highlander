@@ -46,7 +46,18 @@ const tableColumns = [
 export default class Promotions extends Component {
 
   renderRow() {
-    return null;
+    return (row, index, columns, params) => {
+      const key = `coupon-${coupon.id}`;
+
+      return (
+        <PromotionRow
+          promotion={row}
+          columns={columns}
+          key={key}
+          params={params}
+        />
+      );
+    };
   }
 
   bulkActions() {

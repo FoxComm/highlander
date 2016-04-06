@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
 import { SelectableSearchList } from '../list-page';
+import CouponRow from  './coupon-row';
 
 // redux
 import { actions } from '../../modules/coupons/list';
@@ -32,7 +33,7 @@ const tableColumns = [
   {field: 'name', text: 'Name'},
   {field: 'storefrontName', text: 'Storefront Name'},
   {field: 'code', text: 'Code'},
-  {field: 'totalSales', text: 'Total Uses'},
+  {field: 'totalUses', text: 'Total Uses'},
   {field: 'inCarts', text: 'Current Carts'},
   {field: 'createdAt', text: 'Date/Time Created', type: 'datetime'},
   {field: 'state', text: 'State', type: 'state'},
@@ -42,7 +43,18 @@ const tableColumns = [
 export default class Promotions extends Component {
 
   renderRow() {
-    return null;
+    return (row, index, columns, params) => {
+      const key = `coupon-${coupon.id}`;
+
+      return (
+        <CouponRow
+          coupon={row}
+          columns={columns}
+          key={key}
+          params={params}
+        />
+      );
+    };
   }
 
   bulkActions() {
