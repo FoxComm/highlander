@@ -1,3 +1,6 @@
+/**
+ * @flow
+ */
 
 // libs
 import React, { Component, Element } from 'react';
@@ -9,13 +12,11 @@ import { connect } from 'react-redux';
 import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
 import { SelectableSearchList } from '../list-page';
+import PromotionRow from './promotion-row';
 
 // redux
 import { actions } from '../../modules/promotions/list';
 import { actions as bulkActions } from '../../modules/promotions/bulk';
-
-// styles
-import styles from './promotions.css';
 
 
 const mapStateToProps = (state: Object) => {
@@ -36,7 +37,7 @@ const tableColumns = [
   {field: 'name', text: 'Name'},
   {field: 'storefrontName', text: 'Storefront Name'},
   {field: 'applyType', text: 'Apply Type'},
-  {field: 'totalSales', text: 'Total Uses'},
+  {field: 'totalUses', text: 'Total Uses'},
   {field: 'inCarts', text: 'Current Carts'},
   {field: 'createdAt', text: 'Date/Time Created', type: 'datetime'},
   {field: 'state', text: 'State', type: 'state'},
@@ -47,7 +48,7 @@ const tableColumns = [
 /* ::`*/
 export default class Promotions extends Component {
 
-  renderRow() {
+  renderRow(): Function {
     return (row: Object, index: number, columns: Array<any>, params: Object) => {
       const key = `promotion-${row.id}`;
 
@@ -77,7 +78,7 @@ export default class Promotions extends Component {
     const module = `${entity}s`;
 
     return (
-      <div styleName="promotions">
+      <div className="promotions">
         <BulkMessages
           storePath={`${module}.bulk`}
           module={module}

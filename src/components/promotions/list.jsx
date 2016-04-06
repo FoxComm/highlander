@@ -9,9 +9,6 @@ import { ListPageContainer, makeTotalCounter } from '../list-page';
 // redux
 import { actions } from '../../modules/promotions/list';
 
-// styles
-import styles from './list.css';
-
 type PromotionsListProps = {
   children: Element,
 };
