@@ -49,6 +49,7 @@ export default class LiveSearch extends React.Component {
       searchOptions: options,
       searchValue: searchValue,
       selectionIndex: -1,
+      shouldSetFocus: false,
     };
   }
 
@@ -104,7 +105,6 @@ export default class LiveSearch extends React.Component {
 
         this.submitFilter(`${this.state.searchValue}${dateVal}`, true);
       };
-
 
       options = (
         <DatePicker
@@ -248,6 +248,12 @@ export default class LiveSearch extends React.Component {
     this.props.fetchSearches();
   }
 
+  componentDidUpdate() {
+    if (this.state.shouldSetFocus && !this.isDisabled) {
+      this.refs.input.focus();
+    }
+  }
+
   componentWillReceiveProps(nextProps) {
     const search = currentSearch(nextProps);
     const searchOptions = _.get(nextProps, ['searches', 'searchOptions'], []);
@@ -273,10 +279,12 @@ export default class LiveSearch extends React.Component {
   @autobind
   inputFocus() {
     const { isFocus, optionsVisible, searchOptions } = this.state;
+
     if (!isFocus && !optionsVisible && !_.isEmpty(searchOptions)) {
       this.setState({
         isFocused: true,
-        optionsVisible: true
+        optionsVisible: true,
+        shouldSetFocus: false,
       });
     }
   }
@@ -285,7 +293,8 @@ export default class LiveSearch extends React.Component {
   blur() {
     this.setState({
       isFocused: false,
-      optionsVisible: false
+      optionsVisible: false,
+      shouldSetFocus: this.isDisabled,
     });
   }
 
@@ -492,7 +501,8 @@ export default class LiveSearch extends React.Component {
                   placeholder="Add another filter or keyword search"
                   prepend={this.state.searchPrepend}
                   value={this.state.searchDisplay}
-                  disabled={this.isDisabled}/>
+                  disabled={this.isDisabled}
+                  ref="input"/>
               </PilledInput>
             </form>
             <div>

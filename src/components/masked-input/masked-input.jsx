@@ -1,10 +1,10 @@
-import React, { PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
 
 import InputMask from 'react-input-mask';
 
-export default class MaskedInput extends React.Component {
+export default class MaskedInput extends Component {
   static propTypes = {
     mask: PropTypes.string,
     prepend: PropTypes.string,
@@ -26,6 +26,10 @@ export default class MaskedInput extends React.Component {
       target.selectionStart = cursorPos;
       target.selectionEnd = cursorPos;
     }
+  }
+
+  focus() {
+    this.refs['maskedInput'].getInputDOMNode().focus();
   }
 
   render() {
