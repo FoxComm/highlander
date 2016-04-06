@@ -2,7 +2,7 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import ReactDOM from 'react-dom';
-import flatMap from 'lodash.flatmap';
+import flatMap from '../../lib/flatMap';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import classNames from 'classnames';

@@ -52,7 +52,6 @@ TableBodyCell.propTypes = {
   colspan: PropTypes.number,
   column: columnPropType,
   children: PropTypes.node,
-  colspan: PropTypes.number,
 };
 
 export default TableBodyCell;
