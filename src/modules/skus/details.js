@@ -13,7 +13,6 @@ import { addAttribute } from '../../paragons/form-shadow-object';
 const defaultContext = 'default';
 
 const requiredFields = {
-  sku: 'string',
   upc: 'string',
   description: 'richText',
   retailPrice: 'price',

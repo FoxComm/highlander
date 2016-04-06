@@ -9,7 +9,10 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
 // components
+import { FormField } from '../forms';
+import ContentBox from '../content-box/content-box';
 import ObjectForm from '../object-form/object-form';
+import ObjectFormInner from '../object-form/object-form-inner';
 import WaitAnimation from '../common/wait-animation';
 
 // types
@@ -22,7 +25,7 @@ type Props = {
 };
 
 const defaultKeys = {
-  general: ['sku', 'upc', 'description'],
+  general: ['upc', 'description'],
   pricing: ['retailPrice', 'salePrice', 'unitCost'],
 };
 
@@ -38,6 +41,35 @@ export default class SkuDetails extends Component<void, Props, void> {
     const toOmitArray = _.reduce(toOmit, (res, arr) => ([...res, ...arr]), []);
     const shadow = _.get(this.props, 'sku.shadow.attributes', []);
     return _(shadow).omit(toOmitArray).keys().value();
+  }
+
+  get generalContent(): Element {
+    const sku = _.get(this.props, 'sku');
+    const formAttributes = _.get(this.props, 'sku.form.attributes', []);
+    const shadowAttributes = _.get(this.props, 'sku.shadow.attributes', []);
+
+    return (
+      <ContentBox title="General">
+        <FormField
+          className="fc-object-form__field"
+          labelClassName="fc-object-form__field-label"
+          label="SKU"
+          key="object-form-attribute-sku">
+          <input
+            className="fc-object-form__field-value"
+            type="text"
+            name="sku"
+            value={sku.form.code}
+            onChange={_.noop} />
+        </FormField>
+        <ObjectFormInner
+          canAddProperty={true}
+          onChange={this.handleChange}
+          fieldsToRender={this.generalAttrs}
+          form={formAttributes}
+          shadow={shadowAttributes} />
+      </ContentBox>
+    );
   }
 
   @autobind
@@ -63,13 +95,7 @@ export default class SkuDetails extends Component<void, Props, void> {
     return (
       <div className="fc-product-details fc-grid fc-grid-no-gutter">
         <div className="fc-col-md-3-5">
-          <ObjectForm
-            canAddProperty={true}
-            onChange={this.handleChange}
-            fieldsToRender={this.generalAttrs}
-            form={formAttributes}
-            shadow={shadowAttributes}
-            title="General" />    
+          {this.generalContent}
           <ObjectForm
             canAddProperty={false}
             onChange={this.handleChange}
