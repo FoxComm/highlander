@@ -14,8 +14,7 @@ import utils.Apis
 import utils.Http._
 import utils.CustomDirectives._
 
-import payloads.{CreateSkuForm, UpdateSkuForm, CreateSkuShadow, UpdateSkuShadow}
-
+import payloads.{CreateFullSku, UpdateFullSku}
 
 object SkuRoutes {
 
@@ -29,7 +28,19 @@ object SkuRoutes {
             pathPrefix(Segment / Segment) { (context, code) ⇒
               (get & pathEnd) {
                 goodOrFailures {
-                  SkuManager.getIlluminatedFullSkuByContextName(code, context)
+                  SkuManager.getFullSkuByContextName(code, context)
+                }
+              } ~
+              (patch & pathEnd & entity(as[UpdateFullSku])) { payload ⇒
+                goodOrFailures {
+                  SkuManager.updateFullSku(code, payload, context)
+                }
+              }
+            } ~
+            pathPrefix(Segment) { (context) ⇒
+              (post & pathEnd & entity(as[CreateFullSku])) { payload ⇒
+                goodOrFailures {
+                  SkuManager.createFullSku(payload, context)
                 }
               }
             }

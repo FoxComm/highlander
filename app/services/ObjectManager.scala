@@ -16,6 +16,8 @@ import failures.ObjectFailures._
 import utils.aliases._
 import cats.data.NonEmptyList
 import cats.implicits._
+import org.json4s.JsonAST.JValue
+import java.time.Instant
 
 object ObjectManager {
 
@@ -56,7 +58,39 @@ object ObjectManager {
       context.copy(name = payload.name, attributes = payload.attributes))
   } yield ObjectContextResponse.build(context)).runTxn()
 
-  private def validateShadow(form: ObjectForm, shadow: ObjectShadow) 
+  def createCommit(previousCommitId: Int, formId: Int, shadowId: Int)
+    (implicit ec: EC, db: DB): DbResultT[ObjectCommit] = for {
+    newCommit  ← * <~ ObjectCommits.create(ObjectCommit(formId = formId,
+      shadowId = shadowId, previousId = previousCommitId.some))
+  } yield newCommit
+
+  def updateObjectFormAndShadow(formId: Int, shadowId: Int,
+    updatedForm: JValue, updatedShadow: JValue)
+    (implicit ec: EC, db: DB): DbResultT[(ObjectForm, ObjectShadow, Boolean)] = for {
+
+    oldForm     ← * <~ ObjectForms.mustFindById404(formId)
+    oldShadow   ← * <~ ObjectShadows.mustFindById404(shadowId)
+    newFormPair ← * <~ ObjectUtils.updateForm(oldForm.attributes, updatedForm)
+    (keyMap, newFormAttributes) = newFormPair
+    newShadowAttributes ← * <~ ObjectUtils.newShadow(updatedShadow, keyMap)
+    result ← * <~ createIfDifferent(oldForm, oldShadow, newFormAttributes, newShadowAttributes)
+  } yield result
+
+  private def createIfDifferent(oldForm: ObjectForm, oldShadow: ObjectShadow,
+    newFormAttributes: JValue, newShadowAttributes: JValue)
+    (implicit ec: EC, db: DB): DbResultT[(ObjectForm, ObjectShadow, Boolean)] = {
+    if(oldShadow.attributes != newShadowAttributes)
+      for {
+        form   ← * <~ ObjectForms.update(oldForm, oldForm.copy(attributes =
+          newFormAttributes, updatedAt = Instant.now))
+        shadow ← * <~ ObjectShadows.create(ObjectShadow(formId = form.id,
+          attributes = newShadowAttributes))
+        _    ← * <~ validateShadow(form, shadow)
+      } yield (form, shadow, true)
+    else DbResultT.pure((oldForm, oldShadow, false))
+  }
+
+  private def validateShadow(form: ObjectForm, shadow: ObjectShadow)
   (implicit ec: EC, db: DB) : DbResultT[Unit] = 
     IlluminateAlgorithm.validateAttributes(form.attributes, shadow.attributes) match {
       case Nil ⇒ DbResultT.pure(Unit)
