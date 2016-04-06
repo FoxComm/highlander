@@ -4,26 +4,21 @@
 
 // libs
 import React, { Component, Element, PropTypes } from 'react';
-import { bindActionCreators } from 'redux';
-import { connect } from 'react-redux';
+import { assoc } from 'sprout-data';
+import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
 // components
 import ObjectForm from '../object-form/object-form';
 import WaitAnimation from '../common/wait-animation';
 
-// actions
-import * as SkuActions from '../../modules/skus/details';
-
 // types
-import type { FullSku, SkuState } from '../../modules/skus/details';
+import type { FullSku } from '../../modules/skus/details';
 
 type Props = {
-  actions: {
-    fetchSku: (code: string, context?: string) => void,
-  },
   code: string,
-  skus: SkuState,
+  onChange: (sku: FullSku) => void,
+  sku: ?FullSku,
 };
 
 const defaultKeys = {
@@ -31,28 +26,33 @@ const defaultKeys = {
   pricing: ['retailPrice', 'salePrice', 'unitCost'],
 };
 
-export class SkuDetails extends Component<void, Props, void> {
+export default class SkuDetails extends Component<void, Props, void> {
   static propTypes = {
-    actions: PropTypes.shape({
-      fetchSku: PropTypes.func.isRequired,
-    }).isRequired,
     code: PropTypes.string.isRequired,
-    skus: PropTypes.object,
+    onChange: PropTypes.func.isRequired,
+    sku: PropTypes.object,
   };
   
-  componentDidMount() {
-    this.props.actions.fetchSku(this.props.code);
-  }
-
   get generalAttrs(): Array<string> {
     const toOmit = _.omit(defaultKeys, 'general');
     const toOmitArray = _.reduce(toOmit, (res, arr) => ([...res, ...arr]), []);
-    const shadow = _.get(this.props, 'skus.sku.shadow.attributes', []);
+    const shadow = _.get(this.props, 'sku.shadow.attributes', []);
     return _(shadow).omit(toOmitArray).keys().value();
   }
 
+  @autobind
+  handleChange(form: FormAttributes, shadow: ShadowAttributes) {
+    const { sku } = this.props;
+    if (sku) {
+      const updatedSku = assoc(sku, 
+        ['form', 'attributes'], form,
+        ['shadow', 'attributes'], shadow);
+      this.props.onChange(updatedSku);
+    }
+  }
+
   render(): Element {
-    const sku = this.props.skus.sku;
+    const { sku } = this.props;
     if (!sku) {
       return <WaitAnimation />;
     }
@@ -65,14 +65,14 @@ export class SkuDetails extends Component<void, Props, void> {
         <div className="fc-col-md-3-5">
           <ObjectForm
             canAddProperty={true}
-            onChange={_.noop}
+            onChange={this.handleChange}
             fieldsToRender={this.generalAttrs}
             form={formAttributes}
             shadow={shadowAttributes}
             title="General" />    
           <ObjectForm
             canAddProperty={false}
-            onChange={_.noop}
+            onChange={this.handleChange}
             fieldsToRender={defaultKeys.pricing}
             form={formAttributes}
             shadow={shadowAttributes}
@@ -82,8 +82,3 @@ export class SkuDetails extends Component<void, Props, void> {
     );
   }
 }
-
-export default connect(
-  state => ({ skus: state.skus.details }),
-  dispatch => ({ actions: bindActionCreators(SkuActions, dispatch) })
-)(SkuDetails);
