@@ -21,7 +21,7 @@ resource "google_compute_instance" "gatling-gun"{
 
 resource "google_compute_instance" "gatling-ashes" { 
     name = "gatling-ashes"
-    machine_type = "n1-highcpu-4"
+    machine_type = "n1-highcpu-8"
     tags = ["no-ip", "gatling-ashes"]
     zone = "us-central1-a"
 

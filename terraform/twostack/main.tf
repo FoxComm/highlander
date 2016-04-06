@@ -7,7 +7,7 @@ variable "prefix" {}
 
 resource "google_compute_instance" "ashes" { 
     name = "${var.prefix}-ashes"
-    machine_type = "n1-highcpu-4"
+    machine_type = "n1-highcpu-8"
     tags = ["http-server", "https-server", "${var.prefix}-ashes"]
     zone = "us-central1-a"
 
