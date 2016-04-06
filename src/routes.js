@@ -132,9 +132,9 @@ const routes = (
       <Route name='products-list-pages' component={ProductsListPage}>
         <IndexRoute name='products' component={Products} />
       </Route>
-      <Route name='new-product' path='new' component={ProductForm} />
       <Route name='product' path=':productId' component={ProductPage}>
         <IndexRoute name='product-details' component={ProductForm} />
+        <Route name='new-product' component={ProductForm} />
         <Route name='product-images' title='Images' path='images' component={ProductImages} />
         <Route name='product-notes' title='Notes' path='notes' component={Notes} />
         <Route name='product-activity-trail' title='Activity Trail' path='activity-trail' component={ActivityTrailPage}/>

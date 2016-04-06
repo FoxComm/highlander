@@ -62,7 +62,7 @@ export default class ProductState extends Component<void, Props, State> {
           <div className="fc-product-state__picker-label">
             Start
           </div>
-          <DateTimePicker 
+          <DateTimePicker
             dateTime={this.activeFrom}
             onSetDate={(v) => console.log(v)}
             onCancel={this.handleCancelFrom} />
@@ -85,7 +85,7 @@ export default class ProductState extends Component<void, Props, State> {
       return (
         <div className="fc-product-state__picker _end">
           <div className="fc-product-state__picker-label">
-            End 
+            End
           </div>
           {picker}
         </div>
