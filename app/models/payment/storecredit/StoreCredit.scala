@@ -111,12 +111,6 @@ object StoreCredit {
       originalBalance = payload.amount)
   }
 
-  def buildFromLoyalty(customerId: Int, payload: payloads.CreateExtensionStoreCredit): StoreCredit = {
-    buildFromExtension(customerId = customerId,
-      originType = StoreCredit.Loyalty,
-      payload = payload)
-  }
-
   def buildRmaProcess(customerId: Int, originId: Int, currency: Currency): StoreCredit = {
     StoreCredit(customerId = customerId, originId = originId, originType = StoreCredit.RmaProcess,
       currency = currency, originalBalance = 0)

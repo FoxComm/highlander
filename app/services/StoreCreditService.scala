@@ -85,7 +85,9 @@ object StoreCreditService {
     customer ← * <~ Customers.mustFindById404(customerId)
     // Check subtype only if id is present in payload; discard actual model
     _ ← * <~ checkSubTypeExists(payload.subTypeId, StoreCredit.Custom)
-    customStoreCredit = StoreCredit.buildFromExtension(customerId = customer.id, payload = payload)
+    // TODO: fixme originType
+    customStoreCredit = StoreCredit.buildFromExtension(customerId = customer.id, payload = payload,
+      originType = StoreCredit.Loyalty)
     storeCredit ← * <~ StoreCredits.create(customStoreCredit)
     _ ← * <~ LogActivity.scCreated(admin, customer, storeCredit)
   } yield build(storeCredit)).runTxn
