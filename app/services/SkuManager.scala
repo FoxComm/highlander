@@ -20,7 +20,7 @@ import java.time.Instant
 
 object SkuManager {
 
-  def getIlluminatedFullSkuByContextName(code: String, contextName: String)
+  def getFullSkuByContextName(code: String, contextName: String)
     (implicit ec: EC, db: DB): Result[FullSkuResponse.Root] = (for {
     context ← * <~ ObjectContexts.filterByName(contextName).one.
       mustFindOr(ObjectContextNotFound(contextName))
