@@ -12,17 +12,15 @@ import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
 import models.sharedsearch.SharedSearch
 import models.shipping.ShippingMethod
-import models.{StoreAdmin, Note}
-import models.activity.{Activity, Activities}
+import models.{Note, StoreAdmin}
+import models.activity.{Activities, Activity}
 import models.traits.{AdminOriginator, CustomerOriginator, Originator}
 import payloads.UpdateLineItemsPayload
 import responses.order.FullOrder
-import responses.{CreditCardsResponse, Addresses, GiftCardResponse, CustomerResponse, StoreAdminResponse,
-StoreCreditResponse}
+import responses.{Addresses, CreditCardsResponse, CustomerResponse, GiftCardResponse, StoreAdminResponse, StoreCreditResponse}
 import services.LineItemUpdater.foldQuantityPayload
 import utils.Slick.DbResult
 import utils.aliases._
-
 import services.activity.AssignmentsTailored._
 import services.activity.CustomerTailored._
 import services.activity.GiftCardTailored._
@@ -30,10 +28,11 @@ import services.activity.OrderTailored._
 import services.activity.NotesTailored._
 import services.activity.SharedSearchTailored._
 import services.activity.StoreCreditTailored._
-
-import StoreAdminResponse.{build ⇒ buildAdmin, Root ⇒ AdminResponse}
-import CustomerResponse.{build ⇒ buildCustomer, Root ⇒ CustomerResponse}
+import StoreAdminResponse.{Root ⇒ AdminResponse, build ⇒ buildAdmin}
+import CustomerResponse.{Root ⇒ CustomerResponse, build ⇒ buildCustomer}
 import CreditCardsResponse.{buildSimple ⇒ buildCc}
+import responses.ProductResponses.FullProductResponse
+import services.activity.ProductTailored.ProductCreated
 
 object LogActivity {
 
@@ -268,6 +267,11 @@ object LogActivity {
   def orderShippingMethodDeleted(originator: Originator, order: FullOrder.Root, shippingMethod: ShippingMethod)
     (implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(OrderShippingMethodRemoved(order, shippingMethod, buildOriginator(originator)))
+
+  /* Products */
+  def productCreated(admin: Option[StoreAdmin], product: FullProductResponse.Root)
+    (implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(ProductCreated(admin.map(buildAdmin), product))
 
   /* Helpers */
   private def buildOriginator(originator: Originator)
