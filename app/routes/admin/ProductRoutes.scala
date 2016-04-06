@@ -52,7 +52,7 @@ object ProductRoutes {
             pathPrefix(Segment) { (context)  ⇒
               (post & pathEnd & entity(as[CreateFullProduct])) { payload ⇒
                 goodOrFailures {
-                  ProductManager.createFullProduct(payload, context)
+                  ProductManager.createFullProduct(admin, payload, context)
                 }
               } 
             }
