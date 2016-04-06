@@ -26,7 +26,7 @@ object StoreCreditService {
   type QuerySeq = StoreCredits.QuerySeq
 
   def getOriginTypes(implicit ec: EC, db: DB): Result[Seq[StoreCreditSubTypesResponse.Root]] = {
-    val types = StoreCredit.OriginType.types.--(Seq(StoreCredit.Loyalty, StoreCredit.Custom))
+    val types = StoreCredit.OriginType.types
     Result.fromFuture(StoreCreditSubtypes.result.map { subTypes ⇒
       StoreCreditSubTypesResponse.build(types.toSeq, subTypes)
     }.run())

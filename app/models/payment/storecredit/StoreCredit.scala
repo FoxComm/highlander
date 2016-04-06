@@ -79,7 +79,7 @@ object StoreCredit {
   }
 
   object OriginType extends ADT[OriginType] {
-    def types = sealerate.values[OriginType]
+    def types = sealerate.values[OriginType].--(Seq(Loyalty, Custom))
   }
 
   def validateStateReason(state: State, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
