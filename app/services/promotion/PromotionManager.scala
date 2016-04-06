@@ -34,21 +34,20 @@ object PromotionManager {
     (implicit ec: EC, db: DB): Result[PromotionShadowResponse.Root] = (for {
     context ← * <~ ObjectContexts.filterByName(contextName).one.
       mustFindOr(ObjectContextNotFound(contextName))
-    promotion     ← * <~ Promotions.filter(_.contextId === context.id).
-      filter(_.formId === id).one.mustFindOr(PromotionNotFound(id))
+    promotion     ← * <~ Promotions.filterByContextAndFormId(context.id, id).one.
+      mustFindOr(PromotionNotFoundForContext(id, contextName))
     shadow  ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
     discountLinks ← * <~ ObjectLinks.filter(_.leftId === shadow.id).result
     discountShadowIds = discountLinks.map(_.rightId) 
     discountShadows ← * <~ ObjectShadows.filter(_.id.inSet(discountShadowIds)).result
   } yield PromotionShadowResponse.build(shadow, discountShadows)).run()
 
-  def get(promotionId: Int, contextName: String)
+  def get(id: Int, contextName: String)
     (implicit ec: EC, db: DB): Result[PromotionResponse.Root] = (for {
       context  ← * <~ ObjectContexts.filterByName(contextName).one.
       mustFindOr(ObjectContextNotFound(contextName))
-      promotion ← * <~ Promotions.filter(_.contextId === context.id).
-      filter(_.formId === promotionId).one.mustFindOr(
-        PromotionNotFoundForContext(promotionId, context.id)) 
+      promotion     ← * <~ Promotions.filterByContextAndFormId(context.id, id).one.
+        mustFindOr(PromotionNotFoundForContext(id, contextName))
       form     ← * <~ ObjectForms.mustFindById404(promotion.formId)
       shadow   ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
       discounts ← * <~ ObjectUtils.getChildren(promotion.shadowId)
@@ -67,7 +66,7 @@ object PromotionManager {
     promotion ← * <~ Promotions.create(Promotion(contextId = context.id, 
       formId = ins.form.id, shadowId = ins.shadow.id, commitId = ins.commit.id))
     discount ← * <~ createDiscounts(context, payload, ins.shadow)
-  } yield PromotionResponse.build(form, shadow, discount.forms, discount.shadows)).runTxn()
+  } yield PromotionResponse.build(ins.form, ins.shadow, discount.forms, discount.shadows)).runTxn()
 
   private final case class DiscountsCreateResult(forms: Seq[ObjectForm], shadows: Seq[ObjectShadow])
   private def createDiscounts(context: ObjectContext, payload: CreatePromotion, promotionShadow: ObjectShadow)
@@ -93,13 +92,12 @@ object PromotionManager {
     } yield DiscountCreateResult(r.form, r.shadow)
   }
 
-  def update(promotionId: Int, payload: UpdatePromotion, contextName: String)
+  def update(id: Int, payload: UpdatePromotion, contextName: String)
     (implicit ec: EC, db: DB): Result[PromotionResponse.Root] = (for {
     context ← * <~ ObjectContexts.filterByName(contextName).one.
       mustFindOr(ObjectContextNotFound(contextName))
-    promotion ← * <~ Promotions.filter(_.contextId === context.id).
-      filter(_.formId === promotionId).one.mustFindOr(
-        PromotionNotFoundForContext(promotionId, context.id)) 
+    promotion     ← * <~ Promotions.filterByContextAndFormId(context.id, id).one.
+      mustFindOr(PromotionNotFoundForContext(id, contextName))
     updatedPromotion ← * <~ ObjectUtils.update(promotion.formId, promotion.shadowId, 
       payload.form.attributes, payload.shadow.attributes)
     discount ← * <~ updateDiscounts(context, promotion.shadowId, 
@@ -107,7 +105,7 @@ object PromotionManager {
     commit ← * <~ ObjectUtils.commit(updatedPromotion)
     promotion ← * <~ updateHead(promotion, updatedPromotion.shadow, commit)
   } yield PromotionResponse.build(updatedPromotion.form, updatedPromotion.shadow,
-    discount.forms, discount.shadows)).run()
+    discount.forms, discount.shadows)).runTxn()
 
   private final case class UpdateDiscountsResult(forms: Seq[ObjectForm], shadows: Seq[ObjectShadow])
 

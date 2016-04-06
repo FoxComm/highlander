@@ -15,8 +15,8 @@ object PromotionFailures {
   }
 
   object PromotionNotFoundForContext { 
-    def apply(promotionId: Int, contextId: Int) =
-      NotFoundFailure404(s"Promotion with id=$promotionId with promotion context $contextId cannot be found")
+    def apply(promotionId: Int, contextName: String) =
+      NotFoundFailure404(s"Promotion with id=$promotionId with promotion context $contextName cannot be found")
   }
 
   final case class PromotionShadowHasInvalidAttribute(key: String, value: String) extends Failure {

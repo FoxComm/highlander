@@ -54,4 +54,7 @@ object Promotions extends TableQueryWithId[Promotion, Promotions](
 
   def filterByContext(contextId: Int): QuerySeq = 
     filter(_.contextId === contextId)
+
+  def filterByContextAndFormId(contextId: Int, formId: Int): QuerySeq = 
+    filter(_.contextId === contextId).filter(_.formId === formId)
 }

@@ -17,18 +17,17 @@ object Coupon {
 
 /**
  * A Coupon is a way to share a Promotion that isn't publicicly available.
- * Which Promotion the coupon points is determined by an ObjectLink
  */
-final case class Coupon(id: Int = 0, code: String, contextId: Int, shadowId: Int, formId: Int, 
+final case class Coupon(id: Int = 0, promotionId: Int, contextId: Int, shadowId: Int, formId: Int, 
   commitId: Int, updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[Coupon]
   with Validation[Coupon]
 
 class Coupons(tag: Tag) extends ObjectHeads[Coupon](tag, "coupons") {
 
-  def code = column[String]("code")
+  def promotionId = column[Int]("promotion_id")
 
-  def * = (id, code, contextId, shadowId, formId, commitId, updatedAt, createdAt) <> ((Coupon.apply _).tupled, Coupon.unapply)
+  def * = (id, promotionId, contextId, shadowId, formId, commitId, updatedAt, createdAt) <> ((Coupon.apply _).tupled, Coupon.unapply)
 
 }
 
@@ -37,4 +36,7 @@ object Coupons extends TableQueryWithId[Coupon, Coupons](
 
   def filterByContext(contextId: Int): QuerySeq = 
     filter(_.contextId === contextId)
+
+  def filterByContextAndFormId(contextId: Int, formId: Int): QuerySeq = 
+    filter(_.contextId === contextId).filter(_.formId === formId)
 }

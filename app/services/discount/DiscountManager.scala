@@ -51,7 +51,7 @@ object DiscountManager {
     context ← * <~ ObjectContexts.filterByName(contextName).one.
       mustFindOr(ObjectContextNotFound(contextName))
     r ← * <~ createInternal(payload, context)
-  } yield DiscountResponse.build(r.form, r.shadow)).run()
+  } yield DiscountResponse.build(r.form, r.shadow)).runTxn()
 
   final case class CreateInternalResult(discount: Discount, commit: ObjectCommit, 
     form: ObjectForm, shadow: ObjectShadow)
@@ -72,7 +72,7 @@ object DiscountManager {
     context ← * <~ ObjectContexts.filterByName(contextName).one.
       mustFindOr(ObjectContextNotFound(contextName))
       r ← * <~ updateInternal(discountId, payload, context)
-  } yield DiscountResponse.build(r.form, r.shadow)).run()
+  } yield DiscountResponse.build(r.form, r.shadow)).runTxn()
 
   final case class UpdateInternalResult(oldDiscount: Discount, discount: Discount, form: ObjectForm, 
     shadow: ObjectShadow)

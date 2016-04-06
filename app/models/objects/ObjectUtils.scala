@@ -196,6 +196,14 @@ object ObjectUtils {
       pairs  ← * <~ forms.sortBy(_.id).zip(shadows.sortBy(_.formId))
       result ← * <~ pairs.map { case (form, shadow) ⇒ Child(form, shadow)}
   } yield result
+  
+  def getChild(leftId: Int)
+    (implicit ec: EC, db: DB): DbResultT[Child] = for {
+      link   ← * <~ ObjectLinks.filter(_.leftId === leftId).one.mustFindOr(
+        ObjectLeftLinkCannotBeFound(leftId))
+      shadow ← * <~ ObjectShadows.mustFindById404(link.rightId)
+      form   ← * <~ ObjectForms.mustFindById404(shadow.formId)
+  } yield Child(form, shadow)
 
   private def updateIfDifferent(oldForm: ObjectForm, oldShadow: ObjectShadow,
     newFormAttributes: JValue, newShadowAttributes: JValue, force: Boolean = false)
