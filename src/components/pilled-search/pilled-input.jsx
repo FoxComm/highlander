@@ -45,7 +45,7 @@ const iconWrapper = icon => {
 
 const PilledInput = props => {
 
-  const { button, children, className, icon, pills = [], solid, ...rest } = props;
+  const { button, children, className, icon, pills = [], solid, disabled, ...rest } = props;
 
   const containerClass = classNames('fc-pilled-input__input-container', {
     '_solid': solid
@@ -60,6 +60,7 @@ const PilledInput = props => {
       className={inputClass}
       type="text"
       autoFocus={props.autofocus}
+      disabled={disabled}
       {...rest} />
   );
 

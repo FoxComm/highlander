@@ -185,7 +185,7 @@ export default class DatePicker extends React.Component {
           </div>
         </div>
         <div className="fc-datepicker__weeks-header">
-          {weeks.map(w => <div className="fc-datepicker__week">{w}</div>)}
+          {weeks.map((w, idx) => <div className="fc-datepicker__week" key={`${w}-${idx}`}>{w}</div>)}
         </div>
         <div className="fc-datepicker__days">
           {this.renderDays(date)}
@@ -214,7 +214,8 @@ export default class DatePicker extends React.Component {
           className={klass}
           onClick={() => this.selectDate(dt)}
           onMouseDown={suppressClick}
-          onMouseUp={suppressClick}>
+          onMouseUp={suppressClick}
+          key={day}>
           {dt.getDate()}
         </div>
       );
