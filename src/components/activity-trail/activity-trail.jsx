@@ -1,7 +1,7 @@
 
 // libs
 import _ from 'lodash';
-import flatMap from 'lodash.flatmap';
+import flatMap from '../../lib/flatMap';
 import moment from 'moment';
 import React, { PropTypes } from 'react';
 

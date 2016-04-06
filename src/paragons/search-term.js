@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import flatMap from 'lodash.flatmap';
+import flatMap from '../lib/flatMap';
 import SearchOperator from './search-operator';
 import SearchSuggestion from './search-suggestion';
 import { stringToCurrency } from '../lib/format-currency';
@@ -92,7 +92,7 @@ export default class SearchTerm {
     }
 
     // Predefined suggestions or options for some types
-    switch(this._type) {
+    switch (this._type) {
       case 'bool':
         this._suggestions = boolSuggestions;
         break;
@@ -202,13 +202,13 @@ export default class SearchTerm {
   }
 
   /**
-  * Converts the SearchTerm into the metadata needed to make a query against
-  * ElasticSearch. Meaning: the actual term that gets searched, the operator
-  * to search with, the value being searched, and a string needed to display
-  * the search in the UI.
-  * @param {string} search The final search term.
-  * @return {object} Representation of the search.
-  */
+   * Converts the SearchTerm into the metadata needed to make a query against
+   * ElasticSearch. Meaning: the actual term that gets searched, the operator
+   * to search with, the value being searched, and a string needed to display
+   * the search in the UI.
+   * @param {string} search The final search term.
+   * @return {object} Representation of the search.
+   */
   toFilter(search) {
     return {
       display: search,

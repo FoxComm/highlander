@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
-import flatMap from 'lodash.flatmap';
+import flatMap from '../../lib/flatMap';
 import React, { PropTypes, Component } from 'react';
 
 import TableRow from './row';

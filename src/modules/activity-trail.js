@@ -1,7 +1,6 @@
 
 import _ from 'lodash';
-import flatMap from 'lodash.flatmap';
-import Api from '../lib/api';
+import flatMap from '../lib/flatMap';
 import {createAction, createReducer} from 'redux-act';
 import { update, assoc } from 'sprout-data';
 import { updateItems } from './state-helpers';
