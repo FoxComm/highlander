@@ -390,6 +390,7 @@ export default class LiveSearch extends React.Component {
     let options = SearchTerm.potentialTerms(this.state.availableOptions, searchTerm);
     let inputMask = this.state.inputMask;
     let searchPrepend = this.state.searchPrepend;
+    let searchDisplay = newSearchTerm;
 
     // Second, if there is only one term, see if we can turn it into a saved search.
     if (options.length == 1) {
@@ -414,6 +415,7 @@ export default class LiveSearch extends React.Component {
         }
 
         searchPrepend = option.type == 'currency' ? `${option.selectionValue}$` : option.selectionValue;
+        searchDisplay = `${searchPrepend}${newSearchTerm.substr(searchPrepend.length)}`;
       }
     } else {
       inputMask = '';
@@ -424,8 +426,8 @@ export default class LiveSearch extends React.Component {
     this.setState({
       inputMask: inputMask,
       searchOptions: options,
-      searchDisplay: newSearchTerm,
-      searchPrepend: searchPrepend.replace(/a/, '\\a'), // fix masked input as "a" is a rule in react-input-mask
+      searchDisplay: searchDisplay,
+      searchPrepend: searchPrepend,
       searchValue: newSearchTerm,
       selectionIndex: -1
     });

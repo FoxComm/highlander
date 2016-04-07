@@ -52,8 +52,9 @@ export function getInputMask(searchTerm) {
   const type = _.get(searchTerm, 'type', '');
 
   switch(type) {
-    case 'currency':
-      return '99.99';
+    // TODO: turn mask back after appropriate masked currency input implemented
+    // case 'currency':
+      // return '9.99';
     case 'date':
       return '99/99/9999';
     default:
@@ -227,7 +228,7 @@ export default class SearchTerm {
 function getValue(searchTerm, type) {
   const lastIdx = searchTerm.lastIndexOf(':');
   const value = lastIdx > -1 ? searchTerm.slice(lastIdx + 1).trim() : '';
-  return type == 'currency' ? _.trim(stringToCurrency(value), ' $') : value;
+  return type == 'currency' ? _.trim(stringToCurrency(value.replace(',', '.')), ' $') : value;
 }
 
 function removeValue(searchTerm) {
