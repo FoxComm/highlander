@@ -1,25 +1,29 @@
 package utils.seeds
 
+import java.io.File
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import models.{StoreAdmin, StoreAdmins}
-import utils.DbResultT.implicits._
-import utils.DbResultT.{DbResultT, _}
 import cats.implicits._
+import com.github.tototoshi.csv._
+import models.{StoreAdmin, StoreAdmins}
+import utils.DbResultT.{DbResultT, _}
+import utils.DbResultT.implicits._
 
 trait StoreAdminSeeds {
 
-  // Returns only first admin id
-  def createStoreAdmins: DbResultT[StoreAdmin#Id] = for {
-    adminIds ← * <~ StoreAdmins.createAllReturningIds(storeAdmins)
-  } yield adminIds.head
+  def createStoreAdmins: DbResultT[StoreAdmin#Id] = {
+    val reader = CSVReader.open(new File("gatling/src/main/resources/data/store_admins.csv"))
+    val admins = reader.all.drop(1).collect {
+      case name :: email :: password :: Nil ⇒
+        StoreAdmin.build(name = name, email = email, password = Some(password))
+    }
+    reader.close()
+    for {
+      admins ← * <~ StoreAdmins.createAllReturningIds(admins)
+    } yield admins.head
+  }
 
-  def storeAdmins = Seq(
-    StoreAdmin.build(email = "admin@admin.com", password = "password".some, name = "Frankly Admin"),
-    StoreAdmin.build(email = "hackerman@yahoo.com", password = "password1".some, name = "Such Root"),
-    StoreAdmin.build(email = "admin_hero@xakep.ru", password = "password2".some, name = "Admin Hero")
-  )
-
-  def storeAdmin = storeAdmins.head
+  def storeAdmin = StoreAdmin.build(email = "admin@admin.com", password = "password".some, name = "Frankly Admin")
 
 }
