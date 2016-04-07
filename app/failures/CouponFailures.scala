@@ -1,5 +1,7 @@
 package failures
 
+import models.coupon.CouponCodes
+
 object CouponFailures {
 
   object CouponNotFound { 
@@ -8,6 +10,11 @@ object CouponFailures {
 
   final case class CouponNotFoundAtCommit(id: Int, commit: Int) extends Failure {
     override def description = s"Coupon $id not with at commit $commit"
+  }
+
+  final case class CouponCodeLengthIsTooSmall(prefix: String, quantity: Int) extends Failure {
+    val minSize = CouponCodes.charactersGivenQuantity(quantity) + prefix.length
+    override def description = s"Coupon code character length must be at least $minSize"
   }
 
   object CouponShadowNotFoundInPayload { 
@@ -38,5 +45,6 @@ object CouponFailures {
   object CouponFormNotFound { 
     def apply(id: Int) = NotFoundFailure404(s"Coupon Form with id $id cannot be found")
   }
+
 
 }

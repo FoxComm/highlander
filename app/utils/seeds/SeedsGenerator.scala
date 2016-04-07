@@ -125,7 +125,7 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
   }.toList
 
   def makePromotions(promotionCount: Int) = (1 to promotionCount).par.map { i ⇒  
-    generatePromotion(Random.nextInt(1) match {
+    generatePromotion(Random.nextInt(2) match {
       case 0 ⇒ Promotion.Auto
       case _ ⇒ Promotion.Coupon
     })
@@ -136,7 +136,9 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
   }.toList
 
   def makeCouponCodes(promotions: Seq[SimpleCoupon]) = promotions.flatMap { c ⇒  
-    CouponCodes.generateCodes(c.formId, "CP", 3, 1 + Random.nextInt(2)) 
+    CouponCodes.generateCodes("CP", 12, 1 + Random.nextInt(5)).map { d ⇒ 
+      CouponCode(couponFormId = c.formId, code = d)
+    }
   }.toList
 
   def pickOne[T](vals: Seq[T]) : T = vals(Random.nextInt(vals.length))

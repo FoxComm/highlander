@@ -10,6 +10,7 @@ import utils.time.JavaTimeSlickMapper._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
 import java.time.Instant
+import scala.util.Random
 
 /**
  * A coupon code is a way to reference a coupon from the outside world. 
@@ -31,16 +32,38 @@ class CouponCodes(tag: Tag) extends ObjectHeads[CouponCode](tag, "coupon_codes")
 object CouponCodes extends TableQueryWithId[CouponCode, CouponCodes](
   idLens = GenLens[CouponCode](_.id))(new CouponCodes(_)) {
 
-  def generateCode(couponFormId: Int, prefix: String, number: Int, leadingZeros: Int) : CouponCode = {
-    //TODO, We should add some salt here so that people can't guess the coupon code.
-    //and create a hash, turn it into a num and put it after the prefix.
-    val num = s"%0${leadingZeros}d".format(number)
-    val code = s"${prefix}${couponFormId}${num}"
-    CouponCode(code = code, couponFormId = couponFormId)
+  def charactersGivenQuantity(quantity: Int) : Int = Math.ceil(Math.log10(quantity.toDouble)).toInt
+
+  def isCharacterLimitValid(prefixSize: Int, quantity: Int, requestedLimit: Int) : Boolean = {
+    val minSuffixSize = charactersGivenQuantity(quantity)
+    requestedLimit >= prefixSize + minSuffixSize
   }
 
-  def generateCodes(couponFormId: Int, prefix: String, leadingZeros: Int, count: Int) :
-    Seq[CouponCode] = (1 to count).map { i ⇒ generateCode(couponFormId, prefix, i, leadingZeros) } 
+  def generateCodes(prefix: String, codeCharacterLength: Int, quantity: Int, attempt: Int = 0) : Seq[String]  = {
+    require(quantity > 0)
+
+    val minNumericLength = charactersGivenQuantity(quantity)
+    require(codeCharacterLength >= prefix.length + minNumericLength)
+
+    val numericLength = codeCharacterLength - prefix.length.toInt
+    val largestNum = Math.pow(10, numericLength.toDouble).toInt
+    val codes = (1 to quantity).map { i ⇒ 
+      generateCode(prefix, Random.nextInt(largestNum), largestNum, numericLength) 
+    }.distinct 
+
+    //if we produced fewer codes then desired, attempt to do it again.
+    if(codes.length < quantity && attempt < 10) 
+      generateCodes(prefix, codeCharacterLength, quantity, attempt +1)
+    else codes
+  }
+
+  private def generateCode(prefix: String, number: Int, largestNum: Int, numericLength: Int) : String = {
+    require(numericLength >= 0)
+    require(largestNum >= 0)
+    require(number <= largestNum)
+    val num = s"%0${numericLength}d".format(number)
+    s"${prefix}${num}"
+  }
 
   def filterByContext(contextId: Int): QuerySeq = 
     filter(_.contextId === contextId)
