@@ -1,6 +1,9 @@
 
-import React, { Component, PropTypes } from 'react';
+import _ from 'lodash';
+import React, { Component, PropTypes, Element } from 'react';
 import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
 import styles from './page.css';
 
@@ -10,12 +13,18 @@ import { PrimaryButton } from '../common/buttons';
 import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
 
+import * as PromotionActions from '../../modules/promotions/details';
+
 export default class PromotionPage extends Component {
 
   static propTypes = {
     params: PropTypes.shape({
       promotionId: PropTypes.string.isRequired,
     }).isRequired,
+  };
+
+  state = {
+    promotion: this.props.details.promotion,
   };
 
   get entityId() {
@@ -26,6 +35,21 @@ export default class PromotionPage extends Component {
     return this.entityId === 'new';
   }
 
+  componentDidMount() {
+    if (this.isNew) {
+      this.props.actions.promotionsNew();
+    } else {
+      this.props.actions.fetchPromotion(this.entityId);
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { isFetching } = nextProps;
+
+    if (!isFetching) {
+      this.setState({ promotion: nextProps.details.promotion });
+    }
+  }
 
   get pageTitle(): string {
     if (this.isNew) {
@@ -41,6 +65,15 @@ export default class PromotionPage extends Component {
   }
 
   render(): Element {
+    const props = this.props;
+    const { promotion } = this.state;
+
+    const children = React.cloneElement(props.children, {
+      ...props.children.props,
+      promotion,
+      entity: { entityId: this.entityId, entityType: 'promotion' },
+    });
+
     return (
       <div>
         <PageTitle title={this.pageTitle}>
@@ -52,8 +85,16 @@ export default class PromotionPage extends Component {
           </PrimaryButton>
         </PageTitle>
         <SubNav promotionId={this.entityId} />
-        {this.props.children}
+        {children}
       </div>
     );
   }
 }
+
+export default connect(
+  state => ({
+    details: state.promotions.details,
+    isFetching: _.get(state.asyncActions, 'getPromotion.inProgress', false),
+  }),
+  dispatch => ({ actions: bindActionCreators(PromotionActions, dispatch) })
+)(PromotionPage);

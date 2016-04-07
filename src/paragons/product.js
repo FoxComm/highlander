@@ -5,6 +5,7 @@
 import _ from 'lodash';
 import { assoc, merge } from 'sprout-data';
 import { stringToCurrency } from '../lib/format-currency';
+import { copyShadowAttributes } from './form-shadow-object';
 
 import type {
   FullProduct,
@@ -227,17 +228,6 @@ export function addNewVariant(product: FullProduct, variant: Variant): FullProdu
   return assoc(product, ['form', 'product', 'attributes', variantKey], newVariants);
 }
 
-export function copyShadowAttributes(form: Attributes, shadow: Attributes) {
-  //update form
-  _.forEach(shadow,  (s, label) => {
-      const attribute = form[s.ref];
-      form[label] = attribute;
-   });
-
-  //update shadow
-  shadow = _.transform(shadow, (result, value, key) => { value.ref = key; }, {});
-}
-
 /**
  * Takes the FullProduct response from the API and ensures that default attributes
  * have been included.
@@ -245,13 +235,12 @@ export function copyShadowAttributes(form: Attributes, shadow: Attributes) {
  * @return {FullProduct} Copy of the input that includes all default attributes.
  */
 export function configureProduct(product: FullProduct): FullProduct {
-
-  //copy product attributes
+  // copy product attributes
   copyShadowAttributes(
     product.form.product.attributes,
     product.shadow.product.attributes);
 
-  //copy sku attributes
+  // copy sku attributes
   for(var i = 0; i < product.form.skus.length; i++) {
     copyShadowAttributes(
       product.form.skus[i].attributes,
