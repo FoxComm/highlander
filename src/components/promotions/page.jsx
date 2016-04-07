@@ -4,6 +4,7 @@ import React, { Component, PropTypes, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { pushState } from 'redux-router';
 
 import styles from './page.css';
 
@@ -47,6 +48,10 @@ export default class PromotionPage extends Component {
     const { isFetching } = nextProps;
 
     if (!isFetching) {
+      const nextPromotion = nextProps.details.promotion;
+      if (this.isNew && nextPromotion.form.id) {
+        this.props.dispatch(pushState(null, `/promotions/${nextPromotion.form.id}`, ''));
+      }
       this.setState({ promotion: nextProps.details.promotion });
     }
   }
@@ -56,12 +61,26 @@ export default class PromotionPage extends Component {
       return 'New Promotion';
     }
 
-    return 'Old promotion';
+    const { promotion } = this.props.details;
+    return _.get(promotion, 'form.attributes.name', '');
+  }
+
+  @autobind
+  handleUpdatePromotion(promotion) {
+    this.setState({ promotion });
   }
 
   @autobind
   handleSubmit() {
+    if (this.state.promotion) {
+      const promotion = this.state.promotion;
 
+      if (this.isNew) {
+        this.props.actions.createPromotion(promotion);
+      } else {
+        this.props.actions.updatePromotion(promotion);
+      }
+    }
   }
 
   render(): Element {
@@ -71,6 +90,7 @@ export default class PromotionPage extends Component {
     const children = React.cloneElement(props.children, {
       ...props.children.props,
       promotion,
+      onUpdatePromotion: this.handleUpdatePromotion,
       entity: { entityId: this.entityId, entityType: 'promotion' },
     });
 
@@ -96,5 +116,5 @@ export default connect(
     details: state.promotions.details,
     isFetching: _.get(state.asyncActions, 'getPromotion.inProgress', false),
   }),
-  dispatch => ({ actions: bindActionCreators(PromotionActions, dispatch) })
+  dispatch => ({ actions: bindActionCreators(PromotionActions, dispatch), dispatch })
 )(PromotionPage);

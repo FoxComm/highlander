@@ -2,6 +2,7 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
+import { assoc } from 'sprout-data';
 
 import styles from './promotion-form.css';
 
@@ -20,8 +21,14 @@ export default class PromotionForm extends Component {
     return _(shadow).omit(toOmit).keys().value();
   }
 
-  handleProductChange() {
+  @autobind
+  handleChange(form, shadow) {
+    const newPromotion = assoc(this.props.promotion,
+      ['form', 'attributes'], form,
+      ['shadow', 'attributes'], shadow
+    );
 
+    this.props.onUpdatePromotion(newPromotion);
   }
 
   render() {
@@ -32,7 +39,7 @@ export default class PromotionForm extends Component {
       <div styleName="promotion-form">
         <div styleName="main">
           <ObjectForm
-            onChange={this.handleProductChange}
+            onChange={this.handleChange}
             fieldsToRender={this.generalAttrs}
             form={formAttributes}
             shadow={shadowAttributes}

@@ -18,8 +18,16 @@ const getPromotion = createAsyncActions(
 
 const _createPromotion = createAsyncActions(
   'createPromotion',
-  (promotion, context) => {
+  (promotion, context = defaultContext) => {
     return Api.post(`/promotions/${context}`, promotion);
+  }
+);
+
+const _updatePromotion = createAsyncActions(
+  'updatePromotion',
+  (promotion, context = defaultContext) => {
+    const id = promotion.form.id;
+    return Api.patch(`/promotions/${context}/${id}`, promotion);
   }
 );
 
@@ -34,6 +42,7 @@ export function fetchPromotion(id: string, context: string = defaultContext) {
 }
 
 export const createPromotion = _createPromotion.perform;
+export const updatePromotion = _updatePromotion.perform;
 
 function updatePromotionInState(state, response) {
   return {
@@ -55,6 +64,7 @@ const reducer = createReducer({
   },
   [getPromotion.succeeded]: updatePromotionInState,
   [_createPromotion.succeeded]: updatePromotionInState,
+  [_updatePromotion.succeeded]: updatePromotionInState,
 }, initialState);
 
 export default reducer;
