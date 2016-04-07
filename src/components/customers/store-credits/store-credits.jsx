@@ -131,7 +131,7 @@ export default class StoreCredits extends React.Component {
 
   componentDidMount() {
     this.props.actions.setExtraFilters([
-      {term: {'customerId': this.customerId}}
+      { term: { 'customerId': this.customerId } }
     ]);
     this.props.reasonsActions.fetchReasons(this.reasonType);
     this.props.totalsActions.fetchTotals(this.customerId);
@@ -236,7 +236,7 @@ export default class StoreCredits extends React.Component {
 
   @autobind
   cancelStoreCredits(allChecked, toggledIds) {
-    const {cancelStoreCredits} = this.props.bulkActions;
+    const { cancelStoreCredits } = this.props.bulkActions;
 
     return (
       <CancelModal
@@ -251,7 +251,7 @@ export default class StoreCredits extends React.Component {
     const stateTitle = stateTitles[state];
 
     return (allChecked, toggledIds) => {
-      const {changeStoreCreditsState} = this.props.bulkActions;
+      const { changeStoreCreditsState } = this.props.bulkActions;
 
       return (
         <ChangeStateModal
@@ -300,7 +300,7 @@ export default class StoreCredits extends React.Component {
                  params={props.params}
                  history={this.context.history}
                  transactionsSelected={false} />
-        <div className="fc-grid fc-list-page-content fc-store-credits__list">
+        <div className="fc-list-page-content fc-store-credits__list">
           <BulkActions
             module="customers.store-credits"
             entity="store credit"
