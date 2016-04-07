@@ -8,7 +8,6 @@ lazy val commonSettings = Seq(
     "-feature",
     "-unchecked",
     "-deprecation",
-    "-Xlint",
     "-Xfatal-warnings",
     "-language:higherKinds",
     "-language:existentials",
@@ -18,7 +17,6 @@ lazy val commonSettings = Seq(
     "-Ywarn-infer-any"
   )
 )
-
 
 lazy val testWartWarnings = Seq(Wart.OptionPartial)
 
@@ -139,6 +137,7 @@ lazy val phoenixScala = (project in file(".")).
         "com.github.julien-truffaut" %% "monocle-macro"          % monocleV,
         "it.justwrote"               %% "scala-faker"            % "0.3",
         "io.backchat.inflector"      %% "scala-inflector"        % "1.3.5",
+        "com.github.tototoshi"       %% "scala-csv"              % "1.3.0",
         // Testing
         "org.conbere"                %  "markov_2.10"            % "0.2.0",
         "com.typesafe.akka"          %% "akka-testkit"           % akkaV      % "test",
@@ -187,3 +186,19 @@ seed := { (runMain in Compile).partialInput(" utils.seeds.Seeds").evaluated }
 
 /** Cats pulls in disciple which pulls in scalacheck, and SBT will notice and set up a test for ScalaCheck */
 lazy val noScalaCheckPlease: ExclusionRule = ExclusionRule(organization = "org.scalacheck")
+
+lazy val gatling = (project in file("gatling")).
+  dependsOn(phoenixScala).
+  settings(
+    commonSettings,
+    libraryDependencies += "io.gatling" % "gatling-app" % "2.1.7",
+    aggregate in Test := false, // Do not mix unit and Gatling tests
+    sourceDirectory in Gatling := baseDirectory.value / "src/main/scala",
+    scalaSource in Gatling := baseDirectory.value / "src/main/scala",
+    resourceDirectory in Gatling := baseDirectory.value / "resources",
+    mainClass in Gatling := Some("GatlingApp")
+  ).
+  enablePlugins(GatlingPlugin)
+
+lazy val seedGatling = inputKey[Unit]("Seed DB with Gatling")
+seedGatling := { (runMain in Compile in gatling).partialInput(" GatlingApp").evaluated }

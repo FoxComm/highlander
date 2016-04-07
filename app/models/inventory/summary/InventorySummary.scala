@@ -58,7 +58,7 @@ object InventorySummaries extends TableQueryWithId[InventorySummary, InventorySu
   } yield (sellable, preorder, backorder, nonsellable)
 
   def findSellableBySkuIdInWarehouse(skuId: Int, warehouseId: Int): SellableInventorySummaries.QuerySeq = for {
-    sellable ← SellableInventorySummaries
-    invSums ← InventorySummaries.filter(_.sellableId === sellable.id)
+    sellable ← SellableInventorySummaries 
+    invSums ← InventorySummaries.filter(_.sellableId === sellable.id).filter(_.skuId === skuId)
   } yield sellable
 }
