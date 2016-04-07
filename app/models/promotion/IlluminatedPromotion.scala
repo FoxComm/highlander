@@ -14,7 +14,7 @@ import java.time.Instant
  * the form. 
  */
 final case class IlluminatedPromotion(id: Int, context: IlluminatedContext, 
-  attributes: Json)
+  applyType: Promotion.ApplyType, attributes: Json)
 
 object IlluminatedPromotion { 
 
@@ -23,6 +23,7 @@ object IlluminatedPromotion {
 
     IlluminatedPromotion(
       id = form.id,  //Id points to form since that is constant across contexts
+      applyType = promotion.applyType,
       context = IlluminatedContext(context.name, context.attributes),
       attributes = IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes))
   }

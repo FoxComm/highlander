@@ -16,6 +16,7 @@ import models.sharedsearch.SharedSearch
 import models.shipping.Shipment
 import models.auth.Identity.IdentityKind
 import models.{Assignment, Reason}
+import models.promotion.Promotion
 import org.json4s.jackson
 import responses.CountryWithRegions
 
@@ -30,6 +31,7 @@ object JsonFormatters {
     Assignment.AssignmentType.jsonFormat +
     Assignment.ReferenceType.jsonFormat +
     Order.State.jsonFormat +
+    Promotion.ApplyType.jsonFormat +
     OrderLineItem.State.jsonFormat +
     Shipment.State.jsonFormat +
     GiftCard.OriginType.jsonFormat +

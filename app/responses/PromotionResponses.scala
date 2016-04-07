@@ -50,22 +50,24 @@ object PromotionResponses {
   }
 
   object PromotionResponse { 
-    final case class Root(form: PromotionAndDiscountFormResponse.Root, shadow: PromotionShadowResponse.Root)
+    final case class Root(applyType: Promotion.ApplyType, form: PromotionAndDiscountFormResponse.Root, 
+      shadow: PromotionShadowResponse.Root)
 
-    def build(f: ObjectForm, s: ObjectShadow, discountForms: Seq[ObjectForm], 
+    def build(promotion: Promotion, f: ObjectForm, s: ObjectShadow, discountForms: Seq[ObjectForm], 
       discountShadows: Seq[ObjectShadow]) : Root = Root(
+        applyType = promotion.applyType,
         form = PromotionAndDiscountFormResponse.build(f, discountForms), 
         shadow = PromotionShadowResponse.build(s, discountShadows))
   }
 
   object IlluminatedPromotionResponse {
 
-    final case class Root(id: Int, context: ObjectContextResponse.Root, attributes: Json,
-      discounts: Seq[IlluminatedDiscountResponse.Root])
+    final case class Root(id: Int, context: ObjectContextResponse.Root, applyType: Promotion.ApplyType, 
+      attributes: Json, discounts: Seq[IlluminatedDiscountResponse.Root])
 
     def build(promotion: IlluminatedPromotion, discounts: Seq[IlluminatedDiscount]): Root = 
       Root(id = promotion.id, context = ObjectContextResponse.build(promotion.context), 
-        attributes = promotion.attributes, 
+        applyType = promotion.applyType, attributes = promotion.attributes, 
         discounts = discounts.map(d ⇒ IlluminatedDiscountResponse.build(d)))
   }
 }

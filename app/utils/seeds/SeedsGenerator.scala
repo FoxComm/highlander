@@ -8,6 +8,7 @@ import models.inventory.Skus
 import models.location.{Addresses, Address}
 import models.order._
 import models.coupon._
+import models.promotion._
 import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCards, CreditCard}
 import models.product.SimpleContext
@@ -124,7 +125,10 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
   }.toList
 
   def makePromotions(promotionCount: Int) = (1 to promotionCount).par.map { i ⇒  
-    generatePromotion 
+    generatePromotion(Random.nextInt(1) match {
+      case 0 ⇒ Promotion.Auto
+      case _ ⇒ Promotion.Coupon
+    })
   }.toList
   
   def makeCoupons(promotions: Seq[SimplePromotion]) = promotions.par.map { 
@@ -158,7 +162,7 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
       giftCards  ← * <~  orderedGcs ++ appeasements
       unsavedPromotions = makePromotions(5)
       promotions ← * <~ generatePromotions(unsavedPromotions)
-      unsavedCoupons ← * <~ makeCoupons(promotions)
+      unsavedCoupons ← * <~ makeCoupons(promotions.filter(_.applyType == Promotion.Coupon))
       coupons ← * <~ generateCoupons(unsavedCoupons)
       unsavedCodes ← * <~ makeCouponCodes(coupons)
       _  ← * <~ CouponCodes.createAll(unsavedCodes)

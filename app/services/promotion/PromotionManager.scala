@@ -55,7 +55,7 @@ object PromotionManager {
       discounts ← * <~ ObjectUtils.getChildren(promotion.shadowId)
       discountForms ← * <~ discounts.map(_.form)
       discountShadows ← * <~ discounts.map(_.shadow)
-  } yield PromotionResponse.build(form, shadow, discountForms, discountShadows)).run()
+  } yield PromotionResponse.build(promotion, form, shadow, discountForms, discountShadows)).run()
 
   def create(payload: CreatePromotion, contextName: String) 
     (implicit ec: EC, db: DB): Result[PromotionResponse.Root] = (for {
@@ -66,9 +66,10 @@ object PromotionManager {
     shadow  ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
     ins     ← * <~ ObjectUtils.insert(form, shadow)
     promotion ← * <~ Promotions.create(Promotion(contextId = context.id, 
-      formId = ins.form.id, shadowId = ins.shadow.id, commitId = ins.commit.id))
+      applyType = payload.applyType, formId = ins.form.id, shadowId = ins.shadow.id, 
+      commitId = ins.commit.id))
     discount ← * <~ createDiscounts(context, payload, ins.shadow)
-  } yield PromotionResponse.build(ins.form, ins.shadow, discount.forms, discount.shadows)).runTxn()
+  } yield PromotionResponse.build(promotion, ins.form, ins.shadow, discount.forms, discount.shadows)).runTxn()
 
   private final case class DiscountsCreateResult(forms: Seq[ObjectForm], shadows: Seq[ObjectShadow])
   private def createDiscounts(context: ObjectContext, payload: CreatePromotion, promotionShadow: ObjectShadow)
@@ -105,8 +106,8 @@ object PromotionManager {
     discount ← * <~ updateDiscounts(context, promotion.shadowId, 
       updatedPromotion.shadow.id, payload)
     commit ← * <~ ObjectUtils.commit(updatedPromotion)
-    promotion ← * <~ updateHead(promotion, updatedPromotion.shadow, commit)
-  } yield PromotionResponse.build(updatedPromotion.form, updatedPromotion.shadow,
+    promotion ← * <~ updateHead(promotion, payload, updatedPromotion.shadow, commit)
+  } yield PromotionResponse.build(promotion, updatedPromotion.form, updatedPromotion.shadow,
     discount.forms, discount.shadows)).runTxn()
 
   private final case class UpdateDiscountsResult(forms: Seq[ObjectForm], shadows: Seq[ObjectShadow])
@@ -161,14 +162,20 @@ object PromotionManager {
       shadow = d.shadow)
       ))).run()
 
-  private def updateHead(promotion: Promotion, shadow: ObjectShadow, 
-    maybeCommit: Option[ObjectCommit]) 
-    (implicit ec: EC, db: DB): DbResultT[Product] = 
+  private def updateHead(promotion: Promotion, payload: UpdatePromotion, 
+    shadow: ObjectShadow, maybeCommit: Option[ObjectCommit]) 
+    (implicit ec: EC, db: DB): DbResultT[Promotion] = 
       maybeCommit match {
         case Some(commit) ⇒  for { 
           promotion   ← * <~ Promotions.update(promotion, promotion.copy(
-            shadowId = shadow.id, commitId = commit.id))
+            applyType = payload.applyType, shadowId = shadow.id, 
+            commitId = commit.id))
         } yield promotion
-        case None ⇒ DbResultT.pure(promotion)
+        case None ⇒  
+          if(promotion.applyType != payload.applyType) for { 
+            promotion   ← * <~ Promotions.update(promotion, promotion.copy(
+              applyType = payload.applyType))
+          } yield promotion
+          else DbResultT.pure(promotion)
       }
 }

@@ -29,7 +29,7 @@ object SimplePromotion {
 import SimplePromotion._
 
 final case class SimplePromotion(promotionId: Int = 0, formId: Int = 0, shadowId: Int = 0,  
-  percentOff: Percent, totalAmount: Int)
+  percentOff: Percent, totalAmount: Int, applyType: Promotion.ApplyType = Promotion.Auto)
 
 final case class SimplePromotionForm(percentOff: Percent, totalAmount: Int) {
 
@@ -64,10 +64,12 @@ final case class SimplePromotionShadow(f: SimplePromotionForm) {
 
 trait PromotionGenerator {
 
-  def generatePromotion: SimplePromotion = {
+  def generatePromotion(applyType: Promotion.ApplyType = Promotion.Auto): 
+  SimplePromotion = {
     val percent = Random.nextInt(90)
     val totalAmount = Random.nextInt(10)
     SimplePromotion(
+      applyType = applyType,
       percentOff = percent,
       totalAmount = totalAmount)
   }
@@ -80,6 +82,7 @@ trait PromotionGenerator {
         val discountForm = SimpleDiscountForm(d.percentOff, d.totalAmount)
         val discountShadow = SimpleDiscountShadow(discountForm)
         val payload = CreatePromotion(
+          applyType = d.applyType,
           form = CreatePromotionForm(attributes = promotionForm.form, 
             discounts = Seq(CreateDiscountForm(attributes = discountForm.form))),
           shadow = CreatePromotionShadow(attributes = promotionShadow.shadow, 
