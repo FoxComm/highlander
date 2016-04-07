@@ -7,31 +7,31 @@ import { transitionTo } from '../../route-helpers';
 import { ListPageContainer, makeTotalCounter } from '../list-page';
 
 // redux
-import { actions } from '../../modules/promotions/list';
+import { actions } from '../../modules/coupons/list';
 
-type PromotionsListProps = {
+type CouponsListProps = {
   children: Element,
 };
 
-type PromotionsListHistory = {
+type CouponsListHistory = {
   history: object,
 }
 
-const PromotionsList = (props: PromotionsListProps, context: PromotionsListHistory) => {
-  const TotalCounter = makeTotalCounter(state => state.promotions.list, actions);
-  const addAction = () => transitionTo(context.history, 'promotion-details', {promotionId: 'new'});
+const CouponsList = (props: CouponsListProps, context: CouponsListHistory) => {
+  const TotalCounter = makeTotalCounter(state => state.coupons.list, actions);
+  const addAction = () => transitionTo(context.history, 'new-coupons');
 
   const navLinks = [
-    { title: 'Lists', to: 'promotions' },
+    { title: 'Lists', to: 'coupons' },
     { title: 'Insights', to: 'home' },
     { title: 'Activity Trail', to: 'home' }
   ];
 
   return (
     <ListPageContainer
-      title="Promotions"
+      title="Coupons"
       subtitle={<TotalCounter/>}
-      addTitle="Promotion"
+      addTitle="Coupon"
       handleAddAction={addAction}
       navLinks={navLinks}>
       {props.children}
@@ -39,8 +39,8 @@ const PromotionsList = (props: PromotionsListProps, context: PromotionsListHisto
   );
 };
 
-PromotionsList.contextTypes = {
+CouponsList.contextTypes = {
   history: PropTypes.object.isRequired,
 };
 
-export default PromotionsList;
+export default CouponsList;

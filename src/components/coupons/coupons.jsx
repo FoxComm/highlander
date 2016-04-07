@@ -12,16 +12,16 @@ import { connect } from 'react-redux';
 import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
 import { SelectableSearchList } from '../list-page';
-import PromotionRow from './promotion-row';
+import CouponRow from  './coupon-row';
 
 // redux
-import { actions } from '../../modules/promotions/list';
-import { actions as bulkActions } from '../../modules/promotions/bulk';
+import { actions } from '../../modules/coupons/list';
+import { actions as bulkActions } from '../../modules/coupons/bulk';
 
 
 const mapStateToProps = (state: Object) => {
   return {
-    list: state.promotions.list,
+    list: state.coupons.list,
   };
 };
 
@@ -32,11 +32,10 @@ const mapDispatchToProps = (dispatch: Function) => {
   };
 };
 
-const tableColumns = [
-  {field: 'id', text: 'Promotion ID'},
+const tableColumns: Array<Object> = [
   {field: 'name', text: 'Name'},
   {field: 'storefrontName', text: 'Storefront Name'},
-  {field: 'applyType', text: 'Apply Type'},
+  {field: 'code', text: 'Code'},
   {field: 'totalUses', text: 'Total Uses'},
   {field: 'inCarts', text: 'Current Carts'},
   {field: 'createdAt', text: 'Date/Time Created', type: 'datetime'},
@@ -50,11 +49,11 @@ export default class Promotions extends Component {
 
   renderRow(): Function {
     return (row: Object, index: number, columns: Array<any>, params: Object) => {
-      const key = `promotion-${row.id}`;
+      const key = `coupon-${row.id}`;
 
       return (
-        <PromotionRow
-          promotion={row}
+        <CouponRow
+          coupon={row}
           columns={columns}
           key={key}
           params={params}
@@ -74,11 +73,11 @@ export default class Promotions extends Component {
   render(): Element {
     const {list, actions} = this.props;
 
-    const entity = 'promotion';
+    const entity = 'coupon';
     const module = `${entity}s`;
 
     return (
-      <div className="promotions">
+      <div className="coupons">
         <BulkMessages
           storePath={`${module}.bulk`}
           module={module}
@@ -89,7 +88,7 @@ export default class Promotions extends Component {
           entity={entity}
           actions={this.bulkActions()}>
           <SelectableSearchList
-            emptyMessage="No promotions found."
+            emptyMessage="No coupons found."
             list={list}
             renderRow={this.renderRow}
             tableColumns={tableColumns}
