@@ -23,4 +23,4 @@ where
 	f.id = cp.form_id and 
 	s.id = cp.shadow_id;
 
-create unique index coupons_search_view_codex on coupons_search_view (lower(code));
+create unique index coupons_search_view_codex on coupons_search_view (id, code);
