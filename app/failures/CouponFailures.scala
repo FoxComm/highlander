@@ -12,6 +12,14 @@ object CouponFailures {
     override def description = s"Coupon $id not with at commit $commit"
   }
 
+  final case class CouponCodePrefixNotSet() extends Failure {
+    override def description = s"Coupon code prefix is not set"
+  }
+
+  final case class CouponCodeQuanityMustBeGreaterThanZero() extends Failure {
+    override def description = s"Coupon code quantity must be greater than zero"
+  }
+
   final case class CouponCodeLengthIsTooSmall(prefix: String, quantity: Int) extends Failure {
     val minSize = CouponCodes.charactersGivenQuantity(quantity) + prefix.length
     override def description = s"Coupon code character length must be at least $minSize"

@@ -6,7 +6,7 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
 import models.StoreAdmin
-import payloads.{CreateCoupon, UpdateCoupon}
+import payloads.{CreateCoupon, UpdateCoupon, GenerateCouponCodes}
 import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import services.coupon.CouponManager
 import slick.driver.PostgresDriver.api._
@@ -23,6 +23,23 @@ object CouponRoutes {
       activityContext(admin) { implicit ac ⇒
 
         pathPrefix("coupons") {
+
+          pathPrefix("code" / "generate") {
+            pathPrefix(IntNumber / Segment) { (id, code) ⇒
+              (post & pathEnd) { 
+                goodOrFailures {
+                  CouponManager.generateCode(id, code)
+                }
+              }
+            } ~
+            pathPrefix(IntNumber) { id ⇒
+              (post & pathEnd & entity(as[GenerateCouponCodes])) { payload ⇒
+                goodOrFailures {
+                  CouponManager.generateCodes(id, payload)
+                }
+              }
+            }
+          } ~
           pathPrefix("forms" / IntNumber) { id ⇒
             (get & pathEnd) {
               goodOrFailures {

@@ -13,7 +13,7 @@ import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 import slick.driver.PostgresDriver.api._
 import payloads.{CreateCoupon, CreateCouponForm, CreateCouponShadow, 
-  UpdateCoupon, UpdateCouponForm, UpdateCouponShadow}
+  UpdateCoupon, UpdateCouponForm, UpdateCouponShadow, GenerateCouponCodes}
 import utils.aliases._
 import cats.data.NonEmptyList
 import failures.NotFoundFailure404
@@ -92,6 +92,34 @@ object CouponManager {
   } yield IlluminatedCouponResponse.build(
     coupon = IlluminatedCoupon.illuminate(context, coupon, form, shadow, codes)
     )).run()
+
+  def generateCode(id: Int, code: String)
+    (implicit ec: EC, db: DB): Result[String] = (for {
+    coupon  ← * <~ Coupons.filter(_.formId === id).one.
+        mustFindOr(CouponNotFound(id))
+    couponCode ← * <~ CouponCodes.create(CouponCode(couponFormId = id, code = code))
+  } yield couponCode.code).runTxn()
+
+  def generateCodes(id: Int, payload: GenerateCouponCodes)
+    (implicit ec: EC, db: DB): Result[Seq[String]] = (for {
+      _ ← * <~ validateCouponCodePayload(payload)
+    coupon  ← * <~ Coupons.filter(_.formId === id).one.
+        mustFindOr(CouponNotFound(id))
+    codes ← * <~ CouponCodes.generateCodes(payload.prefix, payload.length, payload.quantity)
+    unsavedCouponCodes = codes.map{c ⇒ CouponCode(couponFormId = id, code = c)}
+    couponCodes ← * <~ CouponCodes.createAll(unsavedCouponCodes)
+  } yield codes).runTxn()
+
+  private def validateCouponCodePayload(p: GenerateCouponCodes)
+    (implicit ec: EC, db: DB) = {
+    ObjectUtils.failIfErrors(
+      Seq(
+        if(p.quantity <= 0) Seq(CouponCodeQuanityMustBeGreaterThanZero()) else Seq.empty,
+        if(p.prefix.isEmpty) Seq(CouponCodePrefixNotSet()) else Seq.empty,
+        if(CouponCodes.isCharacterLimitValid(p.prefix.length, p.quantity, p.length)) Seq.empty
+        else Seq(CouponCodeLengthIsTooSmall(p.prefix, p.quantity))
+      ).flatten)
+  }
 
   private def updateHead(coupon: Coupon, promotionId: Int, shadow: ObjectShadow, 
     maybeCommit: Option[ObjectCommit]) 

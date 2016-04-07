@@ -6,5 +6,5 @@ create table coupon_codes(
 );
 
 create index coupon_codes_coupon_form_idx on coupon_codes (coupon_form_id);
-create index coupon_codex on coupon_codes (lower(code));
+create unique index coupon_codex on coupon_codes (lower(code));
 
