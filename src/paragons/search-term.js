@@ -56,6 +56,8 @@ export function getInputMask(searchTerm) {
       return '99.99';
     case 'date':
       return '99/99/9999';
+    default:
+      return '';
   }
 }
 

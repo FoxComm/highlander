@@ -1,6 +1,6 @@
 .fc-pilled-input {
   &:not(._disabled) {
-    .fc-pilled-input__input-container {
+    .fc-pilled-input__pills-wrapper {
       &:hover {
         border: 1px solid @color-decor3;
         box-shadow: inset 1px 1px 3px 0px rgba(0, 0, 0, 0.24);
@@ -8,8 +8,9 @@
     }
   }
 
-  &._active {
-    .fc-pilled-input__input-container {
+  &._active,
+  &._active:hover {
+    .fc-pilled-input__pills-wrapper {
       border: 1px solid @color-decor15;
       box-shadow: inset 1px 1px 3px 0px rgba(0, 0, 0, 0.24);
     }

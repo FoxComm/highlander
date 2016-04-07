@@ -1,4 +1,3 @@
-
 import _ from 'lodash';
 import classNames from 'classnames';
 import React, { PropTypes } from 'react';
@@ -16,7 +15,7 @@ const formatPill = (pill, idx, props) => {
       onClick={() => props.onPillClick(pill, idx)}>
       {pill}
       <a onClick={() => props.onPillClose(pill, idx)}
-        className="fc-pilled-input__pill-close">
+         className="fc-pilled-input__pill-close">
         &times;
       </a>
     </div>
@@ -56,28 +55,28 @@ const PilledInput = props => {
   });
 
   const input = children || (
-    <input
-      className={inputClass}
-      type="text"
-      autoFocus={props.autofocus}
-      disabled={disabled}
-      {...rest} />
-  );
+      <input
+        className={inputClass}
+        type="text"
+        autoFocus={props.autofocus}
+        disabled={disabled}
+        {...rest} />
+    );
 
   return (
     <div className={classNames('fc-pilled-input', className)}>
       <div className={containerClass}>
         <div className="fc-pilled-input__pills-wrapper">
-          {pills.map((pill, idx) => {
-            return props.formatPill(pill, idx, props);
-          })}
+            {pills.map((pill, idx) => {
+              return props.formatPill(pill, idx, props);
+            })}
+          <div className="fc-pilled-input__input-wrapper">
+            {iconWrapper(icon)}
+            {input}
+          </div>
         </div>
-        {iconWrapper(icon)}
-        <div className="fc-pilled-input__input-wrapper">
-          {input}
-        </div>
+        {buttonsContainer(button)}
       </div>
-      {buttonsContainer(button)}
     </div>
   );
 };

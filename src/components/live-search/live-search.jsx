@@ -232,7 +232,8 @@ export default class LiveSearch extends React.Component {
       <div
         className="fc-pilled-input__pill"
         key={`pill-${idx}`}
-        onClick={() => props.onPillClick(pill, idx)}>
+        onClick={() => props.onPillClick(pill, idx)}
+        title={pill.display}>
         <i className={icon}/>
         {pill.display}
         <a onClick={() => props.onPillClose(pill, idx)}
@@ -424,7 +425,7 @@ export default class LiveSearch extends React.Component {
       inputMask: inputMask,
       searchOptions: options,
       searchDisplay: newSearchTerm,
-      searchPrepend: searchPrepend,
+      searchPrepend: searchPrepend.replace(/a/, '\\a'), // fix masked input as "a" is a rule in react-input-mask
       searchValue: newSearchTerm,
       selectionIndex: -1
     });
