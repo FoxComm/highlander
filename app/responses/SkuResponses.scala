@@ -57,7 +57,7 @@ object SkuResponses {
       Root(code = s.code, attributes = s.attributes, context = None)
   }
 
-  object IlluminatedFullSkuResponse {
+  object FullSkuResponse {
 
     final case class Root(code: String, context: ObjectContextResponse.Root,
       form: SkuFormResponse.Root, shadow: SkuShadowResponse.Root)

@@ -18,6 +18,8 @@ import failures.ObjectFailures._
 import utils.aliases._
 import cats.data.NonEmptyList
 import cats.implicits._
+import org.json4s.JsonAST.JValue
+import java.time.Instant
 
 object ObjectManager {
 
@@ -58,10 +60,4 @@ object ObjectManager {
       context.copy(name = payload.name, attributes = payload.attributes))
   } yield ObjectContextResponse.build(context)).runTxn()
 
-  private def validateShadow(form: ObjectForm, shadow: ObjectShadow) 
-  (implicit ec: EC, db: DB) : DbResultT[Unit] = 
-    IlluminateAlgorithm.validateAttributes(form.attributes, shadow.attributes) match {
-      case Nil ⇒ DbResultT.pure(Unit)
-      case head :: tail ⇒ DbResultT.leftLift(NonEmptyList(head, tail))
-    }
 }

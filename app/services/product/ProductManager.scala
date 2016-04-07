@@ -182,16 +182,6 @@ object ProductManager {
         case None ⇒ DbResultT.pure(product)
       }
 
-  private def updateSkuHead(sku: Sku, skuShadow: ObjectShadow, maybeCommit: Option[ObjectCommit]) 
-    (implicit ec: EC, db: DB): DbResultT[Sku] = 
-      maybeCommit match {
-        case Some(commit) ⇒  for { 
-          sku ← * <~ Skus.update(sku, sku.copy(shadowId = skuShadow.id, 
-            commitId = commit.id))
-        } yield sku
-        case None ⇒ DbResultT.pure(sku)
-      }
-
   private def validateSkuPayload(skuGroup : Seq[(CreateFullSkuForm, CreateSkuShadow)]) 
   (implicit ec: EC, db: DB) : DbResultT[Unit] =
     ObjectUtils.failIfErrors(skuGroup.flatMap { case (f, s) ⇒ 
@@ -274,9 +264,11 @@ object ProductManager {
         SkuNotFoundForContext(formPayload.code, context.name)) 
       updatedSku  ← * <~ ObjectUtils.update(
         sku.formId, sku.shadowId, formPayload.attributes, shadowPayload.attributes)
-      _ ← * <~ ObjectUtils.updateLink(oldProductShadowId, productShadowId, sku.shadowId, updatedSku.shadow.id)
-      commit ← * <~ ObjectUtils.commit(updatedSku.form, updatedSku.shadow, updatedSku.updated)
-      sku  ← * <~ updateSkuHead(sku, updatedSku.shadow, commit)
+      _ ← * <~ ObjectUtils.updateLink(oldProductShadowId, productShadowId, 
+        sku.shadowId, updatedSku.shadow.id)
+      commit ← * <~ ObjectUtils.commit(updatedSku.form, updatedSku.shadow, 
+        updatedSku.updated)
+      sku  ← * <~ SkuManager.updateSkuHead(sku, updatedSku.shadow, commit)
     } yield (sku, updatedSku.form, updatedSku.shadow, updatedSku.updated)
   }
 

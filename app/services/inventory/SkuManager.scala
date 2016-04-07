@@ -9,22 +9,26 @@ import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
-import payloads.{CreateSkuForm, CreateSkuShadow, UpdateSkuForm, UpdateSkuShadow}
+import payloads.{CreateFullSku, UpdateFullSku}
 import utils.aliases._
 import cats.data.NonEmptyList
 import failures.NotFoundFailure404
 import failures.ProductFailures._
 import failures.ObjectFailures._
 
+import cats.implicits._
+import org.json4s.JsonAST.JValue
+import java.time.Instant
+
 object SkuManager {
 
-  def getIlluminatedFullSkuByContextName(code: String, contextName: String)
-    (implicit ec: EC, db: DB): Result[IlluminatedFullSkuResponse.Root] = (for {
+  def getFullSkuByContextName(code: String, contextName: String)
+    (implicit ec: EC, db: DB): Result[FullSkuResponse.Root] = (for {
     context ← * <~ ObjectContexts.filterByName(contextName).one.
       mustFindOr(ObjectContextNotFound(contextName))
     form    ← * <~ getFormInner(code)
     shadow  ← * <~ getShadowInner(code, contextName)
-  } yield IlluminatedFullSkuResponse.build(form, shadow, context)).run()
+  } yield FullSkuResponse.build(form, shadow, context)).run()
 
   // Detailed info for SKU of each type in given warehouse
   def getForm(code: String)
@@ -67,4 +71,47 @@ object SkuManager {
       case head ::tail ⇒ DbResultT.leftLift(NonEmptyList(head, tail))
     }
 
+  def createFullSku(payload: CreateFullSku, contextName: String)
+    (implicit ec: EC, db: DB): Result[FullSkuResponse.Root] = (for {
+    context   ← * <~ ObjectContexts.filterByName(contextName).one.
+      mustFindOr(ObjectContextNotFound(contextName))
+    skuForm   ← * <~ ObjectForms.create(ObjectForm(kind = Sku.kind, attributes = payload.form.attributes))
+    skuShadow ← * <~ ObjectShadows.create(ObjectShadow(formId = skuForm.id, attributes = payload.shadow.attributes))
+    skuCommit ← * <~ ObjectCommits.create(ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
+    _         ← * <~ validateShadow(form = skuForm, shadow = skuShadow)
+    sku       ← * <~ Skus.create(Sku(code = payload.form.code, contextId = context.id, formId = skuForm.id,
+      shadowId = skuShadow.id, commitId = skuCommit.id))
+    skuFormResponse   = SkuFormResponse.build(sku, skuForm)
+    skuShadowResponse = SkuShadowResponse.build(sku, skuShadow)
+  } yield FullSkuResponse.build(
+    form = skuFormResponse,
+    shadow = skuShadowResponse,
+    context = context)).runTxn()
+
+  def updateFullSku(code: String, payload: UpdateFullSku, contextName: String)
+    (implicit ec: EC, db: DB): Result[FullSkuResponse.Root] = (for {
+    context           ← * <~ ObjectContexts.filterByName(contextName).one.
+      mustFindOr(ObjectContextNotFound(contextName))
+    sku               ← * <~ Skus.filterByContextAndCode(context.id, code).one
+      .mustFindOr(SkuNotFoundForContext(code, contextName))
+    updated ← * <~ ObjectUtils.update(sku.formId,
+      sku.shadowId, payload.form.attributes, payload.shadow.attributes)
+    commit ← * <~ ObjectUtils.commit(updated.form, updated.shadow, updated.updated)
+    sku               ← * <~ updateSkuHead(sku, updated.shadow, commit)
+    skuFormResponse   = SkuFormResponse.build(sku, updated.form)
+    skuShadowResponse = SkuShadowResponse.build(sku, updated.shadow)
+  } yield FullSkuResponse.build(
+    form = skuFormResponse,
+    shadow = skuShadowResponse,
+    context = context)).runTxn()
+
+  def updateSkuHead(sku: Sku, skuShadow: ObjectShadow, maybeCommit: Option[ObjectCommit]) 
+    (implicit ec: EC, db: DB): DbResultT[Sku] = 
+      maybeCommit match {
+        case Some(commit) ⇒  for { 
+          sku ← * <~ Skus.update(sku, sku.copy(shadowId = skuShadow.id, 
+            commitId = commit.id))
+        } yield sku
+        case None ⇒ DbResultT.pure(sku)
+      }
 }
