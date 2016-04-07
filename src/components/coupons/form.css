@@ -1,0 +1,17 @@
+
+.promotion-form {
+  lost-flex-container: column;
+}
+
+.main {
+  lost-column: 8/12;
+  padding-left: 1.85%;
+
+  & > div {
+    margin-bottom: 20px;
+  }
+}
+
+.aside {
+  lost-column: 4/12;
+}
