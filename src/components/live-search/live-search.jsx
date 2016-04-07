@@ -225,13 +225,14 @@ export default class LiveSearch extends React.Component {
     );
   }
 
+  @autobind
   formatPill(pill, idx, props) {
     const icon = pill.term === '_all' ? 'icon-search' : 'icon-filter';
 
     return (
       <div
         className="fc-pilled-input__pill"
-        key={`pill-${idx}`}
+        key={`pill-${this.currentSearch.title}-${idx}`}
         onClick={() => props.onPillClick(pill, idx)}
         title={pill.display}>
         <i className={icon}/>
