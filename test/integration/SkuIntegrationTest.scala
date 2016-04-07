@@ -33,7 +33,7 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
       context         ← * <~ ObjectContexts.create(SimpleContext.create)
       simpleSku       ← * <~ SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD)
       skuForm         ← * <~ ObjectForms.create(simpleSku.create)
-      simpleSkuShadow ← * <~ SimpleSkuShadow(skuForm.id, simpleSku)
+      simpleSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
       skuShadow       ← * <~ ObjectShadows.create(simpleSkuShadow.create)
       skuCommit       ← * <~ ObjectCommits.create(ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
       sku             ← * <~ Skus.create(Sku(contextId = context.id, code = simpleSku.code, formId = skuForm.id,
