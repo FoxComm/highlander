@@ -8,7 +8,7 @@ import { autobind } from 'core-decorators';
 import { Dropdown } from '../dropdown';
 import CurrencyInput from '../forms/currency-input';
 
-import styles from './qualifier-type.css';
+import styles from './attrs-edit.css';
 
 const qualifierItems = [
   ['orderAny', 'Order - No qualifier'],
@@ -62,17 +62,16 @@ export default class QualifierType extends Component {
     });
   }
 
-
   get totalAmountWidget() {
     return (
       <div styleName="control-after-type">
-        Spend&nbsp;
+        <span>Spend</span>
         <CurrencyInput
-          styleName="total-amount"
+          styleName="inline-edit-input"
           value={this.qualifierParams.totalAmount}
           onChange={this.handleTotalAmountChange}
         />
-        &nbsp;or more.
+        <span>or more.</span>
       </div>
     );
   }
@@ -94,7 +93,7 @@ export default class QualifierType extends Component {
     return (
       <div>
         <Dropdown
-          styleName="qualifier-types"
+          styleName="type-chooser"
           items={qualifierItems}
           value={this.qualifierType}
           onChange={this.handleQualifierTypeChange}

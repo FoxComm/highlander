@@ -3,8 +3,8 @@ import _ from 'lodash';
 import classNames from 'classnames';
 
 const AppendInput = props => {
-  const { 
-    icon, inputClass, inputName, inputType, inputValue, inputValuePretty, ...rest 
+  const {
+    icon, inputClass, className, inputName, inputType, inputValue, inputValuePretty, ...rest
   } = props;
 
   const vInputClass = classNames('fc-append-input__input-field', inputClass);
@@ -12,7 +12,7 @@ const AppendInput = props => {
   const vInputValue = inputValuePretty || inputValue;
 
   const visibleInput = (
-    <input 
+    <input
       className={vInputClass}
       name={vInputName}
       type={inputType}
@@ -25,7 +25,7 @@ const AppendInput = props => {
     : null;
 
   return (
-    <div className="fc-append-input">
+    <div className={classNames('fc-append-input', className)}>
       {hiddenInput}
       {visibleInput}
       <div className="fc-append-input__icon">

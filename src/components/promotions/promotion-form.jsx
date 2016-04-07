@@ -9,6 +9,7 @@ import styles from './promotion-form.css';
 import ContentBox from '../content-box/content-box';
 import ObjectForm from '../object-form/object-form';
 import QualifierType from './qualifier-type';
+import OfferType from './offer-type';
 import { Checkbox } from '../checkbox/checkbox';
 
 import { setDiscountAttr } from '../../paragons/promotion';
@@ -42,6 +43,15 @@ export default class PromotionForm extends Component {
     this.props.onUpdatePromotion(newPromotion);
   }
 
+  @autobind
+  handleOfferChange(offer) {
+    const newPromotion = setDiscountAttr(this.props.promotion,
+      'offer', 'offer', offer
+    );
+
+    this.props.onUpdatePromotion(newPromotion);
+  }
+
   render() {
     const { promotion } = this.props;
     const formAttributes = _.get(promotion, 'form.attributes', []);
@@ -66,6 +76,10 @@ export default class PromotionForm extends Component {
             <QualifierType discount={discount} onChange={this.handleQualifierChange} />
             <div styleName="sub-title">Qualifying Items</div>
             <Checkbox id="exclude-gc">Exclude gift cards</Checkbox>
+          </ContentBox>
+          <ContentBox title="Offer">
+            <div styleName="sub-title">Offer Type</div>
+            <OfferType discount={discount} onChange={this.handleOfferChange} />
           </ContentBox>
         </div>
         <div styleName="aside">

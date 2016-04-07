@@ -1,26 +1,7 @@
 
 import _ from 'lodash';
 import { assoc } from 'sprout-data';
-import { copyShadowAttributes, denormalize, setAttribute, addAttribute } from './form-shadow-object';
-
-/*
-format:
-{
-  form: {
-    id: 228,
-    attributes: FormAttributes,
-    discounts: Array<Form>,
-    createdAt: "2016-04-05T17:09:27.684Z"
-  },
-  shadow: {
-    id: 228,
-    formId: 228,
-    attributes: ShadowAttributes,
-    discounts: Array<Shadow>,
-    createdAt: "2016-04-05T17:09:27.684Z"
-  }
-}
-*/
+import { denormalize, setAttribute, addAttribute } from './form-shadow-object';
 
 function addEmptyDiscount(promotion) {
   const { form, shadow } = promotion;
@@ -37,14 +18,28 @@ function addEmptyDiscount(promotion) {
     attributes: {},
   };
 
-  [discountForm.attributes, discountShadow.attributes] =
-    addAttribute('qualifier', 'qualifier', {orderAny: {}}, discountForm.attributes, discountShadow.attributes);
+  const attrs = {
+    'qualifier': {
+      value: {orderAny: {}},
+      label: 'qualifier'
+    },
+    'offer': {
+      value: {orderPercentOff: {}},
+      label: 'offer'
+    }
+  };
+
+  _.each(attrs, ({value, label}, type) => {
+    [discountForm.attributes, discountShadow.attributes] =
+      addAttribute(label, type, value, discountForm.attributes, discountShadow.attributes);
+  });
 
   form.discounts.push(discountForm);
   shadow.discounts.push(discountShadow);
 
   return promotion;
 }
+
 
 export function createEmptyPromotion() {
   const promotion = {

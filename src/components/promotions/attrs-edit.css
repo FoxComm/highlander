@@ -1,9 +1,9 @@
 
-.qualifier-types {
+.type-chooser {
   max-width: 40%;
 }
 
-.total-amount {
+.inline-edit-input {
   display: inline-block;
   line-height: 40px;
 }
@@ -14,5 +14,6 @@
 
   & > * {
     vertical-align: baseline;
+    padding-right: 10px;
   }
 }
