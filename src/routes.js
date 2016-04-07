@@ -53,7 +53,7 @@ import SkuImages from './components/skus/images';
 import PromotionsListPage from './components/promotions/list';
 import Promotions from './components/promotions/promotions';
 import PromotionPage from './components/promotions/page';
-import PromotionForm from './components/promotions/form';
+import PromotionForm from './components/promotions/promotion-form';
 
 import StyleGuide from './components/style-guide/style-guide';
 import StyleGuideGrid from './components/style-guide/style-guide-grid';
