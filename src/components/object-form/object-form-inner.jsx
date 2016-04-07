@@ -104,8 +104,8 @@ export default class ObjectFormInner extends Component<void, Props, State> {
   @autobind
   handleChange(label: string, type: string, value: string) {
     const { form, shadow } = this.props;
-    const formShadow = setAttribute(label, type, value, form, shadow);
-    this.props.onChange(formShadow.form, formShadow.shadow);
+    const [newForm, newShadow] = setAttribute(label, type, value, form, shadow);
+    this.props.onChange(newForm, newShadow);
   }
 
   @autobind

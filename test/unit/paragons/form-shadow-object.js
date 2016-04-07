@@ -58,40 +58,40 @@ describe('paragons.formShadowObject', () => {
   describe('setAttribute', () => {
     it('should update a string attribute', () => {
       const url = 'http://foxcommerce.com/p/running-shoe';
-      const update = setAttribute('url', 'string', url, form, shadow);
+      const [newForm, newShadow] = setAttribute('url', 'string', url, form, shadow);
 
-      expect(update.form.url).to.be.equal(url);
-      expect(update.shadow.url.ref).to.be.equal('url');
+      expect(newForm.url).to.be.equal(url);
+      expect(newShadow.url.ref).to.be.equal('url');
     });
 
     it('should update a price attribute', () => {
       const price = 9999;
-      const update = setAttribute('price', 'price', price, form, shadow);
+      const [newForm, newShadow] = setAttribute('price', 'price', price, form, shadow);
 
-      expect(update.form.price.currency).to.be.equal('USD');
-      expect(update.form.price.value).to.be.equal(price);
-      expect(update.shadow.price.ref).to.be.equal('price');
+      expect(newForm.price.currency).to.be.equal('USD');
+      expect(newForm.price.value).to.be.equal(price);
+      expect(newShadow.price.ref).to.be.equal('price');
     });
 
     it('should update an attribute that has the same value as another attribute', () => {
       const title = 'New Balance Running Shoe';
-      const update = setAttribute('title', 'string', title, form, shadow);
+      const [newForm, newShadow] = setAttribute('title', 'string', title, form, shadow);
 
-      expect(update.form.title).to.be.equal(title);
-      expect(update.shadow.title.ref).to.be.equal('title');
+      expect(newForm.title).to.be.equal(title);
+      expect(newShadow.title.ref).to.be.equal('title');
 
       const originalRef = shadow.description.ref;
-      expect(update.shadow.description.ref).to.be.equal(originalRef);
-      expect(update.form[originalRef]).to.be.equal(form[originalRef]);
+      expect(newShadow.description.ref).to.be.equal(originalRef);
+      expect(newForm[originalRef]).to.be.equal(form[originalRef]);
     });
 
     it('should add a new attribute', () => {
       const vendor = 'New Balance';
-      const update = setAttribute('vendor', 'string', vendor, form, shadow);
+      const [newForm, newShadow] = setAttribute('vendor', 'string', vendor, form, shadow);
 
-      expect(update.form.vendor).to.be.equal(vendor);
-      expect(update.shadow.vendor.type).to.be.equal('string');
-      expect(update.shadow.vendor.ref).to.be.equal('vendor');
+      expect(newForm.vendor).to.be.equal(vendor);
+      expect(newShadow.vendor.type).to.be.equal('string');
+      expect(newShadow.vendor.ref).to.be.equal('vendor');
     });
   });
 
