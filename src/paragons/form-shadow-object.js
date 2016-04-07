@@ -5,8 +5,8 @@ import _ from 'lodash';
 import { assoc } from 'sprout-data';
 
 export type FormShadowObject = {
-  form: {attributes?: FormAttributes};
-  shadow: {attributes?: ShadowAttributes};
+  form: {attributes: FormAttributes};
+  shadow: {attributes: ShadowAttributes};
 }
 export type FormShadowAttrsPair = [FormAttributes, ShadowAttributes];
 
@@ -73,7 +73,7 @@ export function illuminateAttributes(form: FormAttributes,
   }, {});
 }
 
-export function denormalize(obj: FormShadowObject, path = null) {
+export function denormalize(obj: FormShadowObject, path: ?string = null) {
   const formTarget = path ? _.get(obj.form, path) : obj.form;
   const shadowTarget = path ? _.get(obj.shadow, path) : obj.shadow;
 

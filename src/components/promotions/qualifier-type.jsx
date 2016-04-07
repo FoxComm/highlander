@@ -22,6 +22,7 @@ type Qualifier = {
 
 type Props = {
   onChange: (qualifier: Qualifier) => any;
+  discount: Object;
 };
 
 export default class QualifierType extends Component {
