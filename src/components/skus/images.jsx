@@ -8,56 +8,41 @@ import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
+// actions
+import * as SkuActions from '../../modules/skus/details';
+
 // components
 import { FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
 
 // helpers
-import { getProductAttributes } from '../../paragons/product';
+import { illuminateAttributes, setAttribute } from '../../paragons/form-shadow-object';
 
 // types
-import type {
-  FullProduct,
-} from '../../modules/products/details';
+import type { FullSku } from '../../modules/skus/details';
 
 type Props = {
-  product: FullProduct,
-  onSetProperty: (field: string, type: string, value: any) => void,
+  code: string,
+  onChange: (sku: FullSku) => void,
+  sku: ?FullSku,
 };
 
-type State = {
-  images: Array<?String>,
-};
-
-function setImages(props: Props): State {
-  const attributes = getProductAttributes(props.product);
-  const imageValue = _.get(attributes, 'images.value');
-  const value = imageValue || [ null ];
-  return { images: value };
-}
-
-export default class ProductImages extends Component<void, Props, State> {
+export default class SkuImages extends Component<void, Props, void> {
   static propTypes = {
-    product: PropTypes.object.isRequired,
-    onSetProperty: PropTypes.func.isRequired,
+    code: PropTypes.string.isRequired,
+    onChange: PropTypes.func.isRequired,
+    sku: PropTypes.object,
   };
 
-  state: State;
-
-  constructor(props: Props, ...args: any) {
-    super(props, ...args);
-    this.state = setImages(this.props);
+  get images(): Array<?string> {
+    const formAttributes = _.get(this.props, 'sku.form.attributes', []);
+    const shadowAttributes = _.get(this.props, 'sku.shadow.attributes', []);
+    const attributes = illuminateAttributes(formAttributes, shadowAttributes);
+    return _.get(attributes, 'images.value', [ null ]);
   }
-
-  componentWillReceiveProps(nextProps: Props) {
-    this.state = setImages(nextProps);
-  }
-
 
   get contentBox(): Element {
-    const { images } = this.state;
-
-    const imageControls = _.map(images, (val, idx) => {
+    const imageControls = _.map(this.images, (val, idx) => {
       return (
         <div className="fc-product-details__image">
           <FormField
@@ -90,28 +75,42 @@ export default class ProductImages extends Component<void, Props, State> {
 
   @autobind
   handleAddImage() {
-    this.setState({ images: [...this.state.images, null] });
+    const images = [...this.images, null];
+    this.handleChange(images);
   }
 
   @autobind
   handleRemoveImage(idx: number) {
     const images = [
-      ...this.state.images.slice(0, idx),
-      ...this.state.images.slice(idx + 1),
+      ...this.images.slice(0, idx),
+      ...this.images.slice(idx + 1),
     ];
 
-    this.props.onSetProperty('images', 'images', images);
+    this.handleChange(images);
   }
 
   @autobind
   handleUpdateImage(idx: number, event: Object) {
     const newImages = [
-      ...this.state.images.slice(0, idx),
+      ...this.images.slice(0, idx),
       event.target.value,
-      ...this.state.images.slice(idx + 1),
+      ...this.images.slice(idx + 1),
     ];
 
-    this.props.onSetProperty('images', 'images', newImages);
+    this.handleChange(newImages);
+  }
+
+  handleChange(images: Array<?string>) {
+    const { sku } = this.props;
+    const formAttributes = _.get(sku, 'form.attributes', []);
+    const shadowAttributes = _.get(sku, 'shadow.attributes', []);
+    const { form, shadow } = setAttribute('images', 'images', images, formAttributes, shadowAttributes);
+    const newSku = assoc(sku,
+      ['form', 'attributes'], form,
+      ['shadow', 'attributes'], shadow
+    );
+
+    this.props.onChange(newSku);
   }
 
   render(): Element {

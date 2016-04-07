@@ -79,7 +79,7 @@ export function getProductAttributes(product: FullProduct): IlluminatedAttribute
   return getAttributes(form.attributes, shadow.attributes);
 }
 
-export function getAttribute(formAttrs: Attributes, shadowAttrs: ShadowAttributes, 
+export function getAttribute(formAttrs: Attributes, shadowAttrs: ShadowAttributes,
   label: string): IlluminatedAttribute {
 
   const shadow = shadowAttrs[label];
@@ -126,13 +126,17 @@ export function getIlluminatedSkus(product: FullProduct): Array<IlluminatedSku> 
   });
 }
 
-export function getActiveFrom(product: FullProduct): string { 
-  const r = getAttribute(product.form.product.attributes, product.shadow.product.attributes, 'activeFrom');
+export function getActiveFrom(product: FullProduct): ?string {
+  const formAttributes = _.get(product, 'form.product.attributes', []);
+  const shadowAttributes = _.get(product, 'shadow.product.attributes', []);
+  const r = getAttribute(formAttributes, shadowAttributes, 'activeFrom');
   return _.get(r, 'value');
 }
 
-export function getActiveTo(product: FullProduct): string { 
-  const r = getAttribute(product.form.product.attributes, product.shadow.product.attributes, 'activeTo');
+export function getActiveTo(product: FullProduct): ?string {
+  const formAttributes = _.get(product, 'form.product.attributes', []);
+  const shadowAttributes = _.get(product, 'shadow.product.attributes', []);
+  const r = getAttribute(formAttributes, shadowAttributes, 'activeTo');
   return _.get(r, 'value');
 }
 
@@ -142,8 +146,8 @@ export function createEmptyProduct(): FullProduct {
     form: {
       product: {
         id: null,
-        attributes: { 
-          variants: {}, 
+        attributes: {
+          variants: {},
           skus: {}
         },
         createdAt: null,
@@ -154,7 +158,7 @@ export function createEmptyProduct(): FullProduct {
       product: {
         id: null,
         productId: null,
-        attributes: { 
+        attributes: {
           variants: {type: "variants", ref: "variants" },
           skus: {type: "skus", ref: "skus" },
         },
@@ -173,7 +177,7 @@ export function addEmptySku(product: FullProduct): FullProduct {
   const emptySkuForm: SkuForm = {
     code: pseudoRandomCode,
     attributes: {
-      title: "", 
+      title: "",
       retailPrice: {
         value: 0,
         currency: "USD"
@@ -228,7 +232,7 @@ export function copyShadowAttributes(form: Attributes, shadow: Attributes) {
   _.forEach(shadow,  (s, label) => {
       const attribute = form[s.ref];
       form[label] = attribute;
-   }); 
+   });
 
   //update shadow
   shadow = _.transform(shadow, (result, value, key) => { value.ref = key; }, {});
@@ -244,13 +248,13 @@ export function configureProduct(product: FullProduct): FullProduct {
 
   //copy product attributes
   copyShadowAttributes(
-    product.form.product.attributes, 
+    product.form.product.attributes,
     product.shadow.product.attributes);
 
   //copy sku attributes
   for(var i = 0; i < product.form.skus.length; i++) {
     copyShadowAttributes(
-      product.form.skus[i].attributes, 
+      product.form.skus[i].attributes,
       product.shadow.skus[i].attributes);
   }
 
@@ -374,7 +378,7 @@ export function setSkuAttribute(product: FullProduct,
       break;
   }
 
-  product.form.skus[formIndex] = updatedSku; 
+  product.form.skus[formIndex] = updatedSku;
   return product;
 }
 

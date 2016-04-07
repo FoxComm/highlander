@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import nock from 'nock';
 
-const { setAttribute, illuminateAttributes } = requireSource('paragons/form-shadow-object.js');
+const { addAttribute, setAttribute, illuminateAttributes } = requireSource('paragons/form-shadow-object.js');
 
 describe('paragons.formShadowObject', () => {
   const form = {
@@ -33,6 +33,27 @@ describe('paragons.formShadowObject', () => {
       type: 'price',
     },
   };
+
+  describe('addAttribute', () => {
+    it('should add a new attribute', () => {
+      const vendor = 'New Balance';
+      const update = addAttribute('vendor', 'string', vendor, form, shadow);
+
+      expect(update.form.vendor).to.be.equal(vendor);
+      expect(update.shadow.vendor.type).to.be.equal('string');
+      expect(update.shadow.vendor.ref).to.be.equal('vendor');
+    });
+
+    it('should not update the attribute if it already exists', () => {
+      const title = 'Some running shoes';
+      const update = addAttribute('title', 'string', title, form, shadow);
+
+      const newRef = update.shadow.title.ref;
+      const oldRef = shadow.title.ref;
+      expect(newRef).to.be.equal(oldRef);
+      expect(update.form[newRef]).to.be.equal(form[oldRef]);
+    });
+  });
 
   describe('setAttribute', () => {
     it('should update a string attribute', () => {
