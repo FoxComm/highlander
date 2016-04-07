@@ -1,10 +1,18 @@
-import React, { PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
 
 import InputMask from 'react-input-mask';
 
-export default class MaskedInput extends React.Component {
+function formatMask(mask, prepend) {
+  if (_.isEmpty(mask)) {
+    return '';
+  }
+
+  return `${prepend}${mask}`.replace(/a/, '\\a'); // escape "a" symbol as it's a rule for react-input-mask
+}
+
+export default class MaskedInput extends Component {
   static propTypes = {
     mask: PropTypes.string,
     prepend: PropTypes.string,
@@ -17,7 +25,7 @@ export default class MaskedInput extends React.Component {
     value: ''
   };
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     if (!_.isEqual(this.props.mask, prevProps.mask)) {
       const prependLength = _.get(this.props, ['prepend', 'length'], 0);
       const valueLength = _.get(this.props, ['value', 'length'], 0);
@@ -28,17 +36,20 @@ export default class MaskedInput extends React.Component {
     }
   }
 
-  render() {
-    const { mask, prepend, value, ...rest } = this.props;
+  focus() {
+    this.refs['maskedInput'].getInputDOMNode().focus();
+  }
 
-    const formattedMask = !_.isEmpty(mask) ? `${prepend}${mask}` : '';
+  render() {
+    const { mask, prepend, ...rest } = this.props;
+
+    const formattedMask = formatMask(mask, prepend);
 
     return (
       <InputMask
         ref="maskedInput"
         type="text"
         mask={formattedMask}
-        value={value}
         {...rest} />
     );
   }
