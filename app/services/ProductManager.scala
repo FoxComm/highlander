@@ -75,7 +75,7 @@ object ProductManager {
   } yield FullProductResponse.build(product, productForm, productShadow, skuData)).run()
 
   def createFullProduct(admin: StoreAdmin, payload: CreateFullProduct, contextName: String)
-    (implicit ec: EC, db: DB): Result[FullProductResponse.Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[FullProductResponse.Root] = (for {
 
     context       ← * <~ ObjectContexts.filterByName(contextName).one.
       mustFindOr(ObjectContextNotFound(contextName))
