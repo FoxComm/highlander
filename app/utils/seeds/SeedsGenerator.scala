@@ -7,6 +7,7 @@ import models.customer.{CustomerDynamicGroup, Customers, Customer}
 import models.inventory.Skus
 import models.location.{Addresses, Address}
 import models.order._
+import models.coupon._
 import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCards, CreditCard}
 import models.product.SimpleContext
@@ -107,7 +108,7 @@ object RankingSeedsGenerator {
 
 object SeedsGenerator extends CustomerGenerator with AddressGenerator
   with CreditCardGenerator with OrderGenerator with InventoryGenerator with InventorySummaryGenerator
-  with GiftCardGenerator with ProductGenerator with PromotionGenerator {
+  with GiftCardGenerator with ProductGenerator with PromotionGenerator with CouponGenerator {
 
   def generateAddresses(customers: Seq[Customer]): Seq[Address] = {
     customers.flatMap { c ⇒
@@ -118,8 +119,21 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
     }
   }
 
-  def makeProducts(productCount: Int) = (1 to productCount).par.map { i ⇒  generateProduct }.toList
-  def makePromotions(promotionCount: Int) = (1 to promotionCount).par.map { i ⇒  generatePromotion }.toList
+  def makeProducts(productCount: Int) = (1 to productCount).par.map { i ⇒  
+    generateProduct 
+  }.toList
+
+  def makePromotions(promotionCount: Int) = (1 to promotionCount).par.map { i ⇒  
+    generatePromotion 
+  }.toList
+  
+  def makeCoupons(promotions: Seq[SimplePromotion]) = promotions.par.map { 
+    p ⇒  generateCoupon(p) 
+  }.toList
+
+  def makeCouponCodes(promotions: Seq[SimpleCoupon]) = promotions.flatMap { c ⇒  
+    CouponCodes.generateCodes(c.formId, "CP", 3, 1 + Random.nextInt(2)) 
+  }.toList
 
   def pickOne[T](vals: Seq[T]) : T = vals(Random.nextInt(vals.length))
 
@@ -144,6 +158,10 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
       giftCards  ← * <~  orderedGcs ++ appeasements
       unsavedPromotions = makePromotions(5)
       promotions ← * <~ generatePromotions(unsavedPromotions)
+      unsavedCoupons ← * <~ makeCoupons(promotions)
+      coupons ← * <~ generateCoupons(unsavedCoupons)
+      unsavedCodes ← * <~ makeCouponCodes(coupons)
+      _  ← * <~ CouponCodes.createAll(unsavedCodes)
       _ ← * <~ DbResultT.sequence(
         randomSubset(customerIds, customerIds.length).map{
           id ⇒ generateOrders(id, context, products, pickOne(giftCards))

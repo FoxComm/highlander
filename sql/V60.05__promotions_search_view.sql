@@ -4,7 +4,7 @@ select
     context.name as context,
     p.apply_type,
     f.attributes->>(s.attributes->'name'->>'ref') as name,
-    f.attributes->(s.attributes->'storefrontName'->>'ref') as storefront_name,
+    f.attributes->>(s.attributes->'storefrontName'->>'ref') as storefront_name,
     f.attributes->>(s.attributes->'description'->>'ref') as description,
     f.attributes->>(s.attributes->'activeFrom'->>'ref') as active_from,
     f.attributes->>(s.attributes->'activeTo'->>'ref') as active_to,

@@ -1,7 +1,7 @@
 package utils.seeds.generators
 
 import models.product.SimpleContext
-import models.promotion._
+import models.coupon._
 import models.objects._
 import services.Result
 import utils.DbResultT
@@ -9,9 +9,9 @@ import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
 
-import payloads.{CreatePromotion, CreatePromotionForm, CreatePromotionShadow,
+import payloads.{CreateCoupon, CreateCouponForm, CreateCouponShadow,
   CreateDiscountForm, CreateDiscountShadow}
-import services.promotion.PromotionManager
+import services.coupon.CouponManager
 
 import cats.data.Xor
 import java.time.Instant
@@ -23,15 +23,15 @@ import scala.io.Source
 import scala.util.Random
 import slick.driver.PostgresDriver.api._
 
-object SimplePromotion {
+object SimpleCoupon {
   type Percent = Int
 }
-import SimplePromotion._
+import SimpleCoupon._
 
-final case class SimplePromotion(promotionId: Int = 0, formId: Int = 0, shadowId: Int = 0,  
-  percentOff: Percent, totalAmount: Int)
+final case class SimpleCoupon(formId: Int = 0, shadowId: Int = 0,  
+  percentOff: Percent, totalAmount: Int, promotionId: Int)
 
-final case class SimplePromotionForm(percentOff: Percent, totalAmount: Int) {
+final case class SimpleCouponForm(percentOff: Percent, totalAmount: Int) {
 
     val (keyMap, form) = ObjectUtils.createForm(parse(s"""
     {
@@ -46,7 +46,7 @@ final case class SimplePromotionForm(percentOff: Percent, totalAmount: Int) {
     }"""))
 }
 
-final case class SimplePromotionShadow(f: SimplePromotionForm) { 
+final case class SimpleCouponShadow(f: SimpleCouponForm) { 
 
     val shadow = ObjectUtils.newShadow(parse(
       s"""
@@ -62,33 +62,29 @@ final case class SimplePromotionShadow(f: SimplePromotionForm) {
       f.keyMap)
 }
 
-trait PromotionGenerator {
+trait CouponGenerator {
 
-  def generatePromotion: SimplePromotion = {
-    val percent = Random.nextInt(90)
-    val totalAmount = Random.nextInt(10)
-    SimplePromotion(
-      percentOff = percent,
-      totalAmount = totalAmount)
+  def generateCoupon(promotion: SimplePromotion): SimpleCoupon = {
+    SimpleCoupon(
+      percentOff = promotion.percentOff,
+      totalAmount = promotion.totalAmount,
+      promotionId = promotion.promotionId)
   }
 
-  def generatePromotions(data: Seq[SimplePromotion])(implicit db: Database) = for {
+  def generateCoupons(data: Seq[SimpleCoupon])(implicit db: Database) = for {
     context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-    promotions ← * <~ DbResultT.sequence(data.map( d ⇒  {
-        val promotionForm = SimplePromotionForm(d.percentOff, d.totalAmount)
-        val promotionShadow = SimplePromotionShadow(promotionForm)
-        val discountForm = SimpleDiscountForm(d.percentOff, d.totalAmount)
-        val discountShadow = SimpleDiscountShadow(discountForm)
-        val payload = CreatePromotion(
-          form = CreatePromotionForm(attributes = promotionForm.form, 
-            discounts = Seq(CreateDiscountForm(attributes = discountForm.form))),
-          shadow = CreatePromotionShadow(attributes = promotionShadow.shadow, 
-            discounts = Seq(CreateDiscountShadow( attributes = discountShadow.shadow))))
-        DbResultT(DBIO.from(PromotionManager.create(payload, context.name).flatMap{
-          case Xor.Right(r) ⇒ Result.right(d.copy(promotionId = r.form.id))
+    coupons ← * <~ DbResultT.sequence(data.map( d ⇒  {
+        val couponForm = SimpleCouponForm(d.percentOff, d.totalAmount)
+        val couponShadow = SimpleCouponShadow(couponForm)
+        val payload = CreateCoupon(
+          form = CreateCouponForm(attributes = couponForm.form),
+          shadow = CreateCouponShadow(attributes = couponShadow.shadow),
+          d.promotionId)
+        DbResultT(DBIO.from(CouponManager.create(payload, context.name).flatMap { 
+          case Xor.Right(r) ⇒ Result.right(d.copy(formId = r.form.id, shadowId = r.shadow.id))
           case Xor.Left(l) ⇒  Result.failures(l)
         }))
     }))
-  } yield promotions
+  } yield coupons
 
 }

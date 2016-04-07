@@ -31,6 +31,17 @@ class CouponCodes(tag: Tag) extends ObjectHeads[CouponCode](tag, "coupon_codes")
 object CouponCodes extends TableQueryWithId[CouponCode, CouponCodes](
   idLens = GenLens[CouponCode](_.id))(new CouponCodes(_)) {
 
+  def generateCode(couponFormId: Int, prefix: String, number: Int, leadingZeros: Int) : CouponCode = {
+    //TODO, We should add some salt here so that people can't guess the coupon code.
+    //and create a hash, turn it into a num and put it after the prefix.
+    val num = s"%0${leadingZeros}d".format(number)
+    val code = s"${prefix}${couponFormId}${num}"
+    CouponCode(code = code, couponFormId = couponFormId)
+  }
+
+  def generateCodes(couponFormId: Int, prefix: String, leadingZeros: Int, count: Int) :
+    Seq[CouponCode] = (1 to count).map { i ⇒ generateCode(couponFormId, prefix, i, leadingZeros) } 
+
   def filterByContext(contextId: Int): QuerySeq = 
     filter(_.contextId === contextId)
 
