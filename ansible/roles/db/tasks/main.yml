@@ -130,6 +130,10 @@
   synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes
   sudo: true
 
+- name: Syncrhonize Phoenix Gatling Resources
+  synchronize: src="{{phoenix_src}}/gatling" dest="{{phoenix_dir}}" delete=yes
+  sudo: true
+
 - name: Copy Phoenix
   copy: src="{{phoenix_jar_src}}" dest="{{phoenix_jar}}" owner="{{user}}"
   sudo: true
