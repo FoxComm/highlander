@@ -148,7 +148,7 @@ export default class StoreCredits extends React.Component {
         columns={columns}
         changeState={(rowId, value) => this.props.stateActions.changeState(customerId, rowId, value)}
         key={key}
-        params={params}/>
+        params={params} />
     );
   }
 
@@ -185,7 +185,7 @@ export default class StoreCredits extends React.Component {
         cancel="Cancel"
         confirm="Yes, Change State"
         cancelAction={ () => this.props.stateActions.cancelChange(this.customerId) }
-        confirmAction={ () => this.props.stateActions.saveStateChange(this.customerId) }/>
+        confirmAction={ () => this.props.stateActions.saveStateChange(this.customerId) } />
     );
   }
 
@@ -215,7 +215,7 @@ export default class StoreCredits extends React.Component {
                       placeholder="- Select -"
                       items={reasons}
                       value={value}
-                      onChange={(value) => props.stateActions.reasonChange(this.customerId, value)}/>
+                      onChange={(value) => props.stateActions.reasonChange(this.customerId, value)} />
           </div>
         </div>
       </div>
@@ -230,7 +230,7 @@ export default class StoreCredits extends React.Component {
         cancel="Cancel"
         confirm="Yes, Cancel"
         cancelAction={ () => props.stateActions.cancelChange(this.customerId) }
-        confirmAction={ () => props.stateActions.saveStateChange(this.customerId) }/>
+        confirmAction={ () => props.stateActions.saveStateChange(this.customerId) } />
     );
   }
 
@@ -243,7 +243,7 @@ export default class StoreCredits extends React.Component {
         count={toggledIds.length}
         onConfirm={(reasonId) => {
           cancelStoreCredits(toggledIds, reasonId);
-        }}/>
+        }} />
     );
   }
 
@@ -257,7 +257,7 @@ export default class StoreCredits extends React.Component {
         <ChangeStateModal
           count={toggledIds.length}
           stateTitle={stateTitle}
-          onConfirm={() => changeStoreCreditsState(toggledIds, state)}/>
+          onConfirm={() => changeStoreCreditsState(toggledIds, state)} />
       );
     };
   }
@@ -295,11 +295,11 @@ export default class StoreCredits extends React.Component {
           storePath="customers.storeCreditBulk"
           module="customers.store-credits"
           entity="store credit"
-          renderDetail={this.renderDetail}/>
+          renderDetail={this.renderDetail} />
         <Summary totals={totals}
                  params={props.params}
                  history={this.context.history}
-                 transactionsSelected={false}/>
+                 transactionsSelected={false} />
         <div className="fc-list-page-content fc-store-credits__list">
           <BulkActions
             module="customers.store-credits"
@@ -312,7 +312,7 @@ export default class StoreCredits extends React.Component {
               renderRow={this.renderRow}
               tableColumns={this.props.tableColumns}
               searchActions={this.props.actions}
-              searchOptions={{singleSearch: true}}/>
+              searchOptions={{singleSearch: true}} />
           </BulkActions>
         </div>
         { this.confirmStateChange }
