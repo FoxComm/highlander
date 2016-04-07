@@ -1,12 +1,12 @@
 
+/* @flow weak */
+
 import _ from 'lodash';
 import React, { Component, PropTypes, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { pushState } from 'redux-router';
-
-import styles from './page.css';
 
 // components
 import { PageTitle } from '../section-title';
@@ -16,7 +16,7 @@ import WaitAnimation from '../common/wait-animation';
 
 import * as PromotionActions from '../../modules/promotions/details';
 
-export default class PromotionPage extends Component {
+class PromotionPage extends Component {
 
   static propTypes = {
     params: PropTypes.shape({
@@ -98,7 +98,6 @@ export default class PromotionPage extends Component {
       <div>
         <PageTitle title={this.pageTitle}>
           <PrimaryButton
-            styleName="save-button"
             type="submit"
             onClick={this.handleSubmit}>
             Save

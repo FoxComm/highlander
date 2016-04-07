@@ -9,7 +9,7 @@ import ObjectFormInner from './object-form-inner';
 
 type Props = {
   canAddProperty?: boolean,
-  className?: string;
+  className?: string,
   fieldsToRender?: Array<string>,
   form: FormAttributes,
   shadow: ShadowAttributes,
