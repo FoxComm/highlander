@@ -211,6 +211,8 @@ const routes = (
       </Route>
       <Route name='coupon' path=':couponId' component={CouponPage}>
         <IndexRoute name='coupon-details' component={CouponForm} />
+        <Route name='coupon-notes' path='notes' component={Notes} />
+        <Route name='coupon-activity-trail' path='activity-trail' component={ActivityTrailPage}/>
       </Route>
     </Route>
     <Route name='style-guide' path='style-guide' component={StyleGuide}>

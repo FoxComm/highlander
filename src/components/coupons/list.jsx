@@ -19,7 +19,7 @@ type CouponsListHistory = {
 
 const CouponsList = (props: CouponsListProps, context: CouponsListHistory) => {
   const TotalCounter = makeTotalCounter(state => state.coupons.list, actions);
-  const addAction = () => transitionTo(context.history, 'coupon-details');
+  const addAction = () => transitionTo(context.history, 'coupon-details', {couponId: 'new'});
 
   const navLinks = [
     { title: 'Lists', to: 'coupons' },
