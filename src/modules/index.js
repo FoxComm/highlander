@@ -21,9 +21,11 @@ import products from './products';
 import skus from './skus';
 import user from './user';
 import promotions from './promotions';
+import { reducer as asyncReducer } from './async-utils';
 
 const rootReducer = combineReducers({
   router: routerStateReducer,
+  asyncActions: asyncReducer,
   giftCards,
   customers,
   orders,

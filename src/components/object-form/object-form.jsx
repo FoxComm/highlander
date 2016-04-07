@@ -9,6 +9,7 @@ import ObjectFormInner from './object-form-inner';
 
 type Props = {
   canAddProperty?: boolean,
+  className?: string,
   fieldsToRender?: Array<string>,
   form: FormAttributes,
   shadow: ShadowAttributes,
@@ -18,10 +19,10 @@ type Props = {
 
 export default class ObjectForm extends Component<void, Props, void> {
   render(): Element {
-    const { title, ...rest } = this.props;
+    const { title, className, ...rest } = this.props;
 
     return (
-      <ContentBox title={title}>
+      <ContentBox title={title} className={className}>
         <ObjectFormInner {...rest} />
       </ContentBox>
     );

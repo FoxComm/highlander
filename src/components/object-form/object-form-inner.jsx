@@ -10,15 +10,16 @@ import { illuminateAttributes, setAttribute } from '../../paragons/form-shadow-o
 
 import { FormField } from '../forms';
 import { SliderCheckbox } from '../checkbox/checkbox';
-import ContentBox from '../content-box/content-box';
 import CurrencyInput from '../forms/currency-input';
 import CustomProperty from '../products/custom-property';
 import DatePicker from '../datepicker/datepicker';
 import RichTextEditor from '../rich-text-editor/rich-text-editor';
+import { Dropdown } from '../dropdown';
 
 type Props = {
   canAddProperty?: boolean,
   fieldsToRender?: Array<string>,
+  fieldsOptions?: Object,
   form: FormAttributes,
   shadow: ShadowAttributes,
   onChange: (form: FormAttributes, shadow: ShadowAttributes) => void,
@@ -84,6 +85,7 @@ export default class ObjectFormInner extends Component<void, Props, State> {
       price: this.renderPrice,
       richText: this.renderRichText,
       string: this.renderString,
+      options: this.renderOptions,
     };
   }
 
@@ -104,8 +106,8 @@ export default class ObjectFormInner extends Component<void, Props, State> {
   @autobind
   handleChange(label: string, type: string, value: string) {
     const { form, shadow } = this.props;
-    const formShadow = setAttribute(label, type, value, form, shadow);
-    this.props.onChange(formShadow.form, formShadow.shadow);
+    const [newForm, newShadow] = setAttribute(label, type, value, form, shadow);
+    this.props.onChange(newForm, newShadow);
   }
 
   @autobind
@@ -138,7 +140,7 @@ export default class ObjectFormInner extends Component<void, Props, State> {
     const onChange = v => this.handleChange(label, 'price', v);
     const currencyInput = (
       <CurrencyInput
-        className={inputClass}
+        inputClass={inputClass}
         inputName={label}
         value={priceValue}
         onChange={onChange} />
@@ -175,6 +177,25 @@ export default class ObjectFormInner extends Component<void, Props, State> {
     );
 
     return renderFormField(label, stringInput);
+  }
+
+  @autobind
+  renderOptions(label: string, value: any): Element {
+    const options = this.props.fieldsOptions && this.props.fieldsOptions[label];
+    if (!options) throw new Error('You must define fieldOptions for options fields');
+
+    const formattedLabel = formatLabel(label);
+    const onChange = v => this.handleChange(label, 'options', v);
+
+    return (
+      <div className="fc-object-form_field">
+        <div className="fc-object-form__field-label">{formattedLabel}</div>
+        <Dropdown
+          value={value}
+          items={options}
+          onChange={onChange} />
+      </div>
+    );
   }
 
   render(): Element {

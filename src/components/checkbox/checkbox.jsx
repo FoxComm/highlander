@@ -1,12 +1,17 @@
+
+import { uniqueId } from 'lodash';
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 
 const DefaultCheckbox = props => {
-  const {className, ...rest} = props;
+  const {className, children, id, ...rest} = props;
+  const validId = id || uniqueId('checkbox_');
   return (
     <div className={ className }>
-      <input type="checkbox" {...rest} />
-      <label htmlFor={props.id}><span></span></label>
+      <input type="checkbox" id={validId} {...rest} />
+      <label htmlFor={validId}>
+        <span>{children}</span>
+      </label>
     </div>
   );
 };

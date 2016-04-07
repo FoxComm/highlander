@@ -1,0 +1,29 @@
+
+.promotion-form {
+  lost-flex-container: column;
+}
+
+.main {
+  lost-column: 8/12;
+  padding-left: 1.85%;
+
+  & > div {
+    margin-bottom: 20px;
+  }
+}
+
+.aside {
+  lost-column: 4/12;
+}
+
+.sub-title {
+  font-weight: bold;
+  font-size: 14px;
+  color: #484848;
+
+  margin: 1em 0;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
