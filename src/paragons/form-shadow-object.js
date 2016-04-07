@@ -4,6 +4,10 @@
 import _ from 'lodash';
 import { assoc } from 'sprout-data';
 
+export type FormShadowObject = {
+  form: {attributes?: FormAttributes};
+  shadow: {attributes?: ShadowAttributes};
+}
 export type FormShadowAttrsPair = [FormAttributes, ShadowAttributes];
 
 export function copyShadowAttributes(form: FormAttributes, shadow: ShadowAttributes) {
@@ -67,4 +71,22 @@ export function illuminateAttributes(form: FormAttributes,
 
     return res;
   }, {});
+}
+
+export function denormalize(obj: FormShadowObject, path = null) {
+  const formTarget = path ? _.get(obj.form, path) : obj.form;
+  const shadowTarget = path ? _.get(obj.shadow, path) : obj.shadow;
+
+  if (!_.isArray(formTarget)) {
+    copyShadowAttributes(formTarget.attributes, shadowTarget.attributes);
+  } else {
+    const forms = _.indexBy(formTarget, 'id');
+    const shadows = _.indexBy(shadowTarget, 'id');
+
+    _.each(forms, (form, id) => {
+      const shadow = shadows[id];
+
+      copyShadowAttributes(form.attributes, shadow.attributes);
+    });
+  }
 }
