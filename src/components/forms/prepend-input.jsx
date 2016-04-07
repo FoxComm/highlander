@@ -4,7 +4,7 @@ import classNames from 'classnames';
 
 const PrependInput = props => {
   const {
-    icon, inputClass, inputName, inputType, value, inputValuePretty, inputNamePretty, ...rest
+    icon, inputClass, className, inputName, inputType, value, inputValuePretty, inputNamePretty, ...rest
   } = props;
 
   const vInputClass = classNames('fc-prepend-input__input-field', inputClass);
@@ -25,7 +25,7 @@ const PrependInput = props => {
     : null;
 
   return (
-    <div className="fc-prepend-input">
+    <div className={classNames('fc-prepend-input', className)}>
       <div className="fc-prepend-input__icon">
         <i className={`icon-${icon}`} />
       </div>

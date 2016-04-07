@@ -138,7 +138,7 @@ export default class ObjectFormInner extends Component<void, Props, State> {
     const onChange = v => this.handleChange(label, 'price', v);
     const currencyInput = (
       <CurrencyInput
-        className={inputClass}
+        inputClass={inputClass}
         inputName={label}
         value={priceValue}
         onChange={onChange} />

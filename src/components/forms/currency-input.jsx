@@ -18,6 +18,7 @@ export default class CurrencyInput extends React.Component {
     fractionBase: PropTypes.number,
     defaultValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     className: PropTypes.string,
+    inputClass: PropTypes.string,
     inputName: PropTypes.string,
   };
 
@@ -102,19 +103,22 @@ export default class CurrencyInput extends React.Component {
   }
 
   render() {
-    const classnames = classNames(this.props.className, {
+    const classnames = classNames(this.props.inputClass, {
       'fc-input-group': true,
       '_focused': this.state.focus
     });
 
     return (
-      <PrependInput inputName={this.props.inputName}
-                    inputClass={classnames}
-                    icon="usd"
-                    onChange={this.onChange}
-                    onFocus={this.onInputFocus}
-                    onBlur={this.onInputBlur}
-                    {...this.valueProps} />
+      <PrependInput
+        inputName={this.props.inputName}
+        className={this.props.className}
+        inputClass={classnames}
+        icon="usd"
+        onChange={this.onChange}
+        onFocus={this.onInputFocus}
+        onBlur={this.onInputBlur}
+        {...this.valueProps}
+      />
     );
   }
 }
