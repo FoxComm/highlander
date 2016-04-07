@@ -1,0 +1,19 @@
+package seeds
+
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
+import models.auth.Identity.Admin
+import org.json4s.jackson.Serialization.{write ⇒ json}
+import payloads.LoginPayload
+import utils.JsonFormatters
+
+object Auth {
+
+  implicit val formats = JsonFormatters.phoenixFormats
+
+  val loginAsAdmin = http("Login as Admin")
+    .post("/v1/public/login")
+    .body(StringBody(json(LoginPayload(email = "${adminEmail}", password = "${adminPassword}", kind = Admin))))
+    .check(status.is(200))
+    .check(header("JWT").saveAs("jwtTokenAdmin"))
+}
