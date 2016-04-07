@@ -104,7 +104,7 @@ export default class SkuImages extends Component<void, Props, void> {
     const { sku } = this.props;
     const formAttributes = _.get(sku, 'form.attributes', []);
     const shadowAttributes = _.get(sku, 'shadow.attributes', []);
-    const { form, shadow } = setAttribute('images', 'images', images, formAttributes, shadowAttributes);
+    const [ form, shadow ] = setAttribute('images', 'images', images, formAttributes, shadowAttributes);
     const newSku = assoc(sku,
       ['form', 'attributes'], form,
       ['shadow', 'attributes'], shadow

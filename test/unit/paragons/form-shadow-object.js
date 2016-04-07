@@ -37,21 +37,21 @@ describe('paragons.formShadowObject', () => {
   describe('addAttribute', () => {
     it('should add a new attribute', () => {
       const vendor = 'New Balance';
-      const update = addAttribute('vendor', 'string', vendor, form, shadow);
+      const [newForm, newShadow] = addAttribute('vendor', 'string', vendor, form, shadow);
 
-      expect(update.form.vendor).to.be.equal(vendor);
-      expect(update.shadow.vendor.type).to.be.equal('string');
-      expect(update.shadow.vendor.ref).to.be.equal('vendor');
+      expect(newForm.vendor).to.be.equal(vendor);
+      expect(newShadow.vendor.type).to.be.equal('string');
+      expect(newShadow.vendor.ref).to.be.equal('vendor');
     });
 
     it('should not update the attribute if it already exists', () => {
       const title = 'Some running shoes';
-      const update = addAttribute('title', 'string', title, form, shadow);
+      const [newForm, newShadow] = addAttribute('title', 'string', title, form, shadow);
 
-      const newRef = update.shadow.title.ref;
+      const newRef = newShadow.title.ref;
       const oldRef = shadow.title.ref;
       expect(newRef).to.be.equal(oldRef);
-      expect(update.form[newRef]).to.be.equal(form[oldRef]);
+      expect(newForm[newRef]).to.be.equal(form[oldRef]);
     });
   });
 

@@ -95,7 +95,7 @@ const reducer = createReducer({
   },
   [skuRequestSuccess]: (state: SkuState, sku: FullSku) => {
     const configuredSku = _.reduce(requiredFields, (res, value, key) => {
-      const { form, shadow } = addAttribute(key, value, null, res.form.attributes, res.shadow.attributes);
+      const [ form, shadow ] = addAttribute(key, value, null, res.form.attributes, res.shadow.attributes);
       return assoc(sku,
         ['form', 'attributes'], form,
         ['shadow', 'attributes'], shadow
@@ -116,7 +116,7 @@ const reducer = createReducer({
   },
   [skuUpdateSuccess]: (state: SkuState, sku: FullSku) => {
     const configuredSku = _.reduce(requiredFields, (res, value, key) => {
-      const { form, shadow } = addAttribute(key, value, null, res.form.attributes, res.shadow.attributes);
+      const [ form, shadow ] = addAttribute(key, value, null, res.form.attributes, res.shadow.attributes);
       return assoc(sku,
         ['form', 'attributes'], form,
         ['shadow', 'attributes'], shadow

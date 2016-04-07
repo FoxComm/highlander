@@ -181,8 +181,8 @@ export default class ObjectFormInner extends Component<void, Props, State> {
 
   @autobind
   renderOptions(label: string, value: any): Element {
-    const options = this.props.fieldsOptions[label];
-    if (!options) return null;
+    const options = this.props.fieldsOptions && this.props.fieldsOptions[label];
+    if (!options) throw new Error('You must define fieldOptions for options fields');
 
     const formattedLabel = formatLabel(label);
     const onChange = v => this.handleChange(label, 'options', v);

@@ -9,7 +9,11 @@ import React, { Component, PropTypes } from 'react';
 import { Link, IndexLink } from '../link';
 import LocalNav from '../local-nav/local-nav';
 
-const SubNav = props => {
+type SubNavProps = {
+  promotionId: string|number;
+}
+
+const SubNav = (props: SubNavProps) => {
   const params = {
     promotionId: props.promotionId,
   };

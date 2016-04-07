@@ -15,7 +15,7 @@ export function copyShadowAttributes(form: FormAttributes, shadow: ShadowAttribu
   });
 }
 
-function addAttribute(label: string,
+export function addAttribute(label: string,
                       type: string,
                       value: any,
                       form: FormAttributes,
