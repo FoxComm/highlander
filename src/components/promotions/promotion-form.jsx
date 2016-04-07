@@ -11,6 +11,8 @@ import ObjectForm from '../object-form/object-form';
 import QualifierType from './qualifier-type';
 import { Checkbox } from '../checkbox/checkbox';
 
+import { setDiscountAttr } from '../../paragons/promotion';
+
 export default class PromotionForm extends Component {
 
   get generalAttrs() {
@@ -31,9 +33,24 @@ export default class PromotionForm extends Component {
     this.props.onUpdatePromotion(newPromotion);
   }
 
+  @autobind
+  handleQualifierChange(qualifier) {
+    const newPromotion = setDiscountAttr(this.props.promotion,
+      'qualifier', 'qualifier', qualifier
+    );
+
+    this.props.onUpdatePromotion(newPromotion);
+  }
+
   render() {
-    const formAttributes = _.get(this.props, 'promotion.form.attributes', []);
-    const shadowAttributes = _.get(this.props, 'promotion.shadow.attributes', []);
+    const { promotion } = this.props;
+    const formAttributes = _.get(promotion, 'form.attributes', []);
+    const shadowAttributes = _.get(promotion, 'shadow.attributes', []);
+
+    const discount = {
+      form: _.get(promotion, 'form.discounts.0', {}),
+      shadow: _.get(promotion, 'shadow.discounts.0', {}),
+    };
 
     return (
       <div styleName="promotion-form">
@@ -46,7 +63,7 @@ export default class PromotionForm extends Component {
             title="General" />
           <ContentBox title="Qualifier">
             <div styleName="sub-title">Qualifier Type</div>
-            <QualifierType />
+            <QualifierType discount={discount} onChange={this.handleQualifierChange} />
             <div styleName="sub-title">Qualifying Items</div>
             <Checkbox id="exclude-gc">Exclude gift cards</Checkbox>
           </ContentBox>

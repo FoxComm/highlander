@@ -1,6 +1,7 @@
 
 import _ from 'lodash';
-import { copyShadowAttributes, setAttribute } from './form-shadow-object';
+import { assoc } from 'sprout-data';
+import { copyShadowAttributes, denormalize, setAttribute, addAttribute } from './form-shadow-object';
 
 /*
 format:
@@ -21,6 +22,30 @@ format:
 }
 */
 
+function addEmptyDiscount(promotion) {
+  const { form, shadow } = promotion;
+
+  const discountForm = {
+    id: null,
+    createdAt: null,
+    attributes: {},
+  };
+
+  const discountShadow = {
+    id: null,
+    createdAt: null,
+    attributes: {},
+  };
+
+  [discountForm.attributes, discountShadow.attributes] =
+    addAttribute('qualifier', 'qualifier', {orderAny: {}}, discountForm.attributes, discountShadow.attributes);
+
+  form.discounts.push(discountForm);
+  shadow.discounts.push(discountShadow);
+
+  return promotion;
+}
+
 export function createEmptyPromotion() {
   const promotion = {
     form: {
@@ -37,7 +62,7 @@ export function createEmptyPromotion() {
     },
   };
 
-  return configurePromotion(promotion);
+  return addEmptyDiscount(configurePromotion(promotion));
 }
 
 export function configurePromotion(promotion) {
@@ -50,7 +75,8 @@ export function configurePromotion(promotion) {
     details: 'richText',
   };
 
-  copyShadowAttributes(form.attributes, shadow.attributes);
+  denormalize(promotion);
+  denormalize(promotion, 'discounts');
 
   _.each(defaultAttrs, (type, label) => {
     const formAttribute = _.get(promotion, ['form', 'attributes', label]);
@@ -60,4 +86,16 @@ export function configurePromotion(promotion) {
   });
 
   return promotion;
+}
+
+export function setDiscountAttr(promotion, label, type, value) {
+  const formAttr = _.get(promotion, 'form.discounts.0.attributes', {});
+  const shadowAttrs = _.get(promotion, 'shadow.discounts.0.attributes', {});
+
+  const [newForm, newShadow] = setAttribute(label, type, value, formAttr, shadowAttrs);
+
+  return assoc(promotion,
+    ['form', 'discounts', 0, 'attributes'], newForm,
+    ['shadow', 'discounts', 0, 'attributes'], newShadow
+  );
 }
