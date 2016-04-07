@@ -145,7 +145,7 @@ const Navigation = props => {
         </li>
         <li>
           <NavigationItem to="promotions"
-                          icon="icon-discounts"
+                          icon="icon-promotion"
                           title="Promotions"
                           isIndex={true}
                           isExpandable={true}
