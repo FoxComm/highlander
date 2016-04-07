@@ -27,6 +27,8 @@ object PromotionManager {
 
   def getForm(id: Int)
     (implicit ec: EC, db: DB): Result[PromotionFormResponse.Root] = (for {
+    //guard to make sure the form is a promotion
+    promotions ← * <~ Promotions.filter(_.formId === id).one.mustFindOr(PromotionNotFound(id))
     form  ← * <~ ObjectForms.mustFindById404(id)
   } yield PromotionFormResponse.build(form)).run()
 

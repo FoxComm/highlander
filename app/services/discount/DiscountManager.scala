@@ -23,6 +23,8 @@ object DiscountManager {
 
   def getForm(id: Int)
     (implicit ec: EC, db: DB): Result[DiscountFormResponse.Root] = (for {
+    //guard to make sure the form is a discount
+    discounts ← * <~ Discounts.filter(_.formId === id).one.mustFindOr(DiscountNotFound(id))
     form  ← * <~ ObjectForms.mustFindById404(id)
   } yield DiscountFormResponse.build(form)).run()
 

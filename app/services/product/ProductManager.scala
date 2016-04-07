@@ -34,9 +34,9 @@ object ProductManager {
 
   def getForm(id: Int)
     (implicit ec: EC, db: DB): Result[ProductFormResponse.Root] = (for {
+    //gaurd to make sure the form is a product.
+    product    ← * <~ Products.filter(_.formId === id).one.mustFindOr(ProductFormNotFound(id))
     form       ← * <~ ObjectForms.mustFindById404(id)
-    product    ← * <~ Products.filter(_.formId === id).one.mustFindOr(
-      ProductFormNotFound(id))
   } yield ProductFormResponse.build(product, form)).run()
 
   def getShadow(id: Int, contextName: String)
