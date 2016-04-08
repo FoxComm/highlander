@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import styles from './sidebar.css';
 
 import Icon from 'ui/icon';
+import { Link } from 'react-router';
 import Categories from '../categories/categories';
 import Search from '../search/search';
 
@@ -47,6 +48,9 @@ const Sidebar = (props: SidebarProps): HTMLElement => {
           </div>
           <div styleName="controls-categories">
             <Categories onClick={changeCategoryCallback} />
+          </div>
+          <div styleName="controls-login">
+            <Link to="/login" styleName="login-link">LOG IN</Link>
           </div>
         </div>
       </div>

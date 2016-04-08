@@ -48,10 +48,20 @@
   stroke: var(--whitish);
 }
 
-.controls-categories {
+.controls-categories,
+.controls-login {
   margin-left: 40px;
+}
+
+.controls-login {
+  margin-top: 32px;
 }
 
 .controls-search {
   margin-top: 16px;
+}
+
+.login-link {
+  color: var(--whitish);
+  text-decoration: none;
 }
