@@ -67,6 +67,7 @@ export default class Offer extends Component {
           min={0}
           max={100}
           type="number"
+          plate="%"
           value={this.offerParams.discount}
           onChange={this.handlePercentOffChange}
         />
