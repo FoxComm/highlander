@@ -22,7 +22,7 @@ class Dropdown extends React.Component {
       const item = _.find(props.items, item => item[0] == value);
       return item && item[1];
     } else {
-      const item = _.findWhere(React.Children.toArray(props.children), {props: {value: value}});
+      const item = _.findWhere(React.Children.toArray(props.children), { props: { value: value } });
       return item && item.props.children;
     }
   }
@@ -39,19 +39,19 @@ class Dropdown extends React.Component {
   }
 
   componentDidUpdate() {
-    const {open} = this.state;
+    const { open } = this.state;
 
     if (open && !this.isDownVisible && !this.state.dropup) {
-      this.setState({dropup: true});
+      this.setState({ dropup: true });
     }
     if (!open && this.state.dropup) {
-      this.setState({dropup: false});
+      this.setState({ dropup: false });
     }
   }
 
   get isDownVisible() {
     const dropdown = ReactDOM.findDOMNode(this.refs.items);
-    const {left, right, bottom} = dropdown.getBoundingClientRect();
+    const { left, right, bottom } = dropdown.getBoundingClientRect();
 
     const leftBottomElement = document.elementFromPoint(left + 1, bottom - 1);
     const rightBottomElement = document.elementFromPoint(right - 1, bottom - 1);
@@ -63,7 +63,7 @@ class Dropdown extends React.Component {
 
   @autobind
   handleItemClick(value, title) {
-    const state = {open: false};
+    const state = { open: false };
     if (this.props.changeable) {
       state.selectedValue = value;
     }
@@ -76,7 +76,7 @@ class Dropdown extends React.Component {
   }
 
   get input() {
-    const {editable, disabled, placeholder, name, value, renderNullTitle} = this.props;
+    const { editable, disabled, placeholder, name, value, renderNullTitle } = this.props;
     const actualValue = this.state.selectedValue || value;
     const title = this.findTitleByValue(actualValue) || renderNullTitle(value, placeholder);
 
@@ -113,7 +113,7 @@ class Dropdown extends React.Component {
 
   @autobind
   onBlur() {
-    this.setState({open: false});
+    this.setState({ open: false });
   }
 
   componentWillReceiveProps(newProps) {
@@ -123,8 +123,8 @@ class Dropdown extends React.Component {
   }
 
   render() {
-    const {primary, editable, items, children, disabled} = this.props;
-    const {open, dropup} = this.state;
+    const { primary, editable, items, children, disabled, name } = this.props;
+    const { open, dropup } = this.state;
     const className = classNames(this.props.className, {
       'fc-dropdown': true,
       '_primary': primary,
@@ -145,7 +145,7 @@ class Dropdown extends React.Component {
         </div>
         <ul ref="items" className={itemsClassName}>
           {items && _.map(items, ([value, title]) => (
-            <DropdownItem value={value} key={value} onSelect={this.handleItemClick}>
+            <DropdownItem value={value} key={`${name}-${value}`} onSelect={this.handleItemClick}>
               {title}
             </DropdownItem>
           )) || React.Children.map(children, item => (
