@@ -6,7 +6,9 @@ import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
 
 // components
-import ObjectForm from '../object-form/object-form';
+import ObjectFormInner from '../object-form/object-form-inner';
+import ContentBox from '../content-box/content-box';
+import Dropdown from '../dropdown/dropdown';
 
 // styles
 import styles from './form.css';
@@ -21,10 +23,28 @@ export default class CouponForm extends Component {
     return _(shadow).omit(toOmit).keys().value();
   }
 
-  get fieldsOptions() {
-    return {
-      'promotion': [[1, 'hardcoded promo 1']],
-    };
+  get promotionSelector() {
+    return (
+      <div>
+        <div styleName="field-label">
+          <label htmlFor="promotionSelector">
+            Currency
+          </label>
+        </div>
+        <div>
+          <Dropdown
+            id="promotionSelector"
+            name="promotion"
+            items={[[3, 'Coupon promo']]}
+            placeholder="- Select -"
+            value={null}
+          />
+        </div>
+        <div styleName="field-comment">
+          Only promotions with the Coupon Apply Type can be attached to a coupon.
+        </div>
+      </div>
+    );
   }
 
   @autobind
@@ -44,14 +64,16 @@ export default class CouponForm extends Component {
     return (
       <div styleName="coupon-form">
         <div styleName="main">
-          <ObjectForm
-            onChange={this.handleChange}
-            fieldsToRender={this.generalAttrs}
-            fieldsOptions={this.fieldsOptions}
-            form={formAttributes}
-            shadow={shadowAttributes}
-            title="General"
-          />
+          <ContentBox title="General">
+            <ObjectFormInner
+              onChange={this.handleChange}
+              fieldsToRender={this.generalAttrs}
+              fieldsOptions={this.fieldsOptions}
+              form={formAttributes}
+              shadow={shadowAttributes}
+            />
+            {this.promotionSelector}
+          </ContentBox>
         </div>
         <div styleName="aside">
         </div>
