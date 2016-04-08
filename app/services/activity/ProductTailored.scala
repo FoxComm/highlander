@@ -1,7 +1,8 @@
 package services.activity
 
 import responses.StoreAdminResponse
-import responses.ProductResponses.{FullProductResponse, ObjectContextResponse}
+import responses.ProductResponses.FullProductResponse
+import responses.ObjectResponses.ObjectContextResponse
 
 object ProductTailored {
   final case class FullProductCreated(admin: Option[StoreAdminResponse.Root], product: FullProductResponse.Root,

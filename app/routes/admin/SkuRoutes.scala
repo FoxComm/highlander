@@ -33,14 +33,14 @@ object SkuRoutes {
               } ~
               (patch & pathEnd & entity(as[UpdateFullSku])) { payload ⇒
                 goodOrFailures {
-                  SkuManager.updateFullSku(code, payload, context)
+                  SkuManager.updateFullSku(admin, code, payload, context)
                 }
               }
             } ~
             pathPrefix(Segment) { (context) ⇒
               (post & pathEnd & entity(as[CreateFullSku])) { payload ⇒
                 goodOrFailures {
-                  SkuManager.createFullSku(payload, context)
+                  SkuManager.createFullSku(admin, payload, context)
                 }
               }
             }

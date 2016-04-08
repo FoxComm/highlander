@@ -4,6 +4,7 @@ import models.inventory._
 import models.product._
 import models.objects._
 import responses.ProductResponses._
+import responses.ObjectResponses.ObjectContextResponse
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT
 import utils.DbResultT._
@@ -96,7 +97,7 @@ object ProductManager {
   } yield response).runTxn()
 
   def updateFullProduct(admin: StoreAdmin, productId: Int, payload: UpdateFullProduct, contextName: String)
-    (implicit ec: EC, db: DB): Result[FullProductResponse.Root] = (for {
+    (implicit ec: EC, db: DB, ac: AC): Result[FullProductResponse.Root] = (for {
 
     context ← * <~ ObjectContexts.filterByName(contextName).one.
       mustFindOr(ObjectContextNotFound(contextName))

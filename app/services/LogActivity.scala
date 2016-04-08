@@ -31,8 +31,11 @@ import services.activity.StoreCreditTailored._
 import StoreAdminResponse.{Root ⇒ AdminResponse, build ⇒ buildAdmin}
 import CustomerResponse.{Root ⇒ CustomerResponse, build ⇒ buildCustomer}
 import CreditCardsResponse.{buildSimple ⇒ buildCc}
-import responses.ProductResponses.{FullProductResponse, ObjectContextResponse}
+import responses.ProductResponses.FullProductResponse
+import responses.ObjectResponses.ObjectContextResponse
+import responses.SkuResponses.FullSkuResponse
 import services.activity.ProductTailored.{FullProductCreated, FullProductUpdated}
+import services.activity.SkuTailored.{FullSkuCreated, FullSkuUpdated}
 
 object LogActivity {
 
@@ -276,6 +279,15 @@ object LogActivity {
   def fullProductUpdated(admin: Option[StoreAdmin], product: FullProductResponse.Root, context: ObjectContextResponse.Root)
     (implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(FullProductUpdated(admin.map(buildAdmin), product, context))
+
+  /* SKUs */
+  def fullSkuCreated(admin: Option[StoreAdmin], product: FullSkuResponse.Root, context: ObjectContextResponse.Root)
+    (implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(FullSkuCreated(admin.map(buildAdmin), product, context))
+
+  def fullSkuUpdated(admin: Option[StoreAdmin], product: FullSkuResponse.Root, context: ObjectContextResponse.Root)
+    (implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(FullSkuUpdated(admin.map(buildAdmin), product, context))
 
   /* Helpers */
   private def buildOriginator(originator: Originator)
