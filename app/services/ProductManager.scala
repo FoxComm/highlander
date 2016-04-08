@@ -91,10 +91,10 @@ object ProductManager {
       formId = productForm.id, shadowId = productShadow.id, commitId = productCommit.id))
     skuData       ← * <~ createSkuData(context, productShadow.id,
       payload.form.skus, payload.shadow.skus)
-    response      = FullProductResponse.build(product, productForm, productShadow, skuData)
+    productResponse      = FullProductResponse.build(product, productForm, productShadow, skuData)
     contextResp   = ObjectContextResponse.build(context)
-    _             ← * <~ LogActivity.fullProductCreated(Some(admin), response, contextResp)
-  } yield response).runTxn()
+    _             ← * <~ LogActivity.fullProductCreated(Some(admin), productResponse, contextResp)
+  } yield productResponse).runTxn()
 
   def updateFullProduct(admin: StoreAdmin, productId: Int, payload: UpdateFullProduct, contextName: String)
     (implicit ec: EC, db: DB, ac: AC): Result[FullProductResponse.Root] = (for {
@@ -113,10 +113,10 @@ object ProductManager {
     skusChanged ← * <~ anyChanged(updatedSkuData.map(_._4))
     skuData  ← * <~ updatedSkuData.map( t ⇒ (t._1, t._2, t._3))
     product ← * <~ commitProduct(product, productForm, productShadow, productChanged || skusChanged)
-    response = FullProductResponse.build(product, productForm, productShadow, skuData)
+    productResponse = FullProductResponse.build(product, productForm, productShadow, skuData)
     contextResp = ObjectContextResponse.build(context)
-    _ ← * <~ LogActivity.fullProductUpdated(Some(admin), response, contextResp)
-  } yield response).runTxn()
+    _ ← * <~ LogActivity.fullProductUpdated(Some(admin), productResponse, contextResp)
+  } yield productResponse).runTxn()
 
 
   def getIlluminatedFullProductByContextName(productId: Int, contextName: String)
