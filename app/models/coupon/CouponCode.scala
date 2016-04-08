@@ -57,10 +57,12 @@ object CouponCodes extends TableQueryWithId[CouponCode, CouponCodes](
     }.distinct 
 
     //if we produced fewer codes then desired, attempt to do it again.
-    if(codes.length < quantity && attempt < 10) 
+    if(codes.length < quantity && attempt < MAX_ATTEMPTS) 
       generateCodes(prefix, codeCharacterLength, quantity, attempt +1)
     else codes
   }
+
+  private val MAX_ATTEMPTS = 10
 
   private def generateCode(prefix: String, number: Int, largestNum: Int, numericLength: Int) : String = {
     require(numericLength >= 0)
