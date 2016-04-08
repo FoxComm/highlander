@@ -40,4 +40,7 @@ object Products extends TableQueryWithId[Product, Products](
 
   def filterByContext(contextId: Int): QuerySeq = 
     filter(_.contextId === contextId)
+
+  def filterByFormId(formId: Int): QuerySeq =
+    filter(_.formId === formId)
 }

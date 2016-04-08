@@ -5,16 +5,15 @@ import models.inventory._
 import models.product._
 import models.objects._
 import models.Aliases.Json
-import responses.ObjectResponses.ObjectContextResponse
-
 import org.json4s.DefaultFormats
 import org.json4s.Extraction
 import org.json4s.JsonAST.JValue
 import org.json4s.JsonDSL._
 import org.json4s.jackson.Serialization.{write ⇒ render}
-
 import java.time.Instant
+
 import cats.implicits._
+import responses.ObjectResponses.ObjectContextResponse
 
 object ProductResponses {
 

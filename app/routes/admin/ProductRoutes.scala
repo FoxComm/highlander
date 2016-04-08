@@ -45,14 +45,14 @@ object ProductRoutes {
               } ~ 
               (patch & pathEnd & entity(as[UpdateFullProduct])) { payload ⇒
                 goodOrFailures {
-                  ProductManager.updateFullProduct(productId, payload, context)
+                  ProductManager.updateFullProduct(admin, productId, payload, context)
                 }
               } 
             } ~
             pathPrefix(Segment) { (context)  ⇒
               (post & pathEnd & entity(as[CreateFullProduct])) { payload ⇒
                 goodOrFailures {
-                  ProductManager.createFullProduct(payload, context)
+                  ProductManager.createFullProduct(admin, payload, context)
                 }
               } 
             }
