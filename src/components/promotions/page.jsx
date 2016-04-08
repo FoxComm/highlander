@@ -87,6 +87,10 @@ class PromotionPage extends Component {
     const props = this.props;
     const { promotion } = this.state;
 
+    if (!promotion || props.isFetching) {
+      return <div><WaitAnimation /></div>;
+    }
+
     const children = React.cloneElement(props.children, {
       ...props.children.props,
       promotion,
