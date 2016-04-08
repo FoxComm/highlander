@@ -32,7 +32,7 @@ import StoreAdminResponse.{Root ⇒ AdminResponse, build ⇒ buildAdmin}
 import CustomerResponse.{Root ⇒ CustomerResponse, build ⇒ buildCustomer}
 import CreditCardsResponse.{buildSimple ⇒ buildCc}
 import responses.ProductResponses.{FullProductResponse, ObjectContextResponse}
-import services.activity.ProductTailored.FullProductCreated
+import services.activity.ProductTailored.{FullProductCreated, FullProductUpdated}
 
 object LogActivity {
 
@@ -272,6 +272,10 @@ object LogActivity {
   def fullProductCreated(admin: Option[StoreAdmin], product: FullProductResponse.Root, context: ObjectContextResponse.Root)
     (implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(FullProductCreated(admin.map(buildAdmin), product, context))
+
+  def fullProductUpdated(admin: Option[StoreAdmin], product: FullProductResponse.Root, context: ObjectContextResponse.Root)
+    (implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(FullProductUpdated(admin.map(buildAdmin), product, context))
 
   /* Helpers */
   private def buildOriginator(originator: Originator)

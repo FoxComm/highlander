@@ -45,7 +45,7 @@ object ProductRoutes {
               } ~ 
               (patch & pathEnd & entity(as[UpdateFullProduct])) { payload ⇒
                 goodOrFailures {
-                  ProductManager.updateFullProduct(productId, payload, context)
+                  ProductManager.updateFullProduct(admin, productId, payload, context)
                 }
               } 
             } ~
