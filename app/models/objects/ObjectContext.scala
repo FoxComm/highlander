@@ -38,6 +38,10 @@ object ObjectContexts extends TableQueryWithId[ObjectContext, ObjectContexts](
 
   def filterByName(name: String): QuerySeq = 
     filter(_.name === name)
+
   def filterByContextAttribute(key: String, value: String): QuerySeq = 
     filter(_.attributes+>>(key) === value)
+
+  def filterByLanguage(lang: String): QuerySeq = 
+    filterByContextAttribute("lang", lang)
 }

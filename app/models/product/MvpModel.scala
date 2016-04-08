@@ -7,6 +7,9 @@ import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Money.Currency
+import utils.Slick.implicits._
+import failures.ProductFailures._
+import failures.ObjectFailures._
 
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
@@ -20,17 +23,20 @@ import java.time.Instant
 import java.security.MessageDigest
 
 object SimpleContext { 
-  val name =  "default"
-  val variant = name
   val id = 1
-  def create: ObjectContext = 
+  val ruId = 2
+  val default = "default"
+  val ru = "ru"
+
+  def create(name: String = "default", lang: String = "en", modality: String = "desktop"): 
+  ObjectContext = 
     ObjectContext(
       id = id,
-      name = SimpleContext.variant,
+      name = name,
       attributes = parse(s"""
       {
-        "modality" : "desktop",
-        "language" : "EN"
+        "modality" : "$modality",
+        "lang" : "$lang"
       }
       """))
 }
@@ -52,6 +58,8 @@ final case class SimpleProduct(title: String, description: String, image: String
     }"""))
 
     def create : ObjectForm = ObjectForm(kind = Product.kind, attributes = form)
+    def update(oldForm: ObjectForm) : ObjectForm = 
+      oldForm.copy(attributes = oldForm.attributes merge form)
 }
 
 final case class SimpleProductShadow(formId: Int, p: SimpleProduct) { 
@@ -90,6 +98,8 @@ final case class SimpleSku(code: String, title: String,
 
     def create : ObjectForm = 
       ObjectForm(kind = Sku.kind, attributes = form) 
+    def update(oldForm: ObjectForm) : ObjectForm = 
+      oldForm.copy(attributes = oldForm.attributes merge form)
 }
 
 final case class SimpleSkuShadow(formId: Int, s: SimpleSku) { 
@@ -116,11 +126,45 @@ final case class SimpleProductTuple(product: Product, sku: Sku,
   skuShadow: ObjectShadow)
 
 object Mvp { 
+  def insertProductNewContext(oldContextId: Int, contextId: Int, p: SimpleProductData)(implicit db: Database): 
+  DbResultT[SimpleProductData] = for {
+    simpleProduct   ← * <~ SimpleProduct(p.title, p.description, p.image, p.code)
+    //find product form other context, get old form and merge with new
+    product       ← * <~ Products.filter(_.contextId === oldContextId).filter(_.id === p.productId).one.
+        mustFindOr(ProductNotFoundForContext(p.productId, oldContextId)) 
+    oldForm         ← * <~ ObjectForms.mustFindById404(product.formId)
+    productForm     ← * <~ ObjectForms.update(oldForm, simpleProduct.update(oldForm))
 
-  def insertProduct(contextId: Int, p: SimpleProductData)(implicit db: Database): 
+    //find sku form for the product and update it with new sku
+    link ← * <~ ObjectLinks.filter(_.leftId === product.shadowId).one.
+      mustFindOr(ObjectLeftLinkCannotBeFound(product.shadowId))
+    sku ← * <~ Skus.filter(_.contextId === oldContextId).
+      filter(_.shadowId === link.rightId).one.
+        mustFindOr(SkuWithShadowNotFound(link.rightId))
+
+    simpleSku  ← * <~ SimpleSku(p.code, p.title, p.price, p.currency)
+    oldSkuForm ← * <~ ObjectForms.mustFindById404(sku.formId)
+    skuForm    ← * <~ ObjectForms.update(oldSkuForm, simpleSku.update(oldSkuForm))
+
+    r ← * <~ insertProductIntoContext(contextId, productForm, skuForm,
+      simpleProduct, simpleSku, p)
+
+  } yield r
+
+  def insertNewProduct(contextId: Int, p: SimpleProductData)(implicit db: Database): 
   DbResultT[SimpleProductData] = for {
     simpleProduct   ← * <~ SimpleProduct(p.title, p.description, p.image, p.code)
     productForm     ← * <~ ObjectForms.create(simpleProduct.create)
+    simpleSku       ← * <~ SimpleSku(p.code, p.title, p.price, p.currency)
+    skuForm             ← * <~ ObjectForms.create(simpleSku.create)
+    r ← * <~ insertProductIntoContext(contextId, productForm, skuForm,
+      simpleProduct, simpleSku, p)
+  } yield r
+
+  def insertProductIntoContext(contextId: Int, productForm: ObjectForm, 
+    skuForm: ObjectForm, simpleProduct: SimpleProduct, simpleSku: SimpleSku, 
+    p: SimpleProductData)
+  (implicit db: Database): DbResultT[SimpleProductData] = for {
     simpleShadow    ← * <~ SimpleProductShadow(productForm.id, simpleProduct)
     productShadow   ← * <~ ObjectShadows.create(simpleShadow.create)
     productCommit   ← * <~ ObjectCommits.create(
@@ -128,8 +172,6 @@ object Mvp {
     product   ← * <~ Products.create(
       Product(contextId = contextId, formId = productForm.id, 
         shadowId = productShadow.id, commitId = productCommit.id))
-    simpleSku       ← * <~ SimpleSku(p.code, p.title, p.price, p.currency)
-    skuForm             ← * <~ ObjectForms.create(simpleSku.create)
     simpleSkuShadow ← * <~ SimpleSkuShadow(skuForm.id, simpleSku)
     skuShadow       ← * <~ ObjectShadows.create(simpleSkuShadow.create)
     link            ← * <~ ObjectLinks.create(ObjectLink(
@@ -158,7 +200,12 @@ object Mvp {
 
   def insertProducts(ps : Seq[SimpleProductData], contextId: Int)
     (implicit db: Database): DbResultT[Seq[SimpleProductData]] = for {
-    results ← * <~ DbResultT.sequence(ps.map { p ⇒ insertProduct(contextId, p) } )
+    results ← * <~ DbResultT.sequence(ps.map { p ⇒ insertNewProduct(contextId, p) } )
+  } yield results
+
+  def insertProductsNewContext(oldContextId: Int, contextId: Int, ps : Seq[SimpleProductData])
+    (implicit db: Database): DbResultT[Seq[SimpleProductData]] = for {
+    results ← * <~ DbResultT.sequence(ps.map { p ⇒ insertProductNewContext(oldContextId, contextId, p) } )
   } yield results
 
   def priceFromJson(p: JValue) : Option[(Int, Currency)] = {

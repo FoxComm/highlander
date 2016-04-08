@@ -21,7 +21,7 @@ import utils.aliases._
 object CustomDirectives {
 
   val DefaultPageSize = 50
-  val DefaultContextName = SimpleContext.name
+  val DefaultContextName = SimpleContext.default
 
   final case class Sort(sortColumn: String, asc: Boolean = true)
   final case class SortAndPage(
@@ -74,11 +74,26 @@ object CustomDirectives {
    * for the correct context.
    */
   def determineObjectContext(implicit db: DB, ec: EC) : Directive1[ObjectContext] = {
-    onSuccess(db.run(ObjectContexts.filterByName(DefaultContextName).result.headOption).map {
-      case Some(c) ⇒  c
-      case None ⇒ throw new Exception("Unable to find default context. Is the DB seeded?")
-    })
+    optionalHeaderValueByName("Accept-Language").flatMap {
+      case Some(lang) ⇒  onSuccess(getContextByLanguage(lang).map { 
+        case Some(c) ⇒  c
+        case None ⇒ throw new Exception(s"Unable to find context with language $lang.")
+      })
+      case None ⇒ 
+        onSuccess(getContextByName(DefaultContextName).map {
+          case Some(c) ⇒  c
+          case None ⇒ throw new Exception("Unable to find default context. Is the DB seeded?")
+        })
+    }
   }
+
+  private def getContextByName(name: String)(implicit db: DB, ec: EC) = 
+    db.run(ObjectContexts.filterByName(name).result.headOption)
+
+  //This is a really trivial version. We are not handling language weights, 
+  //and multiple options.
+  private def getContextByLanguage(lang: String)(implicit db: DB, ec: EC) = 
+    db.run(ObjectContexts.filterByLanguage(lang).result.headOption)
 
 
   def sortAndPage: Directive1[SortAndPage] =

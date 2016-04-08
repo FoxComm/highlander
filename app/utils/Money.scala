@@ -16,6 +16,7 @@ object Money {
 
   object Currency {
     val USD = Currency("USD")
+    val RUB = Currency("RUB")
 
     def apply(s: String): Currency =
       Xor.catchOnly[BadCurrency] { CurrencyUnit.of(s.toUpperCase()) }.fold(_ ⇒ USD, identity)
