@@ -118,7 +118,7 @@ export default class NewStoreCredit extends React.Component {
       const type = _.find(types, 'originType', form.type);
 
       if (type) {
-        return _.map(type.subTypes, type => [type.originType, codeToName(type.originType)]);
+        return _.map(type.subTypes, type => [type.id, type.title]);
       }
     }
   }
