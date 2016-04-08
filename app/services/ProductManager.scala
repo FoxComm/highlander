@@ -95,7 +95,7 @@ object ProductManager {
     _             ← * <~ LogActivity.fullProductCreated(Some(admin), response, contextResp)
   } yield response).runTxn()
 
-  def updateFullProduct(productId: Int, payload: UpdateFullProduct, contextName: String)
+  def updateFullProduct(admin: StoreAdmin, productId: Int, payload: UpdateFullProduct, contextName: String)
     (implicit ec: EC, db: DB): Result[FullProductResponse.Root] = (for {
 
     context ← * <~ ObjectContexts.filterByName(contextName).one.
@@ -112,7 +112,10 @@ object ProductManager {
     skusChanged ← * <~ anyChanged(updatedSkuData.map(_._4))
     skuData  ← * <~ updatedSkuData.map( t ⇒ (t._1, t._2, t._3))
     product ← * <~ commitProduct(product, productForm, productShadow, productChanged || skusChanged)
-  } yield FullProductResponse.build(product, productForm, productShadow, skuData)).runTxn()
+    response = FullProductResponse.build(product, productForm, productShadow, skuData)
+    contextResp = ObjectContextResponse.build(context)
+    _ ← * <~ LogActivity.fullProductUpdated(Some(admin), response, contextResp)
+  } yield response).runTxn()
 
 
   def getIlluminatedFullProductByContextName(productId: Int, contextName: String)
