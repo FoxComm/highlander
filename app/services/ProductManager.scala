@@ -56,7 +56,7 @@ object ProductManager {
     context ← * <~ ObjectContexts.filterByName(contextName).one.
       mustFindOr(ObjectContextNotFound(contextName))
     product       ← * <~ Products.filter(_.contextId === context.id).
-      filter(_.id === productId).one.
+      filter(_.formId === productId).one.
         mustFindOr(ProductNotFoundForContext(productId, context.id)) 
     form       ← * <~ ObjectForms.mustFindById404(product.formId)
     shadow       ← * <~ ObjectShadows.mustFindById404(product.shadowId)
