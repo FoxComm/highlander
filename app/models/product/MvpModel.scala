@@ -28,7 +28,7 @@ object SimpleContext {
   val default = "default"
   val ru = "ru"
 
-  def create(name: String = "default", lang: String = "en", modality: String = "desktop"): 
+  def create(id: Int = 0, name: String = "default", lang: String = "en", modality: String = "desktop"): 
   ObjectContext = 
     ObjectContext(
       id = id,

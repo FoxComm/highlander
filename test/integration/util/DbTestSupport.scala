@@ -46,7 +46,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
   }
 
   private def setupObjectContext(): Failures Xor ObjectContext = {
-    Await.result(db.run(ObjectContexts.create(SimpleContext.create)), 60.seconds)
+    Await.result(db.run(ObjectContexts.create(SimpleContext.create())), 60.seconds)
   }
 
   def isTableEmpty(table: String)(implicit conn: Connection): Boolean = {

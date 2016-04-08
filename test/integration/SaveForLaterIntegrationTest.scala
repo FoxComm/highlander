@@ -98,7 +98,7 @@ class SaveForLaterIntegrationTest extends IntegrationTestBase with HttpSupport w
 
   trait Fixture {
     val (customer, product, productContext) = (for {
-      productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.create.id)
+      productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       customer ← * <~ Customers.create(Factories.customer)
       product     ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
     } yield (customer, product, productContext)).runTxn().futureValue.rightVal
