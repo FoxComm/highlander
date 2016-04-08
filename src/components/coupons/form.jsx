@@ -24,6 +24,7 @@ export default class CouponForm extends Component {
   }
 
   get promotionSelector() {
+    const id = _.get(this.props, 'coupon.promotion');
     return (
       <div>
         <div styleName="field-label">
@@ -37,7 +38,8 @@ export default class CouponForm extends Component {
             name="promotion"
             items={[[3, 'Coupon promo']]}
             placeholder="- Select -"
-            value={null}
+            value={id}
+            onChange={(value) => this.handlePromotionChange(value)}
           />
         </div>
         <div styleName="field-comment">
@@ -55,6 +57,12 @@ export default class CouponForm extends Component {
     );
 
     this.props.onUpdateCoupon(newCoupon);
+  }
+
+  @autobind
+  handlePromotionChange(value) {
+    const coupon = assoc(this.props.coupon, 'promotion', value);
+    this.props.onUpdateCoupon(coupon);
   }
 
   render() {
