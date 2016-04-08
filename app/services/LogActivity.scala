@@ -12,17 +12,15 @@ import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
 import models.sharedsearch.SharedSearch
 import models.shipping.ShippingMethod
-import models.{StoreAdmin, Note}
-import models.activity.{Activity, Activities}
+import models.{Note, StoreAdmin}
+import models.activity.{Activities, Activity}
 import models.traits.{AdminOriginator, CustomerOriginator, Originator}
 import payloads.UpdateLineItemsPayload
 import responses.order.FullOrder
-import responses.{CreditCardsResponse, Addresses, GiftCardResponse, CustomerResponse, StoreAdminResponse,
-StoreCreditResponse}
+import responses.{Addresses, CreditCardsResponse, CustomerResponse, GiftCardResponse, StoreAdminResponse, StoreCreditResponse}
 import services.LineItemUpdater.foldQuantityPayload
 import utils.Slick.DbResult
 import utils.aliases._
-
 import services.activity.AssignmentsTailored._
 import services.activity.CustomerTailored._
 import services.activity.GiftCardTailored._
@@ -30,10 +28,14 @@ import services.activity.OrderTailored._
 import services.activity.NotesTailored._
 import services.activity.SharedSearchTailored._
 import services.activity.StoreCreditTailored._
-
-import StoreAdminResponse.{build ⇒ buildAdmin, Root ⇒ AdminResponse}
-import CustomerResponse.{build ⇒ buildCustomer, Root ⇒ CustomerResponse}
+import StoreAdminResponse.{Root ⇒ AdminResponse, build ⇒ buildAdmin}
+import CustomerResponse.{Root ⇒ CustomerResponse, build ⇒ buildCustomer}
 import CreditCardsResponse.{buildSimple ⇒ buildCc}
+import responses.ProductResponses.FullProductResponse
+import responses.ObjectResponses.ObjectContextResponse
+import responses.SkuResponses.FullSkuResponse
+import services.activity.ProductTailored.{FullProductCreated, FullProductUpdated}
+import services.activity.SkuTailored.{FullSkuCreated, FullSkuUpdated}
 
 object LogActivity {
 
@@ -268,6 +270,24 @@ object LogActivity {
   def orderShippingMethodDeleted(originator: Originator, order: FullOrder.Root, shippingMethod: ShippingMethod)
     (implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(OrderShippingMethodRemoved(order, shippingMethod, buildOriginator(originator)))
+
+  /* Products */
+  def fullProductCreated(admin: Option[StoreAdmin], product: FullProductResponse.Root, context: ObjectContextResponse.Root)
+    (implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(FullProductCreated(admin.map(buildAdmin), product, context))
+
+  def fullProductUpdated(admin: Option[StoreAdmin], product: FullProductResponse.Root, context: ObjectContextResponse.Root)
+    (implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(FullProductUpdated(admin.map(buildAdmin), product, context))
+
+  /* SKUs */
+  def fullSkuCreated(admin: Option[StoreAdmin], product: FullSkuResponse.Root, context: ObjectContextResponse.Root)
+    (implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(FullSkuCreated(admin.map(buildAdmin), product, context))
+
+  def fullSkuUpdated(admin: Option[StoreAdmin], product: FullSkuResponse.Root, context: ObjectContextResponse.Root)
+    (implicit ec: EC, ac: AC): DbResult[Activity] =
+    Activities.log(FullSkuUpdated(admin.map(buildAdmin), product, context))
 
   /* Helpers */
   private def buildOriginator(originator: Originator)

@@ -4,29 +4,26 @@ import models.inventory._
 import models.product._
 import models.objects._
 import responses.ProductResponses._
+import responses.ObjectResponses.ObjectContextResponse
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.implicits._
-import payloads.{CreateProductForm, UpdateProductForm, CreateProductShadow, 
-  UpdateProductShadow, CreateObjectContext, UpdateObjectContext,
-  CreateFullProductForm, UpdateFullProductForm, CreateFullProductShadow, 
-  UpdateFullProductShadow, CreateFullSkuForm, UpdateFullSkuForm, CreateSkuForm, 
-  CreateSkuShadow, UpdateFullSkuShadow, CreateFullProduct, UpdateFullProduct}
-
-import org.json4s.JsonAST.{JValue, JString, JObject, JField, JNothing}
+import payloads.{CreateFullProduct, CreateFullProductForm, CreateFullProductShadow, CreateFullSkuForm, CreateObjectContext, CreateProductForm, CreateProductShadow, CreateSkuForm, CreateSkuShadow, UpdateFullProduct, UpdateFullProductForm, UpdateFullProductShadow, UpdateFullSkuForm, UpdateFullSkuShadow, UpdateObjectContext, UpdateProductForm, UpdateProductShadow}
+import org.json4s.JsonAST.{JField, JNothing, JObject, JString, JValue}
 import org.json4s.jackson.JsonMethods._
-
 import utils.aliases._
 import utils.IlluminateAlgorithm
 import cats.data.NonEmptyList
-import cats.implicits. _
+import cats.implicits._
 import failures.Failure
 import failures.NotFoundFailure400
 import failures.ProductFailures._
 import failures.ObjectFailures._
 import java.time.Instant
+
+import models.StoreAdmin
 
 object ProductManager {
 
@@ -78,27 +75,29 @@ object ProductManager {
     skuData       ← * <~ getSkuData(productShadow.id)
   } yield FullProductResponse.build(product, productForm, productShadow, skuData)).run()
 
-  def createFullProduct(payload: CreateFullProduct, contextName: String)
-    (implicit ec: EC, db: DB): Result[FullProductResponse.Root] = (for {
+  def createFullProduct(admin: StoreAdmin, payload: CreateFullProduct, contextName: String)
+    (implicit ec: EC, db: DB, ac: AC): Result[FullProductResponse.Root] = (for {
 
-    context ← * <~ ObjectContexts.filterByName(contextName).one.
+    context       ← * <~ ObjectContexts.filterByName(contextName).one.
       mustFindOr(ObjectContextNotFound(contextName))
-    productForm ← * <~ ObjectForms.create(ObjectForm(kind = Product.kind,
+    productForm   ← * <~ ObjectForms.create(ObjectForm(kind = Product.kind,
       attributes = payload.form.product.attributes))
     productShadow ← * <~ ObjectShadows.create(ObjectShadow(formId = productForm.id,
       attributes = payload.shadow.product.attributes))
-    productCommit  ← * <~ ObjectCommits.create(ObjectCommit(formId = productForm.id, 
+    productCommit ← * <~ ObjectCommits.create(ObjectCommit(formId = productForm.id,
       shadowId = productShadow.id))
-    _    ← * <~ validateShadow(productForm, productShadow)
-    product     ← * <~ Products.create(Product(contextId = context.id, 
+    _             ← * <~ validateShadow(productForm, productShadow)
+    product       ← * <~ Products.create(Product(contextId = context.id,
       formId = productForm.id, shadowId = productShadow.id, commitId = productCommit.id))
-    skuData ← * <~ createSkuData(context, productShadow.id, 
+    skuData       ← * <~ createSkuData(context, productShadow.id,
       payload.form.skus, payload.shadow.skus)
+    productResponse      = FullProductResponse.build(product, productForm, productShadow, skuData)
+    contextResp   = ObjectContextResponse.build(context)
+    _             ← * <~ LogActivity.fullProductCreated(Some(admin), productResponse, contextResp)
+  } yield productResponse).runTxn()
 
-  } yield FullProductResponse.build(product, productForm, productShadow, skuData)).runTxn()
-
-  def updateFullProduct(productId: Int, payload: UpdateFullProduct, contextName: String)
-    (implicit ec: EC, db: DB): Result[FullProductResponse.Root] = (for {
+  def updateFullProduct(admin: StoreAdmin, productId: Int, payload: UpdateFullProduct, contextName: String)
+    (implicit ec: EC, db: DB, ac: AC): Result[FullProductResponse.Root] = (for {
 
     context ← * <~ ObjectContexts.filterByName(contextName).one.
       mustFindOr(ObjectContextNotFound(contextName))
@@ -114,7 +113,10 @@ object ProductManager {
     skusChanged ← * <~ anyChanged(updatedSkuData.map(_._4))
     skuData  ← * <~ updatedSkuData.map( t ⇒ (t._1, t._2, t._3))
     product ← * <~ commitProduct(product, productForm, productShadow, productChanged || skusChanged)
-  } yield FullProductResponse.build(product, productForm, productShadow, skuData)).runTxn()
+    productResponse = FullProductResponse.build(product, productForm, productShadow, skuData)
+    contextResp = ObjectContextResponse.build(context)
+    _ ← * <~ LogActivity.fullProductUpdated(Some(admin), productResponse, contextResp)
+  } yield productResponse).runTxn()
 
 
   def getIlluminatedFullProductByContextName(productId: Int, contextName: String)
