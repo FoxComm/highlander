@@ -14,18 +14,17 @@ import java.time.Instant
  * the form. 
  */
 final case class IlluminatedCoupon(id: Int, context: IlluminatedContext, 
-  attributes: Json, promotion: Int, codes: Seq[String])
+  attributes: Json, promotion: Int)
 
 object IlluminatedCoupon { 
 
   def illuminate(context: ObjectContext, coupon: Coupon, 
-    form: ObjectForm, shadow: ObjectShadow, codes: Seq[CouponCode]) : IlluminatedCoupon = { 
+    form: ObjectForm, shadow: ObjectShadow) : IlluminatedCoupon = { 
 
     IlluminatedCoupon(
       id = coupon.formId,  
       promotion = coupon.promotionId,
       context = IlluminatedContext(context.name, context.attributes),
-      attributes = IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes),
-      codes = codes.map(_.code))
+      attributes = IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes))
   }
 }

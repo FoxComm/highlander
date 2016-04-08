@@ -3,14 +3,17 @@ package models.coupon
 import models.Aliases.Json
 import models.objects._
 
-import monocle.macros.GenLens
 import utils.ExPostgresDriver.api._
 import utils.JsonFormatters
+import utils.Slick.implicits._
 import utils.time.JavaTimeSlickMapper._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
+import monocle.macros.GenLens
 import java.time.Instant
 import scala.util.Random
+import utils.ExPostgresDriver.api._
+import slick.jdbc.JdbcType
 
 /**
  * A coupon code is a way to reference a coupon from the outside world. 
@@ -20,10 +23,12 @@ final case class CouponCode(id: Int = 0, code: String, couponFormId: Int, create
   extends ModelWithIdParameter[CouponCode]
   with Validation[CouponCode]
 
-class CouponCodes(tag: Tag) extends ObjectHeads[CouponCode](tag, "coupon_codes") {
+class CouponCodes(tag: Tag) extends GenericTable.TableWithId[CouponCode](tag, "coupon_codes")  {
 
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def code = column[String]("code")
   def couponFormId = column[Int]("coupon_form_id")
+  def createdAt = column[Instant]("created_at")
 
   def * = (id, code, couponFormId, createdAt) <> ((CouponCode.apply _).tupled, CouponCode.unapply)
 
@@ -64,10 +69,4 @@ object CouponCodes extends TableQueryWithId[CouponCode, CouponCodes](
     val num = s"%0${numericLength}d".format(number)
     s"${prefix}${num}"
   }
-
-  def filterByContext(contextId: Int): QuerySeq = 
-    filter(_.contextId === contextId)
-
-  def filterByContextAndCode(contextId: Int, code: String): QuerySeq = 
-    filter(_.contextId === contextId).filter(_.code.toLowerCase === code.toLowerCase)
 }

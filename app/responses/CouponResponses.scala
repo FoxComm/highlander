@@ -37,22 +37,28 @@ object CouponResponses {
   object CouponResponse { 
 
     final case class Root(id: Int, form: CouponFormResponse.Root, 
-      shadow: CouponShadowResponse.Root, promotion: Int, codes: Seq[String])
+      shadow: CouponShadowResponse.Root, promotion: Int)
 
-    def build(coupon: Coupon, f: ObjectForm, s: ObjectShadow, codes: Seq[CouponCode]) : Root = Root(
+    def build(coupon: Coupon, f: ObjectForm, s: ObjectShadow) : Root = Root(
         id = coupon.formId, form = CouponFormResponse.build(f), 
-        shadow = CouponShadowResponse.build(s), promotion = coupon.promotionId,
-        codes = codes.map(_.code))
+        shadow = CouponShadowResponse.build(s), promotion = coupon.promotionId)
+  }
+
+  object CouponCodesResponse { 
+
+    final case class Root(code: String, createdAt: Instant)
+
+    def build(codes: Seq[CouponCode]) : Seq[Root] = 
+      codes.map{ c ⇒ Root(code = c.code, createdAt = c.createdAt)}
   }
 
   object IlluminatedCouponResponse {
 
     final case class Root(id: Int, context: ObjectContextResponse.Root, 
-      attributes: Json, promotion: Int, codes: Seq[String])
+      attributes: Json, promotion: Int)
 
     def build(coupon: IlluminatedCoupon): Root = 
       Root(id = coupon.id, context = ObjectContextResponse.build(coupon.context), 
-        attributes = coupon.attributes, promotion = coupon.promotion,
-        codes = coupon.codes)
+        attributes = coupon.attributes, promotion = coupon.promotion)
   }
 }

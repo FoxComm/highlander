@@ -39,6 +39,13 @@ object CouponRoutes {
                 }
               }
             }
+            pathPrefix(IntNumber) { id ⇒
+              (get & pathEnd) { 
+                goodOrFailures {
+                  CouponManager.getCodes(id)
+                }
+              }
+            }
           } ~
           pathPrefix("forms" / IntNumber) { id ⇒
             (get & pathEnd) {

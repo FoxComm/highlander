@@ -47,8 +47,7 @@ object CouponManager {
         mustFindOr(CouponNotFoundForContext(id, contextName))
       form     ← * <~ ObjectForms.mustFindById404(coupon.formId)
       shadow   ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
-      codes ← * <~ CouponCodes.filter(_.couponFormId === form.id).result
-  } yield CouponResponse.build(coupon, form, shadow, codes)).run()
+  } yield CouponResponse.build(coupon, form, shadow)).run()
 
   def create(payload: CreateCoupon, contextName: String) 
     (implicit ec: EC, db: DB): Result[CouponResponse.Root] = (for {
@@ -62,8 +61,7 @@ object CouponManager {
     coupon ← * <~ Coupons.create(Coupon(contextId = context.id, 
       formId = ins.form.id, shadowId = ins.shadow.id, commitId = ins.commit.id,
       promotionId = payload.promotion))
-    codes ← * <~ CouponCodes.filter(_.couponFormId === ins.form.id).result
-  } yield CouponResponse.build(coupon, ins.form, ins.shadow, codes)).runTxn()
+  } yield CouponResponse.build(coupon, ins.form, ins.shadow)).runTxn()
 
   def update(id: Int, payload: UpdateCoupon, contextName: String)
     (implicit ec: EC, db: DB): Result[CouponResponse.Root] = (for {
@@ -77,8 +75,7 @@ object CouponManager {
       payload.form.attributes, payload.shadow.attributes)
     commit ← * <~ ObjectUtils.commit(updatedCoupon)
     coupon ← * <~ updateHead(coupon, payload.promotion, updatedCoupon.shadow, commit)
-    codes ← * <~ CouponCodes.filter(_.couponFormId === updatedCoupon.form.id).result
-  } yield CouponResponse.build(coupon, updatedCoupon.form, updatedCoupon.shadow, codes)).runTxn()
+  } yield CouponResponse.build(coupon, updatedCoupon.form, updatedCoupon.shadow)).runTxn()
 
   def getIlluminated(id: Int, contextName: String)
     (implicit ec: EC, db: DB): Result[IlluminatedCouponResponse.Root] = (for {
@@ -88,9 +85,8 @@ object CouponManager {
       filter(_.formId === id).one.mustFindOr(CouponNotFound(id))
     form    ← * <~ ObjectForms.mustFindById404(coupon.formId)
     shadow  ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
-    codes ← * <~ CouponCodes.filter(_.couponFormId === form.id).result
   } yield IlluminatedCouponResponse.build(
-    coupon = IlluminatedCoupon.illuminate(context, coupon, form, shadow, codes)
+    coupon = IlluminatedCoupon.illuminate(context, coupon, form, shadow)
     )).run()
 
   def generateCode(id: Int, code: String)
@@ -109,6 +105,12 @@ object CouponManager {
     unsavedCouponCodes = codes.map{c ⇒ CouponCode(couponFormId = id, code = c)}
     couponCodes ← * <~ CouponCodes.createAll(unsavedCouponCodes)
   } yield codes).runTxn()
+
+  def getCodes(id: Int)
+    (implicit ec: EC, db: DB): Result[Seq[CouponCodesResponse.Root]] = (for {
+      coupons ← * <~ Coupons.filter(_.formId === id).one.mustFindOr(CouponNotFound(id))
+      codes ← * <~ CouponCodes.filter(_.couponFormId === id).result
+  } yield CouponCodesResponse.build(codes)).run()
 
   private def validateCouponCodePayload(p: GenerateCouponCodes)
     (implicit ec: EC, db: DB) = {
