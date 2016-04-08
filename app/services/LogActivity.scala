@@ -31,8 +31,8 @@ import services.activity.StoreCreditTailored._
 import StoreAdminResponse.{Root ⇒ AdminResponse, build ⇒ buildAdmin}
 import CustomerResponse.{Root ⇒ CustomerResponse, build ⇒ buildCustomer}
 import CreditCardsResponse.{buildSimple ⇒ buildCc}
-import responses.ProductResponses.FullProductResponse
-import services.activity.ProductTailored.ProductCreated
+import responses.ProductResponses.{FullProductResponse, ObjectContextResponse}
+import services.activity.ProductTailored.FullProductCreated
 
 object LogActivity {
 
@@ -269,9 +269,9 @@ object LogActivity {
     Activities.log(OrderShippingMethodRemoved(order, shippingMethod, buildOriginator(originator)))
 
   /* Products */
-  def productCreated(admin: Option[StoreAdmin], product: FullProductResponse.Root)
+  def fullProductCreated(admin: Option[StoreAdmin], product: FullProductResponse.Root, context: ObjectContextResponse.Root)
     (implicit ec: EC, ac: AC): DbResult[Activity] =
-    Activities.log(ProductCreated(admin.map(buildAdmin), product))
+    Activities.log(FullProductCreated(admin.map(buildAdmin), product, context))
 
   /* Helpers */
   private def buildOriginator(originator: Originator)

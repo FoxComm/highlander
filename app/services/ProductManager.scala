@@ -91,7 +91,8 @@ object ProductManager {
     skuData       ← * <~ createSkuData(context, productShadow.id,
       payload.form.skus, payload.shadow.skus)
     response      = FullProductResponse.build(product, productForm, productShadow, skuData)
-    _             ← * <~ LogActivity.productCreated(Some(admin), response)
+    contextResp   = ObjectContextResponse.build(context)
+    _             ← * <~ LogActivity.fullProductCreated(Some(admin), response, contextResp)
   } yield response).runTxn()
 
   def updateFullProduct(productId: Int, payload: UpdateFullProduct, contextName: String)
