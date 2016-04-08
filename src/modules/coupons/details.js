@@ -19,6 +19,7 @@ const getCoupon = createAsyncActions(
 const _createCoupon = createAsyncActions(
   'createCoupon',
   (coupon, context = defaultContext) => {
+    coupon['promotion'] = 1;
     return Api.post(`/coupons/${context}`, coupon);
   }
 );

@@ -48,7 +48,7 @@ export function configureCoupon(coupon) {
     storefrontName: 'richText',
     description: 'richText',
     details: 'richText',
-    promotionId: 'options',
+    promotion: 'options',
   };
 
   copyShadowAttributes(form.attributes, shadow.attributes);

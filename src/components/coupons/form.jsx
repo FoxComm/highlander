@@ -23,7 +23,7 @@ export default class CouponForm extends Component {
 
   get fieldsOptions() {
     return {
-      'promotionId': []
+      'promotion': [[1, 'hardcoded promo 1']],
     };
   }
 
