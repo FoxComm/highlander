@@ -151,7 +151,7 @@ object Mvp {
 
   } yield r
 
-  def insertNewProduct(contextId: Int, p: SimpleProductData)(implicit db: Database): 
+  def insertProduct(contextId: Int, p: SimpleProductData)(implicit db: Database): 
   DbResultT[SimpleProductData] = for {
     simpleProduct   ← * <~ SimpleProduct(p.title, p.description, p.image, p.code)
     productForm     ← * <~ ObjectForms.create(simpleProduct.create)
@@ -200,7 +200,7 @@ object Mvp {
 
   def insertProducts(ps : Seq[SimpleProductData], contextId: Int)
     (implicit db: Database): DbResultT[Seq[SimpleProductData]] = for {
-    results ← * <~ DbResultT.sequence(ps.map { p ⇒ insertNewProduct(contextId, p) } )
+    results ← * <~ DbResultT.sequence(ps.map { p ⇒ insertProduct(contextId, p) } )
   } yield results
 
   def insertProductsNewContext(oldContextId: Int, contextId: Int, ps : Seq[SimpleProductData])
