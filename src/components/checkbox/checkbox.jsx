@@ -10,7 +10,7 @@ const DefaultCheckbox = props => {
     <div className={ className }>
       <input type="checkbox" id={id} {...rest} />
       <label htmlFor={id}>
-        <span>{children}</span>
+        <span className="fc-checkbox__label">{children}</span>
       </label>
     </div>
   );

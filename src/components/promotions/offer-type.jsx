@@ -9,6 +9,7 @@ import styles from './attrs-edit.css';
 import { Dropdown } from '../dropdown';
 import CurrencyInput from '../forms/currency-input';
 import AppendInput from '../forms/append-input';
+import { Checkbox } from '../checkbox/checkbox';
 
 const offersItems = [
   ['orderPercentOff', 'Percent off order'],
@@ -40,14 +41,16 @@ export default class Offer extends Component {
   get controlAfterType() {
     switch (this.offerType) {
       case 'orderPercentOff':
-        return this.percentOffWidget;
+        return this.percentOffOrder;
+      case 'itemsSelectPercentOff':
+        return this.percentOffItems;
       default:
         return null;
     }
   }
 
   @autobind
-  handlePercentOffChange({target}) {
+  handleDiscountChange({target}) {
     let discount = Number(target.value);
     discount = isNaN(discount) ? 0 : discount;
     discount = Math.min(100, discount);
@@ -58,7 +61,7 @@ export default class Offer extends Component {
     });
   }
 
-  get percentOffWidget() {
+  get percentOffOrder() {
     return (
       <div styleName="control-after-type">
         <span>Get</span>
@@ -69,9 +72,27 @@ export default class Offer extends Component {
           type="number"
           plate="%"
           value={this.offerParams.discount}
-          onChange={this.handlePercentOffChange}
+          onChange={this.handleDiscountChange}
         />
         <span>or more.</span>
+      </div>
+    );
+  }
+
+  get percentOffItems() {
+    return (
+      <div styleName="control-after-type">
+        <span>Get</span>
+        <AppendInput
+          styleName="inline-edit-input"
+          min={0}
+          max={100}
+          type="number"
+          plate="%"
+          value={this.offerParams.discount}
+          onChange={this.handleDiscountChange}
+        />
+        <span>off discounted items.</span>
       </div>
     );
   }
@@ -93,6 +114,25 @@ export default class Offer extends Component {
     this.setType(value);
   }
 
+  get content() {
+    switch (this.offerType) {
+      case 'itemsSelectPercentOff':
+        return this.itemsSelectPercentOff;
+      default:
+        return null;
+    }
+  }
+
+  get itemsSelectPercentOff() {
+    return (
+      <div>
+        <div styleName="header">Discounted Items</div>
+        <Checkbox styleName="attr-row">Exclude gift cards</Checkbox>
+        <Checkbox styleName="attr-row">Same as qualifying items</Checkbox>
+      </div>
+    );
+  }
+
   render() {
     return (
       <div>
@@ -103,6 +143,7 @@ export default class Offer extends Component {
           onChange={this.handleOfferTypeChange}
         />
         {this.controlAfterType}
+        {this.content}
       </div>
     );
   }
