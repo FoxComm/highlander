@@ -24,21 +24,23 @@ object CouponRoutes {
 
         pathPrefix("coupons") {
 
-          pathPrefix("code" / "generate") {
-            pathPrefix(IntNumber / Segment) { (id, code) ⇒
-              (post & pathEnd) { 
-                goodOrFailures {
-                  CouponManager.generateCode(id, code)
+          pathPrefix("codes") {
+            pathPrefix("generate") {
+              pathPrefix(IntNumber / Segment) { (id, code) ⇒
+                (post & pathEnd) { 
+                  goodOrFailures {
+                    CouponManager.generateCode(id, code)
+                  }
+                }
+              } ~
+              pathPrefix(IntNumber) { id ⇒
+                (post & pathEnd & entity(as[GenerateCouponCodes])) { payload ⇒
+                  goodOrFailures {
+                    CouponManager.generateCodes(id, payload)
+                  }
                 }
               }
             } ~
-            pathPrefix(IntNumber) { id ⇒
-              (post & pathEnd & entity(as[GenerateCouponCodes])) { payload ⇒
-                goodOrFailures {
-                  CouponManager.generateCodes(id, payload)
-                }
-              }
-            }
             pathPrefix(IntNumber) { id ⇒
               (get & pathEnd) { 
                 goodOrFailures {
@@ -83,6 +85,13 @@ object CouponRoutes {
                   CouponManager.update(id, payload, context)
                 }
               } 
+            } ~
+            pathPrefix(Segment) { code ⇒ 
+              (get & pathEnd) {
+                goodOrFailures {
+                  CouponManager.getIlluminatedByCode(code, context)
+                }
+              }
             }
           }
         }

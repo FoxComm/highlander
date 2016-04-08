@@ -8,6 +8,10 @@ object CouponFailures {
     def apply(id: Int) = NotFoundFailure404(s"Coupon $id not found")
   }
 
+  object CouponWithCodeCannotBeFound { 
+    def apply(code: String) = NotFoundFailure404(s"Coupon with code $code not found")
+  }
+
   final case class CouponNotFoundAtCommit(id: Int, commit: Int) extends Failure {
     override def description = s"Coupon $id not with at commit $commit"
   }

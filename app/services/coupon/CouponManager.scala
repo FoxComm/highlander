@@ -81,13 +81,27 @@ object CouponManager {
     (implicit ec: EC, db: DB): Result[IlluminatedCouponResponse.Root] = (for {
     context ← * <~ ObjectContexts.filterByName(contextName).one.
       mustFindOr(ObjectContextNotFound(contextName))
+    result  ← * <~ getIlluminatedIntern(id, context)
+  } yield result).run()
+
+  def getIlluminatedByCode(code: String, contextName: String)
+    (implicit ec: EC, db: DB): Result[IlluminatedCouponResponse.Root] = (for {
+    context ← * <~ ObjectContexts.filterByName(contextName).one.
+      mustFindOr(ObjectContextNotFound(contextName))
+    couponCode ← * <~ CouponCodes.filter(_.code.toLowerCase === code.toLowerCase).one
+      .mustFindOr(CouponWithCodeCannotBeFound(code))
+    result  ← * <~ getIlluminatedIntern(couponCode.couponFormId, context)
+  } yield result).run()
+
+  def getIlluminatedIntern(id: Int, context: ObjectContext)
+    (implicit ec: EC, db: DB): DbResultT[IlluminatedCouponResponse.Root] = for {
     coupon     ← * <~ Coupons.filter(_.contextId === context.id).
       filter(_.formId === id).one.mustFindOr(CouponNotFound(id))
     form    ← * <~ ObjectForms.mustFindById404(coupon.formId)
     shadow  ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
   } yield IlluminatedCouponResponse.build(
     coupon = IlluminatedCoupon.illuminate(context, coupon, form, shadow)
-    )).run()
+    )
 
   def generateCode(id: Int, code: String)
     (implicit ec: EC, db: DB): Result[String] = (for {
