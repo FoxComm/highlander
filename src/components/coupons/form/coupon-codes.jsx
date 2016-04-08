@@ -47,15 +47,19 @@ export default class CouponCodes extends Component {
     return (
       <div styleName="form-subset">
         <div>
-          <label htmlFor="codesQuantity">Quantity</label>
-          <Counter
-            id="codesQuantity"
-            min={1}
-          />
+          <div>
+            <label className="fc-form-field-label" htmlFor="codesQuantity">Quantity</label>
+          </div>
+          <div>
+            <Counter
+              id="codesQuantity"
+              min={1}
+            />
+          </div>
         </div>
         <div>
           <div>
-            <label htmlFor="couponCodePrefix">Code Prefix</label>
+            <label className="fc-form-field-label" htmlFor="couponCodePrefix">Code Prefix</label>
           </div>
           <div>
             <input type="text" id="couponCodePrefix" />
@@ -63,7 +67,7 @@ export default class CouponCodes extends Component {
         </div>
         <div>
           <div>
-            <label htmlFor="couponCodeLength">Code Character Length</label>
+            <label className="fc-form-field-label" htmlFor="couponCodeLength">Code Character Length</label>
           </div>
           <div>
             <input type="text" id="couponCodeLength" />
