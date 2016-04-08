@@ -1,5 +1,6 @@
 package services.product
 
+import services.LogActivity
 import services.Result
 import services.inventory.SkuManager
 
@@ -90,7 +91,7 @@ object ProductManager {
       formId = ins.form.id, shadowId = ins.shadow.id, commitId = ins.commit.id))
     skuData ← * <~ createSkuData(context, ins.shadow.id, 
       payload.form.skus, payload.shadow.skus)
-    productResponse      = FullProductResponse.build(product, productForm, productShadow, skuData)
+    productResponse      = FullProductResponse.build(product, ins.form, ins.shadow, skuData)
     contextResp   = ObjectContextResponse.build(context)
     _             ← * <~ LogActivity.fullProductCreated(Some(admin), productResponse, contextResp)
   } yield productResponse).runTxn()
@@ -113,7 +114,7 @@ object ProductManager {
     commit ← * <~ ObjectUtils.commit(updatedProduct.form, updatedProduct.shadow,
       updatedProduct.updated || skusChanged)
     product ← * <~ updateProductHead(product, updatedProduct.shadow, commit)
-    productResponse = FullProductResponse.build(product, productForm, productShadow, skuData)
+    productResponse = FullProductResponse.build(product, updatedProduct.form, updatedProduct.shadow, skuData)
     contextResp = ObjectContextResponse.build(context)
     _ ← * <~ LogActivity.fullProductUpdated(Some(admin), productResponse, contextResp)
   } yield productResponse).runTxn()

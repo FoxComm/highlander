@@ -1,5 +1,6 @@
 package services.inventory
 
+import services.LogActivity
 import services.Result
 
 import models.objects._
