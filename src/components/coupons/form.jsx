@@ -9,6 +9,8 @@ import { assoc } from 'sprout-data';
 import ObjectFormInner from '../object-form/object-form-inner';
 import ContentBox from '../content-box/content-box';
 import Dropdown from '../dropdown/dropdown';
+import RadioButton from '../forms/radio-button';
+import CouponCodes from './form/coupon-codes';
 
 // styles
 import styles from './form.css';
@@ -81,6 +83,9 @@ export default class CouponForm extends Component {
               shadow={shadowAttributes}
             />
             {this.promotionSelector}
+          </ContentBox>
+          <CouponCodes />
+          <ContentBox title="Usage Rules">
           </ContentBox>
         </div>
         <div styleName="aside">
