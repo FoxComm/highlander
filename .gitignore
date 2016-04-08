@@ -41,3 +41,6 @@ phoenix-scala.iml
 
 .DS_Store
 .gce
+
+# Gatling
+results/
