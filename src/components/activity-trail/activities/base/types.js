@@ -93,6 +93,15 @@ const types = {
   STORE_CREDIT_CONVERTED_TO_GIFT_CARD: 'store_credit_converted_to_gift_card',
   STORE_CREDIT_AUTHORIZED_FUNDS: 'store_credit_authorized_funds',
   STORE_CREDIT_CAPTURED_FUNDS: 'store_credit_captured_funds',
+
+  /* Products */
+
+  FULL_PRODUCT_CREATED: 'full_product_created',
+  FULL_PRODUCT_UPDATED: 'full_product_updated',
+
+  /* SKUs */
+  FULL_SKU_CREATED: 'full_sku_created',
+  FULL_SKU_UPDATED: 'full_sku_updated',
 };
 
 export const derivedTypes = {
