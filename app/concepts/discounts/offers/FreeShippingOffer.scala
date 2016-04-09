@@ -20,5 +20,5 @@ case object FreeShippingOffer extends Offer {
   }
 
   private def build(shippingMethod: ShippingMethod): LineItemAdjustment =
-    LineItemAdjustment(lineItemType = ShippingLineItemType, substract = shippingMethod.price)
+    LineItemAdjustment(lineItemType = ShippingLineItemType, subtract = shippingMethod.price)
 }

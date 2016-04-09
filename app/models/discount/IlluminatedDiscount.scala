@@ -23,10 +23,7 @@ object IlluminatedDiscount {
 
     IlluminatedDiscount(
       id = form.id,  //Id points to form since that is constant across contexts
-      context = context match { 
-        case Some(context) ⇒ IlluminatedContext(context.name, context.attributes).some
-        case None ⇒ None
-      },
+      context = context map { c ⇒ IlluminatedContext(c.name, c.attributes)},
       attributes = IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes))
   }
 }

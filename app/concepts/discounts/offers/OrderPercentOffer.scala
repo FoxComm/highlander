@@ -18,16 +18,15 @@ final case class OrderPercentOffer(discount: Int) extends Offer {
     // Should we include 100% discount or make FreeItemOffer?
     if (discount > 0 && discount < 100) {
       // TODO: Use proper Decimal library
-      val amount = (order.subTotal / 100.0d) * discount
-      val substract = amount.toInt
-      val pennies = amount - substract
+      val amount = (order.subTotal * discount) / 100.0d
+      val substract = Math.ceil(amount).toInt //This will give a bigger discount by one penny
 
-      Xor.Right(Seq(build(substract, pennies)))
+      Xor.Right(Seq(build(substract)))
     } else {
       Xor.Left(OfferRejectionFailure(this, order.refNum, rejectionReason).single)
     }
   }
 
-  private def build(substract: Int, pennies: Double): LineItemAdjustment =
-    LineItemAdjustment(lineItemType = OrderLineItemType, substract = substract, pennies = pennies)
+  private def build(subtract: Int): LineItemAdjustment =
+    LineItemAdjustment(lineItemType = OrderLineItemType, subtract = subtract)
 }
