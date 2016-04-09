@@ -10,8 +10,8 @@ import org.json4s.JsonAST.{JString, JObject, JField, JNothing}
 import java.time.Instant
 
 /**
- * An IlluminatedProduct is what you get when you combine the sku shadow and
- * the sku. 
+ * An IlluminatedProduct is what you get when you combine the product shadow and
+ * the form. 
  */
 final case class IlluminatedProduct(id: Int, context: IlluminatedContext, 
   attributes: Json)

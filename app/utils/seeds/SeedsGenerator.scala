@@ -7,6 +7,8 @@ import models.customer.{CustomerDynamicGroup, Customers, Customer}
 import models.inventory.Skus
 import models.location.{Addresses, Address}
 import models.order._
+import models.coupon._
+import models.promotion._
 import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCards, CreditCard}
 import models.product.SimpleContext
@@ -107,7 +109,7 @@ object RankingSeedsGenerator {
 
 object SeedsGenerator extends CustomerGenerator with AddressGenerator
   with CreditCardGenerator with OrderGenerator with InventoryGenerator with InventorySummaryGenerator
-  with GiftCardGenerator with ProductGenerator {
+  with GiftCardGenerator with ProductGenerator with PromotionGenerator with CouponGenerator {
 
   def generateAddresses(customers: Seq[Customer]): Seq[Address] = {
     customers.flatMap { c ⇒
@@ -118,7 +120,26 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
     }
   }
 
-  def makeProducts(productCount: Int) = (1 to productCount).par.map { i ⇒  generateProduct }.toList
+  def makeProducts(productCount: Int) = (1 to productCount).par.map { i ⇒  
+    generateProduct 
+  }.toList
+
+  def makePromotions(promotionCount: Int) = (1 to promotionCount).par.map { i ⇒  
+    generatePromotion(Random.nextInt(2) match {
+      case 0 ⇒ Promotion.Auto
+      case _ ⇒ Promotion.Coupon
+    })
+  }.toList
+  
+  def makeCoupons(promotions: Seq[SimplePromotion]) = promotions.par.map { 
+    p ⇒  generateCoupon(p) 
+  }.toList
+
+  def makeCouponCodes(promotions: Seq[SimpleCoupon]) = promotions.flatMap { c ⇒  
+    CouponCodes.generateCodes("CP", 12, 1 + Random.nextInt(5)).map { d ⇒ 
+      CouponCode(couponFormId = c.formId, code = d)
+    }
+  }.toList
 
   def pickOne[T](vals: Seq[T]) : T = vals(Random.nextInt(vals.length))
 
@@ -141,6 +162,12 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
       appeasementCount = Math.max(productCount / 8, Random.nextInt(productCount))
       appeasements  ← * <~ DbResultT.sequence((1 to appeasementCount).map { i ⇒ generateGiftCardAppeasement})
       giftCards  ← * <~  orderedGcs ++ appeasements
+      unsavedPromotions = makePromotions(5)
+      promotions ← * <~ generatePromotions(unsavedPromotions)
+      unsavedCoupons ← * <~ makeCoupons(promotions.filter(_.applyType == Promotion.Coupon))
+      coupons ← * <~ generateCoupons(unsavedCoupons)
+      unsavedCodes ← * <~ makeCouponCodes(coupons)
+      _  ← * <~ CouponCodes.createAll(unsavedCodes)
       _ ← * <~ DbResultT.sequence(
         randomSubset(customerIds, customerIds.length).map{
           id ⇒ generateOrders(id, context, products, pickOne(giftCards))

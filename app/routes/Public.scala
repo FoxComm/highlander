@@ -8,7 +8,7 @@ import models.Reason.reasonTypeRegex
 import payloads._
 import services.customers.CustomerManager
 import services.giftcards.GiftCardService
-import services.ProductManager
+import services.product.ProductManager
 import services.{ReasonService, StoreCreditService}
 import services.PublicService._
 import utils.CustomDirectives._
