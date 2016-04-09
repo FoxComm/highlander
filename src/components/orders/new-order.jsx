@@ -139,7 +139,6 @@ export default class NewOrder extends Component {
     }
   }
 
-
   @autobind
   submitGuest() {
     const guest = this.state.query;
@@ -209,7 +208,7 @@ export default class NewOrder extends Component {
                     label="Checkout as guest"
                     labelAfterInput={true}>
                     <BigCheckbox
-                      name="guestCheckout"
+                      id="guestCheckout"
                       value={this.state.checkoutAsGuest}
                       onToggle={this.toggleGuest} />
                   </FormField>

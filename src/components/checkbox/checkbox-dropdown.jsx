@@ -11,7 +11,7 @@ import { DecrementButton } from '../common/buttons';
 export default class CheckboxDropdown extends React.Component {
 
   static propTypes = {
-    name: PropTypes.string,
+    id: PropTypes.string.isRequired,
     className: PropTypes.string,
     disabled: PropTypes.bool,
     checked: PropTypes.bool,
@@ -58,7 +58,7 @@ export default class CheckboxDropdown extends React.Component {
   }
 
   render() {
-    const {disabled, checked, halfChecked, onToggle, children} = this.props;
+    const { id, disabled, checked, halfChecked, onToggle, children } = this.props;
     const className = classNames(
       this.props.className,
       'fc-dropdown',
@@ -68,6 +68,7 @@ export default class CheckboxDropdown extends React.Component {
     return (
       <div className={className} onBlur={this.onBlur} tabIndex="0">
         <HalfCheckbox inline={true}
+                      id={id}
                       docked="left"
                       disabled={disabled}
                       checked={checked}

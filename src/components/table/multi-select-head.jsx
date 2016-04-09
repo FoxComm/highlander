@@ -61,7 +61,8 @@ export default class MultiSelectHead extends React.Component {
 
     return (
       <div>
-        <CheckboxDropdown checked={pageChecked !== selectionState.None}
+        <CheckboxDropdown id="multi-select"
+                          checked={pageChecked !== selectionState.None}
                           halfChecked={pageChecked === selectionState.Some}
                           disabled={disabled}
                           onToggle={this.handleToggle}
