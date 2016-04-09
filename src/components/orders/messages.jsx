@@ -11,7 +11,7 @@ const formatMessage = message => {
     return 'No shipping address applied.';
   } else if (message.indexOf('invalid shipping method') != -1) {
     return 'Shipping method is not valid.';
-  } else if (message.indexOf('has no shipping method') != -1 ) {
+  } else if (message.indexOf('has no shipping method') != -1) {
     return 'No shipping method applied.';
   } else if (message.indexOf('no payment method') != -1) {
     return 'No payment method applied.';
@@ -26,11 +26,15 @@ const Messages = props => {
   const { errors, warnings } = props;
 
   const errorAlerts = _.map(errors, e => {
-    return <Alert type={Alert.ERROR}>{formatMessage(e)}</Alert>;
+    const message = formatMessage(e);
+
+    return <Alert type={Alert.ERROR} key={_.kebabCase(message)}>{message}</Alert>;
   });
 
   const warningAlerts = _.map(warnings, w => {
-    return <Alert type={Alert.WARNING}>{formatMessage(w)}</Alert>;
+    const message = formatMessage(w);
+
+    return <Alert type={Alert.WARNING} key={_.kebabCase(message)}>{message}</Alert>;
   });
 
   const className = classnames('fc-order-messages', {
