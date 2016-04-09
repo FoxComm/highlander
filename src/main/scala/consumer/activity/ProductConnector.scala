@@ -3,7 +3,6 @@ package consumer.activity
 import scala.concurrent.Future
 
 import consumer.aliases._
-import consumer.utils.JsonTransformers.extractStringSeq
 
 import org.json4s.JsonAST.{JInt, JString, JNothing}
 
