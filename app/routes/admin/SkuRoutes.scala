@@ -6,7 +6,7 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
 import models.StoreAdmin
-import services.SkuManager
+import services.inventory.SkuManager
 import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
@@ -33,14 +33,14 @@ object SkuRoutes {
               } ~
               (patch & pathEnd & entity(as[UpdateFullSku])) { payload ⇒
                 goodOrFailures {
-                  SkuManager.updateFullSku(code, payload, context)
+                  SkuManager.updateFullSku(admin, code, payload, context)
                 }
               }
             } ~
             pathPrefix(Segment) { (context) ⇒
               (post & pathEnd & entity(as[CreateFullSku])) { payload ⇒
                 goodOrFailures {
-                  SkuManager.createFullSku(payload, context)
+                  SkuManager.createFullSku(admin, payload, context)
                 }
               }
             }

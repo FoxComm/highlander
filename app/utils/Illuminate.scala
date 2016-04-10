@@ -7,6 +7,13 @@ import org.json4s.JsonAST.{JValue, JString, JObject, JField, JNothing}
 
 object IlluminateAlgorithm { 
 
+  def get(attr: String, form: JValue, shadow: JValue) : JValue = {
+    shadow \ attr \ "ref" match {
+      case JString(key) ⇒  form \ key
+      case _ ⇒  JNothing
+    }
+  }
+
   def projectAttributes(form: JValue, shadow: JValue) : JValue = {
     shadow match {
       case JObject(s) ⇒  form match {

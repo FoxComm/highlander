@@ -29,22 +29,11 @@ final case class Sku(id: Int = 0, code: String, contextId: Int, shadowId: Int, f
   extends ModelWithIdParameter[Sku]
   with Validation[Sku]
 
-class Skus(tag: Tag) extends GenericTable.TableWithId[Sku](tag, "skus")  {
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def contextId = column[Int]("context_id")
+class Skus(tag: Tag) extends ObjectHeads[Sku](tag, "skus")  {
+
   def code = column[String]("code")
-  def shadowId = column[Int]("shadow_id")
-  def formId = column[Int]("form_id")
-  def commitId = column[Int]("commit_id")
-  def updatedAt = column[Instant]("updated_at")
-  def createdAt = column[Instant]("created_at")
 
   def * = (id, code, contextId, shadowId, formId, commitId, updatedAt, createdAt) <> ((Sku.apply _).tupled, Sku.unapply)
-
-  def context = foreignKey(ObjectContexts.tableName, contextId, ObjectContexts)(_.id)
-  def shadow = foreignKey(ObjectShadows.tableName, shadowId, ObjectShadows)(_.id)
-  def form = foreignKey(ObjectForms.tableName, formId, ObjectForms)(_.id)
-  def commit = foreignKey(ObjectCommits.tableName, commitId, ObjectCommits)(_.id)
 
 }
 

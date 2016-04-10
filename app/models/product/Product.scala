@@ -27,21 +27,9 @@ final case class Product(id: Int = 0, contextId: Int, shadowId: Int, formId: Int
   extends ModelWithIdParameter[Product]
   with Validation[Product]
 
-class Products(tag: Tag) extends GenericTable.TableWithId[Product](tag, "products")  {
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def contextId = column[Int]("context_id")
-  def shadowId = column[Int]("shadow_id")
-  def formId = column[Int]("form_id")
-  def commitId = column[Int]("commit_id")
-  def updatedAt = column[Instant]("updated_at")
-  def createdAt = column[Instant]("created_at")
+class Products(tag: Tag) extends ObjectHeads[Product](tag, "products")  {
 
   def * = (id, contextId, shadowId, formId, commitId, updatedAt, createdAt) <> ((Product.apply _).tupled, Product.unapply)
-
-  def context = foreignKey(ObjectContexts.tableName, contextId, ObjectContexts)(_.id)
-  def shadow = foreignKey(ObjectShadows.tableName, shadowId, ObjectShadows)(_.id)
-  def form = foreignKey(ObjectForms.tableName, formId, ObjectForms)(_.id)
-  def commit = foreignKey(ObjectCommits.tableName, commitId, ObjectCommits)(_.id)
 
 }
 
@@ -52,4 +40,7 @@ object Products extends TableQueryWithId[Product, Products](
 
   def filterByContext(contextId: Int): QuerySeq = 
     filter(_.contextId === contextId)
+
+  def filterByFormId(formId: Int): QuerySeq =
+    filter(_.formId === formId)
 }

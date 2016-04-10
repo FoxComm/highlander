@@ -6,8 +6,8 @@ import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import payloads._
 import models.StoreAdmin
-import services.ObjectManager
-import services.ProductManager
+import services.objects.ObjectManager
+import services.product.ProductManager
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 import utils.Apis
@@ -45,14 +45,14 @@ object ProductRoutes {
               } ~ 
               (patch & pathEnd & entity(as[UpdateFullProduct])) { payload ⇒
                 goodOrFailures {
-                  ProductManager.updateFullProduct(productId, payload, context)
+                  ProductManager.updateFullProduct(admin, productId, payload, context)
                 }
               } 
             } ~
             pathPrefix(Segment) { (context)  ⇒
               (post & pathEnd & entity(as[CreateFullProduct])) { payload ⇒
                 goodOrFailures {
-                  ProductManager.createFullProduct(payload, context)
+                  ProductManager.createFullProduct(admin, payload, context)
                 }
               } 
             }

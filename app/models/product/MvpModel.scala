@@ -62,7 +62,7 @@ final case class SimpleProduct(title: String, description: String, image: String
       oldForm.copy(attributes = oldForm.attributes merge form)
 }
 
-final case class SimpleProductShadow(formId: Int, p: SimpleProduct) { 
+final case class SimpleProductShadow(p: SimpleProduct) { 
 
     val shadow = ObjectUtils.newShadow(parse(
       s"""
@@ -76,7 +76,7 @@ final case class SimpleProductShadow(formId: Int, p: SimpleProduct) {
       p.keyMap)
 
     def create : ObjectShadow = 
-      ObjectShadow( formId = formId, attributes = shadow)
+      ObjectShadow(attributes = shadow)
 }
 
 final case class SimpleSku(code: String, title: String, 
@@ -102,7 +102,7 @@ final case class SimpleSku(code: String, title: String,
       oldForm.copy(attributes = oldForm.attributes merge form)
 }
 
-final case class SimpleSkuShadow(formId: Int, s: SimpleSku) { 
+final case class SimpleSkuShadow(s: SimpleSku) { 
 
     val shadow = ObjectUtils.newShadow(parse(
       s"""
@@ -114,7 +114,7 @@ final case class SimpleSkuShadow(formId: Int, s: SimpleSku) {
       s.keyMap) 
 
     def create : ObjectShadow = 
-      ObjectShadow(formId = formId, attributes = shadow)
+      ObjectShadow(attributes = shadow)
 }
 
 final case class SimpleProductData(productId: Int = 0, skuId: Int = 0, title: String, 
@@ -165,21 +165,32 @@ object Mvp {
     skuForm: ObjectForm, simpleProduct: SimpleProduct, simpleSku: SimpleSku, 
     p: SimpleProductData)
   (implicit db: Database): DbResultT[SimpleProductData] = for {
-    simpleShadow    ← * <~ SimpleProductShadow(productForm.id, simpleProduct)
-    productShadow   ← * <~ ObjectShadows.create(simpleShadow.create)
+
+    simpleShadow    ← * <~ SimpleProductShadow(simpleProduct)
+    productShadow   ← * <~ ObjectShadows.create(simpleShadow.create.
+        copy(formId = productForm.id))
+
     productCommit   ← * <~ ObjectCommits.create(
       ObjectCommit(formId = productForm.id, shadowId = productShadow.id))
+
     product   ← * <~ Products.create(
       Product(contextId = contextId, formId = productForm.id, 
         shadowId = productShadow.id, commitId = productCommit.id))
-    simpleSkuShadow ← * <~ SimpleSkuShadow(skuForm.id, simpleSku)
-    skuShadow       ← * <~ ObjectShadows.create(simpleSkuShadow.create)
+
+    simpleSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
+    skuShadow       ← * <~ ObjectShadows.create(simpleSkuShadow.create.
+        copy(formId = skuForm.id))
+
     link            ← * <~ ObjectLinks.create(ObjectLink(
       leftId = productShadow.id, rightId = skuShadow.id))
+
     skuCommit       ← * <~ ObjectCommits.create(
       ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
+
     sku   ← * <~ Skus.create(Sku(contextId = contextId, code = p.code, 
-      formId = skuForm.id, shadowId = skuShadow.id, commitId = skuCommit.id))
+      formId = skuForm.id, shadowId = skuShadow.id, commitId = 
+          skuCommit.id))
+
   } yield p.copy(productId = product.id, skuId = sku.id)
 
   def getPrice(product: SimpleProductData)(implicit db: Database): DbResultT[Int] = for {
@@ -217,26 +228,19 @@ object Mvp {
   }
 
   def price(f: ObjectForm, s: ObjectShadow) : Option[(Int, Currency)] = {
-    s.attributes \ "salePrice" \ "ref" match {
-      case JString(key) ⇒  priceFromJson(f.attributes \ key)
-      case _ ⇒ None
+    ObjectUtils.get("salePrice", f, s) match {
+      case JNothing ⇒ None
+      case v ⇒  priceFromJson(v)
     }
   }
 
   def priceAsInt(f: ObjectForm, s: ObjectShadow) : Int = 
     price(f, s).getOrElse((0, Currency.USD))._1
 
-  def nameFromJson(form: Json, shadow: Json) : Option[String] = {
-    shadow \ "title" \ "ref" match {
-      case JString(key) ⇒  form \ key match { 
-        case JString(name) ⇒ Some(name)
-        case _ ⇒ None
-      }
+  def name(f: ObjectForm, s: ObjectShadow) : Option[String] = {
+    ObjectUtils.get("title", f, s) match {
+      case JString(title) ⇒ title.some
       case _ ⇒ None
     }
-  }
-
-  def name(f: ObjectForm, s: ObjectShadow) : Option[String] = {
-    nameFromJson(f.attributes, s.attributes)
   }
 }
