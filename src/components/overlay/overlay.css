@@ -1,0 +1,12 @@
+@import "media-queries.css";
+@import "colors.css";
+
+.overlay {
+    position: absolute;
+    bottom: 0;
+    top: 0;
+    right: 0;
+    left: 0;
+    background: white;
+    opacity: .9;
+}

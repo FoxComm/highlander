@@ -28,7 +28,7 @@ const mapState = state => ({
 /* ::`*/
 @connect(mapState, actions)
 /* ::`*/
-export default class Auth extends Component {
+export default class Login extends Component {
 
   state: AuthState = {
     email: '',

@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import { toggleSidebar } from 'modules/sidebar';
 import { toggleActive, resetTerm } from 'modules/search';
 import { toggleCart } from 'modules/cart';
+import { authBlockToggle } from 'modules/auth';
 
 import styles from './storefront.css';
 
@@ -24,6 +25,7 @@ type StoreFrontProps = {
   isSearchActive: boolean;
   toggleSidebar: Function;
   toggleSearch: Function;
+  authBlockToggle: Function;
   resetTerm: Function;
   toggleCart: Function;
 }
@@ -39,7 +41,8 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
 
   const user = _.get(props, ['auth', 'user'], null);
   const sessionLink = _.isEmpty(user) ?
-    <Link to="/login" styleName="login-link">LOG IN</Link> :
+    <a styleName="login-link" onClick={props.authBlockToggle}>LOG IN</a> :
+    //<Link to="/login" styleName="login-link">LOG IN</Link> :
     `HI, ${user.name.toUpperCase()}`;
 
   return (
@@ -87,4 +90,4 @@ const mapState = state => ({
   isSearchActive: state.search.isActive,
 });
 
-export default connect(mapState, { toggleSidebar, toggleCart, toggleSearch: toggleActive, resetTerm })(StoreFront);
+export default connect(mapState, { toggleSidebar, toggleCart, toggleSearch: toggleActive, authBlockToggle, resetTerm })(StoreFront);

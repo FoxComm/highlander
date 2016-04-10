@@ -86,7 +86,6 @@
 @media (--small-viewport) {
   .auth-block {
     lost-column: 1/1;
-    lost-offset: 0;
     margin-top: 10px;
     padding-left: 20px;
     padding-right: 20px;
@@ -119,6 +118,12 @@
     font-size: 14px;
     line-height: 17px;
   }
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
 }
 
 
