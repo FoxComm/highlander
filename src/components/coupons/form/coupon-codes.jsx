@@ -1,7 +1,7 @@
 
 // libs
 import _ from 'lodash';
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
@@ -10,6 +10,7 @@ import RadioButton from '../../forms/radio-button';
 import { PrimaryButton } from '../../common/buttons';
 import { Checkbox } from '../../checkbox/checkbox';
 import Counter from '../../forms/counter';
+import FormField from '../../forms/formfield';
 
 // styles
 import styles from './coupon-codes.css';
@@ -31,9 +32,11 @@ export default class CouponCodes extends Component {
 
     return (
       <div styleName="form-subset">
-        <input type="text" />
-        <div>
-          Coupon codes must be unique and are <i>not</i> case sensative.
+        <div className="fc-form-field" styleName="form-group">
+          <input type="text" styleName="full-width-field" />
+          <div styleName="field-comment">
+            Coupon codes must be unique and are <i>not</i> case sensative.
+          </div>
         </div>
       </div>
     );
@@ -46,43 +49,37 @@ export default class CouponCodes extends Component {
 
     return (
       <div styleName="form-subset">
-        <div>
-          <div>
-            <label className="fc-form-field-label" htmlFor="codesQuantity">Quantity</label>
-          </div>
-          <div>
-            <Counter
-              id="codesQuantity"
-              min={1}
-            />
-          </div>
+        <div styleName="form-group">
+          <FormField label="Quantity">
+            <div>
+              <Counter id="codesQuantity" min={1} />
+            </div>
+          </FormField>
         </div>
-        <div>
-          <div>
-            <label className="fc-form-field-label" htmlFor="couponCodePrefix">Code Prefix</label>
-          </div>
-          <div>
-            <input type="text" id="couponCodePrefix" />
-          </div>
+        <div styleName="form-group">
+          <FormField label="Code Prefix">
+            <div>
+              <input styleName="full-width-field" type="text" id="couponCodePrefix" />
+            </div>
+          </FormField>
         </div>
-        <div>
-          <div>
-            <label className="fc-form-field-label" htmlFor="couponCodeLength">Code Character Length</label>
-          </div>
-          <div>
-            <input type="text" id="couponCodeLength" />
-          </div>
+        <div styleName="form-group">
+          <FormField label="Code Character Length">
+            <div>
+              <input styleName="full-width-field" type="text" id="couponCodeLength" />
+            </div>
+          </FormField>
           <div styleName="field-comment">
             Excludes prefix
           </div>
         </div>
-        <div>
+        <div styleName="form-group">
           <label htmlFor="downloadCSVCheckbox">
             <Checkbox id="downloadCSVCheckbox"/>
             <span>Download a CSV file of the coupon codess</span>
           </label>
         </div>
-        <div>
+        <div styleName="form-group">
           <label htmlFor="emailCSVCheckbox">
             <Checkbox id="emailCSVCheckbox"/>
             <span>Email a CSV file of the coupon codes to other users</span>
