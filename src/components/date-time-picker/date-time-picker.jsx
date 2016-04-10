@@ -84,24 +84,26 @@ export default class DateTimePicker extends Component<void, Props, void> {
           className="fc-date-time-picker__date"
           date={this.date}
           onChange={this.handleChangeDate} />
-        <TextInput
-          className="fc-date-time-picker__hour"
-          value={this.renderedHour}
-          onChange={_.noop} />
-        <div className="fc-date-time-picker__separator">:</div>
-        <TextInput
-          className="fc-date-time-picker__minute"
-          value={this.minute}
-          onChange={_.noop} />
-        <TextInput
-          className="fc-date-time-picker__ampm"
-          value={this.ampm}
-          onChange={_.noop} />
-        <a
-          className="fc-date-time-picker__close"
-          onClick={this.props.onCancel}>
-          <i className="icon-close" />
-        </a>
+        <div className="fc-date-time-picker__time">
+          <TextInput
+            className="fc-date-time-picker__hour"
+            value={this.renderedHour}
+            onChange={_.noop} />
+          <div className="fc-date-time-picker__separator">:</div>
+          <TextInput
+            className="fc-date-time-picker__minute"
+            value={this.minute}
+            onChange={_.noop} />
+          <TextInput
+            className="fc-date-time-picker__ampm"
+            value={this.ampm}
+            onChange={_.noop} />
+          <a
+            className="fc-date-time-picker__close"
+            onClick={this.props.onCancel}>
+            <i className="icon-close" />
+          </a>
+        </div>
       </div>
     );
   }

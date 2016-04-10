@@ -1,23 +1,41 @@
 .fc-date-time-picker {
   align-items: center;
   display: flex;
+  flex-wrap: wrap;
   .font-spec(14px, 600, 18px);
 
   &__date {
-    margin-bottom: 0;
+    .margin-bottom(10px);
+    .margin-right(10px);
   }
 
-  &__hour, &__minute, &__ampm {
+  &__time {
+    align-items: center;
+    display: flex;
+    flex-grow: 1;
+    .margin-bottom(10px);
+  }
+
+  &__hour {
+    max-width: 40px;
+  }
+
+  &__minute {
+    margin-left: 5px;
+    max-width: 40px;
+  }
+
+  &__separator {
+    margin-left: 5px;
+  }
+
+  &__ampm {
     margin-left: 10px;
     max-width: 45px;
   }
 
-  &__separator {
-    margin-left: 10px;
-  }
-
   &__close {
-    margin-left: 10px;
+    //margin-left: 10px;
     flex-grow: 1;
     text-align: right;
   }
@@ -26,7 +44,12 @@
     margin-left: -120px;
   }
 
+  .fc-append-input {
+    display: flex;
+    flex-wrap: no-wrap;
+  }
+
   .fc-append-input__input-field {
-    max-width: 120px;
+    max-width: 100px;
   }
 }
