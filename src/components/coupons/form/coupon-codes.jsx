@@ -13,7 +13,7 @@ import Counter from '../../forms/counter';
 import FormField from '../../forms/formfield';
 
 // styles
-import styles from './coupon-codes.css';
+import styles from './styles.css';
 
 export default class CouponCodes extends Component {
 

@@ -11,6 +11,7 @@ import ContentBox from '../content-box/content-box';
 import Dropdown from '../dropdown/dropdown';
 import RadioButton from '../forms/radio-button';
 import CouponCodes from './form/coupon-codes';
+import UsageRules from './form/usage-rules';
 
 // styles
 import styles from './form.css';
@@ -85,8 +86,7 @@ export default class CouponForm extends Component {
             {this.promotionSelector}
           </ContentBox>
           <CouponCodes />
-          <ContentBox title="Usage Rules">
-          </ContentBox>
+          <UsageRules />
         </div>
         <div styleName="aside">
         </div>
