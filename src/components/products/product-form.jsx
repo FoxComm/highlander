@@ -31,7 +31,7 @@ type State = {
 };
 
 const omitKeys = {
-  general: ['skus', 'variants'],
+  general: ['skus', 'variants', 'activeFrom', 'activeTo'],
 };
 
 const defaultKeys = {
@@ -102,10 +102,14 @@ export default class ProductForm extends Component<void, Props, State> {
   }
 
   get productState(): Element {
+    const formAttributes = _.get(this.props, 'product.form.product.attributes', []);
+    const shadowAttributes = _.get(this.props, 'product.shadow.product.attributes', []);
+
     return (
       <ProductState
-        onSetActive={(x, y) => console.log(x, y)}
-        product={this.props.product} />
+        form={formAttributes}
+        shadow={shadowAttributes}
+        onChange={this.handleProductChange} />
     );
   }
 

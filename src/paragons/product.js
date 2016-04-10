@@ -127,20 +127,6 @@ export function getIlluminatedSkus(product: FullProduct): Array<IlluminatedSku> 
   });
 }
 
-export function getActiveFrom(product: FullProduct): ?string {
-  const formAttributes = _.get(product, 'form.product.attributes', []);
-  const shadowAttributes = _.get(product, 'shadow.product.attributes', []);
-  const r = getAttribute(formAttributes, shadowAttributes, 'activeFrom');
-  return _.get(r, 'value');
-}
-
-export function getActiveTo(product: FullProduct): ?string {
-  const formAttributes = _.get(product, 'form.product.attributes', []);
-  const shadowAttributes = _.get(product, 'shadow.product.attributes', []);
-  const r = getAttribute(formAttributes, shadowAttributes, 'activeTo');
-  return _.get(r, 'value');
-}
-
 export function createEmptyProduct(): FullProduct {
   const product = {
     id: null,
