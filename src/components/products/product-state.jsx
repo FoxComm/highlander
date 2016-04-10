@@ -63,7 +63,7 @@ export default class ProductState extends Component<void, Props, State> {
           </div>
           <DateTimePicker
             dateTime={this.activeFrom}
-            onSetDate={(v) => console.log(v)}
+            onChange={(v) => this.handleChange('activeFrom', v)}
             onCancel={this.handleCancelFrom} />
         </div>
       );
@@ -76,7 +76,7 @@ export default class ProductState extends Component<void, Props, State> {
         ? (
           <DateTimePicker
             dateTime={this.activeTo}
-            onSetDate={(v) => console.log(v)}
+            onChange={(v) => this.handleChange('activeTo', v)}
             onCancel={this.handleCancelTo} />
         )
         : <a onClick={this.handleShowActiveTo}><i className="icon-add" /></a>;
@@ -94,12 +94,14 @@ export default class ProductState extends Component<void, Props, State> {
 
   get isActive(): bool {
     const now = moment();
+    const activeFrom = this.activeFrom ? moment.utc(this.activeFrom) : null;
+    const activeTo = this.activeTo ? moment.utc(this.activeTo) : null;
 
-    if (!this.activeFrom) {
+    if (!activeFrom) {
       return false;
-    } else if (now.diff(this.activeFrom) > 0) {
+    } else if (now.diff(activeFrom) < 0) {
       return false;
-    } else if (this.activeTo && now.diff(this.activeTo) < 0) {
+    } else if (activeTo && now.diff(activeTo) > 0) {
       return false;
     }
 
@@ -122,17 +124,21 @@ export default class ProductState extends Component<void, Props, State> {
 
   @autobind
   handleCancelFrom() {
+    const { form, shadow } = this.props;
+    const [newForm, newShadow] = setAttribute('activeFrom', 'datetime', null, form, shadow);
+    const [finalForm, finalShadow] = setAttribute('activeTo', 'datetime', null, newForm, newShadow);
+
     this.setState({
       showActiveFromPicker: false,
       showActiveToPicker: false,
-    });
+    }, () => this.props.onChange(finalForm, finalShadow));
   }
 
   @autobind
   handleCancelTo() {
     this.setState({
       showActiveToPicker: false,
-    });
+    }, () => this.handleChange('activeTo', null));
   }
 
   @autobind
@@ -163,7 +169,7 @@ export default class ProductState extends Component<void, Props, State> {
   handleClickCalendar() {
     this.setState({
       showActiveFromPicker: true,
-      showActiveToPicker: false,
+      showActiveToPicker: !_.isNull(this.activeTo) && !_.isUndefined(this.activeTo),
     });
   }
 

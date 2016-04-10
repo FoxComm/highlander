@@ -4,6 +4,7 @@
 
 import React, { Component, Element, PropTypes } from 'react';
 import moment from 'moment';
+import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
 import { Dropdown, DropdownItem } from '../dropdown';
@@ -13,13 +14,21 @@ import TextInput from '../forms/text-input';
 type Props = {
   dateTime: ?string,
   onCancel: () => void,
-  onSetDate: (date: string) => void,
+  onChange: (dateTime: string) => void,
 };
+
+/**
+ * emptyDate is a placeholder when a date hasn't been specified. It will always
+ * return the current date at 9:00am local time.
+ */
+function emptyDate() {
+  return moment();
+}
 
 export default class DateTimePicker extends Component<void, Props, void> {
   get localTime(): Object {
     // Convert from UTC to local.
-    return moment.utc(this.props.dateTime);
+    return moment.utc(this.props.dateTime).local();
   }
 
   get date(): ?Object {
@@ -60,12 +69,21 @@ export default class DateTimePicker extends Component<void, Props, void> {
     return this.hour < 12 ? 'am' : 'pm';
   }
 
+  @autobind
+  handleChangeDate(newDateStr: string) {
+    const newDate = moment(newDateStr);
+    let currentDate = this.props.dateTime ? this.localTime : emptyDate();
+    currentDate.year(newDate.year()).dayOfYear(newDate.dayOfYear());
+    this.props.onChange(currentDate.toISOString());
+  }
+
   render(): Element {
     return (
       <div className="fc-date-time-picker">
         <DatePicker
           className="fc-date-time-picker__date"
-          date={this.date} />
+          date={this.date}
+          onChange={this.handleChangeDate} />
         <TextInput
           className="fc-date-time-picker__hour"
           value={this.renderedHour}
@@ -79,12 +97,12 @@ export default class DateTimePicker extends Component<void, Props, void> {
           className="fc-date-time-picker__ampm"
           value={this.ampm}
           onChange={_.noop} />
-        <a 
+        <a
           className="fc-date-time-picker__close"
           onClick={this.props.onCancel}>
           <i className="icon-close" />
         </a>
       </div>
     );
-  }  
+  }
 }
