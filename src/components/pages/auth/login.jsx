@@ -15,6 +15,8 @@ import { authBlockTypes } from 'modules/auth';
 
 import type { HTMLElement } from 'types';
 
+import localized from 'lib/i18n';
+
 
 type AuthState = {
   email: string,
@@ -27,6 +29,7 @@ const mapState = state => ({
 
 /* ::`*/
 @connect(mapState, actions)
+@localized
 /* ::`*/
 export default class Login extends Component {
 
@@ -68,42 +71,50 @@ export default class Login extends Component {
   render(): HTMLElement {
     const { password, email } = this.state;
     const props = this.props;
+    const { t } = props;
 
     const restoreLink = (
       <a styleName="restore-link" onClick={() => props.changeAuthBlockType(authBlockTypes.RESTORE_PASSWORD)}>
-        forgot ?
+        {t('forgot?')}
       </a>
     );
 
     const signupLink = (
       <a styleName="signup-link" onClick={() => props.changeAuthBlockType(authBlockTypes.SIGNUP)}>
-        Sign Up
+        {t('Sign Up')}
       </a>
     );
 
     return (
       <div>
-        <div styleName="title">LOG IN</div>
+        <div styleName="title">{t('LOG IN')}</div>
         <form>
           <Button icon="fc-google" onClick={props.googleSignin} type="button" styleName="google-login">
-            LOG IN WITH GOOGLE
+            {t('LOG IN WITH GOOGLE')}
           </Button>
         </form>
-        <WrapToLines styleName="divider">or</WrapToLines>
+        <WrapToLines styleName="divider">{t('or')}</WrapToLines>
         <form>
           <FormField key="email" styleName="form-field" error={this.state.error}>
-            <TextInput placeholder="EMAIL" value={email} type="email" onChange={this.onChangeEmail} />
+            <TextInput placeholder={t('EMAIL')} value={email} type="email" onChange={this.onChangeEmail} />
           </FormField>
           <FormField key="passwd" styleName="form-field" error={!!this.state.error}>
-            <TextInputWithLabel placeholder="PASSWORD"
+            <TextInputWithLabel 
+              placeholder="PASSWORD"
               label={!password && restoreLink}
               value={password} onChange={this.onChangePassword} type="password"
             />
           </FormField>
-          <Button styleName="primary-button" isLoading={props.isLoading} onClick={this.authenticate}>LOG IN</Button>
+          <Button
+            styleName="primary-button"
+            isLoading={props.isLoading}
+            onClick={this.authenticate}
+          >
+            {t('LOG IN')}
+          </Button>
         </form>
         <div styleName="switch-stage">
-          Don’t have an account? {signupLink}
+          {t('Don’t have an account?')} {signupLink}
         </div>
       </div>
     );

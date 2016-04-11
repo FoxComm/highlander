@@ -1,0 +1,47 @@
+{
+  "headers": { },
+  "translations": {
+    "": {
+      "LOG IN": {
+        "msgstr": [
+          "ВОЙТИ"
+        ]
+      },
+      "LOG IN WITH GOOGLE": {
+        "msgstr": [
+          "ВОЙТИ С GOOGLE"
+        ]
+      },
+      "or": {
+        "msgstr": [
+          "или"
+        ]
+      },
+      "EMAIL": {
+        "msgstr": [
+          "EMAIL"
+        ]
+      },
+      "PASSWORD": {
+        "msgstr": [
+          "ПАРОЛЬ"
+        ]
+      },
+      "forgot?": {
+        "msgstr": [
+          "забыли?"
+        ]
+      },
+      "Don’t have an account?": {
+        "msgstr": [
+          "Нет аккаунта?"
+        ]
+      },
+      "Sign Up": {
+        "msgstr": [
+          "Зарегистрироваться"
+        ]
+      }
+    }
+  }
+}

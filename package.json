@@ -55,6 +55,7 @@
     "gulp-util": "^3.0.7",
     "imagemin-pngquant": "^4.2.0",
     "lost": "^6.7.2",
+    "node-gettext": "^1.0.1",
     "node-notifier": "^4.5.0",
     "postcss-css-variables": "^0.5.1",
     "postcss-cssnext": "^2.4.0",

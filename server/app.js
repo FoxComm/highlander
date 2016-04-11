@@ -4,6 +4,7 @@ import serve from 'koa-static';
 import renderReact from '../src/server';
 import { makeApiProxy } from './routes/api';
 import zipcodes from './routes/zipcodes';
+import loadI18n from './i18n';
 import verifyJwt from './verify-jwt';
 
 export default class App extends KoaApp {
@@ -16,6 +17,7 @@ export default class App extends KoaApp {
       .use(zipcodes.routes())
       .use(zipcodes.allowedMethods())
       .use(verifyJwt)
+      .use(loadI18n)
       .use(renderReact);
   }
 

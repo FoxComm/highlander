@@ -8,6 +8,8 @@ import { toggleSidebar } from 'modules/sidebar';
 import { toggleActive, resetTerm } from 'modules/search';
 import { toggleCart } from 'modules/cart';
 import { authBlockToggle } from 'modules/auth';
+import localized from 'lib/i18n';
+import type { Localized } from 'lib/i18n';
 
 import styles from './storefront.css';
 
@@ -19,7 +21,7 @@ import Search from '../search/search';
 import Cart from '../cart/cart';
 
 
-type StoreFrontProps = {
+type StoreFrontProps = Localized & {
   children: HTMLElement;
   isSearchActive: boolean;
   toggleSidebar: Function;
@@ -38,10 +40,12 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
     }
   };
 
+  const { t } = props;
+
   const user = _.get(props, ['auth', 'user'], null);
   const sessionLink = _.isEmpty(user) ?
-    <a styleName="login-link" onClick={props.authBlockToggle}>LOG IN</a> :
-    `HI, ${user.name.toUpperCase()}`;
+    <a styleName="login-link" onClick={props.authBlockToggle}>{t('LOG IN')}</a> :
+    <span>{t('HI')}, {user.name.toUpperCase()}</span>;
 
   return (
     <div styleName="container">
@@ -88,6 +92,10 @@ const mapState = state => ({
   isSearchActive: state.search.isActive,
 });
 
-export default connect(
-  mapState, { toggleSidebar, toggleCart, toggleSearch: toggleActive, authBlockToggle, resetTerm }
-)(StoreFront);
+export default connect(mapState, {
+  toggleSidebar, 
+  toggleCart, 
+  toggleSearch: toggleActive, 
+  authBlockToggle, 
+  resetTerm }
+})(localized(StoreFront));
