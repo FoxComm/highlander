@@ -17,6 +17,12 @@ type Props = {
   onChange: (dateTime: string) => void,
 };
 
+type State = {
+  hour: string,
+  minutes: string,
+  isMorning: bool,
+};
+
 /**
  * emptyDate is a placeholder when a date hasn't been specified. It will always
  * return the current date at 9:00am local time.
@@ -25,7 +31,32 @@ function emptyDate() {
   return moment();
 }
 
-export default class DateTimePicker extends Component<void, Props, void> {
+function setStateFromProps(props: Props): State {
+  if (props.dateTime) {
+    const localTime = moment.utc(props.dateTime).local();
+    const hour = localTime.hours() % 12;
+    const hourStr = hour < 10 ? `0${hour}` : `${hour}`;
+    const minutes = localTime.minutes();
+    const minutesStr = minutes < 10 ? `0${minutes}` : `${minutes}`;
+    
+    return { hour: hourStr, minutes: minutesStr, isMorning: hour < 12 };
+  } else {
+    return { hour: '9', minutes: '0', isMorning: true };
+  }
+}
+
+export default class DateTimePicker extends Component<void, Props, State> {
+  state: State;
+
+  constructor(props: Props, ...args: any) {
+    super(props, ...args);
+    this.state = setStateFromProps(this.props);
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    this.setState(setStateFromProps(nextProps));
+  }
+
   get localTime(): Object {
     // Convert from UTC to local.
     return moment.utc(this.props.dateTime).local();
@@ -38,43 +69,49 @@ export default class DateTimePicker extends Component<void, Props, void> {
     }
   }
 
-  get hour(): number {
-    if (this.props.dateTime) {
-      return this.localTime.hours();
-    } else {
-      return 0;
-    }
-  }
-
-  get renderedHour(): string {
-    if (this.hour > 12) {
-      return `${this.hour - 12}`;
-    } else if (this.hour == 0) {
-      return '12';
-    } else {
-      return `${this.hour}`;
-    }
-  }
-
-  get minute(): string {
-    if (this.props.dateTime) {
-      const minutes = this.localTime.minutes();
-      return minutes > 9 ? minutes : `0${minutes}`;
-    } else {
-      return '00';
-    }
-  }
-
-  get ampm(): string {
-    return this.hour < 12 ? 'am' : 'pm';
-  }
-
   @autobind
   handleChangeDate(newDateStr: string) {
     const newDate = moment(newDateStr);
     let currentDate = this.props.dateTime ? this.localTime : emptyDate();
     currentDate.year(newDate.year()).dayOfYear(newDate.dayOfYear());
     this.props.onChange(currentDate.toISOString());
+  }
+
+  @autobind
+  handleChangeHour(hour: string) {
+    if (hour == '') {
+      this.setState({ hour });
+      return;
+    }
+
+    const hourInt = parseInt(hour);
+    if (hourInt && hourInt >= 0 && hourInt <= 23) {
+      let normalizedHour = hourInt;
+      if (!this.state.isMorning && hourInt < 12) {
+        normalizedHour = hourInt + 12;
+      } else if (this.state.isMorning && hourInt == 12) {
+        normalizedHour = 0;
+      }
+
+      let currentDate = this.props.dateTime ? this.localTime : emptyDate();
+      currentDate.hour(normalizedHour);
+      this.props.onChange(currentDate.toISOString());
+    }
+  }
+
+  @autobind
+  handleChangeMinutes(minutes: string) {
+    if (minutes == '') {
+      this.setState({ minutes });
+      return;
+    }
+
+    const minutesInt = parseInt(minutes);
+    if (minutesInt && minutesInt >= 0 && minutesInt <= 59) {
+      let currentDate = this.props.dateTime ? this.localTime : emptyDate();
+      currentDate.minutes(minutesInt);
+      this.props.onChange(currentDate.toISOString());
+    }
   }
 
   render(): Element {
@@ -87,16 +124,16 @@ export default class DateTimePicker extends Component<void, Props, void> {
         <div className="fc-date-time-picker__time">
           <TextInput
             className="fc-date-time-picker__hour"
-            value={this.renderedHour}
-            onChange={_.noop} />
+            value={this.state.hour}
+            onChange={this.handleChangeHour} />
           <div className="fc-date-time-picker__separator">:</div>
           <TextInput
             className="fc-date-time-picker__minute"
-            value={this.minute}
-            onChange={_.noop} />
+            value={this.state.minutes}
+            onChange={this.handleChangeMinutes} />
           <TextInput
             className="fc-date-time-picker__ampm"
-            value={this.ampm}
+            value={this.state.isMorning ? 'am' : 'pm'}
             onChange={_.noop} />
           <a
             className="fc-date-time-picker__close"
