@@ -79,7 +79,7 @@ export default class CouponCodes extends Component {
         <div styleName="form-group">
           <Checkbox id="emailCSVCheckbox">Email a CSV file of the coupon codes to other users</Checkbox>
         </div>
-        <PrimaryButton type="button">Generate Codes</PrimaryButton>
+        <PrimaryButton type="button" disabled={this.props.isNew} >Generate Codes</PrimaryButton>
       </div>
     );
   }

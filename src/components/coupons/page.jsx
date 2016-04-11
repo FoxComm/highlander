@@ -77,7 +77,7 @@ class CouponPage extends Component {
       if (this.isNew) {
         this.props.actions.createCoupon(coupon);
       } else {
-        this.props.actions.createCoupon(coupon);
+        this.props.actions.updateCoupon(coupon);
       }
     }
   }

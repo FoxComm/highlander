@@ -69,7 +69,12 @@ export default class CouponForm extends Component {
     this.props.onUpdateCoupon(coupon);
   }
 
+  get isNew() {
+    return this.props.entity.entityId === 'new';
+  }
+
   render() {
+    console.log(this.props);
     const formAttributes = _.get(this.props, 'coupon.form.attributes', []);
     const shadowAttributes = _.get(this.props, 'coupon.shadow.attributes', []);
 
@@ -86,7 +91,7 @@ export default class CouponForm extends Component {
             />
             {this.promotionSelector}
           </ContentBox>
-          <CouponCodes />
+          <CouponCodes isNew={this.isNew} />
           <UsageRules />
         </div>
         <div styleName="aside">

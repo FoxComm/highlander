@@ -1,3 +1,4 @@
+/* @flow weak */
 
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
