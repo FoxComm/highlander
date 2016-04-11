@@ -12,7 +12,6 @@ import { authBlockToggle } from 'modules/auth';
 import styles from './storefront.css';
 
 import Icon from 'ui/icon';
-import { Link } from 'react-router';
 import Categories from '../categories/categories';
 import Sidebar from '../sidebar/sidebar';
 import Footer from '../footer/footer';
@@ -42,7 +41,6 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
   const user = _.get(props, ['auth', 'user'], null);
   const sessionLink = _.isEmpty(user) ?
     <a styleName="login-link" onClick={props.authBlockToggle}>LOG IN</a> :
-    //<Link to="/login" styleName="login-link">LOG IN</Link> :
     `HI, ${user.name.toUpperCase()}`;
 
   return (
@@ -90,4 +88,6 @@ const mapState = state => ({
   isSearchActive: state.search.isActive,
 });
 
-export default connect(mapState, { toggleSidebar, toggleCart, toggleSearch: toggleActive, authBlockToggle, resetTerm })(StoreFront);
+export default connect(
+  mapState, { toggleSidebar, toggleCart, toggleSearch: toggleActive, authBlockToggle, resetTerm }
+)(StoreFront);

@@ -11,9 +11,9 @@ import { TextInput, TextInputWithLabel } from 'ui/inputs';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
 import WrapToLines from 'ui/wrap-to-lines';
-import { Link } from 'react-router';
 
 import * as actions from 'modules/auth';
+import { authBlockTypes } from 'modules/auth';
 
 import type { HTMLElement } from 'types';
 import type { SignUpPayload } from 'modules/auth';
@@ -87,6 +87,9 @@ export default class Auth extends Component {
   render(): HTMLElement {
     const { email, password, username, emailError, usernameError } = this.state;
 
+    const loginLink =
+      <a onClick={() => this.props.changeAuthBlockType(authBlockTypes.LOGIN)}>Log in</a>;
+
     return (
       <div>
         <div styleName="title">SIGN UP</div>
@@ -125,7 +128,7 @@ export default class Auth extends Component {
           <Button styleName="primary-button" type="submit">SIGN UP</Button>
         </Form>
         <div styleName="switch-stage">
-          Already have an account? <Link to="/login">Log In</Link>
+          Already have an account? {loginLink}
         </div>
       </div>
     );
