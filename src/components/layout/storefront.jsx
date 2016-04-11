@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { toggleSidebar } from 'modules/sidebar';
 import { toggleActive, resetTerm } from 'modules/search';
 import { toggleCart } from 'modules/cart';
-import L from 'lib/i18n/message';
+import localized from 'lib/i18n/localized';
 
 import styles from './storefront.css';
 
@@ -29,7 +29,7 @@ type StoreFrontProps = {
   toggleCart: Function;
 }
 
-const StoreFront = (props : StoreFrontProps) : HTMLElement => {
+function StoreFront(props : StoreFrontProps) : HTMLElement {
   const changeCategoryCallback = () => {
     props.resetTerm();
 
@@ -39,9 +39,9 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
   };
 
   const user = _.get(props, ['auth', 'user'], null);
-  const sessionLink = _.isEmpty(user) ?
-    <Link to="/login" styleName="login-link"><L text="LOG IN" /></Link> :
-    `HI, ${user.name.toUpperCase()}`;
+  const sessionLink = _.isEmpty(user)
+    ? <Link to="/login" styleName="login-link">{this.t('LOG IN')}</Link>
+    : <span>{this.t('HI')}, {user.name.toUpperCase()}</span>;
 
   return (
     <div styleName="container">
@@ -81,11 +81,16 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
       </div>
     </div>
   );
-};
+}
 
 const mapState = state => ({
   auth: state.auth,
   isSearchActive: state.search.isActive,
 });
 
-export default connect(mapState, { toggleSidebar, toggleCart, toggleSearch: toggleActive, resetTerm })(StoreFront);
+export default connect(mapState, {
+  toggleSidebar,
+  toggleCart,
+  toggleSearch: toggleActive,
+  resetTerm,
+})(localized(StoreFront));

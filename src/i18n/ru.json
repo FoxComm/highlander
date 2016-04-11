@@ -6,6 +6,26 @@
         "msgstr": [
           "ВОЙТИ"
         ]
+      },
+      "LOG IN WITH GOOGLE": {
+        "msgstr": [
+          "ВОЙТИ С GOOGLE"
+        ]
+      },
+      "forgot?": {
+        "msgstr": [
+          "забыли?"
+        ]
+      },
+      "Don’t have an account?": {
+        "msgstr": [
+          "Нет аккаунта?"
+        ]
+      },
+      "Sign Up": {
+        "msgstr": [
+          "Зарегистрироваться"
+        ]
       }
     }
   }
