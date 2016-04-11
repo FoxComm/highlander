@@ -1,26 +1,48 @@
 
+/* @flow weak */
+
+import _ from 'lodash';
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 
 import { Dropdown } from '../dropdown';
 import CurrencyInput from '../forms/currency-input';
 
-import styles from './qualifier-type.css';
+import styles from './attrs-edit.css';
 
 const qualifierItems = [
-  [null, 'Order - No qualifier'],
+  ['orderAny', 'Order - No qualifier'],
   ['orderTotalAmount', 'Order - Total amount of order'],
+  ['itemsAny', 'Items - No qualifier']
 ];
 
-export default class QualifierType extends Component {
+type Qualifier = {
+  [type:string]: Object;
+}
 
-  state = {
-    qualifierType: null,
-    totalAmount: 10000,
-  };
+type Props = {
+  onChange: (qualifier: Qualifier) => any;
+  discount: Object;
+};
+
+export default class QualifierType extends Component {
+  props: Props;
+
+  get qualifier() {
+    const { discount } = this.props;
+    return _.get(discount, 'form.attributes.qualifier', {});
+  }
+
+  get qualifierType() {
+    return Object.keys(this.qualifier)[0];
+  }
+
+  get qualifierParams() {
+    return this.qualifier[this.qualifierType] || {};
+  }
 
   get controlAfterType() {
-    switch (this.state.qualifierType) {
+    switch (this.qualifierType) {
       case 'orderTotalAmount':
         return this.totalAmountWidget;
       default:
@@ -28,41 +50,52 @@ export default class QualifierType extends Component {
     }
   }
 
-  @autobind
-  handleTotalAmountChange(value) {
-    this.setState({
-      totalAmount: value,
+  setParams(params) {
+    this.props.onChange({
+      [this.qualifierType]: params,
+    });
+  }
+
+  setType(type) {
+    this.props.onChange({
+      [type]: this.qualifierParams,
     });
   }
 
   get totalAmountWidget() {
     return (
       <div styleName="control-after-type">
-        Spend&nbsp;
+        <span>Spend</span>
         <CurrencyInput
-          styleName="total-amount"
-          value={this.state.totalAmount}
+          styleName="inline-edit-input"
+          value={this.qualifierParams.totalAmount}
           onChange={this.handleTotalAmountChange}
         />
-        &nbsp;or more.
+        <span>or more.</span>
       </div>
     );
   }
 
   @autobind
-  handleQualifierTypeChange(value) {
-    this.setState({
-      qualifierType: value,
+  handleTotalAmountChange(value) {
+    this.setParams({
+      totalAmount: value,
     });
+  }
+
+
+  @autobind
+  handleQualifierTypeChange(value) {
+    this.setType(value);
   }
 
   render() {
     return (
       <div>
         <Dropdown
-          styleName="qualifier-types"
+          styleName="type-chooser"
           items={qualifierItems}
-          value={this.state.qualifierType}
+          value={this.qualifierType}
           onChange={this.handleQualifierTypeChange}
         />
         {this.controlAfterType}

@@ -1,57 +1,8 @@
-import React, { PropTypes } from 'react';
-import _ from 'lodash';
-import classNames from 'classnames';
+import React from 'react';
+import PlatedInput from './plated-input';
 
 const PrependInput = props => {
-  const {
-    icon, inputClass, className, inputName, inputType, value, inputValuePretty, inputNamePretty, ...rest
-  } = props;
-
-  const vInputClass = classNames('fc-prepend-input__input-field', inputClass);
-  const vInputName = inputNamePretty || inputName;
-  const vInputValue = inputValuePretty || value;
-
-  const visibleInput = (
-    <input
-      className={vInputClass}
-      name={vInputName}
-      type={inputType}
-      value={vInputValue}
-      {...rest} />
-  );
-
-  const hiddenInput = inputValuePretty
-    ? <input name={inputName} type="hidden" value={vInputValue} />
-    : null;
-
-  return (
-    <div className={classNames('fc-prepend-input', className)}>
-      <div className="fc-prepend-input__icon">
-        <i className={`icon-${icon}`} />
-      </div>
-      {hiddenInput}
-      {visibleInput}
-    </div>
-  );
-};
-
-PrependInput.propTypes = {
-  icon: PropTypes.string.isRequired,
-  inputClass: PropTypes.string,
-  inputName: PropTypes.string.isRequired,
-  inputNamePretty: PropTypes.string,
-  inputType: PropTypes.string,
-  value: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.number
-  ]).isRequired,
-  inputValuePretty: PropTypes.string,
-};
-
-PrependInput.defaultTypes = {
-  inputClass: '',
-  inputType: 'text',
-  inputValuePretty: null
+  return <PlatedInput {...props} direction="prepend" />;
 };
 
 export default PrependInput;

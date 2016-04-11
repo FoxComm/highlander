@@ -30,3 +30,5 @@ unsafe.enable_getters_and_setters=true
 esproposal.class_static_fields=enable
 esproposal.class_instance_fields=enable
 esproposal.decorators=ignore
+module.name_mapper='.+css$' -> 'CSSModule'
+module.system=haste

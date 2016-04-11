@@ -1,0 +1,51 @@
+
+.type-chooser {
+  max-width: 40%;
+}
+
+.inline-edit-input {
+  display: inline-block;
+  line-height: 40px;
+}
+
+.control-after-type {
+  display: inline-block;
+  margin-left: 20px;
+
+  & > * {
+    vertical-align: baseline;
+    padding-right: 10px;
+  }
+}
+
+.attr-row {
+  display: block;
+}
+
+.header {
+  font-weight: bold;
+  font-size: 14px;
+  color: #484848;
+
+  margin: 1em 0 0.5em 0;
+}
+
+.discount-items {
+  display: flex;
+
+  & > * {
+    margin-right: 24px;
+
+    &:last-child {
+      flex-grow: 1;
+    }
+  }
+}
+
+.discount-items-label {
+  padding-top: 0.5em;
+}
+
+.wide-dropdown {
+  max-width: initial;
+}

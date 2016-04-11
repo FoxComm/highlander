@@ -63,7 +63,7 @@ export default class DatePicker extends React.Component {
         <AppendInput
           icon="calendar"
           inputName="someDate"
-          inputValue={value}
+          value={value}
           inputValuePretty={prettyDate}
           onBlur={this.blurred}
           onChange={this.changed}
