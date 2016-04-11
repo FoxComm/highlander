@@ -48,7 +48,7 @@ export default class PromotionForm extends Component {
             <div styleName="sub-title">Qualifier Type</div>
             <QualifierType />
             <div styleName="sub-title">Qualifying Items</div>
-            <Checkbox>Exclude gift cards</Checkbox>
+            <Checkbox id="exclude-gc">Exclude gift cards</Checkbox>
           </ContentBox>
         </div>
         <div styleName="aside">

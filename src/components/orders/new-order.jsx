@@ -11,7 +11,6 @@ import { Button, PrimaryButton } from '../common/buttons';
 import BigCheckbox from '../checkbox/big-checkbox';
 import ChooseCustomer from './choose-customer';
 import ChooseCustomerRow from './choose-customer-row';
-import ContentBox from '../content-box/content-box';
 import ErrorAlerts from '../alerts/error-alerts';
 import Form from '../forms/form';
 import FormField from '../forms/formfield';
@@ -139,7 +138,6 @@ export default class NewOrder extends Component {
     }
   }
 
-
   @autobind
   submitGuest() {
     const guest = this.state.query;
@@ -209,13 +207,13 @@ export default class NewOrder extends Component {
                     label="Checkout as guest"
                     labelAfterInput={true}>
                     <BigCheckbox
-                      name="guestCheckout"
+                      id="guestCheckout"
                       value={this.state.checkoutAsGuest}
                       onToggle={this.toggleGuest} />
                   </FormField>
-                  <FormField className="fc-col-md-1-8">
+                  <div className="fc-col-md-1-8">
                     {this.nextButton}
-                  </FormField>
+                  </div>
                 </Form>
               </div>
             </div>

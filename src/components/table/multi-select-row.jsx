@@ -25,7 +25,7 @@ const MultiSelectRow = props => {
         break;
       case 'selectColumn':
         cellClickAction = _.noop;
-        cellContents = <Checkbox inline={true} checked={checked} onChange={onChange} />;
+        cellContents = <Checkbox id={`multi-select-${row.id}`} inline={true} checked={checked} onChange={onChange} />;
         break;
       default:
         cellContents = setCellContents(row, col.field);

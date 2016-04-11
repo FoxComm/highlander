@@ -4,12 +4,12 @@ import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 
 const DefaultCheckbox = props => {
-  const {className, children, id, ...rest} = props;
-  const validId = id || uniqueId('checkbox_');
+  const { className, children, id, ...rest } = props;
+
   return (
     <div className={ className }>
-      <input type="checkbox" id={validId} {...rest} />
-      <label htmlFor={validId}>
+      <input type="checkbox" id={id} {...rest} />
+      <label htmlFor={id}>
         <span>{children}</span>
       </label>
     </div>
@@ -17,7 +17,7 @@ const DefaultCheckbox = props => {
 };
 
 DefaultCheckbox.propTypes = {
-  id: PropTypes.string,
+  id: PropTypes.string.isRequired,
   className: PropTypes.string,
 };
 
@@ -30,6 +30,7 @@ const SliderCheckbox = props => {
 };
 
 SliderCheckbox.propTypes = {
+  id: PropTypes.string.isRequired,
   className: PropTypes.string,
 };
 
@@ -50,6 +51,7 @@ const Checkbox = ({inline, docked, ...props}) => {
 };
 
 Checkbox.propTypes = {
+  id: PropTypes.string.isRequired,
   className: PropTypes.string,
   inline: PropTypes.bool,
 };
@@ -77,6 +79,7 @@ const HalfCheckbox = props => {
 
 
 HalfCheckbox.propTypes = {
+  id: PropTypes.string.isRequired,
   className: PropTypes.string,
   halfChecked: PropTypes.bool,
   checked: PropTypes.bool,

@@ -118,6 +118,7 @@ export default class ObjectFormInner extends Component<void, Props, State> {
       <div className="fc-object-form_field">
         <div className="fc-object-form__field-label">{formattedLabel}</div>
         <SliderCheckbox
+          id={label}
           checked={value}
           onChange={onChange} />
       </div>

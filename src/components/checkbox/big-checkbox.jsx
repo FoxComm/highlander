@@ -13,14 +13,14 @@ const BigCheckbox = props => {
   return (
     <div className="fc-big-checkbox">
       <div className={checkboxClass} onClick={() => props.onToggle(!props.value)} />
-      <Checkbox className="fc-big-checkbox__hidden-input" name={props.name} value={props.value} />
+      <Checkbox className="fc-big-checkbox__hidden-input" id={props.id} value={props.value} />
     </div>
   );
 };
 
 BigCheckbox.propTypes = {
+  id: PropTypes.string.isRequired,
   label: PropTypes.string,
-  name: PropTypes.string.isRequired,
   onToggle: PropTypes.func,
   value: PropTypes.bool,
 };

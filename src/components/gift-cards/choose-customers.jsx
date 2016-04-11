@@ -55,6 +55,7 @@ export default class ChooseCustomers extends React.Component {
               <li className="fc-choose-customers__entry" key={customer.id}>
                 <label>
                   <Checkbox
+                    id={`choose-customers-${customer.id}`}
                     checked={this.state.selectedCustomers[customer.id]}
                     onChange={event => this.toggleCustomerSelected(customer)} />
                   <span className="fc-choose-customers__customer-name">
