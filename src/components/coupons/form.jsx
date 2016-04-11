@@ -38,6 +38,7 @@ export default class CouponForm extends Component {
         <div>
           <Dropdown
             id="promotionSelector"
+            styleName="full-width"
             name="promotion"
             items={[[3, 'Coupon promo']]}
             placeholder="- Select -"
