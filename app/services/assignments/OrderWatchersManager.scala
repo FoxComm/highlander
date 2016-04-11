@@ -10,9 +10,9 @@ import utils.aliases._
 
 object OrderWatchersManager extends AssignmentsManager[String, Order] {
 
-  def assignmentType(): Assignment.AssignmentType = Assignment.Watcher
-  def referenceType(): Assignment.ReferenceType = Assignment.Order
-  def notifyDimension(): String = models.activity.Dimension.order
+  val assignmentType: Assignment.AssignmentType = Assignment.Watcher
+  val referenceType: Assignment.ReferenceType = Assignment.Order
+  val notifyDimension: String = models.activity.Dimension.order
 
   def buildResponse(model: Order): Root = build(model)
 
