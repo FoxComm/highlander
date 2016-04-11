@@ -11,6 +11,17 @@ server {
 
   server_name {{firebird_server_name}};
 
+
+  # variables
+
+  # language
+  set $accept_language en;
+  if ($http_accept_language) {
+      set $accept_language $http_accept_language;
+  }
+  {% if firebird_language %}set $accept_language {{firebird_language}};{% endif %}
+
+
   error_page 500 @500;
   error_page 502 @502;
   error_page 503 @503;
@@ -102,6 +113,7 @@ server {
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Accept-Language $accept_language;
       break;
   }
 
@@ -112,6 +124,7 @@ server {
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Accept-Language $accept_language;
       break;
   }
 
@@ -122,6 +135,7 @@ server {
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Accept-Language $accept_language;
       break;
   }
 
