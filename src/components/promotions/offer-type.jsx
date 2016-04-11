@@ -229,8 +229,6 @@ export default class Offer extends Component {
   get itemsSelectPercentOff() {
     return (
       <div>
-        <div styleName="header">Discounted Items</div>
-        <Checkbox id="offer-exclude-gc" styleName="attr-row">Exclude gift cards</Checkbox>
         <Checkbox id="offer-items-same-as-q" styleName="attr-row">Same as qualifying items</Checkbox>
         <div styleName="discount-items">
           <strong styleName="discount-items-label">Discount the items</strong>

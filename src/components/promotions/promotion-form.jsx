@@ -95,8 +95,6 @@ export default class PromotionForm extends Component {
           <ContentBox title="Qualifier">
             <div styleName="sub-title">Qualifier Type</div>
             <QualifierType discount={discount} onChange={this.handleQualifierChange} />
-            <div styleName="sub-title">Qualifying Items</div>
-            <Checkbox id="exclude-gc">Exclude gift cards</Checkbox>
           </ContentBox>
           <ContentBox title="Offer">
             <div styleName="sub-title">Offer Type</div>
