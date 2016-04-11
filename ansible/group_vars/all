@@ -25,6 +25,7 @@ ashes_env: production
 
 #firebird variables
 firebird_env: production
+firebird_language: 
 
 # Lies & BS
 phoenix_server: 127.0.0.1:9090
