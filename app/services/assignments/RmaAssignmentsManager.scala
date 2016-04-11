@@ -6,6 +6,7 @@ import responses.AllRmas._
 import slick.driver.PostgresDriver.api._
 import utils.Slick._
 import utils.Slick.implicits._
+import utils._
 import utils.aliases._
 
 object RmaAssignmentsManager extends AssignmentsManager[String, Rma] {

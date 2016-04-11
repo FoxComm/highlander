@@ -7,6 +7,7 @@ import slick.driver.PostgresDriver.api._
 import utils.Slick._
 import utils.Slick.implicits._
 import utils.aliases._
+import utils.Money._
 
 object GiftCardAssignmentsManager extends AssignmentsManager[String, GiftCard] {
 
