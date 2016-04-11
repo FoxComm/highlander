@@ -84,47 +84,51 @@ export default class SelectVertical extends Component {
     this.onUpdate(newItems);
   }
 
-  render() {
+  addMoreIcon(isLast) {
+    if (isLast) {
+      return <Button onClick={this.onAddClick} className='fc-vmultiselect-add icon-add'/>;
+    } else {
+      return <div className='fc-vmultiselect-or'>or</div>;
+    }
+  }
+
+  @autobind
+  renderSelect(key, index, arr) {
     const props = this.props;
 
-    const AddOrOr = ((isLast) => {
-      if (isLast) {
-        return <Button onClick={this.onAddClick} className='fc-vmultiselect-add icon-add'/>;
-      } else {
-        return <div className='fc-vmultiselect-or'>or</div>;
-      }
-    }).bind(this);
+    const isLast = index == arr.length - 1;
+    const selectedValue = this.state.items[key];
 
     const availableValues = _.difference(_.keys(this.props.options), _.values(this.state.items));
     const items = availableValues.map(value => [value, props.options[value]]);
 
-    function renderSelect(key, index, arr) {
-      const isLast = index == arr.length - 1;
-      const selectedValue = this.state.items[key];
-
-      let curItems = items;
-      if (selectedValue) {
-        curItems = [...items, [selectedValue, props.options[selectedValue]]];
-      }
-
-      return (
-        <div className='fc-vmultiselect-cont' key={key}>
-          <Dropdown items={curItems}
-                    value={selectedValue}
-                    placeholder={props.placeholder}
-                    onChange={_.partial(this.onChangeItem, key)}
-                    className='fc-vmultiselect-item'/>
-          {AddOrOr(isLast)}
-          <i onClick={_.partial(this.onClose, key)} className='fc-vmultiselect-close icon-close'/>
-        </div>
-      );
+    let curItems = items;
+    if (selectedValue) {
+      curItems = [...items, [selectedValue, props.options[selectedValue]]];
     }
+
+
+    return (
+      <div className='fc-vmultiselect-cont' key={key}>
+        <Dropdown items={curItems}
+                  value={selectedValue}
+                  placeholder={props.placeholder}
+                  onChange={_.partial(this.onChangeItem, key)}
+                  className='fc-vmultiselect-item'/>
+        {this.addMoreIcon(isLast)}
+        <i onClick={_.partial(this.onClose, key)} className='fc-vmultiselect-close icon-close'/>
+      </div>
+    );
+  }
+
+  render() {
+    const props = this.props;
 
     const className = classNames('fc-vmultiselect', props.className);
 
     return (
       <div className={className}>
-        {_.keys(this.state.items).map(renderSelect.bind(this))}
+        {_.keys(this.state.items).map(this.renderSelect)}
       </div>
     );
   }
