@@ -16,3 +16,8 @@
 .form-group {
   margin-bottom: 15px;
 }
+
+.form-group-title {
+  margin-bottom: 10px;
+  font-weight: 600;
+}

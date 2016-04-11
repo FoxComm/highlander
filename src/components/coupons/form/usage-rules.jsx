@@ -28,13 +28,15 @@ export default class UsageRules extends Component {
         </div>
         <div styleName="form-group">
           <div className="fc-form-field" styleName="form-group">
-            <div>
+            <div styleName="form-group-title">
               <label>Max uses per coupon</label>
             </div>
-            <label htmlFor="couponUnlimitedUsage">
-              <Checkbox id="couponUnlimitedUsage" />
-              <span>Unlimited</span>
-            </label>
+            <div styleName="form-group">
+              <label htmlFor="couponUnlimitedUsage">
+                <Checkbox id="couponUnlimitedUsage" />
+                <span>Unlimited</span>
+              </label>
+            </div>
             <div>
               <Counter id="couponUsesForCode" min={1} />
             </div>
@@ -45,13 +47,15 @@ export default class UsageRules extends Component {
         </div>
         <div styleName="form-group">
           <div className="fc-form-field" styleName="form-group">
-            <div>
+            <div styleName="form-group-title">
               <label>Max uses per customer</label>
             </div>
-            <label htmlFor="couponCustomerUsage">
-              <Checkbox id="couponCustomerUsage" />
-              <span>Unlimited</span>
-            </label>
+            <div styleName="form-group">
+              <label htmlFor="couponCustomerUsage">
+                <Checkbox id="couponCustomerUsage" />
+                <span>Unlimited</span>
+              </label>
+            </div>
             <div>
               <Counter id="couponUsesNumberForCustomer" min={1} />
             </div>
