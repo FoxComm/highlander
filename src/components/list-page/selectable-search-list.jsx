@@ -73,7 +73,8 @@ export default class SelectableSearchList extends React.Component {
           isLoading={results.isFetching}
           failed={results.failed}
           emptyMessage={props.emptyMessage}
-          errorMessage={props.errorMessage} />
+          errorMessage={props.errorMessage}
+          key={props.list.currentSearch().title} />
       </LiveSearchAdapter>
     );
   };
