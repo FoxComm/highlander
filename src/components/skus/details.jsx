@@ -13,6 +13,7 @@ import { FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
 import ObjectForm from '../object-form/object-form';
 import ObjectFormInner from '../object-form/object-form-inner';
+import ProductState from '../products/product-state';
 import WaitAnimation from '../common/wait-animation';
 
 // types
@@ -29,16 +30,21 @@ const defaultKeys = {
   pricing: ['retailPrice', 'salePrice', 'unitCost'],
 };
 
+const keysToOmit = ['activeFrom', 'activeTo'];
+
 export default class SkuDetails extends Component<void, Props, void> {
   static propTypes = {
     code: PropTypes.string.isRequired,
     onChange: PropTypes.func.isRequired,
     sku: PropTypes.object,
   };
-  
+
   get generalAttrs(): Array<string> {
     const toOmit = _.omit(defaultKeys, 'general');
-    const toOmitArray = _.reduce(toOmit, (res, arr) => ([...res, ...arr]), []);
+    const toOmitArray = [
+      ..._.reduce(toOmit, (res, arr) => ([...res, ...arr]), []),
+      ...keysToOmit,
+    ];
     const shadow = _.get(this.props, 'sku.shadow.attributes', []);
     return _(shadow).omit(toOmitArray).keys().value();
   }
@@ -72,11 +78,24 @@ export default class SkuDetails extends Component<void, Props, void> {
     );
   }
 
+  get productState(): Element {
+    const formAttributes = _.get(this.props, 'sku.form.attributes', []);
+    const shadowAttributes = _.get(this.props, 'sku.shadow.attributes', []);
+
+    return (
+      <ProductState
+        form={formAttributes}
+        shadow={shadowAttributes}
+        onChange={this.handleChange}
+        title="SKU" />
+    );
+  }
+
   @autobind
   handleChange(form: FormAttributes, shadow: ShadowAttributes) {
     const { sku } = this.props;
     if (sku) {
-      const updatedSku = assoc(sku, 
+      const updatedSku = assoc(sku,
         ['form', 'attributes'], form,
         ['shadow', 'attributes'], shadow);
       this.props.onChange(updatedSku);
@@ -102,7 +121,10 @@ export default class SkuDetails extends Component<void, Props, void> {
             fieldsToRender={defaultKeys.pricing}
             form={formAttributes}
             shadow={shadowAttributes}
-            title="Pricing" />    
+            title="Pricing" />
+        </div>
+        <div className="fc-col-md-2-5">
+          {this.productState}
         </div>
       </div>
     );

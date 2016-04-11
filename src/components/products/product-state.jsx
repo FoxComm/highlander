@@ -17,6 +17,7 @@ type Props = {
   form: FormAttributes,
   shadow: ShadowAttributes,
   onChange: (form: FormAttributes, shadow: ShadowAttributes) => void,
+  title: string,
 };
 
 type State = {
@@ -29,6 +30,7 @@ export default class ProductState extends Component<void, Props, State> {
     form: PropTypes.object.isRequired,
     shadow: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired,
+    title: PropTypes.string,
   };
 
   state: State = { showActiveFromPicker: false, showActiveToPicker: false };
@@ -53,11 +55,10 @@ export default class ProductState extends Component<void, Props, State> {
 
   get activeFromPicker(): ?Element {
     if (this.state.showActiveFromPicker) {
+      const activePhrase = `${this.props.title} will be active on:`
       return (
         <div className="fc-product-state__picker">
-          <div className="fc-product-state__picker-header">
-            Product will be active on:
-          </div>
+          <div className="fc-product-state__picker-header">{activePhrase}</div>
           <div className="fc-product-state__picker-label">
             Start
           </div>

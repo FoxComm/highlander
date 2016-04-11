@@ -109,7 +109,8 @@ export default class ProductForm extends Component<void, Props, State> {
       <ProductState
         form={formAttributes}
         shadow={shadowAttributes}
-        onChange={this.handleProductChange} />
+        onChange={this.handleProductChange}
+        title="Product" />
     );
   }
 
