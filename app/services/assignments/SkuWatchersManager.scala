@@ -1,6 +1,6 @@
 package services.assignments
 
-import models.Assignment
+import models.{Assignment, NotificationSubscription}
 import models.inventory.{Sku, Skus}
 import responses.SkuResponses.SkuHeadResponse.{Root, build}
 import slick.driver.PostgresDriver.api._
@@ -10,9 +10,10 @@ import utils.aliases._
 
 object SkuWatchersManager extends AssignmentsManager[String, Sku] {
 
-  val assignmentType: Assignment.AssignmentType = Assignment.Watcher
-  val referenceType: Assignment.ReferenceType = Assignment.Sku
-  val notifyDimension: String = models.activity.Dimension.sku
+  val assignmentType  = Assignment.Watcher
+  val referenceType   = Assignment.Sku
+  val notifyDimension = models.activity.Dimension.sku
+  val notifyReason    = NotificationSubscription.Watching
 
   def buildResponse(model: Sku): Root = build(model)
 
