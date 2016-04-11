@@ -41,5 +41,8 @@
   command: systemctl daemon-reload
 
 - name: Setup Service
-  service: name=elasticsearch state=restarted enabled=yes sleep=10
+  service: name=elasticsearch state=restarted enabled=yes
   sudo: true
+
+- name: Sleep
+  shell: sleep 10
