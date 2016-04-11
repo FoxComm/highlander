@@ -1,8 +1,5 @@
 package services.assignments
 
-import scala.reflect.ClassTag
-import scala.reflect._
-
 import cats.implicits._
 import failures.{AlreadyAssignedFailure, AssigneeNotFound, NotAssignedFailure, NotFoundFailure404}
 import failures.Util._
@@ -33,12 +30,6 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   case object Skipped extends GroupingType
   case object Succeed extends GroupingType
 
-  // Add additional ADT members here if necessary
-  private def notifyReason(): NotificationSubscription.Reason = assignmentType() match {
-    case Assignee ⇒ NotificationSubscription.Assigned
-    case Watcher  ⇒ NotificationSubscription.Watching
-  }
-
   case class EntityTrio(succeed: Seq[M], skipped: Seq[M], notFound: Seq[String])
 
   // Database helpers
@@ -46,15 +37,21 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   def fetchSequence(keys: Seq[K])(implicit ec: EC, db: DB, ac: AC): DbResult[Seq[M]]
 
   private def fetchAssignments(entity: M)(implicit ec: EC, db: DB) = for {
-    assignments ← Assignments.byEntity(assignmentType(), entity, referenceType()).result
+    assignments ← Assignments.byEntity(assignmentType, entity, referenceType).result
     admins      ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.storeAdminId))).result
   } yield assignments.zip(admins)
 
-  // Define this methods in inherit object
-  def assignmentType(): AssignmentType
-  def referenceType(): ReferenceType
-  def notifyDimension(): String
+  // Define this in inherit object
+  val assignmentType: AssignmentType
+  val referenceType: ReferenceType
+  val notifyDimension: String
   def buildResponse(model: M): ResponseItem
+
+  // Add additional ADT members here if necessary
+  val notifyReason: NotificationSubscription.Reason = assignmentType match {
+    case Assignee ⇒ NotificationSubscription.Assigned
+    case Watcher ⇒ NotificationSubscription.Watching
+  }
 
   // Use this methods wherever you want
   def list(key: K)(implicit ec: EC, db: DB, ac: AC): Result[Seq[Root]] = (for {
@@ -69,7 +66,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     entity         ← * <~ fetchEntity(key)
     admins         ← * <~ StoreAdmins.filter(_.id.inSetBind(payload.assignees)).result
     adminIds       = admins.map(_.id)
-    assignees      ← * <~ Assignments.assigneesFor(assignmentType(), entity, referenceType()).result.toXor
+    assignees      ← * <~ Assignments.assigneesFor(assignmentType, entity, referenceType).result.toXor
     newAssigneeIds = adminIds.diff(assignees.map(_.id))
     _              ← * <~ Assignments.createAll(build(entity, newAssigneeIds))
     assignedAdmins = admins.filter(a ⇒ newAssigneeIds.contains(a.id)).map(buildAdmin)
@@ -78,7 +75,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     response       = assignments.map((buildAssignment _).tupled)
     notFoundAdmins = diffToFailures(payload.assignees, adminIds, StoreAdmin)
     // Activity log + notifications subscription
-    _         ← * <~ LogActivity.assigned(originator, entity, assignedAdmins, assignmentType(), referenceType())
+    _         ← * <~ LogActivity.assigned(originator, entity, assignedAdmins, assignmentType, referenceType)
     _         ← * <~ subscribe(adminIds = assignedAdmins.map(_.id), objectIds = Seq(key.toString))
   } yield TheResponse.build(response, errors = notFoundAdmins)).runTxn()
 
@@ -87,14 +84,14 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     // Validation + unassign
     entity     ← * <~ fetchEntity(key)
     admin      ← * <~ StoreAdmins.mustFindById404(assigneeId)
-    querySeq   = Assignments.byEntityAndAdmin(assignmentType(), entity, referenceType(), admin)
+    querySeq   = Assignments.byEntityAndAdmin(assignmentType, entity, referenceType, admin)
     assignment ← * <~ querySeq.one.mustFindOr(AssigneeNotFound(entity, key, assigneeId))
     _          ← * <~ querySeq.delete
     // Response builder
     assignments    ← * <~ fetchAssignments(entity).toXor
     response       = assignments.map((buildAssignment _).tupled)
     // Activity log + notifications subscription
-    _         ← * <~ LogActivity.unassigned(originator, entity, admin, assignmentType(), referenceType())
+    _         ← * <~ LogActivity.unassigned(originator, entity, admin, assignmentType, referenceType)
     _         ← * <~ unsubscribe(adminIds = Seq(assigneeId), objectIds = Seq(key.toString))
   } yield response).runTxn()
 
@@ -103,7 +100,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     // Validation + assign
     admin           ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
     entities        ← * <~ fetchSequence(payload.entityIds)
-    assignments     ← * <~ Assignments.byAdmin(assignmentType(), referenceType(), admin).result.toXor
+    assignments     ← * <~ Assignments.byAdmin(assignmentType, referenceType, admin).result.toXor
     newAssignedIds  = entities.map(_.id).diff(assignments.map(_.referenceId))
     succeedEntities = entities.filter(e ⇒ newAssignedIds.contains(e.id))
     newEntries      = buildSeq(succeedEntities, payload.storeAdminId)
@@ -119,7 +116,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     // Validation + unassign
     admin           ← * <~ StoreAdmins.mustFindById404(payload.storeAdminId)
     entities        ← * <~ fetchSequence(payload.entityIds)
-    querySeq        = Assignments.byEntitySeqAndAdmin(assignmentType(), entities, referenceType(), admin)
+    querySeq        = Assignments.byEntitySeqAndAdmin(assignmentType, entities, referenceType, admin)
     assignments     ← * <~ querySeq.result.toXor
     _               ← * <~ querySeq.delete
     // Response, log activity, notifications subscription
@@ -142,12 +139,12 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
 
   // Result builders
   private def build(entity: M, newAssigneeIds: Seq[Int]): Seq[Assignment] =
-    newAssigneeIds.map(adminId ⇒ Assignment(assignmentType = assignmentType(),
-      storeAdminId = adminId, referenceType = referenceType(), referenceId = entity.id))
+    newAssigneeIds.map(adminId ⇒ Assignment(assignmentType = assignmentType,
+      storeAdminId = adminId, referenceType = referenceType, referenceId = entity.id))
 
   private def buildSeq(entities: Seq[M], storeAdminId: Int): Seq[Assignment] =
-    for (e ← entities) yield Assignment(assignmentType = assignmentType(), storeAdminId = storeAdminId,
-      referenceType = referenceType(), referenceId = e.id)
+    for (e ← entities) yield Assignment(assignmentType = assignmentType, storeAdminId = storeAdminId,
+      referenceType = referenceType, referenceId = e.id)
 
   // Batch metadata builders
   private def getSuccessData(trio: EntityTrio): SuccessData = searchKeys(trio.succeed)
@@ -213,7 +210,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   private def logBulkAssign(originator: StoreAdmin, admin: StoreAdmin, keys: Seq[String])
     (implicit ec: EC, db: DB, ac: AC) = {
     if (keys.nonEmpty)
-      LogActivity.bulkAssigned(originator, admin, keys, assignmentType(), referenceType())
+      LogActivity.bulkAssigned(originator, admin, keys, assignmentType, referenceType)
     else
       DbResult.unit
   }
@@ -221,24 +218,26 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   private def logBulkUnassign(originator: StoreAdmin, admin: StoreAdmin, keys: Seq[String])
     (implicit ec: EC, db: DB, ac: AC) = {
     if (keys.nonEmpty)
-      LogActivity.bulkUnassigned(originator, admin, keys, assignmentType(), referenceType())
+      LogActivity.bulkUnassigned(originator, admin, keys, assignmentType, referenceType)
     else
       DbResult.unit
   }
 
   // Notifications
-  private def subscribe(adminIds: Seq[Int], objectIds: Seq[String])(implicit ec: EC, db: DB) = {
+  private def subscribe(adminIds: Seq[Int], objectIds: Seq[String])
+    (implicit ec: EC, db: DB): DbResult[TheResponse[Option[Int]]] = {
     if (objectIds.nonEmpty)
-      NotificationManager.subscribe(adminIds = adminIds, dimension = notifyDimension(), reason = notifyReason(),
-        objectIds = objectIds)
+      NotificationManager.subscribe(adminIds = adminIds, dimension = notifyDimension, reason = notifyReason,
+        objectIds = objectIds).value
     else
-      DbResult.unit
+      DbResult.good(TheResponse(None))
   }
 
-  private def unsubscribe(adminIds: Seq[Int], objectIds: Seq[String])(implicit ec: EC, db: DB) =
+  private def unsubscribe(adminIds: Seq[Int], objectIds: Seq[String])
+    (implicit ec: EC, db: DB): DbResult[Unit] =
     if (objectIds.nonEmpty)
-      NotificationManager.unsubscribe(adminIds = adminIds, dimension = notifyDimension(), reason = notifyReason(),
-        objectIds = objectIds)
+      NotificationManager.unsubscribe(adminIds = adminIds, dimension = notifyDimension, reason = notifyReason,
+        objectIds = objectIds).value
     else
       DbResult.unit
 }

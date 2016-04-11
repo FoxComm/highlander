@@ -10,9 +10,9 @@ import utils.aliases._
 
 object RmaWatchersManager extends AssignmentsManager[String, Rma] {
 
-  def assignmentType(): Assignment.AssignmentType = Assignment.Watcher
-  def referenceType(): Assignment.ReferenceType = Assignment.Rma
-  def notifyDimension(): String = models.activity.Dimension.rma
+  val assignmentType: Assignment.AssignmentType = Assignment.Watcher
+  val referenceType: Assignment.ReferenceType = Assignment.Rma
+  val notifyDimension: String = models.activity.Dimension.rma
 
   def buildResponse(model: Rma): Root = build(model)
 

@@ -10,9 +10,9 @@ import utils.aliases._
 
 object ProductWatchersManager extends AssignmentsManager[Int, Product] {
 
-  def assignmentType(): Assignment.AssignmentType = Assignment.Watcher
-  def referenceType(): Assignment.ReferenceType = Assignment.Product
-  def notifyDimension(): String = models.activity.Dimension.product
+  val assignmentType: Assignment.AssignmentType = Assignment.Watcher
+  val referenceType: Assignment.ReferenceType = Assignment.Product
+  val notifyDimension: String = models.activity.Dimension.product
 
   def buildResponse(model: Product): Root = build(model)
 

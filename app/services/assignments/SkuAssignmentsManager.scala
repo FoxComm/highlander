@@ -10,9 +10,9 @@ import utils.aliases._
 
 object SkuAssignmentsManager extends AssignmentsManager[String, Sku] {
 
-  def assignmentType(): Assignment.AssignmentType = Assignment.Assignee
-  def referenceType(): Assignment.ReferenceType = Assignment.Sku
-  def notifyDimension(): String = models.activity.Dimension.sku
+  val assignmentType: Assignment.AssignmentType = Assignment.Assignee
+  val referenceType: Assignment.ReferenceType = Assignment.Sku
+  val notifyDimension: String = models.activity.Dimension.sku
 
   def buildResponse(model: Sku): Root = build(model)
 

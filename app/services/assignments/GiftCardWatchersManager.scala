@@ -10,9 +10,9 @@ import utils.aliases._
 
 object GiftCardWatchersManager extends AssignmentsManager[String, GiftCard] {
 
-  def assignmentType(): Assignment.AssignmentType = Assignment.Watcher
-  def referenceType(): Assignment.ReferenceType = Assignment.GiftCard
-  def notifyDimension(): String = models.activity.Dimension.giftCard
+  val assignmentType: Assignment.AssignmentType = Assignment.Watcher
+  val referenceType: Assignment.ReferenceType = Assignment.GiftCard
+  val notifyDimension: String = models.activity.Dimension.giftCard
 
   def buildResponse(model: GiftCard): Root = build(model)
 

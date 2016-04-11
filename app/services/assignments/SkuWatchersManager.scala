@@ -10,9 +10,9 @@ import utils.aliases._
 
 object SkuWatchersManager extends AssignmentsManager[String, Sku] {
 
-  def assignmentType(): Assignment.AssignmentType = Assignment.Watcher
-  def referenceType(): Assignment.ReferenceType = Assignment.Sku
-  def notifyDimension(): String = models.activity.Dimension.sku
+  val assignmentType: Assignment.AssignmentType = Assignment.Watcher
+  val referenceType: Assignment.ReferenceType = Assignment.Sku
+  val notifyDimension: String = models.activity.Dimension.sku
 
   def buildResponse(model: Sku): Root = build(model)
 
