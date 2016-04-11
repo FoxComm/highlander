@@ -7,7 +7,8 @@ import { connect } from 'react-redux';
 import { toggleSidebar } from 'modules/sidebar';
 import { toggleActive, resetTerm } from 'modules/search';
 import { toggleCart } from 'modules/cart';
-import localized from 'lib/i18n/localized';
+import localized from 'lib/i18n';
+import type { Localized } from 'lib/i18n';
 
 import styles from './storefront.css';
 
@@ -20,16 +21,16 @@ import Search from '../search/search';
 import Cart from '../cart/cart';
 
 
-type StoreFrontProps = {
+type StoreFrontProps = Localized & {
   children: HTMLElement;
   isSearchActive: boolean;
   toggleSidebar: Function;
   toggleSearch: Function;
   resetTerm: Function;
   toggleCart: Function;
-}
+};
 
-function StoreFront(props : StoreFrontProps) : HTMLElement {
+const StoreFront = (props : StoreFrontProps) : HTMLElement => {
   const changeCategoryCallback = () => {
     props.resetTerm();
 
@@ -38,10 +39,12 @@ function StoreFront(props : StoreFrontProps) : HTMLElement {
     }
   };
 
+  const { t } = props;
+
   const user = _.get(props, ['auth', 'user'], null);
   const sessionLink = _.isEmpty(user)
-    ? <Link to="/login" styleName="login-link">{this.t('LOG IN')}</Link>
-    : <span>{this.t('HI')}, {user.name.toUpperCase()}</span>;
+    ? <Link to="/login" styleName="login-link">{t('LOG IN')}</Link>
+    : <span>{t('HI')}, {user.name.toUpperCase()}</span>;
 
   return (
     <div styleName="container">
@@ -81,7 +84,7 @@ function StoreFront(props : StoreFrontProps) : HTMLElement {
       </div>
     </div>
   );
-}
+};
 
 const mapState = state => ({
   auth: state.auth,
