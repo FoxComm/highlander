@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import { toggleSidebar } from 'modules/sidebar';
 import { toggleActive, resetTerm } from 'modules/search';
 import { toggleCart } from 'modules/cart';
+import L from 'lib/i18n/message';
 
 import styles from './storefront.css';
 
@@ -39,7 +40,7 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
 
   const user = _.get(props, ['auth', 'user'], null);
   const sessionLink = _.isEmpty(user) ?
-    <Link to="/login" styleName="login-link">LOG IN</Link> :
+    <Link to="/login" styleName="login-link"><L text="LOG IN" /></Link> :
     `HI, ${user.name.toUpperCase()}`;
 
   return (
