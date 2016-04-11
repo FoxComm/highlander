@@ -9,13 +9,16 @@ import Currency from 'ui/currency';
 
 type Product = {
   id: number;
-  name: string;
-  price: string;
-  imageUrl: string;
+  context: string,
+  title: string;
+  description: string,
+  images: Array<string>,
 }
 
 const ListItem = (props: Product): HTMLElement => {
-  const {id, name, price, imageUrl} = props;
+  const {id, title, images} = props;
+  const imageUrl = images[0];
+  const price = 9999;
 
   const click = () => browserHistory.push(`/products/${id}`);
 
@@ -25,7 +28,7 @@ const ListItem = (props: Product): HTMLElement => {
         <img src={imageUrl} styleName="preview-image" />
       </div>
       <div styleName="name">
-        {name}
+        {title}
       </div>
       <div styleName="price">
         <Currency value={price} />

@@ -8,6 +8,5 @@ export function makeElasticProxy() {
   return proxy({
     host,
     match: matchUriRegexp,
-    map: path => path.replace(/^\/api\/search\//, '/phoenix/'),
   });
 }
