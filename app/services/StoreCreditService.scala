@@ -41,6 +41,7 @@ object StoreCreditService {
     }
   }
 
+
   def findAllByCustomer(customerId: Int)(implicit ec: EC, db: DB, sp: SortAndPage): Result[TheResponse[WithTotals]] = (for {
 
     _           ← * <~ Customers.mustFindById404(customerId)
@@ -80,14 +81,17 @@ object StoreCreditService {
     _ ← * <~ LogActivity.scCreated(admin, customer, storeCredit)
   } yield build(storeCredit)).runTxn
 
+  // API routes
+
   def createFromExtension(admin: StoreAdmin, customerId: Int, payload: payloads.CreateExtensionStoreCredit)
     (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
     customer ← * <~ Customers.mustFindById404(customerId)
     // Check subtype only if id is present in payload; discard actual model
     _ ← * <~ checkSubTypeExists(payload.subTypeId, StoreCredit.Custom)
-    // TODO: fixme originType
+    custom = StoreCreditCustom(adminId = admin.id, metadata = payload.metadata)
+    origin ← * <~ StoreCreditCustoms.create(custom)
     customStoreCredit = StoreCredit.buildFromExtension(customerId = customer.id, payload = payload,
-      originType = StoreCredit.Loyalty)
+      originType = StoreCredit.Custom, originId = origin.id)
     storeCredit ← * <~ StoreCredits.create(customStoreCredit)
     _ ← * <~ LogActivity.scCreated(admin, customer, storeCredit)
   } yield build(storeCredit)).runTxn

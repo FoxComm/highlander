@@ -71,7 +71,6 @@ object StoreCredit {
   case object CsrAppeasement extends OriginType
   case object GiftCardTransfer extends OriginType
   case object RmaProcess extends OriginType
-  case object Loyalty extends OriginType
   case object Custom extends OriginType
 
   object State extends ADT[State] {
@@ -79,7 +78,7 @@ object StoreCredit {
   }
 
   object OriginType extends ADT[OriginType] {
-    def types = sealerate.values[OriginType].--(Seq(Loyalty, Custom))
+    def types = sealerate.values[OriginType].--(Seq(Custom))
   }
 
   def validateStateReason(state: State, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
@@ -102,10 +101,11 @@ object StoreCredit {
 
   def buildFromExtension(customerId: Int,
     payload: payloads.CreateExtensionStoreCredit,
-    originType: StoreCredit.OriginType = StoreCredit.Custom): StoreCredit = {
+    originType: StoreCredit.OriginType = StoreCredit.Custom,
+    originId: Int): StoreCredit = {
     StoreCredit(customerId = customerId,
-      originId = payload.originId,
       originType = originType,
+      originId = originId,
       currency = payload.currency,
       subTypeId = payload.subTypeId,
       originalBalance = payload.amount)
