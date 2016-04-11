@@ -7,17 +7,18 @@ import classNames from 'classnames';
 import styles from './sidebar.css';
 
 import Icon from 'ui/icon';
-import { Link } from 'react-router';
 import Categories from '../categories/categories';
 import Search from '../search/search';
 
 import * as actions from 'modules/sidebar';
 import { resetTerm } from 'modules/search';
+import { authBlockToggle } from 'modules/auth';
 
 type SidebarProps = {
   isVisible: boolean;
   toggleSidebar: Function;
   resetTerm: Function;
+  authBlockToggle: Function;
 };
 
 const getState = state => ({ ...state.sidebar });
@@ -50,7 +51,7 @@ const Sidebar = (props: SidebarProps): HTMLElement => {
             <Categories onClick={changeCategoryCallback} />
           </div>
           <div styleName="controls-login">
-            <Link to="/login" styleName="login-link">LOG IN</Link>
+            <a styleName="login-link" onClick={props.authBlockToggle}>LOG IN</a>
           </div>
         </div>
       </div>
@@ -58,4 +59,4 @@ const Sidebar = (props: SidebarProps): HTMLElement => {
   );
 };
 
-export default connect(getState, {...actions, resetTerm})(Sidebar);
+export default connect(getState, {...actions, resetTerm, authBlockToggle})(Sidebar);

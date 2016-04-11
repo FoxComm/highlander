@@ -9,9 +9,9 @@ import { TextInput, TextInputWithLabel } from 'ui/inputs';
 import { FormField } from 'ui/forms';
 import Button from 'ui/buttons';
 import WrapToLines from 'ui/wrap-to-lines';
-import { Link } from 'react-router';
 
 import * as actions from 'modules/auth';
+import { authBlockTypes } from 'modules/auth';
 
 import type { HTMLElement } from 'types';
 
@@ -69,6 +69,18 @@ export default class Login extends Component {
     const { password, email } = this.state;
     const props = this.props;
 
+    const restoreLink = (
+      <a styleName="restore-link" onClick={() => props.changeAuthBlockType(authBlockTypes.RESTORE_PASSWORD)}>
+        forgot ?
+      </a>
+    );
+
+    const signupLink = (
+      <a styleName="signup-link" onClick={() => props.changeAuthBlockType(authBlockTypes.SIGNUP)}>
+        Sign Up
+      </a>
+    );
+
     return (
       <div>
         <div styleName="title">LOG IN</div>
@@ -84,14 +96,14 @@ export default class Login extends Component {
           </FormField>
           <FormField key="passwd" styleName="form-field" error={!!this.state.error}>
             <TextInputWithLabel placeholder="PASSWORD"
-              label={!password && <Link styleName="restore-link" to="/password/restore">forgot ?</Link>}
+              label={!password && restoreLink}
               value={password} onChange={this.onChangePassword} type="password"
             />
           </FormField>
           <Button styleName="primary-button" isLoading={props.isLoading} onClick={this.authenticate}>LOG IN</Button>
         </form>
         <div styleName="switch-stage">
-          Don’t have an account? <Link styleName="signup-link" to="/signup">Sign Up</Link>
+          Don’t have an account? {signupLink}
         </div>
       </div>
     );

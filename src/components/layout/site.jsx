@@ -11,7 +11,7 @@ import Login from '../pages/auth/login';
 
 
 const mapState = state => ({
-  isAuthBlockVisible: state.auth.isAuthBlockVisible
+  isAuthBlockVisible: state.auth.isAuthBlockVisible,
 });
 
 /* ::`*/
@@ -24,9 +24,9 @@ class Site extends Component {
         {this.props.children}
         {this.props.isAuthBlockVisible && <Overlay><Auth><Login /></Auth></Overlay>}
       </div>
-    )
+    );
   }
-};
+}
 
 Site.propTypes = {
   children: PropTypes.node,

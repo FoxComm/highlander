@@ -6,10 +6,11 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { routeActions } from 'react-router-redux';
 
+import { changeAuthBlockType, authBlockTypes } from 'modules/auth';
+
 import { TextInput } from 'ui/inputs';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
-import { Link } from 'react-router';
 
 import type { HTMLElement } from 'types';
 
@@ -20,7 +21,7 @@ type RestoreState = {
 };
 
 /* ::`*/
-@connect()
+@connect(null, { changeAuthBlockType })
 /* ::`*/
 export default class RestorePassword extends Component {
 
@@ -31,6 +32,7 @@ export default class RestorePassword extends Component {
     submitting: PropTypes.bool.isRequired,
     error: PropTypes.string,
     dispatch: PropTypes.func,
+    changeAuthBlockType: PropTypes.func,
   };
 
   state: RestoreState = {
@@ -127,7 +129,7 @@ export default class RestorePassword extends Component {
     if (!emailSent) {
       return (
         <div styleName="switch-stage">
-          <Link to="/login">BACK TO LOG IN</Link>
+          <a onClick={() => this.props.changeAuthBlockType(authBlockTypes.LOGIN)}>BACK TO LOG IN</a>
         </div>
       );
     }
