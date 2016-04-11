@@ -93,9 +93,9 @@ const mapState = state => ({
 });
 
 export default connect(mapState, {
-  toggleSidebar, 
-  toggleCart, 
-  toggleSearch: toggleActive, 
-  authBlockToggle, 
-  resetTerm }
+  toggleSidebar,
+  toggleCart,
+  toggleSearch: toggleActive,
+  authBlockToggle,
+  resetTerm,
 })(localized(StoreFront));

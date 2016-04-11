@@ -99,7 +99,7 @@ export default class Login extends Component {
             <TextInput placeholder={t('EMAIL')} value={email} type="email" onChange={this.onChangeEmail} />
           </FormField>
           <FormField key="passwd" styleName="form-field" error={!!this.state.error}>
-            <TextInputWithLabel 
+            <TextInputWithLabel
               placeholder="PASSWORD"
               label={!password && restoreLink}
               value={password} onChange={this.onChangePassword} type="password"
