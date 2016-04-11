@@ -6,6 +6,7 @@ import com.sksamuel.elastic4s.mappings.FieldType._
 
 import consumer.aliases._
 import consumer.elastic.AvroTransformer
+import consumer.elastic.MappingHelpers._
 
 final case class ProductsSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("products_search_view").fields(
