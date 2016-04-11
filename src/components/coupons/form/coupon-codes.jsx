@@ -74,16 +74,10 @@ export default class CouponCodes extends Component {
           </div>
         </div>
         <div styleName="form-group">
-          <label htmlFor="downloadCSVCheckbox">
-            <Checkbox id="downloadCSVCheckbox"/>
-            <span>Download a CSV file of the coupon codess</span>
-          </label>
+          <Checkbox id="downloadCSVCheckbox">Download a CSV file of the coupon codess</Checkbox>
         </div>
         <div styleName="form-group">
-          <label htmlFor="emailCSVCheckbox">
-            <Checkbox id="emailCSVCheckbox"/>
-            <span>Email a CSV file of the coupon codes to other users</span>
-          </label>
+          <Checkbox id="emailCSVCheckbox">Email a CSV file of the coupon codes to other users</Checkbox>
         </div>
         <PrimaryButton type="button">Generate Codes</PrimaryButton>
       </div>
