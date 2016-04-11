@@ -75,26 +75,24 @@ object CustomDirectives {
    */
   def determineObjectContext(implicit db: DB, ec: EC) : Directive1[ObjectContext] = {
     optionalHeaderValueByName("Accept-Language").flatMap {
-      case Some(lang) ⇒  onSuccess(getContextByLanguage(lang).map { 
-        case Some(c) ⇒  c
-        case None ⇒ throw new Exception(s"Unable to find context with language $lang.")
-      })
-      case None ⇒ 
-        onSuccess(getContextByName(DefaultContextName).map {
-          case Some(c) ⇒  c
-          case None ⇒ throw new Exception("Unable to find default context. Is the DB seeded?")
-        })
+      case Some(lang) ⇒  onSuccess(getContextByLanguage(lang))
+      case None ⇒ onSuccess(getContextByName(DefaultContextName))
     }
   }
 
   private def getContextByName(name: String)(implicit db: DB, ec: EC) = 
-    db.run(ObjectContexts.filterByName(name).result.headOption)
+    db.run(ObjectContexts.filterByName(name).result.headOption).map { 
+      case Some(c) ⇒  c
+      case None ⇒ throw new Exception("Unable to find default context. Is the DB seeded?")
+    }
 
   //This is a really trivial version. We are not handling language weights, 
   //and multiple options.
   private def getContextByLanguage(lang: String)(implicit db: DB, ec: EC) = 
-    db.run(ObjectContexts.filterByLanguage(lang).result.headOption)
-
+    db.run(ObjectContexts.filterByLanguage(lang).result.headOption).flatMap { 
+      case Some(c) ⇒ Future{c}
+      case None ⇒  getContextByName(DefaultContextName)
+    }
 
   def sortAndPage: Directive1[SortAndPage] =
     parameters(('from.as[Int].?, 'size.as[Int].?, 'sortBy.as[String].?)).as(SortAndPage)
