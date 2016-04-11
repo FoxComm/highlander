@@ -231,8 +231,8 @@ export default class Offer extends Component {
     return (
       <div>
         <div styleName="header">Discounted Items</div>
-        <Checkbox styleName="attr-row">Exclude gift cards</Checkbox>
-        <Checkbox styleName="attr-row">Same as qualifying items</Checkbox>
+        <Checkbox id="offer-exclude-gc" styleName="attr-row">Exclude gift cards</Checkbox>
+        <Checkbox id="offer-items-same-as-q" styleName="attr-row">Same as qualifying items</Checkbox>
         <div styleName="discount-items">
           <strong styleName="discount-items-label">Discount the items</strong>
           <Dropdown value={this.state.discountItemsMode} onChange={this.handleChangeDiscountItemsMode}>
