@@ -7,64 +7,64 @@ import { autobind } from 'core-decorators';
 import moment from 'moment';
 import _ from 'lodash';
 
+import { illuminateAttributes, setAttribute } from '../../paragons/form-shadow-object';
+
 import { Dropdown, DropdownItem } from '../dropdown';
 import DateTimePicker from '../date-time-picker/date-time-picker';
 import TextInput from '../forms/text-input';
 
-import type { FullProduct } from '../../modules/products/details';
-
-import {
-  getActiveFrom,
-  getActiveTo,
-} from '../../paragons/product';
-
 type Props = {
-  product: FullProduct,
-  onSetActive: (activeFrom: ?string, activeTo: ?string) => void,
+  form: FormAttributes,
+  shadow: ShadowAttributes,
+  onChange: (form: FormAttributes, shadow: ShadowAttributes) => void,
+  title: string,
 };
 
 type State = {
-  activeState: ?string,
   showActiveFromPicker: bool,
   showActiveToPicker: bool,
 };
 
 export default class ProductState extends Component<void, Props, State> {
-  state: State;
+  static propTypes = {
+    form: PropTypes.object.isRequired,
+    shadow: PropTypes.object.isRequired,
+    onChange: PropTypes.func.isRequired,
+    title: PropTypes.string,
+  };
 
-  constructor(props: Props) {
-    super(props);
+  state: State = { showActiveFromPicker: false, showActiveToPicker: false };
 
-    const activeState = this.isActive(this.activeFrom, this.activeTo) ? 'active' : 'inactive';
-
-    this.state = {
-      activeState,
-      showActiveFromPicker: !_.isEmpty(this.activeFrom),
-      showActiveToPicker: !_.isEmpty(this.activeTo),
-    };
+  get illuminatedAttributes(): IlluminatedAttributes {
+    return illuminateAttributes(this.props.form, this.props.shadow);
   }
 
   get activeFrom(): ?string {
-    return getActiveFrom(this.props.product);
+    const activeFrom = this.illuminatedAttributes.activeFrom;
+    if (activeFrom) {
+      return activeFrom.value;
+    }
   }
 
   get activeTo(): ?string {
-    return getActiveTo(this.props.product);
+    const activeTo = this.illuminatedAttributes.activeTo;
+    if (activeTo) {
+      return activeTo.value;
+    }
   }
 
   get activeFromPicker(): ?Element {
     if (this.state.showActiveFromPicker) {
+      const activePhrase = `${this.props.title} will be active on:`;
       return (
         <div className="fc-product-state__picker">
-          <div className="fc-product-state__picker-header">
-            Product will be active on:
-          </div>
+          <div className="fc-product-state__picker-header">{activePhrase}</div>
           <div className="fc-product-state__picker-label">
             Start
           </div>
           <DateTimePicker
             dateTime={this.activeFrom}
-            onSetDate={(v) => console.log(v)}
+            onChange={(v) => this.handleChange('activeFrom', v)}
             onCancel={this.handleCancelFrom} />
         </div>
       );
@@ -77,7 +77,7 @@ export default class ProductState extends Component<void, Props, State> {
         ? (
           <DateTimePicker
             dateTime={this.activeTo}
-            onSetDate={(v) => console.log(v)}
+            onChange={(v) => this.handleChange('activeTo', v)}
             onCancel={this.handleCancelTo} />
         )
         : <a onClick={this.handleShowActiveTo}><i className="icon-add" /></a>;
@@ -93,14 +93,16 @@ export default class ProductState extends Component<void, Props, State> {
     }
   }
 
-  isActive(activeFrom: ?string, activeTo: ?string): bool {
+  get isActive(): bool {
     const now = moment();
+    const activeFrom = this.activeFrom ? moment.utc(this.activeFrom) : null;
+    const activeTo = this.activeTo ? moment.utc(this.activeTo) : null;
 
     if (!activeFrom) {
       return false;
-    } else if (now.diff(activeFrom) > 0) {
+    } else if (now.diff(activeFrom) < 0) {
       return false;
-    } else if (activeTo && now.diff(activeTo) < 0) {
+    } else if (activeTo && now.diff(activeTo) > 0) {
       return false;
     }
 
@@ -108,28 +110,36 @@ export default class ProductState extends Component<void, Props, State> {
   }
 
   @autobind
+  handleChange(label: string, value: ?string) {
+    const { form, shadow } = this.props;
+    const [newForm, newShadow] = setAttribute(label, 'datetime', value, form, shadow);
+    this.props.onChange(newForm, newShadow);
+  }
+
+  @autobind
   handleActiveChange(value: string) {
     const now = moment().utc().format('YYYY-MM-DDTHH:mm:ss.SSS');
-    const action = value == 'active'
-      ? () => this.props.onSetActive(now, null)
-      : () => this.props.onSetActive(null, null);
-
-    this.setState({ activeState: value }, action);
+    const activeFrom = value == 'active' ? now : null;
+    this.handleChange('activeFrom', activeFrom);
   }
 
   @autobind
   handleCancelFrom() {
+    const { form, shadow } = this.props;
+    const [newForm, newShadow] = setAttribute('activeFrom', 'datetime', null, form, shadow);
+    const [finalForm, finalShadow] = setAttribute('activeTo', 'datetime', null, newForm, newShadow);
+
     this.setState({
       showActiveFromPicker: false,
       showActiveToPicker: false,
-    });
+    }, () => this.props.onChange(finalForm, finalShadow));
   }
 
   @autobind
   handleCancelTo() {
     this.setState({
       showActiveToPicker: false,
-    });
+    }, () => this.handleChange('activeTo', null));
   }
 
   @autobind
@@ -142,12 +152,13 @@ export default class ProductState extends Component<void, Props, State> {
 
 
   get activeDropdown(): Element {
+    const activeState = this.isActive ? 'active' : 'inactive';
     const isDisabled = this.state.showActiveFromPicker;
     return (
       <Dropdown
         className="fc-product-state__active-state"
         disabled={isDisabled}
-        value={this.state.activeState}
+        value={activeState}
         onChange={this.handleActiveChange}>
         <DropdownItem value="active">Active</DropdownItem>
         <DropdownItem value="inactive">Inactive</DropdownItem>
@@ -157,10 +168,17 @@ export default class ProductState extends Component<void, Props, State> {
 
   @autobind
   handleClickCalendar() {
-    this.setState({
-      showActiveFromPicker: true,
-      showActiveToPicker: false,
-    });
+    if (this.state.showActiveFromPicker) {
+      this.setState({
+        showActiveFromPicker: false,
+        showActiveToPicker: false,
+      });
+    } else {
+      this.setState({
+        showActiveFromPicker: true,
+        showActiveToPicker: !_.isNull(this.activeTo) && !_.isUndefined(this.activeTo),
+      });
+    }
   }
 
   @autobind

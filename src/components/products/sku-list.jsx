@@ -59,12 +59,14 @@ export default class SkuList extends Component<void, Props, void> {
     };
 
     return (
-      <MultiSelectTable
-        columns={tableColumns}
-        data={{ rows: this.illuminatedSkus }}
-        renderRow={renderRow}
-        emptyMessage="This product does not have any SKUs."
-        toggleColumnPresent={false} />
+      <div className="fc-sku-list">
+        <MultiSelectTable
+          columns={tableColumns}
+          data={{ rows: this.illuminatedSkus }}
+          renderRow={renderRow}
+          emptyMessage="This product does not have any SKUs."
+          toggleColumnPresent={false} />
+      </div>
     );
   }
 

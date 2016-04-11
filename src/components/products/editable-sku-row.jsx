@@ -41,7 +41,11 @@ export default class EditableSkuRow extends Component<void, Props, State> {
   priceCell(sku: IlluminatedSku, field: string): Element {
     const value = _.get(this.state.sku, field) || _.get(sku, ['attributes', field, 'value', 'value']);
     const onChange = (value) => this.handleUpdatePrice(field, value);
-    return <CurrencyInput value={value} onChange={onChange} />;
+    return (
+      <div className="fc-editable-sku-row__price">
+        <CurrencyInput value={value} onChange={onChange} />
+      </div>
+    );
   }
 
   @autobind

@@ -35,6 +35,7 @@ const tableColumns: Array<Column> = [
   { field: 'id', text: 'Product ID', type: null },
   { field: 'image', text: 'Image', type: 'image' },
   { field: 'title', text: 'Name', type: null },
+  { field: 'state', text: 'State', type: null },
 ];
 
 export class Products extends Component<void, Props, void> {

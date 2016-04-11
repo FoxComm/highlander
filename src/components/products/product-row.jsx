@@ -1,16 +1,37 @@
 import React, { PropTypes } from 'react';
-
+import moment from 'moment';
 import _ from 'lodash';
 import { transitionTo } from '../../route-helpers';
 
 import MultiSelectRow from '../table/multi-select-row';
 
-function setCellContents(product, field) {
-  if (field === 'image') {
-    return _.get(product, ['images', 0]);
+function isActive(activeFrom, activeTo) {
+  const now = moment();
+
+  if (!activeFrom) {
+    return false;
+  } else if (now.diff(activeFrom) < 0) {
+    return false;
+  } else if (activeTo && now.diff(activeTo) > 0) {
+    return false;
   }
 
-  return _.get(product, field);
+  return true;
+}
+
+function setCellContents(product, field) {
+  switch (field) {
+    case 'image':
+      return _.get(product, ['images', 0]);
+    case 'state':
+      const activeFromStr = _.get(product, 'activefrom');
+      const activeToStr = _.get(product, 'activeto');
+      const activeFrom = activeFromStr ? moment.utc(activeFromStr) : null;
+      const activeTo = activeToStr ? moment.utc(activeToStr) : null;
+      return isActive(activeFrom, activeTo) ? 'Active' : 'Inactive';
+    default:
+      return _.get(product, field);
+  }
 }
 
 const ProductRow = (props, context) => {
