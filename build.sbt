@@ -89,8 +89,8 @@ lazy val phoenixScala = (project in file(".")).
       val scalaTestV = "2.2.6"
       val monocleV   = "1.2.0"
       val json4sV    = "3.3.0"
-      val logbackV   = "1.1.5"
-      val skickPgV    = "0.12.0"
+      val logbackV   = "1.1.7"
+      val slickPgV   = "0.12.1"
 
       Seq(
         // Akka
@@ -111,25 +111,25 @@ lazy val phoenixScala = (project in file(".")).
         // Database
         "com.typesafe.slick"         %% "slick"                  % slickV,
         "com.typesafe.slick"         %% "slick-hikaricp"         % slickV,
-        "com.github.tminglei"        %% "slick-pg"               % skickPgV,
-        "com.github.tminglei"        %% "slick-pg_json4s"        % skickPgV,
-        "com.zaxxer"                 %  "HikariCP"               % "2.4.3"    % "provided",
+        "com.github.tminglei"        %% "slick-pg"               % slickPgV,
+        "com.github.tminglei"        %% "slick-pg_json4s"        % slickPgV,
+        "com.zaxxer"                 %  "HikariCP"               % "2.4.5"    % "provided",
         "org.postgresql"             %  "postgresql"             % "9.4.1208",
-        "org.flywaydb"               %  "flyway-core"            % "3.2.1",
-        "com.github.mauricio"        %% "postgresql-async"       % "0.2.18",
+        "org.flywaydb"               %  "flyway-core"            % "4.0",
+        "com.github.mauricio"        %% "postgresql-async"       % "0.2.19",
         // Validations
         "com.wix"                    %% "accord-core"            % "0.5",
         "org.scalactic"              %% "scalactic"              % "2.2.6",
         // Auth
-        "org.bitbucket.b_c"          %  "jose4j"                  % "0.4.4",
+        "org.bitbucket.b_c"          %  "jose4j"                 % "0.5.0",
         "com.lambdaworks"            %  "scrypt"                 % "1.4.0",
         // Logging
         "ch.qos.logback"             %  "logback-core"           % logbackV,
         "ch.qos.logback"             %  "logback-classic"        % logbackV,
         // Other
        ("org.spire-math"             %% "cats"                   % "0.3.0").excludeAll(noScalaCheckPlease),
-        "com.stripe"                 %  "stripe-java"            % "1.45.0",
-        "org.slf4j"                  %  "slf4j-api"              % "1.7.16",
+        "com.stripe"                 %  "stripe-java"            % "2.0.0",
+        "org.slf4j"                  %  "slf4j-api"              % "1.7.21",
         "org.joda"                   %  "joda-money"             % "0.11",
         "com.pellucid"               %% "sealerate"              % "0.0.3",
         "com.github.julien-truffaut" %% "monocle-core"           % monocleV,
