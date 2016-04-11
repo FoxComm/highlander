@@ -5,6 +5,8 @@ select
     f.attributes->>(s.attributes->'title'->>'ref') as title,
     f.attributes->(s.attributes->'images'->>'ref') as images,
     f.attributes->>(s.attributes->'description'->>'ref') as description,
+    f.attributes->>(s.attributes->'activeFrom'->>'ref') as activeFrom,
+    f.attributes->>(s.attributes->'activeTo'->>'ref') as activeTo,
     link.skus as skus
 from 
 	products as p, 
