@@ -33,3 +33,21 @@
 - name: Setup Unprivileged
   command: /usr/sbin/usermod -a -G systemd-journal {{ user }}
   sudo: true
+
+- name: Create Swap File
+  shell: "dd if=/dev/zero of={{ swap_file }} bs=1048576 count={{ swap_size_mb }}"
+  sudo: true
+  args:
+      creates: "{{ swap_file }}"
+
+- name: Change swap file permissions
+  file: path="{{ swap_file}}" owner=root group=root mode=0600
+  sudo: true
+
+- name: Make Swap File
+  shell: "sudo mkswap {{ swap_file }} || true"
+  sudo: true
+
+- name: Mount Swap
+  shell: "swapon {{ swap_file }} || true"
+  sudo: true
