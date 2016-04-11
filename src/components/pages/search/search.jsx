@@ -17,9 +17,16 @@ type SearchParams = {
   term: string;
 }
 
+type SearchResult = {
+  total: number,
+  pagination: { total: number },
+  max_score: number,
+  result: Array<Product>,
+};
+
 type SearchProps = Localized & {
   term: string;
-  results: Array<Product>;
+  results: SearchResult;
   params: SearchParams;
   setTerm: Function;
   fetch: Function;
@@ -50,7 +57,7 @@ class Search extends Component {
         <p styleName="search-title">
           <span styleName="search-title__uppercase">{t('Search results for')}</span> "{term}"
         </p>
-        <ProductsList list={results}/>
+        <ProductsList list={results.result}/>
       </div>
     );
   }

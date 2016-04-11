@@ -19,7 +19,7 @@ import { setTerm, toggleActive } from 'modules/search';
 type SearchProps = Localized & {
   isActive: boolean;
   term: string,
-  results: Array<Product>,
+  result: Array<Product>,
   toggleActive: Function,
   onSearch: Function,
   setTerm: Function,

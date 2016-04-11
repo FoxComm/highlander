@@ -9,7 +9,7 @@ import styles from './products-list.css';
 import ListItem from '../products-item/list-item';
 
 type ProductsListParams = {
-  list: Array<Product>;
+  list: ?Array<Product>;
 }
 
 const ProductsList = (props:ProductsListParams):HTMLElement => {
