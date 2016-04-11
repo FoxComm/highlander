@@ -1,7 +1,9 @@
 package services.assignments
 
+import akka.http.scaladsl.server.Directives._
+
 import cats.implicits._
-import failures.{AlreadyAssignedFailure, AssigneeNotFound, NotAssignedFailure, NotFoundFailure404}
+import failures.{AlreadyAssignedFailure, AssigneeNotFoundFailure, NotAssignedFailure, NotFoundFailure404}
 import failures.Util._
 import models.Assignment._
 import models.{Assignment, Assignments, NotificationSubscription, StoreAdmin, StoreAdmins}
@@ -12,6 +14,7 @@ import responses.StoreAdminResponse.{build ⇒ buildAdmin}
 import responses.BatchMetadata._
 import services._
 import slick.driver.PostgresDriver.api._
+import utils.CustomDirectives._
 import utils.DbResultT._
 import utils.ModelWithIdParameter
 import utils.DbResultT.implicits._
@@ -37,18 +40,13 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   def fetchSequence(keys: Seq[K])(implicit ec: EC, db: DB, ac: AC): DbResult[Seq[M]]
   def buildResponse(model: M): ResponseItem
 
-  private def fetchAssignments(entity: M)(implicit ec: EC, db: DB) = for {
-    assignments ← Assignments.byEntity(assignmentType, entity, referenceType).result
-    admins      ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.storeAdminId))).result
-  } yield assignments.zip(admins)
-
-  // Define this in inherit object
+  // Metadata helpers
   val assignmentType: AssignmentType
   val referenceType: ReferenceType
   val notifyDimension: String
   val notifyReason: NotificationSubscription.Reason
 
-  // Use this methods wherever you want
+  // Use methods below in your endpoints
   def list(key: K)(implicit ec: EC, db: DB, ac: AC): Result[Seq[Root]] = (for {
     entity      ← * <~ fetchEntity(key)
     assignments ← * <~ fetchAssignments(entity).toXor
@@ -71,7 +69,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     notFoundAdmins = diffToFailures(payload.assignees, adminIds, StoreAdmin)
     // Activity log + notifications subscription
     _         ← * <~ LogActivity.assigned(originator, entity, assignedAdmins, assignmentType, referenceType)
-    _         ← * <~ subscribe(adminIds = assignedAdmins.map(_.id), objectIds = Seq(key.toString))
+    _         ← * <~ subscribe(this, assignedAdmins.map(_.id), Seq(key.toString))
   } yield TheResponse.build(response, errors = notFoundAdmins)).runTxn()
 
   def unassign(key: K, assigneeId: Int, originator: StoreAdmin)
@@ -80,14 +78,14 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     entity     ← * <~ fetchEntity(key)
     admin      ← * <~ StoreAdmins.mustFindById404(assigneeId)
     querySeq   = Assignments.byEntityAndAdmin(assignmentType, entity, referenceType, admin)
-    assignment ← * <~ querySeq.one.mustFindOr(AssigneeNotFound(entity, key, assigneeId))
+    assignment ← * <~ querySeq.one.mustFindOr(AssigneeNotFoundFailure(entity, key, assigneeId))
     _          ← * <~ querySeq.delete
     // Response builder
     assignments    ← * <~ fetchAssignments(entity).toXor
     response       = assignments.map((buildAssignment _).tupled)
     // Activity log + notifications subscription
     _         ← * <~ LogActivity.unassigned(originator, entity, admin, assignmentType, referenceType)
-    _         ← * <~ unsubscribe(adminIds = Seq(assigneeId), objectIds = Seq(key.toString))
+    _         ← * <~ unsubscribe(this, adminIds = Seq(assigneeId), objectIds = Seq(key.toString))
   } yield response).runTxn()
 
   def assignBulk(originator: StoreAdmin, payload: BulkAssignmentPayload[K])
@@ -102,8 +100,8 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     _               ← * <~ Assignments.createAll(newEntries)
     // Response, log activity, notifications subscription
     (successData, theResponse) = buildTheResponse(entities, assignments, payload, Assigning)
-    _               ← * <~ logBulkAssign(originator, admin, successData)
-    _               ← * <~ subscribe(Seq(admin.id), successData)
+    _               ← * <~ logBulkAssign(this, originator, admin, successData)
+    _               ← * <~ subscribe(this, Seq(admin.id), successData)
   } yield theResponse).runTxn()
 
   def unassignBulk(originator: StoreAdmin, payload: BulkAssignmentPayload[K])
@@ -116,8 +114,8 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     _               ← * <~ querySeq.delete
     // Response, log activity, notifications subscription
     (successData, theResponse) = buildTheResponse(entities, assignments, payload, Unassigning)
-    _               ← * <~ logBulkUnassign(originator, admin, successData)
-    _               ← * <~ unsubscribe(Seq(admin.id), successData)
+    _               ← * <~ logBulkUnassign(this, originator, admin, successData)
+    _               ← * <~ unsubscribe(this, Seq(admin.id), successData)
   } yield theResponse).runTxn()
 
   private def buildTheResponse(entities: Seq[M], assignments: Seq[Assignment], payload: BulkAssignmentPayload[K],
@@ -127,7 +125,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     val entityTrio    = groupEntities(entities, assignments, payload, actionType)
     val successData   = getSuccessData(entityTrio)
     val failureData   = getFailureData(entityTrio, entities, payload.storeAdminId, actionType)
-    val batchMetadata = BatchMetadata(BatchMetadataSource(entities, successData, failureData))
+    val batchMetadata = BatchMetadata(BatchMetadataSource(referenceType, successData, failureData))
 
     (successData, TheResponse(result, errors = flattenErrors(failureData), batch = batchMetadata.some))
   }
@@ -147,19 +145,17 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   private def getFailureData(trio: EntityTrio, entities: Seq[M], storeAdminId: Int,
     actionType: ActionType): FailureData = {
 
-    val entityExample = entities.head // FIXME
-
     val notFoundFailures = trio.notFound.map { key ⇒
-      (key.toString, NotFoundFailure404(entityExample, key).description)
+      (key.toString, NotFoundFailure404(referenceType, key).description)
     }
 
     val skippedFailures = trio.skipped.map { e ⇒
       val searchKey = e.primarySearchKeyLens.get(e)
       actionType match {
         case Assigning ⇒
-          (searchKey, AlreadyAssignedFailure(entityExample, searchKey, storeAdminId).description)
+          (searchKey, AlreadyAssignedFailure(referenceType, searchKey, storeAdminId).description)
         case Unassigning ⇒
-          (searchKey, NotAssignedFailure(entityExample, searchKey, storeAdminId).description)
+          (searchKey, NotAssignedFailure(referenceType, searchKey, storeAdminId).description)
       }
     }
 
@@ -198,41 +194,11 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     }
   }
 
+  private def fetchAssignments(entity: M)(implicit ec: EC, db: DB) = for {
+    assignments ← Assignments.byEntity(assignmentType, entity, referenceType).result
+    admins      ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.storeAdminId))).result
+  } yield assignments.zip(admins)
+
   private def searchKeys(entities: Seq[M]): Seq[String] = entities.map(searchKey)
   private def searchKey(entity: M) = entity.primarySearchKeyLens.get(entity)
-
-  // Activities
-  private def logBulkAssign(originator: StoreAdmin, admin: StoreAdmin, keys: Seq[String])
-    (implicit ec: EC, db: DB, ac: AC) = {
-    if (keys.nonEmpty)
-      LogActivity.bulkAssigned(originator, admin, keys, assignmentType, referenceType)
-    else
-      DbResult.unit
-  }
-
-  private def logBulkUnassign(originator: StoreAdmin, admin: StoreAdmin, keys: Seq[String])
-    (implicit ec: EC, db: DB, ac: AC) = {
-    if (keys.nonEmpty)
-      LogActivity.bulkUnassigned(originator, admin, keys, assignmentType, referenceType)
-    else
-      DbResult.unit
-  }
-
-  // Notifications
-  private def subscribe(adminIds: Seq[Int], objectIds: Seq[String])
-    (implicit ec: EC, db: DB): DbResult[TheResponse[Option[Int]]] = {
-    if (objectIds.nonEmpty)
-      NotificationManager.subscribe(adminIds = adminIds, dimension = notifyDimension, reason = notifyReason,
-        objectIds = objectIds).value
-    else
-      DbResult.good(TheResponse(None))
-  }
-
-  private def unsubscribe(adminIds: Seq[Int], objectIds: Seq[String])
-    (implicit ec: EC, db: DB): DbResult[Unit] =
-    if (objectIds.nonEmpty)
-      NotificationManager.unsubscribe(adminIds = adminIds, dimension = notifyDimension, reason = notifyReason,
-        objectIds = objectIds).value
-    else
-      DbResult.unit
 }

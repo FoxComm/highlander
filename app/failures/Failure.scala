@@ -24,6 +24,10 @@ object NotFoundFailure404 {
   def apply[A](a: A, searchKey: Any): NotFoundFailure404 = {
     NotFoundFailure404(s"${friendlyClassName(a)} with ${searchTerm(a)}=$searchKey not found")
   }
+
+  def apply(className: String, searchTerm: String, searchKey: Any): NotFoundFailure404 = {
+    NotFoundFailure404(s"$className with $searchTerm=$searchKey not found")
+  }
 }
 
 final case class NotFoundFailure400(message: String) extends Failure {
@@ -57,13 +61,6 @@ final case class NotificationTrailNotFound400(adminId: Int) extends Failure {
 
 case object OpenTransactionsFailure extends Failure {
   override def description = "Open transactions should be canceled/completed"
-}
-
-object AssigneeNotFound {
-  def apply[A](a: A, searchKey: Any, assigneeId: Int): NotFoundFailure400 = {
-    NotFoundFailure400(s"storeAdmin with id=$assigneeId is not assigned to ${friendlyClassName(a)} " +
-      s"with ${searchTerm(a)}=$searchKey")
-  }
 }
 
 case object EmptyCancellationReasonFailure extends Failure {

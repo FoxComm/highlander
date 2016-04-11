@@ -1,11 +1,11 @@
 import cats.data._
 import cats.implicits._
+import models.Assignment
 import models.activity.Dimension
 import models.inventory.Sku
 import models.order.Order
 import models.payment.giftcard.GiftCard
 import models.rma.Rma
-import responses.BatchMetadata
 
 package object failures {
 
@@ -29,8 +29,8 @@ package object failures {
   object Util {
 
     def searchTerm[A](a: A): String = a match {
-      case Order | _: Order | Rma | _: Rma ⇒ "referenceNumber"
-      case GiftCard | _: GiftCard | Sku | _: Sku ⇒ "code"
+      case Order | _: Order | Rma | _: Rma | Assignment.Order | Assignment.Rma ⇒ "referenceNumber"
+      case GiftCard | _: GiftCard | Sku | _: Sku | Assignment.GiftCard | Assignment.Sku ⇒ "code"
       case Dimension | _: Dimension ⇒ "name"
       case _ ⇒ "id"
     }
