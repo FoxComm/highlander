@@ -1,6 +1,6 @@
 package services.assignments
 
-import models.Assignment
+import models.{Assignment, NotificationSubscription}
 import models.order._
 import responses.order.AllOrders._
 import slick.driver.PostgresDriver.api._
@@ -10,9 +10,10 @@ import utils.aliases._
 
 object OrderWatchersManager extends AssignmentsManager[String, Order] {
 
-  val assignmentType: Assignment.AssignmentType = Assignment.Watcher
-  val referenceType: Assignment.ReferenceType = Assignment.Order
-  val notifyDimension: String = models.activity.Dimension.order
+  val assignmentType  = Assignment.Watcher
+  val referenceType   = Assignment.Order
+  val notifyDimension = models.activity.Dimension.order
+  val notifyReason    = NotificationSubscription.Watching
 
   def buildResponse(model: Order): Root = build(model)
 

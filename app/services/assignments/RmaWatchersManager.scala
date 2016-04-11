@@ -1,6 +1,6 @@
 package services.assignments
 
-import models.Assignment
+import models.{Assignment, NotificationSubscription}
 import models.rma._
 import responses.AllRmas._
 import slick.driver.PostgresDriver.api._
@@ -10,9 +10,10 @@ import utils.aliases._
 
 object RmaWatchersManager extends AssignmentsManager[String, Rma] {
 
-  val assignmentType: Assignment.AssignmentType = Assignment.Watcher
-  val referenceType: Assignment.ReferenceType = Assignment.Rma
-  val notifyDimension: String = models.activity.Dimension.rma
+  val assignmentType  = Assignment.Watcher
+  val referenceType   = Assignment.Rma
+  val notifyDimension = models.activity.Dimension.rma
+  val notifyReason    = NotificationSubscription.Watching
 
   def buildResponse(model: Rma): Root = build(model)
 

@@ -1,6 +1,6 @@
 package services.assignments
 
-import models.Assignment
+import models.{Assignment, NotificationSubscription}
 import models.payment.giftcard._
 import responses.GiftCardResponse.{Root, build}
 import slick.driver.PostgresDriver.api._
@@ -10,9 +10,10 @@ import utils.aliases._
 
 object GiftCardAssignmentsManager extends AssignmentsManager[String, GiftCard] {
 
-  val assignmentType: Assignment.AssignmentType = Assignment.Assignee
-  val referenceType: Assignment.ReferenceType = Assignment.GiftCard
-  val notifyDimension: String = models.activity.Dimension.giftCard
+  val assignmentType  = Assignment.Assignee
+  val referenceType   = Assignment.GiftCard
+  val notifyDimension = models.activity.Dimension.giftCard
+  val notifyReason    = NotificationSubscription.Assigned
 
   def buildResponse(model: GiftCard): Root = build(model)
 

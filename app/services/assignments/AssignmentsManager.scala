@@ -35,6 +35,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   // Database helpers
   def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: AC): DbResult[M]
   def fetchSequence(keys: Seq[K])(implicit ec: EC, db: DB, ac: AC): DbResult[Seq[M]]
+  def buildResponse(model: M): ResponseItem
 
   private def fetchAssignments(entity: M)(implicit ec: EC, db: DB) = for {
     assignments ← Assignments.byEntity(assignmentType, entity, referenceType).result
@@ -45,13 +46,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   val assignmentType: AssignmentType
   val referenceType: ReferenceType
   val notifyDimension: String
-  def buildResponse(model: M): ResponseItem
-
-  // Add additional ADT members here if necessary
-  val notifyReason: NotificationSubscription.Reason = assignmentType match {
-    case Assignee ⇒ NotificationSubscription.Assigned
-    case Watcher ⇒ NotificationSubscription.Watching
-  }
+  val notifyReason: NotificationSubscription.Reason
 
   // Use this methods wherever you want
   def list(key: K)(implicit ec: EC, db: DB, ac: AC): Result[Seq[Root]] = (for {

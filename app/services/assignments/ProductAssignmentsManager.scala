@@ -1,6 +1,6 @@
 package services.assignments
 
-import models.Assignment
+import models.{Assignment, NotificationSubscription}
 import models.product._
 import responses.ProductResponses.ProductHeadResponse._
 import slick.driver.PostgresDriver.api._
@@ -10,9 +10,10 @@ import utils.aliases._
 
 object ProductAssignmentsManager extends AssignmentsManager[Int, Product] {
 
-  val assignmentType: Assignment.AssignmentType = Assignment.Assignee
-  val referenceType: Assignment.ReferenceType = Assignment.Product
-  val notifyDimension: String = models.activity.Dimension.product
+  val assignmentType  = Assignment.Assignee
+  val referenceType   = Assignment.Product
+  val notifyDimension = models.activity.Dimension.product
+  val notifyReason    = NotificationSubscription.Assigned
 
   def buildResponse(model: Product): Root = build(model)
 
