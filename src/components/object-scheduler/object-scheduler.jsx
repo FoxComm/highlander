@@ -55,7 +55,7 @@ export default class ProductState extends Component<void, Props, State> {
 
   get activeFromPicker(): ?Element {
     if (this.state.showActiveFromPicker) {
-      const activePhrase = `${this.props.title} will be active on:`
+      const activePhrase = `${this.props.title} will be active on:`;
       return (
         <div className="fc-product-state__picker">
           <div className="fc-product-state__picker-header">{activePhrase}</div>
