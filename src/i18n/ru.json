@@ -12,6 +12,21 @@
           "ВОЙТИ С GOOGLE"
         ]
       },
+      "or": {
+        "msgstr": [
+          "или"
+        ]
+      },
+      "EMAIL": {
+        "msgstr": [
+          "EMAIL"
+        ]
+      },
+      "PASSWORD": {
+        "msgstr": [
+          "ПАРОЛЬ"
+        ]
+      },
       "forgot?": {
         "msgstr": [
           "забыли?"

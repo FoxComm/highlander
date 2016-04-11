@@ -84,12 +84,12 @@ export default class Auth extends Component {
         <WrapToLines styleName="divider">{t('or')}</WrapToLines>
         <form>
           <FormField key="email" styleName="form-field" error={this.state.error}>
-            <TextInput placeholder="EMAIL" value={email} type="email" onChange={this.onChangeEmail} />
+            <TextInput placeholder={t('EMAIL')} value={email} type="email" onChange={this.onChangeEmail} />
           </FormField>
           <FormField key="passwd" styleName="form-field" error={!!this.state.error}>
             <TextInputWithLabel
-              placeholder="PASSWORD"
-              label={!password && <Link styleName="restore-link" to="/password/restore">{t('forgot ?')}</Link>}
+              placeholder={t('PASSWORD')}
+              label={!password && <Link styleName="restore-link" to="/password/restore">{t('forgot?')}</Link>}
               value={password} onChange={this.onChangePassword} type="password"
             />
           </FormField>
