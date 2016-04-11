@@ -191,14 +191,20 @@ lazy val gatling = (project in file("gatling")).
   dependsOn(phoenixScala).
   settings(
     commonSettings,
-    libraryDependencies += "io.gatling" % "gatling-app" % "2.1.7",
+    libraryDependencies ++= {
+      val gatlingV = "2.1.7"
+      Seq(
+        "io.gatling"            % "gatling-app"               % gatlingV,
+        "io.gatling.highcharts" % "gatling-charts-highcharts" % gatlingV
+      )
+    },
     aggregate in Test := false, // Do not mix unit and Gatling tests
     sourceDirectory in Gatling := baseDirectory.value / "src/main/scala",
     scalaSource in Gatling := baseDirectory.value / "src/main/scala",
     resourceDirectory in Gatling := baseDirectory.value / "resources",
-    mainClass in Gatling := Some("GatlingApp")
+    mainClass in Gatling := Some("seeds.GatlingApp")
   ).
   enablePlugins(GatlingPlugin)
 
 lazy val seedGatling = inputKey[Unit]("Seed DB with Gatling")
-seedGatling := { (runMain in Compile in gatling).partialInput(" GatlingApp").evaluated }
+seedGatling := { (runMain in Compile in gatling).partialInput(" seeds.GatlingApp").evaluated }
