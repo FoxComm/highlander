@@ -1,0 +1,33 @@
+
+.promotion-form {
+  lost-flex-container: column;
+}
+
+.main {
+  lost-column: 8/12;
+  padding-left: 1.85%;
+
+  & > div {
+    margin-bottom: 20px;
+  }
+}
+
+.aside {
+  lost-column: 4/12;
+}
+
+.field-label {
+  font-weight: 600;
+  line-height: 24px;
+  font-size: 16px;
+  margin-bottom: 10px;
+  margin-top: 20px;
+  color: #484848;
+  text-transform: capitalize;
+}
+
+.field-comment {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #909090;
+}

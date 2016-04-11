@@ -1,3 +1,4 @@
+
 /**
  * @flow
  */
@@ -13,6 +14,7 @@ import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
 import { SelectableSearchList } from '../list-page';
 import CouponRow from  './coupon-row';
+
 
 // redux
 import { actions } from '../../modules/coupons/list';

@@ -1,0 +1,23 @@
+
+.form-subset {
+  margin-left: 35px;
+}
+
+.field-comment {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #909090;
+}
+
+.full-width-field {
+  width: 100%;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group-title {
+  margin-bottom: 10px;
+  font-weight: 600;
+}
