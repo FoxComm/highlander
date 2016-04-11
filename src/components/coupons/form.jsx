@@ -32,7 +32,7 @@ export default class CouponForm extends Component {
       <div>
         <div styleName="field-label">
           <label htmlFor="promotionSelector">
-            Currency
+            Promotion
           </label>
         </div>
         <div>
