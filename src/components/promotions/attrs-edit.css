@@ -29,3 +29,23 @@
 
   margin: 1em 0 0.5em 0;
 }
+
+.discount-items {
+  display: flex;
+
+  & > * {
+    margin-right: 24px;
+
+    &:last-child {
+      flex-grow: 1;
+    }
+  }
+}
+
+.discount-items-label {
+  padding-top: 0.5em;
+}
+
+.wide-dropdown {
+  max-width: initial;
+}
