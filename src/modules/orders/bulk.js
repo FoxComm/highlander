@@ -10,10 +10,10 @@ import createStore from '../../lib/store-creator';
 // data
 import { initialState, reducers } from '../bulk';
 
-const getSuccesses = (referenceNumbers, bulkStatus) => {
+const getSuccesses = (entityIds, bulkStatus) => {
   const orderFailures = _.get(bulkStatus, 'failures.order', {});
 
-  return referenceNumbers
+  return entityIds
     .filter(referenceNumber => !(referenceNumber in orderFailures))
     .reduce((result, referenceNumber) => {
       return {
@@ -23,18 +23,18 @@ const getSuccesses = (referenceNumbers, bulkStatus) => {
     }, {});
 };
 
-const cancelOrders = (actions, referenceNumbers, reasonId) =>
+const cancelOrders = (actions, entityIds, reasonId) =>
   dispatch => {
     dispatch(actions.bulkRequest());
     Api.patch('/orders', {
-        referenceNumbers,
+        entityIds,
         reasonId,
         state: 'canceled',
       })
       .then(
         ({batch}) => {
           const errors = _.get(batch, 'failures.order');
-          dispatch(actions.bulkDone(getSuccesses(referenceNumbers, batch), errors));
+          dispatch(actions.bulkDone(getSuccesses(entityIds, batch), errors));
         },
         error => {
           dispatch(actions.bulkError(error));
@@ -42,17 +42,17 @@ const cancelOrders = (actions, referenceNumbers, reasonId) =>
       );
   };
 
-const changeOrdersState = (actions, referenceNumbers, state) =>
+const changeOrdersState = (actions, entityIds, state) =>
   dispatch => {
     dispatch(actions.bulkRequest());
     Api.patch('/orders', {
-        referenceNumbers,
+        entityIds,
         state,
       })
       .then(
         ({batch}) => {
           const errors = _.get(batch, 'failures.order');
-          dispatch(actions.bulkDone(getSuccesses(referenceNumbers, batch), errors));
+          dispatch(actions.bulkDone(getSuccesses(entityIds, batch), errors));
         },
         error => {
           dispatch(actions.bulkError(error));
@@ -61,22 +61,21 @@ const changeOrdersState = (actions, referenceNumbers, state) =>
   };
 
 const toggleWatchOrders = isDirectAction =>
-  (actions, group, referenceNumbers, watchers) =>
+  (actions, group, entityIds, watchers) =>
     dispatch => {
-      const groupMember = singularize(group);
-
       dispatch(actions.bulkRequest());
 
       const url = isDirectAction ? `/orders/${group}` : `/orders/${group}/delete`;
+      const storeAdminId = watchers[0];
 
       Api.post(url, {
-          referenceNumbers,
-          [`${groupMember}Id`]: watchers[0],
+          entityIds,
+          storeAdminId,
         })
         .then(
           ({batch}) => {
             const errors = _.get(batch, 'failures.order');
-            dispatch(actions.bulkDone(getSuccesses(referenceNumbers, batch), errors));
+            dispatch(actions.bulkDone(getSuccesses(entityIds, batch), errors));
           },
           error => {
             dispatch(actions.bulkError(error));
@@ -84,8 +83,6 @@ const toggleWatchOrders = isDirectAction =>
         );
     };
 
-export const watchOrders = toggleWatchOrders(true);
-export const unwatchOrders = toggleWatchOrders(false);
 
 const { actions, reducer } = createStore({
   entity: 'bulk',
