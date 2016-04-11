@@ -13,7 +13,7 @@ import { FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
 import ObjectForm from '../object-form/object-form';
 import ObjectFormInner from '../object-form/object-form-inner';
-import ProductState from '../products/product-state';
+import ObjectScheduler from '../object-scheduler/object-scheduler';
 import WaitAnimation from '../common/wait-animation';
 
 // types
@@ -78,12 +78,12 @@ export default class SkuDetails extends Component<void, Props, void> {
     );
   }
 
-  get productState(): Element {
+  get skuState(): Element {
     const formAttributes = _.get(this.props, 'sku.form.attributes', []);
     const shadowAttributes = _.get(this.props, 'sku.shadow.attributes', []);
 
     return (
-      <ProductState
+      <ObjectScheduler
         form={formAttributes}
         shadow={shadowAttributes}
         onChange={this.handleChange}
@@ -124,7 +124,7 @@ export default class SkuDetails extends Component<void, Props, void> {
             title="Pricing" />
         </div>
         <div className="fc-col-md-2-5">
-          {this.productState}
+          {this.skuState}
         </div>
       </div>
     );

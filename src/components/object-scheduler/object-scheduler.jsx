@@ -168,10 +168,17 @@ export default class ProductState extends Component<void, Props, State> {
 
   @autobind
   handleClickCalendar() {
-    this.setState({
-      showActiveFromPicker: true,
-      showActiveToPicker: !_.isNull(this.activeTo) && !_.isUndefined(this.activeTo),
-    });
+    if (this.state.showActiveFromPicker) {
+      this.setState({
+        showActiveFromPicker: false,
+        showActiveToPicker: false,
+      });
+    } else {
+      this.setState({
+        showActiveFromPicker: true,
+        showActiveToPicker: !_.isNull(this.activeTo) && !_.isUndefined(this.activeTo),
+      });
+    }
   }
 
   @autobind

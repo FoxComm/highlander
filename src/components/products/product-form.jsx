@@ -11,7 +11,7 @@ import _ from 'lodash';
 // components
 import ContentBox from '../content-box/content-box';
 import ObjectForm from '../object-form/object-form';
-import ProductState from './product-state';
+import ObjectScheduler from '../object-scheduler/object-scheduler';
 import SkuList from './sku-list';
 import VariantList from './variant-list';
 import WaitAnimation from '../common/wait-animation';
@@ -106,7 +106,7 @@ export default class ProductForm extends Component<void, Props, State> {
     const shadowAttributes = _.get(this.props, 'product.shadow.product.attributes', []);
 
     return (
-      <ProductState
+      <ObjectScheduler
         form={formAttributes}
         shadow={shadowAttributes}
         onChange={this.handleProductChange}
