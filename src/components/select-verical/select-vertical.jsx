@@ -24,20 +24,23 @@ export default class SelectVertical extends Component {
   };
 
   state = {
-    counter: 2,
-    items: this.initialItems,
+    items: this.addEmptyItemIfNeeded(this.props.initialItems),
   };
 
-  get initialItems() {
-    return _.isEmpty(this.props.initialItems) ? {1: null} : this.props.initialItems;
+  addEmptyItemIfNeeded(initialItems) {
+    return _.isEmpty(initialItems) ? {1: null} : initialItems;
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.initialItems && nextProps.initialItems !== this.props.initialItems) {
       this.setState({
-        items: nextProps.initialItems,
+        items: this.addEmptyItemIfNeeded(nextProps.initialItems),
       });
     }
+  }
+
+  get nextItemId() {
+    return _.size(this.state.items) + 1;
   }
 
   @autobind
@@ -49,8 +52,7 @@ export default class SelectVertical extends Component {
       return;
     }
     this.setState({
-      counter: this.state.counter + 1,
-      items: assoc(this.state.items, this.state.counter, null)
+      items: assoc(this.state.items, this.nextItemId, null)
     });
   }
 
