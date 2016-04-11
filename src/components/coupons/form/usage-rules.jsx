@@ -17,6 +17,21 @@ import styles from './styles.css';
 
 export default class UsageRules extends Component {
 
+  state = {
+    unlimitedUsagePerCode: false,
+    unlimitedUsagePerCustomer: false,
+  };
+
+  @autobind
+  setUnlimitedUsage() {
+    this.setState({unlimitedUsagePerCode: !this.state.unlimitedUsagePerCode});
+  }
+
+  @autobind
+  setUnlimitedCustomerUsage() {
+    this.setState({unlimitedUsagePerCustomer: !this.state.unlimitedUsagePerCustomer});
+  }
+
   render() {
     return (
       <ContentBox title="Usage Rules">
@@ -29,10 +44,14 @@ export default class UsageRules extends Component {
               <label>Max uses per coupon</label>
             </div>
             <div styleName="form-group">
-              <Checkbox id="couponUnlimitedUsage">Unlimited</Checkbox>
+              <Checkbox id="couponUnlimitedUsage"
+                onClick={this.setUnlimitedUsage}
+                checked={this.state.unlimitedUsagePerCode}>
+                Unlimited
+              </Checkbox>
             </div>
             <div>
-              <Counter id="couponUsesForCode" min={1} />
+              <Counter id="couponUsesForCode" disabled={this.state.unlimitedUsagePerCode} min={1} />
             </div>
           </div>
           <div styleName="field-comment">
@@ -45,10 +64,14 @@ export default class UsageRules extends Component {
               <label>Max uses per customer</label>
             </div>
             <div styleName="form-group">
-              <Checkbox id="couponCustomerUsage">Unlimited</Checkbox>
+              <Checkbox id="couponCustomerUsage"
+                onClick={this.setUnlimitedCustomerUsage}
+                checked={this.state.unlimitedUsagePerCustomer}>
+                Unlimited
+              </Checkbox>
             </div>
             <div>
-              <Counter id="couponUsesNumberForCustomer" min={1} />
+              <Counter id="couponUsesNumberForCustomer" disabled={this.state.unlimitedUsagePerCustomer} min={1} />
             </div>
           </div>
           <div styleName="field-comment">
