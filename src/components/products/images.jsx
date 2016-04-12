@@ -13,7 +13,7 @@ import { FormField } from '../forms';
 import ContentBox from '../content-box/content-box';
 
 // helpers
-import { getProductAttributes } from '../../paragons/product';
+import { getProductAttributes, setProductAttribute } from '../../paragons/product';
 
 // types
 import type {
@@ -22,42 +22,19 @@ import type {
 
 type Props = {
   product: FullProduct,
+  onUpdateProduct: (product: FullProduct) => void,
   onSetProperty: (field: string, type: string, value: any) => void,
 };
 
-type State = {
-  images: Array<?String>,
-};
-
-function setImages(props: Props): State {
-  const attributes = getProductAttributes(props.product);
-  const imageValue = _.get(attributes, 'images.value');
-  const value = imageValue || [ null ];
-  return { images: value };
-}
-
-export default class ProductImages extends Component<void, Props, State> {
+export default class ProductImages extends Component<void, Props, void> {
   static propTypes = {
     product: PropTypes.object.isRequired,
     onSetProperty: PropTypes.func.isRequired,
+    onUpdateProduct: PropTypes.func.isRequired,
   };
 
-  state: State;
-
-  constructor(props: Props, ...args: any) {
-    super(props, ...args);
-    this.state = setImages(this.props);
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    this.state = setImages(nextProps);
-  }
-
-
   get contentBox(): Element {
-    const { images } = this.state;
-
-    const imageControls = _.map(images, (val, idx) => {
+    const imageControls = _.map(this.images, (val, idx) => {
       return (
         <div className="fc-product-details__image">
           <FormField
@@ -88,16 +65,22 @@ export default class ProductImages extends Component<void, Props, State> {
     );
   }
 
+  get images(): Array<?string> {
+    const attributes = getProductAttributes(this.props.product);
+    return _.get(attributes, 'images.value', [ null ]);
+  }
+
   @autobind
   handleAddImage() {
-    this.setState({ images: [...this.state.images, null] });
+    const newImages = [...this.images, null];
+    this.updateImages(newImages);
   }
 
   @autobind
   handleRemoveImage(idx: number) {
     const images = [
-      ...this.state.images.slice(0, idx),
-      ...this.state.images.slice(idx + 1),
+      ...this.images.slice(0, idx),
+      ...this.images.slice(idx + 1),
     ];
 
     this.props.onSetProperty('images', 'images', images);
@@ -106,12 +89,17 @@ export default class ProductImages extends Component<void, Props, State> {
   @autobind
   handleUpdateImage(idx: number, event: Object) {
     const newImages = [
-      ...this.state.images.slice(0, idx),
+      ...this.images.slice(0, idx),
       event.target.value,
-      ...this.state.images.slice(idx + 1),
+      ...this.images.slice(idx + 1),
     ];
 
-    this.props.onSetProperty('images', 'images', newImages);
+    this.updateImages(newImages);
+  }
+
+  updateImages(images: Array<?string>) {
+    const product = setProductAttribute(this.props.product, 'images', 'images', images);
+    this.props.onUpdateProduct(product);
   }
 
   render(): Element {
