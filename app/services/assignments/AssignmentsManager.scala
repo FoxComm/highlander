@@ -68,7 +68,8 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     response       = assignments.map((buildAssignment _).tupled)
     notFoundAdmins = diffToFailures(payload.assignees, adminIds, StoreAdmin)
     // Activity log + notifications subscription
-    _         ← * <~ LogActivity.assigned(originator, entity, assignedAdmins, assignmentType, referenceType)
+    responseItem   = buildResponse(entity)
+    _         ← * <~ LogActivity.assigned(originator, responseItem, assignedAdmins, assignmentType, referenceType)
     _         ← * <~ subscribe(this, assignedAdmins.map(_.id), Seq(key.toString))
   } yield TheResponse.build(response, errors = notFoundAdmins)).runTxn()
 
@@ -84,7 +85,8 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     assignments    ← * <~ fetchAssignments(entity).toXor
     response       = assignments.map((buildAssignment _).tupled)
     // Activity log + notifications subscription
-    _         ← * <~ LogActivity.unassigned(originator, entity, admin, assignmentType, referenceType)
+    responseItem   = buildResponse(entity)
+    _         ← * <~ LogActivity.unassigned(originator, responseItem, admin, assignmentType, referenceType)
     _         ← * <~ unsubscribe(this, adminIds = Seq(assigneeId), objectIds = Seq(key.toString))
   } yield response).runTxn()
 
