@@ -10,7 +10,8 @@ select
     end as store_admin  
 from store_credits as sc
 left join store_credit_manuals as scm on (sc.origin_id = scm.id)
-left join store_admins as sa on (sa.id = scm.admin_id)
+left join store_credit_customs as scc on (sc.origin_id = scc.id)
+left join store_admins as sa on (sa.id = scm.admin_id OR sa.id = scc.admin_id)
 group by sc.id, sa.id;
 
 create unique index store_credit_admins_view_idx on store_credit_admins_view (id);
