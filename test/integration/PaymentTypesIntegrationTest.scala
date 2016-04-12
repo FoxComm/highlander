@@ -39,8 +39,8 @@ class PaymentTypesIntegrationTest extends IntegrationTestBase
         response.status must ===(StatusCodes.OK)
 
         val root = response.as[Seq[StoreCreditSubTypesResponse.Root]]
-        root.size must === (StoreCredit.OriginType.types.size)
-        root.map(_.originType) must === (StoreCredit.OriginType.types.toSeq)
+        root.size must === (StoreCredit.OriginType.publicTypes.size)
+        root.map(_.originType) must === (StoreCredit.OriginType.publicTypes.toSeq)
         root.filter(_.originType == scSubType.originType).head.subTypes must === (Seq(scSubType))
       }
     }
