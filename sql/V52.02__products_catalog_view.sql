@@ -1,7 +1,7 @@
 create materialized view products_catalog_view as
 select
     p.id,
-    f.id product_id,
+    f.id as product_id,
     context.name as context,
     f.attributes->>(s.attributes->'title'->>'ref') as title,
     f.attributes->(s.attributes->'images'->>'ref') as images,
