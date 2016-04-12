@@ -49,9 +49,10 @@ const tableColumns = [
 export default class Promotions extends Component {
 
   renderRow(): Function {
-    return (row: Object, index: number, columns: Array<any>, params: Object) => {
+    console.log('renderRow called');
+    return (row, index, columns, params) => {
       const key = `promotion-${row.id}`;
-
+      console.log('renderRow retunred function called');
       return (
         <PromotionRow
           promotion={row}
@@ -73,6 +74,7 @@ export default class Promotions extends Component {
 
   render(): Element {
     const {list, actions} = this.props;
+    console.log(this.props);
 
     const entity = 'promotion';
     const module = `${entity}s`;
@@ -91,7 +93,7 @@ export default class Promotions extends Component {
           <SelectableSearchList
             emptyMessage="No promotions found."
             list={list}
-            renderRow={this.renderRow}
+            renderRow={this.renderRow()}
             tableColumns={tableColumns}
             searchActions={actions}
           />

@@ -28,10 +28,11 @@ const setCellContents = (promotion: Object, field: string) => {
 };
 
 const PromotionRow = (props: PromotionRowProps, context: PromotionContext) => {
+  console.log(props);
   const { promotion, columns, params } = props;
   const key = `promotion-${promotion.id}`;
   const clickAction = () => {
-    transitionTo(context.history, 'promotion', { promotion: promotion.id });
+    transitionTo(context.history, 'promotion-details', { promotionId: promotion.id });
   };
 
   return (

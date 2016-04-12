@@ -28,7 +28,7 @@ const { reducer, actions } = makeLiveSearch(
   'promotions.list',
   searchTerms,
   'promotions_search_view/_search',
-  'promotionsScope',
+  'inventoryScope',
   {
     initialState: { sortBy: '-createdAt' }
   }
