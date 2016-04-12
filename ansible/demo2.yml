@@ -18,6 +18,7 @@
     - { role: rsyslog, sudo: yes }
     - { role: kibana, sudo: yes }
     - greenriver
+    - loyalty
 
 - name: Provision Demo Ashes
   hosts: demo2-ashes
