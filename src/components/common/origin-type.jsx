@@ -24,7 +24,7 @@ const OriginType = (props) => {
       let metadata = null;
       try {
         metadata = JSON.parse(props.value.metadata);
-        formattedType = metadata.title
+        formattedType = metadata.title;
       } catch (e) {}
       if (formattedType) break;
     default:
