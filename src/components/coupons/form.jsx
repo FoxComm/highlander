@@ -72,6 +72,7 @@ export default class CouponForm extends Component {
   }
 
   @autobind
+<<<<<<< 57aa60d238313e8a056992a9223af5fd2cd1c02e
   handleGenerateBulkCodes(prefix, length, quantity) {
     this.props.onGenerateBulkCodes(prefix, length, quantity);
   }
@@ -79,6 +80,12 @@ export default class CouponForm extends Component {
   @autobind
   handleChangeSingleCode(value) {
     this.props.onUpdateCouponCode(value);
+=======
+  handleUsageRulesChange(usageRules) {
+    const newForm = {...(this.props.coupon.form), usageRules};
+    const newCoupon = {...(this.props.coupon), form: newForm};
+    this.props.onUpdateCoupon(newCoupon);
+>>>>>>> wire up props and updates
   }
 
   get isNew() {
@@ -90,7 +97,6 @@ export default class CouponForm extends Component {
   }
 
   render() {
-    console.log(this.props);
     const formAttributes = _.get(this.props, 'coupon.form.attributes', []);
     const shadowAttributes = _.get(this.props, 'coupon.shadow.attributes', []);
 
@@ -111,7 +117,7 @@ export default class CouponForm extends Component {
             onGenerateBulkCodes={this.handleGenerateBulkCodes}
             onChangeSingleCode={this.handleChangeSingleCode}
           />
-          <UsageRules {...(this.usageRules)} />
+          <UsageRules {...(this.usageRules)} onChange={this.handleUsageRulesChange}/>
         </div>
         <div styleName="aside">
         </div>

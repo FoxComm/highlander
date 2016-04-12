@@ -13,14 +13,6 @@ function addEmptyUsageRules(coupon) {
     usesPerCustomer: 1,
   };
 
-  const usageRulesShadow = {
-    isExclusive: false,
-    isUnlimitedPerCode: false,
-    usesPerCode: 1,
-    isUnlimitedPerCustomer: false,
-    usesPerCustomer: 1,
-  };
-
   const updatedForm = {...form, usageRules: usageRulesForm};
   const updatedShadow = {...shadow};
 
