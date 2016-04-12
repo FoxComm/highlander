@@ -20,7 +20,8 @@ export default class CouponForm extends Component {
 
   get generalAttrs() {
     const toOmit = [
-      'qualifier'
+      'activeFrom',
+      'activeTo',
     ];
     const shadow = _.get(this.props, 'coupon.shadow.attributes', []);
     return _(shadow).omit(toOmit).keys().value();
@@ -32,14 +33,15 @@ export default class CouponForm extends Component {
       <div>
         <div styleName="field-label">
           <label htmlFor="promotionSelector">
-            Currency
+            Promotion
           </label>
         </div>
         <div>
           <Dropdown
             id="promotionSelector"
+            styleName="full-width"
             name="promotion"
-            items={[[3, 'Coupon promo']]}
+            items={[[2158, 'Coupon promo']]}
             placeholder="- Select -"
             value={id}
             onChange={(value) => this.handlePromotionChange(value)}
@@ -68,6 +70,10 @@ export default class CouponForm extends Component {
     this.props.onUpdateCoupon(coupon);
   }
 
+  get isNew() {
+    return this.props.entity.entityId === 'new';
+  }
+
   render() {
     const formAttributes = _.get(this.props, 'coupon.form.attributes', []);
     const shadowAttributes = _.get(this.props, 'coupon.shadow.attributes', []);
@@ -85,7 +91,7 @@ export default class CouponForm extends Component {
             />
             {this.promotionSelector}
           </ContentBox>
-          <CouponCodes />
+          <CouponCodes isNew={this.isNew} />
           <UsageRules />
         </div>
         <div styleName="aside">

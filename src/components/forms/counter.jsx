@@ -40,7 +40,6 @@ Counter.defaultProps = {
   value: 1,
   step: 1,
   min: 1,
-  max: 100
 };
 
 export default Counter;
