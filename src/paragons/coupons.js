@@ -1,6 +1,35 @@
 
 import _ from 'lodash';
-import { copyShadowAttributes, setAttribute } from './form-shadow-object';
+import { denormalize, setAttribute, addAttribute } from './form-shadow-object';
+
+function addEmptyUsageRules(coupon) {
+  const { form, shadow } = coupon;
+
+  const usageRulesForm = {
+    isExclusive: false,
+    isUnlimitedPerCode: false,
+    usesPerCode: 1,
+    isUnlimitedPerCustomer: false,
+    usesPerCustomer: 1,
+  };
+
+  const usageRulesShadow = {
+    isExclusive: false,
+    isUnlimitedPerCode: false,
+    usesPerCode: 1,
+    isUnlimitedPerCustomer: false,
+    usesPerCustomer: 1,
+  };
+
+  const updatedForm = {...form, usageRules: usageRulesForm};
+  const updatedShadow = {...shadow, usageRules: usageRulesShadow};
+
+  return {
+    ...coupon,
+    form: updatedForm,
+    shadow: updatedShadow
+  };
+}
 
 export function createEmptyCoupon() {
   const coupon = {
@@ -8,16 +37,18 @@ export function createEmptyCoupon() {
       id: null,
       createdAt: null,
       attributes: {},
+      usageRules: {},
     },
     shadow: {
       id: null,
       createdAt: null,
       attributes: {},
+      usageRules: {},
     },
     promotion: null
   };
 
-  return configureCoupon(coupon);
+  return addEmptyUsageRules(configureCoupon(coupon));
 }
 
 export function configureCoupon(coupon) {
@@ -30,7 +61,8 @@ export function configureCoupon(coupon) {
     details: 'richText',
   };
 
-  copyShadowAttributes(form.attributes, shadow.attributes);
+  denormalize(coupon);
+  denormalize(coupon, 'usageRules');
 
   _.each(defaultAttrs, (type, label) => {
     const formAttribute = _.get(coupon, ['form', 'attributes', label]);

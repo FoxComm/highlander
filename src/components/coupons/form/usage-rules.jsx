@@ -17,40 +17,68 @@ import styles from './styles.css';
 
 export default class UsageRules extends Component {
 
-  state = {
-    unlimitedUsagePerCode: false,
-    unlimitedUsagePerCustomer: false,
-    usesPerCode: 1,
-    usesPerCustomer: 1,
-  };
+  constructor(props, ...args) {
+    super(props, ...args);
+    this.state = {
+      isExclusive: props.isExclusive,
+      unlimitedUsagePerCode: props.isUnlimitedPerCode,
+      unlimitedUsagePerCustomer: props.unlimitedUsagePerCustomer,
+      usesPerCode: props.usesPerCode,
+      usesPerCustomer: props.usesPerCustomer,
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.state = {
+      isExclusive: nextProps.isExclusive,
+      unlimitedUsagePerCode: nextProps.isUnlimitedPerCode,
+      unlimitedUsagePerCustomer: nextProps.unlimitedUsagePerCustomer,
+      usesPerCode: nextProps.usesPerCode,
+      usesPerCustomer: nextProps.usesPerCustomer,
+    };
+  }
 
   @autobind
-  setUnlimitedUsage() {
+  toggleExclusiveness() {
+    this.setState({isExclusive: !this.isExclusive});
+  }
+
+  @autobind
+  toggleUnlimitedUsage() {
     this.setState({unlimitedUsagePerCode: !this.state.unlimitedUsagePerCode});
   }
 
   @autobind
-  setUnlimitedCustomerUsage() {
+  toggleUnlimitedCustomerUsage() {
     this.setState({unlimitedUsagePerCustomer: !this.state.unlimitedUsagePerCustomer});
   }
 
   @autobind
   handleUsesPerCodeChange(value) {
     const checkedValue = value < 1 ? 1 : value;
-    this.setState({usesPerCode: value});
+    this.setState({usesPerCode: checkedValue});
   }
 
   @autobind
   handleUsesPerCustomerChange(value) {
+    console.log(value);
     const checkedValue = value < 1 ? 1 : value;
-    this.setState({usesPerCustomer: value});
+    this.setState({usesPerCustomer: checkedValue});
   }
 
   render() {
+    console.log(this.props);
+    console.log('state');
+    console.log(this.state);
     return (
       <ContentBox title="Usage Rules">
         <div styleName="form-group">
-          <Checkbox id="couponIsExclusive">Coupon is exclusive</Checkbox>
+          <Checkbox
+            id="couponIsExclusive"
+            onClick={this.toggleExclusiveness}
+            checked={this.state.isExclusive}>
+            Coupon is exclusive
+          </Checkbox>
         </div>
         <div styleName="form-group">
           <div className="fc-form-field" styleName="form-group">
@@ -59,7 +87,7 @@ export default class UsageRules extends Component {
             </div>
             <div styleName="form-group">
               <Checkbox id="couponUnlimitedUsage"
-                onClick={this.setUnlimitedUsage}
+                onClick={this.toggleUnlimitedUsage}
                 checked={this.state.unlimitedUsagePerCode}>
                 Unlimited
               </Checkbox>
@@ -87,7 +115,7 @@ export default class UsageRules extends Component {
             </div>
             <div styleName="form-group">
               <Checkbox id="couponCustomerUsage"
-                onClick={this.setUnlimitedCustomerUsage}
+                onClick={this.toggleUnlimitedCustomerUsage}
                 checked={this.state.unlimitedUsagePerCustomer}>
                 Unlimited
               </Checkbox>

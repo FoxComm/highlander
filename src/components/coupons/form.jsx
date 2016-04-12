@@ -84,7 +84,12 @@ export default class CouponForm extends Component {
     return this.props.entity.entityId === 'new';
   }
 
+  get usageRules() {
+    return _.get(this.props, 'coupon.form.usageRules', {});
+  }
+
   render() {
+    console.log(this.props);
     const formAttributes = _.get(this.props, 'coupon.form.attributes', []);
     const shadowAttributes = _.get(this.props, 'coupon.shadow.attributes', []);
 
@@ -105,7 +110,7 @@ export default class CouponForm extends Component {
             onGenerateBulkCodes={this.handleGenerateBulkCodes}
             onChangeSingleCode={this.handleChangeSingleCode}
           />
-          <UsageRules />
+          <UsageRules {...(this.usageRules)} />
         </div>
         <div styleName="aside">
         </div>
