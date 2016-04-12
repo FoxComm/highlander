@@ -15,6 +15,7 @@
     - { role: rsyslog, sudo: yes }
     - { role: kibana, sudo: yes }
     - greenriver
+    - loyalty
 
 - name: Provision Ashes Stage
   hosts: ashes-stage
