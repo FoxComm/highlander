@@ -58,6 +58,24 @@ export function setAttribute(label: string,
   return [newForm, newShadow];
 }
 
+type AttributeSet = {
+  [label: string]: {
+    type: string;
+    value: any;
+  }
+}
+
+export function setAttributes(attrs: AttributeSet, form: FormAttributes, shadow: ShadowAttributes): FormShadowAttrsPair {
+  let newForm = form;
+  let newShadow = shadow;
+
+  _.each(attrs, ({type, value}, label) => {
+    [newForm, newShadow] = setAttribute(label, type, value, newForm, newShadow);
+  });
+
+  return [newForm, newShadow];
+}
+
 export function illuminateAttributes(form: FormAttributes,
                                      shadow: ShadowAttributes): IlluminatedAttributes {
   return _.reduce(shadow, (res, shadow, label) => {
