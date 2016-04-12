@@ -41,6 +41,101 @@
         "msgstr": [
           "Зарегистрироваться"
         ]
+      },
+      "Passwords must match": {
+        "msgstr": [
+          "Пароли должны совпадать"
+        ]
+      },
+      "Woohoo! Your password was successfully reset.": {
+        "msgstr": [
+          "Ура! Ваш пароль успешно восстановлен."
+        ]
+      },
+      "Your new password must be at least 8 characters long.": {
+        "msgstr": [
+          "Ваш новый пароль должен быть длиной не менее 8 символов"
+        ]
+      },
+      "NEW PASSWORD": {
+        "msgstr": [
+          "НОВЫЙ ПАРОЛЬ"
+        ]
+      },
+      "CONFIRM PASSWORD": {
+        "msgstr": [
+          "ПОДТВЕРЖДЕНИЕ ПАРОЛЯ"
+        ]
+      },
+      "BACK TO LOG IN": {
+        "msgstr": [
+          "НАЗАД К ВХОДУ"
+        ]
+      },
+      "RESET PASSWORD": {
+        "msgstr": [
+          "ВОССТАНОВИТЬ ПАРОЛЬ"
+        ]
+      },
+      "Oops! We don’t have a user with that email. Please check your entry and try again.": {
+        "msgstr": [
+          "Опаньки! У нас нет пользователя с таким email. Проверьте введенный адрес и попробуйте еще раз."
+        ]
+      },
+      "A user with this email does not exist.": {
+        "msgstr": [
+          "Пользователь с таким email не зарегистрирован"
+        ]
+      },
+      "An email with reset instructions was successfully sent to": {
+        "msgstr": [
+          "Письмо с инструкциями по восстановлению пароля было успешно отправлено на адрес"
+        ]
+      },
+      "No worries! We’ll email you instructions on how to reset your password.": {
+        "msgstr": [
+          "Не парьтесь! Мы отправим Вам инструкцию по восстановлению пароля."
+        ]
+      },
+      "SUBMIT": {
+        "msgstr": [
+          "ОК"
+        ]
+      },
+      "FORGOT PASSWORD": {
+        "msgstr": [
+          "ВОССТАНОВЛЕНИЕ ПАРОЛЯ"
+        ]
+      },
+      "SIGN UP": {
+        "msgstr": [
+          "ЗАРЕГИСТРИРОВАТЬСЯ"
+        ]
+      },
+      "SIGN UP WITH GOOGLE": {
+        "msgstr": [
+          "ЗАРЕГИСТРИРОВАТЬСЯ С GOOGLE"
+        ]
+      },
+      "FIRST & LAST NAME": {
+        "msgstr": [
+          "ИМЯ & ФАМИЛИЯ"
+        ]
+      },
+      "CREATE PASSWORD": {
+        "msgstr": [
+          "ПАРОЛЬ"
+        ]
+      },
+      "Already have an account?": {
+        "msgstr": [
+          "Уже есть аккаунт?"
+        ]
+      },
+      "Log in": {
+        "msgstr": [
+          "Войти"
+        ]
       }
     }
   }

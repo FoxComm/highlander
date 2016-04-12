@@ -7,6 +7,8 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { browserHistory, Link } from 'react-router';
 
+import localized from 'lib/i18n';
+
 import { TextInput, TextInputWithLabel } from 'ui/inputs';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
@@ -28,6 +30,7 @@ type AuthState = {
 
 /* ::`*/
 @connect(null, actions)
+@localized
 /* ::`*/
 export default class Auth extends Component {
   static propTypes = {
@@ -92,20 +95,21 @@ export default class Auth extends Component {
 
   render(): HTMLElement {
     const { email, password, username, emailError, usernameError } = this.state;
+    const { t } = this.props;
 
     const loginLink =
-      <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.LOGIN}}}>Log in</Link>;
+      <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.LOGIN}}}>{t('Log in')}</Link>;
 
     return (
       <div>
-        <div styleName="title">SIGN UP</div>
-        <Button icon="fc-google" type="button" styleName="google-login">SIGN UP WITH GOOGLE</Button>
-        <WrapToLines styleName="divider">or</WrapToLines>
+        <div styleName="title">{t('SIGN UP')}</div>
+        <Button icon="fc-google" type="button" styleName="google-login">{t('SIGN UP WITH GOOGLE')}</Button>
+        <WrapToLines styleName="divider">{t('or')}</WrapToLines>
         <Form onSubmit={this.submitUser} >
           <FormField key="username" styleName="form-field" error={usernameError}>
             <TextInput
               required
-              placeholder="FIRST & LAST NAME"
+              placeholder={t('FIRST & LAST NAME')}
               name="username"
               value={username}
               onChange={this.onChangeUsername}
@@ -114,7 +118,7 @@ export default class Auth extends Component {
           <FormField key="email" styleName="form-field" error={emailError}>
             <TextInput
               required
-              placeholder="EMAIL"
+              placeholder={t('EMAIL')}
               name="email"
               value={email}
               type="email"
@@ -124,17 +128,17 @@ export default class Auth extends Component {
           <FormField key="passwd" styleName="form-field">
             <TextInputWithLabel
               required
-              placeholder="CREATE PASSWORD"
+              placeholder={t('CREATE PASSWORD')}
               name="password"
               value={password}
               onChange={this.onChangePassword}
               type="password"
             />
           </FormField>
-          <Button styleName="primary-button" type="submit">SIGN UP</Button>
+          <Button styleName="primary-button" type="submit">{t('SIGN UP')}</Button>
         </Form>
         <div styleName="switch-stage">
-          Already have an account? {loginLink}
+          {t('Already have an account?')} {loginLink}
         </div>
       </div>
     );
