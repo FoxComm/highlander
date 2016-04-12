@@ -1,6 +1,6 @@
 
 .promotion-form {
-  lost-flex-container: column;
+  lost-flex-container: row;
 }
 
 .main {
@@ -14,6 +14,7 @@
 
 .aside {
   lost-column: 4/12;
+  padding-right: 1.85%;
 }
 
 .sub-title {

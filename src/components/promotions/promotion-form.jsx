@@ -12,6 +12,7 @@ import QualifierType from './qualifier-type';
 import OfferType from './offer-type';
 import { Checkbox } from '../checkbox/checkbox';
 import { Dropdown, DropdownItem } from '../dropdown';
+import ObjectScheduler from '../object-scheduler/object-scheduler';
 
 import { setDiscountAttr } from '../../paragons/promotion';
 
@@ -19,7 +20,9 @@ export default class PromotionForm extends Component {
 
   get generalAttrs() {
     const toOmit = [
-      'qualifier'
+      'qualifier',
+      'activeFrom',
+      'activeTo',
     ];
     const shadow = _.get(this.props, 'promotion.shadow.attributes', []);
     return _(shadow).omit(toOmit).keys().value();
@@ -58,6 +61,20 @@ export default class PromotionForm extends Component {
     const newPromotion = assoc(this.props.promotion, 'applyType', value);
 
     this.props.onUpdatePromotion(newPromotion);
+  }
+
+  get promotionState() {
+    const { promotion } = this.props;
+    const formAttributes = _.get(promotion, 'form.attributes', []);
+    const shadowAttributes = _.get(promotion, 'shadow.attributes', []);
+
+    return (
+      <ObjectScheduler
+        form={formAttributes}
+        shadow={shadowAttributes}
+        onChange={this.handleChange}
+        title="Promotion" />
+    );
   }
 
   render() {
@@ -102,6 +119,7 @@ export default class PromotionForm extends Component {
           </ContentBox>
         </div>
         <div styleName="aside">
+          {this.promotionState}
         </div>
       </div>
     );
