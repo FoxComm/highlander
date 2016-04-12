@@ -32,6 +32,7 @@ object StoreCreditService {
     }.run())
   }
 
+  // Check subtype only if id is present in payload; discard actual model
   private def checkSubTypeExists(subTypeId: Option[Int],
     originType: StoreCredit.OriginType)(implicit ec: EC): DbResult[Unit] = {
     subTypeId.fold(DbResult.unit) { subtypeId ⇒
@@ -72,7 +73,6 @@ object StoreCreditService {
     (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
     customer ← * <~ Customers.mustFindById404(customerId)
     _ ← * <~ Reasons.findById(payload.reasonId).extract.one.mustFindOr(NotFoundFailure400(Reason, payload.reasonId))
-    // Check subtype only if id is present in payload; discard actual model
     _ ← * <~ checkSubTypeExists(payload.subTypeId, StoreCredit.CsrAppeasement)
     manual = StoreCreditManual(adminId = admin.id, reasonId = payload.reasonId, subReasonId = payload.subReasonId)
     origin ← * <~ StoreCreditManuals.create(manual)
@@ -86,7 +86,6 @@ object StoreCreditService {
   def createFromExtension(admin: StoreAdmin, customerId: Int, payload: payloads.CreateExtensionStoreCredit)
     (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
     customer ← * <~ Customers.mustFindById404(customerId)
-    // Check subtype only if id is present in payload; discard actual model
     _ ← * <~ checkSubTypeExists(payload.subTypeId, StoreCredit.Custom)
     custom = StoreCreditCustom(adminId = admin.id, metadata = payload.metadata)
     origin ← * <~ StoreCreditCustoms.create(custom)
