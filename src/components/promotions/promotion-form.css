@@ -5,7 +5,6 @@
 
 .main {
   lost-column: 8/12;
-  padding-left: 1.85%;
 
   & > div {
     margin-bottom: 20px;
@@ -14,7 +13,6 @@
 
 .aside {
   lost-column: 4/12;
-  padding-right: 1.85%;
 }
 
 .sub-title {

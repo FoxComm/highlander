@@ -52,7 +52,7 @@ import SkuDetails from './components/skus/details';
 import SkuImages from './components/skus/images';
 import PromotionsListPage from './components/promotions/list';
 import Promotions from './components/promotions/promotions';
-import PromotionPage from './components/promotions/page';
+import PromotionPage from './components/promotions/promotion-page';
 import PromotionForm from './components/promotions/promotion-form';
 import CouponsListPage from './components/coupons/list';
 import Coupons from './components/coupons/coupons';

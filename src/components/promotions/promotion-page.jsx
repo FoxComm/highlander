@@ -8,6 +8,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { pushState } from 'redux-router';
 
+import styles from './promotion-page.css';
+
 // components
 import { PageTitle } from '../section-title';
 import { PrimaryButton } from '../common/buttons';
@@ -108,7 +110,9 @@ class PromotionPage extends Component {
           </PrimaryButton>
         </PageTitle>
         <SubNav promotionId={this.entityId} />
-        {children}
+        <div styleName="promotion-details">
+          {children}
+        </div>
       </div>
     );
   }
