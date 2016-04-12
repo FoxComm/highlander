@@ -22,7 +22,7 @@ function addEmptyUsageRules(coupon) {
   };
 
   const updatedForm = {...form, usageRules: usageRulesForm};
-  const updatedShadow = {...shadow, usageRules: usageRulesShadow};
+  const updatedShadow = {...shadow};
 
   return {
     ...coupon,
@@ -43,7 +43,6 @@ export function createEmptyCoupon() {
       id: null,
       createdAt: null,
       attributes: {},
-      usageRules: {},
     },
     promotion: null
   };
@@ -59,10 +58,10 @@ export function configureCoupon(coupon) {
     storefrontName: 'richText',
     description: 'text',
     details: 'richText',
+    usageRules: 'usageRules',
   };
 
   denormalize(coupon);
-  denormalize(coupon, 'usageRules');
 
   _.each(defaultAttrs, (type, label) => {
     const formAttribute = _.get(coupon, ['form', 'attributes', label]);
