@@ -162,6 +162,12 @@ object CustomerRoutes {
               StoreCreditService.createManual(admin, customerId, payload)
             }
           } ~
+          (post & path("custom") & pathEnd & entity(as[payloads.CreateExtensionStoreCredit])) { payload ⇒
+            goodOrFailures {
+              // TODO: prohibit access from non-extensions? by user probably?
+              StoreCreditService.createFromExtension(admin, customerId, payload)
+            }
+          } ~
           (post & path(IntNumber / "convert") & pathEnd) { storeCreditId ⇒
             goodOrFailures {
               CustomerCreditConverter.toGiftCard(storeCreditId, customerId, admin)

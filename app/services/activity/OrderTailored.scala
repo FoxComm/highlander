@@ -8,6 +8,7 @@ import models.shipping.ShippingMethod
 import models.Note
 import responses.order.FullOrder
 import responses.{Addresses, CreditCardsResponse, GiftCardResponse, StoreAdminResponse}
+import utils.Money.Currency
 
 object OrderTailored {
   final case class CartCreated(admin: Option[StoreAdminResponse.Root], order: FullOrder.Root)
@@ -39,6 +40,14 @@ object OrderTailored {
   final case class OrderLineItemsUpdatedQuantities(order: FullOrder.Root, oldQuantities: Map[String, Int],
     newQuantities: Map[String, Int], admin: Option[StoreAdminResponse.Root])
     extends ActivityBase[OrderLineItemsUpdatedQuantities]
+
+  /* Order checkout & order payments */
+  final case class OrderCheckoutCompleted(order: FullOrder.Root)
+    extends ActivityBase[OrderCheckoutCompleted]
+
+  final case class CreditCardChargeCompleted(customerId: Int, orderId: Int, orderNum: String,
+    amount: Int, currency: Currency, cardId: Int)
+    extends ActivityBase[CreditCardChargeCompleted]
 
   /* Order Shipping Methods */
   final case class OrderShippingMethodUpdated(order: FullOrder.Root, shippingMethod: Option[ShippingMethod],

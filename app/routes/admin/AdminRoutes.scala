@@ -28,31 +28,7 @@ object AdminRoutes {
     activityContext(admin) { implicit ac ⇒
       (path("admin" / "info") & get) {
         complete(AdminToken.fromAdmin(admin))
-      } ~
-      pathPrefix("store-credits") {
-        (patch & pathEnd & entity(as[StoreCreditBulkUpdateStateByCsr])) { payload ⇒
-          goodOrFailures {
-            StoreCreditService.bulkUpdateStateByCsr(payload, admin)
-          }
-        }
-      } ~
-      pathPrefix("store-credits" / IntNumber) { storeCreditId ⇒
-        (get & pathEnd) {
-          goodOrFailures {
-            StoreCreditService.getById(storeCreditId)
-          }
-        } ~
-        (patch & pathEnd & entity(as[StoreCreditUpdateStateByCsr])) { payload ⇒
-          goodOrFailures {
-            StoreCreditService.updateStateByCsr(storeCreditId, payload, admin)
-          }
-        } ~
-        (get & path("transactions") & pathEnd & sortAndPage) { implicit sortAndPage ⇒
-          goodOrFailures {
-            StoreCreditAdjustmentsService.forStoreCredit(storeCreditId)
-          }
-        }
-      } ~
+      } ~ StoreCreditRoutes.storeCreditRoutes ~
       pathPrefix("shipping-methods" / orderRefNumRegex) { refNum ⇒
         (get & pathEnd) {
           goodOrFailures {

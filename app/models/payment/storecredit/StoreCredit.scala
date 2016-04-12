@@ -71,6 +71,7 @@ object StoreCredit {
   case object CsrAppeasement extends OriginType
   case object GiftCardTransfer extends OriginType
   case object RmaProcess extends OriginType
+  case object Custom extends OriginType
 
   object State extends ADT[State] {
     def types = sealerate.values[State]
@@ -78,6 +79,7 @@ object StoreCredit {
 
   object OriginType extends ADT[OriginType] {
     def types = sealerate.values[OriginType]
+    def publicTypes = types.--(Seq(Custom))
   }
 
   def validateStateReason(state: State, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
@@ -96,6 +98,18 @@ object StoreCredit {
   def buildAppeasement(customerId: Int, originId: Int, payload: payloads.CreateManualStoreCredit): StoreCredit = {
     StoreCredit(customerId = customerId, originId = originId, originType = StoreCredit.CsrAppeasement,
       subTypeId = payload.subTypeId, currency = payload.currency, originalBalance = payload.amount)
+  }
+
+  def buildFromExtension(customerId: Int,
+    payload: payloads.CreateExtensionStoreCredit,
+    originType: StoreCredit.OriginType = StoreCredit.Custom,
+    originId: Int): StoreCredit = {
+    StoreCredit(customerId = customerId,
+      originType = originType,
+      originId = originId,
+      currency = payload.currency,
+      subTypeId = payload.subTypeId,
+      originalBalance = payload.amount)
   }
 
   def buildRmaProcess(customerId: Int, originId: Int, currency: Currency): StoreCredit = {

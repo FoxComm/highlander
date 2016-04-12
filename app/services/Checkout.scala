@@ -28,11 +28,13 @@ object Checkout {
   def fromCart(refNum: String)(implicit ec: EC, db: DB, apis: Apis, ac: AC): Result[FullOrder.Root] = (for {
     cart  ← * <~ Orders.mustFindByRefNum(refNum)
     order ← * <~ Checkout(cart, CartValidator(cart)).checkout
+    _     ← * <~ LogActivity.orderCheckoutCompleted(order)
   } yield order).runTxn()
 
   def fromCustomerCart(customer: Customer)(implicit ec: EC, db: DB, apis: Apis, ac: AC): Result[FullOrder.Root] = (for {
     cart  ← * <~ Orders.findActiveOrderByCustomer(customer).one.mustFindOr(CustomerHasNoActiveOrder(customer.id))
     order ← * <~ Checkout(cart, CartValidator(cart)).checkout
+    _     ← * <~ LogActivity.orderCheckoutCompleted(order)
   } yield order).runTxn()
 }
 
@@ -113,6 +115,7 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit e
             // TODO: remove the blocking Await which causes us to change types (I knew it was coming anyways!)
             stripeCharge  ← * <~ scala.concurrent.Await.result(f, 5.seconds)
             ourCharge     = CreditCardCharge.authFromStripe(card, pmt, stripeCharge, cart.currency)
+            _             ← * <~ LogActivity.creditCardCharge(cart, ourCharge)
             created       ← * <~ CreditCardCharges.create(ourCharge)
           } yield created.some).value
 

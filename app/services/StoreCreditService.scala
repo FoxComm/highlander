@@ -25,10 +25,22 @@ import utils.aliases._
 object StoreCreditService {
   type QuerySeq = StoreCredits.QuerySeq
 
-  def getOriginTypes(implicit ec: EC, db: DB): Result[Seq[StoreCreditSubTypesResponse.Root]] =
+  def getOriginTypes(implicit ec: EC, db: DB): Result[Seq[StoreCreditSubTypesResponse.Root]] = {
     Result.fromFuture(StoreCreditSubtypes.result.map { subTypes ⇒
-      StoreCreditSubTypesResponse.build(StoreCredit.OriginType.types.toSeq, subTypes)
+      StoreCreditSubTypesResponse.build(StoreCredit.OriginType.publicTypes.toSeq, subTypes)
     }.run())
+  }
+
+  // Check subtype only if id is present in payload; discard actual model
+  private def checkSubTypeExists(subTypeId: Option[Int],
+    originType: StoreCredit.OriginType)(implicit ec: EC): DbResult[Unit] = {
+    subTypeId.fold(DbResult.unit) { subtypeId ⇒
+      StoreCreditSubtypes.byOriginType(originType).filter(_.id === subtypeId).one.flatMap(_.fold {
+        DbResult.failure[Unit](NotFoundFailure400(StoreCreditSubtype, subtypeId))
+      } { _ ⇒ DbResult.unit })
+    }
+  }
+
 
   def findAllByCustomer(customerId: Int)(implicit ec: EC, db: DB, sp: SortAndPage): Result[TheResponse[WithTotals]] = (for {
 
@@ -57,20 +69,33 @@ object StoreCreditService {
   }
 
   def createManual(admin: StoreAdmin, customerId: Int, payload: payloads.CreateManualStoreCredit)
+    (implicit ec: EC, db: DB, ac: AC): Result[Root] = {
+    val reason400 = NotFoundFailure400(Reason, payload.reasonId)
+    (for {
+      customer    ← * <~ Customers.mustFindById404(customerId)
+      _           ← * <~ Reasons.findById(payload.reasonId).extract.one.mustFindOr(reason400)
+      _           ← * <~ checkSubTypeExists(payload.subTypeId, StoreCredit.CsrAppeasement)
+      manual           = StoreCreditManual(adminId = admin.id, reasonId = payload.reasonId,
+                                                                subReasonId = payload.subReasonId)
+      origin      ← * <~ StoreCreditManuals.create(manual)
+      appeasement      = StoreCredit.buildAppeasement(customerId = customer.id, originId = origin.id, payload = payload)
+      storeCredit ← * <~ StoreCredits.create(appeasement)
+      _           ← * <~ LogActivity.scCreated(admin, customer, storeCredit)
+    } yield build(storeCredit)).runTxn
+  }
+
+  // API routes
+
+  def createFromExtension(admin: StoreAdmin, customerId: Int, payload: payloads.CreateExtensionStoreCredit)
     (implicit ec: EC, db: DB, ac: AC): Result[Root] = (for {
-    customer ← * <~ Customers.mustFindById404(customerId)
-    _ ← * <~ Reasons.findById(payload.reasonId).extract.one.mustFindOr(NotFoundFailure400(Reason, payload.reasonId))
-    // Check subtype only if id is present in payload; discard actual model
-    _ ← * <~ payload.subTypeId.fold(DbResult.unit) { subtypeId ⇒
-      StoreCreditSubtypes.csrAppeasements.filter(_.id === subtypeId).one.flatMap(_.fold {
-        DbResult.failure[Unit](NotFoundFailure400(StoreCreditSubtype, subtypeId))
-      } { _ ⇒ DbResult.unit })
-    }
-    manual = StoreCreditManual(adminId = admin.id, reasonId = payload.reasonId, subReasonId = payload.subReasonId)
-    origin ← * <~ StoreCreditManuals.create(manual)
-    appeasement = StoreCredit.buildAppeasement(customerId = customer.id, originId = origin.id, payload = payload)
-    storeCredit ← * <~ StoreCredits.create(appeasement)
-    _ ← * <~ LogActivity.scCreated(admin, customer, storeCredit)
+    customer    ← * <~ Customers.mustFindById404(customerId)
+    _           ← * <~ checkSubTypeExists(payload.subTypeId, StoreCredit.Custom)
+    custom           = StoreCreditCustom(adminId = admin.id, metadata = payload.metadata)
+    origin      ← * <~ StoreCreditCustoms.create(custom)
+    customSC         = StoreCredit.buildFromExtension(customerId = customer.id, payload = payload,
+    originType       = StoreCredit.Custom, originId = origin.id)
+    storeCredit ← * <~ StoreCredits.create(customSC)
+    _           ← * <~ LogActivity.scCreated(admin, customer, storeCredit)
   } yield build(storeCredit)).runTxn
 
   def getById(id: Int)(implicit ec: EC, db: DB): Result[Root] = (for {

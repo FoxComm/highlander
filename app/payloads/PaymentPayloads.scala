@@ -7,6 +7,7 @@ import failures.Failure
 import utils.Litterbox._
 import utils.Money.Currency
 import utils._
+import org.json4s.JsonAST.{JValue, JObject}
 
 final case class CreateCreditCard(holderName: String, number: String, cvv: String, expYear: Int,
   expMonth: Int, address: Option[CreateAddressPayload] = None, addressId: Option[Int] = None,
@@ -61,3 +62,6 @@ final case class CreditCardPayment(creditCardId: Int)
 
 final case class CreateManualStoreCredit(amount: Int, currency: Currency = Currency.USD,
   reasonId: Int, subReasonId: Option[Int] = None, subTypeId: Option[Int] = None)
+
+final case class CreateExtensionStoreCredit(amount: Int, currency: Currency = Currency.USD,
+  subTypeId: Option[Int] = None, metadata: JValue = JObject())
