@@ -55,6 +55,8 @@ object Workers {
     "notes_search_view"                 → NotesSearchView(),
     "orders_search_view"                → OrdersSearchView(),
     "products_search_view"              → ProductsSearchView(),
+    "promotions_search_view"            → PromotionsSearchView(),
+    "coupons_search_view"               → CouponsSearchView(),
     "regions_search_view"               → RegionsSearchView(),
     "sku_search_view"                   → SkuSearchView(),
     "gift_card_transactions_view"       → GiftCardTransactionsSearchView(),
