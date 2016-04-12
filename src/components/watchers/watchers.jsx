@@ -113,7 +113,6 @@ class Watchers extends Component {
 
 const renderGroup = (props, group) => {
   if (props.isFetching[group]) {
-    // if (true) {
     return <WaitAnimation size="s" />;
   }
 

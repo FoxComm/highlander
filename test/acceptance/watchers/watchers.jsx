@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import ShallowTestUtils from 'react-shallow-testutils';
+import { groups } from '../../../src/paragons/watcher';
 
 describe('Watchers', function () {
   const Watchers = requireComponent('watchers/watchers.jsx').WrappedComponent;
@@ -11,6 +12,11 @@ describe('Watchers', function () {
     entityId: 'BR0001',
   };
   const data = {};
+  const isFetching = {
+    [groups.assignees]: false,
+    [groups.watchers]: false,
+  };
+
   const actions = {
     showSelectModal: _.noop,
     hideSelectModal: _.noop,
@@ -28,7 +34,7 @@ describe('Watchers', function () {
 
   it('should render message when assignees are empty', function *() {
     watchers = shallowRender(
-      <Watchers entity={entity} data={data} {...actions} />
+      <Watchers entity={entity} data={data} isFetching={isFetching} {...actions} />
     );
     const box = ShallowTestUtils.findWithClass(watchers, "fc-watchers__assignees-empty");
     expect(box).not.to.be.empty;
@@ -42,7 +48,7 @@ describe('Watchers', function () {
     ];
 
     watchers = shallowRender(
-      <Watchers entity={entity} data={{...data, assignees: {entries: assignees}}} {...actions} />
+      <Watchers entity={entity} data={{...data, assignees: {entries: assignees}}} isFetching={isFetching} {...actions} />
     );
     const cells = ShallowTestUtils.findAllWithClass(watchers, "fc-watchers__cell");
     expect(cells).not.to.be.empty;
@@ -64,7 +70,7 @@ describe('Watchers', function () {
     ];
 
     watchers = shallowRender(
-      <Watchers entity={entity} data={{...data, assignees: {entries: assignees}}} {...actions} />
+      <Watchers entity={entity} data={{...data, assignees: {entries: assignees}}} isFetching={isFetching} {...actions} />
     );
     const cells = ShallowTestUtils.findAllWithClass(watchers, "fc-watchers__cell");
     expect(cells).not.to.be.empty;
