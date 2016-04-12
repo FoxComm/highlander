@@ -75,7 +75,6 @@ export default class CouponForm extends Component {
   }
 
   render() {
-    console.log(this.props);
     const formAttributes = _.get(this.props, 'coupon.form.attributes', []);
     const shadowAttributes = _.get(this.props, 'coupon.shadow.attributes', []);
 
