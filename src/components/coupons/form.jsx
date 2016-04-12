@@ -39,7 +39,7 @@ export default class CouponForm extends Component {
             id="promotionSelector"
             styleName="full-width"
             name="promotion"
-            items={[[3, 'Coupon promo']]}
+            items={[[2158, 'Coupon promo']]}
             placeholder="- Select -"
             value={id}
             onChange={(value) => this.handlePromotionChange(value)}

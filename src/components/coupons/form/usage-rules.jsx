@@ -20,6 +20,8 @@ export default class UsageRules extends Component {
   state = {
     unlimitedUsagePerCode: false,
     unlimitedUsagePerCustomer: false,
+    usesPerCode: 1,
+    usesPerCustomer: 1,
   };
 
   @autobind
@@ -30,6 +32,18 @@ export default class UsageRules extends Component {
   @autobind
   setUnlimitedCustomerUsage() {
     this.setState({unlimitedUsagePerCustomer: !this.state.unlimitedUsagePerCustomer});
+  }
+
+  @autobind
+  handleUsesPerCodeChange(value) {
+    const checkedValue = value < 1 ? 1 : value;
+    this.setState({usesPerCode: value});
+  }
+
+  @autobind
+  handleUsesPerCustomerChange(value) {
+    const checkedValue = value < 1 ? 1 : value;
+    this.setState({usesPerCustomer: value});
   }
 
   render() {
@@ -51,7 +65,15 @@ export default class UsageRules extends Component {
               </Checkbox>
             </div>
             <div>
-              <Counter id="couponUsesForCode" disabled={this.state.unlimitedUsagePerCode} min={1} />
+              <Counter
+                id="couponUsesForCode"
+                value={this.state.usesPerCode}
+                disabled={this.state.unlimitedUsagePerCode}
+                decreaseAction={() => this.handleUsesPerCodeChange(this.state.usesPerCode - 1)}
+                increaseAction={() => this.handleUsesPerCodeChange(this.state.usesPerCode + 1)}
+                onChange={({target}) => this.handleUsesPerCodeChange(target.value)}
+                min={1}
+              />
             </div>
           </div>
           <div styleName="field-comment">
@@ -71,7 +93,15 @@ export default class UsageRules extends Component {
               </Checkbox>
             </div>
             <div>
-              <Counter id="couponUsesNumberForCustomer" disabled={this.state.unlimitedUsagePerCustomer} min={1} />
+              <Counter
+                id="couponUsesNumberForCustomer"
+                value={this.state.usesPerCustomer}
+                disabled={this.state.unlimitedUsagePerCustomer}
+                decreaseAction={() => this.handleUsesPerCustomerChange(this.state.usesPerCustomer - 1)}
+                increaseAction={() => this.handleUsesPerCustomerChange(this.state.usesPerCustomer + 1)}
+                onChange={({target}) => this.handleUsesPerCustomerChange(target.value)}
+                min={1}
+              />
             </div>
           </div>
           <div styleName="field-comment">
