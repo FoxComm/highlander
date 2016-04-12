@@ -32,6 +32,7 @@ loyalty_jar_src: ../../fox-loyalty/target/loyalty.jar
 loyalty_jar: /usr/local/bin/loyalty.jar
 
 # Lies & BS
+phoenix_api_version: v1
 phoenix_server: 127.0.0.1:9090
 search_host: 127.0.0.1
 search_server_http: "{{search_host}}:9200"
@@ -39,6 +40,7 @@ search_server: "{{search_host}}:9300"
 ashes_server: 127.0.0.1:4000
 firebird_server: 127.0.0.1:4040
 kafka_server: 127.0.0.1:9092
+zookeeper_server: 127.0.0.1:2181
 schema_server: 127.0.0.1:8081
 
 seeds_cmd: utils.seeds.Seeds demo 1
