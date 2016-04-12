@@ -6,6 +6,10 @@ object ProductFailures {
     def apply(code: String) = NotFoundFailure404(s"Sku $code not found")
   }
 
+  object SkuWithShadowNotFound { 
+    def apply(shadowId: Int) = NotFoundFailure404(s"Sku with shadow id $shadowId not found")
+  }
+
   final case class ProductNotFoundAtCommit(id: Int, commit: Int) extends Failure {
     override def description = s"Product $id not with at commit $commit"
   }

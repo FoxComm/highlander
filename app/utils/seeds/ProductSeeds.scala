@@ -3,6 +3,7 @@ package utils.seeds
 import utils.seeds.generators.ProductGenerator
 import models.product.{SimpleContext, SimpleProductData, Mvp}
 import models.objects.ObjectContexts
+import utils.Money.Currency
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 
@@ -38,4 +39,25 @@ trait ProductSeeds extends  {
       image ="https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Round_Readers_Top_Front.jpg"),
     SimpleProductData(code = "SKU-TRL", title = "Fox", description = "Stylish fit, stylish finish.", price = 10000, 
       image ="https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Quay_Side.jpg"))
+
+  def createRuProducts(products: SeedProducts)(implicit db: Database) : DbResultT[SeedProducts] = { 
+    val p1 = products._1.copy(title = "осел", description = "Стилизированный, пригодный для жизни осла.", price = 3300, currency = Currency.RUB)
+    val p2 = products._2.copy(title = "Акула", description = "Акулы приходят со сбалансированным обрамления.", price = 15300, currency = Currency.RUB)
+    val p3 = products._3.copy(title = "Малые Акулы", description = "Предназначен для пляжа.", price = 4500, currency = Currency.RUB)
+    val p4 = products._4.copy(title = "Утка", description = "Желтый отделка подчеркивает глубокий пруд стиль.", price = 1500, currency = Currency.RUB)
+    val p5 = products._5.copy(title = "Утенок", description = "Подходят для меньшего лица.", price = 8800, currency = Currency.RUB)
+    val p6 = products._6.copy(title = "Курица", description = "Перейдя дорогу в них с уверенностью.", price = 7700, currency = Currency.RUB)
+    val p7 = products._7.copy(title = "Лиса", description = "Стильный подходит, стильный отделка.", price = 10000, currency = Currency.RUB)
+
+    val ruProducts = Seq(p1, p2, p3, p4, p5, p6, p7)
+
+    for {
+      context ← * <~ ObjectContexts.mustFindById404(SimpleContext.ruId)
+      ps ← * <~ Mvp.insertProductsNewContext(SimpleContext.id, SimpleContext.ruId, ruProducts)
+    } yield ps match {
+        case p1 :: p2 :: s3 :: p4 :: p5 :: p6 :: p7 :: Nil ⇒ 
+          ( p1, p2, s3, p4, p5, p6, p7)
+        case other ⇒  ???
+      }
+  }
 }

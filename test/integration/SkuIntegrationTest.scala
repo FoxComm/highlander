@@ -30,7 +30,7 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
   trait Fixture {
     val (context, sku, skuForm, skuShadow) = (for {
       storeAdmin      ← * <~ StoreAdmins.create(authedStoreAdmin).run().futureValue.rightVal
-      context         ← * <~ ObjectContexts.create(SimpleContext.create)
+      context         ← * <~ ObjectContexts.create(SimpleContext.create())
       simpleSku       ← * <~ SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD)
       skuForm         ← * <~ ObjectForms.create(simpleSku.create)
       simpleSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
