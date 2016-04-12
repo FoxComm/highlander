@@ -68,9 +68,9 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     response       = assignments.map((buildAssignment _).tupled)
     notFoundAdmins = diffToFailures(payload.assignees, adminIds, StoreAdmin)
     // Activity log + notifications subscription
+    _              ← * <~ subscribe(this, assignedAdmins.map(_.id), Seq(key.toString))
     responseItem   = buildResponse(entity)
-    _         ← * <~ LogActivity.assigned(originator, responseItem, assignedAdmins, assignmentType, referenceType)
-    _         ← * <~ subscribe(this, assignedAdmins.map(_.id), Seq(key.toString))
+    _              ← * <~ LogActivity.assigned(originator, responseItem, assignedAdmins, assignmentType, referenceType)
   } yield TheResponse.build(response, errors = notFoundAdmins)).runTxn()
 
   def unassign(key: K, assigneeId: Int, originator: StoreAdmin)
@@ -85,9 +85,9 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     assignments    ← * <~ fetchAssignments(entity).toXor
     response       = assignments.map((buildAssignment _).tupled)
     // Activity log + notifications subscription
+    _              ← * <~ unsubscribe(this, adminIds = Seq(assigneeId), objectIds = Seq(key.toString))
     responseItem   = buildResponse(entity)
-    _         ← * <~ LogActivity.unassigned(originator, responseItem, admin, assignmentType, referenceType)
-    _         ← * <~ unsubscribe(this, adminIds = Seq(assigneeId), objectIds = Seq(key.toString))
+    _              ← * <~ LogActivity.unassigned(originator, responseItem, admin, assignmentType, referenceType)
   } yield response).runTxn()
 
   def assignBulk(originator: StoreAdmin, payload: BulkAssignmentPayload[K])
@@ -102,8 +102,8 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     _               ← * <~ Assignments.createAll(newEntries)
     // Response, log activity, notifications subscription
     (successData, theResponse) = buildTheResponse(entities, assignments, payload, Assigning)
-    _               ← * <~ logBulkAssign(this, originator, admin, successData)
     _               ← * <~ subscribe(this, Seq(admin.id), successData)
+    _               ← * <~ logBulkAssign(this, originator, admin, successData)
   } yield theResponse).runTxn()
 
   def unassignBulk(originator: StoreAdmin, payload: BulkAssignmentPayload[K])
@@ -116,8 +116,8 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     _               ← * <~ querySeq.delete
     // Response, log activity, notifications subscription
     (successData, theResponse) = buildTheResponse(entities, assignments, payload, Unassigning)
-    _               ← * <~ logBulkUnassign(this, originator, admin, successData)
     _               ← * <~ unsubscribe(this, Seq(admin.id), successData)
+    _               ← * <~ logBulkUnassign(this, originator, admin, successData)
   } yield theResponse).runTxn()
 
   private def buildTheResponse(entities: Seq[M], assignments: Seq[Assignment], payload: BulkAssignmentPayload[K],
