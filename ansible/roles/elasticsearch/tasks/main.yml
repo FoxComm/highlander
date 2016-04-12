@@ -45,4 +45,4 @@
   sudo: true
 
 - name: Sleep
-  shell: sleep 10
+  shell: sleep 20
