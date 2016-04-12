@@ -166,6 +166,186 @@
         "msgstr": [
           "ДОБАВИТЬ В КОРЗИНУ"
         ]
+      },
+      "Please enter a valid credit card number": {
+        "msgstr": [
+          "Пожалуйста, введите корректный номер карты"
+        ]
+      },
+      "Please enter a valid cvv number": {
+        "msgstr": [
+          "Пожалуйста, введите корректный cvv"
+        ]
+      },
+      "NAME ON CARD": {
+        "msgstr": [
+          "ИМЯ НА КАРТЕ"
+        ]
+      },
+      "CARD NUMBER": {
+        "msgstr": [
+          "НОМЕР КАРТЫ"
+        ]
+      },
+      "CVV": {
+        "msgstr": [
+          "CVV"
+        ]
+      },
+      "MONTH": {
+        "msgstr": [
+          "МЕСЯЦ"
+        ]
+      },
+      "YEAR": {
+        "msgstr": [
+          "ГОД"
+        ]
+      },
+      "Billing address is same as shipping": {
+        "msgstr": [
+          "Адрес оплаты совпадает с адресом доставки"
+        ]
+      },
+      "PLACE ORDER": {
+        "msgstr": [
+          "ОТПРАВИТЬ ЗАКАЗ"
+        ]
+      },
+      "BILLING": {
+        "msgstr": [
+          "ОПЛАТА"
+        ]
+      },
+      "DELIVERY": {
+        "msgstr": [
+          "ДОСТАВКА"
+        ]
+      },
+      "CONTINUE": {
+        "msgstr": [
+          "ПРОДОЛЖИТЬ"
+        ]
+      },
+      "STREET ADDRESS 1": {
+        "msgstr": [
+          "АДРЕС 1"
+        ]
+      },
+      "STREET ADDRESS 2 (optional)": {
+        "msgstr": [
+          "АДРЕС 2 (необязательно)"
+        ]
+      },
+      "COUNTRY": {
+        "msgstr": [
+          "СТРАНА"
+        ]
+      },
+      "ZIP": {
+        "msgstr": [
+          "ПОЧТОВЫЙ ИНДЕКС"
+        ]
+      },
+      "CITY": {
+        "msgstr": [
+          "ГОРОД"
+        ]
+      },
+      "STATE": {
+        "msgstr": [
+          "ОБЛАСТЬ"
+        ]
+      },
+      "PHONE": {
+        "msgstr": [
+          "ТЕЛЕФОН"
+        ]
+      },
+      "EDIT": {
+        "msgstr": [
+          "РЕДАКТИРОВАТЬ"
+        ]
+      },
+      "Please enter a valid gift card and try again.": {
+        "msgstr": [
+          "Введите корректный номер подарочной карты и попробуйте еще раз"
+        ]
+      },
+      "CODE": {
+        "msgstr": [
+          "КОД"
+        ]
+      },
+      "redeem": {
+        "msgstr": [
+          "использовать"
+        ]
+      },
+      "GIFT CARD": {
+        "msgstr": [
+          "ПОДАРОЧНАЯ КАРТА"
+        ]
+      },
+      "Thanks for your order!": {
+        "msgstr": [
+          "Спасибо за ваш заказ!"
+        ]
+      },
+      "Order Number:": {
+        "msgstr": [
+          "Номер заказа:"
+        ]
+      },
+      "Looks like you'll be getting some cool stuff soon. In the meantime, we're sending you an email with your order information.": {
+        "msgstr": [
+          "Похоже, вы скоро получите что-то классное. Скоро мы пришлем на ваш email информацию по заказу"
+        ]
+      },
+      "Take me home": {
+        "msgstr": [
+          "Вернуться на главную"
+        ]
+      },
+      "ORDER SUMMARY": {
+        "msgstr": [
+          "ИНФОРМАЦИЯ О ЗАКАЗЕ"
+        ]
+      },
+      "ITEM": {
+        "msgstr": [
+          "ТОВАР"
+        ]
+      },
+      "QTY": {
+        "msgstr": [
+          "КОЛ-ВО"
+        ]
+      },
+      "PRICE": {
+        "msgstr": [
+          "ЦЕНА"
+        ]
+      },
+      "SUBTOTAL": {
+        "msgstr": [
+          "СТОИМОСТЬ"
+        ]
+      },
+      "SHIPPING": {
+        "msgstr": [
+          "ДОСТАВКА"
+        ]
+      },
+      "TAX": {
+        "msgstr": [
+          "НАЛОГ"
+        ]
+      },
+      "GRAND TOTAL": {
+        "msgstr": [
+          "ИТОГО"
+        ]
       }
     }
   }

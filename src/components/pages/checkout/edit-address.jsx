@@ -5,6 +5,9 @@ import styles from './checkout.css';
 import { autobind, debounce } from 'core-decorators';
 import { connect } from 'react-redux';
 
+import localized from 'lib/i18n';
+import type { Localized } from 'lib/i18n';
+
 import { TextInput } from 'ui/inputs';
 import { FormField } from 'ui/forms';
 import Autocomplete from 'ui/autocomplete';
@@ -12,7 +15,7 @@ import Autocomplete from 'ui/autocomplete';
 import * as checkoutActions from 'modules/checkout';
 import { AddressKind } from 'modules/checkout';
 
-type EditShippingProps = {
+type EditShippingProps = Localized & {
   setAddressData: Function;
   selectedCountry: Object;
   state: Object;
@@ -40,6 +43,7 @@ function mapStateToProps(state, props) {
 
 /* ::`*/
 @connect(mapStateToProps, checkoutActions)
+@localized
 /* ::`*/
 export default class EditAddress extends Component {
   props: EditShippingProps;
@@ -108,24 +112,24 @@ export default class EditAddress extends Component {
 
   render() {
     const props: EditShippingProps = this.props;
-    const { countries, selectedCountry, data } = props;
+    const { countries, selectedCountry, data, t } = props;
 
     return (
       <div styleName="checkout-form">
         <FormField styleName="text-field">
           <TextInput required
-            name="name" placeholder="FIRST & LAST NAME" value={data.name} onChange={this.changeFormData}
+            name="name" placeholder={t('FIRST & LAST NAME')} value={data.name} onChange={this.changeFormData}
           />
         </FormField>
         <FormField styleName="text-field">
           <TextInput
             required
-            name="address1" placeholder="STREET ADDRESS 1" value={data.address1} onChange={this.changeFormData}
+            name="address1" placeholder={t('STREET ADDRESS 1')} value={data.address1} onChange={this.changeFormData}
           />
         </FormField>
         <FormField styleName="text-field">
           <TextInput
-            name="address2" placeholder="STREET ADDRESS 2 (optional)" value={data.address2}
+            name="address2" placeholder={t('STREET ADDRESS 2 (optional)')} value={data.address2}
             onChange={this.changeFormData}
           />
         </FormField>
@@ -133,7 +137,7 @@ export default class EditAddress extends Component {
           <FormField styleName="text-field">
             <Autocomplete
               inputProps={{
-                placeholder: 'COUNTRY',
+                placeholder: t('COUNTRY'),
               }}
               getItemValue={item => item.name}
               items={countries}
@@ -142,17 +146,17 @@ export default class EditAddress extends Component {
             />
           </FormField>
           <FormField styleName="text-field" validator="zipCode">
-            <TextInput required placeholder="ZIP" onChange={this.handleZipChange} value={data.zip} />
+            <TextInput required placeholder={t('ZIP')} onChange={this.handleZipChange} value={data.zip} />
           </FormField>
         </div>
         <div styleName="union-fields">
           <FormField styleName="text-field">
-            <TextInput required name="city" placeholder="CITY" onChange={this.changeFormData} value={data.city} />
+            <TextInput required name="city" placeholder={t('CITY')} onChange={this.changeFormData} value={data.city} />
           </FormField>
           <FormField styleName="text-field">
             <Autocomplete
               inputProps={{
-                placeholder: 'STATE',
+                placeholder: t('STATE'),
               }}
               getItemValue={item => item.name}
               items={selectedCountry.regions}
@@ -162,8 +166,13 @@ export default class EditAddress extends Component {
           </FormField>
         </div>
         <FormField label="Phone Number" styleName="text-field" validator="phoneNumber">
-          <TextInput required
-            name="phoneNumber" type="tel" placeholder="PHONE" onChange={this.changeFormData} value={data.phoneNumber}
+          <TextInput
+            required
+            name="phoneNumber"
+            type="tel"
+            placeholder={t('PHONE')}
+            onChange={this.changeFormData}
+            value={data.phoneNumber}
           />
         </FormField>
       </div>
