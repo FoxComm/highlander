@@ -70,6 +70,16 @@ export default class CouponForm extends Component {
     this.props.onUpdateCoupon(coupon);
   }
 
+  @autobind
+  handleGenerateBulkCodes(prefix, length, quantity) {
+    this.props.onGenerateBulkCodes(prefix, length, quantity);
+  }
+
+  @autobind
+  handleChangeSingleCode(value) {
+    this.props.onUpdateCouponCode(value);
+  }
+
   get isNew() {
     return this.props.entity.entityId === 'new';
   }
@@ -91,7 +101,10 @@ export default class CouponForm extends Component {
             />
             {this.promotionSelector}
           </ContentBox>
-          <CouponCodes isNew={this.isNew} />
+          <CouponCodes
+            onGenerateBulkCodes={this.handleGenerateBulkCodes}
+            onChangeSingleCode={this.handleChangeSingleCode}
+          />
           <UsageRules />
         </div>
         <div styleName="aside">
