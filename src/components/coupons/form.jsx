@@ -20,6 +20,8 @@ export default class CouponForm extends Component {
 
   get generalAttrs() {
     const toOmit = [
+      'activeFrom',
+      'activeTo',
     ];
     const shadow = _.get(this.props, 'coupon.shadow.attributes', []);
     return _(shadow).omit(toOmit).keys().value();
