@@ -21,12 +21,8 @@ const OriginType = (props) => {
       formattedType = 'Customer Purchase';
       break;
     case 'custom':
-      let metadata = null;
-      try {
-        metadata = JSON.parse(props.value.metadata);
-        formattedType = metadata.title;
-      } catch (e) {}
-      if (formattedType) break;
+      formattedType = get(props, ['value', 'metadata', 'title'], capitalize(type));
+      break;
     default:
       formattedType = capitalize(type);
   }
