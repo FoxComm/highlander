@@ -346,6 +346,36 @@
         "msgstr": [
           "ИТОГО"
         ]
+      },
+      "This field": {
+        "msgstr": [
+          "Это поле"
+        ]
+      },
+      "Can not be more than %d characters": {
+        "msgstr": [
+          "Не может быть больше чем %d символов"
+        ]
+      },
+      "is required": {
+        "msgstr": [
+          "обязательно"
+        ]
+      },
+      "Enter valid zip code": {
+        "msgstr": [
+          "Введите корректный почтовый индекс"
+        ]
+      },
+      "%s must contain only ASCII characters": {
+        "msgstr": [
+          "%s может содержать только символы ASCII"
+        ]
+      },
+      "Please enter a valid phone number": {
+        "msgstr": [
+          "Введите корректный номер телефона"
+        ]
       }
     }
   }
