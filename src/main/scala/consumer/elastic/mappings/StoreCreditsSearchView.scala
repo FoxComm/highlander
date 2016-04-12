@@ -37,8 +37,9 @@ final case class StoreCreditsSearchView()(implicit ec: EC) extends AvroTransform
       field("originType", StringType) index "not_analyzed",
       field("currency", StringType) index "not_analyzed",
       field("state", StringType) index "not_analyzed"
-    )
+    ),
+    field("metadata").nested()
   )
 
-  override def nestedFields() = List("store_admin", "gift_card", "canceled_reason")
+  override def nestedFields() = List("store_admin", "gift_card", "canceled_reason", "metadata")
 }
