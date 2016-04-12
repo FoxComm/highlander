@@ -2,6 +2,7 @@
 // libs
 import React, { PropTypes } from 'react';
 import { get } from 'sprout-data';
+import { capitalize } from 'lodash/string';
 
 const OriginType = (props) => {
   const type = get(props, ['value', 'originType']);
@@ -19,8 +20,11 @@ const OriginType = (props) => {
     case 'customerPurchase':
       formattedType = 'Customer Purchase';
       break;
+    case 'custom':
+      formattedType = get(props, ['value', 'metadata', 'title'], capitalize(type));
+      break;
     default:
-      formattedType = type;
+      formattedType = capitalize(type);
   }
 
   return (
