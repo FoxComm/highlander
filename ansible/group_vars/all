@@ -27,6 +27,10 @@ ashes_env: production
 firebird_env: production
 firebird_language: 
 
+# Loyalty
+loyalty_jar_src: ../../fox-loyalty/target/loyalty.jar
+loyalty_jar: /usr/local/bin/loyalty.jar
+
 # Lies & BS
 phoenix_server: 127.0.0.1:9090
 search_host: 127.0.0.1

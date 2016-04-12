@@ -1,0 +1,16 @@
+[Service]
+WorkingDirectory=/usr/share
+ExecStart=/usr/bin/java -Denv={{loyalty_env}} -jar {{loyalty_jar}}
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=loyalty
+TimeoutStartSec=3m
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
+[Unit]
+Requires=kafka.service phoenix.service
+After=kafka.service phoenix.service
