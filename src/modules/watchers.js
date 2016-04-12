@@ -9,7 +9,16 @@ import { searchAdmins } from '../elastic/store-admins';
 import Api from '../lib/api';
 import createStore from '../lib/store-creator';
 
-const addWatchers = (entityType, fetchEntity) => (actions, entityId) => (dispatch, getState) => {
+const fetchWatchers = entityType => (actions, entityId, group) => dispatch => {
+  dispatch(actions.fetchStart(entityId, group));
+
+  Api.get(`/${entityType}/${entityId}/${group}`).then(
+    response => dispatch(actions.fetchSuccess(entityId, group, response)),
+    error => dispatch(actions.fetchFailed(entityId, group, error))
+  );
+};
+
+const addWatchers = entityType => (actions, entityId) => (dispatch, getState) => {
   const state = getState();
   const path = [entityType, 'watchers', entityId, 'selectModal'];
 
@@ -17,35 +26,33 @@ const addWatchers = (entityType, fetchEntity) => (actions, entityId) => (dispatc
   const items = _.get(state, [...path, 'selected'], []);
 
   const data = {
-    [group]: items.map((item) => item.id)
+    assignees: items.map((item) => item.id)
   };
 
   Api.post(`/${entityType}/${entityId}/${group}`, data).then(
     () => {
       dispatch(actions.clearSelected(entityId));
       dispatch(actions.hideSelectModal(entityId));
-      dispatch(fetchEntity(entityId));
+      dispatch(actions.fetchWatchers(entityId, group));
     },
     (error) => dispatch(actions.failWatchersAction(error))
   );
 };
 
-const watch = (entityType, fetchEntity) => (actions, entityId, group, id) => (dispatch, getState) => {
+const watch = entityType => (actions, entityId, group, id) => dispatch => {
   const data = {
-    [group]: [id]
+    assignees: [id]
   };
 
   Api.post(`/${entityType}/${entityId}/${group}`, data).then(
-    () => {
-      dispatch(fetchEntity(entityId));
-    },
+    () => dispatch(actions.fetchWatchers(entityId, group)),
     (error) => dispatch(actions.failWatchersAction(error))
   );
 };
 
-const removeWatcher = (entityType, fetchEntity) => (actions, entityId, group, id) => (dispatch) => {
+const removeWatcher = entityType => (actions, entityId, group, id) => dispatch => {
   Api.delete(`/${entityType}/${entityId}/${group}/${id}`).then(
-    () => dispatch(fetchEntity(entityId)),
+    () => dispatch(actions.fetchWatchers(entityId, group)),
     (error) => dispatch(actions.failWatchersAction(error))
   );
 };
@@ -77,6 +84,18 @@ const suggestWatchers = entityType => (actions, entityId) => (dispatch, getState
  * }
  */
 const reducers = {
+  fetchStart: (state, [entityId, group]) => {
+    return assoc(state, [entityId, group, 'isFetching'], true);
+  },
+  fetchSuccess: (state, [entityId, group, result]) => {
+    return assoc(state,
+      [entityId, group, 'entries'], result.map(item => item.assignee),
+      [entityId, group, 'isFetching'], false
+    );
+  },
+  fetchFailed: (state, [entityId, group, error]) => {
+    return assoc(state, [entityId, group, 'isFetching'], false);
+  },
   suggestWatchersStart: (state, entityId) => {
     return assoc(state, [entityId, 'selectModal', 'isFetching'], true);
   },
@@ -144,14 +163,15 @@ const reducers = {
   },
 };
 
-export default (entityType, { fetchEntity }) => createStore({
+export default entityType => createStore({
   entity: 'watchers',
   scope: entityType,
   actions: {
-    watch: watch(entityType, fetchEntity),
+    watch: watch(entityType),
     suggestWatchers: suggestWatchers(entityType),
-    addWatchers: addWatchers(entityType, fetchEntity),
-    removeWatcher: removeWatcher(entityType, fetchEntity),
+    fetchWatchers: fetchWatchers(entityType),
+    addWatchers: addWatchers(entityType),
+    removeWatcher: removeWatcher(entityType),
   },
   reducers,
 });

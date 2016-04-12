@@ -2,10 +2,9 @@
 import _ from 'lodash';
 
 // data
-import { fetchOrder } from './details';
 import makeWatchers from '../watchers';
 
-const { actions, reducer } = makeWatchers('orders', {fetchEntity: fetchOrder});
+const { actions, reducer } = makeWatchers('orders');
 
 export {
   actions,

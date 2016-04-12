@@ -6,7 +6,8 @@
 
   .initials {
     width: 28px;
-    height: 28px;
+    height: auto;
+    vertical-align: top;
     color: @color-white;
     line-height: 28px;
   }
@@ -61,7 +62,11 @@
     justify-content: flex-start;
     flex-wrap: nowrap;
     flex-direction: row;
-    align-items: baseline;
+    margin: 1px 0;
+    
+    .fc-wait-animation {
+      margin: 0 auto;
+    }
   }
 
   &__empty-list {
