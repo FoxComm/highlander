@@ -3,7 +3,6 @@ import _ from 'lodash';
 import React, { Component, PropTypes } from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
 
 // data
 import { groups, emptyTitle } from '../../paragons/watcher';
@@ -21,13 +20,17 @@ import SelectWatcherModal from './select-modal';
 
 const maxDisplayed = 7;
 
-const mapStateToProps = (state, { entity: { entityType, entityId } }) => ({
-  currentUser: state.user.current,
-  isFetching: {
-    [groups.assignees]: _.get(state, [entityType, 'watchers', entityId, groups.assignees, 'isFetching']),
-    [groups.watchers]: _.get(state, [entityType, 'watchers', entityId, groups.watchers, 'isFetching']),
-  }
-});
+const mapStateToProps = (state, { entity: { entityType, entityId } }) => {
+  const basePath = [entityType, 'watchers', entityId];
+
+  return {
+    currentUser: state.user.current,
+    isFetching: {
+      [groups.assignees]: _.get(state, [...basePath, groups.assignees, 'isFetching']),
+      [groups.watchers]: _.get(state, [...basePath, groups.watchers, 'isFetching']),
+    }
+  };
+};
 
 const mapDispatchToProps = (dispatch, { entity: { entityType, entityId } }) => {
   const { actions } = getStore('watchers', entityType);
@@ -66,8 +69,7 @@ class Watchers extends Component {
     this.props.fetch(groups.watchers);
   }
 
-  @autobind
-  watch(group, e) {
+  watch(e, group) {
     e.preventDefault();
 
     this.props.watch(group, this.props.currentUser.id);
@@ -84,7 +86,7 @@ class Watchers extends Component {
               Assignees
             </div>
             <div className="fc-watchers__controls">
-              <a className="fc-watchers__link" onClick={this.watch.bind(this, groups.assignees)}>take it</a>
+              <a className="fc-watchers__link" onClick={e => this.watch(e, groups.assignees)}>take it</a>
             </div>
           </div>
           <div className="fc-watchers__users-row fc-watchers__assignees">
@@ -95,7 +97,7 @@ class Watchers extends Component {
               Watchers
             </div>
             <div className="fc-watchers__controls">
-              <a className="fc-watchers__link" onClick={this.watch.bind(this, groups.watchers)}>watch</a>
+              <a className="fc-watchers__link" onClick={e => this.watch(e, groups.watchers)}>watch</a>
             </div>
           </div>
           <div className="fc-watchers__users-row fc-watchers__watchers">
