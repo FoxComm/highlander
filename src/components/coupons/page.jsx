@@ -41,6 +41,8 @@ class CouponPage extends Component {
 
     if (!isFetching) {
       const nextCoupon = nextProps.details.coupon;
+      console.log(this.isNew);
+      console.log(nextCoupon.form.id);
       if (this.isNew && nextCoupon.form.id) {
         this.props.dispatch(pushState(null, `/coupons/${nextCoupon.form.id}`, ''));
       }
