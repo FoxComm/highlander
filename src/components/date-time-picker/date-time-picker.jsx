@@ -28,6 +28,11 @@ function formatTimeDigits(digits: number): string {
   return digits < 10 ? `0${digits}` : digits.toString();
 }
 
+function formatDate(date: Date): string {
+  const isoDate = date.toISOString();
+  return isoDate.substr(0, isoDate.length - 1); // strip last Z char
+}
+
 function setStateFromProps(props: Props): State {
   if (props.dateTime) {
     const localTime = moment.utc(props.dateTime).local();
@@ -82,7 +87,7 @@ export default class DateTimePicker extends Component<void, Props, State> {
     const newDate = moment(newDateStr);
     let currentDate = this.currentDate;
     currentDate.year(newDate.year()).dayOfYear(newDate.dayOfYear());
-    this.props.onChange(currentDate.toISOString());
+    this.triggerChange(currentDate);
   }
 
   @autobind
@@ -99,32 +104,36 @@ export default class DateTimePicker extends Component<void, Props, State> {
     }
   }
 
+  triggerChange(date: Date) {
+    this.props.onChange(formatDate(date));
+  }
+
   @autobind
   handleAddHour() {
     let currentDate = this.currentDate;
     currentDate.add(1, 'h');
-    this.props.onChange(currentDate.toISOString());
+    this.triggerChange(currentDate);
   }
 
   @autobind
   handleSubtractHour() {
     let currentDate = this.currentDate;
     currentDate.subtract(1, 'h');
-    this.props.onChange(currentDate.toISOString());
+    this.triggerChange(currentDate);
   }
 
   @autobind
   handleAddMinutes() {
     let currentDate = this.currentDate;
     currentDate.add(5, 'm');
-    this.props.onChange(currentDate.toISOString());
+    this.triggerChange(currentDate);
   }
 
   @autobind
   handleSubtractMinutes() {
     let currentDate = this.currentDate;
     currentDate.subtract(5, 'm');
-    this.props.onChange(currentDate.toISOString());
+    this.triggerChange(currentDate);
   }
 
   @autobind
@@ -160,7 +169,7 @@ export default class DateTimePicker extends Component<void, Props, State> {
 
     let currentDate = this.currentDate;
     currentDate.hour(normalizedHours).minutes(minutes);
-    this.props.onChange(currentDate.toISOString());
+    this.triggerChange(currentDate);
   }
 
   render(): Element {

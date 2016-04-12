@@ -86,6 +86,7 @@ export default class ObjectFormInner extends Component<void, Props, State> {
       richText: this.renderRichText,
       string: this.renderString,
       options: this.renderOptions,
+      text: this.renderText,
     };
   }
 
@@ -197,6 +198,24 @@ export default class ObjectFormInner extends Component<void, Props, State> {
           onChange={onChange} />
       </div>
     );
+  }
+
+  @autobind
+  renderText(label: string, value: string): Element {
+    const formattedLabel = formatLabel(label);
+    const onChange = ({target}) => {
+      return this.handleChange(label, 'richText', target.value);
+    };
+    const textInput = (
+      <textarea
+        className={inputClass}
+        name={label}
+        onChange={onChange} >
+        {value}
+      </textarea>
+    );
+
+    return renderFormField(label, textInput);
   }
 
   render(): Element {

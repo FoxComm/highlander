@@ -13,7 +13,7 @@ import AppendInput from '../forms/append-input';
 import { Checkbox } from '../checkbox/checkbox';
 import SelectVertical from '../select-verical/select-vertical';
 
-import { actions } from '../../modules/orders/list';
+import { actions } from '../../modules/products/list';
 
 const offersItems = [
   ['orderPercentOff', 'Percent off order'],
@@ -28,7 +28,7 @@ type Props = {
 
 function mapStateToProps(state) {
   return {
-    productSearches: _.get(state, 'orders.list.savedSearches', []),
+    productSearches: _.get(state, 'products.list.savedSearches', []),
   };
 }
 
@@ -229,8 +229,6 @@ export default class Offer extends Component {
   get itemsSelectPercentOff() {
     return (
       <div>
-        <div styleName="header">Discounted Items</div>
-        <Checkbox id="offer-exclude-gc" styleName="attr-row">Exclude gift cards</Checkbox>
         <Checkbox id="offer-items-same-as-q" styleName="attr-row">Same as qualifying items</Checkbox>
         <div styleName="discount-items">
           <strong styleName="discount-items-label">Discount the items</strong>
