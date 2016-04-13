@@ -108,7 +108,6 @@ export default class RestorePassword extends Component {
     );
   }
 
-  // TODO: get rid of double redirection
   @autobind
   gotoLogin() {
     this.props.dispatch(routeActions.push({
@@ -122,7 +121,7 @@ export default class RestorePassword extends Component {
 
     if (emailSent) {
       return (
-        <Button styleName="primary-button" onClick={this.gotoLogin}>BACK TO LOG IN</Button>
+        <Button styleName="primary-button" onClick={this.gotoLogin} type="button">BACK TO LOG IN</Button>
       );
     }
 
