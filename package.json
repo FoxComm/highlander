@@ -72,6 +72,7 @@
   },
   "dependencies": {
     "classnames": "^2.2.3",
+    "recast": "^0.11.4",
     "core-decorators": "^0.11.0",
     "currency-symbol-map": "^2.2.0",
     "dom-scroll-into-view": "^1.1.0",
@@ -89,7 +90,7 @@
     "react-gestures": "^0.1.8",
     "react-input-mask": "github:anru/react-input-mask#fix/initial-value",
     "react-redux": "^4.4.0",
-    "react-router": "^2.0.0",
+    "react-router": "^2.1.1",
     "react-router-redux": "^3.0.0",
     "reduce-reducers": "^0.1.2",
     "redux": "^3.3.1",
