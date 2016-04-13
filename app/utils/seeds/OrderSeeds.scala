@@ -137,7 +137,7 @@ trait OrderSeeds {
   }
 
   private def total(products: Seq[SimpleProductData])(implicit db: Database)  = for { 
-    prices ← * <~ DbResultT.sequence(products.map(Mvp.getPrice))
+    prices ← * <~ DbResultT.sequence(products.map(p ⇒ Mvp.getPrice(p.skuId)))
     t ← * <~ prices.foldLeft(0)(_+_)
   } yield t
 

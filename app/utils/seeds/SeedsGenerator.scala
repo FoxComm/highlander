@@ -120,10 +120,6 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
     }
   }
 
-  def makeProducts(productCount: Int) = (1 to productCount).par.map { i ⇒  
-    generateProduct 
-  }.toList
-
   def makePromotions(promotionCount: Int) = (1 to promotionCount).par.map { i ⇒  
     generatePromotion(Random.nextInt(2) match {
       case 0 ⇒ Promotion.Auto
@@ -143,7 +139,7 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
 
   def pickOne[T](vals: Seq[T]) : T = vals(Random.nextInt(vals.length))
 
-  def insertRandomizedSeeds(customersCount: Int, productCount: Int)(implicit ec: EC, db: DB) = {
+  def insertRandomizedSeeds(customersCount: Int, appeasementCount: Int)(implicit ec: EC, db: DB) = {
     Faker.locale("en")
     val location = "Random"
 
@@ -151,15 +147,13 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       shipMethods ← * <~ getShipmentRules
       warehouseIds ← * <~ generateWarehouses
-      unsavedProducts = makeProducts(productCount)
-      products ← * <~ generateProducts(unsavedProducts)
-      _ ← * <~ generateInventories(products, warehouseIds)
+      skus  ← * <~ Skus.filter(_.contextId === context.id).result
+      skuIds = skus.map(_.id)
       customerIds ← * <~ Customers.createAllReturningIds(generateCustomers(customersCount, location))
       customers  ← * <~ Customers.filter(_.id.inSet(customerIds)).result
       _ ← * <~ Addresses.createAll(generateAddresses(customers))
       _ ← * <~ CreditCards.createAll(generateCreditCards(customers))
       orderedGcs ← * <~ DbResultT.sequence(randomSubset(customerIds).map { id ⇒ generateGiftCardPurchase(id, context)})
-      appeasementCount = Math.max(productCount / 8, Random.nextInt(productCount))
       appeasements  ← * <~ DbResultT.sequence((1 to appeasementCount).map { i ⇒ generateGiftCardAppeasement})
       giftCards  ← * <~  orderedGcs ++ appeasements
       unsavedPromotions = makePromotions(5)
@@ -170,7 +164,7 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
       _  ← * <~ CouponCodes.createAll(unsavedCodes)
       _ ← * <~ DbResultT.sequence(
         randomSubset(customerIds, customerIds.length).map{
-          id ⇒ generateOrders(id, context, products, pickOne(giftCards))
+          id ⇒ generateOrders(id, context, skuIds, pickOne(giftCards))
         })
     } yield {}
   }

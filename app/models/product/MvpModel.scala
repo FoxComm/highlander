@@ -193,8 +193,8 @@ object Mvp {
 
   } yield p.copy(productId = product.id, skuId = sku.id)
 
-  def getPrice(product: SimpleProductData)(implicit db: Database): DbResultT[Int] = for {
-    sku       ← * <~ Skus.mustFindById404(product.skuId)
+  def getPrice(skuId: Int)(implicit db: Database): DbResultT[Int] = for {
+    sku       ← * <~ Skus.mustFindById404(skuId)
     form      ← * <~ ObjectForms.mustFindById404(sku.formId)
     shadow    ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
     p         ← * <~ priceAsInt(form, shadow)
