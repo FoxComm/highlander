@@ -15,25 +15,34 @@ import FormField from '../../forms/formfield';
 // styles
 import styles from './styles.css';
 
-export default class CouponCodes extends Component {
+type Props = {
+  onChangeSingleCode: (code: ?string) => any;
+  onGenerateBulkCodes: (prefix: string, length: number, quantity: number) => any;
+}
 
-  constructor(...attrs) {
-    super(...attrs);
-    this.state = {
-      single: false,
-      bulk: false,
-    };
-  }
+export default class CouponCodes extends Component {
+  props: Props;
+
+  state = {
+    bulk: void 0,
+    codesQuantity: 1,
+    codesLength: 1,
+  };
 
   get singleCouponFormPart() {
-    if (!this.state.single) {
+    if (this.state.bulk !== false) {
       return null;
     }
 
     return (
       <div styleName="form-subset">
         <div className="fc-form-field" styleName="form-group">
-          <input type="text" styleName="full-width-field" />
+          <input
+            type="text"
+            styleName="full-width-field"
+            value={this.state.singleCode}
+            onChange={this.handleChangeSingleCode}
+          />
           <div styleName="field-comment">
             Coupon codes must be unique and are <i>not</i> case sensative.
           </div>
@@ -42,8 +51,46 @@ export default class CouponCodes extends Component {
     );
   }
 
+  @autobind
+  handleChangeSingleCode({target}) {
+    this.props.onChangeSingleCode(target.value);
+  }
+
+  @autobind
+  handleFormChange({target}) {
+    this.setFormValue(target.name, target.value);
+  }
+
+  @autobind
+  handleCounterChange({target}) {
+    this.setCounterValue(target.name, target.value);
+  }
+
+  @autobind
+  setCounterValue(name, value) {
+    let num = Number(value);
+    num = isNaN(num) ? 1 : num;
+    this.setFormValue(name, Math.max(1, num));
+  }
+
+  @autobind
+  handleGenerateBulkClick() {
+    const { codesPrefix, codesLength, codesQuantity } = this.state;
+    this.props.onGenerateBulkCodes(codesPrefix, codesLength, codesQuantity);
+  }
+
+  setFormValue(name, value) {
+    this.setState({
+      [name]: value
+    });
+  }
+
+  get generateCodesDisabled() {
+    return !this.state.codesPrefix;
+  }
+
   get bulkCouponFormPart() {
-    if (!this.state.bulk) {
+    if (this.state.bulk !== true) {
       return null;
     }
 
@@ -52,21 +99,43 @@ export default class CouponCodes extends Component {
         <div styleName="form-group">
           <FormField label="Quantity">
             <div>
-              <Counter id="codesQuantity" min={1} />
+              <Counter
+                id="codesQuantity"
+                name="codesQuantity"
+                value={this.state.codesQuantity}
+                decreaseAction={() => this.setCounterValue('codesQuantity', this.state.codesQuantity - 1)}
+                increaseAction={() => this.setCounterValue('codesQuantity', this.state.codesQuantity + 1)}
+                onChange={this.handleCounterChange}
+                min={1}
+              />
             </div>
           </FormField>
         </div>
         <div styleName="form-group">
           <FormField label="Code Prefix">
             <div>
-              <input styleName="full-width-field" type="text" id="couponCodePrefix" />
+              <input
+                styleName="full-width-field"
+                value={this.state.codesPrefix}
+                onChange={this.handleFormChange}
+                type="text"
+                name="codesPrefix"
+              />
             </div>
           </FormField>
         </div>
         <div styleName="form-group">
           <FormField label="Code Character Length">
             <div>
-              <input styleName="full-width-field" type="text" id="couponCodeLength" />
+              <Counter
+                id="codesLength"
+                name="codesLength"
+                value={this.state.codesLength}
+                decreaseAction={() => this.setCounterValue('codesLength', this.state.codesLength - 1)}
+                increaseAction={() => this.setCounterValue('codesLength', this.state.codesLength + 1)}
+                onChange={this.handleCounterChange}
+                min={1}
+              />
             </div>
           </FormField>
           <div styleName="field-comment">
@@ -74,24 +143,31 @@ export default class CouponCodes extends Component {
           </div>
         </div>
         <div styleName="form-group">
-          <Checkbox id="downloadCSVCheckbox">Download a CSV file of the coupon codess</Checkbox>
+          <Checkbox id="downloadCSVCheckbox">Download a CSV file of the coupon codes</Checkbox>
         </div>
         <div styleName="form-group">
           <Checkbox id="emailCSVCheckbox">Email a CSV file of the coupon codes to other users</Checkbox>
         </div>
-        <PrimaryButton type="button" disabled={this.props.isNew} >Generate Codes</PrimaryButton>
+        <PrimaryButton
+          type="button"
+          disabled={this.generateCodesDisabled}
+          onClick={this.handleGenerateBulkClick}
+        >
+          Generate Codes
+        </PrimaryButton>
       </div>
     );
   }
 
   @autobind
   handleSingleSelect() {
-    this.setState({single: true, bulk: false});
+    this.setState({bulk: false});
   }
 
   @autobind
   handleBulkSelect() {
-    this.setState({single: false, bulk: true});
+    this.props.onChangeSingleCode(null);
+    this.setState({bulk: true});
   }
 
   render() {
@@ -99,7 +175,7 @@ export default class CouponCodes extends Component {
       <ContentBox title="Coupon Code">
         <div>
           <RadioButton id="singleCouponCodeRadio"
-                       checked={this.state.single}
+                       checked={this.state.bulk === false}
                        onChange={this.handleSingleSelect} >
             <label htmlFor="singleCouponCodeRadio" styleName="field-label">Single coupon code</label>
           </RadioButton>
@@ -107,7 +183,7 @@ export default class CouponCodes extends Component {
         {this.singleCouponFormPart}
         <div>
           <RadioButton id="bulkCouponCodeRadio"
-                       checked={this.state.bulk}
+                       checked={this.state.bulk === true}
                        onChange={this.handleBulkSelect} >
             <label htmlFor="bulkCouponCodeRadio" styleName="field-label">Bulk generate coupon codes</label>
           </RadioButton>

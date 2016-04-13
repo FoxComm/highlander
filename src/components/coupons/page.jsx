@@ -11,6 +11,7 @@ import { pushState } from 'redux-router';
 import { PageTitle } from '../section-title';
 import { PrimaryButton, Button } from '../common/buttons';
 import SubNav from './sub-nav';
+import WaitAnimation from '../common/wait-animation';
 
 // redux
 import * as CouponActions from '../../modules/coupons/details';
@@ -70,15 +71,39 @@ class CouponPage extends Component {
   }
 
   @autobind
+  handleUpdateCouponCode(singleCode) {
+    this.setState({
+      couponCode: singleCode,
+    });
+  }
+
+  @autobind
+  handleGenerateBulkCodes(prefix, length, quantity) {
+    const { coupon } = this.state;
+
+    let willBeCoupon = this.isNew ? this.props.actions.createCoupon(coupon) : Promise.resolve();
+
+    willBeCoupon.then(() => {
+      this.props.actions.generateCodes(prefix, length, quantity);
+    });
+  }
+
+  @autobind
   handleSubmit() {
     if (this.state.coupon) {
-      const coupon = this.state.coupon;
+      const { coupon, couponCode } = this.state;
+
+      let willBeCoupon = Promise.resolve();
 
       if (this.isNew) {
-        this.props.actions.createCoupon(coupon);
+        willBeCoupon = this.props.actions.createCoupon(coupon);
       } else {
         this.props.actions.updateCoupon(coupon);
       }
+
+      willBeCoupon.then(() => {
+        this.props.actions.generateCode(coupon.form.id, couponCode);
+      });
     }
   }
 
@@ -86,10 +111,16 @@ class CouponPage extends Component {
     const props = this.props;
     const { coupon } = this.state;
 
+    if (!coupon || props.isFetching) {
+      return <div><WaitAnimation /></div>;
+    }
+
     const children = React.cloneElement(props.children, {
       ...props.children.props,
       coupon,
       onUpdateCoupon: this.handleUpdateCoupon,
+      onUpdateCouponCode: this.handleUpdateCouponCode,
+      onGenerateBulkCodes: this.handleGenerateBulkCodes,
       entity: { entityId: this.entityId, entityType: 'coupon' },
     });
 
@@ -112,7 +143,7 @@ class CouponPage extends Component {
       </div>
     );
   }
-};
+}
 
 export default connect(
   state => ({
