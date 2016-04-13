@@ -12,7 +12,8 @@ final case class CustomerConnector()(implicit ec: EC) extends ActivityConnector 
 
   def process(offset: Long, activity: Activity): Future[Seq[Connection]] = Future {
     val customerIds = byContextUserType(activity) ++: byCustomerData(activity) ++:
-      byCustomerUpdatedActivity(activity) ++: byAssignmentBulkData(activity) ++: byAssignmentSingleData(activity)
+      byCustomerUpdatedActivity(activity) ++: byAssignmentBulkData(activity) ++:
+      byAssignmentSingleData(activity) ++: byNoteData(activity)
 
     customerIds.distinct.map(createConnection(_, activity.id))
   }
@@ -28,6 +29,13 @@ final case class CustomerConnector()(implicit ec: EC) extends ActivityConnector 
   private def byContextUserType(activity: Activity): Seq[String] = activity.context.userType match {
     case "customer" ⇒ Seq(activity.context.userId.toString)
     case _          ⇒ Seq.empty
+  }
+
+  private def byNoteData(activity: Activity): Seq[String] = {
+    (activity.data \ "note" \ "referenceType", activity.data \ "entity" \ "id") match {
+      case (JString("customer"), JInt(id)) ⇒ Seq(id.toString)
+      case _                               ⇒ Seq.empty
+    }
   }
 
   private def byCustomerData(activity: Activity): Seq[String] = activity.data \ "customer" \ "id" match {
