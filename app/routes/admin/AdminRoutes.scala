@@ -178,6 +178,54 @@ object AdminRoutes {
               }
             }
           }
+        } ~
+        pathPrefix("promotion" / IntNumber) { promoId ⇒
+          (get & pathEnd) {
+            goodOrFailures {
+              PromotionNoteManager.list(promoId)
+            }
+          } ~
+          (post & pathEnd & entity(as[CreateNote])) { payload ⇒
+            goodOrFailures {
+              PromotionNoteManager.create(promoId, admin, payload)
+            }
+          } ~
+          path(IntNumber) { noteId ⇒
+            (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
+              goodOrFailures {
+                PromotionNoteManager.update(promoId, noteId, admin, payload)
+              }
+            } ~
+            (delete & pathEnd) {
+              nothingOrFailures {
+                PromotionNoteManager.delete(promoId, noteId, admin)
+              }
+            }
+          }
+        } ~
+        pathPrefix("coupon" / IntNumber) { couponId ⇒
+          (get & pathEnd) {
+            goodOrFailures {
+              PromotionNoteManager.list(couponId)
+            }
+          } ~
+          (post & pathEnd & entity(as[CreateNote])) { payload ⇒
+            goodOrFailures {
+              PromotionNoteManager.create(couponId, admin, payload)
+            }
+          } ~
+          path(IntNumber) { noteId ⇒
+            (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
+              goodOrFailures {
+                PromotionNoteManager.update(couponId, noteId, admin, payload)
+              }
+            } ~
+            (delete & pathEnd) {
+              nothingOrFailures {
+                PromotionNoteManager.delete(couponId, noteId, admin)
+              }
+            }
+          }
         }
       } ~
       pathPrefix("save-for-later") {

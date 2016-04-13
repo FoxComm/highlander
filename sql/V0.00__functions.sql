@@ -43,7 +43,8 @@ create domain assignment_type text check (value in ('assignee', 'watcher'));
 create domain assignment_ref_type text check (value in ('order', 'giftCard', 'customer', 'rma', 'product', 'sku'));
 
 -- Notes
-create domain note_reference_type text check (value in ('order', 'giftCard', 'customer', 'rma', 'product', 'sku'));
+create domain note_reference_type text check (value in ('order', 'giftCard', 'customer', 'rma', 'product', 'sku',
+                                                        'promotion', 'coupon'));
 create domain note_body text check (length(value) > 0 and length(value) <= 1000);
 
 -- Generic phone number
