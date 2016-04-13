@@ -12,7 +12,7 @@ final case class OrderConnector()(implicit ec: EC) extends ActivityConnector {
 
   def process(offset: Long, activity: Activity): Future[Seq[Connection]] = Future {
     val orderIds = byOrderData(activity) ++: byAssignmentBulkData(activity) ++:
-      byAssignmentSingleData(activity)
+      byAssignmentSingleData(activity) ++: byBulkData(activity)
 
     orderIds.distinct.map(createConnection(_, activity.id))
   }
@@ -40,8 +40,10 @@ final case class OrderConnector()(implicit ec: EC) extends ActivityConnector {
     }
   }
 
+  private def byBulkData(activity: Activity): Seq[String] = extractStringSeq(activity.data, "orderRefNums")
+
   private def byAssignmentBulkData(activity: Activity): Seq[String] = {
-    (activity.activityType, activity.data \ "assignmentType") match {
+    (activity.activityType, activity.data \ "referenceType") match {
       case ("bulk_assigned", JString("order"))   ⇒ extractStringSeq(activity.data, "entityIds")
       case ("bulk_unassigned", JString("order")) ⇒ extractStringSeq(activity.data, "entityIds")
       case _                                     ⇒ Seq.empty

@@ -41,7 +41,7 @@ final case class GiftCardConnector()(implicit ec: EC) extends ActivityConnector 
   }
 
   private def byAssignmentBulkData(activity: Activity): Seq[String] = {
-    (activity.activityType, activity.data \ "assignmentType") match {
+    (activity.activityType, activity.data \ "referenceType") match {
       case ("bulk_assigned", JString("giftCard"))   ⇒ extractStringSeq(activity.data, "entityIds")
       case ("bulk_unassigned", JString("giftCard")) ⇒ extractStringSeq(activity.data, "entityIds")
       case _                                        ⇒ Seq.empty
