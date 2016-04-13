@@ -38,27 +38,35 @@ class Dropdown extends React.Component {
     });
   }
 
-  componentDidUpdate() {
-    const { open } = this.state;
-
-    if (open && !this.isDownVisible && !this.state.dropup) {
-      this.setState({ dropup: true });
-    }
-    if (!open && this.state.dropup) {
-      this.setState({ dropup: false });
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.open && !prevState.open) {
+      this.setMenuOrientation();
     }
   }
 
-  get isDownVisible() {
-    const dropdown = ReactDOM.findDOMNode(this.refs.items);
-    const { left, right, bottom } = dropdown.getBoundingClientRect();
+  setMenuOrientation() {
+    const menuNode = this.refs.items;
+    const containerNode = this.refs.container;
+    const viewportHeight = window.innerHeight;
 
-    const leftBottomElement = document.elementFromPoint(left + 1, bottom - 1);
-    const rightBottomElement = document.elementFromPoint(right - 1, bottom - 1);
+    const containerPos = containerNode.getBoundingClientRect();
+    const spaceAtTop = containerPos.top;
+    const spaceAtBottom = viewportHeight - containerPos.bottom;
 
-    const items = [dropdown, dropdown.lastChild];
+    let dropup = false;
 
-    return items.includes(leftBottomElement) && items.includes(rightBottomElement);
+    if (!menuNode) {
+      if (spaceAtBottom < viewportHeight / 2) dropup = true;
+    } else {
+      const menuRect = menuNode.getBoundingClientRect();
+      if (spaceAtBottom < menuRect.height && spaceAtBottom < spaceAtTop) {
+        dropup = true;
+      }
+    }
+
+    this.setState({
+      dropup,
+    });
   }
 
   @autobind
@@ -138,7 +146,7 @@ class Dropdown extends React.Component {
     });
 
     return (
-      <div className={className} onBlur={this.onBlur} tabIndex="0">
+      <div className={className} ref="container" onBlur={this.onBlur} tabIndex="0">
         <div className="fc-dropdown__controls" onClick={editable ? this.handleToggleClick : null}>
           {this.dropdownButton}
           {this.input}
