@@ -37,6 +37,14 @@ export default class SearchList extends React.Component {
     noGutter: false
   };
 
+  componentDidMount() {
+    this.autoFetcher = this.autoFetcher || setInterval(this.props.searchActions.refresh, 1500);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.autoFetcher);
+  }
+
   render() {
     const props = this.props;
 

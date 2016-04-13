@@ -49,6 +49,14 @@ export default class SelectableSearchList extends React.Component {
     toggleColumnPresent: true
   };
 
+  componentDidMount() {
+    this.autoFetcher = this.autoFetcher || setInterval(this.props.searchActions.refresh, 1500);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.autoFetcher);
+  }
+
   render() {
     const props = this.props;
 

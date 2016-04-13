@@ -4,7 +4,7 @@ import { createReducer } from 'redux-act';
 import { createNsAction } from './../utils';
 import { toQuery, addNativeFilters } from '../../elastic/common';
 
-import makePagination, { makeFetchAction } from '../pagination/base';
+import makePagination, { makeFetchAction, makeRefreshAction } from '../pagination/base';
 import { addPaginationParams } from '../pagination';
 
 // module is responsible for data in search tab
@@ -65,6 +65,7 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
   }
 
   const fetch = makeFetchAction(fetcher, actions, state => getSelectedSearch(state).results);
+  const refresh = makeRefreshAction(fetcher, actions, state => getSelectedSearch(state).results);
 
   // for overriding updateStateAndFetch in pagination actions
   const updateStateAndFetch = (newState, ...args) => {
@@ -80,6 +81,7 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
     actions: {
       ...actions,
       fetch,
+      refresh,
       updateStateAndFetch,
       setExtraFilters,
     }
