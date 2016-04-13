@@ -9,6 +9,8 @@ import classNames from 'classnames';
 import { browserHistory } from 'react-router';
 import { autobind } from 'core-decorators';
 
+import localized from 'lib/i18n';
+
 import Currency from 'ui/currency';
 import LineItem from './line-item';
 import Button from 'ui/buttons';
@@ -18,6 +20,7 @@ import * as actions from 'modules/cart';
 
 const getState = state => ({ ...state.cart, ...state.auth });
 
+@localized
 class Cart extends Component {
 
   componentWillMount() {
@@ -39,22 +42,24 @@ class Cart extends Component {
   }
 
   render() {
+    const { props } = this;
+    const { t } = props;
     const cartClass = classNames({
-      'cart-hidden': !this.props.isVisible,
-      'cart-shown': this.props.isVisible,
+      'cart-hidden': !props.isVisible,
+      'cart-shown': props.isVisible,
     });
 
-    const checkoutDisabled = _.size(this.props.skus) < 1;
+    const checkoutDisabled = _.size(props.skus) < 1;
 
     return (
       <div styleName={cartClass}>
-        <div styleName="overlay" onClick={this.props.toggleCart}>
+        <div styleName="overlay" onClick={props.toggleCart}>
         </div>
         <div styleName="cart-box">
-          <div styleName="cart-header" onClick={this.props.toggleCart}>
+          <div styleName="cart-header" onClick={props.toggleCart}>
             <Icon name="fc-chevron-left" styleName="left-icon"/>
             <div styleName="header-text">
-              KEEP SHOPPING
+              {t('KEEP SHOPPING')}
             </div>
           </div>
           <div styleName="cart-content">
@@ -63,16 +68,16 @@ class Cart extends Component {
             </div>
             <div styleName="cart-subtotal">
               <div styleName="subtotal-title">
-                SUBTOTAL
+                {t('SUBTOTAL')}
               </div>
               <div styleName="subtotal-price">
-                <Currency value={this.props.totals.subTotal} />
+                <Currency value={props.totals.subTotal} />
               </div>
             </div>
           </div>
           <div styleName="cart-footer">
             <Button onClick={this.onCheckout} disabled={checkoutDisabled} styleName="checkout-button">
-              CHECKOUT
+              {t('CHECKOUT')}
             </Button>
           </div>
         </div>
