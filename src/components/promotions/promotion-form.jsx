@@ -67,6 +67,11 @@ export default class PromotionForm extends Component {
     const { promotion } = this.props;
     const formAttributes = _.get(promotion, 'form.attributes', []);
     const shadowAttributes = _.get(promotion, 'shadow.attributes', []);
+    const { applyType } = promotion;
+
+    if (applyType == 'coupon') {
+      return null;
+    }
 
     return (
       <ObjectScheduler

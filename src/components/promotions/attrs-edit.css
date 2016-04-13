@@ -49,3 +49,7 @@
 .wide-dropdown {
   max-width: initial;
 }
+
+.form-row {
+  margin-top: 20px;
+}
