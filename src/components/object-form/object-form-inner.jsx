@@ -232,7 +232,7 @@ export default class ObjectFormInner extends Component<void, Props, State> {
     });
 
     return (
-      <div>
+      <div className="fc-object-form">
         {renderedAttributes}
         {this.addCustomProperty}
         {this.customPropertyForm}

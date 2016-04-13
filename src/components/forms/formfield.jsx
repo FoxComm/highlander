@@ -159,7 +159,7 @@ export default class FormField extends React.Component {
 
     const value = this.getTargetValue();
 
-    if (!_.isString(value) || value) {
+    if (value !== void 0 && (!_.isString(value) || value)) {
       if (this.props.maxLength && _.isString(value) && value.length > this.props.maxLength) {
         errors = [...errors, `${label} can not be more than ${this.props.maxLength} characters`];
       }

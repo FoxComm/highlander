@@ -1,16 +1,25 @@
 .fc-object-form {
+  #label() {
+    .font-spec(16px, 600, 24px);
+    .margin-bottom(10px);
+    color: @color-decor1;
+    text-transform: capitalize;
+  }
+
   &__field {
     .margin-bottom(20px);
 
     display: flex;
     flex-direction: column;
+
+    .fc-form-field-label {
+      #label();
+    }
   }
 
-  &__field-label, &__add-custom-property {
-    .font-spec(16px, 600, 24px);
-    .margin-bottom(10px);
-    color: @color-decor1;
-    text-transform: capitalize;
+  &__field-label,
+  &__add-custom-property {
+    #label();
   }
 
   &__add-custom-property {

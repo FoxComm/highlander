@@ -77,6 +77,11 @@ class PromotionPage extends Component {
   handleSubmit() {
     if (this.state.promotion) {
       const promotion = this.state.promotion;
+      const { form } = this.refs;
+
+      if (form && form.checkValidity) {
+        if (!form.checkValidity()) return;
+      }
 
       if (this.isNew) {
         this.props.actions.createPromotion(promotion);
@@ -98,6 +103,7 @@ class PromotionPage extends Component {
     const children = React.cloneElement(props.children, {
       ...props.children.props,
       promotion,
+      ref: 'form',
       onUpdatePromotion: this.handleUpdatePromotion,
       entity: { entityId: this.entityId, entityType: 'promotion' },
     });
@@ -107,7 +113,8 @@ class PromotionPage extends Component {
         <PageTitle title={this.pageTitle}>
           <PrimaryButton
             type="submit"
-            onClick={this.handleSubmit}>
+            onClick={this.handleSubmit}
+          >
             Save
           </PrimaryButton>
         </PageTitle>
