@@ -10,7 +10,9 @@ const { reducer, actions } = makeLiveSearch(
   searchTerms,
   'products_search_view/_search',
   'productsScope',
-  {}
+  {
+    rawSorts: ['title']
+  }
 );
 
 export {

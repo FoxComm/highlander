@@ -10,7 +10,7 @@ import { addPaginationParams } from '../pagination';
 // module is responsible for data in search tab
 
 export default function makeDataInSearches(namespace, esUrl, options = {}) {
-  const { extraFilters = null, processQuery = _.identity, initialState = {} } = options;
+  const { extraFilters = null, processQuery = _.identity, initialState = {}, rawSorts = [] } = options;
 
   const setExtraFilters = createNsAction(namespace, 'SET_EXTRA_FILTERS');
   const ns = namespace.split(/\./);
@@ -45,6 +45,7 @@ export default function makeDataInSearches(namespace, esUrl, options = {}) {
     const extraFilters = _.get(getState(), [...ns, 'extraFilters'], extraFilters);
     const jsonQuery = toQuery(searchTerms, {
       sortBy: searchState.sortBy,
+      sortRaw: rawSorts.indexOf(_.trim(searchState.sortBy, '-')) != -1,
       phrase: phrase,
     });
 

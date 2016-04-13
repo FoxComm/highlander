@@ -7,7 +7,8 @@ const { reducer, actions } = makeLiveSearch(
   'customers_search_view/_search',
   'customersScope',
   {
-    initialState: { sortBy: '-joinedAt' }
+    initialState: { sortBy: '-joinedAt' },
+    rawSorts: ['name', 'email']
   }
 );
 

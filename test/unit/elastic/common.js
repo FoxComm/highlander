@@ -203,6 +203,26 @@ describe('elastic.common', () => {
       expect(omitUndefinedFields(query)).to.eql(omitUndefinedFields(expectedQuery));
     });
 
+    it('should create a serach with raw subfield sort', () => {
+      const sortBy = '-customer.name';
+
+      const query = toQuery([], { sortBy, sortRaw: true });
+
+      const expectedQuery = {
+        query: {
+          bool: {}
+        },
+        sort: [{
+          'customer.name.raw': {
+            order: 'desc',
+            nested_path: 'customer'
+          }
+        }]
+      };
+
+      expect(omitUndefinedFields(query)).to.eql(omitUndefinedFields(expectedQuery));
+    });
+
     it('should create a search with exists filter', () => {
       const terms = [{
         term: 'name',
