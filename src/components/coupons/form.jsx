@@ -23,6 +23,7 @@ export default class CouponForm extends Component {
       'activeFrom',
       'activeTo',
       'usageRules',
+      'tags',
     ];
     const shadow = _.get(this.props, 'coupon.shadow.attributes', []);
     return _(shadow).omit(toOmit).keys().value();
@@ -82,9 +83,8 @@ export default class CouponForm extends Component {
   }
 
   @autobind
-  handleUsageRulesChange(usageRules) {
-    const newForm = {...(this.props.coupon.form), usageRules};
-    const newCoupon = {...(this.props.coupon), form: newForm};
+  handleUsageRulesChange(field, value) {
+    const newCoupon = assoc(this.props.coupon, ['form', 'usageRules', field], value);
     this.props.onUpdateCoupon(newCoupon);
   }
 

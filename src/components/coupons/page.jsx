@@ -101,9 +101,11 @@ class CouponPage extends Component {
         this.props.actions.updateCoupon(coupon);
       }
 
-      willBeCoupon.then(() => {
-        this.props.actions.generateCode(coupon.form.id, couponCode);
-      });
+      if (couponCode != undefined) {
+        willBeCoupon.then(() => {
+          this.props.actions.generateCode(coupon.form.id, couponCode);
+        });
+      }
     }
   }
 

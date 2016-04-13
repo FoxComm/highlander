@@ -1,3 +1,4 @@
+/* @flow */
 
 // libs
 import _ from 'lodash';
@@ -15,46 +16,55 @@ import FormField from '../../forms/formfield';
 // styles
 import styles from './styles.css';
 
+type UsageRuleProps = {
+  isExclusive: bool,
+  isUnlimitedPerCode: bool,
+  isUnlimitedPerCustomer: bool,
+  usesPerCode: number,
+  usesPerCustomer: number,
+  onChange: Function,
+}
+
 export default class UsageRules extends Component {
 
-  get dataProps() {
-    const {onChange, ...dataProps} = this.props;
-    return dataProps;
+  props: UsageRuleProps;
+
+  static defaultProps = {
+    isExclusive: false,
+    isUnlimitedPerCode: false,
+    isUnlimitedPerCustomer: false,
+    usesPerCode: 1,
+    usesPerCustomer: 1,
+  };
+
+  @autobind
+  toggleExclusiveness(): void {
+    this.props.onChange('isExclusive', !this.props.isExclusive);
   }
 
   @autobind
-  toggleExclusiveness() {
-    const newState = {...(this.dataProps), isExclusive: !this.props.isExclusive};
-    this.props.onChange(newState);
+  toggleUnlimitedUsage(): void {
+    this.props.onChange('isUnlimitedPerCode', !this.props.isUnlimitedPerCode);
   }
 
   @autobind
-  toggleUnlimitedUsage() {
-    const newState = {...(this.dataProps), isUnlimitedPerCode: !this.props.isUnlimitedPerCode};
-    this.props.onChange(newState);
+  toggleUnlimitedCustomerUsage(): void {
+    this.props.onChange('isUnlimitedPerCustomer', !this.props.isUnlimitedPerCustomer);
   }
 
   @autobind
-  toggleUnlimitedCustomerUsage() {
-    const newState = {...(this.dataProps), isUnlimitedPerCustomer: !this.props.isUnlimitedPerCustomer};
-    this.props.onChange(newState);
-  }
-
-  @autobind
-  handleUsesPerCodeChange(value) {
+  handleUsesPerCodeChange(value: number): void {
     const checkedValue = value < 1 ? 1 : value;
-    const newState = {...(this.dataProps), usesPerCode: checkedValue};
-    this.props.onChange(newState);
+    this.props.onChange('usesPerCode', checkedValue);
   }
 
   @autobind
-  handleUsesPerCustomerChange(value) {
+  handleUsesPerCustomerChange(value: number): void {
     const checkedValue = value < 1 ? 1 : value;
-    const newState = {...(this.dataProps), usesPerCustomer: checkedValue};
-    this.props.onChange(newState);
+    this.props.onChange('usesPerCustomer', checkedValue);
   }
 
-  render() {
+  render(): Element {
     return (
       <ContentBox title="Usage Rules">
         <div styleName="form-group">
