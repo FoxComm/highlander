@@ -7,8 +7,6 @@ import styles from './site.css';
 
 import Overlay from '../overlay/overlay';
 import Auth from '../pages/auth/auth';
-import Login from '../pages/auth/login';
-
 
 const mapState = state => ({
   isAuthBlockVisible: state.auth.isAuthBlockVisible,
@@ -18,11 +16,25 @@ const mapState = state => ({
 @connect(mapState, actions)
 /* ::`*/
 class Site extends Component {
+  renderAuthBlock() {
+    if (this.props.location.query) {
+      const auth = this.props.location.query.auth;
+      const path = this.props.location.pathname;
+      if (auth) {
+        return (
+          <Overlay path={path}>
+            <Auth authBlockType={auth} path={path}/>
+          </Overlay>
+        );
+      }
+    }
+  }
+
   render() {
     return (
       <div styleName="site">
         {this.props.children}
-        {this.props.isAuthBlockVisible && <Overlay><Auth><Login /></Auth></Overlay>}
+        {this.renderAuthBlock()}
       </div>
     );
   }

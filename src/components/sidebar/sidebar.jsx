@@ -3,6 +3,7 @@
 import React from 'react';
 import type { HTMLElement } from 'types';
 import { connect } from 'react-redux';
+import { Link } from 'react-router';
 import classNames from 'classnames';
 import styles from './sidebar.css';
 
@@ -19,6 +20,7 @@ type SidebarProps = {
   toggleSidebar: Function;
   resetTerm: Function;
   authBlockToggle: Function;
+  path: string;
 };
 
 const getState = state => ({ ...state.sidebar });
@@ -51,7 +53,9 @@ const Sidebar = (props: SidebarProps): HTMLElement => {
             <Categories onClick={changeCategoryCallback} />
           </div>
           <div styleName="controls-login">
-            <a styleName="login-link" onClick={props.authBlockToggle}>LOG IN</a>
+            <Link styleName="login-link" to={{pathname: props.path, query: {auth: 'LOGIN'}}}>
+              LOG IN
+            </Link>
           </div>
         </div>
       </div>

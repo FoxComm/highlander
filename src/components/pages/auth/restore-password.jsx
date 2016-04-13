@@ -5,8 +5,9 @@ import styles from './auth.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { routeActions } from 'react-router-redux';
+import { Link } from 'react-router';
 
-import { changeAuthBlockType, authBlockTypes } from 'modules/auth';
+import { authBlockTypes } from 'modules/auth';
 
 import { TextInput } from 'ui/inputs';
 import { FormField, Form } from 'ui/forms';
@@ -21,11 +22,12 @@ type RestoreState = {
 };
 
 /* ::`*/
-@connect(null, { changeAuthBlockType })
+@connect()
 /* ::`*/
 export default class RestorePassword extends Component {
 
   static propTypes = {
+    path: PropTypes.string,
     fields: PropTypes.object.isRequired,
     handleSubmit: PropTypes.func.isRequired,
     resetForm: PropTypes.func.isRequired,
@@ -106,9 +108,13 @@ export default class RestorePassword extends Component {
     );
   }
 
+  // TODO: get rid of double redirection
   @autobind
   gotoLogin() {
-    this.props.dispatch(routeActions.push('/login'));
+    this.props.dispatch(routeActions.push({
+      pathname: this.props.path,
+      query: {auth: authBlockTypes.LOGIN},
+    }));
   }
 
   get primaryButton(): HTMLElement {
@@ -129,7 +135,7 @@ export default class RestorePassword extends Component {
     if (!emailSent) {
       return (
         <div styleName="switch-stage">
-          <a onClick={() => this.props.changeAuthBlockType(authBlockTypes.LOGIN)}>BACK TO LOG IN</a>
+          <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.LOGIN}}}>BACK TO LOG IN</Link>
         </div>
       );
     }

@@ -120,13 +120,6 @@
   }
 }
 
-.close-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-}
-
-
 @media (--medium-viewport) {
   .auth-block {
     lost-column: 5/11;

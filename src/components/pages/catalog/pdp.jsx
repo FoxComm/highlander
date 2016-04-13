@@ -111,7 +111,10 @@ class Pdp extends Component {
         this.setState({quantity: 1});
       });
     } else {
-      browserHistory.push('/login');
+      browserHistory.push({
+        pathname: `/products/${this.productId}`,
+        query: { auth: 'login' },
+      });
     }
   }
 

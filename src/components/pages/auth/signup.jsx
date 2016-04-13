@@ -1,11 +1,11 @@
 /* @flow weak */
 
 import { each, get } from 'lodash';
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
-import { browserHistory } from 'react-router';
+import { browserHistory, Link } from 'react-router';
 
 import { TextInput, TextInputWithLabel } from 'ui/inputs';
 import { FormField, Form } from 'ui/forms';
@@ -30,6 +30,9 @@ type AuthState = {
 @connect(null, actions)
 /* ::`*/
 export default class Auth extends Component {
+  static propTypes = {
+    path: PropTypes.string,
+  };
 
   state: AuthState = {
     email: '',
@@ -67,7 +70,10 @@ export default class Auth extends Component {
     const {email, password, username: name} = this.state;
     const paylaod: SignUpPayload = {email, password, name};
     this.props.signUp(paylaod).then(() => {
-      browserHistory.push('/login');
+      browserHistory.push({
+        pathname: this.props.path,
+        query: {auth: authBlockTypes.LOGIN},
+      });
     }).catch(err => {
       const errors = get(err, ['responseJson', 'errors'], []);
       let emailError = false;
@@ -88,7 +94,7 @@ export default class Auth extends Component {
     const { email, password, username, emailError, usernameError } = this.state;
 
     const loginLink =
-      <a onClick={() => this.props.changeAuthBlockType(authBlockTypes.LOGIN)}>Log in</a>;
+      <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.LOGIN}}}>Log in</Link>;
 
     return (
       <div>

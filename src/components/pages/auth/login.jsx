@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
-import { browserHistory } from 'react-router';
+import { browserHistory, Link } from 'react-router';
 import { connect } from 'react-redux';
 
 import styles from './auth.css';
@@ -32,6 +32,9 @@ const mapState = state => ({
 @localized
 /* ::`*/
 export default class Login extends Component {
+  static propTypes = {
+    path: PropTypes.string,
+  };
 
   state: AuthState = {
     email: '',
@@ -62,7 +65,7 @@ export default class Login extends Component {
     const { email, password } = this.state;
     const kind = 'customer';
     this.props.authenticate({email, password, kind}).then(() => {
-      browserHistory.push('/');
+      browserHistory.push(this.props.path);
     }).catch(() => {
       this.setState({error: 'Email or password is invalid'});
     });
@@ -74,15 +77,15 @@ export default class Login extends Component {
     const { t } = props;
 
     const restoreLink = (
-      <a styleName="restore-link" onClick={() => props.changeAuthBlockType(authBlockTypes.RESTORE_PASSWORD)}>
+      <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.RESTORE_PASSWORD}}} styleName="restore-link">
         {t('forgot?')}
-      </a>
+      </Link>
     );
 
     const signupLink = (
-      <a styleName="signup-link" onClick={() => props.changeAuthBlockType(authBlockTypes.SIGNUP)}>
+      <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.SIGNUP}}} styleName="signup-link">
         {t('Sign Up')}
-      </a>
+      </Link>
     );
 
     return (

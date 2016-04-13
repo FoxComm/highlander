@@ -4,6 +4,7 @@ import _ from 'lodash';
 import React from 'react';
 import type { HTMLElement } from 'types';
 import { connect } from 'react-redux';
+import { Link } from 'react-router';
 import { toggleSidebar } from 'modules/sidebar';
 import { toggleActive, resetTerm } from 'modules/search';
 import { toggleCart } from 'modules/cart';
@@ -44,7 +45,9 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
 
   const user = _.get(props, ['auth', 'user'], null);
   const sessionLink = _.isEmpty(user) ?
-    <a styleName="login-link" onClick={props.authBlockToggle}>{t('LOG IN')}</a> :
+    <Link styleName="login-link" to={{pathname: props.location.pathname, query: {auth: 'LOGIN'}}}>
+      {t('LOG IN')}
+    </Link> :
     <span>{t('HI')}, {user.name.toUpperCase()}</span>;
 
   return (
@@ -78,7 +81,7 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
         <Footer />
       </div>
       <div styleName="mobile-sidebar">
-        <Sidebar />
+        <Sidebar path={props.location.pathname} />
       </div>
       <div>
         <Cart />

@@ -1,8 +1,6 @@
 /* @flow */
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-
-import { authBlockToggle, authBlockTypes } from 'modules/auth';
+import React, { Component, PropTypes } from 'react';
+import { authBlockTypes } from 'modules/auth';
 
 import styles from './auth.css';
 import type { HTMLElement } from 'types';
@@ -14,18 +12,27 @@ import ResetPassword from './reset-password.jsx';
 import RestorePassword from './restore-password.jsx';
 
 class Auth extends Component {
+  static propTypes = {
+    authBlockType: PropTypes.string,
+    path: PropTypes.string,
+  };
+
   renderContent() {
+    const authProps = {
+      path: this.props.path,
+    };
+
     switch (this.props.authBlockType) {
       case authBlockTypes.LOGIN:
-        return <Login />;
+        return <Login {...authProps} />;
       case authBlockTypes.SIGNUP:
-        return <Signup />;
+        return <Signup {...authProps}/>;
       case authBlockTypes.RESET_PASSWORD:
-        return <ResetPassword />;
+        return <ResetPassword {...authProps} />;
       case authBlockTypes.RESTORE_PASSWORD:
-        return <RestorePassword />;
+        return <RestorePassword {...authProps} />;
       default:
-        return <Login />;
+        return <Login {...authProps} />;
     }
   }
 
@@ -33,18 +40,10 @@ class Auth extends Component {
     return (
       <div styleName="auth-block">
         <Icon styleName="logo" name="fc-some_brand_logo"/>
-        {this.props.isAuthBlockVisible ? this.renderContent() : this.props.children}
-        <a styleName="close-button" onClick={this.props.authBlockToggle}>
-          <Icon name="fc-close" className="close-icon"/>
-        </a>
+        {this.renderContent()}
       </div>
     );
   }
 }
 
-const mapState = state => ({
-  isAuthBlockVisible: state.auth.isAuthBlockVisible,
-  authBlockType: state.auth.authBlockType,
-});
-
-export default connect(mapState, { authBlockToggle })(Auth);
+export default Auth;
