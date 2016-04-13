@@ -37,10 +37,10 @@ const tableColumns = [
   {field: 'name', text: 'Name'},
   {field: 'storefrontName', text: 'Storefront Name'},
   {field: 'applyType', text: 'Apply Type'},
-  {field: 'totalUses', text: 'Total Uses'},
-  {field: 'inCarts', text: 'Current Carts'},
+  {field: 'totalUsed', text: 'Total Uses'},
+  {field: 'currentCarts', text: 'Current Carts'},
   {field: 'createdAt', text: 'Date/Time Created', type: 'datetime'},
-  {field: 'state', text: 'State', type: 'state'},
+  {field: 'state', text: 'State'},
 ];
 
 /* ::`*/
@@ -48,20 +48,16 @@ const tableColumns = [
 /* ::`*/
 export default class Promotions extends Component {
 
-  renderRow(): Function {
-    console.log('renderRow called');
-    return (row, index, columns, params) => {
-      const key = `promotion-${row.id}`;
-      console.log('renderRow retunred function called');
-      return (
-        <PromotionRow
-          promotion={row}
-          columns={columns}
-          key={key}
-          params={params}
-        />
-      );
-    };
+  renderRow(row: Object, index: number, columns: Array<any>, params: any): Function {
+    const key = `promotion-${row.id}`;
+    return (
+      <PromotionRow
+        promotion={row}
+        columns={columns}
+        key={key}
+        params={params}
+      />
+    );
   }
 
   bulkActions(): Array<any> {
@@ -74,7 +70,6 @@ export default class Promotions extends Component {
 
   render(): Element {
     const {list, actions} = this.props;
-    console.log(this.props);
 
     const entity = 'promotion';
     const module = `${entity}s`;
@@ -93,7 +88,7 @@ export default class Promotions extends Component {
           <SelectableSearchList
             emptyMessage="No promotions found."
             list={list}
-            renderRow={this.renderRow()}
+            renderRow={this.renderRow}
             tableColumns={tableColumns}
             searchActions={actions}
           />

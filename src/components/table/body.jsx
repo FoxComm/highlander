@@ -111,7 +111,6 @@ export default class TableBody extends Component {
     }
 
     const renderRow = this.props.renderRow || this.defaultRenderRow;
-    console.log(renderRow);
 
     return flatMap(this.props.rows, ((row, index) => {
       const isNew = this.props.detectNewRows &&
