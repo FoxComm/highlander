@@ -9,5 +9,7 @@ require('./env_defaults');
 
 const App = require('./app').default;
 
+process.title = 'm-firebird';
+
 const app = new App();
 app.start();
