@@ -150,8 +150,9 @@ export default class Order extends React.Component {
     }
 
     const visibleAndSortedOrderStates = [
-      'remorseHold',
       'manualHold',
+      'fraudHold',
+      'remorseHold',
       'fulfillmentStarted',
       'canceled',
     ].filter(state => {

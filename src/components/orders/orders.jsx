@@ -164,7 +164,7 @@ export default class Orders extends React.Component {
   renderDetail(messages, referenceNumber) {
     return (
       <span key={referenceNumber}>
-        Order <Link to="order-details" params={{order: referenceNumber}}>{referenceNumber}</Link>
+        Order <Link to="order-details" params={{order: referenceNumber}}>{referenceNumber}</Link>: {messages}
       </span>
     );
   }
