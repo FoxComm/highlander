@@ -364,7 +364,7 @@
       },
       "%0 is required": {
         "msgstr": [
-          "%0 обязательно"
+          "%0 нужно заполнить"
         ]
       },
       "Enter valid zip code": {
