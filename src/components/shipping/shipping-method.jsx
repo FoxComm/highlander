@@ -20,7 +20,8 @@ const renderRowFn = (order, updateAction, isEditingPrice, editPriceAction, cance
         isEditingPrice={isEditingPrice}
         editPriceAction={editPriceAction}
         cancelPriceAction={cancelPriceAction}
-        submitPriceAction={submitPriceAction} />
+        submitPriceAction={submitPriceAction}
+        key={row.id}/>
     );
   };
 };

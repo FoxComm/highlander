@@ -7,6 +7,7 @@
 
   .fc-typeahead__items {
     width: 600px;
+    overflow-y: auto;
 
     & > li {
       padding: 0;
@@ -37,6 +38,11 @@
 
   .fc-watcher-typeahead__item-icon {
     margin-left: 10px;
+    display: flex;
+    .initials {
+      width: 28px;
+      height: 28px;
+    }
   }
 
   .fc-watcher-typeahead__item-name {

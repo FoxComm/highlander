@@ -2,43 +2,34 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { singularize } from 'fleck';
 
 // data
-import { actions } from '../../modules/orders/watchers';
 import { groups } from '../../paragons/watcher';
 
 // components
 import Watchers from '../watchers/watchers';
 
+const getGroupData = (group, watchers, order) => ({
+  entries: _.get(watchers, [order.referenceNumber, group, 'entries'], []),
+  listModalDisplayed: _.get(watchers, [order.referenceNumber, group, 'listModalDisplayed'], false),
+});
 
-const getGroupData = (group, watchers, order) => {
-  const entityForm = singularize(group);
-  const orderGroup = _.get(order, 'group', []);
+const mapStateToProps = ({ orders: { watchers } }, { order }) => ({
+  data: {
+    assignees: getGroupData(groups.assignees, watchers, order),
+    watchers: getGroupData(groups.watchers, watchers, order),
+  }
+});
 
-  return {
-    entries: orderGroup.map(user => user[entityForm]),
-    listModalDisplayed: _.get(watchers, [order.referenceNumber, group, 'listModalDisplayed'], false),
+const OrderWatchers = ({ data, order }) => {
+  const entity = {
+    entityType: 'orders',
+    entityId: order.referenceNumber,
   };
-};
 
-const mapStateToProps = ({orders: {watchers}}, {order}) => {
-  return {
-    data: {
-      assignees: getGroupData(groups.assignees, watchers, order),
-      watchers: getGroupData(groups.watchers, watchers, order),
-    }
-  };
-};
-
-const OrderWatchers = ({data, order}) => {
   return (
-    <Watchers entity={{
-                entityType: 'orders',
-                entityId: order.referenceNumber,
-              }}
-              data={data} />
+    <Watchers entity={entity} data={data} />
   );
 };
 

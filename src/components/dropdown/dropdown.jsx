@@ -87,7 +87,7 @@ class Dropdown extends React.Component {
                  placeholder={placeholder}
                  disabled={disabled}
                  defaultValue={title}
-                 key={actualValue} />
+                 key={`${name}-${actualValue}-selected`} />
         </div>
       );
     }
