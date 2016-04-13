@@ -19,7 +19,8 @@ object GatlingApp extends App {
   val dbUser = appConfig.getString("db.user")
   val dbPassword = ""
 
-  implicit val db = Database.forConfig("db", appConfig)
+  // Loads the driver...
+  Database.forConfig("db", appConfig).close()
 
   def dbFeeder(sql: String) = jdbcFeeder(dbUrl, dbUser, dbPassword, sql)
 
@@ -29,7 +30,6 @@ object GatlingApp extends App {
     ConfigKeys.core.Mute → "true"
   )
   println(Gatling.fromMap(gatlingConfig))
-  db.close()
 }
 
 object Conf {

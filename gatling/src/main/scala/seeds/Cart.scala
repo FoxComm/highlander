@@ -3,13 +3,11 @@ package seeds
 import scala.util.Random
 
 import io.gatling.core.Predef._
-import io.gatling.core.structure.ScenarioBuilder
 import io.gatling.http.Predef._
 import io.gatling.http.request.StringBody
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.{CreateOrder, UpdateLineItemsPayload, UpdateShippingMethod}
 import seeds.Auth._
-import seeds.CreditCards._
 import seeds.GatlingApp.dbFeeder
 
 object Cart {
@@ -26,24 +24,21 @@ object Cart {
     .requireAdminAuth
     .body(StringBody(session ⇒ session.get("skuPayload").as[String]))
 
-  implicit class SkuChooser(val builder: ScenarioBuilder) extends AnyVal {
-    def pickRandomSkus = {
-      val skuQty = Random.nextInt(5) + 1
-      builder
-        .feed(dbFeeder("select code as sku from skus").random, _ ⇒ skuQty)
-        .exec { session ⇒
-          def newPayloadItem(skuCode: String) = UpdateLineItemsPayload(skuCode, Random.nextInt(10) + 1)
+  val pickRandomSkus = {
+    val skuQty = Random.nextInt(5) + 1
+    feed(dbFeeder("select code as sku from skus").random, _ ⇒ skuQty)
+      .exec { session ⇒
+        def newPayloadItem(skuCode: String) = UpdateLineItemsPayload(skuCode, Random.nextInt(10) + 1)
 
-          val payload = if (skuQty == 1)
-            Seq(newPayloadItem(session.get("sku").as[String]))
-          else
-            (1 until skuQty).map { i ⇒
-              val skuCode = session.get(s"sku$i").as[String]
-              newPayloadItem(skuCode)
-            }
-          session.set("skuPayload", json(payload))
-        }
-    }
+        val payload = if (skuQty == 1)
+          Seq(newPayloadItem(session.get("sku").as[String]))
+        else
+          (1 until skuQty).map { i ⇒
+            val skuCode = session.get(s"sku$i").as[String]
+            newPayloadItem(skuCode)
+          }
+        session.set("skuPayload", json(payload))
+      }
   }
 
   val setShippingAddress = http("Set shipping address")
@@ -67,16 +62,14 @@ object Cart {
   val checkout = http("Checkout")
     .post("/v1/orders/${referenceNumber}/checkout")
 
-  implicit class OrderPlacer(val builder: ScenarioBuilder) extends AnyVal {
-    def placeOrder = builder
-      .exec(newCart)
-      .pickRandomSkus
+  val placeOrder =
+    exec(newCart)
+      .exec(pickRandomSkus)
       .exec(addSkusToCart)
       .exec(setShippingAddress)
       .exec(findShippingMethods)
       .exec(setShippingMethod)
-      .createCcAndPay
+      .exec(CreditCards.payWithCc)
       .exec(checkout)
-  }
 
 }
