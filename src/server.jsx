@@ -13,14 +13,14 @@ import renderPage from '../build/main.html';
 const createServerHistory = useQueries(createHistory);
 
 export default function *renderReact() {
-  const history = createServerHistory(this.path);
+  const history = createServerHistory(this.url);
 
   const { auth, i18n } = this.state;
   const initialState = auth ? {auth} : {};
 
   const store = makeStore(history, initialState);
 
-  const [redirectLocation, renderProps] = yield match.bind(null, { routes, location: this.path, history });
+  const [redirectLocation, renderProps] = yield match.bind(null, { routes, location: this.url, history });
 
   if (redirectLocation) {
     this.redirect(redirectLocation.pathname + redirectLocation.search);
