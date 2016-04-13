@@ -31,6 +31,9 @@ export default class CouponForm extends Component {
 
   get promotionSelector() {
     const id = _.get(this.props, 'coupon.promotion');
+    const promotionsToSelect = _.get(this.props, 'selectedPromotions', []).map((promo) => {
+      return [promo.id, `${promo.name} - ${promo.id}`];
+    });
     return (
       <div>
         <div styleName="field-label">
@@ -43,7 +46,7 @@ export default class CouponForm extends Component {
             id="promotionSelector"
             styleName="full-width"
             name="promotion"
-            items={[[2146, 'Coupon promo']]}
+            items={promotionsToSelect}
             placeholder="- Select -"
             value={id}
             onChange={(value) => this.handlePromotionChange(value)}
