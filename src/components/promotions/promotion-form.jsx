@@ -13,8 +13,10 @@ import OfferType from './offer-type';
 import { Checkbox } from '../checkbox/checkbox';
 import { Dropdown, DropdownItem } from '../dropdown';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
+import { FormField, Form } from '../forms';
 
 import { setDiscountAttr } from '../../paragons/promotion';
+
 
 export default class PromotionForm extends Component {
 
@@ -61,12 +63,18 @@ export default class PromotionForm extends Component {
     const newPromotion = assoc(this.props.promotion, 'applyType', value);
 
     this.props.onUpdatePromotion(newPromotion);
+    this.refs.applyTypeField.autoValidate();
   }
 
   get promotionState() {
     const { promotion } = this.props;
     const formAttributes = _.get(promotion, 'form.attributes', []);
     const shadowAttributes = _.get(promotion, 'shadow.attributes', []);
+    const { applyType } = promotion;
+
+    if (applyType == 'coupon') {
+      return null;
+    }
 
     return (
       <ObjectScheduler
@@ -75,6 +83,10 @@ export default class PromotionForm extends Component {
         onChange={this.handleChange}
         title="Promotion" />
     );
+  }
+
+  checkValidity() {
+    return this.refs.form.checkValidity();
   }
 
   render() {
@@ -88,20 +100,27 @@ export default class PromotionForm extends Component {
     };
 
     return (
-      <div styleName="promotion-form">
+      <Form ref="form" styleName="promotion-form">
         <div styleName="main">
           <ContentBox title="General">
-            <div className="fc-object-form__field">
-              <div className="fc-object-form__field-label">Apply Type</div>
-              <Dropdown
-                placeholder="- Select -"
-                value={promotion.applyType}
-                onChange={this.handleApplyTypeChange}
-              >
-                <DropdownItem value="auto">Auto</DropdownItem>
-                <DropdownItem value="coupon">Coupon</DropdownItem>
-              </Dropdown>
-            </div>
+            <FormField
+              ref="applyTypeField"
+              className="fc-object-form__field"
+              label="Apply Type"
+              getTargetValue={() => promotion.applyType}
+              required
+            >
+              <div>
+                <Dropdown
+                  placeholder="- Select -"
+                  value={promotion.applyType}
+                  onChange={this.handleApplyTypeChange}
+                >
+                  <DropdownItem value="auto">Auto</DropdownItem>
+                  <DropdownItem value="coupon">Coupon</DropdownItem>
+                </Dropdown>
+              </div>
+            </FormField>
             <ObjectFormInner
               onChange={this.handleChange}
               fieldsToRender={this.generalAttrs}
@@ -121,7 +140,7 @@ export default class PromotionForm extends Component {
         <div styleName="aside">
           {this.promotionState}
         </div>
-      </div>
+      </Form>
     );
   }
 }

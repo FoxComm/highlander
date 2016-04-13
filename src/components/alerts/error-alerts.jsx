@@ -12,13 +12,14 @@ function parseError(err) {
 
 const ErrorAlerts = props => {
   const errors = props.errors || parseError(props.error);
-  const closeAction = props.closeAction ? () => props.closeAction(error, index) : null;
 
   if (errors && errors.length) {
     return (
       <div className="fc-errors">
         <AutoScroll />
         {errors.map((error, index) => {
+          const closeAction = props.closeAction ? () => props.closeAction(error, index) : null;
+
           return (
             <Alert
               key={`error-${error}-${index}`}

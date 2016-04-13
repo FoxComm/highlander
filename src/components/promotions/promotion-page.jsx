@@ -15,6 +15,7 @@ import { PageTitle } from '../section-title';
 import { PrimaryButton } from '../common/buttons';
 import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
+import ErrorAlerts from '../alerts/error-alerts';
 
 import * as PromotionActions from '../../modules/promotions/details';
 
@@ -76,6 +77,11 @@ class PromotionPage extends Component {
   handleSubmit() {
     if (this.state.promotion) {
       const promotion = this.state.promotion;
+      const { form } = this.refs;
+
+      if (form && form.checkValidity) {
+        if (!form.checkValidity()) return;
+      }
 
       if (this.isNew) {
         this.props.actions.createPromotion(promotion);
@@ -88,6 +94,7 @@ class PromotionPage extends Component {
   render(): Element {
     const props = this.props;
     const { promotion } = this.state;
+    const { actions } = props;
 
     if (!promotion || props.isFetching) {
       return <div><WaitAnimation /></div>;
@@ -96,6 +103,7 @@ class PromotionPage extends Component {
     const children = React.cloneElement(props.children, {
       ...props.children.props,
       promotion,
+      ref: 'form',
       onUpdatePromotion: this.handleUpdatePromotion,
       entity: { entityId: this.entityId, entityType: 'promotion' },
     });
@@ -105,12 +113,14 @@ class PromotionPage extends Component {
         <PageTitle title={this.pageTitle}>
           <PrimaryButton
             type="submit"
-            onClick={this.handleSubmit}>
+            onClick={this.handleSubmit}
+          >
             Save
           </PrimaryButton>
         </PageTitle>
         <SubNav promotionId={this.entityId} />
         <div styleName="promotion-details">
+          <ErrorAlerts errors={this.props.submitErrors} closeAction={actions.clearSubmitErrors} />
           {children}
         </div>
       </div>
@@ -122,6 +132,13 @@ export default connect(
   state => ({
     details: state.promotions.details,
     isFetching: _.get(state.asyncActions, 'getPromotion.inProgress', false),
+    submitErrors: (
+      _.get(state.asyncActions, 'createPromotion.err.messages') ||
+      _.get(state.asyncActions, 'updatePromotion.err.messages')
+    )
   }),
-  dispatch => ({ actions: bindActionCreators(PromotionActions, dispatch), dispatch })
+  dispatch => ({
+    actions: bindActionCreators(PromotionActions, dispatch),
+    dispatch,
+  })
 )(PromotionPage);

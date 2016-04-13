@@ -25,13 +25,17 @@ export function reducer(state = {}, action) {
         const error = {
           status: _.get(payload, 'response.status'),
           statusText: _.get(payload, 'response.statusText', ''),
-          messages: _.get(payload, 'responseJson.error', []),
+          messages: _.get(payload, 'responseJson.errors', []),
         };
 
         return assoc(state,
           [namespace, 'inProgress'], false,
           [namespace, 'finished'], true,
           [namespace, 'err'], error
+        );
+      case 'clearErrors':
+        return assoc(state,
+          [namespace, 'err'], null
         );
       default:
         return state;
@@ -53,6 +57,7 @@ export default function createAsyncActions(namespace, asyncCall, payloadReducer)
   const started = createAsyncAction(namespace, 'started', payloadReducer);
   const succeeded = createAsyncAction(namespace, 'succeeded', payloadReducer);
   const failed = createAsyncAction(namespace, 'failed', payloadReducer);
+  const clearErrors = createAsyncAction(namespace, 'clearErrors', payloadReducer);
 
   // @TODO! think about cancelling request on client side
   // for example in navigate to product 1, then to 2, then back to 1 and there user will see
@@ -60,14 +65,17 @@ export default function createAsyncActions(namespace, asyncCall, payloadReducer)
 
   const perform = (...args) => {
     return dispatch => {
+      const handleError = err => {
+        console.error(err && err.stack);
+        dispatch(failed(err));
+      };
+
       dispatch(started(...args));
       return asyncCall(...args)
         .then(
-          res => dispatch(succeeded(res))
-        ).catch(err => {
-          console.error(err && err.stack);
-          dispatch(failed(err));
-        });
+          res => dispatch(succeeded(res)),
+          handleError
+        ).catch(handleError);
     };
   };
 
@@ -76,5 +84,6 @@ export default function createAsyncActions(namespace, asyncCall, payloadReducer)
     started,
     succeeded,
     failed,
+    clearErrors,
   };
 }

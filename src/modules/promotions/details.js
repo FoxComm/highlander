@@ -1,4 +1,5 @@
 
+import _ from 'lodash';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 
@@ -9,7 +10,7 @@ import Api from '../../lib/api';
 export const promotionsNew = createAction();
 const defaultContext = 'default';
 
-const getPromotion = createAsyncActions(
+const _getPromotion = createAsyncActions(
   'getPromotion',
   (id: string, context) => {
     return Api.get(`/promotions/${context}/${id}`);
@@ -31,12 +32,19 @@ const _updatePromotion = createAsyncActions(
   }
 );
 
+export function clearSubmitErrors() {
+  return dispatch => {
+    dispatch(_createPromotion.clearErrors());
+    dispatch(_updatePromotion.clearErrors());
+  };
+}
+
 export function fetchPromotion(id: string, context: string = defaultContext) {
   return dispatch => {
     if (id.toLowerCase() == 'new') {
       dispatch(promotionsNew());
     } else {
-      dispatch(getPromotion.perform(id, context));
+      dispatch(_getPromotion.perform(id, context));
     }
   };
 }
@@ -62,7 +70,7 @@ const reducer = createReducer({
       promotion: createEmptyPromotion(),
     };
   },
-  [getPromotion.succeeded]: updatePromotionInState,
+  [_getPromotion.succeeded]: updatePromotionInState,
   [_createPromotion.succeeded]: updatePromotionInState,
   [_updatePromotion.succeeded]: updatePromotionInState,
 }, initialState);

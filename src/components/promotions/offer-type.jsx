@@ -229,7 +229,6 @@ export default class Offer extends Component {
   get itemsSelectPercentOff() {
     return (
       <div>
-        <Checkbox id="offer-items-same-as-q" styleName="attr-row">Same as qualifying items</Checkbox>
         <div styleName="discount-items">
           <strong styleName="discount-items-label">Discount the items</strong>
           <Dropdown value={this.state.discountItemsMode} onChange={this.handleChangeDiscountItemsMode}>
@@ -245,14 +244,18 @@ export default class Offer extends Component {
   render() {
     return (
       <div>
-        <Dropdown
-          styleName="type-chooser"
-          items={offersItems}
-          value={this.offerType}
-          onChange={this.handleOfferTypeChange}
-        />
-        {this.controlAfterType}
-        {this.content}
+        <div styleName="form-row">
+          <Dropdown
+            styleName="type-chooser"
+            items={offersItems}
+            value={this.offerType}
+            onChange={this.handleOfferTypeChange}
+          />
+          {this.controlAfterType}
+        </div>
+        <div styleName="form-row">
+          {this.content}
+        </div>
       </div>
     );
   }

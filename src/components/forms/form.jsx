@@ -2,6 +2,7 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import {EventEmitter} from 'events';
+import { autobind } from 'core-decorators';
 
 export default class Form extends React.Component {
 
@@ -28,13 +29,20 @@ export default class Form extends React.Component {
     this.getChildContext().formDispatcher.emit(type, ...args);
   }
 
-  onSubmit(event) {
-    event.preventDefault();
-
+  checkValidity() {
     let isValid = true;
     this._emit('submit', (isFieldValid) => {
       if (!isFieldValid) isValid = false;
     });
+
+    return isValid;
+  }
+
+  @autobind
+  handleSubmit(event) {
+    event.preventDefault();
+
+    const isValid = this.checkValidity();
 
     if (isValid && this.props.onSubmit) {
       this.props.onSubmit(event);
@@ -42,7 +50,7 @@ export default class Form extends React.Component {
   }
 
   render() {
-    let props = {...this.props, onSubmit: this.onSubmit.bind(this)};
+    let props = {...this.props, onSubmit: this.handleSubmit};
 
     return (
       <form {...props}>

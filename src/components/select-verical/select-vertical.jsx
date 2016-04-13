@@ -47,7 +47,7 @@ export default class SelectVertical extends Component {
   onAddClick(e) {
     e.preventDefault();
 
-    if (_.size(this.state.items) == _.size(this.props.options)) {
+    if (_.size(this.state.items) >= _.size(this.props.options)) {
       // nothing to add
       return;
     }
