@@ -13,11 +13,11 @@ object AssignmentsTailored {
     referenceType: ReferenceType)
     extends ActivityBase[Unassigned[T]]
 
-  final case class BulkAssigned[K](admin: AdminRoot, assignee: AdminRoot, entityIds: Seq[K],
+  final case class BulkAssigned(admin: AdminRoot, assignee: AdminRoot, entityIds: Seq[String],
     assignmentType: AssignmentType, referenceType: ReferenceType)
-    extends ActivityBase[BulkAssigned[K]]
+    extends ActivityBase[BulkAssigned]
 
-  final case class BulkUnassigned[K](admin: AdminRoot, assignee: AdminRoot, entityIds: Seq[K],
+  final case class BulkUnassigned(admin: AdminRoot, assignee: AdminRoot, entityIds: Seq[String],
     assignmentType: AssignmentType, referenceType: ReferenceType)
-    extends ActivityBase[BulkUnassigned[K]]
+    extends ActivityBase[BulkUnassigned]
 }

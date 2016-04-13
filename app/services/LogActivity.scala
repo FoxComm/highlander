@@ -50,14 +50,14 @@ object LogActivity {
     Activities.log(Unassigned[T](buildAdmin(admin), entity, buildAdmin(assignee), assignType, refType))
   }
 
-  def bulkAssigned[T](admin: StoreAdmin, assignee: StoreAdmin, entityIds: Seq[T], assignType: AssignmentType,
+  def bulkAssigned(admin: StoreAdmin, assignee: StoreAdmin, entityIds: Seq[String], assignType: AssignmentType,
     refType: ReferenceType)(implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(BulkAssigned[T](buildAdmin(admin), buildAdmin(assignee), entityIds, assignType, refType))
+    Activities.log(BulkAssigned(buildAdmin(admin), buildAdmin(assignee), entityIds, assignType, refType))
   }
 
-  def bulkUnassigned[T](admin: StoreAdmin, assignee: StoreAdmin, entityIds: Seq[T], assignType: AssignmentType,
+  def bulkUnassigned(admin: StoreAdmin, assignee: StoreAdmin, entityIds: Seq[String], assignType: AssignmentType,
     refType: ReferenceType)(implicit ec: EC, ac: AC): DbResult[Activity] = {
-    Activities.log(BulkUnassigned[T](buildAdmin(admin), buildAdmin(assignee), entityIds, assignType, refType))
+    Activities.log(BulkUnassigned(buildAdmin(admin), buildAdmin(assignee), entityIds, assignType, refType))
   }
 
   /* Notes */
