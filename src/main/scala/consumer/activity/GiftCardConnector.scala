@@ -12,7 +12,7 @@ final case class GiftCardConnector()(implicit ec: EC) extends ActivityConnector 
 
   def process(offset: Long, activity: Activity): Future[Seq[Connection]] = Future {
     val giftCardIds = byGiftCardData(activity) ++: byAssignmentSingleData(activity) ++:
-      byAssignmentBulkData(activity)
+      byAssignmentBulkData(activity) ++: byNoteData(activity)
 
     giftCardIds.distinct.map(createConnection(_, activity.id))
   }
@@ -23,6 +23,13 @@ final case class GiftCardConnector()(implicit ec: EC) extends ActivityConnector 
       objectId = code,
       data = JNothing,
       activityId = activityId)
+  }
+
+  private def byNoteData(activity: Activity): Seq[String] = {
+    (activity.data \ "note" \ "referenceType", activity.data \ "entity" \ "code") match {
+      case (JString("giftCard"), JString(code)) ⇒ Seq(code)
+      case _                                    ⇒ Seq.empty
+    }
   }
 
   private def byGiftCardData(activity: Activity): Seq[String] = {
