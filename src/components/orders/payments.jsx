@@ -122,7 +122,7 @@ export default class Payments extends React.Component {
     return (row, index, isNew) => {
       switch(row.type) {
         case 'giftCard':
-          return <GiftCard paymentMethod={row} isEditing={isEditing} {...this.props} key={row.id} />;
+          return <GiftCard paymentMethod={row} isEditing={isEditing} {...this.props} key={row.code} />;
         case 'creditCard':
           return <CreditCard paymentMethod={row} isEditing={isEditing} {...this.props} key={row.id} />;
         case 'storeCredit':

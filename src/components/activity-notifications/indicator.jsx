@@ -1,9 +1,8 @@
-
 // libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import Transition from 'react-addons-css-transition-group';
 import classNames from 'classnames';
-import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
 // components
@@ -24,10 +23,12 @@ export default class NotificationIndicator extends React.Component {
   };
 
   get indicator() {
-    if (_.isNumber(this.props.count) && this.props.count > 0) {
+    const count = this.props.count;
+
+    if (_.isNumber(count) && count > 0) {
       return (
-        <div className="fc-activity-notifications__indicator">
-          <span>{this.props.count}</span>
+        <div className="fc-activity-notifications__indicator" key={count}>
+          <span>{count}</span>
         </div>
       );
     }
@@ -51,7 +52,11 @@ export default class NotificationIndicator extends React.Component {
         <Button icon="bell"
                 className={ classes }
                 onClick={ this.toggleNotifications }>
-          { this.indicator }
+          <Transition transitionName="fc-activity-notifications__indicator"
+                      transitionEnterTimeout={300}
+                      transitionLeaveTimeout={300}>
+            { this.indicator }
+          </Transition>
         </Button>
       </div>
     );

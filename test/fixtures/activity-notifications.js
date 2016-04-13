@@ -639,7 +639,7 @@ activities = [...activities,
     createdAt,
     data: {
       assignee: customer,
-      orderRefNums: [
+      entityIds: [
         'BR10001',
         'BR10002',
         'BR10003',
@@ -652,70 +652,7 @@ activities = [...activities,
     createdAt,
     data: {
       assignee: customer,
-      orderRefNums: [
-        'BR10001',
-        'BR10002',
-        'BR10003',
-      ]
-    }
-  },
-];
-
-createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
-
-activities = [...activities,
-  {
-    kind: types.ADDED_WATCHERS,
-    id: id++,
-    createdAt,
-    data: {
-      order,
-      watchers: [
-        admin,
-      ]
-    }
-  },
-  {
-    kind: types.ADDED_WATCHERS,
-    id: id++,
-    createdAt,
-    data: {
-      order,
-      watchers: [
-        admin,
-        customer,
-      ]
-    }
-  },
-  {
-    kind: types.REMOVED_WATCHER,
-    id: id++,
-    createdAt,
-    data: {
-      order,
-      watcher: customer,
-    }
-  },
-  {
-    kind: types.BULK_ADDED_WATCHER,
-    id: id++,
-    createdAt,
-    data: {
-      watcher: customer,
-      orderRefNums: [
-        'BR10001',
-        'BR10002',
-        'BR10003',
-      ]
-    }
-  },
-  {
-    kind: types.BULK_REMOVED_WATCHER,
-    id: id++,
-    createdAt,
-    data: {
-      watcher: customer,
-      orderRefNums: [
+      entityIds: [
         'BR10001',
         'BR10002',
         'BR10003',

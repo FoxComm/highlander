@@ -33,7 +33,7 @@ const bulkEventsToOrders = {
 const representatives = {
   [types.ASSIGNED]: {
     title: (data, activity) => {
-      const persons = Object.values(data.assignees).map((person, idx) => <Person key={idx} {...person} />);
+      const persons = data.assignees.map((person, idx) => <Person key={idx} {...person} />);
       const action = data.assignmentType == assignmentTypes.assignee ? 'assigned' : 'added watcher';
       const order = { title: 'Order', referenceNumber: data.entity.referenceNumber };
 

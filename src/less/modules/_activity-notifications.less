@@ -24,6 +24,7 @@
   }
 
   &__toggle {
+    position: relative;
     .colors(@color-decor5, @color-transparent);
     height: 6.5rem;
     width: 100%;
@@ -38,12 +39,31 @@
   }
 
   &__indicator {
-    margin-right: -5px;
-    margin-top: 5px;
+    position: absolute;
+    top: 18px;
+    left: 8px;
     line-height: 3rem;
-    float: left;
     .circle(30px);
     .colors(@color-white, @color-decor33);
+
+
+    &-enter {
+      opacity: 0.01;
+    }
+
+    &-enter&-enter-active{
+      opacity: 1;
+      transition: opacity .2s ease-in;
+    }
+
+    &-leave {
+      opacity: 1;
+    }
+
+    &-leave&-leave-active {
+      opacity: 0.01;
+      transition: opacity .2s ease-out;
+    }
   }
 
   &__panel {

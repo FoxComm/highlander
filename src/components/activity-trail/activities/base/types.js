@@ -9,13 +9,6 @@ const types = {
   BULK_ASSIGNED: 'bulk_assigned',
   BULK_UNASSIGNED: 'bulk_unassigned',
 
-  /* Watchers */
-
-  ADDED_WATCHERS: 'added_watchers_to_order',
-  REMOVED_WATCHER: 'removed_watcher_from_order',
-  BULK_ADDED_WATCHER: 'bulk_added_watcher_to_orders',
-  BULK_REMOVED_WATCHER: 'bulk_removed_watcher_from_orders',
-
   /* Customers */
 
   CUSTOMER_CREATED: 'customer_created',
