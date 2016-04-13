@@ -6,6 +6,9 @@ import type { HTMLElement } from 'types';
 import type { Product } from 'modules/products';
 import styles from './search.css';
 
+import localized from 'lib/i18n';
+import type { Localized } from 'lib/i18n';
+
 import ProductsList from '../../products-list/products-list';
 
 import { setTerm, fetch } from 'modules/search';
@@ -14,7 +17,7 @@ type SearchParams = {
   term: string;
 }
 
-type SearchProps = {
+type SearchProps = Localized & {
   term: string;
   results: Array<Product>;
   params: SearchParams;
@@ -40,11 +43,13 @@ class Search extends Component {
   }
 
   render(): HTMLElement {
-    const { term, results } = this.props;
+    const { term, results, t } = this.props;
 
     return (
       <div styleName="search">
-        <p styleName="search-title"><span styleName="search-title__uppercase">Search results for</span> "{term}"</p>
+        <p styleName="search-title">
+          <span styleName="search-title__uppercase">{t('Search results for')}</span> "{term}"
+        </p>
         <ProductsList list={results}/>
       </div>
     );
@@ -57,4 +62,4 @@ function mapState({ search }: any): Object {
   };
 }
 
-export default connect(mapState, { setTerm, fetch })(Search);
+export default connect(mapState, { setTerm, fetch })(localized(Search));

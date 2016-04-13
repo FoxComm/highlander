@@ -9,11 +9,14 @@ import { connect } from 'react-redux';
 import { Product } from 'modules/products';
 import styles from './search.css';
 
+import localized from 'lib/i18n';
+import type { Localized } from 'lib/i18n';
+
 import Icon from 'ui/icon';
 
 import { setTerm, toggleActive } from 'modules/search';
 
-type SearchProps = {
+type SearchProps = Localized & {
   isActive: boolean;
   term: string,
   results: Array<Product>,
@@ -87,6 +90,8 @@ class Search extends Component {
       'search-expanded': this.props.isActive,
     });
 
+    const { t } = this.props;
+
     return (
       <div styleName={cls}>
         <input value={this.state.term}
@@ -94,7 +99,7 @@ class Search extends Component {
           onKeyDown={this.onKeyDown}
           styleName="search-input"
           autoComplete="off"
-          placeholder="Search"
+          placeholder={t('Search')}
           ref="input"
         />
 
@@ -112,4 +117,4 @@ function mapState({ search }: Object, { isActive }: ?Object): Object {
   };
 }
 
-export default connect(mapState, { setTerm, toggleActive })(Search);
+export default connect(mapState, { setTerm, toggleActive })(localized(Search));
