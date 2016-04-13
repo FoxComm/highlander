@@ -12,9 +12,15 @@ import Title from '../base/title';
 
 const bulkEventsToOrders = {
   title: (data, { kind }) => {
-    const orders = data.orderRefNums.map(ref => <OrderLink key={ref} order={{title: 'Order', referenceNumber: ref}} />);
-    const action = kind == types.BULK_ASSIGNED ? 'assigned' : 'unassigned';
+    const orders = data.entityIds.map(ref => <OrderLink key={ref} order={{title: 'Order', referenceNumber: ref}} />);
     const directionSense = kind == types.BULK_ASSIGNED ? 'to' : 'from';
+    let action = '';
+
+    if (kind == types.BULK_ASSIGNED) {
+      action = data.assignmentType == assignmentTypes.assignee ? 'assigned' : 'added watcher';
+    } else {
+      action = data.assignmentType == assignmentTypes.assignee ? 'unassigned' : 'removed watcher';
+    }
 
     return (
       <span>
