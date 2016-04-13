@@ -72,7 +72,6 @@ export default class CouponForm extends Component {
   }
 
   @autobind
-<<<<<<< 57aa60d238313e8a056992a9223af5fd2cd1c02e
   handleGenerateBulkCodes(prefix, length, quantity) {
     this.props.onGenerateBulkCodes(prefix, length, quantity);
   }
@@ -80,12 +79,13 @@ export default class CouponForm extends Component {
   @autobind
   handleChangeSingleCode(value) {
     this.props.onUpdateCouponCode(value);
-=======
+  }
+
+  @autobind
   handleUsageRulesChange(usageRules) {
     const newForm = {...(this.props.coupon.form), usageRules};
     const newCoupon = {...(this.props.coupon), form: newForm};
     this.props.onUpdateCoupon(newCoupon);
->>>>>>> wire up props and updates
   }
 
   get isNew() {
