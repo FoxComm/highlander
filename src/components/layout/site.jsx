@@ -6,7 +6,7 @@ import * as actions from 'modules/auth';
 import styles from './site.css';
 
 import Overlay from '../overlay/overlay';
-import Auth from '../pages/auth/auth';
+import Auth from '../auth/auth';
 
 const mapState = state => ({
   isAuthBlockVisible: state.auth.isAuthBlockVisible,
