@@ -10,7 +10,8 @@ import consumer.elastic.AvroTransformer
 final case class InventorySearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("inventory_search_view").fields(
     field("id", IntegerType),
-    field("product", StringType) analyzer "autocomplete",
+    field("product", StringType).analyzer("autocomplete")
+      .fields(field("raw", StringType).index("not_analyzed")),
     field("productActive", BooleanType),
     field("sku", StringType) index "not_analyzed",
     field("skuActive", BooleanType),
