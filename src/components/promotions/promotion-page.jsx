@@ -16,6 +16,7 @@ import { PrimaryButton } from '../common/buttons';
 import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
 import ErrorAlerts from '../alerts/error-alerts';
+import ButtonWithMenu from '../common/button-with-menu';
 
 import * as PromotionActions from '../../modules/promotions/details';
 
@@ -55,6 +56,9 @@ class PromotionPage extends Component {
       if (this.isNew && nextPromotion.form.id) {
         this.props.dispatch(pushState(null, `/promotions/${nextPromotion.form.id}`, ''));
       }
+      if (!this.isNew && !nextPromotion.form.id) {
+        this.props.dispatch(pushState(null, `/promotions/new`, ''));
+      }
       this.setState({ promotion: nextProps.details.promotion });
     }
   }
@@ -73,8 +77,9 @@ class PromotionPage extends Component {
     this.setState({ promotion });
   }
 
-  @autobind
-  handleSubmit() {
+  save() {
+    let mayBeSaved = false;
+
     if (this.state.promotion) {
       const promotion = this.state.promotion;
       const { form } = this.refs;
@@ -84,11 +89,39 @@ class PromotionPage extends Component {
       }
 
       if (this.isNew) {
-        this.props.actions.createPromotion(promotion);
+        mayBeSaved = this.props.actions.createPromotion(promotion);
       } else {
-        this.props.actions.updatePromotion(promotion);
+        mayBeSaved = this.props.actions.updatePromotion(promotion);
       }
     }
+
+    return mayBeSaved;
+  }
+
+  @autobind
+  handleSubmit() {
+    this.save();
+  }
+
+  @autobind
+  handleSelectSaving(value) {
+    const { actions, dispatch } = this.props;
+    const mayBeSaved = this.save();
+    if (!mayBeSaved) return;
+
+    mayBeSaved.then(() => {
+      switch (value) {
+        case 'save_and_new':
+          actions.promotionsNew();
+          break;
+        case 'save_and_duplicate':
+          dispatch(pushState(null, `/promotions/new`, ''));
+          break;
+        case 'save_and_close':
+          dispatch(pushState(null, `/promotions`, ''));
+          break;
+      }
+    });
   }
 
   render(): Element {
@@ -111,12 +144,16 @@ class PromotionPage extends Component {
     return (
       <div>
         <PageTitle title={this.pageTitle}>
-          <PrimaryButton
-            type="submit"
-            onClick={this.handleSubmit}
-          >
-            Save
-          </PrimaryButton>
+          <ButtonWithMenu
+            title="Save"
+            onPrimaryClick={this.handleSubmit}
+            onSelect={this.handleSelectSaving}
+            items={[
+              ['save_and_new', 'Save and Create New'],
+              ['save_and_duplicate', 'Save and Duplicate'],
+              ['save_and_close', 'Save and Close'],
+            ]}
+          />
         </PageTitle>
         <SubNav promotionId={this.entityId} />
         <div styleName="promotion-details">
