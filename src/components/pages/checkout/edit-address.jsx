@@ -165,7 +165,7 @@ export default class EditAddress extends Component {
             />
           </FormField>
         </div>
-        <FormField label="Phone Number" styleName="text-field" validator="phoneNumber">
+        <FormField label={t('Phone Number')} styleName="text-field" validator="phoneNumber">
           <TextInput
             required
             name="phoneNumber"
