@@ -4,4 +4,5 @@
                                 (width >= 1280px) and (width <= 1440px)  and (max-resolution: 1dppx);
 @custom-media --medium-viewport (device-width > 767px) and (device-width <= 1279px),
                                 (width > 767px) and (width <= 1279px)  and (max-resolution: 1dppx);
+@custom-media --medium-viewport-up (device-width > 767px), (width > 767px) and (max-resolution: 1dppx);
 @custom-media --small-viewport (max-device-width: 767px), (max-width: 767px)  and (max-resolution: 1dppx);

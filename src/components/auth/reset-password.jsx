@@ -5,6 +5,7 @@ import styles from './auth.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { routeActions } from 'react-router-redux';
+import { authBlockTypes } from 'modules/auth';
 
 import { TextInput } from 'ui/inputs';
 import { FormField, Form } from 'ui/forms';
@@ -117,7 +118,10 @@ export default class ResetPassword extends Component {
 
   @autobind
   gotoLogin() {
-    this.props.dispatch(routeActions.push('/login'));
+    this.props.dispatch(routeActions.push({
+      pathname: this.props.path,
+      query: {auth: authBlockTypes.LOGIN},
+    }));
   }
 
   get primaryButton(): HTMLElement {
@@ -125,7 +129,7 @@ export default class ResetPassword extends Component {
 
     if (isReseted) {
       return (
-        <Button styleName="primary-button" onClick={this.gotoLogin}>BACK TO LOG IN</Button>
+        <Button styleName="primary-button" type="button" onClick={this.gotoLogin}>BACK TO LOG IN</Button>
       );
     }
 

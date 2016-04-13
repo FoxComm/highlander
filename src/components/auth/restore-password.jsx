@@ -5,11 +5,13 @@ import styles from './auth.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { routeActions } from 'react-router-redux';
+import { Link } from 'react-router';
+
+import { authBlockTypes } from 'modules/auth';
 
 import { TextInput } from 'ui/inputs';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
-import { Link } from 'react-router';
 
 import type { HTMLElement } from 'types';
 
@@ -25,12 +27,14 @@ type RestoreState = {
 export default class RestorePassword extends Component {
 
   static propTypes = {
+    path: PropTypes.string,
     fields: PropTypes.object.isRequired,
     handleSubmit: PropTypes.func.isRequired,
     resetForm: PropTypes.func.isRequired,
     submitting: PropTypes.bool.isRequired,
     error: PropTypes.string,
     dispatch: PropTypes.func,
+    changeAuthBlockType: PropTypes.func,
   };
 
   state: RestoreState = {
@@ -106,7 +110,10 @@ export default class RestorePassword extends Component {
 
   @autobind
   gotoLogin() {
-    this.props.dispatch(routeActions.push('/login'));
+    this.props.dispatch(routeActions.push({
+      pathname: this.props.path,
+      query: {auth: authBlockTypes.LOGIN},
+    }));
   }
 
   get primaryButton(): HTMLElement {
@@ -114,7 +121,7 @@ export default class RestorePassword extends Component {
 
     if (emailSent) {
       return (
-        <Button styleName="primary-button" onClick={this.gotoLogin}>BACK TO LOG IN</Button>
+        <Button styleName="primary-button" onClick={this.gotoLogin} type="button">BACK TO LOG IN</Button>
       );
     }
 
@@ -127,7 +134,7 @@ export default class RestorePassword extends Component {
     if (!emailSent) {
       return (
         <div styleName="switch-stage">
-          <Link to="/login">BACK TO LOG IN</Link>
+          <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.LOGIN}}}>BACK TO LOG IN</Link>
         </div>
       );
     }

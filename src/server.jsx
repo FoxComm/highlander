@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/server';
 import { match, RouterContext } from 'react-router';
 import createHistory from 'history/lib/createMemoryHistory';
+import { useQueries } from 'history';
 import { Provider } from 'react-redux';
 
 import makeStore from './store';
@@ -9,15 +10,17 @@ import routes from './routes';
 import I18nProvider from 'lib/i18n/provider';
 import renderPage from '../build/main.html';
 
+const createServerHistory = useQueries(createHistory);
+
 export default function *renderReact() {
-  const history = createHistory(this.path);
+  const history = createServerHistory(this.url);
 
   const { auth, i18n } = this.state;
   const initialState = auth ? {auth} : {};
 
   const store = makeStore(history, initialState);
 
-  const [redirectLocation, renderProps] = yield match.bind(null, { routes, location: this.path, history });
+  const [redirectLocation, renderProps] = yield match.bind(null, { routes, location: this.url, history });
 
   if (redirectLocation) {
     this.redirect(redirectLocation.pathname + redirectLocation.search);

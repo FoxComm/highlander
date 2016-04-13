@@ -1,19 +1,19 @@
 /* @flow weak */
 
 import { each, get } from 'lodash';
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
-import { browserHistory } from 'react-router';
+import { browserHistory, Link } from 'react-router';
 
 import { TextInput, TextInputWithLabel } from 'ui/inputs';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
 import WrapToLines from 'ui/wrap-to-lines';
-import { Link } from 'react-router';
 
 import * as actions from 'modules/auth';
+import { authBlockTypes } from 'modules/auth';
 
 import type { HTMLElement } from 'types';
 import type { SignUpPayload } from 'modules/auth';
@@ -30,6 +30,9 @@ type AuthState = {
 @connect(null, actions)
 /* ::`*/
 export default class Auth extends Component {
+  static propTypes = {
+    path: PropTypes.string,
+  };
 
   state: AuthState = {
     email: '',
@@ -67,7 +70,10 @@ export default class Auth extends Component {
     const {email, password, username: name} = this.state;
     const paylaod: SignUpPayload = {email, password, name};
     this.props.signUp(paylaod).then(() => {
-      browserHistory.push('/login');
+      browserHistory.push({
+        pathname: this.props.path,
+        query: {auth: authBlockTypes.LOGIN},
+      });
     }).catch(err => {
       const errors = get(err, ['responseJson', 'errors'], []);
       let emailError = false;
@@ -86,6 +92,9 @@ export default class Auth extends Component {
 
   render(): HTMLElement {
     const { email, password, username, emailError, usernameError } = this.state;
+
+    const loginLink =
+      <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.LOGIN}}}>Log in</Link>;
 
     return (
       <div>
@@ -125,7 +134,7 @@ export default class Auth extends Component {
           <Button styleName="primary-button" type="submit">SIGN UP</Button>
         </Form>
         <div styleName="switch-stage">
-          Already have an account? <Link to="/login">Log In</Link>
+          Already have an account? {loginLink}
         </div>
       </div>
     );

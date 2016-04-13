@@ -55,6 +55,10 @@
   margin-right: 25px;
 }
 
+.login-link {
+  text-decoration: none;
+}
+
 :global(.icon).logo {
   width: 57px;
   height: 57px;

@@ -4,6 +4,7 @@ import _ from 'lodash';
 import React from 'react';
 import type { HTMLElement } from 'types';
 import { connect } from 'react-redux';
+import { Link } from 'react-router';
 import { toggleSidebar } from 'modules/sidebar';
 import { toggleActive, resetTerm } from 'modules/search';
 import { toggleCart } from 'modules/cart';
@@ -13,7 +14,6 @@ import type { Localized } from 'lib/i18n';
 import styles from './storefront.css';
 
 import Icon from 'ui/icon';
-import { Link } from 'react-router';
 import Categories from '../categories/categories';
 import Sidebar from '../sidebar/sidebar';
 import Footer from '../footer/footer';
@@ -28,7 +28,7 @@ type StoreFrontProps = Localized & {
   toggleSearch: Function;
   resetTerm: Function;
   toggleCart: Function;
-};
+}
 
 const StoreFront = (props : StoreFrontProps) : HTMLElement => {
   const changeCategoryCallback = () => {
@@ -42,9 +42,11 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
   const { t } = props;
 
   const user = _.get(props, ['auth', 'user'], null);
-  const sessionLink = _.isEmpty(user)
-    ? <Link to="/login" styleName="login-link">{t('LOG IN')}</Link>
-    : <span>{t('HI')}, {user.name.toUpperCase()}</span>;
+  const sessionLink = _.isEmpty(user) ?
+    <Link styleName="login-link" to={{pathname: props.location.pathname, query: {auth: 'LOGIN'}}}>
+      {t('LOG IN')}
+    </Link> :
+    <span>{t('HI')}, {user.name.toUpperCase()}</span>;
 
   return (
     <div styleName="container">
@@ -77,7 +79,7 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
         <Footer />
       </div>
       <div styleName="mobile-sidebar">
-        <Sidebar />
+        <Sidebar path={props.location.pathname} />
       </div>
       <div>
         <Cart />

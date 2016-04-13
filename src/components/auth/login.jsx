@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
-import { browserHistory } from 'react-router';
+import { browserHistory, Link } from 'react-router';
 import { connect } from 'react-redux';
 
 import styles from './auth.css';
@@ -9,9 +9,9 @@ import { TextInput, TextInputWithLabel } from 'ui/inputs';
 import { FormField } from 'ui/forms';
 import Button from 'ui/buttons';
 import WrapToLines from 'ui/wrap-to-lines';
-import { Link } from 'react-router';
 
 import * as actions from 'modules/auth';
+import { authBlockTypes } from 'modules/auth';
 
 import type { HTMLElement } from 'types';
 
@@ -31,7 +31,10 @@ const mapState = state => ({
 @connect(mapState, actions)
 @localized
 /* ::`*/
-export default class Auth extends Component {
+export default class Login extends Component {
+  static propTypes = {
+    path: PropTypes.string,
+  };
 
   state: AuthState = {
     email: '',
@@ -62,7 +65,7 @@ export default class Auth extends Component {
     const { email, password } = this.state;
     const kind = 'customer';
     this.props.authenticate({email, password, kind}).then(() => {
-      browserHistory.push('/');
+      browserHistory.push(this.props.path);
     }).catch(() => {
       this.setState({error: 'Email or password is invalid'});
     });
@@ -72,6 +75,18 @@ export default class Auth extends Component {
     const { password, email } = this.state;
     const props = this.props;
     const { t } = props;
+
+    const restoreLink = (
+      <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.RESTORE_PASSWORD}}} styleName="restore-link">
+        {t('forgot?')}
+      </Link>
+    );
+
+    const signupLink = (
+      <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.SIGNUP}}} styleName="signup-link">
+        {t('Sign Up')}
+      </Link>
+    );
 
     return (
       <div>
@@ -88,8 +103,8 @@ export default class Auth extends Component {
           </FormField>
           <FormField key="passwd" styleName="form-field" error={!!this.state.error}>
             <TextInputWithLabel
-              placeholder={t('PASSWORD')}
-              label={!password && <Link styleName="restore-link" to="/password/restore">{t('forgot?')}</Link>}
+              placeholder="PASSWORD"
+              label={!password && restoreLink}
               value={password} onChange={this.onChangePassword} type="password"
             />
           </FormField>
@@ -102,7 +117,7 @@ export default class Auth extends Component {
           </Button>
         </form>
         <div styleName="switch-stage">
-          {t('Don’t have an account?')} <Link styleName="signup-link" to="/signup">{t('Sign Up')}</Link>
+          {t('Don’t have an account?')} {signupLink}
         </div>
       </div>
     );
