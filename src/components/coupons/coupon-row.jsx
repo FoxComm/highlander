@@ -31,7 +31,7 @@ const CouponRow = (props: CouponRowProps, context: CouponContext) => {
   const { coupon, columns, params } = props;
   const key = `coupon-${coupon.id}`;
   const clickAction = () => {
-    transitionTo(context.history, 'coupon', { coupon: coupon.id });
+    transitionTo(context.history, 'coupon-details', { couponId: coupon.id });
   };
 
   return (

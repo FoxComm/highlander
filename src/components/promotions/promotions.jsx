@@ -37,10 +37,10 @@ const tableColumns = [
   {field: 'name', text: 'Name'},
   {field: 'storefrontName', text: 'Storefront Name'},
   {field: 'applyType', text: 'Apply Type'},
-  {field: 'totalUses', text: 'Total Uses'},
-  {field: 'inCarts', text: 'Current Carts'},
+  {field: 'totalUsed', text: 'Total Uses'},
+  {field: 'currentCarts', text: 'Current Carts'},
   {field: 'createdAt', text: 'Date/Time Created', type: 'datetime'},
-  {field: 'state', text: 'State', type: 'state'},
+  {field: 'state', text: 'State'},
 ];
 
 /* ::`*/
@@ -48,19 +48,16 @@ const tableColumns = [
 /* ::`*/
 export default class Promotions extends Component {
 
-  renderRow(): Function {
-    return (row: Object, index: number, columns: Array<any>, params: Object) => {
-      const key = `promotion-${row.id}`;
-
-      return (
-        <PromotionRow
-          promotion={row}
-          columns={columns}
-          key={key}
-          params={params}
-        />
-      );
-    };
+  renderRow(row: Object, index: number, columns: Array<any>, params: any): Element {
+    const key = `promotion-${row.id}`;
+    return (
+      <PromotionRow
+        promotion={row}
+        columns={columns}
+        key={key}
+        params={params}
+      />
+    );
   }
 
   bulkActions(): Array<any> {
