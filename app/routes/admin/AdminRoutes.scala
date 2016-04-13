@@ -206,23 +206,23 @@ object AdminRoutes {
         pathPrefix("coupon" / IntNumber) { couponId ⇒
           (get & pathEnd) {
             goodOrFailures {
-              PromotionNoteManager.list(couponId)
+              CouponNoteManager.list(couponId)
             }
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
             goodOrFailures {
-              PromotionNoteManager.create(couponId, admin, payload)
+              CouponNoteManager.create(couponId, admin, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
               goodOrFailures {
-                PromotionNoteManager.update(couponId, noteId, admin, payload)
+                CouponNoteManager.update(couponId, noteId, admin, payload)
               }
             } ~
             (delete & pathEnd) {
               nothingOrFailures {
-                PromotionNoteManager.delete(couponId, noteId, admin)
+                CouponNoteManager.delete(couponId, noteId, admin)
               }
             }
           }
