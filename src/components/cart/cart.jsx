@@ -20,7 +20,6 @@ import * as actions from 'modules/cart';
 
 const getState = state => ({ ...state.cart, ...state.auth });
 
-@localized
 class Cart extends Component {
 
   componentWillMount() {
@@ -86,4 +85,4 @@ class Cart extends Component {
   }
 }
 
-export default connect(getState, actions)(Cart);
+export default connect(getState, actions)(localized(Cart));

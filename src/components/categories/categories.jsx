@@ -19,7 +19,6 @@ type Category = {
 
 const getState = state => ({...state.categories});
 
-@localized
 class Categories extends React.Component {
 
   static propTypes = {
@@ -73,4 +72,4 @@ class Categories extends React.Component {
   }
 }
 
-export default connect(getState, actions)(Categories);
+export default connect(getState, actions)(localized(Categories));
