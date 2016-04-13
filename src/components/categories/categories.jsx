@@ -8,6 +8,8 @@ import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'react-router';
 
+import localized from 'lib/i18n';
+
 import * as actions from 'modules/categories';
 
 type Category = {
@@ -17,6 +19,7 @@ type Category = {
 
 const getState = state => ({...state.categories});
 
+@localized
 class Categories extends React.Component {
 
   static propTypes = {
@@ -45,6 +48,8 @@ class Categories extends React.Component {
   }
 
   render(): HTMLElement {
+    const { t } = this.props;
+
     const categoryItems = _.map(this.props.list, (item) => {
       const dashedName = item.name.replace(/\s/g, '-');
       const key = `category-${dashedName}`;
@@ -60,7 +65,7 @@ class Categories extends React.Component {
     return (
       <div styleName="list">
         <div styleName="item" key="category-all">
-          <a onClick={() => this.onClick()} styleName="item-link">ALL</a>
+          <a onClick={() => this.onClick()} styleName="item-link">{t('ALL')}</a>
         </div>
         {categoryItems}
       </div>
