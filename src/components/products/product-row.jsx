@@ -38,7 +38,7 @@ const ProductRow = (props, context) => {
   const { product, columns, params } = props;
   const key = `product-${product.id}`;
   const clickAction = () => {
-    transitionTo(context.history, 'product-details', { productId: product.id });
+    transitionTo(context.history, 'product-details', { productId: product.productId, context: product.context });
   };
 
   return (

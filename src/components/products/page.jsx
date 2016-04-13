@@ -31,12 +31,12 @@ import type { FullProduct } from '../../modules/products/details';
 type Props = {
   actions: {
     createProduct: (product: FullProduct) => void,
-    fetchProduct: (productId: string) => void,
+    fetchProduct: (productId: string, context: string) => void,
     productNew: () => void,
-    updateProduct: (product: FullProduct) => void,
+    updateProduct: (product: FullProduct, context: string) => void,
   },
   children: any,
-  params: { productId: string },
+  params: { productId: string, context: string },
   products: {
     isFetching: boolean,
     isUpdating: boolean,
@@ -47,6 +47,7 @@ type Props = {
 
 type State = {
   product: ?FullProduct,
+  context: string,
 };
 
 /**
@@ -80,14 +81,15 @@ export class ProductPage extends Component<void, Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = { product: this.props.products.product };
+    const context = _.get(this.props.params, 'context',  'default');
+    this.state = { product: this.props.products.product, context: context};
   }
 
   componentDidMount() {
     if (this.isNew) {
       this.props.actions.productNew();
     } if (!this.props.params.product) {
-      this.props.actions.fetchProduct(this.props.params.productId);
+      this.props.actions.fetchProduct(this.props.params.productId, this.props.params.context);
     }
   }
 
@@ -141,9 +143,9 @@ export class ProductPage extends Component<void, Props, State> {
   handleSubmit() {
     if (this.state.product) {
       if (this.isNew) {
-        this.props.actions.createProduct(this.state.product);
+        this.props.actions.createProduct(this.state.product, this.state.context);
       } else {
-        this.props.actions.updateProduct(this.state.product);
+        this.props.actions.updateProduct(this.state.product, this.state.context);
       }
     }
   }
