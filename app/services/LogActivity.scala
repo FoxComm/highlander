@@ -61,15 +61,15 @@ object LogActivity {
   }
 
   /* Notes */
-  def noteCreated[T](admin: StoreAdmin, entity: T, note: Note)
+  def noteCreated[T](admin: StoreAdmin, entity: T, referenceType: Note.ReferenceType, note: Note)
     (implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(NoteCreated[T](buildAdmin(admin), entity, note))
 
-  def noteUpdated[T](admin: StoreAdmin, entity: T, oldNote: Note, note: Note)
+  def noteUpdated[T](admin: StoreAdmin, entity: T, referenceType: Note.ReferenceType, oldNote: Note, note: Note)
     (implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(NoteUpdated[T](buildAdmin(admin), entity, oldNote, note))
 
-  def noteDeleted[T](admin: StoreAdmin, entity: T, note: Note)
+  def noteDeleted[T](admin: StoreAdmin, entity: T, referenceType: Note.ReferenceType, note: Note)
     (implicit ec: EC, ac: AC): DbResult[Activity] =
     Activities.log(NoteDeleted[T](buildAdmin(admin), entity, note))
 

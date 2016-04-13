@@ -5,7 +5,7 @@ import models.objects.{ObjectForm, ObjectForms}
 import utils.Slick._
 import utils.aliases._
 
-object ObjectFormNoteManager extends NoteManager[Int, ObjectForm] {
+object ProductNoteManager extends NoteManager[Int, ObjectForm] {
 
   def noteType(): Note.ReferenceType = Note.Product
 
