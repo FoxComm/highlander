@@ -29,14 +29,11 @@ object Addresses {
     .post("/v1/customers/${customerId}/addresses/${addressId}/default")
     .check(status.is(200))
 
-  implicit class AddressGenerator(val builder: ScenarioBuilder) extends AnyVal {
-
-    def randomAddressLine1(attributeName: String): ScenarioBuilder = builder
-      .feed(csv("data/address_gen.csv").random, 3)
+  def randomAddressLine1(attributeName: String) =
+    feed(csv("data/address_gen.csv").random, 3)
       .exec { session ⇒
         val streetName = s"${session("foo1").as[String]} ${session("bar2").as[String]} ${session("baz3").as[String]}"
         session.set(attributeName, s"${Random.nextInt(1234)} $streetName")
       }
-  }
 
 }

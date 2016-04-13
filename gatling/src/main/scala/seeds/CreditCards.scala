@@ -6,7 +6,6 @@ import scala.util.Random
 
 import faker.Lorem
 import io.gatling.core.Predef._
-import io.gatling.core.structure.ScenarioBuilder
 import io.gatling.http.Predef._
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.{CreateCreditCard, CreditCardPayment}
@@ -29,11 +28,17 @@ object CreditCards {
     .post("/v1/orders/${referenceNumber}/payment-methods/credit-cards")
     .body(StringBody(session ⇒ json(CreditCardPayment(session.get("ccId").as[Int]))))
 
-  implicit class CreditCard(builder: ScenarioBuilder) {
-    def createCcAndPay = builder
-      .feed(csv("data/credit_cards.csv").random)
-      .exec(createCreditCard)
+  // If these is no credit card in session, create new
+  // Otherwise create new credit card with probability of 30%
+  // Otherwise pay with previously used credit card
+  val payWithCc =
+    feed(csv("data/credit_cards.csv").random)
+      .doIfOrElse(session ⇒ session.contains("ccId")) {
+        randomSwitch(
+          30.0 → exec(createCreditCard)
+        )
+      } {
+        exec(createCreditCard)
+      }
       .exec(payWithCreditCard)
-  }
-
 }

@@ -1,7 +1,6 @@
 package seeds
 
 import io.gatling.core.Predef._
-import io.gatling.core.structure.ScenarioBuilder
 import io.gatling.http.Predef._
 import io.gatling.http.request.builder.HttpRequestBuilder
 import models.auth.Identity.Admin
@@ -19,11 +18,9 @@ object Auth {
     .check(status.is(200))
     .check(header("JWT").saveAs("jwtTokenAdmin"))
 
-  implicit class Authenticator(val builder: ScenarioBuilder) extends AnyVal {
-    def loginAsRandomAdmin = builder
-      .feed(csv("data/store_admins.csv").random)
+  val loginAsRandomAdmin =
+    feed(csv("data/store_admins.csv").random)
       .exec(loginAsAdmin)
-  }
 
   implicit class RequireAuth(val httpBuilder: HttpRequestBuilder) extends AnyVal {
     def requireAdminAuth = httpBuilder.header("Authorization", "${jwtTokenAdmin}")
