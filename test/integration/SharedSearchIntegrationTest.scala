@@ -81,20 +81,20 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
       searchResponse must === (Seq(inventorySearch))
     }
 
-    "returns only inventory searches with the promotions scope" in new SharedSearchFixture {
+    "returns only promotion searches with the promotions scope" in new SharedSearchFixture {
       val response = GET(s"v1/shared-search?scope=promotionsScope")
       response.status must === (StatusCodes.OK)
 
       val searchResponse = response.as[Seq[SharedSearch]]
-      searchResponse must === (Seq(inventorySearch))
+      searchResponse must === (Seq(promotionsSearch))
     }
 
-    "returns only inventory searches with the coupons scope" in new SharedSearchFixture {
+    "returns only coupon searches with the coupons scope" in new SharedSearchFixture {
       val response = GET(s"v1/shared-search?scope=couponsScope")
       response.status must === (StatusCodes.OK)
 
       val searchResponse = response.as[Seq[SharedSearch]]
-      searchResponse must === (Seq(inventorySearch))
+      searchResponse must === (Seq(couponsSearch))
     }
 
     "returns associated scopes created by different admins" in new SharedSearchAssociationFixture {
@@ -341,9 +341,9 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
       inventorySearch   ← * <~ SharedSearches.create(inventoryScope)
       _                 ← * <~ SharedSearchAssociations.create(buildAssociation(inventorySearch, storeAdmin))
       promotionsSearch  ← * <~ SharedSearches.create(promotionsScope)
-      _                 ← * <~ SharedSearchAssociations.create(buildAssociation(promotionsScope, storeAdmin))
+      _                 ← * <~ SharedSearchAssociations.create(buildAssociation(promotionsSearch, storeAdmin))
       couponsSearch     ← * <~ SharedSearches.create(couponsScope)
-      _                 ← * <~ SharedSearchAssociations.create(buildAssociation(couponsScope, storeAdmin))
+      _                 ← * <~ SharedSearchAssociations.create(buildAssociation(couponsSearch, storeAdmin))
     } yield (customersSearch, ordersSearch, storeAdminsSearch, giftCardsSearch,
              productsSearch, inventorySearch, promotionsSearch, couponsSearch)
       ).runTxn().futureValue.rightVal
