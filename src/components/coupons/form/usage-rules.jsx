@@ -1,3 +1,4 @@
+/* @flow */
 
 // libs
 import _ from 'lodash';
@@ -15,42 +16,64 @@ import FormField from '../../forms/formfield';
 // styles
 import styles from './styles.css';
 
+type UsageRuleProps = {
+  isExclusive: bool,
+  isUnlimitedPerCode: bool,
+  isUnlimitedPerCustomer: bool,
+  usesPerCode: number,
+  usesPerCustomer: number,
+  onChange: Function,
+}
+
 export default class UsageRules extends Component {
 
-  state = {
-    unlimitedUsagePerCode: false,
-    unlimitedUsagePerCustomer: false,
+  props: UsageRuleProps;
+
+  static defaultProps = {
+    isExclusive: false,
+    isUnlimitedPerCode: false,
+    isUnlimitedPerCustomer: false,
     usesPerCode: 1,
     usesPerCustomer: 1,
   };
 
   @autobind
-  setUnlimitedUsage() {
-    this.setState({unlimitedUsagePerCode: !this.state.unlimitedUsagePerCode});
+  toggleExclusiveness(): void {
+    this.props.onChange('isExclusive', !this.props.isExclusive);
   }
 
   @autobind
-  setUnlimitedCustomerUsage() {
-    this.setState({unlimitedUsagePerCustomer: !this.state.unlimitedUsagePerCustomer});
+  toggleUnlimitedUsage(): void {
+    this.props.onChange('isUnlimitedPerCode', !this.props.isUnlimitedPerCode);
   }
 
   @autobind
-  handleUsesPerCodeChange(value) {
+  toggleUnlimitedCustomerUsage(): void {
+    this.props.onChange('isUnlimitedPerCustomer', !this.props.isUnlimitedPerCustomer);
+  }
+
+  @autobind
+  handleUsesPerCodeChange(value: number): void {
     const checkedValue = value < 1 ? 1 : value;
-    this.setState({usesPerCode: value});
+    this.props.onChange('usesPerCode', checkedValue);
   }
 
   @autobind
-  handleUsesPerCustomerChange(value) {
+  handleUsesPerCustomerChange(value: number): void {
     const checkedValue = value < 1 ? 1 : value;
-    this.setState({usesPerCustomer: value});
+    this.props.onChange('usesPerCustomer', checkedValue);
   }
 
-  render() {
+  render(): Element {
     return (
       <ContentBox title="Usage Rules">
         <div styleName="form-group">
-          <Checkbox id="couponIsExclusive">Coupon is exclusive</Checkbox>
+          <Checkbox
+            id="couponIsExclusive"
+            onClick={this.toggleExclusiveness}
+            checked={this.props.isExclusive}>
+            Coupon is exclusive
+          </Checkbox>
         </div>
         <div styleName="form-group">
           <div className="fc-form-field" styleName="form-group">
@@ -59,18 +82,18 @@ export default class UsageRules extends Component {
             </div>
             <div styleName="form-group">
               <Checkbox id="couponUnlimitedUsage"
-                onClick={this.setUnlimitedUsage}
-                checked={this.state.unlimitedUsagePerCode}>
+                onClick={this.toggleUnlimitedUsage}
+                checked={this.props.isUnlimitedPerCode}>
                 Unlimited
               </Checkbox>
             </div>
             <div>
               <Counter
                 id="couponUsesForCode"
-                value={this.state.usesPerCode}
-                disabled={this.state.unlimitedUsagePerCode}
-                decreaseAction={() => this.handleUsesPerCodeChange(this.state.usesPerCode - 1)}
-                increaseAction={() => this.handleUsesPerCodeChange(this.state.usesPerCode + 1)}
+                value={this.props.usesPerCode}
+                disabled={this.props.isUnlimitedPerCode}
+                decreaseAction={() => this.handleUsesPerCodeChange(this.props.usesPerCode - 1)}
+                increaseAction={() => this.handleUsesPerCodeChange(this.props.usesPerCode + 1)}
                 onChange={({target}) => this.handleUsesPerCodeChange(target.value)}
                 min={1}
               />
@@ -87,18 +110,18 @@ export default class UsageRules extends Component {
             </div>
             <div styleName="form-group">
               <Checkbox id="couponCustomerUsage"
-                onClick={this.setUnlimitedCustomerUsage}
-                checked={this.state.unlimitedUsagePerCustomer}>
+                onClick={this.toggleUnlimitedCustomerUsage}
+                checked={this.props.isUnlimitedPerCustomer}>
                 Unlimited
               </Checkbox>
             </div>
             <div>
               <Counter
                 id="couponUsesNumberForCustomer"
-                value={this.state.usesPerCustomer}
-                disabled={this.state.unlimitedUsagePerCustomer}
-                decreaseAction={() => this.handleUsesPerCustomerChange(this.state.usesPerCustomer - 1)}
-                increaseAction={() => this.handleUsesPerCustomerChange(this.state.usesPerCustomer + 1)}
+                value={this.props.usesPerCustomer}
+                disabled={this.props.isUnlimitedPerCustomer}
+                decreaseAction={() => this.handleUsesPerCustomerChange(this.props.usesPerCustomer - 1)}
+                increaseAction={() => this.handleUsesPerCustomerChange(this.props.usesPerCustomer + 1)}
                 onChange={({target}) => this.handleUsesPerCustomerChange(target.value)}
                 min={1}
               />

@@ -22,6 +22,8 @@ export default class CouponForm extends Component {
     const toOmit = [
       'activeFrom',
       'activeTo',
+      'usageRules',
+      'tags',
     ];
     const shadow = _.get(this.props, 'coupon.shadow.attributes', []);
     return _(shadow).omit(toOmit).keys().value();
@@ -41,7 +43,7 @@ export default class CouponForm extends Component {
             id="promotionSelector"
             styleName="full-width"
             name="promotion"
-            items={[[2158, 'Coupon promo']]}
+            items={[[2146, 'Coupon promo']]}
             placeholder="- Select -"
             value={id}
             onChange={(value) => this.handlePromotionChange(value)}
@@ -80,8 +82,18 @@ export default class CouponForm extends Component {
     this.props.onUpdateCouponCode(value);
   }
 
+  @autobind
+  handleUsageRulesChange(field, value) {
+    const newCoupon = assoc(this.props.coupon, ['form', 'usageRules', field], value);
+    this.props.onUpdateCoupon(newCoupon);
+  }
+
   get isNew() {
     return this.props.entity.entityId === 'new';
+  }
+
+  get usageRules() {
+    return _.get(this.props, 'coupon.form.usageRules', {});
   }
 
   render() {
@@ -105,7 +117,7 @@ export default class CouponForm extends Component {
             onGenerateBulkCodes={this.handleGenerateBulkCodes}
             onChangeSingleCode={this.handleChangeSingleCode}
           />
-          <UsageRules />
+          <UsageRules {...(this.usageRules)} onChange={this.handleUsageRulesChange}/>
         </div>
         <div styleName="aside">
         </div>

@@ -92,8 +92,8 @@ export function illuminateAttributes(form: FormAttributes,
 }
 
 export function denormalize(obj: FormShadowObject, path: ?string = null) {
-  const formTarget = path ? _.get(obj.form, path) : obj.form;
-  const shadowTarget = path ? _.get(obj.shadow, path) : obj.shadow;
+  const formTarget = path ? _.get(obj.form, path, {}) : obj.form;
+  const shadowTarget = path ? _.get(obj.shadow, path, {}) : obj.shadow;
 
   if (!_.isArray(formTarget)) {
     copyShadowAttributes(formTarget.attributes, shadowTarget.attributes);
