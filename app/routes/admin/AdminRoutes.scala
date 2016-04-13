@@ -158,23 +158,23 @@ object AdminRoutes {
         pathPrefix("product" / IntNumber) { productId ⇒
           (get & pathEnd) {
             goodOrFailures {
-              ObjectFormNoteManager.list(productId)
+              ProductNoteManager.list(productId)
             }
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
             goodOrFailures {
-              ObjectFormNoteManager.create(productId, admin, payload)
+              ProductNoteManager.create(productId, admin, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
               goodOrFailures {
-                ObjectFormNoteManager.update(productId, noteId, admin, payload)
+                ProductNoteManager.update(productId, noteId, admin, payload)
               }
             } ~
             (delete & pathEnd) {
               nothingOrFailures {
-                ObjectFormNoteManager.delete(productId, noteId, admin)
+                ProductNoteManager.delete(productId, noteId, admin)
               }
             }
           }

@@ -85,9 +85,9 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     assignments    ← * <~ fetchAssignments(entity).toXor
     response       = assignments.map((buildAssignment _).tupled)
     // Activity log + notifications subscription
-    _              ← * <~ unsubscribe(this, adminIds = Seq(assigneeId), objectIds = Seq(key.toString))
     responseItem   = buildResponse(entity)
     _              ← * <~ LogActivity.unassigned(originator, responseItem, admin, assignmentType, referenceType)
+    _              ← * <~ unsubscribe(this, adminIds = Seq(assigneeId), objectIds = Seq(key.toString))
   } yield response).runTxn()
 
   def assignBulk(originator: StoreAdmin, payload: BulkAssignmentPayload[K])
@@ -116,8 +116,8 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     _               ← * <~ querySeq.delete
     // Response, log activity, notifications subscription
     (successData, theResponse) = buildTheResponse(entities, assignments, payload, Unassigning)
-    _               ← * <~ unsubscribe(this, Seq(admin.id), successData)
     _               ← * <~ logBulkUnassign(this, originator, admin, successData)
+    _               ← * <~ unsubscribe(this, Seq(admin.id), successData)
   } yield theResponse).runTxn()
 
   private def buildTheResponse(entities: Seq[M], assignments: Seq[Assignment], payload: BulkAssignmentPayload[K],
