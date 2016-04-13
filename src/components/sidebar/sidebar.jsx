@@ -13,13 +13,11 @@ import Search from '../search/search';
 
 import * as actions from 'modules/sidebar';
 import { resetTerm } from 'modules/search';
-import { authBlockToggle } from 'modules/auth';
 
 type SidebarProps = {
   isVisible: boolean;
   toggleSidebar: Function;
   resetTerm: Function;
-  authBlockToggle: Function;
   path: string;
 };
 
@@ -63,4 +61,4 @@ const Sidebar = (props: SidebarProps): HTMLElement => {
   );
 };
 
-export default connect(getState, {...actions, resetTerm, authBlockToggle})(Sidebar);
+export default connect(getState, {...actions, resetTerm })(Sidebar);

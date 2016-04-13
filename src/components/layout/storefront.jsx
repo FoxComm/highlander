@@ -8,7 +8,6 @@ import { Link } from 'react-router';
 import { toggleSidebar } from 'modules/sidebar';
 import { toggleActive, resetTerm } from 'modules/search';
 import { toggleCart } from 'modules/cart';
-import { authBlockToggle } from 'modules/auth';
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 
@@ -27,7 +26,6 @@ type StoreFrontProps = Localized & {
   isSearchActive: boolean;
   toggleSidebar: Function;
   toggleSearch: Function;
-  authBlockToggle: Function;
   resetTerm: Function;
   toggleCart: Function;
 }
@@ -99,6 +97,5 @@ export default connect(mapState, {
   toggleSidebar,
   toggleCart,
   toggleSearch: toggleActive,
-  authBlockToggle,
   resetTerm,
 })(localized(StoreFront));
