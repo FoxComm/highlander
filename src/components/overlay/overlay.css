@@ -29,7 +29,24 @@
 
 .close-button {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 26px;
+  right: 20px;
   z-index: 3;
+}
+
+.close-icon {
+  width: 17px;
+  height: 17px;
+}
+
+@media (--medium-viewport-up) {
+  .close-button {
+    right: 2%;
+  }
+
+  .close-icon {
+    width: 33px;
+    height:33px;
+    color: #767676;
+  }
 }

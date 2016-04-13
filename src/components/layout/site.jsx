@@ -22,7 +22,7 @@ class Site extends Component {
     return (
       <Overlay path={path}>
         <Auth authBlockType={auth} path={path}/>
-      </Overlay>  
+      </Overlay>
     );
   }
 
