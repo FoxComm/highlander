@@ -17,24 +17,22 @@ const mapState = state => ({
 /* ::`*/
 class Site extends Component {
   renderAuthBlock() {
-    if (this.props.location.query) {
-      const auth = this.props.location.query.auth;
-      const path = this.props.location.pathname;
-      if (auth) {
-        return (
-          <Overlay path={path}>
-            <Auth authBlockType={auth} path={path}/>
-          </Overlay>
-        );
-      }
-    }
+    const auth = this.props.location.query.auth;
+    const path = this.props.location.pathname;
+    return (
+      <Overlay path={path}>
+        <Auth authBlockType={auth} path={path}/>
+      </Overlay>  
+    );
   }
 
   render() {
+    const isAuthBlockVisible = this.props.location.query && this.props.location.query.auth;
+
     return (
       <div styleName="site">
+        {isAuthBlockVisible && this.renderAuthBlock()}
         {this.props.children}
-        {this.renderAuthBlock()}
       </div>
     );
   }

@@ -3,8 +3,11 @@
 @import "media-queries.css";
 
 .auth-block {
+  position: relative;
+  z-index: 2;
   text-align: center;
   margin-top: 44px;
+  margin-bottom: 20px;
 
   lost-column: 3/11;
   lost-offset: -4/11;
