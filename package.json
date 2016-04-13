@@ -64,7 +64,6 @@
     "react-proxy": "^1.1.2",
     "redux-thunk": "^1.0.3",
     "run-sequence": "^1.1.5",
-    "string-format": "^0.5.0",
     "strip-ansi": "^3.0.0",
     "through2": "^2.0.1",
     "vinyl-buffer": "^1.0.0",
