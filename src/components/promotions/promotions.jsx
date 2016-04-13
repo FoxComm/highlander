@@ -48,7 +48,7 @@ const tableColumns = [
 /* ::`*/
 export default class Promotions extends Component {
 
-  renderRow(row: Object, index: number, columns: Array<any>, params: any): Function {
+  renderRow(row: Object, index: number, columns: Array<any>, params: any): Element {
     const key = `promotion-${row.id}`;
     return (
       <PromotionRow

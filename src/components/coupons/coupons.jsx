@@ -49,7 +49,7 @@ const tableColumns: Array<Object> = [
 /* ::`*/
 export default class Promotions extends Component {
 
-  renderRow(row: Object, index: number, columns: Array<any>, params: Object): Function {
+  renderRow(row: Object, index: number, columns: Array<any>, params: Object): Element {
     const key = `coupon-${row.id}`;
 
     return (
