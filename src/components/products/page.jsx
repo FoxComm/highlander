@@ -67,6 +67,7 @@ export class ProductPage extends Component<void, Props, State> {
 
     params: PropTypes.shape({
       productId: PropTypes.string.isRequired,
+      context: PropTypes.string,
     }).isRequired,
 
     products: PropTypes.shape({
