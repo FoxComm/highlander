@@ -129,6 +129,8 @@
 
   &__info {
     .clearfix();
+    display: flex;
+    align-items: center;
   }
 
   &__content {
@@ -144,17 +146,17 @@
   }
 
   &__type {
-    float: left;
     width: 24px;
     color: @color-decor5;
     font-size: 24px;
     line-height: 30px;
     text-align: center;
+    margin-right: 15px;
   }
 
   &__body {
-    float: right;
-    width: 85%;
+    display: flex;
+    align-items: center;
     font-size: 14px;
     font-weight: @normal;
     line-height: 19px;
@@ -162,8 +164,7 @@
   }
 
   &__author {
-    display: inline;
-    margin-right: 5px;
+    margin-right: 10px;
     color: @color-white;
   }
 

@@ -633,7 +633,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.ASSIGNED_TO_ORDER,
+    kind: types.ASSIGNED,
     id: id++,
     createdAt,
     data: {
@@ -644,7 +644,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ASSIGNED_TO_ORDER,
+    kind: types.ASSIGNED,
     id: id++,
     createdAt,
     data: {
@@ -656,7 +656,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.UNASSIGNED_FROM_ORDER,
+    kind: types.UNASSIGNED,
     id: id++,
     createdAt,
     data: {
@@ -665,7 +665,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.BULK_ASSIGNED_TO_ORDERS,
+    kind: types.BULK_ASSIGNED,
     id: id++,
     createdAt,
     data: {
@@ -678,7 +678,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.BULK_UNASSIGNED_FROM_ORDERS,
+    kind: types.BULK_UNASSIGNED,
     id: id++,
     createdAt,
     data: {
@@ -696,7 +696,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.ADDED_WATCHERS_TO_ORDER,
+    kind: types.ADDED_WATCHERS,
     id: id++,
     createdAt,
     data: {
@@ -707,7 +707,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ADDED_WATCHERS_TO_ORDER,
+    kind: types.ADDED_WATCHERS,
     id: id++,
     createdAt,
     data: {
@@ -719,7 +719,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.REMOVED_WATCHER_FROM_ORDER,
+    kind: types.REMOVED_WATCHER,
     id: id++,
     createdAt,
     data: {
@@ -728,7 +728,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.BULK_ADDED_WATCHER_TO_ORDERS,
+    kind: types.BULK_ADDED_WATCHER,
     id: id++,
     createdAt,
     data: {
@@ -741,7 +741,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.BULK_REMOVED_WATCHER_FROM_ORDERS,
+    kind: types.BULK_REMOVED_WATCHER,
     id: id++,
     createdAt,
     data: {

@@ -1,8 +1,8 @@
-
 // libs
 import React from 'react';
 import types from '../base/types';
 import { joinEntities } from '../base/utils';
+import { assignmentTypes } from '../../../../paragons/watcher';
 
 // components
 import OrderTarget from '../base/order-target';
@@ -11,10 +11,10 @@ import Person from '../base/person';
 import Title from '../base/title';
 
 const bulkEventsToOrders = {
-  title: (data, {kind}) => {
+  title: (data, { kind }) => {
     const orders = data.orderRefNums.map(ref => <OrderLink key={ref} order={{title: 'Order', referenceNumber: ref}} />);
-    const action = kind == types.BULK_ASSIGNED_TO_ORDERS ? 'assigned' : 'unassigned';
-    const directionSense = kind == types.BULK_ASSIGNED_TO_ORDERS ? 'to' : 'from';
+    const action = kind == types.BULK_ASSIGNED ? 'assigned' : 'unassigned';
+    const directionSense = kind == types.BULK_ASSIGNED ? 'to' : 'from';
 
     return (
       <span>
@@ -25,24 +25,29 @@ const bulkEventsToOrders = {
 };
 
 const representatives = {
-  [types.ASSIGNED_TO_ORDER]: {
+  [types.ASSIGNED]: {
     title: (data, activity) => {
-      const persons = data.assignees.map((person, idx) => <Person key={idx} {...person} />);
+      const persons = Object.values(data.assignees).map((person, idx) => <Person key={idx} {...person} />);
+      const action = data.assignmentType == assignmentTypes.assignee ? 'assigned' : 'added watcher';
+      const order = { title: 'Order', referenceNumber: data.entity.referenceNumber };
 
       return (
         <Title activity={activity}>
-          <strong>assigned</strong> {joinEntities(persons)} to <OrderTarget order={data.order} />
+          <strong>{action}</strong> {joinEntities(persons)} to <OrderTarget order={order} />
         </Title>
       );
     },
   },
-  [types.BULK_ASSIGNED_TO_ORDERS]: bulkEventsToOrders,
-  [types.BULK_UNASSIGNED_FROM_ORDERS]: bulkEventsToOrders,
-  [types.UNASSIGNED_FROM_ORDER]: {
+  [types.BULK_ASSIGNED]: bulkEventsToOrders,
+  [types.BULK_UNASSIGNED]: bulkEventsToOrders,
+  [types.UNASSIGNED]: {
     title: (data, activity) => {
+      const order = { title: 'Order', referenceNumber: data.entity.referenceNumber };
+      const action = data.assignmentType == assignmentTypes.assignee ? 'unassigned' : 'removed watcher';
+
       return (
         <Title activity={activity}>
-          <strong>unassigned</strong> <Person {...data.assignee} /> from <OrderTarget order={data.order} />
+          <strong>{action}</strong> <Person {...data.assignee} /> from <OrderTarget order={order} />
         </Title>
       );
     }

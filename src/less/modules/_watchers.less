@@ -4,16 +4,12 @@
     padding: 0;
   }
 
-  .initials {
-    width: 28px;
-    height: auto;
-    vertical-align: top;
-    color: @color-white;
-    line-height: 28px;
-  }
-
   &__container {
     margin: 10px;
+
+    .fc-wait-animation {
+      margin: 0 auto;
+    }
   }
 
   &__title-row {
@@ -62,22 +58,27 @@
     justify-content: flex-start;
     flex-wrap: nowrap;
     flex-direction: row;
-    margin: 1px 0;
+    padding: 2px 0;
 
-    .fc-wait-animation {
-      margin: 0 auto;
+    .initials {
+      width: 28px;
+      height: auto;
+      vertical-align: top;
+      color: @color-white;
+      line-height: 28px;
     }
   }
 
   &__empty-list {
     font-size: 14px;
     font-weight: @semibold;
-    line-height: 19px;
+    line-height: 28px;
     color: @color-decor7;
     margin-left: 5px;
   }
 
   &__cell {
+    height: 28px;
     margin-left: 5px;
   }
 
