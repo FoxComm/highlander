@@ -81,3 +81,4 @@ refresh materialized view concurrently customer_items_view;
 refresh materialized view concurrently promotion_discount_links_view;
 refresh materialized view concurrently promotions_search_view;
 refresh materialized view concurrently coupons_search_view;
+refresh materialized view concurrently coupon_codes_search_view;
