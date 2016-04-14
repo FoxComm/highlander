@@ -5,3 +5,4 @@ vagrant.local.rb
 ansible/*.retry
 *.pyc
 foxcomm-staging.json
+.env.local
