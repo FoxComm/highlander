@@ -8,19 +8,11 @@ import { bindActionCreators } from 'redux';
 
 // components
 import Summary from './summary';
-import TableView from '../../table/tableview';
-import TableRow from '../../table/row';
-import TableCell from '../../table/cell';
 import BulkActions from '../../bulk-actions/bulk-actions';
 import BulkMessages from '../../bulk-actions/bulk-messages';
 import { ChangeStateModal, CancelModal } from '../../bulk-actions/modal';
-import MultiSelectTable from '../../table/multi-select-table';
-import { DateTime } from '../../common/datetime';
-import Currency from '../../common/currency';
-import SearchBar from '../../search-bar/search-bar';
 import Dropdown from '../../dropdown/dropdown';
 import ConfirmationDialog from '../../modal/confirmation-dialog';
-import { Checkbox } from '../../checkbox/checkbox';
 import SelectableSearchList from '../../list-page/selectable-search-list';
 import StoreCreditRow from './storecredit-row';
 

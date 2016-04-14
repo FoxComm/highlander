@@ -37,14 +37,43 @@ export function makeFetchAction(fetcher, actions, findSearchState) {
   return (...args) => (dispatch, getState) => {
     const searchState = findSearchState(getState());
 
-    if (!searchState.isFetching) {
+    if (!searchState.isFetching && !searchState.isRefreshing) {
       dispatch(actions.searchStart(...args));
 
       fetchPromise = fetcher.apply({ searchState, getState, dispatch }, args)
         .then(
           result => {
             if (_.isEmpty(result.error)) {
-              return dispatch(actions.searchSuccess(result));
+              return dispatch(actions.searchSuccess(result, {refreshed: false}));
+            } else {
+              return dispatch(actions.searchFailure(result));
+            }
+          },
+          err => dispatch(actions.searchFailure(err))
+        );
+    }
+
+    return fetchPromise;
+  };
+}
+
+// like makeFetchAction but doesn't fire searchStart actions
+// Used for refresh data but don't fire loading animation
+// and resetting PilledInputs, etc, etc.
+export function makeRefreshAction(fetcher, actions, findSearchState) {
+  let fetchPromise;
+
+  return (...args) => (dispatch, getState) => {
+    const searchState = findSearchState(getState());
+
+    if (!searchState.isFetching && !searchState.isRefreshing) {
+      dispatch(actions.refreshStart(...args));
+
+      fetchPromise = fetcher.apply({ searchState, getState, dispatch }, args)
+        .then(
+          result => {
+            if (_.isEmpty(result.error)) {
+              return dispatch(actions.searchSuccess(result, {refreshed: true}));
             } else {
               return dispatch(actions.searchFailure(result));
             }
@@ -73,7 +102,8 @@ function makePagination(namespace, fetcher = null, findSearchInState = null, ini
   };
 
   const searchStart = _createAction('SEARCH_START', (...args) => args);
-  const searchSuccess = _createAction('SEARCH_SUCCESS');
+  const refreshStart = _createAction('REFRESH_START', (...args) => args);
+  const searchSuccess = _createAction('SEARCH_SUCCESS', (...args) => args);
   const searchFailure = _createAction('SEARCH_FAILURE');
   const updateState = _createAction('UPDATE_STATE');
   const addEntity = _createAction('ADD_ENTITY');
@@ -99,11 +129,20 @@ function makePagination(namespace, fetcher = null, findSearchInState = null, ini
         isFetching: true
       };
     },
-    [searchSuccess]: (state, response) => {
+    [refreshStart]: state => {
       return {
         ...state,
         failed: false,
+        isRefreshing: true,
+      };
+    },
+    [searchSuccess]: (state, [response, opts]) => {
+      return {
+        ...state,
+        ...opts,
+        failed: false,
         isFetching: false,
+        isRefreshing: false,
         rows: _.get(response, 'result', response),
         total: _.get(response, ['pagination', 'total'], response.length)
       };
@@ -114,7 +153,8 @@ function makePagination(namespace, fetcher = null, findSearchInState = null, ini
       return {
         ...state,
         failed: true,
-        isFetching: false
+        isFetching: false,
+        isRefreshing: false,
       };
     },
     [addEntity]: (state, entity) => {
@@ -163,6 +203,7 @@ function makePagination(namespace, fetcher = null, findSearchInState = null, ini
     fetch,
     updateStateAndFetch,
     searchStart,
+    refreshStart,
     searchSuccess,
     searchFailure,
     updateState,
