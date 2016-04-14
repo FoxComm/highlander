@@ -74,7 +74,8 @@ const { reducer, actions } = makeLiveSearch(
   'inventory_search_view/_search',
   'inventoryScope',
   {
-    initialState: { sortBy: 'product' }
+    initialState: { sortBy: 'product' },
+    rawSorts: ['product']
   }
 );
 

@@ -7,7 +7,8 @@ const { reducer, actions } = makeLiveSearch(
   'orders_search_view/_search',
   'ordersScope',
   {
-    initialState: { sortBy: '-placedAt' }
+    initialState: { sortBy: '-placedAt' },
+    rawSorts: ['customer.name', 'customer.email']
   }
 );
 

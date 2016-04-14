@@ -21,10 +21,11 @@ import * as dsl from './dsl';
  * @param {String} [options.phrase] - Adds Phrase prefix
  * @param {Boolean} [options.atLeastOne=false] - if is set to true only one matched filter is enough to success query
  * @param {String} [options.sortBy] - sorting field, can be `-field` for desc order or `field` for asc order
+ * @param {Boolean} [options.sortRaw] - if to sort by 'raw' subfield for proper custom analized field sorting
  * @returns {Object} The ElasticSearch query.
  */
 export function toQuery(filters, options = {}) {
-  const { phrase, atLeastOne = false, sortBy = '' } = options;
+  const { phrase, atLeastOne = false, sortBy = '', sortRaw = false } = options;
 
   if (_.isEmpty(filters) && _.isEmpty(phrase) && _.isEmpty(sortBy)) {
     return {};
@@ -66,7 +67,7 @@ export function toQuery(filters, options = {}) {
     }
   };
 
-  const sortParam = sortBy ? { sort: convertSorting(sortBy) } : null;
+  const sortParam = sortBy ? { sort: convertSorting(sortBy, sortRaw) } : null;
   return dsl.query(qwery, { ...sortParam });
 }
 
@@ -175,9 +176,10 @@ export function rangeToFilter(field, operator, value) {
   });
 }
 
-export function convertSorting(sortBy) {
+export function convertSorting(sortBy, sortRaw) {
   const field = sortBy.replace('-', '');
   const [parent, child] = field.split('.');
+  const raw = sortRaw ? '.raw' : '';
 
   let order = {
     order: sortBy.charAt(0) == '-' ? 'desc' : 'asc'
@@ -190,5 +192,5 @@ export function convertSorting(sortBy) {
     };
   }
 
-  return [dsl.sortByField(field, order)];
+  return [dsl.sortByField(`${field}${raw}`, order)];
 }

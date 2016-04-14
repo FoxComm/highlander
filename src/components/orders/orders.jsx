@@ -40,8 +40,8 @@ const mapDispatchToProps = dispatch => {
 const tableColumns = [
   {field: 'referenceNumber', text: 'Order', model: 'order'},
   {field: 'placedAt', text: 'Date/Time Placed', type: 'datetime'},
-  {field: 'customer.name', text: 'Name'},
-  {field: 'customer.email', text: 'Email'},
+  {field: 'customer.name', text: 'Customer Name'},
+  {field: 'customer.email', text: 'Customer Email'},
   {field: 'state', text: 'Order State', type: 'state', model: 'order'},
   {field: 'shipping.state', text: 'Shipment State', type: 'state', model: 'shipment'},
   {field: 'grandTotal', text: 'Total', type: 'currency'}
