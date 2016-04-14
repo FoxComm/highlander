@@ -1,9 +1,9 @@
 package utils
 
-import concepts.discounts._
 import concepts.discounts.offers.OfferType
 import concepts.discounts.qualifiers.QualifierType
 import models.inventory.SkuType
+import models.Note
 import models.order.Order
 import models.order.lineitems.OrderLineItem
 import models.payment.PaymentMethod
@@ -26,6 +26,7 @@ object JsonFormatters {
   val DefaultFormats = org.json4s.DefaultFormats + time.JavaTimeJson4sSerializer.jsonFormat + Money.jsonFormat
 
   val phoenixFormats = DefaultFormats +
+    Note.ReferenceType.jsonFormat +
     QualifierType.jsonFormat +
     OfferType.jsonFormat +
     Assignment.AssignmentType.jsonFormat +
