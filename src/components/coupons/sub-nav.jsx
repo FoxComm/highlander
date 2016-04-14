@@ -13,7 +13,7 @@ export default class SubNav extends Component {
     return (
       <LocalNav>
         <IndexLink to="coupon-details" params={params}>Details</IndexLink>
-        <Link to="home" params={params}>Coupons</Link>
+        <Link to="coupon-codes" params={params}>Coupons</Link>
         <Link to="home" params={params}>Eligible SKUs</Link>
         <Link to="coupon-notes" params={params}>Notes</Link>
         <Link to="coupon-activity-trail" params={params}>Activity Trail</Link>
