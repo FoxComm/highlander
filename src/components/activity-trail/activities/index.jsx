@@ -15,7 +15,6 @@ import customerCreditCardsActivities from './customer-credit-cards';
 import giftCardsActivities from './gift-cards';
 import storeCreditsActivities from './store-credits';
 import assignmentsActivities from './assignments';
-import watchersActivities from './watchers';
 import productsActivities from './products';
 import skusActivities from './skus';
 
@@ -32,7 +31,6 @@ export const representatives = {
   ...giftCardsActivities,
   ...storeCreditsActivities,
   ...assignmentsActivities,
-  ...watchersActivities,
   ...productsActivities,
   ...skusActivities,
 };

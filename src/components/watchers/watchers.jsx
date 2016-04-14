@@ -89,9 +89,7 @@ class Watchers extends Component {
               <a className="fc-watchers__link" onClick={e => this.watch(e, groups.assignees)}>take it</a>
             </div>
           </div>
-          <div className="fc-watchers__users-row fc-watchers__assignees">
-            {renderGroup(props, groups.assignees)}
-          </div>
+          {renderGroup(props, groups.assignees)}
           <div className="fc-watchers__title-row">
             <div className="fc-watchers__title">
               Watchers
@@ -100,9 +98,7 @@ class Watchers extends Component {
               <a className="fc-watchers__link" onClick={e => this.watch(e, groups.watchers)}>watch</a>
             </div>
           </div>
-          <div className="fc-watchers__users-row fc-watchers__watchers">
-            {renderGroup(props, groups.watchers)}
-          </div>
+          {renderGroup(props, groups.watchers)}
         </div>
         <SelectWatcherModal
           entity={props.entity}

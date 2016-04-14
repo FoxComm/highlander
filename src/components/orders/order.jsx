@@ -1,4 +1,3 @@
-
 // libs
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
@@ -24,13 +23,17 @@ import WaitAnimation from '../common/wait-animation';
 // redux
 import * as orderActions from '../../modules/orders/details';
 
+const orderRefNum = props => {
+  return props.params.order;
+};
+
 const mapStateToProps = (state) => {
   return {
     order: state.orders.details,
   };
 };
 
-const mapDispatchToProps = {...orderActions};
+const mapDispatchToProps = { ...orderActions };
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class Order extends React.Component {
@@ -58,6 +61,12 @@ export default class Order extends React.Component {
     this.props.fetchOrder(this.orderRefNum);
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.orderRefNum != orderRefNum(nextProps)) {
+      this.props.fetchOrder(orderRefNum(nextProps));
+    }
+  }
+
   get changeOptions() {
     return {
       header: 'Confirm',
@@ -77,7 +86,7 @@ export default class Order extends React.Component {
   }
 
   get orderRefNum() {
-    return this.props.params.order;
+    return orderRefNum(this.props);
   }
 
   get order() {
@@ -89,13 +98,13 @@ export default class Order extends React.Component {
       const refNum = this.order.referenceNumber;
       return (
         <RemorseTimer initialEndDate={this.order.remorsePeriodEnd}
-                      onIncreaseClick={ () => this.props.increaseRemorsePeriod(refNum) }/>
+                      onIncreaseClick={ () => this.props.increaseRemorsePeriod(refNum) } />
       );
     }
   }
 
   get details() {
-    const details = React.cloneElement(this.props.children, {...this.props, entity: this.order});
+    const details = React.cloneElement(this.props.children, { ...this.props, entity: this.order });
     return (
       <div className="fc-grid">
         <div className="fc-col-md-1-1">
@@ -121,7 +130,7 @@ export default class Order extends React.Component {
     this.setState({
       newOrderState: null
     });
-    this.props.updateOrder(this.orderRefNum, {state: this.state.newOrderState});
+    this.props.updateOrder(this.orderRefNum, { state: this.state.newOrderState });
   }
 
   @autobind
@@ -141,8 +150,9 @@ export default class Order extends React.Component {
     }
 
     const visibleAndSortedOrderStates = [
-      'remorseHold',
       'manualHold',
+      'fraudHold',
+      'remorseHold',
       'fulfillmentStarted',
       'canceled',
     ].filter(state => {
@@ -201,7 +211,7 @@ export default class Order extends React.Component {
 
   render() {
     const order = this.order;
-    const className = classNames('fc-order', {'fc-cart': order.isCart});
+    const className = classNames('fc-order', { 'fc-cart': order.isCart });
 
     if (this.props.order.isFetching) {
       return <div className={className}><WaitAnimation /></div>;
@@ -228,7 +238,7 @@ export default class Order extends React.Component {
           confirm="Yes, Change"
           cancelAction={this.cancelStateChange}
           confirmAction={this.confirmStateChange}
-          />
+        />
       </div>
     );
   }

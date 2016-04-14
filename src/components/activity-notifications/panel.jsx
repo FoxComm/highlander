@@ -47,7 +47,7 @@ export default class NotificationPanel extends React.Component {
     });
     return (
       <div className="fc-activity-notifications__footer">
-        <PrimaryButton onClick={this.props.markAsRead}
+        <PrimaryButton onClick={this.props.markAsReadAndClose}
                        className={buttonClassName}
                        disabled={shouldBeDisabled}>
           Mark All As Read

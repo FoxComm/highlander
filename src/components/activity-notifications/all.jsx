@@ -605,7 +605,7 @@ createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
 
 activities = [...activities,
   {
-    kind: types.ASSIGNED_TO_ORDER,
+    kind: types.ASSIGNED,
     id: id++,
     createdAt,
     data: {
@@ -616,7 +616,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ASSIGNED_TO_ORDER,
+    kind: types.ASSIGNED,
     id: id++,
     createdAt,
     data: {
@@ -628,7 +628,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.UNASSIGNED_FROM_ORDER,
+    kind: types.UNASSIGNED,
     id: id++,
     createdAt,
     data: {
@@ -637,20 +637,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.BULK_ASSIGNED_TO_ORDERS,
-    id: id++,
-    createdAt,
-    data: {
-      assignee: customer,
-      orders: [
-        'BR10001',
-        'BR10002',
-        'BR10003',
-      ]
-    }
-  },
-  {
-    kind: types.BULK_UNASSIGNED_FROM_ORDERS,
+    kind: types.BULK_ASSIGNED,
     id: id++,
     createdAt,
     data: {
@@ -662,62 +649,12 @@ activities = [...activities,
       ]
     }
   },
-];
-
-createdAt = getStartDate().subtract(shiftDays++, 'days').toString();
-
-activities = [...activities,
   {
-    kind: types.ADDED_WATCHERS_TO_ORDER,
+    kind: types.BULK_UNASSIGNED,
     id: id++,
     createdAt,
     data: {
-      order,
-      watchers: [
-        admin,
-      ]
-    }
-  },
-  {
-    kind: types.ADDED_WATCHERS_TO_ORDER,
-    id: id++,
-    createdAt,
-    data: {
-      order,
-      watchers: [
-        admin,
-        customer,
-      ]
-    }
-  },
-  {
-    kind: types.REMOVED_WATCHER_FROM_ORDER,
-    id: id++,
-    createdAt,
-    data: {
-      order,
-      watcher: customer,
-    }
-  },
-  {
-    kind: types.BULK_ADDED_WATCHER_TO_ORDERS,
-    id: id++,
-    createdAt,
-    data: {
-      watcher: customer,
-      orders: [
-        'BR10001',
-        'BR10002',
-        'BR10003',
-      ]
-    }
-  },
-  {
-    kind: types.BULK_REMOVED_WATCHER_FROM_ORDERS,
-    id: id++,
-    createdAt,
-    data: {
-      watcher: customer,
+      assignee: customer,
       orders: [
         'BR10001',
         'BR10002',

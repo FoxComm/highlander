@@ -133,6 +133,7 @@
     "normalize.css": "^3.0.3",
     "react": "^0.14.0",
     "react-addons-create-fragment": "^0.14.0-rc1",
+    "react-addons-css-transition-group": "^15.0.1",
     "react-dom": "^0.14.0-rc1",
     "react-input-mask": "anru/react-input-mask#a7b8dc04debe9e8dfe7eee3ad31facb79b7c1826",
     "react-redux": "^4.4.0",

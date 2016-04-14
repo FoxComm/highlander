@@ -1,8 +1,7 @@
-
 import React, { PropTypes } from 'react';
 import OrderLink from './order-link';
 
-const OrderTarget = ({order}) => {
+const OrderTarget = ({ order }) => {
   return (
     <span>
       {order.title}
@@ -15,6 +14,7 @@ const OrderTarget = ({order}) => {
 OrderTarget.propTypes = {
   order: PropTypes.shape({
     title: PropTypes.string.isRequired,
+    referenceNumber: PropTypes.string.isRequired,
   }),
 };
 

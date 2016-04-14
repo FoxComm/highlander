@@ -10,10 +10,10 @@ import createStore from '../../lib/store-creator';
 // data
 import { initialState, reducers } from '../bulk';
 
-const getSuccesses = (entityIds, bulkStatus) => {
+const getSuccesses = (referenceNumbers, bulkStatus) => {
   const orderFailures = _.get(bulkStatus, 'failures.order', {});
 
-  return entityIds
+  return referenceNumbers
     .filter(referenceNumber => !(referenceNumber in orderFailures))
     .reduce((result, referenceNumber) => {
       return {
@@ -23,18 +23,18 @@ const getSuccesses = (entityIds, bulkStatus) => {
     }, {});
 };
 
-const cancelOrders = (actions, entityIds, reasonId) =>
+const cancelOrders = (actions, referenceNumbers, reasonId) =>
   dispatch => {
     dispatch(actions.bulkRequest());
     Api.patch('/orders', {
-        entityIds,
+        referenceNumbers,
         reasonId,
         state: 'canceled',
       })
       .then(
         ({batch}) => {
           const errors = _.get(batch, 'failures.order');
-          dispatch(actions.bulkDone(getSuccesses(entityIds, batch), errors));
+          dispatch(actions.bulkDone(getSuccesses(referenceNumbers, batch), errors));
         },
         error => {
           dispatch(actions.bulkError(error));
@@ -42,17 +42,17 @@ const cancelOrders = (actions, entityIds, reasonId) =>
       );
   };
 
-const changeOrdersState = (actions, entityIds, state) =>
+const changeOrdersState = (actions, referenceNumbers, state) =>
   dispatch => {
     dispatch(actions.bulkRequest());
     Api.patch('/orders', {
-        entityIds,
+        referenceNumbers,
         state,
       })
       .then(
         ({batch}) => {
           const errors = _.get(batch, 'failures.order');
-          dispatch(actions.bulkDone(getSuccesses(entityIds, batch), errors));
+          dispatch(actions.bulkDone(getSuccesses(referenceNumbers, batch), errors));
         },
         error => {
           dispatch(actions.bulkError(error));
@@ -61,7 +61,7 @@ const changeOrdersState = (actions, entityIds, state) =>
   };
 
 const toggleWatchOrders = isDirectAction =>
-  (actions, group, entityIds, watchers) =>
+  (actions, group, referenceNumbers, watchers) =>
     dispatch => {
       dispatch(actions.bulkRequest());
 
@@ -69,13 +69,13 @@ const toggleWatchOrders = isDirectAction =>
       const storeAdminId = watchers[0];
 
       Api.post(url, {
-          entityIds,
+          entityIds: referenceNumbers,
           storeAdminId,
         })
         .then(
           ({batch}) => {
             const errors = _.get(batch, 'failures.order');
-            dispatch(actions.bulkDone(getSuccesses(entityIds, batch), errors));
+            dispatch(actions.bulkDone(getSuccesses(referenceNumbers, batch), errors));
           },
           error => {
             dispatch(actions.bulkError(error));

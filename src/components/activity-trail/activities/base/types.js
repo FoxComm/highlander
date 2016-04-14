@@ -4,17 +4,10 @@
 const types = {
   /* Assignments */
 
-  ASSIGNED_TO_ORDER: 'assigned_to_order',
-  UNASSIGNED_FROM_ORDER: 'unassigned_from_order',
-  BULK_ASSIGNED_TO_ORDERS: 'bulk_assigned_to_orders',
-  BULK_UNASSIGNED_FROM_ORDERS: 'bulk_unassigned_from_orders',
-
-  /* Watchers */
-
-  ADDED_WATCHERS_TO_ORDER: 'added_watchers_to_order',
-  REMOVED_WATCHER_FROM_ORDER: 'removed_watcher_from_order',
-  BULK_ADDED_WATCHER_TO_ORDERS: 'bulk_added_watcher_to_orders',
-  BULK_REMOVED_WATCHER_FROM_ORDERS: 'bulk_removed_watcher_from_orders',
+  ASSIGNED: 'assigned',
+  UNASSIGNED: 'unassigned',
+  BULK_ASSIGNED: 'bulk_assigned',
+  BULK_UNASSIGNED: 'bulk_unassigned',
 
   /* Customers */
 
