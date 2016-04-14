@@ -10,15 +10,19 @@ import ContentBox from '../content-box/content-box';
 import ObjectFormInner from '../object-form/object-form-inner';
 import QualifierType from './qualifier-type';
 import OfferType from './offer-type';
-import { Checkbox } from '../checkbox/checkbox';
 import { Dropdown, DropdownItem } from '../dropdown';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
 import { FormField, Form } from '../forms';
+import SelectCustomerGroups from '../customers-groups/select-groups';
 
 import { setDiscountAttr } from '../../paragons/promotion';
 
 
 export default class PromotionForm extends Component {
+
+  state = {
+    qualifiedCustomerGroupIds: [], // it's temporary state until qualified customer groups not implented in backend!
+  };
 
   get generalAttrs() {
     const toOmit = [
@@ -102,6 +106,16 @@ export default class PromotionForm extends Component {
     return (
       <Form ref="form" styleName="promotion-form">
         <div styleName="main">
+          <ContentBox title="Customers">
+            <SelectCustomerGroups
+              selectedGroupIds={this.state.qualifiedCustomerGroupIds}
+              onSelect={(ids) => {
+                this.setState({
+                  qualifiedCustomerGroupIds: ids,
+                });
+              }}
+            />
+          </ContentBox>
           <ContentBox title="General">
             <FormField
               ref="applyTypeField"

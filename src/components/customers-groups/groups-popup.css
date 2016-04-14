@@ -1,0 +1,55 @@
+
+.groups-popup {
+  position: absolute;
+  display: none;
+  z-index: 100;
+  right: 0;
+  top: 100%;
+  background-color: #ffffff;
+  border: 1px solid #d9d9d9;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .5);
+  user-select: none;
+  width: 396px;
+  font-style: normal;
+
+  &:global(._open) {
+    display: block;
+  }
+}
+
+.groups-list {
+  border-bottom: 1px solid #adadad;
+  max-height: 50vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.group {
+  padding: 7px 5px;
+
+  &:hover {
+    background: #ebebeb;
+  }
+
+  & :global(.fc-checkbox__label) {
+    cursor: pointer;
+  }
+}
+
+.group-description {
+  color: #adadad;
+  padding-left: 10px;
+  text-transform: capitalize;
+
+  &:first-letter {
+    padding-right: 10px;
+  }
+}
+
+.controls {
+  padding: 10px 20%;
+}
+
+.add-button {
+  width: 100%;
+}

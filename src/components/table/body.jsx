@@ -37,12 +37,9 @@ export default class TableBody extends Component {
     showLoadingOnMount: true,
   };
 
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      newIds: []
-    };
-  }
+  state = {
+    newIds: [],
+  };
 
   @autobind
   defaultRenderRow(row, index, isNew) {
