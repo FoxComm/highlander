@@ -11,8 +11,7 @@ import consumer.elastic.MappingHelpers._
 final case class CouponsSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("coupons_search_view").fields(
     field("id", IntegerType),
-    field("code", StringType) index "not_analyzed",
-    field("promotion_id", IntegerType),
+    field("promotionId", IntegerType),
     field("context", StringType) index "not_analyzed",
     field("name", StringType).analyzer("autocomplete"),
     field("storefrontName", StringType).analyzer("autocomplete"),
