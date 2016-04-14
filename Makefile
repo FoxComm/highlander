@@ -27,6 +27,12 @@ deploy-usertest1:
 deploy-usertest2:
 	ansible-playbook -v -i ./staging ansible/usertest2.yml
 
+deploy-dem1:
+	ansible-playbook -v -i ./staging ansible/dem1.yml
+
+deploy-dem2:
+	ansible-playbook -v -i ./staging ansible/dem2.yml
+
 lint:
 	ansible-lint ansible/*.yml
 

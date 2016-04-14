@@ -2,6 +2,9 @@ variable "demo_image" {
     default = "ubuntu-1510-wily-v20160123"
 }
 
+variable "ssh_user" {} 
+variable "ssh_private_key" {} 
+
 resource "google_compute_instance" "demo2-ashes" { 
     name = "demo2-ashes"
     machine_type = "n1-highcpu-8"
@@ -18,6 +21,16 @@ resource "google_compute_instance" "demo2-ashes" {
         network = "default"
         access_config {
         }
+    }
+
+    connection { 
+        type = "ssh"
+        user = "${var.ssh_user}"
+        private_key="${file(var.ssh_private_key)}"
+    }
+
+    provisioner "remote-exec" {
+        script = "terraform/demostack/scripts/bootstrap.sh"
     }
 }
 
@@ -36,18 +49,14 @@ resource "google_compute_instance" "demo2-backend" {
     network_interface {
         network = "default"
     }
-}
 
-resource "google_dns_managed_zone" "demo2" {
-    name = "demo2-zone"
-    description = "Demo Zone"
-    dns_name = "demo2.foxcommerce.com."
-}
+    connection { 
+        type = "ssh"
+        user = "${var.ssh_user}"
+        private_key="${file(var.ssh_private_key)}"
+    }
 
-resource "google_dns_record_set" "demo2" {
-    managed_zone = "${google_dns_managed_zone.demo2.name}"
-    name = "${google_dns_managed_zone.demo2.dns_name}"
-    type = "A"
-    ttl = 300
-    rrdatas = ["${google_compute_instance.demo2-ashes.network_interface.0.access_config.0.assigned_nat_ip}"]
+    provisioner "remote-exec" {
+        script = "terraform/demostack/scripts/bootstrap.sh"
+    }
 }

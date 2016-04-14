@@ -1,0 +1,54 @@
+---
+
+- name: Provision Demo 1 Backend
+  hosts: dem1-backend
+  tags:
+      - backend
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+    - { role: buildkite_accessible, sudo: yes}
+    - common
+    - scala
+    - kafka
+    - elasticsearch
+    - db
+    - phoenix
+    - { role: rsyslog, sudo: yes }
+    - { role: kibana, sudo: yes }
+    - greenriver
+    - loyalty
+
+- name: Provision Demo 1 US Frontend
+  hosts: dem1-front
+  tags:
+      - front
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+    - { role: buildkite_accessible, sudo: yes}
+    - common
+    - { role: rsyslog, sudo: yes }
+    - node
+    - ashes
+    - firebird
+    - { role: balancer, sudo: yes }
+    - { role: demo_ashes, sudo: yes }
+
+- name: Provision Demo 1 RU Frontend
+  hosts: dem1-front-ru
+  tags:
+      - front_ru
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+    - { role: buildkite_accessible, sudo: yes}
+    - common
+    - { role: rsyslog, sudo: yes }
+    - node
+    - firebird
+    - { role: balancer, sudo: yes }
+    - { role: demo_ashes, sudo: yes }

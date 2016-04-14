@@ -1,0 +1,8 @@
+phoenix_server: "{{hostvars[groups['dem1-backend'][0]]['ansible_eth0']['ipv4']['address'] }}:9090"
+search_host:  "{{hostvars[groups['dem1-backend'][0]]['ansible_eth0']['ipv4']['address'] }}"
+ashes_server: 127.0.0.1:4000
+demo_user: demo
+demo_pass: Xv6yEcAzXv6yEcAz
+demo_domain: dem1.foxcommerce.com
+ashes_server_name: "admin.{{demo_domain}}"
+firebird_server_name: "{{demo_domain}}"

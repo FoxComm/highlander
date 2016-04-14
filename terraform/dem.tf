@@ -1,16 +1,17 @@
+
 variable "ssh_user" {} 
 variable "ssh_private_key" {} 
 
-module "usertest1" {
-    source = "./twostack"
-    prefix = "usertest1"
+module "dem1" {
+    source = "./demostack"
+    prefix = "dem1"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
 }
 
-module "usertest2" {
-    source = "./twostack"
-    prefix = "usertest2"
+module "dem2" {
+    source = "./demostack"
+    prefix = "dem2"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
 }
