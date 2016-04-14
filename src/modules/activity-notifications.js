@@ -1,4 +1,3 @@
-
 import Api from '../lib/api';
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
@@ -10,20 +9,20 @@ export const toggleNotifications = createAction('NOTIFICATIONS_TOGGLE');
 
 export function startFetchingNotifications() {
   return (dispatch) => {
-    const eventSource = new EventSource('/sse/v1/public/notifications/1', {withCredentials: true});
+    const eventSource = new EventSource('/sse/v1/public/notifications/1', { withCredentials: true });
 
-    eventSource.onmessage = function(e) {
+    eventSource.onmessage = function (e) {
       if (!_.isEmpty(e.data)) {
         const data = JSON.parse(e.data);
         dispatch(notificationReceived(data));
       }
     };
 
-    eventSource.onopen = function(e) {
+    eventSource.onopen = function (e) {
       console.log('Connection was opened.');
     };
 
-    eventSource.onerror = function(e) {
+    eventSource.onerror = function (e) {
       console.log('Connection was closed.');
     };
   };
@@ -36,7 +35,7 @@ export function markAsReadAndClose() {
 
     const adminId = 1;
     const activities = _.get(getState(), ['activityNotifications', 'notifications'], []);
-    const activityId = _.get(_.last(activities), 'id');
+    const activityId = _.get(_.head(activities), 'id');
 
     if (!_.isEmpty(activities) && _.isNumber(activityId)) {
       Api.post(`/public/notifications/${adminId}/last-seen/${activityId}`, {}).then(
@@ -54,12 +53,14 @@ export function markAsRead() {
     const activities = _.get(getState(), ['activityNotifications', 'notifications'], []);
 
     if (!_.isEmpty(activities)) {
-      const activityId = _.get(_.head(activities), 'id');
+      const activityId = _.get(_.last(activities), 'id');
 
       if (_.isNumber(activityId)) {
         Api.post(`/public/notifications/${adminId}/last-seen/${activityId}`, {}).then(
-          () => dispatch(markNotificationsAsRead()),
-          () => dispatch(toggleNotifications())
+          () => {
+            dispatch(markNotificationsAsRead());
+            dispatch(toggleNotifications());
+          }
         );
       }
     } else {
@@ -79,7 +80,9 @@ const reducer = createReducer({
     const notificationList = _.get(state, 'notifications', []);
     const notReadData = assoc(data, 'isRead', false);
     const updatedNotifications = [notReadData, ...notificationList];
-    const newCount = updatedNotifications.reduce((acc, item) => {
+    const uniqueNotifications = _.uniq(updatedNotifications, 'id'); // fix duplicate notifications from server
+
+    const newCount = uniqueNotifications.reduce((acc, item) => {
       if (!item.isRead) {
         acc++;
       }
@@ -88,7 +91,7 @@ const reducer = createReducer({
 
     return {
       ...state,
-      notifications: updatedNotifications,
+      notifications: uniqueNotifications,
       count: newCount
     };
   },

@@ -94,7 +94,7 @@ export default class Notes extends React.Component {
   renderNoteRow(row, index, isNew) {
     if (this.props.editingNoteId === row.id) {
       return (
-        <TableRow key={`row-${index}`}>
+        <TableRow key={`row-${row.id}`}>
           <TableCell colspan={this.tableColumns.length}>
             <NoteForm
               body={this.props.editingNote && this.props.editingNote.body}
@@ -111,6 +111,7 @@ export default class Notes extends React.Component {
           columns={this.tableColumns}
           params={isNew}
           actions={this.props}
+          key={`row-${row.id}`}
           />
       );
     }

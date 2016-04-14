@@ -1,15 +1,16 @@
-
 import React from 'react';
 import types from '../base/types';
 import OrderTarget from '../base/order-target';
 import Title from '../base/title';
 
 const representatives = {
-  [types.ORDER_NOTE_CREATED]: {
+  [types.NOTE_CREATED]: {
     title: (data, activity) => {
+      const order = { title: 'Order', referenceNumber: data.entity.referenceNumber };
+
       return (
         <Title activity={activity}>
-          <strong>added a note</strong> to <OrderTarget order={data.order}/>
+          <strong>added a note</strong> to <OrderTarget order={order} />
         </Title>
       );
     },
@@ -20,11 +21,13 @@ const representatives = {
       };
     },
   },
-  [types.ORDER_NOTE_UPDATED]: {
+  [types.NOTE_UPDATED]: {
     title: (data, activity) => {
+      const order = { title: 'Order', referenceNumber: data.entity.referenceNumber };
+
       return (
         <Title activity={activity}>
-          <strong>changed a note</strong> on <OrderTarget order={data.order}/>
+          <strong>changed a note</strong> on <OrderTarget order={order} />
         </Title>
       );
     },
@@ -35,11 +38,13 @@ const representatives = {
       };
     },
   },
-  [types.ORDER_NOTE_DELETED]: {
+  [types.NOTE_DELETED]: {
     title: (data, activity) => {
+      const order = { title: 'Order', referenceNumber: data.entity.referenceNumber };
+
       return (
         <Title activity={activity}>
-          <strong>removed a note</strong> from <OrderTarget order={data.order}/>
+          <strong>removed a note</strong> from <OrderTarget order={order} />
         </Title>
       );
     },

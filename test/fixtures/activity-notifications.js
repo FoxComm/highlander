@@ -279,29 +279,35 @@ activities = [...activities,
 
   // order notes
   {
-    kind: types.ORDER_NOTE_CREATED,
+    kind: types.NOTE_CREATED,
     id: id++,
     createdAt,
     data: {
-      orderRefNum: 'BR10001',
+      entity: {
+        referenceNumber: 'BR10001'
+      },
       text: 'New note for order.'
     }
   },
   {
-    kind: types.ORDER_NOTE_DELETED,
+    kind: types.NOTE_DELETED,
     id: id++,
     createdAt,
     data: {
-      orderRefNum: 'BR10001',
+      entity: {
+        referenceNumber: 'BR10001'
+      },
       text: 'Lorem ipsum dot color.'
     }
   },
   {
-    kind: types.ORDER_NOTE_UPDATED,
+    kind: types.NOTE_UPDATED,
     id: id++,
     createdAt,
     data: {
-      orderRefNum: 'BR10001',
+      entity: {
+        referenceNumber: 'BR10001'
+      },
       oldText: 'Lorem ipsum dot color.',
       newText: 'New one'
     }
