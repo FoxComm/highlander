@@ -17,10 +17,12 @@ import models.StoreAdmin
 import models.customer.Customer
 import org.json4s.jackson.Serialization
 import org.json4s.{Formats, jackson}
+import routes.admin.DevRoutes
 import services.Authenticator
 import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import services.actors._
 import slick.driver.PostgresDriver.api._
+import utils.Config.Development
 import utils.{Apis, CustomHandlers, WiredStripeApi}
 
 
@@ -87,7 +89,19 @@ class Service(
     }
   }
 
-  val allRoutes = addRoutes.foldLeft(defaultRoutes)(_ ~ _)
+  val devRoutes = {
+    pathPrefix("v1") {
+      requireAuth(storeAdminAuth) { implicit admin ⇒
+        logRequestResult("dev-routes")(routes.admin.DevRoutes.routes)
+      }
+    }
+  }
+
+  val allRoutes = if (utils.Config.environment == Development) {
+    addRoutes.foldLeft(defaultRoutes ~ devRoutes)(_ ~ _)
+  } else {
+    addRoutes.foldLeft(defaultRoutes)(_ ~ _)
+  }
 
   implicit def rejectionHandler: RejectionHandler = CustomHandlers.jsonRejectionHandler
 
