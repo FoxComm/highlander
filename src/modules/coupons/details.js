@@ -7,7 +7,7 @@ import { createAction, createReducer } from 'redux-act';
 import { createEmptyCoupon, configureCoupon} from '../../paragons/coupons';
 import createAsyncActions from '../async-utils';
 import Api from '../../lib/api';
-import { searchPromotions } from '../../elastic/promotions';
+import { searchCouponPromotions as _searchCouponPromotions } from '../../elastic/promotions';
 
 export const couponsNew = createAction('COUPONS_NEW');
 const defaultContext = 'default';
@@ -62,7 +62,7 @@ const _generateCode = createAsyncActions(
 const _searchPromotions = createAsyncActions(
   'seatchPromotions',
   (term: string) => {
-    return searchPromotions(term);
+    return _searchCouponPromotions(term);
   }
 );
 
