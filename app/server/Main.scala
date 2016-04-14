@@ -22,7 +22,7 @@ import services.Authenticator
 import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import services.actors._
 import slick.driver.PostgresDriver.api._
-import utils.Config.Development
+import utils.Config.{Development, Staging}
 import utils.{Apis, CustomHandlers, WiredStripeApi}
 
 
@@ -97,10 +97,9 @@ class Service(
     }
   }
 
-  val allRoutes = if (utils.Config.environment == Development) {
-    addRoutes.foldLeft(defaultRoutes ~ devRoutes)(_ ~ _)
-  } else {
-    addRoutes.foldLeft(defaultRoutes)(_ ~ _)
+  val allRoutes = utils.Config.environment match {
+    case Development | Staging ⇒ addRoutes.foldLeft(defaultRoutes ~ devRoutes)(_ ~ _)
+    case _                     ⇒ addRoutes.foldLeft(defaultRoutes)(_ ~ _)
   }
 
   implicit def rejectionHandler: RejectionHandler = CustomHandlers.jsonRejectionHandler
