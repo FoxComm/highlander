@@ -37,17 +37,3 @@ resource "google_compute_instance" "demo-backend" {
         network = "default"
     }
 }
-
-resource "google_dns_managed_zone" "demo" {
-    name = "demo-zone"
-    description = "Demo Zone"
-    dns_name = "demo.foxcommerce.com."
-}
-
-resource "google_dns_record_set" "demo" {
-    managed_zone = "${google_dns_managed_zone.demo.name}"
-    name = "${google_dns_managed_zone.demo.dns_name}"
-    type = "A"
-    ttl = 300
-    rrdatas = ["${google_compute_instance.demo-ashes.network_interface.0.access_config.0.assigned_nat_ip}"]
-}
