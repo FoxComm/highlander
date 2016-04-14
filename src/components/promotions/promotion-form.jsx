@@ -106,16 +106,6 @@ export default class PromotionForm extends Component {
     return (
       <Form ref="form" styleName="promotion-form">
         <div styleName="main">
-          <ContentBox title="Customers">
-            <SelectCustomerGroups
-              selectedGroupIds={this.state.qualifiedCustomerGroupIds}
-              onSelect={(ids) => {
-                this.setState({
-                  qualifiedCustomerGroupIds: ids,
-                });
-              }}
-            />
-          </ContentBox>
           <ContentBox title="General">
             <FormField
               ref="applyTypeField"
@@ -149,6 +139,16 @@ export default class PromotionForm extends Component {
           <ContentBox title="Offer">
             <div styleName="sub-title">Offer Type</div>
             <OfferType discount={discount} onChange={this.handleOfferChange} />
+          </ContentBox>
+          <ContentBox title="Customers">
+            <SelectCustomerGroups
+              selectedGroupIds={this.state.qualifiedCustomerGroupIds}
+              onSelect={(ids) => {
+                this.setState({
+                  qualifiedCustomerGroupIds: ids,
+                });
+              }}
+            />
           </ContentBox>
         </div>
         <div styleName="aside">
