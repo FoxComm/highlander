@@ -8,7 +8,6 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { pushState } from 'redux-router';
-import { transitionTo } from '../../route-helpers';
 
 // components
 import { PageTitle } from '../section-title';
@@ -51,10 +50,6 @@ class CouponPage extends Component {
     }).isRequired,
   };
 
-  static contextTypes = {
-    history: PropTypes.object.isRequired
-  };
-
   state: CouponPageState = {
     coupon: this.props.details.coupon,
     couponCode: null,
@@ -76,6 +71,9 @@ class CouponPage extends Component {
       const nextCoupon = nextProps.details.coupon;
       if (this.isNew && nextCoupon.form.id) {
         this.props.dispatch(pushState(null, `/coupons/${nextCoupon.form.id}`, ''));
+      }
+      if (!this.isNew && !nextCoupon.form.id) {
+        this.props.dispatch(pushState(null, `/coupons/new`, ''));
       }
       this.setState({ coupon: nextCoupon });
     }
@@ -154,7 +152,7 @@ class CouponPage extends Component {
 
   @autobind
   handleCancel(): void {
-    transitionTo(this.context.history, 'coupons');
+    this.props.dispatch(pushState(null, '/coupons', ''));
   }
 
   @autobind
