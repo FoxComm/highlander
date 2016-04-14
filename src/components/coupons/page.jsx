@@ -1,17 +1,23 @@
 
+/* @flow */
+
 // libs
 import _ from 'lodash';
-import React, { Component, PropTypes } from 'react';
+import React, { Component, PropTypes, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { pushState } from 'redux-router';
+import { transitionTo } from '../../route-helpers';
 
 // components
 import { PageTitle } from '../section-title';
 import { PrimaryButton, Button } from '../common/buttons';
 import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
+
+// styles
+import styles from './form.css';
 
 // redux
 import * as CouponActions from '../../modules/coupons/details';
@@ -24,11 +30,15 @@ class CouponPage extends Component {
     }).isRequired,
   };
 
+  static contextTypes = {
+    history: PropTypes.object.isRequired
+  };
+
   state = {
     coupon: this.props.details.coupon,
   };
 
-  componentDidMount() {
+  componentDidMount(): void {
     if (this.isNew) {
       this.props.actions.couponsNew();
     } else {
@@ -37,7 +47,7 @@ class CouponPage extends Component {
     this.props.actions.searchCouponPromotions('');
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps): void {
     const { isFetching } = nextProps;
 
     if (!isFetching) {
@@ -66,24 +76,24 @@ class CouponPage extends Component {
     return _.get(coupon, 'form.attributes.name', '');
   }
 
-  get selectedPromotions() : Array<any> {
+  get selectedPromotions(): Array<any> {
     return _.get(this.props, 'details.selectedPromotions', []);
   }
 
   @autobind
-  handleUpdateCoupon(coupon) {
+  handleUpdateCoupon(coupon: Object): void {
     this.setState({ coupon });
   }
 
   @autobind
-  handleUpdateCouponCode(singleCode) {
+  handleUpdateCouponCode(singleCode: string): void {
     this.setState({
       couponCode: singleCode,
     });
   }
 
   @autobind
-  handleGenerateBulkCodes(prefix, length, quantity) {
+  handleGenerateBulkCodes(prefix, length, quantity): void {
     const { coupon } = this.state;
 
     let willBeCoupon = this.isNew ? this.props.actions.createCoupon(coupon) : Promise.resolve();
@@ -94,7 +104,7 @@ class CouponPage extends Component {
   }
 
   @autobind
-  handleSubmit() {
+  handleSubmit(): void {
     if (this.state.coupon) {
       const { coupon, couponCode } = this.state;
 
@@ -114,7 +124,12 @@ class CouponPage extends Component {
     }
   }
 
-  render() {
+  @autobind
+  handleCancel(): void {
+    transitionTo(this.context.history, 'coupons');
+  }
+
+  render(): Element {
     const props = this.props;
     const { coupon } = this.state;
 
@@ -135,7 +150,10 @@ class CouponPage extends Component {
     return (
       <div>
         <PageTitle title={this.pageTitle} >
-          <Button>
+          <Button
+            type="button"
+            onClick={this.handleCancel}
+            styleName="cancel-button">
             Cancel
           </Button>
           <PrimaryButton
