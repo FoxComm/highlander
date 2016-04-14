@@ -85,9 +85,9 @@ lazy val phoenixScala = (project in file(".")).
       "justwrote"          at "http://repo.justwrote.it/releases/"
     ),
     libraryDependencies ++= {
-      val akkaV      = "2.4.2"
+      val akkaV      = "2.4.4"
       val scalaTestV = "2.2.6"
-      val monocleV   = "1.2.0"
+      val monocleV   = "1.2.1"
       val json4sV    = "3.3.0"
       val logbackV   = "1.1.7"
       val slickPgV   = "0.12.1"
@@ -99,7 +99,7 @@ lazy val phoenixScala = (project in file(".")).
         "com.typesafe.akka"          %% "akka-agent"             % akkaV,
         "com.typesafe.akka"          %% "akka-stream"            % akkaV,
         "com.typesafe.akka"          %% "akka-http-core"         % akkaV,
-        "de.heikoseeberger"          %% "akka-sse"               % "1.6.3",
+        "de.heikoseeberger"          %% "akka-sse"               % "1.7.2",
         // http
         "net.databinder.dispatch"    %% "dispatch-core"          % "0.11.3",
         "net.databinder.dispatch"    %% "dispatch-json4s-native" % "0.11.3",
@@ -107,7 +107,7 @@ lazy val phoenixScala = (project in file(".")).
         "org.json4s"                 %% "json4s-core"            % json4sV,
         "org.json4s"                 %% "json4s-jackson"         % json4sV,
         "org.json4s"                 %% "json4s-ext"             % json4sV,
-        "de.heikoseeberger"          %% "akka-http-json4s"       % "1.5.2",
+        "de.heikoseeberger"          %% "akka-http-json4s"       % "1.5.4",
         // Database
         "com.typesafe.slick"         %% "slick"                  % slickV,
         "com.typesafe.slick"         %% "slick-hikaricp"         % slickV,
@@ -128,7 +128,7 @@ lazy val phoenixScala = (project in file(".")).
         "ch.qos.logback"             %  "logback-classic"        % logbackV,
         // Other
        ("org.spire-math"             %% "cats"                   % "0.3.0").excludeAll(noScalaCheckPlease),
-        "com.stripe"                 %  "stripe-java"            % "2.0.0",
+        "com.stripe"                 %  "stripe-java"            % "2.2.0",
         "org.slf4j"                  %  "slf4j-api"              % "1.7.21",
         "org.joda"                   %  "joda-money"             % "0.11",
         "com.pellucid"               %% "sealerate"              % "0.0.3",
