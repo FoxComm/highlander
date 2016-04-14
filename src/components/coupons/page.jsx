@@ -23,7 +23,27 @@ import styles from './form.css';
 // redux
 import * as CouponActions from '../../modules/coupons/details';
 
+type CouponPageState = {
+  coupon: Object,
+  couponCode: ?string,
+};
+
+type CouponPageParams = {
+  couponId: string,
+};
+
+type CouponPageProps = {
+  params: CouponPageParams,
+  actions: Object,
+  dispatch: Function,
+  details: Object,
+  children: Element,
+  isFetching: boolean,
+};
+
 class CouponPage extends Component {
+
+  props: CouponPageProps;
 
   static propTypes = {
     params: PropTypes.shape({
@@ -35,8 +55,9 @@ class CouponPage extends Component {
     history: PropTypes.object.isRequired
   };
 
-  state = {
+  state: CouponPageState = {
     coupon: this.props.details.coupon,
+    couponCode: null,
   };
 
   componentDidMount(): void {
@@ -48,7 +69,7 @@ class CouponPage extends Component {
     this.props.actions.searchCouponPromotions('');
   }
 
-  componentWillReceiveProps(nextProps): void {
+  componentWillReceiveProps(nextProps: CouponPageProps): void {
     const { isFetching } = nextProps;
 
     if (!isFetching) {
@@ -81,7 +102,7 @@ class CouponPage extends Component {
     return _.get(this.props, 'details.selectedPromotions', []);
   }
 
-  save(): boolean {
+  save(): Promise {
     if (this.state.coupon) {
       const { coupon, couponCode } = this.state;
 
@@ -100,7 +121,7 @@ class CouponPage extends Component {
       }
     }
 
-    return true; // placeholder, change when implementing validation
+    return Promise.resolve(); // placeholder, change when implementing validation
   }
 
   @autobind
