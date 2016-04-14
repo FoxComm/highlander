@@ -8,10 +8,8 @@ select
     c.created_at as created_at
 from 
     coupon_codes as c,
-	object_contexts as context,
 	coupons as cp
 where 
-    cp.form_id = c.coupon_form_id and
-	cp.context_id = context.id;
+    cp.form_id = c.coupon_form_id;
 
 create unique index coupon_codes_search_view_idx on coupon_codes_search_view (id);
