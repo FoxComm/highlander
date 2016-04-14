@@ -250,7 +250,7 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
       response.status must === (StatusCodes.OK)
 
       val root = response.as[Seq[AdminRoot]]
-      root.sortWith(_.id < _.id) must === (Seq(storeAdmin, secondAdmin).map(buildAdmin))
+      root must contain allOf (buildAdmin(storeAdmin), buildAdmin(secondAdmin))
     }
 
     "404 if not found" in {
