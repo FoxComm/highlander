@@ -81,7 +81,7 @@ const reducer = createReducer({
     const notReadData = assoc(data, 'isRead', false);
     const updatedNotifications = [notReadData, ...notificationList];
     const uniqueNotifications = _.uniq(updatedNotifications, 'id'); // fix duplicate notifications from server
-    console.log('updated:', updatedNotifications.length, 'unique:', uniqueNotifications.length);
+
     const newCount = uniqueNotifications.reduce((acc, item) => {
       if (!item.isRead) {
         acc++;
