@@ -103,10 +103,10 @@ class CouponPage extends Component {
   }
 
   save(): Promise {
+    let willBeCoupon = Promise.resolve();
+
     if (this.state.coupon) {
       const { coupon, couponCode } = this.state;
-
-      let willBeCoupon = Promise.resolve();
 
       if (this.isNew) {
         willBeCoupon = this.props.actions.createCoupon(coupon);
@@ -121,7 +121,7 @@ class CouponPage extends Component {
       }
     }
 
-    return Promise.resolve(); // placeholder, change when implementing validation
+    return willBeCoupon;
   }
 
   @autobind
