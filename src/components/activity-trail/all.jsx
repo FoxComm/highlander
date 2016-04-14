@@ -302,7 +302,7 @@ activities = [...activities,
 
   // order notes
   {
-    kind: types.ORDER_NOTE_CREATED,
+    kind: types.NOTE_CREATED,
     id: id++,
     createdAt,
     data: {
@@ -313,7 +313,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_NOTE_DELETED,
+    kind: types.NOTE_DELETED,
     id: id++,
     createdAt,
     data: {
@@ -324,7 +324,7 @@ activities = [...activities,
     }
   },
   {
-    kind: types.ORDER_NOTE_UPDATED,
+    kind: types.NOTE_UPDATED,
     id: id++,
     createdAt,
     data: {

@@ -4,7 +4,7 @@ import React from 'react';
 import Activity from './base/activity';
 
 import ordersActivities from './orders';
-import orderNotesActivities from './order-notes';
+import notesActivities from './notes';
 import orderShippingAddressActivities from './order-shipping-address';
 import orderShippingMethodsActivities from './order-shipping-methods';
 import orderPaymentMethodsActivities from './order-payment-methods';
@@ -20,7 +20,7 @@ import skusActivities from './skus';
 
 export const representatives = {
   ...ordersActivities,
-  ...orderNotesActivities,
+  ...notesActivities,
   ...orderShippingAddressActivities,
   ...orderShippingMethodsActivities,
   ...orderPaymentMethodsActivities,

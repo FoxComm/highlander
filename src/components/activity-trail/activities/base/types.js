@@ -65,11 +65,11 @@ const types = {
   ORDER_PAYMENT_METHOD_DELETED: 'order_payment_method_deleted',
   ORDER_PAYMENT_METHOD_DELETED_GIFT_CARD: 'order_payment_method_deleted_gift_card',
 
-  /* Order Notes */
+  /* Notes */
 
-  ORDER_NOTE_CREATED: 'order_note_created',
-  ORDER_NOTE_UPDATED: 'order_note_updated',
-  ORDER_NOTE_DELETED: 'order_note_deleted',
+  NOTE_CREATED: 'note_created',
+  NOTE_UPDATED: 'note_updated',
+  NOTE_DELETED: 'note_deleted',
 
   /* Gift Cards */
 

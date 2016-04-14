@@ -61,7 +61,7 @@ export default class NotificationPanel extends React.Component {
       return (
         <div>
           <div className="fc-activity-notifications__overlay"
-               onClick={this.props.markAsReadAndClose}>
+               onClick={this.props.markAsRead}>
           </div>
           <ContentBox title="Notifications"
                       className="fc-activity-notifications__box"
