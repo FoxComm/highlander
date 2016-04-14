@@ -148,8 +148,6 @@ trait OrderGenerator extends ShipmentSeeds {
       totals ← * <~ total(skuIds)
       deductFromGc = deductAmount(gc.availableBalance, totals)
       _    ← * <~ generateOrderPayments(order, cc, gc, deductFromGc)
-      gcPayments ← * <~ OrderPayments.findAllGiftCardsByOrderId(order.id).result
-      _     ← * <~ authGiftCard(gcPayments)
       // Authorize SC payments
       addr   ← * <~ getDefaultAddress(customerId)
       _      ← * <~ OrderShippingAddresses.create(OrderShippingAddress.buildFromAddress(addr).copy(orderId = order.id))

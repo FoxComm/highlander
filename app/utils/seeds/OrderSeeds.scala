@@ -72,6 +72,7 @@ trait OrderSeeds {
   def createOrder3(customerId: Customer#Id, context: ObjectContext, products: Seq[SimpleProductData])(implicit db: Database): DbResultT[Order] = {
     import GiftCard.{buildAppeasement => build}
     import payloads.{GiftCardCreateByCsr => payload}
+
     for {
       order  ← * <~ Orders.create(Order(state = Cart, customerId = customerId, contextId = context.id))
       _      ← * <~ addSkusToOrder(products.map(_.skuId), orderId = order.id, OrderLineItem.Cart)
