@@ -6,7 +6,7 @@ import models.sharedsearch.{SharedSearch, SharedSearchAssociation, SharedSearchA
 import models.{StoreAdmin, StoreAdmins}
 import SharedSearchAssociation.{build ⇒ buildAssociation}
 import models.sharedsearch.SharedSearch.{InventoryScope, ProductsScope, GiftCardsScope, CustomersScope, OrdersScope,
-StoreAdminsScope}
+PromotionsScope, CouponsScope, StoreAdminsScope}
 import failures.NotFoundFailure404
 import failures.SharedSearchFailures._
 import payloads.{SharedSearchAssociationPayload, SharedSearchPayload}
@@ -79,6 +79,22 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
 
       val searchResponse = response.as[Seq[SharedSearch]]
       searchResponse must === (Seq(inventorySearch))
+    }
+
+    "returns only promotion searches with the promotions scope" in new SharedSearchFixture {
+      val response = GET(s"v1/shared-search?scope=promotionsScope")
+      response.status must === (StatusCodes.OK)
+
+      val searchResponse = response.as[Seq[SharedSearch]]
+      searchResponse must === (Seq(promotionsSearch))
+    }
+
+    "returns only coupon searches with the coupons scope" in new SharedSearchFixture {
+      val response = GET(s"v1/shared-search?scope=couponsScope")
+      response.status must === (StatusCodes.OK)
+
+      val searchResponse = response.as[Seq[SharedSearch]]
+      searchResponse must === (Seq(couponsSearch))
     }
 
     "returns associated scopes created by different admins" in new SharedSearchAssociationFixture {
@@ -305,8 +321,13 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
       scope = ProductsScope, storeAdminId = storeAdmin.id)
     val inventoryScope = SharedSearch(title = "Some Inventory", query = parse("{}"),
       scope = InventoryScope, storeAdminId = storeAdmin.id)
+    val promotionsScope = SharedSearch(title = "Some Promotions", query = parse("{}"),
+      scope = PromotionsScope, storeAdminId = storeAdmin.id)
+    val couponsScope = SharedSearch(title = "Some Coupons", query = parse("{}"),
+      scope = CouponsScope, storeAdminId = storeAdmin.id)
 
-    val (customersSearch, ordersSearch, storeAdminsSearch, giftCardsSearch, productsSearch, inventorySearch) = (for {
+    val (customersSearch, ordersSearch, storeAdminsSearch, giftCardsSearch,
+         productsSearch, inventorySearch, promotionsSearch, couponsSearch) = (for {
       customersSearch   ← * <~ SharedSearches.create(customerScope)
       _                 ← * <~ SharedSearchAssociations.create(buildAssociation(customersSearch, storeAdmin))
       ordersSearch      ← * <~ SharedSearches.create(orderScope)
@@ -317,9 +338,14 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
       _                 ← * <~ SharedSearchAssociations.create(buildAssociation(giftCardsSearch, storeAdmin))
       productsSearch    ← * <~ SharedSearches.create(productScope)
       _                 ← * <~ SharedSearchAssociations.create(buildAssociation(productsSearch, storeAdmin))
-      inventorySearch    ← * <~ SharedSearches.create(inventoryScope)
+      inventorySearch   ← * <~ SharedSearches.create(inventoryScope)
       _                 ← * <~ SharedSearchAssociations.create(buildAssociation(inventorySearch, storeAdmin))
-    } yield (customersSearch, ordersSearch, storeAdminsSearch, giftCardsSearch, productsSearch, inventorySearch)
+      promotionsSearch  ← * <~ SharedSearches.create(promotionsScope)
+      _                 ← * <~ SharedSearchAssociations.create(buildAssociation(promotionsSearch, storeAdmin))
+      couponsSearch     ← * <~ SharedSearches.create(couponsScope)
+      _                 ← * <~ SharedSearchAssociations.create(buildAssociation(couponsSearch, storeAdmin))
+    } yield (customersSearch, ordersSearch, storeAdminsSearch, giftCardsSearch,
+             productsSearch, inventorySearch, promotionsSearch, couponsSearch)
       ).runTxn().futureValue.rightVal
   }
 
