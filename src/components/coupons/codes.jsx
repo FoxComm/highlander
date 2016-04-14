@@ -15,7 +15,7 @@ import BulkMessages from '../bulk-actions/bulk-messages';
 
 // redux
 import { actions as CouponCodesActions } from '../../modules/coupons/coupon-codes';
-import { actions as BulkActions } from '../../modules/coupons/coupon-codes-bulk';
+import { actions as ReduxBulkActions } from '../../modules/coupons/coupon-codes-bulk';
 
 const tableColumns = [
   { field: 'createdAt', text: 'Date/Time Created', type: 'date', },
@@ -31,7 +31,7 @@ const mapStateToProps = (state, props) => ({
 const mapDispatchToProps = dispatch => {
   return {
     actions: bindActionCreators(CouponCodesActions, dispatch),
-    bulkActions: bindActionCreators(BulkActions, dispatch),
+    bulkActions: bindActionCreators(ReduxBulkActions, dispatch),
   };
 };
 
