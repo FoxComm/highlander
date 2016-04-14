@@ -34,6 +34,7 @@ class CouponPage extends Component {
     } else {
       this.props.actions.fetchCoupon(this.entityId);
     }
+    this.props.actions.searchCouponPromotions('');
   }
 
   componentWillReceiveProps(nextProps) {
@@ -63,6 +64,10 @@ class CouponPage extends Component {
 
     const { coupon } = this.props.details;
     return _.get(coupon, 'form.attributes.name', '');
+  }
+
+  get selectedPromotions() : Array<any> {
+    return _.get(this.props, 'details.selectedPromotions', []);
   }
 
   @autobind
@@ -120,6 +125,7 @@ class CouponPage extends Component {
     const children = React.cloneElement(props.children, {
       ...props.children.props,
       coupon,
+      selectedPromotions: this.selectedPromotions,
       onUpdateCoupon: this.handleUpdateCoupon,
       onUpdateCouponCode: this.handleUpdateCouponCode,
       onGenerateBulkCodes: this.handleGenerateBulkCodes,
