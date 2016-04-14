@@ -1,6 +1,5 @@
 package routes
 
-import akka.actor.ActorSystem
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
 
@@ -12,11 +11,10 @@ import services.NotificationManager
 import utils.CustomDirectives._
 import utils.Http._
 import utils.aliases._
-import utils.Config.Environment
 
 object NotificationRoutes {
 
-  def routes(implicit ec: EC, db: DB, mat: Materializer, system: ActorSystem, env: Environment) = {
+  def routes(implicit ec: EC, db: DB, mat: Materializer) = {
 
     activityContext() { implicit ac ⇒
       pathPrefix("public") {

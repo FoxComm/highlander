@@ -41,7 +41,7 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
         .requestNext("notification 1: 200 OK")
         .requestNext(activityJson(1))
         .requestNext("notification 2: 200 OK")
-//        .requestNext(activityJson(2)) // FIXME
+        .requestNext(activityJson(2))
     }
 
     "loads old unread notifications before streaming new" in new Fixture2 {
@@ -57,11 +57,10 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
       probe(notifications.interleave(requests, segmentSize = 1))
         .requestNext(activityJson(1))
         .requestNext("notification 2: 200 OK")
-//        .requestNext(activityJson(2)) // FIXME
+        .requestNext(activityJson(2))
     }
 
     "streams error and closes stream if admin not found" in {
-      pending
       val message = s"Error! Store admin with id=66666 not found"
 
       sseProbe("v1/public/notifications/66666")

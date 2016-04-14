@@ -1,12 +1,11 @@
 package services
 
+import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
-import akka.NotUsed
-import akka.actor.{ActorSystem, Props}
-import akka.stream.actor.ActorPublisher
-import akka.stream.scaladsl.Source
+import akka.stream.scaladsl._
+import akka.stream.{Materializer, OverflowStrategy}
 
-import de.heikoseeberger.akkasse.ServerSentEvent
+import de.heikoseeberger.akkasse.{ServerSentEvent ⇒ SSE}
 import failures._
 import models.Notification._
 import models.activity._
@@ -16,27 +15,55 @@ import org.json4s.jackson.Serialization.write
 import payloads.{AppendActivity, CreateNotification}
 import responses.{ActivityConnectionResponse, ActivityResponse, LastSeenActivityResponse, TheResponse}
 import services.activity.TrailManager
-import services.actors.NotificationPublisher
 import slick.driver.PostgresDriver.api._
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Slick.DbResult
 import utils.Slick.implicits._
-import utils.{DbResultT, JsonFormatters}
 import utils.aliases._
+import utils.{DbResultT, JsonFormatters, NotificationListener}
 
 object NotificationManager {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def streamByAdminId(id: StoreAdmin#Id)
-    (implicit ec: EC, db: DB, system: ActorSystem, env: utils.Config.Environment): Source[ServerSentEvent, NotUsed] = {
-    val dataPublisherRef = system.actorOf(Props(new NotificationPublisher(id)))
-    val dataPublisher = ActorPublisher[String](dataPublisherRef)
-    dataPublisherRef ! id
+  def streamByAdminId(adminId: StoreAdmin#Id)
+    (implicit ec: EC, db: DB, mat: Materializer): Future[Source[SSE, Any]] = {
+    StoreAdmins.findOneById(adminId).run().map {
+      case Some(admin) ⇒
+        oldNotifications(adminId).merge(newNotifications(adminId))
+          .keepAlive(30.seconds, () ⇒ SSE.heartbeat)
+      case None ⇒
+        Source.single(SSE(s"Error! Store admin with id=$adminId not found"))
+    }
+  }
 
-    Source.fromPublisher(dataPublisher)
-      .map(ServerSentEvent(_))
-      .keepAlive(30.seconds, () ⇒ ServerSentEvent.heartbeat)
+  private def newNotifications(adminId: Int)(implicit ec: EC, db: DB, mat: Materializer): Source[SSE, Any] = {
+    val (actorRef, publisher) = Source.actorRef[SSE](8, OverflowStrategy.fail)
+      .toMat(Sink.asPublisher(false))(Keep.both).run()
+    new NotificationListener(adminId, msg ⇒ actorRef ! SSE(msg))
+    Source.fromPublisher(publisher)
+  }
+
+  private def oldNotifications(adminId: Int)(implicit db: DB): Source[SSE, Any] = {
+    val disableAutocommit = SimpleDBIO(_.connection.setAutoCommit(false))
+
+    val activities = (for {
+      trail ← Trails.findNotificationByAdminId(adminId)
+      connection ← Connections.filter(_.trailId === trail.id)
+      activity ← Activities.filter(_.id === connection.activityId)
+    } yield (trail, activity)).result.withStatementParameters(fetchSize = 32)
+
+    val publisher = db.stream[(Trail, Activity)](disableAutocommit >> activities)
+
+    Source.fromPublisher(publisher)
+      .filter { case (trail, activity) ⇒
+        val lastSeen = for {
+          json ← trail.data
+          metadata ← json.extractOpt[NotificationTrailMetadata]
+        } yield metadata.lastSeenActivityId
+        activity.id > lastSeen.getOrElse(0)
+      }
+      .map { case (trail, activity) ⇒ SSE(write(ActivityResponse.build(activity))) }
   }
 
   def createNotification(payload: CreateNotification)(implicit ac: ActivityContext, ec: EC, db: DB):
