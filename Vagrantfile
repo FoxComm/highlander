@@ -6,7 +6,7 @@ require 'fileutils'
 CONFIG = File.join(File.dirname(__FILE__), "vagrant.local.rb")
 
 $vb_memory = 6048
-$vb_cpu = 2
+$vb_cpu = 4
 $backend_ip = "192.168.10.111"
 $ashes_ip = "192.168.10.112"
 
@@ -84,6 +84,7 @@ Vagrant.configure("2") do |config|
     expose_backend_ports(app)
     expose_ashes(app)
 
+    app.vm.synced_folder "../firebird", "/fox/firebird"
     app.vm.synced_folder "../ashes", "/fox/ashes"
     app.vm.synced_folder "../green-river", "/fox/green-river"
     app.vm.synced_folder "../phoenix-scala", "/fox/phoenix-scala"

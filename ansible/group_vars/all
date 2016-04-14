@@ -15,7 +15,7 @@ phoenix_version: 1.0
 phoenix_env: staging
 phoenix_src: ../../phoenix-scala/
 phoenix_jar_src: "{{phoenix_src}}/target/{{scala_version}}/phoenix-scala-assembly-{{phoenix_version}}.jar"
-gatling_jar_scr: "{{phoenix_src}}/gatling/target/{{scala_version}}/gatling-assembly-{{phoenix_version}}.jar"
+gatling_jar_scr: "{{phoenix_src}}/target/gatling/target/{{scala_version}}/gatling-assembly-{{phoenix_version}}.jar"
 
 phoenix_dir: /phoenix
 phoenix_jar: "{{phoenix_dir}}/phoenix.jar"
