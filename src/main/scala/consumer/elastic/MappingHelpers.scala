@@ -11,7 +11,7 @@ object MappingHelpers {
     field("address2", StringType).analyzer("autocomplete"),
     field("city", StringType).analyzer("autocomplete"),
     field("zip", StringType).index("not_analyzed"),
-    field("region", StringType).analyzer("autocomplete"),
+    field("region", StringType).index("not_analyzed"),
     field("country", StringType).analyzer("autocomplete"),
     field("continent", StringType).analyzer("autocomplete"),
     field("currency", StringType).analyzer("autocomplete")
