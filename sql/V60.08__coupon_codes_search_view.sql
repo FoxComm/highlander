@@ -2,7 +2,7 @@ create materialized view coupon_codes_search_view as
 select
     c.id,
     c.code,
-    cp.id as coupon_id,
+    cp.form_id as coupon_id,
     cp.promotion_id,
     0 as total_used, --this needs to be computed
     c.created_at as created_at
