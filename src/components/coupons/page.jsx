@@ -1,7 +1,9 @@
 
+/* @flow */
+
 // libs
 import _ from 'lodash';
-import React, { Component, PropTypes } from 'react';
+import React, { Component, PropTypes, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -9,14 +11,38 @@ import { pushState } from 'redux-router';
 
 // components
 import { PageTitle } from '../section-title';
-import { PrimaryButton, Button } from '../common/buttons';
+import { Button } from '../common/buttons';
 import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
+import ButtonWithMenu from '../common/button-with-menu';
+
+// styles
+import styles from './form.css';
 
 // redux
 import * as CouponActions from '../../modules/coupons/details';
 
+type CouponPageState = {
+  coupon: Object,
+  couponCode: ?string,
+};
+
+type CouponPageParams = {
+  couponId: string,
+};
+
+type CouponPageProps = {
+  params: CouponPageParams,
+  actions: Object,
+  dispatch: Function,
+  details: Object,
+  children: Element,
+  isFetching: boolean,
+};
+
 class CouponPage extends Component {
+
+  props: CouponPageProps;
 
   static propTypes = {
     params: PropTypes.shape({
@@ -24,11 +50,12 @@ class CouponPage extends Component {
     }).isRequired,
   };
 
-  state = {
+  state: CouponPageState = {
     coupon: this.props.details.coupon,
+    couponCode: null,
   };
 
-  componentDidMount() {
+  componentDidMount(): void {
     if (this.isNew) {
       this.props.actions.couponsNew();
     } else {
@@ -37,13 +64,16 @@ class CouponPage extends Component {
     this.props.actions.searchCouponPromotions('');
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: CouponPageProps): void {
     const { isFetching } = nextProps;
 
     if (!isFetching) {
       const nextCoupon = nextProps.details.coupon;
       if (this.isNew && nextCoupon.form.id) {
         this.props.dispatch(pushState(null, `/coupons/${nextCoupon.form.id}`, ''));
+      }
+      if (!this.isNew && !nextCoupon.form.id) {
+        this.props.dispatch(pushState(null, `/coupons/new`, ''));
       }
       this.setState({ coupon: nextCoupon });
     }
@@ -66,39 +96,15 @@ class CouponPage extends Component {
     return _.get(coupon, 'form.attributes.name', '');
   }
 
-  get selectedPromotions() : Array<any> {
+  get selectedPromotions(): Array<any> {
     return _.get(this.props, 'details.selectedPromotions', []);
   }
 
-  @autobind
-  handleUpdateCoupon(coupon) {
-    this.setState({ coupon });
-  }
+  save(): Promise {
+    let willBeCoupon = Promise.resolve();
 
-  @autobind
-  handleUpdateCouponCode(singleCode) {
-    this.setState({
-      couponCode: singleCode,
-    });
-  }
-
-  @autobind
-  handleGenerateBulkCodes(prefix, length, quantity) {
-    const { coupon } = this.state;
-
-    let willBeCoupon = this.isNew ? this.props.actions.createCoupon(coupon) : Promise.resolve();
-
-    willBeCoupon.then(() => {
-      this.props.actions.generateCodes(prefix, length, quantity);
-    });
-  }
-
-  @autobind
-  handleSubmit() {
     if (this.state.coupon) {
       const { coupon, couponCode } = this.state;
-
-      let willBeCoupon = Promise.resolve();
 
       if (this.isNew) {
         willBeCoupon = this.props.actions.createCoupon(coupon);
@@ -112,9 +118,65 @@ class CouponPage extends Component {
         });
       }
     }
+
+    return willBeCoupon;
   }
 
-  render() {
+  @autobind
+  handleUpdateCoupon(coupon: Object): void {
+    this.setState({ coupon });
+  }
+
+  @autobind
+  handleUpdateCouponCode(singleCode: string): void {
+    this.setState({
+      couponCode: singleCode,
+    });
+  }
+
+  @autobind
+  handleGenerateBulkCodes(prefix, length, quantity): void {
+    const { coupon } = this.state;
+
+    let willBeCoupon = this.isNew ? this.props.actions.createCoupon(coupon) : Promise.resolve();
+
+    willBeCoupon.then(() => {
+      this.props.actions.generateCodes(prefix, length, quantity);
+    });
+  }
+
+  @autobind
+  handleSubmit(): void {
+    this.save();
+  }
+
+  @autobind
+  handleCancel(): void {
+    this.props.dispatch(pushState(null, '/coupons', ''));
+  }
+
+  @autobind
+  handleSelectSaving(value) {
+    const { actions, dispatch } = this.props;
+    const mayBeSaved = this.save();
+    if (!mayBeSaved) return;
+
+    mayBeSaved.then(() => {
+      switch (value) {
+        case 'save_and_new':
+          actions.couponsNew();
+          break;
+        case 'save_and_duplicate':
+          dispatch(pushState(null, `/coupons/new`, ''));
+          break;
+        case 'save_and_close':
+          dispatch(pushState(null, `/coupons`, ''));
+          break;
+      }
+    });
+  }
+
+  render(): Element {
     const props = this.props;
     const { coupon } = this.state;
 
@@ -135,14 +197,22 @@ class CouponPage extends Component {
     return (
       <div>
         <PageTitle title={this.pageTitle} >
-          <Button>
+          <Button
+            type="button"
+            onClick={this.handleCancel}
+            styleName="cancel-button">
             Cancel
           </Button>
-          <PrimaryButton
-            type="submit"
-            onClick={this.handleSubmit} >
-            Save
-          </PrimaryButton>
+          <ButtonWithMenu
+            title="Save"
+            onPrimaryClick={this.handleSubmit}
+            onSelect={this.handleSelectSaving}
+            items={[
+              ['save_and_new', 'Save and Create New'],
+              ['save_and_duplicate', 'Save and Duplicate'],
+              ['save_and_close', 'Save and Close'],
+            ]}
+          />
         </PageTitle>
         <SubNav params={this.props.params} />
         <div>
