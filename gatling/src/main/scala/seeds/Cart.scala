@@ -1,12 +1,14 @@
 package seeds
 
+import java.time.Instant
+
 import scala.util.Random
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.request.StringBody
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import payloads.{CreateOrder, UpdateLineItemsPayload, UpdateShippingMethod}
+import payloads.{CreateOrder, OrderTimeMachine, UpdateLineItemsPayload, UpdateShippingMethod}
 import seeds.Auth._
 import seeds.GatlingApp.dbFeeder
 
@@ -72,4 +74,11 @@ object Cart {
       .exec(CreditCards.payWithCc)
       .exec(checkout)
 
+  val ageOrder = http("Age order")
+    .post("/v1/order-time-machine")
+    .requireAdminAuth
+    .body(StringBody(session ⇒ json(OrderTimeMachine(
+      referenceNumber = session.get("referenceNumber").as[String],
+      placedAt = Instant.now.minusSeconds((Random.nextInt(15) * 60 * 60 * 24 * 30).toLong) // Minus ~15 months
+    ))))
 }

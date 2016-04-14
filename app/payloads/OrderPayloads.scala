@@ -1,5 +1,7 @@
 package payloads
 
+import java.time.Instant
+
 import cats.data.ValidatedNel
 import cats.implicits._
 import models.order.Order
@@ -25,3 +27,5 @@ final case class CreateOrder(customerId: Option[Int] = None, email: Option[Strin
     ).map { case _ ⇒ this }
   }
 }
+
+final case class OrderTimeMachine(referenceNumber: String, placedAt: Instant)
