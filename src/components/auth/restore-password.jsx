@@ -9,6 +9,8 @@ import { Link } from 'react-router';
 
 import { authBlockTypes } from 'modules/auth';
 
+import localized from 'lib/i18n';
+
 import { TextInput } from 'ui/inputs';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
@@ -23,6 +25,7 @@ type RestoreState = {
 
 /* ::`*/
 @connect()
+@localized
 /* ::`*/
 export default class RestorePassword extends Component {
 
@@ -46,6 +49,7 @@ export default class RestorePassword extends Component {
   @autobind
   handleSubmit(): ?Promise {
     const { email } = this.state;
+    const { t } = this.props;
 
     if (email.endsWith('.com')) {
       this.setState({
@@ -54,17 +58,18 @@ export default class RestorePassword extends Component {
       });
     } else {
       this.setState({
-        error: `Oops! We don’t have a user with that email. Please check your entry and try again.`,
+        error: t(`Oops! We don’t have a user with that email. Please check your entry and try again.`),
       });
 
       return Promise.reject({
-        email: 'A user with this email does not exist.',
+        email: t('A user with this email does not exist.'),
       });
     }
   }
 
   get topMessage(): HTMLElement {
     const { emailSent, error, email } = this.state;
+    const { t } = this.props;
 
     if (error) {
       return (
@@ -77,14 +82,14 @@ export default class RestorePassword extends Component {
     if (emailSent) {
       return (
         <div styleName="top-message-success">
-          An email was successfully sent to <strong>{email}</strong> with reset instructions!
+          {t('An email with reset instructions was successfully sent to')} <strong>{email}</strong>!
         </div>
       );
     }
 
     return (
       <div styleName="top-message">
-        No worries! We’ll email you instructions on how to reset your password.
+        {t('No worries! We’ll email you instructions on how to reset your password.')}
       </div>
     );
   }
@@ -98,12 +103,13 @@ export default class RestorePassword extends Component {
 
   get emailField(): ?HTMLElement {
     const { emailSent, email } = this.state;
+    const { t } = this.props;
 
     if (emailSent) return null;
 
     return (
       <FormField name="email" key="email" styleName="form-field">
-        <TextInput placeholder="EMAIL" required type="email" value={email} onChange={this.changeEmail} />
+        <TextInput placeholder={t('EMAIL')} required type="email" value={email} onChange={this.changeEmail} />
       </FormField>
     );
   }
@@ -118,32 +124,36 @@ export default class RestorePassword extends Component {
 
   get primaryButton(): HTMLElement {
     const { emailSent } = this.state;
+    const { t } = this.props;
 
     if (emailSent) {
       return (
-        <Button styleName="primary-button" onClick={this.gotoLogin} type="button">BACK TO LOG IN</Button>
+        <Button styleName="primary-button" onClick={this.gotoLogin} type="button">{t('BACK TO LOG IN')}</Button>
       );
     }
 
-    return <Button styleName="primary-button" type="submit">SUBMIT</Button>;
+    return <Button styleName="primary-button" type="submit">{t('SUBMIT')}</Button>;
   }
 
   get switchStage(): ?HTMLElement {
     const { emailSent } = this.state;
+    const { t } = this.props;
 
     if (!emailSent) {
       return (
         <div styleName="switch-stage">
-          <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.LOGIN}}}>BACK TO LOG IN</Link>
+          <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.LOGIN}}}>{t('BACK TO LOG IN')}</Link>
         </div>
       );
     }
   }
 
   render(): HTMLElement {
+    const { t } = this.props;
+
     return (
       <div>
-        <div styleName="title">FORGOT PASSWORD</div>
+        <div styleName="title">{t('FORGOT PASSWORD')}</div>
         {this.topMessage}
         <Form onSubmit={this.handleSubmit}>
           {this.emailField}

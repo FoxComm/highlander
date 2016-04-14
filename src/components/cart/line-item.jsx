@@ -4,10 +4,13 @@
 import React from 'react';
 import styles from './line-item.css';
 
+import localized from 'lib/i18n';
+
 import Icon from 'ui/icon';
 import Currency from 'ui/currency';
 
 const LineItem = props => {
+  const { t } = props;
   const click = () => {
     props.deleteLineItem(props.sku);
   };
@@ -22,7 +25,7 @@ const LineItem = props => {
             {props.name}
           </div>
           <div styleName="quantity">
-            QTY: {props.quantity}
+            {t('QTY')}: {props.quantity}
           </div>
         </div>
         <div styleName="price">
@@ -38,4 +41,4 @@ const LineItem = props => {
   );
 };
 
-export default LineItem;
+export default localized(LineItem);

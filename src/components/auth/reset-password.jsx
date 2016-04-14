@@ -7,6 +7,8 @@ import { connect } from 'react-redux';
 import { routeActions } from 'react-router-redux';
 import { authBlockTypes } from 'modules/auth';
 
+import localized from 'lib/i18n';
+
 import { TextInput } from 'ui/inputs';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
@@ -22,6 +24,7 @@ type ResetState = {
 
 /* ::`*/
 @connect()
+@localized
 /* ::`*/
 export default class ResetPassword extends Component {
 
@@ -46,7 +49,7 @@ export default class ResetPassword extends Component {
 
     if (passwd1 != passwd2) {
       this.setState({
-        error: 'Passwords must match',
+        error: this.props.t('Passwords must match'),
       });
     } else {
       this.setState({
@@ -58,6 +61,7 @@ export default class ResetPassword extends Component {
 
   get topMessage(): HTMLElement {
     const { isReseted, error } = this.state;
+    const { t } = this.props;
 
     if (error) {
       return (
@@ -70,14 +74,14 @@ export default class ResetPassword extends Component {
     if (isReseted) {
       return (
         <div styleName="top-message-success">
-          Woohoo! Your password was successfully reset.
+          {t('Woohoo! Your password was successfully reset.')}
         </div>
       );
     }
 
     return (
       <div styleName="top-message">
-        Your new password must be at least 8 characters long.
+        {t('Your new password must be at least 8 characters long.')}
       </div>
     );
   }
@@ -91,13 +95,14 @@ export default class ResetPassword extends Component {
 
   get passwordFields(): ?HTMLElement[] {
     const { isReseted, passwd1, passwd2, error } = this.state;
+    const { t } = this.props;
 
     if (isReseted) return null;
 
     return [
       <FormField key="passwd1" styleName="form-field" error={!!error}>
         <TextInput
-          placeholder="NEW PASSWORD"
+          placeholder={t('NEW PASSWORD')}
           required
           type="password"
           minLength="8"
@@ -107,7 +112,11 @@ export default class ResetPassword extends Component {
         />
       </FormField>,
       <FormField key="passwd2" styleName="form-field" error={!!error}>
-        <TextInput placeholder="CONFIRM PASSWORD" required type="password" minLength="8"
+        <TextInput
+          placeholder={t('CONFIRM PASSWORD')}
+          required
+          type="password"
+          minLength="8"
           value={passwd2}
           name="passwd2"
           onChange={this.updateForm}
@@ -126,20 +135,23 @@ export default class ResetPassword extends Component {
 
   get primaryButton(): HTMLElement {
     const { isReseted } = this.state;
+    const { t } = this.props;
 
     if (isReseted) {
       return (
-        <Button styleName="primary-button" type="button" onClick={this.gotoLogin}>BACK TO LOG IN</Button>
+        <Button styleName="primary-button" type="button" onClick={this.gotoLogin}>{t('BACK TO LOG IN')}</Button>
       );
     }
 
-    return <Button styleName="primary-button" type="submit">RESET PASSWORD</Button>;
+    return <Button styleName="primary-button" type="submit">{t('RESET PASSWORD')}</Button>;
   }
 
   render(): HTMLElement {
+    const { t } = this.props;
+
     return (
       <div>
-        <div styleName="title">RESET PASSWORD</div>
+        <div styleName="title">{t('RESET PASSWORD')}</div>
         {this.topMessage}
         <Form onSubmit={this.handleSubmit}>
           {this.passwordFields}

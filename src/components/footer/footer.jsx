@@ -4,9 +4,14 @@ import React from 'react';
 import styles from './footer.css';
 import type { HTMLElement } from 'types';
 
+import localized from 'lib/i18n';
+import type { Localized } from 'lib/i18n';
+
 import Icon from 'ui/icon';
 
-const Footer = () : HTMLElement => {
+const Footer = (props: Localized) : HTMLElement => {
+  const { t } = props;
+
   return (
     <div styleName="container">
       <div styleName="social-links">
@@ -16,12 +21,12 @@ const Footer = () : HTMLElement => {
         <Icon name="fc-pinterest" styleName="social-icon" />
       </div>
       <div styleName="other-links">
-        <a href="#" styleName="other-link">Terms of Use</a>
-        <a href="#" styleName="other-link">Privacy Policy</a>
-        <a href="#" styleName="other-link">Shipping &amp; Returns</a>
+        <a href="#" styleName="other-link">{t('Terms of Use')}</a>
+        <a href="#" styleName="other-link">{t('Privacy Policy')}</a>
+        <a href="#" styleName="other-link">{t('Shipping & Returns')}</a>
       </div>
     </div>
   );
 };
 
-export default Footer;
+export default localized(Footer);

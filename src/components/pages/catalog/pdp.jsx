@@ -6,6 +6,9 @@ import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'react-router';
 
+import localized from 'lib/i18n';
+import type { Localized } from 'lib/i18n';
+
 import styles from './pdp.css';
 
 import Button from 'ui/buttons';
@@ -26,7 +29,7 @@ type Params = {
   productId: string;
 };
 
-type Props = {
+type Props = Localized & {
   fetch: (id: number) => any;
   params: Params;
   product: ProductResponse|null;
@@ -139,12 +142,14 @@ class Pdp extends Component {
   }
 
   render(): HTMLElement {
+    const { t } = this.props;
+
     if (this.props.isLoading) {
       return <Loader/>;
     }
 
     if (this.props.notFound) {
-      return <p styleName="not-found">Product not found</p>;
+      return <p styleName="not-found">{t('Product not found')}</p>;
     }
 
     const { product, isCartLoading } = this.props;
@@ -160,15 +165,15 @@ class Pdp extends Component {
       <div styleName="container">
         <div styleName="links">
           <div styleName="desktop-links">
-            <Link to="/" styleName="breadcrumb">SHOP</Link>
+            <Link to="/" styleName="breadcrumb">{t('SHOP')}</Link>
             &nbsp;/&nbsp;
             <Link to={`/products/${this.productId}`} styleName="breadcrumb">{title.toUpperCase()}</Link>
           </div>
           <div styleName="mobile-links">
-            <Link to={this.pathToPrevious} styleName="breadcrumb">&lt; BACK</Link>
+            <Link to={this.pathToPrevious} styleName="breadcrumb">{t('< BACK')}</Link>
           </div>
           <div>
-            <Link to={this.pathToNext} styleName="breadcrumb">NEXT &gt;</Link>
+            <Link to={this.pathToNext} styleName="breadcrumb">{t('NEXT >')}</Link>
           </div>
         </div>
         <div styleName="details">
@@ -183,7 +188,7 @@ class Pdp extends Component {
             <div styleName="description" dangerouslySetInnerHTML={descriptionMarkup}>
             </div>
             <div>
-              <label>QUANTITY</label>
+              <label>{t('QUANTITY')}</label>
               <div styleName="counter">
                 <Counter
                   value={this.state.quantity}
@@ -192,7 +197,9 @@ class Pdp extends Component {
                 />
               </div>
             </div>
-            <Button styleName="add-to-cart" isLoading={isCartLoading} onClick={this.addToCart}>ADD TO CART</Button>
+            <Button styleName="add-to-cart" isLoading={isCartLoading} onClick={this.addToCart}>
+              {t('ADD TO CART')}
+            </Button>
           </div>
         </div>
       </div>
@@ -200,4 +207,4 @@ class Pdp extends Component {
   }
 }
 
-export default connect(getState, {...actions, addLineItem, toggleCart, fetchProducts})(Pdp);
+export default connect(getState, {...actions, addLineItem, toggleCart, fetchProducts})(localized(Pdp));

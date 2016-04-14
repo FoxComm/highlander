@@ -9,6 +9,8 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { detectCardType, cardMask, cvvLength} from 'lib/payment-cards';
 
+import localized from 'lib/i18n';
+
 import { Form, FormField } from 'ui/forms';
 import { TextInput } from 'ui/inputs';
 import Button from 'ui/buttons';
@@ -65,6 +67,7 @@ const years = _.range(currentYear, currentYear + 10, 1).map(x => x.toString());
 
 /* ::`*/
 @connect(mapStateToProps, checkoutActions)
+@localized
 /* ::`*/
 class EditBilling extends Component {
 
@@ -124,9 +127,10 @@ class EditBilling extends Component {
   validateCardNumber() {
     const mask = this.cardMask.replace(/[^\d]/g, '');
     const { cardNumber } = this.props.data;
+    const { t } = this.props;
 
     if (mask.length != cardNumber.length) {
-      return 'Please enter a valid credit card number';
+      return t('Please enter a valid credit card number');
     }
     return null;
   }
@@ -134,19 +138,24 @@ class EditBilling extends Component {
   @autobind
   validateCvvNumber() {
     const { cvv } = this.props.data;
+    const { t } = this.props;
 
-    return cvv.length != cvvLength(this.cardType) ? `Please enter a valid cvv number` : null;
+    return cvv.length != cvvLength(this.cardType) ? t(`Please enter a valid cvv number`) : null;
   }
 
   render() {
     const props = this.props;
-    const { data } = props;
+    const { data, t } = props;
 
     return (
       <Form onSubmit={this.handleSubmit} styleName="checkout-form">
         <FormField styleName="text-field">
-          <TextInput required
-            name="holderName" placeholder="NAME ON CARD" value={data.holderName} onChange={this.changeFormData}
+          <TextInput
+            required
+            name="holderName"
+            placeholder={t('NAME ON CARD')}
+            value={data.holderName}
+            onChange={this.changeFormData}
           />
         </FormField>
         <div styleName="union-fields">
@@ -158,7 +167,7 @@ class EditBilling extends Component {
               type="text"
               mask={this.cardMask}
               name="cardNumber"
-              placeholder="CARD NUMBER"
+              placeholder={t('CARD NUMBER')}
               size="20"
               value={data.cardNumber}
               onChange={this.changeCardNumber}
@@ -169,7 +178,7 @@ class EditBilling extends Component {
               required
               type="number"
               maxLength={cvvLength(this.cardType)}
-              placeholder="CVV"
+              placeholder={t('CVV')}
               onChange={this.changeCVV}
               value={data.cvv}
             />
@@ -179,7 +188,7 @@ class EditBilling extends Component {
           <FormField required styleName="text-field" getTargetValue={() => data.expMonth}>
             <Autocomplete
               inputProps={{
-                placeholder: 'MONTH',
+                placeholder: t('MONTH'),
                 type: 'text',
               }}
               compareValues={(value1, value2) => Number(value1) == Number(value2)}
@@ -192,7 +201,7 @@ class EditBilling extends Component {
           <FormField required styleName="text-field" getTargetValue={() => data.expYear}>
             <Autocomplete
               inputProps={{
-                placeholder: 'YEAR',
+                placeholder: t('YEAR'),
                 type: 'number',
               }}
               allowCustomValues
@@ -208,10 +217,10 @@ class EditBilling extends Component {
           checked={props.billingAddressIsSame}
           onChange={props.toggleSeparateBillingAddress}
         >
-          Billing address is same as shipping
+          {t('Billing address is same as shipping')}
         </Checkbox>
         {this.billingAddress}
-        <Button styleName="checkout-submit" type="submit">PLACE ORDER</Button>
+        <Button styleName="checkout-submit" type="submit">{t('PLACE ORDER')}</Button>
       </Form>
     );
   }
@@ -228,14 +237,16 @@ const Billing = (props: CheckoutBlockProps) => {
     </div>
   );
 
+  const { t } = props;
+
   return (
     <EditableBlock
       {...props}
       styleName="checkout-block"
-      title="BILLING"
+      title={t('BILLING')}
       content={deliveryContent}
     />
   );
 };
 
-export default Billing;
+export default localized(Billing);

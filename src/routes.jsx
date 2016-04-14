@@ -8,12 +8,10 @@ import Search from './components/pages/search/search';
 
 import Checkout from './components/pages/checkout/checkout';
 import OrderPlaced from './components/pages/checkout/order-placed';
-import Grid from './components/pages/grid';
 
 const routes = (
   <Route path="/" component={Site}>
     <Route path="/checkout" component={Checkout} />
-    <Route path="/grid" component={Grid} />
     <Route component={StoreFront}>
       <Route path="/checkout/done" component={OrderPlaced} />
       <Route name="product" path="/products/:productId" component={Pdp} />

@@ -3,6 +3,8 @@ import React from 'react';
 import styles from './checkout.css';
 import { connect } from 'react-redux';
 
+import localized from 'lib/i18n';
+
 import EditableBlock from 'ui/editable-block';
 import EditAddress from './edit-address';
 import { Form } from 'ui/forms';
@@ -14,14 +16,16 @@ import { AddressKind } from 'modules/checkout';
 
 const ViewShipping = connect(state => (state.checkout.shippingAddress))(ViewAddress);
 
-const EditShipping = props => {
+const EditShipping = localized(props => {
+  const { t } = props;
+
   return (
     <Form onSubmit={props.continueAction}>
       <EditAddress {...props} />
-      <Button styleName="checkout-submit" type="submit">CONTINUE</Button>
+      <Button styleName="checkout-submit" type="submit">{t('CONTINUE')}</Button>
     </Form>
   );
-};
+});
 
 
 const Shipping = (props: CheckoutBlockProps) => {
@@ -35,14 +39,16 @@ const Shipping = (props: CheckoutBlockProps) => {
     </div>
   );
 
+  const { t } = props;
+
   return (
     <EditableBlock
       {...props}
       styleName="checkout-block"
-      title="SHIPPING"
+      title={t('SHIPPING')}
       content={shippingContent}
     />
   );
 };
 
-export default Shipping;
+export default localized(Shipping);

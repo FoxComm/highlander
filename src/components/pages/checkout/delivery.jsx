@@ -4,6 +4,8 @@ import styles from './checkout.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
+import localized from 'lib/i18n';
+
 import Button from 'ui/buttons';
 import Checkbox from 'ui/checkbox';
 import EditableBlock from 'ui/editable-block';
@@ -14,9 +16,9 @@ import type { CheckoutBlockProps } from './types';
 import * as cartActions from 'modules/cart';
 import { fetchShippingMethods } from 'modules/checkout';
 
-const shippingMethodCost = cost => {
+const shippingMethodCost = (t, cost) => {
   return cost == 0
-    ? <div styleName="delivery-cost">FREE</div>
+    ? <div styleName="delivery-cost">{t('FREE')}</div>
     : <Currency styleName="delivery-cost" value={cost}/>;
 };
 
@@ -28,11 +30,11 @@ let ViewDelivery = (props) => {
   return (
     <div styleName="shipping-method">
       <div>{shippingMethod.name}</div>
-      {shippingMethodCost(shippingMethod.price)}
+      {shippingMethodCost(props.t, shippingMethod.price)}
     </div>
   );
 };
-ViewDelivery = connect(state => state.cart)(ViewDelivery);
+ViewDelivery = connect(state => state.cart)(localized(ViewDelivery));
 
 function mapStateToProps(state) {
   return {
@@ -43,6 +45,7 @@ function mapStateToProps(state) {
 
 /* ::`*/
 @connect(mapStateToProps, {...cartActions, fetchShippingMethods})
+@localized
 /* ::`*/
 class EditDelivery extends Component {
 
@@ -59,10 +62,10 @@ class EditDelivery extends Component {
   }
 
   get shippingMethods() {
-    const { shippingMethods, selectedShippingMethod: selectedMethod, selectShippingMethod } = this.props;
+    const { shippingMethods, selectedShippingMethod: selectedMethod, selectShippingMethod, t } = this.props;
 
     return shippingMethods.map(shippingMethod => {
-      const cost = shippingMethodCost(shippingMethod.price);
+      const cost = shippingMethodCost(t, shippingMethod.price);
 
       return (
         <div key={shippingMethod.id} styleName="shipping-method">
@@ -81,10 +84,12 @@ class EditDelivery extends Component {
   }
 
   render() {
+    const { t } = this.props;
+
     return (
       <Form onSubmit={this.handleSubmit}>
         {this.shippingMethods}
-        <Button styleName="checkout-submit" type="submit">CONTINUE</Button>
+        <Button styleName="checkout-submit" type="submit">{t('CONTINUE')}</Button>
       </Form>
     );
   }
@@ -97,14 +102,16 @@ const Delivery = (props: CheckoutBlockProps) => {
     </div>
   );
 
+  const { t } = props;
+
   return (
     <EditableBlock
       {...props}
       styleName="checkout-block"
-      title="DELIVERY"
+      title={t('DELIVERY')}
       content={deliveryContent}
     />
   );
 };
 
-export default Delivery;
+export default localized(Delivery);
