@@ -1,14 +1,18 @@
 package services.notes
 
+import failures.NotFoundFailure404
 import models.Note
-import models.promotion.{Promotion, Promotions}
-import utils.Slick._
+import models.objects.{ObjectForm, ObjectForms}
+import models.promotion.Promotion
+import slick.driver.PostgresDriver.api._
+import utils.Slick.DbResult
+import utils.Slick.implicits._
 import utils.aliases._
 
-object PromotionNoteManager extends NoteManager[Int, Promotion] {
+object PromotionNoteManager extends NoteManager[Int, ObjectForm] {
 
   def noteType(): Note.ReferenceType = Note.Promotion
 
-  def fetchEntity(id: Int)(implicit ec: EC, db: DB, ac: AC): DbResult[Promotion] =
-    Promotions.mustFindById404(id)
+  def fetchEntity(id: Int)(implicit ec: EC, db: DB, ac: AC): DbResult[ObjectForm] =
+    ObjectForms.filter(_.kind === ObjectForm.promotion).one.mustFindOr(NotFoundFailure404(Promotion, id))
 }
