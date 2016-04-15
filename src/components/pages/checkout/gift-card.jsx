@@ -32,7 +32,9 @@ class EditGiftCard extends Component {
   onSave() {
     const { t } = this.props;
 
-    this.props.saveGiftCard(this.state.code).then(() => {
+    const code = this.state.code.replace(/\s+/g, '');
+
+    this.props.saveGiftCard(code).then(() => {
       this.setState({code: ''});
     }).catch(() => {
       this.setState({code: '', error: t('Please enter a valid gift card and try again.')});

@@ -54,6 +54,10 @@ function mapStateToProps(state) {
 class Checkout extends Component {
   props: CheckoutProps;
 
+  state = {
+    isPerformingCheckout: false,
+  };
+
   componentWillMount() {
     this.props.fetchCart();
   }
@@ -83,16 +87,28 @@ class Checkout extends Component {
 
   @autobind
   placeOrder() {
-    this.props.addCreditCard()
-      .then(() => {
-        return this.props.setEditStage(EditStages.FINISHED);
-      })
-      .then(() => {
-        return this.props.checkout();
-      })
-      .then(() => {
-        browserHistory.push('/checkout/done');
-      });
+    this.setState({
+      isPerformingCheckout: true,
+    }, () => {
+      this.props.addCreditCard()
+        .then(() => {
+          return this.props.setEditStage(EditStages.FINISHED);
+        })
+        .then(() => {
+          return this.props.checkout();
+        })
+        .then(() => {
+          this.setState({
+            isPerformingCheckout: false,
+          });
+          browserHistory.push('/checkout/done');
+        })
+        .catch(() => {
+          this.setState({
+            isPerformingCheckout: false,
+          });
+        });
+    });
   }
 
   render() {
@@ -121,6 +137,7 @@ class Checkout extends Component {
               editAllowed={props.editStage >= EditStages.BILLING}
               collapsed={!props.isBillingDurty && props.editStage < EditStages.BILLING}
               editAction={this.setBillingState}
+              inProgress={this.state.isPerformingCheckout}
               continueAction={this.placeOrder}
             />
           </div>
