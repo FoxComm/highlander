@@ -74,6 +74,7 @@ export default class ButthonWithMenu extends Component {
 
     return (
       <div styleName="button-with-menu" className={className} onBlur={this.handleBlur} tabIndex="0">
+        { open && <div styleName="overlay" onClick={this.handleBlur}></div> }
         <div styleName="controls">
           <PrimaryButton
             className="fc-button-with-menu__left-button"
