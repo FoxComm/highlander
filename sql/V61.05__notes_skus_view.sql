@@ -7,7 +7,7 @@ select
         null
     else
         to_json((
-            s.id,
+            f.id,
             s.code,
             f.attributes,
             to_char(s.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')

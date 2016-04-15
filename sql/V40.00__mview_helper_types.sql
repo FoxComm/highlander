@@ -126,6 +126,20 @@ create table export_products_raw (
     created_at  text
 );
 
+create table export_promotions_raw (
+    id          integer,
+    apply_type  text,
+    attributes  jsonb,
+    created_at  text
+);
+
+create table export_coupons_raw (
+    id           integer,
+    promotion_id integer,
+    attributes   jsonb,
+    created_at   text
+);
+
 create table export_countries (
     id                  integer,
     name                text,
