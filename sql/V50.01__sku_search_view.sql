@@ -3,6 +3,7 @@ select
     sku.id, 
     sku.code as code,
     context.name as context,
+    context.id as context_id,
     sku_form.attributes->>(sku_shadow.attributes->'title'->>'ref') as title,
     sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value' as price
 from skus as sku, object_forms as sku_form, object_shadows as sku_shadow, object_contexts as context 

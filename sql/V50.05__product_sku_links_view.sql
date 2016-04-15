@@ -9,7 +9,7 @@ select
 		json_agg(sku.code)
 	end as skus
 from products as p
-left join object_links as link on link.left_id = p.id
+left join object_links as link on link.left_id = p.shadow_id
 left join skus as sku on sku.shadow_id = link.right_id
 group by p.id;
 
