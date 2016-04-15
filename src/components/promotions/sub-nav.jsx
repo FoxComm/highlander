@@ -18,11 +18,13 @@ const SubNav = (props: SubNavProps) => {
     promotionId: props.promotionId,
   };
 
+  const isNew = props.promotionId === 'new';
+
   return (
     <LocalNav>
       <IndexLink to="promotion-details" params={params}>Details</IndexLink>
-      <Link to="promotion-notes" params={params}>Notes</Link>
-      <Link to="promotion-activity-trail" params={params}>Activity Trail</Link>
+      {!isNew && <Link to="promotion-notes" params={params}>Notes</Link>}
+      {!isNew && <Link to="promotion-activity-trail" params={params}>Activity Trail</Link>}
     </LocalNav>
   );
 };
