@@ -7,7 +7,6 @@ import columnPropType from './column-prop-type';
 import { Moment, Date, DateTime, Time } from '../common/datetime';
 import Currency from '../common/currency';
 import State from '../common/state';
-import OriginType from '../common/origin-type';
 import Change from '../common/change';
 import Link from '../link/link';
 

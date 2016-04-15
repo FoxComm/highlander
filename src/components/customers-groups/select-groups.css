@@ -1,0 +1,36 @@
+
+.groups-table {
+  margin-top: 20px;
+
+  & th:nth-child(3),
+  & td:nth-child(3) {
+    width: 40px;
+  }
+}
+
+:global(.fc-content-box) .groups-table {
+  border: 1px solid #d9d9d9;
+
+  & thead tr:first-child th {
+    box-shadow: none;
+  }
+
+  & :global(.fc-table-th) {
+    border-top: inherit;
+  }
+}
+
+.toggle-control {
+  cursor: pointer;
+  position: relative;
+  font-size: 15px;
+}
+
+.row-type {
+  text-transform: capitalize;
+}
+
+.remove-customer-group {
+  cursor: pointer;
+  font-size: 15px;
+}

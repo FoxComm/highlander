@@ -22,13 +22,6 @@ function getLine(position, items) {
   );
 }
 
-function getActionsHandler({bulkActions, allChecked, toggledIds}) {
-  return (value) => {
-    const handler = _.find(bulkActions, ([label, handler]) => label === value)[1];
-    handler(allChecked, toggledIds);
-  };
-}
-
 const TableView = props => {
   let setState = null;
   if (props.setState) {

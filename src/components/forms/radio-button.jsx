@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 
 const RadioButton = props => {
-  const { isSelected, children, ...rest } = props;
+  const { children, ...rest } = props;
 
   return (
     <div className="fc-form-field fc-radio">
@@ -12,7 +12,6 @@ const RadioButton = props => {
 };
 
 RadioButton.propTypes = {
-  isSelected: PropTypes.bool,
   children: PropTypes.node
 };
 
