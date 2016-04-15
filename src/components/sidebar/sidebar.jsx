@@ -5,6 +5,10 @@ import type { HTMLElement } from 'types';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import classNames from 'classnames';
+import { logout } from 'modules/auth';
+import localized from 'lib/i18n';
+import type { Localized } from 'lib/i18n';
+
 import styles from './sidebar.css';
 
 import Icon from 'ui/icon';
@@ -14,14 +18,12 @@ import Search from '../search/search';
 import * as actions from 'modules/sidebar';
 import { resetTerm } from 'modules/search';
 
-type SidebarProps = {
+type SidebarProps = Localized & {
   isVisible: boolean;
   toggleSidebar: Function;
   resetTerm: Function;
   path: string;
 };
-
-const getState = state => ({ ...state.sidebar });
 
 const Sidebar = (props: SidebarProps): HTMLElement => {
   const sidebarClass = classNames({
@@ -33,6 +35,24 @@ const Sidebar = (props: SidebarProps): HTMLElement => {
     props.toggleSidebar();
     props.resetTerm();
   };
+
+  const { t } = props;
+
+  const handleLogout = e => {
+    e.stopPropagation();
+    e.preventDefault();
+    props.logout();
+  };
+
+  const renderSessionLink = props.user ? (
+    <a styleName="session-link" onClick={handleLogout}>
+      {t('LOG OUT')}
+    </a>
+  ) : (
+    <Link styleName="session-link" to={{pathname: props.path, query: {auth: 'LOGIN'}}}>
+      {t('LOG IN')}
+    </Link>
+  );
 
   return (
     <div styleName={sidebarClass}>
@@ -50,10 +70,8 @@ const Sidebar = (props: SidebarProps): HTMLElement => {
           <div styleName="controls-categories">
             <Categories onClick={changeCategoryCallback} />
           </div>
-          <div styleName="controls-login">
-            <Link styleName="login-link" to={{pathname: props.path, query: {auth: 'LOGIN'}}}>
-              LOG IN
-            </Link>
+          <div styleName="controls-session">
+            {renderSessionLink}
           </div>
         </div>
       </div>
@@ -61,4 +79,13 @@ const Sidebar = (props: SidebarProps): HTMLElement => {
   );
 };
 
-export default connect(getState, {...actions, resetTerm })(Sidebar);
+const mapStates = state => ({
+  ...state.sidebar,
+  ...state.auth,
+});
+
+export default connect(mapStates, {
+  ...actions,
+  resetTerm,
+  logout,
+})(localized(Sidebar));

@@ -1,15 +1,10 @@
 /* @flow */
 
-import _ from 'lodash';
 import React from 'react';
 import type { HTMLElement } from 'types';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
 import { toggleSidebar } from 'modules/sidebar';
 import { toggleActive, resetTerm } from 'modules/search';
-import { toggleCart } from 'modules/cart';
-import localized from 'lib/i18n';
-import type { Localized } from 'lib/i18n';
 
 import styles from './storefront.css';
 
@@ -19,15 +14,16 @@ import Sidebar from '../sidebar/sidebar';
 import Footer from '../footer/footer';
 import Search from '../search/search';
 import Cart from '../cart/cart';
+import UserTools from '../usertools/usertools';
 
 
-type StoreFrontProps = Localized & {
+type StoreFrontProps = {
   children: HTMLElement;
   isSearchActive: boolean;
   toggleSidebar: Function;
   toggleSearch: Function;
   resetTerm: Function;
-  toggleCart: Function;
+  location: any;
 }
 
 const StoreFront = (props : StoreFrontProps) : HTMLElement => {
@@ -38,15 +34,6 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
       props.toggleSearch();
     }
   };
-
-  const { t } = props;
-
-  const user = _.get(props, ['auth', 'user'], null);
-  const sessionLink = _.isEmpty(user) ?
-    <Link styleName="login-link" to={{pathname: props.location.pathname, query: {auth: 'LOGIN'}}}>
-      {t('LOG IN')}
-    </Link> :
-    <span>{t('HI')}, {user.name.toUpperCase()}</span>;
 
   return (
     <div styleName="container">
@@ -61,12 +48,7 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
             </div>
             <Icon styleName="logo" name="fc-some_brand_logo" />
             <div styleName="tools">
-              <div styleName="login">
-                {sessionLink}
-              </div>
-              <div styleName="cart" onClick={props.toggleCart}>
-                <Icon name="fc-cart" styleName="head-icon"/>
-              </div>
+              <UserTools path={props.location.pathname}/>
             </div>
           </div>
           <div styleName="categories">
@@ -89,13 +71,11 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
 };
 
 const mapState = state => ({
-  auth: state.auth,
   isSearchActive: state.search.isActive,
 });
 
 export default connect(mapState, {
   toggleSidebar,
-  toggleCart,
   toggleSearch: toggleActive,
   resetTerm,
-})(localized(StoreFront));
+})(StoreFront);

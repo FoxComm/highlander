@@ -42,21 +42,8 @@
   width: 30%;
 }
 
-.tools {
-  display: flex;
-  justify-content: flex-end;
-}
-
 .logo {
   flex: 1;
-}
-
-.login {
-  margin-right: 25px;
-}
-
-.login-link {
-  text-decoration: none;
 }
 
 :global(.icon).logo {
@@ -93,7 +80,6 @@
   .storefront {
     lost-column: 1;
     lost-offset: 0;
-
   }
 
   .content-container {
@@ -105,10 +91,6 @@
   :global(.icon).logo {
     width: 40px;
     height: 40px;
-  }
-
-  .login-link {
-    display: none;
   }
 
   .categories {

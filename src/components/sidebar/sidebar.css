@@ -49,11 +49,11 @@
 }
 
 .controls-categories,
-.controls-login {
+.controls-session {
   margin-left: 40px;
 }
 
-.controls-login {
+.controls-session {
   margin-top: 32px;
 }
 
@@ -61,7 +61,8 @@
   margin-top: 16px;
 }
 
-.login-link {
+.session-link {
   color: var(--whitish);
   text-decoration: none;
+  cursor: pointer;
 }
