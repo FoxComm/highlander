@@ -1,7 +1,6 @@
 import fetch from './fetch';
 import _ from 'lodash';
 
-
 const isServer = typeof self === 'undefined';
 
 export function appendQueryString(url, queryString) {
@@ -53,7 +52,7 @@ export function request(method, uri, data, options = {}) {
     headers['Content-Type'] = 'application/json;charset=UTF-8';
   }
 
-  options.credentials = "same-origin";
+  options.credentials = 'same-origin';
   options.headers = options.headers ? Object.assign(headers, options.headers) : headers;
   options.method = method;
 
@@ -71,7 +70,7 @@ export function request(method, uri, data, options = {}) {
   let error = null;
 
   const unauthorizedHandler = options.unauthorizedHandler ? options.unauthorizedHandler : () => {
-    window.location.href = "/login";
+    window.location.href = '/login';
   };
 
   return fetch(uri, options)

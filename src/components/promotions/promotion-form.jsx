@@ -17,7 +17,6 @@ import SelectCustomerGroups from '../customers-groups/select-groups';
 
 import { setDiscountAttr } from '../../paragons/promotion';
 
-
 export default class PromotionForm extends Component {
 
   state = {
