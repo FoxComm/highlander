@@ -6,7 +6,8 @@ select
     f.attributes->>(s.attributes->'title'->>'ref') as title,
     f.attributes->(s.attributes->'images'->>'ref') as images,
     f.attributes->>(s.attributes->'description'->>'ref') as description,
-    sku.price as sale_price
+    sku.price as sale_price,
+    sku.currency as currency
 from
 	object_contexts as context,
 	products as p,
