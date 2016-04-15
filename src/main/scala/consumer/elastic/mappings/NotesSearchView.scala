@@ -12,6 +12,7 @@ final case class NotesSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("notes_search_view").fields(
     // Note
     field("id", IntegerType),
+    field("referenceId", IntegerType),
     field("referenceType", StringType) index "not_analyzed",
     field("body", StringType) analyzer "autocomplete",
     field("priority", StringType) index "not_analyzed",
@@ -59,9 +60,21 @@ final case class NotesSearchView()(implicit ec: EC) extends AvroTransformer {
       field("attributes", ObjectType),
       field("variants", ObjectType),
       field("createdAt", DateType) format dateFormat
-    )        
+    ),
+    field("promotion").nested (
+      field("id", IntegerType),
+      field("applyType", StringType) index "not_analyzed",
+      field("attributes", ObjectType),
+      field("createdAt", DateType) format dateFormat
+    ),
+    field("coupon").nested (
+      field("id", IntegerType),
+      field("promotion_id", IntegerType),
+      field("attributes", ObjectType),
+      field("createdAt", DateType) format dateFormat
+    )            
   )
 
   override def nestedFields() = List("author", "order", "customer", "gift_card", 
-    "product", "sku_item")
+    "product", "sku_item", "promotion", "coupon")
 }
