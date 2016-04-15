@@ -21,7 +21,7 @@ object PromotionResponses {
 
   object PromotionFormResponse {
 
-    final case class Root(id: Int, attributes: Json, createdAt: Instant)
+    final case class Root(id: Int, attributes: Json, createdAt: Instant) extends ResponseItem
 
     def build(f: ObjectForm): Root = 
       Root(id = f.id, attributes = f.attributes, createdAt = f.createdAt)
@@ -30,7 +30,7 @@ object PromotionResponses {
   object PromotionAndDiscountFormResponse {
 
     final case class Root(id: Int, attributes: Json, 
-      discounts: Seq[DiscountFormResponse.Root], createdAt: Instant)
+      discounts: Seq[DiscountFormResponse.Root], createdAt: Instant) extends ResponseItem
 
     def build(f: ObjectForm, discounts: Seq[ObjectForm]): Root = 
       Root(id = f.id, attributes = f.attributes, 
@@ -41,7 +41,7 @@ object PromotionResponses {
   object PromotionShadowResponse {
 
     final case class Root(id: Int, formId: Int, attributes: Json, 
-      discounts: Seq[DiscountShadowResponse.Root], createdAt: Instant)
+      discounts: Seq[DiscountShadowResponse.Root], createdAt: Instant) extends ResponseItem
 
     def build(s: ObjectShadow, discounts: Seq[ObjectShadow]): Root = 
       Root(id = s.id, formId = s.formId, attributes = s.attributes, 
@@ -51,7 +51,7 @@ object PromotionResponses {
 
   object PromotionResponse { 
     final case class Root(applyType: Promotion.ApplyType, form: PromotionAndDiscountFormResponse.Root, 
-      shadow: PromotionShadowResponse.Root)
+      shadow: PromotionShadowResponse.Root) extends ResponseItem
 
     def build(promotion: Promotion, f: ObjectForm, s: ObjectShadow, discountForms: Seq[ObjectForm], 
       discountShadows: Seq[ObjectShadow]) : Root = Root(
@@ -63,7 +63,7 @@ object PromotionResponses {
   object IlluminatedPromotionResponse {
 
     final case class Root(id: Int, context: ObjectContextResponse.Root, applyType: Promotion.ApplyType, 
-      attributes: Json, discounts: Seq[IlluminatedDiscountResponse.Root])
+      attributes: Json, discounts: Seq[IlluminatedDiscountResponse.Root]) extends ResponseItem
 
     def build(promotion: IlluminatedPromotion, discounts: Seq[IlluminatedDiscount]): Root = 
       Root(id = promotion.id, context = ObjectContextResponse.build(promotion.context), 

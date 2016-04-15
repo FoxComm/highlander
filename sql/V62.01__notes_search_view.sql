@@ -2,6 +2,7 @@ create materialized view notes_search_view as
 select distinct on (n.id)
     -- Note
     n.id as id,
+    n.reference_id as reference_id,
     n.reference_type as reference_type,
     n.body as body,
     n.priority as priority,
