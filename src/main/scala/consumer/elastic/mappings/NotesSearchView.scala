@@ -12,6 +12,7 @@ final case class NotesSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("notes_search_view").fields(
     // Note
     field("id", IntegerType),
+    field("referenceId", IntegerType),
     field("referenceType", StringType) index "not_analyzed",
     field("body", StringType) analyzer "autocomplete",
     field("priority", StringType) index "not_analyzed",
