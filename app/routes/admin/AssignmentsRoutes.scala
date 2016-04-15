@@ -580,7 +580,7 @@ object AssignmentsRoutes {
             }
           }
         }
-      } ~                   
+      }
     }
   }
 }
