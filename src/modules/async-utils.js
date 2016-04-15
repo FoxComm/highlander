@@ -66,7 +66,10 @@ export default function createAsyncActions(namespace, asyncCall, payloadReducer)
   const perform = (...args) => {
     return dispatch => {
       const handleError = err => {
-        console.error(err && err.stack);
+        const httpStatus = _.get(err, 'response.status');
+        if (httpStatus != 404) {
+          console.error(err && err.stack);
+        }
         dispatch(failed(err));
       };
 

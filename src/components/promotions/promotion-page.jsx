@@ -12,11 +12,11 @@ import styles from './promotion-page.css';
 
 // components
 import { PageTitle } from '../section-title';
-import { PrimaryButton } from '../common/buttons';
 import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
 import ErrorAlerts from '../alerts/error-alerts';
 import ButtonWithMenu from '../common/button-with-menu';
+import Error from '../errors/error';
 
 import * as PromotionActions from '../../modules/promotions/details';
 
@@ -53,6 +53,8 @@ class PromotionPage extends Component {
 
     if (!isFetching) {
       const nextPromotion = nextProps.details.promotion;
+      if (!nextPromotion) return;
+
       if (this.isNew && nextPromotion.form.id) {
         this.props.dispatch(pushState(null, `/promotions/${nextPromotion.form.id}`, ''));
       }
@@ -129,8 +131,12 @@ class PromotionPage extends Component {
     const { promotion } = this.state;
     const { actions } = props;
 
-    if (!promotion || props.isFetching) {
+    if (props.isFetching !== false && !promotion) {
       return <div><WaitAnimation /></div>;
+    }
+
+    if (!promotion) {
+      return <Error err={props.fetchError} notFound={`There is no promotion with id ${this.entityId}`} />;
     }
 
     const children = React.cloneElement(props.children, {
@@ -168,7 +174,8 @@ class PromotionPage extends Component {
 export default connect(
   state => ({
     details: state.promotions.details,
-    isFetching: _.get(state.asyncActions, 'getPromotion.inProgress', false),
+    isFetching: _.get(state.asyncActions, 'getPromotion.inProgress', null),
+    fetchError: _.get(state.asyncActions, 'getPromotion.err', null),
     submitErrors: (
       _.get(state.asyncActions, 'createPromotion.err.messages') ||
       _.get(state.asyncActions, 'updatePromotion.err.messages')
