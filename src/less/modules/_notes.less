@@ -1,51 +1,62 @@
-.fc-notes-form {
-  overflow: hidden;
-  transition: max-height 500ms;
-  .clearfix;
-  margin: 20px 35px;
-  max-height: 250px;
-  max-width: 850px;
+.fc-notes {
+  margin-bottom: 20px;
 
-  .empty {
-    .colors(@color-decor8, @color-btn-bg);
-    line-height: 50px;
-    .padding-left(35px);
-  }
+  .fc-notes-form {
+    overflow: hidden;
+    transition: max-height 500ms;
+    .clearfix;
+    margin: 20px 35px;
+    max-height: 250px;
+    max-width: 850px;
 
-  legend {
-    display: block;
-    margin-bottom: 20px;
-    .font-spec(16px, 600);
-  }
-
-  .note-body {
-    position: relative;
-    width: 100%;
-    margin-bottom: 25px;
-
-    .counter {
-      position: absolute;
-      .top(-20px);
-      .right(0);
-      color: @color-decor6;
-      font-weight: 600;
+    .empty {
+      .colors(@color-decor8, @color-btn-bg);
+      line-height: 50px;
+      .padding-left(35px);
     }
 
-    textarea {
-      .size(100%, 135px);
+    legend {
+      display: block;
+      margin-bottom: 20px;
+      .font-spec(16px, 600);
+    }
+
+    .note-body {
+      position: relative;
+      width: 100%;
+      margin-bottom: 25px;
+
+      .counter {
+        position: absolute;
+        .top(-20px);
+        .right(0);
+        color: @color-decor6;
+        font-weight: 600;
+      }
+
+      textarea {
+        .size(100%, 135px);
+      }
+    }
+
+    &-controls {
+      > input:not(:first-child) {
+        margin-left: 5px;
+      }
     }
   }
 
-  &-controls {
-    > input:not(:first-child) {
+  .fc-notes-item-controls {
+    button {
+      float: right;
       margin-left: 5px;
     }
   }
 }
 
-.fc-notes-item-controls {
-  button {
-    float: right;
-    margin-left: 5px;
+.fc-grid .fc-notes {
+  .fc-live-search {
+    margin-left: -@gutter;
+    margin-right: -@gutter;
   }
 }

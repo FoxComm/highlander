@@ -1,6 +1,7 @@
 
 // libs
 import _ from 'lodash';
+import classNames from 'classnames';
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -15,7 +16,6 @@ import TableView from '../table/tableview';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
 import NoteForm from './form';
-import { DateTime } from '../common/datetime';
 import LiveSearchAdapter from '../live-search/live-search-adapter';
 import NoteRow from './note-row';
 
@@ -149,9 +149,10 @@ export default class Notes extends React.Component {
 
   render() {
     const props = this.props;
+    const cls = classNames('fc-notes', this.sectionClassName);
 
     return (
-      <div className={this.sectionClassName} >
+      <div className={cls} >
         <SectionTitle className="fc-grid-gutter fc-notes-section-title" title="Notes">{this.controls}</SectionTitle>
         <LiveSearchAdapter
           searches={props.list}
