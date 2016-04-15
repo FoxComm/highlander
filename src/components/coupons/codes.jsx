@@ -12,6 +12,7 @@ import SelectableSearchList from '../list-page/selectable-search-list';
 import CouponCodeRow from './coupon-code-row';
 import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
+import PageTitle from '../section-title';
 
 // redux
 import { actions as CouponCodesActions } from '../../modules/coupons/coupon-codes';
@@ -77,6 +78,7 @@ class CouponCodes extends Component {
 
     return (
       <div className="fc-coupon-codes">
+        <PageTitle title="Coupon Codes" />
         <BulkMessages
           storePath={`${module}.bulk`}
           module={module}
