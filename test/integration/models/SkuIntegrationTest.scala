@@ -15,7 +15,7 @@ import Seeds.Factories
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
 
-class SkuIntegrationTest extends IntegrationTestBase {
+class SkuModelIntegrationTest extends IntegrationTestBase {
   import api._
   import concurrent.ExecutionContext.Implicits.global
 

@@ -6,5 +6,5 @@ create table object_contexts(
 );
 
 create unique index object_contexts_idx on object_contexts (id);
-create index object_contexts_namex on object_contexts (name);
+create unique index object_contexts_namex on object_contexts (name);
 
