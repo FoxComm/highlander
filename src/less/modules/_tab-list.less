@@ -7,14 +7,22 @@
   &._loading:before {
     content: "";
     position: absolute;
-    left:0;
-    top:0;
-    right:0;
-    bottom:0;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
     opacity: .5;
 
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMAF/VASP8AAABBSURBVHheZckxFYAgFADA8zkwYgMr2MBKNpBoRCHCHxl4YADnsxymy/DoQmyh7aGmUHJwBnfjraxiW+yTNMj9xx9ZVxpfjbpEWgAAAABJRU5ErkJggg==);
     animation: caramel .5s linear infinite;
+  }
+
+  &._loading {
+    .fc-tab,
+    .fc-tab._selected {
+      color: #AFAFAF;
+      cursor: default;
+    }
   }
 
   &__current-tabs {

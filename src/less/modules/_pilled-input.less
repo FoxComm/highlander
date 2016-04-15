@@ -3,32 +3,32 @@
   border-radius: 3px;
   overflow: hidden;
 
-
-  &__pills-wrapper {
-    display: flex;
-    flex-grow: 1;
-    flex-wrap: wrap;
-    border: 1px solid @color-decor9;
-  }
-
-  &__icon-wrapper {
-    .font-spec(18px, 300, 38px);
-    margin-left: 10px;
-    color: @color-decor8;
-    display: flex;
-    align-items: center;
-  }
-
   &__input-container {
     border-radius: 3px 0 0 3px;
     background-color: @color-decor11;
     display: flex;
     flex-grow: 1;
+    border: 1px solid @color-decor9;
 
     &._solid {
       background-color: @color-white;
       box-shadow: inset 1px 1px 1px 0 @color-decor58;
     }
+  }
+
+  &__pills-wrapper {
+    display: flex;
+    flex-grow: 1;
+    flex-wrap: wrap;
+  }
+
+  &__icon-wrapper {
+    .font-spec(22px, 300, 38px);
+    margin: 0 10px;
+    color: @color-decor3;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
   }
 
   &__input-field {
@@ -66,15 +66,14 @@
   }
 
   &__pill {
-    .font-spec(14px, 400, 34px);
-    border-radius: 3px;
+    .font-spec(12px, 400, 34px);
+    border-radius: 17px;
     height: 34px;
     margin: 3px 0 0 3px;
-    padding: 0 10px;
-    background: @color-decor15;
+    padding: 0 0 0 10px;
+    background: @color-decor3;
     color: @color-white;
     display: flex;
-    cursor: pointer;
     transition: all .2s;
 
     &:last-child {
@@ -83,12 +82,18 @@
 
     &-icon {
       margin-right: 10px;
+      .font-spec(10px);
     }
 
     &-close {
       .font-spec(16px, 700, 34px);
       display: inline-block;
-      margin-left: 5px;
+      padding: 0 12px 0 8px;
+      margin-left: 8px;
+      border-left: 1px solid #7D848E;
+      cursor: pointer;
+      border-radius: 0 17px 17px 0;
+      transition: all .1s;
     }
   }
 }

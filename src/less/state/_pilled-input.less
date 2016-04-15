@@ -1,15 +1,21 @@
 .fc-pilled-input {
   &:not(._disabled) {
-    .fc-pilled-input__pills-wrapper {
+    .fc-pilled-input__input-container {
       &:hover {
         border: 1px solid @color-decor29;
+      }
+    }
+
+    .fc-pilled-input__pill-close {
+      &:hover {
+        background-color: @color-decor62;
       }
     }
   }
 
   &._active,
   &._active:hover {
-    .fc-pilled-input__pills-wrapper {
+    .fc-pilled-input__input-container {
       border: 1px solid @color-decor29;
       box-shadow: inset 1px 1px 3px 0 rgba(162, 222, 225, 0.64);
     }
@@ -19,7 +25,6 @@
     .fc-pilled-input__pill {
       background: @color-decor4;
       color: @color-decor0;
-      box-shadow: inset 0 -2px 3px 0 rgba(0, 0, 0, 0.25), inset 1px 1px 1px 0 rgba(255, 255, 255, 0.64);
       cursor: default;
       transition: all .1s;
     }

@@ -71,8 +71,8 @@ const PilledInput = props => {
               return props.formatPill(pill, idx, props);
             })}
           <div className="fc-pilled-input__input-wrapper">
-            {iconWrapper(icon)}
             {input}
+            {iconWrapper(icon)}
           </div>
         </div>
         {buttonsContainer(button)}
@@ -85,6 +85,7 @@ PilledInput.propTypes = {
   children: PropTypes.node,
   onPillClose: PropTypes.func,
   onPillClick: PropTypes.func,
+  onIconClick: PropTypes.func,
   formatPill: PropTypes.func,
   pills: PropTypes.array,
   icon: PropTypes.string,
@@ -98,6 +99,7 @@ PilledInput.propTypes = {
 PilledInput.defaultProps = {
   onPillClose: _.noop,
   onPillClick: _.noop,
+  onIconClick: _.noop,
   formatPill,
   icon: 'search',
   inputMask: '',
