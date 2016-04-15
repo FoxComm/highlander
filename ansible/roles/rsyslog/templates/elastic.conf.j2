@@ -19,18 +19,14 @@ template(name="logstash-index"
 }
 
 # format the syslog messages as JSON for elasticsearch
-template(name="elasticsearch-json"
-  option.json="on"
-  type="list") {
+template(name="elasticsearch-json" type="list") {
     constant(value="{")
-      constant(value="\"@timestamp\":\"")       property(name="timereported" dateFormat="rfc3339")
-      constant(value="\",\"host\":\"")          property(name="hostname")
-      constant(value="\",\"message\":\"")       property(name="msg")
-      constant(value="\",\"severity\":\"")      property(name="syslogseverity-text")
-      constant(value="\",\"facility\":\"")      property(name="syslogfacility-text")
-      #constant(value="\",\"severity-num\":")    property(name="syslogseverity")
-      #constant(value="\",\"facility-num\":")    property(name="syslogfacility")
-      constant(value="\",\"syslogtag\":\"")     property(name="syslogtag" format="json")
+        constant(value="\"timestamp\":\"")     property(name="timereported" dateFormat="rfc3339")
+        constant(value="\",\"host\":\"")       property(name="hostname")
+        constant(value="\",\"severity\":\"")   property(name="syslogseverity-text")
+        constant(value="\",\"facility\":\"")   property(name="syslogfacility-text")
+        constant(value="\",\"tag\":\"")        property(name="syslogtag" format="json")
+        constant(value="\",\"message\":\"")    property(name="msg" format="json")
     constant(value="\"}")
 }
 
