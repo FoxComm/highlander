@@ -5,11 +5,16 @@
 
 .list-item {
   width: 30%;
-  text-align: center;
   margin-bottom: 60px;
+  margin-right: 5%;
+  text-align: center;
   line-height: 19px;
   font-size: 16px;
   color: var(--blackish);
+
+  &:nth-child(3n+3) {
+    margin-right: 0;
+  }
 
   &:hover {
     cursor: pointer;
@@ -47,6 +52,7 @@
   .list-item {
     width: 48%;
     margin-bottom: 40px;
+    margin-right: 0;
   }
 
   .name {
