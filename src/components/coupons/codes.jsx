@@ -1,5 +1,5 @@
 
-/* @flow */
+/* @flow weak */
 
 // libs
 import React, { Component, Element } from 'react';
@@ -12,11 +12,14 @@ import SelectableSearchList from '../list-page/selectable-search-list';
 import CouponCodeRow from './coupon-code-row';
 import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
-import PageTitle from '../section-title';
+import { SectionSubtitle } from '../section-title';
 
 // redux
 import { actions as CouponCodesActions } from '../../modules/coupons/coupon-codes';
 import { actions as ReduxBulkActions } from '../../modules/coupons/coupon-codes-bulk';
+
+// styles
+import styles from './form.css';
 
 const tableColumns = [
   { field: 'createdAt', text: 'Date/Time Created', type: 'date', },
@@ -36,7 +39,10 @@ const mapDispatchToProps = dispatch => {
   };
 };
 
-class CouponCodes extends Component {
+/* ::`*/
+@connect(mapStateToProps, mapDispatchToProps)
+/* ::`*/
+export default class CouponCodes extends Component {
 
   get couponId(): string {
     return this.props.params.couponId;
@@ -54,7 +60,7 @@ class CouponCodes extends Component {
     const key = `coupon-code-${row.code}`;
     return (
       <CouponCodeRow
-        storeCredit={row}
+        couponCode={row}
         columns={columns}
         key={key}
         params={params}
@@ -78,7 +84,9 @@ class CouponCodes extends Component {
 
     return (
       <div className="fc-coupon-codes">
-        <PageTitle title="Coupon Codes" />
+        <div styleName="subtitle">
+          <SectionSubtitle>Coupon Codes</SectionSubtitle>
+        </div>
         <BulkMessages
           storePath={`${module}.bulk`}
           module={module}
@@ -87,7 +95,7 @@ class CouponCodes extends Component {
         <BulkActions
           module={module}
           entity={entity}
-          actions={this.bulkActions()}>
+          actions={this.bulkActions()} >
           <SelectableSearchList
             title="Coupon Codes"
             emptyMessage="No coupon codes found."
@@ -97,10 +105,10 @@ class CouponCodes extends Component {
             searchActions={this.props.actions}
             searchOptions={{singleSearch: true}}
           />
-        </BulkActions>
+         </BulkActions>
       </div>
     );
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CouponCodes);
+

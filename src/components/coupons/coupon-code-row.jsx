@@ -7,7 +7,7 @@ import _ from 'lodash';
 import MultiSelectRow from '../table/multi-select-row';
 
 type CouponCodeRowProps = {
-  coupon: Object,
+  couponCode: Object,
   columns: Array<string>,
   params: Object,
 };
@@ -17,14 +17,14 @@ const setCellContents = (coupon: Object, field: string) => {
 };
 
 const CouponCodeRow = (props: CouponCodeRowProps) => {
-  const { coupon, columns, params } = props;
-  const key = `coupon-code-${coupon.code}`;
+  const { couponCode, columns, params } = props;
+  const key = `coupon-code-${couponCode.code}`;
 
   return (
     <MultiSelectRow
       cellKeyPrefix={key}
       columns={columns}
-      row={coupon}
+      row={couponCode}
       setCellContents={setCellContents}
       params={params} />
   );
