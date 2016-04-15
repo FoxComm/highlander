@@ -25,6 +25,7 @@ import * as CouponActions from '../../modules/coupons/details';
 type CouponPageState = {
   coupon: Object,
   couponCode: ?string,
+  promotionError: boolean,
 };
 
 type CouponPageParams = {
@@ -53,6 +54,7 @@ class CouponPage extends Component {
   state: CouponPageState = {
     coupon: this.props.details.coupon,
     couponCode: null,
+    promotionError: false,
   };
 
   componentDidMount(): void {
@@ -100,8 +102,13 @@ class CouponPage extends Component {
     return _.get(this.props, 'details.selectedPromotions', []);
   }
 
-  save(): Promise {
+  save(): ?Promise {
     let willBeCoupon = Promise.resolve();
+
+    if (!_.isNumber(this.state.coupon.promotion)) {
+      this.setState({promotionError: true});
+      return null;
+    }
 
     if (this.state.coupon) {
       const { coupon, couponCode } = this.state;
@@ -124,7 +131,11 @@ class CouponPage extends Component {
 
   @autobind
   handleUpdateCoupon(coupon: Object): void {
-    this.setState({ coupon });
+    let errors = {};
+    if (_.isNumber(coupon.promotion)) {
+      errors = { promotionError: false };
+    }
+    this.setState({ coupon, ...errors });
   }
 
   @autobind
@@ -178,7 +189,7 @@ class CouponPage extends Component {
 
   render(): Element {
     const props = this.props;
-    const { coupon } = this.state;
+    const { coupon, promotionError } = this.state;
 
     if (!coupon || props.isFetching) {
       return <div><WaitAnimation /></div>;
@@ -187,6 +198,7 @@ class CouponPage extends Component {
     const children = React.cloneElement(props.children, {
       ...props.children.props,
       coupon,
+      promotionError,
       selectedPromotions: this.selectedPromotions,
       onUpdateCoupon: this.handleUpdateCoupon,
       onUpdateCouponCode: this.handleUpdateCouponCode,

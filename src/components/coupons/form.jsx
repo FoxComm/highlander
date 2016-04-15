@@ -12,6 +12,7 @@ import Dropdown from '../dropdown/dropdown';
 import RadioButton from '../forms/radio-button';
 import CouponCodes from './form/coupon-codes';
 import UsageRules from './form/usage-rules';
+import { FormField, Form } from '../forms';
 
 // styles
 import styles from './form.css';
@@ -52,6 +53,9 @@ export default class CouponForm extends Component {
             onChange={(value) => this.handlePromotionChange(value)}
           />
         </div>
+        { this.props.promotionError && (<div className="fc-form-field-error">
+          Promotion must be selected from the list above.
+        </div>) }
         <div styleName="field-comment">
           Only promotions with the Coupon Apply Type can be attached to a coupon.
         </div>
@@ -105,25 +109,27 @@ export default class CouponForm extends Component {
 
     return (
       <div styleName="coupon-form">
-        <div styleName="main">
-          <ContentBox title="General">
-            <ObjectFormInner
-              onChange={this.handleChange}
-              fieldsToRender={this.generalAttrs}
-              fieldsOptions={this.fieldsOptions}
-              form={formAttributes}
-              shadow={shadowAttributes}
+        <Form>
+          <div styleName="main">
+            <ContentBox title="General">
+              <ObjectFormInner
+                onChange={this.handleChange}
+                fieldsToRender={this.generalAttrs}
+                fieldsOptions={this.fieldsOptions}
+                form={formAttributes}
+                shadow={shadowAttributes}
+              />
+              {this.promotionSelector}
+            </ContentBox>
+            <CouponCodes
+              onGenerateBulkCodes={this.handleGenerateBulkCodes}
+              onChangeSingleCode={this.handleChangeSingleCode}
             />
-            {this.promotionSelector}
-          </ContentBox>
-          <CouponCodes
-            onGenerateBulkCodes={this.handleGenerateBulkCodes}
-            onChangeSingleCode={this.handleChangeSingleCode}
-          />
-          <UsageRules {...(this.usageRules)} onChange={this.handleUsageRulesChange}/>
-        </div>
-        <div styleName="aside">
-        </div>
+            <UsageRules {...(this.usageRules)} onChange={this.handleUsageRulesChange}/>
+          </div>
+          <div styleName="aside">
+          </div>
+        </Form>
       </div>
     );
   }
