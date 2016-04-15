@@ -7,10 +7,6 @@ import React, { PropTypes, Element } from 'react';
 import _ from 'lodash';
 import { transitionTo } from '../../route-helpers';
 
-import { DateTime } from '../common/datetime';
-import { Checkbox } from '../checkbox/checkbox';
-import Currency from '../common/currency';
-import Link from '../link/link';
 import MultiSelectRow from '../table/multi-select-row';
 
 type CouponRowProps = {
@@ -23,15 +19,22 @@ type CouponContext = {
   history: Object,
 };
 
+// This is a workaround for empty fields
 const setCellContents = (coupon: Object, field: string) => {
-  return _.get(coupon, field);
+  switch (field) {
+    case 'totalUsed':
+    case 'currentCarts':
+      return _.get(coupon, field, 0);
+    default:
+      return _.get(coupon, field);
+  }
 };
 
 const CouponRow = (props: CouponRowProps, context: CouponContext) => {
   const { coupon, columns, params } = props;
-  const key = `coupon-${coupon.id}`;
+  const key = `coupon-${coupon.couponId}`;
   const clickAction = () => {
-    transitionTo(context.history, 'coupon-details', { couponId: coupon.id });
+    transitionTo(context.history, 'coupon-details', { couponId: coupon.couponId });
   };
 
   return (
