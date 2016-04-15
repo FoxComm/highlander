@@ -30,7 +30,7 @@ template(name="elasticsearch-json"
       constant(value="\",\"facility\":\"")      property(name="syslogfacility-text")
       #constant(value="\",\"severity-num\":")    property(name="syslogseverity")
       #constant(value="\",\"facility-num\":")    property(name="syslogfacility")
-      constant(value="\",\"syslogtag\":\"")     property(name="syslogtag")
+      constant(value="\",\"syslogtag\":\"")     property(name="syslogtag" format="json")
     constant(value="\"}")
 }
 
