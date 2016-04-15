@@ -11,7 +11,7 @@ import consumer.elastic.MappingHelpers._
 final case class ProductsSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("products_search_view").fields(
     field("id", IntegerType),
-    field("product_id", IntegerType),
+    field("productId", IntegerType),
     field("context", StringType) index "not_analyzed",
     field("title", StringType).analyzer("autocomplete")
       .fields(field("raw", StringType).index("not_analyzed")),

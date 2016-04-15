@@ -11,7 +11,7 @@ import consumer.elastic.MappingHelpers._
 
 final case class GiftCardsSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("gift_cards_search_view").fields(
-    field("sku_id", IntegerType),
+    field("id", IntegerType),
     field("code", StringType) index "not_analyzed",
     field("context", StringType) index "not_analyzed",
     field("originId", IntegerType),
