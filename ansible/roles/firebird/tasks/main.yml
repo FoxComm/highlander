@@ -31,7 +31,7 @@
     chdir: "{{firebird_install_dir}}"
 
 - name: Build Firebird
-  shell: NODE_ENV={{firebird_env}} DEMO_USER={{demo_user}} DEMO_PASS={{demo_pass}} FIREBIRD_LANGUAGE={{firebird_language}} gulp build
+  shell: NODE_ENV={{firebird_env}} DEMO_USER={{demo_user}} DEMO_PASS={{demo_pass}} FIREBIRD_LANGUAGE={{firebird_default_language}} gulp build
   args:
     chdir: "{{firebird_install_dir}}"
 

@@ -6,4 +6,5 @@ demo_pass: Xv6yEcAzXv6yEcAz
 demo_domain: ru.dem1.foxcommerce.com
 ashes_server_name: "admin.{{demo_domain}}"
 firebird_server_name: "{{demo_domain}}"
-firebird_language: ru
+firebird_default_language: ru
+firebird_fixed_language: true
