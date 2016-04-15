@@ -1,6 +1,8 @@
 BUILD_DIR?=./build
 PORT?=3000
 
+all: clean install build
+
 install:
 	npm install
 
