@@ -32,7 +32,7 @@
   &-rank {
     @line-height: 19px;
     .font-spec(14px, 700, @line-height);
-    .padding-top( (@head-height + @avatar-margin-top - @line-height)/2 );
+    .padding-top((@head-height + @avatar-margin-top - @line-height)/2);
   }
 
   &-avatar {
@@ -83,26 +83,26 @@
   }
 
   &-fields {
-    margin-left: 30px;
+    display: inline-block;
+    width: 50%;
 
     li {
-      margin-top: 9px;
-      .padding-top(5px);
-
-      &.customer-info-groups {
-        padding-top: 0;
-        margin-top: 14px;
-      }
+      height: 40px;
+      display: flex;
+      align-items: center;
 
       > i {
-        float: left;
+        width: 25px;
         font-style: normal;
-        width: 40px;
-        margin-left: -40px;
         .font-spec(22px, 24px);
         text-align: center;
         color: @color-decor6;
       }
+
+      > span {
+        text-indent: 10px;
+      }
+
       &.fc-customer-info-days > i {
         .font-spec(15px, 700, 20px);
       }
