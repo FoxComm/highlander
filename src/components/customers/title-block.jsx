@@ -1,7 +1,17 @@
+//libs
+import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import moment from 'moment';
+
+//helpers
+import { prefix } from '../../lib/text-utils';
+
+//styles
+import styles from './title-block.css';
+
+//components
 import Currency from '../common/currency';
-import _ from 'lodash';
+
 
 export default class Customer extends React.Component {
 
@@ -14,7 +24,7 @@ export default class Customer extends React.Component {
 
     if (customer.name) {
       return (
-        <div className="fc-customer-info-name">
+        <div styleName="name">
           {customer.name}
         </div>
       );
@@ -26,7 +36,7 @@ export default class Customer extends React.Component {
 
     if (_.isNumber(customer.rank)) {
       return (
-        <div className="fc-customer-info-rank">
+        <div styleName="rank">
           Top {customer.rank}%
         </div>
       );
@@ -41,59 +51,57 @@ export default class Customer extends React.Component {
     }
 
     return (
-      <div className="fc-content-box fc-customer-title-block">
-        <div className="fc-customer-info-header">
-          <div className="fc-customer-info-head">
+      <div styleName="block" className="fc-content-box">
+        <div styleName="header">
+          <div styleName="head">
             {this.customerRank}
           </div>
         </div>
-        <article className="fc-customer-info-body">
+        <article styleName="body">
           <div className="fc-grid">
             <div className="fc-col-md-1-12">
-              <div className="fc-customer-info-avatar">
+              <div styleName="avatar">
                 <i className="icon-customer"></i>
               </div>
             </div>
             <div className="fc-col-md-11-12">
               <div className="fc-col-md-1-1 fc-customer-name-block">
                 {this.customerName}
-                <div className="fc-customer-info-email">
+                <div styleName="email">
                   {customer.email}
                 </div>
               </div>
               <div className="fc-col-md-1-1 fc-customer-details-block">
-                  <ul className="fc-customer-info-fields">
-                    <li>
-                      <i className="icon-customer"></i><span>{ customer.id }</span>
-                    </li>
-                    <li>
-                      <i className="icon-phone"></i><span>{ customer.phoneNumber }</span>
-                    </li>
-                    <li>
-                      <i className="icon-location"></i><span>{ customer.location }</span>
-                    </li>
-                    <li>
-                      <i className="icon-calendar"></i>
-                      <span>{ joinedAt }</span>
-                      <span className="fc-customer-info-comment">&nbsp;Date joined</span>
-                    </li>
-                  </ul>
-                  <ul className="fc-customer-info-fields">
-                    <li>
-                      <i className="icon-mobile"></i><span>{ customer.modality }</span>
-                    </li>
-                    <li>
-                      <i className="icon-usd"></i>
-                      <Currency value={customer.totalSales || 0} />
-                      <span className="fc-customer-info-comment">&nbsp;Total Sales</span>
-                    </li>
-                    <li className="fc-customer-info-days">
-                      <i>{ customer.id}</i><span>Days since last visit</span>
-                    </li>
-                    <li className="fc-customer-info-days">
-                      <i>{ customer.id}</i><span>Days since last order</span>
-                    </li>
-                  </ul>
+                <ul styleName="fields">
+                  <li>
+                    <i className="icon-customer"></i>
+                    <span>{ customer.id }</span>
+                  </li>
+                  <li>
+                    <i className="icon-phone"></i>
+                    <span>{ customer.phoneNumber }</span>
+                  </li>
+                  <li>
+                    <i className="icon-location"></i>
+                    <span>{ customer.location }</span>
+                  </li>
+                </ul>
+                <ul styleName="fields">
+                  <li>
+                    <i className="icon-calendar"></i>
+                    <span>{ joinedAt }</span>
+                    <span styleName="comment">&nbsp;Date joined</span>
+                  </li>
+                  <li>
+                    <i className="icon-usd"></i>
+                    <Currency value={customer.totalSales || 0} />
+                    <span styleName="comment">&nbsp;Total Sales</span>
+                  </li>
+                  <li styleName="days">
+                    <i>{ customer.id}</i>
+                    <span>Days since last order</span>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
