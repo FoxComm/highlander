@@ -75,11 +75,15 @@ export default class ButthonWithMenu extends Component {
     return (
       <div styleName="button-with-menu" className={className} onBlur={this.handleBlur} tabIndex="0">
         <div styleName="controls">
-          <PrimaryButton icon={icon} onClick={this.props.onPrimaryClick} onBlur={this.dontPropagate}>
+          <PrimaryButton
+            className="fc-button-with-menu__left-button"
+            icon={icon}
+            onClick={this.props.onPrimaryClick}
+            onBlur={this.dontPropagate} >
             {title}
           </PrimaryButton>
           <PrimaryButton
-            styleName="dropdown-button"
+            className="fc-button-with-menu__right-button dropdown-button"
             icon="chevron-down"
             onClick={this.handleToggleClick}
             onBlur={this.dontPropagate}

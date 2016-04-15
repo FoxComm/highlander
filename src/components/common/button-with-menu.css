@@ -26,12 +26,18 @@
 }
 
 .controls {
-  & > :global(.fc-btn) {
-    border-radius: 0;
+  & > :global(.fc-button-with-menu__left-button) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  & > :global(.fc-button-with-menu__right-button) {
+    border-left: 1px solid #ffffff;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
   }
 }
 
 .dropdown-button {
   margin-left: 1px;
 }
-
