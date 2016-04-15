@@ -3,6 +3,9 @@ import { Link } from '../link';
 
 import TextFit from '../text-fit/text-fit';
 
+//styles
+import styles from '../customers/title-block.css';
+
 export default class CustomerInfo extends React.Component {
   ensureNotEmpty(val) {
     return val || <span>&nbsp;</span>;
@@ -31,12 +34,12 @@ export default class CustomerInfo extends React.Component {
     const customer = this.order.customer;
 
     if (customer.isGuest) {
-      return <div className="fc-customer-info-guest">Guest</div>;
+      return <div styleName="guest">Guest</div>;
     } else if (customer.groups) {
       return (
         <div>
           {customer.groups.map((customer) => {
-            return <div className="fc-customer-info-group">{customer}</div>;
+            return <div styleName="group">{customer}</div>;
           })}
         </div>
       );
@@ -53,31 +56,31 @@ export default class CustomerInfo extends React.Component {
     let avatar = null;
 
     if (customer.avatarUrl) {
-      avatar = <img src={customer.avatarUrl}/>;
+      avatar = <img src={customer.avatarUrl} />;
     } else {
       avatar = <i className="icon-customer"></i>;
     }
 
     return (
       <div className="fc-customer-info fc-content-box">
-        <div className="fc-customer-info-header">
-          <div className="fc-customer-info-head">
-            <div className="fc-customer-info-rank">
+        <div styleName="header">
+          <div styleName="head">
+            <div styleName="rank">
               {customerRank}
             </div>
           </div>
-          <div className="fc-customer-info-avatar">
+          <div styleName="avatar">
             {avatar}
           </div>
-          <div className="fc-customer-info-name">
+          <div styleName="name">
             <TextFit fontSize={3} maxFontSize={3}>{this.customerLink(customer.name)}</TextFit>
           </div>
-          <div className="fc-customer-info-email">
+          <div styleName="email">
             <TextFit fontSize={1.7}>{this.customerLink(customer.email)}</TextFit>
           </div>
         </div>
-        <article className="fc-customer-info-body">
-          <ul className="fc-customer-info-fields">
+        <article styleName="body">
+          <ul styleName="fields">
             <li>
               <i className="icon-customer"></i>
               <div>{this.ensureNotEmpty(customer.id)}</div>
@@ -91,7 +94,7 @@ export default class CustomerInfo extends React.Component {
               <div>{this.ensureNotEmpty(customer.location)}</div>
             </li>
             {this.modality}
-            <li className="fc-customer-info-groups">
+            <li styleName="groups">
               <i className="icon-customers"></i>
               {this.ensureNotEmpty(this.customerGroups)}
             </li>
