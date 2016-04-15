@@ -64,6 +64,7 @@ refresh materialized view concurrently notes_search_view;
 refresh materialized view concurrently inventory_search_view;
 refresh materialized view concurrently inventory_transactions_search_view;
 refresh materialized view concurrently product_sku_links_view;
+refresh materialized view concurrently products_catalog_view;
 refresh materialized view concurrently products_search_view;
 refresh materialized view concurrently sku_search_view;
 
@@ -81,3 +82,4 @@ refresh materialized view concurrently customer_items_view;
 refresh materialized view concurrently promotion_discount_links_view;
 refresh materialized view concurrently promotions_search_view;
 refresh materialized view concurrently coupons_search_view;
+refresh materialized view concurrently coupon_codes_search_view;
