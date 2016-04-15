@@ -103,7 +103,7 @@ export default class Offer extends Component {
           value={this.offerParams.discount}
           onChange={this.handleDiscountChange}
         />
-        <span>or more.</span>
+        <span>off your order.</span>
       </div>
     );
   }
