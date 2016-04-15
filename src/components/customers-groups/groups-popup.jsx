@@ -34,7 +34,7 @@ export default class GroupsPopup extends Component {
 
   indexGroupIds(ids) {
     return _.reduce(ids, (result, id) => {
-      result[id] = 1;
+      result[id] = true;
       return result;
     }, {});
   }
@@ -48,12 +48,12 @@ export default class GroupsPopup extends Component {
     }
   }
 
-  toggleGroupSelected(event: Objec, id: number) {
+  toggleGroupSelected(event: Object, id: number) {
     event.stopPropagation();
     event.preventDefault();
 
     const { selectedGroups } = this.state;
-    selectedGroups[id] = selectedGroups[id] ? 0 : 1;
+    selectedGroups[id] = selectedGroups[id] ? false : true;
 
     this.setState({
       selectedGroups,
@@ -67,7 +67,7 @@ export default class GroupsPopup extends Component {
       const id = `customer-group-${group.id}`;
       return (
         <li data-id={group.id} styleName="group" onClick={(event) => this.toggleGroupSelected(event, group.id)}>
-          <Checkbox id={id} checked={!!this.state.selectedGroups[group.id]}>
+          <Checkbox id={id} checked={this.state.selectedGroups[group.id]}>
             <strong>{group.name}</strong>
           </Checkbox>
           <span styleName="group-description">• {group.type}</span>
