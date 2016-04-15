@@ -194,6 +194,8 @@ const routes = (
     <Route name='promotions-base' path='promotions'>
       <Route name='promotions-list-page' component={PromotionsListPage} >
         <IndexRoute name='promotions' component={Promotions} />
+        <Route name='promotions-activity-trail' path='activity-trail' dimension="promotions"
+               component={ActivityTrailPage}/>
       </Route>
       <Route name='promotion' path=':promotionId' component={PromotionPage}>
         <IndexRoute name='promotion-details' component={PromotionForm} />
@@ -204,6 +206,8 @@ const routes = (
     <Route name='coupons-base' path='coupons'>
       <Route name='coupons-list-page' component={CouponsListPage} >
         <IndexRoute name='coupons' component={Coupons} />
+        <Route name='coupons-activity-trail' path='activity-trail' dimension="coupons"
+               component={ActivityTrailPage}/>
       </Route>
     </Route>
     <Route name='coupons-base' path='coupons'>
