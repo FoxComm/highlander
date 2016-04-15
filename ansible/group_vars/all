@@ -27,7 +27,8 @@ ashes_env: production
 
 #firebird variables
 firebird_env: production
-firebird_language: 
+firebird_default_language: en
+firebird_fixed_language: false
 
 # Loyalty
 loyalty_jar_src: ../../fox-loyalty/target/loyalty.jar

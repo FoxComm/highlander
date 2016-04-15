@@ -15,11 +15,11 @@ server {
   # variables
 
   # language
-  set $accept_language en;
+  set $accept_language {{firebird_default_language}};
   if ($http_accept_language) {
       set $accept_language $http_accept_language;
   }
-  {% if firebird_language %}set $accept_language {{firebird_language}};{% endif %}
+  {% if firebird_fixed_language %}set $accept_language {{firebird_default_language}};{% endif %}
 
 
   error_page 500 @500;
