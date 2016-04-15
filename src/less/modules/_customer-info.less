@@ -1,3 +1,7 @@
+.fc-customer-title-block {
+  margin: 40px 0;
+  background: @color-white;
+}
 
 .fc-customer-info {
   .font-spec(14px, 31px);
@@ -6,38 +10,42 @@
     color: inherit;
   }
 
-  &-header {
+  &__header {
+    height: 6rem;
     text-align: center;
   }
 
-  &-comment {
+  &__comment {
     .font-spec(14px, 600, 19px);
     color: #C7C9CB;
   }
 
-  @head-height: 91px;
+  @head-height: 60px;
   @circle_size: 98px;
   @img_size: 84px;
 
   @avatar-margin-top: -@circle_size/2;
 
-  &-head {
-    height: @head-height;
+  &__head {
+    height: 6rem;
     .colors(@fg: @color-decor0, @bg: @color-decor3);
     border-radius: 3px 3px 0 0;
     margin: -1px -1px 0 -1px;
     border: 0;
   }
 
-  &-rank {
+  &__rank {
+    padding-top: 2rem;
+    padding-right: 2rem;
+    text-align: right;
     @line-height: 19px;
     .font-spec(14px, 700, @line-height);
     .padding-top((@head-height + @avatar-margin-top - @line-height)/2);
   }
 
-  &-avatar {
+  &__avatar {
     .size(@circle_size);
-    background-color: @color-decor0;
+    background-color: @color-white;
     border-radius: 50%;
     text-align: center;
     .inline-block(top);
@@ -64,25 +72,25 @@
   @email-font-size: 17px;
   @email-line-height: 23px;
 
-  &-name {
+  &__name {
     .font-spec(@name-font-size, 700, @name-line-height);
     color: @color-decor1;
 
     .padding-bottom(7px);
   }
 
-  &-email {
+  &__email {
     .font-spec(@email-font-size, 400, @email-line-height);
     color: @color-decor1;
   }
 
-  &-body {
+  &__body {
     .font-spec(14px, 600, 19px);
     color: @color-decor1;
     padding: 9px 10px 20px 10px;
   }
 
-  &-fields {
+  &__fields {
     display: inline-block;
     width: 50%;
 
@@ -109,7 +117,7 @@
     }
   }
 
-  &-group {
+  &__group {
     padding: 5px 10px;
     margin-right: 5px;
     margin-bottom: 5px;
@@ -120,7 +128,7 @@
     border-radius: 3px; // don't depend in root font size
   }
 
-  &-guest {
+  &__guest {
     color: @color-decor8;
     .padding-top(5px);
   }

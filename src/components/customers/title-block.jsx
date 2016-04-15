@@ -10,7 +10,7 @@ import { prefix } from '../../lib/text-utils';
 import Currency from '../common/currency';
 
 
-const p = prefix('fc-customer-info');
+const prefixed = prefix('fc-customer-info');
 
 
 export default class Customer extends React.Component {
@@ -24,7 +24,7 @@ export default class Customer extends React.Component {
 
     if (customer.name) {
       return (
-        <div className="fc-customer-info-name">
+        <div className={prefixed('name')}>
           {customer.name}
         </div>
       );
@@ -36,7 +36,7 @@ export default class Customer extends React.Component {
 
     if (_.isNumber(customer.rank)) {
       return (
-        <div className="fc-customer-info-rank">
+        <div className={prefixed('rank')}>
           Top {customer.rank}%
         </div>
       );
@@ -52,27 +52,27 @@ export default class Customer extends React.Component {
 
     return (
       <div className="fc-content-box fc-customer-title-block">
-        <div className="fc-customer-info-header">
-          <div className="fc-customer-info-head">
+        <div className={prefixed('header')}>
+          <div className={prefixed('head')}>
             {this.customerRank}
           </div>
         </div>
-        <article className="fc-customer-info-body">
+        <article className={prefixed('body')}>
           <div className="fc-grid">
             <div className="fc-col-md-1-12">
-              <div className="fc-customer-info-avatar">
+              <div className={prefixed('avatar')}>
                 <i className="icon-customer"></i>
               </div>
             </div>
             <div className="fc-col-md-11-12">
               <div className="fc-col-md-1-1 fc-customer-name-block">
                 {this.customerName}
-                <div className="fc-customer-info-email">
+                <div className={prefixed('email')}>
                   {customer.email}
                 </div>
               </div>
               <div className="fc-col-md-1-1 fc-customer-details-block">
-                <ul className="fc-customer-info-fields">
+                <ul className={prefixed('fields')}>
                   <li>
                     <i className="icon-customer"></i>
                     <span>{ customer.id }</span>
@@ -86,18 +86,18 @@ export default class Customer extends React.Component {
                     <span>{ customer.location }</span>
                   </li>
                 </ul>
-                <ul className="fc-customer-info-fields">
+                <ul className={prefixed('fields')}>
                   <li>
                     <i className="icon-calendar"></i>
                     <span>{ joinedAt }</span>
-                    <span className="fc-customer-info-comment">&nbsp;Date joined</span>
+                    <span className={prefixed('comment')}>&nbsp;Date joined</span>
                   </li>
                   <li>
                     <i className="icon-usd"></i>
                     <Currency value={customer.totalSales || 0} />
-                    <span className="fc-customer-info-comment">&nbsp;Total Sales</span>
+                    <span className={prefixed('comment')}>&nbsp;Total Sales</span>
                   </li>
-                  <li className="fc-customer-info-days">
+                  <li className={prefixed('days')}>
                     <i>{ customer.id}</i>
                     <span>Days since last order</span>
                   </li>
