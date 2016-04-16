@@ -23,3 +23,9 @@ a {
   lost-flex-container: row;
   color: var(--blackish);
 }
+
+button {
+  padding: 0;
+  border: 0;
+  background: none;
+}
