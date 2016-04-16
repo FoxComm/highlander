@@ -31,7 +31,7 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
 
     "streams new notifications" in new Fixture2 {
       subscribeToNotifications()
-      val notifications = skipHeartbeats(sseSource(s"v1/public/notifications/$adminId"))
+      val notifications = skipHeartbeats(sseSource(s"v1/notifications"))
       val requests = Source(1 to 2).map { activityId ⇒
         val response = POST("v1/public/notifications", newNotification.copy(activityId = activityId))
         s"notification $activityId: ${response.status}"
@@ -47,7 +47,7 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
     "loads old unread notifications before streaming new" in new Fixture2 {
       subscribeToNotifications()
       POST("v1/public/notifications", newNotification).status must === (StatusCodes.OK)
-      val notifications = skipHeartbeats(sseSource(s"v1/public/notifications/$adminId"))
+      val notifications = skipHeartbeats(sseSource(s"v1/notifications"))
 
       val requests = Source.single(2).map { activityId ⇒
         val response = POST("v1/public/notifications", newNotification.copy(activityId = activityId))
@@ -63,14 +63,14 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
     "streams error and closes stream if admin not found" in {
       val message = s"Error! Store admin with id=66666 not found"
 
-      sseProbe("v1/public/notifications/66666")
+      sseProbe("v1/notifications/66666")
         .request(2)
         .expectNext(message)
         .expectComplete()
     }
   }
 
-  "POST v1/public/notifications/:adminId/last-seen/:activityId" - {
+  "POST v1/notifications/last-seen/:activityId" - {
 
     "updates last seen id" in new Fixture2 {
       def lastSeenId(adminId: Int) = Trails.findNotificationByAdminId(adminId).result.headOption.run().futureValue.value
@@ -80,7 +80,7 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
       POST("v1/public/notifications", newNotification).status must === (StatusCodes.OK)
 
       lastSeenId(adminId) must === (0)
-      val response = POST(s"v1/public/notifications/$adminId/last-seen/1")
+      val response = POST(s"v1/notifications/last-seen/1")
       response.status must === (StatusCodes.OK)
       val data = response.as[LastSeenActivityResponse]
       data.trailId must === (1)
@@ -89,24 +89,18 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
 
       POST("v1/public/notifications", newNotification.copy(activityId = 2)).status must === (StatusCodes.OK)
 
-      sseProbe(s"v1/public/notifications/$adminId").requestNext(activityJson(2))
-    }
-
-    "404 if admin not found" in {
-      val response = POST("v1/public/notifications/666/last-seen/1")
-      response.status must === (StatusCodes.NotFound)
-      response.error must === (NotFoundFailure404(StoreAdmin, 666).description)
+      sseProbe(s"v1/notifications").requestNext(activityJson(2))
     }
 
     "404 if activity not found" in {
       val adminId = StoreAdmins.create(Factories.storeAdmin).run().futureValue.rightVal.id
-      val response = POST(s"v1/public/notifications/$adminId/last-seen/666")
+      val response = POST(s"v1/notifications/last-seen/666")
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(Activity, 666).description)
     }
 
     "400 if notification trail not found" in new Fixture {
-      val response = POST(s"v1/public/notifications/$adminId/last-seen/$activityId")
+      val response = POST(s"v1/notifications/last-seen/$activityId")
       response.status must === (StatusCodes.BadRequest)
       response.error must === (NotificationTrailNotFound400(1).description)
     }

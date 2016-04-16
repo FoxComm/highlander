@@ -72,6 +72,7 @@ class Service(
       logRequestResult("customer-routes")(routes.Customer.routes) ~
       requireAuth(storeAdminAuth) { implicit admin ⇒
         logRequestResult("admin-routes")(routes.admin.AdminRoutes.routes) ~
+        logRequestResult("admin-notification-routes")(routes.NotificationRoutes.adminRoutes) ~
         logRequestResult("admin-assignments-routes")(routes.admin.AssignmentsRoutes.routes) ~
         logRequestResult("admin-order-routes")(routes.admin.OrderRoutes.routes) ~
         logRequestResult("admin-customer-routes")(routes.admin.CustomerRoutes.routes) ~
