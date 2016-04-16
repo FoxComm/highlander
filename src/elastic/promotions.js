@@ -6,7 +6,7 @@ import * as dsl from './dsl';
 // 1000 should be big enough to request all promotions with applyType = coupon
 // without size parameter ES responds with 10 items max
 const MAX_RESULTS = 1000;
-const promotionsSearchUrl: string = `promotions_search_view/_search?size=${1000}`;
+const promotionsSearchUrl: string = `promotions_search_view/_search?size=${MAX_RESULTS}`;
 
 export function searchCouponPromotions(token: string): Promise {
   const filters = [];
