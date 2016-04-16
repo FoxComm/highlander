@@ -227,7 +227,7 @@ class CouponPage extends Component {
           />
         </PageTitle>
         <SubNav params={this.props.params} />
-        <div>
+        <div styleName="coupon-details">
           {children}
         </div>
       </div>
