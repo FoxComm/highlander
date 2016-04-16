@@ -8,11 +8,14 @@ import { browserHistory } from 'react-router';
 import Currency from 'ui/currency';
 
 type Product = {
-  id: number;
+  id: number,
+  productId: number,
   context: string,
-  title: string;
+  title: string,
   description: string,
   images: Array<string>,
+  salePrice: number,
+  currency: string,
 }
 
 const ListItem = (props: Product): HTMLElement => {
