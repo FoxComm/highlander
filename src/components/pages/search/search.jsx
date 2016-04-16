@@ -1,7 +1,8 @@
-/* @flow */
+  /* @flow */
 
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import _ from 'lodash';
 import type { HTMLElement } from 'types';
 import type { Product } from 'modules/products';
 import styles from './search.css';
@@ -51,13 +52,14 @@ class Search extends Component {
 
   render(): HTMLElement {
     const { term, results, t } = this.props;
+    const result = _.isEmpty(results.result) ? [] : results.result;
 
     return (
       <div styleName="search">
         <p styleName="search-title">
           <span styleName="search-title__uppercase">{t('Search results for')}</span> "{term}"
         </p>
-        <ProductsList list={results.result}/>
+        <ProductsList list={result}/>
       </div>
     );
   }
