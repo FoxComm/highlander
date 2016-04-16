@@ -5,7 +5,6 @@ import com.sksamuel.elastic4s.mappings.FieldType._
 
 object MappingHelpers {
   val dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-  val activeDateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
 
   def address(name: String) = field(name).nested(
     field("address1", StringType).analyzer("autocomplete"),
