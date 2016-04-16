@@ -16,7 +16,8 @@ type Product = {
 }
 
 const ListItem = (props: Product): HTMLElement => {
-  const {id, title, images} = props;
+  const {id, title, images, salePrice, currency} = props;
+
   const imageUrl = images[0];
   const price = 9999;
 
@@ -31,7 +32,7 @@ const ListItem = (props: Product): HTMLElement => {
         {title}
       </div>
       <div styleName="price">
-        <Currency value={price} />
+        <Currency value={salePrice} />
       </div>
     </div>
   );
