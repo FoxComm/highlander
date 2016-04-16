@@ -54,6 +54,7 @@ object Workers {
     "inventory_transactions_search_view" → InventoryTransactionSearchView(),
     "notes_search_view"                 → NotesSearchView(),
     "orders_search_view"                → OrdersSearchView(),
+    "products_catalog_view"             → ProductsCatalogView(),
     "products_search_view"              → ProductsSearchView(),
     "promotions_search_view"            → PromotionsSearchView(),
     "coupons_search_view"               → CouponsSearchView(),
