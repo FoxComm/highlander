@@ -83,7 +83,7 @@ export default class Login extends Component {
     );
 
     const signupLink = (
-      <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.SIGNUP}}} styleName="signup-link">
+      <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.SIGNUP}}} styleName="link">
         {t('Sign Up')}
       </Link>
     );

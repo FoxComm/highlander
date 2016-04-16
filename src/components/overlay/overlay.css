@@ -32,11 +32,16 @@
   top: 26px;
   right: 20px;
   z-index: 3;
+
+  &:hover .close-icon {
+    color: var(--blackish);
+  }
 }
 
 .close-icon {
   width: 17px;
   height: 17px;
+  transition: all 300ms;
 }
 
 @media (--medium-viewport-up) {
@@ -46,7 +51,7 @@
 
   .close-icon {
     width: 33px;
-    height:33px;
+    height: 33px;
     color: #767676;
   }
 }

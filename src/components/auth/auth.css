@@ -84,10 +84,23 @@
 
 .restore-link {
   color: var(--greyish);
+  text-decoration: none;
+  box-shadow: 0 1px;
+
+  &:hover {
+    color: var(--blackish);
+    box-shadow: none;
+  }
 }
 
-.signup-link {
+.link {
   color: var(--blackish);
+  text-decoration: none;
+  box-shadow: 0 1px;
+
+  &:hover {
+    box-shadow: none;
+  }
 }
 
 @media (--small-viewport) {

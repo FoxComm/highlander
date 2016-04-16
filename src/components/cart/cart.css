@@ -77,6 +77,11 @@
 
 .checkout-button:disabled {
   background: var(--blackish);
+
+  &:hover {
+    color: var(--whitish);
+    cursor: not-allowed;
+  }
 }
 
 .cart-content {

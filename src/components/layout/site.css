@@ -17,6 +17,7 @@ html, body {
 /* set up default color for links */
 a {
   color: var(--blackish);
+  transition: all 300ms;
 }
 
 .site {
