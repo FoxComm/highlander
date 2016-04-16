@@ -44,3 +44,4 @@ phoenix-scala.iml
 
 # Gatling
 results/
+gatling-classes/
