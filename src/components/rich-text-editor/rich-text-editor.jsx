@@ -63,6 +63,13 @@ export default class RichTextEditor extends Component<void, Props, State> {
     this.state = { editorState };
   }
 
+  componentWillReceiveProps(nextProps: Props) {
+    if (!this.props.value || _.isEmpty(this.props.value)) {
+      const editorState = EditorState.createEmpty();
+      this.state = { editorState };
+    }
+  }
+
   get headerButtons(): Element {
     const { editorState } = this.state;
     const selection = editorState.getSelection();
@@ -75,7 +82,7 @@ export default class RichTextEditor extends Component<void, Props, State> {
 
     return (
       <div className="fc-rich-text-editor__command-set">
-        <Dropdown 
+        <Dropdown
           className="fc-rich-text-editor__command-headers"
           placeholder={<i className="icon-size" />}
           onChange={this.handleBlockTypeChange}
@@ -171,7 +178,7 @@ export default class RichTextEditor extends Component<void, Props, State> {
         {this.props.label && <div className="fc-rich-text-editor__label">{this.props.label}</div>}
         <div className="fc-rich-text-editor__command-bar">
           {this.headerButtons}
-          {this.styleButtons}        
+          {this.styleButtons}
           {this.listButtons}
         </div>
         <div className="fc-rich-text-editor__content">

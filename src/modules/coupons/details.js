@@ -100,6 +100,8 @@ function updateCouponInState(state, response) {
 
 const initialState = {
   coupon: null,
+  codes: [],
+  selectedPromotions: [],
 };
 
 const reducer = createReducer({
