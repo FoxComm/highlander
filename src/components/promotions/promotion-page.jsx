@@ -16,6 +16,7 @@ import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
 import ErrorAlerts from '../alerts/error-alerts';
 import ButtonWithMenu from '../common/button-with-menu';
+import { Button } from '../common/buttons';
 import Error from '../errors/error';
 
 import * as PromotionActions from '../../modules/promotions/details';
@@ -130,6 +131,11 @@ class PromotionPage extends Component {
     });
   }
 
+  @autobind
+  handleCancel(): void {
+    this.props.dispatch(pushState(null, '/promotions', ''));
+  }
+
   render(): Element {
     const props = this.props;
     const { promotion } = this.state;
@@ -154,6 +160,12 @@ class PromotionPage extends Component {
     return (
       <div>
         <PageTitle title={this.pageTitle}>
+          <Button
+            type="button"
+            onClick={this.handleCancel}
+            styleName="cancel-button">
+            Cancel
+          </Button>
           <ButtonWithMenu
             title="Save"
             onPrimaryClick={this.handleSubmit}
