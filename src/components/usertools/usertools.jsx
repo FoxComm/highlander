@@ -51,9 +51,10 @@ class UserTools extends Component {
         <div styleName="login">
           {this.renderUserInfo()}
         </div>
-        <div styleName="cart" onClick={this.props.toggleCart}>
+        <button styleName="cart" onClick={this.props.toggleCart}>
           <Icon name="fc-cart" styleName="head-icon"/>
-        </div>
+          <sup styleName="cart-quantity">{this.props.quantity}</sup>
+        </button>
       </div>
     );
   }
@@ -62,6 +63,7 @@ class UserTools extends Component {
 const mapState = state => ({
   auth: state.auth,
   isMenuVisible: state.usermenu.isVisible,
+  quantity: state.cart.quantity,
 });
 
 export default connect(mapState, {
