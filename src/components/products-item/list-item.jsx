@@ -14,7 +14,7 @@ type Product = {
   title: string,
   description: string,
   images: Array<string>,
-  salePrice: number,
+  salePrice: string,
   currency: string,
 }
 
