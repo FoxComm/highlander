@@ -1,3 +1,5 @@
+import sbtassembly.AssemblyKeys
+
 lazy val commonSettings = Seq(
   version       := "1.0",
   scalaVersion  := "2.11.8",
@@ -172,6 +174,7 @@ lazy val phoenixScala = (project in file(".")).
     fork in Test := false,
     fork in IT   := true, /** FIXME: We couldn’t run ITs in parallel if we fork */
     test in assembly := {},
+    addCommandAlias("assembly", "gatling/assembly"),
     test <<= Def.task {
       /** We need to do nothing here. Unit and ITs will run in parallel
         * and this task will fail if any of those fail. */
@@ -198,13 +201,10 @@ lazy val gatling = (project in file("gatling")).
         "io.gatling.highcharts" % "gatling-charts-highcharts" % gatlingV
       )
     },
-    aggregate in Test := false, // Do not mix unit and Gatling tests
-    sourceDirectory in Gatling := baseDirectory.value / "src/main/scala",
-    scalaSource in Gatling := baseDirectory.value / "src/main/scala",
-    resourceDirectory in Gatling := baseDirectory.value / "resources",
-    mainClass in Gatling := Some("seeds.GatlingApp")
-  ).
-  enablePlugins(GatlingPlugin)
+    classDirectory in Compile := baseDirectory.value / "../gatling-classes",
+    mainClass in Compile := Some("seeds.GatlingApp"),
+    assemblyJarName := (AssemblyKeys.assemblyJarName in assembly in phoenixScala).value
+  )
 
 lazy val seedGatling = inputKey[Unit]("Seed DB with Gatling")
 seedGatling := { (runMain in Compile in gatling).partialInput(" seeds.GatlingApp").evaluated }
