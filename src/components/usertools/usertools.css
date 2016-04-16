@@ -70,7 +70,20 @@
   }
 }
 
+.cart-quantity {
+  position: relative;
+  top: -4px;
+  left: 2px;
+  font-size: 11px;
+  vertical-align: top;
+  min-width: 13px;
+  display: inline-block;
+  text-align: left;
+}
+
 .cart {
+  margin-right: -8px;
+  white-space: nowrap;
   fill: var(--blackish);
   cursor: pointer;
 
