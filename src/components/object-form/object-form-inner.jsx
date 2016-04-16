@@ -158,7 +158,7 @@ export default class ObjectFormInner extends Component<void, Props, State> {
     return (
       <RichTextEditor
         label={formattedLabel}
-        value={value}
+        value={_.isEmpty(value) ? '' : value}
         onChange={onChange} />
     );
   }
@@ -210,9 +210,7 @@ export default class ObjectFormInner extends Component<void, Props, State> {
       <textarea
         className={inputClass}
         name={label}
-        onChange={onChange} >
-        {value}
-      </textarea>
+        onChange={onChange} value={value} />
     );
 
     return renderFormField(label, textInput);

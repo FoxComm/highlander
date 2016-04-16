@@ -184,6 +184,7 @@ class CouponPage extends Component {
           actions.couponsNew();
           break;
         case 'save_and_duplicate':
+          this.props.actions.couponsNew();
           dispatch(pushState(null, `/coupons/new`, ''));
           break;
         case 'save_and_close':
