@@ -25,6 +25,14 @@ function setDemoAuthToken() {
   process.env.DEMO_AUTH_TOKEN = demoAuthToken;
 }
 
+function setContext() {
+  const language = process.env.FIREBIRD_LANGUAGE || "default";
+  process.env.FIREBIRD_CONTEXT = process.env.FIREBIRD_CONTEXT || language;
+
+  console.log("Language is: " + process.env.FIREBIRD_LANGUAGE);
+  console.log("Context is: " + process.env.FIREBIRD_CONTEXT);
+}
+
 module.exports = function(gulp, $, opts) {
   const production = (process.env.NODE_ENV === 'production');
 
