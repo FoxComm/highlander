@@ -32,9 +32,13 @@
 .google-login {
   composes: button from "ui/css/buttons.css";
   background-color: var(--redish);
-  border: 1px solid color(var(--redish) blackness(+20%));
+  border: 1px solid color(var(--redish));
   margin-bottom: calc(46px - var(--dividerMargin));
   width: 100%;
+
+  &:hover {
+    color: var(--redish);
+  }
 }
 
 .divider {
