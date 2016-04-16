@@ -6,6 +6,7 @@ import type { Product } from 'modules/products';
 import styles from './product.css';
 import { connect } from 'react-redux';
 
+import Loader from 'ui/loader';
 import ProductsList from '../../products-list/products-list';
 
 import * as actions from 'modules/products';
@@ -39,7 +40,10 @@ class Products extends Component {
 
   componentWillReceiveProps(nextProps: ProductListParams) {
     const { categoryName } = this.props.params;
-    this.props.fetch(categoryName);
+    const nextName = nextProps.params.categoryName;
+    if (categoryName !== nextName) {
+      this.props.fetch(nextName);
+    }
   }
 
   categoryId(params: Params): ?number {
@@ -48,7 +52,9 @@ class Products extends Component {
   }
 
   render(): HTMLElement {
-    return <ProductsList list={this.props.list}/>;
+    return this.props.isLoading
+      ? <Loader/>
+      : <ProductsList list={this.props.list}/>;
   }
 }
 

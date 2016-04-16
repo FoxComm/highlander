@@ -9,11 +9,13 @@ import styles from './products-list.css';
 import ListItem from '../products-item/list-item';
 
 type ProductsListParams = {
-  list: ?Array<Product>;
+  list: Array<Product>;
 }
 
-const ProductsList = (props:ProductsListParams):HTMLElement => {
-  const items = _.map(props.list, (item) => <ListItem {...item} key={`product-${item.id}`}/>);
+const ProductsList = (props: ProductsListParams):HTMLElement => {
+  const items = props.list.length > 0
+    ? _.map(props.list, (item) => <ListItem {...item} key={`product-${item.id}`}/>)
+    : <div styleName="not-found">No products found.</div>;
 
   return (
     <div styleName="catalog">
