@@ -36,6 +36,10 @@
   color: var(--star-dustish);
   line-height: 15px;
   text-decoration: none;
+
+  &:hover {
+    color: var(--blackish);
+  }
 }
 
 .details {
