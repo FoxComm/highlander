@@ -20,6 +20,10 @@ a {
   transition: all 300ms;
 }
 
+button {
+  transition: all 300ms;
+}
+
 .site {
   lost-flex-container: row;
   color: var(--blackish);
