@@ -12,6 +12,10 @@
 
 .login-link {
   text-decoration: none;
+
+  &:hover {
+    opacity: .7;
+  }
 }
 
 .user-info {
@@ -20,6 +24,11 @@
 
 .username {
   cursor: pointer;
+  transition: all 300ms;
+
+  &:hover {
+    opacity: .7;
+  }
 }
 
 .menu {
@@ -62,7 +71,18 @@
 }
 
 .cart {
+  fill: var(--blackish);
   cursor: pointer;
+
+  & :global(.icon) {
+    stroke: none;
+  }
+
+  &:hover {
+    & :global(.icon) {
+      opacity: .7;
+    }
+  }
 }
 
 @media (--small-viewport) {

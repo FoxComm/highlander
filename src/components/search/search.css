@@ -55,6 +55,11 @@
   position: absolute;
   top: 13px;
   cursor: pointer;
+  transition: all 300ms;
+
+  &:hover {
+    opacity: .7;
+  }
 }
 
 .head-icon {

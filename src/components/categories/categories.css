@@ -17,6 +17,10 @@
   color: var(--blackish);
   text-decoration: none;
   cursor: pointer;
+
+  &:hover {
+    opacity: .7;
+  }
 }
 
 @media (--small-viewport) {

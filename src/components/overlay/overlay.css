@@ -41,7 +41,6 @@
 .close-icon {
   width: 17px;
   height: 17px;
-  transition: all 300ms;
 }
 
 @media (--medium-viewport-up) {

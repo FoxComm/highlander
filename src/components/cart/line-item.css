@@ -43,4 +43,14 @@
 
 .close-button {
   cursor: pointer;
+
+  & :global(.icon) {
+    color: #767676;
+  }
+
+  &:hover {
+    & :global(.icon) {
+      color: var(--blackish);
+    }
+  }
 }
