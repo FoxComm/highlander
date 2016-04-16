@@ -33,16 +33,13 @@ const getState = state => {
 class Products extends Component {
 
   componentWillMount() {
-    const categoryId = this.categoryId(this.props.params);
-    this.props.fetch(categoryId);
+    const { categoryName } = this.props.params;
+    this.props.fetch(categoryName);
   }
 
   componentWillReceiveProps(nextProps: ProductListParams) {
-    const categoryId = this.categoryId(this.props.params);
-    const nextId = this.categoryId(nextProps.params);
-    if (categoryId !== nextId) {
-      this.props.fetch(nextId);
-    }
+    const { categoryName } = this.props.params;
+    this.props.fetch(categoryName);
   }
 
   categoryId(params: Params): ?number {
