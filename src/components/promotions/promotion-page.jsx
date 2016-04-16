@@ -65,6 +65,10 @@ class PromotionPage extends Component {
     }
   }
 
+  componentWillUnmount() {
+    this.props.actions.promotionsNew();
+  }
+
   get pageTitle(): string {
     if (this.isNew) {
       return 'New Promotion';
