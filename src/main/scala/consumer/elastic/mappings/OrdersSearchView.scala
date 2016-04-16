@@ -26,8 +26,10 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
     // Customer
     field("customer").nested (
       field("id", IntegerType),
-      field("name", StringType) analyzer "autocomplete",
-      field("email", StringType) analyzer "autocomplete",
+      field("name", StringType).analyzer("autocomplete")
+        .fields(field("raw", StringType).index("not_analyzed")),
+      field("email", StringType).analyzer("autocomplete")
+        .fields(field("raw", StringType).index("not_analyzed")),
       field("isBlacklisted", BooleanType),
       field("joinedAt", DateType) format dateFormat,
       field("revenue", IntegerType),

@@ -12,7 +12,7 @@ final case class OrderConnector()(implicit ec: EC) extends ActivityConnector {
 
   def process(offset: Long, activity: Activity): Future[Seq[Connection]] = Future {
     val orderIds = byOrderData(activity) ++: byAssignmentBulkData(activity) ++:
-      byAssignmentSingleData(activity)
+      byAssignmentSingleData(activity) ++: byBulkData(activity) ++: byNoteData(activity)
 
     orderIds.distinct.map(createConnection(_, activity.id))
   }
@@ -23,6 +23,13 @@ final case class OrderConnector()(implicit ec: EC) extends ActivityConnector {
       objectId = refNum,
       data = JNothing,
       activityId = activityId)
+  }
+
+  private def byNoteData(activity: Activity): Seq[String] = {
+    (activity.data \ "note" \ "referenceType", activity.data \ "entity" \ "referenceNumber") match {
+      case (JString("order"), JString(refNum)) ⇒ Seq(refNum)
+      case _                                   ⇒ Seq.empty
+    }
   }
 
   private def byOrderData(activity: Activity): Seq[String] = {
@@ -40,8 +47,10 @@ final case class OrderConnector()(implicit ec: EC) extends ActivityConnector {
     }
   }
 
+  private def byBulkData(activity: Activity): Seq[String] = extractStringSeq(activity.data, "orderRefNums")
+
   private def byAssignmentBulkData(activity: Activity): Seq[String] = {
-    (activity.activityType, activity.data \ "assignmentType") match {
+    (activity.activityType, activity.data \ "referenceType") match {
       case ("bulk_assigned", JString("order"))   ⇒ extractStringSeq(activity.data, "entityIds")
       case ("bulk_unassigned", JString("order")) ⇒ extractStringSeq(activity.data, "entityIds")
       case _                                     ⇒ Seq.empty

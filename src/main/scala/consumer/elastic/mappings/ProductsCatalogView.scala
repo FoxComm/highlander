@@ -14,6 +14,7 @@ final case class ProductsCatalogView()(implicit ec: EC) extends AvroTransformer 
     field("title", StringType).analyzer("autocomplete"),
     field("images", StringType) index "not_analyzed",
     field("description", StringType).analyzer("autocomplete"),
+    field("salePrice", IntegerType).analyzer("autocomplete"),
     field("tags", StringType) index "not_analyzed"
   )
 
