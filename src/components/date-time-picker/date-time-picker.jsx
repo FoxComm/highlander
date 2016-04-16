@@ -29,8 +29,7 @@ function formatTimeDigits(digits: number): string {
 }
 
 function formatDate(date: Date): string {
-  const isoDate = date.toISOString();
-  return isoDate.substr(0, isoDate.length - 1); // strip last Z char
+  return date.toISOString();
 }
 
 function setStateFromProps(props: Props): State {
