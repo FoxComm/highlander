@@ -2,12 +2,12 @@ const searchTerms = [
   {
     title: 'Product : ID',
     type: 'term',
-    term: 'id'
+    term: 'id',
   },
   {
     title: 'Product : Name',
     type: 'string',
-    term: 'name'
+    term: 'title',
   },
   {
     title: 'Product : Active From',
