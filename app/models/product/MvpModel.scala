@@ -54,7 +54,8 @@ final case class SimpleProduct(title: String, description: String, image: String
       "description" : "$description",
       "images" : ["$image"],
       "variants" : {},
-      "skus" : {"$code" : {}}
+      "skus" : {"$code" : {}},
+      "activeFrom" : "${Instant.now}"
     }"""))
 
     def create : ObjectForm = ObjectForm(kind = Product.kind, attributes = form)
@@ -71,7 +72,8 @@ final case class SimpleProductShadow(p: SimpleProduct) {
           "description" : {"type": "richText", "ref": "description"},
           "images" : {"type": "images", "ref": "images"},
           "variants" : {"type": "variants", "ref": "variants"},
-          "skus" : {"type": "skus", "ref": "skus"}
+          "skus" : {"type": "skus", "ref": "skus"},
+          "activeFrom" : {"type": "date", "ref": "activeFrom"}
         }"""), 
       p.keyMap)
 
@@ -93,7 +95,8 @@ final case class SimpleSku(code: String, title: String,
         "salePrice" : {
           "value" : $price,
           "currency" : "${currency.getCode}" 
-        }
+        },
+        "activeFrom" : "${Instant.now}"
       } """))
 
     def create : ObjectForm = 
@@ -109,7 +112,8 @@ final case class SimpleSkuShadow(s: SimpleSku) {
         {
           "title" : {"type": "string", "ref": "title"},
           "retailPrice" : {"type": "price", "ref": "retailPrice"},
-          "salePrice" : {"type": "price", "ref": "salePrice"}
+          "salePrice" : {"type": "price", "ref": "salePrice"},
+          "activeFrom" : {"type": "date", "ref": "activeFrom"}
         }"""), 
       s.keyMap) 
 
