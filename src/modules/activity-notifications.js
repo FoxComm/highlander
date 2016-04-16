@@ -1,7 +1,7 @@
 import Api from '../lib/api';
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
-import { assoc, deepMerge } from 'sprout-data';
+import { assoc } from 'sprout-data';
 
 const notificationReceived = createAction('NOTIFICATION_RECEIVED');
 const markNotificationsAsRead = createAction('NOTIFICATIONS_MARK_AS_READ');
@@ -9,7 +9,7 @@ export const toggleNotifications = createAction('NOTIFICATIONS_TOGGLE');
 
 export function startFetchingNotifications() {
   return (dispatch) => {
-    const eventSource = new EventSource('/sse/v1/public/notifications/1', { withCredentials: true });
+    const eventSource = new EventSource(`/sse/v1/notifications`, { withCredentials: true });
 
     eventSource.onmessage = function (e) {
       if (!_.isEmpty(e.data)) {
@@ -33,12 +33,11 @@ export function markAsReadAndClose() {
 
     dispatch(toggleNotifications());
 
-    const adminId = 1;
     const activities = _.get(getState(), ['activityNotifications', 'notifications'], []);
     const activityId = _.get(_.head(activities), 'id');
 
     if (!_.isEmpty(activities) && _.isNumber(activityId)) {
-      Api.post(`/public/notifications/${adminId}/last-seen/${activityId}`, {}).then(
+      Api.post(`/notifications/last-seen/${activityId}`, {}).then(
         () => {
           dispatch(markNotificationsAsRead());
         }
@@ -49,14 +48,14 @@ export function markAsReadAndClose() {
 
 export function markAsRead() {
   return (dispatch, getState) => {
-    const adminId = 1;
+
     const activities = _.get(getState(), ['activityNotifications', 'notifications'], []);
 
     if (!_.isEmpty(activities)) {
       const activityId = _.get(_.last(activities), 'id');
 
       if (_.isNumber(activityId)) {
-        Api.post(`/public/notifications/${adminId}/last-seen/${activityId}`, {}).then(
+        Api.post(`/notifications/last-seen/${activityId}`, {}).then(
           () => {
             dispatch(markNotificationsAsRead());
             dispatch(toggleNotifications());

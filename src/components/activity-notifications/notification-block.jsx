@@ -21,12 +21,12 @@ export default class NotificationBlock extends React.Component {
     markAsReadAndClose: PropTypes.func.isRequired,
     markAsRead: PropTypes.func.isRequired,
     toggleNotifications: PropTypes.func.isRequired,
-    startFetchingNotifications: PropTypes.func.isRequired
-  }
+    startFetchingNotifications: PropTypes.func.isRequired,
+  };
 
   static defaultProps = {
     displayed: false
-  }
+  };
 
   componentDidMount() {
     this.props.startFetchingNotifications();
