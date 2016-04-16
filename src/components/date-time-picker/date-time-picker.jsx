@@ -44,7 +44,7 @@ function setStateFromProps(props: Props): State {
       ampm: localTime.hours() < 12 ? 'am' : 'pm',
     };
   } else {
-    return { hour: '9', minutes: '00', ampm: 'am' };
+    return { hour: '09', minutes: '00', ampm: 'am' };
   }
 }
 

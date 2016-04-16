@@ -13,6 +13,7 @@ import ContentBox from '../content-box/content-box';
 import ObjectForm from '../object-form/object-form';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
 import SkuList from './sku-list';
+import Tags from '../tags/tags';
 import VariantList from './variant-list';
 import WaitAnimation from '../common/wait-animation';
 
@@ -31,7 +32,7 @@ type State = {
 };
 
 const omitKeys = {
-  general: ['skus', 'variants', 'activeFrom', 'activeTo'],
+  general: ['skus', 'variants', 'activeFrom', 'activeTo', 'tags'],
 };
 
 const defaultKeys = {
@@ -138,6 +139,10 @@ export default class ProductForm extends Component<void, Props, State> {
             title="SEO" />
         </div>
         <div className="fc-col-md-2-5">
+          <Tags
+            form={formAttributes}
+            shadow={shadowAttributes}
+            onChange={this.handleProductChange} />
           {this.productState}
         </div>
       </div>
