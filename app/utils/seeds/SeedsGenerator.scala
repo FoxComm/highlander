@@ -156,7 +156,7 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
       orderedGcs ← * <~ DbResultT.sequence(randomSubset(customerIds).map { id ⇒ generateGiftCardPurchase(id, context)})
       appeasements  ← * <~ DbResultT.sequence((1 to appeasementCount).map { i ⇒ generateGiftCardAppeasement})
       giftCards  ← * <~  orderedGcs ++ appeasements
-      unsavedPromotions = makePromotions(5)
+      unsavedPromotions = makePromotions(1)
       promotions ← * <~ generatePromotions(unsavedPromotions)
       unsavedCoupons ← * <~ makeCoupons(promotions.filter(_.applyType == Promotion.Coupon))
       coupons ← * <~ generateCoupons(unsavedCoupons)

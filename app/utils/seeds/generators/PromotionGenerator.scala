@@ -35,10 +35,10 @@ final case class SimplePromotionForm(percentOff: Percent, totalAmount: Int) {
 
     val (keyMap, form) = ObjectUtils.createForm(parse(s"""
     {
-      "name" : "${percentOff}% over $totalAmount items",
-      "storefrontName" : "${percentOff}% over $totalAmount items",
-      "description" : "${percentOff}% full order over $totalAmount items",
-      "details" : "This offer applies only when you have a total amount over $totalAmount items",
+      "name" : "${percentOff}% off after spending $totalAmount dollars",
+      "storefrontName" : "${percentOff}% off after spending $totalAmount dollars",
+      "description" : "${percentOff}% off full order after spending $totalAmount dollars",
+      "details" : "This offer applies after you spend over $totalAmount dollars",
       "activeFrom" : "${Instant.now}",
       "activeTo" : null,
       "tags" : []
@@ -64,10 +64,13 @@ final case class SimplePromotionShadow(f: SimplePromotionForm) {
 
 trait PromotionGenerator {
 
+  val percents = Seq(10, 15, 20, 25, 30, 45)
+  val amounts = Seq(10, 15, 20, 25, 30, 45, 50)
+
   def generatePromotion(applyType: Promotion.ApplyType = Promotion.Auto): 
   SimplePromotion = {
-    val percent = Random.nextInt(90)
-    val totalAmount = Random.nextInt(10)
+    val percent = percents(Random.nextInt(percents.length))
+    val totalAmount = amounts(Random.nextInt(amounts.length))
     SimplePromotion(
       applyType = applyType,
       percentOff = percent,
