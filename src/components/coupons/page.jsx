@@ -71,6 +71,8 @@ class CouponPage extends Component {
 
     if (!isFetching) {
       const nextCoupon = nextProps.details.coupon;
+      if (!nextCoupon) return;
+
       if (this.isNew && nextCoupon.form.id) {
         this.props.dispatch(pushState(null, `/coupons/${nextCoupon.form.id}`, ''));
       }
@@ -79,6 +81,10 @@ class CouponPage extends Component {
       }
       this.setState({ coupon: nextCoupon });
     }
+  }
+
+  componentWillUnmount() {
+    this.props.actions.couponsNew();
   }
 
   get entityId(): string|number {
