@@ -12,6 +12,7 @@ import models.activity._
 import models.{NotificationTrailMetadata, StoreAdmin, StoreAdmins, NotificationSubscription ⇒ Sub, NotificationSubscriptions ⇒ Subs}
 import org.json4s.Extraction.decompose
 import org.json4s.jackson.Serialization.write
+import org.postgresql.core.{Utils ⇒ PgjdbcUtils}
 import payloads.{AppendActivity, CreateNotification}
 import responses.{ActivityConnectionResponse, ActivityResponse, LastSeenActivityResponse, TheResponse}
 import services.activity.TrailManager
@@ -66,6 +67,7 @@ object NotificationManager {
       .map { case (trail, activity) ⇒ SSE(write(ActivityResponse.build(activity))) }
   }
 
+  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Null"))
   def createNotification(payload: CreateNotification)(implicit ac: ActivityContext, ec: EC, db: DB):
   Result[Seq[ActivityConnectionResponse.Root]] = (for {
     sourceDimensionId ← * <~ dimensionIdByName(payload.sourceDimension)
@@ -77,7 +79,9 @@ object NotificationManager {
       TrailManager.appendActivityByObjectIdInner(Dimension.notification, adminId.toString, appendActivity, newTrailData)
     })
     _ ← * <~ DBIO.sequence(adminIds.map { adminId ⇒
-      sqlu"NOTIFY #${notificationChannel(adminId)}, '#${write(ActivityResponse.build(activity))}'"
+      val payload = write(ActivityResponse.build(activity))
+      val escapedPayload = PgjdbcUtils.escapeLiteral(null, payload, false).toString
+      sqlu"NOTIFY #${notificationChannel(adminId)}, '#${escapedPayload}'"
     }).toXor
   } yield response).runTxn()
 

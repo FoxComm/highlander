@@ -42,7 +42,6 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
       db4fly.close()
       migrated = true
     }
-    setupObjectContext()
   }
 
   private def setupObjectContext(): Failures Xor ObjectContext = {

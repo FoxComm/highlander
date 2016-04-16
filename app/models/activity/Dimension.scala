@@ -32,11 +32,13 @@ final case class Dimension(
 
 object Dimension {
   val admin         = "admin"
-  val order         = "order"
+  val coupon        = "coupon"
   val customer      = "customer"
   val giftCard      = "giftCard"
   val notification  = "notification"
+  val order         = "order"  
   val product       = "product"
+  val promotion     = "promotion"
   val rma           = "rma"
   val sku           = "sku"
 }

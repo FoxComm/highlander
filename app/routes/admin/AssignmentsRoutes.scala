@@ -440,7 +440,147 @@ object AssignmentsRoutes {
             }
           }
         }
-      }          
+      } ~
+      pathPrefix("promotions") {
+        pathPrefix("assignees") {
+          (post & pathEnd) {
+            entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
+              goodOrFailures {
+                PromotionAssignmentsManager.assignBulk(admin, payload)
+              }
+            }
+          } ~
+          (post & path("delete") & pathEnd) {
+            entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
+              goodOrFailures {
+                PromotionAssignmentsManager.unassignBulk(admin, payload)
+              }
+            }
+          }
+        } ~
+        pathPrefix("watchers") {
+          (post & pathEnd) {
+            entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
+              goodOrFailures {
+                PromotionWatchersManager.assignBulk(admin, payload)
+              }
+            }
+          } ~
+          (post & path("delete") & pathEnd) {
+            entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
+              goodOrFailures {
+                PromotionWatchersManager.unassignBulk(admin, payload)
+              }
+            }
+          }
+        }
+      } ~
+      pathPrefix("promotions" / IntNumber) { promotionId ⇒
+        pathPrefix("assignees") {
+          (get & pathEnd) {
+            goodOrFailures {
+              PromotionAssignmentsManager.list(promotionId)
+            }
+          } ~           
+          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
+            goodOrFailures {
+              PromotionAssignmentsManager.assign(promotionId, payload, admin)
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
+            goodOrFailures {
+              PromotionAssignmentsManager.unassign(promotionId, assigneeId, admin)
+            }
+          }
+        } ~
+        pathPrefix("watchers") {
+          (get & pathEnd) {
+            goodOrFailures {
+              PromotionWatchersManager.list(promotionId)
+            }
+          } ~          
+          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
+            goodOrFailures {
+              PromotionWatchersManager.assign(promotionId, payload, admin)
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
+            goodOrFailures {
+              PromotionWatchersManager.unassign(promotionId, assigneeId, admin)
+            }
+          }
+        }
+      } ~
+      pathPrefix("coupons") {
+        pathPrefix("assignees") {
+          (post & pathEnd) {
+            entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
+              goodOrFailures {
+                CouponAssignmentsManager.assignBulk(admin, payload)
+              }
+            }
+          } ~
+          (post & path("delete") & pathEnd) {
+            entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
+              goodOrFailures {
+                CouponAssignmentsManager.unassignBulk(admin, payload)
+              }
+            }
+          }
+        } ~
+        pathPrefix("watchers") {
+          (post & pathEnd) {
+            entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
+              goodOrFailures {
+                CouponWatchersManager.assignBulk(admin, payload)
+              }
+            }
+          } ~
+          (post & path("delete") & pathEnd) {
+            entity(as[BulkAssignmentPayload[Int]]) { payload ⇒
+              goodOrFailures {
+                CouponWatchersManager.unassignBulk(admin, payload)
+              }
+            }
+          }
+        }
+      } ~
+      pathPrefix("coupons" / IntNumber) { couponId ⇒
+        pathPrefix("assignees") {
+          (get & pathEnd) {
+            goodOrFailures {
+              CouponAssignmentsManager.list(couponId)
+            }
+          } ~           
+          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
+            goodOrFailures {
+              CouponAssignmentsManager.assign(couponId, payload, admin)
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
+            goodOrFailures {
+              CouponAssignmentsManager.unassign(couponId, assigneeId, admin)
+            }
+          }
+        } ~
+        pathPrefix("watchers") {
+          (get & pathEnd) {
+            goodOrFailures {
+              CouponWatchersManager.list(couponId)
+            }
+          } ~          
+          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
+            goodOrFailures {
+              CouponWatchersManager.assign(couponId, payload, admin)
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
+            goodOrFailures {
+              CouponWatchersManager.unassign(couponId, assigneeId, admin)
+            }
+          }
+        }
+      }
     }
   }
 }

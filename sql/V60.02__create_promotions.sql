@@ -12,4 +12,3 @@ create table promotions(
 create index promotions_apply_typx on promotions (apply_type);
 create index promotions_object_context_idx on promotions (context_id);
 create index promotions_promotion_form_idx on promotions (form_id);
-

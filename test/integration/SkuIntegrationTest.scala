@@ -2,9 +2,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
+import failures.ObjectFailures.ObjectContextNotFound
 import models.StoreAdmins
 import models.inventory.{Sku, Skus}
-import models.objects.{ObjectCommit, ObjectCommits, ObjectForms, ObjectShadows, ObjectContexts}
+import models.objects.{ObjectCommit, ObjectCommits, ObjectContexts, ObjectForms, ObjectShadows}
 import models.product.{SimpleContext, SimpleSku, SimpleSkuShadow}
 import responses.SkuResponses.FullSkuResponse
 import util.IntegrationTestBase
@@ -30,7 +31,8 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
   trait Fixture {
     val (context, sku, skuForm, skuShadow) = (for {
       storeAdmin      ← * <~ StoreAdmins.create(authedStoreAdmin).run().futureValue.rightVal
-      context         ← * <~ ObjectContexts.create(SimpleContext.create())
+      context         ← * <~ ObjectContexts.filterByName(SimpleContext.default).one.
+                                mustFindOr(ObjectContextNotFound(SimpleContext.default))
       simpleSku       ← * <~ SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD)
       skuForm         ← * <~ ObjectForms.create(simpleSku.create)
       simpleSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
