@@ -63,7 +63,7 @@ export default class RichTextEditor extends Component<void, Props, State> {
     this.state = { editorState };
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: Props) {
     if (!this.props.value || _.isEmpty(this.props.value)) {
       const editorState = EditorState.createEmpty();
       this.state = { editorState };
