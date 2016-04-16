@@ -19,12 +19,11 @@ type Product = {
 }
 
 const ListItem = (props: Product): HTMLElement => {
-  const {id, title, images, salePrice, currency} = props;
+  const {productId, title, images, salePrice, currency} = props;
 
   const imageUrl = images[0];
-  const price = 9999;
 
-  const click = () => browserHistory.push(`/products/${id}`);
+  const click = () => browserHistory.push(`/products/${productId}`);
 
   return (
     <div styleName="list-item" onClick={click}>
@@ -35,7 +34,7 @@ const ListItem = (props: Product): HTMLElement => {
         {title}
       </div>
       <div styleName="price">
-        <Currency value={salePrice} />
+        <Currency value={salePrice} currency={currency} />
       </div>
     </div>
   );

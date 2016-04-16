@@ -90,6 +90,7 @@ module.exports = function(gulp, $, opts) {
 
   setApiURL();
   setDemoAuthToken();
+  setContext();
 
   gulp.task('browserify.purge_cache', function() {
     const cache = watchify.args.cache;
