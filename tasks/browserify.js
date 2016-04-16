@@ -12,6 +12,10 @@ const envify = require('envify/custom');
 
 const plugins = require('../src/postcss').plugins;
 
+function setApiURL() {
+  process.env.API_URL = process.env.API_URL || '/api';
+}
+
 function setDemoAuthToken() {
   /*  The demo site is protected by basic auth. All requests from javascript
    *  require basic auth headers. This will create the basic auth base64 encoded
@@ -23,6 +27,14 @@ function setDemoAuthToken() {
     : undefined;
 
   process.env.DEMO_AUTH_TOKEN = demoAuthToken;
+}
+
+function setContext() {
+  const language = process.env.FIREBIRD_LANGUAGE || 'en';
+  process.env.FIREBIRD_CONTEXT = process.env.FIREBIRD_CONTEXT || (language == 'en' ? 'default' : language);
+
+  console.log(`Language is: ${process.env.FIREBIRD_LANGUAGE}`);
+  console.log(`Context is: ${process.env.FIREBIRD_CONTEXT}`);
 }
 
 module.exports = function(gulp, $, opts) {
@@ -51,6 +63,9 @@ module.exports = function(gulp, $, opts) {
       _: 'purge',
       NODE_ENV: process.env.NODE_ENV || 'development',
       DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN,
+      FIREBIRD_LANGUAGE: process.env.FIREBIRD_LANGUAGE,
+      FIREBIRD_CONTEXT: process.env.FIREBIRD_CONTEXT,
+      API_URL: process.env.API_URL,
     }), pleaseDontIgnoreNestedNodeModules);
 
     bundler.plugin(require('css-modulesify'), Object.assign({
@@ -73,7 +88,9 @@ module.exports = function(gulp, $, opts) {
     return bundler;
   }
 
+  setApiURL();
   setDemoAuthToken();
+  setContext();
 
   gulp.task('browserify.purge_cache', function() {
     const cache = watchify.args.cache;
