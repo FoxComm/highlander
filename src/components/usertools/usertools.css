@@ -61,6 +61,10 @@
   }
 }
 
+.cart {
+  cursor: pointer;
+}
+
 @media (--small-viewport) {
   .login-link,
   .menu {

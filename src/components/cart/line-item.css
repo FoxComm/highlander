@@ -1,10 +1,6 @@
 
 @import "colors.css";
 
-.box {
-
-}
-
 .container {
   margin: 30px 20px;
   display: flex;
@@ -40,9 +36,11 @@
   line-height: 17px;
 }
 
-.controls {}
-
 .replace-icon {
   width: 18px;
   height: 18px;
+}
+
+.close-button {
+  cursor: pointer;
 }

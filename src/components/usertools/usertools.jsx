@@ -51,9 +51,9 @@ class UserTools extends Component {
         <div styleName="login">
           {this.renderUserInfo()}
         </div>
-        <div styleName="cart" onClick={this.props.toggleCart}>
+        <button styleName="cart" onClick={this.props.toggleCart}>
           <Icon name="fc-cart" styleName="head-icon"/>
-        </div>
+        </button>
       </div>
     );
   }

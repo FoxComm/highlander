@@ -43,3 +43,9 @@ ol {
 ul {
   list-style-type: none;
 }
+
+button {
+  border: 0;
+  padding: 0;
+  background: none;
+}
