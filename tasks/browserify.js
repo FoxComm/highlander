@@ -30,8 +30,8 @@ function setDemoAuthToken() {
 }
 
 function setContext() {
-  const language = process.env.FIREBIRD_LANGUAGE || 'default';
-  process.env.FIREBIRD_CONTEXT = process.env.FIREBIRD_CONTEXT || language;
+  const language = process.env.FIREBIRD_LANGUAGE || 'en';
+  process.env.FIREBIRD_CONTEXT = process.env.FIREBIRD_CONTEXT || (language == 'en' ? 'default' : language);
 
   console.log(`Language is: ${process.env.FIREBIRD_LANGUAGE}`);
   console.log(`Context is: ${process.env.FIREBIRD_CONTEXT}`);

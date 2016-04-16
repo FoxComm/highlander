@@ -55,7 +55,7 @@ class Categories extends React.Component {
       return (
         <div styleName="item" key={key}>
           <a onClick={() => this.onClick(item)} styleName="item-link">
-            {item.name.toUpperCase()}
+          {t(item.name.toUpperCase())}
           </a>
         </div>
       );
