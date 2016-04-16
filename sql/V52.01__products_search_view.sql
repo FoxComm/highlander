@@ -8,6 +8,7 @@ select
     f.attributes->>(s.attributes->'description'->>'ref') as description,
     f.attributes->>(s.attributes->'activeFrom'->>'ref') as active_from,
     f.attributes->>(s.attributes->'activeTo'->>'ref') as active_to,
+    f.attributes->>(s.attributes->'tags'->>'ref') as tags,
     link.skus as skus
 from 
 	products as p, 
