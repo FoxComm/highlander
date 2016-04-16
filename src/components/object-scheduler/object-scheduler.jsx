@@ -135,7 +135,7 @@ export default class ProductState extends Component<void, Props, State> {
 
   @autobind
   handleActiveChange(value: string) {
-    const now = moment().utc().format('YYYY-MM-DDTHH:mm:ss.SSS');
+    const now = moment().utc().format('YYYY-MM-DDTHH:mm:ss.SSSZ');
     const activeFrom = value == 'active' ? now : null;
 
     const [newForm, newShadow] = this.setFromTo(activeFrom, null);

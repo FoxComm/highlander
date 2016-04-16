@@ -126,7 +126,7 @@ export function createProduct(product: FullProduct, context: string = defaultCon
       .then(
         (product: FullProduct) => {
           dispatch(productUpdateSuccess(product));
-          dispatch(pushState(null, `/products/${product.form.product.id}`, ''));
+          dispatch(pushState(null, `/products/${context}/${product.form.product.id}`, ''));
         },
         (err: Object) => {
           dispatch(productUpdateFailure());

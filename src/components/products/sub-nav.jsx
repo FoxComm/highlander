@@ -15,18 +15,21 @@ import type { FullProduct } from '../../modules/products/details';
 type Props = {
   productId: string,
   product: ?FullProduct,
+  context: string
 };
 
 export default class SubNav extends Component<void, Props, void> {
   static propTypes = {
     productId: PropTypes.string.isRequired,
     product: PropTypes.object,
+    context: PropTypes.string
   };
   
   render() {
     const params = {
       productId: this.props.productId,
       product: this.props.product,
+      context: this.props.context
     };
 
     return (

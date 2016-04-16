@@ -152,7 +152,7 @@ export class ProductPage extends Component<void, Props, State> {
   }
 
   render(): Element {
-    const { product } = this.state;
+    const { product, context } = this.state;
     const { isFetching, isUpdating } = this.props.products;
     if (!product || isFetching) {
       return <div className="fc-product-details"><WaitAnimation /></div>;
@@ -179,7 +179,7 @@ export class ProductPage extends Component<void, Props, State> {
             Save Draft {wait}
           </PrimaryButton>
         </PageTitle>
-        <SubNav productId={this.props.params.productId} product={product} />
+        <SubNav productId={this.props.params.productId} product={product} context={context}/>
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
             {children}

@@ -18,7 +18,7 @@ type Props = {
 
 const ProductsListPage = (props: Props, context: Object) => {
   const TotalCounter = makeTotalCounter(state => state.products.list, actions);
-  const addAction = () => transitionTo(context.history, 'product-details', { productId: 'new' });
+  const addAction = () => transitionTo(context.history, 'product-details', { productId: 'new', context: 'default' });
   const navLinks = [
     { title: 'Lists', to: 'products' },
     { title: 'Insights', to: 'home' },
