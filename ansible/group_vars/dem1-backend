@@ -1,5 +1,6 @@
 phoenix_server: 127.0.0.1:9090
-ashes_server: "{{hostvars[groups['dem1-front'][0]]['ansible_eth0']['ipv4']['address'] }}"
+ashes_server: "{{hostvars[groups['dem1-front'][0]]['ansible_eth0']['ipv4']['address'] }}:4000"
+api_server: "{{hostvars[groups['dem1-front'][0]]['ansible_eth0']['ipv4']['address'] }}"
 seeds_cmd: utils.seeds.Seeds demo 5
 es_heap_size: 5g
 
