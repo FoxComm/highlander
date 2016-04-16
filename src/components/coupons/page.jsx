@@ -122,7 +122,7 @@ class CouponPage extends Component {
       if (this.isNew) {
         willBeCoupon = this.props.actions.createCoupon(coupon);
       } else {
-        this.props.actions.updateCoupon(coupon);
+        willBeCoupon = this.props.actions.updateCoupon(coupon);
       }
 
       if (couponCode != undefined) {
