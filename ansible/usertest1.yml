@@ -18,7 +18,6 @@
     - { role: rsyslog, sudo: yes }
     - { role: kibana, sudo: yes }
     - greenriver
-    - seeder
 
 - name: Provision Demo Ashes
   hosts: usertest1-ashes

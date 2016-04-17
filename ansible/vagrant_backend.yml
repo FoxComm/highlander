@@ -14,4 +14,3 @@
     - { role: rsyslog, sudo: yes }
     - { role: kibana, sudo: yes }
     - greenriver
-    - seeder
