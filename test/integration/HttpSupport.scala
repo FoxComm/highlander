@@ -73,7 +73,8 @@ trait HttpSupport
 
   protected def additionalRoutes: immutable.Seq[Route] = immutable.Seq.empty
 
-  override def beforeAll: Unit = {
+  override protected def beforeAll: Unit = {
+    super.beforeAll
     if (!akkaConfigured) {
       system = ActorSystem("system", actorSystemConfig)
       materializer = ActorMaterializer()
@@ -91,7 +92,8 @@ trait HttpSupport
   }
 
 
-  override def afterAll: Unit = {
+  override protected def afterAll: Unit = {
+    super.afterAll
     Await.result(for {
       _ ← Http().shutdownAllConnectionPools()
       _ ← service.close()
