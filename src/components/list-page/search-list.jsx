@@ -26,6 +26,7 @@ export default class SearchList extends React.Component {
       singleSearch: PropTypes.bool,
     }),
     noGutter: PropTypes.bool,
+    autoRefresh: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -34,11 +35,14 @@ export default class SearchList extends React.Component {
     searchOptions: {
       singleSearch: false,
     },
-    noGutter: false
+    noGutter: false,
+    autoRefresh: false,
   };
 
   componentDidMount() {
-    this.autoFetcher = this.autoFetcher || setInterval(this.props.searchActions.refresh, 1500);
+    if (this.props.autoRefresh) {
+      this.autoFetcher = this.autoFetcher || setInterval(this.props.searchActions.refresh, 1500);
+    }
   }
 
   componentWillUnmount() {
@@ -62,7 +66,7 @@ export default class SearchList extends React.Component {
           data={results}
           columns={props.tableColumns}
           isLoading={results.isFetching}
-          failed={results.failed}/>
+          failed={results.failed} />
       </LiveSearchAdapter>
     );
   };
