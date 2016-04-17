@@ -55,10 +55,7 @@ class Checkout extends Component {
   props: CheckoutProps;
 
   componentWillMount() {
-    if (this.props.editStage !== EditStages.FINISHED) {
-      console.log('checkout mount');
-      this.props.fetchCart();
-    }
+    this.props.fetchCart();
   }
 
   componentDidMount() {
