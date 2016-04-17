@@ -19,6 +19,7 @@
     - { role: kibana, sudo: yes }
     - greenriver
     - loyalty
+    - seeder
 
 - name: Provision Demo Ashes
   hosts: demo2-ashes

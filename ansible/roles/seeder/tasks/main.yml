@@ -1,0 +1,8 @@
+---
+
+- name: Gatling Seed Db
+  shell: java -cp {{phoenix_jar}} {{gatling_seeds_cmd}}
+  sudo: true
+  args:
+    chdir: "{{phoenix_dir}}"
+
