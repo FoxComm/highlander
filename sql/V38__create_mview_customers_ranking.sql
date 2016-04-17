@@ -1,4 +1,5 @@
 -- depends on customers, orders, orders_payments with childs and rma
+-- FIXME when implementing shipping! Revert https://github.com/FoxComm/phoenix-scala/pull/908
 
 create materialized view customers_ranking as
 select ranking.id,
@@ -9,11 +10,11 @@ from
       c.id,
       coalesce(sum(CCc.amount),0) + coalesce(sum(SCa.debit), 0) + coalesce(sum(GCa.debit),0) - coalesce(sum(rp.amount),0) as revenue
     from customers as c
-    inner join orders on(c.id = orders.customer_id and orders.state = 'shipped')
+    inner join orders on(c.id = orders.customer_id and (orders.state = 'remorseHold' or orders.state = 'fulfillmentStarted'))
     inner join order_payments as op on(op.order_id = orders.id)
-    left join credit_card_charges as CCc on(CCc.order_payment_id = op.id and CCc.state = 'fullCapture')
-    left join store_credit_adjustments as SCa on(SCA.order_payment_id = op.id and SCa.state = 'capture')
-    left join gift_card_adjustments as GCa on (GCa.order_payment_id = op.id and GCa.state = 'capture')
+    left join credit_card_charges as CCc on(CCc.order_payment_id = op.id and CCc.state = 'auth')
+    left join store_credit_adjustments as SCa on(SCA.order_payment_id = op.id and SCa.state = 'auth')
+    left join gift_card_adjustments as GCa on (GCa.order_payment_id = op.id and GCa.state = 'auth')
     left join rmas on(rmas.order_id = orders.id and rmas.state = 'complete')
     left join rma_payments as rp on (rp.rma_id = rmas.id and rp.amount is not null)
     where is_guest = false
