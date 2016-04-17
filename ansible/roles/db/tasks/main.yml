@@ -135,11 +135,11 @@
   sudo: true
 
 - name: Create directory for Gatling results
-  file: path="{{phoenix_dir}}/gatling-results" state=directory owner="{{user}}"
+  file: path="{{phoenix_dir}}/gatling-results" state=directory owner="{{user}}" mode="0777"
   sudo: true
 
 - name: Create log directory
-  file: path="{{phoenix_dir}}/log" state=directory owner="{{user}}"
+  file: path="{{phoenix_dir}}/log" state=directory owner="{{user}}"  mode="0777"
   sudo: true
 
 - name: Copy Phoenix
