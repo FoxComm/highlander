@@ -13,12 +13,14 @@ import _ from 'lodash';
 import * as ProductActions from '../../modules/products/details';
 
 // components
+import { Dropdown, DropdownItem } from '../dropdown';
 import { PageTitle } from '../section-title';
 import { PrimaryButton } from '../common/buttons';
 import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
 
 // helpers
+import { transitionTo } from '../../route-helpers';
 import {
   getProductAttributes,
   setProductAttribute,
@@ -78,18 +80,22 @@ export class ProductPage extends Component<void, Props, State> {
     }).isRequired,
   };
 
+  static contextTypes = {
+    history: PropTypes.object.isRequired,
+  };
+
   state: State;
 
-  constructor(props: Props) {
-    super(props);
-    const context = _.get(this.props.params, 'context',  'default');
-    this.state = { product: this.props.products.product, context: context};
+  constructor(props: Props, context: Object) {
+    super(props, context);
+    const productContext = _.get(this.props.params, 'context',  'default');
+    this.state = { product: this.props.products.product, context: productContext};
   }
 
   componentDidMount() {
     if (this.isNew) {
       this.props.actions.productNew();
-    } if (!this.props.params.product) {
+    } else if (!this.props.params.product) {
       this.props.actions.fetchProduct(this.props.params.productId, this.props.params.context);
     }
   }
@@ -113,6 +119,37 @@ export class ProductPage extends Component<void, Props, State> {
     const { product } = this.props.products;
     const attributes = product ? getProductAttributes(product) : {};
     return _.get(attributes, 'title.value', '');
+  }
+
+  get titleActions(): Element {
+    const { isUpdating } = this.props.products;
+
+    return (
+      <div className="fc-product-details__title-actions">
+        <Dropdown onChange={this.handleContextChange} value={this.props.params.context}>
+          <DropdownItem value="default">Default</DropdownItem>
+          <DropdownItem value="ru">Russian</DropdownItem>
+        </Dropdown>
+        <PrimaryButton
+          className="fc-product-details__save-button"
+          type="submit"
+          disabled={isUpdating}
+          isLoading={isUpdating}
+          onClick={this.handleSubmit}>
+          Save Draft
+        </PrimaryButton>
+      </div>
+    );
+  }
+
+  @autobind
+  handleContextChange(context: string) {
+    const productId = this.props.params.productId;
+    transitionTo(this.context.history, 'product-details', {
+      productId: productId,
+      context: context,
+    });
+    this.props.actions.fetchProduct(productId, context);
   }
 
   @autobind
@@ -153,7 +190,7 @@ export class ProductPage extends Component<void, Props, State> {
 
   render(): Element {
     const { product, context } = this.state;
-    const { isFetching, isUpdating } = this.props.products;
+    const { isFetching } = this.props.products;
     if (!product || isFetching) {
       return <div className="fc-product-details"><WaitAnimation /></div>;
     }
@@ -166,18 +203,10 @@ export class ProductPage extends Component<void, Props, State> {
       entity: { entityId: this.props.params.productId, entityType: 'product' },
     });
 
-    const wait = isUpdating ? <WaitAnimation /> : null;
-
     return (
       <div>
         <PageTitle title={this.pageTitle}>
-          <PrimaryButton
-            className="fc-product-details__save-button"
-            type="submit"
-            disabled={isUpdating}
-            onClick={this.handleSubmit}>
-            Save Draft {wait}
-          </PrimaryButton>
+          {this.titleActions}
         </PageTitle>
         <SubNav productId={this.props.params.productId} product={product} context={context}/>
         <div className="fc-grid">
