@@ -67,7 +67,7 @@ trait InventoryAdjustmentsGenerator {
 }
 
 private object Rnd {
-  def onHandRandom = nextInt(10000) + 300
+  def onHandRandom = nextInt(10000) + nextInt(5000) + 2500
   def onHoldRandom = nextInt(50)
   def reservedRandom = nextInt(100)
 }
