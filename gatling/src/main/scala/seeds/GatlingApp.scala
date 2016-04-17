@@ -5,6 +5,7 @@ import io.gatling.app.Gatling
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.jdbc.Predef._
+import seeds.Scenarios._
 import slick.driver.PostgresDriver.api._
 
 object GatlingApp extends App {
@@ -34,4 +35,10 @@ object Conf {
     .contentTypeHeader("application/json")
     .disableWarmUp
 
+}
+
+class GatlingSeeds extends Simulation {
+  setUp(pacificNwVips, randomCustomerActivity)
+    .assertions(Conf.defaultAssertion)
+    .protocols(Conf.httpConf)
 }
