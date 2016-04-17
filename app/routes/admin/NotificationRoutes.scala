@@ -1,4 +1,4 @@
-package routes
+package routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
@@ -14,37 +14,22 @@ import utils.aliases._
 
 object NotificationRoutes {
 
-  def adminRoutes(implicit ec: EC, db: DB, mat: Materializer, admin: StoreAdmin) = {
+  def routes(implicit ec: EC, db: DB, mat: Materializer, admin: StoreAdmin) = {
     activityContext(admin) { implicit ac ⇒
       pathPrefix("notifications") {
-        (get & path(IntNumber) & pathEnd) { adminId ⇒
-          complete {
-            NotificationManager.streamByAdminId(adminId)
-          }
-        } ~
         (get & pathEnd) {
           complete {
             NotificationManager.streamByAdminId(admin.id)
           }
         } ~
+        (post & pathEnd & entity(as[CreateNotification])) { payload ⇒
+          goodOrFailures {
+            NotificationManager.createNotification(payload)
+          }
+        } ~
         (post & path("last-seen" / IntNumber) & pathEnd) { activityId ⇒
           goodOrFailures {
             NotificationManager.updateLastSeen(admin.id, activityId)
-          }
-        }
-      }
-    }
-  }
-
-  def routes(implicit ec: EC, db: DB, mat: Materializer) = {
-
-    activityContext() { implicit ac ⇒
-      pathPrefix("public") {
-        pathPrefix("notifications") {
-          (post & pathEnd & entity(as[CreateNotification])) { payload ⇒
-            goodOrFailures {
-              NotificationManager.createNotification(payload)
-            }
           }
         }
       }
