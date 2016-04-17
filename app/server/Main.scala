@@ -17,14 +17,12 @@ import models.StoreAdmin
 import models.customer.Customer
 import org.json4s.jackson.Serialization
 import org.json4s.{Formats, jackson}
-import routes.admin.DevRoutes
 import services.Authenticator
 import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import services.actors._
 import slick.driver.PostgresDriver.api._
 import utils.Config.{Development, Staging}
 import utils.{Apis, CustomHandlers, WiredStripeApi}
-
 
 object Main extends App {
   implicit val env = utils.Config.environment
@@ -68,11 +66,10 @@ class Service(
     pathPrefix("v1") {
       logRequestResult("auth-routes")(routes.AuthRoutes.routes) ~
       logRequestResult("public-routes")(routes.Public.routes) ~
-      logRequestResult("notification-routes")(routes.NotificationRoutes.routes) ~
       logRequestResult("customer-routes")(routes.Customer.routes) ~
       requireAuth(storeAdminAuth) { implicit admin ⇒
         logRequestResult("admin-routes")(routes.admin.AdminRoutes.routes) ~
-        logRequestResult("admin-notification-routes")(routes.NotificationRoutes.adminRoutes) ~
+        logRequestResult("admin-notification-routes")(routes.admin.NotificationRoutes.routes) ~
         logRequestResult("admin-assignments-routes")(routes.admin.AssignmentsRoutes.routes) ~
         logRequestResult("admin-order-routes")(routes.admin.OrderRoutes.routes) ~
         logRequestResult("admin-customer-routes")(routes.admin.CustomerRoutes.routes) ~

@@ -27,13 +27,13 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
 
   import SSE._
 
-  "SSE v1/public/notifications/:adminId" - {
+  "SSE v1/notifications" - {
 
     "streams new notifications" in new Fixture2 {
       subscribeToNotifications()
       val notifications = skipHeartbeats(sseSource(s"v1/notifications"))
       val requests = Source(1 to 2).map { activityId ⇒
-        val response = POST("v1/public/notifications", newNotification.copy(activityId = activityId))
+        val response = POST("v1/notifications", newNotification.copy(activityId = activityId))
         s"notification $activityId: ${response.status}"
       }
 
@@ -46,11 +46,11 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
 
     "loads old unread notifications before streaming new" in new Fixture2 {
       subscribeToNotifications()
-      POST("v1/public/notifications", newNotification).status must === (StatusCodes.OK)
+      POST("v1/notifications", newNotification).status must === (StatusCodes.OK)
       val notifications = skipHeartbeats(sseSource(s"v1/notifications"))
 
       val requests = Source.single(2).map { activityId ⇒
-        val response = POST("v1/public/notifications", newNotification.copy(activityId = activityId))
+        val response = POST("v1/notifications", newNotification.copy(activityId = activityId))
         s"notification $activityId: ${response.status}"
       }
 
@@ -61,9 +61,9 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
     }
 
     "streams error and closes stream if admin not found" in {
-      val message = s"Error! Store admin with id=66666 not found"
+      val message = s"Error! Store admin with id=1 not found"
 
-      sseProbe("v1/notifications/66666")
+      sseProbe("v1/notifications")
         .request(2)
         .expectNext(message)
         .expectComplete()
@@ -77,7 +77,7 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
         .data.value.extract[NotificationTrailMetadata].lastSeenActivityId
 
       subscribeToNotifications()
-      POST("v1/public/notifications", newNotification).status must === (StatusCodes.OK)
+      POST("v1/notifications", newNotification).status must === (StatusCodes.OK)
 
       lastSeenId(adminId) must === (0)
       val response = POST(s"v1/notifications/last-seen/1")
@@ -87,7 +87,7 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
       data.lastSeenActivityId must === (1)
       lastSeenId(adminId) must === (1)
 
-      POST("v1/public/notifications", newNotification.copy(activityId = 2)).status must === (StatusCodes.OK)
+      POST("v1/notifications", newNotification.copy(activityId = 2)).status must === (StatusCodes.OK)
 
       sseProbe(s"v1/notifications").requestNext(activityJson(2))
     }
@@ -106,15 +106,15 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
     }
   }
 
-  "POST v1/public/notifications" - {
+  "POST v1/notifications" - {
 
     "creates notification" in new Fixture {
-      val response1 = POST("v1/public/notifications", newNotification)
+      val response1 = POST("v1/notifications", newNotification)
       response1.status must === (StatusCodes.OK)
       response1.as[Seq[Root]] mustBe empty
 
       subscribeToNotifications()
-      val response2 = POST("v1/public/notifications", newNotification)
+      val response2 = POST("v1/notifications", newNotification)
       response2.status must === (StatusCodes.OK)
       val data = response2.as[Seq[Root]]
       data must have size 1
@@ -124,14 +124,14 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
     }
 
     "400 if source dimension not found" in {
-      val response = POST("v1/public/notifications", newNotification)
+      val response = POST("v1/notifications", newNotification)
       response.status must === (StatusCodes.BadRequest)
       response.error must === (NotFoundFailure400(Dimension, Dimension.order).description)
     }
 
     "400 if source activity not found" in {
       createDimension.run().futureValue.rightVal
-      val response = POST("v1/public/notifications", newNotification)
+      val response = POST("v1/notifications", newNotification)
       response.status must === (StatusCodes.BadRequest)
       response.error must === (NotFoundFailure400(Activity, 1).description)
     }
@@ -140,7 +140,7 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
   "Inner methods" - {
     "Subscribe" - {
       "successfully subscribes" in new Fixture {
-        POST("v1/public/notifications", newNotification).status must === (StatusCodes.OK)
+        POST("v1/notifications", newNotification).status must === (StatusCodes.OK)
         Connections.result.run().futureValue mustBe empty
         subscribeToNotifications().result.value must === (1)
         val sub = NotificationSubscriptions.result.headOption.run().futureValue.value
@@ -148,7 +148,7 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
         sub.dimensionId must === (1)
         sub.objectId must === ("1")
         sub.reason must === (Watching)
-        POST("v1/public/notifications", newNotification).status must === (StatusCodes.OK)
+        POST("v1/notifications", newNotification).status must === (StatusCodes.OK)
         val connections = Connections.result.run().futureValue
         connections must have size 1
         val connection = connections.headOption.value
@@ -184,10 +184,10 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
     "Unsubscribe" - {
       "successfully unsubscribes" in new Fixture {
         subscribeToNotifications()
-        POST("v1/public/notifications", newNotification).status must === (StatusCodes.OK)
+        POST("v1/notifications", newNotification).status must === (StatusCodes.OK)
         Connections.result.run().futureValue must have size 1
         unsubscribeFromNotifications()
-        POST("v1/public/notifications", newNotification).status must === (StatusCodes.OK)
+        POST("v1/notifications", newNotification).status must === (StatusCodes.OK)
         Connections.result.run().futureValue must have size 1
       }
 
@@ -254,7 +254,7 @@ class NotificationIntegrationTest extends IntegrationTestBase with HttpSupport w
       val aId = Activities.sortBy(_.id.desc).result.run().futureValue.headOption.value.id
       POST("v1/trails/" + customerDimension + "/1", AppendActivity(activityId = aId, data = None)).status must === (StatusCodes.OK)
       val payload = CreateNotification(sourceDimension = customerDimension, sourceObjectId = "1", activityId = aId, data = None)
-      POST("v1/public/notifications", payload).status must === (StatusCodes.OK)
+      POST("v1/notifications", payload).status must === (StatusCodes.OK)
     }
   }
 
