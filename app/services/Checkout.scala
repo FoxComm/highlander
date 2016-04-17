@@ -9,6 +9,7 @@ import Order.RemorseHold
 import failures.CartFailures.CustomerHasNoActiveOrder
 import failures.GeneralFailure
 import models.customer.{Customer, Customers}
+import models.objects.ObjectContext
 import models.payment.creditcard.{CreditCardCharge, CreditCardCharges}
 import models.payment.giftcard.{GiftCard, GiftCards}
 import models.payment.storecredit.StoreCredits
@@ -31,10 +32,13 @@ object Checkout {
     _     ← * <~ LogActivity.orderCheckoutCompleted(order)
   } yield order).runTxn()
 
-  def fromCustomerCart(customer: Customer)(implicit ec: EC, db: DB, apis: Apis, ac: AC): Result[FullOrder.Root] = (for {
-    cart  ← * <~ Orders.findActiveOrderByCustomer(customer).one.mustFindOr(CustomerHasNoActiveOrder(customer.id))
-    order ← * <~ Checkout(cart, CartValidator(cart)).checkout
-    _     ← * <~ LogActivity.orderCheckoutCompleted(order)
+  def fromCustomerCart(customer: Customer, context: ObjectContext)
+    (implicit ec: EC, db: DB, apis: Apis, ac: AC): Result[FullOrder.Root] = (for {
+    result ← * <~ Orders.findActiveOrderByCustomer(customer).one.
+      findOrCreateExtended(Orders.create(Order.buildCart(customer.id, context.id)))
+    (cart, _) = result
+    order  ← * <~ Checkout(cart, CartValidator(cart)).checkout
+    _      ← * <~ LogActivity.orderCheckoutCompleted(order)
   } yield order).runTxn()
 }
 
@@ -53,15 +57,15 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit e
       customer  ← * <~ Customers.mustFindById404(cart.customerId)
       _         ← * <~ checkInventory
       _         ← * <~ activePromos
+      valid     ← * <~ cartValidator.validate(isCheckout = false, fatalWarnings = true)
       _         ← * <~ authPayments(customer)
+      valid     ← * <~ cartValidator.validate(isCheckout = true, fatalWarnings = true)
       _         ← * <~ remorseHold
       _         ← * <~ createNewCart
-      valid     ← * <~ cartValidator.validate(isCheckout = true)
       updated   ← * <~ Orders.refresh(cart).toXor
       _         ← * <~ InventoryAdjustmentManager.orderPlaced(cart)
       fullOrder ← * <~ FullOrder.fromOrder(updated).toXor
-      response  ← * <~ valid.warnings.fold(DbResult.good(fullOrder))(DbResult.failures)
-    } yield response
+    } yield fullOrder
 
   private def checkInventory: DbResult[Unit] = DbResult.unit
 
