@@ -46,7 +46,8 @@ object SimpleProductDefaults {
 }
 
 final case class SimpleProduct(title: String, description: String, image: String,
-  code: String) {
+  code: String, active: Boolean = false) {
+    val activeFrom = if(active) s""""${Instant.now}"""" else "null";
 
     val (keyMap, form) = ObjectUtils.createForm(parse(s"""
     {
@@ -55,7 +56,7 @@ final case class SimpleProduct(title: String, description: String, image: String
       "images" : ["$image"],
       "variants" : {},
       "skus" : {"$code" : {}},
-      "activeFrom" : "${Instant.now}"
+      "activeFrom" : $activeFrom
     }"""))
 
     def create : ObjectForm = ObjectForm(kind = Product.kind, attributes = form)
@@ -82,7 +83,9 @@ final case class SimpleProductShadow(p: SimpleProduct) {
 }
 
 final case class SimpleSku(code: String, title: String, 
-  price: Int, currency: Currency) {
+  price: Int, currency: Currency, active: Boolean = false) {
+
+    val activeFrom = if(active) s""""${Instant.now}"""" else "null";
 
     val (keyMap, form) =  ObjectUtils.createForm(parse(
       s""" 
@@ -96,7 +99,7 @@ final case class SimpleSku(code: String, title: String,
           "value" : $price,
           "currency" : "${currency.getCode}" 
         },
-        "activeFrom" : "${Instant.now}"
+        "activeFrom" : $activeFrom
       } """))
 
     def create : ObjectForm = 
@@ -123,7 +126,7 @@ final case class SimpleSkuShadow(s: SimpleSku) {
 
 final case class SimpleProductData(productId: Int = 0, skuId: Int = 0, title: String, 
   description: String, image: String = SimpleProductDefaults.imageUrl, code: String, 
-  price: Int, currency: Currency = Currency.USD)
+  price: Int, currency: Currency = Currency.USD, active: Boolean = false)
 
 final case class SimpleProductTuple(product: Product, sku: Sku, 
   productForm: ObjectForm, skuForm: ObjectForm, productShadow: ObjectShadow, 
@@ -132,7 +135,7 @@ final case class SimpleProductTuple(product: Product, sku: Sku,
 object Mvp { 
   def insertProductNewContext(oldContextId: Int, contextId: Int, p: SimpleProductData)(implicit db: Database): 
   DbResultT[SimpleProductData] = for {
-    simpleProduct   ← * <~ SimpleProduct(p.title, p.description, p.image, p.code)
+    simpleProduct   ← * <~ SimpleProduct(p.title, p.description, p.image, p.code, p.active)
     //find product form other context, get old form and merge with new
     product       ← * <~ Products.filter(_.contextId === oldContextId).filter(_.id === p.productId).one.
         mustFindOr(ProductNotFoundForContext(p.productId, oldContextId)) 
@@ -146,7 +149,7 @@ object Mvp {
       filter(_.shadowId === link.rightId).one.
         mustFindOr(SkuWithShadowNotFound(link.rightId))
 
-    simpleSku  ← * <~ SimpleSku(p.code, p.title, p.price, p.currency)
+    simpleSku  ← * <~ SimpleSku(p.code, p.title, p.price, p.currency, p.active)
     oldSkuForm ← * <~ ObjectForms.mustFindById404(sku.formId)
     skuForm    ← * <~ ObjectForms.update(oldSkuForm, simpleSku.update(oldSkuForm))
 
@@ -157,9 +160,9 @@ object Mvp {
 
   def insertProduct(contextId: Int, p: SimpleProductData)(implicit db: Database): 
   DbResultT[SimpleProductData] = for {
-    simpleProduct   ← * <~ SimpleProduct(p.title, p.description, p.image, p.code)
+    simpleProduct   ← * <~ SimpleProduct(p.title, p.description, p.image, p.code, p.active)
     productForm     ← * <~ ObjectForms.create(simpleProduct.create)
-    simpleSku       ← * <~ SimpleSku(p.code, p.title, p.price, p.currency)
+    simpleSku       ← * <~ SimpleSku(p.code, p.title, p.price, p.currency, p.active)
     skuForm             ← * <~ ObjectForms.create(simpleSku.create)
     r ← * <~ insertProductIntoContext(contextId, productForm, skuForm,
       simpleProduct, simpleSku, p)
