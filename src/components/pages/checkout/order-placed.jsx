@@ -17,7 +17,6 @@ class OrderPlaced extends Component {
 
   @autobind
   toHome() {
-    console.log('to home');
     this.props.fetchCart();
     browserHistory.push('/');
   }
