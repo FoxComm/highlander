@@ -55,7 +55,10 @@ class Checkout extends Component {
   props: CheckoutProps;
 
   componentWillMount() {
-    this.props.fetchCart();
+    if (this.props.editStage !== EditStages.FINISHED) {
+      console.log('checkout mount');
+      this.props.fetchCart();
+    }
   }
 
   componentDidMount() {
@@ -84,6 +87,9 @@ class Checkout extends Component {
   @autobind
   placeOrder() {
     this.props.addCreditCard()
+      .then(() => {
+        return this.props.setEditStage(EditStages.FINISHED);
+      })
       .then(() => {
         return this.props.checkout();
       })
