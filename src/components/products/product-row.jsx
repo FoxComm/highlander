@@ -24,8 +24,8 @@ function setCellContents(product, field) {
     case 'image':
       return _.get(product, ['images', 0]);
     case 'state':
-      const activeFromStr = _.get(product, 'activefrom');
-      const activeToStr = _.get(product, 'activeto');
+      const activeFromStr = _.get(product, 'activeFrom');
+      const activeToStr = _.get(product, 'activeTo');
       const activeFrom = activeFromStr ? moment.utc(activeFromStr) : null;
       const activeTo = activeToStr ? moment.utc(activeToStr) : null;
       return isActive(activeFrom, activeTo) ? 'Active' : 'Inactive';
