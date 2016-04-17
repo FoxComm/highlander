@@ -82,16 +82,6 @@ class CheckoutIntegrationTest extends IntegrationTestBase with HttpSupport with 
     }
   }
 
-  "POST v1/my/cart/checkout" - {
-    "errors if no cart found for customer" in {
-      val customer = Customers.create(Factories.customer).run().futureValue.rightVal
-
-      val response = POST("v1/my/cart/checkout")
-      response.status must === (StatusCodes.BadRequest)
-      response.errors must contain(CustomerHasNoActiveOrder(customer.id).description)
-    }
-  }
-
   trait Fixture extends InventorySummaryGenerator {
     val (customer, address, shipMethod, product, sku, reason, sellableSummary) = (for {
       productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)

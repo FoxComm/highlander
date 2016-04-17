@@ -116,11 +116,11 @@ object LineItemUpdater {
     _     ← * <~ logAct(res, lineItems)
   } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
-  private def qtyAvailableForSkus(skus: Seq[String])(implicit ec: EC, db: DB): DBIO[Map[Sku, Int]] = {
+  private def qtyAvailableForSkus(order: Order, skus: Seq[String])(implicit ec: EC, db: DB): DBIO[Map[Sku, Int]] = {
     // TODO: inventory... 'nuff said. (aka FIXME)
     // Skus.qtyAvailableForSkus(updateQuantities.keys.toSeq).flatMap { availableQuantities ⇒
     (for {
-      sku ← Skus.filter(_.code.inSet(skus))
+      sku ← Skus.filterByContext(order.contextId).filter(_.code.inSet(skus))
     } yield (sku, 1000000)).result.map(_.toMap)
   }
 
@@ -136,7 +136,7 @@ object LineItemUpdater {
 
     val updateQuantities = foldQuantityPayload(payload)
 
-    qtyAvailableForSkus(updateQuantities.keys.toSeq).flatMap { availableQuantities ⇒
+    qtyAvailableForSkus(order, updateQuantities.keys.toSeq).flatMap { availableQuantities ⇒
       val enoughOnHand = availableQuantities.foldLeft(Map.empty[Sku, Int]) { case (acc, (sku, numAvailable)) ⇒
         val numRequested = updateQuantities.getOrElse(sku.code, 0)
         if (numRequested >= 0) acc.updated(sku, numRequested) else acc

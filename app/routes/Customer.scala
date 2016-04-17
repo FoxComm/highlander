@@ -55,7 +55,7 @@ object Customer {
               } ~
               (post & path("checkout") & pathEnd) {
                 goodOrFailures {
-                  Checkout.fromCustomerCart(customer)
+                  Checkout.fromCustomerCart(customer, productContext)
                 }
               } ~
               pathPrefix("payment-methods" / "credit-cards") {

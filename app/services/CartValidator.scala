@@ -12,25 +12,31 @@ import utils.Slick.{DbResult, lift}
 import utils.aliases._
 
 trait CartValidation {
-  def validate(isCheckout: Boolean = false): DbResult[CartValidatorResponse]
+  def validate(isCheckout: Boolean = false, fatalWarnings: Boolean = false): DbResult[CartValidatorResponse]
 }
 
 // warnings would be turned into `errors` during checkout but if we're still in cart mode
 // then we'll display to end-user as warnings/alerts since they are not "done" with their cart
 final case class CartValidatorResponse(
   alerts:   Option[Failures] = None,
-  warnings: Option[Failures] = None)
+  warnings: Option[Failures] = None) {
+}
 
 final case class CartValidator(cart: Order)(implicit ec: EC, db: DB) extends CartValidation {
 
-  def validate(isCheckout: Boolean = false): DbResult[CartValidatorResponse] = {
+  def validate(isCheckout: Boolean = false, fatalWarnings: Boolean = false): DbResult[CartValidatorResponse] = {
     val response = CartValidatorResponse()
-    (for {
+    val validationResult = for {
       state ← hasItems(response)
       state ← hasShipAddress(state)
       state ← validShipMethod(state)
       state ← sufficientPayments(state, isCheckout)
-    } yield state).flatMap(DbResult.good)
+    } yield state
+    if (fatalWarnings)
+      validationResult.flatMap { validatorResponse ⇒
+        validatorResponse.warnings.fold(DbResult.good(validatorResponse))(warnings ⇒ DbResult.failures(warnings))
+      }
+    else DbResult.fromDbio(validationResult)
   }
 
   private def hasItems(response: CartValidatorResponse): DBIO[CartValidatorResponse] = {
