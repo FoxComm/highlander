@@ -4,11 +4,10 @@ import scala.util.Random
 
 import faker.Lorem
 import io.gatling.core.Predef._
-import io.gatling.core.structure.ScenarioBuilder
 import io.gatling.http.Predef._
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.CreateAddressPayload
-import Auth._
+import seeds.Auth._
 
 object Addresses {
 

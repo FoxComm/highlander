@@ -26,6 +26,8 @@ object GatlingApp extends App {
 
 object Conf {
 
+  val defaultAssertion = global.failedRequests.count.is(0)
+
   val httpConf = http
     .baseURL("http://localhost:9090")
     .acceptHeader("application/json")

@@ -30,6 +30,6 @@ object Customers {
     Map("customerName" → name, "customerEmail" → Internet.free_email(name), "customerPassword" → Lorem.words(2).head)
   }
 
-  val createRandomCustomers = feed(randomCustomerFeeder).exec(createCustomer)
+  val createRandomCustomers = feed(randomCustomerFeeder).exec(createCustomer).exitHereIfFailed
 
 }
