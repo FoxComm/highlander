@@ -134,6 +134,14 @@
   synchronize: src="{{phoenix_src}}/gatling-classes" dest="{{phoenix_dir}}" delete=yes
   sudo: true
 
+- name: Create directory for Gatling results
+  file: path="{{phoenix_dir}}/gatling-results" state=directory owner="{{user}}"
+  sudo: true
+
+- name: Create log directory
+  file: path="{{phoenix_dir}}/log" state=directory owner="{{user}}"
+  sudo: true
+
 - name: Copy Phoenix
   copy: src="{{phoenix_jar_src}}" dest="{{phoenix_jar}}" owner="{{user}}"
   sudo: true
