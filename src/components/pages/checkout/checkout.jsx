@@ -85,6 +85,9 @@ class Checkout extends Component {
   placeOrder() {
     this.props.addCreditCard()
       .then(() => {
+        return this.props.setEditStage(EditStages.FINISHED);
+      })
+      .then(() => {
         return this.props.checkout();
       })
       .then(() => {
