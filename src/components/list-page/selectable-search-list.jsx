@@ -37,6 +37,7 @@ export default class SelectableSearchList extends React.Component {
     bulkActions: PropTypes.arrayOf(PropTypes.array),
     predicate: PropTypes.func,
     toggleColumnPresent: PropTypes.bool,
+    autoRefresh: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -46,11 +47,14 @@ export default class SelectableSearchList extends React.Component {
       singleSearch: false,
     },
     noGutter: false,
-    toggleColumnPresent: true
+    toggleColumnPresent: true,
+    autoRefresh: false,
   };
 
   componentDidMount() {
-    this.autoFetcher = this.autoFetcher || setInterval(this.props.searchActions.refresh, 1500);
+    if (this.props.autoRefresh) {
+      this.autoFetcher = this.autoFetcher || setInterval(this.props.searchActions.refresh, 1500);
+    }
   }
 
   componentWillUnmount() {

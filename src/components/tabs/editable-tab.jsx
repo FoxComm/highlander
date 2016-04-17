@@ -64,27 +64,19 @@ export default class EditableTabView extends React.Component {
   }
 
   get dirtyState() {
-     if (this.props.isDirty && !this.state.isEditing) {
+    if (this.props.isDirty && !this.state.isEditing) {
       return <div className="fc-editable-tab__dirty-icon">&nbsp;</div>;
-     }
+    }
   }
 
   get editButton() {
     if (!this.state.isEditing && this.props.isEditable) {
       return (
         <button ref="editIcon" className="fc-editable-tab__edit-icon" onClick={this.startEdit}>
-          <i className="icon-edit"/>
+          <i className="icon-edit" />
         </button>
       );
     }
-  }
-
-  get editNameAction() {
-    return () => {
-      this.setState({
-        isEditing: false
-      }, () => this.props.onEditNameComplete(this.state.editValue));
-    };
   }
 
   get editMenuOptions() {
@@ -126,7 +118,6 @@ export default class EditableTabView extends React.Component {
     }
   }
 
-
   @autobind
   startEdit(event) {
     event.preventDefault();
@@ -143,9 +134,19 @@ export default class EditableTabView extends React.Component {
   }
 
   @autobind
+  endEditName() {
+    this.setState({
+      isEditing: false
+    }, () => this.props.onEditNameComplete(this.state.editValue));
+  }
+
+  @autobind
   cancelEdit(event) {
     this.preventAction(event);
-    this.setState({ isEditing: false });
+    this.setState({
+      isEditing: false,
+      editValue: this.props.defaultValue,
+    });
   }
 
   get tabContent() {
@@ -156,7 +157,7 @@ export default class EditableTabView extends React.Component {
             autoFocus
             className="fc-editable-tab__content-input"
             type="text"
-            onBlur={this.blur}
+            onBlur={this.endEditName}
             onChange={this.changeInput}
             onClick={this.preventAction}
             onKeyDown={this.keyDown}
@@ -179,22 +180,19 @@ export default class EditableTabView extends React.Component {
   }
 
   @autobind
-  blur() {
-    this.setState({
-      isEditing: false
-    }, () => this.props.onEditNameComplete(this.state.editValue));
-  }
-
-  @autobind
-  changeInput({target}) {
+  changeInput({ target }) {
     this.setState({ editValue: target.value });
   }
 
   @autobind
   keyDown(event) {
     if (event.keyCode == 13) {
-      event.preventDefault();
-      this.props.completeEdit(this.state.editValue);
+      this.preventAction(event);
+      this.endEditName();
+    }
+    if (event.keyCode == 27) {
+      this.preventAction(event);
+      this.cancelEdit(event);
     }
   }
 
