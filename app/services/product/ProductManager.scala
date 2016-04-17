@@ -169,6 +169,12 @@ object ProductManager {
       case (s, f, sh) ⇒ IlluminatedSku.illuminate(context, s, f, sh)
     })).run()
 
+  def getContextsForProduct(formId: Int)(implicit ec: EC, db: DB): Result[Seq[ObjectContextResponse.Root]] = (for {
+    products   ← * <~ Products.filterByFormId(formId).result
+    contextIds ← * <~ products.map(_.contextId)
+    contexts   ← * <~ ObjectContexts.filter(_.id.inSet(contextIds)).sortBy(_.id).result
+  } yield contexts.map(ObjectContextResponse.build _)).run()
+
   private def anyChanged(changes: Seq[Boolean]) : Boolean = 
     changes.contains(true)
 

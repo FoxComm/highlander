@@ -40,7 +40,7 @@ object ObjectManager {
     shadow       ← * <~ ObjectShadows.mustFindById404(shadowId)
   } yield IlluminatedObjectResponse.build(IlluminatedObject.illuminate(form, shadow))).run()
 
-  def getContextByName(name: String) 
+  def getContextByName(name: String)
     (implicit ec: EC, db: DB): Result[ObjectContextResponse.Root] = (for {
     context ← * <~ ObjectContexts.filterByName(name).one.
       mustFindOr(ObjectContextNotFound(name))
@@ -59,5 +59,4 @@ object ObjectManager {
     context  ← * <~ ObjectContexts.update(context, 
       context.copy(name = payload.name, attributes = payload.attributes))
   } yield ObjectContextResponse.build(context)).runTxn()
-
 }
