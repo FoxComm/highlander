@@ -9,6 +9,7 @@ import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.aliases._
+import models.sharedsearch.SharedSearches.scope._
 
 final case class SharedSearchAssociation(id: Int = 0, sharedSearchId: Int, storeAdminId: Int,
   createdAt: Instant = Instant.now)
@@ -41,7 +42,7 @@ object SharedSearchAssociations extends TableQueryWithId[SharedSearchAssociation
 
   def associatedWith(admin: StoreAdmin, scope: SharedSearch.Scope)(implicit ec: EC): SharedSearches.QuerySeq = for {
     associations ← byStoreAdmin(admin).map(_.sharedSearchId)
-    searches    ← SharedSearches.filter(_.id === associations).filter(_.scope === scope)
+    searches    ← SharedSearches.notDeleted.filter(_.id === associations).filter(_.scope === scope)
   } yield searches
 
   def bySharedSearch(search: SharedSearch): QuerySeq = filter(_.sharedSearchId === search.id)
