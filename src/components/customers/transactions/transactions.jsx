@@ -53,7 +53,7 @@ export default class CustomerTransactions extends React.Component {
       {field: 'state', text: 'Order State', type: 'state', model: 'order'},
       {field: 'payment.state', text: 'Payment State'},
       {field: 'assignee', text: 'Assignee'},
-      {field: 'grandTotal', text: 'Total'},
+      {field: 'grandTotal', text: 'Total', type: 'currency'},
       //{field: 'return', text: 'Return'},
     ];
 
