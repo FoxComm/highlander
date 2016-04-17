@@ -1,6 +1,7 @@
 phoenix_server: "{{hostvars[groups['usertest2-backend'][0]]['ansible_eth0']['ipv4']['address'] }}:9090"
 search_host:  "{{hostvars[groups['usertest2-backend'][0]]['ansible_eth0']['ipv4']['address'] }}"
 ashes_server: 127.0.0.1:4000
+api_server: 127.0.0.1
 demo_user: test
 demo_pass: Qq5FnurT
 demo_domain: usertest2.foxcommerce.com

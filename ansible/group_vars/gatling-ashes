@@ -1,6 +1,7 @@
 phoenix_server: "{{hostvars[groups['gatling-backend'][0]]['ansible_eth0']['ipv4']['address'] }}:9090"
 search_host:  "{{hostvars[groups['gatling-backend'][0]]['ansible_eth0']['ipv4']['address'] }}"
 ashes_server: 127.0.0.1:4000
+api_server: 127.0.0.1
 firebird_server: 127.0.0.1:4040
 demo_domain: gatling.foxcommerce.com
 ashes_server_name: "admin.{{demo_domain}}"
