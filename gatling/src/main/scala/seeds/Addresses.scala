@@ -2,7 +2,7 @@ package seeds
 
 import scala.util.Random
 
-import faker.Lorem
+import faker.Lorem.numerify
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import org.json4s.jackson.Serialization.{write ⇒ json}
@@ -20,9 +20,10 @@ object Addresses {
       address ← session("customerAddress").validate[String]
       city ← session("customerCity").validate[String]
     } yield json(CreateAddressPayload(name = name, regionId = regionId.toInt, address1 = address, city = city,
-      zip = Lorem.numerify("#####"), isDefault = true))))
-    .check(status.is(200))
+      zip = nDigits(5), isDefault = true, phoneNumber = Some(nDigits(10))))))
     .check(jsonPath("$..id").ofType[Int].saveAs("addressId"))
+
+  private def nDigits(n: Int): String = numerify("#" * n)
 
   val setDefaultShipping = http("Set address as default shipping address")
     .post("/v1/customers/${customerId}/addresses/${addressId}/default")
