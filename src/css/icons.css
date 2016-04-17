@@ -4,6 +4,7 @@
 
 :global(.icon) {
   stroke: currentColor;
+  transition: all 300ms;
 }
 
 :global(.icon--s) {

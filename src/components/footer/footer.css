@@ -33,6 +33,10 @@
   text-decoration: none;
   font-size: 15px;
   margin: 0 40px;
+
+  &:hover {
+    color: var(--greyish);
+  }
 }
 
 @media (--small-viewport) {

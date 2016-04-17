@@ -30,10 +30,6 @@
   display: none;
 }
 
-.cart {
-  cursor: pointer;
-}
-
 .search, .hamburger, .cart {
   width: 20px;
 }

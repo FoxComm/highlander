@@ -56,7 +56,7 @@ class Cart extends Component {
         </div>
         <div styleName="cart-box">
           <div styleName="cart-header" onClick={props.toggleCart}>
-            <Icon name="fc-chevron-left" styleName="left-icon"/>
+            <Icon name="fc-chevron-left" styleName="back-icon"/>
             <div styleName="header-text">
               {t('KEEP SHOPPING')}
             </div>

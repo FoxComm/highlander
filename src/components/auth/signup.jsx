@@ -97,8 +97,11 @@ export default class Auth extends Component {
     const { email, password, username, emailError, usernameError } = this.state;
     const { t } = this.props;
 
-    const loginLink =
-      <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.LOGIN}}}>{t('Log in')}</Link>;
+    const loginLink = (
+      <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.LOGIN}}} styleName="link">
+        {t('Log in')}
+      </Link>
+    );
 
     return (
       <div>

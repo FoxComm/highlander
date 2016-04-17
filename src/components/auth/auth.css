@@ -32,9 +32,13 @@
 .google-login {
   composes: button from "ui/css/buttons.css";
   background-color: var(--redish);
-  border: 1px solid color(var(--redish) blackness(+20%));
+  border: 1px solid color(var(--redish));
   margin-bottom: calc(46px - var(--dividerMargin));
   width: 100%;
+
+  &:hover {
+    color: var(--redish);
+  }
 }
 
 .divider {
@@ -80,10 +84,23 @@
 
 .restore-link {
   color: var(--greyish);
+  text-decoration: none;
+  box-shadow: 0 1px;
+
+  &:hover {
+    color: var(--blackish);
+    box-shadow: none;
+  }
 }
 
-.signup-link {
+.link {
   color: var(--blackish);
+  text-decoration: none;
+  box-shadow: 0 1px;
+
+  &:hover {
+    box-shadow: none;
+  }
 }
 
 @media (--small-viewport) {

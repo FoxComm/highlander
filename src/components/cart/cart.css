@@ -49,10 +49,19 @@
   align-content: space-around;
   justify-content: center;
   align-items: center;
+  cursor: pointer;
+
+  &:hover {
+    & .back-icon {
+      margin-left: 10px;
+      margin-right: 20px;
+    }
+  }
 }
 
-.left-icon {
+.back-icon {
   margin: 0 15px;
+  transition: margin 300ms;
 }
 
 .header-text {
@@ -71,12 +80,18 @@
   line-height: 17px;
   align-items: center;
   justify-content: center;
-  border: 0;
+  text-align: center;
+  border-width: 2px;
   cursor: pointer;
 }
 
 .checkout-button:disabled {
   background: var(--blackish);
+
+  &:hover {
+    color: var(--whitish);
+    cursor: not-allowed;
+  }
 }
 
 .cart-content {

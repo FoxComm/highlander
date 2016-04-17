@@ -128,7 +128,9 @@ export default class RestorePassword extends Component {
 
     if (emailSent) {
       return (
-        <Button styleName="primary-button" onClick={this.gotoLogin} type="button">{t('BACK TO LOG IN')}</Button>
+        <Button styleName="primary-button" onClick={this.gotoLogin} type="button">
+          {t('BACK TO LOG IN')}
+        </Button>
       );
     }
 
@@ -142,7 +144,9 @@ export default class RestorePassword extends Component {
     if (!emailSent) {
       return (
         <div styleName="switch-stage">
-          <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.LOGIN}}}>{t('BACK TO LOG IN')}</Link>
+          <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.LOGIN}}} styleName="link">
+            {t('BACK TO LOG IN')}
+          </Link>
         </div>
       );
     }
