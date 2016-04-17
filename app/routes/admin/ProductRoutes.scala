@@ -96,6 +96,13 @@ object ProductRoutes {
                 ObjectManager.createContext(payload)
               }
             } 
+          } ~
+          pathPrefix(IntNumber / "contexts") { formId ⇒
+            (get & pathEnd) {
+              goodOrFailures {
+                ProductManager.getContextsForProduct(formId)
+              }
+            }
           }
         }
       }
