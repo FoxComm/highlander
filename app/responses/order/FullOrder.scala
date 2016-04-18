@@ -144,7 +144,7 @@ object FullOrder {
       shippingState = order.getShippingState,
       paymentState = paymentState,
       lineItems = LineItems(skus = skuList, giftCards = gcList),
-      fraudScore = order.fraudScore.getOrElse(0),
+      fraudScore = order.fraudScore,
       customer = customer.map(responses.CustomerResponse.build(_)),
       shippingAddress = shippingAddress,
       totals = totals.getOrElse(Totals.empty),
