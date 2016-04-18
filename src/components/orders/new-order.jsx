@@ -208,6 +208,7 @@ export default class NewOrder extends Component {
                     labelAfterInput={true}>
                     <BigCheckbox
                       id="guestCheckout"
+                      name="guestCheckout"
                       value={this.state.checkoutAsGuest}
                       onToggle={this.toggleGuest} />
                   </FormField>

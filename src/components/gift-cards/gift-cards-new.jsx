@@ -283,10 +283,14 @@ export default class NewGiftCard extends React.Component {
           </fieldset>
           {this.quantitySection}
           <fieldset className="fc-new-gift-card__fieldset">
-            <label className="fc-new-gift-card__label">
-              <Checkbox id="sendToCustomer" checked={sendToCustomer}/>
+            <Checkbox
+              className="fc-new-gift-card__label"
+              id="sendToCustomer"
+              name="sendToCustomer"
+              checked={sendToCustomer}
+            >
               Send gift card(s) to customer(s)
-            </label>
+            </Checkbox>
             { this.customerListBlock }
           </fieldset>
           <SaveCancel cancelTo="gift-cards"
