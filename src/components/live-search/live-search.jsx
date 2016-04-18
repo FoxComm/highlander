@@ -209,6 +209,7 @@ export default class LiveSearch extends React.Component {
           ...this.currentSearch,
           title: `${this.currentSearch.title} - Copy`
         });
+        this.props.submitFilters([]);
       } else {
         this.props.updateSearch(this.props.searches.selectedSearch, this.currentSearch);
       }
