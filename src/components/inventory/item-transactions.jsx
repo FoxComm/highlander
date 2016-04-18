@@ -1,3 +1,6 @@
+
+/* @flow weak */
+
 /** Libs */
 import { get, isString, capitalize } from 'lodash';
 import React, { PropTypes, Component } from 'react';
@@ -11,6 +14,22 @@ import InventoryItemTransactionsRow from './item-transactions-row';
 
 /** Redux */
 import { actions } from '../../modules/inventory/transactions';
+
+type Actions = {
+  setExtraFilters: Function,
+  fetch: Function,
+  updateStateAndFetch: Function,
+};
+
+type Params = {
+  code: string,
+};
+
+type Props = {
+  actions: Actions,
+  params: Params,
+  list: Object,
+};
 
 const tableColumns = [
   { field: 'createdAt', text: 'Date/Time', type: 'datetime' },
@@ -32,6 +51,7 @@ const renderRow = (row) => {
 
 /** InventoryItemTransactions Component */
 class InventoryItemTransactions extends Component {
+  props: Props;
 
   componentDidMount() {
     this.props.actions.setExtraFilters([

@@ -45,12 +45,6 @@ class CouponPage extends Component {
 
   props: CouponPageProps;
 
-  static propTypes = {
-    params: PropTypes.shape({
-      couponId: PropTypes.string.isRequired,
-    }).isRequired,
-  };
-
   state: CouponPageState = {
     coupon: this.props.details.coupon,
     couponCode: null,

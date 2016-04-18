@@ -28,6 +28,7 @@ export default class TextFit extends Component {
     maxFontSize: PropTypes.number,
     units: PropTypes.string,
     className: PropTypes.string,
+    children: PropTypes.node,
   };
 
   static defaultProps = {

@@ -39,6 +39,10 @@ const CouponsList = (props: CouponsListProps, context: CouponsListHistory) => {
   );
 };
 
+CouponsList.propTypes = {
+  children: PropTypes.node,
+};
+
 CouponsList.contextTypes = {
   history: PropTypes.object.isRequired,
 };

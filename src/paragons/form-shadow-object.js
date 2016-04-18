@@ -65,7 +65,9 @@ type AttributeSet = {
   }
 }
 
-export function setAttributes(attrs: AttributeSet, form: FormAttributes, shadow: ShadowAttributes): FormShadowAttrsPair {
+export function setAttributes(attrs: AttributeSet,
+                              form: FormAttributes,
+                              shadow: ShadowAttributes): FormShadowAttrsPair {
   let newForm = form;
   let newShadow = shadow;
 

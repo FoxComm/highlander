@@ -1,15 +1,23 @@
 
+/* @flow */
+
 // libs
-import React, { Component } from 'react';
+import React, { PropTypes } from 'react';
 
 // components
 import { Link, IndexLink } from '../link';
 import LocalNav from '../local-nav/local-nav';
 
-export default class SubNav extends Component {
+type Params = {
+  couponId: string,
+};
 
-  render() {
-    const params = this.props.params;
+type Props = {
+  params: Params,
+};
+
+const SubNav = (props: Props) => {
+    const params = props.params;
 
     const notNew = params.couponId != 'new';
 
@@ -21,5 +29,13 @@ export default class SubNav extends Component {
         { notNew && <Link to="coupon-activity-trail" params={params}>Activity Trail</Link> }
       </LocalNav>
     );
-  }
-}
+};
+
+SubNav.propTypes = {
+  params: PropTypes.shape({
+    couponId: PropTypes.string,
+  }),
+};
+
+export default SubNav;
+

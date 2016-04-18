@@ -39,6 +39,10 @@ const PromotionsList = (props: PromotionsListProps, context: PromotionsListHisto
   );
 };
 
+PromotionsList.propTypes = {
+  children: PropTypes.node,
+};
+
 PromotionsList.contextTypes = {
   history: PropTypes.object.isRequired,
 };

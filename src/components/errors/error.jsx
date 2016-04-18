@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 import styles from './error.css';
 
@@ -24,6 +24,11 @@ const Error = (props: Props) => {
       {message}
     </div>
   );
+};
+
+Error.propTypes = {
+  notFound: PropTypes.string,
+  otherProblem: PropTypes.string,
 };
 
 Error.defaultProps = {

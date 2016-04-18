@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 import Activity from './base/activity';
 
@@ -50,10 +50,16 @@ export function getActivityRepresentative(activity) {
   return props => <Activity {...params} {...props} />;
 }
 
-export default function(props) {
+const ActivityRepresentativeWrapper = (props) => {
   const ActivityRepresentative = getActivityRepresentative(props.activity);
 
   if (!ActivityRepresentative) return null;
 
   return <ActivityRepresentative {...props} />;
-}
+};
+
+ActivityRepresentativeWrapper.propTypes = {
+  activity: PropTypes.object.isRequired,
+};
+
+export default ActivityRepresentativeWrapper;

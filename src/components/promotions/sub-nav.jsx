@@ -29,4 +29,8 @@ const SubNav = (props: SubNavProps) => {
   );
 };
 
+SubNav.propTypes = {
+  promotionId: PropTypes.number,
+};
+
 export default SubNav;

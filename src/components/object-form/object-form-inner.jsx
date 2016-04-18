@@ -51,6 +51,7 @@ function renderFormField(label: string, input: Element): Element {
 }
 
 export default class ObjectFormInner extends Component<void, Props, State> {
+  props: Props;
   state: State = { isAddingProperty: false };
 
   get addCustomProperty(): ?Element {

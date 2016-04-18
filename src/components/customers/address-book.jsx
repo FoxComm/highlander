@@ -24,8 +24,12 @@ export default class CustomerAddressBook extends React.Component {
   static propTypes = {
     customerId: PropTypes.number.isRequired,
     fetchAddresses: PropTypes.func,
+    patchAddress: PropTypes.func,
+    createAddress: PropTypes.func,
     startAddingAddress: PropTypes.func,
-    addresses: PropTypes.array.isRequired
+    stopAddingAddress: PropTypes.func,
+    stopEditingAddress: PropTypes.func,
+    addresses: PropTypes.array.isRequired,
   };
 
   @autobind

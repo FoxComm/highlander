@@ -32,6 +32,8 @@ type Sku = {
 };
 
 export class Skus extends Component<void, Props, void> {
+  props: Props;
+
   static tableColumns: Array<Column> = [
     { field: 'code', text: 'Code', type: null },
     { field: 'title', text: 'title', type: null },

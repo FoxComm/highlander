@@ -29,13 +29,13 @@ type LoginProps = {
   current: TUser,
   authenticate: (payload: LoginPayload) => Promise,
   user: { err: Object, isFetching: boolean },
+  googleSignin: Function,
 }
 
 /* ::`*/
 @connect((state) => ({ user: state.user }), userActions)
 /* ::`*/
 export default class Login extends React.Component {
-
 
   state: TState = {
       email: '',
@@ -105,7 +105,9 @@ export default class Login extends React.Component {
         <Form className="fc-grid fc-login fc-form-vertical">
           <img className="fc-login__logo" src="/images/fc-logo-v.svg"/>
           <div className="fc-login__title">Sign In</div>
-          <Button className="fc-login__google-btn" icon="google" onClick={this.onGoogleSignIn}>Sign In with Google</Button>
+          <Button className="fc-login__google-btn" icon="google" onClick={this.onGoogleSignIn}>
+            Sign In with Google
+          </Button>
         </Form>
         <Form className="fc-grid fc-login fc-login__email-password fc-form-vertical" onSubmit={this.submitLogin}>
           <div className="fc-login__or">or</div>
@@ -123,7 +125,9 @@ export default class Login extends React.Component {
             isLoading={this.props.user.isFetching}>
             Sign In
           </PrimaryButton>
-          <div className="fc-login__copyright">© 2016 FoxCommerce. All rights reserved. Privacy Policy. Terms of Use.</div>
+          <div className="fc-login__copyright">
+            © 2016 FoxCommerce. All rights reserved. Privacy Policy. Terms of Use.
+          </div>
         </Form>
       </div>
     );

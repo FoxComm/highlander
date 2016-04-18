@@ -42,7 +42,8 @@ export default class Order extends React.Component {
       order: PropTypes.string.isRequired
     }).isRequired,
     order: PropTypes.shape({
-      currentOrder: PropTypes.object
+      currentOrder: PropTypes.object,
+      isFetching: PropTypes.bool,
     }),
     children: PropTypes.node,
     updateOrder: PropTypes.func,

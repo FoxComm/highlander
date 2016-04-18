@@ -77,9 +77,9 @@ SaveCancel.propTypes = {
 };
 
 SaveCancel.defaultProps = {
-  cancelTabIndex: "0",
+  cancelTabIndex: '0',
   cancelText: 'Cancel',
-  saveTabIndex: "1",
+  saveTabIndex: '1',
   saveText: 'Save',
 };
 

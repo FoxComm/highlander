@@ -39,6 +39,7 @@ const tableColumns: Array<Column> = [
 ];
 
 export class Products extends Component<void, Props, void> {
+  props: Props;
 
   renderRow(row: Product, index: number, columns: Array<Column>, params: Object) {
     const key = `products-${row.id}`;

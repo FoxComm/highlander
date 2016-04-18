@@ -52,6 +52,7 @@ export default class ChooseShippingAddress extends Component {
       fetchAddresses: PropTypes.func.isRequired,
       patchShippingAddress: PropTypes.func.isRequired,
       setAddressDefault: PropTypes.func.isRequired,
+      patchAddress: PropTypes.func.isRequired,
     }).isRequired,
 
     addressState: PropTypes.shape({

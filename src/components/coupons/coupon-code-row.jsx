@@ -30,4 +30,10 @@ const CouponCodeRow = (props: CouponCodeRowProps) => {
   );
 };
 
+CouponCodeRow.propTypes = {
+  couponCode: PropTypes.object,
+  columns: PropTypes.array,
+  params: PropTypes.object,
+};
+
 export default CouponCodeRow;

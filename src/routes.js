@@ -144,7 +144,8 @@ const routes = (
         <Route name='new-product' component={ProductForm} />
         <Route name='product-images' title='Images' path='images' component={ProductImages} />
         <Route name='product-notes' title='Notes' path='notes' component={Notes} />
-        <Route name='product-activity-trail' title='Activity Trail' path='activity-trail' component={ActivityTrailPage}/>
+        <Route name='product-activity-trail' title='Activity Trail'
+               path='activity-trail' component={ActivityTrailPage} />
       </Route>
     </Route>
     <Route name='skus-base' title='SKUs' path='skus'>

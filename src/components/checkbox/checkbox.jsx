@@ -19,6 +19,7 @@ const DefaultCheckbox = props => {
 DefaultCheckbox.propTypes = {
   id: PropTypes.string.isRequired,
   className: PropTypes.string,
+  children: PropTypes.node,
 };
 
 

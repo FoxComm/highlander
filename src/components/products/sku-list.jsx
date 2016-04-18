@@ -29,6 +29,7 @@ const tableColumns = [
 ];
 
 export default class SkuList extends Component<void, Props, void> {
+  props: Props;
 
   get illuminatedSkus(): Array<IlluminatedSku> {
     return this.props.fullProduct

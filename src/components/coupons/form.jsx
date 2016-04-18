@@ -1,4 +1,6 @@
 
+/* @flow weak */
+
 // libs
 import _ from 'lodash';
 import React, { Component } from 'react';
@@ -18,7 +20,22 @@ import Tags from '../tags/tags';
 // styles
 import styles from './form.css';
 
+type Entity = {
+  entityId: number|string,
+};
+
+type CouponFormProps = {
+  promotionError: bool,
+  coupon: Object,
+  onUpdateCoupon: Function,
+  onGenerateBulkCodes: Function,
+  onUpdateCouponCode: Function,
+  entity: Entity,
+};
+
 export default class CouponForm extends Component {
+
+  static props: CouponFormProps;
 
   get generalAttrs() {
     const toOmit = [
@@ -115,7 +132,6 @@ export default class CouponForm extends Component {
             <ObjectFormInner
               onChange={this.handleChange}
               fieldsToRender={this.generalAttrs}
-              fieldsOptions={this.fieldsOptions}
               form={formAttributes}
               shadow={shadowAttributes}
             />

@@ -27,6 +27,7 @@ const mapStateToProps = state => {
 @connect(mapStateToProps, rmaActions)
 export default class Rmas extends React.Component {
   static propTypes = {
+    updateStateAndFetch: PropTypes.func,
     tableColumns: PropTypes.array,
     fetchRmas: PropTypes.func.isRequired,
     rmas: PropTypes.shape({

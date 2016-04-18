@@ -45,6 +45,12 @@ const PromotionRow = (props: PromotionRowProps, context: PromotionContext) => {
   );
 };
 
+PromotionRow.propTypes = {
+  promotion: PropTypes.object,
+  columns: PropTypes.array,
+  params: PropTypes.object,
+};
+
 PromotionRow.contextTypes = {
   history: PropTypes.object.isRequired
 };

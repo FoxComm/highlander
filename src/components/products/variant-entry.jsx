@@ -26,6 +26,7 @@ type State = {
 };
 
 export default class VariantEntry extends Component<void, Props, State> {
+  props: Props;
   state: State;
 
   constructor(props: Props) {
@@ -116,7 +117,7 @@ export default class VariantEntry extends Component<void, Props, State> {
         </div>
       );
     }
-  } 
+  }
 
   get values(): { [key:string]: VariantValue } {
     return _.get(this.props, 'variant.values', {});

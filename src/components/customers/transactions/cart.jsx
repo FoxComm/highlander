@@ -1,4 +1,7 @@
-import React, { PropTypes, Component } from 'react';
+
+/* @flow */
+
+import React, { PropTypes, Component, Element } from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { transitionTo } from '../../../route-helpers';
@@ -14,6 +17,23 @@ import WaitAnimation from '../../common/wait-animation';
 
 import * as orderActions from '../../../modules/orders/details';
 import * as paymentMethodActions from '../../../modules/orders/payment-methods';
+
+type Order = {
+  currentOrder: Object,
+  validations: Object,
+};
+
+type Params = {
+  customerId: number;
+};
+
+type Props = {
+  params: Params,
+  order: Order,
+  fetchCustomerCart: Function,
+  failed: bool,
+  isFetching: bool,
+};
 
 const mapStateToProps = (state) => {
   return {
@@ -33,8 +53,11 @@ const mapDispatchToProps = {
   ...paymentMethodActions
 };
 
+/* ::`*/
 @connect(mapStateToProps, mapDispatchToProps)
+/* ::`*/
 export default class CustomerCart extends Component {
+  props: Props;
 
   static contextTypes = {
     history: PropTypes.object.isRequired
@@ -44,7 +67,7 @@ export default class CustomerCart extends Component {
     this.props.fetchCustomerCart(this.props.params.customerId);
   }
 
-  get order() {
+  get order(): Object {
     return this.props.order.currentOrder;
   }
 
@@ -75,19 +98,19 @@ export default class CustomerCart extends Component {
     );
   }
 
-  get waitAnimation() {
+  get waitAnimation(): Element {
     return <WaitAnimation/>;
   }
 
-  get errorMessage() {
+  get errorMessage(): Element {
     return <div className="fc-customer__empty-messages">An error occurred. Try again later.</div>;
   }
 
-  get emptyMessage() {
+  get emptyMessage(): Element {
     return <div className="fc-customer__empty-messages">No current order found for customer.</div>;
   }
 
-  get content() {
+  get content(): Element {
     const props = this.props;
     const order = props.order.currentOrder;
 

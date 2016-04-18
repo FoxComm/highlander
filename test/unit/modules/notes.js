@@ -2,8 +2,8 @@
 import _ from 'lodash';
 import nock from 'nock';
 
-const {default: reducer,  ...actions} = requireSource('modules/notes.js');
-const {actions: searchActions} = actions;
+const { default: reducer, ...actions } = requireSource('modules/notes.js');
+const { actions: searchActions } = actions;
 
 describe('Notes module', function() {
 

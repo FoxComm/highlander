@@ -48,6 +48,12 @@ const CouponRow = (props: CouponRowProps, context: CouponContext) => {
   );
 };
 
+CouponRow.propTypes = {
+  coupon: PropTypes.object,
+  columns: PropTypes.array,
+  params: PropTypes.object,
+};
+
 CouponRow.contextTypes = {
   history: PropTypes.object.isRequired
 };

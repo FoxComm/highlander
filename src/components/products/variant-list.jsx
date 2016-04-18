@@ -20,6 +20,7 @@ type State = {
 };
 
 export default class VariantList extends Component<void, Props, State> {
+  props: Props;
   state: State;
 
   constructor(props: Props) {

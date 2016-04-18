@@ -19,15 +19,37 @@ import ButtonWithMenu from '../common/button-with-menu';
 import { Button } from '../common/buttons';
 import Error from '../errors/error';
 
+type Actions = {
+  fetchPromotion: Function,
+  promotionsNew: Function,
+  createPromotion: Function,
+  updatePromotion: Function,
+  clearSubmitErrors: Function,
+};
+
+type Params = {
+  promotionId: number,
+};
+
+type Details = {
+  promotion: Object,
+};
+
+type Props = {
+  actions: Actions,
+  params: Params,
+  details: Details,
+  submitErrors: Array<any>,
+  children: Element,
+  fetchError: any,
+  isFetching: bool,
+  dispatch: Function,
+};
+
 import * as PromotionActions from '../../modules/promotions/details';
 
 class PromotionPage extends Component {
-
-  static propTypes = {
-    params: PropTypes.shape({
-      promotionId: PropTypes.string.isRequired,
-    }).isRequired,
-  };
+  props: Props;
 
   state = {
     promotion: this.props.details.promotion,
