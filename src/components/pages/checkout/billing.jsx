@@ -144,7 +144,7 @@ class EditBilling extends Component {
   }
 
   render() {
-    const props = this.props;
+    const { props } = this;
     const { data, t } = props;
 
     return (
@@ -220,7 +220,7 @@ class EditBilling extends Component {
           {t('Billing address is same as shipping')}
         </Checkbox>
         {this.billingAddress}
-        <Button styleName="checkout-submit" type="submit">{t('PLACE ORDER')}</Button>
+        <Button isLoading={props.inProgress} styleName="checkout-submit" type="submit">{t('PLACE ORDER')}</Button>
       </Form>
     );
   }
