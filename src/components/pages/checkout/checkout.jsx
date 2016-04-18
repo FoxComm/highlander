@@ -1,15 +1,12 @@
 /* @flow */
 
-/*
- * Page prototype https://invis.io/EB67L16VZ
- */
-
 import _ from 'lodash';
 import React, { Component } from 'react';
 import styles from './checkout.css';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'react-router';
+import { Link } from 'react-router';
 
 import Icon from 'ui/icon';
 import Shipping from './shipping';
@@ -116,7 +113,11 @@ class Checkout extends Component {
 
     return (
       <div styleName="checkout">
-        <Icon styleName="logo" name="fc-some_brand_logo" />
+        <div styleName="logo-link">
+          <Link to="/">
+            <Icon styleName="logo" name="fc-some_brand_logo" />
+          </Link>
+        </div>
         <div styleName="checkout-content">
           <div styleName="left-forms">
             <Shipping

@@ -1,5 +1,6 @@
 /* @flow */
 import React, { Component, PropTypes } from 'react';
+import { Link } from 'react-router';
 import { authBlockTypes } from 'modules/auth';
 
 import styles from './auth.css';
@@ -26,7 +27,7 @@ class Auth extends Component {
       case authBlockTypes.LOGIN:
         return <Login {...authProps} />;
       case authBlockTypes.SIGNUP:
-        return <Signup {...authProps}/>;
+        return <Signup {...authProps} />;
       case authBlockTypes.RESET_PASSWORD:
         return <ResetPassword {...authProps} />;
       case authBlockTypes.RESTORE_PASSWORD:
@@ -39,7 +40,9 @@ class Auth extends Component {
   render(): HTMLElement {
     return (
       <div styleName="auth-block">
-        <Icon styleName="logo" name="fc-some_brand_logo"/>
+        <Link to="/">
+          <Icon styleName="logo" name="fc-some_brand_logo" />
+        </Link>
         {this.renderContent()}
       </div>
     );
