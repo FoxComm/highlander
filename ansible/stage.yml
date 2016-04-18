@@ -16,6 +16,7 @@
     - { role: kibana, sudo: yes }
     - greenriver
     - loyalty
+    - messaging
 
 - name: Provision Ashes Stage
   hosts: ashes-stage
