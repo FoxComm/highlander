@@ -22,11 +22,11 @@ const formatPill = (pill, idx, props) => {
   );
 };
 
-const buttonsContainer = button => {
-  if (button) {
+const controlsContainer = controls => {
+  if (controls) {
     return (
-      <div className="fc-pilled-input__btn-container">
-        {button}
+      <div className="fc-pilled-input__controls-container">
+        {controls}
       </div>
     );
   }
@@ -44,7 +44,7 @@ const iconWrapper = icon => {
 
 const PilledInput = props => {
 
-  const { button, children, className, icon, pills = [], solid, disabled, ...rest } = props;
+  const { controls, children, className, icon, pills = [], solid, disabled, ...rest } = props;
 
   const containerClass = classNames('fc-pilled-input__input-container', {
     '_solid': solid
@@ -75,7 +75,7 @@ const PilledInput = props => {
             {iconWrapper(icon)}
           </div>
         </div>
-        {buttonsContainer(button)}
+        {controlsContainer(controls)}
       </div>
     </div>
   );
@@ -89,7 +89,7 @@ PilledInput.propTypes = {
   formatPill: PropTypes.func,
   pills: PropTypes.array,
   icon: PropTypes.string,
-  button: PropTypes.node,
+  controls: PropTypes.node,
   className: PropTypes.string,
   autofocus: PropTypes.bool,
   solid: PropTypes.bool,

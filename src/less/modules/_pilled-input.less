@@ -1,7 +1,6 @@
 .fc-pilled-input {
   display: flex;
   border-radius: 3px;
-  overflow: hidden;
 
   &__input-container {
     border-radius: 3px 0 0 3px;
@@ -53,9 +52,14 @@
     min-width: 300px;
   }
 
-  &__btn-container {
+  &__controls-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  &__controls-item {
+    position: relative;
 
     .fc-btn {
       border: none;
@@ -69,7 +73,7 @@
     .font-spec(12px, 400, 34px);
     border-radius: 17px;
     height: 34px;
-    margin: 3px 0 0 3px;
+    margin: 3px 0 0 5px;
     padding: 0 0 0 10px;
     background: @color-decor3;
     color: @color-white;

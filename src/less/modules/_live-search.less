@@ -5,10 +5,26 @@
   padding: 0 @gutter;
   margin-bottom: 20px;
 
-  .fc-pilled-input__pill {
-    .icon-filter, .icon-search {
-      margin-right: 10px;
+  .fc-pilled-input {
+    &__pill {
+      .icon-filter, .icon-search {
+        margin-right: 10px;
+      }
     }
+
+    &__controls-item {
+      .fc-menu {
+        right: 0;
+
+        &-item {
+          white-space: nowrap;
+        }
+      }
+    }
+  }
+
+  .icon-chevron-down {
+    font-size: 12px;
   }
 
   &__header {
