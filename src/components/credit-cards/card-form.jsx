@@ -79,6 +79,7 @@ export default class CreditCardForm extends React.Component {
           <Checkbox disabled={!isDefaultEnabled}
                     defaultChecked={isDefault}
                     className="fc-credit-card-form__default-checkbox"
+                    name="isDefault"
                     id="isDefault" />
           <span className="fc-credit-card-form__default-label">
             Default Card
