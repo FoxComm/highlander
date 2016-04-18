@@ -19,6 +19,7 @@
     - { role: kibana, sudo: yes }
     - greenriver
     - loyalty
+    - messaging
 
 - name: Provision Demo 2 US Frontend
   hosts: dem2-front

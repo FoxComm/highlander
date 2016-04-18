@@ -12,3 +12,5 @@ google_oauth_admin_redirect_uri: http://admin.demo.foxcommerce.com/api/v1/public
 google_oauth_frontend_client_id: 953682058057-o21m80u2d7raoq71fetp8u21k8306a7p.apps.googleusercontent.com
 google_oauth_frontend_secret: iOyw2XYv_UBfr3npQCobfuq_
 google_oauth_frontend_redirect_uri: http://demo.foxcommerce.com/api/v1/public/oauth2callback/google/customer
+
+demo_domain: dem2.foxcommerce.com
