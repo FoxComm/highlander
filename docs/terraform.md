@@ -1,4 +1,4 @@
-# Terraform Guide
+# Terraforming Guide
 
 This guide describes how to add new machines to existing infrastructure in Google Compute Engine safely.
 
@@ -25,13 +25,13 @@ Before doing all this, you'll need to have an access to [foxcomm-staging](https:
 
 2. After creating configuration, run `terraform plan terraform/`
 
-	**Note**: make sure you run the `terraform` command in the `prov-shit` directory, **NOT** the `prov-shit/terraform` directory - because statefile is located in the root directory.
+	**Note**: make sure you run the `terraform` command in the `prov-shit` directory, **NOT** in the `prov-shit/terraform` directory - because statefile is located in the root directory.
 
 3. Command above will tell you exactly which machines it will create, change or destroy. **Please carefully review your changes!**
 
 4. Apply your changes by running `terraform apply terraform/`, it will modify statefile `terraform.tfstate`. You should commit it and push it to the repository.
 
-	**Note**: since statefile must be shared with everyone, wonly one person should run the `terraform` commands at a time.
+	**Note**: since statefile must be shared with everyone, only one person should run the `terraform` commands at a time.
 
 ## Links
 
