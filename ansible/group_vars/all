@@ -35,7 +35,7 @@ loyalty_jar: /usr/local/bin/loyalty.jar
 # Messaging
 messaging_jar: /usr/local/bin/messaging.jar
 messaging_jar_src: ../../fox-notifications/target/messaging.jar
-slack_webhook_url: https://hooks.slack.com/services/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
+messaging_slack_webhook_url: https://hooks.slack.com/services/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
 
 # Lies & BS
 phoenix_api_version: v1

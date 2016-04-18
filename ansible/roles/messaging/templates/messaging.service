@@ -1,6 +1,6 @@
 [Service]
 WorkingDirectory=/usr/share
-ExecStart=/usr/bin/java -Dslack-webhook-url=http://admin.{{demo_domain}} -Dkafka-broker={{kafka_server}} -Dschema-registry-url=http://{{schema_server}} -Dfc-admin-url=http://{{ashes_server_name}} -jar {{messaging_jar}}
+ExecStart=/usr/bin/java -Dslack-webhook-url={{messaging_slack_webhook_url}} -Dkafka-broker={{kafka_server}} -Dschema-registry-url=http://{{schema_server}} -Dfc-admin-url=http://admin.{{demo_domain}} -jar {{messaging_jar}}
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
