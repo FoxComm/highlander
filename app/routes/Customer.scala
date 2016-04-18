@@ -50,12 +50,12 @@ object Customer {
               } ~
               (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
                 goodOrFailures {
-                  LineItemUpdater.updateQuantitiesOnCustomersOrder(customer, reqItems)
+                  LineItemUpdater.updateQuantitiesOnCustomersOrder(customer, reqItems, productContext)
                 }
               } ~
               (post & path("checkout") & pathEnd) {
                 goodOrFailures {
-                  Checkout.fromCustomerCart(customer)
+                  Checkout.fromCustomerCart(customer, productContext)
                 }
               } ~
               pathPrefix("payment-methods" / "credit-cards") {

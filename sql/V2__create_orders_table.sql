@@ -17,6 +17,7 @@ create table orders (
     adjustments_total integer not null default 0,
     taxes_total integer not null default 0,
     grand_total integer not null default 0,
+    fraud_score integer not null default 0,
     foreign key (id) references inventory_events(id) on update restrict on delete restrict,
     constraint valid_state check (state in ('cart','ordered','fraudHold','remorseHold','manualHold','canceled',
                                               'fulfillmentStarted','shipped'))

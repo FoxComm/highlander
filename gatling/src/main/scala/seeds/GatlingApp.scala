@@ -1,13 +1,11 @@
 package seeds
 
-import scala.collection.mutable
-
 import com.typesafe.config.Config
 import io.gatling.app.Gatling
-import io.gatling.core.ConfigKeys
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.jdbc.Predef._
+import seeds.Scenarios._
 import slick.driver.PostgresDriver.api._
 
 object GatlingApp extends App {
@@ -24,15 +22,12 @@ object GatlingApp extends App {
 
   def dbFeeder(sql: String) = jdbcFeeder(dbUrl, dbUser, dbPassword, sql)
 
-  // Gatling config
-  val gatlingConfig = mutable.Map(
-    ConfigKeys.core.directory.Binaries → "./gatling/target/scala-2.11/gatling-classes",
-    ConfigKeys.core.Mute → "true"
-  )
-  println(Gatling.fromMap(gatlingConfig))
+  Gatling.main(Array())
 }
 
 object Conf {
+
+  val defaultAssertion = global.failedRequests.count.is(0)
 
   val httpConf = http
     .baseURL("http://localhost:9090")
@@ -40,4 +35,10 @@ object Conf {
     .contentTypeHeader("application/json")
     .disableWarmUp
 
+}
+
+class GatlingSeeds extends Simulation {
+  setUp(pacificNwVips, randomCustomerActivity)
+    .assertions(Conf.defaultAssertion)
+    .protocols(Conf.httpConf)
 }

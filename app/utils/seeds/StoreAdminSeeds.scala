@@ -13,7 +13,7 @@ import utils.DbResultT.implicits._
 trait StoreAdminSeeds {
 
   def createStoreAdmins: DbResultT[StoreAdmin#Id] = {
-    val reader = CSVReader.open(new File("gatling/src/main/resources/data/store_admins.csv"))
+    val reader = CSVReader.open(new File("gatling-classes/data/store_admins.csv"))
     val admins = reader.all.drop(1).collect {
       case name :: email :: password :: Nil ⇒
         StoreAdmin.build(name = name, email = email, password = Some(password))

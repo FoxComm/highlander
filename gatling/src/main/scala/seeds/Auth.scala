@@ -21,6 +21,7 @@ object Auth {
   val loginAsRandomAdmin =
     feed(csv("data/store_admins.csv").random)
       .exec(loginAsAdmin)
+      .exitHereIfFailed
 
   implicit class RequireAuth(val httpBuilder: HttpRequestBuilder) extends AnyVal {
     def requireAdminAuth = httpBuilder.header("Authorization", "${jwtTokenAdmin}")

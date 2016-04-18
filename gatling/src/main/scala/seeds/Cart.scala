@@ -19,7 +19,7 @@ object Cart {
     .requireAdminAuth
     .body(StringBody(session ⇒ json(CreateOrder(customerId = Some(session.get("customerId").as[Integer])))))
     .check(status.is(200))
-    .check(jsonPath("$..referenceNumber").ofType[String].saveAs("referenceNumber"))
+    .check(jsonPath("$.referenceNumber").ofType[String].saveAs("referenceNumber"))
 
   val addSkusToCart = http("Add SKUs to cart")
     .post("/v1/orders/${referenceNumber}/line-items")
@@ -41,6 +41,7 @@ object Cart {
           }
         session.set("skuPayload", json(payload))
       }
+      .exitHereIfFailed
   }
 
   val setShippingAddress = http("Set shipping address")
@@ -65,14 +66,14 @@ object Cart {
     .post("/v1/orders/${referenceNumber}/checkout")
 
   val placeOrder =
-    exec(newCart)
-      .exec(pickRandomSkus)
-      .exec(addSkusToCart)
-      .exec(setShippingAddress)
-      .exec(findShippingMethods)
-      .exec(setShippingMethod)
-      .exec(CreditCards.payWithCc)
-      .exec(checkout)
+    exec(newCart).exitHereIfFailed
+      .exec(pickRandomSkus).exitHereIfFailed
+      .exec(addSkusToCart).exitHereIfFailed
+      .exec(setShippingAddress).exitHereIfFailed
+      .exec(findShippingMethods).exitHereIfFailed
+      .exec(setShippingMethod).exitHereIfFailed
+      .exec(CreditCards.payWithCc).exitHereIfFailed
+      .exec(checkout).exitHereIfFailed
 
   val ageOrder = http("Age order")
     .post("/v1/order-time-machine")

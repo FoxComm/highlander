@@ -36,7 +36,10 @@ class CheckoutTest
 
   def cartValidator(resp: CartValidatorResponse = CartValidatorResponse()): CartValidation = {
     val m = mock[CartValidation]
-    when(m.validate(isCheckout = true)).thenReturn(DbResult.good(resp))
+    when(m.validate(isCheckout = false, fatalWarnings = true)).thenReturn(DbResult.good(resp))
+    when(m.validate(isCheckout = false, fatalWarnings = false)).thenReturn(DbResult.good(resp))
+    when(m.validate(isCheckout = true, fatalWarnings = true)).thenReturn(DbResult.good(resp))
+    when(m.validate(isCheckout = true, fatalWarnings = false)).thenReturn(DbResult.good(resp))
     m
   }
 
@@ -53,7 +56,7 @@ class CheckoutTest
     "fails if the cart validator fails" in new CustomerFixture {
       val failure = GeneralFailure("scalac").single
       val mockValidator = mock[CartValidation]
-      when(mockValidator.validate(isCheckout = true)).thenReturn(DbResult.failures(failure))
+      when(mockValidator.validate(isCheckout = false, fatalWarnings = true)).thenReturn(DbResult.failures(failure))
 
       val cart = Orders.create(Factories.cart).run().futureValue.rightVal
       val result = Checkout(cart.copy(customerId = customer.id), mockValidator).checkout.run().futureValue.leftVal
@@ -61,13 +64,15 @@ class CheckoutTest
     }
 
     "fails if the cart validator has warnings" in new CustomerFixture {
-      val failure = GeneralFailure("scalac").single
+      val failure = GeneralFailure("scalac")
       val mockValidator = mock[CartValidation]
-      when(mockValidator.validate(isCheckout = true)).thenReturn(DbResult.good(CartValidatorResponse(warnings = failure.some)))
+      val liftedFailure = DbResult.failure(failure)
+      when(mockValidator.validate(isCheckout = false, fatalWarnings = true)).thenReturn(liftedFailure)
+      when(mockValidator.validate(isCheckout = true, fatalWarnings = true)).thenReturn(liftedFailure)
 
       val cart = Orders.create(Factories.cart).run().futureValue.rightVal
       val result = Checkout(cart.copy(customerId = customer.id), mockValidator).checkout.run().futureValue.leftVal
-      result must === (failure)
+      result must === (failure.single)
     }
 
     "updates state to RemorseHold and touches placedAt" in new Fixture {

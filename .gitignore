@@ -43,4 +43,5 @@ phoenix-scala.iml
 .gce
 
 # Gatling
-results/
+gatling-results/
+gatling-classes/

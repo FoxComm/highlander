@@ -14,6 +14,7 @@ import failures.ObjectFailures._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import org.json4s.JsonAST.{JValue, JString, JObject, JField, JNothing}
+import org.json4s.JsonDSL._
 
 import slick.driver.PostgresDriver.api._
 
@@ -33,20 +34,18 @@ object SimpleContext {
     ObjectContext(
       id = id,
       name = name,
-      attributes = parse(s"""
-      {
-        "modality" : "$modality",
-        "lang" : "$lang"
-      }
-      """))
+      attributes = ("modality" → modality ) ~ ("lang" → lang))
 }
 
 object SimpleProductDefaults {
-  val imageUrl = "http://lorempixel.com/75/75/fashion/"
+
+  val imageUrl = "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/no_image.jpg"
 }
 
 final case class SimpleProduct(title: String, description: String, image: String,
-  code: String) {
+  code: String, active: Boolean = false, tags: Seq[String] = Seq.empty) {
+    val activeFrom = if(active) s""""${Instant.now}"""" else "null";
+    val ts: String = compact(render(JArray(tags.map(t ⇒ JString(t)).toList)))
 
     val (keyMap, form) = ObjectUtils.createForm(parse(s"""
     {
@@ -55,7 +54,8 @@ final case class SimpleProduct(title: String, description: String, image: String
       "images" : ["$image"],
       "variants" : {},
       "skus" : {"$code" : {}},
-      "activeFrom" : "${Instant.now}"
+      "activeFrom" : $activeFrom,
+      "tags" : $ts
     }"""))
 
     def create : ObjectForm = ObjectForm(kind = Product.kind, attributes = form)
@@ -73,7 +73,8 @@ final case class SimpleProductShadow(p: SimpleProduct) {
           "images" : {"type": "images", "ref": "images"},
           "variants" : {"type": "variants", "ref": "variants"},
           "skus" : {"type": "skus", "ref": "skus"},
-          "activeFrom" : {"type": "date", "ref": "activeFrom"}
+          "activeFrom" : {"type": "date", "ref": "activeFrom"},
+          "tags" : {"type": "tags", "ref": "tags"}
         }"""), 
       p.keyMap)
 
@@ -81,13 +82,18 @@ final case class SimpleProductShadow(p: SimpleProduct) {
       ObjectShadow(attributes = shadow)
 }
 
-final case class SimpleSku(code: String, title: String, 
-  price: Int, currency: Currency) {
+final case class SimpleSku(code: String, title: String, image: String,
+  price: Int, currency: Currency, active: Boolean = false, 
+  tags: Seq[String] = Seq.empty) {
+
+    val activeFrom = if(active) s""""${Instant.now}"""" else "null";
+    val ts: String = compact(render(JArray(tags.map(t ⇒ JString(t)).toList)))
 
     val (keyMap, form) =  ObjectUtils.createForm(parse(
       s""" 
       {
         "title" : "$title",
+        "images" : ["$image"],
         "retailPrice" : {
           "value" : ${price + 500},
           "currency" : "${currency.getCode}" 
@@ -96,7 +102,8 @@ final case class SimpleSku(code: String, title: String,
           "value" : $price,
           "currency" : "${currency.getCode}" 
         },
-        "activeFrom" : "${Instant.now}"
+        "activeFrom" : $activeFrom,
+        "tags" : $ts
       } """))
 
     def create : ObjectForm = 
@@ -111,9 +118,11 @@ final case class SimpleSkuShadow(s: SimpleSku) {
       s"""
         {
           "title" : {"type": "string", "ref": "title"},
+          "images" : {"type": "images", "ref": "images"},
           "retailPrice" : {"type": "price", "ref": "retailPrice"},
           "salePrice" : {"type": "price", "ref": "salePrice"},
-          "activeFrom" : {"type": "date", "ref": "activeFrom"}
+          "activeFrom" : {"type": "date", "ref": "activeFrom"},
+          "tags" : {"type": "tags", "ref": "tags"}
         }"""), 
       s.keyMap) 
 
@@ -123,7 +132,8 @@ final case class SimpleSkuShadow(s: SimpleSku) {
 
 final case class SimpleProductData(productId: Int = 0, skuId: Int = 0, title: String, 
   description: String, image: String = SimpleProductDefaults.imageUrl, code: String, 
-  price: Int, currency: Currency = Currency.USD)
+  price: Int, currency: Currency = Currency.USD, active: Boolean = false, 
+  tags: Seq[String] = Seq.empty)
 
 final case class SimpleProductTuple(product: Product, sku: Sku, 
   productForm: ObjectForm, skuForm: ObjectForm, productShadow: ObjectShadow, 
@@ -132,7 +142,7 @@ final case class SimpleProductTuple(product: Product, sku: Sku,
 object Mvp { 
   def insertProductNewContext(oldContextId: Int, contextId: Int, p: SimpleProductData)(implicit db: Database): 
   DbResultT[SimpleProductData] = for {
-    simpleProduct   ← * <~ SimpleProduct(p.title, p.description, p.image, p.code)
+    simpleProduct   ← * <~ SimpleProduct(p.title, p.description, p.image, p.code, p.active, p.tags)
     //find product form other context, get old form and merge with new
     product       ← * <~ Products.filter(_.contextId === oldContextId).filter(_.id === p.productId).one.
         mustFindOr(ProductNotFoundForContext(p.productId, oldContextId)) 
@@ -146,7 +156,7 @@ object Mvp {
       filter(_.shadowId === link.rightId).one.
         mustFindOr(SkuWithShadowNotFound(link.rightId))
 
-    simpleSku  ← * <~ SimpleSku(p.code, p.title, p.price, p.currency)
+    simpleSku  ← * <~ SimpleSku(p.code, p.title, p.image, p.price, p.currency, p.active, p.tags)
     oldSkuForm ← * <~ ObjectForms.mustFindById404(sku.formId)
     skuForm    ← * <~ ObjectForms.update(oldSkuForm, simpleSku.update(oldSkuForm))
 
@@ -157,9 +167,9 @@ object Mvp {
 
   def insertProduct(contextId: Int, p: SimpleProductData)(implicit db: Database): 
   DbResultT[SimpleProductData] = for {
-    simpleProduct   ← * <~ SimpleProduct(p.title, p.description, p.image, p.code)
+    simpleProduct   ← * <~ SimpleProduct(p.title, p.description, p.image, p.code, p.active, p.tags)
     productForm     ← * <~ ObjectForms.create(simpleProduct.create)
-    simpleSku       ← * <~ SimpleSku(p.code, p.title, p.price, p.currency)
+    simpleSku       ← * <~ SimpleSku(p.code, p.title, p.image, p.price, p.currency, p.active, p.tags)
     skuForm             ← * <~ ObjectForms.create(simpleSku.create)
     r ← * <~ insertProductIntoContext(contextId, productForm, skuForm,
       simpleProduct, simpleSku, p)
@@ -244,6 +254,16 @@ object Mvp {
   def name(f: ObjectForm, s: ObjectShadow) : Option[String] = {
     ObjectUtils.get("title", f, s) match {
       case JString(title) ⇒ title.some
+      case _ ⇒ None
+    }
+  }
+
+  def firstImage(f: ObjectForm, s: ObjectShadow) : Option[String] = {
+    ObjectUtils.get("images", f, s) match {
+      case JArray(images) ⇒ images.headOption.flatMap { 
+        case JString(image) ⇒ image.some
+        case _ ⇒ None
+      }
       case _ ⇒ None
     }
   }

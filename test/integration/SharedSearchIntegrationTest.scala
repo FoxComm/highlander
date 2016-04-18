@@ -206,6 +206,11 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
       val getResponse = GET(s"v1/shared-search/$code")
       getResponse.status must === (StatusCodes.NotFound)
 
+      val searchResponse = GET(s"v1/shared-search?scope=customersScope")
+      searchResponse.status must === (StatusCodes.OK)
+
+      searchResponse.as[Seq[SharedSearch]] must === (Seq.empty[SharedSearch])
+
       SharedSearches.findOneByCode(code).run().futureValue.isDefined must === (true)
     }
 
