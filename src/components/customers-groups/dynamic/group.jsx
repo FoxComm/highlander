@@ -171,19 +171,22 @@ export default class DynamicGroup extends Component {
 
 
   get stats() {
+    const customersTotal = _.get(this.props.list, 'savedSearches.0.results.total', 0);
+    const avgOrderValue = 83250;
+
     return (
       <PanelList className={prefixed('stats')}>
         <PanelListItem title="Total Orders">
           132
         </PanelListItem>
         <PanelListItem title="Total Sales">
-          <Currency value={5786.57} />
+          <Currency value={avgOrderValue*customersTotal} />
         </PanelListItem>
         <PanelListItem title="Avg. Order Size">
           2
         </PanelListItem>
         <PanelListItem title="Avg. Order Value">
-          <Currency value={75.34} />
+          <Currency value={avgOrderValue} />
         </PanelListItem>
         <PanelListItem title="Return Rate">
           14%
