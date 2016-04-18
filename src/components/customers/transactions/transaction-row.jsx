@@ -5,6 +5,23 @@ import { transitionTo } from '../../../route-helpers';
 
 import MultiSelectRow from '../../table/multi-select-row';
 
+const computePaymentState = order => {
+  // This is a pretty limited algorithm, but it matches what Phoenix is doing.
+  // We'll beef it up when we get shipping and payment capture in the system.
+  const authorizations = _.reduce(order.payments, (result, payment) => {
+    const { paymentMethodType } = payment;
+    if ((paymentMethodType == 'creditCard' && payment.creditCardState == 'auth') ||
+        (paymentMethodType == 'giftCard' && payment.giftCardState == 'auth') ||
+        (paymentMethodType == 'storeCredit' && payment.storeCreditState == 'auth')) {
+      return result + 1;
+    }
+    
+    return result;
+  }, 0);
+
+  return authorizations > 0 && authorizations == order.payments.length ? 'Auth' : 'Cart';
+};
+
 const setCellContents = (order, field) => {
   switch(field) {
     case 'referenceNumber':
@@ -23,6 +40,8 @@ const setCellContents = (order, field) => {
         return _.last(order.assignees).firstName;
       }
       break;
+    case 'payment.state':
+      return computePaymentState(order);
     default:
       return null;
   }
