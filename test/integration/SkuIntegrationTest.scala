@@ -33,7 +33,7 @@ class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with Autom
       storeAdmin      ← * <~ StoreAdmins.create(authedStoreAdmin).run().futureValue.rightVal
       context         ← * <~ ObjectContexts.filterByName(SimpleContext.default).one.
                                 mustFindOr(ObjectContextNotFound(SimpleContext.default))
-      simpleSku       ← * <~ SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD)
+      simpleSku       ← * <~ SimpleSku("SKU-TEST", "Test SKU", "http://poop/", 9999, Currency.USD)
       skuForm         ← * <~ ObjectForms.create(simpleSku.create)
       simpleSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
       skuShadow       ← * <~ ObjectShadows.create(simpleSkuShadow.create.copy(formId = skuForm.id))
