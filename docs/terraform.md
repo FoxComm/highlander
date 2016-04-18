@@ -6,7 +6,7 @@ Before doing all this, you'll need to have an access to [foxcomm-staging](https:
 
 ## Preparation
 
-1. Download pre-built terraform [binary](https://www.terraform.io/downloads.html).
+1. Install Terraform - [complete guide](https://www.terraform.io/intro/getting-started/install.html).
 
 2. Download your GCE authentication JSON File ([complete guide](https://www.terraform.io/docs/providers/google/), see `Authentication JSON File` at the bottom) and put it in the root of this repository.
 
