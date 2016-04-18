@@ -127,7 +127,8 @@ class CouponPage extends Component {
 
       if (couponCode != undefined) {
         willBeCoupon.then(() => {
-          this.props.actions.generateCode(coupon.form.id, couponCode);
+          const couponId = this.state.coupon.id;
+          this.props.actions.generateCode(couponId, couponCode);
         });
       }
     }
