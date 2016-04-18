@@ -122,6 +122,7 @@ export default class NewGiftCard extends React.Component {
     this.props.changeFormData('balance', Number(newVal));
   }
 
+  @autobind
   changeCustomerMessage(event) {
     this.setState({ customerMessageCount: event.target.value.length });
   }
@@ -176,11 +177,13 @@ export default class NewGiftCard extends React.Component {
     if (props.sendToCustomer) {
       const labelAtRight = <div className="fc-new-gift-card__counter">{this.state.customerMessageCount}/1000</div>;
 
+      const isFetching = _.get(props.suggestedCustomers, 'results.isFetching', false);
+
       return (
         <div className="fc-new-gift-card__send-to-customers">
           <Typeahead
             className="_no-search-icon"
-            isFetching={false}
+            isFetching={isFetching}
             fetchItems={props.suggestCustomers}
             itemsElement={this.chooseCustomersMenu}
             inputElement={this.chooseCustomersInput}
@@ -193,7 +196,7 @@ export default class NewGiftCard extends React.Component {
                      labelAtRight={ labelAtRight }
                      labelClassName="fc-new-gift-card__label">
             <textarea className="fc-input" name="customerMessage"
-                      maxLength="1000" onChange={this.changeCustomerMessage.bind(this)}/>
+                      maxLength="1000" onChange={this.changeCustomerMessage}/>
           </FormField>
         </div>
       );

@@ -16,12 +16,9 @@ export default class ChooseCustomers extends React.Component {
     toggleVisibility: PropTypes.func,
   };
 
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      selectedCustomers: {}
-    };
-  }
+  state = {
+    selectedCustomers: {},
+  };
 
   toggleCustomerSelected(customer) {
     const selectedCustomers = this.state.selectedCustomers;
@@ -85,7 +82,7 @@ export default class ChooseCustomers extends React.Component {
   }
 
   render() {
-    if (this.props.items.length == 0 || this.props.updating) {
+    if (this.props.items.length == 0) {
       return <TypeaheadItems {...this.props} />;
     } else {
       return this.chooseCustomers;
