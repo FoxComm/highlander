@@ -100,56 +100,60 @@ export default class LiveSearch extends React.Component {
   get searchOptions() {
     // Check to see if the date picker should be shown.
     let options = null;
-    if (this.state.searchOptions.length == 1 && this.state.searchOptions[0].type == 'date') {
-      const clickAction = date => {
-        const dateVal = date.toLocaleString('en-us', {
-          month: '2-digit',
-          day: '2-digit',
-          year: 'numeric'
-        });
+    let goBack = null;
 
-        this.submitFilter(`${this.state.searchValue}${dateVal}`, true);
-      };
+    if (this.state.optionsVisible) {
+      if (this.state.searchOptions.length == 1 && this.state.searchOptions[0].type == 'date') {
+        const clickAction = date => {
+          const dateVal = date.toLocaleString('en-us', {
+            month: '2-digit',
+            day: '2-digit',
+            year: 'numeric'
+          });
 
-      options = (
-        <DatePicker
-          className="_in-menu"
-          key="live-search-orders-datepicker"
-          onClick={clickAction}
-          showInput={false}
-          showPicker={true} />
+          this.submitFilter(`${this.state.searchValue}${dateVal}`, true);
+        };
+
+        options = (
+          <DatePicker
+            className="_in-menu"
+            key="live-search-orders-datepicker"
+            onClick={clickAction}
+            showInput={false}
+            showPicker={true} />
+        );
+      } else {
+        const selectedIdx = this.state.selectionIndex;
+        options = _.reduce(this.state.searchOptions, (result, option, idx) => {
+          if (!option.matchesSearchTerm(this.state.searchValue)) {
+            return result;
+          }
+
+          return [
+            ...result,
+            <SearchOption
+              className={classNames({ '_active': selectedIdx == idx, '_first': idx == 0 })}
+              key={`search-option-${option.displayTerm}`}
+              option={option}
+              clickAction={(filter) => this.submitFilter(filter, true)} />
+          ];
+        }, []);
+      }
+
+      const menuClass = classNames('fc-live-search__go-back _last', {
+        '_active': this.state.selectionIndex == this.state.searchOptions.length
+      });
+
+      goBack = (
+        <MenuItem className={menuClass} clickAction={this.goBack}>
+          <i className="icon-back" />
+          Back
+        </MenuItem>
       );
-    } else {
-      const selectedIdx = this.state.selectionIndex;
-      options = _.reduce(this.state.searchOptions, (result, option, idx) => {
-        if (!option.matchesSearchTerm(this.state.searchValue)) {
-          return result;
-        }
-
-        return [
-          ...result,
-          <SearchOption
-            className={classNames({ '_active': selectedIdx == idx, '_first': idx == 0 })}
-            key={`search-option-${option.displayTerm}`}
-            option={option}
-            clickAction={(filter) => this.submitFilter(filter, true)} />
-        ];
-      }, []);
     }
 
-    const menuClass = classNames('fc-live-search__go-back _last', {
-      '_active': this.state.selectionIndex == this.state.searchOptions.length
-    });
-
-    const goBack = (
-      <MenuItem className={menuClass} clickAction={this.goBack}>
-        <i className="icon-back" />
-        Back
-      </MenuItem>
-    );
-
     return (
-      <Menu>
+      <Menu position="left" isOpen={!!options}>
         {options}
         {!_.isEmpty(this.state.searchValue) && goBack}
       </Menu>
@@ -252,19 +256,17 @@ export default class LiveSearch extends React.Component {
   }
 
   get searchMenu() {
-    if (this.state.searchMenuOpened) {
-      const options = this.searchMenuOptions.map((opt, idx) => {
-        const key = `${idx}-${_.kebabCase(opt.title)}`;
+    const options = this.searchMenuOptions.map((opt, idx) => {
+      const key = `${idx}-${_.kebabCase(opt.title)}`;
 
-        return (
-          <MenuItem isFirst={idx == 0} clickAction={opt.action} key={key}>
-            {opt.title}
-          </MenuItem>
-        );
-      });
+      return (
+        <MenuItem isFirst={idx == 0} clickAction={opt.action} key={key}>
+          {opt.title}
+        </MenuItem>
+      );
+    });
 
-      return <Menu>{options}</Menu>;
-    }
+    return <Menu position="right" isOpen={this.state.searchMenuOpened}>{options}</Menu>;
   }
 
   get searchMenuButton() {
@@ -606,7 +608,7 @@ export default class LiveSearch extends React.Component {
             </form>
 
             <div>
-              {this.state.optionsVisible && this.searchOptions}
+              {this.searchOptions}
             </div>
           </div>
         </div>
