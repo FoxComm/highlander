@@ -192,7 +192,7 @@ export default class Lookup extends Component {
     const {data} = this.props;
     const {query} = this.state;
 
-    return query ? this.filter(data, query) : [];
+    return query ? this.filter(data, query) : data;
   }
 
   get input() {
