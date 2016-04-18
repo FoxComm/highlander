@@ -50,7 +50,7 @@ object Customer {
               } ~
               (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
                 goodOrFailures {
-                  LineItemUpdater.updateQuantitiesOnCustomersOrder(customer, reqItems)
+                  LineItemUpdater.updateQuantitiesOnCustomersOrder(customer, reqItems, productContext)
                 }
               } ~
               (post & path("checkout") & pathEnd) {

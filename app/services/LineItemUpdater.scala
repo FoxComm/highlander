@@ -18,8 +18,8 @@ import utils.DbResultT.implicits._
 import utils.Slick._
 import utils.Slick.implicits._
 import utils.aliases._
-
 import failures.CartFailures.CustomerHasNoActiveOrder
+import models.objects.ObjectContext
 import slick.driver.PostgresDriver.api._
 
 object LineItemUpdater {
@@ -81,15 +81,17 @@ object LineItemUpdater {
     runUpdates(finder, logActivity, payload)
   }
 
-  def updateQuantitiesOnCustomersOrder(customer: Customer, payload: Seq[UpdateLineItemsPayload])
+  def updateQuantitiesOnCustomersOrder(customer: Customer, payload: Seq[UpdateLineItemsPayload], context: ObjectContext)
     (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = {
 
-    val finder = Orders.findActiveOrderByCustomer(customer)
+    val findOrCreate = Orders.findActiveOrderByCustomer(customer)
       .one
-      .mustFindOr(CustomerHasNoActiveOrder(customer.id))
+      .findOrCreateExtended(Orders.create(Order.buildCart(customer.id, context.id)))
 
     val logActivity = (order: FullOrder.Root, oldQtys: Map[String, Int]) ⇒
       LogActivity.orderLineItemsUpdated(order, oldQtys, payload)
+
+    val finder = findOrCreate.map(_.map { case (order, _) ⇒ order })
 
     runUpdates(finder, logActivity, payload)
   }
