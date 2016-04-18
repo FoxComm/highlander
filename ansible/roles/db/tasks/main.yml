@@ -127,11 +127,11 @@
   sudo: true
 
 - name: Syncrhonize Phoenix Sql
-  synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes
+  synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes
   sudo: true
 
 - name: Syncrhonize Phoenix Gatling Resources
-  synchronize: src="{{phoenix_src}}/gatling-classes" dest="{{phoenix_dir}}" delete=yes
+  synchronize: src="{{phoenix_src}}/gatling-classes" dest="{{phoenix_dir}}" delete=yes recursive=yes
   sudo: true
 
 - name: Create directory for Gatling results
