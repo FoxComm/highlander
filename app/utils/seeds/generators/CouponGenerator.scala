@@ -35,10 +35,10 @@ final case class SimpleCouponForm(percentOff: Percent, totalAmount: Int) {
 
     val (keyMap, form) = ObjectUtils.createForm(parse(s"""
     {
-      "name" : "${percentOff}% over $totalAmount items",
-      "storefrontName" : "${percentOff}% over $totalAmount items",
-      "description" : "${percentOff}% full order over $totalAmount items",
-      "details" : "This offer applies only when you have a total amount over $totalAmount items",
+      "name" : "${percentOff}% off over $totalAmount",
+      "storefrontName" : "Get ${percentOff}% off over $totalAmount dollars",
+      "description" : "Get ${percentOff}% full order after spending more than $totalAmount dollars",
+      "details" : "This offer applies only when you have a total amount $totalAmount dollars",
       "activeFrom" : "${Instant.now}",
       "activeTo" : null,
       "tags" : []

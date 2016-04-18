@@ -31,12 +31,12 @@ final case class SimpleDiscountForm(percentOff: Percent, totalAmount: Int) {
 
     val (keyMap, form) = ObjectUtils.createForm(parse(s"""
     {
-      "title" : "${percentOff}% over $totalAmount items",
-      "description" : "${percentOff}% full order over $totalAmount items",
+      "title" : "Get ${percentOff}% off when you spend $totalAmount dollars",
+      "description" : "${percentOff}% off when you spend over $totalAmount dollars",
       "tags" : [],
       "qualifier" : {
         "orderTotalAmount" : {
-          "totalAmount" : $totalAmount
+          "totalAmount" : ${totalAmount*100}
         }
       },
       "offer" : {
