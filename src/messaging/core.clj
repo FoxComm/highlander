@@ -14,7 +14,7 @@
    [franzy.clients.consumer.callbacks :as callbacks]
    [clojure.core.async
     :as async
-    :refer [>!! chan thread go]])
+    :refer [<!! chan thread go]])
  (:import [javax.script ScriptEngineManager]))
 
 (def topics ["activities"])
@@ -73,8 +73,8 @@
                 :kind (:activity_type activity))
         html (.eval react-app (str "renderNotificationItem(" (json/write-str props) ")"))
         text (ffirst (re-seq #"(<div class=\"fc-activity-notification-item__text\".+?</div>)" html))]
-    (->>
-      (-> text
+    (some->>
+      (some-> text
           (string/replace #"(<(?!(a\s|/a)).+?>)" " ")
           (string/replace #"<a\s.+?href=\"(.*?)\".+?>(.+?)</a>" (str "<" @admin-base-url "$1|$2>"))
           (string/replace #"\p{Zs}" " ")
@@ -111,7 +111,7 @@
         (let [msgs (into [] xf cr)]
           (when-not (empty? msgs)
             (doseq [msg msgs]
-              (let [string-msg (render-react-activity react-app msg)]
+              (when-let [string-msg (render-react-activity react-app msg)]
                 (send-to-slack string-msg))))))
        (when-not @stop
          (recur)))))
@@ -126,4 +126,3 @@
     (.eval nashorn (slurp (io/resource "polyfill.js")))
     (.eval nashorn (slurp (io/resource "admin-dbg.js")))
     nashorn))
-
