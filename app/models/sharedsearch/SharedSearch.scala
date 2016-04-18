@@ -32,6 +32,7 @@ object SharedSearch {
   case object StoreAdminsScope extends Scope
   case object PromotionsScope extends Scope
   case object CouponsScope extends Scope
+  case object CouponCodesScope extends Scope
 
   object Scope extends ADT[Scope] {
     def types = sealerate.values[Scope]
