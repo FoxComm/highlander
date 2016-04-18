@@ -1,0 +1,16 @@
+[Service]
+WorkingDirectory=/usr/share
+ExecStart=/usr/bin/java -Dslack-webhook-url={{messaging_slack_webhook_url}} -Dkafka-broker={{kafka_server}} -Dschema-registry-url=http://{{schema_server}} -Dfc-admin-url=http://admin.{{demo_domain}} -jar {{messaging_jar}}
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=messaging
+TimeoutStartSec=3m
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
+[Unit]
+Requires=kafka.service
+After=kafka.service

@@ -32,6 +32,11 @@ firebird_fixed_language: false
 loyalty_jar_src: ../../fox-loyalty/target/loyalty.jar
 loyalty_jar: /usr/local/bin/loyalty.jar
 
+# Messaging
+messaging_jar: /usr/local/bin/messaging.jar
+messaging_jar_src: ../../fox-notifications/target/messaging.jar
+messaging_slack_webhook_url: https://hooks.slack.com/services/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
+
 # Lies & BS
 phoenix_api_version: v1
 phoenix_server: 127.0.0.1:9090
