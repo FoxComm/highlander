@@ -2,7 +2,7 @@
 
 This guide describes how to add new machines to existing infrastructure in Google Compute Engine safely.
 
-Before doing all this, you'll need to have an access to `foxcomm-staging` project in GCE. Ask (@jmataya)[https://github.com/jmataya] to grant permissions.
+Before doing all this, you'll need to have an access to `foxcomm-staging` project in GCE. Ask [@jmataya](https://github.com/jmataya) to grant permissions.
 
 ## Preparation
 
