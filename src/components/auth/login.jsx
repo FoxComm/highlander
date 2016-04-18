@@ -73,6 +73,15 @@ export default class Login extends Component {
     });
   }
 
+  @autobind
+  googleAuthenticate(e: any) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.props.googleSignin().then(() => {
+      this.props.fetchCart();
+    });
+  }
+
   render(): HTMLElement {
     const { password, email } = this.state;
     const props = this.props;
@@ -94,7 +103,7 @@ export default class Login extends Component {
       <div>
         <div styleName="title">{t('LOG IN')}</div>
         <form>
-          <Button icon="fc-google" onClick={props.googleSignin} type="button" styleName="google-login">
+          <Button icon="fc-google" onClick={this.googleAuthenticate} type="button" styleName="google-login">
             {t('LOG IN WITH GOOGLE')}
           </Button>
         </form>
