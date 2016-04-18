@@ -67,12 +67,13 @@ class SearchViewSimulation extends Simulation {
     .exec(OrderEndpoint.cancel())
     .exitHereIfFailed
     // Pause and check indexes
-    .pause(conf.greenRiverPause)
-    //.exec(SearchEndpoint.checkCustomer(conf, customerUpdated.copy(address = shippingAddress))) // FIXME
-    .exec(SearchEndpoint.checkStoreCredit(conf, baseStoreCredit, state = "canceled"))
-    .exec(SearchEndpoint.checkGiftCard(conf, baseGiftCard, state = "canceled"))
-    .exec(SearchEndpoint.checkOrder(conf, order, state = "canceled"))
-    .exitHereIfFailed
+    .tryMax(10) {
+      pause(conf.greenRiverPause)
+      //.exec(SearchEndpoint.checkCustomer(conf, customerUpdated.copy(address = shippingAddress))) // FIXME
+      .exec(SearchEndpoint.checkStoreCredit(conf, baseStoreCredit, state = "canceled"))
+      .exec(SearchEndpoint.checkGiftCard(conf, baseGiftCard, state = "canceled"))
+      .exec(SearchEndpoint.checkOrder(conf, order, state = "canceled"))
+    }.exitHereIfFailed
 
   setUp(
     syncScenario.inject(conf.defaultInjectionProfile).protocols(conf.httpConf)
