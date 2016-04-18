@@ -47,6 +47,10 @@
   height: 57px;
 }
 
+:global(.icon--fc-some_brand_logo) {
+  stroke: none;
+}
+
 .categories {
   margin-top: 40px;
 }

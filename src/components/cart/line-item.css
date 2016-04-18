@@ -39,6 +39,7 @@
 .replace-icon {
   width: 18px;
   height: 18px;
+  stroke-width: 2px;
 }
 
 .close-button {

@@ -42,10 +42,11 @@
   color: var(--whitish);
   text-decoration: none;
   margin-left: 10px;
-}
-
-.close-button {
   stroke: var(--whitish);
+
+  & :global(.icon) {
+    stroke-width: 3;
+  }
 }
 
 .controls-categories,
