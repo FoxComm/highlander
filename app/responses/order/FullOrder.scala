@@ -53,7 +53,7 @@ object FullOrder {
     lockedBy: Option[StoreAdmin]) extends ResponseItem with OrderResponseBase
 
   final case class DisplayLineItem(
-    imagePath: String = "http://lorempixel.com/75/75/fashion",
+    imagePath: String,
     referenceNumber: String = "",
     name: String = "donkey product",
     sku: String,
@@ -133,8 +133,13 @@ object FullOrder {
       case data ⇒
         val price = Mvp.priceAsInt(data.skuForm, data.skuShadow)
         val name = Mvp.name(data.skuForm, data.skuShadow).getOrElse("")
-        DisplayLineItem(sku = data.sku.code, referenceNumber = data.lineItem.referenceNumber,
-          state = data.lineItem.state, name = name, price = price, totalPrice = price)
+        val noImage = "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/no_image.jpg"
+        val image = Mvp.firstImage(data.skuForm, data.skuShadow).getOrElse(noImage)
+ 
+        DisplayLineItem(imagePath = image, sku = data.sku.code, 
+          referenceNumber = data.lineItem.referenceNumber, 
+          state = data.lineItem.state, name = name, price = price, 
+          totalPrice = price)
     }
     val gcList = giftCards.map { case (gc, li) ⇒ GiftCardResponse.build(gc) }
 

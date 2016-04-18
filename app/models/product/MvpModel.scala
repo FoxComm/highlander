@@ -42,7 +42,8 @@ object SimpleContext {
 }
 
 object SimpleProductDefaults {
-  val imageUrl = "http://lorempixel.com/75/75/fashion/"
+
+  val imageUrl = "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/no_image.jpg"
 }
 
 final case class SimpleProduct(title: String, description: String, image: String,
@@ -82,7 +83,7 @@ final case class SimpleProductShadow(p: SimpleProduct) {
       ObjectShadow(attributes = shadow)
 }
 
-final case class SimpleSku(code: String, title: String, 
+final case class SimpleSku(code: String, title: String, image: String, 
   price: Int, currency: Currency, active: Boolean = false) {
 
     val activeFrom = if(active) s""""${Instant.now}"""" else "null";
@@ -91,6 +92,7 @@ final case class SimpleSku(code: String, title: String,
       s""" 
       {
         "title" : "$title",
+        "images" : ["$image"],
         "retailPrice" : {
           "value" : ${price + 500},
           "currency" : "${currency.getCode}" 
@@ -114,6 +116,7 @@ final case class SimpleSkuShadow(s: SimpleSku) {
       s"""
         {
           "title" : {"type": "string", "ref": "title"},
+          "images" : {"type": "images", "ref": "images"},
           "retailPrice" : {"type": "price", "ref": "retailPrice"},
           "salePrice" : {"type": "price", "ref": "salePrice"},
           "activeFrom" : {"type": "date", "ref": "activeFrom"}
@@ -149,7 +152,7 @@ object Mvp {
       filter(_.shadowId === link.rightId).one.
         mustFindOr(SkuWithShadowNotFound(link.rightId))
 
-    simpleSku  ← * <~ SimpleSku(p.code, p.title, p.price, p.currency, p.active)
+    simpleSku  ← * <~ SimpleSku(p.code, p.title, p.image, p.price, p.currency, p.active)
     oldSkuForm ← * <~ ObjectForms.mustFindById404(sku.formId)
     skuForm    ← * <~ ObjectForms.update(oldSkuForm, simpleSku.update(oldSkuForm))
 
@@ -162,7 +165,7 @@ object Mvp {
   DbResultT[SimpleProductData] = for {
     simpleProduct   ← * <~ SimpleProduct(p.title, p.description, p.image, p.code, p.active)
     productForm     ← * <~ ObjectForms.create(simpleProduct.create)
-    simpleSku       ← * <~ SimpleSku(p.code, p.title, p.price, p.currency, p.active)
+    simpleSku       ← * <~ SimpleSku(p.code, p.title, p.image, p.price, p.currency, p.active)
     skuForm             ← * <~ ObjectForms.create(simpleSku.create)
     r ← * <~ insertProductIntoContext(contextId, productForm, skuForm,
       simpleProduct, simpleSku, p)
@@ -247,6 +250,16 @@ object Mvp {
   def name(f: ObjectForm, s: ObjectShadow) : Option[String] = {
     ObjectUtils.get("title", f, s) match {
       case JString(title) ⇒ title.some
+      case _ ⇒ None
+    }
+  }
+
+  def firstImage(f: ObjectForm, s: ObjectShadow) : Option[String] = {
+    ObjectUtils.get("images", f, s) match {
+      case JArray(images) ⇒ images.headOption.flatMap { 
+        case JString(image) ⇒ image.some
+        case _ ⇒ None
+      }
       case _ ⇒ None
     }
   }
