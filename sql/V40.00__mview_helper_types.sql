@@ -48,7 +48,10 @@ create table export_orders (
 create table export_payments (
     payment_method_type text,
     amount              integer,
-    currency            currency
+    currency            currency,
+    credit_card_state   text,
+    gift_card_state     text,
+    store_credit_state  text
 );
 
 create table export_order_payments (
