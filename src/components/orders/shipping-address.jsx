@@ -1,15 +1,23 @@
 import React, { Component, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
+import _ from 'lodash';
 
 import AddressDetails from '../addresses/address-details';
 import ChooseShippingAddress from './choose-shipping-address';
+import ContentBox from '../content-box/content-box';
 import EditableContentBox from '../content-box/editable-content-box';
 import PanelHeader from './panel-header';
 
 export default class OrderShippingAddress extends Component {
   static propTypes = {
+    isCart: PropTypes.bool.isRequired,
     order: PropTypes.object.isRequired,
     status: PropTypes.string,
+    readOnly: PropTypes.bool,
+  };
+
+  static defaultProps = {
+    readOnly: false,
   };
 
   constructor(...args) {
@@ -45,18 +53,23 @@ export default class OrderShippingAddress extends Component {
   }
 
   render() {
-    const isCart = this.props.order.orderState === 'cart';
-    const { status } = this.props;
+    const { isCart, readOnly, status } = this.props;
 
     const title = <PanelHeader isCart={isCart} status={status} text="Shipping Address" />;
+    const isCheckingOut = _.get(this.props, 'order.isCheckingOut', false);
+    const editAction = isCheckingOut
+      ? null
+      : this.handleToggleEdit;
+
+    const ShippingAddressContentBox = !readOnly && isCart ? EditableContentBox : ContentBox; 
 
     return (
-      <EditableContentBox
+      <ShippingAddressContentBox
         className="fc-shipping-address"
         title={title}
         indentContent={true}
         isEditing={this.state.isEditing}
-        editAction={this.handleToggleEdit}
+        editAction={editAction}
         doneAction={this.handleToggleEdit}
         renderContent={this.renderContent}
       />
