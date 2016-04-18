@@ -26,7 +26,7 @@ import utils.aliases._
 
 final case class Order(
   id: Int = 0, referenceNumber: String = "", customerId: Int, contextId: Int,
-  state: State = Cart, isLocked: Boolean = false, placedAt: Option[Instant] = None, fraudScore: Option[Int] = None,
+  state: State = Cart, isLocked: Boolean = false, placedAt: Option[Instant] = None, fraudScore: Int = 0,
   remorsePeriodEnd: Option[Instant] = None, rmaCount: Int = 0, currency: Currency = Currency.USD,
   subTotal: Int = 0, shippingTotal: Int = 0, adjustmentsTotal: Int = 0, taxesTotal: Int = 0, grandTotal: Int = 0)
   extends ModelWithLockParameter[Order]
@@ -112,7 +112,7 @@ class Orders(tag: Tag) extends GenericTable.TableWithLock[Order](tag, "orders") 
   def remorsePeriodEnd = column[Option[Instant]]("remorse_period_end")
   def rmaCount = column[Int]("rma_count")
   def currency = column[Currency]("currency")
-  def fraudScore = column[Option[Int]]("fraud_score")
+  def fraudScore = column[Int]("fraud_score")
 
   def subTotal = column[Int]("sub_total")
   def shippingTotal = column[Int]("shipping_total")

@@ -145,8 +145,8 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit e
   } yield remorseHold).value
 
   private def fraudScore: DbResult[Order] = (for {
-    fraudScore ← * <~ scala.util.Random.nextInt(100)
-    order      ← * <~ Orders.update(cart, cart.copy(fraudScore = fraudScore.some))
+    fraudScore ← * <~ scala.util.Random.nextInt(10)
+    order      ← * <~ Orders.update(cart, cart.copy(fraudScore = fraudScore))
   } yield order).value
 
   private def createNewCart: DbResult[Order] =
