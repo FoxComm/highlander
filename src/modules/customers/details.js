@@ -52,7 +52,10 @@ export function toggleDisableStatus(id, isDisabled) {
 
     Api.post(`/customers/${id}/disable`, {disabled: isDisabled})
       .then(
-        customer => dispatch(receivedDisableStatus(id, customer)),
+        customer => {
+          dispatch(receivedDisableStatus(id, customer));
+          dispatch(updateCustomer(id, customer));
+        },
         err => dispatch(failChangeStatus(id, err))
       );
   };
@@ -65,7 +68,10 @@ export function toggleBlacklisted(id, isBlacklisted) {
 
     Api.post(`/customers/${id}/blacklist`, {blacklisted: isBlacklisted})
       .then(
-        customer => dispatch(receivedBlacklisted(id, customer)),
+        customer => {
+          dispatch(receivedBlacklisted(id, customer));
+          dispatch(updateCustomer(id, customer));
+        },
         err => dispatch(failChangeStatus(id, err))
       );
   };
@@ -110,16 +116,14 @@ const reducer = createReducer({
   [submitToggleBlacklisted]: (state, id) => {
     return assoc(state, [id, 'isFetchingStatus'], true);
   },
-  [receivedDisableStatus]: (state, [id, customer]) => {
+  [receivedDisableStatus]: (state, [id]) => {
     return assoc(state,
       [id, 'isFetchingStatus'], false,
-      [id, 'details', 'disabled'], customer.disabled
     );
   },
-  [receivedBlacklisted]: (state, [id, customer]) => {
+  [receivedBlacklisted]: (state, [id]) => {
     return assoc(state,
       [id, 'isFetchingStatus'], false,
-      [id, 'details', 'blacklisted'], customer.blacklisted
     );
   },
   [failChangeStatus]: (state, [id, err]) => {
