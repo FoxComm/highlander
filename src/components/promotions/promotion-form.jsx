@@ -14,6 +14,7 @@ import { Dropdown, DropdownItem } from '../dropdown';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
 import { FormField, Form } from '../forms';
 import SelectCustomerGroups from '../customers-groups/select-groups';
+import Tags from '../tags/tags';
 
 import { setDiscountAttr } from '../../paragons/promotion';
 
@@ -151,6 +152,11 @@ export default class PromotionForm extends Component {
           </ContentBox>
         </div>
         <div styleName="aside">
+          <Tags
+            form={formAttributes}
+            shadow={shadowAttributes}
+            onChange={this.handleChange}
+          />
           {this.promotionState}
         </div>
       </Form>

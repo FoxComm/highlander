@@ -13,6 +13,7 @@ import RadioButton from '../forms/radio-button';
 import CouponCodes from './form/coupon-codes';
 import UsageRules from './form/usage-rules';
 import { FormField, Form } from '../forms';
+import Tags from '../tags/tags';
 
 // styles
 import styles from './form.css';
@@ -108,29 +109,32 @@ export default class CouponForm extends Component {
     const shadowAttributes = _.get(this.props, 'coupon.shadow.attributes', []);
 
     return (
-      <div styleName="coupon-form">
-        <Form>
-          <div styleName="main">
-            <ContentBox title="General">
-              <ObjectFormInner
-                onChange={this.handleChange}
-                fieldsToRender={this.generalAttrs}
-                fieldsOptions={this.fieldsOptions}
-                form={formAttributes}
-                shadow={shadowAttributes}
-              />
-              {this.promotionSelector}
-            </ContentBox>
-            <CouponCodes
-              onGenerateBulkCodes={this.handleGenerateBulkCodes}
-              onChangeSingleCode={this.handleChangeSingleCode}
+      <Form styleName="coupon-form">
+        <div styleName="main">
+          <ContentBox title="General">
+            <ObjectFormInner
+              onChange={this.handleChange}
+              fieldsToRender={this.generalAttrs}
+              fieldsOptions={this.fieldsOptions}
+              form={formAttributes}
+              shadow={shadowAttributes}
             />
-            <UsageRules {...(this.usageRules)} onChange={this.handleUsageRulesChange}/>
-          </div>
-          <div styleName="aside">
-          </div>
-        </Form>
-      </div>
+            {this.promotionSelector}
+          </ContentBox>
+          <CouponCodes
+            onGenerateBulkCodes={this.handleGenerateBulkCodes}
+            onChangeSingleCode={this.handleChangeSingleCode}
+          />
+          <UsageRules {...(this.usageRules)} onChange={this.handleUsageRulesChange}/>
+        </div>
+        <div styleName="aside">
+          <Tags
+            form={formAttributes}
+            shadow={shadowAttributes}
+            onChange={this.handleChange}
+          />
+        </div>
+      </Form>
     );
   }
 
