@@ -60,6 +60,7 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit e
       valid     ← * <~ cartValidator.validate(isCheckout = false, fatalWarnings = true)
       _         ← * <~ authPayments(customer)
       valid     ← * <~ cartValidator.validate(isCheckout = true, fatalWarnings = true)
+      _         ← * <~ fraudScore
       _         ← * <~ remorseHold
       _         ← * <~ createNewCart
       updated   ← * <~ Orders.refresh(cart).toXor
@@ -142,6 +143,11 @@ final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit e
     } yield holds).toXor
 
   } yield remorseHold).value
+
+  private def fraudScore: DbResult[Order] = (for {
+    fraudScore ← * <~ scala.util.Random.nextInt(100)
+    order      ← * <~ Orders.update(cart, cart.copy(fraudScore = fraudScore.some))
+  } yield order).value
 
   private def createNewCart: DbResult[Order] =
     Orders.create(Order.buildCart(cart.customerId, cart.contextId))
