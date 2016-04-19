@@ -6,7 +6,7 @@ import org.json4s.JsonAST.{JField, JObject}
 import org.json4s.{Formats, CustomSerializer, Extraction, JValue}
 import utils.JsonFormatters
 
-final case class CountryWithRegions(country: Country, regions: Seq[Region])
+case class CountryWithRegions(country: Country, regions: Seq[Region])
 
 object CountryWithRegions {
   implicit val formats: Formats = JsonFormatters.DefaultFormats

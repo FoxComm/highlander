@@ -34,7 +34,7 @@ object Promotion {
  * A Promotion is a way to bundle several discounts into a presentable form.
  * ObjectLinks are used to connect a promotion to several discounts.
  */
-final case class Promotion(id: Int = 0, contextId: Int, shadowId: Int, formId: Int, 
+case class Promotion(id: Int = 0, contextId: Int, shadowId: Int, formId: Int, 
   commitId: Int, applyType: Promotion.ApplyType = Promotion.Auto, 
   updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[Promotion]

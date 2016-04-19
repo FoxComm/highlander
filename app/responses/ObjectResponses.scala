@@ -1,22 +1,15 @@
 package responses
 
-import models.objects._
-import models.Aliases.Json
-
-import org.json4s.DefaultFormats
-import org.json4s.Extraction
-import org.json4s.JsonAST.JValue
-import org.json4s.JsonDSL._
-import org.json4s.jackson.Serialization.{write ⇒ render}
-
 import java.time.Instant
-import cats.implicits._
+
+import models.Aliases.Json
+import models.objects._
 
 object ObjectResponses {
 
   object ObjectContextResponse { 
 
-    final case class Root(name: String, attributes: Json)
+    case class Root(name: String, attributes: Json)
 
     def build(c: ObjectContext) : Root = 
       Root(name = c.name, attributes = c.attributes)
@@ -27,7 +20,7 @@ object ObjectResponses {
 
   object ObjectFormResponse {
 
-    final case class Root(id: Int, attributes: Json, createdAt: Instant)
+    case class Root(id: Int, attributes: Json, createdAt: Instant)
 
     def build(f: ObjectForm): Root = 
       Root(id = f.id, attributes = f.attributes, createdAt = f.createdAt)
@@ -35,7 +28,7 @@ object ObjectResponses {
 
   object ObjectShadowResponse {
 
-    final case class Root(id: Int, formId: Int, attributes: Json, createdAt: Instant)
+    case class Root(id: Int, formId: Int, attributes: Json, createdAt: Instant)
 
     def build(s: ObjectShadow): Root = 
       Root(id = s.id, formId = s.formId, attributes = s.attributes, 
@@ -44,7 +37,7 @@ object ObjectResponses {
 
   object IlluminatedObjectResponse {
 
-    final case class Root(id: Int, attributes: Json)
+    case class Root(id: Int, attributes: Json)
 
     def build(s: IlluminatedObject): Root = 
       Root(id = s.id, attributes = s.attributes)

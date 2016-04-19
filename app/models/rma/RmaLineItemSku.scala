@@ -15,7 +15,7 @@ import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 
 
-final case class RmaLineItemSku(id: Int = 0, rmaId: Int, skuId: Int, skuShadowId: Int, createdAt: Instant = Instant.now)
+case class RmaLineItemSku(id: Int = 0, rmaId: Int, skuId: Int, skuShadowId: Int, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[RmaLineItemSku]
 
 object RmaLineItemSku {}

@@ -24,10 +24,10 @@ object SimpleDiscount {
 }
 import SimpleDiscount._
 
-final case class SimpleDiscount(discountId: Int = 0, formId: Int = 0, shadowId: Int = 0,  
+case class SimpleDiscount(discountId: Int = 0, formId: Int = 0, shadowId: Int = 0,  
   percentOff: Percent, totalAmount: Int)
 
-final case class SimpleDiscountForm(percentOff: Percent, totalAmount: Int) {
+case class SimpleDiscountForm(percentOff: Percent, totalAmount: Int) {
 
     val (keyMap, form) = ObjectUtils.createForm(parse(s"""
     {
@@ -47,10 +47,10 @@ final case class SimpleDiscountForm(percentOff: Percent, totalAmount: Int) {
     }"""))
 }
 
-final case class SimpleDiscountShadow(f: SimpleDiscountForm) { 
+case class SimpleDiscountShadow(f: SimpleDiscountForm) { 
 
     val shadow = ObjectUtils.newShadow(parse(
-      s"""
+      """
         {
           "title" : {"type": "string", "ref": "title"},
           "description" : {"type": "richText", "ref": "description"},

@@ -23,7 +23,7 @@ object DbResultT {
       def pure[A](a: A): DBIO[A] = DBIO.successful(a)
     }
 
-    implicit def dbioMonad(implicit ec: EC, app: Applicative[DBIO]) = new Functor[DBIO] with Monad[DBIO] {
+    implicit def dbioMonad(implicit ec: EC) = new Functor[DBIO] with Monad[DBIO] {
       override def map[A, B](fa: DBIO[A])(f: A ⇒ B): DBIO[B] = fa.map(f)
 
       override def pure[A](a: A): DBIO[A] = DBIO.successful(a)
@@ -32,10 +32,10 @@ object DbResultT {
     }
 
     implicit class EnrichedDbResultT[A](dbResultT: DbResultT[A]) {
-      def runTxn()(implicit ec: EC, db: DB): Result[A] =
+      def runTxn()(implicit db: DB): Result[A] =
         dbResultT.value.transactionally.run()
 
-      def run()(implicit ec: EC, db: DB): Result[A] =
+      def run()(implicit db: DB): Result[A] =
         dbResultT.value.run()
     }
 
@@ -47,7 +47,7 @@ object DbResultT {
 
   import implicits._
 
-  def apply[A](v: DBIO[Failures Xor A])(implicit ec: EC): DbResultT[A] =
+  def apply[A](v: DBIO[Failures Xor A]): DbResultT[A] =
     XorT[DBIO, Failures, A](v)
 
   def pure[A](v: A)(implicit ec: EC): DbResultT[A] =
@@ -75,7 +75,7 @@ object DbResultT {
     }.map(_.result())
 
   object * {
-    def <~[A](v: DBIO[Failures Xor A])(implicit ec: EC): DbResultT[A] =
+    def <~[A](v: DBIO[Failures Xor A]): DbResultT[A] =
       DbResultT(v)
 
     def <~[A](v: SqlAction[A, NoStream, Effect.All])(implicit ec: EC): DbResultT[A] =
@@ -84,7 +84,7 @@ object DbResultT {
     def <~[A](v: Failures Xor A)(implicit ec: EC): DbResultT[A] =
       DbResultT.fromXor(v)
 
-    def <~[A](v: Future[Failures Xor A])(implicit ec: EC): DbResultT[A] =
+    def <~[A](v: Future[Failures Xor A]): DbResultT[A] =
       DbResultT(DBIO.from(v))
 
     def <~[A](v: A)(implicit ec: EC): DbResultT[A] =
@@ -93,7 +93,7 @@ object DbResultT {
     def <~[A](v: Validated[Failures, A])(implicit ec: EC): DbResultT[A] =
       DbResultT.fromXor(v.toXor)
 
-    def <~[A](v: DbResultT[A])(implicit ec: EC): DbResultT[A] =
+    def <~[A](v: DbResultT[A]): DbResultT[A] =
       v
   }
 }

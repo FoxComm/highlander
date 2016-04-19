@@ -23,25 +23,25 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases._
 
 object RmaResponse {
-  final case class RmaTotals(subTotal: Int, shipping: Int, taxes: Int, total: Int) extends ResponseItem
+  case class RmaTotals(subTotal: Int, shipping: Int, taxes: Int, total: Int) extends ResponseItem
 
-  final case class LineItemSku(lineItemId: Int, sku: DisplaySku) extends ResponseItem
-  final case class LineItemGiftCard(lineItemId: Int, giftCard: GiftCardResponse.Root) extends ResponseItem
-  final case class LineItemShippingCost(lineItemId: Int, shippingCost: ShipmentResponse.Root) extends ResponseItem
+  case class LineItemSku(lineItemId: Int, sku: DisplaySku) extends ResponseItem
+  case class LineItemGiftCard(lineItemId: Int, giftCard: GiftCardResponse.Root) extends ResponseItem
+  case class LineItemShippingCost(lineItemId: Int, shippingCost: ShipmentResponse.Root) extends ResponseItem
 
-  final case class LineItems(
+  case class LineItems(
     skus: Seq[LineItemSku] = Seq.empty,
     giftCards: Seq[LineItemGiftCard] = Seq.empty,
     shippingCosts: Seq[LineItemShippingCost] = Seq.empty) extends ResponseItem
 
-  final case class DisplayPayment(
+  case class DisplayPayment(
     id: Int,
     amount: Int,
     currency: Currency = Currency.USD,
     paymentMethodId: Int,
     paymentMethodType: PaymentMethod.Type) extends ResponseItem
 
-  final case class DisplaySku(
+  case class DisplaySku(
     imagePath: String = "http://lorempixel.com/75/75/fashion",
     name: String = "donkey product",
     sku: String,
@@ -49,7 +49,7 @@ object RmaResponse {
     quantity: Int = 1,
     totalPrice: Int = 33) extends ResponseItem
 
-  final case class Root(
+  case class Root(
     id: Int,
     referenceNumber: String,
     orderRefNum: String,
@@ -65,7 +65,7 @@ object RmaResponse {
     updatedAt: Instant,
     totals: Option[RmaTotals]) extends ResponseItem
 
-  final case class RootExpanded(
+  case class RootExpanded(
     id: Int,
     referenceNumber: String,
     order: Option[FullOrder.Root],

@@ -12,7 +12,7 @@ import utils.Slick.implicits._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.aliases._
 
-final case class CustomerDynamicGroup(id: Int = 0,
+case class CustomerDynamicGroup(id: Int = 0,
   createdBy: Int,
   name: String,
   customersCount: Option[Int],
@@ -52,8 +52,7 @@ object CustomerDynamicGroups extends TableQueryWithId[CustomerDynamicGroup, Cust
   idLens = GenLens[CustomerDynamicGroup](_.id)
 )(new CustomerDynamicGroups(_)) {
 
-  def sortedAndPaged(query: CustomerDynamicGroups.QuerySeq)
-    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): CustomerDynamicGroups.QuerySeqWithMetadata  =
+  def sortedAndPaged(query: CustomerDynamicGroups.QuerySeq)(implicit sortAndPage: SortAndPage): CustomerDynamicGroups.QuerySeqWithMetadata  =
       query.withMetadata.sortAndPageIfNeeded { case (s, group) ⇒
       s.sortColumn match {
         case "id"                  ⇒ if (s.asc) group.id.asc                 else group.id.desc

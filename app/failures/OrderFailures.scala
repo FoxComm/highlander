@@ -4,7 +4,7 @@ import utils.friendlyClassName
 
 object OrderFailures {
 
-  final case class SkuNotFoundInOrder(sku: String, refNum: String) extends Failure {
+  case class SkuNotFoundInOrder(sku: String, refNum: String) extends Failure {
     override def description = s"line item with sku=$sku not found in order with referenceNumber=$refNum"
   }
 
@@ -12,7 +12,7 @@ object OrderFailures {
     def apply[M](m: M): NotFoundFailure400 = NotFoundFailure400(s"${friendlyClassName(m)} payment not found")
   }
 
-  final case class OrderUpdateFailure(referenceNumber: String, reason: String) extends Failure {
+  case class OrderUpdateFailure(referenceNumber: String, reason: String) extends Failure {
     override def description = reason
   }
 

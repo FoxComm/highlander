@@ -5,7 +5,7 @@ import Util.searchTerm
 
 object LockFailures {
 
-  final case class LockedFailure(message: String) extends Failure {
+  case class LockedFailure(message: String) extends Failure {
     override def description = message
   }
 
@@ -15,7 +15,7 @@ object LockFailures {
     }
   }
 
-  final case class NotLockedFailure(message: String) extends Failure {
+  case class NotLockedFailure(message: String) extends Failure {
     override def description = message
   }
 

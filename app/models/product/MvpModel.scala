@@ -1,27 +1,24 @@
 package models.product
 
+import java.time.Instant
+
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import cats.implicits._
+import failures.ObjectFailures._
+import failures.ProductFailures._
 import models.inventory._
 import models.objects._
-import models.Aliases.Json
+import org.json4s.JsonAST.{JNothing, JString, JValue}
+import org.json4s.JsonDSL._
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
+import slick.driver.PostgresDriver.api._
 import utils.DbResultT
 import utils.DbResultT._
 import utils.DbResultT.implicits._
 import utils.Money.Currency
 import utils.Slick.implicits._
-import failures.ProductFailures._
-import failures.ObjectFailures._
-
-import org.json4s._
-import org.json4s.jackson.JsonMethods._
-import org.json4s.JsonAST.{JValue, JString, JObject, JField, JNothing}
-import org.json4s.JsonDSL._
-
-import slick.driver.PostgresDriver.api._
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import cats.implicits._
-import java.time.Instant
-import java.security.MessageDigest
 
 object SimpleContext { 
   val id = 1
@@ -42,7 +39,7 @@ object SimpleProductDefaults {
   val imageUrl = "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/no_image.jpg"
 }
 
-final case class SimpleProduct(title: String, description: String, image: String,
+case class SimpleProduct(title: String, description: String, image: String,
   code: String, active: Boolean = false, tags: Seq[String] = Seq.empty) {
     val activeFrom = if(active) s""""${Instant.now}"""" else "null";
     val ts: String = compact(render(JArray(tags.map(t ⇒ JString(t)).toList)))
@@ -63,10 +60,10 @@ final case class SimpleProduct(title: String, description: String, image: String
       oldForm.copy(attributes = oldForm.attributes merge form)
 }
 
-final case class SimpleProductShadow(p: SimpleProduct) { 
+case class SimpleProductShadow(p: SimpleProduct) { 
 
     val shadow = ObjectUtils.newShadow(parse(
-      s"""
+      """
         {
           "title" : {"type": "string", "ref": "title"},
           "description" : {"type": "richText", "ref": "description"},
@@ -82,7 +79,7 @@ final case class SimpleProductShadow(p: SimpleProduct) {
       ObjectShadow(attributes = shadow)
 }
 
-final case class SimpleSku(code: String, title: String, image: String,
+case class SimpleSku(code: String, title: String, image: String,
   price: Int, currency: Currency, active: Boolean = false, 
   tags: Seq[String] = Seq.empty) {
 
@@ -112,10 +109,10 @@ final case class SimpleSku(code: String, title: String, image: String,
       oldForm.copy(attributes = oldForm.attributes merge form)
 }
 
-final case class SimpleSkuShadow(s: SimpleSku) { 
+case class SimpleSkuShadow(s: SimpleSku) { 
 
     val shadow = ObjectUtils.newShadow(parse(
-      s"""
+      """
         {
           "title" : {"type": "string", "ref": "title"},
           "images" : {"type": "images", "ref": "images"},
@@ -130,12 +127,12 @@ final case class SimpleSkuShadow(s: SimpleSku) {
       ObjectShadow(attributes = shadow)
 }
 
-final case class SimpleProductData(productId: Int = 0, skuId: Int = 0, title: String, 
+case class SimpleProductData(productId: Int = 0, skuId: Int = 0, title: String, 
   description: String, image: String = SimpleProductDefaults.imageUrl, code: String, 
   price: Int, currency: Currency = Currency.USD, active: Boolean = false, 
   tags: Seq[String] = Seq.empty)
 
-final case class SimpleProductTuple(product: Product, sku: Sku, 
+case class SimpleProductTuple(product: Product, sku: Sku, 
   productForm: ObjectForm, skuForm: ObjectForm, productShadow: ObjectShadow, 
   skuShadow: ObjectShadow)
 
@@ -177,8 +174,7 @@ object Mvp {
 
   def insertProductIntoContext(contextId: Int, productForm: ObjectForm, 
     skuForm: ObjectForm, simpleProduct: SimpleProduct, simpleSku: SimpleSku, 
-    p: SimpleProductData)
-  (implicit db: Database): DbResultT[SimpleProductData] = for {
+    p: SimpleProductData): DbResultT[SimpleProductData] = for {
 
     simpleShadow    ← * <~ SimpleProductShadow(simpleProduct)
     productShadow   ← * <~ ObjectShadows.create(simpleShadow.create.

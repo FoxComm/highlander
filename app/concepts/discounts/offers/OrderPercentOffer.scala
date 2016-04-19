@@ -8,7 +8,7 @@ import models.order.Order
 import models.order.lineitems.OrderLineItemProductData
 import models.shipping.ShippingMethod
 
-final case class OrderPercentOffer(discount: Int) extends Offer {
+case class OrderPercentOffer(discount: Int) extends Offer {
 
   val rejectionReason = "Invalid discount value provided (should be between 1 and 99)"
 

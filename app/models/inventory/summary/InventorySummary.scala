@@ -8,7 +8,7 @@ import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class InventorySummary(id: Int = 0, skuId: Int, warehouseId: Int, sellableId: Int, backorderId: Int,
+case class InventorySummary(id: Int = 0, skuId: Int, warehouseId: Int, sellableId: Int, backorderId: Int,
   preorderId: Int, nonSellableId: Int, createdAt: Instant = Instant.now) extends ModelWithIdParameter[InventorySummary]
 
 object InventorySummary {
@@ -59,6 +59,8 @@ object InventorySummaries extends TableQueryWithId[InventorySummary, InventorySu
 
   def findSellableBySkuIdInWarehouse(skuId: Int, warehouseId: Int): SellableInventorySummaries.QuerySeq = for {
     sellable ← SellableInventorySummaries 
-    invSums ← InventorySummaries.filter(_.sellableId === sellable.id).filter(_.skuId === skuId)
+    invSums ← InventorySummaries.filter(_.sellableId === sellable.id)
+                                .filter(_.skuId === skuId)
+                                .filter(_.warehouseId === warehouseId)
   } yield sellable
 }

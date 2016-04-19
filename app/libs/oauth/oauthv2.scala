@@ -7,7 +7,7 @@ import dispatch.{Http, as, url ⇒ request}
 import org.json4s.{DefaultFormats, _}
 import utils.aliases._
 
-final case class UserInfo(name: String, email: String)
+case class UserInfo(name: String, email: String)
 
 trait OauthProvider {
   val oauthAuthorizationUrl: String

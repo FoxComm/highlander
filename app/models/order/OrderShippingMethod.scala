@@ -6,7 +6,7 @@ import slick.driver.PostgresDriver.api._
 import utils.GenericTable.TableWithId
 import utils.{ModelWithIdParameter, TableQueryWithId}
 
-final case class OrderShippingMethod(id: Int = 0, orderId: Int, shippingMethodId: Int, price: Int)
+case class OrderShippingMethod(id: Int = 0, orderId: Int, shippingMethodId: Int, price: Int)
   extends ModelWithIdParameter[OrderShippingMethod]
 
 object OrderShippingMethod {
@@ -29,5 +29,5 @@ class OrderShippingMethods(tag: Tag) extends TableWithId[OrderShippingMethod](ta
 object OrderShippingMethods extends TableQueryWithId[OrderShippingMethod, OrderShippingMethods](
   idLens = GenLens[OrderShippingMethod](_.id)
 )(new OrderShippingMethods(_)) {
-  def findByOrderId(orderId: Int)(implicit db: Database): QuerySeq = filter(_.orderId === orderId)
+  def findByOrderId(orderId: Int): QuerySeq = filter(_.orderId === orderId)
 }

@@ -126,7 +126,7 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
     val result        = entities.map(buildResponse)
     val entityTrio    = groupEntities(entities, assignments, payload, actionType)
     val successData   = getSuccessData(entityTrio)
-    val failureData   = getFailureData(entityTrio, entities, payload.storeAdminId, actionType)
+    val failureData   = getFailureData(entityTrio, payload.storeAdminId, actionType)
     val batchMetadata = BatchMetadata(BatchMetadataSource(referenceType, successData, failureData))
 
     (successData, TheResponse(result, errors = flattenErrors(failureData), batch = batchMetadata.some))
@@ -144,11 +144,10 @@ trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
   // Batch metadata builders
   private def getSuccessData(trio: EntityTrio): SuccessData = searchKeys(trio.succeed)
 
-  private def getFailureData(trio: EntityTrio, entities: Seq[M], storeAdminId: Int,
-    actionType: ActionType): FailureData = {
+  private def getFailureData(trio: EntityTrio, storeAdminId: Int, actionType: ActionType): FailureData = {
 
     val notFoundFailures = trio.notFound.map { key ⇒
-      (key.toString, NotFoundFailure404(referenceType, key).description)
+      (key, NotFoundFailure404(referenceType, key).description)
     }
 
     val skippedFailures = trio.skipped.map { e ⇒

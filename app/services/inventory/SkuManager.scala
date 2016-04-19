@@ -67,8 +67,7 @@ object SkuManager {
   } yield IlluminatedSkuResponse.build(IlluminatedSku.illuminate(
     context, sku, form, shadow))).run()
 
-  def validateShadow(form: ObjectForm, shadow: ObjectShadow) 
-  (implicit ec: EC, db: DB) : DbResultT[Unit] = 
+  def validateShadow(form: ObjectForm, shadow: ObjectShadow)(implicit ec: EC) : DbResultT[Unit] =
     SkuValidator.validate(form, shadow) match {
       case Nil ⇒ DbResultT.pure(Unit)
       case head ::tail ⇒ DbResultT.leftLift(NonEmptyList(head, tail))
@@ -108,8 +107,7 @@ object SkuManager {
     _ ← * <~ LogActivity.fullSkuUpdated(Some(admin), skuResponse, contextResponse)
   } yield skuResponse).runTxn()
 
-  def updateSkuHead(sku: Sku, skuShadow: ObjectShadow, maybeCommit: Option[ObjectCommit]) 
-    (implicit ec: EC, db: DB): DbResultT[Sku] = 
+  def updateSkuHead(sku: Sku, skuShadow: ObjectShadow, maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[Sku] =
       maybeCommit match {
         case Some(commit) ⇒  for { 
           sku ← * <~ Skus.update(sku, sku.copy(shadowId = skuShadow.id, 

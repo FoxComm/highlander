@@ -5,12 +5,12 @@ import responses.StoreAdminResponse
 
 object NotesTailored {
   /* Notes */
-  final case class NoteCreated[T](admin: StoreAdminResponse.Root, entity: T, note: Note)
+  case class NoteCreated[T](admin: StoreAdminResponse.Root, entity: T, note: Note)
     extends ActivityBase[NoteCreated[T]]
 
-  final case class NoteUpdated[T](admin: StoreAdminResponse.Root, entity: T, oldNote: Note, note: Note)
+  case class NoteUpdated[T](admin: StoreAdminResponse.Root, entity: T, oldNote: Note, note: Note)
     extends ActivityBase[NoteUpdated[T]]
 
-  final case class NoteDeleted[T](admin: StoreAdminResponse.Root, entity: T, note: Note)
+  case class NoteDeleted[T](admin: StoreAdminResponse.Root, entity: T, note: Note)
     extends ActivityBase[NoteDeleted[T]]
 }

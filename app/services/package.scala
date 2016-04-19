@@ -29,7 +29,7 @@ package object services {
   type ResultT[A] = XorT[Future, Failures, A]
 
   object ResultT {
-    def apply[A](xor: Result[A])(implicit ec: EC): ResultT[A] = XorT[Future, Failures, A](xor)
+    def apply[A](xor: Result[A]): ResultT[A] = XorT[Future, Failures, A](xor)
 
     def fromXor[A](xor: Failures Xor A)(implicit ec: EC): ResultT[A] = xor.fold(leftAsync, rightAsync)
 

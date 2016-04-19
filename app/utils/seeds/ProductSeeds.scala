@@ -15,14 +15,11 @@ trait ProductSeeds extends  {
   type SeedProducts = (SimpleProductData, SimpleProductData, SimpleProductData, 
     SimpleProductData, SimpleProductData, SimpleProductData, SimpleProductData)
 
-  def createProducts(implicit db: Database) : DbResultT[SeedProducts] = for {
+  def createProducts(implicit db: Database): DbResultT[SeedProducts] = for {
     context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
     ps ← * <~ Mvp.insertProducts(products, context.id)
-    } yield ps match {
-      case p1 :: p2 :: s3 :: p4 :: p5 :: p6 :: p7 :: Nil ⇒ 
-        ( p1, p2, s3, p4, p5, p6, p7)
-      case other ⇒  ???
-    }
+    (p1 :: p2 :: s3 :: p4 :: p5 :: p6 :: p7 :: Nil) = ps
+  } yield (p1, p2, s3, p4, p5, p6, p7)
 
   def products: Seq[SimpleProductData] = Seq(
     SimpleProductData(code = "SKU-YAX", title = "Donkey", description = "A styled fit for the donkey life.", price = 3300, 
@@ -61,10 +58,7 @@ trait ProductSeeds extends  {
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.ruId)
       ps ← * <~ Mvp.insertProductsNewContext(SimpleContext.id, SimpleContext.ruId, ruProducts)
-    } yield ps match {
-        case p1 :: p2 :: s3 :: p4 :: p5 :: p6 :: p7 :: Nil ⇒ 
-          ( p1, p2, s3, p4, p5, p6, p7)
-        case other ⇒  ???
-      }
+      (p1 :: p2 :: s3 :: p4 :: p5 :: p6 :: p7 :: Nil) = ps
+    } yield (p1, p2, s3, p4, p5, p6, p7)
   }
 }

@@ -15,7 +15,7 @@ import utils.Slick.implicits._
 import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.aliases._
 
-final case class RmaReason(id: Int = 0, name: String, reasonType: ReasonType = BaseReason, rmaType: RmaType = Standard,
+case class RmaReason(id: Int = 0, name: String, reasonType: ReasonType = BaseReason, rmaType: RmaType = Standard,
   createdAt: Instant = Instant.now, deletedAt: Option[Instant] = None)
   extends ModelWithIdParameter[RmaReason] {
 
@@ -48,8 +48,7 @@ object RmaReasons extends TableQueryWithId[RmaReason, RmaReasons](
   idLens = GenLens[RmaReason](_.id)
 )(new RmaReasons(_)) {
 
-  def sortedAndPaged(query: QuerySeq)
-    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata = {
+  def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata = {
     val sortedQuery = query.withMetadata.sortAndPageIfNeeded { case (s, reason) ⇒
       s.sortColumn match {
         case "id"           ⇒ if (s.asc) reason.id.asc           else reason.id.desc

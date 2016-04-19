@@ -6,7 +6,7 @@ import responses.StoreAdminResponse.{build ⇒ buildAdmin}
 
 object AssignmentResponse {
 
-  final case class Root(assignee: StoreAdminResponse.Root, assignmentType: Assignment.AssignmentType,
+  case class Root(assignee: StoreAdminResponse.Root, assignmentType: Assignment.AssignmentType,
     createdAt: Instant) extends ResponseItem
 
   def build(assignment: Assignment, admin: StoreAdmin): Root = Root(assignee = buildAdmin(admin),

@@ -65,7 +65,7 @@ object GenericTable {
 abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.TableWithId[M]]
   (idLens: Lens[M, M#Id])
   (construct: Tag ⇒ T)
-  (implicit ev: BaseTypedType[M#Id]) extends TableQuery[T](construct) with SearchById[M, T] {
+  extends TableQuery[T](construct) with SearchById[M, T] {
 
   import ExceptionWrapper._
 
@@ -105,7 +105,7 @@ abstract class TableQueryWithId[M <: ModelWithIdParameter[M], T <: GenericTable.
       wrapDbio((returning += good).map(ret ⇒ action(ret)(good)))
     })
 
-  def update(oldModel: M, newModel: M)(implicit ec: EC, db: DB): DbResult[M] = (for {
+  def update(oldModel: M, newModel: M)(implicit ec: EC): DbResult[M] = (for {
     _        ← * <~ oldModel.mustBeCreated
     prepared ← * <~ beforeSave(newModel)
     _        ← * <~ oldModel.updateTo(prepared)
@@ -167,6 +167,6 @@ object ExceptionWrapper {
 abstract class TableQueryWithLock[M <: ModelWithLockParameter[M], T <: GenericTable.TableWithLock[M]]
   (idLens: Lens[M, M#Id])
   (construct: Tag ⇒ T)
-  (implicit ev: BaseTypedType[M#Id]) extends TableQueryWithId[M, T](idLens)(construct) {
+  extends TableQueryWithId[M, T](idLens)(construct) {
 
 }

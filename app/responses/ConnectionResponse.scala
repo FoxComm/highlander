@@ -8,7 +8,7 @@ import models.activity._
 
 object ActivityConnectionResponse {
 
-  final case class Root(
+  case class Root(
     id: Int, 
     dimension: String,
     objectId: String,
@@ -37,14 +37,14 @@ object ActivityConnectionResponse {
 
 object FullActivityConnectionResponse {
 
-  final case class ActivityResp(
+  case class ActivityResp(
     id: Int, 
     kind: ActivityType,
     data: Json,
     context: ActivityContext,
     createdAt: Instant) 
 
-  final case class Root(
+  case class Root(
     id: Int, 
     dimension: String,
     objectId: String,

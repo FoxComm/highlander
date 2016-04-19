@@ -15,7 +15,7 @@ trait Qualifier {
 
 object Qualifier {
 
-  final case class QualifierFormat(qualifierType: QualifierType, attributes: JObject)
+  case class QualifierFormat(qualifierType: QualifierType, attributes: JObject)
   type QualifierAstFormat = Seq[QualifierFormat]
 
 }

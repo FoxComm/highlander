@@ -42,7 +42,7 @@ object OrderStateUpdater {
   } yield response.copy(errors = batchMetadata.flatten, batch = Some(batchMetadata))).runTxn()
 
   private def updateStatesDbio(admin: StoreAdmin, refNumbers: Seq[String], newState: Order.State, skipActivity: Boolean = false)
-    (implicit ec: EC, db: DB, ac: AC, sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResult[BatchMetadata] = {
+    (implicit ec: EC, db: DB, ac: AC): DbResult[BatchMetadata] = {
 
     val query = Orders.filter(_.referenceNumber.inSet(refNumbers)).result
     appendForUpdate(query).flatMap { orders ⇒
@@ -72,7 +72,7 @@ object OrderStateUpdater {
   }
 
   private def updateQueriesWrapper(admin: StoreAdmin, orderIds: Seq[Int], orderRefNums: Seq[String], newState: State,
-    skipActivity: Boolean = false)(implicit ec: EC, db: DB, ac: AC) = {
+    skipActivity: Boolean = false)(implicit ec: EC, ac: AC) = {
 
     if (skipActivity)
         updateQueries(admin, orderIds, orderRefNums, newState)
@@ -81,8 +81,7 @@ object OrderStateUpdater {
         updateQueries(admin, orderIds, orderRefNums, newState)
   }
 
-  private def updateQueries(admin: StoreAdmin, orderIds: Seq[Int], orderRefNums: Seq[String], newState: State)
-    (implicit ec: EC, db: DB, ac: AC) = newState match {
+  private def updateQueries(admin: StoreAdmin, orderIds: Seq[Int], orderRefNums: Seq[String], newState: State) = newState match {
       case Canceled ⇒
         cancelOrders(orderIds)
       case _ ⇒

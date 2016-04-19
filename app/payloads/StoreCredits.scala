@@ -9,7 +9,7 @@ import utils.Money._
 import utils.Validation
 import Validation._
 
-final case class StoreCreditUpdateStateByCsr(state: StoreCredit.State, reasonId: Option[Int] = None)
+case class StoreCreditUpdateStateByCsr(state: StoreCredit.State, reasonId: Option[Int] = None)
   extends Validation[StoreCreditUpdateStateByCsr] {
 
   def validate: ValidatedNel[Failure, StoreCreditUpdateStateByCsr] = {
@@ -17,7 +17,7 @@ final case class StoreCreditUpdateStateByCsr(state: StoreCredit.State, reasonId:
   }
 }
 
-final case class StoreCreditBulkUpdateStateByCsr(ids: Seq[Int], state: StoreCredit.State,
+case class StoreCreditBulkUpdateStateByCsr(ids: Seq[Int], state: StoreCredit.State,
   reasonId: Option[Int] = None)
   extends Validation[StoreCreditBulkUpdateStateByCsr] {
 

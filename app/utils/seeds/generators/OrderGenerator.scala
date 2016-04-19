@@ -226,7 +226,7 @@ trait OrderGenerator extends ShipmentSeeds {
 
   private def total(skuIds: Seq[Int])(implicit db: DB)  = for {
     prices ← * <~ DbResultT.sequence(skuIds.map(Mvp.getPrice))
-    t ← * <~ prices.foldLeft(0)(_+_)
+    t ← * <~ prices.sum
   } yield t
 
   private def generateOrderPayments(order: Order, cc: CreditCard, gc: GiftCard, deductFromGc: Int) : DbResultT[Unit] = {

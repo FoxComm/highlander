@@ -11,7 +11,7 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.aliases._
 import models.sharedsearch.SharedSearches.scope._
 
-final case class SharedSearchAssociation(id: Int = 0, sharedSearchId: Int, storeAdminId: Int,
+case class SharedSearchAssociation(id: Int = 0, sharedSearchId: Int, storeAdminId: Int,
   createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[SharedSearchAssociation]
 
@@ -40,14 +40,14 @@ object SharedSearchAssociations extends TableQueryWithId[SharedSearchAssociation
 
   def byStoreAdmin(admin: StoreAdmin): QuerySeq = filter(_.storeAdminId === admin.id)
 
-  def associatedWith(admin: StoreAdmin, scope: SharedSearch.Scope)(implicit ec: EC): SharedSearches.QuerySeq = for {
+  def associatedWith(admin: StoreAdmin, scope: SharedSearch.Scope): SharedSearches.QuerySeq = for {
     associations ← byStoreAdmin(admin).map(_.sharedSearchId)
     searches    ← SharedSearches.notDeleted.filter(_.id === associations).filter(_.scope === scope)
   } yield searches
 
   def bySharedSearch(search: SharedSearch): QuerySeq = filter(_.sharedSearchId === search.id)
 
-  def associatedAdmins(search: SharedSearch)(implicit ec: EC): StoreAdmins.QuerySeq = {
+  def associatedAdmins(search: SharedSearch): StoreAdmins.QuerySeq = {
     for {
       associations ← bySharedSearch(search).map(_.storeAdminId)
       admins       ← StoreAdmins.filter(_.id === associations)

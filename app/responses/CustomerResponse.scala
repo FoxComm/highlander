@@ -6,7 +6,7 @@ import models.customer._
 import models.location.Region
 
 object CustomerResponse {
-  final case class Root(
+  case class Root(
     id: Int = 0,
     email: String,
     name: Option[String] = None,

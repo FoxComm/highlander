@@ -5,7 +5,7 @@ import java.time.Instant
 import models.payment.storecredit.StoreCreditAdjustment
 
 object StoreCreditAdjustmentsResponse {
-  final case class Root(
+  case class Root(
     id: Int,
     createdAt: Instant,
     debit: Int,

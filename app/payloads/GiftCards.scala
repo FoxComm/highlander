@@ -9,7 +9,7 @@ import utils.Money._
 import utils.Validation
 import Validation._
 
-final case class GiftCardCreateByCsr(balance: Int, reasonId: Int, currency: Currency = Currency.USD,
+case class GiftCardCreateByCsr(balance: Int, reasonId: Int, currency: Currency = Currency.USD,
   subTypeId: Option[Int] = None)
   extends Validation[GiftCardCreateByCsr] {
 
@@ -18,7 +18,7 @@ final case class GiftCardCreateByCsr(balance: Int, reasonId: Int, currency: Curr
   }
 }
 
-final case class GiftCardBulkCreateByCsr(quantity: Int, balance: Int, reasonId: Int, currency: Currency = Currency.USD,
+case class GiftCardBulkCreateByCsr(quantity: Int, balance: Int, reasonId: Int, currency: Currency = Currency.USD,
   subTypeId: Option[Int] = None)
   extends Validation[GiftCardBulkCreateByCsr] {
 
@@ -32,7 +32,7 @@ final case class GiftCardBulkCreateByCsr(quantity: Int, balance: Int, reasonId: 
   }
 }
 
-final case class GiftCardUpdateStateByCsr(state: GiftCard.State, reasonId: Option[Int] = None)
+case class GiftCardUpdateStateByCsr(state: GiftCard.State, reasonId: Option[Int] = None)
   extends Validation[GiftCardUpdateStateByCsr] {
 
   def validate: ValidatedNel[Failure, GiftCardUpdateStateByCsr] = {
@@ -40,7 +40,7 @@ final case class GiftCardUpdateStateByCsr(state: GiftCard.State, reasonId: Optio
   }
 }
 
-final case class GiftCardBulkUpdateStateByCsr(codes: Seq[String], state: GiftCard.State,
+case class GiftCardBulkUpdateStateByCsr(codes: Seq[String], state: GiftCard.State,
   reasonId: Option[Int] = None)
   extends Validation[GiftCardBulkUpdateStateByCsr] {
 

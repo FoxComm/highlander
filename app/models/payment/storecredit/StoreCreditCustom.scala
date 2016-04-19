@@ -8,7 +8,7 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 import org.json4s.JsonAST.JValue
 import utils.ExPostgresDriver.api._
 
-final case class StoreCreditCustom(id: Int = 0,
+case class StoreCreditCustom(id: Int = 0,
   adminId: Int,
   metadata: JValue,
   createdAt: Instant = Instant.now) extends ModelWithIdParameter[StoreCreditCustom]

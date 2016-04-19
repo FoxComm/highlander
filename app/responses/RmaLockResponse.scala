@@ -6,11 +6,11 @@ import models.rma.{RmaLockEvent, Rma}
 import models.StoreAdmin
 
 object RmaLockResponse {
-  final case class Root(
+  case class Root(
     isLocked: Boolean,
     lock: Option[Lock])
 
-  final case class Lock(
+  case class Lock(
     id: Int,
     lockedBy: StoreAdminResponse.Root,
     lockedAt: Instant)

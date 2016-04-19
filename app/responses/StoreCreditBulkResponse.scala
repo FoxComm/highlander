@@ -5,7 +5,7 @@ import failures.Failures
 import scala.collection.immutable.Seq
 
 object StoreCreditBulkResponse {
-  final case class ItemResult(
+  case class ItemResult(
     id: Int,
     success: Boolean = false,
     storeCredit: Option[StoreCreditResponse.Root] = None,

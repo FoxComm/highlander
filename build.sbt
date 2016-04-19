@@ -20,7 +20,7 @@ lazy val commonSettings = Seq(
   )
 )
 
-lazy val testWartWarnings = Seq(Wart.OptionPartial)
+scapegoatVersion := "1.2.0"
 
 lazy val slickV = "3.1.1"
 
@@ -28,49 +28,6 @@ lazy val phoenixScala = (project in file(".")).
   settings(commonSettings).
   configs(IT).
   settings(inConfig(IT)(Defaults.testSettings)).
-  settings(inConfig(Test)(wartremoverWarnings ++= testWartWarnings)).
-  settings(inConfig(IT)(wartremoverWarnings ++= testWartWarnings)).
-  settings(
-    wartremoverWarnings in (Compile, compile) ++=
-      Warts.allBut(
-        /** Covered by the compiler */
-        Wart.Any,
-
-        /** In the absence of type annotations, Good(v: A) is inferred as Or[A, Nothing] */
-        Wart.Nothing,
-
-        /** Many library methods can throw, for example Future.map, but not much
-          * 3-rd party code uses @throws */
-        Wart.Throw,
-
-        /** Good is a case class and therefore has Product and Serializable */
-        Wart.Product, Wart.Serializable,
-
-        /**
-         * Can’t figure out how to resolve this issue.
-         *
-         * {{{
-         *   app/models/Address.scala:48: Statements must return Unit
-         *   [error] object Addresses extends TableQueryWithId[Address, Addresses](
-         *                                    ^
-         * }}}
-         */
-        Wart.NonUnitStatements,
-
-        /** This goes overboard. Wart remover’s justification is that those are hard to be used as functions. */
-        Wart.DefaultArguments,
-
-        /** [[scala.collection.JavaConverters]] does not have methods for handling Maps */
-        Wart.JavaConversions,
-
-        /** While Applicatives might be simpler, there is no for comprehension sugar for them. **/
-        Wart.NoNeedForMonad,
-
-        /** New warts from version 0.14 **/
-        Wart.ToString,
-        Wart.ExplicitImplicitTypes
-      )
-  ).
   settings(
     name      := "phoenix-scala",
     version   := "1.0",

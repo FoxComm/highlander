@@ -18,7 +18,7 @@ import utils.Slick.implicits._
 import utils.{ADT, CustomDirectives, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.aliases._
 
-final case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, orderPaymentId: Option[Int],
+case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, orderPaymentId: Option[Int],
   storeAdminId: Option[Int] = None, debit: Int, availableBalance: Int, state: State = Auth, createdAt: Instant = Instant.now())
   extends ModelWithIdParameter[StoreCreditAdjustment]
   with FSM[StoreCreditAdjustment.State, StoreCreditAdjustment] {
@@ -88,8 +88,7 @@ object StoreCreditAdjustments
     }
   }
 
-  def sortedAndPaged(query: QuerySeq)
-    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata = {
+  def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata = {
     query.withMetadata.sortAndPageIfNeeded { (s, adj) ⇒ matchSortColumn(s, adj) }
   }
 

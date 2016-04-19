@@ -6,7 +6,7 @@ import models.payment.storecredit.StoreCredit
 import utils.Money.Currency
 
 object StoreCreditResponse {
-  final case class Root(
+  case class Root(
     id: Int,
     originId: Int,
     originType: StoreCredit.OriginType,
@@ -21,9 +21,9 @@ object StoreCreditResponse {
     state: StoreCredit.State,
     createdAt: Instant) extends ResponseItem
 
-  final case class Totals(availableBalance: Int = 0, currentBalance: Int = 0)
+  case class Totals(availableBalance: Int = 0, currentBalance: Int = 0)
 
-  final case class WithTotals(storeCredits: Seq[Root], totals: Option[Totals])
+  case class WithTotals(storeCredits: Seq[Root], totals: Option[Totals])
 
   def build(records: Seq[StoreCredit]): Seq[Root] = records.map(build)
 

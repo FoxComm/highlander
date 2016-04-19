@@ -4,28 +4,28 @@ import models.payment.giftcard.GiftCard
 
 object GiftCardFailures {
 
-  final case class GiftCardMustBeCart(code: String) extends Failure {
+  case class GiftCardMustBeCart(code: String) extends Failure {
     override def description = s"giftCart with code=$code is not in cart state"
   }
 
-  final case class GiftCardMustNotBeCart(code: String) extends Failure {
+  case class GiftCardMustNotBeCart(code: String) extends Failure {
     override def description = s"giftCart with code=$code must not be in cart state"
   }
 
-  final case class GiftCardConvertFailure(gc: GiftCard) extends Failure {
+  case class GiftCardConvertFailure(gc: GiftCard) extends Failure {
     override def description = s"cannot convert a gift card with state '${gc.state}'"
   }
 
-  final case class GiftCardPaymentAlreadyAdded(refNum: String, code: String) extends Failure {
+  case class GiftCardPaymentAlreadyAdded(refNum: String, code: String) extends Failure {
     override def description = s"giftCard with code=$code already added as payment method to order with refNum=$refNum"
   }
 
-  final case class GiftCardNotEnoughBalance(gc: GiftCard, requestedAmount: Int) extends Failure {
+  case class GiftCardNotEnoughBalance(gc: GiftCard, requestedAmount: Int) extends Failure {
     override def description =
       s"giftCard with code=${gc.code} has availableBalance=${gc.availableBalance} less than requestedAmount=$requestedAmount"
   }
 
-  final case class GiftCardIsInactive(gc: GiftCard) extends Failure {
+  case class GiftCardIsInactive(gc: GiftCard) extends Failure {
     override def description = s"giftCard with id=${gc.id} is inactive"
   }
 

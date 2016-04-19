@@ -103,7 +103,7 @@ object GiftCardService {
   } yield GiftCardResponse.build(updated)).runTxn()
 
   private def cancelOrUpdate(giftCard: GiftCard, newState: GiftCard.State, reasonId: Option[Int],
-    admin: StoreAdmin)(implicit ec: EC, db: DB) = newState match {
+    admin: StoreAdmin)(implicit ec: EC) = newState match {
     case Canceled ⇒ for {
       _   ← * <~ GiftCardAdjustments.lastAuthByGiftCardId(giftCard.id).one.mustNotFindOr(OpenTransactionsFailure)
       upd ← * <~ GiftCards.update(giftCard, giftCard.copy(state = newState, canceledReason = reasonId,

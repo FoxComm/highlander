@@ -25,18 +25,18 @@ object FullOrder {
   type Response = Future[Root]
   type CcPayment = (OrderPayment, CreditCard, Region)
 
-  final case class Totals(subTotal: Int, taxes: Int, shipping: Int, adjustments: Int, total: Int) extends ResponseItem
+  case class Totals(subTotal: Int, taxes: Int, shipping: Int, adjustments: Int, total: Int) extends ResponseItem
 
   object Totals {
     def empty: Totals = Totals(0,0,0,0,0)
   }
 
-  final case class LineItems(
+  case class LineItems(
     skus: Seq[DisplayLineItem] = Seq.empty,
     giftCards: Seq[GiftCardResponse.Root] = Seq.empty
    ) extends ResponseItem
 
-  final case class Root(
+  case class Root(
     id: Int,
     referenceNumber: String,
     orderState: Order.State,
@@ -52,7 +52,7 @@ object FullOrder {
     paymentMethods: Seq[Payments] = Seq.empty,
     lockedBy: Option[StoreAdmin]) extends ResponseItem with OrderResponseBase
 
-  final case class DisplayLineItem(
+  case class DisplayLineItem(
     imagePath: String,
     referenceNumber: String = "",
     name: String = "donkey product",
@@ -67,13 +67,13 @@ object FullOrder {
   object Payments {
     import PaymentMethod.{CreditCard, GiftCard, StoreCredit, Type}
 
-    final case class CreditCardPayment(id: Int, customerId: Int, holderName: String, lastFour: String, expMonth: Int,
+    case class CreditCardPayment(id: Int, customerId: Int, holderName: String, lastFour: String, expMonth: Int,
       expYear: Int, brand: String, address: Addresses.Root, `type`: Type = CreditCard) extends Payments
 
-    final case class GiftCardPayment(code: String, amount: Int, currentBalance: Int, availableBalance: Int,
+    case class GiftCardPayment(code: String, amount: Int, currentBalance: Int, availableBalance: Int,
       createdAt: Instant, `type`: Type = GiftCard) extends Payments
 
-    final case class StoreCreditPayment(id: Int, amount: Int, currentBalance: Int, availableBalance: Int,
+    case class StoreCreditPayment(id: Int, amount: Int, currentBalance: Int, availableBalance: Int,
       createdAt: Instant, `type`: Type = StoreCredit) extends Payments
   }
 

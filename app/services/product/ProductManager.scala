@@ -179,8 +179,7 @@ object ProductManager {
     changes.contains(true)
 
   private def updateProductHead(product: Product, productShadow: ObjectShadow, 
-    maybeCommit: Option[ObjectCommit]) 
-    (implicit ec: EC, db: DB): DbResultT[Product] = 
+    maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[Product] =
       maybeCommit match {
         case Some(commit) ⇒  for { 
           product   ← * <~ Products.update(product, product.copy(
@@ -189,27 +188,23 @@ object ProductManager {
         case None ⇒ DbResultT.pure(product)
       }
 
-  private def validateSkuPayload(skuGroup : Seq[(CreateFullSkuForm, CreateSkuShadow)]) 
-  (implicit ec: EC, db: DB) : DbResultT[Unit] =
+  private def validateSkuPayload(skuGroup : Seq[(CreateFullSkuForm, CreateSkuShadow)])(implicit ec: EC) : DbResultT[Unit] =
     ObjectUtils.failIfErrors(skuGroup.flatMap { case (f, s) ⇒ 
       if(f.code == s.code) Seq.empty
       else Seq(SkuShadowNotFoundInPayload(f.code))
     })
 
-  private def validateSkuPayload2(skuGroup : Seq[(UpdateFullSkuForm, UpdateFullSkuShadow)]) 
-  (implicit ec: EC, db: DB) : DbResultT[Unit] =
+  private def validateSkuPayload2(skuGroup : Seq[(UpdateFullSkuForm, UpdateFullSkuShadow)])(implicit ec: EC) : DbResultT[Unit] =
     ObjectUtils.failIfErrors(skuGroup.flatMap { case (f, s) ⇒ 
       if(f.code == s.code) Seq.empty
       else Seq(SkuShadowNotFoundInPayload(f.code))
     })
 
-  private def validateShadow(product: Product, form: ObjectForm, shadow: ObjectShadow) 
-  (implicit ec: EC, db: DB) : DbResultT[Unit] = 
+  private def validateShadow(product: Product, form: ObjectForm, shadow: ObjectShadow)(implicit ec: EC) : DbResultT[Unit] =
     ObjectUtils.failIfErrors(ProductValidator.validate(product, form, shadow))
 
   private def createSku(context: ObjectContext, productShadowId: Int, 
-    formPayload: CreateFullSkuForm, shadowPayload: CreateSkuShadow)
-  (implicit ec: EC, db: DB) = { 
+    formPayload: CreateFullSkuForm, shadowPayload: CreateSkuShadow)(implicit ec: EC) = {
     require(formPayload.code == shadowPayload.code)
 
     for {
@@ -226,7 +221,7 @@ object ProductManager {
     } yield (sku, form, shadow)
   }
     
-  private def getSkuData(productShadowId: Int)(implicit ec: EC, db: DB) : 
+  private def getSkuData(productShadowId: Int)(implicit ec: EC):
     DbResultT[Seq[(Sku, ObjectForm, ObjectShadow)]] = for {
 
     links     ← * <~ ObjectLinks.filter(_.leftId === productShadowId).result

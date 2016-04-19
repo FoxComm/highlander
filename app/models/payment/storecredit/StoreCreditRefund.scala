@@ -4,7 +4,7 @@ import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class StoreCreditRefund(id: Int = 0, rmaId: Int) extends
+case class StoreCreditRefund(id: Int = 0, rmaId: Int) extends
 ModelWithIdParameter[StoreCreditRefund]
 
 object StoreCreditRefund {}

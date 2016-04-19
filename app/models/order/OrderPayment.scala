@@ -14,7 +14,7 @@ import utils.Money._
 import utils.Validation._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class OrderPayment(id: Int = 0, orderId: Int = 0, amount: Option[Int] = None,
+case class OrderPayment(id: Int = 0, orderId: Int = 0, amount: Option[Int] = None,
   currency: Currency = Currency.USD, paymentMethodId: Int, paymentMethodType: PaymentMethod.Type)
   extends ModelWithIdParameter[OrderPayment] {
 

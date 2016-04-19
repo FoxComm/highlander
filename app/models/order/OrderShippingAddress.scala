@@ -13,7 +13,7 @@ import utils.Slick._
 import utils.{ModelWithIdParameter, TableQueryWithId}
 import utils.aliases._
 
-final case class OrderShippingAddress(id: Int = 0, orderId: Int = 0, regionId: Int, name: String,
+case class OrderShippingAddress(id: Int = 0, orderId: Int = 0, regionId: Int, name: String,
   address1: String, address2: Option[String], city: String, zip: String, phoneNumber: Option[String],
   createdAt: Instant = Instant.now, updatedAt: Instant = Instant.now)
   extends ModelWithIdParameter[OrderShippingAddress]

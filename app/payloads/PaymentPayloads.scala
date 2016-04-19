@@ -9,7 +9,7 @@ import utils.Money.Currency
 import utils._
 import org.json4s.JsonAST.{JValue, JObject}
 
-final case class CreateCreditCard(holderName: String, number: String, cvv: String, expYear: Int,
+case class CreateCreditCard(holderName: String, number: String, cvv: String, expYear: Int,
   expMonth: Int, address: Option[CreateAddressPayload] = None, addressId: Option[Int] = None,
   isDefault: Boolean = false, isShipping: Boolean = false) {
 
@@ -32,11 +32,11 @@ final case class CreateCreditCard(holderName: String, number: String, cvv: Strin
   def lastFour: String = this.number.takeRight(4)
 }
 
-final case class PaymentMethodPayload(cardholderName: String, cardNumber: String,  cvv: Int, expiration: String)
+case class PaymentMethodPayload(cardholderName: String, cardNumber: String,  cvv: Int, expiration: String)
 
-final case class ToggleDefaultCreditCard(isDefault: Boolean)
+case class ToggleDefaultCreditCard(isDefault: Boolean)
 
-final case class EditCreditCard(holderName: Option[String] = None, expYear: Option[Int] = None,
+case class EditCreditCard(holderName: Option[String] = None, expYear: Option[Int] = None,
   expMonth: Option[Int] = None, addressId: Option[Int] = None, address: Option[CreateAddressPayload] = None,
   isShipping: Boolean = false) {
 
@@ -54,14 +54,14 @@ final case class EditCreditCard(holderName: Option[String] = None, expYear: Opti
   }
 }
 
-final case class GiftCardPayment(code: String, amount: Option[Int] = None)
+case class GiftCardPayment(code: String, amount: Option[Int] = None)
 
-final case class StoreCreditPayment(amount: Int)
+case class StoreCreditPayment(amount: Int)
 
-final case class CreditCardPayment(creditCardId: Int)
+case class CreditCardPayment(creditCardId: Int)
 
-final case class CreateManualStoreCredit(amount: Int, currency: Currency = Currency.USD,
+case class CreateManualStoreCredit(amount: Int, currency: Currency = Currency.USD,
   reasonId: Int, subReasonId: Option[Int] = None, subTypeId: Option[Int] = None)
 
-final case class CreateExtensionStoreCredit(amount: Int, currency: Currency = Currency.USD,
+case class CreateExtensionStoreCredit(amount: Int, currency: Currency = Currency.USD,
   subTypeId: Option[Int] = None, metadata: JValue = JObject())

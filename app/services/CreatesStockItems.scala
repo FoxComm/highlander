@@ -9,7 +9,7 @@ object CreatesStockItems {
   def apply(productId: Int, onHold: Int, onHand: Int)(implicit ec: EC, db: DB): Result[StockItem] = {
     /** We’ll use real validations here soon */
     if (onHand < 0) {
-      Result.failure(GeneralFailure(s"On hand must be >= 0"))
+      Result.failure(GeneralFailure("On hand must be >= 0"))
     } else {
       val stockItem = StockItem(
         id = 0,

@@ -4,7 +4,7 @@ import models.location.Region
 import models.payment.creditcard.CreditCard
 
 object CreditCardsResponse {
-  final case class Root(id: Int, customerId: Int, holderName: String, lastFour: String, expMonth: Int, expYear: Int,
+  case class Root(id: Int, customerId: Int, holderName: String, lastFour: String, expMonth: Int, expYear: Int,
     isDefault: Boolean = false, address1Check: Option[String] = None, zipCheck: Option[String] = None,
     inWallet: Boolean = true, brand: String, address: responses.Addresses.Root) extends ResponseItem
 
@@ -15,7 +15,7 @@ object CreditCardsResponse {
     address = responses.Addresses.buildFromCreditCard(cc, region))
 
   // Temporary simplified version w/o address
-  final case class RootSimple(id: Int, customerId: Int, holderName: String, lastFour: String, expMonth: Int,
+  case class RootSimple(id: Int, customerId: Int, holderName: String, lastFour: String, expMonth: Int,
     expYear: Int, isDefault: Boolean = false, address1Check: Option[String] = None, zipCheck: Option[String] = None,
     inWallet: Boolean = true, brand: String) extends ResponseItem
 

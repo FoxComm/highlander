@@ -18,7 +18,7 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
  * The trail also has arbitrary json data it can store. This can be used to store state
  * specific for a trail, for example, last seen notification, etc.
  */
-final case class Trail(
+case class Trail(
   id: Int = 0, 
   dimensionId: Int,
   objectId: String,

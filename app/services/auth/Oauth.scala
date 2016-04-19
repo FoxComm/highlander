@@ -17,7 +17,7 @@ import utils.Slick._
 import utils.Slick.implicits._
 import utils.aliases._
 
-final case class OauthCallbackResponse(
+case class OauthCallbackResponse(
   code: Option[String] = None,
   error: Option[String] = None) {
 

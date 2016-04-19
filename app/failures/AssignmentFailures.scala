@@ -3,7 +3,7 @@ package failures
 import utils.friendlyClassName
 import Util._
 
-final case class AlreadyAssignedFailure(message: String) extends Failure {
+case class AlreadyAssignedFailure(message: String) extends Failure {
   override def description = message
 }
 
@@ -14,7 +14,7 @@ object AlreadyAssignedFailure {
   }
 }
 
-final case class NotAssignedFailure(message: String) extends Failure {
+case class NotAssignedFailure(message: String) extends Failure {
   override def description = message
 }
 
@@ -25,7 +25,7 @@ object NotAssignedFailure {
   }
 }
 
-final case class AssigneeNotFoundFailure(message: String) extends Failure {
+case class AssigneeNotFoundFailure(message: String) extends Failure {
   override def description = message
 }
 

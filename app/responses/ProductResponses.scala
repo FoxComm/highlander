@@ -1,25 +1,20 @@
 package responses
 
-import SkuResponses._
-import models.inventory._
-import models.product._
-import models.objects._
-import models.Aliases.Json
-import org.json4s.DefaultFormats
-import org.json4s.Extraction
-import org.json4s.JsonAST.JValue
-import org.json4s.JsonDSL._
-import org.json4s.jackson.Serialization.{write ⇒ render}
 import java.time.Instant
 
 import cats.implicits._
+import models.Aliases.Json
+import models.inventory._
+import models.objects._
+import models.product._
 import responses.ObjectResponses.ObjectContextResponse
+import responses.SkuResponses._
 
 object ProductResponses {
 
   object ProductHeadResponse {
 
-    final case class Root(id: Int) extends ResponseItem
+    case class Root(id: Int) extends ResponseItem
 
     //Product here is a placeholder for future. Using only form
     def build(p: Product): Root = Root(id = p.formId)
@@ -27,7 +22,7 @@ object ProductResponses {
 
   object ProductFormResponse {
 
-    final case class Root(id: Int, attributes: Json, createdAt: Instant)
+    case class Root(id: Int, attributes: Json, createdAt: Instant)
       extends ResponseItem
 
     //Product here is a placeholder for future. Using only form
@@ -37,7 +32,7 @@ object ProductResponses {
 
   object ProductShadowResponse {
 
-    final case class Root(id: Int, formId: Int, attributes: Json, createdAt: Instant)
+    case class Root(id: Int, formId: Int, attributes: Json, createdAt: Instant)
       extends ResponseItem
 
     def build(p: ObjectShadow): Root = 
@@ -46,7 +41,7 @@ object ProductResponses {
 
   object IlluminatedProductResponse {
 
-    final case class Root(id: Int, context: Option[ObjectContextResponse.Root], 
+    case class Root(id: Int, context: Option[ObjectContextResponse.Root], 
       attributes: Json) extends ResponseItem
 
     def build(p: IlluminatedProduct): Root = 
@@ -58,7 +53,7 @@ object ProductResponses {
 
   object FullProductFormResponse { 
 
-    final case class Root(
+    case class Root(
       product: ProductFormResponse.Root,
       skus: Seq[SkuFormResponse.Root]) extends ResponseItem
 
@@ -71,7 +66,7 @@ object ProductResponses {
 
   object FullProductShadowResponse { 
 
-    final case class Root(
+    case class Root(
       product: ProductShadowResponse.Root,
       skus: Seq[SkuShadowResponse.Root]) extends ResponseItem
 
@@ -82,7 +77,7 @@ object ProductResponses {
   }
 
   object FullProductResponse { 
-    final case class Root(form: FullProductFormResponse.Root, shadow: FullProductShadowResponse.Root)
+    case class Root(form: FullProductFormResponse.Root, shadow: FullProductShadowResponse.Root)
       extends ResponseItem
 
     def build(
@@ -97,7 +92,7 @@ object ProductResponses {
 
   object IlluminatedFullProductResponse {
 
-    final case class Root(id: Int, context: ObjectContextResponse.Root, product: IlluminatedProductResponse.Root, 
+    case class Root(id: Int, context: ObjectContextResponse.Root, product: IlluminatedProductResponse.Root, 
       skus: Seq[IlluminatedSkuResponse.Root]) extends ResponseItem
 
     def build(p: IlluminatedProduct, skus: Seq[IlluminatedSku]): Root = 

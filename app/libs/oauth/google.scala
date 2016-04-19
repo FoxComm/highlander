@@ -7,7 +7,7 @@ import dispatch.{Http, as, url ⇒ request}
 import org.json4s._
 import utils.aliases._
 
-final case class GoogleOauthOptions(
+case class GoogleOauthOptions(
   clientId: String,
   clientSecret: String,
   redirectUri: String,

@@ -3,7 +3,7 @@ package responses
 import models.payment.giftcard.GiftCardAdjustment
 
 object GiftCardAdjustmentsResponse {
-  final case class Root(
+  case class Root(
     id: Int,
     amount: Int,
     availableBalance: Int,

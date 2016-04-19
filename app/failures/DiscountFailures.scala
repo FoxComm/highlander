@@ -6,7 +6,7 @@ object DiscountFailures {
     def apply(id: Int) = NotFoundFailure404(s"Discount $id not found")
   }
 
-  final case class DiscountNotFoundAtCommit(id: Int, commit: Int) extends Failure {
+  case class DiscountNotFoundAtCommit(id: Int, commit: Int) extends Failure {
     override def description = s"Discount $id not with at commit $commit"
   }
 
@@ -19,20 +19,20 @@ object DiscountFailures {
       NotFoundFailure404(s"Discount with id=$discountId with discount context $discountContextId cannot be found")
   }
 
-  final case class DiscountShadowHasInvalidAttribute(key: String, value: String) extends Failure {
+  case class DiscountShadowHasInvalidAttribute(key: String, value: String) extends Failure {
     override def description = s"Discount shadow has an invalid attribute $key with value $value"
   }
 
-  final case class DiscountShadowAttributeNotAString(key: String) extends Failure {
+  case class DiscountShadowAttributeNotAString(key: String) extends Failure {
     override def description = s"Discount shadow attribute $key must be a string"
   }
 
-  final case object DiscountAttributesAreEmpty extends Failure {
-    override def description = s"Discount attributes are empty"
+  case object DiscountAttributesAreEmpty extends Failure {
+    override def description = "Discount attributes are empty"
   }
 
-  final case object DiscountShadowAttributesAreEmpty extends Failure {
-    override def description = s"Discount shadow attributes are empty"
+  case object DiscountShadowAttributesAreEmpty extends Failure {
+    override def description = "Discount shadow attributes are empty"
   }
 
   object DiscountFormNotFound { 

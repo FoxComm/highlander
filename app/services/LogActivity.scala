@@ -305,8 +305,7 @@ object LogActivity {
     Activities.log(FullSkuUpdated(admin.map(buildAdmin), product, context))
 
   /* Helpers */
-  private def buildOriginator(originator: Originator)
-    (implicit ec: EC, ac: AC): Option[AdminResponse] = originator match {
+  private def buildOriginator(originator: Originator)(implicit ac: AC): Option[AdminResponse] = originator match {
     case AdminOriginator(admin)   ⇒ Some(buildAdmin(admin))
     case CustomerOriginator(_)    ⇒ None // We don't need customer, he's already in FullOrder.Root / Customer object
   }

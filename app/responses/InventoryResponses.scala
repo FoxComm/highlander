@@ -6,7 +6,7 @@ import models.inventory.summary._
 
 object InventoryResponses {
 
-  final case class SkuCounts(onHand: Int, onHold: Int, reserved: Int, safetyStock: Option[Int], afs: Int, afsCost: Int)
+  case class SkuCounts(onHand: Int, onHold: Int, reserved: Int, safetyStock: Option[Int], afs: Int, afsCost: Int)
 
   object SkuCounts {
 
@@ -22,7 +22,7 @@ object InventoryResponses {
 
   object SkuDetailsResponse {
 
-    final case class Root(skuType: SkuType, counts: SkuCounts)
+    case class Root(skuType: SkuType, counts: SkuCounts)
 
     def build(summaries: AllSummaries, price: Int): Seq[Root] = Seq(
       Root(Sellable, SkuCounts.build(summaries._1, price)),
@@ -34,7 +34,7 @@ object InventoryResponses {
 
   object SellableSkuSummaryResponse {
 
-    final case class Root(warehouse: Warehouse, counts: SkuCounts)
+    case class Root(warehouse: Warehouse, counts: SkuCounts)
 
     def build(summary: SellableInventorySummary, warehouse: Warehouse, price: Int): Root =
       Root(warehouse = warehouse, counts = SkuCounts.build(summary, price))

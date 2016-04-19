@@ -7,7 +7,7 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.time.JavaTimeSlickMapper._
 import java.time.Instant
 
-final case class ObjectForm(id: Int = 0, kind: String, attributes: Json, 
+case class ObjectForm(id: Int = 0, kind: String, attributes: Json, 
   updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now) 
 extends ModelWithIdParameter[ObjectForm]
 

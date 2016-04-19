@@ -20,7 +20,7 @@ import utils.Slick.implicits._
 import utils.aliases.EC
 import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
 
-final case class Customer(id: Int = 0, email: String, hashedPassword: Option[String] = None,
+case class Customer(id: Int = 0, email: String, hashedPassword: Option[String] = None,
   name: Option[String] = None, isDisabled: Boolean = false, disabledBy: Option[Int] = None,
   isBlacklisted: Boolean = false, blacklistedBy: Option[Int] = None,
   phoneNumber: Option[String] = None, location: Option[String] = None,
@@ -129,7 +129,7 @@ object Customers extends TableQueryWithId[Customer, Customers](
     }
   }
 
-  def activeCustomerByEmail(email: String)(implicit ec: EC): QuerySeq =
+  def activeCustomerByEmail(email: String): QuerySeq =
     filter(c ⇒ c.email === email && !c.isBlacklisted && !c.isDisabled && !c.isGuest)
 
   def createEmailMustBeUnique(email: String)(implicit ec: EC): DbResult[Unit] =

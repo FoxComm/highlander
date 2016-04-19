@@ -1,7 +1,6 @@
 package routes
 
 import akka.http.scaladsl.server.Directives._
-import akka.stream.Materializer
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.auth.CustomerToken
@@ -23,8 +22,7 @@ import utils.Slick.implicits._
 import utils.aliases._
 
 object Customer {
-  def routes(implicit ec: EC, db: DB,
-    mat: Materializer, customerAuth: AsyncAuthenticator[models.customer.Customer], apis: Apis) = {
+  def routes(implicit ec: EC, db: DB, customerAuth: AsyncAuthenticator[models.customer.Customer], apis: Apis) = {
 
     pathPrefix("my") {
       requireAuth(customerAuth) { customer ⇒

@@ -1,18 +1,14 @@
 package models.inventory
 
-import utils.IlluminateAlgorithm
-import models.objects._
 import models.Aliases.Json
-import org.json4s.JsonDSL._
-import org.json4s.JsonAST.{JString, JObject, JField, JNothing}
-
-import java.time.Instant
+import models.objects._
+import utils.IlluminateAlgorithm
 
 /**
  * An IlluminatedSku is what you get when you combine the sku shadow and
  * the sku. 
  */
-final case class IlluminatedSku(code: String, context: IlluminatedContext, 
+case class IlluminatedSku(code: String, context: IlluminatedContext, 
   attributes: Json)
 
 object IlluminatedSku { 

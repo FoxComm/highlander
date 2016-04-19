@@ -21,10 +21,10 @@ object Http {
   val noContentResponse:  HttpResponse  = HttpResponse(NoContent)
   val badRequestResponse: HttpResponse  = HttpResponse(BadRequest)
 
-  def renderGoodOrFailures[G <: AnyRef](or: Failures Xor G)(implicit ec: EC): HttpResponse =
+  def renderGoodOrFailures[G <: AnyRef](or: Failures Xor G): HttpResponse =
     or.fold(renderFailure(_), render(_))
 
-  def renderNothingOrFailures(or: Failures Xor _)(implicit ec: EC): HttpResponse =
+  def renderNothingOrFailures(or: Failures Xor _): HttpResponse =
     or.fold(renderFailure(_), _ ⇒ noContentResponse)
 
   def renderOrNotFound[A <: AnyRef](resource: Future[Option[A]],
@@ -35,10 +35,10 @@ object Http {
     }
   }
 
-  def renderOrNotFound[A <: AnyRef](resource: Option[A])(implicit ec: EC): HttpResponse =
+  def renderOrNotFound[A <: AnyRef](resource: Option[A]): HttpResponse =
     resource.fold(notFoundResponse)(render(_))
 
-  def renderOrBadRequest[A <: AnyRef](resource: Option[A])(implicit ec: EC): HttpResponse =
+  def renderOrBadRequest[A <: AnyRef](resource: Option[A]): HttpResponse =
     resource.fold(badRequestResponse)(render(_))
 
   def renderNotFoundFailure(f: NotFoundFailure404): HttpResponse =

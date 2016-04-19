@@ -18,7 +18,7 @@ object Coupon {
 /**
  * A Coupon is a way to share a Promotion that isn't publicicly available.
  */
-final case class Coupon(id: Int = 0, promotionId: Int, contextId: Int, shadowId: Int, formId: Int, 
+case class Coupon(id: Int = 0, promotionId: Int, contextId: Int, shadowId: Int, formId: Int, 
   commitId: Int, updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[Coupon]
   with Validation[Coupon]

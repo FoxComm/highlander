@@ -28,7 +28,7 @@ import org.json4s.jackson.Serialization.{write ⇒ render}
 import Aliases.ActivityType
 import Aliases.Json
 
-final case class ActivityContext(
+case class ActivityContext(
   userId: Int,
   userType: String,
   transactionId: String)
@@ -52,7 +52,7 @@ object ActivityContext {
  *
  * An activity can be part of many activity trails in multiple dimensions.
  */
-final case class Activity(
+case class Activity(
   id: Int = 0, 
   activityType: ActivityType, 
   data: Json, 
@@ -74,7 +74,7 @@ class Activities(tag: Tag) extends GenericTable.TableWithId[Activity](tag, "acti
 
 // Any specific activity can have an implicit converion function to the opaque activity
 // Opaque here means the scala type system cannot see the activity
-final case class OpaqueActivity(activityType: ActivityType, data: Json)
+case class OpaqueActivity(activityType: ActivityType, data: Json)
 
 object Activities extends TableQueryWithId[Activity, Activities](
   idLens = GenLens[Activity](_.id))(new Activities(_)) {

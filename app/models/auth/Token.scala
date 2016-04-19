@@ -22,7 +22,7 @@ import utils.caseClassToMap
 
 object Keys {
 
-  final case class KeyLoadException(cause: Throwable) extends Exception
+  case class KeyLoadException(cause: Throwable) extends Exception
 
   def loadPrivateKey: Try[PrivateKey] = Try {
     val fileName = config.getOptString("auth.privateKey").getOrElse("")
@@ -145,7 +145,7 @@ object Token {
 
 }
 
-final case class AdminToken(id: Int,
+case class AdminToken(id: Int,
   admin: Boolean = true,
   name: Option[String],
   email: String,
@@ -161,7 +161,7 @@ object AdminToken {
   }
 }
 
-final case class CustomerToken(id: Int,
+case class CustomerToken(id: Int,
   admin: Boolean = false,
   name: Option[String],
   email: String,

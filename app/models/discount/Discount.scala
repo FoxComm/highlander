@@ -1,15 +1,12 @@
 package models.discount
 
-import models.Aliases.Json
-import models.objects._
+import java.time.Instant
 
+import models.objects._
 import monocle.macros.GenLens
 import utils.ExPostgresDriver.api._
-import utils.JsonFormatters
 import utils.time.JavaTimeSlickMapper._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
-
-import java.time.Instant
+import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
 
 object Discount {
   val kind = "discount"
@@ -29,7 +26,7 @@ object Discount {
  * The algebra is used to define the qualifier predicate and offer function.
  * used by the discount engine to modify an order by creating line item adjustments.
  */
-final case class Discount(id: Int = 0, contextId: Int, shadowId: Int, formId: Int, 
+case class Discount(id: Int = 0, contextId: Int, shadowId: Int, formId: Int, 
   commitId: Int, updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[Discount]
   with Validation[Discount]

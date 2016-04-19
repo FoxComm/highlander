@@ -14,14 +14,14 @@ import utils.aliases._
 
 case object Tick
 
-final case class RemorseTimerResponse(updatedQuantity: Future[Int])
+case class RemorseTimerResponse(updatedQuantity: Future[Int])
 
-class RemorseTimer(implicit ec: EC, db: DB) extends Actor {
+class RemorseTimer(implicit db: DB) extends Actor {
   override def receive = {
     case Tick ⇒ sender() ! tick
   }
 
-  private def tick(implicit ec: EC, db: DB): RemorseTimerResponse = {
+  private def tick(implicit db: DB): RemorseTimerResponse = {
     val advance = Orders
       .filter(_.state === (RemorseHold: State))
       .filterNot(_.isLocked)

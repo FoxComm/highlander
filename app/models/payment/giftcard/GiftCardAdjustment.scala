@@ -18,7 +18,7 @@ import utils.Slick.implicits._
 import utils.{ADT, CustomDirectives, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.aliases._
 
-final case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId: Option[Int],
+case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId: Option[Int],
   storeAdminId: Option[Int] = None, credit: Int, debit: Int, availableBalance: Int, state: State = Auth, 
   createdAt: Instant = Instant.now())
   extends ModelWithIdParameter[GiftCardAdjustment]
@@ -95,7 +95,7 @@ object GiftCardAdjustments extends TableQueryWithId[GiftCardAdjustment, GiftCard
     }
   }
 
-  def sortedAndPaged(query: QuerySeq)(implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+  def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata =
     query.withMetadata.sortAndPageIfNeeded { (s, adj) ⇒ matchSortColumn(s, adj) }
 
   def filterByGiftCardId(id: Int): QuerySeq = filter(_.giftCardId === id)

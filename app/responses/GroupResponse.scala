@@ -6,7 +6,7 @@ import models.customer.CustomerDynamicGroup
 import org.json4s.JsonAST.{JValue ⇒ Json}
 
 object DynamicGroupResponse {
-  final case class Root(
+  case class Root(
     id: Int = 0,
     name: String,
     `type`: String = "dynamic",

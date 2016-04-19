@@ -99,7 +99,7 @@ object LineItemUpdater {
   private def runUpdates(finder: DbResult[Order],
     logAct: (FullOrder.Root, Map[String, Int]) ⇒ DbResult[Activity],
     payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: EC, db: DB, ac: AC): Result[TheResponse[FullOrder.Root]] = (for {
+    (implicit ec: EC, db: DB): Result[TheResponse[FullOrder.Root]] = (for {
 
     order ← * <~ finder
     _     ← * <~ order.mustBeCart

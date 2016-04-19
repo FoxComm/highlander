@@ -60,7 +60,7 @@ object StoreCreditService {
     totals  ← * <~ fetchTotalsForCustomer(customerId).toXor
   } yield totals).map(_.getOrElse(Totals(0, 0))).value.run()
 
-  def fetchTotalsForCustomer(customerId: Int)(implicit ec: EC, db: DB): DBIO[Option[Totals]] = {
+  def fetchTotalsForCustomer(customerId: Int)(implicit ec: EC): DBIO[Option[Totals]] = {
     StoreCredits.findAllActiveByCustomerId(customerId)
       .groupBy(_.customerId)
       .map { case (_, q) ⇒ (q.map(_.availableBalance).sum, q.map(_.currentBalance).sum) }

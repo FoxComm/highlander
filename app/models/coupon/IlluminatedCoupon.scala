@@ -1,19 +1,14 @@
 package models.coupon
 
+import models.Aliases.Json
 import models.objects._
 import utils.IlluminateAlgorithm
-import models.objects._
-import models.Aliases.Json
-import org.json4s.JsonDSL._
-import org.json4s.JsonAST.{JString, JObject, JField, JNothing}
-
-import java.time.Instant
 
 /**
  * An IlluminatedCoupon is what you get when you combine the coupon shadow and
  * the form. 
  */
-final case class IlluminatedCoupon(id: Int, context: IlluminatedContext, 
+case class IlluminatedCoupon(id: Int, context: IlluminatedContext, 
   attributes: Json, promotion: Int)
 
 object IlluminatedCoupon { 

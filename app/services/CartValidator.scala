@@ -17,12 +17,12 @@ trait CartValidation {
 
 // warnings would be turned into `errors` during checkout but if we're still in cart mode
 // then we'll display to end-user as warnings/alerts since they are not "done" with their cart
-final case class CartValidatorResponse(
+case class CartValidatorResponse(
   alerts:   Option[Failures] = None,
   warnings: Option[Failures] = None) {
 }
 
-final case class CartValidator(cart: Order)(implicit ec: EC, db: DB) extends CartValidation {
+case class CartValidator(cart: Order)(implicit ec: EC, db: DB) extends CartValidation {
 
   def validate(isCheckout: Boolean = false, fatalWarnings: Boolean = false): DbResult[CartValidatorResponse] = {
     val response = CartValidatorResponse()

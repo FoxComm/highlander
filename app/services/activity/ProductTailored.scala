@@ -5,9 +5,9 @@ import responses.ProductResponses.FullProductResponse
 import responses.ObjectResponses.ObjectContextResponse
 
 object ProductTailored {
-  final case class FullProductCreated(admin: Option[StoreAdminResponse.Root], product: FullProductResponse.Root,
+  case class FullProductCreated(admin: Option[StoreAdminResponse.Root], product: FullProductResponse.Root,
     context: ObjectContextResponse.Root) extends ActivityBase[FullProductCreated]
 
-  final case class FullProductUpdated(admin: Option[StoreAdminResponse.Root], product: FullProductResponse.Root,
+  case class FullProductUpdated(admin: Option[StoreAdminResponse.Root], product: FullProductResponse.Root,
     context: ObjectContextResponse.Root) extends ActivityBase[FullProductUpdated]
 }

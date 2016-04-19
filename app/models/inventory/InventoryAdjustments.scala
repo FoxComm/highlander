@@ -16,7 +16,7 @@ import slick.lifted.Tag
 import utils.ExPostgresDriver.api._
 import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
-final case class InventoryAdjustment(id: Int = 0, summaryId: Int, change: Int, newQuantity: Int,
+case class InventoryAdjustment(id: Int = 0, summaryId: Int, change: Int, newQuantity: Int,
   newAfs: Int, state: State, skuType: SkuType, metadata: JValue, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[InventoryAdjustment] {
 
@@ -42,13 +42,13 @@ object InventoryAdjustment {
     val name: String
   }
 
-  final case class WmsOverride(skuId: Int, warehouseId: Int, onHand: Int, onHold: Int, reserved: Int,
+  case class WmsOverride(skuId: Int, warehouseId: Int, onHand: Int, onHold: Int, reserved: Int,
     name: String = "WMS Sync") extends AdjustmentEvent
 
-  final case class OrderPlaced(skuId: Int, warehouseId: Int, orderRef: String, quantity: Int,
+  case class OrderPlaced(skuId: Int, warehouseId: Int, orderRef: String, quantity: Int,
     name: String = "Order placed") extends AdjustmentEvent
 
-  final case class OrderPropagated(skuId: Int, warehouseId: Int, orderRef: String, quantity: Int,
+  case class OrderPropagated(skuId: Int, warehouseId: Int, orderRef: String, quantity: Int,
     name: String = "Order propagated") extends AdjustmentEvent
 
   sealed trait State

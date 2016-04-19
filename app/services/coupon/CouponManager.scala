@@ -126,20 +126,18 @@ object CouponManager {
       codes ← * <~ CouponCodes.filter(_.couponFormId === id).result
   } yield CouponCodesResponse.build(codes)).run()
 
-  private def validateCouponCodePayload(p: GenerateCouponCodes)
-    (implicit ec: EC, db: DB) = {
+  private def validateCouponCodePayload(p: GenerateCouponCodes)(implicit ec: EC) = {
     ObjectUtils.failIfErrors(
       Seq(
-        if(p.quantity <= 0) Seq(CouponCodeQuanityMustBeGreaterThanZero()) else Seq.empty,
-        if(p.prefix.isEmpty) Seq(CouponCodePrefixNotSet()) else Seq.empty,
+        if(p.quantity <= 0) Seq(CouponCodeQuanityMustBeGreaterThanZero) else Seq.empty,
+        if(p.prefix.isEmpty) Seq(CouponCodePrefixNotSet) else Seq.empty,
         if(CouponCodes.isCharacterLimitValid(p.prefix.length, p.quantity, p.length)) Seq.empty
         else Seq(CouponCodeLengthIsTooSmall(p.prefix, p.quantity))
       ).flatten)
   }
 
   private def updateHead(coupon: Coupon, promotionId: Int, shadow: ObjectShadow, 
-    maybeCommit: Option[ObjectCommit]) 
-    (implicit ec: EC, db: DB): DbResultT[Coupon] = 
+    maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[Coupon] =
       maybeCommit match {
         case Some(commit) ⇒  for { 
           coupon   ← * <~ Coupons.update(coupon, coupon.copy(

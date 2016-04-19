@@ -11,7 +11,7 @@ import slick.driver.PostgresDriver.api._
 import utils.Money._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class RmaPayment(id: Int = 0, rmaId: Int = 0, amount: Int = 0,
+case class RmaPayment(id: Int = 0, rmaId: Int = 0, amount: Int = 0,
   currency: Currency = Currency.USD, paymentMethodId: Int, paymentMethodType: PaymentMethod.Type)
   extends ModelWithIdParameter[RmaPayment] {
 

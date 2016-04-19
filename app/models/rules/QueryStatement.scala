@@ -9,7 +9,7 @@ import slick.jdbc.JdbcType
 import utils.{JsonFormatters, ADT}
 import utils.ExPostgresDriver.api._
 
-final case class QueryStatement(comparison: QueryStatement.Comparison,
+case class QueryStatement(comparison: QueryStatement.Comparison,
   conditions: Seq[Condition] = Seq.empty, statements: Seq[QueryStatement] = Seq.empty)
 
 object QueryStatement {

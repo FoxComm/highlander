@@ -11,7 +11,7 @@ import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
 import utils.Validation
 
-final case class SellableInventorySummary(id: Int = 0, onHand: Int, onHold: Int, reserved: Int,
+case class SellableInventorySummary(id: Int = 0, onHand: Int, onHold: Int, reserved: Int,
   availableForSale: Int = 0, safetyStock: Int, updatedAt: Instant = Instant.now)
   extends InventorySummaryBase[SellableInventorySummary] {
 

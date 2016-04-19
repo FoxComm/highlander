@@ -23,7 +23,7 @@ import slick.driver.PostgresDriver.api._
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  final case class ShippingData(order: Order, orderTotal: Int, orderSubTotal: Int,
+  case class ShippingData(order: Order, orderTotal: Int, orderSubTotal: Int,
     shippingAddress: Option[OrderShippingAddress] = None, shippingRegion: Option[Region] = None, skus: Seq[Sku])
 
   def getShippingMethodsForCart(originator: Originator)
@@ -70,7 +70,7 @@ object ShippingManager {
     }
   }
 
-  private def getShippingData(order: Order)(implicit ec: EC, db: DB): DBIO[ShippingData] = for {
+  private def getShippingData(order: Order)(implicit ec: EC): DBIO[ShippingData] = for {
     orderShippingAddress ← OrderShippingAddresses.findByOrderIdWithRegions(order.id).result.headOption
     skus ← (for {
       liSku ← OrderLineItemSkus.findByOrderId(order.id)

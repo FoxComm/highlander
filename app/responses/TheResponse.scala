@@ -4,7 +4,7 @@ import responses.BatchMetadata.{BatchFailures, BatchSuccess, SuccessData, Failur
 import failures.Failures
 import utils.friendlyClassName
 
-final case class TheResponse[A](
+case class TheResponse[A](
   result     : A,
   pagination : Option[PaginationMetadata] = None,
   sorting    : Option[SortingMetadata] = None,
@@ -31,15 +31,15 @@ object TheResponse {
                 batch      = batch)
 }
 
-final case class PaginationMetadata(
+case class PaginationMetadata(
   from      : Option[Int] = None,
   size      : Option[Int] = None,
   pageNo    : Option[Int] = None,
   total     : Option[Int] = None)
 
-final case class SortingMetadata(sortBy: Option[String] = None)
+case class SortingMetadata(sortBy: Option[String] = None)
 
-final case class BatchMetadata(success: BatchSuccess, failures: BatchFailures) {
+case class BatchMetadata(success: BatchSuccess, failures: BatchFailures) {
 
   def flatten: Option[List[String]] = {
     val errors = failures.values.flatMap(_.values)
@@ -76,7 +76,7 @@ object BatchMetadata {
   }
 }
 
-final case class BatchMetadataSource(className: String, success: SuccessData, failures: FailureData)
+case class BatchMetadataSource(className: String, success: SuccessData, failures: FailureData)
 
 object BatchMetadataSource {
   def apply[A](model: A, success: SuccessData, failures: FailureData): BatchMetadataSource = {

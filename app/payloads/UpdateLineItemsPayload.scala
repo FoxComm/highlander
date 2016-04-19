@@ -8,9 +8,9 @@ import utils.Money._
 import utils.Validation
 import Validation._
 
-final case class UpdateLineItemsPayload(sku: String, quantity: Int)
+case class UpdateLineItemsPayload(sku: String, quantity: Int)
 
-final case class AddGiftCardLineItem(balance: Int, currency: Currency = Currency.USD)
+case class AddGiftCardLineItem(balance: Int, currency: Currency = Currency.USD)
   extends Validation[AddGiftCardLineItem] {
 
   def validate: ValidatedNel[Failure, AddGiftCardLineItem] = {

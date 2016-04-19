@@ -16,7 +16,7 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
  * The context will be matched against a user context so that the storefront displays
  * the appropriate object information.
  */
-final case class ObjectContext(id: Int = 0, name: String, attributes: Json, 
+case class ObjectContext(id: Int = 0, name: String, attributes: Json, 
   createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[ObjectContext]
   with Validation[ObjectContext]

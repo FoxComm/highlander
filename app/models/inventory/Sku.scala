@@ -24,7 +24,7 @@ object Sku {
  * the object context referenced. The same Sku can have a different version
  * in a different context.
  */
-final case class Sku(id: Int = 0, code: String, contextId: Int, shadowId: Int, formId: Int, 
+case class Sku(id: Int = 0, code: String, contextId: Int, shadowId: Int, formId: Int, 
   commitId: Int, updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[Sku]
   with Validation[Sku]

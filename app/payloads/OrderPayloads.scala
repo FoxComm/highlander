@@ -10,13 +10,13 @@ import Order.State
 import failures.Failure
 import utils.Validation
 
-final case class UpdateOrderPayload(state: State)
+case class UpdateOrderPayload(state: State)
 
-final case class BulkUpdateOrdersPayload(referenceNumbers: Seq[String], state: State)
+case class BulkUpdateOrdersPayload(referenceNumbers: Seq[String], state: State)
 
-final case class CreateOrderNotePayload(body: String)
+case class CreateOrderNotePayload(body: String)
 
-final case class CreateOrder(customerId: Option[Int] = None, email: Option[String] = None)
+case class CreateOrder(customerId: Option[Int] = None, email: Option[String] = None)
   extends Validation[CreateOrder] {
 
   def validate: ValidatedNel[Failure, CreateOrder] = {
@@ -28,4 +28,4 @@ final case class CreateOrder(customerId: Option[Int] = None, email: Option[Strin
   }
 }
 
-final case class OrderTimeMachine(referenceNumber: String, placedAt: Instant)
+case class OrderTimeMachine(referenceNumber: String, placedAt: Instant)

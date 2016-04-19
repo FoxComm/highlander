@@ -2,20 +2,17 @@ package payloads
 
 import cats.data._
 import cats.implicits._
-import models.rma.{RmaLineItem, Rma}
-import RmaLineItem.InventoryDisposition
-import models.rma.Rma
 import failures.Failure
-import utils.Litterbox._
-import utils.Money.Currency
+import models.rma.Rma
+import models.rma.RmaLineItem.InventoryDisposition
 import utils.Validation
-import Validation._
+import utils.Validation._
 
 /* General */
 
-final case class RmaCreatePayload(orderRefNum: String, rmaType: Rma.RmaType)
+case class RmaCreatePayload(orderRefNum: String, rmaType: Rma.RmaType)
 
-final case class RmaUpdateStatePayload(state: Rma.State, reasonId: Option[Int] = None)
+case class RmaUpdateStatePayload(state: Rma.State, reasonId: Option[Int] = None)
   extends Validation[RmaUpdateStatePayload] {
 
   def validate: ValidatedNel[Failure, RmaUpdateStatePayload] = {
@@ -25,7 +22,7 @@ final case class RmaUpdateStatePayload(state: Rma.State, reasonId: Option[Int] =
 
 /* Line item updater payloads */
 
-final case class RmaSkuLineItemsPayload(sku: String, quantity: Int, reasonId: Int, isReturnItem: Boolean,
+case class RmaSkuLineItemsPayload(sku: String, quantity: Int, reasonId: Int, isReturnItem: Boolean,
   inventoryDisposition: InventoryDisposition) extends Validation[RmaSkuLineItemsPayload] {
 
   def validate: ValidatedNel[Failure, RmaSkuLineItemsPayload] = {
@@ -33,20 +30,20 @@ final case class RmaSkuLineItemsPayload(sku: String, quantity: Int, reasonId: In
   }
 }
 
-final case class RmaGiftCardLineItemsPayload(code: String, reasonId: Int)
+case class RmaGiftCardLineItemsPayload(code: String, reasonId: Int)
 
-final case class RmaShippingCostLineItemsPayload(reasonId: Int)
+case class RmaShippingCostLineItemsPayload(reasonId: Int)
 
 /* Payment payloads */
 
-final case class RmaPaymentPayload(amount: Int) extends Validation[RmaPaymentPayload] {
+case class RmaPaymentPayload(amount: Int) extends Validation[RmaPaymentPayload] {
 
   def validate: ValidatedNel[Failure, RmaPaymentPayload] = {
     greaterThan(amount, 0, "Amount").map { case _ ⇒ this }
   }
 }
 
-final case class RmaCcPaymentPayload(amount: Int) extends Validation[RmaCcPaymentPayload] {
+case class RmaCcPaymentPayload(amount: Int) extends Validation[RmaCcPaymentPayload] {
 
   def validate: ValidatedNel[Failure, RmaCcPaymentPayload] = {
     greaterThan(amount, 0, "Amount").map { case _ ⇒ this }
@@ -55,7 +52,7 @@ final case class RmaCcPaymentPayload(amount: Int) extends Validation[RmaCcPaymen
 
 /* Misc */
 
-final case class RmaMessageToCustomerPayload(message: String) extends Validation[RmaMessageToCustomerPayload] {
+case class RmaMessageToCustomerPayload(message: String) extends Validation[RmaMessageToCustomerPayload] {
 
   def validate: ValidatedNel[Failure, RmaMessageToCustomerPayload] = {
     (greaterThanOrEqual(message.length , 0, "Message length")

@@ -2,7 +2,6 @@ package routes.admin
 
 import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives._
-import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import payloads._
 import models.StoreAdmin
@@ -10,14 +9,12 @@ import services.objects.ObjectManager
 import services.product.ProductManager
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
-import utils.Apis
 import utils.Http._
 import utils.CustomDirectives._
 
 object ProductRoutes {
 
-  def routes(implicit ec: ExecutionContext, db: Database,
-    mat: Materializer, admin: StoreAdmin, apis: Apis) = {
+  def routes(implicit ec: ExecutionContext, db: Database, admin: StoreAdmin) = {
 
       activityContext(admin) { implicit ac ⇒
 

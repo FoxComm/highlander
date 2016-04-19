@@ -3,8 +3,8 @@ package routes.admin
 import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives._
 import akka.stream.Materializer
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
+import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
 import payloads.{CreatePromotion, UpdatePromotion}
 import services.Authenticator.{AsyncAuthenticator, requireAuth}
@@ -14,11 +14,11 @@ import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._
 import utils.Slick.implicits._
+import utils.aliases._
 
 object PromotionRoutes {
 
-  def routes(implicit ec: ExecutionContext, db: Database,
-    mat: Materializer, admin: StoreAdmin, apis: Apis) = {
+  def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
 
       activityContext(admin) { implicit ac ⇒
 

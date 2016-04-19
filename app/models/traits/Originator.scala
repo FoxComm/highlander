@@ -5,9 +5,9 @@ import models.StoreAdmin
 
 sealed trait Originator
 
-final case class CustomerOriginator(customer: Customer) extends Originator
+case class CustomerOriginator(customer: Customer) extends Originator
 
-final case class AdminOriginator(admin: StoreAdmin) extends Originator
+case class AdminOriginator(admin: StoreAdmin) extends Originator
 
 object Originator {
   def apply(customer: Customer): CustomerOriginator = CustomerOriginator(customer)

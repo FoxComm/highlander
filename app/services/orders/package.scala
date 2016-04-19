@@ -9,8 +9,8 @@ import utils.Slick.implicits._
 import utils.aliases._
 
 package object orders {
-  def getCartByOriginator(originer: Originator, refNum: Option[String])
-    (implicit ec: EC, db: DB, ac: AC): DbResult[Order] = (originer, refNum) match {
+  def getCartByOriginator(originator: Originator, refNum: Option[String])
+    (implicit ec: EC, db: DB): DbResult[Order] = (originator, refNum) match {
     case (CustomerOriginator(customer), _) ⇒
       Orders.findActiveOrderByCustomer(customer).one.mustFindOr(CustomerHasNoActiveOrder(customer.id))
     case (AdminOriginator(_), Some(ref)) ⇒

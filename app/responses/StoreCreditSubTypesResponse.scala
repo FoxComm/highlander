@@ -3,7 +3,7 @@ package responses
 import models.payment.storecredit.{StoreCredit, StoreCreditSubtype}
 
 object StoreCreditSubTypesResponse {
-  final case class Root(originType: StoreCredit.OriginType, subTypes: Seq[StoreCreditSubtype]) extends ResponseItem
+  case class Root(originType: StoreCredit.OriginType, subTypes: Seq[StoreCreditSubtype]) extends ResponseItem
 
   def build(originTypes: Seq[StoreCredit.OriginType], subTypes: Seq[StoreCreditSubtype]): Seq[Root] = {
     originTypes.map { originType ⇒

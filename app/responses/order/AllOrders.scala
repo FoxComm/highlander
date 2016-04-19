@@ -12,7 +12,7 @@ import responses.ResponseItem
 object AllOrders {
   type Response = Future[Seq[Root]]
 
-  final case class Root(
+  case class Root(
     referenceNumber: String,
     orderState: Order.State,
     email: Option[String] = None,

@@ -28,10 +28,10 @@ object SimpleCoupon {
 }
 import SimpleCoupon._
 
-final case class SimpleCoupon(formId: Int = 0, shadowId: Int = 0,  
+case class SimpleCoupon(formId: Int = 0, shadowId: Int = 0,  
   percentOff: Percent, totalAmount: Int, promotionId: Int)
 
-final case class SimpleCouponForm(percentOff: Percent, totalAmount: Int) {
+case class SimpleCouponForm(percentOff: Percent, totalAmount: Int) {
 
     val (keyMap, form) = ObjectUtils.createForm(parse(s"""
     {
@@ -46,10 +46,10 @@ final case class SimpleCouponForm(percentOff: Percent, totalAmount: Int) {
     }"""))
 }
 
-final case class SimpleCouponShadow(f: SimpleCouponForm) { 
+case class SimpleCouponShadow(f: SimpleCouponForm) { 
 
     val shadow = ObjectUtils.newShadow(parse(
-      s"""
+      """
         {
           "name" : {"type": "string", "ref": "name"},
           "storefrontName" : {"type": "richText", "ref": "storefrontName"},

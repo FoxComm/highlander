@@ -8,7 +8,7 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import utils.JsonFormatters
 
-final case class OfferCompiler(offerType: OfferType, attributes: JObject) {
+case class OfferCompiler(offerType: OfferType, attributes: JObject) {
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 

@@ -8,15 +8,15 @@ trait Failure {
   def description: String
 }
 
-final case class GeneralFailure(a: String) extends Failure {
+case class GeneralFailure(a: String) extends Failure {
   override def description = a
 }
 
-final case class DatabaseFailure(message: String) extends Failure {
+case class DatabaseFailure(message: String) extends Failure {
   override def description = message
 }
 
-final case class NotFoundFailure404(message: String) extends Failure {
+case class NotFoundFailure404(message: String) extends Failure {
   override def description = message
 }
 
@@ -30,7 +30,7 @@ object NotFoundFailure404 {
   }
 }
 
-final case class NotFoundFailure400(message: String) extends Failure {
+case class NotFoundFailure400(message: String) extends Failure {
   override def description = message
 }
 
@@ -40,7 +40,7 @@ object NotFoundFailure400 {
   }
 }
 
-final case class StateTransitionNotAllowed(message: String) extends Failure {
+case class StateTransitionNotAllowed(message: String) extends Failure {
   override def description = message
 }
 
@@ -55,7 +55,7 @@ object StateTransitionNotAllowed {
   }
 }
 
-final case class NotificationTrailNotFound400(adminId: Int) extends Failure {
+case class NotificationTrailNotFound400(adminId: Int) extends Failure {
   override def description = s"Notification trail for adminId=$adminId not found"
 }
 
@@ -72,18 +72,18 @@ case object InvalidCancellationReasonFailure extends Failure {
   override def description = "Cancellation reason doesn't exist"
 }
 
-final case class InvalidReasonTypeFailure(name: String) extends Failure {
+case class InvalidReasonTypeFailure(name: String) extends Failure {
   override def description = s"Reason type named '$name' doesn't exist"
 }
 
-final case class InvalidFieldFailure(name: String) extends Failure {
+case class InvalidFieldFailure(name: String) extends Failure {
   override def description = s"Invalid value for field '$name' provided"
 }
 
-final case class AlreadySavedForLater(customerId: Int, skuId: Int) extends Failure {
+case class AlreadySavedForLater(customerId: Int, skuId: Int) extends Failure {
   override def description = s"Customer with id=$customerId already has SKU with id=$skuId saved for later"
 }
 
-final case class ShipmentNotFoundFailure(orderRefNum: String) extends Failure {
+case class ShipmentNotFoundFailure(orderRefNum: String) extends Failure {
   override def description = s"No shipments found for order with refNum=$orderRefNum"
 }

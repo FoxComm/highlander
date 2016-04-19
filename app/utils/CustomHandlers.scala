@@ -41,12 +41,12 @@ object CustomHandlers {
 
   def jsonExceptionHandler: ExceptionHandler = ExceptionHandler {
     case IllegalRequestException(info, status) ⇒ ctx ⇒ {
-      ctx.log.warning(s"Illegal request {}\n\t{}\n\tCompleting with '{}' response",
+      ctx.log.warning("Illegal request {}\n\t{}\n\tCompleting with '{}' response",
         ctx.request, info.formatPretty, status)
       ctx.complete(HttpResponse(status, entity = errorsJsonEntity(info.format(isProduction))))
     }
     case e: IllegalArgumentException ⇒ ctx ⇒ {
-      ctx.log.warning(s"Bad request: {}", ctx.request)
+      ctx.log.warning("Bad request: {}", ctx.request)
       ctx.complete(HttpResponse(BadRequest, entity = errorsJsonEntity(e.getMessage)))
     }
     case NonFatal(e) ⇒ ctx ⇒ {

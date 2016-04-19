@@ -26,7 +26,7 @@ import utils.Validation._
 import utils.{Validation, _}
 import utils.aliases._
 
-final case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: OriginType = CsrAppeasement,
+case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: OriginType = CsrAppeasement,
   subTypeId: Option[Int] = None, currency: Currency = Currency.USD, originalBalance: Int, currentBalance: Int = 0,
   availableBalance: Int = 0, state: State = Active, canceledAmount: Option[Int] = None,
   canceledReason: Option[Int] = None, createdAt: Instant = Instant.now())
@@ -163,8 +163,7 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
   idLens = GenLens[StoreCredit](_.id)
   )(new StoreCredits(_)){
 
-  def sortedAndPaged(query: QuerySeq)
-    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+  def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata =
     query.withMetadata.sortAndPageIfNeeded { case (s, storeCredit) ⇒
       s.sortColumn match {
         case "id"               ⇒ if (s.asc) storeCredit.id.asc               else storeCredit.id.desc
@@ -211,13 +210,13 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
 
   def findActiveById(id: Int)(implicit ec: EC): QuerySeq = filter(_.id === id)
 
-  def findAllByCustomerId(customerId: Int)(implicit ec: EC): QuerySeq =
+  def findAllByCustomerId(customerId: Int): QuerySeq =
     filter(_.customerId === customerId)
 
   def findAllActiveByCustomerId(customerId: Int): QuerySeq =
     filter(_.customerId === customerId).filter(_.state === (Active: State)).filter(_.availableBalance > 0)
 
-  def findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: EC): DBIO[Option[StoreCredit]] =
+  def findByIdAndCustomerId(id: Int, customerId: Int): DBIO[Option[StoreCredit]] =
     filter(_.customerId === customerId).filter(_.id === id).one
 
   type ReturningIdAndBalances = (Int, Int, Int)

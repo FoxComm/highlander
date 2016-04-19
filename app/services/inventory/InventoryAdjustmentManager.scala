@@ -22,7 +22,7 @@ import utils.aliases._
 object InventoryAdjustmentManager {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def orderPlaced(order: Order)(implicit ec: EC, db: DB): DbResult[Iterable[Adj]] =
+  def orderPlaced(order: Order)(implicit ec: EC): DbResult[Iterable[Adj]] =
     lineItemSkus(order.id).flatMap { skuIds ⇒
       DbResultT.sequence(groupSkusByQtys(skuIds).map { case (skuId, qty) ⇒
         for {
@@ -35,7 +35,7 @@ object InventoryAdjustmentManager {
       }).value
     }
 
-  def orderPropagated(order: Order)(implicit ec: EC, db: DB) =
+  def orderPropagated(order: Order)(implicit ec: EC) =
     lineItemSkus(order.id).flatMap { skuIds ⇒
       DbResultT.sequence(groupSkusByQtys(skuIds).map { case (skuId, qty) ⇒
         for {
@@ -54,7 +54,7 @@ object InventoryAdjustmentManager {
       }).value
     }
 
-  def wmsOverride(event: WmsOverride)(implicit ec: EC, db: DB): DbResultT[Seq[Int]] = for {
+  def wmsOverride(event: WmsOverride)(implicit ec: EC): DbResultT[Seq[Int]] = for {
     sum ← * <~ findSellableSummary(event.skuId, event.warehouseId)
     adj ← * <~ Adjs.createAllReturningIds(generateAdjustmentsForEvent(sum, event))
     _   ← * <~ SellableInventorySummaries.update(sum, sum.copy(onHand = event.onHand, onHold = event.onHold,

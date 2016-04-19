@@ -5,7 +5,7 @@ import models.payment.creditcard.CreditCard
 
 object CreditCardFailures {
 
-  final case class StripeFailure(exception: StripeException) extends Failure {
+  case class StripeFailure(exception: StripeException) extends Failure {
     override def description = exception.getMessage
   }
 
@@ -53,11 +53,11 @@ object CreditCardFailures {
     override def description = "There was an error processing the credit card request"
   }
 
-  final case class CannotUseInactiveCreditCard(cc: CreditCard) extends Failure {
+  case class CannotUseInactiveCreditCard(cc: CreditCard) extends Failure {
     override def description = s"creditCard with id=${cc.id} is inactive"
   }
 
-  final case class CustomerHasNoCreditCard(customerId: Int) extends Failure {
+  case class CustomerHasNoCreditCard(customerId: Int) extends Failure {
     override def description = s"No credit card found for customer with id=$customerId"
   }
 

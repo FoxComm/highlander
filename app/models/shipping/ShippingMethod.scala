@@ -9,7 +9,7 @@ import monocle.macros.GenLens
 import utils.ExPostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class ShippingMethod(id: Int = 0, parentId: Option[Int] = None, adminDisplayName: String,
+case class ShippingMethod(id: Int = 0, parentId: Option[Int] = None, adminDisplayName: String,
   storefrontDisplayName: String, shippingCarrierId: Option[Int] = None, price: Int, isActive: Boolean = true,
   conditions: Option[QueryStatement] = None, restrictions: Option[QueryStatement] = None)
   extends ModelWithIdParameter[ShippingMethod] {
@@ -40,11 +40,11 @@ object ShippingMethods extends TableQueryWithId[ShippingMethod, ShippingMethods]
   idLens = GenLens[ShippingMethod](_.id)
 )(new ShippingMethods(_)) {
 
-  def findActive(implicit db: Database): Query[ShippingMethods, ShippingMethod, Seq] = filter(_.isActive === true)
+  def findActive: Query[ShippingMethods, ShippingMethod, Seq] = filter(_.isActive === true)
 
-  def findActiveById(id: Int)(implicit db: Database): QuerySeq = findActive.filter(_.id === id)
+  def findActiveById(id: Int): QuerySeq = findActive.filter(_.id === id)
 
-  def forOrder(order: Order)(implicit db: Database): QuerySeq = for {
+  def forOrder(order: Order): QuerySeq = for {
     orderShippingMethod ← OrderShippingMethods.filter(_.orderId === order.id)
     shipMethod          ← ShippingMethods.filter(_.id === orderShippingMethod.shippingMethodId)
   } yield shipMethod

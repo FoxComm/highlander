@@ -17,7 +17,7 @@ trait Offer {
 
 object Offer {
 
-  final case class OfferFormat(offerType: OfferType, attributes: JObject)
+  case class OfferFormat(offerType: OfferType, attributes: JObject)
   type OfferAstFormat = Seq[OfferFormat]
 
   type AdjustmentResult = Xor[Failures, Seq[LineItemAdjustment]]

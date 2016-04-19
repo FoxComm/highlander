@@ -8,7 +8,7 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class Shipment(id: Int = 0, orderId: Int, orderShippingMethodId: Option[Int] = None, shippingAddressId:
+case class Shipment(id: Int = 0, orderId: Int, orderShippingMethodId: Option[Int] = None, shippingAddressId:
 Option[Int] = None, state: Shipment.State = Cart, shippingPrice: Option[Int] = None)
   extends ModelWithIdParameter[Shipment]
 

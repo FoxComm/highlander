@@ -6,7 +6,7 @@ object CustomerFailures {
     override def description = "The email address you entered is already in use"
   }
 
-  final case class CustomerHasNoDefaultAddress(customerId: Int) extends Failure {
+  case class CustomerHasNoDefaultAddress(customerId: Int) extends Failure {
     override def description = s"No default address found for customer with id =$customerId"
   }
 
