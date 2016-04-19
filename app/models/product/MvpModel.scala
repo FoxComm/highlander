@@ -162,8 +162,7 @@ object Mvp {
 
   } yield r
 
-  def insertProduct(contextId: Int, p: SimpleProductData)(implicit db: Database): 
-  DbResultT[SimpleProductData] = for {
+  def insertProduct(contextId: Int, p: SimpleProductData): DbResultT[SimpleProductData] = for {
     simpleProduct   ← * <~ SimpleProduct(p.title, p.description, p.image, p.code, p.active, p.tags)
     productForm     ← * <~ ObjectForms.create(simpleProduct.create)
     simpleSku       ← * <~ SimpleSku(p.code, p.title, p.image, p.price, p.currency, p.active, p.tags)
@@ -219,8 +218,7 @@ object Mvp {
       skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
     } yield SimpleProductTuple(product, sku, productForm, skuForm, productShadow, skuShadow)
 
-  def insertProducts(ps : Seq[SimpleProductData], contextId: Int)
-    (implicit db: Database): DbResultT[Seq[SimpleProductData]] = for {
+  def insertProducts(ps : Seq[SimpleProductData], contextId: Int): DbResultT[Seq[SimpleProductData]] = for {
     results ← * <~ DbResultT.sequence(ps.map { p ⇒ insertProduct(contextId, p) } )
   } yield results
 

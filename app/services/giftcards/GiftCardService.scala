@@ -36,7 +36,7 @@ object GiftCardService {
   def findAll(implicit ec: EC, db: DB, sortAndPage: SortAndPage): Result[TheResponse[Seq[Root]]] =
     GiftCards.queryAll.result.map(_.map(GiftCardResponse.build(_))).toTheResponse.run()
 
-  def findByCode(code: String)(implicit ec: EC, db: DB, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] =
+  def findByCode(code: String)(implicit ec: EC, sortAndPage: SortAndPage): ResultWithMetadata[Seq[Root]] =
     GiftCards.queryByCode(code).result.map(_.map(GiftCardResponse.build(_)))
 
   def getByCode(code: String)(implicit ec: EC, db: DB): Result[Root] = (for {

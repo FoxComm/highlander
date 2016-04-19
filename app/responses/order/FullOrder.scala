@@ -77,10 +77,10 @@ object FullOrder {
       createdAt: Instant, `type`: Type = StoreCredit) extends Payments
   }
 
-  def refreshAndFullOrder(order: Order)(implicit ec: EC, db: DB): DBIO[FullOrder.Root] =
+  def refreshAndFullOrder(order: Order)(implicit ec: EC): DBIO[FullOrder.Root] =
     Orders.refresh(order).flatMap(fromOrder)
 
-  def fromOrder(order: Order)(implicit ec: EC, db: DB): DBIO[Root] = {
+  def fromOrder(order: Order)(implicit ec: EC): DBIO[Root] = {
     fetchOrderDetails(order).map {
       case (customer, lineItems, shipMethod, shipAddress, ccPmt, gcPmts, scPmts, gcs, totals, lockedBy, payState) ⇒
       build(
@@ -175,7 +175,7 @@ object FullOrder {
     Totals(subTotal = order.subTotal, shipping = order.shippingTotal, adjustments = order.adjustmentsTotal,
     taxes = order.taxesTotal, total = order.grandTotal)
 
-  private def fetchOrderDetails(order: Order)(implicit ec: EC, db: DB) = {
+  private def fetchOrderDetails(order: Order)(implicit ec: EC) = {
     val ccPaymentQ = for {
       payment     ← OrderPayments.findAllByOrderId(order.id)
       creditCard  ← CreditCards.filter(_.id === payment.paymentMethodId)

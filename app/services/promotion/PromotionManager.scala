@@ -73,7 +73,7 @@ object PromotionManager {
 
   private case class DiscountsCreateResult(forms: Seq[ObjectForm], shadows: Seq[ObjectShadow])
   private def createDiscounts(context: ObjectContext, payload: CreatePromotion, promotionShadow: ObjectShadow)
-    (implicit ec: EC, db: DB): DbResultT[DiscountsCreateResult] = for {
+    (implicit ec: EC): DbResultT[DiscountsCreateResult] = for {
       ps ← * <~ payload.form.discounts.zip(payload.shadow.discounts)
       rs     ← * <~ DbResultT.sequence( 
         ps.map{ case (form, shadow) ⇒ 
@@ -87,7 +87,7 @@ object PromotionManager {
 
   private def createDiscount(context: ObjectContext, formPayload: CreateDiscountForm, 
     shadowPayload: CreateDiscountShadow, promotionShadow: ObjectShadow)
-  (implicit ec: EC, db: DB): DbResultT[DiscountCreateResult] = {
+  (implicit ec: EC): DbResultT[DiscountCreateResult] = {
     val payload = CreateDiscount(form = formPayload, shadow = shadowPayload)
     for {
       r ← * <~ DiscountManager.createInternal(payload, context)

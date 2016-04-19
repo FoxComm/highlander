@@ -231,11 +231,10 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
     }
   }
 
-  def queryAll(implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+  def queryAll(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata =
     sortedAndPaged(this)
 
-  def queryByCode(code: String)
-    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+  def queryByCode(code: String)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata =
     sortedAndPaged(findByCode(code))
 
   def auth(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)

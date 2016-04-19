@@ -118,7 +118,7 @@ object LineItemUpdater {
     _     ← * <~ logAct(res, lineItems)
   } yield TheResponse.build(res, alerts = valid.alerts, warnings = valid.warnings)).runTxn()
 
-  private def qtyAvailableForSkus(order: Order, skus: Seq[String])(implicit ec: EC, db: DB): DBIO[Map[Sku, Int]] = {
+  private def qtyAvailableForSkus(order: Order, skus: Seq[String])(implicit ec: EC): DBIO[Map[Sku, Int]] = {
     // TODO: inventory... 'nuff said. (aka FIXME)
     // Skus.qtyAvailableForSkus(updateQuantities.keys.toSeq).flatMap { availableQuantities ⇒
     (for {
@@ -134,7 +134,7 @@ object LineItemUpdater {
   }
 
   private def updateQuantities(order: Order, payload: Seq[UpdateLineItemsPayload])
-    (implicit ec: EC, db: DB): DbResult[Seq[OrderLineItem]] = {
+    (implicit ec: EC): DbResult[Seq[OrderLineItem]] = {
 
     val updateQuantities = foldQuantityPayload(payload)
 

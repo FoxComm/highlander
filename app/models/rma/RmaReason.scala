@@ -64,6 +64,6 @@ object RmaReasons extends TableQueryWithId[RmaReason, RmaReasons](
     sortedQuery.paged
   }
 
-  def queryAll(implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+  def queryAll(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata =
     this.sortedAndPaged(this)
 }

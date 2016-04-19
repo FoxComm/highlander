@@ -27,7 +27,7 @@ object ShippingManager {
     shippingAddress: Option[OrderShippingAddress] = None, shippingRegion: Option[Region] = None, skus: Seq[Sku])
 
   def getShippingMethodsForCart(originator: Originator)
-    (implicit ec: EC, db: DB, ac: AC): Result[Seq[responses.ShippingMethods.Root]] = (for {
+    (implicit ec: EC, db: DB): Result[Seq[responses.ShippingMethods.Root]] = (for {
     order       ← * <~ getCartByOriginator(originator, None)
     _           ← * <~ order.mustBeCart
     shipMethods ← * <~ ShippingMethods.findActive.result.toXor
@@ -57,8 +57,7 @@ object ShippingManager {
     case _        ⇒ Orders.mustFindByRefNum(refNum)
   }
 
-  def evaluateShippingMethodForOrder(shippingMethod: ShippingMethod, order: Order)
-    (implicit ec: EC, db: DB): DbResult[Unit] = {
+  def evaluateShippingMethodForOrder(shippingMethod: ShippingMethod, order: Order)(implicit ec: EC): DbResult[Unit] = {
     getShippingData(order).flatMap { shippingData ⇒
       val failure = ShippingMethodNotApplicableToOrder(shippingMethod.id, order.refNum)
       if (QueryStatement.evaluate(shippingMethod.conditions, shippingData, evaluateCondition)) {

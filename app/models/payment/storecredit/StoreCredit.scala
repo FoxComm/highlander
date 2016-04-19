@@ -182,7 +182,7 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
       }
     }
 
-  def queryByCustomer(customerId: Int)(implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+  def queryByCustomer(customerId: Int)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata =
     sortedAndPaged(findAllByCustomerId(customerId))
 
   def auth(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0)
@@ -208,7 +208,7 @@ object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
     Adjs.create(adjustment)
   }
 
-  def findActiveById(id: Int)(implicit ec: EC): QuerySeq = filter(_.id === id)
+  def findActiveById(id: Int): QuerySeq = filter(_.id === id)
 
   def findAllByCustomerId(customerId: Int): QuerySeq =
     filter(_.customerId === customerId)
