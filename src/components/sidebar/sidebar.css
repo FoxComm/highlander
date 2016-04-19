@@ -46,6 +46,11 @@
 
   & :global(.icon) {
     stroke-width: 3;
+    cursor: pointer;
+
+    &:hover {
+      opacity: .7;
+    }
   }
 }
 
@@ -60,6 +65,10 @@
 
 .controls-search {
   margin-top: 16px;
+
+  & :global(.icon__cnt) {
+    fill: var(--lightest-blackish);
+  }
 }
 
 .session-link {

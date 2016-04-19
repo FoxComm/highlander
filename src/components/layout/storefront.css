@@ -38,6 +38,12 @@
   width: 30%;
 }
 
+.search {
+  & :global(.icon__cnt) {
+    fill: var(--blackish);
+  }
+}
+
 .tools {
   display: flex;
   justify-content: flex-end;
@@ -109,6 +115,10 @@
 
   .hamburger {
     display: block;
+
+    & :global(.icon) {
+      cursor: pointer;
+    }
   }
 
   .mobile-sidebar {
