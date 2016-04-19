@@ -5,7 +5,7 @@ import slick.driver.PostgresDriver.api._
 import utils.GenericTable.TableWithId
 import utils.{ModelWithIdParameter, TableQueryWithId}
 
-final case class Region(id: Int = 0, countryId: Int, name: String, abbreviation: Option[String] = None)
+case class Region(id: Int = 0, countryId: Int, name: String, abbreviation: Option[String] = None)
   extends ModelWithIdParameter[Region] {
   val abbrev = abbreviation
 }

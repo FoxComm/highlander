@@ -26,7 +26,7 @@ import scala.language.implicitConversions
 import Extensions._
 import failures.NotFoundFailure404
 
-final case class DumbActivity(
+case class DumbActivity(
   randomWord: String,
   randomNumber: Int)
 

@@ -15,7 +15,7 @@ import failures.{Failure, Failures, GeneralFailure}
 import models.stripe._
 import services.{Result, ResultT}
 
-final case class Apis(stripe: StripeApi)
+case class Apis(stripe: StripeApi)
 
 trait StripeApi {
   def createCustomer(options: Map[String, AnyRef], secretKey: String): Result[StripeCustomer]

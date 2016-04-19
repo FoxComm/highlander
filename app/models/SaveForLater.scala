@@ -7,7 +7,7 @@ import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class SaveForLater(id: Int = 0, customerId: Int = 0, 
+case class SaveForLater(id: Int = 0, customerId: Int = 0, 
   skuId: Int, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[SaveForLater] {
 

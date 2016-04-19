@@ -8,7 +8,7 @@ import models.order.Order
 import models.order.lineitems.OrderLineItemProductData
 import models.shipping.ShippingMethod
 
-final case class ItemsSelectPercentOffer(discount: Int, references: Seq[ReferenceTuple]) extends Offer {
+case class ItemsSelectPercentOffer(discount: Int, references: Seq[ReferenceTuple]) extends Offer {
 
   val rejectionReason = "Not implemented yet"
 

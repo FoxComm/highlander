@@ -4,7 +4,7 @@ import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class Warehouse(id: Int = 0, name: String) extends ModelWithIdParameter[Warehouse]
+case class Warehouse(id: Int = 0, name: String) extends ModelWithIdParameter[Warehouse]
 
 class Warehouses(tag: Tag)
   extends GenericTable.TableWithId[Warehouse](tag, "warehouses")  {

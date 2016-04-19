@@ -11,7 +11,6 @@ import utils.Slick.DbResult
 import utils.Slick.implicits._
 import utils.aliases._
 import cats.data.Xor
-import scala.concurrent.ExecutionContext
 
 import failures.{AlreadySavedForLater, Failures, NotFoundFailure404}
 import failures.ProductFailures.SkuNotFoundForContext
@@ -43,7 +42,7 @@ object SaveForLaterManager {
 
   private def findAllDbio(customer: Customer, contextId: Int)(implicit ec: EC, db: DB): DBIO[SavedForLater] = for {
     sfls ← SaveForLaters.filter(_.customerId === customer.id).result
-    xors ← DBIO.sequence(sfls.map(_.skuId).map(skuId ⇒ SaveForLaterResponse.forSkuId(skuId, contextId).value))
+    xors ← DBIO.sequence(sfls.map(sfl ⇒ SaveForLaterResponse.forSkuId(sfl.skuId, contextId).value))
 
     fails = xors.collect { case Xor.Left(f) ⇒ f }.flatMap(_.toList)
     roots = xors.collect { case Xor.Right(r) ⇒ r }

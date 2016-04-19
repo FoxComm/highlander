@@ -19,7 +19,7 @@ import Aliases.Json
  * The tail connection keeps the tail of the list. The tail.next_id points to the first activity and the 
  * previous_id points to the last event in the activity trail.
  */
-final case class Connection(
+case class Connection(
   id: Int = 0, 
   dimensionId: Int, 
   trailId: Int, 

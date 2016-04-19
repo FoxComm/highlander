@@ -1,25 +1,18 @@
 package responses
 
-import ObjectResponses.ObjectContextResponse
+import java.time.Instant
 
+import cats.implicits._
+import models.Aliases.Json
 import models.inventory._
 import models.objects._
-import models.Aliases.Json
-
-import org.json4s.DefaultFormats
-import org.json4s.Extraction
-import org.json4s.JsonAST.JValue
-import org.json4s.JsonDSL._
-import org.json4s.jackson.Serialization.{write ⇒ render}
-
-import java.time.Instant
-import cats.implicits._
+import responses.ObjectResponses.ObjectContextResponse
 
 object SkuResponses {
 
   object SkuHeadResponse { 
 
-    final case class Root(code: String) 
+    case class Root(code: String) 
       extends ResponseItem
 
     def build(sku: Sku) : Root =
@@ -28,7 +21,7 @@ object SkuResponses {
 
   object SkuFormResponse { 
 
-    final case class Root(code: String, attributes: Json, createdAt: Instant) 
+    case class Root(code: String, attributes: Json, createdAt: Instant) 
       extends ResponseItem
 
     def build(sku: Sku, form: ObjectForm) : Root =
@@ -38,7 +31,7 @@ object SkuResponses {
 
   object SkuShadowResponse { 
 
-    final case class Root(code: String, attributes: Json, createdAt: Instant) 
+    case class Root(code: String, attributes: Json, createdAt: Instant) 
       extends ResponseItem
 
     def build(sku: Sku, shadow: ObjectShadow) : Root =
@@ -48,7 +41,7 @@ object SkuResponses {
 
   object IlluminatedSkuResponse {
 
-    final case class Root(code: String, context: Option[ObjectContextResponse.Root], 
+    case class Root(code: String, context: Option[ObjectContextResponse.Root], 
       attributes: Json) extends ResponseItem
 
     def build(s: IlluminatedSku): Root = 
@@ -60,7 +53,7 @@ object SkuResponses {
 
   object FullSkuResponse {
 
-    final case class Root(code: String, context: ObjectContextResponse.Root,
+    case class Root(code: String, context: ObjectContextResponse.Root,
       form: SkuFormResponse.Root, shadow: SkuShadowResponse.Root)
 
     def build(form: SkuFormResponse.Root, shadow: SkuShadowResponse.Root,

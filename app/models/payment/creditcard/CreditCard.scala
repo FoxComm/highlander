@@ -22,7 +22,7 @@ import utils.Slick.implicits._
 import utils._
 import utils.aliases._
 
-final case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerId: Int, gatewayCustomerId: String,
+case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerId: Int, gatewayCustomerId: String,
   gatewayCardId: String, holderName: String, lastFour: String, expMonth: Int, expYear: Int,
   isDefault: Boolean = false, address1Check: Option[String] = None, zipCheck: Option[String] = None,
   inWallet: Boolean = true, deletedAt: Option[Instant] = None, regionId: Int, addressName: String,
@@ -103,8 +103,7 @@ object CreditCards extends TableQueryWithId[CreditCard, CreditCards](
   idLens = GenLens[CreditCard](_.id)
 )(new CreditCards(_)) {
 
-  def sortedAndPaged(query: QuerySeq)
-    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata = {
+  def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata = {
 
     val sortedQuery = sortAndPage.sort match {
       case Some(s) if s.sortColumn == "expDate" ⇒ query.withMetadata.sortBy { creditCard ⇒
@@ -139,13 +138,13 @@ object CreditCards extends TableQueryWithId[CreditCard, CreditCards](
     sortedQuery.paged
   }
 
-  def findInWalletByCustomerId(customerId: Int)(implicit db: Database): QuerySeq =
+  def findInWalletByCustomerId(customerId: Int): QuerySeq =
     filter(_.customerId === customerId).filter(_.inWallet === true)
 
-  def findDefaultByCustomerId(customerId: Int)(implicit db: Database): QuerySeq =
+  def findDefaultByCustomerId(customerId: Int): QuerySeq =
     findInWalletByCustomerId(customerId).filter(_.isDefault === true)
 
-  def findByIdAndCustomerId(id: Int, customerId: Int)(implicit ec: EC): QuerySeq =
+  def findByIdAndCustomerId(id: Int, customerId: Int): QuerySeq =
     filter(_.customerId === customerId).filter(_.id === id)
 
   def mustFindByIdAndCustomer(id: Int, customerId: Int)(implicit ec: EC): DbResult[CreditCard] = {

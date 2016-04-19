@@ -7,7 +7,7 @@ import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class OrderLockEvent(id: Int = 0, orderId: Int = 0, lockedAt: Instant = Instant.now, lockedBy: Int = 0)
+case class OrderLockEvent(id: Int = 0, orderId: Int = 0, lockedAt: Instant = Instant.now, lockedBy: Int = 0)
   extends ModelWithIdParameter[OrderLockEvent]
 
 class OrderLockEvents(tag: Tag) extends GenericTable.TableWithId[OrderLockEvent](tag, "order_lock_events") {

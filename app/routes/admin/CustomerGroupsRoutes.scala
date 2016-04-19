@@ -1,21 +1,18 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
-import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 
 import models.StoreAdmin
 import payloads._
 import services.GroupManager
-import services.Authenticator.{AsyncAuthenticator, requireAuth}
-import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._
 import utils.aliases._
 
 
 object CustomerGroupsRoutes {
-  def routes(implicit ec: EC, db: DB, mat: Materializer, admin: StoreAdmin, apis: Apis) = {
+  def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
 
     activityContext(admin) { implicit ac ⇒
       pathPrefix("groups") {

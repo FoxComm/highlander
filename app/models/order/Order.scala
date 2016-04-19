@@ -24,7 +24,7 @@ import utils.table.SearchByRefNum
 import utils.{ADT, FSM, GenericTable, ModelWithLockParameter, TableQueryWithLock, Validation}
 import utils.aliases._
 
-final case class Order(
+case class Order(
   id: Int = 0, referenceNumber: String = "", customerId: Int, contextId: Int,
   state: State = Cart, isLocked: Boolean = false, placedAt: Option[Instant] = None, fraudScore: Int = 0,
   remorsePeriodEnd: Option[Instant] = None, rmaCount: Int = 0, currency: Currency = Currency.USD,

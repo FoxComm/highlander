@@ -4,7 +4,7 @@ import cats.data.Xor
 import failures.Failures
 
 object GiftCardBulkResponse {
-  final case class ItemResult(
+  case class ItemResult(
     code: Option[String] = None,
     success: Boolean = false,
     giftCard: Option[GiftCardResponse.Root] = None,

@@ -55,11 +55,11 @@ object DiscountManager {
     r ← * <~ createInternal(payload, context)
   } yield DiscountResponse.build(r.form, r.shadow)).runTxn()
 
-  final case class CreateInternalResult(discount: Discount, commit: ObjectCommit, 
+  case class CreateInternalResult(discount: Discount, commit: ObjectCommit, 
     form: ObjectForm, shadow: ObjectShadow)
 
-  def createInternal(payload: CreateDiscount, context: ObjectContext) 
-    (implicit ec: EC, db: DB): DbResultT[CreateInternalResult] = for {
+  def createInternal(payload: CreateDiscount, context: ObjectContext)
+    (implicit ec: EC): DbResultT[CreateInternalResult] = for {
     form    ← * <~ ObjectForm(kind = Discount.kind, attributes = 
       payload.form.attributes)
     shadow  ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
@@ -76,7 +76,7 @@ object DiscountManager {
       r ← * <~ updateInternal(discountId, payload, context)
   } yield DiscountResponse.build(r.form, r.shadow)).runTxn()
 
-  final case class UpdateInternalResult(oldDiscount: Discount, discount: Discount, form: ObjectForm, 
+  case class UpdateInternalResult(oldDiscount: Discount, discount: Discount, form: ObjectForm, 
     shadow: ObjectShadow)
 
   def updateInternal(discountId: Int, payload: UpdateDiscount, context: ObjectContext, 
@@ -103,8 +103,7 @@ object DiscountManager {
     context = context.some, form, shadow))).run()
 
   private def updateHead(discount: Discount, shadow: ObjectShadow, 
-    maybeCommit: Option[ObjectCommit]) 
-    (implicit ec: EC, db: DB): DbResultT[Discount] = 
+    maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[Discount] =
       maybeCommit match {
         case Some(commit) ⇒  for { 
           discount   ← * <~ Discounts.update(discount, discount.copy(

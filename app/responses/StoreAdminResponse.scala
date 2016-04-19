@@ -4,7 +4,7 @@ import models.StoreAdmin
 import models.auth.AdminToken
 
 object StoreAdminResponse {
-  final case class Root(
+  case class Root(
     id: Int = 0,
     email: String,
     name: String,

@@ -18,7 +18,7 @@ import utils.Slick.implicits._
 import utils.aliases._
 import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
 
-final case class Address(id: Int = 0, customerId: Int, regionId: Int, name: String,
+case class Address(id: Int = 0, customerId: Int, regionId: Int, name: String,
   address1: String, address2: Option[String], city: String, zip: String,
   isDefaultShipping: Boolean = false, phoneNumber: Option[String] = None,
   deletedAt: Option[Instant] = None)
@@ -79,8 +79,7 @@ object Addresses extends TableQueryWithId[Address, Addresses](
   import scope._
 
   def sortedAndPagedWithRegions(query: Query[(Addresses, Regions), (Address, Region), Seq])
-    (implicit ec: EC, db: DB, sortAndPage: SortAndPage):
-    QueryWithMetadata[(Addresses, Regions), (Address, Region), Seq] =
+    (implicit sortAndPage: SortAndPage): QueryWithMetadata[(Addresses, Regions), (Address, Region), Seq] =
 
     query.withMetadata.sortAndPageIfNeeded { case (s, (address, region)) ⇒
       s.sortColumn match {

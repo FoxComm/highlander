@@ -38,7 +38,7 @@ object RmaService {
     response  ← * <~ RmaResponse.fromRma(updated).toXor
   } yield response).runTxn()
 
-  private def cancelOrUpdate(rma: Rma, reason: Option[Reason], payload: RmaUpdateStatePayload)(implicit ec: EC, db: DB) = {
+  private def cancelOrUpdate(rma: Rma, reason: Option[Reason], payload: RmaUpdateStatePayload)(implicit ec: EC) = {
     (payload.state, reason) match {
       case (Canceled, Some(r)) ⇒
         Rmas.update(rma, rma.copy(state = payload.state, canceledReason = Some(r.id)))

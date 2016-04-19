@@ -3,15 +3,15 @@ package payloads
 import models.Aliases.Json
 import java.time.Instant
 
-final case class CreateProductForm(attributes: Json)
-final case class CreateProductShadow(attributes: Json)
-final case class UpdateProductForm(attributes: Json)
-final case class UpdateProductShadow(attributes: Json)
+case class CreateProductForm(attributes: Json)
+case class CreateProductShadow(attributes: Json)
+case class UpdateProductForm(attributes: Json)
+case class UpdateProductShadow(attributes: Json)
 
-final case class CreateFullProductForm(product: CreateProductForm, skus: Seq[CreateFullSkuForm])
-final case class UpdateFullProductForm(product: UpdateProductForm, skus: Seq[UpdateFullSkuForm])
-final case class CreateFullProductShadow(product: CreateProductShadow, skus: Seq[CreateSkuShadow])
-final case class UpdateFullProductShadow(product: UpdateProductShadow, skus: Seq[UpdateFullSkuShadow])
+case class CreateFullProductForm(product: CreateProductForm, skus: Seq[CreateFullSkuForm])
+case class UpdateFullProductForm(product: UpdateProductForm, skus: Seq[UpdateFullSkuForm])
+case class CreateFullProductShadow(product: CreateProductShadow, skus: Seq[CreateSkuShadow])
+case class UpdateFullProductShadow(product: UpdateProductShadow, skus: Seq[UpdateFullSkuShadow])
 
-final case class CreateFullProduct(form: CreateFullProductForm, shadow: CreateFullProductShadow)
-final case class UpdateFullProduct(form: UpdateFullProductForm, shadow: UpdateFullProductShadow)
+case class CreateFullProduct(form: CreateFullProductForm, shadow: CreateFullProductShadow)
+case class UpdateFullProduct(form: UpdateFullProductForm, shadow: UpdateFullProductShadow)

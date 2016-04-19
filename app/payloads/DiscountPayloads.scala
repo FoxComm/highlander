@@ -3,9 +3,9 @@ package payloads
 import models.Aliases.Json
 import java.time.Instant
 
-final case class CreateDiscountForm(attributes: Json)
-final case class CreateDiscountShadow(attributes: Json)
-final case class CreateDiscount(form: CreateDiscountForm, shadow: CreateDiscountShadow)
-final case class UpdateDiscountForm(attributes: Json)
-final case class UpdateDiscountShadow(attributes: Json)
-final case class UpdateDiscount(form: UpdateDiscountForm, shadow: UpdateDiscountShadow)
+case class CreateDiscountForm(attributes: Json)
+case class CreateDiscountShadow(attributes: Json)
+case class CreateDiscount(form: CreateDiscountForm, shadow: CreateDiscountShadow)
+case class UpdateDiscountForm(attributes: Json)
+case class UpdateDiscountShadow(attributes: Json)
+case class UpdateDiscount(form: UpdateDiscountForm, shadow: UpdateDiscountShadow)

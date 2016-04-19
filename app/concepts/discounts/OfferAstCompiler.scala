@@ -9,7 +9,7 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import utils.JsonFormatters
 
-final case class OfferAstCompiler(input: String) {
+case class OfferAstCompiler(input: String) {
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 

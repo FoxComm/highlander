@@ -3,15 +3,15 @@ package payloads
 import models.Aliases.Json
 import java.time.Instant
 
-final case class CreateSkuForm(code: String, productId: Int, attributes: Json)
-final case class CreateSkuShadow(code: String, attributes: Json)
-final case class UpdateSkuForm(attributes: Json)
-final case class UpdateSkuShadow(attributes: Json)
+case class CreateSkuForm(code: String, productId: Int, attributes: Json)
+case class CreateSkuShadow(code: String, attributes: Json)
+case class UpdateSkuForm(attributes: Json)
+case class UpdateSkuShadow(attributes: Json)
 
-final case class CreateFullSkuForm(code: String, attributes: Json)
-final case class CreateFullSkuShadow(code: String, attributes: Json)
-final case class UpdateFullSkuForm(code: String, attributes: Json)
-final case class UpdateFullSkuShadow(code: String, attributes: Json)
+case class CreateFullSkuForm(code: String, attributes: Json)
+case class CreateFullSkuShadow(code: String, attributes: Json)
+case class UpdateFullSkuForm(code: String, attributes: Json)
+case class UpdateFullSkuShadow(code: String, attributes: Json)
 
-final case class CreateFullSku(form: CreateFullSkuForm, shadow: CreateFullSkuShadow)
-final case class UpdateFullSku(form: UpdateFullSkuForm, shadow: UpdateFullSkuShadow)
+case class CreateFullSku(form: CreateFullSkuForm, shadow: CreateFullSkuShadow)
+case class UpdateFullSku(form: UpdateFullSkuForm, shadow: UpdateFullSkuShadow)

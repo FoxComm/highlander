@@ -9,7 +9,7 @@ object GiftCardResponse {
 
   final val mockMessage = "Not implemented yet"
 
-  final case class Root(
+  case class Root(
     id: Int,
     createdAt: Instant,
     code: String,

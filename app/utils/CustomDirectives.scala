@@ -1,21 +1,19 @@
 package utils
 
 import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
 
 import models.StoreAdmin
-import models.customer.Customer
-import models.product.SimpleContext
-import models.objects.{ObjectContext, ObjectContexts}
-import services.Result
-import utils.Http._
-import models.StoreAdmin
 import models.activity.ActivityContext
-
+import models.customer.Customer
+import models.objects.{ObjectContext, ObjectContexts}
+import models.product.SimpleContext
+import services.Result
 import slick.driver.PostgresDriver.api._
+import utils.Http._
 import utils.aliases._
 
 object CustomDirectives {
@@ -23,8 +21,8 @@ object CustomDirectives {
   val DefaultPageSize = 50
   val DefaultContextName = SimpleContext.default
 
-  final case class Sort(sortColumn: String, asc: Boolean = true)
-  final case class SortAndPage(
+  case class Sort(sortColumn: String, asc: Boolean = true)
+  case class SortAndPage(
     from: Option[Int] = Some(0),
     size: Option[Int] = Some(DefaultPageSize),
     sortBy: Option[String]) {
@@ -111,8 +109,7 @@ object CustomDirectives {
 
   def entityOr[T](um: FromRequestUnmarshaller[T], failure: failures.Failure): Directive1[T] =
     extractRequestContext.flatMap[Tuple1[T]] { ctx ⇒
-      import ctx.executionContext
-      import ctx.materializer
+      import ctx.{executionContext, materializer}
       onComplete(um(ctx.request)).flatMap {
         case Success(value) ⇒
           provide(value)

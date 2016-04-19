@@ -3,7 +3,7 @@ package models.rules
 import com.pellucid.sealerate
 import utils.ADT
 
-final case class Condition(rootObject: String, field: String, operator: Condition.Operator,
+case class Condition(rootObject: String, field: String, operator: Condition.Operator,
   valInt: Option[Int] = None, valString: Option[String] = None, valBoolean: Option[Boolean] = None)
 
 object Condition {

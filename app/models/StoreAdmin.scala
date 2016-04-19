@@ -12,7 +12,7 @@ import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.aliases._
 
-final case class StoreAdmin(id: Int = 0, name: String, email: String, hashedPassword: Option[String] = None,
+case class StoreAdmin(id: Int = 0, name: String, email: String, hashedPassword: Option[String] = None,
   department: Option[String] = None)
   extends ModelWithIdParameter[StoreAdmin]
   with Validation[StoreAdmin] {
@@ -48,7 +48,7 @@ object StoreAdmins extends TableQueryWithId[StoreAdmin, StoreAdmins](
   idLens = GenLens[StoreAdmin](_.id)
 )(new StoreAdmins(_)){
 
-  def findByEmail(email: String)(implicit ec: EC, db: DB): DBIO[Option[StoreAdmin]] = {
+  def findByEmail(email: String): DBIO[Option[StoreAdmin]] = {
     filter(_.email === email).one
   }
 }

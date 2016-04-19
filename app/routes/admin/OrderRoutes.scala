@@ -1,7 +1,6 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
-import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.order.Order
 import models.payment.giftcard.GiftCard
@@ -19,7 +18,7 @@ import utils.aliases._
 
 object OrderRoutes {
 
-  def routes(implicit ec: EC, db: DB, mat: Materializer, admin: StoreAdmin, apis: Apis) = {
+  def routes(implicit ec: EC, db: DB, admin: StoreAdmin, apis: Apis) = {
 
     activityContext(admin) { implicit ac ⇒
       pathPrefix("orders") {

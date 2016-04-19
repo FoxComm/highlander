@@ -11,7 +11,7 @@ import slick.jdbc.JdbcType
 import slick.lifted.Tag
 import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class NotificationSubscription(id: Int = 0, adminId: Int, dimensionId: Int, objectId: String,
+case class NotificationSubscription(id: Int = 0, adminId: Int, dimensionId: Int, objectId: String,
   createdAt: Instant = Instant.now, reason: NotificationSubscription.Reason)
   extends ModelWithIdParameter[NotificationSubscription] {
 
@@ -61,4 +61,4 @@ object Notification {
   def notificationChannel(adminId: Int) = s"notifications_for_admin_$adminId"
 }
 
-final case class NotificationTrailMetadata(lastSeenActivityId: Int)
+case class NotificationTrailMetadata(lastSeenActivityId: Int)

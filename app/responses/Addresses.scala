@@ -13,7 +13,7 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases.EC
 
 object Addresses {
-  final case class Root(id: Int, customer: Option[Customer] = None, region: Region, name: String, address1: String,
+  case class Root(id: Int, customer: Option[Customer] = None, region: Region, name: String, address1: String,
     address2: Option[String] = None, city: String, zip: String, isDefault: Option[Boolean] = None,
     phoneNumber: Option[String] = None, deletedAt: Option[Instant] = None) extends ResponseItem
 

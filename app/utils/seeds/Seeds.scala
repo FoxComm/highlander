@@ -26,7 +26,7 @@ import scala.concurrent.duration._
 object Seeds {
 
   def main(args: Array[String]): Unit = {
-    Console.err.println(s"Cleaning DB and running migrations")
+    Console.err.println("Cleaning DB and running migrations")
     val config: com.typesafe.config.Config = utils.Config.loadWithEnv()
     implicit val db: PostgresDriver.backend.DatabaseDef = Database.forConfig("db", config)
     flyWayMigrate(config)
@@ -50,7 +50,7 @@ object Seeds {
   }
 
   def createBaseSeeds()(implicit db: Database) {
-    Console.err.println(s"Inserting seeds")
+    Console.err.println("Inserting seeds")
     val result: Failures Xor Unit = Await.result(createAll().runTxn(), 20.seconds)
     validateResults("base", result)
   }
@@ -61,12 +61,12 @@ object Seeds {
   }
 
   def createRankingSeeds()(implicit db: Database) {
-    Console.err.println(s"Inserting ranking seeds")
+    Console.err.println("Inserting ranking seeds")
     Await.result(RankingSeedsGenerator.insertRankingSeeds(1700).runTxn(), 240.seconds)
   }
 
   def createRandomSeeds(scale: Int)(implicit db: Database) {
-    Console.err.println(s"Inserting random seeds")
+    Console.err.println("Inserting random seeds")
 
     val customers = 1000 * scale
     val batchSize = 100

@@ -28,7 +28,7 @@ import utils._
 import utils.table.SearchByCode
 import utils.aliases._
 
-final case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase,
+case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase,
   code: String = "", subTypeId: Option[Int] = None, currency: Currency = Currency.USD, state: State = GiftCard.Active,
   originalBalance: Int, currentBalance: Int = 0, availableBalance: Int = 0, canceledAmount: Option[Int] = None,
   canceledReason: Option[Int] = None, reloadable: Boolean = false, createdAt: Instant = Instant.now())
@@ -209,8 +209,7 @@ object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
 
   import GiftCard._
 
-  def sortedAndPaged(query: QuerySeq)
-    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata = {
+  def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata = {
     query.withMetadata.sortAndPageIfNeeded { (s, giftCard) ⇒
       s.sortColumn match {
         case "id"               ⇒ if (s.asc) giftCard.id.asc               else giftCard.id.desc

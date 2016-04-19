@@ -7,7 +7,7 @@ import models.activity.{Activity, ActivityContext}
 import Aliases.{ActivityType, Json}
 
 object ActivityResponse {
-  final case class Root(
+  case class Root(
     id: Int, 
     kind: ActivityType,
     data: Json,

@@ -4,7 +4,7 @@ import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class ShippingCarrier(id:Int = 0,
+case class ShippingCarrier(id:Int = 0,
                            name:String,
                            accountNumber:Option[String],
                            regionsServed:String = "US") extends ModelWithIdParameter[ShippingCarrier]

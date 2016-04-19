@@ -16,7 +16,7 @@ import java.time.Instant
  * imported from a 3rd party system.
  *
  */
-final case class ObjectLink(id: Int = 0, leftId: Int, rightId: Int)
+case class ObjectLink(id: Int = 0, leftId: Int, rightId: Int)
   extends ModelWithIdParameter[ObjectLink]
 
 class ObjectLinks(tag: Tag) extends GenericTable.TableWithId[ObjectLink](tag, "object_links")  {

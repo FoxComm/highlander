@@ -12,7 +12,7 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class RmaLineItem(id: Int = 0, referenceNumber: String = "", rmaId: Int, reasonId: Int, 
+case class RmaLineItem(id: Int = 0, referenceNumber: String = "", rmaId: Int, reasonId: Int, 
   originId: Int, originType: OriginType, quantity: Int = 1, isReturnItem: Boolean = false, 
   inventoryDisposition: InventoryDisposition = Putaway, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[RmaLineItem] {

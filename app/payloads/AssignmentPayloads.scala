@@ -1,5 +1,5 @@
 package payloads
 
-final case class AssignmentPayload(assignees: Seq[Int])
+case class AssignmentPayload(assignees: Seq[Int])
 
-final case class BulkAssignmentPayload[K](entityIds: Seq[K], storeAdminId: Int)
+case class BulkAssignmentPayload[K](entityIds: Seq[K], storeAdminId: Int)

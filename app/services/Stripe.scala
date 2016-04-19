@@ -16,7 +16,7 @@ import utils.{Apis, StripeApi}
 import utils.aliases._
 
 // TODO(yax): do not default apiKey, it should come from store
-final case class Stripe(apiKey: String = "sk_test_uvaf3GCFsjCsvvKO7FsQhNRm")(implicit apis: Apis, ec: EC) {
+case class Stripe(apiKey: String = "sk_test_uvaf3GCFsjCsvvKO7FsQhNRm")(implicit apis: Apis, ec: EC) {
 
   val api: StripeApi = apis.stripe
 
@@ -29,7 +29,7 @@ final case class Stripe(apiKey: String = "sk_test_uvaf3GCFsjCsvvKO7FsQhNRm")(imp
       "number"        → card.number,
       "exp_month"     → card.expMonth.toString,
       "exp_year"      → card.expYear.toString,
-      "cvc"           → card.cvv.toString,
+      "cvc"           → card.cvv,
       "name"          → card.holderName,
       "address_line1" → address.address1,
       "address_line2" → address.address2.orNull,

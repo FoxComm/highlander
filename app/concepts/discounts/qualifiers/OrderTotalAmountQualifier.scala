@@ -8,7 +8,7 @@ import models.order.Order
 import models.order.lineitems.OrderLineItemProductData
 import models.shipping.ShippingMethod
 
-final case class OrderTotalAmountQualifier(totalAmount: Int) extends Qualifier {
+case class OrderTotalAmountQualifier(totalAmount: Int) extends Qualifier {
 
   val rejectionReason = s"Order subtotal is less than $totalAmount"
 

@@ -15,7 +15,7 @@ import slick.jdbc.JdbcType
 import utils.Money.Currency
 import utils._
 
-final case class CreditCardCharge(id: Int = 0, creditCardId: Int, orderPaymentId: Int,
+case class CreditCardCharge(id: Int = 0, creditCardId: Int, orderPaymentId: Int,
   chargeId: String, state: CreditCardCharge.State = CreditCardCharge.Cart, currency: Currency = Currency.USD,
   amount: Int, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[CreditCardCharge]
@@ -54,7 +54,7 @@ object CreditCardCharge {
 
   def authFromStripe(card: CreditCard, pmt: OrderPayment, stripe: StripeCharge, currency: Currency): CreditCardCharge =
     CreditCardCharge(creditCardId = card.id, orderPaymentId = pmt.id,
-      chargeId = stripe.getId, state = Auth, currency = currency, amount = stripe.getAmount.toInt)
+      chargeId = stripe.getId, state = Auth, currency = currency, amount = stripe.getAmount)
 }
 
 class CreditCardCharges(tag: Tag) extends GenericTable.TableWithId[CreditCardCharge](tag, "credit_card_charges") {

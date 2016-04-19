@@ -15,7 +15,7 @@ import utils.aliases._
  * of trails by some 'kind' of activity. A particular activity can be in multiple dimensions 
  * at a time.
  */
-final case class Dimension(
+case class Dimension(
   id: Int = 0, 
   name: String, 
   description: String)

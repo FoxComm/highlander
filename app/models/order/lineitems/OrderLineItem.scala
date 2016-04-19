@@ -13,7 +13,7 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils._
 
-final case class OrderLineItem(id: Int = 0, referenceNumber: String = "", 
+case class OrderLineItem(id: Int = 0, referenceNumber: String = "", 
   orderId: Int, originId: Int, originType: OriginType = OrderLineItem.SkuItem, 
   state: State = Cart)
   extends ModelWithIdParameter[OrderLineItem]

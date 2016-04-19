@@ -87,7 +87,7 @@ object AddressManager {
       .flatMap(Result.good)
 
   private def findByOriginator(originator: Originator, addressId: Int, customerId: Int)
-    (implicit ec: EC, db: DB) = originator match {
+    (implicit ec: EC) = originator match {
     case AdminOriginator(_) ⇒
       Addresses.findByIdAndCustomer(addressId, customerId).one.mustFindOr(addressNotFound(addressId))
     case CustomerOriginator(_) ⇒

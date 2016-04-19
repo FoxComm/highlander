@@ -1,7 +1,6 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
-import akka.stream.Materializer
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.order.Order
 import models.rma.{Rmas, Rma}
@@ -9,14 +8,13 @@ import models.StoreAdmin
 import payloads.{RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCustomerPayload, RmaPaymentPayload,
 RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload, RmaUpdateStatePayload}
 import services.rmas._
-import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._
 import utils.aliases._
 
 object RmaRoutes {
 
-  def routes(implicit ec: EC, db: DB, mat: Materializer, admin: StoreAdmin, apis: Apis) = {
+  def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
 
     activityContext(admin) { implicit ac ⇒
       determineObjectContext(db, ec) { productContext ⇒ 
@@ -134,7 +132,7 @@ object RmaRoutes {
           pathPrefix("payment-methods" / "gift-cards") {
             (post & pathEnd & entity(as[RmaPaymentPayload])) { payload ⇒
               goodOrFailures {
-                RmaPaymentUpdater.addGiftCard(admin, refNum, payload)
+                RmaPaymentUpdater.addGiftCard(refNum, payload)
               }
             } ~
             (delete & pathEnd) {
@@ -146,7 +144,7 @@ object RmaRoutes {
           pathPrefix("payment-methods" / "store-credit") {
             (post & pathEnd & entity(as[RmaPaymentPayload])) { payload ⇒
               goodOrFailures {
-                RmaPaymentUpdater.addStoreCredit(admin, refNum, payload)
+                RmaPaymentUpdater.addStoreCredit(refNum, payload)
               }
             } ~
             (delete & pathEnd) {

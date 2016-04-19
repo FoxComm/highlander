@@ -16,7 +16,7 @@ import utils.table.SearchByCode
 import utils.{ADT, GenericTable, JsonFormatters, ModelWithIdParameter, TableQueryWithId}
 import utils.aliases._
 
-final case class SharedSearch(id: Int = 0, code: String = "", title: String, query: JValue,
+case class SharedSearch(id: Int = 0, code: String = "", title: String, query: JValue,
   scope: Scope = CustomersScope, storeAdminId: Int, createdAt: Instant = Instant.now, deletedAt: Option[Instant] = None)
   extends ModelWithIdParameter[SharedSearch] {
 

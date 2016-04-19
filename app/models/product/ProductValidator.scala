@@ -2,10 +2,7 @@
 package models.product
 
 import failures.Failure
-import failures.ProductFailures.NoVariantForContext
 import models.objects._
-import models.Aliases.Json
-import org.json4s.JsonAST.JNothing
 import org.json4s.jackson.Serialization.{write ⇒ render}
 import utils.IlluminateAlgorithm
 

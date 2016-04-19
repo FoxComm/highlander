@@ -22,7 +22,7 @@ import utils.table.SearchByRefNum
 import utils.{ADT, FSM, GenericTable, ModelWithLockParameter, TableQueryWithLock}
 import utils.aliases._
 
-final case class Rma(id: Int = 0, referenceNumber: String = "", orderId: Int, orderRefNum: String,
+case class Rma(id: Int = 0, referenceNumber: String = "", orderId: Int, orderRefNum: String,
   rmaType: RmaType = Standard, state: State = Pending, isLocked: Boolean = false,
   customerId: Int, storeAdminId: Option[Int] = None, messageToCustomer: Option[String] = None,
   canceledReason: Option[Int] = None, createdAt: Instant = Instant.now,

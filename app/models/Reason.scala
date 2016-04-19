@@ -16,7 +16,7 @@ import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.Slick.implicits._
 
-final case class Reason(id: Int = 0, reasonType: ReasonType = General, storeAdminId: Int, body: String,
+case class Reason(id: Int = 0, reasonType: ReasonType = General, storeAdminId: Int, body: String,
   parentId: Option[Int] = None)
   extends ModelWithIdParameter[Reason]
   with Validation[Reason] {
@@ -64,8 +64,7 @@ object Reasons extends TableQueryWithId[Reason, Reasons](
   idLens = GenLens[Reason](_.id)
 )(new Reasons(_)) {
 
-  def sortedAndPaged(query: QuerySeq)
-    (implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata = {
+  def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata = {
     val sortedQuery = query.withMetadata.sortAndPageIfNeeded { case (s, reason) ⇒
       s.sortColumn match {
         case "id"           ⇒ if (s.asc) reason.id.asc           else reason.id.desc

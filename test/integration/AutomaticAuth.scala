@@ -17,13 +17,13 @@ trait FakeAuth[M] extends AsyncAuthenticator[M] {
   def readCredentials(): Directive1[Option[String]] = provide(Some("ok"))
 }
 
-final case class AuthAs[M](m: M) extends FakeAuth[M] {
+case class AuthAs[M](m: M) extends FakeAuth[M] {
   def checkAuth(creds: Option[String]): Future[AuthenticationResult[M]] = {
     Future.successful(AuthenticationResult.success(m))
   }
 }
 
-final case class AuthFailWith[M](challenge: HttpChallenge) extends FakeAuth[M] {
+case class AuthFailWith[M](challenge: HttpChallenge) extends FakeAuth[M] {
   def checkAuth(creds: Option[String]): Future[AuthenticationResult[M]] = {
     Future.successful(AuthenticationResult.failWithChallenge(challenge))
   }

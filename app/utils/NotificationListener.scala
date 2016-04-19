@@ -6,7 +6,7 @@ import models.Notification._
 import org.postgresql.Driver
 import utils.aliases._
 
-class NotificationListener(adminId: Int, action: String ⇒ Unit)(implicit ec: EC, db: DB) {
+class NotificationListener(adminId: Int, action: String ⇒ Unit)(implicit ec: EC) {
 
   implicit val formats = JsonFormatters.phoenixFormats
 

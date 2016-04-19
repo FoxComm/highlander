@@ -93,7 +93,7 @@ object NotificationManager {
   } yield LastSeenActivityResponse(trailId = trail.id, lastSeenActivityId = activityId)).runTxn()
 
   def subscribe(adminIds: Seq[Int], objectIds: Seq[String], reason: Sub.Reason, dimension: String)
-    (implicit ec: EC, db: DB): DbResultT[TheResponse[Option[Int]]] = for {
+    (implicit ec: EC): DbResultT[TheResponse[Option[Int]]] = for {
     dimension     ← * <~ Dimensions.findOrCreateByName(dimension)
     realAdmins    ← * <~ StoreAdmins.filter(_.id.inSet(adminIds)).map(_.id).result.toXor
     requestedSubs = for (adminId ← realAdmins; objectId ← objectIds) yield (adminId, objectId)
@@ -111,7 +111,7 @@ object NotificationManager {
   } yield TheResponse.build(value = newSubsQty, warnings = warnings)
 
   def unsubscribe(adminIds: Seq[Int], objectIds: Seq[String], reason: Sub.Reason, dimension: String)
-    (implicit ec: EC, db: DB): DbResultT[Unit] = for {
+    (implicit ec: EC): DbResultT[Unit] = for {
     d ← * <~ Dimensions.findByName(dimension).one.toXor
     _ ← * <~ d.fold(DbResult.unit) { dimension ⇒
       Subs

@@ -21,7 +21,7 @@ object RmaQueries {
     sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[TheResponse[Seq[AllRmas.Root]]] =
     findAllDbio(query).run()
 
-  def findAllDbio(query: Rmas.QuerySeq)(implicit ec: EC, db: DB,
+  def findAllDbio(query: Rmas.QuerySeq)(implicit ec: EC,
     sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[AllRmas.Root]]] = {
 
     val rmasAndCustomers = query.join(Customers).on(_.customerId === _.id)

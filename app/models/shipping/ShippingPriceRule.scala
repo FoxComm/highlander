@@ -6,7 +6,7 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class ShippingPriceRule(id:Int = 0, name: String, ruleType: ShippingPriceRule.RuleType, flatPrice: Int, flatMarkup: Int)
+case class ShippingPriceRule(id:Int = 0, name: String, ruleType: ShippingPriceRule.RuleType, flatPrice: Int, flatMarkup: Int)
   extends ModelWithIdParameter[ShippingPriceRule]
 
 object ShippingPriceRule{

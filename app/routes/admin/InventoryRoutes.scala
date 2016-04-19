@@ -1,16 +1,14 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
-import akka.stream.Materializer
 import models.StoreAdmin
 import services.InventoryManager
-import utils.Apis
 import utils.CustomDirectives._
 import utils.aliases._
 
 object InventoryRoutes {
 
-  def routes(implicit ec: EC, db: DB, mat: Materializer, admin: StoreAdmin, apis: Apis) = {
+  def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
 
     activityContext(admin) { implicit ac ⇒
       determineObjectContext(db, ec) { productContext ⇒ 

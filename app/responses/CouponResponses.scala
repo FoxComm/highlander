@@ -1,25 +1,17 @@
 package responses
 
-import models.objects._
-import models.coupon._
-import models.Aliases.Json
-
-import responses.ObjectResponses.ObjectContextResponse
-
-import org.json4s.DefaultFormats
-import org.json4s.Extraction
-import org.json4s.JsonAST.JValue
-import org.json4s.JsonDSL._
-import org.json4s.jackson.Serialization.{write ⇒ render}
-
 import java.time.Instant
-import cats.implicits._
+
+import models.Aliases.Json
+import models.coupon._
+import models.objects._
+import responses.ObjectResponses.ObjectContextResponse
 
 object CouponResponses {
 
   object CouponFormResponse {
 
-    final case class Root(id: Int, attributes: Json, createdAt: Instant) extends ResponseItem
+    case class Root(id: Int, attributes: Json, createdAt: Instant) extends ResponseItem
 
     def build(f: ObjectForm): Root = 
       Root(id = f.id, attributes = f.attributes, createdAt = f.createdAt)
@@ -27,7 +19,7 @@ object CouponResponses {
 
   object CouponShadowResponse {
 
-    final case class Root(id: Int, formId: Int, attributes: Json, createdAt: Instant) extends ResponseItem
+    case class Root(id: Int, formId: Int, attributes: Json, createdAt: Instant) extends ResponseItem
 
     def build(s: ObjectShadow): Root = 
       Root(id = s.id, formId = s.formId, attributes = s.attributes, 
@@ -36,7 +28,7 @@ object CouponResponses {
 
   object CouponResponse { 
 
-    final case class Root(id: Int, form: CouponFormResponse.Root, 
+    case class Root(id: Int, form: CouponFormResponse.Root, 
       shadow: CouponShadowResponse.Root, promotion: Int) extends ResponseItem
 
     def build(coupon: Coupon, f: ObjectForm, s: ObjectShadow) : Root = Root(
@@ -46,7 +38,7 @@ object CouponResponses {
 
   object CouponCodesResponse { 
 
-    final case class Root(code: String, createdAt: Instant) extends ResponseItem
+    case class Root(code: String, createdAt: Instant) extends ResponseItem
 
     def build(codes: Seq[CouponCode]) : Seq[Root] = 
       codes.map{ c ⇒ Root(code = c.code, createdAt = c.createdAt)}
@@ -54,7 +46,7 @@ object CouponResponses {
 
   object IlluminatedCouponResponse {
 
-    final case class Root(id: Int, context: ObjectContextResponse.Root, 
+    case class Root(id: Int, context: ObjectContextResponse.Root, 
       attributes: Json, promotion: Int) extends ResponseItem
 
     def build(coupon: IlluminatedCoupon): Root = 

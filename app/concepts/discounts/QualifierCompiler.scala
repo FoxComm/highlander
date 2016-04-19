@@ -8,7 +8,7 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import utils.JsonFormatters
 
-final case class QualifierCompiler(qualifierType: QualifierType, attributes: JObject) {
+case class QualifierCompiler(qualifierType: QualifierType, attributes: JObject) {
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 

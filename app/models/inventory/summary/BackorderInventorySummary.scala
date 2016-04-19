@@ -6,7 +6,7 @@ import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
 
-final case class BackorderInventorySummary(id: Int = 0, onHand: Int, onHold: Int, reserved: Int,
+case class BackorderInventorySummary(id: Int = 0, onHand: Int, onHold: Int, reserved: Int,
   val availableForSale: Int = 0, updatedAt: Instant = Instant.now)
   extends InventorySummaryBase[BackorderInventorySummary]
 

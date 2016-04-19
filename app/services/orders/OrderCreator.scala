@@ -7,8 +7,7 @@ import models.order.{Orders, Order}
 import models.StoreAdmin
 import payloads.CreateOrder
 import responses.order.FullOrder
-import FullOrder.Root
-import responses.order.FullOrder
+import responses.order.FullOrder.Root
 import services.{LogActivity, Result, ResultT}
 import utils.DbResultT._
 import utils.DbResultT.implicits._

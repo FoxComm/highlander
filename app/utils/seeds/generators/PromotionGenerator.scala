@@ -28,10 +28,10 @@ object SimplePromotion {
 }
 import SimplePromotion._
 
-final case class SimplePromotion(promotionId: Int = 0, formId: Int = 0, shadowId: Int = 0,  
+case class SimplePromotion(promotionId: Int = 0, formId: Int = 0, shadowId: Int = 0,  
   percentOff: Percent, totalAmount: Int, applyType: Promotion.ApplyType = Promotion.Auto)
 
-final case class SimplePromotionForm(percentOff: Percent, totalAmount: Int) {
+case class SimplePromotionForm(percentOff: Percent, totalAmount: Int) {
 
     val (keyMap, form) = ObjectUtils.createForm(parse(s"""
     {
@@ -46,10 +46,10 @@ final case class SimplePromotionForm(percentOff: Percent, totalAmount: Int) {
     }"""))
 }
 
-final case class SimplePromotionShadow(f: SimplePromotionForm) { 
+case class SimplePromotionShadow(f: SimplePromotionForm) { 
 
     val shadow = ObjectUtils.newShadow(parse(
-      s"""
+      """
         {
           "name" : {"type": "string", "ref": "name"},
           "storefrontName" : {"type": "richText", "ref": "storefrontName"},

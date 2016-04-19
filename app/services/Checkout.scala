@@ -50,7 +50,7 @@ object Checkout {
   5) Transition order to Remorse Hold**
   6) Create new cart for customer
  */
-final case class Checkout(cart: Order, cartValidator: CartValidation)(implicit ec: EC, db: DB, apis: Apis, ac: AC) {
+case class Checkout(cart: Order, cartValidator: CartValidation)(implicit ec: EC, db: DB, apis: Apis, ac: AC) {
 
   def checkout: DbResultT[FullOrder.Root] = for {
       _         ← * <~ cart.mustBeCart

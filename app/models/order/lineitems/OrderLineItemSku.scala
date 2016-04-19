@@ -11,10 +11,10 @@ import utils.Slick.implicits._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.aliases._
 
-final case class OrderLineItemSku(id: Int = 0, skuId: Int, skuShadowId: Int)
+case class OrderLineItemSku(id: Int = 0, skuId: Int, skuShadowId: Int)
   extends ModelWithIdParameter[OrderLineItemSku]
 
-final case class OrderLineItemProductData(
+case class OrderLineItemProductData(
   sku: Sku, 
   skuForm: ObjectForm, 
   skuShadow: ObjectShadow, 

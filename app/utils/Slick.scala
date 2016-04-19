@@ -76,18 +76,17 @@ object Slick {
 
     implicit class UpdateReturningInvoker[E, U, C[_]](val updateQuery: Query[E, U, C]) extends AnyVal {
 
-      def updateReturningHead[A, F](returningQuery: Query[A, F, C], v: U)(implicit ec: EC, db: DB): DbResult[F] =
+      def updateReturningHead[A, F](returningQuery: Query[A, F, C], v: U)(implicit ec: EC): DbResult[F] =
         wrapDbio(updateReturning(returningQuery, v).head)
 
       def updateReturningHeadOption[A, F](returningQuery: Query[A, F, C], v: U, notFoundFailure: Failure)
-        (implicit ec: EC, db: DB): DbResult[F] =
+        (implicit ec: EC): DbResult[F] =
         wrapDbResult(updateReturning(returningQuery, v).headOption
           .map(res ⇒ Xor.fromOption(res, notFoundFailure.single)))
 
       @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Any",
         "org.brianmckenna.wartremover.warts.IsInstanceOf", "org.brianmckenna.wartremover.warts.AsInstanceOf"))
-      private def updateReturning[A, F](returningQuery: Query[A, F, C], v: U)
-        (implicit ec: EC, db: DB): SqlStreamingAction[Vector[F], F, Effect.All] = {
+      private def updateReturning[A, F](returningQuery: Query[A, F, C], v: U): SqlStreamingAction[Vector[F], F, Effect.All] = {
         val ResultSetMapping(_,
           CompiledStatement(_, sres: SQLBuilder.Result, _),
           CompiledMapping(_updateConverter, _)) = updateCompiler.run(updateQuery.toNode).tree
@@ -128,7 +127,7 @@ object Slick {
         action.copy(action.queryParts.map(_.asInstanceOf[String].stripMargin))
     }
 
-    final case class QueryMetadata(
+    case class QueryMetadata(
       sortBy    : Option[String]      = None,
       from      : Option[Int]         = None,
       size      : Option[Int]         = None,
@@ -139,7 +138,7 @@ object Slick {
       def empty = QueryMetadata()
     }
 
-    final case class ResponseMetadata(
+    case class ResponseMetadata(
       sortBy    : Option[String] = None,
       from      : Option[Int]    = None,
       size      : Option[Int]    = None,
@@ -147,9 +146,9 @@ object Slick {
       total     : Option[Int]    = None)
 
 
-    final case class ResponseWithMetadata[A](result: Failures Xor A, metadata: ResponseMetadata)
+    case class ResponseWithMetadata[A](result: Failures Xor A, metadata: ResponseMetadata)
 
-    final case class ResultWithMetadata[A](result: DbResult[A], metadata: QueryMetadata) {
+    case class ResultWithMetadata[A](result: DbResult[A], metadata: QueryMetadata) {
 
       def wrapExceptions(implicit ec: EC): ResultWithMetadata[A] =
         this.copy(result = wrapDbResult(result))
@@ -192,7 +191,7 @@ object Slick {
       throw new IllegalArgumentException(s"Invalid sort column: $name")
     }
 
-    final case class QueryWithMetadata[E, U, C[_]](query: Query[E, U, C], metadata: QueryMetadata) {
+    case class QueryWithMetadata[E, U, C[_]](query: Query[E, U, C], metadata: QueryMetadata) {
 
       def sortBy(f: E ⇒ Ordered): QueryWithMetadata[E, U, C] =
         this.copy(query = query.sortBy(f))
@@ -209,7 +208,7 @@ object Slick {
       def paged(implicit sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] =
         this.copy(query = _paged(query))
 
-      def result(implicit ec: EC, db: DB): ResultWithMetadata[C[U]] =
+      def result(implicit ec: EC): ResultWithMetadata[C[U]] =
         ResultWithMetadata(result = DbResult.fromDbio(query.result), metadata)
     }
 
@@ -222,7 +221,7 @@ object Slick {
 
       def withMetadata(metadata: QueryMetadata): QueryWithMetadata[E, U, C] = QueryWithMetadata(query, metadata)
 
-      def withMetadata(implicit ec: EC, db: DB, sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] = {
+      def withMetadata(implicit sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] = {
 
         val from = sortAndPage.from.getOrElse(0)
         val size = sortAndPage.size.getOrElse(CustomDirectives.DefaultPageSize)
@@ -244,7 +243,7 @@ object Slick {
     implicit class EnrichedSqlStreamingAction[R, T, E <: Effect](val action: SqlStreamingAction[R, T, E])
       extends AnyVal {
 
-      def one(implicit ec: EC, db: DB): Future[Option[T]] =
+      def one(implicit db: DB): Future[Option[T]] =
         db.run(action.headOption)
     }
 
@@ -291,7 +290,7 @@ object Slick {
     }
 
     implicit class EnrichedDbResult[A](val r: DbResult[A]) extends AnyVal {
-      def toXorT(implicit ec: EC): DbResultT[A] = DbResultT(r)
+      def toXorT: DbResultT[A] = DbResultT(r)
     }
   }
 }

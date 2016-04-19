@@ -3,7 +3,7 @@ package responses
 import models.payment.giftcard.{GiftCard, GiftCardSubtype}
 
 object GiftCardSubTypesResponse {
-  final case class Root(originType: GiftCard.OriginType, subTypes: Seq[GiftCardSubtype]) extends ResponseItem
+  case class Root(originType: GiftCard.OriginType, subTypes: Seq[GiftCardSubtype]) extends ResponseItem
 
   def build(originTypes: Seq[GiftCard.OriginType], subTypes: Seq[GiftCardSubtype]): Seq[Root] = {
     originTypes.map { originType ⇒

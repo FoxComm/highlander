@@ -15,7 +15,7 @@ import slick.driver.PostgresDriver.api._
 
 object SaveForLaterResponse {
 
-  final case class Root(
+  case class Root(
     id: Int,
     name: Option[String],
     sku: String,

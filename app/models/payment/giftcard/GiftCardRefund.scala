@@ -4,7 +4,7 @@ import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class GiftCardRefund(id: Int = 0, rmaId: Int) extends ModelWithIdParameter[GiftCardRefund]
+case class GiftCardRefund(id: Int = 0, rmaId: Int) extends ModelWithIdParameter[GiftCardRefund]
 
 object GiftCardRefund {}
 

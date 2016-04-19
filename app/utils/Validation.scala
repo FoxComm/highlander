@@ -20,25 +20,20 @@ object Validation {
 
   val ok: ValidatedNel[Failure, Unit] = valid(Unit)
 
-  def validExpr(expression: Boolean, message: String): ValidatedNel[Failure, Unit] = expression match {
-    case false ⇒ invalidNel(GeneralFailure(message))
-    case _     ⇒ valid({})
-  }
+  def validExpr(expression: Boolean, message: String): ValidatedNel[Failure, Unit] =
+    if (expression) valid({})
+    else invalidNel(GeneralFailure(message))
 
-  def invalidExpr(expression: Boolean, message: String): ValidatedNel[Failure, Unit] = expression match {
-    case true ⇒ invalidNel(GeneralFailure(message))
-    case _    ⇒ valid({})
-  }
+  def invalidExpr(expression: Boolean, message: String): ValidatedNel[Failure, Unit] =
+    if (expression) invalidNel(GeneralFailure(message))
+    else valid({})
 
   def notEmpty[A <: AnyRef <% HasEmpty](a: A, constraint: String): ValidatedNel[Failure, Unit] =
     toValidatedNel(constraint, new NotEmpty[A].apply(a))
 
-  def notEmptyIf[A <: AnyRef <% HasEmpty](a: A, expression: Boolean, constraint: String): ValidatedNel[Failure, Unit] = {
-    expression match {
-      case true ⇒ notEmpty(a, constraint)
-      case _    ⇒ valid({})
-    }
-  }
+  def notEmptyIf[A <: AnyRef <% HasEmpty](a: A, expression: Boolean, constraint: String): ValidatedNel[Failure, Unit] =
+    if (expression) notEmpty(a, constraint)
+    else valid({})
 
   def nullOrNotEmpty[A <: AnyRef <% HasEmpty](a: Option[A], constraint: String): ValidatedNel[Failure, Unit] = {
     a.fold(ok) { s ⇒ notEmpty(s, constraint) }

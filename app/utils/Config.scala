@@ -40,7 +40,7 @@ object Config {
   }
 
   def loadWithEnv(cfg: TypesafeConfig = ConfigFactory.load)(implicit env: Environment = environment): TypesafeConfig = {
-    val envConfig = cfg.getConfig(s"env." ++ env.show)
+    val envConfig = cfg.getConfig("env." ++ env.show)
     ConfigFactory.systemProperties.withFallback(envConfig.withFallback(cfg))
   }
 

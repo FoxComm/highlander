@@ -1,20 +1,17 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
-import akka.stream.Materializer
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
 import payloads._
 import services.{StoreCreditAdjustmentsService, StoreCreditService}
-import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._
 import utils.aliases._
 
 object StoreCreditRoutes {
-  private[admin] def storeCreditRoutes(implicit ec: EC, db: DB, ac: AC,
-    mat: Materializer, admin: StoreAdmin, apis: Apis) = {
+  private[admin] def storeCreditRoutes(implicit ec: EC, db: DB, ac: AC, admin: StoreAdmin) = {
     pathPrefix("store-credits") {
       (patch & pathEnd & entity(as[StoreCreditBulkUpdateStateByCsr])) { payload ⇒
         goodOrFailures {

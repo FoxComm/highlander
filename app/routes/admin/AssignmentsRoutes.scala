@@ -18,7 +18,7 @@ import models.payment.giftcard.GiftCard.giftCardCodeRegex
 
 object AssignmentsRoutes {
 
-  def routes(implicit ec: EC, db: DB, mat: Materializer, admin: StoreAdmin, apis: Apis) = {
+  def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
 
     activityContext(admin) { implicit ac ⇒
       pathPrefix("customers") {

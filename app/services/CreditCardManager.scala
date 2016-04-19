@@ -9,7 +9,6 @@ import cats.implicits._
 import models.traits.Addressable
 import models.order._
 import OrderPayments.scope._
-import models.order._
 import Orders.scope._
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures.GiftCardFailures.CreditCardMustHaveAddress

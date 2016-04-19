@@ -11,11 +11,11 @@ trait RmaValidation {
   def validate: DbResult[RmaValidatorResponse]
 }
 
-final case class RmaValidatorResponse(
+case class RmaValidatorResponse(
   alerts:   Option[Failures] = None,
   warnings: Option[Failures] = None)
 
-final case class RmaValidator(rma: Rma)(implicit ec: EC, db: DB) extends RmaValidation {
+case class RmaValidator(rma: Rma)(implicit ec: EC) extends RmaValidation {
 
   def validate: DbResult[RmaValidatorResponse] = {
     val response = RmaValidatorResponse()

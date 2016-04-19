@@ -7,7 +7,7 @@ import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 
-final case class RmaLockEvent(id: Int = 0, rmaId: Int = 0, lockedAt: Instant = Instant.now, lockedBy: Int = 0)
+case class RmaLockEvent(id: Int = 0, rmaId: Int = 0, lockedAt: Instant = Instant.now, lockedBy: Int = 0)
   extends ModelWithIdParameter[RmaLockEvent]
 
 class RmaLockEvents(tag: Tag) extends GenericTable.TableWithId[RmaLockEvent](tag, "rma_lock_events") {

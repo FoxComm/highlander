@@ -15,7 +15,7 @@ import utils.CustomDirectives._
 import utils.aliases._
 
 object Public {
-  def routes(implicit ec: EC, db: DB, mat: Materializer) = {
+  def routes(implicit ec: EC, db: DB) = {
     import Json4sSupport._
     import utils.Http._
 

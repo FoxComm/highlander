@@ -11,7 +11,7 @@ import slick.jdbc.JdbcType
 import utils.aliases._
 import utils.{ModelWithIdParameter, ADT, GenericTable, TableQueryWithId}
 
-final case class Assignment(id: Int = 0, assignmentType: AssignmentType, storeAdminId: Int, referenceId: Int,
+case class Assignment(id: Int = 0, assignmentType: AssignmentType, storeAdminId: Int, referenceId: Int,
   referenceType: ReferenceType, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[Assignment] {
 
@@ -82,8 +82,7 @@ object Assignments extends TableQueryWithId[Assignment, Assignments](
     refType: ReferenceType, admin: StoreAdmin): QuerySeq =
     byType(assignType, refType).filter(_.referenceId.inSetBind(models.map(_.id))).filter(_.storeAdminId === admin.id)
 
-  def assigneesFor[T <: ModelWithIdParameter[T]](assignType: AssignmentType, entity: T, refType: ReferenceType)
-    (implicit ec: EC): StoreAdmins.QuerySeq = for {
+  def assigneesFor[T <: ModelWithIdParameter[T]](assignType: AssignmentType, entity: T, refType: ReferenceType): StoreAdmins.QuerySeq = for {
       assignees ← byEntity(assignType, entity, refType).map(_.storeAdminId)
       admins    ← StoreAdmins.filter(_.id === assignees)
     } yield admins

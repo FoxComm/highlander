@@ -13,7 +13,7 @@ object AllRmas {
 
   val mockTotal = 50
 
-  final case class Root(
+  case class Root(
     id: Int,
     referenceNumber: String,
     orderRefNum: String,

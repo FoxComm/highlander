@@ -13,7 +13,7 @@ import utils.aliases._
 // TODO: Use utils.Money
 object OrderTotaler {
 
-  final case class Totals(subTotal: Int, taxes: Int, shipping: Int, adjustments: Int, total: Int)
+  case class Totals(subTotal: Int, taxes: Int, shipping: Int, adjustments: Int, total: Int)
 
   object Totals {
     def build(subTotal: Int, shipping: Int, adjustments: Int): Totals = {
@@ -42,12 +42,12 @@ object OrderTotaler {
       case _ ⇒ 0
     }
 
-  def shippingTotal(order: Order)(implicit ec: EC, db: DB): DbResult[Int] = (for {
+  def shippingTotal(order: Order)(implicit ec: EC): DbResult[Int] = (for {
     orderShippingMethods ← * <~ OrderShippingMethods.findByOrderId(order.id).result.toXor
     sum = orderShippingMethods.foldLeft(0)(_ + _.price)
   } yield sum).value
 
-  def adjustmentsTotal(order: Order)(implicit ec: EC): DBIO[Int] =
+  def adjustmentsTotal(order: Order): DBIO[Int] =
     DBIO.successful(0)
 
   def totals(order: Order)(implicit ec: EC, db: DB): DbResult[Totals] = (for {

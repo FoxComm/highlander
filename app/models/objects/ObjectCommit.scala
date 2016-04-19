@@ -12,7 +12,7 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 /**
  * A ObjectCommit is a tree of commits, each pointing to a form shadow.
  */
-final case class ObjectCommit(id: Int = 0, formId: Int, shadowId: Int,
+case class ObjectCommit(id: Int = 0, formId: Int, shadowId: Int,
   reasonId: Option[Int] = None, previousId: Option[Int] = None, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[ObjectCommit]
   with Validation[ObjectCommit]

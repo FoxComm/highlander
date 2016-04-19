@@ -1,25 +1,19 @@
 package models.coupon
 
-import models.Aliases.Json
-import models.objects._
+import java.time.Instant
 
+import scala.util.Random
+
+import monocle.macros.GenLens
 import utils.ExPostgresDriver.api._
-import utils.JsonFormatters
-import utils.Slick.implicits._
 import utils.time.JavaTimeSlickMapper._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 
-import monocle.macros.GenLens
-import java.time.Instant
-import scala.util.Random
-import utils.ExPostgresDriver.api._
-import slick.jdbc.JdbcType
-
 /**
- * A coupon code is a way to reference a coupon from the outside world. 
+ * A coupon code is a way to reference a coupon from the outside world.
  * Multiple codes may point to the same coupon.
  */
-final case class CouponCode(id: Int = 0, code: String, couponFormId: Int, createdAt: Instant = Instant.now)
+case class CouponCode(id: Int = 0, code: String, couponFormId: Int, createdAt: Instant = Instant.now)
   extends ModelWithIdParameter[CouponCode]
   with Validation[CouponCode]
 
@@ -50,14 +44,14 @@ object CouponCodes extends TableQueryWithId[CouponCode, CouponCodes](
     val minNumericLength = charactersGivenQuantity(quantity)
     require(codeCharacterLength >= prefix.length + minNumericLength)
 
-    val numericLength = codeCharacterLength - prefix.length.toInt
+    val numericLength = codeCharacterLength - prefix.length
     val largestNum = Math.pow(10, numericLength.toDouble).toInt
-    val codes = (1 to quantity).map { i ⇒ 
-      generateCode(prefix, Random.nextInt(largestNum), largestNum, numericLength) 
-    }.distinct 
+    val codes = (1 to quantity).map { i ⇒
+      generateCode(prefix, Random.nextInt(largestNum), largestNum, numericLength)
+    }.distinct
 
     //if we produced fewer codes then desired, attempt to do it again.
-    if(codes.length < quantity && attempt < MAX_ATTEMPTS) 
+    if(codes.length < quantity && attempt < MAX_ATTEMPTS)
       generateCodes(prefix, codeCharacterLength, quantity, attempt +1)
     else codes
   }

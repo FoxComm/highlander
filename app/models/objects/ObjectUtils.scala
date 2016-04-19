@@ -83,7 +83,7 @@ object ObjectUtils {
       case _ ⇒ JNothing
     }
 
-  final case class FormShadowAttributes(form: JValue, shadow: JValue)
+  case class FormShadowAttributes(form: JValue, shadow: JValue)
   def updateFormAndShadow(oldForm: JValue, newForm: JValue, oldShadow: JValue) : FormShadowAttributes = {
     val (keyMap, updatedForm) = updateForm(oldForm, newForm)
     val updatedShadow = newShadow(oldShadow, keyMap)
@@ -123,9 +123,9 @@ object ObjectUtils {
       case _ ⇒ (JNothing, JNothing)
     }
 
-  final case class  InsertResult(form: ObjectForm, shadow: ObjectShadow, commit: ObjectCommit)
+  case class  InsertResult(form: ObjectForm, shadow: ObjectShadow, commit: ObjectCommit)
 
-  def insert(formProto: ObjectForm, shadowProto: ObjectShadow)(implicit db: DB, ec: EC): 
+  def insert(formProto: ObjectForm, shadowProto: ObjectShadow)(implicit ec: EC):
   DbResultT[InsertResult] ={  
     val n = ObjectUtils.newFormAndShadow(formProto.attributes, shadowProto.attributes)
 
@@ -139,7 +139,7 @@ object ObjectUtils {
     } yield InsertResult(form, shadow, commit)
   }
 
-  final case class UpdateResult(form: ObjectForm, shadow: ObjectShadow, updated: Boolean)
+  case class UpdateResult(form: ObjectForm, shadow: ObjectShadow, updated: Boolean)
 
   def update(formId: Int, shadowId: Int, formAttributes: JValue, shadowAttributes: JValue, 
     force: Boolean = false)(implicit db: DB, ec: EC): 
@@ -157,8 +157,7 @@ object ObjectUtils {
   def commit(u: UpdateResult)(implicit db: DB, ec: EC): 
   DbResultT[Option[ObjectCommit]] = commit(u.form, u.shadow, u.updated)
 
-  def commit(form: ObjectForm, shadow: ObjectShadow, doIt: Boolean)(implicit db: DB, ec: EC): 
-  DbResultT[Option[ObjectCommit]] = {  
+  def commit(form: ObjectForm, shadow: ObjectShadow, doIt: Boolean)(implicit ec: EC): DbResultT[Option[ObjectCommit]] = {
     if(doIt) 
       for { 
         commit   ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, 
@@ -167,8 +166,7 @@ object ObjectUtils {
     else DbResultT.pure(None)
   }
 
-  def updateLink(oldLeftId: Int, leftId: Int, oldRightId: Int, rightId: Int)
-  (implicit ec: EC, db: DB): DbResultT[Unit] = 
+  def updateLink(oldLeftId: Int, leftId: Int, oldRightId: Int, rightId: Int)(implicit ec: EC): DbResultT[Unit] =
     //Create a new link a product changes.
     if(oldLeftId != leftId) 
       for {
@@ -185,16 +183,16 @@ object ObjectUtils {
     //otherwise nothing changed so do nothing.
   else DbResultT.pure(Unit)
 
-  final case class Child(form: ObjectForm, shadow: ObjectShadow)
-  def getChildren(leftId: Int)
-    (implicit ec: EC, db: DB): DbResultT[Seq[Child]] = for {
-      links   ← * <~ ObjectLinks.filter(_.leftId === leftId).result
-      shadowIds = links.map(_.rightId) 
-      shadows ← * <~ ObjectShadows.filter(_.id.inSet(shadowIds)).result
-      formIds = shadows.map(_.formId) 
-      forms   ← * <~ ObjectForms.filter(_.id.inSet(formIds)).result
-      pairs  ← * <~ forms.sortBy(_.id).zip(shadows.sortBy(_.formId))
-      result ← * <~ pairs.map { case (form, shadow) ⇒ Child(form, shadow)}
+  case class Child(form: ObjectForm, shadow: ObjectShadow)
+
+  def getChildren(leftId: Int)(implicit ec: EC): DbResultT[Seq[Child]] = for {
+    links   ← * <~ ObjectLinks.filter(_.leftId === leftId).result
+    shadowIds = links.map(_.rightId)
+    shadows ← * <~ ObjectShadows.filter(_.id.inSet(shadowIds)).result
+    formIds = shadows.map(_.formId)
+    forms   ← * <~ ObjectForms.filter(_.id.inSet(formIds)).result
+    pairs   ← * <~ forms.sortBy(_.id).zip(shadows.sortBy(_.formId))
+    result  ← * <~ pairs.map { case (form, shadow) ⇒ Child(form, shadow) }
   } yield result
   
   def getChild(leftId: Int)
@@ -223,12 +221,9 @@ object ObjectUtils {
   (implicit ec: EC, db: DB) : DbResultT[Unit] = 
     failIfErrors(IlluminateAlgorithm.validateAttributes(form.attributes, shadow.attributes))
 
-  def failIfErrors(errors: Seq[Failure])
-  (implicit ec: EC, db: DB) : DbResultT[Unit] =  {
-    errors match {
-      case Nil ⇒ DbResultT.pure(Unit)
-      case head ::tail ⇒ DbResultT.leftLift(NonEmptyList(head, tail))
-    }
+  def failIfErrors(errors: Seq[Failure])(implicit ec: EC): DbResultT[Unit] = errors match {
+    case head :: tail ⇒ DbResultT.leftLift(NonEmptyList(head, tail))
+    case Nil          ⇒ DbResultT.pure(Unit)
   }
 }
 

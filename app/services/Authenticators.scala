@@ -1,14 +1,14 @@
 package services
 
 import scala.concurrent.Future
-import akka.http.scaladsl.model.headers.{BasicHttpCredentials, GenericHttpCredentials, HttpChallenge, HttpCookie, HttpCredentials, RawHeader}
+import akka.http.scaladsl.model.headers.{HttpChallenge, HttpCookie, HttpCredentials, RawHeader}
 import akka.http.scaladsl.model.{ContentTypes, DateTime, HttpEntity, HttpResponse, StatusCodes, Uri}
 import akka.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.CookieDirectives.setCookie
 import akka.http.scaladsl.server.directives.RespondWithDirectives.respondWithHeader
-import akka.http.scaladsl.server.directives.SecurityDirectives.{AuthenticationResult, challengeFor}
+import akka.http.scaladsl.server.directives.SecurityDirectives.AuthenticationResult
 import akka.http.scaladsl.server.directives.{AuthenticationDirective, AuthenticationResult}
 
 import cats.data.Xor
@@ -33,7 +33,7 @@ import utils.aliases._
 // TODO: Add Roles and Permissions.  Check those before taking on an action
 // TODO: Investigate 2-factor Authentication
 
-final case class AuthPayload(claims: JwtClaims, jwt: String)
+case class AuthPayload(claims: JwtClaims, jwt: String)
 
 object AuthPayload {
   def apply(token: Token): Failures Xor AuthPayload = {
@@ -77,13 +77,13 @@ object Authenticator {
     }
   }
 
-  final case class basicCustomer(implicit ec: EC, db: DB) extends BasicAuth[Customer] {
+  case class basicCustomer(implicit ec: EC, db: DB) extends BasicAuth[Customer] {
     def checkAuth(credentials: Option[HttpCredentials]): Future[AuthenticationResult[Customer]] = {
       basicAuth[EmailFinder[Customer]]("private customer routes")(credentials, Customers.findByEmail, _.hashedPassword)
     }
   }
 
-  final case class basicStoreAdmin(implicit ec: EC, db: DB) extends BasicAuth[StoreAdmin] {
+  case class basicStoreAdmin(implicit ec: EC, db: DB) extends BasicAuth[StoreAdmin] {
     def checkAuth(credentials: Option[HttpCredentials]): Future[AuthenticationResult[StoreAdmin]] = {
       basicAuth[EmailFinder[StoreAdmin]]("admin")(credentials, StoreAdmins.findByEmail, _.hashedPassword)
     }
@@ -113,7 +113,7 @@ object Authenticator {
     }
   }
 
-  final case class jwtCustomer(implicit ec: EC, db: DB) extends JwtAuth[Customer] {
+  case class jwtCustomer(implicit ec: EC, db: DB) extends JwtAuth[Customer] {
     def checkAuth(credentials: Option[String]): Future[AuthenticationResult[Customer]] = {
       jwtAuth[TokenToModel[Customer]]("private customer routes")(credentials, customerFromToken)
     }
@@ -121,7 +121,7 @@ object Authenticator {
     def validateToken(token: String) = Token.fromString(token, Identity.Customer)
   }
 
-  final case class jwtStoreAdmin(implicit ec: EC, db: DB) extends JwtAuth[StoreAdmin] {
+  case class jwtStoreAdmin(implicit ec: EC, db: DB) extends JwtAuth[StoreAdmin] {
     def checkAuth(credentials: Option[String]): Future[AuthenticationResult[StoreAdmin]] = {
       jwtAuth[TokenToModel[StoreAdmin]]("admin")(credentials, adminFromToken)
     }

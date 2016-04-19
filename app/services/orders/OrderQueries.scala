@@ -15,7 +15,7 @@ import responses.order._
 import services.{CartValidator, LogActivity, Result}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
-import utils.CustomDirectives.SortAndPage
+import utils.CustomDirectives.{EmptySortAndPage, SortAndPage}
 import utils.Slick._
 import utils.Slick.implicits._
 import utils.DbResultT._
@@ -24,8 +24,8 @@ import utils.aliases._
 
 object OrderQueries {
 
-  def findAllByQuery(query: Orders.QuerySeq = Orders)(implicit ec: EC, db: DB,
-    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[AllOrders.Root]]] = {
+  def findAllByQuery(query: Orders.QuerySeq = Orders)(implicit ec: EC,
+    sortAndPage: SortAndPage = EmptySortAndPage): DbResultT[TheResponse[Seq[AllOrders.Root]]] = {
 
     val ordersAndCustomers = query.join(Customers).on(_.customerId === _.id)
 
@@ -64,16 +64,14 @@ object OrderQueries {
     }).toTheResponse
   }
 
-  def findAll(implicit ec: EC, db: DB,
-    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[AllOrders.Root]]] =
+  def findAll(implicit ec: EC, sortAndPage: SortAndPage = EmptySortAndPage): DbResultT[TheResponse[Seq[AllOrders.Root]]] =
     findAllByQuery(Orders)
 
-  def list(implicit ec: EC, db: DB,
-    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[TheResponse[Seq[AllOrders.Root]]] =
+  def list(implicit ec: EC, db: DB, sortAndPage: SortAndPage = EmptySortAndPage): Result[TheResponse[Seq[AllOrders.Root]]] =
     findAllByQuery(Orders).run()
 
   def listByCustomer(customer: Customer)(implicit ec: EC, db: DB,
-    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[TheResponse[Seq[AllOrders.Root]]] =
+    sortAndPage: SortAndPage = EmptySortAndPage): Result[TheResponse[Seq[AllOrders.Root]]] =
     findAllByQuery(Orders.filter(_.customerId === customer.id)).run()
 
   def findOne(refNum: String)(implicit ec: EC, db: DB): Result[TheResponse[FullOrder.Root]] = (for {
@@ -111,7 +109,7 @@ object OrderQueries {
   } yield fullOrder
 
   private def logCartCreation(foundOrCreated: FoundOrCreated, order: FullOrder.Root, admin: Option[StoreAdmin])
-    (implicit ec: EC, db: DB, ac: AC) = foundOrCreated match {
+    (implicit ec: EC, ac: AC) = foundOrCreated match {
     case Created ⇒ LogActivity.cartCreated(admin, order)
     case Found   ⇒ DbResult.unit
   }
@@ -130,7 +128,7 @@ object OrderQueries {
         StoreCreditAdjustments.filter(_.orderPaymentId === payment.id).filter(_.state === (Auth: State)).size.result
     }))
   // Using CreditCardCharge here as it has both Cart and Auth states. Consider refactoring.
-  } yield (payments.size, authorized.fold(0)(_ + _)) match {
+  } yield (payments.size, authorized.sum) match {
     case (0, _) ⇒ CreditCardCharge.Cart
     case (pmt, auth) if pmt == auth ⇒ CreditCardCharge.Auth
     case _ ⇒ CreditCardCharge.Cart

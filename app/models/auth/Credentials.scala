@@ -10,9 +10,9 @@ sealed trait Credentials {
   val secret: String
 }
 
-final case class BasicCredentials(identifier: String, secret: String) extends Credentials
-final case class JWTCredentials(secret: String) extends Credentials
-final case class BearerTokenCredentials(secret: String) extends Credentials
+case class BasicCredentials(identifier: String, secret: String) extends Credentials
+case class JWTCredentials(secret: String) extends Credentials
+case class BearerTokenCredentials(secret: String) extends Credentials
 
 object Credentials {
 
