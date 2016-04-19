@@ -1,7 +1,7 @@
 /* @flow */
 import React, { Component, PropTypes } from 'react';
 import { Link } from 'react-router';
-import { authBlockTypes } from 'modules/auth';
+import { authBlockTypes } from 'paragons/auth';
 
 import styles from './auth.css';
 import type { HTMLElement } from 'types';

@@ -1,5 +1,6 @@
-/* @flow weak */
+/* @flow */
 
+import _ from 'lodash';
 import { each, get } from 'lodash';
 import React, { Component, PropTypes } from 'react';
 import styles from './auth.css';
@@ -15,7 +16,7 @@ import Button from 'ui/buttons';
 import WrapToLines from 'ui/wrap-to-lines';
 
 import * as actions from 'modules/auth';
-import { authBlockTypes } from 'modules/auth';
+import { authBlockTypes } from 'paragons/auth';
 
 import type { HTMLElement } from 'types';
 import type { SignUpPayload } from 'modules/auth';
@@ -28,8 +29,12 @@ type AuthState = {
   emailError: bool|string,
 };
 
+const mapState = state => ({
+  isLoading: _.get(state.asyncActions, ['auth-signup', 'inProgress'], false),
+});
+
 /* ::`*/
-@connect(null, actions)
+@connect(mapState, actions)
 @localized
 /* ::`*/
 export default class Auth extends Component {
@@ -95,7 +100,7 @@ export default class Auth extends Component {
 
   render(): HTMLElement {
     const { email, password, username, emailError, usernameError } = this.state;
-    const { t } = this.props;
+    const { t, isLoading } = this.props;
 
     const loginLink = (
       <Link to={{pathname: this.props.path, query: {auth: authBlockTypes.LOGIN}}} styleName="link">
@@ -108,7 +113,7 @@ export default class Auth extends Component {
         <div styleName="title">{t('SIGN UP')}</div>
         <Button icon="fc-google" type="button" styleName="google-login">{t('SIGN UP WITH GOOGLE')}</Button>
         <WrapToLines styleName="divider">{t('or')}</WrapToLines>
-        <Form onSubmit={this.submitUser} >
+        <Form onSubmit={this.submitUser}>
           <FormField key="username" styleName="form-field" error={usernameError}>
             <TextInput
               required
@@ -138,7 +143,13 @@ export default class Auth extends Component {
               type="password"
             />
           </FormField>
-          <Button styleName="primary-button" type="submit">{t('SIGN UP')}</Button>
+          <Button
+            styleName="primary-button"
+            isLoading={isLoading}
+            type="submit"
+          >
+            {t('SIGN UP')}
+          </Button>
         </Form>
         <div styleName="switch-stage">
           {t('Already have an account?')} {loginLink}

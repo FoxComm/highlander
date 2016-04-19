@@ -1,3 +1,6 @@
+/* @flow */
+
+import _ from 'lodash';
 import React, { Component, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import { browserHistory, Link } from 'react-router';
@@ -11,7 +14,7 @@ import Button from 'ui/buttons';
 import WrapToLines from 'ui/wrap-to-lines';
 
 import * as actions from 'modules/auth';
-import { authBlockTypes } from 'modules/auth';
+import { authBlockTypes } from 'paragons/auth';
 import { fetch as fetchCart } from 'modules/cart';
 
 import type { HTMLElement } from 'types';
@@ -22,10 +25,11 @@ import localized from 'lib/i18n';
 type AuthState = {
   email: string,
   password: string,
+  error: ?string,
 };
 
 const mapState = state => ({
-  isLoading: state.auth.isFetching,
+  isLoading: _.get(state.asyncActions, ['auth-login', 'inProgress'], false),
 });
 
 /* ::`*/
@@ -40,14 +44,14 @@ export default class Login extends Component {
   state: AuthState = {
     email: '',
     password: '',
-    error: false,
+    error: null,
   };
 
   @autobind
   onChangeEmail({target}: any) {
     this.setState({
       email: target.value,
-      error: false,
+      error: null,
     });
   }
 
@@ -55,7 +59,7 @@ export default class Login extends Component {
   onChangePassword({target}: any) {
     this.setState({
       password: target.value,
-      error: false,
+      error: null,
     });
   }
 

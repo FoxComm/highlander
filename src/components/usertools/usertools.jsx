@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { toggleCart } from 'modules/cart';
 import { toggleUserMenu } from 'modules/usermenu';
-import { authBlockTypes } from 'modules/auth';
+import { authBlockTypes } from 'paragons/auth';
 
 import localized from 'lib/i18n';
 

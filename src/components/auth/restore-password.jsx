@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { routeActions } from 'react-router-redux';
 import { Link } from 'react-router';
 
-import { authBlockTypes } from 'modules/auth';
+import { authBlockTypes } from 'paragons/auth';
 
 import localized from 'lib/i18n';
 
