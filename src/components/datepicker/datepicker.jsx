@@ -49,7 +49,7 @@ export default class DatePicker extends React.Component {
       return null;
     }
 
-    const {selectedDate, showPicker} = this.state;
+    const { selectedDate, showPicker } = this.state;
     const value = selectedDate ? selectedDate.toString() : '';
     const prettyDate = selectedDate
       ? selectedDate.toLocaleString('en-us', {
@@ -99,7 +99,7 @@ export default class DatePicker extends React.Component {
   }
 
   @autobind
-  changed({target}) {
+  changed({ target }) {
     this.props.onChange(target.value);
   }
 
@@ -196,6 +196,7 @@ export default class DatePicker extends React.Component {
 
   @autobind
   renderDays(date) {
+    const currentDate = new Date();
     const startDay = 1 - date.getDay(); // Day is 1-based in JS Date.
     const selectedTime = !_.isNull(this.state.selectedDate)
       ? this.state.selectedDate.getTime()
@@ -206,6 +207,7 @@ export default class DatePicker extends React.Component {
       const klass = classNames('fc-datepicker__day', {
         '_last-month': date.getMonth() > dt.getMonth(),
         '_next-month': date.getMonth() < dt.getMonth(),
+        '_current': currentDate.getMonth() == dt.getMonth() && currentDate.getDate() == dt.getDate(),
         '_selected': _.isEqual(dt.getTime(), selectedTime)
       });
 
