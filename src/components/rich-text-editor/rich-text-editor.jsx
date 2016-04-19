@@ -51,6 +51,7 @@ function stopPropagation(event: Object) {
 
 export default class RichTextEditor extends Component<void, Props, State> {
   state: State;
+  props: Props;
 
   constructor(props: Props) {
     super(props);

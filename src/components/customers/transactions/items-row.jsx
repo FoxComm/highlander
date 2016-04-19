@@ -51,6 +51,7 @@ const CustomerItemsRow = (props, context) => {
 CustomerItemsRow.propTypes = {
   item: PropTypes.object.isRequired,
   columns: PropTypes.array.isRequired,
+  params: PropTypes.object,
 };
 
 /** CustomerItemsRow expected context types */

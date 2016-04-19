@@ -88,14 +88,14 @@ export class ProductPage extends Component<void, Props, State> {
 
   constructor(props: Props, context: Object) {
     super(props, context);
-    const productContext = _.get(this.props.params, 'context',  'default');
+    const productContext = _.get(this.props.params, 'context', 'default');
     this.state = { product: this.props.products.product, context: productContext};
   }
 
   componentDidMount() {
     if (this.isNew) {
       this.props.actions.productNew();
-    } else if (!this.props.params.product) {
+    } else if (!this.props.products.product) {
       this.props.actions.fetchProduct(this.props.params.productId, this.props.params.context);
     }
   }

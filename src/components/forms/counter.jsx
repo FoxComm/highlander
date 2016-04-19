@@ -34,12 +34,14 @@ Counter.propTypes = {
   decreaseAction: PropTypes.func,
   increaseAction: PropTypes.func,
   className: PropTypes.string,
+  disabled: PropTypes.bool,
 };
 
 Counter.defaultProps = {
   value: 1,
   step: 1,
   min: 1,
+  disabled: false,
 };
 
 export default Counter;

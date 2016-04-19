@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React from 'react';
+import React, { PropTypes } from 'react';
 
 import styles from './rounded-pill.css';
 
@@ -23,6 +23,12 @@ const RoundedPill = (props: Props) => {
       </div>
     </div>
   );
+};
+
+RoundedPill.propTypes = {
+  text: PropTypes.string,
+  value: PropTypes.string,
+  onClick: PropTypes.func,
 };
 
 export default RoundedPill;

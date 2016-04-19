@@ -50,6 +50,7 @@ function setStateFromProps(props: Props): State {
 
 export default class DateTimePicker extends Component<void, Props, State> {
   state: State;
+  props: Props;
 
   constructor(props: Props, ...args: any) {
     super(props, ...args);

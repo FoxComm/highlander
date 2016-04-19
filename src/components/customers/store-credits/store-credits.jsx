@@ -70,6 +70,10 @@ export default class StoreCredits extends React.Component {
       changeState: PropTypes.func,
       saveStateChange: PropTypes.func,
     }),
+    bulkActions: PropTypes.shape({
+      cancelStoreCredits: PropTypes.func,
+      changeStoreCreditsState: PropTypes.func,
+    }),
   };
 
   static defaultProps = {

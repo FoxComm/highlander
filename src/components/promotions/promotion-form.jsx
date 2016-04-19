@@ -1,6 +1,8 @@
 
+/* @flow weak */
+
 import _ from 'lodash';
-import React, { Component } from 'react';
+import React, { PropTypes, Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
 
@@ -18,13 +20,27 @@ import Tags from '../tags/tags';
 
 import { setDiscountAttr } from '../../paragons/promotion';
 
+type Props = {
+  promotion: Object,
+  onUpdatePromotion: Function,
+};
+
+type State = {
+  qualifiedCustomerGroupIds: Array<any>,
+};
+
 export default class PromotionForm extends Component {
 
-  state = {
+  static propTypes = {
+    promotion: PropTypes.object.isRequired,
+    onUpdatePromotion: PropTypes.func.isRequired,
+  };
+
+  state: State = {
     qualifiedCustomerGroupIds: [], // it's temporary state until qualified customer groups not implented in backend!
   };
 
-  get generalAttrs() {
+  get generalAttrs(): Array<any> {
     const toOmit = [
       'qualifier',
       'activeFrom',
@@ -35,7 +51,7 @@ export default class PromotionForm extends Component {
   }
 
   @autobind
-  handleChange(form, shadow) {
+  handleChange(form: Object, shadow: Object) {
     const newPromotion = assoc(this.props.promotion,
       ['form', 'attributes'], form,
       ['shadow', 'attributes'], shadow
@@ -45,7 +61,7 @@ export default class PromotionForm extends Component {
   }
 
   @autobind
-  handleQualifierChange(qualifier) {
+  handleQualifierChange(qualifier: Object) {
     const newPromotion = setDiscountAttr(this.props.promotion,
       'qualifier', 'qualifier', qualifier
     );
@@ -54,7 +70,7 @@ export default class PromotionForm extends Component {
   }
 
   @autobind
-  handleOfferChange(offer) {
+  handleOfferChange(offer: Object) {
     const newPromotion = setDiscountAttr(this.props.promotion,
       'offer', 'offer', offer
     );
@@ -63,14 +79,14 @@ export default class PromotionForm extends Component {
   }
 
   @autobind
-  handleApplyTypeChange(value) {
+  handleApplyTypeChange(value: any) {
     const newPromotion = assoc(this.props.promotion, 'applyType', value);
 
     this.props.onUpdatePromotion(newPromotion);
     this.refs.applyTypeField.autoValidate();
   }
 
-  get promotionState() {
+  get promotionState(): ?Element {
     const { promotion } = this.props;
     const formAttributes = _.get(promotion, 'form.attributes', []);
     const shadowAttributes = _.get(promotion, 'shadow.attributes', []);
@@ -89,11 +105,11 @@ export default class PromotionForm extends Component {
     );
   }
 
-  checkValidity() {
+  checkValidity(): bool {
     return this.refs.form.checkValidity();
   }
 
-  render() {
+  render(): Element {
     const { promotion } = this.props;
     const formAttributes = _.get(promotion, 'form.attributes', []);
     const shadowAttributes = _.get(promotion, 'shadow.attributes', []);

@@ -100,6 +100,14 @@ const getUsername = (user) => {
   return user.name ? user.name : `${user.firstName} ${user.lastName}`;
 };
 
+renderPilledInput.propTypes = {
+  maxUsers: PropTypes.number,
+  term: PropTypes.string,
+  setTerm: PropTypes.func.isRequired,
+  selected: PropTypes.array.isRequired,
+  onDeselectItem: PropTypes.func.isRequired,
+};
+
 /**
  * WatcherTypeahead component expected props types
  */
@@ -121,6 +129,9 @@ WatcherTypeahead.propTypes = {
   setTerm: PropTypes.func.isRequired,
   suggestWatchers: PropTypes.func.isRequired,
   onSelectItem: PropTypes.func.isRequired,
+  onDeselectItem: PropTypes.func.isRequired,
+  isFetching: PropTypes.bool,
+  setTerm: PropTypes.func.isRequired,
   onDeselectItem: PropTypes.func.isRequired,
 };
 

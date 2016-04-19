@@ -1,3 +1,6 @@
+
+/* @flow weak */
+
 //libs
 import React, { PropTypes } from 'react';
 
@@ -42,6 +45,12 @@ const InventoryItemDetailsBase = props => {
 
     </div>
   );
+};
+
+InventoryItemDetailsBase.propTypes = {
+  history: PropTypes.object,
+  params: PropTypes.object,
+  children: PropTypes.node,
 };
 
 export default InventoryItemDetailsBase;

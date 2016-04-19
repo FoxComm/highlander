@@ -25,6 +25,7 @@ type State = {
 
 export default class Tags extends Component<void, Props, State> {
   state: State = { isAdding: false, addingValue: '' };
+  props: Props;
 
   get addInput(): ?Element {
     if (this.state.isAdding) {

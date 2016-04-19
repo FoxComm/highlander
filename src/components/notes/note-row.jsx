@@ -51,4 +51,11 @@ const NoteRow = props => {
   );
 };
 
+NoteRow.propTypes = {
+  note: PropTypes.object,
+  columns: PropTypes.array,
+  params: PropTypes.object,
+  actions: PropTypes.object,
+};
+
 export default NoteRow;

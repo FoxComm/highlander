@@ -140,10 +140,18 @@ export default class Orders extends React.Component {
       this.getChangeOrdersStateAction('fraudHold'),
       this.getChangeOrdersStateAction('remorseHold'),
       this.getChangeOrdersStateAction('fulfillmentStarted'),
-      this.getWatchOrdersAction(groups.assignees, 'assign', true, 'successfully assigned', 'failed to assign'),
-      this.getWatchOrdersAction(groups.assignees, 'assign', false, 'successfully unassigned', 'failed to unassign'),
-      this.getWatchOrdersAction(groups.watchers, 'watch', true, 'successfully started watching', 'failed to start watching'),
-      this.getWatchOrdersAction(groups.watchers, 'watch', false, 'failed to stop watching', 'failed to stop watching'),
+      this.getWatchOrdersAction(
+        groups.assignees, 'assign', true, 'successfully assigned', 'failed to assign'
+      ),
+      this.getWatchOrdersAction(
+        groups.assignees, 'assign', false, 'successfully unassigned', 'failed to unassign'
+      ),
+      this.getWatchOrdersAction(
+        groups.watchers, 'watch', true, 'successfully started watching', 'failed to start watching'
+      ),
+      this.getWatchOrdersAction(
+        groups.watchers, 'watch', false, 'failed to stop watching', 'failed to stop watching'
+      ),
     ];
   }
 

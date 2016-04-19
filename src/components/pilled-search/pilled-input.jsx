@@ -92,6 +92,7 @@ PilledInput.propTypes = {
   className: PropTypes.string,
   autofocus: PropTypes.bool,
   solid: PropTypes.bool,
+  disabled: PropTypes.bool,
 };
 
 PilledInput.defaultProps = {
@@ -102,6 +103,7 @@ PilledInput.defaultProps = {
   inputMask: '',
   autofocus: false,
   solid: false,
+  disabled: false,
 };
 
 export default PilledInput;

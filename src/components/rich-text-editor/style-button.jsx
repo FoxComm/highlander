@@ -18,6 +18,8 @@ function stopPropagation(event: Object) {
 }
 
 export default class StyleButton extends Component<void, Props, void> {
+  props: Props;
+
   handleClick(event: Object) {
     stopPropagation(event);
     this.props.onClick(this.props.style);

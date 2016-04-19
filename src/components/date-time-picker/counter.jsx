@@ -25,7 +25,7 @@ const DateTimeCounter = (props: Props): Element => {
   );
 };
 
-DateTimeCounter.PropTypes = {
+DateTimeCounter.propTypes = {
   children: PropTypes.node.isRequired,
   onClickUp: PropTypes.func.isRequired,
   onClickDown: PropTypes.func.isRequired,

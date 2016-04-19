@@ -47,6 +47,7 @@ LiveSearchAdapter.propTypes = {
   }),
   singleSearch: PropTypes.bool,
   searches: PropTypes.object,
+  children: PropTypes.node,
 };
 
 export default LiveSearchAdapter;

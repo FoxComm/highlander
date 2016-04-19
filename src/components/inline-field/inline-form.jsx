@@ -20,6 +20,8 @@ type Props = {
 };
 
 export default class InlineForm extends Component<void, Props, void> {
+  props: Props;
+
   render() {
     return (
       <FoxyForm className="fc-inline-field__form" onSubmit={this.props.onSave}>

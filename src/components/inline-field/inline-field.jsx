@@ -16,6 +16,7 @@ type State = {
 };
 
 export default class InlineField extends Component<void, Props, State> {
+  props: Props;
   state: State;
 
   constructor(...args: Array<any>) {

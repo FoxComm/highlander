@@ -1,6 +1,8 @@
 
+/* @flow weak */
+
 import _ from 'lodash';
-import React, { Component } from 'react';
+import React, { PropTypes, Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -21,9 +23,27 @@ const offersItems = [
   ['freeShipping', 'Free shipping'],
 ];
 
+type OrderActions = {
+  fetchSearches: Function,
+};
+
 type Props = {
-  onChange: (offer: Object) => any;
-  discount: Object;
+  onChange: (offer: Object) => any,
+  discount: Object,
+  productSearches: Array<any>,
+  ordersActions: OrderActions,
+};
+
+type Target = {
+  value: any,
+};
+
+type Event = {
+  target: Target,
+};
+
+type State = {
+  discountItemsMode: Object,
 };
 
 function mapStateToProps(state) {
@@ -38,11 +58,21 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
+/* ::`*/
 @connect(mapStateToProps, mapDispatchToProps)
+/* ::`*/
 export default class Offer extends Component {
-  props: Props;
 
-  state = {
+  static propTypes = {
+    onChange: PropTypes.func.isRequired,
+    discount: PropTypes.object,
+    productSearches: PropTypes.array,
+    ordersActions: PropTypes.shape({
+      fetchSearches: PropTypes.func.isRequired,
+    }).isRequired,
+  };
+
+  state: State = {
     discountItemsMode: this.initialDiscountItemsMode,
   };
 
@@ -79,8 +109,8 @@ export default class Offer extends Component {
   }
 
   @autobind
-  handleDiscountChange({target}) {
-    let discount = Number(target.value);
+  handleDiscountChange(event: Event) {
+    let discount = Number(event.target.value);
     discount = isNaN(discount) ? 0 : discount;
     discount = Math.min(100, discount);
     discount = Math.max(0, discount);
@@ -90,7 +120,7 @@ export default class Offer extends Component {
     });
   }
 
-  get percentOffOrder() {
+  get percentOffOrder(): Element {
     return (
       <div styleName="control-after-type">
         <span>Get</span>
@@ -108,7 +138,7 @@ export default class Offer extends Component {
     );
   }
 
-  get percentOffItems() {
+  get percentOffItems(): Element {
     return (
       <div styleName="control-after-type">
         <span>Get</span>
@@ -126,7 +156,7 @@ export default class Offer extends Component {
     );
   }
 
-  setParams(params) {
+  setParams(params: Object) {
     this.props.onChange({
       [this.offerType]: {
         ...this.offerParams,
@@ -135,18 +165,18 @@ export default class Offer extends Component {
     });
   }
 
-  setType(type) {
+  setType(type: any) {
     this.props.onChange({
       [type]: this.offerParams,
     });
   }
 
   @autobind
-  handleOfferTypeChange(value) {
+  handleOfferTypeChange(value: any) {
     this.setType(value);
   }
 
-  get content() {
+  get content(): ?Element {
     switch (this.offerType) {
       case 'itemsSelectPercentOff':
         return this.itemsSelectPercentOff;
@@ -156,7 +186,7 @@ export default class Offer extends Component {
   }
 
   @autobind
-  handleChangeDiscountItemsMode(value) {
+  handleChangeDiscountItemsMode(value: any) {
     this.setState({
       discountItemsMode: value,
     });
@@ -169,18 +199,18 @@ export default class Offer extends Component {
   }
 
   @autobind
-  handleSelectReference(id) {
+  handleSelectReference(id: any) {
     this.handleSelectReferences([id]);
   }
 
   @autobind
-  handleSelectReferences(ids) {
+  handleSelectReferences(ids: Array<any>) {
     this.setParams({
       references: ids.map(id => ({referenceId: id, referenceType: 'SavedProductSearch'})),
     });
   }
 
-  get discountReferences() {
+  get discountReferences(): Element {
     const references = _.get(this.offerParams, 'references', []);
 
     if (this.state.discountItemsMode == 'some') {
@@ -226,7 +256,7 @@ export default class Offer extends Component {
     }
   }
 
-  get itemsSelectPercentOff() {
+  get itemsSelectPercentOff(): Element {
     return (
       <div>
         <div styleName="discount-items">
@@ -241,7 +271,7 @@ export default class Offer extends Component {
     );
   }
 
-  render() {
+  render(): Element {
     return (
       <div>
         <div styleName="form-row">

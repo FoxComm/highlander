@@ -18,6 +18,10 @@ import PromotionRow from './promotion-row';
 import { actions } from '../../modules/promotions/list';
 import { actions as bulkActions } from '../../modules/promotions/bulk';
 
+type Props = {
+  list: Object,
+  actions: Object,
+};
 
 const mapStateToProps = (state: Object) => {
   return {
@@ -47,6 +51,7 @@ const tableColumns = [
 @connect(mapStateToProps, mapDispatchToProps)
 /* ::`*/
 export default class Promotions extends Component {
+  props: Props;
 
   renderRow(row: Object, index: number, columns: Array<any>, params: any): Element {
     const key = `promotion-${row.id}`;

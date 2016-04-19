@@ -198,3 +198,10 @@ const renderPilledInput = (props) => {
       onPillClose={(name,index) => deselectItem(index)}/>
   );
 };
+
+renderPilledInput.propTypes = {
+  setTerm: PropTypes.func,
+  maxUsers: PropTypes.number,
+  deselectItem: PropTypes.func,
+  search: PropTypes.object,
+};

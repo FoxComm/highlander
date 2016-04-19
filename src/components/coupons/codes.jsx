@@ -21,6 +21,21 @@ import { actions as ReduxBulkActions } from '../../modules/coupons/coupon-codes-
 // styles
 import styles from './form.css';
 
+type CouponCodeParams = {
+  couponId: string,
+};
+
+type CouponCodesActionType = {
+  setExtraFilters: Function,
+  fetch: Function,
+};
+
+type CouponCodesProps = {
+  list: Array<any>,
+  actions: CouponCodesActionType,
+  params: CouponCodeParams,
+};
+
 const tableColumns = [
   { field: 'createdAt', text: 'Date/Time Created', type: 'date', },
   { field: 'code', text: 'Coupon Code', },
@@ -43,6 +58,8 @@ const mapDispatchToProps = dispatch => {
 @connect(mapStateToProps, mapDispatchToProps)
 /* ::`*/
 export default class CouponCodes extends Component {
+
+  props: CouponCodesProps;
 
   get couponId(): string {
     return this.props.params.couponId;

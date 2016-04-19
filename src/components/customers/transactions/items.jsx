@@ -1,6 +1,9 @@
+
+/* @flow */
+
 /** Libs */
 import { get, isString, capitalize } from 'lodash';
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes, Component, Element } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as dsl from '../../../elastic/dsl';
@@ -11,6 +14,22 @@ import CustomerItemsRow from './items-row';
 
 /** Redux */
 import { actions } from '../../../modules/customers/items';
+
+type Customer = {
+  id: number,
+};
+
+type Actions = {
+  setExtraFilters: Function,
+  fetch: Function,
+};
+
+type Props = {
+  actions: Actions,
+  list: Object,
+  details: Object,
+  customer: Customer,
+};
 
 const tableColumns = [
   { field: 'image', text: 'Image', type: 'image' },
@@ -25,10 +44,11 @@ const tableColumns = [
 
 /**
  * CustomerItems Component
- * 
+ *
  * TODO: Add actions droprown when it's defined
  */
 class CustomerItems extends Component {
+  props: Props;
 
   componentDidMount() {
     this.props.actions.setExtraFilters([
@@ -38,13 +58,13 @@ class CustomerItems extends Component {
     this.props.actions.fetch();
   }
 
-  renderRow(row, index, columns, params) {
+  renderRow(row: Object, index: number, columns: Array<any>, params: Object): Element {
     const keyRow = `customer-items-${row.id}`;
 
     return <CustomerItemsRow item={row} columns={columns} params={params} key={keyRow}/>;
   }
 
-  render() {
+  render(): Element {
     return (
       <div className="fc-customer-items">
         <ListPage

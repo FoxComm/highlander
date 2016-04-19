@@ -10,6 +10,7 @@ import { get } from 'sprout-data';
 export default class RmaChildList extends React.Component {
   static propTypes = {
     tableColumns: PropTypes.array,
+    updateStateAndFetch: PropTypes.func,
     fetchRmas: PropTypes.func.isRequired,
     entity: PropTypes.object.isRequired,
     rmas: PropTypes.shape({

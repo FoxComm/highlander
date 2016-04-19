@@ -14,7 +14,7 @@ import { getStore } from '../../lib/store-creator';
 import Panel from '../panel/panel';
 import { AddButton } from '../common/buttons';
 import DetailedInitials from '../users/detailed-initials';
-import WaitAnimation  from '../common/wait-animation';
+import WaitAnimation from '../common/wait-animation';
 import { Button } from '../common/buttons';
 import SelectWatcherModal from './select-modal';
 
@@ -55,6 +55,9 @@ class Watchers extends Component {
       entityId: PropTypes.string.isRequired,
     }).isRequired,
     data: PropTypes.object.isRequired,
+    currentUser: PropTypes.shape({
+      id: PropTypes.number,
+    }),
 
     //connected
     showSelectModal: PropTypes.func.isRequired,
@@ -62,6 +65,8 @@ class Watchers extends Component {
     toggleListModal: PropTypes.func.isRequired,
     addWatchers: PropTypes.func.isRequired,
     removeWatcher: PropTypes.func.isRequired,
+    fetch: PropTypes.func.isRequired,
+    watch: PropTypes.func.isRequired,
   };
 
   componentDidMount() {
@@ -125,6 +130,11 @@ const renderGroup = (props, group) => {
   );
 };
 
+renderGroup.propTypes = {
+  data: PropTypes.object,
+  isFetching: PropTypes.object,
+};
+
 const renderRow = (props, group, users) => {
   //empty label if nothing to show
   if (_.isEmpty(users)) {
@@ -175,6 +185,11 @@ const renderHiddenRow = (props, group, cells) => {
       </div>
     </div>
   );
+};
+
+renderHiddenRow.propTypes = {
+  toggleListModal: PropTypes.func,
+  data: PropTypes.object,
 };
 
 const renderCell = (group, user, removeWatcher, hidden = false) => {

@@ -30,6 +30,7 @@ type State = {
 };
 
 export default class EditableSkuRow extends Component<void, Props, State> {
+  props: Props;
   state: State;
 
   constructor(props: Props) {

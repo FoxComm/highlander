@@ -16,6 +16,8 @@ type Props = {
 };
 
 export default class VariantValueEntry extends Component<void, Props, void> {
+  props: Props;
+
   get imageBlock(): Element {
     if (this.props.value.image) {
       return <div>{this.props.value.image}</div>;

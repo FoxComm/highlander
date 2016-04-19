@@ -146,8 +146,8 @@ export function createEmptyProduct(): FullProduct {
         id: null,
         productId: null,
         attributes: {
-          variants: {type: "variants", ref: "variants" },
-          skus: {type: "skus", ref: "skus" },
+          variants: {type: 'variants', ref: 'variants' },
+          skus: {type: 'skus', ref: 'skus' },
         },
         createdAt: null,
       },
@@ -164,14 +164,14 @@ export function addEmptySku(product: FullProduct): FullProduct {
   const emptySkuForm: SkuForm = {
     code: pseudoRandomCode,
     attributes: {
-      title: "",
+      title: '',
       retailPrice: {
         value: 0,
-        currency: "USD"
+        currency: 'USD'
       },
       salePrice: {
         value: 0,
-        currency: "USD"
+        currency: 'USD'
       }
     },
     createdAt: null,
@@ -180,9 +180,9 @@ export function addEmptySku(product: FullProduct): FullProduct {
   const emptySkuShadow: SkuShadow = {
     code: pseudoRandomCode,
     attributes: {
-      title: {type: "string", ref: "title"},
-      retailPrice: {type: "price", ref: "retailPrice"},
-      salePrice: {type: "price", ref: "salePrice"}
+      title: {type: 'string', ref: 'title'},
+      retailPrice: {type: 'price', ref: 'retailPrice'},
+      salePrice: {type: 'price', ref: 'salePrice'}
     },
     createdAt: null,
   };
@@ -192,9 +192,9 @@ export function addEmptySku(product: FullProduct): FullProduct {
 
   return assoc(product,
     ['form', 'product', 'attributes', variantKey], pseudoRandomCode,
-    ['shadow', 'product', 'attributes', 'variants'], {type: "variants", ref:variantKey},
+    ['shadow', 'product', 'attributes', 'variants'], {type: 'variants', ref:variantKey},
     ['form', 'product', 'attributes', skusKey] , pseudoRandomCode, {},
-    ['shadow', 'product', 'attributes', 'skus'], {type: "skus", ref: skusKey},
+    ['shadow', 'product', 'attributes', 'skus'], {type: 'skus', ref: skusKey},
     ['form', 'skus'], product.form.skus.push(emptySkuForm),
     ['shadow', 'skus'], product.shadow.skus.push(emptySkuShadow)
   );

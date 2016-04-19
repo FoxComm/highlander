@@ -18,6 +18,8 @@ type Props = {
 };
 
 export default class ObjectForm extends Component<void, Props, void> {
+  props: Props;
+
   render(): Element {
     const { title, className, ...rest } = this.props;
 

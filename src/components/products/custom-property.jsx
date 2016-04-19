@@ -34,11 +34,12 @@ type State = {
 };
 
 class CustomProperty extends Component<void, Props, State> {
+  props: Props;
   state: State;
 
   constructor(props: Props) {
     super(props);
-    this.state = { 
+    this.state = {
       fieldLabel: '',
       propertyType: '',
     };
@@ -76,7 +77,7 @@ class CustomProperty extends Component<void, Props, State> {
       <div className="fc-product-details__custom-property">
         <div className="fc-modal-container">
           <ContentBox title="New Custom Property" actionBlock={this.closeAction}>
-            <FormField 
+            <FormField
               className="fc-product-details__field"
               label="Field Label"
               labelClassName="fc-product-details__field-label">
@@ -98,7 +99,7 @@ class CustomProperty extends Component<void, Props, State> {
                 {this.propertyTypes}
               </Dropdown>
             </FormField>
-            <SaveCancel 
+            <SaveCancel
               onCancel={this.props.onCancel}
               onSave={this.handleSave}
               saveDisabled={saveDisabled}

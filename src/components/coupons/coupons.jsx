@@ -13,13 +13,16 @@ import { connect } from 'react-redux';
 import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
 import { SelectableSearchList } from '../list-page';
-import CouponRow from  './coupon-row';
-
+import CouponRow from './coupon-row';
 
 // redux
 import { actions } from '../../modules/coupons/list';
 import { actions as bulkActions } from '../../modules/coupons/bulk';
 
+type CouponsProps = {
+  actions: Object,
+  list: Object,
+};
 
 const mapStateToProps = (state: Object) => {
   return {
@@ -47,7 +50,9 @@ const tableColumns: Array<Object> = [
 /* ::`*/
 @connect(mapStateToProps, mapDispatchToProps)
 /* ::`*/
-export default class Promotions extends Component {
+export default class Coupons extends Component {
+
+  props: CouponsProps;
 
   renderRow(row: Object, index: number, columns: Array<any>, params: Object): Element {
     const key = `coupon-${row.id}`;
