@@ -24,7 +24,7 @@ object DiscountExecutor {
   } yield adj).run()
 
 
-  private def fetchOrderDetails(order: Order)(implicit ec: EC, db: DB) = {
+  private def fetchOrderDetails(order: Order)(implicit ec: EC) = {
     for {
       lineItemTup ← OrderLineItemSkus.findLineItemsByOrder(order).result
       lineItems   = lineItemTup.map {

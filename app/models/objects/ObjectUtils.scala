@@ -154,8 +154,7 @@ object ObjectUtils {
     } yield result
   }
 
-  def commit(u: UpdateResult)(implicit db: DB, ec: EC): 
-  DbResultT[Option[ObjectCommit]] = commit(u.form, u.shadow, u.updated)
+  def commit(u: UpdateResult)(implicit ec: EC): DbResultT[Option[ObjectCommit]] = commit(u.form, u.shadow, u.updated)
 
   def commit(form: ObjectForm, shadow: ObjectShadow, doIt: Boolean)(implicit ec: EC): DbResultT[Option[ObjectCommit]] = {
     if(doIt) 
@@ -205,7 +204,7 @@ object ObjectUtils {
 
   private def updateIfDifferent(oldForm: ObjectForm, oldShadow: ObjectShadow,
     newFormAttributes: JValue, newShadowAttributes: JValue, force: Boolean = false)
-  (implicit ec: EC, db: DB): DbResultT[UpdateResult] = {
+  (implicit ec: EC): DbResultT[UpdateResult] = {
     if(oldShadow.attributes != newShadowAttributes || force)
       for {
         form   ← * <~ ObjectForms.update(oldForm, oldForm.copy(attributes = 
@@ -217,8 +216,7 @@ object ObjectUtils {
      else DbResultT.pure(UpdateResult(oldForm, oldShadow, false))
   }
 
-  private def validateShadow(form: ObjectForm, shadow: ObjectShadow) 
-  (implicit ec: EC, db: DB) : DbResultT[Unit] = 
+  private def validateShadow(form: ObjectForm, shadow: ObjectShadow)(implicit ec: EC) : DbResultT[Unit] =
     failIfErrors(IlluminateAlgorithm.validateAttributes(form.attributes, shadow.attributes))
 
   def failIfErrors(errors: Seq[Failure])(implicit ec: EC): DbResultT[Unit] = errors match {

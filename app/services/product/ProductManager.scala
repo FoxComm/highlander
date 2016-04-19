@@ -235,7 +235,7 @@ object ProductManager {
 
   private def createSkuData(context: ObjectContext, productShadowId: Int, 
     formPayloads: Seq[CreateFullSkuForm], shadowPayloads: Seq[CreateSkuShadow])
-  (implicit ec: EC, db: DB) : DbResultT[Seq[(Sku, ObjectForm, ObjectShadow)]] = for {
+  (implicit ec: EC) : DbResultT[Seq[(Sku, ObjectForm, ObjectShadow)]] = for {
 
     skuGroup    ← * <~ groupSkuFormsAndShadows(formPayloads, shadowPayloads)
     _            ← * <~ validateSkuPayload(skuGroup) 

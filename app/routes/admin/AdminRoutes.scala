@@ -23,7 +23,7 @@ import utils.aliases._
 
 object AdminRoutes {
 
-  def routes(implicit ec: EC, db: DB, mat: Materializer, admin: StoreAdmin, apis: Apis) = {
+  def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
 
     activityContext(admin) { implicit ac ⇒
       (path("admin" / "info") & get) {

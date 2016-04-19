@@ -38,7 +38,7 @@ object NotificationManager {
     }
   }
 
-  private def newNotifications(adminId: Int)(implicit ec: EC, db: DB, mat: Materializer): Source[SSE, Any] = {
+  private def newNotifications(adminId: Int)(implicit ec: EC, mat: Materializer): Source[SSE, Any] = {
     val (actorRef, publisher) = Source.actorRef[SSE](8, OverflowStrategy.fail)
       .toMat(Sink.asPublisher(false))(Keep.both).run()
     new NotificationListener(adminId, msg ⇒ actorRef ! SSE(msg))

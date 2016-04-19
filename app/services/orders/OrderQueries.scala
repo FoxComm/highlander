@@ -100,7 +100,7 @@ object OrderQueries {
   } yield fullOrder).runTxn()
 
   def findOrCreateCartByCustomerInner(customer: Customer, context: ObjectContext, admin: Option[StoreAdmin])
-    (implicit ec: EC, db: DB, ac: AC): DbResultT[FullOrder.Root] = for {
+    (implicit ec: EC, ac: AC): DbResultT[FullOrder.Root] = for {
     result                  ← * <~ Orders.findActiveOrderByCustomer(customer).one
       .findOrCreateExtended(Orders.create(Order.buildCart(customer.id, context.id)))
     (order, foundOrCreated) = result

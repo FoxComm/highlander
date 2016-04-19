@@ -42,7 +42,7 @@ object OrderStateUpdater {
   } yield response.copy(errors = batchMetadata.flatten, batch = Some(batchMetadata))).runTxn()
 
   private def updateStatesDbio(admin: StoreAdmin, refNumbers: Seq[String], newState: Order.State, skipActivity: Boolean = false)
-    (implicit ec: EC, db: DB, ac: AC): DbResult[BatchMetadata] = {
+    (implicit ec: EC, ac: AC): DbResult[BatchMetadata] = {
 
     val query = Orders.filter(_.referenceNumber.inSet(refNumbers)).result
     appendForUpdate(query).flatMap { orders ⇒

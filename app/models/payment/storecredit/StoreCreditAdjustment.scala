@@ -92,7 +92,7 @@ object StoreCreditAdjustments
     query.withMetadata.sortAndPageIfNeeded { (s, adj) ⇒ matchSortColumn(s, adj) }
   }
 
-  def queryAll(implicit ec: EC, db: DB, sortAndPage: SortAndPage): QuerySeqWithMetadata =
+  def queryAll(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata =
     sortedAndPaged(this)
 
   def filterByStoreCreditId(id: Int): QuerySeq = filter(_.storeCreditId === id)

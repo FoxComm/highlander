@@ -50,13 +50,13 @@ object OrderTotaler {
   def adjustmentsTotal(order: Order): DBIO[Int] =
     DBIO.successful(0)
 
-  def totals(order: Order)(implicit ec: EC, db: DB): DbResult[Totals] = (for {
+  def totals(order: Order)(implicit ec: EC): DbResult[Totals] = (for {
     sub   ← * <~ subTotal(order).toXor
     ship  ← * <~ shippingTotal(order)
     adj   ← * <~ adjustmentsTotal(order).toXor
   } yield Totals.build(subTotal = sub, shipping = ship, adjustments = adj)).value
 
-  def saveTotals(order: Order)(implicit ec: EC, db: DB): DbResult[Order] = (for {
+  def saveTotals(order: Order)(implicit ec: EC): DbResult[Order] = (for {
     t           ← * <~ totals(order)
     withTotals  = order.copy(subTotal = t.subTotal, shippingTotal = t.shipping,
       adjustmentsTotal = t.adjustments, taxesTotal = t.taxes, grandTotal = t.total)

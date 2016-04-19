@@ -22,7 +22,7 @@ case class CartValidatorResponse(
   warnings: Option[Failures] = None) {
 }
 
-case class CartValidator(cart: Order)(implicit ec: EC, db: DB) extends CartValidation {
+case class CartValidator(cart: Order)(implicit ec: EC) extends CartValidation {
 
   def validate(isCheckout: Boolean = false, fatalWarnings: Boolean = false): DbResult[CartValidatorResponse] = {
     val response = CartValidatorResponse()
