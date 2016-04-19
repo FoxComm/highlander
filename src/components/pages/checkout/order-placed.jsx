@@ -14,13 +14,14 @@ import { resetCheckout } from 'modules/checkout';
 @connect(state => state.cart, {fetchCart, resetCheckout})
 @localized
 class OrderPlaced extends Component {
+
   @autobind
   toHome() {
+    this.props.fetchCart();
     browserHistory.push('/');
   }
 
   componentWillUnmount() {
-    this.props.fetchCart();
     this.props.resetCheckout();
   }
 

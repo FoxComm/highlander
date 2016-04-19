@@ -407,6 +407,21 @@
           "ВСЕ"
         ]
       },
+      "EYEGLASSES": {
+        "msgstr": [
+          "ОЧКИ"
+        ]
+      },
+      "SUNGLASSES": {
+        "msgstr": [
+          "СОЛНЕЧНЫЕ"
+        ]
+      },
+      "READERS": {
+        "msgstr": [
+          "ЧИТАТЕЛИ"
+        ]
+      },
       "Terms of Use": {
         "msgstr": [
           "Условия использования"

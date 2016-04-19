@@ -12,6 +12,7 @@ import WrapToLines from 'ui/wrap-to-lines';
 
 import * as actions from 'modules/auth';
 import { authBlockTypes } from 'modules/auth';
+import { fetch as fetchCart } from 'modules/cart';
 
 import type { HTMLElement } from 'types';
 
@@ -28,7 +29,7 @@ const mapState = state => ({
 });
 
 /* ::`*/
-@connect(mapState, actions)
+@connect(mapState, { ...actions, fetchCart })
 @localized
 /* ::`*/
 export default class Login extends Component {
@@ -65,9 +66,19 @@ export default class Login extends Component {
     const { email, password } = this.state;
     const kind = 'customer';
     this.props.authenticate({email, password, kind}).then(() => {
+      this.props.fetchCart();
       browserHistory.push(this.props.path);
     }).catch(() => {
       this.setState({error: 'Email or password is invalid'});
+    });
+  }
+
+  @autobind
+  googleAuthenticate(e: any) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.props.googleSignin().then(() => {
+      this.props.fetchCart();
     });
   }
 
@@ -92,7 +103,7 @@ export default class Login extends Component {
       <div>
         <div styleName="title">{t('LOG IN')}</div>
         <form>
-          <Button icon="fc-google" onClick={props.googleSignin} type="button" styleName="google-login">
+          <Button icon="fc-google" onClick={this.googleAuthenticate} type="button" styleName="google-login">
             {t('LOG IN WITH GOOGLE')}
           </Button>
         </form>

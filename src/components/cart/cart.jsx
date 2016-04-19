@@ -18,13 +18,13 @@ import Icon from 'ui/icon';
 
 import * as actions from 'modules/cart';
 
-const getState = state => ({ ...state.cart, ...state.auth });
+const getState = state => ({ ...state.cart, ...state.auth, checkoutStage: state.checkout.editStage });
 
 class Cart extends Component {
 
   componentWillMount() {
-    /** prevent loading if no user logged in */
-    if (this.props.user) {
+    /** prevent loading if no user logged in and when checkout is in progress */
+    if (this.props.user && !_.isNumber(this.props.checkoutStage)) {
       this.props.fetch();
     }
   }

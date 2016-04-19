@@ -42,7 +42,7 @@ class Categories extends React.Component {
       browserHistory.push('/');
     } else {
       const dashedName = category.name.replace(/\s/g, '-');
-      browserHistory.push(`/${category.id}-${dashedName}`);
+      browserHistory.push(`/${dashedName}`);
     }
   }
 
@@ -55,7 +55,7 @@ class Categories extends React.Component {
       return (
         <div styleName="item" key={key}>
           <a onClick={() => this.onClick(item)} styleName="item-link">
-            {item.name.toUpperCase()}
+          {t(item.name.toUpperCase())}
           </a>
         </div>
       );

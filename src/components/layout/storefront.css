@@ -38,8 +38,14 @@
   width: 30%;
 }
 
-.logo {
+.tools {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.logo-link {
   flex: 1;
+  text-align: center;
 }
 
 :global(.icon).logo {

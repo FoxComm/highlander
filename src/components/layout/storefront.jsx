@@ -3,6 +3,7 @@
 import React from 'react';
 import type { HTMLElement } from 'types';
 import { connect } from 'react-redux';
+import { Link } from 'react-router';
 import { toggleSidebar } from 'modules/sidebar';
 import { toggleActive, resetTerm } from 'modules/search';
 
@@ -46,7 +47,11 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
             <div styleName="hamburger" onClick={props.toggleSidebar}>
               <Icon name="fc-hamburger" styleName="head-icon"/>
             </div>
-            <Icon styleName="logo" name="fc-some_brand_logo" />
+            <div styleName="logo-link">
+              <Link to="/">
+                <Icon styleName="logo" name="fc-some_brand_logo" />
+              </Link>
+            </div>
             <div styleName="tools">
               <UserTools path={props.location.pathname}/>
             </div>

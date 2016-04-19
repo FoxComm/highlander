@@ -8,16 +8,22 @@ import { browserHistory } from 'react-router';
 import Currency from 'ui/currency';
 
 type Product = {
-  id: number;
-  name: string;
-  price: string;
-  imageUrl: string;
+  id: number,
+  productId: number,
+  context: string,
+  title: string,
+  description: string,
+  images: Array<string>,
+  salePrice: string,
+  currency: string,
 }
 
 const ListItem = (props: Product): HTMLElement => {
-  const {id, name, price, imageUrl} = props;
+  const {productId, title, images, salePrice, currency} = props;
 
-  const click = () => browserHistory.push(`/products/${id}`);
+  const imageUrl = images[0];
+
+  const click = () => browserHistory.push(`/products/${productId}`);
 
   return (
     <div styleName="list-item" onClick={click}>
@@ -25,10 +31,10 @@ const ListItem = (props: Product): HTMLElement => {
         <img src={imageUrl} styleName="preview-image" />
       </div>
       <div styleName="name">
-        {name}
+        {title}
       </div>
       <div styleName="price">
-        <Currency value={price} />
+        <Currency value={salePrice} currency={currency} />
       </div>
     </div>
   );

@@ -1,15 +1,12 @@
 /* @flow */
 
-/*
- * Page prototype https://invis.io/EB67L16VZ
- */
-
 import _ from 'lodash';
 import React, { Component } from 'react';
 import styles from './checkout.css';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'react-router';
+import { Link } from 'react-router';
 
 import Icon from 'ui/icon';
 import Shipping from './shipping';
@@ -54,6 +51,10 @@ function mapStateToProps(state) {
 class Checkout extends Component {
   props: CheckoutProps;
 
+  state = {
+    isPerformingCheckout: false,
+  };
+
   componentWillMount() {
     this.props.fetchCart();
   }
@@ -83,13 +84,28 @@ class Checkout extends Component {
 
   @autobind
   placeOrder() {
-    this.props.addCreditCard()
-      .then(() => {
-        return this.props.checkout();
-      })
-      .then(() => {
-        browserHistory.push('/checkout/done');
-      });
+    this.setState({
+      isPerformingCheckout: true,
+    }, () => {
+      this.props.addCreditCard()
+        .then(() => {
+          return this.props.setEditStage(EditStages.FINISHED);
+        })
+        .then(() => {
+          return this.props.checkout();
+        })
+        .then(() => {
+          this.setState({
+            isPerformingCheckout: false,
+          });
+          browserHistory.push('/checkout/done');
+        })
+        .catch(() => {
+          this.setState({
+            isPerformingCheckout: false,
+          });
+        });
+    });
   }
 
   render() {
@@ -97,7 +113,11 @@ class Checkout extends Component {
 
     return (
       <div styleName="checkout">
-        <Icon styleName="logo" name="fc-some_brand_logo" />
+        <div styleName="logo-link">
+          <Link to="/">
+            <Icon styleName="logo" name="fc-some_brand_logo" />
+          </Link>
+        </div>
         <div styleName="checkout-content">
           <div styleName="left-forms">
             <Shipping
@@ -118,6 +138,7 @@ class Checkout extends Component {
               editAllowed={props.editStage >= EditStages.BILLING}
               collapsed={!props.isBillingDurty && props.editStage < EditStages.BILLING}
               editAction={this.setBillingState}
+              inProgress={this.state.isPerformingCheckout}
               continueAction={this.placeOrder}
             />
           </div>

@@ -31,11 +31,16 @@
   margin-top: 25px;
 }
 
-.logo {
+.logo-link {
   display: block;
   width: 45px;
   height: 45px;
   margin: 0 auto 40px;
+}
+
+.logo {
+  width: 100%;
+  height: 100%;
 }
 
 .union-fields {
@@ -88,7 +93,6 @@
 }
 
 .checkout-submit {
-  composes: button from "ui/css/buttons.css";
   display: block;
   margin: 20px auto 0;
   width: 50%;

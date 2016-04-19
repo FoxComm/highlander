@@ -85,15 +85,6 @@
   cursor: pointer;
 }
 
-.checkout-button:disabled {
-  background: var(--blackish);
-
-  &:hover {
-    color: var(--whitish);
-    cursor: not-allowed;
-  }
-}
-
 .cart-content {
   position: absolute;
   width: 100%;

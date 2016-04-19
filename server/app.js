@@ -3,6 +3,7 @@ import KoaApp from 'koa';
 import serve from 'koa-static';
 import renderReact from '../src/server';
 import { makeApiProxy } from './routes/api';
+import { makeElasticProxy } from './routes/elastic';
 import zipcodes from './routes/zipcodes';
 import loadI18n from './i18n';
 import verifyJwt from './verify-jwt';
@@ -14,6 +15,7 @@ export default class App extends KoaApp {
 
     this.use(serve('public'))
       .use(makeApiProxy())
+      .use(makeElasticProxy())
       .use(zipcodes.routes())
       .use(zipcodes.allowedMethods())
       .use(verifyJwt)
