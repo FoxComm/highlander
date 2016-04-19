@@ -38,6 +38,12 @@
   width: 30%;
 }
 
+.search {
+  & :global(.icon__cnt) {
+    fill: var(--blackish);
+  }
+}
+
 .tools {
   display: flex;
   justify-content: flex-end;
@@ -51,6 +57,10 @@
 :global(.icon).logo {
   width: 57px;
   height: 57px;
+}
+
+:global(.icon--fc-some_brand_logo) {
+  stroke: none;
 }
 
 .categories {
@@ -105,6 +115,10 @@
 
   .hamburger {
     display: block;
+
+    & :global(.icon) {
+      cursor: pointer;
+    }
   }
 
   .mobile-sidebar {

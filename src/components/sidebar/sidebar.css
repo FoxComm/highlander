@@ -42,10 +42,16 @@
   color: var(--whitish);
   text-decoration: none;
   margin-left: 10px;
-}
-
-.close-button {
   stroke: var(--whitish);
+
+  & :global(.icon) {
+    stroke-width: 3;
+    cursor: pointer;
+
+    &:hover {
+      opacity: .7;
+    }
+  }
 }
 
 .controls-categories,
@@ -59,6 +65,10 @@
 
 .controls-search {
   margin-top: 16px;
+
+  & :global(.icon__cnt) {
+    fill: var(--lightest-blackish);
+  }
 }
 
 .session-link {
