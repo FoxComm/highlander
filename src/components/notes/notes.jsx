@@ -85,7 +85,7 @@ export default class Notes extends React.Component {
     }
 
     return [
-      {field: 'createdAt', text: 'Date/Time', type: 'DateTime'},
+      {field: 'createdAt', text: 'Date/Time', type: 'datetime'},
       ...baseColumns
     ];
   }

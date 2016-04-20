@@ -1,9 +1,12 @@
-
+//libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import moment from 'moment';
 
+//components
 import MultiSelectRow from '../table/multi-select-row';
 import NoteControls from './controls';
+
 
 const entityTitles = {
   rma: 'Return',
