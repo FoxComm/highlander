@@ -7,16 +7,17 @@ import classNames from 'classnames';
 
 // utils
 import * as CardUtils from '../../lib/credit-card-utils';
+import { detectCardType, cardMask, cvvLength} from 'wings/lib/payment-cards';
 
 // components
 import { Checkbox } from '../checkbox/checkbox';
 import FormField from '../forms/formfield';
 import Form from '../forms/form';
 import Dropdown from '../dropdown/dropdown';
-import DropdownItem from '../dropdown/dropdownItem';
 import AddressDetails from '../addresses/address-details';
 import AddressSelect from '../addresses/address-select';
 import SaveCancel from '../common/save-cancel';
+import InputMask from 'react-input-mask';
 
 export default class CreditCardForm extends React.Component {
 
@@ -46,13 +47,10 @@ export default class CreditCardForm extends React.Component {
     saveText: 'Save',
   };
 
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      card: this.props.card,
-      editingAddress: this.props.isNew,
-    };
-  }
+  state = {
+    card: this.props.card,
+    editingAddress: this.props.isNew,
+  };
 
   get header() {
     if (this.props.isNew) {
@@ -108,6 +106,43 @@ export default class CreditCardForm extends React.Component {
     );
   }
 
+  get cardNumber() {
+    return _.get(this.state, 'card.number', '');
+  }
+
+  get cardType() {
+    return detectCardType(this.cardNumber);
+  }
+
+  get cardMask() {
+    return cardMask(this.cardType);
+  }
+
+  @autobind
+  validateCardNumber() {
+    const mask = this.cardMask.replace(/[^\d]/g, '');
+
+    if (mask.length != this.cardNumber.length) {
+      return 'Please enter a valid credit card number';
+    }
+    return null;
+  }
+
+  @autobind
+  validateCvvNumber() {
+    const cvv = _.get(this.state, 'card.cvv', '');
+
+    return cvv.length != cvvLength(this.cardType) ? `Please enter a valid cvv number` : null;
+  }
+
+  @autobind
+  changeCardNumber({target}) {
+    const value = target.value.replace(/[^\d]/g, '');
+
+    const newState = assoc(this.state, ['card', 'number'], value);
+    this.setState(newState, () => this.props.onChange({target}));
+  }
+
   get cardNumberBlock() {
     const { isNew } = this.props;
     const number = _.get(this.state, 'card.number', '');
@@ -123,24 +158,29 @@ export default class CreditCardForm extends React.Component {
           <div className="fc-col-md-3-4">
             <FormField label="Card Number"
                        labelClassName="fc-credit-card-form__label"
-                       validator="ascii">
-              <input id="numberCardFormField"
-                     className="fc-credit-card-form__input"
-                     name="number"
-                     maxLength="255"
-                     type="text"
-                     required
-                     value={number}/>
+                       validator={this.validateCardNumber}>
+              <InputMask
+                id="numberCardFormField"
+                className="fc-credit-card-form__input"
+                name="number"
+                maskChar=" "
+                size="20"
+                mask={this.cardMask}
+                type="text"
+                required
+                value={number}
+                onChange={this.changeCardNumber}
+              />
             </FormField>
           </div>
           <div className="fc-col-md-1-4">
             <FormField label="CVV"
                        labelClassName="fc-credit-card-form__label"
-                       validator="ascii">
+                       validator={this.validateCvvNumber}>
               <input id="cvvCardFormField"
                      className="fc-credit-card-form__input"
                      name="cvv"
-                     maxLength="255"
+                     maxLength={cvvLength(this.cardType)}
                      type="text"
                      required
                      value={cvv}/>
