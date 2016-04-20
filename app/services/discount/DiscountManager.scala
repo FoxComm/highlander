@@ -5,10 +5,8 @@ import services.Result
 import models.objects._
 import models.discount._
 import responses.DiscountResponses._
-import utils.DbResultT
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import slick.driver.PostgresDriver.api._
 import payloads.{CreateDiscount, CreateDiscountForm, CreateDiscountShadow, 
   UpdateDiscount, UpdateDiscountForm, UpdateDiscountShadow}

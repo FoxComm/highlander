@@ -4,10 +4,8 @@ import models.product.SimpleContext
 import models.promotion._
 import models.objects._
 import services.Result
-import utils.DbResultT
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
+import utils.db._
+import utils.db.DbResultT._
 
 import payloads.{CreatePromotion, CreatePromotionForm, CreatePromotionShadow,
   CreateDiscountForm, CreateDiscountShadow}
@@ -15,11 +13,9 @@ import services.promotion.PromotionManager
 
 import cats.data.Xor
 import java.time.Instant
-import org.json4s.JsonAST.{JValue, JString, JObject, JField, JNothing}
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.io.Source
 import scala.util.Random
 import slick.driver.PostgresDriver.api._
 

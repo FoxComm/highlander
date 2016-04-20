@@ -18,7 +18,7 @@ import models.{StoreAdmin, shipping}
 import responses._
 import services.orders.OrderQueries
 import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
+import utils.db._
 import utils.aliases._
 
 object FullOrder {

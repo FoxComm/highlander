@@ -4,7 +4,6 @@ import java.time.Instant
 
 import cats.data.Xor
 import cats.data.Xor.{left, right}
-import models.javaTimeSlickMapper
 import models.order.OrderShippingAddress
 import models.payment.creditcard.CreditCard
 import models.traits.Addressable
@@ -13,16 +12,14 @@ import payloads.CreateAddressPayload
 import failures.{Failures, NotFoundFailure404}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
-import utils.GenericTable.TableWithId
-import utils.Slick.implicits._
-import utils.aliases._
-import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.Validation
+import utils.db._
 
 case class Address(id: Int = 0, customerId: Int, regionId: Int, name: String,
   address1: String, address2: Option[String], city: String, zip: String,
   isDefaultShipping: Boolean = false, phoneNumber: Option[String] = None,
   deletedAt: Option[Instant] = None)
-  extends ModelWithIdParameter[Address]
+  extends FoxModel[Address]
   with Addressable[Address]
   with Validation[Address] {
 
@@ -53,7 +50,7 @@ object Address {
       address1 = cc.address1, address2 = cc.address2, city = cc.city, zip = cc.zip)
 }
 
-class Addresses(tag: Tag) extends TableWithId[Address](tag, "addresses")  {
+class Addresses(tag: Tag) extends FoxTable[Address](tag, "addresses")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def customerId = column[Int]("customer_id")
   def regionId = column[Int]("region_id")
@@ -72,7 +69,7 @@ class Addresses(tag: Tag) extends TableWithId[Address](tag, "addresses")  {
   def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)
 }
 
-object Addresses extends TableQueryWithId[Address, Addresses](
+object Addresses extends FoxTableQuery[Address, Addresses](
   idLens = GenLens[Address](_.id)
   )(new Addresses(_)) {
 

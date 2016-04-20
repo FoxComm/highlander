@@ -10,14 +10,11 @@ import models.inventory.summary._
 import models.order.Order
 import models.order.lineitems.OrderLineItemSkus
 import org.json4s.Extraction.{decompose ⇒ toJson}
-import utils.Slick.DbResult
-import utils.DbResultT
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.ExPostgresDriver.api._
 import utils.JsonFormatters
-import utils.Slick.implicits._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
+import utils.db.ExPostgresDriver.api._
 
 object InventoryAdjustmentManager {
   implicit val formats = JsonFormatters.phoenixFormats

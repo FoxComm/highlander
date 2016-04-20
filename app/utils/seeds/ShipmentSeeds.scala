@@ -3,16 +3,15 @@ package utils.seeds
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.location.Country
-import Country.unitedStatesId
-import models.shipping._
-import ShippingPriceRule._
+import models.location.Country.unitedStatesId
 import models.rules._
+import models.shipping.ShippingPriceRule._
+import models.shipping._
 import org.json4s.jackson.JsonMethods._
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import Seeds.Factories._
-
 import slick.driver.PostgresDriver.api._
+import utils.db.DbResultT._
+import utils.db._
+import utils.seeds.Seeds.Factories._
 
 trait ShipmentSeeds {
 

@@ -4,9 +4,9 @@ import java.time.Instant
 
 import models.objects._
 import monocle.macros.GenLens
-import utils.ExPostgresDriver.api._
-import utils.time.JavaTimeSlickMapper._
-import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
+import slick.driver.PostgresDriver.api._
+import slick.lifted.Tag
+import utils.db._
 
 object Discount {
   val kind = "discount"
@@ -28,8 +28,7 @@ object Discount {
  */
 case class Discount(id: Int = 0, contextId: Int, shadowId: Int, formId: Int, 
   commitId: Int, updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[Discount]
-  with Validation[Discount]
+  extends FoxModel[Discount]
 
 class Discounts(tag: Tag) extends ObjectHeads[Discount](tag, "discounts") {
 
@@ -37,7 +36,7 @@ class Discounts(tag: Tag) extends ObjectHeads[Discount](tag, "discounts") {
 
 }
 
-object Discounts extends TableQueryWithId[Discount, Discounts](
+object Discounts extends FoxTableQuery[Discount, Discounts](
   idLens = GenLens[Discount](_.id))(new Discounts(_)) {
 
   def filterByContext(contextId: Int): QuerySeq = 

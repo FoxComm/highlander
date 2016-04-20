@@ -4,9 +4,8 @@ import java.time.Instant
 
 import cats.data.Xor
 import com.pellucid.sealerate
-import models.order.{OrderPayments, OrderPayment}
+import models.order.{OrderPayment, OrderPayments}
 import models.stripe.StripeCharge
-import models.{javaTimeSlickMapper, currencyColumnTypeMapper}
 import monocle.macros.GenLens
 import failures.Failures
 import slick.ast.BaseTypedType
@@ -14,11 +13,12 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.Money.Currency
 import utils._
+import utils.db._
 
 case class CreditCardCharge(id: Int = 0, creditCardId: Int, orderPaymentId: Int,
   chargeId: String, state: CreditCardCharge.State = CreditCardCharge.Cart, currency: Currency = Currency.USD,
   amount: Int, createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[CreditCardCharge]
+  extends FoxModel[CreditCardCharge]
   with FSM[CreditCardCharge.State, CreditCardCharge] {
 
   import CreditCardCharge._
@@ -57,7 +57,7 @@ object CreditCardCharge {
       chargeId = stripe.getId, state = Auth, currency = currency, amount = stripe.getAmount)
 }
 
-class CreditCardCharges(tag: Tag) extends GenericTable.TableWithId[CreditCardCharge](tag, "credit_card_charges") {
+class CreditCardCharges(tag: Tag) extends FoxTable[CreditCardCharge](tag, "credit_card_charges") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def creditCardId = column[Int]("credit_card_id")
   def orderPaymentId = column[Int]("order_payment_id")
@@ -74,7 +74,7 @@ class CreditCardCharges(tag: Tag) extends GenericTable.TableWithId[CreditCardCha
   def orderPayment  = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id)
 }
 
-object CreditCardCharges extends TableQueryWithId[CreditCardCharge, CreditCardCharges](
+object CreditCardCharges extends FoxTableQuery[CreditCardCharge, CreditCardCharges](
   idLens = GenLens[CreditCardCharge](_.id)
 )(new CreditCardCharges(_)) {
 }

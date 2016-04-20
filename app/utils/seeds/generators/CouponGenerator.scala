@@ -4,10 +4,8 @@ import models.product.SimpleContext
 import models.coupon._
 import models.objects._
 import services.Result
-import utils.DbResultT
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
+import utils.db._
+import utils.db.DbResultT._
 
 import payloads.{CreateCoupon, CreateCouponForm, CreateCouponShadow,
   CreateDiscountForm, CreateDiscountShadow}

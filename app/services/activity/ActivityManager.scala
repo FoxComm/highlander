@@ -4,9 +4,9 @@ import models.activity.{Activities, Activity}
 import responses.ActivityResponse
 import failures.NotFoundFailure404
 import services.Result
-import utils.DbResultT._
-import utils.DbResultT.implicits._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 object ActivityManager {
 

@@ -9,11 +9,9 @@ import models.payment.storecredit._
 import models.StoreAdmin
 import responses.{GiftCardResponse, StoreAdminResponse, StoreCreditResponse}
 import slick.driver.PostgresDriver.api._
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick._
-import utils.Slick.implicits._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 object CustomerCreditConverter {
 

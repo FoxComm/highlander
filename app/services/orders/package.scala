@@ -4,8 +4,7 @@ import failures.CartFailures.CustomerHasNoActiveOrder
 import failures.OrderFailures.EmptyRefNumFailure
 import models.traits.{AdminOriginator, CustomerOriginator, Originator}
 import models.order.{Order, Orders}
-import utils.Slick.DbResult
-import utils.Slick.implicits._
+import utils.db._
 import utils.aliases._
 
 package object orders {

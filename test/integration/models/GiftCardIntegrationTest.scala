@@ -5,11 +5,10 @@ import models.order.{OrderPayments, Orders}
 import models.payment.PaymentMethod
 import models.payment.giftcard.{GiftCardManuals, GiftCardManual, GiftCardAdjustments, GiftCards}
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.seeds.Seeds
 import Seeds.Factories
-import utils.Slick.implicits._
 
 class GiftCardIntegrationTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global

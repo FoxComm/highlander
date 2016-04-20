@@ -1,22 +1,22 @@
 package models.inventory.summary
 
 import java.time.Instant
-import models.javaTimeSlickMapper
+
 import models.inventory.{Skus, Warehouses}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.db._
 
 case class InventorySummary(id: Int = 0, skuId: Int, warehouseId: Int, sellableId: Int, backorderId: Int,
-  preorderId: Int, nonSellableId: Int, createdAt: Instant = Instant.now) extends ModelWithIdParameter[InventorySummary]
+  preorderId: Int, nonSellableId: Int, createdAt: Instant = Instant.now) extends FoxModel[InventorySummary]
 
 object InventorySummary {
   type AllSummaries = (SellableInventorySummary,PreorderInventorySummary, BackorderInventorySummary,
     NonSellableInventorySummary) // TODO: replace with case class
 }
 
-class InventorySummaries(tag: Tag) extends GenericTable.TableWithId[InventorySummary](tag, "inventory_summaries") {
+class InventorySummaries(tag: Tag) extends FoxTable[InventorySummary](tag, "inventory_summaries") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def skuId = column[Int]("sku_id")
   def warehouseId = column[Int]("warehouse_id")
@@ -37,7 +37,7 @@ class InventorySummaries(tag: Tag) extends GenericTable.TableWithId[InventorySum
   def nonsellable = foreignKey(NonSellableInventorySummaries.tableName, nonSellableId, NonSellableInventorySummaries)(_.id)
 }
 
-object InventorySummaries extends TableQueryWithId[InventorySummary, InventorySummaries](
+object InventorySummaries extends FoxTableQuery[InventorySummary, InventorySummaries](
   idLens = GenLens[InventorySummary](_.id)
 )(new InventorySummaries(_)) {
 

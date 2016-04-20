@@ -14,11 +14,9 @@ import responses.RmaResponse
 import responses.RmaResponse.Root
 import services.Result
 import services.rmas.Helpers._
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick._
-import utils.Slick.implicits._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 import slick.driver.PostgresDriver.api._
 
 object RmaLineItemUpdater {

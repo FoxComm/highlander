@@ -6,26 +6,23 @@ import cats.data.ValidatedNel
 import cats.implicits._
 import failures.CustomerFailures.CustomerEmailNotUnique
 import failures.Failure
-import models.javaTimeSlickMapper
 import models.location._
 import models.payment.creditcard.CreditCards
 import monocle.macros.GenLens
 import payloads.CreateCustomerPayload
 import slick.driver.PostgresDriver.api._
-import utils.GenericTable.TableWithId
 import utils.Litterbox._
 import utils.Passwords._
-import utils.Slick.DbResult
-import utils.Slick.implicits._
+import utils.Validation
 import utils.aliases.EC
-import utils.{ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.db._
 
 case class Customer(id: Int = 0, email: String, hashedPassword: Option[String] = None,
   name: Option[String] = None, isDisabled: Boolean = false, disabledBy: Option[Int] = None,
   isBlacklisted: Boolean = false, blacklistedBy: Option[Int] = None,
   phoneNumber: Option[String] = None, location: Option[String] = None,
   modality: Option[String] = None, isGuest: Boolean = false, createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[Customer]
+  extends FoxModel[Customer]
   with Validation[Customer] {
 
   import Validation._
@@ -65,7 +62,7 @@ object Customer {
   }
 }
 
-class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") {
+class Customers(tag: Tag) extends FoxTable[Customer](tag, "customers") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def isDisabled = column[Boolean]("is_disabled")
   def disabledBy = column[Option[Int]]("disabled_by")
@@ -86,7 +83,7 @@ class Customers(tag: Tag) extends TableWithId[Customer](tag, "customers") {
     location, modality, isGuest, createdAt) <>((Customer.apply _).tupled, Customer.unapply)
 }
 
-object Customers extends TableQueryWithId[Customer, Customers](
+object Customers extends FoxTableQuery[Customer, Customers](
   idLens = GenLens[Customer](_.id)
 )(new Customers(_)) {
 

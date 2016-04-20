@@ -2,8 +2,8 @@ package utils.seeds
 
 import models.inventory.Warehouses
 import models.product.SimpleProductData
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.seeds.generators._
 import scala.concurrent.ExecutionContext.Implicits.global
 

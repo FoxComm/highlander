@@ -4,8 +4,8 @@ import failures.{Failure, Failures}
 import failures.RmaFailures.EmptyRma
 import models.rma._
 import slick.driver.PostgresDriver.api._
-import utils.Slick._
 import utils.aliases._
+import utils.db._
 
 trait RmaValidation {
   def validate: DbResult[RmaValidatorResponse]

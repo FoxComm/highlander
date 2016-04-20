@@ -6,13 +6,13 @@ import failures.ShippingMethodFailures.ShippingMethodIsNotActive
 import models.order.{Order, OrderShippingMethods}
 import models.rules.QueryStatement
 import monocle.macros.GenLens
-import utils.ExPostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 case class ShippingMethod(id: Int = 0, parentId: Option[Int] = None, adminDisplayName: String,
   storefrontDisplayName: String, shippingCarrierId: Option[Int] = None, price: Int, isActive: Boolean = true,
   conditions: Option[QueryStatement] = None, restrictions: Option[QueryStatement] = None)
-  extends ModelWithIdParameter[ShippingMethod] {
+  extends FoxModel[ShippingMethod] {
 
   def mustBeActive: Failures Xor ShippingMethod =
     if(isActive) Xor.right(this) else Xor.left(ShippingMethodIsNotActive(id).single)
@@ -21,7 +21,7 @@ case class ShippingMethod(id: Int = 0, parentId: Option[Int] = None, adminDispla
 
 object ShippingMethod
 
-class ShippingMethods(tag: Tag) extends GenericTable.TableWithId[ShippingMethod](tag, "shipping_methods")  {
+class ShippingMethods(tag: Tag) extends FoxTable[ShippingMethod](tag, "shipping_methods")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def parentId = column[Option[Int]]("parent_id")
   def adminDisplayName = column[String]("admin_display_name")
@@ -36,7 +36,7 @@ class ShippingMethods(tag: Tag) extends GenericTable.TableWithId[ShippingMethod]
     isActive, conditions, restrictions) <> ((ShippingMethod.apply _).tupled, ShippingMethod.unapply)
 }
 
-object ShippingMethods extends TableQueryWithId[ShippingMethod, ShippingMethods](
+object ShippingMethods extends FoxTableQuery[ShippingMethod, ShippingMethods](
   idLens = GenLens[ShippingMethod](_.id)
 )(new ShippingMethods(_)) {
 

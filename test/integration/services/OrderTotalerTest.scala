@@ -11,10 +11,9 @@ import models.payment.giftcard.{GiftCardOrders, GiftCardOrder, GiftCards, GiftCa
 import models.shipping.{ShippingMethod, ShippingMethods}
 import services.orders.OrderTotaler
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.Money.Currency
-import utils.Slick.implicits._
 import utils.seeds.Seeds.Factories
 
 class OrderTotalerTest extends IntegrationTestBase {

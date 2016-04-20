@@ -7,7 +7,7 @@ import utils.seeds.Seeds
 import Seeds.Factories
 import failures.GeneralFailure
 import utils.jdbc._
-import utils.Slick.implicits._
+import utils.db._
 
 class OrderShippingAddressIntegrationTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global

@@ -10,12 +10,11 @@ import org.json4s.JsonAST.JValue
 import org.json4s.jackson.Serialization.writePretty
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.Slick.DbResult
-import utils.ExPostgresDriver.api._
+import slick.lifted.Tag
 import utils.JsonFormatters
-import utils.time.JavaTimeSlickMapper._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 import utils.aliases._
+import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 case class ActivityContext(
   userId: Int,
@@ -41,16 +40,11 @@ object ActivityContext {
  *
  * An activity can be part of many activity trails in multiple dimensions.
  */
-case class Activity(
-  id: Int = 0, 
-  activityType: ActivityType, 
-  data: Json, 
-  context: ActivityContext,
+case class Activity(id: Int = 0, activityType: ActivityType, data: Json, context: ActivityContext,
   createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[Activity]
-  with Validation[Activity]
+  extends FoxModel[Activity]
 
-class Activities(tag: Tag) extends GenericTable.TableWithId[Activity](tag, "activities")  {
+class Activities(tag: Tag) extends FoxTable[Activity](tag, "activities")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def activityType = column[ActivityType]("activity_type")
   def data = column[Json]("data")
@@ -65,7 +59,7 @@ class Activities(tag: Tag) extends GenericTable.TableWithId[Activity](tag, "acti
 // Opaque here means the scala type system cannot see the activity
 case class OpaqueActivity(activityType: ActivityType, data: Json)
 
-object Activities extends TableQueryWithId[Activity, Activities](
+object Activities extends FoxTableQuery[Activity, Activities](
   idLens = GenLens[Activity](_.id))(new Activities(_)) with LazyLogging {
 
   implicit val formats = JsonFormatters.phoenixFormats
@@ -83,7 +77,9 @@ object Activities extends TableQueryWithId[Activity, Activities](
   }
 
   def filterByType(activityType: ActivityType): QuerySeq = filter(_.activityType === activityType)
-  def filterByData(key: String, value: String): QuerySeq = filter(_.data+>>(key) === value)
-  def filterByData(activityType: ActivityType, key: String, value: String) : QuerySeq =
-    filter(_.activityType === activityType).filter(_.data+>>(key) === value)
+
+  def filterByData(key: String, value: String): QuerySeq = filter(_.data +>> key === value)
+
+  def filterByData(activityType: ActivityType, key: String, value: String): QuerySeq =
+    filter(_.activityType === activityType).filter(_.data +>> key === value)
 }

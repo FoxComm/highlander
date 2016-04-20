@@ -2,8 +2,8 @@ package services.notes
 
 import models.Note
 import models.order.{Order, Orders}
-import utils.Slick._
 import utils.aliases._
+import utils.db._
 
 object OrderNoteManager extends NoteManager[String, Order] {
 

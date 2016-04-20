@@ -6,7 +6,6 @@ import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
 import failures.CreditCardFailures.CannotUseInactiveCreditCard
 import failures.{Failure, Failures, NotFoundFailure404}
-import models.javaTimeSlickMapper
 import models.customer.Customers
 import models.location._
 import models.payment.PaymentMethod
@@ -17,10 +16,9 @@ import monocle.macros.GenLens
 import payloads.CreateCreditCard
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
-import utils.Slick.DbResult
-import utils.Slick.implicits._
 import utils._
 import utils.aliases._
+import utils.db._
 
 case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerId: Int, gatewayCustomerId: String,
   gatewayCardId: String, holderName: String, lastFour: String, expMonth: Int, expYear: Int,
@@ -28,7 +26,7 @@ case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerId: Int
   inWallet: Boolean = true, deletedAt: Option[Instant] = None, regionId: Int, addressName: String,
   address1: String, address2: Option[String] = None, city: String, zip: String, brand: String)
   extends PaymentMethod
-  with ModelWithIdParameter[CreditCard]
+  with FoxModel[CreditCard]
   with Addressable[CreditCard]
   with Validation[CreditCard] {
 
@@ -66,7 +64,7 @@ object CreditCard {
 }
 
 class CreditCards(tag: Tag)
-  extends GenericTable.TableWithId[CreditCard](tag, "credit_cards") {
+  extends FoxTable[CreditCard](tag, "credit_cards") {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def parentId = column[Option[Int]]("parent_id")
@@ -99,7 +97,7 @@ class CreditCards(tag: Tag)
   def region          = foreignKey(Regions.tableName, regionId, Regions)(_.id)
 }
 
-object CreditCards extends TableQueryWithId[CreditCard, CreditCards](
+object CreditCards extends FoxTableQuery[CreditCard, CreditCards](
   idLens = GenLens[CreditCard](_.id)
 )(new CreditCards(_)) {
 

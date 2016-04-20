@@ -4,10 +4,10 @@ import monocle.macros.GenLens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.db._
 
 case class ShippingRestriction(id:Int = 0, restrictionType: ShippingRestriction.RestrictionType, name: String, displayAnyway: Boolean)
-  extends ModelWithIdParameter[ShippingRestriction]
+  extends FoxModel[ShippingRestriction]
 
 object ShippingRestriction{
   sealed trait RestrictionType
@@ -24,7 +24,7 @@ object ShippingRestriction{
   })
 }
 
-class ShippingRestrictions(tag: Tag) extends GenericTable.TableWithId[ShippingRestriction](tag, "shipping_methods")  {
+class ShippingRestrictions(tag: Tag) extends FoxTable[ShippingRestriction](tag, "shipping_methods")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def restrictionType = column[ShippingRestriction.RestrictionType]("restriction_type")
   def name = column[String]("name")
@@ -33,6 +33,6 @@ class ShippingRestrictions(tag: Tag) extends GenericTable.TableWithId[ShippingRe
   def * = (id, restrictionType, name, displayAnyway) <> ((ShippingRestriction.apply _).tupled, ShippingRestriction.unapply)
 }
 
-object ShippingRestrictions extends TableQueryWithId[ShippingRestriction, ShippingRestrictions](
+object ShippingRestrictions extends FoxTableQuery[ShippingRestriction, ShippingRestrictions](
   idLens = GenLens[ShippingRestriction](_.id)
 )(new ShippingRestrictions(_))

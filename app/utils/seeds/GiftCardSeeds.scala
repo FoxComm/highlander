@@ -6,8 +6,8 @@ import models.payment.giftcard._
 import GiftCard.{buildAppeasement ⇒ build}
 import models.{Notes, Note}
 import payloads.{GiftCardCreateByCsr ⇒ payload}
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 
 trait GiftCardSeeds {
 

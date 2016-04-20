@@ -16,11 +16,9 @@ import models.shipping.{Shipment, Shipments, ShippingMethods}
 import models.{Note, Notes}
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
-import utils.DbResultT
-import utils.DbResultT.implicits._
-import utils.DbResultT.{DbResultT, _}
 import utils.Money.Currency
-import utils.Slick.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.time
 import scala.concurrent.ExecutionContext.Implicits.global
 

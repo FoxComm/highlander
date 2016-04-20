@@ -2,19 +2,17 @@ package models.rma
 
 import java.time.Instant
 
-import models.javaTimeSlickMapper
 import models.shipping.{Shipment, Shipments}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.db._
 
 case class RmaLineItemShippingCost(id: Int = 0, rmaId: Int, shipmentId: Int, createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[RmaLineItemShippingCost]
+  extends FoxModel[RmaLineItemShippingCost]
 
 object RmaLineItemShippingCost {}
 
-class RmaLineItemShippingCosts(tag: Tag) extends
-GenericTable.TableWithId[RmaLineItemShippingCost](tag, "rma_line_item_shipments") {
+class RmaLineItemShippingCosts(tag: Tag) extends FoxTable[RmaLineItemShippingCost](tag, "rma_line_item_shipments") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def rmaId = column[Int]("rma_id")
   def shipmentId = column[Int]("shipment_id")
@@ -26,7 +24,7 @@ GenericTable.TableWithId[RmaLineItemShippingCost](tag, "rma_line_item_shipments"
   def shipment = foreignKey(Shipments.tableName, shipmentId, Shipments)(_.id)
 }
 
-object RmaLineItemShippingCosts extends TableQueryWithId[RmaLineItemShippingCost, RmaLineItemShippingCosts](
+object RmaLineItemShippingCosts extends FoxTableQuery[RmaLineItemShippingCost, RmaLineItemShippingCosts](
   idLens = GenLens[RmaLineItemShippingCost](_.id)
 )(new RmaLineItemShippingCosts(_)){
 

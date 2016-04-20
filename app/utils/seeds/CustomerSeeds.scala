@@ -4,9 +4,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.customer.{Customers, Customer}
 import models.{Notes, Note}
-import utils.DbResultT._
-import utils.DbResultT.implicits._
 import cats.implicits._
+import utils.db.DbResultT._
+import utils.db._
 
 trait CustomerSeeds {
 

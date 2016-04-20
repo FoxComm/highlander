@@ -2,10 +2,10 @@ package models
 
 import models.inventory.summary._
 import util.IntegrationTestBase
-import utils.Slick.implicits._
+import utils.db._
 import slick.driver.PostgresDriver.api._
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

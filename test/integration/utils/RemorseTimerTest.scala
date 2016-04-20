@@ -7,20 +7,14 @@ import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.testkit.{TestActorRef, TestKit}
 
-import models.order.{Orders, Order}
-import Order.FulfillmentStarted
-import models.StoreAdmins
+import models.order.Order.FulfillmentStarted
+import models.order.{Order, Orders}
 import org.scalatest.BeforeAndAfterAll
-import org.scalatest.concurrent.ScalaFutures
 import services.actors._
-import services.orders.OrderUpdater
 import slick.driver.PostgresDriver.api._
-import util.{DbTestSupport, IntegrationTestBase}
-import utils.seeds.Seeds
-import Seeds.Factories
-import utils.Slick.implicits._
-
-import utils.time.JavaTimeSlickMapper._
+import util.IntegrationTestBase
+import utils.db._
+import utils.seeds.Seeds.Factories
 
 class RemorseTimerTest(_system: ActorSystem) extends TestKit(_system) with IntegrationTestBase with BeforeAndAfterAll {
 

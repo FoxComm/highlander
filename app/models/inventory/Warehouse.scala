@@ -2,12 +2,12 @@ package models.inventory
 
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.db._
 
-case class Warehouse(id: Int = 0, name: String) extends ModelWithIdParameter[Warehouse]
+case class Warehouse(id: Int = 0, name: String) extends FoxModel[Warehouse]
 
 class Warehouses(tag: Tag)
-  extends GenericTable.TableWithId[Warehouse](tag, "warehouses")  {
+  extends FoxTable[Warehouse](tag, "warehouses")  {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
@@ -21,7 +21,7 @@ object Warehouse {
   val HARDCODED_WAREHOUSE_ID = 1
 }
 
-object Warehouses extends TableQueryWithId[Warehouse, Warehouses](idLens = GenLens[Warehouse](_.id)
+object Warehouses extends FoxTableQuery[Warehouse, Warehouses](idLens = GenLens[Warehouse](_.id)
 )(new Warehouses(_)) {
 
   def findByName(name: String): Query[Warehouses, Warehouse, Seq] =

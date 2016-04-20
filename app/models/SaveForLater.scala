@@ -5,11 +5,11 @@ import java.time.Instant
 import models.customer.Customers
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.db._
 
 case class SaveForLater(id: Int = 0, customerId: Int = 0, 
   skuId: Int, createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[SaveForLater] {
+  extends FoxModel[SaveForLater] {
 
 }
 
@@ -17,7 +17,7 @@ object SaveForLater {
 
 }
 
-class SaveForLaters(tag: Tag) extends GenericTable.TableWithId[SaveForLater](tag, "save_for_later") {
+class SaveForLaters(tag: Tag) extends FoxTable[SaveForLater](tag, "save_for_later") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def customerId = column[Int]("customer_id")
   def skuId = column[Int]("sku_id")
@@ -28,7 +28,7 @@ class SaveForLaters(tag: Tag) extends GenericTable.TableWithId[SaveForLater](tag
   def customer = foreignKey(Customers.tableName, customerId, Customers)(_.id)
 }
 
-object SaveForLaters extends TableQueryWithId[SaveForLater, SaveForLaters](
+object SaveForLaters extends FoxTableQuery[SaveForLater, SaveForLaters](
   idLens = GenLens[SaveForLater](_.id)
 )(new SaveForLaters(_)) {
 

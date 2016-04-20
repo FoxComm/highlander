@@ -2,8 +2,8 @@ package services.notes
 
 import models.inventory.{Sku, Skus}
 import models.Note
-import utils.Slick._
 import utils.aliases._
+import utils.db._
 
 object SkuNoteManager extends NoteManager[String, Sku] {
 

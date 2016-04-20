@@ -4,8 +4,7 @@ import models.{Assignment, NotificationSubscription}
 import models.rma._
 import responses.AllRmas._
 import slick.driver.PostgresDriver.api._
-import utils.Slick._
-import utils.Slick.implicits._
+import utils.db._
 import utils.aliases._
 
 object RmaWatchersManager extends AssignmentsManager[String, Rma] {

@@ -4,8 +4,7 @@ import models.{Assignment, NotificationSubscription}
 import models.inventory.{Sku, Skus}
 import responses.SkuResponses.SkuHeadResponse.{Root, build}
 import slick.driver.PostgresDriver.api._
-import utils.Slick._
-import utils.Slick.implicits._
+import utils.db._
 import utils.aliases._
 
 object SkuWatchersManager extends AssignmentsManager[String, Sku] {

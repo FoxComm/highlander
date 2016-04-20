@@ -8,12 +8,10 @@ import models.order.{Order, Orders}
 import payloads.{AssignmentPayload, BulkAssignmentPayload}
 import responses.{AssignmentResponse, BatchMetadata, BatchMetadataSource, BatchResponse, TheResponse}
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
 import utils.seeds.Seeds.Factories
 import scala.concurrent.ExecutionContext.Implicits.global
-
+import utils.db._
+import utils.db.DbResultT._
 import responses.order.AllOrders
 
 class AssignmentsIntegrationTest extends IntegrationTestBase

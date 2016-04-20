@@ -2,23 +2,23 @@ package models.inventory
 
 import java.time.Instant
 
-import cats.data.ValidatedNel
 import cats.implicits._
+import cats.data.ValidatedNel
 import com.pellucid.sealerate
 import failures.Failure
 import models.inventory.InventoryAdjustment._
-import models.javaTimeSlickMapper
 import monocle.macros.GenLens
 import org.json4s.JsonAST.JValue
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.lifted.Tag
-import utils.ExPostgresDriver.api._
-import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.db.ExPostgresDriver.api._
+import utils.db._
+import utils.{ADT, Validation}
 
 case class InventoryAdjustment(id: Int = 0, summaryId: Int, change: Int, newQuantity: Int,
   newAfs: Int, state: State, skuType: SkuType, metadata: JValue, createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[InventoryAdjustment] {
+  extends FoxModel[InventoryAdjustment] {
 
   import Validation._
 
@@ -66,7 +66,7 @@ object InventoryAdjustment {
 }
 
 class InventoryAdjustments(tag: Tag)
-  extends GenericTable.TableWithId[InventoryAdjustment](tag, "inventory_adjustments") {
+  extends FoxTable[InventoryAdjustment](tag, "inventory_adjustments") {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def summaryId = column[Int]("summary_id")
@@ -82,7 +82,7 @@ class InventoryAdjustments(tag: Tag)
     (InventoryAdjustment.apply _).tupled, InventoryAdjustment.unapply)
 }
 
-object InventoryAdjustments extends TableQueryWithId[InventoryAdjustment, InventoryAdjustments](
+object InventoryAdjustments extends FoxTableQuery[InventoryAdjustment, InventoryAdjustments](
   idLens = GenLens[InventoryAdjustment](_.id)
 )(new InventoryAdjustments(_)) {
 

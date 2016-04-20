@@ -4,11 +4,10 @@ import models.StoreAdmin
 import models.order.Orders
 import responses.order.FullOrder
 import services.{LogActivity, Result}
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
-import utils.time._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
+import utils.time._
 
 object OrderUpdater {
 

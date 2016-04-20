@@ -14,11 +14,9 @@ import services.LogActivity.{orderBulkStateChanged, orderStateChanged}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
-import utils.Slick.implicits._
-import utils.Slick.{DbResult, _}
-import utils.DbResultT._
-import utils.DbResultT.implicits._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 object OrderStateUpdater {
 

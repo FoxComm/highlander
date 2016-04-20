@@ -1,26 +1,19 @@
 package models.rma
 
-import models.inventory.{Skus, Sku}
-import models.objects._
-
-import monocle.macros.GenLens
 import java.time.Instant
 
-import utils.ExPostgresDriver.api._
-import utils.Slick.implicits._
-import utils.time.JavaTimeSlickMapper._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
-
-import slick.ast.BaseTypedType
-import slick.jdbc.JdbcType
-
+import models.inventory.{Sku, Skus}
+import models.objects._
+import monocle.macros.GenLens
+import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 case class RmaLineItemSku(id: Int = 0, rmaId: Int, skuId: Int, skuShadowId: Int, createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[RmaLineItemSku]
+  extends FoxModel[RmaLineItemSku]
 
 object RmaLineItemSku {}
 
-class RmaLineItemSkus(tag: Tag) extends GenericTable.TableWithId[RmaLineItemSku](tag, "rma_line_item_skus") {
+class RmaLineItemSkus(tag: Tag) extends FoxTable[RmaLineItemSku](tag, "rma_line_item_skus") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def rmaId = column[Int]("rma_id")
   def skuId = column[Int]("sku_id")
@@ -32,7 +25,7 @@ class RmaLineItemSkus(tag: Tag) extends GenericTable.TableWithId[RmaLineItemSku]
   def shadow = foreignKey(ObjectShadows.tableName, skuShadowId, ObjectShadows)(_.id)
 }
 
-object RmaLineItemSkus extends TableQueryWithId[RmaLineItemSku, RmaLineItemSkus](
+object RmaLineItemSkus extends FoxTableQuery[RmaLineItemSku, RmaLineItemSkus](
   idLens = GenLens[RmaLineItemSku](_.id)
 )(new RmaLineItemSkus(_)){
 

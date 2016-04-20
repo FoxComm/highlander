@@ -5,9 +5,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import models.order.Orders
 import models.rma._
 import models.{Note, Notes}
-import utils.Slick.implicits._
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 
 trait RmaSeeds {
 

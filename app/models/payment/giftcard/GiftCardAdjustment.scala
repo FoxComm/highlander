@@ -4,8 +4,7 @@ import java.time.Instant
 
 import cats.data.Xor
 import com.pellucid.sealerate
-import models.order.{OrderPayments, OrderPayment}
-import models.javaTimeSlickMapper
+import models.order.{OrderPayment, OrderPayments}
 import models.payment.giftcard.GiftCardAdjustment._
 import monocle.macros.GenLens
 import failures.Failures
@@ -14,14 +13,14 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import slick.lifted.ColumnOrdered
 import utils.CustomDirectives.SortAndPage
-import utils.Slick.implicits._
-import utils.{ADT, CustomDirectives, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.{ADT, CustomDirectives, FSM}
 import utils.aliases._
+import utils.db._
 
 case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId: Option[Int],
   storeAdminId: Option[Int] = None, credit: Int, debit: Int, availableBalance: Int, state: State = Auth, 
   createdAt: Instant = Instant.now())
-  extends ModelWithIdParameter[GiftCardAdjustment]
+  extends FoxModel[GiftCardAdjustment]
   with FSM[GiftCardAdjustment.State, GiftCardAdjustment] {
 
   import GiftCardAdjustment._
@@ -55,7 +54,7 @@ object GiftCardAdjustment {
 }
 
 class GiftCardAdjustments(tag: Tag)
-  extends GenericTable.TableWithId[GiftCardAdjustment](tag, "gift_card_adjustments")
+  extends FoxTable[GiftCardAdjustment](tag, "gift_card_adjustments")
    {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
@@ -74,7 +73,7 @@ class GiftCardAdjustments(tag: Tag)
   def payment = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id.?)
 }
 
-object GiftCardAdjustments extends TableQueryWithId[GiftCardAdjustment, GiftCardAdjustments](
+object GiftCardAdjustments extends FoxTableQuery[GiftCardAdjustment, GiftCardAdjustments](
   idLens = GenLens[GiftCardAdjustment](_.id)
   )(new GiftCardAdjustments(_)){
 

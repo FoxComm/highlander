@@ -4,9 +4,7 @@ import models.{Assignment, NotificationSubscription}
 import models.payment.giftcard._
 import responses.GiftCardResponse._
 import slick.driver.PostgresDriver.api._
-import utils.Money.Currency
-import utils.Slick._
-import utils.Slick.implicits._
+import utils.db._
 import utils.aliases._
 
 object GiftCardWatchersManager extends AssignmentsManager[String, GiftCard] {

@@ -9,12 +9,9 @@ import models.objects.{ObjectCommit, ObjectCommits, ObjectContexts, ObjectForms,
 import models.product.{SimpleContext, SimpleSku, SimpleSkuShadow}
 import responses.SkuResponses.FullSkuResponse
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
 import utils.Money.Currency
-import utils.Slick.implicits._
-import slick.driver.PostgresDriver.api._
-import org.json4s.jackson.JsonMethods._
+import utils.db._
+import utils.db.DbResultT._
 
 class SkuIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
   "GET v1/skus/full/:context/:code" - {

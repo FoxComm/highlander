@@ -3,12 +3,12 @@ package time
 import java.time.{Instant, ZoneId, ZonedDateTime}
 
 import util.{DbTestSupport, IntegrationTestBase}
+import utils.db._
 
 class JavaTimeMapperTest extends IntegrationTestBase with DbTestSupport {
   import concurrent.ExecutionContext.Implicits.global
 
   import api._
-  import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
 
   "java.time mapper" - {
     class Cards(tag: Tag) extends Table[(Long, Instant)](tag, "java_time_test") {

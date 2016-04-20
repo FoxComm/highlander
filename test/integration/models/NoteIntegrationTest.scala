@@ -2,7 +2,7 @@ package models
 
 import util.CustomMatchers._
 import util.IntegrationTestBase
-import utils.Slick.implicits._
+import utils.db._
 import utils.seeds.Seeds.Factories
 
 @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.AsInstanceOf"))

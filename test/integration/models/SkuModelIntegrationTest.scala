@@ -1,22 +1,14 @@
 package models
 
-import models.product.{Mvp, SimpleContext}
 import models.objects._
 import models.order.lineitems.OrderLineItemSkus
-import org.scalatest.prop.TableDrivenPropertyChecks._
-import org.scalatest.prop.Tables.Table
+import models.product.{Mvp, SimpleContext}
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
-import utils.seeds.Seeds
-import Seeds.Factories
-
-import org.scalatest.prop.TableDrivenPropertyChecks._
-import org.scalatest.prop.Tables.Table
+import utils.db.DbResultT._
+import utils.db._
+import utils.seeds.Seeds.Factories
 
 class SkuModelIntegrationTest extends IntegrationTestBase {
-  import api._
   import concurrent.ExecutionContext.Implicits.global
 
   "Skus" - {

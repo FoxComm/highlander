@@ -1,19 +1,18 @@
 package models.rma
 
 import models.payment.PaymentMethod
-import models.payment.creditcard.{CreditCards, CreditCard}
+import models.payment.creditcard.{CreditCard, CreditCards}
 import models.payment.giftcard.GiftCard
-import models.currencyColumnTypeMapper
 import models.payment.storecredit.StoreCredit
 import models.stripe._
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import utils.Money._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.db._
 
 case class RmaPayment(id: Int = 0, rmaId: Int = 0, amount: Int = 0,
   currency: Currency = Currency.USD, paymentMethodId: Int, paymentMethodType: PaymentMethod.Type)
-  extends ModelWithIdParameter[RmaPayment] {
+  extends FoxModel[RmaPayment] {
 
   def isCreditCard:   Boolean = paymentMethodType == PaymentMethod.CreditCard
   def isGiftCard:     Boolean = paymentMethodType == PaymentMethod.GiftCard
@@ -38,7 +37,7 @@ object RmaPayment {
 
 }
 
-class RmaPayments(tag: Tag) extends GenericTable.TableWithId[RmaPayment](tag, "rma_payments") {
+class RmaPayments(tag: Tag) extends FoxTable[RmaPayment](tag, "rma_payments") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def rmaId = column[Int]("rma_id")
   def paymentMethodId = column[Int]("payment_method_id")
@@ -52,7 +51,7 @@ class RmaPayments(tag: Tag) extends GenericTable.TableWithId[RmaPayment](tag, "r
   def rma = foreignKey(Rmas.tableName, rmaId, Rmas)(_.id)
 }
 
-object RmaPayments extends TableQueryWithId[RmaPayment, RmaPayments](
+object RmaPayments extends FoxTableQuery[RmaPayment, RmaPayments](
   idLens = GenLens[RmaPayment](_.id)
 )(new RmaPayments(_)){
 

@@ -4,8 +4,7 @@ import models.{Assignment, NotificationSubscription}
 import models.customer._
 import responses.CustomerResponse.{Root, build}
 import slick.driver.PostgresDriver.api._
-import utils.Slick._
-import utils.Slick.implicits._
+import utils.db._
 import utils.aliases._
 
 object CustomerAssignmentsManager extends AssignmentsManager[Int, Customer] {

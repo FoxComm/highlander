@@ -2,8 +2,8 @@ package services.notes
 
 import models.rma.{Rma, Rmas}
 import models.Note
-import utils.Slick._
 import utils.aliases._
+import utils.db._
 
 object RmaNoteManager extends NoteManager[String, Rma] {
 

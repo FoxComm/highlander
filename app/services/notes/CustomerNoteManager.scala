@@ -2,8 +2,8 @@ package services.notes
 
 import models.Note
 import models.customer.{Customer, Customers}
-import utils.Slick._
 import utils.aliases._
+import utils.db._
 
 object CustomerNoteManager extends NoteManager[Int, Customer] {
 

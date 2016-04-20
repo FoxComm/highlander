@@ -3,17 +3,16 @@ package models.sharedsearch
 import java.time.Instant
 
 import models.order.Orders
-import models.{StoreAdmin, StoreAdmins, javaTimeSlickMapper}
+import models.{StoreAdmin, StoreAdmins}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
-import utils.aliases._
 import models.sharedsearch.SharedSearches.scope._
+import utils.db._
 
 case class SharedSearchAssociation(id: Int = 0, sharedSearchId: Int, storeAdminId: Int,
   createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[SharedSearchAssociation]
+  extends FoxModel[SharedSearchAssociation]
 
 object SharedSearchAssociation {
   def build(search: SharedSearch, admin: StoreAdmin): SharedSearchAssociation = {
@@ -22,7 +21,7 @@ object SharedSearchAssociation {
 }
 
 class SharedSearchAssociations(tag: Tag)
-  extends GenericTable.TableWithId[SharedSearchAssociation](tag, "shared_search_associations") {
+  extends FoxTable[SharedSearchAssociation](tag, "shared_search_associations") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def sharedSearchId = column[Int]("shared_search_id")
   def storeAdminId = column[Int]("store_admin_id")
@@ -34,7 +33,7 @@ class SharedSearchAssociations(tag: Tag)
   def storeAdmin = foreignKey(StoreAdmins.tableName, storeAdminId, StoreAdmins)(_.id)
 }
 
-object SharedSearchAssociations extends TableQueryWithId[SharedSearchAssociation, SharedSearchAssociations](
+object SharedSearchAssociations extends FoxTableQuery[SharedSearchAssociation, SharedSearchAssociations](
   idLens = GenLens[SharedSearchAssociation](_.id)
 )(new SharedSearchAssociations(_)) {
 

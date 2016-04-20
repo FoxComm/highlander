@@ -9,14 +9,11 @@ import responses.AdminNotes
 import responses.AdminNotes.Root
 import services._
 import slick.driver.PostgresDriver.api._
-import utils.DbResultT._
-import utils.ModelWithIdParameter
-import utils.DbResultT.implicits._
-import utils.Slick._
-import utils.Slick.implicits._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
-trait NoteManager[K, T <: ModelWithIdParameter[T]] {
+trait NoteManager[K, T <: FoxModel[T]] {
   // Define this methods in inherit object
   def noteType(): Note.ReferenceType
   def fetchEntity(key: K)(implicit ec: EC, db: DB, ac: AC): DbResult[T]
@@ -70,7 +67,7 @@ trait NoteManager[K, T <: ModelWithIdParameter[T]] {
     _      ← * <~ LogActivity.noteDeleted(admin, entity, note)
   } yield ()
 
-  private def forModel[M <: ModelWithIdParameter[M]](finder: Notes.QuerySeq)
+  private def forModel[M <: FoxModel[M]](finder: Notes.QuerySeq)
     (implicit ec: EC, db: DB, ac: AC): DbResult[Seq[Root]] = {
     val query = for (notes ← finder; authors ← notes.author) yield (notes, authors)
     DbResult.fromDbio(query.result.map(_.map { case (note, author) ⇒ AdminNotes.build(note, author) }))

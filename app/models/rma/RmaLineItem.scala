@@ -3,19 +3,19 @@ package models.rma
 import java.time.Instant
 
 import com.pellucid.sealerate
-import models.javaTimeSlickMapper
 import models.rma.RmaLineItem._
 import monocle.macros.GenLens
 import payloads.RmaSkuLineItemsPayload
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
-import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.db._
+import utils.ADT
 
 case class RmaLineItem(id: Int = 0, referenceNumber: String = "", rmaId: Int, reasonId: Int, 
   originId: Int, originType: OriginType, quantity: Int = 1, isReturnItem: Boolean = false, 
   inventoryDisposition: InventoryDisposition = Putaway, createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[RmaLineItem] {
+  extends FoxModel[RmaLineItem] {
 
 }
 
@@ -74,7 +74,7 @@ object RmaLineItem {
     InventoryDisposition.slickColumn
 }
 
-class RmaLineItems(tag: Tag) extends GenericTable.TableWithId[RmaLineItem](tag, "rma_line_items") {
+class RmaLineItems(tag: Tag) extends FoxTable[RmaLineItem](tag, "rma_line_items") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def referenceNumber = column[String]("reference_number")
   def rmaId = column[Int]("rma_id")
@@ -92,7 +92,7 @@ class RmaLineItems(tag: Tag) extends GenericTable.TableWithId[RmaLineItem](tag, 
   def skuLineItems = foreignKey(RmaLineItemSkus.tableName, originId, RmaLineItemSkus)(_.id)
 }
 
-object RmaLineItems extends TableQueryWithId[RmaLineItem, RmaLineItems](
+object RmaLineItems extends FoxTableQuery[RmaLineItem, RmaLineItems](
   idLens = GenLens[RmaLineItem](_.id)
 )(new RmaLineItems(_)) {
 }

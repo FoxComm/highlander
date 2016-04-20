@@ -7,11 +7,9 @@ import services._
 import models.objects._
 import responses.ObjectResponses._
 import slick.driver.PostgresDriver.api._
-import utils.DbResultT
-import utils.DbResultT._
-import utils.DbResultT.implicits._
 import utils.IlluminateAlgorithm
-import utils.Slick.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import payloads.{CreateObjectContext, UpdateObjectContext}
 
 import failures.ObjectFailures._

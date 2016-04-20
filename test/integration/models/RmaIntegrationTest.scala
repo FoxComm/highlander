@@ -7,7 +7,7 @@ import models.customer.Customers
 import models.order.{Order, Orders}
 import models.rma.{Rma, Rmas}
 import util.IntegrationTestBase
-import utils.Slick.implicits._
+import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.time._
 

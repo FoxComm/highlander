@@ -4,8 +4,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 import models.location.Address
 import models.customer.Customer
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import GeneratorUtils.randomString
 
 import faker._;

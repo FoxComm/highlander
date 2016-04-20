@@ -4,7 +4,6 @@ import java.time.Instant
 
 import cats.data.Xor
 import com.pellucid.sealerate
-import models.javaTimeSlickMapper
 import models.order.OrderPayments
 import models.payment.storecredit.StoreCreditAdjustment._
 import monocle.macros.GenLens
@@ -14,13 +13,12 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import slick.lifted.ColumnOrdered
 import utils.CustomDirectives.SortAndPage
-import utils.Slick.implicits._
-import utils.{ADT, CustomDirectives, FSM, GenericTable, ModelWithIdParameter, TableQueryWithId}
-import utils.aliases._
+import utils.{ADT, CustomDirectives, FSM}
+import utils.db._
 
 case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, orderPaymentId: Option[Int],
   storeAdminId: Option[Int] = None, debit: Int, availableBalance: Int, state: State = Auth, createdAt: Instant = Instant.now())
-  extends ModelWithIdParameter[StoreCreditAdjustment]
+  extends FoxModel[StoreCreditAdjustment]
   with FSM[StoreCreditAdjustment.State, StoreCreditAdjustment] {
 
   import StoreCreditAdjustment._
@@ -50,7 +48,7 @@ object StoreCreditAdjustment {
 }
 
 class StoreCreditAdjustments(tag: Tag)
-  extends GenericTable.TableWithId[StoreCreditAdjustment](tag, "store_credit_adjustments") {
+  extends FoxTable[StoreCreditAdjustment](tag, "store_credit_adjustments") {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def storeCreditId = column[Int]("store_credit_id")
@@ -69,7 +67,7 @@ class StoreCreditAdjustments(tag: Tag)
 }
 
 object StoreCreditAdjustments
-  extends TableQueryWithId[StoreCreditAdjustment, StoreCreditAdjustments](
+  extends FoxTableQuery[StoreCreditAdjustment, StoreCreditAdjustments](
   idLens = GenLens[StoreCreditAdjustment](_.id)
   )(new StoreCreditAdjustments(_)){
 

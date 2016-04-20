@@ -2,22 +2,19 @@ package models.objects
 
 import java.time.Instant
 
-import models.Aliases.Json
 import monocle.macros.GenLens
-import utils.ExPostgresDriver.api._
 import utils.JsonFormatters
-import utils.time.JavaTimeSlickMapper._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 /**
  * A ObjectCommit is a tree of commits, each pointing to a form shadow.
  */
 case class ObjectCommit(id: Int = 0, formId: Int, shadowId: Int,
   reasonId: Option[Int] = None, previousId: Option[Int] = None, createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[ObjectCommit]
-  with Validation[ObjectCommit]
+  extends FoxModel[ObjectCommit]
 
-class ObjectCommits(tag: Tag) extends GenericTable.TableWithId[ObjectCommit](tag, "object_commits")  {
+class ObjectCommits(tag: Tag) extends FoxTable[ObjectCommit](tag, "object_commits")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def formId = column[Int]("form_id")
   def shadowId = column[Int]("shadow_id")
@@ -32,7 +29,7 @@ class ObjectCommits(tag: Tag) extends GenericTable.TableWithId[ObjectCommit](tag
 
 }
 
-object ObjectCommits extends TableQueryWithId[ObjectCommit, ObjectCommits](
+object ObjectCommits extends FoxTableQuery[ObjectCommit, ObjectCommits](
   idLens = GenLens[ObjectCommit](_.id))(new ObjectCommits(_)) {
 
   implicit val formats = JsonFormatters.phoenixFormats

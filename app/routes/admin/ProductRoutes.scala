@@ -8,7 +8,7 @@ import models.StoreAdmin
 import services.objects.ObjectManager
 import services.product.ProductManager
 import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
+import utils.db._
 import utils.Http._
 import utils.CustomDirectives._
 

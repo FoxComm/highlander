@@ -4,14 +4,13 @@ import scala.concurrent.Future
 
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.GenericTable.TableWithId
-import utils.{ModelWithIdParameter, TableQueryWithId}
+import utils.db._
 
 case class CustomerRank(id: Int = 0, revenue: Int = 0, rank: Int = 0)
-  extends ModelWithIdParameter[CustomerRank] {
+  extends FoxModel[CustomerRank] {
 }
 
-class CustomersRanks(tag: Tag) extends TableWithId[CustomerRank](tag, "customers_ranking") {
+class CustomersRanks(tag: Tag) extends FoxTable[CustomerRank](tag, "customers_ranking") {
   def id = column[Int]("id", O.PrimaryKey)
   def revenue = column[Int]("revenue")
   def rank = column[Int]("rank")
@@ -19,7 +18,7 @@ class CustomersRanks(tag: Tag) extends TableWithId[CustomerRank](tag, "customers
   def * = (id, revenue, rank) <>((CustomerRank.apply _).tupled, CustomerRank.unapply)
 }
 
-object CustomersRanks extends TableQueryWithId[CustomerRank, CustomersRanks](
+object CustomersRanks extends FoxTableQuery[CustomerRank, CustomersRanks](
   idLens = GenLens[CustomerRank](_.id)
 )(new CustomersRanks(_)) {
 

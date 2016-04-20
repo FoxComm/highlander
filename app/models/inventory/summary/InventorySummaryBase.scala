@@ -5,16 +5,15 @@ import java.time.Instant
 import cats.data.ValidatedNel
 import cats.implicits._
 import failures.Failure
-import models.javaTimeSlickMapper
 import monocle.Lens
 import slick.driver.PostgresDriver.api._
 import slick.lifted.{Query, Tag}
-import utils.Slick.DbResult
+import utils.Validation
 import utils.aliases.EC
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.db._
 
-trait InventorySummaryBase[A <: ModelWithIdParameter[A]]
-  extends ModelWithIdParameter[A]
+trait InventorySummaryBase[A <: FoxModel[A]]
+  extends FoxModel[A]
   with Validation[A] { self: A ⇒
 
   def onHand: Int
@@ -35,7 +34,7 @@ trait InventorySummaryBase[A <: ModelWithIdParameter[A]]
 }
 
 abstract class InventorySummariesTableBase[A <: InventorySummaryBase[A]](tag: Tag, tableName: String)
-  extends GenericTable.TableWithId[A](tag, tableName) {
+  extends FoxTable[A](tag, tableName) {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def onHand = column[Int]("on_hand")
@@ -47,7 +46,7 @@ abstract class InventorySummariesTableBase[A <: InventorySummaryBase[A]](tag: Ta
 
 abstract class InventorySummariesBase[A <: InventorySummaryBase[A], As <: InventorySummariesTableBase[A]]
 (idLens: Lens[A, A#Id])(construct: Tag ⇒ As)
-  extends TableQueryWithId[A, As](idLens)(construct) {
+  extends FoxTableQuery[A, As](idLens)(construct) {
 
   override type QuerySeq = Query[As, A, Seq]
 

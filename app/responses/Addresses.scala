@@ -8,9 +8,9 @@ import models.customer.Customer
 import models.location.{Address, Region}
 import models.order.{OrderShippingAddress, OrderShippingAddresses}
 import models.payment.creditcard.CreditCard
-import utils.Slick.DbResult
 import slick.driver.PostgresDriver.api._
 import utils.aliases.EC
+import utils.db._
 
 object Addresses {
   case class Root(id: Int, customer: Option[Customer] = None, region: Region, name: String, address1: String,

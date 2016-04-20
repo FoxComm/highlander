@@ -4,8 +4,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.implicits._
 import models.location.{Addresses, Address}
-import utils.DbResultT.implicits._
-import utils.DbResultT.{DbResultT, _}
+import utils.db.DbResultT._
+import utils.db._
 
 trait AddressSeeds {
 

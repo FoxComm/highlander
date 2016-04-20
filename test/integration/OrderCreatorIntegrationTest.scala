@@ -11,8 +11,8 @@ import responses.order.FullOrder
 import FullOrder.Root
 import services.orders.OrderCreator
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.seeds.Seeds
 import Seeds.Factories
 import cats.implicits._

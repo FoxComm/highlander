@@ -5,7 +5,6 @@ import Country._
 import Region._
 import responses.CountryWithRegions
 import util.IntegrationTestBase
-import utils.Slick.implicits._
 
 class LocationsIntegrationTest extends IntegrationTestBase with HttpSupport {
 

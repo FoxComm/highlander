@@ -3,7 +3,7 @@ package services.rmas
 import cats.implicits._
 import models.rma.Rma
 import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
+import utils.db._
 import utils.aliases._
 
 object RmaTotaler {

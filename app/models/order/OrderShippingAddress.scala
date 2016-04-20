@@ -2,21 +2,18 @@ package models.order
 
 import java.time.Instant
 
-import models.javaTimeSlickMapper
 import models.location.{Address, Addresses, Region, Regions}
 import models.traits.Addressable
 import monocle.macros.GenLens
 import payloads.UpdateAddressPayload
 import slick.driver.PostgresDriver.api._
-import utils.GenericTable.TableWithId
-import utils.Slick._
-import utils.{ModelWithIdParameter, TableQueryWithId}
 import utils.aliases._
+import utils.db._
 
 case class OrderShippingAddress(id: Int = 0, orderId: Int = 0, regionId: Int, name: String,
   address1: String, address2: Option[String], city: String, zip: String, phoneNumber: Option[String],
   createdAt: Instant = Instant.now, updatedAt: Instant = Instant.now)
-  extends ModelWithIdParameter[OrderShippingAddress]
+  extends FoxModel[OrderShippingAddress]
   with Addressable[OrderShippingAddress] {
 
   def instance: OrderShippingAddress = { this }
@@ -45,7 +42,7 @@ object OrderShippingAddress {
   }
 }
 
-class OrderShippingAddresses(tag: Tag) extends TableWithId[OrderShippingAddress](tag, "order_shipping_addresses")
+class OrderShippingAddresses(tag: Tag) extends FoxTable[OrderShippingAddress](tag, "order_shipping_addresses")
    {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def orderId = column[Int]("order_id")
@@ -67,7 +64,7 @@ class OrderShippingAddresses(tag: Tag) extends TableWithId[OrderShippingAddress]
   def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)
 }
 
-object OrderShippingAddresses extends TableQueryWithId[OrderShippingAddress, OrderShippingAddresses](
+object OrderShippingAddresses extends FoxTableQuery[OrderShippingAddress, OrderShippingAddresses](
   idLens = GenLens[OrderShippingAddress](_.id)
 )(new OrderShippingAddresses(_)) {
 

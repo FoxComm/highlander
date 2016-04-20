@@ -1,22 +1,17 @@
 package utils.seeds.generators
 
 import models.product.SimpleContext
-import models.discount._
 import models.objects._
 import scala.util.Random
-import utils.DbResultT
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
+import utils.db._
+import utils.db.DbResultT._
 
 import payloads.{CreateDiscount, CreateDiscountForm, CreateDiscountShadow}
 import services.discount.DiscountManager
 
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import org.json4s.JsonAST.{JValue, JString, JObject, JField, JNothing}
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.io.Source
 import slick.driver.PostgresDriver.api._
 
 object SimpleDiscount {

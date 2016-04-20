@@ -12,11 +12,12 @@ import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils._
+import utils.db._
 
 case class OrderLineItem(id: Int = 0, referenceNumber: String = "", 
   orderId: Int, originId: Int, originType: OriginType = OrderLineItem.SkuItem, 
   state: State = Cart)
-  extends ModelWithIdParameter[OrderLineItem]
+  extends FoxModel[OrderLineItem]
   with FSM[OrderLineItem.State, OrderLineItem] {
 
   import OrderLineItem._
@@ -80,7 +81,7 @@ object OrderLineItem {
 }
 
 
-class OrderLineItems(tag: Tag) extends GenericTable.TableWithId[OrderLineItem](tag, "order_line_items")  {
+class OrderLineItems(tag: Tag) extends FoxTable[OrderLineItem](tag, "order_line_items")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def referenceNumber = column[String]("reference_number")
   def orderId = column[Int]("order_id")
@@ -93,7 +94,7 @@ class OrderLineItems(tag: Tag) extends GenericTable.TableWithId[OrderLineItem](t
   def skuLineItems = foreignKey(OrderLineItemSkus.tableName, originId, OrderLineItemSkus)(_.id)
 }
 
-object OrderLineItems extends TableQueryWithId[OrderLineItem, OrderLineItems](
+object OrderLineItems extends FoxTableQuery[OrderLineItem, OrderLineItems](
   idLens = GenLens[OrderLineItem](_.id)
 )(new OrderLineItems(_)) {
 

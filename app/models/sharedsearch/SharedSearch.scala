@@ -3,22 +3,20 @@ package models.sharedsearch
 import java.time.Instant
 
 import com.pellucid.sealerate
-import models.{StoreAdmin, javaTimeSlickMapper}
 import models.sharedsearch.SharedSearch._
+import models.StoreAdmin
 import monocle.macros.GenLens
 import org.json4s.JsonAST.JValue
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.ExPostgresDriver.api._
-import utils.Slick._
-import utils.Slick.implicits._
-import utils.table.SearchByCode
-import utils.{ADT, GenericTable, JsonFormatters, ModelWithIdParameter, TableQueryWithId}
 import utils.aliases._
+import utils.db.ExPostgresDriver.api._
+import utils.db._
+import utils.{ADT, JsonFormatters}
 
 case class SharedSearch(id: Int = 0, code: String = "", title: String, query: JValue,
   scope: Scope = CustomersScope, storeAdminId: Int, createdAt: Instant = Instant.now, deletedAt: Option[Instant] = None)
-  extends ModelWithIdParameter[SharedSearch] {
+  extends FoxModel[SharedSearch] {
 
 }
 
@@ -51,7 +49,7 @@ object SharedSearch {
   implicit val scopeColumnType: JdbcType[Scope] with BaseTypedType[Scope] = Scope.slickColumn
 }
 
-class SharedSearches(tag: Tag) extends GenericTable.TableWithId[SharedSearch](tag, "shared_searches")  {
+class SharedSearches(tag: Tag) extends FoxTable[SharedSearch](tag, "shared_searches")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def code = column[String]("code")
   def title = column[String]("title")
@@ -65,7 +63,7 @@ class SharedSearches(tag: Tag) extends GenericTable.TableWithId[SharedSearch](ta
     SharedSearch.unapply)
 }
 
-object SharedSearches extends TableQueryWithId[SharedSearch, SharedSearches](
+object SharedSearches extends FoxTableQuery[SharedSearch, SharedSearches](
   idLens = GenLens[SharedSearch](_.id)
 )(new SharedSearches(_))
   with SearchByCode[SharedSearch, SharedSearches] {

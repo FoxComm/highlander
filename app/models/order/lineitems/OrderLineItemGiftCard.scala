@@ -4,15 +4,14 @@ import models.order.Order
 import models.payment.giftcard.{GiftCard, GiftCards}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.db._
 
 case class OrderLineItemGiftCard(id: Int = 0, orderId: Int, giftCardId: Int)
-  extends ModelWithIdParameter[OrderLineItemGiftCard]
+  extends FoxModel[OrderLineItemGiftCard]
 
 object OrderLineItemGiftCard {}
 
-class OrderLineItemGiftCards(tag: Tag) extends
-  GenericTable.TableWithId[OrderLineItemGiftCard](tag, "order_line_item_gift_cards")  {
+class OrderLineItemGiftCards(tag: Tag) extends FoxTable[OrderLineItemGiftCard](tag, "order_line_item_gift_cards")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def orderId = column[Int]("order_id")
   def giftCardId = column[Int]("gift_card_id")
@@ -21,7 +20,7 @@ class OrderLineItemGiftCards(tag: Tag) extends
   def giftCard = foreignKey(GiftCards.tableName, giftCardId, GiftCards)(_.id)
 }
 
-object OrderLineItemGiftCards extends TableQueryWithId[OrderLineItemGiftCard, OrderLineItemGiftCards](
+object OrderLineItemGiftCards extends FoxTableQuery[OrderLineItemGiftCard, OrderLineItemGiftCards](
   idLens = GenLens[OrderLineItemGiftCard](_.id)
 )(new OrderLineItemGiftCards(_)){
 

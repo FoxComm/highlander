@@ -14,14 +14,12 @@ import models.{Reasons, StoreAdmins}
 import services.orders.OrderTotaler
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.Slick.implicits._
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.seeds.Seeds
 import utils.Money.Currency
 import Seeds.Factories
 import failures.CartFailures._
-import utils.Slick.implicits._
 
 class CartValidatorTest extends IntegrationTestBase {
 

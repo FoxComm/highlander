@@ -4,13 +4,12 @@ import java.time.Instant
 
 import failures.NotFoundFailure404
 import models.inventory.{Skus, Sku}
-import models.product.{Product, Products, Mvp}
+import models.product.Mvp
 import models.objects._
 import models.{SaveForLater, SaveForLaters}
-import utils.DbResultT.implicits._
-import utils.DbResultT.{DbResultT, _}
-import utils.Slick.implicits._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 import slick.driver.PostgresDriver.api._
 
 object SaveForLaterResponse {

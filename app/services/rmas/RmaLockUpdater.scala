@@ -4,11 +4,9 @@ import models.rma.{RmaLockEvents, RmaLockEvent, Rmas}
 import models.{StoreAdmin, StoreAdmins}
 import responses.{RmaLockResponse, RmaResponse}
 import services.Result
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick._
-import utils.Slick.implicits._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 object RmaLockUpdater {
 

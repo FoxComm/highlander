@@ -2,8 +2,8 @@ package services.notes
 
 import models.payment.giftcard.{GiftCard, GiftCards}
 import models.Note
-import utils.Slick._
 import utils.aliases._
+import utils.db._
 
 object GiftCardNoteManager extends NoteManager[String, GiftCard] {
 

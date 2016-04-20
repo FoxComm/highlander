@@ -2,15 +2,14 @@ package models.rma
 
 import java.time.Instant
 
-import models.javaTimeSlickMapper
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.db._
 
 case class RmaLockEvent(id: Int = 0, rmaId: Int = 0, lockedAt: Instant = Instant.now, lockedBy: Int = 0)
-  extends ModelWithIdParameter[RmaLockEvent]
+  extends FoxModel[RmaLockEvent]
 
-class RmaLockEvents(tag: Tag) extends GenericTable.TableWithId[RmaLockEvent](tag, "rma_lock_events") {
+class RmaLockEvents(tag: Tag) extends FoxTable[RmaLockEvent](tag, "rma_lock_events") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def rmaId = column[Int]("rma_id")
   def lockedAt = column[Instant]("locked_at")
@@ -18,7 +17,7 @@ class RmaLockEvents(tag: Tag) extends GenericTable.TableWithId[RmaLockEvent](tag
   def * = (id, rmaId, lockedAt, lockedBy) <>((RmaLockEvent.apply _).tupled, RmaLockEvent.unapply)
 }
 
-object RmaLockEvents extends TableQueryWithId[RmaLockEvent, RmaLockEvents](
+object RmaLockEvents extends FoxTableQuery[RmaLockEvent, RmaLockEvents](
   idLens = GenLens[RmaLockEvent](_.id)
 )(new RmaLockEvents(_)) {
 

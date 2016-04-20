@@ -1,21 +1,15 @@
 package models.objects
 
-import models.Aliases.Json
-import models.objects._
-
-import monocle.macros.GenLens
-import utils.ExPostgresDriver.api._
-import utils.JsonFormatters
-import utils.time.JavaTimeSlickMapper._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
-
 import java.time.Instant
+
+import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 /**
  * Abstract class to help define an object head object which points to the latest
  * version of some object in the context specified.
  */
-abstract class ObjectHeads[C <: utils.ModelWithIdParameter[C]](tag: Tag, table: String) extends GenericTable.TableWithId[C](tag, table)  {
+abstract class ObjectHeads[C <: FoxModel[C]](tag: Tag, table: String) extends FoxTable[C](tag, table)  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def contextId = column[Int]("context_id")
   def shadowId = column[Int]("shadow_id")

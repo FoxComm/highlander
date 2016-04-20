@@ -6,10 +6,9 @@ import models.activity._
 import payloads.{AppendActivity, CreateTrail}
 import responses.{ActivityConnectionResponse, FullActivityConnectionResponse}
 import services.Result
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 object TrailManager {
 

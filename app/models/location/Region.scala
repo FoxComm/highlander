@@ -2,11 +2,10 @@ package models.location
 
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.GenericTable.TableWithId
-import utils.{ModelWithIdParameter, TableQueryWithId}
+import utils.db._
 
 case class Region(id: Int = 0, countryId: Int, name: String, abbreviation: Option[String] = None)
-  extends ModelWithIdParameter[Region] {
+  extends FoxModel[Region] {
   val abbrev = abbreviation
 }
 
@@ -16,7 +15,7 @@ object Region {
   val regularUsRegions = usRegions.toSeq.diff(armedRegions)
 }
 
-class Regions(tag: Tag) extends TableWithId[Region](tag, "regions")  {
+class Regions(tag: Tag) extends FoxTable[Region](tag, "regions")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def countryId = column[Int]("country_id")
   def name = column[String]("name")
@@ -27,7 +26,7 @@ class Regions(tag: Tag) extends TableWithId[Region](tag, "regions")  {
   def country = foreignKey(Countries.tableName, countryId, Countries)(_.id)
 }
 
-object Regions extends TableQueryWithId[Region, Regions](
+object Regions extends FoxTableQuery[Region, Regions](
   idLens = GenLens[Region](_.id)
 )(new Regions(_)) {
 }

@@ -1,26 +1,19 @@
 package models.objects
 
-import utils.IlluminateAlgorithm
+import java.time.Instant
 
-import org.json4s.JsonDSL._
-import org.json4s.jackson.JsonMethods._
-import org.json4s.JsonAST.{JValue, JString, JObject, JField, JNothing}
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
-import java.security.MessageDigest
-import scala.concurrent.ExecutionContext
-
-import utils.aliases._
-import utils.DbResultT
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
+import cats.data.NonEmptyList
+import cats.implicits._
 import failures.Failure
 import failures.ObjectFailures._
-import cats.data.NonEmptyList
-
-import cats.implicits._
-import java.time.Instant
+import org.json4s.JsonAST.{JField, JNothing, JObject, JString, JValue}
+import org.json4s.JsonDSL._
+import org.json4s.jackson.JsonMethods._
 import slick.driver.PostgresDriver.api._
+import utils.IlluminateAlgorithm
+import utils.aliases._
+import utils.db.DbResultT._
+import utils.db._
 
 object ObjectUtils { 
 
@@ -30,7 +23,7 @@ object ObjectUtils {
 
   def key(content: JValue) : String = {
     val KEY_LENGTH = 5
-    val md = java.security.MessageDigest.getInstance("SHA-1");
+    val md = java.security.MessageDigest.getInstance("SHA-1")
     md.digest(compact(render(content)).getBytes).slice(0, KEY_LENGTH).map("%02x".format(_)).mkString
   }
 
@@ -41,22 +34,20 @@ object ObjectUtils {
   }
 
   def attributes(values: Seq[JValue]) : JValue = 
-    JObject((values.map(attribute)).toList)
+    JObject(values.map(attribute).toList)
 
   type KeyMap = Map[String, String]
   def createForm(form: JValue) : (KeyMap, JValue) = {
     form match { 
-      case JObject(o) ⇒  {
+      case JObject(o) ⇒
         val m = o.obj.map {
-          case (attr, value) ⇒  { 
+          case (attr, value) ⇒
             val k = key(value)
             (Map(attr → k), (k, value))
-          }
         }
         val keyMap = m.map(_._1).reduce(_++_)
         val newForm = JObject(m.map(_._2).toList)
-        (keyMap, newForm) 
-      }
+        (keyMap, newForm)
       case _ ⇒  (Map(), JNothing)
     }
   }
@@ -68,18 +59,16 @@ object ObjectUtils {
 
   def newShadow(oldShadow: JValue, keyMap: KeyMap) : JValue = 
     oldShadow match { 
-      case JObject(o) ⇒ {
-        o.obj.map { 
-          case (key, value) ⇒  { 
+      case JObject(o) ⇒
+        o.obj.map {
+          case (key, value) ⇒
             val t = value \ "type"
             val ref = value \ "ref" match {
               case JString(s) ⇒ s
               case _ ⇒  key
             }
-            (key, ( "type" → t) ~ ( "ref" → keyMap.getOrElse(ref, ref))) 
-          }
+            (key, ( "type" → t) ~ ( "ref" → keyMap.getOrElse(ref, ref)))
         }
-      }
       case _ ⇒ JNothing
     }
 
@@ -100,18 +89,17 @@ object ObjectUtils {
     val t = value \ "t"
     val v = value \ "v"
     t match {
-      case JString(kind) ⇒  {
+      case JString(kind) ⇒
         val k = key(v)
-        ((k, v), 
+        ((k, v),
          (attr, ("type" → kind) ~ ("ref" → k)))
-      }
       case _ ⇒ ((attr, JNothing), (attr, JNothing))
     }
   }
 
   def bakedToFormShadow(baked: JValue) : (JValue, JValue) = 
     baked match {
-      case JObject(b) ⇒ {
+      case JObject(b) ⇒
         val formShadowPairs = b.obj.map {
           case (attr, obj) ⇒  bakedAttrToFormShadow(attr, obj)
         }
@@ -119,7 +107,6 @@ object ObjectUtils {
         val form = JObject(formShadowPairs.map(_._1).toList)
         val shadow = JObject(formShadowPairs.map(_._2).toList)
         (form, shadow)
-      }
       case _ ⇒ (JNothing, JNothing)
     }
 
@@ -212,8 +199,8 @@ object ObjectUtils {
         shadow ← * <~ ObjectShadows.create(ObjectShadow(formId = form.id, 
           attributes = newShadowAttributes))
         _    ← * <~ validateShadow(form, shadow)
-      } yield UpdateResult(form, shadow, true)
-     else DbResultT.pure(UpdateResult(oldForm, oldShadow, false))
+      } yield UpdateResult(form, shadow, updated = true)
+     else DbResultT.pure(UpdateResult(oldForm, oldShadow, updated = false))
   }
 
   private def validateShadow(form: ObjectForm, shadow: ObjectShadow)(implicit ec: EC) : DbResultT[Unit] =

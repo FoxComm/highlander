@@ -6,14 +6,12 @@ import models.location.{Address, Addresses, Regions}
 import models.order.{OrderShippingAddresses, Orders}
 import util.IntegrationTestBase
 import util.SlickSupport.implicits._
-import utils.DbResultT
 import utils.seeds.Seeds
 import Seeds.Factories
 import failures.NotFoundFailure404
-import utils.Slick.implicits._
-import utils.DbResultT._
-import utils.DbResultT.implicits._
 import utils.seeds.RankingSeedsGenerator
+import utils.db._
+import utils.db.DbResultT._
 
 class AddressesIntegrationTest extends IntegrationTestBase
   with HttpSupport

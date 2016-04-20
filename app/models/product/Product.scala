@@ -2,11 +2,12 @@ package models.product
 
 import java.time.Instant
 
-import models.javaTimeSlickMapper
 import models.objects._
 import monocle.macros.GenLens
-import utils.ExPostgresDriver.api._
-import utils.{JsonFormatters, ModelWithIdParameter, TableQueryWithId, Validation}
+import slick.driver.PostgresDriver.api._
+import slick.lifted.Tag
+import utils.db._
+import utils.{JsonFormatters, Validation}
 
 object Product {
   val kind = "product"
@@ -21,7 +22,7 @@ object Product {
  */
 case class Product(id: Int = 0, contextId: Int, shadowId: Int, formId: Int, 
   commitId: Int, updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[Product]
+  extends FoxModel[Product]
   with Validation[Product]
 
 class Products(tag: Tag) extends ObjectHeads[Product](tag, "products")  {
@@ -30,7 +31,7 @@ class Products(tag: Tag) extends ObjectHeads[Product](tag, "products")  {
 
 }
 
-object Products extends TableQueryWithId[Product, Products](
+object Products extends FoxTableQuery[Product, Products](
   idLens = GenLens[Product](_.id))(new Products(_)) {
 
   implicit val formats = JsonFormatters.phoenixFormats

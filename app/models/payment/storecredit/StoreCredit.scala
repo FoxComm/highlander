@@ -6,9 +6,9 @@ import cats.data.Validated._
 import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
 import com.pellucid.sealerate
+import models.StoreAdmin
 import models.order.OrderPayment
 import models.payment.PaymentMethod
-import models.{StoreAdmin, javaTimeSlickMapper, currencyColumnTypeMapper}
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit._
 import models.payment.storecredit.{StoreCreditAdjustment ⇒ Adj, StoreCreditAdjustments ⇒ Adjs}
@@ -19,19 +19,18 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.CustomDirectives.SortAndPage
 import utils.Money._
-import utils.Slick._
-import utils.Slick.implicits._
 import utils.Litterbox._
 import utils.Validation._
 import utils.{Validation, _}
 import utils.aliases._
+import utils.db.{FoxModel, _}
 
 case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: OriginType = CsrAppeasement,
   subTypeId: Option[Int] = None, currency: Currency = Currency.USD, originalBalance: Int, currentBalance: Int = 0,
   availableBalance: Int = 0, state: State = Active, canceledAmount: Option[Int] = None,
   canceledReason: Option[Int] = None, createdAt: Instant = Instant.now())
   extends PaymentMethod
-  with ModelWithIdParameter[StoreCredit]
+  with FoxModel[StoreCredit]
   with FSM[StoreCredit.State, StoreCredit]
   with Validation[StoreCredit] {
 
@@ -139,7 +138,7 @@ object StoreCredit {
   }
 }
 
-class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, "store_credits")  {
+class StoreCredits(tag: Tag) extends FoxTable[StoreCredit](tag, "store_credits")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def originId = column[Int]("origin_id")
   def originType = column[StoreCredit.OriginType]("origin_type")
@@ -159,7 +158,7 @@ class StoreCredits(tag: Tag) extends GenericTable.TableWithId[StoreCredit](tag, 
     .unapply)
 }
 
-object StoreCredits extends TableQueryWithId[StoreCredit, StoreCredits](
+object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](
   idLens = GenLens[StoreCredit](_.id)
   )(new StoreCredits(_)){
 

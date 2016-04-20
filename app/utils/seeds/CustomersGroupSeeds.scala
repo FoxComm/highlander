@@ -3,9 +3,9 @@ package utils.seeds
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.customer._
-import utils.DbResultT._
-import utils.DbResultT.implicits._
 import org.json4s.JObject
+import utils.db.DbResultT._
+import utils.db._
 
 trait CustomersGroupSeeds {
 
