@@ -1,0 +1,19 @@
+---
+
+- name: Install Boot for Closure 
+  shell: 'bash -c "cd /usr/local/bin && curl -fsSLo boot https://github.com/boot-clj/boot-bin/releases/download/latest/boot.sh && chmod 755 boot"'
+  sudo: true
+  args:
+      creates: "/usr/local/bin/boot"
+
+- name: Install Flow
+  sudo: true
+  copy: src="flow" dest="/usr/local/bin/flow" mode="u=rwx,g=rwx,o=rx"
+
+- name: Install Private Key So Buildkite Agents Can Work
+  sudo: true
+  copy: src="{{git_ssh_id_rsa}}" dest="/var/lib/buildkite-agent/.ssh/" mode="u=rw"
+
+- name: Install Public SSH Keys 
+  sudo: true
+  copy: src="{{git_ssh_id_rsa_pub}}" dest="/var/lib/buildkite-agent/.ssh/" mode="u=rw,g=r,o=r"

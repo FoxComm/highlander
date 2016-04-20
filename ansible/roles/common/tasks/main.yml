@@ -30,6 +30,12 @@
     - oracle-java8-set-default
     - ca-certificates-java
 
+- name: Install Boot for Closure 
+  shell: 'bash -c "cd /usr/local/bin && curl -fsSLo boot https://github.com/boot-clj/boot-bin/releases/download/latest/boot.sh && chmod 755 boot"'
+  sudo: true
+  args:
+      creates: "/usr/local/bin/boot"
+
 - name: Setup Unprivileged
   command: /usr/sbin/usermod -a -G systemd-journal {{ user }}
   sudo: true

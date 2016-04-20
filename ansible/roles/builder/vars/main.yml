@@ -1,0 +1,2 @@
+git_ssh_id_rsa: "{{lookup('env','GIT_ID_RSA')}}"
+git_ssh_id_rsa_pub: "{{lookup('env','GIT_ID_RSA_PUB')}}"
