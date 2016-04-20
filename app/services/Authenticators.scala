@@ -21,12 +21,10 @@ import org.jose4j.jwt.JwtClaims
 import payloads.LoginPayload
 import slick.driver.PostgresDriver.api._
 import utils.Config.{RichConfig, config}
-import utils.DbResultT._
-import utils.DbResultT.implicits._
 import utils.Passwords.checkPassword
-import utils.Slick.implicits._
 import utils.aliases._
-
+import utils.db._
+import utils.db.DbResultT._
 
 // TODO: Implement real session-based authentication with JWT
 // TODO: Probably abstract this out so that we use one for both AdminUsers and Customers

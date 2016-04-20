@@ -1,13 +1,11 @@
-package utils.table
+package utils.db
 
 import failures.{Failure, NotFoundFailure400, NotFoundFailure404}
 import slick.driver.PostgresDriver.api._
-import utils.Slick._
 import utils.Strings._
-import utils.{GenericTable, ModelWithIdParameter}
 import utils.aliases._
 
-trait SearchById[M <: ModelWithIdParameter[M], T <: GenericTable.TableWithId[M]] {
+trait SearchById[M <: FoxModel[M], T <: FoxTable[M]] {
 
   def primarySearchTerm = "id"
 
@@ -36,7 +34,7 @@ trait SearchById[M <: ModelWithIdParameter[M], T <: GenericTable.TableWithId[M]]
   }
 }
 
-trait SearchByRefNum[M <: ModelWithIdParameter[M], T <: GenericTable.TableWithId[M]] extends SearchById[M, T] {
+trait SearchByRefNum[M <: FoxModel[M], T <: FoxTable[M]] extends SearchById[M, T] {
 
   override def primarySearchTerm = "referenceNumber"
 
@@ -51,7 +49,7 @@ trait SearchByRefNum[M <: ModelWithIdParameter[M], T <: GenericTable.TableWithId
   }
 }
 
-trait SearchByCode[M <: ModelWithIdParameter[M], T <: GenericTable.TableWithId[M]] extends SearchById[M, T] {
+trait SearchByCode[M <: FoxModel[M], T <: FoxTable[M]] extends SearchById[M, T] {
 
   override def primarySearchTerm = "code"
 

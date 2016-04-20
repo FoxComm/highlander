@@ -2,19 +2,15 @@ package utils.seeds.generators
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
-import models.order.{Orders, Order}
-import models.objects.ObjectContext
-import models.payment.giftcard.{GiftCard, GiftCards, GiftCardOrders, GiftCardOrder,
-  GiftCardManuals, GiftCardManual}
-import payloads.GiftCardCreateByCsr
-import utils.DbResultT
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Money.Currency
-import GeneratorUtils.randomString
 
+import models.objects.ObjectContext
+import models.order.{Order, Orders}
+import models.payment.giftcard._
+import payloads.GiftCardCreateByCsr
 import slick.driver.PostgresDriver.api._
-import faker._;
+import utils.Money.Currency
+import utils.db.DbResultT._
+import utils.db._
 
 trait GiftCardGenerator {
 

@@ -3,26 +3,24 @@ package services.rmas
 import cats.implicits._
 import models.customer.Customers
 import models.rma.Rmas
-import models.{StoreAdmins, javaTimeSlickMapper}
-import responses.{TheResponse, AllRmas}
+import models.StoreAdmins
+import responses.{AllRmas, TheResponse}
 import services.Result
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
-import utils.CustomDirectives.SortAndPage
-import utils.Slick._
-import utils.Slick.implicits._
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.CustomDirectives.{EmptySortAndPage, SortAndPage}
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 object RmaQueries {
 
   def findAll(query: Rmas.QuerySeq)(implicit ec: EC, db: DB,
-    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): Result[TheResponse[Seq[AllRmas.Root]]] =
+    sortAndPage: SortAndPage = EmptySortAndPage): Result[TheResponse[Seq[AllRmas.Root]]] =
     findAllDbio(query).run()
 
   def findAllDbio(query: Rmas.QuerySeq)(implicit ec: EC,
-    sortAndPage: SortAndPage = CustomDirectives.EmptySortAndPage): DbResultT[TheResponse[Seq[AllRmas.Root]]] = {
+    sortAndPage: SortAndPage = EmptySortAndPage): DbResultT[TheResponse[Seq[AllRmas.Root]]] = {
 
     val rmasAndCustomers = query.join(Customers).on(_.customerId === _.id)
 

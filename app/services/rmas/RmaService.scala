@@ -12,11 +12,9 @@ import responses.{AllRmas, BatchResponse, CustomerResponse, RmaResponse, StoreAd
 import services.rmas.Helpers._
 import services.Result
 import utils.CustomDirectives.SortAndPage
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.{DbResult, _}
-import utils.Slick.implicits._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 object RmaService {
   def updateMessageToCustomer(refNum: String, payload: RmaMessageToCustomerPayload)

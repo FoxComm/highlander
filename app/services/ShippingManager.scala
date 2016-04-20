@@ -9,12 +9,10 @@ import models.shipping.{ShippingMethod, ShippingMethods}
 import models.rules.{Condition, QueryStatement}
 import models.traits.Originator
 import orders.getCartByOriginator
-import utils.DbResultT._
-import utils.DbResultT.implicits._
 import utils.JsonFormatters
-import utils.Slick.DbResult
-import utils.Slick.implicits._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotApplicableToOrder

@@ -15,16 +15,14 @@ import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.DbResultT.implicits._
-import utils.DbResultT._
+import utils.db._
+import utils.db.DbResultT._
 import utils.seeds.Seeds
 import utils.{Apis, StripeApi}
 import utils.Money.Currency
 import Seeds.Factories
 import failures.CartFailures._
 import failures.GeneralFailure
-import utils.Slick.DbResult
-import utils.Slick.implicits._
 
 class CheckoutTest
   extends IntegrationTestBase

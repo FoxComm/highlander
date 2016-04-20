@@ -20,12 +20,10 @@ import models.stripe._
 import models.StoreAdmin
 import payloads.{CreateAddressPayload, CreateCreditCard, EditCreditCard}
 import slick.driver.PostgresDriver.api._
-import utils.{Apis, DbResultT}
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.DbResult
-import utils.Slick.implicits._
+import utils.Apis
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 object CreditCardManager {
   private def gateway(implicit ec: EC, apis: Apis): Stripe = Stripe()

@@ -4,8 +4,8 @@ import akka.http.scaladsl.model.StatusCodes
 import models.rma.{RmaReason, RmaReasons}
 import models.{Reason, Reasons, StoreAdmins}
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.Strings._
 import utils.seeds.Seeds.Factories
 import scala.concurrent.ExecutionContext.Implicits.global

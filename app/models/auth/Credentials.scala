@@ -4,7 +4,7 @@ import akka.http.scaladsl.model.headers.{BasicHttpCredentials, GenericHttpCreden
 
 import cats.data.Xor
 import failures.Failures
-import utils.DbResultT.implicits._
+import utils.db.DbResultT._
 
 sealed trait Credentials {
   val secret: String

@@ -13,11 +13,10 @@ import org.postgresql.ds.PGSimpleDataSource
 import failures.{Failures, FailuresOps}
 import slick.driver.PostgresDriver
 import slick.driver.PostgresDriver.api._
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.JsonFormatters
 import utils.flyway.newFlyway
-import utils.Slick.implicits._
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global

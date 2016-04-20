@@ -8,7 +8,7 @@ import utils.seeds.Seeds
 import utils.{WiredStripeApi, Apis}
 import utils.Money.Currency
 import Seeds.Factories
-import utils.Slick.implicits._
+import utils.db._
 import cats.implicits._
 import slick.driver.PostgresDriver.api._
 

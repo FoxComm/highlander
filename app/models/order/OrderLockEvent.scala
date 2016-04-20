@@ -2,15 +2,15 @@ package models.order
 
 import java.time.Instant
 
-import models.{StoreAdmins, javaTimeSlickMapper}
+import models.StoreAdmins
 import monocle.macros.GenLens
-import slick.driver.PostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 case class OrderLockEvent(id: Int = 0, orderId: Int = 0, lockedAt: Instant = Instant.now, lockedBy: Int = 0)
-  extends ModelWithIdParameter[OrderLockEvent]
+  extends FoxModel[OrderLockEvent]
 
-class OrderLockEvents(tag: Tag) extends GenericTable.TableWithId[OrderLockEvent](tag, "order_lock_events") {
+class OrderLockEvents(tag: Tag) extends FoxTable[OrderLockEvent](tag, "order_lock_events") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def orderId = column[Int]("order_id")
   def lockedAt = column[Instant]("locked_at")
@@ -20,7 +20,7 @@ class OrderLockEvents(tag: Tag) extends GenericTable.TableWithId[OrderLockEvent]
   def storeAdmin = foreignKey(StoreAdmins.tableName, lockedBy, StoreAdmins)(_.id)
 }
 
-object OrderLockEvents extends TableQueryWithId[OrderLockEvent, OrderLockEvents](
+object OrderLockEvents extends FoxTableQuery[OrderLockEvent, OrderLockEvents](
   idLens = GenLens[OrderLockEvent](_.id)
 )(new OrderLockEvents(_)) {
 

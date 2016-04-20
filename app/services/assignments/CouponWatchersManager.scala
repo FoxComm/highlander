@@ -6,8 +6,7 @@ import models.coupon.Coupon
 import models.{Assignment, NotificationSubscription}
 import responses.CouponResponses.CouponFormResponse._
 import slick.driver.PostgresDriver.api._
-import utils.Slick._
-import utils.Slick.implicits._
+import utils.db._
 import utils.aliases._
 
 object CouponWatchersManager extends AssignmentsManager[Int, ObjectForm] {

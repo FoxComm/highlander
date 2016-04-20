@@ -10,10 +10,9 @@ import responses.TheResponse
 import responses.order.FullOrder
 import services.{CartValidator, LogActivity, Result, ShippingManager}
 import slick.driver.PostgresDriver.api._
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 object OrderShippingMethodUpdater {
 

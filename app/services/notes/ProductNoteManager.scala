@@ -5,8 +5,7 @@ import models.Note
 import models.objects.{ObjectForm, ObjectForms}
 import models.product.Product
 import slick.driver.PostgresDriver.api._
-import utils.Slick.DbResult
-import utils.Slick.implicits._
+import utils.db._
 import utils.aliases._
 
 object ProductNoteManager extends NoteManager[Int, ObjectForm] {

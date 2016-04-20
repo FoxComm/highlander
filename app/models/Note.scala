@@ -11,12 +11,12 @@ import failures.Failure
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
-import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
-import utils.Slick.implicits._
+import utils.{ADT, Validation}
+import utils.db._
 
 case class Note(id: Int = 0, storeAdminId: Int, referenceId: Int, referenceType: Note.ReferenceType, body: String,
   createdAt: Instant = Instant.now, deletedAt: Option[Instant] = None, deletedBy: Option[Int] = None)
-  extends ModelWithIdParameter[Note]
+  extends FoxModel[Note]
   with Validation[Note] {
 
   import Validation._
@@ -52,7 +52,7 @@ object Note {
     body = payload.body)
 }
 
-class Notes(tag: Tag) extends GenericTable.TableWithId[Note](tag, "notes")  {
+class Notes(tag: Tag) extends FoxTable[Note](tag, "notes")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def storeAdminId = column[Int]("store_admin_id")
   def referenceId = column[Int]("reference_id")
@@ -68,7 +68,7 @@ class Notes(tag: Tag) extends GenericTable.TableWithId[Note](tag, "notes")  {
   def author = foreignKey(StoreAdmins.tableName, storeAdminId, StoreAdmins)(_.id)
 }
 
-object Notes extends TableQueryWithId[Note, Notes](
+object Notes extends FoxTableQuery[Note, Notes](
   idLens = GenLens[Note](_.id)
 )(new Notes(_)) {
 

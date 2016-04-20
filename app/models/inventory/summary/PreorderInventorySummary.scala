@@ -1,13 +1,13 @@
 package models.inventory.summary
 
 import java.time.Instant
-import models.javaTimeSlickMapper
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
+import utils.db.javaTimeSlickMapper
 
 case class PreorderInventorySummary(id: Int = 0, onHand: Int, onHold: Int, reserved: Int,
-  val availableForSale: Int = 0, updatedAt: Instant = Instant.now)
+  availableForSale: Int = 0, updatedAt: Instant = Instant.now)
   extends InventorySummaryBase[PreorderInventorySummary]
 
 class PreorderInventorySummaries(tag: Tag)

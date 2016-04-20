@@ -4,10 +4,9 @@ import java.time.Instant
 
 import models.Aliases.Json
 import monocle.macros.GenLens
-import utils.ExPostgresDriver.api._
-import utils.JsonFormatters
-import utils.time.JavaTimeSlickMapper._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.{JsonFormatters, Validation}
+import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 /**
  * A ObjectContext stores information to determine which object shadow to show.
@@ -18,10 +17,10 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
  */
 case class ObjectContext(id: Int = 0, name: String, attributes: Json, 
   createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[ObjectContext]
+  extends FoxModel[ObjectContext]
   with Validation[ObjectContext]
 
-class ObjectContexts(tag: Tag) extends GenericTable.TableWithId[ObjectContext](tag, "object_contexts")  {
+class ObjectContexts(tag: Tag) extends FoxTable[ObjectContext](tag, "object_contexts")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
   def attributes = column[Json]("attributes")
@@ -31,17 +30,17 @@ class ObjectContexts(tag: Tag) extends GenericTable.TableWithId[ObjectContext](t
 
 }
 
-object ObjectContexts extends TableQueryWithId[ObjectContext, ObjectContexts](
+object ObjectContexts extends FoxTableQuery[ObjectContext, ObjectContexts](
   idLens = GenLens[ObjectContext](_.id))(new ObjectContexts(_)) {
 
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def filterByName(name: String): QuerySeq = 
+  def filterByName(name: String): QuerySeq =
     filter(_.name === name)
 
-  def filterByContextAttribute(key: String, value: String): QuerySeq = 
-    filter(_.attributes+>>(key) === value)
+  def filterByContextAttribute(key: String, value: String): QuerySeq =
+    filter(_.attributes +>> key === value)
 
-  def filterByLanguage(lang: String): QuerySeq = 
+  def filterByLanguage(lang: String): QuerySeq =
     filterByContextAttribute("lang", lang)
 }

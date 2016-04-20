@@ -23,10 +23,7 @@ import responses.CustomerResponse
 import responses.order.FullOrder
 import services.orders.OrderPaymentUpdater
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
 import utils.Money.Currency
-import utils.Slick.implicits._
 import utils.jdbc._
 import utils.seeds.Seeds.Factories
 import utils.seeds.RankingSeedsGenerator.generateCustomer
@@ -35,7 +32,8 @@ import Extensions._
 import slick.driver.PostgresDriver.api._
 import util.SlickSupport.implicits._
 import concurrent.ExecutionContext.Implicits.global
-
+import utils.db._
+import utils.db.DbResultT._
 import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
 import failures.CreditCardFailures.{CannotUseInactiveCreditCard, StripeFailure}
 import failures.CustomerFailures._

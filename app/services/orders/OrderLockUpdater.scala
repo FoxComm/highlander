@@ -6,10 +6,9 @@ import models.order._
 import models.StoreAdmin
 import responses.order.FullOrder
 import services.Result
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 object OrderLockUpdater {
 

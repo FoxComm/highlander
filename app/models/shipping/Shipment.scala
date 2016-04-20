@@ -6,11 +6,12 @@ import monocle.macros.GenLens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
-import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.db._
+import utils.ADT
 
 case class Shipment(id: Int = 0, orderId: Int, orderShippingMethodId: Option[Int] = None, shippingAddressId:
 Option[Int] = None, state: Shipment.State = Cart, shippingPrice: Option[Int] = None)
-  extends ModelWithIdParameter[Shipment]
+  extends FoxModel[Shipment]
 
 object Shipment {
   sealed trait State
@@ -31,7 +32,7 @@ object Shipment {
   implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
 }
 
-class Shipments(tag: Tag) extends GenericTable.TableWithId[Shipment](tag, "shipments")  {
+class Shipments(tag: Tag) extends FoxTable[Shipment](tag, "shipments")  {
   def id = column[Int]("id", O.PrimaryKey)
   def orderId = column[Int]("order_id")
   def orderShippingMethodId = column[Option[Int]]("order_shipping_method_id")
@@ -43,7 +44,7 @@ class Shipments(tag: Tag) extends GenericTable.TableWithId[Shipment](tag, "shipm
     Shipment.unapply)
 }
 
-object Shipments extends TableQueryWithId[Shipment, Shipments](
+object Shipments extends FoxTableQuery[Shipment, Shipments](
   idLens = GenLens[Shipment](_.id)
 )(new Shipments(_)) {
 

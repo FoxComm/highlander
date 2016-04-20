@@ -8,26 +8,24 @@ import com.pellucid.sealerate
 import models.order.Order
 import models.rma.Rma._
 import models.traits.Lockable
-import models.{StoreAdmin, javaTimeSlickMapper}
+import models.StoreAdmin
 import monocle.Lens
 import monocle.macros.GenLens
 import failures.Failure
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
-import utils.Slick.DbResult
-import utils.Slick.implicits._
 import utils.Validation._
-import utils.table.SearchByRefNum
-import utils.{ADT, FSM, GenericTable, ModelWithLockParameter, TableQueryWithLock}
+import utils.{ADT, FSM}
 import utils.aliases._
+import utils.db._
 
 case class Rma(id: Int = 0, referenceNumber: String = "", orderId: Int, orderRefNum: String,
   rmaType: RmaType = Standard, state: State = Pending, isLocked: Boolean = false,
   customerId: Int, storeAdminId: Option[Int] = None, messageToCustomer: Option[String] = None,
   canceledReason: Option[Int] = None, createdAt: Instant = Instant.now,
   updatedAt: Instant = Instant.now, deletedAt: Option[Instant] = None)
-  extends ModelWithLockParameter[Rma]
+  extends FoxModel[Rma]
   with Lockable[Rma]
   with FSM[Rma.State, Rma] {
 
@@ -92,7 +90,7 @@ object Rma {
   }
 }
 
-class Rmas(tag: Tag) extends GenericTable.TableWithLock[Rma](tag, "rmas")  {
+class Rmas(tag: Tag) extends FoxTable[Rma](tag, "rmas")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def referenceNumber = column[String]("reference_number")
   def orderId = column[Int]("order_id")
@@ -112,7 +110,7 @@ class Rmas(tag: Tag) extends GenericTable.TableWithLock[Rma](tag, "rmas")  {
     messageToCustomer, canceledReason, createdAt, updatedAt, deletedAt) <> ((Rma.apply _).tupled, Rma.unapply)
 }
 
-object Rmas extends TableQueryWithLock[Rma, Rmas](
+object Rmas extends FoxTableQuery[Rma, Rmas](
   idLens = GenLens[Rma](_.id)
 )(new Rmas(_))
   with SearchByRefNum[Rma, Rmas] {

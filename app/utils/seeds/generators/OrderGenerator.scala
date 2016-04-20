@@ -15,10 +15,8 @@ import models.product.{SimpleProductData, Mvp}
 import models.objects.ObjectContext
 import Order.{Cart, FraudHold, ManualHold, RemorseHold, Shipped}
 import services.orders.OrderTotaler
-import utils.DbResultT
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.seeds.ShipmentSeeds
 import utils.time
 import utils.aliases._

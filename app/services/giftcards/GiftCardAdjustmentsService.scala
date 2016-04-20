@@ -7,10 +7,9 @@ import responses.TheResponse
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 object GiftCardAdjustmentsService {
 

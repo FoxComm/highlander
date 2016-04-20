@@ -1,32 +1,21 @@
 package services.product
 
-import services.LogActivity
-import services.Result
-import services.inventory.SkuManager
-
-import models.inventory._
-import models.product._
-import models.objects._
-import responses.ProductResponses._
-import responses.ObjectResponses.ObjectContextResponse
-import slick.driver.PostgresDriver.api._
-import utils.DbResultT
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
-import payloads.{CreateFullProduct, CreateFullProductForm, CreateFullProductShadow, CreateFullSkuForm, CreateObjectContext, CreateProductForm, CreateProductShadow, CreateSkuForm, CreateSkuShadow, UpdateFullProduct, UpdateFullProductForm, UpdateFullProductShadow, UpdateFullSkuForm, UpdateFullSkuShadow, UpdateObjectContext, UpdateProductForm, UpdateProductShadow}
-import org.json4s.JsonAST.{JField, JNothing, JObject, JString, JValue}
-import org.json4s.jackson.JsonMethods._
-import utils.aliases._
-import utils.IlluminateAlgorithm
-import cats.implicits._
-import failures.Failure
-import failures.NotFoundFailure400
-import failures.ProductFailures._
 import failures.ObjectFailures._
-import java.time.Instant
-
+import failures.ProductFailures._
 import models.StoreAdmin
+import models.inventory._
+import models.objects._
+import models.product._
+import payloads.{CreateFullProduct, CreateFullSkuForm, CreateSkuShadow, UpdateFullProduct, UpdateFullSkuForm,
+UpdateFullSkuShadow}
+import responses.ObjectResponses.ObjectContextResponse
+import responses.ProductResponses._
+import services.{LogActivity, Result}
+import services.inventory.SkuManager
+import slick.driver.PostgresDriver.api._
+import utils.aliases._
+import utils.db.DbResultT._
+import utils.db._
 
 object ProductManager {
 

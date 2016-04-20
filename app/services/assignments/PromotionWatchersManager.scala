@@ -6,8 +6,7 @@ import models.promotion.Promotion
 import models.{Assignment, NotificationSubscription}
 import responses.PromotionResponses.PromotionFormResponse._
 import slick.driver.PostgresDriver.api._
-import utils.Slick._
-import utils.Slick.implicits._
+import utils.db._
 import utils.aliases._
 
 object PromotionWatchersManager extends AssignmentsManager[Int, ObjectForm] {

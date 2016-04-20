@@ -9,8 +9,8 @@ import models.location.{Address, Addresses}
 import models.payment.creditcard.CreditCards
 import payloads.CreateAddressPayload
 import util.{IntegrationTestBase, StripeSupport}
-import utils.Slick.implicits._
 import cats.implicits._
+import utils.db._
 import utils.seeds.Seeds.Factories
 
 class CreditCardManagerIntegrationTest extends IntegrationTestBase

@@ -2,15 +2,13 @@ package models.customer
 
 import java.time.Instant
 
-import models.javaTimeSlickMapper
 import monocle.macros.GenLens
 import org.json4s.JsonAST.{JValue ⇒ Json}
 import payloads.CustomerDynamicGroupPayload
+import slick.lifted.Tag
 import utils.CustomDirectives.SortAndPage
-import utils.ExPostgresDriver.api._
-import utils.Slick.implicits._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
-import utils.aliases._
+import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 case class CustomerDynamicGroup(id: Int = 0,
   createdBy: Int,
@@ -20,7 +18,7 @@ case class CustomerDynamicGroup(id: Int = 0,
   elasticRequest: Json,
   updatedAt: Instant = Instant.now,
   createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[CustomerDynamicGroup]
+  extends FoxModel[CustomerDynamicGroup]
 
 object CustomerDynamicGroup {
 
@@ -34,7 +32,7 @@ object CustomerDynamicGroup {
 }
 
 
-class CustomerDynamicGroups(tag: Tag) extends GenericTable.TableWithId[CustomerDynamicGroup](tag, "customer_dynamic_groups")  {
+class CustomerDynamicGroups(tag: Tag) extends FoxTable[CustomerDynamicGroup](tag, "customer_dynamic_groups")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def createdBy = column[Int]("created_by")
   def name = column[String]("name")
@@ -48,7 +46,7 @@ class CustomerDynamicGroups(tag: Tag) extends GenericTable.TableWithId[CustomerD
     ((CustomerDynamicGroup.apply _).tupled, CustomerDynamicGroup.unapply)
 }
 
-object CustomerDynamicGroups extends TableQueryWithId[CustomerDynamicGroup, CustomerDynamicGroups](
+object CustomerDynamicGroups extends FoxTableQuery[CustomerDynamicGroup, CustomerDynamicGroups](
   idLens = GenLens[CustomerDynamicGroup](_.id)
 )(new CustomerDynamicGroups(_)) {
 

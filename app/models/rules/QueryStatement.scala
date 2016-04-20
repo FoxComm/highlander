@@ -1,13 +1,14 @@
 package models.rules
 
-import com.pellucid.sealerate
 import scala.collection.immutable.Seq
+
+import com.pellucid.sealerate
 import org.json4s.Extraction
 import org.json4s.JsonAST.JValue
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.{JsonFormatters, ADT}
-import utils.ExPostgresDriver.api._
+import utils.db.ExPostgresDriver.api._
+import utils.{ADT, JsonFormatters}
 
 case class QueryStatement(comparison: QueryStatement.Comparison,
   conditions: Seq[Condition] = Seq.empty, statements: Seq[QueryStatement] = Seq.empty)

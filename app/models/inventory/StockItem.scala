@@ -1,10 +1,10 @@
 package models.inventory
 
 import slick.driver.PostgresDriver.api._
-import utils.ModelWithIdParameter
+import utils.db._
 
 case class StockItem(id: Int, productId: Int, stockLocationId: Int, onHold: Int, onHand: Int,
-  allocatedToSales: Int) extends ModelWithIdParameter[StockItem] {
+  allocatedToSales: Int) extends FoxModel[StockItem] {
 
   def available: Int = {
     this.onHand - this.onHold - this.allocatedToSales

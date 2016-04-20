@@ -2,15 +2,15 @@ package models.shipping
 
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.db._
 
 case class ShippingCarrier(id:Int = 0,
                            name:String,
                            accountNumber:Option[String],
-                           regionsServed:String = "US") extends ModelWithIdParameter[ShippingCarrier]
+                           regionsServed:String = "US") extends FoxModel[ShippingCarrier]
 object ShippingCarrier
 
-class ShippingCarriers(tag: Tag) extends GenericTable.TableWithId[ShippingCarrier](tag, "shipping_methods")  {
+class ShippingCarriers(tag: Tag) extends FoxTable[ShippingCarrier](tag, "shipping_methods")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
   def accountNumber = column[Option[String]]("account_number")
@@ -19,6 +19,6 @@ class ShippingCarriers(tag: Tag) extends GenericTable.TableWithId[ShippingCarrie
   def * = (id, name, accountNumber, regionsServed) <> ((ShippingCarrier.apply _).tupled, ShippingCarrier.unapply)
 }
 
-object ShippingCarriers extends TableQueryWithId[ShippingCarrier, ShippingCarriers](
+object ShippingCarriers extends FoxTableQuery[ShippingCarrier, ShippingCarriers](
   idLens = GenLens[ShippingCarrier](_.id)
 )(new ShippingCarriers(_))

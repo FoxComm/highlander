@@ -19,8 +19,8 @@ import payloads.UpdateLineItemsPayload
 import responses.order.FullOrder
 import responses.{Addresses, CreditCardsResponse, CustomerResponse, GiftCardResponse, StoreAdminResponse, StoreCreditResponse}
 import services.LineItemUpdater.foldQuantityPayload
-import utils.Slick.DbResult
 import utils.aliases._
+import utils.db._
 import services.activity.AssignmentsTailored._
 import services.activity.CustomerTailored._
 import services.activity.GiftCardTailored._

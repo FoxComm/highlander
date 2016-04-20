@@ -1,25 +1,21 @@
 package services
 
 import models.customer.Customers
-import models.inventory.Skus
 import models.location.Addresses
-import models.order.{OrderShippingAddresses, Orders}
-import models.order.lineitems._
-import models.rules.QueryStatement
-import models.product.{Mvp, SimpleContext, SimpleProductData}
 import models.objects._
+import models.order.lineitems._
+import models.order.{OrderShippingAddresses, Orders}
+import models.product.{Mvp, SimpleContext}
+import models.rules.QueryStatement
 import models.shipping.ShippingMethods
-
 import services.ShippingManager.getShippingMethodsForOrder
-
 import services.orders.OrderTotaler
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.ExPostgresDriver.api._
-import utils.ExPostgresDriver.jsonMethods._
-import utils.Slick.implicits._
 import utils._
+import utils.db.DbResultT._
+import utils.db.ExPostgresDriver.api._
+import utils.db.ExPostgresDriver.jsonMethods._
+import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.seeds.ShipmentSeeds
 

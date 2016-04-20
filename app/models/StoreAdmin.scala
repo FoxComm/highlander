@@ -6,15 +6,14 @@ import failures.Failure
 import utils.Litterbox._
 import utils.Passwords.hashPassword
 import utils.Validation
-import utils.Slick.implicits._
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.aliases._
+import utils.db._
 
 case class StoreAdmin(id: Int = 0, name: String, email: String, hashedPassword: Option[String] = None,
   department: Option[String] = None)
-  extends ModelWithIdParameter[StoreAdmin]
+  extends FoxModel[StoreAdmin]
   with Validation[StoreAdmin] {
 
   import Validation._
@@ -34,7 +33,7 @@ object StoreAdmin {
   }
 }
 
-class StoreAdmins(tag: Tag) extends GenericTable.TableWithId[StoreAdmin](tag, "store_admins")  {
+class StoreAdmins(tag: Tag) extends FoxTable[StoreAdmin](tag, "store_admins")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def email = column[String]("email")
   def hashedPassword = column[Option[String]]("hashed_password")
@@ -44,7 +43,7 @@ class StoreAdmins(tag: Tag) extends GenericTable.TableWithId[StoreAdmin](tag, "s
   def * = (id, name, email, hashedPassword, department) <> ((StoreAdmin.apply _).tupled, StoreAdmin.unapply)
 }
 
-object StoreAdmins extends TableQueryWithId[StoreAdmin, StoreAdmins](
+object StoreAdmins extends FoxTableQuery[StoreAdmin, StoreAdmins](
   idLens = GenLens[StoreAdmin](_.id)
 )(new StoreAdmins(_)){
 

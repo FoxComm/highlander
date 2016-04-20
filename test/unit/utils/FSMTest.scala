@@ -5,6 +5,7 @@ import monocle.macros.GenLens
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import failures.Failures
 import util.TestBase
+import utils.db._
 
 class FSMTest extends TestBase {
 
@@ -15,7 +16,7 @@ class FSMTest extends TestBase {
   case object LockAndPop extends Operation
   case object BreakItDown extends Operation
 
-  case class Robot(id: Int = 0, state: Operation) extends ModelWithIdParameter[Robot] with FSM[Operation, Robot] {
+  case class Robot(id: Int = 0, state: Operation) extends FoxModel[Robot] with FSM[Operation, Robot] {
     val stateLens = GenLens[Robot](_.state)
     override def updateTo(newModel: Robot): Failures Xor Robot = super.transitionModel(newModel)
 

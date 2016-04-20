@@ -16,13 +16,11 @@ import models.payment.storecredit.StoreCredits
 import responses.order.FullOrder
 import services.inventory.InventoryAdjustmentManager
 import slick.driver.PostgresDriver.api._
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.Apis
 import utils.Litterbox._
-import utils.Slick.DbResult
-import utils.Slick.implicits._
-import utils.{Apis, DbResultT}
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 object Checkout {
 

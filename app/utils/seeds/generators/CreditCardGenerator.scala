@@ -6,8 +6,8 @@ import java.time.{Instant, ZoneId}
 import scala.concurrent.ExecutionContext.Implicits.global
 import models.payment.creditcard.CreditCard
 import models.customer.Customer
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import GeneratorUtils.randomString
 
 import scala.util.Random

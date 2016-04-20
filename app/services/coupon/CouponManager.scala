@@ -7,10 +7,8 @@ import models.coupon._
 import models.promotion._
 
 import responses.CouponResponses._
-import utils.DbResultT
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import slick.driver.PostgresDriver.api._
 import payloads.{CreateCoupon, CreateCouponForm, CreateCouponShadow, 
   UpdateCoupon, UpdateCouponForm, UpdateCouponShadow, GenerateCouponCodes}

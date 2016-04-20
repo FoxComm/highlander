@@ -22,9 +22,8 @@ import failures.NotFoundFailure404
 import responses.GiftCardResponse
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.seeds.generators.InventorySummaryGenerator
 import utils.seeds.Seeds.Factories
 

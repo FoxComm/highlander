@@ -6,10 +6,8 @@ import models.order.{Orders, Order}
 import failures.{DatabaseFailure, GeneralFailure, StateTransitionNotAllowed}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.DbResult
-import utils.Slick.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.seeds.Seeds.Factories
 
 import scala.concurrent.ExecutionContext.Implicits.global

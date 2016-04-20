@@ -11,9 +11,8 @@ import models.product.{Mvp, SimpleContext, SimpleProductData}
 import models.objects._
 import payloads.{UpdateLineItemsPayload => Payload}
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.seeds.Seeds.Factories
 
 class LineItemUpdaterTest extends IntegrationTestBase {

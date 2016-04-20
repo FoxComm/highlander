@@ -1,18 +1,15 @@
 package models.promotion
 
-import models.Aliases.Json
-import models.objects._
-
-import monocle.macros.GenLens
-import utils.ExPostgresDriver.api._
-import utils.JsonFormatters
-import utils.time.JavaTimeSlickMapper._
-import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
-
-import slick.jdbc.JdbcType
-import slick.ast.BaseTypedType
-import com.pellucid.sealerate
 import java.time.Instant
+
+import com.pellucid.sealerate
+import models.objects._
+import monocle.macros.GenLens
+import slick.ast.BaseTypedType
+import slick.jdbc.JdbcType
+import utils.db.ExPostgresDriver.api._
+import utils.db._
+import utils.{ADT, Validation}
 
 object Promotion {
   val kind = "promotion"
@@ -37,7 +34,7 @@ object Promotion {
 case class Promotion(id: Int = 0, contextId: Int, shadowId: Int, formId: Int, 
   commitId: Int, applyType: Promotion.ApplyType = Promotion.Auto, 
   updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[Promotion]
+  extends FoxModel[Promotion]
   with Validation[Promotion]
 
 class Promotions(tag: Tag) extends ObjectHeads[Promotion](tag, "promotions") {
@@ -49,7 +46,7 @@ class Promotions(tag: Tag) extends ObjectHeads[Promotion](tag, "promotions") {
 
 }
 
-object Promotions extends TableQueryWithId[Promotion, Promotions](
+object Promotions extends FoxTableQuery[Promotion, Promotions](
   idLens = GenLens[Promotion](_.id))(new Promotions(_)) {
 
   def filterByContext(contextId: Int): QuerySeq = 

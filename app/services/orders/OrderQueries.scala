@@ -2,13 +2,13 @@ package services.orders
 
 import cats.implicits._
 import failures.NotFoundFailure404
+import models.StoreAdmin
 import models.customer.{Customer, Customers}
 import models.order._
 import models.payment.PaymentMethod
 import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
-import models.{StoreAdmin, javaTimeSlickMapper}
 import models.objects.ObjectContext
 import responses.TheResponse
 import responses.order._
@@ -16,11 +16,9 @@ import services.{CartValidator, LogActivity, Result}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.{EmptySortAndPage, SortAndPage}
-import utils.Slick._
-import utils.Slick.implicits._
-import utils.DbResultT._
-import utils.DbResultT.implicits._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 object OrderQueries {
 

@@ -5,19 +5,17 @@ import java.time.Instant
 import scala.util.Random
 
 import monocle.macros.GenLens
-import utils.ExPostgresDriver.api._
-import utils.time.JavaTimeSlickMapper._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 /**
  * A coupon code is a way to reference a coupon from the outside world.
  * Multiple codes may point to the same coupon.
  */
 case class CouponCode(id: Int = 0, code: String, couponFormId: Int, createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[CouponCode]
-  with Validation[CouponCode]
+  extends FoxModel[CouponCode]
 
-class CouponCodes(tag: Tag) extends GenericTable.TableWithId[CouponCode](tag, "coupon_codes")  {
+class CouponCodes(tag: Tag) extends FoxTable[CouponCode](tag, "coupon_codes")  {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def code = column[String]("code")
@@ -28,7 +26,7 @@ class CouponCodes(tag: Tag) extends GenericTable.TableWithId[CouponCode](tag, "c
 
 }
 
-object CouponCodes extends TableQueryWithId[CouponCode, CouponCodes](
+object CouponCodes extends FoxTableQuery[CouponCode, CouponCodes](
   idLens = GenLens[CouponCode](_.id))(new CouponCodes(_)) {
 
   def charactersGivenQuantity(quantity: Int) : Int = Math.ceil(Math.log10(quantity.toDouble)).toInt

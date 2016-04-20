@@ -6,18 +6,16 @@ import failures.NotFoundFailure404
 import models.customer.Customers.scope._
 import models.customer.{Customer, Customers}
 import models.order.Orders
-import models.{StoreAdmin, javaTimeSlickMapper}
+import models.StoreAdmin
 import payloads.{ActivateCustomerPayload, CreateCustomerPayload, CustomerSearchForNewOrder, UpdateCustomerPayload}
 import responses.CustomerResponse.{Root, build}
 import responses.TheResponse
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.DbResult
-import utils.Slick.implicits._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 object CustomerManager {
 

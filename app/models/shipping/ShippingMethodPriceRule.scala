@@ -2,14 +2,14 @@ package models.shipping
 
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.db._
 
 case class ShippingMethodPriceRule(id:Int = 0, shippingMethodId: Int, shippingPriceRuleId:Int, ruleRank: Int)
-  extends ModelWithIdParameter[ShippingMethodPriceRule]
+  extends FoxModel[ShippingMethodPriceRule]
 
 object ShippingMethodPriceRule
 
-class ShippingMethodsPriceRules(tag: Tag) extends GenericTable.TableWithId[ShippingMethodPriceRule](tag, "shipping_methods_price_rules")  {
+class ShippingMethodsPriceRules(tag: Tag) extends FoxTable[ShippingMethodPriceRule](tag, "shipping_methods_price_rules")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def shippingMethodId = column[Int]("shipping_method_id")
   def shippingPriceRuleId = column[Int]("shipping_price_rule_id")
@@ -18,6 +18,6 @@ class ShippingMethodsPriceRules(tag: Tag) extends GenericTable.TableWithId[Shipp
   def * = (id, shippingMethodId, shippingPriceRuleId, ruleRank) <> ((ShippingMethodPriceRule.apply _).tupled, ShippingMethodPriceRule.unapply)
 }
 
-object ShippingMethodsPriceRules extends TableQueryWithId[ShippingMethodPriceRule, ShippingMethodsPriceRules](
+object ShippingMethodsPriceRules extends FoxTableQuery[ShippingMethodPriceRule, ShippingMethodsPriceRules](
   idLens = GenLens[ShippingMethodPriceRule](_.id)
 )(new ShippingMethodsPriceRules(_))

@@ -10,10 +10,8 @@ import models.{StoreAdmin, StoreAdmins}
 import payloads.SharedSearchPayload
 import responses.{StoreAdminResponse, TheResponse}
 import slick.driver.PostgresDriver.api._
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick._
-import utils.Slick.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.aliases._
 
 object SharedSearchService {

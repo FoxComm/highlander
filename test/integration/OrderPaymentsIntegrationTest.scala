@@ -20,8 +20,8 @@ import org.scalatest.mock.MockitoSugar
 import OrderPayments.scope._
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.seeds.Seeds
 import Seeds.Factories
 import com.stripe.model.{Card, Customer, DeletedExternalAccount}
@@ -35,8 +35,7 @@ import org.mockito.Matchers
 import org.mockito.Mockito._
 import services.{CreditCardManager, Result}
 import utils.{Apis, StripeApi}
-import utils.Slick.implicits._
-import utils.time.JavaTimeSlickMapper.instantAndTimestampWithoutZone
+import utils.db.javaTimeSlickMapper
 
 class OrderPaymentsIntegrationTest extends IntegrationTestBase
   with HttpSupport

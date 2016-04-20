@@ -15,14 +15,11 @@ import responses.BatchMetadata._
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives._
-import utils.DbResultT._
-import utils.ModelWithIdParameter
-import utils.DbResultT.implicits._
-import utils.Slick._
-import utils.Slick.implicits._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
-trait AssignmentsManager[K, M <: ModelWithIdParameter[M]] {
+trait AssignmentsManager[K, M <: FoxModel[M]] {
   // Assign / unassign
   sealed trait ActionType
   case object Assigning extends ActionType

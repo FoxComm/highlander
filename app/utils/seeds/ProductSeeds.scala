@@ -4,8 +4,8 @@ import utils.seeds.generators.ProductGenerator
 import models.product.{SimpleContext, SimpleProductData, Mvp}
 import models.objects.ObjectContexts
 import utils.Money.Currency
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 
 import slick.driver.PostgresDriver.api._
 import scala.concurrent.ExecutionContext.Implicits.global

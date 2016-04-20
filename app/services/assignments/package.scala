@@ -2,13 +2,12 @@ package services
 
 import models.StoreAdmin
 import responses.TheResponse
-import utils.ModelWithIdParameter
-import utils.Slick.{DbResult, _}
 import utils.aliases._
+import utils.db._
 
 package object assignments {
   // Notification (un)subscription helpers
-  def subscribe[K, M <: ModelWithIdParameter[M]](manager: AssignmentsManager[K, M], adminIds: Seq[Int],
+  def subscribe[K, M <: FoxModel[M]](manager: AssignmentsManager[K, M], adminIds: Seq[Int],
     objectIds: Seq[String])(implicit ec: EC): DbResult[TheResponse[Option[Int]]] = {
 
     if (objectIds.nonEmpty)
@@ -19,7 +18,7 @@ package object assignments {
   }
 
 
-  def unsubscribe[K, M <: ModelWithIdParameter[M]](manager: AssignmentsManager[K, M], adminIds: Seq[Int],
+  def unsubscribe[K, M <: FoxModel[M]](manager: AssignmentsManager[K, M], adminIds: Seq[Int],
     objectIds: Seq[String])(implicit ec: EC): DbResult[Unit] = {
 
     if (objectIds.nonEmpty)
@@ -30,7 +29,7 @@ package object assignments {
   }
 
   // Activity logger helpers
-  def logBulkAssign[K, M <: ModelWithIdParameter[M]](manager: AssignmentsManager[K, M],
+  def logBulkAssign[K, M <: FoxModel[M]](manager: AssignmentsManager[K, M],
     originator: StoreAdmin, admin: StoreAdmin, keys: Seq[String])(implicit ec: EC, ac: AC) = {
 
     if (keys.nonEmpty)
@@ -39,7 +38,7 @@ package object assignments {
       DbResult.unit
   }
 
-  def logBulkUnassign[K, M <: ModelWithIdParameter[M]](manager: AssignmentsManager[K, M],
+  def logBulkUnassign[K, M <: FoxModel[M]](manager: AssignmentsManager[K, M],
     originator: StoreAdmin, admin: StoreAdmin, keys: Seq[String])(implicit ec: EC, ac: AC) = {
 
     if (keys.nonEmpty)

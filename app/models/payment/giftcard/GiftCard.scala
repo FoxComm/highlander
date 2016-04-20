@@ -8,9 +8,9 @@ import cats.implicits._
 import com.pellucid.sealerate
 import failures.GiftCardFailures._
 import failures.{EmptyCancellationReasonFailure, Failure, Failures, GeneralFailure}
+import models.StoreAdmin
 import models.order.OrderPayment
 import models.payment.PaymentMethod
-import models.{StoreAdmin, currencyColumnTypeMapper, javaTimeSlickMapper}
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
 import monocle.Lens
@@ -21,19 +21,18 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.CustomDirectives.SortAndPage
 import utils.Money._
-import utils.Slick.DbResult
-import utils.Slick.implicits._
+import utils.db._
 import utils.Validation._
 import utils._
-import utils.table.SearchByCode
 import utils.aliases._
+import utils.db._
 
 case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = CustomerPurchase,
   code: String = "", subTypeId: Option[Int] = None, currency: Currency = Currency.USD, state: State = GiftCard.Active,
   originalBalance: Int, currentBalance: Int = 0, availableBalance: Int = 0, canceledAmount: Option[Int] = None,
   canceledReason: Option[Int] = None, reloadable: Boolean = false, createdAt: Instant = Instant.now())
   extends PaymentMethod
-  with ModelWithIdParameter[GiftCard]
+  with FoxModel[GiftCard]
   with FSM[GiftCard.State, GiftCard]
   with Validation[GiftCard] {
 
@@ -181,7 +180,7 @@ object GiftCard {
   implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] = OriginType.slickColumn
 }
 
-class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_cards")  {
+class GiftCards(tag: Tag) extends FoxTable[GiftCard](tag, "gift_cards")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def originId = column[Int]("origin_id")
   def originType = column[GiftCard.OriginType]("origin_type")
@@ -202,7 +201,7 @@ class GiftCards(tag: Tag) extends GenericTable.TableWithId[GiftCard](tag, "gift_
     .unapply)
 }
 
-object GiftCards extends TableQueryWithId[GiftCard, GiftCards](
+object GiftCards extends FoxTableQuery[GiftCard, GiftCards](
   idLens = GenLens[GiftCard](_.id)
   )(new GiftCards(_))
   with SearchByCode[GiftCard, GiftCards] {

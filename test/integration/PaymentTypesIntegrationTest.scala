@@ -8,8 +8,8 @@ import models.{Reasons, StoreAdmins}
 import org.scalatest.BeforeAndAfterEach
 import responses.{GiftCardSubTypesResponse, StoreCreditSubTypesResponse}
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.seeds.Seeds.Factories
 
 import scala.concurrent.ExecutionContext.Implicits.global

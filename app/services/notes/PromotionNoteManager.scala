@@ -5,8 +5,7 @@ import models.Note
 import models.objects.{ObjectForm, ObjectForms}
 import models.promotion.Promotion
 import slick.driver.PostgresDriver.api._
-import utils.Slick.DbResult
-import utils.Slick.implicits._
+import utils.db._
 import utils.aliases._
 
 object PromotionNoteManager extends NoteManager[Int, ObjectForm] {

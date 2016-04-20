@@ -4,10 +4,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import utils.seeds.generators.CreditCardGenerator
 
 import models.payment.creditcard._
-import utils.DbResultT._
-import utils.DbResultT.implicits._
 import Seeds.today
-
+import utils.db._
+import utils.db.DbResultT._
 import scala.util.Random
 
 trait CreditCardSeeds extends CreditCardGenerator {

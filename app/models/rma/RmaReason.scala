@@ -3,21 +3,20 @@ package models.rma
 import java.time.Instant
 
 import com.pellucid.sealerate
-import models.javaTimeSlickMapper
 import models.rma.Rma._
 import models.rma.RmaReason._
 import monocle.macros.GenLens
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
+import utils.ADT
 import utils.CustomDirectives.SortAndPage
-import utils.Slick.implicits._
-import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.aliases._
+import utils.db._
 
 case class RmaReason(id: Int = 0, name: String, reasonType: ReasonType = BaseReason, rmaType: RmaType = Standard,
   createdAt: Instant = Instant.now, deletedAt: Option[Instant] = None)
-  extends ModelWithIdParameter[RmaReason] {
+  extends FoxModel[RmaReason] {
 
 }
 
@@ -33,7 +32,7 @@ object RmaReason {
   implicit val reasonTypeColumnType: JdbcType[ReasonType] with BaseTypedType[ReasonType] = ReasonType.slickColumn
 }
 
-class RmaReasons(tag: Tag) extends GenericTable.TableWithId[RmaReason](tag, "rma_reasons")  {
+class RmaReasons(tag: Tag) extends FoxTable[RmaReason](tag, "rma_reasons")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
   def reasonType = column[ReasonType]("reason_type")
@@ -44,7 +43,7 @@ class RmaReasons(tag: Tag) extends GenericTable.TableWithId[RmaReason](tag, "rma
   def * = (id, name, reasonType, rmaType, createdAt, deletedAt) <> ((RmaReason.apply _).tupled, RmaReason.unapply)
 }
 
-object RmaReasons extends TableQueryWithId[RmaReason, RmaReasons](
+object RmaReasons extends FoxTableQuery[RmaReason, RmaReasons](
   idLens = GenLens[RmaReason](_.id)
 )(new RmaReasons(_)) {
 

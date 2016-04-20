@@ -5,10 +5,8 @@ import models.inventory.Skus
 import models.objects.ObjectContext
 import models.{SaveForLater, SaveForLaters}
 import responses.{SaveForLaterResponse, TheResponse}
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.DbResult
-import utils.Slick.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.aliases._
 import cats.data.Xor
 

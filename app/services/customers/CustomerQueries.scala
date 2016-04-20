@@ -4,14 +4,14 @@ object CustomerQueries
 
 /*
 import models.customer.Customers
-import models.javaTimeSlickMapper
 import responses.TheResponse
 import responses.CustomerResponse.{RootSimple, buildForList}
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives
 import utils.CustomDirectives.SortAndPage
-import utils.Slick.implicits._
-import utils.DbResultT._
+import utils.db._
+import utils.db._
+import utils.db.DbResultT._
 import utils.aliases._
 
 object CustomerQueries {

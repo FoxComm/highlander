@@ -1,4 +1,4 @@
-package utils
+package utils.db
 
 import scala.collection.generic.CanBuildFrom
 
@@ -9,43 +9,37 @@ import services.Result
 import scala.concurrent.Future
 import slick.driver.PostgresDriver.api._
 import slick.profile.SqlAction
-import utils.Slick.implicits._
 import utils.aliases._
 
 object DbResultT {
-  type DbResultT[A] = XorT[DBIO, Failures, A]
 
-  object implicits {
-    implicit def dbioApplicative(implicit ec: EC): Applicative[DBIO] = new Applicative[DBIO] {
-      def ap[A, B](fa: DBIO[A])(f: DBIO[A => B]): DBIO[B] =
-        fa.flatMap(a ⇒ f.map(ff ⇒ ff(a)))
+  implicit def dbioApplicative(implicit ec: EC): Applicative[DBIO] = new Applicative[DBIO] {
+    def ap[A, B](fa: DBIO[A])(f: DBIO[A => B]): DBIO[B] =
+      fa.flatMap(a ⇒ f.map(ff ⇒ ff(a)))
 
-      def pure[A](a: A): DBIO[A] = DBIO.successful(a)
-    }
-
-    implicit def dbioMonad(implicit ec: EC) = new Functor[DBIO] with Monad[DBIO] {
-      override def map[A, B](fa: DBIO[A])(f: A ⇒ B): DBIO[B] = fa.map(f)
-
-      override def pure[A](a: A): DBIO[A] = DBIO.successful(a)
-
-      override def flatMap[A, B](fa: DBIO[A])(f: A => DBIO[B]): DBIO[B] = fa.flatMap(f)
-    }
-
-    implicit class EnrichedDbResultT[A](dbResultT: DbResultT[A]) {
-      def runTxn()(implicit db: DB): Result[A] =
-        dbResultT.value.transactionally.run()
-
-      def run()(implicit db: DB): Result[A] =
-        dbResultT.value.run()
-    }
-
-    final implicit class EnrichedOption[A](val option: Option[A]) extends AnyVal {
-      def toXor[F](or: F): F Xor A =
-        option.fold { Xor.left[F, A](or) } (Xor.right[F,A])
-    }
+    def pure[A](a: A): DBIO[A] = DBIO.successful(a)
   }
 
-  import implicits._
+  implicit def dbioMonad(implicit ec: EC) = new Functor[DBIO] with Monad[DBIO] {
+    override def map[A, B](fa: DBIO[A])(f: A ⇒ B): DBIO[B] = fa.map(f)
+
+    override def pure[A](a: A): DBIO[A] = DBIO.successful(a)
+
+    override def flatMap[A, B](fa: DBIO[A])(f: A => DBIO[B]): DBIO[B] = fa.flatMap(f)
+  }
+
+  implicit class EnrichedDbResultT[A](dbResultT: DbResultT[A]) {
+    def runTxn()(implicit db: DB): Result[A] =
+      dbResultT.value.transactionally.run()
+
+    def run()(implicit db: DB): Result[A] =
+      dbResultT.value.run()
+  }
+
+  final implicit class EnrichedOption[A](val option: Option[A]) extends AnyVal {
+    def toXor[F](or: F): F Xor A =
+      option.fold { Xor.left[F, A](or) } (Xor.right[F,A])
+  }
 
   def apply[A](v: DBIO[Failures Xor A]): DbResultT[A] =
     XorT[DBIO, Failures, A](v)

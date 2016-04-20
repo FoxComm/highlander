@@ -13,12 +13,9 @@ import responses.order.FullOrder
 import FullOrder.refreshAndFullOrder
 import responses.TheResponse
 import services.orders.OrderTotaler
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick._
-import utils.Slick.implicits._
 import utils.aliases._
-import failures.CartFailures.CustomerHasNoActiveOrder
+import utils.db._
+import utils.db.DbResultT._
 import models.objects.ObjectContext
 import slick.driver.PostgresDriver.api._
 

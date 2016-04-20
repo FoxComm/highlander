@@ -1,15 +1,15 @@
 package models.objects
 
-import models.Aliases.Json
-import monocle.macros.GenLens
-import utils.ExPostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
-import utils.time.JavaTimeSlickMapper._
 import java.time.Instant
 
-case class ObjectForm(id: Int = 0, kind: String, attributes: Json, 
+import models.Aliases.Json
+import monocle.macros.GenLens
+import utils.db.ExPostgresDriver.api._
+import utils.db._
+
+case class ObjectForm(id: Int = 0, kind: String, attributes: Json,
   updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now) 
-extends ModelWithIdParameter[ObjectForm]
+extends FoxModel[ObjectForm]
 
 object ObjectForm {
   val product   = "product"
@@ -19,7 +19,7 @@ object ObjectForm {
 }
 
 // This table mostly acts a placeholder in our system.  We may or may not import objects from 'origin' into this.
-class ObjectForms(tag: Tag) extends GenericTable.TableWithId[ObjectForm](tag, "object_forms")  {
+class ObjectForms(tag: Tag) extends FoxTable[ObjectForm](tag, "object_forms")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def kind = column[String]("kind")
   def attributes = column[Json]("attributes")
@@ -29,7 +29,7 @@ class ObjectForms(tag: Tag) extends GenericTable.TableWithId[ObjectForm](tag, "o
   def * = (id, kind, attributes, updatedAt, createdAt) <> ((ObjectForm.apply _).tupled, ObjectForm.unapply)
 }
 
-object ObjectForms extends TableQueryWithId[ObjectForm, ObjectForms](
+object ObjectForms extends FoxTableQuery[ObjectForm, ObjectForms](
   idLens = GenLens[ObjectForm](_.id)
   )(new ObjectForms(_)) {
 

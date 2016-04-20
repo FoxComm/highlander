@@ -1,16 +1,14 @@
 package utils
 
+import cats.implicits._
 import models.customer.Customers
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.seeds.Seeds
-import Seeds.Factories
-import utils.Slick.UpdateReturning._
-import utils.Slick.implicits._
 import util.SlickSupport.implicits._
-import cats.implicits._
+import utils.db.DbResultT._
+import utils.db.UpdateReturning._
+import utils.db._
+import utils.seeds.Seeds.Factories
 
 class SlickTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global

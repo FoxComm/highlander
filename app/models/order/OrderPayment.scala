@@ -1,7 +1,6 @@
 package models.order
 
 import cats.data.ValidatedNel
-import models.currencyColumnTypeMapper
 import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCard, CreditCards}
 import models.payment.giftcard.{GiftCard, GiftCards}
@@ -9,14 +8,14 @@ import models.payment.storecredit.{StoreCredit, StoreCredits}
 import models.stripe._
 import monocle.macros.GenLens
 import failures.Failure
-import slick.driver.PostgresDriver.api._
 import utils.Money._
 import utils.Validation._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 case class OrderPayment(id: Int = 0, orderId: Int = 0, amount: Option[Int] = None,
   currency: Currency = Currency.USD, paymentMethodId: Int, paymentMethodType: PaymentMethod.Type)
-  extends ModelWithIdParameter[OrderPayment] {
+  extends FoxModel[OrderPayment] {
 
   def isCreditCard:   Boolean = paymentMethodType == PaymentMethod.CreditCard
   def isGiftCard:     Boolean = paymentMethodType == PaymentMethod.GiftCard
@@ -49,9 +48,7 @@ object OrderPayment {
 
 }
 
-class OrderPayments(tag: Tag)
-  extends GenericTable.TableWithId[OrderPayment](tag, "order_payments")
-   {
+class OrderPayments(tag: Tag) extends FoxTable[OrderPayment](tag, "order_payments") {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def orderId = column[Int]("order_id")
@@ -67,7 +64,7 @@ class OrderPayments(tag: Tag)
   def creditCard  = foreignKey(CreditCards.tableName, paymentMethodId, CreditCards)(_.id)
 }
 
-object OrderPayments extends TableQueryWithId[OrderPayment, OrderPayments](
+object OrderPayments extends FoxTableQuery[OrderPayment, OrderPayments](
   idLens = GenLens[OrderPayment](_.id)
 )(new OrderPayments(_)){
 

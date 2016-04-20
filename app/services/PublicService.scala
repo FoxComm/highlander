@@ -8,10 +8,9 @@ import Country._
 import Region._
 import responses.CountryWithRegions
 import slick.driver.PostgresDriver.api._
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 object PublicService {
 

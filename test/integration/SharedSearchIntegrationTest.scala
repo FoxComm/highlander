@@ -2,20 +2,18 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import akka.http.scaladsl.model.StatusCodes
 
 import Extensions._
-import models.sharedsearch.{SharedSearch, SharedSearchAssociation, SharedSearchAssociations, SharedSearches}
+import models.sharedsearch._
 import models.{StoreAdmin, StoreAdmins}
 import SharedSearchAssociation.{build ⇒ buildAssociation}
-import models.sharedsearch.SharedSearch.{InventoryScope, ProductsScope, GiftCardsScope, CustomersScope, OrdersScope,
-PromotionsScope, CouponsScope, StoreAdminsScope}
+import models.sharedsearch.SharedSearch._
 import failures.NotFoundFailure404
 import failures.SharedSearchFailures._
 import payloads.{SharedSearchAssociationPayload, SharedSearchPayload}
 import responses.StoreAdminResponse.{Root ⇒ AdminRoot, build ⇒ buildAdmin}
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.seeds.Seeds.Factories
-import utils.Slick.implicits._
 import slick.driver.PostgresDriver.api._
 import org.json4s.jackson.JsonMethods._
 

@@ -8,9 +8,9 @@ import akka.actor.{Actor, ActorLogging}
 
 import models.order.Order._
 import models.order.{Order, Orders}
-import slick.driver.PostgresDriver.api._
-import utils.time.JavaTimeSlickMapper._
 import utils.aliases._
+import utils.db.javaTimeSlickMapper
+import utils.db.ExPostgresDriver.api._
 
 case object Tick
 

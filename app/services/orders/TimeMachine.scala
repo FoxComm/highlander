@@ -4,9 +4,8 @@ import java.time.Instant
 
 import models.order._
 import services.Result
-import utils.DbResultT._
-import utils.DbResultT.implicits._
 import utils.aliases._
+import utils.db.DbResultT._
 
 object TimeMachine {
 

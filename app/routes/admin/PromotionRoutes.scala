@@ -13,7 +13,7 @@ import slick.driver.PostgresDriver.api._
 import utils.Apis
 import utils.CustomDirectives._
 import utils.Http._
-import utils.Slick.implicits._
+import utils.db._
 import utils.aliases._
 
 object PromotionRoutes {

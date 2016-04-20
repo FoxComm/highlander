@@ -9,9 +9,6 @@ import payloads.AppendActivity
 import responses.ActivityConnectionResponse
 import services.activity.CustomerTailored.CustomerUpdated
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
 import utils.seeds.Seeds.Factories
 import slick.driver.PostgresDriver.api._
 import org.json4s.DefaultFormats
@@ -26,9 +23,10 @@ import scala.language.implicitConversions
 import Extensions._
 import failures.NotFoundFailure404
 
-case class DumbActivity(
-  randomWord: String,
-  randomNumber: Int)
+import utils.db._
+import utils.db.DbResultT._
+
+case class DumbActivity(randomWord: String, randomNumber: Int)
 
 object DumbActivity {
   val typeName = "dumb_activity"

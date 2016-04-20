@@ -3,25 +3,21 @@ package utils.seeds
 import scala.util.Random
 
 import cats.implicits._
-import models.customer.{CustomerDynamicGroup, Customers, Customer}
+import models.customer.{Customer, CustomerDynamicGroup, Customers}
 import models.inventory.Skus
-import models.location.{Addresses, Address}
+import models.location.{Address, Addresses}
 import models.order._
 import models.coupon._
 import models.promotion._
 import models.payment.PaymentMethod
-import models.payment.creditcard.{CreditCards, CreditCard}
+import models.payment.creditcard.{CreditCard, CreditCards}
 import models.product.SimpleContext
 import models.objects.{ObjectContext, ObjectContexts}
 import utils.seeds.generators._
 import utils.aliases._
-
-import utils.ModelWithIdParameter
-import utils.DbResultT
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import Seeds.Factories
-
 import slick.driver.PostgresDriver.api._
 import faker.Faker
 import org.json4s.JObject
@@ -38,7 +34,7 @@ object RankingSeedsGenerator {
       state = state, contextId = context.id)
   }
 
-  def generateOrderPayment[A <: PaymentMethod with ModelWithIdParameter[A]](orderId: Int,
+  def generateOrderPayment[A <: PaymentMethod with FoxModel[A]](orderId: Int,
     paymentMethod: A, amount: Int = 100): OrderPayment = {
       Factories.orderPayment.copy(orderId = orderId, amount = Some(amount),
         paymentMethodId = paymentMethod.id)

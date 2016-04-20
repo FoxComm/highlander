@@ -1,11 +1,8 @@
 import models.customer.{Customer, Customers}
 import util.IntegrationTestBase
-import utils.seeds.Seeds
-import Seeds.Factories
-import utils.Slick.implicits._
-import utils.DbResultT
-import DbResultT.implicits._
-import utils.DbResultT._
+import utils.db._
+import utils.db.DbResultT._
+import utils.seeds.Seeds.Factories
 import slick.driver.PostgresDriver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 

@@ -8,10 +8,9 @@ import models.inventory.summary.InventorySummaries
 import models.product.Mvp
 import responses.InventoryResponses._
 import slick.driver.PostgresDriver.api._
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 object InventoryManager {
 

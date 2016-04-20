@@ -3,12 +3,10 @@ package services.orders
 import models.order.{Orders, Order, OrderShippingMethods}
 import slick.driver.PostgresDriver.api._
 import cats.implicits._
-import utils.Slick.DbResult
-import utils.Slick.implicits._
-import utils.DbResultT._
-import utils.DbResultT.implicits._
 import services.Result
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 // TODO: Use utils.Money
 object OrderTotaler {

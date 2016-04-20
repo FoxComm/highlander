@@ -9,11 +9,10 @@ import models.{Notes, _}
 import responses.AdminNotes
 import services.notes.CustomerNoteManager
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
 import utils.seeds.Seeds
 import Seeds.Factories
-import utils.Slick.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.time.RichInstant
 import scala.concurrent.ExecutionContext.Implicits.global
 

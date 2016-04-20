@@ -9,7 +9,8 @@ import utils.seeds.Seeds
 import Seeds.Factories
 import failures.GeneralFailure
 import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import util.SlickSupport.implicits._
 
 class DbResultTTest
@@ -18,7 +19,6 @@ class DbResultTTest
   with CatsHelpers{
 
   import scala.concurrent.ExecutionContext.Implicits.global
-  import DbResultT.implicits._
   import util.CustomMatchers._
 
   "DbResultT" - {

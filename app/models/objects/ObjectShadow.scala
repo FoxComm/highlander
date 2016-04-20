@@ -4,10 +4,9 @@ import java.time.Instant
 
 import models.Aliases.Json
 import monocle.macros.GenLens
-import utils.ExPostgresDriver.api._
-import utils.JsonFormatters
-import utils.time.JavaTimeSlickMapper._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.db.ExPostgresDriver.api._
+import utils.db._
+import utils.{JsonFormatters, Validation}
 
 /**
  * A ObjectShadow is what you get when a context illuminates a Object.
@@ -15,10 +14,10 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
  * storefront.
  */
 case class ObjectShadow(id: Int = 0, formId: Int = 0, attributes: Json, createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[ObjectShadow]
+  extends FoxModel[ObjectShadow]
   with Validation[ObjectShadow]
 
-class ObjectShadows(tag: Tag) extends GenericTable.TableWithId[ObjectShadow](tag, "object_shadows")  {
+class ObjectShadows(tag: Tag) extends FoxTable[ObjectShadow](tag, "object_shadows")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def formId = column[Int]("form_id")
   def attributes = column[Json]("attributes")
@@ -29,13 +28,14 @@ class ObjectShadows(tag: Tag) extends GenericTable.TableWithId[ObjectShadow](tag
   def form = foreignKey(ObjectForms.tableName, formId, ObjectForms)(_.id)
 }
 
-object ObjectShadows extends TableQueryWithId[ObjectShadow, ObjectShadows](
+object ObjectShadows extends FoxTableQuery[ObjectShadow, ObjectShadows](
   idLens = GenLens[ObjectShadow](_.id))(new ObjectShadows(_)) {
 
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def filterByForm(formId: Int): QuerySeq = 
+  def filterByForm(formId: Int): QuerySeq =
     filter(_.formId === formId)
-  def filterByAttributes(key: String, value: String): QuerySeq = 
-    filter(_.attributes+>>(key) === value)
+
+  def filterByAttributes(key: String, value: String): QuerySeq =
+    filter(_.attributes +>> key === value)
 }

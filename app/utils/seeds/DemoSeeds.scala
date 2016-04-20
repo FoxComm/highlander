@@ -15,10 +15,8 @@ import Order.Shipped
 import services.orders.OrderTotaler
 import utils.seeds.generators.{InventoryGenerator, InventorySummaryGenerator, ProductGenerator}
 import utils.Money.Currency
-import utils.DbResultT
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.Passwords.hashPassword
 import utils.seeds.generators.GeneratorUtils.randomString
 import cats.implicits._

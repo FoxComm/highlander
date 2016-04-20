@@ -5,11 +5,11 @@ import java.time.Instant
 import cats.data.ValidatedNel
 import cats.implicits._
 import failures.Failure
-import models.javaTimeSlickMapper
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
 import utils.Validation
+import utils.db._
 
 case class SellableInventorySummary(id: Int = 0, onHand: Int, onHold: Int, reserved: Int,
   availableForSale: Int = 0, safetyStock: Int, updatedAt: Instant = Instant.now)

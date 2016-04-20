@@ -1,18 +1,17 @@
 package models.order.lineitems
 
-import models.inventory.{Skus, Sku}
+import models.inventory.{Sku, Skus}
 import models.order.Order
 import models.product.{Product, Products}
 import models.objects._
 import utils.Money.Currency
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
 import utils.aliases._
+import utils.db._
 
 case class OrderLineItemSku(id: Int = 0, skuId: Int, skuShadowId: Int)
-  extends ModelWithIdParameter[OrderLineItemSku]
+  extends FoxModel[OrderLineItemSku]
 
 case class OrderLineItemProductData(
   sku: Sku, 
@@ -22,7 +21,7 @@ case class OrderLineItemProductData(
 
 object OrderLineItemSku {}
 
-class OrderLineItemSkus(tag: Tag) extends GenericTable.TableWithId[OrderLineItemSku](tag, "order_line_item_skus")  {
+class OrderLineItemSkus(tag: Tag) extends FoxTable[OrderLineItemSku](tag, "order_line_item_skus")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def skuId = column[Int]("sku_id")
   def skuShadowId = column[Int]("sku_shadow_id")
@@ -33,7 +32,7 @@ class OrderLineItemSkus(tag: Tag) extends GenericTable.TableWithId[OrderLineItem
   def shadow = foreignKey(ObjectShadows.tableName, skuShadowId, ObjectShadows)(_.id)
 }
 
-object OrderLineItemSkus extends TableQueryWithId[OrderLineItemSku, OrderLineItemSkus](
+object OrderLineItemSkus extends FoxTableQuery[OrderLineItemSku, OrderLineItemSkus](
   idLens = GenLens[OrderLineItemSku](_.id)
 )(new OrderLineItemSkus(_)){
 

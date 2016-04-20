@@ -9,10 +9,9 @@ import models.inventory._
 import models.inventory.summary.InventorySummary.AllSummaries
 import models.inventory.summary._
 import services.inventory.InventoryAdjustmentManager
-import utils.DbResultT
-import utils.DbResultT._
-import utils.DbResultT.implicits._
 import utils.aliases.DB
+import utils.db._
+import utils.db.DbResultT._
 import Rnd._
 
 trait InventoryGenerator {

@@ -7,8 +7,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import cats.implicits._
 import com.github.tototoshi.csv._
 import models.{StoreAdmin, StoreAdmins}
-import utils.DbResultT.{DbResultT, _}
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 
 trait StoreAdminSeeds {
 

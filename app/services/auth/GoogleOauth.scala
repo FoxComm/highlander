@@ -5,8 +5,8 @@ import models.auth.{AdminToken, CustomerToken, Identity, Token}
 import models.customer.{Customer, Customers}
 import models.{StoreAdmin, StoreAdmins}
 import utils.Config._
-import utils.Slick.DbResult
 import utils.aliases._
+import utils.db._
 
 class GoogleOauthStoreAdmin(options: GoogleOauthOptions)
   extends Oauth(options)

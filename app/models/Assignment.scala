@@ -9,11 +9,12 @@ import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.aliases._
-import utils.{ModelWithIdParameter, ADT, GenericTable, TableQueryWithId}
+import utils.db._
+import utils.ADT
 
 case class Assignment(id: Int = 0, assignmentType: AssignmentType, storeAdminId: Int, referenceId: Int,
   referenceType: ReferenceType, createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[Assignment] {
+  extends FoxModel[Assignment] {
 
 }
 
@@ -47,7 +48,7 @@ object Assignment {
     ReferenceType.slickColumn
 }
 
-class Assignments(tag: Tag) extends GenericTable.TableWithId[Assignment](tag, "assignments")  {
+class Assignments(tag: Tag) extends FoxTable[Assignment](tag, "assignments")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def assignmentType = column[AssignmentType]("assignment_type")
   def storeAdminId = column[Int]("store_admin_id")
@@ -61,28 +62,28 @@ class Assignments(tag: Tag) extends GenericTable.TableWithId[Assignment](tag, "a
   def storeAdmin = foreignKey(StoreAdmins.tableName, storeAdminId, StoreAdmins)(_.id)
 }
 
-object Assignments extends TableQueryWithId[Assignment, Assignments](
+object Assignments extends FoxTableQuery[Assignment, Assignments](
   idLens = GenLens[Assignment](_.id)
 )(new Assignments(_)) {
 
   def byType(assignType: AssignmentType, refType: ReferenceType): QuerySeq =
     filter(_.assignmentType === assignType).filter(_.referenceType === refType)
 
-  def byAdmin[T <: ModelWithIdParameter[T]](assignType: AssignmentType, refType: ReferenceType, admin: StoreAdmin): QuerySeq =
+  def byAdmin[T <: FoxModel[T]](assignType: AssignmentType, refType: ReferenceType, admin: StoreAdmin): QuerySeq =
     byType(assignType, refType).filter(_.storeAdminId === admin.id)
 
-  def byEntity[T <: ModelWithIdParameter[T]](assignType: AssignmentType, model: T,
+  def byEntity[T <: FoxModel[T]](assignType: AssignmentType, model: T,
     refType: ReferenceType): QuerySeq = byType(assignType, refType).filter(_.referenceId === model.id)
 
-  def byEntityAndAdmin[T <: ModelWithIdParameter[T]]
+  def byEntityAndAdmin[T <: FoxModel[T]]
     (assignType: AssignmentType, model: T, refType: ReferenceType, admin: StoreAdmin): QuerySeq =
     byEntity(assignType, model, refType).filter(_.storeAdminId === admin.id)
 
-  def byEntitySeqAndAdmin[T <: ModelWithIdParameter[T]](assignType: AssignmentType, models: Seq[T],
+  def byEntitySeqAndAdmin[T <: FoxModel[T]](assignType: AssignmentType, models: Seq[T],
     refType: ReferenceType, admin: StoreAdmin): QuerySeq =
     byType(assignType, refType).filter(_.referenceId.inSetBind(models.map(_.id))).filter(_.storeAdminId === admin.id)
 
-  def assigneesFor[T <: ModelWithIdParameter[T]](assignType: AssignmentType, entity: T, refType: ReferenceType): StoreAdmins.QuerySeq = for {
+  def assigneesFor[T <: FoxModel[T]](assignType: AssignmentType, entity: T, refType: ReferenceType): StoreAdmins.QuerySeq = for {
       assignees ← byEntity(assignType, entity, refType).map(_.storeAdminId)
       admins    ← StoreAdmins.filter(_.id === assignees)
     } yield admins

@@ -5,8 +5,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import models.customer.Customer
 import models.payment.storecredit._
 import models.StoreAdmin
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.Money.Currency
 
 trait StoreCreditSeeds {

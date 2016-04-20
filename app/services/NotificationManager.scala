@@ -17,12 +17,10 @@ import payloads.{AppendActivity, CreateNotification}
 import responses.{ActivityConnectionResponse, ActivityResponse, LastSeenActivityResponse, TheResponse}
 import services.activity.TrailManager
 import slick.driver.PostgresDriver.api._
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.DbResult
-import utils.Slick.implicits._
 import utils.aliases._
-import utils.{DbResultT, JsonFormatters, NotificationListener}
+import utils.db._
+import utils.db.DbResultT._
+import utils.{JsonFormatters, NotificationListener}
 
 object NotificationManager {
   implicit val formats = JsonFormatters.phoenixFormats

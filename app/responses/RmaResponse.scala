@@ -17,10 +17,10 @@ import responses.StoreAdminResponse.{Root ⇒ StoreAdmin}
 import responses.order.FullOrder
 import services.rmas.RmaTotaler
 import utils.Money._
-import utils.Slick._
-import utils.Slick.implicits._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 object RmaResponse {
   case class RmaTotals(subTotal: Int, shipping: Int, taxes: Int, total: Int) extends ResponseItem

@@ -3,18 +3,17 @@ package models.order
 import models.shipping.{ShippingMethod, ShippingMethods}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.GenericTable.TableWithId
-import utils.{ModelWithIdParameter, TableQueryWithId}
+import utils.db._
 
 case class OrderShippingMethod(id: Int = 0, orderId: Int, shippingMethodId: Int, price: Int)
-  extends ModelWithIdParameter[OrderShippingMethod]
+  extends FoxModel[OrderShippingMethod]
 
 object OrderShippingMethod {
   def build(order: Order, method: ShippingMethod): OrderShippingMethod =
     OrderShippingMethod(orderId = order.id, shippingMethodId = method.id, price = method.price)
 }
 
-class OrderShippingMethods(tag: Tag) extends TableWithId[OrderShippingMethod](tag, "order_shipping_methods") {
+class OrderShippingMethods(tag: Tag) extends FoxTable[OrderShippingMethod](tag, "order_shipping_methods") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def orderId = column[Int]("order_id")
   def shippingMethodId = column[Int]("shipping_method_id")
@@ -26,7 +25,7 @@ class OrderShippingMethods(tag: Tag) extends TableWithId[OrderShippingMethod](ta
   def shippingMethod = foreignKey(ShippingMethods.tableName, shippingMethodId, ShippingMethods)(_.id)
 }
 
-object OrderShippingMethods extends TableQueryWithId[OrderShippingMethod, OrderShippingMethods](
+object OrderShippingMethods extends FoxTableQuery[OrderShippingMethod, OrderShippingMethods](
   idLens = GenLens[OrderShippingMethod](_.id)
 )(new OrderShippingMethods(_)) {
   def findByOrderId(orderId: Int): QuerySeq = filter(_.orderId === orderId)

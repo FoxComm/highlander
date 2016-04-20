@@ -7,9 +7,8 @@ import models.order.lineitems.OrderLineItems
 import models.payment.giftcard.{GiftCardAdjustments, GiftCards}
 import models.payment.storecredit.{StoreCreditAdjustments, StoreCredits}
 import slick.driver.PostgresDriver.api._
-import utils.Slick.implicits._
-import utils.Slick.{DbResult, lift}
 import utils.aliases._
+import utils.db._
 
 trait CartValidation {
   def validate(isCheckout: Boolean = false, fatalWarnings: Boolean = false): DbResult[CartValidatorResponse]

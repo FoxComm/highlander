@@ -8,8 +8,8 @@ import models.StoreAdmins
 import models.traits.Originator
 import services.orders.OrderShippingAddressUpdater._
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.seeds.Seeds
 import Seeds.Factories
 

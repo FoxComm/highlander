@@ -1,14 +1,15 @@
 package models.activity
 
+import cats.implicits._
 import cats.data.ValidatedNel
-import monocle.macros.GenLens
 import failures.Failure
-import utils.ExPostgresDriver.api._
-import utils.Slick.DbResult
-import utils.Slick.implicits._
+import monocle.macros.GenLens
+import slick.lifted.Tag
+import utils.Validation
 import utils.Validation._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 import utils.aliases._
+import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 /**
  * An activity dimension has a set of activity trails. It is used as a logical grouping
@@ -19,7 +20,7 @@ case class Dimension(
   id: Int = 0, 
   name: String, 
   description: String)
-  extends ModelWithIdParameter[Dimension]
+  extends FoxModel[Dimension]
   with Validation[Dimension] {
 
     val nameRegex = """([a-zA-Z0-9-_]*)""".r
@@ -43,7 +44,7 @@ object Dimension {
   val sku           = "sku"
 }
 
-class Dimensions(tag: Tag) extends GenericTable.TableWithId[Dimension](tag, "activity_dimensions")  {
+class Dimensions(tag: Tag) extends FoxTable[Dimension](tag, "activity_dimensions")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
   def description = column[String]("description")
@@ -51,7 +52,7 @@ class Dimensions(tag: Tag) extends GenericTable.TableWithId[Dimension](tag, "act
   def * = (id, name, description) <> ((Dimension.apply _).tupled, Dimension.unapply)
 }
 
-object Dimensions extends TableQueryWithId[Dimension, Dimensions](
+object Dimensions extends FoxTableQuery[Dimension, Dimensions](
   idLens = GenLens[Dimension](_.id))(new Dimensions(_)) {
 
     def findByName(name: String) : QuerySeq = filter(_.name === name) 

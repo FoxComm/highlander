@@ -8,10 +8,8 @@ import models.promotion._
 import models.discount._
 
 import responses.PromotionResponses._
-import utils.DbResultT
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import slick.driver.PostgresDriver.api._
 import payloads.{CreatePromotion, CreatePromotionForm, CreatePromotionShadow, 
   UpdatePromotion, UpdatePromotionForm, UpdatePromotionShadow, CreateDiscount,

@@ -1,17 +1,12 @@
 package models.inventory
 
-import models.Aliases.Json
-import models.objects._
-
-import monocle.macros.GenLens
-import utils.ExPostgresDriver.api._
-import utils.JsonFormatters
-import utils.time.JavaTimeSlickMapper._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
-import utils.table.SearchByCode
-import utils.Slick.implicits._
-
 import java.time.Instant
+
+import models.objects._
+import monocle.macros.GenLens
+import utils.JsonFormatters
+import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 object Sku {
   val kind = "sku"
@@ -26,8 +21,7 @@ object Sku {
  */
 case class Sku(id: Int = 0, code: String, contextId: Int, shadowId: Int, formId: Int, 
   commitId: Int, updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[Sku]
-  with Validation[Sku]
+  extends FoxModel[Sku]
 
 class Skus(tag: Tag) extends ObjectHeads[Sku](tag, "skus")  {
 
@@ -37,7 +31,7 @@ class Skus(tag: Tag) extends ObjectHeads[Sku](tag, "skus")  {
 
 }
 
-object Skus extends TableQueryWithId[Sku, Skus](
+object Skus extends FoxTableQuery[Sku, Skus](
   idLens = GenLens[Sku](_.id))(new Skus(_))
   with SearchByCode[Sku, Skus] {
 

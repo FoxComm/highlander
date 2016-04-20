@@ -5,12 +5,10 @@ import models.StoreAdmin
 import payloads.CustomerDynamicGroupPayload
 import responses.DynamicGroupResponse.{Root, build}
 import responses.TheResponse
-import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 object GroupManager {
 

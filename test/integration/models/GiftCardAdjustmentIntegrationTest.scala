@@ -4,11 +4,10 @@ import models.customer.Customers
 import models.order.{OrderPayments, Orders}
 import models.payment.giftcard._
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.seeds.Seeds
 import Seeds.Factories
-import utils.Slick.implicits._
 
 class GiftCardAdjustmentIntegrationTest extends IntegrationTestBase {
   import api._

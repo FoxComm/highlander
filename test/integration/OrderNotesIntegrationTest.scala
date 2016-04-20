@@ -9,12 +9,11 @@ import models.{Notes, _}
 import responses.AdminNotes
 import services.notes.OrderNoteManager
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
 import utils.seeds.Seeds
 import Seeds.Factories
 import failures.NotFoundFailure404
-import utils.Slick.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.time._
 
 class OrderNotesIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {

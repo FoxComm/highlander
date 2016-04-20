@@ -10,9 +10,8 @@ import models.product.{Mvp, SimpleContext}
 import models.objects._
 import responses.InventoryResponses._
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
-import utils.Slick.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.seeds.Seeds.Factories
 import utils.seeds.generators._
 

@@ -1,23 +1,21 @@
 package models.location
 
-import models.currencyColumnTypeMapper
 import monocle.macros.GenLens
-import utils.ExPostgresDriver.api._
-import utils.GenericTable.TableWithId
 import utils.Money._
-import utils.{ModelWithIdParameter, TableQueryWithId}
+import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 case class Country(id: Int = 0, name: String, alpha2: String, alpha3: String, code: Option[String],
   continent: String, currency: Currency, languages: List[String],
   usesPostalCode: Boolean = false, isShippable: Boolean = false, isBillable: Boolean = false)
-  extends ModelWithIdParameter[Country] {
+  extends FoxModel[Country] {
 }
 
 object Country {
   val unitedStatesId: Int = 234
 }
 
-class Countries(tag: Tag) extends TableWithId[Country](tag, "countries")  {
+class Countries(tag: Tag) extends FoxTable[Country](tag, "countries")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name = column[String]("name")
   def alpha2 = column[String]("alpha2")
@@ -34,7 +32,7 @@ class Countries(tag: Tag) extends TableWithId[Country](tag, "countries")  {
     languages, usesPostalCode, isShippable, isBillable) <> ((Country.apply _).tupled, Country.unapply)
 }
 
-object Countries extends TableQueryWithId[Country, Countries](
+object Countries extends FoxTableQuery[Country, Countries](
   idLens = GenLens[Country](_.id)
 )(new Countries(_)) {
 }

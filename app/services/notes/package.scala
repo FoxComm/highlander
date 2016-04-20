@@ -7,15 +7,12 @@ import models.{Note, Notes, StoreAdmin}
 import responses.AdminNotes
 import responses.AdminNotes.Root
 import slick.driver.PostgresDriver.api._
-import utils.DbResultT._
-import utils.ModelWithIdParameter
-import utils.DbResultT.implicits._
-import utils.Slick._
-import utils.Slick.implicits._
 import utils.aliases._
+import utils.db._
+import utils.db.DbResultT._
 
 package object notes {
-  def forModel[M <: ModelWithIdParameter[M]](finder: Notes.QuerySeq)(implicit ec: EC): DbResult[Seq[Root]] = {
+  def forModel[M <: FoxModel[M]](finder: Notes.QuerySeq)(implicit ec: EC): DbResult[Seq[Root]] = {
     val query = for (notes ← finder; authors ← notes.author) yield (notes, authors)
     DbResult.fromDbio(query.result.map(_.map { case (note, author) ⇒ AdminNotes.build(note, author) }))
   }

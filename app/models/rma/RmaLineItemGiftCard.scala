@@ -2,19 +2,17 @@ package models.rma
 
 import java.time.Instant
 
-import models.javaTimeSlickMapper
 import models.payment.giftcard.{GiftCard, GiftCards}
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.db._
 
 case class RmaLineItemGiftCard(id: Int = 0, rmaId: Int, giftCardId: Int, createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[RmaLineItemGiftCard]
+  extends FoxModel[RmaLineItemGiftCard]
 
 object RmaLineItemGiftCard {}
 
-class RmaLineItemGiftCards(tag: Tag) extends
-GenericTable.TableWithId[RmaLineItemGiftCard](tag, "rma_line_item_gift_cards") {
+class RmaLineItemGiftCards(tag: Tag) extends FoxTable[RmaLineItemGiftCard](tag, "rma_line_item_gift_cards") {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def rmaId = column[Int]("rma_id")
   def giftCardId = column[Int]("gift_card_id")
@@ -24,7 +22,7 @@ GenericTable.TableWithId[RmaLineItemGiftCard](tag, "rma_line_item_gift_cards") {
   def giftCard = foreignKey(GiftCards.tableName, giftCardId, GiftCards)(_.id)
 }
 
-object RmaLineItemGiftCards extends TableQueryWithId[RmaLineItemGiftCard, RmaLineItemGiftCards](
+object RmaLineItemGiftCards extends FoxTableQuery[RmaLineItemGiftCard, RmaLineItemGiftCards](
   idLens = GenLens[RmaLineItemGiftCard](_.id)
 )(new RmaLineItemGiftCards(_)){
 

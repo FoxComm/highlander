@@ -5,8 +5,7 @@ import models.rma.{Rma, Rmas}
 import OrderPayments.scope._
 import failures.NotFoundFailure404
 import failures.OrderFailures.OrderPaymentNotFoundFailure
-import utils.Slick.implicits._
-import utils.Slick.DbResult
+import utils.db._
 import utils.aliases._
 
 package object rmas {

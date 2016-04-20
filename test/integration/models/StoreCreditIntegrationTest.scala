@@ -2,13 +2,12 @@ package models
 
 import models.customer.Customers
 import models.order.{OrderPayments, Orders}
-import models.payment.storecredit.{StoreCreditManuals, StoreCreditManual, StoreCreditAdjustments, StoreCredits}
+import models.payment.storecredit._
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.seeds.Seeds
 import Seeds.Factories
-import utils.Slick.implicits._
 
 class StoreCreditIntegrationTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global

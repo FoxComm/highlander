@@ -2,13 +2,13 @@ package models.payment.storecredit
 
 import monocle.macros.GenLens
 import slick.driver.PostgresDriver.api._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.db._
 
-case class StoreCreditFromGiftCard(id: Int = 0, giftCardId: Int) extends ModelWithIdParameter[StoreCreditFromGiftCard]
+case class StoreCreditFromGiftCard(id: Int = 0, giftCardId: Int) extends FoxModel[StoreCreditFromGiftCard]
 
 object StoreCreditFromGiftCard
 
-class StoreCreditFromGiftCards(tag: Tag) extends GenericTable.TableWithId[StoreCreditFromGiftCard](tag,
+class StoreCreditFromGiftCards(tag: Tag) extends FoxTable[StoreCreditFromGiftCard](tag,
   "store_credit_from_gift_cards")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def giftCardId = column[Int]("gift_card_id")
@@ -16,7 +16,7 @@ class StoreCreditFromGiftCards(tag: Tag) extends GenericTable.TableWithId[StoreC
   def * = (id, giftCardId) <> ((StoreCreditFromGiftCard.apply _).tupled, StoreCreditFromGiftCard.unapply)
 }
 
-object StoreCreditFromGiftCards extends TableQueryWithId[StoreCreditFromGiftCard, StoreCreditFromGiftCards](
+object StoreCreditFromGiftCards extends FoxTableQuery[StoreCreditFromGiftCard, StoreCreditFromGiftCards](
   idLens = GenLens[StoreCreditFromGiftCard](_.id)
   )(new StoreCreditFromGiftCards(_)){
 }

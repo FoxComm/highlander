@@ -4,7 +4,7 @@ import scala.concurrent.Future
 
 import cats.data.XorT
 import dispatch.{Http, as, url ⇒ request}
-import org.json4s.{DefaultFormats, _}
+import org.json4s._
 import utils.aliases._
 
 case class UserInfo(name: String, email: String)

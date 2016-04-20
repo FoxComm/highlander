@@ -4,9 +4,8 @@ import java.time.Instant
 
 import models.Aliases.Json
 import monocle.macros.GenLens
-import utils.ExPostgresDriver.api._
-import utils.time.JavaTimeSlickMapper._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
+import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 /**
  * An activity trail belongs in some dimension and points to the tail activity connection.
@@ -19,16 +18,15 @@ import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
  * specific for a trail, for example, last seen notification, etc.
  */
 case class Trail(
-  id: Int = 0, 
+  id: Int = 0,
   dimensionId: Int,
   objectId: String,
   tailConnectionId: Option[Int] = None,
   data: Option[Json] = None,   
   createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[Trail]
-  with Validation[Trail]
+  extends FoxModel[Trail]
 
-class Trails(tag: Tag) extends GenericTable.TableWithId[Trail](tag, "activity_trails")  {
+class Trails(tag: Tag) extends FoxTable[Trail](tag, "activity_trails")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def dimensionId = column[Int]("dimension_id")
   def objectId = column[String]("object_id")
@@ -41,7 +39,7 @@ class Trails(tag: Tag) extends GenericTable.TableWithId[Trail](tag, "activity_tr
   def dimension = foreignKey(Dimensions.tableName, dimensionId, Dimensions)(_.id)
 }
 
-object Trails extends TableQueryWithId[Trail, Trails](
+object Trails extends FoxTableQuery[Trail, Trails](
   idLens = GenLens[Trail](_.id))(new Trails(_)) {
 
   def findByObjectId(dimensionId: Int, objectId: String): QuerySeq =

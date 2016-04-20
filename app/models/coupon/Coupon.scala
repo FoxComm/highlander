@@ -1,15 +1,13 @@
 package models.coupon
 
-import models.Aliases.Json
-import models.objects._
-
-import monocle.macros.GenLens
-import utils.ExPostgresDriver.api._
-import utils.JsonFormatters
-import utils.time.JavaTimeSlickMapper._
-import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
-
 import java.time.Instant
+
+import models.objects._
+import monocle.macros.GenLens
+import slick.lifted.Tag
+import utils.Validation
+import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 object Coupon {
   val kind = "coupon"
@@ -20,7 +18,7 @@ object Coupon {
  */
 case class Coupon(id: Int = 0, promotionId: Int, contextId: Int, shadowId: Int, formId: Int, 
   commitId: Int, updatedAt: Instant = Instant.now, createdAt: Instant = Instant.now)
-  extends ModelWithIdParameter[Coupon]
+  extends FoxModel[Coupon]
   with Validation[Coupon]
 
 class Coupons(tag: Tag) extends ObjectHeads[Coupon](tag, "coupons") {
@@ -31,7 +29,7 @@ class Coupons(tag: Tag) extends ObjectHeads[Coupon](tag, "coupons") {
 
 }
 
-object Coupons extends TableQueryWithId[Coupon, Coupons](
+object Coupons extends FoxTableQuery[Coupon, Coupons](
   idLens = GenLens[Coupon](_.id))(new Coupons(_)) {
 
   def filterByContext(contextId: Int): QuerySeq = 

@@ -13,10 +13,9 @@ import org.scalatest.BeforeAndAfterEach
 import responses.{GiftCardAdjustmentsResponse, GiftCardBulkResponse, GiftCardResponse, StoreCreditResponse}
 import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
-import utils.DbResultT._
-import utils.DbResultT.implicits._
 import utils.Money._
-import utils.Slick.implicits._
+import utils.db._
+import utils.db.DbResultT._
 import utils.seeds.Seeds.Factories
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global

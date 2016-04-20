@@ -1,4 +1,4 @@
-package utils
+package utils.db
 
 import com.github.tminglei.slickpg._
 import com.github.tminglei.slickpg.array.PgArrayJdbcTypes

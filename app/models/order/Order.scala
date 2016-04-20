@@ -8,28 +8,25 @@ import cats.data.{ValidatedNel, Xor}
 import com.pellucid.sealerate
 import failures.CartFailures.OrderMustBeCart
 import failures.{Failure, Failures, GeneralFailure}
-import models.{currencyColumnTypeMapper, javaTimeSlickMapper}
 import models.customer.Customer
 import models.order.Order._
 import models.traits.Lockable
 import monocle.Lens
 import monocle.macros.GenLens
 import slick.ast.BaseTypedType
-import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
+import utils.{ADT, FSM, Validation}
 import utils.Money.Currency
-import utils.Slick.DbResult
-import utils.Slick.implicits._
-import utils.table.SearchByRefNum
-import utils.{ADT, FSM, GenericTable, ModelWithLockParameter, TableQueryWithLock, Validation}
 import utils.aliases._
+import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 case class Order(
   id: Int = 0, referenceNumber: String = "", customerId: Int, contextId: Int,
   state: State = Cart, isLocked: Boolean = false, placedAt: Option[Instant] = None, fraudScore: Int = 0,
   remorsePeriodEnd: Option[Instant] = None, rmaCount: Int = 0, currency: Currency = Currency.USD,
   subTotal: Int = 0, shippingTotal: Int = 0, adjustmentsTotal: Int = 0, taxesTotal: Int = 0, grandTotal: Int = 0)
-  extends ModelWithLockParameter[Order]
+  extends FoxModel[Order]
   with FSM[Order.State, Order]
   with Lockable[Order]
   with Validation[Order] {
@@ -100,7 +97,7 @@ object Order {
   val orderRefNumRegex = """([a-zA-Z0-9-_]*)""".r
 }
 
-class Orders(tag: Tag) extends GenericTable.TableWithLock[Order](tag, "orders")  {
+class Orders(tag: Tag) extends FoxTable[Order](tag, "orders")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   // TODO: Find a way to deal with guest checkouts...
   def referenceNumber = column[String]("reference_number") //we should generate this based on certain rules; nullable until then
@@ -125,7 +122,7 @@ class Orders(tag: Tag) extends GenericTable.TableWithLock[Order](tag, "orders") 
     taxesTotal, grandTotal) <>((Order.apply _).tupled, Order.unapply)
 }
 
-object Orders extends TableQueryWithLock[Order, Orders](
+object Orders extends FoxTableQuery[Order, Orders](
   idLens = GenLens[Order](_.id)
   )(new Orders(_))
   with SearchByRefNum[Order, Orders] {

@@ -9,11 +9,12 @@ import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import slick.lifted.Tag
-import utils.{ADT, GenericTable, ModelWithIdParameter, TableQueryWithId}
+import utils.db._
+import utils.ADT
 
 case class NotificationSubscription(id: Int = 0, adminId: Int, dimensionId: Int, objectId: String,
   createdAt: Instant = Instant.now, reason: NotificationSubscription.Reason)
-  extends ModelWithIdParameter[NotificationSubscription] {
+  extends FoxModel[NotificationSubscription] {
 
 }
 
@@ -30,7 +31,7 @@ object NotificationSubscription {
 }
 
 class NotificationSubscriptions(tag: Tag)
-  extends GenericTable.TableWithId[NotificationSubscription](tag, "notification_subscriptions") {
+  extends FoxTable[NotificationSubscription](tag, "notification_subscriptions") {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def adminId = column[Int]("admin_id")
@@ -46,7 +47,7 @@ class NotificationSubscriptions(tag: Tag)
   def admin = foreignKey(StoreAdmins.tableName, adminId, StoreAdmins)(_.id)
 }
 
-object NotificationSubscriptions extends TableQueryWithId[NotificationSubscription, NotificationSubscriptions](
+object NotificationSubscriptions extends FoxTableQuery[NotificationSubscription, NotificationSubscriptions](
   idLens = GenLens[NotificationSubscription](_.id)
 )(new NotificationSubscriptions(_)) {
 

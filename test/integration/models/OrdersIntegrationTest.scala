@@ -9,7 +9,7 @@ import slick.driver.PostgresDriver.api._
 import util.IntegrationTestBase
 import utils.seeds.Seeds
 import Seeds.Factories
-import utils.Slick.implicits._
+import utils.db._
 import utils.time._
 
 class OrdersIntegrationTest extends IntegrationTestBase {

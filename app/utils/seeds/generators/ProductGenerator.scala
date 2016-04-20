@@ -1,15 +1,12 @@
 package utils.seeds.generators
 
-
-import GeneratorUtils.randomString
 import models.product.{SimpleProductData, Mvp, SimpleContext}
 import models.objects.ObjectContexts
 import scala.util.Random
-import utils.DbResultT._
-import utils.DbResultT.implicits._
+import utils.db._
+import utils.db.DbResultT._
 
-import faker._;
-import java.time.{Instant, ZoneId}
+import faker._
 import org.conbere.markov.MarkovChain
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.io.Source
