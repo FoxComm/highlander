@@ -239,7 +239,7 @@ export default class DynamicGroup extends Component {
 
     return (
       <SelectableSearchList
-        emptyMessage="No customer groups found."
+        emptyMessage="No customers found."
         list={list}
         renderRow={this.renderRow}
         tableColumns={tableColumns}

@@ -13,11 +13,8 @@ import { prefix } from '../../lib/text-utils';
 import { transitionTo } from '../../route-helpers';
 
 // components
-import TableView from '../table/tableview';
-import TableRow from '../table/row';
-import TableCell from '../table/cell';
-import Link from '../link/link';
-import { DateTime } from '../common/datetime';
+import MultiSelectTable from '../table/multi-select-table';
+import GroupRow from './group-row';
 import { PrimaryButton } from '../common/buttons';
 
 
@@ -27,7 +24,7 @@ const mapStateToProps = state => ({list: state.customerGroups.list});
 const mapDispatchToProps = dispatch => ({actions: bindActionCreators(actions, dispatch)});
 
 const tableColumns = [
-  {field: 'name', type: 'id', text: 'Group Name', model: 'group'},
+  {field: 'name', text: 'Group Name'},
   {field: 'type', text: 'Type'},
   {field: 'createdAt', type: 'date', text: 'Date/Time Created'},
   {field: 'modifiedAt', type: 'date', text: 'Date/Time Last Modified'},
@@ -57,23 +54,18 @@ export default class Groups extends Component {
     transitionTo(this.context.history, 'new-dynamic-customer-group');
   }
 
-  renderRow(row, index) {
-    return (
-      <TableRow key={`${index}`}>
-        <TableCell>
-          <Link to={'customer-group'} params={{groupId: row.id}}>
-            {row.name}
-          </Link>
-        </TableCell>
-        <TableCell>{row.type}</TableCell>
-        <TableCell>
-          <DateTime value={row.createdAt} />
-        </TableCell>
-        <TableCell>
-          <DateTime value={row.modifiedAt} />
-        </TableCell>
-      </TableRow>
-    );
+  get renderRow() {
+    return (row, index, columns, params) => {
+      const key = `group-${row.id}`;
+
+      return (
+        <GroupRow
+          key={key}
+          group={row}
+          columns={columns}
+          params={params} />
+      );
+    };
   }
 
   render() {
@@ -85,13 +77,13 @@ export default class Groups extends Component {
           <h2 className={prefixed('header__title')}>Customers Groups</h2>
           <PrimaryButton icon="add" onClick={this.handleAddGroup} />
         </div>
-        <div className={classNames('fc-col-md-1-1',prefixed('table'))}>
-          <TableView
+        <div className={classNames('fc-col-md-1-1', prefixed('table'))}>
+          <MultiSelectTable
             columns={tableColumns}
             data={list}
             renderRow={this.renderRow}
             setState={updateStateAndFetch}
-          />
+            emptyMessage="No groups found." />
         </div>
       </div>
     );
