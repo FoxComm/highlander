@@ -1,0 +1,86 @@
+---
+
+- name: Update System Package Cache
+  apt: update_cache=yes
+  sudo: true
+
+- name: Install Packages
+  apt: name={{ item }} state=latest force=yes
+  sudo: true
+  with_items:
+    - postgresql-server-dev-9.4
+    - postgresql-9.4
+    - postgresql-client-9.4
+    - postgresql-contrib-9.4
+
+- name: Get Flyway
+  get_url: url={{flyway_url}} dest={{home}}/flyway.tar.gz
+
+- name: Unzip Flyway
+  unarchive: src={{home}}/flyway.tar.gz dest=/usr/local/share copy=no
+  sudo: true
+
+- name: Make Flyway Executable
+  file: path={{flyway_dir}}/flyway mode="u+x,g+x,o+x"
+  sudo: true
+
+- name: Add Flyway Home
+  lineinfile: dest=/etc/profile line="FLYWAY_HOME={{flyway_dir}}"
+  sudo: true
+
+- name: Add Flyway Path
+  lineinfile: dest=/etc/profile line="PATH=$PATH:$FLYWAY_HOME" insertafter="^FLYWAY"
+  sudo: true
+
+- name: Copy Postgres Configuration
+  copy: src={{item}} dest="/etc/postgresql/9.4/main/{{item}}" mode="644"
+  sudo: true
+  with_items:
+      - postgresql.conf
+      - pg_hba.conf
+
+- name: Reload Systemd for Postgresql
+  sudo: yes
+  command: systemctl daemon-reload
+
+- name: Restart Postgresql
+  service: name=postgresql state=restarted sleep=5
+  sudo: true
+
+- name: Install Prerequisites for postgresql ansible module
+  sudo: true
+  apt: name={{item}} state=latest
+  with_items:
+    - libpq-dev
+    - python-psycopg2
+
+- name: Create Db
+  postgresql_db: name={{phoenix_db_name}}
+  sudo: true
+
+- name: Configure Db Users
+  postgresql_user: name={{item}} state=present role_attr_flags=SUPERUSER
+  sudo: true
+  with_items:
+      - root
+      - "{{user}}"
+      - phoenix
+
+- name: Create Phoenix Directory
+  file: path={{phoenix_dir}} state=directory owner="{{user}}"
+  sudo: true
+
+- name: Syncrhonize Phoenix Sql
+  synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes
+  sudo: true
+
+- name: Clean Db
+  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
+  args:
+    chdir: "{{phoenix_dir}}"
+
+- name: Migrate Db
+  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
+  args:
+    chdir: "{{phoenix_dir}}"
+

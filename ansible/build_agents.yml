@@ -16,3 +16,4 @@
     - scala
     - node
     - builder
+    - db_test
