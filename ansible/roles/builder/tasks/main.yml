@@ -17,3 +17,7 @@
 - name: Install Public SSH Keys
   sudo: true
   copyv: src=id_rsa.pub dest="/var/lib/buildkite-agent/.ssh/" mode="u=rw,g=r,o=r"
+
+- name: Restart Buildkite Agent
+  sudo: true
+  command: systemctl restart buildkite-agent
