@@ -1,6 +1,6 @@
 ---
 
-- name: Install Boot for Closure
+- name: Install Boot for Clojure
   shell: 'bash -c "cd /usr/local/bin && curl -fsSLo boot https://github.com/boot-clj/boot-bin/releases/download/latest/boot.sh && chmod 755 boot"'
   sudo: true
   args:
