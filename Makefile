@@ -33,6 +33,9 @@ deploy-dem1:
 deploy-dem2:
 	ansible-playbook -v -i ./staging ansible/dem2.yml
 
+deploy-build-agents:
+	ansible-playbook -v -i ./staging ansible/build_agents.yml
+
 lint:
 	ansible-lint ansible/*.yml
 

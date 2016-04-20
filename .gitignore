@@ -6,3 +6,7 @@ ansible/*.retry
 *.pyc
 foxcomm-staging.json
 .env.local
+
+account.json
+*.DS_Store
+.terraform

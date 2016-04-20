@@ -13,3 +13,7 @@
 - name: Install node
   shell: n {{node_version}}
   sudo: true
+
+- name: Install Flow
+  sudo: true
+  copy: src="flow" dest="/usr/local/bin/flow" mode="u=rwx,g=rwx,o=rx"

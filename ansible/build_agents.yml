@@ -1,0 +1,17 @@
+---
+
+- name: Provision JVM Build Machines
+  hosts: 
+    - buildkite-agent-1
+    - buildkite-agent-2
+    - buildkite-agent-3
+    - buildkite-agent-4
+  tags:
+    - buildkite-agent
+  vars:
+    user: '{{ansible_ssh_user}}'
+
+  roles:
+    - common
+    - scala
+    - node
