@@ -8,7 +8,7 @@ variable "ssh_user" {}
 variable "ssh_private_key" {} 
 
 resource "google_compute_instance" "agent" { 
-    name = "${var.prefix}-${var.queue}"
+    name = "${var.prefix}"
     machine_type = "n1-highmem-4"
     tags = ["no-ip", "${var.prefix}"]
     zone = "us-central1-a"
