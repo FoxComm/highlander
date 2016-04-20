@@ -16,4 +16,4 @@
 
 - name: Install Flow
   sudo: true
-  copy: src="flow" dest="/usr/local/bin/flow" mode="u=rwx,g=rwx,o=r"
+  copy: src="flow" dest="/usr/local/bin/flow" mode="u=rwx,g=rwx,o=rx"
