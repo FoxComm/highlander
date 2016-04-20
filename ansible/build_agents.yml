@@ -1,7 +1,7 @@
 ---
 
 - name: Provision JVM Build Machines
-  hosts: 
+  hosts:
     - buildkite-agent-1
     - buildkite-agent-2
     - buildkite-agent-3
