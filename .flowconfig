@@ -3,6 +3,7 @@
 .*/node_modules/babel-.*
 .*/node_modules/fbjs/.*
 .*/node_modules/y18n/.*
+.*/node_modules/json5/.*
 
 [include]
 src
@@ -19,7 +20,3 @@ strip_root=true
 module.system=haste
 unsafe.enable_getters_and_setters=true
 suppress_comment=\\(.\\|\n\\)*\\$FlowFixMe
-
-
-[version]
-0.22.1

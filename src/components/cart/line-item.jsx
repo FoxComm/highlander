@@ -16,10 +16,10 @@ const LineItem = props => {
   };
   return (
     <div styleName="box">
+      <div styleName="image">
+        <img src={props.imagePath} />
+      </div>
       <div styleName="container">
-        <div styleName="image">
-          <img src={props.imagePath} />
-        </div>
         <div styleName="details">
           <div styleName="product-name">
             {props.name}
@@ -31,11 +31,11 @@ const LineItem = props => {
         <div styleName="price">
           <Currency value={props.totalPrice}/>
         </div>
-        <div styleName="controls">
-          <a styleName="close-button" onClick={click}>
-            <Icon name="fc-close" styleName="replace-icon" />
-          </a>
-        </div>
+      </div>
+      <div styleName="controls">
+        <a styleName="close-button" onClick={click}>
+          <Icon name="fc-close" styleName="replace-icon" />
+        </a>
       </div>
     </div>
   );
