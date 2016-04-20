@@ -10,3 +10,4 @@ foxcomm-staging.json
 account.json
 *.DS_Store
 .terraform
+terraform.tfvars

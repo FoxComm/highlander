@@ -2,7 +2,7 @@
 variable "ssh_user" {} 
 variable "ssh_private_key" {} 
 
-module "agent-core-1" {
+module "agent-1" {
     source = "./agent"
     prefix = "buildkite-agent-1"
     queue  = "core"
@@ -10,7 +10,7 @@ module "agent-core-1" {
     ssh_private_key = "${var.ssh_private_key}"
 }
 
-module "agent-core-2" {
+module "agent-2" {
     source = "./agent"
     prefix = "buildkite-agent-2"
     queue  = "core"
@@ -18,18 +18,18 @@ module "agent-core-2" {
     ssh_private_key = "${var.ssh_private_key}"
 }
 
-module "agent-core-3" {
+module "agent-3" {
     source = "./agent"
     prefix = "buildkite-agent-3"
-    queue  = "core"
+    queue  = "ashes_stage"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
 }
 
-module "agent-core-4" {
+module "agent-4" {
     source = "./agent"
     prefix = "buildkite-agent-4"
-    queue  = "core"
+    queue  = "stage_master"
     ssh_user = "${var.ssh_user}"
     ssh_private_key = "${var.ssh_private_key}"
 }
