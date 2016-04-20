@@ -1,18 +1,23 @@
 package server
 
 import scala.collection.immutable
-import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContextExecutor, Future}
-import akka.actor.{ActorSystem, Cancellable, Props}
-import akka.agent.Agent
+import akka.actor.{ActorSystem, Props}
 import akka.event.Logging
+import scala.concurrent.duration._
+import akka.agent.Agent
+import akka.event.Logging.ErrorLevel
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route}
+import akka.http.scaladsl.server.RouteResult._
+import akka.http.scaladsl.server.directives.LoggingMagnet
+import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
 
 import com.typesafe.config.Config
+import com.typesafe.scalalogging.LazyLogging
 import models.StoreAdmin
 import models.customer.Customer
 import org.json4s.jackson.Serialization
@@ -24,12 +29,14 @@ import slick.driver.PostgresDriver.api._
 import utils.Config.{Development, Staging}
 import utils.{Apis, CustomHandlers, WiredStripeApi}
 
-object Main extends App {
+object Main extends App with LazyLogging {
+  logger.info("Starting phoenix server")
   implicit val env = utils.Config.environment
   val service = new Service()
   service.performSelfCheck()
   service.bind()
-  service.setupRemorseTimers
+  service.setupRemorseTimers()
+  logger.info("Startup process complete")
 }
 
 class Service(
@@ -61,28 +68,27 @@ class Service(
   val storeAdminAuth: AsyncAuthenticator[StoreAdmin] = Authenticator.forAdminFromConfig
   implicit val customerAuth: AsyncAuthenticator[Customer] = Authenticator.forCustomerFromConfig
 
-
   val defaultRoutes = {
     pathPrefix("v1") {
-      logRequestResult("auth-routes")(routes.AuthRoutes.routes) ~
-      logRequestResult("public-routes")(routes.Public.routes) ~
-      logRequestResult("customer-routes")(routes.Customer.routes) ~
+      logFailedRequests("auth-routes", ErrorLevel)(routes.AuthRoutes.routes) ~
+      logFailedRequests("public-routes", ErrorLevel)(routes.Public.routes) ~
+      logFailedRequests("customer-routes", ErrorLevel)(routes.Customer.routes) ~
       requireAuth(storeAdminAuth) { implicit admin ⇒
-        logRequestResult("admin-routes")(routes.admin.AdminRoutes.routes) ~
-        logRequestResult("admin-notification-routes")(routes.admin.NotificationRoutes.routes) ~
-        logRequestResult("admin-assignments-routes")(routes.admin.AssignmentsRoutes.routes) ~
-        logRequestResult("admin-order-routes")(routes.admin.OrderRoutes.routes) ~
-        logRequestResult("admin-customer-routes")(routes.admin.CustomerRoutes.routes) ~
-        logRequestResult("admin-customer-groups-routes")(routes.admin.CustomerGroupsRoutes.routes) ~
-        logRequestResult("admin-giftcard-routes")(routes.admin.GiftCardRoutes.routes) ~
-        logRequestResult("admin-rma-routes")(routes.admin.RmaRoutes.routes) ~
-        logRequestResult("admin-activity-routes")(routes.admin.Activity.routes) ~
-        logRequestResult("admin-inventory-routes")(routes.admin.InventoryRoutes.routes) ~
-        logRequestResult("admin-product-routes")(routes.admin.ProductRoutes.routes) ~
-        logRequestResult("admin-sku-routes")(routes.admin.SkuRoutes.routes) ~
-        logRequestResult("admin-discount-routes")(routes.admin.DiscountRoutes.routes) ~
-        logRequestResult("admin-promotion-routes")(routes.admin.PromotionRoutes.routes) ~
-        logRequestResult("admin-coupon-routes")(routes.admin.CouponRoutes.routes)
+        logFailedRequests("admin-routes", ErrorLevel)(routes.admin.AdminRoutes.routes) ~
+        logFailedRequests("admin-notification-routes", ErrorLevel)(routes.admin.NotificationRoutes.routes) ~
+        logFailedRequests("admin-assignments-routes", ErrorLevel)(routes.admin.AssignmentsRoutes.routes) ~
+        logFailedRequests("admin-order-routes", ErrorLevel)(routes.admin.OrderRoutes.routes) ~
+        logFailedRequests("admin-customer-routes", ErrorLevel)(routes.admin.CustomerRoutes.routes) ~
+        logFailedRequests("admin-customer-groups-routes", ErrorLevel)(routes.admin.CustomerGroupsRoutes.routes) ~
+        logFailedRequests("admin-giftcard-routes", ErrorLevel)(routes.admin.GiftCardRoutes.routes) ~
+        logFailedRequests("admin-rma-routes", ErrorLevel)(routes.admin.RmaRoutes.routes) ~
+        logFailedRequests("admin-activity-routes", ErrorLevel)(routes.admin.Activity.routes) ~
+        logFailedRequests("admin-inventory-routes", ErrorLevel)(routes.admin.InventoryRoutes.routes) ~
+        logFailedRequests("admin-product-routes", ErrorLevel)(routes.admin.ProductRoutes.routes) ~
+        logFailedRequests("admin-sku-routes", ErrorLevel)(routes.admin.SkuRoutes.routes) ~
+        logFailedRequests("admin-discount-routes", ErrorLevel)(routes.admin.DiscountRoutes.routes) ~
+        logFailedRequests("admin-promotion-routes", ErrorLevel)(routes.admin.PromotionRoutes.routes) ~
+        logFailedRequests("admin-coupon-routes", ErrorLevel)(routes.admin.CouponRoutes.routes)
       }
     }
   }
@@ -90,14 +96,34 @@ class Service(
   val devRoutes = {
     pathPrefix("v1") {
       requireAuth(storeAdminAuth) { implicit admin ⇒
-        logRequestResult("dev-routes")(routes.admin.DevRoutes.routes)
+        logFailedRequests("dev-routes", ErrorLevel)(routes.admin.DevRoutes.routes)
       }
     }
   }
 
   val allRoutes = utils.Config.environment match {
-    case Development | Staging ⇒ addRoutes.foldLeft(defaultRoutes ~ devRoutes)(_ ~ _)
-    case _                     ⇒ addRoutes.foldLeft(defaultRoutes)(_ ~ _)
+    case Development | Staging ⇒
+      logger.info("Activating dev routes")
+      addRoutes.foldLeft(defaultRoutes ~ devRoutes)(_ ~ _)
+    case _ ⇒
+      addRoutes.foldLeft(defaultRoutes)(_ ~ _)
+  }
+
+  private def logFailedRequests(magnet: LoggingMagnet[HttpRequest ⇒ RouteResult ⇒ Unit]): Directive0 = {
+    extractRequestContext.flatMap { ctx ⇒
+      lazy val logResult = magnet.f(logger)(ctx.request)
+
+      mapRouteResult { result ⇒
+        result match {
+          case Complete(response) ⇒ response.status match {
+            case StatusCodes.OK ⇒ // NOOP
+            case _ ⇒ logResult(result)
+          }
+          case Rejected(rejections) ⇒ logResult(result)
+        }
+        result
+      }
+    }
   }
 
   implicit def rejectionHandler: RejectionHandler = CustomHandlers.jsonRejectionHandler
@@ -106,10 +132,15 @@ class Service(
 
   private final val serverBinding = Agent[Option[ServerBinding]](None)
 
-  def bind(config: Config = config): Future[ServerBinding] =
-    Http().bindAndHandle(allRoutes, config.getString("http.interface"), config.getInt("http.port")).flatMap {
+  def bind(config: Config = config): Future[ServerBinding] = {
+    val host = config.getString("http.interface")
+    val port = config.getInt("http.port")
+    val bind = Http().bindAndHandle(allRoutes, host, port).flatMap {
       binding ⇒ serverBinding.alter(Some(binding)).map(_ ⇒ binding)
     }
+    logger.info(s"Bound to $host:$port")
+    bind
+  }
 
   def close(): Future[Unit] =
     serverBinding.future.flatMap {
@@ -117,18 +148,21 @@ class Service(
       case None    ⇒ Future.successful(())
     }
 
-  def setupRemorseTimers: Cancellable = {
+  def setupRemorseTimers(): Unit = {
+    logger.info("Scheduling remorse timer")
     val remorseTimer = system.actorOf(Props(new RemorseTimer()), "remorse-timer")
     val remorseTimerBuddy = system.actorOf(Props(new RemorseTimerMate()), "remorse-timer-mate")
     system.scheduler.schedule(Duration.Zero, 1.minute, remorseTimer, Tick)(executionContext, remorseTimerBuddy)
   }
 
   def performSelfCheck(): Unit = {
+    logger.info("Performing self check")
     if (config.getString("auth.method") == "jwt") {
       import models.auth.Keys
       assert(Keys.loadPrivateKey.isSuccess, "Can't load private key")
       assert(Keys.loadPublicKey.isSuccess, "Can't load public key")
     }
+    logger.info("Self check complete")
   }
 
 }

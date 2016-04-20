@@ -18,6 +18,20 @@
         <additive>false</additive>
     </logger>
 
+    <!-- Phoenix debug file logger -->
+    <appender name="PhoenixLog" class="ch.qos.logback.core.FileAppender">
+        <file>log/phoenix.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>[%level] [%date{ISO8601,UTC}] %message %ex{full}\n</pattern>
+        </encoder>
+    </appender>
+
+    <!--<logger name="PhoenixDebug" level="DEBUG">-->
+        <!--<appender-ref ref="PhoenixLog" />-->
+        <!--<additive>false</additive>-->
+    <!--</logger>-->
+
     <!-- Gatling -->
     <!-- Log ALL HTTP request and responses -->
     <!-- <logger name="io.gatling.http.ahc" level="TRACE" /> -->
@@ -26,7 +40,7 @@
     <logger name="io.gatling.http.ahc" level="DEBUG" />
     <logger name="io.gatling.http.response" level="DEBUG" />
 
-    <root level="WARN">
+    <root level="INFO">
         <appender-ref ref="Console" />
     </root>
 </configuration>
