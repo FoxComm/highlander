@@ -2,31 +2,20 @@ package models.activity
 
 import java.time.Instant
 
-import models.Aliases
+import com.typesafe.scalalogging.LazyLogging
+import models.Aliases._
 import monocle.macros.GenLens
-
 import org.json4s.Extraction
 import org.json4s.JsonAST.JValue
-import org.json4s.JsonDSL._
-
+import org.json4s.jackson.Serialization.writePretty
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import utils.Slick.DbResult
-import utils.Slick.implicits._
-
 import utils.ExPostgresDriver.api._
 import utils.JsonFormatters
 import utils.time.JavaTimeSlickMapper._
 import utils.{GenericTable, ModelWithIdParameter, TableQueryWithId, Validation}
 import utils.aliases._
-
-import org.json4s.DefaultFormats
-import org.json4s.jackson.Serialization.{write ⇒ render}
-
-
-
-import Aliases.ActivityType
-import Aliases.Json
 
 case class ActivityContext(
   userId: Int,
@@ -77,15 +66,20 @@ class Activities(tag: Tag) extends GenericTable.TableWithId[Activity](tag, "acti
 case class OpaqueActivity(activityType: ActivityType, data: Json)
 
 object Activities extends TableQueryWithId[Activity, Activities](
-  idLens = GenLens[Activity](_.id))(new Activities(_)) {
+  idLens = GenLens[Activity](_.id))(new Activities(_)) with LazyLogging {
 
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def log(a: OpaqueActivity)(implicit context: ActivityContext, ec: EC): DbResult[Activity] = {
-    create(Activity(
+  def log(a: OpaqueActivity)(implicit context: AC, ec: EC): DbResult[Activity] = {
+    val activity = Activity(
       activityType = a.activityType,
       data = a.data,
-      context = context))
+      context = context)
+
+    logger.info(s"Activity ${a.activityType} by ${context.userType} ${context.userId}")
+    logger.debug(writePretty(activity))
+
+    create(activity)
   }
 
   def filterByType(activityType: ActivityType): QuerySeq = filter(_.activityType === activityType)
