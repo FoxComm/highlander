@@ -1,0 +1,13 @@
+---
+
+- name: Provision Base Image
+  hosts: all
+  tags:
+    - packer
+  vars:
+    user: ubuntu
+
+  roles:
+    - common
+    - scala
+    - node
