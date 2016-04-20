@@ -9,9 +9,9 @@ variable "ssh_private_key" {}
 variable "group_size" {} 
 
 resource "google_compute_instance_template" "build_agent" { 
-    name = "${var.prefix}-${var.queue}"
+    name = "${var.prefix}"
     machine_type = "n1-highmem-4"
-    tags = ["no-ip", "${var.prefix}-${var.queue}"]
+    tags = ["no-ip", "${var.prefix}"]
 
     disk {
         source_image = "${var.demo_image}"
