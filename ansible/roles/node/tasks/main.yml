@@ -6,6 +6,10 @@
     - nodejs-legacy
     - npm
 
+- name: Upgrade NPM
+  shell: npm update -g npm
+  sudo: true
+
 - name: Install n
   shell: npm install -g n
   sudo: true
