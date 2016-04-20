@@ -30,15 +30,14 @@ resource "google_compute_instance" "agent" {
     }
 
     provisioner "file" {
-        source = "terraform/scripts/agent.sh"
+        source = "terraform/scripts/agent_core.sh"
         destination = "/tmp/provision.sh"
     }
 
     provisioner "remote-exec" {
         inline = [
           "chmod +x /tmp/provision.sh",
-          "/tmp/provision.sh ${var.queue}",
-          "rm -rf /tmp/provision.sh"
+          "/tmp/provision.sh ${var.queue}"
         ]
     }
 }

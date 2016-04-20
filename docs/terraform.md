@@ -33,6 +33,8 @@ Before doing all this, you'll need to have an access to [foxcomm-staging](https:
 
 	**Note**: since statefile must be shared with everyone, only one person should run the `terraform` commands at a time.
 
+	**Note**: you need to be connected to our VPN, to provision machines.
+
 ## Links
 
 * [Terraform Documentation](https://www.terraform.io/docs/index.html)
