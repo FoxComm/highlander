@@ -51,18 +51,18 @@ object Seeds {
 
   def createBaseSeeds()(implicit db: Database) {
     Console.err.println("Inserting seeds")
-    val result: Failures Xor Unit = Await.result(createAll().runTxn(), 20.seconds)
+    val result: Failures Xor Unit = Await.result(createAll().runTxn(), 1.minute)
     validateResults("base", result)
   }
 
   def createDemoSeeds()(implicit db: Database) {
-    val result = Await.result(DemoSeeds.insertDemoSeeds.runTxn(), 240.seconds)
+    val result = Await.result(DemoSeeds.insertDemoSeeds.runTxn(), 4.minutes)
     validateResults("demo", result)
   }
 
   def createRankingSeeds()(implicit db: Database) {
     Console.err.println("Inserting ranking seeds")
-    Await.result(RankingSeedsGenerator.insertRankingSeeds(1700).runTxn(), 240.seconds)
+    Await.result(RankingSeedsGenerator.insertRankingSeeds(1700).runTxn(), 4.minutes)
   }
 
   def createRandomSeeds(scale: Int)(implicit db: Database) {
