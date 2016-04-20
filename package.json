@@ -40,6 +40,7 @@
     "eslint-plugin-no-console-log": "^1.0.0",
     "eslint-plugin-react": "^3.16.1",
     "evil-icons": "^1.8.0",
+    "flow-bin": "^0.23.0",
     "gulp": "^3.9.1",
     "gulp-concat": "^2.6.0",
     "gulp-eslint": "^1.1.1",
