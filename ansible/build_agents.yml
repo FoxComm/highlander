@@ -15,5 +15,5 @@
     - common
     - scala
     - node
+    - db_test    
     - builder
-    - db_test
