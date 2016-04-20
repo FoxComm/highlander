@@ -37,7 +37,8 @@ resource "google_compute_instance" "agent" {
     provisioner "remote-exec" {
         inline = [
           "chmod +x /tmp/provision.sh",
-          "/tmp/provision.sh ${var.queue}"
+          "/tmp/provision.sh ${var.queue}",
+          "rm -rf /tmp/provision.sh"
         ]
     }
 }
