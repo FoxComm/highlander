@@ -7,7 +7,7 @@ import styles from './checkout.css';
 import textStyles from 'ui/css/input.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
-import { detectCardType, cardMask, cvvLength} from 'lib/payment-cards';
+import { detectCardType, cardMask, cvvLength} from 'wings/lib/payment-cards';
 
 import localized from 'lib/i18n';
 
