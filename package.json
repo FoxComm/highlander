@@ -100,7 +100,7 @@
     "redux-isomorphic-render": "^1.0.0",
     "reselect": "^2.1.0",
     "sprout-data": "^0.2.3",
-    "wings": "github:foxcomm/wings",
+    "wings": "github:foxcomm/wings#v1.1.0",
     "zipcodes": "^2.0.0"
   }
 }

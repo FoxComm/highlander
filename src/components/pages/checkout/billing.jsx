@@ -7,7 +7,7 @@ import styles from './checkout.css';
 import textStyles from 'ui/css/input.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
-import { detectCardType, cardMask, cvvLength} from 'wings/lib/payment-cards';
+import { detectCardType, cardMask, cvvLength, isCardNumberValid, isCvvValid} from 'wings/lib/payment-cards';
 
 import localized from 'lib/i18n';
 
@@ -125,14 +125,10 @@ class EditBilling extends Component {
 
   @autobind
   validateCardNumber() {
-    const mask = this.cardMask.replace(/[^\d]/g, '');
     const { cardNumber } = this.props.data;
     const { t } = this.props;
 
-    if (mask.length != cardNumber.length) {
-      return t('Please enter a valid credit card number');
-    }
-    return null;
+    return isCardNumberValid(cardNumber) ? null : t('Please enter a valid credit card number');
   }
 
   @autobind
@@ -140,7 +136,7 @@ class EditBilling extends Component {
     const { cvv } = this.props.data;
     const { t } = this.props;
 
-    return cvv.length != cvvLength(this.cardType) ? t(`Please enter a valid cvv number`) : null;
+    return isCvvValid(cvv, this.cardType) ? null : t(`Please enter a valid cvv number`);
   }
 
   render() {
