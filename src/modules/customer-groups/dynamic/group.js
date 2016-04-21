@@ -7,7 +7,7 @@ import Api from '../../../lib/api';
 import * as search from '../../../lib/search';
 import createStore from '../../../lib/store-creator';
 import criterions, { getCriterion, getWidget } from './../../../paragons/customer-groups/criterions';
-import queryAdapter from './../query-adapter';
+import requestAdapter from './../request-adapter';
 
 
 const initialState = {
@@ -40,14 +40,13 @@ const saveGroup = actions => (dispatch, getState) => {
   const mainCondition = getValue('mainCondition');
   const conditions = getValue('conditions');
 
-  const query = queryAdapter(criterions, mainCondition, conditions);
   const data = {
     name,
     clientState: {
       mainCondition,
       conditions,
     },
-    elasticRequest: query.toRequest(),
+    elasticRequest: requestAdapter(criterions, mainCondition, conditions).toRequest(),
   };
 
   //create or update

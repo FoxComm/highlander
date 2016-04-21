@@ -10,7 +10,7 @@ import classNames from 'classnames';
 //data
 import criterions from '../../../paragons/customer-groups/criterions';
 import operators from '../../../paragons/customer-groups/operators';
-import queryAdapter from '../../../modules/customer-groups/query-adapter';
+import requestAdapter from '../../../modules/customer-groups/request-adapter';
 import { actions as groupActions } from '../../../modules/customer-groups/dynamic/group';
 import { actions as listActions } from '../../../modules/customer-groups/dynamic/list';
 
@@ -88,7 +88,7 @@ export default class DynamicGroup extends Component {
     listActions.resetSearch();
 
     listActions.setExtraFilters([
-      queryAdapter(criterions, mainCondition, conditions).toRequest().filter,
+      requestAdapter(criterions, mainCondition, conditions).toRequest().query,
     ]);
 
     listActions.fetch();

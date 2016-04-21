@@ -1,8 +1,4 @@
-import { booleanOperators } from '../../../paragons/customer-groups/operators';
-import Condition from './condition';
-
-
-export default class ConditionAnd extends Condition {
+export default class Sorter {
 
   constructor(criterions) {
     super(criterions);

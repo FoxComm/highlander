@@ -1,14 +1,16 @@
+/* @flow */
+
 import { booleanOperators } from '../../../paragons/customer-groups/operators';
 import Condition from './condition';
 
 
-export default class ConditionOr extends Condition {
+export default class ConditionAnd extends Condition {
 
-  constructor(criterions) {
-    super(criterions);
+  constructor() {
+    super();
   }
 
-  toRequest() {
+  toRequest(): Object {
     if (this._conditions.length === 1) {
       return this._conditions[0].toRequest();
     }
@@ -19,7 +21,7 @@ export default class ConditionOr extends Condition {
     }
 
     return {
-      [booleanOperators.or]: result,
+      [booleanOperators.and]: result,
     };
   }
 
