@@ -148,6 +148,7 @@
     "reselect": "^2.0.0",
     "sprout-data": "^0.2.3",
     "thunkify-wrap": "^1.0.4",
+    "wings": "github:foxcomm/wings#v1.1.0",
     "zipcodes-regex": "^1.0.0"
   },
   "devDependencies": {
