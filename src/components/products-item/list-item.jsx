@@ -13,7 +13,7 @@ type Product = {
   context: string,
   title: string,
   description: string,
-  images: Array<string>,
+  images: ?Array<string>,
   salePrice: string,
   currency: string,
 }
@@ -21,14 +21,16 @@ type Product = {
 const ListItem = (props: Product): HTMLElement => {
   const {productId, title, images, salePrice, currency} = props;
 
-  const imageUrl = images[0];
+  const image = images && images.length > 0
+    ? <img src={images[0]} styleName="preview-image" />
+    : null;
 
   const click = () => browserHistory.push(`/products/${productId}`);
 
   return (
     <div styleName="list-item" onClick={click}>
       <div styleName="preview">
-        <img src={imageUrl} styleName="preview-image" />
+        {image}
       </div>
       <div styleName="name">
         {title}
