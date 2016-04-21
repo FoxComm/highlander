@@ -42,6 +42,9 @@ module.exports = function(gulp, $, opts) {
 
   let bundler = null;
 
+  // configure default env variables before browserify
+  require('../server/env_defaults');
+
   // please use this options for every transform since we have nested node_modules in project
   const pleaseDontIgnoreNestedNodeModules = {
     global: true,

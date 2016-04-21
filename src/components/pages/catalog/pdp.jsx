@@ -49,13 +49,13 @@ type State = {
   quantity: number;
 }
 
-const getState = state => {
+const mapStateToProps = state => {
   const product = state.productDetails.product;
 
   return {
     product,
     auth: state.auth,
-    notFound: !product && _.get(state.asyncActions, ['pdp', 'failed'], false),
+    notFound: !product && _.get(state.asyncActions, ['pdp', 'err', 'status']) == 404,
     isLoading: _.get(state.asyncActions, ['pdp', 'inProgress'], true),
     isCartLoading: _.get(state.asyncActions, ['cartChange', 'inProgress'], false),
   };
@@ -207,4 +207,4 @@ class Pdp extends Component {
   }
 }
 
-export default connect(getState, {...actions, addLineItem, toggleCart, fetchProducts})(localized(Pdp));
+export default connect(mapStateToProps, {...actions, addLineItem, toggleCart, fetchProducts})(localized(Pdp));
