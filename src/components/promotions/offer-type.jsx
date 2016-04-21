@@ -4,18 +4,12 @@
 import _ from 'lodash';
 import React, { PropTypes, Component, Element } from 'react';
 import { autobind } from 'core-decorators';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 
 import styles from './attrs-edit.css';
 
-import { Dropdown, DropdownItem } from '../dropdown';
-import CurrencyInput from '../forms/currency-input';
+import { Dropdown } from '../dropdown';
 import AppendInput from '../forms/append-input';
-import { Checkbox } from '../checkbox/checkbox';
-import SelectVertical from '../select-verical/select-vertical';
-
-import { actions } from '../../modules/products/list';
+import ProductsQualifier from './qualifiers/products';
 
 const offersItems = [
   ['orderPercentOff', 'Percent off order'],
@@ -23,15 +17,9 @@ const offersItems = [
   ['freeShipping', 'Free shipping'],
 ];
 
-type OrderActions = {
-  fetchSearches: Function,
-};
-
 type Props = {
   onChange: (offer: Object) => any,
   discount: Object,
-  productSearches: Array<any>,
-  ordersActions: OrderActions,
 };
 
 type Target = {
@@ -42,47 +30,14 @@ type Event = {
   target: Target,
 };
 
-type State = {
-  discountItemsMode: Object,
-};
-
-function mapStateToProps(state) {
-  return {
-    productSearches: _.get(state, 'products.list.savedSearches', []),
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    ordersActions: bindActionCreators(actions, dispatch),
-  };
-}
-
-/* ::`*/
-@connect(mapStateToProps, mapDispatchToProps)
-/* ::`*/
 export default class Offer extends Component {
+  props: Props;
 
   static propTypes = {
     onChange: PropTypes.func.isRequired,
     discount: PropTypes.object,
-    productSearches: PropTypes.array,
-    ordersActions: PropTypes.shape({
-      fetchSearches: PropTypes.func.isRequired,
-    }).isRequired,
   };
 
-  state: State = {
-    discountItemsMode: this.initialDiscountItemsMode,
-  };
-
-  get initialDiscountItemsMode() {
-    return _.get(this.offerParams, 'references', []).length > 1 ? 'any' : 'some';
-  }
-
-  componentDidMount() {
-    this.props.ordersActions.fetchSearches();
-  }
 
   get offer() {
     const { discount } = this.props;
@@ -186,88 +141,19 @@ export default class Offer extends Component {
   }
 
   @autobind
-  handleChangeDiscountItemsMode(value: any) {
-    this.setState({
-      discountItemsMode: value,
-    });
-    const references = _.get(this.offerParams, 'references', []);
-    if (value === 'some' && references.length > 1) {
-      this.setParams({
-        references: references.slice(0, 1),
-      });
-    }
-  }
-
-  @autobind
-  handleSelectReference(id: any) {
-    this.handleSelectReferences([id]);
-  }
-
-  @autobind
-  handleSelectReferences(ids: Array<any>) {
-    this.setParams({
-      references: ids.map(id => ({referenceId: id, referenceType: 'SavedProductSearch'})),
-    });
-  }
-
-  get discountReferences(): Element {
-    const references = _.get(this.offerParams, 'references', []);
-
-    if (this.state.discountItemsMode == 'some') {
-      const productSearches = this.props.productSearches
-        .filter(search => search.id != null)
-        .map(search => [search.id, search.title]);
-
-      const initialValue = references.length && references[0].referenceId || void 0;
-
-      return (
-        <Dropdown
-          styleName="wide-dropdown"
-          value={initialValue}
-          placeholder="- Select Product Search -"
-          items={productSearches}
-          onChange={this.handleSelectReference}
-        />
-      );
-    } else {
-      const productSearches = this.props.productSearches
-        .filter(search => search.id != null)
-        .reduce((acc, search) => {
-          acc[search.id] = search.title;
-          return acc;
-        }, {});
-
-      const indexedReferences = _.indexBy(references, 'referenceId');
-
-      let counter = 1;
-      const initialItems = _.transform(productSearches, (items, title, id) => {
-        if (id in indexedReferences) {
-          items[counter++] = id;
-        }
-      }, {});
-
-      return (
-        <SelectVertical
-          initialItems={initialItems}
-          options={productSearches}
-          placeholder="- Select Product Search -"
-          onChange={this.handleSelectReferences} />
-      );
-    }
+  handleChangeReferences(references) {
+    this.setParams({references});
   }
 
   get itemsSelectPercentOff(): Element {
+    const references = _.get(this.offerParams, 'references', []);
+
     return (
-      <div>
-        <div styleName="discount-items">
-          <strong styleName="discount-items-label">Discount the items</strong>
-          <Dropdown value={this.state.discountItemsMode} onChange={this.handleChangeDiscountItemsMode}>
-            <DropdownItem value="some">in</DropdownItem>
-            <DropdownItem value="any">in any of</DropdownItem>
-          </Dropdown>
-          {this.discountReferences}
-        </div>
-      </div>
+      <ProductsQualifier
+        label="Discount the items"
+        references={references}
+        onChange={this.handleChangeReferences}
+      />
     );
   }
 
