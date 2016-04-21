@@ -22,7 +22,7 @@ type ProductListParams = {
   fetch: Function;
 }
 
-const getState = state => {
+const mapStateToProps = state => {
   const async = state.asyncActions.products;
 
   return {
@@ -58,4 +58,4 @@ class Products extends Component {
   }
 }
 
-export default connect(getState, actions)(Products);
+export default connect(mapStateToProps, actions)(Products);
