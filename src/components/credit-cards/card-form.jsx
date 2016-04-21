@@ -7,7 +7,7 @@ import classNames from 'classnames';
 
 // utils
 import * as CardUtils from '../../lib/credit-card-utils';
-import { detectCardType, cardMask, cvvLength} from 'wings/lib/payment-cards';
+import { detectCardType, cardMask, cvvLength, isCardNumberValid, isCvvValid } from 'wings/lib/payment-cards';
 
 // components
 import { Checkbox } from '../checkbox/checkbox';
@@ -120,19 +120,14 @@ export default class CreditCardForm extends React.Component {
 
   @autobind
   validateCardNumber() {
-    const mask = this.cardMask.replace(/[^\d]/g, '');
-
-    if (mask.length != this.cardNumber.length) {
-      return 'Please enter a valid credit card number';
-    }
-    return null;
+    return isCardNumberValid(this.cardNumber) ? null : 'Please enter a valid credit card number';
   }
 
   @autobind
   validateCvvNumber() {
     const cvv = _.get(this.state, 'card.cvv', '');
 
-    return cvv.length != cvvLength(this.cardType) ? `Please enter a valid cvv number` : null;
+    return isCvvValid(cvv, this.cardType) ? null :  `Please enter a valid cvv number`;
   }
 
   @autobind
