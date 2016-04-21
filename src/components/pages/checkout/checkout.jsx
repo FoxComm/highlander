@@ -53,6 +53,8 @@ class Checkout extends Component {
 
   state = {
     isPerformingCheckout: false,
+    deliveryInProgress: false,
+    shippingInProgress: false,
   };
 
   componentWillMount() {
@@ -63,6 +65,22 @@ class Checkout extends Component {
     this.props.hideCart();
   }
 
+  performStageTransition(name: string, perform: () => PromiseType): PromiseType {
+    return new Promise(resolve => {
+      const finishTransition = () => {
+        this.setState({
+          [name]: false,
+        }, resolve);
+      };
+
+      this.setState({
+        [name]: true,
+      }, () => {
+        perform().then(finishTransition, finishTransition);
+      });
+    });
+  }
+
   @autobind
   setShippingStage() {
     this.props.setEditStage(EditStages.SHIPPING);
@@ -70,41 +88,34 @@ class Checkout extends Component {
 
   @autobind
   setDeliveryStage() {
-    this.props.saveShippingAddress().then(() => {
-      this.props.setEditStage(EditStages.DELIVERY);
+    this.performStageTransition('shippingInProgress', () => {
+      return this.props.saveShippingAddress().then(() => {
+        this.props.setEditStage(EditStages.DELIVERY);
+      });
     });
   }
 
   @autobind
   setBillingState() {
-    this.props.saveShippingMethod().then(() => {
-      this.props.setEditStage(EditStages.BILLING);
+    this.performStageTransition('deliveryInProgress', () => {
+      return this.props.saveShippingMethod().then(() => {
+        this.props.setEditStage(EditStages.BILLING);
+      });
     });
   }
 
   @autobind
   placeOrder() {
-    this.setState({
-      isPerformingCheckout: true,
-    }, () => {
-      this.props.addCreditCard()
+    this.performStageTransition('isPerformingCheckout', () => {
+      return this.props.addCreditCard()
         .then(() => {
           return this.props.setEditStage(EditStages.FINISHED);
         })
         .then(() => {
           return this.props.checkout();
-        })
-        .then(() => {
-          this.setState({
-            isPerformingCheckout: false,
-          });
-          browserHistory.push('/checkout/done');
-        })
-        .catch(() => {
-          this.setState({
-            isPerformingCheckout: false,
-          });
         });
+    }).then(() => {
+      browserHistory.push('/checkout/done');
     });
   }
 
@@ -124,6 +135,7 @@ class Checkout extends Component {
               isEditing={props.editStage == EditStages.SHIPPING}
               collapsed={props.editStage < EditStages.SHIPPING}
               editAction={this.setShippingStage}
+              inProgress={this.state.shippingInProgress}
               continueAction={this.setDeliveryStage}
             />
             <Delivery
@@ -131,6 +143,7 @@ class Checkout extends Component {
               editAllowed={props.editStage >= EditStages.DELIVERY}
               collapsed={!props.isDeliveryDurty && props.editStage < EditStages.DELIVERY}
               editAction={this.setDeliveryStage}
+              inProgress={this.state.deliveryInProgress}
               continueAction={this.setBillingState}
             />
             <Billing

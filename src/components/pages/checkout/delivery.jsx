@@ -89,7 +89,7 @@ class EditDelivery extends Component {
     return (
       <Form onSubmit={this.handleSubmit}>
         {this.shippingMethods}
-        <Button styleName="checkout-submit" type="submit">{t('CONTINUE')}</Button>
+        <Button isLoading={this.props.inProgress} styleName="checkout-submit" type="submit">{t('CONTINUE')}</Button>
       </Form>
     );
   }

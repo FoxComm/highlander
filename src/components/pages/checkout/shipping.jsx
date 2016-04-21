@@ -22,7 +22,7 @@ const EditShipping = localized(props => {
   return (
     <Form onSubmit={props.continueAction}>
       <EditAddress {...props} />
-      <Button styleName="checkout-submit" type="submit">{t('CONTINUE')}</Button>
+      <Button isLoading={props.inProgress} styleName="checkout-submit" type="submit">{t('CONTINUE')}</Button>
     </Form>
   );
 });
