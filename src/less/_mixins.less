@@ -212,8 +212,8 @@
 
 // ===== Animations =====
 
-.menu-transition(@dir, @origin) {
-  .menu-transition-@{dir}-enter {
+.dd-transition(@dir, @origin) {
+  .dd-transition-@{dir}-enter {
     transform: scale(0);
     transform-origin: e(@origin);
     transition: opacity .22s ease-in, transform .2s cubic-bezier(.5, 1.8, .9, .8);
@@ -225,7 +225,7 @@
     }
   }
 
-  .menu-transition-@{dir}-leave {
+  .dd-transition-@{dir}-leave {
     transform: scale(1);
     transform-origin: e(@origin);
     transition: opacity .15s ease-out, transform .2s ease-out;
@@ -235,5 +235,14 @@
       transform: scale(0);
       opacity: .01;
     }
+  }
+}
+
+.chevron() {
+  transform: rotateX(0);
+  transition: transform .25s ease-out;
+
+  &._up {
+    transform: rotateX(180deg);
   }
 }

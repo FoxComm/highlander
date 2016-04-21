@@ -275,13 +275,14 @@ export default class LiveSearch extends React.Component {
     if (hasMenu) {
       const disabled = this.props.searches.isSavingSearch || this.isDisabled;
 
-      const buttonClass = classNames('fc-pilled-input__icon-wrapper', {
+      const buttonClass = classNames('fc-pilled-input__controls-item', {
+        '_active': this.state.searchMenuOpened,
         '_disabled': disabled
       });
 
       return (
-        <div className="fc-pilled-input__controls-item">
-          <div className={buttonClass} onClick={() => !disabled && this.toggleSearchMenu()} ref="searchMenuButton">
+        <div className={buttonClass}>
+          <div className="fc-pilled-input__icon-wrapper" onClick={() => !disabled && this.toggleSearchMenu()} ref="searchMenuButton">
             <i className="icon-chevron-down" />
           </div>
           {this.searchMenu}

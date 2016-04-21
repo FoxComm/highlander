@@ -7,7 +7,7 @@ const Menu = props => {
   const transitionProps = {
     component: 'div',
     className: 'fc-menu',
-    transitionName: `menu-transition-${position}`,
+    transitionName: `dd-transition-${position}`,
     transitionEnter: animate,
     transitionLeave: animate,
     transitionEnterTimeout: 300,
@@ -26,7 +26,7 @@ const Menu = props => {
 
 Menu.propTypes = {
   children: PropTypes.node,
-  position: PropTypes.oneOf(['left', 'right', 'center']),
+  position: PropTypes.oneOf(['left', 'center', 'right']),
   isOpen: PropTypes.bool,
   animate: PropTypes.bool,
 };

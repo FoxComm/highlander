@@ -3,6 +3,7 @@
 
 import _ from 'lodash';
 import React, { Component, Element } from 'react';
+import Transition from 'react-addons-css-transition-group';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 
@@ -21,14 +22,22 @@ type Props = {
   items: Array<DropdownItemType>;
   title: string|Element;
   className?: string;
+  menuPosition?: "left" | "center" | "right";
+  animate?: boolean;
 }
 
 type State = {
   open: boolean;
 }
 
-export default class ButthonWithMenu extends Component {
+export default class ButtonWithMenu extends Component {
   props: Props;
+
+  static defaultProps = {
+    items: [],
+    animate: true,
+    menuPosition: 'left',
+  };
 
   state: State = {
     open: false,
@@ -64,8 +73,31 @@ export default class ButthonWithMenu extends Component {
     event.stopPropagation();
   }
 
+  get menu() {
+    const { children, items } = this.props;
+    const { open } = this.state;
+
+    if (!open) {
+      return;
+    }
+
+    return (
+      <ul styleName="menu" ref="menu">
+        {_.map(items, ([value, title]) => (
+          <DropdownItem value={value} key={value} onSelect={this.handleItemClick}>
+            {title}
+          </DropdownItem>
+        )) || React.Children.map(children, item =>
+          React.cloneElement(item, {
+            onSelect: this.handleItemClick,
+          })
+        )}
+      </ul>
+    );
+  }
+
   render(): Element {
-    const { children, icon, title, items } = this.props;
+    const { icon, title, animate, menuPosition } = this.props;
     const { open } = this.state;
 
     const className = classNames(this.props.className, {
@@ -90,19 +122,22 @@ export default class ButthonWithMenu extends Component {
             onBlur={this.dontPropagate}
           />
         </div>
-        <ul ref="menu" styleName="menu">
-          {items && _.map(items, ([value, title]) => (
-            <DropdownItem value={value} key={value} onSelect={this.handleItemClick}>
-              {title}
-            </DropdownItem>
-          )) || React.Children.map(children, item => (
-              React.cloneElement(item, {
-                onSelect: this.handleItemClick,
-              })
-            )
-          )}
-        </ul>
+
+        <Transition {...(getTransitionProps(animate, menuPosition))}>
+          {this.menu}
+        </Transition>
       </div>
     );
   }
+}
+
+function getTransitionProps(animate, position) {
+  return {
+    component: 'div',
+    transitionName: `dd-transition-${position}`,
+    transitionEnter: animate,
+    transitionLeave: animate,
+    transitionEnterTimeout: 300,
+    transitionLeaveTimeout: 300,
+  };
 }

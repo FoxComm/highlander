@@ -70,17 +70,12 @@
       i {
         .font-spec(10px);
 
-        transform: rotateX(0);
-        transition: transform .2s;
-
-        &._up {
-          transform: rotateX(180deg);
-        }
+        .chevron();
       }
     }
 
     &__children {
-      .max-height(0);
+      max-height: 0;
       overflow: hidden;
       transition: max-height .25s ease-out;
     }
@@ -88,8 +83,8 @@
     &__children._open {
       overflow-y: auto;
       overflow-x: hidden;
-      .max-height(500px);
-      transition: max-height .35s ease-in;;
+      max-height: 500px;
+      transition: max-height .85s ease-out;
     }
 
     &__sublink {
