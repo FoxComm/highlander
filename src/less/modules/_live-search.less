@@ -1,8 +1,12 @@
 @gutter: 1.85%;
 
 .fc-live-search {
-  margin-bottom: 20px;
   padding: 0 @gutter;
+  margin-bottom: 40px;
+
+  .fc-list-page-content:first-child {
+    border-top: 1px solid @color-decor9;
+  }
 
   .fc-pilled-input {
     &__pill {
@@ -13,7 +17,7 @@
 
     &__controls-container {
       .fc-btn {
-        color: #4E4949;
+        color: @color-decor32;
         border: none;
         background-color: transparent;
 
@@ -47,7 +51,7 @@
   }
 
   &__search-control {
-    margin-bottom: 40px;
+    margin-top: 20px;
   }
 
   &__share-button {

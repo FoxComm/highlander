@@ -550,6 +550,7 @@ export default class LiveSearch extends React.Component {
 
     return (
       <div className="fc-live-search">
+        {this.shareSearch}
         {this.header}
         <div className={gridClass}>
           <div className="fc-col-md-1-1 fc-live-search__search-control">
@@ -586,8 +587,6 @@ export default class LiveSearch extends React.Component {
             {this.props.children}
           </div>
         </div>
-
-        {this.shareSearch}
       </div>
     );
   }

@@ -1,4 +1,3 @@
-
 /* @flow weak */
 
 //libs
@@ -18,25 +17,29 @@ const InventoryItemDetailsBase = (props, context) => {
       <div className="fc-inventory-item-details__summary">
         <div className="fc-grid">
           <div className="fc-col-md-1-1">
-            <SectionTitle title="Inventory"/>
+            <SectionTitle title="Inventory" />
           </div>
         </div>
-        <TabListView>
-          <TabView draggable={false} selected={!transactionsTabActive}>
-            <IndexLink to="inventory-item-details"
-                       params={props.params}
-                       className="fc-inventory-item-details__tab-link">
-              Inventory
-            </IndexLink>
-          </TabView>
-          <TabView draggable={false} selected={transactionsTabActive}>
-            <Link to="inventory-item-transactions"
-                  params={props.params}
-                  className="fc-inventory-item-details__tab-link">
-              Transactions
-            </Link>
-          </TabView>
-        </TabListView>
+        <div className="fc-grid">
+          <div className="fc-col-md-1-1">
+            <TabListView>
+              <TabView draggable={false} selected={!transactionsTabActive}>
+                <IndexLink to="inventory-item-details"
+                           params={props.params}
+                           className="fc-inventory-item-details__tab-link">
+                  Inventory
+                </IndexLink>
+              </TabView>
+              <TabView draggable={false} selected={transactionsTabActive}>
+                <Link to="inventory-item-transactions"
+                      params={props.params}
+                      className="fc-inventory-item-details__tab-link">
+                  Transactions
+                </Link>
+              </TabView>
+            </TabListView>
+          </div>
+        </div>
       </div>
 
       {props.children}
