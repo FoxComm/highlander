@@ -7,7 +7,7 @@ import React, { Component, PropTypes, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { pushState } from 'redux-router';
+import { push } from 'react-router-redux';
 
 // components
 import { PageTitle } from '../section-title';
@@ -68,10 +68,10 @@ class CouponPage extends Component {
       if (!nextCoupon) return;
 
       if (this.isNew && nextCoupon.form.id) {
-        this.props.dispatch(pushState(null, `/coupons/${nextCoupon.form.id}`, ''));
+        this.props.dispatch(push(`/coupons/${nextCoupon.form.id}`));
       }
       if (!this.isNew && !nextCoupon.form.id) {
-        this.props.dispatch(pushState(null, `/coupons/new`, ''));
+        this.props.dispatch(push(`/coupons/new`));
       }
       this.setState({ coupon: nextCoupon });
     }
@@ -164,7 +164,7 @@ class CouponPage extends Component {
 
   @autobind
   handleCancel(): void {
-    this.props.dispatch(pushState(null, '/coupons', ''));
+    this.props.dispatch(push('/coupons'));
   }
 
   @autobind
@@ -179,10 +179,10 @@ class CouponPage extends Component {
           actions.couponsNew();
           break;
         case 'save_and_duplicate':
-          dispatch(pushState(null, `/coupons/new`, ''));
+          dispatch(push(`/coupons/new`));
           break;
         case 'save_and_close':
-          dispatch(pushState(null, `/coupons`, ''));
+          dispatch(push(`/coupons`));
           break;
       }
     });

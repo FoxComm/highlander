@@ -37,7 +37,9 @@ module.exports = function(gulp, opts, $) {
     bundler = browserify({
       entries: [entries],
       standalone: 'App',
-      transform: ['babelify'],
+      transform: [
+        'babelify',
+      ],
       extensions: ['.jsx'],
       debug: true,
       cache: {},
@@ -89,5 +91,5 @@ module.exports = function(gulp, opts, $) {
     getBundler().on('update', function() {
       runSequence('browserify');
     });
-  })
+  });
 };

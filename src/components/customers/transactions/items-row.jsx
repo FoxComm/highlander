@@ -5,7 +5,7 @@ import React, { PropTypes } from 'react';
 /** Components */
 import MultiSelectRow from '../../table/multi-select-row';
 
-import { transitionTo } from '../../../route-helpers';
+import { transitionTo } from 'browserHistory';
 
 
 function setCellContents(order, field) {
@@ -27,11 +27,11 @@ function setCellContents(order, field) {
  * TODO: Fix image url when it is added to ES result
  * TODO: Fix link to product-details page after productId would be added ES result
  */
-const CustomerItemsRow = (props, context) => {
+const CustomerItemsRow = props => {
   const { item, columns, params } = props;
 
   const clickAction = () => {
-    transitionTo(context.history, 'inventory-item-details', { code: item.skuCode });
+    transitionTo('inventory-item-details', { code: item.skuCode });
   };
 
   const key = `customer-items-${item.id}`;
@@ -52,11 +52,6 @@ CustomerItemsRow.propTypes = {
   item: PropTypes.object.isRequired,
   columns: PropTypes.array.isRequired,
   params: PropTypes.object,
-};
-
-/** CustomerItemsRow expected context types */
-CustomerItemsRow.contextTypes = {
-  history: PropTypes.object.isRequired
 };
 
 export default CustomerItemsRow;

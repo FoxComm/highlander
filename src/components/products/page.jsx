@@ -20,7 +20,7 @@ import SubNav from './sub-nav';
 import WaitAnimation from '../common/wait-animation';
 
 // helpers
-import { transitionTo } from '../../route-helpers';
+import { transitionTo } from 'browserHistory';
 import {
   getProductAttributes,
   setProductAttribute,
@@ -80,17 +80,10 @@ export class ProductPage extends Component<void, Props, State> {
     }).isRequired,
   };
 
-  static contextTypes = {
-    history: PropTypes.object.isRequired,
+  state: State = {
+    product: this.props.products.product,
+    context: _.get(this.props.params, 'context', 'default'),
   };
-
-  state: State;
-
-  constructor(props: Props, context: Object) {
-    super(props, context);
-    const productContext = _.get(this.props.params, 'context', 'default');
-    this.state = { product: this.props.products.product, context: productContext};
-  }
 
   componentDidMount() {
     if (this.isNew) {
@@ -145,7 +138,7 @@ export class ProductPage extends Component<void, Props, State> {
   @autobind
   handleContextChange(context: string) {
     const productId = this.props.params.productId;
-    transitionTo(this.context.history, 'product-details', {
+    transitionTo('product-details', {
       productId: productId,
       context: context,
     });

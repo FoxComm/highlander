@@ -9,11 +9,9 @@ import { SectionTitle } from '../section-title';
 import TabListView from '../tabs/tabs';
 import TabView from '../tabs/tab';
 import { Link, IndexLink } from '../link';
-import { isActiveRoute } from '../../route-helpers';
 
-const InventoryItemDetailsBase = props => {
-
-  const transactionsTabActive = isActiveRoute(props.history, 'inventory-item-transactions', props.params);
+const InventoryItemDetailsBase = (props, context) => {
+  const transactionsTabActive = context.router.isActive({name: 'inventory-item-transactions', params: props.params});
 
   return (
     <div className="fc-inventory-item-details">
@@ -48,9 +46,12 @@ const InventoryItemDetailsBase = props => {
 };
 
 InventoryItemDetailsBase.propTypes = {
-  history: PropTypes.object,
   params: PropTypes.object,
   children: PropTypes.node,
+};
+
+InventoryItemDetailsBase.contextTypes = {
+  router: PropTypes.object.isRequired,
 };
 
 export default InventoryItemDetailsBase;

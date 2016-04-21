@@ -1,23 +1,32 @@
 import React from 'react';
 import { render } from 'react-dom';
-import { reduxReactRouter, ReduxRouter } from 'redux-router';
-import { createHistory as _createHistory } from 'history';
-
-import routes from './routes';
+import { Router } from 'react-router';
 import { Provider } from 'react-redux';
+import { syncHistoryWithStore } from 'react-router-redux';
+
+import { createHistory } from 'history';
+import { useRouterHistory } from 'react-router';
+import useNamedRoutes from 'use-named-routes';
+
 import configureStore from './store';
-import { addRouteLookupForHistory } from './route-helpers';
+import routes from './routes';
+import { setHistory } from 'browserHistory';
 
-const createHistory = addRouteLookupForHistory(_createHistory, routes);
-
+const createBrowserHistory = useNamedRoutes(useRouterHistory(createHistory));
 
 export function start() {
+  let history = createBrowserHistory({ routes });
+
   const initialState = {};
-  const store = configureStore(reduxReactRouter, routes, createHistory, initialState);
+  const store = configureStore(history, initialState);
+  history = syncHistoryWithStore(history, store);
+  setHistory(history);
 
   render(
-    <Provider store={store} key="provider">
-      <ReduxRouter routes={routes} />
+    <Provider store={store} routes={routes} key="provider">
+      <Router history={history}>
+        {routes}
+      </Router>
     </Provider>,
     document.getElementById('foxcom')
   );

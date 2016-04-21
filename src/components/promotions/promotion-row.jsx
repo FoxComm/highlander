@@ -5,7 +5,7 @@
 import React, { PropTypes, Element } from 'react';
 
 import _ from 'lodash';
-import { transitionTo } from '../../route-helpers';
+import { transitionTo } from 'browserHistory';
 
 import { DateTime } from '../common/datetime';
 import { Checkbox } from '../checkbox/checkbox';
@@ -19,19 +19,15 @@ type PromotionRowProps = {
   params: Object,
 };
 
-type PromotionContext = {
-  history: Object,
-};
-
 const setCellContents = (promotion: Object, field: string) => {
   return _.get(promotion, field);
 };
 
-const PromotionRow = (props: PromotionRowProps, context: PromotionContext) => {
+const PromotionRow = (props: PromotionRowProps) => {
   const { promotion, columns, params } = props;
   const key = `promotion-${promotion.id}`;
   const clickAction = () => {
-    transitionTo(context.history, 'promotion-details', { promotionId: promotion.id });
+    transitionTo('promotion-details', { promotionId: promotion.id });
   };
 
   return (
@@ -49,10 +45,6 @@ PromotionRow.propTypes = {
   promotion: PropTypes.object,
   columns: PropTypes.array,
   params: PropTypes.object,
-};
-
-PromotionRow.contextTypes = {
-  history: PropTypes.object.isRequired
 };
 
 export default PromotionRow;

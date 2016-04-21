@@ -10,7 +10,7 @@ import * as actions from '../../modules/customer-groups/list';
 
 // helpers
 import { prefix } from '../../lib/text-utils';
-import { transitionTo } from '../../route-helpers';
+import { transitionTo } from 'browserHistory';
 
 // components
 import MultiSelectTable from '../table/multi-select-table';
@@ -41,17 +41,13 @@ export default class Groups extends Component {
     list: PropTypes.object.isRequired,
   };
 
-  static contextTypes = {
-    history: PropTypes.object.isRequired
-  };
-
   componentDidMount() {
     this.props.actions.fetch();
   }
 
   @autobind
   handleAddGroup() {
-    transitionTo(this.context.history, 'new-dynamic-customer-group');
+    transitionTo('new-dynamic-customer-group');
   }
 
   get renderRow() {

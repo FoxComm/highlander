@@ -1,6 +1,6 @@
 // libs
 import React, { PropTypes } from 'react';
-import { transitionTo } from '../../route-helpers';
+import { transitionTo } from 'browserHistory';
 
 // components
 import { ListPageContainer, makeTotalCounter } from '../list-page';
@@ -8,9 +8,9 @@ import { ListPageContainer, makeTotalCounter } from '../list-page';
 // redux
 import { actions } from '../../modules/orders/list';
 
-const OrderListPage = (props, context) => {
+const OrderListPage = (props) => {
   const TotalCounter = makeTotalCounter(state => state.orders.list, actions);
-  const addAction = () => transitionTo(context.history, 'new-order');
+  const addAction = () => transitionTo('new-order');
 
   const navLinks = [
     { title: 'Lists', to: 'orders' },
@@ -32,10 +32,6 @@ const OrderListPage = (props, context) => {
 
 OrderListPage.propTypes = {
   children: PropTypes.node,
-};
-
-OrderListPage.contextTypes = {
-  history: PropTypes.object.isRequired,
 };
 
 export default OrderListPage;

@@ -6,7 +6,6 @@ import CustomerAccountPassword from './account-password';
 import CustomerRoles from './roles';
 import CustomerAddressBook from './address-book';
 import CustomerCreditCards from './credit-cards';
-import CustomerGroups from './groups';
 import CustomerNotificationSettings from './notification-settings';
 import CustomerAccountStatus from './account-status';
 import SectionSubtitle from '../section-title/section-subtitle';

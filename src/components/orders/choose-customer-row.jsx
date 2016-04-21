@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { transitionTo } from '../../route-helpers';
+import { transitionTo } from 'browserHistory';
 import classNames from 'classnames';
 import _ from 'lodash';
 
@@ -7,7 +7,7 @@ import { Button } from '../common/buttons';
 import TableCell from '../table/cell';
 import TableRow from '../table/row';
 
-const ChooseCustomerRow = (props, context) => {
+const ChooseCustomerRow = (props) => {
   const { customer, onClick } = props;
 
   const activeText = customer.isDisabled ? 'Inactive' : 'Active';
@@ -16,7 +16,7 @@ const ChooseCustomerRow = (props, context) => {
     '_inactive': customer.isDisabled
   });
 
-  const viewAction = () => transitionTo(context.history, 'customer', {
+  const viewAction = () => transitionTo('customer', {
     customerId: customer.id
   });
 
@@ -52,10 +52,6 @@ ChooseCustomerRow.propTypes = {
 
 ChooseCustomerRow.defaultProps = {
   onClick: _.noop,
-};
-
-ChooseCustomerRow.contextTypes = {
-  history: PropTypes.object.isRequired,
 };
 
 export default ChooseCustomerRow;

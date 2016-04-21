@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 
 import _ from 'lodash';
-import { transitionTo } from '../../route-helpers';
+import { transitionTo } from 'browserHistory';
 
 import { DateTime } from '../common/datetime';
 import { Checkbox } from '../checkbox/checkbox';
@@ -84,11 +84,11 @@ const setCellContents = (order, field) => {
 };
 
 
-const OrderRow = (props, context) => {
+const OrderRow = (props) => {
   const { order, columns, params } = props;
   const key = `order-${order.referenceNumber}`;
   const clickAction = () => {
-    transitionTo(context.history, 'order', { order: order.referenceNumber });
+    transitionTo('order', { order: order.referenceNumber });
   };
 
   return (
@@ -106,10 +106,6 @@ OrderRow.propTypes = {
   order: PropTypes.object.isRequired,
   columns: PropTypes.array,
   params: PropTypes.object.isRequired,
-};
-
-OrderRow.contextTypes = {
-  history: PropTypes.object.isRequired
 };
 
 export default OrderRow;

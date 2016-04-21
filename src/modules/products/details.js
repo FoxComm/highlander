@@ -4,7 +4,7 @@
 import Api from '../../lib/api';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
-import { pushState } from 'redux-router';
+import { push } from 'react-router-redux';
 import {
   configureProduct,
   createEmptyProduct,
@@ -126,7 +126,7 @@ export function createProduct(product: FullProduct, context: string = defaultCon
       .then(
         (product: FullProduct) => {
           dispatch(productUpdateSuccess(product));
-          dispatch(pushState(null, `/products/${context}/${product.form.product.id}`, ''));
+          dispatch(push(`/products/${context}/${product.form.product.id}`));
         },
         (err: Object) => {
           dispatch(productUpdateFailure());

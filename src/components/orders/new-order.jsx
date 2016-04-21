@@ -1,7 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
-import { transitionTo } from '../../route-helpers';
+import { transitionTo } from 'browserHistory';
 import _ from 'lodash';
 
 import * as newOrderActions from '../../modules/orders/new-order';
@@ -32,20 +32,12 @@ export default class NewOrder extends Component {
     suggestCustomers: PropTypes.func.isRequired,
   };
 
-  static contextTypes = {
-    history: PropTypes.object.isRequired,
+  state = {
+    checkoutAsGuest: false,
+    customers: [],
+    errors: [],
+    query: '',
   };
-
-  constructor(props, context) {
-    super(props, context);
-
-    this.state = {
-      checkoutAsGuest: false,
-      customers: [],
-      errors: [],
-      query: '',
-    };
-  }
 
   componentDidMount() {
     this.props.suggestCustomers('');
@@ -55,7 +47,7 @@ export default class NewOrder extends Component {
     const cart = _.get(nextProps, 'newOrder.order.cart.referenceNumber');
     if (cart) {
       this.props.resetForm();
-      transitionTo(this.context.history, 'order', { order: cart });
+      transitionTo('order', { order: cart });
       return false;
     }
 

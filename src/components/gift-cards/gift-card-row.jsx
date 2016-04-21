@@ -2,7 +2,7 @@
 import React, { PropTypes } from 'react';
 
 import _ from 'lodash';
-import { transitionTo } from '../../route-helpers';
+import { transitionTo } from 'browserHistory';
 
 import MultiSelectRow from '../table/multi-select-row';
 import OriginType from '../common/origin-type';
@@ -15,11 +15,11 @@ const setCellContents = (giftCard, field) => {
   return _.get(giftCard, field);
 };
 
-const GiftCardRow = (props, context) => {
+const GiftCardRow = (props) => {
   const { giftCard, columns, params } = props;
   const key = `gift-card-${giftCard.id}`;
   const clickAction = () => {
-    transitionTo(context.history, 'giftcard', { giftCard: giftCard.code });
+    transitionTo('giftcard', { giftCard: giftCard.code });
   };
 
   return (
@@ -37,10 +37,6 @@ GiftCardRow.propTypes = {
   giftCard: PropTypes.object.isRequired,
   columns: PropTypes.array,
   params: PropTypes.object.isRequired,
-};
-
-GiftCardRow.contextTypes = {
-  history: PropTypes.object.isRequired
 };
 
 export default GiftCardRow;

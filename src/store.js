@@ -1,15 +1,15 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
 import rootReducer from './modules';
+import { routerMiddleware } from 'react-router-redux';
 
 function useLogger() {
   // only at browser
   return typeof window !== 'undefined';
 }
 
-export default function configureStore(reduxReactRouter, routes, createHistory, initialState) {
-
-  const middlewares = [applyMiddleware(thunk), reduxReactRouter({ routes, createHistory })];
+export default function configureStore(history, initialState) {
+  const middlewares = [applyMiddleware(thunk), applyMiddleware(routerMiddleware(history))];
 
   if (useLogger()) {
     const createLogger = require(`redux-logger`);

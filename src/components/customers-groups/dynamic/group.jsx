@@ -15,7 +15,7 @@ import { actions as groupActions } from '../../../modules/customer-groups/dynami
 import { actions as listActions } from '../../../modules/customer-groups/dynamic/list';
 
 //helpers
-import { transitionTo } from '../../../route-helpers';
+import { transitionTo } from 'browserHistory';
 import { prefix } from '../../../lib/text-utils';
 
 //components
@@ -68,10 +68,6 @@ export default class DynamicGroup extends Component {
     }).isRequired,
   };
 
-  static contextTypes = {
-    history: PropTypes.object.isRequired,
-  };
-
   state = {
     criteriaOpen: true,
   };
@@ -100,7 +96,7 @@ export default class DynamicGroup extends Component {
 
   @autobind
   goToEdit() {
-    transitionTo(this.context.history, 'edit-dynamic-customer-group', {groupId: this.props.group.id});
+    transitionTo('edit-dynamic-customer-group', {groupId: this.props.group.id});
   }
 
   get header() {
@@ -218,7 +214,7 @@ export default class DynamicGroup extends Component {
 
   goToCustomer(id) {
     return () => {
-      transitionTo(this.context.history, 'customer', {customerId: id});
+      transitionTo('customer', {customerId: id});
     };
   }
 

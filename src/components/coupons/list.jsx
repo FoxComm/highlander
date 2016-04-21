@@ -1,7 +1,7 @@
 
 // libs
 import React, { PropTypes } from 'react';
-import { transitionTo } from '../../route-helpers';
+import { transitionTo } from 'browserHistory';
 
 // components
 import { ListPageContainer, makeTotalCounter } from '../list-page';
@@ -13,13 +13,9 @@ type CouponsListProps = {
   children: Element,
 };
 
-type CouponsListHistory = {
-  history: object,
-}
-
-const CouponsList = (props: CouponsListProps, context: CouponsListHistory) => {
+const CouponsList = (props: CouponsListProps) => {
   const TotalCounter = makeTotalCounter(state => state.coupons.list, actions);
-  const addAction = () => transitionTo(context.history, 'coupon-details', {couponId: 'new'});
+  const addAction = () => transitionTo('coupon-details', {couponId: 'new'});
 
   const navLinks = [
     { title: 'Lists', to: 'coupons' },
@@ -41,10 +37,6 @@ const CouponsList = (props: CouponsListProps, context: CouponsListHistory) => {
 
 CouponsList.propTypes = {
   children: PropTypes.node,
-};
-
-CouponsList.contextTypes = {
-  history: PropTypes.object.isRequired,
 };
 
 export default CouponsList;

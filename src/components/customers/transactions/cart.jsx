@@ -4,7 +4,7 @@
 import React, { PropTypes, Component, Element } from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
-import { transitionTo } from '../../../route-helpers';
+import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
 
 import TotalsSummary from '../../common/totals';
@@ -59,10 +59,6 @@ const mapDispatchToProps = {
 export default class CustomerCart extends Component {
   props: Props;
 
-  static contextTypes = {
-    history: PropTypes.object.isRequired
-  };
-
   componentWillMount() {
     this.props.fetchCustomerCart(this.props.params.customerId);
   }
@@ -74,7 +70,7 @@ export default class CustomerCart extends Component {
   @autobind
   editCart() {
     if (this.order) {
-      transitionTo(this.context.history, 'order', { order: this.order.referenceNumber });
+      transitionTo('order', { order: this.order.referenceNumber });
     }
   }
 

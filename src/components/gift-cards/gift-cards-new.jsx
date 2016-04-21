@@ -7,7 +7,7 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
 // helpers
-import { transitionTo } from '../../route-helpers';
+import { transitionTo } from 'browserHistory';
 
 // components
 import Counter from '../forms/counter';
@@ -67,18 +67,11 @@ export default class NewGiftCard extends React.Component {
     balances: PropTypes.array,
   };
 
-  static contextTypes = {
-    history: PropTypes.object.isRequired
+  state = {
+    customerMessageCount: 0,
+    csvMessageCount: 0,
+    customersQuery: '',
   };
-
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      customerMessageCount: 0,
-      csvMessageCount: 0,
-      customersQuery: '',
-    };
-  }
 
   componentDidMount() {
     this.props.resetForm();
@@ -98,9 +91,9 @@ export default class NewGiftCard extends React.Component {
       .then(resp => {
         if (_.isArray(resp)) {
           // TODO: show only created items
-          transitionTo(this.context.history, 'gift-cards');
+          transitionTo('gift-cards');
         } else {
-          transitionTo(this.context.history, 'giftcard', { giftCard: resp.code });
+          transitionTo('giftcard', { giftCard: resp.code });
         }
       });
   }

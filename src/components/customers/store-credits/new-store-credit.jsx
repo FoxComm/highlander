@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 //helpers
 import { ReasonType } from '../../../lib/reason-utils';
 import { codeToName } from '../../../lib/language-utils';
-import { transitionTo } from '../../../route-helpers';
+import { transitionTo } from 'browserHistory';
 
 // components
 import { PageTitle } from '../../section-title';
@@ -51,10 +51,6 @@ const actions = {
 }), actions)
 export default class NewStoreCredit extends React.Component {
 
-  static contextTypes = {
-    history: PropTypes.object.isRequired
-  };
-
   static propTypes = {
     params: PropTypes.shape({
       customerId: PropTypes.number.required
@@ -76,7 +72,7 @@ export default class NewStoreCredit extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     if (_.isNumber(nextProps.form.id)) {
-      transitionTo(this.context.history, 'customer-storecredits', {customerId: this.customerId});
+      transitionTo('customer-storecredits', {customerId: this.customerId});
       this.props.resetForm();
       return false;
     }

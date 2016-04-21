@@ -22,7 +22,7 @@ const InventoryItem = props => {
         </div>
         <LocalNav gutter={true}>
           <a href="">General</a>
-          <IndexLink to="inventory-item-details" params={props.params}>Inventory</IndexLink>
+          <Link to="inventory-item-details" params={props.params}>Inventory</Link>
           <Link to="inventory-item-notes" params={props.params}>Notes</Link>
           <Link to="inventory-item-activity-trail" params={props.params}>Activity Trail</Link>
         </LocalNav>

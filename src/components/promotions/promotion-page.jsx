@@ -6,7 +6,7 @@ import React, { Component, PropTypes, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { pushState } from 'redux-router';
+import { push } from 'react-router-redux';
 
 import styles from './promotion-page.css';
 
@@ -79,10 +79,10 @@ class PromotionPage extends Component {
       if (!nextPromotion) return;
 
       if (this.isNew && nextPromotion.form.id) {
-        this.props.dispatch(pushState(null, `/promotions/${nextPromotion.form.id}`, ''));
+        this.props.dispatch(push(`/promotions/${nextPromotion.form.id}`));
       }
       if (!this.isNew && !nextPromotion.form.id) {
-        this.props.dispatch(pushState(null, `/promotions/new`, ''));
+        this.props.dispatch(push(`/promotions/new`));
       }
       this.setState({ promotion: nextProps.details.promotion });
     }
@@ -144,10 +144,10 @@ class PromotionPage extends Component {
           actions.promotionsNew();
           break;
         case 'save_and_duplicate':
-          dispatch(pushState(null, `/promotions/new`, ''));
+          dispatch(push(`/promotions/new`));
           break;
         case 'save_and_close':
-          dispatch(pushState(null, `/promotions`, ''));
+          dispatch(push(`/promotions`));
           break;
       }
     });
@@ -155,7 +155,7 @@ class PromotionPage extends Component {
 
   @autobind
   handleCancel(): void {
-    this.props.dispatch(pushState(null, '/promotions', ''));
+    this.props.dispatch(push('/promotions'));
   }
 
   render(): Element {

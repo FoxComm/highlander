@@ -1,12 +1,13 @@
-require('babel-register');
-require('babel-polyfill');
-require('../src/postcss').installHook();
-const koa = require('koa');
 const path = require('path');
+const koa = require('koa');
 const co = require('co');
 const favicon = require('koa-favicon');
 const serve = require('koa-static');
 const Config  = require(path.resolve('config'));
+
+require('babel-register');
+require('babel-polyfill');
+require('../src/postcss').installHook();
 
 const app = koa();
 

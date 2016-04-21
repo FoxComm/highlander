@@ -39,10 +39,6 @@ const mapDispatchToProps = dispatch => {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class StoreCreditTransactions extends React.Component {
 
-  static contextTypes = {
-    history: PropTypes.object.isRequired
-  };
-
   static propTypes = {
     params: PropTypes.object,
     tableColumns: PropTypes.array,
@@ -112,7 +108,6 @@ export default class StoreCreditTransactions extends React.Component {
       <div className="fc-store-credits">
         <Summary totals={totals}
                  params={this.props.params}
-                 history={this.context.history}
                  transactionsSelected={true} />
         <div className="fc-list-page-content fc-store-credits__list">
           <SelectableSearchList

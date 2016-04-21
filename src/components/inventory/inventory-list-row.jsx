@@ -2,7 +2,7 @@
 // libs
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
-import { transitionTo } from '../../route-helpers';
+import { transitionTo } from 'browserHistory';
 
 // components
 import MultiSelectRow from '../table/multi-select-row';
@@ -14,11 +14,11 @@ const setCellContents = (sku, field) => {
   return _.get(sku, field);
 };
 
-const InventoryListRow = (props, context) => {
+const InventoryListRow = (props) => {
   const { sku, columns, params } = props;
   const key = `inventory-list-${sku.id}`;
   const clickAction = () => {
-    transitionTo(context.history, 'inventory-item-details', { code: sku.code });
+    transitionTo('inventory-item-details', { code: sku.code });
   };
 
   return (
@@ -36,10 +36,6 @@ InventoryListRow.propTypes = {
   sku: PropTypes.object.isRequired,
   columns: PropTypes.array,
   params: PropTypes.object.isRequired,
-};
-
-InventoryListRow.contextTypes = {
-  history: PropTypes.object.isRequired
 };
 
 export default InventoryListRow;

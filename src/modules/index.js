@@ -1,4 +1,4 @@
-import { routerStateReducer } from 'redux-router';
+import { routerReducer } from 'react-router-redux';
 import { combineReducers } from 'redux';
 
 import { reducer as asyncReducer } from './async-utils';
@@ -25,7 +25,7 @@ import promotions from './promotions';
 import coupons from './coupons';
 
 const rootReducer = combineReducers({
-  router: routerStateReducer,
+  routing: routerReducer,
   asyncActions: asyncReducer,
   giftCards,
   customers,

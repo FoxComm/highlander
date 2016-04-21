@@ -5,7 +5,6 @@
 import Api from '../../lib/api';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
-import { pushState } from 'redux-router';
 import _ from 'lodash';
 
 import { addAttribute } from '../../paragons/form-shadow-object';

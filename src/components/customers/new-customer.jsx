@@ -7,7 +7,7 @@ import { autobind } from 'core-decorators';
 import * as CustomersActions from '../../modules/customers/new';
 
 // helpers
-import { transitionTo } from '../../route-helpers';
+import { transitionTo } from 'browserHistory';
 
 // components
 import FormField from '../forms/formfield.jsx';
@@ -21,7 +21,7 @@ import SaveCancel from '../common/save-cancel';
 export default class NewCustomer extends React.Component {
 
   static contextTypes = {
-    history: PropTypes.object.isRequired
+    router: PropTypes.object.isRequired
   };
 
   static propTypes = {
@@ -36,7 +36,7 @@ export default class NewCustomer extends React.Component {
   @autobind
   submitForm(event) {
     event.preventDefault();
-    this.props.createCustomer(this.context.history);
+    this.props.createCustomer(this.context.router);
   }
 
   @autobind

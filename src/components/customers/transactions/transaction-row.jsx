@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 
 import _ from 'lodash';
-import { transitionTo } from '../../../route-helpers';
+import { transitionTo } from 'browserHistory';
 
 import MultiSelectRow from '../../table/multi-select-row';
 
@@ -15,7 +15,7 @@ const computePaymentState = order => {
         (paymentMethodType == 'storeCredit' && payment.storeCreditState == 'auth')) {
       return result + 1;
     }
-    
+
     return result;
   }, 0);
 
@@ -48,11 +48,11 @@ const setCellContents = (order, field) => {
 };
 
 
-const OrderTransactionRow = (props, context) => {
+const OrderTransactionRow = (props) => {
   const { order, columns, params } = props;
   const key = `order-${order.referenceNumber}`;
   const clickAction = () => {
-    transitionTo(context.history, 'order', { order: order.referenceNumber });
+    transitionTo('order', { order: order.referenceNumber });
   };
 
   return (
@@ -70,10 +70,6 @@ OrderTransactionRow.propTypes = {
   order: PropTypes.object,
   columns: PropTypes.array,
   params: PropTypes.object,
-};
-
-OrderTransactionRow.contextTypes = {
-  history: PropTypes.object.isRequired
 };
 
 export default OrderTransactionRow;

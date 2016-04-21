@@ -19,7 +19,7 @@ import DynamicGroupEditor from './group-editor';
 import Form from '../../forms/form';
 import { PrimaryButton, Button } from '../../common/buttons';
 import { Link } from '../../link';
-import { transitionTo } from '../../../route-helpers';
+import { transitionTo } from 'browserHistory';
 
 
 const prefixed = prefix('fc-customer-group-dynamic-edit');
@@ -46,10 +46,6 @@ export default class NewDynamicGroup extends React.Component {
     fetchRegions: PropTypes.func.isRequired,
   };
 
-  static contextTypes = {
-    history: PropTypes.object.isRequired
-  };
-
   componentWillMount() {
     this.props.actions.reset();
   }
@@ -61,7 +57,7 @@ export default class NewDynamicGroup extends React.Component {
   componentDidUpdate() {
     const {id, isSaved} = this.props.group;
     if (isSaved) {
-      transitionTo(this.context.history, 'customer-group', {groupId: id});
+      transitionTo('customer-group', {groupId: id});
       return false;
     }
 

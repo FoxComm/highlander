@@ -1,7 +1,7 @@
 
 // libs
 import React, { PropTypes } from 'react';
-import { transitionTo } from '../../route-helpers';
+import { transitionTo } from 'browserHistory';
 
 // components
 import { ListPageContainer, makeTotalCounter } from '../list-page';
@@ -13,13 +13,9 @@ type PromotionsListProps = {
   children: Element,
 };
 
-type PromotionsListHistory = {
-  history: object,
-}
-
-const PromotionsList = (props: PromotionsListProps, context: PromotionsListHistory) => {
+const PromotionsList = (props: PromotionsListProps) => {
   const TotalCounter = makeTotalCounter(state => state.promotions.list, actions);
-  const addAction = () => transitionTo(context.history, 'promotion-details', {promotionId: 'new'});
+  const addAction = () => transitionTo('promotion-details', {promotionId: 'new'});
 
   const navLinks = [
     { title: 'Lists', to: 'promotions' },
@@ -41,10 +37,6 @@ const PromotionsList = (props: PromotionsListProps, context: PromotionsListHisto
 
 PromotionsList.propTypes = {
   children: PropTypes.node,
-};
-
-PromotionsList.contextTypes = {
-  history: PropTypes.object.isRequired,
 };
 
 export default PromotionsList;

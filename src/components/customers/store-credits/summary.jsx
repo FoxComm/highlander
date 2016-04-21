@@ -2,7 +2,7 @@
 // libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import { transitionTo } from '../../../route-helpers';
+import { transitionTo } from 'browserHistory';
 
 // components
 import { SectionTitle } from '../../section-title';
@@ -25,7 +25,7 @@ const Summary = props => {
         <div className="fc-col-md-1-1">
           <SectionTitle title="Store Credit"
                         addTitle="Store Credit"
-                        onAddClick={ () => transitionTo(props.history, 'customer-storecredits-new', params) } />
+                        onAddClick={ () => transitionTo('customer-storecredits-new', params) } />
         </div>
       </div>
       <div className="fc-grid fc-store-credits-summary">
@@ -62,7 +62,6 @@ const Summary = props => {
 Summary.propTypes = {
   totals: PropTypes.object.isRequired,
   params: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired,
   transactionsSelected: PropTypes.bool
 };
 

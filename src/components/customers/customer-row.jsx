@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 
 import _ from 'lodash';
-import { transitionTo } from '../../route-helpers';
+import { transitionTo } from 'browserHistory';
 
 import { DateTime } from '../common/datetime';
 import { Checkbox } from '../checkbox/checkbox';
@@ -28,11 +28,11 @@ const setCellContents = (customer, field) => {
   }
 };
 
-const CustomerRow = (props, context) => {
+const CustomerRow = props => {
   const { customer, columns, params } = props;
   const key = `customer-${customer.id}`;
   const clickAction = () => {
-    transitionTo(context.history, 'customer', { customerId: customer.id });
+    transitionTo('customer', { customerId: customer.id });
   };
 
   return (
@@ -50,10 +50,6 @@ CustomerRow.propTypes = {
   customer: PropTypes.object,
   columns: PropTypes.array,
   params: PropTypes.object,
-};
-
-CustomerRow.contextTypes = {
-  history: PropTypes.object.isRequired
 };
 
 export default CustomerRow;

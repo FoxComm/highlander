@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react';
-import { transitionTo } from '../../route-helpers';
+import { transitionTo } from 'browserHistory';
 import classnames from 'classnames';
 import _ from 'lodash';
 
@@ -8,7 +8,7 @@ import ChooseCustomerRow from './choose-customer-row';
 import Table from '../table/table';
 import WaitAnimation from '../common/wait-animation';
 
-const ChooseCustomer = (props, context) => {
+const ChooseCustomer = (props) => {
   const renderRow = (row, index, columns) => {
     const key = `order-choose-customer-${row.id}`;
     const clickItem = () => {
@@ -34,7 +34,7 @@ const ChooseCustomer = (props, context) => {
     <div className="fc-orders-choose-customer__footer">
       <Button onClick={guestCheckoutAction}>Checkout As Guest</Button>
       <div>or</div>
-      <PrimaryButton onClick={() => transitionTo(context.history, 'customers-new')}>
+      <PrimaryButton onClick={() => transitionTo('customers-new')}>
         Create New Customer
       </PrimaryButton>
     </div>
@@ -74,10 +74,6 @@ ChooseCustomer.defaultProps = {
   onItemClick: _.noop,
   updating: false,
   toggleVisibility: _.noop,
-};
-
-ChooseCustomer.contextTypes = {
-  history: PropTypes.object.isRequired,
 };
 
 export default ChooseCustomer;

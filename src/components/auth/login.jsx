@@ -7,7 +7,7 @@ import FormField from '../forms/formfield';
 import { PrimaryButton, Button } from '../common/buttons';
 import WaitAnimation from '../common/wait-animation';
 
-import { transitionTo } from '../../route-helpers';
+import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
@@ -36,26 +36,20 @@ type LoginProps = {
 @connect((state) => ({ user: state.user }), userActions)
 /* ::`*/
 export default class Login extends React.Component {
-
   state: TState = {
       email: '',
       password: '',
   };
 
-  static props: LoginProps;
-
-  static contextTypes = {
-    history: PropTypes.object.isRequired
-  };
+  props: LoginProps;
 
   @autobind
   submitLogin () {
-    const context = this.context;
     const payload = _.pick(this.state, 'email', 'password');
     payload['kind'] = 'admin';
 
     this.props.authenticate(payload).then(() => {
-      transitionTo(context.history, 'home');
+      transitionTo('home');
     });
   }
 

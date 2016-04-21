@@ -1,7 +1,7 @@
 
 // libs
 import React, { PropTypes } from 'react';
-import { transitionTo } from '../../route-helpers';
+import { transitionTo } from 'browserHistory';
 
 // components
 import { ListPageContainer, makeTotalCounter } from '../list-page';
@@ -9,7 +9,7 @@ import { ListPageContainer, makeTotalCounter } from '../list-page';
 // redux
 import { actions as customersActions } from '../../modules/customers/list';
 
-const CustomersListPage = (props, context) => {
+const CustomersListPage = props => {
   const TotalCounter = makeTotalCounter(state => state.customers.list, customersActions);
 
   const navLinks = [
@@ -24,7 +24,7 @@ const CustomersListPage = (props, context) => {
       title="Customers"
       subtitle={<TotalCounter />}
       addTitle="Customer"
-      handleAddAction={ () => transitionTo(context.history, 'customers-new') }
+      handleAddAction={ () => transitionTo('customers-new') }
       navLinks={navLinks}
     >
       {props.children}
@@ -34,10 +34,6 @@ const CustomersListPage = (props, context) => {
 
 CustomersListPage.propTypes = {
   children: PropTypes.node,
-};
-
-CustomersListPage.contextTypes = {
-  history: PropTypes.object.isRequired,
 };
 
 export default CustomersListPage;

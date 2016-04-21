@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import moment from 'moment';
 import _ from 'lodash';
-import { transitionTo } from '../../route-helpers';
+import { transitionTo } from 'browserHistory';
 
 import MultiSelectRow from '../table/multi-select-row';
 
@@ -34,11 +34,11 @@ function setCellContents(product, field) {
   }
 }
 
-const ProductRow = (props, context) => {
+const ProductRow = (props) => {
   const { product, columns, params } = props;
   const key = `product-${product.id}`;
   const clickAction = () => {
-    transitionTo(context.history, 'product-details', { productId: product.productId, context: product.context });
+    transitionTo('product-details', { productId: product.productId, context: product.context });
   };
 
   return (
@@ -56,10 +56,6 @@ ProductRow.propTypes = {
   product: PropTypes.object.isRequired,
   columns: PropTypes.array,
   params: PropTypes.object.isRequired,
-};
-
-ProductRow.contextTypes = {
-  history: PropTypes.object.isRequired
 };
 
 export default ProductRow;

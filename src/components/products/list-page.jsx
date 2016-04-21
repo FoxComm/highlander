@@ -4,7 +4,7 @@
 
 // libs
 import React, { Component, Element, PropTypes } from 'react';
-import { transitionTo } from '../../route-helpers';
+import { transitionTo } from 'browserHistory';
 
 // components
 import { ListPageContainer, makeTotalCounter } from '../list-page';
@@ -16,9 +16,9 @@ type Props = {
   children: any,
 };
 
-const ProductsListPage = (props: Props, context: Object) => {
+const ProductsListPage = (props: Props) => {
   const TotalCounter = makeTotalCounter(state => state.products.list, actions);
-  const addAction = () => transitionTo(context.history, 'product-details', { productId: 'new', context: 'default' });
+  const addAction = () => transitionTo('product-details', { productId: 'new', context: 'default' });
   const navLinks = [
     { title: 'Lists', to: 'products' },
     { title: 'Insights', to: 'home' },
@@ -39,10 +39,6 @@ const ProductsListPage = (props: Props, context: Object) => {
 
 ProductsListPage.propTypes = {
   children: PropTypes.node,
-};
-
-ProductsListPage.contextTypes = {
-  history: PropTypes.object.isRequired,
 };
 
 export default ProductsListPage;

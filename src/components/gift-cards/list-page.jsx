@@ -1,7 +1,7 @@
 
 // libs
 import React, { PropTypes } from 'react';
-import { transitionTo } from '../../route-helpers';
+import { transitionTo } from 'browserHistory';
 
 // components
 import { ListPageContainer, makeTotalCounter } from '../list-page';
@@ -9,7 +9,7 @@ import { ListPageContainer, makeTotalCounter } from '../list-page';
 // redux
 import { actions } from '../../modules/gift-cards/list';
 
-const GiftCardsListPage = (props, context) => {
+const GiftCardsListPage = (props) => {
   const TotalCounter = makeTotalCounter(state => state.giftCards.list, actions);
 
   const navLinks = [
@@ -23,7 +23,7 @@ const GiftCardsListPage = (props, context) => {
       title="Gift Cards"
       subtitle={<TotalCounter />}
       addTitle="Gift Card"
-      handleAddAction={ () => transitionTo(context.history, 'gift-cards-new') }
+      handleAddAction={ () => transitionTo('gift-cards-new') }
       navLinks={navLinks}
     >
       {props.children}
@@ -33,10 +33,6 @@ const GiftCardsListPage = (props, context) => {
 
 GiftCardsListPage.propTypes = {
   children: PropTypes.node,
-};
-
-GiftCardsListPage.contextTypes = {
-  history: PropTypes.object.isRequired,
 };
 
 export default GiftCardsListPage;
