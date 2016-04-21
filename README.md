@@ -11,14 +11,14 @@ To install this or anothers versions of node you can use [n](https://github.com/
 
 If using n, run the following command to install latest version of node:
 
+```
+sudo n latest
+```
+
 ### Install Flow
 
 We're using [Flow](https://flowtype.org) to perform type checks and `babel-plugin-typecheck` for same thing at runtime.
 Install Flow per the instructions on the website. Checkout required version in .flowconfig file.
-
-```
-[sudo] n latest
-```
 
 ### Install npm modules
 
