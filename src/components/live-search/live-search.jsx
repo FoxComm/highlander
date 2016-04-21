@@ -314,7 +314,9 @@ export default class LiveSearch extends React.Component {
         this.props.updateSearch(selectedSearch, search);
         break;
       case SEARCH_MENU_ACTION_COPY:
-        this.props.saveSearch({ ...search, title: `${search.title} - Copy` });
+        this.props.saveSearch({ ...search, title: `${search.title} - Copy` }).then(() => {
+          this.setState({ editingTab: this.props.searches.selectedSearch });
+        });
         break;
       case SEARCH_MENU_ACTION_DELETE:
         this.props.deleteSearch(selectedSearch, search);
