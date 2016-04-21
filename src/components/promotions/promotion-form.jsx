@@ -30,6 +30,7 @@ type State = {
 };
 
 export default class PromotionForm extends Component {
+  props: Props;
 
   static propTypes = {
     promotion: PropTypes.object.isRequired,
@@ -45,6 +46,7 @@ export default class PromotionForm extends Component {
       'qualifier',
       'activeFrom',
       'activeTo',
+      'tags',
     ];
     const shadow = _.get(this.props, 'promotion.shadow.attributes', []);
     return _(shadow).omit(toOmit).keys().value();
