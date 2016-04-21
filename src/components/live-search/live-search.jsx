@@ -15,12 +15,16 @@ import TabListView from '../tabs/tabs';
 import EditableTabView from '../tabs/editable-tab';
 import DatePicker from '../datepicker/datepicker';
 import ShareSearch from '../share-search/share-search';
-import { Button } from '../common/buttons';
 import ButtonWithMenu from '../common/button-with-menu';
 
 import SearchTerm, { getInputMask } from '../../paragons/search-term';
 
-const SEARCH_ALL = 'All';
+const SEARCH_MENU_ACTION_SHARE = 'share';
+const SEARCH_MENU_ACTION_COPY = '';
+const SEARCH_MENU_ACTION_UPDATE = 'update';
+const SEARCH_MENU_ACTION_DELETE = 'delete';
+const SEARCH_MENU_ACTION_CLEAR = 'clear';
+const SEARCH_MENU_ACTION_EDIT_NAME = 'edit_name';
 
 function currentSearch(props) {
   return props.searches.currentSearch() || {};
@@ -85,6 +89,40 @@ export default class LiveSearch extends React.Component {
     isEditable: true,
     noGutter: false,
   };
+
+  componentDidMount() {
+    this.props.submitFilters(this.currentSearch.query, true);
+    this.props.fetchSearches();
+  }
+
+  componentDidUpdate() {
+    if (this.state.shouldSetFocus && !this.isDisabled) {
+      this.refs.input.focus();
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const search = currentSearch(nextProps);
+    const searchOptions = _.get(nextProps, ['searches', 'searchOptions'], []);
+    const isVisible = this.state.isFocused && searchOptions.length > 0;
+
+    const isRefreshed = _.get(search, ['results', 'refreshed'], false);
+    if (!isRefreshed) {
+      this.setState({
+        searchPrepend: '',
+        selectionIndex: -1,
+        inputMask: null,
+        pills: search.query,
+        searchDisplay: search.searchValue,
+        optionsVisible: isVisible,
+        searchOptions: searchOptions,
+      });
+    }
+
+    this.setState({
+      searchValue: search.searchValue,
+    });
+  }
 
   get currentSearch() {
     return currentSearch(this.props);
@@ -217,13 +255,26 @@ export default class LiveSearch extends React.Component {
   }
 
   get controls() {
-    const saveAction = this.currentSearch.isDirty ? [['save', 'Save Search Update']] : [];
-    const menuItems = [
-      ...saveAction,
-      ['edit_name', 'Edit Name'],
-      ['copy', 'Copy Search'],
-      ['delete', 'Delete Search'],
-    ];
+    let menuItems = [];
+
+    const clearAction = this.state.pills.length ? [[SEARCH_MENU_ACTION_CLEAR, 'Clear All Filters']] : [];
+
+    if (this.currentSearch.id) {
+      const saveAction = this.currentSearch.isDirty ? [[SEARCH_MENU_ACTION_UPDATE, 'Update Search']] : [];
+      menuItems = [
+        [SEARCH_MENU_ACTION_COPY, 'Save New Search'],
+        ...saveAction,
+        [SEARCH_MENU_ACTION_SHARE, 'Share Search'],
+        [SEARCH_MENU_ACTION_EDIT_NAME, 'Edit Search Name'],
+        ...clearAction,
+        [SEARCH_MENU_ACTION_DELETE, 'Delete Search'],
+      ];
+    } else {
+      menuItems = [
+        [SEARCH_MENU_ACTION_COPY, 'Save New Search'],
+        ...clearAction,
+      ];
+    }
 
     const buttonDisabled = this.state.searchDisplay.length == 0 || this.props.searches.isSavingSearch || this.isDisabled;
     const menuDisabled = this.props.searches.isSavingSearch || this.isDisabled;
@@ -256,16 +307,22 @@ export default class LiveSearch extends React.Component {
     const search = this.currentSearch;
 
     switch (value) {
-      case 'save':
+      case SEARCH_MENU_ACTION_CLEAR:
+        this.props.submitFilters([]);
+        break;
+      case SEARCH_MENU_ACTION_UPDATE:
         this.props.updateSearch(selectedSearch, search);
         break;
-      case 'copy':
+      case SEARCH_MENU_ACTION_COPY:
         this.props.saveSearch({ ...search, title: `${search.title} - Copy` });
         break;
-      case 'delete':
+      case SEARCH_MENU_ACTION_DELETE:
         this.props.deleteSearch(selectedSearch, search);
         break;
-      case 'edit_name':
+      case SEARCH_MENU_ACTION_SHARE:
+        this.openShareSearch();
+        break;
+      case SEARCH_MENU_ACTION_EDIT_NAME:
         this.setState({ editingTab: selectedSearch });
         break;
     }
@@ -289,40 +346,6 @@ export default class LiveSearch extends React.Component {
         </a>
       </div>
     );
-  }
-
-  componentDidMount() {
-    this.props.submitFilters(this.currentSearch.query, true);
-    this.props.fetchSearches();
-  }
-
-  componentDidUpdate() {
-    if (this.state.shouldSetFocus && !this.isDisabled) {
-      this.refs.input.focus();
-    }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const search = currentSearch(nextProps);
-    const searchOptions = _.get(nextProps, ['searches', 'searchOptions'], []);
-    const isVisible = this.state.isFocused && searchOptions.length > 0;
-
-    const isRefreshed = _.get(search, ['results', 'refreshed'], false);
-    if (!isRefreshed) {
-      this.setState({
-        searchPrepend: '',
-        selectionIndex: -1,
-        inputMask: null,
-        pills: search.query,
-        searchDisplay: search.searchValue,
-        optionsVisible: isVisible,
-        searchOptions: searchOptions,
-      });
-    }
-
-    this.setState({
-      searchValue: search.searchValue,
-    });
   }
 
   @autobind
@@ -502,26 +525,18 @@ export default class LiveSearch extends React.Component {
     }
 
     return (
-      <div className="fc-col-md-1-1">
-        <Button
-          className="fc-live-search__share-button fc-right"
-          onClick={this.openShareSearch}
-          disabled={this.currentSearch.title === SEARCH_ALL}
-          icon="external-link-2" />
-
-        <ShareSearch
-          search={this.currentSearch}
-          fetchAssociations={this.props.fetchAssociations}
-          suggestAssociations={this.props.suggestAssociations}
-          associateSearch={this.props.associateSearch}
-          dissociateSearch={this.props.dissociateSearch}
-          selectItem={this.props.selectItem}
-          deselectItem={this.props.deselectItem}
-          setTerm={this.props.setTerm}
-          closeAction={this.closeShareSearch}
-          isVisible={this.state.isShareVisible}
-          title={this.currentSearch.title} />
-      </div>
+      <ShareSearch
+        search={this.currentSearch}
+        fetchAssociations={this.props.fetchAssociations}
+        suggestAssociations={this.props.suggestAssociations}
+        associateSearch={this.props.associateSearch}
+        dissociateSearch={this.props.dissociateSearch}
+        selectItem={this.props.selectItem}
+        deselectItem={this.props.deselectItem}
+        setTerm={this.props.setTerm}
+        closeAction={this.closeShareSearch}
+        isVisible={this.state.isShareVisible}
+        title={this.currentSearch.title} />
     );
   }
 
@@ -537,7 +552,6 @@ export default class LiveSearch extends React.Component {
       <div className="fc-live-search">
         {this.header}
         <div className={gridClass}>
-          {this.shareSearch}
           <div className="fc-col-md-1-1 fc-live-search__search-control">
             <form>
               <PilledInput
@@ -572,6 +586,8 @@ export default class LiveSearch extends React.Component {
             {this.props.children}
           </div>
         </div>
+
+        {this.shareSearch}
       </div>
     );
   }
