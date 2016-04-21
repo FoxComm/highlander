@@ -3,7 +3,6 @@
 .fc-live-search {
   margin-bottom: 20px;
   padding: 0 @gutter;
-  margin-bottom: 20px;
 
   .fc-pilled-input {
     &__pill {
@@ -12,17 +11,14 @@
       }
     }
 
-    &__controls-item {
-      .icon-chevron-down {
-        transform: rotateX(0);
-        transition: transform .2s;
-      }
+    &__controls-container {
+      .fc-btn {
+        color: #4E4949;
+        border: none;
+        background-color: transparent;
 
-      .fc-menu {
-        right: 0;
-
-        &-item {
-          white-space: nowrap;
+        &.fc-button-with-menu__left-button {
+          font-size: 20px;
         }
       }
     }

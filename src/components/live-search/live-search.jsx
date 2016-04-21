@@ -1,10 +1,11 @@
+// libs
 import React, { PropTypes } from 'react';
-import ReactDOM from 'react-dom';
 import { autobind } from 'core-decorators';
 
 import _ from 'lodash';
 import classNames from 'classnames';
 
+// components
 import MaskedInput from '../masked-input/masked-input';
 import Menu from '../menu/menu';
 import MenuItem from '../menu/menu-item';
@@ -15,6 +16,7 @@ import EditableTabView from '../tabs/editable-tab';
 import DatePicker from '../datepicker/datepicker';
 import ShareSearch from '../share-search/share-search';
 import { Button } from '../common/buttons';
+import ButtonWithMenu from '../common/button-with-menu';
 
 import SearchTerm, { getInputMask } from '../../paragons/search-term';
 
@@ -51,7 +53,6 @@ export default class LiveSearch extends React.Component {
       searchValue: searchValue,
       selectionIndex: -1,
       shouldSetFocus: false,
-      searchMenuOpened: false,
       editingTab: null,
     };
   }
@@ -215,100 +216,59 @@ export default class LiveSearch extends React.Component {
     return <TabListView isLoading={isLoading}>{tabs}</TabListView>;
   }
 
-  @autobind
-  onDocumentClick(event) {
-    const menuButton = ReactDOM.findDOMNode(this.refs.searchMenuButton);
-    const isEditClick = menuButton && menuButton.contains(event.target);
-
-    if (!isEditClick && this.state.searchMenuOpened) {
-      this.setState({ searchMenuOpened: false });
-    }
-  }
-
-  @autobind
-  toggleSearchMenu() {
-    this.setState({ searchMenuOpened: !this.state.searchMenuOpened });
-  }
-
-  get searchMenuOptions() {
-    const search = this.currentSearch;
-    const { selectedSearch } = this.props.searches;
-
-    const copySearch = () => this.props.saveSearch({ ...search, title: `${search.title} - Copy` });
-    const saveSearch = () => this.props.updateSearch(selectedSearch, search);
-    const deleteSearch = () => this.props.deleteSearch(selectedSearch, search);
-
-    const startEditName = () => {
-      this.setState({
-        editingTab: selectedSearch,
-        searchMenuOpened: false
-      });
-    };
-
-    const saveAction = this.currentSearch.isDirty ? [{ title: 'Save Search Update', action: saveSearch }] : [];
-
-    return [
+  get controls() {
+    const saveAction = this.currentSearch.isDirty ? [['save', 'Save Search Update']] : [];
+    const menuItems = [
       ...saveAction,
-      { title: 'Edit Name', action: startEditName },
-      { title: 'Copy Search', action: copySearch },
-      { title: 'Delete Search', action: deleteSearch }
+      ['edit_name', 'Edit Name'],
+      ['copy', 'Copy Search'],
+      ['delete', 'Delete Search'],
     ];
-  }
 
-  get searchMenu() {
-    const options = this.searchMenuOptions.map((opt, idx) => {
-      const key = `${idx}-${_.kebabCase(opt.title)}`;
-
-      return (
-        <MenuItem isFirst={idx == 0} clickAction={opt.action} key={key}>
-          {opt.title}
-        </MenuItem>
-      );
-    });
-
-    return <Menu position="right" isOpen={this.state.searchMenuOpened}>{options}</Menu>;
-  }
-
-  get searchMenuButton() {
-    const hasMenu = !this.props.singleSearch && this.props.isEditable;
-
-    if (hasMenu) {
-      const disabled = this.props.searches.isSavingSearch || this.isDisabled;
-
-      const buttonClass = classNames('fc-pilled-input__controls-item', {
-        '_active': this.state.searchMenuOpened,
-        '_disabled': disabled
-      });
-
-      return (
-        <div className={buttonClass}>
-          <div className="fc-pilled-input__icon-wrapper" onClick={() => !disabled && this.toggleSearchMenu()} ref="searchMenuButton">
-            <i className="icon-chevron-down" />
-          </div>
-          {this.searchMenu}
-        </div>
-      );
-    }
-  }
-
-  get searchButton() {
-    const buttonClass = classNames('fc-pilled-input__icon-wrapper', {
-      '_disabled': this.state.searchDisplay.length == 0 || this.props.searches.isSavingSearch || this.isDisabled
-    });
-
-    const clickAction = () => {
-      if (this.state.searchDisplay.length > 0) {
-        this.props.submitPhrase(this.state.searchDisplay);
-      }
-    };
+    const buttonDisabled = this.state.searchDisplay.length == 0 || this.props.searches.isSavingSearch || this.isDisabled;
+    const menuDisabled = this.props.searches.isSavingSearch || this.isDisabled;
 
     return (
-      <div className="fc-pilled-input__controls-item">
-        <div className={buttonClass} onClick={clickAction}>
-          <i className="icon-search" />
-        </div>
-      </div>
+      <ButtonWithMenu
+        onPrimaryClick={this.handleSearchClick}
+        icon="search"
+        menuPosition="right"
+        onSelect={this.handleMenu}
+        items={menuItems}
+        buttonDisabled={buttonDisabled}
+        menuDisabled={menuDisabled}
+      />
     );
+  }
+
+  @autobind
+  handleSearchClick(event) {
+    event.preventDefault();
+
+    if (this.state.searchDisplay.length > 0) {
+      this.props.submitPhrase(this.state.searchDisplay);
+    }
+  }
+
+  @autobind
+  handleMenu(value) {
+    const { selectedSearch } = this.props.searches;
+    const search = this.currentSearch;
+
+    switch (value) {
+      case 'save':
+        this.props.updateSearch(selectedSearch, search);
+        break;
+      case 'copy':
+        this.props.saveSearch({ ...search, title: `${search.title} - Copy` });
+        break;
+      case 'delete':
+        this.props.deleteSearch(selectedSearch, search);
+        break;
+      case 'edit_name':
+        this.setState({ editingTab: selectedSearch });
+        break;
+    }
   }
 
   @autobind
@@ -332,8 +292,6 @@ export default class LiveSearch extends React.Component {
   }
 
   componentDidMount() {
-    document.addEventListener('click', this.onDocumentClick);
-
     this.props.submitFilters(this.currentSearch.query, true);
     this.props.fetchSearches();
   }
@@ -365,10 +323,6 @@ export default class LiveSearch extends React.Component {
     this.setState({
       searchValue: search.searchValue,
     });
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('click', this.onDocumentClick);
   }
 
   @autobind
@@ -587,7 +541,7 @@ export default class LiveSearch extends React.Component {
           <div className="fc-col-md-1-1 fc-live-search__search-control">
             <form>
               <PilledInput
-                controls={[this.searchButton, this.searchMenuButton]}
+                controls={this.controls}
                 className={classNames({'_active': this.state.isFocused, '_disabled': this.isDisabled})}
                 onPillClose={(pill, idx) => !this.isDisabled && this.deleteFilter(idx)}
                 formatPill={this.formatPill}

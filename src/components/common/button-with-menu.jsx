@@ -18,6 +18,8 @@ type Props = {
   onPrimaryClick?: Function;
   onSelect?: (value: any, title: string|Element) => any;
   children?: Element;
+  buttonDisabled?: boolean;
+  menuDisabled?: boolean;
   icon?: string;
   items: Array<DropdownItemType>;
   title: string|Element;
@@ -97,11 +99,17 @@ export default class ButtonWithMenu extends Component {
   }
 
   render(): Element {
-    const { icon, title, animate, menuPosition } = this.props;
+    const { icon, title, animate, menuPosition, buttonDisabled, menuDisabled } = this.props;
     const { open } = this.state;
 
     const className = classNames(this.props.className, {
       '_open': open,
+    });
+    const buttonClassName = classNames('fc-button-with-menu__left-button', {
+      '_disabled': buttonDisabled,
+    });
+    const menuButtonClassName = classNames('fc-button-with-menu__right-button', 'dropdown-button', {
+      '_disabled': menuDisabled,
     });
 
     return (
@@ -109,17 +117,19 @@ export default class ButtonWithMenu extends Component {
         { open && <div styleName="overlay" onClick={this.handleBlur}></div> }
         <div styleName="controls">
           <PrimaryButton
-            className="fc-button-with-menu__left-button"
+            className={buttonClassName}
             icon={icon}
             onClick={this.props.onPrimaryClick}
-            onBlur={this.dontPropagate} >
+            onBlur={this.dontPropagate}
+            disabled={buttonDisabled} >
             {title}
           </PrimaryButton>
           <PrimaryButton
-            className="fc-button-with-menu__right-button dropdown-button"
+            className={menuButtonClassName}
             icon="chevron-down"
             onClick={this.handleToggleClick}
             onBlur={this.dontPropagate}
+            disabled={menuDisabled}
           />
         </div>
 
