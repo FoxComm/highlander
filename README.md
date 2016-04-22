@@ -50,7 +50,7 @@ This will bring up a machine on 192.168.10.112 with ashes installed.
 By default it looks for the backed at '192.168.10.111'. If you want to
 change this you can set the environtment variable 'BACKEND_HOST'.
 
-export BACKEND_HOST=10.240.0.8
+    $ export BACKEND_HOST=10.240.0.8
 
 #### If you want to run in GCE
 
