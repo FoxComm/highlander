@@ -9,6 +9,7 @@ $vb_memory = 6048
 $vb_cpu = 4
 $backend_ip = "192.168.10.111"
 $ashes_ip = "192.168.10.112"
+$user = "vagrant"
 
 require CONFIG if File.readable?(CONFIG)
 
@@ -55,12 +56,12 @@ def expose_ashes(config)
 end
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/xenial64"
+  config.vm.box = "ubuntu/wily64"
 
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
   config.vm.provider :vmware_fusion do |v, override|
-    override.vm.box= "boxcutter/ubuntu1604"
+    override.vm.box= "boxcutter/ubuntu1504"
   end
 
   config.vm.provider :google do |g, override|
@@ -93,10 +94,9 @@ Vagrant.configure("2") do |config|
     app.vm.provision "ansible" do |ansible|
         ansible.verbose = "vv"
         ansible.playbook = "ansible/vagrant_appliance.yml"
-        ansible.extra_vars = {
-            user: "ubuntu",
-            hostname: "ubuntu-xenial"
-        }
+          ansible.extra_vars = {
+              user: $user
+          }
     end
   end
 
@@ -107,6 +107,9 @@ Vagrant.configure("2") do |config|
     app.vm.provision "ansible" do |ansible|
           ansible.verbose = "vv"
           ansible.playbook = "ansible/vagrant_backend.yml"
+          ansible.extra_vars = {
+              user: $user
+          }
       end
   end
 
@@ -122,6 +125,7 @@ Vagrant.configure("2") do |config|
           ansible.verbose = "vv"
           ansible.playbook = "ansible/vagrant_greenriver.yml"
           ansible.extra_vars = {
+              user: $user,
               phoenix_server: phoenix_server,
               greenriver_service_requires: "kafka.service elasticsearch.service",
               greenriver_service_after: "kafka.service elasticsearch.service"
@@ -144,6 +148,7 @@ Vagrant.configure("2") do |config|
           ansible.verbose = "vv"
           ansible.playbook = "ansible/vagrant_ashes.yml"
           ansible.extra_vars = {
+              user: $user,
               phoenix_server: phoenix_server,
               search_server_http: search_server_http
           }

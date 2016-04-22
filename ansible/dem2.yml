@@ -8,18 +8,17 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - { role: buildkite_accessible, sudo: yes}
-    - common
-    - scala
-    - kafka
-    - elasticsearch
-    - db
-    - phoenix
-    - { role: rsyslog, sudo: yes }
-    - { role: kibana, sudo: yes }
-    - greenriver
-    - loyalty
-    - messaging
+    - { role: base/common}
+    - { role: base/scala}
+    - { role: base/kafka}
+    - { role: base/elasticsearch}
+    - { role: base/db}
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/kibana, sudo: yes }
+    - { role: dev/phoenix}
+    - { role: dev/greenriver}
+    - { role: dev/loyalty}
+    - { role: dev/messaging}
 
 - name: Provision Demo 2 US Frontend
   hosts: dem2-front
@@ -29,14 +28,13 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - { role: buildkite_accessible, sudo: yes}
-    - common
-    - { role: rsyslog, sudo: yes }
-    - node
-    - ashes
-    - firebird
-    - { role: balancer, sudo: yes }
-    - { role: demo_ashes, sudo: yes }
+    - { role: base/common}
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/node}
+    - { role: base/balancer, sudo: yes }
+    - { role: dev/ashes}
+    - { role: dev/firebird}
+    - { role: demo/ashes, sudo: yes }
 
 - name: Provision Demo 2 RU Frontend
   hosts: dem2-front-ru
@@ -46,10 +44,9 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - { role: buildkite_accessible, sudo: yes}
-    - common
-    - { role: rsyslog, sudo: yes }
-    - node
-    - firebird
-    - { role: balancer, sudo: yes }
-    - { role: demo_ashes, sudo: yes }
+    - { role: base/common}
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/node}
+    - { role: base/balancer, sudo: yes }
+    - { role: dev/firebird}
+    - { role: demo/ashes, sudo: yes }

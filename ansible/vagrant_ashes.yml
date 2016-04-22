@@ -7,10 +7,10 @@
     ashes_server_name: admin.foxcommerce.local
     firebird_server_name: foxcommerce.local
   roles:
-    - common
-    - { role: rsyslog, sudo: yes }
-    - node
-    - ashes
-    - firebird
-    - { role: balancer, sudo: yes }
+    - { role: base/common}
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/balancer, sudo: yes }
+    - { role: dev/node}
+    - { role: dev/ashes}
+    - { role: dev/firebird}
 

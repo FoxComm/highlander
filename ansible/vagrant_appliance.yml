@@ -3,11 +3,9 @@
 - name: Provision All The Things
   hosts: all
   vars:
-    user: '{{ansible_ssh_user}}'
     ashes_server_name: admin.foxcommerce.local
     firebird_server_name: foxcommerce.local
   roles:
-    - {role: base/vagrant, sudo: yes }
     - {role: base/common}
     - {role: base/scala}
     - {role: base/kafka}

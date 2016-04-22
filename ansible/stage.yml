@@ -6,17 +6,17 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - common
-    - scala
-    - kafka
-    - elasticsearch
-    - db
-    - phoenix
-    - { role: rsyslog, sudo: yes }
-    - { role: kibana, sudo: yes }
-    - greenriver
-    - loyalty
-    - messaging
+    - { role: base/common}
+    - { role: base/scala}
+    - { role: base/kafka}
+    - { role: base/elasticsearch}
+    - { role: base/db}
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/kibana, sudo: yes }
+    - { role: dev/phoenix}
+    - { role: dev/greenriver}
+    - { role: dev/loyalty}
+    - { role: dev/messaging}
 
 - name: Provision Ashes Stage
   hosts: ashes-stage
@@ -24,9 +24,9 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - common
-    - { role: rsyslog, sudo: yes }
-    - node
-    - ashes
-    - firebird
-    - { role: balancer, sudo: yes }
+    - { role: base/common}
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/node}
+    - { role: base/balancer, sudo: yes }
+    - { role: dev/ashes}
+    - { role: dev/firebird}

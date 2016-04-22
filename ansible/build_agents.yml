@@ -12,7 +12,7 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - common
-    - scala
-    - node
-    - builder
+    - {role: base/common} 
+    - {role: base/scala}
+    - {role: base/node}
+    - {role: base/builder}

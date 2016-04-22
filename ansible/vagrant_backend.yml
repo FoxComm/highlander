@@ -5,12 +5,12 @@
   vars:
     user: vagrant
   roles:
-    - common
-    - scala
-    - kafka
-    - elasticsearch
-    - db
-    - phoenix
-    - { role: rsyslog, sudo: yes }
-    - { role: kibana, sudo: yes }
-    - greenriver
+    - { role: base/common}
+    - { role: base/scala}
+    - { role: base/kafka}
+    - { role: base/elasticsearch}
+    - { role: base/db}
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/kibana, sudo: yes }
+    - { role: dev/phoenix}
+    - { role: dev/greenriver}

@@ -19,16 +19,19 @@
     - pkg-config
     - librdkafka-dev
     - libsnappy-dev
-    - postgresql-server-dev-9.5
-    - postgresql-9.5
-    - postgresql-client-9.5
-    - postgresql-contrib-9.5
+    - postgresql-server-dev-9.4
+    - postgresql-9.4
+    - postgresql-client-9.4
+    - postgresql-contrib-9.4
 
 - name: Get Avro
   get_url: url={{avro_url}} dest="{{home}}/{{avro_name}}.tar.gz"
 
 - name: Unzip Avro
   unarchive: src="{{home}}/{{avro_name}}.tar.gz" dest="{{home}}/" copy=no
+  args:
+    creates: "{{avro_dir}}"
+
 
 - name: Make Avro Build Dir
   file: path="{{avro_dir}}/build" state=directory
@@ -89,7 +92,7 @@
   sudo: true
 
 - name: Copy Postgres Configuration
-  copy: src={{item}} dest="/etc/postgresql/9.5/main/{{item}}" mode="644"
+  copy: src={{item}} dest="/etc/postgresql/9.4/main/{{item}}" mode="644"
   sudo: true
   with_items:
       - postgresql.conf
