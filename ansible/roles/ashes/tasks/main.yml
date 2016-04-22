@@ -20,13 +20,13 @@
   args:
     chdir: "{{ashes_install_dir}}"
 
-- name: Build node dependencies
-  shell: npm build
+- name: Install node dependencies
+  shell: npm install
   args:
     chdir: "{{ashes_install_dir}}"
 
 - name: Build node dependencies
-  shell: npm install
+  shell: npm build
   args:
     chdir: "{{ashes_install_dir}}"
 
