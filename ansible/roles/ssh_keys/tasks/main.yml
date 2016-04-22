@@ -14,6 +14,9 @@
     - "/var/lib/buildkite-agent/.ssh/"
     - "/home/buildkite-agent/.ssh/"
 
-- name: Add Github to known hosts
+- name: Update SSH config
   sudo: true
-  shell: 'ssh-keyscan github.com >> /home/buildkite-agent/.ssh/known_hosts'
+  copyv: src=config dest={{ item }} mode="u=rw,g=r,o=r"
+  with_items:
+    - "/var/lib/buildkite-agent/.ssh/"
+    - "/home/buildkite-agent/.ssh/"

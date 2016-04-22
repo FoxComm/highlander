@@ -9,14 +9,14 @@ variable "ssh_private_key" {}
 
 resource "google_compute_instance" "agent" { 
     name = "${var.prefix}"
-    machine_type = "n1-highmem-4"
+    machine_type = "n1-highcpu-8"
     tags = ["no-ip", "${var.prefix}"]
     zone = "us-central1-a"
 
     disk {
         image = "${var.demo_image}"
         type = "pd-ssd"
-        size = "100"
+        size = "30"
     }   
 
     network_interface {
