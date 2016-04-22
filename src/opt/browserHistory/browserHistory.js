@@ -1,11 +1,14 @@
 'use strict';
 
-let history = null;
+var history = null;
 
 exports.setHistory = function(h) {
   history = h;
 };
 
 exports.transitionTo = function(name, params) {
-  return history.push({name, params});
+  return history.push({
+    name: name,
+    params: params
+  });
 };
