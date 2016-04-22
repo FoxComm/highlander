@@ -7,7 +7,7 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import styles from './products.css';
+import styles from './select-products.css';
 
 import SelectVertical from '../../select-verical/select-vertical';
 import { Dropdown, DropdownItem } from '../../dropdown';
@@ -26,8 +26,12 @@ type Reference = {
 }
 
 type Props = {
-  onChange: (references: Array<Reference>) => any;
-  references: Array<Reference>;
+  context: {
+    params?: {
+      references: Array<Reference>;
+    },
+    setParams: (params: Object) => any;
+  };
   label: string;
   productSearches: Array<any>;
   ordersActions: OrderActions;
@@ -63,8 +67,16 @@ class ProductsQualifier extends Component {
     }).isRequired,
   };
 
+  get references() {
+    return _.get(this.props.context.params, 'references', []);
+  }
+
+  updateReferences(references) {
+    this.props.context.setParams({references});
+  }
+
   get initialSelectMode() {
-    return this.props.references.length > 1 ? 'any' : 'some';
+    return this.references.length > 1 ? 'any' : 'some';
   }
 
   componentDidMount() {
@@ -78,11 +90,11 @@ class ProductsQualifier extends Component {
 
   @autobind
   handleSelectReferences(ids: Array<RefId>) {
-    this.props.onChange(ids.map(id => ({referenceId: id, referenceType: 'SavedProductSearch'})));
+    this.updateReferences(ids.map(id => ({referenceId: id, referenceType: 'SavedProductSearch'})));
   }
 
   get productReferences(): Element {
-    const { references } = this.props;
+    const { references } = this;
 
     if (this.state.selectMode == 'some') {
       const productSearches = this.props.productSearches
@@ -132,9 +144,9 @@ class ProductsQualifier extends Component {
     this.setState({
       selectMode: value,
     });
-    const { references } = this.props;
+    const { references } = this;
     if (value === 'some' && references.length > 1) {
-      this.props.onChange(references.slice(0, 1));
+      this.updateReferences(references.slice(0, 1));
     }
   }
 
@@ -153,3 +165,5 @@ class ProductsQualifier extends Component {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProductsQualifier);
+
+

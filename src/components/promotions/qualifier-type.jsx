@@ -7,13 +7,14 @@ import { autobind } from 'core-decorators';
 
 import { Dropdown } from '../dropdown';
 import CurrencyInput from '../forms/currency-input';
-import ProductsQualifier from './qualifiers/products';
+import ProductsQualifier from 'widgets/select-products';
 
 import styles from './attrs-edit.css';
 
 const qualifierItems = [
   ['orderAny', 'Order - No qualifier'],
   ['orderTotalAmount', 'Order - Total amount of order'],
+  ['orderNumUnits', 'Order - Number of units in order'],
   ['itemsAny', 'Items - No qualifier']
 ];
 

@@ -9,7 +9,7 @@ import styles from './attrs-edit.css';
 
 import { Dropdown } from '../dropdown';
 import AppendInput from '../forms/append-input';
-import ProductsQualifier from './qualifiers/products';
+import ProductsQualifier from 'widgets/select-products';
 
 const offersItems = [
   ['orderPercentOff', 'Percent off order'],

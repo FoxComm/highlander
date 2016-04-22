@@ -8,16 +8,6 @@
   line-height: 40px;
 }
 
-.control-after-type {
-  display: inline-block;
-  margin-left: 20px;
-
-  & > * {
-    vertical-align: baseline;
-    padding-right: 10px;
-  }
-}
-
 .attr-row {
   display: block;
 }
