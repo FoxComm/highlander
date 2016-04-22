@@ -1,7 +1,7 @@
 import Request from './request';
-import ConditionAnd from './condition-and';
-import ConditionOr from './condition-or';
-import Field from './field';
+import ConditionAnd from './query/condition-and';
+import ConditionOr from './query/condition-or';
+import Field from './query/field';
 
 
 export {

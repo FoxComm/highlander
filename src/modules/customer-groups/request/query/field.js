@@ -2,11 +2,12 @@
 
 import _ from 'lodash';
 import Clause from './clause';
+import { isDirectField, getNestedPath } from '../helpers';
 import {
   booleanOperators,
   negateOperators,
   operatorsMap,
-} from '../../../paragons/customer-groups/operators';
+} from '../../../../paragons/customer-groups/operators';
 
 
 export default class Field extends Clause {
@@ -78,19 +79,17 @@ export default class Field extends Clause {
 const getQuery = (field, operator, value) => {
   const query = operatorsMap[operator](field, value);
 
-  if (isDirect(field)) {
+  if (isDirectField(field)) {
     return query;
   }
 
   return {
     nested: {
-      path: field.slice(0, field.lastIndexOf('.')),
+      path: getNestedPath(field),
       query: query,
     },
   };
 };
-
-const isDirect = (field) => field.indexOf('.') === -1;
 
 const validateOperatorAppliance = ({type, label, operators}, operator) => {
   if (!(operator in type.operators)) {

@@ -1,15 +1,19 @@
 /* @flow */
 
-import Clause from './clause';
-import Condition from './condition';
+import Clause from './query/clause';
+import Condition from './query/condition';
+import Sorter from './sorter';
 
 export type RequestType = {
   query?: Object;
+  sort?: Array<Object>;
 };
 
 export default class Request extends Clause {
 
   _query: Condition;
+
+  _sorter: Sorter;
 
   _criterions: Array<any>;
 
@@ -26,6 +30,10 @@ export default class Request extends Clause {
     this._query = value;
   }
 
+  get sort(): Sorter {
+    return this._sorter || (this._sorter = new Sorter(this._criterions));
+  }
+
   constructor(criterions: Array<any>) {
     super();
     this._criterions = criterions;
@@ -34,10 +42,14 @@ export default class Request extends Clause {
   toRequest(): RequestType {
     const request = {};
 
-    if (this.query.length) {
+    if (this.query && this.query.length) {
       request.query = {
         bool: this.query.toRequest()
       };
+    }
+
+    if (this.sort.length) {
+      request.sort = this.sort.toRequest();
     }
 
     return request;

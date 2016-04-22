@@ -1,22 +1,63 @@
+/* @flow */
+
+import { isDirectField, getNestedPath } from './helpers';
+
+
+type SortingField = {
+  name: string;
+  order: ?string;
+};
+
 export default class Sorter {
 
-  constructor(criterions) {
-    super(criterions);
+  _criterions: Array<any>;
+
+  _fields: Array<SortingField> = [];
+
+  get length(): number {
+    return this._fields.length;
   }
 
-  toRequest() {
-    if (this._conditions.length === 1) {
-      return this._conditions[0].toRequest();
-    }
+  constructor(criterions: Array<any>) {
+    this._criterions = criterions;
+  }
 
+  toRequest(): Array<Object> {
     const result = [];
-    for (const condition of this._conditions) {
-      result.push({bool: condition.toRequest()});
+
+    for (const {name, order} of this._fields) {
+      const field = {
+        [name]: {
+          order: order === 'asc' ? 'asc' : 'desc',
+        },
+      };
+
+      if (!isDirectField(name)) {
+        field[name].nested_path = getNestedPath(name);
+      }
+
+      result.push(field);
     }
 
-    return {
-      [booleanOperators.and]: result,
-    };
+    return result;
+  }
+
+  add(name: string, order: string): Sorter {
+    this._fields.push({name, order});
+
+    return this;
+  }
+
+  set(fields: Array<SortingField>): Sorter {
+    this._fields = fields;
+
+    return this;
+  }
+
+  reset(): Sorter {
+    this._fields = [];
+
+    return this;
   }
 
 }
