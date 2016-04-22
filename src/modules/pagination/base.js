@@ -86,7 +86,7 @@ export function makeRefreshAction(fetcher, actions, findSearchState) {
   };
 }
 
-function makePagination(namespace, fetcher = null, findSearchInState = null, initialState = {}) {
+export default function makePagination(namespace, fetcher = null, findSearchInState = null, initialState = {}) {
 
   initialState = {
     ...INITIAL_STATE,
@@ -137,14 +137,28 @@ function makePagination(namespace, fetcher = null, findSearchInState = null, ini
       };
     },
     [searchSuccess]: (state, [response, opts]) => {
+      let rows, total;
+
+      //for API responses
+      if (_.isArray(response)) {
+        rows = response;
+        total = response.length;
+      }
+
+      //for ES responses
+      if (_.isObject(response) && 'result' in response) {
+        rows = _.isArray(response.result) ? response.result: [];
+        total = response.pagination.total;
+      }
+
       return {
         ...state,
         ...opts,
         failed: false,
         isFetching: false,
         isRefreshing: false,
-        rows: _.get(response, 'result', response),
-        total: _.get(response, ['pagination', 'total'], response.length)
+        rows,
+        total,
       };
     },
     [searchFailure]: (state, err) => {
@@ -214,5 +228,3 @@ function makePagination(namespace, fetcher = null, findSearchInState = null, ini
     updateItems,
   };
 }
-
-export default makePagination;
