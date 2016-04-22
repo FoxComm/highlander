@@ -53,6 +53,27 @@ const qualifiers = [
     ]
   },
   {
+    type: 'itemsTotalAmount',
+    title: 'Items - Total amount of order',
+    content: [
+      [
+        {type: 'type'},
+        {
+          name: 'totalAmount',
+          widget: 'currency',
+          template: props => <WidgetContainer>Spend {props.children} or more.</WidgetContainer>
+        }
+      ],
+      [
+        {
+          name: 'references',
+          widget: 'selectProducts',
+          label: 'Items for qualify'
+        }
+      ]
+    ]
+  },
+  {
     type: 'itemsNumUnits',
     title: 'Items - Number of units in order',
     content: [
