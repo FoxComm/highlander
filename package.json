@@ -175,7 +175,7 @@
     "envify": "^3.4.0",
     "eslint": "^1.10.1",
     "eslint-plugin-react": "^3.10.0",
-    "flow-bin": "~0.23.0",
+    "flow-bin": "0.23.0",
     "gulp": "^3.9.0",
     "gulp-concat": "^2.6.0",
     "gulp-eslint": "^1.0.0",
