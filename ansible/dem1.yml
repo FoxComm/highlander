@@ -33,6 +33,7 @@
     - common
     - { role: rsyslog, sudo: yes }
     - node
+    - ssh_keys
     - ashes
     - firebird
     - { role: balancer, sudo: yes }
@@ -50,6 +51,7 @@
     - common
     - { role: rsyslog, sudo: yes }
     - node
+    - ssh_keys
     - firebird
     - { role: balancer, sudo: yes }
     - { role: demo_ashes, sudo: yes }
