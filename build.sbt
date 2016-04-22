@@ -134,6 +134,7 @@ lazy val phoenixScala = (project in file(".")).
     fork in IT   := true, /** FIXME: We couldn’t run ITs in parallel if we fork */
     test in assembly := {},
     addCommandAlias("assembly", "gatling/assembly"),
+    addCommandAlias("all", "; clean; gatling/clean; it:compile; gatling/compile; test; gatling/assembly"),
     test <<= Def.task {
       /** We need to do nothing here. Unit and ITs will run in parallel
         * and this task will fail if any of those fail. */
