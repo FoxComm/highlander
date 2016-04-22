@@ -18,7 +18,6 @@ import org.json4s.jackson.JsonMethods._
 import org.json4s.{Extraction, _}
 import utils.Config.{RichConfig, config}
 import utils.db.DbResultT._
-import utils.caseClassToMap
 
 object Keys {
 
@@ -73,20 +72,25 @@ object Token {
   def getJWTClaims(token: Token): JwtClaims = {
     val claims = new JwtClaims
 
-    for ((field, value) ← caseClassToMap(token)) {
-      value match {
-        case value: Seq[_] ⇒ claims.setStringListClaim(field, value.asInstanceOf[Seq[String]].toList)
-        case Some(someVal) ⇒ claims.setClaim(field, someVal)
-        case None ⇒ claims
-        case _ ⇒ claims.setClaim(field, value)
-      }
+    claims.setClaim("id", token.id)
+    claims.setClaim("email", token.email)
+    claims.setStringListClaim("scopes", token.scopes)
+
+    token.name.map { name ⇒
+      claims.setClaim("name", name)
     }
 
     claims.setExpirationTimeMinutesInTheFuture(tokenTTL.toFloat)
     claims.setIssuer("FC")
     token match {
-      case _: AdminToken ⇒ claims.setAudience("admin")
-      case _: CustomerToken ⇒ claims.setAudience("customer")
+      case _: AdminToken ⇒ {
+        claims.setAudience("admin")
+        claims.setClaim("admin", true)
+      }
+      case _: CustomerToken ⇒ {
+        claims.setAudience("customer")
+        claims.setClaim("admin", false)
+      }
     }
 
     claims
@@ -131,7 +135,7 @@ object Token {
             Extraction.extract[AdminToken](jValue)
           else
             Extraction.extract[CustomerToken](jValue)
-          case _ ⇒ throw new InvalidJwtException("missing claim")
+          case _ ⇒ throw new InvalidJwtException(s"missing claim: admin")
         }
       } match {
         case Success(token) ⇒ Xor.right(token)
@@ -139,7 +143,6 @@ object Token {
           System.err.println(e.getMessage)
           Xor.left(AuthFailed(e.getMessage).single)
       }
-
     }
   }
 

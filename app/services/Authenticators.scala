@@ -75,13 +75,13 @@ object Authenticator {
     }
   }
 
-  case class basicCustomer(implicit ec: EC, db: DB) extends BasicAuth[Customer] {
+  case class BasicCustomer(implicit ec: EC, db: DB) extends BasicAuth[Customer] {
     def checkAuth(credentials: Option[HttpCredentials]): Future[AuthenticationResult[Customer]] = {
       basicAuth[EmailFinder[Customer]]("private customer routes")(credentials, Customers.findByEmail, _.hashedPassword)
     }
   }
 
-  case class basicStoreAdmin(implicit ec: EC, db: DB) extends BasicAuth[StoreAdmin] {
+  case class BasicStoreAdmin(implicit ec: EC, db: DB) extends BasicAuth[StoreAdmin] {
     def checkAuth(credentials: Option[HttpCredentials]): Future[AuthenticationResult[StoreAdmin]] = {
       basicAuth[EmailFinder[StoreAdmin]]("admin")(credentials, StoreAdmins.findByEmail, _.hashedPassword)
     }
@@ -111,7 +111,7 @@ object Authenticator {
     }
   }
 
-  case class jwtCustomer(implicit ec: EC, db: DB) extends JwtAuth[Customer] {
+  case class JwtCustomer(implicit ec: EC, db: DB) extends JwtAuth[Customer] {
     def checkAuth(credentials: Option[String]): Future[AuthenticationResult[Customer]] = {
       jwtAuth[TokenToModel[Customer]]("private customer routes")(credentials, customerFromToken)
     }
@@ -119,7 +119,7 @@ object Authenticator {
     def validateToken(token: String) = Token.fromString(token, Identity.Customer)
   }
 
-  case class jwtStoreAdmin(implicit ec: EC, db: DB) extends JwtAuth[StoreAdmin] {
+  case class JwtStoreAdmin(implicit ec: EC, db: DB) extends JwtAuth[StoreAdmin] {
     def checkAuth(credentials: Option[String]): Future[AuthenticationResult[StoreAdmin]] = {
       jwtAuth[TokenToModel[StoreAdmin]]("admin")(credentials, adminFromToken)
     }
@@ -129,16 +129,16 @@ object Authenticator {
 
   def forAdminFromConfig(implicit ec: EC, db: DB): AsyncAuthenticator[StoreAdmin] = {
     config.getString("auth.method") match {
-      case "basic" ⇒ basicStoreAdmin()
-      case "jwt" ⇒ jwtStoreAdmin()
+      case "basic" ⇒ BasicStoreAdmin()
+      case "jwt" ⇒ JwtStoreAdmin()
       case method ⇒ throw new RuntimeException(s"unknown auth method $method")
     }
   }
 
   def forCustomerFromConfig(implicit ec: EC, db: DB): AsyncAuthenticator[Customer] = {
     config.getString("auth.method") match {
-      case "basic" ⇒ basicCustomer()
-      case "jwt" ⇒ jwtCustomer()
+      case "basic" ⇒ BasicCustomer()
+      case "jwt" ⇒ JwtCustomer()
       case method ⇒ throw new RuntimeException(s"unknown auth method $method")
     }
   }
