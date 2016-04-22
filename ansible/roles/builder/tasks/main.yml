@@ -10,14 +10,6 @@
   sudo: true
   copy: src="flow" dest="/usr/local/bin/flow" mode="u=rwx,g=rwx,o=rx"
 
-- name: Install Private Key So Buildkite Agents Can Work
-  sudo: true
-  copyv: src=id_rsa dest="/var/lib/buildkite-agent/.ssh/" mode="u=rw"
-
-- name: Install Public SSH Keys
-  sudo: true
-  copyv: src=id_rsa.pub dest="/var/lib/buildkite-agent/.ssh/" mode="u=rw,g=r,o=r"
-
 - name: Restart Buildkite Agent
   sudo: true
   command: systemctl restart buildkite-agent

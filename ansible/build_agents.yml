@@ -16,4 +16,5 @@
     - scala
     - node
     - db_test
+    - ssh_keys
     - builder
