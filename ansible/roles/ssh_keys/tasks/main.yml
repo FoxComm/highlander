@@ -4,6 +4,14 @@
   sudo: true
   copyv: src=id_rsa dest="/var/lib/buildkite-agent/.ssh/" mode="u=rw"
 
+- name: Install Private Key So Buildkite Agents Can Work
+  sudo: true
+  copyv: src=id_rsa dest="/home/buildkite-agent/.ssh/" mode="u=rw"
+
 - name: Install Public SSH Keys
   sudo: true
   copyv: src=id_rsa.pub dest="/var/lib/buildkite-agent/.ssh/" mode="u=rw,g=r,o=r"
+
+- name: Install Public SSH Keys
+  sudo: true
+  copyv: src=id_rsa.pub dest="/home/buildkite-agent/.ssh/" mode="u=rw,g=r,o=r"
