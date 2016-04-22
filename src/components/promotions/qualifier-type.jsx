@@ -7,6 +7,7 @@ import { autobind } from 'core-decorators';
 
 import { Dropdown } from '../dropdown';
 import CurrencyInput from '../forms/currency-input';
+import ProductsQualifier from './qualifiers/products';
 
 import styles from './attrs-edit.css';
 
@@ -89,16 +90,47 @@ export default class QualifierType extends Component {
     this.setType(value);
   }
 
+  @autobind
+  handleChangeReferences(references) {
+    this.setParams({references});
+  }
+
+  get itemsAnyQualifier() {
+    const references = _.get(this.qualifierParams, 'references', []);
+
+    return (
+      <ProductsQualifier
+        label="Items for qualify"
+        references={references}
+        onChange={this.handleChangeReferences}
+      />
+    );
+  }
+
+  get content() {
+    switch (this.qualifierType) {
+      case 'itemsAny':
+        return this.itemsAnyQualifier;
+      default:
+        return null;
+    }
+  }
+
   render() {
     return (
       <div>
-        <Dropdown
-          styleName="type-chooser"
-          items={qualifierItems}
-          value={this.qualifierType}
-          onChange={this.handleQualifierTypeChange}
-        />
-        {this.controlAfterType}
+        <div styleName="form-row">
+          <Dropdown
+            styleName="type-chooser"
+            items={qualifierItems}
+            value={this.qualifierType}
+            onChange={this.handleQualifierTypeChange}
+          />
+          {this.controlAfterType}
+        </div>
+        <div styleName="form-row">
+          {this.content}
+        </div>
       </div>
     );
   }
