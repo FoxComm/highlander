@@ -12,7 +12,7 @@
   copyv: src=id_rsa.pub dest={{ item }} mode="u=rw,g=r,o=r"
   with_items:
     - "/var/lib/buildkite-agent/.ssh/"
-    - "/home/buildkite-agent/.ssh/"  
+    - "/home/buildkite-agent/.ssh/"
 
 - name: Add Github to known hosts
   sudo: true
