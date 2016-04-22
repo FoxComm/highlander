@@ -10,12 +10,14 @@ import { assoc } from 'sprout-data';
 // components
 import ObjectFormInner from '../object-form/object-form-inner';
 import ContentBox from '../content-box/content-box';
-import Dropdown from '../dropdown/dropdown';
+import DropdownSearch from '../dropdown/dropdown-search';
+import DropdownItem from '../dropdown/dropdownItem';
 import RadioButton from '../forms/radio-button';
 import CouponCodes from './form/coupon-codes';
 import UsageRules from './form/usage-rules';
 import { FormField, Form } from '../forms';
 import Tags from '../tags/tags';
+import { searchCouponPromotions } from '../../elastic/promotions';
 
 // styles
 import styles from './form.css';
@@ -30,6 +32,7 @@ type CouponFormProps = {
   onUpdateCoupon: Function,
   onGenerateBulkCodes: Function,
   onUpdateCouponCode: Function,
+  fetchPromotions: Function,
   entity: Entity,
 };
 
@@ -48,6 +51,24 @@ export default class CouponForm extends Component {
     return _(shadow).omit(toOmit).keys().value();
   }
 
+  handlePromotionSearch(token: string) {
+    return searchCouponPromotions(token).then((result) => {
+      return result.result;
+    });
+  }
+
+  @autobind
+  renderPromotionOption(promotion) {
+    return (
+      <DropdownItem value={promotion.id} key={`${promotion.id}-${promotion.name}`}>
+        <span>{ promotion.name }</span>
+        <span styleName="text-gray">
+          &nbsp;<span className="fc-icon icon-ellipsis"></span>&nbsp;ID: { promotion.id }
+        </span>
+      </DropdownItem>
+    );
+  }
+
   get promotionSelector() {
     const id = _.get(this.props, 'coupon.promotion');
     const promotionsToSelect = _.get(this.props, 'selectedPromotions', []).map((promo) => {
@@ -61,7 +82,7 @@ export default class CouponForm extends Component {
           </label>
         </div>
         <div>
-          <Dropdown
+          <DropdownSearch
             id="promotionSelector"
             styleName="full-width"
             name="promotion"
@@ -69,6 +90,9 @@ export default class CouponForm extends Component {
             placeholder="- Select -"
             value={id}
             onChange={(value) => this.handlePromotionChange(value)}
+            fetchOptions={this.handlePromotionSearch}
+            renderOption={this.renderPromotionOption}
+            searchbarPlaceholder="Promotion name or storefront name"
           />
         </div>
         { this.props.promotionError && (<div className="fc-form-field-error">

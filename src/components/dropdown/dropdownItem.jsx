@@ -1,6 +1,15 @@
-import React, { PropTypes } from 'react';
 
-const DropdownItem = props => {
+/* @flow */
+
+import React, { PropTypes, Element } from 'react';
+
+type ItemProps = {
+  onSelect: Function,
+  value: number|string|bool,
+  children: Element,
+};
+
+const DropdownItem = (props: ItemProps) => {
   const {value, children, onSelect} = props;
 
   const handleClick = event => {

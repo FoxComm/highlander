@@ -1,200 +1,101 @@
+
+/* @flow */
+
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React, { Component, Element } from 'react';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
+import GenericDropdown from './generic-dropdown';
 import DropdownItem from './dropdownItem';
 
-class Dropdown extends React.Component {
+type Props = {
+  name: string,
+  className?: string,
+  value: string|number,
+  disabled: bool,
+  editable: bool,
+  changeable: bool,
+  primary: bool,
+  open: bool,
+  placeholder: string,
+  onChange: Function,
+  items?: Array<any>,
+  children?: Element,
+  renderNullTitle: Function,
+};
 
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      open: !!this.props.open,
-      dropup: false,
-      selectedValue: '',
-    };
-  }
 
-  findTitleByValue(value, props = this.props) {
-    if (props.items) {
-      const item = _.find(props.items, item => item[0] == value);
-      return item && item[1];
-    } else {
-      const item = _.findWhere(React.Children.toArray(props.children), { props: { value: value } });
-      return item && item.props.children;
-    }
-  }
+export default class Dropdown extends Component {
 
-  @autobind
-  handleToggleClick(event) {
-    event.preventDefault();
-    if (this.props.disabled) {
-      return;
-    }
-    this.setState({
-      open: !this.state.open
-    });
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.open && !prevState.open) {
-      this.setMenuOrientation();
-    }
-  }
-
-  setMenuOrientation() {
-    const menuNode = this.refs.items;
-    const containerNode = this.refs.container;
-    const viewportHeight = window.innerHeight;
-
-    const containerPos = containerNode.getBoundingClientRect();
-    const spaceAtTop = containerPos.top;
-    const spaceAtBottom = viewportHeight - containerPos.bottom;
-
-    let dropup = false;
-
-    if (!menuNode) {
-      if (spaceAtBottom < viewportHeight / 2) dropup = true;
-    } else {
-      const menuRect = menuNode.getBoundingClientRect();
-      if (spaceAtBottom < menuRect.height && spaceAtBottom < spaceAtTop) {
-        dropup = true;
-      }
-    }
-
-    this.setState({
-      dropup,
-    });
-  }
+  props: Props;
 
   @autobind
-  handleItemClick(value, title) {
-    const state = { open: false };
-    if (this.props.changeable) {
-      state.selectedValue = value;
-    }
-
-    this.setState(state, () => {
-      if (this.props.onChange) {
-        this.props.onChange(value, title);
-      }
-    });
-  }
-
-  get input() {
-    const { editable, disabled, placeholder, name, value, renderNullTitle } = this.props;
-    const actualValue = this.state.selectedValue || value;
-    const title = this.findTitleByValue(actualValue) || renderNullTitle(value, placeholder);
-
+  buildInput(name: string,
+             value: string|number,
+             placeholder: string,
+             title: string,
+             editable: bool,
+             disabled: bool,
+             handleToggleClick: Function): Element {
     if (editable) {
       return (
         <div className="fc-dropdown__value">
-          <input name={name}
-                 placeholder={placeholder}
-                 disabled={disabled}
-                 defaultValue={title}
-                 key={`${name}-${actualValue}-selected`} />
+          <input
+            name={name}
+            placeholder={placeholder}
+            disabled={disabled}
+            defaultValue={title}
+            key={`${name}-${value}-selected`}
+          />
         </div>
       );
     }
 
     return (
-      <div className="fc-dropdown__value" onClick={this.handleToggleClick}>
+      <div className="fc-dropdown__value" onClick={handleToggleClick}>
         {title}
-        <input name={name} type="hidden" value={actualValue} readOnly />
+        <input name={name} type="hidden" value={value} readOnly />
       </div>
     );
   }
 
-  get dropdownButton() {
-    const className = this.state.open ? 'icon-chevron-up' : 'icon-chevron-down';
-    return (
-      <div className="fc-dropdown__button"
-           disabled={this.props.disabled}
-           onClick={this.handleToggleClick}>
-        <i className={className}></i>
-      </div>
-    );
-  }
 
   @autobind
-  onBlur() {
-    this.setState({ open: false });
+  renderItems(): ?Element {
+    const { name, items, children } = this.props;
+
+    if (items) {
+      return _.map(items, ([value, title]) => (
+        <DropdownItem value={value} key={`${name}-${value}`}>
+          {title}
+        </DropdownItem>
+      ));
+    }
+
+    return children;
   }
 
-  componentWillReceiveProps(newProps) {
-    this.setState({
-      selectedValue: newProps.value,
-    });
-  }
-
-  render() {
-    const { primary, editable, items, children, disabled, name } = this.props;
-    const { open, dropup } = this.state;
-    const className = classNames(this.props.className, {
-      'fc-dropdown': true,
-      '_primary': primary,
-      '_editable': editable,
-      '_open': open,
-      '_disabled': disabled
-    });
-    const itemsClassName = classNames('fc-dropdown__items', {
-      '_dropup': dropup,
-      '_dropdown': !dropup,
-    });
+  render(): Element {
+    const {
+      name, placeholder, value, primary, editable, open, disabled, onChange, renderNullTitle, className
+    } = this.props;
 
     return (
-      <div className={className} ref="container" onBlur={this.onBlur} tabIndex="0">
-        <div className="fc-dropdown__controls" onClick={editable ? this.handleToggleClick : null}>
-          {this.dropdownButton}
-          {this.input}
-        </div>
-        <ul ref="items" className={itemsClassName}>
-          {items && _.map(items, ([value, title]) => (
-            <DropdownItem value={value} key={`${name}-${value}`} onSelect={this.handleItemClick}>
-              {title}
-            </DropdownItem>
-          )) || React.Children.map(children, item => (
-              React.cloneElement(item, {
-                onSelect: this.handleItemClick,
-              })
-            )
-          )}
-        </ul>
-      </div>
+      <GenericDropdown
+        name={name}
+        value={value}
+        placeholder={placeholder}
+        className={className}
+        primary={primary}
+        editable={editable}
+        disabled={disabled}
+        open={open}
+        renderDropdownInput={this.buildInput}
+        renderNullTitle={renderNullTitle}
+        onChange={onChange} >
+        { this.renderItems() }
+      </GenericDropdown>
     );
   }
 }
-
-Dropdown.itemsType = PropTypes.arrayOf(PropTypes.array);
-
-Dropdown.propTypes = {
-  name: PropTypes.string,
-  className: PropTypes.string,
-  value: PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.string,
-    PropTypes.number,
-  ]),
-  disabled: PropTypes.bool,
-  editable: PropTypes.bool,
-  changeable: PropTypes.bool,
-  primary: PropTypes.bool,
-  open: PropTypes.bool,
-  placeholder: PropTypes.string,
-  onChange: PropTypes.func,
-  items: Dropdown.itemsType,
-  children: PropTypes.node,
-  renderNullTitle: PropTypes.func,
-};
-
-Dropdown.defaultProps = {
-  renderNullTitle: (value, placeholder) => {
-    return placeholder;
-  },
-  changeable: true,
-  disabled: false,
-};
-
-export default Dropdown;

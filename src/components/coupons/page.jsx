@@ -57,7 +57,6 @@ class CouponPage extends Component {
     } else {
       this.props.actions.fetchCoupon(this.entityId);
     }
-    this.props.actions.searchCouponPromotions('');
   }
 
   componentWillReceiveProps(nextProps: CouponPageProps): void {

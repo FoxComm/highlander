@@ -7,7 +7,6 @@ import { createAction, createReducer } from 'redux-act';
 import { createEmptyCoupon, configureCoupon} from '../../paragons/coupons';
 import createAsyncActions from '../async-utils';
 import Api from '../../lib/api';
-import { searchCouponPromotions as _searchCouponPromotions } from '../../elastic/promotions';
 
 export const couponsNew = createAction('COUPONS_NEW');
 const defaultContext = 'default';
@@ -59,13 +58,6 @@ const _generateCode = createAsyncActions(
   }
 );
 
-const _searchPromotions = createAsyncActions(
-  'seatchPromotions',
-  (term: string) => {
-    return _searchCouponPromotions(term);
-  }
-);
-
 export function fetchCoupon(id: string, context: string = defaultContext) {
   return dispatch => {
     if (id.toLowerCase() == 'new') {
@@ -80,7 +72,6 @@ export function fetchCoupon(id: string, context: string = defaultContext) {
 export const createCoupon = _createCoupon.perform;
 export const updateCoupon = _updateCoupon.perform;
 export const generateCode = _generateCode.perform;
-export const searchCouponPromotions = _searchPromotions.perform;
 
 export function generateCodes(prefix: string, length: number, quantity: number) {
   return (dispatch, getState) => {
@@ -136,13 +127,6 @@ const reducer = createReducer({
       codes: [...oldCodes, code]
     };
   },
-  [_searchPromotions.succeeded]: (state, promotions) => {
-    const selectedPromotions = _.get(promotions, 'result', []);
-    return {
-      ...state,
-      selectedPromotions,
-    };
-  }
 }, initialState);
 
 export default reducer;

@@ -47,8 +47,13 @@
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .5);
     user-select: none;
     max-height: 50vh;
+    overflow: hidden;
+  }
+
+  &__item-container {
     overflow-y: auto;
     overflow-x: hidden;
+    max-height: inherit;
   }
 
   &__items._dropup {
@@ -110,4 +115,8 @@
       }
     }
   }
+}
+
+.fc-searchable-dropdown__item-list {
+  max-height: ~"calc(50vh - 60px)";
 }

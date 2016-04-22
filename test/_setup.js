@@ -1,6 +1,9 @@
 import _ from 'lodash';
 import path from 'path';
 import rewire from 'rewire';
+import register from 'ignore-styles';
+
+register(['.css']);
 
 const unexpected = require('unexpected');
 global.unexpected = unexpected
