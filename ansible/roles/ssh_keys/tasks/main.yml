@@ -2,16 +2,18 @@
 
 - name: Install Private Key So Buildkite Agents Can Work
   sudo: true
-  copyv: src=id_rsa dest="/var/lib/buildkite-agent/.ssh/" mode="u=rw"
-
-- name: Install Private Key So Buildkite Agents Can Work
-  sudo: true
-  copyv: src=id_rsa dest="/home/buildkite-agent/.ssh/" mode="u=rw"
-
-- name: Install Public SSH Keys
-  sudo: true
-  copyv: src=id_rsa.pub dest="/var/lib/buildkite-agent/.ssh/" mode="u=rw,g=r,o=r"
+  copyv: src=id_rsa dest={{ item }} mode="u=rw"
+  with_items:
+    - "/var/lib/buildkite-agent/.ssh/"
+    - "/home/buildkite-agent/.ssh/"
 
 - name: Install Public SSH Keys
   sudo: true
-  copyv: src=id_rsa.pub dest="/home/buildkite-agent/.ssh/" mode="u=rw,g=r,o=r"
+  copyv: src=id_rsa.pub dest={{ item }} mode="u=rw,g=r,o=r"
+  with_items:
+    - "/var/lib/buildkite-agent/.ssh/"
+    - "/home/buildkite-agent/.ssh/"  
+
+- name: Add Github to known hosts
+  sudo: true
+  shell: 'ssh-keyscan github.com >> /home/buildkite-agent/.ssh/known_hosts'
