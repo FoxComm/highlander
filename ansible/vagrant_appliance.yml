@@ -3,20 +3,21 @@
 - name: Provision All The Things
   hosts: all
   vars:
-    user: vagrant
+    user: '{{ansible_ssh_user}}'
     ashes_server_name: admin.foxcommerce.local
     firebird_server_name: foxcommerce.local
   roles:
-    - common
-    - scala
-    - kafka
-    - elasticsearch
-    - db
-    - phoenix
-    - { role: rsyslog, sudo: yes }
-    - { role: kibana, sudo: yes }
-    - greenriver
-    - node
-    - ashes
-    - firebird
-    - { role: balancer, sudo: yes }
+    - {role: base/vagrant, sudo: yes }
+    - {role: base/common}
+    - {role: base/scala}
+    - {role: base/kafka}
+    - {role: base/elasticsearch}
+    - {role: base/db}
+    - {role: base/rsyslog, sudo: yes }
+    - {role: base/kibana, sudo: yes }
+    - {role: base/node}
+    - {role: base/balancer, sudo: yes }
+    - {role: dev/phoenix}
+    - {role: dev/greenriver}
+    - {role: dev/ashes}
+    - {role: dev/firebird}

@@ -1,5 +1,9 @@
-variable "demo_image" { 
-    default = "ubuntu-1510-wily-v20160123"
+variable "backend_image" { 
+    default = "ubuntu-1604-xenial-v20160420c"
+}
+
+variable "frontend_image" { 
+    default = "ubuntu-1604-xenial-v20160420c"
 }
 
 variable "prefix" {} 
@@ -13,7 +17,7 @@ resource "google_compute_instance" "front" {
     zone = "us-central1-a"
 
     disk {
-        image = "${var.demo_image}"
+        image = "${var.frontend_image}"
         type = "pd-ssd"
         size = "30"
     }   
@@ -43,7 +47,7 @@ resource "google_compute_instance" "front-ru" {
     zone = "us-central1-a"
 
     disk {
-        image = "${var.demo_image}"
+        image = "${var.frontend_image}"
         type = "pd-ssd"
         size = "30"
     }   
@@ -72,7 +76,7 @@ resource "google_compute_instance" "backend" {
     zone = "us-central1-a"
 
     disk {
-        image = "${var.demo_image}"
+        image = "${var.backend_image}"
         type = "pd-ssd"
         size = "100"
     }   

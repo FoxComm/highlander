@@ -8,9 +8,6 @@
   with_items:
     - rsyslog
     - rsyslog-elasticsearch
-    - rsyslog-mmnormalize
-    - rsyslog-mmjsonparse
-      #- rsyslog-kafka
 
 - name: Install base rsyslog config
   template: >

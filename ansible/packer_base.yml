@@ -8,6 +8,4 @@
     user: ubuntu
 
   roles:
-    - common
-    - scala
-    - node
+    - {role: base/common}

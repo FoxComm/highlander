@@ -67,3 +67,6 @@ google_oauth_frontend_redirect_uri: ""
 #VM swap size
 swap_file: /swap
 swap_size_mb: 2000
+
+#fix ansible 2 rsync
+rsync_opts: ssh -l {{user}}

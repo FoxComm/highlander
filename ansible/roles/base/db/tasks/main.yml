@@ -19,10 +19,10 @@
     - pkg-config
     - librdkafka-dev
     - libsnappy-dev
-    - postgresql-server-dev-9.4
-    - postgresql-9.4
-    - postgresql-client-9.4
-    - postgresql-contrib-9.4
+    - postgresql-server-dev-9.5
+    - postgresql-9.5
+    - postgresql-client-9.5
+    - postgresql-contrib-9.5
 
 - name: Get Avro
   get_url: url={{avro_url}} dest="{{home}}/{{avro_name}}.tar.gz"
@@ -89,7 +89,7 @@
   sudo: true
 
 - name: Copy Postgres Configuration
-  copy: src={{item}} dest="/etc/postgresql/9.4/main/{{item}}" mode="644"
+  copy: src={{item}} dest="/etc/postgresql/9.5/main/{{item}}" mode="644"
   sudo: true
   with_items:
       - postgresql.conf
@@ -119,7 +119,7 @@
   sudo: true
   with_items:
       - root
-      - "{{user}}"
+      - "'{{user}}'"
       - phoenix
 
 - name: Create Phoenix Directory
@@ -132,27 +132,22 @@
 
 - name: Delete Phoenix Gatling Resources
   file: path="{{phoenix_dir}}/gatling-classes" state=absent
-  sudo: true
 
 - name: Syncrhonize Phoenix Gatling Resources
   synchronize: src="{{phoenix_src}}/gatling-classes" dest="{{phoenix_dir}}" delete=yes recursive=yes
-  sudo: true
+  become: false
 
 - name: Create directory for Gatling results
   file: path="{{phoenix_dir}}/gatling-results" state=directory owner="{{user}}" mode="0777"
-  sudo: true
 
 - name: Delete old log directory
   file: path="{{phoenix_dir}}/log" state=absent
-  sudo: true
 
 - name: Create log directory
   file: path="{{phoenix_dir}}/log" state=directory owner="{{user}}"  mode="0777"
-  sudo: true
 
 - name: Copy Phoenix
   copy: src="{{phoenix_jar_src}}" dest="{{phoenix_jar}}" owner="{{user}}"
-  sudo: true
 
 - name: Clean Db
   shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} clean

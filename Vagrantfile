@@ -55,12 +55,12 @@ def expose_ashes(config)
 end
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/wily64"
+  config.vm.box = "ubuntu/xenial64"
 
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
   config.vm.provider :vmware_fusion do |v, override|
-    override.vm.box= "boxcutter/ubuntu1504"
+    override.vm.box= "boxcutter/ubuntu1604"
   end
 
   config.vm.provider :google do |g, override|
@@ -89,16 +89,22 @@ Vagrant.configure("2") do |config|
     app.vm.synced_folder "../green-river", "/fox/green-river"
     app.vm.synced_folder "../phoenix-scala", "/fox/phoenix-scala"
 
+    app.vm.provision "shell", inline: "apt-get install -y python-minimal"
     app.vm.provision "ansible" do |ansible|
         ansible.verbose = "vv"
         ansible.playbook = "ansible/vagrant_appliance.yml"
+        ansible.extra_vars = {
+            user: "ubuntu",
+            hostname: "ubuntu-xenial"
+        }
     end
   end
 
   config.vm.define :backend, autostart: false do |app|
     app.vm.network :private_network, ip: $backend_ip
     expose_backend_ports(app)
-      app.vm.provision "ansible" do |ansible|
+    app.vm.provision "shell", inline: "apt-get install -y python-minimal"
+    app.vm.provision "ansible" do |ansible|
           ansible.verbose = "vv"
           ansible.playbook = "ansible/vagrant_backend.yml"
       end
@@ -111,6 +117,7 @@ Vagrant.configure("2") do |config|
       app.vm.network :private_network, ip: $ashes_ip
       expose_ashes(app)
 
+      app.vm.provision "shell", inline: "apt-get install -y python-minimal"
       app.vm.provision "ansible" do |ansible|
           ansible.verbose = "vv"
           ansible.playbook = "ansible/vagrant_greenriver.yml"
@@ -132,6 +139,7 @@ Vagrant.configure("2") do |config|
       tune_vm(config, cpus: $ashes_cpu, memory: $ashes_memory)
 
 
+      app.vm.provision "shell", inline: "apt-get install -y python-minimal"
       app.vm.provision "ansible" do |ansible|
           ansible.verbose = "vv"
           ansible.playbook = "ansible/vagrant_ashes.yml"

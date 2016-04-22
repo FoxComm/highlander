@@ -1,4 +1,5 @@
 ---
+
 - name: Add Oracle Java Repository
   apt_repository: repo='ppa:webupd8team/java' update_cache=yes
   sudo: true
@@ -19,8 +20,10 @@
     - python-software-properties
     - software-properties-common
     - tmux
+    - nmap
     - htop
     - unzip
+    - tree
 
 - name: Install Java Packages
   apt: name={{ item }} state=latest force=yes

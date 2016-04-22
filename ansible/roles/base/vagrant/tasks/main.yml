@@ -1,0 +1,3 @@
+---
+- name: Add Hostname in etc/hosts
+  lineinfile: dest=/etc/hosts line="127.0.1.1 {{hostname}}"
