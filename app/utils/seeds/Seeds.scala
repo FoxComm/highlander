@@ -50,7 +50,7 @@ object Seeds {
 
   def createBaseSeeds()(implicit db: Database) {
     Console.err.println("Inserting seeds")
-    val result: Failures Xor Unit = Await.result(createAll().runTxn(), 1.minute)
+    val result: Failures Xor Unit = Await.result(createAll().runTxn(), 4.minutes)
     validateResults("base", result)
   }
 
