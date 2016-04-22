@@ -1,12 +1,18 @@
-
-import React from 'react';
+/* @flow */
+import React, { Element } from 'react';
 import styles from '../attrs-edit.css';
 
 import AppendInput from '../../forms/append-input';
 
-const Percent = props => {
+import type { Context, ItemDesc } from '../types';
+
+type Props = ItemDesc & {
+  context: Context;
+}
+
+const Percent = (props: Props): Element => {
   const value = props.context.params[props.name];
-  const onChange = (event) => {
+  const onChange = (event: Object) => {
     let percent = Number(event.target.value);
     percent = isNaN(percent) ? 0 : percent;
     percent = Math.min(100, percent);

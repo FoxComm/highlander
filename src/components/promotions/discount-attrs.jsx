@@ -1,4 +1,4 @@
-
+/* @flow */
 import _ from 'lodash';
 import React, { Element } from 'react';
 
@@ -7,39 +7,10 @@ import styles from './attrs-edit.css';
 import * as widgets from './widgets';
 import { Dropdown } from '../dropdown';
 
-/*
-{
-  type: 'itemsSelectPercentOff',
-  title: 'Percent off select items',
-  content: [
-  [
-    {type: 'type'},
-    {
-      name: 'discount',
-      widget: 'percent',
-      template: props => <div>Get {props.children} off discounted items.</div>
-    }
-  ],
-  [
-    {type: 'title', title: 'Discounted Items'},
-    {
-      name: 'references',
-      widget: 'selectProducts',
-      label: 'Discount the items'
-    }
-  ]
-]
-}*/
-
-type ItemDesc = {
-  type?: string;
-  name?: string;
-  widget?: string;
-  template?: (props: Object) => Element;
-}
+import type { ItemDesc, DiscountRow, DescriptionType, Context } from './types';
 
 const renderers = {
-  type(item: ItemDesc, context) {
+  type(item: ItemDesc, context: Context): Element {
     const typeItems = _.map(context.root, entry => [entry.type, entry.title]);
 
     return (
@@ -51,7 +22,7 @@ const renderers = {
       />
     );
   },
-  widget(item:ItemDesc, context) {
+  widget(item:ItemDesc, context: Context): Element {
     const widgetComponent = widgets[item.widget];
     const props = {...item, context};
     const element = React.createElement(widgetComponent, props);
@@ -62,18 +33,10 @@ const renderers = {
 
     return element;
   },
-  title(item: ItemDesc, context) {
+  title(item: ItemDesc): Element {
     return <strong>{item.title}</strong>;
   }
 };
-
-type DiscountRow = Array<ItemDesc>;
-
-type DescriptionType = {
-  type: string;
-  title: string;
-  content?: Array<DiscountRow>;
-}
 
 type Props = {
   onChange: (attrs: Object) => any;
@@ -82,7 +45,7 @@ type Props = {
   discount: Object;
 };
 
-const DiscountAttrs = (props: Props) => {
+const DiscountAttrs = (props: Props): Element => {
   const discount = props.discount;
 
   const attrs = _.get(discount, `form.attributes.${props.attr}`, {});

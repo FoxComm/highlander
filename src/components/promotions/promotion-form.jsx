@@ -17,6 +17,7 @@ import SelectCustomerGroups from '../customers-groups/select-groups';
 import Tags from '../tags/tags';
 import DiscountAttrs from './discount-attrs';
 import offers from './offers';
+import qualifiers from './qualifiers';
 
 import { setDiscountAttr } from '../../paragons/promotion';
 
@@ -152,10 +153,21 @@ export default class PromotionForm extends Component {
           </ContentBox>
           <ContentBox title="Qualifier">
             <div styleName="sub-title">Qualifier Type</div>
+            <DiscountAttrs
+              discount={discount}
+              attr="qualifier"
+              descriptions={qualifiers}
+              onChange={this.handleQualifierChange}
+            />
           </ContentBox>
           <ContentBox title="Offer">
             <div styleName="sub-title">Offer Type</div>
-            <DiscountAttrs discount={discount} attr="offer" descriptions={offers} onChange={this.handleOfferChange} />
+            <DiscountAttrs
+              discount={discount}
+              attr="offer"
+              descriptions={offers}
+              onChange={this.handleOfferChange}
+            />
           </ContentBox>
           <ContentBox title="Customers">
             <SelectCustomerGroups
