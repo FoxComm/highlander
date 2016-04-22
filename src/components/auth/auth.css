@@ -1,4 +1,3 @@
-
 @import "colors.css";
 @import "media-queries.css";
 
@@ -38,6 +37,10 @@
 
   &:hover {
     color: var(--redish);
+  }
+
+  & :global(.icon) {
+    transition: none;
   }
 }
 
@@ -84,23 +87,10 @@
 
 .restore-link {
   color: var(--greyish);
-  text-decoration: none;
-  box-shadow: 0 1px;
-
-  &:hover {
-    color: var(--blackish);
-    box-shadow: none;
-  }
 }
 
 .link {
   color: var(--blackish);
-  text-decoration: none;
-  box-shadow: 0 1px;
-
-  &:hover {
-    box-shadow: none;
-  }
 }
 
 @media (--small-viewport) {
@@ -144,5 +134,18 @@
   .auth-block {
     lost-column: 5/11;
     lost-offset: -3/11;
+  }
+}
+
+@media (--medium-viewport-up) {
+  .link,
+  .restore-link {
+    text-decoration: none;
+    box-shadow: 0 1px;
+
+    &:hover {
+      color: var(--blackish);
+      box-shadow: none;
+    }
   }
 }

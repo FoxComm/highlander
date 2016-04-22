@@ -3,6 +3,7 @@ module.exports = function(gulp, $) {
   const src = [
     'node_modules/evil-icons/assets/evil-icons.css',
     'src/css/reset.css',
+    'src/css/inputs.css',
     'build/bundle.css',
   ];
 

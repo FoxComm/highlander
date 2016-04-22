@@ -2,7 +2,7 @@
 @import "colors.css";
 
 .overlay {
-  position: absolute;
+  position: fixed;
   overflow: auto;
   z-index: 1;
   bottom: 0;
@@ -52,5 +52,11 @@
     width: 33px;
     height: 33px;
     color: #767676;
+  }
+}
+
+@media (--small-viewport) {
+  .close-icon {
+    stroke-width: 3px;
   }
 }
