@@ -23,7 +23,7 @@ object Scenarios {
     .exec(addCustomerAddress).exitHereIfFailed
     .exec(setDefaultShipping).exitHereIfFailed
     .repeat(_ ⇒ nextInt(3))(placeOrder.exec(ageOrder).exitHereIfFailed)
-    .inject(rampUsers(100) over 1.minute)
+    .inject(rampUsers(50) over 1.minute)
 
   val pacificNwVips = scenario("Pacific Northwest VIPs")
     .exec(loginAsRandomAdmin).exitHereIfFailed
@@ -33,6 +33,6 @@ object Scenarios {
     .exec(addCustomerAddress).exitHereIfFailed
     .exec(setDefaultShipping).exitHereIfFailed
     .repeat(_ ⇒ nextInt(10) + 5)(placeOrder.exec(ageOrder).exitHereIfFailed)
-    .inject(rampUsers(40) over 1.minute)
+    .inject(rampUsers(20) over 1.minute)
 
 }

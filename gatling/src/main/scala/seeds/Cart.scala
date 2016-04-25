@@ -11,6 +11,7 @@ import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.{CreateOrder, OrderTimeMachine, UpdateLineItemsPayload, UpdateShippingMethod}
 import seeds.Auth._
 import seeds.GatlingApp.dbFeeder
+import seeds.Payments.pay
 
 object Cart {
 
@@ -72,7 +73,7 @@ object Cart {
       .exec(setShippingAddress).exitHereIfFailed
       .exec(findShippingMethods).exitHereIfFailed
       .exec(setShippingMethod).exitHereIfFailed
-      .exec(CreditCards.payWithCc).exitHereIfFailed
+      .exec(pay).exitHereIfFailed
       .exec(checkout).exitHereIfFailed
 
   val ageOrder = http("Age order")
