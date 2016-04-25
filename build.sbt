@@ -48,7 +48,7 @@ lazy val phoenixScala = (project in file(".")).
       val scalaTestV = "2.2.6"
       val monocleV   = "1.2.1"
       val json4sV    = "3.3.0"
-      val slickPgV   = "0.12.2"
+      val slickPgV   = "0.13.0"
 
       Seq(
         // Akka
