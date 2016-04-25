@@ -13,7 +13,7 @@ final case class PromotionsSearchView()(implicit ec: EC) extends AvroTransformer
     field("id", IntegerType),
     field("context", StringType).index("not_analyzed"),
     field("applyType", StringType).index("not_analyzed"),
-    field("name", StringType).index("not_analyzed"),
+    field("promotionName", StringType).index("not_analyzed"),
     field("storefrontName", StringType).index("not_analyzed"),
     field("description", StringType).analyzer("autocomplete"),
     field("activeFrom", DateType).format(dateFormat),
