@@ -15,7 +15,7 @@ import monocle.Lens
 import monocle.macros.GenLens
 import payloads.CreateCreditCard
 import slick.driver.PostgresDriver.api._
-import utils.CustomDirectives.SortAndPage
+import utils.http.CustomDirectives.SortAndPage
 import utils._
 import utils.aliases._
 import utils.db._

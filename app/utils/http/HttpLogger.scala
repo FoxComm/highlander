@@ -1,4 +1,4 @@
-package utils
+package utils.http
 
 import scala.concurrent.Future
 import akka.event.{Logging, LoggingAdapter}
@@ -12,6 +12,7 @@ import cats.implicits._
 import org.json4s.JsonAST.{JField, JString}
 import org.json4s._
 import org.json4s.jackson._
+import utils.JsonFormatters
 import utils.aliases._
 
 object HttpLogger {

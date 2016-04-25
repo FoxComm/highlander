@@ -11,7 +11,7 @@ import responses.RmaResponse._
 import responses.{AllRmas, BatchResponse, CustomerResponse, RmaResponse, StoreAdminResponse}
 import services.rmas.Helpers._
 import services.Result
-import utils.CustomDirectives.SortAndPage
+import utils.http.CustomDirectives.SortAndPage
 import utils.aliases._
 import utils.db._
 import utils.db.DbResultT._

@@ -8,8 +8,8 @@ import models.{javaTimeSlickMapper, currencyColumnTypeMapper}
 import responses.TheResponse
 import responses.GiftCardResponse.{RootSimple, buildForList}
 import slick.driver.PostgresDriver.api._
-import utils.CustomDirectives
-import utils.CustomDirectives.SortAndPage
+import utils.http.CustomDirectives
+import utils.http.CustomDirectives.SortAndPage
 import utils.Slick._
 import utils.Slick.implicits._
 import utils.DbResultT._

@@ -1,4 +1,4 @@
-package utils
+package utils.http
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
@@ -13,8 +13,9 @@ import models.objects.{ObjectContext, ObjectContexts}
 import models.product.SimpleContext
 import services.Result
 import slick.driver.PostgresDriver.api._
-import utils.Http._
+import utils.http.Http._
 import utils.aliases._
+import utils._
 
 object CustomDirectives {
 

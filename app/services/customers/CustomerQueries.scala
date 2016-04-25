@@ -7,8 +7,8 @@ import models.customer.Customers
 import responses.TheResponse
 import responses.CustomerResponse.{RootSimple, buildForList}
 import slick.driver.PostgresDriver.api._
-import utils.CustomDirectives
-import utils.CustomDirectives.SortAndPage
+import utils.http.CustomDirectives
+import utils.http.CustomDirectives.SortAndPage
 import utils.db._
 import utils.db._
 import utils.db.DbResultT._

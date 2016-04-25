@@ -27,8 +27,9 @@ import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import services.actors._
 import slick.driver.PostgresDriver.api._
 import utils.FoxConfig.{Development, Staging}
-import utils.HttpLogger.logFailedRequests
-import utils.{Apis, CustomHandlers, FoxConfig, WiredStripeApi}
+import utils.http.CustomHandlers
+import utils.http.HttpLogger.logFailedRequests
+import utils.{Apis, FoxConfig, WiredStripeApi}
 
 object Main extends App with LazyLogging {
   logger.info("Starting phoenix server")

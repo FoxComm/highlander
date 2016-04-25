@@ -10,8 +10,8 @@ import services.{AddressManager, CreditCardManager, CustomerCreditConverter, Sto
 StoreCreditService}
 import services.orders.OrderQueries
 import utils.Apis
-import utils.CustomDirectives._
-import utils.Http._
+import utils.http.CustomDirectives._
+import utils.http.Http._
 import utils.aliases._
 
 object CustomerRoutes {

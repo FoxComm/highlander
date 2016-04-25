@@ -6,8 +6,8 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
 import payloads._
 import services.orders.TimeMachine
-import utils.CustomDirectives._
-import utils.Http._
+import utils.http.CustomDirectives._
+import utils.http.Http._
 import utils.aliases._
 
 object DevRoutes {

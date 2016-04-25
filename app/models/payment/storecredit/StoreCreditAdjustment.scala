@@ -12,8 +12,8 @@ import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import slick.lifted.ColumnOrdered
-import utils.CustomDirectives.SortAndPage
-import utils.{ADT, CustomDirectives, FSM}
+import utils.http.CustomDirectives._
+import utils.{ADT, FSM}
 import utils.db._
 
 case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, orderPaymentId: Option[Int],
@@ -73,7 +73,7 @@ object StoreCreditAdjustments
 
   import StoreCreditAdjustment._
 
-  def matchSortColumn(s: CustomDirectives.Sort, adj: StoreCreditAdjustments): ColumnOrdered[_] = {
+  def matchSortColumn(s: Sort, adj: StoreCreditAdjustments): ColumnOrdered[_] = {
     s.sortColumn match {
       case "id"               ⇒ if (s.asc) adj.id.asc               else adj.id.desc
       case "storeCreditId"    ⇒ if (s.asc) adj.storeCreditId.asc    else adj.storeCreditId.desc

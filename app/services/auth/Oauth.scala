@@ -10,7 +10,7 @@ import libs.oauth.{Oauth, UserInfo}
 import models.auth.Token
 import services.Authenticator
 import slick.driver.PostgresDriver.api.DBIO
-import utils.Http._
+import utils.http.Http._
 import utils.aliases._
 import utils.db._
 import utils.db.DbResultT._

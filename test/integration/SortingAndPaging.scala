@@ -3,7 +3,7 @@ import akka.http.scaladsl.model.StatusCodes
 import org.scalatest.mock.MockitoSugar
 import responses.{TheResponse, PaginationMetadata, ResponseItem}
 import util.IntegrationTestBase
-import utils.CustomDirectives
+import utils.http.CustomDirectives
 
 trait SortingAndPaging[T <: ResponseItem] extends MockitoSugar { this: IntegrationTestBase with HttpSupport ⇒
 

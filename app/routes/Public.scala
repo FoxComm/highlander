@@ -11,13 +11,13 @@ import services.giftcards.GiftCardService
 import services.product.ProductManager
 import services.{ReasonService, StoreCreditService}
 import services.PublicService._
-import utils.CustomDirectives._
+import utils.http.CustomDirectives._
 import utils.aliases._
 
 object Public {
   def routes(implicit ec: EC, db: DB) = {
     import Json4sSupport._
-    import utils.Http._
+    import utils.http.Http._
 
     activityContext() { implicit ac ⇒
       pathPrefix("public") {

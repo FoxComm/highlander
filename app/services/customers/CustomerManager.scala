@@ -17,7 +17,7 @@ import responses.CustomerResponse.{Root, build}
 import responses.TheResponse
 import services._
 import slick.driver.PostgresDriver.api._
-import utils.CustomDirectives.SortAndPage
+import utils.http.CustomDirectives.SortAndPage
 import utils.db.DbResultT._
 import utils.db._
 import utils.aliases._

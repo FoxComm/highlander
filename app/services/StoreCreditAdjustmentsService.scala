@@ -7,7 +7,7 @@ import models.payment.storecredit.{StoreCreditAdjustments, StoreCredits}
 import responses.StoreCreditAdjustmentsResponse.{Root, build}
 import responses.TheResponse
 import slick.driver.PostgresDriver.api._
-import utils.CustomDirectives.SortAndPage
+import utils.http.CustomDirectives.SortAndPage
 import utils.aliases._
 import utils.db._
 import utils.db.DbResultT._

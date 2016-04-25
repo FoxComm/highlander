@@ -10,7 +10,7 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.SQLActionBuilder
 import slick.lifted.{ColumnOrdered, Ordered, Query}
 import slick.profile.{SqlAction, SqlStreamingAction}
-import utils.CustomDirectives.{Sort, SortAndPage}
+import utils.http.CustomDirectives._
 import utils.aliases._
 import utils.db.DbResultT._
 import utils.time.JavaTimeSlickMapper
@@ -143,7 +143,7 @@ package object db {
     def withMetadata(implicit sortAndPage: SortAndPage): QueryWithMetadata[E, U, C] = {
 
       val from = sortAndPage.from.getOrElse(0)
-      val size = sortAndPage.size.getOrElse(CustomDirectives.DefaultPageSize)
+      val size = sortAndPage.size.getOrElse(DefaultPageSize)
 
       // size > 0 costraint is defined in SortAndPage
       val pageNo = (from / size) + 1

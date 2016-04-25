@@ -19,7 +19,7 @@ import payloads.AddGiftCardLineItem
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
-import utils.CustomDirectives.SortAndPage
+import utils.http.CustomDirectives.SortAndPage
 import utils.Money._
 import utils.db._
 import utils.Validation._
