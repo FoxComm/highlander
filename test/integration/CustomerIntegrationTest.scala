@@ -1,18 +1,26 @@
-import akka.http.scaladsl.model.StatusCodes
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
+import Extensions._
+import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import com.stripe.exception.CardException
-import models.order._
-import OrderPayments.scope._
+import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
+import failures.CreditCardFailures.{CannotUseInactiveCreditCard, StripeFailure}
+import failures.CustomerFailures._
+import failures.{GeneralFailure, NotFoundFailure404}
+import models.StoreAdmins
 import models.activity.ActivityContext
 import models.customer._
 import models.location.{Addresses, Regions}
-import models.order.{Order, Orders}
+import models.order.OrderPayments.scope._
+import models.order._
 import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCard, CreditCards}
 import models.rma.{Rma, Rmas}
+import models.shipping.{Shipments, Shipment}
+import models.shipping.Shipment.Shipped
 import models.stripe._
-import models.StoreAdmins
 import models.traits.Originator
 import org.mockito.Mockito.{reset, when}
 import org.mockito.{Matchers ⇒ m}
@@ -22,23 +30,19 @@ import responses.CreditCardsResponse.{Root ⇒ CardResponse}
 import responses.CustomerResponse
 import responses.order.FullOrder
 import services.orders.OrderPaymentUpdater
-import util.IntegrationTestBase
-import utils.Money.Currency
-import utils.jdbc._
-import utils.seeds.Seeds.Factories
-import utils.seeds.RankingSeedsGenerator.generateCustomer
-import utils.{Apis, StripeApi}
-import Extensions._
-import slick.driver.PostgresDriver.api._
-import util.SlickSupport.implicits._
-import concurrent.ExecutionContext.Implicits.global
-import utils.db._
-import utils.db.DbResultT._
-import com.stripe.model.{DeletedExternalAccount, ExternalAccount}
-import failures.CreditCardFailures.{CannotUseInactiveCreditCard, StripeFailure}
-import failures.CustomerFailures._
-import failures.{GeneralFailure, NotFoundFailure404}
 import services.{CreditCardManager, Result}
+import slick.driver.PostgresDriver.api._
+import util.IntegrationTestBase
+import util.SlickSupport.implicits._
+import utils.Money.Currency
+import utils.db.DbResultT._
+import utils.db._
+import utils.jdbc._
+import utils.seeds.RankingSeedsGenerator.generateCustomer
+import utils.seeds.Seeds.Factories
+import utils.{Apis, StripeApi}
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class CustomerIntegrationTest extends IntegrationTestBase
   with HttpSupport
@@ -183,6 +187,92 @@ class CustomerIntegrationTest extends IntegrationTestBase
 
       response.status must === (StatusCodes.OK)
       response.as[CustomerResponse.Root] must === (customerRoot)
+    }
+
+    "empty phone number is resolved from" - {
+      "default shipping address" in {
+        val defaultPhoneNumber: String = "1111111111"
+
+        val (customer, region) = (for {
+          customer ← * <~ Customers.create(Factories.customer.copy(phoneNumber = None))
+          address  ← * <~ Addresses.create(Factories.address.copy(customerId = customer.id, isDefaultShipping = true,
+            phoneNumber = defaultPhoneNumber.some))
+          region   ← * <~ Regions.findOneById(address.regionId).toXor
+        } yield (customer, region)).runTxn().futureValue.rightVal
+
+
+        val response = GET(s"$uriPrefix/${customer.id}")
+        val customerRoot = CustomerResponse.build(customer.copy(phoneNumber = defaultPhoneNumber.some),
+          shippingRegion = region)
+
+        response.status must ===(StatusCodes.OK)
+        response.as[CustomerResponse.Root] must ===(customerRoot)
+      }
+
+      "last shipping address" in {
+
+        val phoneNumbers = Seq("1111111111", "2222222222")
+
+        val defaultAddress = Factories.address.copy(isDefaultShipping = true, phoneNumber = None)
+
+        val orders = Seq(
+          Factories.order.copy(state = Order.Shipped, referenceNumber = "ABC-1"),
+          Factories.order.copy(state = Order.Shipped, referenceNumber = "ABC-2")
+        )
+
+        def shippingAddresses(orders: Seq[(Order, String)]) =
+          orders.map { case (order, phone) ⇒ OrderShippingAddress.buildFromAddress(defaultAddress)
+            .copy(orderId = order.id, phoneNumber = phone.some)
+          }
+
+        val (customer, region, shipments) = (for {
+          customer  ← * <~ Customers.create(Factories.customer.copy(phoneNumber = None))
+          address   ← * <~ Addresses.create(defaultAddress.copy(customerId = customer.id))
+          region    ← * <~ Regions.findOneById(address.regionId).toXor
+          ordersSeq ← * <~ sequence(orders.map(o ⇒ DbResultT(Orders.create(o.copy(customerId = customer.id)))))
+          addresses ← * <~ sequence(shippingAddresses(ordersSeq.zip(phoneNumbers))
+            .map(a ⇒ DbResultT(OrderShippingAddresses.create(a))))
+          shipments ← * <~ sequence(addresses.map(address ⇒ DbResultT(Shipments.create(
+            Factories.shipment.copy(
+              orderId = address.orderId,
+              shippingAddressId = address.id.some,
+              orderShippingMethodId = None,
+              state = Shipped)))))
+        } yield (customer, region, shipments)).runTxn().futureValue.rightVal
+
+        def updateShipmentTime(s: Shipment, newTime: Instant ⇒ Instant): Unit =
+          Shipments.update(s, s.copy(updatedAt = s.updatedAt.map(time ⇒ newTime(time)))).run.futureValue
+
+        def runTest(expectedPhone: String) = {
+          val response = GET(s"$uriPrefix/${customer.id}")
+          val expectedCustomer = CustomerResponse.build(customer.copy(phoneNumber = expectedPhone.some),
+            shippingRegion = region)
+
+          response.status must ===(StatusCodes.OK)
+          response.as[CustomerResponse.Root] must ===(expectedCustomer)
+        }
+
+        updateShipmentTime(shipments.head, _.minusSeconds(10))
+        runTest(expectedPhone = phoneNumbers(1))
+
+        updateShipmentTime(shipments(1), _.minusSeconds(11))
+        runTest(expectedPhone = phoneNumbers.head)
+      }
+    }
+
+    "fetches customer info with lastOrderDays value" in new CartFixture{
+      val response = GET(s"$uriPrefix/${customer.id}")
+      val expectedCustomer = CustomerResponse.build(customer, shippingRegion = region, lastOrderDays = None)
+
+      response.status must === (StatusCodes.OK)
+      response.as[CustomerResponse.Root] must === (expectedCustomer)
+
+      Orders.update(order, order.copy(placedAt = Instant.now.minus(1, ChronoUnit.DAYS).some)).run.futureValue.rightVal
+
+      val secondResponse = GET(s"$uriPrefix/${customer.id}")
+
+      secondResponse.status must === (StatusCodes.OK)
+      secondResponse.as[CustomerResponse.Root] must === (expectedCustomer.copy(lastOrderDays = Some(1l)))
     }
 
     "ranking" - {

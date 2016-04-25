@@ -21,10 +21,11 @@ object CustomerResponse {
     totalSales: Option[Int] = None,
     numOrders: Option[Int] = None,
     billingRegion: Option[Region] = None,
-    shippingRegion: Option[Region] = None) extends ResponseItem
+    shippingRegion: Option[Region] = None,
+    lastOrderDays: Option[Long] = None) extends ResponseItem
 
   def build(customer: Customer, shippingRegion: Option[Region] = None, billingRegion: Option[Region] = None,
-    numOrders: Option[Int] = None, rank: Option[CustomerRank] = None): Root = Root(id = customer.id,
+    numOrders: Option[Int] = None, rank: Option[CustomerRank] = None, lastOrderDays: Option[Long] = None): Root = Root(id = customer.id,
     email = customer.email,
     name = customer.name,
     phoneNumber = customer.phoneNumber,
@@ -38,6 +39,7 @@ object CustomerResponse {
     totalSales = rank.map(_.revenue),
     numOrders = numOrders,
     billingRegion = billingRegion,
-    shippingRegion = shippingRegion
+    shippingRegion = shippingRegion,
+    lastOrderDays = lastOrderDays
   )
 }

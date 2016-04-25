@@ -1,21 +1,26 @@
 package services.customers
 
+import java.time.Instant
+import java.time.temporal.ChronoUnit.DAYS
+
 import cats.data.Validated.{Invalid, Valid}
 import cats.implicits._
 import failures.NotFoundFailure404
+import models.StoreAdmin
 import models.customer.Customers.scope._
 import models.customer.{Customer, Customers}
-import models.order.Orders
-import models.StoreAdmin
+import models.location.Addresses
+import models.order.{OrderShippingAddresses, Orders}
+import models.shipping.Shipments
 import payloads.{ActivateCustomerPayload, CreateCustomerPayload, CustomerSearchForNewOrder, UpdateCustomerPayload}
 import responses.CustomerResponse.{Root, build}
 import responses.TheResponse
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.CustomDirectives.SortAndPage
-import utils.aliases._
-import utils.db._
 import utils.db.DbResultT._
+import utils.db._
+import utils.aliases._
 
 object CustomerManager {
 
@@ -95,14 +100,34 @@ object CustomerManager {
     rwm.toTheResponse.runTxn()
   }
 
+  private def resolvePhoneNumber(customerId: Int)(implicit ec: EC): DbResultT[Option[String]] = {
+    def resolveFromShipments(customerId: Int) =
+      (for {
+        order    ← Orders                 if order.customerId === customerId
+        shipment ← Shipments              if shipment.orderId === order.id && shipment.shippingAddressId.isDefined
+        address  ← OrderShippingAddresses if address.id === shipment.shippingAddressId && address.phoneNumber.isDefined
+      } yield (address.phoneNumber, shipment.updatedAt))
+        .sortBy { case (_, updatedAt) ⇒ updatedAt.desc.nullsLast }
+        .map { case (phone, _) ⇒ phone }
+        .one.map(_.flatten).toXor
+
+    for {
+      default  ← * <~ Addresses.filter(address ⇒ address.customerId === customerId && address.isDefaultShipping)
+        .map(_.phoneNumber).one.map(_.flatten).toXor
+      shipment ← * <~ (if (default.isEmpty) resolveFromShipments(customerId) else DbResult.good(default))
+    } yield shipment
+  }
+
   def getById(id: Int)(implicit ec: EC, db: DB): Result[Root] = {
-    val query = Customers.filter(_.id === id).withRegionsAndRank
-    query.result.headOption.run().flatMap {
-      case Some((customer, shipRegion, billRegion, rank)) ⇒
-        Result.right(build(customer = customer, shippingRegion = shipRegion, billingRegion = billRegion, rank = rank))
-      case _ ⇒
-        Result.failure(NotFoundFailure404(Customer, id))
-    }
+    (for {
+      customers    ← * <~ Customers.filter(_.id === id).withRegionsAndRank.one
+        .mustFindOr(NotFoundFailure404(Customer, id))
+      (customer, shipRegion, billRegion, rank) = customers
+      maxOrdersDate ← * <~ Orders.filter(_.customerId === id).map(_.placedAt).max.result
+      phoneOverride ← * <~ (if (customer.phoneNumber.isEmpty) resolvePhoneNumber(id) else DbResultT.rightLift(None))
+    } yield build(customer.copy(phoneNumber = customer.phoneNumber.orElse(phoneOverride)),
+        shipRegion, billRegion, rank = rank, lastOrderDays = maxOrdersDate.map(DAYS.between(_, Instant.now)))
+      ).run()
   }
 
   def create(payload: CreateCustomerPayload, admin: Option[StoreAdmin] = None)

@@ -1,5 +1,7 @@
 package models.shipping
 
+import java.time.Instant
+
 import com.pellucid.sealerate
 import models.shipping.Shipment._
 import monocle.macros.GenLens
@@ -10,7 +12,8 @@ import utils.db._
 import utils.ADT
 
 case class Shipment(id: Int = 0, orderId: Int, orderShippingMethodId: Option[Int] = None, shippingAddressId:
-Option[Int] = None, state: Shipment.State = Cart, shippingPrice: Option[Int] = None)
+Option[Int] = None, state: Shipment.State = Cart, shippingPrice: Option[Int] = None,
+  updatedAt: Option[Instant] = Some(Instant.now))
   extends FoxModel[Shipment]
 
 object Shipment {
@@ -39,9 +42,10 @@ class Shipments(tag: Tag) extends FoxTable[Shipment](tag, "shipments")  {
   def shippingAddressId = column[Option[Int]]("shipping_address_id") //Addresses table
   def state = column[Shipment.State]("state")
   def shippingPrice = column[Option[Int]]("shipping_price") //gets filled in upon checkout
+  def updatedAt = column[Option[Instant]]("updated_at")
 
-  def * = (id, orderId, orderShippingMethodId, shippingAddressId, state, shippingPrice) <> ((Shipment.apply _).tupled,
-    Shipment.unapply)
+  def * = (id, orderId, orderShippingMethodId, shippingAddressId, state, shippingPrice, updatedAt) <>
+    ((Shipment.apply _).tupled, Shipment.unapply)
 }
 
 object Shipments extends FoxTableQuery[Shipment, Shipments](
