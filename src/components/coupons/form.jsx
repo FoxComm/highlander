@@ -63,7 +63,7 @@ export default class CouponForm extends Component {
       <DropdownItem value={promotion.id} key={`${promotion.id}-${promotion.name}`}>
         <span>{ promotion.name }</span>
         <span styleName="text-gray">
-          &nbsp;<span className="fc-icon icon-ellipsis"></span>&nbsp;ID: { promotion.id }
+          &nbsp;<span className="fc-icon icon-dot"></span>&nbsp;ID: { promotion.id }
         </span>
       </DropdownItem>
     );
