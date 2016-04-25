@@ -26,7 +26,7 @@ case class Stripe(apiKey: String = "sk_test_uvaf3GCFsjCsvvKO7FsQhNRm")(implicit 
 
     val source = Map[String, Object](
       "object"        → "card",
-      "number"        → card.number,
+      "number"        → card.cardNumber,
       "exp_month"     → card.expMonth.toString,
       "exp_year"      → card.expYear.toString,
       "cvc"           → card.cvv,

@@ -26,7 +26,7 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
   "CreditCardManagerTest" - {
     "POST /v1/customers/:id/payment-methods/credit-cards" - {
       val tomorrow = ZonedDateTime.now().plusDays(1)
-      val payloadStub = payloads.CreateCreditCard(holderName = "yax", number = StripeSupport.successfulCard,
+      val payloadStub = payloads.CreateCreditCard(holderName = "yax", cardNumber = StripeSupport.successfulCard,
         cvv = "123", expYear = tomorrow.getYear, expMonth = tomorrow.getMonthValue)
 
       def payloadWithFullAddress(p: payloads.CreateCreditCard, a: Address): payloads.CreateCreditCard = {
@@ -119,7 +119,7 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
         }
 
         "if card info is invalid" ignore new Fixture {
-          val payload   = payloadWithFullAddress(payloadStub.copy(number = StripeSupport.incorrectNumberCard),
+          val payload   = payloadWithFullAddress(payloadStub.copy(cardNumber = StripeSupport.incorrectNumberCard),
             Factories.address)
           val response  = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
           val cards     = CreditCards.futureValue
@@ -130,7 +130,7 @@ class CreditCardManagerIntegrationTest extends IntegrationTestBase
         }
 
         "if Stripe's CVC check fails" ignore new AddressFixture {
-          val payload   = payloadStub.copy(number = StripeSupport.incorrectCvc, addressId = Some(1))
+          val payload   = payloadStub.copy(cardNumber = StripeSupport.incorrectCvc, addressId = Some(1))
           val response  = POST(s"v1/customers/${customer.id}/payment-methods/credit-cards", payload)
           val cards     = CreditCards.futureValue
 

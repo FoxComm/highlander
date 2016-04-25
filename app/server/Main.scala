@@ -1,32 +1,33 @@
 package server
 
+import cats.implicits._
 import scala.collection.immutable
-import scala.concurrent.{ExecutionContextExecutor, Future}
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import akka.actor.{ActorSystem, Props}
-import akka.event.Logging
+import akka.event.{Logging, LoggingAdapter}
 import scala.concurrent.duration._
 import akka.agent.Agent
-import akka.event.Logging.ErrorLevel
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
-import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.RouteResult._
-import akka.http.scaladsl.server.directives.LoggingMagnet
 import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
+import akka.stream.scaladsl.Sink
 
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
 import models.StoreAdmin
 import models.customer.Customer
-import org.json4s.jackson.Serialization
-import org.json4s.{Formats, jackson}
+import org.json4s.JsonAST.JString
+import org.json4s.jackson._
+import org.json4s._
 import services.Authenticator
 import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import services.actors._
 import slick.driver.PostgresDriver.api._
 import utils.Config.{Development, Staging}
+import utils.HttpLogger.logFailedRequests
 import utils.{Apis, CustomHandlers, WiredStripeApi}
 
 object Main extends App with LazyLogging {
@@ -70,25 +71,25 @@ class Service(
 
   val defaultRoutes = {
     pathPrefix("v1") {
-      logFailedRequests("auth-routes", ErrorLevel)(routes.AuthRoutes.routes) ~
-      logFailedRequests("public-routes", ErrorLevel)(routes.Public.routes) ~
-      logFailedRequests("customer-routes", ErrorLevel)(routes.Customer.routes) ~
+      routes.AuthRoutes.routes ~
+      routes.Public.routes ~
+      routes.Customer.routes ~
       requireAuth(storeAdminAuth) { implicit admin ⇒
-        logFailedRequests("admin-routes", ErrorLevel)(routes.admin.AdminRoutes.routes) ~
-        logFailedRequests("admin-notification-routes", ErrorLevel)(routes.admin.NotificationRoutes.routes) ~
-        logFailedRequests("admin-assignments-routes", ErrorLevel)(routes.admin.AssignmentsRoutes.routes) ~
-        logFailedRequests("admin-order-routes", ErrorLevel)(routes.admin.OrderRoutes.routes) ~
-        logFailedRequests("admin-customer-routes", ErrorLevel)(routes.admin.CustomerRoutes.routes) ~
-        logFailedRequests("admin-customer-groups-routes", ErrorLevel)(routes.admin.CustomerGroupsRoutes.routes) ~
-        logFailedRequests("admin-giftcard-routes", ErrorLevel)(routes.admin.GiftCardRoutes.routes) ~
-        logFailedRequests("admin-rma-routes", ErrorLevel)(routes.admin.RmaRoutes.routes) ~
-        logFailedRequests("admin-activity-routes", ErrorLevel)(routes.admin.Activity.routes) ~
-        logFailedRequests("admin-inventory-routes", ErrorLevel)(routes.admin.InventoryRoutes.routes) ~
-        logFailedRequests("admin-product-routes", ErrorLevel)(routes.admin.ProductRoutes.routes) ~
-        logFailedRequests("admin-sku-routes", ErrorLevel)(routes.admin.SkuRoutes.routes) ~
-        logFailedRequests("admin-discount-routes", ErrorLevel)(routes.admin.DiscountRoutes.routes) ~
-        logFailedRequests("admin-promotion-routes", ErrorLevel)(routes.admin.PromotionRoutes.routes) ~
-        logFailedRequests("admin-coupon-routes", ErrorLevel)(routes.admin.CouponRoutes.routes)
+        routes.admin.AdminRoutes.routes ~
+        routes.admin.NotificationRoutes.routes ~
+        routes.admin.AssignmentsRoutes.routes ~
+        routes.admin.OrderRoutes.routes ~
+        routes.admin.CustomerRoutes.routes ~
+        routes.admin.CustomerGroupsRoutes.routes ~
+        routes.admin.GiftCardRoutes.routes ~
+        routes.admin.RmaRoutes.routes ~
+        routes.admin.Activity.routes ~
+        routes.admin.InventoryRoutes.routes ~
+        routes.admin.ProductRoutes.routes ~
+        routes.admin.SkuRoutes.routes ~
+        routes.admin.DiscountRoutes.routes ~
+        routes.admin.PromotionRoutes.routes ~
+        routes.admin.CouponRoutes.routes
       }
     }
   }
@@ -96,34 +97,20 @@ class Service(
   val devRoutes = {
     pathPrefix("v1") {
       requireAuth(storeAdminAuth) { implicit admin ⇒
-        logFailedRequests("dev-routes", ErrorLevel)(routes.admin.DevRoutes.routes)
+        routes.admin.DevRoutes.routes
       }
     }
   }
 
-  val allRoutes = utils.Config.environment match {
-    case Development | Staging ⇒
-      logger.info("Activating dev routes")
-      addRoutes.foldLeft(defaultRoutes ~ devRoutes)(_ ~ _)
-    case _ ⇒
-      addRoutes.foldLeft(defaultRoutes)(_ ~ _)
-  }
-
-  private def logFailedRequests(magnet: LoggingMagnet[HttpRequest ⇒ RouteResult ⇒ Unit]): Directive0 = {
-    extractRequestContext.flatMap { ctx ⇒
-      lazy val logResult = magnet.f(logger)(ctx.request)
-
-      mapRouteResult { result ⇒
-        result match {
-          case Complete(response) ⇒ response.status match {
-            case StatusCodes.OK ⇒ // NOOP
-            case _ ⇒ logResult(result)
-          }
-          case Rejected(rejections) ⇒ logResult(result)
-        }
-        result
-      }
+  val allRoutes = {
+    val routes = utils.Config.environment match {
+      case Development | Staging ⇒
+        logger.info("Activating dev routes")
+        addRoutes.foldLeft(defaultRoutes ~ devRoutes)(_ ~ _)
+      case _ ⇒
+        addRoutes.foldLeft(defaultRoutes)(_ ~ _)
     }
+    logFailedRequests(routes, logger)
   }
 
   implicit def rejectionHandler: RejectionHandler = CustomHandlers.jsonRejectionHandler
@@ -164,5 +151,4 @@ class Service(
     }
     logger.info("Self check complete")
   }
-
 }

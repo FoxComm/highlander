@@ -9,7 +9,7 @@ import utils.Money.Currency
 import utils._
 import org.json4s.JsonAST.{JValue, JObject}
 
-case class CreateCreditCard(holderName: String, number: String, cvv: String, expYear: Int,
+case class CreateCreditCard(holderName: String, cardNumber: String, cvv: String, expYear: Int,
   expMonth: Int, address: Option[CreateAddressPayload] = None, addressId: Option[Int] = None,
   isDefault: Boolean = false, isShipping: Boolean = false) {
 
@@ -20,7 +20,7 @@ case class CreateCreditCard(holderName: String, number: String, cvv: String, exp
       validExpr(address.isDefined || addressId.isDefined, "address or addressId")
 
     ( notEmpty(holderName, "holderName")
-      |@| matches(number, "[0-9]+", "number")
+      |@| matches(cardNumber, "[0-9]+", "number")
       |@| matches(cvv, "[0-9]{3,4}", "cvv")
       |@| withinTwentyYears(expYear, "expiration")
       |@| isMonth(expMonth, "expiration")
@@ -29,7 +29,7 @@ case class CreateCreditCard(holderName: String, number: String, cvv: String, exp
       ).map { case _ ⇒ this }
   }
 
-  def lastFour: String = this.number.takeRight(4)
+  def lastFour: String = this.cardNumber.takeRight(4)
 }
 
 case class PaymentMethodPayload(cardholderName: String, cardNumber: String,  cvv: Int, expiration: String)
