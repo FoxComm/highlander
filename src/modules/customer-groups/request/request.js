@@ -1,6 +1,6 @@
 /* @flow */
 
-import Clause from './query/clause';
+import Element from './element';
 import Condition from './query/condition';
 import Sorter from './sorter';
 
@@ -9,7 +9,7 @@ export type RequestType = {
   sort?: Array<Object>;
 };
 
-export default class Request extends Clause {
+export default class Request extends Element {
 
   _query: Condition;
 

@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import Clause from './clause';
+import Element from './../element';
 import { isDirectField, getNestedPath } from '../helpers';
 import {
   booleanOperators,
@@ -10,7 +10,7 @@ import {
 } from '../../../../paragons/customer-groups/operators';
 
 
-export default class Field extends Clause {
+export default class Field extends Element {
 
   _name: string;
   _clauses: Object;

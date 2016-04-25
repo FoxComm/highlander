@@ -184,11 +184,11 @@ export default class DynamicGroup extends Component {
         <PanelListItem title="Avg. Order Value">
           <Currency value={avgOrderValue} />
         </PanelListItem>
-        <PanelListItem title="Return Rate">
-          14%
-        </PanelListItem>
       </PanelList>
     );
+    //<PanelListItem title="Return Rate">
+    //  14%
+    //</PanelListItem>
   }
 
   @autobind

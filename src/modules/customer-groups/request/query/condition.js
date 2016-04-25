@@ -1,9 +1,9 @@
 /* @flow */
 
-import Clause from './clause';
+import Element from '../element';
 
 
-export default class Condition extends Clause {
+export default class Condition extends Element {
 
   _conditions: Array<Condition>;
 
