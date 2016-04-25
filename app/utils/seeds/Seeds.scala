@@ -17,7 +17,7 @@ import slick.driver.PostgresDriver.api._
 import utils.db._
 import utils.db.DbResultT._
 import utils.{FoxConfig, JsonFormatters}
-import utils.flyway.newFlyway
+import flyway.newFlyway
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._

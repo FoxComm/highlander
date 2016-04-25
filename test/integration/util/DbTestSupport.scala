@@ -1,25 +1,22 @@
 package util
 
+import java.sql.Connection
 import java.util.Locale
 import javax.sql.DataSource
 
 import scala.annotation.tailrec
-
-import cats.data.Xor
-import utils.flyway.newFlyway
-import org.scalatest.{BeforeAndAfterAll, Outcome, Suite, SuiteMixin}
-import failures.Failures
-import slick.jdbc.hikaricp.HikariCPJdbcDataSource
-import slick.driver.PostgresDriver.api.Database
-import java.sql.Connection
-import util.SlickSupport.implicits._
-
-import models.product.SimpleContext
-import models.objects.{ObjectContext, ObjectContexts}
-
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
+
+import cats.data.Xor
+import failures.Failures
+import models.objects.{ObjectContext, ObjectContexts}
+import models.product.SimpleContext
+import org.scalatest.{BeforeAndAfterAll, Outcome, Suite, SuiteMixin}
+import slick.driver.PostgresDriver.api.Database
+import slick.jdbc.hikaricp.HikariCPJdbcDataSource
+import utils.db.flyway.newFlyway
 
 trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll { this: Suite ⇒
   import DbTestSupport._

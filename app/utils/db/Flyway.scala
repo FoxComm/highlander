@@ -1,7 +1,8 @@
-package utils
+package utils.db
+
+import javax.sql.DataSource
 
 import org.flywaydb.core.Flyway
-import javax.sql.DataSource
 import org.flywaydb.core.internal.util.logging.{LogCreator, LogFactory}
 
 object flyway {
