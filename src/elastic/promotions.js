@@ -11,8 +11,12 @@ const promotionsSearchUrl: string = `promotions_search_view/_search?size=${MAX_R
 export function searchCouponPromotions(token: string): Promise {
   const filters = [];
   if (token) {
+    const caseInsensitiveToken = token.toLowerCase();
     filters.push(
-      dsl.termFilter('name', token.toLowerCase()),
+      dsl.termFilter('promotionName', caseInsensitiveToken)
+    );
+    filters.push(
+      dsl.termFilter('storefrontName', caseInsensitiveToken)
     );
     if (!isNaN(Number(token))) {
       filters.push(
@@ -26,7 +30,7 @@ export function searchCouponPromotions(token: string): Promise {
         dsl.termFilter('applyType', 'coupon'),
       ],
       should: filters,
-      minimum_number_should_match: 1
+      minimum_number_should_match: 1,
     },
   });
 
