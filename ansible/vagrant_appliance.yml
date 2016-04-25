@@ -17,6 +17,7 @@
     - { role: kibana, sudo: yes }
     - greenriver
     - ssh_keys
+    - seeder
     - node
     - ashes
     - firebird

@@ -20,6 +20,7 @@
     - { role: kibana, sudo: yes }
     - loyalty
     - messaging
+    - seeder
 
 - name: Provision Demo 1 US Frontend
   hosts: dem1-front
