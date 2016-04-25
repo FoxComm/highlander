@@ -11,3 +11,5 @@ account.json
 *.DS_Store
 .terraform
 terraform.tfvars
+*.orig
+
