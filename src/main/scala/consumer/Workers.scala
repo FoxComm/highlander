@@ -27,21 +27,38 @@ object Workers {
     consumer.readForever()
   }
 
-  def searchViewWoker(conf: MainConfig, connectionInfo: PhoenixConnectionInfo)
+  def searchViewWokers(conf: MainConfig, connectionInfo: PhoenixConnectionInfo)
     (implicit ec: EC, ac: AS, mat: AM, cp: CP): Future[Unit] = Future {
-    // Init
-    val esProcessor = new ElasticSearchProcessor(uri = conf.elasticSearchUrl, cluster = conf.elasticSearchCluster,
-      indexName = conf.elasticSearchIndex, topics = conf.topicsPlusActivity(),
-      jsonTransformers = topicTransformers(conf, connectionInfo))
 
-    val avroProcessor = new AvroProcessor(schemaRegistryUrl = conf.avroSchemaRegistryUrl, processor = esProcessor)
+      val transformers = topicTransformers(conf, connectionInfo)
+      val topics = conf.topicsPlusActivity()
+      val futures = topics.map { topic ⇒ 
+        Future { 
 
-    val consumer = new MultiTopicConsumer(topics = conf.topicsPlusActivity(), broker = conf.kafkaBroker,
-      groupId = s"${conf.kafkaGroupId}_trail", processor = avroProcessor, startFromBeginning = conf.startFromBeginning)
+          val maybeTransformer = transformers.get(topic)
 
-    // Start consuming & processing
-    Console.out.println(s"Reading from broker ${conf.kafkaBroker}")
-    consumer.readForever()
+          maybeTransformer match { 
+            case Some(transformer) ⇒  {
+              // Init
+              val esProcessor = new ElasticSearchProcessor(uri = conf.elasticSearchUrl, cluster = conf.elasticSearchCluster,
+                indexName = conf.elasticSearchIndex, topics = Seq(topic),
+                jsonTransformers = Map(topic → transformer))
+
+              val avroProcessor = new AvroProcessor(schemaRegistryUrl = conf.avroSchemaRegistryUrl, processor = esProcessor)
+
+              val consumer = new MultiTopicConsumer(topics = Seq(topic), broker = conf.kafkaBroker,
+                groupId = s"${conf.kafkaGroupId}_trail", processor = avroProcessor, startFromBeginning = conf.startFromBeginning)
+
+              // Start consuming & processing
+              Console.out.println(s"Reading from broker ${conf.kafkaBroker}")
+              consumer.readForever()
+            }
+            case None ⇒ throw new IllegalArgumentException(s"The Topic '$topic' does not have a json transformer")
+          }
+        }
+      }
+
+      Future.sequence(futures)
   }
 
   def topicTransformers(conf: MainConfig, connectionInfo: PhoenixConnectionInfo)
