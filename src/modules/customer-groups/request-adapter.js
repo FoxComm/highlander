@@ -2,13 +2,13 @@
 import _ from 'lodash';
 
 //data
-import { Request, ConditionAnd, ConditionOr, Field } from './request';
+import { Request, query, aggregations } from './request';
 import operators from '../../paragons/customer-groups/operators';
 
 
 const requestAdapter = (criterions, mainCondition, conditions) => {
   const request = new Request(criterions);
-  const query = request.query = mainCondition === operators.and ? new ConditionAnd() : new ConditionOr();
+  request.query = mainCondition === operators.and ? new query.ConditionAnd() : new query.ConditionOr();
 
   let fields = {};
   for (let i = 0; i < conditions.length; i++) {
@@ -18,8 +18,8 @@ const requestAdapter = (criterions, mainCondition, conditions) => {
     if (fields[name]) {
       field = fields[name];
     } else {
-      field = fields[name] = new Field(name);
-      query.add(field);
+      field = fields[name] = new query.Field(name);
+      request.query.add(field);
     }
 
     field.add(operator, value);

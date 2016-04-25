@@ -3,17 +3,22 @@
 import Element from './element';
 import Condition from './query/condition';
 import Sorter from './sorter';
+import Aggregator from './aggregations/aggregator';
+
 
 export type RequestType = {
   query?: Object;
   sort?: Array<Object>;
 };
 
+
 export default class Request extends Element {
 
   _query: Condition;
 
   _sorter: Sorter;
+
+  _aggregations: Aggregator;
 
   _criterions: Array<any>;
 
@@ -32,6 +37,10 @@ export default class Request extends Element {
 
   get sort(): Sorter {
     return this._sorter || (this._sorter = new Sorter(this._criterions));
+  }
+
+  get aggregations(): Aggregator {
+    return this._aggregations || (this._aggregations = new Aggregator(this._criterions));
   }
 
   constructor(criterions: Array<any>) {
