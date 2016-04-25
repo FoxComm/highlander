@@ -17,6 +17,7 @@
     - greenriver
     - loyalty
     - messaging
+    - seeder
 
 - name: Provision Ashes Stage
   hosts: ashes-stage

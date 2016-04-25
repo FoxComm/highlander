@@ -20,6 +20,7 @@
     - greenriver
     - loyalty
     - messaging
+    - seeder
 
 - name: Provision Demo Ashes
   hosts: demo2-ashes

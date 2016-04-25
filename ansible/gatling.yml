@@ -19,6 +19,7 @@
     - { role: kibana, sudo: yes }
     - greenriver
     - loyalty
+    - seeder
 
 - name: Provision Gatling Ashes
   hosts: gatling-ashes
@@ -50,3 +51,4 @@
     - { role: rsyslog, sudo: yes }
     - scala
     - gatling
+
