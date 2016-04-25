@@ -17,7 +17,6 @@ import responses.order.FullOrder
 import services.inventory.InventoryAdjustmentManager
 import slick.driver.PostgresDriver.api._
 import utils.Apis
-import utils.Litterbox._
 import utils.aliases._
 import utils.db._
 import utils.db.DbResultT._

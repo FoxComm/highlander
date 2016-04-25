@@ -4,7 +4,6 @@ import cats.data._
 import cats.implicits._
 import models.payment.giftcard.GiftCard
 import failures.Failure
-import utils.Litterbox._
 import utils.Money._
 import utils.Validation
 import Validation._

@@ -5,7 +5,6 @@ import java.time.Instant
 import cats.data.ValidatedNel
 import cats.implicits._
 import models.order.Order
-import utils.Litterbox._
 import Order.State
 import failures.Failure
 import utils.Validation

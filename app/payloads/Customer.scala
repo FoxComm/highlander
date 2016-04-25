@@ -4,7 +4,6 @@ import cats.data._
 import failures.Failure
 import utils.Validation
 import Validation._
-import utils.Litterbox._
 import cats.implicits._
 
 case class CreateCustomerPayload(email: String,

@@ -19,7 +19,6 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.http.CustomDirectives.SortAndPage
 import utils.Money._
-import utils.Litterbox._
 import utils.Validation._
 import utils.{Validation, _}
 import utils.aliases._
