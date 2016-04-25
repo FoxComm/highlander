@@ -15,7 +15,6 @@ object Auth {
   val loginAsAdmin = http("Login as Admin")
     .post("/v1/public/login")
     .body(StringBody(json(LoginPayload(email = "${adminEmail}", password = "${adminPassword}", kind = Admin))))
-    .check(status.is(200))
     .check(header("JWT").saveAs("jwtTokenAdmin"))
 
   val loginAsRandomAdmin =

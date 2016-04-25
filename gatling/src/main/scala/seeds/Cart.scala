@@ -19,7 +19,6 @@ object Cart {
     .post("/v1/orders")
     .requireAdminAuth
     .body(StringBody(session ⇒ json(CreateOrder(customerId = Some(session.get("customerId").as[Integer])))))
-    .check(status.is(200))
     .check(jsonPath("$.referenceNumber").ofType[String].saveAs("referenceNumber"))
 
   val addSkusToCart = http("Add SKUs to cart")

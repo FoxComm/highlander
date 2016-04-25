@@ -15,10 +15,9 @@ object Customers {
     .requireAdminAuth
     .body(StringBody(json(
       CreateCustomerPayload(
-        name = "${customerName}".some,
+        name = Option("${customerName}"),
         email = "${customerEmail}",
-        password = "${customerPassword}".some))))
-    .check(status.is(200))
+        password = Option("${customerPassword}")))))
     .check(jsonPath("$..id").ofType[Int].saveAs("customerId"))
 
   val createStaticCustomers = foreach(csv("data/customers.csv").records, "customerRecord") {
