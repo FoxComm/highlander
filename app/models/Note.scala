@@ -4,7 +4,6 @@ import java.time.Instant
 
 import cats.data.ValidatedNel
 import cats.implicits._
-import utils.Litterbox._
 import com.pellucid.sealerate
 import monocle.macros.GenLens
 import failures.Failure

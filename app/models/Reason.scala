@@ -8,7 +8,6 @@ import failures.Failure
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import utils.http.CustomDirectives.SortAndPage
-import utils.Litterbox._
 import utils.{ADT, Validation}
 import utils.aliases._
 import monocle.macros.GenLens

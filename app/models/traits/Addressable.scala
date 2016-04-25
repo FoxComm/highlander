@@ -6,7 +6,6 @@ import cats.implicits._
 import models.location.{Address, Region}
 import monocle.Lens
 import failures.Failure
-import utils.Litterbox._
 import utils.Validation
 
 trait Addressable[M] {

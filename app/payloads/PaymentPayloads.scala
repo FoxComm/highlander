@@ -4,7 +4,6 @@ import cats.data.ValidatedNel
 import cats.data.Validated.valid
 import cats.implicits._
 import failures.Failure
-import utils.Litterbox._
 import utils.Money.Currency
 import utils._
 import org.json4s.JsonAST.{JValue, JObject}

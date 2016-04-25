@@ -11,7 +11,6 @@ import models.payment.creditcard.CreditCards
 import monocle.macros.GenLens
 import payloads.CreateCustomerPayload
 import slick.driver.PostgresDriver.api._
-import utils.Litterbox._
 import utils.Passwords._
 import utils.Validation
 import utils.aliases.EC
