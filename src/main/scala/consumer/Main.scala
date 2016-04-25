@@ -111,14 +111,14 @@ object Main {
 
     val connectionInfo = conf.connectionInfo()
     val activityWork = Workers.activityWorker(conf, connectionInfo)
-    val searchViewWorks = Workers.searchViewWokers(conf, connectionInfo)
+    val searchViewWorkers = Workers.searchViewWorkers(conf, connectionInfo)
 
     activityWork.onFailure { case t ⇒
       Console.err.println(s"Error consuming activities: ${t.getMessage}")
       System.exit(1)
     }
 
-    searchViewWorks.onFailure { case t ⇒
+    searchViewWorkers.onFailure { case t ⇒
       Console.err.println(s"Error indexing to ES: $t")
       System.exit(1)
     }
@@ -126,6 +126,6 @@ object Main {
     // These threads will actually never be ready.
     // This is a hedonist bot.
     Await.ready(activityWork, Duration.Inf)
-    Await.ready(searchViewWorks, Duration.Inf)
+    Await.ready(searchViewWorkers, Duration.Inf)
   }
 }

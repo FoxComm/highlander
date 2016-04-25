@@ -27,7 +27,7 @@ object Workers {
     consumer.readForever()
   }
 
-  def searchViewWokers(conf: MainConfig, connectionInfo: PhoenixConnectionInfo)
+  def searchViewWorkers(conf: MainConfig, connectionInfo: PhoenixConnectionInfo)
     (implicit ec: EC, ac: AS, mat: AM, cp: CP): Future[Unit] = Future {
 
       val transformers = topicTransformers(conf, connectionInfo)
