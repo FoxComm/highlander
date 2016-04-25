@@ -159,10 +159,11 @@ object Seeds {
 
   private def validateResults(seed: String, result: Failures Xor Unit) {
     result.fold(failures ⇒ {
-      Console.err.println(s"Failed generating $seed seeds")
+      Console.err.println(s"Failed generating $seed seeds!")
       failures.flatten.foreach(Console.err.println)
+      System.exit(1)
     },
-    _ ⇒ Console.err.println("Success!"))
+    _ ⇒ Console.err.println(s"Successfully created $seed seeds!"))
   }
 
 }
