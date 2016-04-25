@@ -15,7 +15,7 @@ object CustomHandlers {
 
   private val defaultRejectionHandler = RejectionHandler.default
 
-  private val isProduction = Config.environment == Config.Production
+  private val isProduction = FoxConfig.environment == FoxConfig.Production
 
   private def errorsJson(msg: String): String = json("errors" → Seq(msg))
 

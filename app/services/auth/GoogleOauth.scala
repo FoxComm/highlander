@@ -4,7 +4,7 @@ import libs.oauth.{GoogleOauthOptions, GoogleProvider, Oauth, UserInfo}
 import models.auth.{AdminToken, CustomerToken, Identity, Token}
 import models.customer.{Customer, Customers}
 import models.{StoreAdmin, StoreAdmins}
-import utils.Config._
+import utils.FoxConfig._
 import utils.aliases._
 import utils.db._
 

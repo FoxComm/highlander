@@ -34,7 +34,7 @@ import responses.TheResponse
 import server.Service
 import services.Authenticator
 import util.DbTestSupport
-import utils.{Apis, JsonFormatters, StripeApi}
+import utils.{Apis, FoxConfig, JsonFormatters, StripeApi}
 import concurrent.ExecutionContext.Implicits.global
 
 import cats.std.future._
@@ -113,7 +113,7 @@ trait HttpSupport
 
   def overrideCustomerAuth: AsyncAuthenticator[Customer] = Authenticator.BasicCustomer()
 
-  implicit val env = utils.Config.Test
+  implicit val env = FoxConfig.Test
 
   private def makeService: Service = new Service(
     dbOverride = Some(db),

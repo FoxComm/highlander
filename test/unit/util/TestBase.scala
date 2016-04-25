@@ -3,10 +3,9 @@ package util
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{FreeSpecLike, MustMatchers, OptionValues, Tag}
-import failures.Failures
-import utils.Config._
 import cats.data.Xor
 import failures.Failures
+import utils.FoxConfig
 
 trait TestBase extends FreeSpecLike
   with MustMatchers
@@ -32,6 +31,6 @@ trait TestBase extends FreeSpecLike
 }
 
 object TestBase {
-  implicit val env = Test
-  def config = utils.Config.loadWithEnv()
+  implicit val env = FoxConfig.Test
+  def config = FoxConfig.loadWithEnv()
 }

@@ -26,13 +26,13 @@ import services.Authenticator
 import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import services.actors._
 import slick.driver.PostgresDriver.api._
-import utils.Config.{Development, Staging}
+import utils.FoxConfig.{Development, Staging}
 import utils.HttpLogger.logFailedRequests
-import utils.{Apis, CustomHandlers, WiredStripeApi}
+import utils.{Apis, CustomHandlers, FoxConfig, WiredStripeApi}
 
 object Main extends App with LazyLogging {
   logger.info("Starting phoenix server")
-  implicit val env = utils.Config.environment
+  implicit val env = FoxConfig.environment
   val service = new Service()
   service.performSelfCheck()
   service.bind()
@@ -44,14 +44,14 @@ class Service(
   systemOverride: Option[ActorSystem]  = None,
   dbOverride:     Option[Database]     = None,
   apisOverride:   Option[Apis]         = None,
-  addRoutes:      immutable.Seq[Route] = immutable.Seq.empty)(implicit val env: utils.Config.Environment) {
+  addRoutes:      immutable.Seq[Route] = immutable.Seq.empty)(implicit val env: FoxConfig.Environment) {
 
   import utils.JsonFormatters._
 
   implicit val serialization: Serialization.type = jackson.Serialization
   implicit val formats: Formats = phoenixFormats
 
-  val config: Config = utils.Config.loadWithEnv()
+  val config: Config = FoxConfig.loadWithEnv()
 
   implicit val system: ActorSystem = systemOverride.getOrElse {
     ActorSystem.create("Orders", config)
@@ -103,7 +103,7 @@ class Service(
   }
 
   val allRoutes = {
-    val routes = utils.Config.environment match {
+    val routes = FoxConfig.environment match {
       case Development | Staging ⇒
         logger.info("Activating dev routes")
         addRoutes.foldLeft(defaultRoutes ~ devRoutes)(_ ~ _)
