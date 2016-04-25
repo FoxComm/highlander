@@ -11,17 +11,17 @@ import consumer.elastic.MappingHelpers._
 final case class PromotionsSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("promotions_search_view").fields(
     field("id", IntegerType),
-    field("context", StringType) index "not_analyzed",
-    field("applyType", StringType) index "not_analyzed",
-    field("name", StringType) index "not_analyzed",
-    field("storefrontName", StringType) index "not_analyzed",
+    field("context", StringType).index("not_analyzed"),
+    field("applyType", StringType).index("not_analyzed"),
+    field("name", StringType).index("not_analyzed"),
+    field("storefrontName", StringType).index("not_analyzed"),
     field("description", StringType).analyzer("autocomplete"),
-    field("activeFrom", DateType) format dateFormat,
-    field("activeTo", DateType) format dateFormat,    
-    field("totalUsed", IntegerType).analyzer("not_analyzed"),
-    field("currentCarts", IntegerType).analyzer("not_analyzed"),
-    field("createdAt", DateType) format dateFormat,
-    field("discounts", IntegerType).analyzer("not_analyzed")
+    field("activeFrom", DateType).format(dateFormat),
+    field("activeTo", DateType).format(dateFormat),    
+    field("totalUsed", IntegerType),
+    field("currentCarts", IntegerType),
+    field("createdAt", DateType).format(dateFormat),
+    field("discounts", IntegerType)
   )
 
   override def nestedFields() = List("discounts")
