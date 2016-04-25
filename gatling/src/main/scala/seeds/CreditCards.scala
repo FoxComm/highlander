@@ -16,7 +16,7 @@ object CreditCards {
     .post("/v1/customers/${customerId}/payment-methods/credit-cards")
     .body(StringBody { session ⇒ json(CreateCreditCard(
       holderName = session.get("customerName").as[String],
-      number = session.get("ccNumber").as[String],
+      cardNumber = session.get("ccNumber").as[String],
       cvv = Lorem.numerify("###"),
       expYear = LocalDateTime.ofInstant(Instant.now, ZoneId.systemDefault).getYear + 2 + Random.nextInt(5),
       expMonth = Random.nextInt(12) + 1,

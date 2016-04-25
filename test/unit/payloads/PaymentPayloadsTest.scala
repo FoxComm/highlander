@@ -16,7 +16,7 @@ class PaymentPayloadsTest extends TestBase {
   val cc = Factories.creditCard
 
   "CreateCreditCard" - {
-    val valid = payloads.CreateCreditCard(holderName = cc.holderName, number = "4242424242424242",
+    val valid = payloads.CreateCreditCard(holderName = cc.holderName, cardNumber = "4242424242424242",
       cvv = "123", expYear = cc.expYear, expMonth = cc.expMonth, addressId = Some(1))
 
     "validate" - {

@@ -50,7 +50,7 @@ class StripeTest
 
     "createCard" - {
       "fails if the card is declined" taggedAs External in {
-        val payload = payloads.CreateCreditCard(holderName = "yax", number = StripeSupport.declinedCard,
+        val payload = payloads.CreateCreditCard(holderName = "yax", cardNumber = StripeSupport.declinedCard,
           cvv = "123", expYear = today.getYear, expMonth = today.getMonthValue)
         val result = service.createCard("yax@yax.com", payload, none, Factories.address).futureValue
 
@@ -58,7 +58,7 @@ class StripeTest
       }
 
       "fails if the cvc is incorrect" taggedAs External in {
-        val payload = payloads.CreateCreditCard(holderName = "yax", number = StripeSupport.incorrectCvc,
+        val payload = payloads.CreateCreditCard(holderName = "yax", cardNumber = StripeSupport.incorrectCvc,
           cvv = "123", expYear = today.getYear, expMonth = today.getMonthValue)
         val result = service.createCard("yax@yax.com", payload, none, Factories.address).futureValue
 
@@ -67,7 +67,7 @@ class StripeTest
 
       "successfully creates a card and new customer when given no customerId" taggedAs External in {
         val address = Factories.address
-        val payload = payloads.CreateCreditCard(holderName = "yax", number = StripeSupport.successfulCard,
+        val payload = payloads.CreateCreditCard(holderName = "yax", cardNumber = StripeSupport.successfulCard,
           cvv = "123", expYear = today.getYear, expMonth = today.getMonthValue)
         val result = service.createCard("yax@yax.com", payload, none, address).futureValue
 
@@ -89,7 +89,7 @@ class StripeTest
 
       "successfully creates a card using an existing customer given a customerId" taggedAs External in {
         val address = Factories.address
-        val payload = payloads.CreateCreditCard(holderName = "yax", number = StripeSupport.successfulCard,
+        val payload = payloads.CreateCreditCard(holderName = "yax", cardNumber = StripeSupport.successfulCard,
           cvv = "123", expYear = today.getYear, expMonth = today.getMonthValue)
         val result = service.createCard("yax@yax.com", payload, existingCustId.some, address).futureValue
 
