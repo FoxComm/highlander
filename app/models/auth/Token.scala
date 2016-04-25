@@ -16,7 +16,7 @@ import org.jose4j.jwt.JwtClaims
 import org.jose4j.jwt.consumer.{InvalidJwtException, JwtConsumerBuilder}
 import org.json4s.jackson.JsonMethods._
 import org.json4s.{Extraction, _}
-import utils.Config.{RichConfig, config}
+import utils.FoxConfig.{RichConfig, config}
 import utils.db.DbResultT._
 
 object Keys {

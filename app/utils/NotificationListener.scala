@@ -35,7 +35,7 @@ class NotificationListener(adminId: Int, action: String ⇒ Unit)(implicit ec: E
   }
 
   private def createConnection() = {
-    val config = utils.Config.loadWithEnv()
+    val config = FoxConfig.loadWithEnv()
     val configuration = parseUrl(config.getString("db.url"))
     new PostgreSQLConnection(configuration)
   }

@@ -7,12 +7,13 @@ import io.gatling.http.Predef._
 import io.gatling.jdbc.Predef._
 import seeds.Scenarios._
 import slick.driver.PostgresDriver.api._
+import utils.FoxConfig
 
 object GatlingApp extends App {
 
   // Load DB config for JDBC feeder
-  implicit val env = utils.Config.environment
-  val appConfig: Config = utils.Config.loadWithEnv()
+  implicit val env = FoxConfig.environment
+  val appConfig: Config = FoxConfig.loadWithEnv()
   val dbUrl = appConfig.getString("db.baseUrl")
   val dbUser = appConfig.getString("db.user")
   val dbPassword = ""

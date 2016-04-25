@@ -7,28 +7,29 @@ import models.Reason._
 import models.inventory._
 import models.product.SimpleContext
 import models.objects.ObjectContexts
-import models.order.{OrderShippingAddress, OrderPayment}
+import models.order.{OrderPayment, OrderShippingAddress}
 import models.payment.creditcard.CreditCardCharge
 import models.{Reason, Reasons}
 import org.postgresql.ds.PGSimpleDataSource
 import failures.{Failures, FailuresOps}
-import slick.driver.PostgresDriver
+import slick.driver.PostgresDriver.backend.DatabaseDef
 import slick.driver.PostgresDriver.api._
 import utils.db._
 import utils.db.DbResultT._
-import utils.JsonFormatters
+import utils.{FoxConfig, JsonFormatters}
 import utils.flyway.newFlyway
-
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
+
+import com.typesafe.config.Config
 
 object Seeds {
 
   def main(args: Array[String]): Unit = {
     Console.err.println("Cleaning DB and running migrations")
-    val config: com.typesafe.config.Config = utils.Config.loadWithEnv()
-    implicit val db: PostgresDriver.backend.DatabaseDef = Database.forConfig("db", config)
+    val config: Config = FoxConfig.loadWithEnv()
+    implicit val db: DatabaseDef = Database.forConfig("db", config)
     flyWayMigrate(config)
 
     createBaseSeeds()
@@ -141,14 +142,14 @@ object Seeds {
     )
   }
 
-  private def flyWayMigrate(config: com.typesafe.config.Config): Unit = {
+  private def flyWayMigrate(config: Config): Unit = {
     val flyway = newFlyway(jdbcDataSourceFromConfig("db", config))
 
     flyway.clean()
     flyway.migrate()
   }
 
-  private def jdbcDataSourceFromConfig(section: String, config: com.typesafe.config.Config) = {
+  private def jdbcDataSourceFromConfig(section: String, config: Config) = {
     val source = new PGSimpleDataSource
 
     source.setServerName(config.getString(s"$section.host"))

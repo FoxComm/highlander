@@ -20,7 +20,7 @@ import models.{StoreAdmin, StoreAdmins}
 import org.jose4j.jwt.JwtClaims
 import payloads.LoginPayload
 import slick.driver.PostgresDriver.api._
-import utils.Config.{RichConfig, config}
+import utils.FoxConfig.{RichConfig, config}
 import utils.Passwords.checkPassword
 import utils.aliases._
 import utils.db._

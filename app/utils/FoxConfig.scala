@@ -2,11 +2,11 @@ package utils
 
 import cats.Show
 import cats.implicits._
-import com.typesafe.config.{Config ⇒ TypesafeConfig, ConfigFactory}
+import com.typesafe.config.{Config, ConfigFactory}
 
-object Config {
+object FoxConfig {
 
-  implicit class RichConfig(val underlying: TypesafeConfig) extends AnyVal {
+  implicit class RichConfig(val underlying: Config) extends AnyVal {
     private[this] def getOptionalSetting[A](finder: (String ⇒ A))(path: String): Option[A] = {
       if (underlying.hasPath(path)) {
         Some(finder(path))
@@ -39,7 +39,7 @@ object Config {
     case _                    ⇒ Development
   }
 
-  def loadWithEnv(cfg: TypesafeConfig = ConfigFactory.load)(implicit env: Environment = environment): TypesafeConfig = {
+  def loadWithEnv(cfg: Config = ConfigFactory.load)(implicit env: Environment = environment): Config = {
     val envConfig = cfg.getConfig("env." ++ env.show)
     ConfigFactory.systemProperties.withFallback(envConfig.withFallback(cfg))
   }
