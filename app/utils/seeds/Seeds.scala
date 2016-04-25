@@ -4,6 +4,7 @@ import java.time.{Instant, ZoneId}
 
 import cats.data.Xor
 import models.Reason._
+import models.inventory._
 import models.product.SimpleContext
 import models.objects.ObjectContexts
 import models.order.{OrderShippingAddress, OrderPayment}
@@ -72,21 +73,22 @@ object Seeds {
     val appeasementsPerBatch = 8 
     val batchs = customers / batchSize
 
-    Console.err.println(s"Generating ${customers} customers in ${batchs} batches")
+    Console.err.println(s"Generating $customers customers in $batchs batches")
 
     //Have to generate data in batches because of DBIO.seq stack overflow bug.
     //https://github.com/slick/slick/issues/1186
-    (1 to batchs) map { b ⇒ 
+    (1 to batchs).foreach { b ⇒
       Console.err.println(s"Generating random batch $b of $batchSize customers")
       val result = Await.result(
         SeedsGenerator.insertRandomizedSeeds(batchSize, appeasementsPerBatch).runTxn(), (120 * scale).second)
-      validateResults("random", result)
+      validateResults(s"random batch $b", result)
     }
   }
 
   val today = Instant.now().atZone(ZoneId.of("UTC"))
 
   def createAll()(implicit db: Database): DbResultT[Unit] = for {
+    _ ← * <~ Warehouses.create(Factories.warehouse)
     context ← * <~ ObjectContexts.create(SimpleContext.create()) 
     ruContext ← * <~ ObjectContexts.create(SimpleContext.create(name = SimpleContext.ru, lang = "ru"))
     admin ← * <~ Factories.createStoreAdmins

@@ -118,7 +118,7 @@ trait DemoScenario2 extends DemoSeedHelpers {
 
   def createScenario2(implicit db: Database) = for {
     context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-    warehouseIds ← * <~ Warehouses.createAllReturningIds(warehouses)
+    warehouseIds ← * <~ Warehouses.map(_.id).result.toXor
     customerIds ← * <~ Customers.createAllReturningIds(customers2)
     addressIds ← * <~ createAddresses(customerIds, address2)
     productData ← * <~ Mvp.insertProducts(products2, context.id)
@@ -163,7 +163,7 @@ trait DemoScenario3 extends DemoSeedHelpers {
     context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
     shippingMethod  ← * <~ ShippingMethods.filter(_.adminDisplayName === "UPS 2-day").one.mustFindOr(
       NotFoundFailure404("Unable to find 2-day shipping method"))
-    warehouseIds ← * <~ Warehouses.createAllReturningIds(warehouses)
+    warehouseIds ← * <~ Warehouses.map(_.id).result.toXor
     customerIds ← * <~ Customers.createAllReturningIds(customers3)
     addressIds ← * <~ createAddresses(customerIds, address3)
     productData ← * <~ Mvp.insertProducts(products3, context.id)

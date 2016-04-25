@@ -4,7 +4,7 @@ import scala.util.Random
 
 import cats.implicits._
 import models.customer.{Customer, CustomerDynamicGroup, Customers}
-import models.inventory.Skus
+import models.inventory._
 import models.location.{Address, Addresses}
 import models.order._
 import models.coupon._
@@ -142,7 +142,7 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       shipMethods ← * <~ getShipmentRules
-      warehouseIds ← * <~ generateWarehouses
+      warehouseIds ← * <~ Warehouses.map(_.id).result.toXor
       skus  ← * <~ Skus.filter(_.contextId === context.id).result
       skuIds = skus.map(_.id)
       customerIds ← * <~ Customers.createAllReturningIds(generateCustomers(customersCount, location))
