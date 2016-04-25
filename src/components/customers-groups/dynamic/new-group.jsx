@@ -68,11 +68,7 @@ export default class NewDynamicGroup extends React.Component {
     const {group, actions} = this.props;
 
     return (
-      <NewGroupBase title="New Dynamic Customer Group"
-                    alternative={{
-                      id: 'new-manual-group',
-                      title: 'manual group',
-                    }}>
+      <NewGroupBase title="New Dynamic Customer Group">
         <Form onSubmit={() => actions.saveGroup()}>
           <DynamicGroupEditor />
           <div className={prefixed('form-submits')}>
