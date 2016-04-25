@@ -8,8 +8,8 @@ import de.heikoseeberger.akkasse.EventStreamMarshalling._
 import models.StoreAdmin
 import payloads._
 import services.NotificationManager
-import utils.CustomDirectives._
-import utils.Http._
+import utils.http.CustomDirectives._
+import utils.http.Http._
 import utils.aliases._
 
 object NotificationRoutes {

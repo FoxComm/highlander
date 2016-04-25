@@ -16,8 +16,8 @@ import services.{AddressManager, Checkout, CreditCardManager, LineItemUpdater,
 import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import services.product.ProductManager
 import utils.Apis
-import utils.CustomDirectives._
-import utils.Http._
+import utils.http.CustomDirectives._
+import utils.http.Http._
 import utils.db._
 import utils.aliases._
 

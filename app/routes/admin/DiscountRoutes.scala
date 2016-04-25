@@ -8,8 +8,8 @@ import models.StoreAdmin
 import payloads.{CreateDiscount, UpdateDiscount}
 import services.discount.DiscountManager
 import slick.driver.PostgresDriver.api._
-import utils.CustomDirectives._
-import utils.Http._
+import utils.http.CustomDirectives._
+import utils.http.Http._
 
 object DiscountRoutes {
 

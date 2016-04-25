@@ -12,8 +12,8 @@ import responses.{BatchMetadata, BatchMetadataSource}
 import services.Result
 import services.LogActivity.{orderBulkStateChanged, orderStateChanged}
 import slick.driver.PostgresDriver.api._
-import utils.CustomDirectives
-import utils.CustomDirectives.SortAndPage
+import utils.http.CustomDirectives
+import utils.http.CustomDirectives.SortAndPage
 import utils.aliases._
 import utils.db._
 import utils.db.DbResultT._

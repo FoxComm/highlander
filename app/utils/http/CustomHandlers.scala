@@ -1,15 +1,17 @@
-package utils
+package utils.http
 
 import scala.collection.immutable
 import scala.util.control.NonFatal
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.model._
-import akka.http.scaladsl.server.{ExceptionHandler, Directives, RejectionHandler}
-import Directives._
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.{Directives, ExceptionHandler, RejectionHandler}
 import akka.stream.scaladsl.Flow
 import akka.util.ByteString
+
 import org.json4s.jackson.Serialization.{write ⇒ json}
-import utils.Http._
+import utils._
+import utils.http.Http._
 
 object CustomHandlers {
 

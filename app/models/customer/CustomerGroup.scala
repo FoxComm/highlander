@@ -6,7 +6,7 @@ import monocle.macros.GenLens
 import org.json4s.JsonAST.{JValue ⇒ Json}
 import payloads.CustomerDynamicGroupPayload
 import slick.lifted.Tag
-import utils.CustomDirectives.SortAndPage
+import utils.http.CustomDirectives.SortAndPage
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 

@@ -17,8 +17,8 @@ import payloads._
 import services.{SaveForLaterManager, SharedSearchService, ShippingManager, StoreCreditAdjustmentsService, StoreCreditService}
 import services.notes._
 import utils.Apis
-import utils.CustomDirectives._
-import utils.Http._
+import utils.http.CustomDirectives._
+import utils.http.Http._
 import utils.aliases._
 
 object AdminRoutes {

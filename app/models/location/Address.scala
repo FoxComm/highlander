@@ -11,7 +11,7 @@ import monocle.macros.GenLens
 import payloads.CreateAddressPayload
 import failures.{Failures, NotFoundFailure404}
 import slick.driver.PostgresDriver.api._
-import utils.CustomDirectives.SortAndPage
+import utils.http.CustomDirectives.SortAndPage
 import utils.Validation
 import utils.db._
 

@@ -7,8 +7,8 @@ import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
 import services.inventory.SkuManager
 import slick.driver.PostgresDriver.api._
-import utils.Http._
-import utils.CustomDirectives._
+import utils.http.Http._
+import utils.http.CustomDirectives._
 
 import payloads.{CreateFullSku, UpdateFullSku}
 

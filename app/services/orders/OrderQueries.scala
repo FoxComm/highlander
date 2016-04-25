@@ -14,8 +14,8 @@ import responses.TheResponse
 import responses.order._
 import services.{CartValidator, LogActivity, Result}
 import slick.driver.PostgresDriver.api._
-import utils.CustomDirectives
-import utils.CustomDirectives.{EmptySortAndPage, SortAndPage}
+import utils.http.CustomDirectives
+import utils.http.CustomDirectives.{EmptySortAndPage, SortAndPage}
 import utils.aliases._
 import utils.db._
 import utils.db.DbResultT._

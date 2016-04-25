@@ -1,4 +1,4 @@
-package utils
+package utils.http
 
 import scala.concurrent.Future
 import akka.http.scaladsl.model.StatusCodes._

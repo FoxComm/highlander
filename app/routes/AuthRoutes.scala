@@ -8,7 +8,7 @@ import models.auth.Identity
 import services.Authenticator
 import services.auth.GoogleOauth.oauthServiceFromConfig
 import services.auth.OauthDirectives._
-import utils.Http._
+import utils.http.Http._
 import utils.aliases._
 
 object AuthRoutes {

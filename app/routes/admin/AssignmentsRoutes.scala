@@ -7,8 +7,8 @@ import models.StoreAdmin
 import payloads.{AssignmentPayload, BulkAssignmentPayload}
 import services.assignments._
 import utils.Apis
-import utils.CustomDirectives._
-import utils.Http._
+import utils.http.CustomDirectives._
+import utils.http.Http._
 import utils.aliases._
 
 import models.inventory.Sku.skuCodeRegex

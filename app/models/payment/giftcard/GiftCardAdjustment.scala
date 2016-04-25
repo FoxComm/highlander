@@ -12,8 +12,8 @@ import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import slick.lifted.ColumnOrdered
-import utils.CustomDirectives.SortAndPage
-import utils.{ADT, CustomDirectives, FSM}
+import utils.http.CustomDirectives._
+import utils.{ADT, FSM}
 import utils.aliases._
 import utils.db._
 
@@ -79,7 +79,7 @@ object GiftCardAdjustments extends FoxTableQuery[GiftCardAdjustment, GiftCardAdj
 
   import GiftCardAdjustment._
 
-  def matchSortColumn(s: CustomDirectives.Sort, adj: GiftCardAdjustments): ColumnOrdered[_] = {
+  def matchSortColumn(s: Sort, adj: GiftCardAdjustments): ColumnOrdered[_] = {
     s.sortColumn match {
       case "id"               ⇒ if (s.asc) adj.id.asc               else adj.id.desc
       case "giftCardId"       ⇒ if (s.asc) adj.giftCardId.asc       else adj.giftCardId.desc

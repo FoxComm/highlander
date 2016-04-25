@@ -11,8 +11,8 @@ import models.traits.Originator
 import payloads._
 import services.orders._
 import services.{Checkout, LineItemUpdater}
-import utils.CustomDirectives._
-import utils.Http._
+import utils.http.CustomDirectives._
+import utils.http.Http._
 import utils.Apis
 import utils.aliases._
 

@@ -14,7 +14,7 @@ import responses.StoreCreditBulkResponse._
 import responses.StoreCreditResponse._
 import responses.{StoreCreditResponse, StoreCreditSubTypesResponse, TheResponse}
 import slick.driver.PostgresDriver.api._
-import utils.CustomDirectives.SortAndPage
+import utils.http.CustomDirectives.SortAndPage
 import utils.aliases._
 import utils.db._
 import utils.db.DbResultT._

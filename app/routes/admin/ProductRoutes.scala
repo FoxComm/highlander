@@ -9,8 +9,8 @@ import services.objects.ObjectManager
 import services.product.ProductManager
 import slick.driver.PostgresDriver.api._
 import utils.db._
-import utils.Http._
-import utils.CustomDirectives._
+import utils.http.Http._
+import utils.http.CustomDirectives._
 
 object ProductRoutes {
 

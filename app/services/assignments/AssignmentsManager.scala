@@ -14,7 +14,7 @@ import responses.StoreAdminResponse.{build ⇒ buildAdmin}
 import responses.BatchMetadata._
 import services._
 import slick.driver.PostgresDriver.api._
-import utils.CustomDirectives._
+import utils.http.CustomDirectives._
 import utils.aliases._
 import utils.db._
 import utils.db.DbResultT._

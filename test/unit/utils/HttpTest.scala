@@ -4,7 +4,7 @@ import akka.http.scaladsl.model.StatusCodes
 
 import models.order.Order
 import util.TestBase
-import Http._
+import http.Http._
 import failures.CreditCardFailures.CustomerHasDefaultCreditCard
 import failures.{Failures, GeneralFailure, NotFoundFailure404}
 

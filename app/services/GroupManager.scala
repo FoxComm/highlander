@@ -5,7 +5,7 @@ import models.StoreAdmin
 import payloads.CustomerDynamicGroupPayload
 import responses.DynamicGroupResponse.{Root, build}
 import responses.TheResponse
-import utils.CustomDirectives.SortAndPage
+import utils.http.CustomDirectives.SortAndPage
 import utils.aliases._
 import utils.db._
 import utils.db.DbResultT._

@@ -15,7 +15,7 @@ import responses.GiftCardResponse._
 import responses.{CustomerResponse, GiftCardResponse, GiftCardSubTypesResponse, StoreAdminResponse, TheResponse}
 import services._
 import slick.driver.PostgresDriver.api._
-import utils.CustomDirectives.SortAndPage
+import utils.http.CustomDirectives.SortAndPage
 import utils.aliases._
 import utils.db._
 import utils.db.DbResultT._

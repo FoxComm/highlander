@@ -3,7 +3,7 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 import models.StoreAdmin
 import services.InventoryManager
-import utils.CustomDirectives._
+import utils.http.CustomDirectives._
 import utils.aliases._
 
 object InventoryRoutes {

@@ -8,8 +8,8 @@ import models.StoreAdmin
 import payloads.{RmaCreatePayload, RmaGiftCardLineItemsPayload, RmaMessageToCustomerPayload, RmaPaymentPayload,
 RmaShippingCostLineItemsPayload, RmaSkuLineItemsPayload, RmaUpdateStatePayload}
 import services.rmas._
-import utils.CustomDirectives._
-import utils.Http._
+import utils.http.CustomDirectives._
+import utils.http.Http._
 import utils.aliases._
 
 object RmaRoutes {
