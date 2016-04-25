@@ -12,12 +12,11 @@ export function searchCouponPromotions(token: string): Promise {
   const filters = [];
   if (token) {
     const caseInsensitiveToken = token.toLowerCase();
-    filters.push(
-      dsl.termFilter('promotionName', caseInsensitiveToken)
-    );
-    filters.push(
-      dsl.termFilter('storefrontName', caseInsensitiveToken)
-    );
+    const terms = [
+      dsl.termFilter('promotionName', caseInsensitiveToken),
+      dsl.termFilter('storefrontName', caseInsensitiveToken),
+    ];
+    Array.prototype.push.apply(filters, terms);
     if (!isNaN(Number(token))) {
       filters.push(
         dsl.termFilter('id', token)
