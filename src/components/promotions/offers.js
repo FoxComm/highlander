@@ -32,6 +32,48 @@ const offers = [
     ]
   },
   {
+    type: 'itemPercentOff',
+    title: 'Percent off select item',
+    content: [
+      [
+        {type: 'type'},
+        {
+          name: 'discount',
+          widget: 'percent',
+          template: props => <WidgetContainer>Get {props.children} off discounted item.</WidgetContainer>
+        }
+      ],
+      [
+        {
+          name: 'references',
+          widget: 'selectProduct',
+          label: 'Discount the item'
+        }
+      ]
+    ]
+  },
+  {
+    type: 'itemAmountOff',
+    title: 'Amount off select item',
+    content: [
+      [
+        {type: 'type'},
+        {
+          name: 'discount',
+          widget: 'currency',
+          template: props => <WidgetContainer>Get {props.children} off discounted item.</WidgetContainer>
+        }
+      ],
+      [
+        {
+          name: 'references',
+          widget: 'selectProduct',
+          label: 'Discount the items'
+        }
+      ]
+    ]
+  },
+  {
     type: 'itemsPercentOff',
     title: 'Percent off select items',
     content: [

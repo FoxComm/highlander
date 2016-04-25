@@ -9,9 +9,11 @@ import classNames from 'classnames';
 import DropdownItem from './dropdownItem';
 import Overlay from '../overlay/overlay';
 
+type ValueType = ?string|number;
+
 type Props = {
   name: string,
-  value?: string|number,
+  value: ValueType,
   className?: string,
   listClassName?: string,
   placeholder?: string,
@@ -30,7 +32,7 @@ type Props = {
 type State = {
   open: bool,
   dropup: bool,
-  selectedValue: number|string,
+  selectedValue: ValueType,
 };
 
 export default class GenericDropdown extends Component {
@@ -213,19 +215,17 @@ export default class GenericDropdown extends Component {
   render() {
     const { name, editable } = this.props;
     return (
-      <div>
+      <div className={this.dropdownClassName} ref="container" tabIndex="0">
         <Overlay shown={this.state.open} onClick={this.handleToggleClick} />
-        <div className={this.dropdownClassName} ref="container" tabIndex="0">
-          <div className="fc-dropdown__controls" onClick={editable ? this.handleToggleClick : null}>
-            {this.dropdownButton}
-            {this.dropdownInput}
-          </div>
-          <div className={this.listClassName}>
-            {this.prependList}
-            <ul ref="items" className={this.optionsContainerClass}>
-              {this.renderItems()}
-            </ul>
-          </div>
+        <div className="fc-dropdown__controls" onClick={editable ? this.handleToggleClick : null}>
+          {this.dropdownButton}
+          {this.dropdownInput}
+        </div>
+        <div className={this.listClassName}>
+          {this.prependList}
+          <ul ref="items" className={this.optionsContainerClass}>
+            {this.renderItems()}
+          </ul>
         </div>
       </div>
     );

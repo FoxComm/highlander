@@ -13,6 +13,7 @@ import SelectVertical from '../../select-verical/select-vertical';
 import { Dropdown, DropdownItem } from '../../dropdown';
 
 import { actions } from '../../../modules/products/list';
+import type { Context } from '../types';
 
 type OrderActions = {
   fetchSearches: Function,
@@ -20,19 +21,10 @@ type OrderActions = {
 
 type RefId = string|number;
 
-type Reference = {
-  referenceId: RefId;
-  referenceType: string;
-}
-
 type Props = {
-  context: {
-    params?: {
-      references: Array<Reference>;
-    },
-    setParams: (params: Object) => any;
-  };
+  context: Context,
   label: string;
+  name: string;
   productSearches: Array<any>;
   ordersActions: OrderActions;
 }
@@ -68,11 +60,13 @@ class ProductsQualifier extends Component {
   };
 
   get references() {
-    return _.get(this.props.context.params, 'references', []);
+    return _.get(this.props.context.params, this.props.name, []);
   }
 
   updateReferences(references) {
-    this.props.context.setParams({references});
+    this.props.context.setParams({
+      [this.props.name]: references,
+    });
   }
 
   get initialSelectMode() {
