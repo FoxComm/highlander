@@ -130,7 +130,7 @@ export default class CouponForm extends Component {
 
   @autobind
   handleUsageRulesChange(field, value) {
-    const newCoupon = assoc(this.props.coupon, ['form', 'usageRules', field], value);
+    const newCoupon = assoc(this.props.coupon, ['form', 'attributes', 'usageRules', field], value);
     this.props.onUpdateCoupon(newCoupon);
   }
 
@@ -139,7 +139,7 @@ export default class CouponForm extends Component {
   }
 
   get usageRules() {
-    return _.get(this.props, 'coupon.form.usageRules', {});
+    return _.get(this.props, 'coupon.form.attributes.usageRules', {});
   }
 
   render() {

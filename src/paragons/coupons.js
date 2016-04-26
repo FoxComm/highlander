@@ -13,7 +13,7 @@ function addEmptyUsageRules(coupon) {
     usesPerCustomer: 1,
   };
 
-  const updatedForm = {...form, usageRules: usageRulesForm};
+  const updatedForm = {...form};
   const updatedShadow = {...shadow};
 
   return {
@@ -29,7 +29,6 @@ export function createEmptyCoupon() {
       id: null,
       createdAt: null,
       attributes: {},
-      usageRules: {},
     },
     shadow: {
       id: null,
