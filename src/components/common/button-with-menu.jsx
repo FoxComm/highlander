@@ -83,17 +83,24 @@ export default class ButtonWithMenu extends Component {
       return;
     }
 
+    let ddItems = null;
+
+    if (!_.isEmpty(items)) {
+      ddItems = _.map(items, ([value, title]) => (
+        <DropdownItem value={value} key={value} onSelect={this.handleItemClick}>
+          {title}
+        </DropdownItem>
+      ));
+    } else {
+      ddItems = React.Children.map(children, item =>
+        React.cloneElement(item, {
+          onSelect: this.handleItemClick,
+        })
+      );
+    }
     return (
       <ul styleName="menu" ref="menu">
-        {_.map(items, ([value, title]) => (
-          <DropdownItem value={value} key={value} onSelect={this.handleItemClick}>
-            {title}
-          </DropdownItem>
-        )) || React.Children.map(children, item =>
-          React.cloneElement(item, {
-            onSelect: this.handleItemClick,
-          })
-        )}
+        { ddItems }
       </ul>
     );
   }
