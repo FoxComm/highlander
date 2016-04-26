@@ -1,7 +1,7 @@
 type FormAttributes = { [key:string]: FormAttribute };
 type FormAttribute = {
-  type: string,
-  [key:string]: any,
+  type: string;
+  [key:string]: any;
 };
 
 type ShadowAttributes = { [key:string]: ShadowAttribute };
@@ -16,3 +16,15 @@ type IlluminatedAttribute = {
   type: string,
   value: string,
 };
+
+type FormShadowObject = {
+  form: {attributes: FormAttributes};
+  shadow: {attributes: ShadowAttributes};
+};
+
+type FormShadowAttrs = {
+  form: FormAttributes,
+  shadow: ShadowAttributes,
+};
+
+type FormShadowAttrsPair = [FormAttributes, ShadowAttributes];

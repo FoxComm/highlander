@@ -4,12 +4,6 @@
 import _ from 'lodash';
 import { assoc } from 'sprout-data';
 
-export type FormShadowObject = {
-  form: {attributes: FormAttributes};
-  shadow: {attributes: ShadowAttributes};
-}
-export type FormShadowAttrsPair = [FormAttributes, ShadowAttributes];
-
 export function copyShadowAttributes(form: FormAttributes, shadow: ShadowAttributes) {
   _.forEach(shadow, (s, label) => {
     // update form
