@@ -6,11 +6,9 @@ import React, { PropTypes, Element } from 'react';
 
 import _ from 'lodash';
 import { transitionTo } from 'browserHistory';
+import { activeStatus } from '../../paragons/common';
 
-import { DateTime } from '../common/datetime';
-import { Checkbox } from '../checkbox/checkbox';
-import Currency from '../common/currency';
-import Link from '../link/link';
+import RoundedPill from '../rounded-pill/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
 
 type PromotionRowProps = {
@@ -20,7 +18,12 @@ type PromotionRowProps = {
 };
 
 const setCellContents = (promotion: Object, field: string) => {
-  return _.get(promotion, field);
+  switch (field) {
+    case 'state':
+      return <RoundedPill text={activeStatus(promotion)} />;
+    default:
+      return _.get(promotion, field);
+  }
 };
 
 const PromotionRow = (props: PromotionRowProps) => {

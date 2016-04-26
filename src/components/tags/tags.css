@@ -34,6 +34,11 @@
   flex-wrap: wrap;
 }
 
+.tag {
+  margin-right: 5px;
+  margin-bottom: 10px;
+}
+
 .text-input {
   margin-bottom: 10px;
   width: 100%;

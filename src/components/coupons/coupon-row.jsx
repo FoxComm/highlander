@@ -5,8 +5,10 @@
 import React, { PropTypes, Element } from 'react';
 
 import _ from 'lodash';
+import { activeStatus } from '../../paragons/common';
 import { transitionTo } from 'browserHistory';
 
+import RoundedPill from '../rounded-pill/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
 
 type CouponRowProps = {
@@ -21,6 +23,8 @@ const setCellContents = (coupon: Object, field: string) => {
     case 'totalUsed':
     case 'currentCarts':
       return _.get(coupon, field, 0);
+    case 'state':
+      return <RoundedPill text={activeStatus(coupon)} />;
     default:
       return _.get(coupon, field);
   }

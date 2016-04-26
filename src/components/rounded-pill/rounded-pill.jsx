@@ -9,26 +9,28 @@ import styles from './rounded-pill.css';
 type Props = {
   text: string,
   value: string,
-  onClick: (value: string) => void,
+  onClose: (value: string) => void,
+  className?: string,
 };
 
 const RoundedPill = (props: Props) => {
+  let closeButton = null;
+  if (props.onClose) {
+    closeButton = (
+      <button styleName="button" onClick={() => props.onClose(props.value)}>
+        <i className="icon-close" />
+      </button>
+    );
+  }
+
+  const styleName = props.onClose ? 'main-closable' : 'main';
+
   return (
-    <div styleName="main">
+    <div styleName={styleName} className={props.className}>
       <div styleName="text">{props.text}</div>
-      <div>
-        <button styleName="button" onClick={() => props.onClick(props.value)}>
-          <i className="icon-close" />
-        </button>
-      </div>
+      {closeButton}
     </div>
   );
-};
-
-RoundedPill.propTypes = {
-  text: PropTypes.string,
-  value: PropTypes.string,
-  onClick: PropTypes.func,
 };
 
 export default RoundedPill;
