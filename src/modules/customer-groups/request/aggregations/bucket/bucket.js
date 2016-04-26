@@ -1,5 +1,6 @@
 /* @flow */
 
+import _ from 'lodash';
 import { isDirectField, getNestedPath } from '../../helpers';
 import Aggregation from '../aggregation';
 
@@ -16,6 +17,64 @@ export default class BucketAggregation extends Aggregation {
   toRequest(): Object {
     return {
       bucket: 'here'
+    };
+  }
+
+  wrap(field: string, aggregation: Object): Object {
+    const aggregations = {};
+
+    this._aggregations.forEach(aggregation => {
+      aggregations[aggregation.name] = aggregation.toRequest();
+    });
+
+    if (isDirectField(field)) {
+      if (_.isEmpty(aggregations)) {
+        return aggregation;
+      }
+
+      return {
+        ...aggregation,
+        aggregations,
+      };
+    }
+
+    if (_.isEmpty(aggregations)) {
+      return {
+        nested: {
+          path: getNestedPath(field)
+        },
+        aggregations: {
+          [this.name]: aggregation,
+        }
+      };
+    }
+
+    return {
+      nested: {
+        path: getNestedPath(field)
+      },
+      aggregations: {
+        [this.name]: {
+          ...aggregation,
+          aggregations: {
+            reverseNested: {
+              reverse_nested: {},
+              aggregations
+            },
+          },
+        },
+      },
+    };
+  }
+
+  combine(aggregation, aggregations) {
+    if (_.isEmpty(aggregations)) {
+      return aggregation;
+    }
+
+    return {
+      ...aggregation,
+      aggregations,
     };
   }
 

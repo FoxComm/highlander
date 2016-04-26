@@ -20,9 +20,12 @@ export default class RangeAggregation extends BucketAggregation {
   }
 
   toRequest(): Object {
-    return {
-      bucket: 'here'
-    };
+    return this.wrap(this._field, {
+      range: {
+        field: this._field,
+        ranges: this._ranges,
+      }
+    });
   }
 
 }

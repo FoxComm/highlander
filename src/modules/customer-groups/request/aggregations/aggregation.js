@@ -11,11 +11,11 @@ export default class Aggregation extends Element {
     return this._name;
   }
 
-  toRequest: () => Object;
-
   constructor(name: string) {
     super();
     this._name = name;
   }
+
+  toRequest: () => Object;
 
 }

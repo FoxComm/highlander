@@ -13,9 +13,11 @@ export default class AverageAggregation extends MetricAggregation {
   }
 
   toRequest(): Object {
-    return {
-      bucket: 'here'
-    };
+    return this.wrap(this._field, {
+      avg: {
+        field: this._field,
+      },
+    });
   }
 
 }

@@ -16,9 +16,12 @@ export default class HistogramAggregation extends BucketAggregation {
   }
 
   toRequest(): Object {
-    return {
-      bucket: 'here'
-    };
+    return this.wrap(this._field, {
+      histogram: {
+        field: this._field,
+        interval: this._interval,
+      },
+    });
   }
 
 }
