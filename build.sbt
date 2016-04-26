@@ -114,7 +114,7 @@ lazy val phoenixScala = (project in file(".")).
         |import scala.concurrent.ExecutionContext.Implicits.global
         |import slick.driver.PostgresDriver.api._
         |import models._
-        |val config: com.typesafe.config.Config = utils.Config.loadWithEnv()
+        |val config: com.typesafe.config.Config = utils.FoxConfig.loadWithEnv()
         |implicit val db = Database.forConfig("db", config)
         |import utils.db._
         """.stripMargin,
