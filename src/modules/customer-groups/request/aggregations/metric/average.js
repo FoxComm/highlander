@@ -5,17 +5,14 @@ import MetricAggregation from './metric';
 
 export default class AverageAggregation extends MetricAggregation {
 
-  _field: string;
-
   constructor(name: string, field: string) {
-    super(name);
-    this._field = field;
+    super(name, field);
   }
 
   toRequest(): Object {
-    return this.wrap(this._field, {
+    return this.wrap({
       avg: {
-        field: this._field,
+        field: this.field,
       },
     });
   }

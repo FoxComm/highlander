@@ -9,20 +9,17 @@ type Range = {
 
 export default class RangeAggregation extends BucketAggregation {
 
-  _field: string;
-
   _ranges: Array<Range>;
 
   constructor(name: string, field: string, ranges: Array<Range>) {
-    super(name);
-    this._field = field;
+    super(name, field);
     this._ranges = ranges;
   }
 
   toRequest(): Object {
-    return this.wrap(this._field, {
+    return this.wrap({
       range: {
-        field: this._field,
+        field: this.field,
         ranges: this._ranges,
       }
     });

@@ -5,20 +5,20 @@ import BucketAggregation from './bucket';
 
 export default class TermsAggregation extends BucketAggregation {
 
-  _field: string;
-
-  _size: number;
+  _size: number = 10;
 
   constructor(name: string, field: string, size: number) {
-    super(name);
-    this._field = field;
+    super(name, field);
     this._size = size;
   }
 
   toRequest(): Object {
-    return {
-      bucket: 'here'
-    };
+    return this.wrap({
+      terms: {
+        field: this.field,
+        size: this._size,
+      }
+    });
   }
 
 }

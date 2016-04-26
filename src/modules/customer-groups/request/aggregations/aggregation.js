@@ -5,15 +5,16 @@ import Element from '../element';
 
 export default class Aggregation extends Element {
 
-  _name: string;
+  name: string;
 
-  get name() {
-    return this._name;
-  }
+  field: ?string = null;
 
-  constructor(name: string) {
+  inheritedPath: ?string;
+
+  constructor(name: string, field: ?string) {
     super();
-    this._name = name;
+    this.name = name;
+    this.field = field;
   }
 
   toRequest: () => Object;

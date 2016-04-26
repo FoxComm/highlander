@@ -28,6 +28,7 @@ export default class Aggregator extends Element {
 
   add(aggregation: Aggregation): Aggregator {
     aggregation.root = this.root;
+    aggregation.inheritedPath = null;
 
     this._aggregations.push(aggregation);
 
@@ -35,11 +36,9 @@ export default class Aggregator extends Element {
   }
 
   set(aggregations: Array<Aggregation>): Aggregator {
-    aggregations.forEach(aggregation => {
-      aggregation.root = this.root;
-    });
+    this.reset();
 
-    this._aggregations = aggregations;
+    aggregations.forEach(aggregation => this.add(aggregation));
 
     return this;
   }
@@ -47,6 +46,7 @@ export default class Aggregator extends Element {
   reset() {
     this._aggregations.forEach(aggregation => {
       aggregation.root = null;
+      aggregation.inheritedPath = null;
     });
 
     this._aggregations = [];

@@ -9,25 +9,20 @@ export default class BucketAggregation extends Aggregation {
 
   _aggregations: Array<Aggregation>;
 
-  constructor(name: string) {
-    super(name);
+  constructor(name: string, field?: string) {
+    super(name, field);
     this._aggregations = [];
   }
 
-  toRequest(): Object {
-    return {
-      bucket: 'here'
-    };
-  }
-
-  wrap(field: string, aggregation: Object): Object {
+  wrap(aggregation: Object): Object {
+    console.log(`${this.name}(${this.field}) in ${this.inheritedPath}`);
     const aggregations = {};
 
     this._aggregations.forEach(aggregation => {
       aggregations[aggregation.name] = aggregation.toRequest();
     });
 
-    if (isDirectField(field)) {
+    if (isDirectField(this.field)) {
       if (_.isEmpty(aggregations)) {
         return aggregation;
       }
@@ -41,7 +36,7 @@ export default class BucketAggregation extends Aggregation {
     if (_.isEmpty(aggregations)) {
       return {
         nested: {
-          path: getNestedPath(field)
+          path: getNestedPath(this.field)
         },
         aggregations: {
           [this.name]: aggregation,
@@ -51,7 +46,7 @@ export default class BucketAggregation extends Aggregation {
 
     return {
       nested: {
-        path: getNestedPath(field)
+        path: getNestedPath(this.field)
       },
       aggregations: {
         [this.name]: {
@@ -67,38 +62,27 @@ export default class BucketAggregation extends Aggregation {
     };
   }
 
-  combine(aggregation, aggregations) {
-    if (_.isEmpty(aggregations)) {
-      return aggregation;
-    }
+  add(aggregation: Aggregation): BucketAggregation {
+    aggregation.root = this.root;
+    aggregation.inheritedPath = !this.field || isDirectField(this.field) ? null : getNestedPath(this.field);
 
-    return {
-      ...aggregation,
-      aggregations,
-    };
-  }
-
-  add(condition: Aggregation): BucketAggregation {
-    condition.root = this.root;
-
-    this._aggregations.push(condition);
+    this._aggregations.push(aggregation);
 
     return this;
   }
 
-  set(conditions: Array<Aggregation>): BucketAggregation {
-    conditions.forEach(condition => {
-      condition.root = this.root;
-    });
+  set(aggregations: Array<Aggregation>): BucketAggregation {
+    this.reset();
 
-    this._aggregations = conditions;
+    aggregations.forEach(aggregation => this.add(aggregation));
 
     return this;
   }
 
   reset() {
-    this._aggregations.forEach(condition => {
-      condition.root = null;
+    this._aggregations.forEach(aggregation => {
+      aggregation.root = null;
+      aggregation.inheritedPath = null;
     });
 
     this._aggregations = [];

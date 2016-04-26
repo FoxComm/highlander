@@ -6,25 +6,19 @@ import { isDirectField, getNestedPath } from '../../helpers';
 
 export default class MetricAggregation extends Aggregation {
 
-  constructor(name: string) {
-    super(name);
-    this._aggregations = [];
+  constructor(name: string, field?: string) {
+    super(name, field);
   }
 
-  toRequest(): Object {
-    return {
-      bucket: 'here'
-    };
-  }
-
-  wrap(field: string, aggregation: Object): Object {
-    if (isDirectField(field)) {
+  wrap(aggregation: Object): Object {
+    console.log(`${this.name}(${this.field}) in ${this.inheritedPath}`);
+    if (isDirectField(this.field)) {
       return aggregation;
     }
 
     return {
       nested: {
-        path: getNestedPath(field)
+        path: getNestedPath(this.field)
       },
       aggregations: {
         [this.name]: aggregation,

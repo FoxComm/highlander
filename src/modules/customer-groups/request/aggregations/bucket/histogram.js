@@ -5,20 +5,17 @@ import BucketAggregation from './bucket';
 
 export default class HistogramAggregation extends BucketAggregation {
 
-  _field: string;
-
   _interval: number;
 
   constructor(name: string, field: string, interval: number) {
-    super(name);
-    this._field = field;
+    super(name, field);
     this._interval = interval;
   }
 
   toRequest(): Object {
-    return this.wrap(this._field, {
+    return this.wrap({
       histogram: {
-        field: this._field,
+        field: this.field,
         interval: this._interval,
       },
     });
