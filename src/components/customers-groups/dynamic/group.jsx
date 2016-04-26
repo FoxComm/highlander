@@ -58,7 +58,11 @@ export default class DynamicGroup extends Component {
         operators.or,
       ]),
       conditions: PropTypes.arrayOf(PropTypes.array),
-      filterTerm: PropTypes.string,
+      stats: PropTypes.objectOf({
+        ordersCount: PropTypes.number,
+        totalSales: PropTypes.number,
+        averageOrderSum: PropTypes.number,
+      }),
     }),
     groupActions: PropTypes.shape({
       setFilterTerm: PropTypes.func.isRequired,
@@ -73,16 +77,16 @@ export default class DynamicGroup extends Component {
   };
 
   componentDidMount() {
-    this.setGroupQuery(this.props.group);
+    this.refreshGroupData(this.props.group);
   }
 
   componentWillReceiveProps({group}) {
-    if (group !== this.props.group) {
-      this.setGroupQuery(group);
+    if (group.id !== this.props.group.id) {
+      this.refreshGroupData(group);
     }
   }
 
-  setGroupQuery({mainCondition, conditions}) {
+  refreshGroupData({mainCondition, conditions}) {
     const {listActions} = this.props;
 
     listActions.resetSearch();
@@ -92,6 +96,8 @@ export default class DynamicGroup extends Component {
     ]);
 
     listActions.fetch();
+
+    this.props.groupActions.fetchGroupStats(mainCondition, conditions);
   }
 
   @autobind
@@ -167,25 +173,24 @@ export default class DynamicGroup extends Component {
 
 
   get stats() {
-    const customersTotal = _.get(this.props.list, 'savedSearches.0.results.total', 0);
-    const avgOrderValue = 83250;
+    const {stats} = this.props.group;
 
     return (
       <PanelList className={prefixed('stats')}>
         <PanelListItem title="Total Orders">
-          132
+          {stats.ordersCount}
         </PanelListItem>
         <PanelListItem title="Total Sales">
-          <Currency value={avgOrderValue*customersTotal} />
-        </PanelListItem>
-        <PanelListItem title="Avg. Order Size">
-          2
+          <Currency value={stats.totalSales} />
         </PanelListItem>
         <PanelListItem title="Avg. Order Value">
-          <Currency value={avgOrderValue} />
+          <Currency value={stats.averageOrderSum} />
         </PanelListItem>
       </PanelList>
     );
+    //<PanelListItem title="Avg. Order Size">
+    //  2
+    //</PanelListItem>
     //<PanelListItem title="Return Rate">
     //  14%
     //</PanelListItem>
@@ -200,16 +205,6 @@ export default class DynamicGroup extends Component {
   @debounce(200)
   updateSearch() {
     this.props.listActions.fetch();
-  }
-
-  get filter() {
-    return (
-      <PrependIconInput className={prefixed('filter')}>
-        <input type="text"
-               onChange={this.setFilterTerm}
-               value={this.props.group.filterTerm} />
-      </PrependIconInput>
-    );
   }
 
   goToCustomer(id) {
