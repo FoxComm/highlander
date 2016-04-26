@@ -1,0 +1,117 @@
+.accordion {
+
+  & :global(.icon-up),
+  & :global(.icon-down) {
+    transform: translateY(0);
+    transition: transform .5s;
+  }
+
+  &._open {
+    & .content {
+      max-height: 1000px;
+      opacity: 1;
+    }
+
+    & :global(.icon-up) {
+      transform: translateY(100%);
+    }
+
+    & :global(.icon-down) {
+      transform: translateY(-100%);
+    }
+  }
+}
+
+.header {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  margin: 10px 0 40px;
+}
+
+.title {
+  flex-grow: 1;
+  position: relative;
+  text-align: center;
+  line-height: 30px;
+  font-weight: bold;
+
+  &::before {
+    content: "";
+    border-top: 1px solid #ced2d5;
+    margin: 0 auto; /* this centers the line to the full width specified */
+    position: absolute; /* positioning must be absolute here, and relative positioning must be applied to the parent */
+    top: 15px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 95%;
+    z-index: -1;
+  }
+
+  & > span {
+    background: #f2f2f2;
+    padding: 0 15px;
+  }
+}
+
+.controls {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  & .left,
+  & .right {
+    display: flex;
+    background: #f2f2f2;
+  }
+
+  & .left {
+    padding-right: 10px;
+    font-size: 13px;
+  }
+
+  & .right {
+    padding-left: 10px;
+    font-size: 18px;
+
+    & .controlItem {
+      margin-left: 10px;
+    }
+  }
+}
+
+.controlItem {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: color .3s;
+
+  &:hover {
+    color: #000;
+  }
+
+  & i {
+    line-height: .9;
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  max-height: 0;
+  opacity: .01;
+  overflow-y: hidden;
+
+  transition: opacity .2s ease-in, max-height .3s ease-out;
+}

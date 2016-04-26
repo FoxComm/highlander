@@ -4,7 +4,7 @@
 import _ from 'lodash';
 import moment from 'moment';
 
-export function isActive(activeFrom: ?string, activeTo: ?string) {
+export function isActive(activeFrom: ?string, activeTo: ?string): boolean {
   const now = moment();
 
   activeFrom = activeFrom ? moment.utc(activeFrom) : null;

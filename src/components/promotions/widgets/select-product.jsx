@@ -42,7 +42,7 @@ export default class SelectProduct extends Component {
     return _.get(this.references, '0.referenceId');
   }
 
-  handleProductSearch(token: string) {
+  handleProductSearch(token: string): Promise {
     return searchProducts(token).then((result) => {
       return result.result;
     });

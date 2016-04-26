@@ -1,0 +1,23 @@
+.image {
+  width: 286px;
+  height: 286px;
+  display: flex;
+  align-items: center;
+
+  &.error {
+    content: "An error occured";
+  }
+}
+
+:global(.image-enter) {
+  opacity: .01;
+}
+
+:global(.image-enter-active) {
+  opacity: 1;
+  transition: opacity .5s;
+}
+
+.loader {
+
+}

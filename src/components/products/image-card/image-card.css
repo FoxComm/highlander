@@ -1,0 +1,58 @@
+.card {
+  position: relative;
+  border: 1px solid #d9d9d9;
+  background: #fff;
+  box-shadow: 0 0 4px 0 rgba(0, 0, 0, .3);
+  margin: 20px 5px;
+}
+
+.image {
+  width: 286px;
+  height: 286px;
+  overflow: hidden;
+}
+
+.actions {
+  position: absolute;
+  width: 100%;
+  background: #333a44;
+  opacity: .86;
+  text-align: right;
+  transition: transform .12s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.actionsVisible {
+    transform: translateY(-100%);
+  }
+
+  & i {
+    color: #fff;
+    opacity: .76;
+    font-size: 18px;
+    margin: 23px 10px;
+    cursor: pointer;
+    transition: opacity .2s;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.description {
+  position: relative;
+  padding: 18px;
+  max-width: 300px;
+  background: #fff;
+}
+
+.title {
+  margin-bottom: 10px;
+  font-weight: bold;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.secondaryTitle {
+  color: #ABB2B6;
+}
