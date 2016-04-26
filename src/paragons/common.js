@@ -21,7 +21,7 @@ export function isActive(activeFrom: ?string, activeTo: ?string) {
   return true;
 }
 
-export function stateStatus(object: Object): string {
+export function activeStatus(object: Object): string {
   const activeFrom = _.get(object, 'activeFrom');
   const activeTo = _.get(object, 'activeTo');
   return isActive(activeFrom, activeTo) ? 'Active' : 'Inactive';

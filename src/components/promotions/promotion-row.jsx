@@ -6,7 +6,7 @@ import React, { PropTypes, Element } from 'react';
 
 import _ from 'lodash';
 import { transitionTo } from 'browserHistory';
-import { stateStatus } from '../../paragons/common';
+import { activeStatus } from '../../paragons/common';
 
 import RoundedPill from '../rounded-pill/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
@@ -20,7 +20,7 @@ type PromotionRowProps = {
 const setCellContents = (promotion: Object, field: string) => {
   switch (field) {
     case 'state':
-      return <RoundedPill text={stateStatus(promotion)} />;
+      return <RoundedPill text={activeStatus(promotion)} />;
     default:
       return _.get(promotion, field);
   }

@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import _ from 'lodash';
 import { transitionTo } from 'browserHistory';
-import { stateStatus } from '../../paragons/common';
+import { activeStatus } from '../../paragons/common';
 
 import RoundedPill from '../rounded-pill/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
@@ -11,7 +11,7 @@ function setCellContents(product, field) {
     case 'image':
       return _.get(product, ['images', 0]);
     case 'state':
-      return <RoundedPill text={stateStatus(product)} />;
+      return <RoundedPill text={activeStatus(product)} />;
     default:
       return _.get(product, field);
   }

@@ -5,7 +5,7 @@
 import React, { PropTypes, Element } from 'react';
 
 import _ from 'lodash';
-import { stateStatus } from '../../paragons/common';
+import { activeStatus } from '../../paragons/common';
 import { transitionTo } from 'browserHistory';
 
 import RoundedPill from '../rounded-pill/rounded-pill';
@@ -24,7 +24,7 @@ const setCellContents = (coupon: Object, field: string) => {
     case 'currentCarts':
       return _.get(coupon, field, 0);
     case 'state':
-      return <RoundedPill text={stateStatus(coupon)} />;
+      return <RoundedPill text={activeStatus(coupon)} />;
     default:
       return _.get(coupon, field);
   }
