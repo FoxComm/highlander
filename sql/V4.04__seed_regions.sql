@@ -3819,7 +3819,6 @@ insert into regions (id, country_id, name, abbreviation) values
  (3818, 223, 'Dasoguz', NULL),
  (3819, 223, 'Lebap', NULL),
  (3820, 223, 'Mary', NULL),
- (3821, 223, '', NULL),
  (3822, 224, 'Tunis', NULL),
  (3823, 224, 'L''Ariana', NULL),
  (3824, 224, 'Ben Arous', NULL),
