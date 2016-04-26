@@ -60,6 +60,14 @@
     white-space: nowrap;
   }
 
+  .fc-table__header {
+    justify-content: space-between;
+  }
+
+  &__images-actions {
+    margin-bottom: 40px;
+  }
+
   &__image {
     align-items: baseline;
     display: flex;
@@ -69,4 +77,33 @@
       flex-grow: 1;
     }
   }
+
+  &__images-title-text {
+    margin-right: 10px;
+    font-weight: bold;
+  }
+
+  &__images-title-count {
+    display: inline-block;
+    width: 32px;
+    line-height: 30px;
+    font-size: 13px;
+    border: 1px solid @color-decor1;
+    border-radius: 50%;
+  }
+
+  &__upload-empty {
+    text-align: center;
+    margin: 0 auto;
+    font-weight: bold;
+    color: #CED2D5;
+    opacity: .5;
+
+    i {
+      display: block;
+      font-size: 96px;
+      line-height: .8;
+    }
+  }
+
 }

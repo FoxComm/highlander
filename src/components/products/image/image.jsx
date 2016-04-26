@@ -43,6 +43,10 @@ export default class ImageLoader extends Component {
     }
   }
 
+  componentWillUnmount() {
+    this.img = null;
+  }
+
   createImage(): void {
     this.img = new Image();
     this.img.onload = this.handleLoad;
