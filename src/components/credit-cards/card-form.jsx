@@ -107,7 +107,7 @@ export default class CreditCardForm extends React.Component {
   }
 
   get cardNumber() {
-    return _.get(this.state, 'card.number', '');
+    return _.get(this.state, 'card.cardNumber', '');
   }
 
   get cardType() {
@@ -134,13 +134,14 @@ export default class CreditCardForm extends React.Component {
   changeCardNumber({target}) {
     const value = target.value.replace(/[^\d]/g, '');
 
-    const newState = assoc(this.state, ['card', 'number'], value);
-    this.setState(newState, () => this.props.onChange({target}));
+    const newState = assoc(this.state, ['card', 'cardNumber'], value);
+    const data = { target: { name: 'cardNumber', value } };
+    this.setState(newState, () => this.props.onChange(data));
   }
 
   get cardNumberBlock() {
     const { isNew } = this.props;
-    const number = _.get(this.state, 'card.number', '');
+    const cardNumber = _.get(this.state, 'card.cardNumber', '');
     const cvv = _.get(this.state, 'card.cvv', '');
 
     if (!isNew) {
@@ -157,13 +158,13 @@ export default class CreditCardForm extends React.Component {
               <InputMask
                 id="numberCardFormField"
                 className="fc-credit-card-form__input"
-                name="number"
+                name="cardNumber"
                 maskChar=" "
                 size="20"
                 mask={this.cardMask}
                 type="text"
                 required
-                value={number}
+                value={cardNumber}
                 onChange={this.changeCardNumber}
               />
             </FormField>
