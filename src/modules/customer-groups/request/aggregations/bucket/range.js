@@ -7,7 +7,7 @@ type Range = {
   to?: number|string;
 };
 
-export default class HistogramAggregation extends BucketAggregation {
+export default class RangeAggregation extends BucketAggregation {
 
   _field: string;
 

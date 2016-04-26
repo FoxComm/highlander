@@ -40,7 +40,14 @@ export default class Request extends Element {
   }
 
   get aggregations(): Aggregator {
-    return this._aggregations || (this._aggregations = new Aggregator(this._criterions));
+    if (this._aggregations) {
+      return this._aggregations;
+    }
+
+    this._aggregations = new Aggregator();
+    this._aggregations.root = this;
+
+    return this._aggregations;
   }
 
   constructor(criterions: Array<any>) {
@@ -59,6 +66,10 @@ export default class Request extends Element {
 
     if (this.sort.length) {
       request.sort = this.sort.toRequest();
+    }
+
+    if (this.aggregations.length) {
+      request.aggregations = this.aggregations.toRequest();
     }
 
     return request;

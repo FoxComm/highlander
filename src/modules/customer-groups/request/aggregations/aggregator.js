@@ -6,46 +6,47 @@ import Aggregation from '../aggregations/aggregation';
 
 export default class Aggregator extends Element {
 
-  _criterions: Array<any>;
-
   _aggregations: Array<Aggregation> = [];
 
   get length(): number {
     return this._aggregations.length;
   }
 
-  constructor(criterions: Array<any>) {
+  constructor() {
     super();
-    this._criterions = criterions;
   }
 
   toRequest(): Object {
-    return {
-      bucket: 'here'
-    };
+    const result = {};
+
+    this._aggregations.forEach(aggregation => {
+      result[aggregation.name] = aggregation.toRequest();
+    });
+
+    return result;
   }
 
-  add(condition: Aggregation): Aggregator {
-    condition.root = this.root;
+  add(aggregation: Aggregation): Aggregator {
+    aggregation.root = this.root;
 
-    this._aggregations.push(condition);
+    this._aggregations.push(aggregation);
 
     return this;
   }
 
-  set(conditions: Array<Aggregation>): Aggregator {
-    conditions.forEach(condition => {
-      condition.root = this.root;
+  set(aggregations: Array<Aggregation>): Aggregator {
+    aggregations.forEach(aggregation => {
+      aggregation.root = this.root;
     });
 
-    this._aggregations = conditions;
+    this._aggregations = aggregations;
 
     return this;
   }
 
   reset() {
-    this._aggregations.forEach(condition => {
-      condition.root = null;
+    this._aggregations.forEach(aggregation => {
+      aggregation.root = null;
     });
 
     this._aggregations = [];

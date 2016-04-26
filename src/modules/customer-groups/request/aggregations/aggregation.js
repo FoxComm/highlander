@@ -5,25 +5,17 @@ import Element from '../element';
 
 export default class Aggregation extends Element {
 
-  name: string;
+  _name: string;
+
+  get name() {
+    return this._name;
+  }
 
   toRequest: () => Object;
 
   constructor(name: string) {
     super();
-    this.name = name;
+    this._name = name;
   }
 
 }
-
-/*
- var request = new Request(criterions);
- request.aggregations
- .add(
- new Aggregations.Histogram({interval: 5000})
- .add( //adds nested aggregation, defined only for bucket aggregations
- new Aggregations.Average({field: 'test'})
- )
- );
-
- */
