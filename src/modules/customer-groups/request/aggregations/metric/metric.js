@@ -2,6 +2,11 @@
 
 import Aggregation from '../aggregation';
 import { isDirectField, getNestedPath } from '../../helpers';
+import {
+  wrapInheritedDirectLeave,
+  wrapPlainDirectLeave,
+  wrapPlainIndirectLeave,
+} from '../wrappings';
 
 
 export default class MetricAggregation extends Aggregation {
@@ -12,18 +17,23 @@ export default class MetricAggregation extends Aggregation {
 
   wrap(aggregation: Object): Object {
     console.log(`${this.name}(${this.field}) in ${this.inheritedPath}`);
-    if (isDirectField(this.field)) {
-      return aggregation;
+
+    //inheritance || direct field || aggregations given
+    if (!this.inheritedPath) {
+      return isDirectField(this.field)
+        ? wrapPlainDirectLeave.call(this, aggregation)
+        : wrapPlainIndirectLeave.call(this, aggregation);
     }
 
-    return {
-      nested: {
-        path: getNestedPath(this.field)
-      },
-      aggregations: {
-        [this.name]: aggregation,
-      },
-    };
+    if (isDirectField(this.field)) {
+      return wrapInheritedDirectLeave.call(this, aggregation);
+    }
+
+    if (getNestedPath(this.field) === this.inheritedPath) {
+      return wrapPlainDirectLeave.call(this, aggregation);
+    }
+
+    return wrapPlainIndirectLeave(this, wrapInheritedDirectLeave.call(this, aggregation));
   }
 
 }

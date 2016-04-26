@@ -2,6 +2,14 @@
 
 import _ from 'lodash';
 import { isDirectField, getNestedPath } from '../../helpers';
+import {
+  wrapInheritedDirectLeave,
+  wrapInheritedDirectParent,
+  wrapPlainDirectLeave,
+  wrapPlainDirectParent,
+  wrapPlainIndirectLeave,
+  wrapPlainIndirectParent,
+} from '../wrappings';
 import Aggregation from '../aggregation';
 
 
@@ -22,44 +30,34 @@ export default class BucketAggregation extends Aggregation {
       aggregations[aggregation.name] = aggregation.toRequest();
     });
 
-    if (isDirectField(this.field)) {
-      if (_.isEmpty(aggregations)) {
-        return aggregation;
+    //inheritance || direct field || aggregations given
+    if (!this.inheritedPath) {
+      if (isDirectField(this.field)) {
+        return _.isEmpty(aggregations)
+          ? wrapPlainDirectLeave.call(this, aggregation)
+          : wrapPlainDirectParent.call(this, aggregation, aggregations);
       }
 
-      return {
-        ...aggregation,
-        aggregations,
-      };
+      return _.isEmpty(aggregations)
+        ? wrapPlainIndirectLeave.call(this, aggregation)
+        : wrapPlainIndirectParent.call(this, aggregation, aggregations);
     }
 
-    if (_.isEmpty(aggregations)) {
-      return {
-        nested: {
-          path: getNestedPath(this.field)
-        },
-        aggregations: {
-          [this.name]: aggregation,
-        }
-      };
+    if (isDirectField(this.field)) {
+      return _.isEmpty(aggregations)
+        ? wrapInheritedDirectLeave.call(this, aggregation)
+        : wrapInheritedDirectParent.call(this, aggregation, aggregations);
     }
 
-    return {
-      nested: {
-        path: getNestedPath(this.field)
-      },
-      aggregations: {
-        [this.name]: {
-          ...aggregation,
-          aggregations: {
-            reverseNested: {
-              reverse_nested: {},
-              aggregations
-            },
-          },
-        },
-      },
-    };
+    if (getNestedPath(this.field) === this.inheritedPath) {
+      return _.isEmpty(aggregations)
+        ? wrapPlainDirectLeave.call(this, aggregation)
+        : wrapPlainDirectParent.call(this, aggregation, aggregations);
+    }
+
+    return _.isEmpty(aggregations)
+      ? wrapPlainIndirectLeave(this, wrapInheritedDirectLeave.call(this, aggregation))
+      : wrapPlainIndirectParent(this, wrapInheritedDirectLeave.call(this, aggregation), aggregations);
   }
 
   add(aggregation: Aggregation): BucketAggregation {
