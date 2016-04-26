@@ -4,7 +4,7 @@ import java.time.Instant
 
 import com.pellucid.sealerate
 import models.objects._
-import monocle.macros.GenLens
+import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import utils.db.ExPostgresDriver.api._
@@ -47,7 +47,7 @@ class Promotions(tag: Tag) extends ObjectHeads[Promotion](tag, "promotions") {
 }
 
 object Promotions extends FoxTableQuery[Promotion, Promotions](
-  idLens = GenLens[Promotion](_.id))(new Promotions(_)) {
+  idLens = lens[Promotion].id)(new Promotions(_)) {
 
   def filterByContext(contextId: Int): QuerySeq = 
     filter(_.contextId === contextId)

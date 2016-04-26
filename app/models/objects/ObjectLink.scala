@@ -1,6 +1,6 @@
 package models.objects
 
-import monocle.macros.GenLens
+import shapeless._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
@@ -26,7 +26,7 @@ class ObjectLinks(tag: Tag) extends FoxTable[ObjectLink](tag, "object_links")  {
 }
 
 object ObjectLinks extends FoxTableQuery[ObjectLink, ObjectLinks](
-  idLens = GenLens[ObjectLink](_.id)
+  idLens = lens[ObjectLink].id
   )(new ObjectLinks(_)) {
 
   def findByLeftRight(leftId: Int, rightId: Int): QuerySeq = 

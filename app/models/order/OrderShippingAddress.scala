@@ -4,7 +4,7 @@ import java.time.Instant
 
 import models.location.{Address, Addresses, Region, Regions}
 import models.traits.Addressable
-import monocle.macros.GenLens
+import shapeless._
 import payloads.UpdateAddressPayload
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -17,7 +17,7 @@ case class OrderShippingAddress(id: Int = 0, orderId: Int = 0, regionId: Int, na
   with Addressable[OrderShippingAddress] {
 
   def instance: OrderShippingAddress = { this }
-  def zipLens = GenLens[OrderShippingAddress](_.zip)
+  def zipLens = lens[OrderShippingAddress].zip
   override def sanitize = super.sanitize(this)
   override def validate = super.validate
 }
@@ -65,7 +65,7 @@ class OrderShippingAddresses(tag: Tag) extends FoxTable[OrderShippingAddress](ta
 }
 
 object OrderShippingAddresses extends FoxTableQuery[OrderShippingAddress, OrderShippingAddresses](
-  idLens = GenLens[OrderShippingAddress](_.id)
+  idLens = lens[OrderShippingAddress].id
 )(new OrderShippingAddresses(_)) {
 
   import scope._

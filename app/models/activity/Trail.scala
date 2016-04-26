@@ -3,7 +3,7 @@ package models.activity
 import java.time.Instant
 
 import models.Aliases.Json
-import monocle.macros.GenLens
+import shapeless._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
@@ -40,7 +40,7 @@ class Trails(tag: Tag) extends FoxTable[Trail](tag, "activity_trails")  {
 }
 
 object Trails extends FoxTableQuery[Trail, Trails](
-  idLens = GenLens[Trail](_.id))(new Trails(_)) {
+  idLens = lens[Trail].id)(new Trails(_)) {
 
   def findByObjectId(dimensionId: Int, objectId: String): QuerySeq =
     filter(_.dimensionId === dimensionId).filter(_.objectId === objectId)

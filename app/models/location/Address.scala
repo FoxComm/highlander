@@ -7,7 +7,7 @@ import cats.data.Xor.{left, right}
 import models.order.OrderShippingAddress
 import models.payment.creditcard.CreditCard
 import models.traits.Addressable
-import monocle.macros.GenLens
+import shapeless._
 import payloads.CreateAddressPayload
 import failures.{Failures, NotFoundFailure404}
 import slick.driver.PostgresDriver.api._
@@ -24,7 +24,7 @@ case class Address(id: Int = 0, customerId: Int, regionId: Int, name: String,
   with Validation[Address] {
 
   def instance: Address = { this }
-  def zipLens = GenLens[Address](_.zip)
+  def zipLens = lens[Address].zip
   override def sanitize = super.sanitize(this)
   override def validate = super.validate
 
@@ -70,7 +70,7 @@ class Addresses(tag: Tag) extends FoxTable[Address](tag, "addresses")  {
 }
 
 object Addresses extends FoxTableQuery[Address, Addresses](
-  idLens = GenLens[Address](_.id)
+  idLens = lens[Address].id
   )(new Addresses(_)) {
 
   import scope._

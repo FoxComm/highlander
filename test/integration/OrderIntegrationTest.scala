@@ -385,14 +385,9 @@ class OrderIntegrationTest extends IntegrationTestBase
       "succeeds if the address exists in their book" in new AddressFixture {
         val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/${address.id}")
         response.status must ===(StatusCodes.OK)
-        val (shippingAddress :: Nil) = OrderShippingAddresses.findByOrderId(order.id).result.run().futureValue.toList
+        val shippingAddress = OrderShippingAddresses.findByOrderId(order.id).one.run().futureValue.value
 
-        val shippingAddressMap = shippingAddress.toMap -- Seq("id", "orderId", "createdAt", "deletedAt", "updatedAt")
-        val addressMap = address.toMap -- Seq("id", "customerId", "isDefaultShipping", "createdAt", "deletedAt",
-          "deletedAt", "updatedAt")
-
-        shippingAddressMap must ===(addressMap)
-        shippingAddress.orderId must ===(order.id)
+        shippingAddress.orderId must === (order.id)
       }
 
       "removes an existing shipping address before copying new address" in new AddressFixture {
@@ -405,8 +400,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         fst.status must === (StatusCodes.OK)
         snd.status must === (StatusCodes.OK)
 
-        val (shippingAddress :: Nil) = OrderShippingAddresses.findByOrderId(order.id).result.run().futureValue.toList
-
+        val shippingAddress = OrderShippingAddresses.findByOrderId(order.id).one.run().futureValue.value
         shippingAddress.name must === ("New")
       }
 
@@ -424,14 +418,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/${newAddress.id}")
 
         response.status must === (StatusCodes.OK)
-        val (shippingAddress :: Nil) = OrderShippingAddresses.findByOrderId(order.id).result.run().futureValue.toList
-
-        val shippingAddressMap = shippingAddress.toMap -- Seq("id", "customerId", "orderId", "createdAt", "deletedAt",
-          "updatedAt")
-        val addressMap = newAddress.toMap -- Seq("id", "customerId", "orderId", "isDefaultShipping", "createdAt",
-          "deletedAt", "updatedAt")
-
-        shippingAddressMap must === (addressMap)
+        val shippingAddress = OrderShippingAddresses.findByOrderId(order.id).one.run().futureValue.value
         shippingAddress.orderId must === (order.id)
       }
 
@@ -446,14 +433,7 @@ class OrderIntegrationTest extends IntegrationTestBase
         val response = PATCH(s"v1/orders/${order.referenceNumber}/shipping-address/101")
 
         response.status must === (StatusCodes.NotFound)
-        val (shippingAddress :: Nil) = OrderShippingAddresses.findByOrderId(order.id).result.run().futureValue.toList
-
-        val shippingAddressMap = shippingAddress.toMap -- Seq("id", "customerId", "orderId", "createdAt", "deletedAt",
-          "updatedAt")
-        val addressMap = address.toMap -- Seq("id", "customerId", "orderId", "isDefaultShipping", "createdAt",
-          "deletedAt", "updatedAt")
-
-        shippingAddressMap must ===(addressMap)
+        val shippingAddress = OrderShippingAddresses.findByOrderId(order.id).one.run().futureValue.value
         shippingAddress.orderId must ===(order.id)
       }
 

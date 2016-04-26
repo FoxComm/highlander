@@ -6,7 +6,7 @@ import models.payment.creditcard.{CreditCard, CreditCards}
 import models.payment.giftcard.{GiftCard, GiftCards}
 import models.payment.storecredit.{StoreCredit, StoreCredits}
 import models.stripe._
-import monocle.macros.GenLens
+import shapeless._
 import failures.Failure
 import utils.Money._
 import utils.Validation._
@@ -65,7 +65,7 @@ class OrderPayments(tag: Tag) extends FoxTable[OrderPayment](tag, "order_payment
 }
 
 object OrderPayments extends FoxTableQuery[OrderPayment, OrderPayments](
-  idLens = GenLens[OrderPayment](_.id)
+  idLens = lens[OrderPayment].id
 )(new OrderPayments(_)){
 
   def findAllByOrderId(id: Int): QuerySeq =

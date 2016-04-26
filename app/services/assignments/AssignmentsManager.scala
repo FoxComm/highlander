@@ -148,7 +148,7 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
     }
 
     val skippedFailures = trio.skipped.map { e ⇒
-      val searchKey = e.primarySearchKeyLens.get(e)
+      val searchKey = e.primarySearchKey
       actionType match {
         case Assigning ⇒
           (searchKey, AlreadyAssignedFailure(referenceType, searchKey, storeAdminId).description)
@@ -197,6 +197,6 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
     admins      ← StoreAdmins.filter(_.id.inSetBind(assignments.map(_.storeAdminId))).result
   } yield assignments.zip(admins)
 
-  private def searchKeys(entities: Seq[M]): Seq[String] = entities.map(searchKey)
-  private def searchKey(entity: M) = entity.primarySearchKeyLens.get(entity)
+  private def searchKeys(entities: Seq[M]): Seq[String] = entities.map(_.primarySearchKey)
+  private def searchKey(entity: M) = entity.primarySearchKey
 }

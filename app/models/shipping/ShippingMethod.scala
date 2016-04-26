@@ -5,7 +5,7 @@ import failures.Failures
 import failures.ShippingMethodFailures.ShippingMethodIsNotActive
 import models.order.{Order, OrderShippingMethods}
 import models.rules.QueryStatement
-import monocle.macros.GenLens
+import shapeless._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
@@ -37,7 +37,7 @@ class ShippingMethods(tag: Tag) extends FoxTable[ShippingMethod](tag, "shipping_
 }
 
 object ShippingMethods extends FoxTableQuery[ShippingMethod, ShippingMethods](
-  idLens = GenLens[ShippingMethod](_.id)
+  idLens = lens[ShippingMethod].id
 )(new ShippingMethods(_)) {
 
   def findActive: Query[ShippingMethods, ShippingMethod, Seq] = filter(_.isActive === true)

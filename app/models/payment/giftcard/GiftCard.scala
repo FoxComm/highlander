@@ -13,8 +13,7 @@ import models.order.OrderPayment
 import models.payment.PaymentMethod
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
-import monocle.Lens
-import monocle.macros.GenLens
+import shapeless._
 import payloads.AddGiftCardLineItem
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -53,8 +52,8 @@ case class GiftCard(id: Int = 0, originId: Int, originType: OriginType = Custome
     ).map { case _ ⇒ this }
   }
 
-  def stateLens = GenLens[GiftCard](_.state)
-  override def primarySearchKeyLens: Lens[GiftCard, String] = GenLens[GiftCard](_.code)
+  def stateLens = lens[GiftCard].state
+  override def primarySearchKey: String = code
   override def updateTo(newModel: GiftCard): Failures Xor GiftCard = super.transitionModel(newModel)
 
   val fsm: Map[State, Set[State]] = Map(
@@ -202,7 +201,7 @@ class GiftCards(tag: Tag) extends FoxTable[GiftCard](tag, "gift_cards")  {
 }
 
 object GiftCards extends FoxTableQuery[GiftCard, GiftCards](
-  idLens = GenLens[GiftCard](_.id)
+  idLens = lens[GiftCard].id
   )(new GiftCards(_))
   with SearchByCode[GiftCard, GiftCards] {
 

@@ -5,7 +5,7 @@ import java.time.Instant
 import cats.data.ValidatedNel
 import cats.implicits._
 import com.pellucid.sealerate
-import monocle.macros.GenLens
+import shapeless._
 import failures.Failure
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -68,7 +68,7 @@ class Notes(tag: Tag) extends FoxTable[Note](tag, "notes")  {
 }
 
 object Notes extends FoxTableQuery[Note, Notes](
-  idLens = GenLens[Note](_.id)
+  idLens = lens[Note].id
 )(new Notes(_)) {
 
   def filterByIdAndAdminId(id: Int, adminId: Int): QuerySeq =

@@ -6,7 +6,7 @@ import cats.data.Xor
 import com.pellucid.sealerate
 import models.order.OrderPayments
 import models.payment.storecredit.StoreCreditAdjustment._
-import monocle.macros.GenLens
+import shapeless._
 import failures.Failures
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -23,7 +23,7 @@ case class StoreCreditAdjustment(id: Int = 0, storeCreditId: Int, orderPaymentId
 
   import StoreCreditAdjustment._
 
-  def stateLens = GenLens[StoreCreditAdjustment](_.state)
+  def stateLens = lens[StoreCreditAdjustment].state
   override def updateTo(newModel: StoreCreditAdjustment): Failures Xor StoreCreditAdjustment = super.transitionModel(newModel)
 
   def getAmount: Int = debit
@@ -68,7 +68,7 @@ class StoreCreditAdjustments(tag: Tag)
 
 object StoreCreditAdjustments
   extends FoxTableQuery[StoreCreditAdjustment, StoreCreditAdjustments](
-  idLens = GenLens[StoreCreditAdjustment](_.id)
+  idLens = lens[StoreCreditAdjustment].id
   )(new StoreCreditAdjustments(_)){
 
   import StoreCreditAdjustment._

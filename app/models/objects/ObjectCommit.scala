@@ -2,7 +2,7 @@ package models.objects
 
 import java.time.Instant
 
-import monocle.macros.GenLens
+import shapeless._
 import utils.JsonFormatters
 import utils.db.ExPostgresDriver.api._
 import utils.db._
@@ -30,7 +30,7 @@ class ObjectCommits(tag: Tag) extends FoxTable[ObjectCommit](tag, "object_commit
 }
 
 object ObjectCommits extends FoxTableQuery[ObjectCommit, ObjectCommits](
-  idLens = GenLens[ObjectCommit](_.id))(new ObjectCommits(_)) {
+  idLens = lens[ObjectCommit].id)(new ObjectCommits(_)) {
 
   implicit val formats = JsonFormatters.phoenixFormats
 

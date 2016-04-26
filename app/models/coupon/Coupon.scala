@@ -3,7 +3,7 @@ package models.coupon
 import java.time.Instant
 
 import models.objects._
-import monocle.macros.GenLens
+import shapeless._
 import slick.lifted.Tag
 import utils.Validation
 import utils.db.ExPostgresDriver.api._
@@ -30,7 +30,7 @@ class Coupons(tag: Tag) extends ObjectHeads[Coupon](tag, "coupons") {
 }
 
 object Coupons extends FoxTableQuery[Coupon, Coupons](
-  idLens = GenLens[Coupon](_.id))(new Coupons(_)) {
+  idLens = lens[Coupon].id)(new Coupons(_)) {
 
   def filterByContext(contextId: Int): QuerySeq = 
     filter(_.contextId === contextId)

@@ -1,7 +1,7 @@
 package models.inventory.summary
 
 import java.time.Instant
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
 import utils.db.javaTimeSlickMapper
@@ -19,7 +19,7 @@ extends InventorySummariesTableBase[BackorderInventorySummary](tag, "backorder_i
 
 object BackorderInventorySummaries
   extends InventorySummariesBase[BackorderInventorySummary, BackorderInventorySummaries](
-    idLens = GenLens[BackorderInventorySummary](_.id)
+    idLens = lens[BackorderInventorySummary].id
   )(new BackorderInventorySummaries(_)) {
 
   def returningAction(ret: (Int, Int))(summary: BackorderInventorySummary): BackorderInventorySummary = ret match {

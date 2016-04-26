@@ -4,7 +4,7 @@ import java.time.Instant
 
 import models.Aliases
 import models.Aliases.Json
-import monocle.macros.GenLens
+import shapeless._
 import slick.lifted.Tag
 import utils.db._
 import utils.db.ExPostgresDriver.api._
@@ -42,7 +42,7 @@ class Connections(tag: Tag) extends FoxTable[Connection](tag, "activity_connecti
 }
 
 object Connections extends FoxTableQuery[Connection, Connections](
-  idLens = GenLens[Connection](_.id))(new Connections(_)) {
+  idLens = lens[Connection].id)(new Connections(_)) {
 
     def filterByTrail(trailId: Int) = filter(_.trailId === trailId)
 

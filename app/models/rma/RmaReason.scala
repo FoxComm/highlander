@@ -5,7 +5,7 @@ import java.time.Instant
 import com.pellucid.sealerate
 import models.rma.Rma._
 import models.rma.RmaReason._
-import monocle.macros.GenLens
+import shapeless._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
@@ -44,7 +44,7 @@ class RmaReasons(tag: Tag) extends FoxTable[RmaReason](tag, "rma_reasons")  {
 }
 
 object RmaReasons extends FoxTableQuery[RmaReason, RmaReasons](
-  idLens = GenLens[RmaReason](_.id)
+  idLens = lens[RmaReason].id
 )(new RmaReasons(_)) {
 
   def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata = {

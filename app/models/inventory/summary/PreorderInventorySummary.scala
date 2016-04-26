@@ -1,7 +1,7 @@
 package models.inventory.summary
 
 import java.time.Instant
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
 import utils.db.javaTimeSlickMapper
@@ -19,7 +19,7 @@ class PreorderInventorySummaries(tag: Tag)
 
 object PreorderInventorySummaries
   extends InventorySummariesBase[PreorderInventorySummary, PreorderInventorySummaries](
-    idLens = GenLens[PreorderInventorySummary](_.id)
+    idLens = lens[PreorderInventorySummary].id
   )(new PreorderInventorySummaries(_)) {
 
   def returningAction(ret: (Int, Int))(summary: PreorderInventorySummary): PreorderInventorySummary = ret match {

@@ -2,7 +2,7 @@ package utils.db
 
 import cats.data.Xor
 import failures.{Failure, Failures}
-import monocle.Lens
+import shapeless._
 import slick.dbio.DBIO
 import slick.driver.PostgresDriver.api._
 import slick.lifted.{TableQuery, Tag}
@@ -30,7 +30,7 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]]
 
   type Returning[R] = slick.driver.JdbcActionComponent#ReturningInsertActionComposer[M, R]
   val returningId: Returning[M#Id] = this.returning(map(_.id))
-  def returningIdAction(id: M#Id)(model: M): M = idLens.set(id)(model)
+  def returningIdAction(id: M#Id)(model: M): M = idLens.set(model)(id)
 
   def createAll(values: Iterable[M])(implicit ec: EC): DbResult[Option[Int]] = wrapDbResult((for {
     saveUs ← * <~ beforeSaveBatch(values)

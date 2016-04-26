@@ -5,7 +5,7 @@ import java.time.Instant
 import cats.data.ValidatedNel
 import cats.implicits._
 import failures.Failure
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
 import utils.Validation
@@ -33,7 +33,7 @@ class SellableInventorySummaries(tag: Tag)
 
 object SellableInventorySummaries
   extends InventorySummariesBase[SellableInventorySummary, SellableInventorySummaries](
-    idLens = GenLens[SellableInventorySummary](_.id)
+    idLens = lens[SellableInventorySummary].id
   )(new SellableInventorySummaries(_)) {
 
   def returningAction(ret: (Int, Int))(summary: SellableInventorySummary): SellableInventorySummary = ret match {

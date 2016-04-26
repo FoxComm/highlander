@@ -4,7 +4,7 @@ import java.time.Instant
 
 import models.order.Orders
 import models.{StoreAdmin, StoreAdmins}
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
 import models.sharedsearch.SharedSearches.scope._
@@ -34,7 +34,7 @@ class SharedSearchAssociations(tag: Tag)
 }
 
 object SharedSearchAssociations extends FoxTableQuery[SharedSearchAssociation, SharedSearchAssociations](
-  idLens = GenLens[SharedSearchAssociation](_.id)
+  idLens = lens[SharedSearchAssociation].id
 )(new SharedSearchAssociations(_)) {
 
   def byStoreAdmin(admin: StoreAdmin): QuerySeq = filter(_.storeAdminId === admin.id)

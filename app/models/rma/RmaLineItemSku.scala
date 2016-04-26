@@ -4,7 +4,7 @@ import java.time.Instant
 
 import models.inventory.{Sku, Skus}
 import models.objects._
-import monocle.macros.GenLens
+import shapeless._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
@@ -26,7 +26,7 @@ class RmaLineItemSkus(tag: Tag) extends FoxTable[RmaLineItemSku](tag, "rma_line_
 }
 
 object RmaLineItemSkus extends FoxTableQuery[RmaLineItemSku, RmaLineItemSkus](
-  idLens = GenLens[RmaLineItemSku](_.id)
+  idLens = lens[RmaLineItemSku].id
 )(new RmaLineItemSkus(_)){
 
   def findByRmaId(rmaId: Rep[Int]): QuerySeq =

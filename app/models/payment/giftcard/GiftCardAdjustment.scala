@@ -6,7 +6,7 @@ import cats.data.Xor
 import com.pellucid.sealerate
 import models.order.{OrderPayment, OrderPayments}
 import models.payment.giftcard.GiftCardAdjustment._
-import monocle.macros.GenLens
+import shapeless._
 import failures.Failures
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -25,7 +25,7 @@ case class GiftCardAdjustment(id: Int = 0, giftCardId: Int, orderPaymentId: Opti
 
   import GiftCardAdjustment._
 
-  def stateLens = GenLens[GiftCardAdjustment](_.state)
+  def stateLens = lens[GiftCardAdjustment].state
   override def updateTo(newModel: GiftCardAdjustment): Failures Xor GiftCardAdjustment = super.transitionModel(newModel)
 
   def getAmount: Int = if (credit > 0) credit else -debit
@@ -74,7 +74,7 @@ class GiftCardAdjustments(tag: Tag)
 }
 
 object GiftCardAdjustments extends FoxTableQuery[GiftCardAdjustment, GiftCardAdjustments](
-  idLens = GenLens[GiftCardAdjustment](_.id)
+  idLens = lens[GiftCardAdjustment].id
   )(new GiftCardAdjustments(_)){
 
   import GiftCardAdjustment._

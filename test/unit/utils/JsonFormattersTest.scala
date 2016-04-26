@@ -2,22 +2,17 @@ package utils
 
 import java.time.{Instant, ZonedDateTime}
 
-import scalaz.Show
-
-import com.pellucid.sealerate
 import models.order.Order
 import models.payment.creditcard.CreditCardCharge
 import models.payment.giftcard.GiftCard
 import org.json4s.Formats
-import org.json4s.JsonAST.JObject
+import org.json4s.jackson.JsonMethods.parse
+import org.json4s.jackson.Serialization.write
 import util.TestBase
+import utils.JsonFormatters._
 import utils.Money.Currency
 
 class JsonFormattersTest extends TestBase {
-  import org.json4s.jackson.JsonMethods.{ parse, pretty }
-  import org.json4s.jackson.Serialization.write
-
-  import utils.JsonFormatters._
 
   implicit val formats: Formats = phoenixFormats
 

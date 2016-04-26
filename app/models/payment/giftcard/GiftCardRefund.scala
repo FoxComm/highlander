@@ -1,6 +1,6 @@
 package models.payment.giftcard
 
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
@@ -16,6 +16,6 @@ class GiftCardRefunds(tag: Tag) extends FoxTable[GiftCardRefund](tag, "gift_card
 }
 
 object GiftCardRefunds extends FoxTableQuery[GiftCardRefund, GiftCardRefunds](
-  idLens = GenLens[GiftCardRefund](_.id)
+  idLens = lens[GiftCardRefund].id
 )(new GiftCardRefunds(_)){
 }

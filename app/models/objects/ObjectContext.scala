@@ -3,7 +3,7 @@ package models.objects
 import java.time.Instant
 
 import models.Aliases.Json
-import monocle.macros.GenLens
+import shapeless._
 import utils.{JsonFormatters, Validation}
 import utils.db.ExPostgresDriver.api._
 import utils.db._
@@ -31,7 +31,7 @@ class ObjectContexts(tag: Tag) extends FoxTable[ObjectContext](tag, "object_cont
 }
 
 object ObjectContexts extends FoxTableQuery[ObjectContext, ObjectContexts](
-  idLens = GenLens[ObjectContext](_.id))(new ObjectContexts(_)) {
+  idLens = lens[ObjectContext].id)(new ObjectContexts(_)) {
 
   implicit val formats = JsonFormatters.phoenixFormats
 

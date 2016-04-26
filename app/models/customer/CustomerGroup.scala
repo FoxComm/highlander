@@ -2,7 +2,7 @@ package models.customer
 
 import java.time.Instant
 
-import monocle.macros.GenLens
+import shapeless._
 import org.json4s.JsonAST.{JValue ⇒ Json}
 import payloads.CustomerDynamicGroupPayload
 import slick.lifted.Tag
@@ -47,7 +47,7 @@ class CustomerDynamicGroups(tag: Tag) extends FoxTable[CustomerDynamicGroup](tag
 }
 
 object CustomerDynamicGroups extends FoxTableQuery[CustomerDynamicGroup, CustomerDynamicGroups](
-  idLens = GenLens[CustomerDynamicGroup](_.id)
+  idLens = lens[CustomerDynamicGroup].id
 )(new CustomerDynamicGroups(_)) {
 
   def sortedAndPaged(query: CustomerDynamicGroups.QuerySeq)(implicit sortAndPage: SortAndPage): CustomerDynamicGroups.QuerySeqWithMetadata  =

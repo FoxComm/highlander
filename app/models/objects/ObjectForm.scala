@@ -3,7 +3,7 @@ package models.objects
 import java.time.Instant
 
 import models.Aliases.Json
-import monocle.macros.GenLens
+import shapeless._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
@@ -30,7 +30,7 @@ class ObjectForms(tag: Tag) extends FoxTable[ObjectForm](tag, "object_forms")  {
 }
 
 object ObjectForms extends FoxTableQuery[ObjectForm, ObjectForms](
-  idLens = GenLens[ObjectForm](_.id)
+  idLens = lens[ObjectForm].id
   )(new ObjectForms(_)) {
 
 }

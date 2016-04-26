@@ -2,7 +2,7 @@ package models.order.lineitems
 
 import models.order.Order
 import models.payment.giftcard.{GiftCard, GiftCards}
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
@@ -21,7 +21,7 @@ class OrderLineItemGiftCards(tag: Tag) extends FoxTable[OrderLineItemGiftCard](t
 }
 
 object OrderLineItemGiftCards extends FoxTableQuery[OrderLineItemGiftCard, OrderLineItemGiftCards](
-  idLens = GenLens[OrderLineItemGiftCard](_.id)
+  idLens = lens[OrderLineItemGiftCard].id
 )(new OrderLineItemGiftCards(_)){
 
   def findByOrderId(orderId: Rep[Int]): QuerySeq =

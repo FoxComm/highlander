@@ -1,7 +1,7 @@
 package utils
 
 import cats.data.Xor
-import monocle.Lens
+import shapeless._
 import failures.{Failures, StateTransitionNotAllowed}
 
 trait FSM[S, M <: FSM[S, M]] { self: M ⇒
@@ -9,7 +9,7 @@ trait FSM[S, M <: FSM[S, M]] { self: M ⇒
       see: https://github.com/FoxComm/phoenix-scala/pull/276/files#r37361391
    */
   def stateLens: Lens[M, S]
-  def primarySearchKeyLens: Lens[M, String]
+  def primarySearchKey: String
 
   val fsm: Map[S, Set[S]]
 
@@ -19,10 +19,9 @@ trait FSM[S, M <: FSM[S, M]] { self: M ⇒
     if (newState == currentState) Xor.right(this)
     else fsm.get(currentState) match {
       case Some(states) if states.contains(newState) ⇒
-        Xor.right(stateLens.set(newState)(this))
+        Xor.right(stateLens.set(this)(newState))
       case _ ⇒
-        val searchKey = primarySearchKeyLens.get(this)
-        Xor.left(StateTransitionNotAllowed(self, currentState.toString, newState.toString, searchKey).single)
+        Xor.left(StateTransitionNotAllowed(self, currentState.toString, newState.toString, primarySearchKey).single)
       }
 
   def transitionAllowed(newState: S): Boolean = transitionState(newState).isRight

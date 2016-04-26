@@ -3,7 +3,7 @@ package models.inventory.summary
 import java.time.Instant
 
 import models.inventory.{Skus, Warehouses}
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
 import utils.db._
@@ -38,7 +38,7 @@ class InventorySummaries(tag: Tag) extends FoxTable[InventorySummary](tag, "inve
 }
 
 object InventorySummaries extends FoxTableQuery[InventorySummary, InventorySummaries](
-  idLens = GenLens[InventorySummary](_.id)
+  idLens = lens[InventorySummary].id
 )(new InventorySummaries(_)) {
 
   def findSellableBySkuId(skuId: Int) = for {

@@ -1,7 +1,7 @@
 package models.payment.giftcard
 
 import models.payment.giftcard.GiftCard.OriginType
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
@@ -19,7 +19,7 @@ class GiftCardSubtypes(tag: Tag) extends FoxTable[GiftCardSubtype](tag, "gift_ca
 }
 
 object GiftCardSubtypes extends FoxTableQuery[GiftCardSubtype, GiftCardSubtypes](
-  idLens = GenLens[GiftCardSubtype](_.id)
+  idLens = lens[GiftCardSubtype].id
 )(new GiftCardSubtypes(_)){
 
   object scope {

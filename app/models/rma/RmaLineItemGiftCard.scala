@@ -3,7 +3,7 @@ package models.rma
 import java.time.Instant
 
 import models.payment.giftcard.{GiftCard, GiftCards}
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
@@ -23,7 +23,7 @@ class RmaLineItemGiftCards(tag: Tag) extends FoxTable[RmaLineItemGiftCard](tag, 
 }
 
 object RmaLineItemGiftCards extends FoxTableQuery[RmaLineItemGiftCard, RmaLineItemGiftCards](
-  idLens = GenLens[RmaLineItemGiftCard](_.id)
+  idLens = lens[RmaLineItemGiftCard].id
 )(new RmaLineItemGiftCards(_)){
 
   def findByRmaId(rmaId: Rep[Int]): QuerySeq =

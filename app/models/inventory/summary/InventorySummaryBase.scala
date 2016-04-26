@@ -5,7 +5,7 @@ import java.time.Instant
 import cats.data.ValidatedNel
 import cats.implicits._
 import failures.Failure
-import monocle.Lens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import slick.lifted.{Query, Tag}
 import utils.Validation

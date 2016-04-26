@@ -2,7 +2,7 @@ package models.rma
 
 import java.time.Instant
 
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
@@ -18,7 +18,7 @@ class RmaLockEvents(tag: Tag) extends FoxTable[RmaLockEvent](tag, "rma_lock_even
 }
 
 object RmaLockEvents extends FoxTableQuery[RmaLockEvent, RmaLockEvents](
-  idLens = GenLens[RmaLockEvent](_.id)
+  idLens = lens[RmaLockEvent].id
 )(new RmaLockEvents(_)) {
 
   import scope._

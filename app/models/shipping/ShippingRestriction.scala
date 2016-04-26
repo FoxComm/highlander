@@ -1,6 +1,6 @@
 package models.shipping
 
-import monocle.macros.GenLens
+import shapeless._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
@@ -34,5 +34,5 @@ class ShippingRestrictions(tag: Tag) extends FoxTable[ShippingRestriction](tag, 
 }
 
 object ShippingRestrictions extends FoxTableQuery[ShippingRestriction, ShippingRestrictions](
-  idLens = GenLens[ShippingRestriction](_.id)
+  idLens = lens[ShippingRestriction].id
 )(new ShippingRestrictions(_))

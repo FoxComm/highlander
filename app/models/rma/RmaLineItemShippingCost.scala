@@ -3,7 +3,7 @@ package models.rma
 import java.time.Instant
 
 import models.shipping.{Shipment, Shipments}
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
@@ -25,7 +25,7 @@ class RmaLineItemShippingCosts(tag: Tag) extends FoxTable[RmaLineItemShippingCos
 }
 
 object RmaLineItemShippingCosts extends FoxTableQuery[RmaLineItemShippingCost, RmaLineItemShippingCosts](
-  idLens = GenLens[RmaLineItemShippingCost](_.id)
+  idLens = lens[RmaLineItemShippingCost].id
 )(new RmaLineItemShippingCosts(_)){
 
   def findByRmaId(rmaId: Rep[Int]): QuerySeq =

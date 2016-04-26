@@ -1,6 +1,6 @@
 package models.shipping
 
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
@@ -19,5 +19,5 @@ class ShippingMethodsPriceRules(tag: Tag) extends FoxTable[ShippingMethodPriceRu
 }
 
 object ShippingMethodsPriceRules extends FoxTableQuery[ShippingMethodPriceRule, ShippingMethodsPriceRules](
-  idLens = GenLens[ShippingMethodPriceRule](_.id)
+  idLens = lens[ShippingMethodPriceRule].id
 )(new ShippingMethodsPriceRules(_))

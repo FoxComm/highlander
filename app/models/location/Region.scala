@@ -1,6 +1,6 @@
 package models.location
 
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
@@ -27,6 +27,6 @@ class Regions(tag: Tag) extends FoxTable[Region](tag, "regions")  {
 }
 
 object Regions extends FoxTableQuery[Region, Regions](
-  idLens = GenLens[Region](_.id)
+  idLens = lens[Region].id
 )(new Regions(_)) {
 }

@@ -4,7 +4,7 @@ import java.time.Instant
 
 import com.typesafe.scalalogging.LazyLogging
 import models.Aliases._
-import monocle.macros.GenLens
+import shapeless._
 import org.json4s.Extraction
 import org.json4s.JsonAST.JValue
 import org.json4s.jackson.Serialization.writePretty
@@ -60,7 +60,7 @@ class Activities(tag: Tag) extends FoxTable[Activity](tag, "activities")  {
 case class OpaqueActivity(activityType: ActivityType, data: Json)
 
 object Activities extends FoxTableQuery[Activity, Activities](
-  idLens = GenLens[Activity](_.id))(new Activities(_)) with LazyLogging {
+  idLens = lens[Activity].id)(new Activities(_)) with LazyLogging {
 
   implicit val formats = JsonFormatters.phoenixFormats
 

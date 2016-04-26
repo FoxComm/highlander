@@ -4,7 +4,7 @@ import cats.data.Validated.valid
 import cats.data.ValidatedNel
 import cats.implicits._
 import models.location.{Address, Region}
-import monocle.Lens
+import shapeless._
 import failures.Failure
 import utils.Validation
 
@@ -25,9 +25,9 @@ trait Addressable[M] {
 
   def sanitize(model: M): M = {
     if (Region.usRegions.contains(regionId)) {
-      zipLens.set(zip.replace("-", ""))(model)
+      zipLens.set(model)(zip.replace("-", ""))
     } else {
-      zipLens.set(zip)(model)
+      zipLens.set(model)(zip)
     }
   }
 

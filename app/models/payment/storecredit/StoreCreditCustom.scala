@@ -2,7 +2,7 @@ package models.payment.storecredit
 
 import java.time.Instant
 
-import monocle.macros.GenLens
+import shapeless._
 import org.json4s.JsonAST.JValue
 import utils.db.ExPostgresDriver.api._
 import utils.db._
@@ -22,6 +22,6 @@ class StoreCreditCustoms(tag: Tag) extends FoxTable[StoreCreditCustom](tag, "sto
 }
 
 object StoreCreditCustoms extends FoxTableQuery[StoreCreditCustom, StoreCreditCustoms](
-  idLens = GenLens[StoreCreditCustom](_.id)
+  idLens = lens[StoreCreditCustom].id
 )(new StoreCreditCustoms(_)){
 }

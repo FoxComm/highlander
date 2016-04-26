@@ -5,7 +5,7 @@ import models.order.Order
 import models.product.{Product, Products}
 import models.objects._
 import utils.Money.Currency
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -33,7 +33,7 @@ class OrderLineItemSkus(tag: Tag) extends FoxTable[OrderLineItemSku](tag, "order
 }
 
 object OrderLineItemSkus extends FoxTableQuery[OrderLineItemSku, OrderLineItemSkus](
-  idLens = GenLens[OrderLineItemSku](_.id)
+  idLens = lens[OrderLineItemSku].id
 )(new OrderLineItemSkus(_)){
 
   def findBySkuId(id: Int): DBIO[Option[OrderLineItemSku]] =

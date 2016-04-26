@@ -1,7 +1,7 @@
 package utils
 
 import cats.data.Xor
-import monocle.macros.GenLens
+import shapeless._
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import failures.Failures
 import util.TestBase
@@ -17,7 +17,7 @@ class FSMTest extends TestBase {
   case object BreakItDown extends Operation
 
   case class Robot(id: Int = 0, state: Operation) extends FoxModel[Robot] with FSM[Operation, Robot] {
-    val stateLens = GenLens[Robot](_.state)
+    def stateLens = lens[Robot].state
     override def updateTo(newModel: Robot): Failures Xor Robot = super.transitionModel(newModel)
 
     val fsm: Map[Operation, Set[Operation]] = Map(

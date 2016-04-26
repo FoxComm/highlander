@@ -6,7 +6,7 @@ import cats.data.Xor
 import com.pellucid.sealerate
 import models.order.{OrderPayment, OrderPayments}
 import models.stripe.StripeCharge
-import monocle.macros.GenLens
+import shapeless._
 import failures.Failures
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -23,7 +23,7 @@ case class CreditCardCharge(id: Int = 0, creditCardId: Int, orderPaymentId: Int,
 
   import CreditCardCharge._
 
-  def stateLens = GenLens[CreditCardCharge](_.state)
+  def stateLens = lens[CreditCardCharge].state
   override def updateTo(newModel: CreditCardCharge): Failures Xor CreditCardCharge = super.transitionModel(newModel)
 
   val fsm: Map[State, Set[State]] = Map(
@@ -75,6 +75,6 @@ class CreditCardCharges(tag: Tag) extends FoxTable[CreditCardCharge](tag, "credi
 }
 
 object CreditCardCharges extends FoxTableQuery[CreditCardCharge, CreditCardCharges](
-  idLens = GenLens[CreditCardCharge](_.id)
+  idLens = lens[CreditCardCharge].id
 )(new CreditCardCharges(_)) {
 }

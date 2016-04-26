@@ -5,7 +5,7 @@ import cats.implicits._
 import failures.Failure
 import utils.Passwords.hashPassword
 import utils.Validation
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -43,7 +43,7 @@ class StoreAdmins(tag: Tag) extends FoxTable[StoreAdmin](tag, "store_admins")  {
 }
 
 object StoreAdmins extends FoxTableQuery[StoreAdmin, StoreAdmins](
-  idLens = GenLens[StoreAdmin](_.id)
+  idLens = lens[StoreAdmin].id
 )(new StoreAdmins(_)){
 
   def findByEmail(email: String): DBIO[Option[StoreAdmin]] = {

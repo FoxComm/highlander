@@ -1,6 +1,6 @@
 package models.location
 
-import monocle.macros.GenLens
+import shapeless._
 import utils.Money._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
@@ -33,6 +33,6 @@ class Countries(tag: Tag) extends FoxTable[Country](tag, "countries")  {
 }
 
 object Countries extends FoxTableQuery[Country, Countries](
-  idLens = GenLens[Country](_.id)
+  idLens = lens[Country].id
 )(new Countries(_)) {
 }

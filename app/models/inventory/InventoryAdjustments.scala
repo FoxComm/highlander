@@ -7,7 +7,7 @@ import cats.data.ValidatedNel
 import com.pellucid.sealerate
 import failures.Failure
 import models.inventory.InventoryAdjustment._
-import monocle.macros.GenLens
+import shapeless._
 import org.json4s.JsonAST.JValue
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
@@ -83,7 +83,7 @@ class InventoryAdjustments(tag: Tag)
 }
 
 object InventoryAdjustments extends FoxTableQuery[InventoryAdjustment, InventoryAdjustments](
-  idLens = GenLens[InventoryAdjustment](_.id)
+  idLens = lens[InventoryAdjustment].id
 )(new InventoryAdjustments(_)) {
 
   def findSellableBySummaryId(summaryId: Int): QuerySeq =

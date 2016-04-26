@@ -1,6 +1,6 @@
 package models.inventory
 
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
@@ -21,7 +21,7 @@ object Warehouse {
   val HARDCODED_WAREHOUSE_ID = 1
 }
 
-object Warehouses extends FoxTableQuery[Warehouse, Warehouses](idLens = GenLens[Warehouse](_.id)
+object Warehouses extends FoxTableQuery[Warehouse, Warehouses](idLens = lens[Warehouse].id
 )(new Warehouses(_)) {
 
   def findByName(name: String): Query[Warehouses, Warehouse, Seq] =

@@ -8,7 +8,7 @@ import failures.CustomerFailures.CustomerEmailNotUnique
 import failures.Failure
 import models.location._
 import models.payment.creditcard.CreditCards
-import monocle.macros.GenLens
+import shapeless._
 import payloads.CreateCustomerPayload
 import slick.driver.PostgresDriver.api._
 import utils.Passwords._
@@ -83,7 +83,7 @@ class Customers(tag: Tag) extends FoxTable[Customer](tag, "customers") {
 }
 
 object Customers extends FoxTableQuery[Customer, Customers](
-  idLens = GenLens[Customer](_.id)
+  idLens = lens[Customer].id
 )(new Customers(_)) {
 
   def findByEmail(email: String): DBIO[Option[Customer]] = {

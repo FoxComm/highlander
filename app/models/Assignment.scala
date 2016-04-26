@@ -4,7 +4,7 @@ import java.time.Instant
 
 import com.pellucid.sealerate
 import models.Assignment.{AssignmentType, ReferenceType}
-import monocle.macros.GenLens
+import shapeless._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
@@ -63,7 +63,7 @@ class Assignments(tag: Tag) extends FoxTable[Assignment](tag, "assignments")  {
 }
 
 object Assignments extends FoxTableQuery[Assignment, Assignments](
-  idLens = GenLens[Assignment](_.id)
+  idLens = lens[Assignment].id
 )(new Assignments(_)) {
 
   def byType(assignType: AssignmentType, refType: ReferenceType): QuerySeq =

@@ -1,7 +1,7 @@
 package models.payment.storecredit
 
 import models.payment.storecredit.StoreCredit.OriginType
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
@@ -20,7 +20,7 @@ class StoreCreditSubtypes(tag: Tag) extends FoxTable[StoreCreditSubtype](tag, "s
 }
 
 object StoreCreditSubtypes extends FoxTableQuery[StoreCreditSubtype, StoreCreditSubtypes](
-  idLens = GenLens[StoreCreditSubtype](_.id)
+  idLens = lens[StoreCreditSubtype].id
 )(new StoreCreditSubtypes(_)){
 
   object scope {

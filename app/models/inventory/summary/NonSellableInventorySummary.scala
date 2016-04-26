@@ -1,7 +1,7 @@
 package models.inventory.summary
 
 import java.time.Instant
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
 import utils.db.javaTimeSlickMapper
@@ -19,7 +19,7 @@ class NonSellableInventorySummaries(tag: Tag)
 
 object NonSellableInventorySummaries
   extends InventorySummariesBase[NonSellableInventorySummary, NonSellableInventorySummaries](
-    idLens = GenLens[NonSellableInventorySummary](_.id)
+    idLens = lens[NonSellableInventorySummary].id
   )(new NonSellableInventorySummaries(_)) {
 
   def returningAction(ret: (Int, Int))(summary: NonSellableInventorySummary): NonSellableInventorySummary = ret match {

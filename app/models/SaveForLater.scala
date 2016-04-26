@@ -3,7 +3,7 @@ package models
 import java.time.Instant
 
 import models.customer.Customers
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
@@ -29,7 +29,7 @@ class SaveForLaters(tag: Tag) extends FoxTable[SaveForLater](tag, "save_for_late
 }
 
 object SaveForLaters extends FoxTableQuery[SaveForLater, SaveForLaters](
-  idLens = GenLens[SaveForLater](_.id)
+  idLens = lens[SaveForLater].id
 )(new SaveForLaters(_)) {
 
   def find(customerId: Int, skuId: Int): QuerySeq =

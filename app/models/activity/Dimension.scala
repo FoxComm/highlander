@@ -3,7 +3,7 @@ package models.activity
 import cats.implicits._
 import cats.data.ValidatedNel
 import failures.Failure
-import monocle.macros.GenLens
+import shapeless._
 import slick.lifted.Tag
 import utils.Validation
 import utils.Validation._
@@ -53,7 +53,7 @@ class Dimensions(tag: Tag) extends FoxTable[Dimension](tag, "activity_dimensions
 }
 
 object Dimensions extends FoxTableQuery[Dimension, Dimensions](
-  idLens = GenLens[Dimension](_.id))(new Dimensions(_)) {
+  idLens = lens[Dimension].id)(new Dimensions(_)) {
 
     def findByName(name: String) : QuerySeq = filter(_.name === name) 
 

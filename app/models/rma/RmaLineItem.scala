@@ -4,7 +4,7 @@ import java.time.Instant
 
 import com.pellucid.sealerate
 import models.rma.RmaLineItem._
-import monocle.macros.GenLens
+import shapeless._
 import payloads.RmaSkuLineItemsPayload
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -93,6 +93,6 @@ class RmaLineItems(tag: Tag) extends FoxTable[RmaLineItem](tag, "rma_line_items"
 }
 
 object RmaLineItems extends FoxTableQuery[RmaLineItem, RmaLineItems](
-  idLens = GenLens[RmaLineItem](_.id)
+  idLens = lens[RmaLineItem].id
 )(new RmaLineItems(_)) {
 }

@@ -10,7 +10,7 @@ import slick.jdbc.JdbcType
 import utils.http.CustomDirectives.SortAndPage
 import utils.{ADT, Validation}
 import utils.aliases._
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
@@ -59,7 +59,7 @@ class Reasons(tag: Tag) extends FoxTable[Reason](tag, "reasons")  {
 }
 
 object Reasons extends FoxTableQuery[Reason, Reasons](
-  idLens = GenLens[Reason](_.id)
+  idLens = lens[Reason].id
 )(new Reasons(_)) {
 
   def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata = {

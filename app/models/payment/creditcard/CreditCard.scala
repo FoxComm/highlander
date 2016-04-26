@@ -11,8 +11,7 @@ import models.location._
 import models.payment.PaymentMethod
 import models.traits.Addressable
 import models.stripe._
-import monocle.Lens
-import monocle.macros.GenLens
+import shapeless._
 import payloads.CreateCreditCard
 import slick.driver.PostgresDriver.api._
 import utils.http.CustomDirectives.SortAndPage
@@ -37,7 +36,7 @@ case class CreditCard(id: Int = 0, parentId: Option[Int] = None, customerId: Int
   // must be implemented for Addressable
   def name: String = addressName
   def phoneNumber: Option[String] = None
-  def zipLens: Lens[CreditCard, String] = GenLens[CreditCard](_.zip)
+  def zipLens: Lens[CreditCard, String] = lens[CreditCard].zip
 
   override def validate: ValidatedNel[Failure, CreditCard] = {
     ( matches(lastFour, "[0-9]{4}", "lastFour")
@@ -98,7 +97,7 @@ class CreditCards(tag: Tag)
 }
 
 object CreditCards extends FoxTableQuery[CreditCard, CreditCards](
-  idLens = GenLens[CreditCard](_.id)
+  idLens = lens[CreditCard].id
 )(new CreditCards(_)) {
 
   def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata = {

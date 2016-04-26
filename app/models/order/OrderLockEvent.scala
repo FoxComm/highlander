@@ -3,7 +3,7 @@ package models.order
 import java.time.Instant
 
 import models.StoreAdmins
-import monocle.macros.GenLens
+import shapeless._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
@@ -21,7 +21,7 @@ class OrderLockEvents(tag: Tag) extends FoxTable[OrderLockEvent](tag, "order_loc
 }
 
 object OrderLockEvents extends FoxTableQuery[OrderLockEvent, OrderLockEvents](
-  idLens = GenLens[OrderLockEvent](_.id)
+  idLens = lens[OrderLockEvent].id
 )(new OrderLockEvents(_)) {
 
   import scope._

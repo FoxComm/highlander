@@ -11,8 +11,7 @@ import failures.{Failure, Failures, GeneralFailure}
 import models.customer.Customer
 import models.order.Order._
 import models.traits.Lockable
-import monocle.Lens
-import monocle.macros.GenLens
+import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import utils.{ADT, FSM, Validation}
@@ -40,9 +39,9 @@ case class Order(
 
   def refNum: String = referenceNumber
 
-  def stateLens = GenLens[Order](_.state)
+  def stateLens = lens[Order].state
   override def updateTo(newModel: Order): Failures Xor Order = super.transitionModel(newModel)
-  override def primarySearchKeyLens: Lens[Order, String] = GenLens[Order](_.referenceNumber)
+  override def primarySearchKey: String = referenceNumber
 
   val fsm: Map[State, Set[State]] = Map(
     Cart →
@@ -123,7 +122,7 @@ class Orders(tag: Tag) extends FoxTable[Order](tag, "orders")  {
 }
 
 object Orders extends FoxTableQuery[Order, Orders](
-  idLens = GenLens[Order](_.id)
+  idLens = lens[Order].id
   )(new Orders(_))
   with SearchByRefNum[Order, Orders] {
 

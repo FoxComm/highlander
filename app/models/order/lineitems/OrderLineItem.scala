@@ -6,7 +6,7 @@ import models._
 import models.inventory.Sku
 import models.order.Order
 import models.order.lineitems.OrderLineItem._
-import monocle.macros.GenLens
+import shapeless._
 import failures.Failures
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -22,7 +22,7 @@ case class OrderLineItem(id: Int = 0, referenceNumber: String = "",
 
   import OrderLineItem._
 
-  def stateLens = GenLens[OrderLineItem](_.state)
+  def stateLens = lens[OrderLineItem].state
   override def updateTo(newModel: OrderLineItem): Failures Xor OrderLineItem = super.transitionModel(newModel)
 
   val fsm: Map[State, Set[State]] = Map(
@@ -95,7 +95,7 @@ class OrderLineItems(tag: Tag) extends FoxTable[OrderLineItem](tag, "order_line_
 }
 
 object OrderLineItems extends FoxTableQuery[OrderLineItem, OrderLineItems](
-  idLens = GenLens[OrderLineItem](_.id)
+  idLens = lens[OrderLineItem].id
 )(new OrderLineItems(_)) {
 
   import scope._

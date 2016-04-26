@@ -3,7 +3,7 @@ package models.product
 import java.time.Instant
 
 import models.objects._
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Tag
 import utils.db._
@@ -32,7 +32,7 @@ class Products(tag: Tag) extends ObjectHeads[Product](tag, "products")  {
 }
 
 object Products extends FoxTableQuery[Product, Products](
-  idLens = GenLens[Product](_.id))(new Products(_)) {
+  idLens = lens[Product].id)(new Products(_)) {
 
   implicit val formats = JsonFormatters.phoenixFormats
 

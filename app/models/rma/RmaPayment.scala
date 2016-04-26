@@ -5,7 +5,7 @@ import models.payment.creditcard.{CreditCard, CreditCards}
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
 import models.stripe._
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.Money._
 import utils.db._
@@ -52,7 +52,7 @@ class RmaPayments(tag: Tag) extends FoxTable[RmaPayment](tag, "rma_payments") {
 }
 
 object RmaPayments extends FoxTableQuery[RmaPayment, RmaPayments](
-  idLens = GenLens[RmaPayment](_.id)
+  idLens = lens[RmaPayment].id
 )(new RmaPayments(_)){
 
   def findAllByRmaId(id: Int): QuerySeq =

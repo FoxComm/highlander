@@ -4,7 +4,7 @@ import java.time.Instant
 
 import com.pellucid.sealerate
 import models.activity.Dimensions
-import monocle.macros.GenLens
+import shapeless._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
@@ -48,7 +48,7 @@ class NotificationSubscriptions(tag: Tag)
 }
 
 object NotificationSubscriptions extends FoxTableQuery[NotificationSubscription, NotificationSubscriptions](
-  idLens = GenLens[NotificationSubscription](_.id)
+  idLens = lens[NotificationSubscription].id
 )(new NotificationSubscriptions(_)) {
 
   def findByDimensionAndObject(dimensionId: Int, objectId: String): QuerySeq =

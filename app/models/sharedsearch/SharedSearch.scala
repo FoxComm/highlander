@@ -5,7 +5,7 @@ import java.time.Instant
 import com.pellucid.sealerate
 import models.sharedsearch.SharedSearch._
 import models.StoreAdmin
-import monocle.macros.GenLens
+import shapeless._
 import org.json4s.JsonAST.JValue
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
@@ -64,7 +64,7 @@ class SharedSearches(tag: Tag) extends FoxTable[SharedSearch](tag, "shared_searc
 }
 
 object SharedSearches extends FoxTableQuery[SharedSearch, SharedSearches](
-  idLens = GenLens[SharedSearch](_.id)
+  idLens = lens[SharedSearch].id
 )(new SharedSearches(_))
   with SearchByCode[SharedSearch, SharedSearches] {
 

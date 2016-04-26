@@ -3,7 +3,7 @@ package models.inventory
 import java.time.Instant
 
 import models.objects._
-import monocle.macros.GenLens
+import shapeless._
 import utils.JsonFormatters
 import utils.db.ExPostgresDriver.api._
 import utils.db._
@@ -32,7 +32,7 @@ class Skus(tag: Tag) extends ObjectHeads[Sku](tag, "skus")  {
 }
 
 object Skus extends FoxTableQuery[Sku, Skus](
-  idLens = GenLens[Sku](_.id))(new Skus(_))
+  idLens = lens[Sku].id)(new Skus(_))
   with SearchByCode[Sku, Skus] {
 
   implicit val formats = JsonFormatters.phoenixFormats

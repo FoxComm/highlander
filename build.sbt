@@ -46,7 +46,6 @@ lazy val phoenixScala = (project in file(".")).
     libraryDependencies ++= {
       val akkaV      = "2.4.4"
       val scalaTestV = "2.2.6"
-      val monocleV   = "1.2.1"
       val json4sV    = "3.3.0"
       val slickPgV   = "0.13.0"
 
@@ -90,9 +89,7 @@ lazy val phoenixScala = (project in file(".")).
         "org.slf4j"                  %  "slf4j-api"              % "1.7.21",
         "org.joda"                   %  "joda-money"             % "0.11",
         "com.pellucid"               %% "sealerate"              % "0.0.3",
-        "com.github.julien-truffaut" %% "monocle-core"           % monocleV,
-        "com.github.julien-truffaut" %% "monocle-generic"        % monocleV,
-        "com.github.julien-truffaut" %% "monocle-macro"          % monocleV,
+        "com.chuusai"                %% "shapeless"              % "2.3.0",
         "it.justwrote"               %% "scala-faker"            % "0.3",
         "io.backchat.inflector"      %% "scala-inflector"        % "1.3.5",
         "com.github.tototoshi"       %% "scala-csv"              % "1.3.1",

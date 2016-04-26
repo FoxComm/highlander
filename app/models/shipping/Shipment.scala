@@ -4,7 +4,7 @@ import java.time.Instant
 
 import com.pellucid.sealerate
 import models.shipping.Shipment._
-import monocle.macros.GenLens
+import shapeless._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
@@ -49,7 +49,7 @@ class Shipments(tag: Tag) extends FoxTable[Shipment](tag, "shipments")  {
 }
 
 object Shipments extends FoxTableQuery[Shipment, Shipments](
-  idLens = GenLens[Shipment](_.id)
+  idLens = lens[Shipment].id
 )(new Shipments(_)) {
 
 }

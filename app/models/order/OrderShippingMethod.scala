@@ -1,7 +1,7 @@
 package models.order
 
 import models.shipping.{ShippingMethod, ShippingMethods}
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
@@ -26,7 +26,7 @@ class OrderShippingMethods(tag: Tag) extends FoxTable[OrderShippingMethod](tag, 
 }
 
 object OrderShippingMethods extends FoxTableQuery[OrderShippingMethod, OrderShippingMethods](
-  idLens = GenLens[OrderShippingMethod](_.id)
+  idLens = lens[OrderShippingMethod].id
 )(new OrderShippingMethods(_)) {
   def findByOrderId(orderId: Int): QuerySeq = filter(_.orderId === orderId)
 }

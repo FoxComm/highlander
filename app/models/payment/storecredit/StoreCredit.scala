@@ -12,7 +12,7 @@ import models.payment.PaymentMethod
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit._
 import models.payment.storecredit.{StoreCreditAdjustment ⇒ Adj, StoreCreditAdjustments ⇒ Adjs}
-import monocle.macros.GenLens
+import shapeless._
 import failures.{Failure, Failures, GeneralFailure}
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -47,7 +47,7 @@ case class StoreCredit(id: Int = 0, customerId: Int, originId: Int, originType: 
     ).map { case _ ⇒ this }
   }
 
-  def stateLens = GenLens[StoreCredit](_.state)
+  def stateLens = lens[StoreCredit].state
   override def updateTo(newModel: StoreCredit): Failures Xor StoreCredit = super.transitionModel(newModel)
 
   val fsm: Map[State, Set[State]] = Map(
@@ -158,7 +158,7 @@ class StoreCredits(tag: Tag) extends FoxTable[StoreCredit](tag, "store_credits")
 }
 
 object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](
-  idLens = GenLens[StoreCredit](_.id)
+  idLens = lens[StoreCredit].id
   )(new StoreCredits(_)){
 
   def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata =

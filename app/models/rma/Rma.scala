@@ -9,8 +9,7 @@ import models.order.Order
 import models.rma.Rma._
 import models.traits.Lockable
 import models.StoreAdmin
-import monocle.Lens
-import monocle.macros.GenLens
+import shapeless._
 import failures.Failure
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -31,8 +30,8 @@ case class Rma(id: Int = 0, referenceNumber: String = "", orderId: Int, orderRef
 
   def refNum: String = referenceNumber
 
-  def stateLens = GenLens[Rma](_.state)
-  override def primarySearchKeyLens: Lens[Rma, String] = GenLens[Rma](_.referenceNumber)
+  def stateLens = lens[Rma].state
+  override def primarySearchKey: String = referenceNumber
 
   val fsm: Map[State, Set[State]] = Map(
     Pending →
@@ -111,7 +110,7 @@ class Rmas(tag: Tag) extends FoxTable[Rma](tag, "rmas")  {
 }
 
 object Rmas extends FoxTableQuery[Rma, Rmas](
-  idLens = GenLens[Rma](_.id)
+  idLens = lens[Rma].id
 )(new Rmas(_))
   with SearchByRefNum[Rma, Rmas] {
 

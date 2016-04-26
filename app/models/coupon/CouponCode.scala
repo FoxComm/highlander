@@ -4,7 +4,7 @@ import java.time.Instant
 
 import scala.util.Random
 
-import monocle.macros.GenLens
+import shapeless._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
@@ -27,7 +27,7 @@ class CouponCodes(tag: Tag) extends FoxTable[CouponCode](tag, "coupon_codes")  {
 }
 
 object CouponCodes extends FoxTableQuery[CouponCode, CouponCodes](
-  idLens = GenLens[CouponCode](_.id))(new CouponCodes(_)) {
+  idLens = lens[CouponCode].id)(new CouponCodes(_)) {
 
   def charactersGivenQuantity(quantity: Int) : Int = Math.ceil(Math.log10(quantity.toDouble)).toInt
 

@@ -2,7 +2,7 @@ package models.customer
 
 import scala.concurrent.Future
 
-import monocle.macros.GenLens
+import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
@@ -19,7 +19,7 @@ class CustomersRanks(tag: Tag) extends FoxTable[CustomerRank](tag, "customers_ra
 }
 
 object CustomersRanks extends FoxTableQuery[CustomerRank, CustomersRanks](
-  idLens = GenLens[CustomerRank](_.id)
+  idLens = lens[CustomerRank].id
 )(new CustomersRanks(_)) {
 
   def refresh(implicit db: Database): Future[Int] = {
