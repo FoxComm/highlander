@@ -13,7 +13,7 @@ import styles from './dropdown-search.css';
 type Props = {
   name: string,
   className?: string,
-  value?: string|number,
+  value: ?string|number,
   searchbarPlaceholder?: string,
   disabled?: bool,
   editable?: bool,

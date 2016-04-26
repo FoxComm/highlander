@@ -47,7 +47,7 @@ export default class Tags extends Component<void, Props, State> {
 
   @autobind
   handleBlur() {
-    const tags = this.state.addingValue.trim().split(',').map(s => s.trim());
+    const tags = _.compact(this.state.addingValue.trim().split(',').map(s => s.trim()));
     const nTags = [...this.tags, ...tags];
 
     this.setState({

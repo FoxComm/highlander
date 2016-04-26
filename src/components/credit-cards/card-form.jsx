@@ -127,7 +127,7 @@ export default class CreditCardForm extends React.Component {
   validateCvvNumber() {
     const cvv = _.get(this.state, 'card.cvv', '');
 
-    return isCvvValid(cvv, this.cardType) ? null :  `Please enter a valid cvv number`;
+    return isCvvValid(cvv, this.cardType) ? null : `Please enter a valid cvv number`;
   }
 
   @autobind
