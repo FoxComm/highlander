@@ -20,7 +20,7 @@ import ButtonWithMenu from '../common/button-with-menu';
 import SearchTerm, { getInputMask } from '../../paragons/search-term';
 
 const SEARCH_MENU_ACTION_SHARE = 'share';
-const SEARCH_MENU_ACTION_COPY = '';
+const SEARCH_MENU_ACTION_SAVE = 'save';
 const SEARCH_MENU_ACTION_UPDATE = 'update';
 const SEARCH_MENU_ACTION_DELETE = 'delete';
 const SEARCH_MENU_ACTION_CLEAR = 'clear';
@@ -225,17 +225,6 @@ export default class LiveSearch extends React.Component {
 
       isLoading = isLoading || search.isUpdating || search.isSaving || search.isDeleting;
 
-      const onEditName = title => {
-        this.setState({
-          editingTab: null,
-        }, () => this.props.updateSearch(idx, { ...search, title: title }));
-      };
-      const onEditNameCancel = () => {
-        this.setState({
-          editingTab: null,
-        });
-      };
-
       return (
         <EditableTabView
           key={`saved-search-${search.id}-${search.title}`}
@@ -244,10 +233,10 @@ export default class LiveSearch extends React.Component {
           isDirty={isDirty}
           isEditable={isEditable}
           selected={selected}
-          onClick={() => !selected && this.props.selectSavedSearch(idx)}
+          onClick={() => !selected && !isLoading && this.props.selectSavedSearch(idx)}
           editMode={this.state.editingTab === idx}
-          onEditNameComplete={onEditName}
-          onEditNameCancel={onEditNameCancel} />
+          onEditNameComplete={title => this.handleEditName(search, title, idx)}
+          onEditNameCancel={this.handleEditNameCancel} />
       );
     });
 
@@ -262,7 +251,7 @@ export default class LiveSearch extends React.Component {
     if (this.currentSearch.id) {
       const saveAction = this.currentSearch.isDirty ? [[SEARCH_MENU_ACTION_UPDATE, 'Update Search']] : [];
       menuItems = [
-        [SEARCH_MENU_ACTION_COPY, 'Save New Search'],
+        [SEARCH_MENU_ACTION_SAVE, 'Save New Search'],
         ...saveAction,
         [SEARCH_MENU_ACTION_SHARE, 'Share Search'],
         [SEARCH_MENU_ACTION_EDIT_NAME, 'Edit Search Name'],
@@ -271,7 +260,7 @@ export default class LiveSearch extends React.Component {
       ];
     } else {
       menuItems = [
-        [SEARCH_MENU_ACTION_COPY, 'Save New Search'],
+        [SEARCH_MENU_ACTION_SAVE, 'Save New Search'],
         ...clearAction,
       ];
     }
@@ -290,6 +279,20 @@ export default class LiveSearch extends React.Component {
         menuDisabled={menuDisabled}
       />
     );
+  }
+
+  @autobind
+  handleEditName(search, title, searchIndex) {
+    this.setState({
+      editingTab: null,
+    }, () => this.props.updateSearch(searchIndex, { ...search, title }));
+  }
+
+  @autobind
+  handleEditNameCancel() {
+    this.setState({
+      editingTab: null,
+    });
   }
 
   @autobind
@@ -313,7 +316,7 @@ export default class LiveSearch extends React.Component {
       case SEARCH_MENU_ACTION_UPDATE:
         this.props.updateSearch(selectedSearch, search);
         break;
-      case SEARCH_MENU_ACTION_COPY:
+      case SEARCH_MENU_ACTION_SAVE:
         this.props.saveSearch({ ...search, title: `${search.title} - Copy` }).then(() => {
           this.setState({ editingTab: this.props.searches.selectedSearch });
         });

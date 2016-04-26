@@ -20,7 +20,6 @@
     .fc-tab,
     .fc-tab._selected {
       color: #AFAFAF;
-      cursor: default;
     }
   }
 
@@ -43,6 +42,7 @@
     color: #AFAFAF;
     border-right: 1px solid #d9d9d9;
     transition: color .3s, background .2s;
+    cursor: default;
 
     &:after {
       content: '';
@@ -70,16 +70,16 @@
 
     &._selected {
       color: @color-black;
-
-      &:hover {
-        background-color: @color-decor34;
-        cursor: default;
-      }
     }
 
-    &:hover {
-      background-color: @color-decor35;
-      cursor: pointer;
+  }
+
+  &:not(._loading) {
+    .fc-tab {
+      &:not(._selected):hover {
+        background-color: @color-decor35;
+        cursor: pointer;
+      }
     }
   }
 }
