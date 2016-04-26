@@ -7,6 +7,7 @@ import classNames from 'classnames';
 // components
 import TableView from './tableview';
 import MultiSelectHead, { selectionState } from './multi-select-head';
+import ColumnSelector from './column-selector';
 
 export default class MultiSelectTable extends React.Component {
   static propTypes = {
@@ -38,6 +39,7 @@ export default class MultiSelectTable extends React.Component {
     this.state = {
       allChecked: false,
       toggledIds: [],
+      columns: this.props.columns,
     };
   }
 
@@ -113,18 +115,6 @@ export default class MultiSelectTable extends React.Component {
     );
   }
 
-  get columnSelector() {
-    let columnName = this.props.columns.map(item => {
-      return <li>{item.text}</li>
-    });
-
-    return (
-      <ul>
-        {columnName}
-      </ul>
-    );
-  }
-
   get columns() {
     const selectColumn = {
       field: 'selectColumn',
@@ -135,7 +125,7 @@ export default class MultiSelectTable extends React.Component {
 
     const toggleColumn = {
       field: 'toggleColumns',
-      control: this.columnSelector,
+      control: <ColumnSelector columns={this.state.columns} />,
       icon: 'icon-settings-col',
       className: '__toggle-columns',
       sortable: false,
@@ -143,11 +133,11 @@ export default class MultiSelectTable extends React.Component {
 
     return this.props.hasActionsColumn ? [
       selectColumn,
-      ...this.props.columns,
+      ...this.state.columns,
       toggleColumn,
     ] : [
       selectColumn,
-      ...this.props.columns,
+      ...this.state.columns,
     ];
   }
 
