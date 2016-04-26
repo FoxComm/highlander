@@ -13,7 +13,6 @@ import { addResizeListener, removeResizeListener } from '../../lib/resize';
 import { Link, IndexLink } from '../link';
 import InkBar from '../ink-bar/ink-bar';
 
-
 class NavDropdown extends React.Component {
   render() {
     const { title, className, children } = this.props;
@@ -40,13 +39,13 @@ NavDropdown.propTypes = {
   className: PropTypes.string
 };
 
-
-@connect(state => ({ router: state.router }))
 class LocalNav extends React.Component {
+
+  static contextTypes = {
+    router: PropTypes.object.isRequired,
+  };
+
   static propTypes = {
-    router: PropTypes.shape({
-      routes: PropTypes.array
-    }),
     children: PropTypes.node,
     gutter: PropTypes.bool,
   };
@@ -63,7 +62,7 @@ class LocalNav extends React.Component {
   };
 
   componentDidMount() {
-    this.setState(this.getInkState(this.props));
+    // this.setState(this.getInkState(this.props));
 
     addResizeListener(this.handleResize);
     this.handleResize();
@@ -96,13 +95,13 @@ class LocalNav extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState(this.getInkState(nextProps));
+    // this.setState(this.getInkState(this.props));
   }
 
   getInkState(props) {
     const children = React.Children.toArray(props.children);
 
-    const index = _.findIndex(children, link => this.isActiveLink(props.router.routes, link));
+    const index = _.findIndex(children, link => this.isActiveLink(link));
 
     if (index === -1) {
       return { inkLeft: 0, inkWidth: 0 };
@@ -170,7 +169,7 @@ class LocalNav extends React.Component {
 
   @autobind
   hasActiveLink(item) {
-    const { routes } = this.props.router;
+    const { routes } = this.context.router;
     const linkList = this.compileLinks(item);
     const linkNames = _.pluck(linkList, ['props', 'to']);
 
@@ -179,15 +178,14 @@ class LocalNav extends React.Component {
     return _.includes(linkNames, currentRoute.name);
   }
 
-  isActiveLink(routes, item) {
+  isActiveLink(item) {
     if (item.type !== Link && item.type !== IndexLink) {
       return false;
     }
 
     const linkName = _.get(item, ['props', 'to']);
-    const currentRoute = routes[routes.length - 1];
 
-    return linkName == currentRoute.name;
+    return this.context.router.isActive(linkName);
   }
 
   @autobind
