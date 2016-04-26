@@ -5,7 +5,6 @@ import util.IntegrationTestBase
 import utils.db._
 import utils.seeds.Seeds.Factories
 
-@SuppressWarnings(Array("org.brianmckenna.wartremover.warts.AsInstanceOf"))
 class NoteIntegrationTest extends IntegrationTestBase {
   import concurrent.ExecutionContext.Implicits.global
 

@@ -28,7 +28,6 @@ trait ADT[F] extends Read[F] with Show[F] { self ⇒
   /**
    * Json4s works by matching types against Any at runtime so we need to support these features.
    */
-  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Any", "org.brianmckenna.wartremover.warts.IsInstanceOf"))
   def jsonFormat(implicit m: Manifest[F]): CustomSerializer[F] = new CustomSerializer[F](format ⇒ ({
     case JString(str) ⇒ read(str).getOrError(s"No such element: $str") // if we cannot deserialize then we throw. Yes, I know it's not *pure*.
   }, {

@@ -208,7 +208,6 @@ package object db {
     // we only use this when we *know* we can call head safely on a query. (e.g., you've created a record which
     // has a FK constraint to another table and you then fetch that associated record -- we already *know* it must
     // exist.
-    @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.OptionPartial"))
     def safeGet(implicit ec: EC): DBIO[R] = dbio.map(_.get)
   }
 

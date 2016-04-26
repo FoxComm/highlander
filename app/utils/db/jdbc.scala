@@ -17,7 +17,6 @@ object jdbc {
   )
 
   // TODO (FailureSwap, Failure)*
-  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.IsInstanceOf", "org.brianmckenna.wartremover.warts.AsInstanceOf"))
   def swapDatabaseFailure[A](result: Result[A])(failed: (FailureSwap, Failure))(implicit ec: EC): Result[A] = {
     result.map(_.leftMap { currentFailures ⇒ (currentFailures.head, failed) match {
         case (dbFailure: DatabaseFailure, (symbol, replacement)) ⇒

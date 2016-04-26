@@ -63,7 +63,6 @@ class WiredStripeApi extends StripeApi {
     inBlockingPool(secretKey)(requestOptions ⇒ customer.getSources.retrieve(customer.getDefaultSource, requestOptions)).
       flatMap(accountToCard)(blockingIOPool)
 
-  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.IsInstanceOf", "org.brianmckenna.wartremover.warts.AsInstanceOf"))
   final def accountToCard(account: Failures Xor ExternalAccount): Result[StripeCard] = account match {
     case Xor.Left(xs) ⇒
       Result.failures(xs)

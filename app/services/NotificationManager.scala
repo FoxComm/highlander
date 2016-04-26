@@ -65,7 +65,6 @@ object NotificationManager {
       .map { case (trail, activity) ⇒ SSE(write(ActivityResponse.build(activity))) }
   }
 
-  @SuppressWarnings(Array("org.brianmckenna.wartremover.warts.Null"))
   def createNotification(payload: CreateNotification)(implicit ac: ActivityContext, ec: EC, db: DB):
   Result[Seq[ActivityConnectionResponse.Root]] = (for {
     sourceDimensionId ← * <~ dimensionIdByName(payload.sourceDimension)
