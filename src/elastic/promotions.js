@@ -16,7 +16,7 @@ export function searchCouponPromotions(token: string): Promise {
       dsl.termFilter('promotionName', caseInsensitiveToken),
       dsl.termFilter('storefrontName', caseInsensitiveToken),
     ];
-    Array.prototype.push.apply(filters, terms);
+    filters.push(...terms);
     if (!isNaN(Number(token))) {
       filters.push(
         dsl.termFilter('id', token)
