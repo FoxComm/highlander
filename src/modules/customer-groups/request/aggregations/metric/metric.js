@@ -16,8 +16,6 @@ export default class MetricAggregation extends Aggregation {
   }
 
   wrap(aggregation: Object): Object {
-    console.log(`${this.name}(${this.field}) in ${this.inheritedPath}`);
-
     //inheritance || direct field || aggregations given
     if (!this.inheritedPath) {
       return isDirectField(this.field)

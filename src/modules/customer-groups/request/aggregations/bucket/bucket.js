@@ -23,7 +23,6 @@ export default class BucketAggregation extends Aggregation {
   }
 
   wrap(aggregation: Object): Object {
-    console.log(`${this.name}(${this.field}) in ${this.inheritedPath}`);
     const aggregations = {};
 
     this._aggregations.forEach(aggregation => {
