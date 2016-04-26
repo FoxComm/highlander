@@ -36,7 +36,7 @@ export default class Condition extends Element {
     return this;
   }
 
-  reset() {
+  reset(): Condition {
     this._conditions.forEach(condition => {
       condition.root = null;
     });

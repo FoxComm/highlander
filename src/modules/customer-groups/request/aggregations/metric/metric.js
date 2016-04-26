@@ -16,6 +16,10 @@ export default class MetricAggregation extends Aggregation {
   }
 
   wrap(aggregation: Object): Object {
+    if (!this.field) {
+      return aggregation;
+    }
+
     //inheritance || direct field || aggregations given
     if (!this.inheritedPath) {
       return isDirectField(this.field)

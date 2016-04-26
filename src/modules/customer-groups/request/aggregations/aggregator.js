@@ -43,7 +43,7 @@ export default class Aggregator extends Element {
     return this;
   }
 
-  reset() {
+  reset(): Aggregator {
     this._aggregations.forEach(aggregation => {
       aggregation.root = null;
       aggregation.inheritedPath = null;

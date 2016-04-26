@@ -23,6 +23,10 @@ export default class BucketAggregation extends Aggregation {
   }
 
   wrap(aggregation: Object): Object {
+    if (!this.field) {
+      return aggregation;
+    }
+
     const aggregations = {};
 
     this._aggregations.forEach(aggregation => {

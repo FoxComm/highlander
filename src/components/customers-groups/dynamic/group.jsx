@@ -66,6 +66,7 @@ export default class DynamicGroup extends Component {
     }),
     groupActions: PropTypes.shape({
       setFilterTerm: PropTypes.func.isRequired,
+      fetchGroupStats: PropTypes.func.isRequired,
     }).isRequired,
     listActions: PropTypes.shape({
       fetch: PropTypes.func.isRequired,
@@ -87,7 +88,7 @@ export default class DynamicGroup extends Component {
   }
 
   refreshGroupData({mainCondition, conditions}) {
-    const {listActions} = this.props;
+    const {listActions, groupActions} = this.props;
 
     listActions.resetSearch();
 
@@ -97,7 +98,7 @@ export default class DynamicGroup extends Component {
 
     listActions.fetch();
 
-    this.props.groupActions.fetchGroupStats(mainCondition, conditions);
+    groupActions.fetchGroupStats(mainCondition, conditions);
   }
 
   @autobind
