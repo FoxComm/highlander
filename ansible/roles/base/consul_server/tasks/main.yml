@@ -1,0 +1,21 @@
+---
+
+- name: Copy Execution File
+  template: src=run_consul_server.sh dest="/usr/local/bin/run_consul_server.sh" mode="u+x,g+x,o+x"
+  sudo: true
+
+- name: Copy Service
+  template: src=consul_server.service dest="{{dest_services}}/consul_server.service"
+  sudo: true
+
+- name: Copy Config
+  template: src=server.json dest="/etc/consul.d/server.json"
+  sudo: true
+
+- name: Reload Systemd for Consul Server
+  sudo: yes
+  command: systemctl daemon-reload
+
+- name: Restart Consul Server
+  service: name=consul_server state=restarted enabled=yes
+  sudo: true

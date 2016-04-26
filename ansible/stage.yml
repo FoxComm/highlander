@@ -13,6 +13,7 @@
     - { role: base/db}
     - { role: base/rsyslog, sudo: yes }
     - { role: base/kibana, sudo: yes }
+    - { role: dev/db}
     - { role: dev/phoenix}
     - { role: dev/greenriver}
     - { role: dev/loyalty}

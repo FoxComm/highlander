@@ -70,3 +70,6 @@ swap_size_mb: 2000
 
 #fix ansible 2 rsync
 rsync_opts: ssh -l {{user}}
+
+#consul variables
+consul_data_dir: /var/consul

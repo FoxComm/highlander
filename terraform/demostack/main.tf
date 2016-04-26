@@ -1,9 +1,9 @@
 variable "backend_image" { 
-    default = "ubuntu-1604-xenial-v20160420c"
+    default = "ubuntu-1510-wily-v20160123"
 }
 
 variable "frontend_image" { 
-    default = "ubuntu-1604-xenial-v20160420c"
+    default = "ubuntu-1510-wily-v20160123"
 }
 
 variable "prefix" {} 
