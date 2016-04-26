@@ -13,6 +13,7 @@
 
   roles:
     - {role: base/common} 
+    - {role: base/ssh_keys} 
     - {role: base/scala}
     - {role: base/node}
     - {role: base/builder}

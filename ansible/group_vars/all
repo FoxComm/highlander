@@ -19,6 +19,7 @@ phoenix_jar_src: "{{phoenix_src}}/gatling/target/{{scala_version}}/phoenix-scala
 phoenix_dir: /phoenix
 phoenix_jar: "{{phoenix_dir}}/phoenix.jar"
 phoenix_db_name: phoenix_development
+phoenix_test_db_name: phoenix_test
 
 #ashes variables
 ashes_env: production

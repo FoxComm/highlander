@@ -25,7 +25,7 @@
   args:
     chdir: "{{ashes_install_dir}}"
 
-- name: Build node dependencies
+- name: Install node dependencies
   shell: npm install
   args:
     chdir: "{{ashes_install_dir}}"

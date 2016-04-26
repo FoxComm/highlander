@@ -17,6 +17,7 @@
     - { role: base/kibana, sudo: yes }
     - { role: dev/db}
     - { role: dev/phoenix}
+    - { role: dev/seeder}
     - { role: dev/greenriver}
     - { role: dev/loyalty}
     - { role: dev/messaging}
@@ -30,6 +31,7 @@
 
   roles:
     - { role: base/common}
+    - { role: base/ssh_keys}
     - { role: base/rsyslog, sudo: yes }
     - { role: base/node}
     - { role: base/balancer, sudo: yes }

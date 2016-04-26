@@ -8,6 +8,7 @@
     firebird_server_name: foxcommerce.local
   roles:
     - { role: base/common}
+    - { role: base/ssh_keys}
     - { role: base/rsyslog, sudo: yes }
     - { role: base/balancer, sudo: yes }
     - { role: dev/node}
