@@ -41,7 +41,6 @@ object Cart {
           }
         session.set("skuPayload", json(payload))
       }
-      .exitHereIfFailed
   }
 
   val setShippingAddress = http("Set shipping address")
@@ -66,14 +65,14 @@ object Cart {
     .post("/v1/orders/${referenceNumber}/checkout")
 
   val placeOrder =
-    exec(newCart).exitHereIfFailed
-      .exec(pickRandomSkus).exitHereIfFailed
-      .exec(addSkusToCart).exitHereIfFailed
-      .exec(setShippingAddress).exitHereIfFailed
-      .exec(findShippingMethods).exitHereIfFailed
-      .exec(setShippingMethod).exitHereIfFailed
-      .exec(pay).exitHereIfFailed
-      .exec(checkout).exitHereIfFailed
+     exec(newCart)
+    .exec(pickRandomSkus)
+    .exec(addSkusToCart)
+    .exec(setShippingAddress)
+    .exec(findShippingMethods)
+    .exec(setShippingMethod)
+    .exec(pay)
+    .exec(checkout)
 
   val ageOrder = http("Age order")
     .post("/v1/order-time-machine")
