@@ -3,6 +3,7 @@ import { createAction, createReducer } from 'redux-act';
 import fetch from 'isomorphic-fetch';
 import Api from '../lib/api';
 import _ from 'lodash';
+import { dissoc } from 'sprout-data';
 
 // types
 
@@ -15,14 +16,21 @@ export type LoginPayload = {
 };
 
 export type UserState = {
+  message: ?String,
   err: ?String,
   current: ?TUser,
   isFetching: boolean,
 };
 
 export const setUser = createAction('USER_SET');
+export const removeUser = createAction('REMOVE_SET');
 const authStart = createAction('USER_AUTH_START');
 const authError = createAction('USER_AUTH_ERROR');
+export const authMessage = createAction('USER_AUTH_MESSAGE');
+
+export const INFO_MESSAGES = {
+  LOGGED_OUT: 'You have successfully logged out.',
+};
 
 const requestMyInfoStart = createAction('USER_AUTH_INFO_START');
 const receiveMyInfoError = createAction('USER_AUTH_INFO_RECEIVE_ERROR');
@@ -93,8 +101,20 @@ export function googleSignin(): ActionDispatch {
   };
 }
 
+export function logout(): ActionDispatch {
+  return dispatch => {
+    return Api.post('/public/logout').then(() => {
+      localStorage.removeItem('user');
+      localStorage.removeItem('jwt');
+      dispatch(removeUser());
+    });
+  };
+}
+
+
 const initialState = {
   isFetching: false,
+  message: null,
 };
 
 const reducer = createReducer({
@@ -118,10 +138,14 @@ const reducer = createReducer({
       isFetching: false,
     };
   },
+  [removeUser]: (state: UserState, user: TUser) => {
+    return dissoc(state, 'user');
+  },
   [authStart]: (state: UserState) => {
     return {
       ...state,
       err: null,
+      message: null,
       isFetching: true,
     };
   },
@@ -130,6 +154,12 @@ const reducer = createReducer({
       ...state,
       err: error,
       isFetching: false,
+    };
+  },
+  [authMessage]: (state: UserState, message: string) => {
+    return {
+      ...state,
+      message,
     };
   },
 }, initialState);
