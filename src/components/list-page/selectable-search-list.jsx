@@ -37,7 +37,7 @@ export default class SelectableSearchList extends React.Component {
     noGutter: PropTypes.bool,
     bulkActions: PropTypes.arrayOf(PropTypes.array),
     predicate: PropTypes.func,
-    toggleColumnPresent: PropTypes.bool,
+    hasActionsColumn: PropTypes.bool,
     autoRefresh: PropTypes.bool,
   };
 
@@ -48,7 +48,7 @@ export default class SelectableSearchList extends React.Component {
       singleSearch: false,
     },
     noGutter: false,
-    toggleColumnPresent: true,
+    hasActionsColumn: true,
     autoRefresh: false,
   };
 
@@ -82,7 +82,7 @@ export default class SelectableSearchList extends React.Component {
           setState={props.searchActions.updateStateAndFetch}
           bulkActions={props.bulkActions}
           predicate={props.predicate}
-          toggleColumnPresent={props.toggleColumnPresent}
+          hasActionsColumn={props.hasActionsColumn}
           isLoading={results.isFetching}
           failed={results.failed}
           emptyMessage={props.emptyMessage}

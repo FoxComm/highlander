@@ -66,7 +66,7 @@ export default class SkuList extends Component<void, Props, void> {
           data={{ rows: this.illuminatedSkus }}
           renderRow={renderRow}
           emptyMessage="This product does not have any SKUs."
-          toggleColumnPresent={false} />
+          hasActionsColumn={false} />
       </div>
     );
   }

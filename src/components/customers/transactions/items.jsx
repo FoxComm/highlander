@@ -75,7 +75,7 @@ class CustomerItems extends Component {
           tableColumns={tableColumns}
           searchActions={this.props.actions}
           searchOptions={{singleSearch: true}}
-          toggleColumnPresent={false}
+          hasActionsColumn={false}
           title="Items"/>
       </div>
     );
