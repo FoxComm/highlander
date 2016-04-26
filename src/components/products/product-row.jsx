@@ -1,34 +1,17 @@
 import React, { PropTypes } from 'react';
-import moment from 'moment';
 import _ from 'lodash';
 import { transitionTo } from 'browserHistory';
+import { stateStatus } from '../../paragons/common';
 
+import RoundedPill from '../rounded-pill/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
-
-function isActive(activeFrom, activeTo) {
-  const now = moment();
-
-  if (!activeFrom) {
-    return false;
-  } else if (now.diff(activeFrom) < 0) {
-    return false;
-  } else if (activeTo && now.diff(activeTo) > 0) {
-    return false;
-  }
-
-  return true;
-}
 
 function setCellContents(product, field) {
   switch (field) {
     case 'image':
       return _.get(product, ['images', 0]);
     case 'state':
-      const activeFromStr = _.get(product, 'activeFrom');
-      const activeToStr = _.get(product, 'activeTo');
-      const activeFrom = activeFromStr ? moment.utc(activeFromStr) : null;
-      const activeTo = activeToStr ? moment.utc(activeToStr) : null;
-      return isActive(activeFrom, activeTo) ? 'Active' : 'Inactive';
+      return <RoundedPill text={stateStatus(product)} />;
     default:
       return _.get(product, field);
   }
