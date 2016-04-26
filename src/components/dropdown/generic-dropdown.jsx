@@ -91,7 +91,7 @@ export default class GenericDropdown extends Component {
     });
   }
 
-  renderNullTitle(value: ?number|string, placeholder: ?string) {
+  renderNullTitle(value: ?number|string, placeholder: ?string): ?string {
     if (this.props.renderNullTitle) {
       return this.props.renderNullTitle(value, placeholder);
     }

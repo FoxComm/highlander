@@ -23,10 +23,6 @@ export default class BucketAggregation extends Aggregation {
   }
 
   wrap(aggregation: Object): Object {
-    if (!this.field) {
-      return aggregation;
-    }
-
     const aggregations = {};
 
     this._aggregations.forEach(aggregation => {
@@ -80,7 +76,7 @@ export default class BucketAggregation extends Aggregation {
     return this;
   }
 
-  reset() {
+  reset(): BucketAggregation {
     this._aggregations.forEach(aggregation => {
       aggregation.root = null;
       aggregation.inheritedPath = null;
