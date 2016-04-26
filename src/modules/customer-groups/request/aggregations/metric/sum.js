@@ -11,7 +11,7 @@ export default class SumAggregation extends MetricAggregation {
 
   toRequest(): Object {
     return this.wrap({
-      avg: {
+      sum: {
         field: this.field,
       },
     });

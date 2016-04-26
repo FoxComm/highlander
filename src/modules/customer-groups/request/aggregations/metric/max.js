@@ -11,7 +11,7 @@ export default class MaxAggregation extends MetricAggregation {
 
   toRequest(): Object {
     return this.wrap({
-      avg: {
+      max: {
         field: this.field,
       },
     });

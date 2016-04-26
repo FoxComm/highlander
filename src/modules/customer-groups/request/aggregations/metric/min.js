@@ -11,7 +11,7 @@ export default class MinAggregation extends MetricAggregation {
 
   toRequest(): Object {
     return this.wrap({
-      avg: {
+      min: {
         field: this.field,
       },
     });

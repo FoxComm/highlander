@@ -11,7 +11,7 @@ export default class CountAggregation extends MetricAggregation {
 
   toRequest(): Object {
     return this.wrap({
-      avg: {
+      value_count: {
         field: this.field,
       },
     });
