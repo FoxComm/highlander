@@ -6,6 +6,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
+import { searchCouponPromotions } from '../../elastic/promotions';
 
 // components
 import ObjectFormInner from '../object-form/object-form-inner';
@@ -17,7 +18,7 @@ import CouponCodes from './form/coupon-codes';
 import UsageRules from './form/usage-rules';
 import { FormField, Form } from '../forms';
 import Tags from '../tags/tags';
-import { searchCouponPromotions } from '../../elastic/promotions';
+import ObjectScheduler from '../object-scheduler/object-scheduler';
 
 // styles
 import styles from './form.css';
@@ -172,6 +173,12 @@ export default class CouponForm extends Component {
             form={formAttributes}
             shadow={shadowAttributes}
             onChange={this.handleChange}
+          />
+          <ObjectScheduler
+            form={formAttributes}
+            shadow={shadowAttributes}
+            onChange={this.handleChange}
+            title="State"
           />
         </div>
       </Form>
