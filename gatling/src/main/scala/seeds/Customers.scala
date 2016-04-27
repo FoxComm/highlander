@@ -1,6 +1,5 @@
 package seeds
 
-import cats.implicits._
 import faker._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
@@ -13,12 +12,11 @@ object Customers {
   val createCustomer = http("Create customer")
     .post("/v1/customers")
     .requireAdminAuth
-    .body(StringBody(json(
-      CreateCustomerPayload(
+    .body(StringBody(json(CreateCustomerPayload(
         name = Option("${customerName}"),
         email = "${customerEmail}",
         password = Option("${customerPassword}")))))
-    .check(jsonPath("$..id").ofType[Int].saveAs("customerId"))
+    .check(status.is(200), jsonPath("$.id").ofType[Int].saveAs("customerId"))
 
   val createStaticCustomers = foreach(csv("data/customers.csv").records, "customerRecord") {
     exec(flattenMapIntoAttributes("${customerRecord}")).exec(createCustomer)

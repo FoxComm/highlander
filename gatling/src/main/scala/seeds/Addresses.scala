@@ -22,7 +22,7 @@ object Addresses {
     } yield json(CreateAddressPayload(name = name, regionId = regionId.toInt, address1 = address, city = city,
       zip = nDigits(5), isDefault = true, phoneNumber = Some(nDigits(10)),
       address2 = session("customerAddress2").asOption[String]))))
-    .check(jsonPath("$..id").ofType[Int].saveAs("addressId"))
+    .check(status.is(200), jsonPath("$.id").ofType[Int].saveAs("addressId"))
 
   private def nDigits(n: Int): String = numerify("#" * n)
 

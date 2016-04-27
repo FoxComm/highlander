@@ -22,23 +22,23 @@ object CreditCards {
       expMonth = Random.nextInt(12) + 1,
       addressId = Some(session.get("addressId").as[Int])))
     })
-    .check(jsonPath("$.id").ofType[Int].saveAs("ccId"))
+    .check(status.is(200), jsonPath("$.id").ofType[Int].saveAs("creditCardId"))
 
   val payWithCreditCard = http("Pay with credit card")
     .post("/v1/orders/${referenceNumber}/payment-methods/credit-cards")
-    .body(StringBody(session ⇒ json(CreditCardPayment(session.get("ccId").as[Int]))))
+    .body(StringBody(session ⇒ json(CreditCardPayment(session.get("creditCardId").as[Int]))))
 
   // If these is no credit card in session, create new
   // Otherwise create new credit card with probability of 30%
   // Otherwise pay with previously used credit card
   val payWithCc =
     feed(csv("data/credit_cards.csv").random)
-      .doIfOrElse(session ⇒ session.contains("ccId")) {
-        randomSwitch(
-          30.0 → exec(createCreditCard)
-        )
-      } {
-        exec(createCreditCard)
-      }
-      .exec(payWithCreditCard)
+    .doIfOrElse(session ⇒ session.contains("creditCardId")) {
+      randomSwitch(
+        30.0 → exec(createCreditCard)
+      )
+    } {
+      exec(createCreditCard)
+    }
+    .exec(payWithCreditCard)
 }

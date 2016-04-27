@@ -23,7 +23,7 @@ object GiftCards {
       currency = Currency.USD,
       balance = Random.nextInt(9500) + 500 // from $5 to $100
     ))))
-    .check(jsonPath("$.code").ofType[String].saveAs("giftCardCode"))
+    .check(status.is(200), jsonPath("$.code").ofType[String].saveAs("giftCardCode"))
 
   val payWithGiftCard = http("Pay with gift card")
     .post("/v1/orders/${referenceNumber}/payment-methods/gift-cards")
