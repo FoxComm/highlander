@@ -12,8 +12,9 @@ object Simulations {
     setUp(scenario("Ping phoenix")
     .exec(Ping.waitForPhoenix)
     .inject(atOnceUsers(1)))
+    .assertions(global.failedRequests.percent.lessThan(99))
     .protocols(Conf.httpConf)
-    .maxDuration(1.minute)
+    .maxDuration(Conf.phoenixStartupTimeout)
   }
 
   class GatlingSeeds extends Simulation {

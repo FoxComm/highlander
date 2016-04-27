@@ -11,11 +11,9 @@ object Ping {
     .get("/v1/public/ping")
     .check(status.is(200), bodyString.saveAs("pong"))
 
-  private val phoenixPingPause = 10.seconds
-
   val waitForPhoenix =
     asLongAs(session ⇒ !session.contains("pong")) {
-       doIf(session ⇒ session.isFailed)(pause(phoenixPingPause))
+       doIf(session ⇒ session.isFailed)(pause(Conf.phoenixPingPause))
       .exec(ping)
     }
 }

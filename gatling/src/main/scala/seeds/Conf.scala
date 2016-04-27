@@ -15,5 +15,6 @@ object Conf {
     .contentTypeHeader("application/json")
     .disableWarmUp
 
+  val phoenixPingPause = 10.seconds
   val phoenixStartupTimeout = 1.minute
 }
