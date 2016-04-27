@@ -1,13 +1,15 @@
-.column-selector {
+.dropdown {
   display: flex;
   flex-direction: column;
   position: absolute;
   right: 0;
+  top: 100%;
   min-width: 301px;
   max-height: 304px;
   border: 1px solid #D9D9D9;
   border-radius: 3px;
   background: #ffffff;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,.5);
 }
 
 .list {
@@ -36,9 +38,11 @@
 
 .actions {
   display: flex;
+  flex-shrink: 0;
   justify-content: center;
   align-items: center;
   height: 60px;
+  border-top: 1px solid #D9D9D9;
 
   & :global(.fc-btn-primary) {
     min-width: 208px;

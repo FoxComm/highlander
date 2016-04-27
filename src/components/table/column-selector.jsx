@@ -2,12 +2,12 @@
 import _ from 'lodash';
 import React, {PropTypes} from 'react';
 import {autobind} from 'core-decorators';
-import { assoc, dissoc } from 'sprout-data';
 import localStorage from 'localStorage';
 
 // components
 import { Checkbox } from '../checkbox/checkbox';
 import { PrimaryButton } from '../common/buttons';
+import Overlay from '../overlay/overlay';
 
 //styles
 import styles from './column-selector.css';
@@ -23,15 +23,8 @@ export default class ColumnSelector extends React.Component {
 
   state = {
     selectedColumns: this.getSelectedColumns(),
+    isSelectorVisible: false,
   };
-
-  componentDidMount() {
-    window.addEventListener('click', this.props.toggleUserMenu, false);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('click', this.props.toggleUserMenu, false);
-  }
 
   getSelectedColumns() {
     let columns = localStorage.getItem(this.props.identifier);
@@ -45,13 +38,13 @@ export default class ColumnSelector extends React.Component {
     return columns;
   }
 
-  toggleColumnsSelected(column, id) {
-    const selectedColumns = this.state.selectedColumns;
-
+  toggleColumnSelection(id) {
+    let selectedColumns = this.state.selectedColumns;
+    
     selectedColumns[id].isVisible = !selectedColumns[id].isVisible;
 
     this.setState({
-      selectedColumns: selectedColumns
+      selectedColumns: selectedColumns,
     });
   }
 
@@ -60,6 +53,14 @@ export default class ColumnSelector extends React.Component {
     let columns = _.filter(this.state.selectedColumns, {isVisible: true});
     this.props.setColumns(columns);
     localStorage.setItem(this.props.identifier, JSON.stringify(this.state.selectedColumns));
+    this.toggleColumnSelector();
+  }
+
+  @autobind
+  toggleColumnSelector() {
+    this.setState({
+      isSelectorVisible: !this.state.isSelectorVisible,
+    });
   }
 
   renderSelectorItems() {
@@ -68,7 +69,7 @@ export default class ColumnSelector extends React.Component {
 
       return (
         <li key={id}>
-          <Checkbox id={`choose-column-${id}`} onChange={e => this.toggleColumnsSelected(item, id)} checked={checked}>
+          <Checkbox id={`choose-column-${id}`} onChange={e => this.toggleColumnSelection(id)} checked={checked}>
             {item.text}
           </Checkbox>
         </li>
@@ -79,14 +80,20 @@ export default class ColumnSelector extends React.Component {
   render() {
     return (
       <div styleName="column-selector">
-        <ul styleName="list">
-          {this.renderSelectorItems()}
-        </ul>
-        <div styleName="actions">
-          <PrimaryButton onClick={this.saveColumns}>
-            Save
-          </PrimaryButton>
-        </div>
+        <i className="icon-settings-col" onClick={this.toggleColumnSelector}/>
+        {this.state.isSelectorVisible && <Overlay shown={true} onClick={this.toggleColumnSelector}/> }
+        {this.state.isSelectorVisible && (
+          <div styleName="dropdown">
+            <ul styleName="list">
+              {this.renderSelectorItems()}
+            </ul>
+            <div styleName="actions">
+              <PrimaryButton onClick={this.saveColumns}>
+                Save
+              </PrimaryButton>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

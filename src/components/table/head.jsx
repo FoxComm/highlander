@@ -36,13 +36,6 @@ class TableHead extends React.Component {
     let contents = null;
     if (!_.isEmpty(column.text)) {
       contents = column.text;
-    } else if (!_.isEmpty(column.icon) && !_.isEmpty(column.control)) {
-      contents = (
-        <div>
-          <i className={column.icon} />
-          {column.control}
-        </div>
-      );
     } else if (!_.isEmpty(column.icon)) {
       contents = <i className={column.icon} />;
     } else if (!_.isEmpty(column.control)) {

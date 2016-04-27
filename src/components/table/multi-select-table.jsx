@@ -2,6 +2,7 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
 import classNames from 'classnames';
 import localStorage from 'localStorage';
 
@@ -149,8 +150,9 @@ export default class MultiSelectTable extends React.Component {
 
     const toggleColumn = {
       field: 'toggleColumns',
-      control: <ColumnSelector setColumns={this.setColumnSelected} columns={this.props.columns} identifier={this.getTableIdentifier()} />,
-      icon: 'icon-settings-col',
+      control: <ColumnSelector setColumns={this.setColumnSelected}
+                               columns={this.props.columns}
+                               identifier={this.getTableIdentifier()} />,
       className: '__toggle-columns',
       sortable: false,
     };
