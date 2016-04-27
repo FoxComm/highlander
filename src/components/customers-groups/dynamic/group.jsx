@@ -189,12 +189,6 @@ export default class DynamicGroup extends Component {
         </PanelListItem>
       </PanelList>
     );
-    //<PanelListItem title="Avg. Order Size">
-    //  2
-    //</PanelListItem>
-    //<PanelListItem title="Return Rate">
-    //  14%
-    //</PanelListItem>
   }
 
   @autobind
