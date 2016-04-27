@@ -1,0 +1,19 @@
+---
+
+- name: Provision Packer Tinystack Backend
+  hosts: all
+  tags:
+      - packer-tinystack-backend
+  vars:
+    user: ubuntu
+
+  roles:
+    - { role: base/common}
+    - { role: base/consul}
+    - { role: base/consul_agent}
+    - { role: base/scala}
+    - { role: base/kafka}
+    - { role: base/elasticsearch}
+    - { role: base/db}
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/kibana, sudo: yes }

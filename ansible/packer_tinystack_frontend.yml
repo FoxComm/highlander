@@ -1,0 +1,16 @@
+---
+
+- name: Provision Packer Twostack Frontend
+  hosts: all
+  tags:
+      - packer-tinystack-frontend
+  vars:
+    user: ubuntu
+
+  roles:
+    - { role: base/common}
+    - { role: base/consul}
+    - { role: base/consul_agent}
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/node}
+    - { role: base/balancer, sudo: yes }
