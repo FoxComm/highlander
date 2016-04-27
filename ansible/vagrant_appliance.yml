@@ -3,10 +3,12 @@
 - name: Provision All The Things
   hosts: all
   vars:
+    namespace: vagrant
     ashes_server_name: admin.foxcommerce.local
     firebird_server_name: foxcommerce.local
   roles:
     - {role: base/common}
+    - {role: base/consul}
     - {role: base/ssh_keys}
     - {role: base/scala}
     - {role: base/kafka}

@@ -1,3 +1,4 @@
 ---
 dependencies:
+  - { role: base/consul}
   - { role: base/secret_keys, install_public_keys: true }

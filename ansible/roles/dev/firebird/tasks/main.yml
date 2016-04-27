@@ -52,3 +52,7 @@
 - name: Restart Firebird
   service: name=firebird state=restarted
   sudo: true
+
+- name: Copy Consul Service File
+  template: src=firebird.json dest="/etc/consul.d/firebird.json"
+  sudo: true

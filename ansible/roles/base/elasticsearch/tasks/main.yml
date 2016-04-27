@@ -24,7 +24,7 @@
   sudo: true
 
 - name: Create Elasticsearch subdirectories
-  file: path={{es_path}}/{{item}} owner={{ansible_ssh_user}} state=directory mode="u=rwx,g=rwx,o=r"
+  file: path={{es_path}}/{{item}} state=directory mode="u=rwx,g=rwx,o=r"
   sudo: true
   with_items:
     - data
@@ -46,3 +46,7 @@
 
 - name: Sleep
   shell: sleep 20
+
+- name: Copy Consul Service File
+  template: src=elastic.json dest="/etc/consul.d/elastic.json"
+  sudo: true

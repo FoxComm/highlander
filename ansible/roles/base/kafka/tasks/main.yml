@@ -68,3 +68,6 @@
     body: "{\"compatibility\": \"NONE\"}"
     HEADER_Content-Type: "application/vnd.schemaregistry.v1+json"
 
+- name: Copy Consul Service File
+  template: src=kafka.json dest="/etc/consul.d/kafka.json"
+  sudo: true

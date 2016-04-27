@@ -1,8 +1,4 @@
 {
-    {% if consul_name %}
-    "node_name": "{{consul_name}}",
-    {% endif %}
-    "bind_addr": "{{consul_bind}}",
     "data_dir" : "{{consul_data_dir}}",
     "encrypt" : "{{consul_key}}"
 }

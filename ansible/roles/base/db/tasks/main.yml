@@ -131,3 +131,7 @@
 - name: Start Bottledwater
   service: name=bottledwater state=started enabled=yes sleep=10
   sudo: true
+
+- name: Copy Consul Service File
+  template: src=db.json dest="/etc/consul.d/db.json"
+  sudo: true

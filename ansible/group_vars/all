@@ -74,3 +74,6 @@ rsync_opts: ssh -l {{user}}
 
 #consul variables
 consul_data_dir: /var/consul
+
+#used to prefix service names in consul
+namespace: setme

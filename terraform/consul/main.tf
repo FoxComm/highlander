@@ -37,16 +37,16 @@ resource "google_compute_instance" "consul_server" {
     }
 
     provisioner "file" {
-        source = "terraform/scripts/consul_server.sh"
-        destination = "/tmp/consul_server.sh"
+        source = "terraform/scripts/consul.sh"
+        destination = "/tmp/consul.sh"
     }
 
     provisioner "remote-exec" {
         inline = [
           "chmod +x /tmp/bootstrap.sh",
-          "chmod +x /tmp/consul_server.sh",
+          "chmod +x /tmp/consul.sh",
           "/tmp/bootstrap.sh",
-          "/tmp/consul_server.sh ${var.datacenter} ${google_compute_instance.consul_server.0.network_interface.0.address}"
+          "/tmp/consul.sh ${var.datacenter} ${google_compute_instance.consul_server.0.network_interface.0.address}"
         ]
     }
 }
