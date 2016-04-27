@@ -6,6 +6,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
+import { searchCouponPromotions } from '../../elastic/promotions';
 
 // components
 import ObjectFormInner from '../object-form/object-form-inner';
@@ -17,7 +18,7 @@ import CouponCodes from './form/coupon-codes';
 import UsageRules from './form/usage-rules';
 import { FormField, Form } from '../forms';
 import Tags from '../tags/tags';
-import { searchCouponPromotions } from '../../elastic/promotions';
+import ObjectScheduler from '../object-scheduler/object-scheduler';
 
 // styles
 import styles from './form.css';
@@ -60,8 +61,8 @@ export default class CouponForm extends Component {
   @autobind
   renderPromotionOption(promotion) {
     return (
-      <DropdownItem value={promotion.id} key={`${promotion.id}-${promotion.name}`}>
-        <span>{ promotion.name }</span>
+      <DropdownItem value={promotion.id} key={`${promotion.id}-${promotion.promotionName}`}>
+        <span>{ promotion.promotionName }</span>
         <span styleName="text-gray">
           &nbsp;<span className="fc-icon icon-dot"></span>&nbsp;ID: { promotion.id }
         </span>
@@ -71,9 +72,6 @@ export default class CouponForm extends Component {
 
   get promotionSelector() {
     const id = _.get(this.props, 'coupon.promotion');
-    const promotionsToSelect = _.get(this.props, 'selectedPromotions', []).map((promo) => {
-      return [promo.id, `${promo.name} - ${promo.id}`];
-    });
     return (
       <div>
         <div styleName="field-label">
@@ -86,7 +84,6 @@ export default class CouponForm extends Component {
             id="promotionSelector"
             styleName="full-width"
             name="promotion"
-            items={promotionsToSelect}
             placeholder="- Select -"
             value={id}
             onChange={(value) => this.handlePromotionChange(value)}
@@ -172,6 +169,12 @@ export default class CouponForm extends Component {
             form={formAttributes}
             shadow={shadowAttributes}
             onChange={this.handleChange}
+          />
+          <ObjectScheduler
+            form={formAttributes}
+            shadow={shadowAttributes}
+            onChange={this.handleChange}
+            title="State"
           />
         </div>
       </Form>

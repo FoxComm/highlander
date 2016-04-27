@@ -219,7 +219,7 @@ const reducer = createReducer({
       newCreditCard: {
         isDefault: false,
         holderName: null,
-        number: null,
+        cardNumber: null,
         cvv: null,
         expMonth: null,
         expYear: null,

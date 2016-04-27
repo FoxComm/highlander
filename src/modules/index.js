@@ -21,6 +21,7 @@ import expandableTables from './expandable-tables';
 import products from './products';
 import skus from './skus';
 import user from './user';
+import usermenu from './usermenu';
 import promotions from './promotions';
 import coupons from './coupons';
 
@@ -33,6 +34,7 @@ const rootReducer = combineReducers({
   rmas,
   notes,
   user,
+  usermenu,
   countries,
   regions,
   addressForm,

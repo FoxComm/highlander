@@ -31,6 +31,10 @@
   &__title {
     .font-spec(20px, 27px);
     margin-top: 40px;
+
+    & + .fc-alert {
+      margin-top: 30px;
+    }
   }
 
   &__or-cont {
@@ -50,6 +54,10 @@
 
     &:after {
       left: 1em;
+    }
+
+    & + .fc-alert {
+      margin-top: 10px;
     }
   }
 
@@ -101,7 +109,6 @@
   }
 
   .fc-alert {
-    margin-top: 10px;
     width: @controls-width;
   }
 

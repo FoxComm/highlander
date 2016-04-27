@@ -38,7 +38,7 @@ const mapDispatchToProps = (dispatch: Function) => {
 
 const tableColumns = [
   {field: 'id', text: 'Promotion ID'},
-  {field: 'name', text: 'Name'},
+  {field: 'promotionName', text: 'Name'},
   {field: 'storefrontName', text: 'Storefront Name'},
   {field: 'applyType', text: 'Apply Type'},
   {field: 'totalUsed', text: 'Total Uses'},

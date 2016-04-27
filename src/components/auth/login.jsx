@@ -28,7 +28,11 @@ type TState = {
 type LoginProps = {
   current: TUser,
   authenticate: (payload: LoginPayload) => Promise,
-  user: { err: Object, isFetching: boolean },
+  user: { 
+    err: Object, 
+    isFetching: boolean, 
+    message: String,
+  },
   googleSignin: Function,
 }
 
@@ -86,11 +90,16 @@ export default class Login extends React.Component {
     );
   }
 
+  get infoMessage() {
+    const { message } = this.props.user;
+    if (!message) return null;
+    return <Alert type="success">{message}</Alert>;
+  }
+
   get errorMessage() {
     const { err } = this.props.user;
-    if (err) {
-      return <Alert type="error">{err}</Alert>;
-    }
+    if (!err) return null;
+    return <Alert type="error">{err}</Alert>;
   }
 
   render() {
@@ -99,6 +108,7 @@ export default class Login extends React.Component {
         <Form className="fc-grid fc-login fc-form-vertical">
           <img className="fc-login__logo" src="/images/fc-logo-v.svg"/>
           <div className="fc-login__title">Sign In</div>
+          {this.infoMessage}
           <Button className="fc-login__google-btn" icon="google" onClick={this.onGoogleSignIn}>
             Sign In with Google
           </Button>

@@ -10,13 +10,14 @@ import styles from './promotion-form.css';
 
 import ContentBox from '../content-box/content-box';
 import ObjectFormInner from '../object-form/object-form-inner';
-import QualifierType from './qualifier-type';
-import OfferType from './offer-type';
 import { Dropdown, DropdownItem } from '../dropdown';
 import ObjectScheduler from '../object-scheduler/object-scheduler';
 import { FormField, Form } from '../forms';
 import SelectCustomerGroups from '../customers-groups/select-groups';
 import Tags from '../tags/tags';
+import DiscountAttrs from './discount-attrs';
+import offers from './offers';
+import qualifiers from './qualifiers';
 
 import { setDiscountAttr } from '../../paragons/promotion';
 
@@ -30,6 +31,7 @@ type State = {
 };
 
 export default class PromotionForm extends Component {
+  props: Props;
 
   static propTypes = {
     promotion: PropTypes.object.isRequired,
@@ -45,6 +47,7 @@ export default class PromotionForm extends Component {
       'qualifier',
       'activeFrom',
       'activeTo',
+      'tags',
     ];
     const shadow = _.get(this.props, 'promotion.shadow.attributes', []);
     return _(shadow).omit(toOmit).keys().value();
@@ -150,11 +153,21 @@ export default class PromotionForm extends Component {
           </ContentBox>
           <ContentBox title="Qualifier">
             <div styleName="sub-title">Qualifier Type</div>
-            <QualifierType discount={discount} onChange={this.handleQualifierChange} />
+            <DiscountAttrs
+              discount={discount}
+              attr="qualifier"
+              descriptions={qualifiers}
+              onChange={this.handleQualifierChange}
+            />
           </ContentBox>
           <ContentBox title="Offer">
             <div styleName="sub-title">Offer Type</div>
-            <OfferType discount={discount} onChange={this.handleOfferChange} />
+            <DiscountAttrs
+              discount={discount}
+              attr="offer"
+              descriptions={offers}
+              onChange={this.handleOfferChange}
+            />
           </ContentBox>
           <ContentBox title="Customers">
             <SelectCustomerGroups

@@ -1,0 +1,10 @@
+
+.container {
+  display: inline-block;
+  margin-left: 20px;
+
+  & > * {
+    vertical-align: baseline;
+    padding-right: 6px;
+  }
+}

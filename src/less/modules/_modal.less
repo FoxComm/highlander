@@ -18,6 +18,11 @@
     .border-radius(5px);
     background-color: @color-white;
 
+    // fix weird bug in chrome v50, test case - https://jsfiddle.net/x00o9wbL/7/
+    .fc-dropdown__item-container {
+      overflow-y: scroll;
+    }
+
     .fc-modal-icon {
       vertical-align: middle;
       display: inline-block;
