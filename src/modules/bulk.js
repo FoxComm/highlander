@@ -1,7 +1,5 @@
 // libs
 import _ from 'lodash';
-import { createAction, createReducer } from 'redux-act';
-
 
 export const initialState = {
   isFetching: false,

@@ -9,6 +9,7 @@ const { actions, reducer } = createStore({
   scope: 'coupons',
   actions: [],
   reducers,
+  initialState,
 });
 
 export {
