@@ -7,6 +7,10 @@ import localStorage from 'localStorage';
 
 // components
 import { Checkbox } from '../checkbox/checkbox';
+import { PrimaryButton } from '../common/buttons';
+
+//styles
+import styles from './column-selector.css';
 
 export default class ColumnSelector extends React.Component {
   static propTypes = {
@@ -14,11 +18,20 @@ export default class ColumnSelector extends React.Component {
     onChange: PropTypes.func,
     setColumns: PropTypes.func,
     identifier: PropTypes.string,
+    toggleColumnSelector: PropTypes.func,
   };
 
   state = {
     selectedColumns: this.getSelectedColumns(),
   };
+
+  componentDidMount() {
+    window.addEventListener('click', this.props.toggleUserMenu, false);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('click', this.props.toggleUserMenu, false);
+  }
 
   getSelectedColumns() {
     let columns = localStorage.getItem(this.props.identifier);
@@ -49,25 +62,31 @@ export default class ColumnSelector extends React.Component {
     localStorage.setItem(this.props.identifier, JSON.stringify(this.state.selectedColumns));
   }
 
-  render() {
-    let columnName = this.state.selectedColumns.map((item, id) => {
-
+  renderSelectorItems() {
+    return this.state.selectedColumns.map((item, id) => {
       let checked = item.isVisible;
 
       return (
         <li key={id}>
-          <Checkbox id={`choose-column-${id}`} onChange={e => this.toggleColumnsSelected(item, id)} checked={checked}/>
-          {item.text}
+          <Checkbox id={`choose-column-${id}`} onChange={e => this.toggleColumnsSelected(item, id)} checked={checked}>
+            {item.text}
+          </Checkbox>
         </li>
       );
     });
+  }
 
+  render() {
     return (
-      <div>
-        <ul>
-          {columnName}
+      <div styleName="column-selector">
+        <ul styleName="list">
+          {this.renderSelectorItems()}
         </ul>
-        <button onClick={this.saveColumns}>Save</button>
+        <div styleName="actions">
+          <PrimaryButton onClick={this.saveColumns}>
+            Save
+          </PrimaryButton>
+        </div>
       </div>
     );
   }
