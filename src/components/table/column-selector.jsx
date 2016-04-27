@@ -3,6 +3,7 @@ import _ from 'lodash';
 import React, {PropTypes} from 'react';
 import {autobind} from 'core-decorators';
 import { assoc, dissoc } from 'sprout-data';
+import localStorage from 'localStorage';
 
 // components
 import { Checkbox } from '../checkbox/checkbox';
@@ -12,13 +13,24 @@ export default class ColumnSelector extends React.Component {
     columns: PropTypes.array.isRequired,
     onChange: PropTypes.func,
     setColumns: PropTypes.func,
+    identifier: PropTypes.string,
   };
 
   state = {
-    selectedColumns: this.props.columns.map(column => {
-      return _.assign(column, {isVisible: true});
-    }),
+    selectedColumns: this.getSelectedColumns(),
   };
+
+  getSelectedColumns() {
+    let columns = localStorage.getItem(this.props.identifier);
+    if(columns) {
+      columns = JSON.parse(columns);
+    } else {
+      columns = this.props.columns.map(column => {
+        return _.assign(column, {isVisible: true});
+      });
+    }
+    return columns;
+  }
 
   toggleColumnsSelected(column, id) {
     const selectedColumns = this.state.selectedColumns;
@@ -30,9 +42,11 @@ export default class ColumnSelector extends React.Component {
     });
   }
 
-  saveColumns = () => {
+  @autobind
+  saveColumns() {
     let columns = _.filter(this.state.selectedColumns, {isVisible: true});
     this.props.setColumns(columns);
+    localStorage.setItem(this.props.identifier, JSON.stringify(this.state.selectedColumns));
   }
 
   render() {

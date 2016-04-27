@@ -3,6 +3,7 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
+import localStorage from 'localStorage';
 
 // components
 import TableView from './tableview';
@@ -26,6 +27,7 @@ export default class MultiSelectTable extends React.Component {
     className: PropTypes.string,
     isLoading: PropTypes.bool,
     failed: PropTypes.bool,
+    identifier: PropTypes.string,
   };
 
   static defaultProps = {
@@ -39,8 +41,25 @@ export default class MultiSelectTable extends React.Component {
     this.state = {
       allChecked: false,
       toggledIds: [],
-      columns: this.props.columns,
+      columns: this.getSelectedColumns(),
     };
+  }
+
+  getTableIdentifier() {
+    if (!this.props.identifier) {
+      return this.props.columns.map(item => {
+        return item.text
+      }).toString()
+    }
+    return this.props.identifier;
+  }
+
+  getSelectedColumns() {
+    let columns = localStorage.getItem(this.getTableIdentifier());
+    if(!columns) return this.props.columns;
+
+    columns = JSON.parse(columns);
+    return _.filter(columns, {isVisible:true});
   }
 
   getRowSetChecked(key) {
@@ -130,7 +149,7 @@ export default class MultiSelectTable extends React.Component {
 
     const toggleColumn = {
       field: 'toggleColumns',
-      control: <ColumnSelector setColumns={this.setColumnSelected} columns={this.props.columns} />,
+      control: <ColumnSelector setColumns={this.setColumnSelected} columns={this.props.columns} identifier={this.getTableIdentifier()} />,
       icon: 'icon-settings-col',
       className: '__toggle-columns',
       sortable: false,
