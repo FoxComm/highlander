@@ -20,4 +20,8 @@ object OrderFailures {
     override def description = "Please provide an order reference number"
   }
 
+  case object OrderAlreadyHasCoupon extends Failure {
+    override def description = "Order already has a coupon attached. Remove coupon first."
+  }
+
 }

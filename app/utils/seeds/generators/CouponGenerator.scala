@@ -33,9 +33,9 @@ case class SimpleCouponForm(percentOff: Percent, totalAmount: Int) {
 
     val (keyMap, form) = ObjectUtils.createForm(parse(s"""
     {
-      "name" : "${percentOff}% off over $totalAmount",
-      "storefrontName" : "Get ${percentOff}% off over $totalAmount dollars",
-      "description" : "Get ${percentOff}% full order after spending more than $totalAmount dollars",
+      "name" : "$percentOff% off over $totalAmount",
+      "storefrontName" : "Get $percentOff% off over $totalAmount dollars",
+      "description" : "Get $percentOff% full order after spending more than $totalAmount dollars",
       "details" : "This offer applies only when you have a total amount $totalAmount dollars",
       "activeFrom" : "${Instant.now}",
       "activeTo" : null,
@@ -72,16 +72,16 @@ trait CouponGenerator {
   def generateCoupons(data: Seq[SimpleCoupon])(implicit db: Database) = for {
     context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
     coupons ← * <~ DbResultT.sequence(data.map( d ⇒  {
-        val couponForm = SimpleCouponForm(d.percentOff, d.totalAmount)
-        val couponShadow = SimpleCouponShadow(couponForm)
-        val payload = CreateCoupon(
-          form = CreateCouponForm(attributes = couponForm.form),
-          shadow = CreateCouponShadow(attributes = couponShadow.shadow),
-          d.promotionId)
-        DbResultT(DBIO.from(CouponManager.create(payload, context.name).flatMap { 
-          case Xor.Right(r) ⇒ Result.right(d.copy(formId = r.form.id, shadowId = r.shadow.id))
-          case Xor.Left(l) ⇒  Result.failures(l)
-        }))
+      val couponForm = SimpleCouponForm(d.percentOff, d.totalAmount)
+      val couponShadow = SimpleCouponShadow(couponForm)
+      val payload = CreateCoupon(
+        form = CreateCouponForm(attributes = couponForm.form),
+        shadow = CreateCouponShadow(attributes = couponShadow.shadow),
+        d.promotionId)
+      DbResultT(DBIO.from(CouponManager.create(payload, context.name).flatMap {
+        case Xor.Right(r) ⇒ Result.right(d.copy(formId = r.form.id, shadowId = r.shadow.id))
+        case Xor.Left(l) ⇒  Result.failures(l)
+      }))
     }))
   } yield coupons
 

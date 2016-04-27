@@ -69,12 +69,12 @@ trait DiscountGenerator {
   def generateDiscounts(data: Seq[SimpleDiscount])(implicit db: Database) = for {
     context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
     discounts ← * <~ DbResultT.sequence(data.map( d ⇒  {
-        val discountForm = SimpleDiscountForm(d.percentOff, d.totalAmount)
-        val discountShadow = SimpleDiscountShadow(discountForm)
-        val payload = CreateDiscount(
-          form = CreateDiscountForm(attributes = discountForm.form),
-          shadow = CreateDiscountShadow(attributes = discountShadow.shadow))
-        DbResultT(DBIO.from(DiscountManager.create(payload, context.name)))
+      val discountForm = SimpleDiscountForm(d.percentOff, d.totalAmount)
+      val discountShadow = SimpleDiscountShadow(discountForm)
+      val payload = CreateDiscount(
+        form = CreateDiscountForm(attributes = discountForm.form),
+        shadow = CreateDiscountShadow(attributes = discountShadow.shadow))
+      DbResultT(DBIO.from(DiscountManager.create(payload, context.name)))
     }))
   } yield discounts
 

@@ -16,21 +16,17 @@ object DiscountCompilerFailures {
     override def description = "failed to compile qualifiers AST, invalid format provided"
   }
 
-  case object QualifierAstEmptyObjectFailure extends Failure {
-    override def description = "failed to compile qualifiers AST, no qualifiers found inside payload"
-  }
-
   /* Offer AST compiler */
   case class OfferAstParseFailure(json: String) extends Failure {
     override def description = s"failed to compile offers AST, invalid JSON provided: $json"
   }
 
-  case object OfferAstInvalidFormatFailure extends Failure {
-    override def description = "failed to compile offers AST, invalid format provided"
+  case class OfferNotValid(offer: String) extends Failure {
+    override def description = s"failed to compile offers AST, invalid offer: $offer"
   }
 
-  case object OfferAstEmptyObjectFailure extends Failure {
-    override def description = "failed to compile offers AST, no offers found inside payload"
+  case object OfferAstInvalidFormatFailure extends Failure {
+    override def description = "failed to compile offers AST, invalid format provided"
   }
 
   /* Qualifier Compiler */
@@ -40,6 +36,10 @@ object DiscountCompilerFailures {
 
   case class QualifierNotImplementedFailure(qualifierType: QualifierType) extends Failure {
     override def description = s"qualifier not implemented for qualifier type ${show(qualifierType)}"
+  }
+
+  case class QualifierNotValid(qualifier: String) extends Failure {
+    override def description = s"qualifier $qualifier is not valid" 
   }
 
   /* Offer Compiler */

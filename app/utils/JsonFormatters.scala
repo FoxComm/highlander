@@ -5,7 +5,7 @@ import concepts.discounts.qualifiers.QualifierType
 import models.inventory.SkuType
 import models.Note
 import models.order.Order
-import models.order.lineitems.OrderLineItem
+import models.order.lineitems._
 import models.payment.PaymentMethod
 import models.payment.creditcard.CreditCardCharge
 import models.payment.giftcard.{GiftCard, GiftCardAdjustment}
@@ -34,6 +34,7 @@ object JsonFormatters {
     Order.State.jsonFormat +
     Promotion.ApplyType.jsonFormat +
     OrderLineItem.State.jsonFormat +
+    OrderLineItemAdjustment.AdjustmentType.jsonFormat +
     Shipment.State.jsonFormat +
     GiftCard.OriginType.jsonFormat +
     GiftCard.State.jsonFormat +

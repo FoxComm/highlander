@@ -50,20 +50,20 @@ object Checkout {
 case class Checkout(cart: Order, cartValidator: CartValidation)(implicit ec: EC, db: DB, apis: Apis, ac: AC) {
 
   def checkout: DbResultT[FullOrder.Root] = for {
-      _         ← * <~ cart.mustBeCart
-      customer  ← * <~ Customers.mustFindById404(cart.customerId)
-      _         ← * <~ checkInventory
-      _         ← * <~ activePromos
-      valid     ← * <~ cartValidator.validate(isCheckout = false, fatalWarnings = true)
-      _         ← * <~ authPayments(customer)
-      valid     ← * <~ cartValidator.validate(isCheckout = true, fatalWarnings = true)
-      _         ← * <~ fraudScore
-      _         ← * <~ remorseHold
-      _         ← * <~ createNewCart
-      updated   ← * <~ Orders.refresh(cart).toXor
-      _         ← * <~ InventoryAdjustmentManager.orderPlaced(cart)
-      fullOrder ← * <~ FullOrder.fromOrder(updated).toXor
-    } yield fullOrder
+    _         ← * <~ cart.mustBeCart
+    customer  ← * <~ Customers.mustFindById404(cart.customerId)
+    _         ← * <~ checkInventory
+    _         ← * <~ activePromos
+    valid     ← * <~ cartValidator.validate(isCheckout = false, fatalWarnings = true)
+    _         ← * <~ authPayments(customer)
+    valid     ← * <~ cartValidator.validate(isCheckout = true, fatalWarnings = true)
+    _         ← * <~ fraudScore
+    _         ← * <~ remorseHold
+    _         ← * <~ createNewCart
+    updated   ← * <~ Orders.refresh(cart).toXor
+    _         ← * <~ InventoryAdjustmentManager.orderPlaced(cart)
+    fullOrder ← * <~ FullOrder.fromOrder(updated).toXor
+  } yield fullOrder
 
   private def checkInventory: DbResult[Unit] = DbResult.unit
 

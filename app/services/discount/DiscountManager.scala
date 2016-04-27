@@ -37,11 +37,9 @@ object DiscountManager {
 
   def get(discountId: Int, contextName: String)
     (implicit ec: EC, db: DB): Result[DiscountResponse.Root] = (for {
-      context  ← * <~ ObjectContexts.filterByName(contextName).one.
-      mustFindOr(ObjectContextNotFound(contextName))
-      discount ← * <~ Discounts.filter(_.contextId === context.id).
-      filter(_.formId === discountId).one.mustFindOr(
-        DiscountNotFoundForContext(discountId, context.id)) 
+      context  ← * <~ ObjectContexts.filterByName(contextName).one.mustFindOr(ObjectContextNotFound(contextName))
+      discount ← * <~ Discounts.filter(_.contextId === context.id).filter(_.formId === discountId).one
+        .mustFindOr(DiscountNotFoundForContext(discountId, context.id))
       form     ← * <~ ObjectForms.mustFindById404(discount.formId)
       shadow   ← * <~ ObjectShadows.mustFindById404(discount.shadowId)
   } yield DiscountResponse.build(form, shadow)).run()

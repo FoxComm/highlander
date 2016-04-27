@@ -1,67 +1,58 @@
 package routes.admin
 
-import scala.concurrent.ExecutionContext
 import akka.http.scaladsl.server.Directives._
-import akka.stream.Materializer
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.StoreAdmin
 import payloads.{CreatePromotion, UpdatePromotion}
-import services.Authenticator.{AsyncAuthenticator, requireAuth}
 import services.promotion.PromotionManager
-import slick.driver.PostgresDriver.api._
-import utils.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
-import utils.db._
 import utils.aliases._
 
 object PromotionRoutes {
-
   def routes(implicit ec: EC, db: DB, admin: StoreAdmin) = {
-
-      activityContext(admin) { implicit ac ⇒
-
-        pathPrefix("promotions") {
-          pathPrefix("forms" / IntNumber) { id ⇒
-            (get & pathEnd) {
-              goodOrFailures {
-                PromotionManager.getForm(id)
-              }
+    activityContext(admin) { implicit ac ⇒
+      pathPrefix("promotions") {
+        pathPrefix("forms" / IntNumber) { id ⇒
+          (get & pathEnd) {
+            goodOrFailures {
+              PromotionManager.getForm(id)
+            }
+          }
+        } ~
+        pathPrefix("shadows" / Segment / IntNumber) { (context, id)  ⇒
+          (get & pathEnd) {
+            goodOrFailures {
+              PromotionManager.getShadow(id, context)
+            }
+          }
+        } ~
+        pathPrefix(Segment) { (context)  ⇒
+          (post & pathEnd & entity(as[CreatePromotion])) { payload ⇒
+            goodOrFailures {
+              PromotionManager.create(payload, context)
             }
           } ~
-          pathPrefix("shadows" / Segment / IntNumber) { (context, id)  ⇒
+          pathPrefix(IntNumber) { id ⇒
+            (get & path("baked")) {
+              goodOrFailures {
+                PromotionManager.getIlluminated(id, context)
+              }
+            } ~
             (get & pathEnd) {
               goodOrFailures {
-                PromotionManager.getShadow(id, context)
+                PromotionManager.get(id, context)
               }
-            }
-          } ~
-          pathPrefix(Segment) { (context)  ⇒
-            (post & pathEnd & entity(as[CreatePromotion])) { payload ⇒
+            } ~
+            (patch & pathEnd & entity(as[UpdatePromotion])) { payload ⇒
               goodOrFailures {
-                PromotionManager.create(payload, context)
+                PromotionManager.update(id, payload, context)
               }
-            } ~ 
-            pathPrefix(IntNumber) { id ⇒ 
-              (get & path("baked")) {
-                goodOrFailures {
-                  PromotionManager.getIlluminated(id, context)
-                }
-              } ~
-              (get & pathEnd) {
-                goodOrFailures {
-                  PromotionManager.get(id, context)
-                }
-              } ~
-              (patch & pathEnd & entity(as[UpdatePromotion])) { payload ⇒
-                goodOrFailures {
-                  PromotionManager.update(id, payload, context)
-                }
-              } 
             }
           }
         }
       }
+    }
   }
 }

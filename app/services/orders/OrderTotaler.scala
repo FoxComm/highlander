@@ -1,8 +1,9 @@
 package services.orders
 
-import models.order.{Orders, Order, OrderShippingMethods}
+import models.order.{Order, OrderShippingMethods, Orders}
 import slick.driver.PostgresDriver.api._
 import cats.implicits._
+import models.order.lineitems._
 import services.Result
 import utils.aliases._
 import utils.db._
@@ -45,13 +46,15 @@ object OrderTotaler {
     sum = orderShippingMethods.foldLeft(0)(_ + _.price)
   } yield sum).value
 
-  def adjustmentsTotal(order: Order): DBIO[Int] =
-    DBIO.successful(0)
+  def adjustmentsTotal(order: Order)(implicit ec: EC): DbResult[Int] = (for {
+    lineItemAdjustments ← * <~ OrderLineItemAdjustments.filter(_.orderId === order.id).result.toXor
+    sum = lineItemAdjustments.foldLeft(0)(_ + _.subtract)
+  } yield sum).value
 
   def totals(order: Order)(implicit ec: EC): DbResult[Totals] = (for {
     sub   ← * <~ subTotal(order).toXor
     ship  ← * <~ shippingTotal(order)
-    adj   ← * <~ adjustmentsTotal(order).toXor
+    adj   ← * <~ adjustmentsTotal(order)
   } yield Totals.build(subTotal = sub, shipping = ship, adjustments = adj)).value
 
   def saveTotals(order: Order)(implicit ec: EC): DbResult[Order] = (for {

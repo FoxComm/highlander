@@ -6,6 +6,7 @@ import scala.concurrent.Future
 import cats.implicits._
 import models.customer.{Customers, Customer}
 import models.location.Region
+import models.objects._
 import models.order._
 import models.product.Mvp
 import models.order.lineitems._
@@ -36,6 +37,18 @@ object FullOrder {
     giftCards: Seq[GiftCardResponse.Root] = Seq.empty
    ) extends ResponseItem
 
+  case class LineItemAdjustment(
+    promotionShadowId: Int,
+    adjustmentType: OrderLineItemAdjustment.AdjustmentType,
+    substract: Int,
+    lineItemId: Option[Int]
+  ) extends ResponseItem
+
+  object LineItemAdjustment {
+    def build(model: OrderLineItemAdjustment) = LineItemAdjustment(promotionShadowId = model.promotionShadowId,
+      adjustmentType = model.adjustmentType, substract = model.subtract, lineItemId = model.lineItemId)
+  }
+
   case class Root(
     id: Int,
     referenceNumber: String,
@@ -43,6 +56,7 @@ object FullOrder {
     shippingState: Option[Order.State] = None,
     paymentState: Option[CreditCardCharge.State] = None,
     lineItems: LineItems,
+    lineItemAdjustments: Seq[LineItemAdjustment] = Seq.empty,
     fraudScore: Int,
     totals: Totals,
     customer: Option[CustomerResponse.Root] = None,
@@ -82,7 +96,7 @@ object FullOrder {
 
   def fromOrder(order: Order)(implicit ec: EC): DBIO[Root] = {
     fetchOrderDetails(order).map {
-      case (customer, lineItems, shipMethod, shipAddress, ccPmt, gcPmts, scPmts, gcs, totals, lockedBy, payState) ⇒
+      case (customer, lineItems, shipMethod, shipAddress, ccPmt, gcPmts, scPmts, gcs, totals, lockedBy, payState, adj) ⇒
       build(
         order = order,
         customer = customer,
@@ -95,7 +109,8 @@ object FullOrder {
         scPmts = scPmts,
         lockedBy = lockedBy,
         paymentState = payState,
-        totals = totals
+        totals = totals,
+        lineItemAdjustments = adj.map(LineItemAdjustment.build)
       )
     }
   }
@@ -108,7 +123,9 @@ object FullOrder {
     giftCards: Seq[(GiftCard, OrderLineItemGiftCard)] = Seq.empty,
     totals: Option[Totals] = None,
     lockedBy: Option[StoreAdmin] = None,
-    paymentState: Option[CreditCardCharge.State] = None): Root = {
+    paymentState: Option[CreditCardCharge.State] = None,
+    promoShadows: Seq[(ObjectShadow, Seq[ObjectShadow])] = Seq.empty,
+    lineItemAdjustments: Seq[LineItemAdjustment] = Seq.empty): Root = {
 
     val creditCardPmt = ccPmt.map { case (pmt, cc, region) ⇒
       val payment = Payments.CreditCardPayment(id = cc.id, customerId = cc.customerId, holderName = cc.holderName,
@@ -149,6 +166,7 @@ object FullOrder {
       shippingState = order.getShippingState,
       paymentState = paymentState,
       lineItems = LineItems(skus = skuList, giftCards = gcList),
+      lineItemAdjustments = lineItemAdjustments,
       fraudScore = order.fraudScore,
       customer = customer.map(responses.CustomerResponse.build(_)),
       shippingAddress = shippingAddress,
@@ -197,6 +215,8 @@ object FullOrder {
       scPayments  ← OrderPayments.findAllStoreCreditsByOrderId(order.id).result
       lockedBy    ← currentLock(order)
       payState    ← OrderQueries.getPaymentState(order.id)
+      // Line item adjustments
+      lineItemAdj ← OrderLineItemAdjustments.findByOrderId(order.id).result
     } yield (
       customer, 
       lineItems,
@@ -208,6 +228,7 @@ object FullOrder {
       giftCards, 
       totals(order).some,
       lockedBy, 
-      payState.some)
+      payState.some,
+      lineItemAdj)
   }
 }

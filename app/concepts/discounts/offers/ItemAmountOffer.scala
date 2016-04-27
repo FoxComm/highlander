@@ -8,11 +8,11 @@ import models.order.Order
 import models.order.lineitems.OrderLineItemProductData
 import models.shipping.ShippingMethod
 
-case class ItemsSelectPercentOffer(discount: Int, references: Seq[ReferenceTuple]) extends Offer {
+case class ItemAmountOffer(discount: Int, references: Seq[ReferenceTuple]) extends Offer {
 
   val rejectionReason = "Not implemented yet"
 
-  def adjust(order: Order, lineItems: Seq[OrderLineItemProductData],
+  def adjust(order: Order, promoId: Int, lineItems: Seq[OrderLineItemProductData],
     shippingMethod: Option[ShippingMethod]): AdjustmentResult =
 
     Xor.Left(OfferRejectionFailure(this, order.refNum, rejectionReason).single)

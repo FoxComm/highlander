@@ -31,29 +31,39 @@ object Customer {
             complete(CustomerToken.fromCustomer(customer))
           } ~
           pathPrefix("products" / IntNumber / "baked") { productId ⇒
-            determineObjectContext(db, ec) { productContext ⇒
+            determineObjectContext(db, ec) { context ⇒
               (get & pathEnd) {
                 goodOrFailures {
-                  ProductManager.getIlluminatedFullProductByContext(productId, productContext)
+                  ProductManager.getIlluminatedFullProductByContext(productId, context)
                 }
               }
             }
           } ~
           pathPrefix("cart") {
-            determineObjectContext(db, ec) { productContext ⇒
+            determineObjectContext(db, ec) { context ⇒
               (get & pathEnd) {
                 goodOrFailures {
-                  OrderQueries.findOrCreateCartByCustomer(customer, productContext)
+                  OrderQueries.findOrCreateCartByCustomer(customer, context)
                 }
               } ~
               (post & path("line-items") & pathEnd & entity(as[Seq[UpdateLineItemsPayload]])) { reqItems ⇒
                 goodOrFailures {
-                  LineItemUpdater.updateQuantitiesOnCustomersOrder(customer, reqItems, productContext)
+                  LineItemUpdater.updateQuantitiesOnCustomersOrder(customer, reqItems, context)
+                }
+              } ~
+              (post & path("coupon" / Segment) & pathEnd) { code ⇒
+                goodOrFailures {
+                  OrderPromotionUpdater.attachCoupon(Originator(customer), None, context, code)
+                }
+              } ~
+              (delete & path("coupon") & pathEnd) {
+                nothingOrFailures {
+                  OrderPromotionUpdater.detachCoupon(Originator(customer))
                 }
               } ~
               (post & path("checkout") & pathEnd) {
                 goodOrFailures {
-                  Checkout.fromCustomerCart(customer, productContext)
+                  Checkout.fromCustomerCart(customer, context)
                 }
               } ~
               pathPrefix("payment-methods" / "credit-cards") {
@@ -255,15 +265,15 @@ object Customer {
             }
           } ~
           pathPrefix("save-for-later") {
-            determineObjectContext(db, ec) { productContext ⇒
+            determineObjectContext(db, ec) { context ⇒
               (get & pathEnd) {
                 goodOrFailures {
-                  SaveForLaterManager.findAll(customer.id, productContext.id)
+                  SaveForLaterManager.findAll(customer.id, context.id)
                 }
               } ~
               (post & path(skuCodeRegex) & pathEnd) { code ⇒
                 goodOrFailures {
-                  SaveForLaterManager.saveForLater(customer.id, code, productContext)
+                  SaveForLaterManager.saveForLater(customer.id, code, context)
                 }
               } ~
               (delete & path(IntNumber) & pathEnd) { id ⇒

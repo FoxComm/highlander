@@ -90,6 +90,16 @@
 			"owner": "131444"
 		},
 		{
+			"id": "65e55741-a287-5174-949f-ea66f5a8d16c",
+			"name": "Promotions",
+			"description": "",
+			"order": [
+				"79231a8c-d15b-c85f-3bd7-bcd7d898d87c",
+				"aea9d5ae-4349-2d40-875f-b330961318ac"
+			],
+			"owner": "131444"
+		},
+		{
 			"id": "7786e2f5-6428-ba00-678d-115d2941c4b5",
 			"name": "Save For Later",
 			"description": "",
@@ -489,6 +499,27 @@
 			"rawModeData": "{\n    \"creditCardId\": 3\n}"
 		},
 		{
+			"id": "79231a8c-d15b-c85f-3bd7-bcd7d898d87c",
+			"headers": "",
+			"url": "http://localhost:9090/v1/my/cart/coupon/CP1300273047",
+			"pathVariables": {},
+			"preRequestScript": null,
+			"method": "POST",
+			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
+			"data": null,
+			"dataMode": "params",
+			"name": "Add Coupon to Cart",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1461719857210,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"folder": "65e55741-a287-5174-949f-ea66f5a8d16c"
+		},
+		{
 			"id": "83061a88-d1ae-65ac-8593-98b97a3d3e3a",
 			"headers": "Content-Type: application/json\nAccept: application/json\n",
 			"url": "http://localhost:9090/v1/my/addresses/8",
@@ -623,6 +654,27 @@
 			"description": "",
 			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
 			"responses": []
+		},
+		{
+			"id": "aea9d5ae-4349-2d40-875f-b330961318ac",
+			"headers": "",
+			"url": "http://localhost:9090/v1/my/cart/coupon",
+			"pathVariables": {},
+			"preRequestScript": null,
+			"method": "DELETE",
+			"collectionId": "abf22869-426c-1d86-65da-67cb373f13a0",
+			"data": null,
+			"dataMode": "params",
+			"name": "Delete Coupons From Cart",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1461719846658,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"folder": "65e55741-a287-5174-949f-ea66f5a8d16c"
 		},
 		{
 			"id": "b16ee7f4-3071-3bf5-2e99-584179293de5",

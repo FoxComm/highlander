@@ -27,9 +27,16 @@ class CouponCodes(tag: Tag) extends FoxTable[CouponCode](tag, "coupon_codes")  {
 }
 
 object CouponCodes extends FoxTableQuery[CouponCode, CouponCodes](new CouponCodes(_))
-  with ReturningId[CouponCode, CouponCodes] {
+  with ReturningIdAndString[CouponCode, CouponCodes]
+  with SearchByCode[CouponCode, CouponCodes] {
 
-  val returningLens: Lens[CouponCode, Int] = lens[CouponCode].id
+  override val returningQuery = map { s ⇒ (s.id, s.code) }
+
+  def findByCode(code: String): QuerySeq =
+    filter(_.code === code)
+
+  def findOneByCode(code: String): DBIO[Option[CouponCode]] =
+    findByCode(code).one
 
   def charactersGivenQuantity(quantity: Int) : Int = Math.ceil(Math.log10(quantity.toDouble)).toInt
 
@@ -65,4 +72,7 @@ object CouponCodes extends FoxTableQuery[CouponCode, CouponCodes](new CouponCode
     val num = s"%0${numericLength}d".format(number)
     s"${prefix}${num}"
   }
+
+  private val rootLens = lens[CouponCode]
+  val returningLens: Lens[CouponCode, (Int, String)] = rootLens.id ~ rootLens.code
 }

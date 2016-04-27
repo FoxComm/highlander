@@ -5,6 +5,7 @@ import utils.ADT
 
 // Qualifier types
 sealed trait QualifierType
+case object And extends QualifierType
 case object OrderAny extends QualifierType
 case object OrderTotalAmount extends QualifierType
 case object OrderNumUnits extends QualifierType

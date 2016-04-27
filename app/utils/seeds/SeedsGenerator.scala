@@ -109,10 +109,10 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
 
   def generateAddresses(customers: Seq[Customer]): Seq[Address] = {
     customers.flatMap { c ⇒
-        generateAddress(customer = c, isDefault = true) +:
-        ((0 to Random.nextInt(2)) map { i ⇒
-          generateAddress(customer = c, isDefault = false)
-        })
+      generateAddress(customer = c, isDefault = true) +:
+      ((0 to Random.nextInt(2)) map { i ⇒
+        generateAddress(customer = c, isDefault = false)
+      })
     }
   }
 
@@ -124,7 +124,7 @@ object SeedsGenerator extends CustomerGenerator with AddressGenerator
   }.toList
   
   def makeCoupons(promotions: Seq[SimplePromotion]) = promotions.par.map { 
-    p ⇒  generateCoupon(p) 
+    p ⇒ generateCoupon(p)
   }.toList
 
   def makeCouponCodes(promotions: Seq[SimpleCoupon]) = promotions.flatMap { c ⇒  

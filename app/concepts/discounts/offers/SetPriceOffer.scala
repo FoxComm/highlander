@@ -8,17 +8,16 @@ import models.order.lineitems._
 import models.order.lineitems.OrderLineItemAdjustment.OrderLineItemType
 import models.shipping.ShippingMethod
 
-case class OrderPercentOffer(discount: Int) extends Offer {
+case class SetPriceOffer(setPrice: Int) extends Offer {
 
-  val rejectionReason = "Invalid discount value provided (should be between 1 and 99)"
+  val rejectionReason = "Invalid set price value provided (should be bigger than zero)"
 
   def adjust(order: Order, promoId: Int, lineItems: Seq[OrderLineItemProductData],
     shippingMethod: Option[ShippingMethod]): AdjustmentResult = {
 
-    if (discount > 0 && discount < 100) {
-      val amount = (order.subTotal * discount) / 100.0d
-      val substract = Math.ceil(amount).toInt // This will give a bigger discount by one penny
-
+    if (setPrice > 0) {
+      val delta = order.grandTotal - setPrice
+      val substract = if (delta > 0) delta else order.grandTotal
       Xor.Right(Seq(build(order, promoId, substract)))
     } else {
       Xor.Left(OfferRejectionFailure(this, order.refNum, rejectionReason).single)

@@ -2,6 +2,11 @@ package utils.seeds
 
 import java.time.{Instant, ZoneId}
 
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
+import com.typesafe.config.Config
+
 import cats.data.Xor
 import models.Reason._
 import models.inventory._
@@ -18,11 +23,6 @@ import utils.db._
 import utils.db.DbResultT._
 import utils.{FoxConfig, JsonFormatters}
 import flyway.newFlyway
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
-
-import com.typesafe.config.Config
 
 object Seeds {
 

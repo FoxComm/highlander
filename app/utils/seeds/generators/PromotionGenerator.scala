@@ -31,9 +31,9 @@ case class SimplePromotionForm(percentOff: Percent, totalAmount: Int) {
 
     val (keyMap, form) = ObjectUtils.createForm(parse(s"""
     {
-      "name" : "${percentOff}% off after spending $totalAmount dollars",
-      "storefrontName" : "${percentOff}% off after spending $totalAmount dollars",
-      "description" : "${percentOff}% off full order after spending $totalAmount dollars",
+      "name" : "$percentOff% off after spending $totalAmount dollars",
+      "storefrontName" : "$percentOff% off after spending $totalAmount dollars",
+      "description" : "$percentOff% off full order after spending $totalAmount dollars",
       "details" : "This offer applies after you spend over $totalAmount dollars",
       "activeFrom" : "${Instant.now}",
       "activeTo" : null,
@@ -75,21 +75,21 @@ trait PromotionGenerator {
 
   def generatePromotions(data: Seq[SimplePromotion])(implicit db: Database) = for {
     context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-    promotions ← * <~ DbResultT.sequence(data.map( d ⇒  {
-        val promotionForm = SimplePromotionForm(d.percentOff, d.totalAmount)
-        val promotionShadow = SimplePromotionShadow(promotionForm)
-        val discountForm = SimpleDiscountForm(d.percentOff, d.totalAmount)
-        val discountShadow = SimpleDiscountShadow(discountForm)
-        val payload = CreatePromotion(
-          applyType = d.applyType,
-          form = CreatePromotionForm(attributes = promotionForm.form, 
-            discounts = Seq(CreateDiscountForm(attributes = discountForm.form))),
-          shadow = CreatePromotionShadow(attributes = promotionShadow.shadow, 
-            discounts = Seq(CreateDiscountShadow( attributes = discountShadow.shadow))))
-        DbResultT(DBIO.from(PromotionManager.create(payload, context.name).flatMap{
-          case Xor.Right(r) ⇒ Result.right(d.copy(promotionId = r.form.id))
-          case Xor.Left(l) ⇒  Result.failures(l)
-        }))
+    promotions ← * <~ DbResultT.sequence(data.map(d ⇒ {
+      val promotionForm = SimplePromotionForm(d.percentOff, d.totalAmount)
+      val promotionShadow = SimplePromotionShadow(promotionForm)
+      val discountForm = SimpleDiscountForm(d.percentOff, d.totalAmount)
+      val discountShadow = SimpleDiscountShadow(discountForm)
+      val payload = CreatePromotion(
+        applyType = d.applyType,
+        form = CreatePromotionForm(attributes = promotionForm.form,
+          discounts = Seq(CreateDiscountForm(attributes = discountForm.form))),
+        shadow = CreatePromotionShadow(attributes = promotionShadow.shadow,
+          discounts = Seq(CreateDiscountShadow( attributes = discountShadow.shadow))))
+      DbResultT(DBIO.from(PromotionManager.create(payload, context.name).flatMap{
+        case Xor.Right(r) ⇒ Result.right(d.copy(promotionId = r.form.id))
+        case Xor.Left(l) ⇒  Result.failures(l)
+      }))
     }))
   } yield promotions
 

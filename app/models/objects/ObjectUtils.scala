@@ -110,7 +110,7 @@ object ObjectUtils {
       case _ ⇒ (JNothing, JNothing)
     }
 
-  case class  InsertResult(form: ObjectForm, shadow: ObjectShadow, commit: ObjectCommit)
+  case class InsertResult(form: ObjectForm, shadow: ObjectShadow, commit: ObjectCommit)
 
   def insert(formProto: ObjectForm, shadowProto: ObjectShadow)(implicit ec: EC):
   DbResultT[InsertResult] ={  

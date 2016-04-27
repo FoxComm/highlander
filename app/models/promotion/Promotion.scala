@@ -56,4 +56,14 @@ object Promotions extends FoxTableQuery[Promotion, Promotions](new Promotions(_)
 
   def filterByContextAndFormId(contextId: Int, formId: Int): QuerySeq = 
     filter(_.contextId === contextId).filter(_.formId === formId)
+
+  object scope {
+    implicit class PromotionQuerySeqConversions(q: QuerySeq) {
+      def autoApplied: QuerySeq =
+        q.filter(_.requireCoupon === (Promotion.Auto: Promotion.ApplyType))
+
+      def requiresCoupon: QuerySeq =
+        q.filter(_.requireCoupon === (Promotion.Coupon: Promotion.ApplyType))
+    }
+  }
 }

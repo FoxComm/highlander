@@ -7,14 +7,14 @@ import models.order.Order
 import models.order.lineitems.OrderLineItemProductData
 import models.shipping.ShippingMethod
 
-case class OrderTotalAmountQualifier(totalAmount: Int) extends Qualifier {
+case class OrderNumUnitsQualifier(numUnits: Int) extends Qualifier {
 
-  val rejectionReason = s"Order subtotal is less than $totalAmount"
+  val rejectionReason = s"Order unit count is less than $numUnits"
 
   def check(order: Order, lineItems: Seq[OrderLineItemProductData],
     shippingMethod: Option[ShippingMethod]): Xor[Failures, Unit] = {
 
-    if (order.subTotal > totalAmount)
+    if (lineItems.size > numUnits)
       Xor.Right(Unit)
     else
       Xor.Left(QualifierRejectionFailure(this, order.refNum, rejectionReason).single)
