@@ -2,17 +2,21 @@
 
 import Element from './element';
 import Condition from './query/condition';
+import Selector from './selector';
 import Sorter from './sorter';
 import Aggregator from './aggregations/aggregator';
 
 
 export type RequestType = {
+  _source?: Array<string>;
   query?: Object;
   sort?: Array<Object>;
 };
 
 
 export default class Request extends Element {
+
+  _selector: Selector;
 
   _query: Condition;
 
@@ -24,6 +28,10 @@ export default class Request extends Element {
 
   get criterions(): Array<any> {
     return this._criterions;
+  }
+
+  get select(): Selector {
+    return this._selector || (this._selector = new Selector(this._criterions));
   }
 
   get query(): Condition {
@@ -57,6 +65,10 @@ export default class Request extends Element {
 
   toRequest(): RequestType {
     const request = {};
+
+    if (this.select.length) {
+      request._source = this.select.toRequest();
+    }
 
     if (this.query && this.query.length) {
       request.query = {
