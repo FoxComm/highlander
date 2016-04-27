@@ -1,0 +1,7 @@
+{
+    "service" : {
+        "name": "{{namespace}}-db",
+        "tags": ["{{namespace}}", "db"], 
+        "port": 5432
+    }
+}

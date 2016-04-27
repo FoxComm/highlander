@@ -1,0 +1,7 @@
+{
+    "service" : {
+        "name": "{{namespace}}-kafka",
+        "tags": ["{{namespace}}", "kafka"], 
+        "port": 9092
+    }
+}

@@ -1,0 +1,25 @@
+---
+
+- name: Provision Green River Stage
+  hosts: stage2-backend
+  vars:
+    user: '{{ansible_ssh_user}}'
+    namespace: 'stage2'
+
+  roles:
+    - { role: dev/db}
+    - { role: dev/phoenix}
+    - { role: dev/seeder}
+    - { role: dev/greenriver}
+    - { role: dev/loyalty}
+    - { role: dev/messaging}
+
+- name: Provision Ashes Stage
+  hosts: stage2-frontend
+  vars:
+    user: '{{ansible_ssh_user}}'
+    namespace: 'stage2'
+
+  roles:
+    - { role: dev/ashes}
+    - { role: dev/firebird}
