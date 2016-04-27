@@ -1,14 +1,13 @@
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
-import classNames from 'classnames';
+import React, { PropTypes, Component } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
 import { HalfCheckbox } from './checkbox';
-import { DecrementButton } from '../common/buttons';
+import GenericDropdown from '../dropdown/generic-dropdown';
 
-export default class CheckboxDropdown extends React.Component {
+export default class CheckboxDropdown extends Component {
 
   static propTypes = {
     id: PropTypes.string.isRequired,
@@ -28,65 +27,37 @@ export default class CheckboxDropdown extends React.Component {
     onSelect: _.noop,
   };
 
-  constructor(...args) {
-    super(...args);
-    this.state = {
-      open: false,
-    };
+  @autobind
+  renderCheckbox() {
+    const { id, halfChecked, onToggle, checked, disabled } = this.props;
+    return (
+      <HalfCheckbox
+        inline={true}
+        id={id}
+        docked="left"
+        disabled={disabled}
+        checked={checked}
+        halfChecked={halfChecked}
+        onChange={onToggle}
+      />
+    );
   }
 
   @autobind
-  handleToggleClick(event) {
-    event.preventDefault();
-    this.setState({
-      open: !this.state.open
-    });
-  }
-
-  @autobind
-  handleItemClick(value) {
-    this.setState({
-      open: false,
-    }, () => {
-      this.props.onSelect(value);
-    });
-  }
-
-  @autobind
-  onBlur() {
-    setTimeout(() => this.setState({open: false}), 0);
+  handleChange(value) {
+    this.props.onSelect(value);
   }
 
   render() {
-    const { id, disabled, checked, halfChecked, onToggle, children } = this.props;
-    const className = classNames(
-      this.props.className,
-      'fc-dropdown',
-      {'_open': this.state.open},
-    );
-
     return (
-      <div className={className} onBlur={this.onBlur} tabIndex="0">
-        <HalfCheckbox inline={true}
-                      id={id}
-                      docked="left"
-                      disabled={disabled}
-                      checked={checked}
-                      halfChecked={halfChecked}
-                      onChange={onToggle} />
-        <DecrementButton docked="right"
-                         disabled={disabled}
-                         className="_inline _small"
-                         onClick={this.handleToggleClick} />
-        <ul className="fc-dropdown__items">
-          {React.Children.map(children, item => (
-              React.cloneElement(item, {
-                onSelect: this.handleItemClick,
-              })
-            )
-          )}
-        </ul>
-      </div>
+      <GenericDropdown
+        renderDropdownInput={this.renderCheckbox}
+        onChange={this.handleChange}
+        dropdownProps={{
+          className: '_inline _small'
+        }}
+        {...this.props}
+      />
     );
   }
 }

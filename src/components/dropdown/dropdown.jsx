@@ -31,22 +31,16 @@ export default class Dropdown extends Component {
   props: Props;
 
   @autobind
-  buildInput(name: string,
-             value: string|number,
-             placeholder: string,
-             title: string,
-             editable: bool,
-             disabled: bool,
-             handleToggleClick: Function): Element {
-    if (editable) {
+  buildInput(value: string|number, title: string, props: Props, handleToggleClick: Function): Element {
+    if (props.editable) {
       return (
         <div className="fc-dropdown__value">
           <input
-            name={name}
-            placeholder={placeholder}
-            disabled={disabled}
+            name={props.name}
+            placeholder={props.placeholder}
+            disabled={props.disabled}
             defaultValue={title}
-            key={`${name}-${value}-selected`}
+            key={`${props.name}-${value}-selected`}
           />
         </div>
       );
@@ -55,13 +49,12 @@ export default class Dropdown extends Component {
     return (
       <div className="fc-dropdown__value" onClick={handleToggleClick}>
         {title}
-        <input name={name} type="hidden" value={value} readOnly />
+        <input name={props.name} type="hidden" value={value} readOnly />
       </div>
     );
   }
 
 
-  @autobind
   renderItems(): ?Element {
     const { name, items, children } = this.props;
 

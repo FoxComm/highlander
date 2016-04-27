@@ -8,6 +8,7 @@ import classNames from 'classnames';
 
 import DropdownItem from './dropdownItem';
 import Overlay from '../overlay/overlay';
+import { Button } from '../common/buttons';
 
 type ValueType = ?string|number;
 
@@ -27,6 +28,7 @@ type Props = {
   renderNullTitle?: Function,
   renderPrepend?: Function,
   onChange: Function,
+  dropdownProps: Object,
 };
 
 type State = {
@@ -46,6 +48,7 @@ export default class GenericDropdown extends Component {
     disabled: false,
     primary: false,
     editable: false,
+    dropdownProps: {},
   };
 
   state: State = {
@@ -110,8 +113,8 @@ export default class GenericDropdown extends Component {
   }
 
   get dropdownClassName(): string {
-    const { primary, editable, children, disabled } = this.props;
-    const { open, dropup } = this.state;
+    const { primary, editable, disabled } = this.props;
+    const { open } = this.state;
     const className = classNames(this.props.className, {
       'fc-dropdown': true,
       '_primary': primary,
@@ -131,23 +134,26 @@ export default class GenericDropdown extends Component {
   }
 
   get dropdownButton(): Element {
-    const className = this.state.open ? 'icon-chevron-up' : 'icon-chevron-down';
+    const icon = this.state.open ? 'chevron-up' : 'chevron-down';
     return (
-      <div className="fc-dropdown__button"
-           disabled={this.props.disabled}
-           onClick={this.handleToggleClick}>
-        <i className={className}></i>
-      </div>
+      <Button
+        icon={icon}
+        docked="right"
+        className="_dropdown-size"
+        disabled={this.props.disabled}
+        onClick={this.handleToggleClick}
+        {...this.props.dropdownProps}
+      />
     );
   }
 
   get dropdownInput(): Element {
-    const { name, value, placeholder, renderDropdownInput, editable, disabled } = this.props;
+    const { name, value, placeholder, renderDropdownInput } = this.props;
     const actualValue = this.state.selectedValue || value;
     const title = this.findTitleByValue(actualValue, this.props) || this.renderNullTitle(value, placeholder);
 
     return renderDropdownInput
-      ? renderDropdownInput(name, actualValue, placeholder, title, editable, disabled, this.handleToggleClick)
+      ? renderDropdownInput(actualValue, title, this.props, this.handleToggleClick)
       : (
         <div className="fc-dropdown__value" onClick={this.handleToggleClick}>
           {title}
@@ -213,13 +219,13 @@ export default class GenericDropdown extends Component {
   }
 
   render() {
-    const { name, editable } = this.props;
+    const { editable } = this.props;
     return (
       <div className={this.dropdownClassName} ref="container" tabIndex="0">
         <Overlay shown={this.state.open} onClick={this.handleToggleClick} />
         <div className="fc-dropdown__controls" onClick={editable ? this.handleToggleClick : null}>
-          {this.dropdownButton}
           {this.dropdownInput}
+          {this.dropdownButton}
         </div>
         <div className={this.listClassName}>
           {this.prependList}
