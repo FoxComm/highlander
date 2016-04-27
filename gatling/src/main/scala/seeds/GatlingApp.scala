@@ -1,5 +1,7 @@
 package seeds
 
+import scala.concurrent.duration._
+
 import com.typesafe.config.Config
 import io.gatling.app.Gatling
 import io.gatling.core.Predef._
@@ -42,4 +44,5 @@ class GatlingSeeds extends Simulation {
   setUp(pacificNwVips, randomCustomerActivity)
     .assertions(Conf.defaultAssertion)
     .protocols(Conf.httpConf)
+    .maxDuration(2.minutes)
 }
