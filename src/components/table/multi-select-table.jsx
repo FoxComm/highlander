@@ -60,6 +60,11 @@ export default class MultiSelectTable extends React.Component {
   }
 
   @autobind
+  setColumnSelected(columns) {
+    this.setState({columns});
+  }
+
+  @autobind
   setAllChecked(checked) {
     //set allChecked flag and reset toggledIds list
     this.setState({allChecked: checked, toggledIds: []});
@@ -125,7 +130,7 @@ export default class MultiSelectTable extends React.Component {
 
     const toggleColumn = {
       field: 'toggleColumns',
-      control: <ColumnSelector columns={this.state.columns} />,
+      control: <ColumnSelector setColumns={this.setColumnSelected} columns={this.props.columns} />,
       icon: 'icon-settings-col',
       className: '__toggle-columns',
       sortable: false,
