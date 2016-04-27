@@ -92,6 +92,11 @@ object Public {
               ReasonService.listRmaReasons
             }
           }
+        } ~
+        pathPrefix("ping") {
+          (get & pathEnd) {
+            good(render("pong"))
+          }
         }
       }
     }

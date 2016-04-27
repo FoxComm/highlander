@@ -1,13 +1,10 @@
 package seeds
 
-import scala.concurrent.duration._
-
 import com.typesafe.config.Config
 import io.gatling.app.Gatling
-import io.gatling.core.Predef._
-import io.gatling.http.Predef._
+import io.gatling.core.scenario.Simulation
 import io.gatling.jdbc.Predef._
-import seeds.Scenarios._
+import seeds.Simulations._
 import slick.driver.PostgresDriver.api._
 import utils.FoxConfig
 
@@ -25,24 +22,11 @@ object GatlingApp extends App {
 
   def dbFeeder(sql: String) = jdbcFeeder(dbUrl, dbUser, dbPassword, sql)
 
-  Gatling.main(Array())
-}
-
-object Conf {
-
-  val defaultAssertion = global.failedRequests.count.is(0)
-
-  val httpConf = http
-    .baseURL("http://localhost:9090")
-    .acceptHeader("application/json")
-    .contentTypeHeader("application/json")
-    .disableWarmUp
-
-}
-
-class GatlingSeeds extends Simulation {
-  setUp(pacificNwVips, randomCustomerActivity)
-    .assertions(Conf.defaultAssertion)
-    .protocols(Conf.httpConf)
-    .maxDuration(2.minutes)
+  // Gatling API is weird...
+  val pingExitCode = Gatling.fromArgs(Array(), Some(classOf[PhoenixPing].asInstanceOf[Class[Simulation]]))
+  if (pingExitCode != 0) {
+    println(s"Phoenix did not respond in ${Conf.phoenixStartupTimeout}, exiting now!")
+    System.exit(1)
+  }
+  Gatling.fromArgs(Array(), Some(classOf[GatlingSeeds].asInstanceOf[Class[Simulation]]))
 }
