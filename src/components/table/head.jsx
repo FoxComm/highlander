@@ -42,7 +42,7 @@ class TableHead extends React.Component {
           <i className={column.icon} />
           {column.control}
         </div>
-      )
+      );
     } else if (!_.isEmpty(column.icon)) {
       contents = <i className={column.icon} />;
     } else if (!_.isEmpty(column.control)) {

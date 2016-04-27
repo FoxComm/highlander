@@ -35,7 +35,7 @@ export default class ColumnSelector extends React.Component {
   toggleColumnsSelected(column, id) {
     const selectedColumns = this.state.selectedColumns;
 
-    selectedColumns[id].isVisible = !selectedColumns[id].isVisible
+    selectedColumns[id].isVisible = !selectedColumns[id].isVisible;
 
     this.setState({
       selectedColumns: selectedColumns

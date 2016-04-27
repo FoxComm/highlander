@@ -48,8 +48,8 @@ export default class MultiSelectTable extends React.Component {
   getTableIdentifier() {
     if (!this.props.identifier) {
       return this.props.columns.map(item => {
-        return item.text
-      }).toString()
+        return item.text;
+      }).toString();
     }
     return this.props.identifier;
   }
