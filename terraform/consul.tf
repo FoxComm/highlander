@@ -1,6 +1,6 @@
 
 variable "image" { 
-    default = "consul-server-1461707613"
+    default = "consul-server-1461715686"
 }
 
 variable "ssh_user" {} 

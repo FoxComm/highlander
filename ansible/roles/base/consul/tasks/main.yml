@@ -17,10 +17,15 @@
   sudo: true
   when: consul_server is defined
 
-- name: Specify Server
+- name: Specify Datacenter
   lineinfile: dest="/etc/consul.d/env" line="CONSUL_DC={{consul_dc}}"
   sudo: true
   when: consul_dc is defined
+
+- name: Specify Bind
+  lineinfile: dest="/etc/consul.d/env" line="CONSUL_BIND={{consul_bind}}"
+  sudo: true
+  when: consul_bind is defined
 
 - name: Create Data Directory
   file: path=/var/consul state=directory

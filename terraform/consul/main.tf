@@ -32,16 +32,21 @@ resource "google_compute_instance" "consul_server" {
     }
 
     provisioner "file" {
-        source = "terraform/scripts/bootsrap.sh"
-        destination = "/tmp/bootsrap.sh"
+        source = "terraform/scripts/bootstrap.sh"
+        destination = "/tmp/bootstrap.sh"
+    }
+
+    provisioner "file" {
+        source = "terraform/scripts/consul_server.sh"
+        destination = "/tmp/consul_server.sh"
     }
 
     provisioner "remote-exec" {
         inline = [
-          "chmod +x /tmp/bootsrap.sh",
-          "/tmp/bootsrap.sh",
-          "echo 'CONSUL_DC=${var.datacenter}' >> /etc/consul.d/env",
-          "echo 'CONSUL_SERVER=${google_compute_instance.consul_server.0.private_dns}' >> /etc/consul.d/env",
+          "chmod +x /tmp/bootstrap.sh",
+          "chmod +x /tmp/consul_server.sh",
+          "/tmp/bootstrap.sh",
+          "/tmp/consul_server.sh ${var.datacenter} ${google_compute_instance.consul_server.0.network_interface.0.address}"
         ]
     }
 }

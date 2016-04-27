@@ -20,3 +20,19 @@
   service: name=consul_agent state=restarted enabled=yes
   sudo: true
 
+- name: Install Packages
+  apt: name=dnsmasq state=latest force=yes
+  sudo: true
+
+- name: Touch Dnsmasq Config
+  file: path=/etc/dnsmasq.d/10-consul state=touch
+  sudo: true
+
+- name: Add Consul to Dnsmasq Config
+  lineinfile: dest="/etc/dnsmasq.d/10-consul" line="server=/consul/127.0.0.1#8600"
+  sudo: true
+
+- name: Restart Dnsmasq
+  service: name=dnsmasq state=restarted enabled=yes
+  sudo: true
+

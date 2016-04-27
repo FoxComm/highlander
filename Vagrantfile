@@ -9,6 +9,8 @@ $vb_memory = 6048
 $vb_cpu = 4
 $backend_ip = "192.168.10.111"
 $ashes_ip = "192.168.10.112"
+$consul_ip = "192.168.10.113"
+$consul_agent_ip = "192.168.10.114"
 $user = "vagrant"
 
 require CONFIG if File.readable?(CONFIG)
@@ -49,6 +51,9 @@ def expose_backend_ports(config)
 
     # Kibana
     config.vm.network :forwarded_port, guest: 5601, host: 5601, auto_correct: true
+
+    # Consul
+    config.vm.network :forwarded_port, guest: 8500, host: 8500, auto_correct: true
 end
 
 def expose_ashes(config)
@@ -151,6 +156,44 @@ Vagrant.configure("2") do |config|
               user: $user,
               phoenix_server: phoenix_server,
               search_server_http: search_server_http
+          }
+      end
+  end
+  config.vm.define :consulserver, autostart: false do |app|
+
+      app.vm.network :private_network, ip: $consul_ip
+      expose_backend_ports(app)
+      tune_vm(config, cpus: $ashes_cpu, memory: $ashes_memory)
+
+
+      app.vm.provision "shell", inline: "apt-get install -y python-minimal"
+      app.vm.provision "ansible" do |ansible|
+          ansible.verbose = "vv"
+          ansible.playbook = "ansible/vagrant_consul_server.yml"
+          ansible.extra_vars = {
+              user: $user,
+              consul_dc: "vagrant",
+              consul_server: $consul_ip,
+              consul_bind: $consul_ip
+          }
+      end
+  end
+  config.vm.define :consulagent, autostart: false do |app|
+
+      app.vm.network :private_network, ip: $consul_agent_ip
+      expose_backend_ports(app)
+      tune_vm(config, cpus: $ashes_cpu, memory: $ashes_memory)
+
+
+      app.vm.provision "shell", inline: "apt-get install -y python-minimal"
+      app.vm.provision "ansible" do |ansible|
+          ansible.verbose = "vv"
+          ansible.playbook = "ansible/vagrant_consul_agent.yml"
+          ansible.extra_vars = {
+              user: $user,
+              consul_dc: "vagrant",
+              consul_bind: $consul_agent_ip,
+              consul_server: $consul_ip
           }
       end
   end
