@@ -32,11 +32,7 @@ class SellableInventorySummaries(tag: Tag)
 }
 
 object SellableInventorySummaries
-  extends InventorySummariesBase[SellableInventorySummary, SellableInventorySummaries](
-    idLens = lens[SellableInventorySummary].id
-  )(new SellableInventorySummaries(_)) {
+  extends InventorySummariesBase[SellableInventorySummary, SellableInventorySummaries](new SellableInventorySummaries(_)) {
 
-  def returningAction(ret: (Int, Int))(summary: SellableInventorySummary): SellableInventorySummary = ret match {
-    case (id, afs) ⇒ summary.copy(id = id, availableForSale = afs)
-  }
-}
+  private val rootLens = lens[SellableInventorySummary]
+  val returningLens: Lens[SellableInventorySummary, (Int, Int)] = rootLens.id ~ rootLens.availableForSale}

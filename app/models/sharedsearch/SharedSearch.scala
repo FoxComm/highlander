@@ -9,7 +9,6 @@ import shapeless._
 import org.json4s.JsonAST.JValue
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.{ADT, JsonFormatters}
@@ -63,23 +62,15 @@ class SharedSearches(tag: Tag) extends FoxTable[SharedSearch](tag, "shared_searc
     SharedSearch.unapply)
 }
 
-object SharedSearches extends FoxTableQuery[SharedSearch, SharedSearches](
-  idLens = lens[SharedSearch].id
-)(new SharedSearches(_))
+object SharedSearches extends FoxTableQuery[SharedSearch, SharedSearches](new SharedSearches(_))
+  with ReturningIdAndString[SharedSearch, SharedSearches]
   with SearchByCode[SharedSearch, SharedSearches] {
 
   implicit val formats = JsonFormatters.phoenixFormats
 
   import scope._
 
-  val returningIdAndCode = this.returning(map { s ⇒ (s.id, s.code) })
-
-  def returningAction(ret: (Int, String))(search: SharedSearch): SharedSearch = ret match {
-    case (id, code) ⇒ search.copy(id = id, code = code)
-  }
-
-  override def create[R](search: SharedSearch, returning: Returning[R], action: R ⇒ SharedSearch ⇒ SharedSearch)
-    (implicit ec: EC): DbResult[SharedSearch] = super.create(search, returningIdAndCode, returningAction)
+  override val returningQuery = map { s ⇒ (s.id, s.code) }
 
   def findOneByCode(code: String): DBIO[Option[SharedSearch]] =
     filter(_.code === code).one
@@ -101,4 +92,7 @@ object SharedSearches extends FoxTableQuery[SharedSearch, SharedSearches](
         q.filterNot(_.deletedAt.isDefined)
     }
   }
+
+  private val rootLens = lens[SharedSearch]
+  val returningLens: Lens[SharedSearch, (Int, String)] = rootLens.id ~ rootLens.code
 }

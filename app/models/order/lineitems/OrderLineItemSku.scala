@@ -32,9 +32,10 @@ class OrderLineItemSkus(tag: Tag) extends FoxTable[OrderLineItemSku](tag, "order
   def shadow = foreignKey(ObjectShadows.tableName, skuShadowId, ObjectShadows)(_.id)
 }
 
-object OrderLineItemSkus extends FoxTableQuery[OrderLineItemSku, OrderLineItemSkus](
-  idLens = lens[OrderLineItemSku].id
-)(new OrderLineItemSkus(_)){
+object OrderLineItemSkus extends FoxTableQuery[OrderLineItemSku, OrderLineItemSkus](new OrderLineItemSkus(_))
+  with ReturningId[OrderLineItemSku, OrderLineItemSkus] {
+
+  val returningLens: Lens[OrderLineItemSku, Int] = lens[OrderLineItemSku].id
 
   def findBySkuId(id: Int): DBIO[Option[OrderLineItemSku]] =
     filter(_.skuId === id).one

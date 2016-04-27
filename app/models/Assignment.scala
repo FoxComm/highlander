@@ -8,7 +8,6 @@ import shapeless._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
-import utils.aliases._
 import utils.db._
 import utils.ADT
 
@@ -62,9 +61,10 @@ class Assignments(tag: Tag) extends FoxTable[Assignment](tag, "assignments")  {
   def storeAdmin = foreignKey(StoreAdmins.tableName, storeAdminId, StoreAdmins)(_.id)
 }
 
-object Assignments extends FoxTableQuery[Assignment, Assignments](
-  idLens = lens[Assignment].id
-)(new Assignments(_)) {
+object Assignments extends FoxTableQuery[Assignment, Assignments](new Assignments(_))
+  with ReturningId[Assignment, Assignments] {
+
+  val returningLens: Lens[Assignment, Int] = lens[Assignment].id
 
   def byType(assignType: AssignmentType, refType: ReferenceType): QuerySeq =
     filter(_.assignmentType === assignType).filter(_.referenceType === refType)

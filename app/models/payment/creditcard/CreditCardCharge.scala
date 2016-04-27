@@ -74,7 +74,8 @@ class CreditCardCharges(tag: Tag) extends FoxTable[CreditCardCharge](tag, "credi
   def orderPayment  = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id)
 }
 
-object CreditCardCharges extends FoxTableQuery[CreditCardCharge, CreditCardCharges](
-  idLens = lens[CreditCardCharge].id
-)(new CreditCardCharges(_)) {
+object CreditCardCharges extends FoxTableQuery[CreditCardCharge, CreditCardCharges](new CreditCardCharges(_))
+  with ReturningId[CreditCardCharge, CreditCardCharges] {
+
+  val returningLens: Lens[CreditCardCharge, Int] = lens[CreditCardCharge].id
 }

@@ -16,7 +16,6 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.Validation._
 import utils.{ADT, FSM}
-import utils.aliases._
 import utils.db._
 
 case class Rma(id: Int = 0, referenceNumber: String = "", orderId: Int, orderRefNum: String,
@@ -109,19 +108,9 @@ class Rmas(tag: Tag) extends FoxTable[Rma](tag, "rmas")  {
     messageToCustomer, canceledReason, createdAt, updatedAt, deletedAt) <> ((Rma.apply _).tupled, Rma.unapply)
 }
 
-object Rmas extends FoxTableQuery[Rma, Rmas](
-  idLens = lens[Rma].id
-)(new Rmas(_))
+object Rmas extends FoxTableQuery[Rma, Rmas](new Rmas(_))
+  with ReturningIdAndString[Rma, Rmas]
   with SearchByRefNum[Rma, Rmas] {
-
-  val returningIdAndReferenceNumber = this.returning(map { rma ⇒ (rma.id, rma.referenceNumber) })
-
-  def returningAction(ret: (Int, String))(rma: Rma): Rma = ret match {
-    case (id, referenceNumber) ⇒ rma.copy(id = id, referenceNumber = referenceNumber)
-  }
-
-  override def create[R](rma: Rma, returning: Returning[R], action: R ⇒ Rma ⇒ Rma)
-    (implicit ec: EC): DbResult[Rma] = super.create(rma, returningIdAndReferenceNumber, returningAction)
 
   def findByRefNum(refNum: String): QuerySeq = filter(_.referenceNumber === refNum)
 
@@ -133,4 +122,8 @@ object Rmas extends FoxTableQuery[Rma, Rmas](
 
   def findOnePendingByRefNum(refNum: String): DBIO[Option[Rma]] =
     filter(_.referenceNumber === refNum).filter(_.state === (Rma.Pending: Rma.State)).one
+
+  private val rootLens = lens[Rma]
+  val returningLens: Lens[Rma, (Int, String)] = rootLens.id ~ rootLens.referenceNumber
+  override val returningQuery = map { rma ⇒ (rma.id, rma.referenceNumber) }
 }

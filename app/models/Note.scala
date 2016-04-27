@@ -67,9 +67,10 @@ class Notes(tag: Tag) extends FoxTable[Note](tag, "notes")  {
   def author = foreignKey(StoreAdmins.tableName, storeAdminId, StoreAdmins)(_.id)
 }
 
-object Notes extends FoxTableQuery[Note, Notes](
-  idLens = lens[Note].id
-)(new Notes(_)) {
+object Notes extends FoxTableQuery[Note, Notes](new Notes(_))
+  with ReturningId[Note, Notes] {
+
+  val returningLens: Lens[Note, Int] = lens[Note].id
 
   def filterByIdAndAdminId(id: Int, adminId: Int): QuerySeq =
     filter(_.id === id).filter(_.storeAdminId === adminId)

@@ -4,11 +4,8 @@ import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
-case class ShippingCarrier(id:Int = 0,
-                           name:String,
-                           accountNumber:Option[String],
-                           regionsServed:String = "US") extends FoxModel[ShippingCarrier]
-object ShippingCarrier
+case class ShippingCarrier(id: Int = 0, name: String, accountNumber: Option[String], regionsServed: String = "US")
+  extends FoxModel[ShippingCarrier]
 
 class ShippingCarriers(tag: Tag) extends FoxTable[ShippingCarrier](tag, "shipping_methods")  {
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
@@ -19,6 +16,7 @@ class ShippingCarriers(tag: Tag) extends FoxTable[ShippingCarrier](tag, "shippin
   def * = (id, name, accountNumber, regionsServed) <> ((ShippingCarrier.apply _).tupled, ShippingCarrier.unapply)
 }
 
-object ShippingCarriers extends FoxTableQuery[ShippingCarrier, ShippingCarriers](
-  idLens = lens[ShippingCarrier].id
-)(new ShippingCarriers(_))
+object ShippingCarriers extends FoxTableQuery[ShippingCarrier, ShippingCarriers](new ShippingCarriers(_))
+  with ReturningId[ShippingCarrier, ShippingCarriers] {
+  val returningLens: Lens[ShippingCarrier, Int] = lens[ShippingCarrier].id
+}

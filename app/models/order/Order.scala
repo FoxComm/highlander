@@ -121,21 +121,11 @@ class Orders(tag: Tag) extends FoxTable[Order](tag, "orders")  {
     taxesTotal, grandTotal) <>((Order.apply _).tupled, Order.unapply)
 }
 
-object Orders extends FoxTableQuery[Order, Orders](
-  idLens = lens[Order].id
-  )(new Orders(_))
+object Orders extends FoxTableQuery[Order, Orders](new Orders(_))
+  with ReturningIdAndString[Order, Orders]
   with SearchByRefNum[Order, Orders] {
 
   import scope._
-
-  val returningIdAndReferenceNumber = this.returning(map { o ⇒ (o.id, o.referenceNumber) })
-
-  def returningAction(ret: (Int, String))(order: Order): Order = ret match {
-    case (id, referenceNumber) ⇒ order.copy(id = id, referenceNumber = referenceNumber)
-  }
-
-  override def create[R](order: Order, returning: Returning[R], action: R ⇒ Order ⇒ Order)
-    (implicit ec: EC): DbResult[Order] = super.create(order, returningIdAndReferenceNumber, returningAction)
 
   def findByCustomer(cust: Customer): QuerySeq =
     findByCustomerId(cust.id)
@@ -165,4 +155,7 @@ object Orders extends FoxTableQuery[Order, Orders](
     }
   }
 
+  private val rootLens = lens[Order]
+  val returningLens: Lens[Order, (Int, String)] = rootLens.id ~ rootLens.referenceNumber
+  override val returningQuery = map { o ⇒ (o.id, o.referenceNumber) }
 }

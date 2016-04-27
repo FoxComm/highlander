@@ -24,9 +24,11 @@ class RmaLineItemShippingCosts(tag: Tag) extends FoxTable[RmaLineItemShippingCos
   def shipment = foreignKey(Shipments.tableName, shipmentId, Shipments)(_.id)
 }
 
-object RmaLineItemShippingCosts extends FoxTableQuery[RmaLineItemShippingCost, RmaLineItemShippingCosts](
-  idLens = lens[RmaLineItemShippingCost].id
-)(new RmaLineItemShippingCosts(_)){
+object RmaLineItemShippingCosts
+  extends FoxTableQuery[RmaLineItemShippingCost, RmaLineItemShippingCosts](new RmaLineItemShippingCosts(_))
+  with ReturningId[RmaLineItemShippingCost, RmaLineItemShippingCosts] {
+
+  val returningLens: Lens[RmaLineItemShippingCost, Int] = lens[RmaLineItemShippingCost].id
 
   def findByRmaId(rmaId: Rep[Int]): QuerySeq =
     filter(_.rmaId === rmaId)

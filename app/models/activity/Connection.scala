@@ -41,9 +41,11 @@ class Connections(tag: Tag) extends FoxTable[Connection](tag, "activity_connecti
   def trail = foreignKey(Trails.tableName, trailId, Trails)(_.id)
 }
 
-object Connections extends FoxTableQuery[Connection, Connections](
-  idLens = lens[Connection].id)(new Connections(_)) {
+object Connections extends FoxTableQuery[Connection, Connections](new Connections(_))
+  with ReturningId[Connection, Connections] {
 
-    def filterByTrail(trailId: Int) = filter(_.trailId === trailId)
+  val returningLens: Lens[Connection, Int] = lens[Connection].id
 
-  }
+  def filterByTrail(trailId: Int) = filter(_.trailId === trailId)
+
+}

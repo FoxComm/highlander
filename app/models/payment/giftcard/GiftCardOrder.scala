@@ -15,7 +15,7 @@ class GiftCardOrders(tag: Tag) extends FoxTable[GiftCardOrder](tag, "gift_card_o
   def * = (id, orderId) <> ((GiftCardOrder.apply _).tupled, GiftCardOrder.unapply)
 }
 
-object GiftCardOrders extends FoxTableQuery[GiftCardOrder, GiftCardOrders](
-  idLens = lens[GiftCardOrder].id
-  )(new GiftCardOrders(_)){
+object GiftCardOrders extends FoxTableQuery[GiftCardOrder, GiftCardOrders](new GiftCardOrders(_))
+  with ReturningId[GiftCardOrder, GiftCardOrders] {
+  val returningLens: Lens[GiftCardOrder, Int] = lens[GiftCardOrder].id
 }

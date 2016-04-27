@@ -82,9 +82,11 @@ class InventoryAdjustments(tag: Tag)
     (InventoryAdjustment.apply _).tupled, InventoryAdjustment.unapply)
 }
 
-object InventoryAdjustments extends FoxTableQuery[InventoryAdjustment, InventoryAdjustments](
-  idLens = lens[InventoryAdjustment].id
-)(new InventoryAdjustments(_)) {
+object InventoryAdjustments
+  extends FoxTableQuery[InventoryAdjustment, InventoryAdjustments](new InventoryAdjustments(_))
+  with ReturningId[InventoryAdjustment, InventoryAdjustments] {
+
+  val returningLens: Lens[InventoryAdjustment, Int] = lens[InventoryAdjustment].id
 
   def findSellableBySummaryId(summaryId: Int): QuerySeq =
     filter(_.summaryId === summaryId).filter(_.skuType === (Sellable: SkuType))

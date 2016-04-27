@@ -17,9 +17,10 @@ class RmaLockEvents(tag: Tag) extends FoxTable[RmaLockEvent](tag, "rma_lock_even
   def * = (id, rmaId, lockedAt, lockedBy) <>((RmaLockEvent.apply _).tupled, RmaLockEvent.unapply)
 }
 
-object RmaLockEvents extends FoxTableQuery[RmaLockEvent, RmaLockEvents](
-  idLens = lens[RmaLockEvent].id
-)(new RmaLockEvents(_)) {
+object RmaLockEvents extends FoxTableQuery[RmaLockEvent, RmaLockEvents](new RmaLockEvents(_))
+  with ReturningId[RmaLockEvent, RmaLockEvents] {
+
+  val returningLens: Lens[RmaLockEvent, Int] = lens[RmaLockEvent].id
 
   import scope._
 

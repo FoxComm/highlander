@@ -18,9 +18,10 @@ class CustomersRanks(tag: Tag) extends FoxTable[CustomerRank](tag, "customers_ra
   def * = (id, revenue, rank) <>((CustomerRank.apply _).tupled, CustomerRank.unapply)
 }
 
-object CustomersRanks extends FoxTableQuery[CustomerRank, CustomersRanks](
-  idLens = lens[CustomerRank].id
-)(new CustomersRanks(_)) {
+object CustomersRanks extends FoxTableQuery[CustomerRank, CustomersRanks](new CustomersRanks(_))
+  with ReturningId[CustomerRank, CustomersRanks] {
+
+  val returningLens: Lens[CustomerRank, Int] = lens[CustomerRank].id
 
   def refresh(implicit db: Database): Future[Int] = {
     db.run(sqlu"REFRESH MATERIALIZED VIEW CONCURRENTLY customers_ranking")

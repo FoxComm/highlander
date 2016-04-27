@@ -58,9 +58,10 @@ class Reasons(tag: Tag) extends FoxTable[Reason](tag, "reasons")  {
   def author = foreignKey(StoreAdmins.tableName, storeAdminId, StoreAdmins)(_.id)
 }
 
-object Reasons extends FoxTableQuery[Reason, Reasons](
-  idLens = lens[Reason].id
-)(new Reasons(_)) {
+object Reasons extends FoxTableQuery[Reason, Reasons](new Reasons(_))
+  with ReturningId[Reason, Reasons] {
+
+  val returningLens: Lens[Reason, Int] = lens[Reason].id
 
   def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata = {
     val sortedQuery = query.withMetadata.sortAndPageIfNeeded { case (s, reason) ⇒

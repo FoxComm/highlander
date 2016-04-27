@@ -59,8 +59,10 @@ class Activities(tag: Tag) extends FoxTable[Activity](tag, "activities")  {
 // Opaque here means the scala type system cannot see the activity
 case class OpaqueActivity(activityType: ActivityType, data: Json)
 
-object Activities extends FoxTableQuery[Activity, Activities](
-  idLens = lens[Activity].id)(new Activities(_)) with LazyLogging {
+object Activities extends FoxTableQuery[Activity, Activities](new Activities(_))
+  with LazyLogging with ReturningId[Activity, Activities] {
+
+  val returningLens: Lens[Activity, Int] = lens[Activity].id
 
   implicit val formats = JsonFormatters.phoenixFormats
 

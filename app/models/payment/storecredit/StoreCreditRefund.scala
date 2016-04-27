@@ -15,7 +15,8 @@ class StoreCreditRefunds(tag: Tag) extends FoxTable[StoreCreditRefund](tag, "sto
   def * = (id, rmaId) <> ((StoreCreditRefund.apply _).tupled, StoreCreditRefund.unapply)
 }
 
-object StoreCreditRefunds extends FoxTableQuery[StoreCreditRefund, StoreCreditRefunds](
-  idLens = lens[StoreCreditRefund].id
-)(new StoreCreditRefunds(_)){
+object StoreCreditRefunds extends FoxTableQuery[StoreCreditRefund, StoreCreditRefunds](new StoreCreditRefunds(_))
+  with ReturningId[StoreCreditRefund, StoreCreditRefunds] {
+
+  val returningLens: Lens[StoreCreditRefund, Int] = lens[StoreCreditRefund].id
 }

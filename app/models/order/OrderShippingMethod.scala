@@ -25,8 +25,11 @@ class OrderShippingMethods(tag: Tag) extends FoxTable[OrderShippingMethod](tag, 
   def shippingMethod = foreignKey(ShippingMethods.tableName, shippingMethodId, ShippingMethods)(_.id)
 }
 
-object OrderShippingMethods extends FoxTableQuery[OrderShippingMethod, OrderShippingMethods](
-  idLens = lens[OrderShippingMethod].id
-)(new OrderShippingMethods(_)) {
+object OrderShippingMethods
+  extends FoxTableQuery[OrderShippingMethod, OrderShippingMethods](new OrderShippingMethods(_))
+  with ReturningId[OrderShippingMethod, OrderShippingMethods] {
+
+  val returningLens: Lens[OrderShippingMethod, Int] = lens[OrderShippingMethod].id
+
   def findByOrderId(orderId: Int): QuerySeq = filter(_.orderId === orderId)
 }

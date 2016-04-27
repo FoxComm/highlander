@@ -82,9 +82,10 @@ class Customers(tag: Tag) extends FoxTable[Customer](tag, "customers") {
     location, modality, isGuest, createdAt) <>((Customer.apply _).tupled, Customer.unapply)
 }
 
-object Customers extends FoxTableQuery[Customer, Customers](
-  idLens = lens[Customer].id
-)(new Customers(_)) {
+object Customers extends FoxTableQuery[Customer, Customers](new Customers(_))
+  with ReturningId[Customer, Customers] {
+
+  val returningLens: Lens[Customer, Int] = lens[Customer].id
 
   def findByEmail(email: String): DBIO[Option[Customer]] = {
     filter(_.email === email).one

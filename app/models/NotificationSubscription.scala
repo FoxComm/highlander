@@ -47,9 +47,11 @@ class NotificationSubscriptions(tag: Tag)
   def admin = foreignKey(StoreAdmins.tableName, adminId, StoreAdmins)(_.id)
 }
 
-object NotificationSubscriptions extends FoxTableQuery[NotificationSubscription, NotificationSubscriptions](
-  idLens = lens[NotificationSubscription].id
-)(new NotificationSubscriptions(_)) {
+object NotificationSubscriptions
+  extends FoxTableQuery[NotificationSubscription, NotificationSubscriptions](new NotificationSubscriptions(_))
+  with ReturningId[NotificationSubscription, NotificationSubscriptions] {
+
+  val returningLens: Lens[NotificationSubscription, Int] = lens[NotificationSubscription].id
 
   def findByDimensionAndObject(dimensionId: Int, objectId: String): QuerySeq =
     filter(_.dimensionId === dimensionId).filter(_.objectId === objectId)

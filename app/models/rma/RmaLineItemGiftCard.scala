@@ -22,9 +22,11 @@ class RmaLineItemGiftCards(tag: Tag) extends FoxTable[RmaLineItemGiftCard](tag, 
   def giftCard = foreignKey(GiftCards.tableName, giftCardId, GiftCards)(_.id)
 }
 
-object RmaLineItemGiftCards extends FoxTableQuery[RmaLineItemGiftCard, RmaLineItemGiftCards](
-  idLens = lens[RmaLineItemGiftCard].id
-)(new RmaLineItemGiftCards(_)){
+object RmaLineItemGiftCards
+  extends FoxTableQuery[RmaLineItemGiftCard, RmaLineItemGiftCards](new RmaLineItemGiftCards(_))
+  with ReturningId[RmaLineItemGiftCard, RmaLineItemGiftCards] {
+
+  val returningLens: Lens[RmaLineItemGiftCard, Int] = lens[RmaLineItemGiftCard].id
 
   def findByRmaId(rmaId: Rep[Int]): QuerySeq =
     filter(_.rmaId === rmaId)

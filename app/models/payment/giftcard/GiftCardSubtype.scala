@@ -18,9 +18,10 @@ class GiftCardSubtypes(tag: Tag) extends FoxTable[GiftCardSubtype](tag, "gift_ca
   def * = (id, title, originType) <> ((GiftCardSubtype.apply _).tupled, GiftCardSubtype.unapply)
 }
 
-object GiftCardSubtypes extends FoxTableQuery[GiftCardSubtype, GiftCardSubtypes](
-  idLens = lens[GiftCardSubtype].id
-)(new GiftCardSubtypes(_)){
+object GiftCardSubtypes extends FoxTableQuery[GiftCardSubtype, GiftCardSubtypes](new GiftCardSubtypes(_))
+  with ReturningId[GiftCardSubtype, GiftCardSubtypes] {
+
+  val returningLens: Lens[GiftCardSubtype, Int] = lens[GiftCardSubtype].id
 
   object scope {
     implicit class OriginTypeQuerySeqConversions(q: QuerySeq) {

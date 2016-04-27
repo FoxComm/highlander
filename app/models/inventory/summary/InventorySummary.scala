@@ -37,9 +37,10 @@ class InventorySummaries(tag: Tag) extends FoxTable[InventorySummary](tag, "inve
   def nonsellable = foreignKey(NonSellableInventorySummaries.tableName, nonSellableId, NonSellableInventorySummaries)(_.id)
 }
 
-object InventorySummaries extends FoxTableQuery[InventorySummary, InventorySummaries](
-  idLens = lens[InventorySummary].id
-)(new InventorySummaries(_)) {
+object InventorySummaries extends FoxTableQuery[InventorySummary, InventorySummaries](new InventorySummaries(_))
+  with ReturningId[InventorySummary, InventorySummaries] {
+
+  val returningLens: Lens[InventorySummary, Int] = lens[InventorySummary].id
 
   def findSellableBySkuId(skuId: Int) = for {
     warehouse ← Warehouses

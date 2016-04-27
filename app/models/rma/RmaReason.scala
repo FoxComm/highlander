@@ -43,9 +43,10 @@ class RmaReasons(tag: Tag) extends FoxTable[RmaReason](tag, "rma_reasons")  {
   def * = (id, name, reasonType, rmaType, createdAt, deletedAt) <> ((RmaReason.apply _).tupled, RmaReason.unapply)
 }
 
-object RmaReasons extends FoxTableQuery[RmaReason, RmaReasons](
-  idLens = lens[RmaReason].id
-)(new RmaReasons(_)) {
+object RmaReasons extends FoxTableQuery[RmaReason, RmaReasons](new RmaReasons(_))
+  with ReturningId[RmaReason, RmaReasons] {
+
+  val returningLens: Lens[RmaReason, Int] = lens[RmaReason].id
 
   def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata = {
     val sortedQuery = query.withMetadata.sortAndPageIfNeeded { case (s, reason) ⇒

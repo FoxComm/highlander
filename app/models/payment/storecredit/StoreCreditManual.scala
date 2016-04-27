@@ -18,7 +18,8 @@ class StoreCreditManuals(tag: Tag) extends FoxTable[StoreCreditManual](tag, "sto
   def * = (id, adminId, reasonId, subReasonId) <> ((StoreCreditManual.apply _).tupled, StoreCreditManual.unapply)
 }
 
-object StoreCreditManuals extends FoxTableQuery[StoreCreditManual, StoreCreditManuals](
-  idLens = lens[StoreCreditManual].id
-  )(new StoreCreditManuals(_)){
+object StoreCreditManuals extends FoxTableQuery[StoreCreditManual, StoreCreditManuals](new StoreCreditManuals(_))
+  with ReturningId[StoreCreditManual, StoreCreditManuals] {
+
+  val returningLens: Lens[StoreCreditManual, Int] = lens[StoreCreditManual].id
 }

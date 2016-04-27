@@ -25,9 +25,10 @@ class ObjectLinks(tag: Tag) extends FoxTable[ObjectLink](tag, "object_links")  {
   def right = foreignKey(ObjectShadows.tableName, rightId, ObjectShadows)(_.id)
 }
 
-object ObjectLinks extends FoxTableQuery[ObjectLink, ObjectLinks](
-  idLens = lens[ObjectLink].id
-  )(new ObjectLinks(_)) {
+object ObjectLinks extends FoxTableQuery[ObjectLink, ObjectLinks](new ObjectLinks(_))
+  with ReturningId[ObjectLink, ObjectLinks] {
+
+  val returningLens: Lens[ObjectLink, Int] = lens[ObjectLink].id
 
   def findByLeftRight(leftId: Int, rightId: Int): QuerySeq = 
     filter(_.leftId === leftId).filter(_.rightId === rightId)

@@ -51,9 +51,9 @@ object InventoryAdjustmentManager {
       }).value
     }
 
-  def wmsOverride(event: WmsOverride)(implicit ec: EC): DbResultT[Seq[Int]] = for {
+  def wmsOverride(event: WmsOverride)(implicit ec: EC): DbResultT[Seq[Adj]] = for {
     sum ← * <~ findSellableSummary(event.skuId, event.warehouseId)
-    adj ← * <~ Adjs.createAllReturningIds(generateAdjustmentsForEvent(sum, event))
+    adj ← * <~ Adjs.createAllReturningModels(generateAdjustmentsForEvent(sum, event))
     _   ← * <~ SellableInventorySummaries.update(sum, sum.copy(onHand = event.onHand, onHold = event.onHold,
                  reserved = event.reserved, updatedAt = Instant.now))
   } yield adj

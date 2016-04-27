@@ -19,12 +19,15 @@ package object db {
 
   type DbResult[T] = DBIO[Failures Xor T]
   type DbResultT[A] = XorT[DBIO, Failures, A]
+  // Return B whenever A is inserted
+  type Returning[A, B] = slick.driver.JdbcActionComponent#ReturningInsertActionComposer[A, B]
 
   implicit val javaTimeSlickMapper      = JavaTimeSlickMapper.instantAndTimestampWithoutZone
   implicit val currencyColumnTypeMapper = Money.currencyColumnType
 
-  /** This allows us to enforce that tables have the same ID column as their case class. */
-  type FoxTable[M <: FoxModel[M]] = TableWithIdInternal[M, M#Id]
+  abstract class FoxTable[M <: FoxModel[M]](tag: Tag, name: String) extends Table[M](tag, name) {
+    def id: Rep[M#Id]
+  }
 
   def appendForUpdate[A, B <: slick.dbio.NoStream](sql: SqlAction[A, B, Effect.Read]): DBIO[A] = {
     sql.overrideStatements(sql.statements.map(_ + " for update"))
@@ -33,13 +36,6 @@ package object db {
   def lift[A](value: A): DBIO[A] = DBIO.successful(value)
 
   def liftFuture[A](future: Future[A]): DBIO[A] = DBIO.from(future)
-
-  private[db] trait TableWithIdColumn[I] {
-    def id: Rep[I]
-  }
-
-  private[db] abstract class TableWithIdInternal[M <: FoxModel[M], I](tag: Tag, name: String)
-    extends Table[M](tag, name) with TableWithIdColumn[I]
 
   implicit class EnrichedSQLActionBuilder(val action: SQLActionBuilder) extends AnyVal {
     def stripMargin: SQLActionBuilder =

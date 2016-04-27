@@ -30,8 +30,10 @@ class ObjectContexts(tag: Tag) extends FoxTable[ObjectContext](tag, "object_cont
 
 }
 
-object ObjectContexts extends FoxTableQuery[ObjectContext, ObjectContexts](
-  idLens = lens[ObjectContext].id)(new ObjectContexts(_)) {
+object ObjectContexts extends FoxTableQuery[ObjectContext, ObjectContexts](new ObjectContexts(_))
+  with ReturningId[ObjectContext, ObjectContexts] {
+
+  val returningLens: Lens[ObjectContext, Int] = lens[ObjectContext].id
 
   implicit val formats = JsonFormatters.phoenixFormats
 

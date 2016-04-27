@@ -200,9 +200,7 @@ class GiftCards(tag: Tag) extends FoxTable[GiftCard](tag, "gift_cards")  {
     .unapply)
 }
 
-object GiftCards extends FoxTableQuery[GiftCard, GiftCards](
-  idLens = lens[GiftCard].id
-  )(new GiftCards(_))
+object GiftCards extends FoxTableQuery[GiftCard, GiftCards](new GiftCards(_))
   with SearchByCode[GiftCard, GiftCards] {
 
   import GiftCard._
@@ -268,19 +266,6 @@ object GiftCards extends FoxTableQuery[GiftCard, GiftCards](
   def findActiveByCode(code: String): QuerySeq =
     findByCode(code).filter(_.state === (GiftCard.Active: GiftCard.State))
 
-  type ReturningIdCodeBalances = (Int, String, Int, Int)
-
-  val returningIdCodeAndBalance: Returning[ReturningIdCodeBalances] =
-    this.returning(map { gc ⇒ (gc.id, gc.code, gc.currentBalance, gc.availableBalance) })
-
-  def returningAction(ret: ReturningIdCodeBalances)(gc: GiftCard): GiftCard = ret match {
-    case (id, code, currentBalance, availableBalance) ⇒
-      gc.copy(id = id, code = code, currentBalance = currentBalance, availableBalance = availableBalance)
-  }
-
-  override def create[R](gc: GiftCard, returning: Returning[R], action: R ⇒ GiftCard ⇒ GiftCard)
-    (implicit ec: EC): DbResult[GiftCard] = super.create(gc, returningIdCodeAndBalance, returningAction)
-
   private def adjust(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0,
     state: GiftCardAdjustment.State = Adj.Auth)
     (implicit ec: EC): DbResult[GiftCardAdjustment] = {
@@ -289,5 +274,12 @@ object GiftCards extends FoxTableQuery[GiftCard, GiftCards](
       debit = debit, credit = credit, availableBalance = balance, state = state)
     Adjs.create(adjustment)
   }
+
+  type Ret = (Int, String, Int, Int)
+  type PackedRet = (Rep[Int], Rep[String], Rep[Int], Rep[Int])
+  override val returningQuery = map { gc ⇒ (gc.id, gc.code, gc.currentBalance, gc.availableBalance) }
+  private val rootLens = lens[GiftCard]
+  val returningLens: Lens[GiftCard, (Int, String, Int, Int)] =
+    rootLens.id ~ rootLens.code ~ rootLens.currentBalance ~ rootLens.availableBalance
 
 }

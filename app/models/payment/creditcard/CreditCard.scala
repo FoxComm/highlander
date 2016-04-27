@@ -96,9 +96,10 @@ class CreditCards(tag: Tag)
   def region          = foreignKey(Regions.tableName, regionId, Regions)(_.id)
 }
 
-object CreditCards extends FoxTableQuery[CreditCard, CreditCards](
-  idLens = lens[CreditCard].id
-)(new CreditCards(_)) {
+object CreditCards extends FoxTableQuery[CreditCard, CreditCards](new CreditCards(_))
+  with ReturningId[CreditCard, CreditCards] {
+
+  val returningLens: Lens[CreditCard, Int] = lens[CreditCard].id
 
   def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata = {
 

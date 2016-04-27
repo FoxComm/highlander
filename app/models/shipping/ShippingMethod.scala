@@ -36,9 +36,10 @@ class ShippingMethods(tag: Tag) extends FoxTable[ShippingMethod](tag, "shipping_
     isActive, conditions, restrictions) <> ((ShippingMethod.apply _).tupled, ShippingMethod.unapply)
 }
 
-object ShippingMethods extends FoxTableQuery[ShippingMethod, ShippingMethods](
-  idLens = lens[ShippingMethod].id
-)(new ShippingMethods(_)) {
+object ShippingMethods extends FoxTableQuery[ShippingMethod, ShippingMethods](new ShippingMethods(_))
+  with ReturningId[ShippingMethod, ShippingMethods] {
+
+  val returningLens: Lens[ShippingMethod, Int] = lens[ShippingMethod].id
 
   def findActive: Query[ShippingMethods, ShippingMethod, Seq] = filter(_.isActive === true)
 

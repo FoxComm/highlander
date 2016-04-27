@@ -31,9 +31,11 @@ class Skus(tag: Tag) extends ObjectHeads[Sku](tag, "skus")  {
 
 }
 
-object Skus extends FoxTableQuery[Sku, Skus](
-  idLens = lens[Sku].id)(new Skus(_))
+object Skus extends FoxTableQuery[Sku, Skus](new Skus(_))
+  with ReturningId[Sku, Skus]
   with SearchByCode[Sku, Skus] {
+
+  val returningLens: Lens[Sku, Int] = lens[Sku].id
 
   implicit val formats = JsonFormatters.phoenixFormats
 

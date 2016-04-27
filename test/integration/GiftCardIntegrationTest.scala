@@ -57,9 +57,9 @@ class GiftCardIntegrationTest extends IntegrationTestBase
         availableBalance = balance)
     }
 
-    (GiftCards.createAll(insertGcs) >> GiftCards.result).map { giftCards ⇒
-      giftCards.map(responses.GiftCardResponse.build(_))
-    }.transactionally.run().futureValue.toIndexedSeq
+    (for {
+      giftCards ← * <~ GiftCards.createAllReturningModels(insertGcs)
+    } yield giftCards.map(GiftCardResponse.build(_))).run().futureValue.rightVal.toIndexedSeq
   }
 
   val sortColumnName = "availableBalance"
@@ -114,7 +114,7 @@ class GiftCardIntegrationTest extends IntegrationTestBase
       "succeeds with valid subTypeId" in new Fixture {
         val payload = payloads.GiftCardCreateByCsr(balance = 25, reasonId = 1, subTypeId = Some(1))
         val response = POST(s"v1/gift-cards", payload)
-        val sc = response.as[responses.GiftCardResponse.Root]
+        val sc = response.as[GiftCardResponse.Root]
 
         response.status must ===(StatusCodes.OK)
         sc.subTypeId must ===(Some(1))

@@ -36,9 +36,9 @@ class ShippingPriceRules(tag: Tag) extends FoxTable[ShippingPriceRule](tag, "shi
   def * = (id, name, ruleType, flatPrice, flatMarkup) <> ((ShippingPriceRule.apply _).tupled, ShippingPriceRule.unapply)
 }
 
-object ShippingPriceRules extends FoxTableQuery[ShippingPriceRule, ShippingPriceRules](
-  idLens = lens[ShippingPriceRule].id
-)(new ShippingPriceRules(_)){
+object ShippingPriceRules extends FoxTableQuery[ShippingPriceRule, ShippingPriceRules](new ShippingPriceRules(_))
+  with ReturningId[ShippingPriceRule, ShippingPriceRules] {
+  val returningLens: Lens[ShippingPriceRule, Int] = lens[ShippingPriceRule].id
   val methodPriceRuleMapping = ShippingMethodsPriceRules
 
 }

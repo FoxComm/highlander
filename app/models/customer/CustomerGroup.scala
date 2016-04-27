@@ -46,9 +46,11 @@ class CustomerDynamicGroups(tag: Tag) extends FoxTable[CustomerDynamicGroup](tag
     ((CustomerDynamicGroup.apply _).tupled, CustomerDynamicGroup.unapply)
 }
 
-object CustomerDynamicGroups extends FoxTableQuery[CustomerDynamicGroup, CustomerDynamicGroups](
-  idLens = lens[CustomerDynamicGroup].id
-)(new CustomerDynamicGroups(_)) {
+object CustomerDynamicGroups
+  extends FoxTableQuery[CustomerDynamicGroup, CustomerDynamicGroups](new CustomerDynamicGroups(_))
+  with ReturningId[CustomerDynamicGroup, CustomerDynamicGroups] {
+
+  val returningLens: Lens[CustomerDynamicGroup, Int] = lens[CustomerDynamicGroup].id
 
   def sortedAndPaged(query: CustomerDynamicGroups.QuerySeq)(implicit sortAndPage: SortAndPage): CustomerDynamicGroups.QuerySeqWithMetadata  =
       query.withMetadata.sortAndPageIfNeeded { case (s, group) ⇒

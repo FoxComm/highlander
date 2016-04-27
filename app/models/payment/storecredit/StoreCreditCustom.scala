@@ -21,7 +21,7 @@ class StoreCreditCustoms(tag: Tag) extends FoxTable[StoreCreditCustom](tag, "sto
   def * = (id, adminId, metadata, createdAt) <> ((StoreCreditCustom.apply _).tupled, StoreCreditCustom.unapply)
 }
 
-object StoreCreditCustoms extends FoxTableQuery[StoreCreditCustom, StoreCreditCustoms](
-  idLens = lens[StoreCreditCustom].id
-)(new StoreCreditCustoms(_)){
+object StoreCreditCustoms extends FoxTableQuery[StoreCreditCustom, StoreCreditCustoms](new StoreCreditCustoms(_))
+  with ReturningId[StoreCreditCustom, StoreCreditCustoms] {
+  val returningLens: Lens[StoreCreditCustom, Int] = lens[StoreCreditCustom].id
 }

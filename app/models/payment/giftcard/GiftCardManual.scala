@@ -16,7 +16,7 @@ class GiftCardManuals(tag: Tag) extends FoxTable[GiftCardManual](tag, "gift_card
   def * = (id, adminId, reasonId) <> ((GiftCardManual.apply _).tupled, GiftCardManual.unapply)
 }
 
-object GiftCardManuals extends FoxTableQuery[GiftCardManual, GiftCardManuals](
-  idLens = lens[GiftCardManual].id
-  )(new GiftCardManuals(_)){
+object GiftCardManuals extends FoxTableQuery[GiftCardManual, GiftCardManuals](new GiftCardManuals(_))
+  with ReturningId[GiftCardManual, GiftCardManuals] {
+  val returningLens: Lens[GiftCardManual, Int] = lens[GiftCardManual].id
 }

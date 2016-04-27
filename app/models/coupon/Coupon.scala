@@ -29,8 +29,10 @@ class Coupons(tag: Tag) extends ObjectHeads[Coupon](tag, "coupons") {
 
 }
 
-object Coupons extends FoxTableQuery[Coupon, Coupons](
-  idLens = lens[Coupon].id)(new Coupons(_)) {
+object Coupons extends FoxTableQuery[Coupon, Coupons](new Coupons(_))
+  with ReturningId[Coupon, Coupons] {
+
+  val returningLens: Lens[Coupon, Int] = lens[Coupon].id
 
   def filterByContext(contextId: Int): QuerySeq = 
     filter(_.contextId === contextId)

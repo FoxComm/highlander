@@ -29,8 +29,10 @@ class ObjectCommits(tag: Tag) extends FoxTable[ObjectCommit](tag, "object_commit
 
 }
 
-object ObjectCommits extends FoxTableQuery[ObjectCommit, ObjectCommits](
-  idLens = lens[ObjectCommit].id)(new ObjectCommits(_)) {
+object ObjectCommits extends FoxTableQuery[ObjectCommit, ObjectCommits](new ObjectCommits(_))
+  with ReturningId[ObjectCommit, ObjectCommits] {
+
+  val returningLens: Lens[ObjectCommit, Int] = lens[ObjectCommit].id
 
   implicit val formats = JsonFormatters.phoenixFormats
 

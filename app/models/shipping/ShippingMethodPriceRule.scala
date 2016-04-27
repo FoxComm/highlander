@@ -18,6 +18,8 @@ class ShippingMethodsPriceRules(tag: Tag) extends FoxTable[ShippingMethodPriceRu
   def * = (id, shippingMethodId, shippingPriceRuleId, ruleRank) <> ((ShippingMethodPriceRule.apply _).tupled, ShippingMethodPriceRule.unapply)
 }
 
-object ShippingMethodsPriceRules extends FoxTableQuery[ShippingMethodPriceRule, ShippingMethodsPriceRules](
-  idLens = lens[ShippingMethodPriceRule].id
-)(new ShippingMethodsPriceRules(_))
+object ShippingMethodsPriceRules
+  extends FoxTableQuery[ShippingMethodPriceRule, ShippingMethodsPriceRules](new ShippingMethodsPriceRules(_))
+  with ReturningId[ShippingMethodPriceRule, ShippingMethodsPriceRules] {
+  val returningLens: Lens[ShippingMethodPriceRule, Int] = lens[ShippingMethodPriceRule].id
+}

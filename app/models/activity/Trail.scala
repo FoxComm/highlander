@@ -39,8 +39,10 @@ class Trails(tag: Tag) extends FoxTable[Trail](tag, "activity_trails")  {
   def dimension = foreignKey(Dimensions.tableName, dimensionId, Dimensions)(_.id)
 }
 
-object Trails extends FoxTableQuery[Trail, Trails](
-  idLens = lens[Trail].id)(new Trails(_)) {
+object Trails extends FoxTableQuery[Trail, Trails](new Trails(_))
+  with ReturningId[Trail, Trails] {
+
+  val returningLens: Lens[Trail, Int] = lens[Trail].id
 
   def findByObjectId(dimensionId: Int, objectId: String): QuerySeq =
     filter(_.dimensionId === dimensionId).filter(_.objectId === objectId)

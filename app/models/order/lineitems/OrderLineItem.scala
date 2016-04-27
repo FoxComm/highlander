@@ -94,9 +94,10 @@ class OrderLineItems(tag: Tag) extends FoxTable[OrderLineItem](tag, "order_line_
   def skuLineItems = foreignKey(OrderLineItemSkus.tableName, originId, OrderLineItemSkus)(_.id)
 }
 
-object OrderLineItems extends FoxTableQuery[OrderLineItem, OrderLineItems](
-  idLens = lens[OrderLineItem].id
-)(new OrderLineItems(_)) {
+object OrderLineItems extends FoxTableQuery[OrderLineItem, OrderLineItems](new OrderLineItems(_))
+  with ReturningId[OrderLineItem, OrderLineItems] {
+
+  val returningLens: Lens[OrderLineItem, Int] = lens[OrderLineItem].id
 
   import scope._
 

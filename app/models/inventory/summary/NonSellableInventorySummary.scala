@@ -18,11 +18,8 @@ class NonSellableInventorySummaries(tag: Tag)
 }
 
 object NonSellableInventorySummaries
-  extends InventorySummariesBase[NonSellableInventorySummary, NonSellableInventorySummaries](
-    idLens = lens[NonSellableInventorySummary].id
-  )(new NonSellableInventorySummaries(_)) {
+  extends InventorySummariesBase[NonSellableInventorySummary, NonSellableInventorySummaries](new NonSellableInventorySummaries(_)) {
 
-  def returningAction(ret: (Int, Int))(summary: NonSellableInventorySummary): NonSellableInventorySummary = ret match {
-    case (id, afs) ⇒ summary.copy(id = id, availableForSale = afs)
-  }
+  private val rootLens = lens[NonSellableInventorySummary]
+  val returningLens: Lens[NonSellableInventorySummary, (Int, Int)] = rootLens.id ~ rootLens.availableForSale
 }

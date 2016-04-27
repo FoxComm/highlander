@@ -32,7 +32,7 @@ class Countries(tag: Tag) extends FoxTable[Country](tag, "countries")  {
     languages, usesPostalCode, isShippable, isBillable) <> ((Country.apply _).tupled, Country.unapply)
 }
 
-object Countries extends FoxTableQuery[Country, Countries](
-  idLens = lens[Country].id
-)(new Countries(_)) {
+object Countries extends FoxTableQuery[Country, Countries](new Countries(_))
+  with ReturningId[Country, Countries] {
+  val returningLens: Lens[Country, Int] = lens[Country].id
 }

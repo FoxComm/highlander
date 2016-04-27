@@ -64,9 +64,11 @@ class OrderShippingAddresses(tag: Tag) extends FoxTable[OrderShippingAddress](ta
   def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)
 }
 
-object OrderShippingAddresses extends FoxTableQuery[OrderShippingAddress, OrderShippingAddresses](
-  idLens = lens[OrderShippingAddress].id
-)(new OrderShippingAddresses(_)) {
+object OrderShippingAddresses
+  extends FoxTableQuery[OrderShippingAddress, OrderShippingAddresses](new OrderShippingAddresses(_))
+  with ReturningId[OrderShippingAddress, OrderShippingAddresses] {
+
+  val returningLens: Lens[OrderShippingAddress, Int] = lens[OrderShippingAddress].id
 
   import scope._
 

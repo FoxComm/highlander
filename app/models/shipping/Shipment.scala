@@ -48,8 +48,9 @@ class Shipments(tag: Tag) extends FoxTable[Shipment](tag, "shipments")  {
     ((Shipment.apply _).tupled, Shipment.unapply)
 }
 
-object Shipments extends FoxTableQuery[Shipment, Shipments](
-  idLens = lens[Shipment].id
-)(new Shipments(_)) {
+object Shipments extends FoxTableQuery[Shipment, Shipments](new Shipments(_))
+  with ReturningId[Shipment, Shipments] {
+
+  val returningLens: Lens[Shipment, Int] = lens[Shipment].id
 
 }

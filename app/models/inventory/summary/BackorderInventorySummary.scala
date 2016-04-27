@@ -18,11 +18,8 @@ extends InventorySummariesTableBase[BackorderInventorySummary](tag, "backorder_i
 }
 
 object BackorderInventorySummaries
-  extends InventorySummariesBase[BackorderInventorySummary, BackorderInventorySummaries](
-    idLens = lens[BackorderInventorySummary].id
-  )(new BackorderInventorySummaries(_)) {
+  extends InventorySummariesBase[BackorderInventorySummary, BackorderInventorySummaries](new BackorderInventorySummaries(_)) {
 
-  def returningAction(ret: (Int, Int))(summary: BackorderInventorySummary): BackorderInventorySummary = ret match {
-    case (id, afs) ⇒ summary.copy(id = id, availableForSale = afs)
-  }
+  private val rootLens = lens[BackorderInventorySummary]
+  val returningLens: Lens[BackorderInventorySummary, (Int, Int)] = rootLens.id ~ rootLens.availableForSale
 }

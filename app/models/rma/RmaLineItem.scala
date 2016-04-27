@@ -92,7 +92,7 @@ class RmaLineItems(tag: Tag) extends FoxTable[RmaLineItem](tag, "rma_line_items"
   def skuLineItems = foreignKey(RmaLineItemSkus.tableName, originId, RmaLineItemSkus)(_.id)
 }
 
-object RmaLineItems extends FoxTableQuery[RmaLineItem, RmaLineItems](
-  idLens = lens[RmaLineItem].id
-)(new RmaLineItems(_)) {
+object RmaLineItems extends FoxTableQuery[RmaLineItem, RmaLineItems](new RmaLineItems(_))
+  with ReturningId[RmaLineItem, RmaLineItems] {
+  val returningLens: Lens[RmaLineItem, Int] = lens[RmaLineItem].id
 }

@@ -1,5 +1,6 @@
 package utils.db
 
+import scala.collection.IterableLike
 import scala.collection.generic.CanBuildFrom
 
 import cats.data.{Validated, Xor, XorT}
@@ -7,6 +8,7 @@ import cats.{Applicative, Functor, Monad}
 import failures.Failures
 import services.Result
 import scala.concurrent.Future
+
 import slick.driver.PostgresDriver.api._
 import slick.profile.SqlAction
 import utils.aliases._
@@ -62,11 +64,11 @@ object DbResultT {
   def leftLift[A](v: Failures)(implicit ec: EC): DbResultT[A] =
     left(DBIO.successful(v))
 
-  def sequence[A, M[X] <: TraversableOnce[X]](in: M[DbResultT[A]])
-    (implicit cbf: CanBuildFrom[M[DbResultT[A]], A, M[A]], ec: EC): DbResultT[M[A]] =
-    in.foldLeft(rightLift(cbf(in))) {
-      (fr, fa) ⇒ for (r ← fr; a ← fa) yield r += a
-    }.map(_.result())
+  def sequence[A, M[X] <: TraversableOnce[X]](values: M[DbResultT[A]])
+    (implicit buildFrom: CanBuildFrom[M[DbResultT[A]], A, M[A]], ec: EC): DbResultT[M[A]] =
+    values.foldLeft(rightLift(buildFrom(values))) {
+      (liftedBuilder, liftedValue) ⇒ for (builder ← liftedBuilder; value ← liftedValue) yield builder += value
+    }.map(_.result)
 
   object * {
     def <~[A](v: DBIO[Failures Xor A]): DbResultT[A] =

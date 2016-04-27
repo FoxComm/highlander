@@ -157,9 +157,7 @@ class StoreCredits(tag: Tag) extends FoxTable[StoreCredit](tag, "store_credits")
     .unapply)
 }
 
-object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](
-  idLens = lens[StoreCredit].id
-  )(new StoreCredits(_)){
+object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCredits(_)) {
 
   def sortedAndPaged(query: QuerySeq)(implicit sortAndPage: SortAndPage): QuerySeqWithMetadata =
     query.withMetadata.sortAndPageIfNeeded { case (s, storeCredit) ⇒
@@ -217,20 +215,6 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](
   def findByIdAndCustomerId(id: Int, customerId: Int): DBIO[Option[StoreCredit]] =
     filter(_.customerId === customerId).filter(_.id === id).one
 
-  type ReturningIdAndBalances = (Int, Int, Int)
-
-  val returningIdAndBalances: Returning[ReturningIdAndBalances] =
-    this.returning(map { sc ⇒ (sc.id, sc.currentBalance, sc.availableBalance) })
-
-  def returningAction(ret: ReturningIdAndBalances)(gc: StoreCredit): StoreCredit = ret match {
-    case (id, currentBalance, availableBalance) ⇒
-      gc.copy(id = id, currentBalance = currentBalance, availableBalance = availableBalance)
-  }
-
-  override def create[R](sc: StoreCredit, returning: Returning[R], action: R ⇒ StoreCredit ⇒ StoreCredit)
-    (implicit ec: EC): DbResult[StoreCredit] =
-    super.create(sc, returningIdAndBalances, returningAction)
-
   private def debit(storeCredit: StoreCredit, orderPaymentId: Option[Int], amount: Int = 0,
     state: StoreCreditAdjustment.State = Adj.Auth)
     (implicit ec: EC): DbResult[StoreCreditAdjustment] = {
@@ -238,4 +222,11 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](
       debit = amount, availableBalance = storeCredit.availableBalance, state = state)
     Adjs.create(adjustment)
   }
+
+  type Ret = (Int, Int, Int)
+  type PackedRet = (Rep[Int], Rep[Int], Rep[Int])
+  private val rootLens = lens[StoreCredit]
+  val returningLens: Lens[StoreCredit, (Int, Int, Int)] =
+    rootLens.id ~ rootLens.currentBalance ~ rootLens.availableBalance
+  val returningQuery = map { sc ⇒ (sc.id, sc.currentBalance, sc.availableBalance) }
 }

@@ -45,16 +45,13 @@ abstract class InventorySummariesTableBase[A <: InventorySummaryBase[A]](tag: Ta
 }
 
 abstract class InventorySummariesBase[A <: InventorySummaryBase[A], As <: InventorySummariesTableBase[A]]
-(idLens: Lens[A, A#Id])(construct: Tag ⇒ As)
-  extends FoxTableQuery[A, As](idLens)(construct) {
+  (construct: Tag ⇒ As)
+  extends FoxTableQuery[A, As](construct) {
 
   override type QuerySeq = Query[As, A, Seq]
 
-  val returningIdAndAfs = this.returning(map { o ⇒ (o.id, o.availableForSale) })
+  type Ret = (Int, Int)
+  type PackedRet = (Rep[Int], Rep[Int])
+  override val returningQuery = map { o ⇒ (o.id, o.availableForSale) }
 
-  // Can't provide generic implementation with A
-  def returningAction(ret: (Int, Int))(summary: A): A
-
-  override def create[R](summary: A, returning: Returning[R], action: R ⇒ A ⇒ A)(implicit ec: EC): DbResult[A] =
-    super.create(summary, returningIdAndAfs, returningAction)
 }

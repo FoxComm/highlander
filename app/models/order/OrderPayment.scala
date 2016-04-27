@@ -64,9 +64,10 @@ class OrderPayments(tag: Tag) extends FoxTable[OrderPayment](tag, "order_payment
   def creditCard  = foreignKey(CreditCards.tableName, paymentMethodId, CreditCards)(_.id)
 }
 
-object OrderPayments extends FoxTableQuery[OrderPayment, OrderPayments](
-  idLens = lens[OrderPayment].id
-)(new OrderPayments(_)){
+object OrderPayments extends FoxTableQuery[OrderPayment, OrderPayments](new OrderPayments(_))
+  with ReturningId[OrderPayment, OrderPayments] {
+
+  val returningLens: Lens[OrderPayment, Int] = lens[OrderPayment].id
 
   def findAllByOrderId(id: Int): QuerySeq =
     filter(_.orderId === id)

@@ -28,8 +28,10 @@ class ObjectShadows(tag: Tag) extends FoxTable[ObjectShadow](tag, "object_shadow
   def form = foreignKey(ObjectForms.tableName, formId, ObjectForms)(_.id)
 }
 
-object ObjectShadows extends FoxTableQuery[ObjectShadow, ObjectShadows](
-  idLens = lens[ObjectShadow].id)(new ObjectShadows(_)) {
+object ObjectShadows extends FoxTableQuery[ObjectShadow, ObjectShadows](new ObjectShadows(_))
+  with ReturningId[ObjectShadow, ObjectShadows] {
+
+  val returningLens: Lens[ObjectShadow, Int] = lens[ObjectShadow].id
 
   implicit val formats = JsonFormatters.phoenixFormats
 

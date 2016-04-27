@@ -28,9 +28,10 @@ class SaveForLaters(tag: Tag) extends FoxTable[SaveForLater](tag, "save_for_late
   def customer = foreignKey(Customers.tableName, customerId, Customers)(_.id)
 }
 
-object SaveForLaters extends FoxTableQuery[SaveForLater, SaveForLaters](
-  idLens = lens[SaveForLater].id
-)(new SaveForLaters(_)) {
+object SaveForLaters extends FoxTableQuery[SaveForLater, SaveForLaters](new SaveForLaters(_))
+  with ReturningId[SaveForLater, SaveForLaters] {
+
+  val returningLens: Lens[SaveForLater, Int] = lens[SaveForLater].id
 
   def find(customerId: Int, skuId: Int): QuerySeq =
     filter(_.customerId === customerId).filter(_.skuId === skuId)

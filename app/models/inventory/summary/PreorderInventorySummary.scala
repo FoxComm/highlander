@@ -18,11 +18,8 @@ class PreorderInventorySummaries(tag: Tag)
 }
 
 object PreorderInventorySummaries
-  extends InventorySummariesBase[PreorderInventorySummary, PreorderInventorySummaries](
-    idLens = lens[PreorderInventorySummary].id
-  )(new PreorderInventorySummaries(_)) {
+  extends InventorySummariesBase[PreorderInventorySummary, PreorderInventorySummaries](new PreorderInventorySummaries(_)) {
 
-  def returningAction(ret: (Int, Int))(summary: PreorderInventorySummary): PreorderInventorySummary = ret match {
-    case (id, afs) ⇒ summary.copy(id = id, availableForSale = afs)
-  }
+  private val rootLens = lens[PreorderInventorySummary]
+  val returningLens: Lens[PreorderInventorySummary, (Int, Int)] = rootLens.id ~ rootLens.availableForSale
 }

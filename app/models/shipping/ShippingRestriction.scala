@@ -33,6 +33,8 @@ class ShippingRestrictions(tag: Tag) extends FoxTable[ShippingRestriction](tag, 
   def * = (id, restrictionType, name, displayAnyway) <> ((ShippingRestriction.apply _).tupled, ShippingRestriction.unapply)
 }
 
-object ShippingRestrictions extends FoxTableQuery[ShippingRestriction, ShippingRestrictions](
-  idLens = lens[ShippingRestriction].id
-)(new ShippingRestrictions(_))
+object ShippingRestrictions
+  extends FoxTableQuery[ShippingRestriction, ShippingRestrictions](new ShippingRestrictions(_))
+  with ReturningId[ShippingRestriction, ShippingRestrictions] {
+  val returningLens: Lens[ShippingRestriction, Int] = lens[ShippingRestriction].id
+  }

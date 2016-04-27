@@ -19,9 +19,11 @@ class StoreCreditSubtypes(tag: Tag) extends FoxTable[StoreCreditSubtype](tag, "s
   def * = (id, title, originType) <> ((StoreCreditSubtype.apply _).tupled, StoreCreditSubtype.unapply)
 }
 
-object StoreCreditSubtypes extends FoxTableQuery[StoreCreditSubtype, StoreCreditSubtypes](
-  idLens = lens[StoreCreditSubtype].id
-)(new StoreCreditSubtypes(_)){
+object StoreCreditSubtypes
+  extends FoxTableQuery[StoreCreditSubtype, StoreCreditSubtypes](new StoreCreditSubtypes(_))
+  with ReturningId[StoreCreditSubtype, StoreCreditSubtypes] {
+
+  val returningLens: Lens[StoreCreditSubtype, Int] = lens[StoreCreditSubtype].id
 
   object scope {
     implicit class OriginTypeQuerySeqConversions(q: QuerySeq) {

@@ -29,8 +29,8 @@ class ObjectForms(tag: Tag) extends FoxTable[ObjectForm](tag, "object_forms")  {
   def * = (id, kind, attributes, updatedAt, createdAt) <> ((ObjectForm.apply _).tupled, ObjectForm.unapply)
 }
 
-object ObjectForms extends FoxTableQuery[ObjectForm, ObjectForms](
-  idLens = lens[ObjectForm].id
-  )(new ObjectForms(_)) {
+object ObjectForms extends FoxTableQuery[ObjectForm, ObjectForms](new ObjectForms(_))
+  with ReturningId[ObjectForm, ObjectForms] {
+  val returningLens: Lens[ObjectForm, Int] = lens[ObjectForm].id
 
 }

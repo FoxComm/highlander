@@ -20,9 +20,10 @@ class OrderLockEvents(tag: Tag) extends FoxTable[OrderLockEvent](tag, "order_loc
   def storeAdmin = foreignKey(StoreAdmins.tableName, lockedBy, StoreAdmins)(_.id)
 }
 
-object OrderLockEvents extends FoxTableQuery[OrderLockEvent, OrderLockEvents](
-  idLens = lens[OrderLockEvent].id
-)(new OrderLockEvents(_)) {
+object OrderLockEvents extends FoxTableQuery[OrderLockEvent, OrderLockEvents](new OrderLockEvents(_))
+  with ReturningId[OrderLockEvent, OrderLockEvents] {
+
+  val returningLens: Lens[OrderLockEvent, Int] = lens[OrderLockEvent].id
 
   import scope._
 

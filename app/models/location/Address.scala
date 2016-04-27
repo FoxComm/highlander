@@ -69,9 +69,10 @@ class Addresses(tag: Tag) extends FoxTable[Address](tag, "addresses")  {
   def region = foreignKey(Regions.tableName, regionId, Regions)(_.id)
 }
 
-object Addresses extends FoxTableQuery[Address, Addresses](
-  idLens = lens[Address].id
-  )(new Addresses(_)) {
+object Addresses extends FoxTableQuery[Address, Addresses](new Addresses(_))
+  with ReturningId[Address, Addresses] {
+
+  val returningLens: Lens[Address, Int] = lens[Address].id
 
   import scope._
 

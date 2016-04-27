@@ -33,9 +33,11 @@ class SharedSearchAssociations(tag: Tag)
   def storeAdmin = foreignKey(StoreAdmins.tableName, storeAdminId, StoreAdmins)(_.id)
 }
 
-object SharedSearchAssociations extends FoxTableQuery[SharedSearchAssociation, SharedSearchAssociations](
-  idLens = lens[SharedSearchAssociation].id
-)(new SharedSearchAssociations(_)) {
+object SharedSearchAssociations
+  extends FoxTableQuery[SharedSearchAssociation, SharedSearchAssociations](new SharedSearchAssociations(_))
+  with ReturningId[SharedSearchAssociation, SharedSearchAssociations] {
+
+  val returningLens: Lens[SharedSearchAssociation, Int] = lens[SharedSearchAssociation].id
 
   def byStoreAdmin(admin: StoreAdmin): QuerySeq = filter(_.storeAdminId === admin.id)
 

@@ -42,9 +42,10 @@ class StoreAdmins(tag: Tag) extends FoxTable[StoreAdmin](tag, "store_admins")  {
   def * = (id, name, email, hashedPassword, department) <> ((StoreAdmin.apply _).tupled, StoreAdmin.unapply)
 }
 
-object StoreAdmins extends FoxTableQuery[StoreAdmin, StoreAdmins](
-  idLens = lens[StoreAdmin].id
-)(new StoreAdmins(_)){
+object StoreAdmins extends FoxTableQuery[StoreAdmin, StoreAdmins](new StoreAdmins(_))
+  with ReturningId[StoreAdmin, StoreAdmins] {
+
+  val returningLens: Lens[StoreAdmin, Int] = lens[StoreAdmin].id
 
   def findByEmail(email: String): DBIO[Option[StoreAdmin]] = {
     filter(_.email === email).one

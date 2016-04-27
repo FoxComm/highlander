@@ -73,9 +73,11 @@ class GiftCardAdjustments(tag: Tag)
   def payment = foreignKey(OrderPayments.tableName, orderPaymentId, OrderPayments)(_.id.?)
 }
 
-object GiftCardAdjustments extends FoxTableQuery[GiftCardAdjustment, GiftCardAdjustments](
-  idLens = lens[GiftCardAdjustment].id
-  )(new GiftCardAdjustments(_)){
+object GiftCardAdjustments
+  extends FoxTableQuery[GiftCardAdjustment, GiftCardAdjustments](new GiftCardAdjustments(_))
+  with ReturningId[GiftCardAdjustment, GiftCardAdjustments] {
+
+  val returningLens: Lens[GiftCardAdjustment, Int] = lens[GiftCardAdjustment].id
 
   import GiftCardAdjustment._
 

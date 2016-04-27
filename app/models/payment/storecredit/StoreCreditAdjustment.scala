@@ -67,9 +67,10 @@ class StoreCreditAdjustments(tag: Tag)
 }
 
 object StoreCreditAdjustments
-  extends FoxTableQuery[StoreCreditAdjustment, StoreCreditAdjustments](
-  idLens = lens[StoreCreditAdjustment].id
-  )(new StoreCreditAdjustments(_)){
+  extends FoxTableQuery[StoreCreditAdjustment, StoreCreditAdjustments](new StoreCreditAdjustments(_))
+  with ReturningId[StoreCreditAdjustment, StoreCreditAdjustments]{
+
+  val returningLens: Lens[StoreCreditAdjustment, Int] = lens[StoreCreditAdjustment].id
 
   import StoreCreditAdjustment._
 

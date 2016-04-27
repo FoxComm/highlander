@@ -2,17 +2,18 @@ package utils.db
 
 import cats.data.Xor
 import failures.{Failure, Failures}
-import shapeless._
 import slick.dbio.DBIO
 import slick.driver.PostgresDriver.api._
 import slick.lifted.{TableQuery, Tag}
 import utils.aliases._
 import utils.db.DbResultT._
+import utils.db.UpdateReturning._
 
 abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]]
-(idLens: Lens[M, M#Id])
   (construct: Tag ⇒ T)
-  extends TableQuery[T](construct) with SearchById[M, T] {
+  extends TableQuery[T](construct)
+  with SearchById[M, T]
+  with ReturningTableQuery[M, T] {
 
   import ExceptionWrapper._
 
@@ -28,36 +29,41 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]]
   def findAllByIds(ids: Set[M#Id]): QuerySeq =
     filter(_.id.inSet(ids))
 
-  type Returning[R] = slick.driver.JdbcActionComponent#ReturningInsertActionComposer[M, R]
-  val returningId: Returning[M#Id] = this.returning(map(_.id))
-  def returningIdAction(id: M#Id)(model: M): M = idLens.set(model)(id)
+  private def returningTable: Returning[M, Ret] = this.returning(returningQuery)
 
-  def createAll(values: Iterable[M])(implicit ec: EC): DbResult[Option[Int]] = wrapDbResult((for {
-    saveUs ← * <~ beforeSaveBatch(values)
-    result ← * <~ (this ++= saveUs).toXor
-  } yield result).value)
+  def createAll(unsaved: Iterable[M])(implicit ec: EC): DbResult[Option[Int]] = (for {
+    prepared ← * <~ beforeSaveBatch(unsaved)
+    returned ← * <~ wrapDbio(this ++= prepared)
+  } yield returned).value
 
-  def createAllReturningIds[R](values: Seq[M], returning: Returning[R] = returningId)
-    (implicit ec: EC): DbResult[Seq[R]] = wrapDbResult((for {
-    saveUs ← * <~ beforeSaveBatch(values)
-    result ← * <~ (returning ++= saveUs).toXor
-  } yield result).value)
+  def createAllReturningIds(unsaved: Iterable[M])(implicit ec: EC): DbResult[Seq[M#Id]] = (for {
+    prepared ← * <~ beforeSaveBatch(unsaved)
+    returned ← * <~ wrapDbio(this.returning(map(_.id)) ++= prepared)
+  } yield returned).value
 
-  private def beforeSaveBatch(values: Iterable[M])(implicit ec: EC): DbResultT[Iterable[M]] =
-    DbResultT.sequence(values.map(beforeSave).map(DbResultT.fromXor))
+  def createAllReturningModels(unsaved: Iterable[M])(implicit ec: EC): DbResult[Seq[M]] = (for {
+    prepared ← * <~ beforeSaveBatch(unsaved)
+    returned ← * <~ wrapDbio(returningTable ++= prepared)
+  } yield for (m ← prepared; r ← returned) yield returningLens.set(m)(r)).value
 
-  def create[R](model: M, returning: Returning[R] = returningId, action: R ⇒ M ⇒ M = returningIdAction _)
-    (implicit ec: EC): DbResult[M] =
-    beforeSave(model).fold(DbResult.failures, { good ⇒
-      wrapDbio((returning += good).map(ret ⇒ action(ret)(good)))
-    })
+  def create(unsaved: M)(implicit ec: EC): DbResult[M] = (for {
+    prepared ← * <~ beforeSave(unsaved)
+    returned ← * <~ wrapDbio(returningTable += prepared)
+  } yield returningLens.set(prepared)(returned)).value
 
   def update(oldModel: M, newModel: M)(implicit ec: EC): DbResult[M] = (for {
     _        ← * <~ oldModel.mustBeCreated
     prepared ← * <~ beforeSave(newModel)
     _        ← * <~ oldModel.updateTo(prepared)
-    _        ← * <~ wrapDbio(this.findById(oldModel.id).update(prepared))
-  } yield newModel).value
+    _        ← * <~ findById(oldModel.id).update(prepared)
+  } yield prepared).value
+
+  def updateReturning(oldModel: M, newModel: M)(implicit ec: EC): DbResult[M] = (for {
+    _        ← * <~ oldModel.mustBeCreated
+    prepared ← * <~ beforeSave(newModel)
+    _        ← * <~ oldModel.updateTo(prepared)
+    returned ← * <~ findById(oldModel.id).extract.updateReturningHead(returningQuery, prepared)
+  } yield returningLens.set(prepared)(returned)).value
 
   private def beforeSave(model: M): Failures Xor M =
     model
@@ -65,8 +71,11 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]]
       .validate
       .toXor
 
-  def deleteById[A](id: M#Id, onSuccess: ⇒ DbResult[A], onFailure: M#Id ⇒ Failure)
-    (implicit ec: EC): DbResult[A] = {
+  private def beforeSaveBatch(unsaved: Iterable[M])(implicit ec: EC): DbResultT[Seq[M]] = DbResultT.sequence {
+    unsaved.map(m ⇒ DbResultT.fromXor(beforeSave(m)))
+  }.map(_.toSeq)
+
+  def deleteById[A](id: M#Id, onSuccess: ⇒ DbResult[A], onFailure: M#Id ⇒ Failure)(implicit ec: EC): DbResult[A] = {
     val deleteResult = findById(id).delete.flatMap {
       case 0 ⇒ DbResult.failure(onFailure(id))
       case _ ⇒ onSuccess
@@ -80,7 +89,7 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]]
   type QuerySeq = Query[T, M, Seq]
   type QuerySeqWithMetadata = QueryWithMetadata[T, M, Seq]
 
-  implicit class TableQueryWrappers(q: QuerySeq) {
+  implicit class EnrichedTableQuery(q: QuerySeq) {
 
     def deleteAll[A](onSuccess: ⇒ DbResult[A], onFailure: ⇒ DbResult[A])(implicit ec: EC): DbResult[A] = {
       q.delete.flatMap {

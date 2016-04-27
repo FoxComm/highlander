@@ -52,10 +52,12 @@ class Dimensions(tag: Tag) extends FoxTable[Dimension](tag, "activity_dimensions
   def * = (id, name, description) <> ((Dimension.apply _).tupled, Dimension.unapply)
 }
 
-object Dimensions extends FoxTableQuery[Dimension, Dimensions](
-  idLens = lens[Dimension].id)(new Dimensions(_)) {
+object Dimensions extends FoxTableQuery[Dimension, Dimensions](new Dimensions(_))
+  with ReturningId[Dimension, Dimensions] {
 
-    def findByName(name: String) : QuerySeq = filter(_.name === name) 
+  val returningLens: Lens[Dimension, Int] = lens[Dimension].id
+
+  def findByName(name: String) : QuerySeq = filter(_.name === name)
 
   def findOrCreateByName(name: String)(implicit ec: EC): DbResult[Dimension] =
     findByName(name).one.flatMap {

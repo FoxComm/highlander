@@ -21,8 +21,10 @@ object Warehouse {
   val HARDCODED_WAREHOUSE_ID = 1
 }
 
-object Warehouses extends FoxTableQuery[Warehouse, Warehouses](idLens = lens[Warehouse].id
-)(new Warehouses(_)) {
+object Warehouses extends FoxTableQuery[Warehouse, Warehouses](new Warehouses(_))
+  with ReturningId[Warehouse, Warehouses] {
+
+  val returningLens: Lens[Warehouse, Int] = lens[Warehouse].id
 
   def findByName(name: String): Query[Warehouses, Warehouse, Seq] =
     filter(_.name === name)

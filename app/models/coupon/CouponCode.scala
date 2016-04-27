@@ -26,8 +26,10 @@ class CouponCodes(tag: Tag) extends FoxTable[CouponCode](tag, "coupon_codes")  {
 
 }
 
-object CouponCodes extends FoxTableQuery[CouponCode, CouponCodes](
-  idLens = lens[CouponCode].id)(new CouponCodes(_)) {
+object CouponCodes extends FoxTableQuery[CouponCode, CouponCodes](new CouponCodes(_))
+  with ReturningId[CouponCode, CouponCodes] {
+
+  val returningLens: Lens[CouponCode, Int] = lens[CouponCode].id
 
   def charactersGivenQuantity(quantity: Int) : Int = Math.ceil(Math.log10(quantity.toDouble)).toInt
 

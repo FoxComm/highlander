@@ -51,9 +51,10 @@ class RmaPayments(tag: Tag) extends FoxTable[RmaPayment](tag, "rma_payments") {
   def rma = foreignKey(Rmas.tableName, rmaId, Rmas)(_.id)
 }
 
-object RmaPayments extends FoxTableQuery[RmaPayment, RmaPayments](
-  idLens = lens[RmaPayment].id
-)(new RmaPayments(_)){
+object RmaPayments extends FoxTableQuery[RmaPayment, RmaPayments](new RmaPayments(_))
+  with ReturningId[RmaPayment, RmaPayments] {
+
+  val returningLens: Lens[RmaPayment, Int] = lens[RmaPayment].id
 
   def findAllByRmaId(id: Int): QuerySeq =
     filter(_.rmaId === id)

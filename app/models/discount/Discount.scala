@@ -36,8 +36,10 @@ class Discounts(tag: Tag) extends ObjectHeads[Discount](tag, "discounts") {
 
 }
 
-object Discounts extends FoxTableQuery[Discount, Discounts](
-  idLens = lens[Discount].id)(new Discounts(_)) {
+object Discounts extends FoxTableQuery[Discount, Discounts](new Discounts(_))
+  with ReturningId[Discount, Discounts] {
+
+  val returningLens: Lens[Discount, Int] = lens[Discount].id
 
   def filterByContext(contextId: Int): QuerySeq = 
     filter(_.contextId === contextId)
