@@ -45,7 +45,8 @@ export function reducer(state = {}, action) {
 }
 
 function createAsyncAction(namespace, type, payloadReducer) {
-  const description = `${namespace.toUpperCase()}_${type.toUpperCase()}`;
+  const description = `${_.snakeCase(namespace).toUpperCase()}_${type.toUpperCase()}`;
+
   return createAction(description, payloadReducer, () => ({
     kind: 'async',
     namespace,
@@ -70,13 +71,13 @@ export default function createAsyncActions(namespace, asyncCall, payloadReducer)
         if (httpStatus != 404) {
           console.error(err && err.stack);
         }
-        dispatch(failed(err));
+        dispatch(failed(err, ...args));
       };
 
       dispatch(started(...args));
       return asyncCall(...args)
         .then(
-          res => dispatch(succeeded(res)),
+          res => dispatch(succeeded(res, ...args)),
           handleError
         ).catch(handleError);
     };

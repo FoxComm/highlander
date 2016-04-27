@@ -89,7 +89,7 @@ export default class ImageLoader extends Component {
     return (
       <div className={className}>
         {this.loader}
-        <Transition transitionName="image" transitionEnterTimeout={500} transitionLeaveTimeout={500}>
+        <Transition component="div" transitionName="image" transitionEnterTimeout={500} transitionLeaveTimeout={500}>
           {this.image}
         </Transition>
       </div>

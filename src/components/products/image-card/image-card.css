@@ -10,6 +10,10 @@
   width: 286px;
   height: 286px;
   overflow: hidden;
+
+  & img {
+    display: flex;
+  }
 }
 
 .actions {
@@ -18,7 +22,7 @@
   background: #333a44;
   opacity: .86;
   text-align: right;
-  transition: transform .12s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform .32s cubic-bezier(0.4, 0, 0.2, 1);
 
   &.actionsVisible {
     transform: translateY(-100%);
@@ -45,6 +49,13 @@
   background: #fff;
 }
 
+._loading {
+  & .description {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMAF/VASP8AAABBSURBVHheZckxFYAgFADA8zkwYgMr2MBKNpBoRCHCHxl4YADnsxymy/DoQmyh7aGmUHJwBnfjraxiW+yTNMj9xx9ZVxpfjbpEWgAAAABJRU5ErkJggg==);
+    animation: caramel .5s linear infinite;
+  }
+}
+
 .title {
   margin-bottom: 10px;
   font-weight: bold;
@@ -55,4 +66,14 @@
 
 .secondaryTitle {
   color: #ABB2B6;
+}
+
+@keyframes caramel {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 20px 0;
+  }
 }

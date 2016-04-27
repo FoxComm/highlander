@@ -21,6 +21,7 @@ type Props = {
   src: string;
   actions?: Array<Action>;
   title: string;
+  loading: boolean;
   secondaryTitle?: string;
 };
 
@@ -90,10 +91,14 @@ export default class ImageCard extends Component {
   }
 
   render(): Element {
-    const { src } = this.props;
+    const { src, loading } = this.props;
+
+    const cls = classNames(styles.card, {
+      [styles._loading]: loading,
+    });
 
     return (
-      <div className={styles.card}>
+      <div className={cls}>
         <div className={styles.image} onMouseOver={this.showActions} onMouseOut={this.hideActions}>
           <Image src={src} />
         </div>

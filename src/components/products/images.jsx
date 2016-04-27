@@ -11,14 +11,16 @@ import _ from 'lodash';
 import moment from 'moment';
 
 import { actions } from '../../modules/products/images';
+import { Image, ImageInfo } from '../../modules/images';
+
 // components
 import WaitAnimation from '../common/wait-animation';
-import { FormField } from '../forms';
-import ContentBox from '../content-box/content-box';
+import ConfirmationDialog from '../modal/confirmation-dialog';
 import { AddButton } from '../common/buttons';
 import Accordion from './accordion/accordion';
 import ImageCard from './image-card/image-card';
 import Upload from './upload/upload';
+import EditImage from './edit-image';
 import ActionsDropdown from '../bulk-actions/actions-dropdown';
 import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
@@ -32,108 +34,75 @@ import type {
 } from '../../modules/products/details';
 
 type Props = {
-  product: FullProduct,
-  onUpdateProduct: (product: FullProduct) => void,
-  onSetProperty: (field: string, type: string, value: any) => void,
+  product: FullProduct;
+  fetch: (id: number|string) => void;
+  editImage: (album: string, idx: number, info: any) => void;
+  deleteImage: (album: string, idx: number) => void;
+  list: any;
+  isLoading: boolean;
+  isImageLoading: (idx: number) => boolean;
 };
 
 type State = {
   files: Array<any>;
+  isEditDialogVisible: boolean;
+  isDeleteDialogVisible: boolean;
+  selectedImage?: SelectedImage;
 }
 
-const acts = (image) => {
-  return [
-    { name: 'external-link', handler: _.noop },
-    { name: 'edit', handler: _.noop },
-    { name: 'trash', _handler: _.noop },
-  ];
-};
+type SelectedImage = {
+  idx: number;
+  image: Image;
+}
 
 class ProductImages extends Component<void, Props, State> {
-  static propTypes = {
-    product: PropTypes.object.isRequired,
-    onSetProperty: PropTypes.func.isRequired,
-    onUpdateProduct: PropTypes.func.isRequired,
-    fetch: PropTypes.func.isRequired,
-    list: PropTypes.array.isRequired,
-    isLoading: PropTypes.bool.isRequired,
-  };
+  static props: Props;
 
   state: State = {
-    files: []
+    files: [],
+    isEditDialogVisible: false,
+    isDeleteDialogVisible: false,
+    selectedImage: void 0,
   };
 
   componentDidMount() {
-    this.props.fetch(this.props.product.form.product.id);
+    const id = this.props.product.form.product.id;
+
+    if (id) {
+      this.props.fetch(id);
+    }
   }
 
-  get contentBox(): Element {
-    const imageControls = _.map(this.images, (val, idx) => {
-      return (
-        <div className="fc-product-details__image" key={idx}>
-          <FormField
-            className="fc-product-details__field"
-            key={`product-image-page-field-${idx}`}>
-            <input
-              className="fc-product-details__field-value"
-              type="text"
-              value={val}
-              onChange={(e) => this.handleUpdateImage(idx, e)} />
-          </FormField>
-          <i className="icon-close" onClick={() => this.handleRemoveImage(idx)} />
-        </div>
-      );
+  @autobind
+  handleEditImage(selectedImage: SelectedImage) {
+    this.setState({
+      selectedImage,
+      isEditDialogVisible: true,
     });
-
-    return (
-      <ContentBox title="Image URLs">
-        {imageControls}
-        <div className="fc-product-details__add-custom-property">
-          New Image
-          <a className="fc-product-details__add-custom-property-icon"
-             onClick={this.handleAddImage}>
-            <i className="icon-add" />
-          </a>
-        </div>
-      </ContentBox>
-    );
-  }
-
-  get images(): Array<?string> {
-    const attributes = getProductAttributes(this.props.product);
-    return _.get(attributes, 'images.value', [null]);
   }
 
   @autobind
-  handleAddImage() {
-    const newImages = [...this.images, null];
-    this.updateImages(newImages);
+  handleCancelEditImage() {
+    this.setState({
+      selectedImage: void 0,
+      isEditDialogVisible: false,
+    });
   }
 
   @autobind
-  handleRemoveImage(idx: number) {
-    const images = [
-      ...this.images.slice(0, idx),
-      ...this.images.slice(idx + 1),
-    ];
-
-    this.props.onSetProperty('images', 'images', images);
+  handleRemoveImage(selectedImage: SelectedImage) {
+    this.setState({
+      selectedImage,
+      isDeleteDialogVisible: true,
+    });
   }
 
   @autobind
-  handleUpdateImage(idx: number, event: Object) {
-    const newImages = [
-      ...this.images.slice(0, idx),
-      event.target.value,
-      ...this.images.slice(idx + 1),
-    ];
-
-    this.updateImages(newImages);
-  }
-
-  updateImages(images: Array<?string>) {
-    const product = setProductAttribute(this.props.product, 'images', 'images', images);
-    this.props.onUpdateProduct(product);
+  handleCancelRemoveImage() {
+    this.setState({
+      selectedImage: void 0,
+      isDeleteDialogVisible: false,
+    });
   }
 
   get bulkActions(): Array<Array<any>> {
@@ -150,6 +119,60 @@ class ProductImages extends Component<void, Props, State> {
         <i className="icon-upload" /> Drag & Drop to upload or click here
       </div>
     );
+  }
+
+  get deleteDialog() {
+    return (
+      <ConfirmationDialog
+        isVisible={this.state.isDeleteDialogVisible}
+        header='Delete Image'
+        body={'Are you sure you want to delete this image?'}
+        cancel='Cancel'
+        confirm='Yes, Delete'
+        cancelAction={this.handleCancelRemoveImage}
+        confirmAction={() => {
+          if (!this.state.selectedImage) {
+            return;
+          }
+          const { image, idx } = this.state.selectedImage;
+
+          this.setState(
+            { isDeleteDialogVisible: false },
+            () => this.props.deleteImage(image.album, idx)
+          );
+        }} />
+    );
+  }
+
+  get editDialog(): ?Element {
+    return (
+      <EditImage
+        isVisible={this.state.isEditDialogVisible}
+        title={_.get(this.state, ['selectedImage', 'image', 'title'], '')}
+        alt={_.get(this.state, ['selectedImage', 'image', 'alt'], '')}
+        onCancel={this.handleCancelEditImage}
+        onSave={(form: ImageInfo) => {
+          if (!this.state.selectedImage) {
+            return;
+          }
+
+          const { image, idx } = this.state.selectedImage;
+
+          this.setState(
+            { isEditDialogVisible: false },
+            () => this.props.editImage(image.album, idx, form)
+          );
+        }} />
+    );
+  }
+
+  @autobind
+  getImageActions(selectedImage: SelectedImage): Array<any> {
+    return [
+      { name: 'external-link', handler: () => window.open(selectedImage.image.src)},
+      { name: 'edit', handler: () => this.handleEditImage(selectedImage) },
+      { name: 'trash', handler: () => this.handleRemoveImage(selectedImage) },
+    ];
   }
 
   @autobind
@@ -172,10 +195,10 @@ class ProductImages extends Component<void, Props, State> {
       return <WaitAnimation />;
     }
 
-    const byAlbum = _.groupBy(this.props.list, 'album');
-
     return (
       <div>
+        {this.editDialog}
+        {this.deleteDialog}
         <div className="fc-table__header">
           <ActionsDropdown actions={this.bulkActions}
                            disabled={false}
@@ -203,20 +226,24 @@ class ProductImages extends Component<void, Props, State> {
             </Upload>
           </div>
         </div>
-        {_.values(_.mapValues(byAlbum, this.renderAlbum))}
+        {_.values(_.mapValues(this.props.list, this.renderAlbum))}
       </div>
     );
   }
 
   @autobind
-  renderAlbum(images, albumName): Element {
+  renderAlbum(images: Array<Image>, albumName: string): Element {
     return (
-      <div className="fc-grid fc-grid-no-gutter">
+      <div className="fc-grid fc-grid-no-gutter" key={albumName}>
         <div className="fc-col-md-1-1">
           <Accordion title={this.renderTitle(albumName, images.length)}>
-            {images.map((image, i) => {
-              return <ImageCard src={`${image.src}`} title={image.title} secondaryTitle={image.du}
-                                actions={acts(image.src)} key={i} />;
+            {images.map((image: Image, idx: number) => {
+              return <ImageCard src={`${image.src}`}
+                                title={image.title}
+                                secondaryTitle={image.du}
+                                actions={this.getImageActions({image, idx})}
+                                loading={image.inProgress}
+                                key={image.id} />;
             })}
           </Accordion>
         </div>
@@ -237,7 +264,7 @@ class ProductImages extends Component<void, Props, State> {
 
 const mapState = (state) => ({
   list: _.get(state, ['products', 'images', 'list'], []),
-  isLoading: _.get(state, ['asyncActions', 'images', 'inProgress'], true),
+  isLoading: _.get(state, ['asyncActions', 'productsFetchImages', 'inProgress'], true),
 });
 
 export default connect(mapState, actions)(ProductImages);
