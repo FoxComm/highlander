@@ -14,10 +14,10 @@
     - phoenix
     - { role: rsyslog, sudo: yes }
     - { role: kibana, sudo: yes }
+    - seeder
     - greenriver
     - loyalty
     - messaging
-    - seeder
 
 - name: Provision Ashes Stage
   hosts: ashes-stage

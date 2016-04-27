@@ -17,9 +17,9 @@
     - phoenix
     - { role: rsyslog, sudo: yes }
     - { role: kibana, sudo: yes }
+    - seeder
     - greenriver
     - loyalty
-    - seeder
 
 - name: Provision Gatling Ashes
   hosts: gatling-ashes

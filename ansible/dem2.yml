@@ -17,10 +17,10 @@
     - phoenix
     - { role: rsyslog, sudo: yes }
     - { role: kibana, sudo: yes }
+    - seeder
     - greenriver
     - loyalty
     - messaging
-    - seeder
 
 - name: Provision Demo 2 US Frontend
   hosts: dem2-front

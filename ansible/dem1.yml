@@ -15,12 +15,12 @@
     - elasticsearch
     - db
     - phoenix
-    - greenriver
     - { role: rsyslog, sudo: yes }
     - { role: kibana, sudo: yes }
+    - seeder
+    - greenriver
     - loyalty
     - messaging
-    - seeder
 
 - name: Provision Demo 1 US Frontend
   hosts: dem1-front
