@@ -21,7 +21,7 @@ object Simulations {
     setUp(pacificNwVips, randomCustomerActivity)
     .assertions(Conf.defaultAssertion)
     .protocols(Conf.httpConf)
-    .maxDuration(2.minutes)
+    .maxDuration(10.minutes)
   }
 
 }

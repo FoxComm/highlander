@@ -1,5 +1,6 @@
 package seeds
 
+import scala.concurrent.duration._
 import scala.util.Random.nextInt
 
 import io.gatling.core.Predef._
@@ -20,7 +21,7 @@ object Scenarios {
     .exec(addCustomerAddress).stopOnFailure.doPause
     .exec(setDefaultShipping).stopOnFailure.doPause
     .repeat(_ ⇒ nextInt(3))(placeOrder.exec(ageOrder)).stopOnFailure.doPause
-    .inject(atOnceUsers(3))
+    .inject(rampUsers(100) over 5.minutes)
 
   val pacificNwVips = scenario("Pacific Northwest VIPs")
     .exec(loginAsRandomAdmin).stopOnFailure.doPause
@@ -31,6 +32,6 @@ object Scenarios {
     .exec(addCustomerAddress).stopOnFailure.doPause
     .exec(setDefaultShipping).stopOnFailure.doPause
     .repeat(_ ⇒ nextInt(10) + 5)(placeOrder.exec(ageOrder)).stopOnFailure.doPause
-    .inject(atOnceUsers(1))
+    .inject(rampUsers(50) over 5.minutes)
 
 }
