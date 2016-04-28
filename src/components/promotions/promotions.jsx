@@ -13,10 +13,10 @@ import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
 import { SelectableSearchList } from '../list-page';
 import PromotionRow from './promotion-row';
+import BulkWrapper from '../discounts/bulk';
 
 // redux
 import { actions } from '../../modules/promotions/list';
-import { actions as bulkActions } from '../../modules/promotions/bulk';
 
 type Props = {
   list: Object,
@@ -32,7 +32,6 @@ const mapStateToProps = (state: Object) => {
 const mapDispatchToProps = (dispatch: Function) => {
   return {
     actions: bindActionCreators(actions, dispatch),
-    bulkActions: bindActionCreators(bulkActions, dispatch),
   };
 };
 
@@ -65,31 +64,12 @@ export default class Promotions extends Component {
     );
   }
 
-  bulkActions(): Array<any> {
-    return [];
-  }
-
-  renderDetail(): any {
-    return null;
-  }
-
   render(): Element {
     const {list, actions} = this.props;
 
-    const entity = 'promotion';
-    const module = `${entity}s`;
-
     return (
       <div className="promotions">
-        <BulkMessages
-          storePath={`${module}.bulk`}
-          module={module}
-          entity={entity}
-          renderDetail={this.renderDetail} />
-        <BulkActions
-          module={module}
-          entity={entity}
-          actions={this.bulkActions()}>
+        <BulkWrapper entity="promotion">
           <SelectableSearchList
             emptyMessage="No promotions found."
             list={list}
@@ -97,7 +77,7 @@ export default class Promotions extends Component {
             tableColumns={tableColumns}
             searchActions={actions}
           />
-        </BulkActions>
+        </BulkWrapper>
       </div>
     );
   }
