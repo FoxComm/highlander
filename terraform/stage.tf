@@ -14,9 +14,9 @@ variable "consul_server_image" {
 variable "ssh_user" {} 
 variable "ssh_private_key" {} 
 
-module "stage2" {
+module "stage" {
     source = "./tinystack"
-    datacenter = "stage2"
+    datacenter = "stage"
     backend_image = "${var.backend_image}"
     frontend_image = "${var.frontend_image}"
     ssh_user = "${var.ssh_user}"
