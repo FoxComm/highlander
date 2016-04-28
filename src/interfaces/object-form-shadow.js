@@ -1,8 +1,4 @@
-type FormAttributes = { [key:string]: FormAttribute };
-type FormAttribute = {
-  type: string;
-  [key:string]: any;
-};
+type FormAttributes = { [key:string]: any };
 
 type ShadowAttributes = { [key:string]: ShadowAttribute };
 type ShadowAttribute = {
