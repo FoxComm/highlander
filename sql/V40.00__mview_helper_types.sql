@@ -42,7 +42,8 @@ create table export_orders (
     shipping_total      integer,
     adjustments_total   integer,
     taxes_total         integer,
-    grand_total         integer
+    grand_total         integer,
+    items_count         integer
 );
 
 create table export_payments (

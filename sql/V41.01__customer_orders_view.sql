@@ -1,26 +1,27 @@
 create materialized view customer_orders_view as
 select
     c.id as customer_id,
-    count(o1.id) as count,
-    case when count(o1) = 0
+    count(osv.id) as count,
+    case when count(osv) = 0
     then
         '[]'
     else
         json_agg((
-            o1.customer_id,
-        	o1.reference_number,
-        	o1.state,
-        	to_char(o1.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
-        	to_char(o1.placed_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
-        	o1.sub_total,
-        	o1.shipping_total,
-        	o1.adjustments_total,
-        	o1.taxes_total,
-        	o1.grand_total
+            osv.customer_id,
+        	osv.reference_number,
+        	osv.state,
+        	to_char(osv.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+        	to_char(osv.placed_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+        	osv.sub_total,
+        	osv.shipping_total,
+        	osv.adjustments_total,
+        	osv.taxes_total,
+        	osv.grand_total,
+        	osv.items_count
         )::export_orders)
     end as orders
 from customers as c
-left join orders as o1 on c.id = o1.customer_id
+left join order_stats_view as osv on c.id = osv.customer_id
 group by c.id;
 
 create unique index customer_orders_view_idx on customer_orders_view (customer_id);
