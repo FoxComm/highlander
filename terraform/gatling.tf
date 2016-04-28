@@ -45,6 +45,12 @@ resource "google_compute_instance" "gatling-gun"{
         network = "default"
     }
 
+    connection { 
+        type = "ssh"
+        user = "${var.ssh_user}"
+        private_key="${file(var.ssh_private_key)}"
+    }
+
     provisioner "file" {
         source = "terraform/scripts/bootstrap.sh"
         destination = "/tmp/bootstrap.sh"
