@@ -9,7 +9,7 @@
     justify-content: center;
 
     position: absolute;
-    .top(23px);
+    .top(25px);
     left: @sidebar-width - @sidebar-control-size/2;
     .circle(@sidebar-control-size);
     .colors(@color-decor5, @color-decor13);
@@ -66,16 +66,25 @@
     &__expand {
       width: 30px;
       flex-shrink: 2;
+
+      i {
+        .font-spec(10px);
+
+        .chevron();
+      }
     }
 
     &__children {
-      display: none;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .25s ease-out;
     }
 
     &__children._open {
-      display: block;
       overflow-y: auto;
       overflow-x: hidden;
+      max-height: 500px;
+      transition: max-height .85s ease-out;
     }
 
     &__sublink {

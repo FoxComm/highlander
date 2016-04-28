@@ -1,6 +1,4 @@
 .fc-inventory-item {
-  background: @color-white;
-
   &__summary {
     background: @color-decor0;
     overflow: hidden;
@@ -27,7 +25,6 @@
   &__tab-link {
     width: 100%;
     height: 100%;
-    margin-right: 20px;
     .padding-top(20px);
     font-size: 14px;
     font-weight: @normal;
@@ -55,6 +52,14 @@
   }
 
   .fc-live-search {
-    margin-top: 40px;
+    margin-bottom: 40px;
+
+    .fc-list-page-content:first-child {
+      border-top: none;
+    }
+
+    .fc-list-page-content:last-child {
+      padding-bottom: 20px;
+    }
   }
 }

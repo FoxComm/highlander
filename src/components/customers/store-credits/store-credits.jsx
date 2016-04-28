@@ -282,7 +282,7 @@ export default class StoreCredits extends React.Component {
     const totals = _.get(props, ['storeCreditTotals', 'totals'], {});
 
     return (
-      <div className="fc-store-credits fc-list-page">
+      <div className="fc-store-credits">
         <BulkMessages
           storePath="customers.storeCreditBulk"
           module="customers.store-credits"
@@ -291,7 +291,7 @@ export default class StoreCredits extends React.Component {
         <Summary totals={totals}
                  params={props.params}
                  transactionsSelected={false} />
-        <div className="fc-list-page-content fc-store-credits__list">
+        <div className="fc-store-credits__list">
           <BulkActions
             module="customers.store-credits"
             entity="store credit"

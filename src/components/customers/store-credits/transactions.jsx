@@ -109,7 +109,7 @@ export default class StoreCreditTransactions extends React.Component {
         <Summary totals={totals}
                  params={this.props.params}
                  transactionsSelected={true} />
-        <div className="fc-list-page-content fc-store-credits__list">
+        <div className="fc-store-credits__list">
           <SelectableSearchList
             title="Transactions"
             emptyMessage="No transactions found."

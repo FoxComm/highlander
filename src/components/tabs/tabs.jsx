@@ -1,23 +1,22 @@
+import classNames from 'classnames';
 import React, { PropTypes } from 'react';
 
-export default class TabListView extends React.Component {
+const TabListView = props => {
+  const cls = classNames('fc-tab-list', { '_loading': props.isLoading });
 
-  static propTypes = {
-    children: PropTypes.node
-  };
+  return (
+    <div className={cls}>
+      <ul className="fc-tab-list__current-tabs">
+        {props.children}
+      </ul>
+      <div className="fc-tab-list__buffer"></div>
+    </div>
+  );
+};
 
-  render() {
-    return (
-      <div className="fc-tab-list">
-        <ul className="fc-tab-list__current-tabs">
-          {React.Children.map(this.props.children, (child, idx) => {
-            return React.cloneElement(child, {
-                key: `tab-${idx}`
-            });
-          })}
-        </ul>
-        <div className="fc-tab-list__buffer"></div>
-      </div>
-    );
-  }
-}
+TabListView.propTypes = {
+  isLoading: PropTypes.bool,
+  children: PropTypes.node,
+};
+
+export default TabListView;

@@ -1,6 +1,7 @@
 
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import TransitionGroup from 'react-addons-css-transition-group';
 import { connect } from 'react-redux';
 
 class TotalCounter extends React.Component {
@@ -44,7 +45,15 @@ class TotalCounter extends React.Component {
       count = entitiesCount;
     }
 
-    return <span>{count}</span>;
+    return (
+      <TransitionGroup transitionName="fc-transition-counter"
+                       transitionAppear={true}
+                       transitionLeave={false}
+                       transitionAppearTimeout={300}
+                       transitionEnterTimeout={300}>
+        <span key={count}>{count}</span>
+      </TransitionGroup>
+    );
   }
 }
 

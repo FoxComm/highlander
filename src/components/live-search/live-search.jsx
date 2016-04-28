@@ -1,9 +1,11 @@
+// libs
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 
 import _ from 'lodash';
 import classNames from 'classnames';
 
+// components
 import MaskedInput from '../masked-input/masked-input';
 import Menu from '../menu/menu';
 import MenuItem from '../menu/menu-item';
@@ -13,11 +15,16 @@ import TabListView from '../tabs/tabs';
 import EditableTabView from '../tabs/editable-tab';
 import DatePicker from '../datepicker/datepicker';
 import ShareSearch from '../share-search/share-search';
-import { Button } from '../common/buttons';
+import ButtonWithMenu from '../common/button-with-menu';
 
 import SearchTerm, { getInputMask } from '../../paragons/search-term';
 
-const SEARCH_ALL = 'All';
+const SEARCH_MENU_ACTION_SHARE = 'share';
+const SEARCH_MENU_ACTION_SAVE = 'save';
+const SEARCH_MENU_ACTION_UPDATE = 'update';
+const SEARCH_MENU_ACTION_DELETE = 'delete';
+const SEARCH_MENU_ACTION_CLEAR = 'clear';
+const SEARCH_MENU_ACTION_EDIT_NAME = 'edit_name';
 
 function currentSearch(props) {
   return props.searches.currentSearch() || {};
@@ -50,6 +57,7 @@ export default class LiveSearch extends React.Component {
       searchValue: searchValue,
       selectionIndex: -1,
       shouldSetFocus: false,
+      editingTab: null,
     };
   }
 
@@ -60,6 +68,7 @@ export default class LiveSearch extends React.Component {
     selectSavedSearch: PropTypes.func.isRequired,
     searches: PropTypes.object,
     singleSearch: PropTypes.bool,
+    isEditable: PropTypes.bool,
     submitPhrase: PropTypes.func.isRequired,
     submitFilters: PropTypes.func.isRequired,
     updateSearch: PropTypes.func.isRequired,
@@ -77,174 +86,9 @@ export default class LiveSearch extends React.Component {
 
   static defaultProps = {
     singleSearch: false,
+    isEditable: true,
     noGutter: false,
   };
-
-  get currentSearch() {
-    return currentSearch(this.props);
-  }
-
-  get isDirty() {
-    return this.currentSearch.isDirty;
-  }
-
-  get isDisabled() {
-    return _.get(this.currentSearch, ['results', 'isFetching'], true);
-  }
-
-  get searchOptions() {
-    // Check to see if the date picker should be shown.
-    let options = null;
-    if (this.state.searchOptions.length == 1 && this.state.searchOptions[0].type == 'date') {
-      const clickAction = date => {
-        const dateVal = date.toLocaleString('en-us', {
-          month: '2-digit',
-          day: '2-digit',
-          year: 'numeric'
-        });
-
-        this.submitFilter(`${this.state.searchValue}${dateVal}`, true);
-      };
-
-      options = (
-        <DatePicker
-          className="_in-menu"
-          key="live-search-orders-datepicker"
-          onClick={clickAction}
-          showInput={false}
-          showPicker={true}/>
-      );
-    } else {
-      const selectedIdx = this.state.selectionIndex;
-      options = _.reduce(this.state.searchOptions, (result, option, idx) => {
-        if (!option.matchesSearchTerm(this.state.searchValue)) {
-          return result;
-        }
-
-        return [
-          ...result,
-          <SearchOption
-            className={classNames({ '_active': selectedIdx == idx, '_first': idx == 0 })}
-            key={`search-option-${option.displayTerm}`}
-            option={option}
-            clickAction={(filter) => this.submitFilter(filter, true)}/>
-        ];
-      }, []);
-    }
-
-    const menuClass = classNames('fc-live-search__go-back _last', {
-      '_active': this.state.selectionIndex == this.state.searchOptions.length
-    });
-
-    const goBack = (
-      <MenuItem className={menuClass} clickAction={this.goBack}>
-        <i className="icon-back"/>
-        Back
-      </MenuItem>
-    );
-
-    return (
-      <Menu>
-        {options}
-        {!_.isEmpty(this.state.searchValue) && goBack}
-      </Menu>
-    );
-  }
-
-  get header() {
-    if (this.props.singleSearch) return;
-
-    return (
-      <div className="fc-live-search__header">
-        {this.savedSearches}
-      </div>
-    );
-  }
-
-  get savedSearches() {
-    if (this.props.singleSearch) return;
-
-    const tabs = _.map(this.props.searches.savedSearches, (search, idx) => {
-      const selected = idx === this.props.searches.selectedSearch;
-      const isEditable = search.isEditable;
-      const isDirty = isEditable && this.props.searches.savedSearches[idx].isDirty;
-
-      const copySearch = () => {
-        this.props.saveSearch({ ...search, title: `${search.title} - Copy` });
-      };
-      const deleteSearch = () => this.props.deleteSearch(idx, search);
-      const editName = title => {
-        this.props.updateSearch(idx, { ...search, title: title });
-      };
-      const saveSearch = () => this.props.updateSearch(idx, search);
-
-      return (
-        <EditableTabView
-          key={`saved-search-${search.id}-${search.title}`}
-          defaultValue={search.title}
-          draggable={isEditable}
-          isDirty={isDirty}
-          isEditable={isEditable}
-          selected={selected}
-          onClick={() => this.props.selectSavedSearch(idx)}
-          onSaveUpdateComplete={saveSearch}
-          onEditNameComplete={editName}
-          onCopySearchComplete={copySearch}
-          onDeleteSearchComplete={deleteSearch}/>
-      );
-    });
-
-    return <TabListView>{tabs}</TabListView>;
-  }
-
-  get searchButton() {
-    if (this.props.singleSearch) return;
-
-    const shouldSaveNew = this.currentSearch.title === SEARCH_ALL;
-    const buttonContents = `${shouldSaveNew ? 'Save' : 'Update'} Search`;
-    const clickAction = (event) => {
-      event.preventDefault();
-      if (shouldSaveNew) {
-        this.props.saveSearch({
-          ...this.currentSearch,
-          title: `${this.currentSearch.title} - Copy`
-        });
-        this.props.submitFilters([]);
-      } else {
-        this.props.updateSearch(this.props.searches.selectedSearch, this.currentSearch);
-      }
-    };
-
-    const buttonClass = classNames('fc-btn', {
-      '_loading': this.props.searches.isSavingSearch || currentSearch(this.props).isUpdating
-    });
-
-    return (
-      <button className={buttonClass} onClick={clickAction} disabled={this.isDisabled}>
-        {buttonContents}
-      </button>
-    );
-  }
-
-  @autobind
-  formatPill(pill, idx, props) {
-    const icon = pill.term === '_all' ? 'icon-search' : 'icon-filter';
-
-    return (
-      <div
-        className="fc-pilled-input__pill"
-        key={`pill-${this.currentSearch.title}-${idx}`}
-        onClick={() => props.onPillClick(pill, idx)}
-        title={pill.display}>
-        <i className={icon}/>
-        {pill.display}
-        <a onClick={() => props.onPillClose(pill, idx)}
-           className="fc-pilled-input__pill-close">
-          &times;
-        </a>
-      </div>
-    );
-  }
 
   componentDidMount() {
     this.props.submitFilters(this.currentSearch.query, true);
@@ -262,7 +106,7 @@ export default class LiveSearch extends React.Component {
     const searchOptions = _.get(nextProps, ['searches', 'searchOptions'], []);
     const isVisible = this.state.isFocused && searchOptions.length > 0;
 
-    const isRefreshed =  _.get(search, ['results', 'refreshed'], false);
+    const isRefreshed = _.get(search, ['results', 'refreshed'], false);
     if (!isRefreshed) {
       this.setState({
         searchPrepend: '',
@@ -278,6 +122,235 @@ export default class LiveSearch extends React.Component {
     this.setState({
       searchValue: search.searchValue,
     });
+  }
+
+  get currentSearch() {
+    return currentSearch(this.props);
+  }
+
+  get isDirty() {
+    return this.currentSearch.isDirty;
+  }
+
+  get isDisabled() {
+    return _.get(this.currentSearch, ['results', 'isFetching'], true) || this.currentSearch.isUpdating;
+  }
+
+  get searchOptions() {
+    // Check to see if the date picker should be shown.
+    let options = null;
+    let goBack = null;
+
+    if (this.state.optionsVisible) {
+      if (this.state.searchOptions.length == 1 && this.state.searchOptions[0].type == 'date') {
+        const clickAction = date => {
+          const dateVal = date.toLocaleString('en-us', {
+            month: '2-digit',
+            day: '2-digit',
+            year: 'numeric'
+          });
+
+          this.submitFilter(`${this.state.searchValue}${dateVal}`, true);
+        };
+
+        options = (
+          <DatePicker
+            className="_in-menu"
+            key="live-search-orders-datepicker"
+            onClick={clickAction}
+            showInput={false}
+            showPicker={true} />
+        );
+      } else {
+        const selectedIdx = this.state.selectionIndex;
+        options = _.reduce(this.state.searchOptions, (result, option, idx) => {
+          if (!option.matchesSearchTerm(this.state.searchValue)) {
+            return result;
+          }
+
+          return [
+            ...result,
+            <SearchOption
+              className={classNames({ '_active': selectedIdx == idx, '_first': idx == 0 })}
+              key={`search-option-${option.displayTerm}`}
+              option={option}
+              clickAction={(filter) => this.submitFilter(filter, true)} />
+          ];
+        }, []);
+      }
+
+      const menuClass = classNames('fc-live-search__go-back _last', {
+        '_active': this.state.selectionIndex == this.state.searchOptions.length
+      });
+
+      goBack = (
+        <MenuItem className={menuClass} clickAction={this.goBack}>
+          <i className="icon-back" />
+          Back
+        </MenuItem>
+      );
+    }
+
+    return (
+      <Menu position="left" isOpen={!!options}>
+        {options}
+        {!_.isEmpty(this.state.searchValue) && goBack}
+      </Menu>
+    );
+  }
+
+  get header() {
+    if (this.props.singleSearch) return;
+
+    return (
+      <div className="fc-live-search__header">
+        {this.savedSearches}
+      </div>
+    );
+  }
+
+  get savedSearches() {
+    if (this.props.singleSearch) {
+      return;
+    }
+
+    const { searches } = this.props;
+
+    let isLoading = searches.fetchingSearches;
+
+    const tabs = _.map(searches.savedSearches, (search, idx) => {
+      const selected = idx === searches.selectedSearch;
+      const isEditable = search.isEditable;
+      const isDirty = isEditable && searches.savedSearches[idx].isDirty;
+
+      isLoading = isLoading || search.isUpdating || search.isSaving || search.isDeleting;
+
+      return (
+        <EditableTabView
+          key={`saved-search-${search.id}-${search.title}`}
+          defaultValue={search.title}
+          draggable={isEditable}
+          isDirty={isDirty}
+          isEditable={isEditable}
+          selected={selected}
+          onClick={() => !selected && !isLoading && this.props.selectSavedSearch(idx)}
+          editMode={this.state.editingTab === idx}
+          onEditNameComplete={title => this.handleEditName(search, title, idx)}
+          onEditNameCancel={this.handleEditNameCancel} />
+      );
+    });
+
+    return <TabListView isLoading={isLoading}>{tabs}</TabListView>;
+  }
+
+  get controls() {
+    let menuItems = [];
+
+    const clearAction = this.state.pills.length ? [[SEARCH_MENU_ACTION_CLEAR, 'Clear All Filters']] : [];
+
+    if (this.currentSearch.id) {
+      const saveAction = this.currentSearch.isDirty ? [[SEARCH_MENU_ACTION_UPDATE, 'Update Search']] : [];
+      menuItems = [
+        [SEARCH_MENU_ACTION_SAVE, 'Save New Search'],
+        ...saveAction,
+        [SEARCH_MENU_ACTION_SHARE, 'Share Search'],
+        [SEARCH_MENU_ACTION_EDIT_NAME, 'Edit Search Name'],
+        ...clearAction,
+        [SEARCH_MENU_ACTION_DELETE, 'Delete Search'],
+      ];
+    } else {
+      menuItems = [
+        [SEARCH_MENU_ACTION_SAVE, 'Save New Search'],
+        ...clearAction,
+      ];
+    }
+
+    const buttonDisabled = this.state.searchDisplay.length == 0 || this.props.searches.isSavingSearch || this.isDisabled;
+    const menuDisabled = this.props.searches.isSavingSearch || this.isDisabled;
+
+    return (
+      <ButtonWithMenu
+        onPrimaryClick={this.handleSearchClick}
+        icon="search"
+        menuPosition="right"
+        onSelect={this.handleMenu}
+        items={menuItems}
+        buttonDisabled={buttonDisabled}
+        menuDisabled={menuDisabled}
+      />
+    );
+  }
+
+  @autobind
+  handleEditName(search, title, searchIndex) {
+    this.setState({
+      editingTab: null,
+    }, () => this.props.updateSearch(searchIndex, { ...search, title }));
+  }
+
+  @autobind
+  handleEditNameCancel() {
+    this.setState({
+      editingTab: null,
+    });
+  }
+
+  @autobind
+  handleSearchClick(event) {
+    event.preventDefault();
+
+    if (this.state.searchDisplay.length > 0) {
+      this.props.submitPhrase(this.state.searchDisplay);
+    }
+  }
+
+  @autobind
+  handleMenu(value) {
+    const { selectedSearch } = this.props.searches;
+    const search = this.currentSearch;
+
+    switch (value) {
+      case SEARCH_MENU_ACTION_CLEAR:
+        this.props.submitFilters([]);
+        break;
+      case SEARCH_MENU_ACTION_UPDATE:
+        this.props.updateSearch(selectedSearch, search);
+        break;
+      case SEARCH_MENU_ACTION_SAVE:
+        this.props.saveSearch({ ...search, title: `${search.title} - Copy` }).then(() => {
+          this.setState({ editingTab: this.props.searches.selectedSearch });
+        });
+        break;
+      case SEARCH_MENU_ACTION_DELETE:
+        this.props.deleteSearch(selectedSearch, search);
+        break;
+      case SEARCH_MENU_ACTION_SHARE:
+        this.openShareSearch();
+        break;
+      case SEARCH_MENU_ACTION_EDIT_NAME:
+        this.setState({ editingTab: selectedSearch });
+        break;
+    }
+  }
+
+  @autobind
+  formatPill(pill, idx, props) {
+    const icon = pill.term === '_all' ? 'icon-search' : 'icon-filter';
+
+    return (
+      <div
+        className="fc-pilled-input__pill"
+        key={`pill-${this.currentSearch.title}-${idx}`}
+        onClick={() => props.onPillClick(pill, idx)}
+        title={pill.display}>
+        <i className={icon} />
+        {pill.display}
+        <a onClick={() => props.onPillClose(pill, idx)}
+           className="fc-pilled-input__pill-close">
+          &times;
+        </a>
+      </div>
+    );
   }
 
   @autobind
@@ -457,26 +530,18 @@ export default class LiveSearch extends React.Component {
     }
 
     return (
-      <div className="fc-col-md-1-1">
-        <Button
-          className="fc-live-search__share-button fc-right"
-          onClick={this.openShareSearch}
-          disabled={this.currentSearch.title === SEARCH_ALL}
-          icon="external-link-2"/>
-
-        <ShareSearch
-          search={this.currentSearch}
-          fetchAssociations={this.props.fetchAssociations}
-          suggestAssociations={this.props.suggestAssociations}
-          associateSearch={this.props.associateSearch}
-          dissociateSearch={this.props.dissociateSearch}
-          selectItem={this.props.selectItem}
-          deselectItem={this.props.deselectItem}
-          setTerm={this.props.setTerm}
-          closeAction={this.closeShareSearch}
-          isVisible={this.state.isShareVisible}
-          title={this.currentSearch.title}/>
-      </div>
+      <ShareSearch
+        search={this.currentSearch}
+        fetchAssociations={this.props.fetchAssociations}
+        suggestAssociations={this.props.suggestAssociations}
+        associateSearch={this.props.associateSearch}
+        dissociateSearch={this.props.dissociateSearch}
+        selectItem={this.props.selectItem}
+        deselectItem={this.props.deselectItem}
+        setTerm={this.props.setTerm}
+        closeAction={this.closeShareSearch}
+        isVisible={this.state.isShareVisible}
+        title={this.currentSearch.title} />
     );
   }
 
@@ -490,17 +555,17 @@ export default class LiveSearch extends React.Component {
 
     return (
       <div className="fc-live-search">
+        {this.shareSearch}
         {this.header}
         <div className={gridClass}>
-          {this.shareSearch}
           <div className="fc-col-md-1-1 fc-live-search__search-control">
             <form>
               <PilledInput
-                button={this.searchButton}
+                controls={this.controls}
                 className={classNames({'_active': this.state.isFocused, '_disabled': this.isDisabled})}
                 onPillClose={(pill, idx) => !this.isDisabled && this.deleteFilter(idx)}
-                onPillClick={(pill, idx) => !this.isDisabled && this.deleteFilter(idx)}
                 formatPill={this.formatPill}
+                icon={null}
                 pills={this.state.pills}>
                 <MaskedInput
                   className="fc-pilled-input__input-field _no-fc-behavior"
@@ -509,15 +574,16 @@ export default class LiveSearch extends React.Component {
                   onFocus={this.inputFocus}
                   onBlur={this.blur}
                   onKeyDown={this.keyDown}
-                  placeholder="Add another filter or keyword search"
+                  placeholder="filter or keyword search"
                   prepend={this.state.searchPrepend}
                   value={this.state.searchDisplay}
                   disabled={this.isDisabled}
-                  ref="input"/>
+                  ref="input" />
               </PilledInput>
             </form>
+
             <div>
-              {this.state.optionsVisible && this.searchOptions}
+              {this.searchOptions}
             </div>
           </div>
         </div>
