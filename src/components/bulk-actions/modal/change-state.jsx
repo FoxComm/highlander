@@ -1,4 +1,4 @@
-// libs
+/* @flow */
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
@@ -10,8 +10,17 @@ import modal from '../../modal/wrapper';
 import ContentBox from '../../content-box/content-box';
 import SaveCancel from '../../common/save-cancel';
 
+type Props = {
+  entity: string;
+  stateTitle: string;
+  label?: string;
+  count: number;
+  onCancel: Function;
+  onConfirm: Function;
+};
 
-const ChangeStateModal = ({entity, stateTitle, count, label: rawLabel, onCancel, onConfirm}) => {
+const ChangeStateModal = (props: Props) => {
+  const {entity, stateTitle, count, label: rawLabel, onCancel, onConfirm} = props;
   const actionBlock = <i onClick={onCancel} className="fc-btn-close icon-close" title="Close" />;
   const entityForm = numberize(entity, count);
 
@@ -28,7 +37,6 @@ const ChangeStateModal = ({entity, stateTitle, count, label: rawLabel, onCancel,
       </div>
       <SaveCancel className="fc-modal-footer"
                   cancelTabIndex="2"
-                  cancelClassName="fc-modal-close"
                   cancelText="No"
                   onCancel={onCancel}
                   saveTabIndex="1"
@@ -36,15 +44,6 @@ const ChangeStateModal = ({entity, stateTitle, count, label: rawLabel, onCancel,
                   saveText="Yes, Change State" />
     </ContentBox>
   );
-};
-
-ChangeStateModal.propTypes = {
-  entity: PropTypes.string.isRequired,
-  stateTitle: PropTypes.string.isRequired,
-  label: PropTypes.string,
-  count: PropTypes.number.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  onConfirm: PropTypes.func.isRequired,
 };
 
 export default modal(ChangeStateModal);

@@ -1,16 +1,7 @@
 
-import _ from 'lodash';
-import createStore from '../../lib/store-creator';
+import makeBulkActions from '../discounts';
 
-import { initialState, reducers } from '../bulk';
-
-const { actions, reducer } = createStore({
-  entity: 'bulk',
-  scope: 'coupons',
-  actions: [],
-  reducers,
-  initialState,
-});
+const { actions, reducer } = makeBulkActions('coupon');
 
 export {
   actions,
