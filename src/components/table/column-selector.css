@@ -29,6 +29,7 @@
   & :global(.fc-checkbox label) {
     width: 100%;
     cursor: pointer;
+    background: #fff;
 
     &:hover {
       background: #f5f5f5;
@@ -46,5 +47,18 @@
 
   & :global(.fc-btn-primary) {
     min-width: 208px;
+  }
+}
+
+:global(.icon-drag-drop) {
+  cursor: move;
+}
+
+.isDragging {
+  box-shadow: inset -1px 1px 6px rgba(0,0,0,0.24);;
+
+  & :global(.fc-checkbox),
+  & :global(.icon-drag-drop) {
+    opacity: 0;
   }
 }

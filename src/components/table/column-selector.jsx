@@ -2,16 +2,20 @@
 import _ from 'lodash';
 import React, {PropTypes} from 'react';
 import {autobind} from 'core-decorators';
+import { DragDropContext } from 'react-dnd';
+import HTML5Backend from 'react-dnd-html5-backend';
+import update from 'react/lib/update';
 import localStorage from 'localStorage';
 
 // components
-import { Checkbox } from '../checkbox/checkbox';
 import { PrimaryButton } from '../common/buttons';
 import Overlay from '../overlay/overlay';
+import SelectorItem from './column-selector-item';
 
 //styles
 import styles from './column-selector.css';
 
+@DragDropContext(HTML5Backend)
 export default class ColumnSelector extends React.Component {
   static propTypes = {
     columns: PropTypes.array.isRequired,
@@ -21,18 +25,40 @@ export default class ColumnSelector extends React.Component {
     toggleColumnSelector: PropTypes.func,
   };
 
-  state = {
-    selectedColumns: this.getSelectedColumns(),
-    isSelectorVisible: false,
-  };
+  constructor(props) {
+    super(props);
+    //this.moveItem = this.moveItem.bind(this);
+    this.state = {
+      selectedColumns: this.getSelectedColumns(),
+      isSelectorVisible: false,
+    };
+  }
+
+  @autobind
+  moveItem(dragIndex, hoverIndex) {
+    const { selectedColumns } = this.state;
+    const dragItem = selectedColumns[dragIndex];
+
+    this.setState(update(this.state, {
+      selectedColumns: {
+        $splice: [
+          [dragIndex, 1],
+          [hoverIndex, 0, dragItem]
+        ]
+      }
+    }));
+  }
 
   getSelectedColumns() {
     let columns = localStorage.getItem(this.props.identifier);
     if(columns) {
       columns = JSON.parse(columns);
     } else {
-      columns = this.props.columns.map(column => {
-        return _.assign(column, {isVisible: true});
+      columns = this.props.columns.map((column, i) => {
+        return _.assign(column, {
+          isVisible: true,
+          id: i,
+        });
       });
     }
     return columns;
@@ -40,7 +66,7 @@ export default class ColumnSelector extends React.Component {
 
   toggleColumnSelection(id) {
     let selectedColumns = this.state.selectedColumns;
-    
+
     selectedColumns[id].isVisible = !selectedColumns[id].isVisible;
 
     this.setState({
@@ -68,11 +94,14 @@ export default class ColumnSelector extends React.Component {
       let checked = item.isVisible;
 
       return (
-        <li key={id}>
-          <Checkbox id={`choose-column-${id}`} onChange={e => this.toggleColumnSelection(id)} checked={checked}>
-            {item.text}
-          </Checkbox>
-        </li>
+        <SelectorItem key={item.id}
+            index={id}
+            id={item.id}
+            text={item.text}
+            moveItem={this.moveItem}
+            checked={checked}
+            onChange={e => this.toggleColumnSelection(id)}>
+        </SelectorItem>
       );
     });
   }
