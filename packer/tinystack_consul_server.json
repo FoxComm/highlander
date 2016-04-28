@@ -9,11 +9,11 @@
             "project_id" : "foxcomm-staging",
             "source_image": "{{user `base_image`}}",
             "zone": "us-central1-a",
-            "image_name": "consul-server-{{timestamp}}",
-            "image_description": "base image used for provisioning",
+            "image_name": "tinystack-consul-server-{{timestamp}}",
+            "image_description": "base image used for provisioning consul servers",
             "instance_name": "packer-consul-server-{{uuid}}",
             "machine_type": "n1-standard-2",
-            "tags": ["no-ip", "packer-consul-server"],
+            "tags": ["no-ip", "packer-tinystack-consul-server"],
             "use_internal_ip": true,
             "ssh_username" : "ubuntu"
         }
@@ -22,7 +22,7 @@
         {
            "type": "ansible",
            "playbook_file" : "ansible/packer_consul_server.yml",
-           "extra_arguments": ["--extra-vars", "consul_expect=3"]
+           "extra_arguments": ["--extra-vars", "consul_expect=1"]
         }
     ]
 }

@@ -4,6 +4,7 @@ usr_local: /usr/local/
 public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
 db_connection_string: "postgresql://localhost/phoenix_development?user={{user}}"
+scala_version: scala-2.11
 
 greenriver_version: 1.0
 greenriver_env: localhost

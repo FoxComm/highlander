@@ -10,4 +10,4 @@
   roles:
     - {role: base/common}
     - {role: base/consul}
-    - {role: base/consul_server, consul_expect: 3}
+    - {role: base/consul_server}

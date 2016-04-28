@@ -1,7 +1,7 @@
 {
     "service" : {
-        "name": "{{namespace}}-firebird",
-        "tags": ["{{namespace}}", "firebird"], 
+        "name": "firebird",
+        "tags": ["firebird"], 
         "port": 4040
     }
 }

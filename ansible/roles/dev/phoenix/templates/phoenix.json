@@ -1,7 +1,7 @@
 {
     "service" : {
-        "name": "{{namespace}}-phoenix",
-        "tags": ["{{namespace}}", "phoenix"], 
+        "name": "phoenix",
+        "tags": ["phoenix"], 
         "port": 9090
     }
 }

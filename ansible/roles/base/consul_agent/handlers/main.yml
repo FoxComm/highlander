@@ -1,0 +1,5 @@
+---
+
+- name: reload consul
+  command: consul reload
+  sudo: true

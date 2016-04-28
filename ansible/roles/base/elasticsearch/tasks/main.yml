@@ -23,8 +23,12 @@
   file: path={{es_path}}/data state=absent
   sudo: true
 
+- name: Setting Up Elasticsearch User
+  user: name=elasticsearch groups=admin
+  sudo: true
+
 - name: Create Elasticsearch subdirectories
-  file: path={{es_path}}/{{item}} state=directory mode="u=rwx,g=rwx,o=r"
+  file: path={{es_path}}/{{item}} owner=elasticsearch state=directory mode="u=rwx,g=rwx,o=r"
   sudo: true
   with_items:
     - data

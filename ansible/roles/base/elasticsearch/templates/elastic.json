@@ -1,7 +1,7 @@
 {
     "service" : {
-        "name": "{{namespace}}-elasticsearch",
-        "tags": ["{{namespace}}", "elasticsearch"], 
+        "name": "elasticsearch",
+        "tags": ["elasticsearch"], 
         "port": 9200
     }
 }

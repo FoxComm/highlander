@@ -56,3 +56,4 @@
 - name: Copy Consul Service File
   template: src=ashes.json dest="/etc/consul.d/ashes.json"
   sudo: true
+  notify: reload consul

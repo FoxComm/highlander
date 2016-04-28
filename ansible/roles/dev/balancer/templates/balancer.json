@@ -1,0 +1,7 @@
+{
+    "service" : {
+        "name": "balancer",
+        "tags": ["balancer"], 
+        "port": 80
+    }
+}

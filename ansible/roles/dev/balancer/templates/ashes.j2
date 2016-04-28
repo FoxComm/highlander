@@ -1,26 +1,19 @@
+upstream ashes {
+    server {{ ashes_server }} fail_timeout=15s;
+}
+
 server {
   # TODO(jpfuentes2): enable me when we have nginx + lua + HTTP2
   # listen 443 ssl http2 default_server;
   #ssl_certificate    server.crt;
   #ssl_certificate_key server.key;
 
-  listen 80 default_server;
-  listen [::]:80 default_server;
+  listen 80;
+  listen [::]:80;
 
   index index.html;
 
-  server_name {{firebird_server_name}};
-
-
-  # variables
-
-  # language
-  set $accept_language {{firebird_default_language}};
-  if ($http_accept_language) {
-      set $accept_language $http_accept_language;
-  }
-  {% if firebird_fixed_language %}set $accept_language {{firebird_default_language}};{% endif %}
-
+  server_name {{ashes_server_name}};
 
   error_page 500 @500;
   error_page 502 @502;
@@ -56,6 +49,10 @@ server {
             end)
             json.hits.pagination = {total = json.hits.total}
             json.hits.hits = nil
+            json.hits.total = nil
+
+            -- add aggregations to response
+            json.hits.aggregations = json.aggregations
 
             --only show hits
             --TODO handle error better if hits is undefined.
@@ -113,7 +110,6 @@ server {
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      proxy_set_header Accept-Language $accept_language;
       break;
   }
 
@@ -124,7 +120,6 @@ server {
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      proxy_set_header Accept-Language $accept_language;
       break;
   }
 
@@ -135,7 +130,6 @@ server {
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      proxy_set_header Accept-Language $accept_language;
       break;
   }
 
@@ -151,14 +145,14 @@ server {
       proxy_cache off;
   }
 
-  # Proxy to firebird
+  # Proxy to ashes
   location / {
-      root {{firebird_root_dir}};
-      try_files $uri @firebird;
+      root {{ashes_root_dir}};
+      try_files $uri @ashes;
   }
 
-  location @firebird {
-      proxy_pass http://firebird;
+  location @ashes {
+      proxy_pass http://ashes;
   }
 
   # Error pages

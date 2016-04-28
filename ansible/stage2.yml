@@ -4,9 +4,9 @@
   hosts: stage2-backend
   vars:
     user: '{{ansible_ssh_user}}'
-    namespace: 'stage2'
 
   roles:
+    - { role: base/ssh_keys}
     - { role: dev/db}
     - { role: dev/phoenix}
     - { role: dev/seeder}
@@ -14,12 +14,19 @@
     - { role: dev/loyalty}
     - { role: dev/messaging}
 
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
+
 - name: Provision Ashes Stage
   hosts: stage2-frontend
   vars:
     user: '{{ansible_ssh_user}}'
-    namespace: 'stage2'
 
   roles:
+    - { role: base/ssh_keys}
     - { role: dev/ashes}
     - { role: dev/firebird}
+    - { role: dev/balancer, sudo: yes }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

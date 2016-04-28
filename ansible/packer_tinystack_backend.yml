@@ -9,6 +9,7 @@
 
   roles:
     - { role: base/common}
+    - { role: base/ssh_keys}
     - { role: base/consul}
     - { role: base/consul_agent}
     - { role: base/scala}

@@ -33,3 +33,4 @@
     - { role: base/balancer, sudo: yes }
     - { role: dev/ashes}
     - { role: dev/firebird}
+    - { role: dev/balancer, sudo: yes }

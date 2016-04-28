@@ -6,7 +6,7 @@ variable "ssh_private_key" {}
 
 resource "google_compute_instance" "consul_server" { 
     name = "${var.datacenter}-consul-server-${count.index}"
-    machine_type = "n1-highmem-4"
+    machine_type = "n1-standard-1"
     tags = ["no-ip", "${var.datacenter}-consul-server-${count.index}", "${var.datacenter}-consol-server", "${var.datacenter}"]
     zone = "us-central1-a"
     count = "${var.servers}"
@@ -18,7 +18,7 @@ resource "google_compute_instance" "consul_server" {
     disk {
         image = "${var.image}"
         type = "pd-ssd"
-        size = "50"
+        size = "30"
     }   
 
     network_interface {
@@ -49,4 +49,5 @@ resource "google_compute_instance" "consul_server" {
           "/tmp/consul.sh ${var.datacenter} ${google_compute_instance.consul_server.0.network_interface.0.address}"
         ]
     }
+
 }

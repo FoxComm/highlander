@@ -1,7 +1,7 @@
 {
     "service" : {
-        "name": "{{namespace}}-ashes",
-        "tags": ["{{namespace}}", "ashes"], 
+        "name": "ashes",
+        "tags": ["ashes"], 
         "port": 4000
     }
 }

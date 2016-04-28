@@ -6,6 +6,7 @@
   with_items:
     - "/var/lib/buildkite-agent/.ssh/"
     - "/home/buildkite-agent/.ssh/"
+    - "/home/{{ansible_ssh_user}}/.ssh/"
 
 - name: Install Public SSH Keys
   sudo: true
@@ -13,6 +14,7 @@
   with_items:
     - "/var/lib/buildkite-agent/.ssh/"
     - "/home/buildkite-agent/.ssh/"
+    - "/home/{{ansible_ssh_user}}/.ssh/"
 
 - name: Update SSH config
   sudo: true
@@ -20,3 +22,4 @@
   with_items:
     - "/var/lib/buildkite-agent/.ssh/"
     - "/home/buildkite-agent/.ssh/"
+    - "/home/{{ansible_ssh_user}}/.ssh/"

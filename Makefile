@@ -9,6 +9,9 @@ build:
 deploy-stage:
 	ansible-playbook -v -i ./staging ansible/stage.yml
 
+deploy-stage2:
+	ansible-playbook -v -i ./staging ansible/stage2.yml
+
 deploy-gatling:
 	ansible-playbook -v  -i ./staging ansible/gatling.yml
 

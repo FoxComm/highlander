@@ -1,0 +1,32 @@
+---
+
+- name: Install phoenix Upstreams
+  template: src=phoenix.j2 dest=/etc/nginx/sites-available/phoenix
+
+- name: Enable phoenix Upstreams
+  file: src=/etc/nginx/sites-available/phoenix dest=/etc/nginx/sites-enabled/phoenix owner=root group=root state=link
+
+- name: Install Ashes hosts
+  template: src=ashes.j2 dest=/etc/nginx/sites-available/ashes
+
+- name: Enable Ashes hosts
+  file: src=/etc/nginx/sites-available/ashes dest=/etc/nginx/sites-enabled/ashes owner=root group=root state=link
+
+- name: Install Firebird hosts
+  template: src=firebird.j2 dest=/etc/nginx/sites-available/firebird
+
+- name: Enable Firebird hosts
+  file: src=/etc/nginx/sites-available/firebird dest=/etc/nginx/sites-enabled/firebird owner=root group=root state=link
+
+- name: Install Firebird hosts
+  template: src=firebird.j2 dest=/etc/nginx/sites-available/firebird
+
+- name: Enable Firebird hosts
+  file: src=/etc/nginx/sites-available/firebird dest=/etc/nginx/sites-enabled/firebird owner=root group=root state=link
+
+- name: Restart Nginx
+  service: name=nginx state=restarted
+
+- name: Copy Consul Service File
+  template: src=balancer.json dest="/etc/consul.d/balancer.json"
+  notify: reload consul
