@@ -1,0 +1,11 @@
+---
+
+- name: Provision Base Image
+  hosts: all
+  tags:
+    - packer
+  vars:
+    user: ubuntu
+
+  roles:
+    - {role: base/common}

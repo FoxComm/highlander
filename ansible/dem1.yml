@@ -8,19 +8,19 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - { role: buildkite_accessible, sudo: yes}
-    - common
-    - scala
-    - kafka
-    - elasticsearch
-    - db
-    - phoenix
-    - { role: rsyslog, sudo: yes }
-    - { role: kibana, sudo: yes }
-    - seeder
-    - greenriver
-    - loyalty
-    - messaging
+    - { role: base/common}
+    - { role: base/scala}
+    - { role: base/kafka}
+    - { role: base/elasticsearch}
+    - { role: base/db}
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/kibana, sudo: yes }
+    - { role: dev/db}
+    - { role: dev/phoenix}
+    - { role: dev/seeder}
+    - { role: dev/greenriver}
+    - { role: dev/loyalty}
+    - { role: dev/messaging}
 
 - name: Provision Demo 1 US Frontend
   hosts: dem1-front
@@ -30,15 +30,15 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - { role: buildkite_accessible, sudo: yes}
-    - common
-    - { role: rsyslog, sudo: yes }
-    - node
-    - ssh_keys
-    - ashes
-    - firebird
-    - { role: balancer, sudo: yes }
-    - { role: demo_ashes, sudo: yes }
+    - { role: base/common}
+    - { role: base/ssh_keys}
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/node}
+    - { role: base/balancer, sudo: yes }
+    - { role: dev/ashes}
+    - { role: dev/firebird}
+    - { role: dev/balancer, sudo: yes }
+    - { role: demo/ashes, sudo: yes }
 
 - name: Provision Demo 1 RU Frontend
   hosts: dem1-front-ru
@@ -48,11 +48,11 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - { role: buildkite_accessible, sudo: yes}
-    - common
-    - { role: rsyslog, sudo: yes }
-    - node
-    - ssh_keys
-    - firebird
-    - { role: balancer, sudo: yes }
-    - { role: demo_ashes, sudo: yes }
+    - { role: base/common}
+    - { role: base/ssh_keys}
+    - { role: base/rsyslog, sudo: yes }
+    - { role: base/node}
+    - { role: base/balancer, sudo: yes }
+    - { role: dev/firebird}
+    - { role: dev/balancer, sudo: yes }
+    - { role: demo/ashes, sudo: yes }

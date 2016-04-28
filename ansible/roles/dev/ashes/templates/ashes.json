@@ -1,0 +1,7 @@
+{
+    "service" : {
+        "name": "ashes",
+        "tags": ["ashes"], 
+        "port": 4000
+    }
+}

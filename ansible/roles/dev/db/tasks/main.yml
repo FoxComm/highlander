@@ -1,0 +1,76 @@
+---
+
+- name: Create Db
+  postgresql_db: name={{phoenix_db_name}}
+  sudo: true
+
+- name: Configure Db Users
+  postgresql_user: name={{item}} state=present role_attr_flags=SUPERUSER
+  sudo: true
+  with_items:
+      - root
+      - "'{{user}}'"
+      - phoenix
+
+- name: Create Phoenix Directory
+  file: path={{phoenix_dir}} state=directory owner="{{user}}"
+  sudo: true
+
+- name: Syncrhonize Phoenix Sql
+  synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes
+  sudo: true
+
+- name: Delete Phoenix Gatling Resources
+  file: path="{{phoenix_dir}}/gatling-classes" state=absent
+
+- name: Syncrhonize Phoenix Gatling Resources
+  synchronize: src="{{phoenix_src}}/gatling-classes" dest="{{phoenix_dir}}" delete=yes recursive=yes
+  become: false
+
+- name: Create directory for Gatling results
+  file: path="{{phoenix_dir}}/gatling-results" state=directory owner="{{user}}" mode="0777"
+
+- name: Delete old log directory
+  file: path="{{phoenix_dir}}/log" state=absent
+
+- name: Create log directory
+  file: path="{{phoenix_dir}}/log" state=directory owner="{{user}}"  mode="0777"
+
+- name: Copy Phoenix
+  copy: src="{{phoenix_jar_src}}" dest="{{phoenix_jar}}" owner="{{user}}"
+
+- name: Clean Db
+  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
+  args:
+    chdir: "{{phoenix_dir}}"
+
+- name: Migrate Db
+  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
+  args:
+    chdir: "{{phoenix_dir}}"
+
+- name: Setup Update Materialzied Views Sql
+  copy: src=update_materialized_views.sql dest={{update_materialized_views_sql}}
+  sudo: true
+
+- name: Setup Materialized Views Cmd
+  template: src=update_materialized_views_forever.sh dest="{{usr_local}}/bin/update_materialized_views_forever.sh" mode="u+x,g+x,o+x"
+  sudo: true
+
+- name: Setup Materialized Views Service
+  copy: src=materialized_views.service dest="{{dest_services}}/materialized_views.service"
+  sudo: true
+
+- name: Seed Db
+  shell: java -cp {{phoenix_jar}} {{seeds_cmd}}
+  sudo: true
+  args:
+    chdir: "{{phoenix_dir}}"
+
+- name: Reload Systemd for Materilized Views
+  sudo: yes
+  command: systemctl daemon-reload
+
+- name: Start Materialized Views Service
+  service: name=materialized_views state=started enabled=yes sleep=5
+  sudo: true

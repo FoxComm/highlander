@@ -1,0 +1,33 @@
+---
+
+- name: Add Adiscon rsyslog repo
+  apt_repository: repo='ppa:adiscon/v8-stable' state=present update_cache=yes
+
+- name: Install rsyslog
+  apt: name={{item}} state=installed
+  with_items:
+    - rsyslog
+    - rsyslog-elasticsearch
+
+- name: Install base rsyslog config
+  template: >
+    src=rsyslog.conf.j2
+    dest=/etc/rsyslog.conf
+    owner=root
+    group=root
+    mode=0644
+
+- name: Install rsyslog config
+  template: >
+    src=elastic.conf.j2
+    dest=/etc/rsyslog.d/51-elastic.conf
+    owner=root
+    group=root
+    mode=0644
+
+- name: Reload Systemd for Rsyslog
+  sudo: yes
+  command: systemctl daemon-reload
+
+- name: Restart Rsyslog
+  service: name=rsyslog state=restarted

@@ -1,0 +1,7 @@
+{
+    "service" : {
+        "name": "firebird",
+        "tags": ["firebird"], 
+        "port": 4040
+    }
+}

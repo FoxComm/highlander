@@ -1,2 +1,0 @@
-firebird_source_dir: "{{role_path}}/../../../../firebird"
-firebird_install_dir: "{{home}}/firebird"

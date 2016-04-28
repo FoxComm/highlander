@@ -12,9 +12,8 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - common
-    - scala
-    - node
-    - db_test
-    - ssh_keys
-    - builder
+    - {role: base/common}
+    - {role: base/ssh_keys}
+    - {role: base/scala}
+    - {role: base/node}
+    - {role: base/builder}

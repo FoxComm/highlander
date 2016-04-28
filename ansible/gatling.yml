@@ -8,35 +8,30 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - { role: buildkite_accessible, sudo: yes}
-    - common
-    - scala
-    - kafka
-    - elasticsearch
-    - db
-    - phoenix
-    - { role: rsyslog, sudo: yes }
-    - { role: kibana, sudo: yes }
-    - seeder
-    - greenriver
-    - loyalty
+    - { role: dev/db}
+    - { role: dev/phoenix}
+    - { role: dev/seeder}
+    - { role: dev/greenriver}
+    - { role: dev/loyalty}
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
 
 - name: Provision Gatling Ashes
-  hosts: gatling-ashes
+  hosts: gatling-frontend
   tags:
       - ashes
   vars:
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - { role: buildkite_accessible, sudo: yes}
-    - common
-    - { role: rsyslog, sudo: yes }
-    - node
-    - ssh_keys
-    - ashes
-    - firebird
-    - { role: balancer, sudo: yes }
+    - { role: dev/node}
+    - { role: dev/ashes}
+    - { role: dev/firebird}
+    - { role: dev/balancer, sudo: yes }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
 
 - name: Provision Gatling Gun
   hosts: gatling-gun
@@ -46,9 +41,4 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - { role: buildkite_accessible, sudo: yes}
-    - common
-    - { role: rsyslog, sudo: yes }
-    - scala
-    - gatling
-
+    - { role: test/gatling}

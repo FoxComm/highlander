@@ -9,6 +9,7 @@ $vb_memory = 6048
 $vb_cpu = 4
 $backend_ip = "192.168.10.111"
 $ashes_ip = "192.168.10.112"
+$user = "vagrant"
 
 require CONFIG if File.readable?(CONFIG)
 
@@ -48,6 +49,9 @@ def expose_backend_ports(config)
 
     # Kibana
     config.vm.network :forwarded_port, guest: 5601, host: 5601, auto_correct: true
+
+    # Consul
+    config.vm.network :forwarded_port, guest: 8500, host: 8500, auto_correct: true
 end
 
 def expose_ashes(config)
@@ -89,18 +93,26 @@ Vagrant.configure("2") do |config|
     app.vm.synced_folder "../green-river", "/fox/green-river"
     app.vm.synced_folder "../phoenix-scala", "/fox/phoenix-scala"
 
+    app.vm.provision "shell", inline: "apt-get install -y python-minimal"
     app.vm.provision "ansible" do |ansible|
         ansible.verbose = "vv"
         ansible.playbook = "ansible/vagrant_appliance.yml"
+          ansible.extra_vars = {
+              user: $user
+          }
     end
   end
 
   config.vm.define :backend, autostart: false do |app|
     app.vm.network :private_network, ip: $backend_ip
     expose_backend_ports(app)
-      app.vm.provision "ansible" do |ansible|
+    app.vm.provision "shell", inline: "apt-get install -y python-minimal"
+    app.vm.provision "ansible" do |ansible|
           ansible.verbose = "vv"
           ansible.playbook = "ansible/vagrant_backend.yml"
+          ansible.extra_vars = {
+              user: $user
+          }
       end
   end
 
@@ -111,10 +123,12 @@ Vagrant.configure("2") do |config|
       app.vm.network :private_network, ip: $ashes_ip
       expose_ashes(app)
 
+      app.vm.provision "shell", inline: "apt-get install -y python-minimal"
       app.vm.provision "ansible" do |ansible|
           ansible.verbose = "vv"
           ansible.playbook = "ansible/vagrant_greenriver.yml"
           ansible.extra_vars = {
+              user: $user,
               phoenix_server: phoenix_server,
               greenriver_service_requires: "kafka.service elasticsearch.service",
               greenriver_service_after: "kafka.service elasticsearch.service"
@@ -132,10 +146,12 @@ Vagrant.configure("2") do |config|
       tune_vm(config, cpus: $ashes_cpu, memory: $ashes_memory)
 
 
+      app.vm.provision "shell", inline: "apt-get install -y python-minimal"
       app.vm.provision "ansible" do |ansible|
           ansible.verbose = "vv"
           ansible.playbook = "ansible/vagrant_ashes.yml"
           ansible.extra_vars = {
+              user: $user,
               phoenix_server: phoenix_server,
               search_server_http: search_server_http
           }

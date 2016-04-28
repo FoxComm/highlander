@@ -1,34 +1,31 @@
 ---
 
-- name: Provision Green River Stage
-  hosts: greenriver-stage
+- name: Provision Stage
+  hosts: stage-backend
   vars:
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - common
-    - scala
-    - kafka
-    - elasticsearch
-    - db
-    - phoenix
-    - { role: rsyslog, sudo: yes }
-    - { role: kibana, sudo: yes }
-    - seeder
-    - greenriver
-    - loyalty
-    - messaging
+    - { role: dev/db}
+    - { role: dev/phoenix}
+    - { role: dev/seeder}
+    - { role: dev/greenriver}
+    - { role: dev/loyalty}
+    - { role: dev/messaging}
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
 
 - name: Provision Ashes Stage
-  hosts: ashes-stage
+  hosts: stage-frontend
   vars:
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - common
-    - { role: rsyslog, sudo: yes }
-    - node
-    - ssh_keys
-    - ashes
-    - firebird
-    - { role: balancer, sudo: yes }
+    - { role: base/ssh_keys}
+    - { role: dev/ashes}
+    - { role: dev/firebird}
+    - { role: dev/balancer, sudo: yes }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

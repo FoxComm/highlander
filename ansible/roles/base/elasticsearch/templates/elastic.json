@@ -1,0 +1,7 @@
+{
+    "service" : {
+        "name": "elasticsearch",
+        "tags": ["elasticsearch"], 
+        "port": 9200
+    }
+}

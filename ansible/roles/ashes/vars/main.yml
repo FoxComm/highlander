@@ -1,2 +1,0 @@
-ashes_source_dir: "{{role_path}}/../../../../ashes"
-ashes_install_dir: "{{home}}/ashes"

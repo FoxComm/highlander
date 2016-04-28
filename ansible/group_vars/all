@@ -4,6 +4,7 @@ usr_local: /usr/local/
 public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
 db_connection_string: "postgresql://localhost/phoenix_development?user={{user}}"
+scala_version: scala-2.11
 
 greenriver_version: 1.0
 greenriver_env: localhost
@@ -68,3 +69,12 @@ google_oauth_frontend_redirect_uri: ""
 #VM swap size
 swap_file: /swap
 swap_size_mb: 2000
+
+#fix ansible 2 rsync
+rsync_opts: ssh -l {{user}}
+
+#consul variables
+consul_data_dir: /var/consul
+
+#used to prefix service names in consul
+namespace: setme

@@ -1,0 +1,35 @@
+---
+
+- name: Add nginx apt key
+  apt_key: url=http://nginx.org/packages/keys/nginx_signing.key
+
+- name: Add nginx apt repository
+  apt_repository: repo='{{ item }}' state=present update_cache=yes
+  with_items:
+    - deb http://nginx.org/packages/mainline/ubuntu/ vivid nginx
+    - deb-src http://nginx.org/packages/mainline/ubuntu/ vivid nginx
+
+- name: Install nginx dependencies
+  apt: name={{ item }} force=yes state=latest
+  with_items:
+    - lua-cjson
+    - lua-cjson-dev
+    - nginx-extras
+
+- name: Instal lua request uuid handler
+  copy: src=uuid4.lua dest=/etc/nginx/uuid4.lua
+
+- name: Install base config
+  template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf
+
+- name: Reload Systemd for Nginx
+  sudo: yes
+  command: systemctl daemon-reload
+
+- name: Remove default config
+  sudo: yes
+  file: path=/etc/nginx/sites-available/default state=absent
+
+- name: Restart Nginx
+  service: name=nginx state=restarted
+  sudo: yes

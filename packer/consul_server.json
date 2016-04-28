@@ -1,0 +1,28 @@
+{
+    "variables" : {
+        "base_image": "ubuntu-1510-wily-v20160123"
+    },
+    "builders" : [
+        {
+            "type": "googlecompute",
+            "account_file": "account.json",
+            "project_id" : "foxcomm-staging",
+            "source_image": "{{user `base_image`}}",
+            "zone": "us-central1-a",
+            "image_name": "consul-server-{{timestamp}}",
+            "image_description": "base image used for provisioning",
+            "instance_name": "packer-consul-server-{{uuid}}",
+            "machine_type": "n1-standard-2",
+            "tags": ["no-ip", "packer-consul-server"],
+            "use_internal_ip": true,
+            "ssh_username" : "ubuntu"
+        }
+    ],
+    "provisioners" : [
+        {
+           "type": "ansible",
+           "playbook_file" : "ansible/packer_consul_server.yml",
+           "extra_arguments": ["--extra-vars", "consul_expect=3"]
+        }
+    ]
+}

@@ -1,0 +1,14 @@
+---
+
+- name: Provision Base Node Image
+  hosts: all
+  tags:
+    - packer
+  vars:
+    user: ubuntu
+
+  roles:
+    - {role: base/common}
+    - {role: base/consul}
+    - {role: base/consul_agent}
+    - {role: base/node}
