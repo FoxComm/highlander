@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React from 'react';
+import React, { Element } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getStore } from '../../lib/store-creator';
@@ -12,8 +12,15 @@ import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
 import { Link } from '../link';
 
+type RefId = string|number;
+
 type Props = {
   entity: string;
+  bulkActions: {
+    changeState: (ids: Array<RefId>, isActivation: boolean) => void;
+    updateAttributes: (ids: Array<RefId>, form: FormAttributes, shadow: ShadowAttributes) => void;
+  };
+  children: Element;
 };
 
 const mapDispatchToProps = (dispatch: Function, props) => {

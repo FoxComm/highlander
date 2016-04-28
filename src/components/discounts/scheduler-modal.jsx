@@ -13,6 +13,9 @@ import SaveCancel from '../common/save-cancel';
 
 type Props = {
   entity: string;
+  count: number;
+  onCancel: Function;
+  onConfirm: Function;
 };
 
 const SchedulerModal = (props: Props) => {
