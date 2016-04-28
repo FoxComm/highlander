@@ -25,7 +25,6 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
-    - { role: dev/node}
     - { role: dev/ashes}
     - { role: dev/firebird}
     - { role: dev/balancer, sudo: yes }
