@@ -47,7 +47,8 @@ const BulkWrapper = (props: Props) => {
         <ChangeStateModal
           count={toggledIds.length}
           stateTitle={stateTitle}
-          onConfirm={() => changeState(toggledIds, isActivation)} />
+          onConfirm={() => changeState(toggledIds, isActivation)}
+        />
       );
     };
   };
