@@ -1,4 +1,6 @@
 
+/* @flow */
+
 // libs
 import _ from 'lodash';
 import React, { Component, Element } from 'react';
@@ -11,6 +13,7 @@ import { PrimaryButton } from '../../common/buttons';
 import { Checkbox } from '../../checkbox/checkbox';
 import Counter from '../../forms/counter';
 import FormField from '../../forms/formfield';
+import CodeCreationModal from './code-creation-modal';
 
 // styles
 import styles from './styles.css';
@@ -18,18 +21,35 @@ import styles from './styles.css';
 type Props = {
   onChangeSingleCode: (code: ?string) => any;
   onGenerateBulkCodes: (prefix: string, length: number, quantity: number) => any;
-}
+};
+
+type State = {
+  bulk: ?bool,
+  codesPrefix: string,
+  singleCode: string,
+  codesQuantity: number,
+  codesLength: number,
+  isDialogVisible: bool,
+};
+
+type Target = {
+  name: string,
+  value: string,
+};
 
 export default class CouponCodes extends Component {
   props: Props;
 
-  state = {
+  state: State = {
     bulk: void 0,
+    codesPrefix: '',
+    singleCode: '',
     codesQuantity: 1,
     codesLength: 1,
+    isDialogVisible: false,
   };
 
-  get singleCouponFormPart() {
+  get singleCouponFormPart(): ?Element {
     if (this.state.bulk !== false) {
       return null;
     }
@@ -52,44 +72,62 @@ export default class CouponCodes extends Component {
   }
 
   @autobind
-  handleChangeSingleCode({target}) {
+  handleChangeSingleCode({target}: {target: Target}): void {
     this.props.onChangeSingleCode(target.value);
   }
 
   @autobind
-  handleFormChange({target}) {
+  handleFormChange({target}: {target: Target}): void {
     this.setFormValue(target.name, target.value);
   }
 
   @autobind
-  handleCounterChange({target}) {
+  handleCounterChange({target}: {target: Target}): void {
     this.setCounterValue(target.name, target.value);
   }
 
   @autobind
-  setCounterValue(name, value) {
+  setCounterValue(name: string, value: string|number): void {
     let num = Number(value);
     num = isNaN(num) ? 1 : num;
     this.setFormValue(name, Math.max(1, num));
   }
 
   @autobind
-  handleGenerateBulkClick() {
-    const { codesPrefix, codesLength, codesQuantity } = this.state;
-    this.props.onGenerateBulkCodes(codesPrefix, codesLength, codesQuantity);
+  handleGenerateBulkClick(): void {
+    this.setState({ isDialogVisible: true });
   }
 
-  setFormValue(name, value) {
+  @autobind
+  closeDialog(): void {
+    this.setState({ isDialogVisible: false });
+  }
+
+  @autobind
+  handleConfirmOfCodeGeneration(): void {
+    const { codesPrefix, codesLength, codesQuantity } = this.state;
+    const nextState = {
+      codesPrefix: '',
+      codesQuantity: 1,
+      codesLength: 1,
+      isDialogVisible: false
+    };
+    this.setState(nextState, () =>
+      this.props.onGenerateBulkCodes(codesPrefix, codesLength, codesQuantity)
+    );
+  }
+
+  setFormValue(name: string, value: string|number|bool): void {
     this.setState({
       [name]: value
     });
   }
 
-  get generateCodesDisabled() {
+  get generateCodesDisabled(): bool {
     return !this.state.codesPrefix;
   }
 
-  get bulkCouponFormPart() {
+  get bulkCouponFormPart(): ?Element {
     if (this.state.bulk !== true) {
       return null;
     }
@@ -151,8 +189,7 @@ export default class CouponCodes extends Component {
         <PrimaryButton
           type="button"
           disabled={this.generateCodesDisabled}
-          onClick={this.handleGenerateBulkClick}
-        >
+          onClick={this.handleGenerateBulkClick} >
           Generate Codes
         </PrimaryButton>
       </div>
@@ -160,17 +197,17 @@ export default class CouponCodes extends Component {
   }
 
   @autobind
-  handleSingleSelect() {
+  handleSingleSelect(): void {
     this.setState({bulk: false});
   }
 
   @autobind
-  handleBulkSelect() {
+  handleBulkSelect(): void {
     this.props.onChangeSingleCode(null);
     this.setState({bulk: true});
   }
 
-  render() {
+  render(): Element {
     return (
       <ContentBox title="Coupon Code">
         <div>
@@ -189,6 +226,12 @@ export default class CouponCodes extends Component {
           </RadioButton>
         </div>
         {this.bulkCouponFormPart}
+        <CodeCreationModal
+          probability={70}
+          isVisible={this.state.isDialogVisible}
+          cancelAction={this.closeDialog}
+          confirmAction={this.handleConfirmOfCodeGeneration}
+        />
       </ContentBox>
     );
   }
