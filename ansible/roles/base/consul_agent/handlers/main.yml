@@ -1,5 +1,5 @@
 ---
 
 - name: reload consul
-  command: consul reload
+  shell: "consul reload || true"
   sudo: true

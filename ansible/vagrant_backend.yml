@@ -6,6 +6,7 @@
     user: vagrant
   roles:
     - { role: base/common}
+    - { role: base/consul}
     - { role: base/scala}
     - { role: base/kafka}
     - { role: base/elasticsearch}
@@ -16,3 +17,6 @@
     - { role: dev/phoenix}
     - { role: dev/seeder}
     - { role: dev/greenriver}
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

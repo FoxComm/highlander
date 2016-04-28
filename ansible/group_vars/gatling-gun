@@ -1,4 +1,4 @@
-api_server: balanver.service.consul
+api_server: balancer.service.consul
 phoenix_server: "phoenix.service.consul:9090"
 search_host:  elasticsearch.service.consul
 ashes_server: "ashes.service.consul:4000"

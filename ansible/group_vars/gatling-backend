@@ -1,5 +1,4 @@
 phoenix_server: 127.0.0.1:9090
 ashes_server: ashes.service.consul
-ashes_server: "{{hostvars[groups['gatling-ashes'][0]]['ansible_eth0']['ipv4']['address'] }}:4000"
-api_server: "{{hostvars[groups['gatling-ashes'][0]]['ansible_eth0']['ipv4']['address'] }}"
+api_server: balancer.service.consul
 es_heap_size: 1g
