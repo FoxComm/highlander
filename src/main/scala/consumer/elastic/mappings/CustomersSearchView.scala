@@ -36,7 +36,8 @@ final case class CustomersSearchView()(implicit ec: EC) extends AvroTransformer 
       field("shippingTotal", IntegerType),
       field("adjustmentsTotal", IntegerType),
       field("taxesTotal", IntegerType),
-      field("grandTotal", IntegerType)
+      field("grandTotal", IntegerType),
+      field("itemsCount", IntegerType)
     ),
     // Addresses
     field("shippingAddressesCount", IntegerType),
