@@ -1,5 +1,32 @@
+
+variable "backend_image" {
+    default = "tinystack-backend-1461799315"
+} 
+
+variable "frontend_image" {
+    default = "tinystack-frontend-1461787500"
+} 
+
+variable "consul_server_image" { 
+    default = "tinystack-consul-server-1461788045"
+}
+
+variable "ssh_user" {} 
+variable "ssh_private_key" {} 
+
+module "gatling" {
+    source = "./tinystack"
+    datacenter = "gatling"
+    backend_image = "${var.backend_image}"
+    frontend_image = "${var.frontend_image}"
+    ssh_user = "${var.ssh_user}"
+    ssh_private_key = "${var.ssh_private_key}"
+    consul_leader = "${module.consul_cluster.leader}"
+    consul_server_image = "${var.consul_server_image}"
+}
+
 variable "gatling_image" { 
-    default = "ubuntu-1510-wily-v20160123"
+    default = "base-jvm-1461863900"
 }
 
 resource "google_compute_instance" "gatling-gun"{ 
@@ -17,38 +44,23 @@ resource "google_compute_instance" "gatling-gun"{
     network_interface {
         network = "default"
     }
-}
 
-resource "google_compute_instance" "gatling-ashes" { 
-    name = "gatling-ashes"
-    machine_type = "n1-highcpu-8"
-    tags = ["no-ip", "gatling-ashes"]
-    zone = "us-central1-a"
-
-    disk {
-        image = "${var.gatling_image}"
-        type = "pd-ssd"
-        size = "30"
-    }   
-
-    network_interface {
-        network = "default"
+    provisioner "file" {
+        source = "terraform/scripts/bootstrap.sh"
+        destination = "/tmp/bootstrap.sh"
     }
-}
 
-resource "google_compute_instance" "gatling-backend" { 
-    name = "gatling-backend"
-    machine_type = "n1-highmem-4"
-    tags = ["no-ip", "gatling-backend"]
-    zone = "us-central1-a"
+    provisioner "file" {
+        source = "terraform/scripts/consul.sh"
+        destination = "/tmp/consul.sh"
+    }
 
-    disk {
-        image = "${var.gatling_image}"
-        type = "pd-ssd"
-        size = "100"
-    }   
-
-    network_interface {
-        network = "default"
+    provisioner "remote-exec" {
+        inline = [
+          "chmod +x /tmp/bootstrap.sh",
+          "chmod +x /tmp/consul.sh",
+          "/tmp/bootstrap.sh",
+          "/tmp/consul.sh gatling ${module.gatling.consul_address}"
+        ]
     }
 }

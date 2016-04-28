@@ -3,5 +3,5 @@ search_host:  elasticsearch.service.consul
 ashes_server: 127.0.0.1:4000
 firebird_server: 127.0.0.1:4040
 api_server: 127.0.0.1
-ashes_server_name: admin.stage2.foxcommerce.com
-firebird_server_name: stage2.foxcommerce.com
+ashes_server_name: admin.stage.foxcommerce.com
+firebird_server_name: stage.foxcommerce.com

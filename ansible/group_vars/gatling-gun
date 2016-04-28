@@ -1,5 +1,5 @@
-api_server: "{{hostvars[groups['gatling-ashes'][0]]['ansible_eth0']['ipv4']['address'] }}"
-phoenix_server: "{{hostvars[groups['gatling-backend'][0]]['ansible_eth0']['ipv4']['address'] }}:9090"
-search_host:  "{{hostvars[groups['gatling-backend'][0]]['ansible_eth0']['ipv4']['address'] }}"
-ashes_server: "{{hostvars[groups['gatling-ashes'][0]]['ansible_eth0']['ipv4']['address'] }}:4000"
+api_server: balanver.service.consul
+phoenix_server: "phoenix.service.consul:9090"
+search_host:  elasticsearch.service.consul
+ashes_server: "ashes.service.consul:4000"
 gatling_install_dir: "{{home}}/integration-tests"
