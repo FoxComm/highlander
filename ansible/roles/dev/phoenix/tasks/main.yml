@@ -15,9 +15,8 @@
 - name: Restart Phoenix
   service: name=phoenix state=restarted enabled=yes
   sudo: true
- 
+
 - name: Copy Consul Service File
   template: src=phoenix.json dest="/etc/consul.d/phoenix.json"
   sudo: true
   notify: reload consul
-    
