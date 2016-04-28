@@ -8,7 +8,7 @@ variable "frontend_image" {
 } 
 
 variable "consul_server_image" { 
-    default = "tinystack-consul-server-1461788045"
+    default = "tinystack-consul-server-1461881696"
 }
 
 variable "ssh_user" {} 

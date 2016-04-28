@@ -56,7 +56,7 @@ resource "google_compute_instance" "tiny-consul" {
 resource "google_compute_instance" "tiny-frontend" { 
     name = "${var.datacenter}-frontend"
     machine_type = "n1-highcpu-8"
-    tags = ["http-server", "https-server", "${var.datacenter}-frontend"]
+    tags = ["no-ip", "http-server", "https-server", "${var.datacenter}-frontend"]
     zone = "us-central1-a"
 
     disk {
@@ -67,8 +67,6 @@ resource "google_compute_instance" "tiny-frontend" {
 
     network_interface {
         network = "default"
-        access_config {
-        }
     }
 
     connection { 
