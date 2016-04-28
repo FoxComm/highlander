@@ -11,7 +11,6 @@ import { prefix } from '../../lib/text-utils';
 import { LeftButton, RightButton } from '../common/buttons';
 import { Lookup } from '../lookup';
 
-
 const prefixed = prefix('fc-table-paginator');
 
 export default class TablePaginator extends React.Component {
@@ -27,19 +26,23 @@ export default class TablePaginator extends React.Component {
 
     this.state = {
       currentPage: this.getPage(props.from, props.size),
-      pagesCount: this.getPage(props.total, props.size),
+      pagesCount: this.getPagesCount(props.total, props.size),
     };
   }
 
   componentWillReceiveProps(props) {
     this.setState({
       currentPage: this.getPage(props.from, props.size),
-      pagesCount: this.getPage(props.total, props.size),
+      pagesCount: this.getPagesCount(props.total, props.size),
     });
   }
 
   getPage(from, size) {
     return Math.floor(from / size + 1);
+  }
+
+  getPagesCount(total, size) {
+    return Math.ceil(total / size) || 1;
   }
 
   setPage(page) {
