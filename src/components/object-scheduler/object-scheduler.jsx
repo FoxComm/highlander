@@ -6,25 +6,21 @@ import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import moment from 'moment';
 import _ from 'lodash';
+import { isActive } from '../../paragons/common';
 
 import { illuminateAttributes, setAttribute, setAttributes } from '../../paragons/form-shadow-object';
 
 import { Dropdown, DropdownItem } from '../dropdown';
 import DateTimePicker from '../date-time-picker/date-time-picker';
-import TextInput from '../forms/text-input';
 
-import type { FormShadowAttrsPair } from '../../paragons/form-shadow-object';
-
-type Props = {
-  form: FormAttributes,
-  shadow: ShadowAttributes,
+type Props = FormShadowAttrs & {
   onChange: (form: FormAttributes, shadow: ShadowAttributes) => void,
   title: string,
 };
 
 type State = {
-  showActiveFromPicker: bool,
-  showActiveToPicker: bool,
+  showActiveFromPicker: boolean,
+  showActiveToPicker: boolean,
 };
 
 export default class ProductState extends Component<void, Props, State> {
@@ -35,24 +31,36 @@ export default class ProductState extends Component<void, Props, State> {
     title: PropTypes.string,
   };
 
-  state: State = { showActiveFromPicker: false, showActiveToPicker: false };
+  state: State = this.fieldsStateFromProps(this.props);
 
-  get illuminatedAttributes(): IlluminatedAttributes {
-    return illuminateAttributes(this.props.form, this.props.shadow);
+  fieldsStateFromProps(props: FormShadowAttrs): State {
+    const activeFrom = this.getFormAttribute(props, 'activeFrom');
+    const activeTo = this.getFormAttribute(props, 'activeTo');
+
+    return {
+      showActiveFromPicker: !!activeFrom,
+      showActiveToPicker: !!activeTo
+    };
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    this.setState(this.fieldsStateFromProps(nextProps));
+  }
+
+  illuminatedAttributes(props: FormShadowAttrs): IlluminatedAttributes {
+    return illuminateAttributes(props.form, props.shadow);
+  }
+
+  getFormAttribute(props: FormShadowAttrs, name: string): any {
+    return _.get(this.illuminatedAttributes(props), [name, 'value']);
   }
 
   get activeFrom(): ?string {
-    const activeFrom = this.illuminatedAttributes.activeFrom;
-    if (activeFrom) {
-      return activeFrom.value;
-    }
+    return this.getFormAttribute(this.props, 'activeFrom');
   }
 
   get activeTo(): ?string {
-    const activeTo = this.illuminatedAttributes.activeTo;
-    if (activeTo) {
-      return activeTo.value;
-    }
+    return this.getFormAttribute(this.props, 'activeTo');
   }
 
   get activeFromPicker(): ?Element {
@@ -96,19 +104,7 @@ export default class ProductState extends Component<void, Props, State> {
   }
 
   get isActive(): bool {
-    const now = moment();
-    const activeFrom = this.activeFrom ? moment.utc(this.activeFrom) : null;
-    const activeTo = this.activeTo ? moment.utc(this.activeTo) : null;
-
-    if (!activeFrom) {
-      return false;
-    } else if (now.diff(activeFrom) < 0) {
-      return false;
-    } else if (activeTo && (now.diff(activeTo) > 0)) {
-      return false;
-    }
-
-    return true;
+    return isActive(this.activeFrom, this.activeTo);
   }
 
   @autobind

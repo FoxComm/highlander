@@ -1,6 +1,5 @@
 
 import React from 'react';
-import ShallowTestUtils from 'react-shallow-testutils';
 
 describe('ConfirmationDialog', function() {
   const ConfirmationDialog = requireComponent('modal/confirmation-dialog.jsx');
