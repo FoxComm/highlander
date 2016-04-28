@@ -35,25 +35,32 @@
   flex-grow: 1;
   position: relative;
   text-align: center;
-  line-height: 30px;
+  line-height: 40px;
   font-weight: bold;
 
   &::before {
     content: "";
     border-top: 1px solid #ced2d5;
-    margin: 0 auto; /* this centers the line to the full width specified */
-    position: absolute; /* positioning must be absolute here, and relative positioning must be applied to the parent */
-    top: 15px;
+    margin: 0 auto;
+    position: absolute;
+    top: 20px;
     left: 0;
     right: 0;
     bottom: 0;
-    width: 95%;
     z-index: -1;
   }
 
-  & > span {
+  & .titleWrapper {
+    display: inline-block;
     background: #f2f2f2;
     padding: 0 15px;
+    cursor: default;
+  }
+
+  & input {
+    font-weight: normal;
+    text-align: center;
+    width: 184px;
   }
 }
 
@@ -66,11 +73,13 @@
   top: 0;
   left: 0;
   right: 0;
+  pointer-events: none;
 
   & .left,
   & .right {
     display: flex;
     background: #f2f2f2;
+    pointer-events: auto;
   }
 
   & .left {

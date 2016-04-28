@@ -16,6 +16,7 @@ import { Image, ImageInfo } from '../../modules/images';
 // components
 import WaitAnimation from '../common/wait-animation';
 import ConfirmationDialog from '../modal/confirmation-dialog';
+import Alert from '../alerts/alert';
 import { AddButton } from '../common/buttons';
 import Accordion from './accordion/accordion';
 import ImageCard from './image-card/image-card';
@@ -38,6 +39,8 @@ type Props = {
   fetch: (id: number|string) => void;
   editImage: (album: string, idx: number, info: any) => void;
   deleteImage: (album: string, idx: number) => void;
+  editAlbum: (albumName: string, newName: string) => void;
+  deleteAlbum: (album: string) => void;
   list: any;
   isLoading: boolean;
   isImageLoading: (idx: number) => boolean;
@@ -45,9 +48,12 @@ type Props = {
 
 type State = {
   files: Array<any>;
-  isEditDialogVisible: boolean;
-  isDeleteDialogVisible: boolean;
+  isEditImageDialogVisible: boolean;
+  isDeleteImageDialogVisible: boolean;
+  isEditAlbumVisible: boolean;
+  isDeleteAlbumDialogVisible: boolean;
   selectedImage?: SelectedImage;
+  selectedAlbum?: string;
 }
 
 type SelectedImage = {
@@ -60,9 +66,12 @@ class ProductImages extends Component<void, Props, State> {
 
   state: State = {
     files: [],
-    isEditDialogVisible: false,
-    isDeleteDialogVisible: false,
+    isEditImageDialogVisible: false,
+    isDeleteImageDialogVisible: false,
+    isEditAlbumVisible: false,
+    isDeleteAlbumDialogVisible: false,
     selectedImage: void 0,
+    selectedAlbum: void 0,
   };
 
   componentDidMount() {
@@ -77,7 +86,7 @@ class ProductImages extends Component<void, Props, State> {
   handleEditImage(selectedImage: SelectedImage) {
     this.setState({
       selectedImage,
-      isEditDialogVisible: true,
+      isEditImageDialogVisible: true,
     });
   }
 
@@ -85,7 +94,7 @@ class ProductImages extends Component<void, Props, State> {
   handleCancelEditImage() {
     this.setState({
       selectedImage: void 0,
-      isEditDialogVisible: false,
+      isEditImageDialogVisible: false,
     });
   }
 
@@ -93,7 +102,7 @@ class ProductImages extends Component<void, Props, State> {
   handleRemoveImage(selectedImage: SelectedImage) {
     this.setState({
       selectedImage,
-      isDeleteDialogVisible: true,
+      isDeleteImageDialogVisible: true,
     });
   }
 
@@ -101,7 +110,39 @@ class ProductImages extends Component<void, Props, State> {
   handleCancelRemoveImage() {
     this.setState({
       selectedImage: void 0,
-      isDeleteDialogVisible: false,
+      isDeleteImageDialogVisible: false,
+    });
+  }
+
+  @autobind
+  handleEditAlbum(selectedAlbum: string) {
+    this.setState({
+      selectedAlbum,
+      isEditAlbumVisible: true,
+    });
+  }
+
+  @autobind
+  handleCancelEditAlbum() {
+    this.setState({
+      selectedAlbum: void 0,
+      isEditAlbumVisible: false,
+    });
+  }
+
+  @autobind
+  handleRemoveAlbum(selectedAlbum: string) {
+    this.setState({
+      selectedAlbum,
+      isDeleteAlbumDialogVisible: true,
+    });
+  }
+
+  @autobind
+  handleCancelRemoveAlbum() {
+    this.setState({
+      selectedAlbum: void 0,
+      isDeleteAlbumDialogVisible: false,
     });
   }
 
@@ -121,10 +162,14 @@ class ProductImages extends Component<void, Props, State> {
     );
   }
 
-  get deleteDialog() {
+  get deleteImageDialog(): Element {
+    if(!this.state.selectedImage) {
+      return;
+    }
+
     return (
       <ConfirmationDialog
-        isVisible={this.state.isDeleteDialogVisible}
+        isVisible={this.state.isDeleteImageDialogVisible}
         header='Delete Image'
         body={'Are you sure you want to delete this image?'}
         cancel='Cancel'
@@ -137,17 +182,24 @@ class ProductImages extends Component<void, Props, State> {
           const { image, idx } = this.state.selectedImage;
 
           this.setState(
-            { isDeleteDialogVisible: false },
+            {
+              isDeleteImageDialogVisible: false,
+              // selectedImage: void 0,
+             },
             () => this.props.deleteImage(image.album, idx)
           );
         }} />
     );
   }
 
-  get editDialog(): ?Element {
+  get editImageDialog(): Element {
+    if(!this.state.selectedImage) {
+      return;
+    }
+
     return (
       <EditImage
-        isVisible={this.state.isEditDialogVisible}
+        isVisible={this.state.isEditImageDialogVisible}
         title={_.get(this.state, ['selectedImage', 'image', 'title'], '')}
         alt={_.get(this.state, ['selectedImage', 'image', 'alt'], '')}
         onCancel={this.handleCancelEditImage}
@@ -159,8 +211,51 @@ class ProductImages extends Component<void, Props, State> {
           const { image, idx } = this.state.selectedImage;
 
           this.setState(
-            { isEditDialogVisible: false },
+            { isEditImageDialogVisible: false },
             () => this.props.editImage(image.album, idx, form)
+          );
+        }} />
+    );
+  }
+
+  get deleteAlbumDialog(): Element {
+    const { selectedAlbum } = this.state;
+
+    if(!selectedAlbum) {
+      return;
+    }
+
+    const imageCount = this.props.list[selectedAlbum].length;
+    const body = (
+      <div>
+        <Alert type="warning">
+          Deleting this album will delete <strong>{imageCount} images</strong> from the product.
+        </Alert>
+        <span>
+          Are you sure you want to delete <strong>{selectedAlbum}</strong> album?
+        </span>
+      </div>
+    );
+
+    return (
+      <ConfirmationDialog
+        isVisible={this.state.isDeleteAlbumDialogVisible}
+        header='Delete Album'
+        body={body}
+        cancel='Cancel'
+        confirm='Yes, Delete'
+        cancelAction={this.handleCancelRemoveAlbum}
+        confirmAction={() => {
+          if (!selectedAlbum) {
+            return;
+          }
+
+          this.setState(
+            {
+              isDeleteAlbumDialogVisible: false,
+              selectedAlbum: void 0,
+            },
+            () => this.props.deleteAlbum(selectedAlbum)
           );
         }} />
     );
@@ -172,6 +267,14 @@ class ProductImages extends Component<void, Props, State> {
       { name: 'external-link', handler: () => window.open(selectedImage.image.src)},
       { name: 'edit', handler: () => this.handleEditImage(selectedImage) },
       { name: 'trash', handler: () => this.handleRemoveImage(selectedImage) },
+    ];
+  }
+
+  @autobind
+  getAlbumActions(selectedAlbum: string): Array<any> {
+    return [
+      { name: 'edit', handler: () => this.handleEditAlbum(selectedAlbum) },
+      { name: 'trash', handler: () => this.handleRemoveAlbum(selectedAlbum) },
     ];
   }
 
@@ -197,8 +300,9 @@ class ProductImages extends Component<void, Props, State> {
 
     return (
       <div>
-        {this.editDialog}
-        {this.deleteDialog}
+        {this.editImageDialog}
+        {this.deleteImageDialog}
+        {this.deleteAlbumDialog}
         <div className="fc-table__header">
           <ActionsDropdown actions={this.bulkActions}
                            disabled={false}
@@ -236,8 +340,19 @@ class ProductImages extends Component<void, Props, State> {
     return (
       <div className="fc-grid fc-grid-no-gutter" key={albumName}>
         <div className="fc-col-md-1-1">
-          <Accordion title={this.renderTitle(albumName, images.length)}>
-            {images.map((image: Image, idx: number) => {
+          <Accordion title={albumName}
+                     titleWrapper={(title: string) => this.renderTitle(title, images.length)}
+                     placeholder="New album"
+                     editMode={this.state.isEditAlbumVisible && this.state.selectedAlbum == albumName}
+                     onEditComplete={(newTitle: string) => {
+                       this.setState({
+                         isEditAlbumVisible: false,
+                         selectedAlbum: void 0,
+                       }, this.props.editAlbum(albumName, newTitle));
+                     }}
+                     onEditCancel={() => this.setState({isEditAlbumVisible: false, selectedAlbum: void 0})}
+                     actions={this.getAlbumActions(albumName)}>
+            {images.map((image:Image, idx:number) => {
               return <ImageCard src={`${image.src}`}
                                 title={image.title}
                                 secondaryTitle={image.du}
@@ -264,6 +379,7 @@ class ProductImages extends Component<void, Props, State> {
 
 const mapState = (state) => ({
   list: _.get(state, ['products', 'images', 'list'], []),
+  albums: _.get(state, ['products', 'images', 'albums'], []),
   isLoading: _.get(state, ['asyncActions', 'productsFetchImages', 'inProgress'], true),
 });
 

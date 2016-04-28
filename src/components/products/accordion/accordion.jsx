@@ -4,18 +4,30 @@
 import styles from './accordion.css';
 
 // libs
+import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 
+type Action = {
+  name: string;
+  handler: Function;
+}
+
 type Props = {
   children?: Array<Element>|Element;
-  controls: Array<Element>|Element;
+  actions?: Array<Action>;
   title?: string;
+  placeholder?: string;
   open?: boolean;
+  editMode?: boolean;
+  onEditComplete: Function;
+  onEditCancel: Function;
+  titleWrapper?: (title: string) => Element;
 }
 
 type State = {
+  title: string;
   open: boolean;
 }
 
@@ -25,11 +37,21 @@ export default class Accordion extends Component {
 
   static defaultProps = {
     open: true,
+    editMode: false,
+    placeholder: 'Enter text',
+    actions: [],
   };
 
   state: State = {
+    title: this.props.title,
     open: this.props.open,
   };
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      title: nextProps.title,
+    });
+  }
 
   componentDidUpdate(): void {
     let maxHeight = 0;
@@ -47,12 +69,75 @@ export default class Accordion extends Component {
     });
   }
 
+  @autobind
+  onFocus({ target }): void {
+    /* set cursor to the end of the text */
+    if (target.setSelectionRange) {
+      const length = target.value.length * 2;
+
+      target.setSelectionRange(length, length);
+    } else {
+      target.value = target.value;
+    }
+  }
+
+  @autobind
+  changeInput({ target }): void {
+    this.setState({ title: target.value });
+  }
+
+  @autobind
+  endEdit(): void {
+    this.props.onEditComplete(this.state.title);
+  }
+
+  @autobind
+  cancelEdit() {
+    this.props.onEditCancel();
+  }
+
+  @autobind
+  keyDown(event) {
+    if (event.keyCode == 13) {
+      this.endEdit();
+    }
+    if (event.keyCode == 27) {
+      this.cancelEdit();
+    }
+  }
+
   get title(): ?Element {
-    if (!this.props.title) {
+    const { title, editMode, placeholder, titleWrapper } = this.props;
+    if (!title && !editMode) {
       return null;
     }
 
-    return <div className={styles.title} onClick={this.toggle}><span>{this.props.title}</span></div>;
+    let titleElement:Element;
+
+    if (editMode) {
+      titleElement = <div className="fc-form-field">
+        <input
+          autoFocus
+          type="text"
+          onFocus={this.onFocus}
+          onBlur={this.endEdit}
+          onChange={this.changeInput}
+          onKeyDown={this.keyDown}
+          placeholder={placeholder}
+          value={this.state.title}
+        />
+      </div>;
+    } else {
+      titleElement = <span>{titleWrapper ? titleWrapper(title) : title}</span>;
+    }
+
+    return (
+      <div className={styles.title}>
+        <div className={styles.titleWrapper} onClick={this.toggle}>
+          {titleElement}
+        </div>
+      </div>
+    );
   }
 
   get controls(): Element {
@@ -60,15 +145,18 @@ export default class Accordion extends Component {
       <div className={styles.controls}>
         <div className={styles.left}>
           <span className={styles.controlItem} onClick={this.toggle}>
-            <i className="icon-up"/>
-            <i className="icon-down"/>
+            <i className="icon-up" />
+            <i className="icon-down" />
           </span>
         </div>
         <div className={styles.right}>
-          <span className={styles.controlItem}><i className="icon-add" /></span>
-          <span className={styles.controlItem}><i className="icon-edit" /></span>
-          <span className={styles.controlItem}><i className="icon-trash" /></span>
-          {this.props.controls}
+          {this.props.actions.map(({ name, handler }) => {
+            return (
+              <span className={styles.controlItem} key={name}>
+                <i className={`icon-${name}`} onClick={handler} />
+              </span>
+            );
+          })}
         </div>
       </div>
     );

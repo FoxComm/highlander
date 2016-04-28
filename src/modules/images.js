@@ -30,6 +30,7 @@ export type ImageInfo = {
 
 type State = {
   list: any;
+  albums: any;
 }
 
 /**
@@ -40,7 +41,7 @@ function getImage(): Image {
   const src = `http://lorempixel.com/286/286/fashion/?${id}`;
   const title = 'Lorem-ipsum.jpg';
   const alt = 'Alt image text';
-  const du = 'Uploaded 02/02/2016 16:32';
+  const du = 'Uploaded 02/02/2016 16: 32';
   const album = ['Default', 'Mobile'][_.random(0, 1)];
 
   return { id, src, title, du, album, alt, inProgress: false };
@@ -84,17 +85,37 @@ export default function createImagesModule(entity: string, scope: string): Modul
     });
   }, (...args) => args);
 
+  const editAlbumAsync = createAsyncActions(actionPath(scope, 'editAlbum'), (albumName: string, newName: string) => {
+    return new Promise(resolve => {
+      setTimeout(() => resolve([albumName, newName]), _.random(100, 1000));
+    });
+  }, (...args) => args);
+
+  const deleteAlbumAsync = createAsyncActions(actionPath(scope, 'deleteAlbum'), (album: string) => {
+    return new Promise(resolve => {
+      setTimeout(() => resolve(album), _.random(100, 1000));
+    });
+  }, (...args) => args);
+
   /** External actions */
-  const fetch = (actions, entityId: string|number) => dispatch => {
+  const fetch = (entityId: string|number) => dispatch => {
     dispatch(fetchAsync.perform(entityId));
   };
 
-  const editImage = (actions, album: string, idx: number, imageInfo: ImageInfo) => dispatch => {
+  const editImage = (album: string, idx: number, imageInfo: ImageInfo) => dispatch => {
     dispatch(editImageAsync.perform(album, idx, imageInfo));
   };
 
-  const deleteImage = (actions, album: string, idx: number) => dispatch => {
+  const deleteImage = (album: string, idx: number) => dispatch => {
     dispatch(deleteImageAsync.perform(album, idx));
+  };
+
+  const editAlbum = (albumName: string, newName: string) => dispatch => {
+    dispatch(editAlbumAsync.perform(albumName, newName));
+  };
+
+  const deleteAlbum = (album: string) => dispatch => {
+    dispatch(deleteAlbumAsync.perform(album));
   };
 
   /** Reducers */
@@ -102,8 +123,12 @@ export default function createImagesModule(entity: string, scope: string): Modul
     [fetchAsync.succeeded]: (state: State, images: Array<Image>) => {
       const byAlbum = _.groupBy(images, 'album');
 
-      return assoc(state, 'list', byAlbum);
+      return assoc(state,
+        'list', byAlbum,
+        'albums', _.mapValues(byAlbum, (_, album: string) => ({ id: album })),
+      );
     },
+
     [editImageAsync.started]: (state: State, [album, idx]) => {
       return assoc(state, ['list', album, idx, 'inProgress'], true);
     },
@@ -118,6 +143,7 @@ export default function createImagesModule(entity: string, scope: string): Modul
         [...path, 'inProgress'], false,
       );
     },
+
     [deleteImageAsync.started]: (state: State, [album, idx]) => {
       return assoc(state, ['list', album, idx, 'inProgress'], true);
     },
@@ -130,29 +156,63 @@ export default function createImagesModule(entity: string, scope: string): Modul
 
       return assoc(state, path, [...images.slice(0, idx), ...images.slice(idx + 1)]);
     },
-  });
 
-  const { actions, reducer } = createStore({
-    entity,
-    scope,
-    reducers: {},
-    actions: {
-      fetch,
-      editImage,
-      deleteImage,
+    [editAlbumAsync.started]: (state: State, [albumName]) => {
+      return assoc(state, ['albums', albumName, 'inProgress'], true);
     },
-    initialState,
-  });
+    [editAlbumAsync.failed]: (state: State, [err, [albumName]]) => {
+      return assoc(state, ['albums', albumName, 'inProgress'], false);
+    },
+    [editAlbumAsync.succeeded]: (state: State, [[albumName, newName]]) => {
+      const albums = _.mapKeys(get(state, ['albums'], {}), (album, name: string) => {
+        return name === albumName ? newName : name;
+      });
+      const lists = _.mapKeys(_.mapValues(get(state, ['list'], {}), (list, name) => {
+        if (name === albumName) {
+          return list.map((image: Image) => {
+            image.album = newName;
 
-  const rootReducer = reduceReducers(asyncReducer, reducer);
+            return image;
+          });
+        }
+
+        return list;
+      }), (list, name: string) => {
+        return name === albumName ? newName : name;
+      });
+
+      state = dissoc(state,
+        ['list', albumName],
+      );
+
+      return assoc(state,
+        ['albums'], albums,
+        ['list'], lists,
+      );
+    },
+
+    [deleteAlbumAsync.started]: (state: State, [album]) => {
+      return assoc(state, ['albums', album, 'inProgress'], true);
+    },
+    [deleteAlbumAsync.failed]: (state: State, [err, [album]]) => {
+      return assoc(state, ['albums', album, 'inProgress'], false);
+    },
+    [deleteAlbumAsync.succeeded]: (state: State, [album]) => {
+      return dissoc(state,
+        ['list', album],
+        ['albums', album],
+      );
+    },
+  }, initialState);
 
   return {
-    reducer: rootReducer,
+    reducer: asyncReducer,
     actions: {
       fetch,
       editImage,
       deleteImage,
-      ...actions,
+      editAlbum,
+      deleteAlbum
     }
   };
 };
