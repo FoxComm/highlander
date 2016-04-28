@@ -4,6 +4,8 @@ import _ from 'lodash';
 import React from 'react';
 import { numberize } from '../../lib/text-utils';
 
+import styles from './scheduler-modal.css';
+
 import ObjectScheduler from '../object-scheduler/object-scheduler';
 import modalWrapper from '../modal/wrapper';
 import ContentBox from '../content-box/content-box';
@@ -51,6 +53,7 @@ const SchedulerModal = (props: Props) => {
     <ContentBox
       title={`Schedule ${entityCap}`}
       className="fc-bulk-action-modal"
+      styleName="modal"
       actionBlock={actionBlock}>
 
       <ObjectScheduler
