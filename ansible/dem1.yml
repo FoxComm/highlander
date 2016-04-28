@@ -37,6 +37,7 @@
     - { role: base/balancer, sudo: yes }
     - { role: dev/ashes}
     - { role: dev/firebird}
+    - { role: dev/balancer, sudo: yes }
     - { role: demo/ashes, sudo: yes }
 
 - name: Provision Demo 1 RU Frontend
@@ -53,4 +54,5 @@
     - { role: base/node}
     - { role: base/balancer, sudo: yes }
     - { role: dev/firebird}
+    - { role: dev/balancer, sudo: yes }
     - { role: demo/ashes, sudo: yes }

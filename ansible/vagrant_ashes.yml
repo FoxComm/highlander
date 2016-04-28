@@ -14,4 +14,5 @@
     - { role: dev/node}
     - { role: dev/ashes}
     - { role: dev/firebird}
+    - { role: dev/balancer, sudo: yes }
 
