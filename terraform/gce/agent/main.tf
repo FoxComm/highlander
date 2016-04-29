@@ -1,4 +1,4 @@
-variable "demo_image" { 
+variable "image" { 
     default = "ubuntu-1510-wily-v20160123"
 }
 
@@ -6,15 +6,17 @@ variable "queue" {}
 variable "prefix" {} 
 variable "ssh_user" {} 
 variable "ssh_private_key" {} 
+variable "servers" {} 
 
 resource "google_compute_instance" "agent" { 
-    name = "${var.prefix}-${var.queue}"
+    name = "${var.prefix}-${count.index}"
     machine_type = "n1-highcpu-8"
-    tags = ["no-ip", "${var.prefix}"]
+    tags = ["no-ip", "${var.prefix}", "${var.prefix}-${count.index}"]
     zone = "us-central1-a"
+    count = "${var.servers}"
 
     disk {
-        image = "${var.demo_image}"
+        image = "${var.image}"
         type = "pd-ssd"
         size = "30"
     }   
