@@ -1,19 +1,12 @@
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-// data
-import * as bulkActions from '../../modules/bulk';
-
 //helpers
 import { getStore } from '../../lib/store-creator';
-
-// components
-import SuccessNotification from '../bulk-actions/success-notification';
-import ErrorNotification from '../bulk-actions/error-notification';
 
 
 const mapDispatchToProps = (dispatch, {module}) => {
@@ -25,7 +18,7 @@ const mapDispatchToProps = (dispatch, {module}) => {
 };
 
 @connect(null, mapDispatchToProps)
-export default class BulkActions extends React.Component {
+export default class BulkActions extends Component {
   static propTypes = {
     module: PropTypes.string.isRequired,
     entity: PropTypes.string.isRequired,
@@ -43,8 +36,6 @@ export default class BulkActions extends React.Component {
   @autobind
   getActionWrapper([label, handler, successMessage, errorMessage]) {
     const {module, entity} = this.props;
-
-    const setState = this.setState.bind(this);
 
     return [
       label,
@@ -70,7 +61,7 @@ export default class BulkActions extends React.Component {
           }),
         });
 
-        setState({modal});
+        this.setState({modal});
       },
     ];
   }
@@ -81,22 +72,22 @@ export default class BulkActions extends React.Component {
   }
 
   @autobind
-  getModalCancelHandler(onCancel) {
+  getModalCancelHandler(onCancel = _.noop) {
     return (...args) => {
       this.hideModal();
-      (onCancel || _.noop)(...args);
+      onCancel(...args);
     };
   }
 
   @autobind
-  getModalConfirmHandler(onConfirm, messages) {
+  getModalConfirmHandler(onConfirm = _.noop, messages) {
     const {reset, setMessages} = this.props.bulkActions;
 
     return (...args) => {
       reset();
       setMessages(messages);
       this.hideModal();
-      (onConfirm || _.noop)(...args);
+      onConfirm(...args);
     };
   }
 

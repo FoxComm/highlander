@@ -1,4 +1,13 @@
-@dropdown-height: 36px;
+@dropdown-height: 40px;
+
+.fc-btn._dropdown-size {
+  width: @dropdown-height;
+  height: @dropdown-height;
+
+  &:hover {
+    background-color: @color-control-standard-bg;
+  }
+}
 
 .fc-dropdown {
   .inline-block();
@@ -9,9 +18,9 @@
   text-align: left;
 
   &__controls {
-    border: 1px solid @color-decor7;
     border-radius: 3px;
     overflow: hidden;
+    display: flex;
   }
 
   &__value {
@@ -20,20 +29,11 @@
     .colors(@color-default-fg, @color-control-standard-bg);
     .font-spec(14px, 400, @dropdown-height);
     overflow: hidden;
+    text-overflow: ellipsis;
     cursor: pointer;
     user-select: none;
     white-space: nowrap;
-  }
-
-  &__button {
-    .inline-block();
-    .colors(@color-control-standard-fg, @color-control-standard-bg);
-    .size(@dropdown-height);
-    .font-spec(10px, 400, @dropdown-height);
-    float: right;
-    text-align: center;
-    cursor: pointer;
-    user-select: none;
+    flex-grow: 1;
   }
 
   &__items {

@@ -11,9 +11,6 @@ import { groups } from '../../paragons/watcher';
 import { actions } from '../../modules/orders/list';
 import { actions as bulkActions } from '../../modules/orders/bulk';
 
-// helpers
-import { numberize } from '../../lib/text-utils';
-
 // components
 import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';

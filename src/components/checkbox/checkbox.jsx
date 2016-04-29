@@ -6,11 +6,13 @@ import classNames from 'classnames';
 const DefaultCheckbox = props => {
   const { className, children, id, ...rest } = props;
 
+  const label = children != null ? <span className="fc-checkbox__label">{children}</span> : null;
+
   return (
     <div className={ className }>
       <input type="checkbox" id={id} {...rest} />
       <label htmlFor={id}>
-        <span className="fc-checkbox__label">{children}</span>
+        {label}
       </label>
     </div>
   );
