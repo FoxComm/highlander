@@ -42,13 +42,19 @@
       }
 
       &.sorting {
+        padding-right: 30px;
         cursor: pointer;
 
         &:hover {
           background-color: @color-th-bg-hover;
+
+          &:after {
+            content: '\25b2';
+          }
         }
       }
 
+      &.sorting:hover:after,
       &.sorting-asc:after,
       &.sorting-desc:after {
         position: absolute;
@@ -59,12 +65,22 @@
         transform: scale(1, .5);
       }
 
-      &.sorting-asc:after {
-        content: '\25b2';
+      &.sorting-asc {
+        &:after {
+          content: '\25b2';
+        }
+        &:hover:after {
+          content: '\25bc';
+        }
       }
 
-      &.sorting-desc:after {
-        content: '\25bc';
+      &.sorting-desc {
+        &:after {
+          content: '\25bc';
+        }
+        &:hover:after {
+          content: '\25b2';
+        }
       }
 
       &.__select-column {
