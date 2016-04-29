@@ -6,6 +6,7 @@
 
   & input[type=checkbox]:after {
     content: 'NO';
+    display: block;
     background: @color-decor47;
     color: @color-white;
     position: absolute;
@@ -104,17 +105,14 @@
   & input[type=checkbox] + label {
     display: inline-block;
     margin-left: -24px;
-    position: relative;
   }
-
-  @label-margin: 2.5px;
 
   & input[type=checkbox] + label:before {
     content: "";
     display: inline-block;
     width: 24px;
     height: 24px;
-    margin: @label-margin;
+    margin: 2.5px;
     border-radius: 3px;
     vertical-align: bottom;
     border: 2px solid @color-decor9;
@@ -127,8 +125,16 @@
   }
 
   & input[type=checkbox]:checked + label:before {
+    font-family: "fontello";
+    content: "\e829";
+    padding-bottom: 4px;
     border-color: @color-decor3;
     background: @color-decor3;
+    font-size: 16px;
+    line-height: 20px;
+    text-align: center;
+    font-weight: 500;
+    color: @color-white;
   }
 
   & input[type=checkbox]:checked:hover + label:before {
@@ -136,28 +142,7 @@
     background: @color-decor4;
   }
 
-  & input[type=checkbox]:checked + label:after {
-    font-family: "fontello";
-    content: "\e829";
-    position: absolute;
-    left: 2px + @label-margin;
-    top: 2px + @label-margin;
-    display: block;
-    width: 20px;
-    color: @color-white;
-    font-size: 16px;
-    line-height: 20px;
-    text-align: center;
-    font-weight: 500;
-  }
-
-  &._inline input[type=checkbox] + label:after {
-    left: 2px;
-    top: 2px;
-    line-height: 30px;
-  }
-
-  &._half-checked input[type=checkbox]:checked + label:after {
+  &._half-checked input[type=checkbox]:checked + label:before {
     content: "\e832";
   }
 
@@ -180,7 +165,7 @@
     background: @color-decor12;
   }
 
-  & input[type=checkbox][disabled]:checked + label:after {
+  & input[type=checkbox][disabled]:checked + label:before {
     color: @color-decor9;
   }
 
