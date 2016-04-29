@@ -25,6 +25,7 @@
   with_items:
     - zookeeper
     - kafka
+    - schema-registry
 
 - name: Sleep
   shell: sleep 5
