@@ -1,6 +1,6 @@
 
 variable "ip_range" {
-  default = "0.0.0.0/0" # Change to your IP Range!
+  default = "0.0.0.0/0" # Allow from any ip. We are remote.
 }
 
 variable "availability_zones" {

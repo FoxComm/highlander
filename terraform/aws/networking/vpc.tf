@@ -21,32 +21,6 @@ output "vpc_id" {
 }
 
 ###############################
-# Make NAT instance
-###############################
-
-#config barrowed from 
-#https://github.com/awslabs/apn-blog/blob/tf_blog_v1.0/terraform_demo/site/pub_priv_vpc.tf
-
-resource "aws_instance" "nat" {
-  ami = "ami-75ae8245"  # this is a special ami preconfigured to do NAT
-  availability_zone = "${element(var.availability_zones, 0)}"
-  instance_type = "t2.small"
-  key_name = "${var.key_name}"
-  security_groups = ["${aws_security_group.nat.id}"]
-  subnet_id = "${aws_subnet.public.id}"
-  associate_public_ip_address = true
-  source_dest_check = false
-  tags {
-      Name = "terraform_nat_instance"
-  }
-}
-
-resource "aws_eip" "nat" {
-  instance = "${aws_instance.nat.id}"
-  vpc = true
-}
-
-###############################
 # Public Subnet
 ###############################
 
@@ -80,7 +54,7 @@ resource "aws_route_table_association" "public" {
 }
 
 ###############################
-# Public Subnet
+# Private Subnet
 ###############################
 
 resource "aws_subnet" "private" {

@@ -1,3 +1,7 @@
+###############################
+# NAT Security Group
+###############################
+
 resource "aws_security_group" "nat" {
   name = "vpc_nat"
   description = "Allow traffic to pass from the private subnet to the internet"
@@ -67,6 +71,30 @@ resource "aws_security_group" "web_access_from_nat_sg" {
       Name = "terraform"
   }
 }
+
 output "web_access_from_nat_sg_id" {
   value = "${aws_security_group.web_access_from_nat_sg.id}"
+}
+
+###############################
+# NAT Instance
+###############################
+
+resource "aws_instance" "nat" {
+  ami = "ami-7a2bc21a"  # amzn-ami-vpc-nat-hvm-2016.03.0.x86_64-ebs
+  availability_zone = "${element(var.availability_zones, 0)}"
+  instance_type = "t2.small"
+  key_name = "${var.key_name}"
+  security_groups = ["${aws_security_group.nat.id}"]
+  subnet_id = "${aws_subnet.public.id}"
+  associate_public_ip_address = true
+  source_dest_check = false
+  tags {
+      Name = "terraform_nat_instance"
+  }
+}
+
+resource "aws_eip" "nat" {
+  instance = "${aws_instance.nat.id}"
+  vpc = true
 }
