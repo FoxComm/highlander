@@ -19,6 +19,7 @@ type Props = {
   label?: string,
   onChange: (content: string) => void,
   value: ?string,
+  className?: string,
 };
 
 type State = { editorState: Object };
@@ -175,7 +176,7 @@ export default class RichTextEditor extends Component<void, Props, State> {
   render(): Element {
     const { editorState } = this.state;
     return (
-      <div className="fc-rich-text-editor">
+      <div className={classNames('fc-rich-text-editor', this.props.className)}>
         {this.props.label && <div className="fc-rich-text-editor__label">{this.props.label}</div>}
         <div className="fc-rich-text-editor__command-bar">
           {this.headerButtons}
