@@ -1,3 +1,13 @@
+.column-selector {
+  & :global(.icon-settings-col) {
+    padding: 21px 15px;
+
+    &:hover {
+      background: #e5e7e8;
+      cursor: pointer;
+    }
+  }
+}
 .dropdown {
   display: flex;
   flex-direction: column;
