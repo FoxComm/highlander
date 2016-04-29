@@ -37,3 +37,5 @@
     method: "PUT"
     body: "{\"compatibility\": \"NONE\"}"
     HEADER_Content-Type: "application/vnd.schemaregistry.v1+json"
+  retries: 3
+  delay: 5
