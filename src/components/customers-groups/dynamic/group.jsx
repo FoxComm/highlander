@@ -61,6 +61,7 @@ export default class DynamicGroup extends Component {
       stats: PropTypes.objectOf({
         ordersCount: PropTypes.number,
         totalSales: PropTypes.number,
+        averageOrderSize: PropTypes.number,
         averageOrderSum: PropTypes.number,
       }),
     }),
@@ -183,6 +184,9 @@ export default class DynamicGroup extends Component {
         </PanelListItem>
         <PanelListItem title="Total Sales">
           <Currency value={stats.totalSales} />
+        </PanelListItem>
+        <PanelListItem title="Avg. Order Size">
+          {Math.floor(stats.averageOrderSize)}
         </PanelListItem>
         <PanelListItem title="Avg. Order Value">
           <Currency value={stats.averageOrderSum} />

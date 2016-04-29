@@ -25,6 +25,7 @@ const initialState = {
   stats: {
     ordersCount: null,
     totalSales: null,
+    averageOrderSize: null,
     averageOrderSum: null,
   }
 };
@@ -81,6 +82,9 @@ const fetchGroupStats = (actions, mainCondition, conditions) => dispatch => {
       new aggregations.Sum('totalSales', 'revenue')
     )
     .add(
+      new aggregations.Average('averageOrderSize', 'orders.itemsCount')
+    )
+    .add(
       new aggregations.Average('averageOrderSum', 'orders.grandTotal')
     );
 
@@ -89,6 +93,7 @@ const fetchGroupStats = (actions, mainCondition, conditions) => dispatch => {
       dispatch(actions.setGroupStats({
         ordersCount: aggregations.ordersCount.ordersCount.value,
         totalSales: aggregations.totalSales.value,
+        averageOrderSize: aggregations.averageOrderSize.averageOrderSize.value,
         averageOrderSum: aggregations.averageOrderSum.averageOrderSum.value,
       }));
     }
