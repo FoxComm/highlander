@@ -32,61 +32,59 @@ const mapDispatchToProps = (dispatch: Function, props) => {
   };
 };
 
+const changeStateHandler = function(props: Props, isActivation: boolean): Function {
+  const stateTitle = isActivation ? 'Active' : 'Inactive';
+
+  return (allChecked, toggledIds) => {
+    const {changeState} = props.bulkActions;
+
+    return (
+      <ChangeStateModal
+        count={toggledIds.length}
+        stateTitle={stateTitle}
+        onConfirm={() => changeState(toggledIds, isActivation)}
+      />
+    );
+  };
+};
+
+const scheduleHandler = (props: Props) => (allChecked, toggledIds) => {
+  const {updateAttributes} = props.bulkActions;
+
+  const handleConfirm = (form, shadow) => {
+    updateAttributes(toggledIds, form, shadow);
+  };
+
+  return (
+    <SchedulerModal
+      entity={props.entity}
+      count={toggledIds.length}
+      onConfirm={handleConfirm}
+    />
+  );
+};
+
+const renderDetail = (props: Props) => (messages, id) => {
+  const idParam = `${props.entity}Id`;
+  const body = _.isEmpty(messages) ? null : [': ', messages];
+  const entityCap = _.capitalize(props.entity);
+
+  return (
+    <span key={id}>
+        {entityCap} <Link to={`${props.entity}-details`} params={{[idParam]: id}}>{id}</Link>{body}
+      </span>
+  );
+};
 
 const BulkWrapper = (props: Props) => {
   const { entity } = props;
   const module = `${entity}s`;
 
-  const changeStateHandler = function(isActivation) {
-    const stateTitle = isActivation ? 'Active' : 'Inactive';
-
-    return (allChecked, toggledIds) => {
-      const {changeState} = props.bulkActions;
-
-      return (
-        <ChangeStateModal
-          count={toggledIds.length}
-          stateTitle={stateTitle}
-          onConfirm={() => changeState(toggledIds, isActivation)}
-        />
-      );
-    };
-  };
-
-  const scheduleHandler = (allChecked, toggledIds) => {
-    const {updateAttributes} = props.bulkActions;
-
-    const handleConfirm = (form, shadow) => {
-      updateAttributes(toggledIds, form, shadow);
-    };
-
-    return (
-      <SchedulerModal
-        entity={entity}
-        count={toggledIds.length}
-        onConfirm={handleConfirm}
-      />
-    );
-  };
-
   const bulkActions = [
-    ['Activate', changeStateHandler(true), 'successfully activated', 'could not be activated'],
-    ['Deactivate', changeStateHandler(false), 'successfully deactivated', 'could not be deactivated'],
-    [`Schedule ${entity}s`, scheduleHandler, 'successfully updated', 'could not be updated'],
+    ['Activate', changeStateHandler(props, true), 'successfully activated', 'could not be activated'],
+    ['Deactivate', changeStateHandler(props, false), 'successfully deactivated', 'could not be deactivated'],
+    [`Schedule ${entity}s`, scheduleHandler(props), 'successfully updated', 'could not be updated'],
   ];
-
-  const entityCap = _.capitalize(entity);
-
-  const renderDetail = (messages, id) => {
-    const idParam = `${entity}Id`;
-    const body = _.isEmpty(messages) ? null : [': ', messages];
-
-    return (
-      <span key={id}>
-        {entityCap} <Link to={`${entity}-details`} params={{[idParam]: id}}>{id}</Link>{body}
-      </span>
-    );
-  };
 
   return (
     <div>
@@ -94,7 +92,7 @@ const BulkWrapper = (props: Props) => {
         storePath={`${module}.bulk`}
         module={module}
         entity={entity}
-        renderDetail={renderDetail} />
+        renderDetail={renderDetail(props)} />
       <BulkActions
         module={module}
         entity={entity}
