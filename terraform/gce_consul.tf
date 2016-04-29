@@ -7,7 +7,7 @@ variable "ssh_user" {}
 variable "ssh_private_key" {} 
 
 module "consul_cluster" {
-    source = "./consul"
+    source = "./gce/consul"
     datacenter = "dev"
     servers = 3
     image = "${var.image}"

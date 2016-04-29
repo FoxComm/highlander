@@ -15,7 +15,7 @@ variable "ssh_user" {}
 variable "ssh_private_key" {} 
 
 module "gatling" {
-    source = "./tinystack"
+    source = "./gce/tinystack"
     datacenter = "gatling"
     backend_image = "${var.backend_image}"
     frontend_image = "${var.frontend_image}"
