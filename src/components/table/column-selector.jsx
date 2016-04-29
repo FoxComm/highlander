@@ -27,10 +27,10 @@ export default class ColumnSelector extends React.Component {
 
   constructor(props) {
     super(props);
-    //this.moveItem = this.moveItem.bind(this);
     this.state = {
       selectedColumns: this.getSelectedColumns(),
       isSelectorVisible: false,
+      hasDraggingItem: false,
     };
   }
 
@@ -39,6 +39,9 @@ export default class ColumnSelector extends React.Component {
     const { selectedColumns } = this.state;
     const dragItem = selectedColumns[dragIndex];
 
+    this.setState({
+      hasDraggingItem: true
+    });
     this.setState(update(this.state, {
       selectedColumns: {
         $splice: [
@@ -47,6 +50,13 @@ export default class ColumnSelector extends React.Component {
         ]
       }
     }));
+  }
+
+  @autobind
+  dropItem() {
+    this.setState({
+      hasDraggingItem: false
+    });
   }
 
   getSelectedColumns() {
@@ -99,6 +109,7 @@ export default class ColumnSelector extends React.Component {
             id={item.id}
             text={item.text}
             moveItem={this.moveItem}
+            dropItem={this.dropItem}
             checked={checked}
             onChange={e => this.toggleColumnSelection(id)}>
         </SelectorItem>
@@ -107,13 +118,14 @@ export default class ColumnSelector extends React.Component {
   }
 
   render() {
+    let listClassName = this.state.hasDraggingItem ? '_hasDraggingItem' : '';
     return (
       <div styleName="column-selector">
         <i className="icon-settings-col" onClick={this.toggleColumnSelector}/>
         {this.state.isSelectorVisible && <Overlay shown={true} onClick={this.toggleColumnSelector}/> }
         {this.state.isSelectorVisible && (
           <div styleName="dropdown">
-            <ul styleName="list">
+            <ul styleName="list" className={listClassName}>
               {this.renderSelectorItems()}
             </ul>
             <div styleName="actions">

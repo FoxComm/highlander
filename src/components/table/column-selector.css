@@ -17,9 +17,21 @@
   overflow: auto;
 
   & li {
+    display: flex;
     line-height: 30px;
-    padding: 7px 10px;
     font-size: 14px;
+    background: #fff;
+
+    &:hover {
+      background: #f5f5f5;
+    }
+  }
+
+  & :global(.icon-drag-drop) {
+    padding: 7px 2px 7px 4px;
+    font-size: 18px;
+    cursor: move;
+    color: #c0c0c0;
   }
 
   & :global(.fc-checkbox) {
@@ -27,12 +39,14 @@
   }
 
   & :global(.fc-checkbox label) {
+    padding: 7px 10px 7px 5px;
     width: 100%;
     cursor: pointer;
-    background: #fff;
+  }
 
-    &:hover {
-      background: #f5f5f5;
+  &:global(._hasDraggingItem) {
+    & li:hover {
+      background: #FFFFFF;
     }
   }
 }
@@ -50,12 +64,8 @@
   }
 }
 
-:global(.icon-drag-drop) {
-  cursor: move;
-}
-
 .isDragging {
-  box-shadow: inset -1px 1px 6px rgba(0,0,0,0.24);;
+  box-shadow: inset -1px 1px 6px rgba(0,0,0,0.24);
 
   & :global(.fc-checkbox),
   & :global(.icon-drag-drop) {

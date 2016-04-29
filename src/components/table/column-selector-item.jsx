@@ -14,6 +14,10 @@ const itemSource = {
       id: props.id,
       index: props.index
     };
+  },
+
+  endDrag(props) {
+    props.dropItem();
   }
 };
 
@@ -79,7 +83,8 @@ export default class Card extends Component {
     isDragging: PropTypes.bool.isRequired,
     id: PropTypes.any.isRequired,
     text: PropTypes.string.isRequired,
-    moveItem: PropTypes.func.isRequired
+    moveItem: PropTypes.func.isRequired,
+    dropItem: PropTypes.func.isRequired,
   };
 
   render() {
