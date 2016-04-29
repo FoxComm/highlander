@@ -13,6 +13,7 @@ const emptyState = {
   isSaving: false,
   isEditable: true,
   isUpdating: false,
+  isEditing: false,
   options: [],
   results: void 0,
   query: [],

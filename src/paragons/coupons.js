@@ -2,10 +2,8 @@
 import _ from 'lodash';
 import { denormalize, setAttribute, addAttribute } from './form-shadow-object';
 
-function addEmptyUsageRules(coupon) {
-  const { form, shadow } = coupon;
-
-  const usageRulesForm = {
+export function createEmptyCoupon() {
+  const usageRules = {
     isExclusive: false,
     isUnlimitedPerCode: false,
     usesPerCode: 1,
@@ -13,23 +11,13 @@ function addEmptyUsageRules(coupon) {
     usesPerCustomer: 1,
   };
 
-  const updatedForm = {...form, usageRules: usageRulesForm};
-  const updatedShadow = {...shadow};
-
-  return {
-    ...coupon,
-    form: updatedForm,
-    shadow: updatedShadow
-  };
-}
-
-export function createEmptyCoupon() {
   const coupon = {
     form: {
       id: null,
       createdAt: null,
-      attributes: {},
-      usageRules: {},
+      attributes: {
+        usageRules
+      },
     },
     shadow: {
       id: null,
@@ -39,7 +27,7 @@ export function createEmptyCoupon() {
     promotion: null
   };
 
-  return addEmptyUsageRules(configureCoupon(coupon));
+  return configureCoupon(coupon);
 }
 
 export function configureCoupon(coupon) {

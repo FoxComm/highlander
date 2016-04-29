@@ -1,15 +1,21 @@
 .fc-list-page {
-  background-color: @color-white;
+  background-color: @color-default-bg;
   display: flex;
   flex-direction: column;
 
-  &-header {
-    background-color: @color-default-bg;
-  }
-
   &-content {
+    background-color: @color-white;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border-left: 1px solid @color-decor9;
+    border-right: 1px solid @color-decor9;
+
     .fc-table-td > img {
       max-width: 50px;
+    }
+
+    &:last-child {
+      border-bottom: 1px solid @color-decor9;
     }
   }
 }

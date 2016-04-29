@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import { addResizeListener, removeResizeListener } from '../../lib/resize';
 //components
 import { Link, IndexLink } from '../link';
-
+import InkBar from '../ink-bar/ink-bar';
 
 class NavDropdown extends React.Component {
   render() {
@@ -39,13 +39,13 @@ NavDropdown.propTypes = {
   className: PropTypes.string
 };
 
-
-@connect(state => ({ router: state.router }))
 class LocalNav extends React.Component {
+
+  static contextTypes = {
+    router: PropTypes.object.isRequired,
+  };
+
   static propTypes = {
-    router: PropTypes.shape({
-      routes: PropTypes.array
-    }),
     children: PropTypes.node,
     gutter: PropTypes.bool,
   };
@@ -57,9 +57,13 @@ class LocalNav extends React.Component {
   state = {
     //index of children, from with the automatic collapse starts
     collapseFrom: null,
+    inkLeft: 0,
+    inkWidth: 0,
   };
 
   componentDidMount() {
+    // this.setState(this.getInkState(this.props));
+
     addResizeListener(this.handleResize);
     this.handleResize();
   }
@@ -88,6 +92,26 @@ class LocalNav extends React.Component {
     } else if (!collapsing && this.isCollapsed) {
       this.expand();
     }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    // this.setState(this.getInkState(this.props));
+  }
+
+  getInkState(props) {
+    const children = React.Children.toArray(props.children);
+
+    const index = _.findIndex(children, link => this.isActiveLink(link));
+
+    if (index === -1) {
+      return { inkLeft: 0, inkWidth: 0 };
+    }
+
+    const ref = this.refs[index];
+    const inkLeft = ref.offsetLeft;
+    const inkWidth = ref.offsetWidth;
+
+    return { inkLeft, inkWidth };
   }
 
   get hasOverflow() {
@@ -145,13 +169,23 @@ class LocalNav extends React.Component {
 
   @autobind
   hasActiveLink(item) {
-    const { routes } = this.props.router;
+    const { routes } = this.context.router;
     const linkList = this.compileLinks(item);
     const linkNames = _.pluck(linkList, ['props', 'to']);
 
     const currentRoute = routes[routes.length - 1];
 
     return _.includes(linkNames, currentRoute.name);
+  }
+
+  isActiveLink(item) {
+    if (item.type !== Link && item.type !== IndexLink) {
+      return false;
+    }
+
+    const linkName = _.get(item, ['props', 'to']);
+
+    return this.context.router.isActive(linkName);
   }
 
   @autobind
@@ -201,6 +235,7 @@ class LocalNav extends React.Component {
 
   render() {
     const { gutter } = this.props;
+    const { inkLeft, inkWidth } = this.state;
     const className = classNames('fc-grid', { 'fc-grid-gutter': gutter });
 
     return (
@@ -209,6 +244,7 @@ class LocalNav extends React.Component {
           <ul className="fc-tabbed-nav">
             {this.flatItems}
             {this.collapsedItems}
+            <InkBar left={inkLeft} width={inkWidth}/>
           </ul>
         </div>
       </div>

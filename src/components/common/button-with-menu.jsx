@@ -3,6 +3,7 @@
 
 import _ from 'lodash';
 import React, { Component, Element } from 'react';
+import Transition from 'react-addons-css-transition-group';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 
@@ -17,18 +18,28 @@ type Props = {
   onPrimaryClick?: Function;
   onSelect?: (value: any, title: string|Element) => any;
   children?: Element;
+  buttonDisabled?: boolean;
+  menuDisabled?: boolean;
   icon?: string;
   items: Array<DropdownItemType>;
   title: string|Element;
   className?: string;
+  menuPosition?: "left" | "center" | "right";
+  animate?: boolean;
 }
 
 type State = {
   open: boolean;
 }
 
-export default class ButthonWithMenu extends Component {
+export default class ButtonWithMenu extends Component {
   props: Props;
+
+  static defaultProps = {
+    items: [],
+    animate: true,
+    menuPosition: 'left',
+  };
 
   state: State = {
     open: false,
@@ -64,12 +75,48 @@ export default class ButthonWithMenu extends Component {
     event.stopPropagation();
   }
 
+  get menu() {
+    const { children, items } = this.props;
+    const { open } = this.state;
+
+    if (!open) {
+      return;
+    }
+
+    let ddItems = null;
+
+    if (!_.isEmpty(items)) {
+      ddItems = _.map(items, ([value, title]) => (
+        <DropdownItem value={value} key={value} onSelect={this.handleItemClick}>
+          {title}
+        </DropdownItem>
+      ));
+    } else {
+      ddItems = React.Children.map(children, item =>
+        React.cloneElement(item, {
+          onSelect: this.handleItemClick,
+        })
+      );
+    }
+    return (
+      <ul styleName="menu" ref="menu">
+        { ddItems }
+      </ul>
+    );
+  }
+
   render(): Element {
-    const { children, icon, title, items } = this.props;
+    const { icon, title, animate, menuPosition, buttonDisabled, menuDisabled } = this.props;
     const { open } = this.state;
 
     const className = classNames(this.props.className, {
       '_open': open,
+    });
+    const buttonClassName = classNames('fc-button-with-menu__left-button', {
+      '_disabled': buttonDisabled,
+    });
+    const menuButtonClassName = classNames('fc-button-with-menu__right-button', 'dropdown-button', {
+      '_disabled': menuDisabled,
     });
 
     return (
@@ -77,32 +124,37 @@ export default class ButthonWithMenu extends Component {
         { open && <div styleName="overlay" onClick={this.handleBlur}></div> }
         <div styleName="controls">
           <PrimaryButton
-            className="fc-button-with-menu__left-button"
+            className={buttonClassName}
             icon={icon}
             onClick={this.props.onPrimaryClick}
-            onBlur={this.dontPropagate} >
+            onBlur={this.dontPropagate}
+            disabled={buttonDisabled} >
             {title}
           </PrimaryButton>
           <PrimaryButton
-            className="fc-button-with-menu__right-button dropdown-button"
+            className={menuButtonClassName}
             icon="chevron-down"
             onClick={this.handleToggleClick}
             onBlur={this.dontPropagate}
+            disabled={menuDisabled}
           />
         </div>
-        <ul ref="menu" styleName="menu">
-          {items && _.map(items, ([value, title]) => (
-            <DropdownItem value={value} key={value} onSelect={this.handleItemClick}>
-              {title}
-            </DropdownItem>
-          )) || React.Children.map(children, item => (
-              React.cloneElement(item, {
-                onSelect: this.handleItemClick,
-              })
-            )
-          )}
-        </ul>
+
+        <Transition {...(getTransitionProps(animate, menuPosition))}>
+          {this.menu}
+        </Transition>
       </div>
     );
   }
+}
+
+function getTransitionProps(animate, position) {
+  return {
+    component: 'div',
+    transitionName: `dd-transition-${position}`,
+    transitionEnter: animate,
+    transitionLeave: animate,
+    transitionEnterTimeout: 300,
+    transitionLeaveTimeout: 300,
+  };
 }

@@ -1,30 +1,57 @@
-.fc-live-search {
-  margin-bottom: 20px;
+@gutter: 1.85%;
 
-  .fc-pilled-input__pill {
-    .icon-filter, .icon-search {
-      margin-right: 10px;
+.fc-live-search {
+  padding: 0 @gutter;
+  margin-bottom: 40px;
+
+  .fc-list-page-content:first-child {
+    border-top: 1px solid @color-decor9;
+  }
+
+  .fc-pilled-input {
+    &__pill {
+      .icon-filter, .icon-search {
+        margin-right: 10px;
+      }
     }
+
+    &__controls-container {
+      .fc-btn {
+        color: @color-decor32;
+        border: none;
+        background-color: transparent;
+
+        &.fc-button-with-menu__left-button {
+          font-size: 20px;
+        }
+      }
+    }
+  }
+
+  .icon-chevron-down {
+    font-size: 12px;
   }
 
   &__header {
     background-color: @color-default-bg;
-    margin-bottom: 20px;
   }
 
   &__go-back {
     border-top: 1px solid @color-decor9;
+
     > span {
-      font-weight: 700;
+      font-weight: 600;
     }
 
     .icon-back {
       margin-right: 10px;
+      vertical-align: top;
+      .font-spec(12px);
     }
   }
 
   &__search-control {
-    margin-bottom: 40px;
+    margin-top: 20px;
   }
 
   &__share-button {

@@ -1,4 +1,3 @@
-
 // libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
@@ -39,22 +38,26 @@ const Summary = props => {
           </PanelList>
         </div>
       </div>
-      <TabListView>
-        <TabView draggable={false} selected={!props.transactionsSelected} >
-          <IndexLink to="customer-storecredits"
-                     params={props.params}
-                     className="fc-store-credit-summary__tab-link">
-            Store Credits
-          </IndexLink>
-        </TabView>
-        <TabView draggable={false} selected={props.transactionsSelected} >
-          <Link to="customer-storecredit-transactions"
-                params={props.params}
-                className="fc-store-credit-summary__tab-link">
-            Transaction
-          </Link>
-        </TabView>
-      </TabListView>
+      <div className="fc-grid">
+        <div className="fc-col-md-1-1">
+          <TabListView>
+            <TabView draggable={false} selected={!props.transactionsSelected}>
+              <IndexLink to="customer-storecredits"
+                         params={props.params}
+                         className="fc-store-credit-summary__tab-link">
+                Store Credits
+              </IndexLink>
+            </TabView>
+            <TabView draggable={false} selected={props.transactionsSelected}>
+              <Link to="customer-storecredit-transactions"
+                    params={props.params}
+                    className="fc-store-credit-summary__tab-link">
+                Transaction
+              </Link>
+            </TabView>
+          </TabListView>
+        </div>
+      </div>
     </div>
   );
 };

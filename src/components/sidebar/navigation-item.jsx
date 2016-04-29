@@ -1,4 +1,3 @@
-
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
@@ -60,13 +59,10 @@ export default class NavigationItem extends React.Component {
   }
 
   get expandButton() {
-    const iconClass = classNames({
-      'icon-chevron-down': !this.currentState,
-      'icon-chevron-up': this.currentState
-    });
+    const iconClass = classNames('icon-chevron-down', { '_up': this.currentState });
     return (
       <div className="fc-navigation-item__expand" onClick={this.expandItem}>
-        <i className={iconClass}></i>
+        <i className={iconClass}/>
       </div>
     );
   }
@@ -75,7 +71,7 @@ export default class NavigationItem extends React.Component {
     return (
       <div className="fc-navigation-item">
         <IndexLink to={this.props.to} className="fc-navigation-item__link">
-          <i className={this.props.icon}></i>
+          <i className={this.props.icon}/>
           {this.props.title}
         </IndexLink>
         {this.props.isExpandable && this.expandButton}
@@ -87,7 +83,7 @@ export default class NavigationItem extends React.Component {
     return (
       <div className="fc-navigation-item">
         <Link to={this.props.to} className="fc-navigation-item__link">
-          <i className={this.props.icon}></i>
+          <i className={this.props.icon}/>
           {this.props.title}
         </Link>
         {this.props.isExpandable && this.expandButton}

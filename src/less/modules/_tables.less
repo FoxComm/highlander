@@ -33,7 +33,7 @@
       padding: 10px 15px;
       .font-spec(13px, 600, 18px);
       height: 62px;
-      .border(1px, solid, @color-th-border);
+      border: 1px solid @color-th-border;
       user-select: none;
       background-clip: padding-box;
 
@@ -88,7 +88,7 @@
       display: table-row;
       width: 100%;
 
-      .border(1px, solid, @color-decor9);
+      border: 1px solid @color-decor9;
       transition: background-color 500ms;
 
       &:nth-child(odd),
@@ -156,7 +156,7 @@
   }
 
   &__selected {
-    .padding-left(10px);
+    padding-left: 10px;
   }
 }
 
@@ -169,16 +169,20 @@
   float: right;
   line-height: 40px;
 
-  &__current-page {
+  .fc-btn {
+    .font-spec(10px);
+  }
+
+  &__current-page, &__total-pages {
     width: 70px;
     margin: 0 10px;
 
     .fc-lookup__input {
-      .padding-left(20px);
+      padding-left: 20px;
     }
   }
   &__total-pages {
-    margin: 0 10px;
+    width: auto;
   }
 
   &__current-page-field {
@@ -206,7 +210,6 @@
     font-weight: 400;
     line-height: 6rem;
     font-size: 12px;
-    font-size: 1.2rem;
     z-index: 100;
     display: none;
 

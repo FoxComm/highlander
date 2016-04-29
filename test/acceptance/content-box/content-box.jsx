@@ -20,7 +20,7 @@ describe('ContentBox', function() {
     );
 
     expect(contentBox, 'to contain',
-      <div className="fc-col-md-2-3 fc-title">{title}</div>
+      <div className="fc-title">{title}</div>
     );
   });
 
@@ -40,7 +40,7 @@ describe('ContentBox', function() {
     );
 
     expect(contentBox, 'to contain',
-      <div className="fc-col-md-1-3 fc-controls">
+      <div className="fc-controls">
         {actionBlock}
       </div>
     );
@@ -52,7 +52,7 @@ describe('ContentBox', function() {
     );
 
     expect(contentBox, 'to contain exactly',
-      <div className="fc-col-md-1-3 fc-controls"></div>
+      <div className="fc-controls"></div>
     );
   });
 });

@@ -190,6 +190,7 @@ class PromotionPage extends Component {
           </Button>
           <ButtonWithMenu
             title="Save"
+            menuPosition="right"
             onPrimaryClick={this.handleSubmit}
             onSelect={this.handleSelectSaving}
             items={[

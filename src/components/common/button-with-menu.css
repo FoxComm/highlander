@@ -7,10 +7,13 @@
   &:global(._open) .menu {
     display: inline-block;
   }
+
+  &:global(._open) :global .fc-button-with-menu__right-button i {
+   transform: rotateX(180deg);
+  }
 }
 
 .menu {
-  display: none;
   position: absolute;
   z-index: 100;
   right: 0;
@@ -26,6 +29,8 @@
 }
 
 .controls {
+  position: relative;
+
   & > :global(.fc-button-with-menu__left-button) {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
@@ -35,6 +40,13 @@
     border-left: 1px solid #ffffff;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
+    z-index: 100;
+
+    & :global(i) {
+      font-size: 12px;
+      transform: rotateX(0);
+      transition: transform .2s ease-out;
+    }
   }
 }
 

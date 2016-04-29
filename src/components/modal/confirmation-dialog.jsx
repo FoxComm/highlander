@@ -1,11 +1,24 @@
 
+/* @flow */
+
 import { autobind } from 'core-decorators';
-import React, { PropTypes } from 'react';
+import React, { Element } from 'react';
+
 import { ModalContainer } from './base';
 import ContentBox from '../content-box/content-box';
 import { PrimaryButton } from '../common/buttons';
 
-const ConfirmationDialog = props => {
+type Props = {
+  body: string|Element,
+  header: string|Element,
+  cancel: string,
+  confirm: string,
+  icon?: string,
+  cancelAction: Function,
+  confirmAction: Function,
+};
+
+const ConfirmationDialog = (props: Props): Element => {
   let modalIcon = null;
   if (props.icon) {
     modalIcon = <i className={ `icon-${props.icon}` } />;
@@ -45,16 +58,6 @@ const ConfirmationDialog = props => {
       </ContentBox>
     </ModalContainer>
   );
-};
-
-ConfirmationDialog.propTypes = {
-  body: PropTypes.node.isRequired,
-  header: PropTypes.node.isRequired,
-  cancel: PropTypes.string.isRequired,
-  confirm: PropTypes.string.isRequired,
-  icon: PropTypes.string,
-  cancelAction: PropTypes.func.isRequired,
-  confirmAction: PropTypes.func.isRequired
 };
 
 export default ConfirmationDialog;
