@@ -2,10 +2,10 @@
 
 - name: Provision JVM Build Machines
   hosts:
+    - buildkite-agent-0
     - buildkite-agent-1
     - buildkite-agent-2
     - buildkite-agent-3
-    - buildkite-agent-4
   tags:
     - buildkite-agent
   vars:
