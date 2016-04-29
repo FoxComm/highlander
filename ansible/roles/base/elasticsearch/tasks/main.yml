@@ -15,14 +15,6 @@
   template: src=elasticsearch.service dest={{dest_services}}/
   sudo: true
 
-- name: Kill Elasticsearch if it is Running
-  shell: systemctl stop elasticsearch || true
-  sudo: true
-
-- name: Purge Elasticsearch data
-  file: path={{es_path}}/data state=absent
-  sudo: true
-
 - name: Setting Up Elasticsearch User
   user: name=elasticsearch groups=admin
   sudo: true
@@ -47,9 +39,6 @@
 - name: Setup Service
   service: name=elasticsearch state=restarted enabled=yes
   sudo: true
-
-- name: Sleep
-  shell: sleep 20
 
 - name: Copy Consul Service File
   template: src=elastic.json dest="/etc/consul.d/elastic.json"

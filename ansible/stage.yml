@@ -6,6 +6,8 @@
     user: '{{ansible_ssh_user}}'
 
   roles:
+    - { role: dev/kakfa}
+    - { role: dev/elasticsearch}
     - { role: dev/db}
     - { role: dev/phoenix}
     - { role: dev/seeder}

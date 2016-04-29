@@ -23,22 +23,6 @@
   sudo: yes
   command: systemctl daemon-reload
 
-- name: Kill Zookeeper if it is Running
-  shell: systemctl stop zookeeper || true
-  sudo: true
-
-- name: Purge Zookeeper Data
-  file: path=/var/lib/zookeeper state=absent
-  sudo: true
-
-- name: Kill Kafka if it is Running
-  shell: systemctl stop kafka || true
-  sudo: true
-
-- name: Purge Kafka Queue
-  file: path=/var/lib/kafka state=absent
-  sudo: true
-
 - name: Create Kafka dir
   file: path=/var/lib/kafka state=directory
   sudo: true
@@ -56,17 +40,6 @@
 - name: Setup Schema Registry
   service: name=schema-registry state=restarted enabled=yes
   sudo: true
-
-- name: Sleep
-  shell: sleep 20
-
-#https://github.com/confluentinc/bottledwater-pg/issues/1
-- name:
-  uri:
-    url: http://localhost:8081/config
-    method: "PUT"
-    body: "{\"compatibility\": \"NONE\"}"
-    HEADER_Content-Type: "application/vnd.schemaregistry.v1+json"
 
 - name: Copy Consul Service File
   template: src=kafka.json dest="/etc/consul.d/kafka.json"
