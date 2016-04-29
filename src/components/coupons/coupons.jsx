@@ -10,14 +10,14 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 // components
-import BulkActions from '../bulk-actions/bulk-actions';
-import BulkMessages from '../bulk-actions/bulk-messages';
 import { SelectableSearchList } from '../list-page';
 import CouponRow from './coupon-row';
+import { ChangeStateModal } from '../bulk-actions/modal';
+
+import BulkWrapper from '../discounts/bulk';
 
 // redux
 import { actions } from '../../modules/coupons/list';
-import { actions as bulkActions } from '../../modules/coupons/bulk';
 
 type CouponsProps = {
   actions: Object,
@@ -33,7 +33,6 @@ const mapStateToProps = (state: Object) => {
 const mapDispatchToProps = (dispatch: Function) => {
   return {
     actions: bindActionCreators(actions, dispatch),
-    bulkActions: bindActionCreators(bulkActions, dispatch),
   };
 };
 
@@ -51,7 +50,6 @@ const tableColumns: Array<Object> = [
 @connect(mapStateToProps, mapDispatchToProps)
 /* ::`*/
 export default class Coupons extends Component {
-
   props: CouponsProps;
 
   renderRow(row: Object, index: number, columns: Array<any>, params: Object): Element {
@@ -67,31 +65,12 @@ export default class Coupons extends Component {
     );
   }
 
-  bulkActions(): Array<any> {
-    return [];
-  }
-
-  renderDetail(): any {
-    return null;
-  }
-
   render(): Element {
     const {list, actions} = this.props;
 
-    const entity = 'coupon';
-    const module = `${entity}s`;
-
     return (
       <div className="coupons">
-        <BulkMessages
-          storePath={`${module}.bulk`}
-          module={module}
-          entity={entity}
-          renderDetail={this.renderDetail} />
-        <BulkActions
-          module={module}
-          entity={entity}
-          actions={this.bulkActions()}>
+        <BulkWrapper entity="coupon">
           <SelectableSearchList
             emptyMessage="No coupons found."
             list={list}
@@ -99,7 +78,7 @@ export default class Coupons extends Component {
             tableColumns={tableColumns}
             searchActions={actions}
           />
-        </BulkActions>
+        </BulkWrapper>
       </div>
     );
   }
