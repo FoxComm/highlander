@@ -117,7 +117,7 @@ export default class ObjectFormInner extends Component<void, Props, State> {
     const formattedLabel = formatLabel(label);
     const onChange = v => this.handleChange(label, 'bool', v);
     return (
-      <div className="fc-object-form_field">
+      <div className="fc-object-form__field">
         <div className="fc-object-form__field-label">{formattedLabel}</div>
         <SliderCheckbox
           id={label}
@@ -129,7 +129,6 @@ export default class ObjectFormInner extends Component<void, Props, State> {
 
   @autobind
   renderDate(label: string, value: string): Element {
-    const formattedLabel = formatLabel(label);
     const dateValue = new Date(value);
     const onChange = v => this.handleChange(label, 'date', v);
     const dateInput = <DatePicker date={dateValue} onChange={onChange} />;
@@ -138,7 +137,6 @@ export default class ObjectFormInner extends Component<void, Props, State> {
 
   @autobind
   renderPrice(label: string, value: any): Element {
-    const formattedLabel = formatLabel(label);
     const priceValue: string = _.get(value, 'value', '');
     const onChange = v => this.handleChange(label, 'price', v);
     const currencyInput = (
@@ -166,7 +164,6 @@ export default class ObjectFormInner extends Component<void, Props, State> {
 
   @autobind
   renderString(label: string, value: string): Element {
-    const formattedLabel = formatLabel(label);
     const onChange = ({target}) => {
       return this.handleChange(label, 'richText', target.value);
     };
@@ -203,7 +200,6 @@ export default class ObjectFormInner extends Component<void, Props, State> {
 
   @autobind
   renderText(label: string, value: string): Element {
-    const formattedLabel = formatLabel(label);
     const onChange = ({target}) => {
       return this.handleChange(label, 'richText', target.value);
     };
@@ -218,16 +214,15 @@ export default class ObjectFormInner extends Component<void, Props, State> {
   }
 
   render(): Element {
-    const { fieldsToRender, form, shadow } = this.props;
+    const { form, shadow } = this.props;
     const attributes = illuminateAttributes(form, shadow);
-    const toRender: IlluminatedAttributes = _.isEmpty(fieldsToRender)
-      ? attributes
-      : _.pick(attributes, fieldsToRender);
+    const fieldsToRender = _.isEmpty(this.props.fieldsToRender) ? Object.keys(attributes) : this.props.fieldsToRender;
 
-    const renderedAttributes: Array<Element> = _.map(toRender, (attribute, key) => {
+    const renderedAttributes: Array<Element> = _.map(fieldsToRender, name => {
+      const attribute = attributes[name];
       const { label, type, value } = attribute;
       const renderFn = _.get(this.renderFunctions, type, this.renderString);
-      return renderFn(label, value);
+      return React.cloneElement(renderFn(label, value), {key: name});
     });
 
     return (

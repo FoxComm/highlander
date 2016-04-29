@@ -41,8 +41,6 @@ const defaultKeys = {
   seo: ['url', 'metaTitle', 'metaDescription'],
 };
 
-const requiredAttributes = ['title'];
-
 /**
  * ProductForm is dumb component that implements the logic needed for creating
  * or updating a product.
@@ -65,12 +63,16 @@ export default class ProductForm extends Component<void, Props, State> {
 
   get generalAttrs(): Array<string> {
     const toOmit = [
+      ...defaultKeys.general,
       ...defaultKeys.misc,
       ...defaultKeys.seo,
       ..._.flatten(_.valuesIn(omitKeys)),
     ];
-    const shadow = _.get(this.props, 'product.shadow.product.attributes', []);
-    return _(shadow).omit(toOmit).keys().value();
+    const shadow = _.get(this.props, 'product.shadow.product.attributes', {});
+    return [
+      ...defaultKeys.general,
+      ...(_(shadow).omit(toOmit).keys().value())
+    ];
   }
 
   get skusContentBox(): Element {

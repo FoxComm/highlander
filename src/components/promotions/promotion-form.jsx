@@ -43,14 +43,7 @@ export default class PromotionForm extends Component {
   };
 
   get generalAttrs(): Array<any> {
-    const toOmit = [
-      'qualifier',
-      'activeFrom',
-      'activeTo',
-      'tags',
-    ];
-    const shadow = _.get(this.props, 'promotion.shadow.attributes', []);
-    return _(shadow).omit(toOmit).keys().value();
+    return ['name', 'storefrontName', 'description', 'details'];
   }
 
   @autobind
