@@ -29,15 +29,18 @@ import utils.aliases._
 import utils.db._
 import utils.db.DbResultT._
 
+/*
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
 import com.sksamuel.elastic4s.ElasticDsl._
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.search.aggregations.bucket.filter.InternalFilter
 import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
+*/
 
 object OrderPromotionUpdater {
 
+  /*
   def elasticTest()(implicit ec: EC): Result[String] = {
     val uri = "elasticsearch://10.240.0.8:9300"
 
@@ -68,6 +71,7 @@ object OrderPromotionUpdater {
         Result.failure(GeneralFailure(e.getMessage))
     }
   }
+  */
 
   def attachCoupon(originator: Originator, refNum: Option[String] = None, context: ObjectContext, code: String)
     (implicit ec: EC, db: DB): Result[Root] = (for {
@@ -97,7 +101,7 @@ object OrderPromotionUpdater {
     offer             ← * <~ tryOffer(discount)
     adjustments       ← * <~ getAdjustments(order, promoShadow.id, qualifier, offer)
     // Create connected promotion and line item adjustments
-    _                 ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(order, promotion))
+    _                 ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(order, promotion, couponCode))
     _                 ← * <~ OrderLineItemAdjustments.createAll(adjustments)
     // Response
     order             ← * <~ OrderTotaler.saveTotals(order)

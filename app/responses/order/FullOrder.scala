@@ -1,14 +1,19 @@
 package responses.order
 
 import java.time.Instant
+
 import scala.concurrent.Future
 
 import cats.implicits._
-import models.customer.{Customers, Customer}
+import models.customer.{Customer, Customers}
 import models.location.Region
 import models.objects._
 import models.order._
 import models.product.Mvp
+import models.promotion._
+import models.coupon._
+import models.discount._
+import models.objects.ObjectUtils.Child
 import models.order.lineitems._
 import models.payment.PaymentMethod
 import models.payment.creditcard._
@@ -16,6 +21,8 @@ import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
 import models.shipping.ShippingMethod
 import models.{StoreAdmin, shipping}
+import responses.CouponResponses.IlluminatedCouponResponse
+import responses.PromotionResponses.IlluminatedPromotionResponse
 import responses._
 import services.orders.OrderQueries
 import slick.driver.PostgresDriver.api._
@@ -38,15 +45,14 @@ object FullOrder {
    ) extends ResponseItem
 
   case class LineItemAdjustment(
-    promotionShadowId: Int,
     adjustmentType: OrderLineItemAdjustment.AdjustmentType,
     substract: Int,
     lineItemId: Option[Int]
   ) extends ResponseItem
 
   object LineItemAdjustment {
-    def build(model: OrderLineItemAdjustment) = LineItemAdjustment(promotionShadowId = model.promotionShadowId,
-      adjustmentType = model.adjustmentType, substract = model.subtract, lineItemId = model.lineItemId)
+    def build(model: OrderLineItemAdjustment) = LineItemAdjustment(adjustmentType = model.adjustmentType,
+      substract = model.subtract, lineItemId = model.lineItemId)
   }
 
   case class Root(
@@ -57,6 +63,8 @@ object FullOrder {
     paymentState: Option[CreditCardCharge.State] = None,
     lineItems: LineItems,
     lineItemAdjustments: Seq[LineItemAdjustment] = Seq.empty,
+    promotion: Option[IlluminatedPromotionResponse.Root] = None,
+    coupon: Option[IlluminatedCouponResponse.Root] = None,
     fraudScore: Int,
     totals: Totals,
     customer: Option[CustomerResponse.Root] = None,
@@ -96,12 +104,13 @@ object FullOrder {
 
   def fromOrder(order: Order)(implicit ec: EC): DBIO[Root] = {
     fetchOrderDetails(order).map {
-      case (customer, lineItems, shipMethod, shipAddress, ccPmt, gcPmts, scPmts, gcs, totals, lockedBy, payState, adj) ⇒
+      case (customer, lineItems, shipMethod, shipAddress, ccPmt, gcPmts, scPmts, giftCards,
+        totals, lockedBy, payState, promoDetails, lineItemAdjustments) ⇒
       build(
         order = order,
         customer = customer,
         lineItems = lineItems,
-        giftCards = gcs,
+        giftCards = giftCards,
         shippingAddress = shipAddress.toOption,
         shippingMethod = shipMethod,
         ccPmt = ccPmt,
@@ -110,7 +119,9 @@ object FullOrder {
         lockedBy = lockedBy,
         paymentState = payState,
         totals = totals,
-        lineItemAdjustments = adj.map(LineItemAdjustment.build)
+        promotion = promoDetails.map(_._1),
+        coupon = promoDetails.map(_._2),
+        lineItemAdjustments = lineItemAdjustments.map(LineItemAdjustment.build)
       )
     }
   }
@@ -124,7 +135,8 @@ object FullOrder {
     totals: Option[Totals] = None,
     lockedBy: Option[StoreAdmin] = None,
     paymentState: Option[CreditCardCharge.State] = None,
-    promoShadows: Seq[(ObjectShadow, Seq[ObjectShadow])] = Seq.empty,
+    promotion: Option[IlluminatedPromotionResponse.Root] = None,
+    coupon: Option[IlluminatedCouponResponse.Root] = None,
     lineItemAdjustments: Seq[LineItemAdjustment] = Seq.empty): Root = {
 
     val creditCardPmt = ccPmt.map { case (pmt, cc, region) ⇒
@@ -167,6 +179,8 @@ object FullOrder {
       paymentState = paymentState,
       lineItems = LineItems(skus = skuList, giftCards = gcList),
       lineItemAdjustments = lineItemAdjustments,
+      promotion = promotion,
+      coupon = coupon,
       fraudScore = order.fraudScore,
       customer = customer.map(responses.CustomerResponse.build(_)),
       shippingAddress = shippingAddress,
@@ -193,6 +207,40 @@ object FullOrder {
     Totals(subTotal = order.subTotal, shipping = order.shippingTotal, adjustments = order.adjustmentsTotal,
     taxes = order.taxesTotal, total = order.grandTotal)
 
+  type PromoDetails = (IlluminatedPromotionResponse.Root, IlluminatedCouponResponse.Root)
+
+  private def fetchPromoDetails(context: ObjectContext, orderPromo: Option[OrderPromotion])
+    (implicit ec: EC): DBIO[Option[PromoDetails]] = orderPromo match {
+      case Some(op) ⇒ fetchCouponDetails(context, op.couponCodeId) // TBD: Handle auto-apply promos here
+      case _        ⇒ DBIO.successful(None)
+  }
+
+  private def fetchCouponDetails(context: ObjectContext, couponCodeId: Option[Int])(implicit ec: EC):
+    DBIO[Option[PromoDetails]] = couponCodeId match {
+      case Some(codeId) ⇒ for {
+        // Fetch coupon
+        coupon         ← Coupons.filterByContextAndFormId(context.id, codeId).one.safeGet
+        couponForm     ← ObjectForms.findById(coupon.formId).extract.one.safeGet
+        couponShadow   ← ObjectShadows.findById(coupon.shadowId).extract.one.safeGet
+        // Fetch promo
+        promotion      ← Promotions.filterByContextAndFormId(context.id, coupon.promotionId).one.safeGet
+        promoForm      ← ObjectForms.findById(promotion.formId).extract.one.safeGet
+        promoShadow    ← ObjectShadows.findById(promotion.shadowId).extract.one.safeGet
+        // Fetch discounts
+        links          ← ObjectLinks.filter(_.leftId === promotion.shadowId).result
+        shadows        ← ObjectShadows.filter(_.id.inSet(links.map(_.rightId))).result
+        forms          ← ObjectForms.filter(_.id.inSet(shadows.map(_.formId))).result
+        discounts      = forms.sortBy(_.id).zip(shadows.sortBy(_.formId)).map { case (f, s) ⇒ Child(f, s) }
+        // Build responses
+        illumDiscounts = discounts.map(d ⇒ IlluminatedDiscount.illuminate(form = d.form, shadow = d.shadow))
+        illumPromo     = IlluminatedPromotion.illuminate(context, promotion, promoForm, promoShadow)
+        illumCoupon    = IlluminatedCoupon.illuminate(context, coupon, couponForm, couponShadow)
+        respPromo      = IlluminatedPromotionResponse.build(illumPromo, illumDiscounts)
+        respCoupon     = IlluminatedCouponResponse.build(illumCoupon)
+      } yield (respPromo, respCoupon).some
+      case _ ⇒ DBIO.successful(None)
+  }
+
   private def fetchOrderDetails(order: Order)(implicit ec: EC) = {
     val ccPaymentQ = for {
       payment     ← OrderPayments.findAllByOrderId(order.id)
@@ -201,22 +249,25 @@ object FullOrder {
     } yield (payment, creditCard, region)
 
     for {
-      customer    ← Customers.findById(order.customerId).extract.one
-      lineItemTup ← OrderLineItemSkus.findLineItemsByOrder(order).result
-      lineItems =  lineItemTup.map { 
+      context      ← ObjectContexts.findById(order.contextId).extract.one.safeGet
+      customer     ← Customers.findById(order.customerId).extract.one
+      lineItemTup  ← OrderLineItemSkus.findLineItemsByOrder(order).result
+      lineItems    = lineItemTup.map {
         case (sku, skuForm, skuShadow, lineItem) ⇒ 
           OrderLineItemProductData(sku, skuForm, skuShadow, lineItem)
       }
-      giftCards   ← OrderLineItemGiftCards.findLineItemsByOrder(order).result
-      shipMethod  ← shipping.ShippingMethods.forOrder(order).one
-      shipAddress ← Addresses.forOrderId(order.id)
-      payments    ← ccPaymentQ.one
-      gcPayments  ← OrderPayments.findAllGiftCardsByOrderId(order.id).result
-      scPayments  ← OrderPayments.findAllStoreCreditsByOrderId(order.id).result
-      lockedBy    ← currentLock(order)
-      payState    ← OrderQueries.getPaymentState(order.id)
-      // Line item adjustments
-      lineItemAdj ← OrderLineItemAdjustments.findByOrderId(order.id).result
+      giftCards    ← OrderLineItemGiftCards.findLineItemsByOrder(order).result
+      shipMethod   ← shipping.ShippingMethods.forOrder(order).one
+      shipAddress  ← Addresses.forOrderId(order.id)
+      payments     ← ccPaymentQ.one
+      gcPayments   ← OrderPayments.findAllGiftCardsByOrderId(order.id).result
+      scPayments   ← OrderPayments.findAllStoreCreditsByOrderId(order.id).result
+      lockedBy     ← currentLock(order)
+      payState     ← OrderQueries.getPaymentState(order.id)
+      // Promotion stuff
+      orderPromo   ← OrderPromotions.filterByOrderId(order.id).one
+      promoDetails ← fetchPromoDetails(context, orderPromo)
+      lineItemAdj  ← OrderLineItemAdjustments.findByOrderId(order.id).result
     } yield (
       customer, 
       lineItems,
@@ -229,6 +280,7 @@ object FullOrder {
       totals(order).some,
       lockedBy, 
       payState.some,
+      promoDetails,
       lineItemAdj)
   }
 }

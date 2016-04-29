@@ -32,9 +32,9 @@ class OrderLineItemAdjustments(tag: Tag) extends
 
 object OrderLineItemAdjustment {
   sealed trait AdjustmentType
-  case object SkuLineItemType extends AdjustmentType
-  case object OrderLineItemType extends AdjustmentType
-  case object ShippingLineItemType extends AdjustmentType
+  case object LineItemAdjustmen extends AdjustmentType
+  case object OrderAdjustment extends AdjustmentType
+  case object ShippingAdjustment extends AdjustmentType
 
   object AdjustmentType extends ADT[AdjustmentType] {
     def types = sealerate.values[AdjustmentType]

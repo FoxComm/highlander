@@ -5,7 +5,7 @@ import Offer.AdjustmentResult
 import failures.DiscountCompilerFailures._
 import models.order.Order
 import models.order.lineitems._
-import models.order.lineitems.OrderLineItemAdjustment.ShippingLineItemType
+import models.order.lineitems.OrderLineItemAdjustment.ShippingAdjustment
 import models.shipping.ShippingMethod
 
 case class DiscountedShippingOffer(setPrice: Int) extends Offer {
@@ -29,6 +29,6 @@ case class DiscountedShippingOffer(setPrice: Int) extends Offer {
   }
 
   private def build(order: Order, promoId: Int, substract: Int): OrderLineItemAdjustment =
-    OrderLineItemAdjustment(orderId = order.id, promotionShadowId = promoId, adjustmentType = ShippingLineItemType,
+    OrderLineItemAdjustment(orderId = order.id, promotionShadowId = promoId, adjustmentType = ShippingAdjustment,
       subtract = substract)
 }

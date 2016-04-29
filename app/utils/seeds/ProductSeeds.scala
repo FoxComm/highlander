@@ -1,6 +1,5 @@
 package utils.seeds
 
-import utils.seeds.generators.ProductGenerator
 import models.product.{SimpleContext, SimpleProductData, Mvp}
 import models.objects.ObjectContexts
 import utils.Money.Currency
@@ -12,12 +11,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 trait ProductSeeds extends  {
 
-  type SeedProducts = (SimpleProductData, SimpleProductData, SimpleProductData, 
+  type SeedProducts = (SimpleProductData, SimpleProductData, SimpleProductData,
     SimpleProductData, SimpleProductData, SimpleProductData, SimpleProductData)
 
   def createProducts(implicit db: Database): DbResultT[SeedProducts] = for {
     context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-    ps ← * <~ Mvp.insertProducts(products, context.id)
+    ps      ← * <~ Mvp.insertProducts(products, context.id)
     (p1 :: p2 :: s3 :: p4 :: p5 :: p6 :: p7 :: Nil) = ps
   } yield (p1, p2, s3, p4, p5, p6, p7)
 
@@ -57,7 +56,7 @@ trait ProductSeeds extends  {
 
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.ruId)
-      ps ← * <~ Mvp.insertProductsNewContext(SimpleContext.id, SimpleContext.ruId, ruProducts)
+      ps      ← * <~ Mvp.insertProductsNewContext(SimpleContext.id, SimpleContext.ruId, ruProducts)
       (p1 :: p2 :: s3 :: p4 :: p5 :: p6 :: p7 :: Nil) = ps
     } yield (p1, p2, s3, p4, p5, p6, p7)
   }

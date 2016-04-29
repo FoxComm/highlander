@@ -75,7 +75,7 @@ lazy val phoenixScala = (project in file(".")).
         "org.flywaydb"               %  "flyway-core"            % "4.0",
         "com.github.mauricio"        %% "postgresql-async"       % "0.2.19",
         // Elasticsearch
-        "com.sksamuel.elastic4s"     %% "elastic4s-core"         % "2.3.0"    % "provided",
+        //"com.sksamuel.elastic4s"     %% "elastic4s-core"         % "2.3.0",
         // Validations
         "com.wix"                    %% "accord-core"            % "0.5",
         // Auth

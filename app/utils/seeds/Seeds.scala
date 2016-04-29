@@ -89,28 +89,34 @@ object Seeds {
   val today = Instant.now().atZone(ZoneId.of("UTC"))
 
   def createAll()(implicit db: Database): DbResultT[Unit] = for {
-    _ ← * <~ Warehouses.create(Factories.warehouse)
-    context ← * <~ ObjectContexts.create(SimpleContext.create()) 
-    ruContext ← * <~ ObjectContexts.create(SimpleContext.create(name = SimpleContext.ru, lang = "ru"))
-    admin ← * <~ Factories.createStoreAdmins
-    customers ← * <~ Factories.createCustomers
-    _ ← * <~ Factories.createAddresses(customers)
-    _ ← * <~ Factories.createCreditCards(customers)
-    products ← * <~ Factories.createProducts
-    ruProducts ← * <~ Factories.createRuProducts(products)
-    skus ← * <~ Factories.createInventory(Seq(products._1, products._2, products._3, products._4, products._5, products._6, products._7))
-    ruSkus ← * <~ Factories.createInventory(Seq(ruProducts._1, ruProducts._2, ruProducts._3, ruProducts._4, ruProducts._5, ruProducts._6, ruProducts._7))
+    _           ← * <~ Warehouses.create(Factories.warehouse)
+    context     ← * <~ ObjectContexts.create(SimpleContext.create())
+    ruContext   ← * <~ ObjectContexts.create(SimpleContext.create(name = SimpleContext.ru, lang = "ru"))
+    admin       ← * <~ Factories.createStoreAdmins
+    customers   ← * <~ Factories.createCustomers
+    _           ← * <~ Factories.createAddresses(customers)
+    _           ← * <~ Factories.createCreditCards(customers)
+    products    ← * <~ Factories.createProducts
+    ruProducts  ← * <~ Factories.createRuProducts(products)
+    skus        ← * <~ Factories.createInventory(Seq(products._1, products._2, products._3, products._4, products._5,
+      products._6, products._7))
+    ruSkus      ← * <~ Factories.createInventory(Seq(ruProducts._1, ruProducts._2, ruProducts._3, ruProducts._4,
+      ruProducts._5, ruProducts._6, ruProducts._7))
     shipMethods ← * <~ Factories.createShipmentRules
-    _ ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = admin)))
-    _ ← * <~ Factories.createGiftCards
-    _ ← * <~ Factories.createStoreCredits(admin, customers._1, customers._3)
-    orders ← * <~ Factories.createOrders(customers, products, shipMethods, context)
-    _ ← * <~ Factories.createRmas
+    _           ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = admin)))
+    _           ← * <~ Factories.createGiftCards
+    _           ← * <~ Factories.createStoreCredits(admin, customers._1, customers._3)
+    orders      ← * <~ Factories.createOrders(customers, products, shipMethods, context)
+    _           ← * <~ Factories.createRmas
+    // Promotions
+    discounts   ← * <~ Factories.createDiscounts
+    promotions  ← * <~ Factories.createCouponPromotions(discounts)
+    coupons     ← * <~ Factories.createCoupons(promotions)
   } yield {}
 
   object Factories extends CustomerSeeds with GiftCardSeeds with StoreCreditSeeds with RmaSeeds with ProductSeeds 
-  with InventorySeeds with ShipmentSeeds with OrderSeeds with StoreAdminSeeds with AddressSeeds with CreditCardSeeds
-  with CustomersGroupSeeds {
+    with InventorySeeds with ShipmentSeeds with OrderSeeds with StoreAdminSeeds with AddressSeeds with CreditCardSeeds
+    with CustomersGroupSeeds with DiscountSeeds with PromotionSeeds with CouponSeeds {
 
     implicit val formats = JsonFormatters.phoenixFormats
 
@@ -157,7 +163,6 @@ object Seeds {
     source.setDatabaseName(config.getString(s"$section.name"))
 
     source
-
   }
 
   private def validateResults(seed: String, result: Failures Xor Unit) {

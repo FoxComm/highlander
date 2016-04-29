@@ -71,7 +71,7 @@ trait CouponGenerator {
 
   def generateCoupons(data: Seq[SimpleCoupon])(implicit db: Database) = for {
     context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-    coupons ← * <~ DbResultT.sequence(data.map( d ⇒  {
+    coupons ← * <~ DbResultT.sequence(data.map(d ⇒ {
       val couponForm = SimpleCouponForm(d.percentOff, d.totalAmount)
       val couponShadow = SimpleCouponShadow(couponForm)
       val payload = CreateCoupon(

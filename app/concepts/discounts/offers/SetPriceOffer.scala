@@ -5,7 +5,7 @@ import Offer.AdjustmentResult
 import failures.DiscountCompilerFailures._
 import models.order.Order
 import models.order.lineitems._
-import models.order.lineitems.OrderLineItemAdjustment.OrderLineItemType
+import models.order.lineitems.OrderLineItemAdjustment.OrderAdjustment
 import models.shipping.ShippingMethod
 
 case class SetPriceOffer(setPrice: Int) extends Offer {
@@ -16,8 +16,8 @@ case class SetPriceOffer(setPrice: Int) extends Offer {
     shippingMethod: Option[ShippingMethod]): AdjustmentResult = {
 
     if (setPrice > 0) {
-      val delta = order.grandTotal - setPrice
-      val substract = if (delta > 0) delta else order.grandTotal
+      val delta = order.subTotal - setPrice
+      val substract = if (delta > 0) setPrice else order.subTotal
       Xor.Right(Seq(build(order, promoId, substract)))
     } else {
       Xor.Left(OfferRejectionFailure(this, order.refNum, rejectionReason).single)
@@ -25,6 +25,6 @@ case class SetPriceOffer(setPrice: Int) extends Offer {
   }
 
   private def build(order: Order, promoId: Int, subtract: Int): OrderLineItemAdjustment =
-    OrderLineItemAdjustment(orderId = order.id, promotionShadowId = promoId, adjustmentType = OrderLineItemType,
+    OrderLineItemAdjustment(orderId = order.id, promotionShadowId = promoId, adjustmentType = OrderAdjustment,
       subtract = subtract)
 }

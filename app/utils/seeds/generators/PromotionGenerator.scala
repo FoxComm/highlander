@@ -29,7 +29,7 @@ case class SimplePromotion(promotionId: Int = 0, formId: Int = 0, shadowId: Int 
 
 case class SimplePromotionForm(percentOff: Percent, totalAmount: Int) {
 
-    val (keyMap, form) = ObjectUtils.createForm(parse(s"""
+  val (keyMap, form) = ObjectUtils.createForm(parse(s"""
     {
       "name" : "$percentOff% off after spending $totalAmount dollars",
       "storefrontName" : "$percentOff% off after spending $totalAmount dollars",
@@ -44,18 +44,18 @@ case class SimplePromotionForm(percentOff: Percent, totalAmount: Int) {
 
 case class SimplePromotionShadow(f: SimplePromotionForm) { 
 
-    val shadow = ObjectUtils.newShadow(parse(
-      """
-        {
-          "name" : {"type": "string", "ref": "name"},
-          "storefrontName" : {"type": "richText", "ref": "storefrontName"},
-          "description" : {"type": "richText", "ref": "description"},
-          "details" : {"type": "richText", "ref": "details"},
-          "activeFrom" : {"type": "date", "ref": "activeFrom"},
-          "activeTo" : {"type": "date", "ref": "activeTo"},
-          "tags" : {"type": "tags", "ref": "tags"}
-        }"""), 
-      f.keyMap)
+  val shadow = ObjectUtils.newShadow(parse(
+    """
+      {
+        "name" : {"type": "string", "ref": "name"},
+        "storefrontName" : {"type": "richText", "ref": "storefrontName"},
+        "description" : {"type": "richText", "ref": "description"},
+        "details" : {"type": "richText", "ref": "details"},
+        "activeFrom" : {"type": "date", "ref": "activeFrom"},
+        "activeTo" : {"type": "date", "ref": "activeTo"},
+        "tags" : {"type": "tags", "ref": "tags"}
+      }"""),
+    f.keyMap)
 }
 
 trait PromotionGenerator {

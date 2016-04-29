@@ -1,0 +1,120 @@
+package utils
+
+import java.time.Instant
+
+import concepts.discounts.offers.{Offer, OfferType}
+import concepts.discounts.qualifiers.{Qualifier, QualifierType}
+import models.objects.ObjectUtils
+import models.promotion.Promotion
+import org.json4s.jackson.JsonMethods._
+import org.json4s.jackson.Serialization._
+import utils.JsonFormatters.phoenixFormats
+
+package object seeds {
+  case class QualifierPair(qualifierType: QualifierType, qualifier: Qualifier)
+
+  case class OfferPair(offerType: OfferType, offer: Offer)
+
+  case class BaseDiscount(title: String, discountId: Int = 0, formId: Int = 0, shadowId: Int = 0)
+
+  case class BaseDiscountForm(title: String, qualifierPair: QualifierPair, offerPair: OfferPair) {
+
+    implicit val formats = phoenixFormats
+
+    val qualifierType = QualifierType.show(qualifierPair.qualifierType)
+    val offerType     = OfferType.show(offerPair.offerType)
+
+    val qualifierJson = s"""{"$qualifierType": ${write(qualifierPair.qualifier)}}"""
+    val offerJson     = s"""{"$offerType": ${write(offerPair.offer)}}"""
+
+    val (keyMap, form) = ObjectUtils.createForm(parse(s"""
+    {
+      "title" : "$title",
+      "description" : "$title",
+      "tags" : [],
+      "qualifier": $qualifierJson,
+      "offer" : $offerJson
+    }"""))
+  }
+
+  case class BaseDiscountShadow(f: BaseDiscountForm) {
+
+    val shadow = ObjectUtils.newShadow(parse(
+      """
+        {
+          "title" : {"type": "string", "ref": "title"},
+          "description" : {"type": "richText", "ref": "description"},
+          "tags" : {"type": "tags", "ref": "tags"},
+          "qualifier" : {"type": "qualifier", "ref": "qualifier"},
+          "offer" : {"type": "offer", "ref": "offer"}
+        }"""),
+      f.keyMap)
+  }
+
+  case class BasePromotion(promotionId: Int = 0, formId: Int = 0, shadowId: Int = 0, applyType: Promotion.ApplyType,
+    title: String)
+
+  case class BasePromotionForm(name: String, applyType: Promotion.ApplyType) {
+
+    val (keyMap, form) = ObjectUtils.createForm(parse(s"""
+    {
+      "name" : "$name",
+      "storefrontName" : "$name",
+      "description" : "$name",
+      "details" : "",
+      "activeFrom" : "${Instant.now}",
+      "activeTo" : null,
+      "tags" : []
+      }
+    }"""))
+  }
+
+  case class BasePromotionShadow(f: BasePromotionForm) {
+
+    val shadow = ObjectUtils.newShadow(parse(
+      """
+        {
+          "name" : {"type": "string", "ref": "name"},
+          "storefrontName" : {"type": "richText", "ref": "storefrontName"},
+          "description" : {"type": "richText", "ref": "description"},
+          "details" : {"type": "richText", "ref": "details"},
+          "activeFrom" : {"type": "date", "ref": "activeFrom"},
+          "activeTo" : {"type": "date", "ref": "activeTo"},
+          "tags" : {"type": "tags", "ref": "tags"}
+        }"""),
+      f.keyMap)
+  }
+
+  case class BaseCoupon(formId: Int = 0, shadowId: Int = 0, promotionId: Int)
+
+  case class BaseCouponForm(title: String) {
+
+    val (keyMap, form) = ObjectUtils.createForm(parse(s"""
+    {
+      "name" : "$title",
+      "storefrontName" : "$title",
+      "description" : "$title",
+      "details" : "",
+      "activeFrom" : "${Instant.now}",
+      "activeTo" : null,
+      "tags" : []
+      }
+    }"""))
+  }
+
+  case class BaseCouponShadow(f: BaseCouponForm) {
+
+    val shadow = ObjectUtils.newShadow(parse(
+      """
+        {
+          "name" : {"type": "string", "ref": "name"},
+          "storefrontName" : {"type": "richText", "ref": "storefrontName"},
+          "description" : {"type": "richText", "ref": "description"},
+          "details" : {"type": "richText", "ref": "details"},
+          "activeFrom" : {"type": "date", "ref": "activeFrom"},
+          "activeTo" : {"type": "date", "ref": "activeTo"},
+          "tags" : {"type": "tags", "ref": "tags"}
+        }"""),
+      f.keyMap)
+  }
+}

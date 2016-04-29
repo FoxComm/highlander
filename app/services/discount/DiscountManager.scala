@@ -8,12 +8,9 @@ import responses.DiscountResponses._
 import utils.db._
 import utils.db.DbResultT._
 import slick.driver.PostgresDriver.api._
-import payloads.{CreateDiscount, CreateDiscountForm, CreateDiscountShadow, 
-  UpdateDiscount, UpdateDiscountForm, UpdateDiscountShadow}
+import payloads.{CreateDiscount, UpdateDiscount}
 import utils.aliases._
-import cats.data.NonEmptyList
 import cats.implicits._
-import failures.NotFoundFailure404
 import failures.DiscountFailures._
 import failures.ObjectFailures._
 
@@ -63,7 +60,6 @@ object DiscountManager {
     discount ← * <~ Discounts.create(Discount(contextId = context.id, 
       formId = ins.form.id, shadowId = ins.shadow.id, commitId = ins.commit.id))
   } yield CreateInternalResult(discount, ins.commit, ins.form, ins.shadow)
-
 
   def update(discountId: Int, payload: UpdateDiscount, contextName: String)
     (implicit ec: EC, db: DB): Result[DiscountResponse.Root] = (for {
