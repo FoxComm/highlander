@@ -51,14 +51,6 @@
   copy: src=libsnappy.pc dest=/usr/local/lib/pkgconfig/libsnappy.pc
   sudo: true
 
-- name: Kill Bottledwater if it is Running
-  shell: systemctl stop bottledwater || true
-  sudo: true
-
-- name: Kill Materialized Views if it is Running
-  shell: systemctl stop materialized_views || true
-  sudo: true
-
 - name: Get Bottledwater
   git: repo={{bottledwater_repo}} dest={{bottledwater_dir}} version={{bottledwater_version}}
 

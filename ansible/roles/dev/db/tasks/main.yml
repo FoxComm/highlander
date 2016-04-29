@@ -1,5 +1,14 @@
 ---
 
+- name: Kill Bottledwater if it is Running
+  shell: systemctl stop bottledwater || true
+  sudo: true
+
+- name: Kill Materialized Views if it is Running
+  shell: systemctl stop materialized_views || true
+  sudo: true
+
+
 - name: Create Db
   postgresql_db: name={{phoenix_db_name}}
   sudo: true
@@ -73,4 +82,8 @@
 
 - name: Start Materialized Views Service
   service: name=materialized_views state=started enabled=yes sleep=5
+  sudo: true
+
+- name: Start Bottledwater
+  service: name=bottledwater state=started enabled=yes sleep=10
   sudo: true
