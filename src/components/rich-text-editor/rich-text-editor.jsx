@@ -50,24 +50,21 @@ function stopPropagation(event: Object) {
 }
 
 export default class RichTextEditor extends Component<void, Props, State> {
-  state: State;
   props: Props;
 
-  constructor(props: Props) {
-    super(props);
+  state: State = {
+    editorState: this.valueToEditorState(this.props.value),
+  };
 
-    let editorState = EditorState.createEmpty();
-    if (this.props.value) {
-      const contentState = stateFromHTML(this.props.value);
-      editorState = EditorState.createWithContent(contentState);
-    }
-    this.state = { editorState };
+  valueToEditorState(value: ?string) {
+    return value ? EditorState.createWithContent(stateFromHTML(value)) : EditorState.createEmpty();
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (!this.props.value || _.isEmpty(this.props.value)) {
-      const editorState = EditorState.createEmpty();
-      this.state = { editorState };
+    if (this.props.value != nextProps.value) {
+      this.setState({
+        editorState: this.valueToEditorState(nextProps.value),
+      });
     }
   }
 
