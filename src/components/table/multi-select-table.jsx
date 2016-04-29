@@ -56,11 +56,12 @@ export default class MultiSelectTable extends React.Component {
   }
 
   getSelectedColumns() {
-    let columns = localStorage.getItem(this.getTableIdentifier());
+    let tableName = this.getTableIdentifier();
+    let columns = localStorage.getItem('columns');
     if(!columns) return this.props.columns;
-
     columns = JSON.parse(columns);
-    return _.filter(columns, {isVisible:true});
+    if(!columns[tableName]) return this.props.columns;
+    return _.filter(columns[tableName], {isVisible:true});
   }
 
   getRowSetChecked(key) {

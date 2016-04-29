@@ -1,5 +1,6 @@
 .column-selector {
   & :global(.icon-settings-col) {
+    width: 100%;
     padding: 21px 15px;
 
     &:hover {

@@ -60,18 +60,19 @@ export default class ColumnSelector extends React.Component {
   }
 
   getSelectedColumns() {
-    let columns = localStorage.getItem(this.props.identifier);
+    let columns = localStorage.getItem('columns');
+
     if(columns) {
       columns = JSON.parse(columns);
-    } else {
-      columns = this.props.columns.map((column, i) => {
-        return _.assign(column, {
-          isVisible: true,
-          id: i,
-        });
-      });
+      if (columns[this.props.identifier]) return columns[this.props.identifier];
     }
-    return columns;
+
+    return this.props.columns.map((column, i) => {
+      return _.assign(column, {
+        isVisible: true,
+        id: i,
+      });
+    });
   }
 
   toggleColumnSelection(id) {
@@ -86,9 +87,19 @@ export default class ColumnSelector extends React.Component {
 
   @autobind
   saveColumns() {
-    let columns = _.filter(this.state.selectedColumns, {isVisible: true});
-    this.props.setColumns(columns);
-    localStorage.setItem(this.props.identifier, JSON.stringify(this.state.selectedColumns));
+    let tableName = this.props.identifier;
+    let columnState = this.state.selectedColumns;
+
+    // update table data
+    let filteredColumns = _.filter(columnState, {isVisible: true});
+    this.props.setColumns(filteredColumns);
+
+    // save to storage
+    let columns = localStorage.getItem('columns') ? JSON.parse(localStorage.getItem('columns')) : {};
+    columns[tableName] = columnState;
+    localStorage.setItem('columns', JSON.stringify(columns));
+
+    // close dropdown
     this.toggleColumnSelector();
   }
 
