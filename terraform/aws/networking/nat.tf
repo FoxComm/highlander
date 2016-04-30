@@ -90,7 +90,7 @@ resource "aws_instance" "nat" {
   associate_public_ip_address = true
   source_dest_check = false
   tags {
-      Name = "terraform_nat_instance"
+      Name = "nat_instance"
   }
 }
 

@@ -20,7 +20,7 @@ resource "aws_security_group" "bastion_ssh_sg" {
   }
   vpc_id = "${aws_vpc.default.id}"
   tags {
-      Name = "terraform_bastion_ssh"
+      Name = "bastion_ssh"
   }
 }
 
@@ -43,7 +43,7 @@ resource "aws_security_group" "ssh_from_bastion_sg" {
   vpc_id = "${aws_vpc.default.id}"
 
   tags {
-      Name = "terraform_ssh_from_bastion"
+      Name = "ssh_from_bastion"
   }
 }
 
@@ -59,7 +59,7 @@ resource "aws_instance" "bastion" {
   ami = "ami-9abea4fb" # Ubuntu Server 14.04 LTS (HVM)
   instance_type = "t2.small"
   tags = {
-    Name = "terraform_bastion"
+    Name = "bastion"
   }
   subnet_id = "${aws_subnet.public.id}"
   associate_public_ip_address = true
