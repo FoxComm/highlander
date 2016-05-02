@@ -158,6 +158,7 @@ export default class ObjectFormInner extends Component<void, Props, State> {
     const onChange = v => this.handleChange(label, 'richText', v);
     return (
       <RichTextEditor
+        className="fc-object-form__field"
         label={formattedLabel}
         value={value}
         onChange={onChange} />
