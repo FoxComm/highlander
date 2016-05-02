@@ -47,7 +47,7 @@ object Workers {
               val avroProcessor = new AvroProcessor(schemaRegistryUrl = conf.avroSchemaRegistryUrl, processor = esProcessor)
 
               val consumer = new MultiTopicConsumer(topics = Seq(topic), broker = conf.kafkaBroker,
-                groupId = s"${conf.kafkaGroupId}_trail", processor = avroProcessor, startFromBeginning = conf.startFromBeginning)
+                groupId = s"${conf.kafkaGroupId}_${topic}", processor = avroProcessor, startFromBeginning = conf.startFromBeginning)
 
               // Start consuming & processing
               Console.out.println(s"Reading from broker ${conf.kafkaBroker}")
