@@ -66,6 +66,18 @@ const itemTarget = {
   }
 };
 
+type Props = {
+  connectDragSource: Function,
+  connectDragPreview: Function,
+  connectDropTarget: Function,
+  index: number,
+  isDragging: boolean,
+  id: any,
+  text: string,
+  moveItem: Function,
+  dropItem: Function,
+}
+
 @DropTarget('item', itemTarget, connect => ({
   connectDropTarget: connect.dropTarget()
 }))
@@ -75,17 +87,7 @@ const itemTarget = {
   isDragging: monitor.isDragging()
 }))
 export default class Card extends Component {
-  static propTypes = {
-    connectDragSource: PropTypes.func.isRequired,
-    connectDragPreview: PropTypes.func.isRequired,
-    connectDropTarget: PropTypes.func.isRequired,
-    index: PropTypes.number.isRequired,
-    isDragging: PropTypes.bool.isRequired,
-    id: PropTypes.any.isRequired,
-    text: PropTypes.string.isRequired,
-    moveItem: PropTypes.func.isRequired,
-    dropItem: PropTypes.func.isRequired,
-  };
+  props: Props;
 
   render() {
     const { text, isDragging, connectDragSource, connectDropTarget, connectDragPreview } = this.props;

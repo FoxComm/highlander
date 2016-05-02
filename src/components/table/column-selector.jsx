@@ -1,3 +1,7 @@
+/**
+ * @flow
+ */
+
 // libs
 import _ from 'lodash';
 import React, {PropTypes} from 'react';
@@ -15,15 +19,17 @@ import SelectorItem from './column-selector-item';
 //styles
 import styles from './column-selector.css';
 
+type Props = {
+  columns: Array,
+  onChange: Function,
+  setColumns: Function,
+  identifier: string,
+  toggleColumnSelector: Function,
+}
+
 @DragDropContext(HTML5Backend)
 export default class ColumnSelector extends React.Component {
-  static propTypes = {
-    columns: PropTypes.array.isRequired,
-    onChange: PropTypes.func,
-    setColumns: PropTypes.func,
-    identifier: PropTypes.string,
-    toggleColumnSelector: PropTypes.func,
-  };
+  props: Props;
 
   state = {
     selectedColumns: this.getSelectedColumns(),
