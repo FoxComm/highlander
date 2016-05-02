@@ -25,30 +25,25 @@ export default class ColumnSelector extends React.Component {
     toggleColumnSelector: PropTypes.func,
   };
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      selectedColumns: this.getSelectedColumns(),
-      isSelectorVisible: false,
-      hasDraggingItem: false,
-    };
-  }
+  state = {
+    selectedColumns: this.getSelectedColumns(),
+    isSelectorVisible: false,
+    hasDraggingItem: false,
+  };
 
   @autobind
   moveItem(dragIndex, hoverIndex) {
     const { selectedColumns } = this.state;
     const dragItem = selectedColumns[dragIndex];
 
-    this.setState({
-      hasDraggingItem: true
-    });
     this.setState(update(this.state, {
       selectedColumns: {
         $splice: [
           [dragIndex, 1],
           [hoverIndex, 0, dragItem]
         ]
-      }
+      },
+      hasDraggingItem: {$set: true}
     }));
   }
 
@@ -62,7 +57,7 @@ export default class ColumnSelector extends React.Component {
   getSelectedColumns() {
     let columns = localStorage.getItem('columns');
 
-    if(columns) {
+    if (columns) {
       columns = JSON.parse(columns);
       if (columns[this.props.identifier]) return columns[this.props.identifier];
     }
@@ -87,11 +82,11 @@ export default class ColumnSelector extends React.Component {
 
   @autobind
   saveColumns() {
-    let tableName = this.props.identifier;
-    let columnState = this.state.selectedColumns;
+    const tableName = this.props.identifier;
+    const columnState = this.state.selectedColumns;
 
     // update table data
-    let filteredColumns = _.filter(columnState, {isVisible: true});
+    const filteredColumns = _.filter(columnState, {isVisible: true});
     this.props.setColumns(filteredColumns);
 
     // save to storage
@@ -112,7 +107,7 @@ export default class ColumnSelector extends React.Component {
 
   renderSelectorItems() {
     return this.state.selectedColumns.map((item, id) => {
-      let checked = item.isVisible;
+      const checked = item.isVisible;
 
       return (
         <SelectorItem key={item.id}
@@ -128,24 +123,31 @@ export default class ColumnSelector extends React.Component {
     });
   }
 
+  renderDropDown() {
+    const listClassName = this.state.hasDraggingItem ? '_hasDraggingItem' : '';
+
+    return (
+      <div styleName="dropdown">
+        <ul styleName="list" className={listClassName}>
+          {this.renderSelectorItems()}
+        </ul>
+        <div styleName="actions">
+          <PrimaryButton onClick={this.saveColumns}>
+            Save
+          </PrimaryButton>
+        </div>
+      </div>
+    );
+  }
+
   render() {
-    let listClassName = this.state.hasDraggingItem ? '_hasDraggingItem' : '';
+    const overlay = <Overlay shown={true} onClick={this.toggleColumnSelector}/>;
+
     return (
       <div styleName="column-selector">
         <i className="icon-settings-col" onClick={this.toggleColumnSelector}/>
-        {this.state.isSelectorVisible && <Overlay shown={true} onClick={this.toggleColumnSelector}/> }
-        {this.state.isSelectorVisible && (
-          <div styleName="dropdown">
-            <ul styleName="list" className={listClassName}>
-              {this.renderSelectorItems()}
-            </ul>
-            <div styleName="actions">
-              <PrimaryButton onClick={this.saveColumns}>
-                Save
-              </PrimaryButton>
-            </div>
-          </div>
-        )}
+        {this.state.isSelectorVisible && overlay }
+        {this.state.isSelectorVisible && this.renderDropDown() }
       </div>
     );
   }
