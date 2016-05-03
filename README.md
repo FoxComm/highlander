@@ -9,6 +9,7 @@
 
 ### Setup
 
+- Run `gcloud init`
 - Checkout [phoenix-scala](https://github.com/FoxComm/phoenix-scala)
 - Checkout [green-river](https://github.com/FoxComm/green-river)
 - Build all projects:
