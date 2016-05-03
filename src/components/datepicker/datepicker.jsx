@@ -31,7 +31,6 @@ type DateState = {
 }
 
 type State = DateState & {
-  selectedDate: Date;
   showPicker: boolean;
 }
 
@@ -53,11 +52,14 @@ export default class DatePicker extends React.Component {
 
     const date = props.date || new Date();
     this.state = {
-      selectedDate: props.date,
       showPicker: !!props.showPicker,
       month: date.getMonth(),
       year: date.getFullYear(),
     };
+  }
+
+  get selectedDate(): ?Date {
+    return this.props.date;
   }
 
   get inputBox() {
@@ -66,10 +68,9 @@ export default class DatePicker extends React.Component {
       return null;
     }
 
-    const { selectedDate, showPicker } = this.state;
-    const value = selectedDate ? selectedDate.toString() : '';
-    const prettyDate = selectedDate
-      ? moment(selectedDate).format(inputFormat) : '';
+    const { showPicker } = this.state;
+    const value = this.selectedDate ? this.selectedDate.toString() : '';
+    const prettyDate = this.selectedDate ? moment(this.selectedDate).format(inputFormat) : '';
 
     return (
       <div className="fc-datepicker__control">
@@ -159,8 +160,6 @@ export default class DatePicker extends React.Component {
     };
 
     this.setState({
-      ...this.state,
-      selectedDate: date,
       showPicker: false,
     }, action);
   }
@@ -214,9 +213,7 @@ export default class DatePicker extends React.Component {
   renderDays(date) {
     const currentDate = new Date();
     const startDay = 1 - date.getDay(); // Day is 1-based in JS Date.
-    const selectedTime = !_.isNull(this.state.selectedDate)
-      ? this.state.selectedDate.getTime()
-      : '';
+    const selectedTime = this.selectedDate ? this.selectedDate.getTime() : '';
 
     return _.range(startDay, startDay + 35).map(day => {
       const dt = new Date(date.getFullYear(), date.getMonth(), day);
