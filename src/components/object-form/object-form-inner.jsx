@@ -131,7 +131,7 @@ export default class ObjectFormInner extends Component<void, Props, State> {
   renderDate(label: string, value: string): Element {
     const formattedLabel = formatLabel(label);
     const dateValue = new Date(value);
-    const onChange = v => this.handleChange(label, 'date', v);
+    const onChange = (v: Date) => this.handleChange(label, 'date', v.toISOString());
     const dateInput = <DatePicker date={dateValue} onChange={onChange} />;
     return renderFormField(label, dateInput);
   }

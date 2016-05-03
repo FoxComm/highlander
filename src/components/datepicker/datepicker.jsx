@@ -1,10 +1,11 @@
+/* @flow weak */
+
 import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
-
+import moment from 'moment';
 import _ from 'lodash';
 import classNames from 'classnames';
 
-import { Button } from '../common/buttons';
 import AppendInput from '../forms/append-input';
 
 const weeks = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
@@ -14,15 +15,29 @@ const suppressClick = event => {
   event.stopPropagation();
 };
 
+type Props = {
+  className?: string;
+  date: Date;
+  onChange: (date: Date) => any;
+  onClick: (date: Date) => any;
+  showInput?: boolean;
+  showPicker?: boolean;
+  inputFormat: string;
+}
+
+type DateState = {
+  month: number;
+  year: number;
+}
+
+type State = DateState & {
+  selectedDate: Date;
+  showPicker: boolean;
+}
+
 export default class DatePicker extends React.Component {
-  static propTypes = {
-    className: PropTypes.string,
-    date: PropTypes.object,
-    onChange: PropTypes.func,
-    onClick: PropTypes.func,
-    showInput: PropTypes.bool,
-    showPicker: PropTypes.bool,
-  };
+  props: Props;
+  state: State;
 
   static defaultProps = {
     date: null,
@@ -30,33 +45,31 @@ export default class DatePicker extends React.Component {
     onClick: _.noop,
     showInput: true,
     showPicker: false,
+    inputFormat: 'MM/DD/YYYY',
   };
 
-  constructor(props, context) {
+  constructor(props: Props, context) {
     super(props, context);
 
     const date = props.date || new Date();
     this.state = {
       selectedDate: props.date,
-      showPicker: props.showPicker,
+      showPicker: !!props.showPicker,
       month: date.getMonth(),
       year: date.getFullYear(),
     };
   }
 
   get inputBox() {
-    if (!this.props.showInput) {
+    const { showInput, inputFormat } = this.props;
+    if (!showInput) {
       return null;
     }
 
     const { selectedDate, showPicker } = this.state;
     const value = selectedDate ? selectedDate.toString() : '';
     const prettyDate = selectedDate
-      ? selectedDate.toLocaleString('en-us', {
-      month: '2-digit',
-      day: '2-digit',
-      year: 'numeric',
-    }) : '';
+      ? moment(selectedDate).format(inputFormat) : '';
 
     return (
       <div className="fc-datepicker__control">
@@ -68,7 +81,7 @@ export default class DatePicker extends React.Component {
           onBlur={this.blurred}
           onChange={this.changed}
           onFocus={this.focused}
-          placeholder="mm/dd/yyyy" />
+          placeholder={inputFormat.toLowerCase()} />
         {showPicker && <div className="fc-datepicker__arrow-up"></div>}
       </div>
     );
@@ -100,7 +113,10 @@ export default class DatePicker extends React.Component {
 
   @autobind
   changed({ target }) {
-    this.props.onChange(target.value);
+    const date = moment(target.value, this.props.inputFormat);
+    if (date.isValid()) {
+      this.selectDate(date.toDate());
+    }
   }
 
   @autobind
@@ -136,7 +152,7 @@ export default class DatePicker extends React.Component {
   }
 
   @autobind
-  selectDate(date) {
+  selectDate(date: Date) {
     const action = () => {
       this.props.onClick(date);
       this.props.onChange(date);
