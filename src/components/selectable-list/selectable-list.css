@@ -1,5 +1,5 @@
 
-.groups-popup {
+.selectable-list {
   position: absolute;
   display: none;
   z-index: 100;
@@ -17,14 +17,14 @@
   }
 }
 
-.groups-list {
+.items-list {
   border-bottom: 1px solid #adadad;
   max-height: 50vh;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
-.group {
+.item {
   padding: 7px 5px;
 
   &:hover {
@@ -36,7 +36,7 @@
   }
 }
 
-.group-description {
+.item-description {
   color: #adadad;
   padding-left: 10px;
   text-transform: capitalize;
@@ -46,10 +46,12 @@
   }
 }
 
-.controls {
-  padding: 10px 20%;
+.footer {
+  padding: 10px;
 }
 
-.add-button {
-  width: 100%;
+.choose-button {
+  width: 60%;
+  margin: 0 auto;
+  display: block;
 }
