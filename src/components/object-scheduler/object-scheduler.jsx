@@ -74,7 +74,7 @@ export default class ProductState extends Component<void, Props, State> {
           </div>
           <DateTimePicker
             dateTime={this.activeFrom}
-            onChange={(v) => this.handleChange('activeFrom', v)}
+            onChange={this.updateActiveFrom}
             onCancel={this.handleCancelFrom} />
         </div>
       );
@@ -87,7 +87,7 @@ export default class ProductState extends Component<void, Props, State> {
         ? (
           <DateTimePicker
             dateTime={this.activeTo}
-            onChange={(v) => this.handleChange('activeTo', v)}
+            onChange={this.updateActiveTo}
             onCancel={this.handleCancelTo} />
         )
         : <a onClick={this.handleShowActiveTo}><i className="icon-add" /></a>;
@@ -108,7 +108,29 @@ export default class ProductState extends Component<void, Props, State> {
   }
 
   @autobind
-  handleChange(label: string, value: ?string) {
+  updateActiveTo(value: ?string) {
+    if (this.isPeriodValid(this.activeFrom, value)) {
+      this.updateAttribute('activeTo', value);
+    }
+  }
+
+  @autobind
+  updateActiveFrom(value: ?string) {
+    if (this.isPeriodValid(value, this.activeTo)) {
+      this.updateAttribute('activeFrom', value);
+    }
+  }
+
+  isPeriodValid(activeFrom: ?string, activeTo: ?string): boolean {
+    if (!activeTo || !activeFrom) return true;
+
+    const activeFromTime = moment(activeFrom).toDate().getTime();
+    const activeToTime = moment(activeTo).toDate().getTime();
+
+    return activeToTime >= activeFromTime;
+  }
+
+  updateAttribute(label: string, value: ?string) {
     const { form, shadow } = this.props;
     const [newForm, newShadow] = setAttribute(label, 'datetime', value, form, shadow);
     this.props.onChange(newForm, newShadow);
@@ -152,7 +174,7 @@ export default class ProductState extends Component<void, Props, State> {
   handleCancelTo() {
     this.setState({
       showActiveToPicker: false,
-    }, () => this.handleChange('activeTo', null));
+    }, () => this.updateActiveTo(null));
   }
 
   @autobind

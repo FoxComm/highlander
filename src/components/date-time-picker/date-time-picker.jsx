@@ -83,11 +83,13 @@ export default class DateTimePicker extends Component<void, Props, State> {
   }
 
   @autobind
-  handleChangeDate(newDateStr: string) {
-    const newDate = moment(newDateStr);
-    let currentDate = this.currentDate;
-    currentDate.year(newDate.year()).dayOfYear(newDate.dayOfYear());
-    this.triggerChange(currentDate);
+  handleChangeDate(date: Date) {
+    const newDate = moment(date);
+    if (newDate.isValid()) {
+      let currentDate = this.currentDate;
+      currentDate.year(newDate.year()).dayOfYear(newDate.dayOfYear());
+      this.triggerChange(currentDate);
+    }
   }
 
   @autobind
