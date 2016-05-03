@@ -24,12 +24,12 @@ type Props = {
 };
 
 type State = {
-  bulk: ?bool,
+  bulk: ?boolean,
   codesPrefix: string,
   singleCode: string,
   codesQuantity: number,
   codesLength: number,
-  isDialogVisible: bool,
+  isDialogVisible: boolean,
 };
 
 type Target = {
@@ -95,7 +95,9 @@ export default class CouponCodes extends Component {
 
   @autobind
   handleGenerateBulkClick(): void {
-    this.setState({ isDialogVisible: true });
+    if (this.codeIsOfValidLength()) {
+      this.setState({ isDialogVisible: true });
+    }
   }
 
   @autobind
@@ -117,14 +119,33 @@ export default class CouponCodes extends Component {
     );
   }
 
-  setFormValue(name: string, value: string|number|bool): void {
+  codeIsOfValidLength(): boolean {
+    const quantity = this.state.codesQuantity;
+    const length = this.state.codesLength;
+    return length >= Math.ceil(Math.log10(quantity));
+  }
+
+  setFormValue(name: string, value: string|number|boolean): void {
     this.setState({
       [name]: value
     });
   }
 
-  get generateCodesDisabled(): bool {
-    return !this.state.codesPrefix;
+  get generateCodesDisabled(): boolean {
+    return !(this.state.codesPrefix && this.codeIsOfValidLength());
+  }
+
+  get guessProbability(): number {
+    const quantity = this.state.codesQuantity;
+    const length = this.state.codesLength;
+    const numberOfVariants = Math.pow(10, length);
+    return Math.round((quantity / numberOfVariants) * 100);
+  }
+
+  get codeLengthValidationError(): Element {
+    const message =
+      'Cannot guarentee uniqueness for the required quantity of codes. Please choose a longer character length.';
+    return <div className="fc-form-field-error">{message}</div>;
   }
 
   get bulkCouponFormPart(): ?Element {
@@ -163,7 +184,7 @@ export default class CouponCodes extends Component {
           </FormField>
         </div>
         <div styleName="form-group">
-          <FormField label="Code Character Length">
+          <FormField label="Code Character Length" >
             <div>
               <Counter
                 id="codesLength"
@@ -176,6 +197,7 @@ export default class CouponCodes extends Component {
               />
             </div>
           </FormField>
+          {!this.codeIsOfValidLength() && this.codeLengthValidationError}
           <div styleName="field-comment">
             Excludes prefix
           </div>
@@ -227,7 +249,7 @@ export default class CouponCodes extends Component {
         </div>
         {this.bulkCouponFormPart}
         <CodeCreationModal
-          probability={70}
+          probability={this.guessProbability}
           isVisible={this.state.isDialogVisible}
           cancelAction={this.closeDialog}
           confirmAction={this.handleConfirmOfCodeGeneration}
