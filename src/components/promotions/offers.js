@@ -129,7 +129,7 @@ const offers = [
       [
         {type: 'type'},
         {
-          name: 'discount',
+          name: 'setPrice',
           widget: 'currency',
           template: props => <WidgetContainer>Get {props.children} off shipping.</WidgetContainer>
         }
