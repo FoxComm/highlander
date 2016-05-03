@@ -27,6 +27,12 @@ type Props = {
   toggleColumnSelector: Function,
 }
 
+type State = {
+  selectedColumns: Array<Object>,
+  isSelectorVisible: boolean,
+  hasDraggingItem: boolean,
+}
+
 @DragDropContext(HTML5Backend)
 export default class ColumnSelector extends React.Component {
   props: Props;
@@ -38,7 +44,7 @@ export default class ColumnSelector extends React.Component {
   };
 
   @autobind
-  moveItem(dragIndex: string, hoverIndex: string) {
+  moveItem(dragIndex: any, hoverIndex: any) {
     const { selectedColumns } = this.state;
     const dragItem = selectedColumns[dragIndex];
 
@@ -76,7 +82,7 @@ export default class ColumnSelector extends React.Component {
     });
   }
 
-  toggleColumnSelection(id: string) {
+  toggleColumnSelection(id: any) {
     let selectedColumns = this.state.selectedColumns;
 
     selectedColumns[id].isVisible = !selectedColumns[id].isVisible;

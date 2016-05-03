@@ -1,5 +1,5 @@
 /**
- * @flow
+ * @flow weak
  */
 
 import React, { Component, PropTypes } from 'react';
@@ -74,8 +74,10 @@ type Props = {
   connectDragSource: Function,
   connectDragPreview: Function,
   connectDropTarget: Function,
+  onChange: Function,
   index: number,
   isDragging: boolean,
+  checked: boolean,
   id: any,
   text: string,
   moveItem: Function,
