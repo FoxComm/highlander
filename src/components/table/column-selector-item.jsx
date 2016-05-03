@@ -84,15 +84,7 @@ type Props = {
   dropItem: Function,
 }
 
-@DropTarget('item', itemTarget, connect => ({
-  connectDropTarget: connect.dropTarget()
-}))
-@DragSource('item', itemSource, (connect, monitor) => ({
-  connectDragSource: connect.dragSource(),
-  connectDragPreview: connect.dragPreview(),
-  isDragging: monitor.isDragging()
-}))
-export default class Card extends Component {
+class SelectorItem extends Component {
   props: Props;
 
   render() {
@@ -114,3 +106,13 @@ export default class Card extends Component {
     ));
   }
 }
+
+export default
+DropTarget('item', itemTarget, connect => ({
+  connectDropTarget: connect.dropTarget()
+}))(
+  DragSource('item', itemSource, (connect, monitor) => ({
+    connectDragSource: connect.dragSource(),
+    connectDragPreview: connect.dragPreview(),
+    isDragging: monitor.isDragging()
+  }))(SelectorItem));
