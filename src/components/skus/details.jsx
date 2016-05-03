@@ -26,6 +26,7 @@ type Props = {
 };
 
 const defaultKeys = {
+  base: ['title', 'images', 'tags'],
   general: ['upc', 'description'],
   pricing: ['retailPrice', 'salePrice', 'unitCost'],
 };
@@ -40,13 +41,16 @@ export default class SkuDetails extends Component<void, Props, void> {
   };
 
   get generalAttrs(): Array<string> {
-    const toOmit = _.omit(defaultKeys, 'general');
     const toOmitArray = [
-      ..._.reduce(toOmit, (res, arr) => ([...res, ...arr]), []),
+      ..._.reduce(defaultKeys, (res, arr) => ([...res, ...arr]), []),
       ...keysToOmit,
     ];
-    const shadow = _.get(this.props, 'sku.shadow.attributes', []);
-    return _(shadow).omit(toOmitArray).keys().value();
+    const shadow = _.get(this.props, 'sku.shadow.attributes', {});
+    return [
+      ...defaultKeys.base,
+      ...defaultKeys.general,
+      ...(_(shadow).omit(toOmitArray).keys().value())
+    ];
   }
 
   get generalContent(): Element {

@@ -42,14 +42,7 @@ export default class CouponForm extends Component {
   static props: CouponFormProps;
 
   get generalAttrs() {
-    const toOmit = [
-      'activeFrom',
-      'activeTo',
-      'usageRules',
-      'tags',
-    ];
-    const shadow = _.get(this.props, 'coupon.shadow.attributes', []);
-    return _(shadow).omit(toOmit).keys().value();
+    return ['name', 'storefrontName', 'description', 'details'];
   }
 
   handlePromotionSearch(token: string) {
