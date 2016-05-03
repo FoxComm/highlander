@@ -5,6 +5,7 @@
 - [Ansible](http://docs.ansible.com/ansible/intro_installation.html#installation) (1.9.x)
 - [ansible-lint](https://github.com/willthames/ansible-lint#setup) (2.2.x)
 - [Go](https://golang.org/doc/install) (1.5)
+- [gcloud](https://cloud.google.com/sdk/gcloud)
 
 ### Setup
 
