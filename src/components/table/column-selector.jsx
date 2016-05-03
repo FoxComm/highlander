@@ -8,7 +8,6 @@ import React, {PropTypes} from 'react';
 import {autobind} from 'core-decorators';
 import { DragDropContext } from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
-import update from 'react/lib/update';
 import localStorage from 'localStorage';
 
 // components
@@ -45,18 +44,16 @@ export default class ColumnSelector extends React.Component {
 
   @autobind
   moveItem(dragIndex: any, hoverIndex: any) {
-    const { selectedColumns } = this.state;
+    let { selectedColumns } = this.state;
     const dragItem = selectedColumns[dragIndex];
 
-    this.setState(update(this.state, {
-      selectedColumns: {
-        $splice: [
-          [dragIndex, 1],
-          [hoverIndex, 0, dragItem]
-        ]
-      },
-      hasDraggingItem: {$set: true}
-    }));
+    selectedColumns.splice(dragIndex, 1);
+    selectedColumns.splice(hoverIndex, 0, dragItem);
+
+    this.setState({
+      selectedColumns: selectedColumns,
+      hasDraggingItem: true
+    });
   }
 
   @autobind
