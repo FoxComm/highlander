@@ -1,5 +1,6 @@
 package routes.admin
 
+import cats.implicits._
 import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.order.Order
@@ -52,6 +53,16 @@ object OrderRoutes {
               OrderStateUpdater.updateState(admin, refNum, payload.state)
             }
           } ~
+          (post & path("coupon" / Segment) & pathEnd) { code ⇒
+            goodOrFailures {
+              OrderPromotionUpdater.attachCoupon(Originator(admin), refNum.some, productContext, code)
+            }
+          } ~
+          (delete & path("coupon") & pathEnd) {
+            nothingOrFailures {
+              OrderPromotionUpdater.detachCoupon(Originator(admin), refNum.some)
+            }
+          } ~          
           (post & path("increase-remorse-period") & pathEnd) {
             goodOrFailures {
               OrderUpdater.increaseRemorsePeriod(refNum, admin)
