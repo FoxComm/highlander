@@ -1,5 +1,5 @@
 /**
- * @flow
+ * @flow weak
  */
 
 // libs
@@ -20,7 +20,7 @@ import SelectorItem from './column-selector-item';
 import styles from './column-selector.css';
 
 type Props = {
-  columns: Array,
+  columns: Array<Object>,
   onChange: Function,
   setColumns: Function,
   identifier: string,
@@ -31,14 +31,14 @@ type Props = {
 export default class ColumnSelector extends React.Component {
   props: Props;
 
-  state = {
+  state: State = {
     selectedColumns: this.getSelectedColumns(),
     isSelectorVisible: false,
     hasDraggingItem: false,
   };
 
   @autobind
-  moveItem(dragIndex, hoverIndex) {
+  moveItem(dragIndex: string, hoverIndex: string) {
     const { selectedColumns } = this.state;
     const dragItem = selectedColumns[dragIndex];
 
@@ -76,7 +76,7 @@ export default class ColumnSelector extends React.Component {
     });
   }
 
-  toggleColumnSelection(id) {
+  toggleColumnSelection(id: string) {
     let selectedColumns = this.state.selectedColumns;
 
     selectedColumns[id].isVisible = !selectedColumns[id].isVisible;
