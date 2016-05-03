@@ -11,5 +11,4 @@ object ImageFailures {
     def apply(albumId: Int, contextId: Int) =
       NotFoundFailure404(s"Album with id=$albumId with context=$contextId cannot be found")
   }
-  
 }
