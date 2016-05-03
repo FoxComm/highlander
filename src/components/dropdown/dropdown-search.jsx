@@ -10,19 +10,10 @@ import DropdownItem from './dropdownItem';
 
 import styles from './dropdown-search.css';
 
-type Props = {
-  name: string,
-  className?: string,
-  value: ?string|number,
+import type { Props as GenericProps } from './generic-dropdown';
+
+type Props = GenericProps & {
   searchbarPlaceholder?: string,
-  disabled?: bool,
-  editable?: bool,
-  changeable?: bool,
-  primary?: bool,
-  open?: bool,
-  placeholder?: string,
-  onChange: Function,
-  renderNullTitle?: Function,
   fetchOptions: Function,
   renderOption?: Function,
 };
@@ -38,7 +29,6 @@ function doNothing(event: any) {
 }
 
 export default class DropdownSearch extends Component {
-
   props: Props;
 
   state: State = {
@@ -115,23 +105,12 @@ export default class DropdownSearch extends Component {
   }
 
   render() {
-    const {
-      name, placeholder, value, primary, editable, open, disabled, onChange, renderNullTitle, className
-    } = this.props;
+    const restProps = _.omit(this.props, 'children');
 
     return (
       <GenericDropdown
-        name={name}
-        value={value}
-        placeholder={placeholder}
-        className={className}
+        {...restProps}
         listClassName="fc-searchable-dropdown__item-list"
-        primary={primary}
-        editable={editable}
-        disabled={disabled}
-        open={open}
-        renderNullTitle={renderNullTitle}
-        onChange={onChange}
         renderPrepend={this.searchBar}>
         { this.searchResults }
       </GenericDropdown>

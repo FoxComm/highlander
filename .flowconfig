@@ -32,6 +32,7 @@ esproposal.class_instance_fields=enable
 esproposal.decorators=ignore
 module.name_mapper='.+css$' -> 'CSSModule'
 module.system=haste
+suppress_comment=\\(.\\|\n\\)*\\$FlowFixMe
 
 [version]
 >=0.22.1

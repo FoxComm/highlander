@@ -3,31 +3,16 @@
 
 import _ from 'lodash';
 import React, { Component, Element } from 'react';
-import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
 import GenericDropdown from './generic-dropdown';
 import DropdownItem from './dropdownItem';
 
-type Props = {
-  name: string,
-  className?: string,
-  value: string|number,
-  disabled: bool,
-  editable: bool,
-  changeable: bool,
-  primary: bool,
-  open: bool,
-  placeholder: string,
-  onChange: Function,
-  items?: Array<any>,
-  children?: Element,
-  renderNullTitle: Function,
-};
+import type { Props as GenericProps } from './generic-dropdown';
 
+type Props = GenericProps;
 
 export default class Dropdown extends Component {
-
   props: Props;
 
   @autobind
@@ -58,7 +43,7 @@ export default class Dropdown extends Component {
   renderItems(): ?Element {
     const { name, items, children } = this.props;
 
-    if (items) {
+    if (!_.isEmpty(items)) {
       return _.map(items, ([value, title]) => (
         <DropdownItem value={value} key={`${name}-${value}`}>
           {title}
@@ -70,23 +55,12 @@ export default class Dropdown extends Component {
   }
 
   render(): Element {
-    const {
-      name, placeholder, value, primary, editable, open, disabled, onChange, renderNullTitle, className
-    } = this.props;
+    const restProps = _.omit(this.props, 'children');
 
     return (
       <GenericDropdown
-        name={name}
-        value={value}
-        placeholder={placeholder}
-        className={className}
-        primary={primary}
-        editable={editable}
-        disabled={disabled}
-        open={open}
-        renderDropdownInput={this.buildInput}
-        renderNullTitle={renderNullTitle}
-        onChange={onChange} >
+        {...restProps}
+        renderDropdownInput={this.buildInput}>
         { this.renderItems() }
       </GenericDropdown>
     );
