@@ -1,6 +1,7 @@
+/* @flow */
 
 import _ from 'lodash';
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes, Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import { assoc, get, dissoc } from 'sprout-data';
@@ -9,29 +10,37 @@ import { assoc, get, dissoc } from 'sprout-data';
 import Dropdown from '../dropdown/dropdown';
 import { Button } from '../common/buttons';
 
-export default class SelectVertical extends Component {
+type Props = {
+  options: Object; // {value -> title}
+  initialItems?: Object; // {counter -> value}
+  onChange: Function;
+  className?: string;
+  placeholder?: string;
+  emptyMessage?: string|Element;
+  onChange: (values: Array<any>) => any;
+}
 
-  static propTypes = {
-    options: PropTypes.object.isRequired, // {value -> title}
-    initialItems: PropTypes.object, // {counter -> value}
-    onChange: PropTypes.func.isRequired,
-    className: PropTypes.string,
-    placeholder: PropTypes.string,
-  };
+type State = {
+  items: Object;
+}
+
+export default class SelectVertical extends Component {
+  props: Props;
 
   static defaultProps = {
-    initialItems: {1: null},
+    initialItems: {'1': null},
   };
 
-  state = {
+  state: State = {
     items: this.addEmptyItemIfNeeded(this.props.initialItems),
   };
 
-  addEmptyItemIfNeeded(initialItems) {
-    return _.isEmpty(initialItems) ? {1: null} : initialItems;
+  // $FlowFixMe: this method always returns object
+  addEmptyItemIfNeeded(initialItems: ?Object): Object {
+    return _.isEmpty(initialItems) ? {'1': null} : initialItems;
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: Props) {
     if (nextProps.initialItems && nextProps.initialItems !== this.props.initialItems) {
       this.setState({
         items: this.addEmptyItemIfNeeded(nextProps.initialItems),
@@ -39,12 +48,12 @@ export default class SelectVertical extends Component {
     }
   }
 
-  get nextItemId() {
+  get nextItemId(): number {
     return _.size(this.state.items) + 1;
   }
 
   @autobind
-  onAddClick(e) {
+  onAddClick(e: Object) {
     e.preventDefault();
 
     if (_.size(this.state.items) >= _.size(this.props.options)) {
@@ -56,13 +65,13 @@ export default class SelectVertical extends Component {
     });
   }
 
-  onUpdate(newItems) {
+  onUpdate(newItems: Object) {
     const newValues = _.filter(_.values(newItems));
     this.props.onChange(newValues);
   }
 
   @autobind
-  onChangeItem(key, newVal) {
+  onChangeItem(key: string, newVal: any) {
     const newItems = assoc(this.state.items, key, newVal);
     this.setState({
       items: newItems
@@ -71,7 +80,7 @@ export default class SelectVertical extends Component {
   }
 
   @autobind
-  onClose(key) {
+  onClose(key: string) {
     let newItems;
     if (_.size(this.state.items) == 1) {
       newItems = assoc(this.state.items, key, null);
@@ -84,7 +93,7 @@ export default class SelectVertical extends Component {
     this.onUpdate(newItems);
   }
 
-  addMoreIcon(isLast) {
+  addMoreIcon(isLast: boolean) {
     if (isLast) {
       return <Button onClick={this.onAddClick} className='fc-vmultiselect-add icon-add'/>;
     } else {
@@ -93,7 +102,7 @@ export default class SelectVertical extends Component {
   }
 
   @autobind
-  renderSelect(key, index, arr) {
+  renderSelect(key: string, index: number, arr: Array<string>) {
     const props = this.props;
 
     const isLast = index == arr.length - 1;
@@ -110,18 +119,21 @@ export default class SelectVertical extends Component {
 
     return (
       <div className='fc-vmultiselect-cont' key={key}>
-        <Dropdown items={curItems}
-                  value={selectedValue}
-                  placeholder={props.placeholder}
-                  onChange={_.partial(this.onChangeItem, key)}
-                  className='fc-vmultiselect-item'/>
+        <Dropdown
+          items={curItems}
+          value={selectedValue}
+          placeholder={props.placeholder}
+          emptyMessage={props.emptyMessage}
+          onChange={_.partial(this.onChangeItem, key)}
+          className='fc-vmultiselect-item'
+        />
         {this.addMoreIcon(isLast)}
         <i onClick={_.partial(this.onClose, key)} className='fc-vmultiselect-close icon-close'/>
       </div>
     );
   }
 
-  render() {
+  render(): Element {
     const props = this.props;
 
     const className = classNames('fc-vmultiselect', props.className);

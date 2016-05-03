@@ -12,14 +12,18 @@ import { Button } from '../common/buttons';
 
 type ValueType = ?string|number;
 
-type Props = {
-  name: string,
+type DropdownItemType = [ValueType, string|Element];
+
+export type Props = {
+  name?: string,
   value: ValueType,
   className?: string,
   listClassName?: string,
   placeholder?: string,
+  emptyMessage?: string|Element,
   open?: bool,
   children?: Element,
+  items?: Array<DropdownItemType>,
   primary?: bool,
   editable?: bool,
   changeable?: bool,
@@ -28,7 +32,7 @@ type Props = {
   renderNullTitle?: Function,
   renderPrepend?: Function,
   onChange: Function,
-  dropdownProps: Object,
+  dropdownProps?: Object,
 };
 
 type State = {
@@ -38,9 +42,7 @@ type State = {
 };
 
 export default class GenericDropdown extends Component {
-
   props: Props;
-  state: State;
 
   static defaultProps = {
     placeholder: '- Select -',
@@ -205,7 +207,17 @@ export default class GenericDropdown extends Component {
 
   @autobind
   renderItems(): Element {
-    const { children } = this.props;
+    const { children, emptyMessage } = this.props;
+
+    if (_.isEmpty(children) && emptyMessage) {
+      return (
+        <li
+          className="fc-dropdown__blank-item"
+          onClick={this.closeMenu} >
+          {emptyMessage}
+        </li>
+      );
+    }
 
     return React.Children.map(children, item => {
       if (item.type !== DropdownItem) {

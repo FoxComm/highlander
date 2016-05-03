@@ -102,6 +102,7 @@ class ProductsQualifier extends Component {
           styleName="wide-dropdown"
           value={initialValue}
           placeholder="- Select Product Search -"
+          emptyMessage="There are no saved product searches."
           items={productSearches}
           onChange={this.handleSelectReference}
         />
@@ -128,6 +129,7 @@ class ProductsQualifier extends Component {
           initialItems={initialItems}
           options={productSearches}
           placeholder="- Select Product Search -"
+          emptyMessage="There are no saved product searches."
           onChange={this.handleSelectReferences} />
       );
     }
