@@ -32,19 +32,17 @@ const Header = (props:Props) => {
 
   return (
     <div styleName="header">
-      <div styleName="search">
-        <Search onSearch={props.toggleSearch}/>
-      </div>
       <div styleName="hamburger" onClick={props.toggleSidebar}>
         <Icon name="fc-hamburger" styleName="head-icon"/>
       </div>
-      <div styleName="logo-link">
-        <Link to="/">
-          <Icon styleName="logo" name="fc-some_brand_logo"/>
-        </Link>
-      </div>
+      <Link to="/" styleName="logo-link">
+        <Icon styleName="logo" name="fc-some_brand_logo"/>
+      </Link>
       <div styleName="categories">
         <Categories onClick={changeCategoryCallback} />
+      </div>
+      <div styleName="search">
+        <Search onSearch={props.toggleSearch}/>
       </div>
       <div styleName="tools">
         <UserTools path={props.path}/>

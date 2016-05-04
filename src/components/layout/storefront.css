@@ -40,8 +40,6 @@
 
   .content-container {
     margin-top: 10px;
-    margin-left: var(--grid-margin);
-    margin-right: var(--grid-margin);
   }
 }
 
@@ -53,8 +51,6 @@
 
   .content-container {
     margin-top: 10px;
-    margin-left: var(--grid-margin);
-    margin-right: var(--grid-margin);
   }
 
   .categories {

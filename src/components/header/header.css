@@ -1,9 +1,17 @@
+@import "media-queries.css";
+@import "variables.css";
+@import "colors.css";
+
 .header {
   display: flex;
   align-items: center;
-  margin-bottom: 40px;
+  position: fixed;
+  width: 100%;
+  height: 80px;
+  padding-left: var(--grid-margin);
+  padding-right: var(--grid-margin);
+  background: var(--whitish);
 }
-
 
 .hamburger {
   display: none;
@@ -30,6 +38,7 @@
 
 .logo-link {
   flex: 1;
+  margin-right: 30px;
   text-align: center;
 }
 

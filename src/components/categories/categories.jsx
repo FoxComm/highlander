@@ -53,21 +53,21 @@ class Categories extends React.Component {
       const dashedName = item.name.replace(/\s/g, '-');
       const key = `category-${dashedName}`;
       return (
-        <div styleName="item" key={key}>
+        <li styleName="item" key={key}>
           <a onClick={() => this.onClick(item)} styleName="item-link">
           {t(item.name.toUpperCase())}
           </a>
-        </div>
+        </li>
       );
     });
 
     return (
-      <div styleName="list">
-        <div styleName="item" key="category-all">
+      <ul styleName="list">
+        <li styleName="item" key="category-all">
           <a onClick={() => this.onClick()} styleName="item-link">{t('ALL')}</a>
-        </div>
+        </li>
         {categoryItems}
-      </div>
+      </ul>
     );
   }
 }
