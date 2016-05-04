@@ -32,7 +32,7 @@ object ImageRoutes {
                 ImageManager.updateAlbum(albumId, payload, context)
               }
             }
-          }
+          } 
         }
       }
     }

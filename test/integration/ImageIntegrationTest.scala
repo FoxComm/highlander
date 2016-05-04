@@ -193,4 +193,16 @@ class ImageIntegrationTest
                           rightId = album.shadowId, linkType = ObjectLink.ProductAlbum))
     } yield (product, prodForm, prodShadow, sku, skuForm, skuShadow)).runTxn().futureValue.rightVal
   }
+
+  trait AlbumFixture extends Fixture {
+    val form = ObjectForm(kind = Album.kind, attributes = parse("""{ "name": "Sample Album" }"""))
+    val shadow = ObjectShadow(attributes = parse("""{ "name": { "type": "string", "ref": "name" } }"""))
+
+    val album = (for {
+      ins    ← * <~ ObjectUtils.insert(form, shadow)
+      album  ← * <~ Albums.create(Album(contextId = context.id,
+        shadowId = ins.shadow.id, formId = ins.form.id, commitId = ins.commit.id))
+      _      ← * <~ ObjectLinks.create(ObjectLink(leftId = album.shadowId, rightId = image.shadowId))
+    } yield album).run().futureValue.rightVal
+  }
 }
