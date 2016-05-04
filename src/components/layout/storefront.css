@@ -20,49 +20,6 @@
   lost-offset: -1/11;
 }
 
-.head {
-  display: flex;
-  align-items: center;
-  margin-bottom: 40px;
-}
-
-.hamburger {
-  display: none;
-}
-
-.search, .hamburger, .cart {
-  width: 20px;
-}
-
-.search, .hamburger, .tools {
-  width: 30%;
-}
-
-.search {
-  & :global(.icon__cnt) {
-    fill: var(--blackish);
-  }
-}
-
-.tools {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.logo-link {
-  flex: 1;
-  text-align: center;
-}
-
-:global(.icon).logo {
-  width: 57px;
-  height: 57px;
-}
-
-:global(.icon--fc-some_brand_logo) {
-  stroke: none;
-}
-
 .categories {
   margin-top: 40px;
 }
@@ -100,25 +57,8 @@
     margin-right: var(--grid-margin);
   }
 
-  :global(.icon).logo {
-    width: 40px;
-    height: 40px;
-  }
-
   .categories {
     display: none;
-  }
-
-  .search {
-    display: none;
-  }
-
-  .hamburger {
-    display: block;
-
-    & :global(.icon) {
-      cursor: pointer;
-    }
   }
 
   .mobile-sidebar {
