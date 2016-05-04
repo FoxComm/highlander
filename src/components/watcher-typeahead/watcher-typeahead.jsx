@@ -65,7 +65,7 @@ const WatcherTypeahead = (props) => {
         placeholder="Name or email..."
         inputElement={renderPilledInput(props)}
         hideOnBlur={hideOnBlur}
-        onItemSelected={(item, event) => selectItem(props,item, event)}/>
+        onItemSelected={(item, event) => selectItem(props, item, event)}/>
     </div>
   );
 };
@@ -131,8 +131,6 @@ WatcherTypeahead.propTypes = {
   onSelectItem: PropTypes.func.isRequired,
   onDeselectItem: PropTypes.func.isRequired,
   isFetching: PropTypes.bool,
-  setTerm: PropTypes.func.isRequired,
-  onDeselectItem: PropTypes.func.isRequired,
 };
 
 /**

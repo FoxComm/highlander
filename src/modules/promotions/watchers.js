@@ -1,6 +1,6 @@
 import makeWatchers from '../watchers';
 
-const { actions, reducer } = makeWatchers('orders');
+const { actions, reducer } = makeWatchers('promotions');
 
 export {
   actions,
