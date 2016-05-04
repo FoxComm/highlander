@@ -244,10 +244,11 @@ The total prices below are per month for one region The 2xRegion cost is also li
         DB & i2.2xlarge & 1 & \$1227.60 & \$1227.60 & The other region will be replica \\ \hline
         Kafka & d2.xlarge & 2 & \$496.80 & \$993.60 & Not using SSD here since access is linear.\\ \hline
         ElasticSearch & r3.xlarge & 3 & \$239.76 & \$719.28 & 1 Master, 2 replicas\\ \hline
+        ES Logging & r3.xlarge & 1 & \$239.76 & \$239.76 & 1 Master, S3 backups\\ \hline
         Green River & m3.xlarge & 1 & \$191.52 & \$191.52 & Multi workers on one instance.\\ \hline
         Phoenix/Ashes & m3.xlarge & 1-4 & \$191.52 & \$191.52-\$766.08 & Scales based on traffic.\\ \hline
-        & & & total & {\bf \$3378.68-\$3953.24} & \\ \hline
-        & & & 2xRegion & {\bf \$6757.68-\$7906.48} & \\ \hline
+        & & & total & {\bf \$3618.44-\$4193.00} & \\ \hline
+        & & & 2xRegion & {\bf \$7236.88-\$8386.00} & \\ \hline
     \end{tabular}
 \end{center}
 
@@ -264,10 +265,11 @@ Notes are based on changes from the medium install.
         DB & i2.4xlarge & 2 & \$1227.60 & \$2455.20 & One replica per region.\\ \hline
         Kafka & d2.xlarge & 3 & \$496.80 & \$1490.40 & More brokers.\\ \hline
         ElasticSearch & r3.2xlarge & 3 & \$478.80 & \$1436.40 & More RAM.\\ \hline
+        ES Logging & r3.2xlarge & 3 & \$478.80 & \$1436.40 & More RAM.\\ \hline
         Green River & m3.2xlarge & 1 & \$383.04 & \$383.04 & More CPU.\\ \hline
         Phoenix/Ashes & m3.2xlarge & 1-4 & \$383.04 & \$383.04-\$1532.16 & More CPU.\\ \hline
-        & & & total & {\bf \$6260.40-\$7409.52} & \\ \hline
-        & & & 2xRegion & {\bf \$12520.80-\$14819.04} & \\ \hline
+        & & & total & {\bf \$7696.8-\$8845.92} & \\ \hline
+        & & & 2xRegion & {\bf \$15393.6-\$17691.84} & \\ \hline
     \end{tabular}
 \end{center}
 
@@ -284,10 +286,11 @@ Notes are based on changes from the medium install.
         DB & d2.xlarge & 1 & \$496.80 & \$496.80 & Don't use SSD\\ \hline
         Kafka & d2.xlarge & 1 & \$496.80 & \$496.80 & One Machine.\\ \hline
         ElasticSearch & r3.large & 1 & \$119.52 & \$119.52 & One Machine.\\ \hline
+        ES Logging & r3.large & 1 & \$119.52 & \$119.52 & One Machine.\\ \hline
         Green River & m3.large & 1 & \$95.76 & \$95.76 & Smaller Machine.\\ \hline
         Phoenix/Ashes & m3.large & 1-4 & \$95.76 & \$95.76-\$383.04 & Smaller Machine.\\ \hline
-        & & & total & {\bf \$1360.80-\$1648.08} & \\ \hline
-        & & & 2xRegion & {\bf \$2721.60-\$3296.16} & \\ \hline
+        & & & total & {\bf \$1480.32-\$1767.60} & \\ \hline
+        & & & 2xRegion & {\bf \$2960.64-\$3535.20} & \\ \hline
     \end{tabular}
 \end{center}
 
