@@ -30,6 +30,13 @@
   overflow-x: hidden;
 }
 
+.blank-state {
+  font-size: 1.2em;
+  color: #7f7f7f;
+  text-align: center;
+  padding: 20px 10px;
+}
+
 .item {
   padding: 7px 5px;
 

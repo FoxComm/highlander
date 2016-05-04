@@ -26,6 +26,7 @@ type Props = {
   renderItem: (item: ItemType) => Element;
   actionTitle: string;
   popup: boolean;
+  emptyMessage?: Element|string;
 }
 
 type State = {
@@ -128,6 +129,23 @@ export default class SelectableList extends Component {
     );
   }
 
+  get content() {
+    const { props } = this;
+    if (_.isEmpty(props.items) && props.emptyMessage) {
+      return (
+        <div styleName="blank-state">{props.emptyMessage}</div>
+      );
+    }
+    return [
+      <ul styleName="items-list">
+        {this.items}
+      </ul>,
+      <div styleName="footer">
+        {props.children || this.defaultFooter}
+      </div>
+    ];
+  }
+
   render() {
     const { props } = this;
 
@@ -141,12 +159,7 @@ export default class SelectableList extends Component {
       <div>
         {props.popup && <Overlay shown={props.visible} onClick={this.handleBlur} />}
         <div styleName="selectable-list" className={className}>
-          <ul styleName="items-list">
-            {this.items}
-          </ul>
-          <div styleName="footer">
-            {props.children || this.defaultFooter}
-          </div>
+          {this.content}
         </div>
       </div>
     );

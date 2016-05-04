@@ -98,6 +98,7 @@ class SelectCustomerGroups extends Component {
           items={this.props.groups}
           selectedItemIds={this.props.selectedGroupIds}
           onBlur={this.closePopup}
+          emptyMessage="There are no customers groups."
           renderItem={this.renderGroup}
         />
       </i>

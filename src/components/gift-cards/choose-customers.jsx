@@ -37,6 +37,7 @@ export default class ChooseCustomers extends React.Component {
         popup={false}
         items={items}
         ref="customers"
+        emptyMessage="No customers found."
         renderItem={this.renderCustomer}
       >
         <PrimaryButton
