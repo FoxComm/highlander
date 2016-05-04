@@ -10,15 +10,15 @@ import Cart from '../cart/cart';
 
 import styles from './storefront.css';
 
-type StoreFrontProps = {
+type Props = {
   children: HTMLElement;
   location: any;
 }
 
-const StoreFront = (props : StoreFrontProps) : HTMLElement => {
+const StoreFront = (props: Props) => {
   return (
     <div styleName="container">
-      <Header path={props.location.pathname} />
+      <Header path={props.location.pathname}/>
       <div styleName="content-container">
         <div styleName="storefront">
           {props.children}
