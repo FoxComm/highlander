@@ -1,16 +1,22 @@
 
 .selectable-list {
-  position: absolute;
-  display: none;
-  z-index: 100;
-  right: 0;
-  top: 100%;
   background-color: #ffffff;
   border: 1px solid #d9d9d9;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .5);
   user-select: none;
-  width: 396px;
   font-style: normal;
+}
+
+.popup {
+  position: absolute;
+  z-index: 100;
+  width: 396px;
+  right: 0;
+  top: 100%;
+}
+
+.visible-state {
+  display: none;
 
   &:global(._open) {
     display: block;

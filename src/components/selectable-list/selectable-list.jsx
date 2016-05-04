@@ -17,13 +17,20 @@ export type ItemType = {
 }
 
 type Props = {
-  visible: bool;
+  className?: string;
+  visible: boolean;
   items: Array<ItemType>;
-  onSelect: (itemIds: Array<number>) => any;
+  onSelect?: (itemIds: Array<number>, event: SyntheticEvent) => any;
   onBlur?: Function;
   selectedItemIds: Array<number>;
   renderItem: (item: ItemType) => Element;
   actionTitle: string;
+  popup: boolean;
+}
+
+type State = {
+  selectedItems: { [id: string|number]: boolean };
+  cachedItemIds: Array<number>;
 }
 
 export default class SelectableList extends Component {
@@ -35,21 +42,22 @@ export default class SelectableList extends Component {
       return <SelectableItem title={title} id={item.id} />;
     },
     actionTitle: 'Choose',
+    popup: true,
   };
 
-  state = {
+  state: State = {
     selectedItems: this.indexItemIds(this.props.selectedItemIds),
     cachedItemIds: this.props.selectedItemIds,
   };
 
-  indexItemIds(ids) {
+  indexItemIds(ids: Array<number>) {
     return _.reduce(ids, (result, id) => {
       result[id] = true;
       return result;
     }, {});
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: Props) {
     if (this.state.cachedItemIds != nextProps.selectedItemIds) {
       this.setState({
         selectedItems: this.indexItemIds(nextProps.selectedItemIds),
@@ -59,7 +67,7 @@ export default class SelectableList extends Component {
   }
 
   @autobind
-  handleItemSelect(id: number) {
+  handleItemToggle(id: number) {
     const { selectedItems } = this.state;
     selectedItems[id] = selectedItems[id] ? false : true;
 
@@ -75,20 +83,34 @@ export default class SelectableList extends Component {
       const itemElement = props.renderItem(item);
 
       return React.cloneElement(itemElement, {
-        onSelect: this.handleItemSelect,
+        onToggle: this.handleItemToggle,
         checked: this.state.selectedItems[item.id],
       });
     });
   }
 
-
-  @autobind
-  handleChooseClick(): void {
-    const keys = _.reduce(this.state.selectedItems, (keys: Array<number>, selected: boolean, id: string) => {
+  get selectedIds(): Array<number> {
+    return _.reduce(this.state.selectedItems, (keys: Array<number>, selected: boolean, id: string) => {
       if (selected) keys = [...keys, Number(id)];
       return keys;
     }, []);
-    this.props.onSelect(keys);
+  }
+
+  selectedItemsMap(): Object {
+    return _.reduce(this.props.items, (itemsMap: Object, item: ItemType) => {
+      if (this.state.selectedItems[item.id]) {
+        itemsMap[item.id] = item;
+      }
+      return itemsMap;
+    }, {});
+  }
+
+  @autobind
+  handleChooseClick(event: SyntheticEvent): void {
+    event.stopPropagation();
+    if (this.props.onSelect) {
+      this.props.onSelect(this.selectedIds, event);
+    }
   }
 
   @autobind
@@ -111,11 +133,13 @@ export default class SelectableList extends Component {
 
     const className = classNames(props.className, {
       '_open': props.visible,
+      [styles.popup]: props.popup,
+      [styles['visible-state']]: props.popup,
     });
 
     return (
       <div>
-        <Overlay shown={props.visible} onClick={this.handleBlur} />
+        {props.popup && <Overlay shown={props.visible} onClick={this.handleBlur} />}
         <div styleName="selectable-list" className={className}>
           <ul styleName="items-list">
             {this.items}

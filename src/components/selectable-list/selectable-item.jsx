@@ -8,7 +8,7 @@ import styles from './selectable-list.css';
 
 type Props = {
   id: number;
-  onSelect: (id: number) => void;
+  onToggle: (id: number) => void;
   checked: boolean;
   title?: string|Element;
   children?: string|Element;
@@ -19,13 +19,7 @@ const SelectableItem = (props: Props) => {
     event.stopPropagation();
     event.preventDefault();
 
-    props.onSelect(props.id);
-  };
-
-  const handleCheckboxClick = (event: SyntheticEvent) => {
-    event.stopPropagation();
-
-    props.onSelect(props.id);
+    props.onToggle(props.id);
   };
 
   const id = `selectable-list-${props.id}`;
@@ -33,7 +27,11 @@ const SelectableItem = (props: Props) => {
 
   return (
     <li styleName="item" key={props.id} onClick={handleItemClick}>
-      <Checkbox id={id} checked={props.checked} onClick={handleCheckboxClick}>
+      <Checkbox
+        id={id}
+        checked={props.checked}
+        onChange={() => props.onToggle(props.id)}
+        onClick={(event: SyntheticEvent) => event.stopPropagation()} >
         {content}
       </Checkbox>
     </li>
