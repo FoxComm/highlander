@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import {autobind} from 'core-decorators';
 import { Link } from 'react-router';
 
 import { toggleSidebar } from 'modules/sidebar';
@@ -45,9 +44,7 @@ class Header extends React.Component {
     const scrollTop = document.body.scrollTop;
     const isScrolled = scrollTop > 80;
 
-    this.setState({
-      isScrolled: isScrolled,
-    });
+    this.setState({isScrolled});
   }
 
   changeCategoryCallback = () => {
