@@ -56,10 +56,11 @@ export default class MultiSelectTable extends React.Component {
   }
 
   getSelectedColumns() {
-    let tableName = this.getTableIdentifier();
-    let columns = localStorage.getItem('columns');
-    if(!columns) return this.props.columns;
-    columns = JSON.parse(columns);
+    const tableName = this.getTableIdentifier();
+    let savedColumns = localStorage.getItem('columns');
+    if(!savedColumns) return this.props.columns;
+
+    const columns = JSON.parse(savedColumns);
     if(!columns[tableName]) return this.props.columns;
     return _.filter(columns[tableName], {isVisible:true});
   }

@@ -43,7 +43,7 @@ export default class ColumnSelector extends React.Component {
   };
 
   @autobind
-  moveItem(dragIndex: any, hoverIndex: any) {
+  moveItem(dragIndex: number, hoverIndex: number) {
     let { selectedColumns } = this.state;
     const dragItem = selectedColumns[dragIndex];
 
