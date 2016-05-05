@@ -60,20 +60,22 @@ class Header extends React.Component {
 
     return (
       <div styleName="header" className={className}>
-        <div styleName="hamburger" onClick={this.props.toggleSidebar}>
-          <Icon name="fc-hamburger" styleName="head-icon"/>
-        </div>
-        <Link to="/" styleName="logo-link">
-          <Icon styleName="logo" name="fc-some_brand_logo"/>
-        </Link>
-        <div styleName="categories">
-          <Categories onClick={this.changeCategoryCallback}/>
-        </div>
-        <div styleName="search">
-          <Search onSearch={this.props.toggleSearch}/>
-        </div>
-        <div styleName="tools">
-          <UserTools path={this.props.path}/>
+        <div styleName="wrap">
+          <div styleName="hamburger" onClick={this.props.toggleSidebar}>
+            <Icon name="fc-hamburger" styleName="head-icon"/>
+          </div>
+          <Link to="/" styleName="logo-link">
+            <Icon styleName="logo" name="fc-some_brand_logo"/>
+          </Link>
+          <div styleName="categories">
+            <Categories onClick={this.changeCategoryCallback}/>
+          </div>
+          <div styleName="search">
+            <Search onSearch={this.props.toggleSearch}/>
+          </div>
+          <div styleName="tools">
+            <UserTools path={this.props.path}/>
+          </div>
         </div>
       </div>
     );

@@ -3,13 +3,8 @@
 @import "colors.css";
 
 .header {
-  display: flex;
-  align-items: center;
   position: fixed;
   width: 100%;
-  height: 80px;
-  padding-left: var(--grid-margin);
-  padding-right: var(--grid-margin);
   border-bottom: 1px solid #e9e9e9;
   background: rgba(255, 255, 255, .34);
   transition: background 300ms;
@@ -17,6 +12,14 @@
   &:global(._isScrolled) {
     background: var(--whitish);
   }
+}
+
+.wrap {
+  display: flex;
+  align-items: center;
+  padding-left: var(--grid-margin);
+  padding-right: var(--grid-margin);
+  height: 80px;
 }
 
 .hamburger {
@@ -74,4 +77,11 @@
       cursor: pointer;
     }
   }
+}
+
+@media (--large-viewport-up) {
+ .wrap {
+   lost-column: 9/11;
+   lost-offset: -1/11;
+ }
 }
