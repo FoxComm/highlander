@@ -77,6 +77,7 @@ export default class Coupons extends Component {
             renderRow={this.renderRow}
             tableColumns={tableColumns}
             searchActions={actions}
+            predicate={({couponId}) => couponId}
           />
         </BulkWrapper>
       </div>

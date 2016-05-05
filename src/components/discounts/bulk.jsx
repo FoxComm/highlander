@@ -96,6 +96,7 @@ const BulkWrapper = (props: Props) => {
       <BulkActions
         module={module}
         entity={entity}
+        watchActions={true}
         actions={bulkActions}>
         {props.children}
       </BulkActions>
