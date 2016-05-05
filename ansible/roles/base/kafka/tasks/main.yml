@@ -44,13 +44,3 @@
 - name: Copy Consul Service File
   template: src=kafka.json dest="/etc/consul.d/kafka.json"
   sudo: true
-
-#https://github.com/confluentinc/bottledwater-pg/issues/1
-- name:
-  uri:
-    url: http://localhost:8081/config
-    method: "PUT"
-    body: "{\"compatibility\": \"NONE\"}"
-    HEADER_Content-Type: "application/vnd.schemaregistry.v1+json"
-  retries: 3
-  delay: 5
