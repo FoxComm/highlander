@@ -10,7 +10,10 @@
   roles:
     - { role: base/common}
     - { role: base/scala}
+    - { role: base/confluence}
+    - { role: base/zookeeper}
     - { role: base/kafka}
+    - { role: base/schema-registry}
     - { role: base/elasticsearch}
     - { role: base/db}
     - { role: base/rsyslog, sudo: yes }
