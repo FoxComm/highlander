@@ -1,0 +1,87 @@
+@import "media-queries.css";
+@import "variables.css";
+@import "colors.css";
+
+.header {
+  position: fixed;
+  width: 100%;
+  background: rgba(255, 255, 255, .34);
+  transition: background 300ms;
+}
+
+.header-scrolled {
+  composes: header;
+  background: var(--whitish);
+}
+
+.wrap {
+  display: flex;
+  align-items: center;
+  padding-left: var(--grid-margin);
+  padding-right: var(--grid-margin);
+  height: 80px;
+}
+
+.hamburger {
+  display: none;
+}
+
+.search, .hamburger, .cart {
+  width: 20px;
+}
+
+.search, .hamburger, .tools {
+  width: 30%;
+}
+
+.search {
+  & :global(.icon__cnt) {
+    fill: var(--blackish);
+  }
+}
+
+.tools {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.logo-link {
+  flex: 1;
+  margin-right: 30px;
+  text-align: center;
+}
+
+:global(.icon).logo {
+  width: 57px;
+  height: 57px;
+}
+
+:global(.icon--fc-some_brand_logo) {
+  stroke: none;
+}
+
+@media (--small-viewport) {
+  :global(.icon).logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .search {
+    display: none;
+  }
+
+  .hamburger {
+    display: block;
+
+    & :global(.icon) {
+      cursor: pointer;
+    }
+  }
+}
+
+@media (--large-viewport-up) {
+ .wrap {
+   lost-column: 9/11;
+   lost-offset: -1/11;
+ }
+}
