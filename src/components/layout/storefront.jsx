@@ -10,7 +10,6 @@ import { toggleActive, resetTerm } from 'modules/search';
 import styles from './storefront.css';
 
 import Icon from 'ui/icon';
-import Categories from '../categories/categories';
 import Sidebar from '../sidebar/sidebar';
 import Footer from '../footer/footer';
 import Search from '../search/search';
@@ -28,14 +27,6 @@ type StoreFrontProps = {
 }
 
 const StoreFront = (props : StoreFrontProps) : HTMLElement => {
-  const changeCategoryCallback = () => {
-    props.resetTerm();
-
-    if (props.isSearchActive) {
-      props.toggleSearch();
-    }
-  };
-
   return (
     <div styleName="container">
       <div styleName="content-container">
@@ -55,9 +46,6 @@ const StoreFront = (props : StoreFrontProps) : HTMLElement => {
             <div styleName="tools">
               <UserTools path={props.location.pathname}/>
             </div>
-          </div>
-          <div styleName="categories">
-            <Categories onClick={changeCategoryCallback} />
           </div>
           {props.children}
         </div>
