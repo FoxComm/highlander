@@ -9,6 +9,7 @@
 
   roles:
     - { role: base/common}
+    - { role: base/ssh_keys}
     - { role: base/consul}
     - { role: base/scala}
     - { role: base/kafka}
@@ -16,6 +17,8 @@
     - { role: base/db}
     - { role: base/rsyslog, sudo: yes }
     - { role: base/kibana, sudo: yes }
+    - { role: dev/kafka}
+    - { role: dev/elasticsearch}
     - { role: dev/db}
     - { role: dev/phoenix}
     - { role: dev/seeder}
