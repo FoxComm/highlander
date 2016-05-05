@@ -26,6 +26,9 @@
     - { role: dev/loyalty}
     - { role: dev/messaging}
 
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
+
 - name: Provision Demo 1 US Frontend
   hosts: dem1-front
   tags:
