@@ -45,8 +45,16 @@
 .social {
   & input {
     width: 100%;
+    padding-left: 12px;
     border: none;
     background-color: rgba(255, 255, 255, .4);
+  }
+
+  & :global(.icon--fc-arrow) {
+    width: 30px;
+    height: 24px;
+    stroke: none;
+    cursor: pointer;
   }
 }
 

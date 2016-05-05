@@ -6,7 +6,7 @@ import type { HTMLElement } from 'types';
 import styles from './footer.css';
 
 import Icon from 'ui/icon';
-import { TextInput } from 'ui/inputs';
+import { TextInputWithLabel } from 'ui/inputs';
 
 const Footer = () : HTMLElement => {
   return (
@@ -40,7 +40,7 @@ const Footer = () : HTMLElement => {
             <Icon name="fc-twitter" styleName="social-icon" />
             <Icon name="fc-pinterest" styleName="social-icon" />
           </div>
-          <TextInput placeholder="Stay in to know"/>
+          <TextInputWithLabel placeholder="Stay in to know" label={<Icon name="fc-arrow" />}/>
         </div>
       </div>
 
