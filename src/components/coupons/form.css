@@ -17,6 +17,10 @@
 
 .aside {
   lost-column: 4/12;
+
+  & > div {
+    margin-bottom: 20px;
+  }
 }
 
 .field-label {
