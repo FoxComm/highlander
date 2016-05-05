@@ -10,7 +10,6 @@
 
 .content-container {
   flex: 1;
-  margin-top: 45px;
   margin-left: var(--grid-margin);
   margin-right: var(--grid-margin);
 }
