@@ -56,10 +56,10 @@ class Header extends React.Component {
   };
 
   render() {
-    const className = this.state.isScrolled ? '_isScrolled' : '';
+    const headerStyle = this.state.isScrolled ? 'header-scrolled' : 'header';
 
     return (
-      <div styleName="header" className={className}>
+      <div styleName={headerStyle}>
         <div styleName="wrap">
           <div styleName="hamburger" onClick={this.props.toggleSidebar}>
             <Icon name="fc-hamburger" styleName="head-icon"/>
