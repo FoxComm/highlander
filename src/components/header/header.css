@@ -5,6 +5,7 @@
 .header {
   position: fixed;
   width: 100%;
+  font-weight: 300;
   background: rgba(255, 255, 255, .34);
   transition: background 300ms;
 }
