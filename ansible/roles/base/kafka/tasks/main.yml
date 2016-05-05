@@ -53,6 +53,6 @@
     body: "{\"compatibility\": \"NONE\"}"
     HEADER_Content-Type: "application/vnd.schemaregistry.v1+json"
   register: config_result
-  until: config_result.status == 200
+  until: config_result.status == "200"
   retries: 3
   delay: 5
