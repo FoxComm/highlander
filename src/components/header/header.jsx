@@ -1,3 +1,5 @@
+/* @flow */
+
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
@@ -45,7 +47,7 @@ class Header extends React.Component {
     const isScrolled = scrollTop > 80;
 
     this.setState({isScrolled});
-  }
+  };
 
   changeCategoryCallback = () => {
     this.props.resetTerm();
