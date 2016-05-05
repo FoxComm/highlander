@@ -7,7 +7,6 @@ import { connect } from 'react-redux';
 
 // data
 import { stateTitles } from '../../paragons/order';
-import { groups } from '../../paragons/watcher';
 import { actions } from '../../modules/orders/list';
 import { actions as bulkActions } from '../../modules/orders/bulk';
 
@@ -16,14 +15,13 @@ import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
 import { SelectableSearchList } from '../list-page';
 import OrderRow from './order-row';
-import { ChangeStateModal, CancelModal, SelectUsersModal } from '../bulk-actions/modal';
+import { ChangeStateModal, CancelModal } from '../bulk-actions/modal';
 import { Link } from '../link';
 
 
-const mapStateToProps = ({orders: {list, watchers}}) => {
+const mapStateToProps = ({orders: {list}}) => {
   return {
     list,
-    selectedWatchers: _.get(watchers, 'list.selectModal.selected', []).map(({id}) => id),
   };
 };
 
@@ -48,7 +46,6 @@ const tableColumns = [
 export default class Orders extends React.Component {
   static propTypes = {
     list: PropTypes.object.isRequired,
-    selectedWatchers: PropTypes.array.isRequired,
     actions: PropTypes.objectOf(PropTypes.func).isRequired,
     bulkActions: PropTypes.objectOf(PropTypes.func).isRequired,
   };
@@ -90,46 +87,6 @@ export default class Orders extends React.Component {
     ];
   }
 
-  getWatchOrders(group, action, isDirectAction) {
-    return (allChecked, toggledIds) => {
-      const {bulkActions} = this.props;
-      const count = toggledIds.length;
-      let label = null;
-
-      if (isDirectAction && group === 'assignees') {
-        label = 'Assign';
-      } else if (!isDirectAction && group === 'assignees') {
-        label = 'Unassign';
-      } else if (isDirectAction && group === 'watchers') {
-        label = 'Watchers for';
-      } else if (!isDirectAction && group === 'watchers') {
-        label = 'Remove watchers for';
-      }
-
-      const bulkAction = isDirectAction ? bulkActions.watchOrders : bulkActions.unwatchOrders;
-
-      return (
-        <SelectUsersModal
-          action={action}
-          count={count}
-          labelPrefix={label}
-          maxUsers={1}
-          onConfirm={() => bulkAction(group, toggledIds, this.props.selectedWatchers)} />
-      );
-    };
-  }
-
-  getWatchOrdersAction(group, action, isDirectAction, successMessage, errorMessage) {
-    const actionForm = isDirectAction ? action : `un${action}`;
-
-    return [
-      `${_.capitalize(actionForm)} Orders`,
-      this.getWatchOrders(group, actionForm, isDirectAction),
-      successMessage,
-      errorMessage,
-    ];
-  }
-
   get bulkActions() {
     return [
       ['Cancel Orders', this.cancelOrders, 'successfully canceled', 'could not be canceled'],
@@ -137,18 +94,6 @@ export default class Orders extends React.Component {
       this.getChangeOrdersStateAction('fraudHold'),
       this.getChangeOrdersStateAction('remorseHold'),
       this.getChangeOrdersStateAction('fulfillmentStarted'),
-      this.getWatchOrdersAction(
-        groups.assignees, 'assign', true, 'successfully assigned', 'failed to assign'
-      ),
-      this.getWatchOrdersAction(
-        groups.assignees, 'assign', false, 'successfully unassigned', 'failed to unassign'
-      ),
-      this.getWatchOrdersAction(
-        groups.watchers, 'watch', true, 'successfully started watching', 'failed to start watching'
-      ),
-      this.getWatchOrdersAction(
-        groups.watchers, 'watch', false, 'failed to stop watching', 'failed to stop watching'
-      ),
     ];
   }
 
@@ -187,6 +132,7 @@ export default class Orders extends React.Component {
         <BulkActions
           module="orders"
           entity="order"
+          watchActions={true}
           actions={this.bulkActions}>
           <SelectableSearchList
             emptyMessage="No orders found."
