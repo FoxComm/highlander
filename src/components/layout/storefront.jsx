@@ -24,9 +24,7 @@ const StoreFront = (props: Props) => {
           {props.children}
         </div>
       </div>
-      <div styleName="footer">
-        <Footer />
-      </div>
+      <Footer />
       <div styleName="mobile-sidebar">
         <Sidebar path={props.location.pathname} />
       </div>

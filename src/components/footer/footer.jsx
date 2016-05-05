@@ -8,22 +8,50 @@ import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 
 import Icon from 'ui/icon';
+import { TextInput } from 'ui/inputs';
 
 const Footer = (props: Localized) : HTMLElement => {
   const { t } = props;
 
   return (
-    <div styleName="container">
-      <div styleName="social-links">
-        <Icon name="fc-instagram" styleName="social-icon" />
-        <Icon name="fc-facebook" styleName="social-icon" />
-        <Icon name="fc-twitter" styleName="social-icon" />
-        <Icon name="fc-pinterest" styleName="social-icon" />
+    <div styleName="footer">
+      <div styleName="wrap">
+        <div styleName="links">
+          <ul>
+            <h3>Company</h3>
+            <li><a href="">About us</a></li>
+            <li><a href="">Jobs</a></li>
+            <li><a href="">Gift Cards</a></li>
+          </ul>
+          <ul>
+            <h3>Help</h3>
+            <li><a href="">FAQ</a></li>
+            <li><a href="">Shipping</a></li>
+            <li><a href="">Returns</a></li>
+          </ul>
+          <ul>
+            <h3>Stores</h3>
+            <li><a href="">New York, NY</a></li>
+            <li><a href="">Los Angeles, LA</a></li>
+            <li><a href="">Las Vegas, NV</a></li>
+          </ul>
+        </div>
+        <div styleName="social">
+          <div styleName="social-links">
+            <Icon name="fc-instagram" styleName="social-icon" />
+            <Icon name="fc-facebook" styleName="social-icon" />
+            <Icon name="fc-twitter" styleName="social-icon" />
+            <Icon name="fc-pinterest" styleName="social-icon" />
+          </div>
+          <TextInput placeholder="Stay in to know"/>
+        </div>
       </div>
-      <div styleName="other-links">
-        <a href="#" styleName="other-link">{t('Terms of Use')}</a>
-        <a href="#" styleName="other-link">{t('Privacy Policy')}</a>
-        <a href="#" styleName="other-link">{t('Shipping & Returns')}</a>
+      <div styleName="copyright">
+        <p>&copy; Some Brand. All Rights Reserved</p>
+        <ul>
+          <li><a href="">Terms of Use</a></li>
+          <li><a href="">Privacy Policy</a></li>
+        </ul>
       </div>
     </div>
   );
