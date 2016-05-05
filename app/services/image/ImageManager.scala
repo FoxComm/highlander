@@ -115,17 +115,6 @@ object ImageManager {
     })
   } yield albums
 
-  private def getImageInner(image: CreateImage, context: ObjectContext)
-    (implicit ec: EC, db: DB): DbResultT[FullObject[Image]] = {
-    val (form, shadow) = imageFormAndShadowFromCreatePayload(image)
-    
-    for {
-      ins   ← * <~ ObjectUtils.insert(form, shadow)
-      image ← * <~ Images.create(Image(contextId = context.id,
-        shadowId = ins.shadow.id, formId = ins.form.id, commitId = ins.commit.id))
-    } yield FullObject(head = image, form = ins.form, shadow = ins.shadow)
-  }
-
   private def commitAlbumUpdate(album: Album, up: ObjectUtils.UpdateResult)(implicit ec: EC) = {
     if (up.updated)
       for {
@@ -143,7 +132,7 @@ object ImageManager {
     shadow  ← * <~ ObjectShadows.mustFindById404(album.shadowId)
   } yield FullObject(model = album, form = form, shadow = shadow)
 
-  private def mustFindFullAlbumByIdAndContext404(id: Int, context: ObjectContext)
+  private def mustFindAlbumByIdAndContext404(id: Int, context: ObjectContext)
     (implicit ec: EC, db: DB) = for {
     album   ← * <~ Albums.filterByContextAndFormId(context.id, id).one.
       mustFindOr(AlbumNotFoundForContext(id, context.id))
