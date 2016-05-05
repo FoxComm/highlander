@@ -1,4 +1,9 @@
+db_host: db.service.consul
 phoenix_server: 127.0.0.1:9090
 ashes_server: ashes.service.consul
 api_server: balancer.service.consul
 es_heap_size: 1g
+
+search_host: elasticsearch.service.consul
+search_server_http: "{{search_host}}:9200"
+search_server: "{{search_host}}:9300"

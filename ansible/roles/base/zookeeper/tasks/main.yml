@@ -1,0 +1,17 @@
+---
+
+- name: Copy Zookeeper Service Files
+  copy: src=zookeeper.service dest={{dest_services}}/
+  sudo: true
+
+- name: Reload Systemd for Kafka Related Services
+  sudo: yes
+  command: systemctl daemon-reload
+
+- name: Start Zookeeper
+  service: name=zookeeper state=started enabled=yes
+  sudo: true
+
+- name: Copy Consul Service File
+  template: src=zookeeper.json dest="/etc/consul.d/zookeeper.json"
+  sudo: true
