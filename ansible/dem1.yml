@@ -60,6 +60,7 @@
 
   roles:
     - { role: base/common}
+    - { role: base/consul}
     - { role: base/ssh_keys}
     - { role: base/rsyslog, sudo: yes }
     - { role: base/node}
