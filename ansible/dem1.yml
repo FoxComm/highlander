@@ -9,6 +9,7 @@
 
   roles:
     - { role: base/common}
+    - { role: base/consul}
     - { role: base/scala}
     - { role: base/kafka}
     - { role: base/elasticsearch}
@@ -31,6 +32,7 @@
 
   roles:
     - { role: base/common}
+    - { role: base/consul}
     - { role: base/ssh_keys}
     - { role: base/rsyslog, sudo: yes }
     - { role: base/node}
@@ -39,6 +41,9 @@
     - { role: dev/firebird}
     - { role: dev/balancer, sudo: yes }
     - { role: demo/ashes, sudo: yes }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
 
 - name: Provision Demo 1 RU Frontend
   hosts: dem1-front-ru
@@ -56,3 +61,6 @@
     - { role: dev/firebird}
     - { role: dev/balancer, sudo: yes }
     - { role: demo/ashes, sudo: yes }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
