@@ -2,50 +2,51 @@
 
 [![Build status](https://badge.buildkite.com/1238dff6913c220ef0612d9a9f4b0c5198a8dd270d260f8ff2.svg)](https://buildkite.com/foxcommerce/firebird)
 
+Demo storefront implementation of a FoxCommerce-powered store. Isomorphic React app powered by FoxComm's backend API.
+
+## Local Development
+
 ### Prerequisites
 
-* node
+* `node` > v5.1.0
 
-5.1.0 or above is required version for Firebird.
-To install this or anothers versions of node you can use [n](https://github.com/tj/n) or [nvm](https://github.com/creationix/nvm) node version manager.
+  To install this or another versions of node you can use [n](https://github.com/tj/n) or [nvm](https://github.com/creationix/nvm)
 
-If using n, run the following command to install latest version of node:
+* [Flow](http://flowtype.org)
 
-```
-sudo n latest
-```
+  We're using [Flow](http://flowtype.org) to perform type checks and `babel-plugin-typecheck` for same thing at runtime. Install Flow per the instructions on the website. Checkout required version in `.flowconfig` file.
 
-### Install Flow
+* `public_key.pem` in the root of the project, as described in the [engineering wiki](https://github.com/FoxComm/engineering-wiki/blob/master/development/setup.md#developing-frontend-applications)
 
-We're using [Flow](https://flowtype.org) to perform type checks and `babel-plugin-typecheck` for same thing at runtime.
-Install Flow per the instructions on the website. Checkout required version in .flowconfig file.
-
-### Install npm modules
-
-```
-npm install
-```
 
 ### Run the dev server
 
-1. Select your API backend.
+1. Run `npm i` to install dependencies.
 
-    By default, we'll try to hit your local Phoenix installation at `http://localhost:9090`.
-    If you want to run against another backend set: `PHOENIX_URL`.
+1. Select your API backend. There are convenience tasks to run the common backend development methods, hitting backend API at either local or remote stage:
 
-    For example, to hit staging:
+  `npm run dev-stage` — backend API at `stage.foxcommerce.com`
 
-    ```
-    export PHOENIX_URL=http://10.240.0.8:9090
-    ```
+  `npm run dev-local` — backend API at `http://localhost:9090`
 
-2. Run the local development server
+1. Develop it at http://localhost:4040/
 
-    ```
-    npm run dev
-    ```
 
-### Push hooks
+You can set the backend API URL as a shell variable `API_URL`.
+
+For example, to hit staging:
+
+```
+export API_URL=http://10.240.0.8:9090
+```
+then run
+
+```
+npm run dev
+```
+
+
+## Push hooks
 
 By default, gulpfile installs pre-push hooks for you.
 And, usually, it's ok having pre-push hooks, even if you needed to push broken branch
