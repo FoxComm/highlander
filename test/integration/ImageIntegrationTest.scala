@@ -202,7 +202,6 @@ class ImageIntegrationTest
       ins    ← * <~ ObjectUtils.insert(form, shadow)
       album  ← * <~ Albums.create(Album(contextId = context.id,
         shadowId = ins.shadow.id, formId = ins.form.id, commitId = ins.commit.id))
-      _      ← * <~ ObjectLinks.create(ObjectLink(leftId = album.shadowId, rightId = image.shadowId))
-    } yield album).run().futureValue.rightVal
+    } yield (context, album)).run().futureValue.rightVal
   }
 }
