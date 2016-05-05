@@ -9,18 +9,25 @@
 
   roles:
     - { role: base/common}
+    - { role: base/ssh_keys}
+    - { role: base/consul}
     - { role: base/scala}
     - { role: base/kafka}
     - { role: base/elasticsearch}
     - { role: base/db}
     - { role: base/rsyslog, sudo: yes }
     - { role: base/kibana, sudo: yes }
+    - { role: dev/kafka}
+    - { role: dev/elasticsearch}
     - { role: dev/db}
     - { role: dev/phoenix}
     - { role: dev/seeder}
     - { role: dev/greenriver}
     - { role: dev/loyalty}
     - { role: dev/messaging}
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
 
 - name: Provision Demo 2 US Frontend
   hosts: dem2-front
@@ -31,13 +38,18 @@
 
   roles:
     - { role: base/common}
+    - { role: base/consul}
     - { role: base/ssh_keys}
     - { role: base/rsyslog, sudo: yes }
     - { role: base/node}
     - { role: base/balancer, sudo: yes }
     - { role: dev/ashes}
     - { role: dev/firebird}
+    - { role: dev/balancer, sudo: yes }
     - { role: demo/ashes, sudo: yes }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
 
 - name: Provision Demo 2 RU Frontend
   hosts: dem2-front-ru
@@ -48,9 +60,14 @@
 
   roles:
     - { role: base/common}
+    - { role: base/consul}
     - { role: base/ssh_keys}
     - { role: base/rsyslog, sudo: yes }
     - { role: base/node}
     - { role: base/balancer, sudo: yes }
     - { role: dev/firebird}
+    - { role: dev/balancer, sudo: yes }
     - { role: demo/ashes, sudo: yes }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

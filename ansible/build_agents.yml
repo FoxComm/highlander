@@ -16,4 +16,5 @@
     - {role: base/ssh_keys}
     - {role: base/scala}
     - {role: base/node}
+    - {role: test/db}
     - {role: base/builder}
