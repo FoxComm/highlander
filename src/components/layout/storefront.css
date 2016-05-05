@@ -10,13 +10,6 @@
 
 .content-container {
   flex: 1;
-  margin-left: var(--grid-margin);
-  margin-right: var(--grid-margin);
-}
-
-.storefront {
-  lost-column: 9/11;
-  lost-offset: -1/11;
 }
 
 .categories {
