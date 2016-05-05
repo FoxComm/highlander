@@ -1,4 +1,4 @@
-
+/* @flow weak */
 import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
 import { PrimaryButton } from '../common/buttons';
@@ -7,23 +7,27 @@ import CustomerRow from './customer-row';
 
 import styles from '../selectable-list/selectable-list.css';
 
-export default class ChooseCustomers extends React.Component {
+import type { ItemType } from '../selectable-list/selectable-list';
 
-  static propTypes = {
-    items: PropTypes.array.isRequired,
-    onAddCustomers: PropTypes.func.isRequired,
-    toggleVisibility: PropTypes.func,
-  };
+type Props = {
+  items: Array<ItemType>;
+  onAddCustomers: (selectedItemsMap: {[key: string|number]: any}) => any;
+  toggleVisibility: (visibility: boolean) => void;
+};
+
+
+export default class ChooseCustomers extends React.Component {
+  props: Props;
 
   @autobind
-  handleClickAddCustomers(event) {
+  handleClickAddCustomers(event: SyntheticEvent) {
     event.preventDefault();
     this.props.toggleVisibility(false);
     this.props.onAddCustomers(this.refs.customers.selectedItemsMap());
   }
 
   @autobind
-  renderCustomer(customer) {
+  renderCustomer(customer: ItemType) {
     return <CustomerRow customer={customer} />;
   }
 
