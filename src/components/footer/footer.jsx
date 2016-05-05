@@ -1,41 +1,38 @@
 /* @flow */
 
 import React from 'react';
-import styles from './footer.css';
 import type { HTMLElement } from 'types';
 
-import localized from 'lib/i18n';
-import type { Localized } from 'lib/i18n';
+import styles from './footer.css';
 
 import Icon from 'ui/icon';
 import { TextInput } from 'ui/inputs';
 
-const Footer = (props: Localized) : HTMLElement => {
-  const { t } = props;
-
+const Footer = () : HTMLElement => {
   return (
     <div styleName="footer">
       <div styleName="wrap">
         <div styleName="links">
           <ul>
             <h3>Company</h3>
-            <li><a href="">About us</a></li>
-            <li><a href="">Jobs</a></li>
-            <li><a href="">Gift Cards</a></li>
+            <li><a href="#">About us</a></li>
+            <li><a href="#">Jobs</a></li>
+            <li><a href="#">Gift Cards</a></li>
           </ul>
           <ul>
             <h3>Help</h3>
-            <li><a href="">FAQ</a></li>
-            <li><a href="">Shipping</a></li>
-            <li><a href="">Returns</a></li>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Shipping</a></li>
+            <li><a href="#">Returns</a></li>
           </ul>
           <ul>
             <h3>Stores</h3>
-            <li><a href="">New York, NY</a></li>
-            <li><a href="">Los Angeles, LA</a></li>
-            <li><a href="">Las Vegas, NV</a></li>
+            <li><a href="#">New York, NY</a></li>
+            <li><a href="#">Los Angeles, LA</a></li>
+            <li><a href="#">Las Vegas, NV</a></li>
           </ul>
         </div>
+
         <div styleName="social">
           <div styleName="social-links">
             <Icon name="fc-instagram" styleName="social-icon" />
@@ -46,6 +43,7 @@ const Footer = (props: Localized) : HTMLElement => {
           <TextInput placeholder="Stay in to know"/>
         </div>
       </div>
+
       <div styleName="copyright">
         <p>&copy; Some Brand. All Rights Reserved</p>
         <ul>
@@ -57,4 +55,4 @@ const Footer = (props: Localized) : HTMLElement => {
   );
 };
 
-export default localized(Footer);
+export default Footer;
