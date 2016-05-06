@@ -12,7 +12,7 @@ class Main extends Component {
   get topBanner(): HTMLElement {
     return (
       <div styleName="top-banner">
-        <div styleName="top-banner-wrap">
+        <div styleName="block-wrap">
           <div styleName="top-banner-info">
             <div styleName="top-banner-header">Summer 2016</div>
             <div styleName="top-banner-description">New collection is here</div>
@@ -33,7 +33,7 @@ class Main extends Component {
   get categories(): HTMLElement {
     return (
       <div styleName="categories">
-        <div styleName="categories-wrap">
+        <div styleName="block-wrap">
           <div styleName="category-link">
             <div styleName="category-name">
               EYEGLASSES
