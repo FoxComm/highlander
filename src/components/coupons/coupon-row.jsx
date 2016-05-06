@@ -32,9 +32,9 @@ const setCellContents = (coupon: Object, field: string) => {
 
 const CouponRow = (props: CouponRowProps) => {
   const { coupon, columns, params } = props;
-  const key = `coupon-${coupon.couponId}`;
+  const key = `coupon-${coupon.id}`;
   const clickAction = () => {
-    transitionTo('coupon-details', { couponId: coupon.couponId });
+    transitionTo('coupon-details', { couponId: coupon.id });
   };
 
   return (
