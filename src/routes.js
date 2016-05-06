@@ -155,6 +155,15 @@ const routes = (
       <Route name='sku' path=':skuCode' component={SkuPage}>
         <IndexRoute name='sku-details' component={SkuDetails} />
         <Route name='sku-images' path='images' title='Images' component={SkuImages} />
+        <Route name='sku-inventory-details-base' path="inventory" component={InventoryItemDetailsBase}>
+          <IndexRoute name='sku-inventory-details' component={InventoryItemDetails} />
+          <Route
+            title='Transactions'
+            name='sku-inventory-transactions'
+            path='transactions'
+            component={InventoryItemTransactions}
+          />
+        </Route>
         <Route name='sku-notes' path='notes' title='Notes' component={Notes} />
         <Route name='sku-activity-trail' path='activity-trail' title='Activity Trail' component={ActivityTrailPage} />
       </Route>
@@ -179,17 +188,6 @@ const routes = (
                path='activity-trail'
                dimension="inventory"
                component={ActivityTrailPage}/>
-      </Route>
-      <Route name='inventory-item-base' path=':code' component={InventoryItem}>
-        <Route name='inventory-item-details-base' component={InventoryItemDetailsBase}>
-          <IndexRoute name='inventory-item-details' component={InventoryItemDetails} />
-          <Route title='Transactions'
-                 name='inventory-item-transactions'
-                 path='transactions'
-                 component={InventoryItemTransactions} />
-        </Route>
-        <Route name='inventory-item-activity-trail' path='activity-trail' component={ActivityTrailPage} />
-        <Route name='inventory-item-notes' path='notes' component={Notes} />
       </Route>
     </Route>
     <Route name='promotions-base' path='promotions'>

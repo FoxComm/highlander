@@ -22,7 +22,7 @@ type Actions = {
 };
 
 type Params = {
-  code: string,
+  skuCode: string,
 };
 
 type Props = {
@@ -55,7 +55,7 @@ class InventoryItemTransactions extends Component {
 
   componentDidMount() {
     this.props.actions.setExtraFilters([
-      dsl.termFilter('sku', this.props.params.code)
+      dsl.termFilter('sku', this.props.params.skuCode)
     ]);
 
     this.props.actions.fetch();

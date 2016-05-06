@@ -31,7 +31,7 @@ const CustomerItemsRow = props => {
   const { item, columns, params } = props;
 
   const clickAction = () => {
-    transitionTo('inventory-item-details', { code: item.skuCode });
+    transitionTo('sku-inventory-details', { skuCode: item.skuCode });
   };
 
   const key = `customer-items-${item.id}`;
