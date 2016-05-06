@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd /etc/openvpn/easy-rsa/2.0/
+cd /etc/openvpn/easy-rsa/
 
 . ./vars
 ./clean-all

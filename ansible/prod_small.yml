@@ -1,9 +1,0 @@
----
-
-- name: Provision Vpn
-  hosts: prodsmall-vpn
-  vars:
-    user: '{{ansible_ssh_user}}'
-
-  roles:
-    - { role: base/openvpn}

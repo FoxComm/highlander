@@ -7,6 +7,7 @@
   action: apt pkg={{ item }} state=latest
   with_items:
     - openvpn
+    - easy-rsa
     - ufw
     - bridge-utils
     - udev
@@ -33,13 +34,13 @@
   shell: echo -e "y" | ufw enable
 
 - name: Setting server config
-  command: cp -r /usr/share/doc/openvpn/examples/easy-rsa /etc/openvpn
+  command: cp -r /usr/share/easy-rsa /etc/openvpn
 
 - name: Install Openvpn Config
   template: src=server.conf dest=/etc/openvpn/server.conf owner=openvpn group=root
 
 - name: Install Vars
-  template: src=vars dest=/etc/openvpn/easy-rsa/2.0/vars mode=0700
+  template: src=vars dest=/etc/openvpn/easy-rsa/vars mode=0700
 
 - name: Install create-ca Script
   template: src=easy-rsa-initial-setup.script dest=/etc/openvpn/easy-rsa-initial-setup mode=0700
@@ -48,13 +49,13 @@
   shell: /etc/openvpn/easy-rsa-initial-setup
 
 - name: Install Symlink for Keys
-  file: state=link src=/etc/openvpn/easy-rsa/2.0/keys dest=/etc/openvpn/keys
+  file: state=link src=/etc/openvpn/easy-rsa/keys dest=/etc/openvpn/keys
 
 - name: Make Keys Dr is Owned by Openvpn user
-  shell: chown -R openvpn:root /etc/openvpn/easy-rsa/2.0/
+  shell: chown -R openvpn:root /etc/openvpn/easy-rsa/
 
 - name: Make Sure Key Permissions Restricted
-  shell: chmod -R 0660 /etc/openvpn/easy-rsa/2.0/keys/*.key
+  shell: chmod -R 0660 /etc/openvpn/easy-rsa/keys/*.key
 
 - name: Restart Openvpn
   service: name=openvpn state=restarted enabled=yes
