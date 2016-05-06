@@ -2,18 +2,14 @@ package consumer.elastic
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-
 import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri}
-import com.sksamuel.elastic4s.analyzers.{EdgeNGramTokenFilter, LowercaseTokenFilter, StandardTokenizer,
-CustomAnalyzerDefinition}
+import com.sksamuel.elastic4s.analyzers._
 import com.sksamuel.elastic4s.ElasticDsl._
 import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.client.transport.NoNodeAvailableException
 import org.elasticsearch.transport.RemoteTransportException
-
 import org.json4s.JsonAST.JInt
 import org.json4s.jackson.JsonMethods.parse
-
 import consumer.JsonProcessor
 import consumer.PassthroughSource
 
@@ -76,7 +72,7 @@ class ElasticSearchProcessor(uri: String, cluster: String, indexName: String, to
       val customAnalyzer =
         CustomAnalyzerDefinition(
           "autocomplete",
-          StandardTokenizer,
+          WhitespaceTokenizer,
           LowercaseTokenFilter,
           EdgeNGramTokenFilter("autocomplete_filter", 1, 20)
         )
