@@ -25,9 +25,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 60px;
     font-weight: 600;
     font-size: 47px;
+    margin-bottom: 20px;
   }
 
   & .top-banner-description {
@@ -84,6 +84,54 @@
 
 .category-link:not(:last-child) {
   margin-right: 100px;
+}
+
+.try-at-home-banner {
+  width: 100%;
+  height: 720px;
+  background: url('images/banners/try_at_home.jpg') 50% 0;
+  background-size: cover;
+
+  & .block-wrap {
+    justify-content: flex-end;
+  }
+}
+
+.try-at-home-info {
+  width: 250px;
+  --blueish: #314664;
+  color: var(--blueish);
+
+  & .try-at-home-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 47px;
+    margin-bottom: 20px;
+  }
+
+  & .try-at-home-description {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 27px;
+    height: 30px;
+    margin-bottom: 50px;
+  }
+
+  & .try-at-home-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    width: 230px;
+    height: 80px;
+    color: var(--blueish);
+    border: 3px solid var(--blueish);
+    font-size: 23px;
+    text-decoration: none;
+  }
 }
 
 @media (--large-viewport-up) {

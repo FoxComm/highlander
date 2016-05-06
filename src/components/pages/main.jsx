@@ -58,6 +58,15 @@ class Main extends Component {
   get tryAtHomeBanner(): HTMLElement {
     return (
       <div styleName="try-at-home-banner">
+        <div styleName="block-wrap">
+          <div styleName="try-at-home-info">
+            <div styleName="try-at-home-header">Try @ home</div>
+            <div styleName="try-at-home-description">5 pairs. 5 days. Free</div>
+            <Link to="/all?shop=men" styleName="try-at-home-link">
+              Learn More
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
