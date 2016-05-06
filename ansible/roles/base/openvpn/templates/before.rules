@@ -77,3 +77,6 @@ COMMIT
 
 -A POSTROUTING -o {{vpn_network_interface}} -s {{vpn_network}}/24 -j MASQUERADE
 COMMIT
+
+#Turn VPN box into proper NAT
+-t nat -A POSTROUTING -o {{vpn_network_interface}} -j MASQUERADE
