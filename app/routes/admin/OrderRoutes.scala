@@ -59,7 +59,7 @@ object OrderRoutes {
             }
           } ~
           (delete & path("coupon") & pathEnd) {
-            nothingOrFailures {
+            goodOrFailures {
               OrderPromotionUpdater.detachCoupon(Originator(admin), refNum.some)
             }
           } ~          

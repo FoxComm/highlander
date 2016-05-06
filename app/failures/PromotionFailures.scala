@@ -19,6 +19,10 @@ object PromotionFailures {
       NotFoundFailure404(s"Promotion with id=$promotionId with promotion context $contextName cannot be found")
   }
 
+  case object PromotionIsNotActive extends Failure {
+    override def description = "Promotion is not active"
+  }
+
   case class PromotionShadowHasInvalidAttribute(key: String, value: String) extends Failure {
     override def description = s"Promotion shadow has an invalid attribute $key with value $value"
   }

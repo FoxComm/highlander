@@ -55,6 +55,8 @@ object FullOrder {
       substract = model.subtract, lineItemId = model.lineItemId)
   }
 
+  case class CouponPair(coupon: IlluminatedCouponResponse.Root, code: String) extends ResponseItem
+
   case class Root(
     id: Int,
     referenceNumber: String,
@@ -64,7 +66,7 @@ object FullOrder {
     lineItems: LineItems,
     lineItemAdjustments: Seq[LineItemAdjustment] = Seq.empty,
     promotion: Option[IlluminatedPromotionResponse.Root] = None,
-    coupon: Option[IlluminatedCouponResponse.Root] = None,
+    coupon: Option[CouponPair] = None,
     fraudScore: Int,
     totals: Totals,
     customer: Option[CustomerResponse.Root] = None,
@@ -119,8 +121,8 @@ object FullOrder {
         lockedBy = lockedBy,
         paymentState = payState,
         totals = totals,
-        promotion = promoDetails.map(_._1),
-        coupon = promoDetails.map(_._2),
+        promotion = promoDetails.map { case (promo, _) ⇒ promo },
+        coupon = promoDetails.map { case (_, coupon) ⇒ coupon },
         lineItemAdjustments = lineItemAdjustments.map(LineItemAdjustment.build)
       )
     }
@@ -136,7 +138,7 @@ object FullOrder {
     lockedBy: Option[StoreAdmin] = None,
     paymentState: Option[CreditCardCharge.State] = None,
     promotion: Option[IlluminatedPromotionResponse.Root] = None,
-    coupon: Option[IlluminatedCouponResponse.Root] = None,
+    coupon: Option[CouponPair] = None,
     lineItemAdjustments: Seq[LineItemAdjustment] = Seq.empty): Root = {
 
     val creditCardPmt = ccPmt.map { case (pmt, cc, region) ⇒
@@ -207,7 +209,7 @@ object FullOrder {
     Totals(subTotal = order.subTotal, shipping = order.shippingTotal, adjustments = order.adjustmentsTotal,
     taxes = order.taxesTotal, total = order.grandTotal)
 
-  type PromoDetails = (IlluminatedPromotionResponse.Root, IlluminatedCouponResponse.Root)
+  type PromoDetails = (IlluminatedPromotionResponse.Root, CouponPair)
 
   private def fetchPromoDetails(context: ObjectContext, orderPromo: Option[OrderPromotion])
     (implicit ec: EC): DBIO[Option[PromoDetails]] = orderPromo match {
@@ -219,6 +221,7 @@ object FullOrder {
     DBIO[Option[PromoDetails]] = couponCodeId match {
       case Some(codeId) ⇒ for {
         // Fetch coupon
+        couponCode     ← CouponCodes.findById(codeId).extract.one.safeGet
         coupon         ← Coupons.filterByContextAndFormId(context.id, codeId).one.safeGet
         couponForm     ← ObjectForms.findById(coupon.formId).extract.one.safeGet
         couponShadow   ← ObjectShadows.findById(coupon.shadowId).extract.one.safeGet
@@ -231,13 +234,15 @@ object FullOrder {
         shadows        ← ObjectShadows.filter(_.id.inSet(links.map(_.rightId))).result
         forms          ← ObjectForms.filter(_.id.inSet(shadows.map(_.formId))).result
         discounts      = forms.sortBy(_.id).zip(shadows.sortBy(_.formId)).map { case (f, s) ⇒ Child(f, s) }
-        // Build responses
+        // Illuminate
         illumDiscounts = discounts.map(d ⇒ IlluminatedDiscount.illuminate(form = d.form, shadow = d.shadow))
         illumPromo     = IlluminatedPromotion.illuminate(context, promotion, promoForm, promoShadow)
         illumCoupon    = IlluminatedCoupon.illuminate(context, coupon, couponForm, couponShadow)
+        // Build responses
         respPromo      = IlluminatedPromotionResponse.build(illumPromo, illumDiscounts)
         respCoupon     = IlluminatedCouponResponse.build(illumCoupon)
-      } yield (respPromo, respCoupon).some
+        respCouponPair = CouponPair(coupon = respCoupon, code = couponCode.code)
+      } yield (respPromo, respCouponPair).some
       case _ ⇒ DBIO.successful(None)
   }
 

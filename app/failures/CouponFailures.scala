@@ -16,6 +16,10 @@ object CouponFailures {
     override def description = s"Coupon $id not with at commit $commit"
   }
 
+  case object CouponIsNotActive extends Failure {
+    override def description = "Coupon is not active"
+  }
+
   case object CouponCodePrefixNotSet extends Failure {
     override def description = "Coupon code prefix is not set"
   }

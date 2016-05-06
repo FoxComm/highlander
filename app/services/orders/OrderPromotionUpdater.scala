@@ -80,14 +80,22 @@ object OrderPromotionUpdater {
     _                 ← * <~ order.mustBeCart
     orderPromotions   ← * <~ OrderPromotions.filterByOrderId(order.id).requiresCoupon.one.
       mustNotFindOr(OrderAlreadyHasCoupon)
+    // Fetch coupon + validate
     couponCode        ← * <~ CouponCodes.mustFindByCode(code)
     coupon            ← * <~ Coupons.filterByContextAndFormId(context.id, couponCode.couponFormId).one.
       mustFindOr(CouponWithCodeCannotBeFound(code))
+    couponForm        ← * <~ ObjectForms.mustFindById404(coupon.formId)
+    couponShadow      ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
+    couponObject      = IlluminatedCoupon.illuminate(context, coupon, couponForm, couponShadow)
+    _                 ← * <~ couponObject.mustBeActive
+    // Fetch promotion + validate
     promotion         ← * <~ Promotions.filterByContextAndFormId(context.id, coupon.promotionId).requiresCoupon.one.
       mustFindOr(PromotionNotFoundForContext(coupon.promotionId, context.name))
-    promotionForm     ← * <~ ObjectForms.mustFindById404(promotion.formId)
+    promoForm         ← * <~ ObjectForms.mustFindById404(promotion.formId)
     promoShadow       ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
-    // Fetch discount data
+    promoObject       = IlluminatedPromotion.illuminate(context, promotion, promoForm, promoShadow)
+    _                 ← * <~ promoObject.mustBeActive
+    // Fetch discount
     discountLinks     ← * <~ ObjectLinks.filter(_.leftId === promoShadow.id).result
     discountShadowIds = discountLinks.map(_.rightId)
     discountShadows   ← * <~ ObjectShadows.filter(_.id.inSet(discountShadowIds)).result
@@ -108,7 +116,8 @@ object OrderPromotionUpdater {
     response          ← * <~ refreshAndFullOrder(order).toXor
   } yield response).runTxn()
 
-  def detachCoupon(originator: Originator, refNum: Option[String] = None)(implicit ec: EC, db: DB): Result[Unit] = (for {
+  def detachCoupon(originator: Originator, refNum: Option[String] = None)
+    (implicit ec: EC, db: DB): Result[Root] = (for {
     // Read
     order           ← * <~ getCartByOriginator(originator, refNum)
     _               ← * <~ order.mustBeCart
@@ -120,7 +129,8 @@ object OrderPromotionUpdater {
     _               ← * <~ OrderPromotions.filterByOrderIdAndShadows(order.id, deleteShadowIds).delete
     _               ← * <~ OrderLineItemAdjustments.filterByOrderIdAndShadows(order.id, deleteShadowIds).delete
     _               ← * <~ OrderTotaler.saveTotals(order)
-  } yield {}).runTxn()
+    response        ← * <~ refreshAndFullOrder(order).toXor
+  } yield response).runTxn()
 
   private def tryDiscount(discounts: Seq[IlluminatedDiscount]) = discounts.headOption match {
     case Some(discount) ⇒ Xor.Right(discount)

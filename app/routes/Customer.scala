@@ -57,7 +57,7 @@ object Customer {
                 }
               } ~
               (delete & path("coupon") & pathEnd) {
-                nothingOrFailures {
+                goodOrFailures {
                   OrderPromotionUpdater.detachCoupon(Originator(customer))
                 }
               } ~

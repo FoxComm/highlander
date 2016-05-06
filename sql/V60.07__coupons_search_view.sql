@@ -1,9 +1,8 @@
 create materialized view coupons_search_view as
 select
-    cp.id, 
+    f.id,
     cp.promotion_id,
     context.name as context,
-    f.id as coupon_id,
     f.attributes->>(s.attributes->'name'->>'ref') as name,
     f.attributes->>(s.attributes->'storefrontName'->>'ref') as storefront_name,
     f.attributes->>(s.attributes->'description'->>'ref') as description,
