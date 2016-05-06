@@ -70,7 +70,7 @@ export default class ImageCard extends Component {
 
     return (
       <div className={cls} onMouseOver={this.showActions} onMouseOut={this.hideActions}>
-        {actions.map(({ name, handler }) => <i className={`icon-${name}`} onClick={handler} key={name} />)}
+        {actions.map(({ name, handler }) => <i className={`icon-${name}`} onMouseDown={handler} key={name} />)}
       </div>
     );
   }

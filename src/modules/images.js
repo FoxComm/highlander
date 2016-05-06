@@ -49,6 +49,7 @@ function getImage(): Image {
 
 const initialState: State = {
   list: {},
+  albums: []
 };
 
 const imagesCount: number = _.random(1, 20);

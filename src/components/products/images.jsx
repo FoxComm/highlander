@@ -1,6 +1,4 @@
-/**
- * @flow
- */
+/* @flow */
 
 // libs
 import React, { Component, Element, PropTypes } from 'react';
@@ -11,7 +9,6 @@ import _ from 'lodash';
 import moment from 'moment';
 
 import { actions } from '../../modules/products/images';
-import { Image, ImageInfo } from '../../modules/images';
 
 // components
 import WaitAnimation from '../common/wait-animation';
@@ -26,13 +23,14 @@ import ActionsDropdown from '../bulk-actions/actions-dropdown';
 import BulkActions from '../bulk-actions/bulk-actions';
 import BulkMessages from '../bulk-actions/bulk-messages';
 
+import SortableTiles from './sortable/sortable-tiles';
+
 // helpers
 import { getProductAttributes, setProductAttribute } from '../../paragons/product';
 
 // types
-import type {
-  FullProduct,
-} from '../../modules/products/details';
+import type { Image, ImageInfo } from '../../modules/images';
+import type { FullProduct } from '../../modules/products/details';
 
 type Props = {
   product: FullProduct;
@@ -162,8 +160,8 @@ class ProductImages extends Component<void, Props, State> {
     );
   }
 
-  get deleteImageDialog(): Element {
-    if(!this.state.selectedImage) {
+  get deleteImageDialog(): ?Element {
+    if (!this.state.selectedImage) {
       return;
     }
 
@@ -192,8 +190,8 @@ class ProductImages extends Component<void, Props, State> {
     );
   }
 
-  get editImageDialog(): Element {
-    if(!this.state.selectedImage) {
+  get editImageDialog(): ?Element {
+    if (!this.state.selectedImage) {
       return;
     }
 
@@ -218,10 +216,10 @@ class ProductImages extends Component<void, Props, State> {
     );
   }
 
-  get deleteAlbumDialog(): Element {
+  get deleteAlbumDialog(): ?Element {
     const { selectedAlbum } = this.state;
 
-    if(!selectedAlbum) {
+    if (!selectedAlbum) {
       return;
     }
 
@@ -263,10 +261,17 @@ class ProductImages extends Component<void, Props, State> {
 
   @autobind
   getImageActions(selectedImage: SelectedImage): Array<any> {
+    const actionsHandler = (handler: Function) => {
+      return (e: MouseEvent) => {
+        e.stopPropagation();
+        handler();
+      };
+    };
+
     return [
-      { name: 'external-link', handler: () => window.open(selectedImage.image.src)},
-      { name: 'edit', handler: () => this.handleEditImage(selectedImage) },
-      { name: 'trash', handler: () => this.handleRemoveImage(selectedImage) },
+      { name: 'external-link', handler: actionsHandler(() => window.open(selectedImage.image.src)) },
+      { name: 'edit', handler: actionsHandler(() => this.handleEditImage(selectedImage)) },
+      { name: 'trash', handler: actionsHandler(() => this.handleRemoveImage(selectedImage)) },
     ];
   }
 
@@ -340,26 +345,34 @@ class ProductImages extends Component<void, Props, State> {
     return (
       <div className="fc-grid fc-grid-no-gutter" key={albumName}>
         <div className="fc-col-md-1-1">
-          <Accordion title={albumName}
-                     titleWrapper={(title: string) => this.renderTitle(title, images.length)}
-                     placeholder="New album"
-                     editMode={this.state.isEditAlbumVisible && this.state.selectedAlbum == albumName}
-                     onEditComplete={(newTitle: string) => {
-                       this.setState({
-                         isEditAlbumVisible: false,
-                         selectedAlbum: void 0,
-                       }, this.props.editAlbum(albumName, newTitle));
-                     }}
-                     onEditCancel={() => this.setState({isEditAlbumVisible: false, selectedAlbum: void 0})}
-                     actions={this.getAlbumActions(albumName)}>
-            {images.map((image:Image, idx:number) => {
-              return <ImageCard src={`${image.src}`}
-                                title={image.title}
-                                secondaryTitle={image.du}
-                                actions={this.getImageActions({image, idx})}
-                                loading={image.inProgress}
-                                key={image.id} />;
-            })}
+          <Accordion
+            title={albumName}
+            titleWrapper={(title: string) => this.renderTitle(title, images.length)}
+            placeholder="New album"
+            editMode={this.state.isEditAlbumVisible && this.state.selectedAlbum == albumName}
+            onEditComplete={(newTitle: string) => {
+              this.setState({
+                isEditAlbumVisible: false,
+                selectedAlbum: void 0,
+              }, this.props.editAlbum(albumName, newTitle));
+            }}
+            onEditCancel={() => this.setState({isEditAlbumVisible: false, selectedAlbum: void 0})}
+            actions={this.getAlbumActions(albumName)}
+          >
+            <SortableTiles itemWidth={298} itemHeight={372} gutter={10}>
+              {images.map((image: Image, idx: number) => {
+                return (
+                  <ImageCard
+                    src={`${image.src}`}
+                    title={image.title}
+                    secondaryTitle={image.du}
+                    actions={this.getImageActions({image, idx})}
+                    loading={image.inProgress}
+                    key={image.id}
+                  />
+                );
+              })}
+            </SortableTiles>
           </Accordion>
         </div>
       </div>

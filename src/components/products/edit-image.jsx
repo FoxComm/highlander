@@ -1,9 +1,9 @@
 /* @flow */
 
 // libs
-import React, { Component, Element } from 'react';
-import { autobind } from 'core-decorators';
 import _ from 'lodash';
+import { autobind } from 'core-decorators';
+import React, { Component, Element } from 'react';
 
 // components
 import { FormField } from '../forms';
@@ -11,7 +11,8 @@ import wrapModal from '../modal/wrapper';
 import ContentBox from '../content-box/content-box';
 import SaveCancel from '../common/save-cancel';
 
-import { ImageInfo } from '../../modules/images';
+// types
+import type { ImageInfo } from '../../modules/images';
 
 type Props = {
   title: string,
@@ -20,7 +21,7 @@ type Props = {
   onCancel: () => void,
 };
 
-class EditImage extends Component<void, Props, ImageInfo> {
+class EditImage extends Component {
   static props: Props;
 
   state: ImageInfo = {

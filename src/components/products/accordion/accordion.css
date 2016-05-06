@@ -113,13 +113,8 @@
 }
 
 .content {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: flex-start;
   max-height: 0;
   opacity: .01;
-  overflow-y: hidden;
 
-  transition: opacity .2s ease-in, max-height .3s ease-out;
+  transition: opacity .2s ease-in, height .3s ease-out, max-height .3s ease-out;
 }

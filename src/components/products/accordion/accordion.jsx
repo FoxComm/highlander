@@ -24,6 +24,7 @@ type Props = {
   onEditComplete: Function;
   onEditCancel: Function;
   titleWrapper?: (title: string) => Element;
+  resetOverflowTimeout: ?number;
 }
 
 type State = {
@@ -40,6 +41,7 @@ export default class Accordion extends Component {
     editMode: false,
     placeholder: 'Enter text',
     actions: [],
+    resetOverflowTimeout: 300,
   };
 
   state: State = {
@@ -47,19 +49,40 @@ export default class Accordion extends Component {
     open: this.props.open,
   };
 
-  componentWillReceiveProps(nextProps) {
+  componentDidMount(): void {
+    window.addEventListener('resize', this.handleResize);
+
+    this.recalculateHeight();
+  }
+
+  componentWillUnmount(): void {
+    window.removeEventListener('resize', this.handleResize);
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
     this.setState({
       title: nextProps.title,
     });
   }
 
   componentDidUpdate(): void {
+    this.recalculateHeight();
+  }
+
+  recalculateHeight(): void {
     let maxHeight = 0;
     if (this.state.open) {
       maxHeight = this.refs.content.scrollHeight;
+      setTimeout(() => this.refs.content.style.overflow = 'visible', this.props.resetOverflowTimeout);
     }
 
     this.refs.content.style.maxHeight = `${maxHeight}px`;
+    this.refs.content.style.overflow = 'hidden';
+  }
+
+  @autobind
+  handleResize() {
+    this.recalculateHeight();
   }
 
   @autobind
@@ -70,7 +93,7 @@ export default class Accordion extends Component {
   }
 
   @autobind
-  onFocus({ target }): void {
+  onFocus({ target }: { target: HTMLInputElement }): void {
     /* set cursor to the end of the text */
     if (target.setSelectionRange) {
       const length = target.value.length * 2;
@@ -82,7 +105,7 @@ export default class Accordion extends Component {
   }
 
   @autobind
-  changeInput({ target }): void {
+  changeInput({ target }: { target: HTMLInputElement }): void {
     this.setState({ title: target.value });
   }
 
@@ -97,7 +120,7 @@ export default class Accordion extends Component {
   }
 
   @autobind
-  keyDown(event) {
+  keyDown(event: KeyboardEvent) {
     if (event.keyCode == 13) {
       this.endEdit();
     }
@@ -112,7 +135,7 @@ export default class Accordion extends Component {
       return null;
     }
 
-    let titleElement:Element;
+    let titleElement: Element;
 
     if (editMode) {
       titleElement = <div className="fc-form-field">

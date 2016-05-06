@@ -19,6 +19,7 @@
 .*/node_modules/y18n/*
 .*/test/fixtures/*
 .*/node_modules/react/.*
+.*/node_modules/react-motion/*
 
 [include]
 

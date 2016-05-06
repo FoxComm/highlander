@@ -3,7 +3,7 @@
   border: 1px solid #d9d9d9;
   background: #fff;
   box-shadow: 0 0 4px 0 rgba(0, 0, 0, .3);
-  margin: 20px 5px;
+  margin: 0 5px;
 }
 
 .image {
@@ -13,6 +13,7 @@
 
   & img {
     display: flex;
+    pointer-events: none;
   }
 }
 
