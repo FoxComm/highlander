@@ -112,6 +112,16 @@ object ProductManager {
     _ ← * <~ LogActivity.fullProductUpdated(Some(admin), productResponse, contextResp)
   } yield productResponse).runTxn()
 
+  def addAlbumToProduct(admin: StoreAdmin, productId: Int, payload: AlbumPayload, contextName: String)
+    (implicit ec: EC, db: DB, ac: AC): Result[AlbumResponse.Root] = (for {
+    context ← * <~ ObjectManager.mustFindByName404(contextName)
+    product ← * <~ mustFindProductByContextAndId404(context.id, productId)
+    album   ← * <~ ImageManager.createAlbumInner(payload, context)
+    images  ← * <~ Image.buildFromAlbum(album)
+    link    ← * <~ ObjectLinks.create(ObjectLink(leftId = product.shadowId, 
+      rightId = album.shadow.id, linkType = ObjectLink.ProductAlbum))
+  } yield AlbumResponse.build(album, images)).runTxn()
+
   def mustFindProductByContextAndId404(contextId: Int, productId: Int)
     (implicit ec: EC, db: DB): DbResultT[Product] = for {
     product ← * <~ Products.filter(_.contextId === contextId).
