@@ -22,6 +22,10 @@ resource "google_compute_instance" "vpn" {
         access_config {
         }
     }
+
+    provisioner "local-exec" {
+        command = "echo ${google_compute_instance.vpn.network_interface.access_config.nat_ip} >> prodsmall_vpn"
+    }
 }
 
 resource "google_compute_firewall" "vpn" {
@@ -46,7 +50,7 @@ resource "google_compute_firewall" "vpn" {
   target_tags = ["${var.network}-vpn"]
 }
 
-resource "google_compute_route" "vpn-route" {
+resource "google_compute_route" "vpn" {
   name        = "${var.network}-vpn-route"
   dest_range  = "0.0.0.0/0"
   network     = "${var.network}"

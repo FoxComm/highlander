@@ -3,11 +3,12 @@ variable "datacenter" {}
 variable "servers" {}
 variable "ssh_user" {} 
 variable "ssh_private_key" {} 
+variable "network" {} 
 
 resource "google_compute_instance" "consul_server" { 
     name = "${var.datacenter}-consul-server-${count.index}"
     machine_type = "n1-standard-1"
-    tags = ["no-ip", "${var.datacenter}-consul-server-${count.index}", "${var.datacenter}-consol-server", "${var.datacenter}"]
+    tags = ["ssh", "no-ip", "${var.datacenter}-consul-server-${count.index}", "${var.datacenter}-consol-server", "${var.datacenter}"]
     zone = "us-central1-a"
     count = "${var.servers}"
 
@@ -22,7 +23,7 @@ resource "google_compute_instance" "consul_server" {
     }   
 
     network_interface {
-        network = "default"
+        network = "${var.network}"
     }
 
     connection { 

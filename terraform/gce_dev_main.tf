@@ -20,6 +20,7 @@ variable "consul_cluser_image" {
 module "consul_cluster" {
     source = "./gce/consul"
     datacenter = "dev"
+    network = "default"
     servers = 3
     image = "${var.consul_cluser_image}"
     ssh_user = "${var.ssh_user}"
