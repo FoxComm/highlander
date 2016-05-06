@@ -1,7 +1,17 @@
-import React, { PropTypes } from 'react';
 
-const PanelHeader = props => {
-	const { isCart, status, text } = props;
+/* @flow */
+
+import React, { Element } from 'react';
+
+type Props = {
+  isCart: bool,
+  status: string,
+  text: string,
+  isOptional: bool,
+};
+
+const PanelHeader = (props: Props): Element => {
+  const { isCart, status, text, isOptional } = props;
   let icon = null;
 
   if (isCart) {
@@ -12,23 +22,23 @@ const PanelHeader = props => {
     );
   }
 
-	return (
-		<div className="fc-orders-panel-header">
-			{icon}
-			{text}
-		</div>
-	);
-};
+  const optional = isOptional
+    ? <span className="fc-orders-panel-header__optional">(optional)</span>
+    : null;
 
-PanelHeader.propTypes = {
-	isCart: PropTypes.bool,
-	status: PropTypes.string,
-	text: PropTypes.string.isRequired
+  return (
+    <div className="fc-orders-panel-header">
+      {icon}
+      {text}
+      {optional}
+    </div>
+  );
 };
 
 PanelHeader.defaultProps = {
-	isCart: false,
-	status: 'success'
+  isCart: false,
+  status: 'success',
+  isOptional: false,
 };
 
 export default PanelHeader;

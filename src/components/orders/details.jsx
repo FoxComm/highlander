@@ -12,6 +12,8 @@ import OrderShippingAddress from './shipping-address';
 import OrderShippingMethod from './order-shipping-method';
 import Payments from './payments';
 import Watchers from './watchers';
+import OrderDiscounts from './order-discounts';
+import OrderCoupons from './order-coupons';
 
 const OrderDetails = props => {
   const {order} = props;
@@ -37,8 +39,10 @@ const OrderDetails = props => {
       <div className="fc-order-details-body">
         <div className="fc-order-details-main">
           <OrderLineItems isCart={isCart} status={itemsStatus} {...props} />
+          <OrderDiscounts isCart={isCart} order={currentOrder} />
           <OrderShippingAddress isCart={isCart} status={shippingAddressStatus} order={currentOrder} />
           <OrderShippingMethod isCart={isCart} status={shippingMethodStatus} {...props} />
+          <OrderCoupons isCart={isCart} order={currentOrder} />
           <Payments isCart={isCart} status={paymentMethodStatus} {...props} />
           {isCart && <Checkout checkout={props.checkout} order={order} />}
         </div>
