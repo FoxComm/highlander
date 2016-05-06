@@ -17,9 +17,6 @@ variable "consul_cluser_image" {
     default = "consul-server-1461715686"
 }
 
-variable "ssh_user" {} 
-variable "ssh_private_key" {} 
-
 module "consul_cluster" {
     source = "./gce/consul"
     datacenter = "dev"

@@ -1,0 +1,60 @@
+---
+
+- name: Add OpenVpn User
+  user: name=openvpn
+
+- name: Install Openvpn
+  action: apt pkg={{ item }} state=latest
+  with_items:
+    - openvpn
+    - ufw
+    - bridge-utils
+    - udev
+
+- name: Set up ipv4 forwarding
+  command: echo 1 > /proc/sys/net/ipv4/ip_forward
+
+- name: Add Default Foward Policy to UFW
+  lineinfile: dest=/etc/default/ufw regexp='^#DEFAULT_FORWARD_POLICY' line='DEFAULT_FORWARD_POLICY="ACCEPT"' state=present
+
+- name: Enable ipv4 Forwarding
+  lineinfile: dest=/etc/ufw/sysctl.conf regexp='^#net.ipv4.ip_forward' line='net.ipv4.ip_forward=1' state=present
+
+- name: Install before.rules
+  template: src=before.rules dest=/etc/ufw/before.rules
+
+- name: Setup UFW connections on port 22
+  shell: ufw allow 22/tcp
+
+- name: Setup UFW connections on port for openvpn
+  shell: ufw allow {{vpn_port}}/tcp
+
+- name: enable UFW
+  shell: echo -e "y" | ufw enable
+
+- name: Setting server config
+  command: cp -r /usr/share/doc/openvpn/examples/easy-rsa /etc/openvpn
+
+- name: Install Openvpn Config
+  template: src=server.conf dest=/etc/openvpn/server.conf owner=openvpn group=root
+
+- name: Install Vars
+  template: src=vars dest=/etc/openvpn/easy-rsa/2.0/vars mode=0700
+
+- name: Install create-ca Script
+  template: src=easy-rsa-initial-setup.script dest=/etc/openvpn/easy-rsa-initial-setup mode=0700
+
+- name: run easy-rsa-initial-setup script
+  shell: /etc/openvpn/easy-rsa-initial-setup
+
+- name: Install Symlink for Keys
+  file: state=link src=/etc/openvpn/easy-rsa/2.0/keys dest=/etc/openvpn/keys
+
+- name: Make Keys Dr is Owned by Openvpn user
+  shell: chown -R openvpn:root /etc/openvpn/easy-rsa/2.0/
+
+- name: Make Sure Key Permissions Restricted
+  shell: chmod -R 0660 /etc/openvpn/easy-rsa/2.0/keys/*.key
+
+- name: Restart Openvpn
+  service: name=openvpn state=restarted enabled=yes

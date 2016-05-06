@@ -3,14 +3,11 @@
 - name: Provision Packer Prod Small Db
   hosts: all
   tags:
-      - packer-prod-small-backend
+      - packer-prod-small-db
   vars:
     user: ubuntu
 
   roles:
-    - { role: base/common}
-    - { role: base/ssh_keys}
-    - { role: base/consul}
     - { role: base/consul_agent}
     - { role: base/db}
     - { role: base/rsyslog, sudo: yes }

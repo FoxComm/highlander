@@ -1,0 +1,38 @@
+
+export EASY_RSA="`pwd`"
+
+export OPENSSL="openssl"
+export PKCS11TOOL="pkcs11-tool"
+export GREP="grep"
+
+export KEY_CONFIG=`$EASY_RSA/whichopensslcnf $EASY_RSA`
+
+export KEY_DIR="$EASY_RSA/keys"
+
+echo NOTE: If you run ./clean-all, I will be doing a rm -rf on $KEY_DIR
+
+export PKCS11_MODULE_PATH="dummy"
+export PKCS11_PIN="dummy"
+
+# Increase this to 2048 if you
+# are paranoid.  This will slow
+# down TLS negotiation performance
+# as well as the one-time DH parms
+# generation process.
+export KEY_SIZE={{OPENVPN_KEY_SIZE}}
+
+# In how many days should the root CA key expire?
+export CA_EXPIRE={{OPENVPN_CA_EXPIRE}}
+
+# In how many days should certificates expire?
+export KEY_EXPIRE={{OPENVPN_KEY_EXPIRE}}
+
+
+export KEY_COUNTRY="{{OPENVPN_KEY_COUNTRY}}"
+export KEY_PROVINCE="{{OPENVPN_KEY_PROVINCE}}"
+export KEY_CITY="{{OPENVPN_KEY_CITY}}"
+export KEY_ORG="{{OPENVPN_KEY_ORG}}"
+export KEY_EMAIL="{{OPENVPN_KEY_EMAIL}}"
+export KEY_CN="{{OPENVPN_KEY_CN}}"
+export KEY_NAME="{{OPENVPN_KEY_CN}}-key"
+export KEY_OU={{OPENVPN_KEY_OU}}

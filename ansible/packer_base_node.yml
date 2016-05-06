@@ -8,7 +8,5 @@
     user: ubuntu
 
   roles:
-    - {role: base/common}
-    - {role: base/consul}
     - {role: base/consul_agent}
     - {role: base/node}
