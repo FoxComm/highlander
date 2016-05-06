@@ -94,7 +94,7 @@ object ImageManager {
           upAlbum ← * <~ commitAlbumUpdate(album.model, update)
           images  ← * <~ Image.buildFromAlbum(upAlbum)
         } yield AlbumResponse.build(upAlbum, images)).runTxn()
-      case None ⇒
+      case None ⇒ 
         getAlbum(id, contextName)
     }
   }
