@@ -62,7 +62,7 @@ class Main extends Component {
           <div styleName="try-at-home-info">
             <div styleName="try-at-home-header">Try @ home</div>
             <div styleName="try-at-home-description">5 pairs. 5 days. Free</div>
-            <Link to="/all?shop=men" styleName="try-at-home-link">
+            <Link to="/try-at-home" styleName="try-at-home-link">
               Learn More
             </Link>
           </div>
@@ -74,6 +74,16 @@ class Main extends Component {
   get visitAStoreBanner(): HTMLElement {
     return (
       <div styleName="visit-a-store-banner">
+        <div styleName="block-wrap">
+          <div styleName="visit-a-store-info">
+            <div styleName="visit-a-store-header">Visit a store</div>
+            <div styleName="visit-a-store-description">Try them on in person!</div>
+            <Link to="/locations" styleName="visit-a-store-link">
+              Locations
+            </Link>
+          </div>
+          <div styleName="visit-a-store-image"></div>
+        </div>
       </div>
     );
   }

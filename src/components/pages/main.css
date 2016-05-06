@@ -98,7 +98,6 @@
 }
 
 .try-at-home-info {
-  width: 250px;
   --blueish: #314664;
   color: var(--blueish);
 
@@ -132,6 +131,58 @@
     font-size: 23px;
     text-decoration: none;
   }
+}
+
+.visit-a-store-banner {
+  width: 100%;
+  height: 608px;
+
+  & .block-wrap {
+    justify-content: space-between;
+  }
+}
+
+.visit-a-store-info {
+  --dark-greyish: #454545;
+  color: var(--dark-greyish);
+
+  & .visit-a-store-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 47px;
+    margin-bottom: 20px;
+  }
+
+  & .visit-a-store-description {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 27px;
+    height: 30px;
+    margin-bottom: 50px;
+  }
+
+  & .visit-a-store-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    width: 230px;
+    height: 80px;
+    color: var(--dark-greyish);
+    border: 3px solid var(--dark-greyish);
+    font-size: 23px;
+    text-decoration: none;
+  }
+}
+
+.visit-a-store-image {
+  width: 741px;
+  height: 416px;
+  background: url('images/banners/visit_a_store.jpg') 50% 0;
+  background-size: cover;
 }
 
 @media (--large-viewport-up) {
