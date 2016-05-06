@@ -13,14 +13,20 @@ class Main extends Component {
     return (
       <div>
         <div styleName="top-banner">
-          <span styleName="top-banner-header"></span>
-          <span styleName="top-banner-description"></span>
-          <Link to="/all?shop=men" styleName="top-banner-shop-link">
-            Shop Men
-          </Link>
-          <Link to="/all?shop=women" styleName="top-banner-shop-link">
-            Shop Women
-          </Link>
+          <div styleName="top-banner-wrap">
+            <div styleName="top-banner-info">
+              <div styleName="top-banner-header">Summer 2016</div>
+              <div styleName="top-banner-description">New collection is here</div>
+              <div styleName="top-banner-links">
+                <Link to="/all?shop=men" styleName="top-banner-shop-link">
+                  Shop Men
+                </Link>
+                <Link to="/all?shop=women" styleName="top-banner-shop-link">
+                  Shop Women
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
