@@ -19,6 +19,8 @@ import org.json4s.jackson.JsonMethods._
 
 class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport with AutomaticAuth {
 
+  val dummyJVal = parse("{}")
+
   "GET v1/shared-search" - {
     "return an error when not scoped" in new SharedSearchFixture {
       val response = GET(s"v1/shared-search")
@@ -109,7 +111,8 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
 
   "GET v1/shared-search/:code" - {
     "returns shared search by code" in new Fixture {
-      val code = POST(s"v1/shared-search", SharedSearchPayload("test", parse("{}"), CustomersScope)).as[SharedSearch].code
+      val payload = SharedSearchPayload("test", dummyJVal, dummyJVal, CustomersScope)
+      val code = POST(s"v1/shared-search", payload).as[SharedSearch].code
       val response = GET(s"v1/shared-search/$code")
       response.status must === (StatusCodes.OK)
 
@@ -135,7 +138,9 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
           |   "filter_obj": {"field": "value"}
           | }
         """.stripMargin
-      val response = POST(s"v1/shared-search", SharedSearchPayload("test", parse(query), CustomersScope))
+
+      val payload = SharedSearchPayload("test", parse(query), dummyJVal, CustomersScope)
+      val response = POST(s"v1/shared-search", payload)
       response.status must === (StatusCodes.OK)
 
       val root = response.as[SharedSearch]
@@ -163,8 +168,11 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
 
   "PATCH v1/shared-search/:code" - {
     "updates shared search" in new Fixture {
-      val code = POST(s"v1/shared-search", SharedSearchPayload("test", parse("{}"), CustomersScope)).as[SharedSearch].code
-      val response = PATCH(s"v1/shared-search/$code", SharedSearchPayload("new_title", parse("{}"), CustomersScope))
+      val payload = SharedSearchPayload("test", dummyJVal, dummyJVal, CustomersScope)
+      val code = POST(s"v1/shared-search", payload).as[SharedSearch].code
+
+      val updPayload = SharedSearchPayload("new_title", dummyJVal, dummyJVal, CustomersScope)
+      val response = PATCH(s"v1/shared-search/$code", updPayload)
       response.status must === (StatusCodes.OK)
 
       val root = response.as[SharedSearch]
@@ -173,13 +181,15 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
     }
 
     "404 if not found" in {
-      val response = PATCH(s"v1/shared-search/nope", SharedSearchPayload("test", parse("{}"), CustomersScope))
+      val payload = SharedSearchPayload("test", dummyJVal, dummyJVal, CustomersScope)
+      val response = PATCH(s"v1/shared-search/nope", payload)
       response.status must === (StatusCodes.NotFound)
       response.error must === (NotFoundFailure404(SharedSearch, "nope").description)
     }
 
     "400 if query has invalid JSON payload" in new Fixture {
-      val code = POST(s"v1/shared-search", SharedSearchPayload("test", parse("{}"), CustomersScope)).as[SharedSearch].code
+      val payload = SharedSearchPayload("test", dummyJVal, dummyJVal, CustomersScope)
+      val code = POST(s"v1/shared-search", payload).as[SharedSearch].code
 
       val query =
         """
@@ -197,7 +207,8 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
 
   "DELETE v1/shared-search/:code" - {
     "softly deletes shared search, shouldn't be shown in next request" in new Fixture {
-      val code = POST(s"v1/shared-search", SharedSearchPayload("test", parse("{}"), CustomersScope)).as[SharedSearch].code
+      val payload = SharedSearchPayload("test", dummyJVal, dummyJVal, CustomersScope)
+      val code = POST(s"v1/shared-search", payload).as[SharedSearch].code
       val response = DELETE(s"v1/shared-search/$code")
       response.status must === (StatusCodes.NoContent)
 
@@ -312,21 +323,21 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
   }
 
   trait SharedSearchFixture extends Fixture {
-    val customerScope = SharedSearch(title = "Active Customers", query = parse("{}"),
+    val customerScope = SharedSearch(title = "Active Customers", query = dummyJVal, rawQuery = dummyJVal,
       scope = CustomersScope, storeAdminId = storeAdmin.id)
-    val orderScope = SharedSearch(title = "Manual Hold", query = parse("{}"),
+    val orderScope = SharedSearch(title = "Manual Hold", query = dummyJVal, rawQuery = dummyJVal,
       scope = OrdersScope, storeAdminId = storeAdmin.id)
-    val storeAdminScope = SharedSearch(title = "Some Store Admin", query = parse("{}"),
+    val storeAdminScope = SharedSearch(title = "Some Store Admin", query = dummyJVal, rawQuery = dummyJVal,
       scope = StoreAdminsScope, storeAdminId = storeAdmin.id)
-    val giftCardScope = SharedSearch(title = "Some Gift Card", query = parse("{}"),
+    val giftCardScope = SharedSearch(title = "Some Gift Card", query = dummyJVal, rawQuery = dummyJVal,
       scope = GiftCardsScope, storeAdminId = storeAdmin.id)
-    val productScope = SharedSearch(title = "Some Product", query = parse("{}"),
+    val productScope = SharedSearch(title = "Some Product", query = dummyJVal, rawQuery = dummyJVal,
       scope = ProductsScope, storeAdminId = storeAdmin.id)
-    val inventoryScope = SharedSearch(title = "Some Inventory", query = parse("{}"),
+    val inventoryScope = SharedSearch(title = "Some Inventory", query = dummyJVal, rawQuery = dummyJVal,
       scope = InventoryScope, storeAdminId = storeAdmin.id)
-    val promotionsScope = SharedSearch(title = "Some Promotions", query = parse("{}"),
+    val promotionsScope = SharedSearch(title = "Some Promotions", query = dummyJVal, rawQuery = dummyJVal,
       scope = PromotionsScope, storeAdminId = storeAdmin.id)
-    val couponsScope = SharedSearch(title = "Some Coupons", query = parse("{}"),
+    val couponsScope = SharedSearch(title = "Some Coupons", query = dummyJVal, rawQuery = dummyJVal,
       scope = CouponsScope, storeAdminId = storeAdmin.id)
 
     val (customersSearch, ordersSearch, storeAdminsSearch, giftCardsSearch,
@@ -355,14 +366,14 @@ class SharedSearchIntegrationTest extends IntegrationTestBase with HttpSupport w
   trait SharedSearchAssociationFixture extends Fixture {
     val (secondAdmin, search) = (for {
       secondAdmin ← * <~ StoreAdmins.create(Factories.storeAdmin)
-      search      ← * <~ SharedSearches.create(SharedSearch(title = "Test", query = parse("{}"),
+      search      ← * <~ SharedSearches.create(SharedSearch(title = "Test", query = dummyJVal, rawQuery = dummyJVal,
         scope = CustomersScope, storeAdminId = secondAdmin.id))
       _           ← * <~ SharedSearchAssociations.create(buildAssociation(search, secondAdmin))
     } yield (secondAdmin, search)).runTxn().futureValue.rightVal
   }
 
   trait AssociateBaseFixture extends Fixture {
-    val customerScope = SharedSearch(title = "Active Customers", query = parse("{}"),
+    val customerScope = SharedSearch(title = "Active Customers", query = dummyJVal, rawQuery = dummyJVal,
       scope = CustomersScope, storeAdminId = storeAdmin.id)
 
     val search = SharedSearches.create(customerScope).run().futureValue.rightVal

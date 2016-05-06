@@ -13,7 +13,7 @@ import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.{ADT, JsonFormatters}
 
-case class SharedSearch(id: Int = 0, code: String = "", title: String, query: JValue,
+case class SharedSearch(id: Int = 0, code: String = "", title: String, query: JValue, rawQuery: JValue,
   scope: Scope = CustomersScope, storeAdminId: Int, createdAt: Instant = Instant.now, deletedAt: Option[Instant] = None)
   extends FoxModel[SharedSearch] {
 
@@ -41,6 +41,7 @@ object SharedSearch {
     SharedSearch(
       title = payload.title,
       query = payload.query,
+      rawQuery = payload.rawQuery,
       storeAdminId = admin.id,
       scope = payload.scope
     )
@@ -53,13 +54,14 @@ class SharedSearches(tag: Tag) extends FoxTable[SharedSearch](tag, "shared_searc
   def code = column[String]("code")
   def title = column[String]("title")
   def query = column[JValue]("query")
+  def rawQuery = column[JValue]("raw_query")
   def scope = column[Scope]("scope")
   def storeAdminId = column[Int]("store_admin_id")
   def createdAt = column[Instant]("created_at")
   def deletedAt = column[Option[Instant]]("deleted_at")
 
-  def * = (id, code, title, query, scope, storeAdminId, createdAt, deletedAt) <> ((SharedSearch.apply _).tupled,
-    SharedSearch.unapply)
+  def * = (id, code, title, query, rawQuery,
+    scope, storeAdminId, createdAt, deletedAt) <> ((SharedSearch.apply _).tupled, SharedSearch.unapply)
 }
 
 object SharedSearches extends FoxTableQuery[SharedSearch, SharedSearches](new SharedSearches(_))
