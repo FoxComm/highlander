@@ -3,7 +3,6 @@
 @import "colors.css";
 
 .top-banner {
-  position: relative;
   width: 100%;
   height: 846px;
   background: url('images/banners/top.jpg') 50% 0;
@@ -59,11 +58,50 @@
   & .top-banner-shop-link:not(:last-child) {
     margin-right: 30px;
   }
+}
 
+.categories {
+  width: 100%;
+  height: 384px;
+  background: var(--whitish);
+  padding-top: 80px;
+  padding-bottom: 40px;
+}
+
+.categories-wrap {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: var(--grid-margin);
+  padding-right: var(--grid-margin);
+}
+
+.category-link {
+  & .category-name {
+    color: var(--blackish);
+    font-weight: 300;
+    font-size: 15px;
+    text-align: center;
+  }
+
+  & .category-image {
+    width: 483px;
+    height: 242px;
+  }
+}
+
+.category-link:not(:last-child) {
+  margin-right: 100px;
 }
 
 @media (--large-viewport-up) {
   .top-banner-wrap {
+    lost-column: 9/11;
+    lost-offset: -1/11;
+  }
+
+  .categories-wrap {
     lost-column: 9/11;
     lost-offset: -1/11;
   }
